@@ -1,5 +1,5 @@
 # Pack Kal-Arath
 
-Solo `pack.yaml` y este README están en git. Las tablas se transcriben del manual del usuario y se quedan en local (ver `.gitignore`), porque el contenido tiene copyright.
+Kal-Arath (© 2023 Castle Grief) solo permite copiar el contenido para uso personal, así que sus tablas **no se publican en este repo**. Viven en el repo privado de packs (`packs-private/kal-arath/`, ver `CLAUDE.md` → "Packs, fuentes y licencias").
 
-Para usarlo: tener el manual, y colocar aquí los YAML de tablas, reglas de viaje y bindings siguiendo `docs/oracle-engine.md` y `docs/travel-engine.md`.
+Aquí solo están el manifiesto y este README.

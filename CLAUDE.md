@@ -41,7 +41,8 @@ apps/
   travel/                   # ⏳ app standalone de viaje
 packs/                      # packs de datos (tablas, reglas de viaje, clima…)
   core/                     # ⏳ contenido genérico FOSS (oráculo sí/no, etc.)
-  kal-arath/                # ⏳ solo pack.yaml en git; el contenido sale del manual y es local
+  kal-arath/                # ⏳ manifiesto y README; las tablas (uso personal) van en el repo privado de packs
+packs-private/              # ⏳ (ignorado) checkout del repo privado de packs de uso personal
 docs/
   otd.md                    # esquema común OpenTabletop Data
   oracle-engine.md          # diseño del Oracle Engine
@@ -70,10 +71,21 @@ Detalle en [`docs/otd.md`](docs/otd.md). En resumen:
 - **Referencias** por string `tipo:id`, nunca anidando objetos.
 - **Eventos en tiempo de ejecución** (`HEX_ENTERED`, `TABLE_RESOLVED`…): son mensajes entre motores y no se persisten. Lo que importa para la partida se guarda como `LogEntry`.
 
-## Packs y copyright
+## Packs, fuentes y licencias
 
-- Un pack es una carpeta con `pack.yaml` (id, versión, idioma, dependencias) y definiciones en YAML/JSON. Los packs se validan al cargar: referencias rotas, rangos solapados, ciclos, dependencias que faltan.
-- **El contenido de Kal-Arath sale del manual del usuario** (`~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`) y **no se sube al repo**. En git solo va `packs/kal-arath/pack.yaml` y la estructura; las tablas están ignoradas (ver `.gitignore`).
+Un pack es una carpeta con `pack.yaml` (id, versión, idioma, licencia, dependencias) y definiciones en YAML/JSON. Se valida al cargar: referencias rotas, rangos solapados, ciclos, dependencias que faltan.
+
+**Objetivo: que las apps vengan precargadas con oráculos de muchos juegos.** Cada pack se distribuye por el canal que permita su licencia, y el motor carga todos los packs que encuentre en sus **fuentes**:
+
+| Fuente                    | Qué contiene                                                                                                                          | Dónde                                                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Packs abiertos**        | Contenido propio FOSS (`core`) y de juegos con licencia abierta que permita redistribuir (CC BY, CC BY-SA, ORC, OGL…), con atribución | `packs/` en este repo; se incluyen en el build                                                                                        |
+| **Packs de uso personal** | Juegos cuya licencia solo permite uso personal                                                                                        | **Repo privado aparte** (p. ej. `opentabletop-packs-private`), clonado o enlazado en `packs-private/` (ignorado por git en este repo) |
+| **Packs del usuario**     | Tablas propias creadas o importadas en la app                                                                                         | Biblioteca local del navegador o carpeta elegida, exportables como pack                                                               |
+
+- **Kal-Arath es de uso personal**: "Derechos de autor 2023 Castle Grief, permiso de copia concedido para uso personal" (manual en `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Por eso sus tablas no van en este repo público, sino en el repo privado de packs. Sí van aquí el `pack.yaml`, el README y todo lo que es diseño propio (reglas de viaje genéricas, bindings sin texto del manual).
+- Antes de añadir un juego a `packs/`, se comprueba su licencia y se pone en `pack.yaml` (`license`, `attribution`). Si hay dudas, va al repo privado.
+- Para redistribuir un juego con licencia personal habría que pedir permiso al autor. Si se consigue, el pack puede pasar a `packs/`.
 - Los packs son por idioma (`locale` en `pack.yaml`). El contenido de las tablas no se traduce en la UI.
 
 ## Stack y herramientas
