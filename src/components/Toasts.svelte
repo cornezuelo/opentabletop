@@ -30,6 +30,6 @@
   }
 
   .toast.error {
-    border-left-color: #c0504d;
+    border-left-color: var(--danger);
   }
 </style>

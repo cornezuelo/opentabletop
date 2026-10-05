@@ -75,14 +75,15 @@ interface HexMap {
 }
 
 interface HexData {
+  // Todos opcionales; los vacíos se eliminan con normalizeHex (model/hex.ts)
   terrain?: string
-  icons: { assetId: string; scale?: number; offset?: [number, number] }[]
   name?: string
-  notes?: string // Markdown
-  pois: { name: string; description?: string }[]
-  tags: string[]
-  fields: Record<string, string> // stats personalizadas clave-valor
-  encounterTable?: string // sobrescribe la tabla del terreno
+  notes?: string // Markdown, renderizado con marked + DOMPurify
+  pois?: { id: string; name: string; description?: string }[]
+  tags?: string[]
+  fields?: { key: string; value: string }[] // stats personalizadas, ordenadas
+  note?: string // ruta de página en SilverBullet (pendiente)
+  encounterTable?: string // sobrescribe la tabla del terreno (pendiente)
 }
 
 interface Path {
@@ -134,6 +135,13 @@ Capas fijas, en orden de dibujo: **terreno → caminos/ríos → iconos → text
 - **Jugador**: un token que se mueve de hex en hex, con imagen cargable por el usuario. Nada más: sin niebla de guerra ni segunda pantalla.
 - **Idiomas**: interfaz en inglés y castellano desde el principio (ver Convenciones).
 
+## Integración con SilverBullet
+
+Algo básico: cada hex puede enlazar a una página de [SilverBullet](https://silverbullet.md/) con un campo `note: "ruta/a/la/página"`, y un botón la abre en una pestaña nueva (`<baseUrl>/<ruta codificada>`).
+
+- La **URL base** es configurable en la UI y por defecto vale `http://localhost:3001`. Es una preferencia del usuario, así que se guarda en `localStorage` y no en el mapa: cada jugador puede tener su SilverBullet en una dirección distinta.
+- Sin sincronización ni lectura de contenido: solo enlazar y abrir. Si más adelante se quiere más (por ejemplo, ver la página dentro del panel), se usaría la API HTTP de SilverBullet.
+
 ## Kal-Arath (soporte nativo)
 
 Según el manual, las tiradas de viaje van **por día de viaje, no por hex** (1 hex = 1 día a pie, unos 30 km; a caballo, el doble). El procedimiento diario es:
@@ -181,7 +189,8 @@ Requisitos que esto impone al motor de tablas (`encounters/`): dados `NdM±K`, *
 - [ ] Set de iconos FOSS y colocación sobre hexes
 - [ ] Importar iconos propios
 - [ ] Caminos y ríos
-- [ ] Panel de metadatos de hex
+- [x] Panel de metadatos de hex (nombre, notas Markdown, PDIs, etiquetas, campos) y marcador en el mapa
+- [ ] Integración básica con SilverBullet (ver abajo)
 
 ### Fase 3: Presentación
 

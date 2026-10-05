@@ -1,5 +1,5 @@
 <script lang="ts">
-  import HexInfo from './HexInfo.svelte'
+  import HexInfo from './hex/HexInfo.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
   import MapSettings from './MapSettings.svelte'
   import Section from './Section.svelte'

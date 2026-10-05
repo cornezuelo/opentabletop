@@ -7,6 +7,13 @@ describe('serialize', () => {
   it('round-trips a map', () => {
     const map = createMap('Test')
     map.hexes['3,4'] = { terrain: 'forest' }
+    map.hexes['5,1'] = {
+      name: 'Monasterio',
+      notes: '# Notas\n\n- monjes',
+      pois: [{ id: 'p1', name: 'Altar', description: 'Manchado de sangre' }],
+      tags: ['santuario'],
+      fields: [{ key: 'Peligro', value: '2' }],
+    }
     map.grid.orientation = 'pointy'
     expect(deserializeMap(serializeMap(map))).toEqual(map)
   })
@@ -28,10 +35,17 @@ describe('serialize', () => {
 
   it('drops invalid entries and clamps settings', () => {
     const map = createMap() as unknown as Record<string, unknown>
-    map.hexes = { '1,1': { terrain: 'lake' }, 'x,y': { terrain: 'lake' }, '2,2': 5 }
+    map.hexes = {
+      '1,1': { terrain: 'lake', pois: [{ name: 'Isla' }, { nope: 1 }], tags: ['a', 3] },
+      'x,y': { terrain: 'lake' },
+      '2,2': 5,
+      '3,3': { name: '  ' },
+    }
     map.grid = { orientation: 'weird', width: 9999, height: -3, hexSize: 'big' }
     const loaded = deserializeMap(JSON.stringify(map))
     expect(Object.keys(loaded.hexes)).toEqual(['1,1'])
+    expect(loaded.hexes['1,1'].pois).toEqual([{ id: expect.any(String), name: 'Isla' }])
+    expect(loaded.hexes['1,1'].tags).toEqual(['a'])
     expect(loaded.grid).toMatchObject({ orientation: 'flat', width: 200, height: 1, hexSize: 40 })
   })
 })

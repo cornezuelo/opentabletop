@@ -1,7 +1,8 @@
 import type { Command, MapChange } from '../commands/command'
+import { HexEditBatch } from '../commands/hexes'
 import { History } from '../commands/history'
 import { createMap } from '../model/defaults'
-import type { GridSettings, HexKey, HexMap, MapMeta, TerrainType } from '../model/types'
+import type { GridSettings, HexData, HexKey, HexMap, MapMeta, TerrainType } from '../model/types'
 
 export type ToolId = 'select' | 'terrain'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
@@ -54,6 +55,16 @@ class Editor {
     this.syncSnapshots(change)
     for (const listener of this.listeners) listener(change)
     this.touch()
+  }
+
+  /** Edits one hex as a single undoable step. No-op if nothing changes. */
+  editHex(key: HexKey, update: (hex: HexData) => HexData): void {
+    const batch = new HexEditBatch(this.map)
+    if (!batch.edit(key, update)) return
+    const command = batch.finish()
+    if (!command) return
+    this.notify({ kind: 'hexes', keys: [key] })
+    this.record(command)
   }
 
   undo(): void {

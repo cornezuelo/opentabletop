@@ -1,6 +1,8 @@
 import { DEFAULT_GRID, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
 import { MapFormatError, migrate } from './migrations'
-import type { HexData, HexKey, HexMap, TerrainType } from './types'
+import { isEmptyHex, normalizeHex } from './hex'
+import { newId } from './id'
+import type { CustomField, HexData, HexKey, HexMap, Poi, TerrainType } from './types'
 
 export const FILE_EXTENSION = '.hexmap.json'
 
@@ -37,9 +39,8 @@ function validate(data: Record<string, unknown>): HexMap {
   const validHexes: Record<HexKey, HexData> = {}
   for (const [key, value] of Object.entries(hexes)) {
     if (!/^\d+,\d+$/.test(key) || !isRecord(value)) continue
-    const hex: HexData = {}
-    if (typeof value.terrain === 'string') hex.terrain = value.terrain
-    validHexes[key as HexKey] = hex
+    const hex = parseHex(value)
+    if (!isEmptyHex(hex)) validHexes[key as HexKey] = hex
   }
 
   const now = new Date().toISOString()
@@ -61,6 +62,33 @@ function validate(data: Record<string, unknown>): HexMap {
     terrains: validTerrains,
     hexes: validHexes,
   }
+}
+
+function parseHex(value: Record<string, unknown>): HexData {
+  const str = (v: unknown) => (typeof v === 'string' ? v : undefined)
+  const records = (v: unknown) => (Array.isArray(v) ? v.filter(isRecord) : [])
+  const pois: Poi[] = records(value.pois)
+    .filter((p) => typeof p.name === 'string')
+    .map((p) => ({
+      id: str(p.id) ?? newId(),
+      name: p.name as string,
+      description: str(p.description),
+    }))
+  const fields: CustomField[] = records(value.fields).map((f) => ({
+    key: str(f.key) ?? '',
+    value: str(f.value) ?? '',
+  }))
+  const tags = Array.isArray(value.tags)
+    ? value.tags.filter((t): t is string => typeof t === 'string')
+    : []
+  return normalizeHex({
+    terrain: str(value.terrain),
+    name: str(value.name),
+    notes: str(value.notes),
+    pois,
+    tags,
+    fields,
+  })
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

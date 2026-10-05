@@ -1,5 +1,6 @@
 import { Application, BitmapFont, BitmapText, Container, Graphics, GraphicsContext } from 'pixi.js'
 import type { MapChange } from '../commands/command'
+import { hasMetadata } from '../model/hex'
 import {
   allCells,
   cellsInRadius,
@@ -20,6 +21,8 @@ const GRID_ALPHA = 0.35
 const HOVER_COLOR = 0xffffff
 const SELECT_COLOR = 0xc8a24a
 const COORD_COLOR = 0x1b1a17
+const MARKER_COLOR = 0xc8a24a
+const MARKER_OUTLINE = 0x1b1a17
 const COORD_FONT = 'hexmapper-coords'
 /** Coordinates are hidden when a hex is smaller than this on screen (px). */
 const COORD_MIN_SCREEN_SIZE = 24
@@ -45,6 +48,8 @@ export class MapRenderer {
   private terrainLayer = new Container()
   private gridLines = new Graphics()
   private coordLayer = new Container()
+  /** Small dots on hexes that have notes, POIs, tags or fields. */
+  private markers = new Graphics()
   private overlay = new Graphics()
 
   private hexes = new Map<HexKey, Graphics>()
@@ -64,7 +69,13 @@ export class MapRenderer {
     private canvas: HTMLCanvasElement,
   ) {
     installCoordFont()
-    this.world.addChild(this.terrainLayer, this.gridLines, this.coordLayer, this.overlay)
+    this.world.addChild(
+      this.terrainLayer,
+      this.gridLines,
+      this.coordLayer,
+      this.markers,
+      this.overlay,
+    )
     app.stage.addChild(this.world)
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
     this.bindInput()
@@ -120,6 +131,7 @@ export class MapRenderer {
         const hex = this.hexes.get(key)
         if (hex) hex.context = this.contextFor(key)
       }
+      this.drawMarkers()
     } else if (change.kind !== 'meta') {
       const before = this.shapeSignature
       this.rebuild()
@@ -172,6 +184,21 @@ export class MapRenderer {
     this.onViewChanged()
   }
 
+  private drawMarkers(): void {
+    const g = this.markers.clear()
+    const { grid, hexes } = editor.map
+    // Never smaller than ~4px on screen, so markers stay visible when zoomed out.
+    const radius = Math.max(grid.hexSize * 0.1, 4 / this.world.scale.x)
+    const offset = grid.hexSize * 0.42
+    for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
+      const cell = parseKey(key)
+      if (!hasMetadata(hex) || !inBounds(cell, grid)) continue
+      const { x, y } = this.centerOf(cell)
+      g.circle(x + offset, y - offset, radius)
+    }
+    g.fill(MARKER_COLOR).stroke({ width: radius * 0.4, color: MARKER_OUTLINE })
+  }
+
   private contextFor(key: HexKey): GraphicsContext {
     const terrain = editor.map.hexes[key]?.terrain
     return (terrain && this.contexts.get(terrain)) || this.emptyContext
@@ -196,6 +223,7 @@ export class MapRenderer {
   private onViewChanged(): void {
     const { showCoords, hexSize } = editor.map.grid
     this.coordLayer.visible = showCoords && hexSize * this.world.scale.x >= COORD_MIN_SCREEN_SIZE
+    this.drawMarkers()
     this.drawOverlay()
   }
 
@@ -251,6 +279,9 @@ export class MapRenderer {
     }
 
     on(canvas, 'pointerdown', (e) => {
+      // Commit any half-edited panel field (its change event fires on blur) before
+      // a tool can change the selection out from under it.
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
       canvas.setPointerCapture(e.pointerId)
       if (e.button === 1 || (e.button === 0 && this.spaceHeld)) {
         this.panFrom = this.screenPoint(e)

@@ -1,3 +1,4 @@
+import { isEmptyHex, normalizeHex, sameHex } from '../model/hex'
 import type { HexData, HexKey, HexMap } from '../model/types'
 import type { Command, MapChange } from './command'
 
@@ -7,13 +8,9 @@ interface HexEdit {
   after: HexData | undefined
 }
 
-function isEmpty(hex: HexData): boolean {
-  return Object.values(hex).every((v) => v === undefined)
-}
-
 function write(map: HexMap, key: HexKey, hex: HexData | undefined): void {
-  if (hex === undefined || isEmpty(hex)) delete map.hexes[key]
-  else map.hexes[key] = hex
+  if (isEmptyHex(hex)) delete map.hexes[key]
+  else map.hexes[key] = normalizeHex(hex)
 }
 
 /**
@@ -54,11 +51,4 @@ export class EditHexesCommand implements Command {
     for (const e of this.edits) write(map, e.key, e.before)
     return { kind: 'hexes', keys: this.edits.map((e) => e.key) }
   }
-}
-
-function sameHex(a: HexData | undefined, b: HexData | undefined): boolean {
-  const ea = a === undefined || isEmpty(a)
-  const eb = b === undefined || isEmpty(b)
-  if (ea || eb) return ea === eb
-  return a!.terrain === b!.terrain
 }

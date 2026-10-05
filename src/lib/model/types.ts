@@ -10,8 +10,27 @@ export interface TerrainType {
   color: string
 }
 
+export interface Poi {
+  id: string
+  name: string
+  description?: string
+}
+
+export interface CustomField {
+  key: string
+  value: string
+}
+
+/** All fields are optional; empty values are stripped (see `normalizeHex`). */
 export interface HexData {
   terrain?: string
+  name?: string
+  /** Markdown. */
+  notes?: string
+  pois?: Poi[]
+  tags?: string[]
+  /** Ordered key/value stats. */
+  fields?: CustomField[]
 }
 
 export interface GridSettings {
