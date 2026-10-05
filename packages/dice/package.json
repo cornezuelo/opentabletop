@@ -1,0 +1,17 @@
+{
+  "name": "@open-tabletop/dice",
+  "version": "0.0.0",
+  "description": "Dice expression parser and roller with per-term breakdown (NdM, d66, dF, keep highest/lowest, advantage).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/random": "*"
+  }
+}

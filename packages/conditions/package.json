@@ -1,0 +1,15 @@
+{
+  "name": "@open-tabletop/conditions",
+  "version": "0.0.0",
+  "description": "Safe, declarative condition matching over plain context objects (no eval).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {}
+}
