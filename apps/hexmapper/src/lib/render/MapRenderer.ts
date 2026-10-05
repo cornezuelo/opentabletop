@@ -118,6 +118,7 @@ export class MapRenderer {
    * browsers scale the cursor image but not its hotspot, so it points off-target.
    */
   private cursorMark = new Graphics()
+  private cursorOnHandle = false
   private pointer: Point | null = null
 
   private hexes = new Map<HexKey, Graphics>()
@@ -659,9 +660,11 @@ export class MapRenderer {
     this.canvas.style.cursor = this.panFrom ? 'grabbing' : panning ? 'grab' : 'none'
     const onHandle = editor.tool === 'path' && !!editor.hoveredHandle
     this.cursorMark.visible = !panning && this.pointer !== null
-    if (this.cursorMark.visible) {
-      this.cursorMark.position.set(this.pointer!.x, this.pointer!.y)
-      this.cursorMark.scale.set(onHandle ? 1.35 : 1)
+    if (this.cursorMark.visible) this.cursorMark.position.set(this.pointer!.x, this.pointer!.y)
+    // Over a handle the crosshair inverts (white on black), back to black when leaving.
+    if (onHandle !== this.cursorOnHandle) {
+      this.cursorOnHandle = onHandle
+      this.drawCursorMark()
     }
   }
 
@@ -674,11 +677,12 @@ export class MapRenderer {
       arm(-CROSSHAIR_GAP, 0, -CROSSHAIR_GAP - CROSSHAIR_ARM, 0)
       arm(CROSSHAIR_GAP, 0, CROSSHAIR_GAP + CROSSHAIR_ARM, 0)
     }
+    const [outer, inner] = this.cursorOnHandle ? [0x000000, 0xffffff] : [0xffffff, 0x000000]
     lines()
-    g.stroke({ width: 3.5, color: 0xffffff, cap: 'round' })
+    g.stroke({ width: 3.5, color: outer, cap: 'round' })
     lines()
-    g.stroke({ width: 1.5, color: 0x000000, cap: 'round' })
-    g.circle(0, 0, 1.2).fill(0x000000)
+    g.stroke({ width: 1.5, color: inner, cap: 'round' })
+    g.circle(0, 0, 1.2).fill(inner)
     this.cursorMark.eventMode = 'none'
   }
 

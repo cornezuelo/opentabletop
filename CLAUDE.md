@@ -1,130 +1,131 @@
 # OpenTabletop
 
-Ecosistema FOSS de herramientas para **rol en solitario, hexcrawl y campañas sandbox**. Empezó como un editor de mapas hexagonales para jugar a **Kal-Arath** y crece como un conjunto de librerías reutilizables más varias apps que las usan.
+FOSS tooling for **solo RPGs, hexcrawls and sandbox campaigns**. It started as a hex map editor for playing **Kal-Arath** and is growing into a set of reusable libraries plus the apps built on them.
 
-La gracia es que sea **agnóstico del sistema de juego**. Kal-Arath es el primer sistema soportado y sirve para validar el diseño, pero nada de sus reglas va en el núcleo: vive en un _pack_ de datos.
+The point is to be **game-system agnostic**. Kal-Arath is the first supported system and validates the design, but none of its rules live in the core: they live in a data _pack_.
 
-## Principios
+## Principles
 
-1. **Separar responsabilidades siempre que tenga sentido.** Paquetes pequeños con interfaces claras, y composición en lugar de "managers" gigantes.
-2. **Núcleos headless.** Los motores (`*-engine`) y los paquetes de dominio son TypeScript puro: sin Svelte, sin DOM, sin `localStorage`, sin red. La persistencia, la UI y el sistema de ficheros van en adaptadores.
-3. **Datos, no código.** Las reglas de cada sistema se declaran en packs (YAML/JSON) que se validan al cargar. Nada de `eval`, `Function()` ni scripts embebidos: los packs pueden venir de terceros.
-4. **Definiciones ≠ estado.** Lo estático (tablas, reglas, mapa) se separa del estado de partida (cartas robadas, posición del grupo, hora). Guardar una partida no modifica los ficheros de definición.
-5. **Motores desacoplados entre sí.** Se comunican con eventos y puertos, nunca llamándose directamente. Por ejemplo, el Travel Engine emite `ENCOUNTER_CHECK_REQUIRED` y una capa de integración decide qué tabla del Oracle resolver.
-6. **Estado inmutable y funciones puras** en los motores: `(estado, acción) → { estado, eventos }`. Es fácil de testear, de deshacer y de reproducir.
-7. **Aleatoriedad inyectable.** Ningún motor llama a `Math.random()`: todos reciben un `RandomSource`, que puede ser con semilla para tests y repeticiones.
-8. **El lore vive fuera.** Notas, PNJs y facciones en detalle viven en la app de notas del usuario (SilverBullet, Obsidian…). OpenTabletop guarda estado mecánico y **referencias** (`noteRef`), sin duplicar contenido.
-9. **Keep it simple.** Las apps no son VTTs ni gestores de campaña. Ante la duda, no se añade.
+1. **Separate responsibilities whenever it makes sense.** Small packages with clear interfaces; composition over giant "managers".
+2. **Headless cores.** Engines (`*-engine`) and domain packages are plain TypeScript: no Svelte, no DOM, no `localStorage`, no network. Persistence, UI and filesystem access live in adapters.
+3. **Data, not code.** Each system's rules are declared in packs (YAML/JSON) validated on load. No `eval`, no `Function()`, no embedded scripts: packs may come from third parties.
+4. **Definitions ≠ state.** Static data (tables, rules, the map) is separate from play state (drawn cards, party position, time). Saving a session never modifies definition files.
+5. **Engines don't know each other.** They talk through events and ports, never by calling each other. E.g. the Travel Engine emits `ENCOUNTER_CHECK_REQUIRED` and an integration layer decides which Oracle table to resolve.
+6. **Immutable state and pure functions** in engines: `(state, action) → { state, events }`. Easy to test, undo and replay.
+7. **Injectable randomness.** No engine calls `Math.random()`; all take a `RandomSource`, which can be seeded for tests and replays.
+8. **Lore lives elsewhere.** Notes, NPCs and factions in depth live in the user's notes app (SilverBullet, Obsidian…). OpenTabletop stores mechanical state and **references** (`noteRef`), never duplicated content. Short, optional GM notes on hexes are fine.
+9. **Keep it simple.** The apps are not VTTs or campaign managers. When in doubt, leave it out.
 
-## Estructura del monorepo
+## Monorepo layout
 
-npm workspaces. Los paquetes se consumen como fuente TS (`exports` → `src/index.ts`) y Vite los transpila. Para publicarlos en npm se añadirá un paso de build por paquete.
+npm workspaces. Packages are consumed as TS source (`exports` → `src/index.ts`) and transpiled by Vite. A per-package build step will be added before publishing to npm.
 
 ```
-packages/                   # librerías, scope @open-tabletop/*
-  hex/                      # ✅ matemática de rejilla hexagonal (axial/offset, píxel, vecinos, líneas, relleno)
-  note-refs/                # ✅ enlaces a apps de notas externas (SilverBullet, Obsidian…) por proveedores
-  random/                   # ⏳ RandomSource, PRNG con semilla
-  dice/                     # ⏳ expresiones de dados con desglose (NdM±K, d66, dF, ventaja…)
-  conditions/               # ⏳ evaluador seguro de condiciones (sin eval), compartido por oracle y travel
-  time/                     # ⏳ GameTime (minutos absolutos), calendarios, estaciones, guardias
-  schema/                   # ⏳ esquema OTD (OpenTabletop Data) con Zod → tipos TS + JSON Schema
-  oracle-engine/            # ⏳ tablas, oráculos, generadores, mazos; packs; historial
-  travel-engine/            # ⏳ viaje: reloj, rutas A*, movimiento, recursos, fatiga, navegación
-  weather-engine/           # ⏳ clima con inercia (Markov / hex flower), desacoplado del viaje
-  session/                  # ⏳ capa de integración: orquesta motores, journal, puertos de persistencia
-  ui-kit/                   # ⏳ Svelte compartido: tema, i18n, componentes base
-  oracle-ui/  travel-ui/    # ⏳ componentes Svelte de cada motor, incrustables
+packages/                   # libraries, scope @open-tabletop/*
+  hex/                      # ✅ hex grid math (axial/offset, pixels, neighbors, lines, flood fill)
+  note-refs/                # ✅ provider-based links to external notes apps (SilverBullet, Obsidian…)
+  random/                   # ⏳ RandomSource, seeded PRNG
+  dice/                     # ⏳ dice expressions with breakdown (NdM±K, d66, dF, advantage…)
+  conditions/               # ⏳ safe condition evaluator (no eval), shared by oracle and travel
+  time/                     # ⏳ GameTime (absolute minutes), calendars, seasons, watches
+  schema/                   # ⏳ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
+  oracle-engine/            # ⏳ tables, oracles, generators, decks; packs; history
+  travel-engine/            # ⏳ travel: clock, A* routes, movement, resources, fatigue, navigation
+  weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
+  session/                  # ⏳ integration layer: orchestrates engines, journal, persistence ports
+  ui-kit/                   # ⏳ shared Svelte: theme, i18n, base components
+  oracle-ui/  travel-ui/    # ⏳ embeddable Svelte components for each engine
 apps/
-  hexmapper/                # ✅ editor de mapas (ver apps/hexmapper/CLAUDE.md)
-  oracle/                   # ⏳ app standalone del oráculo
-  travel/                   # ⏳ app standalone de viaje
-packs/                      # packs de datos (tablas, reglas de viaje, clima…)
-  core/                     # ⏳ contenido genérico FOSS (oráculo sí/no, etc.)
-  kal-arath/                # ⏳ manifiesto y README; las tablas (uso personal) van en el repo privado de packs
-packs-private/              # ⏳ (ignorado) checkout del repo privado de packs de uso personal
+  hexmapper/                # ✅ map editor (see apps/hexmapper/CLAUDE.md)
+  oracle/                   # ⏳ standalone oracle app
+  travel/                   # ⏳ standalone travel app
+packs/                      # data packs (tables, travel rules, weather…)
+  core/                     # ⏳ generic FOSS content (yes/no oracle, etc.)
+  kal-arath/                # ⏳ manifest and README; tables (personal use) live in the private packs repo
+packs-private/              # ⏳ (git-ignored) checkout of the private packs repo
 docs/
-  otd.md                    # esquema común OpenTabletop Data
-  oracle-engine.md          # diseño del Oracle Engine
-  travel-engine.md          # diseño del Travel Engine
+  otd.md                    # common OpenTabletop Data schema
+  oracle-engine.md          # Oracle Engine design
+  travel-engine.md          # Travel Engine design
 ```
 
-✅ hecho · ⏳ diseñado o pendiente
+✅ done · ⏳ designed or pending
 
-**Dependencias permitidas** (de arriba abajo, nunca al revés):
+**Allowed dependencies** (top to bottom, never upwards):
 
 ```
 apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, time, hex  →  random
-                                         ↘ schema (solo tipos/validación de datos persistidos)
+                                         ↘ schema (types/validation of persisted data only)
 ```
 
-- Un motor **no importa otro motor**. Lo que necesitan compartir (dados, tiempo, condiciones) se extrae a un paquete inferior.
-- `note-refs` no depende de nada. Ningún motor depende de `note-refs`: las referencias externas son strings opacos para ellos.
+- An engine **never imports another engine**. Whatever they share (dice, time, conditions) goes into a lower-level package.
+- `note-refs` depends on nothing, and no engine depends on it: external references are opaque strings to engines.
 
-## Esquema común: OpenTabletop Data (OTD)
+## Common schema: OpenTabletop Data (OTD)
 
-Detalle en [`docs/otd.md`](docs/otd.md). En resumen:
+Details in [`docs/otd.md`](docs/otd.md). In short:
 
-- **Entidades de campaña:** Campaign, Map (con Hex), POI, Party, Character, Faction, Clock y LogEntry (el "Event" persistido). Todas comparten una base `{ id, type, name, tags, noteRef, refs, ext }`.
-- **Definiciones de packs:** Table, Generator, Oracle y Deck (del Oracle Engine), además de reglas de viaje y modelos de clima. Viven en packs versionados con namespaces (`kal-arath/reaction`).
-- **`ext.<namespace>`** guarda lo propio de cada app o sistema sin ensuciar el núcleo. Por ejemplo, `ext.hexmapper` (render, impresión) o `ext.kal-arath`.
-- **Referencias** por string `tipo:id`, nunca anidando objetos.
-- **Eventos en tiempo de ejecución** (`HEX_ENTERED`, `TABLE_RESOLVED`…): son mensajes entre motores y no se persisten. Lo que importa para la partida se guarda como `LogEntry`.
+- **Campaign entities:** Campaign, Map (with Hex), POI, Party, Character, Faction, Clock and LogEntry (the persisted "Event"). They share a base `{ id, type, name, tags, noteRef, refs, ext }`.
+- **Pack definitions:** Table, Generator, Oracle and Deck (Oracle Engine), plus travel rules and weather models, in versioned, namespaced packs (`kal-arath/reaction`).
+- **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.hexmapper` (rendering, printing) or `ext.kal-arath`.
+- **References** are `type:id` strings, never nested objects.
+- **Runtime events** (`HEX_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
+- **File extension:** `.otd.json`, adopted when the hexmapper migrates to OTD (until then it saves `.hexmap.json`, which stays importable).
 
-## Packs, fuentes y licencias
+## Packs, sources and licensing
 
-Un pack es una carpeta con `pack.yaml` (id, versión, idioma, licencia, dependencias) y definiciones en YAML/JSON. Se valida al cargar: referencias rotas, rangos solapados, ciclos, dependencias que faltan.
+A pack is a folder with `pack.yaml` (id, version, base locale, license, dependencies) and YAML/JSON definitions. Packs are validated on load: broken references, overlapping ranges, cycles, missing dependencies.
 
-**Objetivo: que las apps vengan precargadas con oráculos de muchos juegos.** Cada pack se distribuye por el canal que permita su licencia, y el motor carga todos los packs que encuentre en sus **fuentes**:
+**Goal: apps ship preloaded with oracles from many games.** Each pack is distributed through whatever channel its license allows, and the engine loads every pack found in its **sources**:
 
-| Fuente                    | Qué contiene                                                                                                                          | Dónde                                                                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Packs abiertos**        | Contenido propio FOSS (`core`) y de juegos con licencia abierta que permita redistribuir (CC BY, CC BY-SA, ORC, OGL…), con atribución | `packs/` en este repo; se incluyen en el build                                                                                        |
-| **Packs de uso personal** | Juegos cuya licencia solo permite uso personal                                                                                        | **Repo privado aparte** (p. ej. `opentabletop-packs-private`), clonado o enlazado en `packs-private/` (ignorado por git en este repo) |
-| **Packs del usuario**     | Tablas propias creadas o importadas en la app                                                                                         | Biblioteca local del navegador o carpeta elegida, exportables como pack                                                               |
+| Source                 | Contents                                                                                                                   | Where                                                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Open packs**         | Our own FOSS content (`core`) and games whose license allows redistribution (CC BY, CC BY-SA, ORC, OGL…), with attribution | `packs/` in this repo; bundled in builds                                                                 |
+| **Personal-use packs** | Games whose license only allows personal use                                                                               | **Separate private repo** (e.g. `opentabletop-packs-private`), checked out or linked at `packs-private/` |
+| **User packs**         | Tables created or imported in the app                                                                                      | Browser library or a chosen folder, exportable as packs                                                  |
 
-- **Kal-Arath es de uso personal**: "Derechos de autor 2023 Castle Grief, permiso de copia concedido para uso personal" (manual en `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Por eso sus tablas no van en este repo público, sino en el repo privado de packs. Sí van aquí el `pack.yaml`, el README y todo lo que es diseño propio (reglas de viaje genéricas, bindings sin texto del manual).
-- Antes de añadir un juego a `packs/`, se comprueba su licencia y se pone en `pack.yaml` (`license`, `attribution`). Si hay dudas, va al repo privado.
-- Para redistribuir un juego con licencia personal habría que pedir permiso al autor. Si se consigue, el pack puede pasar a `packs/`.
-- Los packs son por idioma (`locale` en `pack.yaml`). El contenido de las tablas no se traduce en la UI.
+- **Kal-Arath is personal use only**: "Copyright 2023 Castle Grief, permission to copy granted for personal use" (rulebook at `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Its tables never go into this public repo; they live in the private packs repo. Only `pack.yaml`, the README and our own design work (generic travel rules, bindings without rulebook text) live here.
+- Before adding a game to `packs/`, check its license and record it in `pack.yaml` (`license`, `attribution`). If in doubt, it goes to the private repo.
+- A personal-use game could move to `packs/` only with the author's permission.
+- **Languages:** every pack has exactly one required base locale (`locale` in `pack.yaml`). Translations are optional overlays per locale; any missing string falls back to the base locale (see `docs/oracle-engine.md`). Pack content is not translated by the UI's i18n.
 
-## Stack y herramientas
+## Stack and tooling
 
-| Pieza           | Elección                                          |
-| --------------- | ------------------------------------------------- |
-| Lenguaje        | TypeScript `strict`                               |
-| Monorepo        | npm workspaces                                    |
-| UI              | Svelte 5 (runes) en apps y paquetes `*-ui`        |
-| Render del mapa | PixiJS v8 (solo hexmapper)                        |
-| Validación      | Zod 4 (esquema OTD y packs) → también JSON Schema |
-| Packs           | YAML (`yaml`, ISC) y JSON                         |
-| Tests           | Vitest (config única en la raíz)                  |
-| Calidad         | ESLint + Prettier + `svelte-check` / `tsc`        |
+| Piece      | Choice                                          |
+| ---------- | ----------------------------------------------- |
+| Language   | TypeScript `strict`                             |
+| Monorepo   | npm workspaces                                  |
+| UI         | Svelte 5 (runes) in apps and `*-ui` packages    |
+| Map render | PixiJS v8 (hexmapper only)                      |
+| Validation | Zod 4 (OTD schema and packs) → also JSON Schema |
+| Packs      | YAML (`yaml`, ISC) and JSON                     |
+| Tests      | Vitest (single config at the root)              |
+| Quality    | ESLint + Prettier + `svelte-check` / `tsc`      |
 
-Solo dependencias FOSS, sin dependencias de runtime innecesarias en los núcleos.
+FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
-Comandos (desde la raíz): `npm run dev` (hexmapper), `npm test`, `npm run check`, `npm run lint`, `npm run format`, `npm run build`.
+Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`, `npm run lint`, `npm run format`, `npm run build`.
 
-## Convenciones
+## Conventions
 
-- Código, identificadores y comentarios en inglés. Documentación de diseño en castellano por ahora; los README públicos de los paquetes irán en inglés.
-- **UI bilingüe (en/es), inglés por defecto** en todas las apps y paquetes `*-ui`: ningún texto visible a mano, siempre `t('clave')`. `en.ts` es el diccionario de referencia y `es.ts` debe tener las mismas claves (el tipado lo comprueba). Cada clave nueva se añade en los dos idiomas.
-- **Los núcleos no traducen.** Emiten códigos y parámetros (`{ code: 'NAVIGATION_LOST', hex }`) y la UI los traduce.
-- El idioma y los ajustes personales (proveedor de notas, etc.) son **preferencias del usuario** en `localStorage`, nunca datos de la partida.
-- Tests obligatorios en todos los paquetes headless, con RNG determinista. No se usan snapshots como sustituto de asserts.
-- Cada cambio de formato persistido sube la versión y añade una migración.
-- Commits por fase o funcionalidad, con mensaje descriptivo en inglés.
+- **Everything in the repo is in English**: code, identifiers, comments, commit messages and all Markdown (the repo will be public). Conversation with the user stays in Spanish.
+- **Bilingual UI (en/es), English by default** in every app and `*-ui` package: no hard-coded visible text, always `t('key')`. `en.ts` is the reference dictionary and `es.ts` must have the same keys (enforced by types). Every new key is added in both languages.
+- **Cores don't translate.** They emit codes and parameters (`{ code: 'NAVIGATION_LOST', hex }`) and the UI translates them.
+- Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
+- Tests are mandatory in every headless package, with deterministic RNG. Snapshots never replace meaningful asserts.
+- Every persisted format change bumps the version and adds a migration.
+- One commit per phase or feature, with a descriptive message.
 
-## Hoja de ruta del ecosistema
+## Ecosystem roadmap
 
-1. [x] Monorepo, paquetes `hex` y `note-refs`.
-2. [ ] **Revisión de diseño** de `docs/otd.md`, `docs/oracle-engine.md` y `docs/travel-engine.md` con el usuario. _(En curso.)_
+1. [x] Monorepo, `hex` and `note-refs` packages.
+2. [x] Design review of `docs/otd.md`, `docs/oracle-engine.md` and `docs/travel-engine.md` (open decisions resolved: short optional hex notes, `.otd.json`, one base locale per pack with fallback translations).
 3. [ ] `random`, `dice`, `conditions`.
-4. [ ] `oracle-engine` MVP y pack local de Kal-Arath (es).
-5. [ ] `time`, pathfinding A\* en `hex`, `travel-engine` MVP.
-6. [ ] `schema` OTD consolidado y migración del hexmapper al formato OTD.
-7. [ ] `session` (integración travel ↔ oracle, journal) y UIs incrustables en el hexmapper (modo Travel/Play).
-8. [ ] Apps standalone `oracle` y `travel`.
-9. [ ] Más adelante: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), editor de tablas, Web Components para hosts que no usen Svelte.
+4. [ ] `oracle-engine` MVP and the private Kal-Arath pack (es).
+5. [ ] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
+6. [ ] Consolidated OTD `schema` and hexmapper migration to OTD (`.otd.json`).
+7. [ ] `session` (travel ↔ oracle integration, journal) and embeddable UIs in the hexmapper (Travel/Play mode).
+8. [ ] Standalone `oracle` and `travel` apps.
+9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
 
-La hoja de ruta propia del hexmapper (iconos, caminos y ríos, capas, texto, exportar PNG/PDF…) está en `apps/hexmapper/CLAUDE.md`. Los caminos y ríos son requisito para que el Travel Engine use carreteras.
+The hexmapper's own roadmap is in `apps/hexmapper/CLAUDE.md`.
