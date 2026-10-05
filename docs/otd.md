@@ -1,39 +1,39 @@
-# OpenTabletop Data (OTD) — borrador v0.1
+# OpenTabletop Data (OTD) — draft v0.1
 
-Esquema común para intercambiar datos entre las herramientas del ecosistema (hexmapper, Oracle Engine, Travel Engine…) y con herramientas de terceros.
+Common schema for exchanging data between the ecosystem's tools (hexmapper, Oracle Engine, Travel Engine…) and with third-party tools.
 
-Estado: **borrador para revisión**. Nada está publicado todavía, así que se puede cambiar sin migraciones.
+Status: **draft, reviewed**. Nothing is published yet, so it can still change without migrations.
 
-## Objetivos
+## Goals
 
-- Que cada herramienta pueda leer los datos de las demás sin conocer su implementación.
-- Ser **agnóstico del sistema de juego**: lo específico va en packs y en `ext`.
-- Ser **publicable como JSON Schema**, para validar desde otros lenguajes o herramientas (un plug de SilverBullet, un script…).
-- **No duplicar lore**: OTD guarda estado mecánico y referencias, y el texto largo vive en la app de notas.
+- Every tool can read the others' data without knowing their implementation.
+- **Game-system agnostic**: system-specific data goes into packs and `ext`.
+- **Publishable as JSON Schema**, so other languages and tools (a SilverBullet plug, a script…) can validate it.
+- **No duplicated lore**: OTD stores mechanical state and references; long-form text lives in the notes app.
 
-## Implementación
+## Implementation
 
-`@open-tabletop/schema` define cada entidad con **Zod 4**. De ahí salen los tipos TS (`z.infer`), la validación al cargar con errores legibles y el JSON Schema publicado (`z.toJSONSchema`). Cada formato tiene una versión semver y migraciones.
+`@open-tabletop/schema` defines every entity with **Zod 4**. That yields the TS types (`z.infer`), load-time validation with readable errors, and the published JSON Schema (`z.toJSONSchema`). Every format has a semver version and migrations.
 
-## Dos familias de datos
+## Two families of data
 
-| Familia                   | Qué es                                                       | Dónde vive                                    | Quién lo escribe            |
-| ------------------------- | ------------------------------------------------------------ | --------------------------------------------- | --------------------------- |
-| **Definiciones de packs** | Tablas, generadores, oráculos, mazos, reglas de viaje, clima | `packs/<id>/` (YAML/JSON, fuente de verdad)   | Autores de packs y usuarios |
-| **Datos de campaña**      | Mapa, POIs, grupo, relojes, estado de motores, journal       | Bundle `.otd.json` (+ autoguardado de la app) | Las apps durante la partida |
+| Family               | What                                                      | Where                                      | Written by             |
+| -------------------- | --------------------------------------------------------- | ------------------------------------------ | ---------------------- |
+| **Pack definitions** | Tables, generators, oracles, decks, travel rules, weather | `packs/<id>/` (YAML/JSON, source of truth) | Pack authors and users |
+| **Campaign data**    | Map, POIs, party, clocks, engine state, journal           | `.otd.json` bundle (+ the app's autosave)  | The apps during play   |
 
-Las definiciones son estáticas, y el estado de ejecución (cartas robadas, resultados únicos ya salidos, posición del grupo) va en los datos de campaña. Así, guardar una partida no toca los packs.
+Definitions are static; runtime state (drawn cards, once-only results already used, party position) goes into campaign data. Saving a session never touches packs.
 
-## Convenciones comunes
+## Common conventions
 
-### Identificadores y referencias
+### Ids and references
 
-- `id`: string `[a-z0-9-]`, único dentro de su ámbito. Las entidades de campaña usan ids aleatorios de 12 caracteres y las definiciones de packs, ids legibles (`wilderness-encounter`).
-- **Ids con namespace** para definiciones: `<pack>/<id>`, por ejemplo `kal-arath/reaction`. Dentro de un pack, una referencia sin `/` se resuelve primero en el propio pack y después en sus dependencias o alias.
-- **Referencias entre entidades**: string `tipo:id`, por ejemplo `"faction:k3j9x0a1b2c4"` o `"poi:…"`. Nunca se anidan objetos.
-- **Coordenadas de hex**: `"col,row"` (offset), siempre relativas a un mapa: `{ map: "<mapId>", hex: "14,22" }`.
+- `id`: `[a-z0-9-]` string, unique within its scope. Campaign entities use random 12-character ids; pack definitions use readable ids (`wilderness-encounter`).
+- **Namespaced ids** for definitions: `<pack>/<id>`, e.g. `kal-arath/reaction`. Inside a pack, a reference without `/` resolves in the pack first, then in its dependencies or aliases.
+- **References between entities**: `type:id` strings, e.g. `"faction:k3j9x0a1b2c4"` or `"poi:…"`. Objects are never nested.
+- **Hex coordinates**: `"col,row"` (offset), always relative to a map: `{ map: "<mapId>", hex: "14,22" }`.
 
-### Base de entidad
+### Entity base
 
 ```ts
 interface Entity {
@@ -41,64 +41,66 @@ interface Entity {
   type: string // 'map' | 'poi' | 'party' | ...
   name?: string
   tags?: string[]
-  noteRef?: string // ruta en la app de notas (SilverBullet, Obsidian…): el lore vive allí
-  refs?: string[] // relaciones genéricas 'tipo:id'
-  ext?: Record<string, unknown> // datos propios por namespace: ext.hexmapper, ext['kal-arath']…
+  noteRef?: string // path in the notes app (SilverBullet, Obsidian…): the lore lives there
+  refs?: string[] // generic 'type:id' relations
+  ext?: Record<string, unknown> // per-namespace data: ext.hexmapper, ext['kal-arath']…
 }
 ```
 
-**`ext` es el mecanismo de extensión.** Una herramienta solo lee los namespaces que conoce y conserva intactos los demás al guardar.
+**`ext` is the extension mechanism.** A tool only reads the namespaces it knows and preserves the rest untouched when saving.
 
-### Tiempo
+### Time
 
 ```ts
-type GameTime = number // minutos desde el inicio de la campaña (entero ≥ 0)
+type GameTime = number // minutes since the campaign start (integer ≥ 0)
 ```
 
-Al guardar un número absoluto, los **calendarios personalizados** solo son una forma de presentarlo: la campaña declara su calendario (`calendar`) y `@open-tabletop/time` lo convierte en "Día 43, 09:00, otoño". Cambiar de calendario no corrompe datos.
+Because an absolute number is stored, **custom calendars** are just a way of presenting it: the campaign declares its `calendar` and `@open-tabletop/time` turns the number into "Day 43, 09:00, autumn". Changing calendars never corrupts data.
 
-## Entidades de campaña
+## Campaign entities
 
-| Entidad         | Campos principales                                                                                                                                          | Notas                                                                                                                                                        |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Campaign**    | `system?` (pack id), `packs` (ids + versiones), `calendar`, `time: GameTime`                                                                                | Contenedor y reloj global.                                                                                                                                   |
-| **Map**         | `grid` (orientación, ancho, alto, formato de coords), `scale.hexKm`, `terrains` (id, nombre, color, bioma?, tags), `hexes: Record<"col,row", Hex>`, `paths` | `ext.hexmapper`: tamaño de render, impresión (`hexMm`, papel), iconos, capas, etiquetas de texto.                                                            |
-| **Hex**         | `terrain?`, `name?`, `elevation?`, `danger?`, `region?`, `stats?: {key, value}[]`, `notes?` (Markdown corto), `noteRef?`, `tags?`                           | Valor dentro de `Map.hexes`, no entidad con id propio. Sin datos vacíos (`normalizeHex`).                                                                    |
-| **Path**        | `kind` (`road`, `river`, `trail`, … extensible), `hexes: "col,row"[]`                                                                                       | Caminos y ríos son **aristas entre hexes**: el Travel Engine pregunta "¿hay camino entre A y B?". El estilo visual va a `ext.hexmapper`.                     |
-| **POI**         | `location: { map, hex }`, `kind?`, `discovered?`                                                                                                            | Antes vivía dentro del hex; pasa a ser entidad para que otros motores lo referencien.                                                                        |
-| **Party**       | `location: { map, hex }`, `members?: 'character:id'[]`, `travel` (modo, ruta, destino, recursos, fatiga… ver `travel-engine.md`)                            | El grupo que viaja. Puede haber varios.                                                                                                                      |
-| **Character**   | `stats?`, `noteRef?`                                                                                                                                        | Fino a propósito: estado mecánico y enlace a la nota. Las fichas completas van en `ext.<sistema>` o en la app de notas.                                      |
-| **Faction**     | `stats?`, `clocks?: 'clock:id'[]`, `noteRef?`                                                                                                               | Igual de fino que Character.                                                                                                                                 |
-| **Clock**       | `segments`, `filled`, `kind?` (progreso, amenaza…)                                                                                                          | Relojes al estilo Blades.                                                                                                                                    |
-| **LogEntry**    | `time: GameTime`, `at: string` (fecha real ISO), `source` (`oracle`, `travel`, `user`…), `code`, `data`, `refs`                                             | El "Event" persistido: journal o historial de partida. Los motores emiten eventos en tiempo de ejecución y `session` decide cuáles se guardan como LogEntry. |
-| **EngineState** | `oracle` (mazos, ocurrencias, variables), `weather` (estado actual por región)                                                                              | Estado de ejecución de los motores, serializable. Cada motor define el suyo.                                                                                 |
+| Entity          | Main fields                                                                                                                                                         | Notes                                                                                                                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Campaign**    | `system?` (pack id), `packs` (ids + versions), `calendar`, `time: GameTime`                                                                                         | Container and global clock.                                                                                                                                                         |
+| **Map**         | `grid` (orientation, width, height, coordinate format), `scale.hexKm`, `terrains` (id, name, color, water?, biome?, tags), `hexes: Record<"col,row", Hex>`, `paths` | `ext.hexmapper`: render size, printing (`hexMm`, paper), icons, layers, text labels, assets.                                                                                        |
+| **Hex**         | `terrain?`, `name?`, `elevation?`, `danger?`, `region?`, `stats?: {key, value}[]`, `notes?`, `noteRef?`, `tags?`                                                    | A value inside `Map.hexes`, not an entity with its own id. No empty values (`normalizeHex`). `notes` are **short, optional GM notes** (Markdown); lore goes behind `noteRef`.       |
+| **Path**        | `kind` (`road`, `river`, `trail`, … extensible), `hexes: "col,row"[]`, `nodes?`, `offsets?`, `straight?`                                                            | Roads and rivers are **edges between hexes**: the Travel Engine asks "is there a road between A and B?". `nodes`/`offsets` shape the drawing; visual style goes to `ext.hexmapper`. |
+| **POI**         | `location: { map, hex }`, `kind?`, `discovered?`, `noteRef?`                                                                                                        | Used to live inside the hex; becomes an entity so other engines can reference it.                                                                                                   |
+| **Party**       | `location: { map, hex }`, `members?: 'character:id'[]`, `travel` (mode, route, destination, resources, fatigue… see `travel-engine.md`)                             | The traveling group. There can be several.                                                                                                                                          |
+| **Character**   | `stats?`, `noteRef?`                                                                                                                                                | Deliberately thin: mechanical state and a link to the note. Full sheets go in `ext.<system>` or the notes app.                                                                      |
+| **Faction**     | `stats?`, `clocks?: 'clock:id'[]`, `noteRef?`                                                                                                                       | As thin as Character.                                                                                                                                                               |
+| **Clock**       | `segments`, `filled`, `kind?` (progress, threat…)                                                                                                                   | Blades-style clocks.                                                                                                                                                                |
+| **LogEntry**    | `time: GameTime`, `at: string` (real ISO date), `source` (`oracle`, `travel`, `user`…), `code`, `data`, `refs`                                                      | The persisted "Event": session journal / history. Engines emit runtime events and `session` decides which become LogEntries.                                                        |
+| **EngineState** | `oracle` (decks, occurrences, variables), `weather` (current state per region)                                                                                      | Serializable engine runtime state. Each engine defines its own.                                                                                                                     |
 
-## Definiciones de packs
+## Pack definitions
 
-Las define cada motor y su formato está en el documento de ese motor. Todas comparten la cabecera:
+Each engine defines its own formats (see the engine docs). All share this header:
 
 ```yaml
-kind: table | generator | oracle | deck | travel-rules | weather-model
+kind: table | generator | oracle | deck | travel-rules | weather-model | bindings
 id: wilderness-encounter
-name: Wilderness Encounter # o { es: …, en: … } en metadatos
+name: Wilderness Encounter
 description: …
 tags: [encounter, wilderness]
 ```
 
-Y el manifiesto del pack:
+And the pack manifest:
 
 ```yaml
 # packs/kal-arath/pack.yaml
 id: kal-arath
 name: Kal-Arath
 version: 1.0.0
-locale: es
-license: '© autores de Kal-Arath; uso personal'
+locale: es # the one required base locale
+license: '© Castle Grief; personal use'
 dependencies: { core: ^1.0.0 }
 aliases: { reaction: kal-arath/reaction }
 ```
 
-## Bundle de fichero
+**Localization:** a pack has exactly one base locale. Translations are optional overlays (`locales/<lang>/…`, see `oracle-engine.md`); any string without a translation falls back to the base locale.
+
+## File bundle
 
 ```jsonc
 {
@@ -111,11 +113,12 @@ aliases: { reaction: kal-arath/reaction }
 }
 ```
 
-- **Un bundle puede contener solo una parte.** El hexmapper guarda `<mapId>.otd.json` con el mapa, sus POIs y, si se está jugando, el grupo y el estado. Una campaña completa es el mismo formato con más cosas dentro.
-- Los packs **no** van dentro del bundle, solo referenciados (`campaign.packs`). Los packs propios del usuario se distribuyen aparte.
+- **Extension: `.otd.json`.** It says "this is the common format", which is honest once a file carries more than a map (POIs, party, travel state, journal) and other tools read it; a dedicated extension can also be associated with the app later (OS, Tauri). The hexmapper switches to it when it migrates to OTD and keeps importing `.hexmap.json`.
+- **A bundle may contain just part of a campaign.** The hexmapper saves `<mapId>.otd.json` with the map, its POIs and, during play, the party and state. A full campaign is the same format with more inside.
+- Packs are **not** embedded in the bundle, only referenced (`campaign.packs`). User packs are distributed separately.
 
-## Decisiones abiertas
+## Resolved decisions
 
-1. **Notas Markdown en el hex** (`Hex.notes`): ¿las mantenemos como "notas rápidas del máster" o las quitamos para que todo el texto viva en la app de notas? Propuesta: mantenerlas cortas y opcionales, y recomendar `noteRef` para el lore.
-2. **Extensión del fichero:** pasar de `.hexmap.json` a `.otd.json`, conservando la importación del formato actual.
-3. **Varios idiomas en packs:** ¿un pack por idioma (`kal-arath` con `locale: es`) o textos `{ es, en }` dentro de cada entrada? Propuesta: un pack por idioma, más simple para autores; los metadatos sí pueden ser `{ es, en }`.
+1. **Hex notes** stay as short, optional GM notes; lore belongs behind `noteRef`.
+2. **File extension** `.otd.json`, adopted with the OTD migration.
+3. **Pack languages:** one required base locale per pack; optional per-locale translation overlays with per-string fallback to the base.

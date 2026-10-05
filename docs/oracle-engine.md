@@ -1,84 +1,85 @@
-# Oracle Engine — diseño (borrador para revisión)
+# Oracle Engine — design
 
-`@open-tabletop/oracle-engine`: motor genérico de **tablas, oráculos, generadores y mazos** para rol en solitario, hexcrawl, TTRPG y wargames narrativos. Recibe definiciones y contexto y devuelve resultados estructurados. No sabe qué es un hex, una nota ni un sistema de juego concreto.
+`@open-tabletop/oracle-engine`: a generic engine for **tables, oracles, generators and decks** for solo RPGs, hexcrawls, TTRPGs and narrative wargames. It takes definitions and context and returns structured results. It knows nothing about hexes, notes or any particular game system.
 
-## 1. Punto de partida
+## 1. Starting point
 
-- **Qué hay ya:** `@open-tabletop/hex` y `@open-tabletop/note-refs` (no los usa), el patrón de comandos inmutables del hexmapper y el validador manual de `model/serialize.ts`, que se sustituirá por Zod.
-- **Qué se extrae a paquetes compartidos**, porque lo necesitan también el Travel Engine y el Weather Engine:
-  - `@open-tabletop/random`: `RandomSource`, PRNG con semilla.
-  - `@open-tabletop/dice`: expresiones de dados con desglose.
-  - `@open-tabletop/conditions`: evaluador seguro de condiciones.
-- **Primer cliente real:** Kal-Arath. Su procedimiento diario (comprobación con 1d6 → tabla d66 → reacción con 2d6+PRE, con ventaja/desventaja) es el banco de pruebas del diseño.
+- **Existing pieces:** `@open-tabletop/hex` and `@open-tabletop/note-refs` (not used here), the hexmapper's immutable command pattern, and the hand-written validator in `model/serialize.ts` (to be replaced by Zod).
+- **Extracted into shared packages**, because the Travel and Weather engines need them too:
+  - `@open-tabletop/random`: `RandomSource`, seeded PRNG.
+  - `@open-tabletop/dice`: dice expressions with breakdown.
+  - `@open-tabletop/conditions`: safe condition evaluator.
+- **First real client:** Kal-Arath. Its daily procedure (1d6 check → d66 table → 2d6+PRE reaction, with advantage/disadvantage) is the design's test bench.
 
-## 2. Límites del módulo
+## 2. Module boundaries
 
-Hace:
+Does:
 
-- Cargar, validar y compilar packs.
-- Resolver tablas (por rangos y por pesos), oráculos con variantes, generadores declarativos, plantillas y mazos.
-- Aplicar modificadores y condiciones del contexto.
-- Controlar los resultados únicos o limitados.
-- Producir un registro de cada resolución.
+- Load, validate and compile packs (including translations).
+- Resolve tables (ranges and weights), oracles with variants, declarative generators, templates and decks.
+- Apply context modifiers and conditions.
+- Track once-only / limited results.
+- Produce a record of every resolution.
 
-No hace:
+Doesn't:
 
-- UI ni persistencia: devuelve el estado nuevo y el registro, y el llamante decide dónde guardarlos.
-- Leer ficheros directamente: recibe `{ path, content }` desde un adaptador (navegador, Node, CLI).
-- Reglas de un sistema concreto: viven en los packs.
-- Conocer otros motores: el Travel Engine no lo llama, lo hace `session`.
+- UI or persistence: it returns the new state and the record; the caller decides where to keep them.
+- Read files directly: it receives `{ path, content }` from an adapter (browser, Node, CLI).
+- Implement any system's rules: those live in packs.
+- Know other engines: the Travel Engine never calls it; `session` does.
 
-## 3. Arquitectura
+## 3. Architecture
 
-Composición de piezas pequeñas:
+Composition of small pieces:
 
 ```
-PackLoader ──► parsers (json, yaml)  ──► raw definitions
+PackLoader ──► parsers (json, yaml)  ──► raw definitions (+ locale overlays)
      │
      ▼
-Validator + Compiler  ──►  Registry (definiciones compiladas, inmutables, indexadas por id con namespace)
+Validator + Compiler  ──►  Registry (compiled, immutable definitions indexed by namespaced id)
                                 │
-OracleEngine (fachada fina) ────┤
-  ├─ TableResolver      (rangos/pesos, condiciones, once/max, subtablas, profundidad máxima)
-  ├─ OracleResolver     (variantes elegidas por entrada: likelihood…)
-  ├─ GeneratorResolver  (campos en orden, variables, plantillas)
-  ├─ DeckManager        (shuffle/draw/discard/reset sobre DeckState)
-  ├─ TemplateRenderer   ({{campo}}, {{1d6}}, sin lógica)
+OracleEngine (thin facade) ─────┤
+  ├─ TableResolver      (ranges/weights, conditions, once/max, sub-tables, max depth)
+  ├─ OracleResolver     (variants chosen by an input: likelihood…)
+  ├─ GeneratorResolver  (ordered fields, variables, templates)
+  ├─ DeckManager        (shuffle/draw/discard/reset over DeckState)
+  ├─ TemplateRenderer   ({{field}}, {{1d6}}, no logic)
   └─ DiceRoller         (@open-tabletop/dice) ◄── RandomSource (@open-tabletop/random)
 ```
 
-- **Cargar, validar y compilar se hace una vez.** Resolver solo trabaja sobre el `Registry` ya compilado: rangos normalizados, referencias resueltas, ciclos detectados y expresiones de dados ya parseadas.
-- **El estado no vive dentro del motor**: cada operación recibe `OracleState` y devuelve uno nuevo. `OracleSession` es un envoltorio opcional que guarda el estado por comodidad.
+- **Load/validate/compile happens once.** Resolution only works on the compiled `Registry`: normalized ranges, resolved references, detected cycles, pre-parsed dice expressions.
+- **State doesn't live in the engine**: every operation takes `OracleState` and returns a new one. `OracleSession` is an optional convenience wrapper that holds the state.
 
-## 4. Modelo de definiciones
+## 4. Definition model
 
-Los ficheros pueden ser YAML o JSON, con una o varias definiciones cada uno (`kind` obligatorio). Los ids son locales al pack; el registro los expone como `<pack>/<id>`.
+Files are YAML or JSON, one or more definitions each (`kind` is required). Ids are local to the pack; the registry exposes them as `<pack>/<id>`.
 
-### Tabla
+### Table
 
 ```yaml
 kind: table
 id: weather-spring
-name: Tiempo primaveral
-roll: 1d6 # si se omite, la tabla es por pesos
-clamp: true # tiradas modificadas fuera de rango → primera o última entrada (por defecto true)
+name: Spring weather
+roll: 1d6 # omit for a weighted table
+clamp: true # modified rolls outside the range use the first/last entry (default true)
 entries:
-  - range: 1 # número suelto o "a-b"
-    result: Cielo despejado
-    set: { lost: 1, forage: 1 } # valores estructurados que se fusionan en el resultado
+  - id: clear # optional stable id (recommended for translations and once/max state)
+    range: 1 # single number or "a-b"
+    result: Clear skies
+    set: { lost: 1, forage: 1 } # structured values merged into the result
   - range: 6
-    result: Tormenta
+    result: Storm
     set: { travel: none, forage: impossible, lost: -2 }
 ```
 
-- `result` es texto (plantilla) o un objeto. `table:` / `generator:` delegan en otra definición. `set:` añade campos.
-- **Por pesos:** `weight: 3` en lugar de `range`. El método de selección es intercambiable (`selector: range | weight`).
-- **Condiciones:** `when:` en una entrada la habilita o deshabilita según el contexto. Se elige solo entre las entradas habilitadas.
-- **Límites:** `once: true` o `maxOccurrences: 3`. Si sale una entrada agotada se vuelve a tirar (hasta N intentos) o se elige entre las disponibles, según `onExhausted: reroll | next | none`.
+- `result` is text (a template) or an object. `table:` / `generator:` delegate to another definition. `set:` adds fields.
+- **Weighted:** `weight: 3` instead of `range`. The selection method is pluggable (`selector: range | weight`).
+- **Conditions:** `when:` on an entry enables/disables it based on context; only enabled entries are candidates.
+- **Limits:** `once: true` or `maxOccurrences: 3`. An exhausted entry is re-rolled (up to N tries) or skipped to the next available one, per `onExhausted: reroll | next | none`.
 
-### Oráculo
+### Oracle
 
-Un oráculo es una tabla con **variantes elegidas por una entrada del contexto**. No hay nada de Mythic en el núcleo.
+An oracle is a table whose **variant is picked by a context input**. Nothing Mythic-specific in the core.
 
 ```yaml
 kind: oracle
@@ -89,19 +90,19 @@ roll: d100
 variants:
   likely:
     entries:
-      - { range: 1-5, result: Sí excepcional, set: { answer: yes, exceptional: true } }
-      - { range: 6-75, result: Sí, set: { answer: yes } }
-      - { range: 76-95, result: No, set: { answer: no } }
-      - { range: 96-100, result: No excepcional, set: { answer: no, exceptional: true } }
+      - { range: 1-5, result: Exceptional yes, set: { answer: yes, exceptional: true } }
+      - { range: 6-75, result: 'Yes', set: { answer: yes } }
+      - { range: 76-95, result: 'No', set: { answer: no } }
+      - { range: 96-100, result: Exceptional no, set: { answer: no, exceptional: true } }
   even: { … }
   unlikely: { … }
 ```
 
-La pregunta ("¿Hay guardias en la puerta?") va en el contexto y en el registro, no en la definición.
+The question ("Is the gate guarded?") goes into the context and the record, not the definition.
 
-### Generador
+### Generator
 
-Campos resueltos en orden. Cada campo puede usar los anteriores como contexto y como condición:
+Fields resolve in order; each may use earlier ones as context and in conditions:
 
 ```yaml
 kind: generator
@@ -109,144 +110,178 @@ id: settlement
 fields:
   size: { table: settlement-size }
   faction: { table: settlement-faction }
-  npc: { generator: npc } # composición
+  npc: { generator: npc } # composition
   conflict: { table: settlement-conflict, context: { size: '{{size.value}}' } }
-template: '{{size}} gobernado por {{faction}}. {{npc}}'
+template: '{{size}} ruled by {{faction}}. {{npc}}'
 ```
 
-### Mazo
+### Deck
 
 ```yaml
 kind: deck
 id: event-deck
 cards:
-  - { id: storm, result: Se avecina tormenta, count: 2 }
+  - { id: storm, result: A storm is coming, count: 2 }
   - { id: ambush, table: ambushes }
 reshuffle: when-empty # when-empty | manual | after-draw
 ```
 
-### Dados (`@open-tabletop/dice`)
+### Dice (`@open-tabletop/dice`)
 
-- **MVP:** `NdM`, `dM`, `d100`, `d66` (decenas y unidades), `NdF`, `+`/`-` constantes, `kh`/`kl` (quedarse con los mayores o menores: `2d6kh1`) y la variante de **ventaja/desventaja**, que repite la expresión entera y se queda con el mejor o peor total.
-- `roll: "2d6 + {{pre}}"`: la plantilla se sustituye con el contexto **antes** de parsear, pero solo se aceptan números. No hay forma de inyectar nada más.
-- La gramática se puede ampliar con nuevos tipos de término.
-- Resultado con desglose:
+- **MVP:** `NdM`, `dM`, `d100`, `d66` (tens and units), `NdF`, `+`/`-` constants, `kh`/`kl` (keep highest/lowest: `2d6kh1`), and **advantage/disadvantage**, which rolls the whole expression twice and keeps the better/worse total.
+- `roll: "2d6 + {{pre}}"`: the template is substituted from context **before** parsing, and only numbers are accepted, so nothing else can be injected.
+- The grammar is extensible with new term types.
+- Breakdown result:
 
 ```ts
 { expression: '2d6+1', terms: [{ kind: 'dice', sides: 6, rolls: [4, 5], kept: [4, 5] }, { kind: 'const', value: 1 }], total: 10 }
 ```
 
-### Condiciones (`@open-tabletop/conditions`)
+### Conditions (`@open-tabletop/conditions`)
 
-- **MVP** con objetos que se pueden comprobar sin evaluar código:
+- **MVP:** object matchers that can be checked without evaluating code:
 
 ```yaml
-when: { terrain: forest } # igualdad
-when: { terrain: [forest, swamp] } # pertenencia
+when: { terrain: forest } # equality
+when: { terrain: [forest, swamp] } # membership
 when: { danger: { gte: 4 }, season: { not: winter } }
 when: { any: [{ weather: storm }, { lost: true }] } # all/any/not
 ```
 
-- **Más adelante**, una DSL de strings (`danger >= 4 and season == "winter"`) que se compila al mismo árbol con un parser propio. Nunca `eval` ni `Function`.
+- **Later:** a string DSL (`danger >= 4 and season == "winter"`) compiled to the same tree by our own parser. Never `eval` or `Function`.
 
-## 5. Estado de ejecución
+## 5. Localization of packs
+
+- A pack has **exactly one required base locale** (`locale` in `pack.yaml`). It contains complete definitions.
+- **Translations are optional overlays**, one folder per locale, mirroring only the translatable strings:
+
+```
+packs/kal-arath/
+  pack.yaml            # locale: es
+  tables/encounters.yaml
+  locales/
+    en/encounters.yaml
+```
+
+```yaml
+# locales/en/encounters.yaml — keyed by definition id, then entry id
+encounters:
+  name: Encounters on the Kal-Arath plains
+  entries:
+    nomad-scouts: '{{1d6}} nomad scouts'
+    pilgrims: '{{3d6}} monastic pilgrims'
+```
+
+- Resolution takes a `locale`; **every string falls back to the base locale** when that locale has no translation for it (missing definitions, entries or fields are fine).
+- Translations only replace text (names, descriptions, result templates, generator templates, deck card texts). Structure (ranges, weights, dice, `set` values, conditions) always comes from the base, so translations can never change mechanics.
+- Entries are matched by **explicit entry ids**; entries without an id can't be translated (the validator warns). Translators therefore never depend on entry order.
+- The validator reports translations pointing at unknown definitions or entries, and lists untranslated strings per locale (useful for translators).
+
+## 6. Runtime state
 
 ```ts
 interface OracleState {
-  decks: Record<string, { draw: string[]; discard: string[] }> // orden explícito: reproducible
-  occurrences: Record<string, number> // '<pack>/<table>#<entryId>' → veces que ha salido
-  vars: Record<string, unknown> // variables persistentes de la partida
+  decks: Record<string, { draw: string[]; discard: string[] }> // explicit order: reproducible
+  occurrences: Record<string, number> // '<pack>/<table>#<entryId>' → times rolled
+  vars: Record<string, unknown> // persistent session variables
 }
 ```
 
-Es serializable y va al bundle OTD (`state.oracle`). Las definiciones no cambian nunca. Para identificar una entrada de forma estable, cada una tiene un `id` implícito (su índice) o uno explícito, recomendable en packs que vayan a evolucionar.
+It is serializable and goes into the OTD bundle (`state.oracle`). Definitions never change. Entries are identified by their explicit `id` or, failing that, their index (fine for stable packs; explicit ids are recommended for evolving ones).
 
-## 6. Modelo de resultados
+## 7. Result model
 
 ```ts
 interface Resolution {
   source: string // 'kal-arath/encounters'
   kind: 'table' | 'oracle' | 'generator' | 'deck'
-  value: Record<string, unknown> // estructurado: { creature: 'wolves', count: 6, … }
-  text?: string // plantilla renderizada
-  entry?: string // entrada elegida
-  rolls: DiceResult[] // desglose de todas las tiradas de este nodo
-  children: Resolution[] // subtablas y campos: árbol completo para la UI y la depuración
-  context: Record<string, unknown> // contexto efectivo usado
+  value: Record<string, unknown> // structured: { creature: 'wolves', count: 6, … }
+  text?: string // rendered template, in the requested locale
+  entry?: string // chosen entry
+  rolls: DiceResult[] // breakdown of every roll at this node
+  children: Resolution[] // sub-tables and fields: the full tree, for UI and debugging
+  context: Record<string, unknown> // effective context used
 }
 
 interface ResolveOutcome {
   resolution: Resolution
-  state: OracleState // estado nuevo (o el mismo, si no cambia)
-  record: HistoryRecord // { at, source, input, rolls, value, text, seed? }: el llamante lo persiste
+  state: OracleState // new state (or the same one if unchanged)
+  record: HistoryRecord // { at, source, input, rolls, value, text, seed? }: persisted by the caller
 }
 ```
 
-**No todo acaba siendo un string:** `value` siempre lleva datos utilizables, y `text` es una presentación opcional.
+**Not everything ends up as a string:** `value` always carries usable data; `text` is an optional presentation.
 
-## 7. API pública
+## 8. Public API
 
 ```ts
-const registry = await loadPacks(files, { parsers: [json, yaml] }) // valida y compila; errores con ruta y posición
-const engine = createOracleEngine({ registry, random: seeded(42), maxDepth: 16, onEvent })
+const registry = await loadPacks(files, { parsers: [json, yaml] }) // validates and compiles; errors with path and position
+const engine = createOracleEngine({
+  registry,
+  random: seeded(42),
+  maxDepth: 16,
+  locale: 'en',
+  onEvent,
+})
 
-engine.resolve('kal-arath/encounters', ctx, state) // tabla u oráculo
+engine.resolve('kal-arath/encounters', ctx, state) // table or oracle
 engine.generate('kal-arath/settlement', ctx, state)
 engine.draw('core/event-deck', state)
 engine.shuffle('core/event-deck', state) / engine.reset(id, state)
-engine.list({ kind: 'table', tag: 'encounter' }) // para buscadores de la UI
+engine.list({ kind: 'table', tag: 'encounter' }) // for UI browsers
 
-validatePack(files) // sin compilar, para editores y CLI (`oracle validate ./packs/kal-arath`)
+validatePack(files) // without compiling, for editors and the CLI (`oracle validate ./packs/kal-arath`)
 ```
 
-- `onEvent` es un callback opcional (`TABLE_RESOLVED`, `DECK_DRAWN`, `ORACLE_RESOLVED`…). No hay bus de eventos propio.
-- El contexto es un objeto plano de valores (`{ terrain, weather, danger, pre }`), así que el motor nunca conoce qué es un hex.
+- `onEvent` is an optional callback (`TABLE_RESOLVED`, `DECK_DRAWN`, `ORACLE_RESOLVED`…). No dedicated event bus.
+- The context is a plain object of values (`{ terrain, weather, danger, pre }`), so the engine never knows what a hex is.
 
-## 8. Estructura de directorios
+## 9. Directory layout
 
 ```
 packages/oracle-engine/src/
-  index.ts             # API pública
-  definitions/         # tipos y esquemas Zod de las definiciones
-  loader/              # PackLoader, parsers json/yaml, resolución de dependencias y alias
+  index.ts             # public API
+  definitions/         # definition types and Zod schemas
+  loader/              # PackLoader, json/yaml parsers, dependency and alias resolution, locale overlays
   compile/             # Validator + Compiler → Registry
   resolve/             # table.ts, oracle.ts, generator.ts, deck.ts, template.ts
-  state.ts             # OracleState y helpers inmutables
+  state.ts             # OracleState and immutable helpers
   history.ts
 packages/dice/src/        parser.ts, roll.ts, types.ts
 packages/random/src/      index.ts (RandomSource, seeded, mathRandom)
 packages/conditions/src/  index.ts (match(cond, ctx), validate(cond))
 packs/core/               pack.yaml, oracles/yes-no.yaml, …
-packs/kal-arath/          pack.yaml (en git) + tablas (locales, ignoradas)
+packs/kal-arath/          pack.yaml (in git) + tables in the private packs repo
 ```
 
-## 9. Riesgos
+## 10. Risks
 
-| Riesgo                                                                | Mitigación                                                                                                    |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| La DSL de condiciones crece hasta ser un lenguaje                     | MVP con objetos y lista cerrada de operadores; la DSL de texto compila al mismo árbol.                        |
-| Plantillas con lógica (bucles, ifs)                                   | Solo sustitución de valores y dados. La lógica va en `when` o en generadores.                                 |
-| Las ids de entrada cambian al editar un pack y se rompe `occurrences` | Ids de entrada explícitos opcionales; aviso del validador si un pack con estado cambia de forma incompatible. |
-| Recursión infinita (A → B → A)                                        | El compilador detecta ciclos estáticos y en ejecución hay `maxDepth` para los dinámicos (condiciones).        |
-| Copyright de packs de terceros                                        | El motor no incluye contenido; `packs/kal-arath` es local; `core` solo tiene contenido FOSS propio.           |
-| Reproducibilidad                                                      | `RandomSource` inyectable; cada registro guarda las tiradas en crudo; mazos con orden explícito en el estado. |
-| Packs grandes y lentos                                                | Se compilan una vez; resolver es O(entradas) sin reparsear.                                                   |
+| Risk                                                           | Mitigation                                                                                                |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| The condition DSL grows into a language                        | MVP uses objects with a closed operator list; the future string DSL compiles to the same tree.            |
+| Templates with logic (loops, ifs)                              | Value and dice substitution only. Logic goes in `when` or generators.                                     |
+| Entry ids change when a pack is edited, breaking `occurrences` | Optional explicit entry ids; the validator warns when a pack with state changes incompatibly.             |
+| Infinite recursion (A → B → A)                                 | The compiler detects static cycles; `maxDepth` at runtime catches dynamic ones (conditions).              |
+| Translations changing mechanics                                | Overlays can only replace text; structure always comes from the base locale.                              |
+| Copyright of third-party packs                                 | The engine ships no content; personal-use packs live in the private repo; `core` is our own FOSS content. |
+| Reproducibility                                                | Injected `RandomSource`; every record keeps raw rolls; decks keep explicit order in state.                |
+| Large, slow packs                                              | Compiled once; resolution is O(entries) without reparsing.                                                |
 
-## 10. MVP
+## 11. MVP
 
-- `random` (mulberry32 con semilla y `Math.random`), `dice` (gramática MVP con desglose), `conditions` (matcher de objetos).
-- Loader JSON + YAML, packs con `pack.yaml`, namespaces y dependencias simples.
-- Validación: sintaxis, referencias inexistentes, rangos solapados o con huecos, ciclos, dependencias que faltan, mazos vacíos.
-- Tablas por rangos y por pesos, subtablas, oráculos con variantes, generadores simples, plantillas, contexto y modificadores.
-- `once` / `maxOccurrences`, `OracleState`, historial, resultados estructurados.
-- Tests con RNG determinista para todo lo anterior.
-- **Fuera del MVP:** UI compleja, editor visual, DSL de texto, CSV/Markdown, importadores, CLI, scripting, sincronización y red.
+- `random` (seeded mulberry32 and `Math.random`), `dice` (MVP grammar with breakdown), `conditions` (object matcher).
+- JSON + YAML loader, packs with `pack.yaml`, namespaces and simple dependencies, locale overlays with fallback.
+- Validation: syntax, unknown references, overlapping or gapped ranges, cycles, missing dependencies, empty decks, translation keys that don't exist.
+- Range and weighted tables, sub-tables, oracles with variants, simple generators, templates, context and modifiers.
+- `once` / `maxOccurrences`, `OracleState`, history, structured results.
+- Tests with deterministic RNG for all of the above.
+- **Not in the MVP:** complex UI, visual editor, string DSL, CSV/Markdown, importers, CLI, scripting, sync, network.
 
-## 11. Ejemplos con la estructura de Kal-Arath
+## 12. Examples with Kal-Arath's structure
 
-El contenido real del manual va en el pack local. Aquí los ejemplos usan textos de relleno para mostrar la forma.
+The real rulebook content lives in the private pack; these examples use placeholder text to show the shape.
 
-**Comprobación de encuentro diaria** (1d6, con 5–6 hay encuentro; después tabla d66 y reacción con 2d6+PRE):
+**Daily encounter check** (1d6, encounter on 5–6; then a d66 table and a 2d6+PRE reaction):
 
 ```yaml
 kind: generator
@@ -259,45 +294,40 @@ fields:
   reaction:
     when: { check: { gte: 5 } }
     table: reaction
-template: '{{encounter}} — reacción: {{reaction}}'
+template: '{{encounter}} — reaction: {{reaction}}'
 ---
 kind: table
 id: encounters
 roll: d66
 entries:
-  - { range: 11, result: '{{1d6}} exploradores nómadas', set: { kind: humans } }
-  - { range: 12, result: '{{3d6}} peregrinos', set: { kind: humans } }
-  - { range: 13, result: '{{count}} bestias de la estepa', set: { count: '{{2d6}}', kind: beast } }
-  # … hasta 66
+  - { id: scouts, range: 11, result: '{{1d6}} nomad scouts', set: { kind: humans } }
+  - { id: pilgrims, range: 12, result: '{{3d6}} pilgrims', set: { kind: humans } }
+  - {
+      id: beasts,
+      range: 13,
+      result: '{{count}} steppe beasts',
+      set: { count: '{{2d6}}', kind: beast },
+    }
+  # … up to 66
 ---
 kind: table
 id: reaction
-roll: '2d6 + {{pre}}' # PRE del grupo, desde el contexto
+roll: '2d6 + {{pre}}' # party PRE, from context
 entries:
-  - { range: 2-3, result: Matar, set: { hostile: true } }
-  - { range: 4-6, result: Hostil, set: { hostile: true } }
-  - { range: 7-8, result: Neutral }
-  - { range: 9-10, result: Amistoso }
-  - { range: 11-12, result: Servicial }
+  - { id: kill, range: 2-3, result: Kill, set: { hostile: true } }
+  - { id: hostile, range: 4-6, result: Hostile, set: { hostile: true } }
+  - { id: neutral, range: 7-8, result: Neutral }
+  - { id: friendly, range: 9-10, result: Friendly }
+  - { id: helpful, range: 11-12, result: Helpful }
 ```
 
-Uso desde la capa de integración, cuando el Travel Engine emite `ENCOUNTER_CHECK_REQUIRED`:
+Used by the integration layer when the Travel Engine emits `ENCOUNTER_CHECK_REQUIRED`:
 
 ```ts
 engine.generate('kal-arath/encounter-check', { pre: party.stats.pre, advantage: 0 }, state)
-// → value: { check: 5, encounter: { kind: 'humans', … }, reaction: { hostile: true } }, text: '4 exploradores nómadas — reacción: Hostil'
+// → value: { check: 5, encounter: { kind: 'humans', … }, reaction: { hostile: true } }, text: '4 nomad scouts — reaction: Hostile'
 ```
 
-**Clima por estación**: una tabla por estación con los modificadores en `set`, y un generador que elige la tabla según el contexto.
+**Weather by season:** one table per season with modifiers in `set`, selected through a dynamic reference `table: 'weather-{{season}}'` validated against the seasons declared in `inputs`. Weather with inertia (Markov) belongs to `weather-engine`, not to a table.
 
-```yaml
-kind: table
-id: weather
-roll: 1d6
-entries: # entradas habilitadas por estación; se tira solo entre las de la estación actual
-  - { range: 1, when: { season: spring }, table: weather-spring, … }
-```
-
-Mejor todavía: con `table: 'weather-{{season}}'`, la referencia dinámica se valida contra las estaciones declaradas en `inputs`. El clima con inercia (Markov) corresponde al `weather-engine`, no a una tabla.
-
-**Perderse**: no es una tabla, sino una **regla de navegación** del Travel Engine (1–2 en 1d6, sin tirada si se va por camino o río). El Oracle solo la resolvería si el pack la declara como tabla y la capa de integración la asocia a `NAVIGATION_CHECK_REQUIRED`.
+**Getting lost** isn't a table but a Travel Engine **navigation rule** (1–2 on 1d6, no roll when following a road or river). The Oracle would only resolve it if the pack declares it as a table and the bindings map it to `NAVIGATION_CHECK_REQUIRED`.
