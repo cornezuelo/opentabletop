@@ -57,6 +57,33 @@ describe('assets', () => {
       rotation: 270,
     })
     expect(normalizeIcon({ id: '' })).toBeUndefined()
+    // Halo/outline settings only persist while enabled, and only when not default.
+    expect(
+      normalizeIcon({
+        id: 'game:x',
+        halo: false,
+        haloColor: '#000000',
+        outline: true,
+        outlineWidth: 0.03,
+      }),
+    ).toEqual({ id: 'game:x', outline: true })
+    expect(
+      normalizeIcon({
+        id: 'game:x',
+        halo: true,
+        haloColor: '#FF0000',
+        haloSize: 5,
+        outline: true,
+        outlineColor: '#000000',
+      }),
+    ).toEqual({
+      id: 'game:x',
+      halo: true,
+      haloColor: '#ff0000',
+      haloSize: 0.9,
+      outline: true,
+      outlineColor: '#000000',
+    })
   })
 
   it('reads icons saved as plain ids', () => {

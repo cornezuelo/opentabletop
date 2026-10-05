@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getBuiltinIcon, iconImage, iconLabel } from '../../lib/icons/registry'
   import { t } from '../../lib/i18n/index.svelte'
-  import type { HexIcon, HexKey } from '../../lib/model/types'
+  import type { HexData, HexIcon, HexKey } from '../../lib/model/types'
   import IconStyleControls from '../IconStyleControls.svelte'
   import { editor } from '../../lib/store/editor.svelte'
 
@@ -41,7 +41,14 @@
     <IconStyleControls
       style={icon}
       tintable={image?.tintable ?? true}
-      onchange={(style) => editor.editHex(key, (h) => ({ ...h, icon: { ...style, id: icon.id } }))}
+      onchange={(style, live) => {
+        const update = (h: HexData) => ({ ...h, icon: { ...style, id: icon.id } })
+        if (live) editor.previewHex(key, update)
+        else {
+          editor.previewHex(key, update)
+          editor.commitHex(key)
+        }
+      }}
     />
   {/if}
 </div>

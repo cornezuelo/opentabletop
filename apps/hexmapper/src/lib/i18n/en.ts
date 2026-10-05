@@ -130,6 +130,8 @@ export const en = {
     rotation: 'Rotation',
     flip: 'Flip',
     halo: 'Halo',
+    outline: 'Outline',
+    thickness: 'Thickness',
     reset: 'Reset',
     edit: 'Style',
   },

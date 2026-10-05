@@ -2,6 +2,7 @@ import {
   Application,
   BitmapFont,
   BitmapText,
+  ColorMatrixFilter,
   Container,
   Graphics,
   GraphicsContext,
@@ -10,7 +11,7 @@ import {
   Text,
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
-import { hasMetadata, nodeFlags } from '../model/hex'
+import { hasMetadata, ICON_DEFAULTS, nodeFlags } from '../model/hex'
 import type { MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { catmullRom, dashes } from './curves'
@@ -68,7 +69,6 @@ const CROSSHAIR = `url("data:image/svg+xml,${encodeURIComponent(
 /** Bundled icons are tinted: dark ink on painted hexes, light on empty ones. */
 const ICON_INK = 0x1b1a17
 const ICON_INK_EMPTY = 0xe8e2d4
-const ICON_HALO = 0xf4eedd
 /** Icon size as a fraction of the hex size, nudged down to leave room for the coordinate. */
 const ICON_SIZE = 1.25
 const ICON_OFFSET_Y = 0.1
@@ -420,7 +420,11 @@ export class MapRenderer {
           fill: style.color,
           align: 'center',
           ...(style.halo && {
-            stroke: { color: 0xf4eedd, width: fontSize * 0.18, join: 'round' as const },
+            stroke: {
+              color: style.haloColor,
+              width: fontSize * style.haloWidth,
+              join: 'round' as const,
+            },
           }),
         },
       })
@@ -496,16 +500,34 @@ export class MapRenderer {
       const size = grid.hexSize * ICON_SIZE * (icon.scale ?? 1)
       const { x, y } = this.centerOf(cell)
       const cy = y + grid.hexSize * ICON_OFFSET_Y
-      if (icon.halo) halos.circle(x, cy, size * 0.48).fill({ color: ICON_HALO, alpha: 0.75 })
+      if (icon.halo)
+        halos
+          .circle(x, cy, size * (icon.haloSize ?? ICON_DEFAULTS.haloSize))
+          .fill({ color: icon.haloColor ?? ICON_DEFAULTS.haloColor, alpha: 0.85 })
+      const place = (sprite: Sprite, dx = 0, dy = 0) => {
+        sprite.anchor.set(0.5)
+        sprite.setSize(size, size)
+        if (icon.flip) sprite.scale.x *= -1
+        sprite.angle = icon.rotation ?? 0
+        sprite.position.set(x + dx, cy + dy)
+        this.iconLayer.addChild(sprite)
+      }
+      if (icon.outline) {
+        // Outline: the silhouette drawn around the icon in 12 directions, behind it.
+        const width = size * (icon.outlineWidth ?? ICON_DEFAULTS.outlineWidth)
+        const color = icon.outlineColor ?? ICON_DEFAULTS.outlineColor
+        for (let i = 0; i < 12; i++) {
+          const angle = (i / 12) * Math.PI * 2
+          const copy = new Sprite(texture)
+          if (image.tintable) copy.tint = color
+          else copy.filters = [silhouette(color)]
+          place(copy, Math.cos(angle) * width, Math.sin(angle) * width)
+        }
+      }
       const sprite = new Sprite(texture)
-      sprite.anchor.set(0.5)
-      sprite.setSize(size, size)
-      if (icon.flip) sprite.scale.x *= -1
-      sprite.angle = icon.rotation ?? 0
-      sprite.position.set(x, cy)
       if (image.tintable)
         sprite.tint = icon.color ?? (hex.terrain || icon.halo ? ICON_INK : ICON_INK_EMPTY)
-      this.iconLayer.addChild(sprite)
+      place(sprite)
     }
   }
 
@@ -723,11 +745,33 @@ export class MapRenderer {
   }
 }
 
+const silhouettes = new Map<string, ColorMatrixFilter>()
+
+/** Filter turning any image into a flat silhouette of `color` (keeps alpha). Cached per color. */
+function silhouette(color: string): ColorMatrixFilter {
+  const cached = silhouettes.get(color)
+  if (cached) return cached
+  const n = parseInt(color.slice(1), 16)
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255)
+  const filter = new ColorMatrixFilter()
+  filter.matrix = [0, 0, 0, 0, r, 0, 0, 0, 0, g, 0, 0, 0, 0, b, 0, 0, 0, 1, 0]
+  silhouettes.set(color, filter)
+  return filter
+}
+
 function clampZoom(scale: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale))
 }
 
+const TEXT_INPUT_TYPES = new Set(['text', 'search', 'number', 'email', 'url', 'password', 'tel'])
+
+/**
+ * True when keys go to a text field. Sliders, checkboxes, color pickers and buttons
+ * don't count, so shortcuts like Ctrl+Z still work right after using them.
+ */
 export function isTyping(e: KeyboardEvent): boolean {
   const target = e.target as HTMLElement | null
-  return !!target?.closest('input, textarea, select, [contenteditable="true"]')
+  if (!target) return false
+  if (target instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(target.type)
+  return !!target.closest('textarea, select, [contenteditable="true"]')
 }

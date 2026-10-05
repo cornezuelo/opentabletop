@@ -132,6 +132,8 @@ export const es: Messages = {
     rotation: 'Rotación',
     flip: 'Voltear',
     halo: 'Halo',
+    outline: 'Contorno',
+    thickness: 'Grosor',
     reset: 'Restablecer',
     edit: 'Estilo',
   },

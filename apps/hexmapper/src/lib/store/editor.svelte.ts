@@ -147,6 +147,26 @@ class Editor {
     return this.map.layers[id].locked
   }
 
+  /** Hexes being edited live (slider drags): one batch per hex until committed. */
+  private hexPreviews = new Map<HexKey, HexEditBatch>()
+
+  /** Applies a hex change immediately without recording it (call commitHex later). */
+  previewHex(key: HexKey, update: (hex: HexData) => HexData): void {
+    let batch = this.hexPreviews.get(key)
+    if (!batch) {
+      batch = new HexEditBatch(this.map)
+      this.hexPreviews.set(key, batch)
+    }
+    if (batch.edit(key, update)) this.notify({ kind: 'hexes', keys: [key] })
+  }
+
+  /** Records pending live edits of a hex as a single undoable step. */
+  commitHex(key: HexKey): void {
+    const command = this.hexPreviews.get(key)?.finish()
+    this.hexPreviews.delete(key)
+    if (command) this.record(command)
+  }
+
   /** Edits one hex as a single undoable step. No-op if nothing changes. */
   editHex(key: HexKey, update: (hex: HexData) => HexData): void {
     const batch = new HexEditBatch(this.map)
@@ -173,6 +193,7 @@ class Editor {
     this.selected = null
     this.selectedLabel = null
     this.labelEdits.clear()
+    this.hexPreviews.clear()
     this.pathDraft = null
     if (!map.terrains.some((t) => t.id === this.terrainId))
       this.terrainId = map.terrains[0]?.id ?? ''

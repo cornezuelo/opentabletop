@@ -4,6 +4,7 @@ import {
   DEFAULT_LABEL_STYLE,
   DEFAULT_PRINT,
   defaultLayers,
+  LABEL_HALO_RANGE,
   LABEL_SIZE_RANGE,
   MAX_MAP_SIZE,
   MIN_MAP_SIZE,
@@ -134,6 +135,11 @@ function parseIcon(value: unknown): HexData['icon'] {
     rotation: typeof value.rotation === 'number' ? value.rotation : undefined,
     flip: value.flip === true,
     halo: value.halo === true,
+    haloColor: typeof value.haloColor === 'string' ? value.haloColor : undefined,
+    haloSize: typeof value.haloSize === 'number' ? value.haloSize : undefined,
+    outline: value.outline === true,
+    outlineColor: typeof value.outlineColor === 'string' ? value.outlineColor : undefined,
+    outlineWidth: typeof value.outlineWidth === 'number' ? value.outlineWidth : undefined,
   }
 }
 
@@ -232,6 +238,14 @@ export function parseLabelStyle(value: unknown): LabelStyle {
     rotation: typeof s.rotation === 'number' && Number.isFinite(s.rotation) ? s.rotation : 0,
     italic: s.italic === true,
     halo: s.halo !== false,
+    haloColor:
+      typeof s.haloColor === 'string' && /^#[0-9a-f]{6}$/i.test(s.haloColor)
+        ? s.haloColor
+        : d.haloColor,
+    haloWidth:
+      typeof s.haloWidth === 'number' && Number.isFinite(s.haloWidth)
+        ? Math.min(LABEL_HALO_RANGE[1], Math.max(LABEL_HALO_RANGE[0], s.haloWidth))
+        : d.haloWidth,
   }
 }
 

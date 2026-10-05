@@ -51,8 +51,16 @@ export interface HexIcon {
   /** Degrees clockwise. */
   rotation?: number
   flip?: boolean
-  /** Soft light disc behind the icon, for legibility on busy terrain. */
+  /** Disc behind the icon, for legibility on busy terrain. */
   halo?: boolean
+  haloColor?: string
+  /** Disc radius as a fraction of the icon size (default 0.48). */
+  haloSize?: number
+  /** Outline hugging the icon's shape. */
+  outline?: boolean
+  outlineColor?: string
+  /** Outline thickness as a fraction of the icon size (default 0.03). */
+  outlineWidth?: number
 }
 
 export type IconStyle = Omit<HexIcon, 'id'>
@@ -96,8 +104,11 @@ export interface LabelStyle {
   /** Degrees clockwise. */
   rotation: number
   italic: boolean
-  /** Light outline for legibility over busy terrain. */
+  /** Outline around the letters for legibility over busy terrain. */
   halo: boolean
+  haloColor: string
+  /** Outline thickness as a fraction of the font size. */
+  haloWidth: number
 }
 
 /** Fixed map layers, in draw order. */

@@ -1,18 +1,61 @@
 import type { HexData, HexIcon, MapPath } from './types'
 
 export const ICON_SCALE_RANGE = [0.4, 2] as const
+export const ICON_HALO_RANGE = [0.3, 0.9] as const
+export const ICON_OUTLINE_RANGE = [0.01, 0.1] as const
+export const ICON_DEFAULTS = {
+  haloColor: '#f4eedd',
+  haloSize: 0.48,
+  outlineColor: '#f4eedd',
+  outlineWidth: 0.03,
+}
+
+const HEX_COLOR = /^#[0-9a-f]{6}$/i
+
+function clampOptional(
+  value: number | undefined,
+  [min, max]: readonly [number, number],
+  fallback: number,
+): number | undefined {
+  if (value === undefined || !Number.isFinite(value)) return undefined
+  const clamped = Math.min(max, Math.max(min, value))
+  return clamped === fallback ? undefined : clamped
+}
+
+function colorOptional(value: string | undefined, fallback: string): string | undefined {
+  if (!value || !HEX_COLOR.test(value)) return undefined
+  const color = value.toLowerCase()
+  return color === fallback ? undefined : color
+}
 
 /** Drops default values so equal icons compare and serialize identically. */
 export function normalizeIcon(icon: HexIcon | undefined): HexIcon | undefined {
   if (!icon?.id) return undefined
   const out: HexIcon = { id: icon.id }
-  if (icon.color && /^#[0-9a-f]{6}$/i.test(icon.color)) out.color = icon.color.toLowerCase()
+  if (icon.color && HEX_COLOR.test(icon.color)) out.color = icon.color.toLowerCase()
   if (icon.scale !== undefined && Number.isFinite(icon.scale) && icon.scale !== 1)
     out.scale = Math.min(ICON_SCALE_RANGE[1], Math.max(ICON_SCALE_RANGE[0], icon.scale))
   const rotation = (((icon.rotation ?? 0) % 360) + 360) % 360
   if (Number.isFinite(rotation) && rotation !== 0) out.rotation = rotation
   if (icon.flip) out.flip = true
-  if (icon.halo) out.halo = true
+  if (icon.halo) {
+    out.halo = true
+    const haloColor = colorOptional(icon.haloColor, ICON_DEFAULTS.haloColor)
+    const haloSize = clampOptional(icon.haloSize, ICON_HALO_RANGE, ICON_DEFAULTS.haloSize)
+    if (haloColor) out.haloColor = haloColor
+    if (haloSize !== undefined) out.haloSize = haloSize
+  }
+  if (icon.outline) {
+    out.outline = true
+    const outlineColor = colorOptional(icon.outlineColor, ICON_DEFAULTS.outlineColor)
+    const outlineWidth = clampOptional(
+      icon.outlineWidth,
+      ICON_OUTLINE_RANGE,
+      ICON_DEFAULTS.outlineWidth,
+    )
+    if (outlineColor) out.outlineColor = outlineColor
+    if (outlineWidth !== undefined) out.outlineWidth = outlineWidth
+  }
   return out
 }
 

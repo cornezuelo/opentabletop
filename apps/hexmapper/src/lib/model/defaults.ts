@@ -46,9 +46,12 @@ export const DEFAULT_LABEL_STYLE: LabelStyle = {
   rotation: 0,
   italic: false,
   halo: true,
+  haloColor: '#f4eedd',
+  haloWidth: 0.18,
 }
 
 export const LABEL_SIZE_RANGE = [0.2, 4] as const
+export const LABEL_HALO_RANGE = [0.05, 0.4] as const
 
 export function defaultLayers(): Record<LayerId, LayerState> {
   return Object.fromEntries(

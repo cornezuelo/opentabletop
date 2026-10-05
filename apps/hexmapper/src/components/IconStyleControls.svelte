@@ -1,61 +1,52 @@
 <script lang="ts">
   import { t } from '../lib/i18n/index.svelte'
-  import { ICON_SCALE_RANGE } from '../lib/model/hex'
+  import {
+    ICON_DEFAULTS,
+    ICON_HALO_RANGE,
+    ICON_OUTLINE_RANGE,
+    ICON_SCALE_RANGE,
+  } from '../lib/model/hex'
   import type { IconStyle } from '../lib/model/types'
+  import ColorPicker from './ColorPicker.svelte'
 
+  /**
+   * `onchange(style, live)`: live = true while a slider is being dragged (preview),
+   * false for the final value (commit).
+   */
   let {
     style,
     tintable = true,
     onchange,
-  }: { style: IconStyle; tintable?: boolean; onchange: (style: IconStyle) => void } = $props()
+  }: {
+    style: IconStyle
+    tintable?: boolean
+    onchange: (style: IconStyle, live: boolean) => void
+  } = $props()
 
-  const SWATCHES = ['#1b1a17', '#f4eedd', '#8b1e1e', '#c8a24a', '#2f5d8a', '#3d6b35', '#5b3a6e']
-
-  function set(patch: IconStyle) {
-    onchange({ ...style, ...patch })
+  function set(patch: IconStyle, live = false) {
+    onchange({ ...style, ...patch }, live)
   }
+
+  const percent = (value: number) => `${Math.round(value * 100)}%`
 </script>
 
 <div class="controls">
   {#if tintable}
     <div class="field">
       <span>{t('iconStyle.color')}</span>
-      <div class="swatches">
-        <button
-          class="auto"
-          class:active={!style.color}
-          title={t('iconStyle.auto')}
-          onclick={() => set({ color: undefined })}>{t('iconStyle.auto')}</button
-        >
-        {#each SWATCHES as color (color)}
-          <button
-            class="swatch"
-            class:active={style.color === color}
-            style:background={color}
-            title={color}
-            aria-label={color}
-            onclick={() => set({ color })}
-          ></button>
-        {/each}
-        <input
-          type="color"
-          value={style.color ?? '#1b1a17'}
-          title={t('iconStyle.custom')}
-          aria-label={t('iconStyle.custom')}
-          onchange={(e) => set({ color: e.currentTarget.value })}
-        />
-      </div>
+      <ColorPicker value={style.color} auto onchange={(color) => set({ color })} />
     </div>
   {/if}
 
   <label class="field">
-    <span>{t('iconStyle.size')}: {Math.round((style.scale ?? 1) * 100)}%</span>
+    <span>{t('iconStyle.size')}: {percent(style.scale ?? 1)}</span>
     <input
       type="range"
       min={ICON_SCALE_RANGE[0]}
       max={ICON_SCALE_RANGE[1]}
       step="0.05"
       value={style.scale ?? 1}
+      oninput={(e) => set({ scale: Number(e.currentTarget.value) }, true)}
       onchange={(e) => set({ scale: Number(e.currentTarget.value) })}
     />
   </label>
@@ -68,20 +59,55 @@
       max="345"
       step="15"
       value={style.rotation ?? 0}
+      oninput={(e) => set({ rotation: Number(e.currentTarget.value) }, true)}
       onchange={(e) => set({ rotation: Number(e.currentTarget.value) })}
     />
   </label>
 
-  <div class="toggles">
-    <label>
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={!!style.flip}
+      onchange={(e) => set({ flip: e.currentTarget.checked })}
+    />
+    {t('iconStyle.flip')}
+  </label>
+
+  <div class="group">
+    <label class="check">
       <input
         type="checkbox"
-        checked={!!style.flip}
-        onchange={(e) => set({ flip: e.currentTarget.checked })}
+        checked={!!style.outline}
+        onchange={(e) => set({ outline: e.currentTarget.checked })}
       />
-      {t('iconStyle.flip')}
+      {t('iconStyle.outline')}
     </label>
-    <label>
+    {#if style.outline}
+      <ColorPicker
+        value={style.outlineColor ?? ICON_DEFAULTS.outlineColor}
+        onchange={(outlineColor) => set({ outlineColor })}
+      />
+      <label class="field">
+        <span
+          >{t('iconStyle.thickness')}: {percent(
+            style.outlineWidth ?? ICON_DEFAULTS.outlineWidth,
+          )}</span
+        >
+        <input
+          type="range"
+          min={ICON_OUTLINE_RANGE[0]}
+          max={ICON_OUTLINE_RANGE[1]}
+          step="0.005"
+          value={style.outlineWidth ?? ICON_DEFAULTS.outlineWidth}
+          oninput={(e) => set({ outlineWidth: Number(e.currentTarget.value) }, true)}
+          onchange={(e) => set({ outlineWidth: Number(e.currentTarget.value) })}
+        />
+      </label>
+    {/if}
+  </div>
+
+  <div class="group">
+    <label class="check">
       <input
         type="checkbox"
         checked={!!style.halo}
@@ -89,8 +115,27 @@
       />
       {t('iconStyle.halo')}
     </label>
-    <button class="reset" onclick={() => onchange({})}>{t('iconStyle.reset')}</button>
+    {#if style.halo}
+      <ColorPicker
+        value={style.haloColor ?? ICON_DEFAULTS.haloColor}
+        onchange={(haloColor) => set({ haloColor })}
+      />
+      <label class="field">
+        <span>{t('iconStyle.size')}: {percent(style.haloSize ?? ICON_DEFAULTS.haloSize)}</span>
+        <input
+          type="range"
+          min={ICON_HALO_RANGE[0]}
+          max={ICON_HALO_RANGE[1]}
+          step="0.02"
+          value={style.haloSize ?? ICON_DEFAULTS.haloSize}
+          oninput={(e) => set({ haloSize: Number(e.currentTarget.value) }, true)}
+          onchange={(e) => set({ haloSize: Number(e.currentTarget.value) })}
+        />
+      </label>
+    {/if}
   </div>
+
+  <button class="reset" onclick={() => onchange({}, false)}>{t('iconStyle.reset')}</button>
 </div>
 
 <style>
@@ -100,61 +145,29 @@
     gap: 8px;
   }
 
-  .swatches {
+  .check {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    color: var(--text);
   }
 
-  .swatch {
-    width: 22px;
-    height: 22px;
-    border: 1px solid var(--panel-border);
-    border-radius: 50%;
-    cursor: pointer;
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px 8px;
+    background: var(--bg);
+    border-radius: 6px;
   }
 
-  .swatch.active,
-  .auto.active {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
-
-  .auto,
   .reset {
-    padding: 2px 8px;
+    align-self: flex-start;
+    padding: 2px 10px;
     font-size: 12px;
     background: var(--bg);
     border: 1px solid var(--panel-border);
     border-radius: 999px;
     cursor: pointer;
-  }
-
-  input[type='color'] {
-    width: 26px;
-    height: 24px;
-    padding: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  .toggles {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    color: var(--text);
-  }
-
-  .toggles label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .reset {
-    margin-left: auto;
   }
 </style>
