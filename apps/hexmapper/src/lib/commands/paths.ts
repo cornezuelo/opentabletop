@@ -1,4 +1,5 @@
-import type { HexMap, MapLabel, MapPath } from '../model/types'
+import { cellLine, keyOf, parseKey, type Offset, type Orientation } from '@open-tabletop/hex'
+import type { HexKey, HexMap, MapLabel, MapPath } from '../model/types'
 import type { Command, MapChange } from './command'
 
 type Collections = { paths: MapPath; labels: MapLabel }
@@ -56,4 +57,45 @@ export class ReplaceLabelCommand extends ReplaceItemCommand<'labels'> {
 /** Removes consecutive duplicates (clicking the same hex twice). */
 export function dedupeConsecutive<T>(items: T[]): T[] {
   return items.filter((item, i) => i === 0 || item !== items[i - 1])
+}
+
+/**
+ * Moves vertex `index` of a path to `target`, re-filling the hexes between it and its
+ * neighbors with straight hex lines so the path stays contiguous. Returns the new
+ * hex/offset lists and the vertex's new index (it may merge into a neighbor).
+ */
+export function rerouteVertex(
+  path: Pick<MapPath, 'hexes' | 'offsets'>,
+  index: number,
+  target: Offset,
+  orientation: Orientation,
+): { hexes: HexKey[]; offsets: ([number, number] | null)[]; index: number } {
+  const cells = path.hexes.map(parseKey)
+  const offsets = path.hexes.map((_, i) => path.offsets?.[i] ?? null)
+  const before = cells.slice(0, index)
+  const after = cells.slice(index + 1)
+  const prev = before.at(-1)
+  const next = after[0]
+  const toTarget = prev ? cellLine(prev, target, orientation).slice(1) : [target]
+  const toNext = next ? cellLine(target, next, orientation).slice(1, -1) : []
+  const middle = [...toTarget, ...toNext]
+  const allHexes = [...before, ...middle, ...after].map(keyOf)
+  const allOffsets = [
+    ...offsets.slice(0, index),
+    ...middle.map(() => null),
+    ...offsets.slice(index + 1),
+  ]
+  const moved = Math.max(0, before.length + toTarget.length - 1)
+  // Dropping onto the next hex duplicates it; collapse repeats and track the vertex.
+  const hexes: HexKey[] = []
+  const newOffsets: ([number, number] | null)[] = []
+  let newIndex = 0
+  allHexes.forEach((key, i) => {
+    if (hexes.at(-1) !== key) {
+      hexes.push(key)
+      newOffsets.push(allOffsets[i])
+    }
+    if (i === moved) newIndex = hexes.length - 1
+  })
+  return { hexes, offsets: newOffsets, index: newIndex }
 }

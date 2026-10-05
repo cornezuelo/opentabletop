@@ -1,5 +1,5 @@
 import { HexEditBatch } from '../commands/hexes'
-import { ReplaceLabelCommand, ReplacePathCommand } from '../commands/paths'
+import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
 import { hitTestLabel } from '../render/hitTest'
 import { normalizePath } from '../model/hex'
 import type { MapPath } from '../model/types'
@@ -7,6 +7,8 @@ import { placeInHex } from '../render/pathGeometry'
 import { newId } from '../model/id'
 import {
   hexToPixel,
+  pixelToHex,
+  toOffset,
   type Point,
   toAxial,
   inBounds,
@@ -185,7 +187,7 @@ class PathTool implements Tool {
     const after = normalizePath(current)
     // Put the original back and apply the edit as one undoable command.
     Object.assign(current, structuredClone(drag.before))
-    if (!current.offsets) delete current.offsets
+    if (!drag.before.offsets) delete current.offsets
     if (JSON.stringify(normalizePath(drag.before)) !== JSON.stringify(after))
       editor.execute(new ReplacePathCommand(drag.before, after))
     else editor.notify({ kind: 'paths' })
@@ -217,15 +219,34 @@ class PathTool implements Tool {
     }
   }
 
+  /**
+   * Drags a vertex. Inside its own hex only the offset changes; over another hex the
+   * vertex moves there and the path is re-routed through the hexes in between. Always
+   * computed from the path as it was when the drag started, so it's reversible live.
+   */
   private moveVertex(info: PointerInfo): void {
     const drag = this.drag!
     const path = editor.map.paths.find((p) => p.id === drag.before.id)
     if (!path) return
-    const cell = parseKey(path.hexes[drag.index])
-    const offsets = path.offsets ?? path.hexes.map(() => null)
+    const { grid } = editor.map
     const world = { x: info.world.x + drag.grab.x, y: info.world.y + drag.grab.y }
-    offsets[drag.index] = offsetInHex(cell, { ...info, world })
+    const target = toOffset(pixelToHex(world, grid.orientation, grid.hexSize), grid.orientation)
+    const original = parseKey(drag.before.hexes[drag.index])
+    let { hexes } = drag.before
+    let offsets = drag.before.hexes.map((_, i) => drag.before.offsets?.[i] ?? null)
+    let index = drag.index
+    if (inBounds(target, grid) && keyOf(target) !== keyOf(original)) {
+      ;({ hexes, offsets, index } = rerouteVertex(
+        drag.before,
+        drag.index,
+        target,
+        grid.orientation,
+      ))
+    }
+    offsets[index] = offsetInHex(parseKey(hexes[index]), { ...info, world })
+    path.hexes = hexes
     path.offsets = offsets
+    editor.hoveredHandle = { pathId: path.id, index }
     editor.notify({ kind: 'paths' })
   }
 }

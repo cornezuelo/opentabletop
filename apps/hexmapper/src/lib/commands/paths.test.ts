@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { createMap } from '../model/defaults'
 import { deserializeMap, serializeMap } from '../model/serialize'
-import type { MapPath } from '../model/types'
+import type { HexKey, MapPath } from '../model/types'
 import { History } from './history'
+import { distance, parseKey, toAxial } from '@open-tabletop/hex'
 import { normalizePath } from '../model/hex'
-import { dedupeConsecutive, ReplacePathCommand } from './paths'
+import { dedupeConsecutive, ReplacePathCommand, rerouteVertex } from './paths'
 
 const road: MapPath = { id: 'road00000001', kind: 'road', hexes: ['0,0', '1,0', '2,0'] }
 const river: MapPath = { id: 'river0000001', kind: 'river', hexes: ['0,1', '0,2'] }
@@ -98,5 +99,50 @@ describe('path offsets', () => {
       .terrains.filter((t) => t.water)
       .map((t) => t.id)
     expect(water).toEqual(['lake', 'sea'])
+  })
+})
+
+describe('rerouteVertex', () => {
+  const path = {
+    hexes: ['0,0', '1,0', '2,0', '3,0'] as HexKey[],
+    offsets: [null, [0.2, 0], null, null] as ([number, number] | null)[],
+  }
+
+  it('moves a middle vertex and keeps the path contiguous', () => {
+    const result = rerouteVertex(path, 1, { col: 1, row: 2 }, 'flat')
+    expect(result.hexes[0]).toBe('0,0')
+    expect(result.hexes.at(-1)).toBe('3,0')
+    expect(result.hexes[result.index]).toBe('1,2')
+    for (let i = 1; i < result.hexes.length; i++) {
+      const a = toAxial(parseKey(result.hexes[i - 1]), 'flat')
+      const b = toAxial(parseKey(result.hexes[i]), 'flat')
+      expect(distance(a, b)).toBe(1)
+    }
+    expect(result.offsets).toHaveLength(result.hexes.length)
+    // The moved vertex's old offset is dropped; the caller sets the new one.
+    expect(result.offsets.every((o) => o === null)).toBe(true)
+  })
+
+  it('moves endpoints', () => {
+    const start = rerouteVertex(path, 0, { col: 0, row: 2 }, 'flat')
+    expect(start.hexes[0]).toBe('0,2')
+    expect(start.index).toBe(0)
+    const end = rerouteVertex(path, 3, { col: 5, row: 0 }, 'flat')
+    expect(end.hexes.at(-1)).toBe('5,0')
+    expect(end.index).toBe(end.hexes.length - 1)
+  })
+
+  it('merges into a neighbor when dropped on it, without duplicates', () => {
+    const onPrev = rerouteVertex(path, 1, { col: 0, row: 0 }, 'flat')
+    expect(onPrev.hexes[onPrev.index]).toBe('0,0')
+    const onNext = rerouteVertex(path, 1, { col: 2, row: 0 }, 'flat')
+    expect(onNext.hexes[onNext.index]).toBe('2,0')
+    for (let i = 1; i < onNext.hexes.length; i++) {
+      expect(onNext.hexes[i]).not.toBe(onNext.hexes[i - 1])
+      const a = toAxial(parseKey(onNext.hexes[i - 1]), 'flat')
+      const b = toAxial(parseKey(onNext.hexes[i]), 'flat')
+      expect(distance(a, b)).toBe(1)
+    }
+    expect(onNext.offsets).toHaveLength(onNext.hexes.length)
   })
 })

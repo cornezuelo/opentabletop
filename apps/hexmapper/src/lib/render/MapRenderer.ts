@@ -58,6 +58,13 @@ const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
 /** Screen pixels within which a click grabs a path handle. */
 const PICK_RADIUS_PX = 12
+/**
+ * Our own crosshair with the hotspot exactly at its center: some system cursor themes
+ * place the crosshair hotspot off-center, which makes picking small handles feel off.
+ */
+const CROSSHAIR = `url("data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g stroke-linecap="square"><path d="M12 2v7M12 15v7M2 12h7M15 12h7" stroke="#000" stroke-width="3"/><path d="M12 2v7M12 15v7M2 12h7M15 12h7" stroke="#fff" stroke-width="1"/></g><circle cx="12" cy="12" r="1" fill="#fff" stroke="#000" stroke-width="0.5"/></svg>',
+)}") 12 12, crosshair`
 /** Bundled icons are tinted: dark ink on painted hexes, light on empty ones. */
 const ICON_INK = 0x1b1a17
 const ICON_INK_EMPTY = 0xe8e2d4
@@ -622,7 +629,7 @@ export class MapRenderer {
         ? 'grabbing'
         : this.spaceHeld || onHandle
           ? 'grab'
-          : 'crosshair'
+          : CROSSHAIR
   }
 
   private bindInput(): void {
