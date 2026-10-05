@@ -1,0 +1,34 @@
+:root {
+  --bg: #1b1a17;
+  --panel: #26241f;
+  --panel-border: #3a362d;
+  --text: #e8e2d4;
+  --text-muted: #9c9480;
+  --accent: #c8a24a;
+  --canvas-bg: #12110f;
+
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
