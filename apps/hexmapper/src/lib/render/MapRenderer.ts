@@ -5,6 +5,7 @@ import {
   Container,
   Graphics,
   GraphicsContext,
+  Rectangle,
   Sprite,
   Text,
 } from 'pixi.js'
@@ -71,6 +72,15 @@ const COORD_FONT = 'hexmapper-coords'
 const COORD_MIN_SCREEN_SIZE = 24
 const MIN_ZOOM = 0.05
 const MAX_ZOOM = 8
+
+export interface ExportResult {
+  canvas: HTMLCanvasElement
+  /** Exported region in world units. */
+  bounds: Rectangle
+  /** Safety padding (world units) included on each side of `bounds`. */
+  padding: number
+  pixelsPerUnit: number
+}
 
 let fontInstalled = false
 
@@ -157,6 +167,49 @@ export class MapRenderer {
       (height - bounds.height * scale) / 2 - bounds.minY * scale,
     )
     this.onViewChanged()
+  }
+
+  /**
+   * Renders the visible map layers (no hover/selection overlays) to a canvas at
+   * `pixelsPerUnit` pixels per world unit. Large exports are scaled down to fit the
+   * GPU texture limit; the returned `pixelsPerUnit` is the one actually used.
+   */
+  exportCanvas(options: { pixelsPerUnit: number; background: number | null }): ExportResult {
+    const { layers, grid } = editor.map
+    this.overlay.visible = false
+    // Coordinates follow the layer setting, not the on-screen zoom threshold.
+    this.coordLayer.visible = layers.coords.visible && grid.showCoords
+    const local = this.world.getLocalBounds()
+    const pad = grid.hexSize * 0.1
+    const bounds = new Rectangle(
+      local.minX - pad,
+      local.minY - pad,
+      local.width + pad * 2,
+      local.height + pad * 2,
+    )
+    const gl = (this.app.renderer as { gl?: WebGLRenderingContext }).gl
+    const maxSide = Math.min(8192, gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? 8192)
+    const pixelsPerUnit = Math.min(
+      options.pixelsPerUnit,
+      maxSide / Math.max(bounds.width, bounds.height),
+    )
+    for (const text of this.labelTexts.values())
+      text.resolution = Math.min(8, Math.max(1, pixelsPerUnit))
+    try {
+      const texture = this.app.renderer.generateTexture({
+        target: this.world,
+        frame: bounds,
+        resolution: pixelsPerUnit,
+        clearColor: options.background ?? [0, 0, 0, 0],
+      })
+      const canvas = this.app.renderer.extract.canvas(texture) as HTMLCanvasElement
+      texture.destroy(true)
+      return { canvas, bounds, padding: pad, pixelsPerUnit }
+    } finally {
+      this.overlay.visible = true
+      this.applyLayers()
+      this.updateLabelResolution()
+    }
   }
 
   /** World point → canvas pixel coordinates (used by tests and future UI overlays). */

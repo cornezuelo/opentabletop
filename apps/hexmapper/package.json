@@ -24,6 +24,7 @@
     "@open-tabletop/hex": "*",
     "@open-tabletop/note-refs": "*",
     "dompurify": "^3.4.16",
+    "jspdf": "^4.2.1",
     "marked": "^18.1.0",
     "pixi.js": "^8.22.0"
   }

@@ -30,6 +30,11 @@
       { label: 'actions.new', glyph: '✚', run: newMap },
       { label: 'actions.open', glyph: '📂', run: openMap },
       { label: 'actions.save', glyph: '💾', run: saveMap },
+      {
+        label: 'actions.export',
+        glyph: '⤓',
+        run: () => (editor.panelView = editor.panelView === 'export' ? 'tool' : 'export'),
+      },
     ]
 </script>
 

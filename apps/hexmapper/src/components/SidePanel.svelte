@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ExportPanel from './ExportPanel.svelte'
   import HexInfo from './hex/HexInfo.svelte'
   import IconPanel from './IconPanel.svelte'
   import LabelPanel from './LabelPanel.svelte'
@@ -34,6 +35,17 @@
       </label>
       <Preferences />
     </Section>
+  {:else if editor.panelView === 'export'}
+    <header>
+      <h1>{t('export.title')}</h1>
+      <button
+        class="close"
+        title={t('panel.closeSettings')}
+        aria-label={t('panel.closeSettings')}
+        onclick={() => (editor.panelView = 'tool')}>✕</button
+      >
+    </header>
+    <div class="export"><ExportPanel /></div>
   {:else}
     <header>
       <h1>{editor.meta.name || t('app.title')}</h1>
@@ -82,6 +94,13 @@
     justify-content: space-between;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--panel-border);
+  }
+
+  .export {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 12px;
   }
 
   .close {
