@@ -46,13 +46,23 @@ Ver `src/lib/model/types.ts`. Se migrará a las entidades OTD (`docs/otd.md`): `
 
 Hecho:
 
-- Terreno: paleta, pincel con radio, relleno por zonas, borrar (clic derecho), cuentagotas (Alt + clic).
-- Rejilla: orientación flat/pointy, coordenadas CCRR o axiales (legibles sobre hexes vacíos y pintados), zoom y desplazamiento.
-- Metadatos de hex: nombre, notas Markdown (marked + DOMPurify), PDIs, etiquetas y campos con autocompletado, nota enlazada (`note-refs`), marcador dorado en el mapa.
-- Tamaño: por hexes o por papel (A5–A1, Carta, Legal, Tabloide, personalizado; orientación y margen), tamaño del hex en mm con atajos (¾", 25 mm, 1", 30 mm, 1½"), tamaño impreso y papel mínimo en el que cabe.
-- Deshacer/rehacer, guardar/abrir `<id>.hexmap.json`, autoguardado en IndexedDB, atajos de teclado, UI es/en.
+- **Terreno:** paleta editable (nombre, color, agua, añadir y borrar), pincel con radio, relleno por zonas, borrar (clic derecho), cuentagotas (Ctrl + clic).
+- **Rejilla:** orientación flat/pointy, coordenadas CCRR o axiales, zoom y desplazamiento, cursor en cruz propio con el punto activo centrado.
+- **Caminos, senderos y ríos:**
+  - _Nodos_ (puntos colocados por el usuario, los que se dibujan) frente a _hexes atravesados_ (solo para el viaje).
+  - Curvas suaves o tramos rectos; desplazamiento dentro del hex con ajuste magnético (Mayús + clic al dibujar; Ctrl para colocar libre).
+  - Arrastrar nodos, incluso a otros hexes, con reenrutado; clic en un nodo para seguir dibujando (alarga desde un extremo, rama desde el medio).
+  - Se detienen en la orilla de los hexes de agua.
+- **Iconos:** 72 de game-icons.net y propios (SVG/PNG/JPEG/WebP); color, tamaño, rotación, volteo, halo (color y tamaño) y contorno (color y grosor), con vista previa en vivo.
+- **Texto:** etiquetas con fuente (IM Fell English, Cinzel, sans), tamaño, color, rotación, cursiva y halo (color y grosor); también fuera de la rejilla.
+- **Metadatos de hex:** nombre, notas Markdown (marked + DOMPurify), PDIs (con nota enlazada), etiquetas y campos con autocompletado, nota enlazada (`note-refs`), marcador dorado en el mapa, enlace copiable al hex.
+- **Capas fijas:** terreno, rejilla, caminos, iconos, coordenadas, texto y marcadores, cada una con opción de ocultar y bloquear.
+- **Tamaño:** por hexes o por papel (A5–A1, Carta, Legal, Tabloide, personalizado), tamaño del hex en mm con atajos, tamaño impreso y papel mínimo.
+- **Exportar:** PNG por píxeles por hex (pensado para VTTs, con fondo transparente opcional) y **PDF a escala real** (150/300 dpi).
+- **Biblioteca local de mapas** en IndexedDB, con migración del autoguardado antiguo; **deep links** `#/<id>/<hex>`; diálogo al crear un mapa nuevo (guardar en fichero / crear / cancelar).
+- **General:** deshacer/rehacer, autoguardado robusto (copia síncrona al cerrar la pestaña), atajos de teclado, UI en/es (inglés por defecto), Configuración/Exportar/Mapas como vistas del panel lateral.
 
-Pendiente: ver la hoja de ruta.
+**Etiquetas de hex: usos previstos.** Filtrar o resaltar hexes por etiqueta en el mapa, pasarlas como contexto a las tablas del Oracle (`when: { tags: … }`) y usarlas en reglas de viaje (por ejemplo, `landmark` facilita orientarse).
 
 ## Integración con apps de notas
 
@@ -65,19 +75,16 @@ Pendiente: ver la hoja de ruta.
 
 - [x] Fases 0–1: esqueleto, rejilla, terreno, deshacer/rehacer, guardar/cargar, autoguardado.
 - [x] Metadatos de hex, notas enlazadas por proveedor, tamaño físico e impresión, ID único de mapa.
+- [x] Caminos y ríos (nodos, orillas, desplazamientos, ramas), iconos con estilos, texto, capas, paleta editable.
+- [x] Exportar PNG y PDF a escala real.
+- [x] Biblioteca local de mapas y deep links.
 
-### Contenido del mapa
+### Pendiente
 
-- [ ] Caminos y ríos: trazado de centro a centro con curvas suavizadas. **Requisito del Travel Engine** (las carreteras cambian el movimiento y, en Kal-Arath, impiden perderse).
-- [ ] Set de iconos FOSS (game-icons.net, CC BY 3.0, con atribución en `CREDITS.md`) e importación de SVG/PNG propios embebidos en el fichero.
-- [ ] Escala del mundo (`hexKm`) y campos de hex que usa el viaje (bioma, elevación, peligro, región).
-- [ ] Biblioteca local de mapas y deep links.
-
-### Presentación
-
-- [ ] Capas fijas (terreno → caminos/ríos → iconos → texto → coordenadas → grupo), cada una con opción de ocultar y bloquear.
-- [ ] Herramienta de texto: fuente (OFL), tamaño, color, rotación, contorno.
-- [ ] Exportar PNG (con selección de capas y escala) y **PDF a escala real** respetando `print.hexMm`; más adelante, repartido en varios folios.
+- [ ] Escala del mundo (`hexKm`) y campos de hex que usa el viaje (bioma, elevación, peligro, región). Va con la migración a OTD.
+- [ ] Resaltar o filtrar hexes por etiqueta.
+- [ ] PDF repartido en varios folios para mapas grandes, y opción de imprimir los hexes vacíos en blanco.
+- [ ] Traducir los nombres de los iconos (ahora en inglés, que es como vienen de game-icons).
 
 ### Juego (con los motores)
 
