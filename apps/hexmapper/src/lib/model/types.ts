@@ -8,6 +8,8 @@ export interface TerrainType {
   /** Custom name. When absent, the UI shows the translated default for `id`. */
   name?: string
   color: string
+  /** Water (lake, sea…): roads and rivers stop at its shore. */
+  water?: boolean
 }
 
 export interface Poi {
@@ -82,6 +84,13 @@ export interface MapPath {
   id: string
   kind: PathKind
   hexes: HexKey[]
+  /**
+   * Where the path passes inside each hex, parallel to `hexes`, as [dx, dy] from the
+   * center in hex-size units. Null (or missing array) = centered.
+   */
+  offsets?: ([number, number] | null)[]
+  /** Straight segments instead of a smooth curve (e.g. rivers following hex edges). */
+  straight?: boolean
 }
 
 /** Physical size for printing. The grid's cols × rows stay the source of truth. */

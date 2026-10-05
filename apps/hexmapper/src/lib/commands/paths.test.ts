@@ -3,6 +3,7 @@ import { createMap } from '../model/defaults'
 import { deserializeMap, serializeMap } from '../model/serialize'
 import type { MapPath } from '../model/types'
 import { History } from './history'
+import { normalizePath } from '../model/hex'
 import { dedupeConsecutive, ReplacePathCommand } from './paths'
 
 const road: MapPath = { id: 'road00000001', kind: 'road', hexes: ['0,0', '1,0', '2,0'] }
@@ -58,5 +59,44 @@ describe('paths serialization', () => {
 describe('dedupeConsecutive', () => {
   it('removes only consecutive repeats', () => {
     expect(dedupeConsecutive(['a', 'a', 'b', 'a', 'a'])).toEqual(['a', 'b', 'a'])
+  })
+})
+
+describe('path offsets', () => {
+  it('normalizes, round-trips offsets and drops bogus ones', () => {
+    const map = createMap()
+    map.paths = [
+      {
+        id: 'river0000002',
+        kind: 'river',
+        hexes: ['0,0', '1,0', '2,0'],
+        offsets: [null, [0.43333333, -0.25], [0, 0]],
+        straight: true,
+      },
+    ]
+    const raw = JSON.parse(serializeMap(map))
+    const loaded = deserializeMap(JSON.stringify(raw)).paths[0]
+    expect(loaded.offsets).toEqual([null, [0.433, -0.25], null])
+    expect(loaded.straight).toBe(true)
+
+    raw.paths[0].offsets = [[5, 5], null, null]
+    expect(deserializeMap(JSON.stringify(raw)).paths[0].offsets).toBeUndefined()
+  })
+
+  it('normalizePath rounds and omits all-centered offsets', () => {
+    expect(
+      normalizePath({ id: 'a', kind: 'road', hexes: ['0,0', '1,0'], offsets: [null, [0, 0]] }),
+    ).toEqual({ id: 'a', kind: 'road', hexes: ['0,0', '1,0'] })
+    expect(
+      normalizePath({ id: 'a', kind: 'road', hexes: ['0,0', '1,0'], offsets: [[0.12345, 0], null] })
+        .offsets,
+    ).toEqual([[0.123, 0], null])
+  })
+
+  it('marks lakes and seas as water by default', () => {
+    const water = createMap()
+      .terrains.filter((t) => t.water)
+      .map((t) => t.id)
+    expect(water).toEqual(['lake', 'sea'])
   })
 })

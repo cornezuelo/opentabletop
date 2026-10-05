@@ -16,8 +16,8 @@ export const DEFAULT_TERRAINS: readonly TerrainType[] = [
   { id: 'badlands', color: '#b5734a' },
   { id: 'desert', color: '#e2cd8f' },
   { id: 'swamp', color: '#5f6e4a' },
-  { id: 'lake', color: '#5b8fb0' },
-  { id: 'sea', color: '#36668a' },
+  { id: 'lake', color: '#5b8fb0', water: true },
+  { id: 'sea', color: '#36668a', water: true },
   { id: 'snow', color: '#e6ecef' },
 ]
 

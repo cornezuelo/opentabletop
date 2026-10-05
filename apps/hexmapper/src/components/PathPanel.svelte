@@ -26,10 +26,15 @@
   {/each}
 </div>
 
+<label class="check">
+  <input type="checkbox" bind:checked={editor.pathStraight} />
+  {t('path.straight')}
+</label>
+
 {#if editor.pathDraft}
-  <p class="status">{t('path.drawing', { count: editor.pathDraft.length })}</p>
+  <p class="status">{t('path.drawing', { count: editor.pathDraft.hexes.length })}</p>
   <div class="actions">
-    <button class="primary" disabled={editor.pathDraft.length < 2} onclick={finishPath}
+    <button class="primary" disabled={editor.pathDraft.hexes.length < 2} onclick={finishPath}
       >{t('path.finish')}</button
     >
     <button onclick={popPathPoint}>{t('path.undoPoint')}</button>
@@ -39,6 +44,7 @@
   <p class="help">{t('path.help')}</p>
 {/if}
 
+<p class="help">{t('path.editHelp')}</p>
 <p class="help">{t('path.count', { count: pathCount })}</p>
 
 <style>
@@ -92,6 +98,12 @@
 
   .swatch.trail {
     background: repeating-linear-gradient(90deg, var(--color) 0 5px, transparent 5px 8px);
+  }
+
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .status {

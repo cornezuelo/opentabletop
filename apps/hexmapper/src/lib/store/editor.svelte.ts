@@ -19,6 +19,11 @@ export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
 
+export interface PathDraft {
+  hexes: HexKey[]
+  offsets: ([number, number] | null)[]
+}
+
 type Listener = (change: MapChange) => void
 
 /**
@@ -51,8 +56,10 @@ class Editor {
   iconId = $state('game:village')
   /** Style applied to newly stamped icons. */
   iconStyle = $state<IconStyle>({})
-  /** Hexes of the path being drawn, or null when not drawing. */
-  pathDraft = $state<HexKey[] | null>(null)
+  /** New paths are drawn with straight segments instead of curves. */
+  pathStraight = $state(false)
+  /** Path being drawn (hexes plus per-hex offsets), or null when not drawing. */
+  pathDraft = $state<PathDraft | null>(null)
 
   onChange(listener: Listener): () => void {
     this.listeners.add(listener)

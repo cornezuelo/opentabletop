@@ -1,7 +1,13 @@
 import { HexEditBatch } from '../commands/hexes'
-import { dedupeConsecutive, ReplacePathCommand } from '../commands/paths'
+import { ReplacePathCommand } from '../commands/paths'
+import { normalizePath } from '../model/hex'
+import type { MapPath } from '../model/types'
+import { placeInHex } from '../render/pathGeometry'
 import { newId } from '../model/id'
 import {
+  hexToPixel,
+  type Point,
+  toAxial,
   inBounds,
   parseKey,
   cellLine,
@@ -17,12 +23,19 @@ export interface PointerInfo {
   /** 0 = primary, 2 = secondary (right click). */
   button: number
   alt: boolean
+  /** Ctrl (or Cmd). Preferred over Alt, which Firefox and many Linux WMs intercept. */
+  ctrl: boolean
+  shift: boolean
+  /** Pointer position in world units. */
+  world: Point
+  /** World-space distance that counts as "on" a handle (a few screen pixels). */
+  pickRadius: number
 }
 
 /** A map editing tool driven by pointer events on hex cells. */
 export interface Tool {
   down(cell: Offset, info: PointerInfo): void
-  move(cell: Offset): void
+  move(cell: Offset, info: PointerInfo): void
   up(): void
 }
 
@@ -40,7 +53,7 @@ class TerrainTool implements Tool {
   private erasing = false
 
   down(cell: Offset, info: PointerInfo): void {
-    if (info.alt) return this.pick(cell)
+    if (info.alt || info.ctrl) return this.pick(cell)
     const erase = editor.terrainMode === 'erase' || info.button === 2
     if (editor.terrainMode === 'fill') return this.fill(cell, erase)
     this.erasing = erase
@@ -90,7 +103,7 @@ class TerrainTool implements Tool {
     editor.record(command)
   }
 
-  /** Eyedropper: alt+click takes the terrain under the cursor. */
+  /** Eyedropper: Ctrl+click (or Alt+click) takes the terrain under the cursor. */
   private pick(cell: Offset): void {
     const terrain = editor.map.hexes[keyOf(cell)]?.terrain
     if (terrain) editor.terrainId = terrain
@@ -98,43 +111,129 @@ class TerrainTool implements Tool {
 }
 
 /**
- * Draws a road/trail/river: click (or drag across) hexes to add them, gaps are
- * filled with a straight hex line. Click the last hex again, right-click or press
- * Enter to finish; Esc cancels; Backspace removes the last hex.
+ * Draws and edits roads, trails and rivers.
+ * - Click or drag across hexes to add them; gaps are filled with a straight hex line.
+ *   Shift+click places the point where you click (snapped; Ctrl for free placement).
+ * - Finish by clicking the last hex again, right-clicking or pressing Enter.
+ * - With no path in progress, drag a vertex handle to move it inside its hex;
+ *   right-click a handle to re-center it.
  */
 class PathTool implements Tool {
   private pressed = false
+  private drag: { before: MapPath; index: number } | null = null
 
   down(cell: Offset, info: PointerInfo): void {
-    if (info.button === 2) return finishPath()
     const draft = editor.pathDraft
-    if (draft && draft.at(-1) === keyOf(cell)) return finishPath()
+    if (!draft) {
+      const hit = findPathVertex(info.world, info.pickRadius)
+      if (hit) {
+        if (info.button === 2) recenterVertex(hit.path, hit.index)
+        else this.drag = { before: structuredClone(hit.path), index: hit.index }
+        return
+      }
+      if (info.button === 2) return
+    } else {
+      if (info.button === 2) return finishPath()
+      if (draft.hexes.at(-1) === keyOf(cell) && !info.shift) return finishPath()
+    }
     this.pressed = true
-    this.extend(cell)
+    this.extend(cell, info)
   }
 
-  move(cell: Offset): void {
-    if (this.pressed) this.extend(cell)
+  move(cell: Offset, info: PointerInfo): void {
+    if (this.drag) return this.moveVertex(info)
+    if (this.pressed) this.extend(cell, { ...info, shift: false })
   }
 
   up(): void {
     this.pressed = false
+    const drag = this.drag
+    this.drag = null
+    if (!drag) return
+    const current = editor.map.paths.find((p) => p.id === drag.before.id)
+    if (!current) return
+    const after = normalizePath(current)
+    // Put the original back and apply the edit as one undoable command.
+    Object.assign(current, structuredClone(drag.before))
+    if (!current.offsets) delete current.offsets
+    if (JSON.stringify(normalizePath(drag.before)) !== JSON.stringify(after))
+      editor.execute(new ReplacePathCommand(drag.before, after))
+    else editor.notify({ kind: 'paths' })
   }
 
-  private extend(cell: Offset): void {
+  private extend(cell: Offset, info: PointerInfo): void {
     const { grid } = editor.map
+    const key = keyOf(cell)
+    const offset = info.shift ? offsetInHex(cell, info) : null
     const draft = editor.pathDraft
     if (!draft) {
-      editor.pathDraft = [keyOf(cell)]
+      editor.pathDraft = { hexes: [key], offsets: [offset] }
       return
     }
-    const last = parseKey(draft.at(-1)!)
+    if (draft.hexes.at(-1) === key) {
+      if (info.shift)
+        editor.pathDraft = { hexes: draft.hexes, offsets: [...draft.offsets.slice(0, -1), offset] }
+      return
+    }
+    const last = parseKey(draft.hexes.at(-1)!)
     const added = cellLine(last, cell, grid.orientation)
       .slice(1)
       .filter((c) => inBounds(c, grid))
       .map(keyOf)
-    if (added.length > 0) editor.pathDraft = dedupeConsecutive([...draft, ...added])
+    if (added.length === 0) return
+    editor.pathDraft = {
+      hexes: [...draft.hexes, ...added],
+      offsets: [...draft.offsets, ...added.map((k) => (k === key ? offset : null))],
+    }
   }
+
+  private moveVertex(info: PointerInfo): void {
+    const drag = this.drag!
+    const path = editor.map.paths.find((p) => p.id === drag.before.id)
+    if (!path) return
+    const cell = parseKey(path.hexes[drag.index])
+    const offsets = path.offsets ?? path.hexes.map(() => null)
+    offsets[drag.index] = offsetInHex(cell, info)
+    path.offsets = offsets
+    editor.notify({ kind: 'paths' })
+  }
+}
+
+/** World position of a path vertex (hex center plus its offset). */
+export function pathVertexPoint(path: MapPath, index: number): Point {
+  const { orientation, hexSize } = editor.map.grid
+  const center = hexToPixel(toAxial(parseKey(path.hexes[index]), orientation), orientation, hexSize)
+  const offset = path.offsets?.[index]
+  return offset ? { x: center.x + offset[0] * hexSize, y: center.y + offset[1] * hexSize } : center
+}
+
+/** Offset (hex-size units) of the pointer inside `cell`, snapped unless Ctrl is held. */
+function offsetInHex(cell: Offset, info: PointerInfo): [number, number] | null {
+  const { orientation, hexSize } = editor.map.grid
+  const center = hexToPixel(toAxial(cell, orientation), orientation, hexSize)
+  const local = { x: info.world.x - center.x, y: info.world.y - center.y }
+  const placed = placeInHex(local, orientation, hexSize, !info.ctrl)
+  if (placed.x === 0 && placed.y === 0) return null
+  return [placed.x / hexSize, placed.y / hexSize]
+}
+
+function findPathVertex(world: Point, radius: number): { path: MapPath; index: number } | null {
+  const { grid, paths } = editor.map
+  for (let p = paths.length - 1; p >= 0; p--) {
+    const path = paths[p]
+    for (let i = 0; i < path.hexes.length; i++) {
+      if (!inBounds(parseKey(path.hexes[i]), grid)) continue
+      const point = pathVertexPoint(path, i)
+      if (Math.hypot(point.x - world.x, point.y - world.y) <= radius) return { path, index: i }
+    }
+  }
+  return null
+}
+
+function recenterVertex(path: MapPath, index: number): void {
+  if (!path.offsets?.[index]) return
+  const offsets = path.offsets.map((o, i) => (i === index ? null : o))
+  editor.execute(new ReplacePathCommand(path, normalizePath({ ...path, offsets })))
 }
 
 /** Commits the path being drawn (if it spans at least two hexes). */
@@ -142,9 +241,24 @@ export function finishPath(): void {
   const draft = editor.pathDraft
   editor.pathDraft = null
   if (!draft) return
-  const hexes = dedupeConsecutive(draft)
+  const hexes: HexKey[] = []
+  const offsets: ([number, number] | null)[] = []
+  draft.hexes.forEach((key, i) => {
+    if (hexes.at(-1) === key) offsets[offsets.length - 1] = draft.offsets[i] ?? offsets.at(-1)!
+    else {
+      hexes.push(key)
+      offsets.push(draft.offsets[i])
+    }
+  })
   if (hexes.length < 2) return
-  editor.execute(new ReplacePathCommand(null, { id: newId(), kind: editor.pathKind, hexes }))
+  const path = normalizePath({
+    id: newId(),
+    kind: editor.pathKind,
+    hexes,
+    offsets,
+    straight: editor.pathStraight,
+  })
+  editor.execute(new ReplacePathCommand(null, path))
 }
 
 export function cancelPath(): void {
@@ -154,16 +268,19 @@ export function cancelPath(): void {
 export function popPathPoint(): void {
   const draft = editor.pathDraft
   if (!draft) return
-  editor.pathDraft = draft.length > 1 ? draft.slice(0, -1) : null
+  editor.pathDraft =
+    draft.hexes.length > 1
+      ? { hexes: draft.hexes.slice(0, -1), offsets: draft.offsets.slice(0, -1) }
+      : null
 }
 
-/** Stamps the selected icon on hexes (drag to stamp several). Right-click removes, Alt+click picks. */
+/** Stamps the selected icon on hexes (drag to stamp several). Right-click removes, Ctrl+click picks. */
 class IconTool implements Tool {
   private batch: HexEditBatch | null = null
   private removing = false
 
   down(cell: Offset, info: PointerInfo): void {
-    if (info.alt) {
+    if (info.alt || info.ctrl) {
       const icon = editor.map.hexes[keyOf(cell)]?.icon
       if (icon) {
         const { id, ...style } = icon

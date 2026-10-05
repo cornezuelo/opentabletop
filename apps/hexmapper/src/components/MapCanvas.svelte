@@ -41,7 +41,14 @@
 
   // Redraw outlines when UI state that affects them changes.
   $effect(() => {
-    void [editor.selected, editor.tool, editor.terrainMode, editor.brushRadius, editor.pathDraft]
+    void [
+      editor.selected,
+      editor.tool,
+      editor.terrainMode,
+      editor.brushRadius,
+      editor.pathDraft,
+      editor.pathStraight,
+    ]
     renderer?.drawOverlay()
   })
 

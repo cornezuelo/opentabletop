@@ -113,7 +113,7 @@ export const es: Messages = {
     selected: 'Seleccionado: {name}',
     import: 'Importar SVG/PNG…',
     removeCustom: 'Borrar icono propio',
-    help: 'Haz clic en un hex para poner el icono, arrastra para poner varios. Clic derecho lo quita, Alt + clic lo copia.',
+    help: 'Haz clic en un hex para poner el icono, arrastra para poner varios. Clic derecho lo quita, Ctrl + clic lo copia.',
     credit: 'Iconos de los autores de game-icons.net (CC BY 3.0).',
     error: {
       tooLarge: 'el fichero es demasiado grande',
@@ -144,6 +144,11 @@ export const es: Messages = {
     undoPoint: 'Quitar último (⌫)',
     cancel: 'Cancelar (Esc)',
     count: '{count} caminos y ríos en el mapa',
+    straight: 'Tramos rectos',
+    editHelp:
+      'Mayús + clic coloca el punto donde haces clic (Ctrl: sin ajuste). Arrastra los tiradores blancos para mover puntos; clic derecho en uno lo vuelve a centrar. Los caminos se detienen en la orilla de lagos y mares.',
+    makeStraight: 'Recto',
+    makeCurved: 'Curvo',
   },
   hex: {
     coord: 'Coordenada',
@@ -195,8 +200,8 @@ export const es: Messages = {
     zoom: 'Zoom: rueda del ratón',
     erase: 'Borrar terreno: clic derecho',
     path: 'Caminos: Enter termina, Esc cancela, ⌫ quita el último hex',
-    icon: 'Iconos: clic derecho quita, Alt + clic copia',
-    pick: 'Cuentagotas: Alt + clic',
+    icon: 'Iconos: clic derecho quita, Ctrl + clic copia',
+    pick: 'Cuentagotas: Ctrl + clic',
     brush: 'Tamaño del pincel: [ y ]',
   },
   settings: {

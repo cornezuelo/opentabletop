@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ReplacePathCommand } from '../../lib/commands/paths'
   import { t, type MessageKey } from '../../lib/i18n/index.svelte'
+  import { normalizePath } from '../../lib/model/hex'
   import type { HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
 
@@ -21,6 +22,13 @@
           <span class="kind {path.kind}"></span>
           <span class="name">{t(`pathKinds.${path.kind}` as MessageKey)}</span>
           <span class="muted">{t('hex.pathLength', { count: path.hexes.length })}</span>
+          <button
+            class="link"
+            onclick={() =>
+              editor.execute(
+                new ReplacePathCommand(path, normalizePath({ ...path, straight: !path.straight })),
+              )}>{path.straight ? t('path.makeCurved') : t('path.makeStraight')}</button
+          >
           <button
             class="icon"
             title={t('hex.remove')}

@@ -1,4 +1,4 @@
-import type { HexData, HexIcon } from './types'
+import type { HexData, HexIcon, MapPath } from './types'
 
 export const ICON_SCALE_RANGE = [0.4, 2] as const
 
@@ -83,4 +83,21 @@ export function collectSuggestions(hexes: Iterable<HexData>): {
     hex.fields?.forEach((f) => f.key && fieldKeys.add(f.key))
   }
   return { tags: [...tags].sort(), fieldKeys: [...fieldKeys].sort() }
+}
+
+/** Drops centered offsets and default flags so equal paths serialize identically. */
+export function normalizePath(path: MapPath): MapPath {
+  const out: MapPath = { id: path.id, kind: path.kind, hexes: [...path.hexes] }
+  const offsets = path.hexes.map((_, i) => {
+    const o = path.offsets?.[i]
+    if (!o || (o[0] === 0 && o[1] === 0)) return null
+    return [round3(o[0]), round3(o[1])] as [number, number]
+  })
+  if (offsets.some((o) => o !== null)) out.offsets = offsets
+  if (path.straight) out.straight = true
+  return out
+}
+
+function round3(n: number): number {
+  return Math.round(n * 1000) / 1000
 }

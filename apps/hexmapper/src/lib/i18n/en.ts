@@ -111,7 +111,7 @@ export const en = {
     selected: 'Selected: {name}',
     import: 'Import SVG/PNG…',
     removeCustom: 'Delete custom icon',
-    help: 'Click a hex to place the icon, drag to place several. Right-click removes, Alt+click picks.',
+    help: 'Click a hex to place the icon, drag to place several. Right-click removes, Ctrl+click picks.',
     credit: 'Icons by game-icons.net contributors (CC BY 3.0).',
     error: {
       tooLarge: 'file is too large',
@@ -142,6 +142,11 @@ export const en = {
     undoPoint: 'Remove last (⌫)',
     cancel: 'Cancel (Esc)',
     count: '{count} roads and rivers on the map',
+    straight: 'Straight segments',
+    editHelp:
+      'Shift+click places a point where you click (Ctrl: no snapping). Drag the white handles to move points; right-click one to re-center it. Paths stop at the shore of lakes and seas.',
+    makeStraight: 'Straight',
+    makeCurved: 'Curved',
   },
   hex: {
     coord: 'Coordinate',
@@ -193,8 +198,8 @@ export const en = {
     zoom: 'Zoom: mouse wheel',
     erase: 'Erase terrain: right click',
     path: 'Paths: Enter finishes, Esc cancels, ⌫ removes the last hex',
-    icon: 'Icons: right-click removes, Alt+click picks',
-    pick: 'Eyedropper: Alt + click',
+    icon: 'Icons: right-click removes, Ctrl+click picks',
+    pick: 'Eyedropper: Ctrl + click',
     brush: 'Brush size: [ and ]',
   },
   settings: {

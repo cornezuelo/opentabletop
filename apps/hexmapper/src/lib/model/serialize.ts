@@ -1,7 +1,7 @@
 import { PAPERS, type PaperId } from '../print/paper'
 import { DEFAULT_GRID, DEFAULT_PRINT, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
 import { MapFormatError, migrate } from './migrations'
-import { isEmptyHex, normalizeHex } from './hex'
+import { isEmptyHex, normalizeHex, normalizePath } from './hex'
 import { isValidId, newId } from './id'
 import { PATH_KINDS } from './types'
 import type {
@@ -46,6 +46,7 @@ function validate(data: Record<string, unknown>): HexMap {
       id: t.id as string,
       color: t.color as string,
       ...(typeof t.name === 'string' ? { name: t.name } : {}),
+      ...(t.water === true ? { water: true } : {}),
     }))
 
   const validHexes: Record<HexKey, HexData> = {}
@@ -125,16 +126,37 @@ function parseIcon(value: unknown): HexData['icon'] {
 
 function parsePaths(value: unknown): MapPath[] {
   if (!Array.isArray(value)) return []
-  return value
-    .filter(isRecord)
-    .map((p) => ({
-      id: isValidId(p.id) ? p.id : newId(),
-      kind: PATH_KINDS.includes(p.kind as MapPath['kind']) ? (p.kind as MapPath['kind']) : 'road',
-      hexes: (Array.isArray(p.hexes) ? p.hexes : []).filter(
-        (k): k is HexKey => typeof k === 'string' && /^\d+,\d+$/.test(k),
-      ),
-    }))
-    .filter((p) => p.hexes.length >= 2)
+  const paths: MapPath[] = []
+  for (const p of value.filter(isRecord)) {
+    const raw = Array.isArray(p.hexes) ? p.hexes : []
+    const rawOffsets = Array.isArray(p.offsets) ? p.offsets : []
+    const hexes: HexKey[] = []
+    const offsets: ([number, number] | null)[] = []
+    raw.forEach((k, i) => {
+      if (typeof k !== 'string' || !/^\d+,\d+$/.test(k)) return
+      hexes.push(k as HexKey)
+      offsets.push(parseOffset(rawOffsets[i]))
+    })
+    if (hexes.length < 2) continue
+    paths.push(
+      normalizePath({
+        id: isValidId(p.id) ? p.id : newId(),
+        kind: PATH_KINDS.includes(p.kind as MapPath['kind']) ? (p.kind as MapPath['kind']) : 'road',
+        hexes,
+        offsets,
+        straight: p.straight === true,
+      }),
+    )
+  }
+  return paths
+}
+
+function parseOffset(value: unknown): [number, number] | null {
+  if (!Array.isArray(value) || value.length !== 2) return null
+  const [x, y] = value
+  if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x + y)) return null
+  // Offsets are relative to the hex size; anything beyond the hex is bogus.
+  return Math.hypot(x, y) <= 1 ? [x, y] : null
 }
 
 const DATA_URL = /^data:image\/(png|svg\+xml|jpeg|webp);base64,[a-z0-9+/=]+$/i

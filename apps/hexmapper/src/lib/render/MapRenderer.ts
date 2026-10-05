@@ -12,6 +12,7 @@ import { hasMetadata } from '../model/hex'
 import type { MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { catmullRom, dashes } from './curves'
+import { pathRuns, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
 import {
   allCells,
@@ -30,7 +31,7 @@ import {
   toOffset,
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
-import { getTool, type Tool } from '../tools/tools'
+import { getTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 const EMPTY_FILL = 0x2a2823
 const GRID_COLOR = 0x000000
@@ -49,6 +50,10 @@ const PATH_STYLES: Record<PathKind, { color: number; width: number; dash?: [numb
 /** Rivers under roads under trails. */
 const PATH_ORDER: PathKind[] = ['river', 'road', 'trail']
 const DRAFT_COLOR = 0xffffff
+const HANDLE_COLOR = 0xffffff
+const HANDLE_OUTLINE = 0x1b1a17
+/** Screen pixels within which a click grabs a path handle. */
+const PICK_RADIUS_PX = 9
 /** Bundled icons are tinted: dark ink on painted hexes, light on empty ones. */
 const ICON_INK = 0x1b1a17
 const ICON_INK_EMPTY = 0xe8e2d4
@@ -160,15 +165,32 @@ export class MapRenderer {
 
     const draft = editor.pathDraft
     if (draft) {
-      const points = draft.map((key) => this.centerOf(parseKey(key)))
-      for (const key of draft) g.poly(this.cornersAt(parseKey(key)))
+      const { hexSize } = grid
+      const points = draft.hexes.map((key, i) => {
+        const c = this.centerOf(parseKey(key))
+        const o = draft.offsets[i]
+        return o ? { x: c.x + o[0] * hexSize, y: c.y + o[1] * hexSize } : c
+      })
+      for (const key of draft.hexes) g.poly(this.cornersAt(parseKey(key)))
       g.stroke({ width: 1.5 / scale, color: DRAFT_COLOR, alpha: 0.5 })
       if (points.length > 1) {
-        this.strokePolyline(g, catmullRom(points))
+        this.strokePolyline(g, editor.pathStraight ? points : catmullRom(points))
         g.stroke({ width: 3 / scale, color: DRAFT_COLOR, alpha: 0.9, cap: 'round', join: 'round' })
       }
       const end = points.at(-1)!
       g.circle(end.x, end.y, 5 / scale).fill(DRAFT_COLOR)
+    } else if (editor.tool === 'path') {
+      // Vertex handles for editing existing paths.
+      for (const path of editor.map.paths)
+        path.hexes.forEach((key, i) => {
+          if (!inBounds(parseKey(key), grid)) return
+          const p = pathVertexPoint(path, i)
+          g.circle(p.x, p.y, 4 / scale)
+        })
+      g.fill({ color: HANDLE_COLOR, alpha: 0.9 }).stroke({
+        width: 1.5 / scale,
+        color: HANDLE_OUTLINE,
+      })
     }
 
     if (editor.selected) {
@@ -190,6 +212,7 @@ export class MapRenderer {
       }
       this.drawMarkers()
       this.drawIcons()
+      if (editor.map.paths.length > 0) this.drawPaths()
     } else if (change.kind === 'paths') {
       this.drawPaths()
     } else if (change.kind === 'assets') {
@@ -252,18 +275,38 @@ export class MapRenderer {
   private drawPaths(): void {
     const g = this.pathsLayer.clear()
     const { hexSize } = editor.map.grid
-    const byKind = (kind: PathKind) => editor.map.paths.filter((p) => p.kind === kind)
     for (const kind of PATH_ORDER) {
       const style = PATH_STYLES[kind]
-      for (const path of byKind(kind)) {
-        const curve = this.pathCurve(path)
-        const pieces = style.dash
-          ? dashes(curve, style.dash[0] * hexSize, style.dash[1] * hexSize)
-          : [curve]
-        for (const piece of pieces) this.strokePolyline(g, piece)
+      for (const path of editor.map.paths) {
+        if (path.kind !== kind) continue
+        for (const run of pathRuns(this.pathVertices(path))) {
+          const line = path.straight ? run : catmullRom(run)
+          const pieces = style.dash
+            ? dashes(line, style.dash[0] * hexSize, style.dash[1] * hexSize)
+            : [line]
+          for (const piece of pieces) this.strokePolyline(g, piece)
+        }
         g.stroke({ width: style.width * hexSize, color: style.color, cap: 'round', join: 'round' })
       }
     }
+    if (editor.tool === 'path') this.drawOverlay()
+  }
+
+  private pathVertices(path: MapPath): PathVertex[] {
+    const { grid, hexes, terrains } = editor.map
+    const water = new Set(terrains.filter((t) => t.water).map((t) => t.id))
+    const vertices: PathVertex[] = []
+    path.hexes.forEach((key, i) => {
+      const cell = parseKey(key)
+      if (!inBounds(cell, grid)) return
+      const terrain = hexes[key]?.terrain
+      vertices.push({
+        center: this.centerOf(cell),
+        point: pathVertexPoint(path, i),
+        water: !!terrain && water.has(terrain),
+      })
+    })
+    return vertices
   }
 
   private drawIcons(): void {
@@ -293,12 +336,6 @@ export class MapRenderer {
         sprite.tint = icon.color ?? (hex.terrain || icon.halo ? ICON_INK : ICON_INK_EMPTY)
       this.iconLayer.addChild(sprite)
     }
-  }
-
-  private pathCurve(path: MapPath): Point[] {
-    const { grid } = editor.map
-    const cells = path.hexes.map(parseKey).filter((c) => inBounds(c, grid))
-    return catmullRom(cells.map((c) => this.centerOf(c)))
   }
 
   private strokePolyline(g: Graphics, points: Point[]): void {
@@ -363,6 +400,19 @@ export class MapRenderer {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top }
   }
 
+  private pointerInfo(e: PointerEvent): PointerInfo {
+    const scale = this.world.scale.x
+    const { x, y } = this.screenPoint(e)
+    return {
+      button: e.button,
+      alt: e.altKey,
+      ctrl: e.ctrlKey || e.metaKey,
+      shift: e.shiftKey,
+      world: { x: (x - this.world.x) / scale, y: (y - this.world.y) / scale },
+      pickRadius: PICK_RADIUS_PX / scale,
+    }
+  }
+
   private cellAt(e: MouseEvent): Offset {
     const { x, y } = this.screenPoint(e)
     const scale = this.world.scale.x
@@ -421,7 +471,7 @@ export class MapRenderer {
       const cell = this.cellAt(e)
       if (!inBounds(cell, editor.map.grid)) return
       this.activeTool = getTool(editor.tool)
-      this.activeTool.down(cell, { button: e.button, alt: e.altKey })
+      this.activeTool.down(cell, this.pointerInfo(e))
     })
 
     on(canvas, 'pointermove', (e) => {
@@ -436,7 +486,7 @@ export class MapRenderer {
       }
       const cell = this.cellAt(e)
       this.setHovered(cell)
-      this.activeTool?.move(cell)
+      this.activeTool?.move(cell, this.pointerInfo(e))
     })
 
     const release = () => {
