@@ -24,9 +24,9 @@ npm workspaces. Packages are consumed as TS source (`exports` → `src/index.ts`
 packages/                   # libraries, scope @open-tabletop/*
   hex/                      # ✅ hex grid math (axial/offset, pixels, neighbors, lines, flood fill)
   note-refs/                # ✅ provider-based links to external notes apps (SilverBullet, Obsidian…)
-  random/                   # ⏳ RandomSource, seeded PRNG
-  dice/                     # ⏳ dice expressions with breakdown (NdM±K, d66, dF, advantage…)
-  conditions/               # ⏳ safe condition evaluator (no eval), shared by oracle and travel
+  random/                   # ✅ RandomSource, seeded PRNG
+  dice/                     # ✅ dice expressions with breakdown (NdM±K, d66, dF, keep, advantage…)
+  conditions/               # ✅ safe condition evaluator (no eval), shared by oracle and travel
   time/                     # ⏳ GameTime (absolute minutes), calendars, seasons, watches
   schema/                   # ⏳ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
   oracle-engine/            # ⏳ tables, oracles, generators, decks; packs; history
@@ -120,7 +120,7 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 
 1. [x] Monorepo, `hex` and `note-refs` packages.
 2. [x] Design review of `docs/otd.md`, `docs/oracle-engine.md` and `docs/travel-engine.md` (open decisions resolved: short optional hex notes, `.otd.json`, one base locale per pack with fallback translations).
-3. [ ] `random`, `dice`, `conditions`.
+3. [x] `random`, `dice`, `conditions`.
 4. [ ] `oracle-engine` MVP and the private Kal-Arath pack (es).
 5. [ ] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
 6. [ ] Consolidated OTD `schema` and hexmapper migration to OTD (`.otd.json`).
