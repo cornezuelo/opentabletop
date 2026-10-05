@@ -8,11 +8,12 @@ import type {
   HexKey,
   HexMap,
   MapMeta,
+  PathKind,
   PrintSettings,
   TerrainType,
 } from '../model/types'
 
-export type ToolId = 'select' | 'terrain'
+export type ToolId = 'select' | 'terrain' | 'path'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
@@ -43,6 +44,9 @@ class Editor {
   terrainId = $state('steppe')
   brushRadius = $state(0)
   selected = $state<HexKey | null>(null)
+  pathKind = $state<PathKind>('road')
+  /** Hexes of the path being drawn, or null when not drawing. */
+  pathDraft = $state<HexKey[] | null>(null)
 
   onChange(listener: Listener): () => void {
     this.listeners.add(listener)
@@ -90,6 +94,7 @@ class Editor {
     this.map = map
     this.history.clear()
     this.selected = null
+    this.pathDraft = null
     if (!map.terrains.some((t) => t.id === this.terrainId))
       this.terrainId = map.terrains[0]?.id ?? ''
     this.notify({ kind: 'all' })

@@ -7,6 +7,7 @@
   const tools: { id: ToolId; label: MessageKey; glyph: string }[] = [
     { id: 'select', label: 'tools.select', glyph: '⬚' },
     { id: 'terrain', label: 'tools.terrain', glyph: '⬢' },
+    { id: 'path', label: 'tools.path', glyph: '〰' },
   ]
 
   const actions: { label: MessageKey; glyph: string; run: () => void; enabled?: () => boolean }[] =

@@ -1,6 +1,8 @@
 import { Application, BitmapFont, BitmapText, Container, Graphics, GraphicsContext } from 'pixi.js'
 import type { MapChange } from '../commands/command'
 import { hasMetadata } from '../model/hex'
+import type { MapPath, PathKind } from '../model/types'
+import { catmullRom, dashes } from './curves'
 import {
   allCells,
   cellsInRadius,
@@ -28,6 +30,15 @@ const SELECT_COLOR = 0xc8a24a
 const COORD_COLOR = 0x1b1a17
 /** Coordinates on unpainted hexes need a light color to stay legible. */
 const COORD_COLOR_EMPTY = 0xe8e2d4
+/** Path styles; widths and dashes are fractions of the hex size. */
+const PATH_STYLES: Record<PathKind, { color: number; width: number; dash?: [number, number] }> = {
+  river: { color: 0x3f78a8, width: 0.2 },
+  road: { color: 0x6e4f2c, width: 0.13 },
+  trail: { color: 0x6e4f2c, width: 0.09, dash: [0.25, 0.18] },
+}
+/** Rivers under roads under trails. */
+const PATH_ORDER: PathKind[] = ['river', 'road', 'trail']
+const DRAFT_COLOR = 0xffffff
 const MARKER_COLOR = 0xc8a24a
 const MARKER_OUTLINE = 0x1b1a17
 const COORD_FONT = 'hexmapper-coords'
@@ -56,6 +67,7 @@ export class MapRenderer {
   private gridLines = new Graphics()
   private coordLayer = new Container()
   /** Small dots on hexes that have notes, POIs, tags or fields. */
+  private pathsLayer = new Graphics()
   private markers = new Graphics()
   private overlay = new Graphics()
 
@@ -80,6 +92,7 @@ export class MapRenderer {
     this.world.addChild(
       this.terrainLayer,
       this.gridLines,
+      this.pathsLayer,
       this.coordLayer,
       this.markers,
       this.overlay,
@@ -124,6 +137,19 @@ export class MapRenderer {
       g.stroke({ width: 2 / scale, color: HOVER_COLOR, alpha: 0.8 })
     }
 
+    const draft = editor.pathDraft
+    if (draft) {
+      const points = draft.map((key) => this.centerOf(parseKey(key)))
+      for (const key of draft) g.poly(this.cornersAt(parseKey(key)))
+      g.stroke({ width: 1.5 / scale, color: DRAFT_COLOR, alpha: 0.5 })
+      if (points.length > 1) {
+        this.strokePolyline(g, catmullRom(points))
+        g.stroke({ width: 3 / scale, color: DRAFT_COLOR, alpha: 0.9, cap: 'round', join: 'round' })
+      }
+      const end = points.at(-1)!
+      g.circle(end.x, end.y, 5 / scale).fill(DRAFT_COLOR)
+    }
+
     if (editor.selected) {
       const cell = parseKey(editor.selected)
       if (inBounds(cell, grid)) {
@@ -142,6 +168,8 @@ export class MapRenderer {
         if (label) this.styleCoord(label, key)
       }
       this.drawMarkers()
+    } else if (change.kind === 'paths') {
+      this.drawPaths()
     } else if (change.kind !== 'meta') {
       const before = this.shapeSignature
       this.rebuild()
@@ -192,7 +220,37 @@ export class MapRenderer {
       }
     }
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
+    this.drawPaths()
     this.onViewChanged()
+  }
+
+  private drawPaths(): void {
+    const g = this.pathsLayer.clear()
+    const { hexSize } = editor.map.grid
+    const byKind = (kind: PathKind) => editor.map.paths.filter((p) => p.kind === kind)
+    for (const kind of PATH_ORDER) {
+      const style = PATH_STYLES[kind]
+      for (const path of byKind(kind)) {
+        const curve = this.pathCurve(path)
+        const pieces = style.dash
+          ? dashes(curve, style.dash[0] * hexSize, style.dash[1] * hexSize)
+          : [curve]
+        for (const piece of pieces) this.strokePolyline(g, piece)
+        g.stroke({ width: style.width * hexSize, color: style.color, cap: 'round', join: 'round' })
+      }
+    }
+  }
+
+  private pathCurve(path: MapPath): Point[] {
+    const { grid } = editor.map
+    const cells = path.hexes.map(parseKey).filter((c) => inBounds(c, grid))
+    return catmullRom(cells.map((c) => this.centerOf(c)))
+  }
+
+  private strokePolyline(g: Graphics, points: Point[]): void {
+    if (points.length < 2) return
+    g.moveTo(points[0].x, points[0].y)
+    for (const p of points.slice(1)) g.lineTo(p.x, p.y)
   }
 
   private drawMarkers(): void {

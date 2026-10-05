@@ -1,6 +1,7 @@
 <script lang="ts">
   import FieldList from './FieldList.svelte'
   import HexNotes from './HexNotes.svelte'
+  import HexPaths from './HexPaths.svelte'
   import NoteLink from './NoteLink.svelte'
   import PoiList from './PoiList.svelte'
   import TagEditor from './TagEditor.svelte'
@@ -65,6 +66,7 @@
     <PoiList {key} pois={hex.pois ?? []} />
     <TagEditor {key} tags={hex.tags ?? []} suggestions={suggestions.tags} />
     <FieldList {key} fields={hex.fields ?? []} suggestions={suggestions.fieldKeys} />
+    <HexPaths {key} />
 
     <button class="clear" onclick={() => clearHex(key)}>{t('hex.clear')}</button>
   {/key}

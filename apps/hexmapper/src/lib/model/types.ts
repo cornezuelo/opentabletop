@@ -45,6 +45,19 @@ export interface GridSettings {
   showCoords: boolean
 }
 
+export const PATH_KINDS = ['road', 'trail', 'river'] as const
+export type PathKind = (typeof PATH_KINDS)[number]
+
+/**
+ * A road, trail or river running center-to-center through hexes. Consecutive hexes
+ * are neighbors, so a path also defines edges the Travel Engine can query.
+ */
+export interface MapPath {
+  id: string
+  kind: PathKind
+  hexes: HexKey[]
+}
+
 /** Physical size for printing. The grid's cols × rows stay the source of truth. */
 export interface PrintSettings {
   /** Hex size flat-to-flat in mm (how mini bases are measured). */
@@ -73,4 +86,5 @@ export interface HexMap {
   terrains: TerrainType[]
   /** Keyed by offset coordinates "col,row". */
   hexes: Record<HexKey, HexData>
+  paths: MapPath[]
 }

@@ -3,6 +3,7 @@
   import LanguageSelect from './LanguageSelect.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSize from './MapSize.svelte'
+  import PathPanel from './PathPanel.svelte'
   import Preferences from './Preferences.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
@@ -18,6 +19,8 @@
 
   {#if editor.tool === 'terrain'}
     <Section title={t('panel.terrain')}><TerrainPanel /></Section>
+  {:else if editor.tool === 'path'}
+    <Section title={t('panel.paths')}><PathPanel /></Section>
   {/if}
   <Section title={t('panel.hex')}><HexInfo /></Section>
   <Section title={t('panel.map')}><MapSettings /></Section>
@@ -30,6 +33,7 @@
       <li>{t('hints.erase')}</li>
       <li>{t('hints.pick')}</li>
       <li>{t('hints.brush')}</li>
+      <li>{t('hints.path')}</li>
     </ul>
   </Section>
 </aside>

@@ -7,6 +7,7 @@ export const es = {
     label: 'Herramientas',
     select: 'Seleccionar (V)',
     terrain: 'Terreno (B)',
+    path: 'Caminos y ríos (R)',
   },
   terrainMode: {
     brush: 'Pincel (B)',
@@ -31,6 +32,7 @@ export const es = {
   panel: {
     map: 'Mapa',
     terrain: 'Terreno',
+    paths: 'Caminos y ríos',
     hex: 'Hex',
     noSelection: 'Usa Seleccionar (V) y haz clic en un hex para ver y editar sus detalles.',
     brushSize: 'Tamaño del pincel',
@@ -90,6 +92,19 @@ export const es = {
     silverbullet: { baseUrl: 'URL de SilverBullet' },
     obsidian: { vault: 'Nombre del vault' },
   },
+  pathKinds: {
+    road: 'Camino',
+    trail: 'Sendero',
+    river: 'Río',
+  },
+  path: {
+    help: 'Haz clic o arrastra por los hexes. Clic en el último hex, clic derecho o Enter para terminar.',
+    drawing: 'Trazando: {count} hexes',
+    finish: 'Terminar (Enter)',
+    undoPoint: 'Quitar último (⌫)',
+    cancel: 'Cancelar (Esc)',
+    count: '{count} caminos y ríos en el mapa',
+  },
   hex: {
     coord: 'Coordenada',
     terrain: 'Terreno',
@@ -116,6 +131,8 @@ export const es = {
     openNote: 'Abrir en {provider}',
     noteNotConfigured: 'Configura {provider} en Preferencias',
     remove: 'Quitar',
+    paths: 'Caminos y ríos',
+    pathLength: '{count} hexes',
     clear: 'Vaciar hex',
     confirmClear: '¿Vaciar este hex? Se quitan su terreno y todos sus datos.',
   },
@@ -135,7 +152,8 @@ export const es = {
   hints: {
     pan: 'Mover vista: botón central o Espacio + arrastrar',
     zoom: 'Zoom: rueda del ratón',
-    erase: 'Borrar: clic derecho',
+    erase: 'Borrar terreno: clic derecho',
+    path: 'Caminos: Enter termina, Esc cancela, ⌫ quita el último hex',
     pick: 'Cuentagotas: Alt + clic',
     brush: 'Tamaño del pincel: [ y ]',
   },

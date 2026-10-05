@@ -3,7 +3,17 @@ import { DEFAULT_GRID, DEFAULT_PRINT, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defau
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex } from './hex'
 import { isValidId, newId } from './id'
-import type { CustomField, HexData, HexKey, HexMap, Poi, PrintSettings, TerrainType } from './types'
+import { PATH_KINDS } from './types'
+import type {
+  CustomField,
+  HexData,
+  HexKey,
+  HexMap,
+  MapPath,
+  Poi,
+  PrintSettings,
+  TerrainType,
+} from './types'
 
 export const FILE_EXTENSION = '.hexmap.json'
 
@@ -64,6 +74,7 @@ function validate(data: Record<string, unknown>): HexMap {
     print: parsePrint(data.print),
     terrains: validTerrains,
     hexes: validHexes,
+    paths: parsePaths(data.paths),
   }
 }
 
@@ -93,6 +104,20 @@ function parseHex(value: Record<string, unknown>): HexData {
     fields,
     note: str(value.note),
   })
+}
+
+function parsePaths(value: unknown): MapPath[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter(isRecord)
+    .map((p) => ({
+      id: isValidId(p.id) ? p.id : newId(),
+      kind: PATH_KINDS.includes(p.kind as MapPath['kind']) ? (p.kind as MapPath['kind']) : 'road',
+      hexes: (Array.isArray(p.hexes) ? p.hexes : []).filter(
+        (k): k is HexKey => typeof k === 'string' && /^\d+,\d+$/.test(k),
+      ),
+    }))
+    .filter((p) => p.hexes.length >= 2)
 }
 
 function parsePrint(value: unknown): PrintSettings {

@@ -8,6 +8,7 @@ export const en: Messages = {
     label: 'Tools',
     select: 'Select (V)',
     terrain: 'Terrain (B)',
+    path: 'Roads and rivers (R)',
   },
   terrainMode: {
     brush: 'Brush (B)',
@@ -32,6 +33,7 @@ export const en: Messages = {
   panel: {
     map: 'Map',
     terrain: 'Terrain',
+    paths: 'Roads and rivers',
     hex: 'Hex',
     noSelection: 'Use Select (V) and click a hex to view and edit its details.',
     brushSize: 'Brush size',
@@ -90,6 +92,19 @@ export const en: Messages = {
     silverbullet: { baseUrl: 'SilverBullet URL' },
     obsidian: { vault: 'Vault name' },
   },
+  pathKinds: {
+    road: 'Road',
+    trail: 'Trail',
+    river: 'River',
+  },
+  path: {
+    help: 'Click or drag across hexes. Click the last hex, right-click or press Enter to finish.',
+    drawing: 'Drawing: {count} hexes',
+    finish: 'Finish (Enter)',
+    undoPoint: 'Remove last (⌫)',
+    cancel: 'Cancel (Esc)',
+    count: '{count} roads and rivers on the map',
+  },
   hex: {
     coord: 'Coordinate',
     terrain: 'Terrain',
@@ -116,6 +131,8 @@ export const en: Messages = {
     openNote: 'Open in {provider}',
     noteNotConfigured: 'Set up {provider} in Preferences',
     remove: 'Remove',
+    paths: 'Roads and rivers',
+    pathLength: '{count} hexes',
     clear: 'Clear hex',
     confirmClear: 'Clear this hex? Its terrain and all its data will be removed.',
   },
@@ -135,7 +152,8 @@ export const en: Messages = {
   hints: {
     pan: 'Pan: middle button or Space + drag',
     zoom: 'Zoom: mouse wheel',
-    erase: 'Erase: right click',
+    erase: 'Erase terrain: right click',
+    path: 'Paths: Enter finishes, Esc cancels, ⌫ removes the last hex',
     pick: 'Eyedropper: Alt + click',
     brush: 'Brush size: [ and ]',
   },

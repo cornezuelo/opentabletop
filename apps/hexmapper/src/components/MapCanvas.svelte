@@ -3,6 +3,7 @@
   import { MapRenderer } from '../lib/render/MapRenderer'
   import { editor } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
+  import { finishPath } from '../lib/tools/tools'
 
   let container: HTMLDivElement
   let canvas: HTMLCanvasElement
@@ -40,8 +41,13 @@
 
   // Redraw outlines when UI state that affects them changes.
   $effect(() => {
-    void [editor.selected, editor.tool, editor.terrainMode, editor.brushRadius]
+    void [editor.selected, editor.tool, editor.terrainMode, editor.brushRadius, editor.pathDraft]
     renderer?.drawOverlay()
+  })
+
+  // Leaving the path tool keeps what was drawn instead of discarding it.
+  $effect(() => {
+    if (editor.tool !== 'path') finishPath()
   })
 </script>
 

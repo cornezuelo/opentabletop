@@ -1,5 +1,9 @@
 import { HexEditBatch } from '../commands/hexes'
+import { dedupeConsecutive, ReplacePathCommand } from '../commands/paths'
+import { newId } from '../model/id'
 import {
+  inBounds,
+  parseKey,
   cellLine,
   cellsInRadius,
   floodFill,
@@ -93,9 +97,70 @@ class TerrainTool implements Tool {
   }
 }
 
+/**
+ * Draws a road/trail/river: click (or drag across) hexes to add them, gaps are
+ * filled with a straight hex line. Click the last hex again, right-click or press
+ * Enter to finish; Esc cancels; Backspace removes the last hex.
+ */
+class PathTool implements Tool {
+  private pressed = false
+
+  down(cell: Offset, info: PointerInfo): void {
+    if (info.button === 2) return finishPath()
+    const draft = editor.pathDraft
+    if (draft && draft.at(-1) === keyOf(cell)) return finishPath()
+    this.pressed = true
+    this.extend(cell)
+  }
+
+  move(cell: Offset): void {
+    if (this.pressed) this.extend(cell)
+  }
+
+  up(): void {
+    this.pressed = false
+  }
+
+  private extend(cell: Offset): void {
+    const { grid } = editor.map
+    const draft = editor.pathDraft
+    if (!draft) {
+      editor.pathDraft = [keyOf(cell)]
+      return
+    }
+    const last = parseKey(draft.at(-1)!)
+    const added = cellLine(last, cell, grid.orientation)
+      .slice(1)
+      .filter((c) => inBounds(c, grid))
+      .map(keyOf)
+    if (added.length > 0) editor.pathDraft = dedupeConsecutive([...draft, ...added])
+  }
+}
+
+/** Commits the path being drawn (if it spans at least two hexes). */
+export function finishPath(): void {
+  const draft = editor.pathDraft
+  editor.pathDraft = null
+  if (!draft) return
+  const hexes = dedupeConsecutive(draft)
+  if (hexes.length < 2) return
+  editor.execute(new ReplacePathCommand(null, { id: newId(), kind: editor.pathKind, hexes }))
+}
+
+export function cancelPath(): void {
+  editor.pathDraft = null
+}
+
+export function popPathPoint(): void {
+  const draft = editor.pathDraft
+  if (!draft) return
+  editor.pathDraft = draft.length > 1 ? draft.slice(0, -1) : null
+}
+
 const tools: Record<ToolId, Tool> = {
   select: selectTool,
   terrain: new TerrainTool(),
+  path: new PathTool(),
 }
 
 export function getTool(id: ToolId): Tool {

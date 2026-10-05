@@ -5,6 +5,7 @@ export type MapChange =
   | { kind: 'hexes'; keys: HexKey[] }
   | { kind: 'grid' }
   | { kind: 'terrains' }
+  | { kind: 'paths' }
   | { kind: 'meta' }
   | { kind: 'all' }
 

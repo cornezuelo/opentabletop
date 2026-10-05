@@ -1,6 +1,7 @@
 import { openMap, saveMap } from './io/actions'
 import { isTyping } from './render/MapRenderer'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
+import { cancelPath, finishPath, popPathPoint } from './tools/tools'
 import { view } from './store/view'
 
 /** Global keyboard shortcuts. Returns a cleanup function. */
@@ -22,6 +23,19 @@ export function bindShortcuts(): () => void {
     }
     if (e.altKey) return
 
+    if (editor.pathDraft) {
+      const handled: Record<string, () => void> = {
+        enter: finishPath,
+        escape: cancelPath,
+        backspace: popPathPoint,
+      }
+      if (handled[key]) {
+        handled[key]()
+        e.preventDefault()
+        return
+      }
+    }
+
     switch (key) {
       case 'v':
         editor.tool = 'select'
@@ -33,6 +47,9 @@ export function bindShortcuts(): () => void {
       case 'g':
         editor.tool = 'terrain'
         editor.terrainMode = 'fill'
+        break
+      case 'r':
+        editor.tool = 'path'
         break
       case 'e':
         editor.tool = 'terrain'

@@ -47,5 +47,6 @@ export function createMap(name = ''): HexMap {
     print: structuredClone(DEFAULT_PRINT),
     terrains: DEFAULT_TERRAINS.map((t) => ({ ...t })),
     hexes: {},
+    paths: [],
   }
 }
