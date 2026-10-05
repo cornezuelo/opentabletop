@@ -157,11 +157,30 @@ function parsePaths(value: unknown): MapPath[] {
         kind: PATH_KINDS.includes(p.kind as MapPath['kind']) ? (p.kind as MapPath['kind']) : 'road',
         hexes,
         offsets,
+        nodes: parseNodes(p.nodes, raw, hexes.length),
         straight: p.straight === true,
       }),
     )
   }
   return paths
+}
+
+/**
+ * Node indices refer to the raw hex list; invalid hexes were dropped while parsing, so
+ * remap to the kept ones. Returns undefined (every hex is a vertex) when absent.
+ */
+function parseNodes(value: unknown, raw: unknown[], kept: number): number[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const remap: number[] = []
+  let j = 0
+  raw.forEach((k) => {
+    remap.push(typeof k === 'string' && /^\d+,\d+$/.test(k) ? j++ : -1)
+  })
+  const nodes = value
+    .filter((i): i is number => Number.isInteger(i) && i >= 0 && i < raw.length)
+    .map((i) => remap[i])
+    .filter((i) => i >= 0 && i < kept)
+  return [...new Set(nodes)].sort((a, b) => a - b)
 }
 
 function parseOffset(value: unknown): [number, number] | null {

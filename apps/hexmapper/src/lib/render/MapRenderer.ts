@@ -10,7 +10,7 @@ import {
   Text,
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
-import { hasMetadata } from '../model/hex'
+import { hasMetadata, nodeFlags } from '../model/hex'
 import type { MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { catmullRom, dashes } from './curves'
@@ -253,10 +253,11 @@ export class MapRenderer {
     const draft = editor.pathDraft
     if (draft) {
       const { hexSize } = grid
-      const points = draft.hexes.map((key, i) => {
+      const points = draft.hexes.flatMap((key, i) => {
+        if (!draft.nodes[i] && i !== draft.hexes.length - 1) return []
         const c = this.centerOf(parseKey(key))
         const o = draft.offsets[i]
-        return o ? { x: c.x + o[0] * hexSize, y: c.y + o[1] * hexSize } : c
+        return [o ? { x: c.x + o[0] * hexSize, y: c.y + o[1] * hexSize } : c]
       })
       for (const key of draft.hexes) g.poly(this.cornersAt(parseKey(key)))
       g.stroke({ width: 1.5 / scale, color: DRAFT_COLOR, alpha: 0.5 })
@@ -268,12 +269,14 @@ export class MapRenderer {
       g.circle(end.x, end.y, 5 / scale).fill(DRAFT_COLOR)
     } else if (editor.tool === 'path') {
       // Vertex handles for editing existing paths.
-      for (const path of editor.map.paths)
+      for (const path of editor.map.paths) {
+        const nodes = nodeFlags(path)
         path.hexes.forEach((key, i) => {
-          if (!inBounds(parseKey(key), grid)) return
+          if (!nodes[i] || !inBounds(parseKey(key), grid)) return
           const p = pathVertexPoint(path, i)
           g.circle(p.x, p.y, 4 / scale)
         })
+      }
       g.fill({ color: HANDLE_COLOR, alpha: 0.9 }).stroke({
         width: 1.5 / scale,
         color: HANDLE_OUTLINE,
@@ -461,6 +464,7 @@ export class MapRenderer {
   private pathVertices(path: MapPath): PathVertex[] {
     const { grid, hexes, terrains } = editor.map
     const water = new Set(terrains.filter((t) => t.water).map((t) => t.id))
+    const nodes = nodeFlags(path)
     const vertices: PathVertex[] = []
     path.hexes.forEach((key, i) => {
       const cell = parseKey(key)
@@ -470,6 +474,7 @@ export class MapRenderer {
         center: this.centerOf(cell),
         point: pathVertexPoint(path, i),
         water: !!terrain && water.has(terrain),
+        node: nodes[i],
       })
     })
     return vertices

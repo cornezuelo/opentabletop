@@ -84,6 +84,19 @@ describe('path offsets', () => {
     expect(deserializeMap(JSON.stringify(raw)).paths[0].offsets).toBeUndefined()
   })
 
+  it('round-trips nodes and remaps them past dropped hexes', () => {
+    const map = createMap()
+    map.paths = [
+      { id: 'road00000009', kind: 'road', hexes: ['0,0', '1,0', '2,0', '3,0'], nodes: [0, 2, 3] },
+    ]
+    expect(deserializeMap(serializeMap(map)).paths[0].nodes).toEqual([0, 2, 3])
+    const raw = JSON.parse(serializeMap(map))
+    raw.paths[0].hexes.splice(1, 0, 'bad')
+    raw.paths[0].nodes = [0, 3, 4]
+    expect(deserializeMap(JSON.stringify(raw)).paths[0].nodes).toEqual([0, 2, 3])
+    expect(normalizePath({ ...map.paths[0], nodes: [0, 1, 2, 3] }).nodes).toBeUndefined()
+  })
+
   it('normalizePath rounds and omits all-centered offsets', () => {
     expect(
       normalizePath({ id: 'a', kind: 'road', hexes: ['0,0', '1,0'], offsets: [null, [0, 0]] }),
@@ -121,6 +134,13 @@ describe('rerouteVertex', () => {
     expect(result.offsets).toHaveLength(result.hexes.length)
     // The moved vertex's old offset is dropped; the caller sets the new one.
     expect(result.offsets.every((o) => o === null)).toBe(true)
+  })
+
+  it('keeps user nodes and marks only the moved vertex as a new node', () => {
+    const result = rerouteVertex({ ...path, nodes: [0, 3] }, 3, { col: 3, row: 3 }, 'flat')
+    expect(result.nodes[0]).toBe(0)
+    expect(result.nodes.at(-1)).toBe(result.index)
+    expect(result.nodes).toHaveLength(2)
   })
 
   it('moves endpoints', () => {

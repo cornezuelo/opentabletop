@@ -100,8 +100,18 @@ export function normalizePath(path: MapPath): MapPath {
     return [round3(o[0]), round3(o[1])] as [number, number]
   })
   if (offsets.some((o) => o !== null)) out.offsets = offsets
+  const flags = nodeFlags(path)
+  if (flags.some((f) => !f)) out.nodes = flags.flatMap((f, i) => (f ? [i] : []))
   if (path.straight) out.straight = true
   return out
+}
+
+/** Per-hex "is a drawn vertex" flags; endpoints always are. */
+export function nodeFlags(path: Pick<MapPath, 'hexes' | 'nodes'>): boolean[] {
+  const last = path.hexes.length - 1
+  if (!path.nodes) return path.hexes.map(() => true)
+  const set = new Set(path.nodes)
+  return path.hexes.map((_, i) => i === 0 || i === last || set.has(i))
 }
 
 function round3(n: number): number {

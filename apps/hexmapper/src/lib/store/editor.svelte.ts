@@ -28,6 +28,10 @@ export const MAX_BRUSH_RADIUS = 5
 export interface PathDraft {
   hexes: HexKey[]
   offsets: ([number, number] | null)[]
+  /** Which hexes the user placed (drawn vertices) vs. filled in between. */
+  nodes: boolean[]
+  /** Continuing an existing path from one of its endpoints. */
+  extend?: { pathId: string; atStart: boolean }
 }
 
 type Listener = (change: MapChange) => void

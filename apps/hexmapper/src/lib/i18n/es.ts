@@ -229,7 +229,7 @@ export const es: Messages = {
     count: '{count} caminos y ríos en el mapa',
     straight: 'Tramos rectos',
     editHelp:
-      'Mayús + clic coloca el punto donde haces clic (Ctrl: sin ajuste). Arrastra los tiradores blancos para mover puntos; clic derecho en uno lo vuelve a centrar. Los caminos se detienen en la orilla de lagos y mares.',
+      'Mayús + clic coloca el punto donde haces clic (Ctrl: sin ajuste). Clic en un tirador blanco para seguir dibujando desde él (desde un extremo alarga el camino, desde el medio sale una rama); arrástralo para mover el punto; clic derecho para recentrarlo. Los caminos se detienen en la orilla de lagos y mares.',
     makeStraight: 'Recto',
     makeCurved: 'Curvo',
   },

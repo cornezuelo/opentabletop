@@ -1,7 +1,7 @@
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
 import { hitTestLabel } from '../render/hitTest'
-import { normalizePath } from '../model/hex'
+import { nodeFlags, normalizePath } from '../model/hex'
 import type { MapPath } from '../model/types'
 import { placeInHex } from '../render/pathGeometry'
 import { newId } from '../model/id'
@@ -138,6 +138,8 @@ class PathTool implements Tool {
   private pressed = false
   /** `grab` = vertex position minus pointer at press time, so the vertex doesn't jump. */
   private drag: { before: MapPath; index: number; grab: Point } | null = null
+  /** Node pressed but not yet moved: a click continues/branches, a drag moves it. */
+  private pressedNode: { path: MapPath; index: number; at: Point; threshold: number } | null = null
 
   hover(_cell: Offset, info: PointerInfo): void {
     const hit = editor.pathDraft ? null : findPathVertex(info.world, info.pickRadius)
@@ -153,14 +155,13 @@ class PathTool implements Tool {
       const hit = findPathVertex(info.world, info.pickRadius)
       if (hit) {
         if (info.button === 2) recenterVertex(hit.path, hit.index)
-        else {
-          const point = pathVertexPoint(hit.path, hit.index)
-          this.drag = {
-            before: structuredClone(hit.path),
+        else
+          this.pressedNode = {
+            path: hit.path,
             index: hit.index,
-            grab: { x: point.x - info.world.x, y: point.y - info.world.y },
+            at: info.world,
+            threshold: info.pickRadius / 3,
           }
-        }
         return
       }
       if (info.button === 2) return
@@ -173,12 +174,30 @@ class PathTool implements Tool {
   }
 
   move(cell: Offset, info: PointerInfo): void {
+    const pressed = this.pressedNode
+    if (pressed) {
+      const moved = Math.hypot(info.world.x - pressed.at.x, info.world.y - pressed.at.y)
+      if (moved < pressed.threshold) return
+      const point = pathVertexPoint(pressed.path, pressed.index)
+      this.drag = {
+        before: structuredClone(pressed.path),
+        index: pressed.index,
+        grab: { x: point.x - pressed.at.x, y: point.y - pressed.at.y },
+      }
+      this.pressedNode = null
+    }
     if (this.drag) return this.moveVertex(info)
-    if (this.pressed) this.extend(cell, { ...info, shift: false })
+    // Dragging while drawing is freehand: every hex crossed becomes a vertex.
+    if (this.pressed) this.extend(cell, { ...info, shift: false }, true)
   }
 
   up(): void {
     this.pressed = false
+    if (this.pressedNode) {
+      const { path, index } = this.pressedNode
+      this.pressedNode = null
+      return continueFrom(path, index)
+    }
     const drag = this.drag
     this.drag = null
     if (!drag) return
@@ -193,18 +212,18 @@ class PathTool implements Tool {
     else editor.notify({ kind: 'paths' })
   }
 
-  private extend(cell: Offset, info: PointerInfo): void {
+  private extend(cell: Offset, info: PointerInfo, freehand = false): void {
     const { grid } = editor.map
     const key = keyOf(cell)
     const offset = info.shift ? offsetInHex(cell, info) : null
     const draft = editor.pathDraft
     if (!draft) {
-      editor.pathDraft = { hexes: [key], offsets: [offset] }
+      editor.pathDraft = { hexes: [key], offsets: [offset], nodes: [true] }
       return
     }
     if (draft.hexes.at(-1) === key) {
       if (info.shift)
-        editor.pathDraft = { hexes: draft.hexes, offsets: [...draft.offsets.slice(0, -1), offset] }
+        editor.pathDraft = { ...draft, offsets: [...draft.offsets.slice(0, -1), offset] }
       return
     }
     const last = parseKey(draft.hexes.at(-1)!)
@@ -214,8 +233,10 @@ class PathTool implements Tool {
       .map(keyOf)
     if (added.length === 0) return
     editor.pathDraft = {
+      ...draft,
       hexes: [...draft.hexes, ...added],
       offsets: [...draft.offsets, ...added.map((k) => (k === key ? offset : null))],
+      nodes: [...draft.nodes, ...added.map((k) => freehand || k === key)],
     }
   }
 
@@ -234,9 +255,10 @@ class PathTool implements Tool {
     const original = parseKey(drag.before.hexes[drag.index])
     let { hexes } = drag.before
     let offsets = drag.before.hexes.map((_, i) => drag.before.offsets?.[i] ?? null)
+    let nodes = drag.before.nodes
     let index = drag.index
     if (inBounds(target, grid) && keyOf(target) !== keyOf(original)) {
-      ;({ hexes, offsets, index } = rerouteVertex(
+      ;({ hexes, offsets, nodes, index } = rerouteVertex(
         drag.before,
         drag.index,
         target,
@@ -246,8 +268,29 @@ class PathTool implements Tool {
     offsets[index] = offsetInHex(parseKey(hexes[index]), { ...info, world })
     path.hexes = hexes
     path.offsets = offsets
+    if (nodes) path.nodes = nodes
+    else delete path.nodes
     editor.hoveredHandle = { pathId: path.id, index }
     editor.notify({ kind: 'paths' })
+  }
+}
+
+/**
+ * Starts drawing from an existing node: from an endpoint the path itself is extended;
+ * from a middle node a new branch of the same kind starts there.
+ */
+function continueFrom(path: MapPath, index: number): void {
+  const last = path.hexes.length - 1
+  const atStart = index === 0
+  const isEndpoint = atStart || index === last
+  editor.pathKind = path.kind
+  editor.pathStraight = !!path.straight
+  editor.hoveredHandle = null
+  editor.pathDraft = {
+    hexes: [path.hexes[index]],
+    offsets: [path.offsets?.[index] ?? null],
+    nodes: [true],
+    ...(isEndpoint && { extend: { pathId: path.id, atStart } }),
   }
 }
 
@@ -275,8 +318,9 @@ function findPathVertex(world: Point, radius: number): { path: MapPath; index: n
   let best: { path: MapPath; index: number } | null = null
   let bestDistance = radius
   for (const path of paths) {
+    const nodes = nodeFlags(path)
     for (let i = 0; i < path.hexes.length; i++) {
-      if (!inBounds(parseKey(path.hexes[i]), grid)) continue
+      if (!nodes[i] || !inBounds(parseKey(path.hexes[i]), grid)) continue
       const point = pathVertexPoint(path, i)
       const d = Math.hypot(point.x - world.x, point.y - world.y)
       if (d <= bestDistance) {
@@ -301,19 +345,43 @@ export function finishPath(): void {
   if (!draft) return
   const hexes: HexKey[] = []
   const offsets: ([number, number] | null)[] = []
+  const flags: boolean[] = []
   draft.hexes.forEach((key, i) => {
-    if (hexes.at(-1) === key) offsets[offsets.length - 1] = draft.offsets[i] ?? offsets.at(-1)!
-    else {
+    if (hexes.at(-1) === key) {
+      offsets[offsets.length - 1] = draft.offsets[i] ?? offsets.at(-1)!
+      flags[flags.length - 1] ||= draft.nodes[i]
+    } else {
       hexes.push(key)
       offsets.push(draft.offsets[i])
+      flags.push(draft.nodes[i])
     }
   })
   if (hexes.length < 2) return
+  const target = draft.extend && editor.map.paths.find((p) => p.id === draft.extend!.pathId)
+  if (target && draft.extend) {
+    // Append the new hexes after the endpoint (or before it, reversed, at the start).
+    const add = <T>(existing: T[], drawn: T[]) =>
+      draft.extend!.atStart
+        ? [...drawn.slice(1).reverse(), ...existing]
+        : [...existing, ...drawn.slice(1)]
+    const existingFlags = nodeFlags(target)
+    const existingOffsets = target.hexes.map((_, i) => target.offsets?.[i] ?? null)
+    const merged = add(existingFlags, flags)
+    const extended = normalizePath({
+      ...target,
+      hexes: add(target.hexes, hexes),
+      offsets: add(existingOffsets, offsets),
+      nodes: merged.flatMap((f, i) => (f ? [i] : [])),
+    })
+    editor.execute(new ReplacePathCommand(target, extended))
+    return
+  }
   const path = normalizePath({
     id: newId(),
     kind: editor.pathKind,
     hexes,
     offsets,
+    nodes: flags.flatMap((f, i) => (f ? [i] : [])),
     straight: editor.pathStraight,
   })
   editor.execute(new ReplacePathCommand(null, path))
@@ -328,7 +396,11 @@ export function popPathPoint(): void {
   if (!draft) return
   editor.pathDraft =
     draft.hexes.length > 1
-      ? { hexes: draft.hexes.slice(0, -1), offsets: draft.offsets.slice(0, -1) }
+      ? {
+          hexes: draft.hexes.slice(0, -1),
+          offsets: draft.offsets.slice(0, -1),
+          nodes: draft.nodes.slice(0, -1),
+        }
       : null
 }
 

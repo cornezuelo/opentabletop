@@ -135,7 +135,12 @@ export interface MapPath {
    * center in hex-size units. Null (or missing array) = centered.
    */
   offsets?: ([number, number] | null)[]
-  /** Straight segments instead of a smooth curve (e.g. rivers following hex edges). */
+  /**
+   * Indices of the hexes that are drawn vertices (points the user placed). The other
+   * hexes only record what the path crosses, for travel. Absent = every hex is a vertex.
+   */
+  nodes?: number[]
+  /** Straight segments between vertices instead of a smooth curve. */
   straight?: boolean
 }
 

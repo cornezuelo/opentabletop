@@ -1,4 +1,5 @@
 import { cellLine, keyOf, parseKey, type Offset, type Orientation } from '@open-tabletop/hex'
+import { nodeFlags } from '../model/hex'
 import type { HexKey, HexMap, MapLabel, MapPath } from '../model/types'
 import type { Command, MapChange } from './command'
 
@@ -65,13 +66,14 @@ export function dedupeConsecutive<T>(items: T[]): T[] {
  * hex/offset lists and the vertex's new index (it may merge into a neighbor).
  */
 export function rerouteVertex(
-  path: Pick<MapPath, 'hexes' | 'offsets'>,
+  path: Pick<MapPath, 'hexes' | 'offsets' | 'nodes'>,
   index: number,
   target: Offset,
   orientation: Orientation,
-): { hexes: HexKey[]; offsets: ([number, number] | null)[]; index: number } {
+): { hexes: HexKey[]; offsets: ([number, number] | null)[]; nodes: number[]; index: number } {
   const cells = path.hexes.map(parseKey)
   const offsets = path.hexes.map((_, i) => path.offsets?.[i] ?? null)
+  const flags = nodeFlags(path)
   const before = cells.slice(0, index)
   const after = cells.slice(index + 1)
   const prev = before.at(-1)
@@ -86,16 +88,21 @@ export function rerouteVertex(
     ...offsets.slice(index + 1),
   ]
   const moved = Math.max(0, before.length + toTarget.length - 1)
+  const allFlags = [...flags.slice(0, index), ...middle.map(() => false), ...flags.slice(index + 1)]
+  allFlags[moved] = true
   // Dropping onto the next hex duplicates it; collapse repeats and track the vertex.
   const hexes: HexKey[] = []
   const newOffsets: ([number, number] | null)[] = []
+  const newFlags: boolean[] = []
   let newIndex = 0
   allHexes.forEach((key, i) => {
     if (hexes.at(-1) !== key) {
       hexes.push(key)
       newOffsets.push(allOffsets[i])
-    }
+      newFlags.push(allFlags[i])
+    } else if (allFlags[i]) newFlags[newFlags.length - 1] = true
     if (i === moved) newIndex = hexes.length - 1
   })
-  return { hexes, offsets: newOffsets, index: newIndex }
+  const nodes = newFlags.flatMap((f, i) => (f ? [i] : []))
+  return { hexes, offsets: newOffsets, nodes, index: newIndex }
 }

@@ -48,6 +48,24 @@ describe('pathRuns', () => {
   })
 })
 
+describe('nodes', () => {
+  it('skips crossed-only land hexes but keeps endpoints and shore cuts', () => {
+    const crossed = (x: number, water = false): PathVertex => ({ ...v(x, water), node: false })
+    expect(pathRuns([v(0), crossed(10), crossed(20), v(30)])).toEqual([
+      [
+        { x: 0, y: 0 },
+        { x: 30, y: 0 },
+      ],
+    ])
+    expect(pathRuns([v(0), crossed(10), crossed(20, true)])).toEqual([
+      [
+        { x: 0, y: 0 },
+        { x: 15, y: 0 },
+      ],
+    ])
+  })
+})
+
 describe('snapping', () => {
   it('has the center, six corners and six edge midpoints', () => {
     expect(snapTargets('flat', 10)).toHaveLength(13)

@@ -7,6 +7,8 @@ export interface PathVertex {
   point: Point
   /** Water hexes (lake, sea…): paths stop at their shore instead of entering. */
   water: boolean
+  /** Drawn vertex (user-placed point). False for hexes the path merely crosses. */
+  node?: boolean
 }
 
 /**
@@ -25,7 +27,8 @@ export function pathRuns(vertices: PathVertex[]): Point[][] {
     const prev = vertices[i - 1]
     const next = vertices[i + 1]
     if (!v.water) {
-      current.push(v.point)
+      // Crossed-only hexes aren't drawn, so straight lines between nodes stay straight.
+      if (v.node !== false || current.length === 0 || !next) current.push(v.point)
       return
     }
     if (prev && !prev.water) current.push(edge(prev, v))

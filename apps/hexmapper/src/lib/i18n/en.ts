@@ -227,7 +227,7 @@ export const en = {
     count: '{count} roads and rivers on the map',
     straight: 'Straight segments',
     editHelp:
-      'Shift+click places a point where you click (Ctrl: no snapping). Drag the white handles to move points; right-click one to re-center it. Paths stop at the shore of lakes and seas.',
+      'Shift+click places a point where you click (Ctrl: no snapping). Click a white handle to keep drawing from it (from an end it extends the path, from the middle it branches); drag it to move the point; right-click to re-center it. Paths stop at the shore of lakes and seas.',
     makeStraight: 'Straight',
     makeCurved: 'Curved',
   },
