@@ -21,7 +21,7 @@ import {
   type Offset,
 } from '@open-tabletop/hex'
 import { t, type MessageKey } from '../i18n/index.svelte'
-import type { LayerId } from '../model/types'
+import type { HexIcon, LayerId } from '../model/types'
 import { editor, type ToolId } from '../store/editor.svelte'
 import { showToast } from '../store/toasts.svelte'
 
@@ -404,43 +404,129 @@ export function popPathPoint(): void {
       : null
 }
 
-/** Stamps the selected icon on hexes (drag to stamp several). Right-click removes, Ctrl+click picks. */
+/**
+ * Icons: click an empty hex to place the current icon (and select it); click a hex
+ * with an icon to select it, then the palette and style controls edit it live. Drag
+ * an icon to move it inside its hex or to another empty hex. Right-click removes,
+ * Ctrl+click copies its icon and style.
+ */
 class IconTool implements Tool {
-  private batch: HexEditBatch | null = null
-  private removing = false
+  private pressed: { key: HexKey; at: Point; threshold: number } | null = null
+  private drag: {
+    batch: HexEditBatch
+    source: HexKey
+    icon: HexIcon
+    grab: Point
+    target: HexKey
+  } | null = null
 
   down(cell: Offset, info: PointerInfo): void {
+    const key = keyOf(cell)
+    const icon = editor.map.hexes[key]?.icon
     if (info.alt || info.ctrl) {
-      const icon = editor.map.hexes[keyOf(cell)]?.icon
       if (icon) {
         const { id, ...style } = icon
         editor.iconId = id
-        editor.iconStyle = style
+        editor.iconStyle = { ...style, offset: undefined }
       }
       return
     }
     if (blockedByLock('icons')) return
-    this.removing = info.button === 2
-    this.batch = new HexEditBatch(editor.map)
-    this.stamp(cell)
+    if (info.button === 2) {
+      if (icon) editor.editHex(key, (hex) => ({ ...hex, icon: undefined }))
+      if (editor.selectedIcon === key) editor.selectedIcon = null
+      return
+    }
+    if (icon) {
+      editor.selectedIcon = key
+      this.pressed = { key, at: info.world, threshold: info.pickRadius / 3 }
+      return
+    }
+    editor.editHex(key, (hex) => ({ ...hex, icon: { ...editor.iconStyle, id: editor.iconId } }))
+    editor.selectedIcon = key
   }
 
-  move(cell: Offset): void {
-    if (this.batch && inBounds(cell, editor.map.grid)) this.stamp(cell)
+  move(_cell: Offset, info: PointerInfo): void {
+    const pressed = this.pressed
+    if (pressed && !this.drag) {
+      if (Math.hypot(info.world.x - pressed.at.x, info.world.y - pressed.at.y) < pressed.threshold)
+        return
+      const icon = editor.map.hexes[pressed.key]?.icon
+      if (!icon) return
+      const center = cellCenter(parseKey(pressed.key))
+      const { hexSize } = editor.map.grid
+      const point = {
+        x: center.x + (icon.offset?.[0] ?? 0) * hexSize,
+        y: center.y + (icon.offset?.[1] ?? 0) * hexSize,
+      }
+      this.drag = {
+        batch: new HexEditBatch(editor.map),
+        source: pressed.key,
+        icon: structuredClone(icon),
+        grab: { x: point.x - pressed.at.x, y: point.y - pressed.at.y },
+        target: pressed.key,
+      }
+    }
+    if (this.drag) this.moveIcon(info)
   }
 
   up(): void {
-    const command = this.batch?.finish()
+    this.pressed = null
+    const drag = this.drag
+    this.drag = null
+    if (!drag) return
+    const command = drag.batch.finish()
     if (command) editor.record(command)
-    this.batch = null
+    editor.selectedIcon = drag.target
   }
 
-  private stamp(cell: Offset): void {
-    const key = keyOf(cell)
-    const icon = this.removing ? undefined : { ...editor.iconStyle, id: editor.iconId }
-    if (this.batch!.edit(key, (hex) => ({ ...hex, icon })))
-      editor.notify({ kind: 'hexes', keys: [key] })
+  /** Moves the dragged icon live: offset inside a hex, or into another empty hex. */
+  private moveIcon(info: PointerInfo): void {
+    const drag = this.drag!
+    const { grid, hexes } = editor.map
+    const world = { x: info.world.x + drag.grab.x, y: info.world.y + drag.grab.y }
+    let cell = toOffset(pixelToHex(world, grid.orientation, grid.hexSize), grid.orientation)
+    let key = keyOf(cell)
+    // Only empty hexes (or its own) can receive the icon.
+    if (!inBounds(cell, grid) || (key !== drag.source && hexes[key]?.icon && key !== drag.target)) {
+      key = drag.target
+      cell = parseKey(key)
+    }
+    const center = cellCenter(cell)
+    const local = { x: (world.x - center.x) / grid.hexSize, y: (world.y - center.y) / grid.hexSize }
+    // Snap back to the center when close to it.
+    const offset: [number, number] | undefined =
+      Math.hypot(local.x, local.y) < 0.12 ? undefined : [local.x, local.y]
+    const changed: HexKey[] = []
+    if (key !== drag.target && drag.target !== drag.source) {
+      drag.batch.edit(drag.target, (hex) => ({ ...hex, icon: undefined }))
+      changed.push(drag.target)
+    }
+    if (key !== drag.source) {
+      if (drag.batch.edit(drag.source, (hex) => ({ ...hex, icon: undefined })))
+        changed.push(drag.source)
+    }
+    drag.batch.edit(key, (hex) => ({ ...hex, icon: { ...drag.icon, offset } }))
+    if (key === drag.source && drag.target !== drag.source) {
+      changed.push(drag.source)
+    }
+    changed.push(key)
+    drag.target = key
+    editor.selectedIcon = key
+    editor.notify({ kind: 'hexes', keys: [...new Set(changed)] })
   }
+}
+
+function cellCenter(cell: Offset): Point {
+  const { orientation, hexSize } = editor.map.grid
+  return hexToPixel(toAxial(cell, orientation), orientation, hexSize)
+}
+
+export function deleteSelectedIcon(): void {
+  const key = editor.selectedIcon
+  if (!key) return
+  editor.editHex(key, (hex) => ({ ...hex, icon: undefined }))
+  editor.selectedIcon = null
 }
 
 /**

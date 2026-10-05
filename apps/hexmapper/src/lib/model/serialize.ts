@@ -140,6 +140,7 @@ function parseIcon(value: unknown): HexData['icon'] {
     outline: value.outline === true,
     outlineColor: typeof value.outlineColor === 'string' ? value.outlineColor : undefined,
     outlineWidth: typeof value.outlineWidth === 'number' ? value.outlineWidth : undefined,
+    offset: parseOffset(value.offset) ?? undefined,
   }
 }
 

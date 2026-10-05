@@ -3,6 +3,9 @@ import type { HexData, HexIcon, MapPath } from './types'
 export const ICON_SCALE_RANGE = [0.4, 2] as const
 export const ICON_HALO_RANGE = [0.3, 0.9] as const
 export const ICON_OUTLINE_RANGE = [0.01, 0.1] as const
+/** Icons may sit anywhere inside the hex's inscribed circle (hex-size units). */
+export const ICON_OFFSET_MAX = 0.7
+
 export const ICON_DEFAULTS = {
   haloColor: '#f4eedd',
   haloSize: 0.48,
@@ -44,6 +47,12 @@ export function normalizeIcon(icon: HexIcon | undefined): HexIcon | undefined {
     const haloSize = clampOptional(icon.haloSize, ICON_HALO_RANGE, ICON_DEFAULTS.haloSize)
     if (haloColor) out.haloColor = haloColor
     if (haloSize !== undefined) out.haloSize = haloSize
+  }
+  const [dx, dy] = icon.offset ?? [0, 0]
+  const length = Math.hypot(dx, dy)
+  if (Number.isFinite(length) && length >= 0.01) {
+    const k = Math.min(1, ICON_OFFSET_MAX / length)
+    out.offset = [Math.round(dx * k * 1000) / 1000, Math.round(dy * k * 1000) / 1000]
   }
   if (icon.outline) {
     out.outline = true

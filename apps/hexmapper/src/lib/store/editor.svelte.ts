@@ -65,6 +65,8 @@ class Editor {
   selected = $state<HexKey | null>(null)
   pathKind = $state<PathKind>('road')
   iconId = $state('game:village')
+  /** Hex whose icon the icon tool is editing (palette and style apply to it live). */
+  selectedIcon = $state<HexKey | null>(null)
   /** Style applied to newly stamped icons. */
   iconStyle = $state<IconStyle>({})
   /** New paths are drawn with straight segments instead of curves. */
@@ -192,6 +194,7 @@ class Editor {
     this.history.clear()
     this.selected = null
     this.selectedLabel = null
+    this.selectedIcon = null
     this.labelEdits.clear()
     this.hexPreviews.clear()
     this.pathDraft = null
@@ -200,7 +203,14 @@ class Editor {
     this.notify({ kind: 'all' })
   }
 
+  /** Drops selections that no longer point at anything (e.g. after undo). */
+  private pruneSelections(): void {
+    if (this.selectedIcon && !this.map.hexes[this.selectedIcon]?.icon) this.selectedIcon = null
+    if (this.selectedLabel && !this.getLabel(this.selectedLabel)) this.selectedLabel = null
+  }
+
   private touch(): void {
+    this.pruneSelections()
     this.map.meta.modified = new Date().toISOString()
     this.canUndo = this.history.canUndo
     this.canRedo = this.history.canRedo

@@ -1,7 +1,13 @@
 import { openMapFile, saveMap } from './io/actions.svelte'
 import { isTyping } from './render/MapRenderer'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
-import { cancelPath, deleteSelectedLabel, finishPath, popPathPoint } from './tools/tools'
+import {
+  cancelPath,
+  deleteSelectedIcon,
+  deleteSelectedLabel,
+  finishPath,
+  popPathPoint,
+} from './tools/tools'
 import { view } from './store/view'
 
 /** Global keyboard shortcuts. Returns a cleanup function. */
@@ -31,6 +37,19 @@ export function bindShortcuts(): () => void {
       }
       if (handled[key]) {
         handled[key]()
+        e.preventDefault()
+        return
+      }
+    }
+
+    if (editor.tool === 'icon' && editor.selectedIcon) {
+      if (key === 'escape') {
+        editor.selectedIcon = null
+        e.preventDefault()
+        return
+      }
+      if (key === 'delete' || key === 'backspace') {
+        deleteSelectedIcon()
         e.preventDefault()
         return
       }

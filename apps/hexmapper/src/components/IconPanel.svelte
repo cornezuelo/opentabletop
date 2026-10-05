@@ -12,6 +12,8 @@
   import { importImageFile, pickImageFiles } from '../lib/io/importImage'
   import IconStyleControls from './IconStyleControls.svelte'
   import { newId } from '../lib/model/id'
+  import { formatCoord, parseKey } from '@open-tabletop/hex'
+  import type { HexData, IconStyle } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import { showToast } from '../lib/store/toasts.svelte'
 
@@ -41,11 +43,40 @@
     return assets.filter((a) => !q || a.name.toLowerCase().includes(q))
   })
 
-  const selectedAsset = $derived(assets.find((a) => `asset:${a.id}` === editor.iconId) ?? null)
+  /** The placed icon being edited (selected with the icon tool), if any. */
+  const editing = $derived.by(() => {
+    void editor.revision
+    const key = editor.selectedIcon
+    const icon = key ? editor.map.hexes[key]?.icon : undefined
+    if (!key || !icon) return null
+    return { key, icon, coord: formatCoord(parseKey(key), editor.grid.coordFormat, editor.grid) }
+  })
+  /** Icon highlighted in the palette: the edited one, or the one new icons will use. */
+  const activeId = $derived(editing?.icon.id ?? editor.iconId)
+
+  const selectedAsset = $derived(assets.find((a) => `asset:${a.id}` === activeId) ?? null)
   const selectedName = $derived.by(() => {
-    const builtin = getBuiltinIcon(editor.iconId)
+    const builtin = getBuiltinIcon(activeId)
     return builtin ? iconLabel(builtin) : (selectedAsset?.name ?? '')
   })
+
+  function choose(id: string) {
+    editor.iconId = id
+    if (editing) editor.editHex(editing.key, (hex) => ({ ...hex, icon: { ...hex.icon!, id } }))
+  }
+
+  function changeStyle(style: IconStyle, live: boolean) {
+    // New icons reuse the style, but not this icon's position.
+    editor.iconStyle = { ...style, offset: undefined }
+    if (!editing) return
+    const { key, icon } = editing
+    const update = (hex: HexData) => ({
+      ...hex,
+      icon: { ...style, id: icon.id, offset: icon.offset },
+    })
+    editor.previewHex(key, update)
+    if (!live) editor.commitHex(key)
+  }
 
   async function importIcons() {
     for (const file of await pickImageFiles()) {
@@ -89,11 +120,11 @@
   {#each builtins as icon (icon.id)}
     <button
       role="radio"
-      aria-checked={editor.iconId === icon.id}
-      class:active={editor.iconId === icon.id}
+      aria-checked={activeId === icon.id}
+      class:active={activeId === icon.id}
       title={iconLabel(icon)}
       aria-label={iconLabel(icon)}
-      onclick={() => (editor.iconId = icon.id)}
+      onclick={() => choose(icon.id)}
     >
       <!-- Bundled, trusted SVG markup. -->
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -103,11 +134,11 @@
   {#each customs as asset (asset.id)}
     <button
       role="radio"
-      aria-checked={editor.iconId === `asset:${asset.id}`}
-      class:active={editor.iconId === `asset:${asset.id}`}
+      aria-checked={activeId === `asset:${asset.id}`}
+      class:active={activeId === `asset:${asset.id}`}
       title={asset.name}
       aria-label={asset.name}
-      onclick={() => (editor.iconId = `asset:${asset.id}`)}
+      onclick={() => choose(`asset:${asset.id}`)}
     >
       <img src={asset.dataUrl} alt="" />
     </button>
@@ -117,12 +148,19 @@
   <p class="help">{t('icons.empty')}</p>
 {/if}
 
-<p class="selected">{t('icons.selected', { name: selectedName })}</p>
+{#if editing}
+  <div class="editing">
+    <span>{t('icons.editing', { name: selectedName, coord: editing.coord })}</span>
+    <button class="link" onclick={() => (editor.selectedIcon = null)}>{t('icons.deselect')}</button>
+  </div>
+{:else}
+  <p class="selected">{t('icons.selected', { name: selectedName })}</p>
+{/if}
 
 <IconStyleControls
-  style={editor.iconStyle}
+  style={editing ? editing.icon : editor.iconStyle}
   tintable={!selectedAsset}
-  onchange={(style) => (editor.iconStyle = style)}
+  onchange={changeStyle}
 />
 
 <div class="actions">
@@ -194,6 +232,18 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  .editing {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
   }
 
   .selected {

@@ -57,6 +57,8 @@ describe('assets', () => {
       rotation: 270,
     })
     expect(normalizeIcon({ id: '' })).toBeUndefined()
+    expect(normalizeIcon({ id: 'game:x', offset: [0.001, 0] })).toEqual({ id: 'game:x' })
+    expect(normalizeIcon({ id: 'game:x', offset: [3, 4] })?.offset).toEqual([0.42, 0.56])
     // Halo/outline settings only persist while enabled, and only when not default.
     expect(
       normalizeIcon({

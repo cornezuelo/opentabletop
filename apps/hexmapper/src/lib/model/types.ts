@@ -61,6 +61,8 @@ export interface HexIcon {
   outlineColor?: string
   /** Outline thickness as a fraction of the icon size (default 0.03). */
   outlineWidth?: number
+  /** Position inside the hex as [dx, dy] from the center, in hex-size units. */
+  offset?: [number, number]
 }
 
 export type IconStyle = Omit<HexIcon, 'id'>
