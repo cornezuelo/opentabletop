@@ -51,6 +51,9 @@ export function bindShortcuts(): () => void {
       case 'r':
         editor.tool = 'path'
         break
+      case 'i':
+        editor.tool = 'icon'
+        break
       case 'e':
         editor.tool = 'terrain'
         editor.terrainMode = 'erase'
@@ -67,6 +70,7 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
+    if ('vbgeri'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

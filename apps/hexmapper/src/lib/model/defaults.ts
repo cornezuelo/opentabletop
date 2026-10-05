@@ -48,5 +48,6 @@ export function createMap(name = ''): HexMap {
     terrains: DEFAULT_TERRAINS.map((t) => ({ ...t })),
     hexes: {},
     paths: [],
+    assets: [],
   }
 }

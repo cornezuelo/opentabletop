@@ -31,9 +31,27 @@ export interface HexData {
   tags?: string[]
   /** Ordered key/value stats. */
   fields?: CustomField[]
-  /** SilverBullet page path, e.g. "Kal-Arath/Hexes/0101". */
+  /** External note path, e.g. "Kal-Arath/Hexes/0101". */
   note?: string
+  icon?: HexIcon
 }
+
+/** Icon placed on a hex. Only non-default style values are stored. */
+export interface HexIcon {
+  /** "game:<name>" (bundled set) or "asset:<id>" (imported into the map). */
+  id: string
+  /** Ink color for single-color icons; absent = automatic (dark on terrain, light on empty). */
+  color?: string
+  /** Size multiplier, 1 = default. */
+  scale?: number
+  /** Degrees clockwise. */
+  rotation?: number
+  flip?: boolean
+  /** Soft light disc behind the icon, for legibility on busy terrain. */
+  halo?: boolean
+}
+
+export type IconStyle = Omit<HexIcon, 'id'>
 
 export interface GridSettings {
   orientation: Orientation
@@ -43,6 +61,14 @@ export interface GridSettings {
   height: number
   coordFormat: CoordFormat
   showCoords: boolean
+}
+
+/** An image imported by the user (e.g. a custom icon), embedded in the map file. */
+export interface MapAsset {
+  id: string
+  name: string
+  /** data:image/png|svg+xml|jpeg|webp;base64,... */
+  dataUrl: string
 }
 
 export const PATH_KINDS = ['road', 'trail', 'river'] as const
@@ -87,4 +113,5 @@ export interface HexMap {
   /** Keyed by offset coordinates "col,row". */
   hexes: Record<HexKey, HexData>
   paths: MapPath[]
+  assets: MapAsset[]
 }

@@ -38,6 +38,7 @@ button {
 }
 
 input[type='text'],
+input[type='search'],
 input[type='number'],
 textarea,
 select {

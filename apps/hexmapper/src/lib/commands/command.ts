@@ -6,6 +6,7 @@ export type MapChange =
   | { kind: 'grid' }
   | { kind: 'terrains' }
   | { kind: 'paths' }
+  | { kind: 'assets' }
   | { kind: 'meta' }
   | { kind: 'all' }
 

@@ -1,4 +1,20 @@
-import type { HexData } from './types'
+import type { HexData, HexIcon } from './types'
+
+export const ICON_SCALE_RANGE = [0.4, 2] as const
+
+/** Drops default values so equal icons compare and serialize identically. */
+export function normalizeIcon(icon: HexIcon | undefined): HexIcon | undefined {
+  if (!icon?.id) return undefined
+  const out: HexIcon = { id: icon.id }
+  if (icon.color && /^#[0-9a-f]{6}$/i.test(icon.color)) out.color = icon.color.toLowerCase()
+  if (icon.scale !== undefined && Number.isFinite(icon.scale) && icon.scale !== 1)
+    out.scale = Math.min(ICON_SCALE_RANGE[1], Math.max(ICON_SCALE_RANGE[0], icon.scale))
+  const rotation = (((icon.rotation ?? 0) % 360) + 360) % 360
+  if (Number.isFinite(rotation) && rotation !== 0) out.rotation = rotation
+  if (icon.flip) out.flip = true
+  if (icon.halo) out.halo = true
+  return out
+}
 
 /**
  * Canonical form of a hex: trims text, drops empty values and duplicate tags, and
@@ -31,6 +47,9 @@ export function normalizeHex(hex: HexData | undefined): HexData {
   const note = hex.note?.trim()
   if (note) out.note = note
 
+  const icon = normalizeIcon(hex.icon)
+  if (icon) out.icon = icon
+
   return out
 }
 
@@ -42,9 +61,14 @@ export function sameHex(a: HexData | undefined, b: HexData | undefined): boolean
   return JSON.stringify(normalizeHex(a)) === JSON.stringify(normalizeHex(b))
 }
 
-/** True if the hex carries anything beyond its terrain. */
+/** Visible on the map by themselves, so they don't count as "has notes". */
+const SELF_EVIDENT: (keyof HexData)[] = ['terrain', 'icon']
+
+/** True if the hex carries data that isn't visible on the map (name, notes, POIs…). */
 export function hasMetadata(hex: HexData | undefined): boolean {
-  return Object.keys(normalizeHex(hex)).some((key) => key !== 'terrain')
+  return (Object.keys(normalizeHex(hex)) as (keyof HexData)[]).some(
+    (key) => !SELF_EVIDENT.includes(key),
+  )
 }
 
 /** Every tag and field key used in the map, sorted, for autocompletion. */

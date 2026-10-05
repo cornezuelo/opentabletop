@@ -1,5 +1,6 @@
 <script lang="ts">
   import FieldList from './FieldList.svelte'
+  import HexIcon from './HexIcon.svelte'
   import HexNotes from './HexNotes.svelte'
   import HexPaths from './HexPaths.svelte'
   import NoteLink from './NoteLink.svelte'
@@ -61,6 +62,9 @@
       />
     </label>
 
+    {#if hex.icon}
+      <HexIcon {key} icon={hex.icon} />
+    {/if}
     <HexNotes {key} notes={hex.notes ?? ''} />
     <NoteLink {key} note={hex.note ?? ''} coord={selected.coord} />
     <PoiList {key} pois={hex.pois ?? []} />

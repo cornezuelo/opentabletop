@@ -8,6 +8,7 @@
     { id: 'select', label: 'tools.select', glyph: '⬚' },
     { id: 'terrain', label: 'tools.terrain', glyph: '⬢' },
     { id: 'path', label: 'tools.path', glyph: '〰' },
+    { id: 'icon', label: 'tools.icon', glyph: '♜' },
   ]
 
   const actions: { label: MessageKey; glyph: string; run: () => void; enabled?: () => boolean }[] =
@@ -38,13 +39,25 @@
       title={t(tool.label)}
       aria-label={t(tool.label)}
       aria-pressed={editor.tool === tool.id}
-      onclick={() => (editor.tool = tool.id)}
+      onclick={() => {
+        editor.tool = tool.id
+        editor.panelView = 'tool'
+      }}
     >
       {tool.glyph}
     </button>
   {/each}
 
   <div class="spacer"></div>
+
+  <button
+    class:active={editor.panelView === 'settings'}
+    title={t('panel.settings')}
+    aria-label={t('panel.settings')}
+    aria-pressed={editor.panelView === 'settings'}
+    onclick={() => (editor.panelView = editor.panelView === 'settings' ? 'tool' : 'settings')}
+    >⚙</button
+  >
 
   {#each actions as action (action.label)}
     <button

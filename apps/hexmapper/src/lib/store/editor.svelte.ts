@@ -8,12 +8,13 @@ import type {
   HexKey,
   HexMap,
   MapMeta,
+  IconStyle,
   PathKind,
   PrintSettings,
   TerrainType,
 } from '../model/types'
 
-export type ToolId = 'select' | 'terrain' | 'path'
+export type ToolId = 'select' | 'terrain' | 'path' | 'icon'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
@@ -40,11 +41,16 @@ class Editor {
   canRedo = $state(false)
 
   tool = $state<ToolId>('terrain')
+  /** What the side panel shows: the active tool and hex, or map settings and preferences. */
+  panelView = $state<'tool' | 'settings'>('tool')
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)
   selected = $state<HexKey | null>(null)
   pathKind = $state<PathKind>('road')
+  iconId = $state('game:village')
+  /** Style applied to newly stamped icons. */
+  iconStyle = $state<IconStyle>({})
   /** Hexes of the path being drawn, or null when not drawing. */
   pathDraft = $state<HexKey[] | null>(null)
 

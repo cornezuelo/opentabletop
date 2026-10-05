@@ -9,6 +9,7 @@ import type {
   HexData,
   HexKey,
   HexMap,
+  MapAsset,
   MapPath,
   Poi,
   PrintSettings,
@@ -75,6 +76,7 @@ function validate(data: Record<string, unknown>): HexMap {
     terrains: validTerrains,
     hexes: validHexes,
     paths: parsePaths(data.paths),
+    assets: parseAssets(data.assets),
   }
 }
 
@@ -103,7 +105,22 @@ function parseHex(value: Record<string, unknown>): HexData {
     tags,
     fields,
     note: str(value.note),
+    icon: parseIcon(value.icon),
   })
+}
+
+function parseIcon(value: unknown): HexData['icon'] {
+  // Older drafts stored just the id.
+  if (typeof value === 'string') return { id: value }
+  if (!isRecord(value) || typeof value.id !== 'string') return undefined
+  return {
+    id: value.id,
+    color: typeof value.color === 'string' ? value.color : undefined,
+    scale: typeof value.scale === 'number' ? value.scale : undefined,
+    rotation: typeof value.rotation === 'number' ? value.rotation : undefined,
+    flip: value.flip === true,
+    halo: value.halo === true,
+  }
 }
 
 function parsePaths(value: unknown): MapPath[] {
@@ -118,6 +135,20 @@ function parsePaths(value: unknown): MapPath[] {
       ),
     }))
     .filter((p) => p.hexes.length >= 2)
+}
+
+const DATA_URL = /^data:image\/(png|svg\+xml|jpeg|webp);base64,[a-z0-9+/=]+$/i
+
+function parseAssets(value: unknown): MapAsset[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter(isRecord)
+    .filter((a) => isValidId(a.id) && typeof a.dataUrl === 'string' && DATA_URL.test(a.dataUrl))
+    .map((a) => ({
+      id: a.id as string,
+      name: typeof a.name === 'string' ? a.name : '',
+      dataUrl: a.dataUrl as string,
+    }))
 }
 
 function parsePrint(value: unknown): PrintSettings {

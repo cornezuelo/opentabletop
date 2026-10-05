@@ -157,7 +157,46 @@ export function popPathPoint(): void {
   editor.pathDraft = draft.length > 1 ? draft.slice(0, -1) : null
 }
 
+/** Stamps the selected icon on hexes (drag to stamp several). Right-click removes, Alt+click picks. */
+class IconTool implements Tool {
+  private batch: HexEditBatch | null = null
+  private removing = false
+
+  down(cell: Offset, info: PointerInfo): void {
+    if (info.alt) {
+      const icon = editor.map.hexes[keyOf(cell)]?.icon
+      if (icon) {
+        const { id, ...style } = icon
+        editor.iconId = id
+        editor.iconStyle = style
+      }
+      return
+    }
+    this.removing = info.button === 2
+    this.batch = new HexEditBatch(editor.map)
+    this.stamp(cell)
+  }
+
+  move(cell: Offset): void {
+    if (this.batch && inBounds(cell, editor.map.grid)) this.stamp(cell)
+  }
+
+  up(): void {
+    const command = this.batch?.finish()
+    if (command) editor.record(command)
+    this.batch = null
+  }
+
+  private stamp(cell: Offset): void {
+    const key = keyOf(cell)
+    const icon = this.removing ? undefined : { ...editor.iconStyle, id: editor.iconId }
+    if (this.batch!.edit(key, (hex) => ({ ...hex, icon })))
+      editor.notify({ kind: 'hexes', keys: [key] })
+  }
+}
+
 const tools: Record<ToolId, Tool> = {
+  icon: new IconTool(),
   select: selectTool,
   terrain: new TerrainTool(),
   path: new PathTool(),

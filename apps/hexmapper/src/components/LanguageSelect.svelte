@@ -15,7 +15,8 @@
 
 <style>
   select {
-    padding: 2px 4px;
+    width: 100%;
+    padding: 5px 8px;
     font: inherit;
     color: var(--text);
     background: var(--bg);

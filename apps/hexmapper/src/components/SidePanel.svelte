@@ -1,5 +1,6 @@
 <script lang="ts">
   import HexInfo from './hex/HexInfo.svelte'
+  import IconPanel from './IconPanel.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSize from './MapSize.svelte'
@@ -12,20 +13,42 @@
 </script>
 
 <aside class="panel">
-  <header>
-    <h1>{t('app.title')}</h1>
-    <LanguageSelect />
-  </header>
+  {#if editor.panelView === 'settings'}
+    <header>
+      <h1>{t('panel.settings')}</h1>
+      <button
+        class="close"
+        title={t('panel.closeSettings')}
+        aria-label={t('panel.closeSettings')}
+        onclick={() => (editor.panelView = 'tool')}>✕</button
+      >
+    </header>
+    <Section title={t('panel.map')}><MapSettings /></Section>
+    <Section title={t('map.size')}><MapSize /></Section>
+    <Section title={t('panel.preferences')}>
+      <label class="field">
+        <span>{t('settings.language')}</span>
+        <LanguageSelect />
+      </label>
+      <Preferences />
+    </Section>
+  {:else}
+    <header>
+      <h1>{editor.meta.name || t('app.title')}</h1>
+    </header>
+    {@render toolView()}
+  {/if}
+</aside>
 
+{#snippet toolView()}
   {#if editor.tool === 'terrain'}
     <Section title={t('panel.terrain')}><TerrainPanel /></Section>
   {:else if editor.tool === 'path'}
     <Section title={t('panel.paths')}><PathPanel /></Section>
+  {:else if editor.tool === 'icon'}
+    <Section title={t('panel.icons')}><IconPanel /></Section>
   {/if}
   <Section title={t('panel.hex')}><HexInfo /></Section>
-  <Section title={t('panel.map')}><MapSettings /></Section>
-  <Section title={t('map.size')}><MapSize /></Section>
-  <Section title={t('panel.preferences')} open={false}><Preferences /></Section>
   <Section title={t('panel.shortcuts')} open={false}>
     <ul class="hints">
       <li>{t('hints.pan')}</li>
@@ -34,9 +57,10 @@
       <li>{t('hints.pick')}</li>
       <li>{t('hints.brush')}</li>
       <li>{t('hints.path')}</li>
+      <li>{t('hints.icon')}</li>
     </ul>
   </Section>
-</aside>
+{/snippet}
 
 <style>
   .panel {
@@ -52,6 +76,20 @@
     justify-content: space-between;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--panel-border);
+  }
+
+  .close {
+    padding: 2px 8px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: var(--text);
+    border-color: var(--panel-border);
   }
 
   h1 {

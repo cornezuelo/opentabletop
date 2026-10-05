@@ -1,8 +1,18 @@
-import { Application, BitmapFont, BitmapText, Container, Graphics, GraphicsContext } from 'pixi.js'
+import {
+  Application,
+  BitmapFont,
+  BitmapText,
+  Container,
+  Graphics,
+  GraphicsContext,
+  Sprite,
+} from 'pixi.js'
 import type { MapChange } from '../commands/command'
 import { hasMetadata } from '../model/hex'
 import type { MapPath, PathKind } from '../model/types'
+import { iconImage } from '../icons/registry'
 import { catmullRom, dashes } from './curves'
+import { IconTextures } from './IconTextures'
 import {
   allCells,
   cellsInRadius,
@@ -39,6 +49,13 @@ const PATH_STYLES: Record<PathKind, { color: number; width: number; dash?: [numb
 /** Rivers under roads under trails. */
 const PATH_ORDER: PathKind[] = ['river', 'road', 'trail']
 const DRAFT_COLOR = 0xffffff
+/** Bundled icons are tinted: dark ink on painted hexes, light on empty ones. */
+const ICON_INK = 0x1b1a17
+const ICON_INK_EMPTY = 0xe8e2d4
+const ICON_HALO = 0xf4eedd
+/** Icon size as a fraction of the hex size, nudged down to leave room for the coordinate. */
+const ICON_SIZE = 1.25
+const ICON_OFFSET_Y = 0.1
 const MARKER_COLOR = 0xc8a24a
 const MARKER_OUTLINE = 0x1b1a17
 const COORD_FONT = 'hexmapper-coords'
@@ -68,6 +85,8 @@ export class MapRenderer {
   private coordLayer = new Container()
   /** Small dots on hexes that have notes, POIs, tags or fields. */
   private pathsLayer = new Graphics()
+  private iconLayer = new Container()
+  private iconTextures = new IconTextures(() => this.drawIcons())
   private markers = new Graphics()
   private overlay = new Graphics()
 
@@ -93,6 +112,7 @@ export class MapRenderer {
       this.terrainLayer,
       this.gridLines,
       this.pathsLayer,
+      this.iconLayer,
       this.coordLayer,
       this.markers,
       this.overlay,
@@ -108,6 +128,7 @@ export class MapRenderer {
     for (const dispose of this.disposers) dispose()
     this.world.destroy({ children: true })
     this.destroyContexts()
+    this.iconTextures.destroy()
   }
 
   /** Centers the whole map in the view. */
@@ -168,8 +189,11 @@ export class MapRenderer {
         if (label) this.styleCoord(label, key)
       }
       this.drawMarkers()
+      this.drawIcons()
     } else if (change.kind === 'paths') {
       this.drawPaths()
+    } else if (change.kind === 'assets') {
+      this.drawIcons()
     } else if (change.kind !== 'meta') {
       const before = this.shapeSignature
       this.rebuild()
@@ -221,6 +245,7 @@ export class MapRenderer {
     }
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
     this.drawPaths()
+    this.drawIcons()
     this.onViewChanged()
   }
 
@@ -238,6 +263,35 @@ export class MapRenderer {
         for (const piece of pieces) this.strokePolyline(g, piece)
         g.stroke({ width: style.width * hexSize, color: style.color, cap: 'round', join: 'round' })
       }
+    }
+  }
+
+  private drawIcons(): void {
+    for (const child of this.iconLayer.removeChildren()) child.destroy()
+    const { grid, hexes, assets } = editor.map
+    const halos = new Graphics()
+    this.iconLayer.addChild(halos)
+    for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
+      const icon = hex.icon
+      if (!icon) continue
+      const cell = parseKey(key)
+      if (!inBounds(cell, grid)) continue
+      const image = iconImage(icon.id, assets)
+      const texture = image && this.iconTextures.get(icon.id, image.url)
+      if (!texture) continue
+      const size = grid.hexSize * ICON_SIZE * (icon.scale ?? 1)
+      const { x, y } = this.centerOf(cell)
+      const cy = y + grid.hexSize * ICON_OFFSET_Y
+      if (icon.halo) halos.circle(x, cy, size * 0.48).fill({ color: ICON_HALO, alpha: 0.75 })
+      const sprite = new Sprite(texture)
+      sprite.anchor.set(0.5)
+      sprite.setSize(size, size)
+      if (icon.flip) sprite.scale.x *= -1
+      sprite.angle = icon.rotation ?? 0
+      sprite.position.set(x, cy)
+      if (image.tintable)
+        sprite.tint = icon.color ?? (hex.terrain || icon.halo ? ICON_INK : ICON_INK_EMPTY)
+      this.iconLayer.addChild(sprite)
     }
   }
 
