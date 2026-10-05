@@ -5,6 +5,7 @@
   import LabelPanel from './LabelPanel.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
   import LayersPanel from './LayersPanel.svelte'
+  import LibraryPanel from './LibraryPanel.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
@@ -35,6 +36,17 @@
       </label>
       <Preferences />
     </Section>
+  {:else if editor.panelView === 'library'}
+    <header>
+      <h1>{t('library.title')}</h1>
+      <button
+        class="close"
+        title={t('panel.closeSettings')}
+        aria-label={t('panel.closeSettings')}
+        onclick={() => (editor.panelView = 'tool')}>✕</button
+      >
+    </header>
+    <div class="export"><LibraryPanel /></div>
   {:else if editor.panelView === 'export'}
     <header>
       <h1>{t('export.title')}</h1>

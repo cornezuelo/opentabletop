@@ -18,7 +18,7 @@ export const en = {
   },
   actions: {
     new: 'New map',
-    open: 'Open (Ctrl+O)',
+    open: 'Maps',
     save: 'Save (Ctrl+S)',
     export: 'Export PNG/PDF',
     undo: 'Undo (Ctrl+Z)',
@@ -26,7 +26,6 @@ export const en = {
     fit: 'Fit map to view (F)',
   },
   file: {
-    confirmNew: 'Create a new map? Changes not saved to a file will be lost.',
     loaded: 'Map loaded',
     errorInvalid: 'The file is not a valid map.',
     errorNewer: 'This map was created with a newer version of Hexmapper.',
@@ -178,6 +177,29 @@ export const en = {
     reduced: 'Resolution reduced to {value} to fit the GPU limit.',
     overflow: 'Some content falls outside the printable area.',
     error: 'Export failed.',
+  },
+  library: {
+    title: 'Maps',
+    import: 'Import file… (Ctrl+O)',
+    help: 'Maps opened in this browser, saved automatically. Links like #/<map id>/<hex> open a map and center a hex.',
+    empty: 'No maps yet.',
+    delete: 'Delete from this browser',
+    confirmDelete:
+      'Delete "{name}" from this browser? Export or save it to a file first if you want to keep it.',
+    copyLink: 'Copy map link',
+    linkCopied: 'Map link copied',
+    copyHexLink: 'Copy link to this hex',
+    hexLinkCopied: 'Hex link copied',
+    notFound: 'Map {id} is not in this browser. Import {id}.hexmap.json to open it.',
+    hexNotFound: 'Hex {hex} is not on this map.',
+  },
+  newMap: {
+    title: 'New map',
+    message:
+      'The current map stays in Maps (this browser). Do you also want to save it to a file before creating a new one?',
+    cancel: 'Cancel',
+    create: 'Create without saving',
+    saveAndCreate: 'Save to file and create',
   },
   pathKinds: {
     road: 'Road',

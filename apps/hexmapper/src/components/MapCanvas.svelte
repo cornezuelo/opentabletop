@@ -29,6 +29,9 @@
         renderer = new MapRenderer(app, canvas)
         view.fit = () => renderer?.fit()
         view.exportCanvas = (options) => renderer!.exportCanvas(options)
+        view.centerOn = (cell) => renderer?.centerOn(cell)
+        if (view.pendingCenter) renderer.centerOn(view.pendingCenter)
+        view.pendingCenter = null
         // Dev-only hook for browser tests: map world points to screen coordinates.
         if (import.meta.env.DEV)
           Object.assign(window, {
@@ -43,6 +46,9 @@
       destroyed = true
       view.fit = () => {}
       view.exportCanvas = null
+      view.centerOn = (cell) => {
+        view.pendingCenter = cell
+      }
       renderer?.destroy()
       renderer = null
       if (ready) app.destroy()

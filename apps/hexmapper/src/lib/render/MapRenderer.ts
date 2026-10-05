@@ -218,6 +218,17 @@ export class MapRenderer {
     return { x: p.x * scale + this.world.x, y: p.y * scale + this.world.y }
   }
 
+  /** Centers a hex in the view, zooming in if hexes are too small to see. */
+  centerOn(cell: Offset): void {
+    const { hexSize } = editor.map.grid
+    const scale = Math.max(this.world.scale.x, clampZoom(70 / (hexSize * 2)))
+    const center = this.centerOf(cell)
+    const { width, height } = this.app.screen
+    this.world.scale.set(scale)
+    this.world.position.set(width / 2 - center.x * scale, height / 2 - center.y * scale)
+    this.onViewChanged()
+  }
+
   /** Redraws hover, brush preview and selection outlines. */
   drawOverlay(): void {
     this.updateCursor()

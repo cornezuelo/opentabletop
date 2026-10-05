@@ -1,26 +1,31 @@
 <script lang="ts">
   import MapCanvas from './components/MapCanvas.svelte'
   import SidePanel from './components/SidePanel.svelte'
+  import Dialog from './components/Dialog.svelte'
   import Toasts from './components/Toasts.svelte'
   import Toolbar from './components/Toolbar.svelte'
-  import { startAutosave } from './lib/io/actions'
+  import { startPersistence } from './lib/io/actions.svelte'
+  import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
   import { bindShortcuts } from './lib/shortcuts'
 
   let ready = $state(false)
 
   $effect(() => {
     const unbind = bindShortcuts()
-    let stopAutosave: (() => void) | undefined
+    const stops: (() => void)[] = []
     let disposed = false
-    startAutosave().then((stop) => {
-      if (disposed) stop()
-      else stopAutosave = stop
-      ready = true
-    })
+    const keep = (stop: () => void) => (disposed ? stop() : stops.push(stop))
+    startPersistence()
+      .then((stop) => {
+        keep(stop)
+        ready = true
+        return startDeepLinks()
+      })
+      .then(keep)
     return () => {
       disposed = true
       unbind()
-      stopAutosave?.()
+      for (const stop of stops) stop()
     }
   })
 </script>
@@ -35,6 +40,7 @@
   <SidePanel />
 </div>
 <Toasts />
+<Dialog />
 
 <style>
   .layout {

@@ -1,4 +1,4 @@
-import { openMap, saveMap } from './io/actions'
+import { openMapFile, saveMap } from './io/actions.svelte'
 import { isTyping } from './render/MapRenderer'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
 import { cancelPath, deleteSelectedLabel, finishPath, popPathPoint } from './tools/tools'
@@ -16,7 +16,7 @@ export function bindShortcuts(): () => void {
       else if (key === 'z') editor.undo()
       else if (key === 'y') editor.redo()
       else if (key === 's') saveMap()
-      else if (key === 'o') openMap()
+      else if (key === 'o') openMapFile()
       else return
       e.preventDefault()
       return

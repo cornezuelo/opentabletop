@@ -8,7 +8,9 @@
   import TagEditor from './TagEditor.svelte'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { t } from '../../lib/i18n/index.svelte'
+  import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
   import { collectSuggestions } from '../../lib/model/hex'
+  import { showToast } from '../../lib/store/toasts.svelte'
   import type { HexData, HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
   import { terrainName } from '../../lib/terrainName'
@@ -32,6 +34,15 @@
     return collectSuggestions(Object.values(editor.map.hexes))
   })
 
+  async function copyLink(coord: string) {
+    try {
+      await navigator.clipboard.writeText(deepLinkUrl(coord))
+      showToast(t('library.hexLinkCopied'))
+    } catch {
+      // Clipboard unavailable (insecure context): the URL bar has the link too.
+    }
+  }
+
   function clearHex(key: HexKey) {
     if (confirm(t('hex.confirmClear'))) editor.editHex(key, () => ({}))
   }
@@ -40,7 +51,15 @@
 {#if selected}
   {@const { key, hex } = selected}
   <div class="summary">
-    <span class="coord">{selected.coord}</span>
+    <span class="coord">
+      {selected.coord}
+      <button
+        class="link"
+        title={t('library.copyHexLink')}
+        aria-label={t('library.copyHexLink')}
+        onclick={() => copyLink(selected.coord)}>🔗</button
+      >
+    </span>
     {#if selected.terrain}
       <span class="terrain">
         <span class="swatch" style:background={selected.terrain.color}></span>

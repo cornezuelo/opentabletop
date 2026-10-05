@@ -19,7 +19,7 @@ export const es: Messages = {
   },
   actions: {
     new: 'Nuevo mapa',
-    open: 'Abrir (Ctrl+O)',
+    open: 'Mapas',
     save: 'Guardar (Ctrl+S)',
     export: 'Exportar PNG/PDF',
     undo: 'Deshacer (Ctrl+Z)',
@@ -27,7 +27,6 @@ export const es: Messages = {
     fit: 'Encuadrar mapa (F)',
   },
   file: {
-    confirmNew: '¿Crear un mapa nuevo? Los cambios no guardados en fichero se perderán.',
     loaded: 'Mapa cargado',
     errorInvalid: 'El fichero no es un mapa válido.',
     errorNewer: 'Este mapa se creó con una versión más reciente de Hexmapper.',
@@ -180,6 +179,29 @@ export const es: Messages = {
     reduced: 'Resolución reducida a {value} por el límite de la GPU.',
     overflow: 'Parte del contenido queda fuera del área imprimible.',
     error: 'No se pudo exportar.',
+  },
+  library: {
+    title: 'Mapas',
+    import: 'Importar fichero… (Ctrl+O)',
+    help: 'Mapas abiertos en este navegador, guardados automáticamente. Los enlaces #/<id del mapa>/<hex> abren un mapa y centran un hex.',
+    empty: 'Todavía no hay mapas.',
+    delete: 'Borrar de este navegador',
+    confirmDelete:
+      '¿Borrar «{name}» de este navegador? Guárdalo antes en un fichero si quieres conservarlo.',
+    copyLink: 'Copiar enlace al mapa',
+    linkCopied: 'Enlace al mapa copiado',
+    copyHexLink: 'Copiar enlace a este hex',
+    hexLinkCopied: 'Enlace al hex copiado',
+    notFound: 'El mapa {id} no está en este navegador. Importa {id}.hexmap.json para abrirlo.',
+    hexNotFound: 'El hex {hex} no está en este mapa.',
+  },
+  newMap: {
+    title: 'Nuevo mapa',
+    message:
+      'El mapa actual se queda en Mapas (este navegador). ¿Quieres además guardarlo en un fichero antes de crear uno nuevo?',
+    cancel: 'Cancelar',
+    create: 'Crear sin guardar',
+    saveAndCreate: 'Guardar en fichero y crear',
   },
   pathKinds: {
     road: 'Camino',

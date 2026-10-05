@@ -1,6 +1,6 @@
 <script lang="ts">
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
-  import { newMap, openMap, saveMap } from '../lib/io/actions'
+  import { newMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
 
@@ -28,7 +28,11 @@
       },
       { label: 'actions.fit', glyph: '⛶', run: () => view.fit() },
       { label: 'actions.new', glyph: '✚', run: newMap },
-      { label: 'actions.open', glyph: '📂', run: openMap },
+      {
+        label: 'actions.open',
+        glyph: '📂',
+        run: () => (editor.panelView = editor.panelView === 'library' ? 'tool' : 'library'),
+      },
       { label: 'actions.save', glyph: '💾', run: saveMap },
       {
         label: 'actions.export',
