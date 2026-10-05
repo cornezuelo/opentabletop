@@ -59,13 +59,9 @@ const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
 /** Screen pixels within which a click grabs a path handle. */
 const PICK_RADIUS_PX = 12
-/**
- * Our own crosshair with the hotspot exactly at its center: some system cursor themes
- * place the crosshair hotspot off-center, which makes picking small handles feel off.
- */
-const CROSSHAIR = `url("data:image/svg+xml,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g stroke-linecap="square"><path d="M12 2v7M12 15v7M2 12h7M15 12h7" stroke="#000" stroke-width="3"/><path d="M12 2v7M12 15v7M2 12h7M15 12h7" stroke="#fff" stroke-width="1"/></g><circle cx="12" cy="12" r="1" fill="#fff" stroke="#000" stroke-width="0.5"/></svg>',
-)}") 12 12, crosshair`
+/** Crosshair arm length and gap around the center, in screen pixels. */
+const CROSSHAIR_ARM = 9
+const CROSSHAIR_GAP = 3
 /** Bundled icons are tinted: dark ink on painted hexes, light on empty ones. */
 const ICON_INK = 0x1b1a17
 const ICON_INK_EMPTY = 0xe8e2d4
@@ -116,6 +112,13 @@ export class MapRenderer {
   private labelTexts = new Map<string, Text>()
   private markers = new Graphics()
   private overlay = new Graphics()
+  /**
+   * Crosshair drawn by us in screen space at the exact point used for hit testing.
+   * The system cursor is hidden over the map: with fractional display scaling some
+   * browsers scale the cursor image but not its hotspot, so it points off-target.
+   */
+  private cursorMark = new Graphics()
+  private pointer: Point | null = null
 
   private hexes = new Map<HexKey, Graphics>()
   private coordLabels = new Map<HexKey, BitmapText>()
@@ -145,7 +148,8 @@ export class MapRenderer {
       this.markers,
       this.overlay,
     )
-    app.stage.addChild(this.world)
+    app.stage.addChild(this.world, this.cursorMark)
+    this.drawCursorMark()
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
     this.bindInput()
     setLabelHitTest((world) => this.labelAt(world))
@@ -650,13 +654,32 @@ export class MapRenderer {
   }
 
   private updateCursor(): void {
-    const onHandle = editor.tool === 'path' && editor.hoveredHandle
-    this.canvas.style.cursor =
-      this.panFrom || (onHandle && this.activeTool)
-        ? 'grabbing'
-        : this.spaceHeld || onHandle
-          ? 'grab'
-          : CROSSHAIR
+    const panning = this.panFrom || this.spaceHeld
+    // Panning keeps the system hand; otherwise our own crosshair replaces the cursor.
+    this.canvas.style.cursor = this.panFrom ? 'grabbing' : panning ? 'grab' : 'none'
+    const onHandle = editor.tool === 'path' && !!editor.hoveredHandle
+    this.cursorMark.visible = !panning && this.pointer !== null
+    if (this.cursorMark.visible) {
+      this.cursorMark.position.set(this.pointer!.x, this.pointer!.y)
+      this.cursorMark.scale.set(onHandle ? 1.35 : 1)
+    }
+  }
+
+  private drawCursorMark(): void {
+    const g = this.cursorMark.clear()
+    const arm = (x1: number, y1: number, x2: number, y2: number) => g.moveTo(x1, y1).lineTo(x2, y2)
+    const lines = () => {
+      arm(0, -CROSSHAIR_GAP, 0, -CROSSHAIR_GAP - CROSSHAIR_ARM)
+      arm(0, CROSSHAIR_GAP, 0, CROSSHAIR_GAP + CROSSHAIR_ARM)
+      arm(-CROSSHAIR_GAP, 0, -CROSSHAIR_GAP - CROSSHAIR_ARM, 0)
+      arm(CROSSHAIR_GAP, 0, CROSSHAIR_GAP + CROSSHAIR_ARM, 0)
+    }
+    lines()
+    g.stroke({ width: 3.5, color: 0xffffff, cap: 'round' })
+    lines()
+    g.stroke({ width: 1.5, color: 0x000000, cap: 'round' })
+    g.circle(0, 0, 1.2).fill(0x000000)
+    this.cursorMark.eventMode = 'none'
   }
 
   private bindInput(): void {
@@ -702,8 +725,10 @@ export class MapRenderer {
         this.panFrom = p
         return
       }
+      this.pointer = this.screenPoint(e)
       const cell = this.cellAt(e)
       this.setHovered(cell)
+      this.updateCursor()
       if (this.activeTool) this.activeTool.move(cell, this.pointerInfo(e))
       else getTool(editor.tool).hover?.(cell, this.pointerInfo(e))
     })
@@ -716,7 +741,11 @@ export class MapRenderer {
     }
     on(canvas, 'pointerup', release)
     on(canvas, 'pointercancel', release)
-    on(canvas, 'pointerleave', () => this.setHovered(null))
+    on(canvas, 'pointerleave', () => {
+      this.pointer = null
+      this.setHovered(null)
+      this.updateCursor()
+    })
     on(canvas, 'contextmenu', (e) => e.preventDefault())
     on(
       canvas,
