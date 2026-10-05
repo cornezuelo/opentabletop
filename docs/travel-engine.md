@@ -59,9 +59,7 @@ TravelEngine (facade: applies actions, composes the rest)
 interface TravelWorld {
   // The hexmapper implements it over its model; a standalone app with a terrain picker
   hexKm: number
-  cell(
-    hex: string,
-  ): {
+  cell(hex: string): {
     terrain?: string
     elevation?: number
     danger?: number
