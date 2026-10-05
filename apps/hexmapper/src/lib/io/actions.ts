@@ -50,9 +50,7 @@ export async function startAutosave(): Promise<() => void> {
     clearTimeout(timer)
     if (!dirty) return
     dirty = false
-    saveAutosave(serializeMap(editor.map))
-      .then(clearPending)
-      .catch(console.error)
+    saveAutosave(serializeMap(editor.map)).then(clearPending).catch(console.error)
   }
   const saveNow = () => {
     if (!dirty) return
