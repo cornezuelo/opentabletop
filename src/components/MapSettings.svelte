@@ -1,26 +1,18 @@
 <script lang="ts">
-  import { SetGridCommand, SetMetaCommand } from '../lib/commands/settings'
+  import { SetMetaCommand } from '../lib/commands/settings'
   import { t } from '../lib/i18n/index.svelte'
-  import { MAX_MAP_SIZE, MIN_MAP_SIZE } from '../lib/model/defaults'
   import type { GridSettings } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
+  import { applySettings } from '../lib/store/settings'
+  import { showToast } from '../lib/store/toasts.svelte'
 
-  function setGrid(patch: Partial<GridSettings>) {
-    const changed = (Object.keys(patch) as (keyof GridSettings)[]).some(
-      (k) => patch[k] !== editor.grid[k],
-    )
-    if (changed) editor.execute(new SetGridCommand(patch))
-  }
-
-  function setSize(dimension: 'width' | 'height', input: HTMLInputElement) {
-    const value = Math.round(Number(input.value))
-    if (!Number.isFinite(value)) {
-      input.value = String(editor.grid[dimension])
-      return
+  async function copyId() {
+    try {
+      await navigator.clipboard.writeText(editor.meta.id)
+      showToast(t('map.idCopied'))
+    } catch {
+      // Clipboard blocked (e.g. insecure context): the id is still selectable.
     }
-    const clamped = Math.min(MAX_MAP_SIZE, Math.max(MIN_MAP_SIZE, value))
-    input.value = String(clamped)
-    setGrid({ [dimension]: clamped })
   }
 
   function setName(input: HTMLInputElement) {
@@ -29,7 +21,7 @@
   }
 </script>
 
-<label>
+<label class="field">
   <span>{t('map.name')}</span>
   <input
     type="text"
@@ -39,45 +31,38 @@
   />
 </label>
 
-<div class="row">
-  <label>
-    <span>{t('map.width')}</span>
-    <input
-      type="number"
-      min={MIN_MAP_SIZE}
-      max={MAX_MAP_SIZE}
-      value={editor.grid.width}
-      onchange={(e) => setSize('width', e.currentTarget)}
-    />
-  </label>
-  <label>
-    <span>{t('map.height')}</span>
-    <input
-      type="number"
-      min={MIN_MAP_SIZE}
-      max={MAX_MAP_SIZE}
-      value={editor.grid.height}
-      onchange={(e) => setSize('height', e.currentTarget)}
-    />
-  </label>
+<div class="field">
+  <span>{t('map.id')}</span>
+  <div class="id">
+    <code>{editor.meta.id}</code>
+    <button class="icon" title={t('map.copyId')} aria-label={t('map.copyId')} onclick={copyId}
+      >⧉</button
+    >
+  </div>
 </div>
 
-<label>
+<label class="field">
   <span>{t('map.orientation')}</span>
   <select
     value={editor.grid.orientation}
-    onchange={(e) => setGrid({ orientation: e.currentTarget.value as GridSettings['orientation'] })}
+    onchange={(e) =>
+      applySettings({
+        grid: { orientation: e.currentTarget.value as GridSettings['orientation'] },
+      })}
   >
     <option value="flat">{t('map.flat')}</option>
     <option value="pointy">{t('map.pointy')}</option>
   </select>
 </label>
 
-<label>
+<label class="field">
   <span>{t('map.coordFormat')}</span>
   <select
     value={editor.grid.coordFormat}
-    onchange={(e) => setGrid({ coordFormat: e.currentTarget.value as GridSettings['coordFormat'] })}
+    onchange={(e) =>
+      applySettings({
+        grid: { coordFormat: e.currentTarget.value as GridSettings['coordFormat'] },
+      })}
   >
     <option value="CCRR">{t('map.coordCCRR')}</option>
     <option value="axial">{t('map.coordAxial')}</option>
@@ -88,41 +73,38 @@
   <input
     type="checkbox"
     checked={editor.grid.showCoords}
-    onchange={(e) => setGrid({ showCoords: e.currentTarget.checked })}
+    onchange={(e) => applySettings({ grid: { showCoords: e.currentTarget.checked } })}
   />
   <span>{t('map.showCoords')}</span>
 </label>
 
 <style>
-  label {
+  .id {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    color: var(--text-muted);
-  }
-
-  label.check {
-    flex-direction: row;
     align-items: center;
-    gap: 8px;
-    color: var(--text);
+    gap: 6px;
   }
 
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  input[type='text'],
-  input[type='number'],
-  select {
-    width: 100%;
-    padding: 5px 8px;
-    font: inherit;
+  code {
+    flex: 1;
+    padding: 4px 8px;
     color: var(--text);
     background: var(--bg);
-    border: 1px solid var(--panel-border);
     border-radius: 4px;
+    user-select: all;
+  }
+
+  .id .icon {
+    height: 28px;
+  }
+
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  select {
+    width: 100%;
   }
 </style>

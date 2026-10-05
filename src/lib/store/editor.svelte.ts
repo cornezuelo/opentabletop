@@ -2,7 +2,15 @@ import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
 import { History } from '../commands/history'
 import { createMap } from '../model/defaults'
-import type { GridSettings, HexData, HexKey, HexMap, MapMeta, TerrainType } from '../model/types'
+import type {
+  GridSettings,
+  HexData,
+  HexKey,
+  HexMap,
+  MapMeta,
+  PrintSettings,
+  TerrainType,
+} from '../model/types'
 
 export type ToolId = 'select' | 'terrain'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
@@ -24,6 +32,7 @@ class Editor {
   /** Bumped on every map change; read it to make UI depend on map contents. */
   revision = $state(0)
   grid = $state<GridSettings>({ ...this.map.grid })
+  print = $state<PrintSettings>(structuredClone(this.map.print))
   meta = $state<MapMeta>({ ...this.map.meta })
   terrains = $state<TerrainType[]>([...this.map.terrains])
   canUndo = $state(false)
@@ -94,7 +103,10 @@ class Editor {
   }
 
   private syncSnapshots(change: MapChange): void {
-    if (change.kind === 'grid' || change.kind === 'all') this.grid = { ...this.map.grid }
+    if (change.kind === 'grid' || change.kind === 'all') {
+      this.grid = { ...this.map.grid }
+      this.print = structuredClone(this.map.print)
+    }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]
   }

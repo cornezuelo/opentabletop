@@ -1,6 +1,7 @@
 <script lang="ts">
   import FieldList from './FieldList.svelte'
   import HexNotes from './HexNotes.svelte'
+  import NoteLink from './NoteLink.svelte'
   import PoiList from './PoiList.svelte'
   import TagEditor from './TagEditor.svelte'
   import { formatCoord, parseKey } from '../../lib/hex/grid'
@@ -60,6 +61,7 @@
     </label>
 
     <HexNotes {key} notes={hex.notes ?? ''} />
+    <NoteLink {key} note={hex.note ?? ''} coord={selected.coord} />
     <PoiList {key} pois={hex.pois ?? []} />
     <TagEditor {key} tags={hex.tags ?? []} suggestions={suggestions.tags} />
     <FieldList {key} fields={hex.fields ?? []} suggestions={suggestions.fieldKeys} />

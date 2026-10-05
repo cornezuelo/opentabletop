@@ -28,6 +28,9 @@ export function normalizeHex(hex: HexData | undefined): HexData {
     .filter((f) => f.key || f.value)
   if (fields.length > 0) out.fields = fields
 
+  const note = hex.note?.trim()
+  if (note) out.note = note
+
   return out
 }
 

@@ -21,6 +21,8 @@ const GRID_ALPHA = 0.35
 const HOVER_COLOR = 0xffffff
 const SELECT_COLOR = 0xc8a24a
 const COORD_COLOR = 0x1b1a17
+/** Coordinates on unpainted hexes need a light color to stay legible. */
+const COORD_COLOR_EMPTY = 0xe8e2d4
 const MARKER_COLOR = 0xc8a24a
 const MARKER_OUTLINE = 0x1b1a17
 const COORD_FONT = 'hexmapper-coords'
@@ -53,6 +55,7 @@ export class MapRenderer {
   private overlay = new Graphics()
 
   private hexes = new Map<HexKey, Graphics>()
+  private coordLabels = new Map<HexKey, BitmapText>()
   private contexts = new Map<string, GraphicsContext>()
   private emptyContext = new GraphicsContext()
   private corners: number[] = []
@@ -130,6 +133,8 @@ export class MapRenderer {
       for (const key of change.keys) {
         const hex = this.hexes.get(key)
         if (hex) hex.context = this.contextFor(key)
+        const label = this.coordLabels.get(key)
+        if (label) this.styleCoord(label, key)
       }
       this.drawMarkers()
     } else if (change.kind !== 'meta') {
@@ -147,6 +152,7 @@ export class MapRenderer {
     for (const child of this.terrainLayer.removeChildren()) child.destroy()
     for (const child of this.coordLayer.removeChildren()) child.destroy()
     this.hexes.clear()
+    this.coordLabels.clear()
     this.destroyContexts()
 
     this.emptyContext = new GraphicsContext().poly(this.corners).fill(EMPTY_FILL)
@@ -173,9 +179,9 @@ export class MapRenderer {
           text: formatCoord(cell, grid.coordFormat, grid),
           style: { fontFamily: COORD_FONT, fontSize: coordSize },
         })
-        label.tint = COORD_COLOR
-        label.alpha = 0.7
+        this.styleCoord(label, key)
         label.anchor.set(0.5, 0)
+        this.coordLabels.set(key, label)
         label.position.set(center.x, center.y - coordOffset)
         this.coordLayer.addChild(label)
       }
@@ -197,6 +203,12 @@ export class MapRenderer {
       g.circle(x + offset, y - offset, radius)
     }
     g.fill(MARKER_COLOR).stroke({ width: radius * 0.4, color: MARKER_OUTLINE })
+  }
+
+  private styleCoord(label: BitmapText, key: HexKey): void {
+    const painted = !!editor.map.hexes[key]?.terrain
+    label.tint = painted ? COORD_COLOR : COORD_COLOR_EMPTY
+    label.alpha = painted ? 0.7 : 0.35
   }
 
   private contextFor(key: HexKey): GraphicsContext {

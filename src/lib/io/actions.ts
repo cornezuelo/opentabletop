@@ -12,7 +12,7 @@ export function newMap(): void {
 }
 
 export function saveMap(): void {
-  downloadMap(serializeMap(editor.map), editor.map.meta.name || t('map.untitled'))
+  downloadMap(serializeMap(editor.map), editor.map.meta.id)
 }
 
 export async function openMap(): Promise<void> {

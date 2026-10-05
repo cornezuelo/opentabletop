@@ -82,7 +82,7 @@ interface HexData {
   pois?: { id: string; name: string; description?: string }[]
   tags?: string[]
   fields?: { key: string; value: string }[] // stats personalizadas, ordenadas
-  note?: string // ruta de página en SilverBullet (pendiente)
+  note?: string // ruta de nota externa (SilverBullet, Obsidian…)
   encounterTable?: string // sobrescribe la tabla del terreno (pendiente)
 }
 
@@ -135,12 +135,20 @@ Capas fijas, en orden de dibujo: **terreno → caminos/ríos → iconos → text
 - **Jugador**: un token que se mueve de hex en hex, con imagen cargable por el usuario. Nada más: sin niebla de guerra ni segunda pantalla.
 - **Idiomas**: interfaz en inglés y castellano desde el principio (ver Convenciones).
 
-## Integración con SilverBullet
+## Integración con apps de notas (SilverBullet, Obsidian…)
 
-Algo básico: cada hex puede enlazar a una página de [SilverBullet](https://silverbullet.md/) con un campo `note: "ruta/a/la/página"`, y un botón la abre en una pestaña nueva (`<baseUrl>/<ruta codificada>`).
+**Del mapa a las notas (hecho).** Cada hex puede guardar una ruta de nota genérica en `HexData.note` (por ejemplo `"Kal-Arath/Hexes/0101"`), y un botón la abre en la app de notas del usuario.
 
-- La **URL base** es configurable en la UI y por defecto vale `http://localhost:3001`. Es una preferencia del usuario, así que se guarda en `localStorage` y no en el mapa: cada jugador puede tener su SilverBullet en una dirección distinta.
-- Sin sincronización ni lectura de contenido: solo enlazar y abrir. Si más adelante se quiere más (por ejemplo, ver la página dentro del panel), se usaría la API HTTP de SilverBullet.
+- Los proveedores están en `lib/notes/providers.ts`, detrás de la interfaz `NoteProvider` (ajustes + `url(path, settings)`). Ahora mismo hay **SilverBullet** (`<baseUrl>/<ruta>`, por defecto `http://localhost:3001`) y **Obsidian** (`obsidian://open?vault=…&file=…`). Para añadir otro, se implementa la interfaz y se registra.
+- El proveedor elegido y sus ajustes son **preferencias del usuario** (`localStorage`), no se guardan en el mapa: si se comparte un mapa, cada uno usa su propia instancia o vault.
+- Solo enlaza y abre: sin sincronización ni lectura de contenido.
+
+**De las notas al mapa (pendiente).** Que una nota pueda enlazar a un mapa y a un hex concreto.
+
+- Cada mapa tiene un **ID único** (`meta.id`, 12 caracteres `[a-z0-9]`). El fichero se guarda como `<id>.hexmap.json`. _(Hecho.)_
+- **Deep links** con el hash de la URL: `<app>/#/<id>` abre el mapa y `<app>/#/<id>/0101` además selecciona y centra el hex. La URL se actualiza al cambiar de mapa o de hex seleccionado, así que se puede copiar y pegar en una nota.
+- La app es solo cliente, así que el enlace funciona con mapas que **este navegador ya conoce**. Para eso hace falta una **biblioteca local de mapas** en IndexedDB indexada por ID, en lugar del autoguardado único actual. Si el ID no está en la biblioteca, la app pide abrir `<id>.hexmap.json`.
+- Compartir enlaces entre dispositivos requeriría un servidor o un almacenamiento sincronizado. Queda fuera de alcance por ahora.
 
 ## Kal-Arath (soporte nativo)
 
@@ -190,13 +198,17 @@ Requisitos que esto impone al motor de tablas (`encounters/`): dados `NdM±K`, *
 - [ ] Importar iconos propios
 - [ ] Caminos y ríos
 - [x] Panel de metadatos de hex (nombre, notas Markdown, PDIs, etiquetas, campos) y marcador en el mapa
-- [ ] Integración básica con SilverBullet (ver abajo)
+- [x] Enlace de hex a nota externa con proveedores (SilverBullet, Obsidian)
+- [x] Tamaño físico: modo por papel (A5–A1, Carta, Legal, Tabloide, personalizado), tamaño del hex en mm (entre lados) con atajos (¾", 25 mm, 1", 30 mm, 1½") y tamaño impreso
+- [x] ID único de mapa como nombre del fichero
+- [ ] Biblioteca local de mapas (IndexedDB por ID) y deep links `#/<id>/<hex>`
 
 ### Fase 3: Presentación
 
 - [ ] Sistema de capas (visibilidad y bloqueo)
 - [ ] Herramienta de texto
 - [ ] Exportar PNG
+- [ ] Exportar PDF a escala real (respetando `print.hexMm`); más adelante, repartido en varios folios
 
 ### Fase 4: Juego
 
@@ -216,6 +228,8 @@ Requisitos que esto impone al motor de tablas (`encounters/`): dados `NdM±K`, *
 - Empaquetado de escritorio con Tauri
 
 ### Descartado
+
+- Rejilla cuadrada: para eso ya existen editores FOSS mejores (Tiled, etc.)
 
 - Niebla de guerra, vista de jugadores en segunda pantalla y funciones de VTT (ya hay herramientas para eso)
 

@@ -2,6 +2,8 @@
   import HexInfo from './hex/HexInfo.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
   import MapSettings from './MapSettings.svelte'
+  import MapSize from './MapSize.svelte'
+  import Preferences from './Preferences.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
   import { t } from '../lib/i18n/index.svelte'
@@ -19,6 +21,8 @@
   {/if}
   <Section title={t('panel.hex')}><HexInfo /></Section>
   <Section title={t('panel.map')}><MapSettings /></Section>
+  <Section title={t('map.size')}><MapSize /></Section>
+  <Section title={t('panel.preferences')} open={false}><Preferences /></Section>
   <Section title={t('panel.shortcuts')} open={false}>
     <ul class="hints">
       <li>{t('hints.pan')}</li>

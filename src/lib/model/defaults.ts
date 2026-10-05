@@ -1,4 +1,5 @@
-import type { GridSettings, HexMap, TerrainType } from './types'
+import { newId } from './id'
+import type { GridSettings, HexMap, PrintSettings, TerrainType } from './types'
 
 export const CURRENT_VERSION = 1
 
@@ -29,12 +30,21 @@ export const DEFAULT_GRID: GridSettings = {
   showCoords: true,
 }
 
+export const DEFAULT_PRINT: PrintSettings = {
+  hexMm: 25,
+  paper: null,
+  landscape: false,
+  marginMm: 10,
+  customPaper: { width: 500, height: 700 },
+}
+
 export function createMap(name = ''): HexMap {
   const now = new Date().toISOString()
   return {
     version: CURRENT_VERSION,
-    meta: { name, created: now, modified: now },
+    meta: { id: newId(), name, created: now, modified: now },
     grid: { ...DEFAULT_GRID },
+    print: structuredClone(DEFAULT_PRINT),
     terrains: DEFAULT_TERRAINS.map((t) => ({ ...t })),
     hexes: {},
   }

@@ -15,7 +15,16 @@ describe('serialize', () => {
       fields: [{ key: 'Peligro', value: '2' }],
     }
     map.grid.orientation = 'pointy'
+    map.print = { ...map.print, paper: 'A3', landscape: true, hexMm: 25.4 }
+    map.hexes['0,0'] = { note: 'Kal-Arath/Hexes/0101' }
     expect(deserializeMap(serializeMap(map))).toEqual(map)
+  })
+
+  it('gives maps without a valid id a fresh one', () => {
+    const map = createMap() as unknown as { meta: Record<string, unknown> }
+    map.meta.id = '../../etc'
+    const loaded = deserializeMap(JSON.stringify(map))
+    expect(loaded.meta.id).toMatch(/^[a-z0-9]{12}$/)
   })
 
   it('rejects garbage', () => {
@@ -47,5 +56,6 @@ describe('serialize', () => {
     expect(loaded.hexes['1,1'].pois).toEqual([{ id: expect.any(String), name: 'Isla' }])
     expect(loaded.hexes['1,1'].tags).toEqual(['a'])
     expect(loaded.grid).toMatchObject({ orientation: 'flat', width: 200, height: 1, hexSize: 40 })
+    expect(loaded.print).toEqual(createMap().print)
   })
 })

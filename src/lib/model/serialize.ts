@@ -1,8 +1,9 @@
-import { DEFAULT_GRID, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
+import { PAPERS, type PaperId } from '../print/paper'
+import { DEFAULT_GRID, DEFAULT_PRINT, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex } from './hex'
-import { newId } from './id'
-import type { CustomField, HexData, HexKey, HexMap, Poi, TerrainType } from './types'
+import { isValidId, newId } from './id'
+import type { CustomField, HexData, HexKey, HexMap, Poi, PrintSettings, TerrainType } from './types'
 
 export const FILE_EXTENSION = '.hexmap.json'
 
@@ -47,6 +48,7 @@ function validate(data: Record<string, unknown>): HexMap {
   return {
     version: data.version as number,
     meta: {
+      id: isValidId(meta.id) ? meta.id : newId(),
       name: typeof meta.name === 'string' ? meta.name : '',
       created: typeof meta.created === 'string' ? meta.created : now,
       modified: typeof meta.modified === 'string' ? meta.modified : now,
@@ -59,6 +61,7 @@ function validate(data: Record<string, unknown>): HexMap {
       coordFormat: grid.coordFormat === 'axial' ? 'axial' : 'CCRR',
       showCoords: typeof grid.showCoords === 'boolean' ? grid.showCoords : true,
     },
+    print: parsePrint(data.print),
     terrains: validTerrains,
     hexes: validHexes,
   }
@@ -88,7 +91,25 @@ function parseHex(value: Record<string, unknown>): HexData {
     pois,
     tags,
     fields,
+    note: str(value.note),
   })
+}
+
+function parsePrint(value: unknown): PrintSettings {
+  const p = isRecord(value) ? value : {}
+  const custom = isRecord(p.customPaper) ? p.customPaper : {}
+  const paper = p.paper === 'custom' || (typeof p.paper === 'string' && p.paper in PAPERS)
+  return {
+    hexMm: positiveNumber(p.hexMm, DEFAULT_PRINT.hexMm),
+    paper: paper ? (p.paper as PaperId) : null,
+    landscape: p.landscape === true,
+    marginMm:
+      typeof p.marginMm === 'number' && p.marginMm >= 0 ? p.marginMm : DEFAULT_PRINT.marginMm,
+    customPaper: {
+      width: positiveNumber(custom.width, DEFAULT_PRINT.customPaper.width),
+      height: positiveNumber(custom.height, DEFAULT_PRINT.customPaper.height),
+    },
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

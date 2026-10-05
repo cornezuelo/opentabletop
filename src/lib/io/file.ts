@@ -1,17 +1,11 @@
 import { FILE_EXTENSION } from '../model/serialize'
 
-export function downloadMap(json: string, mapName: string): void {
-  const slug =
-    mapName
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'map'
+/** Saves the map as `<id>.hexmap.json`, so the file can be found from a map link. */
+export function downloadMap(json: string, mapId: string): void {
   const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }))
   const link = document.createElement('a')
   link.href = url
-  link.download = slug + FILE_EXTENSION
+  link.download = mapId + FILE_EXTENSION
   link.click()
   URL.revokeObjectURL(url)
 }
