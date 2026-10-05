@@ -164,6 +164,7 @@ export const es: Messages = {
     pois: 'Puntos de interés',
     poiName: 'Nombre del PDI',
     poiDescription: 'Descripción',
+    poiNotePlaceholder: 'Nota enlazada, p. ej. Lugares/{name}',
     addPoi: 'Añadir PDI',
     tags: 'Etiquetas',
     addTag: 'Añadir etiqueta…',

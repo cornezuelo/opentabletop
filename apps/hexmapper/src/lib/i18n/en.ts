@@ -162,6 +162,7 @@ export const en = {
     pois: 'Points of interest',
     poiName: 'POI name',
     poiDescription: 'Description',
+    poiNotePlaceholder: 'Linked note, e.g. Places/{name}',
     addPoi: 'Add POI',
     tags: 'Tags',
     addTag: 'Add tag…',

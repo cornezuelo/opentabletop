@@ -10,7 +10,7 @@ describe('serialize', () => {
     map.hexes['5,1'] = {
       name: 'Monasterio',
       notes: '# Notas\n\n- monjes',
-      pois: [{ id: 'p1', name: 'Altar', description: 'Manchado de sangre' }],
+      pois: [{ id: 'p1', name: 'Altar', description: 'Manchado de sangre', note: 'Lugares/Altar' }],
       tags: ['santuario'],
       fields: [{ key: 'Peligro', value: '2' }],
     }

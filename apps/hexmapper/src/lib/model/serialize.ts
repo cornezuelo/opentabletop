@@ -90,6 +90,7 @@ function parseHex(value: Record<string, unknown>): HexData {
       id: str(p.id) ?? newId(),
       name: p.name as string,
       description: str(p.description),
+      note: str(p.note),
     }))
   const fields: CustomField[] = records(value.fields).map((f) => ({
     key: str(f.key) ?? '',

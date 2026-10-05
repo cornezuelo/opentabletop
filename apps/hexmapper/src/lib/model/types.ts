@@ -16,6 +16,8 @@ export interface Poi {
   id: string
   name: string
   description?: string
+  /** External note path (same providers as hexes). */
+  note?: string
 }
 
 export interface CustomField {

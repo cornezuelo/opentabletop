@@ -31,7 +31,13 @@ export function normalizeHex(hex: HexData | undefined): HexData {
   const pois = (hex.pois ?? [])
     .map((p) => {
       const description = p.description?.trim()
-      return { id: p.id, name: p.name.trim(), ...(description ? { description } : {}) }
+      const note = p.note?.trim()
+      return {
+        id: p.id,
+        name: p.name.trim(),
+        ...(description ? { description } : {}),
+        ...(note ? { note } : {}),
+      }
     })
     .filter((p) => p.name || p.description)
   if (pois.length > 0) out.pois = pois

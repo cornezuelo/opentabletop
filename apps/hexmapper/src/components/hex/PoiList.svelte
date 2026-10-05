@@ -3,6 +3,7 @@
   import { newId } from '../../lib/model/id'
   import type { HexKey, Poi } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
+  import NoteRefInput from '../NoteRefInput.svelte'
 
   let { key, pois }: { key: HexKey; pois: Poi[] } = $props()
 
@@ -52,6 +53,12 @@
         placeholder={t('hex.poiDescription')}
         aria-label={t('hex.poiDescription')}
         onchange={(e) => update(poi.id, { description: e.currentTarget.value })}></textarea>
+      <NoteRefInput
+        value={poi.note ?? ''}
+        label={t('hex.note')}
+        placeholder={t('hex.poiNotePlaceholder', { name: poi.name })}
+        onchange={(note) => update(poi.id, { note })}
+      />
     </div>
   {/each}
   <form
