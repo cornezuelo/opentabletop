@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Contenido con copyright (tablas del manual de Kal-Arath): solo local
-src/presets/private/*
-!src/presets/private/.gitkeep
+# Copyrighted pack content (e.g. Kal-Arath tables from the user's book): local only.
+packs/kal-arath/*
+!packs/kal-arath/pack.yaml
+!packs/kal-arath/README.md

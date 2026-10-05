@@ -1,0 +1,14 @@
+{
+  "name": "@open-tabletop/hex",
+  "version": "0.0.0",
+  "description": "Hex grid math: axial/offset coordinates, pixel layout, neighbors, lines, flood fill.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  }
+}

@@ -1,244 +1,118 @@
-# Hexmapper
+# OpenTabletop
 
-Editor de mapas hexagonales para hexcrawl, pensado para jugar a **Kal-Arath**. Inspirado en [Hexfriend](https://hexfriend.net/).
+Ecosistema FOSS de herramientas para **rol en solitario, hexcrawl y campañas sandbox**. Empezó como un editor de mapas hexagonales para jugar a **Kal-Arath** y crece como un conjunto de librerías reutilizables más varias apps que las usan.
 
-**Filosofía: keep it simple.** Es un editor de mapas con una vista de juego mínima, no una VTT. Ante la duda, no se añade.
+La gracia es que sea **agnóstico del sistema de juego**. Kal-Arath es el primer sistema soportado y sirve para validar el diseño, pero nada de sus reglas va en el núcleo: vive en un _pack_ de datos.
 
-## Stack
+## Principios
 
-| Pieza               | Elección                                                  |
-| ------------------- | --------------------------------------------------------- |
-| Lenguaje            | TypeScript (modo `strict`)                                |
-| Build               | Vite                                                      |
-| UI                  | Svelte 5 (runes: `$state`, `$derived`, `$effect`)         |
-| Render              | PixiJS v8 (WebGL)                                         |
-| Matemática hex      | Propia, coordenadas axiales/cúbicas (ref: Red Blob Games) |
-| Persistencia        | JSON versionado + autoguardado en IndexedDB               |
-| Tests               | Vitest                                                    |
-| Calidad             | ESLint + Prettier + `svelte-check`                        |
-| Escritorio (futuro) | Tauri                                                     |
+1. **Separar responsabilidades siempre que tenga sentido.** Paquetes pequeños con interfaces claras, y composición en lugar de "managers" gigantes.
+2. **Núcleos headless.** Los motores (`*-engine`) y los paquetes de dominio son TypeScript puro: sin Svelte, sin DOM, sin `localStorage`, sin red. La persistencia, la UI y el sistema de ficheros van en adaptadores.
+3. **Datos, no código.** Las reglas de cada sistema se declaran en packs (YAML/JSON) que se validan al cargar. Nada de `eval`, `Function()` ni scripts embebidos: los packs pueden venir de terceros.
+4. **Definiciones ≠ estado.** Lo estático (tablas, reglas, mapa) se separa del estado de partida (cartas robadas, posición del grupo, hora). Guardar una partida no modifica los ficheros de definición.
+5. **Motores desacoplados entre sí.** Se comunican con eventos y puertos, nunca llamándose directamente. Por ejemplo, el Travel Engine emite `ENCOUNTER_CHECK_REQUIRED` y una capa de integración decide qué tabla del Oracle resolver.
+6. **Estado inmutable y funciones puras** en los motores: `(estado, acción) → { estado, eventos }`. Es fácil de testear, de deshacer y de reproducir.
+7. **Aleatoriedad inyectable.** Ningún motor llama a `Math.random()`: todos reciben un `RandomSource`, que puede ser con semilla para tests y repeticiones.
+8. **El lore vive fuera.** Notas, PNJs y facciones en detalle viven en la app de notas del usuario (SilverBullet, Obsidian…). OpenTabletop guarda estado mecánico y **referencias** (`noteRef`), sin duplicar contenido.
+9. **Keep it simple.** Las apps no son VTTs ni gestores de campaña. Ante la duda, no se añade.
 
-Solo dependencias FOSS. Fuentes e iconos con licencias libres (OFL, CC BY, CC0) y atribución en `CREDITS.md`.
+## Estructura del monorepo
 
-## Arquitectura
+npm workspaces. Los paquetes se consumen como fuente TS (`exports` → `src/index.ts`) y Vite los transpila. Para publicarlos en npm se añadirá un paso de build por paquete.
 
 ```
-src/
-  lib/
-    hex/          # Matemática pura: axial<->pixel, vecinos, offset<->axial, redondeo, líneas
-    model/        # Tipos del mapa, valores por defecto, migraciones de versión
-    store/        # Estado de la app (Svelte runes) + historial undo/redo
-    commands/     # Comandos que mutan el mapa (pintar, poner icono, trazar camino...)
-    render/       # Escena PixiJS: una capa (Container) por cada capa del modelo
-    tools/        # Herramientas de edición (pincel, relleno, icono, camino, texto, jugador, selección)
-    io/           # Guardar/cargar JSON, IndexedDB, exportar PNG
-    encounters/   # Motor de tablas (dados, d66, procedimientos) + procedimiento de viaje Kal-Arath
-    i18n/         # Diccionarios es/en tipados y store del idioma activo
-  components/     # UI Svelte: toolbar, paletas, panel de hex, panel de capas, diálogos
-  assets/
-    icons/        # Set FOSS por defecto
-    fonts/
-  presets/
-    private/      # Tablas con copyright, ignoradas por git
+packages/                   # librerías, scope @open-tabletop/*
+  hex/                      # ✅ matemática de rejilla hexagonal (axial/offset, píxel, vecinos, líneas, relleno)
+  note-refs/                # ✅ enlaces a apps de notas externas (SilverBullet, Obsidian…) por proveedores
+  random/                   # ⏳ RandomSource, PRNG con semilla
+  dice/                     # ⏳ expresiones de dados con desglose (NdM±K, d66, dF, ventaja…)
+  conditions/               # ⏳ evaluador seguro de condiciones (sin eval), compartido por oracle y travel
+  time/                     # ⏳ GameTime (minutos absolutos), calendarios, estaciones, guardias
+  schema/                   # ⏳ esquema OTD (OpenTabletop Data) con Zod → tipos TS + JSON Schema
+  oracle-engine/            # ⏳ tablas, oráculos, generadores, mazos; packs; historial
+  travel-engine/            # ⏳ viaje: reloj, rutas A*, movimiento, recursos, fatiga, navegación
+  weather-engine/           # ⏳ clima con inercia (Markov / hex flower), desacoplado del viaje
+  session/                  # ⏳ capa de integración: orquesta motores, journal, puertos de persistencia
+  ui-kit/                   # ⏳ Svelte compartido: tema, i18n, componentes base
+  oracle-ui/  travel-ui/    # ⏳ componentes Svelte de cada motor, incrustables
+apps/
+  hexmapper/                # ✅ editor de mapas (ver apps/hexmapper/CLAUDE.md)
+  oracle/                   # ⏳ app standalone del oráculo
+  travel/                   # ⏳ app standalone de viaje
+packs/                      # packs de datos (tablas, reglas de viaje, clima…)
+  core/                     # ⏳ contenido genérico FOSS (oráculo sí/no, etc.)
+  kal-arath/                # ⏳ solo pack.yaml en git; el contenido sale del manual y es local
+docs/
+  otd.md                    # esquema común OpenTabletop Data
+  oracle-engine.md          # diseño del Oracle Engine
+  travel-engine.md          # diseño del Travel Engine
 ```
 
-Principios:
+✅ hecho · ⏳ diseñado o pendiente
 
-- **`hex/` y `model/` son TS puro**, sin Pixi ni Svelte, y con tests.
-- **Toda mutación del mapa pasa por un comando** para que undo/redo funcione siempre. Un trazo de pincel completo es una sola entrada del historial.
-- **El render se deriva del modelo**, no al revés. Pixi no guarda estado propio que haya que serializar.
-- Render incremental: se redibujan solo los hexes y capas que cambian.
+**Dependencias permitidas** (de arriba abajo, nunca al revés):
 
-## Modelo de datos (borrador)
-
-```ts
-type HexKey = `${number},${number}` // offset "col,row" (ver nota abajo)
-
-interface HexMap {
-  version: number // para migraciones
-  meta: { name: string; author?: string; created: string; modified: string }
-  grid: {
-    orientation: 'flat' | 'pointy'
-    hexSize: number
-    width: number
-    height: number // mapa rectangular, redimensionable
-    coordFormat: 'CCRR' | 'axial' // CCRR = 0101, 0102... estilo OSR
-  }
-  terrains: TerrainType[] // paleta: id, nombre, color, textura/patrón opcional
-  hexes: Record<HexKey, HexData>
-  paths: Path[] // caminos y ríos
-  labels: Label[] // texto libre
-  layers: LayerState[] // visibilidad / bloqueo por capa
-  assets: Asset[] // iconos importados y token del jugador (data URL embebida)
-  encounterTables: EncounterTable[]
-  player?: { hex: HexKey; assetId?: string }
-}
-
-interface HexData {
-  // Todos opcionales; los vacíos se eliminan con normalizeHex (model/hex.ts)
-  terrain?: string
-  name?: string
-  notes?: string // Markdown, renderizado con marked + DOMPurify
-  pois?: { id: string; name: string; description?: string }[]
-  tags?: string[]
-  fields?: { key: string; value: string }[] // stats personalizadas, ordenadas
-  note?: string // ruta de nota externa (SilverBullet, Obsidian…)
-  encounterTable?: string // sobrescribe la tabla del terreno (pendiente)
-}
-
-interface Path {
-  id: string
-  kind: 'road' | 'river' | 'custom'
-  hexes: HexKey[] // de centro a centro, con curvas suavizadas
-  style: { color: string; width: number; dash?: number[] }
-}
-
-interface Label {
-  id: string
-  text: string
-  position: [number, number] // coordenadas de mundo, independientes de la rejilla
-  font: string
-  size: number
-  color: string
-  rotation: number
-  outline?: { color: string; width: number }
-}
-
-interface EncounterTable {
-  id: string
-  name: string
-  dice: string // "1d6", "2d6", "1d20+1"...
-  entries: { range: [number, number]; result: string; subtable?: string }[]
-  terrains?: string[] // terrenos que la usan por defecto
-  builtin?: 'kal-arath' // preset de solo lectura (se puede duplicar)
-}
+```
+apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, time, hex  →  random
+                                         ↘ schema (solo tipos/validación de datos persistidos)
 ```
 
-**Los hexes se guardan por coordenadas offset (`col,row`), no axiales.** Las de offset son "odd-q" en flat-top y "odd-r" en pointy-top. Así, al cambiar la orientación cada celda conserva su contenido y su etiqueta CCRR. La matemática (vecinos, distancias, líneas) se hace en axial, convirtiendo con `hex/offset.ts`. Al reducir el mapa, los datos de las celdas que quedan fuera se conservan (no se renderizan), así que deshacer el cambio de tamaño no pierde nada.
+- Un motor **no importa otro motor**. Lo que necesitan compartir (dados, tiempo, condiciones) se extrae a un paquete inferior.
+- `note-refs` no depende de nada. Ningún motor depende de `note-refs`: las referencias externas son strings opacos para ellos.
 
-Capas fijas, en orden de dibujo: **terreno → caminos/ríos → iconos → texto → coordenadas → jugador**. Cada una se puede ocultar y bloquear. No hay capas creadas por el usuario.
+## Esquema común: OpenTabletop Data (OTD)
 
-## Funcionalidades
+Detalle en [`docs/otd.md`](docs/otd.md). En resumen:
 
-- **Terreno**: paleta editable, pincel de tamaño variable y relleno por zonas.
-- **Iconos**: set FOSS por defecto (game-icons.net, CC BY 3.0) e importación de SVG/PNG propios, que se embeben en el fichero del mapa.
-- **Caminos y ríos**: trazado de centro a centro entre hexes, curvas suavizadas, estilos configurables, edición y borrado.
-- **Metadatos de hex**: panel lateral con nombre, notas en Markdown, POIs, etiquetas y campos personalizados.
-- **Coordenadas**: visibles y configurables (CCRR o axial).
-- **Orientación**: flat-top o pointy-top, configurable por mapa.
-- **Texto**: etiquetas libres con fuente, tamaño, color, rotación y contorno. Mover, editar y borrar. Fuentes OFL incluidas.
-- **Capas**: mostrar, ocultar y bloquear.
-- **Undo/redo**: Ctrl+Z / Ctrl+Shift+Z, para todas las operaciones.
-- **Guardar/cargar**: fichero `.hexmap.json` y autoguardado en IndexedDB.
-- **Exportar PNG**: con selección de capas y escala (×1, ×2, ×4).
-- **Tablas aleatorias**: tablas propias (crear, editar, importar y exportar) y presets de Kal-Arath. Se tira desde la app y hay un log de tiradas.
-- **Jugador**: un token que se mueve de hex en hex, con imagen cargable por el usuario. Nada más: sin niebla de guerra ni segunda pantalla.
-- **Idiomas**: interfaz en inglés y castellano desde el principio (ver Convenciones).
+- **Entidades de campaña:** Campaign, Map (con Hex), POI, Party, Character, Faction, Clock y LogEntry (el "Event" persistido). Todas comparten una base `{ id, type, name, tags, noteRef, refs, ext }`.
+- **Definiciones de packs:** Table, Generator, Oracle y Deck (del Oracle Engine), además de reglas de viaje y modelos de clima. Viven en packs versionados con namespaces (`kal-arath/reaction`).
+- **`ext.<namespace>`** guarda lo propio de cada app o sistema sin ensuciar el núcleo. Por ejemplo, `ext.hexmapper` (render, impresión) o `ext.kal-arath`.
+- **Referencias** por string `tipo:id`, nunca anidando objetos.
+- **Eventos en tiempo de ejecución** (`HEX_ENTERED`, `TABLE_RESOLVED`…): son mensajes entre motores y no se persisten. Lo que importa para la partida se guarda como `LogEntry`.
 
-## Integración con apps de notas (SilverBullet, Obsidian…)
+## Packs y copyright
 
-**Del mapa a las notas (hecho).** Cada hex puede guardar una ruta de nota genérica en `HexData.note` (por ejemplo `"Kal-Arath/Hexes/0101"`), y un botón la abre en la app de notas del usuario.
+- Un pack es una carpeta con `pack.yaml` (id, versión, idioma, dependencias) y definiciones en YAML/JSON. Los packs se validan al cargar: referencias rotas, rangos solapados, ciclos, dependencias que faltan.
+- **El contenido de Kal-Arath sale del manual del usuario** (`~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`) y **no se sube al repo**. En git solo va `packs/kal-arath/pack.yaml` y la estructura; las tablas están ignoradas (ver `.gitignore`).
+- Los packs son por idioma (`locale` en `pack.yaml`). El contenido de las tablas no se traduce en la UI.
 
-- Los proveedores están en `lib/notes/providers.ts`, detrás de la interfaz `NoteProvider` (ajustes + `url(path, settings)`). Ahora mismo hay **SilverBullet** (`<baseUrl>/<ruta>`, por defecto `http://localhost:3001`) y **Obsidian** (`obsidian://open?vault=…&file=…`). Para añadir otro, se implementa la interfaz y se registra.
-- El proveedor elegido y sus ajustes son **preferencias del usuario** (`localStorage`), no se guardan en el mapa: si se comparte un mapa, cada uno usa su propia instancia o vault.
-- Solo enlaza y abre: sin sincronización ni lectura de contenido.
+## Stack y herramientas
 
-**De las notas al mapa (pendiente).** Que una nota pueda enlazar a un mapa y a un hex concreto.
+| Pieza           | Elección                                          |
+| --------------- | ------------------------------------------------- |
+| Lenguaje        | TypeScript `strict`                               |
+| Monorepo        | npm workspaces                                    |
+| UI              | Svelte 5 (runes) en apps y paquetes `*-ui`        |
+| Render del mapa | PixiJS v8 (solo hexmapper)                        |
+| Validación      | Zod 4 (esquema OTD y packs) → también JSON Schema |
+| Packs           | YAML (`yaml`, ISC) y JSON                         |
+| Tests           | Vitest (config única en la raíz)                  |
+| Calidad         | ESLint + Prettier + `svelte-check` / `tsc`        |
 
-- Cada mapa tiene un **ID único** (`meta.id`, 12 caracteres `[a-z0-9]`). El fichero se guarda como `<id>.hexmap.json`. _(Hecho.)_
-- **Deep links** con el hash de la URL: `<app>/#/<id>` abre el mapa y `<app>/#/<id>/0101` además selecciona y centra el hex. La URL se actualiza al cambiar de mapa o de hex seleccionado, así que se puede copiar y pegar en una nota.
-- La app es solo cliente, así que el enlace funciona con mapas que **este navegador ya conoce**. Para eso hace falta una **biblioteca local de mapas** en IndexedDB indexada por ID, en lugar del autoguardado único actual. Si el ID no está en la biblioteca, la app pide abrir `<id>.hexmap.json`.
-- Compartir enlaces entre dispositivos requeriría un servidor o un almacenamiento sincronizado. Queda fuera de alcance por ahora.
+Solo dependencias FOSS, sin dependencias de runtime innecesarias en los núcleos.
 
-## Kal-Arath (soporte nativo)
-
-Según el manual, las tiradas de viaje van **por día de viaje, no por hex** (1 hex = 1 día a pie, unos 30 km; a caballo, el doble). El procedimiento diario es:
-
-1. **Clima**: 1d6 en la tabla de la estación (primavera/verano/otoño/invierno). Cada resultado puede traer modificadores a Perderse y Forrajear, velocidad ×½, sin viaje o una ración extra.
-2. **Perderse**: 1d6, con 1–2 te pierdes (te quedas en el hex). **No se tira si vas por un camino, un río u otra referencia**, así que la app lo sabe mirando si el hex del jugador está en un `Path`. Encontrar el camino se tira con desventaja.
-3. **Forrajear** (opcional): 1d6 en la tabla de forrajeo, con el modificador del clima. Movimiento ×½. Con un 6 se tira en la tabla de hierbas.
-4. **PDI**: 1d6, con 5–6 se tira d66 en la tabla de Puntos de Interés. Algunas entradas enlazan a los generadores de Asentamiento o Mazmorra.
-5. **Encuentros**: 1d6, con 5–6 se tira d66 en la tabla de la región y luego una **reacción** de 2d6 + PRE (±ventaja).
-6. **Acampar**: 1 ración. Encuentro nocturno con 1–2 en 1d6, y entonces se tira 2d6 en su tabla.
-7. **Fin del día**: entrada en el diario.
-
-Lo que hace la app (sin convertirse en una VTT):
-
-- Panel **"Día de viaje"**: estación, opción de forrajear, PRE del grupo y botón **Tirar día**, que ejecuta los pasos en orden y aplica los modificadores entre ellos. Los resultados van al log.
-- Desde el log, un clic convierte un PDI o un asentamiento en POI o icono del hex actual.
-- **Generadores** de varios pasos: Asentamiento (tamaño, facción, PNJ con rol, motivación y rasgo, recursos, rumores, conflictos y eventos), Mazmorra y Tesoro.
-- Contador de días.
-
-Requisitos que esto impone al motor de tablas (`encounters/`): dados `NdM±K`, **d66**, rangos, ventaja/desventaja (dos tiradas, quedarse con la mejor o la peor), modificadores que pasan de un paso a otro, subtablas o enlaces entre tablas, entradas con dados embebidos ("2d6 Bandidos", que se resuelven al tirar) y **procedimientos** (secuencias de tablas con condiciones de activación del tipo "5–6 en 1d6").
-
-> **Copyright**: el contenido de las tablas sale del manual (`~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`) y **no se sube al repo**. Va en `src/presets/private/` (ignorado por git), que se carga con `import.meta.glob` y funciona igual si está vacío. En el repo solo va el motor, los esquemas y una plantilla vacía. Los presets son por idioma (`kal-arath.es.json`, `kal-arath.en.json`).
-
-## Hoja de ruta
-
-### Fase 0: Esqueleto
-
-- [x] Proyecto Vite + Svelte 5 + TS + PixiJS
-- [x] ESLint, Prettier, Vitest, `svelte-check`
-- [x] Layout base: lienzo, toolbar, panel lateral
-- [x] i18n (es/en) con selector de idioma
-
-### Fase 1: MVP
-
-- [x] Matemática hex (`hex/`) con tests
-- [x] Rejilla renderizada, zoom y desplazamiento
-- [x] Orientación configurable
-- [x] Paleta de terrenos, pincel y relleno
-- [x] Coordenadas
-- [x] Undo/redo (sistema de comandos)
-- [x] Guardar/cargar JSON y autoguardado IndexedDB
-
-### Fase 2: Contenido del mapa
-
-- [ ] Set de iconos FOSS y colocación sobre hexes
-- [ ] Importar iconos propios
-- [ ] Caminos y ríos
-- [x] Panel de metadatos de hex (nombre, notas Markdown, PDIs, etiquetas, campos) y marcador en el mapa
-- [x] Enlace de hex a nota externa con proveedores (SilverBullet, Obsidian)
-- [x] Tamaño físico: modo por papel (A5–A1, Carta, Legal, Tabloide, personalizado), tamaño del hex en mm (entre lados) con atajos (¾", 25 mm, 1", 30 mm, 1½") y tamaño impreso
-- [x] ID único de mapa como nombre del fichero
-- [ ] Biblioteca local de mapas (IndexedDB por ID) y deep links `#/<id>/<hex>`
-
-### Fase 3: Presentación
-
-- [ ] Sistema de capas (visibilidad y bloqueo)
-- [ ] Herramienta de texto
-- [ ] Exportar PNG
-- [ ] Exportar PDF a escala real (respetando `print.hexMm`); más adelante, repartido en varios folios
-
-### Fase 4: Juego
-
-- [ ] Motor de tablas (dados, d66, ventaja, rangos, subtablas, procedimientos)
-- [ ] Editor de tablas propias e importación/exportación
-- [ ] Token del jugador con imagen personalizada
-- [ ] Kal-Arath: panel "Día de viaje" y contador de días
-- [ ] Kal-Arath: generadores de Asentamiento, Mazmorra y Tesoro
-- [ ] Kal-Arath: presets locales (es) a partir del manual
-
-### Más adelante (fuera de alcance por ahora)
-
-- Generación procedural de terreno y ríos
-- Hexes hijos / submapas
-- Texto curvo siguiendo un trazado
-- Exportar SVG
-- Empaquetado de escritorio con Tauri
-
-### Descartado
-
-- Rejilla cuadrada: para eso ya existen editores FOSS mejores (Tiled, etc.)
-
-- Niebla de guerra, vista de jugadores en segunda pantalla y funciones de VTT (ya hay herramientas para eso)
+Comandos (desde la raíz): `npm run dev` (hexmapper), `npm test`, `npm run check`, `npm run lint`, `npm run format`, `npm run build`.
 
 ## Convenciones
 
-- Código, identificadores y comentarios en inglés.
-- **UI bilingüe (es/en)**: ningún texto visible va escrito a mano en los componentes; siempre se usa `t('clave')` desde `lib/i18n`. `es.ts` es la referencia y `en.ts` debe tener las mismas claves (el tipado lo comprueba). Cada vez que se añade una clave, se añade en los dos idiomas.
-- El idioma se detecta del navegador, se puede cambiar en la UI y se recuerda en `localStorage`. Es una preferencia del usuario, **no** se guarda en el mapa.
-- El contenido del usuario (nombres de terrenos, notas, tablas propias) no se traduce. Los valores por defecto (paleta de terrenos, nombres de capas) sí, a través de claves.
-- Cada cambio en el formato del mapa sube `version` y añade una migración en `model/migrations.ts`.
-- Tests obligatorios para `hex/`, `model/` (serialización y migraciones), `commands/` (do/undo) y `encounters/`.
-- Comandos: `npm run dev`, `npm run build`, `npm test`, `npm run check`, `npm run lint`.
+- Código, identificadores y comentarios en inglés. Documentación de diseño en castellano por ahora; los README públicos de los paquetes irán en inglés.
+- **UI bilingüe (es/en)** en todas las apps y paquetes `*-ui`: ningún texto visible a mano, siempre `t('clave')`. Cada clave nueva se añade en los dos idiomas (el tipado lo comprueba).
+- **Los núcleos no traducen.** Emiten códigos y parámetros (`{ code: 'NAVIGATION_LOST', hex }`) y la UI los traduce.
+- El idioma y los ajustes personales (proveedor de notas, etc.) son **preferencias del usuario** en `localStorage`, nunca datos de la partida.
+- Tests obligatorios en todos los paquetes headless, con RNG determinista. No se usan snapshots como sustituto de asserts.
+- Cada cambio de formato persistido sube la versión y añade una migración.
+- Commits por fase o funcionalidad, con mensaje descriptivo en inglés.
+
+## Hoja de ruta del ecosistema
+
+1. [x] Monorepo, paquetes `hex` y `note-refs`.
+2. [ ] **Revisión de diseño** de `docs/otd.md`, `docs/oracle-engine.md` y `docs/travel-engine.md` con el usuario. _(En curso.)_
+3. [ ] `random`, `dice`, `conditions`.
+4. [ ] `oracle-engine` MVP y pack local de Kal-Arath (es).
+5. [ ] `time`, pathfinding A\* en `hex`, `travel-engine` MVP.
+6. [ ] `schema` OTD consolidado y migración del hexmapper al formato OTD.
+7. [ ] `session` (integración travel ↔ oracle, journal) y UIs incrustables en el hexmapper (modo Travel/Play).
+8. [ ] Apps standalone `oracle` y `travel`.
+9. [ ] Más adelante: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), editor de tablas, Web Components para hosts que no usen Svelte.
+
+La hoja de ruta propia del hexmapper (iconos, caminos y ríos, capas, texto, exportar PNG/PDF…) está en `apps/hexmapper/CLAUDE.md`. Los caminos y ríos son requisito para que el Travel Engine use carreteras.

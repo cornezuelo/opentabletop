@@ -1,0 +1,14 @@
+{
+  "name": "@open-tabletop/note-refs",
+  "version": "0.0.0",
+  "description": "Provider-agnostic links to external note apps (SilverBullet, Obsidian...).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  }
+}
