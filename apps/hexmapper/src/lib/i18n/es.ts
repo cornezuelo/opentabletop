@@ -203,6 +203,18 @@ export const es: Messages = {
     create: 'Crear sin guardar',
     saveAndCreate: 'Guardar en fichero y crear',
   },
+  terrainEditor: {
+    palette: 'Paleta',
+    edit: 'Editar paleta',
+    name: 'Nombre',
+    color: 'Color',
+    water: 'Agua',
+    waterHelp: 'Los caminos y ríos se detienen en la orilla de los hexes de agua',
+    delete: 'Borrar terreno',
+    confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
+    add: 'Añadir terreno',
+    newName: 'Terreno nuevo',
+  },
   pathKinds: {
     road: 'Camino',
     trail: 'Sendero',

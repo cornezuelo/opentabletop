@@ -2,6 +2,9 @@
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
+  import TerrainEditor from './TerrainEditor.svelte'
+
+  let editing = $state(false)
 
   const modes: { id: TerrainMode; label: MessageKey; glyph: string }[] = [
     { id: 'brush', label: 'terrainMode.brush', glyph: '🖌' },
@@ -32,22 +35,33 @@
   </label>
 {/if}
 
-<div class="palette" role="radiogroup">
-  {#each editor.terrains as terrain (terrain.id)}
-    <button
-      role="radio"
-      aria-checked={editor.terrainId === terrain.id}
-      class:active={editor.terrainId === terrain.id}
-      onclick={() => {
-        editor.terrainId = terrain.id
-        if (editor.terrainMode === 'erase') editor.terrainMode = 'brush'
-      }}
-    >
-      <span class="swatch" style:background={terrain.color}></span>
-      {terrainName(terrain)}
-    </button>
-  {/each}
+<div class="palette-header">
+  <span>{t('terrainEditor.palette')}</span>
+  <button class="link" onclick={() => (editing = !editing)}
+    >{editing ? t('hex.done') : t('terrainEditor.edit')}</button
+  >
 </div>
+
+{#if editing}
+  <TerrainEditor />
+{:else}
+  <div class="palette" role="radiogroup">
+    {#each editor.terrains as terrain (terrain.id)}
+      <button
+        role="radio"
+        aria-checked={editor.terrainId === terrain.id}
+        class:active={editor.terrainId === terrain.id}
+        onclick={() => {
+          editor.terrainId = terrain.id
+          if (editor.terrainMode === 'erase') editor.terrainMode = 'brush'
+        }}
+      >
+        <span class="swatch" style:background={terrain.color}></span>
+        {terrainName(terrain)}
+      </button>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .modes {
@@ -82,6 +96,12 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    color: var(--text-muted);
+  }
+
+  .palette-header {
+    display: flex;
+    justify-content: space-between;
     color: var(--text-muted);
   }
 

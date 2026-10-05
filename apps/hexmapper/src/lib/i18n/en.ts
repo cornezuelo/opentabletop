@@ -201,6 +201,18 @@ export const en = {
     create: 'Create without saving',
     saveAndCreate: 'Save to file and create',
   },
+  terrainEditor: {
+    palette: 'Palette',
+    edit: 'Edit palette',
+    name: 'Name',
+    color: 'Color',
+    water: 'Water',
+    waterHelp: 'Roads and rivers stop at the shore of water hexes',
+    delete: 'Delete terrain',
+    confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
+    add: 'Add terrain',
+    newName: 'New terrain',
+  },
   pathKinds: {
     road: 'Road',
     trail: 'Trail',
