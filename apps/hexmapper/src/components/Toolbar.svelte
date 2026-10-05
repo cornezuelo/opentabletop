@@ -9,6 +9,7 @@
     { id: 'terrain', label: 'tools.terrain', glyph: '⬢' },
     { id: 'path', label: 'tools.path', glyph: '〰' },
     { id: 'icon', label: 'tools.icon', glyph: '♜' },
+    { id: 'text', label: 'tools.text', glyph: 'T' },
   ]
 
   const actions: { label: MessageKey; glyph: string; run: () => void; enabled?: () => boolean }[] =

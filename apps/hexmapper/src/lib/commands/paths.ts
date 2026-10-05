@@ -1,36 +1,55 @@
-import type { HexMap, MapPath } from '../model/types'
+import type { HexMap, MapLabel, MapPath } from '../model/types'
 import type { Command, MapChange } from './command'
 
+type Collections = { paths: MapPath; labels: MapLabel }
+
 /**
- * Adds, replaces or removes one path: `before = null` adds, `after = null` removes.
- * Paths keep their position in the list so undo restores draw order.
+ * Adds, replaces or removes one item of an id-keyed map collection:
+ * `before = null` adds, `after = null` removes. Items keep their position in the
+ * list so undo restores draw order.
  */
-export class ReplacePathCommand implements Command {
+export class ReplaceItemCommand<K extends keyof Collections> implements Command {
   private index = -1
 
   constructor(
-    private before: MapPath | null,
-    private after: MapPath | null,
+    private collection: K,
+    private before: Collections[K] | null,
+    private after: Collections[K] | null,
   ) {}
 
   apply(map: HexMap): MapChange {
     this.swap(map, this.before, this.after)
-    return { kind: 'paths' }
+    return { kind: this.collection }
   }
 
   revert(map: HexMap): MapChange {
     this.swap(map, this.after, this.before)
-    return { kind: 'paths' }
+    return { kind: this.collection }
   }
 
-  private swap(map: HexMap, from: MapPath | null, to: MapPath | null): void {
-    const current = from ? map.paths.findIndex((p) => p.id === from.id) : -1
-    if (current >= 0) this.index = current
-    if (current >= 0) map.paths.splice(current, 1)
-    if (to) {
-      const at = this.index >= 0 ? Math.min(this.index, map.paths.length) : map.paths.length
-      map.paths.splice(at, 0, structuredClone(to))
+  private swap(map: HexMap, from: Collections[K] | null, to: Collections[K] | null): void {
+    const list = map[this.collection] as Collections[K][]
+    const current = from ? list.findIndex((item) => item.id === from.id) : -1
+    if (current >= 0) {
+      this.index = current
+      list.splice(current, 1)
     }
+    if (to) {
+      const at = this.index >= 0 ? Math.min(this.index, list.length) : list.length
+      list.splice(at, 0, structuredClone(to))
+    }
+  }
+}
+
+export class ReplacePathCommand extends ReplaceItemCommand<'paths'> {
+  constructor(before: MapPath | null, after: MapPath | null) {
+    super('paths', before, after)
+  }
+}
+
+export class ReplaceLabelCommand extends ReplaceItemCommand<'labels'> {
+  constructor(before: MapLabel | null, after: MapLabel | null) {
+    super('labels', before, after)
   }
 }
 

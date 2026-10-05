@@ -75,6 +75,31 @@ export interface MapAsset {
   dataUrl: string
 }
 
+export const LABEL_FONTS = ['fell', 'cinzel', 'sans'] as const
+export type LabelFont = (typeof LABEL_FONTS)[number]
+
+/** Free text on the map (regions, seas, mountain ranges…), positioned in world space. */
+export interface MapLabel {
+  id: string
+  text: string
+  /** Center position in hex-size units from the map origin, so it scales with hex size. */
+  x: number
+  y: number
+  style: LabelStyle
+}
+
+export interface LabelStyle {
+  font: LabelFont
+  /** Font size in hex-size units (1 = hex radius). */
+  size: number
+  color: string
+  /** Degrees clockwise. */
+  rotation: number
+  italic: boolean
+  /** Light outline for legibility over busy terrain. */
+  halo: boolean
+}
+
 /** Fixed map layers, in draw order. */
 export const LAYER_IDS = [
   'terrain',
@@ -144,5 +169,6 @@ export interface HexMap {
   hexes: Record<HexKey, HexData>
   paths: MapPath[]
   assets: MapAsset[]
+  labels: MapLabel[]
   layers: Record<LayerId, LayerState>
 }

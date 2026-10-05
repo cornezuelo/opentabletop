@@ -1,5 +1,7 @@
 import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
+import { ReplaceLabelCommand } from '../commands/paths'
+import { DEFAULT_LABEL_STYLE } from '../model/defaults'
 import { History } from '../commands/history'
 import { createMap } from '../model/defaults'
 import type {
@@ -9,6 +11,8 @@ import type {
   HexMap,
   MapMeta,
   IconStyle,
+  LabelStyle,
+  MapLabel,
   LayerId,
   LayerState,
   PathKind,
@@ -16,7 +20,7 @@ import type {
   TerrainType,
 } from '../model/types'
 
-export type ToolId = 'select' | 'terrain' | 'path' | 'icon'
+export type ToolId = 'select' | 'terrain' | 'path' | 'icon' | 'text'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
@@ -63,6 +67,14 @@ class Editor {
   pathStraight = $state(false)
   /** Path being drawn (hexes plus per-hex offsets), or null when not drawing. */
   pathDraft = $state<PathDraft | null>(null)
+  selectedLabel = $state<string | null>(null)
+  /** Bumped to ask the label panel to focus and select the text field (new label). */
+  focusLabelText = $state(0)
+  /** Style for new labels: the last one used. */
+  labelStyle = $state<LabelStyle>({ ...DEFAULT_LABEL_STYLE })
+  /** Labels being edited live (text typing, slider drags): original kept for one undo step. */
+  private labelEdits = new Map<string, MapLabel>()
+
   /** Path vertex under the pointer (path tool), for highlighting and the grab cursor. */
   hoveredHandle = $state<{ pathId: string; index: number } | null>(null)
 
@@ -86,6 +98,38 @@ class Editor {
     this.syncSnapshots(change)
     for (const listener of this.listeners) listener(change)
     this.touch()
+  }
+
+  getLabel(id: string): MapLabel | undefined {
+    return this.map.labels.find((l) => l.id === id)
+  }
+
+  /** Applies a label change immediately without recording it (call commitLabel later). */
+  previewLabel(id: string, update: (label: MapLabel) => MapLabel): void {
+    const label = this.getLabel(id)
+    if (!label) return
+    if (!this.labelEdits.has(id)) this.labelEdits.set(id, structuredClone(label))
+    Object.assign(label, update(structuredClone(label)))
+    this.notify({ kind: 'labels' })
+  }
+
+  /** Records pending live edits of a label as a single undoable step. */
+  commitLabel(id: string): void {
+    const before = this.labelEdits.get(id)
+    const label = this.getLabel(id)
+    this.labelEdits.delete(id)
+    if (!before || !label) return
+    const after = structuredClone(label)
+    Object.assign(label, before)
+    if (JSON.stringify(before) === JSON.stringify(after)) return this.notify({ kind: 'labels' })
+    this.execute(new ReplaceLabelCommand(before, after))
+  }
+
+  /** One-shot label change (selects, toggles…) as an undoable step. */
+  updateLabel(id: string, update: (label: MapLabel) => MapLabel): void {
+    this.commitLabel(id)
+    const label = this.getLabel(id)
+    if (label) this.execute(new ReplaceLabelCommand(label, update(structuredClone(label))))
   }
 
   /** Layer visibility/lock: saved with the map but not part of undo history. */
@@ -123,6 +167,8 @@ class Editor {
     this.map = map
     this.history.clear()
     this.selected = null
+    this.selectedLabel = null
+    this.labelEdits.clear()
     this.pathDraft = null
     if (!map.terrains.some((t) => t.id === this.terrainId))
       this.terrainId = map.terrains[0]?.id ?? ''

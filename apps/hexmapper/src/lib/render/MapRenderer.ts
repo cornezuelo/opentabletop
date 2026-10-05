@@ -6,6 +6,7 @@ import {
   Graphics,
   GraphicsContext,
   Sprite,
+  Text,
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
 import { hasMetadata } from '../model/hex'
@@ -14,6 +15,8 @@ import { iconImage } from '../icons/registry'
 import { catmullRom, dashes } from './curves'
 import { pathRuns, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
+import { setLabelHitTest } from './hitTest'
+import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
 import {
   allCells,
   cellsInRadius,
@@ -92,6 +95,8 @@ export class MapRenderer {
   private pathsLayer = new Graphics()
   private iconLayer = new Container()
   private iconTextures = new IconTextures(() => this.drawIcons())
+  private labelLayer = new Container()
+  private labelTexts = new Map<string, Text>()
   private markers = new Graphics()
   private overlay = new Graphics()
 
@@ -119,14 +124,18 @@ export class MapRenderer {
       this.pathsLayer,
       this.iconLayer,
       this.coordLayer,
+      this.labelLayer,
       this.markers,
       this.overlay,
     )
     app.stage.addChild(this.world)
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
     this.bindInput()
+    setLabelHitTest((world) => this.labelAt(world))
     this.rebuild()
     this.fit()
+    // Web fonts may arrive after the first draw; redraw labels with them.
+    loadLabelFonts().then(() => this.drawLabels())
   }
 
   destroy(): void {
@@ -200,6 +209,23 @@ export class MapRenderer {
       })
     }
 
+    const label = editor.selectedLabel ? this.labelTexts.get(editor.selectedLabel) : undefined
+    if (label && editor.tool === 'text') {
+      const b = label.getLocalBounds()
+      const pad = 4 / scale
+      const angle = (label.angle * Math.PI) / 180
+      const corners = [
+        [b.minX - pad, b.minY - pad],
+        [b.maxX + pad, b.minY - pad],
+        [b.maxX + pad, b.maxY + pad],
+        [b.minX - pad, b.maxY + pad],
+      ].flatMap(([x, y]) => [
+        label.x + x * Math.cos(angle) - y * Math.sin(angle),
+        label.y + x * Math.sin(angle) + y * Math.cos(angle),
+      ])
+      g.poly(corners).stroke({ width: 1.5 / scale, color: SELECT_COLOR })
+    }
+
     if (editor.selected) {
       const cell = parseKey(editor.selected)
       if (inBounds(cell, grid)) {
@@ -224,6 +250,8 @@ export class MapRenderer {
       this.drawPaths()
     } else if (change.kind === 'assets') {
       this.drawIcons()
+    } else if (change.kind === 'labels') {
+      this.drawLabels()
     } else if (change.kind === 'layers') {
       this.applyLayers()
     } else if (change.kind !== 'meta') {
@@ -278,6 +306,7 @@ export class MapRenderer {
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
     this.drawPaths()
     this.drawIcons()
+    this.drawLabels()
     this.onViewChanged()
   }
 
@@ -299,6 +328,63 @@ export class MapRenderer {
       }
     }
     if (editor.tool === 'path') this.drawOverlay()
+  }
+
+  private drawLabels(): void {
+    for (const child of this.labelLayer.removeChildren()) child.destroy()
+    this.labelTexts.clear()
+    const { hexSize } = editor.map.grid
+    for (const label of editor.map.labels) {
+      const { style } = label
+      const fontSize = style.size * hexSize
+      const text = new Text({
+        text: label.text || ' ',
+        style: {
+          fontFamily: FONT_FAMILIES[style.font].family,
+          fontSize,
+          fontStyle: style.italic ? 'italic' : 'normal',
+          fill: style.color,
+          align: 'center',
+          ...(style.halo && {
+            stroke: { color: 0xf4eedd, width: fontSize * 0.18, join: 'round' as const },
+          }),
+        },
+      })
+      text.anchor.set(0.5)
+      text.position.set(label.x * hexSize, label.y * hexSize)
+      text.angle = style.rotation
+      this.labelLayer.addChild(text)
+      this.labelTexts.set(label.id, text)
+    }
+    this.updateLabelResolution()
+  }
+
+  /** Re-rasterize text for the current zoom so labels stay sharp. */
+  private updateLabelResolution(): void {
+    const resolution = Math.min(
+      4,
+      Math.max(1, Math.ceil(this.world.scale.x * devicePixelRatio * 2) / 2),
+    )
+    for (const text of this.labelTexts.values())
+      if (text.resolution !== resolution) text.resolution = resolution
+  }
+
+  /** Topmost label whose (rotated) box contains the world point. */
+  private labelAt(world: Point): string | null {
+    const labels = editor.map.labels
+    for (let i = labels.length - 1; i >= 0; i--) {
+      const text = this.labelTexts.get(labels[i].id)
+      if (!text) continue
+      const angle = (-text.angle * Math.PI) / 180
+      const dx = world.x - text.x
+      const dy = world.y - text.y
+      const lx = dx * Math.cos(angle) - dy * Math.sin(angle)
+      const ly = dx * Math.sin(angle) + dy * Math.cos(angle)
+      const bounds = text.getLocalBounds()
+      if (lx >= bounds.minX && lx <= bounds.maxX && ly >= bounds.minY && ly <= bounds.maxY)
+        return labels[i].id
+    }
+    return null
   }
 
   private pathVertices(path: MapPath): PathVertex[] {
@@ -402,6 +488,7 @@ export class MapRenderer {
     this.gridLines.visible = layers.grid.visible
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible
+    this.labelLayer.visible = layers.labels.visible
     this.markers.visible = layers.markers.visible
     this.coordLayer.visible =
       layers.coords.visible &&
@@ -411,6 +498,7 @@ export class MapRenderer {
 
   private onViewChanged(): void {
     this.applyLayers()
+    this.updateLabelResolution()
     this.drawMarkers()
     this.drawOverlay()
   }
@@ -489,6 +577,9 @@ export class MapRenderer {
       // Commit any half-edited panel field (its change event fires on blur) before
       // a tool can change the selection out from under it.
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+      // Suppress the compatibility mousedown so its default action doesn't steal focus
+      // from fields a tool focuses (e.g. a new label's text).
+      e.preventDefault()
       canvas.setPointerCapture(e.pointerId)
       if (e.button === 1 || (e.button === 0 && this.spaceHeld)) {
         this.panFrom = this.screenPoint(e)
@@ -497,7 +588,8 @@ export class MapRenderer {
       }
       if (e.button !== 0 && e.button !== 2) return
       const cell = this.cellAt(e)
-      if (!inBounds(cell, editor.map.grid)) return
+      // Labels may sit outside the grid (titles, margins); other tools edit hexes.
+      if (!inBounds(cell, editor.map.grid) && editor.tool !== 'text') return
       this.activeTool = getTool(editor.tool)
       this.activeTool.down(cell, this.pointerInfo(e))
     })

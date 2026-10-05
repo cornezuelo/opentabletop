@@ -1,7 +1,7 @@
 import { openMap, saveMap } from './io/actions'
 import { isTyping } from './render/MapRenderer'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
-import { cancelPath, finishPath, popPathPoint } from './tools/tools'
+import { cancelPath, deleteSelectedLabel, finishPath, popPathPoint } from './tools/tools'
 import { view } from './store/view'
 
 /** Global keyboard shortcuts. Returns a cleanup function. */
@@ -36,6 +36,16 @@ export function bindShortcuts(): () => void {
       }
     }
 
+    if (
+      editor.tool === 'text' &&
+      editor.selectedLabel &&
+      (key === 'delete' || key === 'backspace')
+    ) {
+      deleteSelectedLabel()
+      e.preventDefault()
+      return
+    }
+
     switch (key) {
       case 'v':
         editor.tool = 'select'
@@ -54,6 +64,9 @@ export function bindShortcuts(): () => void {
       case 'i':
         editor.tool = 'icon'
         break
+      case 't':
+        editor.tool = 'text'
+        break
       case 'e':
         editor.tool = 'terrain'
         editor.terrainMode = 'erase'
@@ -70,7 +83,7 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
-    if ('vbgeri'.includes(key)) editor.panelView = 'tool'
+    if ('vbgerit'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

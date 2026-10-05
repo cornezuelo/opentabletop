@@ -1,6 +1,7 @@
 <script lang="ts">
   import HexInfo from './hex/HexInfo.svelte'
   import IconPanel from './IconPanel.svelte'
+  import LabelPanel from './LabelPanel.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
   import LayersPanel from './LayersPanel.svelte'
   import MapSettings from './MapSettings.svelte'
@@ -48,6 +49,8 @@
     <Section title={t('panel.paths')}><PathPanel /></Section>
   {:else if editor.tool === 'icon'}
     <Section title={t('panel.icons')}><IconPanel /></Section>
+  {:else if editor.tool === 'text'}
+    <Section title={t('panel.text')}><LabelPanel /></Section>
   {/if}
   <Section title={t('panel.hex')}><HexInfo /></Section>
   <Section title={t('panel.layers')} open={false}><LayersPanel /></Section>
@@ -60,6 +63,7 @@
       <li>{t('hints.brush')}</li>
       <li>{t('hints.path')}</li>
       <li>{t('hints.icon')}</li>
+      <li>{t('hints.text')}</li>
     </ul>
   </Section>
 {/snippet}

@@ -1,6 +1,6 @@
 import { newId } from './id'
 import { LAYER_IDS, type LayerId, type LayerState } from './types'
-import type { GridSettings, HexMap, PrintSettings, TerrainType } from './types'
+import type { GridSettings, HexMap, LabelStyle, PrintSettings, TerrainType } from './types'
 
 export const CURRENT_VERSION = 1
 
@@ -39,6 +39,17 @@ export const DEFAULT_PRINT: PrintSettings = {
   customPaper: { width: 500, height: 700 },
 }
 
+export const DEFAULT_LABEL_STYLE: LabelStyle = {
+  font: 'fell',
+  size: 0.6,
+  color: '#2b2118',
+  rotation: 0,
+  italic: false,
+  halo: true,
+}
+
+export const LABEL_SIZE_RANGE = [0.2, 4] as const
+
 export function defaultLayers(): Record<LayerId, LayerState> {
   return Object.fromEntries(
     LAYER_IDS.map((id) => [id, { visible: true, locked: false }]),
@@ -56,6 +67,7 @@ export function createMap(name = ''): HexMap {
     hexes: {},
     paths: [],
     assets: [],
+    labels: [],
     layers: defaultLayers(),
   }
 }

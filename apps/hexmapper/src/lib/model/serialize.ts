@@ -1,15 +1,25 @@
 import { PAPERS, type PaperId } from '../print/paper'
-import { DEFAULT_GRID, DEFAULT_PRINT, defaultLayers, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
+import {
+  DEFAULT_GRID,
+  DEFAULT_LABEL_STYLE,
+  DEFAULT_PRINT,
+  defaultLayers,
+  LABEL_SIZE_RANGE,
+  MAX_MAP_SIZE,
+  MIN_MAP_SIZE,
+} from './defaults'
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex, normalizePath } from './hex'
 import { isValidId, newId } from './id'
-import { PATH_KINDS } from './types'
+import { LABEL_FONTS, PATH_KINDS } from './types'
 import type {
   CustomField,
   HexData,
   HexKey,
   HexMap,
+  LabelStyle,
   MapAsset,
+  MapLabel,
   MapPath,
   Poi,
   PrintSettings,
@@ -78,6 +88,7 @@ function validate(data: Record<string, unknown>): HexMap {
     hexes: validHexes,
     paths: parsePaths(data.paths),
     assets: parseAssets(data.assets),
+    labels: parseLabels(data.labels),
     layers: parseLayers(data.layers),
   }
 }
@@ -173,6 +184,36 @@ function parseAssets(value: unknown): MapAsset[] {
       name: typeof a.name === 'string' ? a.name : '',
       dataUrl: a.dataUrl as string,
     }))
+}
+
+function parseLabels(value: unknown): MapLabel[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter(isRecord)
+    .filter((l) => typeof l.text === 'string' && Number.isFinite(l.x) && Number.isFinite(l.y))
+    .map((l) => ({
+      id: isValidId(l.id) ? l.id : newId(),
+      text: l.text as string,
+      x: l.x as number,
+      y: l.y as number,
+      style: parseLabelStyle(l.style),
+    }))
+}
+
+export function parseLabelStyle(value: unknown): LabelStyle {
+  const s = isRecord(value) ? value : {}
+  const d = DEFAULT_LABEL_STYLE
+  const size = typeof s.size === 'number' && Number.isFinite(s.size) ? s.size : d.size
+  return {
+    font: LABEL_FONTS.includes(s.font as LabelStyle['font'])
+      ? (s.font as LabelStyle['font'])
+      : d.font,
+    size: Math.min(LABEL_SIZE_RANGE[1], Math.max(LABEL_SIZE_RANGE[0], size)),
+    color: typeof s.color === 'string' && /^#[0-9a-f]{6}$/i.test(s.color) ? s.color : d.color,
+    rotation: typeof s.rotation === 'number' && Number.isFinite(s.rotation) ? s.rotation : 0,
+    italic: s.italic === true,
+    halo: s.halo !== false,
+  }
 }
 
 function parseLayers(value: unknown): HexMap['layers'] {

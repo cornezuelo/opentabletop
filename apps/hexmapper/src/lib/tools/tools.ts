@@ -1,5 +1,6 @@
 import { HexEditBatch } from '../commands/hexes'
-import { ReplacePathCommand } from '../commands/paths'
+import { ReplaceLabelCommand, ReplacePathCommand } from '../commands/paths'
+import { hitTestLabel } from '../render/hitTest'
 import { normalizePath } from '../model/hex'
 import type { MapPath } from '../model/types'
 import { placeInHex } from '../render/pathGeometry'
@@ -349,7 +350,76 @@ class IconTool implements Tool {
   }
 }
 
+/**
+ * Free text labels: click empty space to add one, click a label to select it, drag
+ * to move, right-click (or Delete) to remove. Text and style are edited in the panel.
+ */
+class TextTool implements Tool {
+  private drag: { id: string; grab: Point; moved: boolean } | null = null
+
+  down(_cell: Offset, info: PointerInfo): void {
+    if (blockedByLock('labels')) return
+    const { hexSize } = editor.map.grid
+    const hit = hitTestLabel(info.world)
+    if (hit) {
+      editor.selectedLabel = hit
+      if (info.button === 2) return deleteSelectedLabel()
+      const label = editor.getLabel(hit)!
+      editor.labelStyle = { ...label.style }
+      this.drag = {
+        id: hit,
+        grab: { x: label.x * hexSize - info.world.x, y: label.y * hexSize - info.world.y },
+        moved: false,
+      }
+      return
+    }
+    if (info.button !== 0) return
+    // First click on empty space only deselects, so it's easy to stop editing a label.
+    if (editor.selectedLabel) {
+      editor.selectedLabel = null
+      return
+    }
+    const label = {
+      id: newId(),
+      text: t('labels.default'),
+      x: info.world.x / hexSize,
+      y: info.world.y / hexSize,
+      style: { ...editor.labelStyle },
+    }
+    editor.execute(new ReplaceLabelCommand(null, label))
+    editor.selectedLabel = label.id
+    editor.focusLabelText++
+  }
+
+  move(_cell: Offset, info: PointerInfo): void {
+    const drag = this.drag
+    if (!drag) return
+    const { hexSize } = editor.map.grid
+    drag.moved = true
+    editor.previewLabel(drag.id, (label) => ({
+      ...label,
+      x: (info.world.x + drag.grab.x) / hexSize,
+      y: (info.world.y + drag.grab.y) / hexSize,
+    }))
+  }
+
+  up(): void {
+    if (this.drag?.moved) editor.commitLabel(this.drag.id)
+    this.drag = null
+  }
+}
+
+export function deleteSelectedLabel(): void {
+  const id = editor.selectedLabel
+  const label = id && editor.getLabel(id)
+  if (!label) return
+  editor.commitLabel(label.id)
+  editor.execute(new ReplaceLabelCommand(editor.getLabel(label.id)!, null))
+  editor.selectedLabel = null
+}
+
 const tools: Record<ToolId, Tool> = {
+  text: new TextTool(),
   icon: new IconTool(),
   select: selectTool,
   terrain: new TerrainTool(),
