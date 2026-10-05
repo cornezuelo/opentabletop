@@ -1,0 +1,57 @@
+import { openMap, saveMap } from './io/actions'
+import { isTyping } from './render/MapRenderer'
+import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
+import { view } from './store/view'
+
+/** Global keyboard shortcuts. Returns a cleanup function. */
+export function bindShortcuts(): () => void {
+  const handler = (e: KeyboardEvent) => {
+    if (isTyping(e)) return
+    const ctrl = e.ctrlKey || e.metaKey
+    const key = e.key.toLowerCase()
+
+    if (ctrl) {
+      if (key === 'z' && e.shiftKey) editor.redo()
+      else if (key === 'z') editor.undo()
+      else if (key === 'y') editor.redo()
+      else if (key === 's') saveMap()
+      else if (key === 'o') openMap()
+      else return
+      e.preventDefault()
+      return
+    }
+    if (e.altKey) return
+
+    switch (key) {
+      case 'v':
+        editor.tool = 'select'
+        break
+      case 'b':
+        editor.tool = 'terrain'
+        editor.terrainMode = 'brush'
+        break
+      case 'g':
+        editor.tool = 'terrain'
+        editor.terrainMode = 'fill'
+        break
+      case 'e':
+        editor.tool = 'terrain'
+        editor.terrainMode = 'erase'
+        break
+      case '[':
+        editor.brushRadius = Math.max(0, editor.brushRadius - 1)
+        break
+      case ']':
+        editor.brushRadius = Math.min(MAX_BRUSH_RADIUS, editor.brushRadius + 1)
+        break
+      case 'f':
+        view.fit()
+        break
+      default:
+        return
+    }
+    e.preventDefault()
+  }
+  window.addEventListener('keydown', handler)
+  return () => window.removeEventListener('keydown', handler)
+}

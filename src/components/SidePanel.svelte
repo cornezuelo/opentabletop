@@ -1,14 +1,33 @@
 <script lang="ts">
+  import HexInfo from './HexInfo.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
+  import MapSettings from './MapSettings.svelte'
+  import Section from './Section.svelte'
+  import TerrainPanel from './TerrainPanel.svelte'
   import { t } from '../lib/i18n/index.svelte'
+  import { editor } from '../lib/store/editor.svelte'
 </script>
 
 <aside class="panel">
   <header>
-    <h2>{t('app.title')}</h2>
+    <h1>{t('app.title')}</h1>
     <LanguageSelect />
   </header>
-  <p class="muted">{t('panel.noSelection')}</p>
+
+  {#if editor.tool === 'terrain'}
+    <Section title={t('panel.terrain')}><TerrainPanel /></Section>
+  {/if}
+  <Section title={t('panel.hex')}><HexInfo /></Section>
+  <Section title={t('panel.map')}><MapSettings /></Section>
+  <Section title={t('panel.shortcuts')} open={false}>
+    <ul class="hints">
+      <li>{t('hints.pan')}</li>
+      <li>{t('hints.zoom')}</li>
+      <li>{t('hints.erase')}</li>
+      <li>{t('hints.pick')}</li>
+      <li>{t('hints.brush')}</li>
+    </ul>
+  </Section>
 </aside>
 
 <style>
@@ -23,16 +42,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--panel-border);
   }
 
-  h2 {
+  h1 {
     margin: 0;
     font-size: 16px;
     color: var(--accent);
   }
 
-  .muted {
+  .hints {
+    margin: 0;
+    padding-left: 18px;
     color: var(--text-muted);
+    line-height: 1.6;
   }
 </style>

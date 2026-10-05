@@ -52,7 +52,7 @@ Principios:
 ## Modelo de datos (borrador)
 
 ```ts
-type HexKey = `${number},${number}` // axial "q,r"
+type HexKey = `${number},${number}` // offset "col,row" (ver nota abajo)
 
 interface HexMap {
   version: number // para migraciones
@@ -113,6 +113,8 @@ interface EncounterTable {
 }
 ```
 
+**Los hexes se guardan por coordenadas offset (`col,row`), no axiales.** Las de offset son "odd-q" en flat-top y "odd-r" en pointy-top. Así, al cambiar la orientación cada celda conserva su contenido y su etiqueta CCRR. La matemática (vecinos, distancias, líneas) se hace en axial, convirtiendo con `hex/offset.ts`. Al reducir el mapa, los datos de las celdas que quedan fuera se conservan (no se renderizan), así que deshacer el cambio de tamaño no pierde nada.
+
 Capas fijas, en orden de dibujo: **terreno → caminos/ríos → iconos → texto → coordenadas → jugador**. Cada una se puede ocultar y bloquear. No hay capas creadas por el usuario.
 
 ## Funcionalidades
@@ -166,13 +168,13 @@ Requisitos que esto impone al motor de tablas (`encounters/`): dados `NdM±K`, *
 
 ### Fase 1: MVP
 
-- [ ] Matemática hex (`hex/`) con tests
-- [ ] Rejilla renderizada, zoom y desplazamiento
-- [ ] Orientación configurable
-- [ ] Paleta de terrenos, pincel y relleno
-- [ ] Coordenadas
-- [ ] Undo/redo (sistema de comandos)
-- [ ] Guardar/cargar JSON y autoguardado IndexedDB
+- [x] Matemática hex (`hex/`) con tests
+- [x] Rejilla renderizada, zoom y desplazamiento
+- [x] Orientación configurable
+- [x] Paleta de terrenos, pincel y relleno
+- [x] Coordenadas
+- [x] Undo/redo (sistema de comandos)
+- [x] Guardar/cargar JSON y autoguardado IndexedDB
 
 ### Fase 2: Contenido del mapa
 

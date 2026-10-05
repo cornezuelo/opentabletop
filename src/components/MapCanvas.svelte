@@ -1,8 +1,12 @@
 <script lang="ts">
   import { Application } from 'pixi.js'
+  import { MapRenderer } from '../lib/render/MapRenderer'
+  import { editor } from '../lib/store/editor.svelte'
+  import { view } from '../lib/store/view'
 
   let container: HTMLDivElement
   let canvas: HTMLCanvasElement
+  let renderer = $state<MapRenderer | null>(null)
 
   $effect(() => {
     const app = new Application()
@@ -20,13 +24,24 @@
       })
       .then(() => {
         ready = true
-        if (destroyed) app.destroy()
+        if (destroyed) return app.destroy()
+        renderer = new MapRenderer(app, canvas)
+        view.fit = () => renderer?.fit()
       })
 
     return () => {
       destroyed = true
+      view.fit = () => {}
+      renderer?.destroy()
+      renderer = null
       if (ready) app.destroy()
     }
+  })
+
+  // Redraw outlines when UI state that affects them changes.
+  $effect(() => {
+    void [editor.selected, editor.tool, editor.terrainMode, editor.brushRadius]
+    renderer?.drawOverlay()
   })
 </script>
 
@@ -42,5 +57,6 @@
 
   canvas {
     display: block;
+    touch-action: none;
   }
 </style>

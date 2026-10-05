@@ -15,8 +15,8 @@ describe('i18n', () => {
   })
 
   it('resolves nested keys', () => {
-    expect(translate(es, 'tools.terrain')).toBe('Terreno')
-    expect(translate(en, 'tools.terrain')).toBe('Terrain')
+    expect(translate(es, 'hex.terrain')).toBe('Terreno')
+    expect(translate(en, 'hex.terrain')).toBe('Terrain')
   })
 
   it('interpolates params and keeps unknown placeholders', () => {
