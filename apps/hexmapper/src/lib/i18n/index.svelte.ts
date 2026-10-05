@@ -3,7 +3,7 @@ import { es } from './es'
 import { translate } from './translate'
 import type { MessageKey, Messages } from './types'
 
-export const locales = { es: 'Español', en: 'English' } as const
+export const locales = { en: 'English', es: 'Español' } as const
 export type Locale = keyof typeof locales
 
 const dictionaries: Record<Locale, Messages> = { es, en }
@@ -18,9 +18,9 @@ function initialLocale(): Locale {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (isLocale(stored)) return stored
   } catch {
-    // Storage unavailable: fall back to the browser language.
+    // Storage unavailable: use the default.
   }
-  return navigator.language.toLowerCase().startsWith('es') ? 'es' : 'en'
+  return 'en'
 }
 
 const state = $state({ locale: initialLocale() })

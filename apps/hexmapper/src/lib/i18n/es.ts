@@ -1,5 +1,6 @@
-// Source of truth for UI strings. `en.ts` must mirror this shape.
-export const es = {
+import type { Messages } from './types'
+
+export const es: Messages = {
   app: {
     title: 'Hexmapper',
   },
@@ -160,4 +161,4 @@ export const es = {
   settings: {
     language: 'Idioma',
   },
-} as const
+}

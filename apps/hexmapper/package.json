@@ -10,6 +10,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "devDependencies": {
+    "@iconify-json/game-icons": "^1.2.4",
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
     "@tsconfig/svelte": "^5.0.8",
     "svelte": "^5.57.0",
@@ -17,10 +18,10 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
+    "@open-tabletop/hex": "*",
+    "@open-tabletop/note-refs": "*",
     "dompurify": "^3.4.16",
     "marked": "^18.1.0",
-    "pixi.js": "^8.22.0",
-    "@open-tabletop/hex": "*",
-    "@open-tabletop/note-refs": "*"
+    "pixi.js": "^8.22.0"
   }
 }

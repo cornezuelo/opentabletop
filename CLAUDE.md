@@ -108,7 +108,7 @@ Comandos (desde la raíz): `npm run dev` (hexmapper), `npm test`, `npm run check
 ## Convenciones
 
 - Código, identificadores y comentarios en inglés. Documentación de diseño en castellano por ahora; los README públicos de los paquetes irán en inglés.
-- **UI bilingüe (es/en)** en todas las apps y paquetes `*-ui`: ningún texto visible a mano, siempre `t('clave')`. Cada clave nueva se añade en los dos idiomas (el tipado lo comprueba).
+- **UI bilingüe (en/es), inglés por defecto** en todas las apps y paquetes `*-ui`: ningún texto visible a mano, siempre `t('clave')`. `en.ts` es el diccionario de referencia y `es.ts` debe tener las mismas claves (el tipado lo comprueba). Cada clave nueva se añade en los dos idiomas.
 - **Los núcleos no traducen.** Emiten códigos y parámetros (`{ code: 'NAVIGATION_LOST', hex }`) y la UI los traduce.
 - El idioma y los ajustes personales (proveedor de notas, etc.) son **preferencias del usuario** en `localStorage`, nunca datos de la partida.
 - Tests obligatorios en todos los paquetes headless, con RNG determinista. No se usan snapshots como sustituto de asserts.
