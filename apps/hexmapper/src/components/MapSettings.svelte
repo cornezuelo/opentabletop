@@ -69,15 +69,6 @@
   </select>
 </label>
 
-<label class="check">
-  <input
-    type="checkbox"
-    checked={editor.grid.showCoords}
-    onchange={(e) => applySettings({ grid: { showCoords: e.currentTarget.checked } })}
-  />
-  <span>{t('map.showCoords')}</span>
-</label>
-
 <style>
   .id {
     display: flex;
@@ -96,12 +87,6 @@
 
   .id .icon {
     height: 28px;
-  }
-
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
 
   select {

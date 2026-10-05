@@ -17,7 +17,17 @@ import {
   keyOf,
   type Offset,
 } from '@open-tabletop/hex'
+import { t, type MessageKey } from '../i18n/index.svelte'
+import type { LayerId } from '../model/types'
 import { editor, type ToolId } from '../store/editor.svelte'
+import { showToast } from '../store/toasts.svelte'
+
+/** Tells the user why nothing happened when a tool targets a locked layer. */
+function blockedByLock(layer: LayerId): boolean {
+  if (!editor.isLocked(layer)) return false
+  showToast(t('layers.lockedToast', { layer: t(`layers.names.${layer}` as MessageKey) }))
+  return true
+}
 
 export interface PointerInfo {
   /** 0 = primary, 2 = secondary (right click). */
@@ -37,6 +47,8 @@ export interface Tool {
   down(cell: Offset, info: PointerInfo): void
   move(cell: Offset, info: PointerInfo): void
   up(): void
+  /** Pointer moving with no button pressed (hover feedback). */
+  hover?(cell: Offset, info: PointerInfo): void
 }
 
 const selectTool: Tool = {
@@ -54,6 +66,7 @@ class TerrainTool implements Tool {
 
   down(cell: Offset, info: PointerInfo): void {
     if (info.alt || info.ctrl) return this.pick(cell)
+    if (blockedByLock('terrain')) return
     const erase = editor.terrainMode === 'erase' || info.button === 2
     if (editor.terrainMode === 'fill') return this.fill(cell, erase)
     this.erasing = erase
@@ -120,15 +133,31 @@ class TerrainTool implements Tool {
  */
 class PathTool implements Tool {
   private pressed = false
-  private drag: { before: MapPath; index: number } | null = null
+  /** `grab` = vertex position minus pointer at press time, so the vertex doesn't jump. */
+  private drag: { before: MapPath; index: number; grab: Point } | null = null
+
+  hover(_cell: Offset, info: PointerInfo): void {
+    const hit = editor.pathDraft ? null : findPathVertex(info.world, info.pickRadius)
+    const current = editor.hoveredHandle
+    if (hit?.path.id === current?.pathId && hit?.index === current?.index) return
+    editor.hoveredHandle = hit ? { pathId: hit.path.id, index: hit.index } : null
+  }
 
   down(cell: Offset, info: PointerInfo): void {
+    if (blockedByLock('paths')) return
     const draft = editor.pathDraft
     if (!draft) {
       const hit = findPathVertex(info.world, info.pickRadius)
       if (hit) {
         if (info.button === 2) recenterVertex(hit.path, hit.index)
-        else this.drag = { before: structuredClone(hit.path), index: hit.index }
+        else {
+          const point = pathVertexPoint(hit.path, hit.index)
+          this.drag = {
+            before: structuredClone(hit.path),
+            index: hit.index,
+            grab: { x: point.x - info.world.x, y: point.y - info.world.y },
+          }
+        }
         return
       }
       if (info.button === 2) return
@@ -193,7 +222,8 @@ class PathTool implements Tool {
     if (!path) return
     const cell = parseKey(path.hexes[drag.index])
     const offsets = path.offsets ?? path.hexes.map(() => null)
-    offsets[drag.index] = offsetInHex(cell, info)
+    const world = { x: info.world.x + drag.grab.x, y: info.world.y + drag.grab.y }
+    offsets[drag.index] = offsetInHex(cell, { ...info, world })
     path.offsets = offsets
     editor.notify({ kind: 'paths' })
   }
@@ -217,17 +247,23 @@ function offsetInHex(cell: Offset, info: PointerInfo): [number, number] | null {
   return [placed.x / hexSize, placed.y / hexSize]
 }
 
+/** Nearest path vertex within `radius` of `world`. */
 function findPathVertex(world: Point, radius: number): { path: MapPath; index: number } | null {
   const { grid, paths } = editor.map
-  for (let p = paths.length - 1; p >= 0; p--) {
-    const path = paths[p]
+  let best: { path: MapPath; index: number } | null = null
+  let bestDistance = radius
+  for (const path of paths) {
     for (let i = 0; i < path.hexes.length; i++) {
       if (!inBounds(parseKey(path.hexes[i]), grid)) continue
       const point = pathVertexPoint(path, i)
-      if (Math.hypot(point.x - world.x, point.y - world.y) <= radius) return { path, index: i }
+      const d = Math.hypot(point.x - world.x, point.y - world.y)
+      if (d <= bestDistance) {
+        best = { path, index: i }
+        bestDistance = d
+      }
     }
   }
-  return null
+  return best
 }
 
 function recenterVertex(path: MapPath, index: number): void {
@@ -289,6 +325,7 @@ class IconTool implements Tool {
       }
       return
     }
+    if (blockedByLock('icons')) return
     this.removing = info.button === 2
     this.batch = new HexEditBatch(editor.map)
     this.stamp(cell)

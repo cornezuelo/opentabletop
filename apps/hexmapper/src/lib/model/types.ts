@@ -75,6 +75,25 @@ export interface MapAsset {
   dataUrl: string
 }
 
+/** Fixed map layers, in draw order. */
+export const LAYER_IDS = [
+  'terrain',
+  'grid',
+  'paths',
+  'icons',
+  'labels',
+  'coords',
+  'markers',
+] as const
+export type LayerId = (typeof LAYER_IDS)[number]
+/** Layers that tools edit, and so can be locked. */
+export const LOCKABLE_LAYERS: readonly LayerId[] = ['terrain', 'paths', 'icons', 'labels']
+
+export interface LayerState {
+  visible: boolean
+  locked: boolean
+}
+
 export const PATH_KINDS = ['road', 'trail', 'river'] as const
 export type PathKind = (typeof PATH_KINDS)[number]
 
@@ -125,4 +144,5 @@ export interface HexMap {
   hexes: Record<HexKey, HexData>
   paths: MapPath[]
   assets: MapAsset[]
+  layers: Record<LayerId, LayerState>
 }

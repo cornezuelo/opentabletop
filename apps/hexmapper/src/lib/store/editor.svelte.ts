@@ -9,6 +9,8 @@ import type {
   HexMap,
   MapMeta,
   IconStyle,
+  LayerId,
+  LayerState,
   PathKind,
   PrintSettings,
   TerrainType,
@@ -42,6 +44,7 @@ class Editor {
   print = $state<PrintSettings>(structuredClone(this.map.print))
   meta = $state<MapMeta>({ ...this.map.meta })
   terrains = $state<TerrainType[]>([...this.map.terrains])
+  layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   canUndo = $state(false)
   canRedo = $state(false)
 
@@ -60,6 +63,8 @@ class Editor {
   pathStraight = $state(false)
   /** Path being drawn (hexes plus per-hex offsets), or null when not drawing. */
   pathDraft = $state<PathDraft | null>(null)
+  /** Path vertex under the pointer (path tool), for highlighting and the grab cursor. */
+  hoveredHandle = $state<{ pathId: string; index: number } | null>(null)
 
   onChange(listener: Listener): () => void {
     this.listeners.add(listener)
@@ -81,6 +86,17 @@ class Editor {
     this.syncSnapshots(change)
     for (const listener of this.listeners) listener(change)
     this.touch()
+  }
+
+  /** Layer visibility/lock: saved with the map but not part of undo history. */
+  setLayer(id: LayerId, patch: Partial<LayerState>): void {
+    this.map.layers[id] = { ...this.map.layers[id], ...patch }
+    this.notify({ kind: 'layers' })
+  }
+
+  /** True if the layer is locked; tools check this before editing. */
+  isLocked(id: LayerId): boolean {
+    return this.map.layers[id].locked
   }
 
   /** Edits one hex as a single undoable step. No-op if nothing changes. */
@@ -126,6 +142,8 @@ class Editor {
       this.print = structuredClone(this.map.print)
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
+    if (change.kind === 'layers' || change.kind === 'all')
+      this.layers = structuredClone(this.map.layers)
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]
   }
 }

@@ -28,6 +28,14 @@
         if (destroyed) return app.destroy()
         renderer = new MapRenderer(app, canvas)
         view.fit = () => renderer?.fit()
+        // Dev-only hook for browser tests: map world points to screen coordinates.
+        if (import.meta.env.DEV)
+          Object.assign(window, {
+            __hexmapper: {
+              editor,
+              worldToScreen: (p: { x: number; y: number }) => renderer?.worldToScreen(p),
+            },
+          })
       })
 
     return () => {

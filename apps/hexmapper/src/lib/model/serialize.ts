@@ -1,5 +1,5 @@
 import { PAPERS, type PaperId } from '../print/paper'
-import { DEFAULT_GRID, DEFAULT_PRINT, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
+import { DEFAULT_GRID, DEFAULT_PRINT, defaultLayers, MAX_MAP_SIZE, MIN_MAP_SIZE } from './defaults'
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex, normalizePath } from './hex'
 import { isValidId, newId } from './id'
@@ -78,6 +78,7 @@ function validate(data: Record<string, unknown>): HexMap {
     hexes: validHexes,
     paths: parsePaths(data.paths),
     assets: parseAssets(data.assets),
+    layers: parseLayers(data.layers),
   }
 }
 
@@ -172,6 +173,17 @@ function parseAssets(value: unknown): MapAsset[] {
       name: typeof a.name === 'string' ? a.name : '',
       dataUrl: a.dataUrl as string,
     }))
+}
+
+function parseLayers(value: unknown): HexMap['layers'] {
+  const layers = defaultLayers()
+  if (!isRecord(value)) return layers
+  for (const id of Object.keys(layers) as (keyof typeof layers)[]) {
+    const raw = value[id]
+    if (!isRecord(raw)) continue
+    layers[id] = { visible: raw.visible !== false, locked: raw.locked === true }
+  }
+  return layers
 }
 
 function parsePrint(value: unknown): PrintSettings {

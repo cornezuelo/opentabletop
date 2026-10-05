@@ -53,7 +53,7 @@ const DRAFT_COLOR = 0xffffff
 const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
 /** Screen pixels within which a click grabs a path handle. */
-const PICK_RADIUS_PX = 9
+const PICK_RADIUS_PX = 12
 /** Bundled icons are tinted: dark ink on painted hexes, light on empty ones. */
 const ICON_INK = 0x1b1a17
 const ICON_INK_EMPTY = 0xe8e2d4
@@ -150,8 +150,15 @@ export class MapRenderer {
     this.onViewChanged()
   }
 
+  /** World point → canvas pixel coordinates (used by tests and future UI overlays). */
+  worldToScreen(p: Point): Point {
+    const scale = this.world.scale.x
+    return { x: p.x * scale + this.world.x, y: p.y * scale + this.world.y }
+  }
+
   /** Redraws hover, brush preview and selection outlines. */
   drawOverlay(): void {
+    this.updateCursor()
     const g = this.overlay.clear()
     const { grid } = editor.map
     const scale = this.world.scale.x
@@ -217,6 +224,8 @@ export class MapRenderer {
       this.drawPaths()
     } else if (change.kind === 'assets') {
       this.drawIcons()
+    } else if (change.kind === 'layers') {
+      this.applyLayers()
     } else if (change.kind !== 'meta') {
       const before = this.shapeSignature
       this.rebuild()
@@ -386,9 +395,22 @@ export class MapRenderer {
     return this.corners.map((v, i) => v + (i % 2 === 0 ? x : y))
   }
 
+  /** Layer visibility; coordinates also hide when hexes are too small to read them. */
+  private applyLayers(): void {
+    const { layers, grid } = editor.map
+    this.terrainLayer.visible = layers.terrain.visible
+    this.gridLines.visible = layers.grid.visible
+    this.pathsLayer.visible = layers.paths.visible
+    this.iconLayer.visible = layers.icons.visible
+    this.markers.visible = layers.markers.visible
+    this.coordLayer.visible =
+      layers.coords.visible &&
+      grid.showCoords &&
+      grid.hexSize * this.world.scale.x >= COORD_MIN_SCREEN_SIZE
+  }
+
   private onViewChanged(): void {
-    const { showCoords, hexSize } = editor.map.grid
-    this.coordLayer.visible = showCoords && hexSize * this.world.scale.x >= COORD_MIN_SCREEN_SIZE
+    this.applyLayers()
     this.drawMarkers()
     this.drawOverlay()
   }
@@ -442,7 +464,13 @@ export class MapRenderer {
   }
 
   private updateCursor(): void {
-    this.canvas.style.cursor = this.panFrom ? 'grabbing' : this.spaceHeld ? 'grab' : 'crosshair'
+    const onHandle = editor.tool === 'path' && editor.hoveredHandle
+    this.canvas.style.cursor =
+      this.panFrom || (onHandle && this.activeTool)
+        ? 'grabbing'
+        : this.spaceHeld || onHandle
+          ? 'grab'
+          : 'crosshair'
   }
 
   private bindInput(): void {
@@ -486,7 +514,8 @@ export class MapRenderer {
       }
       const cell = this.cellAt(e)
       this.setHovered(cell)
-      this.activeTool?.move(cell, this.pointerInfo(e))
+      if (this.activeTool) this.activeTool.move(cell, this.pointerInfo(e))
+      else getTool(editor.tool).hover?.(cell, this.pointerInfo(e))
     })
 
     const release = () => {

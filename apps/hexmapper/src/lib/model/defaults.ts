@@ -1,4 +1,5 @@
 import { newId } from './id'
+import { LAYER_IDS, type LayerId, type LayerState } from './types'
 import type { GridSettings, HexMap, PrintSettings, TerrainType } from './types'
 
 export const CURRENT_VERSION = 1
@@ -38,6 +39,12 @@ export const DEFAULT_PRINT: PrintSettings = {
   customPaper: { width: 500, height: 700 },
 }
 
+export function defaultLayers(): Record<LayerId, LayerState> {
+  return Object.fromEntries(
+    LAYER_IDS.map((id) => [id, { visible: true, locked: false }]),
+  ) as Record<LayerId, LayerState>
+}
+
 export function createMap(name = ''): HexMap {
   const now = new Date().toISOString()
   return {
@@ -49,5 +56,6 @@ export function createMap(name = ''): HexMap {
     hexes: {},
     paths: [],
     assets: [],
+    layers: defaultLayers(),
   }
 }

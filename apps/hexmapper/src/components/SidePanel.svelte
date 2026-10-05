@@ -2,6 +2,7 @@
   import HexInfo from './hex/HexInfo.svelte'
   import IconPanel from './IconPanel.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
+  import LayersPanel from './LayersPanel.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
@@ -49,6 +50,7 @@
     <Section title={t('panel.icons')}><IconPanel /></Section>
   {/if}
   <Section title={t('panel.hex')}><HexInfo /></Section>
+  <Section title={t('panel.layers')} open={false}><LayersPanel /></Section>
   <Section title={t('panel.shortcuts')} open={false}>
     <ul class="hints">
       <li>{t('hints.pan')}</li>
