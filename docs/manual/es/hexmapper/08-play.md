@@ -1,10 +1,10 @@
 # Jugar un viaje
 
-La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa.
+La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa. Al elegirla se selecciona el token del grupo (al pasar a la herramienta Tokens sigue seleccionado).
 
 ## Modo simple
 
-Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y en otro para moverlo allí. Sin tiempo ni tiradas. **Mostrar rastro** dibuja por dónde ha pasado; **Borrar rastro** y **Quitar grupo** lo reinician.
+Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y en otro para que salte directamente allí: sin ruta, sin tiempo de viaje, no pasa nada por el camino. Sin tiradas. Para caminar hex a hex con tiempo, terreno y comprobaciones, usa **Con reglas**. **Mostrar rastro** dibuja por dónde ha pasado; **Borrar rastro** y **Quitar grupo** lo reinician.
 
 ## Con reglas
 

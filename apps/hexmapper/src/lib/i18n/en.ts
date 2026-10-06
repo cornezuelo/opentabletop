@@ -363,9 +363,11 @@ export const en = {
     showTrail: 'Show trail',
     showTrailHelp: 'Draw the hexes the party has walked through on the map.',
     placeHelp: 'Click a hex to place the party.',
-    simpleHelp: 'The party is at {hex}. Click any hex to move it there.',
+    simpleHelp:
+      'The party is at {hex}. Click any hex and it jumps straight there: no route, no time, nothing in between (only the trail remembers it).',
     tips: {
-      simple: 'Just a token: click any hex to move it there. No time, no rolls.',
+      simple:
+        'Just a token: a click puts it on that hex at once (no route or travel). No time, no rolls.',
       rules:
         'The Travel Engine counts time, terrain and supplies; the system’s tables are rolled as you travel.',
     },

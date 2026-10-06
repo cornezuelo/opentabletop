@@ -50,11 +50,14 @@ function placeParty(hex: HexKey | undefined): void {
   const token = partyToken(editor.map)
   if (token?.hex === hex) return
   if (token) editor.map.tokens = editor.map.tokens.map((t) => (t === token ? { ...t, hex } : t))
-  else if (hex)
+  else if (hex) {
+    const id = newId()
     editor.map.tokens = [
       ...editor.map.tokens,
-      { id: newId(), name: '', kind: 'party', hex, iconId: DEFAULT_TOKEN_ICONS.party },
+      { id, name: '', kind: 'party', hex, iconId: DEFAULT_TOKEN_ICONS.party },
     ]
+    if (editor.tool === 'play') editor.selectedToken = id
+  }
   editor.notify({ kind: 'tokens' })
 }
 

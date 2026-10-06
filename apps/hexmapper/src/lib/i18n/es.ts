@@ -370,9 +370,11 @@ export const es: Messages = {
     showTrail: 'Mostrar rastro',
     showTrailHelp: 'Dibuja en el mapa los hexes por los que ha pasado el grupo.',
     placeHelp: 'Haz clic en un hex para colocar al grupo.',
-    simpleHelp: 'El grupo está en {hex}. Haz clic en cualquier hex para moverlo.',
+    simpleHelp:
+      'El grupo está en {hex}. Haz clic en cualquier hex y saltará directamente allí: sin ruta, sin tiempo, sin nada por el camino (solo el rastro lo recuerda).',
     tips: {
-      simple: 'Solo un icono: haz clic en un hex para moverlo allí. Sin tiempo ni tiradas.',
+      simple:
+        'Solo un icono: un clic lo pone en ese hex al instante (sin ruta ni viaje). Sin tiempo ni tiradas.',
       rules:
         'El Travel Engine lleva el tiempo, el terreno y las provisiones; las tablas del sistema se tiran mientras viajas.',
     },
