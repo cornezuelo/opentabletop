@@ -143,8 +143,13 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
     - **Dice roller app**: quick, visual rolls (dice that tumble) of any expression the `dice` package knows, with history; reuses the Oracle's roller and result cards. Nothing complex.
     - **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, secret doors, stairs, pits, statues, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door, S stairs, M marker). **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively (city → house → a tavern board). Linked to characters and the other engines.
     - **Card studio** (print & play): `cards.yaml` + an SVG template → PDF, PNG, SVG and Tabletop Simulator decks; change the design once, regenerate every card.
+    - **Progress clocks** (the OTD `Clock` entity): segments filled by tables, faction turns, the calendar or by hand ("The Wyrm wakes: 3/6"). They suit **Ironsworn**, which we'll add as a pack: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item (each object's `source`): CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first (not in our open-pack list); the code and schemas are MIT.
+    - **Journal system**: an optional journal of the campaign (sessions, trips, hand rolls, notes) for people without a notes app, exportable as Markdown (SilverBullet, Obsidian) with links to hexes; the map's note markers would live in the same system.
+    - **Name generators** by setting (people, settlements, taverns, places…): bundled per pack and user-editable, built on the Oracle Engine (syllable tables and generators; maybe Markov chains trained on name lists as data).
     - **Rules reference builder**: from a `rules.yaml`, a GM screen, quick reference, mobile reference, printable cards, HTML and PDF.
-12. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
+12. [ ] **Installable, offline app (PWA)**: every app installable and usable without a connection (everything is already local).
+13. [ ] **Command line**: `oracle roll …`, `oracle validate …` for people writing packs in their editor.
+14. [ ] Later: `weather-engine` (Markov / hex flower), Web Components for non-Svelte hosts.
 
 **Versioning and releases (to define):** we work on `main` for now. Before the first release, agree on a workflow for tags and releases (semver; repo-wide vs per-package versions; changelog, e.g. Changesets; what triggers a tag). No release until there is an alpha MVP the user is happy with; that one becomes `0.1`.
 
