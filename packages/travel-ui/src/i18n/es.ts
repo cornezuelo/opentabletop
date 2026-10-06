@@ -1,0 +1,73 @@
+import type { Messages } from '@open-tabletop/ui-kit'
+import type { en } from './en'
+
+export const es: Messages<typeof en> = {
+  system: 'Reglas',
+  genericSystem: 'Genéricas',
+  startSeason: 'Empezar en',
+  newTrip: 'Nuevo viaje',
+  withTables:
+    'Este sistema tiene tablas: el clima, perderse, los puntos de interés y los encuentros se tiran solos y se anotan en el diario.',
+  noBindings:
+    'Estas reglas no tienen tablas asociadas: las comprobaciones esperan a que continúes.',
+  marched: 'Marcha de hoy: {used} de {limit} h',
+  dayUnit: 'día',
+  journalDay: 'Día {day}',
+  dayLine: 'Día {day} · {clock} · {season}',
+  at: 'En {hex}',
+  weather: 'Clima: {weather}',
+  destination: 'Rumbo a {hex}',
+  arrived: 'Habéis llegado.',
+  travelMode: 'Viaje',
+  fatigue: 'Fatiga',
+  modes: { foot: 'A pie', horse: 'A caballo' },
+  resources: { food: 'Comida' },
+  travel: 'Viajar',
+  travelHex: '1 hex',
+  camp: 'Acampar',
+  rest: 'Descansar {length}',
+  continue: 'Continuar',
+  journalTitle: 'Diario',
+  emptyJournal: 'Aún no ha pasado nada.',
+  seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
+  tips: {
+    newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
+    marched:
+      'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
+    resource:
+      'Provisiones: se comen {perDay} por cada día que pasa, ya sea acampando, descansando o esperando. Ajusta la cantidad al comprar, encontrar o forrajear comida. Cada día sin suficiente sube la fatiga.',
+    fatigue:
+      'Sube 1 por cada día sin comida suficiente y baja 1 tras acampar habiendo comido (o al descansar, en los sistemas donde descansar la recupera). Ajústala a mano cuando tu sistema o la historia lo pidan.',
+    travel:
+      'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
+    travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
+    camp: 'Termina el día: la comprobación nocturna (si la hay), comer y despertar al alba; una noche con comida baja la fatiga.',
+    rest: 'Una pausa corta: pasa el tiempo sin marchar (p. ej. para esperar a que mejore el clima). No recupera fatiga; acampar sí.',
+    restRecovers: 'Un descanso corto: pasa el tiempo sin marchar y se recupera algo de fatiga.',
+  },
+  events: {
+    WEATHER_CHECK_REQUIRED: 'Clima',
+    NAVIGATION_CHECK_REQUIRED: 'Navegación',
+    POI_CHECK_REQUIRED: 'Punto de interés',
+    ENCOUNTER_CHECK_REQUIRED: 'Encuentro',
+    CAMP_ENCOUNTER_CHECK_REQUIRED: 'Noche',
+  },
+  journal: {
+    pending: '{event}: esperando',
+    entered: 'Entráis en {hex}',
+    day: 'Empieza el día {day}',
+    depleted: 'Sin {resource}: sube la fatiga',
+    CAMP_STARTED: 'Acampáis para pasar la noche',
+    DESTINATION_REACHED: 'Destino alcanzado',
+    ROUTE_BLOCKED: 'La ruta está bloqueada',
+    NO_ROUTE: 'No hay ruta hasta allí',
+  },
+  stop: {
+    nightfall: 'Cae la noche. Acampa para seguir mañana.',
+    'day-limit': 'Suficiente marcha por hoy. Acampa para seguir mañana.',
+    lost: 'Perdidos: no se viaja más hoy',
+    weather: 'El clima impide viajar',
+    blocked: 'El camino está bloqueado',
+    'no-route': 'No hay destino',
+  },
+}

@@ -1,11 +1,12 @@
 import type { HexKey } from '@open-tabletop/hex'
-import { createSession, initialSessionState, type SessionState } from '@open-tabletop/session'
-import { defaultCalendar } from '@open-tabletop/time'
 import {
-  createTravelEngine,
-  initialTravelState,
-  type TravelAction,
-} from '@open-tabletop/travel-engine'
+  SEASON_START_DAYS,
+  startTrip,
+  stepTrip,
+  type Season,
+  type SessionState,
+} from '@open-tabletop/session'
+import type { TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale } from '../i18n/index.svelte'
 import type { PlayState } from '../model/types'
 import { editor } from '../store/editor.svelte'
@@ -13,8 +14,7 @@ import { showToast } from '@open-tabletop/ui-kit'
 import { getSystem, oracle } from './systems'
 import { mapWorld } from './world'
 
-export const SEASON_START_DAYS = { spring: 1, summer: 91, autumn: 181, winter: 271 } as const
-export type Season = keyof typeof SEASON_START_DAYS
+export { SEASON_START_DAYS, type Season }
 
 function current(): PlayState {
   return (
@@ -47,20 +47,14 @@ function newSession(
   system: string,
   season: Season = 'spring',
 ): PlayState {
-  const rules = getSystem(system).rules
-  const startDay = SEASON_START_DAYS[season]
-  const travel = initialTravelState({
+  // Keep stats the user already set; the system's declared defaults fill the rest.
+  const { startDay, session } = startTrip({
+    system: getSystem(system),
     location,
-    mode: Object.keys(rules.modes)[0],
-    time: defaultCalendar.at(startDay, rules.day.start),
-    resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
+    season,
+    stats: sessionOf(play)?.stats,
   })
-  // Keep stats the user already set; otherwise start from the system's declared defaults.
-  const declared = Object.fromEntries(
-    Object.entries(getSystem(system).bindings?.stats ?? {}).map(([k, v]) => [k, v.default ?? 0]),
-  )
-  const stats = { ...declared, ...(sessionOf(play)?.stats as Record<string, number> | undefined) }
-  return { ...play, rules: { system, startDay, session: initialSessionState(travel, stats) } }
+  return { ...play, rules: { system, startDay, session } }
 }
 
 /** Play tool click: place the party, move it (simple) or set the destination (rules). */
@@ -97,16 +91,15 @@ export function step(action: TravelAction): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
-  const system = getSystem(play.rules.system)
-  const runner = createSession({
-    travel: createTravelEngine({ world: mapWorld(editor.map), rules: system.rules }),
-    oracle: system.bindings ? oracle() : undefined,
-    bindings: system.bindings,
+  const options = {
+    system: getSystem(play.rules.system),
+    world: mapWorld(editor.map),
+    oracle: oracle(),
     locale: getLocale(),
-  })
+  }
   let result
   try {
-    result = runner.step(session, action)
+    result = stepTrip(options, session, action)
   } catch (error) {
     // A broken pack shouldn't silently stop play: say what failed.
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000)

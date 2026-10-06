@@ -35,6 +35,7 @@
     "@open-tabletop/random": "*",
     "@open-tabletop/ui-kit": "*",
     "@open-tabletop/oracle-ui": "*",
-    "@open-tabletop/pack-ui": "*"
+    "@open-tabletop/pack-ui": "*",
+    "@open-tabletop/travel-ui": "*"
   }
 }

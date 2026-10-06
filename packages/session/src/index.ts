@@ -265,3 +265,4 @@ export function dayVariables(value: Record<string, unknown>): Record<string, unk
     if (key === 'weather' || key.endsWith('Modifier') || key.endsWith('Impossible')) out[key] = v
   return out
 }
+export * from './trip'
