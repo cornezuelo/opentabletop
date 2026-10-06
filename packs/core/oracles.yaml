@@ -5,7 +5,14 @@ name: Yes or no?
 description: Ask a question that can be answered yes or no, pick how likely it is and roll.
 inputs:
   odds:
+    label: Odds
     options: [very-unlikely, unlikely, even, likely, very-likely]
+    labels:
+      very-unlikely: Very unlikely
+      unlikely: Unlikely
+      even: Even
+      likely: Likely
+      very-likely: Very likely
     default: even
 roll: 1d6
 variants:

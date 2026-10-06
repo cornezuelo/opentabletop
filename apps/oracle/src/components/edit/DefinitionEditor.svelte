@@ -20,7 +20,7 @@
   <div class="top">
     <label class="field grow">
       <span>{t('edit.name')}</span>
-      <TextField {doc} key="name" />
+      <TextField {doc} path={['name']} />
     </label>
     {#if dice}
       <label class="field dice">
@@ -45,7 +45,7 @@
   </div>
   <label class="field">
     <span>{t('edit.description')}</span>
-    <TextField {doc} key="description" />
+    <TextField {doc} path={['description']} />
   </label>
 
   {#if def.kind === 'table'}

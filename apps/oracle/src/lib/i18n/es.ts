@@ -81,6 +81,9 @@ export const es: Messages<typeof en> = {
     input: 'Entrada',
     inputHelp:
       'Lo que eliges antes de tirar, p. ej. la probabilidad o la actitud de un PNJ. Cada opción tiene su propia lista de entradas.',
+    inputLabel: 'Etiqueta',
+    labelHelp: 'Se muestra en lugar del id al tirar, y se puede traducir. Vacía: se muestra el id.',
+    optionLabel: 'Etiqueta',
     default: 'Por defecto',
     defaultHelp: 'Opción seleccionada al abrir el panel de tirada.',
     firstOption: 'La primera',

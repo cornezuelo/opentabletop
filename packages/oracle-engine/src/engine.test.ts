@@ -484,3 +484,45 @@ describe('safety', () => {
     expect(engine.resolve('x/t').resolution.text).toBe('')
   })
 })
+
+describe('oracle input labels', () => {
+  const pack: PackFile[] = [
+    { path: 'lab/pack.yaml', content: 'id: lab\nversion: 0.1.0\nlocale: en\n' },
+    {
+      path: 'lab/oracles.yaml',
+      content: `
+kind: oracle
+id: mood
+inputs:
+  attitude:
+    label: Attitude
+    options: [hostile, friendly]
+    labels: { hostile: Hostile, ghost: Nobody }
+variants:
+  hostile: { entries: [{ id: a, weight: 1, result: Attacks }] }
+  friendly: { entries: [{ id: a, weight: 1, result: Helps }] }
+`,
+    },
+    {
+      path: 'lab/locales/es/oracles.yaml',
+      content: `
+mood:
+  inputs:
+    attitude: { label: Actitud, labels: { hostile: Hostil } }
+`,
+    },
+  ]
+
+  it('keeps labels, translates them and warns about unknown options', () => {
+    const { registry, diagnostics } = loadPacks(pack)
+    const def = registry.definitions.get('lab/mood')
+    expect(def?.kind === 'oracle' && def.inputs.attitude.label).toBe('Attitude')
+    expect(registry.overlays.get('es')?.get('lab/mood')?.inputs?.attitude).toEqual({
+      label: 'Actitud',
+      labels: { hostile: 'Hostil' },
+    })
+    expect(diagnostics.map(formatDiagnostic)).toEqual([
+      expect.stringContaining('Label for unknown option "ghost"'),
+    ])
+  })
+})

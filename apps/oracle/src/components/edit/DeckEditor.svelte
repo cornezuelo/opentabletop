@@ -213,7 +213,7 @@
   }
 
   .id {
-    width: 80px;
+    width: 110px;
   }
 
   .num {

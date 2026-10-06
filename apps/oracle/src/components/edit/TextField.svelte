@@ -1,23 +1,25 @@
 <script lang="ts">
-  import type { DefinitionDoc } from '../../lib/packs/doc.svelte'
+  import { getAt, type DefinitionDoc } from '../../lib/packs/doc.svelte'
 
   /**
-   * A text of the definition (name, description, template…): edits the base file, or the
-   * translation overlay when translating (the base text shows as a placeholder).
+   * A text of the definition (name, description, template, input labels…) at `path`: edits
+   * the base file, or the translation overlay (same path) when translating; the base text
+   * then shows as a placeholder.
    */
   let {
     doc,
-    key,
+    path,
     multiline = false,
-  }: { doc: DefinitionDoc; key: string; multiline?: boolean } = $props()
+    placeholder: hint = '',
+  }: { doc: DefinitionDoc; path: string[]; multiline?: boolean; placeholder?: string } = $props()
 
-  const base = $derived(String(doc.raw[key] ?? ''))
-  const value = $derived(doc.translating ? doc.overlayText([key]) : base)
-  const placeholder = $derived(doc.translating ? base : '')
+  const base = $derived(String(getAt(doc.raw, path) ?? ''))
+  const value = $derived(doc.translating ? doc.overlayText(path) : base)
+  const placeholder = $derived(doc.translating ? base || hint : hint)
 
   function change(text: string) {
-    if (doc.translating) doc.translate([key], text)
-    else doc.edit([key], text)
+    if (doc.translating) doc.translate(path, text)
+    else doc.edit(path, text)
   }
 </script>
 

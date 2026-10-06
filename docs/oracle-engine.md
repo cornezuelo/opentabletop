@@ -100,6 +100,17 @@ variants:
 
 The question ("Is the gate guarded?") goes into the context and the record, not the definition.
 
+The input is the oracle's own data: its id, options and default are whatever the pack needs (odds for a yes/no oracle, an NPC's attitude, a distance…); nothing in the engine or the apps assumes `odds`. Optional `label` and `labels` are what UIs show instead of the ids, and they are translatable:
+
+```yaml
+inputs:
+  odds:
+    label: Odds
+    options: [unlikely, even, likely]
+    labels: { unlikely: Unlikely, even: Even, likely: Likely }
+    default: even
+```
+
 ### Generator
 
 Fields resolve in order; each may use earlier ones as context and in conditions:
@@ -172,6 +183,7 @@ encounters:
     pilgrims: '{{3d6}} monastic pilgrims'
 ```
 
+- Overlays can also translate `description`, a generator's `template`, deck `cards` (by card id) and oracle input labels (`inputs: { odds: { label: Probabilidad, labels: { even: Igualada } } }`).
 - Resolution takes a `locale`; **every string falls back to the base locale** when that locale has no translation for it (missing definitions, entries or fields are fine).
 - Translations only replace text (names, descriptions, result templates, generator templates, deck card texts). Structure (ranges, weights, dice, `set` values, conditions) always comes from the base, so translations can never change mechanics.
 - Entries are matched by **explicit entry ids**; entries without an id can't be translated (the validator warns). Translators therefore never depend on entry order.

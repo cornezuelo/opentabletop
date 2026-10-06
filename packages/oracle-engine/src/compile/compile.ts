@@ -50,7 +50,10 @@ export interface CompiledTable extends Base, EntryList {
 
 export interface CompiledOracle extends Base {
   kind: 'oracle'
-  inputs: Record<string, { options: string[]; default?: string }>
+  inputs: Record<
+    string,
+    { options: string[]; default?: string; label?: string; labels?: Record<string, string> }
+  >
   clamp: boolean
   onExhausted: 'reroll' | 'next' | 'none'
   variants: Record<string, EntryList>
@@ -205,6 +208,10 @@ class CompileContext {
             this.error('variants', `Missing variant for input option "${option}"`)
         if (Object.keys(d.inputs).length !== 1)
           this.error('inputs', 'An oracle has exactly one input that selects the variant')
+        for (const [name, input] of Object.entries(d.inputs))
+          for (const option of Object.keys(input.labels ?? {}))
+            if (!input.options.includes(option))
+              this.warn(`inputs.${name}.labels.${option}`, `Label for unknown option "${option}"`)
         return {
           ...base,
           kind: 'oracle',

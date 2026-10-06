@@ -78,6 +78,9 @@ export const en = {
     input: 'Input',
     inputHelp:
       'What you choose before rolling, e.g. the odds or the attitude of an NPC. Each option has its own list of entries.',
+    inputLabel: 'Label',
+    labelHelp: 'Shown instead of the id when rolling, and translatable. Empty: the id is shown.',
+    optionLabel: 'Label',
     default: 'Default',
     defaultHelp: 'Option selected when the roll panel opens.',
     firstOption: 'The first one',

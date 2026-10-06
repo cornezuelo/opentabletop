@@ -60,7 +60,16 @@ export const oracleSchema = z
     ...common,
     inputs: z.record(
       z.string(),
-      z.object({ options: z.array(z.string()).min(1), default: z.string().optional() }).strict(),
+      z
+        .object({
+          options: z.array(z.string()).min(1),
+          default: z.string().optional(),
+          /** Shown instead of the input id, e.g. "Odds". */
+          label: z.string().optional(),
+          /** Shown instead of option ids, e.g. { very-unlikely: Very unlikely }. */
+          labels: z.record(z.string(), z.string()).optional(),
+        })
+        .strict(),
     ),
     roll: z.string().optional(),
     clamp: z.boolean().optional(),
@@ -148,6 +157,18 @@ export const overlaySchema = z.record(
       template: z.string().optional(),
       entries: z.record(z.string(), z.string()).optional(),
       cards: z.record(z.string(), z.string()).optional(),
+      /** Oracle input labels: { odds: { label: Probabilidad, labels: { even: Igualada } } }. */
+      inputs: z
+        .record(
+          z.string(),
+          z
+            .object({
+              label: z.string().optional(),
+              labels: z.record(z.string(), z.string()).optional(),
+            })
+            .strict(),
+        )
+        .optional(),
     })
     .strict(),
 )

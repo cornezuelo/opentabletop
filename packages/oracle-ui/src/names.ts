@@ -14,6 +14,16 @@ export function packTexts(registry: () => Registry, locale: () => string) {
       overlay(def.id)?.description ?? def.description,
     entryText: (def: Compiled, entry: CompiledEntry): string | undefined =>
       overlay(def.id)?.entries?.[entry.key] ?? entry.result,
+    /** An oracle input's label ("Odds"), translated when the pack has it. */
+    inputLabel: (def: Compiled, input: string): string =>
+      overlay(def.id)?.inputs?.[input]?.label ??
+      (def.kind === 'oracle' ? def.inputs[input]?.label : undefined) ??
+      input,
+    /** An oracle option's label ("Very unlikely"), translated when the pack has it. */
+    optionLabel: (def: Compiled, input: string, option: string): string =>
+      overlay(def.id)?.inputs?.[input]?.labels?.[option] ??
+      (def.kind === 'oracle' ? def.inputs[input]?.labels?.[option] : undefined) ??
+      option,
     /** Display name of a definition by id (the id itself if it doesn't exist). */
     nameOf: (id: string): string => displayName(registry().definitions.get(id), id),
   }

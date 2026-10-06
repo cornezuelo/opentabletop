@@ -1,6 +1,15 @@
 yes-no:
   name: ¿Sí o no?
   description: Haz una pregunta que se responda con sí o no, elige lo probable que es y tira.
+  inputs:
+    odds:
+      label: Probabilidad
+      labels:
+        very-unlikely: Muy improbable
+        unlikely: Improbable
+        even: Igualada
+        likely: Probable
+        very-likely: Muy probable
   entries:
     yes-and: Sí, y algo más
     yes: Sí

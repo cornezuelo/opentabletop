@@ -93,11 +93,11 @@
       <legend>{t('roll.context')}<InfoTip text={t('roll.contextHelp')} /></legend>
       {#each inputs as [input, spec] (input)}
         <label class="field">
-          <span>{input}</span>
+          <span>{ui.inputLabel(def, input)}</span>
           <select bind:value={values[input]}>
             {#each spec.options as option (option)}
               <option value={option} selected={!values[input] && option === spec.default}
-                >{option}</option
+                >{ui.optionLabel(def, input, option)}</option
               >
             {/each}
           </select>

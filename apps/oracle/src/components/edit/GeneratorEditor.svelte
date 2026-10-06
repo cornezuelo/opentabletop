@@ -73,7 +73,7 @@
 <div class="generator">
   <label class="field">
     <span>{t('edit.template')}<InfoTip text={t('edit.templateHelp')} /></span>
-    <TextField {doc} key="template" multiline />
+    <TextField {doc} path={['template']} multiline />
   </label>
   {#if fields.length}
     <div class="chips">
