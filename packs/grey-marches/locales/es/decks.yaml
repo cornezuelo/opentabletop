@@ -8,3 +8,4 @@ omens:
     rumour: 'Os llega un rumor: {{result}}'
     cache: 'El escondrijo de un cazador: comida para dos días'
     wyrm-sign: Árboles chamuscados y olor a azufre
+    twist: 'El camino se vuelve extraño: {{result}}'

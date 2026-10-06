@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FieldList from './FieldList.svelte'
+  import FieldEditor from '../FieldEditor.svelte'
   import NameDisplay from '../NameDisplay.svelte'
   import LineIcon from '../LineIcon.svelte'
   import HexIcon from './HexIcon.svelte'
@@ -127,7 +127,11 @@
     <NoteLink {key} note={hex.note ?? ''} coord={selected.coord} />
     <PoiList {key} pois={hex.pois ?? []} />
     <TagEditor {key} tags={hex.tags ?? []} suggestions={suggestions.tags} />
-    <FieldList {key} fields={hex.fields ?? []} suggestions={suggestions.fieldKeys} />
+    <FieldEditor
+      fields={hex.fields ?? []}
+      help={t('fields.hexHelp')}
+      onchange={(fields) => editor.editHex(key, (h) => ({ ...h, fields }))}
+    />
     <HexPaths {key} />
 
     <button class="clear" onclick={() => clearHex(key)}>{t('hex.clear')}</button>

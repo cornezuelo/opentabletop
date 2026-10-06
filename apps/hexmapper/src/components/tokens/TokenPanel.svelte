@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FieldEditor from '../FieldEditor.svelte'
   import { confirmAction } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
@@ -179,6 +180,11 @@
         onchange={(note) => update((t) => ({ ...t, note: note.trim() || undefined }))}
       />
     </label>
+    <FieldEditor
+      fields={selected.fields ?? []}
+      help={tr('fields.tokenHelp')}
+      onchange={(fields) => update((t) => ({ ...t, fields: fields.length ? fields : undefined }))}
+    />
     <p class="help">
       {selected.hex ? t('tokens.at', { hex: coord(selected.hex) }) : t('tokens.offMapHelp')}
     </p>

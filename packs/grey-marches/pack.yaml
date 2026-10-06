@@ -6,3 +6,6 @@ name: The Grey Marches
 version: 0.1.0
 locale: en
 license: MIT
+# Tables of other packs: Core must be loaded, and `twist` is a short name for one of its tables.
+dependencies: { core: '>=0.3.0' }
+aliases: { twist: core/twists }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FieldEditor from './FieldEditor.svelte'
   import { AddAssetCommand, RemoveAssetCommand } from '../lib/commands/assets'
   import {
     BUILTIN_ICONS,
@@ -162,6 +163,19 @@
   tintable={!selectedAsset}
   onchange={changeStyle}
 />
+
+{#if editing}
+  {@const where = editing.key}
+  <FieldEditor
+    fields={editing.icon.fields ?? []}
+    help={t('fields.iconHelp')}
+    onchange={(fields) =>
+      editor.editHex(where, (hex) => ({
+        ...hex,
+        icon: { ...hex.icon!, fields: fields.length ? fields : undefined },
+      }))}
+  />
+{/if}
 
 <div class="actions">
   <button onclick={importIcons}>{t('icons.import')}</button>

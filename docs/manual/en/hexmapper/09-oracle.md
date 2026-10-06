@@ -6,10 +6,11 @@ The Oracle button (the gold hexagon under Play, or <kbd>O</kbd>) opens a panel t
 
 Rolls receive what the map knows, so tables can depend on where you are:
 
-- From the **selected hex** (or the party's, if none is selected): `terrain` (its id: `forest`, `hills`…), `tags`, its fields by key, `region` (by name) and `hex`.
+- From the **selected hex** (or the party's, if none is selected): `terrain` (its id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (by name), the region's and the hex's fields by key (the hex's win), the icon as `icon.*` and `hex`.
+- From the **selected token**: `token.name`, `token.kind` and its fields as `token.*`.
 - During a **trip with rules**: `season`, `weather`, `mode`, `day`, the party stats and today's values.
 
-They appear in grey in the roll panel's **Context**; type over them to try other values. The top of the panel says which hex the rolls read. **Roll here** (next to the coordinates in the hex panel) opens the Oracle on the selected hex.
+They appear in grey in the roll panel's **Context**; type over them to try other values. The full list, and which value wins, is in [What tables see](../technical/04-what-tables-see.md). The top of the panel says which hex the rolls read. **Roll here** (next to the coordinates in the hex panel) opens the Oracle on the selected hex.
 
 ## Keeping a result on the map
 

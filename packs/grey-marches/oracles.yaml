@@ -1,8 +1,9 @@
 # Oracles: an input chooses the variant (odds, stakes…). Answers can "then roll" another
 # table, shown through {{result}}.
 
-# Asked at the gates of a place: who you are changes the odds. Each answer then rolls
-# what happens next.
+# Asked at the gates of a place: who you are changes the odds, and so do the guards — a
+# value of the place's icon on the map ({{icon.guards}}: 0 in Ashford, 2 at Fort Keld;
+# select the hex before rolling). Each answer then rolls what happens next.
 kind: oracle
 id: gates
 name: Will they let us in?
@@ -13,19 +14,19 @@ inputs:
     options: [friends, strangers, armed]
     labels: { friends: Known friends, strangers: Strangers, armed: An armed band }
     default: strangers
-roll: 1d6
+roll: '1d6 + {{icon.guards}}'
 variants:
   friends:
     entries:
-      - { id: yes, range: 1-6, result: 'Yes — and {{result}}', table: gate-news }
+      - { id: yes, range: 1-20, result: 'Yes — and {{result}}', table: gate-news }
   strangers:
     entries:
       - { id: yes, range: 1-3, result: 'Yes, for a coin — and {{result}}', table: gate-news }
       - { id: wait, range: 4-5, result: 'Wait until morning, outside the walls' }
-      - { id: no, range: 6, result: 'No. Bows appear on the wall' }
+      - { id: no, range: 6-20, result: 'No. Bows appear on the wall' }
   armed:
     # This variant rolls its own dice.
-    roll: 1d8
+    roll: '1d8 + {{icon.guards}}'
     entries:
       - {
           id: yes,
@@ -33,7 +34,7 @@ variants:
           result: 'Yes, if you give up your weapons — and {{result}}',
           table: gate-news,
         }
-      - { id: no, range: 3-8, result: 'No. The gates stay shut' }
+      - { id: no, range: 3-20, result: 'No. The gates stay shut' }
 ---
 kind: table
 id: gate-news
@@ -42,3 +43,20 @@ entries:
   - { id: rumour, result: 'the guard whispers a rumour: {{result}}', table: rumour }
   - { id: work, result: 'there is work: someone pays {{2d6}} silver for an escort' }
   - { id: feast, result: it is a feast day; the inn is full }
+---
+# A token's values: select Brenna on the map and roll this from the Oracle panel; her
+# fare is a value of her token ({{token.fare}}). Without her, the jetty is empty.
+kind: table
+id: ferry
+name: The ferry
+roll: 1d6
+entries:
+  - id: calm
+    range: 1-4
+    when: { token.fare: { exists: true } }
+    result: '{{token.name}} rows you across the Saltmere for {{token.fare}} silver each'
+  - id: secret
+    range: 5-6
+    when: { token.fare: { exists: true } }
+    result: '{{token.name}} waves away the coins: she wants a secret instead'
+  - { id: empty, range: 1-6, result: 'The jetty is empty: select the ferrywoman to talk to her' }

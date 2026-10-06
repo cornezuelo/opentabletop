@@ -21,6 +21,8 @@ export interface TerrainType {
 
 export interface Poi {
   id: string
+  /** Values tables and travel checks can read (key/value, like a hex's fields). */
+  fields?: CustomField[]
   name: string
   description?: string
   /** External note path (same providers as hexes). */
@@ -56,6 +58,8 @@ export interface HexData {
 
 /** Icon placed on a hex. Only non-default style values are stored. */
 export interface HexIcon {
+  /** Values tables and travel checks can read (key/value, like a hex's fields). */
+  fields?: CustomField[]
   /** "game:<name>" (bundled set) or "asset:<id>" (imported into the map). */
   id: string
   /** Ink color for single-color icons; absent = automatic (dark on terrain, light on empty). */
@@ -132,6 +136,8 @@ export interface LabelStyle {
 /** A named area painted over hexes: kingdom, territory, danger zone… */
 export interface MapRegion {
   id: string
+  /** Values tables and travel checks can read (key/value, like a hex's fields). */
+  fields?: CustomField[]
   name: string
   color: string
   /** Show the name on the map (default on). */
@@ -169,6 +175,8 @@ export type TokenKind = (typeof TOKEN_KINDS)[number]
  */
 export interface MapToken {
   id: string
+  /** Values tables and travel checks can read (key/value, like a hex's fields). */
+  fields?: CustomField[]
   name: string
   kind: TokenKind
   /** Where it stands; absent = off the map (kept in the token list). */

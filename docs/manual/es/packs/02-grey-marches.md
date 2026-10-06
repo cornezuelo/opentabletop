@@ -31,23 +31,29 @@ El mismo sistema se juega sin mapa en la aplicación Travel.
 
 ## Dónde está cada cosa
 
-| Qué                                                                                         | Fichero                                                                |
-| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Reglas de viaje: terrenos, agua, una barca, caballos que comen forraje, clima, descanso     | `travel.yaml` (travel-rules)                                           |
-| Comprobaciones con `edges`, `tags`, `mode`, comparaciones, `any` / `all` / `not`, listas    | `travel.yaml` (checks)                                                 |
-| Una comprobación que espera a **Continuar**                                                 | `travel.yaml`: `LANDMARK_CHECK_REQUIRED`                               |
-| Una comprobación resuelta por un **oráculo**, con su entrada desde los bindings             | `travel.yaml`: `FORD_CHECK_REQUIRED`; `travel-tables.yaml`: `ford`     |
-| Características del grupo en las tiradas (`{{charisma}}`, `{{survival}}`, `{{navigation}}`) | `travel.yaml` (bindings); `reaction`, `forage`, `ford`, `getting-lost` |
-| Una tabla por estación (una referencia hecha con el contexto)                               | `weather.yaml`: `weather` → `weather-{{season}}`                       |
-| Pesos, 2d6, dados Fate (4dF)                                                                | `weather.yaml`                                                         |
-| Resultados que entiende el viaje: `lost`, `weather`, `fatigue`, `resources`                 | `travel-tables.yaml`, `weather.yaml`                                   |
-| Valores del día para comprobaciones posteriores (`fordModifier`)                            | `weather.yaml` → `ford`                                                |
-| Tablas por terreno, región, campo del hex (`danger`), hora del día                          | `encounters.yaml`: `encounter`                                         |
-| Luego tira, `{{result}}`, dados en los textos (`{{1d4+2}}`), `once`                         | `encounters.yaml`, `treasure.yaml`                                     |
-| Generadores, y un generador que lee otro (`{{npc.role}}`)                                   | `encounters.yaml`: `npc`, `rumour`                                     |
-| Quedarse con los mejores (`4d6kh3`), d66, d100                                              | `encounters.yaml`, `treasure.yaml`                                     |
-| Oráculo con opciones con nombre, una variante con sus propios dados                         | `oracles.yaml`: `gates`                                                |
-| Un mazo con copias, cartas que tiran tablas o dan comida                                    | `decks.yaml`: `omens`                                                  |
-| `maxOccurrences`                                                                            | `treasure.yaml`: `prize`                                               |
-| Descubrir el mapa                                                                           | `discovery.yaml`                                                       |
-| Traducciones                                                                                | `locales/es/`                                                          |
+| Qué                                                                                                                               | Fichero                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Reglas de viaje: terrenos, agua, una barca, caballos que comen forraje, clima, descanso                                           | `travel.yaml` (travel-rules)                                                           |
+| Comprobaciones con `edges`, `tags`, `mode`, comparaciones, `any` / `all` / `not`, listas                                          | `travel.yaml` (checks)                                                                 |
+| Una comprobación que espera a **Continuar**                                                                                       | `travel.yaml`: `LANDMARK_CHECK_REQUIRED`                                               |
+| Una comprobación resuelta por un **oráculo**, con su entrada desde los bindings                                                   | `travel.yaml`: `FORD_CHECK_REQUIRED`; `travel-tables.yaml`: `ford`                     |
+| Características del grupo en las tiradas (`{{charisma}}`, `{{survival}}`, `{{navigation}}`)                                       | `travel.yaml` (bindings); `reaction`, `forage`, `ford`, `getting-lost`                 |
+| Una tabla por estación (una referencia hecha con el contexto)                                                                     | `weather.yaml`: `weather` → `weather-{{season}}`                                       |
+| Pesos, 2d6, dados Fate (4dF)                                                                                                      | `weather.yaml`                                                                         |
+| Resultados que entiende el viaje: `lost`, `weather`, `fatigue`, `resources`                                                       | `travel-tables.yaml`, `weather.yaml`                                                   |
+| Valores del día para comprobaciones posteriores (`fordModifier`)                                                                  | `weather.yaml` → `ford`                                                                |
+| Tablas por terreno, región, campo del hex (`danger`), hora del día                                                                | `encounters.yaml`: `encounter`                                                         |
+| Luego tira, `{{result}}`, dados en los textos (`{{1d4+2}}`), `once`                                                               | `encounters.yaml`, `treasure.yaml`                                                     |
+| Generadores, y un generador que lee otro (`{{npc.role}}`)                                                                         | `encounters.yaml`: `npc`, `rumour`                                                     |
+| Quedarse con los mejores (`4d6kh3`), d66, d100                                                                                    | `encounters.yaml`, `treasure.yaml`                                                     |
+| Oráculo con opciones con nombre, una variante con sus propios dados                                                               | `oracles.yaml`: `gates`                                                                |
+| Un mazo con copias, cartas que tiran tablas o dan comida                                                                          | `decks.yaml`: `omens`                                                                  |
+| `maxOccurrences`                                                                                                                  | `treasure.yaml`: `prize`                                                               |
+| Descubrir el mapa                                                                                                                 | `discovery.yaml`                                                                       |
+| Valores de regiones (`danger` para todo un bosque), hexes que los cambian, iconos (`{{icon.guards}}`) y tokens (`{{token.fare}}`) | el mapa de ejemplo; `oracles.yaml`: `gates`, `ferry`; `encounters.yaml`                |
+| Comparaciones `gt`, `lt`, `lte`, `eq`, `in`, `not` con un valor, `exists: false`                                                  | `encounters.yaml`, `travel-tables.yaml`: `getting-lost`, `treasure.yaml`: `ruin-delve` |
+| `water` en una condición                                                                                                          | `discovery.yaml`: `hex-contents`                                                       |
+| El valor del día `*Impossible` (`fordImpossible`, lo fijan las tormentas)                                                         | `weather.yaml` → `travel-tables.yaml`: `ford`                                          |
+| Campos de generador con `when`, `value` con plantilla, `context`; `2d6kl1`, `d%`                                                  | `treasure.yaml`: `ruin-delve`                                                          |
+| Tablas de otro pack: `dependencies` y `aliases`                                                                                   | `pack.yaml`; `decks.yaml`: la carta `twist`                                            |
+| Traducciones                                                                                                                      | `locales/es/`                                                                          |

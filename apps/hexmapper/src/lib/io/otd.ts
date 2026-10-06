@@ -16,6 +16,7 @@ import { deserializeMap } from '../model/serialize'
 import { partyToken } from '../model/tokens'
 import {
   TOKEN_KINDS,
+  type CustomField,
   type HexData,
   type HexIcon,
   type HexKey,
@@ -32,6 +33,8 @@ interface TokenLook {
   halo?: boolean
   showName?: boolean
   nameStyle?: MapToken['nameStyle']
+  /** Only for the party (an OTD party's stats are the trip's); characters use `stats`. */
+  fields?: MapToken['fields']
 }
 
 const lookOf = (token: MapToken): TokenLook => ({
@@ -41,7 +44,16 @@ const lookOf = (token: MapToken): TokenLook => ({
   ...(token.halo === false && { halo: false }),
   ...(token.showName && { showName: true }),
   ...(token.nameStyle && { nameStyle: token.nameStyle }),
+  ...(token.kind === 'party' && token.fields && { fields: token.fields }),
 })
+
+/** Fields as an OTD `stats` record, and back. */
+const toStats = (fields: CustomField[] | undefined) =>
+  fields?.length ? Object.fromEntries(fields.map((f) => [f.key, f.value])) : undefined
+const fromStats = (stats: Record<string, unknown> | undefined): CustomField[] | undefined =>
+  stats && Object.keys(stats).length
+    ? Object.entries(stats).map(([key, value]) => ({ key, value: String(value) }))
+    : undefined
 
 /** Tokens other than the party, as OTD characters with a location. */
 function tokensToOtd(map: HexMap): OtdCharacter[] {
@@ -54,6 +66,7 @@ function tokensToOtd(map: HexMap): OtdCharacter[] {
       kind: t.kind,
       ...(t.hex && { location: { map: map.meta.id, hex: t.hex } }),
       ...(t.note && { noteRef: t.note }),
+      ...(toStats(t.fields) && { stats: toStats(t.fields) }),
       ext: { hexmapper: { token: lookOf(t) } },
     }))
 }
@@ -74,6 +87,7 @@ function tokenOf(c: OtdCharacter, mapId: string): Record<string, unknown> | null
     showName: look.showName,
     nameStyle: look.nameStyle,
     note: c.noteRef,
+    fields: look.fields ?? fromStats(c.stats as Record<string, unknown> | undefined),
   }
 }
 
@@ -132,6 +146,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
         ...(poi.description && { description: poi.description }),
         ...(poi.note && { noteRef: poi.note }),
         ...(poi.icon && { ext: { hexmapper: { icon: poi.icon } } }),
+        ...(toStats(poi.fields) && { stats: toStats(poi.fields) }),
       })
   }
   const ext: HexmapperExt = {
@@ -279,6 +294,7 @@ function playFromOtd(
     showName: look.showName,
     nameStyle: look.nameStyle,
     note: party.noteRef,
+    fields: look.fields,
   }
   return {
     partyId: party.id,
@@ -324,6 +340,7 @@ export function bundleToMap(raw: unknown): HexMap {
       description: poi.description,
       note: poi.noteRef,
       icon: (poi.ext as { hexmapper?: { icon?: string } } | undefined)?.hexmapper?.icon,
+      fields: fromStats((poi as { stats?: Record<string, unknown> }).stats),
     }
     const hex = (hexes[poi.location.hex] ??= {})
     hex.pois = [...((hex.pois as Poi[]) ?? []), entry]

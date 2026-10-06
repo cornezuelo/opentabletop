@@ -1,4 +1,4 @@
-import type { HexData, HexIcon, MapPath } from './types'
+import type { HexData, HexIcon, MapPath, CustomField, HexMap } from './types'
 
 export const ICON_SCALE_RANGE = [0.4, 2] as const
 export const ICON_HALO_RANGE = [0.3, 0.9] as const
@@ -65,6 +65,27 @@ export function normalizeIcon(icon: HexIcon | undefined): HexIcon | undefined {
     if (outlineColor) out.outlineColor = outlineColor
     if (outlineWidth !== undefined) out.outlineWidth = outlineWidth
   }
+  const fields = cleanFields(icon.fields)
+  if (fields) out.fields = fields
+  return out
+}
+
+/** Trimmed key/value fields without empty rows; undefined when none are left. */
+export function cleanFields(fields: CustomField[] | undefined): CustomField[] | undefined {
+  const out = (fields ?? [])
+    .map((f) => ({ key: f.key.trim(), value: f.value.trim() }))
+    .filter((f) => f.key || f.value)
+  return out.length ? out : undefined
+}
+
+/** A list of fields as the values tables read: numbers when they look like numbers. */
+export function fieldValues(fields: CustomField[] | undefined): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const field of fields ?? []) {
+    if (!field.key) continue
+    const n = Number(field.value)
+    out[field.key] = field.value !== '' && Number.isFinite(n) ? n : field.value
+  }
   return out
 }
 
@@ -91,6 +112,7 @@ export function normalizeHex(hex: HexData | undefined): HexData {
         ...(description ? { description } : {}),
         ...(note ? { note } : {}),
         ...(p.icon ? { icon: p.icon } : {}),
+        ...(cleanFields(p.fields) && { fields: cleanFields(p.fields) }),
       }
     })
     .filter((p) => p.name || p.description)
@@ -145,6 +167,31 @@ export function collectSuggestions(hexes: Iterable<HexData>): {
     hex.fields?.forEach((f) => f.key && fieldKeys.add(f.key))
   }
   return { tags: [...tags].sort(), fieldKeys: [...fieldKeys].sort() }
+}
+
+/**
+ * Field keys used anywhere on the map (hexes, POIs, icons, regions, tokens), each with the
+ * values it has taken: suggestions while typing a field.
+ */
+export function fieldSuggestions(map: HexMap): Map<string, string[]> {
+  const out = new Map<string, Set<string>>()
+  const add = (fields: CustomField[] | undefined) => {
+    for (const f of fields ?? []) {
+      if (!f.key) continue
+      if (!out.has(f.key)) out.set(f.key, new Set())
+      if (f.value) out.get(f.key)!.add(f.value)
+    }
+  }
+  for (const hex of Object.values(map.hexes)) {
+    add(hex.fields)
+    add(hex.icon?.fields)
+    for (const poi of hex.pois ?? []) add(poi.fields)
+  }
+  for (const region of map.regions) add(region.fields)
+  for (const token of map.tokens) add(token.fields)
+  return new Map(
+    [...out].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, [...v].sort()]),
+  )
 }
 
 /** Drops centered offsets and default flags so equal paths serialize identically. */

@@ -15,7 +15,7 @@ Con el color en **Auto**, cada token recibe su propio color dentro de la familia
 
 ## Ajustes de un token
 
-Nombre, tipo (grupo, PJ, PNJ, enemigo), icono, color, halo, **mostrar el nombre en el mapa** con su **estilo** (el del mapa o uno propio) y una nota enlazada. **Tokens de este mapa** los lista todos por tipo: haz clic en uno para seleccionarlo y centrar el mapa en él.
+Nombre, tipo (grupo, PJ, PNJ, enemigo), icono, color, halo, **mostrar el nombre en el mapa** con su **estilo** (el del mapa o uno propio), una nota enlazada y **campos** (clave–valor: `might: 18`, `fare: 2`). Con un token seleccionado, las tablas que se tiran desde el panel Oracle leen sus campos como `{{token.might}}`, y su nombre y tipo como `{{token.name}}` y `{{token.kind}}` (en las Marcas Grises, selecciona a Brenna y tira _La barca_). **Tokens de este mapa** los lista todos por tipo: haz clic en uno para seleccionarlo y centrar el mapa en él.
 
 ## El grupo
 

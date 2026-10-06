@@ -1,6 +1,6 @@
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { describe, expect, it } from 'vitest'
-import { contextVariables, parseContext } from './variables'
+import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
 
 const files = [
   { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },
@@ -45,5 +45,17 @@ describe('context variables', () => {
       night: true,
       terrain: 'forest',
     })
+  })
+
+  it('typed dotted names nest and merge with the host values', () => {
+    const typed = parseContext({ 'token.fare': '3', danger: '2' })
+    expect(typed).toEqual({ token: { fare: 3 }, danger: 2 })
+    const host = { token: { name: 'Brenna', fare: 1 }, terrain: 'heath' }
+    expect(mergeContext(host, typed)).toEqual({
+      token: { name: 'Brenna', fare: 3 },
+      terrain: 'heath',
+      danger: 2,
+    })
+    expect(valueAt(host, 'token.name')).toBe('Brenna')
   })
 })

@@ -14,7 +14,7 @@ import {
   MIN_MAP_SIZE,
 } from './defaults'
 import { MapFormatError, migrate } from './migrations'
-import { isEmptyHex, normalizeHex, normalizePath } from './hex'
+import { isEmptyHex, normalizeHex, normalizePath, cleanFields } from './hex'
 import { isValidId, newId } from './id'
 import { CAPTION_KINDS, LABEL_FONTS, PATH_KINDS, TOKEN_KINDS } from './types'
 import type {
@@ -125,11 +125,9 @@ function parseHex(value: Record<string, unknown>): HexData {
       description: str(p.description),
       note: str(p.note),
       icon: str(p.icon),
+      fields: parseFields(p.fields),
     }))
-  const fields: CustomField[] = records(value.fields).map((f) => ({
-    key: str(f.key) ?? '',
-    value: str(f.value) ?? '',
-  }))
+  const fields: CustomField[] = parseFields(value.fields) ?? []
   const tags = Array.isArray(value.tags)
     ? value.tags.filter((t): t is string => typeof t === 'string')
     : []
@@ -163,7 +161,19 @@ function parseIcon(value: unknown): HexData['icon'] {
     outlineColor: typeof value.outlineColor === 'string' ? value.outlineColor : undefined,
     outlineWidth: typeof value.outlineWidth === 'number' ? value.outlineWidth : undefined,
     offset: parseOffset(value.offset) ?? undefined,
+    fields: parseFields(value.fields),
   }
+}
+
+/** Key/value fields (hexes, POIs, icons, regions, tokens): strings only, empty rows dropped. */
+function parseFields(value: unknown): CustomField[] | undefined {
+  const text = (v: unknown) => (typeof v === 'string' ? v : '')
+  return cleanFields(
+    (Array.isArray(value) ? value.filter(isRecord) : []).map((f) => ({
+      key: text(f.key),
+      value: text(f.value),
+    })),
+  )
 }
 
 function parsePaths(value: unknown): MapPath[] {
@@ -328,6 +338,7 @@ function parseRegions(value: unknown): MapRegion[] {
           nameStyle: parseCaptionOverride(r.nameStyle, DEFAULT_CAPTIONS.regionNames),
         }),
         ...(typeof r.note === 'string' && r.note && { note: r.note }),
+        ...(parseFields(r.fields) && { fields: parseFields(r.fields) }),
       },
     ]
   })
@@ -358,6 +369,7 @@ function parseTokens(value: unknown): MapToken[] {
         nameStyle: parseCaptionOverride(t.nameStyle, DEFAULT_CAPTIONS.tokenNames),
       }),
       ...(typeof t.note === 'string' && t.note && { note: t.note }),
+      ...(parseFields(t.fields) && { fields: parseFields(t.fields) }),
     })
   }
   // One party at most: extra ones become player characters.

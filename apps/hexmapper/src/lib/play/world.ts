@@ -8,6 +8,7 @@ import {
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { fieldValues } from '../model/hex'
 import { TRAVEL_PATH_KINDS, type HexMap } from '../model/types'
 
 /** The map as the Travel Engine sees it: terrain, neighbors and road/river edges. */
@@ -29,20 +30,21 @@ export function mapWorld(map: HexMap): TravelWorld {
     cell(hex) {
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]
-      const stats: Record<string, unknown> = {}
-      for (const field of data?.fields ?? []) {
-        const n = Number(field.value)
-        stats[field.key] = field.value !== '' && Number.isFinite(n) ? n : field.value
-      }
+      const inRegion = data?.region ? map.regions.find((r) => r.id === data.region) : undefined
+      // The region's values hold for all its hexes; a hex's own values win.
+      const stats = { ...fieldValues(inRegion?.fields), ...fieldValues(data?.fields) }
       // Regions by name: what tables and travel rules would write in a condition.
-      const region = data?.region ? map.regions.find((r) => r.id === data.region)?.name : undefined
+      const region = inRegion?.name
       return {
         ...stats,
         terrain: data?.terrain,
         tags: data?.tags ?? [],
         ...(region && { region }),
+        ...(data?.name && { name: data.name }),
         // Water as the palette says (Edit palette → Water): travel rules' `water` applies.
         ...(data?.terrain && water.has(data.terrain) && { water: true }),
+        // The hex's icon (a village, a bridge…) and its values: {{icon.guards}}.
+        ...(data?.icon && { icon: { id: data.icon.id, ...fieldValues(data.icon.fields) } }),
       }
     },
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),

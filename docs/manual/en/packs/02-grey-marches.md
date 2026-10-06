@@ -29,23 +29,29 @@ The same system plays without a map in the Travel app.
 
 ## Where each feature is
 
-| Feature                                                                        | File                                                                   |
-| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| Travel rules: terrains, water, a boat, horses that eat fodder, weather, rest   | `travel.yaml` (travel-rules)                                           |
-| Checks with `edges`, `tags`, `mode`, comparisons, `any` / `all` / `not`, lists | `travel.yaml` (checks)                                                 |
-| A check that waits for **Continue**                                            | `travel.yaml`: `LANDMARK_CHECK_REQUIRED`                               |
-| A check resolved by an **oracle**, its input from the bindings                 | `travel.yaml`: `FORD_CHECK_REQUIRED`; `travel-tables.yaml`: `ford`     |
-| Party stats used in rolls (`{{charisma}}`, `{{survival}}`, `{{navigation}}`)   | `travel.yaml` (bindings); `reaction`, `forage`, `ford`, `getting-lost` |
-| One table per season (a reference built from the context)                      | `weather.yaml`: `weather` → `weather-{{season}}`                       |
-| Weights, 2d6, Fate dice (4dF)                                                  | `weather.yaml`                                                         |
-| Results the trip understands: `lost`, `weather`, `fatigue`, `resources`        | `travel-tables.yaml`, `weather.yaml`                                   |
-| Day values for later checks (`fordModifier`)                                   | `weather.yaml` → `ford`                                                |
-| Tables by terrain, region, hex field (`danger`), time of day                   | `encounters.yaml`: `encounter`                                         |
-| Then roll, `{{result}}`, dice in texts (`{{1d4+2}}`), `once`                   | `encounters.yaml`, `treasure.yaml`                                     |
-| Generators, and one generator reading another (`{{npc.role}}`)                 | `encounters.yaml`: `npc`, `rumour`                                     |
-| Keep-highest dice (`4d6kh3`), d66, d100                                        | `encounters.yaml`, `treasure.yaml`                                     |
-| Oracle with labelled options, a variant with its own dice                      | `oracles.yaml`: `gates`                                                |
-| A deck with copies, cards that roll tables or give food                        | `decks.yaml`: `omens`                                                  |
-| `maxOccurrences`                                                               | `treasure.yaml`: `prize`                                               |
-| Discovering the map                                                            | `discovery.yaml`                                                       |
-| Translations                                                                   | `locales/es/`                                                          |
+| Feature                                                                                                                         | File                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Travel rules: terrains, water, a boat, horses that eat fodder, weather, rest                                                    | `travel.yaml` (travel-rules)                                                           |
+| Checks with `edges`, `tags`, `mode`, comparisons, `any` / `all` / `not`, lists                                                  | `travel.yaml` (checks)                                                                 |
+| A check that waits for **Continue**                                                                                             | `travel.yaml`: `LANDMARK_CHECK_REQUIRED`                                               |
+| A check resolved by an **oracle**, its input from the bindings                                                                  | `travel.yaml`: `FORD_CHECK_REQUIRED`; `travel-tables.yaml`: `ford`                     |
+| Party stats used in rolls (`{{charisma}}`, `{{survival}}`, `{{navigation}}`)                                                    | `travel.yaml` (bindings); `reaction`, `forage`, `ford`, `getting-lost`                 |
+| One table per season (a reference built from the context)                                                                       | `weather.yaml`: `weather` → `weather-{{season}}`                                       |
+| Weights, 2d6, Fate dice (4dF)                                                                                                   | `weather.yaml`                                                                         |
+| Results the trip understands: `lost`, `weather`, `fatigue`, `resources`                                                         | `travel-tables.yaml`, `weather.yaml`                                                   |
+| Day values for later checks (`fordModifier`)                                                                                    | `weather.yaml` → `ford`                                                                |
+| Tables by terrain, region, hex field (`danger`), time of day                                                                    | `encounters.yaml`: `encounter`                                                         |
+| Then roll, `{{result}}`, dice in texts (`{{1d4+2}}`), `once`                                                                    | `encounters.yaml`, `treasure.yaml`                                                     |
+| Generators, and one generator reading another (`{{npc.role}}`)                                                                  | `encounters.yaml`: `npc`, `rumour`                                                     |
+| Keep-highest dice (`4d6kh3`), d66, d100                                                                                         | `encounters.yaml`, `treasure.yaml`                                                     |
+| Oracle with labelled options, a variant with its own dice                                                                       | `oracles.yaml`: `gates`                                                                |
+| A deck with copies, cards that roll tables or give food                                                                         | `decks.yaml`: `omens`                                                                  |
+| `maxOccurrences`                                                                                                                | `treasure.yaml`: `prize`                                                               |
+| Discovering the map                                                                                                             | `discovery.yaml`                                                                       |
+| Values of regions (`danger` for a whole forest), hexes overriding them, icons (`{{icon.guards}}`) and tokens (`{{token.fare}}`) | the example map; `oracles.yaml`: `gates`, `ferry`; `encounters.yaml`                   |
+| Comparisons `gt`, `lt`, `lte`, `eq`, `in`, `not` with a value, `exists: false`                                                  | `encounters.yaml`, `travel-tables.yaml`: `getting-lost`, `treasure.yaml`: `ruin-delve` |
+| `water` in a condition                                                                                                          | `discovery.yaml`: `hex-contents`                                                       |
+| Today's `*Impossible` value (`fordImpossible`, set by storms)                                                                   | `weather.yaml` → `travel-tables.yaml`: `ford`                                          |
+| Generator fields with `when`, `value` with a template, `context`; `2d6kl1`, `d%`                                                | `treasure.yaml`: `ruin-delve`                                                          |
+| Another pack's tables: `dependencies` and `aliases`                                                                             | `pack.yaml`; `decks.yaml`: the `twist` card                                            |
+| Translations                                                                                                                    | `locales/es/`                                                                          |

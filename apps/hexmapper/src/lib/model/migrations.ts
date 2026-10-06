@@ -71,6 +71,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       ? { ...data, oracle: { state, history: [] } }
       : data
   },
+  /** v7: key/value fields on tokens, icons, regions and POIs (optional: nothing to convert). */
+  6(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

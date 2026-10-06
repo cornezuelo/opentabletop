@@ -11,6 +11,10 @@ La herramienta **Iconos** (<kbd>I</kbd>) coloca un icono por hex: castillos, ald
 
 Los iconos son de [game-icons.net](https://game-icons.net) (CC BY 3.0).
 
+### Valores de un icono
+
+Selecciona un icono colocado (haz clic en él con la herramienta Iconos) para darle **campos**: un pueblo con `guards: 0`, un fuerte con `guards: 2`. Las tablas que se tiran en su hex los leen como `{{icon.guards}}` (y `{{icon.id}}` es el propio icono). El oráculo _¿Nos dejarán entrar?_ de las Marcas Grises suma los guardias de la puerta a la que preguntas.
+
 ## Texto
 
 La herramienta **Texto** (<kbd>T</kbd>) escribe rótulos libres en cualquier sitio, incluso fuera de la rejilla: nombres de mares, cordilleras, caminos… Haz clic en un espacio vacío para añadir uno, haz clic en un rótulo para editarlo y arrástralo para moverlo. Fuente (IM Fell English, Cinzel o sans), tamaño, color, rotación, cursiva y halo.

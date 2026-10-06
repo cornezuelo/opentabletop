@@ -3,6 +3,7 @@ getting-lost:
   description: Al alba, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no.
   entries:
     fog: 'Perdidos en la niebla: hoy no avanzáis'
+    wild: 'Aquí no hay referencias: os desviáis del rumbo'
     lost: 'Os habéis perdido: hoy no avanzáis'
     course: Mantenéis el rumbo
 forage:
@@ -30,6 +31,7 @@ ford:
       labels: { low: Baja y mansa, even: Hasta la cintura, high: Crecida }
   entries:
     fine: Cruzáis sin problemas
+    spate: 'El río baja crecido: hoy no se cruza'
     wet: 'A mitad de camino os arrastra la corriente: {{result}}'
     swept: 'La crecida os arrastra río abajo: {{result}}'
 ford-mishap:

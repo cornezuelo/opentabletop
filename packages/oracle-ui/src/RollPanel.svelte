@@ -4,7 +4,7 @@
   import type { HistoryItem } from './roller.svelte'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
-  import { contextVariables, parseContext } from './variables'
+  import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
   import ResultCard from './ResultCard.svelte'
 
   let {
@@ -56,7 +56,7 @@
   function roll() {
     roller.run(
       def.id,
-      { ...context, ...parseContext(values) },
+      mergeContext(context, parseContext(values)),
       def.kind === 'deck' ? 'draw' : 'resolve',
       offersAdvantage ? roller.advantage : 0,
     )
@@ -64,7 +64,7 @@
 
   /** A host value as a placeholder ("forest", "road, ford"). */
   function known(name: string): string {
-    const v = context[name]
+    const v = valueAt(context, name)
     if (v === undefined || v === null) return ''
     return Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v)
   }

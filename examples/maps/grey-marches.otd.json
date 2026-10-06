@@ -40,6 +40,9 @@
             "iconId": "game:cowled"
           }
         }
+      },
+      "stats": {
+        "fare": "2"
       }
     },
     {
@@ -58,6 +61,9 @@
             "iconId": "game:dragon-head"
           }
         }
+      },
+      "stats": {
+        "might": "18"
       }
     }
   ],
@@ -755,113 +761,47 @@
         },
         "9,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,1": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,2": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,3": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,4": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,5": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "9,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,1": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,2": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,3": {
           "terrain": "forest",
@@ -869,143 +809,59 @@
           "name": "Wayside shrine",
           "tags": [
             "shrine"
-          ],
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
           ]
         },
         "10,4": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,5": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "10,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,1": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,2": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,3": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,4": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,5": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "11,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "12,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "12,1": {
           "terrain": "dense-forest",
@@ -1059,33 +915,15 @@
         },
         "12,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "12,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "13,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "13,1": {
           "terrain": "dense-forest",
@@ -1142,33 +980,15 @@
         },
         "13,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "13,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "14,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "14,1": {
           "terrain": "dense-forest",
@@ -1225,33 +1045,15 @@
         },
         "14,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "14,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "greywood"
         },
         "15,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "15,1": {
           "terrain": "dense-forest",
@@ -1308,33 +1110,15 @@
         },
         "15,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "15,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "16,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "16,1": {
           "terrain": "dense-forest",
@@ -1388,275 +1172,107 @@
         },
         "16,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "16,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,1": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,2": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,3": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,4": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,5": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "17,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,0": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,1": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,2": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,3": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,4": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,5": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,6": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "18,7": {
           "terrain": "forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "greywood"
         },
         "9,8": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "9,9": {
-          "terrain": "heath",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "heath"
         },
         "9,10": {
           "terrain": "heath",
           "name": "The ferry",
-          "notes": "Take the boat (travel mode) across the Saltmere.",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "notes": "Take the boat (travel mode) across the Saltmere."
         },
         "9,11": {
-          "terrain": "marsh",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "marsh"
         },
         "9,12": {
-          "terrain": "marsh",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "marsh"
         },
         "9,13": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "9,14": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "9,15": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "10,8": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "10,9": {
-          "terrain": "heath",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "heath"
         },
         "10,10": {
           "terrain": "lake"
@@ -1665,58 +1281,22 @@
           "terrain": "lake"
         },
         "10,12": {
-          "terrain": "heath",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "heath"
         },
         "10,13": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "10,14": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "10,15": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "11,8": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "11,9": {
-          "terrain": "heath",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "heath"
         },
         "11,10": {
           "terrain": "lake"
@@ -1728,49 +1308,19 @@
           "terrain": "lake"
         },
         "11,13": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "11,14": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "11,15": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "12,8": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "12,9": {
-          "terrain": "heath",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "heath"
         },
         "12,10": {
           "terrain": "lake"
@@ -1779,522 +1329,210 @@
           "terrain": "lake"
         },
         "12,12": {
-          "terrain": "heath",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "heath"
         },
         "12,13": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "12,14": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "12,15": {
-          "terrain": "hills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "terrain": "hills"
         },
         "13,8": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,9": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,10": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,11": {
           "terrain": "swamp",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,12": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,13": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,14": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "13,15": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,8": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,9": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,10": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,11": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,12": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,13": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,14": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "14,15": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "1"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,8": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,9": {
           "terrain": "hills",
           "region": "hollowhills",
-          "name": "Fort Keld",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "name": "Fort Keld"
         },
         "15,10": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,11": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,12": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,13": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,14": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "15,15": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,8": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,9": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,10": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,11": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,12": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,13": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,14": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "16,15": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,8": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,9": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,10": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,11": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,12": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,13": {
           "terrain": "peaks",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "17,14": {
           "terrain": "mountains",
           "region": "hollowhills",
-          "name": "Hollow Gate",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "name": "Hollow Gate"
         },
         "17,15": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,8": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,9": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,10": {
           "terrain": "hills",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,11": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,12": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,13": {
           "terrain": "peaks",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,14": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         },
         "18,15": {
           "terrain": "mountains",
-          "region": "hollowhills",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "hollowhills"
         }
       },
       "paths": [
@@ -2384,7 +1622,7 @@
       ],
       "ext": {
         "hexmapper": {
-          "version": 6,
+          "version": 7,
           "created": "2026-10-06T21:35:43.748Z",
           "modified": "2026-10-06T21:35:43.748Z",
           "hexSize": 40,
@@ -2438,7 +1676,7 @@
               "locked": false
             },
             "markers": {
-              "visible": false,
+              "visible": true,
               "locked": false
             }
           },
@@ -2503,13 +1741,25 @@
               "id": "greywood",
               "name": "The Greywood",
               "color": "#1f3d2a",
-              "showName": true
+              "showName": true,
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "2"
+                }
+              ]
             },
             {
               "id": "hollowhills",
               "name": "The Hollow Hills",
               "color": "#4a2f5c",
-              "showName": true
+              "showName": true,
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "2"
+                }
+              ]
             }
           ],
           "captions": {
@@ -2544,7 +1794,13 @@
               "id": "game:stone-pile"
             },
             "5,7": {
-              "id": "game:village"
+              "id": "game:village",
+              "fields": [
+                {
+                  "key": "guards",
+                  "value": "0"
+                }
+              ]
             },
             "8,8": {
               "id": "game:stone-bridge"
@@ -2556,7 +1812,13 @@
               "id": "game:sailboat"
             },
             "15,9": {
-              "id": "game:castle"
+              "id": "game:castle",
+              "fields": [
+                {
+                  "key": "guards",
+                  "value": "2"
+                }
+              ]
             },
             "17,14": {
               "id": "game:castle-ruins"
@@ -2574,6 +1836,10 @@
       "location": {
         "map": "greymarches1",
         "hex": "5,7"
+      },
+      "stats": {
+        "rooms": "3",
+        "price": "1"
       }
     },
     {

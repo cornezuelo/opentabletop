@@ -15,7 +15,7 @@ With the color on **Auto**, each token gets its own color from its kind's family
 
 ## A token's settings
 
-Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the map** with its **style** (the map's, or its own), and a linked note. **Tokens on this map** lists them all by kind: click one to select it and center the map on it.
+Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the map** with its **style** (the map's, or its own), a linked note and **fields** (key–value: `might: 18`, `fare: 2`). While a token is selected, tables rolled from the Oracle panel read its fields as `{{token.might}}`, and its name and kind as `{{token.name}}` and `{{token.kind}}` (in the Grey Marches, select Brenna and roll _The ferry_). **Tokens on this map** lists them all by kind: click one to select it and center the map on it.
 
 ## The party
 

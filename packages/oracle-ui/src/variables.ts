@@ -100,9 +100,44 @@ export function parseContext(raw: Record<string, string>): Record<string, unknow
   for (const [key, value] of Object.entries(raw)) {
     const v = value.trim()
     if (!v) continue
-    if (/^-?\d+(\.\d+)?$/.test(v)) out[key] = Number(v)
-    else if (v === 'true' || v === 'false') out[key] = v === 'true'
-    else out[key] = v
+    const parsed = /^-?\d+(\.\d+)?$/.test(v)
+      ? Number(v)
+      : v === 'true' || v === 'false'
+        ? v === 'true'
+        : v
+    // Dotted names nest: token.fare → { token: { fare } }, as the host's values come.
+    const path = key.split('.')
+    let node = out
+    for (const part of path.slice(0, -1)) {
+      if (typeof node[part] !== 'object' || node[part] === null) node[part] = {}
+      node = node[part] as Record<string, unknown>
+    }
+    node[path.at(-1)!] = parsed
   }
   return out
+}
+
+/** The host's values with the typed ones on top; nested objects (token, icon…) merge. */
+export function mergeContext(
+  host: Record<string, unknown>,
+  typed: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...host }
+  for (const [key, value] of Object.entries(typed)) {
+    const base = out[key]
+    out[key] =
+      isPlain(value) && isPlain(base)
+        ? mergeContext(base as Record<string, unknown>, value as Record<string, unknown>)
+        : value
+  }
+  return out
+}
+
+const isPlain = (v: unknown) => typeof v === 'object' && v !== null && !Array.isArray(v)
+
+/** A value at a dotted path (token.fare). */
+export function valueAt(context: Record<string, unknown>, path: string): unknown {
+  let node: unknown = context
+  for (const part of path.split('.')) node = (node as Record<string, unknown> | undefined)?.[part]
+  return node
 }

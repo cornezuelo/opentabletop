@@ -15,3 +15,9 @@ gate-news:
     rumour: 'el guardia os susurra un rumor: {{result}}'
     work: 'hay trabajo: alguien paga {{2d6}} monedas de plata por una escolta'
     feast: es día de fiesta; la posada está llena
+ferry:
+  name: La barca
+  entries:
+    calm: '{{token.name}} os cruza el Lago Salado por {{token.fare}} monedas de plata cada uno'
+    secret: '{{token.name}} rechaza las monedas: quiere un secreto a cambio'
+    empty: 'El embarcadero está vacío: selecciona a la barquera para hablar con ella'

@@ -1,4 +1,5 @@
-# Weather. `weather` and `fordModifier` set here reach the trip and the day's later checks.
+# Weather. `weather` and the day values set here (`fordModifier`, `fordImpossible`) reach
+# the trip and every later check of the same day.
 
 # A reference built from the context: the season picks the table. Rolled by hand (no
 # season), the guard fails and the last entry answers.
@@ -21,7 +22,7 @@ entries:
       id: storm,
       range: 2,
       result: 'Thunderstorm: nobody travels',
-      set: { weather: storm, fordModifier: -2 },
+      set: { weather: storm, fordImpossible: true },
     }
   - { id: rain, range: 3-6, result: Steady rain, set: { weather: rain, fordModifier: -1 } }
   - { id: grey, range: 7-10, result: Grey and mild, set: { weather: grey } }
@@ -38,7 +39,7 @@ entries:
       id: storm,
       weight: 1,
       result: 'Summer storm: nobody travels',
-      set: { weather: storm, fordModifier: -2 },
+      set: { weather: storm, fordImpossible: true },
     }
 ---
 # Fate dice (4dF: from -4 to +4, mostly near 0): fog rolls in from the lake.
@@ -51,7 +52,7 @@ entries:
       id: storm,
       range: -4--3,
       result: 'Gales off the lake: nobody travels',
-      set: { weather: storm, fordModifier: -2 },
+      set: { weather: storm, fordImpossible: true },
     }
   - { id: fog, range: -2--1, result: Thick fog, set: { weather: fog } }
   - { id: grey, range: 0-1, result: Cold and grey, set: { weather: grey } }

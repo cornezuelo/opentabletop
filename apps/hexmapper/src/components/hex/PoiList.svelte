@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FieldEditor from '../FieldEditor.svelte'
   import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
   import { newId } from '../../lib/model/id'
@@ -99,6 +100,11 @@
         label={t('hex.note')}
         placeholder={t('hex.poiNotePlaceholder', { name: poi.name })}
         onchange={(note) => update(poi.id, { note })}
+      />
+      <FieldEditor
+        fields={poi.fields ?? []}
+        help={t('fields.poiHelp')}
+        onchange={(fields) => update(poi.id, { fields: fields.length ? fields : undefined })}
       />
     </div>
   {/each}

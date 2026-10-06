@@ -41,7 +41,7 @@ Las referencias a tablas y generadores también pueden ser plantillas: `table: '
 Cuando se tira una definición recibe un **contexto**: un conjunto de valores con nombre. Salen de, en este orden:
 
 1. **Lo que escribes** en el recuadro **Contexto** del panel de tirada (la aplicación Oracle lista los valores que lee una definición, con sugerencias sacadas de sus condiciones).
-2. **El Hexmapper**, cuando tiras desde su panel de Oracle o en un viaje: `hex`, `terrain`, `tags`, `region` y cada campo del hex; durante un viaje, `season`, `weather`, `mode`, `day`, las estadísticas del grupo, los valores del día (`weather`, `…Modifier`, `…Impossible` fijados antes ese mismo día) y `edges` (el camino o río que se sigue).
+2. **El Hexmapper**, cuando tiras desde su panel de Oracle o en un viaje: `hex`, `terrain`, `water`, `tags`, `name`, `region`, los campos de la región y del hex, el icono (`icon.*`) y el token seleccionado (`token.*`); durante un viaje, `season`, `weather`, `mode`, `day`, las estadísticas del grupo, los valores del día (`weather`, `…Modifier`, `…Impossible` fijados antes ese mismo día) y `edges` (el camino o río que se sigue).
 3. **Los bindings** de un sistema de viaje: `context: { … }` añade valores fijos para una comprobación.
 4. **Dentro de la propia tirada**:
    - La **entrada** de un oráculo es un valor con su nombre (`odds: even`).

@@ -13,7 +13,7 @@ entries:
   - id: wyrm
     range: 6-20
     once: true
-    when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 4 } }] }
+    when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gt: 3 } }] }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
   # Nights in haunted places, whatever the roll.
   - id: lights
@@ -23,13 +23,14 @@ entries:
   # In a named region, by day: its own people.
   - id: patrol
     range: 1-4
-    when: { all: [{ region: Ashford Vale }, { not: { timeOfDay: night } }] }
+    when: { all: [{ region: { eq: Ashford Vale } }, { not: { timeOfDay: night } }] }
     result: 'A patrol of the Vale — they are {{result}}'
     table: reaction
   # Lists of terrains, a dice expression inside the text, then roll the reaction.
   - id: wolves
     range: 5-20
-    when: { terrain: [forest, dense-forest, heath] }
+    # Wolves keep away in summer: `not` with a value.
+    when: { all: [{ terrain: [forest, dense-forest, heath] }, { season: { not: summer } }] }
     result: '{{1d4+2}} grey wolves — they are {{result}}'
     table: reaction
     set: { reactionModifier: -2 }
@@ -41,7 +42,7 @@ entries:
     table: npc
   - id: bandits
     range: 5-20
-    when: { terrain: [hills, marsh, swamp] }
+    when: { terrain: { in: [hills, marsh, swamp] } }
     result: 'Bandits of the Hollow Hills — they are {{result}}'
     table: reaction
     set: { reactionModifier: -1 }

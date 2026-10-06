@@ -10,3 +10,7 @@ prize:
   entries:
     sword: La Espada de Keld, perdida hace cien años
     gold: '{{2d6+6}} coronas de oro de los antiguos reyes'
+ruin-delve:
+  name: Explorar una ruina
+  description: Qué guarda una ruina y quién la vigila.
+  template: 'Las ruinas de {{site}} ({{rating}}, {{untouched}}% intactas).{{trap}} Dentro: {{loot}}. La guarda: {{guardian}}.'

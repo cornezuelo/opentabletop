@@ -10,6 +10,10 @@ Las regiones dan nombre a zonas del mapa: reinos, territorios, zonas peligrosas.
 
 Un hex pertenece como mucho a una región. El panel del hex también tiene una lista **Región** para cambiarla.
 
+## Valores
+
+Una región también puede tener **campos** (clave–valor, como los de un hex). Valen para **todos los hexes de la región**: pon `danger: 2` al Bosque Gris una vez en lugar de en cada hex. El campo propio de un hex con la misma clave gana, así que el corazón del bosque puede decir `danger: 3`. Las tablas y las comprobaciones de viaje los leen como los del hex: `{{danger}}`. Mira [Lo que ven las tablas](../technical/04-what-tables-see.md).
+
 ## En el mapa
 
 Una región se dibuja como un tinte suave, un borde por el interior de su contorno (para que las regiones vecinas no se solapen) y su nombre en el centro. La capa **Regiones** las oculta o bloquea todas; **Ajustes → Textos del mapa** da estilo u oculta todos los nombres de región.

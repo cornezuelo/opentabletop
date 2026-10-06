@@ -6,10 +6,11 @@ El botón de Oracle (el hexágono dorado bajo Jugar, o <kbd>O</kbd>) abre un pan
 
 Las tiradas reciben lo que sabe el mapa, así que las tablas pueden depender de dónde estás:
 
-- Del **hex seleccionado** (o el del grupo, si no hay ninguno): `terrain` (su id: `forest`, `hills`…), `tags`, sus campos por clave, `region` (por nombre) y `hex`.
+- Del **hex seleccionado** (o el del grupo, si no hay ninguno): `terrain` (su id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (por nombre), los campos de la región y del hex por clave (ganan los del hex), el icono como `icon.*` y `hex`.
+- Del **token seleccionado**: `token.name`, `token.kind` y sus campos como `token.*`.
 - Durante un **viaje con reglas**: `season`, `weather`, `mode`, `day`, las estadísticas del grupo y los valores del día.
 
-Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. Arriba del panel se indica qué hex leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel del hex) abre Oracle con el hex seleccionado.
+Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. La lista completa, y qué valor gana, está en [Lo que ven las tablas](../technical/04-what-tables-see.md). Arriba del panel se indica qué hex leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel del hex) abre Oracle con el hex seleccionado.
 
 ## Guardar un resultado en el mapa
 

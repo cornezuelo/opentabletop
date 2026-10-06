@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FieldEditor from './FieldEditor.svelte'
   import { confirmAction } from '@open-tabletop/ui-kit'
   import { RemoveRegionCommand, SetRegionsCommand, regionSizes } from '../lib/commands/regions'
   import { t } from '../lib/i18n/index.svelte'
@@ -124,6 +125,11 @@
         onchange={(note) => update((r) => ({ ...r, note: note.trim() || undefined }))}
       />
     </label>
+    <FieldEditor
+      fields={active.fields ?? []}
+      help={t('fields.regionHelp')}
+      onchange={(fields) => update((r) => ({ ...r, fields: fields.length ? fields : undefined }))}
+    />
     <button class="danger" onclick={remove}>{t('regions.delete')}</button>
   </div>
 {/if}

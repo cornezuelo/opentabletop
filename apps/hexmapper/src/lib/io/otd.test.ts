@@ -237,4 +237,44 @@ describe('play state in OTD', () => {
     // Saving again writes it once, from the map.
     expect(mapToBundle(back).state).toEqual({ oracle: map.oracle.state })
   })
+
+  it('keeps the values of tokens, POIs, icons and regions', () => {
+    const map = sampleMap()
+    map.regions = [
+      { id: 'woodland01', name: 'Wood', color: '#336633', fields: [{ key: 'danger', value: '2' }] },
+    ]
+    map.hexes['1,1'] = {
+      terrain: 'forest',
+      region: 'woodland01',
+      icon: { id: 'game:castle', fields: [{ key: 'guards', value: '3' }] },
+      pois: [{ id: 'innpoi0001', name: 'Inn', fields: [{ key: 'rooms', value: '4' }] }],
+    }
+    map.tokens = [
+      {
+        id: 'brenna0001',
+        name: 'Brenna',
+        kind: 'npc',
+        hex: '1,1',
+        iconId: 'game:cowled',
+        fields: [{ key: 'fare', value: '2' }],
+      },
+      {
+        id: 'partytok01',
+        name: '',
+        kind: 'party',
+        hex: '1,1',
+        iconId: 'game:meeple',
+        fields: [{ key: 'morale', value: '5' }],
+      },
+    ]
+    const bundle = mapToBundle(map)
+    expect(validateBundle(bundle).errors).toEqual([])
+    expect(bundle.characters[0].stats).toEqual({ fare: '2' })
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    expect(back.regions[0].fields).toEqual(map.regions[0].fields)
+    expect(back.hexes['1,1'].icon?.fields).toEqual([{ key: 'guards', value: '3' }])
+    expect(back.hexes['1,1'].pois?.[0].fields).toEqual([{ key: 'rooms', value: '4' }])
+    for (const token of map.tokens)
+      expect(back.tokens.find((t) => t.id === token.id)?.fields).toEqual(token.fields)
+  })
 })

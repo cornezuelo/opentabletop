@@ -130,13 +130,7 @@ name: What is here?
 description: Rolled the first time you enter a discovered hex. Mostly nothing; sometimes ruins, a shrine or a place with a name.
 roll: 2d6
 entries:
-  - {
-      id: water,
-      range: 2-12,
-      when: { terrain: [lake, sea, deep-sea] },
-      result: Open water,
-      set: { poi: false },
-    }
+  - { id: water, range: 2-12, when: { water: true }, result: Open water, set: { poi: false } }
   - {
       id: lair,
       range: 2,

@@ -415,6 +415,18 @@ export const en = {
     clear: 'Clear hex',
     confirmClear: 'Clear this hex? Its terrain and all its data will be removed.',
   },
+  fields: {
+    hexHelp:
+      'Values of this hex that tables and travel checks read by key: a field danger = 3 is {{danger}} in a roll and danger: { gte: 2 } in a condition. Numbers are read as numbers.',
+    regionHelp:
+      'Values every hex of the region has (a hex’s own field with the same key wins): e.g. danger for a whole forest. Tables read them like the hex’s, {{danger}}.',
+    iconHelp:
+      'Values of this icon (a village, a bridge…). Tables rolled on its hex read them as {{icon.<key>}}, e.g. {{icon.guards}}.',
+    tokenHelp:
+      'Values of this token (an NPC, a monster…). Tables rolled from the Oracle panel while it is selected read them as {{token.<key>}}, e.g. {{token.might}}.',
+    poiHelp:
+      'Values of this point of interest, kept with it in the map and its file. Tables don’t read them: a hex can have several points of interest.',
+  },
   terrainGroups: {
     lowlands: 'Lowlands',
     forests: 'Forests',

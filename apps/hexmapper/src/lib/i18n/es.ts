@@ -421,6 +421,18 @@ export const es: Messages = {
     clear: 'Vaciar hex',
     confirmClear: '¿Vaciar este hex? Se quitan su terreno y todos sus datos.',
   },
+  fields: {
+    hexHelp:
+      'Valores de este hex que leen las tablas y las comprobaciones de viaje por su clave: un campo danger = 3 es {{danger}} en una tirada y danger: { gte: 2 } en una condición. Los números se leen como números.',
+    regionHelp:
+      'Valores que tienen todos los hexes de la región (un campo propio del hex con la misma clave gana): p. ej. danger para todo un bosque. Las tablas los leen como los del hex, {{danger}}.',
+    iconHelp:
+      'Valores de este icono (un pueblo, un puente…). Las tablas que se tiran en su hex los leen como {{icon.<clave>}}, p. ej. {{icon.guards}}.',
+    tokenHelp:
+      'Valores de este token (un PNJ, un monstruo…). Las tablas que se tiran desde el panel Oracle con él seleccionado los leen como {{token.<clave>}}, p. ej. {{token.might}}.',
+    poiHelp:
+      'Valores de este punto de interés, guardados con él en el mapa y en su fichero. Las tablas no los leen: un hex puede tener varios puntos de interés.',
+  },
   terrainGroups: {
     lowlands: 'Tierras bajas',
     forests: 'Bosques',

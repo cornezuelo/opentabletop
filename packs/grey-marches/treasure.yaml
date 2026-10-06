@@ -33,3 +33,20 @@ entries:
       result: 'The Sword of Keld, lost these hundred years',
     }
   - { id: gold, weight: 1, result: '{{2d6+6}} gold crowns of the old kings' }
+---
+# A generator using every kind of field: a table, dice (keep the lowest of 2d6: mostly
+# low), percentile dice, a fixed value with a template, a field only when another says so,
+# and a table rolled with its own context (the guardian is met at night, deep in danger).
+kind: generator
+id: ruin-delve
+name: Delving a ruin
+description: What a ruin holds, and what guards it.
+fields:
+  site: { table: ruins }
+  danger: { roll: 2d6kl1 }
+  untouched: { roll: d% }
+  trap: { when: { danger: { lte: 2 } }, value: ' A trap guards the way in.' }
+  rating: { value: 'danger {{danger}} of 6' }
+  loot: { table: treasure }
+  guardian: { table: encounter, context: { timeOfDay: night, danger: 3 } }
+template: 'The ruins of {{site}} ({{rating}}, {{untouched}}% untouched).{{trap}} Inside: {{loot}}. Guarding it: {{guardian}}.'

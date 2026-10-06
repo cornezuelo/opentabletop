@@ -41,7 +41,7 @@ Table and generator references can be templates too: `table: 'weather-{{season}}
 When a definition is rolled it receives a **context**: a set of named values. They come from, in order:
 
 1. **What you type** in the roll panel's **Context** box (the Oracle app lists the values a definition reads, with suggestions taken from its conditions).
-2. **The Hexmapper**, when you roll from its Oracle panel or a trip: `hex`, `terrain`, `tags`, `region` and each field of the hex; during a trip, `season`, `weather`, `mode`, `day`, the party stats, today's values (`weather`, `…Modifier`, `…Impossible` set earlier the same day) and `edges` (the road or river being followed).
+2. **The Hexmapper**, when you roll from its Oracle panel or a trip: `hex`, `terrain`, `water`, `tags`, `name`, `region`, the fields of the region and the hex, the icon (`icon.*`) and the selected token (`token.*`); during a trip, `season`, `weather`, `mode`, `day`, the party stats, today's values (`weather`, `…Modifier`, `…Impossible` set earlier the same day) and `edges` (the road or river being followed).
 3. **The bindings** of a travel system: `context: { … }` adds fixed values for one check.
 4. **Inside the roll itself**:
    - An oracle's **input** is a value with its name (`odds: even`).

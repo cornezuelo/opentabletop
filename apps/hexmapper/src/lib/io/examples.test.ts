@@ -84,4 +84,20 @@ describe('example maps', () => {
     const sailing = stepTrip(options, boat, { type: 'setDestination', hex: '12,11' }).state
     expect(sailing.travel.route?.at(-1)).toBe('12,11')
   })
+
+  it('values: a region gives danger to its hexes, a hex can override it, icons add theirs', () => {
+    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const world = mapWorld(map)
+    expect(world.cell('10,7')).toMatchObject({ region: 'The Greywood', danger: 2 })
+    expect(world.cell('14,3')).toMatchObject({ region: 'The Greywood', danger: 4 })
+    expect(world.cell('5,7')).toMatchObject({
+      name: 'Ashford',
+      region: 'Ashford Vale',
+      icon: { id: 'game:village', guards: 0 },
+    })
+    expect(world.cell('5,7')).not.toHaveProperty('danger')
+    expect(map.tokens.find((t) => t.name === 'Brenna')?.fields).toEqual([
+      { key: 'fare', value: '2' },
+    ])
+  })
 })

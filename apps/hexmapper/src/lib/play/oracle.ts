@@ -2,6 +2,7 @@ import { createOracleUi } from '@open-tabletop/oracle-ui'
 import { addEntry } from '@open-tabletop/session'
 import { defaultCalendar } from '@open-tabletop/time'
 import { getLocale } from '../i18n/index.svelte'
+import { fieldValues } from '../model/hex'
 import type { HexKey } from '../model/types'
 import { newId } from '../model/id'
 import { editor } from '../store/editor.svelte'
@@ -80,5 +81,8 @@ export function rollContext(): Record<string, unknown> {
   const hex = rollHex()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
   if (hex && cell) Object.assign(out, cell, { hex })
+  // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.might}}.
+  const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
+  if (token) out.token = { name: token.name, kind: token.kind, ...fieldValues(token.fields) }
   return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined && v !== null))
 }
