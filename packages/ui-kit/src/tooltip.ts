@@ -1,6 +1,7 @@
 /**
  * Styled tooltips (instead of the browser's native `title`). One floating element
  * shared by the whole app, positioned above the target (or below if there's no room).
+ * Inside an open modal dialog it moves into the dialog (the top layer).
  *
  *   <button use:tooltip={t('…')}>…</button>
  */
@@ -32,6 +33,10 @@ function ensureBubble(): HTMLDivElement {
 function show(target: HTMLElement, text: string): void {
   if (!text) return
   const el = ensureBubble()
+  // Modal dialogs live in the browser's top layer, above any z-index: follow the target
+  // into its dialog so the tooltip isn't hidden behind it.
+  const host = target.closest('dialog[open]') ?? document.body
+  if (el.parentElement !== host) host.appendChild(el)
   el.textContent = text
   el.dataset.visible = 'true'
   const rect = target.getBoundingClientRect()
