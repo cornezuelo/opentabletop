@@ -1,0 +1,14 @@
+{
+  "name": "@open-tabletop/time",
+  "version": "0.0.0",
+  "description": "Game time as absolute minutes, with pluggable calendars (days, watches, seasons).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  }
+}
