@@ -380,6 +380,40 @@ describe('oracles', () => {
   })
 })
 
+describe('once-only oracle entries', () => {
+  const { registry } = load([
+    {
+      path: 'test/oracle-once.yaml',
+      content: `
+kind: oracle
+id: omen
+inputs:
+  mood: { options: [dark, bright] }
+variants:
+  dark:
+    entries:
+      - { result: Raven, once: true }
+      - { result: Crow }
+  bright:
+    entries:
+      - { result: Dove, once: true }
+      - { result: Lark }
+`,
+    },
+  ])
+
+  it('count each variant on its own when entries have no id', () => {
+    // 0.1 picks the first entry; a pick of an exhausted one is rerolled (0.9 → the second).
+    const engine = createOracleEngine({ registry, random: sequence([0.1, 0.1, 0.1, 0.9]) })
+    const dark = engine.resolve('test/omen', { mood: 'dark' })
+    expect(dark.resolution.text).toBe('Raven')
+    const bright = engine.resolve('test/omen', { mood: 'bright' }, dark.state)
+    expect(bright.resolution.text).toBe('Dove')
+    const again = engine.resolve('test/omen', { mood: 'dark' }, bright.state)
+    expect(again.resolution.text).toBe('Crow')
+  })
+})
+
 describe('generators', () => {
   const { registry } = load()
 
@@ -428,6 +462,25 @@ describe('decks', () => {
     expect(second.resolution.value).toEqual({ empty: true })
     const shuffled = engine.shuffle('test/one-shot', second.state)
     expect(engine.draw('test/one-shot', shuffled).resolution.text).toBe('Única')
+  })
+
+  it('keeps working after the deck is edited', () => {
+    const engine = createOracleEngine({ registry, random: seeded(5) })
+    // Saved piles mention a card that no longer exists and lack the ambush card.
+    const state = {
+      ...emptyState(),
+      decks: { 'test/events': { draw: ['gone', 'storm'], discard: ['storm'] } },
+    }
+    const drawn: string[] = []
+    let current = state
+    for (let i = 0; i < 2; i++) {
+      const outcome = engine.draw('test/events', current)
+      drawn.push(outcome.resolution.entry!)
+      current = outcome.state
+    }
+    expect(drawn.sort()).toEqual(['ambush', 'storm'])
+    expect(current.decks['test/events'].draw).toEqual([])
+    expect(current.decks['test/events'].discard.sort()).toEqual(['ambush', 'storm', 'storm'])
   })
 
   it('refuses to draw from something that is not a deck', () => {

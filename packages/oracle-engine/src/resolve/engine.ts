@@ -158,11 +158,7 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       const deck = lookup(id)
       if (deck.kind !== 'deck') throw new OracleError(`"${id}" is not a deck`)
       const next = structuredClone(state)
-      const current = next.decks[deck.id] ?? { draw: allCards(deck), discard: [] }
-      next.decks[deck.id] = {
-        draw: shuffled(random, [...current.draw, ...current.discard]),
-        discard: [],
-      }
+      next.decks[deck.id] = { draw: shuffled(random, allCards(deck)), discard: [] }
       options.onEvent?.({ type: 'DECK_RESHUFFLED', source: deck.id })
       return next
     },
@@ -206,12 +202,14 @@ class Run {
       throw new OracleError(`Maximum depth (${this.maxDepth}) exceeded at "${def.id}"`)
     switch (def.kind) {
       case 'table': {
-        const res = this.resolveList(def, def, context, depth, advantage)
+        const res = this.resolveList(def, def, context, depth, advantage, '')
         this.onEvent?.({ type: 'TABLE_RESOLVED', source: def.id })
         return res
       }
       case 'oracle': {
-        const [input, spec] = Object.entries(def.inputs)[0]
+        const first = Object.entries(def.inputs)[0]
+        if (!first) throw new OracleError(`"${def.id}" has no input`)
+        const [input, spec] = first
         const requested = context[input]
         const option =
           typeof requested === 'string' && def.variants[requested]
@@ -225,6 +223,7 @@ class Run {
           { ...context, [input]: option },
           depth,
           advantage,
+          option,
         )
         res.value = { [input]: option, ...res.value }
         this.onEvent?.({ type: 'ORACLE_RESOLVED', source: def.id })
@@ -268,24 +267,27 @@ class Run {
     context: Record<string, unknown>,
     depth: number,
     advantage: number,
+    /** The oracle variant the list belongs to ('' for tables). */
+    variant: string,
   ): Resolution {
     const node = this.node(def, context)
+    const exhausted = (e: CompiledEntry) => this.exhausted(def.id, variant, e)
     const candidates = list.entries.filter((e) => !e.when || matches(e.when, context))
     if (candidates.length === 0) return node
 
     let entry = this.pick(list, candidates, context, node, advantage, def.clamp ?? true)
-    if (entry && this.exhausted(def.id, entry)) {
+    if (entry && exhausted(entry)) {
       const policy = def.onExhausted ?? 'reroll'
-      const available = candidates.filter((e) => !this.exhausted(def.id, e))
+      const available = candidates.filter((e) => !exhausted(e))
       if (policy === 'none' || available.length === 0) entry = undefined
       else if (policy === 'next') {
         const start = candidates.indexOf(entry)
         entry = [...candidates.slice(start + 1), ...candidates.slice(0, start)].find(
-          (e) => !this.exhausted(def.id, e),
+          (e) => !exhausted(e),
         )
       } else {
         let tries = 0
-        while (entry && this.exhausted(def.id, entry) && tries++ < MAX_REROLLS)
+        while (entry && exhausted(entry) && tries++ < MAX_REROLLS)
           entry = this.pick(
             list,
             list.roll ? candidates : available,
@@ -294,12 +296,12 @@ class Run {
             0,
             def.clamp ?? true,
           )
-        if (entry && this.exhausted(def.id, entry)) entry = available[0]
+        if (entry && exhausted(entry)) entry = available[0]
       }
     }
     if (!entry) return node
     if (entry.limit) {
-      const key = `${def.id}#${entry.key}`
+      const key = occurrenceKey(def.id, variant, entry)
       this.state.occurrences[key] = (this.state.occurrences[key] ?? 0) + 1
     }
     this.applyEntry(
@@ -338,8 +340,11 @@ class Run {
     return undefined
   }
 
-  private exhausted(defId: string, entry: CompiledEntry): boolean {
-    return !!entry.limit && (this.state.occurrences[`${defId}#${entry.key}`] ?? 0) >= entry.limit
+  private exhausted(defId: string, variant: string, entry: CompiledEntry): boolean {
+    return (
+      !!entry.limit &&
+      (this.state.occurrences[occurrenceKey(defId, variant, entry)] ?? 0) >= entry.limit
+    )
   }
 
   /** Shared by table entries and deck cards: `set` values, delegation, text. */
@@ -366,10 +371,10 @@ class Run {
 
   private draw(deck: CompiledDeck, context: Record<string, unknown>, depth: number): Resolution {
     const node = this.node(deck, context)
-    const current = this.state.decks[deck.id] ?? {
-      draw: shuffled(this.random, allCards(deck)),
-      discard: [],
-    }
+    const saved = this.state.decks[deck.id]
+    const current = saved
+      ? reconcile(deck, saved, this.random)
+      : { draw: shuffled(this.random, allCards(deck)), discard: [] }
     let { draw, discard } = current
     if (draw.length === 0) {
       if (deck.reshuffle === 'manual') {
@@ -386,7 +391,7 @@ class Run {
     if (deck.reshuffle === 'after-draw') draw = shuffled(this.random, [...draw, key])
     else discard = [...discard, key]
     this.state.decks[deck.id] = { draw, discard }
-    const card = deck.cards.find((c) => c.key === key) as CompiledCard
+    const card = deck.cards.find((c) => c.key === key) as CompiledCard // reconciled above
     this.applyEntry(
       deck,
       card,
@@ -508,6 +513,37 @@ class Run {
   private node(def: Compiled, context: Record<string, unknown>): Resolution {
     return { source: def.id, kind: def.kind, value: {}, rolls: [], children: [], context }
   }
+}
+
+/**
+ * '<pack>/<id>#<entry>'. Entries of an oracle without an explicit id are numbered per
+ * variant ('#likely.0'), so each variant counts its own; explicit ids count across variants.
+ */
+function occurrenceKey(defId: string, variant: string, entry: CompiledEntry): string {
+  return variant && !entry.explicitId ? `${defId}#${variant}.${entry.key}` : `${defId}#${entry.key}`
+}
+
+/**
+ * Brings saved piles in line with the deck as it is now (it may have been edited since):
+ * unknown cards are dropped, extra copies removed, and missing copies shuffled into the draw pile.
+ */
+function reconcile(
+  deck: CompiledDeck,
+  piles: { draw: string[]; discard: string[] },
+  random: RandomSource,
+): { draw: string[]; discard: string[] } {
+  const left = new Map(deck.cards.map((c) => [c.key, c.count]))
+  const keep = (key: string) => {
+    const n = left.get(key) ?? 0
+    if (n <= 0) return false
+    left.set(key, n - 1)
+    return true
+  }
+  const discard = piles.discard.filter(keep)
+  let draw = piles.draw.filter(keep)
+  const missing = [...left].flatMap(([key, n]) => Array.from({ length: n }, () => key))
+  if (missing.length) draw = shuffled(random, [...draw, ...missing])
+  return { draw, discard }
 }
 
 function allCards(deck: CompiledDeck): string[] {

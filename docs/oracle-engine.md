@@ -200,7 +200,7 @@ interface OracleState {
 }
 ```
 
-It is serializable and goes into the OTD bundle (`state.oracle`). Definitions never change. Entries are identified by their explicit `id` or, failing that, their index (fine for stable packs; explicit ids are recommended for evolving ones).
+It is serializable and goes into the OTD bundle (`state.oracle`). Definitions never change. Entries are identified by their explicit `id` or, failing that, their index (fine for stable packs; explicit ids are recommended for evolving ones). In an oracle, an entry without an id is counted per variant (`#likely.0`), while an explicit id counts across variants (a `once` dragon appears once whatever the odds). Saved decks are reconciled with the deck as it is now: cards that no longer exist are dropped and new copies are shuffled into the draw pile, so editing a deck never breaks a session; shuffling always gathers every card.
 
 ## 7. Result model
 
