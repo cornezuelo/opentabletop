@@ -23,7 +23,7 @@ Shared packages: `@open-tabletop/pack-ui` (pack library with the editing operati
 
 Principles:
 
-- **Files are the source of truth.** Forms edit YAML through the `yaml` Document API (`pack-ui`'s `yaml.ts`), so comments, key order and formatting of the rest of the file survive. Anything a form can't edit (conditions, `set`, generator field context…) is edited in the YAML editor; the forms flag it.
+- **Files are the source of truth.** Forms edit YAML through the `yaml` Document API (`pack-ui`'s `yaml.ts`), so comments, key order and formatting of the rest of the file survive. Anything a form can't edit (a generator field's condition and context, nested `any`/`all`/`not`…) is edited in the YAML editor.
 - **Live validation:** every change recompiles the packs; engine diagnostics are mapped to lines (`locate`) and shown in the editor gutter and in the pack's problem list.
 - **Bundled packs are read-only.** "Edit a copy" copies the pack into the user's packs with the same folder, which overrides the bundled one (references from other packs keep working); "Revert to bundled" deletes the copy. Copies of personal-use packs stay personal use.
 - **User packs live in the browser** (`localStorage`, key `opentabletop.userPacks`, shared by OpenTabletop apps served from the same origin). Export a pack as `.zip` (its folder at the top, ready for `packs/`) to back it up or share it.
