@@ -260,7 +260,7 @@ export function bundleToMap(raw: unknown): HexMap {
   return deserializeMap(JSON.stringify(internal))
 }
 
-/** Parses a saved file: OTD bundles (.otd.json) or the legacy hexmapper format. */
+/** Parses a saved file (an OTD bundle). */
 export function parseMapFile(json: string): HexMap {
   let raw: unknown
   try {
@@ -268,5 +268,6 @@ export function parseMapFile(json: string): HexMap {
   } catch {
     throw new MapFormatError('invalid')
   }
-  return isBundle(raw) ? bundleToMap(raw) : deserializeMap(json)
+  if (!isBundle(raw)) throw new MapFormatError('invalid')
+  return bundleToMap(raw)
 }

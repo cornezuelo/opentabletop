@@ -28,9 +28,6 @@ import type {
   TerrainType,
 } from './types'
 
-/** Extension of the pre-OTD format, still importable. */
-export const FILE_EXTENSION = '.hexmap.json'
-
 export function serializeMap(map: HexMap): string {
   return JSON.stringify(map)
 }
@@ -132,8 +129,6 @@ function parseHex(value: Record<string, unknown>): HexData {
 }
 
 function parseIcon(value: unknown): HexData['icon'] {
-  // Older drafts stored just the id.
-  if (typeof value === 'string') return { id: value }
   if (!isRecord(value) || typeof value.id !== 'string') return undefined
   return {
     id: value.id,

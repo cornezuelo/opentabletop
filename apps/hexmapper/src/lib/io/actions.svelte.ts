@@ -63,7 +63,7 @@ export function saveMap(): void {
   downloadMap(JSON.stringify(mapToBundle(editor.map)), editor.map.meta.id)
 }
 
-/** Imports a `.hexmap.json` file into the library and opens it. */
+/** Imports an `.otd.json` file into the library and opens it. */
 export async function openMapFile(): Promise<void> {
   const json = await pickMapFile()
   if (json === null) return

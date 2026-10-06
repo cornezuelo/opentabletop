@@ -97,10 +97,12 @@ describe('OTD conversion', () => {
     expect(resaved.log).toEqual(bundle.log)
   })
 
-  it('opens both OTD bundles and legacy files', () => {
+  it('opens OTD bundles and rejects anything else', () => {
     const map = sampleMap()
     expect(parseMapFile(JSON.stringify(mapToBundle(map))).meta.id).toBe(map.meta.id)
-    expect(parseMapFile(serializeMap(map)).meta.id).toBe(map.meta.id)
+    expect(() => parseMapFile(serializeMap(map))).toThrowError(
+      expect.objectContaining({ code: 'invalid' }),
+    )
     expect(() => parseMapFile('{"otd":"9.0.0","maps":[]}')).toThrowError(
       expect.objectContaining({ code: 'newerVersion' }),
     )

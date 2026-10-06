@@ -199,8 +199,7 @@ export const en = {
     linkCopied: 'Map link copied',
     copyHexLink: 'Copy link to this hex',
     hexLinkCopied: 'Hex link copied',
-    notFound:
-      'Map {id} is not in this browser. Import {id}.otd.json (or the older {id}.hexmap.json) to open it.',
+    notFound: 'Map {id} is not in this browser. Import {id}.otd.json to open it.',
     hexNotFound: 'Hex {hex} is not on this map.',
   },
   newMap: {

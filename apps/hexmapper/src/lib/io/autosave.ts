@@ -1,11 +1,5 @@
-/**
- * Local map library in IndexedDB: every map this browser has opened, keyed by map id.
- * Version 1 had a single "autosave" entry in the `maps` store; version 2 adds the
- * `library` store and migrates that entry into it.
- */
+/** Local map library in IndexedDB: every map this browser has opened, keyed by map id. */
 const DB_NAME = 'hexmapper'
-const LEGACY_STORE = 'maps'
-const LEGACY_KEY = 'autosave'
 const STORE = 'library'
 
 export interface LibraryEntry {
@@ -18,30 +12,13 @@ export interface LibraryEntry {
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 2)
-    request.onupgradeneeded = (event) => {
+    request.onupgradeneeded = () => {
       const db = request.result
-      if (!db.objectStoreNames.contains(LEGACY_STORE)) db.createObjectStore(LEGACY_STORE)
-      const library = db.createObjectStore(STORE, { keyPath: 'id' })
-      if (event.oldVersion >= 1) migrateLegacy(request.transaction!, library)
+      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' })
     }
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
   })
-}
-
-function migrateLegacy(tx: IDBTransaction, library: IDBObjectStore): void {
-  const get = tx.objectStore(LEGACY_STORE).get(LEGACY_KEY)
-  get.onsuccess = () => {
-    const json = get.result
-    if (typeof json !== 'string') return
-    try {
-      const meta = JSON.parse(json).meta ?? {}
-      if (typeof meta.id === 'string')
-        library.put({ id: meta.id, name: meta.name ?? '', modified: meta.modified ?? '', json })
-    } catch {
-      // Unreadable legacy autosave: nothing to migrate.
-    }
-  }
 }
 
 async function run<T>(

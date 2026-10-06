@@ -1,5 +1,4 @@
 import { FILE_EXTENSION } from '@open-tabletop/schema'
-import { FILE_EXTENSION as LEGACY_EXTENSION } from '../model/serialize'
 
 /** Saves the map as `<id>.otd.json`, so the file can be found from a map link. */
 export function downloadMap(json: string, mapId: string): void {
@@ -16,7 +15,7 @@ export function pickMapFile(): Promise<string | null> {
   return new Promise((resolve) => {
     const input = document.createElement('input')
     input.type = 'file'
-    input.accept = `${FILE_EXTENSION},${LEGACY_EXTENSION},.json,application/json`
+    input.accept = `${FILE_EXTENSION},.json,application/json`
     input.onchange = () => {
       const file = input.files?.[0]
       if (file) file.text().then(resolve, () => resolve(null))

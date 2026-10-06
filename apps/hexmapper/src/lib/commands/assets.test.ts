@@ -87,12 +87,4 @@ describe('assets', () => {
       outlineColor: '#000000',
     })
   })
-
-  it('reads icons saved as plain ids', () => {
-    const raw = JSON.parse(serializeMap(createMap()))
-    raw.hexes['1,1'] = { icon: 'game:castle' }
-    expect(deserializeMap(JSON.stringify(raw)).hexes['1,1']).toEqual({
-      icon: { id: 'game:castle' },
-    })
-  })
 })
