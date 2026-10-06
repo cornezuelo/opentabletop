@@ -34,7 +34,8 @@ packages/                   # libraries, scope @open-tabletop/*
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
   session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal
   ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts
-  oracle-ui/  travel-ui/    # ⏳ embeddable Svelte components for each engine
+  oracle-ui/                # ✅ embeddable Oracle: pack library (bundled + user packs), roll panel, history
+  travel-ui/                # ⏳ embeddable Svelte components for the Travel Engine
 apps/
   hexmapper/                # ✅ map editor (see apps/hexmapper/CLAUDE.md)
   oracle/                   # ✅ roll and edit packs (see apps/oracle/CLAUDE.md)
@@ -124,7 +125,7 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 4. [x] `oracle-engine` MVP and the private Kal-Arath pack (es): tables, settlements, dungeons, travel rules, bindings.
 5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
 6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
-7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). Extracting reusable `*-ui` packages is still pending.
+7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). `oracle-ui` is extracted and embedded in the hexmapper; `travel-ui` is still pending.
 8. [ ] Standalone `oracle` (✅ first version: browse and roll every definition, history, form editor for tables with translations, YAML editor with live diagnostics, new packs, zip import/export) and `travel` (pending) apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
 9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
 

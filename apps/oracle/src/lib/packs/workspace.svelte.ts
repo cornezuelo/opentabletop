@@ -1,56 +1,12 @@
-import {
-  createOracleEngine,
-  loadPacks,
-  type Diagnostic,
-  type OracleEngine,
-} from '@open-tabletop/oracle-engine'
-import { mathRandom } from '@open-tabletop/random'
+import type { Diagnostic } from '@open-tabletop/oracle-engine'
+import { PackLibrary } from '@open-tabletop/oracle-ui'
 import { showToast } from '@open-tabletop/ui-kit'
 import { t } from '../i18n'
 import { bundledPacks } from './bundled'
-import {
-  effectivePacks,
-  engineFiles,
-  manifestOf,
-  MANIFEST_FILE,
-  type PackSource,
-  type WorkspacePack,
-} from './workspace'
+import { manifestOf, MANIFEST_FILE, type PackSource } from './workspace'
 
-/**
- * User packs are stored in the browser under an ecosystem-wide key, so apps served from
- * the same origin (hexmapper, oracle…) see the same packs.
- */
-const STORAGE = 'opentabletop.userPacks'
-
-function loadUser(): PackSource[] {
-  try {
-    const raw = localStorage.getItem(STORAGE)
-    const parsed = raw ? (JSON.parse(raw) as PackSource[]) : []
-    return Array.isArray(parsed) ? parsed.map((p) => ({ ...p, origin: 'user' as const })) : []
-  } catch {
-    return []
-  }
-}
-
-class Workspace {
-  user = $state.raw<PackSource[]>(loadUser())
-  packs: WorkspacePack[] = $derived(effectivePacks(bundledPacks, this.user))
-  loaded = $derived(loadPacks(engineFiles(this.packs)))
-  registry = $derived(this.loaded.registry)
-  engine: OracleEngine = $derived(
-    createOracleEngine({ registry: this.registry, random: mathRandom() }),
-  )
-
-  pack(root: string): WorkspacePack | undefined {
-    return this.packs.find((p) => p.root === root)
-  }
-
-  /** Folder of the pack with that manifest id. */
-  rootOf(packId: string): string | undefined {
-    return this.packs.find((p) => manifestOf(p).id === packId)?.root
-  }
-
+/** The pack library plus the editing operations on user packs. */
+class Workspace extends PackLibrary {
   /** Engine diagnostics of a pack (by folder), optionally of one file. */
   diagnostics(root: string, file?: string): Diagnostic[] {
     const id = manifestOf(this.pack(root) ?? { root, origin: 'user', files: [] }).id
@@ -67,12 +23,7 @@ class Workspace {
   }
 
   private save(user: PackSource[]): void {
-    this.user = user
-    try {
-      localStorage.setItem(STORAGE, JSON.stringify(user))
-    } catch {
-      showToast(t('storage.full'), 'error', 8000)
-    }
+    if (!this.setUserPacks(user)) showToast(t('storage.full'), 'error', 8000)
   }
 
   private update(root: string, change: (pack: PackSource) => PackSource): void {
@@ -122,4 +73,4 @@ class Workspace {
   }
 }
 
-export const workspace = new Workspace()
+export const workspace = new Workspace(bundledPacks)

@@ -110,6 +110,9 @@ export function bindShortcuts(): () => void {
       case 'f':
         view.fit()
         break
+      case 'o':
+        editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle'
+        break
       default:
         return
     }

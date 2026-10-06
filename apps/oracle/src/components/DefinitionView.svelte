@@ -2,12 +2,13 @@
   import { t } from '../lib/i18n'
   import { displayDescription, displayName } from '../lib/names'
   import { go } from '../lib/nav.svelte'
+  import { RollPanel } from '@open-tabletop/oracle-ui'
+  import { oracleUi } from '../lib/oracle'
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '../lib/packs/yaml'
   import FileEditor from './FileEditor.svelte'
   import KindBadge from './KindBadge.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
-  import RollPanel from './RollPanel.svelte'
   import TableEditor from './TableEditor.svelte'
 
   let { id, tab }: { id: string; tab: 'roll' | 'edit' } = $props()
@@ -49,7 +50,7 @@
 
     <div class="body">
       {#if tab === 'roll'}
-        <RollPanel {def} />
+        <RollPanel ui={oracleUi} {def} />
       {:else if !editable}
         <ReadOnlyNotice {root} />
       {:else if def.kind === 'table'}

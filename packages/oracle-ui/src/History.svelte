@@ -1,21 +1,31 @@
 <script lang="ts">
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
-  import { displayName } from '../lib/names'
-  import { go } from '../lib/nav.svelte'
-  import { workspace } from '../lib/packs/workspace.svelte'
-  import { roller, type HistoryItem } from '../lib/roll/roller.svelte'
+  import type { HistoryItem } from './roller.svelte'
+  import type { OracleUi } from './ui'
+
+  let {
+    ui,
+    onopen,
+    embedded = false,
+  }: {
+    ui: OracleUi
+    /** Called when a past roll is clicked (after showing it in its roll panel). */
+    onopen?: (item: HistoryItem) => void
+    /** Inside another panel: no own background or border. */
+    embedded?: boolean
+  } = $props()
+  const { t, roller } = $derived(ui)
 
   function open(item: HistoryItem) {
     roller.show(item)
-    go({ name: 'def', id: item.source, tab: 'roll' })
+    onopen?.(item)
   }
 
   const time = (at: string) =>
     new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 </script>
 
-<aside class="history">
+<aside class="history" class:embedded>
   <header>
     <h2>{t('history.title')}</h2>
     <button class="link" onclick={() => roller.clearHistory()}>{t('history.clear')}</button>
@@ -29,11 +39,7 @@
     {#each roller.history as item (item.id)}
       <li>
         <button onclick={() => open(item)}>
-          <span class="meta"
-            >{displayName(workspace.registry.definitions.get(item.source), item.source)} · {time(
-              item.at,
-            )}</span
-          >
+          <span class="meta">{ui.nameOf(item.source)} · {time(item.at)}</span>
           <span class="text">{item.resolution.text ?? '—'}</span>
         </button>
       </li>
@@ -51,6 +57,12 @@
     padding: 10px;
     background: var(--panel);
     border-left: 1px solid var(--panel-border);
+  }
+
+  .history.embedded {
+    padding: 0;
+    background: none;
+    border: none;
   }
 
   header {

@@ -1,16 +1,26 @@
 <script lang="ts">
   import type { Compiled, CompiledEntry, EntryList } from '@open-tabletop/oracle-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
-  import { displayName, entryText } from '../lib/names'
-  import { workspace } from '../lib/packs/workspace.svelte'
-  import { roller } from '../lib/roll/roller.svelte'
-  import { contextVariables, parseContext } from '../lib/roll/variables'
+  import type { OracleUi } from './ui'
+  import { contextVariables, parseContext } from './variables'
   import ResultCard from './ResultCard.svelte'
 
-  let { def }: { def: Compiled } = $props()
+  let {
+    ui,
+    def,
+    context = {},
+    hotkeys = true,
+  }: {
+    ui: OracleUi
+    def: Compiled
+    /** Values the host app already knows (terrain, season…); typed values override them. */
+    context?: Record<string, unknown>
+    /** Space/Enter rolls again (off when the host uses those keys). */
+    hotkeys?: boolean
+  } = $props()
+  const { t, roller } = $derived(ui)
 
-  const variables = $derived(contextVariables(workspace.registry, def.id))
+  const variables = $derived(contextVariables(ui.library.registry, def.id))
   const inputs = $derived(def.kind === 'oracle' ? Object.entries(def.inputs) : [])
   $effect.pre(() => {
     if (!roller.contexts[def.id]) roller.contexts[def.id] = {}
@@ -36,10 +46,22 @@
   })
 
   function roll() {
-    roller.run(def.id, parseContext(values), def.kind === 'deck' ? 'draw' : 'resolve')
+    roller.run(
+      def.id,
+      { ...context, ...parseContext(values) },
+      def.kind === 'deck' ? 'draw' : 'resolve',
+    )
+  }
+
+  /** A host value as a placeholder ("forest", "road, ford"). */
+  function known(name: string): string {
+    const v = context[name]
+    if (v === undefined || v === null) return ''
+    return Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v)
   }
 
   function onkeydown(e: KeyboardEvent) {
+    if (!hotkeys) return
     const target = e.target as HTMLElement
     if (target.closest('input, textarea, select, button, [contenteditable], .cm-editor')) return
     if (e.key === ' ' || e.key === 'Enter') {
@@ -87,6 +109,7 @@
           <input
             type="text"
             list={variable.suggestions.length ? `vars-${variable.name}` : undefined}
+            placeholder={known(variable.name)}
             bind:value={values[variable.name]}
           />
           {#if variable.suggestions.length}
@@ -114,12 +137,12 @@
         <InfoTip text={t('roll.advantageHelp')} />
       </label>
     {/if}
-    <span class="hint">{t('roll.keyHint')}</span>
+    {#if hotkeys}<span class="hint">{t('roll.keyHint')}</span>{/if}
   </div>
 
   {#if shown}
     {#key shown.id}
-      <div class="card"><ResultCard resolution={shown.resolution} /></div>
+      <div class="card"><ResultCard {ui} resolution={shown.resolution} /></div>
     {/key}
   {/if}
 
@@ -133,16 +156,11 @@
           <tr class:chosen={chosen === entry.key}>
             <td class="range">{range(entry, list)}</td>
             <td>
-              {entryText(def, entry) ?? ''}
+              {ui.entryText(def, entry) ?? ''}
               {#if entry.ref}
                 <span class="muted">
                   {t('roll.then', {
-                    target: entry.ref.dynamic
-                      ? entry.ref.target
-                      : displayName(
-                          workspace.registry.definitions.get(entry.ref.target),
-                          entry.ref.target,
-                        ),
+                    target: entry.ref.dynamic ? entry.ref.target : ui.nameOf(entry.ref.target),
                   })}</span
                 >
               {/if}
@@ -182,11 +200,13 @@
   }
 
   fieldset .field {
-    width: 150px;
+    flex: 1 1 120px;
+    max-width: 180px;
   }
 
   .actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     align-items: center;
   }

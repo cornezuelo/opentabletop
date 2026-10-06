@@ -26,12 +26,17 @@ export const es: Messages = {
     undo: 'Deshacer (Ctrl+Z)',
     redo: 'Rehacer (Ctrl+Shift+Z)',
     fit: 'Encuadrar mapa (F)',
+    oracle: 'Oráculo: tira cualquier tabla (O)',
   },
   file: {
     loaded: 'Mapa cargado',
     errorInvalid: 'El fichero no es un mapa válido.',
     errorNewer: 'Este mapa se creó con una versión más reciente de Hexmapper.',
     errorAutosave: 'No se pudo recuperar el autoguardado.',
+  },
+  oracle: {
+    title: 'Oráculo',
+    help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oráculo aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
   panel: {
     map: 'Mapa',

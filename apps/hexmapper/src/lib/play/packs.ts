@@ -1,8 +1,8 @@
-import { groupBundled, type PackSource } from '@open-tabletop/oracle-ui/packs'
+import { groupBundled, PackLibrary } from '@open-tabletop/oracle-ui'
 
 /**
- * Packs bundled at build time: open ones from packs/ and, locally, personal-use ones from
- * packs-private/ (git-ignored; the glob is simply empty when it's missing).
+ * Packs bundled at build time: open ones from packs/ and, locally, personal-use ones
+ * from packs-private/ (git-ignored; the glob is simply empty when it's missing).
  */
 const open = import.meta.glob('../../../../../packs/**/*.{yaml,yml,json}', {
   query: '?raw',
@@ -15,7 +15,11 @@ const personal = import.meta.glob('../../../../../packs-private/**/*.{yaml,yml,j
   eager: true,
 }) as Record<string, string>
 
-export const bundledPacks: PackSource[] = [
+/**
+ * Bundled packs plus the user packs made in the Oracle app (shared browser storage when
+ * both apps are served from the same origin).
+ */
+export const library = new PackLibrary([
   ...groupBundled(open, 'packs'),
   ...groupBundled(personal, 'packs-private', true),
-]
+])

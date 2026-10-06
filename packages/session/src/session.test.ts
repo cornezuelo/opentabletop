@@ -16,7 +16,14 @@ import {
   initialTravelState,
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
-import { createSession, initialSessionState, localize, parseBindings, toOutcome } from './index'
+import {
+  addEntry,
+  createSession,
+  initialSessionState,
+  localize,
+  parseBindings,
+  toOutcome,
+} from './index'
 
 const shape: GridShape = { orientation: 'flat', width: 6, height: 6 }
 const key = (h: string) => parseKey(h as `${number},${number}`)
@@ -165,6 +172,27 @@ describe('session', () => {
       code: 'NOTE',
       text: 'Acampamos junto al pozo',
     })
+  })
+
+  it('adds hand-rolled results to the journal at the current game time', () => {
+    const state = addEntry(
+      start(),
+      { source: 'oracle', code: 'ORACLE_ROLL', text: 'Rain', data: { table: 'core/weather' } },
+      '2026-01-01T00:00:00Z',
+    )
+    expect(state.journal).toEqual([
+      {
+        id: 'j1',
+        time: start().travel.time,
+        at: '2026-01-01T00:00:00Z',
+        source: 'oracle',
+        code: 'ORACLE_ROLL',
+        text: 'Rain',
+        data: { table: 'core/weather' },
+      },
+    ])
+    expect(state.nextEntry).toBe(2)
+    expect(start().journal).toEqual([])
   })
 
   it('logs a check result at the time the check came up', () => {

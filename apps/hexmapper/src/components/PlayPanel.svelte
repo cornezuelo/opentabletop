@@ -17,6 +17,7 @@
     updatePlay,
     type Season,
   } from '../lib/play/play'
+  import { oracleUi } from '../lib/play/oracle'
   import { getSystem, playSystems } from '../lib/play/systems'
   import { availableActions } from '@open-tabletop/travel-engine'
   import { editor } from '../lib/store/editor.svelte'
@@ -117,6 +118,8 @@
     switch (e.code) {
       case 'ORACLE_RESULT':
         return `${eventName(d.event)}: ${e.text ?? '—'}`
+      case 'ORACLE_ROLL':
+        return `${oracleUi.nameOf(String(d.table))}: ${e.text ?? '—'}`
       case 'CHECK_PENDING':
         return t('play.journal.pending', { event: eventName(d.event) })
       case 'HEX_ENTERED':

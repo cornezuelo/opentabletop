@@ -1,12 +1,15 @@
 <script lang="ts">
   import type { Resolution } from '@open-tabletop/oracle-engine'
   import type { DiceResult } from '@open-tabletop/dice'
-  import { t } from '../lib/i18n'
-  import { displayName } from '../lib/names'
-  import { workspace } from '../lib/packs/workspace.svelte'
+  import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
 
-  let { resolution, top = true }: { resolution: Resolution; top?: boolean } = $props()
+  let {
+    ui,
+    resolution,
+    top = true,
+  }: { ui: OracleUi; resolution: Resolution; top?: boolean } = $props()
+  const t = $derived(ui.t)
 
   const scalars = $derived(
     Object.entries(resolution.value).filter(
@@ -53,10 +56,8 @@
       <summary>{t('roll.details')}</summary>
       {#each resolution.children as child, i (i)}
         <div class="child">
-          <span class="source"
-            >{displayName(workspace.registry.definitions.get(child.source), child.source)}</span
-          >
-          <Self resolution={child} top={false} />
+          <span class="source">{ui.nameOf(child.source)}</span>
+          <Self {ui} resolution={child} top={false} />
         </div>
       {/each}
     </details>

@@ -94,8 +94,8 @@ Done:
 
 - [x] Files in OTD (`.otd.json`), world scale.
 - [x] Play mode (tool ▶, key P): party token (bundled party icons or an uploaded image, optional halo), trail. _Simple_: click to move. _With rules_: system (generic or a pack with travel-rules, e.g. Kal-Arath), destination and A\* route, travel / 1 hex / camp / rest (the actions each system declares), pack-declared party stats, checks resolved by the Oracle through pack bindings, journal. Saved as OTD party + log + state.oracle.
-- [ ] Embed the Oracle app's roll panel (any table, history) as an `oracle-ui` package.
-- [ ] Use the user packs created in the Oracle app (same browser storage key when both apps share an origin).
+- [x] Oracle side panel (🎲, key O) from `@open-tabletop/oracle-ui`: roll any definition of the loaded packs, with history. Rolls read the selected hex (or the party's) and, on a rules trip, season, weather, mode, stats and today's values; those rolls are also written in the journal (`ORACLE_ROLL`).
+- [x] User packs created in the Oracle app are loaded too (shared `opentabletop.userPacks` storage when both apps share an origin; live across tabs), including systems with travel rules.
 
 ### Later
 

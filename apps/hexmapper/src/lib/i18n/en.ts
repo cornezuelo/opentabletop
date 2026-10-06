@@ -25,12 +25,17 @@ export const en = {
     undo: 'Undo (Ctrl+Z)',
     redo: 'Redo (Ctrl+Shift+Z)',
     fit: 'Fit map to view (F)',
+    oracle: 'Oracle: roll any table (O)',
   },
   file: {
     loaded: 'Map loaded',
     errorInvalid: 'The file is not a valid map.',
     errorNewer: 'This map was created with a newer version of Hexmapper.',
     errorAutosave: 'The autosave could not be restored.',
+  },
+  oracle: {
+    title: 'Oracle',
+    help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
   panel: {
     map: 'Map',

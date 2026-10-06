@@ -1,33 +1,11 @@
-import {
-  createOracleEngine,
-  formatDiagnostic,
-  loadPacks,
-  type OracleEngine,
-} from '@open-tabletop/oracle-engine'
-import { mathRandom } from '@open-tabletop/random'
+import { formatDiagnostic, type OracleEngine, type Registry } from '@open-tabletop/oracle-engine'
 import { parseBindings, type Bindings } from '@open-tabletop/session'
 import {
   genericTravelRules,
   parseTravelRules,
   type TravelRules,
 } from '@open-tabletop/travel-engine'
-
-/**
- * Packs bundled at build time: open ones from packs/ and, locally, personal-use ones
- * from packs-private/ (git-ignored; the glob is simply empty when it's missing).
- */
-const files = {
-  ...import.meta.glob('../../../../../packs/**/*.{yaml,yml,json}', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  }),
-  ...import.meta.glob('../../../../../packs-private/**/*.{yaml,yml,json}', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-  }),
-} as Record<string, string>
+import { library } from './packs'
 
 export interface PlaySystem {
   /** Pack id, or 'generic' for the built-in rules. */
@@ -38,25 +16,19 @@ export interface PlaySystem {
 }
 
 interface Loaded {
+  registry: Registry
   systems: PlaySystem[]
-  oracle: OracleEngine
-  locale: Record<string, string>
 }
 
 let loaded: Loaded | null = null
 
+/** Systems of the loaded packs, recomputed when the packs change (e.g. a user pack). */
 function load(): Loaded {
-  if (loaded) return loaded
-  const packFiles = Object.entries(files).map(([path, content]) => ({
-    path: path.replace(/^.*\/packs(-private)?\//, ''),
-    content,
-  }))
-  const { registry, diagnostics } = loadPacks(packFiles)
-  for (const d of diagnostics) console.warn(`[packs] ${formatDiagnostic(d)}`)
+  const registry = library.registry
+  if (loaded?.registry === registry) return loaded
+  for (const d of library.loaded.diagnostics) console.warn(`[packs] ${formatDiagnostic(d)}`)
   const systems: PlaySystem[] = [{ id: 'generic', name: '', rules: genericTravelRules }]
-  const locale: Record<string, string> = {}
   for (const [id, pack] of registry.packs) {
-    locale[id] = pack.manifest.locale
     const extras = registry.extras.get(id) ?? []
     const rulesRaw = extras.find((e) => e.kind === 'travel-rules')
     if (!rulesRaw) continue
@@ -70,7 +42,7 @@ function load(): Loaded {
     const name = typeof pack.manifest.name === 'string' ? pack.manifest.name : id
     systems.push({ id, name, rules, bindings })
   }
-  loaded = { systems, oracle: createOracleEngine({ registry, random: mathRandom() }), locale }
+  loaded = { registry, systems }
   return loaded
 }
 
@@ -84,5 +56,5 @@ export function getSystem(id: string): PlaySystem {
 }
 
 export function oracle(): OracleEngine {
-  return load().oracle
+  return library.engine
 }

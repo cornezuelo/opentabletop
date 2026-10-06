@@ -26,6 +26,7 @@
     "@lezer/highlight": "^1.2.5",
     "@open-tabletop/dice": "*",
     "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/oracle-ui": "*",
     "@open-tabletop/random": "*",
     "@open-tabletop/ui-kit": "*",
     "codemirror": "^6.0.2",

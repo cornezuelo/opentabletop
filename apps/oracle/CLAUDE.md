@@ -10,12 +10,14 @@ Standalone app of the Oracle Engine: **browse and roll** every table, oracle, ge
 src/
   lib/
     packs/      # workspace (bundled + user packs, overrides), YAML edits, zip import/export, templates
-    roll/       # roller (Oracle state, history), context variables detection
     i18n/       # typed en/es dictionaries on top of ui-kit's createI18n
+    oracle.ts   # the app's OracleUi (roller, history, pack texts) from @open-tabletop/oracle-ui
     nav.svelte.ts  # view state mirrored in the URL hash (#/def/<pack>/<id>[/edit], #/pack/<folder>, #/file/<folder>/<path>)
-  components/   # Sidebar, DefinitionView (Roll / Edit tabs), RollPanel, ResultCard, TableEditor,
-                # PackView, FileEditor (CodeMirror), History, NewPackDialog
+  components/   # Sidebar, DefinitionView (Roll / Edit tabs), TableEditor, PackView,
+                # FileEditor (CodeMirror), NewPackDialog
 ```
+
+The roll panel, result card, history, roller, pack library and context variables detection live in `@open-tabletop/oracle-ui`, shared with the hexmapper. The app's `Workspace` extends its `PackLibrary` with the editing operations.
 
 Principles:
 
@@ -23,7 +25,7 @@ Principles:
 - **Live validation:** every change recompiles the packs; engine diagnostics are mapped to lines (`locate`) and shown in the editor gutter and in the pack's problem list.
 - **Bundled packs are read-only.** "Edit a copy" copies the pack into the user's packs with the same folder, which overrides the bundled one (references from other packs keep working); "Revert to bundled" deletes the copy. Copies of personal-use packs stay personal use.
 - **User packs live in the browser** (`localStorage`, key `opentabletop.userPacks`, shared by OpenTabletop apps served from the same origin). Export a pack as `.zip` (its folder at the top, ready for `packs/`) to back it up or share it.
-- **Context variables** a definition reads (roll and reference templates, condition keys) are detected by following its references (`lib/roll/variables.ts`), so the roll panel asks for them; values seen in conditions are offered as suggestions.
+- **Context variables** a definition reads (roll and reference templates, condition keys) are detected by following its references (`oracle-ui`'s `variables.ts`), so the roll panel asks for them; values seen in conditions are offered as suggestions.
 
 ## Done
 
@@ -41,4 +43,3 @@ Principles:
 - Edit `when` conditions and `set` values in the table form.
 - Undo/redo across form edits (the YAML editor has its own).
 - Roll statistics (distribution of a table) and coverage view.
-- Extract the roll panel as `oracle-ui` for the hexmapper.

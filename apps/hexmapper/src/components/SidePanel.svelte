@@ -13,7 +13,10 @@
   import Preferences from './Preferences.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
+  import { OraclePanel } from '@open-tabletop/oracle-ui'
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
+  import { oracleUi, rollContext } from '../lib/play/oracle'
   import { editor } from '../lib/store/editor.svelte'
 </script>
 
@@ -48,6 +51,17 @@
       >
     </header>
     <div class="export"><LibraryPanel /></div>
+  {:else if editor.panelView === 'oracle'}
+    <header>
+      <h1>{t('oracle.title')}<InfoTip text={t('oracle.help')} /></h1>
+      <button
+        class="close"
+        title={t('panel.closeSettings')}
+        aria-label={t('panel.closeSettings')}
+        onclick={() => (editor.panelView = 'tool')}>✕</button
+      >
+    </header>
+    <div class="export"><OraclePanel ui={oracleUi} context={rollContext()} /></div>
   {:else if editor.panelView === 'export'}
     <header>
       <h1>{t('export.title')}</h1>

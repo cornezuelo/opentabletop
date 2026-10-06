@@ -228,11 +228,23 @@ export function createSession(options: {
       return { state: s, entries }
     },
     note(input, text) {
-      const s = structuredClone(input)
-      add(s, [], { source: 'user', code: 'NOTE', text })
-      return s
+      return addEntry(input, { source: 'user', code: 'NOTE', text }, now())
     },
   }
+}
+
+/**
+ * Adds an entry to the journal at the current game time, outside a travel step: user
+ * notes, or tables rolled by hand (`source: 'oracle'`, `code: 'ORACLE_ROLL'`).
+ */
+export function addEntry(
+  input: SessionState,
+  entry: Omit<JournalEntry, 'id' | 'at' | 'time'>,
+  at: string = new Date().toISOString(),
+): SessionState {
+  const s = structuredClone(input)
+  s.journal.push({ id: `j${s.nextEntry++}`, time: s.travel.time, at, ...entry })
+  return s
 }
 
 /** Table values that the travel engine understands as a check outcome. */

@@ -2,12 +2,13 @@
   import { showToast, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
-  import History from './components/History.svelte'
+  import { History } from '@open-tabletop/oracle-ui'
   import NewPackDialog from './components/NewPackDialog.svelte'
   import PackView from './components/PackView.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
+  import { oracleUi } from './lib/oracle'
   import { workspace } from './lib/packs/workspace.svelte'
   import { manifestOf } from './lib/packs/workspace'
   import { zipToPack } from './lib/packs/zip'
@@ -83,7 +84,7 @@
     {/if}
   </main>
 
-  <History />
+  <History ui={oracleUi} onopen={(item) => go({ name: 'def', id: item.source, tab: 'roll' })} />
 </div>
 
 {#if creating}
