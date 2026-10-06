@@ -17,17 +17,37 @@ El mismo sistema se juega sin mapa en la aplicación Travel.
 
 ## Los lugares
 
-| Lugar                                                | En el mapa                                | Qué pasa                                                                           |
-| ---------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------- |
-| **Ashford** (Vado Ceniza), en el Valle               | El pueblo del oeste                       | Seguro: sin peligro. Pregunta en las puertas con el oráculo _¿Nos dejarán entrar?_ |
-| **Keld Bridge** (el puente)                          | Donde el camino cruza el río              | Etiqueta `toll`: por el camino, el guarda se cobra un día de comida                |
-| **El vado**                                          | Donde la senda del santuario cruza el río | Etiqueta `ford`: se tira en el oráculo _Cruzar el vado_ (no en barca)              |
-| **El santuario**                                     | En el borde del Bosque Gris               | Etiqueta `shrine`: descansar quita fatiga; una plegaria se responde, una vez       |
-| **The Grey Stones** (las Piedras Grises)             | Al norte de Ashford                       | Etiqueta `landmark`: el viaje te espera hasta que pulses **Continuar**             |
-| **The Greywood** (el Bosque Gris)                    | El bosque del norte                       | Peligro 1–4, hexes `haunted`; la Sierpe, una sola vez                              |
-| **The Saltmere** (el Lago Salado) y la barca         | El lago; Brenna en la orilla              | Agua: solo la barca lo cruza                                                       |
-| **The Hollow Hills**, **Fort Keld**, **Hollow Gate** | El sureste                                | Bandidos; cumbres que nadie cruza                                                  |
-| **Unknown lands** (tierras desconocidas)             | El este en blanco                         | Se descubren al viajar                                                             |
+Los hexes se dan por sus coordenadas (columna y fila, como las muestra el mapa: `0503` es la columna 5, fila 3).
+
+| Hex            | Lugar                                                               | Qué pasa                                                                                                   |
+| -------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 0608           | **Ashford** (Vado Ceniza), en el Valle (el pueblo, oeste)           | Donde empieza el grupo. Seguro: sin peligro. Pregunta en las puertas con el oráculo _¿Nos dejarán entrar?_ |
+| 0503           | **The Grey Stones** (las Piedras Grises, al norte de Ashford)       | Etiqueta `landmark`: el viaje **se detiene** y te espera a que describas el lugar y pulses **Continuar**.  |
+| 0909           | **Keld Bridge** (el camino cruza el río)                            | Etiqueta `toll`: llegando por el camino, el guarda se cobra un día de comida.                              |
+| 0907           | **El vado** (la senda del santuario cruza el río)                   | Etiqueta `ford`: se tira en el oráculo _Cruzar el vado_ (no en barca).                                     |
+| 1104           | **El santuario** (borde del Bosque Gris)                            | Etiqueta `shrine`: descansar quita fatiga; una plegaria se responde, una vez.                              |
+| 1302–1706      | **The Greywood** (el Bosque Gris, al norte)                         | Peligro 2 (3–4 en su corazón), hexes `haunted` en 1404, 1505 y 1603; la Sierpe (1504), una sola vez.       |
+| 1011           | **La barca**, Brenna en la orilla del **Saltmere** (el Lago Salado) | Agua: solo la barca cruza el lago.                                                                         |
+| 1610, 1815     | **Fort Keld**, **Hollow Gate** en **las Hollow Hills**              | Peligro 2: bandidos; cumbres que nadie cruza.                                                              |
+| columnas 20–24 | **Unknown lands** (el este en blanco)                               | Se descubren al viajar.                                                                                    |
+
+## Qué se tira y cuándo
+
+Todas las comprobaciones están en `travel.yaml`; el diario dice cada una cuando sale.
+
+| Comprobación       | Cuándo                                                                                                     | Tabla                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Clima              | Cada amanecer                                                                                              | `weather` (por estación)       |
+| Perderse           | Cada amanecer, salvo si sales por un camino o río, o en barca                                              | `getting-lost` (+ Orientación) |
+| Encuentro          | Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino             | `encounter` (de día)           |
+| Peaje              | Al entrar en Keld Bridge (0909) por el camino                                                              | `toll`                         |
+| Vado               | Al entrar en el vado (0907), salvo en barca                                                                | oráculo `ford`                 |
+| Santuario          | Al entrar en el santuario (1104)                                                                           | `shrine`                       |
+| **Lugar señalado** | Al entrar en las Piedras Grises (0503), o en un lugar señalado descubierto: **sin tabla, pulsa Continuar** | —                              |
+| Encuentro nocturno | Al acampar con peligro 2 o más                                                                             | `encounter` (de noche)         |
+| Forrajear          | Al acampar en bosque, bosque denso, llanura, cultivos, brezal o marisma                                    | `forage` (+ Supervivencia)     |
+
+**Para ver Continuar**: desde Ashford haz clic en las Piedras Grises (0503) y **Viajar**. El viaje se detiene al llegar con _Lugar señalado: esperando_ y un botón **Continuar** en el panel del viaje; el diario dice lo mismo.
 
 ## Dónde está cada cosa
 

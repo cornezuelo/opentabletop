@@ -15,17 +15,37 @@ The same system plays without a map in the Travel app.
 
 ## The places
 
-| Place                                                | On the map                              | What happens                                                             |
-| ---------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------ |
-| **Ashford**, in Ashford Vale                         | The village in the west                 | Safe: no danger. Ask at the gates with the oracle _Will they let us in?_ |
-| **Keld Bridge**                                      | Where the road crosses the river        | Tag `toll`: by road, the bridge-warden takes a day's food                |
-| **The ford**                                         | Where the shrine path crosses the river | Tag `ford`: rolled on the oracle _Crossing the ford_ (not by boat)       |
-| **Wayside shrine**                                   | At the edge of the Greywood             | Tag `shrine`: rest eases fatigue; one prayer is answered, once           |
-| **The Grey Stones**                                  | North of Ashford                        | Tag `landmark`: the trip waits for you to **Continue**                   |
-| **The Greywood**                                     | The forest in the north                 | Danger 1–4, `haunted` hexes; the Wyrm, once                              |
-| **The Saltmere** and **the ferry**                   | The lake; Brenna at its shore           | Water: only the boat crosses it                                          |
-| **The Hollow Hills**, **Fort Keld**, **Hollow Gate** | The south-east                          | Bandits; peaks nobody can cross                                          |
-| **Unknown lands**                                    | The blank east                          | Discovered as you go                                                     |
+Hexes are given by their coordinates (column and row, as the map shows them: `0503` is column 5, row 3).
+
+| Hex           | Place                                                  | What happens                                                                                       |
+| ------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| 0608          | **Ashford**, in Ashford Vale (the village, west)       | Where the party starts. Safe: no danger. Ask at the gates with the oracle _Will they let us in?_   |
+| 0503          | **The Grey Stones** (north of Ashford)                 | Tag `landmark`: the trip **stops** and waits for you to describe the place and press **Continue**. |
+| 0909          | **Keld Bridge** (the road crosses the river)           | Tag `toll`: arriving by road, the bridge-warden takes a day's food.                                |
+| 0907          | **The ford** (the shrine path crosses the river)       | Tag `ford`: rolled on the oracle _Crossing the ford_ (not by boat).                                |
+| 1104          | **Wayside shrine** (edge of the Greywood)              | Tag `shrine`: rest eases fatigue; one prayer is answered, once.                                    |
+| 1302–1706     | **The Greywood** (the forest, north)                   | Danger 2 (3–4 in its heart), `haunted` hexes at 1404, 1505 and 1603; the Wyrm (1504), once.        |
+| 1011          | **The ferry**, Brenna at the shore of **the Saltmere** | Water: only the boat crosses the lake.                                                             |
+| 1610, 1815    | **Fort Keld**, **Hollow Gate** in **the Hollow Hills** | Danger 2: bandits; peaks nobody can cross.                                                         |
+| columns 20–24 | **Unknown lands** (the blank east)                     | Discovered as you go.                                                                              |
+
+## What is rolled, and when
+
+Every check is in `travel.yaml`; the journal says each one as it comes up.
+
+| Check           | When                                                                                    | Table                         |
+| --------------- | --------------------------------------------------------------------------------------- | ----------------------------- |
+| Weather         | Every dawn                                                                              | `weather` (by season)         |
+| Getting lost    | Every dawn, unless you set off along a road or river, or by boat                        | `getting-lost` (+ Navigation) |
+| Encounter       | Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road    | `encounter` (by day)          |
+| Toll            | Entering Keld Bridge (0909) by road                                                     | `toll`                        |
+| Ford            | Entering the ford (0907), unless by boat                                                | oracle `ford`                 |
+| Shrine          | Entering the shrine (1104)                                                              | `shrine`                      |
+| **Landmark**    | Entering the Grey Stones (0503), or a discovered landmark: **no table, press Continue** | —                             |
+| Night encounter | Camping in danger 2 or more                                                             | `encounter` (by night)        |
+| Foraging        | Camping in forest, dense forest, plains, farmland, heath or marsh                       | `forage` (+ Survival)         |
+
+**To see Continue**: from Ashford click the Grey Stones (0503) and **Travel**. The trip stops on arrival with _Landmark: waiting for you_ and a **Continue** button in the trip panel; the journal says the same.
 
 ## Where each feature is
 
