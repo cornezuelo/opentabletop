@@ -17,4 +17,7 @@ La herramienta **Texto** (<kbd>T</kbd>) escribe rótulos libres en cualquier sit
 
 ## Nombres de hex
 
-El nombre de un hex (se pone en el panel del hex) se dibuja debajo de él. **Ajustes → Textos del mapa** muestra u oculta los nombres de hex, de región y de token y fija su estilo: fuente, tamaño, color, cursiva y halo.
+El nombre de un hex (se pone en el panel del hex) se dibuja debajo de él. Los nombres se configuran en dos sitios:
+
+- **Ajustes → Textos del mapa**: si se muestran los nombres de hex, de región y de token, y el estilo de cada tipo (fuente, tamaño, color, cursiva y halo).
+- **El panel de cada elemento** (el hex, la región, el token): **Mostrar el nombre en el mapa** para ese en concreto, y **Estilo**: el del mapa o uno propio.

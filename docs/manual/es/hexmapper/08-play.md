@@ -20,7 +20,7 @@ El panel muestra el día, la hora y la estación, dónde está el grupo, el clim
 
 Los sistemas declaran sus comprobaciones (clima al alba, perderse, encuentros…) y qué tabla resuelve cada una; los resultados van al **diario**, agrupados por día. Las comprobaciones sin tabla te esperan: pulsa **Continuar** cuando las hayas resuelto tú.
 
-El terreno, los caminos y ríos, las etiquetas, campos y región del hex, la estación y el clima del día llegan a las tablas, así que un sistema puede hacer los bosques más lentos o que por los caminos no te pierdas.
+El terreno, los caminos y ríos, las etiquetas, campos y región del hex, la estación y el clima del día llegan a las reglas de viaje y a las tablas, así que un sistema puede hacer los bosques más lentos o que por los caminos no te pierdas. Lo que hace cada sistema está en su pack: consulta [Caminos, ríos, muros y fronteras](04-roads-and-rivers.md#que-hacen-los-caminos-y-rios-al-viajar).
 
 ## Mover a mano
 

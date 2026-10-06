@@ -1,5 +1,6 @@
 <script lang="ts">
   import FieldList from './FieldList.svelte'
+  import NameDisplay from '../NameDisplay.svelte'
   import HexIcon from './HexIcon.svelte'
   import HexNotes from './HexNotes.svelte'
   import HexPaths from './HexPaths.svelte'
@@ -80,6 +81,19 @@
         onchange={(e) => editor.editHex(key, (h) => ({ ...h, name: e.currentTarget.value }))}
       />
     </label>
+    {#if hex.name}
+      <NameDisplay
+        kind="hexNames"
+        show={hex.showName !== false}
+        style={hex.nameStyle}
+        onshow={(show) =>
+          editor.editHex(key, (h) => ({ ...h, showName: show ? undefined : false }))}
+        onstyle={(nameStyle, live) => {
+          editor.previewHex(key, (h) => ({ ...h, nameStyle }))
+          if (!live) editor.commitHex(key)
+        }}
+      />
+    {/if}
 
     {#if editor.regions.length}
       <label class="field">

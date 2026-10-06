@@ -6,7 +6,7 @@ Las regiones dan nombre a zonas del mapa: reinos, territorios, zonas peligrosas.
 
 1. **Nueva región** crea una y la selecciona.
 2. Pinta sus hexes con el pincel (el mismo **tamaño del pincel** que el terreno). El clic derecho saca hexes de su región; <kbd>Ctrl</kbd>+clic coge la región de un hex.
-3. En los ajustes de la región: **nombre**, **color**, **mostrar el nombre en el mapa** y una **nota enlazada**.
+3. En los ajustes de la región: **nombre**, **color**, **mostrar el nombre en el mapa** con su **estilo** (el del mapa o uno propio) y una **nota enlazada**.
 
 Un hex pertenece como mucho a una región. El panel del hex también tiene una lista **Región** para cambiarla.
 

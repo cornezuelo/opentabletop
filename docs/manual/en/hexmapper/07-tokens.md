@@ -13,7 +13,7 @@ Tokens can also be dragged with the Select and Play tools.
 
 ## A token's settings
 
-Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the map**, and a linked note. **Tokens on this map** lists them all by kind: click one to select it and center the map on it.
+Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the map** with its **style** (the map's, or its own), and a linked note. **Tokens on this map** lists them all by kind: click one to select it and center the map on it.
 
 ## The party
 

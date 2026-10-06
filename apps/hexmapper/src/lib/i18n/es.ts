@@ -247,6 +247,15 @@ export const es: Messages = {
     newName: 'Terreno nuevo',
   },
   captions: {
+    showOnMap: 'Mostrar el nombre en el mapa',
+    mapStyle: 'El estilo del mapa',
+    ownStyle: 'Estilo propio',
+    mapStyleHelp: 'Usa el estilo de Ajustes → Textos del mapa para todos los nombres de este tipo.',
+    hiddenByMap: {
+      hexNames: 'Los nombres de hex están ocultos en Ajustes → Textos del mapa.',
+      regionNames: 'Los nombres de región están ocultos en Ajustes → Textos del mapa.',
+      tokenNames: 'Los nombres de token están ocultos en Ajustes → Textos del mapa.',
+    },
     title: 'Textos del mapa',
     help: 'Nombres que se dibujan en el mapa. Las regiones y los tokens también pueden ocultar el suyo.',
     kinds: {
@@ -265,7 +274,6 @@ export const es: Messages = {
     empty: 'Aún no hay regiones: añade una y píntala.',
     hexes: '{count} hexes',
     name: 'Nombre',
-    showName: 'Mostrar el nombre en el mapa',
     note: 'Nota enlazada',
     notePlaceholder: 'Lugares/Las Marcas Negras',
     delete: 'Borrar región',
@@ -274,7 +282,6 @@ export const es: Messages = {
     none: 'Sin región',
   },
   tokens: {
-    showName: 'Mostrar el nombre en el mapa',
     help: 'Haz clic en un hex vacío para colocar un token como el de abajo (Mayús+clic añade otro a un hex que ya tiene tokens). Haz clic en un token para editarlo y arrástralo a otro hex; clic derecho o Supr lo quita.',
     newTitle: 'Tokens nuevos',
     kind: 'Tipo',

@@ -20,7 +20,7 @@ The panel shows the day, time and season, where the party is, the weather, the m
 
 Systems declare their checks (weather at dawn, getting lost, encounters…) and which table resolves each one; the results go to the **journal**, grouped by day. Checks without a table wait for you: **Continue** when you've resolved them yourself.
 
-Terrain, roads and rivers, the hex's tags, fields and region, the season and today's weather all reach the tables, so a system can make forests slower or roads safe from getting lost.
+Terrain, roads and rivers, the hex's tags, fields and region, the season and today's weather all reach the travel rules and the tables, so a system can make forests slower or roads safe from getting lost. What each system does is in its pack: see [Roads, rivers, walls and borders](04-roads-and-rivers.md#what-roads-and-rivers-do-when-you-travel).
 
 ## Moving by hand
 

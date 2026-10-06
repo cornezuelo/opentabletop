@@ -17,4 +17,7 @@ The **Text** tool (<kbd>T</kbd>) writes free labels anywhere, even outside the g
 
 ## Hex names
 
-A hex's name (set in the hex panel) is drawn under it. **Settings → Map texts** shows or hides hex, region and token names and sets their style: font, size, color, italic and halo.
+A hex's name (set in the hex panel) is drawn under it. Names are styled in two places:
+
+- **Settings → Map texts**: whether hex, region and token names are shown at all, and the style of each kind (font, size, color, italic and halo).
+- **Each element's panel** (the hex, the region, the token): **Show the name on the map** for that one, and **Style**: the map's style, or its own.

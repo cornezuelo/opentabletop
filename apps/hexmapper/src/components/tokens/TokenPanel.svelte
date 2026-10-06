@@ -9,6 +9,7 @@
   import { view } from '../../lib/store/view'
   import ColorPicker from '../ColorPicker.svelte'
   import NoteRefInput from '../NoteRefInput.svelte'
+  import NameDisplay from '../NameDisplay.svelte'
   import TokenIconPicker from './TokenIconPicker.svelte'
 
   /** New tokens are characters or creatures; the party is placed from Play mode. */
@@ -45,6 +46,23 @@
     const party = editor.tokens.find((t) => t.kind === 'party' && t.id !== selected.id)
     if (kind === 'party' && party) editor.updateToken(party.id, (t) => ({ ...t, kind: 'pc' }))
     update((t) => ({ ...t, kind }))
+  }
+
+  /** The token before a slider drag: the drag previews live and is recorded once. */
+  let before: MapToken | null = null
+
+  function restyle(nameStyle: MapToken['nameStyle'], live: boolean) {
+    if (!selected) return
+    const id = selected.id
+    before ??= structuredClone(editor.getToken(id)!)
+    editor.map.tokens = editor.map.tokens.map((t) => (t.id === id ? { ...t, nameStyle } : t))
+    editor.notify({ kind: 'tokens' })
+    if (live) return
+    const after = structuredClone(editor.getToken(id)!)
+    const start = before
+    before = null
+    editor.map.tokens = editor.map.tokens.map((t) => (t.id === id ? start : t))
+    editor.updateToken(id, () => after)
   }
 
   function select(token: MapToken) {
@@ -117,17 +135,13 @@
       />
       {t('iconStyle.halo')}
     </label>
-    <label class="check">
-      <input
-        type="checkbox"
-        checked={!!selected.showName}
-        onchange={(e) => {
-          const show = e.currentTarget.checked
-          update((t) => ({ ...t, showName: show || undefined }))
-        }}
-      />
-      {t('tokens.showName')}
-    </label>
+    <NameDisplay
+      kind="tokenNames"
+      show={!!selected.showName}
+      style={selected.nameStyle}
+      onshow={(show) => update((t) => ({ ...t, showName: show || undefined }))}
+      onstyle={(nameStyle, live) => restyle(nameStyle, live)}
+    />
     <label class="field">
       <span>{t('tokens.note')}</span>
       <NoteRefInput

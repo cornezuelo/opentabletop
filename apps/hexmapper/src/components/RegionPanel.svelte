@@ -6,6 +6,7 @@
   import { editor, MAX_BRUSH_RADIUS } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import NoteRefInput from './NoteRefInput.svelte'
+  import NameDisplay from './NameDisplay.svelte'
 
   const COLORS = ['#8b1e1e', '#2f5d8a', '#3d6b35', '#5b3a6e', '#b5734a', '#1b1a17', '#c8a24a']
 
@@ -32,6 +33,22 @@
         editor.map.regions.map((r) => (r.id === active.id ? change({ ...r }) : r)),
       ),
     )
+  }
+
+  /** Regions before a slider drag: the drag previews live and is recorded once on release. */
+  let before: MapRegion[] | null = null
+
+  function restyle(nameStyle: MapRegion['nameStyle'], live: boolean) {
+    if (!active) return
+    const id = active.id
+    before ??= structuredClone(editor.map.regions)
+    editor.map.regions = editor.map.regions.map((r) => (r.id === id ? { ...r, nameStyle } : r))
+    editor.notify({ kind: 'regions' })
+    if (live) return
+    const after = editor.map.regions
+    editor.map.regions = before
+    before = null
+    editor.execute(new SetRegionsCommand(after))
   }
 
   function remove() {
@@ -86,17 +103,13 @@
       value={active.color}
       onchange={(color) => color && update((r) => ({ ...r, color }))}
     />
-    <label class="check">
-      <input
-        type="checkbox"
-        checked={active.showName !== false}
-        onchange={(e) => {
-          const show = e.currentTarget.checked
-          update((r) => ({ ...r, showName: show ? undefined : false }))
-        }}
-      />
-      {t('regions.showName')}
-    </label>
+    <NameDisplay
+      kind="regionNames"
+      show={active.showName !== false}
+      style={active.nameStyle}
+      onshow={(show) => update((r) => ({ ...r, showName: show ? undefined : false }))}
+      onstyle={(nameStyle, live) => restyle(nameStyle, live)}
+    />
     <label class="field">
       <span>{t('regions.note')}</span>
       <NoteRefInput
@@ -180,12 +193,6 @@
   .danger:hover {
     color: var(--danger);
     border-color: var(--danger);
-  }
-
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
 
   .slider {

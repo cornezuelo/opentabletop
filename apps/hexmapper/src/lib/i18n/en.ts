@@ -245,6 +245,15 @@ export const en = {
     newName: 'New terrain',
   },
   captions: {
+    showOnMap: 'Show the name on the map',
+    mapStyle: "The map's style",
+    ownStyle: 'Its own style',
+    mapStyleHelp: 'Uses the style set in Settings → Map texts for every name of this kind.',
+    hiddenByMap: {
+      hexNames: 'Hex names are hidden in Settings → Map texts.',
+      regionNames: 'Region names are hidden in Settings → Map texts.',
+      tokenNames: 'Token names are hidden in Settings → Map texts.',
+    },
     title: 'Map texts',
     help: 'Names drawn on the map. Regions and tokens can also hide their own name.',
     kinds: { hexNames: 'Hex names', regionNames: 'Region names', tokenNames: 'Token names' },
@@ -259,7 +268,6 @@ export const en = {
     empty: 'No regions yet: add one, then paint it.',
     hexes: '{count} hexes',
     name: 'Name',
-    showName: 'Show the name on the map',
     note: 'Linked note',
     notePlaceholder: 'Places/The Black Marches',
     delete: 'Delete region',
@@ -268,7 +276,6 @@ export const en = {
     none: 'No region',
   },
   tokens: {
-    showName: 'Show the name on the map',
     help: 'Click an empty hex to place a token like the one below (Shift+click adds one to a hex that already has tokens). Click a token to edit it and drag it to another hex; right-click or Delete removes it.',
     newTitle: 'New tokens',
     kind: 'Kind',

@@ -16,6 +16,7 @@ import { deserializeMap } from '../model/serialize'
 import { partyToken } from '../model/tokens'
 import {
   TOKEN_KINDS,
+  type HexData,
   type HexIcon,
   type HexKey,
   type HexMap,
@@ -30,6 +31,7 @@ interface TokenLook {
   color?: string
   halo?: boolean
   showName?: boolean
+  nameStyle?: MapToken['nameStyle']
 }
 
 const lookOf = (token: MapToken): TokenLook => ({
@@ -38,6 +40,7 @@ const lookOf = (token: MapToken): TokenLook => ({
   ...(token.color && { color: token.color }),
   ...(token.halo === false && { halo: false }),
   ...(token.showName && { showName: true }),
+  ...(token.nameStyle && { nameStyle: token.nameStyle }),
 })
 
 /** Tokens other than the party, as OTD characters with a location. */
@@ -69,6 +72,7 @@ function tokenOf(c: OtdCharacter, mapId: string): Record<string, unknown> | null
     color: look.color,
     halo: look.halo,
     showName: look.showName,
+    nameStyle: look.nameStyle,
     note: c.noteRef,
   }
 }
@@ -88,6 +92,8 @@ interface HexmapperExt {
   captions: HexMap['captions']
   assets: HexMap['assets']
   icons: Record<string, HexIcon>
+  /** How hex names are shown, per hex (only hexes that differ from the map's style). */
+  names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle'>>>
 }
 
 const BUNDLE_KEYS = ['otd', 'maps', 'pois'] as const
@@ -96,10 +102,16 @@ const BUNDLE_KEYS = ['otd', 'maps', 'pois'] as const
 export function mapToBundle(map: HexMap): OtdBundle {
   const foreign = map.foreign ?? {}
   const icons: Record<string, HexIcon> = {}
+  const names: NonNullable<HexmapperExt['names']> = {}
   const hexes: Record<string, OtdHex> = {}
   const pois: OtdPoi[] = []
   for (const [key, hex] of Object.entries(map.hexes) as [HexKey, HexMap['hexes'][HexKey]][]) {
     if (hex.icon) icons[key] = hex.icon
+    if (hex.showName === false || hex.nameStyle)
+      names[key] = {
+        ...(hex.showName === false && { showName: false }),
+        ...(hex.nameStyle && { nameStyle: hex.nameStyle }),
+      }
     const out: OtdHex = {}
     if (hex.terrain) out.terrain = hex.terrain
     if (hex.region) out.region = hex.region
@@ -134,6 +146,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     captions: map.captions,
     assets: map.assets,
     icons,
+    ...(Object.keys(names).length && { names }),
   }
   const otdMap: OtdMap = {
     id: map.meta.id,
@@ -256,6 +269,7 @@ function playFromOtd(
     color: look.color,
     halo: look.halo,
     showName: look.showName,
+    nameStyle: look.nameStyle,
     note: party.noteRef,
   }
   return {
@@ -294,6 +308,7 @@ export function bundleToMap(raw: unknown): HexMap {
       fields: hex.stats,
     }
   for (const [key, icon] of Object.entries(ext.icons ?? {})) hexes[key] = { ...hexes[key], icon }
+  for (const [key, name] of Object.entries(ext.names ?? {})) hexes[key] = { ...hexes[key], ...name }
   for (const poi of pois) {
     const entry: Poi = {
       id: poi.id,

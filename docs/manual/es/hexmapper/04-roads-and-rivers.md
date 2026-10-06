@@ -4,13 +4,22 @@ La herramienta **Caminos y ríos** (<kbd>R</kbd>) dibuja líneas de hex a hex.
 
 ## Tipos
 
-| Tipo     | Aspecto                                 | Viaje                                                |
-| -------- | --------------------------------------- | ---------------------------------------------------- |
-| Camino   | marrón continuo                         | se viaja más rápido por él                           |
-| Sendero  | marrón discontinuo                      | algo más rápido                                      |
-| Río      | azul                                    | se puede seguir (en algunos sistemas, no te pierdes) |
-| Muro     | grueso, con piedras                     | solo se dibuja                                       |
-| Frontera | rojo discontinuo, también sobre el agua | solo se dibuja                                       |
+| Tipo     | Aspecto                                 | En un viaje con reglas             |
+| -------- | --------------------------------------- | ---------------------------------- |
+| Camino   | marrón continuo                         | lo que diga el sistema (ver abajo) |
+| Sendero  | marrón discontinuo                      | lo que diga el sistema             |
+| Río      | azul                                    | lo que diga el sistema             |
+| Muro     | grueso, con piedras                     | nada: solo se dibuja               |
+| Frontera | rojo discontinuo, también sobre el agua | nada: solo se dibuja               |
+
+## Qué hacen los caminos y ríos al viajar
+
+El mapa solo dice por dónde va cada línea. Lo que significa para un viaje lo deciden las **reglas de viaje del sistema** con el que juegas (Jugar → Reglas), en su pack:
+
+- **Velocidad**: cada tipo de línea puede tener un multiplicador de velocidad. Con las reglas **Genéricas** un camino es ×1,5 y un sendero ×1,2, y un río no cambia nada. Con **Kal-Arath**, los caminos y ríos no te hacen ir más rápido.
+- **Comprobaciones**: un sistema puede saltarse una comprobación mientras sigues una línea. En **Kal-Arath** no se tira para perderse al seguir un camino o un río; las reglas Genéricas no tienen tirada de perderse.
+
+Seguir una línea significa que la ruta va de hex en hex a lo largo de ella. Para ver o cambiar lo que hace un sistema, abre su pack en la aplicación Oracle (`edges` y `checks` en sus reglas de viaje); [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) lo explica.
 
 ## Dibujar
 

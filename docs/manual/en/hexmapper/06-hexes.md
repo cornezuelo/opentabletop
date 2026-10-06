@@ -4,7 +4,7 @@ Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details
 
 ## What a hex can hold
 
-- **Name**: shown under the hex on the map.
+- **Name**: shown under the hex on the map; you can hide it or give it its own style.
 - **Region**: when the map has regions.
 - **Notes**: short GM notes in Markdown. The lore of the place belongs in your notes app (see below).
 - **POIs**: points of interest, each with a name, a description, its own linked note and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).

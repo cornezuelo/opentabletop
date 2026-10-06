@@ -63,3 +63,34 @@ describe('POI icons', () => {
     )
   })
 })
+
+describe('names per element', () => {
+  it('keep their visibility and own style in OTD', () => {
+    const map = createMap()
+    const own = {
+      font: 'cinzel' as const,
+      size: 1.5,
+      italic: false,
+      halo: true,
+      haloColor: '#ffffff',
+    }
+    map.hexes['1,1'] = { name: 'Ravenhold', showName: false }
+    map.hexes['2,2'] = { name: 'Old Ford', nameStyle: own }
+    map.regions = [{ id: 'marches0001', name: 'Marches', color: '#5b3a6e', nameStyle: own }]
+    map.tokens = [
+      {
+        id: 'ilyana00001',
+        name: 'Ilyana',
+        kind: 'npc',
+        iconId: 'game:cowled',
+        showName: true,
+        nameStyle: own,
+      },
+    ]
+    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(map))))
+    expect(back.hexes['1,1']).toMatchObject({ name: 'Ravenhold', showName: false })
+    expect(back.hexes['2,2'].nameStyle).toEqual(own)
+    expect(back.regions[0].nameStyle).toEqual(own)
+    expect(back.tokens[0]).toMatchObject({ showName: true, nameStyle: own })
+  })
+})

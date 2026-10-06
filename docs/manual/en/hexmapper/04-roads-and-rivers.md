@@ -4,13 +4,22 @@ The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from hex to hex.
 
 ## Kinds
 
-| Kind   | Looks like                    | Travel                                             |
-| ------ | ----------------------------- | -------------------------------------------------- |
-| Road   | solid brown                   | faster travel along it                             |
-| Trail  | dashed brown                  | a bit faster                                       |
-| River  | blue                          | can be followed (some systems: you can't get lost) |
-| Wall   | thick, with stones            | only drawn                                         |
-| Border | dashed red, also across water | only drawn                                         |
+| Kind   | Looks like                    | In a trip with rules             |
+| ------ | ----------------------------- | -------------------------------- |
+| Road   | solid brown                   | what the system says (see below) |
+| Trail  | dashed brown                  | what the system says             |
+| River  | blue                          | what the system says             |
+| Wall   | thick, with stones            | nothing: only drawn              |
+| Border | dashed red, also across water | nothing: only drawn              |
+
+## What roads and rivers do when you travel
+
+The map only says where each line goes. What it means for a trip is decided by the **travel rules of the system** you play with (Play → Rules), in its pack:
+
+- **Speed**: each kind of line can have a speed multiplier. With the **Generic** rules a road is ×1.5 and a trail ×1.2, and a river changes nothing. With **Kal-Arath**, roads and rivers don't make you faster.
+- **Checks**: a system can skip a check while you follow a line. In **Kal-Arath** you don't roll to get lost when following a road or a river; the Generic rules have no getting-lost roll at all.
+
+Following a line means the route goes from hex to hex along it. To see or change what a system does, open its pack in the Oracle app (`edges` and `checks` in its travel rules); [Connecting tables to maps and trips](../oracle/07-connecting.md) explains them.
 
 ## Drawing
 

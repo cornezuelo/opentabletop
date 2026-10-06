@@ -47,6 +47,9 @@ export interface HexData {
   /** External note path, e.g. "Kal-Arath/Hexes/0101". */
   note?: string
   icon?: HexIcon
+  /** False hides the name on the map (it's still the hex's name). */
+  showName?: boolean
+  nameStyle?: CaptionOverride
 }
 
 /** Icon placed on a hex. Only non-default style values are stored. */
@@ -131,6 +134,7 @@ export interface MapRegion {
   color: string
   /** Show the name on the map (default on). */
   showName?: boolean
+  nameStyle?: CaptionOverride
   /** External note path (same providers as hexes). */
   note?: string
 }
@@ -150,6 +154,9 @@ export interface CaptionStyle {
   halo: boolean
   haloColor: string
 }
+
+/** One element's own text style, replacing its kind's (Settings → Map texts). */
+export type CaptionOverride = Omit<CaptionStyle, 'show'>
 
 export const TOKEN_KINDS = ['party', 'pc', 'npc', 'enemy'] as const
 export type TokenKind = (typeof TOKEN_KINDS)[number]
@@ -172,6 +179,7 @@ export interface MapToken {
   halo?: boolean
   /** Show the name under the token. */
   showName?: boolean
+  nameStyle?: CaptionOverride
   /** External note path (same providers as hexes). */
   note?: string
 }

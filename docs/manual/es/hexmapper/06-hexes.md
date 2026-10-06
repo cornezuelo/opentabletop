@@ -4,7 +4,7 @@ Selecciona un hex con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y e
 
 ## Qué puede tener un hex
 
-- **Nombre**: se muestra bajo el hex en el mapa.
+- **Nombre**: se muestra bajo el hex en el mapa; puedes ocultarlo o darle un estilo propio.
 - **Región**: cuando el mapa tiene regiones.
 - **Notas**: notas breves del máster en Markdown. El trasfondo del lugar va en tu aplicación de notas (ver abajo).
 - **PDI**: puntos de interés, cada uno con nombre, descripción, su propia nota enlazada y, si quieres, un icono para distinguirlos en el panel (no se dibuja en el mapa).

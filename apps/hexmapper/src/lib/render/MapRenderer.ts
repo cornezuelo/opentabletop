@@ -12,7 +12,7 @@ import {
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
 import { hasMetadata, ICON_DEFAULTS, nodeFlags } from '../model/hex'
-import type { CaptionKind, MapPath, PathKind } from '../model/types'
+import type { CaptionKind, CaptionOverride, MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
 import { catmullRom, catmullRomClosed, dashes } from './curves'
@@ -510,10 +510,14 @@ export class MapRenderer {
           y: 0,
         })
       const size = hs * Math.min(1.1, 0.4 + Math.sqrt(cells.length) * 0.08)
-      const text = this.caption('regionNames', region.name.toUpperCase(), center.x, center.y, {
-        color: region.color,
-        size,
-      })
+      const text = this.caption(
+        'regionNames',
+        region.name.toUpperCase(),
+        center.x,
+        center.y,
+        { color: region.color, size },
+        region.nameStyle,
+      )
       text.alpha = 0.9
       this.regionLayer.addChild(text)
     }
@@ -690,7 +694,9 @@ export class MapRenderer {
         continue
       const c = this.centerOf(parseKey(placed.hex))
       const at = { x: c.x + placed.dx * hs, y: c.y + (placed.dy + placed.radius) * hs + 1 }
-      this.tokenLayer.addChild(this.caption('tokenNames', placed.token.name, at.x, at.y))
+      this.tokenLayer.addChild(
+        this.caption('tokenNames', placed.token.name, at.x, at.y, {}, placed.token.nameStyle),
+      )
     }
   }
 
@@ -813,11 +819,13 @@ export class MapRenderer {
     const { grid, hexes } = editor.map
     const hs = grid.hexSize
     for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
-      if (!hex.name) continue
+      if (!hex.name || hex.showName === false) continue
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      this.nameLayer.addChild(this.caption('hexNames', hex.name, c.x, c.y + hs * 0.5))
+      this.nameLayer.addChild(
+        this.caption('hexNames', hex.name, c.x, c.y + hs * 0.5, {}, hex.nameStyle),
+      )
     }
   }
 
@@ -831,8 +839,10 @@ export class MapRenderer {
     x: number,
     y: number,
     auto: { color?: string; size?: number } = {},
+    /** The element's own style, replacing its kind's. */
+    own?: CaptionOverride,
   ): Text {
-    const style = editor.map.captions[kind]
+    const style = own ? { ...editor.map.captions[kind], ...own } : editor.map.captions[kind]
     const fontSize = (auto.size ?? editor.map.grid.hexSize * CAPTION_SIZE) * style.size
     const caption = new Text({
       text,

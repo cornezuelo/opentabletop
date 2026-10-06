@@ -13,7 +13,7 @@ Los tokens también se pueden arrastrar con las herramientas Seleccionar y Jugar
 
 ## Ajustes de un token
 
-Nombre, tipo (grupo, PJ, PNJ, enemigo), icono, color, halo, **mostrar el nombre en el mapa** y una nota enlazada. **Tokens de este mapa** los lista todos por tipo: haz clic en uno para seleccionarlo y centrar el mapa en él.
+Nombre, tipo (grupo, PJ, PNJ, enemigo), icono, color, halo, **mostrar el nombre en el mapa** con su **estilo** (el del mapa o uno propio) y una nota enlazada. **Tokens de este mapa** los lista todos por tipo: haz clic en uno para seleccionarlo y centrar el mapa en él.
 
 ## El grupo
 

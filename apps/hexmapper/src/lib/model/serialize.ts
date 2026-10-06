@@ -24,6 +24,8 @@ import type {
   LabelStyle,
   MapAsset,
   MapLabel,
+  CaptionOverride,
+  CaptionStyle,
   MapPath,
   MapRegion,
   MapToken,
@@ -139,6 +141,8 @@ function parseHex(value: Record<string, unknown>): HexData {
     fields,
     note: str(value.note),
     icon: parseIcon(value.icon),
+    ...(value.showName === false && { showName: false }),
+    nameStyle: parseCaptionOverride(value.nameStyle, DEFAULT_CAPTIONS.hexNames),
   })
 }
 
@@ -271,28 +275,39 @@ const HEX_KEY = /^\d+,\d+$/
 
 const COLOR = /^#[0-9a-f]{6}$/i
 
+/** An element's own text style; anything invalid falls back to the kind's style. */
+export function parseCaptionOverride(
+  value: unknown,
+  fallback: CaptionStyle,
+): CaptionOverride | undefined {
+  if (!isRecord(value)) return undefined
+  const { show: _show, ...style } = parseCaptionStyle(value, fallback)
+  return style
+}
+
+function parseCaptionStyle(c: Record<string, unknown>, d: CaptionStyle): CaptionStyle {
+  return {
+    show: typeof c.show === 'boolean' ? c.show : d.show,
+    font: LABEL_FONTS.includes(c.font as LabelStyle['font'])
+      ? (c.font as LabelStyle['font'])
+      : d.font,
+    size:
+      typeof c.size === 'number' && Number.isFinite(c.size)
+        ? Math.min(CAPTION_SIZE_RANGE[1], Math.max(CAPTION_SIZE_RANGE[0], c.size))
+        : d.size,
+    ...(typeof c.color === 'string' && COLOR.test(c.color) && { color: c.color }),
+    italic: typeof c.italic === 'boolean' ? c.italic : d.italic,
+    halo: typeof c.halo === 'boolean' ? c.halo : d.halo,
+    haloColor:
+      typeof c.haloColor === 'string' && COLOR.test(c.haloColor) ? c.haloColor : d.haloColor,
+  }
+}
+
 function parseCaptions(value: unknown): HexMap['captions'] {
   const raw = isRecord(value) ? value : {}
   const out = structuredClone(DEFAULT_CAPTIONS) as HexMap['captions']
-  for (const kind of CAPTION_KINDS) {
-    const c = isRecord(raw[kind]) ? raw[kind] : {}
-    const d = out[kind]
-    out[kind] = {
-      show: typeof c.show === 'boolean' ? c.show : d.show,
-      font: LABEL_FONTS.includes(c.font as LabelStyle['font'])
-        ? (c.font as LabelStyle['font'])
-        : d.font,
-      size:
-        typeof c.size === 'number' && Number.isFinite(c.size)
-          ? Math.min(CAPTION_SIZE_RANGE[1], Math.max(CAPTION_SIZE_RANGE[0], c.size))
-          : d.size,
-      ...(typeof c.color === 'string' && COLOR.test(c.color) && { color: c.color }),
-      italic: typeof c.italic === 'boolean' ? c.italic : d.italic,
-      halo: typeof c.halo === 'boolean' ? c.halo : d.halo,
-      haloColor:
-        typeof c.haloColor === 'string' && COLOR.test(c.haloColor) ? c.haloColor : d.haloColor,
-    }
-  }
+  for (const kind of CAPTION_KINDS)
+    out[kind] = parseCaptionStyle(isRecord(raw[kind]) ? raw[kind] : {}, out[kind])
   return out
 }
 
@@ -308,6 +323,9 @@ function parseRegions(value: unknown): MapRegion[] {
         name: typeof r.name === 'string' ? r.name : '',
         color: typeof r.color === 'string' && COLOR.test(r.color) ? r.color : '#8b1e1e',
         ...(r.showName === false && { showName: false }),
+        ...(isRecord(r.nameStyle) && {
+          nameStyle: parseCaptionOverride(r.nameStyle, DEFAULT_CAPTIONS.regionNames),
+        }),
         ...(typeof r.note === 'string' && r.note && { note: r.note }),
       },
     ]
@@ -333,6 +351,9 @@ function parseTokens(value: unknown): MapToken[] {
       ...(typeof t.color === 'string' && COLOR.test(t.color) && { color: t.color }),
       ...(t.halo === false && { halo: false }),
       ...(t.showName === true && { showName: true }),
+      ...(isRecord(t.nameStyle) && {
+        nameStyle: parseCaptionOverride(t.nameStyle, DEFAULT_CAPTIONS.tokenNames),
+      }),
       ...(typeof t.note === 'string' && t.note && { note: t.note }),
     })
   }
