@@ -215,7 +215,11 @@ export const es: Messages = {
     linkCopied: 'Enlace al mapa copiado',
     copyHexLink: 'Copiar enlace a este hex',
     hexLinkCopied: 'Enlace al hex copiado',
-    notFound: 'El mapa {id} no está en este navegador. Importa {id}.otd.json para abrirlo.',
+    notFoundTitle: 'El mapa no está en este navegador',
+    notFound:
+      'Este enlace apunta al mapa {id}, que no está en este navegador (otro dispositivo, o se borraron sus datos). Abre su fichero, {id}.otd.json, para ir allí.',
+    openFile: 'Abrir {id}.otd.json…',
+    otherMap: 'Ese fichero es otro mapa; el enlace necesita {id}.otd.json.',
     hexNotFound: 'El hex {hex} no está en este mapa.',
   },
   newMap: {

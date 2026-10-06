@@ -26,4 +26,6 @@ Los mapas se guardan en la biblioteca de este navegador, automáticamente mientr
 
 ## Enlaces a hexes
 
-Cada hex tiene un enlace (el 🔗 junto a su coordenada). Pégalo en tus notas: al abrirlo se muestra el mapa con ese hex seleccionado, siempre que este navegador tenga el mapa.
+Cada hex tiene un enlace (el 🔗 junto a su coordenada). Pégalo en tus notas: al abrirlo se muestra el mapa con ese hex seleccionado.
+
+El enlace lleva el id del mapa. Si este navegador no tiene el mapa (otro dispositivo, o se borraron sus datos), Hexmapper te dice qué fichero necesita —`<id del mapa>.otd.json`, el nombre que le da **Guardar**— y te ofrece abrirlo; al cargarlo llegas al hex.

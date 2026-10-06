@@ -213,7 +213,11 @@ export const en = {
     linkCopied: 'Map link copied',
     copyHexLink: 'Copy link to this hex',
     hexLinkCopied: 'Hex link copied',
-    notFound: 'Map {id} is not in this browser. Import {id}.otd.json to open it.',
+    notFoundTitle: 'Map not in this browser',
+    notFound:
+      "This link points to the map {id}, which isn't in this browser (another device, or its data was cleared). Open its file, {id}.otd.json, to go there.",
+    openFile: 'Open {id}.otd.json…',
+    otherMap: 'That file is a different map; the link needs {id}.otd.json.',
     hexNotFound: 'Hex {hex} is not on this map.',
   },
   newMap: {

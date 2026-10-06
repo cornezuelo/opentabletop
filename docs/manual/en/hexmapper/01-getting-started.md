@@ -26,4 +26,6 @@ Maps are kept in this browser's library and saved automatically while you work. 
 
 ## Links to hexes
 
-Every hex has a link (the 🔗 next to its coordinate). Paste it in your notes: opening it shows the map with that hex selected, as long as this browser has the map.
+Every hex has a link (the 🔗 next to its coordinate). Paste it in your notes: opening it shows the map with that hex selected.
+
+The link carries the map's id. If this browser doesn't have the map (another device, or its data was cleared), Hexmapper tells you which file it needs — `<map id>.otd.json`, the name **Save** gives it — and offers to open it; once it's loaded you land on the hex.

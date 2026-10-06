@@ -64,14 +64,18 @@ export function saveMap(): void {
 }
 
 /** Imports an `.otd.json` file into the library and opens it. */
-export async function openMapFile(): Promise<void> {
+/** Opens a map file; returns the id of the map loaded (null if none). */
+export async function openMapFile(): Promise<string | null> {
   const json = await pickMapFile()
-  if (json === null) return
+  if (json === null) return null
   try {
-    await switchTo(parseMapFile(json))
+    const map = parseMapFile(json)
+    await switchTo(map)
     showToast(t('file.loaded'))
+    return map.meta.id
   } catch (error) {
     showToast(errorMessage(error), 'error')
+    return null
   }
 }
 
