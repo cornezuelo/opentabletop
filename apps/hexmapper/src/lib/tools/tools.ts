@@ -481,23 +481,23 @@ class IconTool implements Tool {
     selectIconHex(drag.target)
   }
 
-  /** Moves the dragged icon live: offset inside a hex, or into another empty hex. */
+  /**
+   * Moves the dragged icon live into the hex under the pointer, centered. With Shift it
+   * keeps a free position inside the hex (where the grabbed point is).
+   */
   private moveIcon(info: PointerInfo): void {
     const drag = this.drag!
     const { grid, hexes } = editor.map
-    const world = { x: info.world.x + drag.grab.x, y: info.world.y + drag.grab.y }
-    let cell = toOffset(pixelToHex(world, grid.orientation, grid.hexSize), grid.orientation)
+    let cell = toOffset(pixelToHex(info.world, grid.orientation, grid.hexSize), grid.orientation)
     let key = keyOf(cell)
     // Only empty hexes (or its own) can receive the icon.
     if (!inBounds(cell, grid) || (key !== drag.source && hexes[key]?.icon && key !== drag.target)) {
       key = drag.target
       cell = parseKey(key)
     }
-    const center = cellCenter(cell)
-    const local = { x: (world.x - center.x) / grid.hexSize, y: (world.y - center.y) / grid.hexSize }
-    // Snap back to the center when close to it.
-    const offset: [number, number] | undefined =
-      Math.hypot(local.x, local.y) < 0.12 ? undefined : [local.x, local.y]
+    const offset = info.shift
+      ? freeOffset(cell, { x: info.world.x + drag.grab.x, y: info.world.y + drag.grab.y })
+      : undefined
     const changed: HexKey[] = []
     if (key !== drag.target && drag.target !== drag.source) {
       drag.batch.edit(drag.target, (hex) => ({ ...hex, icon: undefined }))
@@ -516,6 +516,18 @@ class IconTool implements Tool {
     selectIconHex(key)
     editor.notify({ kind: 'hexes', keys: [...new Set(changed)] })
   }
+}
+
+/** Position of `world` inside a hex, in hex sizes from its center (undefined near the center). */
+function freeOffset(cell: Offset, world: Point): [number, number] | undefined {
+  const { hexSize } = editor.map.grid
+  const center = cellCenter(cell)
+  const local = { x: (world.x - center.x) / hexSize, y: (world.y - center.y) / hexSize }
+  // Snap back to the center when close to it; never leave the hex.
+  const length = Math.hypot(local.x, local.y)
+  if (length < 0.12) return undefined
+  const scale = Math.min(1, 0.8 / length)
+  return [local.x * scale, local.y * scale]
 }
 
 /** Selecting an icon selects its hex too: one selection outline, and the hex panel follows. */

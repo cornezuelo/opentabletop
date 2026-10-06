@@ -318,7 +318,7 @@ export const es: Messages = {
     zoom: 'Zoom: rueda del ratón',
     erase: 'Borrar terreno: clic derecho',
     path: 'Caminos: Enter termina, Esc cancela, ⌫ quita el último hex',
-    icon: 'Iconos: clic derecho quita, Ctrl + clic copia',
+    icon: 'Iconos: arrastra para mover (Mayús: posición libre), clic derecho quita, Ctrl+clic copia',
     text: 'Texto: arrastra las etiquetas para moverlas, Supr borra la seleccionada',
     pick: 'Cuentagotas: Ctrl + clic',
     brush: 'Tamaño del pincel: [ y ]',

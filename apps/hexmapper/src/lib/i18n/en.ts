@@ -316,7 +316,7 @@ export const en = {
     zoom: 'Zoom: mouse wheel',
     erase: 'Erase terrain: right click',
     path: 'Paths: Enter finishes, Esc cancels, ⌫ removes the last hex',
-    icon: 'Icons: right-click removes, Ctrl+click picks',
+    icon: 'Icons: drag to move (Shift: free position), right-click removes, Ctrl+click picks',
     text: 'Text: drag labels to move, Delete removes the selected one',
     pick: 'Eyedropper: Ctrl + click',
     brush: 'Brush size: [ and ]',
