@@ -46,7 +46,7 @@
 <div class="app">
   <header class="bar">
     <button class="brand" onclick={() => go({ name: 'welcome' })}>
-      <img src="/favicon.svg" alt="" />
+      <img src="{import.meta.env.BASE_URL}favicon.svg" alt="" />
       {t('app.title')}
     </button>
     <div class="spacer"></div>
