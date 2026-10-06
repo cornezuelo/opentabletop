@@ -52,3 +52,40 @@ export const TEMPLATES: Record<Compiled['kind'], (id: string) => Record<string, 
     ],
   }),
 }
+
+/** Definitions for other engines a pack can hold, read by the Hexmapper's Play mode. */
+export const SYSTEM_KINDS = ['travel-rules', 'bindings'] as const
+export type SystemKind = (typeof SYSTEM_KINDS)[number]
+
+/**
+ * Starting points for a travel system: rules like the generic ones with one weather
+ * check, and bindings to fill in (which table answers each check).
+ */
+export const SYSTEM_TEMPLATES: Record<SystemKind, (id: string) => Record<string, unknown>> = {
+  'travel-rules': (id) => ({
+    kind: 'travel-rules',
+    id,
+    day: { start: '06:00', nightfall: '20:00' },
+    travel: { hoursPerDay: 8 },
+    terrains: {
+      plains: { multiplier: 1 },
+      forest: { multiplier: 0.5 },
+      hills: { multiplier: 0.5 },
+      mountains: { multiplier: 0.33 },
+      swamp: { multiplier: 0.33 },
+      lake: { passable: false },
+      sea: { passable: false },
+    },
+    edges: { road: { multiplier: 1.5 }, trail: { multiplier: 1.2 } },
+    modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 50 } },
+    resources: { food: { perDay: 1 } },
+    weather: { storm: { speed: 0 } },
+    checks: [{ event: 'WEATHER', at: 'day-start' }],
+  }),
+  bindings: (id) => ({
+    kind: 'bindings',
+    id,
+    on: {},
+    stats: {},
+  }),
+}

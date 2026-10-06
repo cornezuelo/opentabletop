@@ -175,6 +175,17 @@ export const es: Messages<typeof en> = {
     copied: 'Copiado como {id}',
   },
   newDef: {
+    forTravel: 'Para viajar (modo Jugar del Hexmapper)',
+    forTravelHelp:
+      'Un pack con reglas de viaje se convierte en un sistema que puedes elegir en el Hexmapper, Jugar → Reglas. Los bindings dicen qué tabla responde a cada comprobación. Consulta el manual: Conectar tablas con mapas y viajes.',
+    system: { 'travel-rules': 'Reglas de viaje', bindings: 'Bindings' },
+    systemTips: {
+      'travel-rules':
+        'Velocidades, terrenos, caminos, provisiones y qué comprobaciones se tiran y cuándo.',
+      bindings:
+        'Qué tabla responde a cada comprobación del viaje, y las estadísticas del grupo que leen las tablas.',
+    },
+    alreadyHas: 'Este pack ya las tiene.',
     title: 'Nueva definición',
     pack: 'En el pack',
     noPacks:

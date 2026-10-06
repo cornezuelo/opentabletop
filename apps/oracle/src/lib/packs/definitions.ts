@@ -7,7 +7,7 @@ import {
   removeDefinition,
 } from '@open-tabletop/pack-ui/yaml'
 import { Document, parseDocument } from 'yaml'
-import { TEMPLATES } from './templates'
+import { SYSTEM_TEMPLATES, TEMPLATES, type SystemKind } from './templates'
 import { manifestOf, overlayLocales, overlayPath, type PackSource } from './workspace'
 import { workspace } from './workspace.svelte'
 
@@ -53,6 +53,33 @@ export function createDefinition(
     appendDefinition(workspace.readFile(root, target) ?? '', definition),
   )
   return `${packId}/${id}`
+}
+
+/**
+ * Adds travel rules or bindings to a pack (a pack is one travel system at most);
+ * returns the file they went to, to open it in the YAML editor.
+ */
+export function createSystemDefinition(
+  root: string,
+  kind: SystemKind,
+  file?: string,
+): string | null {
+  const pack = workspace.pack(root)
+  if (!pack) return null
+  const target = file || dataFiles(pack)[0] || 'travel.yaml'
+  // One travel system per pack: rules and bindings both use `default` (ids are per kind).
+  const id = 'default'
+  workspace.writeFile(
+    root,
+    target,
+    appendDefinition(workspace.readFile(root, target) ?? '', SYSTEM_TEMPLATES[kind](id)),
+  )
+  return target
+}
+
+/** Whether a pack already has a definition of that kind (only one travel system per pack). */
+export function hasKind(pack: PackSource, kind: string): boolean {
+  return pack.files.some((f) => new RegExp(`^kind:\\s*${kind}\\s*$`, 'm').test(f.content))
 }
 
 const REF_KEYS = ['table', 'generator'] as const

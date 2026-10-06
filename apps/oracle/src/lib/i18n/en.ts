@@ -169,6 +169,15 @@ export const en = {
     copied: 'Copied as {id}',
   },
   newDef: {
+    forTravel: 'For travel (Hexmapper Play mode)',
+    forTravelHelp:
+      'A pack with travel rules becomes a system you can pick in the Hexmapper, Play → Rules. Bindings say which table answers each check. See the manual: Connecting tables to maps and trips.',
+    system: { 'travel-rules': 'Travel rules', bindings: 'Bindings' },
+    systemTips: {
+      'travel-rules': 'Speeds, terrains, roads, supplies and which checks are rolled when.',
+      bindings: 'Which table answers each travel check, and the party stats tables read.',
+    },
+    alreadyHas: 'This pack already has them.',
     title: 'New definition',
     pack: 'In pack',
     noPacks:

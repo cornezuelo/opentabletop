@@ -4,7 +4,14 @@
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
-  import { createDefinition, dataFiles, slugify } from '../lib/packs/definitions'
+  import {
+    createDefinition,
+    createSystemDefinition,
+    dataFiles,
+    hasKind,
+    slugify,
+  } from '../lib/packs/definitions'
+  import { SYSTEM_KINDS, type SystemKind } from '../lib/packs/templates'
   import { cleanFilePath, manifestOf } from '../lib/packs/workspace'
   import { workspace } from '../lib/packs/workspace.svelte'
 
@@ -14,7 +21,9 @@
   const packs = $derived(workspace.packs.filter((p) => p.origin === 'user'))
   // svelte-ignore state_referenced_locally
   let root = $state(initialRoot ?? packs[0]?.root ?? '')
-  let kind = $state<Compiled['kind']>('table')
+  let kind = $state<Compiled['kind'] | SystemKind>('table')
+  const system = $derived((SYSTEM_KINDS as readonly string[]).includes(kind))
+  const taken = (k: SystemKind) => !!workspace.pack(root) && hasKind(workspace.pack(root)!, k)
   let name = $state('')
   let file = $state('')
   let newFile = $state('')
@@ -26,9 +35,16 @@
   })
 
   function create() {
-    if (!root || !name.trim()) return
     const target = file === '+' ? cleanFilePath(newFile) : file || files[0]
-    const id = createDefinition(root, kind, name, target ?? undefined)
+    if (system) {
+      if (!root) return
+      const path = createSystemDefinition(root, kind as SystemKind, target ?? undefined)
+      dialog.close()
+      if (path) go({ name: 'file', root, path })
+      return
+    }
+    if (!root || !name.trim()) return
+    const id = createDefinition(root, kind as Compiled['kind'], name, target ?? undefined)
     dialog.close()
     if (id) go({ name: 'def', id, tab: 'edit' })
   }
@@ -63,12 +79,26 @@
           </label>
         {/each}
       </div>
-      <label class="field">
-        <span>{t('newDef.name')}</span>
-        <!-- svelte-ignore a11y_autofocus -->
-        <input type="text" bind:value={name} autofocus />
-        {#if name.trim()}<small>{t('newDef.idPreview', { id: slugify(name) })}</small>{/if}
-      </label>
+      <span class="group-title"
+        >{t('newDef.forTravel')}<InfoTip text={t('newDef.forTravelHelp')} /></span
+      >
+      <div class="kinds" role="radiogroup" aria-label={t('newDef.forTravel')}>
+        {#each SYSTEM_KINDS as k (k)}
+          <label class:active={kind === k} class:disabled={taken(k)}>
+            <input type="radio" bind:group={kind} value={k} disabled={taken(k)} />
+            <strong>{t(`newDef.system.${k}`)}</strong>
+            <span>{taken(k) ? t('newDef.alreadyHas') : t(`newDef.systemTips.${k}`)}</span>
+          </label>
+        {/each}
+      </div>
+      {#if !system}
+        <label class="field">
+          <span>{t('newDef.name')}</span>
+          <!-- svelte-ignore a11y_autofocus -->
+          <input type="text" bind:value={name} autofocus />
+          {#if name.trim()}<small>{t('newDef.idPreview', { id: slugify(name) })}</small>{/if}
+        </label>
+      {/if}
       <label class="field">
         <span>{t('newDef.file')}<InfoTip text={t('newDef.fileHelp')} /></span>
         <select bind:value={file}>
@@ -82,7 +112,7 @@
     {/if}
     <div class="buttons">
       <button type="button" onclick={() => dialog.close()}>{t('newPack.cancel')}</button>
-      <button type="submit" class="primary" disabled={!packs.length || !name.trim()}
+      <button type="submit" class="primary" disabled={!packs.length || (!system && !name.trim())}
         >{t('newPack.create')}</button
       >
     </div>
@@ -130,6 +160,16 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
+  }
+
+  .kinds label.disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .group-title {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .kinds label.active {
