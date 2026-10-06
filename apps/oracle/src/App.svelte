@@ -3,7 +3,9 @@
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
+  import NewDefinitionDialog from './components/NewDefinitionDialog.svelte'
   import NewPackDialog from './components/NewPackDialog.svelte'
+  import { dialogs } from './lib/dialogs.svelte'
   import PackView from './components/PackView.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
@@ -50,6 +52,7 @@
       {t('app.title')}
     </button>
     <div class="spacer"></div>
+    <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>
     <button onclick={() => (creating = true)}>{t('nav.newPack')}</button>
     <button use:tooltip={t('nav.importTip')} onclick={importZip}>{t('nav.import')}</button>
     <select
@@ -87,6 +90,12 @@
   <History ui={oracleUi} onopen={(item) => go({ name: 'def', id: item.source, tab: 'roll' })} />
 </div>
 
+{#if dialogs.newDefinition}
+  <NewDefinitionDialog
+    root={dialogs.newDefinition.root}
+    onclose={() => (dialogs.newDefinition = null)}
+  />
+{/if}
 {#if creating}
   <NewPackDialog onclose={() => (creating = false)} />
 {/if}

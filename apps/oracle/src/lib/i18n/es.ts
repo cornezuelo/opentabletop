@@ -7,6 +7,7 @@ export const es: Messages<typeof en> = {
     tagline: 'Tira y crea tablas aleatorias, generadores, oráculos y mazos.',
   },
   nav: {
+    newDefinition: 'Nueva definición',
     search: 'Buscar tablas…',
     newPack: 'Nuevo pack',
     import: 'Importar .zip',
@@ -75,10 +76,51 @@ export const es: Messages<typeof en> = {
     assignIds: 'Dar id a las entradas',
     deleteDefinition: 'Borrar',
     confirmDelete: '¿Borrar "{name}"? No se puede deshacer.',
-    onlyTables:
-      'La edición con formulario está disponible para tablas. Edita este {kind} en su fichero:',
-    openFile: 'Abrir {file}',
     coverage: 'Los rangos no cubren todas las tiradas; mira los problemas de abajo.',
+    duplicateRow: 'Duplicar',
+    input: 'Entrada',
+    inputHelp:
+      'Lo que eliges antes de tirar, p. ej. la probabilidad o la actitud de un PNJ. Cada opción tiene su propia lista de entradas.',
+    default: 'Por defecto',
+    defaultHelp: 'Opción seleccionada al abrir el panel de tirada.',
+    firstOption: 'La primera',
+    options: 'Opciones',
+    optionsHelp:
+      'Las opciones de la entrada. Al renombrar una opción también se renombra su lista de entradas.',
+    newOption: 'Nueva opción',
+    addOption: 'Añadir opción',
+    optionExists: 'Ya hay una opción «{option}».',
+    variant: '{input}: {option}',
+    missingVariant: 'Todavía no hay entradas para «{option}».',
+    createVariant: 'Crearlas',
+    template: 'Plantilla',
+    templateHelp:
+      'Texto del resultado: escribe {{campo}} donde va el valor de cada campo. Vacía: se listan los campos, uno por línea.',
+    insertField: 'Añadir a la plantilla',
+    fields: 'Campos',
+    fieldsHelp:
+      'Los campos se tiran en orden; los siguientes campos y tablas pueden usar los valores anteriores.',
+    fieldName: 'Nombre',
+    fieldSource: 'Sale de',
+    fieldValue: 'Tabla, dados o valor',
+    sources: { table: 'Tabla', generator: 'Generador', roll: 'Dados', value: 'Valor fijo' },
+    fieldAdvanced: 'Tiene condiciones o contexto: edítalos en el fichero.',
+    fieldExists: 'Ya hay un campo «{field}».',
+    addField: 'Añadir campo',
+    reshuffle: 'Barajar',
+    reshuffleHelp: 'Cuándo vuelven al mazo las cartas robadas.',
+    reshuffles: {
+      'when-empty': 'Cuando se acaba el mazo',
+      manual: 'Solo a mano',
+      'after-draw': 'Tras cada robo',
+    },
+    cards: 'Cartas ({count} en el mazo)',
+    cardIdHelp:
+      'Nombre estable de la carta, usado por las traducciones y para saber cuáles se han robado.',
+    copies: 'Copias',
+    copiesHelp: 'Cuántas cartas como esta tiene el mazo.',
+    cardText: 'Texto',
+    addCard: 'Añadir carta',
   },
   pack: {
     files: 'Ficheros',
@@ -114,6 +156,25 @@ export const es: Messages<typeof en> = {
     manifestHelp: 'El nombre, la versión, el idioma base y la licencia están en pack.yaml.',
     other: 'Otras definiciones',
     otherHelp: 'Reglas para otros motores (reglas de viaje, bindings…). Edítalas en sus ficheros.',
+  },
+  defActions: {
+    duplicate: 'Duplicar',
+    duplicateHelp: 'Hace una copia en este pack para usarla como punto de partida.',
+    copyTo: 'Copiar a…',
+    copyToHelp:
+      'Copia a uno de tus packs, con sus traducciones. Las referencias a las tablas de este pack siguen funcionando.',
+    copied: 'Copiado como {id}',
+  },
+  newDef: {
+    title: 'Nueva definición',
+    pack: 'En el pack',
+    noPacks:
+      'Las definiciones van en tus propios packs: crea un pack primero (o edita una copia de uno incluido).',
+    name: 'Nombre',
+    idPreview: 'Id: {id}',
+    file: 'Fichero',
+    fileHelp: 'Fichero YAML del pack donde se escribe. Cualquiera vale; agrúpalas como prefieras.',
+    newFile: 'Nuevo fichero…',
   },
   newPack: {
     title: 'Nuevo pack',

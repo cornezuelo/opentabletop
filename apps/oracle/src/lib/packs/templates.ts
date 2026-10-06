@@ -13,29 +13,24 @@ export const TEMPLATES: Record<Compiled['kind'], (id: string) => Record<string, 
       { id: 'r3', range: '5-6', result: 'Third result' },
     ],
   }),
+  // A neutral input: rename it and its options (odds, attitude, distance…) in the form.
   oracle: (id) => ({
     kind: 'oracle',
     id,
     name: id,
-    inputs: { odds: { options: ['unlikely', 'even', 'likely'], default: 'even' } },
+    inputs: { choice: { options: ['first', 'second'] } },
     roll: '1d6',
     variants: {
-      unlikely: {
+      first: {
         entries: [
-          { id: 'yes', range: '1-2', result: 'Yes' },
-          { id: 'no', range: '3-6', result: 'No' },
+          { id: 'a', range: '1-3', result: 'First result' },
+          { id: 'b', range: '4-6', result: 'Second result' },
         ],
       },
-      even: {
+      second: {
         entries: [
-          { id: 'yes', range: '1-3', result: 'Yes' },
-          { id: 'no', range: '4-6', result: 'No' },
-        ],
-      },
-      likely: {
-        entries: [
-          { id: 'yes', range: '1-4', result: 'Yes' },
-          { id: 'no', range: '5-6', result: 'No' },
+          { id: 'a', range: '1-2', result: 'First result' },
+          { id: 'b', range: '3-6', result: 'Second result' },
         ],
       },
     },

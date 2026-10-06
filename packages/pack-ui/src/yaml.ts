@@ -2,10 +2,13 @@ import {
   Document,
   isMap,
   isSeq,
+  isScalar,
   LineCounter,
+  Pair,
   parseAllDocuments,
   parseDocument,
   stringify,
+  YAMLMap,
   YAMLSeq,
 } from 'yaml'
 
@@ -125,6 +128,57 @@ export function moveIn(
   const [item] = seq.items.splice(from, 1)
   seq.items.splice(to, 0, item)
   return write(found.docs)
+}
+
+function mapAt(found: Found, path: Path): YAMLMap | undefined {
+  const node = found.doc.getIn([...found.prefix, ...path], true)
+  return isMap(node) ? node : undefined
+}
+
+const keyOf = (pair: Pair) => (isScalar(pair.key) ? String(pair.key.value) : String(pair.key))
+
+/** Renames a key of a map inside a definition, keeping its position, value and comments. */
+export function renameKey(
+  content: string,
+  localId: string,
+  path: Path,
+  from: string,
+  to: string,
+): string {
+  const found = find(content, localId)
+  const map = found && mapAt(found, path)
+  if (!found || !map || from === to || map.has(to)) return content
+  const pair = map.items.find((p) => keyOf(p) === from)
+  if (!pair) return content
+  pair.key = found.doc.createNode(to)
+  return write(found.docs)
+}
+
+/** Moves a key of a map inside a definition to another position (maps keep their order). */
+export function moveKey(
+  content: string,
+  localId: string,
+  path: Path,
+  key: string,
+  to: number,
+): string {
+  const found = find(content, localId)
+  const map = found && mapAt(found, path)
+  if (!found || !map) return content
+  const from = map.items.findIndex((p) => keyOf(p) === key)
+  if (from < 0 || to < 0 || to >= map.items.length) return content
+  const [pair] = map.items.splice(from, 1)
+  map.items.splice(to, 0, pair)
+  return write(found.docs)
+}
+
+/** A free id based on `base` ("weather" → "weather-copy", "weather-copy-2"…). */
+export function freeId(base: string, taken: Iterable<string>): string {
+  const used = new Set(taken)
+  if (!used.has(base)) return base
+  let n = 2
+  while (used.has(`${base}-${n}`)) n++
+  return `${base}-${n}`
 }
 
 /** Appends a definition: into a list file's list, or as a new `---` document. */

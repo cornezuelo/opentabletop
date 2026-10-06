@@ -2,13 +2,16 @@ import { describe, expect, it } from 'vitest'
 import {
   appendDefinition,
   definitionIds,
+  freeId,
   getOverlayText,
   insertIn,
   locate,
   moveIn,
+  moveKey,
   readDefinition,
   removeDefinition,
   removeIn,
+  renameKey,
   setIn,
   setOverlayText,
 } from './yaml'
@@ -87,5 +90,35 @@ describe('structured YAML edits', () => {
     expect(locate(FILE, 'herbs.entries[0]')).toBe(12)
     expect(locate(FILE, 'weather.missing')).toBe(2)
     expect(locate('id: x\nversion: nope\n', 'pack.version')).toBe(2)
+  })
+
+  it('renames and moves map keys in place, keeping comments', () => {
+    const GEN = `kind: generator
+id: npc
+fields:
+  name: { table: names } # first
+  mood: { roll: 1d6 }
+  age: { value: 30 }
+`
+    const renamed = renameKey(GEN, 'npc', ['fields'], 'mood', 'temper')
+    expect(Object.keys(readDefinition(renamed, 'npc')!.fields as object)).toEqual([
+      'name',
+      'temper',
+      'age',
+    ])
+    expect(renamed).toContain('# first')
+    expect(renameKey(GEN, 'npc', ['fields'], 'mood', 'age')).toBe(GEN)
+    const moved = moveKey(GEN, 'npc', ['fields'], 'age', 0)
+    expect(Object.keys(readDefinition(moved, 'npc')!.fields as object)).toEqual([
+      'age',
+      'name',
+      'mood',
+    ])
+    expect(moveKey(GEN, 'npc', ['fields'], 'age', 3)).toBe(GEN)
+  })
+
+  it('finds free ids', () => {
+    expect(freeId('weather', ['herbs'])).toBe('weather')
+    expect(freeId('weather', ['weather', 'weather-2'])).toBe('weather-3')
   })
 })

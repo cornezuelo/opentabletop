@@ -6,6 +6,7 @@
   import { workspace } from '../lib/packs/workspace.svelte'
   import { manifestOf } from '../lib/packs/workspace'
   import KindBadge from './KindBadge.svelte'
+  import { dialogs } from '../lib/dialogs.svelte'
 
   let query = $state('')
   let collapsed = $state<Record<string, boolean>>({})
@@ -63,6 +64,14 @@
               <span class="tag" use:tooltip={t('originTips.edited')}>{t('origin.edited')}</span>
             {:else if pack.origin === 'bundled'}
               <span class="tag" use:tooltip={t('originTips.bundled')}>{t('origin.bundled')}</span>
+            {/if}
+            {#if pack.origin === 'user'}
+              <button
+                class="add"
+                aria-label={t('nav.newDefinition')}
+                use:tooltip={t('nav.newDefinition')}
+                onclick={() => (dialogs.newDefinition = { root: pack.root })}>+</button
+              >
             {/if}
             {#if errors}
               <span class="errors" use:tooltip={t('nav.problems', { count: errors })}>{errors}</span
@@ -157,6 +166,29 @@
 
   .tag.personal {
     color: #d8c58a;
+  }
+
+  .add {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin-left: auto;
+    line-height: 1;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .add:hover {
+    color: var(--accent);
+    border-color: var(--panel-border);
+  }
+
+  .add + .errors {
+    margin-left: 0;
   }
 
   .errors {

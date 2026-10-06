@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Compiled } from '@open-tabletop/oracle-engine'
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { displayName, KIND_ORDER } from '../lib/names'
@@ -7,16 +6,15 @@
   import { workspace } from '../lib/packs/workspace.svelte'
   import {
     cleanFilePath,
-    isValidId,
     manifestOf,
     MANIFEST_FILE,
     overlayLocales,
     overlayPath,
   } from '../lib/packs/workspace'
-  import { appendDefinition, locate } from '@open-tabletop/pack-ui/yaml'
+  import { locate } from '@open-tabletop/pack-ui/yaml'
   import { download, packToZip } from '../lib/packs/zip'
-  import { TEMPLATES } from '../lib/packs/templates'
   import KindBadge from './KindBadge.svelte'
+  import { dialogs } from '../lib/dialogs.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
 
   let { root }: { root: string } = $props()
@@ -44,22 +42,8 @@
   )
   const translations = $derived(pack ? overlayLocales(pack) : [])
 
-  let newId = $state('')
-  let newKind = $state<Compiled['kind']>('table')
-  let newFile = $state('')
   let newFileName = $state('')
   let newLocale = $state('')
-
-  function createDefinition() {
-    const id = newId.trim()
-    if (!isValidId(id)) return showToast(t('pack.invalidId'), 'error')
-    if (defs.some((d) => d.localId === id)) return showToast(t('pack.idTaken', { id }), 'error')
-    const file = newFile || dataFiles[0] || 'tables.yaml'
-    const content = workspace.readFile(root, file) ?? ''
-    workspace.writeFile(root, file, appendDefinition(content, TEMPLATES[newKind](id)))
-    newId = ''
-    go({ name: 'def', id: `${manifest.id}/${id}`, tab: 'edit' })
-  }
 
   function addFile() {
     const path = cleanFilePath(newFileName)
@@ -166,24 +150,9 @@
         {/each}
       </ul>
       {#if editable}
-        <form
-          class="inline-form"
-          onsubmit={(e) => {
-            e.preventDefault()
-            createDefinition()
-          }}
+        <button class="plain" onclick={() => (dialogs.newDefinition = { root })}
+          >{t('pack.newDefinition')}</button
         >
-          <input type="text" placeholder={t('pack.id')} bind:value={newId} />
-          <select bind:value={newKind} aria-label={t('pack.kind')}>
-            {#each KIND_ORDER as kind (kind)}
-              <option value={kind}>{t(`kinds.${kind}`)}</option>
-            {/each}
-          </select>
-          <select bind:value={newFile} aria-label={t('pack.inFile')}>
-            {#each dataFiles as f (f)}<option value={f}>{f}</option>{/each}
-          </select>
-          <button type="submit">{t('pack.newDefinition')}</button>
-        </form>
       {/if}
       {#if extras.length}
         <h3>{t('pack.other')}<InfoTip text={t('pack.otherHelp')} /></h3>
@@ -307,6 +276,7 @@
   }
 
   .actions button,
+  .plain,
   .inline-form button {
     padding: 6px 12px;
     background: var(--panel);
