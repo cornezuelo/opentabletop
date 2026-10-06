@@ -4,7 +4,7 @@
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
-  import { flowText, parseFlow } from '../../lib/flow'
+  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import type { SystemDoc } from '../../lib/systemDoc.svelte'
 
   /**

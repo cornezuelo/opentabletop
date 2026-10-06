@@ -4,7 +4,10 @@ The **Edit** tab is a form over the YAML file: it changes only what you touch an
 
 ## Every definition
 
-Name, description and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and whether it can be rolled with **advantage or disadvantage**.
+Name, description and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and whether it can be rolled with **advantage or disadvantage**. For tables and oracles also:
+
+- **Clamp totals** (on by default): a total below the lowest range takes the first entry, above the highest the last one, so modifiers never leave you without a result. Off, such a total gives nothing.
+- **When exhausted**: what happens when the entry rolled has reached its limit (see below): **roll again**, **take the next one** still available, or **nothing**.
 
 ## Tables
 
@@ -16,6 +19,14 @@ Each **entry** has:
 - **then roll**: another table or generator rolled after it, whose result is added.
 
 Add, duplicate, move and remove entries. **Number 1–N** gives them consecutive ranges and sets the dice to match.
+
+**⋯** on a row opens its conditions, values and limits (rows that have some say so under their text):
+
+- **Only if**: the entry can only come up when the context matches, written as `key: value` pairs, e.g. `terrain: forest`, `season: [autumn, winter]` (any of them), `danger: { gte: 3 }` (3 or more), `tags: landmark` (the hex has that tag). Empty: always. When no entry matches, the table gives nothing. The keys a table can read are in [What tables see](../technical/04-what-tables-see.md).
+- **Sets**: values the entry gives when it comes up, e.g. `weather: storm, lost: true` or `count: "{{2d6}}"`. The result text, later tables and generator fields, and the trip read them (see [Connecting tables](07-connecting.md)).
+- **Only once** / **At most**: how many times the entry can come up in a session (the Oracle's **New session** resets them).
+
+The boxes take the same text as the YAML between `{ }`; a box that can't be read as `key: value` pairs turns red and isn't saved.
 
 ## Oracles
 
@@ -31,4 +42,4 @@ An **input** (its id, a **label** to show, and its **options**, each with a labe
 
 ## What the forms don't edit
 
-Conditions (`when`), values set by entries (`set`), once-only limits and a generator field's context are edited in the YAML: the form marks entries that have them. See [YAML reference](06-yaml.md).
+A generator field's condition and context, and deeply nested conditions (`any`, `all`, `not`), are easier in the YAML. See [YAML reference](06-yaml.md).

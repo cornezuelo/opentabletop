@@ -55,7 +55,12 @@ function find(content: string, localId: string): Found | undefined {
   return undefined
 }
 
-const write = (docs: Document.Parsed[]) => docs.map((d) => d.toString()).join('')
+/**
+ * No line folding: one-line entries (`- { id: a, range: 1-3, result: … }`) stay on one
+ * line however long they grow, as pack authors write them.
+ */
+const OUTPUT = { lineWidth: 0 } as const
+const write = (docs: Document.Parsed[]) => docs.map((d) => d.toString(OUTPUT)).join('')
 
 /** Definition ids declared in a file, in order. */
 export function definitionIds(content: string): string[] {
@@ -228,7 +233,9 @@ export function removeDefinition(content: string, localId: string): string {
     return write(found.docs)
   }
   const docs = found.docs.filter((d) => d !== found.doc)
-  return docs.map((d, i) => (i === 0 ? d.toString().replace(/^---\n/, '') : d.toString())).join('')
+  return docs
+    .map((d, i) => (i === 0 ? d.toString(OUTPUT).replace(/^---\n/, '') : d.toString(OUTPUT)))
+    .join('')
 }
 
 /** Sets one text of a translation overlay (`<defId>.<field>[.<key>]`), creating the file as needed. */
@@ -236,7 +243,7 @@ export function setOverlayText(content: string, path: string[], text: string): s
   const doc = content.trim() ? parseDocument(content) : new Document({})
   if (text) doc.setIn(path, text)
   else doc.deleteIn(path)
-  return doc.toString()
+  return doc.toString(OUTPUT)
 }
 
 /** Reads one text of a translation overlay. */

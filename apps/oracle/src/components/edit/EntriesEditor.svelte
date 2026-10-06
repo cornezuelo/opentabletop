@@ -1,5 +1,6 @@
 <script lang="ts">
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
   import { getAt, nextId, type DefinitionDoc, type Path } from '../../lib/packs/doc.svelte'
@@ -98,6 +99,18 @@
 
   const advanced = (e: RawEntry) =>
     e.when !== undefined || e.set !== undefined || e.once || e.maxOccurrences !== undefined
+
+  /** Rows showing their conditions, values and limits. */
+  let open = $state<Record<number, boolean>>({})
+  /** Rows whose condition or values box holds text that isn't key: value pairs. */
+  let invalid = $state<Record<string, boolean>>({})
+
+  /** A condition or `set` typed as one line: saved when it reads as a map, flagged if not. */
+  function editFlow(i: number, key: 'when' | 'set', text: string) {
+    const value = parseFlow(text)
+    invalid = { ...invalid, [`${i}.${key}`]: value === null }
+    if (value !== null) edit(i, key, value)
+  }
 </script>
 
 {#if doc.translating && missingIds}
@@ -173,7 +186,7 @@
               onchange={(e) => edit(i, 'result', e.currentTarget.value)}
             />
           {/if}
-          {#if advanced(entry)}
+          {#if advanced(entry) && !open[i]}
             <small>{t('edit.advanced')}</small>
           {/if}
         </td>
@@ -188,6 +201,15 @@
         </td>
         <td class="row-actions">
           <div>
+            <button
+              class="icon"
+              class:on={open[i]}
+              aria-label={t('edit.more')}
+              aria-expanded={!!open[i]}
+              use:tooltip={t('edit.more')}
+              disabled={doc.translating}
+              onclick={() => (open = { ...open, [i]: !open[i] })}>⋯</button
+            >
             <button
               class="icon"
               aria-label={t('edit.moveUp')}
@@ -219,6 +241,64 @@
           </div>
         </td>
       </tr>
+      {#if open[i] && !doc.translating}
+        <tr class="more">
+          <td colspan="5">
+            <div class="more-grid">
+              <label>
+                <span>{t('edit.when')}<InfoTip text={t('edit.whenHelp')} /></span>
+                <input
+                  type="text"
+                  value={flowText(entry.when).replace(/^\{\s*|\s*\}$/g, '')}
+                  placeholder="terrain: forest"
+                  aria-invalid={invalid[`${i}.when`] || undefined}
+                  onchange={(e) => editFlow(i, 'when', e.currentTarget.value)}
+                />
+                {#if invalid[`${i}.when`]}<small>{t('edit.notAMap')}</small>{/if}
+              </label>
+              <label>
+                <span>{t('edit.set')}<InfoTip text={t('edit.setHelp')} /></span>
+                <input
+                  type="text"
+                  value={flowText(entry.set).replace(/^\{\s*|\s*\}$/g, '')}
+                  placeholder="weather: storm"
+                  aria-invalid={invalid[`${i}.set`] || undefined}
+                  onchange={(e) => editFlow(i, 'set', e.currentTarget.value)}
+                />
+                {#if invalid[`${i}.set`]}<small>{t('edit.notAMap')}</small>{/if}
+              </label>
+              <label class="inline">
+                <input
+                  type="checkbox"
+                  checked={entry.once === true}
+                  onchange={(e) => {
+                    const on = e.currentTarget.checked
+                    let text = setIn(doc.content, id, [...path, i, 'once'], on || undefined)
+                    if (on) text = setIn(text, id, [...path, i, 'maxOccurrences'], undefined)
+                    doc.save(text)
+                  }}
+                />
+                {t('edit.once')}<InfoTip text={t('edit.onceHelp')} />
+              </label>
+              <label class="inline">
+                {t('edit.maxOccurrences')}<InfoTip text={t('edit.maxOccurrencesHelp')} />
+                <input
+                  class="max"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={entry.maxOccurrences ?? ''}
+                  disabled={entry.once === true}
+                  onchange={(e) => {
+                    const n = Math.floor(Number(e.currentTarget.value))
+                    edit(i, 'maxOccurrences', n >= 1 ? n : undefined)
+                  }}
+                />
+              </label>
+            </div>
+          </td>
+        </tr>
+      {/if}
     {/each}
   </tbody>
 </table>
@@ -287,6 +367,47 @@
   .row-actions .icon {
     width: 24px;
     height: 28px;
+  }
+
+  .row-actions .icon.on {
+    color: var(--accent);
+  }
+
+  tr.more td {
+    padding: 2px 4px 10px;
+  }
+
+  .more-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 6px 12px;
+    align-items: end;
+    padding: 8px;
+    background: rgb(255 255 255 / 0.03);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .more-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .more-grid label.inline {
+    flex-direction: row;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .more-grid input[aria-invalid] {
+    border-color: #c0605a;
+  }
+
+  .more-grid .max {
+    width: 70px;
   }
 
   .row-actions .icon:disabled {

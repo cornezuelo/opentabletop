@@ -16,7 +16,7 @@
   import { confirmAction, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
-  import { flowText, parseFlow } from '../../lib/flow'
+  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import type { Kind, SystemDoc } from '../../lib/systemDoc.svelte'
 
   /**

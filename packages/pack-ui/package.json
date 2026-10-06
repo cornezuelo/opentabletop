@@ -8,7 +8,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./packs": "./src/packs.ts",
-    "./yaml": "./src/yaml.ts"
+    "./yaml": "./src/yaml.ts",
+    "./flow": "./src/flow.ts"
   },
   "scripts": {
     "check": "svelte-check --tsconfig ./tsconfig.json"

@@ -72,7 +72,26 @@ export const es: Messages<typeof en> = {
     moveDown: 'Bajar',
     renumber: 'Numerar 1–{count}',
     renumberHelp: 'Da a las entradas rangos consecutivos 1, 2, 3… y ajusta los dados.',
-    advanced: 'Tiene condiciones o valores: edítalos en el fichero.',
+    clamp: 'Ajustar totales',
+    clampHelp:
+      'Un total por debajo del rango más bajo toma la primera entrada y por encima del más alto la última (los modificadores pueden sacar la tirada de rango). Desactivado: no sale nada.',
+    onExhausted: 'Al agotarse',
+    onExhaustedHelp:
+      'Qué pasa cuando la entrada que sale ya llegó a su límite (“Solo una vez” o “Como mucho”).',
+    exhausted: { reroll: 'Tirar otra vez', next: 'Tomar la siguiente', none: 'Nada' },
+    advanced: 'Tiene condiciones, valores o límites (⋯ para verlos).',
+    more: 'Condiciones, valores y límites',
+    when: 'Solo si',
+    whenHelp:
+      'La entrada solo puede salir cuando el contexto encaja, en pares clave: valor: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Vacío: siempre.',
+    set: 'Fija',
+    setHelp:
+      'Valores que da la entrada cuando sale, en pares clave: valor: weather: storm, lost: true, count: "{{2d6}}". Los leen las tablas siguientes, la plantilla y el viaje.',
+    once: 'Solo una vez',
+    onceHelp: 'Sale como mucho una vez por sesión; después la tabla sigue “Al agotarse”.',
+    maxOccurrences: 'Como mucho',
+    maxOccurrencesHelp: 'Veces que puede salir por sesión (vacío: sin límite).',
+    notAMap: 'Escribe pares clave: valor, p. ej. terrain: forest',
     language: 'Idioma',
     baseLanguage: '{locale} (base)',
     translationHelp:

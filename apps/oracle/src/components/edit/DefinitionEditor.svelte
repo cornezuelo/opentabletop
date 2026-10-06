@@ -48,15 +48,42 @@
     <TextField {doc} path={['description']} />
   </label>
   {#if dice}
-    <label class="check">
-      <input
-        type="checkbox"
-        checked={doc.raw.advantage === true}
-        disabled={doc.translating}
-        onchange={(e) => doc.edit(['advantage'], e.currentTarget.checked || undefined)}
-      />
-      {t('edit.advantage')}<InfoTip text={t('edit.advantageHelp')} />
-    </label>
+    <div class="options">
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={doc.raw.advantage === true}
+          disabled={doc.translating}
+          onchange={(e) => doc.edit(['advantage'], e.currentTarget.checked || undefined)}
+        />
+        {t('edit.advantage')}<InfoTip text={t('edit.advantageHelp')} />
+      </label>
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={doc.raw.clamp !== false}
+          disabled={doc.translating}
+          onchange={(e) => doc.edit(['clamp'], e.currentTarget.checked ? undefined : false)}
+        />
+        {t('edit.clamp')}<InfoTip text={t('edit.clampHelp')} />
+      </label>
+      <label class="check">
+        {t('edit.onExhausted')}<InfoTip text={t('edit.onExhaustedHelp')} />
+        <select
+          value={doc.raw.onExhausted ?? 'reroll'}
+          disabled={doc.translating}
+          onchange={(e) =>
+            doc.edit(
+              ['onExhausted'],
+              e.currentTarget.value === 'reroll' ? undefined : e.currentTarget.value,
+            )}
+        >
+          {#each ['reroll', 'next', 'none'] as const as policy (policy)}
+            <option value={policy}>{t(`edit.exhausted.${policy}`)}</option>
+          {/each}
+        </select>
+      </label>
+    </div>
   {/if}
 
   {#if def.kind === 'table'}
@@ -80,6 +107,12 @@
   .top {
     display: flex;
     gap: 10px;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
   }
 
   .check {

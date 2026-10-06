@@ -69,7 +69,26 @@ export const en = {
     moveDown: 'Move down',
     renumber: 'Number 1–{count}',
     renumberHelp: 'Give the entries consecutive ranges 1, 2, 3… and set the dice to match.',
-    advanced: 'Has conditions or values: edit them in the file.',
+    clamp: 'Clamp totals',
+    clampHelp:
+      'A total below the lowest range takes the first entry, above the highest the last one (modifiers can push rolls out of range). Off: nothing comes up.',
+    onExhausted: 'When exhausted',
+    onExhaustedHelp:
+      'What happens when the entry rolled has reached its limit (“Only once” or “At most”).',
+    exhausted: { reroll: 'Roll again', next: 'Take the next one', none: 'Nothing' },
+    advanced: 'Has conditions, values or limits (⋯ to see them).',
+    more: 'Conditions, values and limits',
+    when: 'Only if',
+    whenHelp:
+      'The entry can only come up when the context matches, as key: value pairs: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Empty: always.',
+    set: 'Sets',
+    setHelp:
+      'Values the entry gives when it comes up, as key: value pairs: weather: storm, lost: true, count: "{{2d6}}". Later tables, the template and the trip read them.',
+    once: 'Only once',
+    onceHelp: 'Comes up at most once per session; then the table does what “When exhausted” says.',
+    maxOccurrences: 'At most',
+    maxOccurrencesHelp: 'Times it can come up per session (empty: no limit).',
+    notAMap: 'Write key: value pairs, e.g. terrain: forest',
     language: 'Language',
     baseLanguage: '{locale} (base)',
     translationHelp:

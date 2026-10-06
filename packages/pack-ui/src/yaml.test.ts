@@ -51,6 +51,14 @@ describe('structured YAML edits', () => {
     expect(readDefinition(setIn(FILE, 'weather', ['roll'], ''), 'weather')?.roll).toBeUndefined()
   })
 
+  it('keeps one-line entries on one line however long they grow', () => {
+    const src = 'kind: table\nid: t\nentries:\n  - { id: a, range: 1-3, result: A }\n'
+    const when = { terrain: 'forest', danger: { gte: 3 }, season: ['autumn', 'winter'] }
+    expect(setIn(src, 't', ['entries', 0, 'when'], when).split('\n')[3]).toBe(
+      '  - { id: a, range: 1-3, result: A, when: { terrain: forest, danger: { gte: 3 }, season: [ autumn, winter ] } }',
+    )
+  })
+
   it('inserts, removes and moves entries', () => {
     let out = insertIn(FILE, 'weather', ['entries'], 2, { range: 7, result: 'Snow' })
     expect((readDefinition(out, 'weather')?.entries as unknown[]).length).toBe(3)
