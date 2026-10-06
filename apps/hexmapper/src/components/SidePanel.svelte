@@ -3,6 +3,7 @@
   import HexInfo from './hex/HexInfo.svelte'
   import IconPanel from './IconPanel.svelte'
   import LabelPanel from './LabelPanel.svelte'
+  import TokenPanel from './tokens/TokenPanel.svelte'
   import LanguageSelect from './LanguageSelect.svelte'
   import LayersPanel from './LayersPanel.svelte'
   import LibraryPanel from './LibraryPanel.svelte'
@@ -90,6 +91,8 @@
     <Section title={t('panel.icons')}><IconPanel /></Section>
   {:else if editor.tool === 'text'}
     <Section title={t('panel.text')}><LabelPanel /></Section>
+  {:else if editor.tool === 'token'}
+    <Section title={t('panel.tokens')}><TokenPanel /></Section>
   {:else if editor.tool === 'play'}
     <Section title={t('panel.play')}><PlayPanel /></Section>
   {/if}

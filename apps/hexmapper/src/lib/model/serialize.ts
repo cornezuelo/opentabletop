@@ -13,7 +13,7 @@ import {
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex, normalizePath } from './hex'
 import { isValidId, newId } from './id'
-import { LABEL_FONTS, PATH_KINDS } from './types'
+import { LABEL_FONTS, PATH_KINDS, TOKEN_KINDS } from './types'
 import type {
   CustomField,
   HexData,
@@ -23,6 +23,7 @@ import type {
   MapAsset,
   MapLabel,
   MapPath,
+  MapToken,
   Poi,
   PrintSettings,
   TerrainType,
@@ -92,6 +93,7 @@ function validate(data: Record<string, unknown>): HexMap {
     paths: parsePaths(data.paths),
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
+    tokens: parseTokens(data.tokens),
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
@@ -254,18 +256,43 @@ export function parseLabelStyle(value: unknown): LabelStyle {
 
 const HEX_KEY = /^\d+,\d+$/
 
+const COLOR = /^#[0-9a-f]{6}$/i
+
+function parseTokens(value: unknown): MapToken[] {
+  if (!Array.isArray(value)) return []
+  const seen = new Set<string>()
+  const tokens: MapToken[] = []
+  for (const t of value) {
+    if (!isRecord(t) || !isValidId(t.id) || seen.has(t.id)) continue
+    seen.add(t.id)
+    const kind = (TOKEN_KINDS as readonly unknown[]).includes(t.kind)
+      ? (t.kind as MapToken['kind'])
+      : 'npc'
+    tokens.push({
+      id: t.id,
+      name: typeof t.name === 'string' ? t.name : '',
+      kind,
+      ...(typeof t.hex === 'string' && HEX_KEY.test(t.hex) && { hex: t.hex as HexKey }),
+      iconId: typeof t.iconId === 'string' ? t.iconId : 'game:meeple',
+      ...(typeof t.color === 'string' && COLOR.test(t.color) && { color: t.color }),
+      ...(t.halo === false && { halo: false }),
+      ...(typeof t.note === 'string' && t.note && { note: t.note }),
+    })
+  }
+  // One party at most: extra ones become player characters.
+  let party = false
+  for (const token of tokens)
+    if (token.kind === 'party') {
+      if (party) token.kind = 'pc'
+      party = true
+    }
+  return tokens
+}
+
 function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
-  const token = isRecord(p.token) ? p.token : {}
   const rules = isRecord(p.rules) ? p.rules : undefined
   return {
     mode: p.mode === 'rules' ? 'rules' : 'simple',
-    token: {
-      iconId: typeof token.iconId === 'string' ? token.iconId : 'game:meeple',
-      ...(typeof token.color === 'string' &&
-        /^#[0-9a-f]{6}$/i.test(token.color) && { color: token.color }),
-    },
-    ...(typeof p.location === 'string' &&
-      HEX_KEY.test(p.location) && { location: p.location as HexKey }),
     trail: (Array.isArray(p.trail) ? p.trail : []).filter(
       (k): k is HexKey => typeof k === 'string' && HEX_KEY.test(k),
     ),

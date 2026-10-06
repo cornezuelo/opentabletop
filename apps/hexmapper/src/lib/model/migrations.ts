@@ -1,10 +1,35 @@
 import { CURRENT_VERSION } from './defaults'
+import { newId } from './id'
 
 /**
  * `migrations[n]` upgrades raw data from version n to n + 1. Every format change
  * bumps CURRENT_VERSION and adds an entry here.
  */
-const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {}
+const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {
+  /** v2: tokens. The party's own icon (play.token) and location become a `party` token. */
+  1(data) {
+    const play = data.play as Record<string, unknown> | undefined
+    const tokens: Record<string, unknown>[] = []
+    if (play && typeof play === 'object') {
+      const { token, location, ...rest } = play as {
+        token?: { iconId?: string; color?: string; halo?: boolean }
+        location?: string
+      } & Record<string, unknown>
+      if (location || token)
+        tokens.push({
+          id: newId(),
+          name: '',
+          kind: 'party',
+          hex: location,
+          iconId: token?.iconId ?? 'game:meeple',
+          ...(token?.color && { color: token.color }),
+          ...(token?.halo === false && { halo: false }),
+        })
+      data = { ...data, play: rest }
+    }
+    return { ...data, tokens }
+  },
+}
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {
   let version = typeof data.version === 'number' ? data.version : 0

@@ -1,7 +1,9 @@
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
-import { hitTestLabel } from '../render/hitTest'
-import { clickHex } from '../play/play'
+import { hitTestLabel, hitTestToken } from '../render/hitTest'
+import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
+import { layoutTokens, nextTokenName } from '../model/tokens'
+import { clickHex, partyMoved } from '../play/play'
 import { nodeFlags, normalizePath } from '../model/hex'
 import type { MapPath } from '../model/types'
 import { placeInHex } from '../render/pathGeometry'
@@ -22,7 +24,7 @@ import {
   type Offset,
 } from '@open-tabletop/hex'
 import { t, type MessageKey } from '../i18n/index.svelte'
-import type { HexIcon, LayerId } from '../model/types'
+import type { HexIcon, LayerId, MapToken } from '../model/types'
 import { editor, type ToolId } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 
@@ -55,12 +57,118 @@ export interface Tool {
   hover?(cell: Offset, info: PointerInfo): void
 }
 
+/**
+ * Tokens: click a token to select it, drag it to another hex (it snaps to the center),
+ * right-click removes it. With `place`, a click on an empty hex puts the selected
+ * off-map token there, or a new token from the template.
+ */
+class TokenTool implements Tool {
+  private pressed: { id: string; at: Point; threshold: number } | null = null
+  private drag: { before: MapToken; id: string } | null = null
+
+  constructor(private place: boolean) {}
+
+  /** Handles the press if it hits a token (or places one); false lets others handle it. */
+  down(cell: Offset, info: PointerInfo): boolean {
+    // On the token or, with the token tool (Shift adds another), anywhere on its hex.
+    const id =
+      hitTestToken(info.world) ??
+      (!this.place || info.shift || !inBounds(cell, editor.map.grid)
+        ? null
+        : nearestTokenIn(cell, info.world))
+    if (info.button === 2) {
+      if (!id || blockedByLock('tokens')) return !!id
+      const token = editor.getToken(id)!
+      editor.execute(new RemoveTokenCommand(structuredClone(token)))
+      if (token.kind === 'party') partyMoved(undefined)
+      return true
+    }
+    if (info.button !== 0) return false
+    if (id) {
+      editor.selectedToken = id
+      this.pressed = { id, at: info.world, threshold: info.pickRadius / 3 }
+      return true
+    }
+    if (!this.place || !inBounds(cell, editor.map.grid) || blockedByLock('tokens')) return false
+    const hex = keyOf(cell)
+    const selected = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
+    if (selected && !selected.hex) {
+      editor.updateToken(selected.id, (t) => ({ ...t, hex }))
+      if (selected.kind === 'party') partyMoved(hex)
+      return true
+    }
+    const { kind, iconId, color } = editor.tokenTemplate
+    const token: MapToken = {
+      id: newId(),
+      name: nextTokenName(editor.map.tokens, kind, t(`tokens.kinds.${kind}` as MessageKey)),
+      kind,
+      hex,
+      iconId,
+      ...(color && { color }),
+    }
+    editor.execute(new AddTokenCommand(token))
+    editor.selectedToken = token.id
+    return true
+  }
+
+  move(cell: Offset, info: PointerInfo): void {
+    const pressed = this.pressed
+    if (!pressed) return
+    if (!this.drag) {
+      if (Math.hypot(info.world.x - pressed.at.x, info.world.y - pressed.at.y) < pressed.threshold)
+        return
+      const token = editor.getToken(pressed.id)
+      if (!token || blockedByLock('tokens')) return
+      this.drag = { before: structuredClone(token), id: token.id }
+    }
+    if (!inBounds(cell, editor.map.grid)) return
+    const hex = keyOf(cell)
+    const token = editor.getToken(this.drag.id)
+    if (!token || token.hex === hex) return
+    editor.map.tokens = editor.map.tokens.map((t) => (t.id === token.id ? { ...t, hex } : t))
+    editor.notify({ kind: 'tokens' })
+  }
+
+  up(): void {
+    const drag = this.drag
+    this.pressed = null
+    this.drag = null
+    const after = drag && editor.getToken(drag.id)
+    if (!drag || !after || after.hex === drag.before.hex) return
+    editor.record(new ReplaceTokenCommand(drag.before, structuredClone(after)))
+    if (after.kind === 'party') partyMoved(after.hex as HexKey)
+  }
+}
+
+/** The token of a hex closest to a point (several tokens share a hex). */
+function nearestTokenIn(cell: Offset, world: Point): string | null {
+  const hex = keyOf(cell)
+  const center = cellCenter(cell)
+  const hs = editor.map.grid.hexSize
+  let best: { id: string; d: number } | null = null
+  for (const p of layoutTokens(editor.map.tokens)) {
+    if (p.hex !== hex) continue
+    const d = Math.hypot(world.x - (center.x + p.dx * hs), world.y - (center.y + p.dy * hs))
+    if (!best || d < best.d) best = { id: p.token.id, d }
+  }
+  return best?.id ?? null
+}
+
+const tokenTool = new TokenTool(true)
+const tokenDragger = new TokenTool(false)
+
+/** Select: picks a hex; tokens can be selected and dragged here too. */
 const selectTool: Tool = {
-  down(cell) {
+  down(cell, info) {
+    if (tokenDragger.down(cell, info)) return
     editor.selected = keyOf(cell)
   },
-  move() {},
-  up() {},
+  move(cell, info) {
+    tokenDragger.move(cell, info)
+  },
+  up() {
+    tokenDragger.up()
+  },
 }
 
 class TerrainTool implements Tool {
@@ -607,6 +715,14 @@ class TextTool implements Tool {
   }
 }
 
+export function deleteSelectedToken(): void {
+  const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
+  if (!token || blockedByLock('tokens')) return
+  editor.execute(new RemoveTokenCommand(structuredClone(token)))
+  if (token.kind === 'party') partyMoved(undefined)
+  editor.selectedToken = null
+}
+
 export function deleteSelectedLabel(): void {
   const id = editor.selectedLabel
   const label = id && editor.getLabel(id)
@@ -628,6 +744,11 @@ const playTool: Tool = {
 
 const tools: Record<ToolId, Tool> = {
   play: playTool,
+  token: {
+    down: (cell, info) => void tokenTool.down(cell, info),
+    move: (cell, info) => tokenTool.move(cell, info),
+    up: () => tokenTool.up(),
+  },
   text: new TextTool(),
   icon: new IconTool(),
   select: selectTool,

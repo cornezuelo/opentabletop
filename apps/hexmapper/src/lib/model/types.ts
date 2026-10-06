@@ -113,13 +113,33 @@ export interface LabelStyle {
   haloWidth: number
 }
 
-/** Play mode: the party on the map. */
+export const TOKEN_KINDS = ['party', 'pc', 'npc', 'enemy'] as const
+export type TokenKind = (typeof TOKEN_KINDS)[number]
+
+/**
+ * A movable piece on the map: the party, a character, a monster… Several can share a
+ * hex. Saved in OTD as a character (or, for the party, the party) with a location.
+ */
+export interface MapToken {
+  id: string
+  name: string
+  kind: TokenKind
+  /** Where it stands; absent = off the map (kept in the token list). */
+  hex?: HexKey
+  /** Bundled icon or an imported image (`asset:<id>`). */
+  iconId: string
+  /** Ink and ring color; absent = the kind's default. */
+  color?: string
+  /** Light disc behind the icon (default on). */
+  halo?: boolean
+  /** External note path (same providers as hexes). */
+  note?: string
+}
+
+/** Play mode: the party (the `party` token) travelling on the map. */
 export interface PlayState {
   /** 'simple': move the token freely. 'rules': the Travel Engine and Oracle drive the trip. */
   mode: 'simple' | 'rules'
-  /** Bundled icon or an imported image (`asset:<id>`); halo = light disc behind it. */
-  token: { iconId: string; color?: string; halo?: boolean }
-  location?: HexKey
   /** Hexes visited, in order. */
   trail: HexKey[]
   showTrail: boolean
@@ -135,12 +155,13 @@ export const LAYER_IDS = [
   'icons',
   'labels',
   'party',
+  'tokens',
   'coords',
   'markers',
 ] as const
 export type LayerId = (typeof LAYER_IDS)[number]
 /** Layers that tools edit, and so can be locked. */
-export const LOCKABLE_LAYERS: readonly LayerId[] = ['terrain', 'paths', 'icons', 'labels']
+export const LOCKABLE_LAYERS: readonly LayerId[] = ['terrain', 'paths', 'icons', 'labels', 'tokens']
 
 export interface LayerState {
   visible: boolean
@@ -205,6 +226,7 @@ export interface HexMap {
   paths: MapPath[]
   assets: MapAsset[]
   labels: MapLabel[]
+  tokens: MapToken[]
   layers: Record<LayerId, LayerState>
   play?: PlayState
   /**

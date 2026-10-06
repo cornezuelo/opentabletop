@@ -4,7 +4,7 @@ import { defaultCalendar } from '@open-tabletop/time'
 import { getLocale } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
-import { editSession, sessionOf } from './play'
+import { editSession, partyLocation, sessionOf } from './play'
 import { mapWorld } from './world'
 
 /** The embedded Oracle: any table of the loaded packs, rolled by hand. */
@@ -43,7 +43,7 @@ export function rollContext(): Record<string, unknown> {
       day: travel.day,
     })
   }
-  const hex = editor.selected ?? play?.location
+  const hex = editor.selected ?? partyLocation()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
   if (hex && cell) Object.assign(out, cell, { hex })
   return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined && v !== null))

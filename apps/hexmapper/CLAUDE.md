@@ -97,6 +97,13 @@ Done:
 - [x] Oracle side panel (🎲, key O) from `@open-tabletop/oracle-ui`: roll any definition of the loaded packs, with history. Rolls read the selected hex (or the party's) and, on a rules trip, season, weather, mode, stats and today's values; those rolls are also written in the journal (`ORACLE_ROLL`).
 - [x] User packs created in the Oracle app are loaded too (shared `opentabletop.userPacks` storage when both apps share an origin; live across tabs), including systems with travel rules.
 
+### Next (agreed 2026-10-06, in this order)
+
+- [x] **Tokens** (tool ♟, key K): party, PCs, NPCs and enemies; several per hex (arranged around the center), dragged between hexes (snapping to the center), also with the select tool; name, icon (or an imported image), color, halo, linked note; off-map tokens stay in the list. Saved as OTD characters with `kind` and `location` (the party as the OTD party). Play mode moves the party token. Later: the PC tokens travelling together as the party.
+- [ ] **Terrain glyphs:** a subtle symbol per hex (mountain, tree…) in a lighter or darker shade of the terrain color, with a fade/hide control; custom images per terrain. A wider biome palette.
+- [ ] **Regions:** paint hexes into a region (kingdom, territory, danger zone) with border color and a label.
+- [ ] **Path kinds:** borders and walls besides roads, trails and rivers; closed paths.
+
 ### Later
 
 - Procedural generation, sub-maps, curved text, SVG export, Tauri desktop build.

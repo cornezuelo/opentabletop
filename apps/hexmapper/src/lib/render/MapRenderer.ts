@@ -14,10 +14,11 @@ import type { MapChange } from '../commands/command'
 import { hasMetadata, ICON_DEFAULTS, nodeFlags } from '../model/hex'
 import type { MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
+import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
 import { catmullRom, dashes } from './curves'
 import { pathRuns, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
-import { setLabelHitTest } from './hitTest'
+import { setLabelHitTest, setTokenHitTest } from './hitTest'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
 import {
   allCells,
@@ -109,12 +110,13 @@ export class MapRenderer {
   private iconLayer = new Container()
   private iconTextures = new IconTextures(() => {
     this.drawIcons()
-    this.drawParty()
+    this.drawTokens()
   })
   private labelLayer = new Container()
-  /** Party token, trail and route (play mode). */
+  /** Party trail and route (play mode). */
   private partyLayer = new Container()
   private partyLines = new Graphics()
+  private tokenLayer = new Container()
   private labelTexts = new Map<string, Text>()
   private markers = new Graphics()
   private overlay = new Graphics()
@@ -153,14 +155,17 @@ export class MapRenderer {
       this.coordLayer,
       this.labelLayer,
       this.partyLayer,
+      this.tokenLayer,
       this.markers,
       this.overlay,
     )
+    this.partyLayer.addChild(this.partyLines)
     app.stage.addChild(this.world, this.cursorMark)
     this.drawCursorMark()
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
     this.bindInput()
     setLabelHitTest((world) => this.labelAt(world))
+    setTokenHitTest((world) => this.tokenAt(world))
     this.rebuild()
     this.fit()
     // Web fonts may arrive after the first draw; redraw labels with them.
@@ -336,7 +341,11 @@ export class MapRenderer {
       this.drawPaths()
     } else if (change.kind === 'assets') {
       this.drawIcons()
+      this.drawTokens()
     } else if (change.kind === 'play') {
+      this.drawParty()
+    } else if (change.kind === 'tokens') {
+      this.drawTokens()
       this.drawParty()
     } else if (change.kind === 'labels') {
       this.drawLabels()
@@ -396,6 +405,7 @@ export class MapRenderer {
     this.drawIcons()
     this.drawLabels()
     this.drawParty()
+    this.drawTokens()
     this.onViewChanged()
   }
 
@@ -452,26 +462,20 @@ export class MapRenderer {
     this.updateLabelResolution()
   }
 
+  /** Trail and route of the party (play mode); the party itself is a token. */
   private drawParty(): void {
-    for (const child of this.partyLayer.removeChildren())
-      if (child !== this.partyLines) child.destroy()
     const lines = this.partyLines.clear()
-    this.partyLayer.addChild(lines)
     const play = editor.map.play
-    const { grid, assets } = editor.map
-    if (!play?.location) return
+    const { grid } = editor.map
+    if (!play) return
     const center = (key: string) => this.centerOf(parseKey(key as HexKey))
     const hs = grid.hexSize
+    const party = partyToken(editor.map)
 
-    if (play.showTrail && play.trail.length > 1) {
+    if (party?.hex && play.showTrail && play.trail.length > 1) {
       const points = play.trail.filter((k) => inBounds(parseKey(k), grid)).map(center)
       for (const piece of dashes(points, hs * 0.12, hs * 0.14)) this.strokePolyline(lines, piece)
-      lines.stroke({
-        width: hs * 0.07,
-        color: play.token.color ?? 0x8b1e1e,
-        alpha: 0.85,
-        cap: 'round',
-      })
+      lines.stroke({ width: hs * 0.07, color: tokenColor(party), alpha: 0.85, cap: 'round' })
     }
 
     const session =
@@ -486,22 +490,55 @@ export class MapRenderer {
       const end = points.at(-1)!
       lines.circle(end.x, end.y, hs * 0.35).stroke({ width: hs * 0.07, color: SELECT_COLOR })
     }
+  }
 
-    const image = iconImage(play.token.iconId, assets)
-    const texture = image && this.iconTextures.get(play.token.iconId, image.url)
-    const at = center(play.location)
-    if (play.token.halo !== false)
-      lines
-        .circle(at.x, at.y, hs * 0.62)
-        .fill({ color: 0xf4eedd, alpha: 0.9 })
-        .stroke({ width: hs * 0.05, color: play.token.color ?? 0x8b1e1e })
-    if (!texture) return
-    const sprite = new Sprite(texture)
-    sprite.anchor.set(0.5)
-    sprite.setSize(hs * 1.0, hs * 1.0)
-    sprite.position.set(at.x, at.y)
-    if (image.tintable) sprite.tint = play.token.color ?? 0x8b1e1e
-    this.partyLayer.addChild(sprite)
+  /** Tokens (party, characters, enemies…): a ringed disc with the icon, several per hex. */
+  drawTokens(): void {
+    for (const child of this.tokenLayer.removeChildren()) child.destroy()
+    const { assets, grid } = editor.map
+    const hs = grid.hexSize
+    const g = new Graphics()
+    this.tokenLayer.addChild(g)
+    for (const placed of layoutTokens(editor.map.tokens)) {
+      const { token } = placed
+      if (!inBounds(parseKey(placed.hex), grid)) continue
+      const c = this.centerOf(parseKey(placed.hex))
+      const at = { x: c.x + placed.dx * hs, y: c.y + placed.dy * hs }
+      const r = placed.radius * hs
+      const color = tokenColor(token)
+      if (token.halo !== false)
+        g.circle(at.x, at.y, r)
+          .fill({ color: 0xf4eedd, alpha: 0.92 })
+          .stroke({ width: Math.max(1, r * 0.1), color })
+      if (token.id === editor.selectedToken)
+        g.circle(at.x, at.y, r * 1.18).stroke({
+          width: Math.max(1.5, r * 0.1),
+          color: SELECT_COLOR,
+        })
+      const image = iconImage(token.iconId, assets)
+      const texture = image && this.iconTextures.get(token.iconId, image.url)
+      if (!texture) continue
+      const sprite = new Sprite(texture)
+      sprite.anchor.set(0.5)
+      const size = r * (token.halo !== false ? 1.55 : 2)
+      sprite.setSize(size, size)
+      sprite.position.set(at.x, at.y)
+      if (image.tintable) sprite.tint = color
+      this.tokenLayer.addChild(sprite)
+    }
+  }
+
+  /** Topmost token under a world point. */
+  private tokenAt(world: Point): string | null {
+    const hs = editor.map.grid.hexSize
+    const placed = layoutTokens(editor.map.tokens)
+    for (let i = placed.length - 1; i >= 0; i--) {
+      const p = placed[i]
+      const c = this.centerOf(parseKey(p.hex))
+      const d = Math.hypot(world.x - (c.x + p.dx * hs), world.y - (c.y + p.dy * hs))
+      if (d <= p.radius * hs) return p.token.id
+    }
+    return null
   }
 
   /** Re-rasterize text for the current zoom so labels stay sharp. */
@@ -656,6 +693,7 @@ export class MapRenderer {
     this.iconLayer.visible = layers.icons.visible
     this.labelLayer.visible = layers.labels.visible
     this.partyLayer.visible = layers.party.visible
+    this.tokenLayer.visible = layers.tokens.visible
     this.markers.visible = layers.markers.visible
     this.coordLayer.visible =
       layers.coords.visible &&

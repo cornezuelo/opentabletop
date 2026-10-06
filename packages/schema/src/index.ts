@@ -5,7 +5,7 @@ import { z } from 'zod'
  * ecosystem's tools (see docs/otd.md). Tools read the parts they know and must keep
  * everything else (`ext` namespaces, unknown entities) intact when saving.
  */
-export const OTD_VERSION = '0.1.0'
+export const OTD_VERSION = '0.2.0'
 
 const id = z.string().min(1)
 /** Offset hex coordinates "col,row". */
@@ -109,6 +109,10 @@ export const character = z
   .object({
     ...entity,
     type: z.literal('character'),
+    /** What it is in play: pc, npc, enemy… (free; tools may define their own). */
+    kind: z.string().optional(),
+    /** Where it stands, when it's on a map (e.g. as a token). */
+    location: location.optional(),
     stats: z.record(z.string(), z.unknown()).optional(),
   })
   .loose()
@@ -181,6 +185,7 @@ export type OtdPath = z.infer<typeof path>
 export type OtdTerrain = z.infer<typeof terrain>
 export type OtdPoi = z.infer<typeof poi>
 export type OtdParty = z.infer<typeof party>
+export type OtdCharacter = z.infer<typeof character>
 export type OtdLogEntry = z.infer<typeof logEntry>
 export type OtdCampaign = z.infer<typeof campaign>
 

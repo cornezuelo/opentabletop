@@ -2,7 +2,7 @@ import { newId } from './id'
 import { LAYER_IDS, type LayerId, type LayerState } from './types'
 import type { GridSettings, HexMap, LabelStyle, PrintSettings, TerrainType } from './types'
 
-export const CURRENT_VERSION = 1
+export const CURRENT_VERSION = 2
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -75,6 +75,7 @@ export function createMap(name = ''): HexMap {
     paths: [],
     assets: [],
     labels: [],
+    tokens: [],
     layers: defaultLayers(),
   }
 }

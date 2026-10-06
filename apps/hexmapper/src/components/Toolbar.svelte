@@ -10,6 +10,7 @@
     { id: 'path', label: 'tools.path', glyph: '〰' },
     { id: 'icon', label: 'tools.icon', glyph: '♜' },
     { id: 'text', label: 'tools.text', glyph: 'T' },
+    { id: 'token', label: 'tools.token', glyph: '♟' },
     { id: 'play', label: 'tools.play', glyph: '▶' },
   ]
 

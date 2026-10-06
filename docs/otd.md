@@ -67,7 +67,7 @@ Because an absolute number is stored, **custom calendars** are just a way of pre
 | **Path**        | `kind` (`road`, `river`, `trail`, … extensible), `hexes: "col,row"[]`, `nodes?`, `offsets?`, `straight?`                                                            | Roads and rivers are **edges between hexes**: the Travel Engine asks "is there a road between A and B?". `nodes`/`offsets` shape the drawing; visual style goes to `ext.hexmapper`. |
 | **POI**         | `location: { map, hex }`, `kind?`, `discovered?`, `noteRef?`                                                                                                        | Used to live inside the hex; becomes an entity so other engines can reference it.                                                                                                   |
 | **Party**       | `location: { map, hex }`, `members?: 'character:id'[]`, `travel` (mode, route, destination, resources, fatigue… see `travel-engine.md`)                             | The traveling group. There can be several.                                                                                                                                          |
-| **Character**   | `stats?`, `noteRef?`                                                                                                                                                | Deliberately thin: mechanical state and a link to the note. Full sheets go in `ext.<system>` or the notes app.                                                                      |
+| **Character**   | `kind?` (pc, npc, enemy…), `location?: { map, hex }` (e.g. a token), `stats?`, `noteRef?`                                                                           | Deliberately thin: mechanical state and a link to the note. Full sheets go in `ext.<system>` or the notes app.                                                                      |
 | **Faction**     | `stats?`, `clocks?: 'clock:id'[]`, `noteRef?`                                                                                                                       | As thin as Character.                                                                                                                                                               |
 | **Clock**       | `segments`, `filled`, `kind?` (progress, threat…)                                                                                                                   | Blades-style clocks.                                                                                                                                                                |
 | **LogEntry**    | `time: GameTime`, `at: string` (real ISO date), `source` (`oracle`, `travel`, `user`…), `code`, `data`, `refs`                                                      | The persisted "Event": session journal / history. Engines emit runtime events and `session` decides which become LogEntries.                                                        |
@@ -104,7 +104,7 @@ aliases: { reaction: kal-arath/reaction }
 
 ```jsonc
 {
-  "otd": "0.1.0",
+  "otd": "0.2.0",
   "campaign": { … } | null,
   "maps": [ … ], "pois": [ … ], "parties": [ … ],
   "characters": [ … ], "factions": [ … ], "clocks": [ … ],

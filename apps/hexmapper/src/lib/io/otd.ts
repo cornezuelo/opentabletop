@@ -3,6 +3,7 @@ import {
   OTD_VERSION,
   validateBundle,
   type OtdBundle,
+  type OtdCharacter,
   type OtdHex,
   type OtdLogEntry,
   type OtdMap,
@@ -12,7 +13,62 @@ import {
 import type { SessionState } from '@open-tabletop/session'
 import { MapFormatError } from '../model/migrations'
 import { deserializeMap } from '../model/serialize'
-import type { HexIcon, HexKey, HexMap, Poi } from '../model/types'
+import { partyToken } from '../model/tokens'
+import {
+  TOKEN_KINDS,
+  type HexIcon,
+  type HexKey,
+  type HexMap,
+  type MapToken,
+  type Poi,
+} from '../model/types'
+
+/** How a token looks, kept in `ext.hexmapper.token` of its OTD character or party. */
+interface TokenLook {
+  id: string
+  iconId: string
+  color?: string
+  halo?: boolean
+}
+
+const lookOf = (token: MapToken): TokenLook => ({
+  id: token.id,
+  iconId: token.iconId,
+  ...(token.color && { color: token.color }),
+  ...(token.halo === false && { halo: false }),
+})
+
+/** Tokens other than the party, as OTD characters with a location. */
+function tokensToOtd(map: HexMap): OtdCharacter[] {
+  return map.tokens
+    .filter((t) => t.kind !== 'party')
+    .map((t) => ({
+      id: t.id,
+      type: 'character' as const,
+      name: t.name,
+      kind: t.kind,
+      ...(t.hex && { location: { map: map.meta.id, hex: t.hex } }),
+      ...(t.note && { noteRef: t.note }),
+      ext: { hexmapper: { token: lookOf(t) } },
+    }))
+}
+
+/** Characters this app wrote as tokens (they carry ext.hexmapper.token). */
+function tokenOf(c: OtdCharacter, mapId: string): Record<string, unknown> | null {
+  const look = (c.ext as { hexmapper?: { token?: Partial<TokenLook> } } | undefined)?.hexmapper
+    ?.token
+  if (!look) return null
+  return {
+    id: c.id,
+    name: c.name ?? '',
+    kind: (TOKEN_KINDS as readonly string[]).includes(c.kind ?? '') ? c.kind : 'npc',
+    ...(c.location?.map === mapId && { hex: c.location.hex }),
+    iconId: look.iconId,
+    color: look.color,
+    halo: look.halo,
+    note: c.noteRef,
+  }
+}
 
 /** What the hexmapper keeps in `map.ext.hexmapper`: rendering, printing and editor-only data. */
 interface HexmapperExt {
@@ -88,15 +144,19 @@ export function mapToBundle(map: HexMap): OtdBundle {
   const otherMaps = Array.isArray(extra.maps) ? (extra.maps as OtdMap[]) : []
   const otherPois = Array.isArray(extra.pois) ? (extra.pois as OtdPoi[]) : []
   const play = playToOtd(map)
+  const characters = [
+    ...tokensToOtd(map),
+    ...((extra.characters as OtdCharacter[] | undefined) ?? []),
+  ]
   return {
     parties: [],
-    characters: [],
     factions: [],
     clocks: [],
     log: [],
     state: {},
     ...extra,
     otd: OTD_VERSION,
+    characters,
     maps: [otdMap, ...otherMaps],
     pois: [...pois, ...otherPois],
     ...(play && {
@@ -110,24 +170,28 @@ export function mapToBundle(map: HexMap): OtdBundle {
   } as OtdBundle
 }
 
-/** Play state as OTD: the party entity, its journal as log entries and the Oracle state. */
+/**
+ * The party token and play state as OTD: the party entity, its journal as log entries
+ * and the Oracle state.
+ */
 function playToOtd(map: HexMap) {
   const play = map.play
-  if (!play) return null
-  const session = play.rules?.session as Partial<SessionState> | null | undefined
+  const token = partyToken(map)
+  if (!play && !token) return null
+  const session = play?.rules?.session as Partial<SessionState> | null | undefined
   const party: OtdParty = {
     id: `party-${map.meta.id}`,
     type: 'party',
-    ...(play.location && { location: { map: map.meta.id, hex: play.location } }),
+    ...(token?.name && { name: token.name }),
+    ...(token?.note && { noteRef: token.note }),
+    ...(token?.hex && { location: { map: map.meta.id, hex: token.hex } }),
     ...(session?.stats && { stats: session.stats }),
     ...(session?.travel && { travel: session.travel as unknown as Record<string, unknown> }),
     ext: {
       hexmapper: {
-        mode: play.mode,
-        token: play.token,
-        trail: play.trail,
-        showTrail: play.showTrail,
-        ...(play.rules && { system: play.rules.system, startDay: play.rules.startDay }),
+        ...(token && { token: lookOf(token) }),
+        ...(play && { mode: play.mode, trail: play.trail, showTrail: play.showTrail }),
+        ...(play?.rules && { system: play.rules.system, startDay: play.rules.startDay }),
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
       },
     },
@@ -136,11 +200,15 @@ function playToOtd(map: HexMap) {
   return { party, log, oracle: session?.oracle }
 }
 
-/** Reads play state back from the party this app wrote (party-<mapId>). */
+/**
+ * Reads play state and the party token back from the party this app wrote (party-<mapId>).
+ * Files from before tokens (`legacy`) keep the old shape; the map migration converts it.
+ */
 function playFromOtd(
   bundle: OtdBundle,
   mapId: string,
-): { play?: Record<string, unknown>; partyId?: string } {
+  legacy: boolean,
+): { play?: Record<string, unknown>; partyId?: string; token?: Record<string, unknown> } {
   const party = bundle.parties.find((p) => p.id === `party-${mapId}`)
   const ext = (party?.ext as { hexmapper?: Record<string, unknown> } | undefined)?.hexmapper
   if (!party || !ext) return {}
@@ -159,16 +227,29 @@ function playFromOtd(
           },
         }
       : undefined
+  const play = {
+    mode: ext.mode,
+    trail: ext.trail,
+    showTrail: ext.showTrail,
+    ...(rules && { rules }),
+  }
+  if (legacy)
+    return { partyId: party.id, play: { ...play, token: ext.token, location: party.location?.hex } }
+  const look = ext.token as Partial<TokenLook> | undefined
+  const token = look && {
+    id: look.id,
+    name: party.name ?? '',
+    kind: 'party',
+    ...(party.location?.map === mapId && { hex: party.location.hex }),
+    iconId: look.iconId,
+    color: look.color,
+    halo: look.halo,
+    note: party.noteRef,
+  }
   return {
     partyId: party.id,
-    play: {
-      mode: ext.mode,
-      token: ext.token,
-      trail: ext.trail,
-      showTrail: ext.showTrail,
-      location: party.location?.hex,
-      ...(rules && { rules }),
-    },
+    ...(typeof ext.mode === 'string' && { play }),
+    ...(token && { token }),
   }
 }
 
@@ -211,7 +292,15 @@ export function bundleToMap(raw: unknown): HexMap {
     hex.pois = [...((hex.pois as Poi[]) ?? []), entry]
   }
 
-  const { play, partyId } = playFromOtd(bundle, otdMap.id)
+  const version = ext.version ?? 1
+  const { play, partyId, token: party } = playFromOtd(bundle, otdMap.id, version < 2)
+  const tokens: Record<string, unknown>[] = party ? [party] : []
+  const otherCharacters: OtdCharacter[] = []
+  for (const c of bundle.characters) {
+    const token = tokenOf(c, otdMap.id)
+    if (token) tokens.push(token)
+    else otherCharacters.push(c)
+  }
   const extraBundle: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(bundle))
     if (!(BUNDLE_KEYS as readonly string[]).includes(key)) extraBundle[key] = value
@@ -223,11 +312,13 @@ export function bundleToMap(raw: unknown): HexMap {
     delete otherState.oracle
     extraBundle.state = play?.rules ? otherState : bundle.state
   }
+  // Our tokens are rebuilt from the map when saving.
+  extraBundle.characters = otherCharacters
   if (otherMaps.length) extraBundle.maps = otherMaps
   if (otherPois.length) extraBundle.pois = otherPois
 
   const internal = {
-    version: ext.version ?? 1,
+    version,
     meta: {
       id: otdMap.id,
       name: otdMap.name ?? '',
@@ -249,6 +340,7 @@ export function bundleToMap(raw: unknown): HexMap {
     paths: otdMap.paths ?? [],
     assets: ext.assets ?? [],
     labels: ext.labels ?? [],
+    ...(version >= 2 && { tokens }),
     layers: ext.layers,
     ...(play && { play }),
     foreign: {

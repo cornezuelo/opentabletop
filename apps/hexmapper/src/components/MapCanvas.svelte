@@ -68,6 +68,12 @@
     renderer?.drawOverlay()
   })
 
+  // The selected token is ringed.
+  $effect(() => {
+    void editor.selectedToken
+    renderer?.drawTokens()
+  })
+
   // Leaving the path tool keeps what was drawn instead of discarding it.
   $effect(() => {
     if (editor.tool !== 'path') finishPath()

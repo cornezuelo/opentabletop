@@ -8,6 +8,8 @@ import {
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale } from '../i18n/index.svelte'
+import { newId } from '../model/id'
+import { DEFAULT_TOKEN_ICONS, partyToken } from '../model/tokens'
 import type { PlayState } from '../model/types'
 import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
@@ -20,7 +22,6 @@ function current(): PlayState {
   return (
     structuredClone(editor.map.play) ?? {
       mode: 'simple',
-      token: { iconId: 'game:meeple' },
       trail: [],
       showTrail: true,
     }
@@ -33,6 +34,45 @@ function save(play: PlayState | undefined): void {
 
 export function updatePlay(update: (play: PlayState) => PlayState): void {
   save(update(current()))
+}
+
+/** Where the party stands (its token's hex). */
+export function partyLocation(): HexKey | undefined {
+  return partyToken(editor.map)?.hex
+}
+
+/**
+ * Moves the party token (creating it the first time). Like the rest of play, outside
+ * the editor's undo history.
+ */
+function placeParty(hex: HexKey | undefined): void {
+  const token = partyToken(editor.map)
+  if (token?.hex === hex) return
+  if (token) editor.map.tokens = editor.map.tokens.map((t) => (t === token ? { ...t, hex } : t))
+  else if (hex)
+    editor.map.tokens = [
+      ...editor.map.tokens,
+      { id: newId(), name: '', kind: 'party', hex, iconId: DEFAULT_TOKEN_ICONS.party },
+    ]
+  editor.notify({ kind: 'tokens' })
+}
+
+/**
+ * The party token was dragged by hand (token tool): extend the trail and, during a trip,
+ * put the party there (a jump, not travel: no time passes and the route is dropped).
+ */
+export function partyMoved(hex: HexKey | undefined): void {
+  const play = current()
+  if (!hex) return save({ ...play, trail: [], rules: undefined })
+  if (play.trail.at(-1) !== hex) play.trail = [...play.trail, hex]
+  const session = sessionOf(play)
+  if (session && play.rules) {
+    const travel = { ...session.travel, location: hex, progress: 0 }
+    delete travel.destination
+    delete travel.route
+    play.rules = { ...play.rules, session: { ...session, travel } }
+  }
+  save(play)
 }
 
 /** The rules-mode session, recreated if missing or from an incompatible save. */
@@ -60,9 +100,10 @@ function newSession(
 /** Play tool click: place the party, move it (simple) or set the destination (rules). */
 export function clickHex(key: HexKey): void {
   const play = current()
-  if (play.mode === 'simple' || !play.location) {
-    if (play.location === key) return
-    play.location = key
+  const location = partyLocation()
+  if (play.mode === 'simple' || !location || !sessionOf(play)) {
+    if (location === key && (play.mode === 'simple' || sessionOf(play))) return
+    placeParty(key)
     if (play.trail.at(-1) !== key) play.trail = [...play.trail, key]
     if (play.mode === 'rules') return save(newSession(play, key, play.rules?.system ?? 'generic'))
     return save(play)
@@ -73,17 +114,19 @@ export function clickHex(key: HexKey): void {
 export function setMode(mode: PlayState['mode']): void {
   const play = current()
   play.mode = mode
-  if (mode === 'rules' && play.location && !sessionOf(play))
-    return save(newSession(play, play.location, play.rules?.system ?? 'generic'))
+  const location = partyLocation()
+  if (mode === 'rules' && location && !sessionOf(play))
+    return save(newSession(play, location, play.rules?.system ?? 'generic'))
   save(play)
 }
 
 /** Starts a new trip with another system (or season); the party stays where it is. */
 export function restartRules(system: string, season: Season): void {
   const play = current()
-  if (!play.location)
+  const location = partyLocation()
+  if (!location)
     return save({ ...play, rules: { system, startDay: SEASON_START_DAYS[season], session: null } })
-  save(newSession(play, play.location, system, season))
+  save(newSession(play, location, system, season))
 }
 
 /** Runs a travel action through the session (Oracle resolves bound checks). */
@@ -107,9 +150,9 @@ export function step(action: TravelAction): void {
   }
   const { state, entries } = result
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
+  placeParty(state.travel.location as HexKey)
   save({
     ...play,
-    location: state.travel.location as HexKey,
     trail: [...play.trail, ...entered],
     rules: { ...play.rules, session: state },
   })
@@ -128,10 +171,12 @@ export function resolvePending(id: string): void {
 }
 
 export function clearTrail(): void {
-  updatePlay((play) => ({ ...play, trail: play.location ? [play.location] : [] }))
+  const location = partyLocation()
+  updatePlay((play) => ({ ...play, trail: location ? [location] : [] }))
 }
 
-/** Removes the party from the map (keeps the token style). */
+/** Takes the party off the map (its token keeps its look) and ends the trip. */
 export function resetParty(): void {
-  updatePlay((play) => ({ ...play, location: undefined, trail: [], rules: undefined }))
+  placeParty(undefined)
+  updatePlay((play) => ({ ...play, trail: [], rules: undefined }))
 }

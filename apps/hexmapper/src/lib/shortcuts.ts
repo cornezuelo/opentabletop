@@ -5,6 +5,7 @@ import {
   cancelPath,
   deleteSelectedIcon,
   deleteSelectedLabel,
+  deleteSelectedToken,
   finishPath,
   popPathPoint,
 } from './tools/tools'
@@ -63,6 +64,19 @@ export function bindShortcuts(): () => void {
       }
     }
 
+    if ((editor.tool === 'token' || editor.tool === 'select') && editor.selectedToken) {
+      if (key === 'escape') {
+        editor.selectedToken = null
+        e.preventDefault()
+        return
+      }
+      if (key === 'delete' || key === 'backspace') {
+        deleteSelectedToken()
+        e.preventDefault()
+        return
+      }
+    }
+
     if (
       editor.tool === 'text' &&
       editor.selectedLabel &&
@@ -97,6 +111,9 @@ export function bindShortcuts(): () => void {
       case 'p':
         editor.tool = 'play'
         break
+      case 'k':
+        editor.tool = 'token'
+        break
       case 'e':
         editor.tool = 'terrain'
         editor.terrainMode = 'erase'
@@ -116,7 +133,7 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
-    if ('vbgeritp'.includes(key)) editor.panelView = 'tool'
+    if ('vbgeritpk'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

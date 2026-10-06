@@ -112,10 +112,26 @@ describe('OTD conversion', () => {
 describe('play state in OTD', () => {
   it('writes the party, journal and oracle state, and reads them back', () => {
     const map = sampleMap()
+    map.tokens = [
+      {
+        id: 'partytoken1',
+        name: 'The Company',
+        kind: 'party',
+        hex: '2,2',
+        iconId: 'game:mounted-knight',
+        color: '#8b1e1e',
+      },
+      { id: 'goblins0001', name: 'Goblins', kind: 'enemy', hex: '1,1', iconId: 'game:goblin-head' },
+      {
+        id: 'ilyana00001',
+        name: 'Ilyana',
+        kind: 'npc',
+        iconId: 'game:cowled',
+        note: 'NPCs/Ilyana',
+      },
+    ]
     map.play = {
       mode: 'rules',
-      token: { iconId: 'game:mounted-knight', color: '#8b1e1e' },
-      location: '2,2',
       trail: ['1,2', '2,2'],
       showTrail: true,
       rules: {
@@ -157,17 +173,43 @@ describe('play state in OTD', () => {
     expect(validateBundle(bundle).errors).toEqual([])
     expect(bundle.parties[0]).toMatchObject({
       type: 'party',
+      name: 'The Company',
       location: { map: map.meta.id, hex: '2,2' },
       stats: { pre: 2 },
     })
+    expect(bundle.characters).toEqual([
+      expect.objectContaining({
+        id: 'goblins0001',
+        kind: 'enemy',
+        location: { map: map.meta.id, hex: '1,1' },
+      }),
+      expect.objectContaining({ id: 'ilyana00001', kind: 'npc', noteRef: 'NPCs/Ilyana' }),
+    ])
     expect(bundle.log).toHaveLength(1)
     expect(bundle.state.oracle).toEqual({ decks: {}, occurrences: { 'x/y#z': 1 }, vars: {} })
 
     const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
     expect(back.play).toEqual(map.play)
+    expect(back.tokens).toEqual(map.tokens)
     // Saving again doesn't duplicate the party or the journal.
     const again = mapToBundle(back)
     expect(again.parties).toHaveLength(1)
+    expect(again.characters).toHaveLength(2)
     expect(again.log).toHaveLength(1)
+  })
+
+  it('turns the party of files from before tokens into a party token', () => {
+    const map = sampleMap()
+    map.play = { mode: 'simple', trail: ['3,3'], showTrail: true }
+    map.tokens = [{ id: 'partytoken1', name: '', kind: 'party', hex: '3,3', iconId: 'game:camel' }]
+    const bundle = JSON.parse(JSON.stringify(mapToBundle(map)))
+    // What a v1 file looked like: the party's look in ext.hexmapper.token, no token ids.
+    bundle.maps[0].ext.hexmapper.version = 1
+    bundle.parties[0].ext.hexmapper.token = { iconId: 'game:camel' }
+    const back = bundleToMap(bundle)
+    expect(back.tokens).toEqual([
+      expect.objectContaining({ kind: 'party', hex: '3,3', iconId: 'game:camel' }),
+    ])
+    expect(back.play).toEqual({ mode: 'simple', trail: ['3,3'], showTrail: true })
   })
 })

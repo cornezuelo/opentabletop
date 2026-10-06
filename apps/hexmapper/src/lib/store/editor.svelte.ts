@@ -4,6 +4,7 @@ import { ReplaceLabelCommand } from '../commands/paths'
 import { DEFAULT_LABEL_STYLE } from '../model/defaults'
 import { History } from '../commands/history'
 import { createMap } from '../model/defaults'
+import { ReplaceTokenCommand } from '../commands/tokens'
 import type {
   GridSettings,
   HexData,
@@ -15,12 +16,14 @@ import type {
   MapLabel,
   LayerId,
   LayerState,
+  MapToken,
   PathKind,
   PrintSettings,
   TerrainType,
+  TokenKind,
 } from '../model/types'
 
-export type ToolId = 'select' | 'terrain' | 'path' | 'icon' | 'text' | 'play'
+export type ToolId = 'select' | 'terrain' | 'path' | 'icon' | 'text' | 'token' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
@@ -55,6 +58,7 @@ class Editor {
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state<HexMap['play']>(undefined)
+  tokens = $state.raw<MapToken[]>([])
   canUndo = $state(false)
   canRedo = $state(false)
 
@@ -82,6 +86,14 @@ class Editor {
   labelStyle = $state<LabelStyle>({ ...DEFAULT_LABEL_STYLE })
   /** Labels being edited live (text typing, slider drags): original kept for one undo step. */
   private labelEdits = new Map<string, MapLabel>()
+
+  /** Token selected with the token tool (its panel edits it). */
+  selectedToken = $state<string | null>(null)
+  /** What a click on an empty hex places with the token tool. */
+  tokenTemplate = $state<{ kind: TokenKind; iconId: string; color?: string }>({
+    kind: 'pc',
+    iconId: 'game:swordman',
+  })
 
   /** Path vertex under the pointer (path tool), for highlighting and the grab cursor. */
   hoveredHandle = $state<{ pathId: string; index: number } | null>(null)
@@ -138,6 +150,19 @@ class Editor {
     this.commitLabel(id)
     const label = this.getLabel(id)
     if (label) this.execute(new ReplaceLabelCommand(label, update(structuredClone(label))))
+  }
+
+  getToken(id: string): MapToken | undefined {
+    return this.map.tokens.find((t) => t.id === id)
+  }
+
+  /** One token change (rename, restyle, move…) as an undoable step. */
+  updateToken(id: string, update: (token: MapToken) => MapToken): void {
+    const token = this.getToken(id)
+    if (!token) return
+    const after = update(structuredClone(token))
+    if (JSON.stringify(after) === JSON.stringify(token)) return
+    this.execute(new ReplaceTokenCommand(structuredClone(token), after))
   }
 
   /** Play state changes: saved with the map but not part of the editor's undo history. */
@@ -203,6 +228,7 @@ class Editor {
     this.selected = null
     this.selectedLabel = null
     this.selectedIcon = null
+    this.selectedToken = null
     this.labelEdits.clear()
     this.hexPreviews.clear()
     this.pathDraft = null
@@ -215,6 +241,7 @@ class Editor {
   private pruneSelections(): void {
     if (this.selectedIcon && !this.map.hexes[this.selectedIcon]?.icon) this.selectedIcon = null
     if (this.selectedLabel && !this.getLabel(this.selectedLabel)) this.selectedLabel = null
+    if (this.selectedToken && !this.getToken(this.selectedToken)) this.selectedToken = null
   }
 
   private touch(): void {
@@ -237,6 +264,7 @@ class Editor {
     if (change.kind === 'layers' || change.kind === 'all')
       this.layers = structuredClone(this.map.layers)
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]
+    if (change.kind === 'tokens' || change.kind === 'all') this.tokens = [...this.map.tokens]
   }
 }
 
