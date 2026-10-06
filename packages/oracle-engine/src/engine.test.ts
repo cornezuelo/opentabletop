@@ -526,3 +526,31 @@ mood:
     ])
   })
 })
+
+describe('advantage', () => {
+  it('is off unless a table or oracle asks for it', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'adv/pack.yaml', content: 'id: adv\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'adv/t.yaml',
+        content: `
+kind: table
+id: plain
+entries: [{ result: A }]
+---
+kind: table
+id: lost
+advantage: true
+roll: 1d6
+entries: [{ range: 1-6, result: B }]
+`,
+      },
+    ])
+    expect(diagnostics).toEqual([])
+    const advantage = (id: string) => {
+      const def = registry.definitions.get(id)
+      return def?.kind === 'table' && def.advantage
+    }
+    expect([advantage('adv/plain'), advantage('adv/lost')]).toEqual([false, true])
+  })
+})

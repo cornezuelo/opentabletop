@@ -47,6 +47,17 @@
     <span>{t('edit.description')}</span>
     <TextField {doc} path={['description']} />
   </label>
+  {#if dice}
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={doc.raw.advantage === true}
+        disabled={doc.translating}
+        onchange={(e) => doc.edit(['advantage'], e.currentTarget.checked || undefined)}
+      />
+      {t('edit.advantage')}<InfoTip text={t('edit.advantageHelp')} />
+    </label>
+  {/if}
 
   {#if def.kind === 'table'}
     <EntriesEditor {doc} path={['entries']} rollPath={['roll']} />
@@ -69,6 +80,13 @@
   .top {
     display: flex;
     gap: 10px;
+  }
+
+  .check {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--text-muted);
   }
 
   .grow {

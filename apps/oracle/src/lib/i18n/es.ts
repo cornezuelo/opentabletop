@@ -84,6 +84,9 @@ export const es: Messages<typeof en> = {
     inputLabel: 'Etiqueta',
     labelHelp: 'Se muestra en lugar del id al tirar, y se puede traducir. Vacía: se muestra el id.',
     optionLabel: 'Etiqueta',
+    advantage: 'Se puede tirar con ventaja o desventaja',
+    advantageHelp:
+      'Muestra la opción Normal / Ventaja / Desventaja al tirar (tirar dos veces y quedarse con la mejor o la peor). Solo para las tablas que tu sistema tira así.',
     default: 'Por defecto',
     defaultHelp: 'Opción seleccionada al abrir el panel de tirada.',
     firstOption: 'La primera',

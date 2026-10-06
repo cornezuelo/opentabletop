@@ -241,7 +241,7 @@
   }
 
   .id {
-    width: 110px;
+    width: 170px;
   }
 
   .num {

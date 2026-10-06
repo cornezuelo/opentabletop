@@ -44,12 +44,15 @@ interface Base {
 
 export interface CompiledTable extends Base, EntryList {
   kind: 'table'
+  /** The table is meant to be rolled with advantage/disadvantage (UIs offer the choice). */
+  advantage: boolean
   clamp: boolean
   onExhausted: 'reroll' | 'next' | 'none'
 }
 
 export interface CompiledOracle extends Base {
   kind: 'oracle'
+  advantage: boolean
   inputs: Record<
     string,
     { options: string[]; default?: string; label?: string; labels?: Record<string, string> }
@@ -187,6 +190,7 @@ class CompileContext {
         return {
           ...base,
           kind: 'table',
+          advantage: d.advantage ?? false,
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',
           ...this.entryList(d.roll, d.entries, 'entries'),
@@ -215,6 +219,7 @@ class CompileContext {
         return {
           ...base,
           kind: 'oracle',
+          advantage: d.advantage ?? false,
           inputs: d.inputs,
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',

@@ -81,6 +81,9 @@ export const en = {
     inputLabel: 'Label',
     labelHelp: 'Shown instead of the id when rolling, and translatable. Empty: the id is shown.',
     optionLabel: 'Label',
+    advantage: 'Can be rolled with advantage or disadvantage',
+    advantageHelp:
+      'Shows the Normal / Advantage / Disadvantage choice when rolling (roll twice, keep the best or the worst). Only for tables your system rolls that way.',
     default: 'Default',
     defaultHelp: 'Option selected when the roll panel opens.',
     firstOption: 'The first one',

@@ -73,6 +73,7 @@ entries:
 ```
 
 - `result` is text (a template) or an object. `table:` / `generator:` delegate to another definition. `set:` adds fields.
+- **Advantage:** `advantage: true` on a table or oracle means the system rolls it with advantage/disadvantage (roll twice, keep the best or worst), so UIs offer that choice. Off by default: most tables don't use it.
 - **Weighted:** `weight: 3` instead of `range`. The selection method is pluggable (`selector: range | weight`).
 - **Conditions:** `when:` on an entry enables/disables it based on context; only enabled entries are candidates.
 - **Limits:** `once: true` or `maxOccurrences: 3`. An exhausted entry is re-rolled (up to N tries) or skipped to the next available one, per `onExhausted: reroll | next | none`.

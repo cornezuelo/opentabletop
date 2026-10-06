@@ -106,7 +106,7 @@ A pack is a folder with `pack.yaml` (id, version, base locale, license, dependen
 
 FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
-Commands (from the root): `npm run dev` (hexmapper), `npm run dev:oracle`, `npm test`, `npm run check`, `npm run lint`, `npm run format`, `npm run build` (each app into `apps/<app>/dist/`), `npm run build:site` (every app into `dist/<app>/`, to serve from one origin so they share the user packs). Builds use relative URLs (`base: './'`), so they work from any folder.
+Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, `make serve`, `make verify`…); they wrap the npm scripts: `npm run dev` (hexmapper), `npm run dev:oracle`, `npm test`, `npm run check`, `npm run lint`, `npm run format`, `npm run build` (each app into `apps/<app>/dist/`), `npm run build:site` (every app into `dist/<app>/`, to serve from one origin so they share the user packs). Builds use relative URLs (`base: './'`), so they work from any folder.
 
 ## Conventions
 

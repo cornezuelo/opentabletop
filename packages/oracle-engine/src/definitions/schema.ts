@@ -47,6 +47,8 @@ const common = {
 
 const tableBody = {
   roll: z.string().optional(),
+  /** Offer advantage/disadvantage when rolling (off by default: few tables use it). */
+  advantage: z.boolean().optional(),
   clamp: z.boolean().optional(),
   onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
   entries: z.array(entry).min(1, 'a table needs at least one entry'),
@@ -72,6 +74,7 @@ export const oracleSchema = z
         .strict(),
     ),
     roll: z.string().optional(),
+    advantage: z.boolean().optional(),
     clamp: z.boolean().optional(),
     onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
     variants: z.record(

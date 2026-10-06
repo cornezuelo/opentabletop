@@ -45,11 +45,15 @@
     return { total, left: roller.state.decks[def.id]?.draw.length ?? total }
   })
 
+  /** Only tables and oracles that ask for it offer advantage/disadvantage. */
+  const offersAdvantage = $derived((def.kind === 'table' || def.kind === 'oracle') && def.advantage)
+
   function roll() {
     roller.run(
       def.id,
       { ...context, ...parseContext(values) },
       def.kind === 'deck' ? 'draw' : 'resolve',
+      offersAdvantage ? roller.advantage : 0,
     )
   }
 
@@ -127,7 +131,7 @@
     {#if deck}
       <span class="muted">{t('roll.remaining', deck)}</span>
       <button onclick={() => roller.shuffle(def.id)}>{t('roll.shuffle')}</button>
-    {:else}
+    {:else if offersAdvantage}
       <label class="inline">
         <select bind:value={roller.advantage}>
           <option value={0}>{t('roll.advantages.normal')}</option>
