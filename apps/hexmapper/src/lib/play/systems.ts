@@ -12,7 +12,7 @@ function load(): TravelSystem[] {
   if (loaded?.registry === registry) return loaded.systems
   for (const d of library.loaded.diagnostics) console.warn(`[packs] ${formatDiagnostic(d)}`)
   const { systems, problems } = travelSystems(registry)
-  for (const p of problems) console.warn(`[packs] ${p}`)
+  for (const p of problems) console.warn(`[packs] ${formatDiagnostic(p)}`)
   loaded = { registry, systems }
   return systems
 }

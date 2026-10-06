@@ -122,3 +122,12 @@ fields:
     expect(freeId('weather', ['weather', 'weather-2'])).toBe('weather-3')
   })
 })
+
+describe('locating by kind', () => {
+  it('finds a definition by @kind when several share an id', () => {
+    const FILE =
+      'kind: travel-rules\nid: default\nchecks:\n  - { event: A, at: dawn }\n---\nkind: bindings\nid: default\non:\n  A: { resolve: nope }\n'
+    expect(locate(FILE, '@travel-rules.checks.0.at')).toBe(4)
+    expect(locate(FILE, '@bindings.on.A.resolve')).toBe(9)
+  })
+})

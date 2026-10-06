@@ -51,7 +51,9 @@ describe('trips', () => {
       name: 'Sys',
       bindings: { on: { WEATHER: { resolve: 'sys/weather' } } },
     })
-    expect(problems.some((p) => p.startsWith('broken travel-rules'))).toBe(true)
+    expect(problems.some((p) => p.pack === 'broken' && p.at?.startsWith('@travel-rules'))).toBe(
+      true,
+    )
   })
 
   it('starts a trip at dawn of the season, with supplies and declared stats', () => {

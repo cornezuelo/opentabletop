@@ -1,4 +1,4 @@
-import type { OracleEngine, Registry } from '@open-tabletop/oracle-engine'
+import type { Diagnostic, OracleEngine, Registry } from '@open-tabletop/oracle-engine'
 import { defaultCalendar } from '@open-tabletop/time'
 import {
   createTravelEngine,
@@ -30,25 +30,58 @@ export interface TravelSystem {
 
 export const GENERIC_SYSTEM: TravelSystem = { id: 'generic', name: '', rules: genericTravelRules }
 
+/** "checks.2.event: Expected …" → a diagnostic pointing at that path of the definition. */
+function problem(pack: string, file: string, kind: string, error: string): Diagnostic {
+  const cut = error.indexOf(': ')
+  const path = cut > 0 ? error.slice(0, cut).replace(/^(rules|bindings)\.?/, '') : ''
+  const message = cut > 0 ? error.slice(cut + 2) : error
+  return {
+    severity: 'error',
+    message,
+    pack,
+    file,
+    // `@kind` locates the definition by its kind (rules and bindings often share an id).
+    at: `@${kind}${path ? `.${path}` : ''}`,
+  }
+}
+
 /**
  * Travel systems declared by the loaded packs (`kind: travel-rules`, optionally with
- * `kind: bindings`), after the generic one. Broken rules are reported, not loaded.
+ * `kind: bindings`), after the generic one. Broken rules are reported, not loaded;
+ * bindings to tables that don't exist are reported too.
  */
-export function travelSystems(registry: Registry): { systems: TravelSystem[]; problems: string[] } {
+export function travelSystems(registry: Registry): {
+  systems: TravelSystem[]
+  problems: Diagnostic[]
+} {
   const systems = [GENERIC_SYSTEM]
-  const problems: string[] = []
+  const problems: Diagnostic[] = []
   for (const [id, pack] of registry.packs) {
     const extras = registry.extras.get(id) ?? []
     const rulesRaw = extras.find((e) => e.kind === 'travel-rules')
+    const bindingsRaw = extras.find((e) => e.kind === 'bindings')
+    const parsed = bindingsRaw ? parseBindings(bindingsRaw.data, id) : undefined
+    if (bindingsRaw) {
+      problems.push(
+        ...(parsed?.errors ?? []).map((e) => problem(id, bindingsRaw.file, 'bindings', e)),
+      )
+      for (const [event, binding] of Object.entries(parsed?.bindings?.on ?? {}))
+        if (!registry.definitions.has(binding.resolve))
+          problems.push(
+            problem(
+              id,
+              bindingsRaw.file,
+              'bindings',
+              `on.${event}.resolve: Unknown table or generator "${binding.resolve}"`,
+            ),
+          )
+    }
     if (!rulesRaw) continue
     const { rules, errors } = parseTravelRules(rulesRaw.data)
     if (!rules) {
-      problems.push(...errors.map((e) => `${id} travel-rules: ${e}`))
+      problems.push(...errors.map((e) => problem(id, rulesRaw.file, 'travel-rules', e)))
       continue
     }
-    const bindingsRaw = extras.find((e) => e.kind === 'bindings')
-    const parsed = bindingsRaw ? parseBindings(bindingsRaw.data, id) : undefined
-    problems.push(...(parsed?.errors ?? []).map((e) => `${id} ${e}`))
     const name = typeof pack.manifest.name === 'string' ? pack.manifest.name : id
     systems.push({ id, name, rules, bindings: parsed?.bindings })
   }

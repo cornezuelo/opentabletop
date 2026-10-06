@@ -7,7 +7,7 @@ Selecciona un hex con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y e
 - **Nombre**: se muestra bajo el hex en el mapa.
 - **Región**: cuando el mapa tiene regiones.
 - **Notas**: notas breves del máster en Markdown. El trasfondo del lugar va en tu aplicación de notas (ver abajo).
-- **PDI**: puntos de interés, cada uno con nombre, descripción y su propia nota enlazada.
+- **PDI**: puntos de interés, cada uno con nombre, descripción, su propia nota enlazada y, si quieres, un icono para distinguirlos en el panel (no se dibuja en el mapa).
 - **Etiquetas**: palabras libres (`ruinas`, `encantado`, `referencia`…) con sugerencias del resto del mapa.
 - **Campos**: pares clave–valor (`danger: 3`, `elevation: 1200`). Las comprobaciones de viaje y las tablas los leen por su clave.
 - **Nota enlazada**: una página de tu aplicación de notas.

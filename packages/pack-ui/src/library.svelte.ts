@@ -3,6 +3,7 @@ import {
   loadPacks,
   type Diagnostic,
   type OracleEngine,
+  type Registry,
 } from '@open-tabletop/oracle-engine'
 import { mathRandom } from '@open-tabletop/random'
 import {
@@ -27,17 +28,31 @@ export class PackLibrary {
   /** Never changes after construction. */
   private bundled: PackSource[] = []
   private onStorageFull?: () => void
+  private extraDiagnostics?: (registry: Registry) => Diagnostic[]
   user = $state.raw<PackSource[]>([])
   packs: WorkspacePack[] = $derived(effectivePacks(this.bundled, this.user))
   loaded = $derived(loadPacks(engineFiles(this.packs)))
+  /** The Oracle Engine's diagnostics plus other engines' (travel rules, bindings…). */
+  problems: Diagnostic[] = $derived([
+    ...this.loaded.diagnostics,
+    ...(this.extraDiagnostics?.(this.loaded.registry) ?? []),
+  ])
   registry = $derived(this.loaded.registry)
   engine: OracleEngine = $derived(
     createOracleEngine({ registry: this.registry, random: mathRandom() }),
   )
 
-  constructor(bundled: PackSource[], options: { onStorageFull?: () => void } = {}) {
+  constructor(
+    bundled: PackSource[],
+    options: {
+      onStorageFull?: () => void
+      /** Problems other engines find in the packs' definitions for them. */
+      extraDiagnostics?: (registry: Registry) => Diagnostic[]
+    } = {},
+  ) {
     this.bundled = bundled
     this.onStorageFull = options.onStorageFull
+    this.extraDiagnostics = options.extraDiagnostics
     this.user = readUserPacks()
     if (typeof window !== 'undefined')
       window.addEventListener('storage', (e) => {
@@ -58,7 +73,7 @@ export class PackLibrary {
   diagnostics(root: string, file?: string): Diagnostic[] {
     const id = manifestOf(this.pack(root) ?? { root, origin: 'user', files: [] }).id
     const prefix = `${root}/`
-    return this.loaded.diagnostics.filter((d) =>
+    return this.problems.filter((d) =>
       file
         ? d.file === `${root}/${file}`
         : d.file?.startsWith(prefix) || (d.pack !== undefined && d.pack === id),

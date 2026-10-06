@@ -31,6 +31,8 @@ entries:
   - { id: nothing, range: 1-6, result: 'Nada especial' }
 ```
 
+Más ejemplos, hasta un sistema de viaje completo: [Conectar tablas con mapas y viajes](../oracle/connecting.md).
+
 Después selecciona un hex de bosque, pulsa <kbd>O</kbd>, busca «Qué encontramos» y tira. Gana la primera entrada cuya condición se cumple.
 
 ## Diario y tus packs

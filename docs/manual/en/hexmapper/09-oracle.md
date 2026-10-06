@@ -31,6 +31,8 @@ entries:
   - { id: nothing, range: 1-6, result: 'Nothing special' }
 ```
 
+More examples, up to a whole travel system: [Connecting tables to maps and trips](../oracle/connecting.md).
+
 Then select a forest hex, press <kbd>O</kbd>, search "What do we find" and roll. The first entry whose condition holds wins.
 
 ## Journal and your packs

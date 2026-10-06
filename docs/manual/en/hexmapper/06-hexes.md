@@ -7,7 +7,7 @@ Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details
 - **Name**: shown under the hex on the map.
 - **Region**: when the map has regions.
 - **Notes**: short GM notes in Markdown. The lore of the place belongs in your notes app (see below).
-- **POIs**: points of interest, each with a name, a description and its own linked note.
+- **POIs**: points of interest, each with a name, a description, its own linked note and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).
 - **Tags**: free words (`ruins`, `haunted`, `landmark`…) with suggestions from the rest of the map.
 - **Fields**: key–value pairs (`danger: 3`, `elevation: 1200`). Travel checks and tables read them by key.
 - **Linked note**: a page of your notes app.
