@@ -17,9 +17,37 @@ Some games only allow their tables for **personal use** (Kal-Arath, for one). Th
 
 ## Other definitions: travel rules and bindings
 
-Besides tables, oracles, generators and decks, a pack can hold definitions for **other engines**. Today these are the **travel rules** and the **bindings** that turn a pack into a system for the Hexmapper's Play mode. The pack page lists them under **Other definitions**; open them in the YAML editor (problems are checked like any other definition). Create them with **New definition → For travel**.
+Besides tables, oracles, generators and decks, a pack can hold definitions for **other engines**. Today these are two, and together they turn a pack into a **travel system** that the Hexmapper's Play mode (**With rules**) and the [Travel app](../travel/01-getting-started.md) can play:
 
-A pack holds at most one travel system: both use the id `default` and usually sit in the same file (Kal-Arath keeps them in `rules.yaml`). What goes in them is explained in [Connecting tables to maps and trips](07-connecting.md#5-your-own-travel-system).
+| Definition       | `kind`         | What it says                                                                                                                                          |
+| ---------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Travel rules** | `travel-rules` | How a trip works: the length of the day, speed on each terrain and road, ways of travelling, supplies, weather, and **which checks** happen and when. |
+| **Bindings**     | `bindings`     | How those checks are **resolved**: which table rolls each one, the party stats the tables use, and how the map is discovered.                         |
+
+**Why two.** The rules belong to the Travel Engine and the tables to the Oracle, and engines don't know each other: the bindings are the bridge. That's also why each is optional on its own: rules without bindings make a system whose checks all wait for you (**Continue**); the generic rules have no checks at all.
+
+**Why in one file.** Only for convenience: they are written and changed together. A YAML file can hold several definitions separated by a line with `---`, so Kal-Arath keeps both in `rules.yaml` and Core in `travel.yaml`:
+
+```yaml
+kind: travel-rules
+id: default
+day: { start: '07:00', nightfall: '19:00' }
+# …terrains, modes, checks…
+---
+kind: bindings
+id: default
+on:
+  WEATHER_CHECK_REQUIRED: { resolve: weather }
+```
+
+They could live in separate files just as well. A pack holds at most one travel system, so both use the id `default`.
+
+**How to add them.**
+
+- In the Travel app: **New system** creates a pack with both; its **Rules** and **Checks** tabs edit them with forms.
+- In the Oracle app: **New definition → For travel** adds them to one of your packs. The pack page lists them under **Other definitions**; open them in the YAML editor, where problems are checked like in any other definition.
+
+What goes inside is explained step by step in [Connecting tables to maps and trips](07-connecting.md#5-your-own-travel-system).
 
 ## Making a pack
 

@@ -17,9 +17,37 @@ Algunos juegos solo permiten sus tablas para **uso personal** (Kal-Arath, por ej
 
 ## Otras definiciones: reglas de viaje y bindings
 
-Además de tablas, oráculos, generadores y mazos, un pack puede tener definiciones para **otros motores**. Hoy son las **reglas de viaje** y los **bindings**, que convierten un pack en un sistema para el modo Jugar del Hexmapper. La página del pack las lista en **Otras definiciones**; ábrelas en el editor YAML (sus problemas se comprueban como los de cualquier otra definición). Créalas con **Nueva definición → Para viajar**.
+Además de tablas, oráculos, generadores y mazos, un pack puede tener definiciones para **otros motores**. Hoy son dos, y juntas convierten un pack en un **sistema de viaje** que pueden jugar el modo Jugar del Hexmapper (**Con reglas**) y la [aplicación Travel](../travel/01-getting-started.md):
 
-Un pack tiene como mucho un sistema de viaje: los dos usan el id `default` y suelen ir en el mismo fichero (Kal-Arath los tiene en `rules.yaml`). Lo que llevan dentro se explica en [Conectar tablas con mapas y viajes](07-connecting.md#5-tu-propio-sistema-de-viaje).
+| Definición          | `kind`         | Qué dice                                                                                                                                                                   |
+| ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Reglas de viaje** | `travel-rules` | Cómo funciona un viaje: la duración del día, la velocidad en cada terreno y camino, las formas de viajar, las provisiones, el clima y **qué comprobaciones** hay y cuándo. |
+| **Bindings**        | `bindings`     | Cómo se **resuelven** esas comprobaciones: qué tabla tira cada una, las características del grupo que usan las tablas y cómo se descubre el mapa.                          |
+
+**Por qué dos.** Las reglas son del Travel Engine y las tablas de Oracle, y los motores no se conocen entre sí: los bindings son el puente. Por eso cada una es opcional por separado: unas reglas sin bindings hacen un sistema en el que todas las comprobaciones te esperan (**Continuar**); las reglas genéricas no tienen ninguna comprobación.
+
+**Por qué en un mismo fichero.** Solo por comodidad: se escriben y se cambian juntas. Un fichero YAML puede tener varias definiciones separadas por una línea con `---`, así que Kal-Arath tiene las dos en `rules.yaml` y Core en `travel.yaml`:
+
+```yaml
+kind: travel-rules
+id: default
+day: { start: '07:00', nightfall: '19:00' }
+# …terrenos, modos, comprobaciones…
+---
+kind: bindings
+id: default
+on:
+  WEATHER_CHECK_REQUIRED: { resolve: weather }
+```
+
+Igual de bien podrían ir en ficheros separados. Un pack tiene como mucho un sistema de viaje, así que las dos usan el id `default`.
+
+**Cómo añadirlas.**
+
+- En la aplicación Travel: **Nuevo sistema** crea un pack con las dos; sus pestañas **Reglas** y **Comprobaciones** las editan con formularios.
+- En la aplicación Oracle: **Nueva definición → Para viajar** las añade a uno de tus packs. La página del pack las lista en **Otras definiciones**; ábrelas en el editor YAML, donde sus problemas se comprueban como los de cualquier otra definición.
+
+Lo que llevan dentro se explica paso a paso en [Conectar tablas con mapas y viajes](07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Crear un pack
 
