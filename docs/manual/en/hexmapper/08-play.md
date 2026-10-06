@@ -8,7 +8,7 @@ Just the party token and its trail: click a hex to place the party, click anothe
 
 ## With rules
 
-The Travel Engine runs the trip and the Oracle rolls the checks.
+The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map and edits them.
 
 1. Choose the **rules**: Generic, or a system whose pack has travel rules (e.g. Kal-Arath), and the season to **start in**. **New trip** restarts time, supplies and journal, keeping the party where it is.
 2. Click a hex to place the party, then click the **destination**: the route is drawn.

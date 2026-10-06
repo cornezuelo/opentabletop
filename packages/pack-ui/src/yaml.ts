@@ -33,12 +33,19 @@ interface Found {
   prefix: Path
 }
 
+/**
+ * The definition with that id — or, with `@kind` (e.g. `@travel-rules`), the one with that
+ * kind, for definitions of other engines that share an id.
+ */
 function find(content: string, localId: string): Found | undefined {
   const docs = parseAllDocuments(content) as Document.Parsed[]
   if (!Array.isArray(docs)) return undefined
+  const kind = localId.startsWith('@') ? localId.slice(1) : undefined
   for (const doc of docs) {
     const root = doc.contents
-    if (idOf(root) === localId) return { docs, doc, prefix: [] }
+    if (kind ? isMap(root) && (root.get('kind') as unknown) === kind : idOf(root) === localId)
+      return { docs, doc, prefix: [] }
+    if (kind) continue
     if (isSeq(root)) {
       const index = root.items.findIndex((item) => idOf(item) === localId)
       if (index >= 0) return { docs, doc, prefix: [index] }

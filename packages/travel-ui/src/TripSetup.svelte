@@ -46,7 +46,13 @@
       >{t('newTrip')}</button
     >
   </div>
-  <p class="help">{current?.bindings ? t('withTables') : t('noBindings')}</p>
+  <p class="help">
+    {!current?.rules.checks?.length
+      ? t('noChecks')
+      : Object.keys(current.bindings?.on ?? {}).length
+        ? t('withTables')
+        : t('noBindings')}
+  </p>
 </div>
 
 <style>

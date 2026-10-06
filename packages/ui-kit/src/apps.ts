@@ -17,7 +17,7 @@ export interface AppInfo {
 export const APPS: AppInfo[] = [
   { id: 'hexmapper', name: 'Hexmapper', devPort: 5173, available: true },
   { id: 'oracle', name: 'Oracle', devPort: 5174, available: true },
-  { id: 'travel', name: 'Travel', devPort: 5175, available: false },
+  { id: 'travel', name: 'Travel', devPort: 5175, available: true },
   { id: 'manual', name: 'Manual', devPort: 5176, available: true },
 ]
 

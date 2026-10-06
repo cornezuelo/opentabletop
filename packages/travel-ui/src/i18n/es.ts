@@ -7,9 +7,10 @@ export const es: Messages<typeof en> = {
   startSeason: 'Empezar en',
   newTrip: 'Nuevo viaje',
   withTables:
-    'Este sistema tiene tablas: el clima, perderse, los puntos de interés y los encuentros se tiran solos y se anotan en el diario.',
+    'Este sistema tira sus comprobaciones en tablas y anota los resultados en el diario. Las comprobaciones sin tabla esperan a que continúes.',
   noBindings:
     'Estas reglas no tienen tablas asociadas: las comprobaciones esperan a que continúes.',
+  noChecks: 'Estas reglas no tienen comprobaciones: un viaje solo gasta tiempo y provisiones.',
   marched: 'Marcha de hoy: {used} de {limit} h',
   dayUnit: 'día',
   journalDay: 'Día {day}',
@@ -21,7 +22,7 @@ export const es: Messages<typeof en> = {
   travelMode: 'Viaje',
   fatigue: 'Fatiga',
   modes: { foot: 'A pie', horse: 'A caballo' },
-  resources: { food: 'Comida' },
+  resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
   travel: 'Viajar',
   travelHex: '1 hex',
   camp: 'Acampar',

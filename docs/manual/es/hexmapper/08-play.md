@@ -8,7 +8,7 @@ Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y 
 
 ## Con reglas
 
-El Travel Engine lleva el viaje y Oracle tira las comprobaciones.
+El Travel Engine lleva el viaje y Oracle tira las comprobaciones. La [aplicación Travel](../travel/01-getting-started.md) juega los mismos sistemas sin mapa y los edita.
 
 1. Elige las **reglas**: Genéricas, o un sistema cuyo pack tenga reglas de viaje (p. ej. Kal-Arath), y la estación en la que **empezar**. **Nuevo viaje** reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.
 2. Haz clic en un hex para colocar al grupo y después en el **destino**: se dibuja la ruta.

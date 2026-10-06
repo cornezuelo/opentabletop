@@ -130,4 +130,14 @@ describe('locating by kind', () => {
     expect(locate(FILE, '@travel-rules.checks.0.at')).toBe(4)
     expect(locate(FILE, '@bindings.on.A.resolve')).toBe(9)
   })
+
+  it('edits a definition found by @kind', () => {
+    const FILE =
+      'kind: travel-rules\nid: default\ntravel: { hoursPerDay: 8 }\n---\nkind: bindings\nid: default\non: {}\n'
+    const out = setIn(FILE, '@bindings', ['on', 'WEATHER'], { resolve: 'weather' })
+    expect(readDefinition(out, '@bindings')).toMatchObject({
+      on: { WEATHER: { resolve: 'weather' } },
+    })
+    expect(readDefinition(out, '@travel-rules')).toMatchObject({ travel: { hoursPerDay: 8 } })
+  })
 })

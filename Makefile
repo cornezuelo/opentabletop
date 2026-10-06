@@ -5,7 +5,7 @@ PORT ?= 8080
 APPS := $(notdir $(wildcard apps/*))
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev dev-hexmapper dev-oracle dev-manual dev-all build site serve preview \
+.PHONY: help install dev dev-hexmapper dev-oracle dev-travel dev-manual dev-all build site serve preview \
 	test test-watch check lint format verify clean private-status private-commit private-push
 
 help: ## List the commands
@@ -24,6 +24,9 @@ dev-hexmapper: ## Run the hexmapper with live reload
 dev-oracle: ## Run the Oracle app with live reload
 	npm run dev -w apps/oracle
 
+dev-travel: ## Run the Travel app with live reload
+	npm run dev -w apps/travel
+
 dev-manual: ## Run the Manual app with live reload
 	npm run dev -w apps/manual
 
@@ -38,11 +41,11 @@ site: ## Build every app together into dist/<app>/ (one site: apps share user pa
 	npm run build:site
 
 serve: site ## Build the site and serve it (http://localhost:8080/<app>/, PORT=… to change)
-	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/ or /manual/ (Ctrl+C to stop)"
+	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
 	python3 -m http.server $(PORT) -d dist
 
 preview: ## Serve the last built site again without rebuilding
-	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/ or /manual/ (Ctrl+C to stop)"
+	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
 	python3 -m http.server $(PORT) -d dist
 
 test: ## Run the tests once
