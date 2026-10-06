@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { getProvider } from '@open-tabletop/note-refs'
   import { t } from '../lib/i18n/index.svelte'
   import { noteUrl, preferences } from '../lib/store/preferences.svelte'
@@ -29,7 +30,7 @@
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      title={t('hex.openNote', { provider: providerName })}
+      use:tooltip={t('hex.openNote', { provider: providerName })}
       aria-label={t('hex.openNote', { provider: providerName })}>↗</a
     >
   {/if}

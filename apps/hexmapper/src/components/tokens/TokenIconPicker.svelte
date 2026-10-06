@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { showToast } from '@open-tabletop/ui-kit'
+  import { showToast, tooltip } from '@open-tabletop/ui-kit'
   import { AddAssetCommand } from '../../lib/commands/assets'
   import { t, type MessageKey } from '../../lib/i18n/index.svelte'
   import { BUILTIN_ICONS, builtinSvg, iconLabel } from '../../lib/icons/registry'
@@ -65,7 +65,7 @@
       aria-checked={!value}
       class:active={!value}
       class="none"
-      title={t('hex.noIcon')}
+      use:tooltip={t('hex.noIcon')}
       aria-label={t('hex.noIcon')}
       onclick={() => onchange(undefined)}>∅</button
     >
@@ -75,7 +75,7 @@
       role="radio"
       aria-checked={value === icon.id}
       class:active={value === icon.id}
-      title={iconLabel(icon)}
+      use:tooltip={iconLabel(icon)}
       aria-label={iconLabel(icon)}
       onclick={() => onchange(icon.id)}
     >
@@ -89,7 +89,7 @@
       role="radio"
       aria-checked={value === `asset:${asset.id}`}
       class:active={value === `asset:${asset.id}`}
-      title={asset.name}
+      use:tooltip={asset.name}
       aria-label={asset.name}
       onclick={() => onchange(`asset:${asset.id}`)}
     >

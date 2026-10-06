@@ -25,6 +25,7 @@ export const en = {
   },
   tabs: { play: 'Play', rules: 'Rules', checks: 'Checks', yaml: 'YAML' },
   forms: {
+    confirmRemove: 'Remove “{name}”? The forms can’t undo it (edit the YAML to bring it back).',
     id: 'Id',
     add: 'Add',
     remove: 'Remove',

@@ -4,7 +4,7 @@
   import type { GridSettings } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
-  import { showToast } from '@open-tabletop/ui-kit'
+  import { showToast, tooltip } from '@open-tabletop/ui-kit'
 
   async function copyId() {
     try {
@@ -35,7 +35,7 @@
   <span>{t('map.id')}</span>
   <div class="id">
     <code>{editor.meta.id}</code>
-    <button class="icon" title={t('map.copyId')} aria-label={t('map.copyId')} onclick={copyId}
+    <button class="icon" use:tooltip={t('map.copyId')} aria-label={t('map.copyId')} onclick={copyId}
       >⧉</button
     >
   </div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
 
   /** Swatches plus a free color input. With `auto`, an "Auto" option maps to undefined. */
@@ -20,7 +21,7 @@
     <button
       class="auto"
       class:active={!value}
-      title={t('iconStyle.auto')}
+      use:tooltip={t('iconStyle.auto')}
       onclick={() => onchange(undefined)}>{t('iconStyle.auto')}</button
     >
   {/if}
@@ -29,7 +30,7 @@
       class="swatch"
       class:active={value === color}
       style:background={color}
-      title={color}
+      use:tooltip={color}
       aria-label={color}
       onclick={() => onchange(color)}
     ></button>
@@ -37,7 +38,7 @@
   <input
     type="color"
     value={value ?? '#1b1a17'}
-    title={t('iconStyle.custom')}
+    use:tooltip={t('iconStyle.custom')}
     aria-label={t('iconStyle.custom')}
     onchange={(e) => onchange(e.currentTarget.value)}
   />

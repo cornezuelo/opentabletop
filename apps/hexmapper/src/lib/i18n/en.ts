@@ -284,6 +284,14 @@ export const en = {
     none: 'No region',
   },
   tokens: {
+    confirmParty: 'Make "{name}" the party? "{old}" becomes a player character.',
+    confirmPartyTrip:
+      'Make "{name}" the party? The trip goes on from where it stands (same day, supplies and journal) and its trail starts there.',
+    confirmNoParty:
+      'This token is the party of a trip in progress. Without a party, the trip waits until another token becomes the party. Go on?',
+    confirmDelete: 'Delete "{name}"? (Ctrl+Z brings it back.)',
+    confirmDeleteParty:
+      'Delete the party "{name}"? This ends the trip: its time, supplies and journal are lost, and Ctrl+Z only brings back the token.',
     help: 'Click an empty hex to place a token like the one below (Shift+click adds one to a hex that already has tokens). Click a token to edit it and drag it to another hex; right-click or Delete removes it.',
     newTitle: 'New tokens',
     kind: 'Kind',
@@ -309,6 +317,12 @@ export const en = {
     empty: 'No tokens yet.',
   },
   play: {
+    confirmNewTrip:
+      'Start a new trip? Time, supplies and the journal start over (the party stays where it is). This can’t be undone.',
+    confirmClearTrail: 'Clear the party’s trail? This can’t be undone.',
+    confirmRemoveParty: 'Take the party off the map? Its trail is cleared.',
+    confirmRemovePartyTrip:
+      'Take the party off the map? This ends the trip: its time, supplies and journal are lost. This can’t be undone.',
     discover: 'Discover the map as you travel',
     discoverHelp:
       'Empty hexes are decided by the system’s tables as the party travels: their terrain, and what is in them (a point of interest, tags, a name) the first time you enter. Painted hexes are never changed. Discoveries are part of the game: Ctrl+Z doesn’t undo them.',

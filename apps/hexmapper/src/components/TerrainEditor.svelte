@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { confirmAction, tooltip } from '@open-tabletop/ui-kit'
   import { SetTerrainsCommand, terrainUsage } from '../lib/commands/terrains'
   import { en } from '../lib/i18n/en'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
@@ -37,10 +38,11 @@
     editor.execute(new SetTerrainsCommand(next))
   }
 
-  function remove(terrain: TerrainType) {
+  async function remove(terrain: TerrainType) {
     const count = usage.get(terrain.id) ?? 0
     const name = terrain.name ?? defaultName(terrain)
-    if (count > 0 && !confirm(t('terrainEditor.confirmDelete', { name, count }))) return
+    if (count > 0 && !(await confirmAction(t('terrainEditor.confirmDelete', { name, count }))))
+      return
     editor.execute(new SetTerrainsCommand(editor.map.terrains.filter((x) => x.id !== terrain.id)))
     if (editor.terrainId === terrain.id) editor.terrainId = editor.map.terrains[0]?.id ?? ''
   }
@@ -85,7 +87,7 @@
       <button
         class="glyph"
         style:background={terrain.color}
-        title={t('terrainEditor.glyph')}
+        use:tooltip={t('terrainEditor.glyph')}
         aria-label={t('terrainEditor.glyph')}
         aria-expanded={picking === terrain.id}
         onclick={() => (picking = picking === terrain.id ? null : terrain.id)}
@@ -100,7 +102,7 @@
           ∅
         {/if}
       </button>
-      <label class="water" title={t('terrainEditor.waterHelp')}>
+      <label class="water" use:tooltip={t('terrainEditor.waterHelp')}>
         <input
           type="checkbox"
           checked={!!terrain.water}
@@ -110,7 +112,7 @@
       </label>
       <button
         class="icon"
-        title={t('terrainEditor.delete')}
+        use:tooltip={t('terrainEditor.delete')}
         aria-label="{t('terrainEditor.delete')}: {terrain.name ?? defaultName(terrain)}"
         onclick={() => remove(terrain)}>✕</button
       >

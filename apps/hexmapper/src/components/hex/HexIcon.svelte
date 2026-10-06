@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { getBuiltinIcon, iconImage, iconLabel } from '../../lib/icons/registry'
   import { t } from '../../lib/i18n/index.svelte'
   import type { HexData, HexIcon, HexKey } from '../../lib/model/types'
@@ -32,7 +33,7 @@
     >
     <button
       class="icon"
-      title={t('hex.remove')}
+      use:tooltip={t('hex.remove')}
       aria-label="{t('hex.remove')}: {label}"
       onclick={() => editor.editHex(key, (h) => ({ ...h, icon: undefined }))}>✕</button
     >

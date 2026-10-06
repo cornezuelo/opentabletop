@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
   import type { CustomField, HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
@@ -50,7 +51,7 @@
       />
       <button
         class="icon"
-        title={t('hex.remove')}
+        use:tooltip={t('hex.remove')}
         aria-label={t('hex.remove')}
         onclick={() => remove(index)}>✕</button
       >
@@ -71,8 +72,11 @@
       list={listId}
     />
     <input type="text" bind:value={draftValue} placeholder={t('hex.fieldValue')} />
-    <button type="submit" class="icon" title={t('hex.addField')} aria-label={t('hex.addField')}
-      >+</button
+    <button
+      type="submit"
+      class="icon"
+      use:tooltip={t('hex.addField')}
+      aria-label={t('hex.addField')}>+</button
     >
   </form>
   <datalist id={listId}>

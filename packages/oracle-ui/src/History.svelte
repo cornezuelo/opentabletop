@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { tooltip, confirmAction } from '@open-tabletop/ui-kit'
   import type { HistoryItem } from './roller.svelte'
   import type { OracleUi } from './ui'
 
@@ -28,11 +28,17 @@
 <aside class="history" class:embedded>
   <header>
     <h2>{t('history.title')}</h2>
-    <button class="link" onclick={() => roller.clearHistory()}>{t('history.clear')}</button>
+    <button
+      class="link"
+      onclick={async () =>
+        (await confirmAction(t('history.confirmClear'))) && roller.clearHistory()}
+      >{t('history.clear')}</button
+    >
     <button
       class="link"
       use:tooltip={t('history.resetStateTip')}
-      onclick={() => roller.resetState()}>{t('history.resetState')}</button
+      onclick={async () => (await confirmAction(t('history.confirmReset'))) && roller.resetState()}
+      >{t('history.resetState')}</button
     >
   </header>
   <ol>

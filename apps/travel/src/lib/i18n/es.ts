@@ -27,6 +27,8 @@ export const es: Messages<typeof en> = {
   },
   tabs: { play: 'Jugar', rules: 'Reglas', checks: 'Comprobaciones', yaml: 'YAML' },
   forms: {
+    confirmRemove:
+      '¿Quitar «{name}»? Los formularios no lo pueden deshacer (edita el YAML para recuperarlo).',
     id: 'Id',
     add: 'Añadir',
     remove: 'Quitar',

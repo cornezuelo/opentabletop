@@ -15,7 +15,7 @@
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexData, IconStyle } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
-  import { showToast } from '@open-tabletop/ui-kit'
+  import { showToast, tooltip } from '@open-tabletop/ui-kit'
 
   type Filter = 'all' | IconCategory | 'custom'
   const filters: Filter[] = ['all', ...ICON_CATEGORIES, 'custom']
@@ -122,7 +122,7 @@
       role="radio"
       aria-checked={activeId === icon.id}
       class:active={activeId === icon.id}
-      title={iconLabel(icon)}
+      use:tooltip={iconLabel(icon)}
       aria-label={iconLabel(icon)}
       onclick={() => choose(icon.id)}
     >
@@ -136,7 +136,7 @@
       role="radio"
       aria-checked={activeId === `asset:${asset.id}`}
       class:active={activeId === `asset:${asset.id}`}
-      title={asset.name}
+      use:tooltip={asset.name}
       aria-label={asset.name}
       onclick={() => choose(`asset:${asset.id}`)}
     >

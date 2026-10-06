@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { ReplacePathCommand } from '../../lib/commands/paths'
   import { t, type MessageKey } from '../../lib/i18n/index.svelte'
   import { normalizePath } from '../../lib/model/hex'
@@ -38,7 +39,7 @@
           >
           <button
             class="icon"
-            title={t('hex.remove')}
+            use:tooltip={t('hex.remove')}
             aria-label="{t('hex.remove')}: {t(`pathKinds.${path.kind}` as MessageKey)}"
             onclick={() => editor.execute(new ReplacePathCommand(path, null))}>✕</button
           >

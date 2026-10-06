@@ -21,6 +21,9 @@ export const en = {
     keyHint: 'Space or Enter rolls again',
   },
   history: {
+    confirmClear: 'Clear the whole roll history? This can’t be undone.',
+    confirmReset:
+      'Start a new session? Drawn cards go back to their decks and once-only entries can come up again. This can’t be undone.',
     title: 'History',
     empty: 'Your rolls appear here.',
     clear: 'Clear',

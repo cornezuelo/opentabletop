@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { confirmAction } from '@open-tabletop/ui-kit'
   import { RemoveRegionCommand, SetRegionsCommand, regionSizes } from '../lib/commands/regions'
   import { t } from '../lib/i18n/index.svelte'
   import { newId } from '../lib/model/id'
@@ -51,10 +52,14 @@
     editor.execute(new SetRegionsCommand(after))
   }
 
-  function remove() {
+  async function remove() {
     if (!active) return
     const count = sizes.get(active.id) ?? 0
-    if (count > 0 && !confirm(t('regions.confirmDelete', { name: active.name, count }))) return
+    if (
+      count > 0 &&
+      !(await confirmAction(t('regions.confirmDelete', { name: active.name, count })))
+    )
+      return
     editor.execute(new RemoveRegionCommand(structuredClone(active)))
   }
 </script>

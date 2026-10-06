@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
   import { FONT_FAMILIES } from '../lib/labels/fonts'
   import { LABEL_HALO_RANGE, LABEL_SIZE_RANGE } from '../lib/model/defaults'
@@ -97,7 +98,7 @@
           class="swatch"
           class:active={label.style.color === color}
           style:background={color}
-          title={color}
+          use:tooltip={color}
           aria-label={color}
           onclick={() => setStyle({ color })}
         ></button>

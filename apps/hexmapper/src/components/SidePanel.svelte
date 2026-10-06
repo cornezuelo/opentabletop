@@ -18,7 +18,7 @@
   import RegionPanel from './RegionPanel.svelte'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppBrand, AppSwitcher, InfoTip, showToast } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
@@ -34,7 +34,7 @@
       <h1>{t('panel.settings')}</h1>
       <button
         class="close"
-        title={t('panel.closeSettings')}
+        use:tooltip={t('panel.closeSettings')}
         aria-label={t('panel.closeSettings')}
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
@@ -54,7 +54,7 @@
       <h1>{t('library.title')}</h1>
       <button
         class="close"
-        title={t('panel.closeSettings')}
+        use:tooltip={t('panel.closeSettings')}
         aria-label={t('panel.closeSettings')}
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
@@ -65,7 +65,7 @@
       <h1>{t('oracle.title')}<InfoTip text={t('oracle.help')} /></h1>
       <button
         class="close"
-        title={t('panel.closeSettings')}
+        use:tooltip={t('panel.closeSettings')}
         aria-label={t('panel.closeSettings')}
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
@@ -104,7 +104,7 @@
       <h1>{t('panel.layers')}</h1>
       <button
         class="close"
-        title={t('panel.closeSettings')}
+        use:tooltip={t('panel.closeSettings')}
         aria-label={t('panel.closeSettings')}
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
@@ -115,7 +115,7 @@
       <h1>{t('panel.help')}</h1>
       <button
         class="close"
-        title={t('panel.closeSettings')}
+        use:tooltip={t('panel.closeSettings')}
         aria-label={t('panel.closeSettings')}
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
@@ -126,7 +126,7 @@
       <h1>{t('export.title')}</h1>
       <button
         class="close"
-        title={t('panel.closeSettings')}
+        use:tooltip={t('panel.closeSettings')}
         aria-label={t('panel.closeSettings')}
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >

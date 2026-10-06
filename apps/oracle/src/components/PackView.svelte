@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, tooltip, confirmAction } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { displayName, KIND_ORDER } from '../lib/names'
   import { go } from '../lib/nav.svelte'
@@ -73,12 +73,12 @@
     newLocale = ''
   }
 
-  function removePack() {
+  async function removePack() {
     const name = manifest.name ?? root
     const message = pack?.overrides
       ? t('pack.confirmRevert', { name })
       : t('pack.confirmDeletePack', { name })
-    if (!confirm(message)) return
+    if (!(await confirmAction(message))) return
     workspace.removePack(root)
     if (!pack?.overrides) go({ name: 'welcome' })
   }
@@ -188,8 +188,8 @@
               <button
                 class="icon"
                 use:tooltip={t('pack.deleteFile')}
-                onclick={() => {
-                  if (confirm(t('pack.confirmDeleteFile', { file: f.path })))
+                onclick={async () => {
+                  if (await confirmAction(t('pack.confirmDeleteFile', { file: f.path })))
                     workspace.deleteFile(root, f.path)
                 }}>×</button
               >

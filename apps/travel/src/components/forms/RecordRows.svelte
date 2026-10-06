@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-  import { InfoTip, showToast } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
   import { flowText, parseFlow } from '../../lib/flow'
@@ -155,8 +155,10 @@
             <button
               class="icon"
               aria-label={t('forms.remove')}
-              title={t('forms.remove')}
-              onclick={() => doc.edit(kind, [...at, id], undefined)}>×</button
+              use:tooltip={t('forms.remove')}
+              onclick={async () =>
+                (await confirmAction(t('forms.confirmRemove', { name: nameOf(id) }))) &&
+                doc.edit(kind, [...at, id], undefined)}>×</button
             >
           {/if}
         </td>

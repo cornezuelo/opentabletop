@@ -1,6 +1,6 @@
 <script lang="ts">
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppBrand, AppSwitcher, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import Sidebar from './components/Sidebar.svelte'
   import SystemView from './components/SystemView.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
@@ -53,6 +53,7 @@
 </div>
 
 <Toasts />
+<Dialogs />
 
 <style>
   .app {

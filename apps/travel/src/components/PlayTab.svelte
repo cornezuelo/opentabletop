@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { confirmAction } from '@open-tabletop/ui-kit'
   import { packTexts } from '@open-tabletop/oracle-ui'
   import type { Season, TravelSystem } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
@@ -18,9 +19,9 @@
   const name = (s: TravelSystem) => (s.id === 'generic' ? t('nav.generic') : s.name)
   let season = $state<Season>(trip.saved.season)
 
-  function start(id: string, s: Season) {
+  async function start(id: string, s: Season) {
     const target = systems.get(id) ?? system
-    if (session && !confirm(t('play.switchConfirm', { system: name(target) }))) return
+    if (session && !(await confirmAction(t('play.switchConfirm', { system: name(target) })))) return
     trip.start(target.id, s)
     if (target.id !== system.id) go({ name: 'system', id: target.id, tab: 'play' })
   }

@@ -1,8 +1,7 @@
 <script lang="ts">
   import MapCanvas from './components/MapCanvas.svelte'
   import SidePanel from './components/SidePanel.svelte'
-  import Dialog from './components/Dialog.svelte'
-  import { Toasts } from '@open-tabletop/ui-kit'
+  import { Dialogs, Toasts } from '@open-tabletop/ui-kit'
   import Toolbar from './components/Toolbar.svelte'
   import { startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
@@ -40,7 +39,7 @@
   <SidePanel />
 </div>
 <Toasts />
-<Dialog />
+<Dialogs />
 
 <style>
   .layout {

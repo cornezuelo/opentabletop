@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { dialog } from '../lib/store/dialog.svelte'
+  import { dialog } from './dialog.svelte'
+
+  /** Renders `ask()` and `confirmAction()` dialogs: mount it once in the app. */
 
   let element = $state<HTMLDialogElement>()
 
@@ -57,6 +59,7 @@
 
   p {
     margin: 0 0 16px;
+    white-space: pre-line;
     line-height: 1.5;
     color: var(--text-muted);
   }
@@ -85,7 +88,7 @@
     border-color: var(--accent);
   }
 
-  button.danger:hover {
+  button.danger {
     color: var(--danger);
     border-color: var(--danger);
   }

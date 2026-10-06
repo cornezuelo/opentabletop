@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
   import type { HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
@@ -27,7 +28,7 @@
         <li>
           {tag}
           <button
-            title={t('hex.remove')}
+            use:tooltip={t('hex.remove')}
             aria-label="{t('hex.remove')}: {tag}"
             onclick={() => remove(tag)}>✕</button
           >

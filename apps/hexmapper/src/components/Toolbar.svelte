@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appIconUrl } from '@open-tabletop/ui-kit'
+  import { appIconUrl, tooltip } from '@open-tabletop/ui-kit'
   import LineIcon from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { newMap, saveMap } from '../lib/io/actions.svelte'
@@ -51,7 +51,7 @@
   {#each tools as tool (tool.id)}
     <button
       class:active={editor.tool === tool.id}
-      title={t(tool.label)}
+      use:tooltip={t(tool.label)}
       aria-label={t(tool.label)}
       aria-pressed={editor.tool === tool.id}
       onclick={() => {
@@ -65,7 +65,7 @@
   <!-- The Oracle is used while mapping and playing: with the tools, under Play. -->
   <button
     class:active={editor.panelView === 'oracle'}
-    title={t('actions.oracle')}
+    use:tooltip={t('actions.oracle')}
     aria-label={t('actions.oracle')}
     aria-pressed={editor.panelView === 'oracle'}
     onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}
@@ -76,7 +76,7 @@
 
   <button
     class:active={editor.panelView === 'settings'}
-    title={t('panel.settings')}
+    use:tooltip={t('panel.settings')}
     aria-label={t('panel.settings')}
     aria-pressed={editor.panelView === 'settings'}
     onclick={() => (editor.panelView = editor.panelView === 'settings' ? 'tool' : 'settings')}
@@ -84,14 +84,14 @@
   >
   <button
     class:active={editor.panelView === 'layers'}
-    title={t('panel.layers')}
+    use:tooltip={t('panel.layers')}
     aria-label={t('panel.layers')}
     aria-pressed={editor.panelView === 'layers'}
     onclick={() => (editor.panelView = editor.panelView === 'layers' ? 'tool' : 'layers')}>▤</button
   >
   <button
     class:active={editor.panelView === 'help'}
-    title={t('actions.help')}
+    use:tooltip={t('actions.help')}
     aria-label={t('actions.help')}
     aria-pressed={editor.panelView === 'help'}
     onclick={() => (editor.panelView = editor.panelView === 'help' ? 'tool' : 'help')}>?</button
@@ -99,7 +99,7 @@
 
   {#each actions as action (action.label)}
     <button
-      title={t(action.label)}
+      use:tooltip={t(action.label)}
       aria-label={t(action.label)}
       disabled={action.enabled ? !action.enabled() : false}
       onclick={action.run}

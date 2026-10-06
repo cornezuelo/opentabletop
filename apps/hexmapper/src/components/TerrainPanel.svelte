@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { TERRAIN_GROUPS, terrainGroup } from '../lib/model/defaults'
   import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
@@ -46,7 +47,7 @@
       role="radio"
       aria-checked={editor.terrainMode === mode.id}
       class:active={editor.terrainMode === mode.id}
-      title={t(mode.label)}
+      use:tooltip={t(mode.label)}
       onclick={() => (editor.terrainMode = mode.id)}
     >
       <span aria-hidden="true"

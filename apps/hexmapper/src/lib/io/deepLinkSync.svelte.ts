@@ -4,7 +4,7 @@ import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 import { view } from '../store/view'
 import { openLibraryMap, openMapFile } from './actions.svelte'
-import { ask } from '../store/dialog.svelte'
+import { ask } from '@open-tabletop/ui-kit'
 import { formatDeepLink, parseDeepLink, resolveHexLabel } from './deepLink'
 
 /** Shareable URL of the open map, or of one of its hexes (CCRR/axial label). */

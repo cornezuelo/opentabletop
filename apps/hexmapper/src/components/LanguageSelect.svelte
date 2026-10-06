@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, locales, setLocale, t, type Locale } from '../lib/i18n/index.svelte'
 </script>
 
 <select
   aria-label={t('settings.language')}
-  title={t('settings.language')}
+  use:tooltip={t('settings.language')}
   value={getLocale()}
   onchange={(e) => setLocale(e.currentTarget.value as Locale)}
 >

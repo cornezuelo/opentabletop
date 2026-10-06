@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import LineIcon from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { LAYER_IDS, LOCKABLE_LAYERS } from '../lib/model/types'
@@ -14,7 +15,7 @@
       <button
         class="toggle"
         aria-pressed={layer.visible}
-        title={layer.visible ? t('layers.hide') : t('layers.show')}
+        use:tooltip={layer.visible ? t('layers.hide') : t('layers.show')}
         aria-label="{layer.visible ? t('layers.hide') : t('layers.show')}: {name}"
         onclick={() => editor.setLayer(id, { visible: !layer.visible })}
         ><LineIcon name={layer.visible ? 'eye' : 'eye-off'} /></button
@@ -25,7 +26,7 @@
           class="toggle"
           class:on={layer.locked}
           aria-pressed={layer.locked}
-          title={layer.locked ? t('layers.unlock') : t('layers.lock')}
+          use:tooltip={layer.locked ? t('layers.unlock') : t('layers.lock')}
           aria-label="{layer.locked ? t('layers.unlock') : t('layers.lock')}: {name}"
           onclick={() => editor.setLayer(id, { locked: !layer.locked })}
           ><LineIcon name={layer.locked ? 'lock' : 'unlock'} /></button

@@ -12,7 +12,7 @@
   import { t } from '../../lib/i18n/index.svelte'
   import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
   import { collectSuggestions } from '../../lib/model/hex'
-  import { appIconUrl, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { appIconUrl, showToast, tooltip, confirmAction } from '@open-tabletop/ui-kit'
   import type { HexData, HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
   import { terrainName } from '../../lib/terrainName'
@@ -45,8 +45,8 @@
     }
   }
 
-  function clearHex(key: HexKey) {
-    if (confirm(t('hex.confirmClear'))) editor.editHex(key, () => ({}))
+  async function clearHex(key: HexKey) {
+    if (await confirmAction(t('hex.confirmClear'))) editor.editHex(key, () => ({}))
   }
 </script>
 
@@ -57,7 +57,7 @@
       {selected.coord}
       <button
         class="link"
-        title={t('library.copyHexLink')}
+        use:tooltip={t('library.copyHexLink')}
         aria-label={t('library.copyHexLink')}
         onclick={() => copyLink(selected.coord)}><LineIcon name="link" /></button
       >

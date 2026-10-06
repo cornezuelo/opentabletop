@@ -19,7 +19,7 @@
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import TokenIconPicker from './tokens/TokenIconPicker.svelte'
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip, confirmAction } from '@open-tabletop/ui-kit'
   import { AddTokenCommand } from '../lib/commands/tokens'
   import { newId } from '../lib/model/id'
   import { DEFAULT_TOKEN_ICONS } from '../lib/model/tokens'
@@ -108,7 +108,8 @@
     system={play.rules?.system ?? 'generic'}
     locale={getLocale()}
     bind:season={newSeason}
-    onrestart={restartRules}
+    onrestart={async (system, season) =>
+      (!session || (await confirmAction(t('play.confirmNewTrip')))) && restartRules(system, season)}
   />
   {#if system.bindings?.discover}
     {@const discover = play.discover}
@@ -156,8 +157,16 @@
 
 {#if party?.hex}
   <div class="actions">
-    <button onclick={clearTrail}>{t('play.clearTrail')}</button>
-    <button class="danger" onclick={resetParty}>{t('play.removeParty')}</button>
+    <button onclick={async () => (await confirmAction(t('play.confirmClearTrail'))) && clearTrail()}
+      >{t('play.clearTrail')}</button
+    >
+    <button
+      class="danger"
+      onclick={async () =>
+        (await confirmAction(
+          t(session ? 'play.confirmRemovePartyTrip' : 'play.confirmRemoveParty'),
+        )) && resetParty()}>{t('play.removeParty')}</button
+    >
   </div>
 {/if}
 

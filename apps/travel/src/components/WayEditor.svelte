@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TravelSystem } from '@open-tabletop/session'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { edgeChoices, edgeName, terrainChoices, terrainName } from '../lib/terrains'
   import { trip } from '../lib/trip.svelte'
@@ -62,7 +62,7 @@
         <button
           class="icon"
           aria-label={t('play.remove')}
-          title={t('play.remove')}
+          use:tooltip={t('play.remove')}
           disabled={i <= here || way.length <= 1}
           onclick={() => trip.removeHex(i)}>×</button
         >

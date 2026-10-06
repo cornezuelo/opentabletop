@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
   import { newId } from '../../lib/model/id'
   import type { HexKey, Poi } from '../../lib/model/types'
@@ -47,7 +48,7 @@
       <div class="row">
         <button
           class="poi-icon"
-          title={t('hex.poiIcon')}
+          use:tooltip={t('hex.poiIcon')}
           aria-label={t('hex.poiIcon')}
           aria-expanded={picking === poi.id}
           onclick={() => (picking = picking === poi.id ? null : poi.id)}
@@ -71,7 +72,7 @@
         />
         <button
           class="icon"
-          title={t('hex.remove')}
+          use:tooltip={t('hex.remove')}
           aria-label={t('hex.remove')}
           onclick={() => remove(poi.id)}>✕</button
         >
@@ -109,7 +110,7 @@
     }}
   >
     <input type="text" bind:value={draft} placeholder={t('hex.poiName')} />
-    <button type="submit" class="icon" title={t('hex.addPoi')} aria-label={t('hex.addPoi')}
+    <button type="submit" class="icon" use:tooltip={t('hex.addPoi')} aria-label={t('hex.addPoi')}
       >+</button
     >
   </form>

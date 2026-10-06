@@ -24,6 +24,9 @@ export const es: Messages<typeof en> = {
     keyHint: 'Espacio o Intro vuelve a tirar',
   },
   history: {
+    confirmClear: '¿Borrar todo el historial de tiradas? No se puede deshacer.',
+    confirmReset:
+      '¿Empezar una sesión nueva? Las cartas robadas vuelven a sus mazos y las entradas de una sola vez pueden volver a salir. No se puede deshacer.',
     title: 'Historial',
     empty: 'Aquí aparecen tus tiradas.',
     clear: 'Borrar',

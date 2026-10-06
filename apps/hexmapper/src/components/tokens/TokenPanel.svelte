@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { confirmAction } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
-  import { t, type MessageKey } from '../../lib/i18n/index.svelte'
+  import { t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
   import { DEFAULT_TOKEN_ICONS, tokenColor } from '../../lib/model/tokens'
   import { TOKEN_KINDS, type MapToken, type TokenKind } from '../../lib/model/types'
   import { partyChanged, partyMoved } from '../../lib/play/play'
@@ -44,10 +45,21 @@
    * Changing the kind keeps the token's look: an automatic color is fixed first, since
    * the automatic one depends on the kind. Becoming the party demotes the current one.
    */
-  function setKind(kind: TokenKind) {
-    if (!selected) return
-    const keepColor = (t: MapToken): MapToken => ({ ...t, color: tokenColor(t, editor.tokens) })
+  async function setKind(kind: TokenKind) {
+    if (!selected || selected.kind === kind) return
+    const trip = !!editor.play?.rules?.session
     const party = editor.tokens.find((t) => t.kind === 'party' && t.id !== selected.id)
+    const name = (t: MapToken) => t.name || tr(`tokens.kinds.${t.kind}` as MessageKey)
+    if (kind === 'party' && (party || trip)) {
+      const message = trip ? 'tokens.confirmPartyTrip' : 'tokens.confirmParty'
+      if (
+        !(await confirmAction(tr(message, { name: name(selected), old: party ? name(party) : '' })))
+      )
+        return
+    }
+    if (selected.kind === 'party' && trip && !(await confirmAction(tr('tokens.confirmNoParty'))))
+      return
+    const keepColor = (t: MapToken): MapToken => ({ ...t, color: tokenColor(t, editor.tokens) })
     const wasParty = selected.kind === 'party'
     if (kind === 'party' && party)
       editor.updateToken(party.id, (t) => ({ ...keepColor(t), kind: 'pc' }))
@@ -84,8 +96,16 @@
     if (selected.kind === 'party') partyMoved(undefined)
   }
 
-  function remove() {
+  async function remove() {
     if (!selected) return
+    const trip = selected.kind === 'party' && !!editor.play?.rules?.session
+    const name = selected.name || tr(`tokens.kinds.${selected.kind}` as MessageKey)
+    if (
+      !(await confirmAction(
+        tr(trip ? 'tokens.confirmDeleteParty' : 'tokens.confirmDelete', { name }),
+      ))
+    )
+      return
     editor.execute(new RemoveTokenCommand(structuredClone(selected)))
     if (selected.kind === 'party') partyMoved(undefined)
     editor.selectedToken = null

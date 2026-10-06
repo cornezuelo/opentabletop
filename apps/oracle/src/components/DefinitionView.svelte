@@ -9,7 +9,7 @@
   import KindBadge from './KindBadge.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
   import DefinitionEditor from './edit/DefinitionEditor.svelte'
-  import { tooltip, showToast } from '@open-tabletop/ui-kit'
+  import { tooltip, showToast, confirmAction } from '@open-tabletop/ui-kit'
   import { copyDefinition, deleteDefinition } from '../lib/packs/definitions'
   import { manifestOf } from '../lib/packs/workspace'
 
@@ -31,8 +31,8 @@
     go({ name: 'def', id: copied, tab: 'edit' })
   }
 
-  function remove() {
-    if (!def || !confirm(t('edit.confirmDelete', { name: displayName(def) }))) return
+  async function remove() {
+    if (!def || !(await confirmAction(t('edit.confirmDelete', { name: displayName(def) })))) return
     deleteDefinition(def)
     go({ name: 'pack', root })
   }

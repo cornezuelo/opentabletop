@@ -290,6 +290,14 @@ export const es: Messages = {
     none: 'Sin región',
   },
   tokens: {
+    confirmParty: '¿Convertir «{name}» en el grupo? «{old}» pasa a ser un personaje jugador.',
+    confirmPartyTrip:
+      '¿Convertir «{name}» en el grupo? El viaje sigue desde donde está (mismo día, provisiones y diario) y su rastro empieza ahí.',
+    confirmNoParty:
+      'Este token es el grupo de un viaje en curso. Sin grupo, el viaje espera hasta que otro token sea el grupo. ¿Seguir?',
+    confirmDelete: '¿Borrar «{name}»? (Ctrl+Z lo recupera.)',
+    confirmDeleteParty:
+      '¿Borrar el grupo «{name}»? Se termina el viaje: se pierden su tiempo, provisiones y diario, y Ctrl+Z solo recupera el token.',
     help: 'Haz clic en un hex vacío para colocar un token como el de abajo (Mayús+clic añade otro a un hex que ya tiene tokens). Haz clic en un token para editarlo y arrástralo a otro hex; clic derecho o Supr lo quita.',
     newTitle: 'Tokens nuevos',
     kind: 'Tipo',
@@ -315,6 +323,12 @@ export const es: Messages = {
     empty: 'Aún no hay tokens.',
   },
   play: {
+    confirmNewTrip:
+      '¿Empezar un viaje nuevo? El tiempo, las provisiones y el diario vuelven a empezar (el grupo se queda donde está). No se puede deshacer.',
+    confirmClearTrail: '¿Borrar el rastro del grupo? No se puede deshacer.',
+    confirmRemoveParty: '¿Quitar el grupo del mapa? Se borra su rastro.',
+    confirmRemovePartyTrip:
+      '¿Quitar el grupo del mapa? Se termina el viaje: se pierden su tiempo, provisiones y diario. No se puede deshacer.',
     discover: 'Descubrir el mapa al viajar',
     discoverHelp:
       'Las tablas del sistema deciden los hexes vacíos mientras el grupo viaja: su terreno, y qué hay en ellos (un punto de interés, etiquetas, un nombre) la primera vez que entráis. Los hexes pintados nunca se cambian. Los descubrimientos son parte de la partida: Ctrl+Z no los deshace.',

@@ -11,7 +11,7 @@
   } from '../lib/io/actions.svelte'
   import { formatDeepLink } from '../lib/io/deepLink'
   import { editor } from '../lib/store/editor.svelte'
-  import { showToast } from '@open-tabletop/ui-kit'
+  import { confirmAction, showToast, tooltip } from '@open-tabletop/ui-kit'
 
   type Entry = Awaited<ReturnType<typeof listLibrary>>[number]
   let entries = $state<Entry[]>([])
@@ -30,7 +30,7 @@
   }
 
   async function remove(entry: Entry) {
-    if (confirm(t('library.confirmDelete', { name: entry.name || t('map.untitled') })))
+    if (await confirmAction(t('library.confirmDelete', { name: entry.name || t('map.untitled') })))
       await removeLibraryMap(entry.id)
   }
 
@@ -68,13 +68,13 @@
       </button>
       <button
         class="icon"
-        title={t('library.copyLink')}
+        use:tooltip={t('library.copyLink')}
         aria-label={t('library.copyLink')}
         onclick={() => copyLink(entry.id)}><LineIcon name="link" /></button
       >
       <button
         class="icon danger"
-        title={t('library.delete')}
+        use:tooltip={t('library.delete')}
         aria-label="{t('library.delete')}: {entry.name || entry.id}"
         onclick={() => remove(entry)}>✕</button
       >

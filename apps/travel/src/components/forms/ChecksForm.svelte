@@ -1,6 +1,6 @@
 <script lang="ts">
   import { idText, translator } from '@open-tabletop/travel-ui'
-  import { InfoTip, showToast } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
@@ -61,7 +61,8 @@
     else doc.edit('bindings', ['on', event], { resolve: ref })
   }
 
-  function remove(index: number, event: string) {
+  async function remove(index: number, event: string) {
+    if (!(await confirmAction(t('forms.confirmRemove', { name: eventName(event) })))) return
     doc.remove('travel-rules', ['checks'], index)
     if (on[event] && !checks.some((c, i) => i !== index && c.event === event))
       doc.edit('bindings', ['on', event], undefined)
@@ -154,7 +155,7 @@
             <button
               class="icon"
               aria-label={t('forms.remove')}
-              title={t('forms.remove')}
+              use:tooltip={t('forms.remove')}
               onclick={() => remove(i, event)}>×</button
             >
           {/if}
@@ -295,8 +296,11 @@
                   <button
                     class="icon"
                     aria-label={t('forms.remove')}
-                    title={t('forms.remove')}
-                    onclick={() => doc.edit('bindings', ['stats', id], undefined)}>×</button
+                    use:tooltip={t('forms.remove')}
+                    onclick={async () =>
+                      (await confirmAction(
+                        t('forms.confirmRemove', { name: textOf(stat?.name) || id }),
+                      )) && doc.edit('bindings', ['stats', id], undefined)}>×</button
                   >
                 {/if}
               </td>

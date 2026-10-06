@@ -1,5 +1,7 @@
 export { default as InfoTip } from './InfoTip.svelte'
 export { default as Toasts } from './Toasts.svelte'
+export { default as Dialogs } from './Dialogs.svelte'
+export { ask, confirmAction, dialog, type DialogButton } from './dialog.svelte'
 export { tooltip } from './tooltip'
 export { showToast, toasts, type Toast } from './toasts.svelte'
 export { createI18n, translate, type MessageKey, type Messages } from './i18n.svelte'

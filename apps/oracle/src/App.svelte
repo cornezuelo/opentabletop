@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { AppBrand, AppSwitcher, showToast, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    AppBrand,
+    AppSwitcher,
+    confirmAction,
+    Dialogs,
+    showToast,
+    Toasts,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
@@ -29,7 +37,10 @@
         const pack = zipToPack(new Uint8Array(await file.arrayBuffer()))
         if (!pack) return showToast(t('import.noManifest'), 'error')
         const existing = workspace.pack(pack.root)
-        if (existing?.origin === 'user' && !confirm(t('import.replace', { pack: pack.root })))
+        if (
+          existing?.origin === 'user' &&
+          !(await confirmAction(t('import.replace', { pack: pack.root })))
+        )
           return
         workspace.addPack(pack)
         showToast(
@@ -173,6 +184,7 @@
 {/if}
 
 <Toasts />
+<Dialogs />
 
 <style>
   .app {
