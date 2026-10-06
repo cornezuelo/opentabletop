@@ -8,13 +8,13 @@ import {
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
-import type { HexMap } from '../model/types'
+import { TRAVEL_PATH_KINDS, type HexMap } from '../model/types'
 
 /** The map as the Travel Engine sees it: terrain, neighbors and road/river edges. */
 export function mapWorld(map: HexMap): TravelWorld {
   const { grid } = map
   const edges = new Map<string, Set<string>>()
-  for (const path of map.paths)
+  for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind)))
     for (let i = 0; i < path.hexes.length - 1; i++) {
       const [a, b] = [path.hexes[i], path.hexes[i + 1]]
       for (const pair of [`${a}|${b}`, `${b}|${a}`]) {

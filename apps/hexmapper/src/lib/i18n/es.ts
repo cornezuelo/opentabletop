@@ -308,6 +308,8 @@ export const es: Messages = {
     road: 'Camino',
     trail: 'Sendero',
     river: 'Río',
+    wall: 'Muro',
+    border: 'Frontera',
   },
   path: {
     help: 'Haz clic o arrastra por los hexes. Clic en el último hex, clic derecho o Enter para terminar.',
@@ -321,6 +323,9 @@ export const es: Messages = {
       'Mayús + clic coloca el punto donde haces clic (Ctrl: sin ajuste). Clic en un tirador blanco para seguir dibujando desde él (desde un extremo alarga el camino, desde el medio sale una rama); arrástralo para mover el punto; clic derecho para recentrarlo. Los caminos se detienen en la orilla de lagos y mares.',
     makeStraight: 'Recto',
     makeCurved: 'Curvo',
+    closed: 'Cerrado (el final se une al principio)',
+    makeClosed: 'Cerrar',
+    makeOpen: 'Abrir',
   },
   hex: {
     coord: 'Coordenada',

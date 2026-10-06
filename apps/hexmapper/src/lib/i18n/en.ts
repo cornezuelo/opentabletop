@@ -306,6 +306,8 @@ export const en = {
     road: 'Road',
     trail: 'Trail',
     river: 'River',
+    wall: 'Wall',
+    border: 'Border',
   },
   path: {
     help: 'Click or drag across hexes. Click the last hex, right-click or press Enter to finish.',
@@ -319,6 +321,9 @@ export const en = {
       'Shift+click places a point where you click (Ctrl: no snapping). Click a white handle to keep drawing from it (from an end it extends the path, from the middle it branches); drag it to move the point; right-click to re-center it. Paths stop at the shore of lakes and seas.',
     makeStraight: 'Straight',
     makeCurved: 'Curved',
+    closed: 'Closed loop (the end joins the start)',
+    makeClosed: 'Close',
+    makeOpen: 'Open',
   },
   hex: {
     coord: 'Coordinate',

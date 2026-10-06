@@ -4,7 +4,13 @@
   import { editor } from '../lib/store/editor.svelte'
   import { cancelPath, finishPath, popPathPoint } from '../lib/tools/tools'
 
-  const swatches = { road: '#6e4f2c', trail: '#6e4f2c', river: '#3f78a8' } as const
+  const swatches = {
+    road: '#6e4f2c',
+    trail: '#6e4f2c',
+    river: '#3f78a8',
+    wall: '#3a3631',
+    border: '#8b1e1e',
+  } as const
 
   const pathCount = $derived.by(() => {
     void editor.revision
@@ -29,6 +35,10 @@
 <label class="check">
   <input type="checkbox" bind:checked={editor.pathStraight} />
   {t('path.straight')}
+</label>
+<label class="check">
+  <input type="checkbox" bind:checked={editor.pathClosed} />
+  {t('path.closed')}
 </label>
 
 {#if editor.pathDraft}
@@ -98,6 +108,17 @@
 
   .swatch.trail {
     background: repeating-linear-gradient(90deg, var(--color) 0 5px, transparent 5px 8px);
+  }
+
+  .swatch.border {
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--color) 0 7px, transparent 7px 9px);
+  }
+
+  .swatch.wall {
+    height: 6px;
+    border: 2px solid var(--color);
+    background: repeating-linear-gradient(90deg, #9c9480 0 3px, var(--color) 3px 6px);
   }
 
   .check {

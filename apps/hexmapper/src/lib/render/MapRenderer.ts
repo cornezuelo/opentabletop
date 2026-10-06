@@ -15,7 +15,7 @@ import { hasMetadata, ICON_DEFAULTS, nodeFlags } from '../model/hex'
 import type { MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
-import { catmullRom, dashes } from './curves'
+import { catmullRom, catmullRomClosed, dashes } from './curves'
 import { pathRuns, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
@@ -49,13 +49,25 @@ const COORD_COLOR = 0x1b1a17
 /** Coordinates on unpainted hexes need a light color to stay legible. */
 const COORD_COLOR_EMPTY = 0xe8e2d4
 /** Path styles; widths and dashes are fractions of the hex size. */
-const PATH_STYLES: Record<PathKind, { color: number; width: number; dash?: [number, number] }> = {
+interface PathStyle {
+  color: number
+  width: number
+  dash?: [number, number]
+  /** A second stroke on top (a wall's stones). */
+  inner?: { color: number; width: number; dash?: [number, number] }
+  /** Drawn across lakes and seas instead of stopping at the shore. */
+  crossesWater?: boolean
+}
+
+const PATH_STYLES: Record<PathKind, PathStyle> = {
   river: { color: 0x3f78a8, width: 0.2 },
   road: { color: 0x6e4f2c, width: 0.13 },
   trail: { color: 0x6e4f2c, width: 0.09, dash: [0.25, 0.18] },
+  wall: { color: 0x3a3631, width: 0.17, inner: { color: 0x9c9480, width: 0.07, dash: [0.1, 0.1] } },
+  border: { color: 0x8b1e1e, width: 0.09, dash: [0.3, 0.1], crossesWater: true },
 }
-/** Rivers under roads under trails. */
-const PATH_ORDER: PathKind[] = ['river', 'road', 'trail']
+/** Rivers under roads under trails; walls and borders on top. */
+const PATH_ORDER: PathKind[] = ['river', 'road', 'trail', 'wall', 'border']
 const DRAFT_COLOR = 0xffffff
 const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
@@ -555,14 +567,27 @@ export class MapRenderer {
       const style = PATH_STYLES[kind]
       for (const path of editor.map.paths) {
         if (path.kind !== kind) continue
-        for (const run of pathRuns(this.pathVertices(path))) {
-          const line = path.straight ? run : catmullRom(run)
-          const pieces = style.dash
-            ? dashes(line, style.dash[0] * hexSize, style.dash[1] * hexSize)
-            : [line]
-          for (const piece of pieces) this.strokePolyline(g, piece)
+        const runs = pathRuns(this.pathVertices(path, style.crossesWater))
+        // A closed loop stays closed unless water cut it into pieces.
+        const loop = path.closed && runs.length === 1 && runs[0].length >= 3
+        const lines = runs.map((run) =>
+          loop
+            ? path.straight
+              ? [...run, run[0]]
+              : catmullRomClosed(run)
+            : path.straight
+              ? run
+              : catmullRom(run),
+        )
+        const stroke = (s: { color: number; width: number; dash?: [number, number] }) => {
+          for (const line of lines) {
+            const pieces = s.dash ? dashes(line, s.dash[0] * hexSize, s.dash[1] * hexSize) : [line]
+            for (const piece of pieces) this.strokePolyline(g, piece)
+          }
+          g.stroke({ width: s.width * hexSize, color: s.color, cap: 'round', join: 'round' })
         }
-        g.stroke({ width: style.width * hexSize, color: style.color, cap: 'round', join: 'round' })
+        stroke(style)
+        if (style.inner) stroke(style.inner)
       }
     }
     if (editor.tool === 'path') this.drawOverlay()
@@ -718,7 +743,7 @@ export class MapRenderer {
     return null
   }
 
-  private pathVertices(path: MapPath): PathVertex[] {
+  private pathVertices(path: MapPath, crossesWater = false): PathVertex[] {
     const { grid, hexes, terrains } = editor.map
     const water = new Set(terrains.filter((t) => t.water).map((t) => t.id))
     const nodes = nodeFlags(path)
@@ -730,7 +755,7 @@ export class MapRenderer {
       vertices.push({
         center: this.centerOf(cell),
         point: pathVertexPoint(path, i),
-        water: !!terrain && water.has(terrain),
+        water: !crossesWater && !!terrain && water.has(terrain),
         node: nodes[i],
       })
     })

@@ -201,8 +201,10 @@ export interface LayerState {
   locked: boolean
 }
 
-export const PATH_KINDS = ['road', 'trail', 'river'] as const
+export const PATH_KINDS = ['road', 'trail', 'river', 'border', 'wall'] as const
 export type PathKind = (typeof PATH_KINDS)[number]
+/** Paths the Travel Engine sees as edges; borders and walls are only drawn. */
+export const TRAVEL_PATH_KINDS: readonly PathKind[] = ['road', 'trail', 'river']
 
 /**
  * A road, trail or river running center-to-center through hexes. Consecutive hexes
@@ -224,6 +226,8 @@ export interface MapPath {
   nodes?: number[]
   /** Straight segments between vertices instead of a smooth curve. */
   straight?: boolean
+  /** A loop: the last vertex joins the first (e.g. a border around a region). */
+  closed?: boolean
 }
 
 /** Physical size for printing. The grid's cols × rows stay the source of truth. */

@@ -160,6 +160,7 @@ export function normalizePath(path: MapPath): MapPath {
   const flags = nodeFlags(path)
   if (flags.some((f) => !f)) out.nodes = flags.flatMap((f, i) => (f ? [i] : []))
   if (path.straight) out.straight = true
+  if (path.closed) out.closed = true
   return out
 }
 

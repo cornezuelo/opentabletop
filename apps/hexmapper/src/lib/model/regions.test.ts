@@ -37,3 +37,17 @@ describe('regions', () => {
     expect(mapWorld(mapWithRegion()).cell('1,1')).toMatchObject({ region: 'Black Marches' })
   })
 })
+
+describe('path kinds and travel', () => {
+  it('roads, trails and rivers are travel edges; borders and walls are only drawn', () => {
+    const map = createMap()
+    map.paths = [
+      { id: 'road00000001', kind: 'road', hexes: ['0,0', '1,0'] },
+      { id: 'wall00000001', kind: 'wall', hexes: ['0,0', '1,0'] },
+      { id: 'border000001', kind: 'border', hexes: ['1,0', '2,0'], closed: true },
+    ]
+    const world = mapWorld(map)
+    expect(world.edges('0,0', '1,0')).toEqual(['road'])
+    expect(world.edges('1,0', '2,0')).toEqual([])
+  })
+})

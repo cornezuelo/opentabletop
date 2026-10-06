@@ -30,6 +30,13 @@
               )}>{path.straight ? t('path.makeCurved') : t('path.makeStraight')}</button
           >
           <button
+            class="link"
+            onclick={() =>
+              editor.execute(
+                new ReplacePathCommand(path, normalizePath({ ...path, closed: !path.closed })),
+              )}>{path.closed ? t('path.makeOpen') : t('path.makeClosed')}</button
+          >
+          <button
             class="icon"
             title={t('hex.remove')}
             aria-label="{t('hex.remove')}: {t(`pathKinds.${path.kind}` as MessageKey)}"
@@ -81,6 +88,16 @@
 
   .kind.trail {
     background: repeating-linear-gradient(90deg, #6e4f2c 0 5px, transparent 5px 8px);
+  }
+
+  .kind.border {
+    height: 3px;
+    background: repeating-linear-gradient(90deg, #8b1e1e 0 7px, transparent 7px 9px);
+  }
+
+  .kind.wall {
+    height: 6px;
+    background: #3a3631;
   }
 
   .icon {

@@ -455,6 +455,7 @@ function continueFrom(path: MapPath, index: number): void {
   const isEndpoint = atStart || index === last
   editor.pathKind = path.kind
   editor.pathStraight = !!path.straight
+  editor.pathClosed = !!path.closed
   editor.hoveredHandle = null
   editor.pathDraft = {
     hexes: [path.hexes[index]],
@@ -553,6 +554,7 @@ export function finishPath(): void {
     offsets,
     nodes: flags.flatMap((f, i) => (f ? [i] : [])),
     straight: editor.pathStraight,
+    closed: editor.pathClosed,
   })
   editor.execute(new ReplacePathCommand(null, path))
 }

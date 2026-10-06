@@ -61,6 +61,8 @@ export const path = z
     nodes: z.array(z.number().int().nonnegative()).optional(),
     offsets: z.array(z.tuple([z.number(), z.number()]).nullable()).optional(),
     straight: z.boolean().optional(),
+    /** A loop: the last vertex joins the first. */
+    closed: z.boolean().optional(),
     ext: ext.optional(),
   })
   .loose()

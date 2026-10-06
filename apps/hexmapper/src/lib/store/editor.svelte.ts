@@ -81,6 +81,8 @@ class Editor {
   iconStyle = $state<IconStyle>({})
   /** New paths are drawn with straight segments instead of curves. */
   pathStraight = $state(false)
+  /** New paths are loops (the last point joins the first). */
+  pathClosed = $state(false)
   /** Path being drawn (hexes plus per-hex offsets), or null when not drawing. */
   pathDraft = $state<PathDraft | null>(null)
   selectedLabel = $state<string | null>(null)

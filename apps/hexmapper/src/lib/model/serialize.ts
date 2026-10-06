@@ -179,6 +179,7 @@ function parsePaths(value: unknown): MapPath[] {
         offsets,
         nodes: parseNodes(p.nodes, raw, hexes.length),
         straight: p.straight === true,
+        closed: p.closed === true,
       }),
     )
   }
