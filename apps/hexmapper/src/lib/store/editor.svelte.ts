@@ -97,6 +97,10 @@ class Editor {
   terrainId = $state('steppe')
   brushRadius = $state(0)
   selected = $state<HexKey | null>(null)
+  /** Hexes with this tag are highlighted on the map (a view setting, not saved). */
+  highlightTag = $state('')
+  /** While highlighting, the other hexes are dimmed. */
+  highlightDim = $state(false)
   pathKind = $state<PathKind>('road')
   iconId = $state('game:village')
   /** Hex whose icon the icon tool is editing (palette and style apply to it live). */

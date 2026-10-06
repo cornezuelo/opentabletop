@@ -177,6 +177,12 @@ export const es: Messages = {
     edit: 'Estilo',
   },
   layers: {
+    highlight: 'Resaltar una etiqueta',
+    highlightHelp:
+      'Los hexes con esta etiqueta se marcan en el mapa, p. ej. todos los lugares señalados o todos los hexes encantados. Solo mientras miras: no se guarda nada.',
+    clearHighlight: 'Dejar de resaltar',
+    dimRest: 'Oscurecer los demás hexes',
+    highlighted: '{count} hexes la tienen.',
     show: 'Mostrar',
     hide: 'Ocultar',
     lock: 'Bloquear',

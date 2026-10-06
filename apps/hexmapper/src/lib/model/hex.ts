@@ -1,4 +1,5 @@
-import type { HexData, HexIcon, MapPath, CustomField, HexMap } from './types'
+import { inBounds, parseKey } from '@open-tabletop/hex'
+import type { HexData, HexIcon, HexKey, MapPath, CustomField, HexMap } from './types'
 
 export const ICON_SCALE_RANGE = [0.4, 2] as const
 export const ICON_HALO_RANGE = [0.3, 0.9] as const
@@ -153,6 +154,15 @@ export function hasMetadata(hex: HexData | undefined): boolean {
   return (Object.keys(normalizeHex(hex)) as (keyof HexData)[]).some(
     (key) => !SELF_EVIDENT.includes(key),
   )
+}
+
+/** Hexes (inside the map) that carry a tag. */
+export function hexesWithTag(map: HexMap, tag: string): HexKey[] {
+  const wanted = tag.trim()
+  if (!wanted) return []
+  return (Object.entries(map.hexes) as [HexKey, HexData][])
+    .filter(([key, hex]) => hex.tags?.includes(wanted) && inBounds(parseKey(key), map.grid))
+    .map(([key]) => key)
 }
 
 /** Every tag and field key used in the map, sorted, for autocompletion. */

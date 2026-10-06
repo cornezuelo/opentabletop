@@ -174,6 +174,12 @@ export const en = {
     edit: 'Style',
   },
   layers: {
+    highlight: 'Highlight a tag',
+    highlightHelp:
+      'Hexes with this tag are outlined on the map, e.g. every landmark or every haunted hex. Only while you look: nothing is saved.',
+    clearHighlight: 'Stop highlighting',
+    dimRest: 'Dim the other hexes',
+    highlighted: '{count} hexes have it.',
     show: 'Show',
     hide: 'Hide',
     lock: 'Lock',

@@ -69,6 +69,12 @@
     renderer?.drawOverlay()
   })
 
+  // Hexes with the highlighted tag.
+  $effect(() => {
+    void [editor.highlightTag, editor.highlightDim]
+    renderer?.drawHighlight()
+  })
+
   // The selected token is ringed.
   $effect(() => {
     void editor.selectedToken

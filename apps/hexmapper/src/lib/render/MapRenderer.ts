@@ -11,7 +11,7 @@ import {
   Text,
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
-import { hasMetadata, ICON_DEFAULTS, nodeFlags } from '../model/hex'
+import { hasMetadata, hexesWithTag, ICON_DEFAULTS, nodeFlags } from '../model/hex'
 import type { CaptionKind, CaptionOverride, MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
@@ -152,6 +152,8 @@ export class MapRenderer {
   private labelTexts = new Map<string, Text>()
   private markers = new Graphics()
   private overlay = new Graphics()
+  /** Hexes with the highlighted tag (and the dimmed rest). */
+  private highlight = new Graphics()
   /**
    * Crosshair drawn by us in screen space at the exact point used for hit testing.
    * The system cursor is hidden over the map: with fractional display scaling some
@@ -192,6 +194,7 @@ export class MapRenderer {
       this.partyLayer,
       this.tokenLayer,
       this.markers,
+      this.highlight,
       this.overlay,
     )
     this.partyLayer.addChild(this.partyLines)
@@ -378,6 +381,7 @@ export class MapRenderer {
       for (const key of change.keys) this.updateGlyph(key)
       if (editor.map.regions.length > 0) this.drawRegions()
       this.drawMarkers()
+      if (editor.highlightTag) this.drawHighlight()
       this.drawIcons()
       if (editor.map.paths.length > 0) this.drawPaths()
     } else if (change.kind === 'paths') {
@@ -462,6 +466,7 @@ export class MapRenderer {
     this.drawLabels()
     this.drawParty()
     this.drawTokens()
+    this.drawHighlight()
     this.onViewChanged()
   }
 
@@ -880,6 +885,27 @@ export class MapRenderer {
     if (points.length < 2) return
     g.moveTo(points[0].x, points[0].y)
     for (const p of points.slice(1)) g.lineTo(p.x, p.y)
+  }
+
+  /** Hexes with `editor.highlightTag`: outlined, and the rest dimmed if asked. */
+  drawHighlight(): void {
+    const g = this.highlight.clear()
+    const { grid } = editor.map
+    const keys = hexesWithTag(editor.map, editor.highlightTag)
+    if (!editor.highlightTag.trim()) return
+    if (editor.highlightDim) {
+      const lit = new Set<string>(keys)
+      for (const cell of allCells(grid)) if (!lit.has(keyOf(cell))) g.poly(this.cornersAt(cell))
+      g.fill({ color: 0x000000, alpha: 0.55 })
+    }
+    if (!keys.length) return
+    for (const key of keys) g.poly(this.cornersAt(parseKey(key)))
+    g.fill({ color: SELECT_COLOR, alpha: 0.18 })
+    for (const key of keys) g.poly(this.cornersAt(parseKey(key)))
+    g.stroke({
+      width: Math.max(grid.hexSize * 0.08, 2.5 / this.world.scale.x),
+      color: SELECT_COLOR,
+    })
   }
 
   private drawMarkers(): void {

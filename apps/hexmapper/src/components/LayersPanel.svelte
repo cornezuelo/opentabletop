@@ -3,7 +3,18 @@
   import LineIcon from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { LAYER_IDS, LOCKABLE_LAYERS } from '../lib/model/types'
+  import { collectSuggestions, hexesWithTag } from '../lib/model/hex'
   import { editor } from '../lib/store/editor.svelte'
+  import { InfoTip } from '@open-tabletop/ui-kit'
+
+  const tags = $derived.by(() => {
+    void editor.revision
+    return collectSuggestions(Object.values(editor.map.hexes)).tags
+  })
+  const found = $derived.by(() => {
+    void editor.revision
+    return hexesWithTag(editor.map, editor.highlightTag).length
+  })
 </script>
 
 <ul>
@@ -36,7 +47,57 @@
   {/each}
 </ul>
 
+<section class="highlight">
+  <label class="field">
+    <span>{t('layers.highlight')}<InfoTip text={t('layers.highlightHelp')} /></span>
+    <div class="row">
+      <input
+        type="text"
+        list="highlight-tags"
+        placeholder={tags[0] ?? 'landmark'}
+        bind:value={editor.highlightTag}
+      />
+      <button
+        class="toggle"
+        disabled={!editor.highlightTag}
+        use:tooltip={t('layers.clearHighlight')}
+        aria-label={t('layers.clearHighlight')}
+        onclick={() => (editor.highlightTag = '')}>✕</button
+      >
+    </div>
+    <datalist id="highlight-tags">
+      {#each tags as tag (tag)}<option value={tag}></option>{/each}
+    </datalist>
+  </label>
+  <label class="check">
+    <input type="checkbox" bind:checked={editor.highlightDim} />
+    {t('layers.dimRest')}
+  </label>
+  {#if editor.highlightTag.trim()}
+    <p class="help">{t('layers.highlighted', { count: found })}</p>
+  {/if}
+</section>
+
 <style>
+  .highlight {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--panel-border);
+  }
+
+  .highlight .row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .highlight input[type='text'] {
+    flex: 1;
+    min-width: 0;
+  }
+
   ul {
     display: flex;
     flex-direction: column;
