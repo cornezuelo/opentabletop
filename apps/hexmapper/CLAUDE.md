@@ -60,7 +60,7 @@ Done:
 - **Icons:** 111 from game-icons.net plus imported ones (SVG/PNG/JPEG/WebP); color, size, rotation, flip, halo (color and size) and outline (color and thickness), with live preview.
 - **Text:** labels with font (IM Fell English, Cinzel, sans), size, color, rotation, italic and halo (color and thickness); also outside the grid.
 - **Hex metadata:** name, short optional Markdown notes (marked + DOMPurify), POIs (with linked notes), tags and fields with autocompletion, linked note (`note-refs`), gold marker on the map, copyable hex link.
-- **Fixed layers:** terrain, grid, paths, icons, coordinates, text and markers, each with show/hide and lock.
+- **Fixed layers:** terrain, grid, regions, paths, icons, text, trail and route, tokens, coordinates and markers, each with show/hide and lock.
 - **Size:** by hex count or by paper (A5–A1, Letter, Legal, Tabloid, custom), hex size in mm with presets, printed size and smallest fitting paper.
 - **Export:** PNG by pixels per hex (VTT-friendly, optional transparency) and **real-scale PDF** (150/300 dpi).
 - **Local map library** in IndexedDB (migrates the old single autosave); **deep links** `#/<id>/<hex>`; new-map dialog (save to file / create / cancel).
@@ -99,10 +99,11 @@ Done:
 
 ### Next (agreed 2026-10-06, in this order)
 
-- [x] **Tokens** (tool ♟, key K): party, PCs, NPCs and enemies; several per hex (arranged around the center), dragged between hexes (snapping to the center), also with the select tool; name, icon (or an imported image), color, halo, linked note; off-map tokens stay in the list. Saved as OTD characters with `kind` and `location` (the party as the OTD party). Play mode moves the party token. Later: the PC tokens travelling together as the party.
+- [x] **Tokens** (tool ♟, key K): party, PCs, NPCs and enemies; several per hex (arranged around the center), dragged between hexes (snapping to the center), also with the select and play tools; name, icon (or an imported image), color, halo, linked note; off-map tokens stay in the list. Saved as OTD characters with `kind` and `location` (the party as the OTD party). Play mode moves the party token. Later: the PC tokens travelling together as the party.
 - [x] **Terrain glyphs:** a subtle symbol per hex (mountain, tree…) in a lighter or darker shade of the terrain color (hidden under icons), with an opacity slider (0 hides them); each terrain picks a symbol from the new Terrain icon category or an imported image. Wider default biome palette (farmland, jungle, taiga, tundra, volcanic), with travel costs in the generic rules. Map format v3 gives old maps' built-in terrains their symbol.
-- [ ] **Regions:** paint hexes into a region (kingdom, territory, danger zone) with border color and a label.
+- [x] **Regions** (tool ⛉, key N): paint hexes into a region with the brush (right-click takes them out, Ctrl+click picks); name, color, show name, linked note; drawn as a light tint, an inner border along the outline and the name at the center; region select in the hex panel. Saved as OTD `hex.region` plus the region list in `ext.hexmapper`; travel checks and tables see `region` (its name). Map format v4.
 - [ ] **Path kinds:** borders and walls besides roads, trails and rivers; closed paths.
+- [ ] **Short labels on map pieces:** an optional small text under icons and tokens (their name, party included), and the hex's name under the hex (not POIs: a hex can have several).
 
 ### Later
 

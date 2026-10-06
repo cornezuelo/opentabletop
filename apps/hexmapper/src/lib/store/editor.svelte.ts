@@ -16,6 +16,7 @@ import type {
   MapLabel,
   LayerId,
   LayerState,
+  MapRegion,
   MapToken,
   PathKind,
   PrintSettings,
@@ -23,7 +24,7 @@ import type {
   TokenKind,
 } from '../model/types'
 
-export type ToolId = 'select' | 'terrain' | 'path' | 'icon' | 'text' | 'token' | 'play'
+export type ToolId = 'select' | 'terrain' | 'region' | 'path' | 'icon' | 'text' | 'token' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
@@ -59,6 +60,9 @@ class Editor {
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state<HexMap['play']>(undefined)
   tokens = $state.raw<MapToken[]>([])
+  regions = $state.raw<MapRegion[]>([])
+  /** Region the region tool paints. */
+  regionId = $state<string | null>(null)
   canUndo = $state(false)
   canRedo = $state(false)
 
@@ -266,6 +270,11 @@ class Editor {
       this.layers = structuredClone(this.map.layers)
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]
     if (change.kind === 'tokens' || change.kind === 'all') this.tokens = [...this.map.tokens]
+    if (change.kind === 'regions' || change.kind === 'all') {
+      this.regions = [...this.map.regions]
+      if (this.regionId && !this.map.regions.some((r) => r.id === this.regionId))
+        this.regionId = this.map.regions[0]?.id ?? null
+    }
   }
 }
 

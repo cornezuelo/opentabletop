@@ -58,6 +58,59 @@ export interface Tool {
 }
 
 /**
+ * Regions: paint hexes into the active region with the brush (left), take them out
+ * (right click), Ctrl+click picks the region under the cursor.
+ */
+class RegionTool implements Tool {
+  private batch: HexEditBatch | null = null
+  private last: Offset | null = null
+  private erasing = false
+
+  down(cell: Offset, info: PointerInfo): void {
+    if (info.alt || info.ctrl) {
+      const region = editor.map.hexes[keyOf(cell)]?.region
+      if (region) editor.regionId = region
+      return
+    }
+    if (blockedByLock('regions')) return
+    this.erasing = info.button === 2
+    if (!this.erasing && !editor.regionId) {
+      showToast(t('regions.pickFirst'))
+      return
+    }
+    this.batch = new HexEditBatch(editor.map)
+    this.last = cell
+    this.paint([cell])
+  }
+
+  move(cell: Offset): void {
+    if (!this.batch || !this.last) return
+    if (cell.col === this.last.col && cell.row === this.last.row) return
+    this.paint(cellLine(this.last, cell, editor.map.grid.orientation).slice(1))
+    this.last = cell
+  }
+
+  up(): void {
+    const command = this.batch?.finish()
+    if (command) editor.record(command)
+    this.batch = null
+    this.last = null
+  }
+
+  private paint(centers: Offset[]): void {
+    const batch = this.batch!
+    const region = this.erasing ? undefined : (editor.regionId ?? undefined)
+    const changed: HexKey[] = []
+    for (const center of centers)
+      for (const cell of cellsInRadius(center, editor.brushRadius, editor.map.grid)) {
+        const key = keyOf(cell)
+        if (batch.edit(key, (hex) => ({ ...hex, region }))) changed.push(key)
+      }
+    if (changed.length > 0) editor.notify({ kind: 'hexes', keys: changed })
+  }
+}
+
+/**
  * Tokens: click a token to select it, drag it to another hex (it snaps to the center),
  * right-click removes it. With `place`, a click on an empty hex puts the selected
  * off-map token there, or a new token from the template.
@@ -66,14 +119,21 @@ class TokenTool implements Tool {
   private pressed: { id: string; at: Point; threshold: number } | null = null
   private drag: { before: MapToken; id: string } | null = null
 
-  constructor(private place: boolean) {}
+  /**
+   * @param place a click on an empty hex places a token (token tool)
+   * @param wholeHex a press anywhere on a hex grabs its token (token tool, play)
+   */
+  constructor(
+    private place: boolean,
+    private wholeHex = place,
+  ) {}
 
   /** Handles the press if it hits a token (or places one); false lets others handle it. */
   down(cell: Offset, info: PointerInfo): boolean {
     // On the token or, with the token tool (Shift adds another), anywhere on its hex.
     const id =
       hitTestToken(info.world) ??
-      (!this.place || info.shift || !inBounds(cell, editor.map.grid)
+      (!this.wholeHex || info.shift || !inBounds(cell, editor.map.grid)
         ? null
         : nearestTokenIn(cell, info.world))
     if (info.button === 2) {
@@ -156,6 +216,7 @@ function nearestTokenIn(cell: Offset, world: Point): string | null {
 
 const tokenTool = new TokenTool(true)
 const tokenDragger = new TokenTool(false)
+const playDragger = new TokenTool(false, true)
 
 /** Select: picks a hex; tokens can be selected and dragged here too. */
 const selectTool: Tool = {
@@ -732,18 +793,27 @@ export function deleteSelectedLabel(): void {
   editor.selectedLabel = null
 }
 
-/** Play: place the party, then move it (simple mode) or pick its destination (rules mode). */
+/**
+ * Play: place the party, then move it (simple mode) or pick its destination (rules mode).
+ * Dragging the party (or any token) puts it somewhere else by hand.
+ */
 const playTool: Tool = {
   down(cell, info) {
+    if (info.button === 0 && playDragger.down(cell, info)) return
     if (info.button !== 0 || !inBounds(cell, editor.map.grid)) return
     clickHex(keyOf(cell))
   },
-  move() {},
-  up() {},
+  move(cell, info) {
+    playDragger.move(cell, info)
+  },
+  up() {
+    playDragger.up()
+  },
 }
 
 const tools: Record<ToolId, Tool> = {
   play: playTool,
+  region: new RegionTool(),
   token: {
     down: (cell, info) => void tokenTool.down(cell, info),
     move: (cell, info) => tokenTool.move(cell, info),

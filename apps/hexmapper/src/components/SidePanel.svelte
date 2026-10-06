@@ -14,6 +14,7 @@
   import Preferences from './Preferences.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
+  import RegionPanel from './RegionPanel.svelte'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
@@ -85,6 +86,8 @@
 {#snippet toolView()}
   {#if editor.tool === 'terrain'}
     <Section title={t('panel.terrain')}><TerrainPanel /></Section>
+  {:else if editor.tool === 'region'}
+    <Section title={t('panel.regions')}><RegionPanel /></Section>
   {:else if editor.tool === 'path'}
     <Section title={t('panel.paths')}><PathPanel /></Section>
   {:else if editor.tool === 'icon'}

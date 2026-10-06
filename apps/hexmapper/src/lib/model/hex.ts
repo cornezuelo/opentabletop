@@ -76,6 +76,7 @@ export function normalizeHex(hex: HexData | undefined): HexData {
   const out: HexData = {}
   if (!hex) return out
   if (hex.terrain) out.terrain = hex.terrain
+  if (hex.region) out.region = hex.region
   const name = hex.name?.trim()
   if (name) out.name = name
   if (hex.notes?.trim()) out.notes = hex.notes.trimEnd()
@@ -120,7 +121,7 @@ export function sameHex(a: HexData | undefined, b: HexData | undefined): boolean
 }
 
 /** Visible on the map by themselves, so they don't count as "has notes". */
-const SELF_EVIDENT: (keyof HexData)[] = ['terrain', 'icon']
+const SELF_EVIDENT: (keyof HexData)[] = ['terrain', 'region', 'icon']
 
 /** True if the hex carries data that isn't visible on the map (name, notes, POIs…). */
 export function hasMetadata(hex: HexData | undefined): boolean {

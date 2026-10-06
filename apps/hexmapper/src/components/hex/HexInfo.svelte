@@ -81,6 +81,24 @@
       />
     </label>
 
+    {#if editor.regions.length}
+      <label class="field">
+        <span>{t('panel.regions')}</span>
+        <select
+          value={hex.region ?? ''}
+          onchange={(e) => {
+            const region = e.currentTarget.value || undefined
+            editor.editHex(key, (h) => ({ ...h, region }))
+          }}
+        >
+          <option value="">{t('regions.none')}</option>
+          {#each editor.regions as region (region.id)}
+            <option value={region.id}>{region.name || '—'}</option>
+          {/each}
+        </select>
+      </label>
+    {/if}
+
     {#if hex.icon}
       <HexIcon {key} icon={hex.icon} />
     {/if}

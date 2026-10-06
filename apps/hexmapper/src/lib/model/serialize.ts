@@ -23,6 +23,7 @@ import type {
   MapAsset,
   MapLabel,
   MapPath,
+  MapRegion,
   MapToken,
   Poi,
   PrintSettings,
@@ -99,6 +100,7 @@ function validate(data: Record<string, unknown>): HexMap {
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
     tokens: parseTokens(data.tokens),
+    regions: parseRegions(data.regions),
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
@@ -125,6 +127,7 @@ function parseHex(value: Record<string, unknown>): HexData {
     : []
   return normalizeHex({
     terrain: str(value.terrain),
+    region: str(value.region),
     name: str(value.name),
     notes: str(value.notes),
     pois,
@@ -262,6 +265,24 @@ export function parseLabelStyle(value: unknown): LabelStyle {
 const HEX_KEY = /^\d+,\d+$/
 
 const COLOR = /^#[0-9a-f]{6}$/i
+
+function parseRegions(value: unknown): MapRegion[] {
+  if (!Array.isArray(value)) return []
+  const seen = new Set<string>()
+  return value.flatMap((r): MapRegion[] => {
+    if (!isRecord(r) || !isValidId(r.id) || seen.has(r.id)) return []
+    seen.add(r.id)
+    return [
+      {
+        id: r.id,
+        name: typeof r.name === 'string' ? r.name : '',
+        color: typeof r.color === 'string' && COLOR.test(r.color) ? r.color : '#8b1e1e',
+        ...(r.showName === false && { showName: false }),
+        ...(typeof r.note === 'string' && r.note && { note: r.note }),
+      },
+    ]
+  })
+}
 
 function parseTokens(value: unknown): MapToken[] {
   if (!Array.isArray(value)) return []

@@ -13,6 +13,7 @@ export const es: Messages = {
     text: 'Texto (T)',
     play: 'Jugar (P)',
     token: 'Tokens (K)',
+    region: 'Regiones (N)',
   },
   terrainMode: {
     brush: 'Pincel (B)',
@@ -55,6 +56,7 @@ export const es: Messages = {
     closeSettings: 'Cerrar configuración',
     preferences: 'Preferencias',
     tokens: 'Tokens',
+    regions: 'Regiones',
   },
   map: {
     id: 'ID (nombre del fichero)',
@@ -167,6 +169,7 @@ export const es: Messages = {
       coords: 'Coordenadas',
       markers: 'Marcadores de notas',
       tokens: 'Tokens',
+      regions: 'Regiones',
     },
   },
   labels: {
@@ -236,6 +239,21 @@ export const es: Messages = {
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',
     newName: 'Terreno nuevo',
+  },
+  regions: {
+    help: 'Pinta hexes en la región seleccionada con el pincel; clic derecho los saca y Ctrl+clic coge la región del hex. Las tablas y las reglas de viaje pueden leer la región de un hex.',
+    add: 'Nueva región',
+    newName: 'Región {n}',
+    empty: 'Aún no hay regiones: añade una y píntala.',
+    hexes: '{count} hexes',
+    name: 'Nombre',
+    showName: 'Mostrar el nombre en el mapa',
+    note: 'Nota enlazada',
+    notePlaceholder: 'Lugares/Las Marcas Negras',
+    delete: 'Borrar región',
+    confirmDelete: '¿Borrar «{name}»? Sus {count} hexes quedarán sin región.',
+    pickFirst: 'Añade o elige una región primero.',
+    none: 'Sin región',
   },
   tokens: {
     help: 'Haz clic en un hex vacío para colocar un token como el de abajo (Mayús+clic añade otro a un hex que ya tiene tokens). Haz clic en un token para editarlo y arrástralo a otro hex; clic derecho o Supr lo quita.',

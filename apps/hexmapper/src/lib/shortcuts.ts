@@ -114,6 +114,9 @@ export function bindShortcuts(): () => void {
       case 'k':
         editor.tool = 'token'
         break
+      case 'n':
+        editor.tool = 'region'
+        break
       case 'e':
         editor.tool = 'terrain'
         editor.terrainMode = 'erase'
@@ -133,7 +136,7 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
-    if ('vbgeritpk'.includes(key)) editor.panelView = 'tool'
+    if ('vbgeritpkn'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

@@ -81,6 +81,7 @@ interface HexmapperExt {
   print: HexMap['print']
   layers: HexMap['layers']
   labels: HexMap['labels']
+  regions: HexMap['regions']
   assets: HexMap['assets']
   icons: Record<string, HexIcon>
 }
@@ -97,6 +98,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     if (hex.icon) icons[key] = hex.icon
     const out: OtdHex = {}
     if (hex.terrain) out.terrain = hex.terrain
+    if (hex.region) out.region = hex.region
     if (hex.name) out.name = hex.name
     if (hex.notes) out.notes = hex.notes
     if (hex.note) out.noteRef = hex.note
@@ -123,6 +125,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     print: map.print,
     layers: map.layers,
     labels: map.labels,
+    regions: map.regions,
     assets: map.assets,
     icons,
   }
@@ -276,6 +279,7 @@ export function bundleToMap(raw: unknown): HexMap {
   for (const [key, hex] of Object.entries(otdMap.hexes))
     hexes[key] = {
       terrain: hex.terrain,
+      region: hex.region,
       name: hex.name,
       notes: hex.notes,
       note: hex.noteRef,
@@ -343,6 +347,7 @@ export function bundleToMap(raw: unknown): HexMap {
     paths: otdMap.paths ?? [],
     assets: ext.assets ?? [],
     labels: ext.labels ?? [],
+    regions: ext.regions ?? [],
     ...(version >= 2 && { tokens }),
     layers: ext.layers,
     ...(play && { play }),

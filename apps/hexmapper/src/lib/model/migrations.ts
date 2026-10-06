@@ -43,6 +43,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       ),
     }
   },
+  /** v4: regions. */
+  3(data) {
+    return { ...data, regions: [] }
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

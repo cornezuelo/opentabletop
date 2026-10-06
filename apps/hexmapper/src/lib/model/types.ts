@@ -33,6 +33,8 @@ export interface CustomField {
 /** All fields are optional; empty values are stripped (see `normalizeHex`). */
 export interface HexData {
   terrain?: string
+  /** Id of the region (kingdom, territory…) the hex belongs to. */
+  region?: string
   name?: string
   /** Markdown. */
   notes?: string
@@ -120,6 +122,17 @@ export interface LabelStyle {
   haloWidth: number
 }
 
+/** A named area painted over hexes: kingdom, territory, danger zone… */
+export interface MapRegion {
+  id: string
+  name: string
+  color: string
+  /** Show the name on the map (default on). */
+  showName?: boolean
+  /** External note path (same providers as hexes). */
+  note?: string
+}
+
 export const TOKEN_KINDS = ['party', 'pc', 'npc', 'enemy'] as const
 export type TokenKind = (typeof TOKEN_KINDS)[number]
 
@@ -158,6 +171,7 @@ export interface PlayState {
 export const LAYER_IDS = [
   'terrain',
   'grid',
+  'regions',
   'paths',
   'icons',
   'labels',
@@ -168,7 +182,14 @@ export const LAYER_IDS = [
 ] as const
 export type LayerId = (typeof LAYER_IDS)[number]
 /** Layers that tools edit, and so can be locked. */
-export const LOCKABLE_LAYERS: readonly LayerId[] = ['terrain', 'paths', 'icons', 'labels', 'tokens']
+export const LOCKABLE_LAYERS: readonly LayerId[] = [
+  'terrain',
+  'regions',
+  'paths',
+  'icons',
+  'labels',
+  'tokens',
+]
 
 export interface LayerState {
   visible: boolean
@@ -234,6 +255,7 @@ export interface HexMap {
   assets: MapAsset[]
   labels: MapLabel[]
   tokens: MapToken[]
+  regions: MapRegion[]
   layers: Record<LayerId, LayerState>
   play?: PlayState
   /**

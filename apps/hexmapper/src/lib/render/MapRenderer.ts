@@ -117,6 +117,9 @@ export class MapRenderer {
     this.drawIcons()
     this.drawTokens()
   })
+  /** Regions: tint, inner border along the outline, and the name. */
+  private regionLayer = new Container()
+  private regionShapes = new Graphics()
   /** Terrain glyphs: one tinted sprite per painted hex. */
   private glyphLayer = new Container()
   private glyphSprites = new Map<HexKey, Sprite>()
@@ -159,6 +162,7 @@ export class MapRenderer {
       this.terrainLayer,
       this.glyphLayer,
       this.gridLines,
+      this.regionLayer,
       this.pathsLayer,
       this.iconLayer,
       this.coordLayer,
@@ -169,6 +173,7 @@ export class MapRenderer {
       this.overlay,
     )
     this.partyLayer.addChild(this.partyLines)
+    this.regionLayer.addChild(this.regionShapes)
     app.stage.addChild(this.world, this.cursorMark)
     this.drawCursorMark()
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
@@ -178,7 +183,10 @@ export class MapRenderer {
     this.rebuild()
     this.fit()
     // Web fonts may arrive after the first draw; redraw labels with them.
-    loadLabelFonts().then(() => this.drawLabels())
+    loadLabelFonts().then(() => {
+      this.drawLabels()
+      this.drawRegions()
+    })
   }
 
   destroy(): void {
@@ -344,6 +352,7 @@ export class MapRenderer {
         if (label) this.styleCoord(label, key)
       }
       for (const key of change.keys) this.updateGlyph(key)
+      if (editor.map.regions.length > 0) this.drawRegions()
       this.drawMarkers()
       this.drawIcons()
       if (editor.map.paths.length > 0) this.drawPaths()
@@ -355,6 +364,8 @@ export class MapRenderer {
       this.drawTokens()
     } else if (change.kind === 'play') {
       this.drawParty()
+    } else if (change.kind === 'regions') {
+      this.drawRegions()
     } else if (change.kind === 'style') {
       this.drawGlyphs()
     } else if (change.kind === 'tokens') {
@@ -415,12 +426,83 @@ export class MapRenderer {
     }
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
     this.drawGlyphs()
+    this.drawRegions()
     this.drawPaths()
     this.drawIcons()
     this.drawLabels()
     this.drawParty()
     this.drawTokens()
     this.onViewChanged()
+  }
+
+  private drawRegions(): void {
+    for (const child of this.regionLayer.removeChildren())
+      if (child !== this.regionShapes) child.destroy()
+    this.regionLayer.addChild(this.regionShapes)
+    const g = this.regionShapes.clear()
+    const { grid, hexes, regions } = editor.map
+    if (!regions.length) return
+    const hs = grid.hexSize
+    const members = new Map<string, Offset[]>()
+    for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
+      if (!hex.region) continue
+      const cell = parseKey(key)
+      if (!inBounds(cell, grid)) continue
+      const list = members.get(hex.region) ?? []
+      list.push(cell)
+      members.set(hex.region, list)
+    }
+    for (const region of regions) {
+      const cells = members.get(region.id)
+      if (!cells?.length) continue
+      for (const cell of cells) g.poly(this.cornersAt(cell))
+      g.fill({ color: region.color, alpha: 0.14 })
+      // Border on the inner side of the outline, so neighboring regions don't overlap.
+      for (const cell of cells) {
+        const c = this.centerOf(cell)
+        const corners = this.cornersAt(cell)
+        for (let i = 0; i < 6; i++) {
+          const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
+          const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
+          const across = {
+            x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
+            y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
+          }
+          const { orientation } = grid
+          const neighbor = toOffset(pixelToHex(across, orientation, hs), orientation)
+          const inside = inBounds(neighbor, grid) && hexes[keyOf(neighbor)]?.region === region.id
+          if (inside) continue
+          const inset = (p: Point) => ({ x: c.x + (p.x - c.x) * 0.9, y: c.y + (p.y - c.y) * 0.9 })
+          const [p, q] = [inset(a), inset(b)]
+          g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+        }
+      }
+      g.stroke({ width: hs * 0.09, color: region.color, alpha: 0.85, cap: 'round' })
+      if (region.showName === false || !region.name) continue
+      const center = cells
+        .map((cell) => this.centerOf(cell))
+        .reduce((sum, p) => ({ x: sum.x + p.x / cells.length, y: sum.y + p.y / cells.length }), {
+          x: 0,
+          y: 0,
+        })
+      const fontSize = hs * Math.min(1.1, 0.4 + Math.sqrt(cells.length) * 0.08)
+      const text = new Text({
+        text: region.name.toUpperCase(),
+        style: {
+          fontFamily: FONT_FAMILIES.fell.family,
+          fontSize,
+          fontStyle: 'italic',
+          letterSpacing: fontSize * 0.12,
+          fill: region.color,
+          align: 'center',
+          stroke: { color: 0xf4eedd, width: fontSize * 0.16, join: 'round' as const },
+        },
+      })
+      text.anchor.set(0.5)
+      text.alpha = 0.9
+      text.position.set(center.x, center.y)
+      this.regionLayer.addChild(text)
+    }
   }
 
   private drawGlyphs(): void {
@@ -739,6 +821,7 @@ export class MapRenderer {
     const { layers, grid } = editor.map
     this.terrainLayer.visible = layers.terrain.visible
     this.glyphLayer.visible = layers.terrain.visible
+    this.regionLayer.visible = layers.regions.visible
     this.gridLines.visible = layers.grid.visible
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible

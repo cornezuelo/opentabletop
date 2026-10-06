@@ -11,6 +11,7 @@ export type MapChange =
   | { kind: 'labels' }
   | { kind: 'play' }
   | { kind: 'tokens' }
+  | { kind: 'regions' }
   /** Look-only settings (glyph opacity): redraw without rebuilding the grid. */
   | { kind: 'style' }
   | { kind: 'meta' }

@@ -12,6 +12,7 @@ export const en = {
     text: 'Text (T)',
     play: 'Play (P)',
     token: 'Tokens (K)',
+    region: 'Regions (N)',
   },
   terrainMode: {
     brush: 'Brush (B)',
@@ -54,6 +55,7 @@ export const en = {
     closeSettings: 'Close settings',
     preferences: 'Preferences',
     tokens: 'Tokens',
+    regions: 'Regions',
   },
   map: {
     id: 'ID (file name)',
@@ -165,6 +167,7 @@ export const en = {
       coords: 'Coordinates',
       markers: 'Note markers',
       tokens: 'Tokens',
+      regions: 'Regions',
     },
   },
   labels: {
@@ -234,6 +237,21 @@ export const en = {
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',
     newName: 'New terrain',
+  },
+  regions: {
+    help: 'Paint hexes into the selected region with the brush; right-click takes them out, Ctrl+click picks the region under the cursor. Tables and travel rules can read a hex’s region.',
+    add: 'New region',
+    newName: 'Region {n}',
+    empty: 'No regions yet: add one, then paint it.',
+    hexes: '{count} hexes',
+    name: 'Name',
+    showName: 'Show the name on the map',
+    note: 'Linked note',
+    notePlaceholder: 'Places/The Black Marches',
+    delete: 'Delete region',
+    confirmDelete: 'Delete "{name}"? Its {count} hexes will belong to no region.',
+    pickFirst: 'Add or pick a region first.',
+    none: 'No region',
   },
   tokens: {
     help: 'Click an empty hex to place a token like the one below (Shift+click adds one to a hex that already has tokens). Click a token to edit it and drag it to another hex; right-click or Delete removes it.',

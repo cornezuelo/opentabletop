@@ -33,7 +33,9 @@ export function mapWorld(map: HexMap): TravelWorld {
         const n = Number(field.value)
         stats[field.key] = field.value !== '' && Number.isFinite(n) ? n : field.value
       }
-      return { ...stats, terrain: data?.terrain, tags: data?.tags ?? [] }
+      // Regions by name: what tables and travel rules would write in a condition.
+      const region = data?.region ? map.regions.find((r) => r.id === data.region)?.name : undefined
+      return { ...stats, terrain: data?.terrain, tags: data?.tags ?? [], ...(region && { region }) }
     },
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),
     distance: (a, b) =>
