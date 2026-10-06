@@ -31,6 +31,9 @@ export const DEFAULT_GRID: GridSettings = {
   showCoords: true,
 }
 
+/** A common hexcrawl scale (6 miles ≈ 10 km). Kal-Arath uses 30 km. */
+export const DEFAULT_HEX_KM = 10
+
 export const DEFAULT_PRINT: PrintSettings = {
   hexMm: 25,
   paper: null,
@@ -65,6 +68,7 @@ export function createMap(name = ''): HexMap {
     version: CURRENT_VERSION,
     meta: { id: newId(), name, created: now, modified: now },
     grid: { ...DEFAULT_GRID },
+    scale: { hexKm: DEFAULT_HEX_KM },
     print: structuredClone(DEFAULT_PRINT),
     terrains: DEFAULT_TERRAINS.map((t) => ({ ...t })),
     hexes: {},

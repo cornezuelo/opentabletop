@@ -50,6 +50,7 @@ class Editor {
   revision = $state(0)
   grid = $state<GridSettings>({ ...this.map.grid })
   print = $state<PrintSettings>(structuredClone(this.map.print))
+  scale = $state<HexMap['scale']>({ ...this.map.scale })
   meta = $state<MapMeta>({ ...this.map.meta })
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
@@ -221,6 +222,7 @@ class Editor {
     if (change.kind === 'grid' || change.kind === 'all') {
       this.grid = { ...this.map.grid }
       this.print = structuredClone(this.map.print)
+      this.scale = { ...this.map.scale }
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
     if (change.kind === 'layers' || change.kind === 'all')

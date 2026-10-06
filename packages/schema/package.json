@@ -1,0 +1,17 @@
+{
+  "name": "@open-tabletop/schema",
+  "version": "0.0.0",
+  "description": "OpenTabletop Data (OTD): the common file format, as Zod schemas, TS types and JSON Schema.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

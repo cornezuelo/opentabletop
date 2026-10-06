@@ -35,8 +35,13 @@ export function resolveSettingsPatch(map: HexMap, patch: SettingsPatch): Setting
 
   const changedGrid = pickChanged(map.grid, grid)
   const changedPrint = pickChanged(map.print, print)
-  if (!changedGrid && !changedPrint) return null
-  return { ...(changedGrid && { grid: changedGrid }), ...(changedPrint && { print: changedPrint }) }
+  const changedScale = pickChanged(map.scale, patch.scale ?? {})
+  if (!changedGrid && !changedPrint && !changedScale) return null
+  return {
+    ...(changedGrid && { grid: changedGrid }),
+    ...(changedPrint && { print: changedPrint }),
+    ...(changedScale && { scale: changedScale }),
+  }
 }
 
 function pickChanged<T extends object>(current: T, patch: Partial<T>): Partial<T> | null {

@@ -13,9 +13,17 @@ import { view } from './store/view'
 /** Global keyboard shortcuts. Returns a cleanup function. */
 export function bindShortcuts(): () => void {
   const handler = (e: KeyboardEvent) => {
-    if (isTyping(e)) return
     const ctrl = e.ctrlKey || e.metaKey
     const key = e.key.toLowerCase()
+    // Save/open work even while typing: commit the field first (its change fires on blur).
+    if (ctrl && !e.shiftKey && (key === 's' || key === 'o')) {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+      if (key === 's') saveMap()
+      else openMapFile()
+      e.preventDefault()
+      return
+    }
+    if (isTyping(e)) return
 
     if (ctrl) {
       if (key === 'z' && e.shiftKey) editor.redo()

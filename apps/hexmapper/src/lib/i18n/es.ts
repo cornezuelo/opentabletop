@@ -54,6 +54,7 @@ export const es: Messages = {
     name: 'Nombre',
     untitled: 'Sin título',
     orientation: 'Orientación',
+    hexKm: 'Escala del mundo (km por hex)',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',
@@ -196,7 +197,8 @@ export const es: Messages = {
     linkCopied: 'Enlace al mapa copiado',
     copyHexLink: 'Copiar enlace a este hex',
     hexLinkCopied: 'Enlace al hex copiado',
-    notFound: 'El mapa {id} no está en este navegador. Importa {id}.hexmap.json para abrirlo.',
+    notFound:
+      'El mapa {id} no está en este navegador. Importa {id}.otd.json (o el antiguo {id}.hexmap.json) para abrirlo.',
     hexNotFound: 'El hex {hex} no está en este mapa.',
   },
   newMap: {

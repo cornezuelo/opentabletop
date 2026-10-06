@@ -42,6 +42,21 @@
 </div>
 
 <label class="field">
+  <span>{t('map.hexKm')}</span>
+  <input
+    type="number"
+    min="0.1"
+    step="any"
+    value={editor.scale.hexKm}
+    onchange={(e) => {
+      const value = Number(e.currentTarget.value)
+      if (Number.isFinite(value) && value > 0) applySettings({ scale: { hexKm: value } })
+      else e.currentTarget.value = String(editor.scale.hexKm)
+    }}
+  />
+</label>
+
+<label class="field">
   <span>{t('map.orientation')}</span>
   <select
     value={editor.grid.orientation}

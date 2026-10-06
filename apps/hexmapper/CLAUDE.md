@@ -39,7 +39,7 @@ Principles:
 
 ## Current data model
 
-See `src/lib/model/types.ts`. It will migrate to the OTD entities (`docs/otd.md`): `HexMap` → `Map`, `HexData` → `Hex`, POIs become `POI` entities with a `location`, `fields` → `stats`, `note` → `noteRef`, rendering and printing → `ext.hexmapper`; files become `.otd.json`.
+See `src/lib/model/types.ts`. The editor keeps its own model (fast to edit, used by the local library) and **files are OTD bundles** (`src/lib/io/otd.ts`): `HexMap` → `Map`, `HexData` → `Hex`, POIs → `POI` entities with a `location`, `fields` → `stats`, `note` → `noteRef`; rendering, printing, icons, labels and assets → `ext.hexmapper`. Data the editor doesn't understand (other tools' `ext` namespaces, parties, log, other maps) is kept in `map.foreign` and written back untouched. Legacy `.hexmap.json` files still open.
 
 **Hexes are keyed by offset coordinates (`col,row`), not axial.** Offset "odd-q" for flat-top, "odd-r" for pointy-top. Switching orientation keeps every cell's content and CCRR label. Math is done in axial (`@open-tabletop/hex`). Shrinking the map keeps data of cells left outside, so undo loses nothing.
 
@@ -48,7 +48,7 @@ See `src/lib/model/types.ts`. It will migrate to the OTD entities (`docs/otd.md`
 **Two different scales, not to be confused:**
 
 - **Print:** `print.hexMm`, the physical hex size on paper (flat-to-flat, like mini bases).
-- **World:** km per hex, for travel (Kal-Arath uses 30 km). Not yet in the model (`Map.scale.hexKm`).
+- **World:** `scale.hexKm`, km per hex, for travel (default 10; Kal-Arath uses 30). Set in Settings → Map.
 
 ## Features
 
@@ -85,14 +85,14 @@ Done:
 
 ### Pending
 
-- [ ] World scale (`hexKm`) and the hex fields travel uses (biome, elevation, danger, region). Comes with the OTD migration.
+- [ ] UI for the optional hex fields travel may use (elevation, danger, region); custom fields cover them for now.
 - [ ] Highlight/filter hexes by tag.
 - [ ] Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [ ] Translate icon names (currently English, as they come from game-icons).
 
 ### Play (with the engines)
 
-- [ ] Migration to OTD (`.otd.json`, importing `.hexmap.json`).
+- [x] Files in OTD (`.otd.json`, importing `.hexmap.json`), world scale.
 - [ ] Travel/Play mode: party token (custom image), route on the map and Travel Engine panel.
 - [ ] Embedded Oracle panel with history.
 

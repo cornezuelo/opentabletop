@@ -181,6 +181,8 @@ export interface HexMap {
   version: number
   meta: MapMeta
   grid: GridSettings
+  /** World scale for travel: kilometres per hex (not to be confused with print.hexMm). */
+  scale: { hexKm: number }
   print: PrintSettings
   terrains: TerrainType[]
   /** Keyed by offset coordinates "col,row". */
@@ -189,4 +191,9 @@ export interface HexMap {
   assets: MapAsset[]
   labels: MapLabel[]
   layers: Record<LayerId, LayerState>
+  /**
+   * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
+   * kept verbatim so saving never loses it.
+   */
+  foreign?: { bundle?: Record<string, unknown>; mapExt?: Record<string, unknown> }
 }

@@ -28,7 +28,7 @@ packages/                   # libraries, scope @open-tabletop/*
   dice/                     # ✅ dice expressions with breakdown (NdM±K, d66, dF, keep, advantage…)
   conditions/               # ✅ safe condition evaluator (no eval), shared by oracle and travel
   time/                     # ✅ GameTime (absolute minutes), calendars, seasons, watches
-  schema/                   # ⏳ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
+  schema/                   # ✅ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
   oracle-engine/            # ✅ MVP: tables, oracles, generators, decks; packs; locales; history
   travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
@@ -70,7 +70,7 @@ Details in [`docs/otd.md`](docs/otd.md). In short:
 - **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.hexmapper` (rendering, printing) or `ext.kal-arath`.
 - **References** are `type:id` strings, never nested objects.
 - **Runtime events** (`HEX_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
-- **File extension:** `.otd.json`, adopted when the hexmapper migrates to OTD (until then it saves `.hexmap.json`, which stays importable).
+- **File extension:** `.otd.json` (the hexmapper saves OTD bundles; legacy `.hexmap.json` files still open).
 
 ## Packs, sources and licensing
 
@@ -123,7 +123,7 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 3. [x] `random`, `dice`, `conditions`.
 4. [x] `oracle-engine` MVP and the private Kal-Arath pack (es): tables, settlements, dungeons, travel rules, bindings.
 5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
-6. [ ] Consolidated OTD `schema` and hexmapper migration to OTD (`.otd.json`).
+6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
 7. [ ] `session` (travel ↔ oracle integration, journal) and embeddable UIs in the hexmapper (Travel/Play mode).
 8. [ ] Standalone `oracle` and `travel` apps.
 9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.

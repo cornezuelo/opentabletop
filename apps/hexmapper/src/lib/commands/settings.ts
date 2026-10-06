@@ -4,6 +4,7 @@ import type { Command, MapChange } from './command'
 export interface SettingsPatch {
   grid?: Partial<GridSettings>
   print?: Partial<PrintSettings>
+  scale?: Partial<HexMap['scale']>
 }
 
 /**
@@ -11,7 +12,7 @@ export interface SettingsPatch {
  * grid). Hex data outside the new bounds is kept, so undoing a shrink loses nothing.
  */
 export class SetSettingsCommand implements Command {
-  private before: Required<SettingsPatch> = { grid: {}, print: {} }
+  private before: Required<SettingsPatch> = { grid: {}, print: {}, scale: {} }
 
   constructor(private patch: SettingsPatch) {}
 
@@ -19,15 +20,18 @@ export class SetSettingsCommand implements Command {
     this.before = {
       grid: pick(map.grid, this.patch.grid),
       print: pick(map.print, this.patch.print),
+      scale: pick(map.scale, this.patch.scale),
     }
     Object.assign(map.grid, this.patch.grid)
     Object.assign(map.print, structuredClone(this.patch.print))
+    Object.assign(map.scale, this.patch.scale)
     return { kind: 'grid' }
   }
 
   revert(map: HexMap): MapChange {
     Object.assign(map.grid, this.before.grid)
     Object.assign(map.print, this.before.print)
+    Object.assign(map.scale, this.before.scale)
     return { kind: 'grid' }
   }
 }

@@ -1,5 +1,6 @@
 import { PAPERS, type PaperId } from '../print/paper'
 import {
+  DEFAULT_HEX_KM,
   DEFAULT_GRID,
   DEFAULT_LABEL_STYLE,
   DEFAULT_PRINT,
@@ -27,6 +28,7 @@ import type {
   TerrainType,
 } from './types'
 
+/** Extension of the pre-OTD format, still importable. */
 export const FILE_EXTENSION = '.hexmap.json'
 
 export function serializeMap(map: HexMap): string {
@@ -84,6 +86,9 @@ function validate(data: Record<string, unknown>): HexMap {
       coordFormat: grid.coordFormat === 'axial' ? 'axial' : 'CCRR',
       showCoords: typeof grid.showCoords === 'boolean' ? grid.showCoords : true,
     },
+    scale: {
+      hexKm: positiveNumber(isRecord(data.scale) ? data.scale.hexKm : undefined, DEFAULT_HEX_KM),
+    },
     print: parsePrint(data.print),
     terrains: validTerrains,
     hexes: validHexes,
@@ -91,6 +96,7 @@ function validate(data: Record<string, unknown>): HexMap {
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
     layers: parseLayers(data.layers),
+    ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }
 

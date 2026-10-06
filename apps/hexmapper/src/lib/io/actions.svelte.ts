@@ -9,6 +9,7 @@ import { showToast } from '../store/toasts.svelte'
 import { deleteLibraryMap, getLibraryMap, listLibrary, putLibraryMap } from './autosave'
 import { parseDeepLink } from './deepLink'
 import { downloadMap, pickMapFile } from './file'
+import { mapToBundle, parseMapFile } from './otd'
 
 const CURRENT_KEY = 'hexmapper.currentMap'
 const PENDING_KEY = 'hexmapper.pending'
@@ -57,8 +58,9 @@ export async function newMap(): Promise<void> {
   await switchTo(createMap())
 }
 
+/** Saves an OTD bundle (`<id>.otd.json`) that other OpenTabletop tools can read. */
 export function saveMap(): void {
-  downloadMap(serializeMap(editor.map), editor.map.meta.id)
+  downloadMap(JSON.stringify(mapToBundle(editor.map)), editor.map.meta.id)
 }
 
 /** Imports a `.hexmap.json` file into the library and opens it. */
@@ -66,7 +68,7 @@ export async function openMapFile(): Promise<void> {
   const json = await pickMapFile()
   if (json === null) return
   try {
-    await switchTo(deserializeMap(json))
+    await switchTo(parseMapFile(json))
     showToast(t('file.loaded'))
   } catch (error) {
     showToast(errorMessage(error), 'error')
