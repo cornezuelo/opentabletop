@@ -32,7 +32,12 @@ export interface LoadedPack {
   definitions: { definition: Definition; file: string; index: number }[]
   /** Translation overlays by locale. */
   overlays: Record<string, { overlay: Overlay; file: string }[]>
+  /** Definitions for other engines (e.g. kind: travel-rules, bindings), passed through untouched. */
+  extras: { kind: string; id?: string; data: Record<string, unknown>; file: string }[]
 }
+
+/** Kinds this engine owns; anything else is kept as an extra for other engines. */
+const ORACLE_KINDS = new Set(['table', 'oracle', 'generator', 'deck'])
 
 export interface LoadResult {
   packs: LoadedPack[]
@@ -68,7 +73,13 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       })
       continue
     }
-    const pack: LoadedPack = { manifest: parsed.data, root, definitions: [], overlays: {} }
+    const pack: LoadedPack = {
+      manifest: parsed.data,
+      root,
+      definitions: [],
+      overlays: {},
+      extras: [],
+    }
     packs.push(pack)
     byRoot.set(root, pack)
   }
@@ -101,6 +112,11 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
     docs
       .flatMap((doc) => (Array.isArray(doc) ? doc : [doc]))
       .forEach((doc, index) => {
+        if (isRecord(doc) && typeof doc.kind === 'string' && !ORACLE_KINDS.has(doc.kind)) {
+          const id = typeof doc.id === 'string' ? doc.id : undefined
+          pack.extras.push({ kind: doc.kind, id, data: doc, file: file.path })
+          return
+        }
         const parsed = definitionSchema.safeParse(doc)
         if (parsed.success)
           pack.definitions.push({ definition: parsed.data, file: file.path, index })

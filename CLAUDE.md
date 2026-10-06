@@ -27,10 +27,10 @@ packages/                   # libraries, scope @open-tabletop/*
   random/                   # ✅ RandomSource, seeded PRNG
   dice/                     # ✅ dice expressions with breakdown (NdM±K, d66, dF, keep, advantage…)
   conditions/               # ✅ safe condition evaluator (no eval), shared by oracle and travel
-  time/                     # ⏳ GameTime (absolute minutes), calendars, seasons, watches
+  time/                     # ✅ GameTime (absolute minutes), calendars, seasons, watches
   schema/                   # ⏳ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
   oracle-engine/            # ✅ MVP: tables, oracles, generators, decks; packs; locales; history
-  travel-engine/            # ⏳ travel: clock, A* routes, movement, resources, fatigue, navigation
+  travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
   session/                  # ⏳ integration layer: orchestrates engines, journal, persistence ports
   ui-kit/                   # ⏳ shared Svelte: theme, i18n, base components
@@ -121,8 +121,8 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 1. [x] Monorepo, `hex` and `note-refs` packages.
 2. [x] Design review of `docs/otd.md`, `docs/oracle-engine.md` and `docs/travel-engine.md` (open decisions resolved: short optional hex notes, `.otd.json`, one base locale per pack with fallback translations).
 3. [x] `random`, `dice`, `conditions`.
-4. [ ] `oracle-engine` MVP (✅ engine done) and the private Kal-Arath pack (es) (pending).
-5. [ ] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
+4. [x] `oracle-engine` MVP and the private Kal-Arath pack (es): tables, settlements, dungeons, travel rules, bindings.
+5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
 6. [ ] Consolidated OTD `schema` and hexmapper migration to OTD (`.otd.json`).
 7. [ ] `session` (travel ↔ oracle integration, journal) and embeddable UIs in the hexmapper (Travel/Play mode).
 8. [ ] Standalone `oracle` and `travel` apps.

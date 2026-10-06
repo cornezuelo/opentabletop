@@ -4,6 +4,7 @@ import {
   createOracleEngine,
   emptyState,
   formatDiagnostic,
+  loadPackFiles,
   loadPacks,
   OracleError,
   type PackFile,
@@ -243,6 +244,18 @@ cards: []
     has('Ranges need a roll on the table')
     has('a deck needs at least one card')
     has('Invalid YAML')
+  })
+
+  it('keeps definitions for other engines as extras instead of failing', () => {
+    const { packs, diagnostics } = loadPackFiles([
+      ...core,
+      {
+        path: 'core/travel.yaml',
+        content: 'kind: travel-rules\nid: default\nday: { start: "06:00" }\n',
+      },
+    ])
+    expect(diagnostics).toEqual([])
+    expect(packs[0].extras).toMatchObject([{ kind: 'travel-rules', id: 'default' }])
   })
 
   it('warns about translations that point nowhere', () => {

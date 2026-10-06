@@ -1,0 +1,20 @@
+{
+  "name": "@open-tabletop/travel-engine",
+  "version": "0.0.0",
+  "description": "Hexcrawl travel: routes, movement, time, resources, fatigue and event-driven checks. Rules as data, no UI.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/conditions": "*",
+    "@open-tabletop/hex": "*",
+    "@open-tabletop/time": "*",
+    "zod": "^4.6.5"
+  }
+}
