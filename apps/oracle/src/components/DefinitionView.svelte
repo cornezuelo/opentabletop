@@ -5,7 +5,7 @@
   import { RollPanel } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle'
   import { workspace } from '../lib/packs/workspace.svelte'
-  import { locate } from '../lib/packs/yaml'
+  import { locate } from '@open-tabletop/pack-ui/yaml'
   import FileEditor from './FileEditor.svelte'
   import KindBadge from './KindBadge.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'

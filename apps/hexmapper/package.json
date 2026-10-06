@@ -34,6 +34,7 @@
     "@open-tabletop/time": "*",
     "@open-tabletop/random": "*",
     "@open-tabletop/ui-kit": "*",
-    "@open-tabletop/oracle-ui": "*"
+    "@open-tabletop/oracle-ui": "*",
+    "@open-tabletop/pack-ui": "*"
   }
 }

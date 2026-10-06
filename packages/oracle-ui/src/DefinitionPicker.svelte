@@ -1,6 +1,6 @@
 <script lang="ts">
   import { KIND_ORDER } from './names'
-  import { manifestOf } from './packs'
+  import { manifestOf } from '@open-tabletop/pack-ui'
   import type { OracleUi } from './ui'
 
   let {

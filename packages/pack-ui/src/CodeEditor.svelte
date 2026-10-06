@@ -1,3 +1,11 @@
+<script module lang="ts">
+  export interface Problem {
+    line: number
+    message: string
+    severity: 'error' | 'warning'
+  }
+</script>
+
 <script lang="ts">
   import { indentWithTab } from '@codemirror/commands'
   import { yaml } from '@codemirror/lang-yaml'
@@ -8,12 +16,6 @@
   import { tags } from '@lezer/highlight'
   import { basicSetup } from 'codemirror'
   import { onDestroy, onMount } from 'svelte'
-
-  export interface Problem {
-    line: number
-    message: string
-    severity: 'error' | 'warning'
-  }
 
   let {
     value,

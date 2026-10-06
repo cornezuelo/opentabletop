@@ -2,8 +2,8 @@
   import { t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
-  import { locate } from '../lib/packs/yaml'
-  import CodeEditor from './CodeEditor.svelte'
+  import { locate } from '@open-tabletop/pack-ui/yaml'
+  import { CodeEditor } from '@open-tabletop/pack-ui'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
 
   let { root, path, line }: { root: string; path: string; line?: number } = $props()

@@ -14,7 +14,7 @@
     removeIn,
     setIn,
     setOverlayText,
-  } from '../lib/packs/yaml'
+  } from '@open-tabletop/pack-ui/yaml'
 
   let { def, root }: { def: CompiledTable; root: string } = $props()
 

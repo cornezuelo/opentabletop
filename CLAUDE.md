@@ -34,7 +34,8 @@ packages/                   # libraries, scope @open-tabletop/*
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
   session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal
   ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts
-  oracle-ui/                # ✅ embeddable Oracle: pack library (bundled + user packs), roll panel, history
+  pack-ui/                  # ✅ pack library (bundled + user packs), editing, YAML helpers, YAML editor
+  oracle-ui/                # ✅ embeddable Oracle: roll panel, result card, history, picker
   travel-ui/                # ⏳ embeddable Svelte components for the Travel Engine
 apps/
   hexmapper/                # ✅ map editor (see apps/hexmapper/CLAUDE.md)

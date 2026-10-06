@@ -6,7 +6,7 @@ import {
 } from '@open-tabletop/oracle-engine'
 import { showToast } from '@open-tabletop/ui-kit'
 import type { Translate } from './i18n'
-import type { PackLibrary } from './library.svelte'
+import type { PackLibrary } from '@open-tabletop/pack-ui'
 
 export interface HistoryItem {
   id: number

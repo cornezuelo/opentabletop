@@ -1,6 +1,6 @@
 import type { Compiled } from '@open-tabletop/oracle-engine'
 import { translator, type Translate } from './i18n'
-import type { PackLibrary } from './library.svelte'
+import type { PackLibrary } from '@open-tabletop/pack-ui'
 import { packTexts, type PackTexts } from './names'
 import { Roller, type HistoryItem } from './roller.svelte'
 

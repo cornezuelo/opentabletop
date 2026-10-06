@@ -1,4 +1,4 @@
-import { groupBundled, PackLibrary } from '@open-tabletop/oracle-ui'
+import { groupBundled, PackLibrary } from '@open-tabletop/pack-ui'
 
 /**
  * Packs bundled at build time: open ones from packs/ and, locally, personal-use ones

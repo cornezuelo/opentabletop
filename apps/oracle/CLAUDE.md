@@ -9,7 +9,7 @@ Standalone app of the Oracle Engine: **browse and roll** every table, oracle, ge
 ```
 src/
   lib/
-    packs/      # workspace (bundled + user packs, overrides), YAML edits, zip import/export, templates
+    packs/      # bundled packs, the app's PackLibrary, new-pack helpers, zip import/export, templates
     i18n/       # typed en/es dictionaries on top of ui-kit's createI18n
     oracle.ts   # the app's OracleUi (roller, history, pack texts) from @open-tabletop/oracle-ui
     nav.svelte.ts  # view state mirrored in the URL hash (#/def/<pack>/<id>[/edit], #/pack/<folder>, #/file/<folder>/<path>)
@@ -17,11 +17,11 @@ src/
                 # FileEditor (CodeMirror), NewPackDialog
 ```
 
-The roll panel, result card, history, roller, pack library and context variables detection live in `@open-tabletop/oracle-ui`, shared with the hexmapper. The app's `Workspace` extends its `PackLibrary` with the editing operations.
+Shared packages: `@open-tabletop/pack-ui` (pack library with the editing operations, YAML Document helpers, CodeMirror YAML editor) and `@open-tabletop/oracle-ui` (roll panel, result card, history, roller, context variables detection). `lib/packs/workspace.svelte.ts` is the app's `PackLibrary`.
 
 Principles:
 
-- **Files are the source of truth.** Forms edit YAML through the `yaml` Document API (`lib/packs/yaml.ts`), so comments, key order and formatting of the rest of the file survive. Anything a form can't edit (conditions, `set`, generators…) is edited in the YAML editor.
+- **Files are the source of truth.** Forms edit YAML through the `yaml` Document API (`pack-ui`'s `yaml.ts`), so comments, key order and formatting of the rest of the file survive. Anything a form can't edit (conditions, `set`, generators…) is edited in the YAML editor.
 - **Live validation:** every change recompiles the packs; engine diagnostics are mapped to lines (`locate`) and shown in the editor gutter and in the pack's problem list.
 - **Bundled packs are read-only.** "Edit a copy" copies the pack into the user's packs with the same folder, which overrides the bundled one (references from other packs keep working); "Revert to bundled" deletes the copy. Copies of personal-use packs stay personal use.
 - **User packs live in the browser** (`localStorage`, key `opentabletop.userPacks`, shared by OpenTabletop apps served from the same origin). Export a pack as `.zip` (its folder at the top, ready for `packs/`) to back it up or share it.

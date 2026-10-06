@@ -13,7 +13,7 @@
     overlayLocales,
     overlayPath,
   } from '../lib/packs/workspace'
-  import { appendDefinition, locate } from '../lib/packs/yaml'
+  import { appendDefinition, locate } from '@open-tabletop/pack-ui/yaml'
   import { download, packToZip } from '../lib/packs/zip'
   import { TEMPLATES } from '../lib/packs/templates'
   import KindBadge from './KindBadge.svelte'

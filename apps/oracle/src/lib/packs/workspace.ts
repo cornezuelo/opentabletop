@@ -1,4 +1,4 @@
-import { MANIFEST_FILE, type PackSource } from '@open-tabletop/oracle-ui/packs'
+import { MANIFEST_FILE, type PackSource } from '@open-tabletop/pack-ui/packs'
 
 export {
   effectivePacks,
@@ -9,7 +9,7 @@ export {
   type PackFile,
   type PackSource,
   type WorkspacePack,
-} from '@open-tabletop/oracle-ui/packs'
+} from '@open-tabletop/pack-ui/packs'
 
 const ID = /^[a-z0-9][a-z0-9-]*$/
 
