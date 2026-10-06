@@ -141,6 +141,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 
 - **Values on map elements:** custom fields (key/value, like hex fields) on tokens, icons, regions, POIs and wherever it makes sense, readable by tables and travel checks; documented in the manual and used by the Grey Marches.
 - **Realistic discovery:** an empty hex is decided from all its known neighbours, not just the one it's seen from, so lakes, forests and ranges grow together instead of land / water / plains in a row. Shares groundwork with weather inertia (phase B).
+- **Region styles:** today a fixed light tint (alpha 0.14) and an inner border (alpha 0.85); make the fill optional with its opacity, and style the border (width, solid or dashed), map-wide in Settings with an optional own style per region, like map texts.
 - **Loose ends:** conditions and `set` in the Oracle table form, undo across form edits; several saved trips and journal export in the Travel app; POI icons, highlight/filter hexes by tag; responsive layouts for narrow windows.
 - **Suggestions while typing:** autocomplete for context keys, table ids, tags, terrains… wherever a value comes from a known list (forms, roll panel, YAML editor).
 - **Installable, offline apps (PWA)** and the **command line** (`oracle roll …`, `oracle validate …`).

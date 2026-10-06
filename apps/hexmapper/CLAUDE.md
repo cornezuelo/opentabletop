@@ -106,6 +106,7 @@ Done:
 - [x] **Captions:** the name under tokens (per token, party included) and every hex's name under it. Icons have no caption: the hex name already says what's there.
 - [x] **Map texts** (Settings): hex, region and token names shown or hidden and styled per kind (font, size, color or automatic, italic, halo). Map format v5 (replaces the Hex names layer). Each hex, region and token can also hide its name or use its own style (its panel → Style).
 - [x] **Wider palette from Hexermap (2026-10-07):** heath, savanna, dense forest, marsh, peaks, canyon, oasis, glacier, coast and deep sea, with glyphs and travel speeds (generic rules and Core); the palette is grouped (lowlands, forests, wetlands, highlands, arid, cold, water and coast, other) by a display-only table, so the map format is unchanged; Edit palette adds the defaults an older map lacks.
+- [ ] **Region styles:** optional fill with its opacity (now a fixed 0.14 tint), border width and solid/dashed; map-wide in Settings, own style per region (like map texts).
 - [ ] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
 
 ### Side panel (agreed 2026-10-07)
