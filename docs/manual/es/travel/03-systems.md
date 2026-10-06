@@ -21,6 +21,8 @@ Las tablas que nombren sus bindings van en el mismo pack: añádelas en la aplic
 
 Los sistemas incluidos son de solo lectura. En sus pestañas **Reglas**, **Comprobaciones** o **YAML**, **Editar una copia** hace una copia de todo el pack que puedes cambiar; sustituye al incluido en este navegador. Las copias de packs de uso personal siguen siendo de uso personal.
 
+**↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus sistemas, mientras la página está abierta.
+
 ## Probarlo
 
 La pestaña **Jugar** es la forma más rápida de comprobar un sistema: monta un camino corto con los terrenos, caminos y etiquetas que importan a tus reglas, y mira el diario. Por ejemplo, para probar una comprobación con `when: { tags: landmark }`, pon la etiqueta `landmark` al último hex y viaja.

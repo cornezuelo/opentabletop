@@ -24,6 +24,10 @@ import {
  * Changes made in another tab show up live. Bundled packs are read-only; editing one
  * starts from a user copy that overrides it.
  */
+/** Changes to one file closer than this make one undo step. */
+const GROUP_MS = 1000
+const MAX_UNDO = 100
+
 export class PackLibrary {
   /** Never changes after construction. */
   private bundled: PackSource[] = []
@@ -41,6 +45,14 @@ export class PackLibrary {
   engine: OracleEngine = $derived(
     createOracleEngine({ registry: this.registry, random: mathRandom() }),
   )
+  /** Earlier and undone states of the user packs, for undo/redo of edits made here. */
+  private past = $state.raw<PackSource[][]>([])
+  private future = $state.raw<PackSource[][]>([])
+  /** The last change, so quick changes to one file (typing) make one undo step. */
+  private last: { key: string; at: number } | null = null
+  private batching = false
+  canUndo = $derived(this.past.length > 0)
+  canRedo = $derived(this.future.length > 0)
 
   constructor(
     bundled: PackSource[],
@@ -56,7 +68,11 @@ export class PackLibrary {
     this.user = readUserPacks()
     if (typeof window !== 'undefined')
       window.addEventListener('storage', (e) => {
-        if (e.key === USER_PACKS_KEY) this.user = readUserPacks()
+        if (e.key !== USER_PACKS_KEY) return
+        this.user = readUserPacks()
+        // Another tab changed the packs: earlier states here no longer apply.
+        this.past = []
+        this.future = []
       })
   }
 
@@ -84,16 +100,64 @@ export class PackLibrary {
     return this.pack(root)?.origin === 'user'
   }
 
-  /** Replaces the user packs; returns false if they couldn't be saved (storage full). */
-  setUserPacks(user: PackSource[]): boolean {
+  /**
+   * Replaces the user packs; returns false if they couldn't be saved (storage full).
+   * The change can be undone; `group` joins it to the previous change with the same
+   * group made less than a second before (e.g. typing in one file).
+   */
+  setUserPacks(user: PackSource[], group?: string): boolean {
+    if (this.batching) return this.store(user)
+    const now = Date.now()
+    const joined = group !== undefined && this.last?.key === group && now - this.last.at < GROUP_MS
+    if (!joined) this.past = [...this.past, this.user].slice(-MAX_UNDO)
+    this.future = []
+    this.last = { key: group ?? '', at: now }
+    return this.store(user)
+  }
+
+  /** Runs several changes (e.g. a definition and its translations) as one undo step. */
+  batch(changes: () => void): void {
+    this.past = [...this.past, this.user].slice(-MAX_UNDO)
+    this.future = []
+    this.last = null
+    this.batching = true
+    try {
+      changes()
+    } finally {
+      this.batching = false
+    }
+  }
+
+  undo(): void {
+    const previous = this.past.at(-1)
+    if (!previous) return
+    this.past = this.past.slice(0, -1)
+    this.future = [...this.future, this.user]
+    this.last = null
+    this.store(previous)
+  }
+
+  redo(): void {
+    const next = this.future.at(-1)
+    if (!next) return
+    this.future = this.future.slice(0, -1)
+    this.past = [...this.past, this.user]
+    this.last = null
+    this.store(next)
+  }
+
+  private store(user: PackSource[]): boolean {
     this.user = user
     const saved = writeUserPacks(user)
     if (!saved) this.onStorageFull?.()
     return saved
   }
 
-  private update(root: string, change: (pack: PackSource) => PackSource): void {
-    this.setUserPacks(this.user.map((p) => (p.root === root ? change(p) : p)))
+  private update(root: string, change: (pack: PackSource) => PackSource, group?: string): void {
+    this.setUserPacks(
+      this.user.map((p) => (p.root === root ? change(p) : p)),
+      group,
+    )
   }
 
   addPack(pack: PackSource): void {
@@ -119,13 +183,18 @@ export class PackLibrary {
     return this.pack(root)?.files.find((f) => f.path === path)?.content
   }
 
-  writeFile(root: string, path: string, content: string): void {
-    this.update(root, (p) => ({
-      ...p,
-      files: p.files.some((f) => f.path === path)
-        ? p.files.map((f) => (f.path === path ? { path, content } : f))
-        : [...p.files, { path, content }].sort((a, b) => a.path.localeCompare(b.path)),
-    }))
+  /** `typing`: quick writes to the same file (a text editor) make one undo step. */
+  writeFile(root: string, path: string, content: string, typing = false): void {
+    this.update(
+      root,
+      (p) => ({
+        ...p,
+        files: p.files.some((f) => f.path === path)
+          ? p.files.map((f) => (f.path === path ? { path, content } : f))
+          : [...p.files, { path, content }].sort((a, b) => a.path.localeCompare(b.path)),
+      }),
+      typing ? `${root}/${path}` : undefined,
+    )
   }
 
   renameFile(root: string, from: string, to: string): void {

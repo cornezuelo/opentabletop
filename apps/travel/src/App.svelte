@@ -1,5 +1,7 @@
 <script lang="ts">
   import { HelpPanel } from '@open-tabletop/manual-ui'
+  import { UndoButtons } from '@open-tabletop/pack-ui'
+  import { library } from './lib/packs.svelte'
   import { AppBrand, AppSwitcher, Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import Sidebar from './components/Sidebar.svelte'
   import SystemView from './components/SystemView.svelte'
@@ -14,6 +16,7 @@
     <AppBrand app="travel" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
     <AppSwitcher current="travel" locale={getLocale()} />
     <div class="spacer"></div>
+    <UndoButtons {library} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
     <select
       aria-label={t('nav.language')}
       value={getLocale()}

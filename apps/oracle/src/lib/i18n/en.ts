@@ -8,6 +8,8 @@ export const en = {
     favorites: 'Favorites',
     favorite: 'Favorite: pinned on top of the list (also in the Hexmapper)',
     help: 'Help and manual',
+    undo: 'Undo the last change to your packs (Ctrl+Z)',
+    redo: 'Redo (Ctrl+Shift+Z)',
     toggleSidebar: 'Show or hide the pack list',
     toggleHistory: 'Show or hide the history',
     newDefinition: 'New definition',

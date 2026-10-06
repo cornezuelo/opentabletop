@@ -12,6 +12,7 @@
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
+  import { UndoButtons } from '@open-tabletop/pack-ui'
   import NewDefinitionDialog from './components/NewDefinitionDialog.svelte'
   import NewPackDialog from './components/NewPackDialog.svelte'
   import { dialogs } from './lib/dialogs.svelte'
@@ -102,6 +103,7 @@
     <AppBrand app="oracle" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
     <AppSwitcher current="oracle" locale={getLocale()} />
     <div class="spacer"></div>
+    <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
     <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>
     <button onclick={() => (creating = true)}>{t('nav.newPack')}</button>
     <button use:tooltip={t('nav.importTip')} onclick={importZip}>{t('nav.import')}</button>

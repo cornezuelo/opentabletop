@@ -2,6 +2,8 @@
 
 La pestaña **Editar** es un formulario sobre el fichero YAML: solo cambia lo que tocas y conserva los comentarios y el orden. Los packs incluidos son de solo lectura: haz una copia primero.
 
+**↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus packs: ediciones de formularios, definiciones nuevas y borradas, ficheros y packs. Escribir en el editor YAML cuenta como un cambio por pausa; dentro del editor, <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace el propio texto. El historial dura mientras la página está abierta.
+
 ## Cualquier definición
 
 Nombre, descripción y, en tablas y oráculos, los **dados** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… vacío = elegir por peso) y si se puede tirar con **ventaja o desventaja**. En tablas y oráculos además:

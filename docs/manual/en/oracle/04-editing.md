@@ -2,6 +2,8 @@
 
 The **Edit** tab is a form over the YAML file: it changes only what you touch and keeps comments and order. Bundled packs are read-only: make a copy first.
 
+**↶ ↷** in the header (or <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> outside text boxes) undo and redo changes to your packs: form edits, new and deleted definitions, files and packs. Typing in the YAML editor counts as one change per pause; inside the editor, <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes the text itself. The history lasts while the page is open.
+
 ## Every definition
 
 Name, description and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and whether it can be rolled with **advantage or disadvantage**. For tables and oracles also:

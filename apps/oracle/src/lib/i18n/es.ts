@@ -10,6 +10,8 @@ export const es: Messages<typeof en> = {
     favorites: 'Favoritos',
     favorite: 'Favorito: fijado arriba de la lista (también en el Hexmapper)',
     help: 'Ayuda y manual',
+    undo: 'Deshacer el último cambio en tus packs (Ctrl+Z)',
+    redo: 'Rehacer (Ctrl+Shift+Z)',
     toggleSidebar: 'Mostrar u ocultar la lista de packs',
     toggleHistory: 'Mostrar u ocultar el historial',
     newDefinition: 'Nueva definición',

@@ -27,7 +27,7 @@
         value={content}
         readonly={!editable}
         {problems}
-        onchange={(text) => library.writeFile(root, path, text)}
+        onchange={(text) => library.writeFile(root, path, text, true)}
       />
     {/key}
   </div>

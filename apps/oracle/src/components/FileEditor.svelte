@@ -41,7 +41,7 @@
         readonly={!editable}
         {problems}
         line={jump}
-        onchange={(text) => workspace.writeFile(root, path, text)}
+        onchange={(text) => workspace.writeFile(root, path, text, true)}
       />
     {/key}
   </div>

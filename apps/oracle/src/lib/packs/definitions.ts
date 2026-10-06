@@ -123,17 +123,26 @@ export function copyDefinition(def: Compiled, toRoot: string): string | null {
   const copy = samePack ? { ...raw } : qualifyRefs(raw, def.pack)
   copy.id = id
   if (samePack) copy.name = `${String(raw.name ?? def.localId)} (copy)`
-  workspace.writeFile(toRoot, file, appendDefinition(workspace.readFile(toRoot, file) ?? '', copy))
-  // Translations travel with it, under the new id.
-  for (const locale of overlayLocales(source)) {
-    const texts = readOverlay(workspace.readFile(fromRoot, overlayPath(locale, file)), def.localId)
-    if (!texts) continue
-    const path = overlayPath(locale, file)
-    const existing = workspace.readFile(toRoot, path) ?? ''
-    const doc = existing.trim() ? parseDocument(existing) : new Document({})
-    doc.setIn([id], texts)
-    workspace.writeFile(toRoot, path, doc.toString())
-  }
+  workspace.batch(() => {
+    workspace.writeFile(
+      toRoot,
+      file,
+      appendDefinition(workspace.readFile(toRoot, file) ?? '', copy),
+    )
+    // Translations travel with it, under the new id.
+    for (const locale of overlayLocales(source)) {
+      const texts = readOverlay(
+        workspace.readFile(fromRoot, overlayPath(locale, file)),
+        def.localId,
+      )
+      if (!texts) continue
+      const path = overlayPath(locale, file)
+      const existing = workspace.readFile(toRoot, path) ?? ''
+      const doc = existing.trim() ? parseDocument(existing) : new Document({})
+      doc.setIn([id], texts)
+      workspace.writeFile(toRoot, path, doc.toString())
+    }
+  })
   return `${targetId}/${id}`
 }
 
@@ -152,18 +161,20 @@ export function deleteDefinition(def: Compiled): void {
   const file = def.file.slice(root.length + 1)
   const pack = workspace.pack(root)
   if (!pack) return
-  workspace.writeFile(
-    root,
-    file,
-    removeDefinition(workspace.readFile(root, file) ?? '', def.localId),
-  )
-  for (const locale of overlayLocales(pack)) {
-    const path = overlayPath(locale, file)
-    const content = workspace.readFile(root, path)
-    if (!content?.trim()) continue
-    const doc = parseDocument(content)
-    if (!doc.has(def.localId)) continue
-    doc.delete(def.localId)
-    workspace.writeFile(root, path, doc.toString())
-  }
+  workspace.batch(() => {
+    workspace.writeFile(
+      root,
+      file,
+      removeDefinition(workspace.readFile(root, file) ?? '', def.localId),
+    )
+    for (const locale of overlayLocales(pack)) {
+      const path = overlayPath(locale, file)
+      const content = workspace.readFile(root, path)
+      if (!content?.trim()) continue
+      const doc = parseDocument(content)
+      if (!doc.has(def.localId)) continue
+      doc.delete(def.localId)
+      workspace.writeFile(root, path, doc.toString())
+    }
+  })
 }

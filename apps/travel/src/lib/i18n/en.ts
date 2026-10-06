@@ -8,6 +8,8 @@ export const en = {
     systems: 'Travel systems',
     generic: 'Generic',
     help: 'Help and manual',
+    undo: 'Undo the last change to your packs (Ctrl+Z)',
+    redo: 'Redo (Ctrl+Shift+Z)',
     newSystem: 'New system',
     language: 'Language',
     problems: '{count} problems',

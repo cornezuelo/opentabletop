@@ -10,6 +10,8 @@ export const es: Messages<typeof en> = {
     systems: 'Sistemas de viaje',
     generic: 'Genérico',
     help: 'Ayuda y manual',
+    undo: 'Deshacer el último cambio en tus packs (Ctrl+Z)',
+    redo: 'Rehacer (Ctrl+Shift+Z)',
     newSystem: 'Nuevo sistema',
     language: 'Idioma',
     problems: '{count} problemas',
