@@ -194,6 +194,8 @@ export function createTravelEngine(options: {
   const checkContext = (state: TravelState, next?: string): Record<string, unknown> => {
     const cell = world.cell(state.location)
     return {
+      // Everything the map knows about the hex (fields, region…), then the travel facts.
+      ...cell,
       hex: state.location,
       terrain: cell?.terrain,
       tags: cell?.tags ?? [],

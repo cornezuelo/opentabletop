@@ -99,7 +99,7 @@
     </div>
     <TokenIconPicker
       value={selected.iconId}
-      onchange={(iconId) => update((t) => ({ ...t, iconId }))}
+      onchange={(iconId) => iconId && update((t) => ({ ...t, iconId }))}
     />
     <ColorPicker
       value={selected.color}
@@ -162,7 +162,7 @@
     </div>
     <TokenIconPicker
       value={editor.tokenTemplate.iconId}
-      onchange={(iconId) => (editor.tokenTemplate = { ...editor.tokenTemplate, iconId })}
+      onchange={(iconId) => iconId && (editor.tokenTemplate = { ...editor.tokenTemplate, iconId })}
     />
     <ColorPicker
       value={editor.tokenTemplate.color}

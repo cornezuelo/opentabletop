@@ -90,6 +90,7 @@ export function normalizeHex(hex: HexData | undefined): HexData {
         name: p.name.trim(),
         ...(description ? { description } : {}),
         ...(note ? { note } : {}),
+        ...(p.icon ? { icon: p.icon } : {}),
       }
     })
     .filter((p) => p.name || p.description)

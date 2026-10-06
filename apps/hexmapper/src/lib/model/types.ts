@@ -23,6 +23,8 @@ export interface Poi {
   description?: string
   /** External note path (same providers as hexes). */
   note?: string
+  /** Icon to tell it apart in the hex panel (not drawn on the map). */
+  icon?: string
 }
 
 export interface CustomField {

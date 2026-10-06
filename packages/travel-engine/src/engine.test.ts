@@ -282,3 +282,34 @@ describe('generic rules', () => {
     expect(parseTravelRules(genericTravelRules).errors).toEqual([])
   })
 })
+
+describe('check context', () => {
+  it('carries everything the map knows about the hex (fields, region…)', () => {
+    const marches: TravelWorld = {
+      ...makeWorld(),
+      cell: () => ({ terrain: 'steppe', tags: ['haunted'], region: 'Black Marches', danger: 3 }),
+    }
+    const { rules: r } = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: {},
+      modes: { foot: { kmPerDay: 30 } },
+      checks: [
+        { event: 'MARCHES_PATROL', at: 'day-start', when: { region: 'Black Marches' } },
+        { event: 'ELSEWHERE', at: 'day-start', unless: { region: 'Black Marches' } },
+      ],
+    })
+    const e = createTravelEngine({ world: marches, rules: r! })
+    const { events } = e.apply(e.apply(start(), { type: 'setDestination', hex: '1,0' }).state, {
+      type: 'travel',
+    })
+    const checks = events.flatMap((ev) => (ev.type === 'CHECK_REQUIRED' ? [ev.check] : []))
+    expect(checks.map((c) => c.event)).toEqual(['MARCHES_PATROL'])
+    expect(checks[0].context).toMatchObject({
+      region: 'Black Marches',
+      danger: 3,
+      tags: ['haunted'],
+    })
+  })
+})

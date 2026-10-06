@@ -117,6 +117,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
         location: { map: map.meta.id, hex: key },
         ...(poi.description && { description: poi.description }),
         ...(poi.note && { noteRef: poi.note }),
+        ...(poi.icon && { ext: { hexmapper: { icon: poi.icon } } }),
       })
   }
   const ext: HexmapperExt = {
@@ -299,6 +300,7 @@ export function bundleToMap(raw: unknown): HexMap {
       name: poi.name ?? '',
       description: poi.description,
       note: poi.noteRef,
+      icon: (poi.ext as { hexmapper?: { icon?: string } } | undefined)?.hexmapper?.icon,
     }
     const hex = (hexes[poi.location.hex] ??= {})
     hex.pois = [...((hex.pois as Poi[]) ?? []), entry]

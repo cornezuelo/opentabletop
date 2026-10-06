@@ -4,10 +4,21 @@
   import type { HexKey, Poi } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
   import NoteRefInput from '../NoteRefInput.svelte'
+  import TokenIconPicker from '../tokens/TokenIconPicker.svelte'
+  import { builtinSvg, getBuiltinIcon } from '../../lib/icons/registry'
 
   let { key, pois }: { key: HexKey; pois: Poi[] } = $props()
 
   let draft = $state('')
+  /** POI whose icon picker is open. */
+  let picking = $state<string | null>(null)
+  const icon = (id: string | undefined) => {
+    if (!id) return null
+    const builtin = getBuiltinIcon(id)
+    if (builtin) return { svg: builtinSvg(builtin) }
+    const asset = editor.map.assets.find((a) => `asset:${a.id}` === id)
+    return asset ? { url: asset.dataUrl } : null
+  }
 
   function update(id: string, patch: Partial<Poi>) {
     editor.editHex(key, (h) => ({
@@ -31,8 +42,26 @@
 <div class="field">
   <span>{t('hex.pois')}</span>
   {#each pois as poi (poi.id)}
+    {@const shown = icon(poi.icon)}
     <div class="poi">
       <div class="row">
+        <button
+          class="poi-icon"
+          title={t('hex.poiIcon')}
+          aria-label={t('hex.poiIcon')}
+          aria-expanded={picking === poi.id}
+          onclick={() => (picking = picking === poi.id ? null : poi.id)}
+        >
+          {#if shown?.svg}
+            <!-- Bundled, trusted SVG markup. -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html shown.svg}
+          {:else if shown?.url}
+            <img src={shown.url} alt="" />
+          {:else}
+            ◇
+          {/if}
+        </button>
         <input
           type="text"
           class="name"
@@ -47,6 +76,17 @@
           onclick={() => remove(poi.id)}>✕</button
         >
       </div>
+      {#if picking === poi.id}
+        <TokenIconPicker
+          value={poi.icon}
+          none
+          categories={['landmarks', 'settlements', 'nature', 'danger', 'misc']}
+          onchange={(icon) => {
+            update(poi.id, { icon })
+            picking = null
+          }}
+        />
+      {/if}
       <textarea
         rows="2"
         value={poi.description ?? ''}
@@ -76,6 +116,27 @@
 </div>
 
 <style>
+  .poi-icon {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .poi-icon :global(svg),
+  .poi-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: var(--text);
+    object-fit: contain;
+  }
+
   .poi {
     display: flex;
     flex-direction: column;

@@ -65,7 +65,7 @@
   <span>{t('play.token')}</span>
   <TokenIconPicker
     value={party?.iconId ?? DEFAULT_TOKEN_ICONS.party}
-    onchange={(iconId) => editParty((t) => ({ ...t, iconId }))}
+    onchange={(iconId) => iconId && editParty((t) => ({ ...t, iconId }))}
   />
   <ColorPicker
     value={party?.color}

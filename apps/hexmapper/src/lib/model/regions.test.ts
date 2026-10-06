@@ -51,3 +51,15 @@ describe('path kinds and travel', () => {
     expect(world.edges('1,0', '2,0')).toEqual([])
   })
 })
+
+describe('POI icons', () => {
+  it('are kept in OTD (ext.hexmapper of the POI)', () => {
+    const map = createMap()
+    map.hexes['1,1'] = { pois: [{ id: 'poi000000001', name: 'Old well', icon: 'game:well' }] }
+    const bundle = mapToBundle(map)
+    expect(bundle.pois[0].ext).toEqual({ hexmapper: { icon: 'game:well' } })
+    expect(bundleToMap(JSON.parse(JSON.stringify(bundle))).hexes['1,1'].pois?.[0].icon).toBe(
+      'game:well',
+    )
+  })
+})

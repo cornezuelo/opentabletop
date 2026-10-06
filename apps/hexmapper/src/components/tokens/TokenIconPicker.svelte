@@ -7,11 +7,24 @@
   import { newId } from '../../lib/model/id'
   import { editor } from '../../lib/store/editor.svelte'
 
+  import type { IconCategory } from '../../lib/icons/registry'
+
   /**
-   * Icons for tokens: characters and creatures by default, any bundled icon when
-   * searching, plus the map's imported images (and a button to import one).
+   * A compact icon picker: some categories by default (characters and creatures for
+   * tokens), any bundled icon when searching, the map's imported images and a button to
+   * import one. With `none`, a first choice clears the icon.
    */
-  let { value, onchange }: { value: string; onchange: (iconId: string) => void } = $props()
+  let {
+    value,
+    onchange,
+    categories = ['party', 'danger'],
+    none = false,
+  }: {
+    value: string | undefined
+    onchange: (iconId: string | undefined) => void
+    categories?: IconCategory[]
+    none?: boolean
+  } = $props()
 
   let query = $state('')
   const assets = $derived.by(() => {
@@ -22,7 +35,7 @@
     const q = query.trim().toLowerCase()
     return q
       ? BUILTIN_ICONS.filter((i) => iconLabel(i).includes(q))
-      : BUILTIN_ICONS.filter((i) => i.category === 'party' || i.category === 'danger')
+      : BUILTIN_ICONS.filter((i) => categories.includes(i.category))
   })
 
   async function upload() {
@@ -46,6 +59,17 @@
   aria-label={t('icons.search')}
 />
 <div class="grid" role="radiogroup" aria-label={t('tokens.icon')}>
+  {#if none}
+    <button
+      role="radio"
+      aria-checked={!value}
+      class:active={!value}
+      class="none"
+      title={t('hex.noIcon')}
+      aria-label={t('hex.noIcon')}
+      onclick={() => onchange(undefined)}>∅</button
+    >
+  {/if}
   {#each icons as icon (icon.id)}
     <button
       role="radio"
@@ -96,6 +120,10 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
+  }
+
+  .grid button.none {
+    color: var(--text-muted);
   }
 
   .grid button.active {

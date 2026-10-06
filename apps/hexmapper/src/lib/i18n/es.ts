@@ -339,6 +339,8 @@ export const es: Messages = {
     makeOpen: 'Abrir',
   },
   hex: {
+    poiIcon: 'Icono (solo para distinguir los PDI aquí)',
+    noIcon: 'Sin icono',
     coord: 'Coordenada',
     terrain: 'Terreno',
     none: 'Ninguno',

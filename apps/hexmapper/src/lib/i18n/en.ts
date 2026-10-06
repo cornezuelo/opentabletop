@@ -333,6 +333,8 @@ export const en = {
     makeOpen: 'Open',
   },
   hex: {
+    poiIcon: 'Icon (only to tell POIs apart here)',
+    noIcon: 'No icon',
     coord: 'Coordinate',
     terrain: 'Terrain',
     none: 'None',
