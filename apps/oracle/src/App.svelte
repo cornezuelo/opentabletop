@@ -43,10 +43,48 @@
   }
 
   const count = $derived(workspace.registry.definitions.size)
+
+  /** Which side panels are open: a per-viewer preference, kept in this browser. */
+  const LAYOUT = 'opentabletop.oracle.layout'
+  function readLayout(): { sidebar: boolean; history: boolean } {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LAYOUT) ?? '{}')
+      return { sidebar: raw.sidebar !== false, history: raw.history !== false }
+    } catch {
+      return { sidebar: true, history: true }
+    }
+  }
+  let layout = $state(readLayout())
+  function toggle(panel: 'sidebar' | 'history') {
+    layout[panel] = !layout[panel]
+    try {
+      localStorage.setItem(LAYOUT, JSON.stringify(layout))
+    } catch {
+      // Not remembered; it still applies now.
+    }
+  }
 </script>
 
-<div class="app">
+<div class="app" class:no-sidebar={!layout.sidebar} class:no-history={!layout.history}>
   <header class="bar">
+    <button
+      class="panel-toggle"
+      aria-pressed={layout.sidebar}
+      aria-label={t('nav.toggleSidebar')}
+      use:tooltip={t('nav.toggleSidebar')}
+      onclick={() => toggle('sidebar')}
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true"
+        ><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><rect
+          class="fill"
+          x="1.5"
+          y="2.5"
+          width="4.5"
+          height="11"
+          rx="1.5"
+        /></svg
+      >
+    </button>
     <AppBrand app="oracle" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
     <AppSwitcher current="oracle" locale={getLocale()} />
     <div class="spacer"></div>
@@ -62,6 +100,24 @@
         <option value={code}>{name}</option>
       {/each}
     </select>
+    <button
+      class="panel-toggle"
+      aria-pressed={layout.history}
+      aria-label={t('nav.toggleHistory')}
+      use:tooltip={t('nav.toggleHistory')}
+      onclick={() => toggle('history')}
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true"
+        ><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><rect
+          class="fill"
+          x="10"
+          y="2.5"
+          width="4.5"
+          height="11"
+          rx="1.5"
+        /></svg
+      >
+    </button>
   </header>
 
   <Sidebar />
@@ -102,8 +158,11 @@
 
 <style>
   .app {
+    --sidebar: 280px;
+    --history: 280px;
+
     display: grid;
-    grid-template-columns: 280px minmax(0, 1fr) 280px;
+    grid-template-columns: var(--sidebar) minmax(0, 1fr) var(--history);
     grid-template-rows: auto minmax(0, 1fr);
     height: 100vh;
   }
@@ -161,13 +220,83 @@
     color: var(--text-muted);
   }
 
+  /* Fixed columns, so a folded (hidden) panel doesn't shift the others. */
+  .app > :global(.sidebar) {
+    grid-column: 1;
+  }
+
+  main {
+    grid-column: 2;
+  }
+
+  .app > :global(.history) {
+    grid-column: 3;
+  }
+
+  /* Folded side panels give their room to the main view. */
+  .app.no-sidebar {
+    --sidebar: 0px;
+  }
+
+  .app.no-sidebar > :global(.sidebar) {
+    display: none;
+  }
+
+  .app.no-history {
+    --history: 0px;
+  }
+
+  .app.no-history > :global(.history) {
+    display: none;
+  }
+
+  .panel-toggle {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .panel-toggle:hover {
+    color: var(--text);
+    border-color: var(--panel-border);
+  }
+
+  .panel-toggle svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.2;
+  }
+
+  .panel-toggle svg .fill {
+    fill: currentColor;
+    opacity: 0.25;
+  }
+
+  .panel-toggle[aria-pressed='true'] svg .fill {
+    opacity: 0.8;
+  }
+
   @media (max-width: 1100px) {
     .app {
-      grid-template-columns: 240px minmax(0, 1fr);
+      --sidebar: 240px;
+      --history: 0px;
     }
 
     .app > :global(.history) {
       display: none;
+    }
+
+    .app.no-sidebar {
+      --sidebar: 0px;
     }
   }
 </style>
