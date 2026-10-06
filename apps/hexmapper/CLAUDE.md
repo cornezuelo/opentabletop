@@ -105,6 +105,12 @@ Done:
 - [x] **Path kinds:** walls (thick, with stones) and borders (dashed, across water too) besides roads, trails and rivers; closed loops (option for new paths, Close/Open per path in the hex panel). Only roads, trails and rivers are travel edges.
 - [x] **Captions:** an optional short label under icons (icon panel and hex panel), the name under tokens (per token, party included) and every hex's name under it (Hex names layer to hide them all).
 
+### Backlog (Oracle in the map, agreed 2026-10-06)
+
+- [ ] "Roll here" from the hex panel: opens the Oracle with that hex as context.
+- [ ] Apply results to the map: add a rolled point of interest or settlement as a POI of the hex in one click.
+- [ ] Oracle history and deck state per map (saved in the OTD bundle like the trip journal) instead of per browser.
+
 ### Later
 
 - Narrow windows and mobile: keep layouts responsive (content-sized columns instead of fixed widths, panels that collapse).
