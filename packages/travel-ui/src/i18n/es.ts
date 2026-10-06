@@ -46,6 +46,7 @@ export const es: Messages<typeof en> = {
     restRecovers: 'Un descanso corto: pasa el tiempo sin marchar y se recupera algo de fatiga.',
   },
   events: {
+    LANDMARK_CHECK_REQUIRED: 'Lugar señalado',
     WEATHER_CHECK_REQUIRED: 'Clima',
     NAVIGATION_CHECK_REQUIRED: 'Navegación',
     POI_CHECK_REQUIRED: 'Punto de interés',

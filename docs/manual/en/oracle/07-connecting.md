@@ -2,6 +2,8 @@
 
 You don't need to program to make tables that react to the map, or a whole travel system the Hexmapper plays for you. Everything is written in the pack's YAML files. This page builds it up step by step; each step works on its own.
 
+> **A complete example to copy from:** the bundled **Core** pack. Its `wilderness.yaml` has weather per season, getting lost, reactions and encounters that use every feature on this page, and its `travel.yaml` turns Core into a travel system you can play in the Hexmapper (Play → With rules → Core). Open them in the Oracle app, or make a copy (**Edit a copy**) to change them.
+
 ## 1. A table that depends on the terrain
 
 When you roll from the Hexmapper (the Oracle panel, or a trip), the table receives what the map knows about the hex. `when` keeps an entry only if it matches:

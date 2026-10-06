@@ -2,6 +2,8 @@
 
 No hace falta programar para crear tablas que reaccionen al mapa, ni un sistema de viaje entero que el Hexmapper juegue por ti. Todo se escribe en los ficheros YAML del pack. Esta página lo construye paso a paso; cada paso funciona por sí solo.
 
+> **Un ejemplo completo del que copiar:** el pack incluido **Core**. Su `wilderness.yaml` tiene clima por estación, perderse, reacciones y encuentros que usan todo lo de esta página, y su `travel.yaml` convierte Core en un sistema de viaje que puedes jugar en el Hexmapper (Jugar → Con reglas → Core). Ábrelos en la aplicación Oracle, o haz una copia (**Editar una copia**) para cambiarlos.
+
 ## 1. Una tabla que depende del terreno
 
 Cuando tiras desde el Hexmapper (el panel de Oracle o un viaje), la tabla recibe lo que el mapa sabe del hex. `when` mantiene una entrada solo si coincide:

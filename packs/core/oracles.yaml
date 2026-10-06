@@ -44,3 +44,42 @@ variants:
       - { id: yes-and, range: 1, result: 'Yes, and something more' }
       - { id: yes, range: 2-5, result: 'Yes' }
       - { id: no-but, range: 6, result: 'No, but there is a way' }
+---
+# An input with labels, a variant with its own dice, and answers that roll a motive
+# ("then roll") shown through {{result}}.
+kind: oracle
+id: npc-attitude
+name: How do they take it?
+description: Ask how someone answers a request. The bigger the ask, the harder the yes; every answer comes with a motive.
+inputs:
+  stakes:
+    label: Stakes
+    options: [small, fair, big]
+    labels: { small: A small favour, fair: A fair deal, big: A big ask }
+    default: fair
+roll: 1d6
+variants:
+  small:
+    entries:
+      - { id: agree, range: 1-4, result: 'They agree ({{result}})', table: npc-motive }
+      - { id: refuse, range: 5-6, result: 'They refuse ({{result}})', table: npc-motive }
+  fair:
+    entries:
+      - { id: agree, range: 1-3, result: 'They agree ({{result}})', table: npc-motive }
+      - { id: refuse, range: 4-6, result: 'They refuse ({{result}})', table: npc-motive }
+  big:
+    roll: 1d8
+    entries:
+      - { id: agree, range: 1-2, result: 'They agree ({{result}})', table: npc-motive }
+      - { id: price, range: 3-4, result: 'Only for {{2d6}} silver ({{result}})', table: npc-motive }
+      - { id: refuse, range: 5-8, result: 'They refuse ({{result}})', table: npc-motive }
+---
+kind: table
+id: npc-motive
+name: Motive
+entries:
+  - { id: greed, weight: 2, result: greed }
+  - { id: fear, weight: 2, result: fear }
+  - { id: loyalty, weight: 1, result: loyalty }
+  - { id: curiosity, weight: 1, result: curiosity }
+  - { id: duty, weight: 1, result: duty }

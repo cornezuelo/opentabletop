@@ -1,0 +1,182 @@
+# Wilderness travel tables. Each one shows a feature of the format; the travel system in
+# travel.yaml rolls them on trips (see the manual: Connecting tables to maps and trips).
+
+# A reference built from the context: the season picks the table. Without a season (rolled
+# outside a trip) the second entry catches it.
+kind: table
+id: weather
+name: Today's weather
+description: Rolls the season's weather table. Outside a trip, with no season, it's mild.
+roll: 1d6
+entries:
+  - { id: by-season, range: 1-6, when: { season: { exists: true } }, table: 'weather-{{season}}' }
+  - { id: mild, range: 1-6, result: Mild weather, set: { weather: mild } }
+---
+# Values set here reach the trip: `weather` (the travel rules slow you down by it) and
+# `navModifier`, which lasts the day and changes the getting-lost roll.
+kind: table
+id: weather-spring
+name: Spring weather
+roll: 1d6
+entries:
+  - { id: clear, range: 1-3, result: Clear and bright, set: { weather: clear, navModifier: 1 } }
+  - { id: rain, range: 4-5, result: Steady rain, set: { weather: rain } }
+  - {
+      id: storm,
+      range: 6,
+      result: 'Thunderstorm: no travel today',
+      set: { weather: storm, navModifier: -2 },
+    }
+---
+# No dice: entries are picked by weight (hot days three times as likely as storms).
+kind: table
+id: weather-summer
+name: Summer weather
+description: Picked by weight, not by dice.
+entries:
+  - { id: hot, weight: 3, result: Hot and dry, set: { weather: hot } }
+  - { id: clear, weight: 2, result: Clear skies, set: { weather: clear, navModifier: 1 } }
+  - {
+      id: storm,
+      weight: 1,
+      result: 'Summer storm: no travel today',
+      set: { weather: storm, navModifier: -2 },
+    }
+---
+kind: table
+id: weather-autumn
+name: Autumn weather
+roll: 1d6
+entries:
+  - { id: clear, range: 1-2, result: Crisp and clear, set: { weather: clear, navModifier: 1 } }
+  - { id: fog, range: 3-4, result: Thick fog, set: { weather: fog, navModifier: -2 } }
+  - { id: rain, range: 5-6, result: Cold rain, set: { weather: rain } }
+---
+# 2d6: the middle results are the common ones, the extremes rare.
+kind: table
+id: weather-winter
+name: Winter weather
+roll: 2d6
+entries:
+  - {
+      id: blizzard,
+      range: 2-3,
+      result: 'Blizzard: no travel today',
+      set: { weather: blizzard, navModifier: -3 },
+    }
+  - { id: snow, range: 4-6, result: Falling snow, set: { weather: snow, navModifier: -1 } }
+  - { id: grey, range: 7-10, result: Grey and freezing, set: { weather: cold } }
+  - { id: clear, range: 11-12, result: Bright frost, set: { weather: clear, navModifier: 1 } }
+---
+# Dice with context values: missing ones count as 0. `lost: true` keeps the party in the
+# hex for the day.
+kind: table
+id: getting-lost
+name: Do we get lost?
+description: "Rolled at dawn off roads and rivers. The weather sets navModifier; the party's navigation stat helps."
+roll: '1d6 + {{navModifier}} + {{navigation}}'
+entries:
+  - { id: lost, range: 1-2, result: 'You are lost: no progress today', set: { lost: true } }
+  - { id: on-course, range: 3-6, result: You keep your course }
+---
+# A party stat plus a modifier the previous entry may set. Rolled with advantage when the
+# meeting goes well, disadvantage when it doesn't.
+kind: table
+id: reaction
+name: Reaction
+roll: '2d6 + {{charisma}} + {{reactionModifier}}'
+advantage: true
+entries:
+  - { id: hostile, range: 2-3, result: hostile, set: { hostile: true } }
+  - { id: wary, range: 4-6, result: wary }
+  - { id: neutral, range: 7-9, result: indifferent }
+  - { id: friendly, range: 10-11, result: friendly }
+  - { id: helpful, range: 12, result: eager to help }
+---
+# Conditions on the map (terrain, tags, region, the hex's `danger` field) and on the
+# bindings' context (`timeOfDay`). The first entry that holds wins; the last one has no
+# condition and catches the rest. A once-only entry, dice inside texts, and "then roll"
+# with {{result}} (the reaction's text).
+kind: table
+id: wilderness-encounter
+name: Wilderness encounter
+description: 'Depends on where you are and on the time of day. Hexes can raise the odds with a danger field.'
+roll: '1d6 + {{danger}}'
+entries:
+  - {
+      id: dragon,
+      range: 1-20,
+      once: true,
+      when: { all: [{ terrain: mountains }, { danger: { gte: 4 } }] },
+      result: 'A dragon circles overhead. It will not come again.',
+    }
+  - {
+      id: lights,
+      range: 1-20,
+      when: { all: [{ tags: haunted }, { timeOfDay: night }] },
+      result: Pale lights move among the stones,
+    }
+  - {
+      id: patrol,
+      range: 1-3,
+      when: { region: { exists: true } },
+      result: 'A patrol of {{region}} — they are {{result}}',
+      table: reaction,
+    }
+  - {
+      id: wolves,
+      range: 1-3,
+      when: { terrain: [forest, taiga] },
+      result: '{{1d4+1}} wolves — they are {{result}}',
+      table: reaction,
+    }
+  - {
+      id: bandits,
+      range: 4-20,
+      when: { terrain: [forest, taiga, hills] },
+      result: 'Bandits on the trail — they are {{result}}',
+      table: reaction,
+      set: { reactionModifier: -2 },
+    }
+  - {
+      id: travellers,
+      range: 1-3,
+      result: 'Travellers heading the other way — they are {{result}}',
+      table: reaction,
+    }
+  - { id: nothing, range: 4-20, result: Nothing but the wind }
+---
+kind: table
+id: camp-site
+name: Camp site
+entries:
+  - { id: hollow, weight: 2, result: A sheltered hollow }
+  - { id: ruin, weight: 1, result: The walls of a ruined farm }
+  - { id: open, weight: 2, result: Open ground under the stars }
+---
+# Fields are rolled in order and later ones see earlier ones. One only exists in winter;
+# one is rolled with its own context (it's night).
+kind: generator
+id: camp-scene
+name: Camp scene
+description: Where you camp, the watch and what comes in the night.
+fields:
+  place: { table: camp-site }
+  watch: { roll: 1d4 }
+  cold: { when: { season: winter }, value: ' The cold bites through the blankets.' }
+  visitor: { table: wilderness-encounter, context: { timeOfDay: night } }
+template: '{{place}}. {{watch}} watch shifts.{{cold}} During the night: {{visitor}}.'
+---
+# Cards come in copies, can roll a table (their text shows its result with {{result}})
+# and can set values the trip understands (food).
+kind: deck
+id: road-events
+name: Road events
+description: Draw one per day on the road. A card is gone until the deck runs out.
+reshuffle: when-empty
+cards:
+  - { id: caravan, result: 'A merchant caravan, {{2d4}} wagons long', count: 2 }
+  - { id: shrine, result: A roadside shrine }
+  - { id: trouble, result: 'Trouble ahead: {{result}}', table: wilderness-encounter, count: 2 }
+  - { id: twist, result: 'Something changes: {{result}}', table: twists }
+  - { id: inn, result: 'An inn: a warm meal and two days of food', set: { resources: { food: 2 } } }

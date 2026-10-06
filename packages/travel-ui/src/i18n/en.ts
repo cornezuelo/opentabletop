@@ -42,6 +42,7 @@ export const en = {
     restRecovers: 'A short rest: time passes without marching and some fatigue is recovered.',
   },
   events: {
+    LANDMARK_CHECK_REQUIRED: 'Landmark',
     WEATHER_CHECK_REQUIRED: 'Weather',
     NAVIGATION_CHECK_REQUIRED: 'Navigation',
     POI_CHECK_REQUIRED: 'Point of interest',
