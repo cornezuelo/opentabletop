@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { showToast, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, showToast, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
@@ -47,10 +47,8 @@
 
 <div class="app">
   <header class="bar">
-    <button class="brand" onclick={() => go({ name: 'welcome' })}>
-      <img src="{import.meta.env.BASE_URL}favicon.svg" alt="" />
-      {t('app.title')}
-    </button>
+    <AppBrand app="oracle" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
+    <AppSwitcher current="oracle" locale={getLocale()} />
     <div class="spacer"></div>
     <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>
     <button onclick={() => (creating = true)}>{t('nav.newPack')}</button>
@@ -130,22 +128,6 @@
 
   .bar > button:hover {
     border-color: var(--accent);
-  }
-
-  .bar .brand {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    padding: 0;
-    font-family: Georgia, serif;
-    font-size: 18px;
-    background: none;
-    border: none;
-  }
-
-  .brand img {
-    width: 22px;
-    height: 22px;
   }
 
   .spacer {

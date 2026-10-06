@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { appIconUrl } from '@open-tabletop/ui-kit'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { newMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
@@ -77,7 +78,7 @@
     aria-label={t('actions.oracle')}
     aria-pressed={editor.panelView === 'oracle'}
     onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}
-    >🎲</button
+    ><img class="app" src={appIconUrl('oracle')} alt="" /></button
   >
 
   {#each actions as action (action.label)}
@@ -123,6 +124,13 @@
   button:disabled {
     opacity: 0.35;
     cursor: default;
+  }
+
+  .app {
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin: auto;
   }
 
   button.active {

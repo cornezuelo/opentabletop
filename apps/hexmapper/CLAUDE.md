@@ -107,6 +107,8 @@ Done:
 
 ### Later
 
+- Narrow windows and mobile: keep layouts responsive (content-sized columns instead of fixed widths, panels that collapse).
+
 - Procedural generation, sub-maps, curved text, SVG export, Tauri desktop build.
 
 ### Rejected

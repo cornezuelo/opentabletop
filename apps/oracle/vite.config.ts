@@ -6,4 +6,6 @@ export default defineConfig({
   // site/oracle/, so both share the user packs stored for that origin).
   base: './',
   plugins: [svelte()],
+  // Fixed ports so the app switcher can link the apps in development (ui-kit apps.ts).
+  server: { port: 5174 },
 })

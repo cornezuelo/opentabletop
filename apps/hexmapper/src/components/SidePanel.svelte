@@ -16,8 +16,8 @@
   import TerrainPanel from './TerrainPanel.svelte'
   import RegionPanel from './RegionPanel.svelte'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
-  import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n/index.svelte'
+  import { AppBrand, AppSwitcher, InfoTip } from '@open-tabletop/ui-kit'
+  import { getLocale, t } from '../lib/i18n/index.svelte'
   import { oracleUi, rollContext } from '../lib/play/oracle'
   import { editor } from '../lib/store/editor.svelte'
 </script>
@@ -77,7 +77,8 @@
     <div class="export"><ExportPanel /></div>
   {:else}
     <header>
-      <h1>{editor.meta.name || t('app.title')}</h1>
+      <AppBrand app="hexmapper" name={editor.meta.name || t('app.title')} />
+      <AppSwitcher current="hexmapper" locale={getLocale()} />
     </header>
     {@render toolView()}
   {/if}
