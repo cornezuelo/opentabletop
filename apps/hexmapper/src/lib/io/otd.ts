@@ -258,11 +258,12 @@ function playFromOtd(
   const ext = (party?.ext as { hexmapper?: Record<string, unknown> } | undefined)?.hexmapper
   if (!party || !ext) return {}
   const rules =
-    typeof ext.system === 'string' && party.travel
+    typeof ext.system === 'string'
       ? {
           system: ext.system,
           startDay: ext.startDay,
-          session: {
+          // A system chosen before the trip started has no session yet.
+          session: party.travel && {
             travel: party.travel,
             oracle: bundle.state.oracle ?? { decks: {}, occurrences: {}, vars: {} },
             stats: party.stats ?? {},

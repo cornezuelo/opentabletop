@@ -119,6 +119,13 @@ function newSession(
 export function clickHex(key: HexKey): void {
   const play = current()
   const location = partyLocation()
+  // The party is placed and a system chosen, but the trip hasn't started: it starts
+  // where the party is, heading for the hex clicked.
+  if (play.mode === 'rules' && location && !sessionOf(play)) {
+    save(newSession(play, location, play.rules?.system ?? 'generic'))
+    if (location !== key) step({ type: 'setDestination', hex: key })
+    return
+  }
   if (play.mode === 'simple' || !location || !sessionOf(play)) {
     if (location === key && (play.mode === 'simple' || sessionOf(play))) return
     placeParty(key)

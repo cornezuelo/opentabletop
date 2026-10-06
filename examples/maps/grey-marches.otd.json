@@ -14,7 +14,15 @@
             "id": "thecompany",
             "iconId": "game:meeple",
             "showName": true
-          }
+          },
+          "mode": "rules",
+          "trail": ["5,7"],
+          "showTrail": true,
+          "discover": {
+            "on": true
+          },
+          "system": "grey-marches",
+          "startDay": 1
         }
       }
     }

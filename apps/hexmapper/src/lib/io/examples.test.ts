@@ -29,6 +29,12 @@ describe('example maps', () => {
       'The Hollow Hills',
     ])
     expect(Object.values(map.hexes).filter((h) => h.region).length).toBe(224)
+    // It opens ready to play with its own system and discovery on, the party in Ashford.
+    expect(map.play).toMatchObject({
+      mode: 'rules',
+      discover: { on: true },
+      rules: { system: 'grey-marches', session: null },
+    })
   })
 
   it('the Grey Marches play on their map: the road to Fort Keld pays the toll', () => {

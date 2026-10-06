@@ -399,13 +399,13 @@ function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
       },
     }),
     ...(rules &&
-      typeof rules.system === 'string' &&
-      isRecord(rules.session) && {
+      typeof rules.system === 'string' && {
         rules: {
           system: rules.system,
           startDay: typeof rules.startDay === 'number' ? rules.startDay : 1,
           // The session belongs to the engines; it is re-validated when play resumes.
-          session: rules.session,
+          // None yet: the system is chosen but the trip hasn't started.
+          session: isRecord(rules.session) ? rules.session : null,
         },
       }),
   }
