@@ -119,7 +119,26 @@ stats:
 
 Checks without a binding wait in the journal for you to resolve them yourself.
 
-## 6. Trying it
+## 7. Discovering the map
+
+Bindings can also say how empty hexes are decided while travelling (the Hexmapper's **Discover the map as you travel**):
+
+```yaml
+kind: bindings
+discover:
+  terrain: { resolve: next-terrain } # an empty hex's terrain
+  contents: { resolve: hex-contents } # what a hex holds, the first time you enter it
+  reveal: neighbors # or: entered (only the hex you walk into)
+on: { … }
+```
+
+- The **terrain** table sees the hex you stand on: `terrain`, its tags, fields and region, plus `hex` (the hex being decided). It answers with `set: { terrain: hills }`; `set: { terrain: '{{terrain}}' }` copies the current one.
+- The **contents** table sees the entered hex. Its text becomes a point of interest; `set: { poi: false }` means nothing worth noting, `set: { poi: 'A name' }` names it differently. `tags` (one or a list) and `name` are written on the hex too.
+- Party stats and today's values are in the context of both, as in checks.
+
+Core's `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once.
+
+## 8. Trying it
 
 1. In the Oracle app, roll each table with values typed in **Context** (terrain, season…) to check the results.
 2. Serve both apps from the same site (`make serve`), open the Hexmapper, Play → **With rules**, pick your pack as the rules, place the party and travel: the journal shows each check and its result.

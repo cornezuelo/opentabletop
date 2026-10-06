@@ -74,6 +74,12 @@ stats:
         es: 'Se suma a la tirada de perderse (un guía, un buen mapa).',
       }
     default: 0
+# Discovering the map (Hexmapper option): an empty hex's terrain, and what is in a hex the
+# first time you enter it. `reveal: neighbors` decides the hexes around the party too.
+discover:
+  terrain: { resolve: next-terrain }
+  contents: { resolve: hex-contents }
+  reveal: neighbors
 on:
   WEATHER_CHECK_REQUIRED: { resolve: weather }
   NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }

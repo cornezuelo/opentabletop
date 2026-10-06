@@ -53,6 +53,7 @@ export const en = {
   journal: {
     pending: '{event}: waiting for you',
     entered: 'Entered {hex}',
+    discovered: 'Discovered in {hex}: {what}',
     day: 'Day {day} begins',
     depleted: 'Out of {resource}: fatigue rises',
     CAMP_STARTED: 'Camp for the night',

@@ -32,7 +32,7 @@ packages/                   # libraries, scope @open-tabletop/*
   oracle-engine/            # ✅ MVP: tables, oracles, generators, decks; packs; locales; history
   travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
-  session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal, travel systems from packs, trips
+  session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal, travel systems from packs, trips, map discovery
   ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts
   pack-ui/                  # ✅ pack library (bundled + user packs), editing, YAML helpers, YAML editor
   oracle-ui/                # ✅ embeddable Oracle: roll panel, result card, history, picker

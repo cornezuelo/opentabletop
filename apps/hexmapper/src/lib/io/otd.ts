@@ -219,8 +219,10 @@ function playToOtd(map: HexMap) {
       hexmapper: {
         ...(token && { token: lookOf(token) }),
         ...(play && { mode: play.mode, trail: play.trail, showTrail: play.showTrail }),
+        ...(play?.discover && { discover: play.discover }),
         ...(play?.rules && { system: play.rules.system, startDay: play.rules.startDay }),
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
+        ...(session?.discovery && { discovery: session.discovery }),
       },
     },
   }
@@ -252,6 +254,7 @@ function playFromOtd(
             dayVars: ext.dayVars ?? {},
             journal: bundle.log.filter((e) => ['travel', 'oracle', 'user'].includes(e.source)),
             nextEntry: ext.nextEntry ?? bundle.log.length + 1,
+            ...(ext.discovery !== undefined && { discovery: ext.discovery }),
           },
         }
       : undefined
@@ -259,6 +262,7 @@ function playFromOtd(
     mode: ext.mode,
     trail: ext.trail,
     showTrail: ext.showTrail,
+    ...(ext.discover !== undefined && { discover: ext.discover }),
     ...(rules && { rules }),
   }
   if (legacy)

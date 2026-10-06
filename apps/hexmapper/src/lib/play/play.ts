@@ -5,6 +5,7 @@ import {
   stepTrip,
   type Season,
   type SessionState,
+  type TravelSystem,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale } from '../i18n/index.svelte'
@@ -148,11 +149,13 @@ export function step(action: TravelAction): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
+  const system = getSystem(play.rules.system)
   const options = {
-    system: getSystem(play.rules.system),
+    system,
     world: mapWorld(editor.map),
     oracle: oracle(),
     locale: getLocale(),
+    discover: discoverMode(play, system),
   }
   // Checks roll with the map's Oracle state, the same one hand rolls use.
   const shared = editor.map.oracle
@@ -164,7 +167,8 @@ export function step(action: TravelAction): void {
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
     return
   }
-  const { state, entries } = result
+  const { state, entries, discovered } = result
+  editor.applyDiscovery(discovered)
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   placeParty(state.travel.location as HexKey)
   editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })
@@ -173,6 +177,20 @@ export function step(action: TravelAction): void {
     trail: [...play.trail, ...entered],
     rules: { ...play.rules, session: state },
   })
+}
+
+/** How this trip discovers the map: off, or revealing neighbours or the entered hex only. */
+export function discoverMode(
+  play: PlayState,
+  system: TravelSystem,
+): 'neighbors' | 'entered' | undefined {
+  const bindings = system.bindings?.discover
+  if (!bindings || !play.discover?.on) return undefined
+  return play.discover.reveal ?? bindings.reveal
+}
+
+export function setDiscover(discover: PlayState['discover']): void {
+  updatePlay((play) => ({ ...play, discover }))
 }
 
 /** Edits the session directly (resources, stats, mode) without a travel step. */

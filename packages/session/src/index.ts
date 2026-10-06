@@ -1,4 +1,10 @@
 import { emptyState, type OracleEngine, type OracleState } from '@open-tabletop/oracle-engine'
+import {
+  parseDiscover,
+  type DiscoverBindings,
+  type Discovery,
+  type DiscoveryState,
+} from './discovery'
 import type {
   CheckOutcome,
   TravelAction,
@@ -24,6 +30,8 @@ export interface StatDefinition {
 export interface Bindings {
   on: Record<string, { resolve: string; context?: Record<string, unknown> }>
   stats?: Record<string, StatDefinition>
+  /** Tables that decide empty hexes as the party travels (the host may turn it off). */
+  discover?: DiscoverBindings
 }
 
 /** Picks the requested language, then the fallback, then any available text. */
@@ -58,6 +66,8 @@ export function parseBindings(
         context !== null && { context: context as Record<string, unknown> }),
     }
   }
+  const discover = parseDiscover((raw as { discover?: unknown })?.discover, pack, errors)
+  if (discover) out.discover = discover
   const stats = (raw as { stats?: unknown })?.stats
   if (typeof stats === 'object' && stats !== null) {
     out.stats = {}
@@ -103,6 +113,8 @@ export interface SessionState {
   dayVars: Record<string, unknown>
   journal: JournalEntry[]
   nextEntry: number
+  /** Discovery: hexes revealed whose contents are still to be rolled. */
+  discovery?: DiscoveryState
 }
 
 export function initialSessionState(
@@ -140,9 +152,16 @@ export function createSession(options: {
   now?: () => string
   /** Safety limit for automatic continue-after-check loops. */
   maxAutoSteps?: number
+  /**
+   * Discovery for this step (its world must be the one the travel engine uses): travel
+   * goes hex by hex, deciding empty hexes on the way and re-planning the route.
+   */
+  discovery?: Discovery
 }): Session {
   const now = options.now ?? (() => new Date().toISOString())
-  const maxAuto = options.maxAutoSteps ?? 20
+  const discovery = options.discovery
+  // Hex by hex, a long trip takes many steps.
+  const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
 
   const add = (
     s: SessionState,
@@ -172,15 +191,36 @@ export function createSession(options: {
     step(input, action) {
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
-      let act: TravelAction = action
+      /** Discovers at the party's hex; true when it found something to stop for. */
+      const arrive = (hex: string, from?: string, time?: number): boolean => {
+        if (!discovery) return false
+        const { text, discovered } = discovery.arrive(s, { ...s.stats, ...s.dayVars }, hex, from)
+        if (!discovered) return false
+        add(s, entries, {
+          source: 'oracle',
+          code: 'HEX_DISCOVERED',
+          ...(time !== undefined && { time }),
+          ...(text && { text }),
+          data: { hex, ...discovered },
+        })
+        return !!discovered.poi
+      }
+      const travelling = action.type === 'travel'
+      // Before setting off (or choosing where to go), see around the party.
+      if (discovery && (travelling || action.type === 'setDestination'))
+        if (arrive(s.travel.location) && travelling) return { state: s, entries }
+      let act: TravelAction = discovery && travelling ? { type: 'travel', until: 'hex' } : action
       for (let i = 0; i <= maxAuto; i++) {
         const dayBefore = s.travel.day
+        const from = s.travel.location
         const result = options.travel.apply(s.travel, act)
         s.travel = result.state
         if (s.travel.day !== dayBefore) s.dayVars = {}
         let resolvedAll = true
+        let found = false
         for (const event of result.events) {
           journalEvent(s, entries, event)
+          if (event.type === 'HEX_ENTERED') found = arrive(event.hex, from, event.time) || found
           if (event.type !== 'CHECK_REQUIRED') continue
           const binding = options.bindings?.on[event.check.event]
           if (!binding || !options.oracle) {
@@ -215,15 +255,29 @@ export function createSession(options: {
           }).state
         }
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
-        // A travel order keeps going once its checks are resolved.
-        const keepGoing =
-          action.type === 'travel' &&
-          resolvedAll &&
-          s.travel.pendingChecks.length === 0 &&
-          stopped?.type === 'TRAVEL_STOPPED' &&
-          stopped.reason === 'check'
+        const reason = stopped?.type === 'TRAVEL_STOPPED' ? stopped.reason : undefined
+        const clear = travelling && resolvedAll && s.travel.pendingChecks.length === 0 && !found
+        // A travel order keeps going once its checks are resolved…
+        let keepGoing = clear && reason === 'check'
+        // …and, discovering, from hex to hex, with the route re-planned over what was found.
+        if (
+          discovery &&
+          clear &&
+          (reason === 'hex' || reason === 'check') &&
+          (action as { until?: string }).until !== 'hex'
+        ) {
+          const destination = s.travel.destination
+          if (!destination) break
+          const planned = options.travel.apply(s.travel, {
+            type: 'setDestination',
+            hex: destination,
+          })
+          s.travel = planned.state
+          for (const event of planned.events) journalEvent(s, entries, event)
+          keepGoing = !!s.travel.route
+        }
         if (!keepGoing) break
-        act = action
+        act = discovery ? { type: 'travel', until: 'hex' } : action
       }
       return { state: s, entries }
     },
@@ -266,3 +320,4 @@ export function dayVariables(value: Record<string, unknown>): Record<string, unk
   return out
 }
 export * from './trip'
+export * from './discovery'

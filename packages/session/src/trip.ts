@@ -9,6 +9,7 @@ import {
   type TravelRules,
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
+import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
 import {
   createSession,
   initialSessionState,
@@ -65,6 +66,19 @@ export function travelSystems(registry: Registry): {
       problems.push(
         ...(parsed?.errors ?? []).map((e) => problem(id, bindingsRaw.file, 'bindings', e)),
       )
+      const discover = parsed?.bindings?.discover
+      for (const key of ['terrain', 'contents'] as const) {
+        const target = discover?.[key]?.resolve
+        if (target && !registry.definitions.has(target))
+          problems.push(
+            problem(
+              id,
+              bindingsRaw.file,
+              'bindings',
+              `discover.${key}.resolve: Unknown table or generator "${target}"`,
+            ),
+          )
+      }
       for (const [event, binding] of Object.entries(parsed?.bindings?.on ?? {}))
         if (!registry.definitions.has(binding.resolve))
           problems.push(
@@ -116,17 +130,41 @@ export function startTrip(options: {
   return { startDay, session: initialSessionState(travel, { ...declared, ...options.stats }) }
 }
 
-/** Runs one travel action through the session; bound checks are resolved by the Oracle. */
+/**
+ * Runs one travel action through the session; bound checks are resolved by the Oracle.
+ * With `discover` (and a system whose bindings have `discover`), empty hexes are decided
+ * on the way: `discovered` is what the host should write on its map.
+ */
 export function stepTrip(
-  options: { system: TravelSystem; world: TravelWorld; oracle?: OracleEngine; locale?: string },
+  options: {
+    system: TravelSystem
+    world: TravelWorld
+    oracle?: OracleEngine
+    locale?: string
+    /** Turn discovery on, revealing the entered hex only or its neighbours too. */
+    discover?: RevealMode
+  },
   session: SessionState,
   action: TravelAction,
-): { state: SessionState; entries: JournalEntry[] } {
+): { state: SessionState; entries: JournalEntry[]; discovered: Record<string, DiscoveredHex> } {
   const { system } = options
-  return createSession({
-    travel: createTravelEngine({ world: options.world, rules: system.rules }),
+  const discover = system.bindings?.discover
+  const discovery =
+    options.discover && discover && options.oracle
+      ? createDiscovery({
+          world: options.world,
+          oracle: options.oracle,
+          discover,
+          reveal: options.discover,
+          locale: options.locale,
+        })
+      : undefined
+  const result = createSession({
+    travel: createTravelEngine({ world: discovery?.world ?? options.world, rules: system.rules }),
     oracle: system.bindings ? options.oracle : undefined,
     bindings: system.bindings,
     locale: options.locale,
+    discovery,
   }).step(session, action)
+  return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }

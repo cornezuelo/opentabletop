@@ -27,3 +27,16 @@ El terreno, los caminos y ríos, las etiquetas, campos y región del hex, la est
 ## Mover a mano
 
 Arrastra el token del grupo para ponerlo en otro sitio: el rastro le sigue, y durante un viaje es un salto (no pasa el tiempo).
+
+## Descubrir el mapa
+
+Con un sistema que sepa descubrir (Core sabe), marca **Descubrir el mapa al viajar**. Empieza con un mapa en blanco: pinta solo el hex donde empieza el grupo y haz clic en un destino cualquiera. Mientras el grupo viaja, las tablas del sistema deciden los hexes **vacíos**:
+
+- **El terreno**, visto desde la tierra que pisas (el bosque tiende a seguir siendo bosque).
+- **Qué hay**, la primera vez que entras en un hex: un punto de interés, etiquetas (un `landmark` detiene allí los viajes de Core), un nombre. El viaje se detiene cuando encuentras algo, para que lo juegues.
+
+**Qué se descubre**: _los hexes alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlos, así que rutas y velocidades son reales) o _solo el hex al que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
+
+Los hexes que pintaste nunca se cambian, así que puedes preparar parte del mapa y dejar el resto por descubrir. Los descubrimientos son parte de la partida, como el diario: <kbd>Ctrl</kbd>+<kbd>Z</kbd> no los deshace; repinta o borra a mano. En el diario solo se apunta lo que merece la pena.
+
+Para que tu propio sistema descubra, mira [Conectar tablas con mapas y viajes](../oracle/07-connecting.md#7-descubrir-el-mapa).

@@ -124,7 +124,26 @@ stats:
 
 Las comprobaciones sin binding esperan en el diario a que las resuelvas tú.
 
-## 6. Probarlo
+## 7. Descubrir el mapa
+
+Los bindings también pueden decir cómo se deciden los hexes vacíos al viajar (el **Descubrir el mapa al viajar** del Hexmapper):
+
+```yaml
+kind: bindings
+discover:
+  terrain: { resolve: next-terrain } # el terreno de un hex vacío
+  contents: { resolve: hex-contents } # qué hay en un hex, la primera vez que entras
+  reveal: neighbors # o: entered (solo el hex al que entras)
+on: { … }
+```
+
+- La tabla de **terreno** ve el hex que pisas: `terrain`, sus etiquetas, campos y región, más `hex` (el hex que se decide). Responde con `set: { terrain: hills }`; `set: { terrain: '{{terrain}}' }` copia el actual.
+- La tabla de **contenido** ve el hex al que entras. Su texto se convierte en un punto de interés; `set: { poi: false }` significa que no hay nada que apuntar, `set: { poi: 'Un nombre' }` lo nombra de otra forma. `tags` (una o una lista) y `name` se escriben también en el hex.
+- Las características del grupo y los valores del día están en el contexto de ambas, como en las comprobaciones.
+
+El `discovery.yaml` de Core es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez.
+
+## 8. Probarlo
 
 1. En la aplicación Oracle, tira cada tabla escribiendo valores en **Contexto** (terreno, estación…) para comprobar los resultados.
 2. Sirve las dos aplicaciones desde el mismo sitio (`make serve`), abre el Hexmapper, Jugar → **Con reglas**, elige tu pack como reglas, coloca al grupo y viaja: el diario muestra cada comprobación y su resultado.

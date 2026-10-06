@@ -53,4 +53,45 @@ describe('bundled open packs', () => {
     )
     expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK_CHECK_REQUIRED'])
   })
+
+  it('Core discovers a map whose terrains its rules know', () => {
+    const core = travelSystems(registry).systems.find((s) => s.id === 'core')!
+    expect(core.bindings?.discover?.reveal).toBe('neighbors')
+    // A row of 12 empty hexes; only the first is painted.
+    const world: TravelWorld = {
+      hexKm: 10,
+      cell: (hex) => {
+        const n = Number(hex)
+        if (!(n >= 0 && n < 12)) return null
+        return n === 0 ? { terrain: 'forest', tags: [] } : { tags: [] }
+      },
+      neighbors: (hex) =>
+        [Number(hex) - 1, Number(hex) + 1].filter((n) => n >= 0 && n < 12).map(String),
+      distance: (x, y) => Math.abs(Number(x) - Number(y)),
+      edges: () => [],
+    }
+    const found: Record<string, { terrain?: string }> = {}
+    let { session } = startTrip({ system: core, location: '0', season: 'summer' })
+    const options = {
+      system: core,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('core-discovery') }),
+      locale: 'es',
+      discover: 'neighbors' as const,
+    }
+    for (const action of [
+      { type: 'setDestination', hex: '11' },
+      { type: 'travel' },
+      { type: 'travel' },
+      { type: 'camp' },
+      { type: 'travel' },
+    ] as const) {
+      const step = stepTrip(options, session, action)
+      session = step.state
+      Object.assign(found, step.discovered)
+    }
+    const terrains = Object.values(found).flatMap((d) => (d.terrain ? [d.terrain] : []))
+    expect(terrains.length).toBeGreaterThan(0)
+    for (const terrain of terrains) expect(Object.keys(core.rules.terrains)).toContain(terrain)
+  })
 })

@@ -1,7 +1,9 @@
 import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand } from '../commands/paths'
-import { DEFAULT_LABEL_STYLE } from '../model/defaults'
+import type { DiscoveredHex } from '@open-tabletop/session'
+import { DEFAULT_LABEL_STYLE, DEFAULT_TERRAINS } from '../model/defaults'
+import { newId } from '../model/id'
 import { History } from '../commands/history'
 import { createMap } from '../model/defaults'
 import { ReplaceTokenCommand } from '../commands/tokens'
@@ -193,6 +195,37 @@ class Editor {
   setOracle(oracle: HexMap['oracle']): void {
     this.map.oracle = oracle
     this.notify({ kind: 'oracle' })
+  }
+
+  /**
+   * Writes what a trip discovered (play, so outside the undo history): terrain only on
+   * empty hexes, tags added, a name only where there was none, points of interest added.
+   */
+  applyDiscovery(found: Record<string, DiscoveredHex>): void {
+    const keys: HexKey[] = []
+    let terrains = false
+    for (const [key, d] of Object.entries(found) as [HexKey, DiscoveredHex][]) {
+      const hex = { ...this.map.hexes[key] }
+      if (d.terrain && !hex.terrain) {
+        if (!this.map.terrains.some((t) => t.id === d.terrain)) {
+          // A terrain the palette lacks: the default one, or a plain new entry.
+          const known = DEFAULT_TERRAINS.find((t) => t.id === d.terrain)
+          this.map.terrains = [
+            ...this.map.terrains,
+            known ? { ...known } : { id: d.terrain, name: d.terrain, color: '#8a8a6a' },
+          ]
+          terrains = true
+        }
+        hex.terrain = d.terrain
+      }
+      if (d.tags?.length) hex.tags = [...new Set([...(hex.tags ?? []), ...d.tags])]
+      if (d.name && !hex.name) hex.name = d.name
+      if (d.poi) hex.pois = [...(hex.pois ?? []), { id: newId(), name: d.poi }]
+      this.map.hexes[key] = hex
+      keys.push(key)
+    }
+    if (terrains) this.notify({ kind: 'terrains' })
+    if (keys.length) this.notify({ kind: 'hexes', keys })
   }
 
   /** Play state changes: saved with the map but not part of the editor's undo history. */

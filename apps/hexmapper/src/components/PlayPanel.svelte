@@ -8,6 +8,7 @@
     resetParty,
     restartRules,
     sessionOf,
+    setDiscover,
     setMode,
     step,
     updatePlay,
@@ -18,7 +19,7 @@
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import TokenIconPicker from './tokens/TokenIconPicker.svelte'
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { AddTokenCommand } from '../lib/commands/tokens'
   import { newId } from '../lib/model/id'
   import { DEFAULT_TOKEN_ICONS } from '../lib/model/tokens'
@@ -109,6 +110,34 @@
     bind:season={newSeason}
     onrestart={restartRules}
   />
+  {#if system.bindings?.discover}
+    {@const discover = play.discover}
+    <div class="discover">
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={!!discover?.on}
+          onchange={(e) => setDiscover({ ...discover, on: e.currentTarget.checked })}
+        />
+        {t('play.discover')}
+        <InfoTip text={t('play.discoverHelp')} />
+      </label>
+      {#if discover?.on}
+        <select
+          aria-label={t('play.reveal')}
+          value={discover.reveal ?? system.bindings.discover.reveal}
+          onchange={(e) =>
+            setDiscover({
+              on: true,
+              reveal: e.currentTarget.value as 'neighbors' | 'entered',
+            })}
+        >
+          <option value="neighbors">{t('play.revealNeighbors')}</option>
+          <option value="entered">{t('play.revealEntered')}</option>
+        </select>
+      {/if}
+    </div>
+  {/if}
   {#if session && play.rules}
     <TripPanel
       {system}
@@ -184,5 +213,17 @@
     margin: 0;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .discover {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .discover .check {
+    display: flex;
+    gap: 6px;
+    align-items: center;
   }
 </style>

@@ -1,0 +1,76 @@
+next-terrain:
+  name: La tierra de delante
+  description: Decide un hex vacío a partir de la tierra que pisas. Casi siempre más de lo mismo, a veces algo parecido, de vez en cuando cualquier cosa.
+  entries:
+    same: La misma tierra
+open-land:
+  name: Tierra abierta
+  entries:
+    {
+      plains: Llanura,
+      steppe: Estepa,
+      farmland: Cultivos,
+      heath: Brezal,
+      forest: Bosque,
+      hills: Colinas,
+    }
+woodland:
+  name: Bosques
+  entries: { forest: Bosque, dense: Bosque denso, plains: Llanura, hills: Colinas, swamp: Pantano }
+wetland:
+  name: Humedales
+  entries: { marsh: Marisma, swamp: Pantano, lake: Lago, forest: Bosque }
+highland:
+  name: Tierras altas
+  entries: { hills: Colinas, mountains: Montañas, peaks: Cumbres, canyon: Cañón, forest: Bosque }
+dryland:
+  name: Tierra seca
+  entries:
+    { desert: Desierto, badlands: Tierras baldías, canyon: Cañón, oasis: Oasis, steppe: Estepa }
+cold-land:
+  name: Tierra fría
+  entries: { tundra: Tundra, snow: Nieve, glacier: Glaciar, taiga: Taiga }
+waters:
+  name: Aguas
+  entries: { coast: Costa, sea: Mar, lake: Lago, plains: Llanura }
+any-land:
+  name: Cualquier tierra
+  entries:
+    {
+      plains: Llanura,
+      forest: Bosque,
+      hills: Colinas,
+      steppe: Estepa,
+      mountains: Montañas,
+      swamp: Pantano,
+      lake: Lago,
+    }
+hex-contents:
+  name: ¿Qué hay aquí?
+  description: Se tira la primera vez que entras en un hex descubierto. Casi siempre nada; a veces ruinas, un santuario o un lugar con nombre.
+  entries:
+    water: Aguas abiertas
+    lair: La guarida de un dragón, con huesos esparcidos a la entrada
+    ruins: 'Ruinas: {{result}}'
+    nothing: Nada destacable
+    shrine: Un santuario junto al camino a un dios olvidado
+    camp: 'Un campamento de {{1d6+2}} viajeros'
+landmarks:
+  name: Lugares señalados
+  entries:
+    spires: 'Las Agujas Gemelas: dos torres de cristal negro que se ven a leguas'
+    stone: 'Una piedra erguida tallada con {{result}}'
+ruins:
+  name: Ruinas
+  entries:
+    tower: una atalaya derruida
+    villa: el esqueleto de una casa solariega
+    temple: un templo sin techo
+    fort: un castro cubierto de maleza
+carvings:
+  name: Tallas
+  entries:
+    serpent: una serpiente enroscada
+    eye: un ojo que llora
+    ship: un barco a toda vela
+    skull: una calavera coronada

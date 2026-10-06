@@ -315,6 +315,12 @@ export const es: Messages = {
     empty: 'Aún no hay tokens.',
   },
   play: {
+    discover: 'Descubrir el mapa al viajar',
+    discoverHelp:
+      'Las tablas del sistema deciden los hexes vacíos mientras el grupo viaja: su terreno, y qué hay en ellos (un punto de interés, etiquetas, un nombre) la primera vez que entráis. Los hexes pintados nunca se cambian. Los descubrimientos son parte de la partida: Ctrl+Z no los deshace.',
+    reveal: 'Qué se descubre',
+    revealNeighbors: 'Los hexes alrededor del grupo (lo que ve)',
+    revealEntered: 'Solo el hex al que entra el grupo',
     mode: 'Modo de juego',
     intro:
       'Mueve a tu grupo por el mapa. Simple: solo un icono y su rastro. Con reglas: el Travel Engine lleva el tiempo, el terreno, las provisiones y la fatiga, y el Oracle tira el clima, perderse, los puntos de interés y los encuentros con las tablas del sistema, anotándolo todo en el diario.',

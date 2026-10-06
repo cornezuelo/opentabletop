@@ -201,6 +201,11 @@ export interface PlayState {
   showTrail: boolean
   /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
   rules?: { system: string; startDay: number; session: unknown }
+  /**
+   * Discovery (rules mode, systems with `discover` bindings): empty hexes are decided as
+   * the party travels. `reveal` overrides the system's choice (neighbours or entered hex).
+   */
+  discover?: { on: boolean; reveal?: 'neighbors' | 'entered' }
 }
 
 /**

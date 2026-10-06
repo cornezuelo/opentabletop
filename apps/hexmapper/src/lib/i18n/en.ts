@@ -309,6 +309,12 @@ export const en = {
     empty: 'No tokens yet.',
   },
   play: {
+    discover: 'Discover the map as you travel',
+    discoverHelp:
+      'Empty hexes are decided by the system’s tables as the party travels: their terrain, and what is in them (a point of interest, tags, a name) the first time you enter. Painted hexes are never changed. Discoveries are part of the game: Ctrl+Z doesn’t undo them.',
+    reveal: 'What is discovered',
+    revealNeighbors: 'The hexes around the party (what it sees)',
+    revealEntered: 'Only the hex the party enters',
     mode: 'Play mode',
     intro:
       'Move your party around the map. Simple: just a token and its trail. With rules: the Travel Engine tracks time, terrain, supplies and fatigue, and the Oracle rolls weather, getting lost, points of interest and encounters from the system’s tables, writing everything in the journal.',

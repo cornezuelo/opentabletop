@@ -97,6 +97,8 @@
         return t('journal.pending', { event: eventName(d.event) })
       case 'HEX_ENTERED':
         return t('journal.entered', { hex: hexLabel(String(d.hex)) })
+      case 'HEX_DISCOVERED':
+        return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
       case 'DAY_STARTED':
         return t('journal.day', { day: Number(d.day) - startDay + 1 })
       case 'RESOURCE_DEPLETED':

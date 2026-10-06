@@ -117,7 +117,7 @@ Each tool shows only what it edits (Select: the hex; Terrain: the palette; Token
 - [x] "Roll here" from the hex panel: opens the Oracle with that hex as context (the panel says which hex rolls read).
 - [x] Apply results to the map: "Add to <hex> as a point of interest" under each result (oracle-ui `actions` snippet); long results keep the table name as the POI name and the text as its description. Undoable.
 - [x] Oracle history and deck state per map (map format v6): `map.oracle` = { state, history }, shared by hand rolls and trip checks; in OTD, `state.oracle` and `ext.hexmapper.oracleHistory`. oracle-ui's Roller takes a `store`.
-- [ ] Discovery: travel results fill the map as you go — a point of interest rolled on a trip becomes a POI of the hex, and a mode that starts with only the first hex and lets the Oracle decide what each new hex holds (terrain, POIs…) when the party enters it.
+- [x] Discovery (2026-10-07): bindings `discover: { terrain, contents, reveal }`; session goes hex by hex, decides empty hexes (terrain seen from the current hex; contents on first entry: POI, tags, name), re-plans the route and stops at finds; the Hexmapper writes them on the map outside undo (`editor.applyDiscovery`). Play panel toggle and reveal mode (neighbours / entered) in `play.discover`. Core has an example (`discovery.yaml`).
 
 ### Later
 

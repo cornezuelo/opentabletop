@@ -57,6 +57,7 @@ export const es: Messages<typeof en> = {
   journal: {
     pending: '{event}: esperando',
     entered: 'Entráis en {hex}',
+    discovered: 'Descubierto en {hex}: {what}',
     day: 'Empieza el día {day}',
     depleted: 'Sin {resource}: sube la fatiga',
     CAMP_STARTED: 'Acampáis para pasar la noche',
