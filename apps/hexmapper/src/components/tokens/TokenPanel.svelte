@@ -4,7 +4,7 @@
   import { t, type MessageKey } from '../../lib/i18n/index.svelte'
   import { DEFAULT_TOKEN_ICONS, tokenColor } from '../../lib/model/tokens'
   import { TOKEN_KINDS, type MapToken, type TokenKind } from '../../lib/model/types'
-  import { partyMoved } from '../../lib/play/play'
+  import { partyChanged, partyMoved } from '../../lib/play/play'
   import { editor } from '../../lib/store/editor.svelte'
   import { view } from '../../lib/store/view'
   import ColorPicker from '../ColorPicker.svelte'
@@ -40,7 +40,6 @@
     if (selected) editor.updateToken(selected.id, change)
   }
 
-  /** Becoming the party demotes the current one: there is only one. */
   /**
    * Changing the kind keeps the token's look: an automatic color is fixed first, since
    * the automatic one depends on the kind. Becoming the party demotes the current one.
@@ -49,9 +48,12 @@
     if (!selected) return
     const keepColor = (t: MapToken): MapToken => ({ ...t, color: tokenColor(t, editor.tokens) })
     const party = editor.tokens.find((t) => t.kind === 'party' && t.id !== selected.id)
+    const wasParty = selected.kind === 'party'
     if (kind === 'party' && party)
       editor.updateToken(party.id, (t) => ({ ...keepColor(t), kind: 'pc' }))
     update((t) => ({ ...keepColor(t), kind }))
+    // The trip follows the party token.
+    if (kind === 'party' || wasParty) partyChanged()
   }
 
   /** The token before a slider drag: the drag previews live and is recorded once. */

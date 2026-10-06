@@ -65,14 +65,28 @@ export function partyMoved(hex: HexKey | undefined): void {
   const play = current()
   if (!hex) return save({ ...play, trail: [], rules: undefined })
   if (play.trail.at(-1) !== hex) play.trail = [...play.trail, hex]
+  save(jump(play, hex))
+}
+
+/** The trip's party is now at `hex` without travelling: the route is dropped. */
+function jump(play: PlayState, hex: HexKey): PlayState {
   const session = sessionOf(play)
-  if (session && play.rules) {
-    const travel = { ...session.travel, location: hex, progress: 0 }
-    delete travel.destination
-    delete travel.route
-    play.rules = { ...play.rules, session: { ...session, travel } }
-  }
-  save(play)
+  if (!session || !play.rules) return play
+  const travel = { ...session.travel, location: hex, progress: 0 }
+  delete travel.destination
+  delete travel.route
+  return { ...play, rules: { ...play.rules, session: { ...session, travel } } }
+}
+
+/**
+ * Another token became the party (or none is): the trip, its journal and time go on
+ * with it, from where it stands; its trail starts there.
+ */
+export function partyChanged(): void {
+  const hex = partyLocation()
+  const play = current()
+  play.trail = hex ? [hex] : []
+  save(hex ? jump(play, hex) : play)
 }
 
 /** The rules-mode session, recreated if missing or from an incompatible save. */

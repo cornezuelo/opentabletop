@@ -19,4 +19,4 @@ Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the ma
 
 ## The party
 
-The party is a token too: Play mode moves it (see [Playing a trip](08-play.md)). There is one party per map; making another token the party turns the old one into a PC.
+The party is a token too: Play mode moves it (see [Playing a trip](08-play.md)). There is one party per map; making another token the party turns the old one into a PC. A trip in progress goes on with the new party, from where it stands: same day, supplies and journal; its trail starts there.

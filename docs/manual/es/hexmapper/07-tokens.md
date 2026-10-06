@@ -19,4 +19,4 @@ Nombre, tipo (grupo, PJ, PNJ, enemigo), icono, color, halo, **mostrar el nombre 
 
 ## El grupo
 
-El grupo también es un token: el modo Jugar lo mueve (ver [Jugar un viaje](08-play.md)). Hay un grupo por mapa; si conviertes otro token en el grupo, el anterior pasa a ser un PJ.
+El grupo también es un token: el modo Jugar lo mueve (ver [Jugar un viaje](08-play.md)). Hay un grupo por mapa; si conviertes otro token en el grupo, el anterior pasa a ser un PJ. Un viaje en curso sigue con el nuevo grupo, desde donde está: mismo día, provisiones y diario; su rastro empieza ahí.
