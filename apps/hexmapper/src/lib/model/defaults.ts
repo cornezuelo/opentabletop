@@ -2,6 +2,7 @@ import { newId } from './id'
 import { LAYER_IDS, type LayerId, type LayerState } from './types'
 import type {
   CaptionKind,
+  CaptionOverride,
   CaptionStyle,
   GridSettings,
   HexMap,
@@ -111,6 +112,23 @@ export const DEFAULT_CAPTIONS: Readonly<Record<CaptionKind, CaptionStyle>> = {
   },
 }
 export const CAPTION_SIZE_RANGE = [0.5, 2.5] as const
+
+/** A kind's style as an element's own style (everything but `show`). */
+export const ownStyleOf = ({
+  font,
+  size,
+  color,
+  italic,
+  halo,
+  haloColor,
+}: CaptionStyle): CaptionOverride => ({
+  font,
+  size,
+  ...(color && { color }),
+  italic,
+  halo,
+  haloColor,
+})
 
 export const LABEL_SIZE_RANGE = [0.2, 4] as const
 export const LABEL_HALO_RANGE = [0.05, 0.4] as const

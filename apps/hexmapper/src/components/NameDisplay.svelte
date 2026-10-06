@@ -1,13 +1,8 @@
 <script lang="ts">
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { FONT_FAMILIES } from '../lib/labels/fonts'
-  import { CAPTION_SIZE_RANGE } from '../lib/model/defaults'
-  import {
-    LABEL_FONTS,
-    type CaptionKind,
-    type CaptionOverride,
-    type CaptionStyle,
-  } from '../lib/model/types'
+  import { CAPTION_SIZE_RANGE, ownStyleOf } from '../lib/model/defaults'
+  import { LABEL_FONTS, type CaptionKind, type CaptionOverride } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
 
@@ -33,13 +28,8 @@
 
   let open = $state(false)
   const base = $derived(editor.captions[kind])
-  const effective = $derived<CaptionOverride>(style ?? withoutShow(base))
+  const effective = $derived<CaptionOverride>(style ?? ownStyleOf(base))
   const hiddenByMap = $derived(!base.show)
-
-  function withoutShow(s: CaptionStyle): CaptionOverride {
-    const { show: _show, ...rest } = s
-    return rest
-  }
 
   const set = (patch: Partial<CaptionOverride>, live = false) =>
     onstyle({ ...effective, ...patch }, live)

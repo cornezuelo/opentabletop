@@ -2,6 +2,7 @@ import { PAPERS, type PaperId } from '../print/paper'
 import {
   CAPTION_SIZE_RANGE,
   DEFAULT_CAPTIONS,
+  ownStyleOf,
   DEFAULT_HEX_KM,
   DEFAULT_GRID,
   DEFAULT_LABEL_STYLE,
@@ -281,8 +282,7 @@ export function parseCaptionOverride(
   fallback: CaptionStyle,
 ): CaptionOverride | undefined {
   if (!isRecord(value)) return undefined
-  const { show: _show, ...style } = parseCaptionStyle(value, fallback)
-  return style
+  return ownStyleOf(parseCaptionStyle(value, fallback))
 }
 
 function parseCaptionStyle(c: Record<string, unknown>, d: CaptionStyle): CaptionStyle {
