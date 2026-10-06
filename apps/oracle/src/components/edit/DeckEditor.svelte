@@ -212,8 +212,10 @@
     width: 50%;
   }
 
+  /* Ids are words (yes-and, storm…): don't let the result column squeeze them. */
   .id {
     width: 170px;
+    min-width: 150px;
   }
 
   .num {
@@ -222,6 +224,7 @@
 
   .then {
     width: 230px;
+    min-width: 200px;
   }
 
   .row-actions {
