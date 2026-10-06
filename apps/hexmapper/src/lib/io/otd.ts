@@ -29,6 +29,7 @@ interface TokenLook {
   iconId: string
   color?: string
   halo?: boolean
+  showName?: boolean
 }
 
 const lookOf = (token: MapToken): TokenLook => ({
@@ -36,6 +37,7 @@ const lookOf = (token: MapToken): TokenLook => ({
   iconId: token.iconId,
   ...(token.color && { color: token.color }),
   ...(token.halo === false && { halo: false }),
+  ...(token.showName && { showName: true }),
 })
 
 /** Tokens other than the party, as OTD characters with a location. */
@@ -66,6 +68,7 @@ function tokenOf(c: OtdCharacter, mapId: string): Record<string, unknown> | null
     iconId: look.iconId,
     color: look.color,
     halo: look.halo,
+    showName: look.showName,
     note: c.noteRef,
   }
 }
@@ -249,6 +252,7 @@ function playFromOtd(
     iconId: look.iconId,
     color: look.color,
     halo: look.halo,
+    showName: look.showName,
     note: party.noteRef,
   }
   return {

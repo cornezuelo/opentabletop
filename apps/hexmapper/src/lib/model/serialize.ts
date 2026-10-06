@@ -153,6 +153,7 @@ function parseIcon(value: unknown): HexData['icon'] {
     outlineColor: typeof value.outlineColor === 'string' ? value.outlineColor : undefined,
     outlineWidth: typeof value.outlineWidth === 'number' ? value.outlineWidth : undefined,
     offset: parseOffset(value.offset) ?? undefined,
+    label: typeof value.label === 'string' ? value.label : undefined,
   }
 }
 
@@ -302,6 +303,7 @@ function parseTokens(value: unknown): MapToken[] {
       iconId: typeof t.iconId === 'string' ? t.iconId : 'game:meeple',
       ...(typeof t.color === 'string' && COLOR.test(t.color) && { color: t.color }),
       ...(t.halo === false && { halo: false }),
+      ...(t.showName === true && { showName: true }),
       ...(typeof t.note === 'string' && t.note && { note: t.note }),
     })
   }

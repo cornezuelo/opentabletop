@@ -70,6 +70,8 @@ const ICON_INK_EMPTY = 0xe8e2d4
 /** Icon size as a fraction of the hex size, nudged down to leave room for the coordinate. */
 const ICON_SIZE = 1.25
 const ICON_OFFSET_Y = 0.1
+/** Captions (icon labels, hex and token names), in hex sizes. */
+const CAPTION_SIZE = 0.22
 /** Terrain glyph size (fraction of the hex size) and offset below the center. */
 const GLYPH_SIZE = 0.72
 const GLYPH_OFFSET_Y = 0.1
@@ -124,6 +126,8 @@ export class MapRenderer {
   private glyphLayer = new Container()
   private glyphSprites = new Map<HexKey, Sprite>()
   private labelLayer = new Container()
+  /** Hex names under their hexes. */
+  private nameLayer = new Container()
   /** Party trail and route (play mode). */
   private partyLayer = new Container()
   private partyLines = new Graphics()
@@ -165,6 +169,7 @@ export class MapRenderer {
       this.regionLayer,
       this.pathsLayer,
       this.iconLayer,
+      this.nameLayer,
       this.coordLayer,
       this.labelLayer,
       this.partyLayer,
@@ -186,6 +191,8 @@ export class MapRenderer {
     loadLabelFonts().then(() => {
       this.drawLabels()
       this.drawRegions()
+      this.drawIcons()
+      this.drawTokens()
     })
   }
 
@@ -658,6 +665,12 @@ export class MapRenderer {
       if (image.tintable) sprite.tint = color
       this.tokenLayer.addChild(sprite)
     }
+    for (const placed of layoutTokens(editor.map.tokens)) {
+      if (!placed.token.showName || !placed.token.name) continue
+      const c = this.centerOf(parseKey(placed.hex))
+      const at = { x: c.x + placed.dx * hs, y: c.y + (placed.dy + placed.radius) * hs + 1 }
+      this.tokenLayer.addChild(this.caption(placed.token.name, at.x, at.y))
+    }
   }
 
   /** Topmost token under a world point. */
@@ -674,13 +687,17 @@ export class MapRenderer {
   }
 
   /** Re-rasterize text for the current zoom so labels stay sharp. */
+  private textResolution(): number {
+    return Math.min(4, Math.max(1, Math.ceil(this.world.scale.x * devicePixelRatio * 2) / 2))
+  }
+
   private updateLabelResolution(): void {
-    const resolution = Math.min(
-      4,
-      Math.max(1, Math.ceil(this.world.scale.x * devicePixelRatio * 2) / 2),
-    )
+    const resolution = this.textResolution()
     for (const text of this.labelTexts.values())
       if (text.resolution !== resolution) text.resolution = resolution
+    for (const layer of [this.iconLayer, this.nameLayer, this.tokenLayer, this.regionLayer])
+      for (const child of layer.children)
+        if (child instanceof Text && child.resolution !== resolution) child.resolution = resolution
   }
 
   /** Topmost label whose (rotated) box contains the world point. */
@@ -765,7 +782,43 @@ export class MapRenderer {
       if (image.tintable)
         sprite.tint = icon.color ?? (hex.terrain || icon.halo ? ICON_INK : ICON_INK_EMPTY)
       place(sprite)
+      if (icon.label) this.iconLayer.addChild(this.caption(icon.label, x, cy + size * 0.36))
     }
+    this.drawNames()
+  }
+
+  /** Hex names, under the hex (and under its icon's caption, if any). */
+  private drawNames(): void {
+    for (const child of this.nameLayer.removeChildren()) child.destroy()
+    const { grid, hexes } = editor.map
+    const hs = grid.hexSize
+    for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
+      if (!hex.name) continue
+      const cell = parseKey(key)
+      if (!inBounds(cell, grid)) continue
+      const c = this.centerOf(cell)
+      const below = hex.icon?.label ? CAPTION_SIZE * 1.15 : 0
+      this.nameLayer.addChild(this.caption(hex.name, c.x, c.y + hs * (0.5 + below)))
+    }
+  }
+
+  /** Small text with a light halo, centered under a point (icon, token, hex). */
+  private caption(text: string, x: number, y: number): Text {
+    const fontSize = editor.map.grid.hexSize * CAPTION_SIZE
+    const caption = new Text({
+      text,
+      style: {
+        fontFamily: FONT_FAMILIES.fell.family,
+        fontSize,
+        fill: '#1b1a17',
+        align: 'center',
+        stroke: { color: '#f4eedd', width: fontSize * 0.28, join: 'round' as const },
+      },
+    })
+    caption.anchor.set(0.5, 0)
+    caption.position.set(x, y)
+    caption.resolution = this.textResolution()
+    return caption
   }
 
   private strokePolyline(g: Graphics, points: Point[]): void {
@@ -826,6 +879,7 @@ export class MapRenderer {
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible
     this.labelLayer.visible = layers.labels.visible
+    this.nameLayer.visible = layers.names.visible
     this.partyLayer.visible = layers.party.visible
     this.tokenLayer.visible = layers.tokens.visible
     this.markers.visible = layers.markers.visible

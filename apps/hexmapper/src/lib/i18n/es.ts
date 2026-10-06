@@ -124,6 +124,8 @@ export const es: Messages = {
     custom: 'Propios',
   },
   icons: {
+    label: 'Etiqueta',
+    labelPlaceholder: 'Texto corto bajo el icono',
     search: 'Buscar iconos (en inglés)…',
     category: 'Categoría',
     empty: 'Ningún icono coincide.',
@@ -170,6 +172,7 @@ export const es: Messages = {
       markers: 'Marcadores de notas',
       tokens: 'Tokens',
       regions: 'Regiones',
+      names: 'Nombres de hex',
     },
   },
   labels: {
@@ -256,6 +259,7 @@ export const es: Messages = {
     none: 'Sin región',
   },
   tokens: {
+    showName: 'Mostrar el nombre en el mapa',
     help: 'Haz clic en un hex vacío para colocar un token como el de abajo (Mayús+clic añade otro a un hex que ya tiene tokens). Haz clic en un token para editarlo y arrástralo a otro hex; clic derecho o Supr lo quita.',
     newTitle: 'Tokens nuevos',
     kind: 'Tipo',

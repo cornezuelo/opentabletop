@@ -117,6 +117,17 @@
       />
       {t('iconStyle.halo')}
     </label>
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={!!selected.showName}
+        onchange={(e) => {
+          const show = e.currentTarget.checked
+          update((t) => ({ ...t, showName: show || undefined }))
+        }}
+      />
+      {t('tokens.showName')}
+    </label>
     <label class="field">
       <span>{t('tokens.note')}</span>
       <NoteRefInput

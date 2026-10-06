@@ -67,12 +67,12 @@
 
   function changeStyle(style: IconStyle, live: boolean) {
     // New icons reuse the style, but not this icon's position.
-    editor.iconStyle = { ...style, offset: undefined }
+    editor.iconStyle = { ...style, offset: undefined, label: undefined }
     if (!editing) return
     const { key, icon } = editing
     const update = (hex: HexData) => ({
       ...hex,
-      icon: { ...style, id: icon.id, offset: icon.offset },
+      icon: { ...style, id: icon.id, offset: icon.offset, label: icon.label },
     })
     editor.previewHex(key, update)
     if (!live) editor.commitHex(key)
@@ -153,6 +153,20 @@
     <span>{t('icons.editing', { name: selectedName, coord: editing.coord })}</span>
     <button class="link" onclick={() => (editor.selectedIcon = null)}>{t('icons.deselect')}</button>
   </div>
+  <label class="field">
+    <span>{t('icons.label')}</span>
+    <input
+      type="text"
+      value={editing.icon.label ?? ''}
+      maxlength={40}
+      placeholder={t('icons.labelPlaceholder')}
+      onchange={(e) => {
+        const label = e.currentTarget.value
+        const { key } = editing
+        editor.editHex(key, (h) => ({ ...h, icon: { ...h.icon!, label } }))
+      }}
+    />
+  </label>
 {:else}
   <p class="selected">{t('icons.selected', { name: selectedName })}</p>
 {/if}

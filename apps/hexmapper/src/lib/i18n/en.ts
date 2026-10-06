@@ -122,6 +122,8 @@ export const en = {
     custom: 'Custom',
   },
   icons: {
+    label: 'Label',
+    labelPlaceholder: 'Short text under the icon',
     search: 'Search icons…',
     category: 'Category',
     empty: 'No icons match.',
@@ -168,6 +170,7 @@ export const en = {
       markers: 'Note markers',
       tokens: 'Tokens',
       regions: 'Regions',
+      names: 'Hex names',
     },
   },
   labels: {
@@ -254,6 +257,7 @@ export const en = {
     none: 'No region',
   },
   tokens: {
+    showName: 'Show the name on the map',
     help: 'Click an empty hex to place a token like the one below (Shift+click adds one to a hex that already has tokens). Click a token to edit it and drag it to another hex; right-click or Delete removes it.',
     newTitle: 'New tokens',
     kind: 'Kind',
