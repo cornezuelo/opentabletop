@@ -96,11 +96,7 @@ const CATEGORIES = {
     'waterfall',
     'oasis',
   ],
-  nature: [
-    'mushrooms',
-    'herbs-bundle',
-    'tree-roots',
-  ],
+  nature: ['mushrooms', 'herbs-bundle', 'tree-roots'],
   danger: [
     'skull-crossed-bones',
     'death-skull',
