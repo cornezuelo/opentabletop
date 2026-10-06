@@ -232,6 +232,15 @@ describe('camp, resources and fatigue', () => {
     expect(state.fatigue).toBe(0)
   })
 
+  it('eats supplies for every day that passes, however it passes', () => {
+    // Resting through two full days without camping still uses two days of food.
+    const { state, events } = run(start(), { type: 'rest', minutes: 48 * 60 })
+    expect(state.resources.food).toBe(1)
+    expect(events.filter((e) => e.type === 'DAY_STARTED')).toHaveLength(1)
+    const waited = run(start(), { type: 'advanceTime', minutes: 30 * 60 }).state
+    expect(waited.resources.food).toBe(2)
+  })
+
   it('applies check outcomes to resources and fatigue', () => {
     const { state } = run(start(), { type: 'camp' })
     const check = state.pendingChecks[0]

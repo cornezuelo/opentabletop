@@ -251,14 +251,14 @@ export const es: Messages = {
       marched:
         'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
       resource:
-        'Provisiones: se comen {perDay} al día al acampar, que es lo que cierra la jornada. Ajusta la cantidad al comprar, encontrar o forrajear comida. Si se acaban, sube la fatiga.',
+        'Provisiones: se comen {perDay} por cada día que pasa, ya sea acampando, descansando o esperando. Ajusta la cantidad al comprar, encontrar o forrajear comida. Cada día sin suficiente sube la fatiga.',
       fatigue:
-        'Sube 1 al acampar sin comida y baja 1 tras una noche con comida o un descanso. Ajústala a mano cuando tu sistema o la historia lo pidan.',
+        'Sube 1 por cada día sin comida suficiente y baja 1 tras acampar habiendo comido o un descanso largo. Ajústala a mano cuando tu sistema o la historia lo pidan.',
       travel:
         'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
       travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
-      camp: 'Termina el día: comer, la comprobación nocturna (si la hay) y despertar al alba.',
-      rest: 'Descansa 8 horas: pasa el tiempo y baja la fatiga.',
+      camp: 'Termina el día: la comprobación nocturna (si la hay), comer y despertar al alba; una noche con comida baja la fatiga.',
+      rest: 'Descansa 8 horas: baja la fatiga, pero pasa el tiempo, y los días que terminan gastan provisiones.',
     },
     noBindings:
       'Estas reglas no tienen tablas asociadas: las comprobaciones esperan a que continúes.',

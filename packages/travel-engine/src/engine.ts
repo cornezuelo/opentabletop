@@ -215,15 +215,49 @@ export function createTravelEngine(options: {
   }
 
   /** Resets daily counters when the calendar day changed. */
-  const syncDay = (state: TravelState, events: TravelEvent[]): void => {
+  /** Supplies used per day (resources' perDay plus what the travel mode consumes). */
+  const dailyConsumption = (state: TravelState): Record<string, number> => {
+    const consumption: Record<string, number> = {}
+    for (const [id, r] of Object.entries(rules.resources ?? {}))
+      consumption[id] = (consumption[id] ?? 0) + (r.perDay ?? 0)
+    for (const [id, n] of Object.entries(rules.modes[state.mode]?.consumes ?? {}))
+      consumption[id] = (consumption[id] ?? 0) + n
+    return consumption
+  }
+
+  /** Eats one day of supplies; going without raises fatigue. Returns true if short. */
+  const eatOneDay = (state: TravelState, events: TravelEvent[]): boolean => {
+    let short = false
+    for (const [id, amount] of Object.entries(dailyConsumption(state))) {
+      if (amount <= 0) continue
+      const left = (state.resources[id] ?? 0) - amount
+      if (left < 0) {
+        short = true
+        events.push({ type: 'RESOURCE_DEPLETED', resource: id })
+      }
+      state.resources[id] = Math.max(0, left)
+    }
+    if (short) state.fatigue += 1
+    return short
+  }
+
+  /**
+   * Starts a new day when the calendar day changed: supplies are eaten for every day
+   * that ended (whatever passed the time: camping, resting, waiting), and the daily
+   * counters reset. Returns true if the party went short of supplies.
+   */
+  const syncDay = (state: TravelState, events: TravelEvent[]): boolean => {
     const { day } = calendar.describe(state.time)
-    if (day === state.day) return
+    if (day <= state.day) return false
+    let short = false
+    for (let d = state.day; d < day; d++) short = eatOneDay(state, events) || short
     state.day = day
     state.travelledToday = 0
     state.dayChecksDone = false
     state.lostToday = false
     state.speedToday = undefined
     events.push({ type: 'DAY_STARTED', day })
+    return short
   }
 
   const travel = (
@@ -289,27 +323,14 @@ export function createTravelEngine(options: {
     }
   }
 
+  /** Ends the day: night checks, sleep until dawn (supplies are eaten as the day ends). */
   const camp = (state: TravelState, events: TravelEvent[]): void => {
     events.push({ type: 'CAMP_STARTED', time: state.time })
     schedule(state, 'camp', events)
-    let starving = false
-    const consumption: Record<string, number> = {}
-    for (const [id, r] of Object.entries(rules.resources ?? {}))
-      consumption[id] = (consumption[id] ?? 0) + (r.perDay ?? 0)
-    for (const [id, n] of Object.entries(rules.modes[state.mode]?.consumes ?? {}))
-      consumption[id] = (consumption[id] ?? 0) + n
-    for (const [id, amount] of Object.entries(consumption)) {
-      if (amount <= 0) continue
-      const left = (state.resources[id] ?? 0) - amount
-      if (left < 0) {
-        starving = true
-        events.push({ type: 'RESOURCE_DEPLETED', resource: id })
-      }
-      state.resources[id] = Math.max(0, left)
-    }
-    state.fatigue = starving ? state.fatigue + 1 : Math.max(0, state.fatigue - 1)
     state.time = nextAt(calendar, state.time + 1, rules.day.start)
-    syncDay(state, events)
+    const short = syncDay(state, events)
+    // A fed night's sleep recovers fatigue.
+    if (!short) state.fatigue = Math.max(0, state.fatigue - 1)
   }
 
   return {

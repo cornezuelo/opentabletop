@@ -249,14 +249,14 @@ export const en = {
       marched:
         'Hours of marching allowed per day; when they run out, camp to continue tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
       resource:
-        'Supplies: {perDay} per day are eaten when you camp, which ends the day. Edit the amount when you buy, find or forage food. Running out raises fatigue.',
+        'Supplies: {perDay} per day are eaten for every day that passes, whether you camp, rest or wait. Edit the amount when you buy, find or forage food. Each day without enough raises fatigue.',
       fatigue:
-        'Rises by 1 when you camp without food and drops by 1 after a fed night or a rest. Adjust it by hand when your system or the story says so.',
+        'Rises by 1 for each day without enough food and drops by 1 after a fed night’s camp or a long rest. Adjust it by hand when your system or the story says so.',
       travel:
         'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
       travelHex: 'Travel to the next hex of the route only.',
-      camp: 'End the day: eat, roll the night check (if any) and wake up at dawn.',
-      rest: 'Rest 8 hours: time passes and fatigue drops.',
+      camp: 'End the day: roll the night check (if any), eat and wake up at dawn; a fed night lowers fatigue.',
+      rest: 'Rest 8 hours: fatigue drops, but time passes, and days that end use up supplies.',
     },
     noBindings: 'These rules have no tables bound: checks wait for you to continue.',
     dayLine: 'Day {day} · {clock} · {season}',
