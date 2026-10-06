@@ -67,6 +67,17 @@
       >
     </header>
     <div class="export"><OraclePanel ui={oracleUi} context={rollContext()} /></div>
+  {:else if editor.panelView === 'layers'}
+    <header>
+      <h1>{t('panel.layers')}</h1>
+      <button
+        class="close"
+        title={t('panel.closeSettings')}
+        aria-label={t('panel.closeSettings')}
+        onclick={() => (editor.panelView = 'tool')}>✕</button
+      >
+    </header>
+    <div class="export"><LayersPanel /></div>
   {:else if editor.panelView === 'help'}
     <header>
       <h1>{t('panel.help')}</h1>
@@ -113,21 +124,9 @@
     <Section title={t('panel.tokens')}><TokenPanel /></Section>
   {:else if editor.tool === 'play'}
     <Section title={t('panel.play')}><PlayPanel /></Section>
+  {:else}
+    <Section title={t('panel.hex')}><HexInfo /></Section>
   {/if}
-  <Section title={t('panel.hex')}><HexInfo /></Section>
-  <Section title={t('panel.layers')} open={false}><LayersPanel /></Section>
-  <Section title={t('panel.shortcuts')} open={false}>
-    <ul class="hints">
-      <li>{t('hints.pan')}</li>
-      <li>{t('hints.zoom')}</li>
-      <li>{t('hints.erase')}</li>
-      <li>{t('hints.pick')}</li>
-      <li>{t('hints.brush')}</li>
-      <li>{t('hints.path')}</li>
-      <li>{t('hints.icon')}</li>
-      <li>{t('hints.text')}</li>
-    </ul>
-  </Section>
 {/snippet}
 
 <style>
@@ -171,12 +170,5 @@
     margin: 0;
     font-size: 16px;
     color: var(--accent);
-  }
-
-  .hints {
-    margin: 0;
-    padding-left: 18px;
-    color: var(--text-muted);
-    line-height: 1.6;
   }
 </style>

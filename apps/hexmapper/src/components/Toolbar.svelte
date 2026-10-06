@@ -82,6 +82,13 @@
     >⚙</button
   >
   <button
+    class:active={editor.panelView === 'layers'}
+    title={t('panel.layers')}
+    aria-label={t('panel.layers')}
+    aria-pressed={editor.panelView === 'layers'}
+    onclick={() => (editor.panelView = editor.panelView === 'layers' ? 'tool' : 'layers')}>▤</button
+  >
+  <button
     class:active={editor.panelView === 'help'}
     title={t('actions.help')}
     aria-label={t('actions.help')}

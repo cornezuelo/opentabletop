@@ -67,9 +67,26 @@ class Editor {
   canUndo = $state(false)
   canRedo = $state(false)
 
-  tool = $state<ToolId>('terrain')
+  #tool = $state<ToolId>('terrain')
+  /**
+   * The active tool. Changing it drops what the previous tool had selected (hex, icon,
+   * label, token), so no outline or panel is left for something you can't edit now.
+   */
+  get tool(): ToolId {
+    return this.#tool
+  }
+  set tool(tool: ToolId) {
+    if (tool === this.#tool) return
+    this.#tool = tool
+    this.selected = null
+    this.selectedIcon = null
+    this.selectedLabel = null
+    this.selectedToken = null
+  }
   /** What the side panel shows: the active tool and hex, or map settings and preferences. */
-  panelView = $state<'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'help'>('tool')
+  panelView = $state<'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'help' | 'layers'>(
+    'tool',
+  )
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)

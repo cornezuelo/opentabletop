@@ -107,11 +107,16 @@ Done:
 - [x] **Map texts** (Settings): hex, region and token names shown or hidden and styled per kind (font, size, color or automatic, italic, halo). Map format v5 (replaces the Hex names layer). Each hex, region and token can also hide its name or use its own style (its panel → Style).
 - [ ] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
 
+### Side panel (agreed 2026-10-07)
+
+Each tool shows only what it edits (Select: the hex; Terrain: the palette; Tokens: the token…). Settings, Layers (▤), Help (?), Maps, Export and the Oracle are views opened from the toolbar. Changing tools deselects what the previous one had selected. Keyboard shortcuts live in the manual.
+
 ### Backlog (Oracle in the map, agreed 2026-10-06)
 
 - [ ] "Roll here" from the hex panel: opens the Oracle with that hex as context.
 - [ ] Apply results to the map: add a rolled point of interest or settlement as a POI of the hex in one click.
 - [ ] Oracle history and deck state per map (saved in the OTD bundle like the trip journal) instead of per browser.
+- [ ] Discovery: travel results fill the map as you go — a point of interest rolled on a trip becomes a POI of the hex, and a mode that starts with only the first hex and lets the Oracle decide what each new hex holds (terrain, POIs…) when the party enters it.
 
 ### Later
 
