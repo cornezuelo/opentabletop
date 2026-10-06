@@ -24,4 +24,4 @@ El panel de la derecha es el mismo que en el Hexmapper: día, hora y estación, 
 
 Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. Una comprobación sin tabla (como los lugares señalados de las Marcas Grises) te espera: resuélvela tú y pulsa **Continuar**.
 
-El viaje se guarda en el navegador mientras juegas, y sigue ahí cuando vuelves.
+El viaje se guarda en el navegador mientras juegas, y sigue ahí cuando vuelves. Una [copia de seguridad](../technical/05-backups.md) lo lleva a otro ordenador.

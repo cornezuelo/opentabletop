@@ -5,10 +5,16 @@ import { MapFormatError } from '../model/migrations'
 import { deserializeMap, serializeMap } from '../model/serialize'
 import type { HexMap } from '../model/types'
 import { editor } from '../store/editor.svelte'
-import { ask } from '@open-tabletop/ui-kit'
+import { ask, showToast } from '@open-tabletop/ui-kit'
 import type { ExampleMap } from './examples'
-import { showToast } from '@open-tabletop/ui-kit'
-import { deleteLibraryMap, getLibraryMap, listLibrary, putLibraryMap } from './autosave'
+import {
+  deleteLibraryMap,
+  getLibraryMap,
+  listLibrary,
+  onBeforeBackup,
+  onBeforeRestore,
+  putLibraryMap,
+} from '@open-tabletop/storage'
 import { parseDeepLink } from './deepLink'
 import { downloadMap, pickMapFile } from './file'
 import { mapToBundle, parseMapFile } from './otd'
@@ -21,11 +27,13 @@ export const library = $state({ version: 0 })
 
 let dirty = false
 let timer: ReturnType<typeof setTimeout> | undefined
+/** A backup is being restored: nothing may be saved over it before the page reloads. */
+let frozen = false
 
 /** Writes the current map to the library now (if it has unsaved changes). */
 async function saveCurrent(): Promise<void> {
   clearTimeout(timer)
-  if (!dirty) return
+  if (!dirty || frozen) return
   dirty = false
   const { map } = editor
   try {
@@ -186,16 +194,26 @@ export async function startPersistence(): Promise<() => void> {
     timer = setTimeout(() => saveCurrent().catch(console.error), 500)
   })
   const saveNow = () => {
-    if (!dirty) return
+    if (!dirty || frozen) return
     writePending(serializeMap(editor.map))
     saveCurrent().catch(console.error)
   }
   const onVisibility = () => document.visibilityState === 'hidden' && saveNow()
   document.addEventListener('visibilitychange', onVisibility)
   window.addEventListener('pagehide', saveNow)
+  // A backup includes the open map as it is now; a restore must not be overwritten by it.
+  const stopBackup = onBeforeBackup(() => saveCurrent())
+  const stopRestore = onBeforeRestore(async () => {
+    // Saved first, so "add to mine" compares the map as it is now.
+    await saveCurrent().catch(console.error)
+    frozen = true
+    return () => (frozen = false)
+  })
   return () => {
     saveCurrent().catch(console.error)
     stop()
+    stopBackup()
+    stopRestore()
     document.removeEventListener('visibilitychange', onVisibility)
     window.removeEventListener('pagehide', saveNow)
   }

@@ -1,6 +1,6 @@
 # Getting started
 
-The Oracle app rolls and edits the random tables of your games: tables, oracles, generators and decks, grouped in **packs**. Everything stays in your browser.
+The Oracle app rolls and edits the random tables of your games: tables, oracles, generators and decks, grouped in **packs**. Everything stays in your browser; to keep a copy or move it to another computer, see [Backups of everything](../technical/05-backups.md).
 
 ## The screen
 

@@ -33,7 +33,8 @@ packages/                   # libraries, scope @open-tabletop/*
   travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), part of the world clock; decoupled from travel
   session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal, travel systems from packs, trips, map discovery
-  ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts
+  storage/                  # ✅ browser storage adapter: the map library (IndexedDB), backups of everything
+  ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts, app switcher (with backups)
   pack-ui/                  # ✅ pack library (bundled + user packs), editing, YAML helpers, YAML editor
   oracle-ui/                # ✅ embeddable Oracle: roll panel, result card, history, picker
   travel-ui/                # ✅ embeddable trip UI: system/season setup, status, supplies, actions, journal
@@ -67,6 +68,7 @@ apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, tim
 
 - An engine **never imports another engine**. Whatever they share (dice, time, conditions) goes into a lower-level package.
 - `note-refs` depends on nothing, and no engine depends on it: external references are opaque strings to engines.
+- `storage` is a browser adapter (IndexedDB, localStorage) with no dependencies; only apps and UI packages use it, never engines.
 
 ## Common schema: OpenTabletop Data (OTD)
 
@@ -123,6 +125,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **No native browser UI**: tooltips use `use:tooltip` (never `title=`), questions use `confirmAction()` / `ask()` from `ui-kit` (never `confirm()` or `alert()`); each app mounts `<Toasts />` and `<Dialogs />` once. Actions that Ctrl+Z can't undo (play state, forms without undo, deletions outside the history) ask first.
 - **Autocomplete where values are known:** an input whose value comes from a known list (ids, tags, terrains, field keys…) suggests them (`<datalist>` at least).
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
+- **Browser storage keys start with `opentabletop.`** (or the legacy `hexmapper.`), so backups (`@open-tabletop/storage`) include them; data in IndexedDB must be added to the backup explicitly. An app that saves on its own (autosave on page hide) registers `onBeforeBackup` / `onBeforeRestore`.
 - **Every app has a user manual** in `docs/manual/<locale>/<app>/` (English and Spanish, kept in sync: a test checks every English page has a Spanish one and that links resolve) and a help button with `HelpPanel` from `manual-ui`. Update the manual when a feature changes. **Every feature is documented thoroughly as part of the work, not later:** how to use it in its app's pages, in plain words with examples (for people who don't program); the harder details (file formats, what tables see and in which order, YAML, edge cases) in the **technical** section, linked from the app pages. Examples should point to the Grey Marches when they show it.
 - Tests are mandatory in every headless package, with deterministic RNG. Snapshots never replace meaningful asserts.
 - Every persisted format change bumps the version and adds a migration.
@@ -148,7 +151,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Region styles:** today a fixed light tint (alpha 0.14) and an inner border (alpha 0.85); make the fill optional with its opacity, and style the border (width, solid or dashed), map-wide in Settings with an optional own style per region, like map texts.
 - **Loose ends:** conditions and `set` in the Oracle table form, undo across form edits; several saved trips and journal export in the Travel app; POI icons, highlight/filter hexes by tag; responsive layouts for narrow windows.
 - **Suggestions while typing, everywhere:** autocomplete in every input whose value comes from a known list, in every app and system (today's and future ones): context keys, field keys and values, table and definition ids, tags, terrains, regions, events, stats… in forms, the roll panel, the hex panel and the YAML editor.
-- **Save / load the whole state (before any new system):** one backup file (OTD bundle or zip) with everything the apps keep in this browser, not just Hexmapper maps: the map library (IndexedDB), user packs, the Travel app's trip, Oracle histories and deck states, favorites and preferences. Restore it on another machine to resume whole campaigns, or after losing the browser storage. Versioned with migrations like every persisted format; restoring asks before replacing (or merges by id).
+- ✅ **Save / load the whole state (before any new system):** one backup file (OTD bundle or zip) with everything the apps keep in this browser, not just Hexmapper maps: the map library (IndexedDB), user packs, the Travel app's trip, Oracle histories and deck states, favorites and preferences. Restore it on another machine to resume whole campaigns, or after losing the browser storage. Versioned with migrations like every persisted format; restoring asks before replacing (or merges by id). Done (2026-10-07): app switcher → Save a backup / Restore a backup… (add to mine or replace everything), `@open-tabletop/storage`, manual page technical/05-backups.
 - **Installable, offline apps (PWA)** and the **command line** (`oracle roll …`, `oracle validate …`).
 - **Release workflow** (see below), per-package build, then alpha `0.1`.
 

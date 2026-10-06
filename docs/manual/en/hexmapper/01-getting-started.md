@@ -16,7 +16,7 @@ Maps are kept in this browser's library and saved automatically while you work. 
 
 **Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map).
 
-> Clearing the browser's data deletes its library: save files of the maps you care about.
+> Clearing the browser's data deletes its library: save files of the maps you care about, or a [backup of everything](../technical/05-backups.md) (app switcher → **Save a backup**).
 
 ## Undo and settings
 

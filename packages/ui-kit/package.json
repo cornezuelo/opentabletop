@@ -1,7 +1,7 @@
 {
   "name": "@open-tabletop/ui-kit",
   "version": "0.0.0",
-  "description": "Shared Svelte UI for OpenTabletop apps: theme, tooltips, info tips, toasts, i18n.",
+  "description": "Shared Svelte UI for OpenTabletop apps: theme, tooltips, info tips, toasts, i18n, the app switcher with backups.",
   "license": "MIT",
   "type": "module",
   "sideEffects": [
@@ -16,5 +16,8 @@
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
+  },
+  "dependencies": {
+    "@open-tabletop/storage": "*"
   }
 }

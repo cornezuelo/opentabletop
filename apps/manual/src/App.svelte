@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Manual } from '@open-tabletop/manual-ui'
+  import { Dialogs, Toasts } from '@open-tabletop/ui-kit'
 
   /** Same language preference as the Oracle app (English by default). */
   const KEY = 'opentabletop.locale'
@@ -28,3 +29,5 @@
 </script>
 
 <Manual {locale} {locales} onlocale={setLocale} />
+<Toasts />
+<Dialogs />

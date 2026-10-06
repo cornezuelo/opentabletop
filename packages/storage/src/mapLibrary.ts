@@ -1,4 +1,8 @@
-/** Local map library in IndexedDB: every map this browser has opened, keyed by map id. */
+/**
+ * The local map library in IndexedDB: every map this browser has opened, keyed by map id.
+ * The Hexmapper owns its contents (`json` is its own versioned map format); backups copy
+ * the entries as they are.
+ */
 const DB_NAME = 'hexmapper'
 const STORE = 'library'
 
@@ -56,4 +60,27 @@ export async function listLibrary(): Promise<Omit<LibraryEntry, 'json'>[]> {
   return entries
     .map(({ id, name, modified }) => ({ id, name, modified }))
     .sort((a, b) => b.modified.localeCompare(a.modified))
+}
+
+/** Every map with its JSON (for backups). */
+export async function allLibraryMaps(): Promise<LibraryEntry[]> {
+  return run<LibraryEntry[]>('readonly', (store) => store.getAll())
+}
+
+/** Writes several maps and deletes others in one transaction (restoring a backup). */
+export async function updateLibrary(put: LibraryEntry[], remove: string[] = []): Promise<void> {
+  const db = await openDb()
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readwrite')
+      const store = tx.objectStore(STORE)
+      for (const id of remove) store.delete(id)
+      for (const entry of put) store.put(entry)
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+      tx.onabort = () => reject(tx.error)
+    })
+  } finally {
+    db.close()
+  }
 }

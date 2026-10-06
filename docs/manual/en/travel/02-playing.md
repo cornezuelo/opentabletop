@@ -24,4 +24,4 @@ The panel on the right is the same as in the Hexmapper: day, time and season, th
 
 Checks are rolled on their tables and written in the **journal**, grouped by day. A check with no table (like the Grey Marches' landmarks) waits for you: resolve it yourself and press **Continue**.
 
-The trip is saved in the browser as you play, and is still there when you come back.
+The trip is saved in the browser as you play, and is still there when you come back. A [backup](../technical/05-backups.md) takes it to another computer.
