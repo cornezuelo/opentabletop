@@ -41,7 +41,7 @@ apps/
   travel/                   # ⏳ standalone travel app
 packs/                      # data packs (tables, travel rules, weather…)
   core/                     # ⏳ generic FOSS content (yes/no oracle, etc.)
-  kal-arath/                # ⏳ manifest and README; tables (personal use) live in the private packs repo
+  kal-arath/                # README only; the whole pack (personal use) lives in the private packs repo
 packs-private/              # ⏳ (git-ignored) checkout of the private packs repo
 docs/
   otd.md                    # common OpenTabletop Data schema
@@ -84,7 +84,7 @@ A pack is a folder with `pack.yaml` (id, version, base locale, license, dependen
 | **Personal-use packs** | Games whose license only allows personal use                                                                               | **Separate private repo** (e.g. `opentabletop-packs-private`), checked out or linked at `packs-private/` |
 | **User packs**         | Tables created or imported in the app                                                                                      | Browser library or a chosen folder, exportable as packs                                                  |
 
-- **Kal-Arath is personal use only**: "Copyright 2023 Castle Grief, permission to copy granted for personal use" (rulebook at `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Its tables never go into this public repo; they live in the private packs repo. Only `pack.yaml`, the README and our own design work (generic travel rules, bindings without rulebook text) live here.
+- **Kal-Arath is personal use only**: "Copyright 2023 Castle Grief, permission to copy granted for personal use" (rulebook at `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Its content never goes into this public repo: the whole pack (manifest included, so it can't shadow the real one) lives in the private packs repo. Only a README and our own design work (generic travel rules, bindings without rulebook text) live here.
 - Before adding a game to `packs/`, check its license and record it in `pack.yaml` (`license`, `attribution`). If in doubt, it goes to the private repo.
 - A personal-use game could move to `packs/` only with the author's permission.
 - **Languages:** every pack has exactly one required base locale (`locale` in `pack.yaml`). Translations are optional overlays per locale; any missing string falls back to the base locale (see `docs/oracle-engine.md`). Pack content is not translated by the UI's i18n.

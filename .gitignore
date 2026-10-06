@@ -28,5 +28,4 @@ packs-private/
 
 # Copyrighted pack content (e.g. Kal-Arath tables from the user's book): never in this public repo.
 packs/kal-arath/*
-!packs/kal-arath/pack.yaml
 !packs/kal-arath/README.md

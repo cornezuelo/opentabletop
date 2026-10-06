@@ -1,7 +1,0 @@
-id: kal-arath
-name: Kal-Arath
-version: 0.1.0
-locale: es
-license: Personal use. Table content comes from the Kal-Arath rulebook and is not distributed.
-dependencies:
-  core: ^0.1.0
