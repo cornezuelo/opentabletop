@@ -8,7 +8,7 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
 - **Side panel** (right): the active tool's options, the selected hex and the layers. The button with nine dots next to the map name opens the other OpenTabletop apps.
 
-Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](shortcuts.md).
+Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
 ## Your maps
 

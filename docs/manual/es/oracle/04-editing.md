@@ -31,4 +31,4 @@ Los **campos** se tiran en orden; cada uno sale de una tabla, un generador, unos
 
 ## Lo que no editan los formularios
 
-Las condiciones (`when`), los valores que fijan las entradas (`set`), los límites de una vez y el contexto de un campo de generador se editan en el YAML: el formulario marca las entradas que los tienen. Consulta [Referencia YAML](yaml.md).
+Las condiciones (`when`), los valores que fijan las entradas (`set`), los límites de una vez y el contexto de un campo de generador se editan en el YAML: el formulario marca las entradas que los tienen. Consulta [Referencia YAML](06-yaml.md).

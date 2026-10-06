@@ -15,6 +15,8 @@ export interface ManualPage {
   app: string
   locale: string
   slug: string
+  /** File name ("02-terrain.md"): what links between pages point at. */
+  file: string
   title: string
   order: number
   /** Markdown without the title line. */
@@ -74,7 +76,8 @@ export function parsePage(path: string, source: string): ManualPage | null {
     } else current.lines.push(line)
   }
   flush()
-  return { app, locale, slug, title, order: Number(order ?? 99), body, sections }
+  const file = path.split('/').at(-1)!
+  return { app, locale, slug, file, title, order: Number(order ?? 99), body, sections }
 }
 
 export interface Manual {

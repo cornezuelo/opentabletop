@@ -31,4 +31,4 @@ An **input** (its id, a **label** to show, and its **options**, each with a labe
 
 ## What the forms don't edit
 
-Conditions (`when`), values set by entries (`set`), once-only limits and a generator field's context are edited in the YAML: the form marks entries that have them. See [YAML reference](yaml.md).
+Conditions (`when`), values set by entries (`set`), once-only limits and a generator field's context are edited in the YAML: the form marks entries that have them. See [YAML reference](06-yaml.md).

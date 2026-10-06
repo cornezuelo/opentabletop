@@ -18,4 +18,4 @@ The Oracle app rolls and edits the random tables of your games: tables, oracles,
 | **Generator** | Rolls several fields (tables, dice, values) and fills a text template.        |
 | **Deck**      | Cards drawn without replacement until it's reshuffled.                        |
 
-Read on: [Rolling](rolling.md), [Packs](packs.md), [Editing](editing.md), and [Connecting tables to maps and trips](connecting.md) to make tables and travel systems that work with the Hexmapper.
+Read on: [Rolling](02-rolling.md), [Packs](03-packs.md), [Editing](04-editing.md), and [Connecting tables to maps and trips](07-connecting.md) to make tables and travel systems that work with the Hexmapper.

@@ -13,7 +13,7 @@ Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para pro
 
 ## Pruébalo
 
-Crea esta tabla en la aplicación Oracle (en un pack tuyo, ver [Packs](../oracle/packs.md)):
+Crea esta tabla en la aplicación Oracle (en un pack tuyo, ver [Packs](../oracle/03-packs.md)):
 
 ```yaml
 kind: table
@@ -31,7 +31,7 @@ entries:
   - { id: nothing, range: 1-6, result: 'Nada especial' }
 ```
 
-Más ejemplos, hasta un sistema de viaje completo: [Conectar tablas con mapas y viajes](../oracle/connecting.md).
+Más ejemplos, hasta un sistema de viaje completo: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
 Después selecciona un hex de bosque, pulsa <kbd>O</kbd>, busca «Qué encontramos» y tira. Gana la primera entrada cuya condición se cumple.
 

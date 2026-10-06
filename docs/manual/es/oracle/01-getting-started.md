@@ -18,4 +18,4 @@ La aplicación Oracle tira y edita las tablas aleatorias de tus juegos: tablas, 
 | **Generador** | Tira varios campos (tablas, dados, valores) y rellena una plantilla de texto.                   |
 | **Mazo**      | Cartas que se roban sin reponer hasta que se baraja.                                            |
 
-Sigue leyendo: [Tirar](rolling.md), [Packs](packs.md), [Editar](editing.md) y [Conectar tablas con mapas y viajes](connecting.md) para crear tablas y sistemas de viaje que funcionen con el Hexmapper.
+Sigue leyendo: [Tirar](02-rolling.md), [Packs](03-packs.md), [Editar](04-editing.md) y [Conectar tablas con mapas y viajes](07-connecting.md) para crear tablas y sistemas de viaje que funcionen con el Hexmapper.

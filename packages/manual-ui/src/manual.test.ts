@@ -50,6 +50,8 @@ describe('the bundled manual', () => {
             const link = pageLink(href)
             const target = link && manual.page(link.app ?? app, link.slug, locale)
             expect(target, `${locale}/${app}/${page.slug} → ${href}`).toBeTruthy()
+            // The real file name, so the link also works in any Markdown viewer.
+            expect(href.split('#')[0].split('/').at(-1), href).toBe(target!.file)
             if (link?.anchor)
               expect(
                 target!.sections.some((s) => s.id === link.anchor),

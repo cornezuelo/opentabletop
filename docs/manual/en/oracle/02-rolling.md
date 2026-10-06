@@ -10,7 +10,7 @@ The result card shows the text, the values the entry sets (e.g. `weather: storm`
 
 Some definitions read values: the terrain, the season, a modifier… The **Context** box lists the ones a definition (or any table it rolls) needs, with the values seen in its conditions as suggestions. Blank means unknown. An oracle's input (e.g. the odds) is a list here.
 
-In the Hexmapper these values come from the map and the trip; see [The Oracle in the map](../hexmapper/oracle.md).
+In the Hexmapper these values come from the map and the trip; see [The Oracle in the map](../hexmapper/09-oracle.md).
 
 ## Advantage and disadvantage
 

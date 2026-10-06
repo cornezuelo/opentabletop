@@ -16,4 +16,4 @@ A region is drawn as a light tint, a border along the inside of its outline (so 
 
 ## In play
 
-Travel checks and Oracle rolls see the hex's region by its **name**, so a table can say `when: { region: Black Marches }`. See [The Oracle in the map](oracle.md).
+Travel checks and Oracle rolls see the hex's region by its **name**, so a table can say `when: { region: Black Marches }`. See [The Oracle in the map](09-oracle.md).

@@ -13,7 +13,7 @@ They appear in grey in the roll panel's **Context**; type over them to try other
 
 ## Try it
 
-Make this table in the Oracle app (a pack of yours, see [Packs](../oracle/packs.md)):
+Make this table in the Oracle app (a pack of yours, see [Packs](../oracle/03-packs.md)):
 
 ```yaml
 kind: table
@@ -31,7 +31,7 @@ entries:
   - { id: nothing, range: 1-6, result: 'Nothing special' }
 ```
 
-More examples, up to a whole travel system: [Connecting tables to maps and trips](../oracle/connecting.md).
+More examples, up to a whole travel system: [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
 Then select a forest hex, press <kbd>O</kbd>, search "What do we find" and roll. The first entry whose condition holds wins.
 

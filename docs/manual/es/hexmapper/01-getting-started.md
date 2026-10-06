@@ -8,7 +8,7 @@ Hexmapper dibuja mapas de hexágonos para hexcrawls y campañas sandbox, y permi
 - **Mapa** (centro): arrastra con el botón central o con <kbd>Espacio</kbd> + arrastrar para desplazarte, usa la rueda para el zoom y <kbd>F</kbd> encuadra el mapa entero.
 - **Panel lateral** (derecha): las opciones de la herramienta activa, el hex seleccionado y las capas. El botón de nueve puntos junto al nombre del mapa abre las demás aplicaciones de OpenTabletop.
 
-Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](shortcuts.md).
+Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](11-shortcuts.md).
 
 ## Tus mapas
 
