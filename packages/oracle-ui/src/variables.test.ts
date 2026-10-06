@@ -24,6 +24,8 @@ id: encounter
 fields:
   who: { table: reaction }
   count: { roll: 1d6 }
+  fare: { value: '{{token.fare}}' }
+  extra: { value: '{{1d4}}' }
 template: '{{count}} {{who.text}}'
 `,
   },
@@ -36,6 +38,7 @@ describe('context variables', () => {
     expect(contextVariables(registry, 'p/encounter')).toEqual([
       { name: 'pre', suggestions: [] },
       { name: 'terrain', suggestions: ['forest', 'hills'] },
+      { name: 'token.fare', suggestions: [] },
     ])
   })
 

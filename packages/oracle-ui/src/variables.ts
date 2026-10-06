@@ -8,6 +8,7 @@ export interface Variable {
 }
 
 const TEMPLATE = /\{\{\s*([\w.]+)\s*\}\}/g
+const DICE = /^\d*d(\d+|%|f)(k[hl]\d*)?$/i
 const OPERATORS = new Set(['all', 'any', 'not'])
 const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists'])
 
@@ -21,13 +22,13 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
   const produced = new Set<string>()
   const visited = new Set<string>()
   const use = (name: string) => {
-    const root = name.split('.')[0]
-    if (!used.has(root)) used.set(root, new Set())
-    return used.get(root)!
+    if (!used.has(name)) used.set(name, new Set())
+    return used.get(name)!
   }
   const scanText = (text: unknown) => {
     if (typeof text !== 'string') return
-    for (const m of text.matchAll(TEMPLATE)) use(m[1])
+    // Inline dice ({{2d6}}) are rolled, not asked for.
+    for (const m of text.matchAll(TEMPLATE)) if (!DICE.test(m[1])) use(m[1])
   }
   const scanCondition = (cond: unknown): void => {
     if (typeof cond !== 'object' || cond === null) return
@@ -88,10 +89,13 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
     }
   }
   visit(registry.definitions.get(id))
-  return [...used]
-    .filter(([name]) => !produced.has(name))
-    .map(([name, values]) => ({ name, suggestions: [...values].sort() }))
-    .sort((a, b) => a.name.localeCompare(b.name))
+  return (
+    [...used]
+      // Dotted names (token.fare, who.text) are produced when their root is.
+      .filter(([name]) => !produced.has(name.split('.')[0]))
+      .map(([name, values]) => ({ name, suggestions: [...values].sort() }))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  )
 }
 
 /** Turns typed input into context values: numbers and booleans are parsed, blanks dropped. */

@@ -34,6 +34,21 @@ function write(key: string, value: unknown): void {
   }
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/** Saved Oracle state, with any broken part (hand-edited or older storage) reset. */
+export function oracleState(raw: unknown): OracleState {
+  const state = isRecord(raw) ? raw : {}
+  return {
+    decks: isRecord(state.decks) ? (state.decks as OracleState['decks']) : {},
+    occurrences: isRecord(state.occurrences)
+      ? (state.occurrences as OracleState['occurrences'])
+      : {},
+    vars: isRecord(state.vars) ? state.vars : {},
+  }
+}
+
 /** Where a Roller keeps its Oracle state and history. */
 export interface RollerStore {
   load(): { state: OracleState; history: HistoryItem[] } | undefined
@@ -44,7 +59,10 @@ export interface RollerStore {
 export function localRollerStore(storageKey: string): RollerStore {
   const keys = { state: `${storageKey}.state`, history: `${storageKey}.history` }
   return {
-    load: () => ({ state: read(keys.state, emptyState()), history: read(keys.history, []) }),
+    load: () => ({
+      state: oracleState(read(keys.state, null)),
+      history: read<unknown>(keys.history, []) as HistoryItem[],
+    }),
     save({ state, history }) {
       write(keys.state, state)
       write(keys.history, history)
@@ -83,7 +101,7 @@ export class Roller {
   reload(): void {
     const data = this.options.store.load()
     this.state = data?.state ?? emptyState()
-    this.history = data?.history ?? []
+    this.history = Array.isArray(data?.history) ? data.history : []
     this.shown = {}
     this.nextId = Math.max(0, ...this.history.map((h) => h.id)) + 1
   }
@@ -124,8 +142,12 @@ export class Roller {
   }
 
   shuffle(source: string): void {
-    this.state = this.options.library.engine.shuffle(source, this.state)
-    this.save()
+    try {
+      this.state = this.options.library.engine.shuffle(source, this.state)
+      this.save()
+    } catch (error) {
+      showToast(this.options.t('roll.error', { message: (error as Error).message }), 'error', 8000)
+    }
   }
 
   /** Forget once-only entries and deck draws (a new session). */
