@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LineIcon from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { LAYER_IDS, LOCKABLE_LAYERS } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -16,7 +17,7 @@
         title={layer.visible ? t('layers.hide') : t('layers.show')}
         aria-label="{layer.visible ? t('layers.hide') : t('layers.show')}: {name}"
         onclick={() => editor.setLayer(id, { visible: !layer.visible })}
-        >{layer.visible ? '👁' : '◌'}</button
+        ><LineIcon name={layer.visible ? 'eye' : 'eye-off'} /></button
       >
       <span class="name">{name}</span>
       {#if LOCKABLE_LAYERS.includes(id)}
@@ -27,7 +28,7 @@
           title={layer.locked ? t('layers.unlock') : t('layers.lock')}
           aria-label="{layer.locked ? t('layers.unlock') : t('layers.lock')}: {name}"
           onclick={() => editor.setLayer(id, { locked: !layer.locked })}
-          >{layer.locked ? '🔒' : '🔓'}</button
+          ><LineIcon name={layer.locked ? 'lock' : 'unlock'} /></button
         >
       {/if}
     </li>

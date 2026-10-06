@@ -1,5 +1,6 @@
 <script lang="ts">
   import { appIconUrl } from '@open-tabletop/ui-kit'
+  import LineIcon from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { newMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
@@ -34,10 +35,10 @@
       { label: 'actions.new', glyph: '✚', run: newMap },
       {
         label: 'actions.open',
-        glyph: '📂',
+        glyph: 'folder',
         run: () => (editor.panelView = editor.panelView === 'library' ? 'tool' : 'library'),
       },
-      { label: 'actions.save', glyph: '💾', run: saveMap },
+      { label: 'actions.save', glyph: 'save', run: saveMap },
       {
         label: 'actions.export',
         glyph: '⤓',
@@ -103,7 +104,11 @@
       disabled={action.enabled ? !action.enabled() : false}
       onclick={action.run}
     >
-      {action.glyph}
+      {#if action.glyph === 'folder' || action.glyph === 'save'}
+        <LineIcon name={action.glyph} />
+      {:else}
+        {action.glyph}
+      {/if}
     </button>
   {/each}
 </nav>

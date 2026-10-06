@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
@@ -23,9 +24,9 @@
 
   let editing = $state(false)
 
-  const modes: { id: TerrainMode; label: MessageKey; glyph: string }[] = [
-    { id: 'brush', label: 'terrainMode.brush', glyph: '🖌' },
-    { id: 'fill', label: 'terrainMode.fill', glyph: '🪣' },
+  const modes: { id: TerrainMode; label: MessageKey; glyph: string; icon?: LineIconName }[] = [
+    { id: 'brush', label: 'terrainMode.brush', glyph: '', icon: 'brush' },
+    { id: 'fill', label: 'terrainMode.fill', glyph: '', icon: 'fill' },
     { id: 'erase', label: 'terrainMode.erase', glyph: '⌫' },
   ]
 </script>
@@ -39,7 +40,9 @@
       title={t(mode.label)}
       onclick={() => (editor.terrainMode = mode.id)}
     >
-      <span aria-hidden="true">{mode.glyph}</span>
+      <span aria-hidden="true"
+        >{#if mode.icon}<LineIcon name={mode.icon} />{:else}{mode.glyph}{/if}</span
+      >
       {t(mode.label).replace(/\s*\(.*\)$/, '')}
     </button>
   {/each}

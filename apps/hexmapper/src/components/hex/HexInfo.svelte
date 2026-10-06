@@ -1,6 +1,7 @@
 <script lang="ts">
   import FieldList from './FieldList.svelte'
   import NameDisplay from '../NameDisplay.svelte'
+  import LineIcon from '../LineIcon.svelte'
   import HexIcon from './HexIcon.svelte'
   import HexNotes from './HexNotes.svelte'
   import HexPaths from './HexPaths.svelte'
@@ -11,7 +12,7 @@
   import { t } from '../../lib/i18n/index.svelte'
   import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
   import { collectSuggestions } from '../../lib/model/hex'
-  import { showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { appIconUrl, showToast, tooltip } from '@open-tabletop/ui-kit'
   import type { HexData, HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
   import { terrainName } from '../../lib/terrainName'
@@ -58,13 +59,14 @@
         class="link"
         title={t('library.copyHexLink')}
         aria-label={t('library.copyHexLink')}
-        onclick={() => copyLink(selected.coord)}>🔗</button
+        onclick={() => copyLink(selected.coord)}><LineIcon name="link" /></button
       >
     </span>
     <button
       class="roll-here"
       use:tooltip={t('oracle.rollHereHelp')}
-      onclick={() => (editor.panelView = 'oracle')}>🎲 {t('oracle.rollHere')}</button
+      onclick={() => (editor.panelView = 'oracle')}
+      ><img class="app" src={appIconUrl('oracle')} alt="" /> {t('oracle.rollHere')}</button
     >
     {#if selected.terrain}
       <span class="terrain">
@@ -150,6 +152,17 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
+  }
+
+  .roll-here {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .roll-here .app {
+    width: 14px;
+    height: 14px;
   }
 
   .roll-here:hover {

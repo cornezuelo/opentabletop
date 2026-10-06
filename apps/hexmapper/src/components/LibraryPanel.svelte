@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LineIcon from './LineIcon.svelte'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
     library,
@@ -69,7 +70,7 @@
         class="icon"
         title={t('library.copyLink')}
         aria-label={t('library.copyLink')}
-        onclick={() => copyLink(entry.id)}>🔗</button
+        onclick={() => copyLink(entry.id)}><LineIcon name="link" /></button
       >
       <button
         class="icon danger"
