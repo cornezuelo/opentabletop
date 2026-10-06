@@ -129,7 +129,8 @@ export class PackLibrary {
   }
 
   renameFile(root: string, from: string, to: string): void {
-    if (from === MANIFEST_FILE) return
+    if (from === MANIFEST_FILE || to === MANIFEST_FILE || this.readFile(root, to) !== undefined)
+      return
     this.update(root, (p) => ({
       ...p,
       files: p.files.map((f) => (f.path === from ? { ...f, path: to } : f)),

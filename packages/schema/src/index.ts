@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 /**
- * OpenTabletop Data (OTD) v0.1 — the common format for campaign data shared by the
+ * OpenTabletop Data (OTD) — the common format for campaign data shared by the
  * ecosystem's tools (see docs/otd.md). Tools read the parts they know and must keep
  * everything else (`ext` namespaces, unknown entities) intact when saving.
  */

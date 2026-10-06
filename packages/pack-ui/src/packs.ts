@@ -106,8 +106,21 @@ export function manifestOf(pack: PackSource): ManifestInfo {
 export function readUserPacks(storage: Pick<Storage, 'getItem'> = localStorage): PackSource[] {
   try {
     const raw = storage.getItem(USER_PACKS_KEY)
-    const parsed = raw ? (JSON.parse(raw) as PackSource[]) : []
-    return Array.isArray(parsed) ? parsed.map((p) => ({ ...p, origin: 'user' as const })) : []
+    const parsed: unknown = raw ? JSON.parse(raw) : []
+    if (!Array.isArray(parsed)) return []
+    // Skip anything that isn't a pack (hand-edited or half-written storage).
+    return parsed
+      .filter(
+        (p): p is PackSource =>
+          typeof p?.root === 'string' &&
+          Array.isArray(p.files) &&
+          p.files.every(
+            (f: unknown) =>
+              typeof (f as PackFile)?.path === 'string' &&
+              typeof (f as PackFile).content === 'string',
+          ),
+      )
+      .map((p) => ({ ...p, origin: 'user' as const }))
   } catch {
     return []
   }

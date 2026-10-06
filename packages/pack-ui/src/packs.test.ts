@@ -66,6 +66,15 @@ describe('packs', () => {
     expect(readUserPacks(storage)[0]).toMatchObject({ root: 'mine', origin: 'user' })
     data.set(USER_PACKS_KEY, '{oops')
     expect(readUserPacks(storage)).toEqual([])
+    data.set(
+      USER_PACKS_KEY,
+      JSON.stringify([
+        null,
+        { root: 'x' },
+        { root: 'ok', files: [{ path: 'pack.yaml', content: '' }] },
+      ]),
+    )
+    expect(readUserPacks(storage).map((p) => p.root)).toEqual(['ok'])
     const full = {
       setItem: () => {
         throw new Error('QuotaExceededError')
