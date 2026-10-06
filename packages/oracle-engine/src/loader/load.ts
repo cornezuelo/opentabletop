@@ -23,6 +23,8 @@ export interface Diagnostic {
   file?: string
   /** Location inside the file, e.g. "encounters.entries[3].range". */
   at?: string
+  /** Line in the file (1-based) when known directly, e.g. YAML syntax errors. */
+  line?: number
 }
 
 export interface LoadedPack {
@@ -146,13 +148,17 @@ function parseDocuments(file: PackFile, diagnostics: Diagnostic[], pack?: string
   const docs = parseAllDocuments(file.content)
   const list = Array.isArray(docs) ? docs : [docs]
   const out: unknown[] = []
+  // Errors found at the end (an unclosed quote or bracket) belong to the last line with text.
+  const lastLine = file.content.trimEnd().split('\n').length
   for (const doc of list) {
     for (const error of doc.errors)
       diagnostics.push({
         severity: 'error',
-        message: `Invalid YAML: ${error.message}`,
+        // The first line says what's wrong; the position and the code excerpt go to `line`.
+        message: `Invalid YAML: ${error.message.split('\n')[0].replace(/ at line \d+, column \d+:?$/, '')}`,
         pack,
         file: file.path,
+        ...(error.linePos && { line: Math.min(error.linePos[0].line, lastLine) }),
       })
     if (doc.errors.length === 0 && doc.contents !== null) out.push(doc.toJS())
   }

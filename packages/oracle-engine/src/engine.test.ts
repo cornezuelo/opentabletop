@@ -554,3 +554,19 @@ entries: [{ range: 1-6, result: B }]
     expect([advantage('adv/plain'), advantage('adv/lost')]).toEqual([false, true])
   })
 })
+
+describe('YAML syntax errors', () => {
+  it('carry the line where they are', () => {
+    const { diagnostics } = loadPacks([
+      { path: 'bad/pack.yaml', content: 'id: bad\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'bad/t.yaml',
+        content: 'kind: table\nid: t\nentries:\n  - { result: A }\n  - { result: B\n',
+      },
+    ])
+    expect(diagnostics.length).toBeGreaterThan(0)
+    expect(diagnostics[0]).toMatchObject({ file: 'bad/t.yaml' })
+    expect(diagnostics[0].line).toBe(5)
+    expect(diagnostics[0].message).not.toContain('\n')
+  })
+})

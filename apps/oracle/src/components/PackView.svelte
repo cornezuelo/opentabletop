@@ -87,9 +87,9 @@
     if (pack) download(packToZip(pack), `${root}.zip`, 'application/zip')
   }
 
-  function openProblem(file: string | undefined, at: string | undefined) {
+  function openProblem(file: string | undefined, at: string | undefined, line?: number) {
     const path = file?.slice(root.length + 1) ?? MANIFEST_FILE
-    go({ name: 'file', root, path, line: locate(workspace.readFile(root, path) ?? '', at) })
+    go({ name: 'file', root, path, line: line ?? locate(workspace.readFile(root, path) ?? '', at) })
   }
 </script>
 
@@ -124,7 +124,7 @@
         <ul class="problems">
           {#each diagnostics as d, i (i)}
             <li class={d.severity}>
-              <button class="link" onclick={() => openProblem(d.file, d.at)}
+              <button class="link" onclick={() => openProblem(d.file, d.at, d.line)}
                 >{d.file?.slice(root.length + 1) ?? MANIFEST_FILE}{d.at ? ` · ${d.at}` : ''}</button
               >
               {d.message}

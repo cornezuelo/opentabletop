@@ -13,7 +13,7 @@
   const diagnostics = $derived(workspace.diagnostics(root, path))
   const problems = $derived(
     diagnostics.map((d) => ({
-      line: locate(content, d.at) ?? 1,
+      line: d.line ?? locate(content, d.at) ?? 1,
       message: d.at ? `${d.at}: ${d.message}` : d.message,
       severity: d.severity,
     })),
