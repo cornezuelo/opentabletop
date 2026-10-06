@@ -1,4 +1,5 @@
-import { t } from '../i18n/index.svelte'
+import { getLocale, t } from '../i18n/index.svelte'
+import { newId } from '../model/id'
 import { createMap } from '../model/defaults'
 import { MapFormatError } from '../model/migrations'
 import { deserializeMap, serializeMap } from '../model/serialize'
@@ -27,12 +28,18 @@ async function saveCurrent(): Promise<void> {
   if (!dirty) return
   dirty = false
   const { map } = editor
-  await putLibraryMap({
-    id: map.meta.id,
-    name: map.meta.name,
-    modified: map.meta.modified,
-    json: serializeMap(map),
-  })
+  try {
+    await putLibraryMap({
+      id: map.meta.id,
+      name: map.meta.name,
+      modified: map.meta.modified,
+      json: serializeMap(map),
+    })
+  } catch (error) {
+    // Not saved: try again with the next change or when the tab hides.
+    dirty = true
+    throw error
+  }
   clearPending()
   library.version++
 }
@@ -64,13 +71,16 @@ export function saveMap(): void {
   downloadMap(JSON.stringify(mapToBundle(editor.map)), editor.map.meta.id)
 }
 
-/** Imports an `.otd.json` file into the library and opens it. */
-/** Opens a map file; returns the id of the map loaded (null if none). */
+/**
+ * Opens a map file into the library; returns the id of the map loaded (null if none).
+ * If the library already has a different version of that map, asks before replacing it.
+ */
 export async function openMapFile(): Promise<string | null> {
   const json = await pickMapFile()
   if (json === null) return null
   try {
     const map = parseMapFile(json)
+    if (!(await keepOrCopy(map))) return null
     await switchTo(map)
     showToast(t('file.loaded'))
     return map.meta.id
@@ -103,6 +113,32 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
   } catch (error) {
     showToast(errorMessage(error), 'error')
   }
+}
+
+/**
+ * A file of a map this browser already has (maybe an older backup): replace the
+ * library's copy, keep both (the file gets a new id) or cancel. False on cancel.
+ */
+async function keepOrCopy(map: HexMap): Promise<boolean> {
+  if (map.meta.id === editor.map.meta.id) await saveCurrent().catch(console.error)
+  const existing = await getLibraryMap(map.meta.id)
+  if (!existing || existing.json === serializeMap(map)) return true
+  const date = (iso: string) => new Date(iso).toLocaleString(getLocale())
+  const choice = await ask(
+    t('file.existsTitle'),
+    t('file.exists', {
+      name: existing.name || t('map.untitled'),
+      mine: date(existing.modified),
+      file: date(map.meta.modified),
+    }),
+    [
+      { value: 'cancel', label: t('newMap.cancel') },
+      { value: 'copy', label: t('file.keepBoth') },
+      { value: 'replace', label: t('file.replace'), kind: 'danger' },
+    ],
+  )
+  if (choice === 'copy') map.meta.id = newId()
+  return choice === 'copy' || choice === 'replace'
 }
 
 export async function openLibraryMap(id: string): Promise<boolean> {

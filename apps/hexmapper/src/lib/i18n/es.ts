@@ -36,6 +36,11 @@ export const es: Messages = {
     errorInvalid: 'El fichero no es un mapa válido.',
     errorNewer: 'Este mapa se creó con una versión más reciente de Hexmapper.',
     errorAutosave: 'No se pudo recuperar el autoguardado.',
+    existsTitle: 'Este mapa ya está en tus mapas',
+    exists:
+      '«{name}» ya está en este navegador (último cambio: {mine}); el fichero es del {file}. ¿Sustituir tu copia por el fichero o conservar ambos?',
+    keepBoth: 'Conservar ambos',
+    replace: 'Sustituir el mío',
   },
   oracle: {
     rollsFor: 'Las tiradas leen el hex {hex}',

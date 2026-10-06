@@ -35,6 +35,11 @@ export const en = {
     errorInvalid: 'The file is not a valid map.',
     errorNewer: 'This map was created with a newer version of Hexmapper.',
     errorAutosave: 'The autosave could not be restored.',
+    existsTitle: 'This map is already in your maps',
+    exists:
+      '“{name}” is already in this browser (last changed {mine}); the file was last changed {file}. Replace your copy with the file, or keep both?',
+    keepBoth: 'Keep both',
+    replace: 'Replace mine',
   },
   oracle: {
     rollsFor: 'Rolls read hex {hex}',
