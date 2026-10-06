@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { TERRAIN_GROUPS, terrainGroup } from '../lib/model/defaults'
   import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
@@ -66,7 +66,11 @@
 {/if}
 
 <label class="slider">
-  <span>{t('terrainEditor.glyphs')}: {Math.round(editor.grid.glyphs * 100)} %</span>
+  <span
+    >{t('terrainEditor.glyphs')}: {Math.round(editor.grid.glyphs * 100)} %<InfoTip
+      text={t('terrainEditor.glyphsHelp')}
+    /></span
+  >
   <input
     type="range"
     min="0"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { PATH_KINDS } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -34,7 +35,7 @@
 
 <label class="check">
   <input type="checkbox" bind:checked={editor.pathStraight} />
-  {t('path.straight')}
+  {t('path.straight')}<InfoTip text={t('path.straightHelp')} />
 </label>
 <label class="check">
   <input type="checkbox" bind:checked={editor.pathClosed} />

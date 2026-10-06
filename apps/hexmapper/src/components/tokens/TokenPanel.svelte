@@ -1,6 +1,6 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
-  import { confirmAction } from '@open-tabletop/ui-kit'
+  import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
   import { t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
@@ -162,7 +162,7 @@
           update((t) => ({ ...t, halo: halo ? undefined : false }))
         }}
       />
-      {t('iconStyle.halo')}
+      {t('iconStyle.halo')}<InfoTip text={t('iconStyle.haloHelp')} />
     </label>
     <NameDisplay
       kind="tokenNames"

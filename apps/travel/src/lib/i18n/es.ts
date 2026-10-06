@@ -65,6 +65,8 @@ export const es: Messages<typeof en> = {
     multiplier: 'Velocidad ×',
     multiplierHelp: '1 es la velocidad normal, 0.5 la mitad, 2 el doble.',
     passable: 'Transitable',
+    passableHelp:
+      'Sin marcar: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo “Solo por” lo incluya.',
     defaultTerrain: 'Velocidad × de los terrenos no listados',
     defaultTerrainHelp: 'Para cualquier terreno que no esté arriba (1 si está vacío).',
     edges: 'Caminos y ríos',
@@ -86,6 +88,9 @@ export const es: Messages<typeof en> = {
     actionsHelp: 'Lo que puede hacer el grupo además de marchar.',
     camp: 'Acampar (termina el día)',
     rest: 'Descansar (una pausa corta)',
+    campHelp:
+      'El grupo para a pasar la noche: se tiran los chequeos de campamento, duerme hasta el alba, consume las provisiones del día y, si ha comido, recupera 1 de fatiga.',
+    restHelp: 'Una pausa de unos minutos durante el día; recupera la fatiga que se indique aquí.',
     restMinutes: 'Minutos',
     restFatigue: 'Fatiga que recupera',
     restFatigueHelp: '0: una pausa que no recupera nada (acampar sí).',

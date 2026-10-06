@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import { MAX_MAP_SIZE, MIN_MAP_SIZE } from '../lib/model/defaults'
   import {
@@ -158,7 +159,7 @@
 {/if}
 
 <div class="field">
-  <span>{t('map.hexMm')}</span>
+  <span>{t('map.hexMm')}<InfoTip text={t('map.hexMmHelp')} /></span>
   <div class="hex-size">
     <input
       type="number"

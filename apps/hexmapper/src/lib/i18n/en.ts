@@ -74,9 +74,13 @@ export const en = {
     untitled: 'Untitled',
     orientation: 'Orientation',
     hexKm: 'World scale (km per hex)',
+    hexKmHelp:
+      'How many km a hex measures across, for trips: travel times and supplies depend on it. It doesn’t change the drawing or printing.',
     flat: 'Flat top',
     pointy: 'Pointy top',
     coordFormat: 'Coordinates',
+    coordFormatHelp:
+      'How hexes are named in labels, links and the journal: CCRR (column and row, 0101) or axial (q,r). The map data doesn’t change.',
     coordCCRR: 'CCRR (0101)',
     coordAxial: 'Axial (q,r)',
     showCoords: 'Show coordinates',
@@ -95,6 +99,8 @@ export const en = {
     fitResult: '{cols} × {rows} hexes fit',
     print: 'Printing',
     hexMm: 'Hex flat-to-flat (mm)',
+    hexMmHelp:
+      'Size of each hex on paper, from one flat side to the opposite one (like miniature bases). Only for printing and PDF.',
     cornerToCorner: 'Corner to corner: {mm} mm',
     printedSize: 'Printed size: {w} × {h} mm',
     fitsOn: 'Fits on {paper} {orientation}',
@@ -155,7 +161,9 @@ export const en = {
     rotation: 'Rotation',
     flip: 'Flip',
     halo: 'Halo',
+    haloHelp: 'A soft glow of the chosen color around it, so it stands out over any terrain.',
     outline: 'Outline',
+    outlineHelp: 'A line of the chosen color and thickness around the icon’s shape.',
     thickness: 'Thickness',
     reset: 'Reset',
     edit: 'Style',
@@ -249,6 +257,8 @@ export const en = {
     noGlyph: 'No symbol',
     importGlyph: 'Import an image…',
     glyphs: 'Terrain symbols',
+    glyphsHelp:
+      'How visible the small symbol of each terrain is (a tree, a peak…); 0 hides them. Icons cover them.',
     palette: 'Palette',
     edit: 'Edit palette',
     name: 'Name',
@@ -346,6 +356,7 @@ export const en = {
     token: 'Party icon',
     uploadToken: 'Upload your own…',
     showTrail: 'Show trail',
+    showTrailHelp: 'Draw the hexes the party has walked through on the map.',
     placeHelp: 'Click a hex to place the party.',
     simpleHelp: 'The party is at {hex}. Click any hex to move it there.',
     tips: {
@@ -373,6 +384,7 @@ export const en = {
     cancel: 'Cancel (Esc)',
     count: '{count} roads and rivers on the map',
     straight: 'Straight segments',
+    straightHelp: 'Straight lines between the points you place, instead of smooth curves.',
     editHelp:
       'Shift+click places a point where you click (Ctrl: no snapping). Click a white handle to keep drawing from it (from an end it extends the path, from the middle it branches); drag it to move the point; right-click to re-center it. Paths stop at the shore of lakes and seas.',
     makeStraight: 'Straight',

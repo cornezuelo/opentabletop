@@ -102,7 +102,13 @@
           min: 0,
           placeholder: '1',
         },
-        { field: 'passable', label: t('rules.passable'), type: 'check', default: true },
+        {
+          field: 'passable',
+          label: t('rules.passable'),
+          help: t('rules.passableHelp'),
+          type: 'check',
+          default: true,
+        },
       ]}
     />
     <label class="single">
@@ -141,7 +147,7 @@
               e.currentTarget.checked ? undefined : false,
             )}
         />
-        {t('rules.passable')}
+        {t('rules.passable')}<InfoTip text={t('rules.passableHelp')} />
       </label>
       {#if rules.water?.passable !== false}
         <label>
@@ -238,7 +244,7 @@
             e.currentTarget.checked ? undefined : false,
           )}
       />
-      {t('rules.camp')}
+      {t('rules.camp')}<InfoTip text={t('rules.campHelp')} />
     </label>
     <div class="inline">
       <label class="check">
@@ -253,7 +259,7 @@
               e.currentTarget.checked ? undefined : false,
             )}
         />
-        {t('rules.rest')}
+        {t('rules.rest')}<InfoTip text={t('rules.restHelp')} />
       </label>
       {#if rest !== false}
         {@const r = (rest ?? {}) as Record<string, unknown>}

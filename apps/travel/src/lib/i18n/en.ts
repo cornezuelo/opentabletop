@@ -62,6 +62,8 @@ export const en = {
     multiplier: 'Speed ×',
     multiplierHelp: '1 is normal speed, 0.5 half as fast, 2 twice as fast.',
     passable: 'Passable',
+    passableHelp:
+      'Unticked: no way of travelling can enter it (routes go around), except one whose “Only through” lists it.',
     defaultTerrain: 'Speed × for terrains not listed',
     defaultTerrainHelp: 'Used for any terrain missing above (1 if empty).',
     edges: 'Roads and rivers',
@@ -84,6 +86,9 @@ export const en = {
     actionsHelp: 'What the party can do besides marching.',
     camp: 'Camp (ends the day)',
     rest: 'Rest (a short pause)',
+    campHelp:
+      'The party stops for the night: camp checks are rolled, it sleeps until dawn, eats the day’s supplies and, if fed, recovers 1 fatigue.',
+    restHelp: 'A pause of some minutes during the day; it recovers the fatigue set here.',
     restMinutes: 'Minutes',
     restFatigue: 'Fatigue recovered',
     restFatigueHelp: '0: a pause that recovers nothing (camping does).',

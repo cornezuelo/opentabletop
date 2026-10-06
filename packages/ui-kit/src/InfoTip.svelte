@@ -1,12 +1,29 @@
 <script lang="ts">
-  import { tooltip } from './tooltip'
+  import { showTooltip, tooltip } from './tooltip'
 
-  /** Small "i" badge that explains the control next to it. */
+  /**
+   * Small "i" badge that explains the control next to it. Not a <button>: inside a
+   * <label> a button would become the labelled control instead of the field, and a
+   * click on it must not toggle the label's checkbox. Tapping or Enter shows the text.
+   */
   let { text }: { text: string } = $props()
+
+  function open(event: Event) {
+    event.preventDefault()
+    showTooltip(event.currentTarget as HTMLElement, text)
+  }
 </script>
 
 {#if text}
-  <button type="button" class="info" aria-label={text} use:tooltip={text}>i</button>
+  <span
+    class="info"
+    role="button"
+    tabindex="0"
+    aria-label={text}
+    use:tooltip={text}
+    onclick={open}
+    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && open(e)}>i</span
+  >
 {/if}
 
 <style>

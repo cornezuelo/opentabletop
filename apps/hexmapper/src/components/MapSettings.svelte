@@ -4,7 +4,7 @@
   import type { GridSettings } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
-  import { showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
 
   async function copyId() {
     try {
@@ -42,7 +42,7 @@
 </div>
 
 <label class="field">
-  <span>{t('map.hexKm')}</span>
+  <span>{t('map.hexKm')}<InfoTip text={t('map.hexKmHelp')} /></span>
   <input
     type="number"
     min="0.1"
@@ -71,7 +71,7 @@
 </label>
 
 <label class="field">
-  <span>{t('map.coordFormat')}</span>
+  <span>{t('map.coordFormat')}<InfoTip text={t('map.coordFormatHelp')} /></span>
   <select
     value={editor.grid.coordFormat}
     onchange={(e) =>

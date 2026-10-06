@@ -30,7 +30,8 @@ function ensureBubble(): HTMLDivElement {
   return bubble
 }
 
-function show(target: HTMLElement, text: string): void {
+/** Shows the tooltip next to `target` right away (e.g. when an info badge is tapped). */
+export function showTooltip(target: HTMLElement, text: string): void {
   if (!text) return
   const el = ensureBubble()
   // Modal dialogs live in the browser's top layer, above any z-index: follow the target
@@ -58,7 +59,7 @@ function hide(): void {
 
 export function tooltip(node: HTMLElement, text: string | undefined) {
   let current = text ?? ''
-  const enter = () => show(node, current)
+  const enter = () => showTooltip(node, current)
   node.addEventListener('mouseenter', enter)
   node.addEventListener('focus', enter)
   node.addEventListener('mouseleave', hide)

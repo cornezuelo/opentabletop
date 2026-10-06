@@ -75,9 +75,13 @@ export const es: Messages = {
     untitled: 'Sin título',
     orientation: 'Orientación',
     hexKm: 'Escala del mundo (km por hex)',
+    hexKmHelp:
+      'Cuántos km mide un hex, para los viajes: los tiempos y provisiones dependen de ello. No cambia el dibujo ni la impresión.',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',
+    coordFormatHelp:
+      'Cómo se nombran los hexes en etiquetas, enlaces y el diario: CCRR (columna y fila, 0101) o axiales (q,r). Los datos del mapa no cambian.',
     coordCCRR: 'CCFF (0101)',
     coordAxial: 'Axiales (q,r)',
     showCoords: 'Mostrar coordenadas',
@@ -96,6 +100,8 @@ export const es: Messages = {
     fitResult: 'Caben {cols} × {rows} hexes',
     print: 'Impresión',
     hexMm: 'Hex entre lados (mm)',
+    hexMmHelp:
+      'Tamaño de cada hex en papel, de un lado plano al opuesto (como las peanas de miniaturas). Solo para imprimir y el PDF.',
     cornerToCorner: 'Entre vértices: {mm} mm',
     printedSize: 'Tamaño impreso: {w} × {h} mm',
     fitsOn: 'Cabe en {paper} {orientation}',
@@ -157,7 +163,10 @@ export const es: Messages = {
     rotation: 'Rotación',
     flip: 'Voltear',
     halo: 'Halo',
+    haloHelp:
+      'Un resplandor suave del color elegido a su alrededor, para que destaque sobre cualquier terreno.',
     outline: 'Contorno',
+    outlineHelp: 'Una línea del color y grosor elegidos alrededor de la forma del icono.',
     thickness: 'Grosor',
     reset: 'Restablecer',
     edit: 'Estilo',
@@ -251,6 +260,8 @@ export const es: Messages = {
     noGlyph: 'Sin símbolo',
     importGlyph: 'Importar una imagen…',
     glyphs: 'Símbolos del terreno',
+    glyphsHelp:
+      'Cuánto se ven los símbolos de cada terreno (un árbol, un pico…); 0 los oculta. Los iconos los tapan.',
     palette: 'Paleta',
     edit: 'Editar paleta',
     name: 'Nombre',
@@ -352,6 +363,7 @@ export const es: Messages = {
     token: 'Icono del grupo',
     uploadToken: 'Subir uno propio…',
     showTrail: 'Mostrar rastro',
+    showTrailHelp: 'Dibuja en el mapa los hexes por los que ha pasado el grupo.',
     placeHelp: 'Haz clic en un hex para colocar al grupo.',
     simpleHelp: 'El grupo está en {hex}. Haz clic en cualquier hex para moverlo.',
     tips: {
@@ -379,6 +391,7 @@ export const es: Messages = {
     cancel: 'Cancelar (Esc)',
     count: '{count} caminos y ríos en el mapa',
     straight: 'Tramos rectos',
+    straightHelp: 'Líneas rectas entre los puntos que colocas, en lugar de curvas suaves.',
     editHelp:
       'Mayús + clic coloca el punto donde haces clic (Ctrl: sin ajuste). Clic en un tirador blanco para seguir dibujando desde él (desde un extremo alarga el camino, desde el medio sale una rama); arrástralo para mover el punto; clic derecho para recentrarlo. Los caminos se detienen en la orilla de lagos y mares.',
     makeStraight: 'Recto',

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
   import {
     ICON_DEFAULTS,
@@ -80,7 +81,7 @@
         checked={!!style.outline}
         onchange={(e) => set({ outline: e.currentTarget.checked })}
       />
-      {t('iconStyle.outline')}
+      {t('iconStyle.outline')}<InfoTip text={t('iconStyle.outlineHelp')} />
     </label>
     {#if style.outline}
       <ColorPicker
@@ -113,7 +114,7 @@
         checked={!!style.halo}
         onchange={(e) => set({ halo: e.currentTarget.checked })}
       />
-      {t('iconStyle.halo')}
+      {t('iconStyle.halo')}<InfoTip text={t('iconStyle.haloHelp')} />
     </label>
     {#if style.halo}
       <ColorPicker

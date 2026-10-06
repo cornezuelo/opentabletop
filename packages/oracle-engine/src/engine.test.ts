@@ -7,6 +7,7 @@ import {
   loadPackFiles,
   loadPacks,
   OracleError,
+  type OracleState,
   type PackFile,
 } from './index'
 
@@ -467,7 +468,7 @@ describe('decks', () => {
   it('keeps working after the deck is edited', () => {
     const engine = createOracleEngine({ registry, random: seeded(5) })
     // Saved piles mention a card that no longer exists and lack the ambush card.
-    const state = {
+    const state: OracleState = {
       ...emptyState(),
       decks: { 'test/events': { draw: ['gone', 'storm'], discard: ['storm'] } },
     }

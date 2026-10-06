@@ -84,7 +84,7 @@
       editParty((t) => ({ ...t, halo: halo ? undefined : false }))
     }}
   />
-  {t('iconStyle.halo')}
+  {t('iconStyle.halo')}<InfoTip text={t('iconStyle.haloHelp')} />
 </label>
 
 <label class="check">
@@ -93,7 +93,7 @@
     checked={play?.showTrail ?? true}
     onchange={(e) => updatePlay((p) => ({ ...p, showTrail: e.currentTarget.checked }))}
   />
-  {t('play.showTrail')}
+  {t('play.showTrail')}<InfoTip text={t('play.showTrailHelp')} />
 </label>
 
 {#if !party?.hex}
