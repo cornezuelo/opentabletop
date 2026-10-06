@@ -38,6 +38,14 @@ export const es: Messages = {
     errorAutosave: 'No se pudo recuperar el autoguardado.',
   },
   oracle: {
+    rollsFor: 'Las tiradas leen el hex {hex}',
+    rollsForParty: 'Las tiradas leen el hex del grupo, {hex}',
+    noHex:
+      'Ningún hex seleccionado: las tiradas no leen nada del mapa. Selecciona un hex para usar su terreno, etiquetas y campos.',
+    addPoi: 'Añadir a {hex} como punto de interés',
+    poiAdded: 'Añadido a {hex}: lo verás en el panel del hex.',
+    rollHere: 'Tirar aquí',
+    rollHereHelp: 'Abre Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.',
     title: 'Oracle',
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oracle aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },

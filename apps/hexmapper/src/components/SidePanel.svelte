@@ -18,10 +18,14 @@
   import RegionPanel from './RegionPanel.svelte'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppBrand, AppSwitcher, InfoTip } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, InfoTip, showToast } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
-  import { oracleUi, rollContext } from '../lib/play/oracle'
+  import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
+  import { formatCoord, parseKey } from '@open-tabletop/hex'
+  import type { HexKey } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
+
+  const hexCoord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)
 </script>
 
 <aside class="panel">
@@ -66,7 +70,35 @@
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
     </header>
-    <div class="export"><OraclePanel ui={oracleUi} context={rollContext()} /></div>
+    {@const hex = rollHex()}
+    {@const coord = hex ? hexCoord(hex) : ''}
+    <div class="export">
+      <OraclePanel ui={oracleUi} context={rollContext()}>
+        {#snippet header()}
+          <p class="rolls-for" class:none={!hex}>
+            {hex
+              ? editor.selected
+                ? t('oracle.rollsFor', { hex: coord })
+                : t('oracle.rollsForParty', { hex: coord })
+              : t('oracle.noHex')}
+          </p>
+        {/snippet}
+        {#snippet actions(item)}
+          {#if hex && item.resolution.text}
+            <button
+              class="result-action"
+              onclick={() => {
+                const text = item.resolution.text
+                if (!hex || !text) return
+                const def = oracleUi.library.registry.definitions.get(item.source)
+                addResultAsPoi(hex, text, oracleUi.displayName(def, item.source))
+                showToast(t('oracle.poiAdded', { hex: coord }))
+              }}>{t('oracle.addPoi', { hex: coord })}</button
+            >
+          {/if}
+        {/snippet}
+      </OraclePanel>
+    </div>
   {:else if editor.panelView === 'layers'}
     <header>
       <h1>{t('panel.layers')}</h1>
@@ -170,5 +202,29 @@
     margin: 0;
     font-size: 16px;
     color: var(--accent);
+  }
+
+  .rolls-for {
+    margin: 0;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .rolls-for.none {
+    color: var(--text-muted);
+  }
+
+  .result-action {
+    padding: 4px 10px;
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .result-action:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 </style>

@@ -9,7 +9,11 @@ Rolls receive what the map knows, so tables can depend on where you are:
 - From the **selected hex** (or the party's, if none is selected): `terrain` (its id: `forest`, `hills`…), `tags`, its fields by key, `region` (by name) and `hex`.
 - During a **trip with rules**: `season`, `weather`, `mode`, `day`, the party stats and today's values.
 
-They appear in grey in the roll panel's **Context**; type over them to try other values.
+They appear in grey in the roll panel's **Context**; type over them to try other values. The top of the panel says which hex the rolls read. **Roll here** (next to the coordinates in the hex panel) opens the Oracle on the selected hex.
+
+## Keeping a result on the map
+
+Under each result, **Add to … as a point of interest** adds it to the hex's points of interest: a short result becomes its name; a long one keeps the table's name as the name and the text as its description. Edit it in the hex panel like any other point of interest; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it.
 
 ## Try it
 

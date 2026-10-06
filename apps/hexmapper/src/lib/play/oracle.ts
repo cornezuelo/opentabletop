@@ -2,6 +2,8 @@ import { createOracleUi } from '@open-tabletop/oracle-ui'
 import { addEntry } from '@open-tabletop/session'
 import { defaultCalendar } from '@open-tabletop/time'
 import { getLocale } from '../i18n/index.svelte'
+import type { HexKey } from '../model/types'
+import { newId } from '../model/id'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 import { editSession, partyLocation, sessionOf } from './play'
@@ -25,6 +27,24 @@ export const oracleUi = createOracleUi({
   },
 })
 
+/** The hex rolls read: the selected one, or the party's. */
+export const rollHex = (): HexKey | undefined => editor.selected ?? partyLocation()
+
+/**
+ * A rolled result kept on the map as a point of interest of a hex. Short results are its
+ * name; long ones keep the table's name as the name and the text as the description.
+ */
+export function addResultAsPoi(hex: HexKey, text: string, tableName: string): void {
+  const short = text.length <= 80
+  editor.editHex(hex, (h) => ({
+    ...h,
+    pois: [
+      ...(h.pois ?? []),
+      { id: newId(), name: short ? text : tableName, ...(!short && { description: text }) },
+    ],
+  }))
+}
+
 /**
  * What the map already knows for a roll, with the keys travel checks use: the selected
  * hex (or the party's) with its terrain, tags and fields, and during a rules trip the
@@ -43,7 +63,7 @@ export function rollContext(): Record<string, unknown> {
       day: travel.day,
     })
   }
-  const hex = editor.selected ?? partyLocation()
+  const hex = rollHex()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
   if (hex && cell) Object.assign(out, cell, { hex })
   return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined && v !== null))

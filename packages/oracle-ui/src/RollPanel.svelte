@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { Compiled, CompiledEntry, EntryList } from '@open-tabletop/oracle-engine'
+  import type { Snippet } from 'svelte'
+  import type { HistoryItem } from './roller.svelte'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { contextVariables, parseContext } from './variables'
@@ -10,6 +12,7 @@
     def,
     context = {},
     hotkeys = true,
+    actions,
   }: {
     ui: OracleUi
     def: Compiled
@@ -17,6 +20,8 @@
     context?: Record<string, unknown>
     /** Space/Enter rolls again (off when the host uses those keys). */
     hotkeys?: boolean
+    /** Host buttons under the result (e.g. the Hexmapper's "Add as a POI"). */
+    actions?: Snippet<[HistoryItem]>
   } = $props()
   const { t, roller } = $derived(ui)
 
@@ -147,6 +152,7 @@
   {#if shown}
     {#key shown.id}
       <div class="card"><ResultCard {ui} resolution={shown.resolution} /></div>
+      {#if actions}<div class="actions">{@render actions(shown)}</div>{/if}
     {/key}
   {/if}
 
@@ -293,5 +299,11 @@
   .cond {
     display: block;
     font-size: 11px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { untrack } from 'svelte'
+  import { untrack, type Snippet } from 'svelte'
+  import type { HistoryItem } from './roller.svelte'
   import DefinitionPicker from './DefinitionPicker.svelte'
   import History from './History.svelte'
   import RollPanel from './RollPanel.svelte'
@@ -12,10 +13,16 @@
   let {
     ui,
     context = {},
+    actions,
+    header,
   }: {
     ui: OracleUi
     /** Values the host app already knows (terrain, season…), passed to every roll. */
     context?: Record<string, unknown>
+    /** Host buttons under each result. */
+    actions?: Snippet<[HistoryItem]>
+    /** Host content above the picker (e.g. which hex the rolls read). */
+    header?: Snippet
   } = $props()
 
   // Start on the last rolled definition.
@@ -24,11 +31,12 @@
 </script>
 
 <div class="oracle">
+  {@render header?.()}
   <DefinitionPicker {ui} {selected} onselect={(id) => (selected = id)} />
   {#if def}
     <h2>{ui.displayName(def)}</h2>
     {#if ui.displayDescription(def)}<p class="muted">{ui.displayDescription(def)}</p>{/if}
-    <RollPanel {ui} {def} {context} hotkeys={false} />
+    <RollPanel {ui} {def} {context} {actions} hotkeys={false} />
   {:else}
     <p class="muted">{ui.t('picker.choose')}</p>
   {/if}

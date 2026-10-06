@@ -9,7 +9,11 @@ Las tiradas reciben lo que sabe el mapa, así que las tablas pueden depender de 
 - Del **hex seleccionado** (o el del grupo, si no hay ninguno): `terrain` (su id: `forest`, `hills`…), `tags`, sus campos por clave, `region` (por nombre) y `hex`.
 - Durante un **viaje con reglas**: `season`, `weather`, `mode`, `day`, las estadísticas del grupo y los valores del día.
 
-Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores.
+Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. Arriba del panel se indica qué hex leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel del hex) abre Oracle con el hex seleccionado.
+
+## Guardar un resultado en el mapa
+
+Bajo cada resultado, **Añadir a … como punto de interés** lo añade a los puntos de interés del hex: un resultado corto pasa a ser su nombre; uno largo se queda con el nombre de la tabla como nombre y el texto como descripción. Edítalo en el panel del hex como cualquier otro punto de interés; <kbd>Ctrl</kbd>+<kbd>Z</kbd> lo deshace.
 
 ## Pruébalo
 

@@ -37,6 +37,14 @@ export const en = {
     errorAutosave: 'The autosave could not be restored.',
   },
   oracle: {
+    rollsFor: 'Rolls read hex {hex}',
+    rollsForParty: 'Rolls read the party’s hex, {hex}',
+    noHex:
+      'No hex selected: rolls read nothing from the map. Select a hex to use its terrain, tags and fields.',
+    addPoi: 'Add to {hex} as a point of interest',
+    poiAdded: 'Added to {hex}: see it in the hex panel.',
+    rollHere: 'Roll here',
+    rollHereHelp: 'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.',
     title: 'Oracle',
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },

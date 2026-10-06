@@ -11,7 +11,7 @@
   import { t } from '../../lib/i18n/index.svelte'
   import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
   import { collectSuggestions } from '../../lib/model/hex'
-  import { showToast } from '@open-tabletop/ui-kit'
+  import { showToast, tooltip } from '@open-tabletop/ui-kit'
   import type { HexData, HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
   import { terrainName } from '../../lib/terrainName'
@@ -61,6 +61,11 @@
         onclick={() => copyLink(selected.coord)}>🔗</button
       >
     </span>
+    <button
+      class="roll-here"
+      use:tooltip={t('oracle.rollHereHelp')}
+      onclick={() => (editor.panelView = 'oracle')}>🎲 {t('oracle.rollHere')}</button
+    >
     {#if selected.terrain}
       <span class="terrain">
         <span class="swatch" style:background={selected.terrain.color}></span>
@@ -135,6 +140,21 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+  }
+
+  .roll-here {
+    flex: none;
+    padding: 3px 8px;
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .roll-here:hover {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .coord {
