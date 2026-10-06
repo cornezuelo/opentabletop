@@ -6,7 +6,7 @@ La aplicación Travel juega viajes con un **sistema de viaje** y te deja ver y c
 
 - **Cabecera**: el selector de aplicaciones (nueve puntos), el idioma y **?** para este manual.
 - **Sistemas** (izquierda): **Genérico** (integrado) y cada pack con reglas de viaje, con las mismas insignias que en la aplicación Oracle (_incluido_, _editado_, _tuyo_, _uso personal_) y un número rojo cuando sus ficheros tienen problemas. La casilla de abajo crea un sistema nuevo.
-- **Sistema** (centro): sus pestañas. **Jugar** juega un viaje con él; **YAML** muestra el fichero con sus reglas y bindings.
+- **Sistema** (centro): sus pestañas. **Jugar** juega un viaje con él; **Reglas** y **Comprobaciones** lo cambian con formularios; **YAML** muestra el fichero con sus reglas y bindings.
 
 ## Los sistemas que tienes
 

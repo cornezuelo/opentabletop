@@ -1,5 +1,6 @@
 import {
   Document,
+  isCollection,
   isMap,
   isSeq,
   isScalar,
@@ -17,7 +18,7 @@ import {
  * rest of the file survive structured edits.
  */
 
-type Path = (string | number)[]
+export type Path = (string | number)[]
 
 /** The `id` of a definition node, if it's a map with a string id. */
 function idOf(node: unknown): string | undefined {
@@ -85,13 +86,28 @@ export function readDefinition(
   return (node as { toJSON?: () => unknown })?.toJSON?.() as Record<string, unknown>
 }
 
+/**
+ * An empty `{}` or `[]` getting its first item is written as a block from then on, so
+ * filling `on: {}` or `checks: []` doesn't grow one long line. Flow collections that
+ * already hold items keep the style their author chose.
+ */
+function unfoldEmpty(doc: Document.Parsed, path: Path): void {
+  for (let i = 0; i <= path.length; i++) {
+    const node = doc.getIn(path.slice(0, i), true)
+    if (isCollection(node) && node.flow && node.items.length === 0) node.flow = false
+  }
+}
+
 /** Sets (or, with undefined/'' , deletes) a value inside a definition. */
 export function setIn(content: string, localId: string, path: Path, value: unknown): string {
   const found = find(content, localId)
   if (!found) return content
   const full = [...found.prefix, ...path]
   if (value === undefined || value === '') found.doc.deleteIn(full)
-  else found.doc.setIn(full, value)
+  else {
+    unfoldEmpty(found.doc, full.slice(0, -1))
+    found.doc.setIn(full, value)
+  }
   return write(found.docs)
 }
 
@@ -110,6 +126,7 @@ export function insertIn(
   const found = find(content, localId)
   const seq = found && seqAt(found, path)
   if (!found || !seq) return content
+  if (seq.flow && seq.items.length === 0) seq.flow = false
   seq.items.splice(index, 0, found.doc.createNode(value))
   return write(found.docs)
 }

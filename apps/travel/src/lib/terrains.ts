@@ -3,7 +3,7 @@ import { en } from './i18n/en'
 import { t, type MessageKey } from './i18n'
 
 /** Terrain ids of the Hexmapper's default palette, so trips can use them with any system. */
-const PALETTE = Object.keys(en.terrains)
+export const PALETTE = Object.keys(en.terrains)
 
 /** Terrains to choose from: the palette plus any the system's rules name. */
 export function terrainChoices(system: TravelSystem): string[] {

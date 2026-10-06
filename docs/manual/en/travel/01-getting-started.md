@@ -6,7 +6,7 @@ The Travel app plays trips with a **travel system** and lets you see and change 
 
 - **Header**: the app switcher (nine dots), the language and **?** for this manual.
 - **Systems** (left): **Generic** (built in) and every pack with travel rules, with the same badges as in the Oracle app (_bundled_, _edited_, _yours_, _personal use_) and a red number when its files have problems. The box at the bottom creates a new system.
-- **System** (center): its tabs. **Play** plays a trip with it; **YAML** shows the file with its rules and bindings.
+- **System** (center): its tabs. **Play** plays a trip with it; **Rules** and **Checks** change it with forms; **YAML** shows the file with its rules and bindings.
 
 ## Systems you have
 

@@ -140,4 +140,16 @@ describe('locating by kind', () => {
     })
     expect(readDefinition(out, '@travel-rules')).toMatchObject({ travel: { hoursPerDay: 8 } })
   })
+
+  it('fills an empty {} or [] as a block, and keeps flow collections that have items', () => {
+    const FILE = 'kind: bindings\nid: default\non: {}\nstats: { luck: { default: 0 } }\n'
+    let out = setIn(FILE, '@bindings', ['on', 'WEATHER'], { resolve: 'weather' })
+    out = setIn(out, '@bindings', ['stats', 'pluck'], { default: 1 })
+    expect(out).toContain('on:\n  WEATHER:\n    resolve: weather\n')
+    expect(out).toContain('stats: { luck: { default: 0 }, pluck: { default: 1 } }')
+    const RULES = 'kind: travel-rules\nchecks: []\n'
+    expect(insertIn(RULES, '@travel-rules', ['checks'], 0, { event: 'X', at: 'camp' })).toBe(
+      'kind: travel-rules\nchecks:\n  - event: X\n    at: camp\n',
+    )
+  })
 })

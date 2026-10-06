@@ -2,10 +2,10 @@
  * What the main area shows, mirrored in the URL hash so views can be linked:
  * #/system/<id>/<tab>.
  */
-export type Tab = 'play' | 'yaml'
+export type Tab = 'play' | 'rules' | 'checks' | 'yaml'
 export type View = { name: 'welcome' } | { name: 'system'; id: string; tab: Tab }
 
-const TABS: Tab[] = ['play', 'yaml']
+const TABS: Tab[] = ['play', 'rules', 'checks', 'yaml']
 
 function parse(hash: string): View {
   const [name, id, tab] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)

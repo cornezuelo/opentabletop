@@ -3,7 +3,12 @@
   import { go, type Tab } from '../lib/nav.svelte'
   import { rulesFile } from '../lib/newSystem'
   import { systems } from '../lib/packs.svelte'
+  import { library } from '../lib/packs.svelte'
+  import { systemDoc } from '../lib/systemDoc.svelte'
+  import ChecksForm from './forms/ChecksForm.svelte'
+  import RulesForm from './forms/RulesForm.svelte'
   import PlayTab from './PlayTab.svelte'
+  import ReadOnly from './ReadOnly.svelte'
   import YamlTab from './YamlTab.svelte'
 
   /** One travel system: play a trip with it, or see and edit its rules. */
@@ -11,7 +16,11 @@
 
   const system = $derived(systems.get(id))
   const file = $derived(id === 'generic' ? null : rulesFile(id))
-  const tabs = $derived<Tab[]>(file ? ['play', 'yaml'] : ['play'])
+  const tabs = $derived<Tab[]>(file ? ['play', 'rules', 'checks', 'yaml'] : ['play'])
+  const doc = systemDoc(() => file ?? { root: '', path: '' })
+  const problems = $derived(
+    file ? library.diagnostics(file.root, file.path).filter((d) => d.severity === 'error') : [],
+  )
 </script>
 
 {#if system}
@@ -33,6 +42,16 @@
     <div class="body">
       {#if tab === 'yaml' && file}
         <YamlTab root={file.root} path={file.path} />
+      {:else if (tab === 'rules' || tab === 'checks') && file}
+        <div class="forms">
+          {#if !doc.editable}<ReadOnly root={file.root} />{/if}
+          {#if problems.length}
+            <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
+              {t('forms.problems', { count: problems.length })}
+            </button>
+          {/if}
+          {#if tab === 'rules'}<RulesForm {doc} />{:else}<ChecksForm {doc} />{/if}
+        </div>
       {:else}
         <PlayTab {system} />
       {/if}
@@ -82,6 +101,24 @@
   .body {
     flex: 1;
     min-height: 0;
+  }
+
+  .forms {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 24px;
+  }
+
+  .problems {
+    align-self: flex-start;
+    padding: 6px 10px;
+    color: #e3a19f;
+    text-align: left;
+    background: none;
+    border: 1px solid #e3a19f;
+    border-radius: 6px;
+    cursor: pointer;
   }
 
   .help {
