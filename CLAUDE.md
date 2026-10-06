@@ -32,7 +32,7 @@ packages/                   # libraries, scope @open-tabletop/*
   oracle-engine/            # ✅ MVP: tables, oracles, generators, decks; packs; locales; history
   travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
-  session/                  # ⏳ integration layer: orchestrates engines, journal, persistence ports
+  session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal
   ui-kit/                   # ⏳ shared Svelte: theme, i18n, base components
   oracle-ui/  travel-ui/    # ⏳ embeddable Svelte components for each engine
 apps/
@@ -124,7 +124,7 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 4. [x] `oracle-engine` MVP and the private Kal-Arath pack (es): tables, settlements, dungeons, travel rules, bindings.
 5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
 6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
-7. [ ] `session` (travel ↔ oracle integration, journal) and embeddable UIs in the hexmapper (Travel/Play mode).
+7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). Extracting reusable `*-ui` packages is still pending.
 8. [ ] Standalone `oracle` and `travel` apps.
 9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
 

@@ -93,8 +93,8 @@ Done:
 ### Play (with the engines)
 
 - [x] Files in OTD (`.otd.json`, importing `.hexmap.json`), world scale.
-- [ ] Travel/Play mode: party token (custom image), route on the map and Travel Engine panel.
-- [ ] Embedded Oracle panel with history.
+- [x] Play mode (tool ▶, key P): party token (bundled party icons or an uploaded image, optional halo), trail. _Simple_: click to move. _With rules_: system (generic or a pack with travel-rules, e.g. Kal-Arath), destination and A\* route, travel / 1 hex / camp / rest, checks resolved by the Oracle through pack bindings, journal. Saved as OTD party + log + state.oracle.
+- [ ] A standalone Oracle panel (roll any table, history), reusable as `oracle-ui`.
 
 ### Later
 

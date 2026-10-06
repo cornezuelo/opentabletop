@@ -9,6 +9,7 @@ export type MapChange =
   | { kind: 'assets' }
   | { kind: 'layers' }
   | { kind: 'labels' }
+  | { kind: 'play' }
   | { kind: 'meta' }
   | { kind: 'all' }
 

@@ -20,7 +20,7 @@ import type {
   TerrainType,
 } from '../model/types'
 
-export type ToolId = 'select' | 'terrain' | 'path' | 'icon' | 'text'
+export type ToolId = 'select' | 'terrain' | 'path' | 'icon' | 'text' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 
 export const MAX_BRUSH_RADIUS = 5
@@ -54,6 +54,7 @@ class Editor {
   meta = $state<MapMeta>({ ...this.map.meta })
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
+  play = $state<HexMap['play']>(undefined)
   canUndo = $state(false)
   canRedo = $state(false)
 
@@ -137,6 +138,12 @@ class Editor {
     this.commitLabel(id)
     const label = this.getLabel(id)
     if (label) this.execute(new ReplaceLabelCommand(label, update(structuredClone(label))))
+  }
+
+  /** Play state changes: saved with the map but not part of the editor's undo history. */
+  setPlay(play: HexMap['play']): void {
+    this.map.play = play
+    this.notify({ kind: 'play' })
   }
 
   /** Layer visibility/lock: saved with the map but not part of undo history. */
@@ -225,6 +232,8 @@ class Editor {
       this.scale = { ...this.map.scale }
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
+    if (change.kind === 'play' || change.kind === 'all')
+      this.play = this.map.play ? structuredClone(this.map.play) : undefined
     if (change.kind === 'layers' || change.kind === 'all')
       this.layers = structuredClone(this.map.layers)
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]

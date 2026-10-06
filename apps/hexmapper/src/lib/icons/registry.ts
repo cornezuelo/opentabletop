@@ -8,7 +8,14 @@ export interface BuiltinIcon {
   body: string // inner SVG markup, fill="currentColor"
 }
 
-export const ICON_CATEGORIES = ['settlements', 'landmarks', 'nature', 'danger', 'misc'] as const
+export const ICON_CATEGORIES = [
+  'party',
+  'settlements',
+  'landmarks',
+  'nature',
+  'danger',
+  'misc',
+] as const
 export type IconCategory = (typeof ICON_CATEGORIES)[number]
 
 const SIZE = data.size

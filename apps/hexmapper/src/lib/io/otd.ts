@@ -4,9 +4,12 @@ import {
   validateBundle,
   type OtdBundle,
   type OtdHex,
+  type OtdLogEntry,
   type OtdMap,
+  type OtdParty,
   type OtdPoi,
 } from '@open-tabletop/schema'
+import type { SessionState } from '@open-tabletop/session'
 import { MapFormatError } from '../model/migrations'
 import { deserializeMap } from '../model/serialize'
 import type { HexIcon, HexKey, HexMap, Poi } from '../model/types'
@@ -84,6 +87,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
   const extra = foreign.bundle ?? {}
   const otherMaps = Array.isArray(extra.maps) ? (extra.maps as OtdMap[]) : []
   const otherPois = Array.isArray(extra.pois) ? (extra.pois as OtdPoi[]) : []
+  const play = playToOtd(map)
   return {
     parties: [],
     characters: [],
@@ -95,7 +99,77 @@ export function mapToBundle(map: HexMap): OtdBundle {
     otd: OTD_VERSION,
     maps: [otdMap, ...otherMaps],
     pois: [...pois, ...otherPois],
+    ...(play && {
+      parties: [play.party, ...((extra.parties as OtdParty[] | undefined) ?? [])],
+      log: [...play.log, ...((extra.log as OtdLogEntry[] | undefined) ?? [])],
+      state: {
+        ...(extra.state as Record<string, unknown> | undefined),
+        ...(play.oracle && { oracle: play.oracle }),
+      },
+    }),
   } as OtdBundle
+}
+
+/** Play state as OTD: the party entity, its journal as log entries and the Oracle state. */
+function playToOtd(map: HexMap) {
+  const play = map.play
+  if (!play) return null
+  const session = play.rules?.session as Partial<SessionState> | null | undefined
+  const party: OtdParty = {
+    id: `party-${map.meta.id}`,
+    type: 'party',
+    ...(play.location && { location: { map: map.meta.id, hex: play.location } }),
+    ...(session?.stats && { stats: session.stats }),
+    ...(session?.travel && { travel: session.travel as unknown as Record<string, unknown> }),
+    ext: {
+      hexmapper: {
+        mode: play.mode,
+        token: play.token,
+        trail: play.trail,
+        showTrail: play.showTrail,
+        ...(play.rules && { system: play.rules.system, startDay: play.rules.startDay }),
+        ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
+      },
+    },
+  }
+  const log = (session?.journal ?? []) as unknown as OtdLogEntry[]
+  return { party, log, oracle: session?.oracle }
+}
+
+/** Reads play state back from the party this app wrote (party-<mapId>). */
+function playFromOtd(
+  bundle: OtdBundle,
+  mapId: string,
+): { play?: Record<string, unknown>; partyId?: string } {
+  const party = bundle.parties.find((p) => p.id === `party-${mapId}`)
+  const ext = (party?.ext as { hexmapper?: Record<string, unknown> } | undefined)?.hexmapper
+  if (!party || !ext) return {}
+  const rules =
+    typeof ext.system === 'string' && party.travel
+      ? {
+          system: ext.system,
+          startDay: ext.startDay,
+          session: {
+            travel: party.travel,
+            oracle: bundle.state.oracle ?? { decks: {}, occurrences: {}, vars: {} },
+            stats: party.stats ?? {},
+            dayVars: ext.dayVars ?? {},
+            journal: bundle.log.filter((e) => ['travel', 'oracle', 'user'].includes(e.source)),
+            nextEntry: ext.nextEntry ?? bundle.log.length + 1,
+          },
+        }
+      : undefined
+  return {
+    partyId: party.id,
+    play: {
+      mode: ext.mode,
+      token: ext.token,
+      trail: ext.trail,
+      showTrail: ext.showTrail,
+      location: party.location?.hex,
+      ...(rules && { rules }),
+    },
+  }
 }
 
 /**
@@ -137,9 +211,18 @@ export function bundleToMap(raw: unknown): HexMap {
     hex.pois = [...((hex.pois as Poi[]) ?? []), entry]
   }
 
+  const { play, partyId } = playFromOtd(bundle, otdMap.id)
   const extraBundle: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(bundle))
     if (!(BUNDLE_KEYS as readonly string[]).includes(key)) extraBundle[key] = value
+  if (partyId) {
+    // Our party, its journal and the oracle state are rebuilt from `play` when saving.
+    extraBundle.parties = bundle.parties.filter((p) => p.id !== partyId)
+    extraBundle.log = play?.rules ? [] : bundle.log
+    const otherState = { ...bundle.state }
+    delete otherState.oracle
+    extraBundle.state = play?.rules ? otherState : bundle.state
+  }
   if (otherMaps.length) extraBundle.maps = otherMaps
   if (otherPois.length) extraBundle.pois = otherPois
 
@@ -167,6 +250,7 @@ export function bundleToMap(raw: unknown): HexMap {
     assets: ext.assets ?? [],
     labels: ext.labels ?? [],
     layers: ext.layers,
+    ...(play && { play }),
     foreign: {
       ...(Object.keys(extraBundle).length && { bundle: extraBundle }),
       ...(Object.keys(otherExt).length && { mapExt: otherExt }),

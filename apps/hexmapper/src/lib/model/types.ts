@@ -113,6 +113,20 @@ export interface LabelStyle {
   haloWidth: number
 }
 
+/** Play mode: the party on the map. */
+export interface PlayState {
+  /** 'simple': move the token freely. 'rules': the Travel Engine and Oracle drive the trip. */
+  mode: 'simple' | 'rules'
+  /** Bundled icon or an imported image (`asset:<id>`); halo = light disc behind it. */
+  token: { iconId: string; color?: string; halo?: boolean }
+  location?: HexKey
+  /** Hexes visited, in order. */
+  trail: HexKey[]
+  showTrail: boolean
+  /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
+  rules?: { system: string; startDay: number; session: unknown }
+}
+
 /** Fixed map layers, in draw order. */
 export const LAYER_IDS = [
   'terrain',
@@ -120,6 +134,7 @@ export const LAYER_IDS = [
   'paths',
   'icons',
   'labels',
+  'party',
   'coords',
   'markers',
 ] as const
@@ -191,6 +206,7 @@ export interface HexMap {
   assets: MapAsset[]
   labels: MapLabel[]
   layers: Record<LayerId, LayerState>
+  play?: PlayState
   /**
    * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
    * kept verbatim so saving never loses it.

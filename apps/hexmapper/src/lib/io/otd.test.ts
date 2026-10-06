@@ -106,3 +106,66 @@ describe('OTD conversion', () => {
     )
   })
 })
+
+describe('play state in OTD', () => {
+  it('writes the party, journal and oracle state, and reads them back', () => {
+    const map = sampleMap()
+    map.play = {
+      mode: 'rules',
+      token: { iconId: 'game:mounted-knight', color: '#8b1e1e' },
+      location: '2,2',
+      trail: ['1,2', '2,2'],
+      showTrail: true,
+      rules: {
+        system: 'generic',
+        startDay: 181,
+        session: {
+          travel: {
+            time: 1000,
+            location: '2,2',
+            mode: 'foot',
+            resources: { food: 4 },
+            fatigue: 0,
+            progress: 0,
+            day: 181,
+            travelledToday: 0,
+            dayChecksDone: true,
+            lostToday: false,
+            pendingChecks: [],
+            nextCheckId: 4,
+          },
+          oracle: { decks: {}, occurrences: { 'x/y#z': 1 }, vars: {} },
+          stats: { pre: 2 },
+          dayVars: { weather: 'clear' },
+          journal: [
+            {
+              id: 'j1',
+              time: 1000,
+              at: 'T',
+              source: 'oracle',
+              code: 'ORACLE_RESULT',
+              text: 'Despejado',
+            },
+          ],
+          nextEntry: 2,
+        },
+      },
+    }
+    const bundle = mapToBundle(map)
+    expect(validateBundle(bundle).errors).toEqual([])
+    expect(bundle.parties[0]).toMatchObject({
+      type: 'party',
+      location: { map: map.meta.id, hex: '2,2' },
+      stats: { pre: 2 },
+    })
+    expect(bundle.log).toHaveLength(1)
+    expect(bundle.state.oracle).toEqual({ decks: {}, occurrences: { 'x/y#z': 1 }, vars: {} })
+
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    expect(back.play).toEqual(map.play)
+    // Saving again doesn't duplicate the party or the journal.
+    const again = mapToBundle(back)
+    expect(again.parties).toHaveLength(1)
+    expect(again.log).toHaveLength(1)
+  })
+})

@@ -7,6 +7,28 @@ const require = createRequire(import.meta.url)
 const set = JSON.parse(readFileSync(require.resolve('@iconify-json/game-icons/icons.json'), 'utf8'))
 
 const CATEGORIES = {
+  party: [
+    'meeple',
+    'meeple-group',
+    'three-friends',
+    'hooded-figure',
+    'cowled',
+    'barbarian',
+    'swordman',
+    'archer',
+    'wizard-face',
+    'mounted-knight',
+    'knight-banner',
+    'visored-helm',
+    'viking-helmet',
+    'hiking',
+    'walk',
+    'footprint',
+    'footsteps',
+    'camel',
+    'caravel',
+    'compass',
+  ],
   settlements: [
     'castle',
     'village',

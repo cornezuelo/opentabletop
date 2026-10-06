@@ -107,8 +107,14 @@ export class MapRenderer {
   /** Small dots on hexes that have notes, POIs, tags or fields. */
   private pathsLayer = new Graphics()
   private iconLayer = new Container()
-  private iconTextures = new IconTextures(() => this.drawIcons())
+  private iconTextures = new IconTextures(() => {
+    this.drawIcons()
+    this.drawParty()
+  })
   private labelLayer = new Container()
+  /** Party token, trail and route (play mode). */
+  private partyLayer = new Container()
+  private partyLines = new Graphics()
   private labelTexts = new Map<string, Text>()
   private markers = new Graphics()
   private overlay = new Graphics()
@@ -146,6 +152,7 @@ export class MapRenderer {
       this.iconLayer,
       this.coordLayer,
       this.labelLayer,
+      this.partyLayer,
       this.markers,
       this.overlay,
     )
@@ -329,6 +336,8 @@ export class MapRenderer {
       this.drawPaths()
     } else if (change.kind === 'assets') {
       this.drawIcons()
+    } else if (change.kind === 'play') {
+      this.drawParty()
     } else if (change.kind === 'labels') {
       this.drawLabels()
     } else if (change.kind === 'layers') {
@@ -386,6 +395,7 @@ export class MapRenderer {
     this.drawPaths()
     this.drawIcons()
     this.drawLabels()
+    this.drawParty()
     this.onViewChanged()
   }
 
@@ -440,6 +450,58 @@ export class MapRenderer {
       this.labelTexts.set(label.id, text)
     }
     this.updateLabelResolution()
+  }
+
+  private drawParty(): void {
+    for (const child of this.partyLayer.removeChildren())
+      if (child !== this.partyLines) child.destroy()
+    const lines = this.partyLines.clear()
+    this.partyLayer.addChild(lines)
+    const play = editor.map.play
+    const { grid, assets } = editor.map
+    if (!play?.location) return
+    const center = (key: string) => this.centerOf(parseKey(key as HexKey))
+    const hs = grid.hexSize
+
+    if (play.showTrail && play.trail.length > 1) {
+      const points = play.trail.filter((k) => inBounds(parseKey(k), grid)).map(center)
+      for (const piece of dashes(points, hs * 0.12, hs * 0.14)) this.strokePolyline(lines, piece)
+      lines.stroke({
+        width: hs * 0.07,
+        color: play.token.color ?? 0x8b1e1e,
+        alpha: 0.85,
+        cap: 'round',
+      })
+    }
+
+    const session =
+      play.mode === 'rules'
+        ? (play.rules?.session as { travel?: { route?: string[]; destination?: string } } | null)
+        : null
+    const route = session?.travel?.route
+    if (route && route.length > 1) {
+      const points = route.map(center)
+      for (const piece of dashes(points, hs * 0.3, hs * 0.18)) this.strokePolyline(lines, piece)
+      lines.stroke({ width: hs * 0.06, color: 0xffffff, alpha: 0.9, cap: 'round' })
+      const end = points.at(-1)!
+      lines.circle(end.x, end.y, hs * 0.35).stroke({ width: hs * 0.07, color: SELECT_COLOR })
+    }
+
+    const image = iconImage(play.token.iconId, assets)
+    const texture = image && this.iconTextures.get(play.token.iconId, image.url)
+    const at = center(play.location)
+    if (play.token.halo !== false)
+      lines
+        .circle(at.x, at.y, hs * 0.62)
+        .fill({ color: 0xf4eedd, alpha: 0.9 })
+        .stroke({ width: hs * 0.05, color: play.token.color ?? 0x8b1e1e })
+    if (!texture) return
+    const sprite = new Sprite(texture)
+    sprite.anchor.set(0.5)
+    sprite.setSize(hs * 1.0, hs * 1.0)
+    sprite.position.set(at.x, at.y)
+    if (image.tintable) sprite.tint = play.token.color ?? 0x8b1e1e
+    this.partyLayer.addChild(sprite)
   }
 
   /** Re-rasterize text for the current zoom so labels stay sharp. */
@@ -593,6 +655,7 @@ export class MapRenderer {
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible
     this.labelLayer.visible = layers.labels.visible
+    this.partyLayer.visible = layers.party.visible
     this.markers.visible = layers.markers.visible
     this.coordLayer.visible =
       layers.coords.visible &&

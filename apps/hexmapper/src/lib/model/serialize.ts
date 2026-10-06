@@ -96,6 +96,7 @@ function validate(data: Record<string, unknown>): HexMap {
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
     layers: parseLayers(data.layers),
+    ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }
@@ -253,6 +254,37 @@ export function parseLabelStyle(value: unknown): LabelStyle {
       typeof s.haloWidth === 'number' && Number.isFinite(s.haloWidth)
         ? Math.min(LABEL_HALO_RANGE[1], Math.max(LABEL_HALO_RANGE[0], s.haloWidth))
         : d.haloWidth,
+  }
+}
+
+const HEX_KEY = /^\d+,\d+$/
+
+function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
+  const token = isRecord(p.token) ? p.token : {}
+  const rules = isRecord(p.rules) ? p.rules : undefined
+  return {
+    mode: p.mode === 'rules' ? 'rules' : 'simple',
+    token: {
+      iconId: typeof token.iconId === 'string' ? token.iconId : 'game:meeple',
+      ...(typeof token.color === 'string' &&
+        /^#[0-9a-f]{6}$/i.test(token.color) && { color: token.color }),
+    },
+    ...(typeof p.location === 'string' &&
+      HEX_KEY.test(p.location) && { location: p.location as HexKey }),
+    trail: (Array.isArray(p.trail) ? p.trail : []).filter(
+      (k): k is HexKey => typeof k === 'string' && HEX_KEY.test(k),
+    ),
+    showTrail: p.showTrail !== false,
+    ...(rules &&
+      typeof rules.system === 'string' &&
+      isRecord(rules.session) && {
+        rules: {
+          system: rules.system,
+          startDay: typeof rules.startDay === 'number' ? rules.startDay : 1,
+          // The session belongs to the engines; it is re-validated when play resumes.
+          session: rules.session,
+        },
+      }),
   }
 }
 

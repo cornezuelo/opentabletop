@@ -1,6 +1,7 @@
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
 import { hitTestLabel } from '../render/hitTest'
+import { clickHex } from '../play/play'
 import { nodeFlags, normalizePath } from '../model/hex'
 import type { MapPath } from '../model/types'
 import { placeInHex } from '../render/pathGeometry'
@@ -603,7 +604,18 @@ export function deleteSelectedLabel(): void {
   editor.selectedLabel = null
 }
 
+/** Play: place the party, then move it (simple mode) or pick its destination (rules mode). */
+const playTool: Tool = {
+  down(cell, info) {
+    if (info.button !== 0 || !inBounds(cell, editor.map.grid)) return
+    clickHex(keyOf(cell))
+  },
+  move() {},
+  up() {},
+}
+
 const tools: Record<ToolId, Tool> = {
+  play: playTool,
   text: new TextTool(),
   icon: new IconTool(),
   select: selectTool,

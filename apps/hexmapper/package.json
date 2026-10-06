@@ -27,6 +27,11 @@
     "jspdf": "^4.2.1",
     "marked": "^18.1.0",
     "pixi.js": "^8.22.0",
-    "@open-tabletop/schema": "*"
+    "@open-tabletop/schema": "*",
+    "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/travel-engine": "*",
+    "@open-tabletop/session": "*",
+    "@open-tabletop/time": "*",
+    "@open-tabletop/random": "*"
   }
 }

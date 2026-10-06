@@ -97,6 +97,8 @@ export interface Registry {
   >
   /** locale → full definition id → overlay. */
   overlays: Map<string, Map<string, Overlay[string]>>
+  /** Per pack, definitions owned by other engines (travel-rules, bindings…), untouched. */
+  extras: Map<string, LoadedPack['extras']>
   diagnostics: Diagnostic[]
 }
 
@@ -108,9 +110,11 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
     definitions: new Map(),
     packs: new Map(),
     overlays: new Map(),
+    extras: new Map(),
     diagnostics,
   }
   for (const pack of loaded) {
+    registry.extras.set(pack.manifest.id, pack.extras)
     const deps = Object.keys(pack.manifest.dependencies ?? {})
     registry.packs.set(pack.manifest.id, {
       manifest: pack.manifest,
