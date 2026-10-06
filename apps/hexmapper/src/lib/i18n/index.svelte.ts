@@ -7,7 +7,9 @@ export const locales = { en: 'English', es: 'Español' } as const
 export type Locale = keyof typeof locales
 
 const dictionaries: Record<Locale, Messages> = { es, en }
-const STORAGE_KEY = 'hexmapper.locale'
+/** Shared by every OpenTabletop app on the same site; the Hexmapper used its own key before. */
+const STORAGE_KEY = 'opentabletop.locale'
+const OLD_KEY = 'hexmapper.locale'
 
 function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && value in locales
@@ -15,7 +17,7 @@ function isLocale(value: unknown): value is Locale {
 
 function initialLocale(): Locale {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(OLD_KEY)
     if (isLocale(stored)) return stored
   } catch {
     // Storage unavailable: use the default.
