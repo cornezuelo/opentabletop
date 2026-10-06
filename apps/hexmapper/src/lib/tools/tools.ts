@@ -438,12 +438,12 @@ class IconTool implements Tool {
       return
     }
     if (icon) {
-      editor.selectedIcon = key
+      selectIconHex(key)
       this.pressed = { key, at: info.world, threshold: info.pickRadius / 3 }
       return
     }
     editor.editHex(key, (hex) => ({ ...hex, icon: { ...editor.iconStyle, id: editor.iconId } }))
-    editor.selectedIcon = key
+    selectIconHex(key)
   }
 
   move(_cell: Offset, info: PointerInfo): void {
@@ -477,7 +477,7 @@ class IconTool implements Tool {
     if (!drag) return
     const command = drag.batch.finish()
     if (command) editor.record(command)
-    editor.selectedIcon = drag.target
+    selectIconHex(drag.target)
   }
 
   /** Moves the dragged icon live: offset inside a hex, or into another empty hex. */
@@ -512,9 +512,15 @@ class IconTool implements Tool {
     }
     changed.push(key)
     drag.target = key
-    editor.selectedIcon = key
+    selectIconHex(key)
     editor.notify({ kind: 'hexes', keys: [...new Set(changed)] })
   }
+}
+
+/** Selecting an icon selects its hex too: one selection outline, and the hex panel follows. */
+function selectIconHex(key: HexKey): void {
+  editor.selectedIcon = key
+  editor.selected = key
 }
 
 function cellCenter(cell: Offset): Point {

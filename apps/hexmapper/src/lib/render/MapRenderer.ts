@@ -305,21 +305,6 @@ export class MapRenderer {
       g.poly(corners).stroke({ width: 1.5 / scale, color: SELECT_COLOR })
     }
 
-    const iconKey = editor.tool === 'icon' ? editor.selectedIcon : null
-    const icon = iconKey ? editor.map.hexes[iconKey]?.icon : undefined
-    if (iconKey && icon) {
-      const c = this.centerOf(parseKey(iconKey))
-      const size = grid.hexSize * ICON_SIZE * (icon.scale ?? 1)
-      const x = c.x + (icon.offset?.[0] ?? 0) * grid.hexSize
-      const y = c.y + grid.hexSize * ((icon.offset?.[1] ?? 0) + ICON_OFFSET_Y)
-      g.circle(x, y, size * 0.58).stroke({ width: 2 / scale, color: SELECT_COLOR })
-      g.circle(x, y, size * 0.58 + 2 / scale).stroke({
-        width: 1 / scale,
-        color: 0x000000,
-        alpha: 0.6,
-      })
-    }
-
     if (editor.selected) {
       const cell = parseKey(editor.selected)
       if (inBounds(cell, grid)) {
