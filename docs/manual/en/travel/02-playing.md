@@ -4,7 +4,9 @@ Trips here have **no map**: you describe the way ahead hex by hex. It's quick fo
 
 ## Starting
 
-Pick a system on the left and open **Play**. Choose the season to start in and press **Start a trip**. Only one trip is kept at a time (in this browser); starting another with a different system asks first, because the current one and its journal are discarded.
+Pick a system on the left and open **Play**. Choose the season to start in and press **Start a trip**.
+
+You can keep several trips (in this browser), each with its own system, way and journal. At the top, **Trip** opens another one (its system's page opens with it), **Name** gives the open trip a name (unnamed trips show their system and day), **Another trip** starts one more with this system and season (the others are kept), and **Delete** removes the open one. **New trip**, under the system and season, starts the open trip again from scratch; it asks first if its journal has something.
 
 ## The way
 
@@ -22,6 +24,6 @@ Changing the way re-plans the route right away.
 
 The panel on the right is the same as in the Hexmapper: day, time and season, the weather, the marching hours used, the travel mode, supplies, fatigue and the system's party stats (e.g. the Grey Marches' Charisma, Survival and Navigation, which are added to rolls). The buttons are the actions the system declares: **Travel** (until something happens or the day ends), **1 hex**, **Camp**, **Rest**…
 
-Checks are rolled on their tables and written in the **journal**, grouped by day. A check with no table (like the Grey Marches' landmarks) waits for you: resolve it yourself and press **Continue**.
+Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. A check with no table (like the Grey Marches' landmarks) waits for you: resolve it yourself and press **Continue**.
 
 The trip is saved in the browser as you play, and is still there when you come back. A [backup](../technical/05-backups.md) takes it to another computer.

@@ -29,9 +29,12 @@ export const es: Messages<typeof en> = {
   rest: 'Descansar {length}',
   continue: 'Continuar',
   journalTitle: 'Diario',
+  exportJournal: 'Exportar',
   emptyJournal: 'Aún no ha pasado nada.',
   seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
   tips: {
+    exportJournal:
+      'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
     marched:
       'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',

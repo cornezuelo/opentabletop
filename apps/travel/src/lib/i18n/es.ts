@@ -128,11 +128,19 @@ export const es: Messages<typeof en> = {
     noStats: 'Sin características del grupo.',
     addStat: 'Añadir una característica',
   },
+  trips: {
+    title: 'Viaje',
+    help: 'Tus viajes se guardan en este navegador, cada uno con su sistema, su camino y su diario. Elige uno para seguir con él.',
+    name: 'Nombre',
+    unnamed: '{system}, día {day}',
+    new: 'Otro viaje',
+    delete: 'Borrar',
+    deleteConfirm: '¿Borrar el viaje «{trip}» y su diario?',
+  },
   play: {
-    current: 'Tu viaje usa {system}.',
+    current: 'El viaje abierto usa {system}.',
     switch: 'Empezar un viaje con {system}',
-    switchConfirm:
-      '¿Empezar un viaje nuevo con {system}? Se descartan el viaje actual y su diario.',
+    switchConfirm: '¿Empezar este viaje de nuevo con {system}? Se descarta su diario.',
     way: 'El camino',
     wayHelp:
       'Un viaje sin mapa: lista los hexes que tienes por delante, con su terreno y etiquetas y si un camino o un río une cada uno con el siguiente. El grupo se dirige al último.',

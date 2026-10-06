@@ -126,11 +126,19 @@ export const en = {
     noStats: 'No party stats.',
     addStat: 'Add a stat',
   },
+  trips: {
+    title: 'Trip',
+    help: 'Your trips are kept in this browser, each with its system, its way and its journal. Pick one to go on with it.',
+    name: 'Name',
+    unnamed: '{system}, day {day}',
+    new: 'Another trip',
+    delete: 'Delete',
+    deleteConfirm: 'Delete the trip “{trip}” and its journal?',
+  },
   play: {
-    current: 'Your trip uses {system}.',
+    current: 'The open trip uses {system}.',
     switch: 'Start a trip with {system}',
-    switchConfirm:
-      'Start a new trip with {system}? The current trip and its journal are discarded.',
+    switchConfirm: 'Start this trip again with {system}? Its journal is discarded.',
     way: 'The way',
     wayHelp:
       'A trip without a map: list the hexes ahead, with their terrain and tags and whether a road or river joins each one to the next. The party heads for the last one.',

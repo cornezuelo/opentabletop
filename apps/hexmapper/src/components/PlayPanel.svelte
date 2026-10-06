@@ -147,6 +147,7 @@
       startDay={play.rules.startDay}
       locale={getLocale()}
       hexLabel={coord}
+      title={editor.map.meta.name || t('map.untitled')}
       nameOf={oracleUi.nameOf}
       destinationHint={t('play.destinationHelp')}
       arrivedHint={t('play.newDestination')}

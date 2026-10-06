@@ -11,10 +11,17 @@ import { getLocale } from './i18n'
 import { library, systems } from './packs.svelte'
 import { wayWorld, type WayHex } from './way'
 
-const KEY = 'opentabletop.travel.trip'
+/** Every trip of this browser, and which one is open. */
+const KEY = 'opentabletop.travel.trips'
+/** Before several trips: the only one. */
+const OLD_KEY = 'opentabletop.travel.trip'
+const VERSION = 1
 
-/** A trip being played in this browser: its system, its way and the session. */
-interface Saved {
+/** A trip played in this browser: its system, its way and the session. */
+export interface Saved {
+  id: string
+  /** Given by the user; empty until then (the list shows the system and day). */
+  name: string
   system: string
   season: Season
   hexKm: number
@@ -23,7 +30,17 @@ interface Saved {
   session: SessionState | null
 }
 
+interface Stored {
+  version: number
+  current: string
+  trips: Saved[]
+}
+
+const newTripId = () => `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+
 const blank = (system = 'generic'): Saved => ({
+  id: newTripId(),
+  name: '',
   system,
   season: 'spring',
   hexKm: 10,
@@ -32,17 +49,85 @@ const blank = (system = 'generic'): Saved => ({
   session: null,
 })
 
-function read(): Saved {
+const isTrip = (raw: unknown): raw is Omit<Saved, 'id' | 'name'> & Partial<Saved> =>
+  typeof raw === 'object' &&
+  raw !== null &&
+  Array.isArray((raw as Saved).way) &&
+  (raw as Saved).way.length > 0
+
+/** Saved trips, migrating the single trip of older versions. */
+export function readTrips(storage: Pick<Storage, 'getItem'> = localStorage): Stored {
   try {
-    const raw = JSON.parse(localStorage.getItem(KEY) ?? 'null') as Saved | null
-    return raw && Array.isArray(raw.way) && raw.way.length ? raw : blank()
+    const raw = JSON.parse(storage.getItem(KEY) ?? 'null') as Partial<Stored> | null
+    if (raw && Array.isArray(raw.trips)) {
+      const trips = raw.trips
+        .filter(isTrip)
+        .map((t) => ({ ...t, id: t.id || newTripId(), name: t.name ?? '' }))
+      if (trips.length)
+        return {
+          version: VERSION,
+          current: trips.some((t) => t.id === raw.current) ? raw.current! : trips[0].id,
+          trips,
+        }
+    }
+    const old: unknown = JSON.parse(storage.getItem(OLD_KEY) ?? 'null')
+    if (isTrip(old)) {
+      const trip = { ...old, id: newTripId(), name: '' }
+      return { version: VERSION, current: trip.id, trips: [trip] }
+    }
   } catch {
-    return blank()
+    // Broken storage: start again.
   }
+  const trip = blank()
+  return { version: VERSION, current: trip.id, trips: [trip] }
 }
 
 class Trip {
-  saved = $state.raw<Saved>(read())
+  private stored = $state.raw<Stored>(readTrips())
+
+  /** Every saved trip, oldest first. */
+  get trips(): Saved[] {
+    return this.stored.trips
+  }
+
+  /** The open trip. */
+  get saved(): Saved {
+    return this.stored.trips.find((t) => t.id === this.stored.current) ?? this.stored.trips[0]
+  }
+
+  set saved(trip: Saved) {
+    this.stored = {
+      ...this.stored,
+      trips: this.stored.trips.map((t) => (t.id === trip.id ? trip : t)),
+    }
+  }
+
+  /** Opens another saved trip. */
+  open(id: string): void {
+    if (!this.stored.trips.some((t) => t.id === id)) return
+    this.stored = { ...this.stored, current: id }
+    this.save()
+  }
+
+  /** A new trip (kept beside the others) with a system and season, and opens it. */
+  create(system: string, season: Season): void {
+    const trip = { ...blank(system), season }
+    this.stored = { ...this.stored, current: trip.id, trips: [...this.stored.trips, trip] }
+    this.start(system, season)
+  }
+
+  rename(name: string): void {
+    this.saved = { ...this.saved, name: name.trim() }
+    this.save()
+  }
+
+  /** Deletes the open trip (the last one left is emptied instead) and opens another. */
+  remove(): void {
+    const rest = this.stored.trips.filter((t) => t.id !== this.saved.id)
+    const trips = rest.length ? rest : [blank(this.saved.system)]
+    this.stored = { ...this.stored, current: trips.at(-1)!.id, trips }
+    this.save()
+  }
 
   get system() {
     return systems.get(this.saved.system) ?? systems.list[0]
@@ -50,7 +135,8 @@ class Trip {
 
   private save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify(this.saved))
+      localStorage.setItem(KEY, JSON.stringify(this.stored))
+      localStorage.removeItem(OLD_KEY)
     } catch {
       // Not kept for the next visit; the trip still goes on.
     }

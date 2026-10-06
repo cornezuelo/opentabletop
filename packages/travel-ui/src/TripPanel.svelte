@@ -6,6 +6,7 @@
     type TravelSystem,
   } from '@open-tabletop/session'
   import { defaultCalendar, formatClock } from '@open-tabletop/time'
+  import { entryClock, entryText, eventName, journalMarkdown, tripDay } from './journal'
   import { availableActions, type TravelAction } from '@open-tabletop/travel-engine'
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
@@ -24,6 +25,7 @@
     nameOf = (id) => id,
     destinationHint = '',
     arrivedHint = '',
+    title = '',
     onstep,
     onedit,
   }: {
@@ -38,6 +40,8 @@
     /** Shown when there is no destination yet, e.g. "Click a hex to set the destination." */
     destinationHint?: string
     arrivedHint?: string
+    /** Title of the exported journal (and its file name), e.g. the map's or system's name. */
+    title?: string
     onstep: (action: TravelAction) => void
     /** Changes the session directly (supplies, stats, mode) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
@@ -73,52 +77,31 @@
   const statText = (text: Parameters<typeof localize>[0], key: string) =>
     localize(text, locale, 'en') ?? key
 
-  const eventName = (event: unknown) => idText(t, `events.${String(event)}`, String(event))
+  const context = $derived({ t, startDay, hexLabel, nameOf })
+  const text = (e: JournalEntry) => entryText(e, context)
+  const pendingName = (event: unknown) => eventName(t, event)
 
   /** Newest first, grouped by day ("Day N" headers). */
   const journalDays = $derived.by(() => {
     const groups: { day: number; entries: JournalEntry[] }[] = []
     for (const entry of [...session.journal].reverse().slice(0, 60)) {
-      const day = defaultCalendar.describe(entry.time).day - startDay + 1
+      const day = tripDay(entry, startDay)
       if (groups.at(-1)?.day !== day) groups.push({ day, entries: [] })
       groups.at(-1)!.entries.push(entry)
     }
     return groups
   })
 
-  function entryText(e: JournalEntry): string {
-    const d = (e.data ?? {}) as Record<string, unknown>
-    switch (e.code) {
-      case 'ORACLE_RESULT':
-        return `${eventName(d.event)}: ${e.text ?? '—'}`
-      case 'ORACLE_ROLL':
-        return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
-      case 'CHECK_PENDING':
-        return t('journal.pending', { event: eventName(d.event) })
-      case 'DISCOVERY_FAILED':
-        return t('journal.discoveryFailed', { hex: hexLabel(String(d.hex)), error: e.text ?? '' })
-      case 'CHECK_FAILED':
-        return t('journal.failed', { event: eventName(d.event), error: e.text ?? '' })
-      case 'HEX_ENTERED':
-        return t('journal.entered', { hex: hexLabel(String(d.hex)) })
-      case 'HEX_DISCOVERED':
-        return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
-      case 'DAY_STARTED':
-        return t('journal.day', { day: Number(d.day) - startDay + 1 })
-      case 'RESOURCE_DEPLETED':
-        return t('journal.depleted', {
-          resource: idText(t, `resources.${d.resource}`, String(d.resource)),
-        })
-      case 'TRAVEL_STOPPED':
-        return t(`stop.${String(d.reason)}` as TravelUiKey)
-      case 'NOTE':
-        return e.text ?? ''
-      default:
-        return idText(t, `journal.${e.code}`, e.code)
-    }
+  function exportJournal() {
+    const markdown = journalMarkdown(session.journal, context, title || t('journalTitle'))
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${(title || 'journal').replace(/[^\p{L}\p{N}]+/gu, '-').toLowerCase()}.md`
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
-  const entryClock = (e: JournalEntry) => formatClock(defaultCalendar.describe(e.time))
   const number = (value: string, min = 0) => Math.max(min, Number(value) || 0)
 </script>
 
@@ -240,21 +223,29 @@
 
   {#each travel.pendingChecks as check (check.id)}
     <div class="pending">
-      <span>{t('journal.pending', { event: eventName(check.event) })}</span>
+      <span>{t('journal.pending', { event: pendingName(check.event) })}</span>
       <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
       >
     </div>
   {/each}
 
   <div class="field">
-    <span>{t('journalTitle')}</span>
+    <div class="journal-head">
+      <span>{t('journalTitle')}</span>
+      <button
+        class="link"
+        use:tooltip={t('tips.exportJournal')}
+        disabled={!session.journal.length}
+        onclick={exportJournal}>{t('exportJournal')}</button
+      >
+    </div>
     <ol class="journal">
       {#each journalDays as group (group.day)}
         <li class="day">{t('journalDay', { day: group.day })}</li>
         {#each group.entries as entry (entry.id)}
           <li class={entry.source}>
             <time>{entryClock(entry)}</time>
-            <span>{entryText(entry)}</span>
+            <span>{text(entry)}</span>
           </li>
         {/each}
       {:else}
@@ -265,6 +256,26 @@
 </div>
 
 <style>
+  .journal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .link {
+    padding: 0;
+    font-size: 12px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .link:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
   .trip {
     display: flex;
     flex-direction: column;

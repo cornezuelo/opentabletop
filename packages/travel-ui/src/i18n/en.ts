@@ -25,9 +25,12 @@ export const en = {
   rest: 'Rest {length}',
   continue: 'Continue',
   journalTitle: 'Journal',
+  exportJournal: 'Export',
   emptyJournal: 'Nothing has happened yet.',
   seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
   tips: {
+    exportJournal:
+      'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
     marched:
       'Hours of marching allowed per day; when they run out, camp to continue tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
