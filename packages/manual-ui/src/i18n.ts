@@ -7,7 +7,12 @@ const TEXT = {
     openFull: 'Open the full manual',
     back: 'Back',
     title: 'Manual',
-    apps: { hexmapper: 'Hexmapper', oracle: 'Oracle', travel: 'Travel' } as Record<string, string>,
+    apps: {
+      hexmapper: 'Hexmapper',
+      oracle: 'Oracle',
+      travel: 'Travel',
+      technical: 'Technical',
+    } as Record<string, string>,
     language: 'Language',
   },
   es: {
@@ -18,7 +23,12 @@ const TEXT = {
     openFull: 'Abrir el manual completo',
     back: 'Volver',
     title: 'Manual',
-    apps: { hexmapper: 'Hexmapper', oracle: 'Oracle', travel: 'Travel' } as Record<string, string>,
+    apps: {
+      hexmapper: 'Hexmapper',
+      oracle: 'Oracle',
+      travel: 'Travel',
+      technical: 'Técnico',
+    } as Record<string, string>,
     language: 'Idioma',
   },
 }
