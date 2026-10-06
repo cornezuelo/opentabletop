@@ -337,3 +337,64 @@ describe('check context', () => {
     expect(checks('1,9', '1,8')).toHaveLength(1) // off the road
   })
 })
+
+describe('water', () => {
+  /** A row: land, a custom water terrain ("mere"), land. */
+  const row: TravelWorld = {
+    hexKm: 10,
+    cell: (hex) =>
+      ({ a: { terrain: 'plains' }, b: { terrain: 'mere', water: true }, c: { terrain: 'plains' } })[
+        hex
+      ] ?? null,
+    neighbors: (hex) => ({ a: ['b'], b: ['a', 'c'], c: ['b'] })[hex] ?? [],
+    distance: (x, y) => Math.abs(x.charCodeAt(0) - y.charCodeAt(0)),
+    edges: () => [],
+  }
+  const rulesWith = (extra: object) =>
+    parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: { plains: { multiplier: 1 } },
+      modes: { foot: { kmPerDay: 30 }, boat: { kmPerDay: 40, allowedTerrains: ['water'] } },
+      ...extra,
+    }).rules!
+
+  it('water hexes follow the water rule when their terrain has none', () => {
+    const open = createTravelEngine({ world: row, rules: rulesWith({}) })
+    expect(open.plan(start('a'), 'c')).toEqual(['a', 'b', 'c'])
+    const closed = createTravelEngine({
+      world: row,
+      rules: rulesWith({ water: { passable: false } }),
+    })
+    expect(closed.plan(start('a'), 'c')).toBeNull()
+    // A terrain's own rule wins over the water rule.
+    const ford = createTravelEngine({
+      world: row,
+      rules: rulesWith({
+        water: { passable: false },
+        terrains: { plains: {}, mere: { multiplier: 0.5 } },
+      }),
+    })
+    expect(ford.plan(start('a'), 'c')).toEqual(['a', 'b', 'c'])
+  })
+
+  it('a mode allowed only on water sails what is impassable on foot', () => {
+    const engine = createTravelEngine({
+      world: row,
+      rules: rulesWith({ water: { passable: false } }),
+    })
+    const boat = { ...start('b'), mode: 'boat' }
+    expect(engine.stepMinutes(boat, 'b', 'a')).toBe(Infinity) // can't land
+    const lake: TravelWorld = {
+      ...row,
+      cell: () => ({ terrain: 'mere', water: true }),
+      neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
+    }
+    const sailing = createTravelEngine({
+      world: lake,
+      rules: rulesWith({ water: { passable: false } }),
+    })
+    expect(sailing.stepMinutes({ ...start('a'), mode: 'boat' }, 'a', 'b')).toBeLessThan(Infinity)
+  })
+})

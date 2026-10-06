@@ -37,6 +37,9 @@ export const es: Messages<typeof en> = {
     problems: 'Este fichero tiene {count} problemas: abre el YAML para verlos.',
   },
   rules: {
+    water: 'Hexes de agua',
+    waterHelp:
+      'Hexes cuyo terreno el mapa marca como agua (Hexmapper: Editar paleta → Agua) y que no tienen regla propia en Terrenos. Normalmente no se cruzan a pie; una forma de viajar «Solo por» agua (escribe water) sí puede navegarlos.',
     day: 'El día',
     dayHelp:
       'Cuándo empieza el día (y se tiran las comprobaciones del alba) y cuándo cae la noche: nadie marcha de noche.',

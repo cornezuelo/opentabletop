@@ -1,5 +1,8 @@
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 
+/** The default palette's water terrains (the Hexmapper's map palette decides there). */
+export const WATER = ['lake', 'sea', 'deep-sea']
+
 /** One hex of an abstract trip: what it is and how it joins the next one. */
 export interface WayHex {
   terrain: string
@@ -19,7 +22,9 @@ export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
     hexKm,
     cell(hex) {
       const h = way[index(hex)]
-      return h ? { terrain: h.terrain, tags: h.tags } : null
+      return h
+        ? { terrain: h.terrain, tags: h.tags, ...(WATER.includes(h.terrain) && { water: true }) }
+        : null
     },
     neighbors(hex) {
       const i = index(hex)

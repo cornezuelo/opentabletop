@@ -127,6 +127,41 @@
   </section>
 
   <section>
+    <h3>{t('rules.water')}<InfoTip text={t('rules.waterHelp')} /></h3>
+    <div class="inline">
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={rules.water?.passable !== false}
+          {disabled}
+          onchange={(e) =>
+            doc.edit(
+              'travel-rules',
+              ['water', 'passable'],
+              e.currentTarget.checked ? undefined : false,
+            )}
+        />
+        {t('rules.passable')}
+      </label>
+      {#if rules.water?.passable !== false}
+        <label>
+          <span>{t('rules.multiplier')}</span>
+          <input
+            type="number"
+            min="0"
+            step="any"
+            placeholder="1"
+            value={rules.water?.multiplier ?? ''}
+            {disabled}
+            onchange={(e) =>
+              doc.edit('travel-rules', ['water', 'multiplier'], num(e.currentTarget))}
+          />
+        </label>
+      {/if}
+    </div>
+  </section>
+
+  <section>
     <h3>{t('rules.edges')}<InfoTip text={t('rules.edgesHelp')} /></h3>
     <RecordRows
       {doc}

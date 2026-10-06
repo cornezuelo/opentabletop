@@ -32,6 +32,17 @@ export const travelRulesSchema = z
         })
         .strict(),
     ),
+    /**
+     * Water hexes (the map marks their terrain as water) whose terrain isn't listed above,
+     * e.g. `{ passable: false }`; a mode with `allowedTerrains: [water]` still sails them.
+     */
+    water: z
+      .object({
+        multiplier: z.number().nonnegative().optional(),
+        passable: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
     /** Multiplier for terrains not listed (default 1). */
     defaultTerrain: z.object({ multiplier: z.number().nonnegative() }).strict().optional(),
     /** Edge kinds (road, river…); an edge with a multiplier replaces the terrain's. */

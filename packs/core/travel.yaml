@@ -32,6 +32,8 @@ terrains:
   lake: { passable: false }
   sea: { passable: false }
   deep-sea: { passable: false }
+# Water hexes (Edit palette → Water) whose terrain isn't listed: no walking on them.
+water: { passable: false }
 defaultTerrain: { multiplier: 1 }
 edges:
   road: { multiplier: 1.5 }

@@ -23,6 +23,7 @@ export function mapWorld(map: HexMap): TravelWorld {
       }
     }
   const cell = (hex: string) => parseKey(hex as HexKey)
+  const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
   return {
     hexKm: map.scale.hexKm,
     cell(hex) {
@@ -35,7 +36,14 @@ export function mapWorld(map: HexMap): TravelWorld {
       }
       // Regions by name: what tables and travel rules would write in a condition.
       const region = data?.region ? map.regions.find((r) => r.id === data.region)?.name : undefined
-      return { ...stats, terrain: data?.terrain, tags: data?.tags ?? [], ...(region && { region }) }
+      return {
+        ...stats,
+        terrain: data?.terrain,
+        tags: data?.tags ?? [],
+        ...(region && { region }),
+        // Water as the palette says (Edit palette → Water): travel rules' `water` applies.
+        ...(data?.terrain && water.has(data.terrain) && { water: true }),
+      }
     },
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),
     distance: (a, b) =>

@@ -6,7 +6,10 @@ import { availableActions, type CheckRule, type TravelRules } from './rules'
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
 export interface TravelWorld {
   hexKm: number
-  cell(hex: string): { terrain?: string; tags?: string[]; [key: string]: unknown } | null
+  /** `water`: the map marks the hex's terrain as water (lake, sea… or one of the user's). */
+  cell(
+    hex: string,
+  ): { terrain?: string; tags?: string[]; water?: boolean; [key: string]: unknown } | null
   neighbors(hex: string): string[]
   distance(a: string, b: string): number
   /** Edge kinds between two neighboring hexes, e.g. ['road'] or ['river']. */
@@ -134,11 +137,19 @@ export function createTravelEngine(options: {
   /** Terrain/edge multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (state: TravelState, a: string, b: string): number => {
     const mode = rules.modes[state.mode]
-    const terrain = world.cell(b)?.terrain
-    if (!mode || !world.cell(b)) return 0
-    if (mode.allowedTerrains && (!terrain || !mode.allowedTerrains.includes(terrain))) return 0
-    const terrainRule = terrain ? rules.terrains[terrain] : undefined
-    if (terrainRule?.passable === false) return 0
+    const cell = world.cell(b)
+    if (!mode || !cell) return 0
+    const terrain = cell.terrain
+    // A terrain's own rule wins; water hexes without one follow the `water` rule.
+    const terrainRule =
+      (terrain ? rules.terrains[terrain] : undefined) ?? (cell.water ? rules.water : undefined)
+    if (mode.allowedTerrains) {
+      // "Only through" these terrains (`water` = any water hex): they're open to this mode.
+      const allowed =
+        (!!terrain && mode.allowedTerrains.includes(terrain)) ||
+        (!!cell.water && mode.allowedTerrains.includes('water'))
+      if (!allowed) return 0
+    } else if (terrainRule?.passable === false) return 0
     const edgeMultipliers = world
       .edges(a, b)
       .map((e) => rules.edges?.[e]?.multiplier)

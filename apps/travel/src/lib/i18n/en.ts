@@ -34,6 +34,9 @@ export const en = {
     problems: 'This file has {count} problems: open the YAML to see them.',
   },
   rules: {
+    water: 'Water hexes',
+    waterHelp:
+      'Hexes whose terrain the map marks as water (Hexmapper: Edit palette → Water) and that have no rule of their own in Terrains. Usually not passable on foot; a way of travelling “Only through” water (write water) can still sail them.',
     day: 'The day',
     dayHelp:
       'When the day starts (and dawn checks are rolled) and when night falls: nobody marches after nightfall.',

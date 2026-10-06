@@ -36,6 +36,7 @@ export const genericTravelRules: TravelRules = {
     sea: { passable: false },
     'deep-sea': { passable: false },
   },
+  water: { passable: false },
   edges: { road: { multiplier: 1.5 }, trail: { multiplier: 1.2 } },
   modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 50 } },
   resources: { food: { perDay: 1 } },

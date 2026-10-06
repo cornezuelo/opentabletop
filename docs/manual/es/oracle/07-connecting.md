@@ -118,6 +118,7 @@ stats:
     }
 ```
 
+- **terrains** fijan la velocidad en cada terreno (`multiplier`; 0.5 es la mitad) o lo cierran (`passable: false`). **water** hace lo mismo con los hexes de agua cuyo terreno no está en la lista (Editar paleta → Agua en el mapa), y una forma de viajar con `allowedTerrains: [water]` es una barca: solo navega por agua, incluso donde a pie no se puede ir. Las tablas ven `water: true` en los hexes de agua.
 - **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex) o `camp` (al acampar). `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos del tramo: el que acabas de recorrer al entrar en un hex, el que tienes por delante al alba y al acampar.
 - **bindings** conectan cada comprobación (por su nombre de evento, el que quieras) con una tabla del pack.
 - **stats** son números del grupo que aparecen en el panel del viaje (p. ej. la Presencia de Kal-Arath); las tablas los leen por su clave: `roll: '2d6 + {{luck}}'`.

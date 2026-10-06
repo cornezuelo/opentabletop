@@ -27,7 +27,7 @@ Your own terrains go under **Other**. Each map keeps the palette it was made wit
 
 - **Color** and **name** (empty name = the translated default).
 - **Symbol**: the small drawing on its hexes (see below).
-- **Water**: roads and rivers stop at the shore of water terrains, and travel can't cross them.
+- **Water**: marks the terrain as water. On the map, roads and rivers stop at its shore. On a trip, water hexes follow the travel rules' **water** rule unless their terrain has its own: the generic rules, Core and Kal-Arath make them impassable on foot, and a system can have boats that only sail water. Tables see `water: true` on those hexes.
 - Add your own terrains or delete them (hexes painted with a deleted terrain become empty).
 
 Terrain ids (`forest`, `hills`…) are what travel rules and tables read, so a table can say `when: { terrain: forest }`.
