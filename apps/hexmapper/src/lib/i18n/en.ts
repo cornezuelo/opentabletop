@@ -226,9 +226,6 @@ export const en = {
     mode: 'Play mode',
     intro:
       'Move your party around the map. Simple: just a token and its trail. With rules: the Travel Engine tracks time, terrain, supplies and fatigue, and the Oracle rolls weather, getting lost, points of interest and encounters from the system’s tables, writing everything in the journal.',
-    pre: 'PRE (Presence)',
-    preHelp:
-      'PRE is the party’s Presence: a bonus added to reaction rolls (2d6 + PRE) by systems that use it, like Kal-Arath.',
     modes: { simple: 'Simple', rules: 'With rules', foot: 'On foot', horse: 'On horseback' },
     token: 'Party icon',
     uploadToken: 'Upload your own…',
@@ -239,6 +236,28 @@ export const en = {
     genericSystem: 'Generic',
     startSeason: 'Start in',
     newTrip: 'New trip',
+    withTables:
+      'This system has tables: weather, getting lost, points of interest and encounters are rolled for you and written in the journal.',
+    marched: 'Marched today: {used} of {limit} h',
+    dayUnit: 'day',
+    journalDay: 'Day {day}',
+    tips: {
+      simple: 'Just a token: click any hex to move it there. No time, no rolls.',
+      rules:
+        'The Travel Engine counts time, terrain and supplies; the system’s tables are rolled as you travel.',
+      newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
+      marched:
+        'Hours of marching allowed per day; when they run out, camp to continue tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
+      resource:
+        'Supplies: {perDay} per day are eaten when you camp, which ends the day. Edit the amount when you buy, find or forage food. Running out raises fatigue.',
+      fatigue:
+        'Rises by 1 when you camp without food and drops by 1 after a fed night or a rest. Adjust it by hand when your system or the story says so.',
+      travel:
+        'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
+      travelHex: 'Travel to the next hex of the route only.',
+      camp: 'End the day: eat, roll the night check (if any) and wake up at dawn.',
+      rest: 'Rest 8 hours: time passes and fatigue drops.',
+    },
     noBindings: 'These rules have no tables bound: checks wait for you to continue.',
     dayLine: 'Day {day} · {clock} · {season}',
     at: 'At {hex}',
@@ -277,8 +296,8 @@ export const en = {
       NO_ROUTE: 'No route there',
     },
     stop: {
-      nightfall: 'Night falls',
-      'day-limit': 'Enough marching for today',
+      nightfall: 'Night falls. Camp to continue tomorrow.',
+      'day-limit': 'Enough marching for today. Camp to continue tomorrow.',
       lost: 'Lost: no more travel today',
       weather: 'The weather prevents travel',
       blocked: 'The way is blocked',

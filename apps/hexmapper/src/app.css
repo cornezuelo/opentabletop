@@ -88,3 +88,29 @@ button.link {
   border: none;
   cursor: pointer;
 }
+
+/* Styled tooltip shared by the app (see lib/ui/tooltip.ts). */
+.ot-tooltip {
+  position: fixed;
+  z-index: 1000;
+  max-width: 280px;
+  padding: 7px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+  pointer-events: none;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.45);
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+}
+
+.ot-tooltip[data-visible='true'] {
+  opacity: 1;
+  transform: none;
+}

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
-  import type { JournalEntry } from '@open-tabletop/session'
+  import { localize, type JournalEntry } from '@open-tabletop/session'
   import { defaultCalendar, formatClock } from '@open-tabletop/time'
   import { BUILTIN_ICONS, builtinSvg, iconLabel } from '../lib/icons/registry'
-  import { t, type MessageKey } from '../lib/i18n/index.svelte'
+  import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import {
     clearTrail,
     editSession,
@@ -20,6 +20,8 @@
   import { getSystem, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
+  import InfoTip from './InfoTip.svelte'
+  import { tooltip } from '../lib/ui/tooltip'
   import { AddAssetCommand } from '../lib/commands/assets'
   import { importImageFile, pickImageFiles } from '../lib/io/importImage'
   import { newId } from '../lib/model/id'
@@ -66,7 +68,37 @@
     }
   })
 
-  const journal = $derived(session ? [...session.journal].reverse().slice(0, 40) : [])
+  /** Newest first, grouped by day ("Day N" headers). */
+  const journalDays = $derived.by(() => {
+    if (!session || !play?.rules) return []
+    const startDay = play.rules.startDay
+    const groups: { day: number; entries: JournalEntry[] }[] = []
+    for (const entry of [...session.journal].reverse().slice(0, 60)) {
+      const day = defaultCalendar.describe(entry.time).day - startDay + 1
+      if (groups.at(-1)?.day !== day) groups.push({ day, entries: [] })
+      groups.at(-1)!.entries.push(entry)
+    }
+    return groups
+  })
+
+  /** Marching hours used today vs. the rules' daily limit. */
+  const marched = $derived.by(() => {
+    if (!session) return null
+    const used = session.travel.travelledToday
+    return {
+      used: `${Math.floor(used / 60)} h ${String(Math.round(used % 60)).padStart(2, '0')}`,
+      limit: system.rules.travel.hoursPerDay,
+    }
+  })
+
+  const stats = $derived(Object.entries(system.bindings?.stats ?? {}))
+  const statText = (text: Parameters<typeof localize>[0], key: string) =>
+    localize(text, getLocale(), 'en') ?? key
+
+  function label(key: string, fallback: string): string {
+    const text = t(key as MessageKey)
+    return text === key ? fallback : text
+  }
 
   let newSeason = $state<Season>('spring')
 
@@ -108,6 +140,7 @@
 <div class="segmented" role="radiogroup" aria-label={t('play.mode')}>
   {#each ['simple', 'rules'] as const as mode (mode)}
     <button
+      use:tooltip={t(`play.tips.${mode}` as MessageKey)}
       role="radio"
       aria-checked={(play?.mode ?? 'simple') === mode}
       class:active={(play?.mode ?? 'simple') === mode}
@@ -197,13 +230,12 @@
       </label>
       <button
         class="secondary"
+        use:tooltip={t('play.tips.newTrip')}
         onclick={() => restartRules(play.rules?.system ?? 'generic', newSeason)}
         >{t('play.newTrip')}</button
       >
     </div>
-    {#if !system.bindings}
-      <p class="help">{t('play.noBindings')}</p>
-    {/if}
+    <p class="help">{system.bindings ? t('play.withTables') : t('play.noBindings')}</p>
   </div>
 
   {#if session && time}
@@ -211,6 +243,13 @@
       <strong>{t('play.dayLine', { day: time.day, clock: time.clock, season: time.season })}</strong
       >
       <span>{t('play.at', { hex: coord(session.travel.location) })}</span>
+      {#if marched}
+        <span
+          >{t('play.marched', { used: marched.used, limit: marched.limit })}<InfoTip
+            text={t('play.tips.marched')}
+          /></span
+        >
+      {/if}
       {#if session.travel.weather}
         <span>{t('play.weather', { weather: session.travel.weather.replaceAll('-', ' ') })}</span>
       {/if}
@@ -235,32 +274,23 @@
         >
           {#each Object.keys(system.rules.modes) as mode (mode)}
             <option value={mode}
-              >{t(`play.modes.${mode}` as MessageKey) === `play.modes.${mode}`
-                ? mode
-                : t(`play.modes.${mode}` as MessageKey)}</option
+              >{label(`play.modes.${mode}`, mode)} ({system.rules.modes[mode].kmPerDay} km/{t(
+                'play.dayUnit',
+              )})</option
             >
           {/each}
         </select>
-      </label>
-      <label class="field" title={t('play.preHelp')}>
-        <span>{t('play.pre')}</span>
-        <input
-          type="number"
-          value={session.stats.pre ?? 0}
-          onchange={(e) => {
-            const pre = Number(e.currentTarget.value) || 0
-            editSession((s) => ({ ...s, stats: { ...s.stats, pre } }))
-          }}
-        />
       </label>
     </div>
     <div class="row">
       {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
         <label class="field">
           <span
-            >{t(`play.resources.${resource}` as MessageKey) === `play.resources.${resource}`
-              ? resource
-              : t(`play.resources.${resource}` as MessageKey)}</span
+            >{label(`play.resources.${resource}`, resource)}<InfoTip
+              text={t('play.tips.resource', {
+                perDay: system.rules.resources?.[resource]?.perDay ?? 0,
+              })}
+            /></span
           >
           <input
             type="number"
@@ -277,23 +307,51 @@
         </label>
       {/each}
       <label class="field">
-        <span>{t('play.fatigue')}</span>
-        <input type="number" value={session.travel.fatigue} readonly />
+        <span>{t('play.fatigue')}<InfoTip text={t('play.tips.fatigue')} /></span>
+        <input
+          type="number"
+          min="0"
+          value={session.travel.fatigue}
+          onchange={(e) => {
+            const fatigue = Math.max(0, Math.round(Number(e.currentTarget.value) || 0))
+            editSession((s) => ({ ...s, travel: { ...s.travel, fatigue } }))
+          }}
+        />
       </label>
     </div>
+
+    {#each stats as [key, stat] (key)}
+      <label class="field">
+        <span>{statText(stat.name, key)}<InfoTip text={statText(stat.description, '')} /></span>
+        <input
+          type="number"
+          value={session.stats[key] ?? stat.default ?? 0}
+          onchange={(e) => {
+            const value = Number(e.currentTarget.value) || 0
+            editSession((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
+          }}
+        />
+      </label>
+    {/each}
 
     <div class="actions">
       <button
         class="primary"
+        use:tooltip={t('play.tips.travel')}
         disabled={!session.travel.route}
         onclick={() => step({ type: 'travel' })}>{t('play.travel')}</button
       >
       <button
+        use:tooltip={t('play.tips.travelHex')}
         disabled={!session.travel.route}
         onclick={() => step({ type: 'travel', until: 'hex' })}>{t('play.travelHex')}</button
       >
-      <button onclick={() => step({ type: 'camp' })}>{t('play.camp')}</button>
-      <button onclick={() => step({ type: 'rest', minutes: 480 })}>{t('play.rest')}</button>
+      <button use:tooltip={t('play.tips.camp')} onclick={() => step({ type: 'camp' })}
+        >{t('play.camp')}</button
+      >
+      <button use:tooltip={t('play.tips.rest')} onclick={() => step({ type: 'rest', minutes: 480 })}
+        >{t('play.rest')}</button
+      >
     </div>
 
     {#each session.travel.pendingChecks as check (check.id)}
@@ -306,11 +364,14 @@
     <div class="field">
       <span>{t('play.journalTitle')}</span>
       <ol class="journal">
-        {#each journal as entry (entry.id)}
-          <li class={entry.source}>
-            <time>{entryClock(entry)}</time>
-            <span>{entryText(entry)}</span>
-          </li>
+        {#each journalDays as group (group.day)}
+          <li class="day">{t('play.journalDay', { day: group.day })}</li>
+          {#each group.entries as entry (entry.id)}
+            <li class={entry.source}>
+              <time>{entryClock(entry)}</time>
+              <span>{entryText(entry)}</span>
+            </li>
+          {/each}
         {:else}
           <li class="help">{t('play.emptyJournal')}</li>
         {/each}
@@ -483,6 +544,15 @@
 
   .journal li.oracle span {
     color: var(--accent);
+  }
+
+  .journal li.day {
+    display: block;
+    margin-top: 4px;
+    padding-bottom: 2px;
+    font-weight: 600;
+    color: var(--accent);
+    border-bottom: 1px solid var(--panel-border);
   }
 
   .journal time {

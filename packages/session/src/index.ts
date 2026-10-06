@@ -7,9 +7,33 @@ import type {
   TravelState,
 } from '@open-tabletop/travel-engine'
 
-/** Which Oracle definition resolves each travel check (`kind: bindings` in a pack). */
+/** Text in one or several languages: "Presence" or { en: Presence, es: Presencia }. */
+export type LocalizedText = string | Record<string, string>
+
+/** A party stat the system's tables use (e.g. Kal-Arath's PRE in reaction rolls). */
+export interface StatDefinition {
+  name?: LocalizedText
+  description?: LocalizedText
+  default?: number
+}
+
+/**
+ * `kind: bindings` in a pack: which Oracle definition resolves each travel check, and
+ * which party stats the tables read from the context.
+ */
 export interface Bindings {
   on: Record<string, { resolve: string; context?: Record<string, unknown> }>
+  stats?: Record<string, StatDefinition>
+}
+
+/** Picks the requested language, then the fallback, then any available text. */
+export function localize(
+  text: LocalizedText | undefined,
+  locale: string,
+  fallback?: string,
+): string | undefined {
+  if (text === undefined || typeof text === 'string') return text
+  return text[locale] ?? (fallback ? text[fallback] : undefined) ?? Object.values(text)[0]
 }
 
 export function parseBindings(
@@ -32,6 +56,25 @@ export function parseBindings(
       resolve: pack && !target.includes('/') ? `${pack}/${target}` : target,
       ...(typeof context === 'object' &&
         context !== null && { context: context as Record<string, unknown> }),
+    }
+  }
+  const stats = (raw as { stats?: unknown })?.stats
+  if (typeof stats === 'object' && stats !== null) {
+    out.stats = {}
+    for (const [key, value] of Object.entries(stats)) {
+      const v = (typeof value === 'object' && value !== null ? value : {}) as Record<
+        string,
+        unknown
+      >
+      const text = (t: unknown) =>
+        typeof t === 'string' || (typeof t === 'object' && t !== null)
+          ? (t as LocalizedText)
+          : undefined
+      out.stats[key] = {
+        name: text(v.name),
+        description: text(v.description),
+        default: typeof v.default === 'number' ? v.default : 0,
+      }
     }
   }
   return errors.length ? { errors } : { bindings: out, errors: [] }
@@ -115,7 +158,14 @@ export function createSession(options: {
     if (!JOURNALED.includes(e.type)) return
     if (e.type === 'TRAVEL_STOPPED' && QUIET_STOPS.has(e.reason)) return
     const { type, ...data } = e
-    add(s, entries, { source: 'travel', code: type, data: data as Record<string, unknown> })
+    // Events carry the moment they happened (a whole day of travel is one step).
+    const time = 'time' in e ? e.time : undefined
+    add(s, entries, {
+      source: 'travel',
+      code: type,
+      data: data as Record<string, unknown>,
+      ...(time !== undefined && { time }),
+    })
   }
 
   return {

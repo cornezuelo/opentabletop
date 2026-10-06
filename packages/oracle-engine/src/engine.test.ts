@@ -338,8 +338,9 @@ describe('tables', () => {
     )
   })
 
-  it('needs numbers for roll templates', () => {
-    const engine = createOracleEngine({ registry, random: seeded(1) })
+  it('treats missing roll values as 0 but rejects non-numbers', () => {
+    const engine = createOracleEngine({ registry, random: faces(6, 4, 4) })
+    expect(engine.resolve('test/reaction', {}).resolution.entry).toBe('neutral') // 8 + 0
     expect(() => engine.resolve('test/reaction', { pre: 'two' })).toThrow(/needs a number/)
   })
 

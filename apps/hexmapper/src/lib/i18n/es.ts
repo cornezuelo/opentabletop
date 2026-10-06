@@ -228,9 +228,6 @@ export const es: Messages = {
     mode: 'Modo de juego',
     intro:
       'Mueve a tu grupo por el mapa. Simple: solo un icono y su rastro. Con reglas: el Travel Engine lleva el tiempo, el terreno, las provisiones y la fatiga, y el Oracle tira el clima, perderse, los puntos de interés y los encuentros con las tablas del sistema, anotándolo todo en el diario.',
-    pre: 'PRE (Presencia)',
-    preHelp:
-      'PRE es la Presencia del grupo: un bono que se suma a las tiradas de reacción (2d6 + PRE) en los sistemas que lo usan, como Kal-Arath.',
     modes: { simple: 'Simple', rules: 'Con reglas', foot: 'A pie', horse: 'A caballo' },
     token: 'Icono del grupo',
     uploadToken: 'Subir uno propio…',
@@ -241,6 +238,28 @@ export const es: Messages = {
     genericSystem: 'Genéricas',
     startSeason: 'Empezar en',
     newTrip: 'Nuevo viaje',
+    withTables:
+      'Este sistema tiene tablas: el clima, perderse, los puntos de interés y los encuentros se tiran solos y se anotan en el diario.',
+    marched: 'Marcha de hoy: {used} de {limit} h',
+    dayUnit: 'día',
+    journalDay: 'Día {day}',
+    tips: {
+      simple: 'Solo un icono: haz clic en un hex para moverlo allí. Sin tiempo ni tiradas.',
+      rules:
+        'El Travel Engine lleva el tiempo, el terreno y las provisiones; las tablas del sistema se tiran mientras viajas.',
+      newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
+      marched:
+        'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
+      resource:
+        'Provisiones: se comen {perDay} al día al acampar, que es lo que cierra la jornada. Ajusta la cantidad al comprar, encontrar o forrajear comida. Si se acaban, sube la fatiga.',
+      fatigue:
+        'Sube 1 al acampar sin comida y baja 1 tras una noche con comida o un descanso. Ajústala a mano cuando tu sistema o la historia lo pidan.',
+      travel:
+        'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
+      travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
+      camp: 'Termina el día: comer, la comprobación nocturna (si la hay) y despertar al alba.',
+      rest: 'Descansa 8 horas: pasa el tiempo y baja la fatiga.',
+    },
     noBindings:
       'Estas reglas no tienen tablas asociadas: las comprobaciones esperan a que continúes.',
     dayLine: 'Día {day} · {clock} · {season}',
@@ -280,8 +299,8 @@ export const es: Messages = {
       NO_ROUTE: 'No hay ruta hasta allí',
     },
     stop: {
-      nightfall: 'Cae la noche',
-      'day-limit': 'Suficiente marcha por hoy',
+      nightfall: 'Cae la noche. Acampa para seguir mañana.',
+      'day-limit': 'Suficiente marcha por hoy. Acampa para seguir mañana.',
       lost: 'Perdidos: no se viaja más hoy',
       weather: 'El clima impide viajar',
       blocked: 'El camino está bloqueado',

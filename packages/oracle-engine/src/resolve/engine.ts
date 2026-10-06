@@ -426,7 +426,8 @@ class Run {
       typeof expression === 'string'
         ? parseDice(
             expression.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, path: string) => {
-              const value = resolvePath(context, path)
+              // Missing values count as 0 (e.g. no weather modifier today); wrong types are errors.
+              const value = resolvePath(context, path) ?? 0
               if (typeof value !== 'number' || !Number.isFinite(value))
                 throw new OracleError(`Roll "${expression}" needs a number for "${path}"`)
               // Negative numbers become "- n" so the dice grammar stays simple.

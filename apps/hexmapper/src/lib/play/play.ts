@@ -9,6 +9,7 @@ import {
 import { getLocale } from '../i18n/index.svelte'
 import type { PlayState } from '../model/types'
 import { editor } from '../store/editor.svelte'
+import { showToast } from '../store/toasts.svelte'
 import { getSystem, oracle } from './systems'
 import { mapWorld } from './world'
 
@@ -54,7 +55,11 @@ function newSession(
     time: defaultCalendar.at(startDay, rules.day.start),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
   })
-  const stats = (sessionOf(play)?.stats as Record<string, number> | undefined) ?? { pre: 0 }
+  // Keep stats the user already set; otherwise start from the system's declared defaults.
+  const declared = Object.fromEntries(
+    Object.entries(getSystem(system).bindings?.stats ?? {}).map(([k, v]) => [k, v.default ?? 0]),
+  )
+  const stats = { ...declared, ...(sessionOf(play)?.stats as Record<string, number> | undefined) }
   return { ...play, rules: { system, startDay, session: initialSessionState(travel, stats) } }
 }
 
@@ -99,7 +104,15 @@ export function step(action: TravelAction): void {
     bindings: system.bindings,
     locale: getLocale(),
   })
-  const { state, entries } = runner.step(session, action)
+  let result
+  try {
+    result = runner.step(session, action)
+  } catch (error) {
+    // A broken pack shouldn't silently stop play: say what failed.
+    showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
+    return
+  }
+  const { state, entries } = result
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   save({
     ...play,

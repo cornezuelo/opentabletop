@@ -16,7 +16,7 @@ import {
   initialTravelState,
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
-import { createSession, initialSessionState, parseBindings, toOutcome } from './index'
+import { createSession, initialSessionState, localize, parseBindings, toOutcome } from './index'
 
 const shape: GridShape = { orientation: 'flat', width: 6, height: 6 }
 const key = (h: string) => parseKey(h as `${number},${number}`)
@@ -120,7 +120,10 @@ describe('session', () => {
     expect(state.travel.weather).toBe('clear')
     expect(state.travel.location).toBe('1,0') // kept travelling after the checks
     expect(state.dayVars).toEqual({ weather: 'clear', lostModifier: 1 })
-    expect(result.entries.some((e) => e.code === 'HEX_ENTERED')).toBe(true)
+    const entered = result.entries.filter((e) => e.code === 'HEX_ENTERED')
+    expect(entered).toHaveLength(1)
+    // Each entry keeps the time of its own event, not the end of the step.
+    expect(entered[0].time).toBe(defaultCalendar.at(1, '14:00'))
   })
 
   it('applies lost outcomes', () => {
@@ -162,6 +165,23 @@ describe('session', () => {
       code: 'NOTE',
       text: 'Acampamos junto al pozo',
     })
+  })
+
+  it('parses declared party stats and localizes their texts', () => {
+    const { bindings } = parseBindings({
+      on: {},
+      stats: {
+        pre: {
+          name: { en: 'Presence', es: 'Presencia' },
+          description: 'Reaction bonus',
+          default: 1,
+        },
+      },
+    })
+    expect(bindings?.stats?.pre.default).toBe(1)
+    expect(localize(bindings?.stats?.pre.name, 'es')).toBe('Presencia')
+    expect(localize(bindings?.stats?.pre.name, 'fr', 'en')).toBe('Presence')
+    expect(localize(bindings?.stats?.pre.description, 'es')).toBe('Reaction bonus')
   })
 
   it('maps table values to travel outcomes', () => {

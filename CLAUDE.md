@@ -125,7 +125,7 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
 6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
 7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). Extracting reusable `*-ui` packages is still pending.
-8. [ ] Standalone `oracle` and `travel` apps.
+8. [ ] Standalone `oracle` and `travel` apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
 9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
 
 **Versioning and releases (to define):** we work on `main` for now. Before the first release, agree on a workflow for tags and releases (semver; repo-wide vs per-package versions; changelog, e.g. Changesets; what triggers a tag). No release until there is an alpha MVP the user is happy with; that one becomes `0.1`.
