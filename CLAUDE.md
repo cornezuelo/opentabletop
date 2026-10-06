@@ -118,6 +118,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Everything in the repo is in English**: code, identifiers, comments, commit messages and all Markdown (the repo will be public). Conversation with the user stays in Spanish.
 - **Bilingual UI (en/es), English by default** in every app and `*-ui` package: no hard-coded visible text, always `t('key')`. `en.ts` is the reference dictionary and `es.ts` must have the same keys (enforced by types). Every new key is added in both languages.
 - **Cores don't translate.** They emit codes and parameters (`{ code: 'NAVIGATION_LOST', hex }`) and the UI translates them.
+- **Interconnect the systems:** whenever it makes sense, a new engine or app reads and feeds the others (map, oracle, travel, time, factions, characters, journal, notes) through events, ports and shared OTD data, never by importing another engine.
 - **Every feature lives in the bundled packs too:** when a feature lands, its simple, generic use goes into **Core** (if it makes sense for any game) and its full use into **the Grey Marches** (and its example map), with a test that plays it. Core stays small and generic; the Grey Marches exercise everything. Before closing a milestone, review that the Grey Marches use every feature.
 - **No native browser UI**: tooltips use `use:tooltip` (never `title=`), questions use `confirmAction()` / `ask()` from `ui-kit` (never `confirm()` or `alert()`); each app mounts `<Toasts />` and `<Dialogs />` once. Actions that Ctrl+Z can't undo (play state, forms without undo, deletions outside the history) ask first.
 - **Autocomplete where values are known:** an input whose value comes from a known list (ids, tags, terrains, field keys…) suggests them (`<datalist>` at least).
@@ -160,8 +161,10 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 **Phase C: characters and the campaign record**
 
 - **Characters engine** (`character-engine`): sheets kept in one place whose values every system can read (e.g. the acting PC's stat in a roll); builds on the values of phase A.
+- **Statblocks and a bestiary** (like Obsidian's Fantasy Statblocks): detailed sheets for tokens and for creatures in a bestiary to draw from (place a wolf token, roll a bandit from it), defined in packs per system and usable by every other engine (encounters, initiative, combat).
+- **Initiative tracker** and **combat ledger** (like Obsidian's Initiative Tracker and Combat Ledger): a light turn order and a record of what happened in a fight (hits, damage, conditions, rounds), fed by statblocks and written to the journal. No battle map: we stay out of VTTs.
 - **Journal system**: an optional journal of the campaign (sessions, trips, hand rolls, notes), exportable as Markdown (SilverBullet, Obsidian) with links to hexes; the map's note markers live in the same system.
-- **Our own notes app** (a small SilverBullet): Markdown pages linked to each other (`[[links]]`, backlinks, search) and to hexes, POIs, factions and characters, so OpenTabletop can be used without an external notes app. It is one more `note-refs` provider: engines still store only references (principle 8 holds; the lore lives in the notes, ours or someone else's).
+- **Our own notes app** (a small SilverBullet / Obsidian): Markdown pages linked with `[[links]]` and backlinks, each page showing what links to it and what it links to (one click away); link suggestions while typing (autolinking); `{{…}}` like the Oracle (dice, tables, values); queries over pages (like Dataview); page templates; search; a canvas; global and local graphs. Pages also link to hexes, POIs, factions, characters and statblocks, so OpenTabletop can be used without an external notes app. It is one more `note-refs` provider: engines still store only references (principle 8 holds; the lore lives in the notes, ours or someone else's).
 
 **Phase D: solo play and content**
 
@@ -176,6 +179,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 
 - **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively (city → house → a tavern board).
 - **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, secret doors, stairs, pits, statues, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door, S stairs, M marker). Linked to characters and the other engines.
+- **Image maps** (like Obsidian's Leaflet): an image of your own (a city plan, a scanned map) as a map with pins, regions and the same values and links; mostly covered by the hexmapper and sub-maps.
 
 **Phase F: print and reference**
 
