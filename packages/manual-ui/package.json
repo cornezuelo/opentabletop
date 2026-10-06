@@ -1,0 +1,22 @@
+{
+  "name": "@open-tabletop/manual-ui",
+  "version": "0.0.0",
+  "description": "The OpenTabletop user manual (docs/manual): pages, search, an in-app help panel and the full manual view.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@open-tabletop/ui-kit": "*",
+    "dompurify": "^3.4.16",
+    "marked": "^18.1.0"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

@@ -37,15 +37,18 @@ packages/                   # libraries, scope @open-tabletop/*
   pack-ui/                  # ✅ pack library (bundled + user packs), editing, YAML helpers, YAML editor
   oracle-ui/                # ✅ embeddable Oracle: roll panel, result card, history, picker
   travel-ui/                # ✅ embeddable trip UI: system/season setup, status, supplies, actions, journal
+  manual-ui/                # ✅ user manual: pages from docs/manual, search, in-app help panel, full view
 apps/
   hexmapper/                # ✅ map editor (see apps/hexmapper/CLAUDE.md)
   oracle/                   # ✅ roll and edit packs (see apps/oracle/CLAUDE.md)
+  manual/                   # ✅ the user manual of every app, with search (see apps/manual/CLAUDE.md)
   travel/                   # ⏳ standalone travel app
 packs/                      # data packs (tables, travel rules, weather…)
   core/                     # ⏳ generic FOSS content (yes/no oracle, etc.)
   kal-arath/                # README only; the whole pack (personal use) lives in the private packs repo
 packs-private/              # ⏳ (git-ignored) checkout of the private packs repo
 docs/
+  manual/<locale>/<app>/    # user manual pages (Markdown, en base + es)
   otd.md                    # common OpenTabletop Data schema
   oracle-engine.md          # Oracle Engine design
   travel-engine.md          # Travel Engine design
@@ -114,6 +117,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Bilingual UI (en/es), English by default** in every app and `*-ui` package: no hard-coded visible text, always `t('key')`. `en.ts` is the reference dictionary and `es.ts` must have the same keys (enforced by types). Every new key is added in both languages.
 - **Cores don't translate.** They emit codes and parameters (`{ code: 'NAVIGATION_LOST', hex }`) and the UI translates them.
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
+- **Every app has a user manual** in `docs/manual/<locale>/<app>/` (English and Spanish, kept in sync: a test checks every English page has a Spanish one and that links resolve) and a help button with `HelpPanel` from `manual-ui`. Update the manual when a feature changes.
 - Tests are mandatory in every headless package, with deterministic RNG. Snapshots never replace meaningful asserts.
 - Every persisted format change bumps the version and adds a migration.
 - One commit per phase or feature, with a descriptive message.

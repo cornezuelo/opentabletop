@@ -117,6 +117,9 @@ export function bindShortcuts(): () => void {
       case 'n':
         editor.tool = 'region'
         break
+      case '?':
+        editor.panelView = editor.panelView === 'help' ? 'tool' : 'help'
+        break
       case 'e':
         editor.tool = 'terrain'
         editor.terrainMode = 'erase'

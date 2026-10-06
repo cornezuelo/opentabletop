@@ -23,6 +23,7 @@
         'Draw hex maps: terrain, roads, rivers, regions, icons and tokens; play trips on them.',
       oracle: 'Roll and edit tables, oracles, generators and decks from your packs.',
       travel: 'Run trips without a map and edit travel rules and their tables.',
+      manual: 'How to use every app, with search.',
       sameSite: 'Apps share your packs when they are served from the same site.',
     },
     es: {
@@ -35,6 +36,7 @@
         'Dibuja mapas de hexágonos: terreno, caminos, ríos, regiones, iconos y tokens; juega viajes sobre ellos.',
       oracle: 'Tira y edita tablas, oráculos, generadores y mazos de tus packs.',
       travel: 'Juega viajes sin mapa y edita las reglas de viaje y sus tablas.',
+      manual: 'Cómo usar cada aplicación, con buscador.',
       sameSite: 'Las aplicaciones comparten tus packs cuando se sirven desde el mismo sitio.',
     },
   }

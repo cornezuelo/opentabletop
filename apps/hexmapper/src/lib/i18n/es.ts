@@ -21,6 +21,7 @@ export const es: Messages = {
     erase: 'Borrar (E)',
   },
   actions: {
+    help: 'Ayuda y manual (?)',
     new: 'Nuevo mapa',
     open: 'Mapas',
     save: 'Guardar (Ctrl+S)',
@@ -41,6 +42,7 @@ export const es: Messages = {
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oráculo aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
   panel: {
+    help: 'Ayuda',
     map: 'Mapa',
     terrain: 'Terreno',
     paths: 'Caminos y ríos',

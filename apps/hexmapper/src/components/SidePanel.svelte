@@ -16,6 +16,7 @@
   import TerrainPanel from './TerrainPanel.svelte'
   import RegionPanel from './RegionPanel.svelte'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
+  import { HelpPanel } from '@open-tabletop/manual-ui'
   import { AppBrand, AppSwitcher, InfoTip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { oracleUi, rollContext } from '../lib/play/oracle'
@@ -64,6 +65,17 @@
       >
     </header>
     <div class="export"><OraclePanel ui={oracleUi} context={rollContext()} /></div>
+  {:else if editor.panelView === 'help'}
+    <header>
+      <h1>{t('panel.help')}</h1>
+      <button
+        class="close"
+        title={t('panel.closeSettings')}
+        aria-label={t('panel.closeSettings')}
+        onclick={() => (editor.panelView = 'tool')}>✕</button
+      >
+    </header>
+    <div class="export"><HelpPanel app="hexmapper" locale={getLocale()} /></div>
   {:else if editor.panelView === 'export'}
     <header>
       <h1>{t('export.title')}</h1>

@@ -1,0 +1,29 @@
+# Primeros pasos
+
+Hexmapper dibuja mapas de hexágonos para hexcrawls y campañas sandbox, y permite jugar viajes sobre ellos. Todo se queda en tu navegador: sin cuentas ni servidores.
+
+## La pantalla
+
+- **Barra de herramientas** (izquierda): arriba las herramientas —Seleccionar, Terreno, Regiones, Caminos y ríos, Iconos, Texto, Tokens, Jugar y el Oráculo— y abajo las acciones del mapa: Ajustes, Deshacer, Rehacer, Encuadrar, Nuevo, Mapas, Guardar y Exportar.
+- **Mapa** (centro): arrastra con el botón central o con <kbd>Espacio</kbd> + arrastrar para desplazarte, usa la rueda para el zoom y <kbd>F</kbd> encuadra el mapa entero.
+- **Panel lateral** (derecha): las opciones de la herramienta activa, el hex seleccionado y las capas. El botón de nueve puntos junto al nombre del mapa abre las demás aplicaciones de OpenTabletop.
+
+Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](shortcuts.md).
+
+## Tus mapas
+
+Los mapas se guardan en la biblioteca de este navegador, automáticamente mientras trabajas. **Mapas** (el botón de la carpeta) los lista: abre uno, bórralo de este navegador o copia su enlace; **Importar fichero…** abre uno guardado.
+
+**Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Los ficheros antiguos `.hexmap.json` también se abren.
+
+> Si borras los datos del navegador se borra su biblioteca: guarda en fichero los mapas que te importen.
+
+## Deshacer y ajustes
+
+<kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace y <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> rehace cada cambio (una pincelada entera es un paso). Jugar un viaje no forma parte de deshacer: tiene su propio diario.
+
+**Ajustes** (engranaje) tiene el nombre del mapa, la rejilla (hexes planos o en punta, coordenadas), su tamaño (por número de hexes o por papel), la escala del mundo (km por hex, que usa el viaje) y tus preferencias: idioma y la aplicación de notas que enlazas.
+
+## Enlaces a hexes
+
+Cada hex tiene un enlace (el 🔗 junto a su coordenada). Pégalo en tus notas: al abrirlo se muestra el mapa con ese hex seleccionado, siempre que este navegador tenga el mapa.

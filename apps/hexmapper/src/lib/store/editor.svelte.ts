@@ -68,7 +68,7 @@ class Editor {
 
   tool = $state<ToolId>('terrain')
   /** What the side panel shows: the active tool and hex, or map settings and preferences. */
-  panelView = $state<'tool' | 'settings' | 'export' | 'library' | 'oracle'>('tool')
+  panelView = $state<'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'help'>('tool')
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)

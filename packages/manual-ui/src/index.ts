@@ -1,0 +1,6 @@
+export { default as HelpPanel } from './HelpPanel.svelte'
+export { default as Manual } from './Manual.svelte'
+export { default as PageView } from './PageView.svelte'
+export { manual } from './manual'
+export { anchorOf, createManual, parsePage, type ManualPage, type SearchResult } from './pages'
+export { pageLink, renderPage } from './render'

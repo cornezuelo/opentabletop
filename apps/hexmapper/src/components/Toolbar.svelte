@@ -81,6 +81,13 @@
     onclick={() => (editor.panelView = editor.panelView === 'settings' ? 'tool' : 'settings')}
     >⚙</button
   >
+  <button
+    class:active={editor.panelView === 'help'}
+    title={t('actions.help')}
+    aria-label={t('actions.help')}
+    aria-pressed={editor.panelView === 'help'}
+    onclick={() => (editor.panelView = editor.panelView === 'help' ? 'tool' : 'help')}>?</button
+  >
 
   {#each actions as action (action.label)}
     <button

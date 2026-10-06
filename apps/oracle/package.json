@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@open-tabletop/dice": "*",
+    "@open-tabletop/manual-ui": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/oracle-ui": "*",
     "@open-tabletop/pack-ui": "*",

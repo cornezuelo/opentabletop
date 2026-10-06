@@ -5,6 +5,7 @@ export const en = {
     tagline: 'Roll and build random tables, generators, oracles and decks.',
   },
   nav: {
+    help: 'Help and manual',
     toggleSidebar: 'Show or hide the pack list',
     toggleHistory: 'Show or hide the history',
     newDefinition: 'New definition',

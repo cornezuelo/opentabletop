@@ -1,0 +1,29 @@
+# Getting started
+
+Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play trips on them. Everything stays in your browser: no account, no server.
+
+## The screen
+
+- **Toolbar** (left): the tools at the top — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play and the Oracle — and the map actions at the bottom: Settings, Undo, Redo, Fit, New, Maps, Save and Export.
+- **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
+- **Side panel** (right): the active tool's options, the selected hex and the layers. The button with nine dots next to the map name opens the other OpenTabletop apps.
+
+Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](shortcuts.md).
+
+## Your maps
+
+Maps are kept in this browser's library and saved automatically while you work. **Maps** (the folder button) lists them: open one, delete it from this browser or copy its link; **Import file…** opens a saved file.
+
+**Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. Older `.hexmap.json` files open too.
+
+> Clearing the browser's data deletes its library: save files of the maps you care about.
+
+## Undo and settings
+
+<kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
+
+**Settings** (gear) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper), the world scale (km per hex, used for travel) and your preferences: language and the notes app you link to.
+
+## Links to hexes
+
+Every hex has a link (the 🔗 next to its coordinate). Paste it in your notes: opening it shows the map with that hex selected, as long as this browser has the map.

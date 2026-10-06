@@ -3,6 +3,7 @@
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
+  import { HelpPanel } from '@open-tabletop/manual-ui'
   import NewDefinitionDialog from './components/NewDefinitionDialog.svelte'
   import NewPackDialog from './components/NewPackDialog.svelte'
   import { dialogs } from './lib/dialogs.svelte'
@@ -55,6 +56,8 @@
     }
   }
   let layout = $state(readLayout())
+  /** The right column shows the manual instead of the history. */
+  let help = $state(false)
   function toggle(panel: 'sidebar' | 'history') {
     layout[panel] = !layout[panel]
     try {
@@ -101,6 +104,17 @@
       {/each}
     </select>
     <button
+      class="help-toggle"
+      class:active={help}
+      aria-pressed={help}
+      aria-label={t('nav.help')}
+      use:tooltip={t('nav.help')}
+      onclick={() => {
+        help = !help
+        if (help && !layout.history) toggle('history')
+      }}>?</button
+    >
+    <button
       class="panel-toggle"
       aria-pressed={layout.history}
       aria-label={t('nav.toggleHistory')}
@@ -141,7 +155,11 @@
     {/if}
   </main>
 
-  <History ui={oracleUi} onopen={(item) => go({ name: 'def', id: item.source, tab: 'roll' })} />
+  {#if help}
+    <aside class="help-column"><HelpPanel app="oracle" locale={getLocale()} /></aside>
+  {:else}
+    <History ui={oracleUi} onopen={(item) => go({ name: 'def', id: item.source, tab: 'roll' })} />
+  {/if}
 </div>
 
 {#if dialogs.newDefinition}
@@ -229,8 +247,41 @@
     grid-column: 2;
   }
 
-  .app > :global(.history) {
+  .app > :global(.history),
+  .help-column {
     grid-column: 3;
+  }
+
+  .help-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 10px;
+    overflow: auto;
+    background: var(--panel);
+    border-left: 1px solid var(--panel-border);
+  }
+
+  .app.no-history > .help-column {
+    display: none;
+  }
+
+  .help-toggle {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .help-toggle:hover,
+  .help-toggle.active {
+    color: var(--accent);
+    border-color: var(--panel-border);
   }
 
   /* Folded side panels give their room to the main view. */
