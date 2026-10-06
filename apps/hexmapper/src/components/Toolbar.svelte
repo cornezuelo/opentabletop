@@ -61,6 +61,15 @@
       {tool.glyph}
     </button>
   {/each}
+  <!-- The Oracle is used while mapping and playing: with the tools, under Play. -->
+  <button
+    class:active={editor.panelView === 'oracle'}
+    title={t('actions.oracle')}
+    aria-label={t('actions.oracle')}
+    aria-pressed={editor.panelView === 'oracle'}
+    onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}
+    ><img class="app" src={appIconUrl('oracle')} alt="" /></button
+  >
 
   <div class="spacer"></div>
 
@@ -71,14 +80,6 @@
     aria-pressed={editor.panelView === 'settings'}
     onclick={() => (editor.panelView = editor.panelView === 'settings' ? 'tool' : 'settings')}
     >⚙</button
-  >
-  <button
-    class:active={editor.panelView === 'oracle'}
-    title={t('actions.oracle')}
-    aria-label={t('actions.oracle')}
-    aria-pressed={editor.panelView === 'oracle'}
-    onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}
-    ><img class="app" src={appIconUrl('oracle')} alt="" /></button
   >
 
   {#each actions as action (action.label)}
