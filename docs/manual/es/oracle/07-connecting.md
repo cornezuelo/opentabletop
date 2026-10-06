@@ -118,7 +118,7 @@ stats:
     }
 ```
 
-- **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex) o `camp` (al acampar). `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos que estás siguiendo.
+- **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex) o `camp` (al acampar). `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos del tramo: el que acabas de recorrer al entrar en un hex, el que tienes por delante al alba y al acampar.
 - **bindings** conectan cada comprobación (por su nombre de evento, el que quieras) con una tabla del pack.
 - **stats** son números del grupo que aparecen en el panel del viaje (p. ej. la Presencia de Kal-Arath); las tablas los leen por su clave: `roll: '2d6 + {{luck}}'`.
 

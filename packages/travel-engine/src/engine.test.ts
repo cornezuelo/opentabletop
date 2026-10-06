@@ -313,3 +313,27 @@ describe('check context', () => {
     })
   })
 })
+
+describe('check context', () => {
+  it('entering a hex sees the edge just walked, also at the destination', () => {
+    const { rules: enter } = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: { steppe: { multiplier: 1 } },
+      edges: { road: { multiplier: 1.5 } },
+      modes: { foot: { kmPerDay: 90 } },
+      checks: [{ event: 'ENCOUNTER_CHECK_REQUIRED', at: 'hex-enter', unless: { edges: 'road' } }],
+    })
+    const engine = createTravelEngine({ world, rules: enter! })
+    const checks = (from: string, to: string) => {
+      let state = start(from)
+      state = engine.apply(state, { type: 'setDestination', hex: to }).state
+      return engine
+        .apply(state, { type: 'travel' })
+        .events.filter((e) => e.type === 'CHECK_REQUIRED')
+    }
+    expect(checks('0,9', '1,9')).toEqual([]) // along the road, straight to the destination
+    expect(checks('1,9', '1,8')).toHaveLength(1) // off the road
+  })
+})

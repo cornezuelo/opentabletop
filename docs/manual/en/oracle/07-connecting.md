@@ -113,7 +113,7 @@ stats:
   luck: { name: { en: Luck, es: Suerte }, description: 'Added to encounter rolls', default: 0 }
 ```
 
-- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex) or `camp` (when camping). `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers you're following.
+- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex) or `camp` (when camping). `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
 - **bindings** connect each check (by its event name, any name you like) to a table of the pack.
 - **stats** are numbers of the party that appear in the trip panel (e.g. Kal-Arath's Presence); tables read them by key: `roll: '2d6 + {{luck}}'`.
 

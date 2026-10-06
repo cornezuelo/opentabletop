@@ -191,7 +191,11 @@ export function createTravelEngine(options: {
     return result?.path ?? null
   }
 
-  const checkContext = (state: TravelState, next?: string): Record<string, unknown> => {
+  /**
+   * What checks see. `edges` are the lines of the stretch the check is about: the one just
+   * walked when entering a hex, the one ahead at dawn or in camp.
+   */
+  const checkContext = (state: TravelState, [a, b]: string[] = []): Record<string, unknown> => {
     const cell = world.cell(state.location)
     return {
       // Everything the map knows about the hex (fields, region…), then the travel facts.
@@ -199,7 +203,7 @@ export function createTravelEngine(options: {
       hex: state.location,
       terrain: cell?.terrain,
       tags: cell?.tags ?? [],
-      edges: next ? world.edges(state.location, next) : [],
+      edges: a && b ? world.edges(a, b) : [],
       weather: state.weather,
       mode: state.mode,
       season: calendar.describe(state.time).season,
@@ -207,8 +211,15 @@ export function createTravelEngine(options: {
     }
   }
 
-  const schedule = (state: TravelState, at: CheckRule['at'], events: TravelEvent[]): void => {
-    const context = checkContext(state, state.route?.[1])
+  const schedule = (
+    state: TravelState,
+    at: CheckRule['at'],
+    events: TravelEvent[],
+    from?: string,
+  ): void => {
+    const next = state.route?.[1]
+    const stretch = from ? [from, state.location] : next ? [state.location, next] : []
+    const context = checkContext(state, stretch)
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (rule.at !== at) continue
       if (rule.when && !matches(rule.when, context)) continue
@@ -315,10 +326,11 @@ export function createTravelEngine(options: {
       state.time += remaining
       state.travelledToday += remaining
       state.progress = 0
+      const from = state.location
       state.location = next
       state.route = state.route.slice(1)
       events.push({ type: 'HEX_ENTERED', hex: next, time: state.time })
-      schedule(state, 'hex-enter', events)
+      schedule(state, 'hex-enter', events, from)
       if (state.route.length < 2) {
         events.push({ type: 'DESTINATION_REACHED', hex: next })
         return stop('destination')
