@@ -6,6 +6,7 @@ import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 const set = JSON.parse(readFileSync(require.resolve('@iconify-json/game-icons/icons.json'), 'utf8'))
 
+// Each icon belongs to one category only: the pickers key them by id.
 const CATEGORIES = {
   // Also the terrain glyphs: small symbols drawn on every hex of a terrain.
   terrain: [
@@ -39,7 +40,6 @@ const CATEGORIES = {
     'flowers',
     'lotus-flower',
     'cliff-crossing',
-    'oasis',
     'seagull',
     'big-wave',
   ],
