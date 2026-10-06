@@ -6,7 +6,7 @@ APPS := $(notdir $(wildcard apps/*))
 
 .DEFAULT_GOAL := help
 .PHONY: help install dev dev-hexmapper dev-oracle dev-manual dev-all build site serve preview \
-	test test-watch check lint format verify clean private-status private-commit
+	test test-watch check lint format verify clean private-status private-commit private-push
 
 help: ## List the commands
 	@awk 'BEGIN {FS = ":.*## "; printf "OpenTabletop\n\n"} \
@@ -67,6 +67,9 @@ clean: ## Remove build output (dist folders)
 
 private-status: ## Show changes in the private packs repo (packs-private/)
 	git -C packs-private status --short
+
+private-push: ## Push packs-private/ commits to its private GitHub repo
+	git -C packs-private push
 
 private-commit: ## Commit every change in packs-private/ (make private-commit MSG="…")
 	@test -n "$(MSG)" || (echo 'Usage: make private-commit MSG="what changed"' && exit 1)

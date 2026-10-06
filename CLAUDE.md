@@ -46,7 +46,7 @@ apps/
 packs/                      # data packs (tables, travel rules, weather…)
   core/                     # ⏳ generic FOSS content (yes/no oracle, etc.)
   kal-arath/                # README only; the whole pack (personal use) lives in the private packs repo
-packs-private/              # ⏳ (git-ignored) checkout of the private packs repo
+packs-private/              # ✅ (git-ignored) checkout of github.com/cornezuelo/opentabletop-packs-private (private)
 docs/
   manual/<locale>/<app>/    # user manual pages (Markdown, en base + es)
   otd.md                    # common OpenTabletop Data schema
@@ -83,11 +83,11 @@ A pack is a folder with `pack.yaml` (id, version, base locale, license, dependen
 
 **Goal: apps ship preloaded with oracles from many games.** Each pack is distributed through whatever channel its license allows, and the engine loads every pack found in its **sources**:
 
-| Source                 | Contents                                                                                                                   | Where                                                                                                    |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| **Open packs**         | Our own FOSS content (`core`) and games whose license allows redistribution (CC BY, CC BY-SA, ORC, OGL…), with attribution | `packs/` in this repo; bundled in builds                                                                 |
-| **Personal-use packs** | Games whose license only allows personal use                                                                               | **Separate private repo** (e.g. `opentabletop-packs-private`), checked out or linked at `packs-private/` |
-| **User packs**         | Tables created or imported in the app                                                                                      | Browser library or a chosen folder, exportable as packs                                                  |
+| Source                 | Contents                                                                                                                   | Where                                                                                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Open packs**         | Our own FOSS content (`core`) and games whose license allows redistribution (CC BY, CC BY-SA, ORC, OGL…), with attribution | `packs/` in this repo; bundled in builds                                                                                                                                           |
+| **Personal-use packs** | Games whose license only allows personal use                                                                               | **Separate private repo** `cornezuelo/opentabletop-packs-private`, cloned at `packs-private/` (`git clone git@github.com:cornezuelo/opentabletop-packs-private.git packs-private`) |
+| **User packs**         | Tables created or imported in the app                                                                                      | Browser library or a chosen folder, exportable as packs                                                                                                                            |
 
 - **Kal-Arath is personal use only**: "Copyright 2023 Castle Grief, permission to copy granted for personal use" (rulebook at `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Its content never goes into this public repo: the whole pack (manifest included, so it can't shadow the real one) lives in the private packs repo. Only a README and our own design work (generic travel rules, bindings without rulebook text) live here.
 - Before adding a game to `packs/`, check its license and record it in `pack.yaml` (`license`, `attribution`). If in doubt, it goes to the private repo.
