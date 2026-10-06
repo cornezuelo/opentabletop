@@ -245,7 +245,9 @@ export function locate(content: string, at: string | undefined): number | undefi
   else if (head.startsWith('#')) doc = docs[0]
   else if (head.startsWith('@'))
     // `@kind`: the definition with that kind (e.g. travel-rules and bindings sharing an id).
-    doc = docs.find((d) => isMap(d.contents) && (d.contents.get('kind') as unknown) === head.slice(1))
+    doc = docs.find(
+      (d) => isMap(d.contents) && (d.contents.get('kind') as unknown) === head.slice(1),
+    )
   else {
     for (const d of docs) {
       const root = d.contents
