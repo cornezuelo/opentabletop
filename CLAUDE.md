@@ -119,6 +119,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Bilingual UI (en/es), English by default** in every app and `*-ui` package: no hard-coded visible text, always `t('key')`. `en.ts` is the reference dictionary and `es.ts` must have the same keys (enforced by types). Every new key is added in both languages.
 - **Cores don't translate.** They emit codes and parameters (`{ code: 'NAVIGATION_LOST', hex }`) and the UI translates them.
 - **No native browser UI**: tooltips use `use:tooltip` (never `title=`), questions use `confirmAction()` / `ask()` from `ui-kit` (never `confirm()` or `alert()`); each app mounts `<Toasts />` and `<Dialogs />` once. Actions that Ctrl+Z can't undo (play state, forms without undo, deletions outside the history) ask first.
+- **Autocomplete where values are known:** an input whose value comes from a known list (ids, tags, terrains, field keys…) suggests them (`<datalist>` at least).
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
 - **Every app has a user manual** in `docs/manual/<locale>/<app>/` (English and Spanish, kept in sync: a test checks every English page has a Spanish one and that links resolve) and a help button with `HelpPanel` from `manual-ui`. Update the manual when a feature changes.
 - Tests are mandatory in every headless package, with deterministic RNG. Snapshots never replace meaningful asserts.
@@ -143,7 +144,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Realistic discovery:** an empty hex is decided from all its known neighbours, not just the one it's seen from, so lakes, forests and ranges grow together instead of land / water / plains in a row. Shares groundwork with weather inertia (phase B).
 - **Region styles:** today a fixed light tint (alpha 0.14) and an inner border (alpha 0.85); make the fill optional with its opacity, and style the border (width, solid or dashed), map-wide in Settings with an optional own style per region, like map texts.
 - **Loose ends:** conditions and `set` in the Oracle table form, undo across form edits; several saved trips and journal export in the Travel app; POI icons, highlight/filter hexes by tag; responsive layouts for narrow windows.
-- **Suggestions while typing:** autocomplete for context keys, table ids, tags, terrains… wherever a value comes from a known list (forms, roll panel, YAML editor).
+- **Suggestions while typing, everywhere:** autocomplete in every input whose value comes from a known list, in every app and system (today's and future ones): context keys, field keys and values, table and definition ids, tags, terrains, regions, events, stats… in forms, the roll panel, the hex panel and the YAML editor.
 - **Installable, offline apps (PWA)** and the **command line** (`oracle roll …`, `oracle validate …`).
 - **Release workflow** (see below), per-package build, then alpha `0.1`.
 
