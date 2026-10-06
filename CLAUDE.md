@@ -148,6 +148,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Region styles:** today a fixed light tint (alpha 0.14) and an inner border (alpha 0.85); make the fill optional with its opacity, and style the border (width, solid or dashed), map-wide in Settings with an optional own style per region, like map texts.
 - **Loose ends:** conditions and `set` in the Oracle table form, undo across form edits; several saved trips and journal export in the Travel app; POI icons, highlight/filter hexes by tag; responsive layouts for narrow windows.
 - **Suggestions while typing, everywhere:** autocomplete in every input whose value comes from a known list, in every app and system (today's and future ones): context keys, field keys and values, table and definition ids, tags, terrains, regions, events, stats… in forms, the roll panel, the hex panel and the YAML editor.
+- **Save / load the whole state (before any new system):** one backup file (OTD bundle or zip) with everything the apps keep in this browser, not just Hexmapper maps: the map library (IndexedDB), user packs, the Travel app's trip, Oracle histories and deck states, favorites and preferences. Restore it on another machine to resume whole campaigns, or after losing the browser storage. Versioned with migrations like every persisted format; restoring asks before replacing (or merges by id).
 - **Installable, offline apps (PWA)** and the **command line** (`oracle roll …`, `oracle validate …`).
 - **Release workflow** (see below), per-package build, then alpha `0.1`.
 

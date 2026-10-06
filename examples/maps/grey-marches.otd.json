@@ -438,9 +438,7 @@
           "region": "ashfordvale",
           "name": "The Grey Stones",
           "notes": "A ring of standing stones (tag: landmark).",
-          "tags": [
-            "landmark"
-          ]
+          "tags": ["landmark"]
         },
         "4,3": {
           "terrain": "plains",
@@ -715,9 +713,7 @@
         "8,6": {
           "terrain": "plains",
           "region": "ashfordvale",
-          "tags": [
-            "ford"
-          ]
+          "tags": ["ford"]
         },
         "8,7": {
           "terrain": "plains",
@@ -727,9 +723,7 @@
           "terrain": "plains",
           "region": "ashfordvale",
           "name": "Keld Bridge",
-          "tags": [
-            "toll"
-          ]
+          "tags": ["toll"]
         },
         "8,9": {
           "terrain": "plains",
@@ -807,9 +801,7 @@
           "terrain": "forest",
           "region": "greywood",
           "name": "Wayside shrine",
-          "tags": [
-            "shrine"
-          ]
+          "tags": ["shrine"]
         },
         "10,4": {
           "terrain": "forest",
@@ -948,9 +940,7 @@
         "13,3": {
           "terrain": "dense-forest",
           "region": "greywood",
-          "tags": [
-            "haunted"
-          ],
+          "tags": ["haunted"],
           "stats": [
             {
               "key": "danger",
@@ -1023,9 +1013,7 @@
         "14,4": {
           "terrain": "dense-forest",
           "region": "greywood",
-          "tags": [
-            "haunted"
-          ],
+          "tags": ["haunted"],
           "stats": [
             {
               "key": "danger",
@@ -1068,9 +1056,7 @@
         "15,2": {
           "terrain": "dense-forest",
           "region": "greywood",
-          "tags": [
-            "haunted"
-          ],
+          "tags": ["haunted"],
           "stats": [
             {
               "key": "danger",
@@ -1552,72 +1538,25 @@
             "14,9",
             "15,9"
           ],
-          "nodes": [
-            0,
-            3,
-            7,
-            10
-          ]
+          "nodes": [0, 3, 7, 10]
         },
         {
           "id": "stonestrail",
           "kind": "trail",
-          "hexes": [
-            "5,7",
-            "5,6",
-            "5,5",
-            "5,4",
-            "5,3",
-            "4,3",
-            "4,2"
-          ],
-          "nodes": [
-            0,
-            3,
-            6
-          ]
+          "hexes": ["5,7", "5,6", "5,5", "5,4", "5,3", "4,3", "4,2"],
+          "nodes": [0, 3, 6]
         },
         {
           "id": "shrinetrail",
           "kind": "trail",
-          "hexes": [
-            "5,7",
-            "6,7",
-            "7,6",
-            "8,6",
-            "8,5",
-            "9,4",
-            "9,3",
-            "10,3"
-          ],
-          "nodes": [
-            0,
-            2,
-            7
-          ]
+          "hexes": ["5,7", "6,7", "7,6", "8,6", "8,5", "9,4", "9,3", "10,3"],
+          "nodes": [0, 2, 7]
         },
         {
           "id": "keldriver",
           "kind": "river",
-          "hexes": [
-            "8,1",
-            "8,2",
-            "8,3",
-            "8,4",
-            "8,5",
-            "8,6",
-            "8,7",
-            "8,8",
-            "8,9",
-            "9,9",
-            "9,10"
-          ],
-          "nodes": [
-            0,
-            4,
-            7,
-            10
-          ]
+          "hexes": ["8,1", "8,2", "8,3", "8,4", "8,5", "8,6", "8,7", "8,8", "8,9", "9,9", "9,10"],
+          "nodes": [0, 4, 7, 10]
         }
       ],
       "ext": {
