@@ -5,8 +5,6 @@ export const ICON_HALO_RANGE = [0.3, 0.9] as const
 export const ICON_OUTLINE_RANGE = [0.01, 0.1] as const
 /** Icons may sit anywhere inside the hex's inscribed circle (hex-size units). */
 export const ICON_OFFSET_MAX = 0.7
-/** Icon labels are short captions, not notes. */
-export const ICON_LABEL_MAX = 40
 
 export const ICON_DEFAULTS = {
   haloColor: '#f4eedd',
@@ -56,8 +54,6 @@ export function normalizeIcon(icon: HexIcon | undefined): HexIcon | undefined {
     const k = Math.min(1, ICON_OFFSET_MAX / length)
     out.offset = [Math.round(dx * k * 1000) / 1000, Math.round(dy * k * 1000) / 1000]
   }
-  const label = icon.label?.trim().slice(0, ICON_LABEL_MAX)
-  if (label) out.label = label
   if (icon.outline) {
     out.outline = true
     const outlineColor = colorOptional(icon.outlineColor, ICON_DEFAULTS.outlineColor)

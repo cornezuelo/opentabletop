@@ -124,8 +124,6 @@ export const es: Messages = {
     custom: 'Propios',
   },
   icons: {
-    label: 'Etiqueta',
-    labelPlaceholder: 'Texto corto bajo el icono',
     search: 'Buscar iconos (en inglés)…',
     category: 'Categoría',
     empty: 'Ningún icono coincide.',

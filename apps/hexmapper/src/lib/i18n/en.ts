@@ -122,8 +122,6 @@ export const en = {
     custom: 'Custom',
   },
   icons: {
-    label: 'Label',
-    labelPlaceholder: 'Short text under the icon',
     search: 'Search icons…',
     category: 'Category',
     empty: 'No icons match.',

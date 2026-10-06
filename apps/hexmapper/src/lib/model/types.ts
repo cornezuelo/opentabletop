@@ -70,8 +70,6 @@ export interface HexIcon {
   outlineWidth?: number
   /** Position inside the hex as [dx, dy] from the center, in hex-size units. */
   offset?: [number, number]
-  /** Short text shown under the icon. */
-  label?: string
 }
 
 export type IconStyle = Omit<HexIcon, 'id'>

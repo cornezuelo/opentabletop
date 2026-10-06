@@ -599,7 +599,7 @@ class IconTool implements Tool {
       if (icon) {
         const { id, ...style } = icon
         editor.iconId = id
-        editor.iconStyle = { ...style, offset: undefined, label: undefined }
+        editor.iconStyle = { ...style, offset: undefined }
       }
       return
     }

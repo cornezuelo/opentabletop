@@ -37,26 +37,15 @@
       onclick={() => editor.editHex(key, (h) => ({ ...h, icon: undefined }))}>✕</button
     >
   </div>
-  <input
-    type="text"
-    value={icon.label ?? ''}
-    maxlength={40}
-    placeholder={t('icons.labelPlaceholder')}
-    aria-label={t('icons.label')}
-    onchange={(e) => {
-      const label = e.currentTarget.value
-      editor.editHex(key, (h) => ({ ...h, icon: { ...h.icon!, label } }))
-    }}
-  />
   {#if editing}
     <IconStyleControls
       style={icon}
       tintable={image?.tintable ?? true}
       onchange={(style, live) => {
-        // Style only: position and caption stay.
+        // Style only: the position stays.
         const update = (h: HexData) => ({
           ...h,
-          icon: { ...style, id: icon.id, offset: icon.offset, label: icon.label },
+          icon: { ...style, id: icon.id, offset: icon.offset },
         })
         if (live) editor.previewHex(key, update)
         else {

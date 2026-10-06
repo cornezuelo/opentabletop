@@ -807,12 +807,11 @@ export class MapRenderer {
       if (image.tintable)
         sprite.tint = icon.color ?? (hex.terrain || icon.halo ? ICON_INK : ICON_INK_EMPTY)
       place(sprite)
-      if (icon.label) this.iconLayer.addChild(this.caption(icon.label, x, cy + size * 0.36))
     }
     this.drawNames()
   }
 
-  /** Hex names, under the hex (and under its icon's caption, if any). */
+  /** Hex names, under the hex. */
   private drawNames(): void {
     for (const child of this.nameLayer.removeChildren()) child.destroy()
     const { grid, hexes } = editor.map
@@ -822,12 +821,11 @@ export class MapRenderer {
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      const below = hex.icon?.label ? CAPTION_SIZE * 1.15 : 0
-      this.nameLayer.addChild(this.caption(hex.name, c.x, c.y + hs * (0.5 + below)))
+      this.nameLayer.addChild(this.caption(hex.name, c.x, c.y + hs * 0.5))
     }
   }
 
-  /** Small text with a light halo, centered under a point (icon, token, hex). */
+  /** Small text with a light halo, centered under a point (hex, token). */
   private caption(text: string, x: number, y: number): Text {
     const fontSize = editor.map.grid.hexSize * CAPTION_SIZE
     const caption = new Text({
