@@ -1,11 +1,14 @@
 import type { HexKey, HexMap, MapToken, TokenKind } from './types'
 
-/** Default ink/ring color per kind (party: dark red, as before tokens existed). */
-export const TOKEN_COLORS: Record<TokenKind, string> = {
-  party: '#8b1e1e',
-  pc: '#2f6db0',
-  npc: '#5b7a3a',
-  enemy: '#a3322a',
+/**
+ * Automatic colors per kind: a family of hues each, so tokens of one kind look alike
+ * (PCs cool, enemies warm, NPCs earthy) but each token of the kind gets its own color.
+ */
+export const TOKEN_PALETTES: Record<TokenKind, string[]> = {
+  party: ['#8b1e1e'],
+  pc: ['#2f6db0', '#2e8b6e', '#6b4fa8', '#1f8aa6', '#3f9d3a', '#8a4f9e'],
+  npc: ['#6b7a3a', '#8a6a3a', '#5e6b6b', '#7a5a4a', '#4f7a5a', '#8a7a4a'],
+  enemy: ['#a3322a', '#c2611f', '#8a1f4a', '#b5452f', '#9a3a12', '#c23a5a'],
 }
 
 export const DEFAULT_TOKEN_ICONS: Record<TokenKind, string> = {
@@ -15,8 +18,19 @@ export const DEFAULT_TOKEN_ICONS: Record<TokenKind, string> = {
   enemy: 'game:orc-head',
 }
 
-export const tokenColor = (token: Pick<MapToken, 'kind' | 'color'>): string =>
-  token.color ?? TOKEN_COLORS[token.kind]
+/**
+ * A token's color: its own, or the automatic one, the next color of its kind's palette
+ * by its order among the tokens of that kind (pass the map's tokens).
+ */
+export function tokenColor(
+  token: Pick<MapToken, 'id' | 'kind' | 'color'>,
+  tokens: readonly Pick<MapToken, 'id' | 'kind'>[] = [],
+): string {
+  if (token.color) return token.color
+  const palette = TOKEN_PALETTES[token.kind]
+  const index = tokens.filter((t) => t.kind === token.kind).findIndex((t) => t.id === token.id)
+  return palette[Math.max(0, index) % palette.length]
+}
 
 /** The party token, if the map has one. */
 export function partyToken(map: Pick<HexMap, 'tokens'>): MapToken | undefined {

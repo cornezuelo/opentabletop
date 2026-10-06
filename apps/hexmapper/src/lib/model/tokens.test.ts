@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { migrate } from './migrations'
 import { deserializeMap, serializeMap } from './serialize'
 import { createMap } from './defaults'
-import { layoutTokens, nextTokenName, partyToken } from './tokens'
+import { layoutTokens, nextTokenName, partyToken, tokenColor, TOKEN_PALETTES } from './tokens'
 import type { MapToken } from './types'
 
 const token = (id: string, kind: MapToken['kind'], hex?: string): MapToken => ({
@@ -64,5 +64,18 @@ describe('tokens', () => {
 
   it('names new tokens', () => {
     expect(nextTokenName([token('Enemy 1', 'enemy')], 'enemy', 'Enemy')).toBe('Enemy 2')
+  })
+
+  it('gives each token of a kind its own automatic color', () => {
+    const tokens = [
+      token('a', 'pc'),
+      token('b', 'enemy'),
+      token('c', 'pc'),
+      { ...token('d', 'pc'), color: '#123456' },
+    ]
+    expect(tokenColor(tokens[0], tokens)).toBe(TOKEN_PALETTES.pc[0])
+    expect(tokenColor(tokens[2], tokens)).toBe(TOKEN_PALETTES.pc[1])
+    expect(tokenColor(tokens[1], tokens)).toBe(TOKEN_PALETTES.enemy[0])
+    expect(tokenColor(tokens[3], tokens)).toBe('#123456')
   })
 })

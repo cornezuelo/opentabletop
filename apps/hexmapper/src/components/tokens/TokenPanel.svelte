@@ -194,7 +194,7 @@
       {#each group.tokens as token (token.id)}
         <li>
           <button class:active={token.id === editor.selectedToken} onclick={() => select(token)}>
-            <span class="dot" style:background={tokenColor(token)}></span>
+            <span class="dot" style:background={tokenColor(token, editor.tokens)}></span>
             <span class="name">{token.name || t(`tokens.kinds.${token.kind}` as MessageKey)}</span>
             <span class="where">{token.hex ? coord(token.hex) : t('tokens.offMap')}</span>
           </button>

@@ -638,7 +638,12 @@ export class MapRenderer {
     if (party?.hex && play.showTrail && play.trail.length > 1) {
       const points = play.trail.filter((k) => inBounds(parseKey(k), grid)).map(center)
       for (const piece of dashes(points, hs * 0.12, hs * 0.14)) this.strokePolyline(lines, piece)
-      lines.stroke({ width: hs * 0.07, color: tokenColor(party), alpha: 0.85, cap: 'round' })
+      lines.stroke({
+        width: hs * 0.07,
+        color: tokenColor(party, editor.map.tokens),
+        alpha: 0.85,
+        cap: 'round',
+      })
     }
 
     const session =
@@ -668,7 +673,7 @@ export class MapRenderer {
       const c = this.centerOf(parseKey(placed.hex))
       const at = { x: c.x + placed.dx * hs, y: c.y + placed.dy * hs }
       const r = placed.radius * hs
-      const color = tokenColor(token)
+      const color = tokenColor(token, editor.map.tokens)
       if (token.halo !== false)
         g.circle(at.x, at.y, r)
           .fill({ color: 0xf4eedd, alpha: 0.92 })

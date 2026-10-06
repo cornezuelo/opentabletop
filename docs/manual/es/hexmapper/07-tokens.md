@@ -11,6 +11,8 @@ Los tokens son piezas que mueves por el mapa: el grupo, los personajes jugadores
 
 Los tokens también se pueden arrastrar con las herramientas Seleccionar y Jugar.
 
+Con el color en **Auto**, cada token recibe su propio color dentro de la familia de su tipo —los PJ en colores fríos, los enemigos en cálidos, los PNJ en tonos tierra—, así que los de un mismo tipo se parecen pero se distinguen. Elige un color para fijarlo.
+
 ## Ajustes de un token
 
 Nombre, tipo (grupo, PJ, PNJ, enemigo), icono, color, halo, **mostrar el nombre en el mapa** con su **estilo** (el del mapa o uno propio) y una nota enlazada. **Tokens de este mapa** los lista todos por tipo: haz clic en uno para seleccionarlo y centrar el mapa en él.

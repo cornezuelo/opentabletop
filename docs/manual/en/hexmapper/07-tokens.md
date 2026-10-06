@@ -11,6 +11,8 @@ Tokens are pieces you move around the map: the party, player characters, NPCs an
 
 Tokens can also be dragged with the Select and Play tools.
 
+With the color on **Auto**, each token gets its own color from its kind's family — PCs in cool colors, enemies in warm ones, NPCs in earthy ones — so tokens of one kind look alike but can be told apart. Pick a color to fix it.
+
 ## A token's settings
 
 Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the map** with its **style** (the map's, or its own), and a linked note. **Tokens on this map** lists them all by kind: click one to select it and center the map on it.

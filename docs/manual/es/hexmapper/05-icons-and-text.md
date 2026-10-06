@@ -6,7 +6,7 @@ La herramienta **Iconos** (<kbd>I</kbd>) coloca un icono por hex: castillos, ald
 
 - Elige un icono (búscalo o filtra por categoría) y haz clic en los hexes para colocarlo.
 - Haz clic en un icono colocado para editarlo; arrástralo a otro hex (queda centrado; <kbd>Mayús</kbd> mantiene una posición libre dentro del hex). Clic derecho o <kbd>Supr</kbd> lo quita y <kbd>Ctrl</kbd>+clic copia un icono y su estilo.
-- **Estilo**: color, tamaño, rotación, volteo, un halo detrás y un contorno. Los iconos nuevos usan el último estilo.
+- **Estilo**: color, tamaño, rotación, volteo, un halo detrás y un contorno. Los iconos nuevos usan el último estilo. El color **Auto** usa tinta oscura en los hexes pintados y clara en los vacíos, para que los iconos siempre se vean.
 - **Importa** tus propias imágenes (SVG, PNG, JPEG, WebP); se guardan dentro del mapa.
 
 Los iconos son de [game-icons.net](https://game-icons.net) (CC BY 3.0).
