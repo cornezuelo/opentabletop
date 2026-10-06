@@ -113,7 +113,7 @@ aliases: { reaction: kal-arath/reaction }
 }
 ```
 
-- **Extension: `.otd.json`.** It says "this is the common format", which is honest once a file carries more than a map (POIs, party, travel state, journal) and other tools read it; a dedicated extension can also be associated with the app later (OS, Tauri). The hexmapper switches to it when it migrates to OTD and keeps importing `.hexmap.json`.
+- **Extension: `.otd.json`.** It says "this is the common format", which is honest once a file carries more than a map (POIs, party, travel state, journal) and other tools read it; a dedicated extension can also be associated with the app later (OS, Tauri). The hexmapper saves and opens only `.otd.json` (the pre-alpha `.hexmap.json` format was dropped).
 - **A bundle may contain just part of a campaign.** The hexmapper saves `<mapId>.otd.json` with the map, its POIs and, during play, the party and state. A full campaign is the same format with more inside.
 - Packs are **not** embedded in the bundle, only referenced (`campaign.packs`). User packs are distributed separately.
 

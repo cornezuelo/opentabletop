@@ -71,7 +71,7 @@ Done:
 ## Notes apps integration
 
 - **Map → notes (done):** hexes and POIs store a provider-agnostic path, and the provider chosen in Preferences (SilverBullet or Obsidian) turns it into a URL. See `@open-tabletop/note-refs`.
-- **Notes → map (done):** links like `<app>/#/<mapId>/<hex>` (CCRR or axial) open the map from the local library and select/center the hex; the URL follows the open map and selection. Only maps this browser knows can open; otherwise the app asks to import `<mapId>.hexmap.json`. Sharing across devices would need a server and is out of scope.
+- **Notes → map (done):** links like `<app>/#/<mapId>/<hex>` (CCRR or axial) open the map from the local library and select/center the hex; the URL follows the open map and selection. Only maps this browser knows can open; otherwise the app asks to import `<mapId>.otd.json`. Sharing across devices would need a server and is out of scope.
 
 ## Roadmap
 

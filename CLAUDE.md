@@ -77,7 +77,7 @@ Details in [`docs/otd.md`](docs/otd.md). In short:
 - **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.hexmapper` (rendering, printing) or `ext.kal-arath`.
 - **References** are `type:id` strings, never nested objects.
 - **Runtime events** (`HEX_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
-- **File extension:** `.otd.json` (the hexmapper saves OTD bundles; legacy `.hexmap.json` files still open).
+- **File extension:** `.otd.json` (the hexmapper saves and opens OTD bundles only).
 
 ## Packs, sources and licensing
 
@@ -135,7 +135,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 3. [x] `random`, `dice`, `conditions`.
 4. [x] `oracle-engine` MVP and the private Kal-Arath pack (es): tables, settlements, dungeons, travel rules, bindings.
 5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
-6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
+6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`).
 7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). `oracle-ui` and `travel-ui` are extracted and used by the hexmapper.
 8. [ ] Standalone `oracle` (✅ first version: browse and roll every definition, history, form editor for tables with translations, YAML editor with live diagnostics, new packs, zip import/export) and `travel` (✅ first version: play trips without a map, forms for travel rules and checks/bindings, YAML editor with live diagnostics, new systems, edit a copy) apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
 9. [ ] Phases ahead, in order of priority (agreed 2026-10-07). Each new engine is headless, with its UI on top, and talks to the others through events and ports. Things in one phase are done together because they share groundwork.
