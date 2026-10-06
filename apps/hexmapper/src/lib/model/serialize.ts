@@ -338,13 +338,15 @@ function parseTokens(value: unknown): MapToken[] {
   const seen = new Set<string>()
   const tokens: MapToken[] = []
   for (const t of value) {
-    if (!isRecord(t) || !isValidId(t.id) || seen.has(t.id)) continue
-    seen.add(t.id)
+    if (!isRecord(t)) continue
+    // Nothing refers to tokens by id: a malformed or repeated one gets a new id, not dropped.
+    const id = isValidId(t.id) && !seen.has(t.id) ? t.id : newId()
+    seen.add(id)
     const kind = (TOKEN_KINDS as readonly unknown[]).includes(t.kind)
       ? (t.kind as MapToken['kind'])
       : 'npc'
     tokens.push({
-      id: t.id,
+      id,
       name: typeof t.name === 'string' ? t.name : '',
       kind,
       ...(typeof t.hex === 'string' && HEX_KEY.test(t.hex) && { hex: t.hex as HexKey }),

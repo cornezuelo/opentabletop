@@ -21,7 +21,12 @@
 
   async function start(id: string, s: Season) {
     const target = systems.get(id) ?? system
-    if (session && !(await confirmAction(t('play.switchConfirm', { system: name(target) })))) return
+    // Only a trip with something in its journal has anything to lose.
+    if (
+      session?.journal.length &&
+      !(await confirmAction(t('play.switchConfirm', { system: name(target) })))
+    )
+      return
     trip.start(target.id, s)
     if (target.id !== system.id) go({ name: 'system', id: target.id, tab: 'play' })
   }

@@ -109,7 +109,8 @@
     locale={getLocale()}
     bind:season={newSeason}
     onrestart={async (system, season) =>
-      (!session || (await confirmAction(t('play.confirmNewTrip')))) && restartRules(system, season)}
+      (!session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
+      restartRules(system, season)}
   />
   {#if system.bindings?.discover}
     {@const discover = play.discover}

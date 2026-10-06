@@ -82,4 +82,16 @@ describe('serialize', () => {
     })
     expect(deserializeMap(JSON.stringify({ ...v5, play: undefined })).oracle).toBeUndefined()
   })
+
+  it('keeps tokens with a malformed id, giving them a new one', () => {
+    const map = createMap()
+    const raw = JSON.parse(serializeMap(map))
+    raw.tokens = [
+      { id: 'p', name: 'Party', kind: 'party', iconId: 'game:meeple' },
+      { id: 'p', name: 'Twin', kind: 'pc', iconId: 'game:meeple' },
+    ]
+    const tokens = deserializeMap(JSON.stringify(raw)).tokens
+    expect(tokens.map((t) => t.name)).toEqual(['Party', 'Twin'])
+    expect(new Set(tokens.map((t) => t.id)).size).toBe(2)
+  })
 })
