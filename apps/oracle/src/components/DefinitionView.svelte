@@ -2,7 +2,7 @@
   import { t } from '../lib/i18n'
   import { displayDescription, displayName } from '../lib/names'
   import { go } from '../lib/nav.svelte'
-  import { RollPanel } from '@open-tabletop/oracle-ui'
+  import { favorites, RollPanel } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle'
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '@open-tabletop/pack-ui/yaml'
@@ -44,6 +44,14 @@
       <div class="title">
         <KindBadge kind={def.kind} full />
         <h1>{displayName(def)}</h1>
+        <button
+          class="star"
+          class:on={favorites.has(def.id)}
+          aria-pressed={favorites.has(def.id)}
+          aria-label={t('nav.favorite')}
+          use:tooltip={t('nav.favorite')}
+          onclick={() => favorites.toggle(def.id)}>{favorites.has(def.id) ? '★' : '☆'}</button
+        >
       </div>
       <div class="meta">
         <code>{def.id}</code>
@@ -135,6 +143,20 @@
     margin-top: 4px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .star {
+    padding: 0 4px;
+    font-size: 20px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .star.on,
+  .star:hover {
+    color: var(--accent);
   }
 
   .actions {

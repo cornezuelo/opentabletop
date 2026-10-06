@@ -7,6 +7,8 @@ export const es: Messages<typeof en> = {
     tagline: 'Tira y crea tablas aleatorias, generadores, oráculos y mazos.',
   },
   nav: {
+    favorites: 'Favoritos',
+    favorite: 'Favorito: fijado arriba de la lista (también en el Hexmapper)',
     help: 'Ayuda y manual',
     toggleSidebar: 'Mostrar u ocultar la lista de packs',
     toggleHistory: 'Mostrar u ocultar el historial',

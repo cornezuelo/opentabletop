@@ -32,6 +32,8 @@ Principles:
 ## Done
 
 - Pack list and history can be folded (header buttons; remembered in this browser).
+- Favorites (☆ next to a definition's name): pinned on top of the list, also in the Hexmapper's Oracle panel (shared `opentabletop.favorites`).
+- New definition dialog also adds travel rules and bindings (one travel system per pack).
 - Sidebar with search, packs (bundled / edited / personal-use badges, error count) and their definitions.
 - Roll tab: oracle inputs, detected context variables, advantage/disadvantage, deck draw/shuffle with cards left, result card with dice breakdown and nested results, entries preview with the chosen one highlighted, Space/Enter to roll again, results in the UI language.
 - History (last 100, persisted) and "New session" (resets once-only entries and decks).

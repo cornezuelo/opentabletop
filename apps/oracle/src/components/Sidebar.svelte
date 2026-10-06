@@ -6,6 +6,7 @@
   import { workspace } from '../lib/packs/workspace.svelte'
   import { manifestOf } from '../lib/packs/workspace'
   import KindBadge from './KindBadge.svelte'
+  import { favorites } from '@open-tabletop/oracle-ui'
   import { dialogs } from '../lib/dialogs.svelte'
 
   let query = $state('')
@@ -34,6 +35,14 @@
     })
   })
 
+  /** Favorites pinned on top (filtered by the search too). */
+  const pinned = $derived(
+    groups
+      .flatMap((g) => g.defs)
+      .filter(({ def }) => favorites.has(def.id))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  )
+
   const selectedDef = $derived(nav.view.name === 'def' ? nav.view.id : undefined)
   const selectedPack = $derived(nav.view.name === 'pack' ? nav.view.root : undefined)
 </script>
@@ -41,6 +50,24 @@
 <nav class="sidebar">
   <input type="search" placeholder={t('nav.search')} bind:value={query} />
   <div class="tree">
+    {#if pinned.length}
+      <div class="pack">
+        <div class="pack-row"><span class="pack-name static">★ {t('nav.favorites')}</span></div>
+        <ul>
+          {#each pinned as { def, name } (def.id)}
+            <li>
+              <button
+                class:selected={selectedDef === def.id}
+                onclick={() => go({ name: 'def', id: def.id, tab: 'roll' })}
+              >
+                <KindBadge kind={def.kind} />
+                <span class="name">{name}</span>
+              </button>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
     {#each groups as { pack, manifest, defs, errors } (pack.root)}
       {#if !query || defs.length}
         <div class="pack">
@@ -141,6 +168,10 @@
     background: none;
     border: none;
     cursor: pointer;
+  }
+
+  .pack-name.static {
+    cursor: default;
   }
 
   .pack-name {

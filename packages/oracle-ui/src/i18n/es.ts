@@ -32,6 +32,7 @@ export const es: Messages<typeof en> = {
       'Olvida las entradas que solo pueden salir una vez y devuelve a su mazo todas las cartas robadas.',
   },
   picker: {
+    favorites: 'Favoritos',
     search: 'Buscar tablas…',
     none: 'No hay coincidencias.',
     choose: 'Elige una tabla, oráculo, generador o mazo para tirarlo.',

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { favorites } from './favorites.svelte'
   import { KIND_ORDER } from './names'
   import { manifestOf } from '@open-tabletop/pack-ui'
   import type { OracleUi } from './ui'
@@ -15,7 +16,7 @@
   /** Every definition of every pack, filtered by name, id or tag. */
   const groups = $derived.by(() => {
     const q = query.trim().toLowerCase()
-    return ui.library.packs
+    const all = ui.library.packs
       .map((pack) => {
         const manifest = manifestOf(pack)
         const defs = (manifest.id ? ui.library.engine.list({ pack: manifest.id }) : [])
@@ -35,6 +36,14 @@
         return { root: pack.root, name: manifest.name ?? pack.root, defs }
       })
       .filter((g) => g.defs.length)
+    // Favorites first, as their own group.
+    const pinned = all
+      .flatMap((g) => g.defs)
+      .filter(({ def }) => favorites.has(def.id))
+      .sort((a, b) => a.name.localeCompare(b.name))
+    return pinned.length
+      ? [{ root: '★', name: `★ ${t('picker.favorites')}`, defs: pinned }, ...all]
+      : all
   })
 </script>
 

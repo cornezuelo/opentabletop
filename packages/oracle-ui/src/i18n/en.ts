@@ -29,6 +29,7 @@ export const en = {
       'Forget entries that can only come up once and put every drawn card back in its deck.',
   },
   picker: {
+    favorites: 'Favorites',
     search: 'Search tables…',
     none: 'Nothing matches.',
     choose: 'Pick a table, oracle, generator or deck to roll it.',
