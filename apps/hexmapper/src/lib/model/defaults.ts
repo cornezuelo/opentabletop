@@ -2,25 +2,54 @@ import { newId } from './id'
 import { LAYER_IDS, type LayerId, type LayerState } from './types'
 import type { GridSettings, HexMap, LabelStyle, PrintSettings, TerrainType } from './types'
 
-export const CURRENT_VERSION = 2
+export const CURRENT_VERSION = 3
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
 
-/** Default palette, tuned for the Kal-Arath steppe. Names come from i18n (`terrains.<id>`). */
-export const DEFAULT_TERRAINS: readonly TerrainType[] = [
-  { id: 'steppe', color: '#c9b977' },
-  { id: 'plains', color: '#a8c070' },
-  { id: 'forest', color: '#4f7a3a' },
-  { id: 'hills', color: '#a08a5a' },
-  { id: 'mountains', color: '#7d7468' },
-  { id: 'badlands', color: '#b5734a' },
-  { id: 'desert', color: '#e2cd8f' },
-  { id: 'swamp', color: '#5f6e4a' },
-  { id: 'lake', color: '#5b8fb0', water: true },
-  { id: 'sea', color: '#36668a', water: true },
-  { id: 'snow', color: '#e6ecef' },
-]
+/** Glyph of each built-in terrain id (also given to old maps by the v3 migration). */
+export const DEFAULT_GLYPHS: Readonly<Record<string, string>> = {
+  steppe: 'game:high-grass',
+  plains: 'game:grass',
+  farmland: 'game:wheat',
+  forest: 'game:pine-tree',
+  jungle: 'game:palm-tree',
+  taiga: 'game:pine-tree',
+  hills: 'game:hills',
+  mountains: 'game:mountains',
+  badlands: 'game:falling-rocks',
+  desert: 'game:desert',
+  swamp: 'game:reed',
+  tundra: 'game:snowing',
+  snow: 'game:snowflake-1',
+  volcanic: 'game:volcano',
+  lake: 'game:waves',
+  sea: 'game:wave-crest',
+}
+
+/** Default palette (biomes), first tuned for the Kal-Arath steppe. Names come from i18n (`terrains.<id>`). */
+export const DEFAULT_TERRAINS: readonly TerrainType[] = (
+  [
+    { id: 'steppe', color: '#c9b977' },
+    { id: 'plains', color: '#a8c070' },
+    { id: 'farmland', color: '#d6c56a' },
+    { id: 'forest', color: '#4f7a3a' },
+    { id: 'jungle', color: '#2f6b3f' },
+    { id: 'taiga', color: '#3f5f4a' },
+    { id: 'hills', color: '#a08a5a' },
+    { id: 'mountains', color: '#7d7468' },
+    { id: 'badlands', color: '#b5734a' },
+    { id: 'desert', color: '#e2cd8f' },
+    { id: 'swamp', color: '#5f6e4a' },
+    { id: 'tundra', color: '#b9c3b4' },
+    { id: 'snow', color: '#e6ecef' },
+    { id: 'volcanic', color: '#4a3b38' },
+    { id: 'lake', color: '#5b8fb0', water: true },
+    { id: 'sea', color: '#36668a', water: true },
+  ] as TerrainType[]
+).map((t) => ({ ...t, glyph: DEFAULT_GLYPHS[t.id] }))
+
+export const DEFAULT_GLYPH_OPACITY = 0.45
 
 export const DEFAULT_GRID: GridSettings = {
   orientation: 'flat',
@@ -29,6 +58,7 @@ export const DEFAULT_GRID: GridSettings = {
   height: 20,
   coordFormat: 'CCRR',
   showCoords: true,
+  glyphs: 0.45,
 }
 
 /** A common hexcrawl scale (6 miles ≈ 10 km). Kal-Arath uses 30 km. */

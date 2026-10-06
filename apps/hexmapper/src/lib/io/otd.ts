@@ -77,6 +77,7 @@ interface HexmapperExt {
   modified: string
   hexSize: number
   showCoords: boolean
+  glyphs: number
   print: HexMap['print']
   layers: HexMap['layers']
   labels: HexMap['labels']
@@ -118,6 +119,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     modified: map.meta.modified,
     hexSize: map.grid.hexSize,
     showCoords: map.grid.showCoords,
+    glyphs: map.grid.glyphs,
     print: map.print,
     layers: map.layers,
     labels: map.labels,
@@ -332,6 +334,7 @@ export function bundleToMap(raw: unknown): HexMap {
       coordFormat: otdMap.grid.coordFormat,
       hexSize: ext.hexSize,
       showCoords: ext.showCoords,
+      glyphs: ext.glyphs,
     },
     scale: otdMap.scale,
     print: ext.print,

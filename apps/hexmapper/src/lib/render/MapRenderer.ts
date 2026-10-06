@@ -18,6 +18,7 @@ import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
 import { catmullRom, dashes } from './curves'
 import { pathRuns, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
+import { glyphShade } from './glyphs'
 import { setLabelHitTest, setTokenHitTest } from './hitTest'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
 import {
@@ -69,6 +70,9 @@ const ICON_INK_EMPTY = 0xe8e2d4
 /** Icon size as a fraction of the hex size, nudged down to leave room for the coordinate. */
 const ICON_SIZE = 1.25
 const ICON_OFFSET_Y = 0.1
+/** Terrain glyph size (fraction of the hex size) and offset below the center. */
+const GLYPH_SIZE = 0.72
+const GLYPH_OFFSET_Y = 0.1
 const MARKER_COLOR = 0xc8a24a
 const MARKER_OUTLINE = 0x1b1a17
 const COORD_FONT = 'hexmapper-coords'
@@ -109,9 +113,13 @@ export class MapRenderer {
   private pathsLayer = new Graphics()
   private iconLayer = new Container()
   private iconTextures = new IconTextures(() => {
+    this.drawGlyphs()
     this.drawIcons()
     this.drawTokens()
   })
+  /** Terrain glyphs: one tinted sprite per painted hex. */
+  private glyphLayer = new Container()
+  private glyphSprites = new Map<HexKey, Sprite>()
   private labelLayer = new Container()
   /** Party trail and route (play mode). */
   private partyLayer = new Container()
@@ -149,6 +157,7 @@ export class MapRenderer {
     installCoordFont()
     this.world.addChild(
       this.terrainLayer,
+      this.glyphLayer,
       this.gridLines,
       this.pathsLayer,
       this.iconLayer,
@@ -334,16 +343,20 @@ export class MapRenderer {
         const label = this.coordLabels.get(key)
         if (label) this.styleCoord(label, key)
       }
+      for (const key of change.keys) this.updateGlyph(key)
       this.drawMarkers()
       this.drawIcons()
       if (editor.map.paths.length > 0) this.drawPaths()
     } else if (change.kind === 'paths') {
       this.drawPaths()
     } else if (change.kind === 'assets') {
+      this.drawGlyphs()
       this.drawIcons()
       this.drawTokens()
     } else if (change.kind === 'play') {
       this.drawParty()
+    } else if (change.kind === 'style') {
+      this.drawGlyphs()
     } else if (change.kind === 'tokens') {
       this.drawTokens()
       this.drawParty()
@@ -401,12 +414,49 @@ export class MapRenderer {
       }
     }
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
+    this.drawGlyphs()
     this.drawPaths()
     this.drawIcons()
     this.drawLabels()
     this.drawParty()
     this.drawTokens()
     this.onViewChanged()
+  }
+
+  private drawGlyphs(): void {
+    for (const child of this.glyphLayer.removeChildren()) child.destroy()
+    this.glyphSprites.clear()
+    for (const key of Object.keys(editor.map.hexes) as HexKey[]) this.updateGlyph(key)
+  }
+
+  /**
+   * The glyph of one hex: its terrain's symbol in a lighter or darker shade of the terrain
+   * color, faded by the map's glyph opacity. Hexes with an icon show the icon instead.
+   */
+  private updateGlyph(key: HexKey): void {
+    const old = this.glyphSprites.get(key)
+    if (old) {
+      this.glyphSprites.delete(key)
+      old.destroy()
+    }
+    const { grid, hexes, terrains, assets } = editor.map
+    const hex = hexes[key]
+    if (grid.glyphs <= 0 || !hex?.terrain || hex.icon) return
+    const terrain = terrains.find((t) => t.id === hex.terrain)
+    if (!terrain?.glyph || !inBounds(parseKey(key), grid)) return
+    const image = iconImage(terrain.glyph, assets)
+    const texture = image && this.iconTextures.get(terrain.glyph, image.url)
+    if (!texture) return
+    const hs = grid.hexSize
+    const sprite = new Sprite(texture)
+    sprite.anchor.set(0.5)
+    sprite.setSize(hs * GLYPH_SIZE, hs * GLYPH_SIZE)
+    const center = this.centerOf(parseKey(key))
+    sprite.position.set(center.x, center.y + hs * GLYPH_OFFSET_Y)
+    if (image.tintable) sprite.tint = glyphShade(terrain.color)
+    sprite.alpha = grid.glyphs
+    this.glyphLayer.addChild(sprite)
+    this.glyphSprites.set(key, sprite)
   }
 
   private drawPaths(): void {
@@ -688,6 +738,7 @@ export class MapRenderer {
   private applyLayers(): void {
     const { layers, grid } = editor.map
     this.terrainLayer.visible = layers.terrain.visible
+    this.glyphLayer.visible = layers.terrain.visible
     this.gridLines.visible = layers.grid.visible
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible

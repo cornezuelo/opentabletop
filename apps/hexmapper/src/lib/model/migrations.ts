@@ -1,4 +1,4 @@
-import { CURRENT_VERSION } from './defaults'
+import { CURRENT_VERSION, DEFAULT_GLYPH_OPACITY, DEFAULT_GLYPHS } from './defaults'
 import { newId } from './id'
 
 /**
@@ -28,6 +28,20 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       data = { ...data, play: rest }
     }
     return { ...data, tokens }
+  },
+  /** v3: terrain glyphs. Built-in terrains get their default symbol; custom ones none. */
+  2(data) {
+    const terrains = Array.isArray(data.terrains) ? data.terrains : []
+    const grid = (typeof data.grid === 'object' && data.grid) || {}
+    return {
+      ...data,
+      grid: { ...grid, glyphs: DEFAULT_GLYPH_OPACITY },
+      terrains: terrains.map((t: Record<string, unknown>) =>
+        typeof t?.id === 'string' && DEFAULT_GLYPHS[t.id]
+          ? { ...t, glyph: DEFAULT_GLYPHS[t.id] }
+          : t,
+      ),
+    }
   },
 }
 

@@ -10,6 +10,11 @@ export interface TerrainType {
   color: string
   /** Water (lake, sea…): roads and rivers stop at its shore. */
   water?: boolean
+  /**
+   * Small symbol drawn on its hexes (`game:<name>` or an imported `asset:<id>`), in a
+   * lighter or darker shade of `color`. Absent = none.
+   */
+  glyph?: string
 }
 
 export interface Poi {
@@ -75,6 +80,8 @@ export interface GridSettings {
   height: number
   coordFormat: CoordFormat
   showCoords: boolean
+  /** Opacity of terrain glyphs, 0 (hidden) to 1. */
+  glyphs: number
 }
 
 /** An image imported by the user (e.g. a custom icon), embedded in the map file. */

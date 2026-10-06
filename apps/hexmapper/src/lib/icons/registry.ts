@@ -10,6 +10,7 @@ export interface BuiltinIcon {
 
 export const ICON_CATEGORIES = [
   'party',
+  'terrain',
   'settlements',
   'landmarks',
   'nature',

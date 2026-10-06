@@ -3,6 +3,23 @@
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
   import TerrainEditor from './TerrainEditor.svelte'
+  import { SetGlyphOpacityCommand } from '../lib/commands/settings'
+
+  /** Glyph opacity while dragging the slider; recorded as one step on release. */
+  let glyphsBefore: number | null = null
+
+  function previewGlyphs(value: number) {
+    glyphsBefore ??= editor.map.grid.glyphs
+    editor.map.grid.glyphs = value
+    editor.notify({ kind: 'style' })
+  }
+
+  function commitGlyphs(value: number) {
+    const before = glyphsBefore ?? editor.map.grid.glyphs
+    glyphsBefore = null
+    editor.map.grid.glyphs = before
+    if (before !== value) editor.execute(new SetGlyphOpacityCommand(before, value))
+  }
 
   let editing = $state(false)
 
@@ -34,6 +51,19 @@
     <input type="range" min="0" max={MAX_BRUSH_RADIUS} bind:value={editor.brushRadius} />
   </label>
 {/if}
+
+<label class="slider">
+  <span>{t('terrainEditor.glyphs')}: {Math.round(editor.grid.glyphs * 100)} %</span>
+  <input
+    type="range"
+    min="0"
+    max="1"
+    step="0.05"
+    value={editor.grid.glyphs}
+    oninput={(e) => previewGlyphs(Number(e.currentTarget.value))}
+    onchange={(e) => commitGlyphs(Number(e.currentTarget.value))}
+  />
+</label>
 
 <div class="palette-header">
   <span>{t('terrainEditor.palette')}</span>

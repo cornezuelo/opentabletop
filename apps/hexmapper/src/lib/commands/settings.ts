@@ -59,3 +59,21 @@ export class SetMetaCommand implements Command {
     return { kind: 'meta' }
   }
 }
+
+/** Terrain glyph opacity (0 hides them). Restyles without rebuilding the grid. */
+export class SetGlyphOpacityCommand implements Command {
+  constructor(
+    private before: number,
+    private after: number,
+  ) {}
+
+  apply(map: HexMap): MapChange {
+    map.grid.glyphs = this.after
+    return { kind: 'style' }
+  }
+
+  revert(map: HexMap): MapChange {
+    map.grid.glyphs = this.before
+    return { kind: 'style' }
+  }
+}

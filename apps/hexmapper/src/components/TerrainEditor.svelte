@@ -5,6 +5,13 @@
   import { newId } from '../lib/model/id'
   import type { TerrainType } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
+  import { builtinSvg, getBuiltinIcon } from '../lib/icons/registry'
+  import GlyphPicker from './GlyphPicker.svelte'
+
+  /** Terrain whose glyph picker is open. */
+  let picking = $state<string | null>(null)
+  const assetUrl = (glyph: string) =>
+    editor.map.assets.find((a) => `asset:${a.id}` === glyph)?.dataUrl
 
   const usage = $derived.by(() => {
     void editor.revision
@@ -23,6 +30,7 @@
       if (!merged.name?.trim() || merged.name.trim() === defaultName(merged)) delete merged.name
       else merged.name = merged.name.trim()
       if (!merged.water) delete merged.water
+      if (!merged.glyph) delete merged.glyph
       return merged
     })
     editor.execute(new SetTerrainsCommand(next))
@@ -63,6 +71,24 @@
         aria-label={t('terrainEditor.name')}
         onchange={(e) => update(terrain.id, { name: e.currentTarget.value })}
       />
+      <button
+        class="glyph"
+        style:background={terrain.color}
+        title={t('terrainEditor.glyph')}
+        aria-label={t('terrainEditor.glyph')}
+        aria-expanded={picking === terrain.id}
+        onclick={() => (picking = picking === terrain.id ? null : terrain.id)}
+      >
+        {#if terrain.glyph && getBuiltinIcon(terrain.glyph)}
+          <!-- Bundled, trusted SVG markup. -->
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html builtinSvg(getBuiltinIcon(terrain.glyph)!)}
+        {:else if terrain.glyph && assetUrl(terrain.glyph)}
+          <img src={assetUrl(terrain.glyph)} alt="" />
+        {:else}
+          ∅
+        {/if}
+      </button>
       <label class="water" title={t('terrainEditor.waterHelp')}>
         <input
           type="checkbox"
@@ -78,6 +104,15 @@
         onclick={() => remove(terrain)}>✕</button
       >
     </li>
+    {#if picking === terrain.id}
+      <li class="pick">
+        <GlyphPicker
+          value={terrain.glyph}
+          color={terrain.color}
+          onchange={(glyph) => update(terrain.id, { glyph: glyph ?? '' })}
+        />
+      </li>
+    {/if}
   {/each}
 </ul>
 <button class="add" onclick={add}>{t('terrainEditor.add')}</button>
@@ -111,6 +146,30 @@
   input[type='text'] {
     flex: 1;
     min-width: 0;
+  }
+
+  .glyph {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    padding: 2px;
+    color: var(--text);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .glyph :global(svg),
+  .glyph img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.6));
+  }
+
+  .pick {
+    display: block;
   }
 
   .water {

@@ -58,6 +58,7 @@ function validate(data: Record<string, unknown>): HexMap {
       color: t.color as string,
       ...(typeof t.name === 'string' ? { name: t.name } : {}),
       ...(t.water === true ? { water: true } : {}),
+      ...(typeof t.glyph === 'string' && t.glyph ? { glyph: t.glyph } : {}),
     }))
 
   const validHexes: Record<HexKey, HexData> = {}
@@ -83,6 +84,10 @@ function validate(data: Record<string, unknown>): HexMap {
       height: mapSize(grid.height, DEFAULT_GRID.height),
       coordFormat: grid.coordFormat === 'axial' ? 'axial' : 'CCRR',
       showCoords: typeof grid.showCoords === 'boolean' ? grid.showCoords : true,
+      glyphs:
+        typeof grid.glyphs === 'number' && Number.isFinite(grid.glyphs)
+          ? Math.min(1, Math.max(0, grid.glyphs))
+          : DEFAULT_GRID.glyphs,
     },
     scale: {
       hexKm: positiveNumber(isRecord(data.scale) ? data.scale.hexKm : undefined, DEFAULT_HEX_KM),

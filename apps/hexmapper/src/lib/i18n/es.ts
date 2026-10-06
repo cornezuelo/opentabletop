@@ -111,6 +111,7 @@ export const es: Messages = {
     obsidian: { vault: 'Nombre del vault' },
   },
   iconCategories: {
+    terrain: 'Terreno',
     all: 'Todos',
     party: 'Grupo',
     settlements: 'Asentamientos',
@@ -221,6 +222,10 @@ export const es: Messages = {
     saveAndCreate: 'Guardar en fichero y crear',
   },
   terrainEditor: {
+    glyph: 'Símbolo de sus hexes',
+    noGlyph: 'Sin símbolo',
+    importGlyph: 'Importar una imagen…',
+    glyphs: 'Símbolos del terreno',
     palette: 'Paleta',
     edit: 'Editar paleta',
     name: 'Nombre',
@@ -340,6 +345,11 @@ export const es: Messages = {
     lake: 'Lago',
     sea: 'Mar',
     snow: 'Nieve',
+    farmland: 'Cultivos',
+    jungle: 'Jungla',
+    taiga: 'Taiga',
+    tundra: 'Tundra',
+    volcanic: 'Volcánico',
   },
   hints: {
     pan: 'Mover vista: botón central o Espacio + arrastrar',

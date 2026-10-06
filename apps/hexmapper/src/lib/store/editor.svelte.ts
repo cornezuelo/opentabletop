@@ -253,6 +253,7 @@ class Editor {
   }
 
   private syncSnapshots(change: MapChange): void {
+    if (change.kind === 'style') this.grid = { ...this.map.grid }
     if (change.kind === 'grid' || change.kind === 'all') {
       this.grid = { ...this.map.grid }
       this.print = structuredClone(this.map.print)

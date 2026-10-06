@@ -109,6 +109,7 @@ export const en = {
     obsidian: { vault: 'Vault name' },
   },
   iconCategories: {
+    terrain: 'Terrain',
     all: 'All',
     party: 'Party',
     settlements: 'Settlements',
@@ -219,6 +220,10 @@ export const en = {
     saveAndCreate: 'Save to file and create',
   },
   terrainEditor: {
+    glyph: 'Symbol drawn on its hexes',
+    noGlyph: 'No symbol',
+    importGlyph: 'Import an image…',
+    glyphs: 'Terrain symbols',
     palette: 'Palette',
     edit: 'Edit palette',
     name: 'Name',
@@ -338,6 +343,11 @@ export const en = {
     lake: 'Lake',
     sea: 'Sea',
     snow: 'Snow',
+    farmland: 'Farmland',
+    jungle: 'Jungle',
+    taiga: 'Taiga',
+    tundra: 'Tundra',
+    volcanic: 'Volcanic',
   },
   hints: {
     pan: 'Pan: middle button or Space + drag',
