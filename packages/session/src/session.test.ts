@@ -159,6 +159,26 @@ describe('session', () => {
     expect(state.journal.some((e) => e.code === 'CHECK_PENDING')).toBe(true)
   })
 
+  it('keeps the trip going when a bound table is broken', () => {
+    const { bindings } = parseBindings(
+      { on: { WEATHER_CHECK_REQUIRED: { resolve: 'nowhere' } } },
+      'sys',
+    )
+    const session = createSession({
+      travel: createTravelEngine({ world, rules }),
+      oracle: createOracleEngine({ registry, random: sequence([0.5]) }),
+      bindings,
+    })
+    const { state } = session.step(
+      session.step(start(), { type: 'setDestination', hex: '2,0' }).state,
+      { type: 'travel' },
+    )
+    const failed = state.journal.find((e) => e.code === 'CHECK_FAILED')
+    expect(failed?.data).toMatchObject({ event: 'WEATHER_CHECK_REQUIRED', table: 'sys/nowhere' })
+    expect(failed?.text).toMatch(/Unknown definition/)
+    expect(state.travel.pendingChecks.map((c) => c.event)).toContain('WEATHER_CHECK_REQUIRED')
+  })
+
   it('leaves checks pending without an oracle and records user notes', () => {
     const session = createSession({ travel: createTravelEngine({ world, rules }) })
     let { state } = session.step(
@@ -236,5 +256,10 @@ describe('session', () => {
       lost: true,
       weather: 'storm',
     })
+    expect(toOutcome({ resources: { food: 2, water: 'lots' }, fatigue: -1 })).toEqual({
+      resources: { food: 2 },
+      fatigue: -1,
+    })
+    expect(toOutcome({ resources: { water: 'lots' } })).toEqual({})
   })
 })

@@ -1,4 +1,9 @@
-import { emptyState, type OracleEngine, type OracleState } from '@open-tabletop/oracle-engine'
+import {
+  emptyState,
+  OracleError,
+  type OracleEngine,
+  type OracleState,
+} from '@open-tabletop/oracle-engine'
 import {
   parseDiscover,
   type DiscoverBindings,
@@ -194,7 +199,21 @@ export function createSession(options: {
       /** Discovers at the party's hex; true when it found something to stop for. */
       const arrive = (hex: string, from?: string, time?: number): boolean => {
         if (!discovery) return false
-        const { text, discovered } = discovery.arrive(s, { ...s.stats, ...s.dayVars }, hex, from)
+        let outcome: ReturnType<Discovery['arrive']>
+        try {
+          outcome = discovery.arrive(s, { ...s.stats, ...s.dayVars }, hex, from)
+        } catch (error) {
+          if (!(error instanceof OracleError)) throw error
+          add(s, entries, {
+            source: 'travel',
+            code: 'DISCOVERY_FAILED',
+            ...(time !== undefined && { time }),
+            text: error.message,
+            data: { hex },
+          })
+          return false
+        }
+        const { text, discovered } = outcome
         if (!discovered) return false
         add(s, entries, {
           source: 'oracle',
@@ -234,9 +253,25 @@ export function createSession(options: {
             continue
           }
           const context = { ...event.check.context, ...s.stats, ...s.dayVars, ...binding.context }
-          const out = options.oracle.resolve(binding.resolve, context, s.oracle, {
-            locale: options.locale,
-          })
+          let out: ReturnType<OracleEngine['resolve']>
+          try {
+            out = options.oracle.resolve(binding.resolve, context, s.oracle, {
+              locale: options.locale,
+            })
+          } catch (error) {
+            // A broken pack (unknown table, a roll that needs a missing number…) must not
+            // lose the trip: the check stays pending and the journal says why.
+            if (!(error instanceof OracleError)) throw error
+            resolvedAll = false
+            add(s, entries, {
+              source: 'travel',
+              code: 'CHECK_FAILED',
+              time: event.time,
+              text: error.message,
+              data: { event: event.check.event, id: event.check.id, table: binding.resolve },
+            })
+            continue
+          }
           s.oracle = out.state
           const value = out.resolution.value
           add(s, entries, {
@@ -307,8 +342,12 @@ export function toOutcome(value: Record<string, unknown>): CheckOutcome {
   if (value.lost === true) outcome.lost = true
   if (typeof value.weather === 'string') outcome.weather = value.weather
   if (typeof value.fatigue === 'number') outcome.fatigue = value.fatigue
-  if (typeof value.resources === 'object' && value.resources !== null)
-    outcome.resources = value.resources as Record<string, number>
+  if (typeof value.resources === 'object' && value.resources !== null) {
+    const numbers = Object.entries(value.resources).filter(
+      (e): e is [string, number] => typeof e[1] === 'number' && Number.isFinite(e[1]),
+    )
+    if (numbers.length) outcome.resources = Object.fromEntries(numbers)
+  }
   return outcome
 }
 

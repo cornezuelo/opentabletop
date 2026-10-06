@@ -12,7 +12,7 @@ roll: 1d6
 advantage: true
 entries:
   - { id: clear, range: 1-3, result: Cielo despejado, set: { weather: clear } }
-  - { id: rain, range: 4-5, result: Lluvia, set: { weather: rain, speed: 0.5 } }
+  - { id: rain, range: 4-5, result: Lluvia, set: { weather: rain } }
   - { id: storm, range: 6, result: Tormenta, table: storm-damage }
 ```
 

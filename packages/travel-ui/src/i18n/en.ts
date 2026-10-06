@@ -51,6 +51,8 @@ export const en = {
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Night',
   },
   journal: {
+    failed: '{event}: the table failed ({error})',
+    discoveryFailed: 'Discovery failed at {hex} ({error})',
     pending: '{event}: waiting for you',
     entered: 'Entered {hex}',
     discovered: 'Discovered in {hex}: {what}',

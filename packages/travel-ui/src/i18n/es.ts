@@ -55,6 +55,8 @@ export const es: Messages<typeof en> = {
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Noche',
   },
   journal: {
+    failed: '{event}: la tabla falló ({error})',
+    discoveryFailed: 'El descubrimiento falló en {hex} ({error})',
     pending: '{event}: esperando',
     entered: 'Entráis en {hex}',
     discovered: 'Descubierto en {hex}: {what}',

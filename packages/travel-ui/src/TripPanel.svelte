@@ -95,6 +95,10 @@
         return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
       case 'CHECK_PENDING':
         return t('journal.pending', { event: eventName(d.event) })
+      case 'DISCOVERY_FAILED':
+        return t('journal.discoveryFailed', { hex: hexLabel(String(d.hex)), error: e.text ?? '' })
+      case 'CHECK_FAILED':
+        return t('journal.failed', { event: eventName(d.event), error: e.text ?? '' })
       case 'HEX_ENTERED':
         return t('journal.entered', { hex: hexLabel(String(d.hex)) })
       case 'HEX_DISCOVERED':

@@ -114,6 +114,30 @@ describe('discovery', () => {
     })
   })
 
+  it('journals a broken discovery table instead of failing the trip', () => {
+    const broken = {
+      ...system,
+      bindings: {
+        ...system.bindings!,
+        discover: { ...system.bindings!.discover!, terrain: { resolve: 'x/missing' } },
+      },
+    }
+    const world = line({ '0': { terrain: 'forest' } })
+    const { session } = startTrip({ system: broken, location: '0' })
+    const step = stepTrip(
+      { system: broken, world, oracle: oracle(), discover: 'neighbors' },
+      session,
+      {
+        type: 'setDestination',
+        hex: '2',
+      },
+    )
+    expect(step.entries.find((e) => e.code === 'DISCOVERY_FAILED')).toMatchObject({
+      data: { hex: '0' },
+      text: expect.stringMatching(/missing/),
+    })
+  })
+
   it('never decides painted hexes, and is off unless asked for', () => {
     const painted = { '0': { terrain: 'forest' }, '1': { terrain: 'plains' } }
     const world = line(painted)

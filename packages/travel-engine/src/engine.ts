@@ -187,6 +187,7 @@ export function createTravelEngine(options: {
     const best = Math.max(
       rules.defaultTerrain?.multiplier ?? 1,
       ...Object.values(rules.terrains).map((t) => t.multiplier ?? 1),
+      rules.water?.multiplier ?? 0,
       ...Object.values(rules.edges ?? {}).map((e) => e.multiplier ?? 0),
     )
     const minPerHex = (world.hexKm / ((mode.kmPerDay / rules.travel.hoursPerDay) * best)) * 60
@@ -241,7 +242,6 @@ export function createTravelEngine(options: {
     }
   }
 
-  /** Resets daily counters when the calendar day changed. */
   /** Supplies used per day (resources' perDay plus what the travel mode consumes). */
   const dailyConsumption = (state: TravelState): Record<string, number> => {
     const consumption: Record<string, number> = {}
