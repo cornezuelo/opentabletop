@@ -189,6 +189,12 @@ class Editor {
     this.execute(new ReplaceTokenCommand(structuredClone(token), after))
   }
 
+  /** The map's Oracle (rolls, decks): saved with the map, outside the undo history. */
+  setOracle(oracle: HexMap['oracle']): void {
+    this.map.oracle = oracle
+    this.notify({ kind: 'oracle' })
+  }
+
   /** Play state changes: saved with the map but not part of the editor's undo history. */
   setPlay(play: HexMap['play']): void {
     this.map.play = play

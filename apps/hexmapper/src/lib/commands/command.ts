@@ -10,6 +10,8 @@ export type MapChange =
   | { kind: 'layers' }
   | { kind: 'labels' }
   | { kind: 'play' }
+  /** The map's Oracle state or roll history. */
+  | { kind: 'oracle' }
   | { kind: 'tokens' }
   | { kind: 'regions' }
   /** Look-only settings (glyph opacity): redraw without rebuilding the grid. */

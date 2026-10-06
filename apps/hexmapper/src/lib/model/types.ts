@@ -1,4 +1,6 @@
 import { type CoordFormat, type HexKey, type Orientation } from '@open-tabletop/hex'
+import type { OracleState } from '@open-tabletop/oracle-engine'
+import type { HistoryItem } from '@open-tabletop/oracle-ui'
 import type { PaperId, Size } from '../print/paper'
 
 export type { CoordFormat, HexKey, Orientation }
@@ -184,6 +186,12 @@ export interface MapToken {
   note?: string
 }
 
+/** Oracle state (decks drawn, once-only entries, values set) and the history of hand rolls. */
+export interface MapOracle {
+  state: OracleState
+  history: HistoryItem[]
+}
+
 /** Play mode: the party (the `party` token) travelling on the map. */
 export interface PlayState {
   /** 'simple': move the token freely. 'rules': the Travel Engine and Oracle drive the trip. */
@@ -294,6 +302,8 @@ export interface HexMap {
   captions: Record<CaptionKind, CaptionStyle>
   layers: Record<LayerId, LayerState>
   play?: PlayState
+  /** The Oracle on this map: hand rolls and trip checks share its decks and once-only entries. */
+  oracle?: MapOracle
   /**
    * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
    * kept verbatim so saving never loses it.

@@ -59,6 +59,18 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     if (layers.names?.visible === false) captions.hexNames.show = false
     return { ...data, captions }
   },
+  /**
+   * v6: the Oracle per map. A trip's Oracle state (decks, once-only entries) becomes the
+   * map's, shared with hand rolls; the hand-roll history starts empty.
+   */
+  5(data) {
+    const session = (data.play as { rules?: { session?: { oracle?: unknown } } } | undefined)?.rules
+      ?.session
+    const state = session?.oracle
+    return typeof state === 'object' && state !== null
+      ? { ...data, oracle: { state, history: [] } }
+      : data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

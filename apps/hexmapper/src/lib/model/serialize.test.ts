@@ -58,4 +58,28 @@ describe('serialize', () => {
     expect(loaded.grid).toMatchObject({ orientation: 'flat', width: 200, height: 1, hexSize: 40 })
     expect(loaded.print).toEqual(createMap().print)
   })
+
+  it('v6: a trip’s Oracle state becomes the map’s', () => {
+    const v5 = {
+      ...JSON.parse(serializeMap(createMap())),
+      version: 5,
+      play: {
+        mode: 'rules',
+        trail: [],
+        showTrail: true,
+        rules: {
+          system: 'generic',
+          startDay: 1,
+          session: { oracle: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} } },
+        },
+      },
+    }
+    const map = deserializeMap(JSON.stringify(v5))
+    expect(map.version).toBe(CURRENT_VERSION)
+    expect(map.oracle).toEqual({
+      state: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} },
+      history: [],
+    })
+    expect(deserializeMap(JSON.stringify({ ...v5, play: undefined })).oracle).toBeUndefined()
+  })
 })

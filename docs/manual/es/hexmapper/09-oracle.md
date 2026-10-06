@@ -39,7 +39,9 @@ Más ejemplos, hasta un sistema de viaje completo: [Conectar tablas con mapas y 
 
 Después selecciona un hex de bosque, pulsa <kbd>O</kbd>, busca «Qué encontramos» y tira. Gana la primera entrada cuya condición se cumple.
 
-## Diario y tus packs
+## Diario, historial y tus packs
+
+Cada mapa tiene su propio Oracle: su historial de tiradas, las cartas robadas de cada mazo y los resultados de una sola vez que ya salieron. Se guardan con el mapa (y en su `.otd.json`), así que abrir otro mapa empieza de cero y al volver los encuentras. Las tiradas a mano y las comprobaciones de un viaje los comparten: una carta robada a mano tampoco sale en el viaje.
 
 Durante un viaje con reglas, las tiradas a mano también se apuntan en el diario.
 

@@ -140,9 +140,11 @@ export function step(action: TravelAction): void {
     oracle: oracle(),
     locale: getLocale(),
   }
+  // Checks roll with the map's Oracle state, the same one hand rolls use.
+  const shared = editor.map.oracle
   let result
   try {
-    result = stepTrip(options, session, action)
+    result = stepTrip(options, shared ? { ...session, oracle: shared.state } : session, action)
   } catch (error) {
     // A broken pack shouldn't silently stop play: say what failed.
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
@@ -151,6 +153,7 @@ export function step(action: TravelAction): void {
   const { state, entries } = result
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   placeParty(state.travel.location as HexKey)
+  editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })
   save({
     ...play,
     trail: [...play.trail, ...entered],

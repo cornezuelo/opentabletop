@@ -94,6 +94,8 @@ interface HexmapperExt {
   icons: Record<string, HexIcon>
   /** How hex names are shown, per hex (only hexes that differ from the map's style). */
   names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle'>>>
+  /** Hand rolls made on this map (the Oracle state itself is the bundle's state.oracle). */
+  oracleHistory?: NonNullable<HexMap['oracle']>['history']
 }
 
 const BUNDLE_KEYS = ['otd', 'maps', 'pois'] as const
@@ -147,6 +149,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     assets: map.assets,
     icons,
     ...(Object.keys(names).length && { names }),
+    ...(map.oracle?.history.length && { oracleHistory: map.oracle.history }),
   }
   const otdMap: OtdMap = {
     id: map.meta.id,
@@ -168,6 +171,8 @@ export function mapToBundle(map: HexMap): OtdBundle {
   const otherMaps = Array.isArray(extra.maps) ? (extra.maps as OtdMap[]) : []
   const otherPois = Array.isArray(extra.pois) ? (extra.pois as OtdPoi[]) : []
   const play = playToOtd(map)
+  // The map's Oracle (shared by hand rolls and trips); older saves kept it in the trip.
+  const oracle = map.oracle?.state ?? play?.oracle
   const characters = [
     ...tokensToOtd(map),
     ...((extra.characters as OtdCharacter[] | undefined) ?? []),
@@ -177,7 +182,6 @@ export function mapToBundle(map: HexMap): OtdBundle {
     factions: [],
     clocks: [],
     log: [],
-    state: {},
     ...extra,
     otd: OTD_VERSION,
     characters,
@@ -186,11 +190,11 @@ export function mapToBundle(map: HexMap): OtdBundle {
     ...(play && {
       parties: [play.party, ...((extra.parties as OtdParty[] | undefined) ?? [])],
       log: [...play.log, ...((extra.log as OtdLogEntry[] | undefined) ?? [])],
-      state: {
-        ...(extra.state as Record<string, unknown> | undefined),
-        ...(play.oracle && { oracle: play.oracle }),
-      },
     }),
+    state: {
+      ...(extra.state as Record<string, unknown> | undefined),
+      ...(oracle && { oracle }),
+    },
   } as OtdBundle
 }
 
@@ -334,13 +338,15 @@ export function bundleToMap(raw: unknown): HexMap {
   for (const [key, value] of Object.entries(bundle))
     if (!(BUNDLE_KEYS as readonly string[]).includes(key)) extraBundle[key] = value
   if (partyId) {
-    // Our party, its journal and the oracle state are rebuilt from `play` when saving.
+    // Our party and its journal are rebuilt from `play` when saving.
     extraBundle.parties = bundle.parties.filter((p) => p.id !== partyId)
     extraBundle.log = play?.rules ? [] : bundle.log
-    const otherState = { ...bundle.state }
-    delete otherState.oracle
-    extraBundle.state = play?.rules ? otherState : bundle.state
   }
+  // The Oracle state is the map's: rebuilt from it when saving.
+  const oracleState = bundle.state.oracle
+  const otherState = { ...bundle.state }
+  delete otherState.oracle
+  extraBundle.state = otherState
   // Our tokens are rebuilt from the map when saving.
   extraBundle.characters = otherCharacters
   if (otherMaps.length) extraBundle.maps = otherMaps
@@ -375,6 +381,9 @@ export function bundleToMap(raw: unknown): HexMap {
     ...(version >= 2 && { tokens }),
     layers: ext.layers,
     ...(play && { play }),
+    ...((oracleState || ext.oracleHistory) && {
+      oracle: { state: oracleState ?? {}, history: ext.oracleHistory ?? [] },
+    }),
     foreign: {
       ...(Object.keys(extraBundle).length && { bundle: extraBundle }),
       ...(Object.keys(otherExt).length && { mapExt: otherExt }),

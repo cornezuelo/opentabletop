@@ -109,6 +109,7 @@ function validate(data: Record<string, unknown>): HexMap {
     captions: parseCaptions(data.captions),
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
+    ...(isRecord(data.oracle) && { oracle: parseOracle(data.oracle) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }
@@ -427,4 +428,19 @@ function positiveNumber(value: unknown, fallback: number): number {
 function mapSize(value: unknown, fallback: number): number {
   if (typeof value !== 'number' || !Number.isInteger(value)) return fallback
   return Math.min(MAX_MAP_SIZE, Math.max(MIN_MAP_SIZE, value))
+}
+
+/** The engine re-validates its state on use; here only the shape is checked. */
+function parseOracle(o: Record<string, unknown>): NonNullable<HexMap['oracle']> {
+  const state = isRecord(o.state) ? o.state : {}
+  return {
+    state: {
+      decks: isRecord(state.decks) ? state.decks : {},
+      occurrences: isRecord(state.occurrences) ? state.occurrences : {},
+      vars: isRecord(state.vars) ? state.vars : {},
+    } as NonNullable<HexMap['oracle']>['state'],
+    history: Array.isArray(o.history)
+      ? (o.history.filter(isRecord) as unknown as NonNullable<HexMap['oracle']>['history'])
+      : [],
+  }
 }

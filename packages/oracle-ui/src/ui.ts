@@ -2,7 +2,7 @@ import type { Compiled } from '@open-tabletop/oracle-engine'
 import { translator, type Translate } from './i18n'
 import type { PackLibrary } from '@open-tabletop/pack-ui'
 import { packTexts, type PackTexts } from './names'
-import { Roller, type HistoryItem } from './roller.svelte'
+import { localRollerStore, Roller, type HistoryItem, type RollerStore } from './roller.svelte'
 
 /** Everything the Oracle components need, created once by the host app. */
 export interface OracleUi extends PackTexts {
@@ -18,11 +18,17 @@ export function createOracleUi(options: {
   locale: () => string
   /** localStorage prefix for the roll state and history (`<key>.state`, `<key>.history`). */
   storageKey: string
+  /** Somewhere else to keep them instead (e.g. the Hexmapper's open map). */
+  store?: RollerStore
   /** Called after every roll, e.g. to log it in a journal. */
   onResult?: (item: HistoryItem, def: Compiled | undefined) => void
 }): OracleUi {
   const t = translator(options.locale)
-  const roller = new Roller({ ...options, t })
+  const roller = new Roller({
+    ...options,
+    store: options.store ?? localRollerStore(options.storageKey),
+    t,
+  })
   return {
     ...packTexts(() => options.library.registry, options.locale),
     library: options.library,

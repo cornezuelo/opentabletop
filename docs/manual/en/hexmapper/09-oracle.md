@@ -39,7 +39,9 @@ More examples, up to a whole travel system: [Connecting tables to maps and trips
 
 Then select a forest hex, press <kbd>O</kbd>, search "What do we find" and roll. The first entry whose condition holds wins.
 
-## Journal and your packs
+## Journal, history and your packs
+
+Each map has its own Oracle: its roll history, the cards drawn from each deck and the once-only results that already came up. They are saved with the map (and in its `.otd.json`), so opening another map starts fresh and coming back finds them again. Hand rolls and the checks of a trip share them: a card drawn by hand is gone for the trip too.
 
 During a trip with rules, hand rolls are written in the journal too.
 

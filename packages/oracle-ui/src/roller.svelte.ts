@@ -34,10 +34,28 @@ function write(key: string, value: unknown): void {
   }
 }
 
+/** Where a Roller keeps its Oracle state and history. */
+export interface RollerStore {
+  load(): { state: OracleState; history: HistoryItem[] } | undefined
+  save(data: { state: OracleState; history: HistoryItem[] }): void
+}
+
+/** The default store: localStorage (`<key>.state`, `<key>.history`). */
+export function localRollerStore(storageKey: string): RollerStore {
+  const keys = { state: `${storageKey}.state`, history: `${storageKey}.history` }
+  return {
+    load: () => ({ state: read(keys.state, emptyState()), history: read(keys.history, []) }),
+    save({ state, history }) {
+      write(keys.state, state)
+      write(keys.history, history)
+    },
+  }
+}
+
 export interface RollerOptions {
   library: PackLibrary
   locale: () => string
-  storageKey: string
+  store: RollerStore
   t: Translate
   onResult?: (item: HistoryItem, def: Compiled | undefined) => void
 }
@@ -53,16 +71,25 @@ export class Roller {
   /** Result being shown per definition id. */
   shown = $state.raw<Record<string, HistoryItem>>({})
 
-  private nextId: number
-  private keys: { state: string; history: string }
+  private nextId = 1
   private options: RollerOptions
 
   constructor(options: RollerOptions) {
     this.options = options
-    this.keys = { state: `${options.storageKey}.state`, history: `${options.storageKey}.history` }
-    this.state = read(this.keys.state, emptyState())
-    this.history = read(this.keys.history, [])
-    this.nextId = (this.history[0]?.id ?? 0) + 1
+    this.reload()
+  }
+
+  /** Reads the store again (e.g. the host opened another map). */
+  reload(): void {
+    const data = this.options.store.load()
+    this.state = data?.state ?? emptyState()
+    this.history = data?.history ?? []
+    this.shown = {}
+    this.nextId = Math.max(0, ...this.history.map((h) => h.id)) + 1
+  }
+
+  private save(): void {
+    this.options.store.save({ state: this.state, history: this.history })
   }
 
   run(
@@ -89,8 +116,7 @@ export class Roller {
       this.state = outcome.state
       this.history = [item, ...this.history].slice(0, MAX_HISTORY)
       this.shown = { ...this.shown, [source]: item }
-      write(this.keys.state, this.state)
-      write(this.keys.history, this.history)
+      this.save()
       onResult?.(item, library.registry.definitions.get(source))
     } catch (error) {
       showToast(t('roll.error', { message: (error as Error).message }), 'error', 8000)
@@ -99,19 +125,19 @@ export class Roller {
 
   shuffle(source: string): void {
     this.state = this.options.library.engine.shuffle(source, this.state)
-    write(this.keys.state, this.state)
+    this.save()
   }
 
   /** Forget once-only entries and deck draws (a new session). */
   resetState(): void {
     this.state = emptyState()
-    write(this.keys.state, this.state)
+    this.save()
   }
 
   clearHistory(): void {
     this.history = []
     this.shown = {}
-    write(this.keys.history, [])
+    this.save()
   }
 
   show(item: HistoryItem): void {

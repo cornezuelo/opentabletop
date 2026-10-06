@@ -6,6 +6,12 @@ export { default as RollPanel } from './RollPanel.svelte'
 export { favorites } from './favorites.svelte'
 export { translator, type OracleUiKey, type Translate } from './i18n'
 export { KIND_ORDER, packTexts, type PackTexts } from './names'
-export { Roller, type HistoryItem, type RollerOptions } from './roller.svelte'
+export {
+  localRollerStore,
+  Roller,
+  type HistoryItem,
+  type RollerOptions,
+  type RollerStore,
+} from './roller.svelte'
 export { createOracleUi, type OracleUi } from './ui'
 export { contextVariables, parseContext, type Variable } from './variables'

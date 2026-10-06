@@ -47,6 +47,7 @@ El Hexmapper guarda los mapas como **paquetes OTD**, un formato JSON pensado par
 
 - Los hexes van indexados por `"columna,fila"`.
 - Los PDI, el grupo y los tokens (como personajes con `location`) son entidades propias; el diario de un viaje está en `log`.
+- `state.oracle` es el estado de Oracle en ese mapa (mazos, resultados de una sola vez, valores fijados); el Hexmapper guarda su historial de tiradas a mano en `ext.hexmapper.oracleHistory`.
 - `ext.<herramienta>` guarda los datos propios de cada herramienta (el Hexmapper guarda iconos, rótulos, estilos y su configuración de impresión en `ext.hexmapper`). Las herramientas conservan intacto lo que no entienden al guardar.
 
 La descripción completa está en `docs/otd.md`, y el esquema en `packages/schema` (también puede generar un JSON Schema).

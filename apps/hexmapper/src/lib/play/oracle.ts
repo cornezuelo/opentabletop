@@ -9,11 +9,18 @@ import { library } from './packs'
 import { editSession, partyLocation, sessionOf } from './play'
 import { mapWorld } from './world'
 
-/** The embedded Oracle: any table of the loaded packs, rolled by hand. */
+/**
+ * The embedded Oracle: any table of the loaded packs, rolled by hand. Its state (decks,
+ * once-only entries) and history belong to the open map, shared with the trip's checks.
+ */
 export const oracleUi = createOracleUi({
   library,
   locale: getLocale,
   storageKey: 'opentabletop.hexmapper.oracle',
+  store: {
+    load: () => editor.map.oracle,
+    save: ({ state, history }) => editor.setOracle({ state, history }),
+  },
   // During a rules trip, hand rolls go to the journal too.
   onResult(item) {
     editSession((session) =>
@@ -25,6 +32,13 @@ export const oracleUi = createOracleUi({
       }),
     )
   },
+})
+
+// Another map was opened, or a trip step changed the map's Oracle state.
+editor.onChange((change) => {
+  if (change.kind === 'all') oracleUi.roller.reload()
+  else if (change.kind === 'oracle' && editor.map.oracle)
+    oracleUi.roller.state = editor.map.oracle.state
 })
 
 /** The hex rolls read: the selected one, or the party's. */

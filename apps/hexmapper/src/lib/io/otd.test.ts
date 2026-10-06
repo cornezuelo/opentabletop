@@ -212,4 +212,29 @@ describe('play state in OTD', () => {
     ])
     expect(back.play).toEqual({ mode: 'simple', trail: ['3,3'], showTrail: true })
   })
+
+  it('keeps the map’s Oracle state and hand-roll history, without a trip too', () => {
+    const map = sampleMap()
+    const item = {
+      id: 3,
+      at: 'T',
+      source: 'core/weather',
+      resolution: { source: 'core/weather', kind: 'table', text: 'Mild weather' },
+    } as unknown as NonNullable<typeof map.oracle>['history'][number]
+    map.oracle = {
+      state: {
+        decks: { 'core/road-events': { draw: ['a'], discard: ['b'] } },
+        occurrences: {},
+        vars: {},
+      },
+      history: [item],
+    }
+    const bundle = mapToBundle(map)
+    expect(validateBundle(bundle).errors).toEqual([])
+    expect(bundle.state.oracle).toEqual(map.oracle.state)
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    expect(back.oracle).toEqual(map.oracle)
+    // Saving again writes it once, from the map.
+    expect(mapToBundle(back).state).toEqual({ oracle: map.oracle.state })
+  })
 })
