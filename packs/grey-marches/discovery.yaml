@@ -1,6 +1,6 @@
-# Discovering the map as you travel (Hexmapper: Play → With rules → Core, "Discover the
-# map as you travel"). The travel system's bindings name these two tables under
-# `discover`; see travel.yaml.
+# Discovering the map as you travel (Hexmapper: Play → With rules → The Grey Marches,
+# "Discover the map as you travel"). The bindings name these two tables under `discover`;
+# see travel.yaml. The example map leaves its east unpainted for this.
 
 # The terrain of an empty hex, seen from where you stand: `terrain` in the context is the
 # terrain you're on. `set: { terrain: '{{terrain}}' }` copies it: the same land goes on.
@@ -123,7 +123,7 @@ entries:
 ---
 # What a hex holds the first time you enter it. The text becomes a point of interest;
 # `poi: false` means nothing worth noting. `tags` and `name` are written on the hex too:
-# a `landmark` tag makes Core's landmark check stop the trip there on later visits.
+# a `landmark` tag makes the landmark check stop the trip there on later visits.
 kind: table
 id: hex-contents
 name: What is here?

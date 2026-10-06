@@ -20,7 +20,7 @@ The panel shows the day, time and season, where the party is, the weather, the m
 
 Systems declare their checks (weather at dawn, getting lost, encounters…) and which table resolves each one; the results go to the **journal**, grouped by day. Checks without a table wait for you: **Continue** when you've resolved them yourself.
 
-The bundled **Core** system shows all of it: weather by season, getting lost off roads, encounters that depend on the terrain and the time of day, and a check with no table — tag a hex `landmark` and the trip stops there until you describe the place and press **Continue**.
+The bundled **Grey Marches** show all of it, on their example map (**Maps → Example maps**): weather by season, getting lost off roads, encounters by terrain, region, danger and time of day, a toll on the bridge, a ford rolled on an oracle, a boat on the lake, and checks with no table — the trip stops at the standing stones (`landmark`) until you describe the place and press **Continue**. See [The Grey Marches](../packs/02-grey-marches.md).
 
 Terrain, roads and rivers, the hex's tags, fields and region, the season and today's weather all reach the travel rules and the tables, so a system can make forests slower or roads safe from getting lost. What each system does is in its pack: see [Roads, rivers, walls and borders](04-roads-and-rivers.md#what-roads-and-rivers-do-when-you-travel).
 
@@ -30,10 +30,10 @@ Drag the party token to put it somewhere else: the trail follows, and during a t
 
 ## Discovering the map
 
-With a system that can discover (Core can), tick **Discover the map as you travel**. Start with a blank map: paint only the hex where the party begins and click a destination anywhere. As the party travels, the system's tables decide the **empty** hexes:
+With a system that can discover (the Grey Marches can; their example map leaves its east blank), tick **Discover the map as you travel**. Start with a blank map: paint only the hex where the party begins and click a destination anywhere. As the party travels, the system's tables decide the **empty** hexes:
 
 - **Terrain**, seen from the land you're on (forest tends to go on as forest).
-- **What is there**, the first time you enter a hex: a point of interest, tags (a `landmark` stops Core's trips there), a name. The trip stops when you find something, so you can play it.
+- **What is there**, the first time you enter a hex: a point of interest, tags (a `landmark` stops the Grey Marches' trips there), a name. The trip stops when you find something, so you can play it.
 
 **What is discovered**: _the hexes around the party_ (what it sees: their terrain is known before you step in, so routes and speeds are real) or _only the hex the party enters_. The system chooses one; you can change it for your game.
 

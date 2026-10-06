@@ -1,0 +1,114 @@
+# Tables the travel checks roll. Their `set` values are what the trip understands:
+# lost, weather, fatigue and resources (food, fodder…; negative to spend).
+
+# Dice with context values: missing ones count as 0. Fog and storms make it harder.
+kind: table
+id: getting-lost
+name: Do we get lost?
+description: 'At dawn, off roads and rivers. The party’s Navigation helps; fog doesn’t.'
+roll: '1d6 + {{navigation}}'
+entries:
+  - {
+      id: fog,
+      range: 1-3,
+      when: { weather: fog },
+      result: 'Lost in the fog: no progress today',
+      set: { lost: true },
+    }
+  - { id: lost, range: 1, result: 'You are lost: no progress today', set: { lost: true } }
+  - { id: course, range: 2-20, result: You keep your course }
+---
+# A party stat in the roll, with advantage on offer (the panel's Advantage). The amount
+# found is itself rolled ({{1d3}}) and reaches the trip as resources.
+kind: table
+id: forage
+name: Foraging
+roll: '1d6 + {{survival}}'
+advantage: true
+entries:
+  - { id: nothing, range: 1-3, result: Nothing to eat here }
+  - { id: some, range: 4-6, result: Berries and roots for a day, set: { resources: { food: 1 } } }
+  - {
+      id: plenty,
+      range: 7-20,
+      result: 'Game! Food for {{1d3+1}} days',
+      set: { resources: { food: 2 } },
+    }
+---
+# Spending supplies: the toll is paid in food.
+kind: table
+id: toll
+name: The toll
+entries:
+  - {
+      id: pay,
+      weight: 3,
+      result: 'The bridge-warden takes a day’s food as toll',
+      set: { resources: { food: -1 } },
+    }
+  - { id: wave, weight: 1, result: The bridge-warden waves you through }
+---
+# Fatigue down (negative) at a shrine; a once-only blessing comes up a single time.
+kind: table
+id: shrine
+name: At the shrine
+entries:
+  - {
+      id: blessing,
+      weight: 1,
+      once: true,
+      result: 'A voice answers your prayer: the road will be kind',
+      set: { fatigue: -2 },
+    }
+  - {
+      id: rest,
+      weight: 3,
+      result: A quiet hour at the shrine eases your legs,
+      set: { fatigue: -1 },
+    }
+---
+# An oracle: its input `odds` comes from the bindings' context (FORD: odds even), or is
+# chosen by hand. Each variant rolls its own dice; answers "then roll" a consequence.
+kind: oracle
+id: ford
+name: Crossing the ford
+description: Does the crossing go well? The water decides; the party’s Survival helps.
+inputs:
+  odds:
+    label: The water
+    options: [low, even, high]
+    labels: { low: Low and slow, even: Waist-deep, high: In flood }
+    default: even
+roll: '1d6 + {{survival}} + {{fordModifier}}'
+variants:
+  low:
+    entries:
+      - { id: fine, range: 1-20, result: You wade across without trouble }
+  even:
+    entries:
+      - {
+          id: wet,
+          range: 1-3,
+          result: 'Halfway, the current takes you — {{result}}',
+          table: ford-mishap,
+        }
+      - { id: fine, range: 4-20, result: 'Cold and wet, but across' }
+  high:
+    roll: '1d8 + {{survival}} + {{fordModifier}}'
+    entries:
+      - {
+          id: swept,
+          range: 1-5,
+          result: 'The flood sweeps you downstream — {{result}}',
+          table: ford-mishap,
+          set: { fatigue: 1 },
+        }
+      - { id: fine, range: 6-20, result: Somehow you make it across }
+---
+kind: table
+id: ford-mishap
+name: Ford mishap
+entries:
+  - { id: food, result: a pack of food is lost, set: { resources: { food: -1 } } }
+  - { id: tired, result: you drag yourselves out exhausted, set: { fatigue: 1 } }
+  - { id: fodder, result: the fodder is soaked and spoiled, set: { resources: { fodder: -1 } } }

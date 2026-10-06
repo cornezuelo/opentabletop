@@ -1,0 +1,44 @@
+# Oracles: an input chooses the variant (odds, stakes…). Answers can "then roll" another
+# table, shown through {{result}}.
+
+# Asked at the gates of a place: who you are changes the odds. Each answer then rolls
+# what happens next.
+kind: oracle
+id: gates
+name: Will they let us in?
+description: At the gates of Ashford or Fort Keld. How you arrive changes the answer.
+inputs:
+  arrival:
+    label: You arrive as
+    options: [friends, strangers, armed]
+    labels: { friends: Known friends, strangers: Strangers, armed: An armed band }
+    default: strangers
+roll: 1d6
+variants:
+  friends:
+    entries:
+      - { id: yes, range: 1-6, result: 'Yes — and {{result}}', table: gate-news }
+  strangers:
+    entries:
+      - { id: yes, range: 1-3, result: 'Yes, for a coin — and {{result}}', table: gate-news }
+      - { id: wait, range: 4-5, result: 'Wait until morning, outside the walls' }
+      - { id: no, range: 6, result: 'No. Bows appear on the wall' }
+  armed:
+    # This variant rolls its own dice.
+    roll: 1d8
+    entries:
+      - {
+          id: yes,
+          range: 1-2,
+          result: 'Yes, if you give up your weapons — and {{result}}',
+          table: gate-news,
+        }
+      - { id: no, range: 3-8, result: 'No. The gates stay shut' }
+---
+kind: table
+id: gate-news
+name: News at the gate
+entries:
+  - { id: rumour, result: 'the guard whispers a rumour: {{result}}', table: rumour }
+  - { id: work, result: 'there is work: someone pays {{2d6}} silver for an escort' }
+  - { id: feast, result: it is a feast day; the inn is full }

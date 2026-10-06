@@ -21,7 +21,7 @@ export const es: Messages<typeof en> = {
   arrived: 'Habéis llegado.',
   travelMode: 'Viaje',
   fatigue: 'Fatiga',
-  modes: { foot: 'A pie', horse: 'A caballo' },
+  modes: { foot: 'A pie', horse: 'A caballo', boat: 'En barca', cart: 'En carro' },
   resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
   travel: 'Viajar',
   travelHex: '1 hex',

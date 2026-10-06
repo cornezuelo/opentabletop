@@ -2,7 +2,7 @@
 
 You don't need to program to make tables that react to the map, or a whole travel system the Hexmapper plays for you. Everything is written in the pack's YAML files. This page builds it up step by step; each step works on its own.
 
-> **A complete example to copy from:** the bundled **Core** pack. Its `wilderness.yaml` has weather per season, getting lost, reactions and encounters that use every feature on this page, and its `travel.yaml` turns Core into a travel system you can play in the Hexmapper (Play → With rules → Core). Open them in the Oracle app, or make a copy (**Edit a copy**) to change them.
+> **A complete example to copy from:** the bundled pack **The Grey Marches** uses every feature on this page, and has an example map to play it on (Hexmapper: Maps → Example maps). Open its files in the Oracle app, or make a copy (**Edit a copy**) to change them. [The Grey Marches](../packs/02-grey-marches.md) says where each feature is.
 
 ## 1. A table that depends on the terrain
 
@@ -137,7 +137,7 @@ on: { … }
 - The **contents** table sees the entered hex. Its text becomes a point of interest; `set: { poi: false }` means nothing worth noting, `set: { poi: 'A name' }` names it differently. `tags` (one or a list) and `name` are written on the hex too.
 - Party stats and today's values are in the context of both, as in checks.
 
-Core's `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once.
+The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once.
 
 ## 8. Trying it
 

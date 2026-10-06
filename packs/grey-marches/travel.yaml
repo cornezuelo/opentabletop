@@ -1,0 +1,102 @@
+# The Grey Marches as a travel system. Every part of travel rules and bindings is used;
+# comments say what each one shows. Play it in the Hexmapper (Play → With rules → The
+# Grey Marches) on the example map, or without a map in the Travel app.
+kind: travel-rules
+id: default
+day: { start: '06:00', nightfall: '20:00' }
+travel: { hoursPerDay: 8 }
+terrains:
+  plains: { multiplier: 1 }
+  steppe: { multiplier: 1 }
+  farmland: { multiplier: 1 }
+  heath: { multiplier: 0.75 }
+  coast: { multiplier: 1 }
+  forest: { multiplier: 0.5 }
+  dense-forest: { multiplier: 0.33 }
+  hills: { multiplier: 0.5 }
+  mountains: { multiplier: 0.33 }
+  # Peaks: no way through on foot or horseback.
+  peaks: { passable: false }
+  swamp: { multiplier: 0.33 }
+  marsh: { multiplier: 0.5 }
+# Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
+water: { passable: false }
+defaultTerrain: { multiplier: 1 }
+edges:
+  road: { multiplier: 1.5 }
+  trail: { multiplier: 1.2 }
+modes:
+  foot: { kmPerDay: 25 }
+  # Horses go twice as fast and eat fodder.
+  horse: { kmPerDay: 50, consumes: { fodder: 1 } }
+  # …but a boat only goes on water (and along the coast).
+  boat: { kmPerDay: 40, allowedTerrains: [water, coast] }
+resources:
+  food: { perDay: 1 }
+  fodder: {}
+weather:
+  rain: { speed: 0.75 }
+  fog: { speed: 0.75 }
+  snow: { speed: 0.5 }
+  storm: { speed: 0 }
+actions:
+  # A rest is two hours and takes off one point of fatigue.
+  rest: { minutes: 120, fatigue: 1 }
+checks:
+  - { event: WEATHER_CHECK_REQUIRED, at: day-start }
+  # Off roads and rivers, and not by boat: any / edges / mode.
+  - event: NAVIGATION_CHECK_REQUIRED
+    at: day-start
+    unless: { any: [{ edges: [road, river] }, { mode: boat }] }
+  # Encounters where the map says there is danger (a hex field), never on the road.
+  - event: ENCOUNTER_CHECK_REQUIRED
+    at: hex-enter
+    when: { danger: { gte: 1 } }
+    unless: { edges: road }
+  # A toll on tagged hexes reached by road: all / tags / edges.
+  - event: TOLL_CHECK_REQUIRED
+    at: hex-enter
+    when: { all: [{ tags: toll }, { edges: road }] }
+  # Fords are rolled on an oracle, except by boat: not.
+  - event: FORD_CHECK_REQUIRED
+    at: hex-enter
+    when: { all: [{ tags: ford }, { not: { mode: boat } }] }
+  - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine } }
+  # No table for this one: the trip stops at landmarks and waits for you to Continue.
+  - { event: LANDMARK_CHECK_REQUIRED, at: hex-enter, when: { tags: landmark } }
+  - { event: CAMP_ENCOUNTER_CHECK_REQUIRED, at: camp, when: { danger: { gte: 2 } } }
+  # Foraging when camping in the woods and fields (a list of terrains).
+  - event: FORAGE_CHECK_REQUIRED
+    at: camp
+    when: { terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
+---
+kind: bindings
+id: default
+stats:
+  charisma:
+    name: { en: Charisma, es: Carisma }
+    description: { en: Added to reaction rolls., es: Se suma a las tiradas de reacción. }
+    default: 0
+  survival:
+    name: { en: Survival, es: Supervivencia }
+    description: { en: Added to foraging and fords., es: Se suma a forrajear y a los vados. }
+    default: 1
+  navigation:
+    name: { en: Navigation, es: Orientación }
+    description: { en: Added to the getting-lost roll., es: Se suma a la tirada de perderse. }
+    default: 0
+discover:
+  terrain: { resolve: next-terrain }
+  contents: { resolve: hex-contents }
+  reveal: neighbors
+on:
+  WEATHER_CHECK_REQUIRED: { resolve: weather }
+  NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }
+  # One encounter table for day and night: the context says which.
+  ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: day } }
+  CAMP_ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: night } }
+  TOLL_CHECK_REQUIRED: { resolve: toll }
+  # An oracle resolves the ford; the context gives its input (how likely it goes well).
+  FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } }
+  SHRINE_CHECK_REQUIRED: { resolve: shrine }
+  FORAGE_CHECK_REQUIRED: { resolve: forage }

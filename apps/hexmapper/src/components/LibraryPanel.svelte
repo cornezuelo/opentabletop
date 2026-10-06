@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { EXAMPLE_MAPS } from '../lib/io/examples'
   import LineIcon from './LineIcon.svelte'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
@@ -8,6 +9,7 @@
     openLibraryMap,
     openMapFile,
     removeLibraryMap,
+    openExampleMap,
   } from '../lib/io/actions.svelte'
   import { formatDeepLink } from '../lib/io/deepLink'
   import { editor } from '../lib/store/editor.svelte'
@@ -56,6 +58,23 @@
 </div>
 
 <p class="help">{t('library.help')}</p>
+
+{#if EXAMPLE_MAPS.length}
+  <span class="examples-title">{t('library.examples')}</span>
+  <ul class="examples">
+    {#each EXAMPLE_MAPS as example (example.id)}
+      <li>
+        <button
+          class="open"
+          use:tooltip={t('library.exampleHelp')}
+          onclick={() => openExampleMap(example).then(() => (editor.panelView = 'tool'))}
+          ><span class="name">{example.name}</span></button
+        >
+      </li>
+    {/each}
+  </ul>
+  <span class="examples-title">{t('library.yours')}</span>
+{/if}
 
 <ul>
   {#each entries as entry (entry.id)}
@@ -160,6 +179,11 @@
 
   .help {
     margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .examples-title {
     font-size: 12px;
     color: var(--text-muted);
   }

@@ -17,7 +17,7 @@ export const en = {
   arrived: 'Arrived.',
   travelMode: 'Travel',
   fatigue: 'Fatigue',
-  modes: { foot: 'On foot', horse: 'On horseback' },
+  modes: { foot: 'On foot', horse: 'On horseback', boat: 'By boat', cart: 'By cart' },
   resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
   travel: 'Travel',
   travelHex: '1 hex',

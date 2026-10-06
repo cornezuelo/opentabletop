@@ -5,6 +5,7 @@ import { deserializeMap, serializeMap } from '../model/serialize'
 import type { HexMap } from '../model/types'
 import { editor } from '../store/editor.svelte'
 import { ask } from '@open-tabletop/ui-kit'
+import type { ExampleMap } from './examples'
 import { showToast } from '@open-tabletop/ui-kit'
 import { deleteLibraryMap, getLibraryMap, listLibrary, putLibraryMap } from './autosave'
 import { parseDeepLink } from './deepLink'
@@ -76,6 +77,31 @@ export async function openMapFile(): Promise<string | null> {
   } catch (error) {
     showToast(errorMessage(error), 'error')
     return null
+  }
+}
+
+/**
+ * Opens a bundled example. If this browser already has it (with your play and changes),
+ * asks whether to go on with that copy or start the example fresh.
+ */
+export async function openExampleMap(example: ExampleMap): Promise<void> {
+  if (await getLibraryMap(example.id)) {
+    const choice = await ask(t('library.exampleTitle'), t('library.exampleExists'), [
+      { value: 'cancel', label: t('newMap.cancel') },
+      { value: 'fresh', label: t('library.exampleFresh'), kind: 'danger' },
+      { value: 'open', label: t('library.exampleOpen'), kind: 'primary' },
+    ])
+    if (choice === 'open') {
+      await openLibraryMap(example.id)
+      return
+    }
+    if (choice !== 'fresh') return
+  }
+  try {
+    await switchTo(parseMapFile(example.json))
+    showToast(t('file.loaded'))
+  } catch (error) {
+    showToast(errorMessage(error), 'error')
   }
 }
 

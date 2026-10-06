@@ -1,0 +1,8 @@
+# A small frontier to play and to learn from: a haunted wood, hollow hills and a salt
+# lake. Its travel system, tables and example map use every feature of OpenTabletop.
+# Open the example map in the Hexmapper: Maps → Example maps.
+id: grey-marches
+name: The Grey Marches
+version: 0.1.0
+locale: en
+license: MIT

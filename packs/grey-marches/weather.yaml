@@ -1,0 +1,67 @@
+# Weather. `weather` and `fordModifier` set here reach the trip and the day's later checks.
+
+# A reference built from the context: the season picks the table. Rolled by hand (no
+# season), the guard fails and the last entry answers.
+kind: table
+id: weather
+name: The Marches' weather
+description: Rolls the season's table on trips.
+roll: 1d6
+entries:
+  - { id: season, range: 1-6, when: { season: { exists: true } }, table: 'weather-{{season}}' }
+  - { id: grey, range: 1-6, result: Grey skies, set: { weather: grey } }
+---
+# 2d6: the middle is common, the ends rare. Rain swells the fords for the rest of the day.
+kind: table
+id: weather-spring
+name: Spring in the Marches
+roll: 2d6
+entries:
+  - {
+      id: storm,
+      range: 2,
+      result: 'Thunderstorm: nobody travels',
+      set: { weather: storm, fordModifier: -2 },
+    }
+  - { id: rain, range: 3-6, result: Steady rain, set: { weather: rain, fordModifier: -1 } }
+  - { id: grey, range: 7-10, result: Grey and mild, set: { weather: grey } }
+  - { id: bright, range: 11-12, result: Bright and clear, set: { weather: clear } }
+---
+# Weights instead of dice.
+kind: table
+id: weather-summer
+name: Summer in the Marches
+entries:
+  - { id: clear, weight: 4, result: Hot and clear, set: { weather: clear } }
+  - { id: grey, weight: 2, result: Muggy and grey, set: { weather: grey } }
+  - {
+      id: storm,
+      weight: 1,
+      result: 'Summer storm: nobody travels',
+      set: { weather: storm, fordModifier: -2 },
+    }
+---
+# Fate dice (4dF: from -4 to +4, mostly near 0): fog rolls in from the lake.
+kind: table
+id: weather-autumn
+name: Autumn in the Marches
+roll: 4dF
+entries:
+  - {
+      id: storm,
+      range: -4--3,
+      result: 'Gales off the lake: nobody travels',
+      set: { weather: storm, fordModifier: -2 },
+    }
+  - { id: fog, range: -2--1, result: Thick fog, set: { weather: fog } }
+  - { id: grey, range: 0-1, result: Cold and grey, set: { weather: grey } }
+  - { id: clear, range: 2-4, result: Crisp and clear, set: { weather: clear } }
+---
+kind: table
+id: weather-winter
+name: Winter in the Marches
+roll: 1d6
+entries:
+  - { id: blizzard, range: 1, result: 'Blizzard: nobody travels', set: { weather: storm } }
+  - { id: snow, range: 2-3, result: Falling snow, set: { weather: snow } }
+  - { id: frost, range: 4-6, result: Hard frost, set: { weather: clear, fordModifier: 1 } }

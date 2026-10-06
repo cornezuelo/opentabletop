@@ -26,7 +26,7 @@ Además de tablas, oráculos, generadores y mazos, un pack puede tener definicio
 
 **Por qué dos.** Las reglas son del Travel Engine y las tablas de Oracle, y los motores no se conocen entre sí: los bindings son el puente. Por eso cada una es opcional por separado: unas reglas sin bindings hacen un sistema en el que todas las comprobaciones te esperan (**Continuar**); las reglas genéricas no tienen ninguna comprobación.
 
-**Por qué en un mismo fichero.** Solo por comodidad: se escriben y se cambian juntas. Un fichero YAML puede tener varias definiciones separadas por una línea con `---`, así que Kal-Arath tiene las dos en `rules.yaml` y Core en `travel.yaml`:
+**Por qué en un mismo fichero.** Solo por comodidad: se escriben y se cambian juntas. Un fichero YAML puede tener varias definiciones separadas por una línea con `---`, así que Kal-Arath tiene las dos en `rules.yaml` y las Marcas Grises en `travel.yaml`:
 
 ```yaml
 kind: travel-rules

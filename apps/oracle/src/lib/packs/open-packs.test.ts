@@ -24,64 +24,82 @@ describe('bundled open packs', () => {
     }
   })
 
-  it('the Core travel system loads, rolls its checks and waits on the unbound one', () => {
-    const { systems, problems } = travelSystems(registry)
-    expect(problems.map(formatDiagnostic)).toEqual([])
-    const core = systems.find((s) => s.id === 'core')!
-    // Two forest hexes joined by a road (no getting lost, no encounters on it); the
-    // second one is a landmark.
-    const world: TravelWorld = {
+  /** A row of hexes "0"…"n-1" with what each one holds; roads join them when asked. */
+  function row(cells: Record<string, unknown>[], road = false): TravelWorld {
+    const n = cells.length
+    return {
       hexKm: 10,
-      cell: (hex) => ({ terrain: 'forest', tags: hex === 'b' ? ['landmark'] : [], danger: 1 }),
-      neighbors: (hex) => (hex === 'a' ? ['b'] : ['a']),
-      distance: (x, y) => (x === y ? 0 : 1),
-      edges: () => ['road'],
+      cell: (hex) => (cells[Number(hex)] as ReturnType<TravelWorld['cell']>) ?? null,
+      neighbors: (hex) =>
+        [Number(hex) - 1, Number(hex) + 1].filter((i) => i >= 0 && i < n).map(String),
+      distance: (x, y) => Math.abs(Number(x) - Number(y)),
+      edges: () => (road ? ['road'] : []),
     }
+  }
+
+  const marches = () => travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+
+  it('the Grey Marches: a toll by road costs food, and a landmark waits for you', () => {
+    const { problems } = travelSystems(registry)
+    expect(problems.map(formatDiagnostic)).toEqual([])
+    const system = marches()
+    const world = row(
+      [
+        { terrain: 'plains', tags: [] },
+        { terrain: 'plains', tags: ['toll'] },
+        { terrain: 'plains', tags: ['landmark'] },
+      ],
+      true,
+    )
     const options = {
-      system: core,
+      system,
       world,
-      oracle: createOracleEngine({ registry, random: seeded('core-trip') }),
+      oracle: createOracleEngine({ registry, random: seeded('marches-trip') }),
       locale: 'en',
     }
-    let { session } = startTrip({ system: core, location: 'a', season: 'winter' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+    let { session } = startTrip({ system, location: '0', season: 'summer' })
+    session = stepTrip(options, session, { type: 'setDestination', hex: '2' }).state
     const { state, entries } = stepTrip(options, session, { type: 'travel' })
-    const codes = entries.map((e) => e.code)
-    expect(codes).toContain('ORACLE_RESULT')
-    expect(entries.find((e) => e.code === 'CHECK_PENDING')?.data?.event).toBe(
-      'LANDMARK_CHECK_REQUIRED',
-    )
+    const toll = entries.find((e) => e.data?.event === 'TOLL_CHECK_REQUIRED')
+    expect(toll?.code).toBe('ORACLE_RESULT')
     expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK_CHECK_REQUIRED'])
   })
 
-  it('Core discovers a map whose terrains its rules know', () => {
-    const core = travelSystems(registry).systems.find((s) => s.id === 'core')!
-    expect(core.bindings?.discover?.reveal).toBe('neighbors')
-    // A row of 12 empty hexes; only the first is painted.
-    const world: TravelWorld = {
-      hexKm: 10,
-      cell: (hex) => {
-        const n = Number(hex)
-        if (!(n >= 0 && n < 12)) return null
-        return n === 0 ? { terrain: 'forest', tags: [] } : { tags: [] }
-      },
-      neighbors: (hex) =>
-        [Number(hex) - 1, Number(hex) + 1].filter((n) => n >= 0 && n < 12).map(String),
-      distance: (x, y) => Math.abs(Number(x) - Number(y)),
-      edges: () => [],
-    }
-    const found: Record<string, { terrain?: string }> = {}
-    let { session } = startTrip({ system: core, location: '0', season: 'summer' })
+  it('the Grey Marches: an oracle resolves the ford, with its input from the bindings', () => {
+    const system = marches()
+    const world = row([{ terrain: 'plains' }, { terrain: 'plains', tags: ['ford'] }])
     const options = {
-      system: core,
+      system,
       world,
-      oracle: createOracleEngine({ registry, random: seeded('core-discovery') }),
+      oracle: createOracleEngine({ registry, random: seeded('ford') }),
+      locale: 'en',
+    }
+    let { session } = startTrip({ system, location: '0', season: 'summer' })
+    session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+    const { entries } = stepTrip(options, session, { type: 'travel' })
+    const ford = entries.find((e) => e.data?.event === 'FORD_CHECK_REQUIRED')
+    expect(ford?.data?.value).toMatchObject({ odds: 'even' })
+  })
+
+  it('the Grey Marches discover a map whose terrains their rules know', () => {
+    const system = marches()
+    expect(system.bindings?.discover?.reveal).toBe('neighbors')
+    const cells = Array.from({ length: 12 }, (_, i) =>
+      i === 0 ? { terrain: 'forest', tags: [] } : { tags: [] },
+    )
+    const found: Record<string, { terrain?: string }> = {}
+    let { session } = startTrip({ system, location: '0', season: 'summer' })
+    const options = {
+      system,
+      world: row(cells),
+      oracle: createOracleEngine({ registry, random: seeded('marches-discovery') }),
       locale: 'es',
       discover: 'neighbors' as const,
     }
     for (const action of [
       { type: 'setDestination', hex: '11' },
       { type: 'travel' },
+      { type: 'camp' },
       { type: 'travel' },
       { type: 'camp' },
       { type: 'travel' },
@@ -92,6 +110,7 @@ describe('bundled open packs', () => {
     }
     const terrains = Object.values(found).flatMap((d) => (d.terrain ? [d.terrain] : []))
     expect(terrains.length).toBeGreaterThan(0)
-    for (const terrain of terrains) expect(Object.keys(core.rules.terrains)).toContain(terrain)
+    const known = [...Object.keys(system.rules.terrains), 'lake', 'sea', 'deep-sea']
+    for (const terrain of terrains) expect(known).toContain(terrain)
   })
 })

@@ -11,7 +11,7 @@ The Travel app plays trips with a **travel system** and lets you see and change 
 ## Systems you have
 
 - **Generic**: plain travel with no checks, built into the apps. It can't be edited; create a new system to start from it.
-- **Core**: the bundled example. It rolls weather at dawn, getting lost off roads, encounters that depend on the terrain and the time of day, and stops at hexes tagged `landmark` for you to describe. Its tables are in the Core pack, in the Oracle app.
+- **The Grey Marches**: the bundled example, a small frontier with its own rules: weather by season, getting lost, encounters by terrain, region, danger and time of day, tolls, fords, shrines, boats on the lake, and landmarks that wait for you. See [The Grey Marches](../packs/02-grey-marches.md).
 - Systems from your packs, personal-use ones included (see [Packs](../oracle/03-packs.md)).
 
 Read on: [Playing a trip](02-playing.md) and [Making a system](03-systems.md).

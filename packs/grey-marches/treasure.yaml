@@ -1,0 +1,35 @@
+# Treasure: percentile dice and limits on how often an entry comes up.
+
+# d100 (also written d%): 1–100.
+kind: table
+id: treasure
+name: What is in the hoard?
+roll: d100
+entries:
+  - { id: coins, range: 1-50, result: '{{3d6}} silver pieces' }
+  - { id: gems, range: 51-75, result: '{{1d4}} gems worth {{2d6+4}} silver each' }
+  - {
+      id: map,
+      range: 76-90,
+      result: 'A map of the Hollow Hills; a note says {{result}}',
+      table: rumours,
+    }
+  - {
+      id: potion,
+      range: 91-98,
+      result: A flask of the hedge-witches’ cordial (removes all fatigue),
+    }
+  - { id: prize, range: 99-100, table: prize }
+---
+# maxOccurrences: the Sword of Keld turns up twice at most; then only gold remains.
+kind: table
+id: prize
+name: A rare prize
+entries:
+  - {
+      id: sword,
+      weight: 1,
+      maxOccurrences: 2,
+      result: 'The Sword of Keld, lost these hundred years',
+    }
+  - { id: gold, weight: 1, result: '{{2d6+6}} gold crowns of the old kings' }

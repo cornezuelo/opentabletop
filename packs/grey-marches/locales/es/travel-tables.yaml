@@ -1,0 +1,40 @@
+getting-lost:
+  name: ¿Nos perdemos?
+  description: Al alba, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no.
+  entries:
+    fog: 'Perdidos en la niebla: hoy no avanzáis'
+    lost: 'Os habéis perdido: hoy no avanzáis'
+    course: Mantenéis el rumbo
+forage:
+  name: Forrajear
+  entries:
+    nothing: Aquí no hay nada que comer
+    some: Bayas y raíces para un día
+    plenty: '¡Caza! Comida para {{1d3+1}} días'
+toll:
+  name: El peaje
+  entries:
+    pay: El guarda del puente se cobra un día de comida
+    wave: El guarda del puente os deja pasar
+shrine:
+  name: En el santuario
+  entries:
+    blessing: 'Una voz responde a tu plegaria: el camino será amable'
+    rest: Una hora tranquila en el santuario alivia las piernas
+ford:
+  name: Cruzar el vado
+  description: ¿Sale bien el cruce? Decide el agua; la Supervivencia del grupo ayuda.
+  inputs:
+    odds:
+      label: El agua
+      labels: { low: Baja y mansa, even: Hasta la cintura, high: Crecida }
+  entries:
+    fine: Cruzáis sin problemas
+    wet: 'A mitad de camino os arrastra la corriente: {{result}}'
+    swept: 'La crecida os arrastra río abajo: {{result}}'
+ford-mishap:
+  name: Percance en el vado
+  entries:
+    food: se pierde un fardo de comida
+    tired: salís del agua agotados
+    fodder: el forraje se empapa y se echa a perder

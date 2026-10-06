@@ -1,0 +1,30 @@
+weather:
+  name: El clima de las Marcas
+  description: Tira la tabla de la estación en los viajes.
+  entries: { grey: Cielo gris }
+weather-spring:
+  name: Primavera en las Marcas
+  entries:
+    storm: 'Tormenta: nadie viaja'
+    rain: Lluvia constante
+    grey: Gris y templado
+    bright: Luminoso y despejado
+weather-summer:
+  name: Verano en las Marcas
+  entries:
+    clear: Calor y cielo despejado
+    grey: Bochorno gris
+    storm: 'Tormenta de verano: nadie viaja'
+weather-autumn:
+  name: Otoño en las Marcas
+  entries:
+    storm: 'Vendaval desde el lago: nadie viaja'
+    fog: Niebla espesa
+    grey: Frío y gris
+    clear: Fresco y despejado
+weather-winter:
+  name: Invierno en las Marcas
+  entries:
+    blizzard: 'Ventisca: nadie viaja'
+    snow: Nieva
+    frost: Helada fuerte

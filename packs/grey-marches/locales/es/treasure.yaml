@@ -1,0 +1,12 @@
+treasure:
+  name: ¿Qué hay en el tesoro?
+  entries:
+    coins: '{{3d6}} monedas de plata'
+    gems: '{{1d4}} gemas de {{2d6+4}} monedas de plata cada una'
+    map: 'Un mapa de las Colinas Huecas; una nota dice que {{result}}'
+    potion: Un frasco del cordial de las brujas (quita toda la fatiga)
+prize:
+  name: Un premio raro
+  entries:
+    sword: La Espada de Keld, perdida hace cien años
+    gold: '{{2d6+6}} coronas de oro de los antiguos reyes'

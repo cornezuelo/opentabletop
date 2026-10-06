@@ -1,0 +1,14 @@
+# A deck: cards drawn without replacement until it's reshuffled. Cards come in copies,
+# can roll a table ({{result}}) and can set values (here, food found).
+kind: deck
+id: omens
+name: Omens of the road
+description: Draw one at each dawn on the road. A drawn card is gone until the deck runs out.
+reshuffle: when-empty
+cards:
+  - { id: crows, result: Crows follow you all day, count: 3 }
+  - { id: rainbow, result: A rainbow over the Saltmere, count: 2 }
+  - { id: stranger, result: 'A stranger on the road: {{result}}', table: npc, count: 2 }
+  - { id: rumour, result: 'A rumour reaches you: {{result}}', table: rumour }
+  - { id: cache, result: 'A hunter’s cache: two days of food', set: { resources: { food: 2 } } }
+  - { id: wyrm-sign, result: Scorched trees and a smell of sulphur }

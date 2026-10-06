@@ -209,6 +209,15 @@ export const en = {
     error: 'Export failed.',
   },
   library: {
+    examples: 'Example maps',
+    yours: 'Your maps',
+    exampleHelp:
+      'A map to play and to learn from, made with the bundled packs (The Grey Marches). It opens as one of your maps.',
+    exampleTitle: 'Open the example',
+    exampleExists:
+      'This browser already has this example, with your changes and your trip. Go on with it, or start the example fresh (your copy is replaced)?',
+    exampleOpen: 'Go on with mine',
+    exampleFresh: 'Start fresh',
     title: 'Maps',
     import: 'Import file… (Ctrl+O)',
     help: 'Maps opened in this browser, saved automatically. Links like #/<map id>/<hex> open a map and center a hex.',

@@ -1,0 +1,17 @@
+gates:
+  name: ¿Nos dejarán entrar?
+  description: A las puertas de Vado Ceniza o de Fuerte Keld. Cómo llegáis cambia la respuesta.
+  inputs:
+    arrival:
+      label: Llegáis como
+      labels: { friends: Amigos conocidos, strangers: Desconocidos, armed: Una banda armada }
+  entries:
+    yes: 'Sí, y {{result}}'
+    wait: Esperad a la mañana, fuera de las murallas
+    no: No. Aparecen arcos en la muralla
+gate-news:
+  name: Noticias en la puerta
+  entries:
+    rumour: 'el guardia os susurra un rumor: {{result}}'
+    work: 'hay trabajo: alguien paga {{2d6}} monedas de plata por una escolta'
+    feast: es día de fiesta; la posada está llena

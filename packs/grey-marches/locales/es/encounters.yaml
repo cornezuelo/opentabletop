@@ -1,0 +1,53 @@
+encounter:
+  name: ¿Quién va?
+  description: Depende del terreno, la región, el peligro del hex y la hora del día.
+  entries:
+    wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
+    lights: Luces pálidas flotan entre los árboles y dicen vuestros nombres
+    patrol: 'Una patrulla del Valle: están {{result}}'
+    wolves: '{{1d4+2}} lobos grises: están {{result}}'
+    traveller: 'Por el camino os cruzáis con {{result}}'
+    bandits: 'Bandidos de las Colinas Huecas: están {{result}}'
+    tracks: Solo huellas, y la sensación de que os vigilan
+reaction:
+  name: Reacción
+  entries:
+    hostile: hostiles
+    wary: recelosos
+    neutral: dispuestos a hablar
+    friendly: amistosos
+    helpful: deseosos de ayudar
+npc:
+  name: Alguien en el camino
+  description: Un nombre, un oficio, qué quiere y su fuerza.
+  template: '{{name}}, {{role}} que {{want}} (fuerza {{might}})'
+rumour:
+  name: Un rumor
+  description: Quién lo cuenta y qué dice.
+  template: '{{npc.name}}, {{npc.role}}, jura que {{what}}.'
+npc-names:
+  name: Nombres de las Marcas
+npc-roles:
+  name: Oficios
+  entries:
+    pedlar: buhonero
+    pilgrim: peregrino
+    hunter: cazador
+    deserter: desertor
+    witch: bruja de los setos
+npc-wants:
+  name: Deseos
+  entries:
+    escort: busca escolta hasta Fuerte Keld
+    trade: tiene algo que cambiar
+    lost: está perdido y asustado
+    news: quiere noticias del sur
+rumours:
+  name: Rumores (d66)
+  entries:
+    wyrm: una sierpe duerme bajo el Bosque Gris
+    salt: el Lago Salado fue una ciudad
+    keld: en Fuerte Keld no pagan a los soldados desde hace un año
+    stones: las piedras erguidas se mueven en el solsticio
+    ferry: el barquero cobra en secretos
+    hills: las colinas están huecas, y algo vive dentro

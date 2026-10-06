@@ -1,0 +1,10 @@
+omens:
+  name: Presagios del camino
+  description: Roba uno cada alba en el camino. Una carta robada desaparece hasta que se acaba el mazo.
+  cards:
+    crows: Los cuervos os siguen todo el día
+    rainbow: Un arcoíris sobre el Lago Salado
+    stranger: 'Un desconocido en el camino: {{result}}'
+    rumour: 'Os llega un rumor: {{result}}'
+    cache: 'El escondrijo de un cazador: comida para dos días'
+    wyrm-sign: Árboles chamuscados y olor a azufre

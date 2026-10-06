@@ -2,7 +2,7 @@
 
 No hace falta programar para crear tablas que reaccionen al mapa, ni un sistema de viaje entero que el Hexmapper juegue por ti. Todo se escribe en los ficheros YAML del pack. Esta página lo construye paso a paso; cada paso funciona por sí solo.
 
-> **Un ejemplo completo del que copiar:** el pack incluido **Core**. Su `wilderness.yaml` tiene clima por estación, perderse, reacciones y encuentros que usan todo lo de esta página, y su `travel.yaml` convierte Core en un sistema de viaje que puedes jugar en el Hexmapper (Jugar → Con reglas → Core). Ábrelos en la aplicación Oracle, o haz una copia (**Editar una copia**) para cambiarlos.
+> **Un ejemplo completo del que copiar:** el pack incluido **Las Marcas Grises** usa todo lo de esta página, y tiene un mapa de ejemplo para jugarlo (Hexmapper: Mapas → Mapas de ejemplo). Abre sus ficheros en la aplicación Oracle, o haz una copia (**Editar una copia**) para cambiarlos. [Las Marcas Grises](../packs/02-grey-marches.md) dice dónde está cada cosa.
 
 ## 1. Una tabla que depende del terreno
 
@@ -142,7 +142,7 @@ on: { … }
 - La tabla de **contenido** ve el hex al que entras. Su texto se convierte en un punto de interés; `set: { poi: false }` significa que no hay nada que apuntar, `set: { poi: 'Un nombre' }` lo nombra de otra forma. `tags` (una o una lista) y `name` se escriben también en el hex.
 - Las características del grupo y los valores del día están en el contexto de ambas, como en las comprobaciones.
 
-El `discovery.yaml` de Core es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez.
+El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez.
 
 ## 8. Probarlo
 

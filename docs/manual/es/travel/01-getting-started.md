@@ -11,7 +11,7 @@ La aplicación Travel juega viajes con un **sistema de viaje** y te deja ver y c
 ## Los sistemas que tienes
 
 - **Genérico**: viaje sencillo sin comprobaciones, integrado en las aplicaciones. No se puede editar; crea un sistema nuevo para partir de él.
-- **Core**: el ejemplo incluido. Tira el clima al alba, perderse fuera de los caminos, encuentros que dependen del terreno y de la hora del día, y se detiene en los hexes con la etiqueta `landmark` para que los describas. Sus tablas están en el pack Core, en la aplicación Oracle.
+- **Las Marcas Grises**: el ejemplo incluido, una pequeña frontera con reglas propias: clima por estación, perderse, encuentros por terreno, región, peligro y hora del día, peajes, vados, santuarios, barcas en el lago y lugares señalados que te esperan. Mira [Las Marcas Grises](../packs/02-grey-marches.md).
 - Los sistemas de tus packs, incluidos los de uso personal (ver [Packs](../oracle/03-packs.md)).
 
 Sigue con: [Jugar un viaje](02-playing.md) y [Crear un sistema](03-systems.md).

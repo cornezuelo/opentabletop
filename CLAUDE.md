@@ -44,8 +44,10 @@ apps/
   manual/                   # ✅ the user manual of every app, with search (see apps/manual/CLAUDE.md)
   travel/                   # ✅ play trips without a map, edit travel systems (see apps/travel/CLAUDE.md)
 packs/                      # data packs (tables, travel rules, weather…)
-  core/                     # ⏳ generic FOSS content (yes/no oracle, etc.)
+  core/                     # ✅ generic content for any game (oracles, inspiration, scene twists); no travel system
+  grey-marches/             # ✅ showcase setting: a travel system and tables using every feature, with an example map
   kal-arath/                # README only; the whole pack (personal use) lives in the private packs repo
+examples/maps/              # ✅ example maps (OTD bundles) listed in the Hexmapper's Maps panel
 packs-private/              # ✅ (git-ignored) checkout of github.com/cornezuelo/opentabletop-packs-private (private)
 docs/
   manual/<locale>/<app>/    # user manual pages (Markdown, en base + es)
@@ -133,7 +135,16 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
 7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). `oracle-ui` and `travel-ui` are extracted and used by the hexmapper.
 8. [ ] Standalone `oracle` (✅ first version: browse and roll every definition, history, form editor for tables with translations, YAML editor with live diagnostics, new packs, zip import/export) and `travel` (✅ first version: play trips without a map, forms for travel rules and checks/bindings, YAML editor with live diagnostics, new systems, edit a copy) apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
-9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
+9. [ ] **Values everywhere, and characters (agreed 2026-10-07):** custom fields (key/value, like hex fields) on tokens, icons, regions, POIs and anything else where it makes sense, readable by tables and travel checks; documented in the manual and used by the Grey Marches. Then a **characters engine** (`character-engine`): sheets kept in one place whose values every system can read (e.g. the acting PC's stat in a roll).
+10. [ ] **Suggestions while typing:** autocomplete for context keys, table ids, tags, terrains… wherever a value comes from a known list (forms, roll panel, YAML editor).
+11. [ ] **Ideas agreed for later (2026-10-07)**, each a headless engine plus UI, talking to the others through events and ports:
+    - **Faction / world turn engine** (`faction-engine`): factions with goal, resources, strength and territory (hexes); "Advance world turn" resolves each faction's action on pack tables (expand, recruit, events) and emits `FACTION_ACTION_RESOLVED`, `TERRITORY_CHANGED`, `RESOURCE_CHANGED`, `WORLD_EVENT_CREATED`, `RUMOUR_CREATED`. No lore: factions point to notes with `noteRef` (e.g. `Kal-Arath/Factions/Iron Clans`).
+    - **Calendar / world clock** (grow `time` into an engine): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns.
+    - **Dice roller app**: quick, visual rolls (dice that tumble) of any expression the `dice` package knows, with history; reuses the Oracle's roller and result cards. Nothing complex.
+    - **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, secret doors, stairs, pits, statues, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door, S stairs, M marker). **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively (city → house → a tavern board). Linked to characters and the other engines.
+    - **Card studio** (print & play): `cards.yaml` + an SVG template → PDF, PNG, SVG and Tabletop Simulator decks; change the design once, regenerate every card.
+    - **Rules reference builder**: from a `rules.yaml`, a GM screen, quick reference, mobile reference, printable cards, HTML and PDF.
+12. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
 
 **Versioning and releases (to define):** we work on `main` for now. Before the first release, agree on a workflow for tags and releases (semver; repo-wide vs per-package versions; changelog, e.g. Changesets; what triggers a tag). No release until there is an alpha MVP the user is happy with; that one becomes `0.1`.
 

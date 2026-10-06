@@ -20,7 +20,7 @@ El panel muestra el día, la hora y la estación, dónde está el grupo, el clim
 
 Los sistemas declaran sus comprobaciones (clima al alba, perderse, encuentros…) y qué tabla resuelve cada una; los resultados van al **diario**, agrupados por día. Las comprobaciones sin tabla te esperan: pulsa **Continuar** cuando las hayas resuelto tú.
 
-El sistema **Core** incluido lo enseña todo: clima por estación, perderse fuera de los caminos, encuentros que dependen del terreno y de la hora del día, y una comprobación sin tabla: pon la etiqueta `landmark` a un hex y el viaje se detiene allí hasta que describas el lugar y pulses **Continuar**.
+Las **Marcas Grises** incluidas lo enseñan todo, en su mapa de ejemplo (**Mapas → Mapas de ejemplo**): clima por estación, perderse fuera de los caminos, encuentros por terreno, región, peligro y hora del día, un peaje en el puente, un vado que se tira en un oráculo, una barca en el lago y comprobaciones sin tabla: el viaje se detiene en las piedras erguidas (`landmark`) hasta que describas el lugar y pulses **Continuar**. Mira [Las Marcas Grises](../packs/02-grey-marches.md).
 
 El terreno, los caminos y ríos, las etiquetas, campos y región del hex, la estación y el clima del día llegan a las reglas de viaje y a las tablas, así que un sistema puede hacer los bosques más lentos o que por los caminos no te pierdas. Lo que hace cada sistema está en su pack: consulta [Caminos, ríos, muros y fronteras](04-roads-and-rivers.md#que-hacen-los-caminos-y-rios-al-viajar).
 
@@ -30,10 +30,10 @@ Arrastra el token del grupo para ponerlo en otro sitio: el rastro le sigue, y du
 
 ## Descubrir el mapa
 
-Con un sistema que sepa descubrir (Core sabe), marca **Descubrir el mapa al viajar**. Empieza con un mapa en blanco: pinta solo el hex donde empieza el grupo y haz clic en un destino cualquiera. Mientras el grupo viaja, las tablas del sistema deciden los hexes **vacíos**:
+Con un sistema que sepa descubrir (las Marcas Grises saben; su mapa de ejemplo deja el este en blanco), marca **Descubrir el mapa al viajar**. Empieza con un mapa en blanco: pinta solo el hex donde empieza el grupo y haz clic en un destino cualquiera. Mientras el grupo viaja, las tablas del sistema deciden los hexes **vacíos**:
 
 - **El terreno**, visto desde la tierra que pisas (el bosque tiende a seguir siendo bosque).
-- **Qué hay**, la primera vez que entras en un hex: un punto de interés, etiquetas (un `landmark` detiene allí los viajes de Core), un nombre. El viaje se detiene cuando encuentras algo, para que lo juegues.
+- **Qué hay**, la primera vez que entras en un hex: un punto de interés, etiquetas (un `landmark` detiene allí los viajes de las Marcas Grises), un nombre. El viaje se detiene cuando encuentras algo, para que lo juegues.
 
 **Qué se descubre**: _los hexes alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlos, así que rutas y velocidades son reales) o _solo el hex al que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
 

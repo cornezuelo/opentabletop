@@ -211,6 +211,15 @@ export const es: Messages = {
     error: 'No se pudo exportar.',
   },
   library: {
+    examples: 'Mapas de ejemplo',
+    yours: 'Tus mapas',
+    exampleHelp:
+      'Un mapa para jugar y para aprender, hecho con los packs incluidos (Las Marcas Grises). Se abre como uno de tus mapas.',
+    exampleTitle: 'Abrir el ejemplo',
+    exampleExists:
+      'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye)?',
+    exampleOpen: 'Seguir con el mío',
+    exampleFresh: 'Empezar de cero',
     title: 'Mapas',
     import: 'Importar fichero… (Ctrl+O)',
     help: 'Mapas abiertos en este navegador, guardados automáticamente. Los enlaces #/<id del mapa>/<hex> abren un mapa y centran un hex.',

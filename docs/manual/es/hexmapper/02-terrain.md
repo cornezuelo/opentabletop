@@ -27,7 +27,7 @@ Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que s
 
 - **Color** y **nombre** (nombre vacío = el traducido por defecto).
 - **Símbolo**: el pequeño dibujo de sus hexes (ver abajo).
-- **Agua**: marca el terreno como agua. En el mapa, los caminos y ríos se detienen en su orilla. En un viaje, los hexes de agua siguen la regla **water** de las reglas de viaje salvo que su terreno tenga una propia: las reglas genéricas, Core y Kal-Arath los hacen intransitables a pie, y un sistema puede tener barcas que solo navegan por agua. Las tablas ven `water: true` en esos hexes.
+- **Agua**: marca el terreno como agua. En el mapa, los caminos y ríos se detienen en su orilla. En un viaje, los hexes de agua siguen la regla **water** de las reglas de viaje salvo que su terreno tenga una propia: las reglas genéricas, las Marcas Grises y Kal-Arath los hacen intransitables a pie, y un sistema puede tener barcas que solo navegan por agua (la barca de las Marcas cruza el Lago Salado). Las tablas ven `water: true` en esos hexes.
 - Añade tus propios terrenos o bórralos (los hexes pintados con un terreno borrado quedan vacíos).
 
 Los ids de terreno (`forest`, `hills`…) son lo que leen las reglas de viaje y las tablas, así que una tabla puede decir `when: { terrain: forest }`.
