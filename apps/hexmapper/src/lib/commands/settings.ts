@@ -77,3 +77,21 @@ export class SetGlyphOpacityCommand implements Command {
     return { kind: 'style' }
   }
 }
+
+/** Styles of the map's texts (hex, region and token names). Restyles without a rebuild. */
+export class SetCaptionsCommand implements Command {
+  constructor(
+    private before: HexMap['captions'],
+    private after: HexMap['captions'],
+  ) {}
+
+  apply(map: HexMap): MapChange {
+    map.captions = structuredClone(this.after)
+    return { kind: 'style' }
+  }
+
+  revert(map: HexMap): MapChange {
+    map.captions = structuredClone(this.before)
+    return { kind: 'style' }
+  }
+}

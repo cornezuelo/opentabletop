@@ -5,7 +5,8 @@
 </script>
 
 <ul>
-  {#each LAYER_IDS as id (id)}
+  <!-- Top of the list = drawn on top, like image editors. -->
+  {#each [...LAYER_IDS].reverse() as id (id)}
     {@const layer = editor.layers[id]}
     {@const name = t(`layers.names.${id}` as MessageKey)}
     <li class:hidden={!layer.visible}>

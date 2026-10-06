@@ -172,7 +172,6 @@ export const es: Messages = {
       markers: 'Marcadores de notas',
       tokens: 'Tokens',
       regions: 'Regiones',
-      names: 'Nombres de hex',
     },
   },
   labels: {
@@ -242,6 +241,18 @@ export const es: Messages = {
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',
     newName: 'Terreno nuevo',
+  },
+  captions: {
+    title: 'Textos del mapa',
+    help: 'Nombres que se dibujan en el mapa. Las regiones y los tokens también pueden ocultar el suyo.',
+    kinds: {
+      hexNames: 'Nombres de hex',
+      regionNames: 'Nombres de región',
+      tokenNames: 'Nombres de token',
+    },
+    style: 'Estilo',
+    size: 'Tamaño',
+    color: 'Color (Auto: tinta oscura; en regiones, su color)',
   },
   regions: {
     help: 'Pinta hexes en la región seleccionada con el pincel; clic derecho los saca y Ctrl+clic coge la región del hex. Las tablas y las reglas de viaje pueden leer la región de un hex.',

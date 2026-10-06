@@ -1,4 +1,9 @@
-import { CURRENT_VERSION, DEFAULT_GLYPH_OPACITY, DEFAULT_GLYPHS } from './defaults'
+import {
+  CURRENT_VERSION,
+  DEFAULT_CAPTIONS,
+  DEFAULT_GLYPH_OPACITY,
+  DEFAULT_GLYPHS,
+} from './defaults'
 import { newId } from './id'
 
 /**
@@ -46,6 +51,13 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   /** v4: regions. */
   3(data) {
     return { ...data, regions: [] }
+  },
+  /** v5: map text styles. A hidden "Hex names" layer becomes hexNames.show = false. */
+  4(data) {
+    const captions = structuredClone(DEFAULT_CAPTIONS) as Record<string, { show: boolean }>
+    const layers = (data.layers ?? {}) as Record<string, { visible?: boolean }>
+    if (layers.names?.visible === false) captions.hexNames.show = false
+    return { ...data, captions }
   },
 }
 

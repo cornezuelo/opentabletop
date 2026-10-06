@@ -170,7 +170,6 @@ export const en = {
       markers: 'Note markers',
       tokens: 'Tokens',
       regions: 'Regions',
-      names: 'Hex names',
     },
   },
   labels: {
@@ -240,6 +239,14 @@ export const en = {
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',
     newName: 'New terrain',
+  },
+  captions: {
+    title: 'Map texts',
+    help: 'Names drawn on the map. Regions and tokens can also hide their own name.',
+    kinds: { hexNames: 'Hex names', regionNames: 'Region names', tokenNames: 'Token names' },
+    style: 'Style',
+    size: 'Size',
+    color: 'Color (Auto: dark ink; for regions, their color)',
   },
   regions: {
     help: 'Paint hexes into the selected region with the brush; right-click takes them out, Ctrl+click picks the region under the cursor. Tables and travel rules can read a hex’s region.',

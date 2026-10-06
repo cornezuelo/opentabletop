@@ -2,7 +2,9 @@
 
 ## Capas
 
-**Capas** (panel lateral) muestra u oculta cada parte del mapa —terreno, rejilla, regiones, caminos y ríos, iconos, nombres de hex, texto, rastro y ruta, tokens, coordenadas y marcas de notas— y bloquea las editables para que ninguna herramienta las cambie sin querer.
+**Capas** (panel lateral) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, rastro y ruta, texto, coordenadas, iconos, caminos y ríos, regiones, rejilla y terreno. El ojo muestra u oculta una capa; el candado impide que las herramientas la cambien sin querer (por ejemplo, bloquea el terreno mientras pintas regiones), y si intentas editar una capa bloqueada te avisa.
+
+Los nombres de hex, de región y de token se configuran en **Ajustes → Textos del mapa**.
 
 ## Tamaño e impresión
 

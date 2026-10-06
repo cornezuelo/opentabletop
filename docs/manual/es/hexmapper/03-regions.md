@@ -12,7 +12,7 @@ Un hex pertenece como mucho a una región. El panel del hex también tiene una l
 
 ## En el mapa
 
-Una región se dibuja como un tinte suave, un borde por el interior de su contorno (para que las regiones vecinas no se solapen) y su nombre en el centro. La capa **Regiones** las oculta o bloquea todas.
+Una región se dibuja como un tinte suave, un borde por el interior de su contorno (para que las regiones vecinas no se solapen) y su nombre en el centro. La capa **Regiones** las oculta o bloquea todas; **Ajustes → Textos del mapa** da estilo u oculta todos los nombres de región.
 
 ## Al jugar
 

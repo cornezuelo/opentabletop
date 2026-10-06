@@ -2,7 +2,9 @@
 
 ## Layers
 
-**Layers** (side panel) shows or hides each part of the map — terrain, grid, regions, roads and rivers, icons, hex names, text, trail and route, tokens, coordinates and note markers — and locks the editable ones so a tool can't change them by accident.
+**Layers** (side panel) lists the parts of the map in the order they're drawn, the top one above the rest: note markers, tokens, trail and route, text, coordinates, icons, roads and rivers, regions, grid and terrain. The eye shows or hides a layer; the lock stops the tools from changing it by accident (for example, lock the terrain while you paint regions), and trying to edit a locked layer says so.
+
+Hex, region and token names are set in **Settings → Map texts**.
 
 ## Size and printing
 

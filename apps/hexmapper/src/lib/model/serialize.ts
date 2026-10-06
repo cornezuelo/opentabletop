@@ -1,5 +1,7 @@
 import { PAPERS, type PaperId } from '../print/paper'
 import {
+  CAPTION_SIZE_RANGE,
+  DEFAULT_CAPTIONS,
   DEFAULT_HEX_KM,
   DEFAULT_GRID,
   DEFAULT_LABEL_STYLE,
@@ -13,7 +15,7 @@ import {
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex, normalizePath } from './hex'
 import { isValidId, newId } from './id'
-import { LABEL_FONTS, PATH_KINDS, TOKEN_KINDS } from './types'
+import { CAPTION_KINDS, LABEL_FONTS, PATH_KINDS, TOKEN_KINDS } from './types'
 import type {
   CustomField,
   HexData,
@@ -101,6 +103,7 @@ function validate(data: Record<string, unknown>): HexMap {
     labels: parseLabels(data.labels),
     tokens: parseTokens(data.tokens),
     regions: parseRegions(data.regions),
+    captions: parseCaptions(data.captions),
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
@@ -266,6 +269,31 @@ export function parseLabelStyle(value: unknown): LabelStyle {
 const HEX_KEY = /^\d+,\d+$/
 
 const COLOR = /^#[0-9a-f]{6}$/i
+
+function parseCaptions(value: unknown): HexMap['captions'] {
+  const raw = isRecord(value) ? value : {}
+  const out = structuredClone(DEFAULT_CAPTIONS) as HexMap['captions']
+  for (const kind of CAPTION_KINDS) {
+    const c = isRecord(raw[kind]) ? raw[kind] : {}
+    const d = out[kind]
+    out[kind] = {
+      show: typeof c.show === 'boolean' ? c.show : d.show,
+      font: LABEL_FONTS.includes(c.font as LabelStyle['font'])
+        ? (c.font as LabelStyle['font'])
+        : d.font,
+      size:
+        typeof c.size === 'number' && Number.isFinite(c.size)
+          ? Math.min(CAPTION_SIZE_RANGE[1], Math.max(CAPTION_SIZE_RANGE[0], c.size))
+          : d.size,
+      ...(typeof c.color === 'string' && COLOR.test(c.color) && { color: c.color }),
+      italic: typeof c.italic === 'boolean' ? c.italic : d.italic,
+      halo: typeof c.halo === 'boolean' ? c.halo : d.halo,
+      haloColor:
+        typeof c.haloColor === 'string' && COLOR.test(c.haloColor) ? c.haloColor : d.haloColor,
+    }
+  }
+  return out
+}
 
 function parseRegions(value: unknown): MapRegion[] {
   if (!Array.isArray(value)) return []

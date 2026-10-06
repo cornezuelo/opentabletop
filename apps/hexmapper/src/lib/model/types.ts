@@ -133,6 +133,22 @@ export interface MapRegion {
   note?: string
 }
 
+export const CAPTION_KINDS = ['hexNames', 'regionNames', 'tokenNames'] as const
+export type CaptionKind = (typeof CAPTION_KINDS)[number]
+
+/** How one kind of map text is drawn (hex names, region names, token names). */
+export interface CaptionStyle {
+  show: boolean
+  font: LabelFont
+  /** Relative size, 1 = default. */
+  size: number
+  /** Absent = automatic: dark ink, or each region's own color. */
+  color?: string
+  italic: boolean
+  halo: boolean
+  haloColor: string
+}
+
 export const TOKEN_KINDS = ['party', 'pc', 'npc', 'enemy'] as const
 export type TokenKind = (typeof TOKEN_KINDS)[number]
 
@@ -169,18 +185,20 @@ export interface PlayState {
   rules?: { system: string; startDay: number; session: unknown }
 }
 
-/** Fixed map layers, in draw order. */
+/**
+ * Fixed map layers, in draw order (bottom first). Keep MapRenderer's container order in
+ * step; the Layers panel lists them top first.
+ */
 export const LAYER_IDS = [
   'terrain',
   'grid',
   'regions',
   'paths',
   'icons',
-  'names',
+  'coords',
   'labels',
   'party',
   'tokens',
-  'coords',
   'markers',
 ] as const
 export type LayerId = (typeof LAYER_IDS)[number]
@@ -263,6 +281,7 @@ export interface HexMap {
   labels: MapLabel[]
   tokens: MapToken[]
   regions: MapRegion[]
+  captions: Record<CaptionKind, CaptionStyle>
   layers: Record<LayerId, LayerState>
   play?: PlayState
   /**

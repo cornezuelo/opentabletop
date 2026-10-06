@@ -61,6 +61,7 @@ class Editor {
   play = $state<HexMap['play']>(undefined)
   tokens = $state.raw<MapToken[]>([])
   regions = $state.raw<MapRegion[]>([])
+  captions = $state<HexMap['captions']>(structuredClone(this.map.captions))
   /** Region the region tool paints. */
   regionId = $state<string | null>(null)
   canUndo = $state(false)
@@ -259,7 +260,10 @@ class Editor {
   }
 
   private syncSnapshots(change: MapChange): void {
-    if (change.kind === 'style') this.grid = { ...this.map.grid }
+    if (change.kind === 'style' || change.kind === 'all') {
+      this.grid = { ...this.map.grid }
+      this.captions = structuredClone(this.map.captions)
+    }
     if (change.kind === 'grid' || change.kind === 'all') {
       this.grid = { ...this.map.grid }
       this.print = structuredClone(this.map.print)

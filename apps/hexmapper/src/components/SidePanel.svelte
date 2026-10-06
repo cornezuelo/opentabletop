@@ -14,6 +14,7 @@
   import Preferences from './Preferences.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
+  import CaptionSettings from './CaptionSettings.svelte'
   import RegionPanel from './RegionPanel.svelte'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
@@ -36,6 +37,7 @@
     </header>
     <Section title={t('panel.map')}><MapSettings /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
+    <Section title={t('captions.title')}><CaptionSettings /></Section>
     <Section title={t('panel.preferences')}>
       <label class="field">
         <span>{t('settings.language')}</span>

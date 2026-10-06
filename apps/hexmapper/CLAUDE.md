@@ -103,8 +103,8 @@ Done:
 - [x] **Terrain glyphs:** a subtle symbol per hex (mountain, tree…) in a lighter or darker shade of the terrain color (hidden under icons), with an opacity slider (0 hides them); each terrain picks a symbol from the new Terrain icon category or an imported image. Wider default biome palette (farmland, jungle, taiga, tundra, volcanic), with travel costs in the generic rules. Map format v3 gives old maps' built-in terrains their symbol.
 - [x] **Regions** (tool ⛉, key N): paint hexes into a region with the brush (right-click takes them out, Ctrl+click picks); name, color, show name, linked note; drawn as a light tint, an inner border along the outline and the name at the center; region select in the hex panel. Saved as OTD `hex.region` plus the region list in `ext.hexmapper`; travel checks and tables see `region` (its name). Map format v4.
 - [x] **Path kinds:** walls (thick, with stones) and borders (dashed, across water too) besides roads, trails and rivers; closed loops (option for new paths, Close/Open per path in the hex panel). Only roads, trails and rivers are travel edges.
-- [x] **Captions:** the name under tokens (per token, party included) and every hex's name under it (Hex names layer to hide them all). Icons have no caption: the hex name already says what's there.
-- [ ] **Text styles:** captions (hex names, region names, token names) optional and styled per kind (font, size, color, halo).
+- [x] **Captions:** the name under tokens (per token, party included) and every hex's name under it. Icons have no caption: the hex name already says what's there.
+- [x] **Map texts** (Settings): hex, region and token names shown or hidden and styled per kind (font, size, color or automatic, italic, halo). Map format v5 (replaces the Hex names layer).
 - [ ] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
 
 ### Backlog (Oracle in the map, agreed 2026-10-06)

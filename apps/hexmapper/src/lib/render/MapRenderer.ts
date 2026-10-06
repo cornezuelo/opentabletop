@@ -12,7 +12,7 @@ import {
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
 import { hasMetadata, ICON_DEFAULTS, nodeFlags } from '../model/hex'
-import type { MapPath, PathKind } from '../model/types'
+import type { CaptionKind, MapPath, PathKind } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
 import { catmullRom, catmullRomClosed, dashes } from './curves'
@@ -387,6 +387,10 @@ export class MapRenderer {
       this.drawRegions()
     } else if (change.kind === 'style') {
       this.drawGlyphs()
+      this.drawNames()
+      this.drawRegions()
+      this.drawTokens()
+      this.applyLayers()
     } else if (change.kind === 'tokens') {
       this.drawTokens()
       this.drawParty()
@@ -497,29 +501,20 @@ export class MapRenderer {
         }
       }
       g.stroke({ width: hs * 0.09, color: region.color, alpha: 0.85, cap: 'round' })
-      if (region.showName === false || !region.name) continue
+      if (region.showName === false || !region.name || !editor.map.captions.regionNames.show)
+        continue
       const center = cells
         .map((cell) => this.centerOf(cell))
         .reduce((sum, p) => ({ x: sum.x + p.x / cells.length, y: sum.y + p.y / cells.length }), {
           x: 0,
           y: 0,
         })
-      const fontSize = hs * Math.min(1.1, 0.4 + Math.sqrt(cells.length) * 0.08)
-      const text = new Text({
-        text: region.name.toUpperCase(),
-        style: {
-          fontFamily: FONT_FAMILIES.fell.family,
-          fontSize,
-          fontStyle: 'italic',
-          letterSpacing: fontSize * 0.12,
-          fill: region.color,
-          align: 'center',
-          stroke: { color: 0xf4eedd, width: fontSize * 0.16, join: 'round' as const },
-        },
+      const size = hs * Math.min(1.1, 0.4 + Math.sqrt(cells.length) * 0.08)
+      const text = this.caption('regionNames', region.name.toUpperCase(), center.x, center.y, {
+        color: region.color,
+        size,
       })
-      text.anchor.set(0.5)
       text.alpha = 0.9
-      text.position.set(center.x, center.y)
       this.regionLayer.addChild(text)
     }
   }
@@ -691,10 +686,11 @@ export class MapRenderer {
       this.tokenLayer.addChild(sprite)
     }
     for (const placed of layoutTokens(editor.map.tokens)) {
-      if (!placed.token.showName || !placed.token.name) continue
+      if (!placed.token.showName || !placed.token.name || !editor.map.captions.tokenNames.show)
+        continue
       const c = this.centerOf(parseKey(placed.hex))
       const at = { x: c.x + placed.dx * hs, y: c.y + (placed.dy + placed.radius) * hs + 1 }
-      this.tokenLayer.addChild(this.caption(placed.token.name, at.x, at.y))
+      this.tokenLayer.addChild(this.caption('tokenNames', placed.token.name, at.x, at.y))
     }
   }
 
@@ -821,24 +817,38 @@ export class MapRenderer {
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      this.nameLayer.addChild(this.caption(hex.name, c.x, c.y + hs * 0.5))
+      this.nameLayer.addChild(this.caption('hexNames', hex.name, c.x, c.y + hs * 0.5))
     }
   }
 
-  /** Small text with a light halo, centered under a point (hex, token). */
-  private caption(text: string, x: number, y: number): Text {
-    const fontSize = editor.map.grid.hexSize * CAPTION_SIZE
+  /**
+   * A map text in its kind's style (Settings → Map texts), centered under a point; region
+   * names are centered on it and take `size` (their own, from the region's extent).
+   */
+  private caption(
+    kind: CaptionKind,
+    text: string,
+    x: number,
+    y: number,
+    auto: { color?: string; size?: number } = {},
+  ): Text {
+    const style = editor.map.captions[kind]
+    const fontSize = (auto.size ?? editor.map.grid.hexSize * CAPTION_SIZE) * style.size
     const caption = new Text({
       text,
       style: {
-        fontFamily: FONT_FAMILIES.fell.family,
+        fontFamily: FONT_FAMILIES[style.font].family,
         fontSize,
-        fill: '#1b1a17',
+        fontStyle: style.italic ? 'italic' : 'normal',
+        fill: style.color ?? auto.color ?? '#1b1a17',
         align: 'center',
-        stroke: { color: '#f4eedd', width: fontSize * 0.28, join: 'round' as const },
+        ...(kind === 'regionNames' && { letterSpacing: fontSize * 0.12 }),
+        ...(style.halo && {
+          stroke: { color: style.haloColor, width: fontSize * 0.25, join: 'round' as const },
+        }),
       },
     })
-    caption.anchor.set(0.5, 0)
+    caption.anchor.set(0.5, kind === 'regionNames' ? 0.5 : 0)
     caption.position.set(x, y)
     caption.resolution = this.textResolution()
     return caption
@@ -902,7 +912,7 @@ export class MapRenderer {
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible
     this.labelLayer.visible = layers.labels.visible
-    this.nameLayer.visible = layers.names.visible
+    this.nameLayer.visible = editor.map.captions.hexNames.show
     this.partyLayer.visible = layers.party.visible
     this.tokenLayer.visible = layers.tokens.visible
     this.markers.visible = layers.markers.visible

@@ -1,8 +1,16 @@
 import { newId } from './id'
 import { LAYER_IDS, type LayerId, type LayerState } from './types'
-import type { GridSettings, HexMap, LabelStyle, PrintSettings, TerrainType } from './types'
+import type {
+  CaptionKind,
+  CaptionStyle,
+  GridSettings,
+  HexMap,
+  LabelStyle,
+  PrintSettings,
+  TerrainType,
+} from './types'
 
-export const CURRENT_VERSION = 4
+export const CURRENT_VERSION = 5
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -83,6 +91,27 @@ export const DEFAULT_LABEL_STYLE: LabelStyle = {
   haloWidth: 0.18,
 }
 
+export const DEFAULT_CAPTIONS: Readonly<Record<CaptionKind, CaptionStyle>> = {
+  hexNames: { show: true, font: 'fell', size: 1, italic: false, halo: true, haloColor: '#f4eedd' },
+  regionNames: {
+    show: true,
+    font: 'fell',
+    size: 1,
+    italic: true,
+    halo: true,
+    haloColor: '#f4eedd',
+  },
+  tokenNames: {
+    show: true,
+    font: 'fell',
+    size: 1,
+    italic: false,
+    halo: true,
+    haloColor: '#f4eedd',
+  },
+}
+export const CAPTION_SIZE_RANGE = [0.5, 2.5] as const
+
 export const LABEL_SIZE_RANGE = [0.2, 4] as const
 export const LABEL_HALO_RANGE = [0.05, 0.4] as const
 
@@ -107,6 +136,7 @@ export function createMap(name = ''): HexMap {
     labels: [],
     tokens: [],
     regions: [],
+    captions: structuredClone(DEFAULT_CAPTIONS) as HexMap['captions'],
     layers: defaultLayers(),
   }
 }

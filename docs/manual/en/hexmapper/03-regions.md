@@ -12,7 +12,7 @@ A hex belongs to one region at most. The hex panel also has a **Region** list to
 
 ## On the map
 
-A region is drawn as a light tint, a border along the inside of its outline (so neighboring regions don't overlap) and its name in the middle. The **Regions** layer hides or locks them all.
+A region is drawn as a light tint, a border along the inside of its outline (so neighboring regions don't overlap) and its name in the middle. The **Regions** layer hides or locks them all; **Settings → Map texts** styles or hides every region name.
 
 ## In play
 
