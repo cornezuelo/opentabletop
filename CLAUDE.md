@@ -135,28 +135,54 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
 7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). `oracle-ui` and `travel-ui` are extracted and used by the hexmapper.
 8. [ ] Standalone `oracle` (✅ first version: browse and roll every definition, history, form editor for tables with translations, YAML editor with live diagnostics, new packs, zip import/export) and `travel` (✅ first version: play trips without a map, forms for travel rules and checks/bindings, YAML editor with live diagnostics, new systems, edit a copy) apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
-9. [ ] **Values everywhere, and characters (agreed 2026-10-07):** custom fields (key/value, like hex fields) on tokens, icons, regions, POIs and anything else where it makes sense, readable by tables and travel checks; documented in the manual and used by the Grey Marches. Then a **characters engine** (`character-engine`): sheets kept in one place whose values every system can read (e.g. the acting PC's stat in a roll).
-10. [ ] **Suggestions while typing:** autocomplete for context keys, table ids, tags, terrains… wherever a value comes from a known list (forms, roll panel, YAML editor).
-11. [ ] **Ideas agreed for later (2026-10-07)**, each a headless engine plus UI, talking to the others through events and ports:
-    - **Faction / world turn engine** (`faction-engine`): factions with goal, resources, strength and territory (hexes); "Advance world turn" resolves each faction's action on pack tables (expand, recruit, events) and emits `FACTION_ACTION_RESOLVED`, `TERRITORY_CHANGED`, `RESOURCE_CHANGED`, `WORLD_EVENT_CREATED`, `RUMOUR_CREATED`. No lore: factions point to notes with `noteRef` (e.g. `Kal-Arath/Factions/Iron Clans`).
-    - **Calendar / world clock** (grow `time` into an engine): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns. **Weather with inertia** belongs here (the `weather-engine`): today's weather follows from yesterday's, by a Markov table or a hex flower (2d6 moves on a small map of weathers) per climate and season, defined in packs; travel keeps reading `weather` as today.
-    - **Dice roller app**: quick, visual rolls (dice that tumble) of any expression the `dice` package knows, with history; reuses the Oracle's roller and result cards. Nothing complex.
-    - **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, secret doors, stairs, pits, statues, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door, S stairs, M marker). **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively (city → house → a tavern board). Linked to characters and the other engines.
-    - **Card studio** (print & play): `cards.yaml` + an SVG template → PDF, PNG, SVG and Tabletop Simulator decks; change the design once, regenerate every card.
-    - **Progress clocks** (the OTD `Clock` entity): segments filled by tables, faction turns, the calendar or by hand ("The Wyrm wakes: 3/6"). They suit **Ironsworn**, which we'll add as a pack: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item (each object's `source`): CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first (not in our open-pack list); the code and schemas are MIT.
-    - **Journal system**: an optional journal of the campaign (sessions, trips, hand rolls, notes) for people without a notes app, exportable as Markdown (SilverBullet, Obsidian) with links to hexes; the map's note markers would live in the same system.
-    - **Our own notes app** (a small SilverBullet): Markdown pages linked to each other (`[[links]]`, backlinks, search) and to hexes, POIs, factions and characters, so OpenTabletop can be used without an external notes app. It would be one more `note-refs` provider: engines still store only references (principle 8 holds; the lore lives in the notes, ours or someone else's).
-    - **Solo scene engine**: chaos factor, lists of threads and characters, and whether a scene goes as expected, is altered or interrupted; our own free mechanics, working with the oracles.
-    - **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
-    - **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; later, a dungeon in its sub-map.
-    - **Reputation**: how each faction regards the party, changed by table results and read by reactions and encounters (with the faction engine).
-    - **Supplies and loot over time** (maybe): when something was spent or found, and who carries what, without becoming an inventory manager. To decide.
-    - **Name generators** by setting (people, settlements, taverns, places…): bundled per pack and user-editable, built on the Oracle Engine (syllable tables and generators; maybe Markov chains trained on name lists as data).
-    - **Rules reference builder**: from a `rules.yaml`, a GM screen, quick reference, mobile reference, printable cards, HTML and PDF.
-12. [ ] **Installable, offline app (PWA)**: every app installable and usable without a connection (everything is already local).
-13. [ ] **Command line**: `oracle roll …`, `oracle validate …` for people writing packs in their editor.
-14. [ ] Later: Web Components for non-Svelte hosts.
-15. [ ] **Last: more free solo GM / oracle systems** found on itch.io and elsewhere, after researching which ones have licences that allow it (each as a pack, licence recorded).
+9. [ ] Phases ahead, in order of priority (agreed 2026-10-07). Each new engine is headless, with its UI on top, and talks to the others through events and ports. Things in one phase are done together because they share groundwork.
+
+**Phase A: close the current apps → alpha `0.1`**
+
+- **Values on map elements:** custom fields (key/value, like hex fields) on tokens, icons, regions, POIs and wherever it makes sense, readable by tables and travel checks; documented in the manual and used by the Grey Marches.
+- **Realistic discovery:** an empty hex is decided from all its known neighbours, not just the one it's seen from, so lakes, forests and ranges grow together instead of land / water / plains in a row. Shares groundwork with weather inertia (phase B).
+- **Loose ends:** conditions and `set` in the Oracle table form, undo across form edits; several saved trips and journal export in the Travel app; POI icons, highlight/filter hexes by tag; responsive layouts for narrow windows.
+- **Suggestions while typing:** autocomplete for context keys, table ids, tags, terrains… wherever a value comes from a known list (forms, roll panel, YAML editor).
+- **Installable, offline apps (PWA)** and the **command line** (`oracle roll …`, `oracle validate …`).
+- **Release workflow** (see below), per-package build, then alpha `0.1`.
+
+**Phase B: the living world**
+
+- **Calendar / world clock** (grow `time` into an engine): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns.
+- **Weather with inertia** (`weather-engine`, part of the world clock): today's weather follows from yesterday's, by a Markov table or a hex flower (2d6 moves on a small map of weathers) per climate and season, defined in packs; travel keeps reading `weather` as today.
+- **Progress clocks** (the OTD `Clock` entity): segments filled by tables, faction turns, the calendar or by hand ("The Wyrm wakes: 3/6").
+- **Faction / world turn engine** (`faction-engine`): factions with goal, resources, strength and territory (hexes); "Advance world turn" resolves each faction's action on pack tables (expand, recruit, events) and emits `FACTION_ACTION_RESOLVED`, `TERRITORY_CHANGED`, `RESOURCE_CHANGED`, `WORLD_EVENT_CREATED`, `RUMOUR_CREATED`. No lore: factions point to notes with `noteRef` (e.g. `Kal-Arath/Factions/Iron Clans`). With **reputation**: how each faction regards the party, changed by table results and read by reactions and encounters.
+
+**Phase C: characters and the campaign record**
+
+- **Characters engine** (`character-engine`): sheets kept in one place whose values every system can read (e.g. the acting PC's stat in a roll); builds on the values of phase A.
+- **Journal system**: an optional journal of the campaign (sessions, trips, hand rolls, notes), exportable as Markdown (SilverBullet, Obsidian) with links to hexes; the map's note markers live in the same system.
+- **Our own notes app** (a small SilverBullet): Markdown pages linked to each other (`[[links]]`, backlinks, search) and to hexes, POIs, factions and characters, so OpenTabletop can be used without an external notes app. It is one more `note-refs` provider: engines still store only references (principle 8 holds; the lore lives in the notes, ours or someone else's).
+
+**Phase D: solo play and content**
+
+- **Solo scene engine**: chaos factor, lists of threads and characters, and whether a scene goes as expected, is altered or interrupted; our own free mechanics, working with the oracles.
+- **Ironsworn** as a pack, with progress clocks: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item (each object's `source`): CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first (not in our open-pack list); the code and schemas are MIT.
+- **Name generators** by setting (people, settlements, taverns, places…): bundled per pack and user-editable, built on the Oracle Engine (syllable tables and generators; maybe Markov chains trained on name lists as data).
+- **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
+- **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; dungeons once sub-maps exist (phase E).
+- **Dice roller app**: quick, visual rolls (dice that tumble) of any expression the `dice` package knows, with history; reuses the Oracle's roller and result cards. Nothing complex.
+
+**Phase E: maps in depth**
+
+- **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively (city → house → a tavern board).
+- **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, secret doors, stairs, pits, statues, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door, S stairs, M marker). Linked to characters and the other engines.
+
+**Phase F: print and reference**
+
+- **Card studio** (print & play): `cards.yaml` + an SVG template → PDF, PNG, SVG and Tabletop Simulator decks; change the design once, regenerate every card.
+- **Rules reference builder**: from a `rules.yaml`, a GM screen, quick reference, mobile reference, printable cards, HTML and PDF.
+
+**Later, or to decide**
+
+- **Supplies and loot over time** (maybe): when something was spent or found, and who carries what, without becoming an inventory manager.
+- Web Components for non-Svelte hosts.
+- **Last: more free solo GM / oracle systems** found on itch.io and elsewhere, after researching which ones have licences that allow it (each as a pack, licence recorded).
 
 **Versioning and releases (to define):** we work on `main` for now. Before the first release, agree on a workflow for tags and releases (semver; repo-wide vs per-package versions; changelog, e.g. Changesets; what triggers a tag). No release until there is an alpha MVP the user is happy with; that one becomes `0.1`.
 
