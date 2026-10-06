@@ -225,6 +225,11 @@ export const en = {
   },
   play: {
     mode: 'Play mode',
+    intro:
+      'Move your party around the map. Simple: just a token and its trail. With rules: the Travel Engine tracks time, terrain, supplies and fatigue, and the Oracle rolls weather, getting lost, points of interest and encounters from the system’s tables, writing everything in the journal.',
+    pre: 'PRE (Presence)',
+    preHelp:
+      'PRE is the party’s Presence: a bonus added to reaction rolls (2d6 + PRE) by systems that use it, like Kal-Arath.',
     modes: { simple: 'Simple', rules: 'With rules', foot: 'On foot', horse: 'On horseback' },
     token: 'Party icon',
     uploadToken: 'Upload your own…',

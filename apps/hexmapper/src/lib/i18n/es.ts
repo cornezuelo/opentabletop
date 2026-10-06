@@ -227,6 +227,11 @@ export const es: Messages = {
   },
   play: {
     mode: 'Modo de juego',
+    intro:
+      'Mueve a tu grupo por el mapa. Simple: solo un icono y su rastro. Con reglas: el Travel Engine lleva el tiempo, el terreno, las provisiones y la fatiga, y el Oracle tira el clima, perderse, los puntos de interés y los encuentros con las tablas del sistema, anotándolo todo en el diario.',
+    pre: 'PRE (Presencia)',
+    preHelp:
+      'PRE es la Presencia del grupo: un bono que se suma a las tiradas de reacción (2d6 + PRE) en los sistemas que lo usan, como Kal-Arath.',
     modes: { simple: 'Simple', rules: 'Con reglas', foot: 'A pie', horse: 'A caballo' },
     token: 'Icono del grupo',
     uploadToken: 'Subir uno propio…',

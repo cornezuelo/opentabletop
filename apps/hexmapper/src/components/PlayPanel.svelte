@@ -103,6 +103,8 @@
   }
 </script>
 
+<p class="help intro">{t('play.intro')}</p>
+
 <div class="segmented" role="radiogroup" aria-label={t('play.mode')}>
   {#each ['simple', 'rules'] as const as mode (mode)}
     <button
@@ -240,8 +242,8 @@
           {/each}
         </select>
       </label>
-      <label class="field">
-        <span>PRE</span>
+      <label class="field" title={t('play.preHelp')}>
+        <span>{t('play.pre')}</span>
         <input
           type="number"
           value={session.stats.pre ?? 0}
@@ -486,6 +488,10 @@
   .journal time {
     color: var(--text-muted);
     font-family: ui-monospace, monospace;
+  }
+
+  .intro {
+    padding-bottom: 4px;
   }
 
   .help {
