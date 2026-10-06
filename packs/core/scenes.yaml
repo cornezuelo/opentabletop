@@ -1,7 +1,8 @@
 kind: table
 id: scene-twist
 name: Scene twist
-description: Roll when a scene starts; on a 1 it doesn't go as expected.
+description: Roll when a scene starts; on a 1 it doesn't go as expected. With disadvantage when tension is high (more twists), with advantage when things are calm.
+advantage: true
 roll: 1d6
 entries:
   - { id: twist, range: 1, result: 'Twist: something changes', table: twists }

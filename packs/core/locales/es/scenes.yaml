@@ -1,6 +1,6 @@
 scene-twist:
   name: Giro de escena
-  description: Tira al empezar una escena; con un 1 no sale como esperabas.
+  description: Tira al empezar una escena; con un 1 no sale como esperabas. Con desventaja si la tensión es alta (más giros), con ventaja si todo está tranquilo.
   entries:
     twist: 'Giro: algo cambia'
     expected: Como se esperaba
