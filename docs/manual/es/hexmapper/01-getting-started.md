@@ -4,7 +4,7 @@ Hexmapper dibuja mapas de hexágonos para hexcrawls y campañas sandbox, y permi
 
 ## La pantalla
 
-- **Barra de herramientas** (izquierda): arriba las herramientas —Seleccionar, Terreno, Regiones, Caminos y ríos, Iconos, Texto, Tokens, Jugar y el Oráculo— y abajo las acciones del mapa: Ajustes, Deshacer, Rehacer, Encuadrar, Nuevo, Mapas, Guardar y Exportar.
+- **Barra de herramientas** (izquierda): arriba las herramientas —Seleccionar, Terreno, Regiones, Caminos y ríos, Iconos, Texto, Tokens, Jugar y Oracle— y abajo las acciones del mapa: Ajustes, Deshacer, Rehacer, Encuadrar, Nuevo, Mapas, Guardar y Exportar.
 - **Mapa** (centro): arrastra con el botón central o con <kbd>Espacio</kbd> + arrastrar para desplazarte, usa la rueda para el zoom y <kbd>F</kbd> encuadra el mapa entero.
 - **Panel lateral** (derecha): las opciones de la herramienta activa, el hex seleccionado y las capas. El botón de nueve puntos junto al nombre del mapa abre las demás aplicaciones de OpenTabletop.
 

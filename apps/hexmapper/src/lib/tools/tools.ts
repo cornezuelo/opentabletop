@@ -130,12 +130,15 @@ class TokenTool implements Tool {
 
   /** Handles the press if it hits a token (or places one); false lets others handle it. */
   down(cell: Offset, info: PointerInfo): boolean {
-    // On the token or, with the token tool (Shift adds another), anywhere on its hex.
-    const id =
-      hitTestToken(info.world) ??
-      (!this.wholeHex || info.shift || !inBounds(cell, editor.map.grid)
-        ? null
-        : nearestTokenIn(cell, info.world))
+    // Shift+click with the token tool always adds a token, even over another one.
+    const adding = this.place && info.shift && info.button === 0
+    // On the token or, with the token tool and play, anywhere on its hex.
+    const id = adding
+      ? null
+      : (hitTestToken(info.world) ??
+        (!this.wholeHex || info.shift || !inBounds(cell, editor.map.grid)
+          ? null
+          : nearestTokenIn(cell, info.world)))
     if (info.button === 2) {
       if (!id || blockedByLock('tokens')) return !!id
       const token = editor.getToken(id)!

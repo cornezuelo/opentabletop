@@ -11,7 +11,7 @@
 | <kbd>T</kbd>                                                                 | Texto                                                 |
 | <kbd>K</kbd>                                                                 | Tokens                                                |
 | <kbd>P</kbd>                                                                 | Jugar                                                 |
-| <kbd>O</kbd>                                                                 | Panel del Oráculo                                     |
+| <kbd>O</kbd>                                                                 | Panel de Oracle                                       |
 | <kbd>F</kbd>                                                                 | Encuadrar el mapa                                     |
 | <kbd>Espacio</kbd> + arrastrar, botón central                                | Desplazar                                             |
 | Rueda                                                                        | Zoom                                                  |

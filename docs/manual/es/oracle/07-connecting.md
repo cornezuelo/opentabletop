@@ -4,7 +4,7 @@ No hace falta programar para crear tablas que reaccionen al mapa, ni un sistema 
 
 ## 1. Una tabla que depende del terreno
 
-Cuando tiras desde el Hexmapper (el panel del Oráculo o un viaje), la tabla recibe lo que el mapa sabe del hex. `when` mantiene una entrada solo si coincide:
+Cuando tiras desde el Hexmapper (el panel de Oracle o un viaje), la tabla recibe lo que el mapa sabe del hex. `when` mantiene una entrada solo si coincide:
 
 ```yaml
 kind: table

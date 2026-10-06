@@ -3,7 +3,7 @@ import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   app: {
-    title: 'Oráculo',
+    title: 'Oracle',
     tagline: 'Tira y crea tablas aleatorias, generadores, oráculos y mazos.',
   },
   nav: {
@@ -38,7 +38,7 @@ export const es: Messages<typeof en> = {
     personal: 'Contenido de uso personal de packs-private/: no lo compartas ni lo publiques.',
   },
   welcome: {
-    title: 'Oráculo',
+    title: 'Oracle',
     body: 'Elige una tabla, generador, oráculo o mazo a la izquierda para tirarlo. Los packs son carpetas de ficheros YAML: los incluidos son de solo lectura (edita una copia) y los tuyos se guardan en este navegador. Expórtalos como .zip para tener copia o compartirlos.',
     packs: '{packs} packs, {definitions} definiciones',
   },

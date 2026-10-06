@@ -41,11 +41,17 @@
   }
 
   /** Becoming the party demotes the current one: there is only one. */
+  /**
+   * Changing the kind keeps the token's look: an automatic color is fixed first, since
+   * the automatic one depends on the kind. Becoming the party demotes the current one.
+   */
   function setKind(kind: TokenKind) {
     if (!selected) return
+    const keepColor = (t: MapToken): MapToken => ({ ...t, color: tokenColor(t, editor.tokens) })
     const party = editor.tokens.find((t) => t.kind === 'party' && t.id !== selected.id)
-    if (kind === 'party' && party) editor.updateToken(party.id, (t) => ({ ...t, kind: 'pc' }))
-    update((t) => ({ ...t, kind }))
+    if (kind === 'party' && party)
+      editor.updateToken(party.id, (t) => ({ ...keepColor(t), kind: 'pc' }))
+    update((t) => ({ ...keepColor(t), kind }))
   }
 
   /** The token before a slider drag: the drag previews live and is recorded once. */

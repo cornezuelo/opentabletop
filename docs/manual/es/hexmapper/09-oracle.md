@@ -1,6 +1,6 @@
-# El Oráculo en el mapa
+# Oracle en el mapa
 
-El botón del Oráculo (el hexágono dorado bajo Jugar, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa.
+El botón de Oracle (el hexágono dorado bajo Jugar, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa.
 
 ## Contexto del mapa
 

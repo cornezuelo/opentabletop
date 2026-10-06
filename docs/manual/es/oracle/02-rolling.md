@@ -10,7 +10,7 @@ La tarjeta del resultado muestra el texto, los valores que fija la entrada (p. e
 
 Algunas definiciones leen valores: el terreno, la estación, un modificador… El recuadro **Contexto** lista los que necesita una definición (o cualquier tabla que tire), con los valores que aparecen en sus condiciones como sugerencias. En blanco significa desconocido. La entrada de un oráculo (p. ej. la probabilidad) es aquí una lista.
 
-En el Hexmapper estos valores vienen del mapa y del viaje; consulta [El Oráculo en el mapa](../hexmapper/09-oracle.md).
+En el Hexmapper estos valores vienen del mapa y del viaje; consulta [Oracle en el mapa](../hexmapper/09-oracle.md).
 
 ## Ventaja y desventaja
 
