@@ -1,0 +1,21 @@
+{
+  "name": "@open-tabletop/oracle-engine",
+  "version": "0.0.0",
+  "description": "Generic engine for random tables, oracles, generators and decks, loaded from validated YAML/JSON packs.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/conditions": "*",
+    "@open-tabletop/dice": "*",
+    "@open-tabletop/random": "*",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
+  }
+}
