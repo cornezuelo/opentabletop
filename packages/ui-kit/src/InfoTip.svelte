@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '../lib/ui/tooltip'
+  import { tooltip } from './tooltip'
 
   /** Small "i" badge that explains the control next to it. */
   let { text }: { text: string } = $props()

@@ -1,0 +1,10 @@
+yes-no:
+  name: ¿Sí o no?
+  description: Haz una pregunta que se responda con sí o no, elige lo probable que es y tira.
+  entries:
+    yes-and: Sí, y algo más
+    yes: Sí
+    yes-but: Sí, pero a un precio
+    no-but: No, pero hay una forma
+    no: 'No'
+    no-and: No, y empeora

@@ -1,0 +1,29 @@
+scene-twist:
+  name: Giro de escena
+  description: Tira al empezar una escena; con un 1 no sale como esperabas.
+  entries:
+    twist: 'Giro: algo cambia'
+    expected: Como se esperaba
+twists:
+  name: Giros
+  entries:
+    r1: Alguien inesperado ya está allí.
+    r2: El lugar no es lo que parecía.
+    r3: Un aliado necesita ayuda ahora mismo.
+    r4: Una amenaza llega antes de tiempo.
+    r5: Falta algo importante.
+    r6: Un viejo enemigo hace una oferta.
+    r7: La naturaleza se interpone.
+    r8: Una pista apunta a otro sitio.
+complications:
+  name: Complicaciones
+  description: Roba cuando todo va demasiado fácil. Cada carta sale una vez hasta que barajes.
+  cards:
+    ambush: Una emboscada.
+    broken: Se rompe el equipo.
+    lost: Se pierde el camino.
+    hurt: Alguien sale herido.
+    delay: Un gran retraso.
+    witness: Alguien lo ha visto todo.
+    storm: Una tormenta repentina.
+    lie: Alguien ha mentido.

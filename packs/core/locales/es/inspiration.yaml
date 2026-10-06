@@ -1,0 +1,49 @@
+action:
+  name: Acción
+  entries:
+    r1: Buscar
+    r2: Proteger
+    r3: Traicionar
+    r4: Huir
+    r5: Negociar
+    r6: Esconder
+    r7: Revelar
+    r8: Destruir
+    r9: Construir
+    r10: Seguir
+    r11: Avisar
+    r12: Robar
+    r13: Sanar
+    r14: Invocar
+    r15: Atrapar
+    r16: Celebrar
+    r17: Llorar
+    r18: Desafiar
+    r19: Defender
+    r20: Transformar
+subject:
+  name: Asunto
+  entries:
+    r1: a un desconocido
+    r2: una vieja deuda
+    r3: el tiempo
+    r4: un mapa
+    r5: una bestia
+    r6: unas ruinas
+    r7: a un rival
+    r8: un secreto
+    r9: el camino
+    r10: a un niño
+    r11: una reliquia
+    r12: la ley
+    r13: un fuego
+    r14: una promesa
+    r15: a los muertos
+    r16: un banquete
+    r17: una enfermedad
+    r18: el río
+    r19: una carta
+    r20: a los dioses
+prompt:
+  name: Inspiración
+  description: Una acción y un asunto que interpretar como lo que pasa a continuación.

@@ -147,7 +147,7 @@ export function createSession(options: {
   const add = (
     s: SessionState,
     entries: JournalEntry[],
-    entry: Omit<JournalEntry, 'id' | 'at' | 'time'>,
+    entry: Omit<JournalEntry, 'id' | 'at' | 'time'> & { time?: JournalEntry['time'] },
   ) => {
     const full: JournalEntry = { id: `j${s.nextEntry++}`, time: s.travel.time, at: now(), ...entry }
     s.journal.push(full)
@@ -188,6 +188,7 @@ export function createSession(options: {
             add(s, entries, {
               source: 'travel',
               code: 'CHECK_PENDING',
+              time: event.time,
               data: { event: event.check.event, id: event.check.id },
             })
             continue
@@ -201,6 +202,8 @@ export function createSession(options: {
           add(s, entries, {
             source: 'oracle',
             code: 'ORACLE_RESULT',
+            // When the check came up (e.g. a night encounter belongs to the camp, not dawn).
+            time: event.time,
             text: out.resolution.text,
             data: { event: event.check.event, table: binding.resolve, value },
           })

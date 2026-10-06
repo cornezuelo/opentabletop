@@ -5,6 +5,9 @@ export { compilePacks, resolveRef } from './compile/compile'
 export type {
   Compiled,
   CompiledDeck,
+  CompiledEntry,
+  EntryList,
+  Ref,
   CompiledGenerator,
   CompiledOracle,
   CompiledTable,

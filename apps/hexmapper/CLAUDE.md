@@ -20,13 +20,13 @@ src/
     labels/       # bundled fonts
     print/        # paper sizes, physical hex size, fitting the grid to paper
     io/           # files, IndexedDB map library, deep links, PNG/PDF export
-    i18n/         # typed en/es dictionaries (moving to @open-tabletop/ui-kit)
+    i18n/         # typed en/es dictionaries
   components/     # Svelte UI (panels, toolbar…); components/hex/ = hex metadata editor
 scripts/
   build-icons.mjs # extracts the curated icon subset from @iconify-json/game-icons
 ```
 
-Uses `@open-tabletop/hex` (grid math) and `@open-tabletop/note-refs` (note links).
+Uses `@open-tabletop/hex` (grid math), `@open-tabletop/note-refs` (note links) and `@open-tabletop/ui-kit` (tooltips, info tips, toasts).
 
 Principles:
 
@@ -39,7 +39,7 @@ Principles:
 
 ## Current data model
 
-See `src/lib/model/types.ts`. The editor keeps its own model (fast to edit, used by the local library) and **files are OTD bundles** (`src/lib/io/otd.ts`): `HexMap` → `Map`, `HexData` → `Hex`, POIs → `POI` entities with a `location`, `fields` → `stats`, `note` → `noteRef`; rendering, printing, icons, labels and assets → `ext.hexmapper`. Data the editor doesn't understand (other tools' `ext` namespaces, parties, log, other maps) is kept in `map.foreign` and written back untouched. Legacy `.hexmap.json` files still open.
+See `src/lib/model/types.ts`. The editor keeps its own model (fast to edit, used by the local library) and **files are OTD bundles** (`src/lib/io/otd.ts`): `HexMap` → `Map`, `HexData` → `Hex`, POIs → `POI` entities with a `location`, `fields` → `stats`, `note` → `noteRef`; rendering, printing, icons, labels and assets → `ext.hexmapper`. Data the editor doesn't understand (other tools' `ext` namespaces, parties, log, other maps) is kept in `map.foreign` and written back untouched.
 
 **Hexes are keyed by offset coordinates (`col,row`), not axial.** Offset "odd-q" for flat-top, "odd-r" for pointy-top. Switching orientation keeps every cell's content and CCRR label. Math is done in axial (`@open-tabletop/hex`). Shrinking the map keeps data of cells left outside, so undo loses nothing.
 
@@ -92,9 +92,10 @@ Done:
 
 ### Play (with the engines)
 
-- [x] Files in OTD (`.otd.json`, importing `.hexmap.json`), world scale.
-- [x] Play mode (tool ▶, key P): party token (bundled party icons or an uploaded image, optional halo), trail. _Simple_: click to move. _With rules_: system (generic or a pack with travel-rules, e.g. Kal-Arath), destination and A\* route, travel / 1 hex / camp / rest, checks resolved by the Oracle through pack bindings, journal. Saved as OTD party + log + state.oracle.
-- [ ] A standalone Oracle panel (roll any table, history), reusable as `oracle-ui`.
+- [x] Files in OTD (`.otd.json`), world scale.
+- [x] Play mode (tool ▶, key P): party token (bundled party icons or an uploaded image, optional halo), trail. _Simple_: click to move. _With rules_: system (generic or a pack with travel-rules, e.g. Kal-Arath), destination and A\* route, travel / 1 hex / camp / rest (the actions each system declares), pack-declared party stats, checks resolved by the Oracle through pack bindings, journal. Saved as OTD party + log + state.oracle.
+- [ ] Embed the Oracle app's roll panel (any table, history) as an `oracle-ui` package.
+- [ ] Use the user packs created in the Oracle app (same browser storage key when both apps share an origin).
 
 ### Later
 

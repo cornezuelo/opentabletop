@@ -1,0 +1,37 @@
+kind: table
+id: scene-twist
+name: Scene twist
+description: Roll when a scene starts; on a 1 it doesn't go as expected.
+roll: 1d6
+entries:
+  - { id: twist, range: 1, result: 'Twist: something changes', table: twists }
+  - { id: expected, range: 2-6, result: 'As expected' }
+---
+kind: table
+id: twists
+name: Twists
+roll: 1d8
+entries:
+  - { id: r1, range: 1, result: Someone unexpected is already there. }
+  - { id: r2, range: 2, result: The place is not what it seemed. }
+  - { id: r3, range: 3, result: An ally needs help right now. }
+  - { id: r4, range: 4, result: A threat arrives early. }
+  - { id: r5, range: 5, result: Something important is missing. }
+  - { id: r6, range: 6, result: An old enemy makes an offer. }
+  - { id: r7, range: 7, result: Nature gets in the way. }
+  - { id: r8, range: 8, result: A clue points somewhere else. }
+---
+kind: deck
+id: complications
+name: Complications
+description: Draw when things get too easy. Each card comes up once until you reshuffle.
+reshuffle: manual
+cards:
+  - { id: ambush, result: An ambush. }
+  - { id: broken, result: Gear breaks. }
+  - { id: lost, result: The way is lost. }
+  - { id: hurt, result: Someone gets hurt. }
+  - { id: delay, result: A long delay. }
+  - { id: witness, result: Someone saw everything. }
+  - { id: storm, result: A sudden storm. }
+  - { id: lie, result: Someone lied. }

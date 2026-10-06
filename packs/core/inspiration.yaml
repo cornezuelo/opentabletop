@@ -1,0 +1,61 @@
+# Word tables to interpret freely: combine an action and a subject.
+kind: table
+id: action
+name: Action
+roll: 1d20
+entries:
+  - { id: r1, range: 1, result: Seek }
+  - { id: r2, range: 2, result: Guard }
+  - { id: r3, range: 3, result: Betray }
+  - { id: r4, range: 4, result: Escape }
+  - { id: r5, range: 5, result: Bargain }
+  - { id: r6, range: 6, result: Hide }
+  - { id: r7, range: 7, result: Reveal }
+  - { id: r8, range: 8, result: Destroy }
+  - { id: r9, range: 9, result: Build }
+  - { id: r10, range: 10, result: Follow }
+  - { id: r11, range: 11, result: Warn }
+  - { id: r12, range: 12, result: Steal }
+  - { id: r13, range: 13, result: Heal }
+  - { id: r14, range: 14, result: Summon }
+  - { id: r15, range: 15, result: Trap }
+  - { id: r16, range: 16, result: Celebrate }
+  - { id: r17, range: 17, result: Mourn }
+  - { id: r18, range: 18, result: Challenge }
+  - { id: r19, range: 19, result: Protect }
+  - { id: r20, range: 20, result: Transform }
+---
+kind: table
+id: subject
+name: Subject
+roll: 1d20
+entries:
+  - { id: r1, range: 1, result: a stranger }
+  - { id: r2, range: 2, result: an old debt }
+  - { id: r3, range: 3, result: the weather }
+  - { id: r4, range: 4, result: a map }
+  - { id: r5, range: 5, result: a beast }
+  - { id: r6, range: 6, result: a ruin }
+  - { id: r7, range: 7, result: a rival }
+  - { id: r8, range: 8, result: a secret }
+  - { id: r9, range: 9, result: the road }
+  - { id: r10, range: 10, result: a child }
+  - { id: r11, range: 11, result: a relic }
+  - { id: r12, range: 12, result: the law }
+  - { id: r13, range: 13, result: a fire }
+  - { id: r14, range: 14, result: a promise }
+  - { id: r15, range: 15, result: the dead }
+  - { id: r16, range: 16, result: a feast }
+  - { id: r17, range: 17, result: a sickness }
+  - { id: r18, range: 18, result: the river }
+  - { id: r19, range: 19, result: a letter }
+  - { id: r20, range: 20, result: the gods }
+---
+kind: generator
+id: prompt
+name: Prompt
+description: An action and a subject to interpret as what happens next.
+fields:
+  action: { table: action }
+  subject: { table: subject }
+template: '{{action.text}} {{subject.text}}'

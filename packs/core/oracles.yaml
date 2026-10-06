@@ -1,0 +1,39 @@
+# Generic oracles for solo play. Original content, MIT like the rest of the repo.
+kind: oracle
+id: yes-no
+name: Yes or no?
+description: Ask a question that can be answered yes or no, pick how likely it is and roll.
+inputs:
+  odds:
+    options: [very-unlikely, unlikely, even, likely, very-likely]
+    default: even
+roll: 1d6
+variants:
+  very-unlikely:
+    entries:
+      - { id: yes-and, range: 1, result: 'Yes, and something more' }
+      - { id: no, range: 2-5, result: 'No' }
+      - { id: no-and, range: 6, result: 'No, and it gets worse' }
+  unlikely:
+    entries:
+      - { id: yes, range: 1-2, result: 'Yes' }
+      - { id: no-but, range: 3, result: 'No, but there is a way' }
+      - { id: no, range: 4-6, result: 'No' }
+  even:
+    entries:
+      - { id: yes-and, range: 1, result: 'Yes, and something more' }
+      - { id: yes, range: 2, result: 'Yes' }
+      - { id: yes-but, range: 3, result: 'Yes, but at a cost' }
+      - { id: no-but, range: 4, result: 'No, but there is a way' }
+      - { id: no, range: 5, result: 'No' }
+      - { id: no-and, range: 6, result: 'No, and it gets worse' }
+  likely:
+    entries:
+      - { id: yes, range: 1-4, result: 'Yes' }
+      - { id: yes-but, range: 5, result: 'Yes, but at a cost' }
+      - { id: no, range: 6, result: 'No' }
+  very-likely:
+    entries:
+      - { id: yes-and, range: 1, result: 'Yes, and something more' }
+      - { id: yes, range: 2-5, result: 'Yes' }
+      - { id: no-but, range: 6, result: 'No, but there is a way' }

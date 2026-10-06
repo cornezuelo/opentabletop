@@ -9,7 +9,7 @@ import {
 import { getLocale } from '../i18n/index.svelte'
 import type { PlayState } from '../model/types'
 import { editor } from '../store/editor.svelte'
-import { showToast } from '../store/toasts.svelte'
+import { showToast } from '@open-tabletop/ui-kit'
 import { getSystem, oracle } from './systems'
 import { mapWorld } from './world'
 

@@ -167,6 +167,25 @@ describe('session', () => {
     })
   })
 
+  it('logs a check result at the time the check came up', () => {
+    const { bindings } = parseBindings({ on: { NIGHT: { resolve: 'encounter' } } }, 'sys')
+    const session = createSession({
+      travel: createTravelEngine({
+        world,
+        rules: { ...genericTravelRules, checks: [{ event: 'NIGHT', at: 'camp' }] },
+      }),
+      oracle: createOracleEngine({ registry, random: sequence([0.9]) }),
+      bindings,
+    })
+    const evening = {
+      ...start(),
+      travel: { ...start().travel, time: defaultCalendar.at(1, '18:00') },
+    }
+    const { entries } = session.step(evening, { type: 'camp' })
+    const night = entries.find((e) => e.code === 'ORACLE_RESULT')
+    expect(night?.time).toBe(defaultCalendar.at(1, '18:00'))
+  })
+
   it('parses declared party stats and localizes their texts', () => {
     const { bindings } = parseBindings({
       on: {},

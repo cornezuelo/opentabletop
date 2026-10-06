@@ -2,7 +2,7 @@
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { exportPdf, exportPng, gridSizeMm, PDF_DPI, PNG_PIXELS_PER_HEX } from '../lib/io/export'
   import { editor } from '../lib/store/editor.svelte'
-  import { showToast } from '../lib/store/toasts.svelte'
+  import { showToast } from '@open-tabletop/ui-kit'
 
   let pixelsPerHex = $state<number>(100)
   let transparent = $state(false)

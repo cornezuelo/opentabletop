@@ -68,7 +68,7 @@ export type TravelEvent =
   | { type: 'ROUTE_PLANNED'; route: string[]; strategy: RouteStrategy }
   | { type: 'NO_ROUTE'; to: string }
   | { type: 'HEX_ENTERED'; hex: string; time: GameTime }
-  | { type: 'CHECK_REQUIRED'; check: PendingCheck }
+  | { type: 'CHECK_REQUIRED'; check: PendingCheck; time: GameTime }
   | { type: 'CHECK_RESOLVED'; id: string; outcome: CheckOutcome }
   | { type: 'DESTINATION_REACHED'; hex: string }
   | { type: 'ROUTE_BLOCKED'; from: string; to: string }
@@ -213,7 +213,7 @@ export function createTravelEngine(options: {
       if (rule.unless && matches(rule.unless, context)) continue
       const check: PendingCheck = { id: `c${state.nextCheckId++}`, event: rule.event, context }
       state.pendingChecks.push(check)
-      events.push({ type: 'CHECK_REQUIRED', check })
+      events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
     }
   }
 

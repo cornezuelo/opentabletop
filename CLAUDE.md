@@ -33,11 +33,11 @@ packages/                   # libraries, scope @open-tabletop/*
   travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), decoupled from travel
   session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal
-  ui-kit/                   # ⏳ shared Svelte: theme, i18n, base components
+  ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts
   oracle-ui/  travel-ui/    # ⏳ embeddable Svelte components for each engine
 apps/
   hexmapper/                # ✅ map editor (see apps/hexmapper/CLAUDE.md)
-  oracle/                   # ⏳ standalone oracle app
+  oracle/                   # ✅ roll and edit packs (see apps/oracle/CLAUDE.md)
   travel/                   # ⏳ standalone travel app
 packs/                      # data packs (tables, travel rules, weather…)
   core/                     # ⏳ generic FOSS content (yes/no oracle, etc.)
@@ -125,9 +125,9 @@ Commands (from the root): `npm run dev` (hexmapper), `npm test`, `npm run check`
 5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
 6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`; legacy `.hexmap.json` still opens).
 7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). Extracting reusable `*-ui` packages is still pending.
-8. [ ] Standalone `oracle` and `travel` apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
+8. [ ] Standalone `oracle` (✅ first version: browse and roll every definition, history, form editor for tables with translations, YAML editor with live diagnostics, new packs, zip import/export) and `travel` (pending) apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
 9. [ ] Later: `weather-engine` (Markov / hex flower), CLI (`oracle roll …`, `oracle validate …`), table editor, Web Components for non-Svelte hosts.
 
 **Versioning and releases (to define):** we work on `main` for now. Before the first release, agree on a workflow for tags and releases (semver; repo-wide vs per-package versions; changelog, e.g. Changesets; what triggers a tag). No release until there is an alpha MVP the user is happy with; that one becomes `0.1`.
 
-The hexmapper's own roadmap is in `apps/hexmapper/CLAUDE.md`.
+The apps' own roadmaps are in `apps/hexmapper/CLAUDE.md` and `apps/oracle/CLAUDE.md`.

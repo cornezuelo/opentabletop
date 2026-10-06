@@ -1,7 +1,7 @@
 import { formatCoord, keyOf, parseKey } from '@open-tabletop/hex'
 import { t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
-import { showToast } from '../store/toasts.svelte'
+import { showToast } from '@open-tabletop/ui-kit'
 import { view } from '../store/view'
 import { openLibraryMap } from './actions.svelte'
 import { formatDeepLink, parseDeepLink, resolveHexLabel } from './deepLink'

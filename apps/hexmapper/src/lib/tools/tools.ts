@@ -24,7 +24,7 @@ import {
 import { t, type MessageKey } from '../i18n/index.svelte'
 import type { HexIcon, LayerId } from '../model/types'
 import { editor, type ToolId } from '../store/editor.svelte'
-import { showToast } from '../store/toasts.svelte'
+import { showToast } from '@open-tabletop/ui-kit'
 
 /** Tells the user why nothing happened when a tool targets a locked layer. */
 function blockedByLock(layer: LayerId): boolean {

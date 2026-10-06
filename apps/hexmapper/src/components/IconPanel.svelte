@@ -15,7 +15,7 @@
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexData, IconStyle } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
-  import { showToast } from '../lib/store/toasts.svelte'
+  import { showToast } from '@open-tabletop/ui-kit'
 
   type Filter = 'all' | IconCategory | 'custom'
   const filters: Filter[] = ['all', ...ICON_CATEGORIES, 'custom']

@@ -1,0 +1,79 @@
+/* OpenTabletop shared theme: tokens, base elements, form controls, tooltip. */
+:root {
+  --bg: #1b1a17;
+  --panel: #26241f;
+  --panel-border: #3a362d;
+  --text: #e8e2d4;
+  --text-muted: #9c9480;
+  --accent: #c8a24a;
+  --canvas-bg: #12110f;
+  --danger: #c0504d;
+
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input[type='text'],
+input[type='search'],
+input[type='number'],
+textarea,
+select {
+  padding: 5px 8px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 1px solid var(--accent);
+  border-color: var(--accent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-muted);
+}
+
+button.icon {
+  flex: none;
+  width: 30px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.icon:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+button.link {
+  padding: 0;
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}

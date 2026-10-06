@@ -21,12 +21,10 @@
   import { availableActions } from '@open-tabletop/travel-engine'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
-  import InfoTip from './InfoTip.svelte'
-  import { tooltip } from '../lib/ui/tooltip'
+  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { AddAssetCommand } from '../lib/commands/assets'
   import { importImageFile, pickImageFiles } from '../lib/io/importImage'
   import { newId } from '../lib/model/id'
-  import { showToast } from '../lib/store/toasts.svelte'
 
   const customToken = $derived.by(() => {
     void editor.revision

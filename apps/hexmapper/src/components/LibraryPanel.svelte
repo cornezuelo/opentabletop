@@ -10,7 +10,7 @@
   } from '../lib/io/actions.svelte'
   import { formatDeepLink } from '../lib/io/deepLink'
   import { editor } from '../lib/store/editor.svelte'
-  import { showToast } from '../lib/store/toasts.svelte'
+  import { showToast } from '@open-tabletop/ui-kit'
 
   type Entry = Awaited<ReturnType<typeof listLibrary>>[number]
   let entries = $state<Entry[]>([])

@@ -4,7 +4,7 @@
   import type { GridSettings } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
-  import { showToast } from '../lib/store/toasts.svelte'
+  import { showToast } from '@open-tabletop/ui-kit'
 
   async function copyId() {
     try {
