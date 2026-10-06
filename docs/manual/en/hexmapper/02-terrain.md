@@ -11,7 +11,19 @@ Paint the land with the **Terrain** tool (<kbd>B</kbd>).
 
 ## The palette
 
-The palette lists the map's terrains: steppe, plains, farmland, forest, jungle, taiga, hills, mountains, badlands, desert, swamp, tundra, snow, volcanic, lake and sea. **Edit palette** lets you change each one:
+The palette lists the map's terrains, grouped:
+
+| Group           | Terrains (ids)                                                    |
+| --------------- | ----------------------------------------------------------------- |
+| Lowlands        | steppe, plains, farmland, heath, savanna                          |
+| Forests         | forest, dense-forest, jungle, taiga                               |
+| Wetlands        | swamp, marsh                                                      |
+| Highlands       | hills, mountains, peaks, volcanic                                 |
+| Arid            | desert, badlands, canyon, oasis                                   |
+| Cold            | tundra, snow, glacier                                             |
+| Water and coast | coast, lake, sea, deep-sea (coast is land: the shore you walk on) |
+
+Your own terrains go under **Other**. Each map keeps the palette it was made with: in **Edit palette**, **Add the default terrains this map lacks** brings older maps up to date. **Edit palette** lets you change each one:
 
 - **Color** and **name** (empty name = the translated default).
 - **Symbol**: the small drawing on its hexes (see below).

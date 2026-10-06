@@ -21,19 +21,29 @@ export const DEFAULT_GLYPHS: Readonly<Record<string, string>> = {
   steppe: 'game:high-grass',
   plains: 'game:grass',
   farmland: 'game:wheat',
+  heath: 'game:flowers',
+  savanna: 'game:oak',
   forest: 'game:pine-tree',
+  'dense-forest': 'game:forest',
   jungle: 'game:palm-tree',
   taiga: 'game:pine-tree',
+  swamp: 'game:reed',
+  marsh: 'game:lotus-flower',
   hills: 'game:hills',
   mountains: 'game:mountains',
-  badlands: 'game:falling-rocks',
+  peaks: 'game:peaks',
+  volcanic: 'game:volcano',
   desert: 'game:desert',
-  swamp: 'game:reed',
+  badlands: 'game:falling-rocks',
+  canyon: 'game:cliff-crossing',
+  oasis: 'game:oasis',
   tundra: 'game:snowing',
   snow: 'game:snowflake-1',
-  volcanic: 'game:volcano',
+  glacier: 'game:iceberg',
+  coast: 'game:seagull',
   lake: 'game:waves',
   sea: 'game:wave-crest',
+  'deep-sea': 'game:big-wave',
 }
 
 /** Default palette (biomes), first tuned for the Kal-Arath steppe. Names come from i18n (`terrains.<id>`). */
@@ -42,21 +52,77 @@ export const DEFAULT_TERRAINS: readonly TerrainType[] = (
     { id: 'steppe', color: '#c9b977' },
     { id: 'plains', color: '#a8c070' },
     { id: 'farmland', color: '#d6c56a' },
+    { id: 'heath', color: '#8e7d8a' },
+    { id: 'savanna', color: '#c4b25c' },
     { id: 'forest', color: '#4f7a3a' },
+    { id: 'dense-forest', color: '#2f5530' },
     { id: 'jungle', color: '#2f6b3f' },
     { id: 'taiga', color: '#3f5f4a' },
+    { id: 'swamp', color: '#5f6e4a' },
+    { id: 'marsh', color: '#738a5c' },
     { id: 'hills', color: '#a08a5a' },
     { id: 'mountains', color: '#7d7468' },
-    { id: 'badlands', color: '#b5734a' },
+    { id: 'peaks', color: '#b9b3ab' },
+    { id: 'volcanic', color: '#4a3b38' },
     { id: 'desert', color: '#e2cd8f' },
-    { id: 'swamp', color: '#5f6e4a' },
+    { id: 'badlands', color: '#b5734a' },
+    { id: 'canyon', color: '#a65b3c' },
+    { id: 'oasis', color: '#7fae6a' },
     { id: 'tundra', color: '#b9c3b4' },
     { id: 'snow', color: '#e6ecef' },
-    { id: 'volcanic', color: '#4a3b38' },
+    { id: 'glacier', color: '#cfe4ec' },
+    { id: 'coast', color: '#dccb9c' },
     { id: 'lake', color: '#5b8fb0', water: true },
     { id: 'sea', color: '#36668a', water: true },
+    { id: 'deep-sea', color: '#244a6b', water: true },
   ] as TerrainType[]
 ).map((t) => ({ ...t, glyph: DEFAULT_GLYPHS[t.id] }))
+
+export const TERRAIN_GROUPS = [
+  'lowlands',
+  'forests',
+  'wetlands',
+  'highlands',
+  'arid',
+  'cold',
+  'water',
+  'other',
+] as const
+export type TerrainGroup = (typeof TERRAIN_GROUPS)[number]
+
+/** Palette groups of the default terrains (only for display); others go to "other". */
+const GROUP_OF: Readonly<Record<string, TerrainGroup>> = {
+  steppe: 'lowlands',
+  plains: 'lowlands',
+  farmland: 'lowlands',
+  heath: 'lowlands',
+  savanna: 'lowlands',
+  forest: 'forests',
+  'dense-forest': 'forests',
+  jungle: 'forests',
+  taiga: 'forests',
+  swamp: 'wetlands',
+  marsh: 'wetlands',
+  hills: 'highlands',
+  mountains: 'highlands',
+  peaks: 'highlands',
+  volcanic: 'highlands',
+  desert: 'arid',
+  badlands: 'arid',
+  canyon: 'arid',
+  oasis: 'arid',
+  tundra: 'cold',
+  snow: 'cold',
+  glacier: 'cold',
+  coast: 'water',
+  lake: 'water',
+  sea: 'water',
+  'deep-sea': 'water',
+}
+
+export function terrainGroup(terrain: TerrainType): TerrainGroup {
+  return GROUP_OF[terrain.id] ?? (terrain.water ? 'water' : 'other')
+}
 
 export const DEFAULT_GLYPH_OPACITY = 0.45
 

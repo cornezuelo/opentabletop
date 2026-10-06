@@ -36,6 +36,12 @@ const CATEGORIES = {
     'iceberg',
     'volcano',
     'smoking-volcano',
+    'flowers',
+    'lotus-flower',
+    'cliff-crossing',
+    'oasis',
+    'seagull',
+    'big-wave',
   ],
   party: [
     'meeple',

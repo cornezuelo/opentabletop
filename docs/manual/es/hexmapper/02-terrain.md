@@ -11,7 +11,19 @@ Pinta el territorio con la herramienta **Terreno** (<kbd>B</kbd>).
 
 ## La paleta
 
-La paleta lista los terrenos del mapa: estepa, llanura, cultivos, bosque, jungla, taiga, colinas, montañas, tierras baldías, desierto, pantano, tundra, nieve, volcánico, lago y mar. **Editar paleta** permite cambiar cada uno:
+La paleta lista los terrenos del mapa, agrupados:
+
+| Grupo         | Terrenos (ids)                                                                |
+| ------------- | ----------------------------------------------------------------------------- |
+| Tierras bajas | steppe, plains, farmland, heath, savanna                                      |
+| Bosques       | forest, dense-forest, jungle, taiga                                           |
+| Humedales     | swamp, marsh                                                                  |
+| Tierras altas | hills, mountains, peaks, volcanic                                             |
+| Árido         | desert, badlands, canyon, oasis                                               |
+| Frío          | tundra, snow, glacier                                                         |
+| Agua y costa  | coast, lake, sea, deep-sea (la costa es tierra: la orilla por la que se anda) |
+
+Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó: en **Editar paleta**, **Añadir los terrenos por defecto que le faltan a este mapa** pone al día los mapas antiguos. **Editar paleta** permite cambiar cada uno:
 
 - **Color** y **nombre** (nombre vacío = el traducido por defecto).
 - **Símbolo**: el pequeño dibujo de sus hexes (ver abajo).

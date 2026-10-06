@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { TERRAIN_GROUPS, terrainGroup } from '../lib/model/defaults'
   import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'
@@ -23,6 +24,14 @@
   }
 
   let editing = $state(false)
+
+  /** The palette by group (lowlands, forests…), each in the map's own order. */
+  const groups = $derived(
+    TERRAIN_GROUPS.map((id) => ({
+      id,
+      terrains: editor.terrains.filter((terrain) => terrainGroup(terrain) === id),
+    })).filter((g) => g.terrains.length),
+  )
 
   const modes: { id: TerrainMode; label: MessageKey; glyph: string; icon?: LineIconName }[] = [
     { id: 'brush', label: 'terrainMode.brush', glyph: '', icon: 'brush' },
@@ -79,19 +88,22 @@
   <TerrainEditor />
 {:else}
   <div class="palette" role="radiogroup">
-    {#each editor.terrains as terrain (terrain.id)}
-      <button
-        role="radio"
-        aria-checked={editor.terrainId === terrain.id}
-        class:active={editor.terrainId === terrain.id}
-        onclick={() => {
-          editor.terrainId = terrain.id
-          if (editor.terrainMode === 'erase') editor.terrainMode = 'brush'
-        }}
-      >
-        <span class="swatch" style:background={terrain.color}></span>
-        {terrainName(terrain)}
-      </button>
+    {#each groups as group (group.id)}
+      <span class="group">{t(`terrainGroups.${group.id}` as MessageKey)}</span>
+      {#each group.terrains as terrain (terrain.id)}
+        <button
+          role="radio"
+          aria-checked={editor.terrainId === terrain.id}
+          class:active={editor.terrainId === terrain.id}
+          onclick={() => {
+            editor.terrainId = terrain.id
+            if (editor.terrainMode === 'erase') editor.terrainMode = 'brush'
+          }}
+        >
+          <span class="swatch" style:background={terrain.color}></span>
+          {terrainName(terrain)}
+        </button>
+      {/each}
     {/each}
   </div>
 {/if}
@@ -130,6 +142,15 @@
     flex-direction: column;
     gap: 4px;
     color: var(--text-muted);
+  }
+
+  .group {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .palette-header {

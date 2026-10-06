@@ -2,6 +2,7 @@
   import { SetTerrainsCommand, terrainUsage } from '../lib/commands/terrains'
   import { en } from '../lib/i18n/en'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
+  import { DEFAULT_TERRAINS } from '../lib/model/defaults'
   import { newId } from '../lib/model/id'
   import type { TerrainType } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -42,6 +43,16 @@
     if (count > 0 && !confirm(t('terrainEditor.confirmDelete', { name, count }))) return
     editor.execute(new SetTerrainsCommand(editor.map.terrains.filter((x) => x.id !== terrain.id)))
     if (editor.terrainId === terrain.id) editor.terrainId = editor.map.terrains[0]?.id ?? ''
+  }
+
+  /** Default terrains this map doesn't have (maps keep the palette they were made with). */
+  const missing = $derived(
+    DEFAULT_TERRAINS.filter((d) => !editor.terrains.some((x) => x.id === d.id)),
+  )
+
+  function addMissing() {
+    const terrains = [...editor.map.terrains, ...missing.map((d) => ({ ...d }))]
+    editor.execute(new SetTerrainsCommand(terrains))
   }
 
   function add() {
@@ -116,6 +127,11 @@
   {/each}
 </ul>
 <button class="add" onclick={add}>{t('terrainEditor.add')}</button>
+{#if missing.length}
+  <button class="add" onclick={addMissing}
+    >{t('terrainEditor.addMissing', { count: missing.length })}</button
+  >
+{/if}
 
 <style>
   ul {
