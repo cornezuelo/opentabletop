@@ -228,7 +228,11 @@ describe('camp, resources and fatigue', () => {
     const events = camped.events
     expect(events).toContainEqual({ type: 'RESOURCE_DEPLETED', resource: 'food' })
     expect(state.fatigue).toBe(1)
-    ;({ state } = run(state, { type: 'rest', minutes: 8 * 60 }))
+    // A short rest passes time but doesn't recover fatigue by default; a fed camp does.
+    ;({ state } = run(state, { type: 'rest' }))
+    expect(state.fatigue).toBe(1)
+    expect(state.time).toBe(defaultCalendar.at(2, '07:00'))
+    ;({ state } = run({ ...state, resources: { food: 5 } }, { type: 'camp' }))
     expect(state.fatigue).toBe(0)
   })
 
@@ -252,6 +256,23 @@ describe('camp, resources and fatigue', () => {
     expect(after.resources.food).toBe(5)
     expect(after.fatigue).toBe(2)
     expect(after.pendingChecks).toHaveLength(0)
+  })
+})
+
+describe('available actions', () => {
+  it('lets systems remove or tune camp and rest', () => {
+    const campOnly = createTravelEngine({ world, rules: { ...rules!, actions: { rest: false } } })
+    const { state, events } = campOnly.apply(start(), { type: 'rest' })
+    expect(events).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'rest' }])
+    expect(state.time).toBe(start().time)
+
+    const restful = createTravelEngine({
+      world,
+      rules: { ...rules!, actions: { rest: { minutes: 120, fatigue: 1 } } },
+    })
+    const rested = restful.apply({ ...start(), fatigue: 2 }, { type: 'rest' }).state
+    expect(rested.fatigue).toBe(1)
+    expect(rested.time - start().time).toBe(120)
   })
 })
 

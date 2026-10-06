@@ -18,6 +18,7 @@
     type Season,
   } from '../lib/play/play'
   import { getSystem, playSystems } from '../lib/play/systems'
+  import { availableActions } from '@open-tabletop/travel-engine'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import InfoTip from './InfoTip.svelte'
@@ -92,6 +93,11 @@
   })
 
   const stats = $derived(Object.entries(system.bindings?.stats ?? {}))
+  const actions = $derived(availableActions(system.rules))
+  const restLength = $derived.by(() => {
+    const minutes = actions.rest?.minutes ?? 0
+    return minutes % 60 === 0 ? `${minutes / 60} h` : `${minutes} min`
+  })
   const statText = (text: Parameters<typeof localize>[0], key: string) =>
     localize(text, getLocale(), 'en') ?? key
 
@@ -346,12 +352,17 @@
         disabled={!session.travel.route}
         onclick={() => step({ type: 'travel', until: 'hex' })}>{t('play.travelHex')}</button
       >
-      <button use:tooltip={t('play.tips.camp')} onclick={() => step({ type: 'camp' })}
-        >{t('play.camp')}</button
-      >
-      <button use:tooltip={t('play.tips.rest')} onclick={() => step({ type: 'rest', minutes: 480 })}
-        >{t('play.rest')}</button
-      >
+      {#if actions.camp}
+        <button use:tooltip={t('play.tips.camp')} onclick={() => step({ type: 'camp' })}
+          >{t('play.camp')}</button
+        >
+      {/if}
+      {#if actions.rest}
+        <button
+          use:tooltip={t(actions.rest.fatigue ? 'play.tips.restRecovers' : 'play.tips.rest')}
+          onclick={() => step({ type: 'rest' })}>{t('play.rest', { length: restLength })}</button
+        >
+      {/if}
     </div>
 
     {#each session.travel.pendingChecks as check (check.id)}

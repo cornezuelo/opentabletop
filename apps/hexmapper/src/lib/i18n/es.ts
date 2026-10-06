@@ -253,12 +253,13 @@ export const es: Messages = {
       resource:
         'Provisiones: se comen {perDay} por cada día que pasa, ya sea acampando, descansando o esperando. Ajusta la cantidad al comprar, encontrar o forrajear comida. Cada día sin suficiente sube la fatiga.',
       fatigue:
-        'Sube 1 por cada día sin comida suficiente y baja 1 tras acampar habiendo comido o un descanso largo. Ajústala a mano cuando tu sistema o la historia lo pidan.',
+        'Sube 1 por cada día sin comida suficiente y baja 1 tras acampar habiendo comido (o al descansar, en los sistemas donde descansar la recupera). Ajústala a mano cuando tu sistema o la historia lo pidan.',
       travel:
         'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
       travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
       camp: 'Termina el día: la comprobación nocturna (si la hay), comer y despertar al alba; una noche con comida baja la fatiga.',
-      rest: 'Descansa 8 horas: baja la fatiga, pero pasa el tiempo, y los días que terminan gastan provisiones.',
+      rest: 'Una pausa corta: pasa el tiempo sin marchar (p. ej. para esperar a que mejore el clima). No recupera fatiga; acampar sí.',
+      restRecovers: 'Un descanso corto: pasa el tiempo sin marchar y se recupera algo de fatiga.',
     },
     noBindings:
       'Estas reglas no tienen tablas asociadas: las comprobaciones esperan a que continúes.',
@@ -274,7 +275,7 @@ export const es: Messages = {
     travel: 'Viajar',
     travelHex: '1 hex',
     camp: 'Acampar',
-    rest: 'Descansar 8 h',
+    rest: 'Descansar {length}',
     continue: 'Continuar',
     journalTitle: 'Diario',
     emptyJournal: 'Aún no ha pasado nada.',

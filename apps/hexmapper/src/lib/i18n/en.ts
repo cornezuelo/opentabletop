@@ -251,12 +251,13 @@ export const en = {
       resource:
         'Supplies: {perDay} per day are eaten for every day that passes, whether you camp, rest or wait. Edit the amount when you buy, find or forage food. Each day without enough raises fatigue.',
       fatigue:
-        'Rises by 1 for each day without enough food and drops by 1 after a fed night’s camp or a long rest. Adjust it by hand when your system or the story says so.',
+        'Rises by 1 for each day without enough food and drops by 1 after a fed night’s camp (or a rest, in systems where resting recovers it). Adjust it by hand when your system or the story says so.',
       travel:
         'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
       travelHex: 'Travel to the next hex of the route only.',
       camp: 'End the day: roll the night check (if any), eat and wake up at dawn; a fed night lowers fatigue.',
-      rest: 'Rest 8 hours: fatigue drops, but time passes, and days that end use up supplies.',
+      rest: 'A short pause: time passes without marching (e.g. to wait out bad weather). It doesn’t recover fatigue; camping does.',
+      restRecovers: 'A short rest: time passes without marching and some fatigue is recovered.',
     },
     noBindings: 'These rules have no tables bound: checks wait for you to continue.',
     dayLine: 'Day {day} · {clock} · {season}',
@@ -271,7 +272,7 @@ export const en = {
     travel: 'Travel',
     travelHex: '1 hex',
     camp: 'Camp',
-    rest: 'Rest 8 h',
+    rest: 'Rest {length}',
     continue: 'Continue',
     journalTitle: 'Journal',
     emptyJournal: 'Nothing has happened yet.',

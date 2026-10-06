@@ -1,7 +1,7 @@
 import { matches } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
 import { defaultCalendar, nextAt, type Calendar, type GameTime } from '@open-tabletop/time'
-import type { CheckRule, TravelRules } from './rules'
+import { availableActions, type CheckRule, type TravelRules } from './rules'
 
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
 export interface TravelWorld {
@@ -75,6 +75,7 @@ export type TravelEvent =
   | { type: 'TRAVEL_STOPPED'; reason: StopReason; time: GameTime }
   | { type: 'CAMP_STARTED'; time: GameTime }
   | { type: 'RESOURCE_DEPLETED'; resource: string }
+  | { type: 'ACTION_UNAVAILABLE'; action: string }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -83,7 +84,8 @@ export type TravelAction =
   | { type: 'travel'; until?: 'hex' | 'destination' }
   | { type: 'advanceTime'; minutes: number }
   | { type: 'camp' }
-  | { type: 'rest'; minutes: number }
+  /** Short rest; length and fatigue recovery come from the rules unless given. */
+  | { type: 'rest'; minutes?: number }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
@@ -127,6 +129,7 @@ export function createTravelEngine(options: {
   const { world, rules } = options
   const calendar = options.calendar ?? defaultCalendar
   const dayMinutes = rules.travel.hoursPerDay * 60
+  const actions = availableActions(rules)
 
   /** Terrain/edge multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (state: TravelState, a: string, b: string): number => {
@@ -361,13 +364,19 @@ export function createTravelEngine(options: {
           syncDay(state, events)
           break
         case 'camp':
-          camp(state, events)
+          if (!actions.camp) events.push({ type: 'ACTION_UNAVAILABLE', action: 'camp' })
+          else camp(state, events)
           break
-        case 'rest':
-          state.time += Math.max(0, action.minutes)
-          if (action.minutes >= 8 * 60) state.fatigue = Math.max(0, state.fatigue - 1)
+        case 'rest': {
+          if (!actions.rest) {
+            events.push({ type: 'ACTION_UNAVAILABLE', action: 'rest' })
+            break
+          }
+          state.time += Math.max(0, action.minutes ?? actions.rest.minutes)
           syncDay(state, events)
+          state.fatigue = Math.max(0, state.fatigue - actions.rest.fatigue)
           break
+        }
         case 'setMode':
           if (rules.modes[action.mode]) state.mode = action.mode
           break

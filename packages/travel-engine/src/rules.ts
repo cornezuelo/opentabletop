@@ -56,10 +56,45 @@ export const travelRulesSchema = z
       .record(z.string(), z.object({ speed: z.number().nonnegative().optional() }).strict())
       .optional(),
     checks: z.array(checkRule).optional(),
+    /**
+     * Which party actions this system has. Absent = both, with defaults. `false` removes
+     * an action (e.g. Kal-Arath only camps).
+     */
+    actions: z
+      .object({
+        camp: z.union([z.literal(false), z.object({}).strict()]).optional(),
+        rest: z
+          .union([
+            z.literal(false),
+            z
+              .object({
+                /** Length of one rest (default 60). */
+                minutes: z.number().positive().optional(),
+                /** Fatigue recovered per rest (default 0: a pause, not a night's sleep). */
+                fatigue: z.number().nonnegative().optional(),
+              })
+              .strict(),
+          ])
+          .optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
 
 export type TravelRules = z.infer<typeof travelRulesSchema>
+
+/** Actions available under some rules, with their effective settings. */
+export function availableActions(rules: TravelRules): {
+  camp: boolean
+  rest: { minutes: number; fatigue: number } | null
+} {
+  const rest = rules.actions?.rest
+  return {
+    camp: rules.actions?.camp !== false,
+    rest: rest === false ? null : { minutes: rest?.minutes ?? 60, fatigue: rest?.fatigue ?? 0 },
+  }
+}
 export type CheckRule = z.infer<typeof checkRule> & { unless?: Condition; when?: Condition }
 
 /** Validates raw rules (YAML/JSON) and returns readable problems. */
