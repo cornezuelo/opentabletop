@@ -22,6 +22,26 @@
   const id = $derived(doc.def.localId)
   const cards = $derived((doc.raw.cards as RawCard[] | undefined) ?? [])
   const total = $derived(cards.reduce((n, c) => n + (c.count ?? 1), 0))
+
+  /** Columns sized to what they hold (in characters); the text column takes the rest. */
+  const fit = (values: unknown[], min: number, max: number) =>
+    `${Math.min(max, Math.max(min, ...values.map((v) => String(v ?? '').length))) + 3}ch`
+  const widths = $derived.by(() => {
+    const refs = cards.map((c) => c.table ?? c.generator)
+    return {
+      id: fit(
+        cards.map((c) => c.id),
+        3,
+        20,
+      ),
+      num: fit(
+        cards.map((c) => c.count ?? 1),
+        2,
+        8,
+      ),
+      then: refs.some(Boolean) ? `calc(100px + ${fit(refs, 6, 26)})` : '110px',
+    }
+  })
   const edit = (i: number, key: string, value: unknown) => doc.edit(['cards', i, key], value)
 
   function setTarget(i: number, kind: 'table' | 'generator' | '', target: string) {
@@ -70,7 +90,7 @@
   </label>
 
   <h3 class="section-title">{t('edit.cards', { count: total })}</h3>
-  <table>
+  <table style:--id-w={widths.id} style:--num-w={widths.num} style:--then-w={widths.then}>
     <thead>
       <tr>
         <th>{t('edit.id')}<InfoTip text={t('edit.cardIdHelp')} /></th>
@@ -209,22 +229,22 @@
   }
 
   .wide {
-    width: 50%;
+    width: 100%;
   }
 
-  /* Ids are words (yes-and, storm…): don't let the result column squeeze them. */
   .id {
-    width: 170px;
-    min-width: 150px;
+    width: var(--id-w);
+    min-width: var(--id-w);
   }
 
   .num {
-    width: 70px;
+    width: var(--num-w);
+    min-width: var(--num-w);
   }
 
   .then {
-    width: 230px;
-    min-width: 200px;
+    width: var(--then-w);
+    min-width: var(--then-w);
   }
 
   .row-actions {

@@ -61,8 +61,10 @@
     flex: none;
   }
 
+  /* No intrinsic width: the column decides (sized to the references it holds). */
   input {
     flex: 1;
+    width: 0;
     min-width: 0;
   }
 </style>

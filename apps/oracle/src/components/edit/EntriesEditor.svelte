@@ -30,6 +30,26 @@
   const hasRoll = $derived(typeof roll === 'string' && roll.trim() !== '')
   const missingIds = $derived(entries.some((e) => !e.id))
 
+  /** Columns sized to what they hold (in characters); the text column takes the rest. */
+  const fit = (values: unknown[], min: number, max: number) =>
+    `${Math.min(max, Math.max(min, ...values.map((v) => String(v ?? '').length))) + 3}ch`
+  const widths = $derived.by(() => {
+    const refs = entries.map((e) => e.table ?? e.generator)
+    return {
+      id: fit(
+        entries.map((e) => e.id),
+        3,
+        20,
+      ),
+      num: fit(
+        entries.map((e) => (hasRoll ? e.range : e.weight)),
+        2,
+        8,
+      ),
+      then: refs.some(Boolean) ? `calc(100px + ${fit(refs, 6, 26)})` : '110px',
+    }
+  })
+
   const edit = (i: number, key: string, value: unknown) => doc.edit([...path, i, key], value)
   const asRange = (v: string) => (/^\s*-?\d+\s*$/.test(v) ? Number(v) : v.trim())
 
@@ -87,7 +107,7 @@
   </div>
 {/if}
 
-<table>
+<table style:--id-w={widths.id} style:--num-w={widths.num} style:--then-w={widths.then}>
   <thead>
     <tr>
       <th>{t('edit.id')}<InfoTip text={t('edit.idHelp')} /></th>
@@ -237,22 +257,22 @@
   }
 
   .wide {
-    width: 50%;
+    width: 100%;
   }
 
-  /* Ids are words (yes-and, storm…): don't let the result column squeeze them. */
   .id {
-    width: 170px;
-    min-width: 150px;
+    width: var(--id-w);
+    min-width: var(--id-w);
   }
 
   .num {
-    width: 76px;
+    width: var(--num-w);
+    min-width: var(--num-w);
   }
 
   .then {
-    width: 230px;
-    min-width: 200px;
+    width: var(--then-w);
+    min-width: var(--then-w);
   }
 
   .row-actions {
