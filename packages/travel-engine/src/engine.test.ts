@@ -245,3 +245,10 @@ describe('camp, resources and fatigue', () => {
     expect(after.pendingChecks).toHaveLength(0)
   })
 })
+
+describe('generic rules', () => {
+  it('are valid travel rules', async () => {
+    const { genericTravelRules } = await import('./generic')
+    expect(parseTravelRules(genericTravelRules).errors).toEqual([])
+  })
+})
