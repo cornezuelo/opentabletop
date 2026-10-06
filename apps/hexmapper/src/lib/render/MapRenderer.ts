@@ -396,6 +396,8 @@ export class MapRenderer {
       this.drawParty()
     } else if (change.kind === 'labels') {
       this.drawLabels()
+      // The selection box follows the label in the same frame (e.g. while dragging it).
+      if (editor.selectedLabel) this.drawOverlay()
     } else if (change.kind === 'layers') {
       this.applyLayers()
     } else if (change.kind !== 'meta') {

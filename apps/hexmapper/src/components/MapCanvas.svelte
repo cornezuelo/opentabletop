@@ -59,6 +59,7 @@
   $effect(() => {
     void [
       editor.selected,
+      editor.selectedLabel,
       editor.tool,
       editor.terrainMode,
       editor.brushRadius,
