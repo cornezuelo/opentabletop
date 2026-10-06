@@ -4,13 +4,13 @@ La herramienta **Caminos y ríos** (<kbd>R</kbd>) dibuja líneas de hex a hex.
 
 ## Tipos
 
-| Tipo     | Aspecto                                 | En un viaje con reglas             |
-| -------- | --------------------------------------- | ---------------------------------- |
-| Camino   | marrón continuo                         | lo que diga el sistema (ver abajo) |
-| Sendero  | marrón discontinuo                      | lo que diga el sistema             |
-| Río      | azul                                    | lo que diga el sistema             |
-| Muro     | grueso, con piedras                     | nada: solo se dibuja               |
-| Frontera | rojo discontinuo, también sobre el agua | nada: solo se dibuja               |
+| Tipo     | Aspecto                                    | En un viaje con reglas             |
+| -------- | ------------------------------------------ | ---------------------------------- |
+| Camino   | marrón continuo                            | lo que diga el sistema (ver abajo) |
+| Sendero  | marrón discontinuo                         | lo que diga el sistema             |
+| Río      | azul                                       | lo que diga el sistema             |
+| Muro     | grueso, con piedras, también sobre el agua | nada: solo se dibuja               |
+| Frontera | rojo discontinuo, también sobre el agua    | nada: solo se dibuja               |
 
 ## Qué hacen los caminos y ríos al viajar
 

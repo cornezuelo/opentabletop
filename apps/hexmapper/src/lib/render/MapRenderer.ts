@@ -63,7 +63,12 @@ const PATH_STYLES: Record<PathKind, PathStyle> = {
   river: { color: 0x3f78a8, width: 0.2 },
   road: { color: 0x6e4f2c, width: 0.13 },
   trail: { color: 0x6e4f2c, width: 0.09, dash: [0.25, 0.18] },
-  wall: { color: 0x3a3631, width: 0.17, inner: { color: 0x9c9480, width: 0.07, dash: [0.1, 0.1] } },
+  wall: {
+    color: 0x3a3631,
+    width: 0.17,
+    inner: { color: 0x9c9480, width: 0.07, dash: [0.1, 0.1] },
+    crossesWater: true,
+  },
   border: { color: 0x8b1e1e, width: 0.09, dash: [0.3, 0.1], crossesWater: true },
 }
 /** Rivers under roads under trails; walls and borders on top. */

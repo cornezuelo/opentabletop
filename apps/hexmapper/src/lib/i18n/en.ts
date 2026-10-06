@@ -254,7 +254,8 @@ export const en = {
     name: 'Name',
     color: 'Color',
     water: 'Water',
-    waterHelp: 'Roads and rivers stop at the shore of water hexes',
+    waterHelp:
+      'Water hexes: roads, trails and rivers stop at their shore (walls and borders cross them). On trips they follow the rules’ water rule (impassable on foot in the bundled systems; boats sail them), and tables see water: true',
     delete: 'Delete terrain',
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',

@@ -256,7 +256,8 @@ export const es: Messages = {
     name: 'Nombre',
     color: 'Color',
     water: 'Agua',
-    waterHelp: 'Los caminos y ríos se detienen en la orilla de los hexes de agua',
+    waterHelp:
+      'Hexes de agua: caminos, senderos y ríos se detienen en su orilla (muros y fronteras la cruzan). En los viajes siguen la regla water del sistema (intransitables a pie en los sistemas incluidos; las barcas los navegan) y las tablas ven water: true',
     delete: 'Borrar terreno',
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',

@@ -4,13 +4,13 @@ The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from hex to hex.
 
 ## Kinds
 
-| Kind   | Looks like                    | In a trip with rules             |
-| ------ | ----------------------------- | -------------------------------- |
-| Road   | solid brown                   | what the system says (see below) |
-| Trail  | dashed brown                  | what the system says             |
-| River  | blue                          | what the system says             |
-| Wall   | thick, with stones            | nothing: only drawn              |
-| Border | dashed red, also across water | nothing: only drawn              |
+| Kind   | Looks like                            | In a trip with rules             |
+| ------ | ------------------------------------- | -------------------------------- |
+| Road   | solid brown                           | what the system says (see below) |
+| Trail  | dashed brown                          | what the system says             |
+| River  | blue                                  | what the system says             |
+| Wall   | thick, with stones, also across water | nothing: only drawn              |
+| Border | dashed red, also across water         | nothing: only drawn              |
 
 ## What roads and rivers do when you travel
 
