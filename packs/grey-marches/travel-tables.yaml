@@ -2,19 +2,24 @@
 # lost, weather, fatigue and resources (food, fodder…; negative to spend).
 
 # Dice with context values: missing ones count as 0. Fog and storms make it harder.
+# Advantage and disadvantage that come by themselves: clear skies help; after a day lost,
+# finding the way again is harder (both at once cancel out).
 kind: table
 id: getting-lost
 name: Do we get lost?
 description: |-
-  Rolled **at dawn**, off roads and rivers. The party's Navigation helps; fog doesn't.
+  Rolled **at dawn**, off roads and rivers. The party's Navigation helps; fog doesn't. With **clear skies** it's rolled with advantage; the day after getting lost, with disadvantage.
 
   **Shows:**
 
   - A travel check: bound to `NAVIGATION_CHECK_REQUIRED`
   - A party stat in the roll: `{{navigation}}`
   - `set: { lost: true }`: no more travel today
+  - Advantage and disadvantage on a condition: `advantageWhen: { weather: clear }`, `disadvantageWhen: { yesterday.lost: true }`
   - Conditions on the weather, and on being outside any region (`exists: false`)
 roll: '1d6 + {{navigation}}'
+advantageWhen: { weather: clear }
+disadvantageWhen: { yesterday.lost: true }
 entries:
   - {
       id: fog,

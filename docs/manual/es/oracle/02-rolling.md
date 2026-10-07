@@ -16,6 +16,8 @@ En el Hexmapper estos valores vienen del mapa y del viaje; consulta [Oracle en e
 
 Las tablas que su sistema tira así (indican `advantage: true`) ofrecen **Normal / Ventaja / Desventaja**: tirar dos veces y quedarse con el total más alto o el más bajo.
 
+Algunas tablas además toman ventaja o desventaja **por sí solas** cuando se cumple una condición (`advantageWhen`, `disadvantageWhen`), tanto si las tiras a mano como si las tira un viaje. En las Marcas Grises, _¿Nos perdemos?_ se tira con ventaja con el cielo despejado (`advantageWhen: { weather: clear }`) y con desventaja el día después de perderse (`disadvantageWhen: { yesterday.lost: true }`); con las dos, se anulan y es una tirada normal. El Explorador de Kal-Arath funciona igual (`advantageWhen: { explorer: { gte: 1 } }`, con `explorer` una característica del grupo). El formulario las tiene bajo los dados como **Ventaja cuando** / **Desventaja cuando**, con las mismas condiciones de una línea que las entradas.
+
 ## Mazos y entradas de una vez
 
 Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.

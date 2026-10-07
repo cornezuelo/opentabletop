@@ -246,6 +246,21 @@ describe('camp, resources and fatigue', () => {
     expect(waited.resources.food).toBe(2)
   })
 
+  it('remembers whether the party ended yesterday lost', () => {
+    const lostToday = { ...start(), lostToday: true }
+    const camped = resolveAll(engine.apply(lostToday, { type: 'camp' }).state).state
+    expect(camped.lostYesterday).toBe(true)
+    // The next dawn's checks see it, so finding the way can be harder.
+    const going = engine.apply(camped, { type: 'setDestination', hex: '0,5' }).state
+    const dawn = engine.apply(going, { type: 'travel' }).state
+    const navigation = dawn.pendingChecks.find((c) => c.event === 'NAVIGATION_CHECK_REQUIRED')
+    expect(navigation?.context.yesterday).toEqual({ lost: true })
+    // A day not lost clears it.
+    expect(resolveAll(engine.apply(start(), { type: 'camp' }).state).state.lostYesterday).toBe(
+      false,
+    )
+  })
+
   it('reports supplies eaten, rests and every change of fatigue', () => {
     const { events } = run(start(), { type: 'camp' })
     expect(events).toContainEqual({

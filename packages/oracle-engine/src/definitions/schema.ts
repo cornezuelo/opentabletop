@@ -49,6 +49,10 @@ const tableBody = {
   roll: z.string().optional(),
   /** Offer advantage/disadvantage when rolling (off by default: few tables use it). */
   advantage: z.boolean().optional(),
+  /** Roll with advantage when this matches the context (e.g. an explorer forages). */
+  advantageWhen: condition.optional(),
+  /** Roll with disadvantage when this matches (both at once cancel out). */
+  disadvantageWhen: condition.optional(),
   clamp: z.boolean().optional(),
   onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
   entries: z.array(entry).min(1, 'a table needs at least one entry'),
@@ -75,6 +79,8 @@ export const oracleSchema = z
     ),
     roll: z.string().optional(),
     advantage: z.boolean().optional(),
+    advantageWhen: condition.optional(),
+    disadvantageWhen: condition.optional(),
     clamp: z.boolean().optional(),
     onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
     variants: z.record(

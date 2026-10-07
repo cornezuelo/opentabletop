@@ -1,13 +1,14 @@
 getting-lost:
   name: ¿Nos perdemos?
   description: |-
-    Se tira **al alba**, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no.
+    Se tira **al alba**, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no. Con **cielo despejado** se tira con ventaja; el día después de perderse, con desventaja.
 
     **Enseña:**
 
     - Una comprobación de viaje: atada a `NAVIGATION_CHECK_REQUIRED`
     - Una característica del grupo en la tirada: `{{navigation}}`
     - `set: { lost: true }`: no se viaja más hoy
+    - Ventaja y desventaja según una condición: `advantageWhen: { weather: clear }`, `disadvantageWhen: { yesterday.lost: true }`
     - Condiciones sobre el clima, y sobre estar fuera de toda región (`exists: false`)
   entries:
     fog: 'Perdidos en la niebla: hoy no avanzáis'

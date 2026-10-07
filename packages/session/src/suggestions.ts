@@ -37,6 +37,7 @@ export function contextSuggestions(
   add('water', true, false)
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
+  add('yesterday.lost', true, false)
   add('edges', 'road', 'trail', 'river')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
   add('tags')

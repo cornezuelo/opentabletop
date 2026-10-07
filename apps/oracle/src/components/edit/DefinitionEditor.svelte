@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { Compiled } from '@open-tabletop/oracle-engine'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
+  import { contextSuggestions } from '@open-tabletop/session'
+  import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
+  import { workspace } from '../../lib/packs/workspace.svelte'
   import { t } from '../../lib/i18n'
   import { definitionDoc } from '../../lib/packs/doc.svelte'
   import DeckEditor from './DeckEditor.svelte'
@@ -14,6 +17,17 @@
 
   const doc = definitionDoc(() => ({ def, root }))
   const dice = $derived(def.kind === 'table' || def.kind === 'oracle')
+
+  /** When the roll takes advantage or disadvantage by itself: one line of conditions. */
+  const conditionHints = $derived(contextSuggestions(workspace.registry))
+  let invalid = $state<Record<string, boolean>>({})
+  function editCondition(key: 'advantageWhen' | 'disadvantageWhen', text: string) {
+    const value = text.trim() ? parseFlow(text) : undefined
+    invalid = { ...invalid, [key]: value === null }
+    if (value !== null) doc.edit([key], value)
+  }
+  const conditionText = (value: unknown) =>
+    value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
 </script>
 
 <div class="editor">
@@ -84,6 +98,22 @@
         </select>
       </label>
     </div>
+    <div class="auto">
+      {#each ['advantageWhen', 'disadvantageWhen'] as const as key (key)}
+        <label class="field">
+          <span>{t(`edit.${key}`)}<InfoTip text={t(`edit.${key}Help`)} /></span>
+          <SuggestInput
+            value={conditionText(doc.raw[key])}
+            suggestions={conditionHints}
+            placeholder={key === 'advantageWhen' ? 'explorer: { gte: 1 }' : 'yesterday.lost: true'}
+            invalid={invalid[key]}
+            disabled={doc.translating}
+            onchange={(text) => editCondition(key, text)}
+          />
+          {#if invalid[key]}<small>{t('edit.notAMap')}</small>{/if}
+        </label>
+      {/each}
+    </div>
   {/if}
 
   {#if def.kind === 'table'}
@@ -98,6 +128,16 @@
 </div>
 
 <style>
+  .auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  .auto small {
+    color: #e3a19f;
+  }
+
   .editor {
     display: flex;
     flex-direction: column;

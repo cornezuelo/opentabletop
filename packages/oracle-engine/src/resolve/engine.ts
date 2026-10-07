@@ -3,6 +3,7 @@ import { parseDice, roll, type DiceExpression, type DiceResult } from '@open-tab
 import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/random'
 import {
   resolveRef,
+  type AutoAdvantage,
   type Compiled,
   type CompiledCard,
   type CompiledDeck,
@@ -275,6 +276,11 @@ class Run {
     const candidates = list.entries.filter((e) => !e.when || matches(e.when, context))
     if (candidates.length === 0) return node
 
+    // A table or oracle may roll with advantage or disadvantage by itself, on a condition.
+    const auto = def as AutoAdvantage
+    if (auto.advantageWhen && matches(auto.advantageWhen, context)) advantage += 1
+    if (auto.disadvantageWhen && matches(auto.disadvantageWhen, context)) advantage -= 1
+    advantage = Math.max(-1, Math.min(1, advantage))
     let entry = this.pick(list, candidates, context, node, advantage, def.clamp ?? true)
     if (entry && exhausted(entry)) {
       const policy = def.onExhausted ?? 'reroll'

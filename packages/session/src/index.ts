@@ -125,6 +125,8 @@ export interface SessionState {
   stats: Record<string, number>
   /** Values from today's results that later checks use (weather modifiers…). */
   dayVars: Record<string, unknown>
+  /** The day before's values, read by tables as `yesterday.*` (absent: none). */
+  yesterday?: Record<string, unknown>
   journal: JournalEntry[]
   nextEntry: number
   /** Discovery: hexes revealed whose contents are still to be rolled. */
@@ -151,15 +153,17 @@ export function partyValues(s: SessionState): Record<string, unknown> {
 /**
  * What a table rolled during a trip sees, later sources winning: the party stats by
  * name (`{{survival}}`) and today's values, then the facts of the map and the trip
- * (`terrain`, `weather`… so a stat can't hide them), then `party`, then `extra` (a
- * binding's context). `party.stats.x` always reaches a stat, whatever its name.
+ * (`terrain`, `weather`… so a stat can't hide them), then `party` and `yesterday` (the
+ * day before's values and whether the party ended it lost), then `extra` (a binding's
+ * context). `party.stats.x` always reaches a stat, whatever its name.
  */
 export function tripContext(
   s: SessionState,
   facts: Record<string, unknown>,
   extra: Record<string, unknown> = {},
 ): Record<string, unknown> {
-  return { ...s.stats, ...s.dayVars, ...facts, party: partyValues(s), ...extra }
+  const yesterday = { ...s.yesterday, lost: !!s.travel.lostYesterday }
+  return { ...s.stats, ...s.dayVars, ...facts, party: partyValues(s), yesterday, ...extra }
 }
 
 /** Table values that change the party's stats: `stats: { morale: -1 }` adds to them. */
@@ -316,7 +320,11 @@ export function createSession(options: {
         const from = s.travel.location
         const result = options.travel.apply(s.travel, act)
         s.travel = result.state
-        if (s.travel.day !== dayBefore) s.dayVars = {}
+        if (s.travel.day !== dayBefore) {
+          // Today's values become yesterday's (none if more than a day went by).
+          s.yesterday = s.travel.day === dayBefore + 1 ? s.dayVars : {}
+          s.dayVars = {}
+        }
         let resolvedAll = true
         let found = false
         for (const event of result.events) {

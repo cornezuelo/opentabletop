@@ -57,6 +57,8 @@ export interface TravelState {
   travelledToday: number
   dayChecksDone: boolean
   lostToday: boolean
+  /** The party ended the day before lost (finding the way may be harder). */
+  lostYesterday?: boolean
   speedToday?: number
   /** The system's own actions done today (for `oncePerDay`). */
   actionsToday?: string[]
@@ -275,6 +277,8 @@ export function createTravelEngine(options: {
       mode: state.mode,
       season: calendar.describe(state.time).season,
       day: state.day,
+      // What the engine knows of the day before (the session adds that day's values).
+      yesterday: { lost: !!state.lostYesterday },
       // What the engine knows of the party (the session adds its stats).
       party: { resources: { ...state.resources }, fatigue: state.fatigue, mode: state.mode },
     }
@@ -382,6 +386,7 @@ export function createTravelEngine(options: {
     state.day = day
     state.travelledToday = 0
     state.dayChecksDone = false
+    state.lostYesterday = state.lostToday
     state.lostToday = false
     state.speedToday = undefined
     delete state.actionsToday

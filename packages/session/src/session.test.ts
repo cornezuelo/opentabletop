@@ -108,6 +108,25 @@ describe('session', () => {
     })
   })
 
+  it("gives tables yesterday: the day before's values and whether the party ended it lost", () => {
+    const session = createSession({ travel: createTravelEngine({ world, rules }), now: () => 'T' })
+    const today = { ...start(), dayVars: { weather: 'storm', fordModifier: -1 } }
+    today.travel = { ...today.travel, lostToday: true }
+    const { state } = session.step(today, { type: 'camp' })
+    expect(state.dayVars).toEqual({})
+    expect(tripContext(state, {}).yesterday).toEqual({
+      weather: 'storm',
+      fordModifier: -1,
+      lost: true,
+    })
+    // Two nights later, nothing is left of that day.
+    const later = session.step(session.step(state, { type: 'camp' }).state, {
+      type: 'advanceTime',
+      minutes: 2 * 24 * 60,
+    }).state
+    expect(tripContext(later, {}).yesterday).toEqual({ lost: false })
+  })
+
   it('resolves checks with the oracle and keeps travelling', () => {
     const { bindings } = parseBindings(
       {

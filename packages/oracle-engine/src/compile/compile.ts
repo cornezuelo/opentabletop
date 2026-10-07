@@ -42,7 +42,13 @@ interface Base {
   tags: string[]
 }
 
-export interface CompiledTable extends Base, EntryList {
+/** When a table or oracle rolls with advantage or disadvantage by itself. */
+export interface AutoAdvantage {
+  advantageWhen?: Condition
+  disadvantageWhen?: Condition
+}
+
+export interface CompiledTable extends Base, EntryList, AutoAdvantage {
   kind: 'table'
   /** The table is meant to be rolled with advantage/disadvantage (UIs offer the choice). */
   advantage: boolean
@@ -50,7 +56,7 @@ export interface CompiledTable extends Base, EntryList {
   onExhausted: 'reroll' | 'next' | 'none'
 }
 
-export interface CompiledOracle extends Base {
+export interface CompiledOracle extends Base, AutoAdvantage {
   kind: 'oracle'
   advantage: boolean
   inputs: Record<
@@ -191,6 +197,7 @@ class CompileContext {
           ...base,
           kind: 'table',
           advantage: d.advantage ?? false,
+          ...this.autoAdvantage(d),
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',
           ...this.entryList(d.roll, d.entries, 'entries'),
@@ -220,6 +227,7 @@ class CompileContext {
           ...base,
           kind: 'oracle',
           advantage: d.advantage ?? false,
+          ...this.autoAdvantage(d),
           inputs: d.inputs,
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',
@@ -372,6 +380,20 @@ class CompileContext {
 
   private conditions(condition: unknown, at: string): void {
     for (const problem of validateCondition(condition, at)) this.error(at, problem)
+  }
+
+  /** `advantageWhen` / `disadvantageWhen`, checked like any condition. */
+  private autoAdvantage(d: { advantageWhen?: unknown; disadvantageWhen?: unknown }): AutoAdvantage {
+    const out: AutoAdvantage = {}
+    if (d.advantageWhen) {
+      this.conditions(d.advantageWhen, 'advantageWhen')
+      out.advantageWhen = d.advantageWhen as Condition
+    }
+    if (d.disadvantageWhen) {
+      this.conditions(d.disadvantageWhen, 'disadvantageWhen')
+      out.disadvantageWhen = d.disadvantageWhen as Condition
+    }
+    return out
   }
 
   private error(at: string, message: string): void {

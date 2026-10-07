@@ -628,6 +628,38 @@ entries: [{ range: 1-6, result: B }]
     }
     expect([advantage('adv/plain'), advantage('adv/lost')]).toEqual([false, true])
   })
+
+  it('comes by itself on a condition, and cancels out with disadvantage', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'adv/pack.yaml', content: 'id: adv\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'adv/t.yaml',
+        content: `
+kind: table
+id: forage
+roll: 1d6
+advantageWhen: { explorer: { gte: 1 } }
+disadvantageWhen: { yesterday.lost: true }
+entries: [{ range: 1-6, result: X }]
+---
+kind: table
+id: broken
+roll: 1d6
+advantageWhen: { explorer: { wat: 1 } }
+entries: [{ range: 1-6, result: X }]
+`,
+      },
+    ])
+    expect(diagnostics.map((d) => d.at)).toEqual(['broken.advantageWhen'])
+    const engine = createOracleEngine({ registry, random: seeded('adv') })
+    // With advantage or disadvantage, the other roll is kept as `discarded`.
+    const twice = (context: Record<string, unknown>) =>
+      !!engine.resolve('adv/forage', context).resolution.rolls[0].discarded
+    expect(twice({})).toBe(false)
+    expect(twice({ explorer: 1 })).toBe(true)
+    expect(twice({ yesterday: { lost: true } })).toBe(true)
+    expect(twice({ explorer: 1, yesterday: { lost: true } })).toBe(false)
+  })
 })
 
 describe('YAML syntax errors', () => {

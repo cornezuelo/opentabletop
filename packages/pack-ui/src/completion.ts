@@ -41,7 +41,7 @@ const ENUMS: Record<string, readonly string[]> = {
 /** Keys whose value is a reference to a table or generator. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve'])
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
-const CONDITION_KEYS = new Set(['when', 'unless'])
+const CONDITION_KEYS = new Set(['when', 'unless', 'advantageWhen', 'disadvantageWhen'])
 
 /** Keys a definition, its entries and its fields use. */
 const KEYS = [
@@ -52,6 +52,8 @@ const KEYS = [
   'tags',
   'roll',
   'advantage',
+  'advantageWhen',
+  'disadvantageWhen',
   'clamp',
   'onExhausted',
   'entries',
@@ -84,7 +86,7 @@ export interface Completion {
 /** What to suggest for the text of a line up to the cursor, or null for nothing. */
 export function completeYaml(before: string, hints: YamlHints): Completion | null {
   // Inside a one-line condition or values: `when: { terrain: fo`.
-  const flow = /\b(when|unless|set|context)\s*:\s*/.exec(before)
+  const flow = /\b(when|unless|advantageWhen|disadvantageWhen|set|context)\s*:\s*/.exec(before)
   if (flow) {
     const start = flow.index + flow[0].length
     const text = before.slice(start)

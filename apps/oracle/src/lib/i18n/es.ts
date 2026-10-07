@@ -116,6 +116,12 @@ export const es: Messages<typeof en> = {
     advantage: 'Se puede tirar con ventaja o desventaja',
     advantageHelp:
       'Muestra la opción Normal / Ventaja / Desventaja al tirar (tirar dos veces y quedarse con la mejor o la peor). Solo para las tablas que tu sistema tira así.',
+    advantageWhen: 'Ventaja cuando',
+    advantageWhenHelp:
+      'Tira con ventaja por sí sola cuando se cumple esto, p. ej. explorer: { gte: 1 } (una característica del grupo) o weather: clear. Vacío: nunca. Si a la vez hay desventaja, se anulan.',
+    disadvantageWhen: 'Desventaja cuando',
+    disadvantageWhenHelp:
+      'Tira con desventaja por sí sola cuando se cumple esto, p. ej. yesterday.lost: true (reencontrar el camino). Vacío: nunca.',
     default: 'Por defecto',
     defaultHelp: 'Opción seleccionada al abrir el panel de tirada.',
     firstOption: 'La primera',

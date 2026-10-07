@@ -113,6 +113,12 @@ export const en = {
     advantage: 'Can be rolled with advantage or disadvantage',
     advantageHelp:
       'Shows the Normal / Advantage / Disadvantage choice when rolling (roll twice, keep the best or the worst). Only for tables your system rolls that way.',
+    advantageWhen: 'Advantage when',
+    advantageWhenHelp:
+      'Rolls with advantage by itself when this holds, e.g. explorer: { gte: 1 } (a party stat) or weather: clear. Empty: never. With disadvantage too, they cancel out.',
+    disadvantageWhen: 'Disadvantage when',
+    disadvantageWhenHelp:
+      'Rolls with disadvantage by itself when this holds, e.g. yesterday.lost: true (finding the way again). Empty: never.',
     default: 'Default',
     defaultHelp: 'Option selected when the roll panel opens.',
     firstOption: 'The first one',

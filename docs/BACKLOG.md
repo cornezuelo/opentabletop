@@ -200,3 +200,17 @@ Each tool shows only what it edits (Select: the hex; Terrain: the palette; Token
 - [x] First version: systems list, play an abstract trip, YAML editor with live diagnostics, new system, edit a copy, manual pages.
 - [x] Forms for travel rules (day, modes, terrains, edges, resources, weather, actions) and, in one Checks tab, checks with their bindings (table picker, context) and stats. They write the YAML through pack-ui helpers, keeping comments.
 - [x] Several saved trips (open, name, another, delete); export a trip's journal as Markdown (travel-ui, also in the Hexmapper).
+
+## Packs
+
+### Kal-Arath (checked against the rulebook on 2026-10-07)
+
+Done: the travel procedure (weather, getting lost, points of interest, encounters, camping) matches the rulebook; foraging is a trip action (halves the day's march, once a day, adds to the food; impossible in storms); the Explorer ability is a party stat (`explorer`: advantage to forage and not get lost, points of interest on 4–6); finding the way again after a day lost is rolled with disadvantage (`yesterday.lost`); the autumn storm only halves travel (`autumn-storm`); the extra ration of a heatwave or the first snows is taken; dungeons gained the passages table and the boss rooms (summarised: the full rooms stay in the book).
+
+Still not as the rulebook has it, waiting for generic support (not Kal-Arath code):
+
+- [ ] **Fatigue**: Kal-Arath has none, but the trip panel shows it and hunger raises it. Step 3 of the roadmap (system values) removes it: the pack will declare only what it uses.
+- [ ] **Camping recovers wounds and conditions** after spending a ration: there are no character values yet (phase C, characters).
+- [ ] **An Explorer chooses advantage or disadvantage on encounter rolls**: a choice the player makes when the trip rolls; today only by hand.
+- [ ] **Herbs** are rolled by hand after a rare find (`herbCount` times); _Tarnak berries_ (no ration needed that day) aren't applied.
+- [ ] **Revisited areas** of a dungeon bring an enemy on 1 in 1d6: today by rolling _Passage_ again; dungeons live on the map only once there are sub-maps (phase E).
