@@ -28,6 +28,8 @@
     <header>
       <h1>{system.id === 'generic' ? t('nav.generic') : system.name}</h1>
       {#if !file}<p class="help">{t('edit.builtIn')}</p>{/if}
+      <!-- On every tab: edit a copy of a bundled system, or revert your copy to it. -->
+      {#if file}<div class="copy"><ReadOnly root={file.root} /></div>{/if}
       <div class="tabs" role="tablist">
         {#each tabs as name (name)}
           <button
@@ -44,7 +46,6 @@
         <YamlTab root={file.root} path={file.path} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
-          <ReadOnly root={file.root} />
           {#if problems.length}
             <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
               {t('forms.problems', { count: problems.length })}
@@ -119,6 +120,10 @@
     border: 1px solid #e3a19f;
     border-radius: 6px;
     cursor: pointer;
+  }
+
+  .copy:not(:empty) {
+    margin-top: 8px;
   }
 
   .help {

@@ -2,7 +2,6 @@
   import { CodeEditor, locate, manifestOf, yamlHints } from '@open-tabletop/pack-ui'
   import { t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
-  import ReadOnly from './ReadOnly.svelte'
 
   /** The file with the system's rules and bindings, with problems at their lines. */
   let { root, path }: { root: string; path: string } = $props()
@@ -27,7 +26,6 @@
 
 <div class="yaml">
   <p class="file">{root}/{path}</p>
-  <ReadOnly {root} />
   <div class="code">
     {#key `${root}/${path}/${editable}`}
       <CodeEditor
