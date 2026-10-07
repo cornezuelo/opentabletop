@@ -685,6 +685,39 @@ entries: [{ range: 1-6, result: X }]
     // Chosen advantage and automatic disadvantage cancel out.
     expect(mode({ yesterday: { lost: true } }, 'm/advantage')).toBeUndefined()
   })
+
+  it('apply by themselves unless a condition holds', () => {
+    const { registry, diagnostics } = pack(`${modes}
+---
+kind: table
+id: cursed
+roll: 1d6
+modeUnless: { disadvantage: { blessed: true } }
+modeWhen: { steady: { calm: true } }
+entries: [{ range: 1-6, result: X }]
+---
+kind: table
+id: night
+roll: 1d6
+modeWhen: { disadvantage: { timeOfDay: night } }
+modeUnless: { disadvantage: { tags: lit }, nope: { x: 1 } }
+entries: [{ range: 1-6, result: X }]
+`)
+    expect(diagnostics.map((d) => [d.at, d.message])).toEqual([
+      ['night.modeUnless.nope', 'Unknown roll mode "nope"'],
+    ])
+    const engine = createOracleEngine({ registry, random: seeded('unless') })
+    const mode = (id: string, context: Record<string, unknown>) =>
+      engine.resolve(id, context).resolution.mode
+    // Only in modeUnless: always, but when the condition holds.
+    expect(mode('m/cursed', {})).toBe('m/disadvantage')
+    expect(mode('m/cursed', { blessed: true })).toBeUndefined()
+    expect(mode('m/cursed', { blessed: true, calm: true })).toBe('m/steady')
+    // In both: when the first holds and the second doesn't.
+    expect(mode('m/night', {})).toBeUndefined()
+    expect(mode('m/night', { timeOfDay: 'night' })).toBe('m/disadvantage')
+    expect(mode('m/night', { timeOfDay: 'night', tags: ['lit'] })).toBeUndefined()
+  })
 })
 
 describe('YAML syntax errors', () => {

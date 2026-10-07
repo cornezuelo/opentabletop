@@ -6,7 +6,7 @@ La pestaña **Editar** es un formulario sobre el fichero YAML: solo cambia lo qu
 
 ## Cualquier definición
 
-Nombre, descripción y, en tablas y oráculos, los **dados** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… vacío = elegir por peso) y sus **modos de tirada**: por cada modo que declara su sistema (ventaja…), si se ofrece al tirar a mano y, en **solo cuando**, la condición que lo aplica solo (`explorer: { gte: 1 }`). En tablas y oráculos además:
+Nombre, descripción y, en tablas y oráculos, los **dados** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… vacío = elegir por peso) y sus **modos de tirada**: por cada modo que declara su sistema (ventaja…), si se ofrece al tirar a mano y, en **solo cuando**, la condición que lo aplica solo (`explorer: { gte: 1 }`), y en **salvo**, la que impide que se aplique solo (`tags: lit`; escrita sola, el modo se aplica siempre menos entonces). En tablas y oráculos además:
 
 - **Ajustar totales** (activado por defecto): un total por debajo del rango más bajo toma la primera entrada y por encima del más alto la última, así los modificadores nunca te dejan sin resultado. Desactivado, ese total no da nada.
 - **Al agotarse**: qué pasa cuando la entrada que sale ya llegó a su límite (ver abajo): **tirar otra vez**, **tomar la siguiente** disponible o **nada**.

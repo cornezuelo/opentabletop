@@ -21,7 +21,7 @@
 
   /**
    * The roll modes this definition can use (its pack's and its dependencies'), each offered
-   * by hand (`modes`) and/or applied by itself on a condition (`modeWhen`).
+   * by hand (`modes`) and/or applied by itself on a condition (`modeWhen` / `modeUnless`).
    */
   const available = $derived.by(() => {
     const deps = workspace.registry.packs.get(def.pack)?.dependencies ?? []
@@ -34,8 +34,9 @@
     (typeof value === 'object' && value !== null ? value : {}) as Record<string, unknown>
   const resolves = (ref: string, id: string) => ref === id || `${def.pack}/${ref}` === id
   const offered = (id: string) => refsOf(doc.raw.modes).some((r) => resolves(r, id))
-  const whenFor = (id: string) =>
-    Object.entries(whenOf(doc.raw.modeWhen)).find(([r]) => resolves(r, id))?.[1]
+  type ModeKey = 'modeWhen' | 'modeUnless'
+  const conditionFor = (key: ModeKey, id: string) =>
+    Object.entries(whenOf(doc.raw[key])).find(([r]) => resolves(r, id))?.[1]
 
   function setOffered(id: string, ref: string, on: boolean) {
     const rest = refsOf(doc.raw.modes).filter((r) => !resolves(r, id))
@@ -47,15 +48,15 @@
   /** A mode's condition, typed as one line: saved when it reads as a map, flagged if not. */
   const conditionHints = $derived(contextSuggestions(workspace.registry))
   let invalid = $state<Record<string, boolean>>({})
-  function setWhen(id: string, ref: string, text: string) {
+  function setCondition(key: ModeKey, id: string, ref: string, text: string) {
     const value = text.trim() ? parseFlow(text) : undefined
-    invalid = { ...invalid, [id]: value === null }
+    invalid = { ...invalid, [`${key}.${id}`]: value === null }
     if (value === null) return
     const rest = Object.fromEntries(
-      Object.entries(whenOf(doc.raw.modeWhen)).filter(([r]) => !resolves(r, id)),
+      Object.entries(whenOf(doc.raw[key])).filter(([r]) => !resolves(r, id)),
     )
     const next = value === undefined ? rest : { ...rest, [ref]: value }
-    doc.edit(['modeWhen'], Object.keys(next).length ? next : undefined)
+    doc.edit([key], Object.keys(next).length ? next : undefined)
   }
   const conditionText = (value: unknown) =>
     value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
@@ -134,18 +135,22 @@
               />
               {oracleUi.modeName(mode)}
             </label>
-            <label class="when">
-              <span>{t('edit.modeWhen')}</span>
-              <SuggestInput
-                value={conditionText(whenFor(mode.id))}
-                suggestions={conditionHints}
-                placeholder={'explorer: { gte: 1 }'}
-                invalid={invalid[mode.id]}
-                disabled={doc.translating}
-                onchange={(text) => setWhen(mode.id, ref, text)}
-              />
-            </label>
-            {#if invalid[mode.id]}<small>{t('edit.notAMap')}</small>{:else}<span></span>{/if}
+            {#each [['modeWhen', 'explorer: { gte: 1 }'], ['modeUnless', 'tags: lit']] as const as [key, example] (key)}
+              <label class="when">
+                <span>{t(`edit.${key}`)}</span>
+                <SuggestInput
+                  value={conditionText(conditionFor(key, mode.id))}
+                  suggestions={conditionHints}
+                  placeholder={example}
+                  invalid={invalid[`${key}.${mode.id}`]}
+                  disabled={doc.translating}
+                  onchange={(text) => setCondition(key, mode.id, ref, text)}
+                />
+              </label>
+            {/each}
+            {#if invalid[`modeWhen.${mode.id}`] || invalid[`modeUnless.${mode.id}`]}<small
+                >{t('edit.notAMap')}</small
+              >{:else}<span></span>{/if}
           {/each}
         </div>
       {:else}
@@ -168,7 +173,7 @@
 <style>
   .modes {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr 1fr auto;
     align-items: center;
     gap: 6px 12px;
   }

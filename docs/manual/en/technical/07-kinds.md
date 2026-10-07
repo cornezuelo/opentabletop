@@ -33,7 +33,7 @@ entries:
   - { id: storm, range: 4-6, result: Storm, table: storm-damage }
 ```
 
-Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` (a condition), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes` and `modeWhen`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
+Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` (a condition), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes`, `modeWhen` and `modeUnless`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
 
 **What other tables see:** a table rolled from another (`table:`) gives its text as `{{result}}` and its `set` values to the trip and to later checks of the day (see [What tables see](04-what-tables-see.md)).
 
@@ -94,10 +94,11 @@ A table or oracle uses them with:
 
 - `modes: [advantage, disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
 - `modeWhen: { advantage: { explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.
+- `modeUnless: { disadvantage: { tags: lit } }`: not used by itself when the condition holds. With `modeWhen` for the same mode, it applies when the first holds and this one doesn't (`modeWhen: { disadvantage: { timeOfDay: night } }` + this: at night, except where it's lit); alone, the mode is used always but then (a cursed table rolled with disadvantage `unless: { blessed: true }`).
 
-When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage and the Grey Marches add _Carefully_ (three rolls, the middle one). The old `advantage: true` does nothing now and warns.
+When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order, then `modeUnless`'). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage and the Grey Marches add _Carefully_ (three rolls, the middle one). The old `advantage: true` does nothing now and warns.
 
-**What tables see:** nothing: modes aren't values; a table uses them through `modes` and `modeWhen`.
+**What tables see:** nothing: modes aren't values; a table uses them through `modes`, `modeWhen` and `modeUnless`.
 
 ## Travel rules
 

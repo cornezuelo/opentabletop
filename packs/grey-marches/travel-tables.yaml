@@ -2,13 +2,14 @@
 # lost, weather, fatigue and resources (food, fodder…; negative to spend).
 
 # Dice with context values: missing ones count as 0. Fog and storms make it harder.
-# Roll modes that apply by themselves (`modeWhen`): clear skies give advantage; after a day
-# lost, finding the way again is rolled with disadvantage (both at once cancel out).
+# Roll modes that apply by themselves (`modeWhen`): clear skies give advantage, unless the
+# trees hide the sky (`modeUnless`); after a day lost, finding the way again is rolled with
+# disadvantage (both at once cancel out).
 kind: table
 id: getting-lost
 name: Do we get lost?
 description: |-
-  Rolled **at dawn**, off roads and rivers. The party's Navigation helps; fog doesn't. With **clear skies** it's rolled with advantage; the day after getting lost, with disadvantage.
+  Rolled **at dawn**, off roads and rivers. The party's Navigation helps; fog doesn't. With **clear skies** it's rolled with advantage (not under the trees of a forest, which hide the sky); the day after getting lost, with disadvantage.
 
   **Shows:**
 
@@ -16,11 +17,14 @@ description: |-
   - A party stat in the roll: `{{navigation}}`
   - `set: { lost: true }`: no more travel today
   - Roll modes that apply by themselves (`modeWhen`): `advantage` with `weather: clear`, `disadvantage` with `yesterday.lost: true`
+  - A roll mode's `modeUnless`: no advantage in forests, `terrain: [forest, dense-forest]`
   - Conditions on the weather, and on being outside any region (`exists: false`)
 roll: '1d6 + {{navigation}}'
 modeWhen:
   advantage: { weather: clear }
   disadvantage: { yesterday.lost: true }
+modeUnless:
+  advantage: { terrain: [forest, dense-forest] }
 entries:
   - {
       id: fog,

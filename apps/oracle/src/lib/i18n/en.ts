@@ -119,8 +119,9 @@ export const en = {
     optionLabel: 'Label',
     modes: 'Roll modes',
     modesHelp:
-      'Ways of rolling this table that its system declares (kind: roll-modes), such as advantage: roll the whole roll several times and keep one total. Ticked: offered when rolling by hand. When: used by itself when the condition holds, e.g. explorer: { gte: 1 } (a party stat) or yesterday.lost: true. Two modes that cancel each other out, together, give a normal roll.',
+      'Ways of rolling this table that its system declares (kind: roll-modes), such as advantage: roll the whole roll several times and keep one total. Ticked: offered when rolling by hand. By itself when: used without asking when the condition holds, e.g. explorer: { gte: 1 } (a party stat) or yesterday.lost: true. Unless: not used by itself when this holds (written alone, the mode is used always but then), e.g. tags: lit. Two modes that cancel each other out, together, give a normal roll.',
     modeWhen: 'by itself when',
+    modeUnless: 'unless',
     noModes:
       'This pack and its dependencies declare no roll modes. Add a kind: roll-modes definition (New definition → Roll modes) to roll tables with advantage or any other way.',
     default: 'Default',

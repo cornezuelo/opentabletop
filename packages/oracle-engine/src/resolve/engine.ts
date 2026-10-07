@@ -265,8 +265,9 @@ class Run {
 
   /**
    * The roll mode a table or oracle is rolled with: the one chosen by hand (if it offers
-   * it) and those whose `modeWhen` holds. Modes that cancel each other drop out; of the
-   * rest, the first (chosen, then in `modeWhen` order) is used.
+   * it) and those that apply by themselves: their `modeWhen` holds and their `modeUnless`
+   * doesn't. Modes that cancel each other drop out; of the rest, the first (chosen, then in
+   * `modeWhen` order, then `modeUnless`) is used.
    */
   private modeFor(
     def: Compiled,
@@ -276,9 +277,11 @@ class Run {
     if (def.kind !== 'table' && def.kind !== 'oracle') return undefined
     const active = [
       ...(chosen && def.modes.includes(chosen) ? [chosen] : []),
-      ...Object.entries(def.modeWhen)
-        .filter(([, when]) => matches(when, context))
-        .map(([id]) => id),
+      ...[...Object.keys(def.modeWhen), ...Object.keys(def.modeUnless)].filter(
+        (id) =>
+          matches(def.modeWhen[id], context) &&
+          !(def.modeUnless[id] && matches(def.modeUnless[id], context)),
+      ),
     ]
       .filter((id, i, all) => all.indexOf(id) === i)
       .map((id) => this.registry.rollModes.get(id))

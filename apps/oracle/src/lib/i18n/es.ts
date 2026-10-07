@@ -121,8 +121,9 @@ export const es: Messages<typeof en> = {
     optionLabel: 'Etiqueta',
     modes: 'Modos de tirada',
     modesHelp:
-      'Formas de tirar esta tabla que declara su sistema (kind: roll-modes), como la ventaja: tirar toda la tirada varias veces y quedarse con un total. Marcado: se ofrece al tirar a mano. Cuando: se usa solo cuando se cumple la condición, p. ej. explorer: { gte: 1 } (una característica del grupo) o yesterday.lost: true. Dos modos que se anulan entre sí, juntos, dan una tirada normal.',
+      'Formas de tirar esta tabla que declara su sistema (kind: roll-modes), como la ventaja: tirar toda la tirada varias veces y quedarse con un total. Marcado: se ofrece al tirar a mano. Solo cuando: se usa sin preguntar cuando se cumple la condición, p. ej. explorer: { gte: 1 } (una característica del grupo) o yesterday.lost: true. Salvo: no se usa solo cuando esto se cumple (escrito solo, el modo se usa siempre menos entonces), p. ej. tags: lit. Dos modos que se anulan entre sí, juntos, dan una tirada normal.',
     modeWhen: 'solo cuando',
+    modeUnless: 'salvo',
     noModes:
       'Este pack y sus dependencias no declaran modos de tirada. Añade una definición kind: roll-modes (Nueva definición → Modos de tirada) para tirar tablas con ventaja o de cualquier otra forma.',
     default: 'Por defecto',

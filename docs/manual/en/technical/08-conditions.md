@@ -1,6 +1,6 @@
 # Conditions
 
-A **condition** says when something applies: an entry that only comes up in forests, a check rolled only off roads, an action available only in good weather, a roll mode used by itself the day after getting lost. The same conditions are written everywhere they appear: `when` and `unless` on table entries, checks, actions and their steps, and ways of travelling, `through` (where a way of travelling can go), and `modeWhen` on tables and oracles.
+A **condition** says when something applies: an entry that only comes up in forests, a check rolled only off roads, an action available only in good weather, a roll mode used by itself the day after getting lost. The same conditions are written everywhere they appear: `when` and `unless` on table entries, checks, actions and their steps, and ways of travelling, `through` (where a way of travelling can go), and `modeWhen` / `modeUnless` on tables and oracles.
 
 A condition is a set of `name: what it must be` pairs about the values the roll sees (see [What tables see](04-what-tables-see.md)). Every pair must hold. In a form's box you write the pairs without braces (`terrain: forest, danger: { gte: 3 }`); in YAML, inside braces (`when: { terrain: forest, danger: { gte: 3 } }`).
 

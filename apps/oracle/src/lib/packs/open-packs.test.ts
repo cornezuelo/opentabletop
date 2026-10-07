@@ -108,12 +108,13 @@ describe('bundled open packs', () => {
     }
   })
 
-  it('the Grey Marches: getting lost is easier under clear skies and harder the day after', () => {
+  it('the Grey Marches: getting lost is easier under clear skies (not in forests) and harder the day after', () => {
     const engine = createOracleEngine({ registry, random: seeded('lost') })
     const twice = (context: Record<string, unknown>) =>
       !!engine.resolve('grey-marches/getting-lost', context).resolution.rolls[0].discarded
     expect(twice({ weather: 'grey' })).toBe(false)
     expect(twice({ weather: 'clear' })).toBe(true)
+    expect(twice({ weather: 'clear', terrain: 'dense-forest' })).toBe(false)
     expect(twice({ yesterday: { lost: true } })).toBe(true)
     expect(twice({ weather: 'clear', yesterday: { lost: true } })).toBe(false)
   })

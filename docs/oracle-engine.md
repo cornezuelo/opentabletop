@@ -73,7 +73,7 @@ entries:
 ```
 
 - `result` is text (a template) or an object. `table:` / `generator:` delegate to another definition. `set:` adds fields.
-- **Roll modes:** a system declares its ways of rolling in `kind: roll-modes` (`repeat`, `keep: highest | lowest | middle`, `cancels`); a table or oracle lists the ones it offers by hand (`modes`) and the ones that apply by themselves on a condition (`modeWhen`). Modes that cancel each other drop out; the engine knows no "advantage" of its own.
+- **Roll modes:** a system declares its ways of rolling in `kind: roll-modes` (`repeat`, `keep: highest | lowest | middle`, `cancels`); a table or oracle lists the ones it offers by hand (`modes`) and the ones that apply by themselves on a condition (`modeWhen`, and `modeUnless` for when they don't). Modes that cancel each other drop out; the engine knows no "advantage" of its own.
 - **Weighted:** `weight: 3` instead of `range`. The selection method is pluggable (`selector: range | weight`).
 - **Conditions:** `when:` on an entry enables/disables it based on context; only enabled entries are candidates.
 - **Pause:** `pause: true` on an entry or card puts `pause: true` in the result; a host that plays (a trip) stops there until the player goes on.

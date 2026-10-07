@@ -77,6 +77,8 @@ export interface WithRollModes {
   modes: string[]
   /** Full mode id → when it applies by itself. */
   modeWhen: Record<string, Condition>
+  /** Full mode id → when it doesn't apply by itself (otherwise it does, unless in `modeWhen`). */
+  modeUnless: Record<string, Condition>
 }
 
 export interface CompiledTable extends Base, EntryList, WithRollModes {
@@ -420,10 +422,11 @@ class CompileContext {
     for (const problem of validateCondition(condition, at)) this.error(at, problem)
   }
 
-  /** `modes` and `modeWhen`: references to roll modes, and conditions checked as usual. */
+  /** `modes`, `modeWhen` and `modeUnless`: references to roll modes, and their conditions. */
   private rollModes(d: {
     modes?: string[]
     modeWhen?: Record<string, unknown>
+    modeUnless?: Record<string, unknown>
     advantage?: boolean
   }): WithRollModes {
     if (d.advantage !== undefined)
@@ -437,13 +440,16 @@ class CompileContext {
       return id ?? undefined
     }
     const modes = (d.modes ?? []).flatMap((ref, i) => mode(ref, `modes[${i}]`) ?? [])
-    const modeWhen: Record<string, Condition> = {}
-    for (const [ref, condition] of Object.entries(d.modeWhen ?? {})) {
-      const id = mode(ref, `modeWhen.${ref}`)
-      this.conditions(condition, `modeWhen.${ref}`)
-      if (id) modeWhen[id] = condition as Condition
+    const conditional = (key: 'modeWhen' | 'modeUnless') => {
+      const out: Record<string, Condition> = {}
+      for (const [ref, condition] of Object.entries(d[key] ?? {})) {
+        const id = mode(ref, `${key}.${ref}`)
+        this.conditions(condition, `${key}.${ref}`)
+        if (id) out[id] = condition as Condition
+      }
+      return out
     }
-    return { modes, modeWhen }
+    return { modes, modeWhen: conditional('modeWhen'), modeUnless: conditional('modeUnless') }
   }
 
   private error(at: string, message: string): void {

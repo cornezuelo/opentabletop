@@ -1,7 +1,7 @@
 getting-lost:
   name: ¿Nos perdemos?
   description: |-
-    Se tira **al alba**, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no. Con **cielo despejado** se tira con ventaja; el día después de perderse, con desventaja.
+    Se tira **al alba**, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no. Con **cielo despejado** se tira con ventaja (no bajo los árboles de un bosque, que tapan el cielo); el día después de perderse, con desventaja.
 
     **Enseña:**
 
@@ -9,6 +9,7 @@ getting-lost:
     - Una característica del grupo en la tirada: `{{navigation}}`
     - `set: { lost: true }`: no se viaja más hoy
     - Modos de tirada que se aplican solos (`modeWhen`): `advantage` con `weather: clear`, `disadvantage` con `yesterday.lost: true`
+    - El `modeUnless` de un modo de tirada: sin ventaja en los bosques, `terrain: [forest, dense-forest]`
     - Condiciones sobre el clima, y sobre estar fuera de toda región (`exists: false`)
   entries:
     fog: 'Perdidos en la niebla: hoy no avanzáis'

@@ -57,11 +57,14 @@ const common = {
 
 /**
  * Ways of rolling a table that a system declares (`kind: roll-modes`): `modes` are offered
- * when rolling by hand, `modeWhen` apply by themselves when their condition holds.
+ * when rolling by hand; those in `modeWhen` / `modeUnless` apply by themselves when their
+ * `when` condition holds and their `unless` one doesn't (a mode only in `modeUnless`
+ * applies always but then).
  */
 const rollModes = {
   modes: z.array(ref).optional(),
   modeWhen: z.record(ref, condition).optional(),
+  modeUnless: z.record(ref, condition).optional(),
   /** Replaced by roll modes: kept only to tell authors what to write instead. */
   advantage: z.boolean().optional(),
 }

@@ -1,6 +1,6 @@
 # Condiciones
 
-Una **condición** dice cuándo se aplica algo: una entrada que solo sale en bosques, una comprobación que solo se tira fuera de los caminos, una acción disponible solo con buen tiempo, un modo de tirada que se usa solo el día después de perderse. Se escriben igual en todas partes: `when` y `unless` en las entradas de tabla, las comprobaciones, las acciones y sus pasos, y las formas de viajar, `through` (por dónde puede ir una forma de viajar), y `modeWhen` en tablas y oráculos.
+Una **condición** dice cuándo se aplica algo: una entrada que solo sale en bosques, una comprobación que solo se tira fuera de los caminos, una acción disponible solo con buen tiempo, un modo de tirada que se usa solo el día después de perderse. Se escriben igual en todas partes: `when` y `unless` en las entradas de tabla, las comprobaciones, las acciones y sus pasos, y las formas de viajar, `through` (por dónde puede ir una forma de viajar), y `modeWhen` / `modeUnless` en tablas y oráculos.
 
 Una condición es un conjunto de pares `nombre: lo que debe ser` sobre los valores que ve la tirada (mira [Qué ven las tablas](04-what-tables-see.md)). Se deben cumplir todos los pares. En la casilla de un formulario escribes los pares sin llaves (`terrain: forest, danger: { gte: 3 }`); en YAML, entre llaves (`when: { terrain: forest, danger: { gte: 3 } }`).
 
