@@ -18,3 +18,17 @@ describe('conditions as one line', () => {
     expect(parseFlow('tags: [')).toBeNull()
   })
 })
+
+describe('flowText on long values', () => {
+  it('keeps them on one line', () => {
+    const long = {
+      any: [
+        { moment: 'hex-enter', danger: { gte: 1 } },
+        { moment: 'rest', danger: { gte: 3 } },
+        { moment: 'camp', danger: { gte: 4 } },
+      ],
+    }
+    expect(flowText(long)).not.toContain('\n')
+    expect(parseFlow(flowText(long))).toEqual(long)
+  })
+})

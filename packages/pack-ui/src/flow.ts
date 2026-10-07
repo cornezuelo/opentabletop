@@ -3,7 +3,8 @@ import { parse, stringify } from 'yaml'
 /** A condition or context as one line of YAML (`{ tags: landmark }`), for a text box. */
 export function flowText(value: unknown): string {
   if (value === undefined || value === null) return ''
-  return stringify(value, { collectionStyle: 'flow' }).trim()
+  // One line however long: a box shows it whole, never folded.
+  return stringify(value, { collectionStyle: 'flow', lineWidth: 0 }).trim()
 }
 
 /** Reads such a line back; undefined for an empty box, null when it isn't a map. */

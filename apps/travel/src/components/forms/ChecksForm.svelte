@@ -250,7 +250,7 @@
             <span>{t('checks.resolve')}<InfoTip text={t('checks.resolveHelp')} /></span>
             <select value={ref} {disabled} onchange={(e) => setTable(event, e.currentTarget.value)}>
               <option value="">{t('checks.waits')}</option>
-              {#if ref && !doc.targets.some((x) => x.ref === ref)}
+              {#if ref && !doc.targets.some((x) => x.ref === ref) && !doc.weatherModels.some((m) => `weather:${m}` === ref)}
                 <option value={ref}>{ref} ⚠</option>
               {/if}
               {#if doc.weatherModels.length}
