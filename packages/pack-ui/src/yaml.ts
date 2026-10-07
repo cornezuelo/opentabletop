@@ -246,6 +246,22 @@ export function setOverlayText(content: string, path: string[], text: string): s
   return doc.toString(OUTPUT)
 }
 
+/** Renames a key inside a translation overlay (e.g. a check's event), keeping its texts. */
+export function renameOverlayKey(
+  content: string,
+  path: string[],
+  from: string,
+  to: string,
+): string {
+  if (!content.trim() || from === to) return content
+  const doc = parseDocument(content)
+  const value = doc.getIn([...path, from])
+  if (value === undefined || doc.hasIn([...path, to])) return content
+  doc.setIn([...path, to], value)
+  doc.deleteIn([...path, from])
+  return doc.toString(OUTPUT)
+}
+
 /** Reads one text of a translation overlay. */
 export function getOverlayText(content: string | undefined, path: string[]): string {
   if (!content?.trim()) return ''

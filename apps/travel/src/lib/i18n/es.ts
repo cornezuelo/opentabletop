@@ -100,7 +100,7 @@ export const es: Messages<typeof en> = {
     restFatigue: 'Fatiga que recupera',
     ownActions: 'Acciones de este sistema',
     ownActionsHelp:
-      'Botones propios junto a Viajar, Acampar y Descansar, p. ej. forage (buscar comida): llevan tiempo, pueden frenar el resto de la marcha del día y recuperar fatiga. Dales comprobaciones en la pestaña Comprobaciones (Cuándo: la acción). Su nombre, su descripción y lo que dice el diario cuando no se aplica ninguna de sus comprobaciones (nothing) van en el YAML, en cada idioma (name: { en: Forage for food, es: Buscar comida }).',
+      'Botones propios junto a Viajar, Acampar y Descansar, p. ej. forage (buscar comida): llevan tiempo, pueden frenar el resto de la marcha del día y recuperar fatiga. Dales comprobaciones en la pestaña Comprobaciones (Cuándo: la acción). Su nombre, su descripción y lo que dice el diario cuando no se aplica ninguna de sus comprobaciones (nothing) van en el YAML (name: Forage for food), y sus traducciones en locales/ como las de las comprobaciones.',
     actionSpeedHelp:
       'Multiplica el resto de la marcha del día: 0.5 la reduce a la mitad. Vacío: sin cambio.',
     oncePerDay: 'Una vez al día',
@@ -112,7 +112,7 @@ export const es: Messages<typeof en> = {
     event: 'Comprobación',
     name: 'Nombre',
     nameHelp:
-      'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento (p. ej. Perderse). Los nombres en varios idiomas van en el YAML: name: { en: Getting lost, es: Perderse }; esta caja edita el idioma actual.',
+      'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento (p. ej. Perderse). Esta caja lo edita en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
     description: 'Descripción (tooltip)',
     at: 'Cuándo',
     atOptions: { 'day-start': 'Al alba', 'hex-enter': 'Al entrar en un hex', camp: 'Al acampar' },

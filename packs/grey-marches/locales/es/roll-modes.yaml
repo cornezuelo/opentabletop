@@ -1,0 +1,5 @@
+roll-modes/default:
+  modes:
+    careful:
+      name: Con cuidado
+      description: 'Tira tres veces y quédate con el total del medio: ni lo peor ni lo mejor.'

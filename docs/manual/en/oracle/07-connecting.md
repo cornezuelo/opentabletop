@@ -101,12 +101,7 @@ weather:
   storm: { speed: 0 } # no travel in a storm
 actions:
   rest: { minutes: 120, fatigue: 1 }
-  forage: {
-      name: { en: Forage for food, es: Buscar comida },
-      minutes: 180,
-      speed: 0.5,
-      oncePerDay: true,
-    } # an action of this system: a Forage for food button
+  forage: { name: Forage for food, minutes: 180, speed: 0.5, oncePerDay: true } # an action of this system: a Forage for food button
 checks:
   - { event: WEATHER, at: day-start }
   - { event: LOST, at: day-start, unless: { edges: [road, river] } }
@@ -123,12 +118,12 @@ on:
   NIGHT: { resolve: night-encounters }
   FORAGE: { resolve: forage }
 stats:
-  luck: { name: { en: Luck, es: Suerte }, description: 'Added to encounter rolls', default: 0 }
+  luck: { name: Luck, description: 'Added to encounter rolls', default: 0 }
 ```
 
 - **terrains** set the speed on each terrain (`multiplier`; 0.5 is half speed) or close it (`passable: false`). **water** does the same for water hexes whose terrain isn't listed (the map's Edit palette → Water), and a way of travelling with `allowedTerrains: [water]` is a boat: it only sails water, even where walking can't go. Tables see `water: true` on water hexes.
 - **actions**: `camp` and `rest` are built in (`false` removes one; `rest` takes `minutes` and the `fatigue` it recovers). Any other key is an **action of the system's own**, a button next to Travel, Camp and Rest: `name` and `description` (in one or several languages), the `minutes` it takes, `speed` (multiplies the rest of the day's march: 0.5 halves it), `fatigue` recovered, and `oncePerDay`. What it rolls are the checks with `at: <its id>`. `nothing` is what the journal says when none of them apply where the party is (`nothing: { en: 'nothing to forage on {terrain}' }`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there.
-- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping) or the id of one of the system's own actions (`at: forage`). Give each one a `name` (and a `description`) for players, in one or several languages — `name: { en: Getting lost, es: Perderse }` — or the trip panel and journal show its event id. `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
+- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping) or the id of one of the system's own actions (`at: forage`). Give each one a `name` (and a `description`) for players (`name: Getting lost`; its translations go in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)), or the trip panel and journal show its event id. `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
 - **bindings** connect each check (by its event name, any name you like) to a table of the pack.
 - **stats** are numbers of the party that appear in the trip panel (e.g. Kal-Arath's Presence); tables read them by key: `roll: '2d6 + {{luck}}'`.
 
@@ -141,12 +136,12 @@ Trips count days with a plain calendar (four seasons of 90 days) unless the syst
 ```yaml
 kind: calendar
 id: reckoning
-name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+name: The Marcher reckoning
 startYear: 412
 watchHours: 4
 months:
-  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
-  - { id: highsun, name: { en: Highsun, es: Altosol }, days: 30, season: summer }
+  - { id: thaw, name: Thaw, days: 30, season: spring }
+  - { id: highsun, name: Highsun, days: 30, season: summer }
   # …
 weekdays: [{ id: moonday, name: Moonday }, { id: ironday, name: Ironday }]
 moons: [{ id: pale, name: the Pale Moon, cycle: 28 }]
@@ -167,7 +162,7 @@ A weather table rolls each day afresh. For weather that lasts — rain that sets
 kind: weather
 id: sky
 states:
-  clear: { name: { en: Clear skies, es: Cielo despejado } }
+  clear: { name: Clear skies }
   rain: { name: Steady rain, set: { fordModifier: -1 } }
   storm: { name: 'Storm: nobody travels', set: { fordImpossible: true } }
 seasons:

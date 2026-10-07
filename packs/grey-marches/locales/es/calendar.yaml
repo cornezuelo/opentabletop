@@ -1,0 +1,56 @@
+calendar/marcher-reckoning:
+  name: El cómputo de las Marcas
+  months:
+    thaw:
+      name: Deshielo
+    sowing:
+      name: Siembra
+    blossom:
+      name: Floración
+    highsun:
+      name: Altosol
+    haying:
+      name: Siega
+    harvest:
+      name: Cosecha
+    leaffall:
+      name: Caída de la hoja
+    mists:
+      name: Brumas
+    frostfall:
+      name: Escarcha
+    deepwinter:
+      name: Invierno hondo
+    wolfmoon:
+      name: Luna del lobo
+    lastsnow:
+      name: Última nieve
+  weekdays:
+    moonday:
+      name: Lunadía
+    ironday:
+      name: Hierrodía
+    wellday:
+      name: Pozodía
+    thornday:
+      name: Espinodía
+    hearthday:
+      name: Hogardía
+    marketday:
+      name: Mercadía
+    restday:
+      name: Descansodía
+  moons:
+    pale:
+      name: la Luna Pálida
+    ember:
+      name: la Luna Ascua
+  holidays:
+    first-thaw:
+      name: Primer Deshielo
+    midsummer:
+      name: Pleno Verano
+    harvest-home:
+      name: Fin de Cosecha
+    long-night:
+      name: La Noche Larga

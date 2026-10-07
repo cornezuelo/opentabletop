@@ -1,0 +1,8 @@
+roll-modes/default:
+  modes:
+    advantage:
+      name: Ventaja
+      description: Tira dos veces y quédate con el total más alto.
+    disadvantage:
+      name: Desventaja
+      description: Tira dos veces y quédate con el total más bajo.

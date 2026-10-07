@@ -4,16 +4,16 @@
 # The tables in weather.yaml roll weather without memory (for rolls by hand).
 kind: weather
 id: sky
-name: { en: The Marches' sky, es: El cielo de las Marcas }
+name: The Marches' sky
 states:
-  clear: { name: { en: Clear skies, es: Cielo despejado } }
-  grey: { name: { en: Grey and mild, es: Gris y templado } }
-  rain: { name: { en: Steady rain, es: Lluvia constante }, set: { fordModifier: -1 } }
-  fog: { name: { en: Thick fog, es: Niebla espesa } }
+  clear: { name: Clear skies }
+  grey: { name: Grey and mild }
+  rain: { name: Steady rain, set: { fordModifier: -1 } }
+  fog: { name: Thick fog }
   storm:
-    name: { en: 'Storm: nobody travels', es: 'Tormenta: nadie viaja' }
+    name: 'Storm: nobody travels'
     set: { fordImpossible: true }
-  snow: { name: { en: Falling snow, es: Nieva } }
+  snow: { name: Falling snow }
 seasons:
   spring:
     start: grey

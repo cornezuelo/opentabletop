@@ -702,3 +702,63 @@ describe('YAML syntax errors', () => {
     expect(diagnostics[0].message).not.toContain('\n')
   })
 })
+
+describe('translations of definitions that are not tables', () => {
+  it('fold into them as texts in several languages, keyed by kind/id', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'sys/pack.yaml', content: 'id: sys\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'sys/rules.yaml',
+        content: `kind: calendar
+id: reckoning
+name: The reckoning
+months:
+  - { id: thaw, name: Thaw, days: 30 }
+  - { id: sun, name: { en: Sun, fr: Soleil }, days: 30 }
+---
+kind: travel-rules
+id: default
+actions:
+  forage: { name: Forage, nothing: 'nothing on {terrain}' }
+checks:
+  - { event: FORAGE, name: Foraging, at: forage }
+`,
+      },
+      {
+        path: 'sys/locales/es/rules.yaml',
+        content: `calendar/reckoning:
+  name: El cómputo
+  months: { thaw: Deshielo, sun: { name: Sol }, ghost: Nada }
+travel-rules/default:
+  actions:
+    forage: { name: Buscar comida, nothing: 'nada en {terrain}' }
+  checks:
+    FORAGE: { name: Buscar comida }
+tables-are-still-here: { name: X }
+calendar/nope: { name: Y }
+`,
+      },
+    ])
+    const extras = registry.extras.get('sys')!
+    const calendar = extras.find((e) => e.kind === 'calendar')!.data
+    expect(calendar.name).toEqual({ en: 'The reckoning', es: 'El cómputo' })
+    expect(calendar.months).toEqual([
+      { id: 'thaw', name: { en: 'Thaw', es: 'Deshielo' }, days: 30 },
+      { id: 'sun', name: { en: 'Sun', fr: 'Soleil', es: 'Sol' }, days: 30 },
+    ])
+    const rules = extras.find((e) => e.kind === 'travel-rules')!.data as {
+      actions: Record<string, unknown>
+      checks: unknown[]
+    }
+    expect(rules.actions.forage).toEqual({
+      name: { en: 'Forage', es: 'Buscar comida' },
+      nothing: { en: 'nothing on {terrain}', es: 'nada en {terrain}' },
+    })
+    expect(rules.checks[0]).toMatchObject({ name: { en: 'Foraging', es: 'Buscar comida' } })
+    expect(diagnostics.map((d) => d.message)).toEqual([
+      'Translation of "calendar/reckoning" for something it doesn\'t have: months.ghost',
+      'Translation for unknown definition "calendar/nope"',
+      'Translation for unknown definition "tables-are-still-here"',
+    ])
+  })
+})

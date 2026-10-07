@@ -23,19 +23,17 @@
       .filter(([id, a]) => id !== 'camp' && id !== 'rest' && a !== false)
       .map(([id]) => id),
   )
-  /** A name or description in the UI language: plain text, or one language of a map. */
-  const textIn = (value: unknown): string =>
-    typeof value === 'string'
-      ? value
-      : typeof value === 'object' && value !== null
-        ? String((value as Record<string, unknown>)[getLocale()] ?? '')
-        : ''
-  function setCheckText(i: number, key: 'name' | 'description', current: unknown, text: string) {
-    const value = text.trim() || undefined
-    // Texts in several languages keep their other languages.
-    if (typeof current === 'object' && current !== null)
-      doc.edit('travel-rules', ['checks', i, key, getLocale()], value)
-    else doc.edit('travel-rules', ['checks', i, key], value)
+  /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
+  const checkText = (check: Raw, key: 'name' | 'description') =>
+    doc.text('travel-rules', check[key], ['checks', String(check.event), key])
+  function setCheckText(i: number, check: Raw, key: 'name' | 'description', text: string) {
+    doc.setText(
+      'travel-rules',
+      ['checks', i, key],
+      check[key],
+      ['checks', String(check.event), key],
+      text,
+    )
   }
   const tt = translator(getLocale)
   /** What check conditions and tables can read, for suggestions while typing. */
@@ -76,6 +74,7 @@
     if (!to || to === from) return
     doc.edit('travel-rules', ['checks', index, 'event'], to)
     const shared = checks.some((c, i) => i !== index && c.event === from)
+    if (!shared) doc.renameTranslations('travel-rules', ['checks'], from, to)
     if (on[from] && !shared && !on[to]) doc.rename('bindings', ['on'], from, to)
   }
 
@@ -102,15 +101,9 @@
     doc.insert('travel-rules', ['checks'], checks.length, { event, at: 'hex-enter' })
   }
 
-  /** Stat names and descriptions can be one text or one per language. */
-  function textOf(value: unknown): string {
-    if (typeof value === 'string') return value
-    if (typeof value === 'object' && value !== null) {
-      const map = value as Record<string, string>
-      return map[getLocale()] ?? Object.values(map)[0] ?? ''
-    }
-    return ''
-  }
+  /** A stat's name or description in the UI language (as checks' texts). */
+  const statText = (id: string, stat: Raw | null, field: 'name' | 'description') =>
+    doc.text('bindings', stat?.[field], ['stats', id, field])
 
   /** "Sea legs" → "seaLegs": how tables write it ({{seaLegs}}). */
   const camel = (text: string) =>
@@ -121,13 +114,8 @@
       .replace(/^[^A-Za-z]+/, '')
       .replace(/^./, (c) => c.toLowerCase())
 
-  function setText(id: string, field: string, current: unknown, text: string) {
-    const localized = typeof current === 'object' && current !== null
-    doc.edit(
-      'bindings',
-      localized ? ['stats', id, field, getLocale()] : ['stats', id, field],
-      text.trim() || undefined,
-    )
+  function setText(id: string, field: 'name' | 'description', current: unknown, text: string) {
+    doc.setText('bindings', ['stats', id, field], current, ['stats', id, field], text)
     // A stat still called stat, stat-2… takes its id from its name.
     const id2 = camel(text)
     if (field === 'name' && /^stat(-\d+)?$/.test(id) && id2 && !stats.some(([s]) => s === id2))
@@ -198,20 +186,22 @@
             <span>{t('checks.name')}<InfoTip text={t('checks.nameHelp')} /></span>
             <input
               type="text"
-              placeholder={eventName(event)}
-              value={textIn(check.name)}
+              placeholder={doc.translating
+                ? doc.baseText(check.name) || eventName(event)
+                : eventName(event)}
+              value={checkText(check, 'name')}
               {disabled}
-              onchange={(e) => setCheckText(i, 'name', check.name, e.currentTarget.value)}
+              onchange={(e) => setCheckText(i, check, 'name', e.currentTarget.value)}
             />
           </label>
           <label>
             <span>{t('checks.description')}</span>
             <textarea
               rows="2"
-              value={textIn(check.description)}
+              placeholder={doc.translating ? doc.baseText(check.description) : ''}
+              value={checkText(check, 'description')}
               {disabled}
-              onchange={(e) =>
-                setCheckText(i, 'description', check.description, e.currentTarget.value)}
+              onchange={(e) => setCheckText(i, check, 'description', e.currentTarget.value)}
             ></textarea>
           </label>
         </div>
@@ -320,7 +310,8 @@
               <td>
                 <input
                   type="text"
-                  value={textOf(stat?.name)}
+                  placeholder={doc.translating ? doc.baseText(stat?.name) : ''}
+                  value={statText(id, stat, 'name')}
                   {disabled}
                   aria-label={t('checks.statName')}
                   onchange={(e) => setText(id, 'name', stat?.name, e.currentTarget.value)}
@@ -329,7 +320,8 @@
               <td>
                 <input
                   type="text"
-                  value={textOf(stat?.description)}
+                  placeholder={doc.translating ? doc.baseText(stat?.description) : ''}
+                  value={statText(id, stat, 'description')}
                   {disabled}
                   aria-label={t('checks.statDescription')}
                   onchange={(e) =>
@@ -358,7 +350,7 @@
                     use:tooltip={t('forms.remove')}
                     onclick={async () =>
                       (await confirmAction(
-                        t('forms.confirmRemove', { name: textOf(stat?.name) || id }),
+                        t('forms.confirmRemove', { name: statText(id, stat, 'name') || id }),
                       )) && doc.edit('bindings', ['stats', id], undefined)}>×</button
                   >
                 {/if}

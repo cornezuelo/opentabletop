@@ -98,7 +98,7 @@ A pack is a folder with `pack.yaml` (id, version, base locale, license, dependen
 - **Kal-Arath is personal use only**: "Copyright 2023 Castle Grief, permission to copy granted for personal use" (rulebook at `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Its content never goes into this public repo: the whole pack (manifest included, so it can't shadow the real one) lives in the private packs repo. Only a README and our own design work (generic travel rules, bindings without rulebook text) live here.
 - Before adding a game to `packs/`, check its license and record it in `pack.yaml` (`license`, `attribution`). If in doubt, it goes to the private repo.
 - A personal-use game could move to `packs/` only with the author's permission.
-- **Languages:** every pack has exactly one required base locale (`locale` in `pack.yaml`). Translations are optional overlays per locale; any missing string falls back to the base locale (see `docs/oracle-engine.md`). Pack content is not translated by the UI's i18n.
+- **Languages:** every pack has exactly one required base locale (`locale` in `pack.yaml`). Translations are optional overlays per locale; any missing string falls back to the base locale (see `docs/oracle-engine.md`). This holds for every kind: definitions that aren't tables (travel rules, bindings, calendars, weather, roll modes) are translated in the same `locales/<lang>/<file>` overlays, keyed `<kind>/<id>`; never write texts in several languages inline in a definition. Pack content is not translated by the UI's i18n.
 
 ## Stack and tooling
 

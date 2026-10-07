@@ -27,3 +27,25 @@ yes-no:
 ```
 
 The app shows pack texts in your interface language when the pack has it.
+
+## Rules, calendars, weather and roll modes
+
+Definitions that aren't tables are translated the same way, in the same files, keyed by **kind and id** (`travel-rules/default`, `calendar/marcher-reckoning`), since several of them are called `default`. The translation mirrors the definition, with only its texts (`name`, `description`, and an action's `nothing`): maps by their keys, lists by their items' `id` (a check by its `event`). A text written alone is the item's name. From the Grey Marches:
+
+```yaml
+# locales/es/travel.yaml
+travel-rules/default:
+  actions:
+    forage: { name: Buscar comida, nothing: 'no hay nada que buscar en {terrain}…' }
+  checks:
+    FORAGE_CHECK_REQUIRED: { name: Buscar comida }
+bindings/default:
+  stats:
+    survival: { name: Supervivencia, description: Se suma a buscar comida y a los vados. }
+# locales/es/calendar.yaml
+calendar/marcher-reckoning:
+  name: El cómputo de las Marcas
+  months: { thaw: Deshielo, sowing: Siembra }
+```
+
+The Travel app's forms write them for you: with the interface in a language that isn't the pack's, a check's or a stat's name and description go to that language's file (the pack's text shows in grey as a hint). Older packs that write a text in several languages at once (`name: { en: Thaw, es: Deshielo }`) still work.

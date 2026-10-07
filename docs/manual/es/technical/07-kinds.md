@@ -18,7 +18,7 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 
 **Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
 
-Las traducciones de nombres y textos van en ficheros `locales/<idioma>/` con el mismo nombre ([Traducciones](../oracle/05-translations.md)); los textos que no están en una tabla (meses del calendario, nombres de los modos de tirada, comprobaciones…) también pueden escribirse en varios idiomas a la vez: `name: { en: Thaw, es: Deshielo }`.
+Las traducciones de nombres y textos van en ficheros `locales/<idioma>/` con el mismo nombre, para todos los tipos; los que no son tablas, por tipo e id (`calendar/marcher-reckoning:`): mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada). Los ejemplos de abajo van solo en el idioma base.
 
 ## Tablas
 
@@ -81,8 +81,8 @@ kind: roll-modes
 id: default
 modes:
   advantage:
-    name: { en: Advantage, es: Ventaja }
-    description: { es: Tira dos veces y quédate con el total más alto. }
+    name: Ventaja
+    description: Tira dos veces y quédate con el total más alto.
     repeat: 2 # cuántas veces se hace toda la tirada
     keep: highest # highest (el más alto), lowest (el más bajo) o middle (el del medio; con un número par, el más bajo de los dos del medio)
     cancels: disadvantage # juntos, no se aplica ninguno: tirada normal
@@ -117,11 +117,11 @@ Los meses del año (con sus días y estaciones), los días de la semana, las lun
 ```yaml
 kind: calendar
 id: marcher-reckoning
-name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+name: El cómputo de las Marcas
 watchHours: 4
 startYear: 412
 months:
-  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
+  - { id: thaw, name: Deshielo, days: 30, season: spring }
   - { id: highsun, name: Altosol, days: 30, season: summer }
 weekdays: [{ id: moonday, name: Díalunar }]
 moons: [{ id: pale, name: La Luna Pálida, cycle: 28 }]

@@ -101,12 +101,7 @@ weather:
   storm: { speed: 0 } # con tormenta no se viaja
 actions:
   rest: { minutes: 120, fatigue: 1 }
-  forage: {
-      name: { en: Forage for food, es: Buscar comida },
-      minutes: 180,
-      speed: 0.5,
-      oncePerDay: true,
-    } # una acción de este sistema: un botón Buscar comida
+  forage: { name: Buscar comida, minutes: 180, speed: 0.5, oncePerDay: true } # una acción de este sistema: un botón Buscar comida
 checks:
   - { event: WEATHER, at: day-start }
   - { event: LOST, at: day-start, unless: { edges: [road, river] } }
@@ -123,17 +118,12 @@ on:
   NIGHT: { resolve: night-encounters }
   FORAGE: { resolve: forage }
 stats:
-  luck:
-    {
-      name: { en: Luck, es: Suerte },
-      description: 'Se suma a las tiradas de encuentro',
-      default: 0,
-    }
+  luck: { name: Suerte, description: 'Se suma a las tiradas de encuentro', default: 0 }
 ```
 
 - **terrains** fijan la velocidad en cada terreno (`multiplier`; 0.5 es la mitad) o lo cierran (`passable: false`). **water** hace lo mismo con los hexes de agua cuyo terreno no está en la lista (Editar paleta → Agua en el mapa), y una forma de viajar con `allowedTerrains: [water]` es una barca: solo navega por agua, incluso donde a pie no se puede ir. Las tablas ven `water: true` en los hexes de agua.
 - **actions**: `camp` y `rest` vienen incluidas (`false` quita una; `rest` admite `minutes` y la `fatigue` que recupera). Cualquier otra clave es una **acción propia del sistema**, un botón junto a Viajar, Acampar y Descansar: `name` y `description` (en uno o varios idiomas), los `minutes` que lleva, `speed` (multiplica el resto de la marcha del día: 0.5 la reduce a la mitad), la `fatigue` que recupera y `oncePerDay` (una vez al día). Lo que tira son las comprobaciones con `at: <su id>`. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: { es: 'no hay nada que buscar en {terrain}' }`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas.
-- **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex), `camp` (al acampar) o el id de una acción propia del sistema (`at: forage`). Dale a cada una un `name` (y una `description`) para los jugadores, en uno o varios idiomas — `name: { en: Getting lost, es: Perderse }` —, o el panel del viaje y el diario mostrarán el id de su evento. `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos del tramo: el que acabas de recorrer al entrar en un hex, el que tienes por delante al alba y al acampar.
+- **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex), `camp` (al acampar) o el id de una acción propia del sistema (`at: forage`). Dale a cada una un `name` (y una `description`) para los jugadores (`name: Perderse`; sus traducciones van en `locales/`, mira [Traducciones](05-translations.md#reglas-calendarios-clima-y-modos-de-tirada)), o el panel del viaje y el diario mostrarán el id de su evento. `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos del tramo: el que acabas de recorrer al entrar en un hex, el que tienes por delante al alba y al acampar.
 - **bindings** conectan cada comprobación (por su nombre de evento, el que quieras) con una tabla del pack.
 - **stats** son números del grupo que aparecen en el panel del viaje (p. ej. la Presencia de Kal-Arath); las tablas los leen por su clave: `roll: '2d6 + {{luck}}'`.
 
@@ -146,12 +136,12 @@ Los viajes cuentan los días con un calendario sencillo (cuatro estaciones de 90
 ```yaml
 kind: calendar
 id: reckoning
-name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+name: El cómputo de las Marcas
 startYear: 412
 watchHours: 4
 months:
-  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
-  - { id: highsun, name: { en: Highsun, es: Altosol }, days: 30, season: summer }
+  - { id: thaw, name: Deshielo, days: 30, season: spring }
+  - { id: highsun, name: Altosol, days: 30, season: summer }
   # …
 weekdays: [{ id: moonday, name: Lunadía }, { id: ironday, name: Hierrodía }]
 moons: [{ id: pale, name: la Luna Pálida, cycle: 28 }]
@@ -172,7 +162,7 @@ Una tabla de clima tira cada día de nuevo. Para un clima que dura —lluvia que
 kind: weather
 id: sky
 states:
-  clear: { name: { en: Clear skies, es: Cielo despejado } }
+  clear: { name: Cielo despejado }
   rain: { name: Lluvia constante, set: { fordModifier: -1 } }
   storm: { name: 'Tormenta: nadie viaja', set: { fordImpossible: true } }
 seasons:

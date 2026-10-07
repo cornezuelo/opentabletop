@@ -136,6 +136,21 @@ describe('bundled open packs', () => {
     expect(totals[1]).toBe(ford.rolls[0].total)
   })
 
+  it('the Grey Marches: rules, stats, calendar, weather and roll modes translated in locales/', () => {
+    const system = marches()
+    const es = (text: unknown) => (text as Record<string, string> | undefined)?.es
+    expect(
+      es(system.rules.actions?.forage && (system.rules.actions.forage as { name?: unknown }).name),
+    ).toBe('Buscar comida')
+    expect(es(system.rules.checks?.find((c) => c.event === 'FORAGE_CHECK_REQUIRED')?.name)).toBe(
+      'Buscar comida',
+    )
+    expect(es(system.bindings?.stats?.survival?.name)).toBe('Supervivencia')
+    expect(es(system.calendar?.def.months[0].name)).toBe('Deshielo')
+    expect(es(system.weather?.['grey-marches/sky']?.states.clear.name)).toBe('Cielo despejado')
+    expect(es(registry.rollModes.get('grey-marches/careful')?.name)).toBe('Con cuidado')
+  })
+
   it('the Grey Marches discover a map whose terrains their rules know', () => {
     const system = marches()
     expect(system.bindings?.discover?.reveal).toBe('neighbors')

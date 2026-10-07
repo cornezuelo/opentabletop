@@ -1,0 +1,15 @@
+weather/sky:
+  name: El cielo de las Marcas
+  states:
+    clear:
+      name: Cielo despejado
+    grey:
+      name: Gris y templado
+    rain:
+      name: Lluvia constante
+    fog:
+      name: Niebla espesa
+    storm:
+      name: 'Tormenta: nadie viaja'
+    snow:
+      name: Nieva

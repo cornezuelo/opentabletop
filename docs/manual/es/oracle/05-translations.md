@@ -27,3 +27,25 @@ yes-no:
 ```
 
 La aplicación muestra los textos de los packs en el idioma de la interfaz cuando el pack lo tiene.
+
+## Reglas, calendarios, clima y modos de tirada
+
+Las definiciones que no son tablas se traducen igual, en los mismos ficheros, por **tipo e id** (`travel-rules/default`, `calendar/marcher-reckoning`), porque varias se llaman `default`. La traducción imita la definición, solo con sus textos (`name`, `description`, y el `nothing` de una acción): los mapas por sus claves, las listas por el `id` de sus elementos (una comprobación por su `event`). Un texto escrito solo es el nombre del elemento. De las Marcas Grises:
+
+```yaml
+# locales/es/travel.yaml
+travel-rules/default:
+  actions:
+    forage: { name: Buscar comida, nothing: 'no hay nada que buscar en {terrain}…' }
+  checks:
+    FORAGE_CHECK_REQUIRED: { name: Buscar comida }
+bindings/default:
+  stats:
+    survival: { name: Supervivencia, description: Se suma a buscar comida y a los vados. }
+# locales/es/calendar.yaml
+calendar/marcher-reckoning:
+  name: El cómputo de las Marcas
+  months: { thaw: Deshielo, sowing: Siembra }
+```
+
+Los formularios de la aplicación Travel las escriben por ti: con la interfaz en un idioma que no es el del pack, el nombre y la descripción de una comprobación o de una característica van al fichero de ese idioma (el texto del pack se ve en gris como pista). Los packs antiguos que escriben un texto en varios idiomas a la vez (`name: { en: Thaw, es: Deshielo }`) siguen funcionando.

@@ -1,10 +1,13 @@
 import {
   appendDefinition,
+  getOverlayText,
   insertIn,
+  renameOverlayKey,
   readDefinition,
   removeIn,
   renameKey,
   setIn,
+  setOverlayText,
   type Path,
 } from '@open-tabletop/pack-ui/yaml'
 import { packTexts } from '@open-tabletop/oracle-ui'
@@ -56,6 +59,27 @@ export function systemDoc(source: () => { root: string; path: string }) {
   const texts = packTexts(() => library.registry, getLocale)
   const save = (kind: Kind, text: string) => library.writeFile(root, fileOf(kind), text)
 
+  /**
+   * Texts players read (a check's name, a stat's description…) are edited in the UI's
+   * language: in the definition when it's the pack's base language, otherwise in its
+   * translation file (`locales/<language>/<file>`, keyed `<kind>/<id>`), like tables'.
+   */
+  const baseLocale = $derived((pack && manifestOf(pack).locale) ?? 'en')
+  const overlayFile = (kind: Kind) => `locales/${getLocale()}/${fileOf(kind)}`
+  const overlayKey = (kind: Kind) => {
+    const raw = kind === 'bindings' ? bindings : rules
+    return `${kind}/${typeof raw?.id === 'string' ? raw.id : 'default'}`
+  }
+  /** One language of a text written as one string (the base language) or several. */
+  const inLanguage = (value: unknown, locale: string): string =>
+    typeof value === 'string'
+      ? locale === baseLocale
+        ? value
+        : ''
+      : typeof value === 'object' && value !== null
+        ? String((value as Record<string, unknown>)[locale] ?? '')
+        : ''
+
   return {
     get root() {
       return root
@@ -82,6 +106,46 @@ export function systemDoc(source: () => { root: string; path: string }) {
     get weatherModels() {
       return weatherModels
     },
+    /** Whether texts are being written in a translation (the UI isn't in the base language). */
+    get translating() {
+      return getLocale() !== baseLocale
+    },
+    /**
+     * A text in the UI's language. `at` is its place in the definition, `key` in the
+     * translation file (lists by id or event: ['checks', 'FORAGE', 'name']).
+     */
+    text(kind: Kind, value: unknown, key: string[]): string {
+      const locale = getLocale()
+      if (locale === baseLocale) return inLanguage(value, locale)
+      const translated = getOverlayText(library.readFile(root, overlayFile(kind)), [
+        overlayKey(kind),
+        ...key,
+      ])
+      return translated || inLanguage(value, locale)
+    },
+    /** The base language's text, shown as a hint while translating. */
+    baseText(value: unknown): string {
+      return inLanguage(value, baseLocale) || (typeof value === 'string' ? value : '')
+    },
+    setText(kind: Kind, at: Path, value: unknown, key: string[], text: string) {
+      const locale = getLocale()
+      const clean = text.trim()
+      // Texts already written in several languages keep the others.
+      const several = typeof value === 'object' && value !== null
+      if (locale === baseLocale) {
+        if (several) this.edit(kind, [...at, locale], clean || undefined)
+        else this.edit(kind, at, clean || undefined)
+        return
+      }
+      if (several && locale in (value as Record<string, unknown>))
+        this.edit(kind, [...at, locale], undefined)
+      const file = overlayFile(kind)
+      library.writeFile(
+        root,
+        file,
+        setOverlayText(library.readFile(root, file) ?? '', [overlayKey(kind), ...key], clean),
+      )
+    },
     /** Sets (or, with undefined/'', deletes) a value. Bindings are created on first use. */
     edit(kind: Kind, at: Path, value: unknown) {
       let text = read(kind)
@@ -93,6 +157,16 @@ export function systemDoc(source: () => { root: string; path: string }) {
     },
     rename(kind: Kind, at: Path, from: string, to: string) {
       save(kind, renameKey(read(kind), `@${kind}`, at, from, to))
+      this.renameTranslations(kind, at.map(String), from, to)
+    },
+    /** A check or stat renamed: its translations (every language) follow it. */
+    renameTranslations(kind: Kind, key: string[], from: string, to: string) {
+      const file = fileOf(kind)
+      for (const f of pack?.files ?? []) {
+        if (!/^locales\/[^/]+\//.test(f.path) || !f.path.endsWith(`/${file}`)) continue
+        const next = renameOverlayKey(f.content, [overlayKey(kind), ...key], from, to)
+        if (next !== f.content) library.writeFile(root, f.path, next)
+      }
     },
     /** Inserts into a list, creating it when missing. */
     insert(kind: Kind, at: Path, index: number, value: unknown) {

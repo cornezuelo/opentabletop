@@ -99,7 +99,7 @@ export const en = {
     restFatigueHelp: '0: a pause that recovers nothing (camping does).',
     ownActions: 'Actions of this system',
     ownActionsHelp:
-      'Buttons of your own next to Travel, Camp and Rest, e.g. forage: they take time, can slow the rest of the day’s march and recover fatigue. Give them checks in the Checks tab (When: the action). Their name, description and what the journal says when none of their checks apply (nothing) go in the YAML, in each language (name: { en: Forage for food, es: Buscar comida }).',
+      'Buttons of your own next to Travel, Camp and Rest, e.g. forage: they take time, can slow the rest of the day’s march and recover fatigue. Give them checks in the Checks tab (When: the action). Their name, description and what the journal says when none of their checks apply (nothing) go in the YAML (name: Forage for food), and their translations in locales/ like the checks'.',
     actionSpeedHelp: 'Multiplies the rest of the day’s march: 0.5 halves it. Empty: no change.',
     oncePerDay: 'Once a day',
   },
@@ -109,7 +109,7 @@ export const en = {
     event: 'Check',
     name: 'Name',
     nameHelp:
-      'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). Names in several languages go in the YAML: name: { en: Getting lost, es: Perderse }; this box edits the current language.',
+      'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). This box edits it in the current language: the pack's own, or its translation file when the interface is in another one.',
     description: 'Description (tooltip)',
     at: 'When',
     atOptions: { 'day-start': 'At dawn', 'hex-enter': 'Entering a hex', camp: 'In camp' },

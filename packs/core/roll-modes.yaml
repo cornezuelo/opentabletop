@@ -5,18 +5,14 @@ kind: roll-modes
 id: default
 modes:
   advantage:
-    name: { en: Advantage, es: Ventaja }
-    description:
-      en: Roll twice and keep the higher total.
-      es: Tira dos veces y quédate con el total más alto.
+    name: Advantage
+    description: Roll twice and keep the higher total.
     repeat: 2
     keep: highest
     # Advantage and disadvantage together give a normal roll.
     cancels: disadvantage
   disadvantage:
-    name: { en: Disadvantage, es: Desventaja }
-    description:
-      en: Roll twice and keep the lower total.
-      es: Tira dos veces y quédate con el total más bajo.
+    name: Disadvantage
+    description: Roll twice and keep the lower total.
     repeat: 2
     keep: lowest

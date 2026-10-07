@@ -18,7 +18,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar: a system has one way of doing each), any number of the rest. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
-Translations of names and texts go in `locales/<language>/` files with the same name ([Translations](../oracle/05-translations.md)); texts that aren't in a table (calendar months, roll mode names, checks…) can instead be written in several languages at once: `name: { en: Thaw, es: Deshielo }`.
+Translations of names and texts go in `locales/<language>/` files with the same name, for every kind; the ones that aren't tables are keyed by kind and id (`calendar/marcher-reckoning:`): see [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes). The examples below are in the base language only.
 
 ## Tables
 
@@ -82,8 +82,8 @@ kind: roll-modes
 id: default
 modes:
   advantage:
-    name: { en: Advantage, es: Ventaja }
-    description: { en: Roll twice and keep the higher total. }
+    name: Advantage
+    description: Roll twice and keep the higher total.
     repeat: 2 # how many times the whole roll is made
     keep: highest # highest, lowest or middle (of an even count, the lower middle one)
     cancels: disadvantage # together, neither applies: a normal roll
@@ -118,11 +118,11 @@ The months of the year (with their days and seasons), weekdays, moons (cycle and
 ```yaml
 kind: calendar
 id: marcher-reckoning
-name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+name: The Marcher reckoning
 watchHours: 4
 startYear: 412
 months:
-  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
+  - { id: thaw, name: Thaw, days: 30, season: spring }
   - { id: highsun, name: Highsun, days: 30, season: summer }
 weekdays: [{ id: moonday, name: Moonday }]
 moons: [{ id: pale, name: The Pale Moon, cycle: 28 }]

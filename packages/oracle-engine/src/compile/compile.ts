@@ -9,6 +9,7 @@ import {
   type Overlay,
 } from '../definitions/schema'
 import type { Diagnostic, LoadedPack } from '../loader/load'
+import { foldSystemTexts } from './systemTexts'
 
 export interface Ref {
   kind: 'table' | 'generator'
@@ -151,6 +152,7 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
     rollModes: new Map(),
     diagnostics,
   }
+  foldSystemTexts(loaded, diagnostics)
   for (const pack of loaded) {
     registry.extras.set(pack.manifest.id, pack.extras)
     const deps = Object.keys(pack.manifest.dependencies ?? {})

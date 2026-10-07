@@ -34,6 +34,11 @@ export interface LoadedPack {
   definitions: { definition: Definition; file: string; index: number }[]
   /** Translation overlays by locale. */
   overlays: Record<string, { overlay: Overlay; file: string }[]>
+  /**
+   * Translations of definitions that aren't tables, by locale: keyed `<kind>/<id>` in the
+   * overlay file (`travel-rules/default:`), folded into those definitions when compiling.
+   */
+  systemTexts: Record<string, { key: string; texts: unknown; file: string }[]>
   /** Definitions for other engines (e.g. kind: travel-rules, bindings), passed through untouched. */
   extras: { kind: string; id?: string; data: Record<string, unknown>; file: string }[]
 }
@@ -80,6 +85,7 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       root,
       definitions: [],
       overlays: {},
+      systemTexts: {},
       extras: [],
     }
     packs.push(pack)
@@ -103,7 +109,14 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
     const locale = /^locales\/([^/]+)\//.exec(relative)?.[1]
     const docs = parseDocuments(file, diagnostics, pack.manifest.id)
     if (locale) {
-      for (const doc of docs) {
+      for (const whole of docs) {
+        // `<kind>/<id>` keys translate definitions that aren't tables; the rest are tables'.
+        const doc = isRecord(whole) ? { ...whole } : whole
+        if (isRecord(doc))
+          for (const key of Object.keys(doc).filter((k) => k.includes('/'))) {
+            ;(pack.systemTexts[locale] ??= []).push({ key, texts: doc[key], file: file.path })
+            delete doc[key]
+          }
         const parsed = overlaySchema.safeParse(doc)
         if (parsed.success)
           (pack.overlays[locale] ??= []).push({ overlay: parsed.data, file: file.path })
