@@ -1,0 +1,17 @@
+{
+  "name": "@open-tabletop/weather-engine",
+  "version": "0.0.0",
+  "description": "Weather with inertia: today's weather follows from yesterday's (Markov models per season, as data).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/random": "*"
+  }
+}

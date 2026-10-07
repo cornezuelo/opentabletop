@@ -1,4 +1,5 @@
 import type { Diagnostic, OracleEngine, Registry } from '@open-tabletop/oracle-engine'
+import { validateWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
   calendarFrom,
   defaultCalendar,
@@ -38,6 +39,8 @@ export interface TravelSystem {
   bindings?: Bindings
   /** The pack's own calendar (`kind: calendar`), if it has one. */
   calendar?: DataCalendar
+  /** Weather models its bindings may name (every pack's, by pack/id). */
+  weather?: Record<string, WeatherModel>
 }
 
 /** The calendar a system's trips use: its own, or the default one. */
@@ -71,6 +74,15 @@ export function travelSystems(registry: Registry): {
 } {
   const systems = [GENERIC_SYSTEM]
   const problems: Diagnostic[] = []
+  // Weather models of every pack (`kind: weather`), by pack/id: any system may use them.
+  const weather: Record<string, WeatherModel> = {}
+  for (const [id] of registry.packs)
+    for (const extra of registry.extras.get(id) ?? []) {
+      if (extra.kind !== 'weather') continue
+      const errors = extra.id ? validateWeather(extra.data) : ['id: a weather model needs one']
+      problems.push(...errors.map((e) => problem(id, extra.file, 'weather', e)))
+      if (!errors.length) weather[`${id}/${extra.id}`] = extra.data as unknown as WeatherModel
+    }
   for (const [id, pack] of registry.packs) {
     const extras = registry.extras.get(id) ?? []
     const rulesRaw = extras.find((e) => e.kind === 'travel-rules')
@@ -94,13 +106,22 @@ export function travelSystems(registry: Registry): {
           )
       }
       for (const [event, binding] of Object.entries(parsed?.bindings?.on ?? {}))
-        if (!registry.definitions.has(binding.resolve))
+        if (binding.resolve && !registry.definitions.has(binding.resolve))
           problems.push(
             problem(
               id,
               bindingsRaw.file,
               'bindings',
               `on.${event}.resolve: Unknown table or generator "${binding.resolve}"`,
+            ),
+          )
+        else if (binding.weather && !weather[binding.weather])
+          problems.push(
+            problem(
+              id,
+              bindingsRaw.file,
+              'bindings',
+              `on.${event}.weather: Unknown weather model "${binding.weather}"`,
             ),
           )
     }
@@ -118,7 +139,14 @@ export function travelSystems(registry: Registry): {
       calendarRaw && !calendarErrors.length
         ? calendarFrom(calendarRaw.data as unknown as CalendarDef)
         : undefined
-    systems.push({ id, name, rules, bindings: parsed?.bindings, ...(calendar && { calendar }) })
+    systems.push({
+      id,
+      name,
+      rules,
+      bindings: parsed?.bindings,
+      ...(calendar && { calendar }),
+      ...(Object.keys(weather).length && { weather }),
+    })
   }
   return { systems, problems }
 }
@@ -208,6 +236,7 @@ export function stepTrip(
     bindings: system.bindings,
     locale: options.locale,
     discovery,
+    weather: system.weather,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }

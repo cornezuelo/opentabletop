@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/random": "*",
     "@open-tabletop/time": "*",
-    "@open-tabletop/travel-engine": "*"
+    "@open-tabletop/travel-engine": "*",
+    "@open-tabletop/weather-engine": "*"
   }
 }

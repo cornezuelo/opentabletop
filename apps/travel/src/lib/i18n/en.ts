@@ -120,6 +120,8 @@ export const en = {
     resolve: 'Rolled on',
     resolveHelp:
       'The table or generator that resolves it. Its result goes to the journal, and its set values reach the trip.',
+    weatherModels: 'Weather with inertia',
+    weatherModel: 'Weather model: {model}',
     waits: '— nothing: wait for me —',
     context: 'Extra context',
     contextHelp: 'Values the table sees only for this check, e.g. timeOfDay: night.',

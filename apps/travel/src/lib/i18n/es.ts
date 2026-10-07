@@ -123,6 +123,8 @@ export const es: Messages<typeof en> = {
     resolve: 'Se tira en',
     resolveHelp:
       'La tabla o generador que la resuelve. Su resultado va al diario, y sus valores set llegan al viaje.',
+    weatherModels: 'Clima con inercia',
+    weatherModel: 'Modelo de clima: {model}',
     waits: '— nada: espérame —',
     context: 'Contexto extra',
     contextHelp: 'Valores que la tabla ve solo en esta comprobación, p. ej. timeOfDay: night.',

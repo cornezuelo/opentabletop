@@ -154,6 +154,36 @@ holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 
 The Grey Marches' `calendar.yaml` is a full example.
 
+### Weather with inertia
+
+A weather table rolls each day afresh. For weather that lasts — rain that sets in, storms that blow over — a pack can have a **weather model** (`kind: weather`) and bind the weather check to it with `weather:` instead of `resolve:`:
+
+```yaml
+kind: weather
+id: sky
+states:
+  clear: { name: { en: Clear skies, es: Cielo despejado } }
+  rain: { name: Steady rain, set: { fordModifier: -1 } }
+  storm: { name: 'Storm: nobody travels', set: { fordImpossible: true } }
+seasons:
+  spring:
+    start: clear # or weights: { clear: 2, rain: 1 }
+    next: # from today's weather, how likely tomorrow is to be each kind
+      clear: { clear: 3, rain: 1 }
+      rain: { rain: 3, clear: 1, storm: 1 }
+      storm: { rain: 1 }
+---
+kind: bindings
+on:
+  WEATHER_CHECK_REQUIRED: { weather: sky }
+```
+
+- **states**: each kind of weather, with its name and the values it gives the day (like a table's `set`); its id is what the travel rules' `weather` reads.
+- **seasons**: per season, where the weather starts and, from each kind, the weights of the next day's. Yesterday's weather the season has no row for starts over from `start`.
+- The journal shows the day's weather by its name. In the Travel app's **Checks**, pick the model under _Weather with inertia_.
+
+The Grey Marches' `sky.yaml` is the full example (their tables in `weather.yaml` still roll weather by hand, without memory).
+
 ## 7. Discovering the map
 
 Bindings can also say how empty hexes are decided while travelling (the Hexmapper's **Discover the map as you travel**):

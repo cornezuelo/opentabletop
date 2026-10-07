@@ -100,7 +100,12 @@ describe('session', () => {
     expect(parseBindings({ on: { X: { resolve: 'weather' } } }, 'sys').bindings).toEqual({
       on: { X: { resolve: 'sys/weather' } },
     })
-    expect(parseBindings({ on: { X: {} } }).errors).toEqual(['bindings.on.X: needs "resolve"'])
+    expect(parseBindings({ on: { X: {} } }).errors).toEqual([
+      'bindings.on.X: needs "resolve" (a table) or "weather" (a model)',
+    ])
+    expect(parseBindings({ on: { W: { weather: 'sky' } } }, 'sys').bindings).toEqual({
+      on: { W: { weather: 'sys/sky' } },
+    })
   })
 
   it('resolves checks with the oracle and keeps travelling', () => {

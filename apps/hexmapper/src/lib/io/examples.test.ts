@@ -183,6 +183,38 @@ describe('example maps', () => {
     })
   })
 
+  it('the Grey Marches: the weather check follows yesterday’s weather (sky.yaml)', () => {
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const { systems, problems } = travelSystems(registry)
+    expect(problems).toEqual([])
+    const system = systems.find((s) => s.id === 'grey-marches')!
+    expect(Object.keys(system.weather ?? {})).toEqual(['grey-marches/sky'])
+    const options = {
+      system,
+      world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json)),
+      oracle: createOracleEngine({ registry, random: seeded('sky') }),
+      locale: 'en',
+    }
+    let { session } = startTrip({ system, location: '5,7', season: 'winter' })
+    const days: string[] = []
+    for (let day = 0; day < 3; day++) {
+      // Far away (Fort Keld): every day starts with a march, and its weather check.
+      session = stepTrip(options, session, { type: 'setDestination', hex: '15,9' }).state
+      const step = stepTrip(options, session, { type: 'travel' })
+      const weather = step.entries.find((e) => e.data?.event === 'WEATHER_CHECK_REQUIRED')
+      expect(weather?.data).toMatchObject({ weather: 'grey-marches/sky' })
+      days.push(String(step.state.travel.weather))
+      session = stepTrip(options, step.state, { type: 'camp' }).state
+    }
+    // Winter weather from the model's states.
+    for (const w of days) expect(['clear', 'grey', 'snow', 'storm']).toContain(w)
+  })
+
   it('the Grey Marches: only the boat crosses the Saltmere', () => {
     const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(

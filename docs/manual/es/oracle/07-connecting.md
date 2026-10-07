@@ -159,6 +159,36 @@ holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 
 El `calendar.yaml` de las Marcas Grises es un ejemplo completo.
 
+### Clima con inercia
+
+Una tabla de clima tira cada día de nuevo. Para un clima que dura —lluvia que se instala, tormentas que pasan—, un pack puede tener un **modelo de clima** (`kind: weather`) y ligar a él la comprobación del clima con `weather:` en lugar de `resolve:`:
+
+```yaml
+kind: weather
+id: sky
+states:
+  clear: { name: { en: Clear skies, es: Cielo despejado } }
+  rain: { name: Lluvia constante, set: { fordModifier: -1 } }
+  storm: { name: 'Tormenta: nadie viaja', set: { fordImpossible: true } }
+seasons:
+  spring:
+    start: clear # o pesos: { clear: 2, rain: 1 }
+    next: # según el clima de hoy, cuán probable es cada tipo mañana
+      clear: { clear: 3, rain: 1 }
+      rain: { rain: 3, clear: 1, storm: 1 }
+      storm: { rain: 1 }
+---
+kind: bindings
+on:
+  WEATHER_CHECK_REQUIRED: { weather: sky }
+```
+
+- **states**: cada tipo de clima, con su nombre y los valores que da al día (como el `set` de una tabla); su id es lo que lee el `weather` de las reglas de viaje.
+- **seasons**: por estación, dónde empieza el clima y, desde cada tipo, los pesos del día siguiente. Si la estación no tiene fila para el clima de ayer, se empieza de nuevo desde `start`.
+- El diario muestra el clima del día por su nombre. En **Comprobaciones** de la aplicación Travel, elige el modelo bajo _Clima con inercia_.
+
+El `sky.yaml` de las Marcas Grises es el ejemplo completo (sus tablas de `weather.yaml` siguen tirando el clima a mano, sin memoria).
+
 ## 7. Descubrir el mapa
 
 Los bindings también pueden decir cómo se deciden los hexes vacíos al viajar (el **Descubrir el mapa al viajar** del Hexmapper):

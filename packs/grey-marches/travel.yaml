@@ -150,7 +150,8 @@ discover:
   contents: { resolve: hex-contents }
   reveal: neighbors
 on:
-  WEATHER_CHECK_REQUIRED: { resolve: weather }
+  # Weather with inertia: a model (sky.yaml) instead of a table.
+  WEATHER_CHECK_REQUIRED: { weather: sky }
   NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }
   # One encounter table for day and night: the context says which.
   ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: day } }

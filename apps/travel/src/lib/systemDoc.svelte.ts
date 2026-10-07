@@ -44,6 +44,15 @@ export function systemDoc(source: () => { root: string; path: string }) {
       .map((d) => ({ ref: d.pack === packId ? d.localId : d.id, name: texts.displayName(d) })),
   )
 
+  /** Weather models a check can be resolved by (`kind: weather`): this pack's by local id. */
+  const weatherModels = $derived(
+    [...library.registry.packs.keys()].flatMap((id) =>
+      (library.registry.extras.get(id) ?? [])
+        .filter((e) => e.kind === 'weather' && e.id)
+        .map((e) => (id === packId ? e.id! : `${id}/${e.id}`)),
+    ),
+  )
+
   const texts = packTexts(() => library.registry, getLocale)
   const save = (kind: Kind, text: string) => library.writeFile(root, fileOf(kind), text)
 
@@ -69,6 +78,9 @@ export function systemDoc(source: () => { root: string; path: string }) {
     },
     get targets() {
       return targets
+    },
+    get weatherModels() {
+      return weatherModels
     },
     /** Sets (or, with undefined/'', deletes) a value. Bindings are created on first use. */
     edit(kind: Kind, at: Path, value: unknown) {

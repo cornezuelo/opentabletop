@@ -1,3 +1,5 @@
+import { mathRandom, type RandomSource } from '@open-tabletop/random'
+import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
   emptyState,
   OracleError,
@@ -33,7 +35,11 @@ export interface StatDefinition {
  * which party stats the tables read from the context.
  */
 export interface Bindings {
-  on: Record<string, { resolve: string; context?: Record<string, unknown> }>
+  /**
+   * Per check event: the table or generator that resolves it (`resolve`), or a weather
+   * model that does (`weather`: today's weather follows yesterday's), with extra context.
+   */
+  on: Record<string, { resolve?: string; weather?: string; context?: Record<string, unknown> }>
   stats?: Record<string, StatDefinition>
   /** Tables that decide empty hexes as the party travels (the host may turn it off). */
   discover?: DiscoverBindings
@@ -59,14 +65,17 @@ export function parseBindings(
   const errors: string[] = []
   for (const [event, value] of Object.entries(on)) {
     const target = (value as { resolve?: unknown })?.resolve
-    if (typeof target !== 'string' || !target) {
-      errors.push(`bindings.on.${event}: needs "resolve"`)
+    const weather = (value as { weather?: unknown })?.weather
+    const ok = (v: unknown): v is string => typeof v === 'string' && !!v
+    if (ok(target) === ok(weather)) {
+      errors.push(`bindings.on.${event}: needs "resolve" (a table) or "weather" (a model)`)
       continue
     }
+    // Local ids are resolved in the pack that declares the bindings.
+    const qualify = (id: string) => (pack && !id.includes('/') ? `${pack}/${id}` : id)
     const context = (value as { context?: unknown }).context
     out.on[event] = {
-      // Local ids are resolved in the pack that declares the bindings.
-      resolve: pack && !target.includes('/') ? `${pack}/${target}` : target,
+      ...(ok(target) ? { resolve: qualify(target) } : { weather: qualify(weather as string) }),
       ...(typeof context === 'object' &&
         context !== null && { context: context as Record<string, unknown> }),
     }
@@ -227,7 +236,12 @@ export function createSession(options: {
    * goes hex by hex, deciding empty hexes on the way and re-planning the route.
    */
   discovery?: Discovery
+  /** Weather models bindings may name (`weather: pack/id`). */
+  weather?: Record<string, WeatherModel>
+  /** For the weather (tables use the Oracle's own). */
+  random?: RandomSource
 }): Session {
+  const random = options.random ?? mathRandom()
   const now = options.now ?? (() => new Date().toISOString())
   const discovery = options.discovery
   // Hex by hex, a long trip takes many steps.
@@ -318,11 +332,28 @@ export function createSession(options: {
             continue
           }
           const context = tripContext(s, event.check.context, binding.context)
-          let out: ReturnType<OracleEngine['resolve']>
+          let value: Record<string, unknown>
+          let text: string | undefined
           try {
-            out = options.oracle.resolve(binding.resolve, context, s.oracle, {
-              locale: options.locale,
-            })
+            if (binding.weather) {
+              const model = options.weather?.[binding.weather]
+              if (!model) throw new OracleError(`Unknown weather model "${binding.weather}"`)
+              // Today's weather follows yesterday's (the trip's until now).
+              const day = nextWeather(model, {
+                season: typeof context.season === 'string' ? context.season : undefined,
+                previous: s.travel.weather,
+                random,
+              })
+              value = day.value
+              text = localize(day.name, options.locale ?? 'en', 'en') ?? day.weather
+            } else {
+              const out = options.oracle.resolve(binding.resolve!, context, s.oracle, {
+                locale: options.locale,
+              })
+              s.oracle = out.state
+              value = out.resolution.value
+              text = out.resolution.text
+            }
           } catch (error) {
             // A broken pack (unknown table, a roll that needs a missing number…) must not
             // lose the trip: the check stays pending and the journal says why.
@@ -333,19 +364,25 @@ export function createSession(options: {
               code: 'CHECK_FAILED',
               time: event.time,
               text: error.message,
-              data: { event: event.check.event, id: event.check.id, table: binding.resolve },
+              data: {
+                event: event.check.event,
+                id: event.check.id,
+                table: binding.resolve ?? binding.weather,
+              },
             })
             continue
           }
-          s.oracle = out.state
-          const value = out.resolution.value
           add(s, entries, {
             source: 'oracle',
             code: 'ORACLE_RESULT',
             // When the check came up (e.g. a night encounter belongs to the camp, not dawn).
             time: event.time,
-            text: out.resolution.text,
-            data: { event: event.check.event, table: binding.resolve, value },
+            text,
+            data: {
+              event: event.check.event,
+              ...(binding.weather ? { weather: binding.weather } : { table: binding.resolve }),
+              value,
+            },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value) }
           applyStats(s, value)

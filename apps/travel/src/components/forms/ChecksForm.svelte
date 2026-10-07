@@ -79,10 +79,14 @@
     if (on[from] && !shared && !on[to]) doc.rename('bindings', ['on'], from, to)
   }
 
+  /** A table (`ref`) or a weather model (`weather:<id>`) resolves the check, or nothing. */
   function setTable(event: string, ref: string) {
     if (!ref) return doc.edit('bindings', ['on', event], undefined)
-    if (on[event]) doc.edit('bindings', ['on', event, 'resolve'], ref)
-    else doc.edit('bindings', ['on', event], { resolve: ref })
+    const weather = ref.startsWith('weather:') ? ref.slice(8) : undefined
+    const [key, other] = weather ? ['weather', 'resolve'] : ['resolve', 'weather']
+    if (!on[event]) return doc.edit('bindings', ['on', event], { [key]: weather ?? ref })
+    doc.edit('bindings', ['on', event, other], undefined)
+    doc.edit('bindings', ['on', event, key], weather ?? ref)
   }
 
   async function remove(index: number, event: string) {
@@ -152,7 +156,9 @@
     {#each checks as check, i (i)}
       {@const event = String(check.event ?? '')}
       {@const binding = on[event]}
-      {@const ref = String(binding?.resolve ?? '')}
+      {@const ref = binding?.weather
+        ? `weather:${binding.weather}`
+        : String(binding?.resolve ?? '')}
       <div class="check">
         <div class="row">
           <label class="event">
@@ -238,6 +244,13 @@
               <option value="">{t('checks.waits')}</option>
               {#if ref && !doc.targets.some((x) => x.ref === ref)}
                 <option value={ref}>{ref} ⚠</option>
+              {/if}
+              {#if doc.weatherModels.length}
+                <optgroup label={t('checks.weatherModels')}>
+                  {#each doc.weatherModels as m (m)}
+                    <option value="weather:{m}">{t('checks.weatherModel', { model: m })}</option>
+                  {/each}
+                </optgroup>
               {/if}
               {#each doc.targets as x (x.ref)}
                 <option value={x.ref}>{x.name} ({x.ref})</option>
