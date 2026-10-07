@@ -60,12 +60,14 @@ In order (agreed 2026-10-07; each step is groundwork for the next ones):
 **Solo play and content**
 
 - **Solo scene engine**: chaos factor, lists of threads and characters, scenes that go as expected, altered or interrupted; our own free mechanics, working with the oracles.
-- **Ironsworn** as a pack, with progress clocks: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item: CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first; the code and schemas are MIT.
 - **Name generators** by setting (people, settlements, taverns, places…), not only fantasy: bundled per pack and user-editable, on the Oracle Engine (syllable tables, maybe Markov chains trained on name lists as data).
 - **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
 - **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; dungeons once sub-maps exist.
 - **Dice roller app**: quick, visual rolls of any expression `dice` knows, with history; reuses the Oracle's roller and result cards.
-- **Last: more free solo GM / oracle systems** from itch.io and elsewhere, once their licences are checked (each as a pack, licence recorded).
+- **More open systems as packs** (user, 2026-10-07; not a priority): games whose licence allows redistribution, each in `packs/` with its licence and attribution recorded; **check every licence before adding** (candidates from memory, unverified unless said):
+  - **Ironsworn / Starforged** via [Datasworn](https://github.com/rsek/datasworn) (rules as JSON): licence per item; CC BY 4.0 (the core books) can go to `packs/`; CC BY-NC 4.0 items must be decided first; the code and schemas are MIT. With progress clocks.
+  - **Cairn**, **Knave**, **Mausritter** (believed CC BY / CC BY-SA), the **Old-School Essentials SRD** (OGL), and free solo oracles such as the **One Page Solo Engine**.
+  - More free solo GM / oracle systems from itch.io and elsewhere.
 
 **Maps in depth**
 
