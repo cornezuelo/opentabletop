@@ -105,6 +105,8 @@ interface HexmapperExt {
   regions: HexMap['regions']
   captions: HexMap['captions']
   regionStyle?: HexMap['regionStyle']
+  /** Pack ids the map works with (absent: all). */
+  packs?: string[]
   assets: HexMap['assets']
   icons: Record<string, HexIcon>
   /** How hex names are shown, per hex (only hexes that differ from the map's style). */
@@ -163,6 +165,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     regions: map.regions,
     captions: map.captions,
     regionStyle: map.regionStyle,
+    ...(map.meta.packs && { packs: map.meta.packs }),
     assets: map.assets,
     icons,
     ...(Object.keys(names).length && { names }),
@@ -383,6 +386,7 @@ export function bundleToMap(raw: unknown): HexMap {
       name: otdMap.name ?? '',
       created: ext.created,
       modified: ext.modified,
+      ...(ext.packs && { packs: ext.packs }),
     },
     grid: {
       orientation: otdMap.grid.orientation,

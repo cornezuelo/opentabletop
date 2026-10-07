@@ -80,6 +80,11 @@ export const es: Messages = {
     regions: 'Regiones',
   },
   map: {
+    packs: 'Packs',
+    packsHelp:
+      'Los packs con los que trabaja este mapa: su panel Oracle y los sistemas de Jugar solo muestran estos. Las tablas pueden seguir tirando tablas de otros packs a las que se refieran.',
+    allPacks: 'Todos los packs cargados',
+    packMissing: 'El pack «{pack}» no está cargado en este navegador.',
     id: 'ID (nombre del fichero)',
     copyId: 'Copiar ID',
     idCopied: 'ID copiado',

@@ -1,5 +1,6 @@
 import { formatDiagnostic, type OracleEngine, type Registry } from '@open-tabletop/oracle-engine'
 import { travelSystems, type TravelSystem } from '@open-tabletop/session'
+import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 
 export type PlaySystem = TravelSystem
@@ -17,8 +18,10 @@ function load(): TravelSystem[] {
   return systems
 }
 
+/** The systems this map can be played with: the generic one and its packs' (Settings → Map). */
 export function playSystems(): TravelSystem[] {
-  return load()
+  const packs = editor.meta.packs
+  return load().filter((s) => s.id === 'generic' || !packs || packs.includes(s.id))
 }
 
 export function getSystem(id: string): TravelSystem {

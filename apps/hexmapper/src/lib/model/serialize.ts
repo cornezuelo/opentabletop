@@ -86,6 +86,9 @@ function validate(data: Record<string, unknown>): HexMap {
       name: typeof meta.name === 'string' ? meta.name : '',
       created: typeof meta.created === 'string' ? meta.created : now,
       modified: typeof meta.modified === 'string' ? meta.modified : now,
+      ...(Array.isArray(meta.packs) && {
+        packs: [...new Set(meta.packs.filter((p): p is string => typeof p === 'string' && !!p))],
+      }),
     },
     grid: {
       orientation: grid.orientation === 'pointy' ? 'pointy' : 'flat',

@@ -80,6 +80,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   7(data) {
     return { ...data, regionStyle: { ...DEFAULT_REGION_STYLE } }
   },
+  /** v9: packs per map (optional: absent means all, as before). */
+  8(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

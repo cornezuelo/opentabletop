@@ -8,6 +8,7 @@
   import LayersPanel from './LayersPanel.svelte'
   import LibraryPanel from './LibraryPanel.svelte'
   import MapSettings from './MapSettings.svelte'
+  import MapPacks from './MapPacks.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
   import PlayPanel from './PlayPanel.svelte'
@@ -61,7 +62,7 @@
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
     </header>
-    <Section title={t('panel.map')}><MapSettings /></Section>
+    <Section title={t('panel.map')}><MapSettings /><MapPacks /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
     <Section title={t('captions.title')}><CaptionSettings /></Section>
     <Section title={t('regionStyle.title')}>

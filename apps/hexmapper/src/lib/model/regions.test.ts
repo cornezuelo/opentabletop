@@ -47,7 +47,7 @@ describe('regions', () => {
   })
 
   it('old maps keep the look they had (v7 → v8)', () => {
-    expect(migrate({ version: 7 })).toEqual({ version: 8, regionStyle: DEFAULT_REGION_STYLE })
+    expect(migrate({ version: 7 })).toEqual({ version: 9, regionStyle: DEFAULT_REGION_STYLE })
   })
 
   it('deleting one takes its hexes out of it, and undo puts them back', () => {

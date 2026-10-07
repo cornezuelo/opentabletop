@@ -2,6 +2,10 @@
 
 El botón de Oracle (el hexágono dorado bajo Jugar, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa.
 
+## Los packs de un mapa
+
+Un mapa puede trabajar solo con algunos packs: **Ajustes → Mapa → Packs** (por defecto, todos los cargados). El panel Oracle muestra entonces solo los suyos, y **Jugar** solo ofrece sus sistemas de viaje (además del genérico). Una tabla puede seguir tirando tablas de otros packs a las que se refiera. El mapa de ejemplo de las Marcas Grises trabaja con Core y las Marcas Grises.
+
 ## Contexto del mapa
 
 Las tiradas reciben lo que sabe el mapa, así que las tablas pueden depender de dónde estás:

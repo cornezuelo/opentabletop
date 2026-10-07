@@ -308,6 +308,8 @@ export interface MapMeta {
   name: string
   created: string
   modified: string
+  /** Pack ids this map works with (its Oracle panel and play systems); absent = all. */
+  packs?: string[]
 }
 
 export interface HexMap {

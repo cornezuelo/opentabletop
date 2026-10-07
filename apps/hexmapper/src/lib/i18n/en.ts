@@ -79,6 +79,11 @@ export const en = {
     regions: 'Regions',
   },
   map: {
+    packs: 'Packs',
+    packsHelp:
+      'The packs this map works with: its Oracle panel and the systems of Play only show these. Tables can still roll tables of other packs they refer to.',
+    allPacks: 'All the loaded packs',
+    packMissing: 'The pack “{pack}” is not loaded in this browser.',
     id: 'ID (file name)',
     copyId: 'Copy ID',
     idCopied: 'ID copied',

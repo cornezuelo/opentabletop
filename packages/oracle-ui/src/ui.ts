@@ -10,6 +10,8 @@ export interface OracleUi extends PackTexts {
   roller: Roller
   locale: () => string
   t: Translate
+  /** Whether the host shows this pack's definitions (e.g. a map that works with some packs). */
+  showsPack: (packId: string) => boolean
 }
 
 export function createOracleUi(options: {
@@ -22,6 +24,8 @@ export function createOracleUi(options: {
   store?: RollerStore
   /** Called after every roll, e.g. to log it in a journal. */
   onResult?: (item: HistoryItem, def: Compiled | undefined) => void
+  /** The packs to show, by id (reactive getter); undefined shows them all. */
+  packs?: () => readonly string[] | undefined
 }): OracleUi {
   const t = translator(options.locale)
   const roller = new Roller({
@@ -35,5 +39,9 @@ export function createOracleUi(options: {
     roller,
     locale: options.locale,
     t,
+    showsPack: (packId) => {
+      const shown = options.packs?.()
+      return !shown || shown.includes(packId)
+    },
   }
 }

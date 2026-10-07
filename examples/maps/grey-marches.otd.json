@@ -1569,7 +1569,7 @@
       ],
       "ext": {
         "hexmapper": {
-          "version": 8,
+          "version": 9,
           "created": "2026-10-06T21:35:43.748Z",
           "modified": "2026-10-06T21:35:43.748Z",
           "hexSize": 40,
@@ -1784,7 +1784,8 @@
             "border": 0.09,
             "dashed": false,
             "borderOpacity": 0.85
-          }
+          },
+          "packs": ["core", "grey-marches"]
         }
       }
     }

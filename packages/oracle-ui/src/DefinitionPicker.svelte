@@ -19,7 +19,8 @@
     const all = ui.library.packs
       .map((pack) => {
         const manifest = manifestOf(pack)
-        const defs = (manifest.id ? ui.library.engine.list({ pack: manifest.id }) : [])
+        const shown = !!manifest.id && ui.showsPack(manifest.id)
+        const defs = (shown ? ui.library.engine.list({ pack: manifest.id }) : [])
           .map((def) => ({ def, name: ui.displayName(def) }))
           .filter(
             ({ def, name }) =>

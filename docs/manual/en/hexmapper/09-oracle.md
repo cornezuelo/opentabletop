@@ -2,6 +2,10 @@
 
 The Oracle button (the gold hexagon under Play, or <kbd>O</kbd>) opens a panel to roll any table, oracle, generator or deck of your packs without leaving the map.
 
+## The packs of a map
+
+A map can work with only some packs: **Settings → Map → Packs** (all the loaded packs by default). The Oracle panel then lists only theirs, and **Play** only offers their travel systems (plus the generic one). A table can still roll tables of other packs it refers to. The Grey Marches' example map works with Core and the Grey Marches.
+
 ## Context from the map
 
 Rolls receive what the map knows, so tables can depend on where you are:
