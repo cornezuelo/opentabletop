@@ -290,7 +290,7 @@
     display: flex;
     flex-direction: column;
     gap: 22px;
-    max-width: 820px;
+    max-width: 1100px;
   }
 
   section {

@@ -122,20 +122,16 @@
   }
 </script>
 
-<table
-  class="rows"
-  class:wide={columns.some((c) => c.type === 'flow')}
-  class:compact={columns.every((c) => c.type === 'number' || c.type === 'check')}
->
+<table class="rows" class:wide={columns.some((c) => c.type === 'flow')}>
   {#if rows.length}<thead>
       <tr>
-        <th>{idLabel}</th>
+        <th class="id">{idLabel}</th>
         {#each columns as c (c.field)}
-          <th
+          <th class={c.type}
             >{c.label}{#if c.help}<InfoTip text={c.help} />{/if}</th
           >
         {/each}
-        <th></th>
+        <th class="remove"></th>
       </tr>
     </thead>{/if}
   <tbody>
@@ -214,23 +210,34 @@
 {/if}
 
 <style>
+  /* As wide as its columns; only rows with conditions take the whole width. */
   .rows {
-    width: 100%;
+    align-self: flex-start;
     border-collapse: collapse;
     font-size: 13px;
   }
 
-  .rows.compact {
-    width: auto;
+  .rows.wide {
+    align-self: stretch;
+    width: 100%;
+    table-layout: fixed;
   }
 
-  /* Conditions need room: the id gives some up. */
+  /* Fixed columns stay narrow so conditions get the rest. */
   .wide .id {
-    width: 18%;
+    width: 9em;
   }
 
-  .compact .id {
-    width: 360px;
+  .wide .text {
+    width: 10em;
+  }
+
+  .wide .number {
+    width: 5.5em;
+  }
+
+  .wide .check {
+    width: 6em;
   }
 
   th {
@@ -247,8 +254,9 @@
     vertical-align: top;
   }
 
-  td input[type='text'],
-  td input[type='number'] {
+  /* In rows with conditions boxes share the width; elsewhere each has its own. */
+  .wide td input[type='text'],
+  .wide td input[type='number'] {
     width: 100%;
     min-width: 0;
   }
@@ -257,23 +265,25 @@
     margin-top: 8px;
   }
 
-  .id {
-    width: 34%;
-  }
-
   .idcell {
     display: flex;
     gap: 8px;
     align-items: center;
   }
 
-  .idcell input {
+  .idcell input[type='text'] {
+    flex: none;
+    width: 11em;
+  }
+
+  .wide .idcell input[type='text'] {
     flex: 1;
+    width: auto;
   }
 
   .idcell small {
     flex: none;
-    width: 40%;
+    width: 8em;
     overflow: hidden;
     font-size: 12px;
     color: var(--text-muted);
@@ -281,12 +291,18 @@
     white-space: nowrap;
   }
 
-  td.number {
-    width: 110px;
+  .rows:not(.wide) td.text input,
+  .rows:not(.wide) td.list input {
+    width: 14em;
   }
 
-  td.check {
-    width: 80px;
+  .rows:not(.wide) td.number input {
+    width: 6em;
+  }
+
+  td.check,
+  th.check {
+    text-align: center;
   }
 
   .remove {
