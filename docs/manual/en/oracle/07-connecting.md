@@ -101,30 +101,32 @@ modes:
   foot: { name: On foot, kmPerDay: 30 }
   horse: { name: On horseback, kmPerDay: 60 }
 resources:
-  food: { name: Rations, perDay: 1 }
+  food: { name: Rations, min: 0 } # never below 0
 weather:
   storm: { speed: 0 } # no travel in a storm
 values:
   lost: { name: Lost, blocks: [travel] } # set by the getting-lost table: no more travel today
 actions:
-  camp: # eat, sleep until dawn, and a fed night eases fatigue
+  camp: # sleep until dawn; a fed night (food didn't run out) eases fatigue
     do:
-      - { eat: day }
       - { time: dawn }
-      - { when: { short: false }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   forage: # an action of this system: a Forage for food button
     name: Forage for food
     unless: { weather: storm }
     do: [{ time: 180 }, { speed: 0.5 }]
     oncePerDay: true
+  eat: # not a button: the system takes it as each day ends, camping or not
+    on: day-end
+    do: [{ effects: { party.resources.food: -1 } }]
 checks:
   - { event: WEATHER, at: day-start }
   - { event: LOST, at: day-start, unless: { edges: [road, river] } }
   - { event: ENCOUNTER, at: hex-enter, when: { terrain: [forest, swamp] } }
   - { event: NIGHT, at: camp }
   - { event: FORAGE, at: forage, when: { terrain: [forest, plains] } }
-  - { event: HUNGRY, at: day-end, when: { short: true }, effects: { party.stats.fatigue: 1 } }
+  - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ---
 kind: bindings
 id: default
@@ -142,17 +144,20 @@ stats:
 - **terrains** set the speed on each terrain (`multiplier`; 0.5 is half speed) or close it (`passable: false`). **water** does the same for water hexes whose terrain isn't listed (the map's Edit palette → Water), and a way of travelling with `through: { water: true }` is a boat: it only sails water, even where walking can't go. Tables see `water: true` on water hexes.
 - **modes** can have `through`, where they can go: a [condition](../technical/08-conditions.md) on each hex they enter, which sees the hex (everything the map knows of it: `terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. The Grey Marches' boat: `through: { any: [{ water: true }, { terrain: coast }] }`; a cart only by road: `through: { edges: road }`. The older `allowedTerrains: [water, coast]` (a list of terrains, `water` for any water hex) still works.
 - **modes** can have `when` / `unless`: the way of travelling can only be chosen when it holds (the Grey Marches' boat: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`); otherwise it's disabled in the trip panel, saying why. A value of the day can block one too (`blocks: [mode.horse]`).
+- **resources** are the party's supplies. Nothing uses them by itself: the system's actions, checks and tables do, with effects (`party.resources.food: -1`). `min` and `max` bound them: a change that would go past one stops there, the journal says so ("Rations can't go lower than 0"), and later steps of the same action and that day's checks see the supply's id in `below` (or `above`). Without `min`, a supply may go negative. Older packs that wrote `perDay` on a supply, `consumes` on a way of travelling or `eat: day` steps keep working, read as an action at day-end with `min: 0` (the Travel editor's **Convert** writes it that way).
 - **modes** and **resources** have a `name` (and a `description`) for players, shown in the trip panel and the journal instead of their id (`horse` → _On horseback_), translated in `locales/` like the rest. Without one, the Generic rules' usual ids (foot, horse, food…) get the app's names and any other shows its id.
 - **values** are the values of the day this system declares: a result sets one (`set: { lost: true }`), it holds until the day ends and, while it does, it **blocks** what it names: `travel`, `camp`, `rest`, an action's id or a way of travelling (`mode.horse`). Blocked buttons stay visible, disabled, and say why in the value's `name` ("Lost: not possible for the rest of the day"). The next day tables read it as `yesterday.lost`. A system that declares no `values` still has the older built-in `lost` (blocks travel); one that declares `values: {}` has none.
-- **actions** are the party's buttons: `camp` and `rest` exist unless turned off (`false`), and any other key is an **action of the system's own**, a button next to Travel, Camp and Rest. Each has a `name` and `description` for players, `oncePerDay`, and `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party, deciding whether the button can be pressed now. What it does is a list of **steps** (`do`), done in order, each one only when its own `when` / `unless` holds:
-  - `time: 180` passes three hours; `time: dawn`, `time: nightfall` or `time: '14:00'` until the next one. Supplies are eaten for every day that ends on the way.
-  - `eat: day` eats today's supplies now (once a day: not again at midnight). Later steps see `short`: true if something ran out.
+- **actions** are what the party does: `camp` and `rest` exist unless turned off (`false`), and any other key is an **action of the system's own**, a button next to Travel, Camp and Rest. Each has a `name` and `description` for players, `oncePerDay`, and `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party, deciding whether the button can be pressed now. With `on:` the **system takes it by itself** and it isn't a button: `on: day-start` (at dawn), `hex-enter` (entering each hex), `camp`, `day-end` (as each day ends, camping or not: tables see `camping`) or another action's id (right after that action starts), when its `when` / `unless` hold. It comes before that moment's checks, so they see what it changed. What an action does is a list of **steps** (`do`), done in order, each one only when its own `when` / `unless` holds:
+  - `time: 180` passes three hours; `time: dawn`, `time: nightfall` or `time: '14:00'` until the next one. Every day that ends on the way ends with its `day-end` actions and checks.
   - `speed: 0.5` multiplies the rest of today's march.
-  - `effects: { party.stats.fatigue: -1 }` changes the party, like a table's effects.
+  - `effects: { party.stats.fatigue: -1 }` changes the party, like a table's effects. A change past a value's `min` / `max` stops there; later steps see its id in `below` / `above` (`unless: { below: food }`).
+  - `set: { lost: true }` sets values of the day the system declares (`values`).
+  - `do: forage` takes another action, if its conditions hold (otherwise nothing happens).
+  - `roll: ENCOUNTER` rolls a check now (every check with that event whose `when` / `unless` hold, whatever its `at`); it's resolved when the action ends, so later steps don't see its result.
 
-  Camp without steps sleeps until dawn; rest without steps lasts an hour. What an action rolls are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. The older way (`minutes: 180, speed: 0.5, effects: …` on the action) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
+  Camp without steps sleeps until dawn; rest without steps lasts an hour. What an action rolls are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. The older way (`minutes: 180, speed: 0.5, effects: …` on the action, or an `eat: day` step) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
 
-- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping), `day-end` (as each day ends, after its supplies are eaten: checks see `short`, true if some supply ran short, and `camping`, true if the day ended in camp) or the id of one of the system's own actions (`at: forage`). A check can have `effects` of its own: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). Give each one a `name` (and a `description`) for players (`name: Getting lost`; its translations go in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)), or the trip panel and journal show its event id. `when` / `unless` use the same [conditions](../technical/08-conditions.md) as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp. Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too: `day-start` at each dawn, the camp's at each nightfall, `day-end` as each day ends.
+- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping), `day-end` (as each day ends, after the system's `day-end` actions: checks see `below` / `above`, what hit a bound that day, and `camping`, true if the day ended in camp; older packs' `short` means something hit its minimum) or the id of one of the system's own actions (`at: forage`). Without `at`, only a step rolls it (`roll:`). A check can have `effects` of its own: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). Give each one a `name` (and a `description`) for players (`name: Getting lost`; its translations go in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)), or the trip panel and journal show its event id. `when` / `unless` use the same [conditions](../technical/08-conditions.md) as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp. Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): `day-start` at each dawn, the camp's at each nightfall, `day-end` as each day ends.
 - **bindings** connect each check (by its event name, any name you like) to a table of the pack.
 - **stats** are numbers of the party that appear in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (the trip panel's **i**) and a starting value (`default`), and tables read them by key: `{{charisma}}`, or always unambiguously `party.stats.charisma`. The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none. A table can also change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and appears in the panel by its key, but the pack gets a warning, so declare every stat its tables change. `min` and `max` keep a stat within bounds (fatigue never below 0).
 - **reads** names the other values the system's tables read that nobody else names: a value of the map (`danger`, `icon.guards`, `token.fare`), the bindings' context (`timeOfDay`) or today's values tables set (`fordModifier`). With a `name` and a `description` each, the roll panel shows them by name instead of their key, with what they are in the **i**: `reads: { icon.guards: { name: Guards, description: How many guards watch the gates. } }`. The values maps and trips give (terrain, season, holidays…) already have names in the apps.

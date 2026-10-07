@@ -4,7 +4,7 @@
   import type { SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions } from '@open-tabletop/session'
-  import { modeThrough } from '@open-tabletop/travel-engine'
+  import { modeThrough, olderEatingEdits, parseTravelRules } from '@open-tabletop/travel-engine'
   import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
@@ -14,8 +14,15 @@
 
   const rules = $derived(doc.rules as Record<string, Record<string, unknown> | undefined>)
   const disabled = $derived(!doc.editable)
-  const resources = $derived(Object.keys(rules.resources ?? {}))
   const actions = $derived((rules.actions ?? {}) as Record<string, unknown>)
+  /** Rules that eat the older way: the edits that write it as a day-end action. */
+  const olderEating = $derived.by(() => {
+    const parsed = parseTravelRules(doc.rules).rules
+    return parsed ? olderEatingEdits(parsed) : []
+  })
+  function convertEating() {
+    for (const { path, value } of olderEating) doc.edit('travel-rules', path.map(String), value)
+  }
 
   const num = (input: HTMLInputElement) =>
     input.value.trim() === '' ? undefined : Number(input.value)
@@ -70,14 +77,6 @@
       columns={[
         { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
         { field: 'kmPerDay', label: t('rules.kmPerDay'), type: 'number', min: 0 },
-        {
-          field: 'consumes',
-          label: t('rules.consumes'),
-          help: t('rules.consumesHelp'),
-          type: 'flow',
-          placeholder: t('rules.consumesNone'),
-          hints: Object.fromEntries(resources.map((r) => [r, []])),
-        },
         {
           field: 'through',
           label: t('rules.allowedTerrains'),
@@ -210,22 +209,22 @@
 
   <section>
     <h3>{t('rules.resources')}<InfoTip text={t('rules.resourcesHelp')} /></h3>
+    {#if olderEating.length}
+      <p class="older">
+        {t('rules.olderEating')}
+        {#if !disabled}<button onclick={convertEating}>{t('rules.olderEatingConvert')}</button>{/if}
+      </p>
+    {/if}
     <RecordRows
       {doc}
       at={['resources']}
       idLabel={t('forms.id')}
       suggestions={['food', 'water', 'fodder', 'torches']}
-      template={{ perDay: 1 }}
+      template={{ min: 0 }}
       columns={[
         { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
-        {
-          field: 'perDay',
-          label: t('rules.perDay'),
-          help: t('rules.perDayHelp'),
-          type: 'number',
-          min: 0,
-          placeholder: '0',
-        },
+        { field: 'min', label: t('rules.min'), help: t('rules.minHelp'), type: 'number' },
+        { field: 'max', label: t('rules.max'), help: t('rules.maxHelp'), type: 'number' },
       ]}
     />
   </section>
@@ -298,6 +297,16 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .older {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .older button {
+    margin-left: 6px;
   }
 
   h3 {

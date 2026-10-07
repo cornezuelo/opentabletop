@@ -16,7 +16,9 @@ import {
 } from './discovery'
 import {
   declaredValues,
+  resourceBounds,
   upgradeTravelState,
+  type Bounds,
   type CheckOutcome,
   type DayValue,
   type TravelAction,
@@ -189,15 +191,17 @@ export function tripChanges(value: Record<string, unknown>): [string, number | s
 
 /**
  * Applies a result rolled by hand to the trip, as a check's would be: its effects, and
- * `weather` becomes today's. `stats` are the system's, for their bounds.
+ * `weather` becomes today's. `stats` and `resources` are the system's, for their bounds
+ * (`resourceBounds(rules)`).
  */
 export function applyResult(
   input: SessionState,
   value: Record<string, unknown>,
   stats: Record<string, StatDefinition> = {},
+  resources: Record<string, Bounds> = {},
 ): SessionState {
   const s = structuredClone(input)
-  applyEffects(s, effectsOf(value), stats)
+  applyEffects(s, effectsOf(value), stats, resources)
   if (typeof value.weather === 'string') s.travel.weather = value.weather
   return s
 }
@@ -210,16 +214,20 @@ export interface Session {
 }
 
 const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited'])
-/** Journal lines an action's step effects are added to (the action's own line). */
-const ACTION_LINES = new Set(['ACTION_TAKEN', 'RESTED', 'CAMP_STARTED'])
+/** The journal line of an action, which its steps' effects are added to. */
+const isActionLine = (e: JournalEntry, action: string) =>
+  action === 'camp'
+    ? e.code === 'CAMP_STARTED'
+    : action === 'rest'
+      ? e.code === 'RESTED'
+      : e.code === 'ACTION_TAKEN' && e.data?.action === action
 const JOURNALED: TravelEvent['type'][] = [
   'DAY_STARTED',
   'HEX_ENTERED',
   'CAMP_STARTED',
   'ACTION_TAKEN',
   'RESTED',
-  'SUPPLIES_USED',
-  'RESOURCE_DEPLETED',
+  'LIMIT_REACHED',
   'DESTINATION_REACHED',
   'ROUTE_BLOCKED',
   'NO_ROUTE',
@@ -251,6 +259,8 @@ export function createSession(options: {
   const now = options.now ?? (() => new Date().toISOString())
   const discovery = options.discovery
   const declared = options.rules ? declaredValues(options.rules) : undefined
+  const supplies = options.rules ? resourceBounds(options.rules) : {}
+  const stats = options.bindings?.stats
   // Hex by hex, a long trip takes many steps.
   const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
 
@@ -336,10 +346,14 @@ export function createSession(options: {
         let found = false
         for (const event of result.events) {
           journalEvent(s, entries, event)
-          // An action's step changes the party: applied, and told on the action's line.
+          // An action's step changes the party (the engine already changed the supplies, and
+          // told what hit a bound): applied, and told on the action's line.
           if (event.type === 'EFFECTS') {
-            applyEffects(s, event.effects, options.bindings?.stats)
-            const line = entries.findLast((e) => ACTION_LINES.has(e.code))
+            const party = Object.fromEntries(
+              Object.entries(event.effects).filter(([p]) => !p.startsWith('party.resources.')),
+            )
+            applyEffects({ stats: s.stats, travel: { resources: {} } }, party, stats)
+            const line = entries.findLast((e) => isActionLine(e, event.action))
             if (line)
               line.data = {
                 ...line.data,
@@ -355,13 +369,20 @@ export function createSession(options: {
           const binding = options.bindings?.on[event.check.event]
           // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
           if (event.check.effects) {
-            applyEffects(s, event.check.effects, options.bindings?.stats)
+            const { limits } = applyEffects(s, event.check.effects, stats, supplies)
             add(s, entries, {
               source: 'travel',
               code: 'CHECK_EFFECTS',
               time: event.time,
               data: { event: event.check.event, effects: event.check.effects },
             })
+            for (const limit of limits)
+              add(s, entries, {
+                source: 'travel',
+                code: 'LIMIT_REACHED',
+                time: event.time,
+                data: { ...limit },
+              })
             // Without a table there's nothing to wait for (unless the check pauses).
             if (!binding && !event.check.pause) {
               s.travel = options.travel.apply(s.travel, {
@@ -435,7 +456,13 @@ export function createSession(options: {
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
-          applyEffects(s, effectsOf(value), options.bindings?.stats)
+          for (const limit of applyEffects(s, effectsOf(value), stats, supplies).limits)
+            add(s, entries, {
+              source: 'travel',
+              code: 'LIMIT_REACHED',
+              time: event.time,
+              data: { ...limit },
+            })
           // A pause (the check's, or an entry's that came up) stops the trip after the roll:
           // the check waits, rolled, until the player presses Continue.
           if (event.check.pause || value.pause === true) {

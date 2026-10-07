@@ -293,6 +293,7 @@ export function stepTrip(
       world: discovery?.world ?? options.world,
       rules: system.rules,
       calendar: calendarOf(system),
+      stats: system.bindings?.stats,
     }),
     oracle: system.bindings ? options.oracle : undefined,
     bindings: system.bindings,
@@ -326,6 +327,7 @@ export function tripAvailability(
     world: options.world ?? NO_WORLD,
     rules: options.system.rules,
     calendar: calendarOf(options.system),
+    stats: options.system.bindings?.stats,
   })
   return engine.availability(session.travel, tripContext(session, {}))
 }

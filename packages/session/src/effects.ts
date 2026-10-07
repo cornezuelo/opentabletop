@@ -1,4 +1,9 @@
-import { upgradeTravelState, type TravelState } from '@open-tabletop/travel-engine'
+import {
+  changeValue,
+  upgradeTravelState,
+  type Bounds,
+  type TravelState,
+} from '@open-tabletop/travel-engine'
 
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
@@ -9,16 +14,17 @@ import { upgradeTravelState, type TravelState } from '@open-tabletop/travel-engi
 export type Effects = Record<string, number | string>
 
 /** What a party stat may be: its bounds, and where it starts. */
-export interface ValueBounds {
-  min?: number
-  max?: number
+export interface ValueBounds extends Bounds {
   default?: number
 }
 
-/** What the session needs to apply effects: the party's stats and its supplies. */
+/**
+ * What the session needs to apply effects: the party's stats and its supplies (and where
+ * to note the values that hit a bound today).
+ */
 export interface EffectTarget {
   stats: Record<string, number>
-  travel: Pick<TravelState, 'resources'>
+  travel: Pick<TravelState, 'resources' | 'reached'>
 }
 
 /** One change that happened: the path, before and after. */
@@ -26,6 +32,13 @@ export interface AppliedEffect {
   path: string
   from: number
   to: number
+}
+
+/** An effect that would have taken a value past its bound: it stopped at `value`. */
+export interface LimitReached {
+  path: string
+  limit: 'min' | 'max'
+  value: number
 }
 
 const number = (v: unknown): number | undefined =>
@@ -59,39 +72,41 @@ export function effectsOf(value: Record<string, unknown>): Effects {
 }
 
 /**
- * Applies effects to the party (stats within their bounds, supplies and fatigue never
- * below 0); returns what changed and the paths nobody knows (a pack error to report).
+ * Applies effects to the party: stats within their bounds, supplies within theirs (the
+ * system's rules: `resourceBounds`; none given, they may go negative). Returns what
+ * changed, what hit a bound (also noted in the trip as today's `below` / `above`) and the
+ * paths nobody knows (a pack error to report).
  */
 export function applyEffects(
   target: EffectTarget,
   effects: Effects,
   bounds: Record<string, ValueBounds> = {},
-): { applied: AppliedEffect[]; unknown: string[] } {
+  resources: Record<string, Bounds> = {},
+): { applied: AppliedEffect[]; limits: LimitReached[]; unknown: string[] } {
   const applied: AppliedEffect[] = []
+  const limits: LimitReached[] = []
   const unknown: string[] = []
-  const next = (from: number, change: number | string, min: number, max: number) => {
-    const set =
-      typeof change === 'string' && change.startsWith('=') ? number(change.slice(1)) : undefined
-    const delta = number(change)
-    const to = set !== undefined ? set : from + (delta ?? 0)
-    return Math.min(max, Math.max(min, to))
-  }
   for (const [path, change] of Object.entries(effects)) {
     const [, scope, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
-    if (scope === 'stats') {
-      const b = bounds[id] ?? {}
-      const from = target.stats[id] ?? b.default ?? 0
-      const to = next(from, change, b.min ?? -Infinity, b.max ?? Infinity)
-      target.stats[id] = to
-      if (to !== from) applied.push({ path, from, to })
-    } else if (scope === 'resources') {
-      const from = target.travel.resources[id] ?? 0
-      const to = next(from, change, 0, Infinity)
-      target.travel.resources[id] = to
-      if (to !== from) applied.push({ path, from, to })
-    } else unknown.push(path)
+    if (!scope) {
+      unknown.push(path)
+      continue
+    }
+    const stat = scope === 'stats'
+    const values = stat ? target.stats : target.travel.resources
+    const from = values[id] ?? (stat ? bounds[id]?.default : undefined) ?? 0
+    const { to, limit } = changeValue(from, change, stat ? bounds[id] : resources[id])
+    values[id] = to
+    if (to !== from) applied.push({ path, from, to })
+    if (limit) {
+      limits.push({ path, limit, value: to })
+      const key = limit === 'min' ? 'below' : 'above'
+      const list = target.travel.reached?.[key] ?? []
+      if (!list.includes(id))
+        target.travel.reached = { ...target.travel.reached, [key]: [...list, id] }
+    }
   }
-  return { applied, unknown }
+  return { applied, limits, unknown }
 }
 
 /**

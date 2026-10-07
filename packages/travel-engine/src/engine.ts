@@ -11,9 +11,13 @@ import {
 import {
   actionSteps,
   availableActions,
+  changeValue,
   modeThrough,
   declaredValues,
+  olderEatingId,
+  resourceBounds,
   type ActionStep,
+  type Bounds,
   type CheckRule,
   type TravelRules,
 } from './rules'
@@ -79,7 +83,12 @@ export interface TravelState {
   today?: Record<string, unknown>
   /** The day before's declared values (false when unset), read as `yesterday.<id>`. */
   yesterday?: Record<string, unknown>
-  /** The day whose supplies were already eaten by an action (`eat: day`), and whether short. */
+  /**
+   * The values that hit a bound today (`below`: an effect would have taken them under their
+   * `min`; `above`: over their `max`), by id; conditions read them as `below` / `above`.
+   */
+  reached?: { below?: string[]; above?: string[] }
+  /** Older trips: the day whose supplies an `eat: day` step ate (read as that action done). */
   ate?: { day: number; short: boolean }
   /** Older trips: being lost was built in (read as `today.lost` / `yesterday.lost`). */
   lostToday?: boolean
@@ -126,11 +135,24 @@ export type TravelEvent =
       because?: Unavailable
     }
   | { type: 'CAMP_STARTED'; time: GameTime }
-  | { type: 'RESOURCE_DEPLETED'; resource: string }
+  /**
+   * An effect would have taken a value past its bound (`party.resources.food` under its
+   * `min`): it stopped at `value`.
+   */
+  | {
+      type: 'LIMIT_REACHED'
+      path: string
+      limit: 'min' | 'max'
+      value: number
+      time: GameTime
+    }
   | { type: 'ACTION_UNAVAILABLE'; action: string; because?: Unavailable }
   /** An action's step changes the party (applied by whoever keeps the party's values). */
   | { type: 'EFFECTS'; action: string; effects: Record<string, number | string>; time: GameTime }
-  /** `checks`: how many of its checks came up here (0: nothing to roll, e.g. foraging on hills). */
+  /**
+   * `checks`: how many of its checks came up here (0: nothing to roll, e.g. foraging on
+   * hills); `on`: the moment or action that took it by itself (`on:` in the rules).
+   */
   | {
       type: 'ACTION_TAKEN'
       action: string
@@ -139,15 +161,9 @@ export type TravelEvent =
       checks: number
       hex: string
       terrain?: string
+      on?: string
     }
   | { type: 'RESTED'; minutes: number; time: GameTime }
-  /** A day of supplies eaten: what was used and what is left. */
-  | {
-      type: 'SUPPLIES_USED'
-      used: Record<string, number>
-      left: Record<string, number>
-      time: GameTime
-    }
 
 /**
  * Why an action (or travelling) can't be done now: the system turns it off, a declared
@@ -163,8 +179,8 @@ export type TravelAction =
   | { type: 'travel'; until?: 'hex' | 'destination' }
   | { type: 'advanceTime'; minutes: number }
   /**
-   * Waits where the party is until a moment, living it: day-start and day-end checks,
-   * eating, the system's camp at nightfall. Stops early when a check is pending.
+   * Waits where the party is until a moment, living it: day-start and day-end checks and
+   * actions, the system's camp at nightfall. Stops early when a check is pending.
    */
   | { type: 'wait'; until: GameTime }
   | { type: 'camp' }
@@ -250,12 +266,22 @@ export function createTravelEngine(options: {
   world: TravelWorld
   rules: TravelRules
   calendar?: Calendar
+  /**
+   * The bounds of the party's stats (the host keeps them): an action's effects on a stat
+   * stop there, and later steps see `below` / `above` (and the stat's new value).
+   */
+  stats?: Record<string, Bounds>
 }): TravelEngine {
   const { world, rules } = options
   const calendar = options.calendar ?? defaultCalendar
   const dayMinutes = rules.travel.hoursPerDay * 60
   const actions = availableActions(rules)
   const values = declaredValues(rules)
+  const supplies = resourceBounds(rules)
+  /** Actions the system takes by itself, by the moment or action they follow. */
+  const triggered = new Map<string, string[]>()
+  for (const [id, def] of Object.entries(actions.all))
+    if (def.on) triggered.set(def.on, [...(triggered.get(def.on) ?? []), id])
   /** A declared value holds while it's set to anything but false. */
   const holds = (v: unknown) => v !== undefined && v !== null && v !== false
   /** The declared value that blocks `what` today (travel, an action), if any. */
@@ -378,6 +404,10 @@ export function createTravelEngine(options: {
       day: state.day,
       // The day before's values (the host's, then the declared ones).
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
+      // What hit a bound today; `short` is how older rules read "something hit its minimum".
+      below: state.reached?.below ?? [],
+      above: state.reached?.above ?? [],
+      short: !!state.reached?.below?.length,
       // What the engine knows of the party (the host adds its stats).
       party: { ...host, resources: { ...state.resources }, mode: state.mode },
     }
@@ -388,19 +418,26 @@ export function createTravelEngine(options: {
 
   const schedule = (
     state: TravelState,
-    at: CheckRule['at'],
+    at: string,
     events: TravelEvent[],
     from?: string,
     facts: Record<string, unknown> = {},
-  ): void => {
+    /** A check event rolled now by a step (`roll:`), whatever its `at`. */
+    event?: string,
+  ): number => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
     // Conditions also see the host's facts (stats, today's values); the check keeps the
     // trip's own (the host adds its facts again when resolving it).
+    if (!event)
+      // The actions the system takes at this moment come first (their checks too).
+      for (const id of triggered.get(at) ?? [])
+        takeAction(state, id, events, { on: at, facts, quiet: true })
     const context = { ...checkContext(state, stretch), ...facts }
     const seen = { ...checkContext(state, stretch, hostFacts), ...facts }
+    let scheduled = 0
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
-      if (rule.at !== at) continue
+      if (event ? rule.event !== event : rule.at !== at) continue
       if (rule.when && !matches(rule.when, seen)) continue
       if (rule.unless && matches(rule.unless, seen)) continue
       const check: PendingCheck = {
@@ -412,77 +449,50 @@ export function createTravelEngine(options: {
       }
       state.pendingChecks.push(check)
       events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
+      scheduled++
     }
+    return scheduled
   }
 
-  /** Supplies used per day (resources' perDay plus what the travel mode consumes). */
-  const dailyConsumption = (state: TravelState): Record<string, number> => {
-    const consumption: Record<string, number> = {}
-    for (const [id, r] of Object.entries(rules.resources ?? {}))
-      consumption[id] = (consumption[id] ?? 0) + (r.perDay ?? 0)
-    for (const [id, n] of Object.entries(rules.modes[state.mode]?.consumes ?? {}))
-      consumption[id] = (consumption[id] ?? 0) + n
-    return consumption
-  }
-
-  /** Eats one day of supplies (`at`: when that day ended). Returns true if short. */
-  const eatOneDay = (state: TravelState, events: TravelEvent[], at: GameTime): boolean => {
-    let short = false
-    const used: Record<string, number> = {}
-    for (const [id, amount] of Object.entries(dailyConsumption(state))) {
-      if (amount <= 0) continue
-      const had = state.resources[id] ?? 0
-      const left = had - amount
-      if (had > 0) used[id] = Math.min(had, amount)
-      if (left < 0) {
-        short = true
-        events.push({ type: 'RESOURCE_DEPLETED', resource: id })
-      }
-      state.resources[id] = Math.max(0, left)
-    }
-    if (Object.keys(used).length)
-      events.push({
-        type: 'SUPPLIES_USED',
-        used,
-        left: Object.fromEntries(Object.keys(used).map((id) => [id, state.resources[id]])),
-        time: at,
-      })
-    return short
-  }
+  /** Whether the day is being changed (actions at day-end may pass time themselves). */
+  let syncing = false
 
   /**
-   * Starts a new day when the calendar day changed: supplies are eaten for every day
-   * that ended (whatever passed the time: camping, resting, waiting), and the daily
-   * counters reset. Returns true if the party went short of supplies.
+   * Starts a new day when the calendar day changed. Each day that ended, whatever passed
+   * the time (camping, resting, waiting), ends with the system's day-end actions and
+   * checks, seeing whether the day ended in camp; then the daily counters reset.
    */
-  const syncDay = (state: TravelState, events: TravelEvent[], camping = false): boolean => {
+  const syncDay = (state: TravelState, events: TravelEvent[], camping = false): void => {
+    if (syncing) return
     const { day } = calendar.describe(state.time)
-    if (day <= state.day) return false
-    let short = false
-    for (let d = state.day; d < day; d++) {
-      // A day an action already ate for (`eat: day`) isn't eaten again.
-      const dayShort =
-        state.ate?.day === d
-          ? state.ate.short
-          : eatOneDay(state, events, Math.min(state.time, calendar.at(d + 1, '00:00')))
-      short = dayShort || short
-      // Each day that ends: the system's day-end checks see whether supplies ran short and
-      // whether it ended in camp (e.g. hunger and a fed night's sleep, as the rules say).
-      schedule(state, 'day-end', events, undefined, { short: dayShort, camping })
+    if (day <= state.day) return
+    syncing = true
+    try {
+      const now = state.time
+      for (let d = state.day; d < day; d++) {
+        // The day ends at midnight (or now, if the day changed by hand).
+        state.time = Math.min(now, calendar.at(d + 1, '00:00'))
+        schedule(state, 'day-end', events, undefined, { camping })
+        state.time = Math.max(now, state.time)
+        state.day = d + 1
+        state.travelledToday = 0
+        state.dayChecksDone = false
+        // Today's declared values become yesterday's (false if unset); a new day starts clean.
+        state.yesterday = Object.fromEntries(
+          Object.keys(values).map((id) => [
+            id,
+            holds(state.today?.[id]) ? state.today![id] : false,
+          ]),
+        )
+        delete state.today
+        delete state.reached
+        state.speedToday = undefined
+        delete state.actionsToday
+      }
+      events.push({ type: 'DAY_STARTED', day: state.day })
+    } finally {
+      syncing = false
     }
-    state.day = day
-    state.travelledToday = 0
-    state.dayChecksDone = false
-    // Today's declared values become yesterday's (false if unset); a new day starts clean.
-    state.yesterday = Object.fromEntries(
-      Object.keys(values).map((id) => [id, holds(state.today?.[id]) ? state.today![id] : false]),
-    )
-    delete state.today
-    delete state.ate
-    state.speedToday = undefined
-    delete state.actionsToday
-    events.push({ type: 'DAY_STARTED', day })
-    return short
   }
 
   const travel = (
@@ -595,13 +605,14 @@ export function createTravelEngine(options: {
     state: TravelState,
     id: string,
     facts: HostFacts,
+    moment: Record<string, unknown> = {},
   ): Unavailable | undefined => {
     const def = actions.all[id]
     if (!def) return { off: true }
     const value = blocker(state, id)
     if (value) return { value }
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
-    const context = checkContext(state, [], facts)
+    const context = { ...checkContext(state, [], facts), ...moment }
     if (def.when && !matches(def.when as Condition, context)) return { condition: 'when' }
     if (def.unless && matches(def.unless as Condition, context)) return { condition: 'unless' }
     return undefined
@@ -623,14 +634,6 @@ export function createTravelEngine(options: {
     return undefined
   }
 
-  /** Eats today's supplies now, once (later steps see whether the party went short). */
-  const eatToday = (state: TravelState, events: TravelEvent[]): boolean => {
-    if (state.ate?.day === state.day) return state.ate.short
-    const short = eatOneDay(state, events, state.time)
-    state.ate = { day: state.day, short }
-    return short
-  }
-
   /** The moment a `time` step goes to: minutes from now, or the next dawn / nightfall / clock. */
   const timeOf = (state: TravelState, time: NonNullable<ActionStep['time']>): GameTime =>
     typeof time === 'number'
@@ -641,26 +644,84 @@ export function createTravelEngine(options: {
           time === 'dawn' ? rules.day.start : time === 'nightfall' ? rules.day.nightfall : time,
         )
 
+  type Hits = { below: Set<string>; above: Set<string> }
+  /** What hit a bound during each action under way: its later steps see it past midnight. */
+  const underWay: Hits[] = []
+
+  /** Notes that a value hit a bound today (`below` / `above`), by id. */
+  const reach = (state: TravelState, id: string, limit: 'min' | 'max'): void => {
+    const key = limit === 'min' ? 'below' : 'above'
+    const list = state.reached?.[key] ?? []
+    if (!list.includes(id)) state.reached = { ...state.reached, [key]: [...list, id] }
+    for (const hits of underWay) hits[key].add(id)
+  }
+
   /**
-   * Takes an action: its journal line (camp, rest or the action), its checks (`at: <id>`),
-   * then its steps in order, each only when its condition holds.
+   * A step's effects: supplies change here (within their bounds), the party's stats in the
+   * host's facts (so later steps see them; the host applies them for real from the event).
+   */
+  const applyEffects = (
+    state: TravelState,
+    action: string,
+    effects: Record<string, number | string>,
+    events: TravelEvent[],
+  ): void => {
+    const limits: TravelEvent[] = []
+    const party = hostFacts.party as { stats?: Record<string, number> } | undefined
+    for (const [path, change] of Object.entries(effects)) {
+      const [, scope, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
+      if (!scope) continue
+      const own = scope === 'resources'
+      const values: Record<string, number> = own ? state.resources : (party?.stats ?? {})
+      const from = values[id] ?? 0
+      const { to, limit } = changeValue(from, change, (own ? supplies : options.stats)?.[id])
+      values[id] = to
+      // A stat by its own name too (`{{fatigue}}`), unless something else hides it.
+      if (!own && hostFacts[id] === from) hostFacts[id] = to
+      if (limit) {
+        reach(state, id, limit)
+        limits.push({ type: 'LIMIT_REACHED', path, limit, value: to, time: state.time })
+      }
+    }
+    events.push({ type: 'EFFECTS', action, effects, time: state.time }, ...limits)
+  }
+
+  /**
+   * Takes an action: its journal line (camp, rest or the action), the actions that follow
+   * it (`on: <its id>`) and its checks (`at: <its id>`), then its steps in order, each only
+   * when its condition holds. Taken by the system (`on`, a `do:` step), it's `quiet`: when
+   * it isn't available it just doesn't happen.
    */
   const takeAction = (
     state: TravelState,
     id: string,
     events: TravelEvent[],
-    minutes?: number,
+    options: {
+      minutes?: number
+      /** The moment or action that took it by itself. */
+      on?: string
+      /** Facts of that moment for its conditions (`camping` at day-end). */
+      facts?: Record<string, unknown>
+      quiet?: boolean
+      depth?: number
+    } = {},
   ): void => {
-    const because = unavailable(state, id, hostFacts)
+    const depth = options.depth ?? 0
+    // Validation rejects loops; this only guards rules that were never validated.
+    if (depth > 32) return
+    const because = unavailable(state, id, hostFacts, options.facts)
     if (because) {
-      events.push({ type: 'ACTION_UNAVAILABLE', action: id, because })
+      if (!options.quiet) events.push({ type: 'ACTION_UNAVAILABLE', action: id, because })
       return
     }
     syncDay(state, events)
     let steps = actionSteps(id, actions.all[id])
     // A rest of a length chosen by hand replaces the rules' time.
-    if (minutes !== undefined)
-      steps = [{ time: Math.max(0, minutes) }, ...steps.filter((s) => typeof s.time !== 'number')]
+    if (options.minutes !== undefined)
+      steps = [
+        { time: Math.max(0, options.minutes) },
+        ...steps.filter((s) => typeof s.time !== 'number'),
+      ]
     const start = state.time
     const cell = world.cell(state.location)
     const head =
@@ -676,31 +737,59 @@ export function createTravelEngine(options: {
               checks: 0,
               hex: state.location,
               ...(cell?.terrain && { terrain: cell.terrain }),
+              ...(options.on && { on: options.on }),
             }
     events.push(head)
-    // Its checks see the place and moment it starts.
-    const before = state.pendingChecks.length
-    schedule(state, id, events)
-    if (head.type === 'ACTION_TAKEN') head.checks = state.pendingChecks.length - before
     state.actionsToday = [...(state.actionsToday ?? []), id]
-    let short: boolean | undefined
+    // Its checks see the place and moment it starts (after the actions that follow it).
+    const checks = schedule(state, id, events, undefined, options.facts)
+    if (head.type === 'ACTION_TAKEN') head.checks = checks
+    // What hit a bound today, and during the action: its later steps see it past midnight.
+    const hit: Hits = {
+      below: new Set(state.reached?.below),
+      above: new Set(state.reached?.above),
+    }
+    underWay.push(hit)
+    try {
+      runSteps(state, id, steps, hit, events, options, depth)
+    } finally {
+      underWay.pop()
+    }
+    if (head.type !== 'CAMP_STARTED') head.minutes = state.time - start
+  }
+
+  /** An action's steps in order, each only when its condition holds. */
+  const runSteps = (
+    state: TravelState,
+    id: string,
+    steps: ActionStep[],
+    hit: Hits,
+    events: TravelEvent[],
+    options: { facts?: Record<string, unknown> },
+    depth: number,
+  ): void => {
     for (const step of steps) {
       const context = {
         ...checkContext(state, [], hostFacts),
-        ...(short !== undefined && { short }),
+        below: [...hit.below],
+        above: [...hit.above],
+        short: hit.below.size > 0,
         camping: id === 'camp',
+        ...options.facts,
       }
       if (step.when && !matches(step.when, context)) continue
       if (step.unless && matches(step.unless, context)) continue
       if (step.time !== undefined) {
         state.time = Math.max(state.time, timeOf(state, step.time))
         syncDay(state, events, id === 'camp')
-      } else if (step.eat) short = eatToday(state, events)
-      else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
-      else if (step.effects)
-        events.push({ type: 'EFFECTS', action: id, effects: step.effects, time: state.time })
+      } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
+      else if (step.effects) applyEffects(state, id, step.effects, events)
+      else if (step.do !== undefined)
+        takeAction(state, step.do, events, { facts: options.facts, quiet: true, depth: depth + 1 })
+      else if (step.roll !== undefined)
+        schedule(state, id, events, undefined, options.facts, step.roll)
+      else if (step.set) state.today = { ...state.today, ...step.set }
     }
-    if (head.type !== 'CAMP_STARTED') head.minutes = state.time - start
   }
 
   return {
@@ -723,8 +812,18 @@ export function createTravelEngine(options: {
     },
     apply(input, action, facts = {}) {
       const state = structuredClone(upgradeTravelState(input))
+      // Older trips: a day already eaten by `eat: day` is the day-end eating done today.
+      if (state.ate) {
+        if (state.ate.day === state.day)
+          state.actionsToday = [...(state.actionsToday ?? []), olderEatingId(rules)]
+        delete state.ate
+      }
       const events: TravelEvent[] = []
-      hostFacts = facts
+      // A copy: actions' effects change the party's stats in it as their steps go.
+      const party = facts.party as { stats?: Record<string, number> } | undefined
+      hostFacts = party
+        ? { ...facts, party: { ...party, stats: { ...party.stats } } }
+        : { ...facts }
       switch (action.type) {
         case 'setDestination': {
           const strategy = action.strategy ?? 'fastest'
@@ -753,7 +852,7 @@ export function createTravelEngine(options: {
           takeAction(state, 'camp', events)
           break
         case 'rest':
-          takeAction(state, 'rest', events, action.minutes)
+          takeAction(state, 'rest', events, { minutes: action.minutes })
           break
         case 'action':
           takeAction(state, action.id, events)
@@ -780,7 +879,7 @@ export function createTravelEngine(options: {
           if (outcome.speed !== undefined)
             state.speedToday = (state.speedToday ?? 1) * outcome.speed
           for (const [id, delta] of Object.entries(outcome.resources ?? {}))
-            state.resources[id] = Math.max(0, (state.resources[id] ?? 0) + delta)
+            state.resources[id] = changeValue(state.resources[id] ?? 0, delta, supplies[id]).to
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
           break
         }

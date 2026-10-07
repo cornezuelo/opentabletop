@@ -10,7 +10,7 @@ La aplicación Travel juega viajes con un **sistema de viaje** y te deja ver y c
 
 ## Los sistemas que tienes
 
-- **Genérico**: viaje sencillo sin comprobaciones, integrado en las aplicaciones. No se puede editar; crea un sistema nuevo para partir de él.
+- **Genérico**: viaje sencillo sin comprobaciones, integrado en las aplicaciones; el grupo come 1 de comida al acabar cada día. No se puede editar; crea un sistema nuevo para partir de él.
 - **Las Marcas Grises**: el ejemplo incluido, una pequeña frontera con reglas propias: clima por estación, perderse, encuentros por terreno, región, peligro y hora del día, peajes, vados, santuarios, barcas en el lago y lugares señalados que te esperan. Mira [Las Marcas Grises](../packs/02-grey-marches.md).
 - Los sistemas de tus packs, incluidos los de uso personal (ver [Packs](../oracle/03-packs.md)).
 

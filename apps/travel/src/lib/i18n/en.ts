@@ -55,10 +55,6 @@ export const en = {
     name: 'Name',
     nameHelp:
       'What players read in the trip panel and the journal instead of the id (e.g. On horseback, Rations). Written in the current language: the pack’s own, or its translation file when the interface is in another one.',
-    consumes: 'Uses per day',
-    consumesHelp:
-      'Supplies this way of travelling uses each day on top of what everyone uses (Supplies → Per day), e.g. fodder: 1 for horses. Empty: nothing extra.',
-    consumesNone: 'nothing extra',
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
       'Where it can go: a condition on each hex it enters (its terrain, water, tags, region, fields, the roads or rivers of the step), e.g. a boat: any: [{ water: true }, { terrain: coast }]; a cart only by road: edges: road. Where it holds, even closed terrains are open to it. Empty: wherever terrains allow.',
@@ -81,10 +77,16 @@ export const en = {
     edgeMultiplierHelp: 'Speed along it: 1.5 is half again as fast as open ground.',
     resources: vocabulary.en.terms.supplies,
     resourcesHelp:
-      'What the party carries and how much is used each day (whether you march or not).',
-    perDay: 'Per day',
-    perDayHelp:
-      'Used every day by everyone, whatever the way of travelling (a way of travelling can add its own: Ways of travelling → Uses per day). 0 for a supply only some ways of travelling use, like fodder for horses. What running short does depends on the system (its day-end checks see short).',
+      'What the party carries. What uses it is up to the system: effects of its actions (an action at the end of the day eats), checks and tables (party.resources.food: -1).',
+    min: 'Min',
+    minHelp:
+      'Effects never take it below this: a change past it stops there, and later steps and that day’s checks see below: [its id]. Empty: no minimum (it may go negative).',
+    max: 'Max',
+    maxHelp:
+      'Effects never take it above this (later steps and checks see above: [its id]). Empty: no maximum.',
+    olderEating:
+      'These rules eat the older way (supplies used “per day”, ways of travelling that use supplies, or steps that eat the day’s supplies). They still play the same; converting writes it as an action the system takes at the end of each day, with Min 0 on the supplies.',
+    olderEatingConvert: 'Convert',
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       'How weather slows the party. Tables set it with set: { weather: … } (usually rolled at dawn).',
@@ -122,15 +124,25 @@ export const en = {
     nothingPlaceholder: 'nothing to find on {terrain}',
     steps: 'What it does',
     stepsHelp:
-      'Its steps, in order. Pass time (minutes, dawn, nightfall or a time like 14:00), eat the day’s supplies (later steps see short: true if something ran out), change the rest of today’s march (×0.5) or change the party (effects such as party.stats.fatigue: -1). A step with a condition only happens when it holds (short: false, camping: true…). Its checks (Checks tab, At: this action) are rolled first.',
+      'Its steps, in order. Pass time (minutes, dawn, nightfall or a time like 14:00), change the rest of today’s march (×0.5), change the party (effects such as party.stats.fatigue: -1; a change past a value’s Min or Max stops there and later steps see below: [id] or above: [id]), set values of the day (lost: true), take another action (with its conditions) or roll a check now. A step with a condition only happens when it holds (below: food, camping: true…). The actions that follow this one and its checks (Checks tab, At: this action) come first.',
+    on: 'Taken',
+    onHelp:
+      'By the player (a button), or by the system itself at a moment (at dawn, entering a hex, in camp, at the end of each day) or after another action, when its conditions hold. Taken by the system, it isn’t a button; it comes before that moment’s checks. E.g. eating as each day ends, whether the party camped or not.',
+    onButton: 'By the player (a button)',
+    onAfter: 'After: {action}',
     stepKind: 'Kind of step',
     kinds: {
       time: 'Time passes',
-      eat: 'Eat the day’s supplies',
       speed: 'Today’s march ×',
       effects: 'Changes',
+      set: 'Values of the day',
+      eat: 'Eat the day’s supplies (older)',
+      do: 'Take an action',
+      roll: 'Roll a check',
     },
-    eatDay: 'once a day: if already eaten today, nothing',
+    doOption: 'Do: {action}',
+    rollOption: 'Roll: {check}',
+    eatDay: 'the older way: Supplies → Convert writes it as an action',
     stepWhen: 'only when…',
     badTime: 'Write minutes (180), dawn, nightfall or a time like 14:00.',
     dawn: 'Until dawn',
@@ -151,7 +163,13 @@ export const en = {
       'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). This box edits it in the current language: the pack’s own, or its translation file when the interface is in another one.',
     description: 'Description (tooltip)',
     at: 'When',
-    atOptions: { 'day-start': 'At dawn', 'hex-enter': 'Entering a hex', camp: 'In camp' },
+    atOptions: {
+      'day-start': 'At dawn',
+      'hex-enter': 'Entering a hex',
+      camp: 'In camp',
+      'day-end': 'At the end of the day',
+    },
+    atNone: 'Only when a step rolls it',
     atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',

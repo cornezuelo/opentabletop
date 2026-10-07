@@ -10,7 +10,7 @@ The Travel app plays trips with a **travel system** and lets you see and change 
 
 ## Systems you have
 
-- **Generic**: plain travel with no checks, built into the apps. It can't be edited; create a new system to start from it.
+- **Generic**: plain travel with no checks, built into the apps; the party eats 1 food as each day ends. It can't be edited; create a new system to start from it.
 - **The Grey Marches**: the bundled example, a small frontier with its own rules: weather by season, getting lost, encounters by terrain, region, danger and time of day, tolls, fords, shrines, boats on the lake, and landmarks that wait for you. See [The Grey Marches](../packs/02-grey-marches.md).
 - Systems from your packs, personal-use ones included (see [Packs](../oracle/03-packs.md)).
 

@@ -216,6 +216,41 @@ entries:
     expect(continued.travel.today).toEqual({ lost: true })
   })
 
+  it('journals the actions the system takes, their effects and the bounds they hit', () => {
+    const fed = {
+      ...genericTravelRules,
+      resources: { food: { min: 0 } },
+      actions: {
+        ...genericTravelRules.actions,
+        // Day-end eating, then a meal that takes another action (do:).
+        eat: {
+          on: 'day-end',
+          do: [{ effects: { 'party.resources.food': -1 } }, { do: 'grumble' }],
+        },
+        grumble: {
+          when: { below: 'food' },
+          do: [{ effects: { 'party.stats.morale': -1 } }],
+        },
+      },
+    }
+    const bindings = { on: {}, stats: { morale: { min: 0 } } }
+    const session = createSession({
+      travel: createTravelEngine({ world, rules: fed, stats: bindings.stats }),
+      bindings,
+      rules: fed,
+      now: () => 'T',
+    })
+    const hungry = { ...start(), stats: { morale: 1 } }
+    hungry.travel.resources = { food: 0 }
+    const { state, entries } = session.step(hungry, { type: 'camp' })
+    const lines = entries.map((e) => [e.code, e.data?.action ?? e.data?.path, e.data?.effects])
+    expect(lines).toContainEqual(['ACTION_TAKEN', 'eat', { 'party.resources.food': -1 }])
+    expect(lines).toContainEqual(['LIMIT_REACHED', 'party.resources.food', undefined])
+    expect(lines).toContainEqual(['ACTION_TAKEN', 'grumble', { 'party.stats.morale': -1 }])
+    expect(state.stats.morale).toBe(0)
+    expect(state.travel.resources.food).toBe(0)
+  })
+
   it('applies the effects of an action’s steps and tells them on its line', () => {
     const stepped = {
       ...genericTravelRules,
@@ -449,8 +484,11 @@ entries:
       ['party.stats.morale', 2],
       ['party.stats.fatigue', -1],
     ])
-    const state = applyResult({ ...start(), stats: { pre: 1 } }, value)
-    expect(state.travel.resources.food).toBe(0) // never below zero
+    // Supplies stop at the bounds the system declares (none: they may go negative).
+    expect(applyResult({ ...start(), stats: {} }, value).travel.resources.food).toBeLessThan(0)
+    const state = applyResult({ ...start(), stats: { pre: 1 } }, value, {}, { food: { min: 0 } })
+    expect(state.travel.resources.food).toBe(0)
+    expect(state.travel.reached).toEqual({ below: ['food'] })
     // A stat the system doesn't bound can go anywhere; its min keeps it in place.
     expect(state.stats).toEqual({ pre: 1, morale: 2, fatigue: -1 })
     const bounded = applyResult({ ...start(), stats: {} }, value, { fatigue: { min: 0 } })
@@ -466,7 +504,7 @@ entries:
       }),
     ).toEqual({ 'party.stats.morale': 2, 'party.stats.luck': '=2', 'factions.x.rep': 1 })
     const target = { stats: { morale: 4 }, travel: { resources: { food: 1 }, fatigue: 0 } }
-    const { applied, unknown } = applyEffects(
+    const { applied, limits, unknown } = applyEffects(
       target,
       {
         'party.stats.morale': 3,
@@ -475,9 +513,14 @@ entries:
         'factions.x.rep': 1,
       },
       { morale: { min: 0, max: 5 } },
+      { food: { min: 0 } },
     )
     expect(target.stats).toEqual({ morale: 5, luck: 2 })
     expect(target.travel.resources.food).toBe(0)
+    expect(limits).toEqual([
+      { path: 'party.stats.morale', limit: 'max', value: 5 },
+      { path: 'party.resources.food', limit: 'min', value: 0 },
+    ])
     expect(applied).toEqual([
       { path: 'party.stats.morale', from: 4, to: 5 },
       { path: 'party.stats.luck', from: 0, to: 2 },

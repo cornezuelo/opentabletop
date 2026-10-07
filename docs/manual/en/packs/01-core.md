@@ -11,6 +11,6 @@
 | **Advantage** and **Disadvantage** (roll modes) | Roll twice and keep the higher or the lower total. Core's tables offer them, and so can any pack that depends on Core (`modes: [advantage, disadvantage]`). |
 | **Twists** and **Complications**                | What changes, and a deck of complications to draw from (a card stays out until you reshuffle).                                                              |
 
-Core has no travel system on purpose: trips without a pack use the **Generic** rules built into the apps, and a full travel system lives in its own pack. For one that uses everything, see [The Grey Marches](02-grey-marches.md).
+Core has no travel system on purpose: trips without a pack use the **Generic** rules built into the apps, and a full travel system lives in its own pack. The Generic rules are the smallest example of one: camp sleeps until dawn, a rest is an hour, and **Eat** is an action the system takes by itself as each day ends (`on: day-end`), using 1 food, which never goes below 0 (`min: 0`). For one that uses everything, see [The Grey Marches](02-grey-marches.md).
 
 To change Core, make a copy (**Edit a copy** in the Oracle app): your copy replaces the bundled one in your browser, so new versions of Core won't reach you until you delete it.

@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { actionSteps, type ActionDefinition, type ActionStep } from '@open-tabletop/travel-engine'
+  import {
+    actionSteps,
+    CHECK_MOMENTS,
+    type ActionDefinition,
+    type ActionStep,
+  } from '@open-tabletop/travel-engine'
   import { contextSuggestions, effectSuggestions } from '@open-tabletop/session'
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
@@ -17,8 +22,9 @@
 
   type Raw = Record<string, unknown>
   const BUILT_IN = ['camp', 'rest'] as const
-  const KINDS = ['time', 'eat', 'speed', 'effects'] as const
-  type StepKind = (typeof KINDS)[number]
+  /** Kinds of step; `do:<action>` and `roll:<check event>` name what they take or roll. */
+  const KINDS = ['time', 'speed', 'effects', 'set'] as const
+  type StepKind = (typeof KINDS)[number] | 'eat' | `do:${string}` | `roll:${string}`
 
   const disabled = $derived(!doc.editable)
   const actions = $derived((doc.rules.actions ?? {}) as Record<string, Raw | false | undefined>)
@@ -26,6 +32,24 @@
     Object.keys(actions).filter((id) => !(BUILT_IN as readonly string[]).includes(id)),
   )
   const ids = $derived([...BUILT_IN, ...own])
+  /** Actions a step can take (those the system has). */
+  const live = $derived(ids.filter((id) => actions[id] !== false))
+  /** Check events a step can roll. */
+  const events = $derived([
+    ...new Set(
+      ((doc.rules.checks ?? []) as Raw[]).map((c) => String(c.event ?? '')).filter(Boolean),
+    ),
+  ])
+  /** The values of the day a step can set. */
+  const dayValues = $derived(
+    Object.fromEntries(
+      Object.keys((doc.rules.values ?? {}) as Raw).map((v) => [v, ['true', 'false']]),
+    ),
+  )
+  const label = (id: string) =>
+    (BUILT_IN as readonly string[]).includes(id)
+      ? t(`actions.${id as 'camp' | 'rest'}`)
+      : text(id, 'name') || id
   /** What conditions can read, and the paths effects can change. */
   const hints = $derived(contextSuggestions(library.registry))
   const effectHints = $derived(effectSuggestions(library.registry))
@@ -49,7 +73,13 @@
         ? 'eat'
         : step.speed !== undefined
           ? 'speed'
-          : 'effects'
+          : step.do !== undefined
+            ? `do:${step.do}`
+            : step.roll !== undefined
+              ? `roll:${step.roll}`
+              : step.set !== undefined
+                ? 'set'
+                : 'effects'
 
   const text = (id: string, field: 'name' | 'description' | 'nothing') =>
     doc.text('travel-rules', def(id)?.[field], ['actions', id, field])
@@ -87,16 +117,21 @@
 
   /** A new kind of step, with a value to start from. */
   function setKind(id: string, i: number, kind: StepKind) {
-    const fresh: Record<StepKind, ActionStep> = {
-      time: { time: 60 },
-      eat: { eat: 'day' },
-      speed: { speed: 0.5 },
-      effects: { effects: {} },
-    }
+    const fresh: ActionStep = kind.startsWith('do:')
+      ? { do: kind.slice(3) }
+      : kind.startsWith('roll:')
+        ? { roll: kind.slice(5) }
+        : {
+            time: { time: 60 },
+            eat: { eat: 'day' as const },
+            speed: { speed: 0.5 },
+            effects: { effects: {} },
+            set: { set: {} },
+          }[kind as (typeof KINDS)[number] | 'eat']
     editStep(id, i, (s) => ({
       ...(s.when && { when: s.when }),
       ...(s.unless && { unless: s.unless }),
-      ...fresh[kind],
+      ...fresh,
     }))
   }
 
@@ -112,12 +147,17 @@
     editStep(id, i, (s) => ({ ...s, time }))
   }
 
-  function setStepFlow(id: string, i: number, key: 'when' | 'unless' | 'effects', raw: string) {
+  function setStepFlow(
+    id: string,
+    i: number,
+    key: 'when' | 'unless' | 'effects' | 'set',
+    raw: string,
+  ) {
     const parsed = parseFlow(raw)
     if (parsed === null) return showToast(t('forms.badFlow'), 'error')
     editStep(id, i, (s) => {
       const out = { ...s, [key]: parsed }
-      if (key !== 'effects' && !Object.keys(parsed ?? {}).length) delete out[key]
+      if ((key === 'when' || key === 'unless') && !Object.keys(parsed ?? {}).length) delete out[key]
       return out
     })
   }
@@ -250,6 +290,22 @@
             {t('rules.oncePerDay')}
           </label>
         </div>
+        <label>
+          <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
+          <select
+            value={d.on ?? ''}
+            {disabled}
+            onchange={(e) =>
+              doc.edit('travel-rules', ['actions', id, 'on'], e.currentTarget.value || undefined)}
+          >
+            <option value="">{t('actions.onButton')}</option>
+            {#each CHECK_MOMENTS as m (m)}<option value={m}>{t(`checks.atOptions.${m}`)}</option
+              >{/each}
+            {#each live.filter((a) => a !== id && a !== 'camp') as a (a)}<option value={a}
+                >{t('actions.onAfter', { action: label(a) })}</option
+              >{/each}
+          </select>
+        </label>
         {#if !builtIn}
           <label>
             <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>
@@ -277,6 +333,19 @@
                 onchange={(e) => setKind(id, i, e.currentTarget.value as StepKind)}
               >
                 {#each KINDS as k (k)}<option value={k}>{t(`actions.kinds.${k}`)}</option>{/each}
+                {#if kind === 'eat'}<option value="eat">{t('actions.kinds.eat')}</option>{/if}
+                <optgroup label={t('actions.kinds.do')}>
+                  {#each live.filter((a) => a !== id) as a (a)}<option value={`do:${a}`}
+                      >{t('actions.doOption', { action: label(a) })}</option
+                    >{/each}
+                </optgroup>
+                {#if events.length}
+                  <optgroup label={t('actions.kinds.roll')}>
+                    {#each events as ev (ev)}<option value={`roll:${ev}`}
+                        >{t('actions.rollOption', { check: ev })}</option
+                      >{/each}
+                  </optgroup>
+                {/if}
               </select>
               {#if kind === 'time'}
                 <input
@@ -311,15 +380,28 @@
                     onchange={(v) => setStepFlow(id, i, 'effects', v)}
                   />
                 </div>
-              {:else}
+              {:else if kind === 'set'}
+                <div class="value">
+                  <SuggestInput
+                    label={t('actions.kinds.set')}
+                    placeholder="lost: true"
+                    value={bare(step.set)}
+                    suggestions={dayValues}
+                    {disabled}
+                    onchange={(v) => setStepFlow(id, i, 'set', v)}
+                  />
+                </div>
+              {:else if kind === 'eat'}
                 <span class="value muted">{t('actions.eatDay')}</span>
+              {:else}
+                <span class="value"></span>
               {/if}
               <div class="cond">
                 <SuggestInput
                   label={t('actions.stepWhen')}
                   placeholder={t('actions.stepWhen')}
                   value={bare(step.when)}
-                  suggestions={{ ...hints, short: ['true', 'false'], camping: ['true', 'false'] }}
+                  suggestions={{ ...hints, camping: ['true', 'false'] }}
                   {disabled}
                   onchange={(v) => setStepFlow(id, i, 'when', v)}
                 />

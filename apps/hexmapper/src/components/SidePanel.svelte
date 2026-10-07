@@ -28,6 +28,7 @@
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyResult, tripChanges } from '@open-tabletop/session'
+  import { resourceBounds } from '@open-tabletop/travel-engine'
   import { getSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexKey } from '../lib/model/types'
@@ -145,11 +146,13 @@
               disabled={applied.has(item.id)}
               use:tooltip={t('oracle.applyHelp')}
               onclick={() => {
+                const system = getSystem(editor.play?.rules?.system ?? 'generic')
                 editSession((session) =>
                   applyResult(
                     session,
                     item.resolution.value,
-                    getSystem(editor.play?.rules?.system ?? 'generic').bindings?.stats,
+                    system.bindings?.stats,
+                    resourceBounds(system.rules),
                   ),
                 )
                 applied = new Set([...applied, item.id])

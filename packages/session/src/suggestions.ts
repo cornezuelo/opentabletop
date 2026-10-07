@@ -37,8 +37,9 @@ export function contextSuggestions(
   add('water', true, false)
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
-  // The end of each day (checks at: day-end).
-  add('short', true, false)
+  // What hit its minimum or maximum today (its id), and whether the day ended in camp.
+  add('below')
+  add('above')
   add('camping', true, false)
   add('edges', 'road', 'trail', 'river')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
@@ -64,7 +65,15 @@ export function contextSuggestions(
     add('mode', ...Object.keys(rules.modes))
     add('party.mode', ...Object.keys(rules.modes))
     add('edges', ...Object.keys(rules.edges ?? {}))
-    for (const resource of Object.keys(rules.resources ?? {})) add(`party.resources.${resource}`)
+    for (const resource of Object.keys(rules.resources ?? {})) {
+      add(`party.resources.${resource}`)
+      add('below', resource)
+      add('above', resource)
+    }
+    for (const stat of Object.keys(bindings?.stats ?? {})) {
+      add('below', stat)
+      add('above', stat)
+    }
     for (const check of rules.checks ?? []) {
       condition(check.when, add)
       condition(check.unless, add)

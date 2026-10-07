@@ -27,8 +27,8 @@ edges:
   trail: { multiplier: 1.2 }
 modes:
   foot: { name: On foot, kmPerDay: 25 }
-  # Horses go twice as fast and eat fodder.
-  horse: { name: On horseback, kmPerDay: 50, consumes: { fodder: 1 } }
+  # Horses go twice as fast and eat fodder (the eat action below, at the end of each day).
+  horse: { name: On horseback, kmPerDay: 50 }
   # …but a boat only goes on water and along the coast (through: a condition on each hex it
   # enters), and is only boarded at the water's edge or at a ferry (when: where the party is).
   boat:
@@ -36,9 +36,11 @@ modes:
     kmPerDay: 40
     through: { any: [{ water: true }, { terrain: coast }] }
     when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }
+# Supplies never go below 0 (min): when there's none left, eating hits that minimum, and
+# later steps and checks of the day see it as `below: food`.
 resources:
-  food: { name: Food, perDay: 1 }
-  fodder: { name: Fodder }
+  food: { name: Food, min: 0 }
+  fodder: { name: Fodder, min: 0 }
 weather:
   rain: { speed: 0.75 }
   fog: { speed: 0.75 }
@@ -55,15 +57,15 @@ values:
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
-  # Camping: the day's supplies are eaten (later steps see `short`: whether they ran out),
-  # sleep until dawn, and a fed night eases fatigue. Night checks (at: camp) come first.
+  # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
+  # fed night eases fatigue: unless food hit its minimum (`below`) during the night.
+  # Night checks (at: camp) come first.
   camp:
     name: Camp
-    description: 'End the day: the night’s checks, the day’s supplies are eaten and you wake at dawn. A night with enough to eat takes off 1 fatigue.'
+    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue.'
     do:
-      - { eat: day }
       - { time: dawn }
-      - { when: { short: false }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat).
   rest:
     name: Rest
@@ -84,6 +86,16 @@ actions:
       - { time: 180 }
       - { speed: 0.5 }
     oncePerDay: true
+  # Nobody presses this one: the system takes it by itself as each day ends (on: day-end),
+  # whether the party camped or not. A day of food, and of fodder when riding (a step with
+  # a condition on the way of travelling).
+  eat:
+    name: Eat
+    description: 'At the end of each day, in camp or not: 1 food, and 1 fodder on horseback. With none left, the party goes hungry.'
+    on: day-end
+    do:
+      - { effects: { party.resources.food: -1 } }
+      - { when: { mode: horse }, effects: { party.resources.fodder: -1 } }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED
@@ -139,14 +151,15 @@ checks:
     description: Camping with no food left. Morale decides how it goes.
     at: camp
     when: { party.resources.food: { lt: 1 } }
-  # The end of each day (at: day-end): checks see whether supplies ran short (short) and
-  # whether the day ended in camp (camping). With effects and no table, they just apply:
-  # fatigue is this system's own rule, not the app's. (A fed night is camp's own step.)
+  # The end of each day (at: day-end), after the eat action: checks see what hit its
+  # minimum today (below) and whether the day ended in camp (camping). With effects and no
+  # table, they just apply: fatigue is this system's own rule, not the app's. (A fed night
+  # is camp's own step.)
   - event: HUNGRY_DAY
     name: Not enough to eat
     description: A day without enough food tires the party, in camp or not.
     at: day-end
-    when: { short: true }
+    when: { below: food }
     effects: { party.stats.fatigue: 1 }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED

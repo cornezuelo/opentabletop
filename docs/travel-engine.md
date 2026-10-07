@@ -89,11 +89,18 @@ edges:
   river: { navigation: skip } # following a river
 modes:
   foot: { kmPerDay: 30 }
-  horse: { kmPerDay: 60, consumes: { fodder: 1 } }
+  horse: { kmPerDay: 60 }
   boat: { kmPerDay: 80, allowedEdges: [river], allowedTerrains: [lake, sea] }
-resources:
-  food: { perDay: 1, unit: ration }
-  water: { perDay: 1 }
+resources: # used by effects (actions, checks, tables); min/max bound them
+  food: { min: 0 }
+  water: { min: 0 }
+  fodder: { min: 0 }
+actions: # with on:, the system takes it by itself (here, as each day ends)
+  eat:
+    on: day-end
+    do:
+      - { effects: { party.resources.food: -1, party.resources.water: -1 } }
+      - { when: { mode: horse }, effects: { party.resources.fodder: -1 } }
 weather: # effect of each weather state (states defined by the pack or weather-engine)
   storm: { speed: 0, navigation: -2 }
   heavy-rain: { speed: 0.5, navigation: -1 }
@@ -167,14 +174,14 @@ on:
 
 ## 5. Fit with Kal-Arath (design validation)
 
-| Kal-Arath rule                                        | How it's expressed                                                                                                |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| 1 hex = 30 km = 1 day on foot; double on horseback    | `hexKm: 30`, `foot.kmPerDay: 30`, `horse.kmPerDay: 60`.                                                           |
-| Rolls are per travel day, not per hex                 | `checks` with `at: day-start` and `every: day`.                                                                   |
-| Storm: no travel that day; heavy rain: half speed     | `weather.storm.speed: 0`, `weather.heavy-rain.speed: 0.5`.                                                        |
-| Lost on 1–2 on 1d6; no roll on a road or river        | `NAVIGATION_CHECK_REQUIRED` with `unless: { edge: [road, river] }`; outcome `lost` keeps the party in the hex.    |
-| Foraging halves movement                              | A system's own action: `actions.forage: { minutes: 180, speed: 0.5, oncePerDay: true }` and a check `at: forage`. |
-| Camping uses 1 ration and has a night encounter check | `resources.food.perDay` + a check `at: camp`.                                                                     |
+| Kal-Arath rule                                          | How it's expressed                                                                                                |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1 hex = 30 km = 1 day on foot; double on horseback      | `hexKm: 30`, `foot.kmPerDay: 30`, `horse.kmPerDay: 60`.                                                           |
+| Rolls are per travel day, not per hex                   | `checks` with `at: day-start` and `every: day`.                                                                   |
+| Storm: no travel that day; heavy rain: half speed       | `weather.storm.speed: 0`, `weather.heavy-rain.speed: 0.5`.                                                        |
+| Lost on 1–2 on 1d6; no roll on a road or river          | `NAVIGATION_CHECK_REQUIRED` with `unless: { edge: [road, river] }`; outcome `lost` keeps the party in the hex.    |
+| Foraging halves movement                                | A system's own action: `actions.forage: { minutes: 180, speed: 0.5, oncePerDay: true }` and a check `at: forage`. |
+| Each day uses 1 ration; a night encounter check in camp | An action `on: day-end` with `effects: { party.resources.food: -1 }` + a check `at: camp`.                        |
 
 ## 6. MVP
 

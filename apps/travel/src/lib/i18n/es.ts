@@ -58,10 +58,6 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     nameHelp:
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id (p. ej. A caballo, Raciones). Se escribe en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
-    consumes: 'Gasta al día',
-    consumesHelp:
-      'Provisiones que gasta esta forma de viajar cada día además de lo que gastan todos (Provisiones → Al día), p. ej. fodder: 1 para los caballos. Vacío: nada más.',
-    consumesNone: 'nada más',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
       'Por dónde puede ir: una condición sobre cada hex en el que entra (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso), p. ej. una barca: any: [{ water: true }, { terrain: coast }]; un carro solo por camino: edges: road. Donde se cumple, ni los terrenos cerrados la paran. Vacío: por donde dejen los terrenos.',
@@ -83,10 +79,17 @@ export const es: Messages<typeof en> = {
     edge: 'Línea',
     edgeMultiplierHelp: 'Velocidad por ella: 1.5 es la mitad más rápido que a campo abierto.',
     resources: vocabulary.es.terms.supplies,
-    resourcesHelp: 'Lo que lleva el grupo y cuánto gasta cada día (marche o no).',
-    perDay: 'Al día',
-    perDayHelp:
-      'Lo gastan todos cada día, sea cual sea la forma de viajar (cada forma puede añadir lo suyo: Formas de viajar → Gasta al día). 0 para una provisión que solo gastan algunas formas de viajar, como el forraje de los caballos. Lo que pasa si falta alguna depende del sistema (sus comprobaciones de fin de día ven short).',
+    resourcesHelp:
+      'Lo que lleva el grupo. Qué lo gasta lo decide el sistema: efectos de sus acciones (una acción al final del día come), comprobaciones y tablas (party.resources.food: -1).',
+    min: 'Mín',
+    minHelp:
+      'Los efectos nunca la bajan de aquí: un cambio que lo pasaría se queda en él, y los pasos siguientes y las comprobaciones de ese día ven below: [su id]. Vacío: sin mínimo (puede quedar en negativo).',
+    max: 'Máx',
+    maxHelp:
+      'Los efectos nunca la suben de aquí (los pasos siguientes y las comprobaciones ven above: [su id]). Vacío: sin máximo.',
+    olderEating:
+      'Estas reglas comen a la manera antigua (provisiones gastadas “al día”, formas de viajar que gastan provisiones o pasos que comen las provisiones del día). Se siguen jugando igual; convertirlas lo escribe como una acción que el sistema hace al final de cada día, con Mín 0 en las provisiones.',
+    olderEatingConvert: 'Convertir',
     weather: vocabulary.es.terms.weather,
     weatherHelp:
       'Cómo frena el clima al grupo. Las tablas lo fijan con set: { weather: … } (normalmente al alba).',
@@ -124,15 +127,25 @@ export const es: Messages<typeof en> = {
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
-      'Sus pasos, en orden. Pasar tiempo (minutos, dawn, nightfall o una hora como 14:00), comer las provisiones del día (los pasos siguientes ven short: true si faltó algo), cambiar el resto de la marcha de hoy (×0.5) o cambiar al grupo (efectos como party.stats.fatigue: -1). Un paso con condición solo ocurre si se cumple (short: false, camping: true…). Sus comprobaciones (pestaña Comprobaciones, En: esta acción) se tiran primero.',
+      'Sus pasos, en orden. Pasar tiempo (minutos, dawn, nightfall o una hora como 14:00), cambiar el resto de la marcha de hoy (×0.5), cambiar al grupo (efectos como party.stats.fatigue: -1; un cambio que pasaría el Mín o el Máx de un valor se queda en él y los pasos siguientes ven below: [id] o above: [id]), fijar valores del día (lost: true), hacer otra acción (con sus condiciones) o tirar una comprobación ya. Un paso con condición solo ocurre si se cumple (below: food, camping: true…). Las acciones que siguen a esta y sus comprobaciones (pestaña Comprobaciones, En: esta acción) van primero.',
+    on: 'La hace',
+    onHelp:
+      'El jugador (un botón), o el propio sistema en un momento (al alba, al entrar en un hex, al acampar, al final de cada día) o tras otra acción, si se cumplen sus condiciones. Si la hace el sistema no es un botón; va antes de las comprobaciones de ese momento. P. ej. comer al acabar cada día, se acampe o no.',
+    onButton: 'El jugador (un botón)',
+    onAfter: 'Tras: {action}',
     stepKind: 'Tipo de paso',
     kinds: {
       time: 'Pasa el tiempo',
-      eat: 'Comer las provisiones del día',
       speed: 'Marcha de hoy ×',
       effects: 'Cambios',
+      set: 'Valores del día',
+      eat: 'Comer las provisiones del día (antiguo)',
+      do: 'Hacer una acción',
+      roll: 'Tirar una comprobación',
     },
-    eatDay: 'una vez al día: si ya se comió hoy, nada',
+    doOption: 'Hacer: {action}',
+    rollOption: 'Tirar: {check}',
+    eatDay: 'a la manera antigua: Provisiones → Convertir lo escribe como una acción',
     stepWhen: 'solo si…',
     badTime: 'Escribe minutos (180), dawn, nightfall o una hora como 14:00.',
     dawn: 'Hasta el alba',
@@ -153,7 +166,13 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento (p. ej. Perderse). Esta caja lo edita en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
     description: 'Descripción (tooltip)',
     at: 'Cuándo',
-    atOptions: { 'day-start': 'Al alba', 'hex-enter': 'Al entrar en un hex', camp: 'Al acampar' },
+    atOptions: {
+      'day-start': 'Al alba',
+      'hex-enter': 'Al entrar en un hex',
+      camp: 'Al acampar',
+      'day-end': 'Al final del día',
+    },
+    atNone: 'Solo cuando un paso la tira',
     atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',

@@ -20,6 +20,7 @@
   import {
     actionSteps,
     availableActions,
+    resourceBounds,
     checkInfo,
     declaredValues,
     type TravelAction,
@@ -116,6 +117,7 @@
   /** The system's declared stats only: nothing it doesn't declare is shown. */
   const stats = $derived<[string, StatDefinition][]>(Object.entries(system.bindings?.stats ?? {}))
   const actions = $derived(availableActions(system.rules))
+  const bounds = $derived(resourceBounds(system.rules))
   const restLength = $derived.by(() => {
     const minutes = actions.restMinutes
     return minutes % 60 === 0 ? `${minutes / 60} h` : `${minutes} min`
@@ -309,7 +311,9 @@
           >{resourceName(resource)}<InfoTip
             markdown={[
               localize(system.rules.resources?.[resource]?.description, locale, 'en'),
-              t('tips.resource', { perDay: system.rules.resources?.[resource]?.perDay ?? 0 }),
+              t('tips.resource'),
+              bounds[resource]?.min !== undefined && t('tips.min', { min: bounds[resource].min! }),
+              bounds[resource]?.max !== undefined && t('tips.max', { max: bounds[resource].max! }),
               readAs(`party.resources.${resource}`),
             ]
               .filter(Boolean)
@@ -364,21 +368,22 @@
       disabled={!travel.route || !!blocked.travel}
       onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
     >
-    {#if actions.camp}
+    {#if actions.camp && !actions.camp.on}
       <button
         use:tooltip={tipWith(actionTip('camp', t('tips.camp')), 'camp')}
         disabled={!!blocked.camp}
         onclick={() => onstep({ type: 'camp' })}>{t('camp')}</button
       >
     {/if}
-    {#if actions.rest}
+    {#if actions.rest && !actions.rest.on}
       <button
         use:tooltip={tipWith(actionTip('rest', t('tips.rest')), 'rest')}
         disabled={!!blocked.rest}
         onclick={() => onstep({ type: 'rest' })}>{t('rest', { length: restLength })}</button
       >
     {/if}
-    {#each Object.keys(actions.custom) as id (id)}
+    <!-- Actions the system takes by itself (on:) aren't buttons. -->
+    {#each Object.keys(actions.custom).filter((id) => !actions.custom[id].on) as id (id)}
       <button
         use:tooltip={tipWith(actionTip(id), id)}
         disabled={!!blocked[id]}

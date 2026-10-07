@@ -16,7 +16,7 @@
   let { doc }: { doc: SystemDoc } = $props()
 
   type Raw = Record<string, unknown>
-  const AT = ['day-start', 'hex-enter', 'camp'] as const
+  const AT = ['day-start', 'hex-enter', 'camp', 'day-end'] as const
   /** The system's own actions can trigger checks too (at: <action id>). */
   const ownActions = $derived(
     Object.entries((doc.rules.actions ?? {}) as Record<string, unknown>)
@@ -163,10 +163,12 @@
           <label>
             <span>{t('checks.at')}</span>
             <select
-              value={check.at}
+              value={check.at ?? ''}
               {disabled}
-              onchange={(e) => doc.edit('travel-rules', ['checks', i, 'at'], e.currentTarget.value)}
+              onchange={(e) =>
+                doc.edit('travel-rules', ['checks', i, 'at'], e.currentTarget.value || undefined)}
             >
+              <option value="">{t('checks.atNone')}</option>
               {#each AT as at (at)}<option value={at}>{t(`checks.atOptions.${at}`)}</option>{/each}
               {#each ownActions as id (id)}<option value={id}
                   >{t('checks.atAction', { action: id })}</option

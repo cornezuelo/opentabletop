@@ -103,6 +103,12 @@ describe('journal lines', () => {
     expect(line('SUPPLIES_USED', { used: { food: 1 }, left: { food: 4 } })).toBe(
       'Supplies for the day: Food −1 (4 left)',
     )
+    expect(line('LIMIT_REACHED', { path: 'party.resources.food', limit: 'min', value: 0 })).toBe(
+      'Food can’t go lower than 0',
+    )
+    expect(line('LIMIT_REACHED', { path: 'party.stats.morale', limit: 'max', value: 5 })).toBe(
+      'Morale can’t go higher than 5',
+    )
     expect(line('RESTED', { minutes: 90 })).toBe('Rest for 1 h 30')
     expect(line('FATIGUE_CHANGED', { change: 1, fatigue: 2, reason: 'hunger' })).toBe(
       'Not enough to eat: fatigue +1 (now 2)',

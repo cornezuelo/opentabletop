@@ -136,6 +136,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           : ''
       return changed ? `${rested} (${changed})` : rested
     }
+    // Older journals (supplies are an action's effects now).
     case 'SUPPLIES_USED': {
       const used = (d.used ?? {}) as Record<string, number>
       const left = (d.left ?? {}) as Record<string, number>
@@ -184,6 +185,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
     case 'DAY_STARTED':
       return t('journal.day', { day: Number(d.day) - startDay + 1 })
+    case 'LIMIT_REACHED': {
+      const key = String(d.path).replace(/^party\.(stats|resources)\./, '')
+      return t(d.limit === 'max' ? 'journal.limitMax' : 'journal.limitMin', {
+        name: name(key),
+        value: Number(d.value),
+      })
+    }
+    // Older journals: a day of supplies eaten, or one running out.
     case 'RESOURCE_DEPLETED':
       return t('journal.depleted', { resource: name(String(d.resource)) })
     case 'WAIT': {

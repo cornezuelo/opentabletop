@@ -186,6 +186,40 @@ describe('bundled open packs', () => {
     expect(fresh.stats.fatigue).toBe(0)
   })
 
+  it('the Grey Marches eat by themselves as each day ends: food, and fodder on horseback', () => {
+    const system = marches()
+    const world = row([{ terrain: 'plains' }, { terrain: 'plains' }])
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('eat') }),
+      locale: 'en',
+    }
+    const { session } = startTrip({ system, location: '0', season: 'summer' })
+    const riding = {
+      ...session,
+      travel: { ...session.travel, mode: 'horse', resources: { food: 2, fodder: 0 } },
+    }
+    // Waiting a whole day out, without camping: the day still ends with the eat action.
+    const day = stepTrip(options, riding, { type: 'advanceTime', minutes: 24 * 60 })
+    expect(day.state.travel.resources).toEqual({ food: 1, fodder: 0 })
+    expect(day.entries).toContainEqual(
+      expect.objectContaining({
+        code: 'ACTION_TAKEN',
+        data: expect.objectContaining({ action: 'eat', on: 'day-end' }),
+      }),
+    )
+    // No fodder left: it stops at its minimum (0), and the journal says so.
+    expect(day.entries).toContainEqual(
+      expect.objectContaining({
+        code: 'LIMIT_REACHED',
+        data: expect.objectContaining({ path: 'party.resources.fodder', limit: 'min' }),
+      }),
+    )
+    // The eat action isn't a button.
+    expect(system.rules.actions?.eat).toMatchObject({ on: 'day-end' })
+  })
+
   it('the Grey Marches discover a map whose terrains their rules know', () => {
     const system = marches()
     expect(system.bindings?.discover?.reveal).toBe('neighbors')

@@ -23,6 +23,8 @@ export const en = {
   // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'On foot', horse: 'On horseback', boat: 'By boat', cart: 'By cart' },
   resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
+  // The Generic rules' action at the end of each day (and older systems' eating).
+  actions: { eat: 'Eat' },
   travel: 'Travel',
   travelHex: '1 hex',
   camp: 'Camp',
@@ -45,11 +47,13 @@ export const en = {
     marched:
       'Hours of marching allowed per day; when they run out, camp to continue tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
     resource:
-      'Supplies: {perDay} per day are eaten for every day that passes, whether you camp, rest or wait. Edit the amount when you buy, find or use some. What running short does depends on the system.',
+      'Supplies: what uses them depends on the system (its actions, like eating at the end of each day, its checks and tables). Edit the amount when you buy, find or use some.',
+    min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',
+    max: 'It never goes above {max}.',
     travel:
       'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
     travelHex: 'Travel to the next hex of the route only.',
-    camp: 'End the day: the system’s night checks, the day’s supplies are eaten and you wake up at dawn.',
+    camp: 'End the day: the system’s night checks, then you wake up at dawn (what happens as the day ends depends on the system).',
     rest: 'A short pause: time passes without marching (e.g. to wait out bad weather).',
     actionUntil: 'Lasts until {moment}.',
     dawn: 'dawn',
@@ -83,6 +87,8 @@ export const en = {
     discovered: 'Discovered in {hex}: {what}',
     day: 'Day {day} begins',
     depleted: 'Out of {resource}',
+    limitMin: '{name} can’t go lower than {value}',
+    limitMax: '{name} can’t go higher than {value}',
     actionNothing: 'none of its rolls apply on {terrain}, so nothing happens',
     rested: 'Rest for {length}',
     supplies: 'Supplies for the day: {list}',

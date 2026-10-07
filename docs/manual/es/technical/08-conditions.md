@@ -53,7 +53,7 @@ Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 
 - Entradas: la Sierpe de la tabla de encuentros, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; la cacería, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`.
 - Comprobaciones: perderse, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; el vado, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
-- Acciones y pasos: buscar comida, `unless: { weather: storm }`; la noche bien comidos de la acampada, `when: { short: false }`.
+- Acciones y pasos: buscar comida, `unless: { weather: storm }`; la noche bien comidos de la acampada, `unless: { below: food }`; comer forraje, `when: { mode: horse }`.
 - Formas de viajar: la barca va `through: { any: [{ water: true }, { terrain: coast }] }` y se sube `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (solo se elige a la orilla o en el transbordador; si no, sale desactivada en el panel del viaje, diciendo por qué).
 
 Un valor del día no es una condición, pero funciona como una: mientras se cumple, **bloquea** lo que lista (`blocks: [travel]`, el id de una acción, `mode.horse`). Mira [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).

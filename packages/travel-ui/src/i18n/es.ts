@@ -27,6 +27,7 @@ export const es: Messages<typeof en> = {
   // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'A pie', horse: 'A caballo', boat: 'En barca', cart: 'En carro' },
   resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
+  actions: { eat: 'Comer' },
   travel: 'Viajar',
   travelHex: '1 hex',
   camp: 'Acampar',
@@ -49,11 +50,13 @@ export const es: Messages<typeof en> = {
     marched:
       'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
     resource:
-      'Provisiones: se comen {perDay} por cada día que pasa, ya sea acampando, descansando o esperando. Ajusta la cantidad al comprar, encontrar o gastar. Lo que pasa si faltan depende del sistema.',
+      'Provisiones: qué las gasta depende del sistema (sus acciones, como comer al final de cada día, sus comprobaciones y tablas). Ajusta la cantidad al comprar, encontrar o gastar.',
+    min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',
+    max: 'Nunca sube de {max}.',
     travel:
       'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
-    camp: 'Termina el día: las comprobaciones nocturnas del sistema, se comen las provisiones del día y despertáis al alba.',
+    camp: 'Termina el día: las comprobaciones nocturnas del sistema, y despertáis al alba (lo que pasa al acabar el día depende del sistema).',
     rest: 'Una pausa corta: pasa el tiempo sin marchar (p. ej. para esperar a que mejore el clima).',
     actionUntil: 'Dura hasta {moment}.',
     dawn: 'el alba',
@@ -85,6 +88,8 @@ export const es: Messages<typeof en> = {
     discovered: 'Descubierto en {hex}: {what}',
     day: 'Empieza el día {day}',
     depleted: 'Sin {resource}',
+    limitMin: '{name} no puede bajar de {value}',
+    limitMax: '{name} no puede subir de {value}',
     actionNothing: 'en {terrain} no se tira ninguna de sus tiradas, así que no pasa nada',
     rested: 'Descansáis {length}',
     supplies: 'Provisiones del día: {list}',

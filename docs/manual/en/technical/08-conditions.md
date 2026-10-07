@@ -53,7 +53,7 @@ They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 
 - Entries: the encounter table's Wyrm, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; the hunt, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`.
 - Checks: getting lost, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; the ford, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
-- Actions and steps: foraging, `unless: { weather: storm }`; camp's fed night, `when: { short: false }`.
+- Actions and steps: foraging, `unless: { weather: storm }`; camp's fed night, `unless: { below: food }`; eating fodder, `when: { mode: horse }`.
 - Ways of travelling: the boat goes `through: { any: [{ water: true }, { terrain: coast }] }` and is boarded `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
 
 A value of the day isn't a condition but works like one: while it holds, it **blocks** what it lists (`blocks: [travel]`, an action's id, `mode.horse`). See [Connecting tables to maps and trips](../oracle/07-connecting.md).

@@ -56,13 +56,16 @@ export const genericTravelRules: TravelRules = {
   water: { passable: false },
   edges: { road: { multiplier: 1.5 }, trail: { multiplier: 1.2 } },
   modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 50 } },
-  resources: { food: { perDay: 1 } },
+  // Food never goes below 0: when there's none left, eating hits that minimum.
+  resources: { food: { min: 0 } },
   checks: [],
   // No values of the day: nothing here blocks travel.
   values: {},
-  // Camp sleeps until dawn; a rest is an hour without marching.
+  // Camp sleeps until dawn; a rest is an hour without marching. As each day ends, whether
+  // the party camped or not, it eats a day of food (an action the system takes by itself).
   actions: {
     camp: { do: [{ time: 'dawn' }] },
     rest: { do: [{ time: 60 }] },
+    eat: { on: 'day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
   },
 }
