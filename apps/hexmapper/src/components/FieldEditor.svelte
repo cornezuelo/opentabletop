@@ -47,21 +47,19 @@
   let draftValue = $state('')
   const id = $props.id()
   /** Names the packs' tables read and nothing on the map gives yet (danger, guards, fare…). */
-  const packHints = $derived.by(() => {
-    const out = new Map<string, string[]>()
-    for (const [key, values] of Object.entries(
-      contextSuggestions(library.registry, {}, { reads: true }),
-    )) {
-      const name =
-        scope === 'icon'
-          ? key.startsWith('icon.') && key.slice(5)
-          : scope === 'token'
-            ? key.startsWith('token.') && key.slice(6)
-            : !key.includes('.') && !RESERVED.has(key) && key
-      if (name && name !== 'id' && name !== 'name' && name !== 'kind') out.set(name, values)
-    }
-    return out
-  })
+  const packHints = $derived(
+    Object.entries(contextSuggestions(library.registry, {}, { reads: true })).flatMap(
+      ([key, values]): [string, string[]][] => {
+        const name =
+          scope === 'icon'
+            ? key.startsWith('icon.') && key.slice(5)
+            : scope === 'token'
+              ? key.startsWith('token.') && key.slice(6)
+              : !key.includes('.') && !RESERVED.has(key) && key
+        return name && name !== 'id' && name !== 'name' && name !== 'kind' ? [[name, values]] : []
+      },
+    ),
+  )
   const suggestions = $derived.by(() => {
     void editor.revision
     const out = fieldSuggestions(editor.map)

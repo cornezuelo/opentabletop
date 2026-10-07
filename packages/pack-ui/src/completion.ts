@@ -42,7 +42,6 @@ const ENUMS: Record<string, readonly string[]> = {
 const REF_KEYS = new Set(['table', 'generator', 'resolve'])
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
 const CONDITION_KEYS = new Set(['when', 'unless'])
-const VALUE_KEYS = new Set(['set', 'context'])
 
 /** Keys a definition, its entries and its fields use. */
 const KEYS = [
