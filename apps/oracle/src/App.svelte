@@ -364,4 +364,54 @@
       --sidebar: 0px;
     }
   }
+
+  /* Narrow windows: one column — the pack list, the definition, then history or help. */
+  @media (max-width: 760px) {
+    .app {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+    }
+
+    .bar {
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px 8px;
+    }
+
+    .bar > button {
+      padding: 4px 8px;
+      font-size: 13px;
+    }
+
+    .spacer {
+      display: none;
+    }
+
+    .app > :global(.sidebar) {
+      grid-row: 2;
+      grid-column: 1;
+      max-height: 32vh;
+      border-right: none;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    main {
+      grid-row: 3;
+      grid-column: 1;
+      padding: 12px;
+    }
+
+    .app > :global(.history),
+    .help-column {
+      grid-row: 4;
+      grid-column: 1;
+      max-height: 38vh;
+      border-left: none;
+      border-top: 1px solid var(--panel-border);
+    }
+
+    .app:not(.no-history) > :global(.history) {
+      display: flex;
+    }
+  }
 </style>
