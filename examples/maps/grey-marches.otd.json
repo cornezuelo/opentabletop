@@ -28,7 +28,22 @@
     }
   ],
   "factions": [],
-  "clocks": [],
+  "clocks": [
+    {
+      "id": "c4",
+      "type": "clock",
+      "name": "The Greywood Wyrm wakes",
+      "segments": 6,
+      "filled": 1
+    },
+    {
+      "id": "c5",
+      "type": "clock",
+      "name": "Fort Keld’s unpaid garrison mutinies",
+      "segments": 8,
+      "filled": 3
+    }
+  ],
   "log": [],
   "otd": "0.2.0",
   "characters": [
@@ -1569,7 +1584,7 @@
       ],
       "ext": {
         "hexmapper": {
-          "version": 9,
+          "version": 10,
           "created": "2026-10-06T21:35:43.748Z",
           "modified": "2026-10-06T21:35:43.748Z",
           "hexSize": 40,
@@ -1850,5 +1865,38 @@
       }
     }
   ],
-  "state": {}
+  "state": {
+    "world": {
+      "time": 360,
+      "events": [
+        {
+          "id": "e1",
+          "name": "Market day in Ashford",
+          "at": 3360,
+          "repeat": {
+            "days": 7
+          }
+        },
+        {
+          "id": "e2",
+          "name": "The Iron Clans march on Fort Keld",
+          "at": 16920
+        },
+        {
+          "id": "e3",
+          "name": "Spring floods: the ferry stops for three days",
+          "at": 27720
+        }
+      ],
+      "timeline": [
+        {
+          "id": "e6",
+          "time": 360,
+          "code": "NOTE",
+          "text": "The Company arrives in Ashford."
+        }
+      ],
+      "nextId": 7
+    }
+  }
 }

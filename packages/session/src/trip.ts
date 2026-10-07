@@ -147,15 +147,20 @@ export function startTrip(options: {
   location: string
   season?: Season
   stats?: Record<string, number>
+  /** Start at this moment instead (e.g. the world clock's), whatever the season. */
+  time?: number
 }): { startDay: number; session: SessionState } {
   const { rules, bindings } = options.system
   const calendar = calendarOf(options.system)
-  const startDay = seasonStart(options.system, options.season ?? seasonsFor(options.system)[0])
+  const startDay =
+    options.time !== undefined
+      ? calendar.describe(options.time).day
+      : seasonStart(options.system, options.season ?? seasonsFor(options.system)[0])
   const travel = initialTravelState({
     location: options.location,
     mode: Object.keys(rules.modes)[0],
     calendar,
-    time: calendar.at(startDay, rules.day.start),
+    time: options.time ?? calendar.at(startDay, rules.day.start),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
   })
   const declared = Object.fromEntries(

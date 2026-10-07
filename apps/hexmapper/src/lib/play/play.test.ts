@@ -4,8 +4,9 @@ import { parseMapFile } from '../io/otd'
 import { createMap } from '../model/defaults'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
-import { mapToBundle } from '../io/otd'
-import { clickHex, partyLocation, sessionOf, setMode } from './play'
+import { bundleToMap, mapToBundle } from '../io/otd'
+import { clickHex, partyLocation, sessionOf, setMode, step } from './play'
+import { startWorld, worldAct } from './world.svelte'
 import { oracleUi } from './oracle'
 import { playSystems } from './systems'
 
@@ -41,5 +42,32 @@ describe('playing on the map', () => {
     expect(mapToBundle(editor.map).maps[0].ext).not.toHaveProperty(['hexmapper', 'packs'])
     editor.undo()
     expect(editor.meta.packs).toEqual(['core', 'grey-marches'])
+  })
+
+  it('the world clock is saved in the file and follows a trip, telling what came due', () => {
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    startWorld()
+    const start = editor.map.world!.time
+    worldAct({ type: 'schedule', event: { name: 'The Iron Clans attack', at: start + 60 } })
+    worldAct({ type: 'addClock', clock: { name: 'The Wyrm wakes', segments: 6, filled: 1 } })
+    // In the file: clocks as OTD clocks, the rest as engine state; and back.
+    const bundle = mapToBundle(editor.map)
+    expect(bundle.clocks).toEqual([
+      expect.objectContaining({ type: 'clock', name: 'The Wyrm wakes', segments: 6, filled: 1 }),
+    ])
+    expect(bundle.state.world).toMatchObject({
+      time: start,
+      events: [{ name: 'The Iron Clans attack' }],
+    })
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    expect(back.world).toEqual(editor.map.world)
+    // A trip starts at the world's time, and its time passing brings the attack (not
+    // `travel`: a storm could keep the party in, and rolls here aren't seeded).
+    clickHex('7,7')
+    const session = sessionOf(editor.map.play!)!
+    expect(session.travel.time).toBe(start)
+    step({ type: 'advanceTime', minutes: 120 })
+    expect(editor.map.world!.time).toBe(sessionOf(editor.map.play!)!.travel.time)
+    expect(sessionOf(editor.map.play!)!.journal.some((e) => e.code === 'WORLD_EVENT')).toBe(true)
   })
 })

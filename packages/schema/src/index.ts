@@ -190,6 +190,7 @@ export type OtdParty = z.infer<typeof party>
 export type OtdCharacter = z.infer<typeof character>
 export type OtdLogEntry = z.infer<typeof logEntry>
 export type OtdCampaign = z.infer<typeof campaign>
+export type OtdClock = z.infer<typeof clock>
 
 export interface ValidationResult {
   bundle?: OtdBundle

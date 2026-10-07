@@ -62,6 +62,8 @@ export const en = {
   journal: {
     failed: '{event}: the table failed ({error})',
     discoveryFailed: 'Discovery failed at {hex} ({error})',
+    worldEvent: 'In the world: {name}',
+    holiday: 'Today is {name}',
     pending: '{event}: waiting for you',
     entered: 'Entered {hex}',
     discovered: 'Discovered in {hex}: {what}',

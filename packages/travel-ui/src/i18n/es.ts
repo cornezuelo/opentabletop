@@ -66,6 +66,8 @@ export const es: Messages<typeof en> = {
   journal: {
     failed: '{event}: la tabla falló ({error})',
     discoveryFailed: 'El descubrimiento falló en {hex} ({error})',
+    worldEvent: 'En el mundo: {name}',
+    holiday: 'Hoy es {name}',
     pending: '{event}: esperando',
     entered: 'Entráis en {hex}',
     discovered: 'Descubierto en {hex}: {what}',

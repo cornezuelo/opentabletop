@@ -84,6 +84,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   8(data) {
     return data
   },
+  /** v10: the world clock (optional: maps without one have none). */
+  9(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

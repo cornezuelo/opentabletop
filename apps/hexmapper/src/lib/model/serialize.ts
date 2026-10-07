@@ -1,3 +1,4 @@
+import { readWorld } from '@open-tabletop/world-engine'
 import { PAPERS, type PaperId } from '../print/paper'
 import {
   CAPTION_SIZE_RANGE,
@@ -118,6 +119,7 @@ function validate(data: Record<string, unknown>): HexMap {
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.oracle) && { oracle: parseOracle(data.oracle) }),
+    ...(isRecord(data.world) && { world: readWorld(data.world) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }

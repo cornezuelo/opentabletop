@@ -1,3 +1,4 @@
+import type { WorldState } from '@open-tabletop/world-engine'
 import { type CoordFormat, type HexKey, type Orientation } from '@open-tabletop/hex'
 import type { OracleState } from '@open-tabletop/oracle-engine'
 import type { HistoryItem } from '@open-tabletop/oracle-ui'
@@ -333,6 +334,8 @@ export interface HexMap {
   play?: PlayState
   /** The Oracle on this map: hand rolls and trip checks share its decks and once-only entries. */
   oracle?: MapOracle
+  /** The world clock of the campaign on this map (time, scheduled events, progress clocks). */
+  world?: WorldState
   /**
    * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
    * kept verbatim so saving never loses it.

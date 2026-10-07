@@ -1,5 +1,6 @@
 import type { HexKey } from '@open-tabletop/hex'
 import {
+  addEntry,
   SEASON_START_DAYS,
   seasonStart,
   startTrip,
@@ -17,6 +18,7 @@ import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 import { getSystem, oracle } from './systems'
 import { mapWorld } from './world'
+import { followTrip } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -112,6 +114,8 @@ function newSession(
     location,
     season,
     stats: sessionOf(play)?.stats,
+    // With the world clock running, trips start at the world's time.
+    ...(editor.map.world && { time: editor.map.world.time }),
   })
   return { ...play, rules: { system, startDay, session } }
 }
@@ -186,10 +190,14 @@ export function step(action: TravelAction): void {
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   placeParty(state.travel.location as HexKey)
   editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })
+  // The world clock follows the trip; what came due on the way goes to the journal.
+  let journaled = state
+  for (const line of followTrip(state.travel.time))
+    journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
   save({
     ...play,
     trail: [...play.trail, ...entered],
-    rules: { ...play.rules, session: state },
+    rules: { ...play.rules, session: journaled },
   })
 }
 

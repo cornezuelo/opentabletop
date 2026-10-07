@@ -12,6 +12,8 @@ export type MapChange =
   | { kind: 'play' }
   /** The map's Oracle state or roll history. */
   | { kind: 'oracle' }
+  /** The world clock (time, events, progress clocks). */
+  | { kind: 'world' }
   | { kind: 'tokens' }
   | { kind: 'regions' }
   /** Look-only settings (glyph opacity): redraw without rebuilding the grid. */

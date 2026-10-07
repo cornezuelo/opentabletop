@@ -3,6 +3,7 @@ import {
   OTD_VERSION,
   validateBundle,
   type OtdBundle,
+  type OtdClock,
   type OtdCharacter,
   type OtdHex,
   type OtdLogEntry,
@@ -11,6 +12,7 @@ import {
   type OtdPoi,
 } from '@open-tabletop/schema'
 import type { SessionState } from '@open-tabletop/session'
+import { readWorld } from '@open-tabletop/world-engine'
 import { MapFormatError } from '../model/migrations'
 import { deserializeMap } from '../model/serialize'
 import { partyToken } from '../model/tokens'
@@ -211,9 +213,31 @@ export function mapToBundle(map: HexMap): OtdBundle {
       parties: [play.party, ...((extra.parties as OtdParty[] | undefined) ?? [])],
       log: [...play.log, ...((extra.log as OtdLogEntry[] | undefined) ?? [])],
     }),
+    // The world clock: its progress clocks as OTD clocks, the rest as engine state.
+    ...(map.world && {
+      clocks: [
+        ...map.world.clocks.map((c): OtdClock => ({
+          id: c.id,
+          type: 'clock',
+          name: c.name,
+          segments: c.segments,
+          filled: c.filled,
+          ...(c.noteRef && { noteRef: c.noteRef }),
+        })),
+        ...((extra.clocks as OtdClock[] | undefined) ?? []),
+      ],
+    }),
     state: {
       ...(extra.state as Record<string, unknown> | undefined),
       ...(oracle && { oracle }),
+      ...(map.world && {
+        world: {
+          time: map.world.time,
+          events: map.world.events,
+          timeline: map.world.timeline,
+          nextId: map.world.nextId,
+        },
+      }),
     },
   } as OtdBundle
 }
@@ -373,6 +397,24 @@ export function bundleToMap(raw: unknown): HexMap {
   const oracleState = bundle.state.oracle
   const otherState = { ...bundle.state }
   delete otherState.oracle
+  // So is the world clock, with the bundle's clocks as its progress clocks.
+  const world =
+    bundle.state.world !== undefined
+      ? readWorld({
+          ...(bundle.state.world as object),
+          clocks: bundle.clocks.map((c) => ({
+            id: c.id,
+            name: c.name ?? '',
+            segments: c.segments,
+            filled: c.filled,
+            ...(c.noteRef && { noteRef: c.noteRef }),
+          })),
+        })
+      : undefined
+  if (world) {
+    delete otherState.world
+    extraBundle.clocks = []
+  }
   extraBundle.state = otherState
   // Our tokens are rebuilt from the map when saving.
   extraBundle.characters = otherCharacters
@@ -410,6 +452,7 @@ export function bundleToMap(raw: unknown): HexMap {
     ...(version >= 2 && { tokens }),
     layers: ext.layers,
     ...(play && { play }),
+    ...(world && { world }),
     ...((oracleState || ext.oracleHistory) && {
       oracle: { state: oracleState ?? {}, history: ext.oracleHistory ?? [] },
     }),

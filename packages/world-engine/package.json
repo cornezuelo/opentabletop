@@ -1,0 +1,17 @@
+{
+  "name": "@open-tabletop/world-engine",
+  "version": "0.0.0",
+  "description": "The world clock: game time, scheduled events, holidays and moons, and progress clocks.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/time": "*"
+  }
+}

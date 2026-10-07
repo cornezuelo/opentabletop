@@ -36,6 +36,12 @@ describe('example maps', () => {
       'The Hollow Hills',
     ])
     expect(Object.values(map.hexes).filter((h) => h.region).length).toBe(224)
+    // The world clock is running: events to come and progress clocks.
+    expect(map.world?.events.map((e) => e.name)).toContain('The Iron Clans march on Fort Keld')
+    expect(map.world?.clocks.map((c) => `${c.name} ${c.filled}/${c.segments}`)).toEqual([
+      'The Greywood Wyrm wakes 1/6',
+      'Fort Keld’s unpaid garrison mutinies 3/8',
+    ])
     // Region styles: the map's, and two regions with their own.
     expect(map.regions.map((r) => r.style)).toEqual([
       undefined,

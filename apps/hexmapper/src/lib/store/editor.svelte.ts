@@ -61,6 +61,7 @@ class Editor {
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state<HexMap['play']>(undefined)
+  world = $state.raw<HexMap['world']>(undefined)
   tokens = $state.raw<MapToken[]>([])
   regions = $state.raw<MapRegion[]>([])
   captions = $state<HexMap['captions']>(structuredClone(this.map.captions))
@@ -91,9 +92,9 @@ class Editor {
       tool === 'play' ? (this.map.tokens.find((t) => t.kind === 'party')?.id ?? null) : token
   }
   /** What the side panel shows: the active tool and hex, or map settings and preferences. */
-  panelView = $state<'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'help' | 'layers'>(
-    'tool',
-  )
+  panelView = $state<
+    'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'help' | 'layers'
+  >('tool')
   /** The side panel is folded away (more room for the map, e.g. on a phone). */
   panelHidden = $state(false)
   terrainMode = $state<TerrainMode>('brush')
@@ -239,6 +240,12 @@ class Editor {
     if (keys.length) this.notify({ kind: 'hexes', keys })
   }
 
+  /** The world clock: saved with the map, outside the undo history (like play). */
+  setWorld(world: HexMap['world']): void {
+    this.map.world = world
+    this.notify({ kind: 'world' })
+  }
+
   /** Play state changes: saved with the map but not part of the editor's undo history. */
   setPlay(play: HexMap['play']): void {
     this.map.play = play
@@ -337,6 +344,7 @@ class Editor {
       this.scale = { ...this.map.scale }
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
+    if (change.kind === 'world' || change.kind === 'all') this.world = this.map.world
     if (change.kind === 'play' || change.kind === 'all')
       this.play = this.map.play ? structuredClone(this.map.play) : undefined
     if (change.kind === 'layers' || change.kind === 'all')

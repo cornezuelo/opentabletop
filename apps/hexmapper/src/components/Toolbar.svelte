@@ -71,6 +71,14 @@
     onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}
     ><img class="app" src={appIconUrl('oracle')} alt="" /></button
   >
+  <!-- The world clock: the campaign's date, events and progress clocks. -->
+  <button
+    class:active={editor.panelView === 'world'}
+    use:tooltip={t('actions.world')}
+    aria-label={t('actions.world')}
+    aria-pressed={editor.panelView === 'world'}
+    onclick={() => (editor.panelView = editor.panelView === 'world' ? 'tool' : 'world')}>☾</button
+  >
 
   <div class="spacer"></div>
 

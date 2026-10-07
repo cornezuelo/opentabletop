@@ -10,6 +10,7 @@
     locale,
     season = $bindable('spring'),
     onrestart,
+    startNote,
   }: {
     systems: TravelSystem[]
     /** Id of the current system. */
@@ -17,6 +18,8 @@
     locale: string
     season?: Season
     onrestart: (system: string, season: Season) => void
+    /** Said instead of the season choice when the host decides when trips start. */
+    startNote?: string
   } = $props()
 
   const t = translator(() => locale)
@@ -39,14 +42,18 @@
     </select>
   </label>
   <div class="row">
-    <label class="field">
-      <span>{t('startSeason')}</span>
-      <select bind:value={season}>
-        {#each seasons as s (s)}
-          <option value={s}>{idText(t, `seasons.${s}`, s)}</option>
-        {/each}
-      </select>
-    </label>
+    {#if startNote}
+      <p class="note">{startNote}</p>
+    {:else}
+      <label class="field">
+        <span>{t('startSeason')}</span>
+        <select bind:value={season}>
+          {#each seasons as s (s)}
+            <option value={s}>{idText(t, `seasons.${s}`, s)}</option>
+          {/each}
+        </select>
+      </label>
+    {/if}
     <button use:tooltip={t('tips.newTrip')} onclick={() => onrestart(system, season)}
       >{t('newTrip')}</button
     >
@@ -61,6 +68,13 @@
 </div>
 
 <style>
+  .note {
+    flex: 1;
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
   .group {
     display: flex;
     flex-direction: column;

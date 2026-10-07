@@ -35,6 +35,7 @@
     "@open-tabletop/travel-engine": "*",
     "@open-tabletop/travel-ui": "*",
     "@open-tabletop/ui-kit": "*",
+    "@open-tabletop/world-engine": "*",
     "dompurify": "^3.4.16",
     "jspdf": "^4.2.1",
     "marked": "^18.1.0",

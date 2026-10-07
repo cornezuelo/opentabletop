@@ -108,6 +108,7 @@
     system={play.rules?.system ?? 'generic'}
     locale={getLocale()}
     bind:season={newSeason}
+    startNote={editor.world ? t('play.worldStart') : undefined}
     onrestart={async (system, season) =>
       (!session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
       restartRules(system, season)}

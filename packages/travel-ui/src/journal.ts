@@ -54,6 +54,10 @@ export function entryText(
       return t(`stop.${String(d.reason)}` as TravelUiKey)
     case 'NOTE':
       return e.text ?? ''
+    case 'WORLD_EVENT':
+      return t('journal.worldEvent', { name: e.text ?? '' })
+    case 'HOLIDAY':
+      return t('journal.holiday', { name: e.text ?? '' })
     default:
       return idText(t, `journal.${e.code}`, e.code)
   }

@@ -31,6 +31,7 @@ packages/                   # libraries, scope @open-tabletop/*
   schema/                   # ✅ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
   oracle-engine/            # ✅ MVP: tables, oracles, generators, decks; packs; locales; history
   travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
+  world-engine/             # ✅ the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
   weather-engine/           # ⏳ weather with inertia (Markov / hex flower), part of the world clock; decoupled from travel
   session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal, travel systems from packs, trips, map discovery
   storage/                  # ✅ browser storage adapter: the map library (IndexedDB), backups of everything
@@ -158,9 +159,9 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 
 **Phase B: the living world**
 
-- **Calendar / world clock** (grow `time` into an engine): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns.
+- ✅ **Calendar / world clock** (calendars as data in `time`, `kind: calendar` in packs; `world-engine`; the Hexmapper's World panel, map format v10): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns.
 - **Weather with inertia** (`weather-engine`, part of the world clock): today's weather follows from yesterday's, by a Markov table or a hex flower (2d6 moves on a small map of weathers) per climate and season, defined in packs; travel keeps reading `weather` as today.
-- **Progress clocks** (the OTD `Clock` entity): segments filled by tables, faction turns, the calendar or by hand ("The Wyrm wakes: 3/6").
+- ✅ **Progress clocks** (the OTD `Clock` entity; in `world-engine`, filled by hand for now): segments filled by tables, faction turns, the calendar or by hand ("The Wyrm wakes: 3/6").
 - **Faction / world turn engine** (`faction-engine`): factions with goal, resources, strength and territory (hexes); "Advance world turn" resolves each faction's action on pack tables (expand, recruit, events) and emits `FACTION_ACTION_RESOLVED`, `TERRITORY_CHANGED`, `RESOURCE_CHANGED`, `WORLD_EVENT_CREATED`, `RUMOUR_CREATED`. No lore: factions point to notes with `noteRef` (e.g. `Kal-Arath/Factions/Iron Clans`). With **reputation**: how each faction regards the party, changed by table results and read by reactions and encounters.
 
 **Phase C: characters and the campaign record**
