@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { contextSuggestions, setSuggestions } from '@open-tabletop/session'
+  import { workspace } from '../../lib/packs/workspace.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
@@ -99,6 +101,10 @@
 
   const advanced = (e: RawEntry) =>
     e.when !== undefined || e.set !== undefined || e.once || e.maxOccurrences !== undefined
+
+  /** What conditions can read and entries can set, from every loaded pack. */
+  const conditionHints = $derived(contextSuggestions(workspace.registry))
+  const setHints = $derived(setSuggestions(workspace.registry))
 
   /** Rows showing their conditions, values and limits. */
   let open = $state<Record<number, boolean>>({})
@@ -247,23 +253,23 @@
             <div class="more-grid">
               <label>
                 <span>{t('edit.when')}<InfoTip text={t('edit.whenHelp')} /></span>
-                <input
-                  type="text"
+                <SuggestInput
                   value={flowText(entry.when).replace(/^\{\s*|\s*\}$/g, '')}
+                  suggestions={conditionHints}
                   placeholder="terrain: forest"
-                  aria-invalid={invalid[`${i}.when`] || undefined}
-                  onchange={(e) => editFlow(i, 'when', e.currentTarget.value)}
+                  invalid={invalid[`${i}.when`]}
+                  onchange={(text) => editFlow(i, 'when', text)}
                 />
                 {#if invalid[`${i}.when`]}<small>{t('edit.notAMap')}</small>{/if}
               </label>
               <label>
                 <span>{t('edit.set')}<InfoTip text={t('edit.setHelp')} /></span>
-                <input
-                  type="text"
+                <SuggestInput
                   value={flowText(entry.set).replace(/^\{\s*|\s*\}$/g, '')}
+                  suggestions={setHints}
                   placeholder="weather: storm"
-                  aria-invalid={invalid[`${i}.set`] || undefined}
-                  onchange={(e) => editFlow(i, 'set', e.currentTarget.value)}
+                  invalid={invalid[`${i}.set`]}
+                  onchange={(text) => editFlow(i, 'set', text)}
                 />
                 {#if invalid[`${i}.set`]}<small>{t('edit.notAMap')}</small>{/if}
               </label>
@@ -402,8 +408,9 @@
     align-items: center;
   }
 
-  .more-grid input[aria-invalid] {
-    border-color: #c0605a;
+
+  .more-grid input[type='checkbox'] {
+    width: auto;
   }
 
   .more-grid .max {

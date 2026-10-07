@@ -72,6 +72,7 @@
           help: t('rules.consumesHelp'),
           type: 'flow',
           placeholder: resources[1] ? `${resources[1]}: 1` : 'fodder: 1',
+          hints: Object.fromEntries(resources.map((r) => [r, []])),
         },
         {
           field: 'allowedTerrains',
@@ -79,6 +80,7 @@
           help: t('rules.allowedTerrainsHelp'),
           type: 'list',
           placeholder: t('rules.anyTerrain'),
+          choices: ['water', ...PALETTE, ...Object.keys(doc.rules.terrains ?? {})],
         },
       ]}
     />

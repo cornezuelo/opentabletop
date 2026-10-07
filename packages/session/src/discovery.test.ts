@@ -157,3 +157,17 @@ describe('discovery', () => {
     expect(off.discovered).toEqual({})
   })
 })
+
+describe('context suggestions', () => {
+  it('gather what tables and checks can read, with known values', async () => {
+    const { contextSuggestions } = await import('./suggestions')
+    const s = contextSuggestions(registry, { danger: ['1', '2'] })
+    expect(s.terrain).toEqual(expect.arrayContaining(['forest', 'plains', 'peaks']))
+    expect(s.season).toEqual(['autumn', 'spring', 'summer', 'winter'])
+    expect(s.mode).toContain('walk')
+    expect(s.hex).toEqual(expect.arrayContaining(['4']))
+    expect(s.danger).toEqual(['1', '2'])
+    expect(s).toHaveProperty(['party.fatigue'])
+    expect(s).toHaveProperty(['poi'])
+  })
+})

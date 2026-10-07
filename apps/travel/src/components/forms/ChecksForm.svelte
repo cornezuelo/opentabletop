@@ -1,6 +1,8 @@
 <script lang="ts">
   import { idText, translator } from '@open-tabletop/travel-ui'
-  import { confirmAction, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { contextSuggestions } from '@open-tabletop/session'
+  import { library } from '../../lib/packs.svelte'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
@@ -36,6 +38,8 @@
     else doc.edit('travel-rules', ['checks', i, key], value)
   }
   const tt = translator(getLocale)
+  /** What check conditions and tables can read, for suggestions while typing. */
+  const hints = $derived(contextSuggestions(library.registry))
   const eventName = (event: string) =>
     idText(tt, `events.${event}`, event.replace(/_CHECK_REQUIRED$/, '').toLowerCase())
 
@@ -208,24 +212,22 @@
         <div class="row">
           <label>
             <span>{t('checks.when')}<InfoTip text={t('checks.conditionHelp')} /></span>
-            <input
-              type="text"
+            <SuggestInput
               placeholder={t('checks.always')}
               value={bare(check.when)}
+              suggestions={hints}
               {disabled}
-              onchange={(e) =>
-                setFlow(['checks', i, 'when'], 'travel-rules', e.currentTarget.value)}
+              onchange={(text) => setFlow(['checks', i, 'when'], 'travel-rules', text)}
             />
           </label>
           <label>
             <span>{t('checks.unless')}<InfoTip text={t('checks.conditionHelp')} /></span>
-            <input
-              type="text"
+            <SuggestInput
               placeholder={t('checks.never')}
               value={bare(check.unless)}
+              suggestions={hints}
               {disabled}
-              onchange={(e) =>
-                setFlow(['checks', i, 'unless'], 'travel-rules', e.currentTarget.value)}
+              onchange={(text) => setFlow(['checks', i, 'unless'], 'travel-rules', text)}
             />
           </label>
         </div>
@@ -245,13 +247,12 @@
           {#if binding}
             <label>
               <span>{t('checks.context')}<InfoTip text={t('checks.contextHelp')} /></span>
-              <input
-                type="text"
+              <SuggestInput
                 placeholder="timeOfDay: night"
                 value={bare(binding.context)}
+                suggestions={hints}
                 {disabled}
-                onchange={(e) =>
-                  setFlow(['on', event, 'context'], 'bindings', e.currentTarget.value)}
+                onchange={(text) => setFlow(['on', event, 'context'], 'bindings', text)}
               />
             </label>
           {/if}

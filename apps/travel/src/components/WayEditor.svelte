@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { TravelSystem } from '@open-tabletop/session'
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { contextSuggestions } from '@open-tabletop/session'
+  import { library } from '../lib/packs.svelte'
   import { t } from '../lib/i18n'
   import { edgeChoices, edgeName, terrainChoices, terrainName } from '../lib/terrains'
   import { trip } from '../lib/trip.svelte'
@@ -12,6 +14,8 @@
   const here = $derived(trip.location)
   const terrains = $derived(terrainChoices(system))
   const edges = $derived(edgeChoices(system))
+  /** Tags the packs' tables and checks look for (landmark, toll, haunted…). */
+  const knownTags = $derived(contextSuggestions(library.registry).tags ?? [])
 </script>
 
 <div class="way">
@@ -45,14 +49,14 @@
         >
           {#each terrains as id (id)}<option value={id}>{terrainName(id)}</option>{/each}
         </select>
-        <input
-          type="text"
-          aria-label={t('play.tags')}
+        <SuggestInput
+          label={t('play.tags')}
           placeholder={t('play.tagsPlaceholder')}
           value={hex.tags.join(', ')}
+          list={knownTags}
           disabled={i < here}
-          onchange={(e) => {
-            const tags = e.currentTarget.value
+          onchange={(text) => {
+            const tags = text
               .split(',')
               .map((s) => s.trim())
               .filter(Boolean)

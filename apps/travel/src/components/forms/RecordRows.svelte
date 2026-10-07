@@ -9,11 +9,14 @@
     /** For checks, the value meant when the field is missing. */
     default?: boolean
     min?: number
+    /** Known values: for a list, its choices; for flow, the keys (each with its values). */
+    choices?: readonly string[]
+    hints?: Record<string, readonly string[]>
   }
 </script>
 
 <script lang="ts">
-  import { confirmAction, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
@@ -72,7 +75,12 @@
       const on = input.checked
       return doc.edit(kind, path, on === column.default ? undefined : on)
     }
-    const text = input.value.trim()
+    setText(id, column, input.value)
+  }
+
+  function setText(id: string, column: Column, raw: string) {
+    const path = [...at, id, column.field]
+    const text = raw.trim()
     if (column.type === 'number')
       return doc.edit(kind, path, text === '' ? undefined : Number(text))
     if (column.type === 'list') {
@@ -138,6 +146,16 @@
                 checked={(row?.[c.field] as boolean | undefined) ?? c.default ?? false}
                 {disabled}
                 onchange={(e) => set(id, c, e.currentTarget)}
+              />
+            {:else if (c.type === 'list' && c.choices) || (c.type === 'flow' && c.hints)}
+              <SuggestInput
+                label={c.label}
+                placeholder={c.placeholder}
+                value={shown(row, c)}
+                list={c.type === 'list' ? c.choices : undefined}
+                suggestions={c.hints}
+                {disabled}
+                onchange={(text) => setText(id, c, text)}
               />
             {:else}
               <input
