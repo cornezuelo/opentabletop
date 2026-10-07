@@ -1,4 +1,4 @@
-import type { Messages } from '@open-tabletop/ui-kit'
+import { vocabulary, type Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
@@ -23,7 +23,7 @@ export const es: Messages<typeof en> = {
     noResults: 'No hay coincidencias.',
     problems: '{count} problemas',
   },
-  kinds: { table: 'Tabla', oracle: 'Oráculo', generator: 'Generador', deck: 'Mazo' },
+  kinds: vocabulary.es.kinds,
   kindTips: {
     table: 'Tira los dados (o elige por peso) y busca la entrada.',
     oracle:

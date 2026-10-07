@@ -108,12 +108,12 @@ function newSession(
   system: string,
   season: Season = 'spring',
 ): PlayState {
-  // Keep stats the user already set; the system's declared defaults fill the rest.
+  // Keep stats the user already set with this system; its declared defaults fill the rest.
   const { startDay, session } = startTrip({
     system: getSystem(system),
     location,
     season,
-    stats: sessionOf(play)?.stats,
+    stats: play.rules?.system === system ? sessionOf(play)?.stats : undefined,
     // With the world clock running, trips start at the world's time.
     ...(editor.map.world && { time: editor.map.world.time }),
   })

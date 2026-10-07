@@ -110,6 +110,7 @@ export const es: Messages<typeof en> = {
     oncePerDay: 'Una vez al día',
     restFatigueHelp: '0: una pausa que no recupera nada (acampar sí).',
   },
+  kinds: vocabulary.es.kinds,
   checks: {
     title: 'Comprobaciones',
     help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla detiene el viaje y te espera.',
@@ -129,7 +130,7 @@ export const es: Messages<typeof en> = {
     never: 'nunca',
     resolve: 'Se tira en',
     resolveHelp:
-      'La tabla o generador que la resuelve. Su resultado va al diario, y sus valores set llegan al viaje.',
+      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores set y efectos llegan al viaje.',
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— nada: espérame —',

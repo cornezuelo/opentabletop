@@ -6,6 +6,8 @@ import { choicesFor, typingAt, type Suggestions } from '@open-tabletop/ui-kit'
 export interface YamlHints {
   /** Tables and generators a reference can point at (local ids and pack/id). */
   refs: readonly string[]
+  /** Everything a check can be resolved by (`resolve:`): also oracles and decks. */
+  rollable?: readonly string[]
   /** Names conditions and context can read, with their values. */
   context: Suggestions
   /** Names an entry can set, with their values. */
@@ -14,12 +16,14 @@ export interface YamlHints {
 
 /** Hints from the loaded packs; `pack` lists its own definitions first, by local id. */
 export function yamlHints(registry: Registry, pack?: string): YamlHints {
-  const defs = [...registry.definitions.values()].filter(
-    (d) => d.kind === 'table' || d.kind === 'generator',
-  )
-  const local = defs.filter((d) => d.pack === pack).map((d) => d.localId)
+  const all = [...registry.definitions.values()]
+  const ids = (defs: typeof all) => [
+    ...defs.filter((d) => d.pack === pack).map((d) => d.localId),
+    ...defs.filter((d) => d.pack !== pack).map((d) => d.id),
+  ]
   return {
-    refs: [...local, ...defs.filter((d) => d.pack !== pack).map((d) => d.id)],
+    refs: ids(all.filter((d) => d.kind === 'table' || d.kind === 'generator')),
+    rollable: ids(all),
     context: contextSuggestions(registry),
     set: setSuggestions(registry),
   }
@@ -112,7 +116,12 @@ export function completeYaml(before: string, hints: YamlHints): Completion | nul
   const pair = /([\w-]+)\s*:\s+([\w./-]*)$/.exec(before)
   if (pair) {
     const [, key, typed] = pair
-    const pool = REF_KEYS.has(key) ? hints.refs : (ENUMS[key] ?? hints.context[key] ?? [])
+    const pool =
+      key === 'resolve'
+        ? (hints.rollable ?? hints.refs)
+        : REF_KEYS.has(key)
+          ? hints.refs
+          : (ENUMS[key] ?? hints.context[key] ?? [])
     const options = filter(pool, typed)
     return options.length ? { from: before.length - typed.length, options } : null
   }

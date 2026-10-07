@@ -1,3 +1,4 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
 /** Reference dictionary: its shape defines the message keys. */
 export const en = {
   app: {
@@ -21,7 +22,7 @@ export const en = {
     noResults: 'Nothing matches.',
     problems: '{count} problems',
   },
-  kinds: { table: 'Table', oracle: 'Oracle', generator: 'Generator', deck: 'Deck' },
+  kinds: vocabulary.en.kinds,
   kindTips: {
     table: 'Roll dice (or pick by weight) and look up the entry.',
     oracle: 'A table with variants chosen by an input, like the odds of a yes/no question.',

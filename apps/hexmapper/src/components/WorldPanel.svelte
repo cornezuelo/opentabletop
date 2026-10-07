@@ -24,6 +24,8 @@
   const trip = $derived(editor.play ? sessionOf(editor.play) : null)
   const name = (text: Parameters<typeof localize>[0], id: string) =>
     localize(text, getLocale(), 'en') ?? id
+  /** A line that starts with a moon's name ("the Pale Moon is full") starts in capitals. */
+  const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 
   /** "Day 12 · 14:00 · summer", and with a calendar of its own the date, moons and feasts. */
   function when(time: GameTime) {
@@ -278,10 +280,17 @@
                   String(entry.data?.holiday),
                 )
               : entry.code === 'MOON'
-                ? t('world.moonLine', {
-                    moon: String(entry.data?.moon),
-                    phase: t(`world.moon.${entry.data?.phase}` as MessageKey),
-                  })
+                ? capitalize(
+                    t('world.moonLine', {
+                      moon: name(
+                        (
+                          calendar as { def?: { moons?: { id: string; name?: never }[] } }
+                        ).def?.moons?.find((m) => m.id === entry.data?.moon)?.name,
+                        String(entry.data?.moon),
+                      ),
+                      phase: t(`world.moon.${entry.data?.phase}` as MessageKey),
+                    }),
+                  )
                 : entry.code === 'CLOCK'
                   ? `${entry.text} ${entry.data?.filled}/${entry.data?.segments}`
                   : entry.code === 'CLOCK_FILLED'

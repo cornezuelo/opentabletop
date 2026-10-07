@@ -7,7 +7,7 @@
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import type { SystemDoc } from '../../lib/systemDoc.svelte'
+  import { ROLLABLE, type SystemDoc } from '../../lib/systemDoc.svelte'
 
   /**
    * The checks of the rules, each with the table that resolves it (from the bindings):
@@ -242,8 +242,15 @@
                   {/each}
                 </optgroup>
               {/if}
-              {#each doc.targets as x (x.ref)}
-                <option value={x.ref}>{x.name} ({x.ref})</option>
+              {#each ROLLABLE as kind (kind)}
+                {@const of = doc.targets.filter((x) => x.kind === kind)}
+                {#if of.length}
+                  <optgroup label={t(`kinds.${kind}`)}>
+                    {#each of as x (x.ref)}
+                      <option value={x.ref}>{x.name} ({x.ref})</option>
+                    {/each}
+                  </optgroup>
+                {/if}
               {/each}
             </select>
           </label>

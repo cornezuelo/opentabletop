@@ -19,6 +19,8 @@ export const vocabulary = {
     },
     seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
     moonPhases: { new: 'new', waxing: 'waxing', full: 'full', waning: 'waning' },
+    /** The kinds of definition that can be rolled. */
+    kinds: { table: 'Table', oracle: 'Oracle', generator: 'Generator', deck: 'Deck' },
     pathKinds: {
       road: 'Road',
       trail: 'Trail',
@@ -84,6 +86,7 @@ export const vocabulary = {
     },
     seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
     moonPhases: { new: 'nueva', waxing: 'creciente', full: 'llena', waning: 'menguante' },
+    kinds: { table: 'Tabla', oracle: 'Oráculo', generator: 'Generador', deck: 'Mazo' },
     pathKinds: {
       road: 'Camino',
       trail: 'Sendero',

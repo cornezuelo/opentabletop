@@ -224,7 +224,8 @@ export function seasonStart(system: TravelSystem, season: Season): number {
 
 /**
  * A new trip at `location`: first travel mode of the rules, dawn of the season's first
- * day, 6 of each resource, and the system's declared stats (values in `stats` win).
+ * day, 6 of each resource, and the system's declared stats (values in `stats` win; any
+ * stat the system doesn't declare, e.g. kept from a trip with another system, is dropped).
  */
 export function startTrip(options: {
   system: TravelSystem
@@ -247,10 +248,13 @@ export function startTrip(options: {
     time: options.time ?? calendar.at(startDay, rules.day.start),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
   })
-  const declared = Object.fromEntries(
-    Object.entries(bindings?.stats ?? {}).map(([k, v]) => [k, v.default ?? 0]),
+  const stats = Object.fromEntries(
+    Object.entries(bindings?.stats ?? {}).map(([k, v]) => [
+      k,
+      options.stats?.[k] ?? v.default ?? 0,
+    ]),
   )
-  return { startDay, session: initialSessionState(travel, { ...declared, ...options.stats }) }
+  return { startDay, session: initialSessionState(travel, stats) }
 }
 
 /**

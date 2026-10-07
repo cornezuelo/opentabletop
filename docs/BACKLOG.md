@@ -41,9 +41,9 @@ Step 3 status: 3a (effects vocabulary) and 3b (fatigue out of the engine, `day-e
 
 Bugs:
 
-- [ ] **World timeline in Spanish shows moon ids**: "ember está nueva", "pale está llena". Use the calendar's moon names (translated), not ids.
-- [ ] **Kal-Arath's Play panel shows Charisma, Survival, Morale, Navigation** (the Grey Marches' stats): stats seem to be carried over when switching system in the Hexmapper (or Travel). A trip shows only its system's stats; check, fix, and test.
-- [ ] **Travel → Checks: a ⚠ next to "Rolled on: ford"** (the Grey Marches' ford check): the table picker lists only tables and generators, so a check bound to an oracle (or a deck) looks broken. Any rollable kind can answer a check: list them all.
+- [x] **World timeline in Spanish shows moon ids**: "ember está nueva", "pale está llena". Use the calendar's moon names (translated), not ids. Done: the timeline names moons by the calendar ("La Luna Pálida está llena").
+- [x] **Kal-Arath's Play panel shows Charisma, Survival, Morale, Navigation** (the Grey Marches' stats): stats seem to be carried over when switching system in the Hexmapper (or Travel). A trip shows only its system's stats; check, fix, and test. Done: the Hexmapper kept the last trip's stats when restarting with another system; `startTrip` now keeps only the stats the new system declares, and the trip panel shows declared stats only.
+- [x] **Travel → Checks: a ⚠ next to "Rolled on: ford"** (the Grey Marches' ford check): the table picker lists only tables and generators, so a check bound to an oracle (or a deck) looks broken. Any rollable kind can answer a check: list them all. Done: the picker lists tables, oracles, generators and decks grouped by kind (kind names now in ui-kit's `vocabulary`), and the YAML editor suggests all of them after `resolve:`.
 
 Features:
 

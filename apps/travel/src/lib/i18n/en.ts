@@ -107,6 +107,7 @@ export const en = {
     actionSpeedHelp: 'Multiplies the rest of the day’s march: 0.5 halves it. Empty: no change.',
     oncePerDay: 'Once a day',
   },
+  kinds: vocabulary.en.kinds,
   checks: {
     title: 'Checks',
     help: 'What is rolled on the way, when, and on which table. A check without a table stops the trip and waits for you.',
@@ -126,7 +127,7 @@ export const en = {
     never: 'never',
     resolve: 'Rolled on',
     resolveHelp:
-      'The table or generator that resolves it. Its result goes to the journal, and its set values reach the trip.',
+      'The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its set values and effects reach the trip.',
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— nothing: wait for me —',

@@ -16,6 +16,10 @@ describe('YAML suggestions', () => {
     })
     expect(completeYaml('  resolve: ', hints)?.options).toContain('core/action')
     expect(completeYaml('onExhausted: n', hints)?.options).toEqual(['next', 'none'])
+    // A check can be resolved by anything that rolls (oracles and decks too).
+    const withRollable = { ...hints, rollable: [...hints.refs, 'ford', 'core/omens-deck'] }
+    expect(completeYaml('  resolve: fo', withRollable)?.options).toEqual(['ford'])
+    expect(completeYaml('  table: fo', withRollable)).toBeNull()
   })
 
   it('complete keys and values inside one-line conditions and values', () => {

@@ -22,6 +22,9 @@ export type Kind = 'travel-rules' | 'bindings'
  * that keep the rest of their file (comments, order) as it was. The bindings are usually
  * in the rules' file; when the pack keeps them in another one, that's where they're edited.
  */
+/** The kinds of definition that can be rolled, in the order the pickers list them. */
+export const ROLLABLE = ['table', 'oracle', 'generator', 'deck'] as const
+
 export function systemDoc(source: () => { root: string; path: string }) {
   const root = $derived(source().root)
   const path = $derived(source().path)
@@ -37,14 +40,18 @@ export function systemDoc(source: () => { root: string; path: string }) {
   const rules = $derived(readDefinition(content, '@travel-rules') ?? {})
   const bindings = $derived(readDefinition(read('bindings'), '@bindings'))
   const editable = $derived(library.isEditable(root))
-  /** Tables and generators a check can be resolved by: this pack's first, by local id. */
+  /** Whatever can be rolled (tables, oracles, generators, decks) can resolve a check: this pack's first, by local id. */
   const targets = $derived(
     [...library.registry.definitions.values()]
-      .filter((d) => d.kind === 'table' || d.kind === 'generator')
+      .filter((d) => (ROLLABLE as readonly string[]).includes(d.kind))
       .sort(
         (a, b) => Number(a.pack !== packId) - Number(b.pack !== packId) || a.id.localeCompare(b.id),
       )
-      .map((d) => ({ ref: d.pack === packId ? d.localId : d.id, name: texts.displayName(d) })),
+      .map((d) => ({
+        ref: d.pack === packId ? d.localId : d.id,
+        name: texts.displayName(d),
+        kind: d.kind as (typeof ROLLABLE)[number],
+      })),
   )
 
   /** Weather models a check can be resolved by (`kind: weather`): this pack's by local id. */

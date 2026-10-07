@@ -70,6 +70,14 @@ describe('trips', () => {
     expect(startTrip({ system: sys, location: 'a', stats: { luck: 5 } }).session.stats).toEqual({
       luck: 5,
     })
+    // Stats of another system (kept when switching) don't come along.
+    const kept = { luck: 4, survival: 2, morale: 3 }
+    expect(startTrip({ system: sys, location: 'a', stats: kept }).session.stats).toEqual({
+      luck: 4,
+    })
+    expect(startTrip({ system: GENERIC_SYSTEM, location: 'a', stats: kept }).session.stats).toEqual(
+      {},
+    )
     expect(startTrip({ system: GENERIC_SYSTEM, location: 'a' }).session.travel.mode).toBe('foot')
   })
 

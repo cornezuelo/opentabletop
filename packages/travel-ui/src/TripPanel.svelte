@@ -100,13 +100,8 @@
     }
   })
 
-  /** The system's stats, then any a table added (`set: { stats: { morale: -1 } }`). */
-  const stats = $derived<[string, StatDefinition][]>([
-    ...Object.entries(system.bindings?.stats ?? {}),
-    ...Object.keys(session.stats)
-      .filter((key) => !system.bindings?.stats?.[key])
-      .map((key): [string, StatDefinition] => [key, {}]),
-  ])
+  /** The system's declared stats only: nothing it doesn't declare is shown. */
+  const stats = $derived<[string, StatDefinition][]>(Object.entries(system.bindings?.stats ?? {}))
   const actions = $derived(availableActions(system.rules))
   const restLength = $derived.by(() => {
     const minutes = actions.rest?.minutes ?? 0
