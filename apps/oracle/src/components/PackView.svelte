@@ -43,6 +43,10 @@
       .filter((p) => p !== MANIFEST_FILE && !p.startsWith('locales/')),
   )
   const translations = $derived(pack ? overlayLocales(pack) : [])
+  /** Files of the pack itself; translation files are listed under their language. */
+  const ownFiles = $derived((pack?.files ?? []).filter((f) => !f.path.startsWith('locales/')))
+  const filesOf = (locale: string) =>
+    (pack?.files ?? []).filter((f) => f.path.startsWith(`locales/${locale}/`))
 
   let newFileName = $state('')
   let newLocale = $state('')
@@ -94,6 +98,31 @@
     go({ name: 'file', root, path, line: line ?? locate(workspace.readFile(root, path) ?? '', at) })
   }
 </script>
+
+{#snippet fileList(files: { path: string }[], label: (path: string) => string)}
+  <ul class="files">
+    {#each files as f (f.path)}
+      <li>
+        <button class="link" onclick={() => go({ name: 'file', root, path: f.path })}
+          >{label(f.path)}</button
+        >
+        {#if editable && f.path !== MANIFEST_FILE}
+          <button class="icon" use:tooltip={t('pack.rename')} onclick={() => rename(f.path)}
+            >✎</button
+          >
+          <button
+            class="icon"
+            use:tooltip={t('pack.deleteFile')}
+            onclick={async () => {
+              if (await confirmAction(t('pack.confirmDeleteFile', { file: f.path })))
+                workspace.deleteFile(root, f.path)
+            }}>×</button
+          >
+        {/if}
+      </li>
+    {/each}
+  </ul>
+{/snippet}
 
 {#if pack}
   <article class="pack">
@@ -178,28 +207,8 @@
 
     <section>
       <h2>{t('pack.files')}</h2>
-      <ul class="files">
-        {#each pack.files as f (f.path)}
-          <li>
-            <button class="link" onclick={() => go({ name: 'file', root, path: f.path })}
-              >{f.path}</button
-            >
-            {#if editable && f.path !== MANIFEST_FILE}
-              <button class="icon" use:tooltip={t('pack.rename')} onclick={() => rename(f.path)}
-                >✎</button
-              >
-              <button
-                class="icon"
-                use:tooltip={t('pack.deleteFile')}
-                onclick={async () => {
-                  if (await confirmAction(t('pack.confirmDeleteFile', { file: f.path })))
-                    workspace.deleteFile(root, f.path)
-                }}>×</button
-              >
-            {/if}
-          </li>
-        {/each}
-      </ul>
+
+      {@render fileList(ownFiles, (path) => path)}
       {#if editable}
         <form
           class="inline-form"
@@ -216,9 +225,12 @@
 
     <section>
       <h2>{t('pack.translations')}</h2>
-      <p class="help">
-        {translations.filter((l) => l !== manifest.locale).join(', ') || t('pack.noTranslations')}
-      </p>
+      {#each translations.filter((l) => l !== manifest.locale) as locale (locale)}
+        <h3>{locale}</h3>
+        {@render fileList(filesOf(locale), (path) => path.slice(`locales/${locale}/`.length))}
+      {:else}
+        <p class="help">{t('pack.noTranslations')}</p>
+      {/each}
       {#if editable}
         <form
           class="inline-form"

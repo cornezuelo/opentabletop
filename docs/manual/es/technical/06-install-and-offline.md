@@ -10,7 +10,7 @@ Cada aplicación se instala por separado (Hexmapper, Oracle, Travel, Manual). La
 
 ## Sin conexión
 
-La primera visita guarda una copia de la aplicación en el navegador. A partir de ahí se abre y funciona sin conexión: mapas, packs, viajes y tiradas viven en el navegador de todos modos. Cuando hay una versión nueva, se descarga en segundo plano y la aplicación pregunta: **Recargar ahora** pasa a ella (tus mapas, packs y viajes se conservan) y **Más tarde** la deja para la próxima vez que abras la aplicación. Sin esa pregunta seguirías viendo la copia antigua hasta cerrar todas las pestañas de la aplicación, aunque recargues.
+La primera visita guarda una copia de la aplicación en el navegador. A partir de ahí se abre y funciona sin conexión: mapas, packs, viajes y tiradas viven en el navegador de todos modos. Cuando hay una versión nueva, se descarga en segundo plano y la aplicación pregunta: **Recargar ahora** pasa a ella (tus mapas, packs y viajes se conservan) y **Más tarde** la deja para la próxima vez que abras la aplicación (no vuelve a preguntar hasta que reabras el navegador; cada aplicación tiene su propia copia, así que tras una actualización pregunta una vez cada una). Sin esa pregunta seguirías viendo la copia antigua hasta cerrar todas las pestañas de la aplicación, aunque recargues.
 
 ## Tus datos siguen donde estaban
 

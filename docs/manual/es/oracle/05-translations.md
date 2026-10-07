@@ -11,7 +11,7 @@ Las entradas necesitan id para traducirse. Se pueden traducir nombres, descripci
 
 ## Los ficheros
 
-Las traducciones están en `locales/<idioma>/` junto al fichero que traducen, por id de definición y de entrada:
+Las traducciones están en `locales/<idioma>/` junto al fichero que traducen, por id de definición y de entrada. La página del pack las muestra en **Traducciones**, agrupadas por idioma (sus propios ficheros están en **Ficheros**):
 
 ```yaml
 # locales/es/oracles.yaml

@@ -11,7 +11,7 @@ Entries need ids to be translated. Names, descriptions, results, generator templ
 
 ## The files
 
-Translations live in `locales/<language>/` next to the file they translate, keyed by definition and entry id:
+Translations live in `locales/<language>/` next to the file they translate, keyed by definition and entry id. The pack's page lists them under **Translations**, one group per language (its own files are under **Files**):
 
 ```yaml
 # locales/es/oracles.yaml

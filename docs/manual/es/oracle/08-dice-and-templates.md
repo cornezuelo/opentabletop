@@ -20,6 +20,21 @@ Los dados van en la **tirada** de una tabla u oráculo (Dados en el formulario),
 
 **Los modos de tirada** (ventaja, desventaja… lo que declare el sistema, ver [Tipos de definición](../technical/07-kinds.md#modos-de-tirada)) tiran la expresión entera varias veces y se quedan con el total más alto, el más bajo o el del medio. La tarjeta del resultado muestra cada dado, con los descartados tachados.
 
+## Sin dados: pesos
+
+Una tabla sin dados (con **Dados** vacío, sin `roll:` en YAML) elige una entrada por **peso** en vez de por rango: cada entrada tiene un `weight` (1 si no dice nada), y su probabilidad es su peso entre la suma de todos los pesos. Los pesos son relativos: solo importa cómo se comparan entre sí.
+
+```yaml
+kind: table
+id: npc-roles
+entries:
+  - { id: pedlar, weight: 2, result: buhonero } # 2 de 6: una vez de cada tres
+  - { id: pilgrim, weight: 3, result: peregrino } # 3 de 6: la mitad de las veces
+  - { id: witch, weight: 1, result: bruja } # 1 de 6
+```
+
+Usa pesos cuando ningún dado da la probabilidad que quieres, o para hacer más raros algunos resultados sin renumerar los rangos. Sin ningún peso, todas las entradas son igual de probables (las _Ruinas_ de las Marcas Grises). Las entradas que una condición (`when`) deja fuera no cuentan, así que las demás se reparten su probabilidad. Una tabla usa dados y rangos o pesos, no las dos cosas; los modos de tirada necesitan dados. En las Marcas Grises, _Oficios_ y _Verano en las Marcas_ usan pesos.
+
 ## Plantillas en los textos
 
 Los textos (resultados, plantillas de generador, textos de carta) pueden incluir `{{…}}`:

@@ -20,6 +20,21 @@ Dice go in a table's or oracle's **roll** (Dice in the form), in generator field
 
 **Roll modes** (advantage, disadvantage… whatever the system declares, see [Kinds of definition](../technical/07-kinds.md#roll-modes)) roll the whole expression several times and keep the highest, lowest or middle total. The result card shows every die, with discarded ones crossed out.
 
+## Without dice: weights
+
+A table with no dice (its **Dice** left empty, no `roll:` in YAML) picks an entry by **weight** instead of by range: each entry has a `weight` (1 if it says none), and its chance is its weight out of the sum of all the weights. Weights are relative: only how they compare matters.
+
+```yaml
+kind: table
+id: npc-roles
+entries:
+  - { id: pedlar, weight: 2, result: pedlar } # 2 of 6: one time in three
+  - { id: pilgrim, weight: 3, result: pilgrim } # 3 of 6: half the time
+  - { id: witch, weight: 1, result: hedge-witch } # 1 of 6
+```
+
+Use weights when no die fits the odds you want, or to make some results rarer without renumbering ranges. With no weights at all, every entry is equally likely (the Grey Marches' _Ruins_). Entries that a condition (`when`) leaves out don't count, so the others share their chance. A table uses either dice and ranges or weights, not both; roll modes need dice. In the Grey Marches, _Roles_ and _Summer in the Marches_ use weights.
+
 ## Templates in texts
 
 Texts (results, generator templates, card texts) can include `{{…}}`:

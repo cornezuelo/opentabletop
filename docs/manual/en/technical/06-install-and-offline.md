@@ -10,7 +10,7 @@ Each app installs on its own (Hexmapper, Oracle, Travel, Manual). Installed apps
 
 ## Offline
 
-The first visit keeps a copy of the app in the browser. From then on it opens and works with no connection: maps, packs, trips and rolls all live in the browser anyway. When there is a new version, it is fetched in the background and the app asks: **Reload now** switches to it (your maps, packs and trips are kept), **Later** leaves it for the next time you open the app. Without that question you would keep seeing the old copy until every tab of the app is closed, even after reloading.
+The first visit keeps a copy of the app in the browser. From then on it opens and works with no connection: maps, packs, trips and rolls all live in the browser anyway. When there is a new version, it is fetched in the background and the app asks: **Reload now** switches to it (your maps, packs and trips are kept), **Later** leaves it for the next time you open the app (it doesn't ask again until you reopen the browser; each app has its own copy, so after an update each one asks once). Without that question you would keep seeing the old copy until every tab of the app is closed, even after reloading.
 
 ## Your data stays where it was
 
