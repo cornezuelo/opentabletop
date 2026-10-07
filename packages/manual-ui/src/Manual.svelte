@@ -154,8 +154,13 @@
     overflow: auto;
   }
 
+  /*
+   * The whole area scrolls (its bar at the window's edge), and the text keeps a readable
+   * line length (about 100 characters).
+   */
   main :global(.page) {
-    max-width: 760px;
+    max-width: 900px;
+    overflow: visible;
   }
 
   @media (max-width: 760px) {
