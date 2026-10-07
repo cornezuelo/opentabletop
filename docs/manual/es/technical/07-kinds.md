@@ -33,7 +33,7 @@ entries:
   - { id: storm, range: 4-6, result: Tormenta, table: storm-damage }
 ```
 
-Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` (una condición), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión), `effects` (cambios en los valores del grupo) y `pause` (detener el viaje cuando sale). La tabla puede tener además `clamp`, `onExhausted`, `modes`, `modeWhen` y `modeUnless`. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../oracle/06-yaml.md).
+Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` / `unless` (condiciones), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión), `effects` (cambios en los valores del grupo) y `pause` (detener el viaje cuando sale). La tabla puede tener además `clamp`, `onExhausted`, `modes`, `modeWhen` y `modeUnless`. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../oracle/06-yaml.md).
 
 **Qué ven otras tablas:** una tabla tirada desde otra (`table:`) da su texto como `{{result}}` y sus valores `set` al viaje y a las comprobaciones siguientes del día (mira [Qué ven las tablas](04-what-tables-see.md)).
 
@@ -55,7 +55,7 @@ variants:
 
 ## Generadores
 
-Campos que se tiran en orden (cada uno ve los anteriores), unidos por una plantilla (`template`). Un campo es una `table`, un `generator`, dados (`roll`) o un valor fijo (`value`), y puede tener `when` y su propio `context`.
+Campos que se tiran en orden (cada uno ve los anteriores), unidos por una plantilla (`template`). Un campo es una `table`, un `generator`, dados (`roll`) o un valor fijo (`value`), y puede tener `when` / `unless` (solo se tira entonces; si no, queda vacío) y su propio `context`.
 
 ```yaml
 kind: generator
@@ -101,7 +101,7 @@ Cuando se aplican varios (uno elegido a mano más otros solos), los que se anula
 
 ## Reglas de viaje
 
-Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades, el agua, los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), qué hace el grupo al anochecer si espera (`day.night`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel`, `camp`, `rest`, el id de una acción o `mode.<id>`), las **acciones** del grupo (todas iguales: acampar, descansar, buscar comida…: `when` / `unless`, `oncePerDay`, `on:` para las que hace el propio sistema en un momento o tras otra acción, y sus pasos, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
+Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades y si se puede entrar (`passable`: `false`, o `{ when, unless }` para un paso cerrado en invierno o un lago que se cruza sobre el hielo), el agua (lo mismo), los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), qué hace el grupo al anochecer si espera (`day.night`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel`, el id de una de sus acciones (camp, rest, forage…) o `mode.<id>`), las **acciones** del grupo (todas iguales: acampar, descansar, buscar comida…: `when` / `unless`, `oncePerDay`, `on:` para las que hace el propio sistema en un momento o tras otra acción, y sus pasos, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
 
 **Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 

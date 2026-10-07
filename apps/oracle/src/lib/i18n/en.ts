@@ -86,7 +86,8 @@ export const en = {
     more: 'Conditions, values and limits',
     when: 'Only if',
     whenHelp:
-      'The entry can only come up when the context matches, as key: value pairs: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Empty: always.',
+      'The entry can only come up when the context matches, as key: value pairs: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Unless: it can’t come up when this matches, e.g. edges: road. Empty: always.',
+    unless: 'Unless',
     set: 'Sets',
     setHelp:
       'Values the entry gives when it comes up, as key: value pairs: weather: storm, lost: true, count: "{{2d6}}". Later tables, the template and the trip read them.',
@@ -145,7 +146,12 @@ export const en = {
     fieldSource: 'From',
     fieldValue: 'Table, dice or value',
     sources: { table: 'Table', generator: 'Generator', roll: 'Dice', value: 'Fixed value' },
-    fieldAdvanced: 'Has conditions or context: edit them in the file.',
+    fieldMore: 'Conditions and context',
+    fieldWhenHelp:
+      'Only if: the field is rolled only when this matches what the generator sees (its inputs, earlier fields, the map or trip), e.g. season: winter; otherwise it stays empty. Unless: not when this matches. Empty: always.',
+    fieldContext: 'Context',
+    fieldContextHelp:
+      'Values given to the table or generator this field rolls, as key: value pairs, e.g. danger: 3 or terrain: "{{terrain}}".',
     fieldExists: 'There is already a field "{field}".',
     addField: 'Add field',
     reshuffle: 'Reshuffle',

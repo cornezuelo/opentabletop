@@ -119,6 +119,45 @@ describe('routes', () => {
     expect(engine.plan(start(), '6,6')).toBeNull() // the sea is impassable
   })
 
+  it('closes and opens terrains on a condition (passable: { when, unless })', () => {
+    const base = rules!
+    const season = defaultCalendar.describe(defaultCalendar.at(1, '06:00')).season
+    const { rules: seasonal, errors } = parseTravelRules({
+      ...base,
+      terrains: {
+        ...base.terrains,
+        // The pass closes in a blizzard and in this season; the sea is crossed only frozen.
+        mountains: {
+          multiplier: 0.25,
+          passable: { unless: { any: [{ weather: 'blizzard' }, { season: 'nope' }] } },
+        },
+        sea: { passable: { when: { frozen: true } } },
+      },
+      values: { frozen: { lasts: 'day' } },
+    })
+    expect(errors).toEqual([])
+    const e = createTravelEngine({ world, rules: seasonal! })
+    expect(e.stepMinutes(start('2,2'), '2,2', '3,2')).toBe(1920)
+    expect(e.stepMinutes({ ...start('2,2'), weather: 'blizzard' }, '2,2', '3,2')).toBe(Infinity)
+    expect(e.stepMinutes(start('6,5'), '6,5', '6,6')).toBe(Infinity)
+    expect(e.stepMinutes({ ...start('6,5'), today: { frozen: true } }, '6,5', '6,6')).toBe(480)
+    // The calendar is seen too.
+    const closed = parseTravelRules({
+      ...base,
+      terrains: { ...base.terrains, mountains: { passable: { unless: { season } } } },
+    }).rules!
+    expect(createTravelEngine({ world, rules: closed }).plan(start('2,2'), '4,2')).not.toContain(
+      '3,2',
+    )
+    // A wrong condition is a problem of the rules.
+    expect(
+      parseTravelRules({
+        ...base,
+        terrains: { sea: { passable: { when: { depth: { gte: 'x' } } } } },
+      }).errors,
+    ).toHaveLength(1)
+  })
+
   it('shortest counts steps, fastest counts time', () => {
     const shortest = engine.plan(start('2,4'), '4,4', 'shortest')!
     expect(shortest.length - 1).toBe(world.distance('2,4', '4,4'))

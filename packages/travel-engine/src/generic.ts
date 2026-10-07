@@ -49,7 +49,8 @@ export const genericTravelRules: TravelRules = {
     space: { passable: false },
     nebula: { passable: false },
     'asteroid-field': { passable: false },
-    lake: { passable: false },
+    // A lake is crossed on the ice in winter (passable as a condition), never otherwise.
+    lake: { passable: { when: { season: 'winter' } } },
     sea: { passable: false },
     'deep-sea': { passable: false },
   },

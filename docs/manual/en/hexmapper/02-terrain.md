@@ -38,7 +38,7 @@ Lava fields, space, nebulae and asteroid fields are closed to walking in the gen
 
 - **Color** and **name** (empty name = the translated default).
 - **Symbol**: the small drawing on its hexes (see below).
-- **Water**: marks the terrain as water. On the map, roads, trails and rivers stop at its shore (walls and borders cross it). It changes nothing else on the map. On a trip, water hexes follow the travel rules' **water** rule unless their terrain has its own: the generic rules and the Grey Marches make them impassable on foot, and a system can have boats that only sail water (the Grey Marches' boat crosses the Saltmere). Tables see `water: true` on those hexes.
+- **Water**: marks the terrain as water. On the map, roads, trails and rivers stop at its shore (walls and borders cross it). It changes nothing else on the map. On a trip, water hexes follow the travel rules' **water** rule unless their terrain has its own: the generic rules and the Grey Marches make them impassable on foot (except lakes in winter, crossed on the ice: a terrain can open or close on a condition), and a system can have boats that only sail water (the Grey Marches' boat crosses the Saltmere). Tables see `water: true` on those hexes.
 - Add your own terrains or delete them (hexes painted with a deleted terrain become empty).
 
 Terrain ids (`forest`, `hills`…) are what travel rules and tables read, so a table can say `when: { terrain: forest }`.

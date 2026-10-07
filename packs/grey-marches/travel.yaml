@@ -15,10 +15,18 @@ terrains:
   dense-forest: { multiplier: 0.33 }
   hills: { multiplier: 0.5 }
   mountains: { multiplier: 0.33 }
-  # Peaks: no way through on foot or horseback.
-  peaks: { passable: false }
+  # Peaks: the high passes open only in summer, and close again in snow or storm
+  # (passable as a condition on the hex entered and the moment: season, weather…).
+  peaks:
+    multiplier: 0.25
+    passable: { when: { season: summer }, unless: { weather: [snow, storm] } }
   swamp: { multiplier: 0.33 }
   marsh: { multiplier: 0.5 }
+  # Lakes freeze hard in the two coldest months of the calendar (month: …): then they're
+  # crossed on foot, slowly; the rest of the year they're water like the sea.
+  lake:
+    multiplier: 0.5
+    passable: { when: { month: [deepwinter, wolfmoon] } }
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
 water: { passable: false }
 defaultTerrain: { multiplier: 1 }

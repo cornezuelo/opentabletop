@@ -72,7 +72,11 @@ export const en = {
     multiplierHelp: '1 is normal speed, 0.5 half as fast, 2 twice as fast.',
     passable: 'Passable',
     passableHelp:
-      'Unticked: no way of travelling can enter it (routes go around), except one whose “Only through” holds there.',
+      'Unticked: no way of travelling can enter it (routes go around), except one whose “Only through” holds there. Ticked, it can still open or close on a condition (Open when, Closed when).',
+    openWhen: 'Open when',
+    closedWhen: 'Closed when',
+    passableWhenHelp:
+      'When it can be entered, as a condition on the hex entered and the moment (its terrain, tags, region, fields, the roads or rivers of the step, the way of travelling, the weather, the season and calendar, today’s values). Open when: only while it holds, e.g. a lake crossed on the ice, season: winter. Closed when: not while it holds, e.g. a mountain pass, any: [{ season: winter }, { weather: blizzard }]. Empty: always open / never closed.',
     defaultTerrain: 'Speed × for terrains not listed',
     defaultTerrainHelp: 'Used for any terrain missing above (1 if empty).',
     edges: 'Roads and rivers',
@@ -103,13 +107,13 @@ export const en = {
       'What the party can do besides marching: camp, rest and the system’s own (forage, pray…), each a button in the trip panel. Each one says when it can be taken and what it does, step by step.',
     oncePerDay: 'Once a day',
     modeWhenHelp:
-      'It can only be chosen when this holds, e.g. a boat only at the water’s edge: any: [{ water: true }, { tags: ferry }]. Empty: always. (In YAML, unless works too.)',
+      'It can only be chosen when this holds, e.g. a boat only at the water’s edge: any: [{ water: true }, { tags: ferry }]. Empty: always. Unless: it can’t be chosen while this holds.',
     values: 'Values of the day',
     valuesHelp:
       'Values this system’s tables can set for the rest of the day (set: { lost: true }), with what they block while they hold: travel, actions by id, or ways of travelling (mode.<id>). Tables read them the next day as yesterday.<id>. Without any, the older built-in lost (blocks travel) still works.',
     blocks: 'Blocks',
     blocksHelp:
-      'What can’t be done while the value holds: travel, camp, rest, an action’s id or a way of travelling as mode.<id> (mode.horse). The buttons stay visible, disabled, saying why.',
+      'What can’t be done while the value holds: travel, one of the system’s actions by its id (camp, forage…) or a way of travelling as mode.<id> (mode.horse); the box suggests what this system declares. The buttons stay visible, disabled, saying why.',
     blocksNothing: 'nothing',
   },
   actions: {

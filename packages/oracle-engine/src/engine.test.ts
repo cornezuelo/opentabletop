@@ -469,6 +469,45 @@ describe('generators', () => {
   })
 })
 
+describe('unless', () => {
+  it('keeps entries and generator fields out when its condition holds', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'u/pack.yaml', content: 'id: u\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'u/t.yaml',
+        content: `
+kind: table
+id: road
+entries:
+  - { id: bandits, result: Bandits, when: { terrain: forest }, unless: { tags: patrolled } }
+  - { id: quiet, result: Quiet, unless: { terrain: forest } }
+  - { id: bad, result: X, unless: { danger: { gte: x } } }
+---
+kind: generator
+id: night
+fields:
+  watch: { value: Wolves, unless: { tags: [lit, walled] } }
+  sky: { value: Stars, when: { timeOfDay: night }, unless: { weather: fog } }
+template: '{{watch}}/{{sky}}'
+`,
+      },
+    ])
+    expect(diagnostics.map((d) => d.at)).toEqual(['road.entries[2].unless'])
+    const engine = createOracleEngine({ registry, random: seeded('unless') })
+    const entry = (context: Record<string, unknown>) =>
+      engine.resolve('u/road', context).resolution.entry
+    for (let i = 0; i < 10; i++) {
+      expect(entry({ terrain: 'forest' })).not.toBe('quiet')
+      expect(entry({ terrain: 'forest', tags: ['patrolled'] })).not.toBe('bandits')
+      expect(entry({ terrain: 'plains' })).not.toBe('bandits')
+    }
+    const night = (context: Record<string, unknown>) =>
+      engine.resolve('u/night', context).resolution.text
+    expect(night({ timeOfDay: 'night' })).toBe('Wolves/Stars')
+    expect(night({ timeOfDay: 'night', tags: ['walled'], weather: 'fog' })).toBe('/')
+  })
+})
+
 describe('decks', () => {
   const { registry } = load()
 

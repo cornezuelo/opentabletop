@@ -65,6 +65,49 @@ describe('bundled open packs', () => {
     expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK_CHECK_REQUIRED'])
   })
 
+  it('the Grey Marches: peaks open in summer but not in snow, lakes freeze in deep winter', () => {
+    const system = marches()
+    const route = (
+      cells: Record<string, unknown>[],
+      season: string,
+      weather?: string,
+    ): string[] | undefined => {
+      const options = {
+        system,
+        world: row(cells),
+        oracle: createOracleEngine({ registry, random: seeded('passes') }),
+        locale: 'en',
+      }
+      let { session } = startTrip({ system, location: '0', season })
+      if (weather) session = { ...session, travel: { ...session.travel, weather } }
+      return stepTrip(options, session, { type: 'setDestination', hex: '2' }).state.travel.route
+    }
+    const peaks = [{ terrain: 'plains' }, { terrain: 'peaks' }, { terrain: 'plains' }]
+    expect(route(peaks, 'summer')).toEqual(['0', '1', '2'])
+    expect(route(peaks, 'summer', 'snow')).toBeUndefined()
+    expect(route(peaks, 'spring')).toBeUndefined()
+    const lake = [{ terrain: 'plains' }, { terrain: 'lake', water: true }, { terrain: 'plains' }]
+    expect(route(lake, 'winter')).toEqual(['0', '1', '2'])
+    expect(route(lake, 'autumn')).toBeUndefined()
+  })
+
+  it('the Grey Marches: unless keeps the Vale patrol off the night, and an old ruin untold', () => {
+    const engine = createOracleEngine({ registry, random: seeded('unless') })
+    const met = (timeOfDay: string) =>
+      Array.from(
+        { length: 40 },
+        () =>
+          engine.resolve('grey-marches/encounter', { region: 'Ashford Vale', timeOfDay, danger: 0 })
+            .resolution.entry,
+      )
+    expect(met('day')).toContain('patrol')
+    expect(met('night')).not.toContain('patrol')
+    for (let i = 0; i < 20; i++) {
+      const { value, text } = engine.resolve('grey-marches/ruin-delve', {}).resolution
+      expect(!!text?.includes('No one has set foot here')).toBe((value.untouched as number) >= 90)
+    }
+  })
+
   it('the Grey Marches: an oracle resolves the ford, with its input from the bindings', () => {
     const system = marches()
     const world = row([{ terrain: 'plains' }, { terrain: 'plains', tags: ['ford'] }])

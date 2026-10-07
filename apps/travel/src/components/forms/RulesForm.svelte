@@ -1,10 +1,16 @@
 <script lang="ts">
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, SuggestInput } from '@open-tabletop/ui-kit'
+  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { t } from '../../lib/i18n'
   import { actionIds, type SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions } from '@open-tabletop/session'
-  import { modeThrough, olderEatingEdits, parseTravelRules } from '@open-tabletop/travel-engine'
+  import {
+    BLOCKABLE,
+    modeThrough,
+    olderEatingEdits,
+    parseTravelRules,
+  } from '@open-tabletop/travel-engine'
   import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
@@ -14,7 +20,6 @@
 
   const rules = $derived(doc.rules as Record<string, Record<string, unknown> | undefined>)
   const disabled = $derived(!doc.editable)
-  const actions = $derived((rules.actions ?? {}) as Record<string, unknown>)
   /** Rules that eat the older way: the edits that write it as a day-end action. */
   const olderEating = $derived.by(() => {
     const parsed = parseTravelRules(doc.rules).rules
@@ -22,6 +27,27 @@
   })
   function convertEating() {
     for (const { path, value } of olderEating) doc.edit('travel-rules', path.map(String), value)
+  }
+
+  /** What a terrain's conditions read: the hex entered, the step, the calendar, today. */
+  const passableHints = $derived({
+    ...contextSuggestions(library.registry),
+    terrain: [...PALETTE, ...Object.keys(doc.rules.terrains ?? {})],
+    water: ['true', 'false'],
+  })
+  const waterPassable = $derived(
+    typeof rules.water?.passable === 'object'
+      ? (rules.water.passable as Record<string, unknown>)
+      : undefined,
+  )
+  const conditionText = (value: unknown) =>
+    value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
+  function setWaterPassable(key: 'when' | 'unless', text: string) {
+    const value = text.trim() ? parseFlow(text) : undefined
+    if (value === null) return showToast(t('forms.badFlow'), 'error')
+    const next: Record<string, unknown> = { ...waterPassable, [key]: value }
+    if (value === undefined) delete next[key]
+    doc.edit('travel-rules', ['water', 'passable'], Object.keys(next).length ? next : undefined)
   }
 
   const num = (input: HTMLInputElement) =>
@@ -102,11 +128,7 @@
           help: t('rules.allowedTerrainsHelp'),
           type: 'flow',
           placeholder: t('rules.anyTerrain'),
-          hints: {
-            ...contextSuggestions(library.registry),
-            terrain: [...PALETTE, ...Object.keys(doc.rules.terrains ?? {})],
-            water: ['true', 'false'],
-          },
+          hints: passableHints,
           read: (row) => modeThrough(row as { allowedTerrains?: string[] }),
           replaces: ['allowedTerrains'],
         },
@@ -116,6 +138,14 @@
           help: t('rules.modeWhenHelp'),
           type: 'flow',
           placeholder: t('checks.always'),
+          hints: contextSuggestions(library.registry),
+        },
+        {
+          field: 'unless',
+          label: t('actions.unless'),
+          help: t('rules.modeWhenHelp'),
+          type: 'flow',
+          placeholder: t('checks.never'),
           hints: contextSuggestions(library.registry),
         },
       ]}
@@ -146,6 +176,24 @@
           help: t('rules.passableHelp'),
           type: 'check',
           default: true,
+        },
+        {
+          field: 'passable.when',
+          label: t('rules.openWhen'),
+          help: t('rules.passableWhenHelp'),
+          type: 'flow',
+          placeholder: t('checks.always'),
+          hints: passableHints,
+          off: (row) => row.passable === false,
+        },
+        {
+          field: 'passable.unless',
+          label: t('rules.closedWhen'),
+          help: t('rules.passableWhenHelp'),
+          type: 'flow',
+          placeholder: t('checks.never'),
+          hints: passableHints,
+          off: (row) => row.passable === false,
         },
       ]}
     />
@@ -179,6 +227,7 @@
           checked={rules.water?.passable !== false}
           {disabled}
           onchange={(e) =>
+            (!e.currentTarget.checked || rules.water?.passable === false) &&
             doc.edit(
               'travel-rules',
               ['water', 'passable'],
@@ -188,6 +237,18 @@
         {t('rules.passable')}<InfoTip text={t('rules.passableHelp')} />
       </label>
       {#if rules.water?.passable !== false}
+        {#each [['when', 'rules.openWhen', 'checks.always'], ['unless', 'rules.closedWhen', 'checks.never']] as const as [key, label, empty] (key)}
+          <label class="condition">
+            <span>{t(label)}<InfoTip text={t('rules.passableWhenHelp')} /></span>
+            <SuggestInput
+              placeholder={t(empty)}
+              value={conditionText(waterPassable?.[key])}
+              suggestions={passableHints}
+              {disabled}
+              onchange={(text) => setWaterPassable(key, text)}
+            />
+          </label>
+        {/each}
         <label>
           <span>{t('rules.multiplier')}</span>
           <input
@@ -287,10 +348,8 @@
           type: 'list',
           placeholder: t('rules.blocksNothing'),
           choices: [
-            'travel',
-            'camp',
-            'rest',
-            ...Object.keys(actions),
+            ...BLOCKABLE,
+            ...actionIds(doc.rules),
             ...Object.keys(doc.rules.modes ?? {}).map((m) => `mode.${m}`),
           ],
         },
@@ -347,6 +406,11 @@
     gap: 3px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  label.condition {
+    flex: 1;
+    min-width: 14em;
   }
 
   label input[type='number'],

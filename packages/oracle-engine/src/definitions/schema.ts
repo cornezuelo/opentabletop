@@ -30,6 +30,7 @@ const entry = z
     range: range.optional(),
     weight: z.number().positive().optional(),
     when: condition.optional(),
+    unless: condition.optional(),
     result: z.string().optional(),
     table: ref.optional(),
     generator: ref.optional(),
@@ -114,6 +115,7 @@ const field = z
     roll: z.string().optional(),
     value: z.unknown().optional(),
     when: condition.optional(),
+    unless: condition.optional(),
     context: setValues.optional(),
   })
   .strict()

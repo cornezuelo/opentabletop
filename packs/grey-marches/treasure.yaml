@@ -60,14 +60,16 @@ description: |-
   **Shows:**
 
   - Every kind of generator field: a table, dice (`2d6kl1`: keep the lowest), `d%` and a fixed value with a template
-  - A field only when another says so: `when`
+  - A field only when another says so: `when`; and one unless another says so: `unless`
   - A table rolled with its own context: the guardian, met at night in danger 3
 fields:
   site: { table: ruins }
   danger: { roll: 2d6kl1 }
   untouched: { roll: d% }
   trap: { when: { danger: { lte: 2 } }, value: ' A trap guards the way in.' }
+  # Unless less than nine tenths is untouched: nobody has been here.
+  fresh: { unless: { untouched: { lt: 90 } }, value: ' No one has set foot here in an age.' }
   rating: { value: 'danger {{danger}} of 6' }
   loot: { table: treasure }
   guardian: { table: encounter, context: { timeOfDay: night, danger: 3 } }
-template: 'The ruins of {{site}} ({{rating}}, {{untouched}}% untouched).{{trap}} Inside: {{loot}}. Guarding it: {{guardian}}.'
+template: 'The ruins of {{site}} ({{rating}}, {{untouched}}% untouched).{{fresh}}{{trap}} Inside: {{loot}}. Guarding it: {{guardian}}.'

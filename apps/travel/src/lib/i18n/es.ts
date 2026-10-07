@@ -75,7 +75,11 @@ export const es: Messages<typeof en> = {
     multiplierHelp: '1 es la velocidad normal, 0.5 la mitad, 2 el doble.',
     passable: 'Transitable',
     passableHelp:
-      'Sin marcar: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo “Solo por” se cumpla allí.',
+      'Sin marcar: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo “Solo por” se cumpla allí. Marcado, aún puede abrirse o cerrarse con una condición (Abierto cuando, Cerrado cuando).',
+    openWhen: 'Abierto cuando',
+    closedWhen: 'Cerrado cuando',
+    passableWhenHelp:
+      'Cuándo se puede entrar, como condición sobre el hex al que se entra y el momento (su terreno, etiquetas, región, campos, los caminos o ríos del paso, la forma de viajar, el clima, la estación y el calendario, los valores del día). Abierto cuando: solo mientras se cumple, p. ej. un lago que se cruza sobre el hielo, season: winter. Cerrado cuando: no mientras se cumple, p. ej. un paso de montaña, any: [{ season: winter }, { weather: blizzard }]. Vacío: siempre abierto / nunca cerrado.',
     defaultTerrain: 'Velocidad × de los terrenos no listados',
     defaultTerrainHelp: 'Para cualquier terreno que no esté arriba (1 si está vacío).',
     edges: 'Caminos y ríos',
@@ -106,13 +110,13 @@ export const es: Messages<typeof en> = {
       'Lo que puede hacer el grupo además de marchar: acampar, descansar y las propias del sistema (buscar comida, rezar…), cada una un botón en el panel del viaje. Cada una dice cuándo se puede hacer y qué hace, paso a paso.',
     oncePerDay: 'Una vez al día',
     modeWhenHelp:
-      'Solo se puede elegir cuando se cumple, p. ej. una barca solo a la orilla: any: [{ water: true }, { tags: ferry }]. Vacío: siempre. (En YAML también vale unless.)',
+      'Solo se puede elegir cuando se cumple, p. ej. una barca solo a la orilla: any: [{ water: true }, { tags: ferry }]. Vacío: siempre. Salvo: no se puede elegir mientras se cumple.',
     values: 'Valores del día',
     valuesHelp:
       'Valores que las tablas de este sistema pueden poner para el resto del día (set: { lost: true }), con lo que bloquean mientras se cumplen: viajar, acciones por su id o formas de viajar (mode.<id>). Las tablas los leen al día siguiente como yesterday.<id>. Sin ninguno, sigue funcionando el antiguo lost incorporado (bloquea el viaje).',
     blocks: 'Bloquea',
     blocksHelp:
-      'Lo que no se puede hacer mientras se cumple el valor: travel (viajar), camp, rest, el id de una acción o una forma de viajar como mode.<id> (mode.horse). Los botones siguen visibles, desactivados, diciendo por qué.',
+      'Lo que no se puede hacer mientras se cumple el valor: travel (viajar), una de las acciones del sistema por su id (camp, forage…) o una forma de viajar como mode.<id> (mode.horse); la caja sugiere lo que declara este sistema. Los botones siguen visibles, desactivados, diciendo por qué.',
     blocksNothing: 'nada',
   },
   actions: {

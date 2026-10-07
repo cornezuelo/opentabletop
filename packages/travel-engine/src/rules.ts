@@ -1,4 +1,4 @@
-import { validateCondition, type Condition } from '@open-tabletop/conditions'
+import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
@@ -20,6 +20,17 @@ export const BUILT_IN_ACTIONS = ['camp', 'rest'] as const
 export const BLOCKABLE = ['travel'] as const
 
 const effects = z.record(z.string(), z.union([z.number(), z.string()]))
+
+/**
+ * Whether a terrain can be entered: `false` never, `true` (or missing) always, or `{ when,
+ * unless }`: only while `when` holds and `unless` doesn't, seen from the hex entered (its
+ * terrain, tags, region, fields, the roads or rivers of the step, the mode, the weather,
+ * the season and calendar, today's values), e.g. a pass closed `unless: { season: winter }`.
+ */
+const passable = z.union([
+  z.boolean(),
+  z.object({ when: condition.optional(), unless: condition.optional() }).strict(),
+])
 
 /**
  * One step of an action (`do:`), doing one thing, optionally only `when` (or `unless`) a
@@ -158,7 +169,7 @@ export const travelRulesSchema = z
       z
         .object({
           multiplier: z.number().nonnegative().optional(),
-          passable: z.boolean().optional(),
+          passable: passable.optional(),
         })
         .strict(),
     ),
@@ -169,7 +180,7 @@ export const travelRulesSchema = z
     water: z
       .object({
         multiplier: z.number().nonnegative().optional(),
-        passable: z.boolean().optional(),
+        passable: passable.optional(),
       })
       .strict()
       .optional(),
@@ -585,6 +596,22 @@ export function modeThrough(mode: {
   return terrains.length ? { any: [byTerrain, { water: true }] } : { water: true }
 }
 
+export type Passable = z.infer<typeof passable>
+
+/** Whether a terrain's `passable` lets the party in, given what it sees of the hex entered. */
+export function isPassable(
+  rule: Passable | undefined,
+  context: () => Record<string, unknown>,
+): boolean {
+  if (rule === undefined || rule === true) return true
+  if (rule === false) return false
+  const seen = context()
+  return (
+    (!rule.when || matches(rule.when as Condition, seen)) &&
+    !(rule.unless && matches(rule.unless as Condition, seen))
+  )
+}
+
 /** Validates raw rules (YAML/JSON) and returns readable problems. */
 export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: string[] } {
   const parsed = travelRulesSchema.safeParse(raw)
@@ -600,6 +627,12 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
   ]
   const errors = [
     ...(parsed.data.checks ?? []).flatMap((check, i) => conditions(check, `checks[${i}]`)),
+    ...[
+      ...Object.entries(parsed.data.terrains).map(([id, t]) => [`terrains.${id}`, t] as const),
+      ...(parsed.data.water ? [['water', parsed.data.water] as const] : []),
+    ].flatMap(([at, t]) =>
+      typeof t.passable === 'object' ? conditions(t.passable, `${at}.passable`) : [],
+    ),
     ...Object.entries(parsed.data.modes).flatMap(([id, m]) => [
       ...conditions(m, `modes.${id}`),
       ...(m.through ? validateCondition(m.through as Condition, `modes.${id}.through`) : []),

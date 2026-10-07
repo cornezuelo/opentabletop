@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
+  import { contextSuggestions, setSuggestions } from '@open-tabletop/session'
+  import { workspace } from '../../lib/packs/workspace.svelte'
   import { moveKey, renameKey, setIn } from '@open-tabletop/pack-ui/yaml'
   import { t, type MessageKey } from '../../lib/i18n'
   import { slugify } from '../../lib/packs/definitions'
@@ -14,7 +17,38 @@
 
   const SOURCES = ['table', 'generator', 'roll', 'value'] as const
   type Source = (typeof SOURCES)[number]
-  type RawField = Partial<Record<Source, unknown>> & { when?: unknown; context?: unknown }
+  type RawField = Partial<Record<Source, unknown>> & {
+    when?: unknown
+    unless?: unknown
+    context?: unknown
+  }
+  const EXTRAS = [
+    { key: 'when', label: 'edit.when', help: 'edit.fieldWhenHelp', example: 'season: winter' },
+    { key: 'unless', label: 'edit.unless', help: 'edit.fieldWhenHelp', example: 'tags: road' },
+    {
+      key: 'context',
+      label: 'edit.fieldContext',
+      help: 'edit.fieldContextHelp',
+      example: 'danger: 3',
+    },
+  ] as const
+  type Extra = (typeof EXTRAS)[number]['key']
+
+  const conditionHints = $derived(contextSuggestions(workspace.registry))
+  const setHints = $derived(setSuggestions(workspace.registry))
+  /** Fields showing their conditions and context. */
+  let open = $state<Record<string, boolean>>({})
+  let invalid = $state<Record<string, boolean>>({})
+  const hasExtras = (f: RawField) => EXTRAS.some(({ key }) => f[key] !== undefined)
+  const flowOf = (value: unknown) =>
+    value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
+
+  /** A field's condition or context typed as one line: saved when it reads as a map. */
+  function setExtra(name: string, key: Extra, text: string) {
+    const value = text.trim() ? parseFlow(text) : undefined
+    invalid = { ...invalid, [`${name}.${key}`]: value === null }
+    if (value !== null) doc.edit(['fields', name, key], value ?? undefined)
+  }
 
   const id = $derived(doc.def.localId)
   const fields = $derived(Object.entries((doc.raw.fields as Record<string, RawField>) ?? {}))
@@ -126,8 +160,27 @@
               disabled={doc.translating}
               onchange={(e) => setValue(name, source, e.currentTarget.value)}
             />
-            {#if field.when !== undefined || field.context !== undefined}
-              <small class="note">{t('edit.fieldAdvanced')}</small>
+            {#if !doc.translating}
+              <button class="more" onclick={() => (open[name] = !(open[name] ?? hasExtras(field)))}
+                >{(open[name] ?? hasExtras(field)) ? '▾' : '▸'} {t('edit.fieldMore')}</button
+              >
+            {/if}
+            {#if (open[name] ?? hasExtras(field)) && !doc.translating}
+              <div class="extras">
+                {#each EXTRAS as extra (extra.key)}
+                  <label>
+                    <span>{t(extra.label)}<InfoTip text={t(extra.help)} /></span>
+                    <SuggestInput
+                      value={flowOf(field[extra.key])}
+                      suggestions={extra.key === 'context' ? setHints : conditionHints}
+                      placeholder={extra.example}
+                      invalid={invalid[`${name}.${extra.key}`]}
+                      onchange={(text) => setExtra(name, extra.key, text)}
+                    />
+                    {#if invalid[`${name}.${extra.key}`]}<small>{t('edit.notAMap')}</small>{/if}
+                  </label>
+                {/each}
+              </div>
             {/if}
           </td>
           <td class="row-actions">
@@ -252,5 +305,31 @@
 
   small {
     display: block;
+    color: #e3a19f;
+  }
+
+  .more {
+    margin-top: 2px;
+    padding: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .extras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
+    gap: 6px 10px;
+    margin-top: 4px;
+  }
+
+  .extras label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 </style>

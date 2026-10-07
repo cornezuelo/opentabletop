@@ -12,6 +12,7 @@ import {
   actionSteps,
   availableActions,
   changeValue,
+  isPassable,
   modeThrough,
   declaredValues,
   nightAction,
@@ -296,14 +297,18 @@ export function createTravelEngine(options: {
     )?.[0]
 
   /**
-   * What a way of travelling's "only through" sees when stepping from `a` into `b`: the hex
-   * entered (everything the map knows of it), the roads or rivers of the step, the mode, the
-   * weather and today's values. Light on purpose: route planning asks it for many hexes.
+   * What a way of travelling's "only through" and a terrain's `passable` see when stepping
+   * from `a` into `b`: the hex entered (everything the map knows of it), the roads or rivers
+   * of the step, the mode, the weather, the calendar (season, moons…) and today's values.
+   * Light on purpose: route planning asks it for many hexes.
    */
   const throughContext = (state: TravelState, a: string, b: string): Record<string, unknown> => {
     const cell = world.cell(b)
+    const date = calendar.describe(state.time)
     return {
       ...state.today,
+      ...calendarFacts(date),
+      season: date.season,
       ...cell,
       hex: b,
       terrain: cell?.terrain,
@@ -328,7 +333,7 @@ export function createTravelEngine(options: {
     if (through) {
       // "Only through" where its condition holds: there, even closed terrains are open to it.
       if (!matches(through, throughContext(state, a, b))) return 0
-    } else if (terrainRule?.passable === false) return 0
+    } else if (!isPassable(terrainRule?.passable, () => throughContext(state, a, b))) return 0
     const edgeMultipliers = world
       .edges(a, b)
       .map((e) => rules.edges?.[e]?.multiplier)

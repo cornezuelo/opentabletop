@@ -354,10 +354,6 @@
     border-radius: 6px;
   }
 
-  .action.off {
-    opacity: 0.7;
-  }
-
   .row {
     display: flex;
     gap: 10px;
@@ -402,11 +398,6 @@
 
   .row label.id {
     flex: 0 0 9em;
-  }
-
-  .head strong {
-    color: var(--text);
-    font-size: 13px;
   }
 
   h4 {

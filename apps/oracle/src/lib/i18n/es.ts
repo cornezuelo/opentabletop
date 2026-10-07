@@ -88,7 +88,8 @@ export const es: Messages<typeof en> = {
     more: 'Condiciones, valores y límites',
     when: 'Solo si',
     whenHelp:
-      'La entrada solo puede salir cuando el contexto encaja, en pares clave: valor: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Vacío: siempre.',
+      'La entrada solo puede salir cuando el contexto encaja, en pares clave: valor: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Salvo: no puede salir cuando esto encaja, p. ej. edges: road. Vacío: siempre.',
+    unless: 'Salvo',
     set: 'Fija',
     setHelp:
       'Valores que da la entrada cuando sale, en pares clave: valor: weather: storm, lost: true, count: "{{2d6}}". Los leen las tablas siguientes, la plantilla y el viaje.',
@@ -149,7 +150,12 @@ export const es: Messages<typeof en> = {
     fieldSource: 'Sale de',
     fieldValue: 'Tabla, dados o valor',
     sources: { table: 'Tabla', generator: 'Generador', roll: 'Dados', value: 'Valor fijo' },
-    fieldAdvanced: 'Tiene condiciones o contexto: edítalos en el fichero.',
+    fieldMore: 'Condiciones y contexto',
+    fieldWhenHelp:
+      'Solo si: el campo solo se tira cuando esto encaja con lo que ve el generador (sus entradas, los campos anteriores, el mapa o el viaje), p. ej. season: winter; si no, queda vacío. Salvo: no cuando esto encaja. Vacío: siempre.',
+    fieldContext: 'Contexto',
+    fieldContextHelp:
+      'Valores que recibe la tabla o generador que tira este campo, en pares clave: valor, p. ej. danger: 3 o terrain: "{{terrain}}".',
     fieldExists: 'Ya hay un campo «{field}».',
     addField: 'Añadir campo',
     reshuffle: 'Barajar',

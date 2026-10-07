@@ -16,6 +16,7 @@
     table?: string
     generator?: string
     when?: unknown
+    unless?: unknown
     set?: unknown
     once?: boolean
     pause?: boolean
@@ -103,6 +104,7 @@
 
   const advanced = (e: RawEntry) =>
     e.when !== undefined ||
+    e.unless !== undefined ||
     e.set !== undefined ||
     e.effects !== undefined ||
     e.once ||
@@ -120,7 +122,7 @@
   let invalid = $state<Record<string, boolean>>({})
 
   /** A condition or `set` typed as one line: saved when it reads as a map, flagged if not. */
-  function editFlow(i: number, key: 'when' | 'set' | 'effects', text: string) {
+  function editFlow(i: number, key: 'when' | 'unless' | 'set' | 'effects', text: string) {
     const value = parseFlow(text)
     invalid = { ...invalid, [`${i}.${key}`]: value === null }
     if (value !== null) edit(i, key, value && Object.keys(value).length ? value : undefined)
@@ -269,6 +271,17 @@
                   onchange={(text) => editFlow(i, 'when', text)}
                 />
                 {#if invalid[`${i}.when`]}<small>{t('edit.notAMap')}</small>{/if}
+              </label>
+              <label>
+                <span>{t('edit.unless')}<InfoTip text={t('edit.whenHelp')} /></span>
+                <SuggestInput
+                  value={flowText(entry.unless).replace(/^\{\s*|\s*\}$/g, '')}
+                  suggestions={conditionHints}
+                  placeholder="tags: road"
+                  invalid={invalid[`${i}.unless`]}
+                  onchange={(text) => editFlow(i, 'unless', text)}
+                />
+                {#if invalid[`${i}.unless`]}<small>{t('edit.notAMap')}</small>{/if}
               </label>
               <label>
                 <span>{t('edit.set')}<InfoTip text={t('edit.setHelp')} /></span>

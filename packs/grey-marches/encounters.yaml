@@ -13,6 +13,7 @@ description: |-
 
   - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
   - Conditions on `terrain`, `region`, `tags`, `danger`, `season` and the moons (`moons.ember: full`)
+  - An entry's `unless`: the Vale's patrol, never at night
   - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart; `pause`: the trip stops when it comes up
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
@@ -39,10 +40,11 @@ entries:
     range: 1-20
     when: { all: [{ tags: haunted }, { timeOfDay: night }] }
     result: Pale lights drift between the trees, calling your names
-  # In a named region, by day: its own people.
+  # In a named region, by day: its own people (`unless`: not at night).
   - id: patrol
     range: 1-4
-    when: { all: [{ region: { eq: Ashford Vale } }, { not: { timeOfDay: night } }] }
+    when: { region: { eq: Ashford Vale } }
+    unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they are {{result}}'
     table: reaction
   # Lists of terrains, a dice expression inside the text, then roll the reaction.

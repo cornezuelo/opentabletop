@@ -105,6 +105,7 @@ const KEYS = [
   'effects',
   'pause',
   'when',
+  'unless',
   'once',
   'maxOccurrences',
   'inputs',

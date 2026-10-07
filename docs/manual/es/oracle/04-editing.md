@@ -27,6 +27,7 @@ Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecu
 **⋯** en una fila abre sus condiciones, valores y límites (las filas que tienen alguno lo indican bajo su texto):
 
 - **Solo si**: la entrada solo puede salir cuando el contexto encaja, escrito en pares `clave: valor`, p. ej. `terrain: forest`, `season: [autumn, winter]` (cualquiera de ellas), `danger: { gte: 3 }` (3 o más), `tags: landmark` (el hex tiene esa etiqueta). Vacío: siempre. Si ninguna entrada encaja, la tabla no da nada. Las claves que puede leer una tabla están en [Qué ven las tablas](../technical/04-what-tables-see.md), y todas las formas de compararlas (`not`, `lt`, `exists`, `any`…) en [Condiciones](../technical/08-conditions.md).
+- **Salvo**: la entrada no puede salir cuando esto encaja, p. ej. `timeOfDay: night` (la patrulla del Valle de las Marcas Grises). Con **Solo si** también, se comprueban las dos.
 - **Fija**: valores que da la entrada cuando sale, p. ej. `weather: storm, lost: true` o `count: "{{2d6}}"`. Los leen el texto del resultado, las tablas y campos de generador siguientes y el viaje (ver [Conectar tablas](07-connecting.md)).
 - **Solo una vez** / **Como mucho**: cuántas veces puede salir la entrada en una sesión (**Nueva sesión** en el Oracle las reinicia).
 - **Cambios**: lo que cambia la entrada en el grupo de un viaje (`party.stats.morale: -1`, `party.resources.food: 2`; `=3` lo fija), con sugerencias de las características y provisiones del sistema. Mira [efectos](07-connecting.md).
@@ -40,7 +41,7 @@ Una **entrada** (su id, una **etiqueta** que mostrar y sus **opciones**, cada un
 
 ## Generadores
 
-Los **campos** se tiran en orden; cada uno sale de una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo.
+Los **campos** se tiran en orden; cada uno sale de una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo con `danger: { lte: 2 }`) y **Contexto** (valores que recibe la tabla o generador que tira, p. ej. `timeOfDay: night, danger: 3`).
 
 ## Mazos
 
@@ -48,4 +49,4 @@ Los **campos** se tiran en orden; cada uno sale de una tabla, un generador, unos
 
 ## Lo que no editan los formularios
 
-La condición y el contexto de un campo de generador, y las condiciones anidadas (`any`, `all`, `not`), son más cómodos en el YAML. Consulta [Referencia YAML](06-yaml.md).
+Las condiciones anidadas (`any`, `all`, `not`), son más cómodos en el YAML. Consulta [Referencia YAML](06-yaml.md).

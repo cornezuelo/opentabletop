@@ -278,12 +278,13 @@ class CompileContext {
           fields: Object.entries(d.fields).map(([name, f]): CompiledField => {
             const at = `fields.${name}`
             if (f.when) this.conditions(f.when, `${at}.when`)
+            if (f.unless) this.conditions(f.unless, `${at}.unless`)
             if (f.table)
               return {
                 name,
                 kind: 'table',
                 ref: this.ref('table', f.table, at),
-                when: f.when as Condition,
+                when: applies(f),
                 context: f.context,
               }
             if (f.generator)
@@ -291,7 +292,7 @@ class CompileContext {
                 name,
                 kind: 'generator',
                 ref: this.ref('generator', f.generator, at),
-                when: f.when as Condition,
+                when: applies(f),
                 context: f.context,
               }
             if (f.roll !== undefined)
@@ -299,14 +300,14 @@ class CompileContext {
                 name,
                 kind: 'roll',
                 ...this.roll(f.roll, `${at}.roll`),
-                when: f.when as Condition,
+                when: applies(f),
                 context: f.context,
               }
             return {
               name,
               kind: 'value',
               value: f.value,
-              when: f.when as Condition,
+              when: applies(f),
               context: f.context,
             }
           }),
@@ -347,6 +348,7 @@ class CompileContext {
       if (roll === undefined && e.range !== undefined)
         this.error(where, 'Ranges need a roll on the table')
       if (e.when) this.conditions(e.when, `${where}.when`)
+      if (e.unless) this.conditions(e.unless, `${where}.unless`)
       const [min, max] = e.range !== undefined ? parseRange(e.range) : [undefined, undefined]
       if (min !== undefined && max !== undefined && min > max)
         this.error(`${where}.range`, `Range ${min}-${max} is reversed`)
@@ -356,7 +358,7 @@ class CompileContext {
         min,
         max,
         weight: e.weight ?? 1,
-        when: e.when as Condition | undefined,
+        when: applies(e),
         result: e.result,
         ref: e.table
           ? this.ref('table', e.table, where)
@@ -471,6 +473,17 @@ class CompileContext {
       at: `${this.localId}.${at}`,
     })
   }
+}
+
+/**
+ * One condition for `when` and `unless` together: the first must hold and the second
+ * mustn't (either may be missing). Engines then check a single `when`.
+ */
+function applies(d: { when?: unknown; unless?: unknown }): Condition | undefined {
+  const when = d.when as Condition | undefined
+  const unless = d.unless as Condition | undefined
+  if (!unless) return when
+  return when ? { all: [when, { not: unless }] } : { not: unless }
 }
 
 /** Reads every pack's `kind: roll-modes` into the registry, then resolves their `cancels`. */
