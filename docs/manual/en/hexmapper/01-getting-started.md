@@ -1,6 +1,6 @@
 # Getting started
 
-Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play trips on them. Everything stays in your browser: no account, no server.
+Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play trips on them. Everything stays in your browser: no account, no server. It can be installed and works offline: see [Installing and playing offline](../technical/06-install-and-offline.md).
 
 ## The screen
 
