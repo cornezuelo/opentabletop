@@ -142,7 +142,10 @@ FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
 **Bundled packs**
 
-- **Every feature lives in the bundled packs too:** its simple, generic use goes into **Core** (if it makes sense for any game) and its full use into **the Grey Marches** (and its example map), with a test that plays it. Core stays small and generic; the Grey Marches exercise everything (review it before closing a milestone).
+- **Every feature lives in the bundled packs too, as part of the work** (a feature isn't done until both use it, with a test that plays it):
+  - **The Grey Marches** (and their example map) are the showcase: every feature at full power, with extreme complexity, every system interconnected with the others (map, oracle, travel, world clock, factions, everything to come). Review that they use every feature before closing a milestone.
+  - **Core** (and the Generic rules in `travel-engine`) must not fall behind: the generic use of every feature that makes sense for any game, with extreme simplicity, the smallest example that works.
+  - Both are documented in the manual's packs section (`docs/manual/*/packs/`): what each part does and which feature it shows, kept up to date with them.
 - Every Grey Marches definition's `description` (en, and es in its overlay) says what it is for and, in a second paragraph, which features it shows (`**Shows:** …` / `**Enseña:** …`); keep it up to date when a definition changes. Pack descriptions are basic Markdown, rendered safely by `Markdown` / `renderMarkdown` in ui-kit and `tooltip={{ markdown }}`.
 
 **Documentation** — every app has a user manual in `docs/manual/<locale>/<app>/` (English and Spanish, kept in sync: a test checks every English page has a Spanish one and that links resolve) and a help button with `HelpPanel` from `manual-ui`.
