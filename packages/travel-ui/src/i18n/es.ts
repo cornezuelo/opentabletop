@@ -40,6 +40,7 @@ export const es: Messages<typeof en> = {
     actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
     actionFatigue: 'Recupera {fatigue} de fatiga.',
     actionOnce: 'Una vez al día.',
+    readAs: 'Las tablas lo leen como {keys}.',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
     exportJournal:
       'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',

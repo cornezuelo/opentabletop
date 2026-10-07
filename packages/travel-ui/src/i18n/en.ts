@@ -36,6 +36,7 @@ export const en = {
     actionSpeed: 'The rest of today’s march goes at ×{speed}.',
     actionFatigue: 'Recovers {fatigue} fatigue.',
     actionOnce: 'Once a day.',
+    readAs: 'Tables read it as {keys}.',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
     exportJournal:
       'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',

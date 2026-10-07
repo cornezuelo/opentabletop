@@ -123,6 +123,10 @@
   const resourceName = (id: string) =>
     localize(system.rules.resources?.[id]?.name, locale, 'en') ?? idText(t, `resources.${id}`, id)
 
+  /** How tables read a value, for its tooltip: "Tables read it as `{{survival}}`…". */
+  const readAs = (...keys: string[]) =>
+    t('tips.readAs', { keys: keys.map((k) => '`{{' + k + '}}`').join(' · ') })
+
   /** Name of a value results change: a stat of the system, fatigue or a resource. */
   const valueName = (key: string) => {
     const stat = system.bindings?.stats?.[key]
@@ -249,6 +253,7 @@
             markdown={[
               localize(system.rules.resources?.[resource]?.description, locale, 'en'),
               t('tips.resource', { perDay: system.rules.resources?.[resource]?.perDay ?? 0 }),
+              readAs(`party.resources.${resource}`),
             ]
               .filter(Boolean)
               .join('\n\n')}
@@ -269,7 +274,11 @@
       </label>
     {/each}
     <label class="field">
-      <span>{t('fatigue')}<InfoTip text={t('tips.fatigue')} /></span>
+      <span
+        >{t('fatigue')}<InfoTip
+          markdown={`${t('tips.fatigue')}\n\n${readAs('party.fatigue')}`}
+        /></span
+      >
       <input
         type="number"
         min="0"
@@ -284,7 +293,13 @@
 
   {#each stats as [key, stat] (key)}
     <label class="field">
-      <span>{statText(stat.name, key)}<InfoTip markdown={statText(stat.description, '')} /></span>
+      <span
+        >{statText(stat.name, key)}<InfoTip
+          markdown={[statText(stat.description, ''), readAs(key, `party.stats.${key}`)]
+            .filter(Boolean)
+            .join('\n\n')}
+        /></span
+      >
       <input
         type="number"
         value={session.stats[key] ?? stat.default ?? 0}
