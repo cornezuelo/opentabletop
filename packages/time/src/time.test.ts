@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultCalendar, formatClock, nextAt, parseClock, simpleCalendar } from './index'
+import { calendarFrom, moonPhase, seasonStartDay, seasonsOf, validateCalendar } from './calendar'
 
 describe('calendar', () => {
   it('describes absolute minutes as day, hour, watch and season', () => {
@@ -44,5 +45,66 @@ describe('calendar', () => {
     expect(parseClock('6:30')).toBe(390)
     expect(() => parseClock('noon')).toThrow()
     expect(formatClock({ hour: 9, minute: 5 })).toBe('09:05')
+  })
+})
+
+describe('calendars as data', () => {
+  const def = {
+    months: [
+      { id: 'thaw', days: 3, season: 'spring', name: { en: 'Thaw', es: 'Deshielo' } },
+      { id: 'sun', days: 2, season: 'summer' },
+      { id: 'frost', days: 2, season: 'winter' },
+    ],
+    weekdays: [{ id: 'one' }, { id: 'two' }],
+    moons: [{ id: 'pale', cycle: 4 }],
+    holidays: [{ id: 'feast', month: 'sun', day: 2 }],
+    startYear: 300,
+    start: { month: 'thaw', day: 2 },
+    watchHours: 6,
+  }
+
+  it('name every day: year, month, weekday, moons, holidays and season', () => {
+    expect(validateCalendar(def)).toEqual([])
+    const cal = calendarFrom(def)
+    expect(cal.yearDays).toBe(7)
+    const first = cal.describe(cal.at(1, '13:00'))
+    expect(first).toMatchObject({
+      day: 1,
+      year: 300,
+      month: { id: 'thaw', day: 2, name: { en: 'Thaw', es: 'Deshielo' } },
+      weekday: { id: 'one' },
+      season: 'spring',
+      watch: 3,
+      holidays: [],
+    })
+    // Day 4 is the 2nd of Sun: the feast.
+    expect(cal.describe(cal.at(4, 0))).toMatchObject({
+      month: { id: 'sun', day: 2 },
+      holidays: [{ id: 'feast' }],
+    })
+    // Day 7 starts the next year.
+    expect(cal.describe(cal.at(7, 0))).toMatchObject({ year: 301, month: { id: 'thaw', day: 1 } })
+    expect(seasonStartDay(cal, 'winter')).toBe(5)
+    expect(seasonsOf(cal)).toEqual(['spring', 'summer', 'winter'])
+  })
+
+  it('moons go through their phases', () => {
+    expect([0, 1, 2, 3].map((d) => moonPhase(d, 4))).toEqual(['new', 'waxing', 'full', 'waning'])
+    expect(moonPhase(-1, 4)).toBe('waning')
+  })
+
+  it('reports broken definitions', () => {
+    expect(validateCalendar({ months: [] })).toEqual(['months: needs at least one month'])
+    expect(
+      validateCalendar({
+        months: [{ id: 'a', days: 0 }],
+        holidays: [{ id: 'h', month: 'b', day: 1 }],
+        dawn: 'early',
+      }),
+    ).toEqual([
+      'months[0].days: a whole number',
+      'holidays[0].month: no month "b"',
+      'dawn: times look like "06:00"',
+    ])
   })
 })

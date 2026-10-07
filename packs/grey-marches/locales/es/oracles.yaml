@@ -12,6 +12,7 @@ gates:
 gate-news:
   name: Noticias en la puerta
   entries:
+    midsummer: todo el pueblo baila por Pleno Verano y las puertas están abiertas
     rumour: 'el guardia os susurra un rumor: {{result}}'
     work: 'hay trabajo: alguien paga {{2d6}} monedas de plata por una escolta'
     feast: es día de fiesta; la posada está llena

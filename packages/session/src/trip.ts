@@ -1,5 +1,14 @@
 import type { Diagnostic, OracleEngine, Registry } from '@open-tabletop/oracle-engine'
-import { defaultCalendar } from '@open-tabletop/time'
+import {
+  calendarFrom,
+  defaultCalendar,
+  seasonsOf,
+  seasonStartDay,
+  validateCalendar,
+  type Calendar,
+  type CalendarDef,
+  type DataCalendar,
+} from '@open-tabletop/time'
 import {
   createTravelEngine,
   genericTravelRules,
@@ -27,7 +36,12 @@ export interface TravelSystem {
   name: string
   rules: TravelRules
   bindings?: Bindings
+  /** The pack's own calendar (`kind: calendar`), if it has one. */
+  calendar?: DataCalendar
 }
+
+/** The calendar a system's trips use: its own, or the default one. */
+export const calendarOf = (system: TravelSystem): Calendar => system.calendar ?? defaultCalendar
 
 export const GENERIC_SYSTEM: TravelSystem = { id: 'generic', name: '', rules: genericTravelRules }
 
@@ -97,14 +111,32 @@ export function travelSystems(registry: Registry): {
       continue
     }
     const name = typeof pack.manifest.name === 'string' ? pack.manifest.name : id
-    systems.push({ id, name, rules, bindings: parsed?.bindings })
+    const calendarRaw = extras.find((e) => e.kind === 'calendar')
+    const calendarErrors = calendarRaw ? validateCalendar(calendarRaw.data) : []
+    problems.push(...calendarErrors.map((e) => problem(id, calendarRaw!.file, 'calendar', e)))
+    const calendar =
+      calendarRaw && !calendarErrors.length
+        ? calendarFrom(calendarRaw.data as unknown as CalendarDef)
+        : undefined
+    systems.push({ id, name, rules, bindings: parsed?.bindings, ...(calendar && { calendar }) })
   }
   return { systems, problems }
 }
 
 /** First day of each season in the default calendar. */
 export const SEASON_START_DAYS = { spring: 1, summer: 91, autumn: 181, winter: 271 } as const
-export type Season = keyof typeof SEASON_START_DAYS
+/** A season id: spring… in the default calendar; a system's calendar may have others. */
+export type Season = string
+
+/** The seasons trips of a system can start in, in order. */
+export const seasonsFor = (system: TravelSystem): string[] =>
+  system.calendar ? seasonsOf(system.calendar) : Object.keys(SEASON_START_DAYS)
+
+/** The first day of a season in a system's calendar. */
+export function seasonStart(system: TravelSystem, season: Season): number {
+  if (system.calendar) return seasonStartDay(system.calendar, season)
+  return SEASON_START_DAYS[season as keyof typeof SEASON_START_DAYS] ?? 1
+}
 
 /**
  * A new trip at `location`: first travel mode of the rules, dawn of the season's first
@@ -117,11 +149,13 @@ export function startTrip(options: {
   stats?: Record<string, number>
 }): { startDay: number; session: SessionState } {
   const { rules, bindings } = options.system
-  const startDay = SEASON_START_DAYS[options.season ?? 'spring']
+  const calendar = calendarOf(options.system)
+  const startDay = seasonStart(options.system, options.season ?? seasonsFor(options.system)[0])
   const travel = initialTravelState({
     location: options.location,
     mode: Object.keys(rules.modes)[0],
-    time: defaultCalendar.at(startDay, rules.day.start),
+    calendar,
+    time: calendar.at(startDay, rules.day.start),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
   })
   const declared = Object.fromEntries(
@@ -160,7 +194,11 @@ export function stepTrip(
         })
       : undefined
   const result = createSession({
-    travel: createTravelEngine({ world: discovery?.world ?? options.world, rules: system.rules }),
+    travel: createTravelEngine({
+      world: discovery?.world ?? options.world,
+      rules: system.rules,
+      calendar: calendarOf(system),
+    }),
     oracle: system.bindings ? options.oracle : undefined,
     bindings: system.bindings,
     locale: options.locale,

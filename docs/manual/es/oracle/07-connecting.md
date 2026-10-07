@@ -134,6 +134,31 @@ stats:
 
 Las comprobaciones sin binding esperan en el diario a que las resuelvas tú.
 
+## 6. Un calendario propio
+
+Los viajes cuentan los días con un calendario sencillo (cuatro estaciones de 90 días) salvo que el pack del sistema tenga uno propio: una definición `kind: calendar`, en cualquier fichero del pack.
+
+```yaml
+kind: calendar
+id: reckoning
+name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+startYear: 412
+watchHours: 4
+months:
+  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
+  - { id: highsun, name: { en: Highsun, es: Altosol }, days: 30, season: summer }
+  # …
+weekdays: [{ id: moonday, name: Lunadía }, { id: ironday, name: Hierrodía }]
+moons: [{ id: pale, name: la Luna Pálida, cycle: 28 }]
+holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
+```
+
+- **months** en orden, con sus días y su **season** (de aquí salen las estaciones en que puede empezar un viaje); **weekdays**, **moons** (un ciclo en días y un `offset` opcional), **holidays** (un mes y un día), el **startYear** y, si quieres, `start: { month, day }` para el primer día.
+- El panel del viaje muestra la fecha («Lunadía, 1 de Deshielo, año 412»), las fases de las lunas y las fiestas del día.
+- Las tablas y comprobaciones ven `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` o `waning`) y `holidays` (una lista): `when: { moons.ember: full }`, `when: { holidays: midsummer }`.
+
+El `calendar.yaml` de las Marcas Grises es un ejemplo completo.
+
 ## 7. Descubrir el mapa
 
 Los bindings también pueden decir cómo se deciden los hexes vacíos al viajar (el **Descubrir el mapa al viajar** del Hexmapper):

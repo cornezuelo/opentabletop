@@ -9,6 +9,7 @@
   import { defaultCalendar, formatClock } from '@open-tabletop/time'
   import { entryClock, entryText, eventName, journalMarkdown, tripDay } from './journal'
   import { availableActions, checkInfo, type TravelAction } from '@open-tabletop/travel-engine'
+  import { calendarOf } from '@open-tabletop/session'
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
 
@@ -51,12 +52,32 @@
   const t = translator(() => locale)
   const travel = $derived(session.travel)
 
+  const calendar = $derived(calendarOf(system))
   const time = $derived.by(() => {
-    const parts = defaultCalendar.describe(travel.time)
+    const parts = calendar.describe(travel.time)
     return {
       day: parts.day - startDay + 1,
       clock: formatClock(parts),
-      season: parts.season ? t(`seasons.${parts.season}` as TravelUiKey) : '',
+      season: parts.season ? idText(t, `seasons.${parts.season}`, parts.season) : '',
+    }
+  })
+  /** With a calendar of the system's own: the date, its moons and holidays. */
+  const date = $derived.by(() => {
+    if (!system.calendar) return null
+    const parts = system.calendar.describe(travel.time)
+    const name = (text: Parameters<typeof localize>[0], id: string) =>
+      localize(text, locale, 'en') ?? id
+    return {
+      line: t('dateLine', {
+        weekday: parts.weekday ? name(parts.weekday.name, parts.weekday.id) : '',
+        day: parts.month.day,
+        month: name(parts.month.name, parts.month.id),
+        year: parts.year,
+      }).replace(/^, /, ''),
+      moons: parts.moons
+        .map((m) => `${name(m.name, m.id)}: ${t(`moonPhases.${m.phase}` as TravelUiKey)}`)
+        .join(' · '),
+      holidays: parts.holidays.map((h) => name(h.name, h.id)).join(', '),
     }
   })
 
@@ -89,7 +110,7 @@
   const checkName = (event: string) => localize(checkInfo(system.rules, event).name, locale, 'en')
   const checkTip = (event: string) =>
     localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
-  const context = $derived({ t, startDay, hexLabel, nameOf, actionName, checkName })
+  const context = $derived({ t, startDay, hexLabel, nameOf, actionName, checkName, calendar })
   /** What an action of the system's own does, for its tooltip. */
   function actionTip(id: string): string {
     const own = actions.custom[id]
@@ -112,7 +133,7 @@
   const journalDays = $derived.by(() => {
     const groups: { day: number; entries: JournalEntry[] }[] = []
     for (const entry of [...session.journal].reverse().slice(0, 60)) {
-      const day = tripDay(entry, startDay)
+      const day = tripDay(entry, startDay, calendar)
       if (groups.at(-1)?.day !== day) groups.push({ day, entries: [] })
       groups.at(-1)!.entries.push(entry)
     }
@@ -135,6 +156,10 @@
 <div class="trip">
   <div class="status">
     <strong>{t('dayLine', time)}</strong>
+    {#if date}
+      <span>{date.line}{date.holidays ? ` · ${date.holidays}` : ''}</span>
+      {#if date.moons}<span class="moons">{date.moons}</span>{/if}
+    {/if}
     <span>{t('at', { hex: hexLabel(travel.location) })}</span>
     <span
       >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
@@ -282,7 +307,7 @@
         <li class="day">{t('journalDay', { day: group.day })}</li>
         {#each group.entries as entry (entry.id)}
           <li class={entry.source}>
-            <time>{entryClock(entry)}</time>
+            <time>{entryClock(entry, calendar)}</time>
             <span>{text(entry)}</span>
           </li>
         {/each}

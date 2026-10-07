@@ -1,5 +1,5 @@
 import type { JournalEntry } from '@open-tabletop/session'
-import { defaultCalendar, formatClock } from '@open-tabletop/time'
+import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
 import { idText, type Translate, type TravelUiKey } from './i18n'
 
 /** What turns journal entries into text: the host names hexes and Oracle definitions. */
@@ -13,6 +13,8 @@ export interface JournalContext {
   actionName?: (id: string) => string
   /** Name the system gives a check event, if any. */
   checkName?: (event: string) => string | undefined
+  /** The system's calendar (the default one if absent). */
+  calendar?: Calendar
 }
 
 /** A check event for players: the system's name for it, a known one, or the id made readable. */
@@ -58,10 +60,11 @@ export function entryText(
 }
 
 /** The trip day an entry belongs to (1 = the day the trip started). */
-export const tripDay = (e: JournalEntry, startDay: number) =>
-  defaultCalendar.describe(e.time).day - startDay + 1
+export const tripDay = (e: JournalEntry, startDay: number, calendar: Calendar = defaultCalendar) =>
+  calendar.describe(e.time).day - startDay + 1
 
-export const entryClock = (e: JournalEntry) => formatClock(defaultCalendar.describe(e.time))
+export const entryClock = (e: JournalEntry, calendar: Calendar = defaultCalendar) =>
+  formatClock(calendar.describe(e.time))
 
 /**
  * The whole journal as Markdown, oldest first, a heading per day: for notes apps
@@ -76,13 +79,15 @@ export function journalMarkdown(
   let day: number | undefined
   for (const entry of journal) {
     if (entry.code === 'DAY_STARTED') continue
-    const today = tripDay(entry, context.startDay)
+    const today = tripDay(entry, context.startDay, context.calendar)
     if (today !== day) {
       day = today
       lines.push('', `## ${context.t('journalDay', { day })}`, '')
     }
     const text = entryText(entry, context).replace(/\s*\n\s*/g, ' ')
-    lines.push(`- **${entryClock(entry)}** ${entry.source === 'user' ? `_${text}_` : text}`)
+    lines.push(
+      `- **${entryClock(entry, context.calendar)}** ${entry.source === 'user' ? `_${text}_` : text}`,
+    )
   }
   return `${lines.join('\n')}\n`
 }

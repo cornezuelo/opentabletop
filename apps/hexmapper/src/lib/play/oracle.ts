@@ -1,6 +1,7 @@
 import { createOracleUi } from '@open-tabletop/oracle-ui'
-import { addEntry, tripContext } from '@open-tabletop/session'
-import { defaultCalendar } from '@open-tabletop/time'
+import { addEntry, calendarOf, tripContext } from '@open-tabletop/session'
+import { calendarFacts } from '@open-tabletop/travel-engine'
+import { getSystem } from './systems'
 import { getLocale } from '../i18n/index.svelte'
 import { fieldValues } from '../model/hex'
 import type { HexKey } from '../model/types'
@@ -77,7 +78,8 @@ export function rollContext(): Record<string, unknown> {
   const out: Record<string, unknown> = session
     ? tripContext(session, {
         ...facts,
-        season: defaultCalendar.describe(session.travel.time).season,
+        ...calendarFacts(calendarOf(getSystem(play!.rules!.system)).describe(session.travel.time)),
+        season: calendarOf(getSystem(play!.rules!.system)).describe(session.travel.time).season,
         weather: session.travel.weather,
         mode: session.travel.mode,
         day: session.travel.day,

@@ -147,7 +147,7 @@ on:
 - **MVP:** `shortest` (steps) and `fastest` (time from terrain, mode and roads).
 - **Later:** `avoid-danger`, `prefer-roads`, `safest`, `stealthiest`, combinable with weights.
 
-**Time:** `GameTime` in absolute minutes. The default calendar has 24-hour days, 4-hour watches and N-day seasons. Custom calendars implement the `Calendar` interface without touching the engine.
+**Time:** `GameTime` in absolute minutes. The default calendar has 24-hour days, 4-hour watches and N-day seasons. Custom calendars implement the `Calendar` interface without touching the engine; packs declare them as data (`kind: calendar`: months, seasons, weekdays, moons, holidays), and a system's trips use its pack's calendar.
 
 ## 4. Coupling risks
 

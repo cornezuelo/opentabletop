@@ -27,7 +27,7 @@ export function yamlHints(registry: Registry, pack?: string): YamlHints {
 
 /** Keys with a fixed set of values. */
 const ENUMS: Record<string, readonly string[]> = {
-  kind: ['table', 'oracle', 'generator', 'deck', 'travel-rules', 'bindings'],
+  kind: ['table', 'oracle', 'generator', 'deck', 'travel-rules', 'bindings', 'calendar'],
   onExhausted: ['reroll', 'next', 'none'],
   reshuffle: ['when-empty', 'manual', 'after-draw'],
   at: ['day-start', 'hex-enter', 'camp'],

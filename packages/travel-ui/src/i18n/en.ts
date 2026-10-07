@@ -10,6 +10,8 @@ export const en = {
   marched: 'Marched today: {used} of {limit} h',
   dayUnit: 'day',
   journalDay: 'Day {day}',
+  dateLine: '{weekday}, {day} {month}, year {year}',
+  moonPhases: { new: 'new', waxing: 'waxing', full: 'full', waning: 'waning' },
   dayLine: 'Day {day} · {clock} · {season}',
   at: 'At {hex}',
   weather: 'Weather: {weather}',

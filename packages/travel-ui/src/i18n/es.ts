@@ -14,6 +14,8 @@ export const es: Messages<typeof en> = {
   marched: 'Marcha de hoy: {used} de {limit} h',
   dayUnit: 'día',
   journalDay: 'Día {day}',
+  dateLine: '{weekday}, {day} de {month}, año {year}',
+  moonPhases: { new: 'nueva', waxing: 'creciente', full: 'llena', waning: 'menguante' },
   dayLine: 'Día {day} · {clock} · {season}',
   at: 'En {hex}',
   weather: 'Clima: {weather}',

@@ -15,6 +15,13 @@ entries:
     once: true
     when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gt: 3 } }] }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
+  # The calendar (calendar.yaml): when the Ember Moon is full, the hunt rides at night.
+  - id: hunt
+    range: 1-20
+    when: { all: [{ moons.ember: full }, { timeOfDay: night }] }
+    result: 'Horns in the dark: the Ember Hunt rides under the full moon — they are {{result}}'
+    table: reaction
+    set: { reactionModifier: -3, stats: { morale: -1 } }
   # Nights in haunted places, whatever the roll.
   - id: lights
     range: 1-20

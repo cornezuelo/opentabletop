@@ -1,0 +1,38 @@
+# The Marcher reckoning: the calendar of the Grey Marches' trips. Twelve months of 30
+# days in four seasons, a seven-day week, two moons and the feasts the tables know.
+# Tables and checks see `month`, `year`, `weekday`, `moons.pale` / `moons.ember` (new,
+# waxing, full, waning) and `holidays` (a list: `when: { holidays: midsummer }`).
+kind: calendar
+id: marcher-reckoning
+name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+watchHours: 4
+startYear: 412
+months:
+  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
+  - { id: sowing, name: { en: Sowing, es: Siembra }, days: 30, season: spring }
+  - { id: blossom, name: { en: Blossom, es: Floración }, days: 30, season: spring }
+  - { id: highsun, name: { en: Highsun, es: Altosol }, days: 30, season: summer }
+  - { id: haying, name: { en: Haying, es: Siega }, days: 30, season: summer }
+  - { id: harvest, name: { en: Harvest, es: Cosecha }, days: 30, season: summer }
+  - { id: leaffall, name: { en: Leaffall, es: Caída de la hoja }, days: 30, season: autumn }
+  - { id: mists, name: { en: Mists, es: Brumas }, days: 30, season: autumn }
+  - { id: frostfall, name: { en: Frostfall, es: Escarcha }, days: 30, season: autumn }
+  - { id: deepwinter, name: { en: Deepwinter, es: Invierno hondo }, days: 30, season: winter }
+  - { id: wolfmoon, name: { en: Wolfmoon, es: Luna del lobo }, days: 30, season: winter }
+  - { id: lastsnow, name: { en: Lastsnow, es: Última nieve }, days: 30, season: winter }
+weekdays:
+  - { id: moonday, name: { en: Moonday, es: Lunadía } }
+  - { id: ironday, name: { en: Ironday, es: Hierrodía } }
+  - { id: wellday, name: { en: Wellday, es: Pozodía } }
+  - { id: thornday, name: { en: Thornday, es: Espinodía } }
+  - { id: hearthday, name: { en: Hearthday, es: Hogardía } }
+  - { id: marketday, name: { en: Marketday, es: Mercadía } }
+  - { id: restday, name: { en: Restday, es: Descansodía } }
+moons:
+  - { id: pale, name: { en: the Pale Moon, es: la Luna Pálida }, cycle: 28 }
+  - { id: ember, name: { en: the Ember Moon, es: la Luna Ascua }, cycle: 45, offset: 20 }
+holidays:
+  - { id: first-thaw, name: { en: First Thaw, es: Primer Deshielo }, month: thaw, day: 1 }
+  - { id: midsummer, name: { en: Midsummer, es: Pleno Verano }, month: highsun, day: 15 }
+  - { id: harvest-home, name: { en: Harvest Home, es: Fin de Cosecha }, month: harvest, day: 30 }
+  - { id: long-night, name: { en: The Long Night, es: La Noche Larga }, month: deepwinter, day: 15 }

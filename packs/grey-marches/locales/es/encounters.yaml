@@ -2,6 +2,7 @@ encounter:
   name: ¿Quién va?
   description: Depende del terreno, la región, el peligro del hex y la hora del día.
   entries:
+    hunt: 'Cuernos en la oscuridad: la Cacería Ascua cabalga bajo la luna llena; están {{result}}'
     wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
     lights: Luces pálidas flotan entre los árboles y dicen vuestros nombres
     patrol: 'Una patrulla del Valle: están {{result}}'

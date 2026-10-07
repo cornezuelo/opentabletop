@@ -27,17 +27,18 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 
 ## De un viaje (Jugar en el Hexmapper, aplicación Travel)
 
-| Nombre                    | Qué es                                                                                                                                                                  |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `season`                  | `spring`, `summer`, `autumn`, `winter`.                                                                                                                                 |
-| `weather`                 | El clima de hoy, cuando una tabla lo ha fijado.                                                                                                                         |
-| `mode`                    | La forma de viajar (`foot`, `horse`, `boat`…).                                                                                                                          |
-| `day`                     | El número de día.                                                                                                                                                       |
-| `edges`                   | Los caminos, senderos o ríos del tramo: el recién recorrido al entrar en un hex, el de delante al alba y al acampar.                                                    |
-| _cada característica_     | Las características del grupo del sistema con su valor actual, por nombre: `{{charisma}}`. Atajo: un dato del mapa o del viaje con el mismo nombre gana (ver abajo).    |
-| `party`                   | El grupo, siempre sin ambigüedad: `party.stats.charisma`, `party.resources.food`, `party.fatigue`, `party.mode`. También en las tiradas a mano durante un viaje.        |
-| _los valores del día_     | Los que fijó antes ese mismo día una tabla: `weather`, y cualquier nombre que acabe en `Modifier` o `Impossible` (`fordModifier`, `fordImpossible`). Se borran al alba. |
-| _el contexto del binding_ | Lo que añaden los bindings para esa comprobación: `context: { timeOfDay: night }`; para un oráculo, su entrada (`odds: even`).                                          |
+| Nombre                                          | Qué es                                                                                                                                                                  |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `season`                                        | `spring`, `summer`, `autumn`, `winter`.                                                                                                                                 |
+| `weather`                                       | El clima de hoy, cuando una tabla lo ha fijado.                                                                                                                         |
+| `mode`                                          | La forma de viajar (`foot`, `horse`, `boat`…).                                                                                                                          |
+| `day`                                           | El número de día.                                                                                                                                                       |
+| `month`, `year`, `weekday`, `moons`, `holidays` | Con un calendario propio del sistema: el id del mes, el año, el día de la semana, la fase de cada luna (`moons.pale: full`) y las fiestas del día (una lista).          |
+| `edges`                                         | Los caminos, senderos o ríos del tramo: el recién recorrido al entrar en un hex, el de delante al alba y al acampar.                                                    |
+| _cada característica_                           | Las características del grupo del sistema con su valor actual, por nombre: `{{charisma}}`. Atajo: un dato del mapa o del viaje con el mismo nombre gana (ver abajo).    |
+| `party`                                         | El grupo, siempre sin ambigüedad: `party.stats.charisma`, `party.resources.food`, `party.fatigue`, `party.mode`. También en las tiradas a mano durante un viaje.        |
+| _los valores del día_                           | Los que fijó antes ese mismo día una tabla: `weather`, y cualquier nombre que acabe en `Modifier` o `Impossible` (`fordModifier`, `fordImpossible`). Se borran al alba. |
+| _el contexto del binding_                       | Lo que añaden los bindings para esa comprobación: `context: { timeOfDay: night }`; para un oráculo, su entrada (`odds: even`).                                          |
 
 ## Descubrir el mapa
 

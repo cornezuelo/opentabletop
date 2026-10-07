@@ -102,3 +102,4 @@ export function nextAt(calendar: Calendar, time: GameTime, clock: string | numbe
 export function formatClock(parts: Pick<TimeParts, 'hour' | 'minute'>): string {
   return `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`
 }
+export * from './calendar'

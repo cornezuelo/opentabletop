@@ -1,6 +1,13 @@
 import { matches } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
-import { defaultCalendar, nextAt, type Calendar, type GameTime } from '@open-tabletop/time'
+import {
+  defaultCalendar,
+  nextAt,
+  type Calendar,
+  type CalendarParts,
+  type GameTime,
+  type TimeParts,
+} from '@open-tabletop/time'
 import { availableActions, type CheckRule, type TravelRules } from './rules'
 
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
@@ -129,6 +136,21 @@ export function initialTravelState(init: {
   }
 }
 
+/**
+ * What a calendar of the system's own says about now, for tables and checks: `month`,
+ * `year`, `weekday`, `moons` (each moon's phase: `moons.pale: full`) and `holidays`.
+ */
+export function calendarFacts(parts: TimeParts | CalendarParts): Record<string, unknown> {
+  if (!('month' in parts)) return {}
+  return {
+    month: parts.month.id,
+    year: parts.year,
+    ...(parts.weekday && { weekday: parts.weekday.id }),
+    moons: Object.fromEntries(parts.moons.map((m) => [m.id, m.phase])),
+    holidays: parts.holidays.map((h) => h.id),
+  }
+}
+
 export function createTravelEngine(options: {
   world: TravelWorld
   rules: TravelRules
@@ -215,6 +237,7 @@ export function createTravelEngine(options: {
   const checkContext = (state: TravelState, [a, b]: string[] = []): Record<string, unknown> => {
     const cell = world.cell(state.location)
     return {
+      ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the hex (fields, region…), then the travel facts.
       ...cell,
       hex: state.location,

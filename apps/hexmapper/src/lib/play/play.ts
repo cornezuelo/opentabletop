@@ -1,6 +1,7 @@
 import type { HexKey } from '@open-tabletop/hex'
 import {
   SEASON_START_DAYS,
+  seasonStart,
   startTrip,
   stepTrip,
   type Season,
@@ -150,7 +151,10 @@ export function restartRules(system: string, season: Season): void {
   const play = current()
   const location = partyLocation()
   if (!location)
-    return save({ ...play, rules: { system, startDay: SEASON_START_DAYS[season], session: null } })
+    return save({
+      ...play,
+      rules: { system, startDay: seasonStart(getSystem(system), season), session: null },
+    })
   save(newSession(play, location, system, season))
 }
 

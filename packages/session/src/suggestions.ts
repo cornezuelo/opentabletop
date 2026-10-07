@@ -46,7 +46,16 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { rules, bindings } of systems) {
+  for (const { rules, bindings, calendar } of systems) {
+    if (calendar) {
+      const def = calendar.def
+      add('month', ...def.months.map((m) => m.id))
+      add('year')
+      add('weekday', ...(def.weekdays ?? []).map((w) => w.id))
+      for (const moon of def.moons ?? []) add(`moons.${moon.id}`, 'new', 'waxing', 'full', 'waning')
+      add('holidays', ...(def.holidays ?? []).map((h) => h.id))
+      add('season', ...def.months.flatMap((m) => (m.season ? [m.season] : [])))
+    }
     add('terrain', ...Object.keys(rules.terrains))
     add('weather', ...Object.keys(rules.weather ?? {}))
     add('mode', ...Object.keys(rules.modes))

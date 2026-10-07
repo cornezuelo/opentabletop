@@ -43,6 +43,11 @@ entries:
   - { id: rumour, result: 'the guard whispers a rumour: {{result}}', table: rumour }
   - { id: work, result: 'there is work: someone pays {{2d6}} silver for an escort' }
   - { id: feast, result: it is a feast day; the inn is full }
+  # A holiday of the calendar: only on Midsummer, and then most likely.
+  - id: midsummer
+    weight: 6
+    when: { holidays: midsummer }
+    result: the whole town dances for Midsummer and the gates stand open
 ---
 # A token's values: select Brenna on the map and roll this from the Oracle panel; her
 # fare is a value of her token ({{token.fare}}). Without her, the jetty is empty.

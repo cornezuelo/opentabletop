@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { SEASON_START_DAYS, type Season, type TravelSystem } from '@open-tabletop/session'
+  import { seasonsFor, type Season, type TravelSystem } from '@open-tabletop/session'
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { translator } from './i18n'
+  import { idText, translator } from './i18n'
 
   /** Choose the travel system and starting season, and start a new trip. */
   let {
@@ -20,8 +20,13 @@
   } = $props()
 
   const t = translator(() => locale)
-  const seasons = Object.keys(SEASON_START_DAYS) as Season[]
   const current = $derived(systems.find((s) => s.id === system) ?? systems[0])
+  /** The seasons of the system's calendar (spring… by default). */
+  const seasons = $derived(current ? seasonsFor(current) : [])
+  // A season the system's calendar doesn't have becomes its first one.
+  $effect(() => {
+    if (seasons.length && !seasons.includes(season)) season = seasons[0]
+  })
 </script>
 
 <div class="group">
@@ -38,7 +43,7 @@
       <span>{t('startSeason')}</span>
       <select bind:value={season}>
         {#each seasons as s (s)}
-          <option value={s}>{t(`seasons.${s}`)}</option>
+          <option value={s}>{idText(t, `seasons.${s}`, s)}</option>
         {/each}
       </select>
     </label>

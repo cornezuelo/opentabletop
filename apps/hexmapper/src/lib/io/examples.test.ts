@@ -9,6 +9,7 @@ import {
   tripContext,
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
+import { createTravelEngine } from '@open-tabletop/travel-engine'
 import { mapWorld } from '../play/world'
 import { EXAMPLE_MAPS } from './examples'
 import { parseMapFile } from './otd'
@@ -141,6 +142,39 @@ describe('example maps', () => {
     ])
     expect(oracle.resolve('grey-marches/inn', { spend: 'feast' }).resolution.entry).toBe('short')
     expect(oracle.resolve('grey-marches/inn', { spend: 'round' }).resolution.entry).toBe('quiet')
+  })
+
+  it('the Grey Marches have their own calendar, and checks see it', () => {
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    expect(system.calendar).toBeDefined()
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    const parts = system.calendar!.describe(session.travel.time)
+    expect(parts).toMatchObject({ year: 412, month: { id: 'highsun', day: 1 }, season: 'summer' })
+    // Midsummer is the 15th of Highsun.
+    const midsummer = system.calendar!.describe(session.travel.time + 14 * 24 * 60)
+    expect(midsummer.holidays.map((h) => h.id)).toEqual(['midsummer'])
+    // The first check of the day (the weather at dawn) sees the date.
+    const engine = createTravelEngine({
+      world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json)),
+      rules: system.rules,
+      calendar: system.calendar,
+    })
+    const planned = engine.apply(session.travel, { type: 'setDestination', hex: '7,7' }).state
+    const { events } = engine.apply(planned, { type: 'travel' })
+    const check = events.find((e) => e.type === 'CHECK_REQUIRED')
+    expect(check?.type === 'CHECK_REQUIRED' && check.check.context).toMatchObject({
+      month: 'highsun',
+      year: 412,
+      weekday: expect.any(String),
+      moons: { pale: expect.any(String), ember: expect.any(String) },
+      holidays: [],
+    })
   })
 
   it('the Grey Marches: only the boat crosses the Saltmere', () => {

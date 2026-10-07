@@ -1,7 +1,7 @@
 <script lang="ts">
   import { confirmAction } from '@open-tabletop/ui-kit'
   import { packTexts } from '@open-tabletop/oracle-ui'
-  import type { Season, TravelSystem } from '@open-tabletop/session'
+  import { calendarOf, type Season, type TravelSystem } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -57,8 +57,9 @@
   const tripLabel = (saved: Saved) => {
     if (saved.name) return saved.name
     const of = systems.get(saved.system)
+    const calendar = of ? calendarOf(of) : defaultCalendar
     const day = saved.session
-      ? defaultCalendar.describe(saved.session.travel.time).day - saved.startDay + 1
+      ? calendar.describe(saved.session.travel.time).day - saved.startDay + 1
       : 1
     return t('trips.unnamed', { system: of ? name(of) : saved.system, day })
   }
