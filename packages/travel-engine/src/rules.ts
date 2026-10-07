@@ -27,8 +27,10 @@ const customAction = z
     minutes: z.number().nonnegative().optional(),
     /** Multiplies the rest of today's march, e.g. 0.5: foraging halves it. */
     speed: z.number().nonnegative().optional(),
-    /** Fatigue recovered. */
+    /** Fatigue recovered (older form: write it as an effect, `party.stats.fatigue: -1`). */
     fatigue: z.number().nonnegative().optional(),
+    /** What the action changes, as effects (`party.stats.fatigue: -1`), applied when it's taken. */
+    effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
     /** Only once a day. */
     oncePerDay: z.boolean().optional(),
   })
@@ -131,6 +133,8 @@ export const travelRulesSchema = z
                 minutes: z.number().positive().optional(),
                 /** Fatigue recovered per rest (default 0: a pause, not a night's sleep). */
                 fatigue: z.number().nonnegative().optional(),
+                /** What a rest changes, as effects (`party.stats.fatigue: -1`). */
+                effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
               })
               .strict(),
           ])

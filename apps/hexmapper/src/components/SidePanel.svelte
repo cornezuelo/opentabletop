@@ -28,6 +28,7 @@
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyResult, tripChanges } from '@open-tabletop/session'
+  import { getSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexKey } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -131,18 +132,26 @@
           {@const changes = tripChanges(item.resolution.value)}
           {#if changes.length && editor.play && sessionOf(editor.play)}
             {@const summary = changes
-              .map(([key, change]) =>
-                typeof change === 'number'
-                  ? `${key} ${change > 0 ? '+' : ''}${change}`
-                  : `${key}: ${change}`,
-              )
+              .map(([key, change]) => {
+                // The value's name (its system's, or the app's), not its path.
+                const name = oracleUi.valueInfo(key).name ?? key
+                return typeof change === 'number'
+                  ? `${name} ${change > 0 ? '+' : ''}${change}`
+                  : `${name} ${String(change).startsWith('=') ? change : `: ${change}`}`
+              })
               .join(', ')}
             <button
               class="result-action"
               disabled={applied.has(item.id)}
               use:tooltip={t('oracle.applyHelp')}
               onclick={() => {
-                editSession((session) => applyResult(session, item.resolution.value))
+                editSession((session) =>
+                  applyResult(
+                    session,
+                    item.resolution.value,
+                    getSystem(editor.play?.rules?.system ?? 'generic').bindings?.stats,
+                  ),
+                )
                 applied = new Set([...applied, item.id])
                 showToast(t('oracle.applied', { changes: summary }))
               }}

@@ -29,6 +29,8 @@ export interface CompiledEntry {
   result?: string
   ref?: Ref
   set?: Record<string, unknown>
+  /** Changes to declared values (`party.stats.morale: -1`), applied by the host. */
+  effects?: Record<string, number | string>
   /** Max times it may come up per session (once = 1). */
   limit?: number
 }
@@ -115,6 +117,7 @@ export interface CompiledCard {
   result?: string
   ref?: Ref
   set?: Record<string, unknown>
+  effects?: Record<string, number | string>
 }
 
 export interface CompiledDeck extends Base {
@@ -318,6 +321,7 @@ class CompileContext {
                 ? this.ref('generator', c.generator, `cards[${i}]`)
                 : undefined,
             set: c.set,
+            effects: c.effects,
           })),
         }
     }
@@ -354,6 +358,7 @@ class CompileContext {
             ? this.ref('generator', e.generator, where)
             : undefined,
         set: e.set,
+        effects: e.effects,
         limit: e.once ? 1 : e.maxOccurrences,
       }
     })

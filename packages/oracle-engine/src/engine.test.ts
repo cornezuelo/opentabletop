@@ -762,3 +762,38 @@ calendar/nope: { name: Y }
     ])
   })
 })
+
+describe('effects', () => {
+  it('fill in their templates and add up with the tables they roll', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'fx/pack.yaml', content: 'id: fx\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'fx/t.yaml',
+        content: `kind: table
+id: forage
+entries:
+  - { result: 'Game: {{result}}', table: hunt, effects: { party.resources.food: '{{1d1+1}}', party.stats.morale: 1 } }
+---
+kind: table
+id: hunt
+entries:
+  - { result: a deer, effects: { party.resources.food: 1, party.stats.fatigue: '=0' } }
+---
+kind: deck
+id: omens
+cards: [{ id: cache, result: A cache, effects: { party.resources.food: 2 } }]
+`,
+      },
+    ])
+    expect(diagnostics).toEqual([])
+    const engine = createOracleEngine({ registry, random: seeded('fx') })
+    expect(engine.resolve('fx/forage').resolution.value.effects).toEqual({
+      'party.resources.food': 3,
+      'party.stats.fatigue': '=0',
+      'party.stats.morale': 1,
+    })
+    expect(engine.draw('fx/omens').resolution.value.effects).toEqual({
+      'party.resources.food': 2,
+    })
+  })
+})

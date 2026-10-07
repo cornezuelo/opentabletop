@@ -20,9 +20,12 @@ import {
   addEntry,
   createSession,
   initialSessionState,
+  type SessionState,
   localize,
   parseBindings,
   applyResult,
+  applyEffects,
+  effectsOf,
   toOutcome,
   tripChanges,
   tripContext,
@@ -318,12 +321,32 @@ entries:
     expect(localize(bindings?.stats?.pre.description, 'es')).toBe('Reaction bonus')
   })
 
-  it('applies a result rolled by hand to the trip', () => {
+  it('applies the effects of the system’s actions and journals them', () => {
+    const praying = {
+      ...rules,
+      actions: { pray: { minutes: 60, effects: { 'party.stats.morale': 1 } } },
+    }
+    const session = createSession({
+      travel: createTravelEngine({ world, rules: praying }),
+      rules: praying,
+      bindings: { on: {}, stats: { morale: { default: 3, max: 4 } } },
+      now: () => 'T',
+    })
+    let state: SessionState = { ...start(), stats: { morale: 3 } }
+    for (let i = 0; i < 2; i++) state = session.step(state, { type: 'action', id: 'pray' }).state
+    expect(state.stats.morale).toBe(4)
+    expect(state.journal.at(-1)).toMatchObject({
+      code: 'ACTION_TAKEN',
+      data: { action: 'pray', effects: { 'party.stats.morale': 1 } },
+    })
+  })
+
+  it('applies a result rolled by hand to the trip, as effects', () => {
     const value = { resources: { food: -5 }, stats: { morale: 2 }, fatigue: -1, other: 1 }
     expect(tripChanges(value)).toEqual([
-      ['food', -5],
-      ['fatigue', -1],
-      ['morale', 2],
+      ['party.resources.food', -5],
+      ['party.stats.morale', 2],
+      ['party.fatigue', -1],
     ])
     const state = applyResult({ ...start(), stats: { pre: 1 } }, value)
     expect(state.travel.resources.food).toBe(0) // never below zero
@@ -331,15 +354,40 @@ entries:
     expect(tripChanges({ result: 'nothing' })).toEqual([])
   })
 
+  it('reads effects and the older ways of writing them, and keeps stats within bounds', () => {
+    expect(
+      effectsOf({
+        stats: { morale: -1 },
+        effects: { 'party.stats.morale': '+3', 'party.stats.luck': '=2', 'factions.x.rep': 1 },
+      }),
+    ).toEqual({ 'party.stats.morale': 2, 'party.stats.luck': '=2', 'factions.x.rep': 1 })
+    const target = { stats: { morale: 4 }, travel: { resources: { food: 1 }, fatigue: 0 } }
+    const { applied, unknown } = applyEffects(
+      target,
+      {
+        'party.stats.morale': 3,
+        'party.stats.luck': '=2',
+        'party.resources.food': -3,
+        'factions.x.rep': 1,
+      },
+      { morale: { min: 0, max: 5 } },
+    )
+    expect(target.stats).toEqual({ morale: 5, luck: 2 })
+    expect(target.travel.resources.food).toBe(0)
+    expect(applied).toEqual([
+      { path: 'party.stats.morale', from: 4, to: 5 },
+      { path: 'party.stats.luck', from: 0, to: 2 },
+      { path: 'party.resources.food', from: 1, to: 0 },
+    ])
+    expect(unknown).toEqual(['factions.x.rep'])
+  })
+
   it('maps table values to travel outcomes', () => {
     expect(toOutcome({ lost: true, weather: 'storm', other: 1 })).toEqual({
       lost: true,
       weather: 'storm',
     })
-    expect(toOutcome({ resources: { food: 2, water: 'lots' }, fatigue: -1 })).toEqual({
-      resources: { food: 2 },
-      fatigue: -1,
-    })
-    expect(toOutcome({ resources: { water: 'lots' } })).toEqual({})
+    // Effects on the party are the session's (effectsOf), not the travel engine's.
+    expect(toOutcome({ resources: { food: 2 }, fatigue: -1 })).toEqual({})
   })
 })

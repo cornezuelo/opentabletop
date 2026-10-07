@@ -6,6 +6,7 @@ import {
   type OracleEngine,
   type OracleState,
 } from '@open-tabletop/oracle-engine'
+import { applyEffects, effectsOf } from './effects'
 import {
   parseDiscover,
   type DiscoverBindings,
@@ -17,6 +18,7 @@ import type {
   TravelAction,
   TravelEngine,
   TravelEvent,
+  TravelRules,
   TravelState,
 } from '@open-tabletop/travel-engine'
 
@@ -28,6 +30,9 @@ export interface StatDefinition {
   name?: LocalizedText
   description?: LocalizedText
   default?: number
+  /** Effects never take it below / above these. */
+  min?: number
+  max?: number
 }
 
 /**
@@ -98,6 +103,8 @@ export function parseBindings(
         name: text(v.name),
         description: text(v.description),
         default: typeof v.default === 'number' ? v.default : 0,
+        ...(typeof v.min === 'number' && { min: v.min }),
+        ...(typeof v.max === 'number' && { max: v.max }),
       }
     }
   }
@@ -166,43 +173,28 @@ export function tripContext(
   return { ...s.stats, ...s.dayVars, ...facts, party: partyValues(s), yesterday, ...extra }
 }
 
-/** Table values that change the party's stats: `stats: { morale: -1 }` adds to them. */
-export function applyStats(s: SessionState, value: Record<string, unknown>): void {
-  const stats = value.stats
-  if (typeof stats !== 'object' || stats === null) return
-  for (const [key, delta] of Object.entries(stats))
-    if (typeof delta === 'number' && Number.isFinite(delta))
-      s.stats[key] = (s.stats[key] ?? 0) + delta
-}
-
 /**
- * What a result would change in a trip (supplies, fatigue, stats, weather), as
- * `[name, change]` pairs: `[['food', -1], ['morale', 1], ['weather', 'storm']]`.
+ * What a result would change in a trip, as `[path, change]` pairs: its effects
+ * (`['party.resources.food', -1]`, `['party.stats.fatigue', '=0']`) and the weather.
  */
 export function tripChanges(value: Record<string, unknown>): [string, number | string][] {
-  const outcome = toOutcome(value)
-  const changes: [string, number | string][] = Object.entries(outcome.resources ?? {})
-  if (outcome.fatigue) changes.push(['fatigue', outcome.fatigue])
-  const stats = value.stats
-  if (typeof stats === 'object' && stats !== null)
-    for (const [key, delta] of Object.entries(stats))
-      if (typeof delta === 'number' && Number.isFinite(delta)) changes.push([key, delta])
-  if (outcome.weather) changes.push(['weather', outcome.weather])
+  const changes: [string, number | string][] = Object.entries(effectsOf(value))
+  if (typeof value.weather === 'string') changes.push(['weather', value.weather])
   return changes
 }
 
 /**
- * Applies a result rolled by hand to the trip, as a check's would be: supplies,
- * fatigue and stats change by the amounts it sets; `weather` becomes today's.
+ * Applies a result rolled by hand to the trip, as a check's would be: its effects, and
+ * `weather` becomes today's. `stats` are the system's, for their bounds.
  */
-export function applyResult(input: SessionState, value: Record<string, unknown>): SessionState {
+export function applyResult(
+  input: SessionState,
+  value: Record<string, unknown>,
+  stats: Record<string, StatDefinition> = {},
+): SessionState {
   const s = structuredClone(input)
-  const outcome = toOutcome(value)
-  for (const [id, delta] of Object.entries(outcome.resources ?? {}))
-    s.travel.resources[id] = Math.max(0, (s.travel.resources[id] ?? 0) + delta)
-  if (outcome.fatigue) s.travel.fatigue = Math.max(0, s.travel.fatigue + outcome.fatigue)
-  if (outcome.weather) s.travel.weather = outcome.weather
-  applyStats(s, value)
+  applyEffects(s, effectsOf(value), stats)
+  if (typeof value.weather === 'string') s.travel.weather = value.weather
   return s
 }
 
@@ -247,6 +239,8 @@ export function createSession(options: {
   weather?: Record<string, WeatherModel>
   /** For the weather (tables use the Oracle's own). */
   random?: RandomSource
+  /** The system's travel rules: the effects of its actions (`actions.forage.effects`). */
+  rules?: TravelRules
 }): Session {
   const random = options.random ?? mathRandom()
   const now = options.now ?? (() => new Date().toISOString())
@@ -329,6 +323,19 @@ export function createSession(options: {
         let found = false
         for (const event of result.events) {
           journalEvent(s, entries, event)
+          // An action's or a rest's effects, as the system declares them.
+          const own =
+            event.type === 'ACTION_TAKEN'
+              ? options.rules?.actions?.[event.action]
+              : event.type === 'RESTED'
+                ? options.rules?.actions?.rest
+                : undefined
+          if (own && typeof own === 'object' && 'effects' in own && own.effects) {
+            applyEffects(s, own.effects, options.bindings?.stats)
+            // The journal line of the action says what it changed.
+            const line = entries.at(-1)
+            if (line?.code === event.type) line.data = { ...line.data, effects: own.effects }
+          }
           if (event.type === 'HEX_ENTERED') found = arrive(event.hex, from, event.time) || found
           if (event.type !== 'CHECK_REQUIRED') continue
           const binding = options.bindings?.on[event.check.event]
@@ -396,7 +403,7 @@ export function createSession(options: {
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value) }
-          applyStats(s, value)
+          applyEffects(s, effectsOf(value), options.bindings?.stats)
           s.travel = options.travel.apply(s.travel, {
             type: 'resolveCheck',
             id: event.check.id,
@@ -450,18 +457,14 @@ export function addEntry(
   return s
 }
 
-/** Table values that the travel engine understands as a check outcome. */
+/**
+ * Table values that the travel engine understands as a check outcome (its effects on the
+ * party are applied by the session: `effectsOf`).
+ */
 export function toOutcome(value: Record<string, unknown>): CheckOutcome {
   const outcome: CheckOutcome = {}
   if (value.lost === true) outcome.lost = true
   if (typeof value.weather === 'string') outcome.weather = value.weather
-  if (typeof value.fatigue === 'number') outcome.fatigue = value.fatigue
-  if (typeof value.resources === 'object' && value.resources !== null) {
-    const numbers = Object.entries(value.resources).filter(
-      (e): e is [string, number] => typeof e[1] === 'number' && Number.isFinite(e[1]),
-    )
-    if (numbers.length) outcome.resources = Object.fromEntries(numbers)
-  }
   return outcome
 }
 
@@ -472,6 +475,7 @@ export function dayVariables(value: Record<string, unknown>): Record<string, unk
     if (key === 'weather' || key.endsWith('Modifier') || key.endsWith('Impossible')) out[key] = v
   return out
 }
+export * from './effects'
 export * from './trip'
 export * from './discovery'
 export * from './suggestions'

@@ -10,6 +10,13 @@ const id = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'ids use lowercase letters, 
 const ref = z.string().min(1)
 const condition = z.record(z.string(), z.unknown())
 const setValues = z.record(z.string(), z.unknown())
+/**
+ * Changes to the values a system declares, by their path as tables read them:
+ * `{ party.stats.morale: -1, party.resources.food: '{{1d3}}', party.stats.fatigue: '=0' }`
+ * (a number adds or subtracts, '=value' sets). The engine only fills in templates and
+ * passes them on (`effects` in the result); the host applies them.
+ */
+const effects = z.record(z.string(), z.union([z.number(), z.string()]))
 
 /** Single number or "a-b". */
 const range = z.union([
@@ -27,6 +34,7 @@ const entry = z
     table: ref.optional(),
     generator: ref.optional(),
     set: setValues.optional(),
+    effects: effects.optional(),
     once: z.boolean().optional(),
     maxOccurrences: z.number().int().positive().optional(),
   })
@@ -127,6 +135,7 @@ const card = z
     table: ref.optional(),
     generator: ref.optional(),
     set: setValues.optional(),
+    effects: effects.optional(),
     count: z.number().int().positive().optional(),
   })
   .strict()

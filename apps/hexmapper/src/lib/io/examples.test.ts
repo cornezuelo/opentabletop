@@ -142,9 +142,9 @@ describe('example maps', () => {
     const feast = oracle.resolve('grey-marches/inn', tripContext(fed, {}, { spend: 'feast' }))
     expect(feast.resolution.entry).toBe('feast')
     expect(tripChanges(feast.resolution.value)).toEqual([
-      ['food', -2],
-      ['fatigue', -1],
-      ['morale', 2],
+      ['party.resources.food', -2],
+      ['party.stats.morale', 2],
+      ['party.fatigue', -1],
     ])
     expect(oracle.resolve('grey-marches/inn', { spend: 'feast' }).resolution.entry).toBe('short')
     expect(oracle.resolve('grey-marches/inn', { spend: 'round' }).resolution.entry).toBe('quiet')

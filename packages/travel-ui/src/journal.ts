@@ -45,10 +45,22 @@ export function changesText(
   value: Record<string, unknown>,
   { t, valueName }: Pick<JournalContext, 't' | 'valueName'>,
 ): string {
-  const name = valueName ?? ((key: string) => idText(t, `resources.${key}`, key))
+  // Effects are by path (party.stats.morale): named by the value's id.
+  const id = (path: string) =>
+    path.replace(/^party\.(stats|resources)\./, '').replace(/^party\./, '')
+  const name = (path: string) =>
+    valueName ? valueName(id(path)) : idText(t, `resources.${id(path)}`, id(path))
   const parts = tripChanges(value)
-    .filter((c): c is [string, number] => typeof c[1] === 'number' && c[1] !== 0)
-    .map(([key, change]) => `${name(key)} ${signed(change)}`)
+    .filter(([path]) => path !== 'weather')
+    .flatMap(([path, change]) =>
+      typeof change === 'number'
+        ? change !== 0
+          ? [`${name(path)} ${signed(change)}`]
+          : []
+        : typeof change === 'string' && change.startsWith('=')
+          ? [`${name(path)} ${change}`]
+          : [],
+    )
   if (value.lost === true) parts.push(t('journal.lostToday'))
   return parts.join(', ')
 }
@@ -68,7 +80,11 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const id = String(d.action)
       const minutes = Number(d.minutes) || 0
       const done = minutes ? `${actionText(id)} (${durationText(minutes)})` : actionText(id)
-      if (d.checks !== 0) return done
+      const changed =
+        typeof d.effects === 'object' && d.effects !== null
+          ? changesText({ effects: d.effects }, context)
+          : ''
+      if (d.checks !== 0) return changed ? `${done} (${changed})` : done
       const own = context.actionNothing?.(id)
       if (own === '') return done
       const terrain =
@@ -80,8 +96,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         : t('journal.actionNothing', { terrain })
       return `${done}: ${nothing}`
     }
-    case 'RESTED':
-      return t('journal.rested', { length: durationText(Number(d.minutes) || 0) })
+    case 'RESTED': {
+      const rested = t('journal.rested', { length: durationText(Number(d.minutes) || 0) })
+      const changed =
+        typeof d.effects === 'object' && d.effects !== null
+          ? changesText({ effects: d.effects }, context)
+          : ''
+      return changed ? `${rested} (${changed})` : rested
+    }
     case 'SUPPLIES_USED': {
       const used = (d.used ?? {}) as Record<string, number>
       const left = (d.left ?? {}) as Record<string, number>

@@ -234,6 +234,7 @@ export function stepTrip(
     }),
     oracle: system.bindings ? options.oracle : undefined,
     bindings: system.bindings,
+    rules: system.rules,
     locale: options.locale,
     discovery,
     weather: system.weather,

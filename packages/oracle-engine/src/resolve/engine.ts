@@ -379,7 +379,7 @@ class Run {
   /** Shared by table entries and deck cards: `set` values, delegation, text. */
   private applyEntry(
     def: Compiled,
-    entry: Pick<CompiledEntry, 'key' | 'ref' | 'set'>,
+    entry: Pick<CompiledEntry, 'key' | 'ref' | 'set' | 'effects'>,
     template: string | undefined,
     context: Record<string, unknown>,
     depth: number,
@@ -393,6 +393,16 @@ class Run {
       node.children.push(child)
     }
     node.value = { ...child?.value, ...set }
+    // Effects add up with the ones of the table it rolled ('=value' sets: the last wins).
+    const effects = mergeEffects(
+      child?.value.effects as Record<string, number | string> | undefined,
+      this.evalValues(entry.effects, { ...context, ...set }, node) as Record<
+        string,
+        number | string
+      >,
+    )
+    if (Object.keys(effects).length) node.value.effects = effects
+    else delete node.value.effects
     node.text = template
       ? this.render(template, { ...context, ...node.value, result: child?.text }, node)
       : child?.text
@@ -589,4 +599,28 @@ function allCards(deck: CompiledDeck): string[] {
 
 function flattenRolls(resolution: Resolution): DiceResult[] {
   return [...resolution.rolls, ...resolution.children.flatMap(flattenRolls)]
+}
+
+/**
+ * Two lists of effects as one: numbers on the same path add up (numbers written as text,
+ * like '+2', too); a setting ('=3') replaces what came before.
+ */
+export function mergeEffects(
+  a: Record<string, number | string> | undefined,
+  b: Record<string, number | string> | undefined,
+): Record<string, number | string> {
+  const out: Record<string, number | string> = { ...a }
+  for (const [path, change] of Object.entries(b ?? {})) {
+    const before = out[path]
+    const number = (v: unknown) =>
+      typeof v === 'number'
+        ? v
+        : typeof v === 'string' && /^[+-]?\d+(\.\d+)?$/.test(v.trim())
+          ? Number(v)
+          : undefined
+    const x = number(before)
+    const y = number(change)
+    out[path] = x !== undefined && y !== undefined ? x + y : change
+  }
+  return out
 }

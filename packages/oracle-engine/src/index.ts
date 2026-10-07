@@ -22,6 +22,7 @@ export type { Diagnostic, LoadedPack, LoadResult, PackFile } from './loader/load
 export {
   createOracleEngine,
   emptyState,
+  mergeEffects,
   OracleError,
   type EngineOptions,
   type HistoryRecord,
