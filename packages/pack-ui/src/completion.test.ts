@@ -31,6 +31,31 @@ describe('YAML suggestions', () => {
     expect(completeYaml('    set: { resources: { f', hints)?.options).toEqual(['food'])
   })
 
+  it('complete travel rules: moments, the system’s actions and checks, effect paths', () => {
+    const travel = {
+      ...hints,
+      actions: ['camp', 'rest', 'forage', 'eat'],
+      events: ['ENCOUNTER', 'FORAGE'],
+      effects: { 'party.stats.fatigue': [], 'party.resources.food': [] },
+    }
+    expect(completeYaml('    on: day', travel)?.options).toEqual(['day-start', 'day-end'])
+    expect(completeYaml('    at: fo', travel)?.options).toEqual(['forage'])
+    expect(completeYaml('      - { do: fo', travel)?.options).toEqual(['forage'])
+    expect(completeYaml('      - { roll: EN', travel)?.options).toEqual(['ENCOUNTER'])
+    expect(completeYaml('  night: ', travel)?.options).toEqual([
+      'camp',
+      'rest',
+      'forage',
+      'eat',
+      'false',
+    ])
+    expect(completeYaml('      - { time: d', travel)?.options).toEqual(['dawn'])
+    expect(
+      completeYaml('      - { when: { mode: horse }, effects: { party.r', travel)?.options,
+    ).toEqual(['party.resources.food'])
+    expect(completeYaml('  oncePer', travel)?.options).toEqual(['oncePerDay'])
+  })
+
   it('complete keys at the start of a line', () => {
     expect(completeYaml('  - maxO', hints)).toEqual({ from: 4, options: ['maxOccurrences'] })
     expect(completeYaml('# a comment', hints)).toBeNull()

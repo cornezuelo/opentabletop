@@ -17,10 +17,10 @@ The **World** panel (☾ in the toolbar, under the Oracle) keeps the campaign's 
 The world and a trip with rules share **one time**. New trips start on the clock's date instead of a season, travelling and camping move the clock, and moving the clock is **waiting where the party is**: every moment of the wait is lived as if you played it.
 
 - At dawn, the day's checks are rolled (the weather, getting lost…), as when setting off.
-- At nightfall the party **camps**, with the system's camp action (eating, sleeping till dawn, its night checks), once a night. A system without a camp just lets the night pass.
-- Each day that ends uses its supplies and rolls the system's end-of-day checks (hunger, for example).
+- At nightfall the party takes **the system's action for the night**, once a night: camp, unless the system names another (`day.night` in its rules: see [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system)). A system without one just lets the night pass.
+- Each day that ends takes the system's end-of-day actions (eating, for example) and rolls its end-of-day checks (hunger, for example).
 
-The journal starts with "Wait here until day 3, 06:00" and then tells all of it. The wait **stops early**, and the clock with it, when something needs you: a check without a table or one that pauses (press **Continue**, then move the clock on again), or a night when the party can't camp (a value of the day blocks it, or the system's rule for camping doesn't hold): "Night falls and the party can't camp (…): the wait stops here." A message says it stopped early.
+The journal starts with "Wait here until day 3, 06:00" and then tells all of it. The wait **stops early**, and the clock with it, when something needs you: a check without a table or one that pauses (press **Continue**, then move the clock on again), or a night when the party can't take its action for the night (a value of the day blocks it, or its conditions don't hold): "Night falls and “Camp” isn't possible (…): the wait stops here." A message says it stopped early.
 
 A camp lasts till dawn even if the wait asked for less: **+1 hour** at 19:30 crosses nightfall, so the party camps and the clock ends at dawn. A wait of more than a day asks first.
 

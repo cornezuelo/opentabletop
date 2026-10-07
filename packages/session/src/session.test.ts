@@ -282,7 +282,7 @@ entries:
     const tired = { ...start(), stats: { fatigue: 2 } }
     const { state, entries } = session.step(tired, { type: 'camp' })
     expect(state.stats.fatigue).toBe(1)
-    expect(entries.find((e) => e.code === 'CAMP_STARTED')?.data?.effects).toEqual({
+    expect(entries.find((e) => e.data?.action === 'camp')?.data?.effects).toEqual({
       'party.stats.fatigue': -1,
     })
     // Today's values (set by the weather) make an action unavailable, with the reason.

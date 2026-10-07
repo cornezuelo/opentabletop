@@ -10,6 +10,7 @@
   import { formatClock } from '@open-tabletop/time'
   import {
     changesText,
+    durationText,
     entryClock,
     entryText,
     eventName,
@@ -18,6 +19,7 @@
     whyText,
   } from './journal'
   import {
+    actionMinutes,
     actionSteps,
     availableActions,
     resourceBounds,
@@ -118,10 +120,13 @@
   const stats = $derived<[string, StatDefinition][]>(Object.entries(system.bindings?.stats ?? {}))
   const actions = $derived(availableActions(system.rules))
   const bounds = $derived(resourceBounds(system.rules))
-  const restLength = $derived.by(() => {
-    const minutes = actions.restMinutes
-    return minutes % 60 === 0 ? `${minutes / 60} h` : `${minutes} min`
-  })
+  /** The buttons: every action but those the system takes by itself (`on:`). */
+  const buttons = $derived(Object.keys(actions.all).filter((id) => !actions.all[id].on))
+  /** An action's button: its name, and how long it lasts when that's fixed ("Rest (2 h)"). */
+  const buttonText = (id: string) => {
+    const minutes = actionMinutes(actions.all[id])
+    return minutes ? `${actionName(id)} (${durationText(minutes)})` : actionName(id)
+  }
   /** What can't be done now (travel, actions) and why. */
   const blocked = $derived(tripAvailability({ system, world }, session))
   /** The values of the day the system declares, by their names (lost: Lost). */
@@ -148,7 +153,7 @@
     localize(text, locale, 'en') ?? key
 
   const actionName = (id: string) =>
-    localize(actions.custom[id]?.name, locale, 'en') ?? idText(t, `actions.${id}`, id)
+    localize(actions.all[id]?.name, locale, 'en') ?? idText(t, `actions.${id}`, id)
   const checkName = (event: string) => localize(checkInfo(system.rules, event).name, locale, 'en')
   /** A check's description from its pack (basic Markdown). */
   const checkTip = (event: string) =>
@@ -184,7 +189,7 @@
   /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
   const actionNothing = (id: string) => {
     if (!(system.rules.checks ?? []).some((c) => c.at === id)) return ''
-    return localize(actions.custom[id]?.nothing, locale, 'en')
+    return localize(actions.all[id]?.nothing, locale, 'en')
   }
   const context = $derived({
     t,
@@ -206,7 +211,7 @@
     const described = localize(own?.description, locale, 'en')
     if (described) return { markdown: described }
     if (!own) return fallback
-    const steps = actionSteps(id, own)
+    const steps = actionSteps(own)
     const always = steps.filter((st) => !st.when && !st.unless)
     const minutes = always.reduce((n, st) => n + (typeof st.time === 'number' ? st.time : 0), 0)
     const until = always.find((st) => st.time === 'dawn' || st.time === 'nightfall')?.time as
@@ -227,7 +232,7 @@
       speed !== undefined ? t('tips.actionSpeed', { speed }) : '',
       changes({ effects }) ? t('tips.actionEffects', { changes: changes({ effects }) }) : '',
       own.oncePerDay ? t('tips.actionOnce') : '',
-      id !== 'camp' && rolls.length ? t('tips.actionChecks', { checks: rolls.join(', ') }) : '',
+      rolls.length ? t('tips.actionChecks', { checks: rolls.join(', ') }) : '',
     ]
     return parts.filter(Boolean).join(' ')
   }
@@ -368,26 +373,11 @@
       disabled={!travel.route || !!blocked.travel}
       onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
     >
-    {#if actions.camp && !actions.camp.on}
-      <button
-        use:tooltip={tipWith(actionTip('camp', t('tips.camp')), 'camp')}
-        disabled={!!blocked.camp}
-        onclick={() => onstep({ type: 'camp' })}>{t('camp')}</button
-      >
-    {/if}
-    {#if actions.rest && !actions.rest.on}
-      <button
-        use:tooltip={tipWith(actionTip('rest', t('tips.rest')), 'rest')}
-        disabled={!!blocked.rest}
-        onclick={() => onstep({ type: 'rest' })}>{t('rest', { length: restLength })}</button
-      >
-    {/if}
-    <!-- Actions the system takes by itself (on:) aren't buttons. -->
-    {#each Object.keys(actions.custom).filter((id) => !actions.custom[id].on) as id (id)}
+    {#each buttons as id (id)}
       <button
         use:tooltip={tipWith(actionTip(id), id)}
         disabled={!!blocked[id]}
-        onclick={() => onstep({ type: 'action', id })}>{actionName(id)}</button
+        onclick={() => onstep({ type: 'action', id })}>{buttonText(id)}</button
       >
     {/each}
   </div>

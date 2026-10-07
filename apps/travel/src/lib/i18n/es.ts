@@ -50,6 +50,11 @@ export const es: Messages<typeof en> = {
     start: 'Alba',
     nightfall: 'Anochecer',
     hoursPerDay: 'Horas de marcha al día',
+    night: 'Al anochecer, esperando',
+    nightHelp:
+      'Lo que hace el grupo cuando cae la noche mientras espera (el reloj del mundo avanzando con un viaje en marcha): una acción del sistema, p. ej. camp. Por defecto camp, si el sistema la tiene; ninguna: la noche simplemente pasa.',
+    nightDefault: 'camp, si existe',
+    nightNone: 'nada: la noche pasa',
     hoursPerDayHelp: 'Cuánto puede marchar el grupo cada día antes de tener que parar.',
     modes: 'Formas de viajar',
     modesHelp:
@@ -111,12 +116,6 @@ export const es: Messages<typeof en> = {
     blocksNothing: 'nada',
   },
   actions: {
-    camp: 'Acampar',
-    rest: 'Descansar',
-    campHelp:
-      'Termina el día: las comprobaciones de la noche (En: Al acampar) y después sus pasos. Sin pasos, el grupo duerme hasta el alba. Desactívala si el sistema no tiene acampadas.',
-    restHelp:
-      'Una pausa durante el día. Sin pasos dura una hora. Desactívala si el sistema no tiene descansos.',
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
@@ -127,29 +126,16 @@ export const es: Messages<typeof en> = {
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
-      'Sus pasos, en orden. Pasar tiempo (minutos, dawn, nightfall o una hora como 14:00), cambiar el resto de la marcha de hoy (×0.5), cambiar al grupo (efectos como party.stats.fatigue: -1; un cambio que pasaría el Mín o el Máx de un valor se queda en él y los pasos siguientes ven below: [id] o above: [id]), fijar valores del día (lost: true), hacer otra acción (con sus condiciones) o tirar una comprobación ya. Un paso con condición solo ocurre si se cumple (below: food, camping: true…). Las acciones que siguen a esta y sus comprobaciones (pestaña Comprobaciones, En: esta acción) van primero.',
+      'Sus pasos, en orden, cada uno escrito como en el YAML: time: 180 (minutos; o dawn, nightfall, 14:00), speed: 0.5 (el resto de la marcha de hoy), effects: { party.stats.fatigue: -1 } (un cambio que pasaría el Mín o el Máx de un valor se queda en él; los pasos siguientes ven below: [id] o above: [id]), set: { lost: true } (valores del día), do: forage (otra acción, si se cumplen sus condiciones), roll: ENCOUNTER_CHECK_REQUIRED (una comprobación ya). La casilla de al lado es la condición del paso: solo ocurre si se cumple (below: food, doing: camp…). Las acciones que siguen a esta y sus comprobaciones (pestaña Comprobaciones, En: esta acción) van primero.',
     on: 'La hace',
     onHelp:
-      'El jugador (un botón), o el propio sistema en un momento (al alba, al entrar en un hex, al acampar, al final de cada día) o tras otra acción, si se cumplen sus condiciones. Si la hace el sistema no es un botón; va antes de las comprobaciones de ese momento. P. ej. comer al acabar cada día, se acampe o no.',
+      'El jugador (un botón), o el propio sistema en un momento (al alba, al entrar en un hex, al final de cada día) o tras otra acción, si se cumplen sus condiciones. Si la hace el sistema no es un botón; va antes de las comprobaciones de ese momento. P. ej. comer al acabar cada día, se acampe o no.',
     onButton: 'El jugador (un botón)',
     onAfter: 'Tras: {action}',
-    stepKind: 'Tipo de paso',
-    kinds: {
-      time: 'Pasa el tiempo',
-      speed: 'Marcha de hoy ×',
-      effects: 'Cambios',
-      set: 'Valores del día',
-      eat: 'Comer las provisiones del día (antiguo)',
-      do: 'Hacer una acción',
-      roll: 'Tirar una comprobación',
-    },
-    doOption: 'Hacer: {action}',
-    rollOption: 'Tirar: {check}',
-    eatDay: 'a la manera antigua: Provisiones → Convertir lo escribe como una acción',
+    step: 'Paso',
+    badStep:
+      'Un paso hace una cosa: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <acción> o roll: <comprobación>.',
     stepWhen: 'solo si…',
-    badTime: 'Escribe minutos (180), dawn, nightfall o una hora como 14:00.',
-    dawn: 'Hasta el alba',
-    nightfall: 'Hasta el anochecer',
     up: 'Subir',
     down: 'Bajar',
     noSteps: 'Sin pasos: no hace nada salvo tirar sus comprobaciones.',

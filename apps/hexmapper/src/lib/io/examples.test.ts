@@ -144,7 +144,7 @@ describe('example maps', () => {
     const camped = stepTrip(options, session, { type: 'camp' })
     expect(camped.state.stats.fatigue).toBe(1)
     expect(camped.state.travel.resources.food).toBe(5)
-    expect(camped.entries.find((e) => e.code === 'CAMP_STARTED')?.data?.effects).toEqual({
+    expect(camped.entries.find((e) => e.data?.action === 'camp')?.data?.effects).toEqual({
       'party.stats.fatigue': -1,
     })
     // Lost blocks travel for the rest of the day; a storm, foraging.

@@ -40,6 +40,7 @@ export function contextSuggestions(
   // What hit its minimum or maximum today (its id), and whether the day ended in camp.
   add('below')
   add('above')
+  add('doing')
   add('camping', true, false)
   add('edges', 'road', 'trail', 'river')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
@@ -83,6 +84,7 @@ export function contextSuggestions(
       add(value, true, false)
       add(`yesterday.${value}`, true, false)
     }
+    add('doing', ...Object.keys(availableActions(rules).all))
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
       condition(action.unless, add)

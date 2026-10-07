@@ -216,17 +216,11 @@ export interface Session {
 const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited'])
 /** The journal line of an action, which its steps' effects are added to. */
 const isActionLine = (e: JournalEntry, action: string) =>
-  action === 'camp'
-    ? e.code === 'CAMP_STARTED'
-    : action === 'rest'
-      ? e.code === 'RESTED'
-      : e.code === 'ACTION_TAKEN' && e.data?.action === action
+  e.code === 'ACTION_TAKEN' && e.data?.action === action
 const JOURNALED: TravelEvent['type'][] = [
   'DAY_STARTED',
   'HEX_ENTERED',
-  'CAMP_STARTED',
   'ACTION_TAKEN',
-  'RESTED',
   'LIMIT_REACHED',
   'DESTINATION_REACHED',
   'ROUTE_BLOCKED',

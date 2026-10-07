@@ -14,6 +14,7 @@ import {
   changeValue,
   modeThrough,
   declaredValues,
+  nightAction,
   olderEatingId,
   resourceBounds,
   type ActionStep,
@@ -115,7 +116,7 @@ export type StopReason =
   | 'weather'
   /** A wait reached its moment. */
   | 'waited'
-  /** Night fell on a wait and the party can't camp (`because` says why). */
+  /** Night fell on a wait and the party can't take the night's action (`because` says why). */
   | 'camp'
 
 export type TravelEvent =
@@ -132,9 +133,10 @@ export type TravelEvent =
       reason: StopReason
       time: GameTime
       value?: string
+      /** With `camp`: the night's action, which the party can't take (`because`). */
+      action?: string
       because?: Unavailable
     }
-  | { type: 'CAMP_STARTED'; time: GameTime }
   /**
    * An effect would have taken a value past its bound (`party.resources.food` under its
    * `min`): it stopped at `value`.
@@ -163,7 +165,6 @@ export type TravelEvent =
       terrain?: string
       on?: string
     }
-  | { type: 'RESTED'; minutes: number; time: GameTime }
 
 /**
  * Why an action (or travelling) can't be done now: the system turns it off, a declared
@@ -183,11 +184,14 @@ export type TravelAction =
    * actions, the system's camp at nightfall. Stops early when a check is pending.
    */
   | { type: 'wait'; until: GameTime }
+  /**
+   * One of the system's actions (`actions.<id>` in the rules), e.g. camp or forage. With
+   * `minutes`, a length chosen by hand replaces the time its steps pass.
+   */
+  | { type: 'action'; id: string; minutes?: number }
+  /** Older forms of `{ type: 'action', id: 'camp' }` and `'rest'`. */
   | { type: 'camp' }
-  /** A rest; its length comes from the rules unless given. */
   | { type: 'rest'; minutes?: number }
-  /** One of the system's own actions (`actions.<id>` in the rules), e.g. forage. */
-  | { type: 'action'; id: string }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
@@ -276,6 +280,7 @@ export function createTravelEngine(options: {
   const calendar = options.calendar ?? defaultCalendar
   const dayMinutes = rules.travel.hoursPerDay * 60
   const actions = availableActions(rules)
+  const night = nightAction(rules)
   const values = declaredValues(rules)
   const supplies = resourceBounds(rules)
   /** Actions the system takes by itself, by the moment or action they follow. */
@@ -462,7 +467,7 @@ export function createTravelEngine(options: {
    * the time (camping, resting, waiting), ends with the system's day-end actions and
    * checks, seeing whether the day ended in camp; then the daily counters reset.
    */
-  const syncDay = (state: TravelState, events: TravelEvent[], camping = false): void => {
+  const syncDay = (state: TravelState, events: TravelEvent[]): void => {
     if (syncing) return
     const { day } = calendar.describe(state.time)
     if (day <= state.day) return
@@ -472,7 +477,7 @@ export function createTravelEngine(options: {
       for (let d = state.day; d < day; d++) {
         // The day ends at midnight (or now, if the day changed by hand).
         state.time = Math.min(now, calendar.at(d + 1, '00:00'))
-        schedule(state, 'day-end', events, undefined, { camping })
+        schedule(state, 'day-end', events, undefined, doingFacts())
         state.time = Math.max(now, state.time)
         state.day = d + 1
         state.travelledToday = 0
@@ -584,10 +589,19 @@ export function createTravelEngine(options: {
         schedule(state, 'day-start', events)
         continue
       }
-      if (state.time >= nightfall && actions.camp && !state.actionsToday?.includes('camp')) {
-        const because = unavailable(state, 'camp', hostFacts)
-        if (because) return stop('camp', because)
-        takeAction(state, 'camp', events)
+      if (state.time >= nightfall && night && !state.actionsToday?.includes(night)) {
+        const because = unavailable(state, night, hostFacts)
+        if (because) {
+          events.push({
+            type: 'TRAVEL_STOPPED',
+            reason: 'camp',
+            time: state.time,
+            action: night,
+            because,
+          })
+          return
+        }
+        takeAction(state, night, events)
         continue
       }
       const next =
@@ -645,6 +659,13 @@ export function createTravelEngine(options: {
         )
 
   type Hits = { below: Set<string>; above: Set<string> }
+  /** The actions under way, the one the player (or a moment) started first. */
+  const doing: string[] = []
+  /**
+   * What conditions see of the action under way: `doing` (its id) and `camping` (it's the
+   * night's action: older packs' way of asking whether the day ended in camp).
+   */
+  const doingFacts = () => ({ doing: doing[0], camping: !!night && doing[0] === night })
   /** What hit a bound during each action under way: its later steps see it past midnight. */
   const underWay: Hits[] = []
 
@@ -715,7 +736,7 @@ export function createTravelEngine(options: {
       return
     }
     syncDay(state, events)
-    let steps = actionSteps(id, actions.all[id])
+    let steps = actionSteps(actions.all[id])
     // A rest of a length chosen by hand replaces the rules' time.
     if (options.minutes !== undefined)
       steps = [
@@ -724,38 +745,35 @@ export function createTravelEngine(options: {
       ]
     const start = state.time
     const cell = world.cell(state.location)
-    const head =
-      id === 'camp'
-        ? { type: 'CAMP_STARTED' as const, time: start }
-        : id === 'rest'
-          ? { type: 'RESTED' as const, minutes: 0, time: start }
-          : {
-              type: 'ACTION_TAKEN' as const,
-              action: id,
-              time: start,
-              minutes: 0,
-              checks: 0,
-              hex: state.location,
-              ...(cell?.terrain && { terrain: cell.terrain }),
-              ...(options.on && { on: options.on }),
-            }
+    const head = {
+      type: 'ACTION_TAKEN' as const,
+      action: id,
+      time: start,
+      minutes: 0,
+      checks: 0,
+      hex: state.location,
+      ...(cell?.terrain && { terrain: cell.terrain }),
+      ...(options.on && { on: options.on }),
+    }
     events.push(head)
     state.actionsToday = [...(state.actionsToday ?? []), id]
     // Its checks see the place and moment it starts (after the actions that follow it).
     const checks = schedule(state, id, events, undefined, options.facts)
-    if (head.type === 'ACTION_TAKEN') head.checks = checks
+    head.checks = checks
     // What hit a bound today, and during the action: its later steps see it past midnight.
     const hit: Hits = {
       below: new Set(state.reached?.below),
       above: new Set(state.reached?.above),
     }
     underWay.push(hit)
+    doing.push(id)
     try {
       runSteps(state, id, steps, hit, events, options, depth)
     } finally {
       underWay.pop()
+      doing.pop()
     }
-    if (head.type !== 'CAMP_STARTED') head.minutes = state.time - start
+    head.minutes = state.time - start
   }
 
   /** An action's steps in order, each only when its condition holds. */
@@ -774,14 +792,14 @@ export function createTravelEngine(options: {
         below: [...hit.below],
         above: [...hit.above],
         short: hit.below.size > 0,
-        camping: id === 'camp',
+        ...doingFacts(),
         ...options.facts,
       }
       if (step.when && !matches(step.when, context)) continue
       if (step.unless && matches(step.unless, context)) continue
       if (step.time !== undefined) {
         state.time = Math.max(state.time, timeOf(state, step.time))
-        syncDay(state, events, id === 'camp')
+        syncDay(state, events)
       } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
       else if (step.effects) applyEffects(state, id, step.effects, events)
       else if (step.do !== undefined)
@@ -855,7 +873,7 @@ export function createTravelEngine(options: {
           takeAction(state, 'rest', events, { minutes: action.minutes })
           break
         case 'action':
-          takeAction(state, action.id, events)
+          takeAction(state, action.id, events, { minutes: action.minutes })
           break
         case 'setMode': {
           if (action.mode === state.mode) break

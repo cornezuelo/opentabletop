@@ -36,6 +36,12 @@ describe('suggestions while typing key: value pairs', () => {
     expect(choicesFor(at('terrain: forest'), suggestions)).toEqual(['dense-forest'])
   })
 
+  it('suggests whole keys inside a map listed as parent.*', () => {
+    const steps = { effects: [], 'effects.*': ['party.stats.fatigue', 'party.resources.food'] }
+    expect(choicesFor(at('effects: { party.s'), steps)).toEqual(['party.stats.fatigue'])
+    expect(choicesFor(at('eff'), steps)).toEqual(['effects'])
+  })
+
   it('suggests keys inside a nested map: dotted parts, or comparisons', () => {
     const nested = { 'resources.food': [], 'resources.water': [], danger: [] }
     expect(choicesFor(at('resources: { f'), nested)).toEqual(['food'])

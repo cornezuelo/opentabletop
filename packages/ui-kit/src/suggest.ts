@@ -110,7 +110,7 @@ export function choicesFor(typing: Typing, suggestions: Suggestions, limit = 12)
       ? [...(suggestions[typing.key ?? ''] ?? [])]
       : typing.parent
         ? nestedKeys(typing.parent, suggestions)
-        : Object.keys(suggestions)
+        : Object.keys(suggestions).filter((k) => !k.endsWith('.*'))
   const prefix = typing.prefix.toLowerCase()
   const starts = pool.filter((c) => c.toLowerCase().startsWith(prefix))
   const contains = pool.filter((c) => !starts.includes(c) && c.toLowerCase().includes(prefix))
@@ -120,11 +120,15 @@ export function choicesFor(typing: Typing, suggestions: Suggestions, limit = 12)
 }
 
 /**
- * Keys inside `parent: { … }`: the next part of dotted keys (resources.food → food), or,
- * when there are none, the comparisons a condition can make (gte: 3).
+ * Keys inside `parent: { … }`: the whole keys listed as `<parent>.*` (paths kept whole:
+ * `effects.*: [party.stats.fatigue]`), the next part of dotted keys (resources.food →
+ * food), or, when there are none, the comparisons a condition can make (gte: 3).
  */
 function nestedKeys(parent: string, suggestions: Suggestions): string[] {
+  const whole = suggestions[`${parent}.*`]
+  if (whole) return [...whole]
   const inside = Object.keys(suggestions)
+    .filter((k) => !k.endsWith('.*'))
     .filter((k) => k.startsWith(`${parent}.`))
     .map((k) => k.slice(parent.length + 1).split('.')[0])
   return inside.length ? [...new Set(inside)] : [...OPERATORS]

@@ -1,5 +1,11 @@
 import type { Registry } from '@open-tabletop/oracle-engine'
-import { contextSuggestions, setSuggestions } from '@open-tabletop/session'
+import {
+  contextSuggestions,
+  effectSuggestions,
+  setSuggestions,
+  travelSystems,
+} from '@open-tabletop/session'
+import { availableActions, CHECK_MOMENTS } from '@open-tabletop/travel-engine'
 import { choicesFor, typingAt, type Suggestions } from '@open-tabletop/ui-kit'
 
 /** What the YAML editor can suggest: from the loaded packs, the map and trips. */
@@ -12,6 +18,12 @@ export interface YamlHints {
   context: Suggestions
   /** Names an entry can set, with their values. */
   set: Suggestions
+  /** Paths effects can change (`party.stats.fatigue`), with their values. */
+  effects?: Suggestions
+  /** The travel system's actions (`do:`, `on:`, `at:`, `night:`): the pack's own first. */
+  actions?: readonly string[]
+  /** The travel system's check events (`roll:`). */
+  events?: readonly string[]
 }
 
 /** Hints from the loaded packs; `pack` lists its own definitions first, by local id. */
@@ -21,11 +33,19 @@ export function yamlHints(registry: Registry, pack?: string): YamlHints {
     ...defs.filter((d) => d.pack === pack).map((d) => d.localId),
     ...defs.filter((d) => d.pack !== pack).map((d) => d.id),
   ]
+  // The pack's own travel system first, then every other one.
+  const systems = travelSystems(registry).systems.sort(
+    (a, b) => Number(b.id === pack) - Number(a.id === pack),
+  )
+  const unique = (list: string[]) => [...new Set(list)]
   return {
     refs: ids(all.filter((d) => d.kind === 'table' || d.kind === 'generator')),
     rollable: ids(all),
     context: contextSuggestions(registry),
     set: setSuggestions(registry),
+    effects: effectSuggestions(registry),
+    actions: unique(systems.flatMap((s) => Object.keys(availableActions(s.rules).all))),
+    events: unique(systems.flatMap((s) => (s.rules.checks ?? []).map((c) => c.event))),
   }
 }
 
@@ -45,7 +65,7 @@ const ENUMS: Record<string, readonly string[]> = {
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
   reshuffle: ['when-empty', 'manual', 'after-draw'],
-  at: ['day-start', 'hex-enter', 'camp', 'day-end'],
+  time: ['dawn', 'nightfall', '60', '120', '180'],
   reveal: ['neighbors', 'entered'],
   clamp: ['true', 'false'],
   once: ['true', 'false'],
@@ -56,7 +76,7 @@ const ENUMS: Record<string, readonly string[]> = {
 /** Keys whose value is a reference to a table or generator. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve'])
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
-const CONDITION_KEYS = new Set(['when', 'unless'])
+const CONDITION_KEYS = new Set(['when', 'unless', 'through'])
 
 /** Keys a definition, its entries and its fields use. */
 const KEYS = [
@@ -95,6 +115,41 @@ const KEYS = [
   'cards',
   'count',
   'reshuffle',
+  // Travel rules and bindings.
+  'day',
+  'start',
+  'nightfall',
+  'night',
+  'travel',
+  'hoursPerDay',
+  'terrains',
+  'multiplier',
+  'passable',
+  'water',
+  'defaultTerrain',
+  'edges',
+  'kmPerDay',
+  'through',
+  'resources',
+  'min',
+  'max',
+  'weather',
+  'speed',
+  'values',
+  'blocks',
+  'actions',
+  'on',
+  'do',
+  'time',
+  'oncePerDay',
+  'nothing',
+  'checks',
+  'event',
+  'at',
+  'stats',
+  'default',
+  'discover',
+  'resolve',
 ]
 
 export interface Completion {
@@ -106,11 +161,16 @@ export interface Completion {
 /** What to suggest for the text of a line up to the cursor, or null for nothing. */
 export function completeYaml(before: string, hints: YamlHints): Completion | null {
   // Inside a one-line condition or values: `when: { terrain: fo`.
-  const flow = /\b(when|unless|set|context)\s*:\s*/.exec(before)
+  // The last one opened on the line: `{ when: { … }, effects: { party.st`.
+  const flow = [...before.matchAll(/\b(when|unless|through|set|context|effects)\s*:\s*/g)].at(-1)
   if (flow) {
-    const start = flow.index + flow[0].length
+    const start = flow.index! + flow[0].length
     const text = before.slice(start)
-    const suggestions = CONDITION_KEYS.has(flow[1]) ? hints.context : hints.set
+    const suggestions = CONDITION_KEYS.has(flow[1])
+      ? hints.context
+      : flow[1] === 'effects'
+        ? (hints.effects ?? {})
+        : hints.set
     const typing = typingAt(text, text.length)
     const options = choicesFor(typing, suggestions, 30)
     return options.length ? { from: start + typing.start, options } : null
@@ -119,12 +179,21 @@ export function completeYaml(before: string, hints: YamlHints): Completion | nul
   const pair = /([\w-]+)\s*:\s+([\w./-]*)$/.exec(before)
   if (pair) {
     const [, key, typed] = pair
+    const actions = hints.actions ?? []
     const pool =
       key === 'resolve'
         ? (hints.rollable ?? hints.refs)
         : REF_KEYS.has(key)
           ? hints.refs
-          : (ENUMS[key] ?? hints.context[key] ?? [])
+          : key === 'do'
+            ? actions
+            : key === 'on' || key === 'at'
+              ? [...CHECK_MOMENTS, ...actions]
+              : key === 'night'
+                ? [...actions, 'false']
+                : key === 'roll'
+                  ? (hints.events ?? [])
+                  : (ENUMS[key] ?? hints.context[key] ?? [])
     const options = filter(pool, typed)
     return options.length ? { from: before.length - typed.length, options } : null
   }

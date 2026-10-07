@@ -106,7 +106,9 @@ describe('trips', () => {
       'Sun',
       'Rain',
     ])
-    expect(entries.filter((e) => e.code === 'CAMP_STARTED')).toHaveLength(3)
+    expect(
+      entries.filter((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp'),
+    ).toHaveLength(3)
     expect(state.travel.resources.water).toBe(3)
   })
 

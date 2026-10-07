@@ -7,11 +7,14 @@ const condition = z.record(z.string(), z.unknown())
 const text = z.union([z.string(), z.record(z.string(), z.string())])
 
 /**
- * Built-in moments for checks and triggered actions (`at:` / `on:`); any other value names
- * one of the system's actions.
+ * Moments of the day for checks and triggered actions (`at:` / `on:`); any other value
+ * names one of the system's actions (`at: camp`).
  */
-export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'camp', 'day-end'] as const
-/** Actions every system has unless it turns them off (`camp: false`). */
+export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'day-end'] as const
+/**
+ * Actions older systems had without declaring them: rules that don't name them get the
+ * usual ones (camp sleeps until dawn, a rest is an hour); `camp: false` leaves one out.
+ */
 export const BUILT_IN_ACTIONS = ['camp', 'rest'] as const
 /** What a declared value can block besides actions: going on with the trip. */
 export const BLOCKABLE = ['travel'] as const
@@ -138,7 +141,17 @@ export const travelRulesSchema = z
   .object({
     kind: z.literal('travel-rules').optional(),
     id: z.string().optional(),
-    day: z.object({ start: clock, nightfall: clock }).strict(),
+    day: z
+      .object({
+        start: clock,
+        nightfall: clock,
+        /**
+         * The action the party takes when night falls while it waits (e.g. `camp`);
+         * default: `camp` if the system has it. `false`: none, the night just passes.
+         */
+        night: z.union([z.string().min(1), z.literal(false)]).optional(),
+      })
+      .strict(),
     travel: z.object({ hoursPerDay: z.number().positive().max(24) }).strict(),
     terrains: z.record(
       z.string(),
@@ -223,11 +236,8 @@ export const travelRulesSchema = z
   })
   .strict()
   .superRefine((rules, ctx) => {
-    const own = Object.entries(rules.actions ?? {})
-      .filter(([id, a]) => !(BUILT_IN_ACTIONS as readonly string[]).includes(id) && a !== false)
-      .map(([id]) => id)
     const actionIds = Object.keys(availableActions(rules as TravelRules).all)
-    const moments = [...CHECK_MOMENTS, ...own]
+    const moments = [...CHECK_MOMENTS, ...actionIds]
     rules.checks?.forEach((check, i) => {
       if (check.at !== undefined && !moments.includes(check.at))
         ctx.addIssue({
@@ -238,8 +248,7 @@ export const travelRulesSchema = z
     })
     const blockable = [
       ...BLOCKABLE,
-      ...BUILT_IN_ACTIONS,
-      ...own,
+      ...actionIds,
       ...Object.keys(rules.modes).map((m) => `mode.${m}`),
     ]
     for (const [id, value] of Object.entries(rules.values ?? {}))
@@ -260,7 +269,7 @@ export const travelRulesSchema = z
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'on'],
-            message: `expected ${[...new Set([...CHECK_MOMENTS, ...actionIds])].join(', ')}`,
+            message: `expected ${moments.join(', ')}`,
           })
       a.do?.forEach((st, i) => {
         if (st.do !== undefined && !actionIds.includes(st.do))
@@ -286,6 +295,13 @@ export const travelRulesSchema = z
             })
       })
     }
+    const night = rules.day.night
+    if (night && !actionIds.includes(night))
+      ctx.addIssue({
+        code: 'custom',
+        path: ['day', 'night'],
+        message: `expected ${actionIds.join(', ') || 'an action'}`,
+      })
     const loop = actionLoop(rules as TravelRules)
     if (loop)
       ctx.addIssue({
@@ -314,9 +330,9 @@ export function declaredValues(rules: TravelRules): Record<string, DayValue> {
   return rules.values ?? LEGACY_VALUES
 }
 
-/** Defaults of camp and rest when the rules don't describe them. */
+/** What older systems got for camp and rest without describing them. */
 const DEFAULT_CAMP: ActionDefinition = { do: [{ time: 'dawn' }] }
-const DEFAULT_REST: ActionDefinition = { minutes: 60 }
+const DEFAULT_REST: ActionDefinition = { do: [{ time: 60 }] }
 
 /**
  * Whether the rules eat the older way: supplies with `perDay`, ways of travelling that
@@ -365,44 +381,60 @@ const withoutEat = (def: ActionDefinition, eat: string): ActionDefinition =>
     ? { ...def, do: def.do.map(({ eat: older, ...st }) => (older ? { ...st, do: eat } : st)) }
     : def
 
-/** Actions available under some rules, with their effective settings. */
+/**
+ * Whether an older form describes nothing for camp or rest (`camp: { name: Camp }`):
+ * read with what it did then.
+ */
+const describesNothing = (def: ActionDefinition) =>
+  def.do === undefined &&
+  def.minutes === undefined &&
+  def.speed === undefined &&
+  def.fatigue === undefined &&
+  def.effects === undefined
+
+/**
+ * The system's actions, by id, in the order the rules list them: what each one does, read
+ * from older forms too (`eat: day`, the generated day-end eating, camp and rest that older
+ * systems had without declaring them: see `BUILT_IN_ACTIONS`).
+ */
 export function availableActions(rules: TravelRules): {
-  /** Camp and rest, null when the system turns them off. */
-  camp: ActionDefinition | null
-  rest: ActionDefinition | null
-  /** How long a rest lasts, in minutes (0 without rest). */
-  restMinutes: number
-  /**
-   * The system's own actions, in the order the rules list them (older rules: then the
-   * day-end action they eat with).
-   */
-  custom: Record<string, ActionDefinition>
-  /** Every action, by id: camp and rest first. */
   all: Record<string, ActionDefinition>
 } {
   const older = eatsTheOlderWay(rules)
   const eat = older ? olderEatingId(rules) : ''
   const read = (def: ActionDefinition) => (older ? withoutEat(def, eat) : def)
-  const { camp, rest, ...others } = rules.actions ?? {}
-  const custom = Object.fromEntries([
-    ...Object.entries(others)
-      .filter((e): e is [string, ActionDefinition] => e[1] !== false)
-      .map(([id, def]) => [id, read(def)] as const),
-    ...(older ? [[eat, olderEating(rules)] as const] : []),
-  ])
-  const campDef = camp === false ? null : read(camp ?? DEFAULT_CAMP)
-  const restDef = rest === false ? null : read(rest ?? DEFAULT_REST)
-  return {
-    camp: campDef,
-    rest: restDef,
-    restMinutes: restDef ? restMinutes(restDef) : 0,
-    custom,
-    all: {
-      ...(campDef && { camp: campDef }),
-      ...(restDef && { rest: restDef }),
-      ...custom,
-    },
+  const defaults: Record<string, ActionDefinition> = { camp: DEFAULT_CAMP, rest: DEFAULT_REST }
+  const declared = rules.actions ?? {}
+  const all: Record<string, ActionDefinition> = {}
+  for (const id of BUILT_IN_ACTIONS) if (declared[id] === undefined) all[id] = defaults[id]
+  for (const [id, def] of Object.entries(declared)) {
+    if (def === false) continue
+    all[id] = read(id in defaults && describesNothing(def) ? { ...def, ...defaults[id] } : def)
   }
+  if (older) all[eat] = olderEating(rules)
+  return { all }
+}
+
+/**
+ * The action the party takes when night falls while it waits: the rules' `day.night`, or
+ * `camp` if the system has one (undefined: the night just passes).
+ */
+export function nightAction(rules: TravelRules): string | undefined {
+  const all = availableActions(rules).all
+  if (rules.day.night === false) return undefined
+  if (rules.day.night) return rules.day.night
+  return all.camp ? 'camp' : undefined
+}
+
+/**
+ * How long an action lasts when only fixed times pass (`time: 120`), in minutes;
+ * undefined when it waits for a moment (dawn) or passes no time.
+ */
+export function actionMinutes(def: ActionDefinition): number | undefined {
+  const steps = actionSteps(def)
+  if (steps.some((s) => s.time !== undefined && typeof s.time !== 'number')) return undefined
+  const minutes = steps.reduce((n, s) => n + (typeof s.time === 'number' ? s.time : 0), 0)
+  return minutes || undefined
 }
 
 /**
@@ -511,27 +543,14 @@ export function actionLoop(rules: TravelRules): string[] | undefined {
   return undefined
 }
 
-/** How long a rest lasts: its time steps in minutes (60 if it says none). */
-function restMinutes(rest: ActionDefinition): number {
-  const steps = rest.do?.filter((s) => typeof s.time === 'number') ?? []
-  if (steps.length) return steps.reduce((n, s) => n + (s.time as number), 0)
-  return rest.minutes ?? 60
-}
-
-/**
- * An action's steps: its `do`, or the older columns read as steps (time, speed, then
- * effects). Camp without steps sleeps until dawn.
- */
-export function actionSteps(id: string, def: ActionDefinition): ActionStep[] {
+/** An action's steps: its `do`, or the older columns read as steps (time, speed, effects). */
+export function actionSteps(def: ActionDefinition): ActionStep[] {
   const older: ActionStep[] = []
-  const minutes = def.minutes ?? (id === 'rest' && !def.do ? 60 : undefined)
-  if (minutes) older.push({ time: minutes })
+  if (def.minutes) older.push({ time: def.minutes })
   if (def.speed !== undefined) older.push({ speed: def.speed })
   const fx = { ...(def.fatigue ? { 'party.stats.fatigue': -def.fatigue } : {}), ...def.effects }
   if (Object.keys(fx).length) older.push({ effects: fx })
-  const steps = [...older, ...((def.do ?? []) as ActionStep[])]
-  if (id === 'camp' && !steps.some((s) => s.time !== undefined)) steps.push({ time: 'dawn' })
-  return steps
+  return [...older, ...((def.do ?? []) as ActionStep[])]
 }
 
 export type CheckRule = z.infer<typeof checkRule> & { unless?: Condition; when?: Condition }

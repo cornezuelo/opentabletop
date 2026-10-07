@@ -1,7 +1,7 @@
 <script lang="ts">
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
-  import type { SystemDoc } from '../../lib/systemDoc.svelte'
+  import { actionIds, type SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions } from '@open-tabletop/session'
   import { modeThrough, olderEatingEdits, parseTravelRules } from '@open-tabletop/travel-engine'
@@ -62,6 +62,25 @@
           onchange={(e) =>
             doc.edit('travel-rules', ['travel', 'hoursPerDay'], num(e.currentTarget))}
         />
+      </label>
+      <label>
+        <span>{t('rules.night')}<InfoTip text={t('rules.nightHelp')} /></span>
+        <select
+          value={rules.day?.night === false ? 'false' : String(rules.day?.night ?? '')}
+          {disabled}
+          onchange={(e) => {
+            const v = e.currentTarget.value
+            doc.edit(
+              'travel-rules',
+              ['day', 'night'],
+              v === '' ? undefined : v === 'false' ? false : v,
+            )
+          }}
+        >
+          <option value="">{t('rules.nightDefault')}</option>
+          <option value="false">{t('rules.nightNone')}</option>
+          {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
+        </select>
       </label>
     </div>
   </section>

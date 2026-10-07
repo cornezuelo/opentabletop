@@ -24,11 +24,9 @@ export const en = {
   modes: { foot: 'On foot', horse: 'On horseback', boat: 'By boat', cart: 'By cart' },
   resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
   // The Generic rules' action at the end of each day (and older systems' eating).
-  actions: { eat: 'Eat' },
+  actions: { eat: 'Eat', camp: 'Camp', rest: 'Rest' },
   travel: 'Travel',
   travelHex: '1 hex',
-  camp: 'Camp',
-  rest: 'Rest {length}',
   continue: 'Continue',
   journalTitle: 'Journal',
   exportJournal: 'Export',
@@ -45,7 +43,7 @@ export const en = {
       'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
     marched:
-      'Hours of marching allowed per day; when they run out, camp to continue tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
+      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
     resource:
       'Supplies: what uses them depends on the system (its actions, like eating at the end of each day, its checks and tables). Edit the amount when you buy, find or use some.',
     min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',
@@ -53,8 +51,6 @@ export const en = {
     travel:
       'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
     travelHex: 'Travel to the next hex of the route only.',
-    camp: 'End the day: the system’s night checks, then you wake up at dawn (what happens as the day ends depends on the system).',
-    rest: 'A short pause: time passes without marching (e.g. to wait out bad weather).',
     actionUntil: 'Lasts until {moment}.',
     dawn: 'dawn',
     nightfall: 'nightfall',
@@ -107,9 +103,9 @@ export const en = {
     NO_ROUTE: 'No route there',
   },
   stop: {
-    camp: 'Night falls and the party can’t camp ({why}): the wait stops here.',
-    nightfall: 'Night falls. Camp to continue tomorrow.',
-    'day-limit': 'Enough marching for today. Camp to continue tomorrow.',
+    camp: 'Night falls and “{action}” isn’t possible ({why}): the wait stops here.',
+    nightfall: 'Night falls: no more marching today.',
+    'day-limit': 'Enough marching for today.',
     lost: 'Lost: no more travel today',
     value: '{name}: no more travel today',
     weather: 'The weather prevents travel',

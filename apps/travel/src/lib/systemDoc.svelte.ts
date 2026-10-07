@@ -1,3 +1,4 @@
+import { BUILT_IN_ACTIONS } from '@open-tabletop/travel-engine'
 import {
   appendDefinition,
   getOverlayText,
@@ -16,6 +17,18 @@ import { getLocale } from './i18n'
 import { library } from './packs.svelte'
 
 export type Kind = 'travel-rules' | 'bindings'
+
+/**
+ * The ids of a system's actions, from its raw rules: camp and rest unless it turns them
+ * off (older systems had them without declaring them), then the ones it declares.
+ */
+export function actionIds(rules: Record<string, unknown>): string[] {
+  const actions = (rules.actions ?? {}) as Record<string, unknown>
+  return [
+    ...BUILT_IN_ACTIONS.filter((id) => actions[id] === undefined),
+    ...Object.keys(actions).filter((id) => actions[id] !== false),
+  ]
+}
 
 /**
  * A travel system being edited in forms: its raw rules and bindings, and edits to either

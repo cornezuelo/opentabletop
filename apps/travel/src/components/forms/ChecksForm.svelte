@@ -7,7 +7,8 @@
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import { ROLLABLE, type SystemDoc } from '../../lib/systemDoc.svelte'
+  import { actionIds, ROLLABLE, type SystemDoc } from '../../lib/systemDoc.svelte'
+  import { CHECK_MOMENTS } from '@open-tabletop/travel-engine'
 
   /**
    * The checks of the rules, each with the table that resolves it (from the bindings):
@@ -16,13 +17,14 @@
   let { doc }: { doc: SystemDoc } = $props()
 
   type Raw = Record<string, unknown>
-  const AT = ['day-start', 'hex-enter', 'camp', 'day-end'] as const
-  /** The system's own actions can trigger checks too (at: <action id>). */
-  const ownActions = $derived(
-    Object.entries((doc.rules.actions ?? {}) as Record<string, unknown>)
-      .filter(([id, a]) => id !== 'camp' && id !== 'rest' && a !== false)
-      .map(([id]) => id),
-  )
+  /** The moments of the day; then every action of the system (at: <action id>). */
+  const AT = CHECK_MOMENTS
+  const ownActions = $derived(actionIds(doc.rules))
+  /** An action by its name in the UI language (its id if it has none). */
+  const actionLabel = (id: string) => {
+    const action = ((doc.rules.actions ?? {}) as Record<string, Raw | undefined>)[id]
+    return doc.text('travel-rules', action?.name, ['actions', id, 'name']) || id
+  }
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
   const checkText = (check: Raw, key: 'name' | 'description') =>
     doc.text('travel-rules', check[key], ['checks', String(check.event), key])
@@ -171,7 +173,7 @@
               <option value="">{t('checks.atNone')}</option>
               {#each AT as at (at)}<option value={at}>{t(`checks.atOptions.${at}`)}</option>{/each}
               {#each ownActions as id (id)}<option value={id}
-                  >{t('checks.atAction', { action: id })}</option
+                  >{t('checks.atAction', { action: actionLabel(id) })}</option
                 >{/each}
             </select>
           </label>

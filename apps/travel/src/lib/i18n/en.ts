@@ -47,6 +47,11 @@ export const en = {
     start: 'Dawn',
     nightfall: 'Nightfall',
     hoursPerDay: 'Marching hours a day',
+    night: 'At nightfall, while waiting',
+    nightHelp:
+      'What the party does when night falls while it waits (the world clock moving with a trip on): one of the system’s actions, e.g. camp. By default camp, if the system has it; none: the night just passes.',
+    nightDefault: 'camp, if there is one',
+    nightNone: 'nothing: the night passes',
     hoursPerDayHelp: 'How long the party can march each day before it has to stop.',
     modes: 'Ways of travelling',
     modesHelp:
@@ -108,12 +113,6 @@ export const en = {
     blocksNothing: 'nothing',
   },
   actions: {
-    camp: 'Camp',
-    rest: 'Rest',
-    campHelp:
-      'Ends the day: the night’s checks (At: In camp), then its steps. Without steps, the party sleeps until dawn. Turn it off if the system has no camping.',
-    restHelp:
-      'A pause during the day. Without steps it lasts an hour. Turn it off if the system has no rests.',
     when: 'Only when',
     unless: 'Not when',
     whenHelp:
@@ -124,29 +123,16 @@ export const en = {
     nothingPlaceholder: 'nothing to find on {terrain}',
     steps: 'What it does',
     stepsHelp:
-      'Its steps, in order. Pass time (minutes, dawn, nightfall or a time like 14:00), change the rest of today’s march (×0.5), change the party (effects such as party.stats.fatigue: -1; a change past a value’s Min or Max stops there and later steps see below: [id] or above: [id]), set values of the day (lost: true), take another action (with its conditions) or roll a check now. A step with a condition only happens when it holds (below: food, camping: true…). The actions that follow this one and its checks (Checks tab, At: this action) come first.',
+      'Its steps, in order, each written like in the YAML: time: 180 (minutes; or dawn, nightfall, 14:00), speed: 0.5 (the rest of today’s march), effects: { party.stats.fatigue: -1 } (a change past a value’s Min or Max stops there; later steps see below: [id] or above: [id]), set: { lost: true } (values of the day), do: forage (another action, if its conditions hold), roll: ENCOUNTER_CHECK_REQUIRED (a check now). The box next to it is the step’s condition: it only happens when it holds (below: food, doing: camp…). The actions that follow this one and its checks (Checks tab, At: this action) come first.',
     on: 'Taken',
     onHelp:
-      'By the player (a button), or by the system itself at a moment (at dawn, entering a hex, in camp, at the end of each day) or after another action, when its conditions hold. Taken by the system, it isn’t a button; it comes before that moment’s checks. E.g. eating as each day ends, whether the party camped or not.',
+      'By the player (a button), or by the system itself at a moment (at dawn, entering a hex, at the end of each day) or after another action, when its conditions hold. Taken by the system, it isn’t a button; it comes before that moment’s checks. E.g. eating as each day ends, whether the party camped or not.',
     onButton: 'By the player (a button)',
     onAfter: 'After: {action}',
-    stepKind: 'Kind of step',
-    kinds: {
-      time: 'Time passes',
-      speed: 'Today’s march ×',
-      effects: 'Changes',
-      set: 'Values of the day',
-      eat: 'Eat the day’s supplies (older)',
-      do: 'Take an action',
-      roll: 'Roll a check',
-    },
-    doOption: 'Do: {action}',
-    rollOption: 'Roll: {check}',
-    eatDay: 'the older way: Supplies → Convert writes it as an action',
+    step: 'Step',
+    badStep:
+      'A step does one thing: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <action> or roll: <check>.',
     stepWhen: 'only when…',
-    badTime: 'Write minutes (180), dawn, nightfall or a time like 14:00.',
-    dawn: 'Until dawn',
-    nightfall: 'Until nightfall',
     up: 'Move up',
     down: 'Move down',
     noSteps: 'No steps: it does nothing but roll its checks.',

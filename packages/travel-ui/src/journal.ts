@@ -120,6 +120,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         : t('journal.actionNothing', { terrain })
       return `${done}: ${nothing}`
     }
+    // Older journals: camp and rest had lines of their own.
     case 'CAMP_STARTED': {
       const camped = t('journal.CAMP_STARTED')
       const changed =
@@ -202,7 +203,11 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     }
     case 'TRAVEL_STOPPED':
       if (d.reason === 'camp')
-        return t('stop.camp', { why: whyText(d.because as Unavailable | undefined, context) })
+        return t('stop.camp', {
+          // Older entries didn't say which action: it was camp.
+          action: actionText(String(d.action ?? 'camp')),
+          why: whyText(d.because as Unavailable | undefined, context),
+        })
       if (d.reason === 'value')
         return t('stop.value', {
           name:

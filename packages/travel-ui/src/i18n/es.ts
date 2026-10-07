@@ -27,11 +27,9 @@ export const es: Messages<typeof en> = {
   // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'A pie', horse: 'A caballo', boat: 'En barca', cart: 'En carro' },
   resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
-  actions: { eat: 'Comer' },
+  actions: { eat: 'Comer', camp: 'Acampar', rest: 'Descansar' },
   travel: 'Viajar',
   travelHex: '1 hex',
-  camp: 'Acampar',
-  rest: 'Descansar {length}',
   continue: 'Continuar',
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
@@ -48,7 +46,7 @@ export const es: Messages<typeof en> = {
       'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
     marched:
-      'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
+      'Horas de marcha permitidas al día; al agotarlas, la marcha sigue mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
     resource:
       'Provisiones: qué las gasta depende del sistema (sus acciones, como comer al final de cada día, sus comprobaciones y tablas). Ajusta la cantidad al comprar, encontrar o gastar.',
     min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',
@@ -56,8 +54,6 @@ export const es: Messages<typeof en> = {
     travel:
       'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
-    camp: 'Termina el día: las comprobaciones nocturnas del sistema, y despertáis al alba (lo que pasa al acabar el día depende del sistema).',
-    rest: 'Una pausa corta: pasa el tiempo sin marchar (p. ej. para esperar a que mejore el clima).',
     actionUntil: 'Dura hasta {moment}.',
     dawn: 'el alba',
     nightfall: 'el anochecer',
@@ -108,9 +104,9 @@ export const es: Messages<typeof en> = {
     NO_ROUTE: 'No hay ruta hasta allí',
   },
   stop: {
-    camp: 'Cae la noche y el grupo no puede acampar ({why}): la espera se detiene aquí.',
-    nightfall: 'Cae la noche. Acampa para seguir mañana.',
-    'day-limit': 'Suficiente marcha por hoy. Acampa para seguir mañana.',
+    camp: 'Cae la noche y «{action}» no es posible ({why}): la espera se detiene aquí.',
+    nightfall: 'Cae la noche: no se marcha más hoy.',
+    'day-limit': 'Suficiente marcha por hoy.',
     lost: 'Perdidos: no se viaja más hoy',
     value: '{name}: no se viaja más hoy',
     weather: 'El clima impide viajar',

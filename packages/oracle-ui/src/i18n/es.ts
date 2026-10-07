@@ -53,6 +53,9 @@ export const es: Messages<typeof en> = {
     party_stats: 'Grupo',
     party_resources: vocabulary.es.terms.supplies,
     yesterday: 'Ayer',
+    below: 'En su mínimo',
+    above: 'En su máximo',
+    doing: 'Acción en curso',
     short: 'Faltaron provisiones',
     camping: 'En el campamento',
     from: 'Visto desde',
@@ -88,9 +91,13 @@ export const es: Messages<typeof en> = {
     party_stats: 'Una característica del grupo.',
     party_resources: 'Cuánto lleva el grupo de una provisión.',
     yesterday: 'Un valor del día anterior.',
-    short: 'Al acabar un día (comprobaciones at: day-end): true si ese día faltó alguna provisión.',
+    below:
+      'Los valores (provisiones, características) que un efecto intentó bajar de su mínimo hoy, por id (below: food).',
+    above: 'Los valores que un efecto intentó subir de su máximo hoy, por id.',
+    doing: 'La acción en curso (doing: camp); al acabar un día, aquella en la que acabó.',
+    short: 'Packs antiguos: true cuando algo llegó a su mínimo hoy (mira below).',
     camping:
-      'Al acabar un día (comprobaciones at: day-end): true si el día acabó en el campamento.',
+      'Packs antiguos: true mientras está en curso la acción del sistema para la noche (mira doing).',
     from: 'Al descubrir el mapa: el hex desde el que se ve el vacío.',
     around:
       'Al descubrir el mapa: cuántos vecinos conocidos del hex tienen ese terreno (around.lake: 2).',
