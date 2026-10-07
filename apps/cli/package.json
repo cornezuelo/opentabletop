@@ -1,0 +1,22 @@
+{
+  "name": "cli",
+  "private": true,
+  "version": "0.0.0",
+  "description": "The opentabletop command line: validate packs, list and roll their tables.",
+  "type": "module",
+  "bin": {
+    "opentabletop": "dist/opentabletop.mjs"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/random": "*",
+    "@open-tabletop/session": "*"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}

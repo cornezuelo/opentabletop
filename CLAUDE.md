@@ -44,6 +44,7 @@ apps/
   oracle/                   # ✅ roll and edit packs (see apps/oracle/CLAUDE.md)
   manual/                   # ✅ the user manual of every app, with search (see apps/manual/CLAUDE.md)
   travel/                   # ✅ play trips without a map, edit travel systems (see apps/travel/CLAUDE.md)
+  cli/                      # ✅ the `opentabletop` command line: validate, list and roll packs (Node, bundled by Vite)
 packs/                      # data packs (tables, travel rules, weather…)
   core/                     # ✅ generic content for any game (oracles, inspiration, scene twists); no travel system
   grey-marches/             # ✅ showcase setting: a travel system and tables using every feature, with an example map
@@ -152,7 +153,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - **Loose ends:** ✅ conditions and `set` in the Oracle table form; ✅ undo across form edits; ✅ several saved trips and journal export in the Travel app; ✅ POI icons, ✅ highlight/filter hexes by tag; ✅ responsive layouts for narrow windows (Hexmapper panel as a sheet, Oracle in one column).
 - **Suggestions while typing, everywhere** (✅ condition, value and context boxes in Oracle and Travel forms, the YAML editor, Travel tags and rules lists, map values; `SuggestInput` + `contextSuggestions`; new inputs must use them): autocomplete in every input whose value comes from a known list, in every app and system (today's and future ones): context keys, field keys and values, table and definition ids, tags, terrains, regions, events, stats… in forms, the roll panel, the hex panel and the YAML editor.
 - ✅ **Save / load the whole state (before any new system):** one backup file (OTD bundle or zip) with everything the apps keep in this browser, not just Hexmapper maps: the map library (IndexedDB), user packs, the Travel app's trip, Oracle histories and deck states, favorites and preferences. Restore it on another machine to resume whole campaigns, or after losing the browser storage. Versioned with migrations like every persisted format; restoring asks before replacing (or merges by id). Done (2026-10-07): app switcher → Save a backup / Restore a backup… (add to mine or replace everything), `@open-tabletop/storage`, manual page technical/05-backups.
-- ✅ **Installable, offline apps (PWA)** (`vite.pwa.ts`: a manifest and a service worker per app) and the **command line** (`oracle roll …`, `oracle validate …`).
+- ✅ **Installable, offline apps (PWA)** (`vite.pwa.ts`: a manifest and a service worker per app) and ✅ the **command line** (`apps/cli`, `make cli ARGS="validate | list | roll …"`).
 - **Release workflow** (see below), per-package build, then alpha `0.1`.
 
 **Phase B: the living world**

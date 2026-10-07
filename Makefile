@@ -2,11 +2,13 @@
 # Each target is a thin wrapper over npm scripts, so both ways keep working.
 
 PORT ?= 8080
-APPS := $(notdir $(wildcard apps/*))
+ARGS ?= --help
+# Web apps (the command line in apps/cli is built and run with `make cli`).
+APPS := $(filter-out cli,$(notdir $(wildcard apps/*)))
 
 .DEFAULT_GOAL := help
 .PHONY: help install dev dev-hexmapper dev-oracle dev-travel dev-manual dev-all build site serve preview \
-	test test-watch check lint format verify clean private-status private-commit private-push
+	test test-watch check lint format verify clean cli private-status private-commit private-push
 
 help: ## List the commands
 	@awk 'BEGIN {FS = ":.*## "; printf "OpenTabletop\n\n"} \
@@ -48,6 +50,10 @@ preview: ## Serve the last built site again without rebuilding
 	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
 	python3 -m http.server $(PORT) -d dist
 
+cli: ## Build and run the command line (make cli ARGS="roll core/action")
+	@npm run build -w apps/cli --silent >/dev/null
+	@node apps/cli/dist/opentabletop.mjs $(ARGS)
+
 test: ## Run the tests once
 	npm test
 
@@ -66,7 +72,7 @@ format: ## Format every file with Prettier
 verify: lint check test ## Everything CI would run: lint, types and tests
 
 clean: ## Remove build output (dist folders)
-	rm -rf dist $(addprefix apps/,$(addsuffix /dist,$(APPS)))
+	rm -rf dist apps/cli/dist $(addprefix apps/,$(addsuffix /dist,$(APPS)))
 
 private-status: ## Show changes in the private packs repo (packs-private/)
 	git -C packs-private status --short
