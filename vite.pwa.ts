@@ -3,12 +3,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 /**
  * Makes an app installable and usable offline: a web manifest and a service worker that
  * caches every built file. Each app has its own (they're built into separate folders and
- * served with relative URLs). New versions take over on the next visit.
+ * served with relative URLs). When a new version is downloaded, the app offers to reload
+ * into it (`offerUpdate` in ui-kit, registered in each app's main.ts).
  */
 export function pwa(app: { name: string; shortName: string; description: string }) {
   return VitePWA({
-    registerType: 'autoUpdate',
-    injectRegister: 'script',
+    registerType: 'prompt',
+    // Registered by each app (main.ts), to offer the reload.
+    injectRegister: false,
     manifest: {
       name: app.name,
       short_name: app.shortName,

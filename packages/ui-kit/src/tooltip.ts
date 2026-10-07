@@ -25,7 +25,11 @@ const STYLE = `
 .ot-tooltip p, .ot-tooltip ul, .ot-tooltip ol { margin: 0 0 0.45em; }
 .ot-tooltip > :last-child { margin-bottom: 0; }
 .ot-tooltip ul, .ot-tooltip ol { padding-left: 1.2em; }
-.ot-tooltip code { font-family: ui-monospace, monospace; font-size: 0.95em; }
+.ot-tooltip code {
+  padding: 0 0.35em; font-family: ui-monospace, monospace; font-size: 0.92em; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px;
+}
 `
 
 function ensureBubble(): HTMLDivElement {
