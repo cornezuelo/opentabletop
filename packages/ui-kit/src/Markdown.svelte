@@ -31,14 +31,14 @@
     border-left: 2px solid var(--panel-border);
   }
 
-  /* Ids, values and YAML stand out as small chips in the accent colour. */
+  /* Ids, values and YAML stand out as small, quiet chips. */
   .markdown :global(code) {
     padding: 0.05em 0.4em;
     font-family: ui-monospace, monospace;
     font-size: 0.9em;
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    color: color-mix(in srgb, var(--text) 80%, var(--accent));
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
     border-radius: 4px;
   }
 

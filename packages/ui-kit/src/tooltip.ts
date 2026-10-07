@@ -26,9 +26,9 @@ const STYLE = `
 .ot-tooltip > :last-child { margin-bottom: 0; }
 .ot-tooltip ul, .ot-tooltip ol { padding-left: 1.2em; }
 .ot-tooltip code {
-  padding: 0 0.35em; font-family: ui-monospace, monospace; font-size: 0.92em; color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 4px;
+  padding: 0 0.35em; font-family: ui-monospace, monospace; font-size: 0.92em;
+  color: color-mix(in srgb, var(--text) 80%, var(--accent));
+  background: var(--bg); border: 1px solid var(--panel-border); border-radius: 4px;
 }
 `
 
