@@ -186,6 +186,9 @@ Guiding idea (the user's concern): mechanics like fatigue, morale, reputation, f
 
 **Decisions taken on 2026-10-07/08 (for review):**
 
+- ✅ Updates of bundled packs (2026-10-07): a user copy records each bundled file's fingerprint (`basedOn`); when a newer version changes the bundled pack, Oracle and Travel mark it **update** and list each changed file to take or keep (`BundledUpdates` in pack-ui, for every app that edits packs).
+- ✅ Basic Markdown in pack descriptions (2026-10-07): paragraphs, bold, italics, code, lists, quotes, web links; HTML and images stay text (`Markdown` / `renderMarkdown` in ui-kit, `tooltip={{ markdown }}`, `InfoTip markdown`). New places that show a pack's description must use them.
+
 - Backups (`@open-tabletop/storage`) copy each app's browser data as it is (raw storage entries, maps in the Hexmapper's internal format); see "Revisit the backup format" below.
 - Name precedence in what tables see: party stats by name < today's values < map and trip facts < `party` < the binding's context. A stat named like a fact (`terrain`, `weather`…) can't hide it; `party.stats.<name>` always reaches the stat. Built-in names also win over a token's or icon's own values (`name`, `kind`, `id`).
 - With the world clock running, trips start at its date (the season choice is replaced by a note); travelling moves the clock and journals what comes due.
