@@ -33,7 +33,7 @@ What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to
 - [x] **Oracle pack page**: list translation files under _Translations_, not mixed into _Files_. Done: one group per language under Translations.
 - [ ] **Hexmapper layout**: swap the side panels (the right panel to the left, the left to the right), like the other apps.
 - [x] **README.md** at the root of the repo. Done.
-- [ ] **Travel → Play → The way**: column headers and tooltips (what each column is, especially tags).
+- [x] **Travel → Play → The way**: column headers and tooltips (what each column is, especially tags). Done: a header row with an **i** per column, and one on the roads to the next hex.
 
 **Next, in this order (agreed with the user 2026-10-08; each step is groundwork for the ones after it, so nothing gets rewritten)**
 

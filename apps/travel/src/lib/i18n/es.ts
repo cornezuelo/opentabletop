@@ -167,6 +167,14 @@ export const es: Messages<typeof en> = {
     tags: 'Etiquetas',
     tagsPlaceholder: 'landmark, haunted…',
     edges: 'Al siguiente hex',
+    numberHelp:
+      'Los hexes en orden: el grupo empieza en el 1 y va hacia el último. Los hexes ya recorridos no se pueden cambiar; añade más al final para seguir.',
+    terrainHelp:
+      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno: p. ej. en las Marcas Grises solo se encuentra comida buscando en bosques, campos, brezales y marismas.',
+    tagsHelp:
+      'Palabras que marcan el hex, separadas por comas, para las comprobaciones y tablas que las buscan. En las Marcas Grises: landmark detiene el viaje hasta que pulses Continuar, toll cobra comida en el puente de Keld al llegar por el camino, ford tira el cruce del vado, shrine tira En el santuario (baja la fatiga), haunted trae luces de noche. Las sugerencias son las etiquetas que usan los packs cargados.',
+    edgesHelp:
+      'Si un camino, sendero o río une este hex con el siguiente. Los caminos y senderos hacen más rápido el tramo (según el sistema), y en ellos se saltan algunas comprobaciones: en las Marcas Grises y Kal-Arath no se tira para perderse en un camino o río, y en las Marcas Grises llegar por el camino no trae encuentros.',
     addHex: 'Añadir un hex',
     remove: 'Quitar',
     destinationHint: 'Añade hexes al camino para ponerte en marcha.',

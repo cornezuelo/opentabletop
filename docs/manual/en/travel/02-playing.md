@@ -10,7 +10,7 @@ You can keep several trips (in this browser), each with its own system, way and 
 
 ## The way
 
-The list on the left is the way. The party starts on hex 1 and heads for the last one.
+The list on the left is the way. The party starts on hex 1 and heads for the last one. Its columns have a header with an **i** that explains each one.
 
 - **Terrain** of each hex: the Hexmapper's terrains plus any the system's rules name.
 - **Tags**, separated by commas. Tables and checks read them: the Grey Marches stop at `landmark` hexes, charge a toll on `toll` ones and have night lights in `haunted` ones.

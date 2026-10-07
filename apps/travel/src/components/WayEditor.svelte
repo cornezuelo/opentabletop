@@ -32,6 +32,11 @@
       {t('play.hexKm')}
     </label>
   </div>
+  <div class="columns" aria-hidden="true">
+    <span>#<InfoTip text={t('play.numberHelp')} /></span>
+    <span>{t('play.terrain')}<InfoTip text={t('play.terrainHelp')} /></span>
+    <span>{t('play.tags')}<InfoTip text={t('play.tagsHelp')} /></span>
+  </div>
   <ol>
     {#each way as hex, i (i)}
       <li class:passed={i < here} class:here={i === here}>
@@ -72,7 +77,9 @@
         >
         {#if i < way.length - 1}
           <div class="edges" aria-label={t('play.edges')}>
-            <span>↓</span>
+            <span
+              >↓ {t('play.edges')}{#if i === 0}<InfoTip text={t('play.edgesHelp')} />{/if}</span
+            >
             {#each edges as kind (kind)}
               <label>
                 <input
@@ -125,6 +132,16 @@
 
   .km input {
     width: 70px;
+  }
+
+  /* The same columns as each hex's row. */
+  .columns {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) 28px;
+    gap: 6px;
+    padding: 0 6px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   ol {
