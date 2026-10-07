@@ -45,8 +45,9 @@ In order (agreed 2026-10-07; each step is groundwork for the next ones):
    - No lore: factions point to notes with `noteRef`.
    - Progress clocks filled by faction turns and tables (today by hand).
 4. **A frontier-space showcase pack** (Cowboy Bebop / Firefly style): ships, contracts, bounties, a space map with the sci-fi terrain set and icons, a ship that only travels space (`through`), its own calendar and values. Like the Grey Marches, it exercises every feature, with tests that play it.
-5. **Weather, the rest:** hex flowers (2d6 moves on a small map of weathers) besides Markov tables, and the world clock's own daily weather outside trips.
-6. **Per-package builds** before publishing the libraries to npm (today packages are consumed as TS source), and Web Components for non-Svelte hosts.
+5. **More settings beyond fantasy** (user, 2026-10-07): bundled packs for other genres, each with its oracles and tables, a travel system where it fits and an example map using the Hexmapper's terrain sets and icons for them: modern (and urban), post-apocalyptic, and others worth having (horror, weird west, cyberpunk…). Our own content, or open-licensed games with attribution. Generic pieces any game of the genre can use go to Core-like packs per genre.
+6. **Weather, the rest:** hex flowers (2d6 moves on a small map of weathers) besides Markov tables, and the world clock's own daily weather outside trips.
+7. **Per-package builds** before publishing the libraries to npm (today packages are consumed as TS source), and Web Components for non-Svelte hosts.
 
 **Characters and the campaign record**
 
