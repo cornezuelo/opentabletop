@@ -16,6 +16,8 @@
   import KindBadge from './KindBadge.svelte'
   import { dialogs } from '../lib/dialogs.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
+  import { BundledUpdates } from '@open-tabletop/pack-ui'
+  import { getLocale } from '../lib/i18n'
 
   let { root }: { root: string } = $props()
 
@@ -117,6 +119,7 @@
     </header>
 
     {#if !editable}<ReadOnlyNotice {root} />{/if}
+    <BundledUpdates library={workspace} {root} locale={getLocale()} />
 
     <section>
       <h2>{t('pack.problems')}</h2>

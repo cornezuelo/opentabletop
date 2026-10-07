@@ -22,6 +22,7 @@ export const es: Messages<typeof en> = {
     edited: 'editado',
     personal: 'uso personal',
     user: 'tuyo',
+    updated: 'actualización',
   },
   welcome: {
     title: 'Travel',
@@ -176,6 +177,8 @@ export const es: Messages<typeof en> = {
     personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
     editedCopy: 'Tu copia editada de un sistema incluido: sustituye al incluido en este navegador.',
     revert: 'Volver a la versión incluida',
+    updatedTip:
+      'La versión incluida de este sistema ha cambiado desde que hiciste tu copia: ábrelo para coger o conservar cada cambio.',
     confirmRevert:
       '¿Descartar tus cambios en este sistema y volver a la versión incluida? (↶ lo deshace.)',
     makeCopy: 'Editar una copia',

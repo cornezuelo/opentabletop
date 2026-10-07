@@ -1,5 +1,6 @@
 export { default as CodeEditor, type Problem } from './CodeEditor.svelte'
 export { default as UndoButtons } from './UndoButtons.svelte'
+export { default as BundledUpdates } from './BundledUpdates.svelte'
 export { PackLibrary } from './library.svelte'
 export * from './packs'
 export * from './yaml'

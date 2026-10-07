@@ -7,8 +7,12 @@ import {
 } from '@open-tabletop/oracle-engine'
 import { mathRandom } from '@open-tabletop/random'
 import {
+  bundledChanges,
   effectivePacks,
   engineFiles,
+  fingerprints,
+  updateCopy,
+  type BundledChange,
   manifestOf,
   MANIFEST_FILE,
   readUserPacks,
@@ -171,7 +175,34 @@ export class PackLibrary {
   editCopy(root: string): void {
     const pack = this.pack(root)
     if (!pack || pack.origin === 'user') return
-    this.addPack({ ...pack, origin: 'user', files: pack.files.map((f) => ({ ...f })) })
+    this.addPack({
+      ...pack,
+      origin: 'user',
+      files: pack.files.map((f) => ({ ...f })),
+      basedOn: fingerprints(pack),
+    })
+  }
+
+  /** The bundled pack in a folder, even when a user copy overrides it. */
+  bundledPack(root: string): PackSource | undefined {
+    return this.bundled.find((p) => p.root === root)
+  }
+
+  /** What the bundled pack changed since the user copy of it was made ([] if not a copy). */
+  bundledChanges(root: string): BundledChange[] {
+    const bundled = this.bundledPack(root)
+    const copy = this.user.find((p) => p.root === root)
+    return bundled && copy ? bundledChanges(bundled, copy) : []
+  }
+
+  /**
+   * Brings files of a user copy up to date: `take` gets the bundled version, `keep`
+   * stays as it is (both stop being reported). Undoable.
+   */
+  updateFromBundled(root: string, change: { take?: string[]; keep?: string[] }): void {
+    const bundled = this.bundledPack(root)
+    if (!bundled) return
+    this.update(root, (copy) => updateCopy(bundled, copy, change))
   }
 
   /** Deletes a user pack (for an edited bundled pack, this reverts to the bundled one). */

@@ -45,6 +45,10 @@
           {:else if o}
             <span class="tag">{t(`origin.${o}`)}</span>
           {/if}
+          {#if s.id !== 'generic' && library.bundledChanges(library.rootOf(s.id) ?? '').length}
+            <span class="tag updated" use:tooltip={t('edit.updatedTip')}>{t('origin.updated')}</span
+            >
+          {/if}
           {#if library.pack(library.rootOf(s.id) ?? '')?.personal}
             <span class="tag personal">{t('origin.personal')}</span>
           {/if}
@@ -126,6 +130,11 @@
 
   .tag.personal {
     color: #d8c58a;
+  }
+
+  .tag.updated {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .errors {

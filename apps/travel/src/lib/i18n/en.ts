@@ -20,6 +20,7 @@ export const en = {
     edited: 'edited',
     personal: 'personal use',
     user: 'yours',
+    updated: 'update',
   },
   welcome: {
     title: 'Travel',
@@ -174,6 +175,8 @@ export const en = {
     editedCopy:
       'Your edited copy of a bundled system: it replaces the bundled one in this browser.',
     revert: 'Revert to bundled',
+    updatedTip:
+      'The bundled version of this system changed since you made your copy: open it to take or keep each change.',
     confirmRevert:
       'Discard your changes to this system and go back to the bundled version? (↶ undoes it.)',
     makeCopy: 'Edit a copy',

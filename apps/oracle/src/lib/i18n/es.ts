@@ -35,11 +35,14 @@ export const es: Messages<typeof en> = {
     bundled: 'incluido',
     edited: 'editado',
     personal: 'uso personal',
+    updated: 'actualización',
   },
   originTips: {
     bundled: 'Viene con la aplicación y es de solo lectura. Edita una copia para cambiarlo.',
     edited: 'Tu copia editada de un pack incluido; sustituye al original.',
     personal: 'Contenido de uso personal de packs-private/: no lo compartas ni lo publiques.',
+    updated:
+      'La versión incluida de este pack ha cambiado desde que hiciste tu copia: abre el pack para coger o conservar cada cambio.',
   },
   welcome: {
     title: 'Oracle',

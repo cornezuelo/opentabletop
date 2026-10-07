@@ -89,6 +89,11 @@
             {/if}
             {#if pack.overrides}
               <span class="tag" use:tooltip={t('originTips.edited')}>{t('origin.edited')}</span>
+              {#if workspace.bundledChanges(pack.root).length}
+                <span class="tag updated" use:tooltip={t('originTips.updated')}
+                  >{t('origin.updated')}</span
+                >
+              {/if}
             {:else if pack.origin === 'bundled'}
               <span class="tag" use:tooltip={t('originTips.bundled')}>{t('origin.bundled')}</span>
             {/if}
@@ -197,6 +202,11 @@
 
   .tag.personal {
     color: #d8c58a;
+  }
+
+  .tag.updated {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .add {

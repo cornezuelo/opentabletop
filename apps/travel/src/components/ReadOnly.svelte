@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { BundledUpdates } from '@open-tabletop/pack-ui'
   import { confirmAction } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
+  import { getLocale, t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
 
   /**
@@ -26,6 +27,7 @@
     <span>{t('edit.editedCopy')}</span>
     <button class="plain" onclick={revert}>{t('edit.revert')}</button>
   </div>
+  <BundledUpdates {library} {root} locale={getLocale()} />
 {/if}
 
 <style>

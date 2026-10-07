@@ -32,11 +32,14 @@ export const en = {
     bundled: 'bundled',
     edited: 'edited',
     personal: 'personal use',
+    updated: 'update',
   },
   originTips: {
     bundled: 'Comes with the app and is read-only. Edit a copy to change it.',
     edited: 'Your edited copy of a bundled pack; it replaces the bundled one.',
     personal: 'Personal-use content from packs-private/: don’t share or publish it.',
+    updated:
+      'The bundled version of this pack changed since you made your copy: open the pack to take or keep each change.',
   },
   welcome: {
     title: 'Oracle',

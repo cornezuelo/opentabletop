@@ -17,6 +17,11 @@ export interface PackSource {
   /** From packs-private/: personal-use content, never redistributed. */
   personal?: boolean
   files: PackFile[]
+  /**
+   * On a user copy of a bundled pack: the fingerprint of each bundled file when the copy
+   * was made (or last brought up to date), to tell what the bundled pack changed since.
+   */
+  basedOn?: Record<string, string>
 }
 
 export interface WorkspacePack extends PackSource {
@@ -61,6 +66,84 @@ export function groupBundled(
     packs.get(root)!.files.push({ path: rest.join('/'), content })
   }
   return [...packs.values()].filter((p) => p.files.some((f) => f.path === MANIFEST_FILE))
+}
+
+/** A short fingerprint of a text (FNV-1a, 32 bits), to tell whether a file changed. */
+export function fingerprint(text: string): string {
+  let hash = 0x811c9dc5
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0')
+}
+
+/** Every file of a pack by path, as fingerprints. */
+export function fingerprints(pack: PackSource): Record<string, string> {
+  return Object.fromEntries(pack.files.map((f) => [f.path, fingerprint(f.content)]))
+}
+
+/** A file of a copy made before updates were tracked: whether it was edited can't be told. */
+const UNKNOWN = '?'
+
+/**
+ * What a copy is based on: what it recorded, or for copies made before that, the bundled
+ * files it still has unchanged (any other file differs for a reason that can't be told).
+ */
+export function baseOf(bundled: PackSource, copy: PackSource): Record<string, string> {
+  if (copy.basedOn) return copy.basedOn
+  const now = fingerprints(bundled)
+  const mine = fingerprints(copy)
+  return Object.fromEntries(
+    Object.entries(now).map(([path, print]) => [path, mine[path] === print ? print : UNKNOWN]),
+  )
+}
+
+/** A file the bundled pack changed since a user copy of it was made. */
+export interface BundledChange {
+  path: string
+  /** What happened to it in the bundled pack. */
+  bundled: 'added' | 'changed' | 'removed'
+  /** The copy changed it too (or, in copies made before tracking, it differs). */
+  mine: boolean
+}
+
+/** What the bundled pack changed since the copy was made, by path ([] when nothing). */
+export function bundledChanges(bundled: PackSource, copy: PackSource): BundledChange[] {
+  const now = fingerprints(bundled)
+  const mine = fingerprints(copy)
+  const base = baseOf(bundled, copy)
+  return [...new Set([...Object.keys(now), ...Object.keys(base)])]
+    .sort()
+    .filter((path) => base[path] !== now[path])
+    .map((path) => ({
+      path,
+      bundled: base[path] === undefined ? 'added' : now[path] === undefined ? 'removed' : 'changed',
+      mine: mine[path] !== base[path],
+    }))
+}
+
+/**
+ * Brings some files of a copy up to date with the bundled pack: `take` gets the bundled
+ * version (a file it removed goes too), `keep` stays as it is; both count as seen.
+ */
+export function updateCopy(
+  bundled: PackSource,
+  copy: PackSource,
+  { take = [], keep = [] }: { take?: string[]; keep?: string[] },
+): PackSource {
+  const now = fingerprints(bundled)
+  const basedOn = { ...baseOf(bundled, copy) }
+  for (const path of [...take, ...keep]) {
+    if (now[path] === undefined) delete basedOn[path]
+    else basedOn[path] = now[path]
+  }
+  const taken = new Set(take)
+  const files = [
+    ...copy.files.filter((f) => !taken.has(f.path)),
+    ...bundled.files.filter((f) => taken.has(f.path)).map((f) => ({ ...f })),
+  ].sort((a, b) => a.path.localeCompare(b.path))
+  return { ...copy, files, basedOn }
 }
 
 /** User packs replace bundled packs with the same folder; the rest are listed side by side. */

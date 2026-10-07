@@ -25,7 +25,7 @@ Principles:
 
 - **Files are the source of truth.** Forms edit YAML through the `yaml` Document API (`pack-ui`'s `yaml.ts`), so comments, key order and formatting of the rest of the file survive. Anything a form can't edit (a generator field's condition and context, nested `any`/`all`/`not`…) is edited in the YAML editor.
 - **Live validation:** every change recompiles the packs; engine diagnostics are mapped to lines (`locate`) and shown in the editor gutter and in the pack's problem list.
-- **Bundled packs are read-only.** "Edit a copy" copies the pack into the user's packs with the same folder, which overrides the bundled one (references from other packs keep working); "Revert to bundled" deletes the copy. Copies of personal-use packs stay personal use.
+- **Bundled packs are read-only.** "Edit a copy" copies the pack into the user's packs with the same folder, which overrides the bundled one (references from other packs keep working); "Revert to bundled" deletes the copy. Copies of personal-use packs stay personal use. A copy records the fingerprint of each bundled file (`basedOn`); when a newer app changes the bundled pack, `BundledUpdates` (pack-ui, also used by Travel) lists each changed file — touched by the user or not — to take or keep.
 - **User packs live in the browser** (`localStorage`, key `opentabletop.userPacks`, shared by OpenTabletop apps served from the same origin). Export a pack as `.zip` (its folder at the top, ready for `packs/`) to back it up or share it.
 - **Context variables** a definition reads (roll and reference templates, condition keys) are detected by following its references (`oracle-ui`'s `variables.ts`), so the roll panel asks for them; values seen in conditions are offered as suggestions.
 
