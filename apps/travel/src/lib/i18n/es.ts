@@ -55,7 +55,8 @@ export const es: Messages<typeof en> = {
     kmPerDay: 'km por día',
     consumes: 'Gasta al día',
     consumesHelp:
-      'Provisiones que gasta esta forma de viajar cada día además de lo normal, p. ej. fodder: 1.',
+      'Provisiones que gasta esta forma de viajar cada día además de lo que gastan todos (Provisiones → Al día). P. ej. los caballos de las Marcas Grises: fodder: 1, así que a caballo se gastan 1 de comida y 1 de forraje al día y a pie solo la comida. Vacío: nada más.',
+    consumesNone: 'nada más',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
       'Terrenos por los que puede ir, separados por comas (p. ej. un barco: lake, sea). Vacío: cualquiera.',
@@ -79,7 +80,8 @@ export const es: Messages<typeof en> = {
     resources: 'Provisiones',
     resourcesHelp: 'Lo que lleva el grupo y cuánto gasta cada día (marche o no).',
     perDay: 'Al día',
-    perDayHelp: 'Se gasta cada día. Quedarse sin comida sube la fatiga; el resto solo se cuenta.',
+    perDayHelp:
+      'Lo gastan todos cada día, sea cual sea la forma de viajar (cada forma puede añadir lo suyo: Formas de viajar → Gasta al día). El forraje está a 0 en las Marcas Grises porque solo lo comen los caballos. Quedarse corto de cualquier provisión sube la fatiga 1 ese día.',
     weather: 'Clima',
     weatherHelp:
       'Cómo frena el clima al grupo. Las tablas lo fijan con set: { weather: … } (normalmente al alba).',

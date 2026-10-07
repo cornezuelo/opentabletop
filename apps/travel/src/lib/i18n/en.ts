@@ -52,7 +52,8 @@ export const en = {
     kmPerDay: 'km per day',
     consumes: 'Uses per day',
     consumesHelp:
-      'Supplies this way of travelling uses each day on top of the usual, e.g. fodder: 1.',
+      'Supplies this way of travelling uses each day on top of what everyone uses (Supplies → Per day). E.g. the Grey Marches’ horses: fodder: 1, so riding uses 1 food and 1 fodder a day while walking uses only the food. Empty: nothing extra.',
+    consumesNone: 'nothing extra',
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
       'Terrains it can go through, separated by commas (e.g. a boat: lake, sea). Empty: any.',
@@ -77,7 +78,8 @@ export const en = {
     resourcesHelp:
       'What the party carries and how much is used each day (whether you march or not).',
     perDay: 'Per day',
-    perDayHelp: 'Used every day. Running out of food raises fatigue; the rest are just counted.',
+    perDayHelp:
+      'Used every day by everyone, whatever the way of travelling (a way of travelling can add its own: Ways of travelling → Uses per day). Fodder is 0 in the Grey Marches because only horses eat it. Running short of any supply raises fatigue by 1 that day.',
     weather: 'Weather',
     weatherHelp:
       'How weather slows the party. Tables set it with set: { weather: … } (usually rolled at dawn).',

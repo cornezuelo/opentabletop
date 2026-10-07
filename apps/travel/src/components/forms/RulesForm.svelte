@@ -71,7 +71,7 @@
           label: t('rules.consumes'),
           help: t('rules.consumesHelp'),
           type: 'flow',
-          placeholder: resources[1] ? `${resources[1]}: 1` : 'fodder: 1',
+          placeholder: t('rules.consumesNone'),
           hints: Object.fromEntries(resources.map((r) => [r, []])),
         },
         {
