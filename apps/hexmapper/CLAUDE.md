@@ -89,6 +89,7 @@ Done:
 - [x] Highlight/filter hexes by tag (Layers panel; dims the rest on demand).
 - [ ] Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [ ] Translate icon names (currently English, as they come from game-icons).
+- [ ] **Planned route drawn along the roads it follows** (asked 2026-10-07): when the route goes by a road, trail or river, draw it along that line's smoothed curve, beside it (offset so it never sits on top of it), instead of from hex centre to hex centre. Today it looks like it leaves the obvious way: on the example map the trail to the Grey Stones is stored as 0605 → 0604 → 0504 → 0503 and the route follows exactly those hexes, but the trail's curve cuts the corner at 0604/0504 while the route turns square through the centres. The first stretch out of Ashford already looks right (close beside the road, not over it); keep that.
 
 ### Play (with the engines)
 
