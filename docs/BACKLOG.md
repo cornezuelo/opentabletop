@@ -26,6 +26,14 @@ What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to
 - ✅ **Installable, offline apps (PWA)** (`vite.pwa.ts`: a manifest and a service worker per app) and ✅ the **command line** (`apps/cli`, `make cli ARGS="validate | list | roll …"`).
 - **Release workflow** (see below), per-package build, then alpha `0.1`.
 
+**Asked by the user on 2026-10-07, being done now (in this order)**
+
+- [ ] **Roll modes** as system data (`kind: roll-modes`: repeat N, keep highest / lowest / middle, `cancels`; tables list `modes` and `modeWhen`), replacing the built-in advantage (agreed: "modes declared by the system").
+- [ ] **Every `kind` in the manual**: briefly in the section that uses it, and a technical page with all of them in detail (`table`, `oracle`, `generator`, `deck`, `roll-modes`, `travel-rules`, `bindings`, `calendar`, `weather`…).
+- [ ] **Oracle pack page**: list translation files under _Translations_, not mixed into _Files_.
+- [ ] **Hexmapper layout**: swap the side panels (the right panel to the left, the left to the right), like the other apps.
+- [ ] **README.md** at the root of the repo.
+
 **Next, in this order (agreed with the user 2026-10-08; each step is groundwork for the ones after it, so nothing gets rewritten)**
 
 Guiding idea (the user's concern): mechanics like fatigue, morale, reputation, fodder belong to **particular systems**, not to the core. The core only knows _generic declared values_ and _effects_ on them; each system (pack) declares which values exist, what they're called and how they behave. Nothing a system doesn't declare is shown.
