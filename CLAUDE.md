@@ -194,6 +194,8 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 
 **Later, or to decide**
 
+- **Revisit the backup format** (`@open-tabletop/storage`): today it copies each app's browser data as it is (raw storage entries, maps in the Hexmapper's internal format). That ties backups to every app's internal format, so each change there needs a migration the backup also depends on. Consider a stable, documented format (e.g. OTD bundles for maps, pack folders for packs) so old backups keep restoring without chasing internal changes.
+
 - **Supplies and loot over time** (maybe): when something was spent or found, and who carries what, without becoming an inventory manager.
 - Web Components for non-Svelte hosts.
 - **Last: more free solo GM / oracle systems** found on itch.io and elsewhere, after researching which ones have licences that allow it (each as a pack, licence recorded).
