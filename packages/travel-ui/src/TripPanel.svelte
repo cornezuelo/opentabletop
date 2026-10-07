@@ -10,7 +10,7 @@
   import { entryClock, entryText, eventName, journalMarkdown, tripDay } from './journal'
   import { availableActions, checkInfo, type TravelAction } from '@open-tabletop/travel-engine'
   import { calendarOf } from '@open-tabletop/session'
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
 
   /**
@@ -111,6 +111,7 @@
   const actionName = (id: string) =>
     localize(actions.custom[id]?.name, locale, 'en') ?? idText(t, `actions.${id}`, id)
   const checkName = (event: string) => localize(checkInfo(system.rules, event).name, locale, 'en')
+  /** A check's description from its pack (basic Markdown). */
   const checkTip = (event: string) =>
     localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
   /** Name of a value results change: a stat of the system, fatigue or a resource. */
@@ -138,10 +139,11 @@
     actionNothing,
   })
   /** What an action of the system's own does, for its tooltip. */
-  function actionTip(id: string): string {
+  function actionTip(id: string): TooltipText {
     const own = actions.custom[id]
+    // The pack's description, in basic Markdown.
     const described = localize(own.description, locale, 'en')
-    if (described) return described
+    if (described) return { markdown: described }
     const rolls = [
       ...new Set(
         (system.rules.checks ?? [])
@@ -270,7 +272,7 @@
 
   {#each stats as [key, stat] (key)}
     <label class="field">
-      <span>{statText(stat.name, key)}<InfoTip text={statText(stat.description, '')} /></span>
+      <span>{statText(stat.name, key)}<InfoTip markdown={statText(stat.description, '')} /></span>
       <input
         type="number"
         value={session.stats[key] ?? stat.default ?? 0}
@@ -319,7 +321,7 @@
       <span
         >{t('journal.pending', {
           event: pendingName(check.event),
-        })}{#if checkTip(check.event)}<InfoTip text={checkTip(check.event)} />{/if}</span
+        })}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
       >
       <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
       >

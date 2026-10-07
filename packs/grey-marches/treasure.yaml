@@ -4,7 +4,10 @@
 kind: table
 id: treasure
 name: What is in the hoard?
-description: 'What a hoard holds. Shows: percentile dice (d100, also written d%), dice in the text, and cascades into Rumours and A rare prize.'
+description: |-
+  What a hoard holds.
+
+  **Shows:** percentile dice (d100, also written d%), dice in the text, and cascades into Rumours and A rare prize.
 roll: d100
 entries:
   - { id: coins, range: 1-50, result: '{{3d6}} silver pieces' }
@@ -26,7 +29,10 @@ entries:
 kind: table
 id: prize
 name: A rare prize
-description: 'A rare prize. Shows: maxOccurrences (the Sword of Keld turns up twice at most; then only gold remains).'
+description: |-
+  A rare prize.
+
+  **Shows:** maxOccurrences (the Sword of Keld turns up twice at most; then only gold remains).
 entries:
   - {
       id: sword,
@@ -42,7 +48,10 @@ entries:
 kind: generator
 id: ruin-delve
 name: Delving a ruin
-description: 'What a ruin holds, and what guards it. Shows: every kind of generator field: a table, dice (2d6kl1: keep the lowest), d%, a fixed value with a template, a field only when another says so (`when`), and a table rolled with its own context (the guardian, met at night in danger 3).'
+description: |-
+  What a ruin holds, and what guards it.
+
+  **Shows:** every kind of generator field: a table, dice (2d6kl1: keep the lowest), d%, a fixed value with a template, a field only when another says so (`when`), and a table rolled with its own context (the guardian, met at night in danger 3).
 fields:
   site: { table: ruins }
   danger: { roll: 2d6kl1 }

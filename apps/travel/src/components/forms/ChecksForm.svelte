@@ -206,13 +206,13 @@
           </label>
           <label>
             <span>{t('checks.description')}</span>
-            <input
-              type="text"
+            <textarea
+              rows="2"
               value={textIn(check.description)}
               {disabled}
               onchange={(e) =>
                 setCheckText(i, 'description', check.description, e.currentTarget.value)}
-            />
+            ></textarea>
           </label>
         </div>
         <div class="row">
@@ -424,9 +424,14 @@
   }
 
   label input,
-  label select {
+  label select,
+  label textarea {
     width: 100%;
     min-width: 0;
+  }
+
+  label textarea {
+    resize: vertical;
   }
 
   .event {

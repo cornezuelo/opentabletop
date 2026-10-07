@@ -45,7 +45,7 @@
   </div>
   <label class="field">
     <span>{t('edit.description')}</span>
-    <TextField {doc} path={['description']} />
+    <TextField {doc} path={['description']} multiline />
   </label>
   {#if dice}
     <div class="options">

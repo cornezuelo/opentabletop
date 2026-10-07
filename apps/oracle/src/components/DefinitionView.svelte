@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t } from '../lib/i18n'
   import { displayDescription, displayName } from '../lib/names'
+  import { Markdown } from '@open-tabletop/ui-kit'
   import { go } from '../lib/nav.svelte'
   import { favorites, RollPanel } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle'
@@ -86,7 +87,7 @@
         </div>
       </div>
       {#if displayDescription(def)}
-        <p class="description">{displayDescription(def)}</p>
+        <div class="description"><Markdown text={displayDescription(def) ?? ''} /></div>
       {/if}
       <div class="tabs" role="tablist">
         {#each ['roll', 'edit'] as const as name (name)}

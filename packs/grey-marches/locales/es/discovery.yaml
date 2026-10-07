@@ -1,13 +1,19 @@
 next-terrain:
   name: La tierra de delante
-  description: "Decide un hex vacío a partir de la tierra que lo rodea: el agua se junta, la tierra más común sigue, a veces algo parecido, de vez en cuando cualquier cosa. Enseña: el descubrimiento (`discover.terrain` en travel.yaml), lo que ven las tablas de la tierra alrededor del hex (around.lake, common, commonCount), `set: { terrain: '{{common}}' }` con una plantilla y cascadas a una tabla por tipo de tierra."
+  description: |-
+    Decide un hex vacío a partir de la tierra que lo rodea: el agua se junta, la tierra más común sigue, a veces algo parecido, de vez en cuando cualquier cosa.
+
+    **Enseña:** el descubrimiento (`discover.terrain` en travel.yaml), lo que ven las tablas de la tierra alrededor del hex (around.lake, common, commonCount), `set: { terrain: '{{common}}' }` con una plantilla y cascadas a una tabla por tipo de tierra.
   entries:
     lake: El lago sigue
     sea: El mar sigue
     same: 'La tierra de alrededor sigue ({{commonCount}} de {{aroundCount}} hexes)'
 open-land:
   name: Tierra abierta
-  description: 'La tierra de delante desde terreno abierto: llanuras, estepas y parecidos. La tira La tierra de delante con 4–5. Enseña: pesos en vez de dados, y `set: { terrain }` (el hex recibe ese terreno).'
+  description: |-
+    La tierra de delante desde terreno abierto: llanuras, estepas y parecidos. La tira La tierra de delante con 4–5.
+
+    **Enseña:** pesos en vez de dados, y `set: { terrain }` (el hex recibe ese terreno).
   entries:
     {
       plains: Llanura,
@@ -19,32 +25,53 @@ open-land:
     }
 woodland:
   name: Bosques
-  description: 'La tierra de delante desde el bosque: más bosque, a veces denso, de vez en cuando un claro o un pantano. La tira La tierra de delante con 4–5. Enseña: una tabla a la que solo se llega desde otra (una cascada), con pesos.'
+  description: |-
+    La tierra de delante desde el bosque: más bosque, a veces denso, de vez en cuando un claro o un pantano. La tira La tierra de delante con 4–5.
+
+    **Enseña:** una tabla a la que solo se llega desde otra (una cascada), con pesos.
   entries: { forest: Bosque, dense: Bosque denso, plains: Llanura, hills: Colinas, swamp: Pantano }
 wetland:
   name: Humedales
-  description: 'La tierra de delante desde marismas y pantanos. La tira La tierra de delante con 4–5. Enseña: pesos y `set: { terrain }`, también de agua (un lago).'
+  description: |-
+    La tierra de delante desde marismas y pantanos. La tira La tierra de delante con 4–5.
+
+    **Enseña:** pesos y `set: { terrain }`, también de agua (un lago).
   entries: { marsh: Marisma, swamp: Pantano, lake: Lago, forest: Bosque }
 highland:
   name: Tierras altas
-  description: 'La tierra de delante desde colinas y montañas: las sierras crecen, con cumbres que nadie cruza. La tira La tierra de delante con 4–5. Enseña: pesos y `set: { terrain }`.'
+  description: |-
+    La tierra de delante desde colinas y montañas: las sierras crecen, con cumbres que nadie cruza. La tira La tierra de delante con 4–5.
+
+    **Enseña:** pesos y `set: { terrain }`.
   entries: { hills: Colinas, mountains: Montañas, peaks: Cumbres, canyon: Cañón, forest: Bosque }
 dryland:
   name: Tierra seca
-  description: 'La tierra de delante desde desiertos, tierras baldías o cañones (no hay en el mapa de ejemplo: para tus propios mapas). La tira La tierra de delante con 4–5. Enseña: pesos y `set: { terrain }`.'
+  description: |-
+    La tierra de delante desde desiertos, tierras baldías o cañones (no hay en el mapa de ejemplo: para tus propios mapas). La tira La tierra de delante con 4–5.
+
+    **Enseña:** pesos y `set: { terrain }`.
   entries:
     { desert: Desierto, badlands: Tierras baldías, canyon: Cañón, oasis: Oasis, steppe: Estepa }
 cold-land:
   name: Tierra fría
-  description: 'La tierra de delante desde tundra, nieve o glaciares (para tus propios mapas). La tira La tierra de delante con 4–5. Enseña: pesos y `set: { terrain }`.'
+  description: |-
+    La tierra de delante desde tundra, nieve o glaciares (para tus propios mapas). La tira La tierra de delante con 4–5.
+
+    **Enseña:** pesos y `set: { terrain }`.
   entries: { tundra: Tundra, snow: Nieve, glacier: Glaciar, taiga: Taiga }
 waters:
   name: Aguas
-  description: 'La tierra de delante desde la costa, un lago o el mar. La tira La tierra de delante con 4–5. Enseña: pesos y `set: { terrain }` con terrenos de agua.'
+  description: |-
+    La tierra de delante desde la costa, un lago o el mar. La tira La tierra de delante con 4–5.
+
+    **Enseña:** pesos y `set: { terrain }` con terrenos de agua.
   entries: { coast: Costa, sea: Mar, lake: Lago, plains: Llanura }
 any-land:
   name: Cualquier tierra
-  description: 'Cualquier cosa, de vez en cuando: la última entrada de La tierra de delante, que no tiene condición y recoge todas las tiradas que no recogen las demás. Enseña: una entrada que lo recoge todo, y pesos.'
+  description: |-
+    Cualquier cosa, de vez en cuando: la última entrada de La tierra de delante, que no tiene condición y recoge todas las tiradas que no recogen las demás.
+
+    **Enseña:** una entrada que lo recoge todo, y pesos.
   entries:
     {
       plains: Llanura,
@@ -57,7 +84,10 @@ any-land:
     }
 hex-contents:
   name: ¿Qué hay aquí?
-  description: 'Se tira la primera vez que entras en un hex descubierto. Casi siempre nada; a veces ruinas, un santuario o un lugar con nombre. Enseña: el contenido del descubrimiento (`discover.contents`), `set: { poi: false }` (nada que merezca un punto de interés), `tags` y `name` escritos en el hex, una condición sobre el hex (`water: true`), `once` (la guarida del dragón) y dados en el texto ({{1d6+2}}).'
+  description: |-
+    Se tira la primera vez que entras en un hex descubierto. Casi siempre nada; a veces ruinas, un santuario o un lugar con nombre.
+
+    **Enseña:** el contenido del descubrimiento (`discover.contents`), `set: { poi: false }` (nada que merezca un punto de interés), `tags` y `name` escritos en el hex, una condición sobre el hex (`water: true`), `once` (la guarida del dragón) y dados en el texto ({{1d6+2}}).
   entries:
     water: Aguas abiertas
     lair: La guarida de un dragón, con huesos esparcidos a la entrada
@@ -67,13 +97,19 @@ hex-contents:
     camp: 'Un campamento de {{1d6+2}} viajeros'
 landmarks:
   name: Lugares señalados
-  description: 'Piedras erguidas y, una sola vez, las Agujas Gemelas. Enseña: `once` (después de las Agujas solo quedan piedras), `set: { name }` y la etiqueta `landmark` (la comprobación Lugar señalado detiene ahí el viaje) y una cascada a Tallas.'
+  description: |-
+    Piedras erguidas y, una sola vez, las Agujas Gemelas.
+
+    **Enseña:** `once` (después de las Agujas solo quedan piedras), `set: { name }` y la etiqueta `landmark` (la comprobación Lugar señalado detiene ahí el viaje) y una cascada a Tallas.
   entries:
     spires: 'Las Agujas Gemelas: dos torres de cristal negro que se ven a leguas'
     stone: 'Una piedra erguida tallada con {{result}}'
 ruins:
   name: Ruinas
-  description: 'Lo que fue una ruina. Enseña: la tabla más sencilla, sin dados ni pesos (todas las entradas igual de probables). La tiran ¿Qué hay aquí? y Explorar una ruina.'
+  description: |-
+    Lo que fue una ruina.
+
+    **Enseña:** la tabla más sencilla, sin dados ni pesos (todas las entradas igual de probables). La tiran ¿Qué hay aquí? y Explorar una ruina.
   entries:
     tower: una atalaya derruida
     villa: el esqueleto de una casa solariega
@@ -81,7 +117,10 @@ ruins:
     fort: un castro cubierto de maleza
 carvings:
   name: Tallas
-  description: 'Lo que muestra una piedra erguida. Enseña: una tabla sencilla cuyo resultado entra en el texto de otra ({{result}} en Lugares señalados).'
+  description: |-
+    Lo que muestra una piedra erguida.
+
+    **Enseña:** una tabla sencilla cuyo resultado entra en el texto de otra ({{result}} en Lugares señalados).
   entries:
     serpent: una serpiente enroscada
     eye: un ojo que llora

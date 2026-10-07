@@ -1,6 +1,9 @@
 omens:
   name: Presagios del camino
-  description: 'Roba uno cada alba en el camino. Una carta robada desaparece hasta que se acaba el mazo. Enseña: un mazo: copias de una carta (count), barajar al vaciarse, una carta que tira una tabla, otra que pone valores (comida) y una tabla de otro pack mediante un alias (twist → core/twists).'
+  description: |-
+    Roba uno cada alba en el camino. Una carta robada desaparece hasta que se acaba el mazo.
+
+    **Enseña:** un mazo: copias de una carta (count), barajar al vaciarse, una carta que tira una tabla, otra que pone valores (comida) y una tabla de otro pack mediante un alias (twist → core/twists).
   cards:
     crows: Los cuervos os siguen todo el día
     rainbow: Un arcoíris sobre el Lago Salado

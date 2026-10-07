@@ -6,7 +6,10 @@
 kind: table
 id: encounter
 name: Who goes there?
-description: "Who you meet: depends on the terrain, the region, the hex's danger and the time of day. Shows: one table for two checks (day and night, through the bindings' context `timeOfDay`), conditions on terrain, region, tags, danger, season and moons (`moons.ember: full`), `once` (the Wyrm, only at danger 5 in the Greywood's heart), cascades into Reaction and a generator, and `set` of a value for the next table (reactionModifier) and of party stats (morale)."
+description: |-
+  Who you meet: depends on the terrain, the region, the hex's danger and the time of day.
+
+  **Shows:** one table for two checks (day and night, through the bindings' context `timeOfDay`), conditions on terrain, region, tags, danger, season and moons (`moons.ember: full`), `once` (the Wyrm, only at danger 5 in the Greywood's heart), cascades into Reaction and a generator, and `set` of a value for the next table (reactionModifier) and of party stats (morale).
 roll: '1d6 + {{danger}}'
 entries:
   # A once-only encounter, only at the very heart of the Greywood (danger 5).
@@ -60,7 +63,10 @@ entries:
 kind: table
 id: reaction
 name: Reaction
-description: 'How someone takes you, from hostile to eager to help. Shows: a party stat in the roll ({{charisma}}), a modifier set by the entry that rolled it (reactionModifier), advantage, and negative ranges.'
+description: |-
+  How someone takes you, from hostile to eager to help.
+
+  **Shows:** a party stat in the roll ({{charisma}}), a modifier set by the entry that rolled it (reactionModifier), advantage, and negative ranges.
 roll: '2d6 + {{charisma}} + {{reactionModifier}}'
 advantage: true
 entries:
@@ -74,7 +80,10 @@ entries:
 kind: generator
 id: npc
 name: Someone on the road
-description: 'A name, a role, what they want and how strong they are. Shows: a generator: fields from tables and from dice (4d6kh3: keep the best 3), and a template that joins them.'
+description: |-
+  A name, a role, what they want and how strong they are.
+
+  **Shows:** a generator: fields from tables and from dice (4d6kh3: keep the best 3), and a template that joins them.
 fields:
   name: { table: npc-names }
   role: { table: npc-roles }
@@ -87,7 +96,10 @@ template: '{{name}}, a {{role}} who {{want}} (might {{might}})'
 kind: generator
 id: rumour
 name: A rumour
-description: 'Who tells it, and what they say. Shows: a generator inside another one ({{npc.name}} and {{npc.role}} read the fields of Someone on the road).'
+description: |-
+  Who tells it, and what they say.
+
+  **Shows:** a generator inside another one ({{npc.name}} and {{npc.role}} read the fields of Someone on the road).
 fields:
   npc: { generator: npc }
   what: { table: rumours }
@@ -96,7 +108,10 @@ template: '{{npc.name}} the {{npc.role}} swears that {{what}}.'
 kind: table
 id: npc-names
 name: Names of the Marches
-description: 'Names of the people of the Marches. Shows: one table used by many others (Someone on the road, the inn, Desertion).'
+description: |-
+  Names of the people of the Marches.
+
+  **Shows:** one table used by many others (Someone on the road, the inn, Desertion).
 entries:
   - { id: aldo, result: Aldo }
   - { id: brenna, result: Brenna }
@@ -108,7 +123,10 @@ entries:
 kind: table
 id: npc-roles
 name: Roles
-description: 'Who someone is. Shows: weights (pedlars, pilgrims and hunters are common; deserters and hedge-witches rare).'
+description: |-
+  Who someone is.
+
+  **Shows:** weights (pedlars, pilgrims and hunters are common; deserters and hedge-witches rare).
 entries:
   - { id: pedlar, weight: 2, result: pedlar }
   - { id: pilgrim, weight: 2, result: pilgrim }
@@ -119,7 +137,8 @@ entries:
 kind: table
 id: npc-wants
 name: Wants
-description: 'What someone wants. A plain table for the Someone on the road generator.'
+description: |-
+  What someone wants. A plain table for the Someone on the road generator.
 entries:
   - { id: escort, result: wants an escort to Fort Keld }
   - { id: trade, result: has something to trade }
@@ -130,7 +149,10 @@ entries:
 kind: table
 id: rumours
 name: Rumours (d66)
-description: 'Rumours heard on the road and at the inn. Shows: d66 dice (two dice read as tens and units, 11–66) with ranges like 11-16.'
+description: |-
+  Rumours heard on the road and at the inn.
+
+  **Shows:** d66 dice (two dice read as tens and units, 11–66) with ranges like 11-16.
 roll: d66
 entries:
   - { id: wyrm, range: 11-16, result: a wyrm sleeps under the Greywood }

@@ -4,7 +4,13 @@
  * Inside an open modal dialog it moves into the dialog (the top layer).
  *
  *   <button use:tooltip={t('…')}>…</button>
+ *   <button use:tooltip={{ markdown: description }}>…</button>   (a pack's text)
  */
+import { renderMarkdown } from './markdown'
+
+/** Plain text, or a pack's text in basic Markdown (paragraphs, **bold**, `code`…). */
+export type TooltipText = string | { markdown: string } | undefined
+
 let bubble: HTMLDivElement | null = null
 
 const STYLE = `
@@ -16,6 +22,10 @@ const STYLE = `
   opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s;
 }
 .ot-tooltip[data-visible='true'] { opacity: 1; transform: none; }
+.ot-tooltip p, .ot-tooltip ul, .ot-tooltip ol { margin: 0 0 0.45em; }
+.ot-tooltip > :last-child { margin-bottom: 0; }
+.ot-tooltip ul, .ot-tooltip ol { padding-left: 1.2em; }
+.ot-tooltip code { font-family: ui-monospace, monospace; font-size: 0.95em; }
 `
 
 function ensureBubble(): HTMLDivElement {
@@ -31,14 +41,16 @@ function ensureBubble(): HTMLDivElement {
 }
 
 /** Shows the tooltip next to `target` right away (e.g. when an info badge is tapped). */
-export function showTooltip(target: HTMLElement, text: string): void {
+export function showTooltip(target: HTMLElement, content: TooltipText): void {
+  const text = typeof content === 'string' ? content : (content?.markdown ?? '')
   if (!text) return
   const el = ensureBubble()
   // Modal dialogs live in the browser's top layer, above any z-index: follow the target
   // into its dialog so the tooltip isn't hidden behind it.
   const host = target.closest('dialog[open]') ?? document.body
   if (el.parentElement !== host) host.appendChild(el)
-  el.textContent = text
+  if (typeof content === 'string') el.textContent = text
+  else el.innerHTML = renderMarkdown(text)
   el.dataset.visible = 'true'
   const rect = target.getBoundingClientRect()
   const box = el.getBoundingClientRect()
@@ -57,8 +69,8 @@ function hide(): void {
   if (bubble) bubble.dataset.visible = 'false'
 }
 
-export function tooltip(node: HTMLElement, text: string | undefined) {
-  let current = text ?? ''
+export function tooltip(node: HTMLElement, text: TooltipText) {
+  let current = text
   const enter = () => showTooltip(node, current)
   node.addEventListener('mouseenter', enter)
   node.addEventListener('focus', enter)
@@ -66,8 +78,8 @@ export function tooltip(node: HTMLElement, text: string | undefined) {
   node.addEventListener('blur', hide)
   node.addEventListener('click', hide)
   return {
-    update(next: string | undefined) {
-      current = next ?? ''
+    update(next: TooltipText) {
+      current = next
     },
     destroy() {
       node.removeEventListener('mouseenter', enter)

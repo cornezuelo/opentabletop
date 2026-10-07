@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { markdownText } from './markdown'
   import { showTooltip, tooltip } from './tooltip'
 
   /**
@@ -6,21 +7,24 @@
    * <label> a button would become the labelled control instead of the field, and a
    * click on it must not toggle the label's checkbox. Tapping or Enter shows the text.
    */
-  let { text }: { text: string } = $props()
+  let { text = '', markdown = '' }: { text?: string; markdown?: string } = $props()
+  /** `markdown`: a pack's text (description…), shown with its formatting. */
+  const content = $derived(markdown ? { markdown } : text)
+  const label = $derived(markdown ? markdownText(markdown) : text)
 
   function open(event: Event) {
     event.preventDefault()
-    showTooltip(event.currentTarget as HTMLElement, text)
+    showTooltip(event.currentTarget as HTMLElement, content)
   }
 </script>
 
-{#if text}
+{#if text || markdown}
   <span
     class="info"
     role="button"
     tabindex="0"
-    aria-label={text}
-    use:tooltip={text}
+    aria-label={label}
+    use:tooltip={content}
     onclick={open}
     onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && open(e)}>i</span
   >

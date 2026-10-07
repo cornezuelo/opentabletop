@@ -4,6 +4,7 @@
   import DefinitionPicker from './DefinitionPicker.svelte'
   import History from './History.svelte'
   import RollPanel from './RollPanel.svelte'
+  import { Markdown } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
 
   /**
@@ -35,7 +36,9 @@
   <DefinitionPicker {ui} {selected} onselect={(id) => (selected = id)} />
   {#if def}
     <h2>{ui.displayName(def)}</h2>
-    {#if ui.displayDescription(def)}<p class="muted">{ui.displayDescription(def)}</p>{/if}
+    {#if ui.displayDescription(def)}
+      <div class="muted"><Markdown text={ui.displayDescription(def) ?? ''} /></div>
+    {/if}
     <RollPanel {ui} {def} {context} {actions} hotkeys={false} />
   {:else}
     <p class="muted">{ui.t('picker.choose')}</p>

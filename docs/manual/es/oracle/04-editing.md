@@ -11,6 +11,8 @@ Nombre, descripción y, en tablas y oráculos, los **dados** (`1d6`, `2d6`, `d66
 - **Ajustar totales** (activado por defecto): un total por debajo del rango más bajo toma la primera entrada y por encima del más alto la última, así los modificadores nunca te dejan sin resultado. Desactivado, ese total no da nada.
 - **Al agotarse**: qué pasa cuando la entrada que sale ya llegó a su límite (ver abajo): **tirar otra vez**, **tomar la siguiente** disponible o **nada**.
 
+Las descripciones (de tablas, oráculos, generadores y mazos, y de las comprobaciones, acciones y características de un sistema de viaje) admiten **Markdown básico**: una línea en blanco empieza un párrafo nuevo, `**negrita**`, `_cursiva_`, `` `código` ``, listas (`- elemento`), citas (`> …`) y enlaces a la web (`[texto](https://…)`). Nada más: el HTML y las imágenes que traiga un pack se ven como texto, porque los packs pueden venir de cualquiera. En YAML, escribe una descripción larga como bloque: `description: |-` y el texto sangrado debajo. Las descripciones de las Marcas Grises lo usan: un párrafo con para qué sirve cada una y luego **Enseña:** con lo que enseña.
+
 ## Tablas
 
 Cada **entrada** tiene:

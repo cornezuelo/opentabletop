@@ -9,7 +9,10 @@
 kind: table
 id: next-terrain
 name: The land ahead
-description: "Decides an empty hex from the land around it: water gathers, the common land goes on, sometimes its kin, now and then anything. Shows: discovery (`discover.terrain` in travel.yaml), what tables see of the land around the hex (around.lake, common, commonCount), `set: { terrain: '{{common}}' }` from a template, and cascades into a table per kind of land."
+description: |-
+  Decides an empty hex from the land around it: water gathers, the common land goes on, sometimes its kin, now and then anything.
+
+  **Shows:** discovery (`discover.terrain` in travel.yaml), what tables see of the land around the hex (around.lake, common, commonCount), `set: { terrain: '{{common}}' }` from a template, and cascades into a table per kind of land.
 roll: 1d6
 entries:
   # Water gathers: a hex between two lakes (or two seas) is mostly water too.
@@ -62,7 +65,10 @@ entries:
 kind: table
 id: open-land
 name: Open land
-description: 'The land ahead from open ground: plains, steppe and their kin. Rolled by The land ahead on 4–5. Shows: weights instead of dice, and `set: { terrain }` (the hex gets that terrain).'
+description: |-
+  The land ahead from open ground: plains, steppe and their kin. Rolled by The land ahead on 4–5.
+
+  **Shows:** weights instead of dice, and `set: { terrain }` (the hex gets that terrain).
 entries:
   - { id: plains, weight: 3, result: Plains, set: { terrain: plains } }
   - { id: steppe, weight: 2, result: Steppe, set: { terrain: steppe } }
@@ -74,7 +80,10 @@ entries:
 kind: table
 id: woodland
 name: Woodland
-description: 'The land ahead from the woods: more forest, sometimes dense, now and then a clearing or a swamp. Rolled by The land ahead on 4–5. Shows: a table only reached through another (a cascade), with weights.'
+description: |-
+  The land ahead from the woods: more forest, sometimes dense, now and then a clearing or a swamp. Rolled by The land ahead on 4–5.
+
+  **Shows:** a table only reached through another (a cascade), with weights.
 entries:
   - { id: forest, weight: 3, result: Forest, set: { terrain: forest } }
   - { id: dense, weight: 2, result: Dense forest, set: { terrain: dense-forest } }
@@ -85,7 +94,10 @@ entries:
 kind: table
 id: wetland
 name: Wetland
-description: 'The land ahead from marsh and swamp. Rolled by The land ahead on 4–5. Shows: weights and `set: { terrain }`, including water (a lake).'
+description: |-
+  The land ahead from marsh and swamp. Rolled by The land ahead on 4–5.
+
+  **Shows:** weights and `set: { terrain }`, including water (a lake).
 entries:
   - { id: marsh, weight: 2, result: Marsh, set: { terrain: marsh } }
   - { id: swamp, weight: 2, result: Swamp, set: { terrain: swamp } }
@@ -95,7 +107,10 @@ entries:
 kind: table
 id: highland
 name: Highland
-description: 'The land ahead from hills and mountains: ranges grow, with peaks nobody crosses. Rolled by The land ahead on 4–5. Shows: weights and `set: { terrain }`.'
+description: |-
+  The land ahead from hills and mountains: ranges grow, with peaks nobody crosses. Rolled by The land ahead on 4–5.
+
+  **Shows:** weights and `set: { terrain }`.
 entries:
   - { id: hills, weight: 3, result: Hills, set: { terrain: hills } }
   - { id: mountains, weight: 3, result: Mountains, set: { terrain: mountains } }
@@ -106,7 +121,10 @@ entries:
 kind: table
 id: dryland
 name: Dry land
-description: 'The land ahead from desert, badlands or canyons (not on the example map: for maps of your own). Rolled by The land ahead on 4–5. Shows: weights and `set: { terrain }`.'
+description: |-
+  The land ahead from desert, badlands or canyons (not on the example map: for maps of your own). Rolled by The land ahead on 4–5.
+
+  **Shows:** weights and `set: { terrain }`.
 entries:
   - { id: desert, weight: 3, result: Desert, set: { terrain: desert } }
   - { id: badlands, weight: 2, result: Badlands, set: { terrain: badlands } }
@@ -117,7 +135,10 @@ entries:
 kind: table
 id: cold-land
 name: Cold land
-description: 'The land ahead from tundra, snow or glaciers (for maps of your own). Rolled by The land ahead on 4–5. Shows: weights and `set: { terrain }`.'
+description: |-
+  The land ahead from tundra, snow or glaciers (for maps of your own). Rolled by The land ahead on 4–5.
+
+  **Shows:** weights and `set: { terrain }`.
 entries:
   - { id: tundra, weight: 3, result: Tundra, set: { terrain: tundra } }
   - { id: snow, weight: 2, result: Snow, set: { terrain: snow } }
@@ -127,7 +148,10 @@ entries:
 kind: table
 id: waters
 name: Waters
-description: 'The land ahead from the coast, a lake or the sea. Rolled by The land ahead on 4–5. Shows: weights and `set: { terrain }` with water terrains.'
+description: |-
+  The land ahead from the coast, a lake or the sea. Rolled by The land ahead on 4–5.
+
+  **Shows:** weights and `set: { terrain }` with water terrains.
 entries:
   - { id: coast, weight: 2, result: Coast, set: { terrain: coast } }
   - { id: sea, weight: 2, result: Sea, set: { terrain: sea } }
@@ -137,7 +161,10 @@ entries:
 kind: table
 id: any-land
 name: Any land
-description: "Anything, now and then: the last entry of The land ahead, which has no condition and catches every roll the others don't. Shows: a catch-all entry, and weights."
+description: |-
+  Anything, now and then: the last entry of The land ahead, which has no condition and catches every roll the others don't.
+
+  **Shows:** a catch-all entry, and weights.
 entries:
   - { id: plains, weight: 3, result: Plains, set: { terrain: plains } }
   - { id: forest, weight: 3, result: Forest, set: { terrain: forest } }
@@ -153,7 +180,10 @@ entries:
 kind: table
 id: hex-contents
 name: What is here?
-description: "Rolled the first time you enter a discovered hex. Mostly nothing; sometimes ruins, a shrine or a place with a name. Shows: discovery's contents (`discover.contents`), `set: { poi: false }` (nothing worth a point of interest), `tags` and `name` written on the hex, a condition on the hex (`water: true`), `once` (the dragon's lair), dice in the text ({{1d6+2}})."
+description: |-
+  Rolled the first time you enter a discovered hex. Mostly nothing; sometimes ruins, a shrine or a place with a name.
+
+  **Shows:** discovery's contents (`discover.contents`), `set: { poi: false }` (nothing worth a point of interest), `tags` and `name` written on the hex, a condition on the hex (`water: true`), `once` (the dragon's lair), dice in the text ({{1d6+2}}).
 roll: 2d6
 entries:
   - { id: water, range: 2-12, when: { water: true }, result: Open water, set: { poi: false } }
@@ -174,7 +204,10 @@ entries:
 kind: table
 id: landmarks
 name: Landmarks
-description: 'Standing stones and, once, the Twin Spires. Shows: `once` (after the Spires only stones remain), `set: { name }` and the `landmark` tag (the Landmark check then stops the trip there), and a cascade into Carvings.'
+description: |-
+  Standing stones and, once, the Twin Spires.
+
+  **Shows:** `once` (after the Spires only stones remain), `set: { name }` and the `landmark` tag (the Landmark check then stops the trip there), and a cascade into Carvings.
 entries:
   - {
       id: spires,
@@ -194,7 +227,10 @@ entries:
 kind: table
 id: ruins
 name: Ruins
-description: 'What a ruin once was. Shows: the simplest table, with no dice and no weights (every entry equally likely). Rolled by What is here? and Delving a ruin.'
+description: |-
+  What a ruin once was.
+
+  **Shows:** the simplest table, with no dice and no weights (every entry equally likely). Rolled by What is here? and Delving a ruin.
 entries:
   - { id: tower, result: a broken watchtower }
   - { id: villa, result: the shell of a manor house }
@@ -204,7 +240,10 @@ entries:
 kind: table
 id: carvings
 name: Carvings
-description: "What a standing stone shows. Shows: a plain table whose result goes into another one's text ({{result}} in Landmarks)."
+description: |-
+  What a standing stone shows.
+
+  **Shows:** a plain table whose result goes into another one's text ({{result}} in Landmarks).
 entries:
   - { id: serpent, result: a coiled serpent }
   - { id: eye, result: a weeping eye }

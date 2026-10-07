@@ -7,7 +7,10 @@
 kind: oracle
 id: gates
 name: Will they let us in?
-description: "At the gates of Ashford or Fort Keld: how you arrive changes the answer. Shows: an oracle with an input (how you arrive), a variant with its own dice, a value of the place's icon on the map ({{icon.guards}}: 0 in Ashford, 2 at Fort Keld; select the hex before rolling), and answers that roll another table."
+description: |-
+  At the gates of Ashford or Fort Keld: how you arrive changes the answer.
+
+  **Shows:** an oracle with an input (how you arrive), a variant with its own dice, a value of the place's icon on the map ({{icon.guards}}: 0 in Ashford, 2 at Fort Keld; select the hex before rolling), and answers that roll another table.
 inputs:
   arrival:
     label: You arrive as
@@ -39,7 +42,10 @@ variants:
 kind: table
 id: gate-news
 name: News at the gate
-description: 'What you hear at the gate. Shows: a calendar holiday as a condition (`holidays: midsummer`: only then, and then most likely), dice in the text ({{2d6}}), and a cascade into a generator.'
+description: |-
+  What you hear at the gate.
+
+  **Shows:** a calendar holiday as a condition (`holidays: midsummer`: only then, and then most likely), dice in the text ({{2d6}}), and a cascade into a generator.
 entries:
   - { id: rumour, result: 'the guard whispers a rumour: {{result}}', table: rumour }
   - { id: work, result: 'there is work: someone pays {{2d6}} silver for an escort' }
@@ -55,7 +61,10 @@ entries:
 kind: table
 id: ferry
 name: The ferry
-description: "Brenna's ferry over the Saltmere. Shows: a token's values ({{token.name}}, {{token.fare}}: select her on the map and roll from the Oracle panel), `exists` conditions, and an entry for when she isn't selected."
+description: |-
+  Brenna's ferry over the Saltmere.
+
+  **Shows:** a token's values ({{token.name}}, {{token.fare}}: select her on the map and roll from the Oracle panel), `exists` conditions, and an entry for when she isn't selected.
 roll: 1d6
 entries:
   - id: calm
@@ -77,7 +86,10 @@ entries:
 kind: oracle
 id: inn
 name: At The Wet Ferret
-description: 'The inn of Ashford: what you spend changes the night. Shows: party values in the roll ({{party.stats.morale}}) and in conditions (party.resources.food), entries for when there is no trip (`party: { exists: false }`), maxOccurrences, cascades into tables and generators, and changes to the party (food, morale, fatigue and a stat nobody declared: hirelings), applied with Apply to the trip.'
+description: |-
+  The inn of Ashford: what you spend changes the night.
+
+  **Shows:** party values in the roll ({{party.stats.morale}}) and in conditions (party.resources.food), entries for when there is no trip (`party: { exists: false }`), maxOccurrences, cascades into tables and generators, and changes to the party (food, morale, fatigue and a stat nobody declared: hirelings), applied with Apply to the trip.
 inputs:
   spend:
     label: You spend
