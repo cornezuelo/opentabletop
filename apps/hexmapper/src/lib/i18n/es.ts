@@ -396,6 +396,9 @@ export const es: Messages = {
     worldStart: 'Los viajes nuevos empiezan en la fecha del reloj del mundo (el panel Mundo, ☾).',
     showTrail: 'Mostrar rastro',
     showTrailHelp: 'Dibuja en el mapa los hexes por los que ha pasado el grupo.',
+    straightTrail: 'Líneas rectas',
+    straightTrailHelp:
+      'Dibuja el rastro y la ruta prevista con rectas de hex a hex. Sin marcar, se curvan como los caminos y senderos del mapa.',
     placeHelp: 'Haz clic en un hex para colocar al grupo.',
     simpleHelp:
       'El grupo está en {hex}. Haz clic en cualquier hex y saltará directamente allí: sin ruta, sin tiempo, sin nada por el camino (solo el rastro lo recuerda).',

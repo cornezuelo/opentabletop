@@ -4,7 +4,7 @@ The **Play** tool (<kbd>P</kbd>) moves your party around the map. Choosing it se
 
 ## Simple mode
 
-Just the party token and its trail: click a hex to place the party, click another and it jumps straight there: no route, no travel time, nothing happens on the way. No rolls. To walk hex by hex with time, terrain and checks, use **With rules**. **Show trail** draws where it has been; **Clear trail** and **Remove party** reset it.
+Just the party token and its trail: click a hex to place the party, click another and it jumps straight there: no route, no travel time, nothing happens on the way. No rolls. To walk hex by hex with time, terrain and checks, use **With rules**. **Show trail** draws where it has been, curving like the map's roads and trails (**Straight lines** draws it, and the planned route, from hex centre to hex centre); **Clear trail** and **Remove party** reset it.
 
 ## With rules
 

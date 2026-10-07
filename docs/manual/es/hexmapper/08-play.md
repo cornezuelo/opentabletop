@@ -4,7 +4,7 @@ La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa. Al elegirl
 
 ## Modo simple
 
-Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y en otro para que salte directamente allí: sin ruta, sin tiempo de viaje, no pasa nada por el camino. Sin tiradas. Para caminar hex a hex con tiempo, terreno y comprobaciones, usa **Con reglas**. **Mostrar rastro** dibuja por dónde ha pasado; **Borrar rastro** y **Quitar grupo** lo reinician.
+Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y en otro para que salte directamente allí: sin ruta, sin tiempo de viaje, no pasa nada por el camino. Sin tiradas. Para caminar hex a hex con tiempo, terreno y comprobaciones, usa **Con reglas**. **Mostrar rastro** dibuja por dónde ha pasado, curvado como los caminos y senderos del mapa (**Líneas rectas** lo dibuja, y la ruta prevista, de centro a centro de hex); **Borrar rastro** y **Quitar grupo** lo reinician.
 
 ## Con reglas
 

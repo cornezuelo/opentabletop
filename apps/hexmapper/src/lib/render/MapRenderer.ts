@@ -664,8 +664,11 @@ export class MapRenderer {
     const hs = grid.hexSize
     const party = partyToken(editor.map)
 
+    // Curves like the map's roads and trails, unless the play settings ask for straight lines.
+    const line = (points: { x: number; y: number }[]) =>
+      play.straightTrail ? points : catmullRom(points)
     if (party?.hex && play.showTrail && play.trail.length > 1) {
-      const points = play.trail.filter((k) => inBounds(parseKey(k), grid)).map(center)
+      const points = line(play.trail.filter((k) => inBounds(parseKey(k), grid)).map(center))
       for (const piece of dashes(points, hs * 0.12, hs * 0.14)) this.strokePolyline(lines, piece)
       lines.stroke({
         width: hs * 0.07,
@@ -681,7 +684,7 @@ export class MapRenderer {
         : null
     const route = session?.travel?.route
     if (route && route.length > 1) {
-      const points = route.map(center)
+      const points = line(route.map(center))
       for (const piece of dashes(points, hs * 0.3, hs * 0.18)) this.strokePolyline(lines, piece)
       lines.stroke({ width: hs * 0.06, color: 0xffffff, alpha: 0.9, cap: 'round' })
       const end = points.at(-1)!

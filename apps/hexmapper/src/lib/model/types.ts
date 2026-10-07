@@ -221,6 +221,8 @@ export interface PlayState {
   /** Hexes visited, in order. */
   trail: HexKey[]
   showTrail: boolean
+  /** The trail and the planned route as straight lines between hexes (default: curves). */
+  straightTrail?: boolean
   /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
   rules?: { system: string; startDay: number; session: unknown }
   /**

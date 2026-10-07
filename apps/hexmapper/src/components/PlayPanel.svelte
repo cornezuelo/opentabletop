@@ -102,6 +102,15 @@
   />
   {t('play.showTrail')}<InfoTip text={t('play.showTrailHelp')} />
 </label>
+<label class="check">
+  <input
+    type="checkbox"
+    checked={play?.straightTrail ?? false}
+    onchange={(e) =>
+      updatePlay((p) => ({ ...p, straightTrail: e.currentTarget.checked || undefined }))}
+  />
+  {t('play.straightTrail')}<InfoTip text={t('play.straightTrailHelp')} />
+</label>
 
 {#if !party?.hex}
   <p class="help">{t('play.placeHelp')}</p>

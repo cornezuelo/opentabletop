@@ -389,6 +389,9 @@ export const en = {
     worldStart: 'New trips start on the world clock’s date (the World panel, ☾).',
     showTrail: 'Show trail',
     showTrailHelp: 'Draw the hexes the party has walked through on the map.',
+    straightTrail: 'Straight lines',
+    straightTrailHelp:
+      'Draw the trail and the planned route as straight lines from hex to hex. Unticked, they curve like the map’s roads and trails.',
     placeHelp: 'Click a hex to place the party.',
     simpleHelp:
       'The party is at {hex}. Click any hex and it jumps straight there: no route, no time, nothing in between (only the trail remembers it).',

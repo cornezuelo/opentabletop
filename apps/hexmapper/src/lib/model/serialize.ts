@@ -417,6 +417,7 @@ function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
       (k): k is HexKey => typeof k === 'string' && HEX_KEY.test(k),
     ),
     showTrail: p.showTrail !== false,
+    ...(p.straightTrail === true && { straightTrail: true }),
     ...(isRecord(p.discover) && {
       discover: {
         on: p.discover.on === true,

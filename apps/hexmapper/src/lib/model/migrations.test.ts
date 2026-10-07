@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { migrate } from './migrations'
 
 describe('trip migrations', () => {
-  it('moves fatigue to the stats and being lost to the day values (v10 → v12)', () => {
+  it('moves fatigue to the stats and being lost to the day values (v10 → v13)', () => {
     const data = migrate({
       version: 10,
       play: {
@@ -18,7 +18,7 @@ describe('trip migrations', () => {
         },
       },
     }) as { version: number; play: { rules: { session: Record<string, unknown> } } }
-    expect(data.version).toBe(12)
+    expect(data.version).toBe(13)
     expect(data.play.rules.session).toEqual({
       travel: { location: '1,1', today: { lost: true }, yesterday: { lost: false } },
       stats: { fatigue: 2 },

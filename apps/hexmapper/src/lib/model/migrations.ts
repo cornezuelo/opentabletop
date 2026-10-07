@@ -109,6 +109,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       play: { ...play, rules: { ...play!.rules, session: migrateLost(session) } },
     }
   },
+  /** v13: the trail can be drawn straight (optional: maps without it draw curves). */
+  12(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

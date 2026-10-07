@@ -263,6 +263,7 @@ function playToOtd(map: HexMap) {
       hexmapper: {
         ...(token && { token: lookOf(token) }),
         ...(play && { mode: play.mode, trail: play.trail, showTrail: play.showTrail }),
+        ...(play?.straightTrail && { straightTrail: true }),
         ...(play?.discover && { discover: play.discover }),
         ...(play?.rules && { system: play.rules.system, startDay: play.rules.startDay }),
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
@@ -309,6 +310,7 @@ function playFromOtd(
     mode: ext.mode,
     trail: ext.trail,
     showTrail: ext.showTrail,
+    ...(ext.straightTrail === true && { straightTrail: true }),
     ...(ext.discover !== undefined && { discover: ext.discover }),
     ...(rules && { rules }),
   }

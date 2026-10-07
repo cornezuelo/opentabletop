@@ -134,6 +134,7 @@ describe('play state in OTD', () => {
       mode: 'rules',
       trail: ['1,2', '2,2'],
       showTrail: true,
+      straightTrail: true,
       rules: {
         system: 'generic',
         startDay: 181,
