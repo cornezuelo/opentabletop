@@ -157,6 +157,17 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 - ✅ **Installable, offline apps (PWA)** (`vite.pwa.ts`: a manifest and a service worker per app) and ✅ the **command line** (`apps/cli`, `make cli ARGS="validate | list | roll …"`).
 - **Release workflow** (see below), per-package build, then alpha `0.1`.
 
+**Next, in this order (agreed 2026-10-08; each step is groundwork for the ones after it)**
+
+1. **Clearer play messages:** the journal says what every action did (e.g. foraging where the system rolls nothing); tooltips explain actions and values.
+2. **Every visible name from the pack:** resources, stats, actions, checks, world events… get `name`/`description` from their pack (fallback: the id); no game words hard-coded in the apps. Review the manual on party stats; fill in names and descriptions in Core, the Grey Marches and Kal-Arath.
+3. **System values (generic):** a system declares its values (party: fatigue, morale…; factions: reputation…) with names, ranges and defaults; the engines know none of them. Fatigue stops being built into the travel engine: its rules (hunger raises it, camping lowers it) become data. Actions and their effects use the same `set` vocabulary as tables (no fixed columns like "fatigue recovered").
+4. **System engine:** a system declares everything it brings (travel rules, oracles, calendar, weather, values, factions, example maps; later sheets and bestiary); maps and games choose a system; systems export and import as a whole.
+5. **World events with ids** (referenced from YAML, factions, conditions) and readable titles.
+6. **Factions** on top of 3–5: territory as hexes (drawn like regions, growing from their border), turns by hand and automatic with the world clock (default weekly), values the system declares (the Grey Marches: reputation −3..+3).
+7. **A frontier-space showcase pack** (Cowboy Bebop / Firefly): ships, contracts, bounty hunters; uses the modern and sci-fi terrains and icons.
+8. **Release cycle** for alpha 0.1 (defined by Claude, reviewed by the user).
+
 **Phase B: the living world**
 
 - ✅ **Calendar / world clock** (calendars as data in `time`, `kind: calendar` in packs; `world-engine`; the Hexmapper's World panel, map format v10): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns.
