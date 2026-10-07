@@ -44,7 +44,7 @@ export function mapWorld(map: HexMap): TravelWorld {
         // Water as the palette says (Edit palette → Water): travel rules' `water` applies.
         ...(data?.terrain && water.has(data.terrain) && { water: true }),
         // The hex's icon (a village, a bridge…) and its values: {{icon.guards}}.
-        ...(data?.icon && { icon: { id: data.icon.id, ...fieldValues(data.icon.fields) } }),
+        ...(data?.icon && { icon: { ...fieldValues(data.icon.fields), id: data.icon.id } }),
       }
     },
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),

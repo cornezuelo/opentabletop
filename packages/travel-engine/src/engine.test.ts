@@ -317,6 +317,24 @@ describe('the system’s own actions', () => {
   })
 })
 
+describe('checks that look at the party', () => {
+  it('see its supplies and fatigue', () => {
+    const hungry = createTravelEngine({
+      world,
+      rules: {
+        ...rules!,
+        checks: [{ event: 'HUNGER', at: 'camp', when: { 'party.resources.food': { lt: 1 } } }],
+      },
+    })
+    expect(hungry.apply(start(), { type: 'camp' }).state.pendingChecks).toEqual([])
+    const { state } = hungry.apply({ ...start(), resources: { food: 0 } }, { type: 'camp' })
+    expect(state.pendingChecks[0]).toMatchObject({
+      event: 'HUNGER',
+      context: { party: { resources: { food: 0 }, fatigue: 0, mode: 'foot' } },
+    })
+  })
+})
+
 describe('generic rules', () => {
   it('are valid travel rules', async () => {
     const { genericTravelRules } = await import('./generic')

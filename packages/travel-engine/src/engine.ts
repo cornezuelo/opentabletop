@@ -225,6 +225,8 @@ export function createTravelEngine(options: {
       mode: state.mode,
       season: calendar.describe(state.time).season,
       day: state.day,
+      // What the engine knows of the party (the session adds its stats).
+      party: { resources: { ...state.resources }, fatigue: state.fatigue, mode: state.mode },
     }
   }
 

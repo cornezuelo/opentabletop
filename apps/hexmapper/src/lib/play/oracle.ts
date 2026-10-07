@@ -83,6 +83,7 @@ export function rollContext(): Record<string, unknown> {
     : facts
   // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.might}}.
   const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
-  if (token) out.token = { name: token.name, kind: token.kind, ...fieldValues(token.fields) }
+  // Its own values can't hide its name and kind.
+  if (token) out.token = { ...fieldValues(token.fields), name: token.name, kind: token.kind }
   return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined && v !== null))
 }
