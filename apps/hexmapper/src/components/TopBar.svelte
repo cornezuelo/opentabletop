@@ -7,9 +7,14 @@
   import { view } from '../lib/store/view'
 
   /**
-   * The bar across the top, like in every app: the app (with the open map's name) and the
-   * app switcher on the left; what you do with the map and the panel's views on the right.
+   * The bar across the top, like in every app: the app and the app switcher on the left;
+   * what you do with the map and the panel's views on the right. The open map's name goes
+   * in the window's title ("Hexmapper - The Grey Marches").
    */
+  $effect(() => {
+    const name = editor.meta.name.trim()
+    document.title = name ? `${t('app.title')} - ${name}` : t('app.title')
+  })
   const toggle = (panel: PanelView) => () =>
     (editor.panelView = editor.panelView === panel ? 'tool' : panel)
 
@@ -52,9 +57,7 @@
 </script>
 
 <header class="bar">
-  <span class="name" use:tooltip={editor.meta.name || t('app.title')}
-    ><AppBrand app="hexmapper" name={editor.meta.name || t('app.title')} /></span
-  >
+  <span class="name"><AppBrand app="hexmapper" name={t('app.title')} /></span>
   <AppSwitcher current="hexmapper" locale={getLocale()} />
   <div class="spacer"></div>
   {#each groups as group, g (g)}
@@ -93,7 +96,7 @@
     margin-right: 4px;
   }
 
-  /* Narrow windows: the app's icon without the map's name, and the bar scrolls if needed. */
+  /* Narrow windows: the app's icon without its name, and the bar scrolls if needed. */
   @media (max-width: 760px) {
     .bar {
       overflow-x: auto;
