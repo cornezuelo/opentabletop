@@ -34,7 +34,7 @@ No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un
 | Postapocalíptico          | ruinas, páramo, irradiado, ciénaga tóxica, cráter (grupo _Páramo_)                                                                        |
 | Ciencia ficción y espacio | jungla alienígena, campo de cristales, campo de lava, regolito (_Mundos alienígenas_); espacio, nebulosa, campo de asteroides (_Espacio_) |
 
-Los campos de lava, el espacio, las nebulosas y los campos de asteroides están cerrados a pie en las reglas genéricas: un sistema propio da a las naves una forma de viajar que solo va por ahí (`allowedTerrains: [space, nebula]`), como la barca de las Marcas Grises por el agua. **Editar paleta** permite cambiar cada uno:
+Los campos de lava, el espacio, las nebulosas y los campos de asteroides están cerrados a pie en las reglas genéricas: un sistema propio da a las naves una forma de viajar que solo va por ahí (`through: { terrain: [space, nebula] }`), como la barca de las Marcas Grises por el agua. **Editar paleta** permite cambiar cada uno:
 
 - **Color** y **nombre** (nombre vacío = el traducido por defecto).
 - **Símbolo**: el pequeño dibujo de sus hexes (ver abajo).

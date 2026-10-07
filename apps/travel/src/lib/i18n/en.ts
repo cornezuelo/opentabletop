@@ -40,7 +40,7 @@ export const en = {
   rules: {
     water: 'Water hexes',
     waterHelp:
-      'Hexes whose terrain the map marks as water (Hexmapper: Edit palette → Water) and that have no rule of their own in Terrains. Usually not passable on foot; a way of travelling “Only through” water (write water) can still sail them.',
+      'Hexes whose terrain the map marks as water (Hexmapper: Edit palette → Water) and that have no rule of their own in Terrains. Usually not passable on foot; a way of travelling “Only through” water (water: true) can still sail them.',
     day: 'The day',
     dayHelp:
       'When the day starts (and dawn checks are rolled) and when night falls: nobody marches after nightfall.',
@@ -61,8 +61,8 @@ export const en = {
     consumesNone: 'nothing extra',
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
-      'Terrains it can go through, separated by commas (e.g. a boat: lake, sea). Empty: any.',
-    anyTerrain: 'any terrain',
+      'Where it can go: a condition on each hex it enters (its terrain, water, tags, region, fields, the roads or rivers of the step), e.g. a boat: any: [{ water: true }, { terrain: coast }]; a cart only by road: edges: road. Where it holds, even closed terrains are open to it. Empty: wherever terrains allow.',
+    anyTerrain: 'wherever terrains allow',
     terrains: vocabulary.en.terms.terrains,
     terrainsHelp:
       'How each terrain changes the speed. Terrain ids are the ones the map uses (forest, hills…).',
@@ -71,7 +71,7 @@ export const en = {
     multiplierHelp: '1 is normal speed, 0.5 half as fast, 2 twice as fast.',
     passable: 'Passable',
     passableHelp:
-      'Unticked: no way of travelling can enter it (routes go around), except one whose “Only through” lists it.',
+      'Unticked: no way of travelling can enter it (routes go around), except one whose “Only through” holds there.',
     defaultTerrain: 'Speed × for terrains not listed',
     defaultTerrainHelp: 'Used for any terrain missing above (1 if empty).',
     edges: 'Roads and rivers',

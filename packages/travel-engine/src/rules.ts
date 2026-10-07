@@ -151,6 +151,13 @@ export const travelRulesSchema = z
           description: text.optional(),
           kmPerDay: z.number().positive(),
           consumes: z.record(z.string(), z.number().nonnegative()).optional(),
+          /**
+           * Where it can go: a condition on each hex it enters (its terrain, water, tags,
+           * region, fields, the roads or rivers of the step…), e.g. a boat on water or coast.
+           * Where it holds, the terrain's own `passable: false` doesn't stop it.
+           */
+          through: condition.optional(),
+          /** Older form of `through`: only these terrains (`water`: any water hex). */
           allowedTerrains: z.array(z.string()).optional(),
           /** It can only be chosen when this holds, e.g. a boat at the water's edge. */
           when: condition.optional(),
@@ -306,6 +313,24 @@ export function checkInfo(
   }
 }
 
+/**
+ * Where a way of travelling can go, as a condition (`through`, or the older
+ * `allowedTerrains` list read as one); undefined: wherever terrains allow.
+ */
+export function modeThrough(mode: {
+  through?: unknown
+  allowedTerrains?: string[]
+}): Condition | undefined {
+  if (mode.through) return mode.through as Condition
+  const list = mode.allowedTerrains
+  if (!list) return undefined
+  const terrains = list.filter((t) => t !== 'water')
+  const water = list.includes('water')
+  const byTerrain: Condition = { terrain: terrains }
+  if (!water) return byTerrain
+  return terrains.length ? { any: [byTerrain, { water: true }] } : { water: true }
+}
+
 /** Validates raw rules (YAML/JSON) and returns readable problems. */
 export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: string[] } {
   const parsed = travelRulesSchema.safeParse(raw)
@@ -321,7 +346,10 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
   ]
   const errors = [
     ...(parsed.data.checks ?? []).flatMap((check, i) => conditions(check, `checks[${i}]`)),
-    ...Object.entries(parsed.data.modes).flatMap(([id, m]) => conditions(m, `modes.${id}`)),
+    ...Object.entries(parsed.data.modes).flatMap(([id, m]) => [
+      ...conditions(m, `modes.${id}`),
+      ...(m.through ? validateCondition(m.through as Condition, `modes.${id}.through`) : []),
+    ]),
     ...Object.entries(parsed.data.actions ?? {}).flatMap(([id, a]) =>
       a === false
         ? []

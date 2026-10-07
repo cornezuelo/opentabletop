@@ -34,7 +34,7 @@ Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a w
 | Post-apocalyptic  | ruins, wasteland, irradiated, toxic swamp, crater (group _Wasteland_)                                       |
 | Sci-fi and space  | alien jungle, crystal field, lava field, regolith (_Alien worlds_); space, nebula, asteroid field (_Space_) |
 
-Lava fields, space, nebulae and asteroid fields are closed to walking in the generic rules: a system of your own gives ships a way of travelling that only goes there (`allowedTerrains: [space, nebula]`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
+Lava fields, space, nebulae and asteroid fields are closed to walking in the generic rules: a system of your own gives ships a way of travelling that only goes there (`through: { terrain: [space, nebula] }`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
 
 - **Color** and **name** (empty name = the translated default).
 - **Symbol**: the small drawing on its hexes (see below).

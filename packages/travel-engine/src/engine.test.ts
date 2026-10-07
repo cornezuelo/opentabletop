@@ -12,6 +12,7 @@ import {
   availableActions,
   createTravelEngine,
   initialTravelState,
+  modeThrough,
   parseTravelRules,
   type TravelState,
   type TravelWorld,
@@ -661,6 +662,44 @@ describe('water', () => {
       rules: rulesWith({ water: { passable: false } }),
     })
     expect(sailing.stepMinutes({ ...start('a'), mode: 'boat' }, 'a', 'b')).toBeLessThan(Infinity)
+  })
+})
+
+describe('only through', () => {
+  it('a condition on the hex entered and the step: a cart only by road', () => {
+    const { rules: carts, errors } = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: { steppe: {}, mountains: { multiplier: 0.25 }, sea: { passable: false } },
+      edges: { road: { multiplier: 1.5 } },
+      modes: { foot: { kmPerDay: 30 }, cart: { kmPerDay: 40, through: { edges: 'road' } } },
+    })
+    expect(errors).toEqual([])
+    const eng = createTravelEngine({ world, rules: carts! })
+    const cart = start('0,9', 'cart')
+    // Along the road (row 9) it goes; off it, it can't.
+    expect(eng.plan(cart, '5,9')).toEqual(['0,9', '1,9', '2,9', '3,9', '4,9', '5,9'])
+    expect(eng.stepMinutes(cart, '0,9', '0,8')).toBe(Infinity)
+    expect(eng.plan(cart, '0,0')).toBeNull()
+    // A broken condition is a problem of the pack.
+    const bad = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: {},
+      modes: { cart: { kmPerDay: 40, through: { edges: { near: 'road' } } } },
+    })
+    expect(bad.errors.some((e) => e.startsWith('modes.cart.through'))).toBe(true)
+  })
+
+  it('reads the older list of terrains as a condition', () => {
+    expect(modeThrough({ allowedTerrains: ['water', 'coast'] })).toEqual({
+      any: [{ terrain: ['coast'] }, { water: true }],
+    })
+    expect(modeThrough({ allowedTerrains: ['water'] })).toEqual({ water: true })
+    expect(modeThrough({ allowedTerrains: ['space'] })).toEqual({ terrain: ['space'] })
+    expect(modeThrough({})).toBeUndefined()
   })
 })
 

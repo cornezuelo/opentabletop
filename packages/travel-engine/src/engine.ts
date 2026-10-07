@@ -11,6 +11,7 @@ import {
 import {
   actionSteps,
   availableActions,
+  modeThrough,
   declaredValues,
   type ActionStep,
   type CheckRule,
@@ -263,6 +264,26 @@ export function createTravelEngine(options: {
       ([id, v]) => v.blocks?.includes(what) && holds(state.today?.[id]),
     )?.[0]
 
+  /**
+   * What a way of travelling's "only through" sees when stepping from `a` into `b`: the hex
+   * entered (everything the map knows of it), the roads or rivers of the step, the mode, the
+   * weather and today's values. Light on purpose: route planning asks it for many hexes.
+   */
+  const throughContext = (state: TravelState, a: string, b: string): Record<string, unknown> => {
+    const cell = world.cell(b)
+    return {
+      ...state.today,
+      ...cell,
+      hex: b,
+      terrain: cell?.terrain,
+      water: !!cell?.water,
+      tags: cell?.tags ?? [],
+      edges: world.edges(a, b),
+      mode: state.mode,
+      weather: state.weather,
+    }
+  }
+
   /** Terrain/edge multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (state: TravelState, a: string, b: string): number => {
     const mode = rules.modes[state.mode]
@@ -272,12 +293,10 @@ export function createTravelEngine(options: {
     // A terrain's own rule wins; water hexes without one follow the `water` rule.
     const terrainRule =
       (terrain ? rules.terrains[terrain] : undefined) ?? (cell.water ? rules.water : undefined)
-    if (mode.allowedTerrains) {
-      // "Only through" these terrains (`water` = any water hex): they're open to this mode.
-      const allowed =
-        (!!terrain && mode.allowedTerrains.includes(terrain)) ||
-        (!!cell.water && mode.allowedTerrains.includes('water'))
-      if (!allowed) return 0
+    const through = modeThrough(mode)
+    if (through) {
+      // "Only through" where its condition holds: there, even closed terrains are open to it.
+      if (!matches(through, throughContext(state, a, b))) return 0
     } else if (terrainRule?.passable === false) return 0
     const edgeMultipliers = world
       .edges(a, b)

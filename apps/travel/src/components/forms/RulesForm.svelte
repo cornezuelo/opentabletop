@@ -4,6 +4,7 @@
   import type { SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions } from '@open-tabletop/session'
+  import { modeThrough } from '@open-tabletop/travel-engine'
   import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
@@ -78,12 +79,18 @@
           hints: Object.fromEntries(resources.map((r) => [r, []])),
         },
         {
-          field: 'allowedTerrains',
+          field: 'through',
           label: t('rules.allowedTerrains'),
           help: t('rules.allowedTerrainsHelp'),
-          type: 'list',
+          type: 'flow',
           placeholder: t('rules.anyTerrain'),
-          choices: ['water', ...PALETTE, ...Object.keys(doc.rules.terrains ?? {})],
+          hints: {
+            ...contextSuggestions(library.registry),
+            terrain: [...PALETTE, ...Object.keys(doc.rules.terrains ?? {})],
+            water: ['true', 'false'],
+          },
+          read: (row) => modeThrough(row as { allowedTerrains?: string[] }),
+          replaces: ['allowedTerrains'],
         },
         {
           field: 'when',

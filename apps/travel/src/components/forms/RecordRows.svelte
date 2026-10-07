@@ -16,6 +16,10 @@
     /** Known values: for a list, its choices; for flow, the keys (each with its values). */
     choices?: readonly string[]
     hints?: Record<string, readonly string[]>
+    /** Shows the field from older forms when it's missing (e.g. a list read as a condition). */
+    read?: (row: Record<string, unknown>) => unknown
+    /** Older fields this one replaces: removed when it's written. */
+    replaces?: string[]
   }
 </script>
 
@@ -84,6 +88,8 @@
 
   function setText(id: string, column: Column, raw: string) {
     const path = [...at, id, column.field]
+    for (const old of column.replaces ?? [])
+      if (record[id]?.[old] !== undefined) doc.edit(kind, [...at, id, old], undefined)
     const text = raw.trim()
     if (column.type === 'text')
       return doc.setText(kind, path, record[id]?.[column.field], path, raw)
@@ -102,7 +108,7 @@
   }
 
   function shown(row: Record<string, unknown> | null, column: Column, id = ''): string {
-    const value = row?.[column.field]
+    const value = row?.[column.field] ?? (row && column.read?.(row))
     if (column.type === 'text') return doc.text(kind, value, [...at, id, column.field])
     if (value === undefined) return ''
     if (column.type === 'list') return Array.isArray(value) ? value.join(', ') : String(value)
@@ -116,7 +122,11 @@
   }
 </script>
 
-<table class="rows" class:compact={columns.every((c) => c.type === 'number' || c.type === 'check')}>
+<table
+  class="rows"
+  class:wide={columns.some((c) => c.type === 'flow')}
+  class:compact={columns.every((c) => c.type === 'number' || c.type === 'check')}
+>
   {#if rows.length}<thead>
       <tr>
         <th>{idLabel}</th>
@@ -212,6 +222,11 @@
 
   .rows.compact {
     width: auto;
+  }
+
+  /* Conditions need room: the id gives some up. */
+  .wide .id {
+    width: 18%;
   }
 
   .compact .id {

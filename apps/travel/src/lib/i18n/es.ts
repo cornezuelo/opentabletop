@@ -43,7 +43,7 @@ export const es: Messages<typeof en> = {
   rules: {
     water: 'Hexes de agua',
     waterHelp:
-      'Hexes cuyo terreno el mapa marca como agua (Hexmapper: Editar paleta → Agua) y que no tienen regla propia en Terrenos. Normalmente no se cruzan a pie; una forma de viajar «Solo por» agua (escribe water) sí puede navegarlos.',
+      'Hexes cuyo terreno el mapa marca como agua (Hexmapper: Editar paleta → Agua) y que no tienen regla propia en Terrenos. Normalmente no se cruzan a pie; una forma de viajar «Solo por» agua (water: true) sí puede navegarlos.',
     day: 'El día',
     dayHelp:
       'Cuándo empieza el día (y se tiran las comprobaciones del alba) y cuándo cae la noche: nadie marcha de noche.',
@@ -64,8 +64,8 @@ export const es: Messages<typeof en> = {
     consumesNone: 'nada más',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
-      'Terrenos por los que puede ir, separados por comas (p. ej. un barco: lake, sea). Vacío: cualquiera.',
-    anyTerrain: 'cualquier terreno',
+      'Por dónde puede ir: una condición sobre cada hex en el que entra (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso), p. ej. una barca: any: [{ water: true }, { terrain: coast }]; un carro solo por camino: edges: road. Donde se cumple, ni los terrenos cerrados la paran. Vacío: por donde dejen los terrenos.',
+    anyTerrain: 'por donde dejen los terrenos',
     terrains: vocabulary.es.terms.terrains,
     terrainsHelp:
       'Cómo cambia la velocidad cada terreno. Los ids son los que usa el mapa (forest, hills…).',
@@ -74,7 +74,7 @@ export const es: Messages<typeof en> = {
     multiplierHelp: '1 es la velocidad normal, 0.5 la mitad, 2 el doble.',
     passable: 'Transitable',
     passableHelp:
-      'Sin marcar: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo “Solo por” lo incluya.',
+      'Sin marcar: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo “Solo por” se cumpla allí.',
     defaultTerrain: 'Velocidad × de los terrenos no listados',
     defaultTerrainHelp: 'Para cualquier terreno que no esté arriba (1 si está vacío).',
     edges: 'Caminos y ríos',

@@ -1,6 +1,6 @@
 # Conditions
 
-A **condition** says when something applies: an entry that only comes up in forests, a check rolled only off roads, an action available only in good weather, a roll mode used by itself the day after getting lost. The same conditions are written everywhere they appear: `when` and `unless` on table entries, checks, actions and their steps, and ways of travelling, and `modeWhen` on tables and oracles.
+A **condition** says when something applies: an entry that only comes up in forests, a check rolled only off roads, an action available only in good weather, a roll mode used by itself the day after getting lost. The same conditions are written everywhere they appear: `when` and `unless` on table entries, checks, actions and their steps, and ways of travelling, `through` (where a way of travelling can go), and `modeWhen` on tables and oracles.
 
 A condition is a set of `name: what it must be` pairs about the values the roll sees (see [What tables see](04-what-tables-see.md)). Every pair must hold. In a form's box you write the pairs without braces (`terrain: forest, danger: { gte: 3 }`); in YAML, inside braces (`when: { terrain: forest, danger: { gte: 3 } }`).
 
@@ -54,7 +54,7 @@ They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 - Entries: the encounter table's Wyrm, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; the hunt, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`.
 - Checks: getting lost, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; the ford, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
 - Actions and steps: foraging, `unless: { weather: storm }`; camp's fed night, `when: { short: false }`.
-- Ways of travelling: the boat, `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
+- Ways of travelling: the boat goes `through: { any: [{ water: true }, { terrain: coast }] }` and is boarded `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
 
 A value of the day isn't a condition but works like one: while it holds, it **blocks** what it lists (`blocks: [travel]`, an action's id, `mode.horse`). See [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
