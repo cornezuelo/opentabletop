@@ -408,7 +408,6 @@
     align-items: center;
   }
 
-
   .more-grid input[type='checkbox'] {
     width: auto;
   }
