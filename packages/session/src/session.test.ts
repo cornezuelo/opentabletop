@@ -23,6 +23,7 @@ import {
   localize,
   parseBindings,
   toOutcome,
+  tripContext,
 } from './index'
 
 const shape: GridShape = { orientation: 'flat', width: 6, height: 6 }
@@ -177,6 +178,46 @@ describe('session', () => {
     expect(failed?.data).toMatchObject({ event: 'WEATHER_CHECK_REQUIRED', table: 'sys/nowhere' })
     expect(failed?.text).toMatch(/Unknown definition/)
     expect(state.travel.pendingChecks.map((c) => c.event)).toContain('WEATHER_CHECK_REQUIRED')
+  })
+
+  it('tables read the party and change its stats; map facts win over a stat with their name', () => {
+    const { registry: party } = loadPacks([
+      { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'p/t.yaml',
+        content: `
+kind: table
+id: hunger
+entries:
+  - { result: 'Starving ({{party.resources.food}} food, {{terrain}})', when: { party.resources.food: { lt: 1 } }, set: { stats: { morale: -1 } } }
+  - { result: 'Fed ({{party.resources.food}} food, morale {{party.stats.morale}})', when: { party.resources.food: { gte: 1 } } }
+`,
+      },
+    ])
+    const { bindings } = parseBindings(
+      { on: { WEATHER_CHECK_REQUIRED: { resolve: 'hunger' } } },
+      'p',
+    )
+    const session = createSession({
+      travel: createTravelEngine({
+        world,
+        rules: { ...rules, checks: [{ event: 'WEATHER_CHECK_REQUIRED', at: 'day-start' }] },
+      }),
+      oracle: createOracleEngine({ registry: party, random: sequence([0.5, 0.5]) }),
+      bindings,
+    })
+    // A stat called "terrain" must not hide the hex's terrain.
+    const hungry = { ...start(), stats: { terrain: 9, morale: 3 } }
+    hungry.travel.resources.food = 0
+    const planned = session.step(hungry, { type: 'setDestination', hex: '1,0' }).state
+    const { state, entries } = session.step(planned, { type: 'travel' })
+    expect(entries.find((e) => e.code === 'ORACLE_RESULT')?.text).toBe('Starving (0 food, steppe)')
+    expect(state.stats).toEqual({ terrain: 9, morale: 2 })
+    expect(tripContext(state, { terrain: 'steppe' })).toMatchObject({
+      terrain: 'steppe',
+      morale: 2,
+      party: { stats: { terrain: 9, morale: 2 }, resources: { food: 0 }, mode: 'foot' },
+    })
   })
 
   it('leaves checks pending without an oracle and records user notes', () => {

@@ -34,7 +34,8 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 | `mode`                    | La forma de viajar (`foot`, `horse`, `boat`…).                                                                                                                          |
 | `day`                     | El número de día.                                                                                                                                                       |
 | `edges`                   | Los caminos, senderos o ríos del tramo: el recién recorrido al entrar en un hex, el de delante al alba y al acampar.                                                    |
-| _cada característica_     | Las características del grupo del sistema con su valor actual: `{{charisma}}`.                                                                                          |
+| _cada característica_     | Las características del grupo del sistema con su valor actual, por nombre: `{{charisma}}`. Atajo: un dato del mapa o del viaje con el mismo nombre gana (ver abajo).    |
+| `party`                   | El grupo, siempre sin ambigüedad: `party.stats.charisma`, `party.resources.food`, `party.fatigue`, `party.mode`. También en las tiradas a mano durante un viaje.        |
 | _los valores del día_     | Los que fijó antes ese mismo día una tabla: `weather`, y cualquier nombre que acabe en `Modifier` o `Impossible` (`fordModifier`, `fordImpossible`). Se borran al alba. |
 | _el contexto del binding_ | Lo que añaden los bindings para esa comprobación: `context: { timeOfDay: night }`; para un oráculo, su entrada (`odds: even`).                                          |
 
@@ -42,14 +43,14 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 
 - La tabla de **terreno** ve el hex donde está el grupo (su terreno, etiquetas, valores y región), más `hex` (el hex que se decide) y `from` (desde el que se ve).
 - La tabla de **contenido** ve el hex al que se entra.
-- Las dos ven las características del grupo y los valores del día.
+- Las dos ven las características del grupo, `party` y los valores del día.
 
 ## Qué valor gana
 
 Cuando dos fuentes dan el mismo nombre, gana la posterior:
 
-1. **Comprobaciones:** lo del mapa y del viaje → características del grupo → valores del día → contexto del binding.
-2. **Tiradas a mano** (panel Oracle): el mapa, el token y el viaje → lo que escribes en el **Contexto** del panel de tirada. Un `token.fare` escrito cambia solo ese valor del token.
+1. **Comprobaciones:** características del grupo por nombre → valores del día → lo del mapa y del viaje → `party` → contexto del binding. Así una característica o un valor del día llamado `terrain` o `weather` no puede tapar el de verdad; `party.stats.terrain` sigue llegando a ella. Nombres reservados que una característica no debería usar: `hex`, `terrain`, `water`, `tags`, `region`, `name`, `icon`, `token`, `season`, `weather`, `mode`, `day`, `edges`, `party`.
+2. **Tiradas a mano** (panel Oracle): durante un viaje, el mismo orden que las comprobaciones; después el token → lo que escribes en el **Contexto** del panel de tirada. Un `token.fare` escrito cambia solo ese valor del token.
 3. **Dentro de una tabla:** los valores que fija una entrada (`set`) llegan a la tabla que tira a continuación; los campos de un generador ven los anteriores, y el `context` de un campo añade valores solo para ese campo.
 
 ## Tipos de valor

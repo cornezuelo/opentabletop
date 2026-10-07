@@ -34,7 +34,8 @@ Points of interest keep their values in the map and its file, but tables don't r
 | `mode`                  | The way of travelling (`foot`, `horse`, `boat`…).                                                                                                         |
 | `day`                   | The day number.                                                                                                                                           |
 | `edges`                 | The roads, trails or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.                                   |
-| _each party stat_       | The system's stats with their current value: `{{charisma}}`.                                                                                              |
+| _each party stat_       | The system's stats with their current value, by name: `{{charisma}}`. Shorthand: a map or trip fact with the same name wins (see below).                  |
+| `party`                 | The party, always unambiguous: `party.stats.charisma`, `party.resources.food`, `party.fatigue`, `party.mode`. Also in hand rolls during a trip.           |
 | _today's values_        | Set earlier the same day by a table: `weather`, and any name ending in `Modifier` or `Impossible` (`fordModifier`, `fordImpossible`). They clear at dawn. |
 | _the binding's context_ | What the bindings add for that check: `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`).                                           |
 
@@ -42,14 +43,14 @@ Points of interest keep their values in the map and its file, but tables don't r
 
 - The **terrain** table sees the hex the party is on (its terrain, tags, values and region), plus `hex` (the hex being decided) and `from` (the one it's seen from).
 - The **contents** table sees the hex being entered.
-- Both see the party stats and today's values.
+- Both see the party stats, `party` and today's values.
 
 ## Which value wins
 
 When two sources give the same name, the later one wins:
 
-1. **Checks:** the map and trip facts → party stats → today's values → the binding's context.
-2. **Hand rolls** (Oracle panel): the map, the token and the trip → what you type in the roll panel's **Context**. A typed `token.fare` changes only that value of the token.
+1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. Reserved names a stat shouldn't use: `hex`, `terrain`, `water`, `tags`, `region`, `name`, `icon`, `token`, `season`, `weather`, `mode`, `day`, `edges`, `party`.
+2. **Hand rolls** (Oracle panel): during a trip, the same order as checks; then the token → what you type in the roll panel's **Context**. A typed `token.fare` changes only that value of the token.
 3. **Inside a table:** values an entry sets (`set`) reach the table it then rolls; a generator's fields see the fields before them, and a field's `context` adds values for that field only.
 
 ## Kinds of value

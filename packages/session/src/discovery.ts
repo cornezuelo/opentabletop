@@ -150,10 +150,12 @@ export function createDiscovery(options: {
       hex: string,
       from: string = hex,
     ): { text?: string; discovered?: DiscoveredHex } {
+      // The party stays on top of the hex facts (extra); the binding's context wins.
+      const { party, ...known } = context
       const roll: Roll = (binding, extra) => {
         const out = oracle.resolve(
           binding.resolve,
-          { ...context, ...extra, ...binding.context },
+          { ...known, ...extra, ...(party !== undefined && { party }), ...binding.context },
           state.oracle,
           { locale },
         )

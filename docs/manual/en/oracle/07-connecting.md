@@ -59,18 +59,21 @@ entries:
 
 An entry can **set** values. The Travel Engine reads some of them when the table resolves a travel check:
 
-| Set                      | Effect on the trip                                           |
-| ------------------------ | ------------------------------------------------------------ |
-| `lost: true`             | No more travel today.                                        |
-| `weather: storm`         | Today's weather; the travel rules say how it slows you down. |
-| `fatigue: 1`             | Adds fatigue (negative recovers).                            |
-| `resources: { food: 2 }` | Adds supplies (negative uses them up).                       |
+| Set                      | Effect on the trip                                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `lost: true`             | No more travel today.                                                                                    |
+| `weather: storm`         | Today's weather; the travel rules say how it slows you down.                                             |
+| `fatigue: 1`             | Adds fatigue (negative recovers).                                                                        |
+| `resources: { food: 2 }` | Adds supplies (negative uses them up).                                                                   |
+| `stats: { morale: -1 }`  | Adds to party stats (negative lowers them); a stat the system doesn't declare appears in the trip panel. |
 
 ```yaml
 - { id: storm, range: 6, result: 'A storm: no travel today', set: { weather: storm } }
 - { id: lost, range: 1-2, result: 'You are lost', set: { lost: true } }
 - { id: berries, range: 6, result: 'Berries: +2 food', set: { resources: { food: 2 } } }
 ```
+
+Tables read the party back as `party.resources.food`, `party.stats.morale`, `party.fatigue`: `when: { party.resources.food: { lt: 1 } }` for an entry that only comes up when the food has run out.
 
 Values named `weather`, `…Modifier` or `…Impossible` also stay for the rest of the day, so later checks can use them: a weather entry with `set: { lostModifier: -1 }` makes `roll: '1d6 + {{lostModifier}}'` harder in the getting-lost table that comes after it.
 

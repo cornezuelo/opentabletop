@@ -59,18 +59,21 @@ entries:
 
 Una entrada puede **fijar** valores (`set`). El Travel Engine lee algunos cuando la tabla resuelve una comprobación del viaje:
 
-| Fija                     | Efecto en el viaje                                          |
-| ------------------------ | ----------------------------------------------------------- |
-| `lost: true`             | No se viaja más hoy.                                        |
-| `weather: storm`         | El clima de hoy; las reglas de viaje dicen cuánto te frena. |
-| `fatigue: 1`             | Suma fatiga (en negativo, la recupera).                     |
-| `resources: { food: 2 }` | Suma provisiones (en negativo, las gasta).                  |
+| Fija                     | Efecto en el viaje                                                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `lost: true`             | No se viaja más hoy.                                                                                                       |
+| `weather: storm`         | El clima de hoy; las reglas de viaje dicen cuánto te frena.                                                                |
+| `fatigue: 1`             | Suma fatiga (en negativo, la recupera).                                                                                    |
+| `resources: { food: 2 }` | Suma provisiones (en negativo, las gasta).                                                                                 |
+| `stats: { morale: -1 }`  | Suma a las características del grupo (en negativo, las baja); una que el sistema no declara aparece en el panel del viaje. |
 
 ```yaml
 - { id: storm, range: 6, result: 'Tormenta: hoy no se viaja', set: { weather: storm } }
 - { id: lost, range: 1-2, result: 'Os habéis perdido', set: { lost: true } }
 - { id: berries, range: 6, result: 'Bayas: +2 de comida', set: { resources: { food: 2 } } }
 ```
+
+Las tablas leen el grupo como `party.resources.food`, `party.stats.morale`, `party.fatigue`: `when: { party.resources.food: { lt: 1 } }` para una entrada que solo sale cuando se ha acabado la comida.
 
 Los valores llamados `weather`, `…Modifier` o `…Impossible` se mantienen además el resto del día, para que las comprobaciones siguientes los usen: una entrada del clima con `set: { lostModifier: -1 }` hace más difícil `roll: '1d6 + {{lostModifier}}'` en la tabla de perderse que viene después.
 

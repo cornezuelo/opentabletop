@@ -1,5 +1,5 @@
 import { createOracleUi } from '@open-tabletop/oracle-ui'
-import { addEntry } from '@open-tabletop/session'
+import { addEntry, tripContext } from '@open-tabletop/session'
 import { defaultCalendar } from '@open-tabletop/time'
 import { getLocale } from '../i18n/index.svelte'
 import { fieldValues } from '../model/hex'
@@ -63,24 +63,24 @@ export function addResultAsPoi(hex: HexKey, text: string, tableName: string): vo
 /**
  * What the map already knows for a roll, with the keys travel checks use: the selected
  * hex (or the party's) with its terrain, tags and fields, and during a rules trip the
- * season, weather, travel mode, day, party stats and today's values.
+ * season, weather, travel mode, day, party stats (also as `party`) and today's values.
  */
 export function rollContext(): Record<string, unknown> {
   const play = editor.map.play
   const session = play ? sessionOf(play) : null
-  const out: Record<string, unknown> = {}
-  if (session) {
-    const { travel } = session
-    Object.assign(out, session.stats, session.dayVars, {
-      season: defaultCalendar.describe(travel.time).season,
-      weather: travel.weather,
-      mode: travel.mode,
-      day: travel.day,
-    })
-  }
   const hex = rollHex()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
-  if (hex && cell) Object.assign(out, cell, { hex })
+  const facts: Record<string, unknown> = hex && cell ? { ...cell, hex } : {}
+  // The same order as the trip's checks: stats and today's values, then the facts.
+  const out: Record<string, unknown> = session
+    ? tripContext(session, {
+        ...facts,
+        season: defaultCalendar.describe(session.travel.time).season,
+        weather: session.travel.weather,
+        mode: session.travel.mode,
+        day: session.travel.day,
+      })
+    : facts
   // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.might}}.
   const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
   if (token) out.token = { name: token.name, kind: token.kind, ...fieldValues(token.fields) }

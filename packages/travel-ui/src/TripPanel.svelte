@@ -3,6 +3,7 @@
     localize,
     type JournalEntry,
     type SessionState,
+    type StatDefinition,
     type TravelSystem,
   } from '@open-tabletop/session'
   import { defaultCalendar, formatClock } from '@open-tabletop/time'
@@ -68,7 +69,13 @@
     }
   })
 
-  const stats = $derived(Object.entries(system.bindings?.stats ?? {}))
+  /** The system's stats, then any a table added (`set: { stats: { morale: -1 } }`). */
+  const stats = $derived<[string, StatDefinition][]>([
+    ...Object.entries(system.bindings?.stats ?? {}),
+    ...Object.keys(session.stats)
+      .filter((key) => !system.bindings?.stats?.[key])
+      .map((key): [string, StatDefinition] => [key, {}]),
+  ])
   const actions = $derived(availableActions(system.rules))
   const restLength = $derived.by(() => {
     const minutes = actions.rest?.minutes ?? 0

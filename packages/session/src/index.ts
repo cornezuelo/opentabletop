@@ -129,6 +129,39 @@ export function initialSessionState(
   return { travel, oracle: emptyState(), stats, dayVars: {}, journal: [], nextEntry: 1 }
 }
 
+/** The party as tables read it: `{{party.resources.food}}`, `party.stats.survival`… */
+export function partyValues(s: SessionState): Record<string, unknown> {
+  return {
+    stats: { ...s.stats },
+    resources: { ...s.travel.resources },
+    fatigue: s.travel.fatigue,
+    mode: s.travel.mode,
+  }
+}
+
+/**
+ * What a table rolled during a trip sees, later sources winning: the party stats by
+ * name (`{{survival}}`) and today's values, then the facts of the map and the trip
+ * (`terrain`, `weather`… so a stat can't hide them), then `party`, then `extra` (a
+ * binding's context). `party.stats.x` always reaches a stat, whatever its name.
+ */
+export function tripContext(
+  s: SessionState,
+  facts: Record<string, unknown>,
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return { ...s.stats, ...s.dayVars, ...facts, party: partyValues(s), ...extra }
+}
+
+/** Table values that change the party's stats: `stats: { morale: -1 }` adds to them. */
+export function applyStats(s: SessionState, value: Record<string, unknown>): void {
+  const stats = value.stats
+  if (typeof stats !== 'object' || stats === null) return
+  for (const [key, delta] of Object.entries(stats))
+    if (typeof delta === 'number' && Number.isFinite(delta))
+      s.stats[key] = (s.stats[key] ?? 0) + delta
+}
+
 export interface Session {
   /** Applies a travel action, resolving checks with the Oracle when bound; returns new entries. */
   step(state: SessionState, action: TravelAction): { state: SessionState; entries: JournalEntry[] }
@@ -202,7 +235,7 @@ export function createSession(options: {
         if (!discovery) return false
         let outcome: ReturnType<Discovery['arrive']>
         try {
-          outcome = discovery.arrive(s, { ...s.stats, ...s.dayVars }, hex, from)
+          outcome = discovery.arrive(s, tripContext(s, {}), hex, from)
         } catch (error) {
           if (!(error instanceof OracleError)) throw error
           add(s, entries, {
@@ -253,7 +286,7 @@ export function createSession(options: {
             })
             continue
           }
-          const context = { ...event.check.context, ...s.stats, ...s.dayVars, ...binding.context }
+          const context = tripContext(s, event.check.context, binding.context)
           let out: ReturnType<OracleEngine['resolve']>
           try {
             out = options.oracle.resolve(binding.resolve, context, s.oracle, {
@@ -284,6 +317,7 @@ export function createSession(options: {
             data: { event: event.check.event, table: binding.resolve, value },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value) }
+          applyStats(s, value)
           s.travel = options.travel.apply(s.travel, {
             type: 'resolveCheck',
             id: event.check.id,
