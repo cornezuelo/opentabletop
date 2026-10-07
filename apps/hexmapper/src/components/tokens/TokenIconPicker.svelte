@@ -17,7 +17,7 @@
   let {
     value,
     onchange,
-    categories = ['party', 'danger'],
+    categories = ['party', 'danger', 'modern', 'scifi'],
     none = false,
   }: {
     value: string | undefined

@@ -86,7 +86,7 @@ Done:
 ### Pending
 
 - [ ] UI for the optional hex fields travel may use (elevation, danger, region); custom fields cover them for now.
-- [ ] Highlight/filter hexes by tag.
+- [x] Highlight/filter hexes by tag (Layers panel; dims the rest on demand).
 - [ ] Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [ ] Translate icon names (currently English, as they come from game-icons).
 
@@ -109,7 +109,7 @@ Done:
 - [x] **Values (2026-10-07):** key/value fields on tokens, icons, regions and POIs (map format v7), edited with the shared `FieldEditor` (keys and values used on the map suggested). Region values hold for its hexes (a hex's own win); icons as `icon.*`; the selected token as `token.*` in Oracle-panel rolls; POI values are kept but not read. OTD: characters' and POIs' `stats`, the party's token look, regions and icons in `ext.hexmapper`.
 - [ ] **Packs per map:** Settings → Map chooses the packs this map works with (default all); the Oracle panel and Play's systems list only show those.
 - [ ] **Region styles:** optional fill with its opacity (now a fixed 0.14 tint), border width and solid/dashed; map-wide in Settings, own style per region (like map texts).
-- [ ] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
+- [x] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
 
 ### Side panel (agreed 2026-10-07)
 

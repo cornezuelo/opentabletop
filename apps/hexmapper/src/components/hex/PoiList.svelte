@@ -82,7 +82,7 @@
         <TokenIconPicker
           value={poi.icon}
           none
-          categories={['landmarks', 'settlements', 'nature', 'danger', 'misc']}
+          categories={['landmarks', 'settlements', 'nature', 'danger', 'modern', 'scifi', 'misc']}
           onchange={(icon) => {
             update(poi.id, { icon })
             picking = null
