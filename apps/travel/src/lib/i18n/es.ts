@@ -172,6 +172,10 @@ export const es: Messages<typeof en> = {
   edit: {
     readOnly: 'Este sistema viene incluido y es de solo lectura.',
     personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
+    editedCopy: 'Tu copia editada de un sistema incluido: sustituye al incluido en este navegador.',
+    revert: 'Volver a la versión incluida',
+    confirmRevert:
+      '¿Descartar tus cambios en este sistema y volver a la versión incluida? (↶ lo deshace.)',
     makeCopy: 'Editar una copia',
     builtIn:
       'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (a la izquierda) para hacer el tuyo a partir de ellas.',

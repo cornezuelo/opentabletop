@@ -169,6 +169,11 @@ export const en = {
   edit: {
     readOnly: 'This system comes bundled and is read-only.',
     personalCopy: 'Your copy stays in this browser and is personal use only.',
+    editedCopy:
+      'Your edited copy of a bundled system: it replaces the bundled one in this browser.',
+    revert: 'Revert to bundled',
+    confirmRevert:
+      'Discard your changes to this system and go back to the bundled version? (↶ undoes it.)',
     makeCopy: 'Edit a copy',
     builtIn:
       "The Generic rules are built in and can't be edited. Create a new system (on the left) to start your own from them.",

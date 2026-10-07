@@ -27,7 +27,7 @@
 
 <div class="yaml">
   <p class="file">{root}/{path}</p>
-  {#if !editable}<ReadOnly {root} />{/if}
+  <ReadOnly {root} />
   <div class="code">
     {#key `${root}/${path}/${editable}`}
       <CodeEditor

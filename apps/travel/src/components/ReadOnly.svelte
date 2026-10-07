@@ -1,16 +1,32 @@
 <script lang="ts">
+  import { confirmAction } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
 
-  /** Shown on bundled packs: they can't change, but a copy can. */
+  /**
+   * On bundled packs: they can't change, but a copy can. On your edited copy of a
+   * bundled pack: going back to the bundled version (undoable with ↶). Nothing otherwise.
+   */
   let { root }: { root: string } = $props()
-  const personal = $derived(library.pack(root)?.personal)
+  const pack = $derived(library.pack(root))
+  const personal = $derived(pack?.personal)
+
+  async function revert() {
+    if (await confirmAction(t('edit.confirmRevert'))) library.removePack(root)
+  }
 </script>
 
-<div class="notice">
-  <span>{t('edit.readOnly')}{personal ? ` ${t('edit.personalCopy')}` : ''}</span>
-  <button onclick={() => library.editCopy(root)}>{t('edit.makeCopy')}</button>
-</div>
+{#if pack?.origin === 'bundled'}
+  <div class="notice">
+    <span>{t('edit.readOnly')}{personal ? ` ${t('edit.personalCopy')}` : ''}</span>
+    <button onclick={() => library.editCopy(root)}>{t('edit.makeCopy')}</button>
+  </div>
+{:else if pack?.overrides}
+  <div class="notice">
+    <span>{t('edit.editedCopy')}</span>
+    <button class="plain" onclick={revert}>{t('edit.revert')}</button>
+  </div>
+{/if}
 
 <style>
   .notice {
@@ -33,5 +49,11 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+  }
+
+  button.plain {
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
   }
 </style>

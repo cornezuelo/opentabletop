@@ -19,7 +19,7 @@ Las tablas que nombren sus bindings van en el mismo pack: añádelas en la aplic
 
 ## Cambiar un sistema incluido
 
-Los sistemas incluidos son de solo lectura. En sus pestañas **Reglas**, **Comprobaciones** o **YAML**, **Editar una copia** hace una copia de todo el pack que puedes cambiar; sustituye al incluido en este navegador. Las copias de packs de uso personal siguen siendo de uso personal.
+Los sistemas incluidos son de solo lectura. En sus pestañas **Reglas**, **Comprobaciones** o **YAML**, **Editar una copia** hace una copia de todo el pack que puedes cambiar; sustituye al incluido en este navegador. Las copias de packs de uso personal siguen siendo de uso personal. En tu copia editada, **Volver a la versión incluida** descarta tus cambios y recupera el sistema incluido (pregunta antes; ↶ lo deshace).
 
 **↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus sistemas, mientras la página está abierta.
 

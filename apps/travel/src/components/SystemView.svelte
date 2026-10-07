@@ -44,7 +44,7 @@
         <YamlTab root={file.root} path={file.path} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
-          {#if !doc.editable}<ReadOnly root={file.root} />{/if}
+          <ReadOnly root={file.root} />
           {#if problems.length}
             <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
               {t('forms.problems', { count: problems.length })}
