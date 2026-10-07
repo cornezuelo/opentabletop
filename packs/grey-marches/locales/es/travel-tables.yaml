@@ -1,9 +1,14 @@
 getting-lost:
   name: ¿Nos perdemos?
   description: |-
-    Al alba, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no.
+    Se tira **al alba**, fuera de caminos y ríos. La Orientación del grupo ayuda; la niebla no.
 
-    **Enseña:** una comprobación de viaje (atada a NAVIGATION_CHECK_REQUIRED), una característica del grupo en la tirada ({{navigation}}), `set: { lost: true }` (no se viaja más hoy) y condiciones sobre el clima y sobre estar fuera de toda región (`exists: false`).
+    **Enseña:**
+
+    - Una comprobación de viaje: atada a `NAVIGATION_CHECK_REQUIRED`
+    - Una característica del grupo en la tirada: `{{navigation}}`
+    - `set: { lost: true }`: no se viaja más hoy
+    - Condiciones sobre el clima, y sobre estar fuera de toda región (`exists: false`)
   entries:
     fog: 'Perdidos en la niebla: hoy no avanzáis'
     wild: 'Aquí no hay referencias: os desviáis del rumbo'
@@ -12,9 +17,14 @@ getting-lost:
 forage:
   name: Buscar comida
   description: |-
-    Lo que encontráis al buscar comida (la acción Buscar comida, en bosques, campos, brezales y marismas).
+    Lo que encontráis al **buscar comida** (la acción _Buscar comida_), solo en bosques, campos, brezales y marismas: de **4 a 6** da comida para un día, **7 o más** para 2 a 4 días.
 
-    **Enseña:** una comprobación en una acción propia del sistema, una característica y ventaja en la tirada, dados dentro de un valor (`food: '{{1d3+1}}'`) que el texto vuelve a leer ({{resources.food}}) y `set: { resources }` (la comida ganada).
+    **Enseña:**
+
+    - Una comprobación en una acción propia del sistema (`at: forage`)
+    - Una característica y ventaja en la tirada: `1d6 + {{survival}}`
+    - Dados dentro de un valor (`food: '{{1d3+1}}'`), que el texto vuelve a leer (`{{resources.food}}`)
+    - `set: { resources }`: la comida ganada
   entries:
     nothing: Aquí no hay nada que comer
     some: Bayas y raíces para un día
@@ -22,27 +32,39 @@ forage:
 toll:
   name: El peaje
   description: |-
-    El peaje del puente de Keld, llegando por el camino.
+    El peaje del **puente de Keld**, llegando por el camino.
 
-    **Enseña:** una comprobación con all / tags / edges, y `set: { resources }` con un número negativo (comida gastada).
+    **Enseña:**
+
+    - Una comprobación con `all` / `tags` / `edges`
+    - `set: { resources }` con un número negativo: comida gastada
   entries:
     pay: El guarda del puente se cobra un día de comida
     wave: El guarda del puente os deja pasar
 shrine:
   name: En el santuario
   description: |-
-    Un santuario junto al camino.
+    Un **santuario** junto al camino.
 
-    **Enseña:** la fatiga bajando (`fatigue: -2`), una característica del grupo subiendo (moral) y `once` (la bendición llega una sola vez).
+    **Enseña:**
+
+    - La fatiga bajando: `fatigue: -2`
+    - Una característica del grupo subiendo: `morale`
+    - `once`: la bendición llega una sola vez
   entries:
     blessing: 'Una voz responde a tu plegaria: el camino será amable'
     rest: Una hora tranquila en el santuario alivia las piernas
 ford:
   name: Cruzar el vado
   description: |-
-    ¿Sale bien el cruce? El agua decide; la Supervivencia del grupo ayuda.
+    **¿Sale bien el cruce?** El agua decide; la Supervivencia del grupo ayuda.
 
-    **Enseña:** un oráculo cuya entrada viene de los bindings (`odds: even`), variantes con sus propios dados, valores del día que pone el clima ({{fordModifier}}, fordImpossible) y `set: { lost: true }`.
+    **Enseña:**
+
+    - Un **oráculo** cuya entrada viene de los bindings: `odds: even`
+    - Variantes con sus propios dados
+    - Valores del día que pone el clima: `{{fordModifier}}`, `fordImpossible`
+    - `set: { lost: true }`: hoy no se cruza
   inputs:
     odds:
       label: El agua
@@ -55,9 +77,9 @@ ford:
 ford-mishap:
   name: Percance en el vado
   description: |-
-    Lo que se lleva el río.
+    Lo que se lleva el río. Se tira desde las respuestas del _Vado_.
 
-    **Enseña:** `set` sobre provisiones (comida, forraje) y fatiga, tirado desde las respuestas del Vado.
+    **Enseña:** `set` sobre provisiones (`food`, `fodder`) y sobre `fatigue`
   entries:
     food: se pierde un fardo de comida
     tired: salís del agua agotados
@@ -65,9 +87,14 @@ ford-mishap:
 hunger:
   name: Hambre
   description: |-
-    Acampar sin comida. Cuanto más baja la moral, peor va.
+    **Acampar sin comida.** Cuanto más baja la moral, peor va.
 
-    **Enseña:** una comprobación al acampar sobre las provisiones del grupo (party.resources.food menor que 1), la moral en la tirada y en una condición, maxOccurrences con `onExhausted: next` (tras la segunda deserción responde la entrada siguiente) y una característica que baja (hirelings).
+    **Enseña:**
+
+    - Una comprobación al acampar sobre las provisiones: `party.resources.food` menor que 1
+    - La moral en la tirada y en una condición
+    - `maxOccurrences` con `onExhausted: next`: tras la segunda deserción responde la entrada siguiente
+    - Una característica que baja: `hirelings`
   entries:
     desertion: 'Por la noche, {{result}}'
     grumble: Tripas vacías, mal humor
@@ -77,7 +104,10 @@ desertion:
   description: |-
     Quién se va de noche y qué se lleva.
 
-    **Enseña:** cascadas a Nombres de las Marcas y `once` (la nota llega una sola vez).
+    **Enseña:**
+
+    - Una cascada a _Nombres de las Marcas_
+    - `once`: la nota llega una sola vez
   entries:
     food: '{{result}} se escabulle con el último pan'
     torch: '{{result}} se ha ido al alba, y las antorchas también'

@@ -1,9 +1,15 @@
 encounter:
   name: ¿Quién va?
   description: |-
-    A quién os encontráis: depende del terreno, la región, el peligro del hex y la hora del día.
+    **A quién os encontráis**: depende del terreno, la región, el peligro del hex y la hora del día.
 
-    **Enseña:** una tabla para dos comprobaciones (de día y de noche, con el contexto `timeOfDay` de los bindings), condiciones sobre terreno, región, etiquetas, peligro, estación y lunas (`moons.ember: full`), `once` (la Sierpe, solo con peligro 5 en el corazón del Bosque Gris), cascadas a Reacción y a un generador, y `set` de un valor para la tabla siguiente (reactionModifier) y de características del grupo (moral).
+    **Enseña:**
+
+    - Una tabla para dos comprobaciones, de día y de noche, que distingue el contexto `timeOfDay` de los bindings
+    - Condiciones sobre `terrain`, `region`, `tags`, `danger`, `season` y las lunas (`moons.ember: full`)
+    - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris
+    - Cascadas a _Reacción_ y a un generador
+    - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
   entries:
     hunt: 'Cuernos en la oscuridad: la Cacería Ascua cabalga bajo la luna llena; están {{result}}'
     wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
@@ -16,9 +22,14 @@ encounter:
 reaction:
   name: Reacción
   description: |-
-    Cómo os recibe alguien, de hostil a deseoso de ayudar.
+    Cómo os recibe alguien, de **hostil** a **deseoso de ayudar**.
 
-    **Enseña:** una característica del grupo en la tirada ({{charisma}}), un modificador que pone la entrada que la tira (reactionModifier), ventaja y rangos negativos.
+    **Enseña:**
+
+    - Una característica del grupo en la tirada: `{{charisma}}`
+    - Un modificador que pone la entrada que la tira: `reactionModifier`
+    - Ventaja
+    - Rangos negativos
   entries:
     hostile: hostiles
     wary: recelosos
@@ -30,27 +41,30 @@ npc:
   description: |-
     Un nombre, un oficio, qué quiere y su fuerza.
 
-    **Enseña:** un generador: campos de tablas y de dados (4d6kh3: las 3 mejores) y una plantilla que los une.
+    **Enseña:**
+
+    - Un **generador**: campos de tablas y de dados (`4d6kh3`: las 3 mejores)
+    - Una plantilla que los une
   template: '{{name}}, {{role}} que {{want}} (fuerza {{might}})'
 rumour:
   name: Un rumor
   description: |-
     Quién lo cuenta y qué dice.
 
-    **Enseña:** un generador dentro de otro ({{npc.name}} y {{npc.role}} leen los campos de Alguien en el camino).
+    **Enseña:** Un generador dentro de otro: `{{npc.name}}` y `{{npc.role}}` leen los campos de _Alguien en el camino_
   template: '{{npc.name}}, {{npc.role}}, jura que {{what}}.'
 npc-names:
   name: Nombres de las Marcas
   description: |-
     Nombres de la gente de las Marcas.
 
-    **Enseña:** una tabla que usan muchas otras (Alguien en el camino, la posada, Deserción).
+    **Enseña:** Una tabla que usan muchas otras: _Alguien en el camino_, la posada, _Deserción_
 npc-roles:
   name: Oficios
   description: |-
     Quién es alguien.
 
-    **Enseña:** pesos (buhoneros, peregrinos y cazadores son comunes; desertores y brujas, raros).
+    **Enseña:** Pesos: buhoneros, peregrinos y cazadores son comunes; desertores y brujas, raros
   entries:
     pedlar: buhonero
     pilgrim: peregrino
@@ -60,7 +74,7 @@ npc-roles:
 npc-wants:
   name: Deseos
   description: |-
-    Qué quiere alguien. Una tabla sencilla para el generador Alguien en el camino.
+    Qué quiere alguien. Una tabla sencilla para el generador _Alguien en el camino_.
   entries:
     escort: busca escolta hasta Fuerte Keld
     trade: tiene algo que cambiar
@@ -71,7 +85,7 @@ rumours:
   description: |-
     Rumores que se oyen en el camino y en la posada.
 
-    **Enseña:** dados d66 (dos dados leídos como decenas y unidades, 11–66) con rangos como 11-16.
+    **Enseña:** Dados **d66**: dos dados leídos como decenas y unidades (11–66), con rangos como `11-16`
   entries:
     wyrm: una sierpe duerme bajo el Bosque Gris
     salt: el Lago Salado fue una ciudad

@@ -7,9 +7,12 @@ kind: table
 id: weather
 name: The Marches' weather
 description: |-
-  Today's weather by the season, with no memory, for rolls by hand (trips use The Marches' sky, where today follows yesterday).
+  Today's weather by the season, **with no memory**, for rolls by hand. Trips use _The Marches' sky_ instead, where today follows yesterday.
 
-  **Shows:** a table id built from the context (`weather-{{season}}`), and a fallback when there is no season.
+  **Shows:**
+
+  - A table id built from the context: `weather-{{season}}`
+  - A fallback when there is no season
 roll: 1d6
 entries:
   - { id: season, range: 1-6, when: { season: { exists: true } }, table: 'weather-{{season}}' }
@@ -22,7 +25,10 @@ name: Spring in the Marches
 description: |-
   Spring weather.
 
-  **Shows:** 2d6 (the middle is common, the ends rare) and day values for later checks (rain: fordModifier −1; a storm: fordImpossible).
+  **Shows:**
+
+  - `2d6`: the middle is common, the ends rare
+  - Day values for later checks: rain gives `fordModifier: -1`, a storm `fordImpossible`
 roll: 2d6
 entries:
   - {
@@ -42,7 +48,7 @@ name: Summer in the Marches
 description: |-
   Summer weather.
 
-  **Shows:** weights instead of dice.
+  **Shows:** Weights instead of dice
 entries:
   - { id: clear, weight: 4, result: Hot and clear, set: { weather: clear } }
   - { id: grey, weight: 2, result: Muggy and grey, set: { weather: grey } }
@@ -60,7 +66,10 @@ name: Autumn in the Marches
 description: |-
   Autumn weather.
 
-  **Shows:** Fate dice (4dF: from −4 to +4, mostly near 0) and negative ranges.
+  **Shows:**
+
+  - Fate dice: `4dF`, from −4 to +4, mostly near 0
+  - Negative ranges
 roll: 4dF
 entries:
   - {
@@ -79,7 +88,7 @@ name: Winter in the Marches
 description: |-
   Winter weather.
 
-  **Shows:** a day value that helps (hard frost: fordModifier +1, the rivers freeze).
+  **Shows:** A day value that helps: hard frost gives `fordModifier: 1`
 roll: 1d6
 entries:
   - { id: blizzard, range: 1, result: 'Blizzard: nobody travels', set: { weather: storm } }

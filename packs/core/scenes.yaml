@@ -1,7 +1,11 @@
 kind: table
 id: scene-twist
 name: Scene twist
-description: Roll when a scene starts; on a 1 it doesn't go as expected. With disadvantage when tension is high (more twists), with advantage when things are calm.
+description: |-
+  Roll when a **scene starts**: on a 1 it doesn't go as expected, and _Twists_ says how.
+
+  - Roll with **disadvantage** when tension is high: more twists.
+  - Roll with **advantage** when things are calm.
 advantage: true
 roll: 1d6
 entries:
@@ -11,6 +15,8 @@ entries:
 kind: table
 id: twists
 name: Twists
+description: |-
+  How a scene goes **differently** from what you expected. Rolled by _Scene twist_ on a 1, or on its own.
 roll: 1d8
 entries:
   - { id: r1, range: 1, result: Someone unexpected is already there. }
@@ -25,7 +31,8 @@ entries:
 kind: deck
 id: complications
 name: Complications
-description: Draw when things get too easy. Each card comes up once until you reshuffle.
+description: |-
+  Draw when things get **too easy**. Each card comes up once until you **reshuffle** (by hand: the deck doesn't reshuffle itself).
 reshuffle: manual
 cards:
   - { id: ambush, result: An ambush. }

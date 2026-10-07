@@ -2,6 +2,8 @@
 kind: table
 id: action
 name: Action
+description: |-
+  A **verb** for what happens next: half of a _Prompt_. Read it freely, together with a _Subject_.
 roll: 1d20
 entries:
   - { id: r1, range: 1, result: Seek }
@@ -28,6 +30,8 @@ entries:
 kind: table
 id: subject
 name: Subject
+description: |-
+  A **thing, person or idea** the action is about: the other half of a _Prompt_.
 roll: 1d20
 entries:
   - { id: r1, range: 1, result: a stranger }
@@ -54,7 +58,10 @@ entries:
 kind: generator
 id: prompt
 name: Prompt
-description: An action and a subject to interpret as what happens next.
+description: |-
+  An **action** and a **subject** to interpret as what happens next, e.g. _Betray an old debt_.
+
+  Use it when an oracle's answer needs a _what_, or when you don't know what comes next.
 fields:
   action: { table: action }
   subject: { table: subject }

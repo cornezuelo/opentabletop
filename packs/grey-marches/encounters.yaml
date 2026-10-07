@@ -7,9 +7,15 @@ kind: table
 id: encounter
 name: Who goes there?
 description: |-
-  Who you meet: depends on the terrain, the region, the hex's danger and the time of day.
+  **Who you meet**: depends on the terrain, the region, the hex's danger and the time of day.
 
-  **Shows:** one table for two checks (day and night, through the bindings' context `timeOfDay`), conditions on terrain, region, tags, danger, season and moons (`moons.ember: full`), `once` (the Wyrm, only at danger 5 in the Greywood's heart), cascades into Reaction and a generator, and `set` of a value for the next table (reactionModifier) and of party stats (morale).
+  **Shows:**
+
+  - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
+  - Conditions on `terrain`, `region`, `tags`, `danger`, `season` and the moons (`moons.ember: full`)
+  - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart
+  - Cascades into _Reaction_ and into a generator
+  - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
 roll: '1d6 + {{danger}}'
 entries:
   # A once-only encounter, only at the very heart of the Greywood (danger 5).
@@ -64,9 +70,14 @@ kind: table
 id: reaction
 name: Reaction
 description: |-
-  How someone takes you, from hostile to eager to help.
+  How someone takes you, from **hostile** to **eager to help**.
 
-  **Shows:** a party stat in the roll ({{charisma}}), a modifier set by the entry that rolled it (reactionModifier), advantage, and negative ranges.
+  **Shows:**
+
+  - A party stat in the roll: `{{charisma}}`
+  - A modifier set by the entry that rolled it: `reactionModifier`
+  - Advantage
+  - Negative ranges
 roll: '2d6 + {{charisma}} + {{reactionModifier}}'
 advantage: true
 entries:
@@ -83,7 +94,10 @@ name: Someone on the road
 description: |-
   A name, a role, what they want and how strong they are.
 
-  **Shows:** a generator: fields from tables and from dice (4d6kh3: keep the best 3), and a template that joins them.
+  **Shows:**
+
+  - A **generator**: fields from tables and from dice (`4d6kh3`: keep the best 3)
+  - A template that joins them
 fields:
   name: { table: npc-names }
   role: { table: npc-roles }
@@ -99,7 +113,7 @@ name: A rumour
 description: |-
   Who tells it, and what they say.
 
-  **Shows:** a generator inside another one ({{npc.name}} and {{npc.role}} read the fields of Someone on the road).
+  **Shows:** A generator inside another one: `{{npc.name}}` and `{{npc.role}}` read the fields of _Someone on the road_
 fields:
   npc: { generator: npc }
   what: { table: rumours }
@@ -111,7 +125,7 @@ name: Names of the Marches
 description: |-
   Names of the people of the Marches.
 
-  **Shows:** one table used by many others (Someone on the road, the inn, Desertion).
+  **Shows:** One table used by many others: _Someone on the road_, the inn, _Desertion_
 entries:
   - { id: aldo, result: Aldo }
   - { id: brenna, result: Brenna }
@@ -126,7 +140,7 @@ name: Roles
 description: |-
   Who someone is.
 
-  **Shows:** weights (pedlars, pilgrims and hunters are common; deserters and hedge-witches rare).
+  **Shows:** Weights: pedlars, pilgrims and hunters are common; deserters and hedge-witches, rare
 entries:
   - { id: pedlar, weight: 2, result: pedlar }
   - { id: pilgrim, weight: 2, result: pilgrim }
@@ -138,7 +152,7 @@ kind: table
 id: npc-wants
 name: Wants
 description: |-
-  What someone wants. A plain table for the Someone on the road generator.
+  What someone wants. A plain table for the _Someone on the road_ generator.
 entries:
   - { id: escort, result: wants an escort to Fort Keld }
   - { id: trade, result: has something to trade }
@@ -152,7 +166,7 @@ name: Rumours (d66)
 description: |-
   Rumours heard on the road and at the inn.
 
-  **Shows:** d66 dice (two dice read as tens and units, 11–66) with ranges like 11-16.
+  **Shows:** **d66** dice: two dice read as tens and units (11–66), with ranges like `11-16`
 roll: d66
 entries:
   - { id: wyrm, range: 11-16, result: a wyrm sleeps under the Greywood }

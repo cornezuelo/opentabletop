@@ -1,11 +1,17 @@
 scene-twist:
   name: Giro de escena
-  description: Tira al empezar una escena; con un 1 no sale como esperabas. Con desventaja si la tensión es alta (más giros), con ventaja si todo está tranquilo.
+  description: |-
+    Tira cuando **empieza una escena**: con un 1 no sale como esperabas, y _Giros_ dice cómo.
+
+    - Tira con **desventaja** cuando la tensión es alta: más giros.
+    - Tira con **ventaja** cuando las cosas están tranquilas.
   entries:
     twist: 'Giro: algo cambia'
     expected: Como se esperaba
 twists:
   name: Giros
+  description: |-
+    Cómo una escena va **distinta** de lo que esperabas. La tira _Giro de escena_ con un 1, o se tira sola.
   entries:
     r1: Alguien inesperado ya está allí.
     r2: El lugar no es lo que parecía.
@@ -17,7 +23,8 @@ twists:
     r8: Una pista apunta a otro sitio.
 complications:
   name: Complicaciones
-  description: Roba cuando todo va demasiado fácil. Cada carta sale una vez hasta que barajes.
+  description: |-
+    Roba cuando las cosas van **demasiado fáciles**. Cada carta sale una vez hasta que **barajas** (a mano: el mazo no se baraja solo).
   cards:
     ambush: Una emboscada.
     broken: Se rompe el equipo.

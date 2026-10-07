@@ -1,9 +1,13 @@
 treasure:
   name: ¿Qué hay en el tesoro?
   description: |-
-    Lo que guarda un tesoro.
+    Lo que guarda un **tesoro**.
 
-    **Enseña:** dados de porcentaje (d100, también d%), dados en el texto y cascadas a Rumores y Un premio raro.
+    **Enseña:**
+
+    - Dados de porcentaje: `d100`, también `d%`
+    - Dados en el texto
+    - Cascadas a _Rumores_ y _Un premio raro_
   entries:
     coins: '{{3d6}} monedas de plata'
     gems: '{{1d4}} gemas de {{2d6+4}} monedas de plata cada una'
@@ -12,16 +16,20 @@ treasure:
 prize:
   name: Un premio raro
   description: |-
-    Un premio raro.
+    Un **premio raro**.
 
-    **Enseña:** maxOccurrences (la Espada de Keld aparece dos veces como mucho; después solo queda oro).
+    **Enseña:** `maxOccurrences`: la Espada de Keld aparece dos veces como mucho; después solo queda oro
   entries:
     sword: La Espada de Keld, perdida hace cien años
     gold: '{{2d6+6}} coronas de oro de los antiguos reyes'
 ruin-delve:
   name: Explorar una ruina
   description: |-
-    Qué guarda una ruina y quién la vigila.
+    Qué guarda una **ruina** y quién la vigila.
 
-    **Enseña:** todos los tipos de campo de un generador: una tabla, dados (2d6kl1: el más bajo), d%, un valor fijo con plantilla, un campo solo cuando otro lo dice (`when`) y una tabla tirada con su propio contexto (el guardián, de noche y con peligro 3).
+    **Enseña:**
+
+    - Todos los tipos de campo de un generador: una tabla, dados (`2d6kl1`: el más bajo), `d%` y un valor fijo con plantilla
+    - Un campo solo cuando otro lo dice: `when`
+    - Una tabla tirada con su propio contexto: el guardián, de noche y con peligro 3
   template: 'Las ruinas de {{site}} ({{rating}}, {{untouched}}% intactas).{{trap}} Dentro: {{loot}}. La guarda: {{guardian}}.'

@@ -2,7 +2,13 @@
 kind: oracle
 id: yes-no
 name: Yes or no?
-description: Ask a question that can be answered yes or no, pick how likely it is and roll.
+description: |-
+  Ask a question that can be answered **yes or no**, choose how likely it is, and roll.
+
+  - **Yes, and…** / **No, and…**: more than you asked for, for better or worse.
+  - **Yes, but…** / **No, but…**: the answer comes with a cost, or with a way out.
+
+  When in doubt about the odds, choose _Even_.
 inputs:
   odds:
     label: Odds
@@ -50,7 +56,10 @@ variants:
 kind: oracle
 id: npc-attitude
 name: How do they take it?
-description: Ask how someone answers a request. The bigger the ask, the harder the yes; every answer comes with a motive.
+description: |-
+  Ask how someone answers a **request**. The bigger the ask, the harder the yes: a **big ask** may come with a price.
+
+  Every answer comes with a _Motive_, so you know why they say it.
 inputs:
   stakes:
     label: Stakes
@@ -77,6 +86,8 @@ variants:
 kind: table
 id: npc-motive
 name: Motive
+description: |-
+  **Why** someone does what they do. Greed and fear are the most common.
 entries:
   - { id: greed, weight: 2, result: greed }
   - { id: fear, weight: 2, result: fear }

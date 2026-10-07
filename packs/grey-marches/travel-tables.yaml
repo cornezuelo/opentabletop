@@ -6,9 +6,14 @@ kind: table
 id: getting-lost
 name: Do we get lost?
 description: |-
-  At dawn, off roads and rivers. The party's Navigation helps; fog doesn't.
+  Rolled **at dawn**, off roads and rivers. The party's Navigation helps; fog doesn't.
 
-  **Shows:** a travel check (bound to NAVIGATION_CHECK_REQUIRED), a party stat in the roll ({{navigation}}), `set: { lost: true }` (no more travel today), and conditions on the weather and on being outside any region (`exists: false`).
+  **Shows:**
+
+  - A travel check: bound to `NAVIGATION_CHECK_REQUIRED`
+  - A party stat in the roll: `{{navigation}}`
+  - `set: { lost: true }`: no more travel today
+  - Conditions on the weather, and on being outside any region (`exists: false`)
 roll: '1d6 + {{navigation}}'
 entries:
   - {
@@ -40,9 +45,14 @@ kind: table
 id: forage
 name: Foraging
 description: |-
-  What you find when you forage for food (the Forage for food action, in woods, fields, heath and marsh).
+  What you find when you **forage for food** (the _Forage for food_ action), only in woods, fields, heath and marsh: **4–6** feeds you a day, **7 or more** 2–4 days.
 
-  **Shows:** a check at one of the system's own actions, a stat and advantage in the roll, dice inside a value (`food: '{{1d3+1}}'`) read back by the text ({{resources.food}}), and `set: { resources }` (the food gained).
+  **Shows:**
+
+  - A check at one of the system's own actions (`at: forage`)
+  - A stat and advantage in the roll: `1d6 + {{survival}}`
+  - Dice inside a value (`food: '{{1d3+1}}'`), read back by the text (`{{resources.food}}`)
+  - `set: { resources }`: the food gained
 roll: '1d6 + {{survival}}'
 advantage: true
 entries:
@@ -60,9 +70,12 @@ kind: table
 id: toll
 name: The toll
 description: |-
-  Keld Bridge's toll, arriving by road.
+  **Keld Bridge**'s toll, arriving by road.
 
-  **Shows:** a check with all / tags / edges, and `set: { resources }` with a negative number (food spent).
+  **Shows:**
+
+  - A check with `all` / `tags` / `edges`
+  - `set: { resources }` with a negative number: food spent
 entries:
   - {
       id: pay,
@@ -77,9 +90,13 @@ kind: table
 id: shrine
 name: At the shrine
 description: |-
-  A wayside shrine.
+  A wayside **shrine**.
 
-  **Shows:** fatigue going down (`fatigue: -2`), a party stat going up (morale), and `once` (the blessing comes a single time).
+  **Shows:**
+
+  - Fatigue going down: `fatigue: -2`
+  - A party stat going up: `morale`
+  - `once`: the blessing comes a single time
 entries:
   - {
       id: blessing,
@@ -101,9 +118,14 @@ kind: oracle
 id: ford
 name: Crossing the ford
 description: |-
-  Does the crossing go well? The water decides; the party's Survival helps.
+  **Does the crossing go well?** The water decides; the party's Survival helps.
 
-  **Shows:** an oracle whose input comes from the bindings (`odds: even`), variants with their own dice, day values set by the weather ({{fordModifier}}, fordImpossible), and `set: { lost: true }`.
+  **Shows:**
+
+  - An **oracle** whose input comes from the bindings: `odds: even`
+  - Variants with their own dice
+  - Day values set by the weather: `{{fordModifier}}`, `fordImpossible`
+  - `set: { lost: true }`: no crossing today
 inputs:
   odds:
     label: The water
@@ -151,9 +173,9 @@ kind: table
 id: ford-mishap
 name: Ford mishap
 description: |-
-  What the river takes.
+  What the river takes. Rolled from the _Ford_'s answers.
 
-  **Shows:** `set` on supplies (food, fodder) and fatigue, rolled from the Ford's answers.
+  **Shows:** `set` on supplies (`food`, `fodder`) and on `fatigue`
 entries:
   - { id: food, result: a pack of food is lost, set: { resources: { food: -1 } } }
   - { id: tired, result: you drag yourselves out exhausted, set: { fatigue: 1 } }
@@ -166,9 +188,14 @@ kind: table
 id: hunger
 name: Hunger
 description: |-
-  Camping with no food. The lower the morale, the worse it goes.
+  **Camping with no food.** The lower the morale, the worse it goes.
 
-  **Shows:** a camp check on the party's supplies (party.resources.food under 1), morale in the roll and in a condition, maxOccurrences with `onExhausted: next` (after the second desertion, the next entry answers), and a stat going down (hirelings).
+  **Shows:**
+
+  - A camp check on the party's supplies: `party.resources.food` under 1
+  - Morale in the roll and in a condition
+  - `maxOccurrences` with `onExhausted: next`: after the second desertion, the next entry answers
+  - A stat going down: `hirelings`
 roll: '1d6 + {{party.stats.morale}}'
 onExhausted: next
 entries:
@@ -201,7 +228,10 @@ name: Desertion
 description: |-
   Who leaves in the night, and what they take.
 
-  **Shows:** cascades into Names of the Marches, and `once` (the note comes a single time).
+  **Shows:**
+
+  - A cascade into _Names of the Marches_
+  - `once`: the note comes a single time
 entries:
   - { id: food, result: '{{result}} slips away with the last of the bread', table: npc-names }
   - { id: torch, result: '{{result}} is gone by dawn, and the torches too', table: npc-names }

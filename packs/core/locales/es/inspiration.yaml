@@ -1,5 +1,7 @@
 action:
   name: Acción
+  description: |-
+    Un **verbo** para lo que pasa a continuación: la mitad de una _Inspiración_. Léelo con libertad, junto a un _Asunto_.
   entries:
     r1: Buscar
     r2: Proteger
@@ -23,6 +25,8 @@ action:
     r20: Transformar
 subject:
   name: Asunto
+  description: |-
+    Una **cosa, persona o idea** sobre la que va la acción: la otra mitad de una _Inspiración_.
   entries:
     r1: a un desconocido
     r2: una vieja deuda
@@ -46,4 +50,7 @@ subject:
     r20: a los dioses
 prompt:
   name: Inspiración
-  description: Una acción y un asunto que interpretar como lo que pasa a continuación.
+  description: |-
+    Una **acción** y un **asunto** que interpretar como lo que pasa a continuación, p. ej. _Traicionar una vieja deuda_.
+
+    Úsalo cuando la respuesta de un oráculo necesita un _qué_, o cuando no sabes qué viene después.

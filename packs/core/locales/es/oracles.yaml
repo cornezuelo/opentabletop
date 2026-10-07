@@ -1,6 +1,12 @@
 yes-no:
   name: ¿Sí o no?
-  description: Haz una pregunta que se responda con sí o no, elige lo probable que es y tira.
+  description: |-
+    Haz una pregunta que se responda con **sí o no**, elige lo probable que es y tira.
+
+    - **Sí, y…** / **No, y…**: más de lo que preguntabas, para bien o para mal.
+    - **Sí, pero…** / **No, pero…**: la respuesta llega con un precio, o con una salida.
+
+    Si dudas de la probabilidad, elige _Igualada_.
   inputs:
     odds:
       label: Probabilidad
@@ -19,7 +25,10 @@ yes-no:
     no-and: No, y empeora
 npc-attitude:
   name: ¿Cómo se lo toman?
-  description: Pregunta cómo responde alguien a una petición. Cuanto más pides, más difícil es el sí; cada respuesta trae un motivo.
+  description: |-
+    Pregunta cómo responde alguien a una **petición**. Cuanto mayor es lo que pides, más difícil el sí: una **gran petición** puede tener precio.
+
+    Cada respuesta llega con un _Motivo_, para que sepas por qué lo dicen.
   entries:
     agree: 'Aceptan ({{result}})'
     refuse: 'Se niegan ({{result}})'
@@ -30,6 +39,8 @@ npc-attitude:
       labels: { small: Un pequeño favor, fair: Un trato justo, big: Mucho pedir }
 npc-motive:
   name: Motivo
+  description: |-
+    **Por qué** alguien hace lo que hace. La codicia y el miedo son lo más común.
   entries:
     greed: codicia
     fear: miedo
