@@ -1,5 +1,6 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
+import { packSources } from '../../vite.packs.ts'
 import { pwa } from '../../vite.pwa.ts'
 
 export default defineConfig({
@@ -7,6 +8,7 @@ export default defineConfig({
   // other apps, so they share the user packs stored for that origin).
   base: './',
   plugins: [
+    packSources(),
     svelte(),
     pwa({
       name: 'OpenTabletop Travel',

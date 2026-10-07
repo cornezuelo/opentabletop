@@ -39,16 +39,18 @@ dev-all: ## Run every app with live reload (Ctrl+C stops them all)
 build: ## Build every app into apps/<app>/dist/
 	npm run build
 
-site: ## Build every app together into dist/<app>/ (one site: apps share user packs)
+site: ## Build the public site into dist/<app>/ (open packs only: safe to publish)
 	npm run build:site
 
-serve: site ## Build the site and serve it (http://localhost:8080/<app>/, PORT=… to change)
+serve: ## Build the site for this machine (with packs-private/) into dist-local/ and serve it
+	OTT_PERSONAL_PACKS=1 npm run build:site
 	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
-	python3 -m http.server $(PORT) -d dist
+	@echo "dist-local/ has your personal-use packs: never publish it (make site builds the public dist/)."
+	python3 -m http.server $(PORT) -d dist-local
 
-preview: ## Serve the last built site again without rebuilding
+preview: ## Serve the last local build (dist-local/) again without rebuilding
 	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
-	python3 -m http.server $(PORT) -d dist
+	python3 -m http.server $(PORT) -d dist-local
 
 cli: ## Build and run the command line (make cli ARGS="roll core/action")
 	@npm run build -w apps/cli --silent >/dev/null

@@ -12,7 +12,7 @@ const open = import.meta.glob('../../../../packs/**/*.{yaml,yml,json}', {
   import: 'default',
   eager: true,
 }) as Record<string, string>
-const personal = import.meta.glob('../../../../packs-private/**/*.{yaml,yml,json}', {
+const personal = import.meta.glob('@personal-packs/**/*.{yaml,yml,json}', {
   query: '?raw',
   import: 'default',
   eager: true,

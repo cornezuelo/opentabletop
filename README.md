@@ -45,7 +45,7 @@ Then open `http://localhost:8080/hexmapper/`, `/oracle/`, `/travel/` or `/manual
 A pack is a folder with a `pack.yaml` (id, version, base language, license) and YAML definitions. Every kind of definition is described in the manual's [Kinds of definition](docs/manual/en/technical/07-kinds.md); the [Grey Marches](packs/grey-marches/) are a worked example of all of them, with comments.
 
 - **Open packs** (`packs/`): our own content and games whose license allows redistribution, with their attribution. Bundled in every build.
-- **Personal-use packs**: games whose license only allows personal use (Kal-Arath, for one) never go in this repo. They live in a separate private checkout at `packs-private/`, bundled only on the machine that has it.
+- **Personal-use packs**: games whose license only allows personal use (Kal-Arath, for one) never go in this repo. They live in a separate private checkout at `packs-private/`, bundled only on the machine that has it and only in local builds (`make serve` → `dist-local/`); `make site` builds the public `dist/` without them.
 - **Your packs**: made or imported in the Oracle app, kept in your browser and exportable as `.zip`.
 
 ## How it's built

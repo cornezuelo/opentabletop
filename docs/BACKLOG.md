@@ -119,7 +119,7 @@ Guiding idea (the user's concern): mechanics like fatigue, morale, reputation, f
    - Values are the system's (step 3): the Grey Marches declare `reputation` (−3..+3, how the faction regards the party) read by reaction/encounter tables as `factions.<id>.reputation`. Another system might declare `heat` or nothing.
    - No lore: factions point to notes with `noteRef`.
 8. **A frontier-space showcase pack** (Cowboy Bebop / Firefly style): ships, contracts, bounties, a space map using the sci-fi/space terrain set and the modern/sci-fi icons, a ship mode that only travels space terrains, its own calendar and values. Like the Grey Marches, it must exercise every feature, with tests that play it.
-9. **Release cycle** for alpha 0.1: Claude defines it (versioning, changelog, what triggers a tag) and leaves it written for the user to review.
+9. **Release cycle** for alpha 0.1: Claude defines it (versioning, changelog, what triggers a tag) and leaves it written for the user to review. **Requirement (user, 2026-10-07): no alpha without builds that leave personal-use packs out.** Done the same day: `vite.packs.ts` (`@personal-packs` alias; only dev, tests and `OTT_PERSONAL_PACKS=1` include them, other builds fail if one is loaded), `make site` → public `dist/`, `make serve` → `dist-local/`. The release workflow must build in CI from a clean clone (no private checkout) and publish `dist/` only.
 
 **Suggestions while typing (status):** done for condition/value/context boxes in the Oracle and Travel forms (`SuggestInput` in ui-kit + `contextSuggestions` / `setSuggestions` in session), the YAML editor (keys, `kind`, references, one-line conditions), Travel tags and rules lists, and map values (keys the packs' tables read). Every new input must use them; step 3 adds suggestions for effect paths, step 4 a panel of suggestions and cheat sheets.
 
@@ -277,9 +277,11 @@ Each tool shows only what it edits (Select: the hex; Terrain: the palette; Token
 
 Done: the travel procedure (weather, getting lost, points of interest, encounters, camping) matches the rulebook; foraging is a trip action (halves the day's march, once a day, adds to the food; impossible in storms); the Explorer ability is a party stat (`explorer`: advantage to forage and not get lost, points of interest on 4–6); finding the way again after a day lost is rolled with disadvantage (`yesterday.lost`); the autumn storm only halves travel (`autumn-storm`); the extra ration of a heatwave or the first snows is taken; dungeons gained the passages table and the boss rooms (summarised: the full rooms stay in the book).
 
+- [ ] **Review the whole pack against the PDF rulebook again** (asked by the user 2026-10-07, after steps 3c/3d): check every rule (travel rules, values of the day, actions and their steps, checks, tables and their modifiers, roll modes, calendar if any) is consistent with the book (`~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`), and use the new mechanisms where they fit (e.g. camping as steps, `pause`, `blocks`).
+
 Still not as the rulebook has it, waiting for generic support (not Kal-Arath code):
 
-- [ ] **Fatigue**: Kal-Arath has none, but the trip panel shows it and hunger raises it. Step 3 of the roadmap (system values) removes it: the pack will declare only what it uses.
+- [x] **Fatigue**: Kal-Arath has none, but the trip panel shows it and hunger raises it. Step 3 of the roadmap (system values) removes it: the pack will declare only what it uses. Done with steps 3b/3c: fatigue is a stat only systems that declare it have; Kal-Arath declares `lost` and its foraging as steps.
 - [ ] **Camping recovers wounds and conditions** after spending a ration: there are no character values yet (phase C, characters).
 - [ ] **An Explorer chooses advantage or disadvantage on encounter rolls**: a choice the player makes when the trip rolls; today only by hand.
 - [ ] **Herbs** are rolled by hand after a rare find (`herbCount` times); _Tarnak berries_ (no ration needed that day) aren't applied.
