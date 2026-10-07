@@ -35,6 +35,48 @@ What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to
 - [x] **README.md** at the root of the repo. Done.
 - [x] **Travel → Play → The way**: column headers and tooltips (what each column is, especially tags). Done: a header row with an **i** per column, and one on the roads to the next hex.
 
+**Asked by the user on 2026-10-07 (evening), to do next — start here in a new session**
+
+Step 3 status: 3a (effects vocabulary) and 3b (fatigue out of the engine, `day-end`, checks with effects) are done; 3c (declared day values like `lost` with `blocks`, actions with `when`/`unless`) and 3d (forms, manual) remain — but first review the design below with the user.
+
+Bugs:
+
+- [ ] **World timeline in Spanish shows moon ids**: "ember está nueva", "pale está llena". Use the calendar's moon names (translated), not ids.
+- [ ] **Kal-Arath's Play panel shows Charisma, Survival, Morale, Navigation** (the Grey Marches' stats): stats seem to be carried over when switching system in the Hexmapper (or Travel). A trip shows only its system's stats; check, fix, and test.
+- [ ] **Travel → Checks: a ⚠ next to "Rolled on: ford"** (the Grey Marches' ford check): the table picker lists only tables and generators, so a check bound to an oracle (or a deck) looks broken. Any rollable kind can answer a check: list them all.
+
+Features:
+
+- [ ] **Hexmapper: draw the trip with straight lines or curves** (a setting; curves by default, like trails). With the backlog item on drawing the route along roads.
+- [ ] **Pause on any check, with or without a table:** today **Continue** only appears for checks without a table. Let a check (and maybe a table entry) say `pause: true` so the trip stops after rolling it (to write lore, decide something…). Explain in the Travel manual what makes Continue appear.
+- [ ] **World clock and trips out of step:** the World panel can be at day 20 while the trip is at day 10 and goes on from there (the trip moves the world, the world doesn't move the trip). Explain it, and decide with the user: one time for both (moving the world while a trip is on is waiting), or keep them apart and say so clearly.
+
+Manual (much is missing; generic explanations, examples from the Grey Marches or the Generic rules only):
+
+- [ ] **Conditions reference:** every operator and comparison (`eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`, `any`, `all`, `not`, lists…) with what each means and an example, in the technical section, linked from wherever conditions are mentioned.
+- [ ] **Name collisions:** what wins when keys collide (an icon value called `terrain`, a stat called `weather`, a region value and a hex value…), with examples (today only a short note in What tables see).
+- [ ] **`…Modifier` and `…Impossible` day values:** a clear explanation with examples (and, with step 3c, their declared form).
+- [ ] **Review everything that can be done and isn't documented**, kind by kind and key by key (the Kinds of definition page as the index), and expand the Travel manual (playing, checks, Continue, actions).
+- [ ] The Oracle page "Connecting tables to maps and trips" stays in the Oracle (it's how the Oracle connects to the rest) but needs more explanation.
+
+Design to discuss before 3c (the user's idea, agreed direction): **camp and rest become actions of the system, like forage**, and actions describe what they do as **effects with conditions**, not fixed columns (minutes, speed, fatigue). E.g. the Grey Marches' camp: "until dawn, eat the day's supplies; if fed: fatigue −1; if not: fatigue +1; once a day". Sketch:
+
+```yaml
+actions:
+  camp:
+    name: Camp
+    do:
+      - { time: until-dawn } # time.advance: 180 / until: dawn, nightfall…
+      - { eat: day } # the day's supplies (sets `short`)
+      - { when: { short: false }, effects: { party.stats.fatigue: -1 } }
+      - { when: { short: true }, effects: { party.stats.fatigue: 1 } }
+    oncePerDay: true
+  forage:
+    { do: [{ time: { advance: 180 } }, { speedToday: 0.5 }, { roll: forage }], oncePerDay: true }
+```
+
+Built-in steps stay generic (move time, eat supplies, change today's speed, roll a check or table, apply effects, all with `when`); the system names and composes them. The Generic rules declare camp and rest this way too. Replaces `day-end` checks with effects for most uses.
+
 **Next, in this order (agreed with the user 2026-10-08; each step is groundwork for the ones after it, so nothing gets rewritten)**
 
 Guiding idea (the user's concern): mechanics like fatigue, morale, reputation, fodder belong to **particular systems**, not to the core. The core only knows _generic declared values_ and _effects_ on them; each system (pack) declares which values exist, what they're called and how they behave. Nothing a system doesn't declare is shown.
