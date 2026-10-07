@@ -4,9 +4,9 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 
 ## The screen
 
-- **Toolbar** (left): the tools at the top — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play and the Oracle — and at the bottom: Settings, Layers, Help (?), Undo, Redo, Fit, New, Maps, Save and Export.
+- **Toolbar** (right): the tools at the top — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play and the Oracle — and at the bottom: Settings, Layers, Help (?), Undo, Redo, Fit, New, Maps, Save and Export.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
-- **Side panel** (right): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, Help, the Oracle and the other views of the bottom buttons. Changing tools deselects what the previous one had selected. The button with nine dots next to the map name opens the other OpenTabletop apps.
+- **Side panel** (left): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, Help, the Oracle and the other views of the bottom buttons. Changing tools deselects what the previous one had selected. The button with nine dots next to the map name opens the other OpenTabletop apps.
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
