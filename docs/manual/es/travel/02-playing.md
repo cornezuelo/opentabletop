@@ -32,7 +32,7 @@ Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupad
 
 Hasta que pulses **Continuar**, el grupo no sigue. Lo que un resultado en pausa hace al viaje (perderse, el clima) se aplica al continuar; sus efectos sobre provisiones y características, enseguida.
 
-**Los botones que no se pueden usar ahora** siguen visibles, desactivados; al pasar el ratón dicen por qué. Los bloquea un valor del día que declara el sistema (**Perdidos** en las Marcas Grises: «Perdidos: no es posible el resto del día», hasta el siguiente alba), la acción ya se hizo hoy (**Una vez al día**) o la regla del sistema para ella no se cumple aquí y ahora (**Buscar comida** de las Marcas Grises con tormenta). Acampar, descansar y las acciones propias vienen todas del sistema: uno puede no tener descanso, otro acampar de otra forma (mira [Crear un sistema](03-systems.md)).
+**Los botones que no se pueden usar ahora** siguen visibles, desactivados; al pasar el ratón dicen por qué. Los bloquea un valor del día que declara el sistema (**Perdidos** en las Marcas Grises: «Perdidos: no es posible el resto del día», hasta el siguiente alba), la acción ya se hizo hoy (**Una vez al día**) o la regla del sistema para ella no se cumple aquí y ahora (**Buscar comida** de las Marcas Grises con tormenta). Lo mismo vale para las formas de viajar de la lista: **En barca** de las Marcas Grises solo se puede elegir a la orilla o en el transbordador. Acampar, descansar y las acciones propias vienen todas del sistema: uno puede no tener descanso, otro acampar de otra forma (mira [Crear un sistema](03-systems.md)).
 
 Lo que cuenta el diario, para que nada pase en silencio:
 

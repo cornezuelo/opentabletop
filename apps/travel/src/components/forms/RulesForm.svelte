@@ -261,7 +261,13 @@
           help: t('rules.blocksHelp'),
           type: 'list',
           placeholder: t('rules.blocksNothing'),
-          choices: ['travel', 'camp', 'rest', ...Object.keys(actions)],
+          choices: [
+            'travel',
+            'camp',
+            'rest',
+            ...Object.keys(actions),
+            ...Object.keys(doc.rules.modes ?? {}).map((m) => `mode.${m}`),
+          ],
         },
       ]}
     />

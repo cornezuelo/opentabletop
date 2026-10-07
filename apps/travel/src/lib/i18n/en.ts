@@ -99,10 +99,10 @@ export const en = {
       'It can only be chosen when this holds, e.g. a boat only at the water’s edge: any: [{ water: true }, { tags: ferry }]. Empty: always. (In YAML, unless works too.)',
     values: 'Values of the day',
     valuesHelp:
-      'Values this system’s tables can set for the rest of the day (set: { lost: true }), with what they block while they hold: travel, or actions by id. Tables read them the next day as yesterday.<id>. Without any, the older built-in lost (blocks travel) still works.',
+      'Values this system’s tables can set for the rest of the day (set: { lost: true }), with what they block while they hold: travel, actions by id, or ways of travelling (mode.<id>). Tables read them the next day as yesterday.<id>. Without any, the older built-in lost (blocks travel) still works.',
     blocks: 'Blocks',
     blocksHelp:
-      'What can’t be done while the value holds: travel, camp, rest or an action’s id. The buttons stay visible, disabled, saying why.',
+      'What can’t be done while the value holds: travel, camp, rest, an action’s id or a way of travelling as mode.<id> (mode.horse). The buttons stay visible, disabled, saying why.',
     blocksNothing: 'nothing',
   },
   actions: {
