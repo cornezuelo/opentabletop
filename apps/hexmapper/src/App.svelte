@@ -1,7 +1,9 @@
 <script lang="ts">
   import MapCanvas from './components/MapCanvas.svelte'
   import SidePanel from './components/SidePanel.svelte'
-  import { Dialogs, Toasts } from '@open-tabletop/ui-kit'
+  import { Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import { t } from './lib/i18n/index.svelte'
+  import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
   import { startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
@@ -29,14 +31,22 @@
   })
 </script>
 
-<div class="layout">
+<div class="layout" class:hidden={editor.panelHidden}>
   <Toolbar />
   <main>
     {#if ready}
       <MapCanvas />
     {/if}
+    <button
+      class="fold"
+      aria-expanded={!editor.panelHidden}
+      aria-label={editor.panelHidden ? t('panel.show') : t('panel.hide')}
+      use:tooltip={editor.panelHidden ? t('panel.show') : t('panel.hide')}
+      onclick={() => (editor.panelHidden = !editor.panelHidden)}
+      ><span aria-hidden="true">{editor.panelHidden ? '‹' : '›'}</span></button
+    >
   </main>
-  <SidePanel />
+  {#if !editor.panelHidden}<SidePanel />{/if}
 </div>
 <Toasts />
 <Dialogs />
@@ -46,6 +56,69 @@
     display: grid;
     grid-template-columns: auto 1fr 300px;
     height: 100%;
+  }
+
+  .layout.hidden {
+    grid-template-columns: auto 1fr;
+  }
+
+  .fold {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    z-index: 2;
+    width: 18px;
+    height: 48px;
+    padding: 0;
+    font-size: 16px;
+    color: var(--text-muted);
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  .fold:hover {
+    color: var(--accent);
+  }
+
+  /* Narrow windows: the panel becomes a sheet under the map. */
+  @media (max-width: 760px) {
+    .layout {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+
+    .layout :global(> aside.panel) {
+      grid-column: 2;
+      max-height: 45vh;
+      border-top: 1px solid var(--panel-border);
+      border-left: none;
+    }
+
+    .layout :global(> nav),
+    .layout :global(> .toolbar) {
+      grid-row: 1 / span 2;
+    }
+
+    .fold {
+      top: auto;
+      right: 50%;
+      bottom: 0;
+      width: 48px;
+      height: 18px;
+      border: 1px solid var(--panel-border);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      transform: translateX(50%);
+    }
+
+    .fold span {
+      display: inline-block;
+      transform: rotate(90deg);
+    }
   }
 
   main {

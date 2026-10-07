@@ -93,6 +93,8 @@ class Editor {
   panelView = $state<'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'help' | 'layers'>(
     'tool',
   )
+  /** The side panel is folded away (more room for the map, e.g. on a phone). */
+  panelHidden = $state(false)
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)

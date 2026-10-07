@@ -59,6 +59,8 @@ export const en = {
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
   panel: {
+    hide: 'Hide the side panel (more room for the map)',
+    show: 'Show the side panel',
     help: 'Help',
     map: 'Map',
     terrain: 'Terrain',
