@@ -45,7 +45,16 @@ In order (agreed 2026-10-07; each step is groundwork for the next ones):
    - No lore: factions point to notes with `noteRef`.
    - Progress clocks filled by faction turns and tables (today by hand).
 4. **A frontier-space showcase pack** (Cowboy Bebop / Firefly style): ships, contracts, bounties, a space map with the sci-fi terrain set and icons, a ship that only travels space (`through`), its own calendar and values. Like the Grey Marches, it exercises every feature, with tests that play it.
-5. **More settings beyond fantasy** (user, 2026-10-07): bundled packs for other genres, each with its oracles and tables, a travel system where it fits and an example map using the Hexmapper's terrain sets and icons for them: modern (and urban), post-apocalyptic, and others worth having (horror, weird west, cyberpunk…). Our own content, or open-licensed games with attribution. Generic pieces any game of the genre can use go to Core-like packs per genre.
+5. **More settings beyond fantasy** (user, 2026-10-07; all agreed, order to decide). A **setting** is an open pack of our own content for playing in a genre with any game (not a game's rules: that's a system, see "More open systems"), modelled on the Grey Marches but smaller (only the Grey Marches and the frontier-space pack must exercise every feature):
+   - **Oracles and tables** in the genre's voice: encounters, places and points of interest, people (names, roles, motives), rumours, events, loot, complications.
+   - **A travel system** where travel fits: its terrains and speeds, its ways of travelling (car, ship, airship, rail… with `through`), its supplies (fuel, water, ammo…) with their bounds, values of the day, actions and triggered actions (e.g. radiation rising on `hex-enter`), checks bound to its tables.
+   - **Discovery tables** for its terrain set, a **calendar** and **weather** if it has its own.
+   - **An example map**, ready to play, with the Hexmapper's terrain set and icons for the genre; new terrains and icons where they're missing (ships and reefs, rails, ruins…).
+   - Names and descriptions in English and Spanish (`locales/`), a manual page in `docs/manual/*/packs/`, and a test that plays it.
+   - Generic pieces any game of the genre can use may go to a Core-like pack per genre.
+
+   Candidates: **modern / urban**; **post-apocalyptic** (wasteland, radiation; or zombies); **cyberpunk**; **weird west**; **horror** (1920s, Lovecraftian: investigation, sanity as a value); **pirates / age of sail** (islands, open sea, wind); **classic sword and sorcery** (deserts, ruins, city-states); **steampunk / Victorian** (airships, railways, industrial cities); **mythic** (Norse: fjords, long winters; Greek: islands, gods, oracles); **wuxia / eastern fantasy** (mountains, monasteries, sects as factions); **frontier exploration / colonial** (unknown land, scarce supplies, discovery).
+
 6. **Weather, the rest:** hex flowers (2d6 moves on a small map of weathers) besides Markov tables, and the world clock's own daily weather outside trips.
 7. **Per-package builds** before publishing the libraries to npm (today packages are consumed as TS source), and Web Components for non-Svelte hosts.
 
