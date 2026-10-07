@@ -80,6 +80,14 @@ In order (agreed 2026-10-07; each step is groundwork for the next ones):
   - **Cairn**, **Knave**, **Mausritter** (believed CC BY / CC BY-SA), the **Old-School Essentials SRD** (OGL), and free solo oracles such as the **One Page Solo Engine**.
   - The **Year Zero Engine SRD** and the **Worlds Without Number SRD** (see [Reference systems](#reference-systems)).
   - More free solo GM / oracle systems from itch.io and elsewhere.
+- **Mechanics from the reference systems** (user, 2026-10-07: to grow our own systems; [Reference systems](#reference-systems)). We don't copy their texts; the mechanisms are generic and go into the engines as data a system declares, then into the Grey Marches (full) and Core (simple):
+  - **Journey roles** (Forbidden Lands): each character takes a job for the day or the watch (lead the way, keep watch, forage, hunt, make camp) and rolls it with their own stats; needs characters (the PCs travelling as the party).
+  - **A daily condition roll** (Ryuutama): how each traveller feels today, which helps or hinders the day's checks; difficulty as **terrain + weather** from tables.
+  - **Journey events** (The One Ring 2e): a journey's length and the party's roles decide how many events happen and of what kind; arriving tired or well.
+  - **An event die** (Errant): one roll per turn (travel, exploration, downtime) that says whether something happens: an encounter, a sign, a resource running low, the clock advancing.
+  - **Faction turns and tags** (Worlds / Stars Without Number): factions with assets acting each turn; tags that give a place or a faction its hooks (for the factions step and the settings).
+  - **Progress tracks** (Ironsworn): journeys and vows as tracks filled by moves, like our progress clocks; oracles answering yes/no with odds.
+  - **Strongholds** (Forbidden Lands): a base the party builds and keeps (sites on the map with values, upkeep and events over time).
 
 **Maps in depth**
 
