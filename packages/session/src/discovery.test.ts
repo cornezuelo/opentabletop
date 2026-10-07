@@ -173,3 +173,61 @@ describe('context suggestions', () => {
     expect(contextSuggestions(registry, {}, { reads: true })).not.toHaveProperty(['poi'])
   })
 })
+
+describe('discovering from the land around', () => {
+  const { registry: around } = loadPacks([
+    { path: 'y/pack.yaml', content: 'id: y\nversion: 0.1.0\nlocale: en\n' },
+    {
+      path: 'y/t.yaml',
+      content: `
+kind: travel-rules
+day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8 }
+terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 80 } }
+---
+kind: bindings
+on: {}
+discover: { terrain: { resolve: grow }, reveal: neighbors }
+---
+kind: table
+id: grow
+roll: 1d6
+entries:
+  - { range: 1-6, result: '{{common}} ({{commonCount}} of {{aroundCount}})', set: { terrain: '{{common}}' }, when: { around.lake: { gte: 2 } } }
+  - { range: 1-6, result: 'like here', set: { terrain: '{{terrain}}' } }
+`,
+    },
+  ])
+  const sys = travelSystems(around).systems.find((s) => s.id === 'y')!
+
+  it('sees every known neighbour of the hex being decided', () => {
+    // "c" is empty; around it two lakes and the forest the party stands on.
+    const cells: Record<string, { terrain?: string; tags: string[] }> = {
+      a: { terrain: 'lake', tags: [] },
+      b: { terrain: 'lake', tags: [] },
+      c: { tags: [] },
+      d: { terrain: 'forest', tags: [] },
+    }
+    const ring: Record<string, string[]> = { a: ['c'], b: ['c'], c: ['a', 'b', 'd'], d: ['c'] }
+    const world: TravelWorld = {
+      hexKm: 10,
+      cell: (hex) => cells[hex] ?? null,
+      neighbors: (hex) => ring[hex] ?? [],
+      distance: (x, y) => (x === y ? 0 : 1),
+      edges: () => [],
+    }
+    const { session } = startTrip({ system: sys, location: 'd' })
+    const step = stepTrip(
+      {
+        system: sys,
+        world,
+        oracle: createOracleEngine({ registry: around, random: seeded(1) }),
+        discover: 'neighbors',
+      },
+      session,
+      { type: 'setDestination', hex: 'c' },
+    )
+    expect(step.discovered.c).toEqual({ terrain: 'lake' })
+  })
+})

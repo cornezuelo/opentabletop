@@ -1,8 +1,10 @@
 next-terrain:
   name: La tierra de delante
-  description: Decide un hex vacío a partir de la tierra que pisas. Casi siempre más de lo mismo, a veces algo parecido, de vez en cuando cualquier cosa.
+  description: Decide un hex vacío a partir de la tierra que lo rodea. El agua se junta, la tierra más común sigue, a veces algo parecido, de vez en cuando cualquier cosa.
   entries:
-    same: La misma tierra
+    lake: El lago sigue
+    sea: El mar sigue
+    same: 'La tierra de alrededor sigue ({{commonCount}} de {{aroundCount}} hexes)'
 open-land:
   name: Tierra abierta
   entries:

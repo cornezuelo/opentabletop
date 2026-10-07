@@ -41,7 +41,7 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 
 ## Descubrir el mapa
 
-- La tabla de **terreno** ve el hex donde está el grupo (su terreno, etiquetas, valores y región), más `hex` (el hex que se decide) y `from` (desde el que se ve).
+- La tabla de **terreno** ve el hex donde está el grupo (su terreno, etiquetas, valores y región), más `hex` (el hex que se decide), `from` (desde el que se ve) y la tierra alrededor del hex que se decide: `around` cuenta los terrenos de sus vecinos conocidos (`around.lake: 2`), `aroundCount` cuántos se conocen, `common` el terreno más frecuente (en un empate gana el del hex desde el que se ve) y `commonCount` cuántos lo tienen.
 - La tabla de **contenido** ve el hex al que se entra.
 - Las dos ven las características del grupo, `party` y los valores del día.
 

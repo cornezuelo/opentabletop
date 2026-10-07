@@ -41,7 +41,7 @@ Points of interest keep their values in the map and its file, but tables don't r
 
 ## Discovering the map
 
-- The **terrain** table sees the hex the party is on (its terrain, tags, values and region), plus `hex` (the hex being decided) and `from` (the one it's seen from).
+- The **terrain** table sees the hex the party is on (its terrain, tags, values and region), plus `hex` (the hex being decided), `from` (the one it's seen from) and the land around the hex being decided: `around` counts its known neighbours' terrains (`around.lake: 2`), `aroundCount` how many are known, `common` the most frequent terrain (a tie goes to the one it's seen from) and `commonCount` how many have it.
 - The **contents** table sees the hex being entered.
 - Both see the party stats, `party` and today's values.
 

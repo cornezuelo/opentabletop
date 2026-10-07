@@ -2,20 +2,38 @@
 # "Discover the map as you travel"). The bindings name these two tables under `discover`;
 # see travel.yaml. The example map leaves its east unpainted for this.
 
-# The terrain of an empty hex, seen from where you stand: `terrain` in the context is the
-# terrain you're on. `set: { terrain: '{{terrain}}' }` copies it: the same land goes on.
+# The terrain of an empty hex, seen from where you stand. The context has `terrain` (the
+# land you're on) and the land around the hex being decided: `around` counts its known
+# neighbours' terrains (around.lake: 2) and `common` is the most frequent one. So lakes,
+# forests and ranges grow together instead of a patchwork.
 kind: table
 id: next-terrain
 name: The land ahead
-description: Decides an empty hex from the land you stand on. Mostly more of the same, sometimes its kin, now and then anything.
+description: Decides an empty hex from the land around it. Water gathers, the common land goes on, sometimes its kin, now and then anything.
 roll: 1d6
 entries:
+  # Water gathers: a hex between two lakes (or two seas) is mostly water too.
+  - {
+      id: lake,
+      range: 1-4,
+      when: { around.lake: { gte: 2 } },
+      result: The lake goes on,
+      set: { terrain: lake },
+    }
+  - {
+      id: sea,
+      range: 1-4,
+      when: { around.sea: { gte: 2 } },
+      result: The sea goes on,
+      set: { terrain: sea },
+    }
+  # The commonest land around goes on ({{common}}; a tie goes to the land you're on).
   - {
       id: same,
       range: 1-3,
-      when: { terrain: { exists: true } },
-      result: The same land,
-      set: { terrain: '{{terrain}}' },
+      when: { common: { exists: true } },
+      result: 'The land around goes on ({{commonCount}} of {{aroundCount}} hexes)',
+      set: { terrain: '{{common}}' },
     }
   - {
       id: open,

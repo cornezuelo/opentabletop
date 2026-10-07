@@ -118,6 +118,28 @@ export function createDiscovery(options: {
   const record = (hex: string, patch: DiscoveredHex) =>
     found.set(hex, { ...found.get(hex), ...patch })
 
+  /**
+   * The known land around a hex being decided, so lakes, forests and ranges grow together:
+   * `around` counts its neighbours' terrains ({ forest: 3, lake: 1 }), `common` is the most
+   * frequent one (a tie goes to the terrain it's seen from), with `commonCount`.
+   */
+  function surroundings(hex: string, here: { terrain?: unknown }): Record<string, unknown> {
+    const around: Record<string, number> = {}
+    for (const next of base.neighbors(hex)) {
+      const t = world.cell(next)?.terrain
+      if (typeof t === 'string' && t) around[t] = (around[t] ?? 0) + 1
+    }
+    const counts = Object.entries(around)
+    const best = Math.max(0, ...counts.map(([, n]) => n))
+    const tied = counts.filter(([, n]) => n === best).map(([t]) => t)
+    const common = tied.includes(here.terrain as string) ? (here.terrain as string) : tied.sort()[0]
+    return {
+      around,
+      aroundCount: counts.reduce((sum, [, n]) => sum + n, 0),
+      ...(common && { common, commonCount: best }),
+    }
+  }
+
   type Context = Record<string, unknown>
   type Roll = (
     binding: DiscoverBinding,
@@ -128,7 +150,7 @@ export function createDiscovery(options: {
   function terrain(roll: Roll, hex: string, from: string): boolean {
     if (!discover.terrain || !isEmpty(world, hex)) return false
     const here = world.cell(from) ?? {}
-    const { value } = roll(discover.terrain, { ...here, from, hex })
+    const { value } = roll(discover.terrain, { ...here, from, hex, ...surroundings(hex, here) })
     if (typeof value.terrain !== 'string' || !value.terrain) return false
     record(hex, {
       terrain: value.terrain,
