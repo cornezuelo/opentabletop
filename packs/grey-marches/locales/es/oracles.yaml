@@ -1,6 +1,6 @@
 gates:
   name: ¿Nos dejarán entrar?
-  description: A las puertas de Vado Ceniza o de Fuerte Keld. Cómo llegáis cambia la respuesta.
+  description: 'A las puertas de Vado Ceniza o de Fuerte Keld: cómo llegáis cambia la respuesta. Enseña: un oráculo con una entrada (cómo llegáis), una variante con sus propios dados, un valor del icono del lugar en el mapa ({{icon.guards}}: 0 en Vado Ceniza, 2 en Fuerte Keld; selecciona el hex antes de tirar) y respuestas que tiran otra tabla.'
   inputs:
     arrival:
       label: Llegáis como
@@ -11,6 +11,7 @@ gates:
     no: No. Aparecen arcos en la muralla
 gate-news:
   name: Noticias en la puerta
+  description: 'Lo que oís en la puerta. Enseña: una fiesta del calendario como condición (`holidays: midsummer`: solo entonces, y entonces casi seguro), dados en el texto ({{2d6}}) y una cascada a un generador.'
   entries:
     midsummer: todo el pueblo baila por Pleno Verano y las puertas están abiertas
     rumour: 'el guardia os susurra un rumor: {{result}}'
@@ -18,13 +19,14 @@ gate-news:
     feast: es día de fiesta; la posada está llena
 ferry:
   name: La barca
+  description: 'La barca de Brenna sobre el Lago Salado. Enseña: los valores de un token ({{token.name}}, {{token.fare}}: selecciónala en el mapa y tira desde el panel Oracle), condiciones `exists` y una entrada para cuando no está seleccionada.'
   entries:
     calm: '{{token.name}} os cruza el Lago Salado por {{token.fare}} monedas de plata cada uno'
     secret: '{{token.name}} rechaza las monedas: quiere un secreto a cambio'
     empty: 'El embarcadero está vacío: selecciona a la barquera para hablar con ella'
 inn:
   name: En El Hurón Mojado
-  description: La posada de Ashford. Lo que gastas cambia la noche.
+  description: 'La posada de Vado Ceniza: lo que gastas cambia la noche. Enseña: valores del grupo en la tirada ({{party.stats.morale}}) y en condiciones (party.resources.food), entradas para cuando no hay viaje (`party: { exists: false }`), maxOccurrences, cascadas a tablas y generadores, y cambios en el grupo (comida, moral, fatiga y una característica que nadie declaró: hirelings), que se aplican con Aplicar al viaje.'
   inputs:
     spend:
       label: Gastas

@@ -6,7 +6,7 @@
 kind: table
 id: weather
 name: The Marches' weather
-description: Rolls the season's table on trips.
+description: "Today's weather by the season, with no memory, for rolls by hand (trips use The Marches' sky, where today follows yesterday). Shows: a table id built from the context (`weather-{{season}}`), and a fallback when there is no season."
 roll: 1d6
 entries:
   - { id: season, range: 1-6, when: { season: { exists: true } }, table: 'weather-{{season}}' }
@@ -16,6 +16,7 @@ entries:
 kind: table
 id: weather-spring
 name: Spring in the Marches
+description: 'Spring weather. Shows: 2d6 (the middle is common, the ends rare) and day values for later checks (rain: fordModifier −1; a storm: fordImpossible).'
 roll: 2d6
 entries:
   - {
@@ -32,6 +33,7 @@ entries:
 kind: table
 id: weather-summer
 name: Summer in the Marches
+description: 'Summer weather. Shows: weights instead of dice.'
 entries:
   - { id: clear, weight: 4, result: Hot and clear, set: { weather: clear } }
   - { id: grey, weight: 2, result: Muggy and grey, set: { weather: grey } }
@@ -46,6 +48,7 @@ entries:
 kind: table
 id: weather-autumn
 name: Autumn in the Marches
+description: 'Autumn weather. Shows: Fate dice (4dF: from −4 to +4, mostly near 0) and negative ranges.'
 roll: 4dF
 entries:
   - {
@@ -61,6 +64,7 @@ entries:
 kind: table
 id: weather-winter
 name: Winter in the Marches
+description: 'Winter weather. Shows: a day value that helps (hard frost: fordModifier +1, the rivers freeze).'
 roll: 1d6
 entries:
   - { id: blizzard, range: 1, result: 'Blizzard: nobody travels', set: { weather: storm } }

@@ -2,7 +2,7 @@
 
 > El viejo reino acaba donde se acaba el camino. Pasado Vado Ceniza, el Camino de Keld cruza el río por un puente de peaje y sube hasta Fuerte Keld, cuya guarnición lleva un año sin cobrar. Al norte, el Bosque Gris guarda sus secretos: luces entre los árboles por la noche y algo grande dormido bajo las raíces. Al sur, las Colinas Huecas están llenas de bandidos, y el Lago Salado se extiende llano y gris; solo lo cruza la barca de Brenna. Al este de las colinas, nadie ha dibujado el mapa.
 
-**Las Marcas Grises** es una pequeña frontera para jugar y para aprender. Es un pack incluido (MIT) con su propio **sistema de viaje** y un **mapa de ejemplo**, y entre los dos usan todo lo que sabe hacer OpenTabletop. Lee sus ficheros en la aplicación Oracle como ejemplos resueltos: cada uno tiene comentarios que dicen qué enseña.
+**Las Marcas Grises** es una pequeña frontera para jugar y para aprender. Es un pack incluido (MIT) con su propio **sistema de viaje** y un **mapa de ejemplo**, y entre los dos usan todo lo que sabe hacer OpenTabletop. Lee sus ficheros en la aplicación Oracle como ejemplos resueltos: cada uno tiene comentarios que dicen qué enseña, y cada tabla, oráculo, generador y mazo dice en su descripción para qué sirve y qué funciones enseña («Enseña: dados d66…»), así que la lista del Oracle sirve también de visita guiada.
 
 Los nombres del mapa y del pack están en inglés, que es la lengua base del pack (Ashford es Vado Ceniza, el Saltmere es el Lago Salado…); los textos de las tablas tienen traducción al español.
 

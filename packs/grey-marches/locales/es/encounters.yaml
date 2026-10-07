@@ -1,6 +1,6 @@
 encounter:
   name: ¿Quién va?
-  description: Depende del terreno, la región, el peligro del hex y la hora del día.
+  description: 'A quién os encontráis: depende del terreno, la región, el peligro del hex y la hora del día. Enseña: una tabla para dos comprobaciones (de día y de noche, con el contexto `timeOfDay` de los bindings), condiciones sobre terreno, región, etiquetas, peligro, estación y lunas (`moons.ember: full`), `once` (la Sierpe, solo con peligro 5 en el corazón del Bosque Gris), cascadas a Reacción y a un generador, y `set` de un valor para la tabla siguiente (reactionModifier) y de características del grupo (moral).'
   entries:
     hunt: 'Cuernos en la oscuridad: la Cacería Ascua cabalga bajo la luna llena; están {{result}}'
     wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
@@ -12,6 +12,7 @@ encounter:
     tracks: Solo huellas, y la sensación de que os vigilan
 reaction:
   name: Reacción
+  description: 'Cómo os recibe alguien, de hostil a deseoso de ayudar. Enseña: una característica del grupo en la tirada ({{charisma}}), un modificador que pone la entrada que la tira (reactionModifier), ventaja y rangos negativos.'
   entries:
     hostile: hostiles
     wary: recelosos
@@ -20,16 +21,18 @@ reaction:
     helpful: deseosos de ayudar
 npc:
   name: Alguien en el camino
-  description: Un nombre, un oficio, qué quiere y su fuerza.
+  description: 'Un nombre, un oficio, qué quiere y su fuerza. Enseña: un generador: campos de tablas y de dados (4d6kh3: las 3 mejores) y una plantilla que los une.'
   template: '{{name}}, {{role}} que {{want}} (fuerza {{might}})'
 rumour:
   name: Un rumor
-  description: Quién lo cuenta y qué dice.
+  description: 'Quién lo cuenta y qué dice. Enseña: un generador dentro de otro ({{npc.name}} y {{npc.role}} leen los campos de Alguien en el camino).'
   template: '{{npc.name}}, {{npc.role}}, jura que {{what}}.'
 npc-names:
   name: Nombres de las Marcas
+  description: 'Nombres de la gente de las Marcas. Enseña: una tabla que usan muchas otras (Alguien en el camino, la posada, Deserción).'
 npc-roles:
   name: Oficios
+  description: 'Quién es alguien. Enseña: pesos (buhoneros, peregrinos y cazadores son comunes; desertores y brujas, raros).'
   entries:
     pedlar: buhonero
     pilgrim: peregrino
@@ -38,6 +41,7 @@ npc-roles:
     witch: bruja de los setos
 npc-wants:
   name: Deseos
+  description: 'Qué quiere alguien. Una tabla sencilla para el generador Alguien en el camino.'
   entries:
     escort: busca escolta hasta Fuerte Keld
     trade: tiene algo que cambiar
@@ -45,6 +49,7 @@ npc-wants:
     news: quiere noticias del sur
 rumours:
   name: Rumores (d66)
+  description: 'Rumores que se oyen en el camino y en la posada. Enseña: dados d66 (dos dados leídos como decenas y unidades, 11–66) con rangos como 11-16.'
   entries:
     wyrm: una sierpe duerme bajo el Bosque Gris
     salt: el Lago Salado fue una ciudad

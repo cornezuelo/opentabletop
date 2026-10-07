@@ -3,7 +3,7 @@
 kind: deck
 id: omens
 name: Omens of the road
-description: Draw one at each dawn on the road. A drawn card is gone until the deck runs out.
+description: "Draw one at each dawn on the road. A drawn card is gone until the deck runs out. Shows: a deck: copies of a card (count), reshuffling when empty, a card that rolls a table, one that sets values (food), and another pack's table through an alias (twist → core/twists)."
 reshuffle: when-empty
 cards:
   - { id: crows, result: Crows follow you all day, count: 3 }

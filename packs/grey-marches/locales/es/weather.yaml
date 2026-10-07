@@ -1,9 +1,10 @@
 weather:
   name: El clima de las Marcas
-  description: Tira la tabla de la estación en los viajes.
+  description: 'El clima de hoy según la estación, sin memoria, para tiradas a mano (los viajes usan El cielo de las Marcas, donde hoy sigue a ayer). Enseña: un id de tabla construido con el contexto (`weather-{{season}}`) y una respuesta por defecto cuando no hay estación.'
   entries: { grey: Cielo gris }
 weather-spring:
   name: Primavera en las Marcas
+  description: 'El clima de primavera. Enseña: 2d6 (el centro es común, los extremos raros) y valores del día para comprobaciones posteriores (lluvia: fordModifier −1; tormenta: fordImpossible).'
   entries:
     storm: 'Tormenta: nadie viaja'
     rain: Lluvia constante
@@ -11,12 +12,14 @@ weather-spring:
     bright: Luminoso y despejado
 weather-summer:
   name: Verano en las Marcas
+  description: 'El clima de verano. Enseña: pesos en vez de dados.'
   entries:
     clear: Calor y cielo despejado
     grey: Bochorno gris
     storm: 'Tormenta de verano: nadie viaja'
 weather-autumn:
   name: Otoño en las Marcas
+  description: 'El clima de otoño. Enseña: dados Fate (4dF: de −4 a +4, casi siempre cerca de 0) y rangos negativos.'
   entries:
     storm: 'Vendaval desde el lago: nadie viaja'
     fog: Niebla espesa
@@ -24,6 +27,7 @@ weather-autumn:
     clear: Fresco y despejado
 weather-winter:
   name: Invierno en las Marcas
+  description: 'El clima de invierno. Enseña: un valor del día que ayuda (helada: fordModifier +1, los ríos se hielan).'
   entries:
     blizzard: 'Ventisca: nadie viaja'
     snow: Nieva

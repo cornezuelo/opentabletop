@@ -5,7 +5,7 @@
 kind: table
 id: getting-lost
 name: Do we get lost?
-description: 'At dawn, off roads and rivers. The party’s Navigation helps; fog doesn’t.'
+description: "At dawn, off roads and rivers. The party's Navigation helps; fog doesn't. Shows: a travel check (bound to NAVIGATION_CHECK_REQUIRED), a party stat in the roll ({{navigation}}), `set: { lost: true }` (no more travel today), and conditions on the weather and on being outside any region (`exists: false`)."
 roll: '1d6 + {{navigation}}'
 entries:
   - {
@@ -36,6 +36,7 @@ entries:
 kind: table
 id: forage
 name: Foraging
+description: "What you find when you forage for food (the Forage for food action, in woods, fields, heath and marsh). Shows: a check at one of the system's own actions, a stat and advantage in the roll, dice inside a value (`food: '{{1d3+1}}'`) read back by the text ({{resources.food}}), and `set: { resources }` (the food gained)."
 roll: '1d6 + {{survival}}'
 advantage: true
 entries:
@@ -52,6 +53,7 @@ entries:
 kind: table
 id: toll
 name: The toll
+description: "Keld Bridge's toll, arriving by road. Shows: a check with all / tags / edges, and `set: { resources }` with a negative number (food spent)."
 entries:
   - {
       id: pay,
@@ -65,6 +67,7 @@ entries:
 kind: table
 id: shrine
 name: At the shrine
+description: 'A wayside shrine. Shows: fatigue going down (`fatigue: -2`), a party stat going up (morale), and `once` (the blessing comes a single time).'
 entries:
   - {
       id: blessing,
@@ -85,7 +88,7 @@ entries:
 kind: oracle
 id: ford
 name: Crossing the ford
-description: Does the crossing go well? The water decides; the party’s Survival helps.
+description: "Does the crossing go well? The water decides; the party's Survival helps. Shows: an oracle whose input comes from the bindings (`odds: even`), variants with their own dice, day values set by the weather ({{fordModifier}}, fordImpossible), and `set: { lost: true }`."
 inputs:
   odds:
     label: The water
@@ -132,6 +135,7 @@ variants:
 kind: table
 id: ford-mishap
 name: Ford mishap
+description: "What the river takes. Shows: `set` on supplies (food, fodder) and fatigue, rolled from the Ford's answers."
 entries:
   - { id: food, result: a pack of food is lost, set: { resources: { food: -1 } } }
   - { id: tired, result: you drag yourselves out exhausted, set: { fatigue: 1 } }
@@ -143,7 +147,7 @@ entries:
 kind: table
 id: hunger
 name: Hunger
-description: 'Camping with no food. The lower the morale, the worse it goes.'
+description: "Camping with no food. The lower the morale, the worse it goes. Shows: a camp check on the party's supplies (party.resources.food under 1), morale in the roll and in a condition, maxOccurrences with `onExhausted: next` (after the second desertion, the next entry answers), and a stat going down (hirelings)."
 roll: '1d6 + {{party.stats.morale}}'
 onExhausted: next
 entries:
@@ -173,6 +177,7 @@ entries:
 kind: table
 id: desertion
 name: Desertion
+description: 'Who leaves in the night, and what they take. Shows: cascades into Names of the Marches, and `once` (the note comes a single time).'
 entries:
   - { id: food, result: '{{result}} slips away with the last of the bread', table: npc-names }
   - { id: torch, result: '{{result}} is gone by dawn, and the torches too', table: npc-names }

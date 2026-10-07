@@ -2,7 +2,7 @@
 
 > The old kingdom ends where the road gives out. Past Ashford, the Keld Road crosses the river on a toll bridge and climbs to Fort Keld, whose garrison hasn't been paid in a year. North, the Greywood keeps its own counsel — lights between the trees at night, and something large asleep under the roots. South, the Hollow Hills ring with bandits, and the Saltmere lies flat and grey, crossed only by Brenna's ferry. East of the hills, nobody has drawn the map.
 
-**The Grey Marches** is a small frontier to play and to learn from. It's a bundled pack (MIT) with its own **travel system** and an **example map**, and between them they use every feature of OpenTabletop. Read its files in the Oracle app as worked examples: each one has comments saying what it shows.
+**The Grey Marches** is a small frontier to play and to learn from. It's a bundled pack (MIT) with its own **travel system** and an **example map**, and between them they use every feature of OpenTabletop. Read its files in the Oracle app as worked examples: each one has comments saying what it shows, and every table, oracle, generator and deck says in its description what it is for and which features it shows ("Shows: d66 dice…"), so the Oracle's list doubles as a tour.
 
 ## Playing it
 
