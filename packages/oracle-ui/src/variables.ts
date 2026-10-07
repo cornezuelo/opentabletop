@@ -93,6 +93,8 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
     [...used]
       // Dotted names (token.fare, who.text) are produced when their root is.
       .filter(([name]) => !produced.has(name.split('.')[0]))
+      // A whole object (party) is asked for through its values (party.stats.morale).
+      .filter(([name]) => ![...used.keys()].some((other) => other.startsWith(`${name}.`)))
       .map(([name, values]) => ({ name, suggestions: [...values].sort() }))
       .sort((a, b) => a.name.localeCompare(b.name))
   )

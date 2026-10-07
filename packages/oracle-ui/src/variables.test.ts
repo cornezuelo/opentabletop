@@ -24,7 +24,7 @@ id: encounter
 fields:
   who: { table: reaction }
   count: { roll: 1d6 }
-  fare: { value: '{{token.fare}}' }
+  fare: { value: '{{token.fare}}', when: { token: { exists: true } } }
   extra: { value: '{{1d4}}' }
 template: '{{count}} {{who.text}}'
 `,
