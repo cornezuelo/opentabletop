@@ -55,8 +55,12 @@ In order (agreed 2026-10-07; each step is groundwork for the next ones):
 
    Candidates: **modern / urban**; **post-apocalyptic** (wasteland, radiation; or zombies); **cyberpunk**; **weird west**; **horror** (1920s, Lovecraftian: investigation, sanity as a value); **pirates / age of sail** (islands, open sea, wind); **classic sword and sorcery** (deserts, ruins, city-states); **steampunk / Victorian** (airships, railways, industrial cities); **mythic** (Norse: fjords, long winters; Greek: islands, gods, oracles); **wuxia / eastern fantasy** (mountains, monasteries, sects as factions); **frontier exploration / colonial** (unknown land, scarce supplies, discovery).
 
-6. **Weather, the rest:** hex flowers (2d6 moves on a small map of weathers) besides Markov tables, and the world clock's own daily weather outside trips.
-7. **Per-package builds** before publishing the libraries to npm (today packages are consumed as TS source), and Web Components for non-Svelte hosts.
+6. **Our own system** (user, 2026-10-07; after the settings): a core of our own, like Free League's Year Zero Engine, from which specialised subsystems come per genre (as Free League does), designed from the start for what the apps do together: the map, oracles, travel, the world clock, factions and what comes later. The Grey Marches stay the showcase where every system and feature works together at full power. Research so far (2026-10-07):
+   - Closest in spirit, to learn from (not to copy): **Forbidden Lands** (YZE; journeys with roles per character: lead the way, keep watch, forage, hunt, make camp; strongholds), **Ryuutama** (a daily loop: condition, travel, direction and camping checks against terrain + weather), **The One Ring 2e** (journeys and their events), **Worlds / Stars Without Number** (faction turns and sandbox tools; free SRD under CC0), **Errant** (procedures for travel, exploration and downtime turns with an event die; its own licence), **Ironsworn / Starforged** (oracles and progress).
+   - Usable as a base or reference under their licences: the **Year Zero Engine SRD** (Free League's Free Tabletop License: royalty-free, commercial use allowed, with notice and conditions; it now includes travel, vehicles and chases), the **WWN SRD** (CC0). Check each licence's conditions before using anything.
+   - None of them covers everything the apps join up (a living map with discovery, oracles bound to travel, a world clock, faction turns): that's the gap our own system fills.
+7. **Weather, the rest:** hex flowers (2d6 moves on a small map of weathers) besides Markov tables, and the world clock's own daily weather outside trips.
+8. **Per-package builds** before publishing the libraries to npm (today packages are consumed as TS source), and Web Components for non-Svelte hosts.
 
 **Characters and the campaign record**
 
