@@ -51,7 +51,18 @@ export const en = {
     travelHex: 'Travel to the next hex of the route only.',
     camp: 'End the day: the system’s night checks, the day’s supplies are eaten and you wake up at dawn.',
     rest: 'A short pause: time passes without marching (e.g. to wait out bad weather).',
+    actionUntil: 'Lasts until {moment}.',
+    dawn: 'dawn',
+    nightfall: 'nightfall',
   },
+  /** Why a button is disabled. */
+  blocked: {
+    value: '{name}: not possible for the rest of the day.',
+    once: 'Once a day: already done today.',
+    condition: 'Not possible here and now (the system’s rule for it).',
+  },
+  /** Names of the older built-in values of the day (systems name their own). */
+  values: { lost: 'Lost' },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Landmark',
     WEATHER_CHECK_REQUIRED: vocabulary.en.terms.weather,
@@ -92,6 +103,7 @@ export const en = {
     nightfall: 'Night falls. Camp to continue tomorrow.',
     'day-limit': 'Enough marching for today. Camp to continue tomorrow.',
     lost: 'Lost: no more travel today',
+    value: '{name}: no more travel today',
     weather: 'The weather prevents travel',
     blocked: 'The way is blocked',
     'no-route': 'No destination set',

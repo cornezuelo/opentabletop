@@ -58,4 +58,11 @@ export const genericTravelRules: TravelRules = {
   modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 50 } },
   resources: { food: { perDay: 1 } },
   checks: [],
+  // No values of the day: nothing here blocks travel.
+  values: {},
+  // Camp sleeps until dawn; a rest is an hour without marching.
+  actions: {
+    camp: { do: [{ time: 'dawn' }] },
+    rest: { do: [{ time: 60 }] },
+  },
 }

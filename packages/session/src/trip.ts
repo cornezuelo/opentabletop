@@ -18,6 +18,7 @@ import {
   type TravelAction,
   type TravelRules,
   type TravelWorld,
+  type Unavailable,
 } from '@open-tabletop/travel-engine'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
 import {
@@ -27,6 +28,7 @@ import {
   type Bindings,
   type JournalEntry,
   type SessionState,
+  tripContext,
 } from './index'
 
 /** A travel system: rules (and optional bindings) from a pack, or the generic rules. */
@@ -300,4 +302,30 @@ export function stepTrip(
     weather: system.weather,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
+}
+
+/** A world that knows nothing (for questions that don't need the map). */
+const NO_WORLD: TravelWorld = {
+  hexKm: 1,
+  cell: () => null,
+  neighbors: () => [],
+  distance: () => 0,
+  edges: () => [],
+}
+
+/**
+ * What the party can't do now and why, for the trip's buttons: `travel` and each action
+ * by id (absent: available). A declared value blocks (`lost`), an action was done today,
+ * or its `when` / `unless` (which see the map, the party and today's values).
+ */
+export function tripAvailability(
+  options: { system: TravelSystem; world?: TravelWorld },
+  session: SessionState,
+): Record<string, Unavailable> {
+  const engine = createTravelEngine({
+    world: options.world ?? NO_WORLD,
+    rules: options.system.rules,
+    calendar: calendarOf(options.system),
+  })
+  return engine.availability(session.travel, tripContext(session, {}))
 }

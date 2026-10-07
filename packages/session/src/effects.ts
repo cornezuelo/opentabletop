@@ -1,4 +1,4 @@
-import type { TravelState } from '@open-tabletop/travel-engine'
+import { upgradeTravelState, type TravelState } from '@open-tabletop/travel-engine'
 
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
@@ -111,4 +111,13 @@ export function migrateFatigue<S extends { stats: Record<string, number>; travel
         ? { ...session.stats, fatigue }
         : session.stats,
   }
+}
+
+/**
+ * Older saved trips had being lost built in (`lostToday`, `lostYesterday`); now it's a
+ * value the system declares, kept as `today.lost` / `yesterday.lost` (returns a copy).
+ */
+export function migrateLost<S extends { travel: TravelState }>(session: S): S {
+  const travel = upgradeTravelState(session.travel)
+  return travel === session.travel ? session : { ...session, travel }
 }

@@ -7,6 +7,7 @@
   import { go } from '../lib/nav.svelte'
   import { library, systems } from '../lib/packs.svelte'
   import { terrainName } from '../lib/terrains'
+  import { wayWorld } from '../lib/way'
   import { trip, type Saved } from '../lib/trip.svelte'
   import { defaultCalendar } from '@open-tabletop/time'
   import { InfoTip } from '@open-tabletop/ui-kit'
@@ -120,6 +121,7 @@
           locale={getLocale()}
           {hexLabel}
           {terrainName}
+          world={wayWorld(trip.saved.way, trip.saved.hexKm)}
           title={tripLabel(trip.saved)}
           nameOf={texts.nameOf}
           destinationHint={t('play.destinationHint')}

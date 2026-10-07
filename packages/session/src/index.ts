@@ -2,6 +2,7 @@ import { mathRandom, type RandomSource } from '@open-tabletop/random'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
   emptyState,
+  mergeEffects,
   OracleError,
   type OracleEngine,
   type OracleState,
@@ -13,13 +14,16 @@ import {
   type Discovery,
   type DiscoveryState,
 } from './discovery'
-import type {
-  CheckOutcome,
-  TravelAction,
-  TravelEngine,
-  TravelEvent,
-  TravelRules,
-  TravelState,
+import {
+  declaredValues,
+  upgradeTravelState,
+  type CheckOutcome,
+  type DayValue,
+  type TravelAction,
+  type TravelEngine,
+  type TravelEvent,
+  type TravelRules,
+  type TravelState,
 } from '@open-tabletop/travel-engine'
 
 /** Text in one or several languages: "Presence" or { en: Presence, es: Presencia }. */
@@ -168,7 +172,8 @@ export function tripContext(
   facts: Record<string, unknown>,
   extra: Record<string, unknown> = {},
 ): Record<string, unknown> {
-  const yesterday = { ...s.yesterday, lost: !!s.travel.lostYesterday }
+  // The day before's values: the session's, then the ones the system declares (lost…).
+  const yesterday = { ...s.yesterday, ...upgradeTravelState(s.travel).yesterday }
   return { ...s.stats, ...s.dayVars, ...facts, party: partyValues(s), yesterday, ...extra }
 }
 
@@ -205,6 +210,8 @@ export interface Session {
 }
 
 const QUIET_STOPS = new Set(['check', 'destination', 'hex'])
+/** Journal lines an action's step effects are added to (the action's own line). */
+const ACTION_LINES = new Set(['ACTION_TAKEN', 'RESTED', 'CAMP_STARTED'])
 const JOURNALED: TravelEvent['type'][] = [
   'DAY_STARTED',
   'HEX_ENTERED',
@@ -237,12 +244,13 @@ export function createSession(options: {
   weather?: Record<string, WeatherModel>
   /** For the weather (tables use the Oracle's own). */
   random?: RandomSource
-  /** The system's travel rules: the effects of its actions (`actions.forage.effects`). */
+  /** The system's travel rules: the values it declares (lost…), set by results. */
   rules?: TravelRules
 }): Session {
   const random = options.random ?? mathRandom()
   const now = options.now ?? (() => new Date().toISOString())
   const discovery = options.discovery
+  const declared = options.rules ? declaredValues(options.rules) : undefined
   // Hex by hex, a long trip takes many steps.
   const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
 
@@ -310,7 +318,8 @@ export function createSession(options: {
       for (let i = 0; i <= maxAuto; i++) {
         const dayBefore = s.travel.day
         const from = s.travel.location
-        const result = options.travel.apply(s.travel, act)
+        // Conditions on actions and checks also see the party and today's values.
+        const result = options.travel.apply(s.travel, act, tripContext(s, {}))
         s.travel = result.state
         if (s.travel.day !== dayBefore) {
           // Today's values become yesterday's (none if more than a day went by).
@@ -321,28 +330,19 @@ export function createSession(options: {
         let found = false
         for (const event of result.events) {
           journalEvent(s, entries, event)
-          // An action's or a rest's effects, as the system declares them.
-          const own =
-            event.type === 'ACTION_TAKEN'
-              ? options.rules?.actions?.[event.action]
-              : event.type === 'RESTED'
-                ? options.rules?.actions?.rest
-                : undefined
-          // The older `fatigue: n` (recovered) is an effect on the fatigue stat.
-          const ownEffects =
-            own && typeof own === 'object'
-              ? {
-                  ...('fatigue' in own && own.fatigue
-                    ? { 'party.stats.fatigue': -own.fatigue }
-                    : {}),
-                  ...('effects' in own ? own.effects : {}),
-                }
-              : {}
-          if (Object.keys(ownEffects).length) {
-            applyEffects(s, ownEffects, options.bindings?.stats)
-            // The journal line of the action says what it changed.
-            const line = entries.at(-1)
-            if (line?.code === event.type) line.data = { ...line.data, effects: ownEffects }
+          // An action's step changes the party: applied, and told on the action's line.
+          if (event.type === 'EFFECTS') {
+            applyEffects(s, event.effects, options.bindings?.stats)
+            const line = entries.findLast((e) => ACTION_LINES.has(e.code))
+            if (line)
+              line.data = {
+                ...line.data,
+                effects: mergeEffects(
+                  line.data?.effects as Record<string, number | string> | undefined,
+                  event.effects,
+                ),
+              }
+            continue
           }
           if (event.type === 'HEX_ENTERED') found = arrive(event.hex, from, event.time) || found
           if (event.type !== 'CHECK_REQUIRED') continue
@@ -428,13 +428,13 @@ export function createSession(options: {
               value,
             },
           })
-          s.dayVars = { ...s.dayVars, ...dayVariables(value) }
+          s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
           applyEffects(s, effectsOf(value), options.bindings?.stats)
           // A pause (the check's, or an entry's that came up) stops the trip after the roll:
           // the check waits, rolled, until the player presses Continue.
           if (event.check.pause || value.pause === true) {
             const pending = s.travel.pendingChecks.find((c) => c.id === event.check.id)
-            if (pending) pending.rolled = toOutcome(value)
+            if (pending) pending.rolled = toOutcome(value, declared)
             resolvedAll = false
             add(s, entries, {
               source: 'travel',
@@ -447,7 +447,7 @@ export function createSession(options: {
           s.travel = options.travel.apply(s.travel, {
             type: 'resolveCheck',
             id: event.check.id,
-            outcome: toOutcome(value),
+            outcome: toOutcome(value, declared),
           }).state
         }
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
@@ -501,18 +501,37 @@ export function addEntry(
  * Table values that the travel engine understands as a check outcome (its effects on the
  * party are applied by the session: `effectsOf`).
  */
-export function toOutcome(value: Record<string, unknown>): CheckOutcome {
+export function toOutcome(
+  value: Record<string, unknown>,
+  /** The system's declared values (default: the older built-in `lost`). */
+  declared: Record<string, DayValue> = { lost: {} },
+): CheckOutcome {
   const outcome: CheckOutcome = {}
-  if (value.lost === true) outcome.lost = true
+  const values = Object.fromEntries(
+    Object.keys(declared).flatMap((id) => (id in value ? [[id, value[id]]] : [])),
+  )
+  if (Object.keys(values).length) outcome.values = values
   if (typeof value.weather === 'string') outcome.weather = value.weather
   return outcome
 }
 
-/** Values later checks of the same day may need: weather, any `*Modifier`, `*Impossible`. */
-export function dayVariables(value: Record<string, unknown>): Record<string, unknown> {
+/**
+ * Values later checks of the same day may need: weather, any `*Modifier`, `*Impossible`,
+ * and the values the system declares (lost…).
+ */
+export function dayVariables(
+  value: Record<string, unknown>,
+  declared: Record<string, DayValue> = {},
+): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [key, v] of Object.entries(value))
-    if (key === 'weather' || key.endsWith('Modifier') || key.endsWith('Impossible')) out[key] = v
+    if (
+      key === 'weather' ||
+      key.endsWith('Modifier') ||
+      key.endsWith('Impossible') ||
+      key in declared
+    )
+      out[key] = v
   return out
 }
 export * from './effects'

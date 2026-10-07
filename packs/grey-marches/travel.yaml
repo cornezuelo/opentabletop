@@ -39,18 +39,45 @@ weather:
   fog: { speed: 0.75 }
   snow: { speed: 0.5 }
   storm: { speed: 0 }
+# Values of the day this system declares: results set them (`set: { lost: true }`), they
+# last until the day ends (tables read them the day after as `yesterday.lost`) and block
+# what they name while they hold: lost, there's no more travel today.
+values:
+  lost:
+    name: Lost
+    description: 'The party has lost its way (or can’t cross): no more travel today.'
+    blocks: [travel]
+# The party's actions, each described as steps (do), in order, each one only when its
+# condition holds. Camp and rest are actions like the system's own.
 actions:
+  # Camping: the day's supplies are eaten (later steps see `short`: whether they ran out),
+  # sleep until dawn, and a fed night eases fatigue. Night checks (at: camp) come first.
+  camp:
+    name: Camp
+    description: 'End the day: the night’s checks, the day’s supplies are eaten and you wake at dawn. A night with enough to eat takes off 1 fatigue.'
+    do:
+      - { eat: day }
+      - { time: dawn }
+      - { when: { short: false }, effects: { party.stats.fatigue: -1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat).
-  rest: { minutes: 120, effects: { party.stats.fatigue: -1 } }
+  rest:
+    name: Rest
+    description: Two hours without marching. Takes off 1 fatigue.
+    do:
+      - { time: 120 }
+      - { effects: { party.stats.fatigue: -1 } }
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: forage) is rolled where the party stands.
   # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
+  # Not in a storm: `unless` reads today's values (and the map, the party…).
   forage:
     name: Forage for food
-    description: 'Three hours looking for food (once a day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find.'
+    description: 'Three hours looking for food (once a day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find. Not in a storm.'
     nothing: 'nothing to forage on {terrain}: only woods, fields, heath and marsh give food'
-    minutes: 180
-    speed: 0.5
+    unless: { weather: storm }
+    do:
+      - { time: 180 }
+      - { speed: 0.5 }
     oncePerDay: true
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
@@ -109,19 +136,13 @@ checks:
     when: { party.resources.food: { lt: 1 } }
   # The end of each day (at: day-end): checks see whether supplies ran short (short) and
   # whether the day ended in camp (camping). With effects and no table, they just apply:
-  # fatigue is this system's own rule, not the app's.
+  # fatigue is this system's own rule, not the app's. (A fed night is camp's own step.)
   - event: HUNGRY_DAY
     name: Not enough to eat
-    description: A day without enough food tires the party.
+    description: A day without enough food tires the party, in camp or not.
     at: day-end
     when: { short: true }
     effects: { party.stats.fatigue: 1 }
-  - event: FED_NIGHT
-    name: A fed night's sleep
-    description: A night in camp with enough to eat eases fatigue.
-    at: day-end
-    when: { all: [{ short: false }, { camping: true }] }
-    effects: { party.stats.fatigue: -1 }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
     name: Foraging

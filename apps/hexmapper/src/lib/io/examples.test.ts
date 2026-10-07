@@ -5,6 +5,7 @@ import {
   startTrip,
   stepTrip,
   travelSystems,
+  tripAvailability,
   tripChanges,
   tripContext,
 } from '@open-tabletop/session'
@@ -119,6 +120,39 @@ describe('example maps', () => {
     expect(paused.rolled).toBeDefined()
     const going = stepTrip(options, session, { type: 'resolveCheck', id: paused.id }).state
     expect(going.travel.pendingChecks.some((c) => c.id === paused.id)).toBe(false)
+  })
+
+  it('the Grey Marches: camp is an action of steps, being lost a value they declare', () => {
+    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const world = mapWorld(map)
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('camp') }),
+      locale: 'en',
+    }
+    // A fed night in camp: the day's food is eaten once and fatigue goes down.
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    session.stats.fatigue = 2
+    const camped = stepTrip(options, session, { type: 'camp' })
+    expect(camped.state.stats.fatigue).toBe(1)
+    expect(camped.state.travel.resources.food).toBe(5)
+    expect(camped.entries.find((e) => e.code === 'CAMP_STARTED')?.data?.effects).toEqual({
+      'party.stats.fatigue': -1,
+    })
+    // Lost blocks travel for the rest of the day; a storm, foraging.
+    const lost = { ...session, travel: { ...session.travel, today: { lost: true } } }
+    expect(tripAvailability({ system, world }, lost).travel).toEqual({ value: 'lost' })
+    const storm = { ...session, travel: { ...session.travel, weather: 'storm' } }
+    expect(tripAvailability({ system, world }, storm).forage).toEqual({ condition: 'unless' })
+    expect(tripAvailability({ system, world }, session)).toEqual({})
   })
 
   it('the Grey Marches: foraging is an action of their own, once a day', () => {

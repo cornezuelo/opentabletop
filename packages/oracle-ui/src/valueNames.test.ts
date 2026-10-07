@@ -14,6 +14,7 @@ travel: { hoursPerDay: 8 }
 terrains: {}
 modes: { foot: { kmPerDay: 25 } }
 resources: { food: { name: Rations, perDay: 1 } }
+values: { lost: { name: Lost, blocks: [travel] } }
 ---
 kind: bindings
 id: default
@@ -55,7 +56,9 @@ describe('names of the values tables read', () => {
       description: 'How many guards watch the gates.',
     })
     expect(en('moons.pale').name).toBe('Moon: pale')
-    expect(en('yesterday.lost').name).toBe('Lost yesterday')
+    // A value of the day the system declares, today and the day after.
+    expect(en('lost').name).toBe('Lost')
+    expect(en('yesterday.lost').name).toBe('Yesterday: Lost')
     expect(en('mystery')).toEqual({})
   })
 

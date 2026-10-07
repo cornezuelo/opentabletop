@@ -29,6 +29,7 @@ import {
   toOutcome,
   tripChanges,
   tripContext,
+  tripAvailability,
 } from './index'
 
 const shape: GridShape = { orientation: 'flat', width: 6, height: 6 }
@@ -43,6 +44,8 @@ const world: TravelWorld = {
 
 const rules = {
   ...genericTravelRules,
+  // Being lost is a value this system declares: it blocks travel for the day.
+  values: { lost: { blocks: ['travel'] } },
   checks: [
     { event: 'WEATHER_CHECK_REQUIRED', at: 'day-start' as const },
     { event: 'NAVIGATION_CHECK_REQUIRED', at: 'day-start' as const },
@@ -203,14 +206,62 @@ entries:
     // The entry that came up pauses, and Continue applies what it rolled (lost).
     const session = run(false, 0.9)
     const entryPaused = go(session).state
-    expect(entryPaused.travel.pendingChecks[0].rolled).toEqual({ lost: true })
-    expect(entryPaused.travel.lostToday).toBe(false)
+    expect(entryPaused.travel.pendingChecks[0].rolled).toEqual({ values: { lost: true } })
+    expect(entryPaused.travel.today).toBeUndefined()
     const continued = session.step(entryPaused, {
       type: 'resolveCheck',
       id: entryPaused.travel.pendingChecks[0].id,
     }).state
     expect(continued.travel.pendingChecks).toEqual([])
-    expect(continued.travel.lostToday).toBe(true)
+    expect(continued.travel.today).toEqual({ lost: true })
+  })
+
+  it('applies the effects of an action’s steps and tells them on its line', () => {
+    const stepped = {
+      ...genericTravelRules,
+      values: { lost: { blocks: ['travel'] } },
+      actions: {
+        camp: {
+          do: [
+            { eat: 'day' as const },
+            { time: 'dawn' as const },
+            { when: { short: false }, effects: { 'party.stats.fatigue': -1 } },
+            { when: { short: true }, effects: { 'party.stats.fatigue': 1 } },
+          ],
+        },
+        forage: { unless: { forageImpossible: true }, do: [{ time: 60 }] },
+      },
+    }
+    const system = {
+      id: 'x',
+      name: '',
+      rules: stepped,
+      bindings: { on: {}, stats: { fatigue: { min: 0 } } },
+    }
+    const session = createSession({
+      travel: createTravelEngine({ world, rules: stepped }),
+      bindings: system.bindings,
+      rules: stepped,
+      now: () => 'T',
+    })
+    const tired = { ...start(), stats: { fatigue: 2 } }
+    const { state, entries } = session.step(tired, { type: 'camp' })
+    expect(state.stats.fatigue).toBe(1)
+    expect(entries.find((e) => e.code === 'CAMP_STARTED')?.data?.effects).toEqual({
+      'party.stats.fatigue': -1,
+    })
+    // Today's values (set by the weather) make an action unavailable, with the reason.
+    expect(
+      tripAvailability({ system }, { ...start(), dayVars: { forageImpossible: true } }),
+    ).toEqual({ forage: { condition: 'unless' } })
+    const refused = session.step(
+      { ...start(), dayVars: { forageImpossible: true } },
+      {
+        type: 'action',
+        id: 'forage',
+      },
+    )
+    expect(refused.state.travel.time).toBe(start().travel.time)
   })
 
   it('applies lost outcomes', () => {
@@ -234,7 +285,7 @@ entries:
       session.step(start(), { type: 'setDestination', hex: '2,0' }).state,
       { type: 'travel' },
     )
-    expect(state.travel.lostToday).toBe(true)
+    expect(state.travel.today).toEqual({ lost: true })
     expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['ENCOUNTER_CHECK_REQUIRED'])
     expect(state.journal.some((e) => e.code === 'CHECK_PENDING')).toBe(true)
   })
@@ -437,8 +488,12 @@ entries:
 
   it('maps table values to travel outcomes', () => {
     expect(toOutcome({ lost: true, weather: 'storm', other: 1 })).toEqual({
-      lost: true,
+      values: { lost: true },
       weather: 'storm',
+    })
+    // The values a system declares, whatever their names (lost isn't built in).
+    expect(toOutcome({ lost: true, stranded: true }, { stranded: {} })).toEqual({
+      values: { stranded: true },
     })
     // Effects on the party are the session's (effectsOf), not the travel engine's.
     expect(toOutcome({ resources: { food: 2 }, fatigue: -1 })).toEqual({})

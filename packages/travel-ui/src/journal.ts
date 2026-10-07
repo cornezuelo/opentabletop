@@ -25,6 +25,11 @@ export interface JournalContext {
    * undefined for the generic text.
    */
   actionNothing?: (id: string) => string | undefined
+  /**
+   * The values of the day the system declares, by id with their names (`lost: 'Lost'`);
+   * absent: the older built-in `lost`.
+   */
+  dayValues?: Record<string, string>
 }
 
 /** Minutes as "3 h", "1 h 30" or "45 min". */
@@ -43,7 +48,7 @@ const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`)
  */
 export function changesText(
   value: Record<string, unknown>,
-  { t, valueName }: Pick<JournalContext, 't' | 'valueName'>,
+  { t, valueName, dayValues }: Pick<JournalContext, 't' | 'valueName' | 'dayValues'>,
 ): string {
   // Effects are by path (party.stats.morale): named by the value's id.
   const id = (path: string) =>
@@ -61,7 +66,12 @@ export function changesText(
           ? [`${name(path)} ${change}`]
           : [],
     )
-  if (value.lost === true) parts.push(t('journal.lostToday'))
+  // Values of the day the result sets (lost…), by the system's name.
+  if (!dayValues) {
+    if (value.lost === true) parts.push(t('journal.lostToday'))
+  } else
+    for (const [id, name] of Object.entries(dayValues))
+      if (value[id] !== undefined && value[id] !== false && value[id] !== null) parts.push(name)
   return parts.join(', ')
 }
 
@@ -95,6 +105,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         ? own.replaceAll('{terrain}', terrain)
         : t('journal.actionNothing', { terrain })
       return `${done}: ${nothing}`
+    }
+    case 'CAMP_STARTED': {
+      const camped = t('journal.CAMP_STARTED')
+      const changed =
+        typeof d.effects === 'object' && d.effects !== null
+          ? changesText({ effects: d.effects }, context)
+          : ''
+      return changed ? `${camped} (${changed})` : camped
     }
     case 'RESTED': {
       const rested = t('journal.rested', { length: durationText(Number(d.minutes) || 0) })
@@ -155,6 +173,11 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'RESOURCE_DEPLETED':
       return t('journal.depleted', { resource: name(String(d.resource)) })
     case 'TRAVEL_STOPPED':
+      if (d.reason === 'value')
+        return t('stop.value', {
+          name:
+            context.dayValues?.[String(d.value)] ?? idText(t, `values.${d.value}`, String(d.value)),
+        })
       return t(`stop.${String(d.reason)}` as TravelUiKey)
     case 'NOTE':
       return e.text ?? ''

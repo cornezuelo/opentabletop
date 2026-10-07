@@ -1,5 +1,6 @@
 import {
   migrateFatigue,
+  migrateLost,
   SEASON_START_DAYS,
   startTrip,
   stepTrip,
@@ -16,8 +17,11 @@ import { wayWorld, type WayHex } from './way'
 const KEY = 'opentabletop.travel.trips'
 /** Before several trips: the only one. */
 const OLD_KEY = 'opentabletop.travel.trip'
-/** v2: the party's fatigue is one of the system's stats (migrated on reading). */
-const VERSION = 2
+/**
+ * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the
+ * system declares (`today.lost`). Both migrated on reading.
+ */
+const VERSION = 3
 
 /** A trip played in this browser: its system, its way and the session. */
 export interface Saved {
@@ -66,7 +70,7 @@ export function readTrips(storage: Pick<Storage, 'getItem'> = localStorage): Sto
         ...t,
         id: t.id || newTripId(),
         name: t.name ?? '',
-        session: t.session && migrateFatigue(t.session),
+        session: t.session && migrateLost(migrateFatigue(t.session)),
       }))
       if (trips.length)
         return {

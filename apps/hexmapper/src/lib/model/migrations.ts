@@ -6,7 +6,7 @@ import {
   DEFAULT_REGION_STYLE,
 } from './defaults'
 import { newId } from './id'
-import { migrateFatigue } from '@open-tabletop/session'
+import { migrateFatigue, migrateLost } from '@open-tabletop/session'
 
 /**
  * `migrations[n]` upgrades raw data from version n to n + 1. Every format change
@@ -97,6 +97,16 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     return {
       ...data,
       play: { ...play, rules: { ...play!.rules, session: migrateFatigue(session) } },
+    }
+  },
+  /** v12: being lost is a value the system declares (`today.lost`, not `lostToday`). */
+  11(data) {
+    const play = data.play as { rules?: { session?: unknown } } | undefined
+    const session = play?.rules?.session as Parameters<typeof migrateLost>[0] | undefined
+    if (!session?.travel) return data
+    return {
+      ...data,
+      play: { ...play, rules: { ...play!.rules, session: migrateLost(session) } },
     }
   },
 }

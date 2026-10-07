@@ -37,7 +37,7 @@ What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to
 
 **Asked by the user on 2026-10-07 (evening), to do next — start here in a new session**
 
-Step 3 status: 3a (effects vocabulary) and 3b (fatigue out of the engine, `day-end`, checks with effects) are done; 3c (declared day values like `lost` with `blocks`, actions with `when`/`unless`) and 3d (forms, manual) remain — but first review the design below with the user.
+Step 3 status: 3a (effects vocabulary), 3b (fatigue out of the engine, `day-end`, checks with effects) and 3c are done; 3d (forms, manual) remains. **3c done (2026-10-07):** actions (camp and rest too) are steps (`do: [{ time: 180 | dawn | nightfall | '14:00' }, { eat: day }, { speed: 0.5 }, { effects: … }]`, each with `when` / `unless`; later steps see `short`), with `when` / `unless` on the action and `oncePerDay`; the older columns are read as steps. A system declares its values of the day (`values: { lost: { name, blocks: [travel] } }`): results set them, they block travel or actions while they hold, and become `yesterday.<id>`; rules without `values` keep the older built-in `lost`. Disabled buttons say why (the value's name, once a day, the system's rule). Engine state `today` / `yesterday` instead of `lostToday` (map format v12, Travel trips v3). The Grey Marches camp (eat, sleep, a fed night −1 fatigue), rest and forage (not in a storm) as steps and declare `lost`; the Generic rules camp and rest as steps and declare no values; Kal-Arath declares `lost` and forage `unless: { forageImpossible: true }`. Still to do with 3d: `when` / `unless` on ways of travelling and roll modes.
 
 Bugs:
 

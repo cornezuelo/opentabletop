@@ -175,7 +175,9 @@ describe('travel', () => {
     ;({ state } = run(state, { type: 'resolveCheck', id: nav.id, outcome: { lost: true } }))
     ;({ state } = resolveAll(state))
     const { events } = run(state, { type: 'travel' })
-    expect(events.at(-1)).toMatchObject({ reason: 'lost' })
+    // Being lost is a value the system declares (here the older built-in one): it blocks travel.
+    expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'lost' })
+    expect(engine.availability(state).travel).toEqual({ value: 'lost' })
   })
 
   it('applies weather: storms stop travel, heavy rain halves speed', () => {
@@ -271,18 +273,24 @@ describe('camp, resources and the end of the day', () => {
   })
 
   it('remembers whether the party ended yesterday lost', () => {
-    const lostToday = { ...start(), lostToday: true }
+    const lostToday = { ...start(), today: { lost: true } }
     const camped = resolveAll(engine.apply(lostToday, { type: 'camp' }).state).state
-    expect(camped.lostYesterday).toBe(true)
+    expect(camped.yesterday).toEqual({ lost: true })
+    expect(camped.today).toBeUndefined()
+    // Older trips kept it as lostToday: read the same way.
+    const older = { ...start(), lostToday: true }
+    expect(resolveAll(engine.apply(older, { type: 'camp' }).state).state.yesterday).toEqual({
+      lost: true,
+    })
     // The next dawn's checks see it, so finding the way can be harder.
     const going = engine.apply(camped, { type: 'setDestination', hex: '0,5' }).state
     const dawn = engine.apply(going, { type: 'travel' }).state
     const navigation = dawn.pendingChecks.find((c) => c.event === 'NAVIGATION_CHECK_REQUIRED')
     expect(navigation?.context.yesterday).toEqual({ lost: true })
     // A day not lost clears it.
-    expect(resolveAll(engine.apply(start(), { type: 'camp' }).state).state.lostYesterday).toBe(
-      false,
-    )
+    expect(resolveAll(engine.apply(start(), { type: 'camp' }).state).state.yesterday).toEqual({
+      lost: false,
+    })
   })
 
   it('reports supplies eaten and rests', () => {
@@ -315,7 +323,7 @@ describe('available actions', () => {
   it('lets systems remove or tune camp and rest', () => {
     const campOnly = createTravelEngine({ world, rules: { ...rules!, actions: { rest: false } } })
     const { state, events } = campOnly.apply(start(), { type: 'rest' })
-    expect(events).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'rest' }])
+    expect(events).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'rest', because: { off: true } }])
     expect(state.time).toBe(start().time)
 
     const restful = createTravelEngine({
@@ -346,14 +354,16 @@ describe('the system’s own actions', () => {
     expect(state.speedToday).toBe(0.5)
     // Once a day: the second time is refused, the next day it's back.
     const again = own.apply(state, { type: 'action', id: 'forage' })
-    expect(again.events).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'forage' }])
+    expect(again.events).toEqual([
+      { type: 'ACTION_UNAVAILABLE', action: 'forage', because: { once: true } },
+    ])
     const tomorrow = own.apply(own.apply(state, { type: 'camp' }).state, {
       type: 'action',
       id: 'forage',
     })
     expect(tomorrow.events[0]).toMatchObject({ type: 'ACTION_TAKEN', action: 'forage' })
     expect(own.apply(start(), { type: 'action', id: 'dance' }).events).toEqual([
-      { type: 'ACTION_UNAVAILABLE', action: 'dance' },
+      { type: 'ACTION_UNAVAILABLE', action: 'dance', because: { off: true } },
     ])
   })
 
@@ -373,6 +383,116 @@ describe('the system’s own actions', () => {
     expect(bad.errors).toEqual([
       'checks.0.at: expected day-start, hex-enter, camp, day-end, forage, pray',
     ])
+  })
+})
+
+describe('actions as steps, and declared values', () => {
+  const stepped = parseTravelRules({
+    ...rules!,
+    resources: { food: { perDay: 1 } },
+    values: {
+      stranded: { name: 'Stranded', blocks: ['travel', 'forage'] },
+    },
+    actions: {
+      // The Grey Marches' way of camping: eat, then sleep, with or without enough food.
+      camp: {
+        do: [
+          { eat: 'day' },
+          { time: 'dawn' },
+          { when: { short: false }, effects: { 'party.stats.fatigue': -1 } },
+          { when: { short: true }, effects: { 'party.stats.fatigue': 1 } },
+        ],
+      },
+      rest: { do: [{ time: 90 }] },
+      forage: {
+        unless: { forageImpossible: true },
+        do: [{ time: 180 }, { speed: 0.5 }],
+        oncePerDay: true,
+      },
+      pray: { when: { 'party.stats.faith': { gte: 1 } }, do: [{ time: 'nightfall' }] },
+    },
+  })
+  const own = createTravelEngine({ world, rules: stepped.rules! })
+
+  it('are valid, and steps do one thing', () => {
+    expect(stepped.errors).toEqual([])
+    const bad = parseTravelRules({
+      ...rules!,
+      values: { stuck: { blocks: ['fly'] } },
+      actions: { nap: { do: [{ time: 30, speed: 0.5 }] } },
+    })
+    expect(bad.errors).toEqual([
+      'actions.nap.do.0: a step does one thing: time, eat, speed or effects',
+      'values.stuck.blocks.0: expected travel, camp, rest, nap',
+    ])
+  })
+
+  it('camp eats once, sleeps until dawn and applies the effects whose condition holds', () => {
+    const fed = own.apply(start(), { type: 'camp' })
+    expect(fed.state.time).toBe(defaultCalendar.at(2, '06:00'))
+    expect(fed.state.resources.food).toBe(2) // eaten once, not again at midnight
+    expect(fed.events.filter((e) => e.type === 'SUPPLIES_USED')).toHaveLength(1)
+    expect(fed.events.filter((e) => e.type === 'EFFECTS')).toEqual([
+      expect.objectContaining({ action: 'camp', effects: { 'party.stats.fatigue': -1 } }),
+    ])
+    const hungry = own.apply({ ...start(), resources: { food: 0 } }, { type: 'camp' })
+    expect(hungry.events.filter((e) => e.type === 'EFFECTS')).toEqual([
+      expect.objectContaining({ effects: { 'party.stats.fatigue': 1 } }),
+    ])
+  })
+
+  it('rests and actions take the time their steps say', () => {
+    const rested = own.apply(start(), { type: 'rest' })
+    expect(rested.events[0]).toMatchObject({ type: 'RESTED', minutes: 90 })
+    expect(own.apply(start(), { type: 'rest', minutes: 30 }).state.time - start().time).toBe(30)
+    const foraged = own.apply(start(), { type: 'action', id: 'forage' })
+    expect(foraged.events[0]).toMatchObject({ type: 'ACTION_TAKEN', minutes: 180 })
+    expect(foraged.state.speedToday).toBe(0.5)
+  })
+
+  it('are unavailable on a condition, with the host’s facts, and say why', () => {
+    expect(own.availability(start(), { forageImpossible: true }).forage).toEqual({
+      condition: 'unless',
+    })
+    const refused = own.apply(start(), { type: 'action', id: 'forage' }, { forageImpossible: true })
+    expect(refused.events).toEqual([
+      { type: 'ACTION_UNAVAILABLE', action: 'forage', because: { condition: 'unless' } },
+    ])
+    expect(own.availability(start()).pray).toEqual({ condition: 'when' })
+    const faithful = { party: { stats: { faith: 2 } } }
+    expect(own.availability(start(), faithful).pray).toBeUndefined()
+    expect(own.apply(start(), { type: 'action', id: 'pray' }, faithful).state.time).toBe(
+      defaultCalendar.at(1, '20:00'),
+    )
+  })
+
+  it('a declared value blocks what it names for the rest of the day', () => {
+    let { state } = own.apply(start(), { type: 'setDestination', hex: '2,0' })
+    ;({ state } = resolveAll(own.apply(state, { type: 'travel' }).state))
+    const check = own.apply(state, { type: 'travel' }).state
+    const stuck = { ...check, today: { stranded: true } }
+    expect(own.availability(stuck)).toEqual({
+      travel: { value: 'stranded' },
+      forage: { value: 'stranded' },
+      pray: { condition: 'when' },
+    })
+    expect(own.apply(stuck, { type: 'travel' }).events.at(-1)).toMatchObject({
+      reason: 'value',
+      value: 'stranded',
+    })
+    // Set by a result, as a value of the day; gone the next day (yesterday.stranded).
+    const pending = { ...start(), pendingChecks: [{ id: 'c9', event: 'X', context: {} }] }
+    const set = own.apply(pending, {
+      type: 'resolveCheck',
+      id: 'c9',
+      outcome: { values: { stranded: true } },
+    }).state
+    expect(set.today).toEqual({ stranded: true })
+    const next = own.apply(set, { type: 'camp' }).state
+    expect([next.today, next.yesterday]).toEqual([undefined, { stranded: true }])
+    // Undeclared now: lost isn't built in when a system declares its values.
+    const lost = { ...start(), today: { lost: true } }
+    expect(own.availability(lost).travel).toBeUndefined()
   })
 })
 

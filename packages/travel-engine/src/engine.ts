@@ -1,4 +1,4 @@
-import { matches } from '@open-tabletop/conditions'
+import { matches, type Condition } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
 import {
   defaultCalendar,
@@ -8,7 +8,14 @@ import {
   type GameTime,
   type TimeParts,
 } from '@open-tabletop/time'
-import { availableActions, type CheckRule, type TravelRules } from './rules'
+import {
+  actionSteps,
+  availableActions,
+  declaredValues,
+  type ActionStep,
+  type CheckRule,
+  type TravelRules,
+} from './rules'
 
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
 export interface TravelWorld {
@@ -40,7 +47,9 @@ export interface PendingCheck {
 }
 
 export interface CheckOutcome {
-  /** The party got lost: no more travel today. */
+  /** Values of the day the system declares (`lost: true`), set by the result. */
+  values?: Record<string, unknown>
+  /** Older form of `values: { lost: true }`. */
   lost?: boolean
   weather?: string
   /** Movement multiplier for the rest of the day (e.g. 0.5 when foraging). */
@@ -65,8 +74,14 @@ export interface TravelState {
   day: number
   travelledToday: number
   dayChecksDone: boolean
-  lostToday: boolean
-  /** The party ended the day before lost (finding the way may be harder). */
+  /** Today's values the system declares (`lost: true`): what they block is blocked. */
+  today?: Record<string, unknown>
+  /** The day before's declared values (false when unset), read as `yesterday.<id>`. */
+  yesterday?: Record<string, unknown>
+  /** The day whose supplies were already eaten by an action (`eat: day`), and whether short. */
+  ate?: { day: number; short: boolean }
+  /** Older trips: being lost was built in (read as `today.lost` / `yesterday.lost`). */
+  lostToday?: boolean
   lostYesterday?: boolean
   speedToday?: number
   /** The system's own actions done today (for `oncePerDay`). */
@@ -82,6 +97,9 @@ export type StopReason =
   | 'day-limit'
   | 'check'
   | 'blocked'
+  /** A declared value blocks travel (`value` says which: lost…). */
+  | 'value'
+  /** Older trips' reason for being lost. */
   | 'lost'
   | 'no-route'
   | 'weather'
@@ -95,10 +113,12 @@ export type TravelEvent =
   | { type: 'CHECK_RESOLVED'; id: string; outcome: CheckOutcome }
   | { type: 'DESTINATION_REACHED'; hex: string }
   | { type: 'ROUTE_BLOCKED'; from: string; to: string }
-  | { type: 'TRAVEL_STOPPED'; reason: StopReason; time: GameTime }
+  | { type: 'TRAVEL_STOPPED'; reason: StopReason; time: GameTime; value?: string }
   | { type: 'CAMP_STARTED'; time: GameTime }
   | { type: 'RESOURCE_DEPLETED'; resource: string }
-  | { type: 'ACTION_UNAVAILABLE'; action: string }
+  | { type: 'ACTION_UNAVAILABLE'; action: string; because?: Unavailable }
+  /** An action's step changes the party (applied by whoever keeps the party's values). */
+  | { type: 'EFFECTS'; action: string; effects: Record<string, number | string>; time: GameTime }
   /** `checks`: how many of its checks came up here (0: nothing to roll, e.g. foraging on hills). */
   | {
       type: 'ACTION_TAKEN'
@@ -118,6 +138,13 @@ export type TravelEvent =
       time: GameTime
     }
 
+/**
+ * Why an action (or travelling) can't be done now: the system turns it off, a declared
+ * value blocks it (`lost`), it was done today (`oncePerDay`), or its `when` / `unless`.
+ */
+export type Unavailable =
+  { off: true } | { value: string } | { once: true } | { condition: 'when' | 'unless' }
+
 export type RouteStrategy = 'shortest' | 'fastest'
 
 export type TravelAction =
@@ -125,7 +152,7 @@ export type TravelAction =
   | { type: 'travel'; until?: 'hex' | 'destination' }
   | { type: 'advanceTime'; minutes: number }
   | { type: 'camp' }
-  /** Short rest; length and fatigue recovery come from the rules unless given. */
+  /** A rest; its length comes from the rules unless given. */
   | { type: 'rest'; minutes?: number }
   /** One of the system's own actions (`actions.<id>` in the rules), e.g. forage. */
   | { type: 'action'; id: string }
@@ -133,8 +160,20 @@ export type TravelAction =
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
 
+/**
+ * What the host knows that conditions may read besides the trip's facts: the party's
+ * stats, today's values, `yesterday` (the session passes `tripContext`).
+ */
+export type HostFacts = Record<string, unknown>
+
 export interface TravelEngine {
-  apply(state: TravelState, action: TravelAction): { state: TravelState; events: TravelEvent[] }
+  apply(
+    state: TravelState,
+    action: TravelAction,
+    facts?: HostFacts,
+  ): { state: TravelState; events: TravelEvent[] }
+  /** What can't be done now and why: `travel` and every action by id (absent: available). */
+  availability(state: TravelState, facts?: HostFacts): Record<string, Unavailable>
   /** Minutes to step from `a` to its neighbor `b` in the given state (Infinity if impossible). */
   stepMinutes(state: TravelState, a: string, b: string): number
   plan(state: TravelState, to: string, strategy?: RouteStrategy): string[] | null
@@ -157,9 +196,19 @@ export function initialTravelState(init: {
     day: (init.calendar ?? defaultCalendar).describe(time).day,
     travelledToday: 0,
     dayChecksDone: false,
-    lostToday: false,
     pendingChecks: [],
     nextCheckId: 1,
+  }
+}
+
+/** Older trips (built-in `lost`) in today's shape: `today.lost`, `yesterday.lost`. */
+export function upgradeTravelState(state: TravelState): TravelState {
+  if (!('lostToday' in state) && !('lostYesterday' in state)) return state
+  const { lostToday, lostYesterday, ...rest } = state
+  return {
+    ...rest,
+    ...(lostToday && { today: { ...rest.today, lost: true } }),
+    ...(lostYesterday !== undefined && { yesterday: { ...rest.yesterday, lost: lostYesterday } }),
   }
 }
 
@@ -187,6 +236,14 @@ export function createTravelEngine(options: {
   const calendar = options.calendar ?? defaultCalendar
   const dayMinutes = rules.travel.hoursPerDay * 60
   const actions = availableActions(rules)
+  const values = declaredValues(rules)
+  /** A declared value holds while it's set to anything but false. */
+  const holds = (v: unknown) => v !== undefined && v !== null && v !== false
+  /** The declared value that blocks `what` today (travel, an action), if any. */
+  const blocker = (state: TravelState, what: string): string | undefined =>
+    Object.entries(values).find(
+      ([id, v]) => v.blocks?.includes(what) && holds(state.today?.[id]),
+    )?.[0]
 
   /** Terrain/edge multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (state: TravelState, a: string, b: string): number => {
@@ -261,9 +318,16 @@ export function createTravelEngine(options: {
    * What checks see. `edges` are the lines of the stretch the check is about: the one just
    * walked when entering a hex, the one ahead at dawn or in camp.
    */
-  const checkContext = (state: TravelState, [a, b]: string[] = []): Record<string, unknown> => {
+  const checkContext = (
+    state: TravelState,
+    [a, b]: string[] = [],
+    facts: HostFacts = {},
+  ): Record<string, unknown> => {
     const cell = world.cell(state.location)
+    const host = facts.party as Record<string, unknown> | undefined
     return {
+      ...facts,
+      ...state.today,
       ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the hex (fields, region…), then the travel facts.
       ...cell,
@@ -275,12 +339,15 @@ export function createTravelEngine(options: {
       mode: state.mode,
       season: calendar.describe(state.time).season,
       day: state.day,
-      // What the engine knows of the day before (the session adds that day's values).
-      yesterday: { lost: !!state.lostYesterday },
-      // What the engine knows of the party (the session adds its stats).
-      party: { resources: { ...state.resources }, mode: state.mode },
+      // The day before's values (the host's, then the declared ones).
+      yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
+      // What the engine knows of the party (the host adds its stats).
+      party: { ...host, resources: { ...state.resources }, mode: state.mode },
     }
   }
+
+  /** Facts of the current action or step (the host's, given to `apply`). */
+  let hostFacts: HostFacts = {}
 
   const schedule = (
     state: TravelState,
@@ -291,11 +358,14 @@ export function createTravelEngine(options: {
   ): void => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
+    // Conditions also see the host's facts (stats, today's values); the check keeps the
+    // trip's own (the host adds its facts again when resolving it).
     const context = { ...checkContext(state, stretch), ...facts }
+    const seen = { ...checkContext(state, stretch, hostFacts), ...facts }
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (rule.at !== at) continue
-      if (rule.when && !matches(rule.when, context)) continue
-      if (rule.unless && matches(rule.unless, context)) continue
+      if (rule.when && !matches(rule.when, seen)) continue
+      if (rule.unless && matches(rule.unless, seen)) continue
       const check: PendingCheck = {
         id: `c${state.nextCheckId++}`,
         event: rule.event,
@@ -353,7 +423,11 @@ export function createTravelEngine(options: {
     if (day <= state.day) return false
     let short = false
     for (let d = state.day; d < day; d++) {
-      const dayShort = eatOneDay(state, events, Math.min(state.time, calendar.at(d + 1, '00:00')))
+      // A day an action already ate for (`eat: day`) isn't eaten again.
+      const dayShort =
+        state.ate?.day === d
+          ? state.ate.short
+          : eatOneDay(state, events, Math.min(state.time, calendar.at(d + 1, '00:00')))
       short = dayShort || short
       // Each day that ends: the system's day-end checks see whether supplies ran short and
       // whether it ended in camp (e.g. hunger and a fed night's sleep, as the rules say).
@@ -362,8 +436,12 @@ export function createTravelEngine(options: {
     state.day = day
     state.travelledToday = 0
     state.dayChecksDone = false
-    state.lostYesterday = state.lostToday
-    state.lostToday = false
+    // Today's declared values become yesterday's (false if unset); a new day starts clean.
+    state.yesterday = Object.fromEntries(
+      Object.keys(values).map((id) => [id, holds(state.today?.[id]) ? state.today![id] : false]),
+    )
+    delete state.today
+    delete state.ate
     state.speedToday = undefined
     delete state.actionsToday
     events.push({ type: 'DAY_STARTED', day })
@@ -392,7 +470,11 @@ export function createTravelEngine(options: {
       schedule(state, 'day-start', events)
     }
     if (state.pendingChecks.length) return stop('check')
-    if (state.lostToday) return stop('lost')
+    const blocked = blocker(state, 'travel')
+    if (blocked) {
+      events.push({ type: 'TRAVEL_STOPPED', reason: 'value', value: blocked, time: state.time })
+      return
+    }
     if (dayFactor(state) <= 0) return stop('weather')
 
     for (;;) {
@@ -434,20 +516,121 @@ export function createTravelEngine(options: {
     }
   }
 
-  /** Ends the day: night checks, sleep until dawn (supplies are eaten as the day ends). */
-  const camp = (state: TravelState, events: TravelEvent[]): void => {
-    events.push({ type: 'CAMP_STARTED', time: state.time })
-    schedule(state, 'camp', events)
-    state.time = nextAt(calendar, state.time + 1, rules.day.start)
-    syncDay(state, events, true)
+  /** Why an action can't be taken now (undefined: it can). */
+  const unavailable = (
+    state: TravelState,
+    id: string,
+    facts: HostFacts,
+  ): Unavailable | undefined => {
+    const def = actions.all[id]
+    if (!def) return { off: true }
+    const value = blocker(state, id)
+    if (value) return { value }
+    if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
+    const context = checkContext(state, [], facts)
+    if (def.when && !matches(def.when as Condition, context)) return { condition: 'when' }
+    if (def.unless && matches(def.unless as Condition, context)) return { condition: 'unless' }
+    return undefined
+  }
+
+  /** Eats today's supplies now, once (later steps see whether the party went short). */
+  const eatToday = (state: TravelState, events: TravelEvent[]): boolean => {
+    if (state.ate?.day === state.day) return state.ate.short
+    const short = eatOneDay(state, events, state.time)
+    state.ate = { day: state.day, short }
+    return short
+  }
+
+  /** The moment a `time` step goes to: minutes from now, or the next dawn / nightfall / clock. */
+  const timeOf = (state: TravelState, time: NonNullable<ActionStep['time']>): GameTime =>
+    typeof time === 'number'
+      ? state.time + time
+      : nextAt(
+          calendar,
+          state.time + 1,
+          time === 'dawn' ? rules.day.start : time === 'nightfall' ? rules.day.nightfall : time,
+        )
+
+  /**
+   * Takes an action: its journal line (camp, rest or the action), its checks (`at: <id>`),
+   * then its steps in order, each only when its condition holds.
+   */
+  const takeAction = (
+    state: TravelState,
+    id: string,
+    events: TravelEvent[],
+    minutes?: number,
+  ): void => {
+    const because = unavailable(state, id, hostFacts)
+    if (because) {
+      events.push({ type: 'ACTION_UNAVAILABLE', action: id, because })
+      return
+    }
+    syncDay(state, events)
+    let steps = actionSteps(id, actions.all[id])
+    // A rest of a length chosen by hand replaces the rules' time.
+    if (minutes !== undefined)
+      steps = [{ time: Math.max(0, minutes) }, ...steps.filter((s) => typeof s.time !== 'number')]
+    const start = state.time
+    const cell = world.cell(state.location)
+    const head =
+      id === 'camp'
+        ? { type: 'CAMP_STARTED' as const, time: start }
+        : id === 'rest'
+          ? { type: 'RESTED' as const, minutes: 0, time: start }
+          : {
+              type: 'ACTION_TAKEN' as const,
+              action: id,
+              time: start,
+              minutes: 0,
+              checks: 0,
+              hex: state.location,
+              ...(cell?.terrain && { terrain: cell.terrain }),
+            }
+    events.push(head)
+    // Its checks see the place and moment it starts.
+    const before = state.pendingChecks.length
+    schedule(state, id, events)
+    if (head.type === 'ACTION_TAKEN') head.checks = state.pendingChecks.length - before
+    state.actionsToday = [...(state.actionsToday ?? []), id]
+    let short: boolean | undefined
+    for (const step of steps) {
+      const context = {
+        ...checkContext(state, [], hostFacts),
+        ...(short !== undefined && { short }),
+        camping: id === 'camp',
+      }
+      if (step.when && !matches(step.when, context)) continue
+      if (step.unless && matches(step.unless, context)) continue
+      if (step.time !== undefined) {
+        state.time = Math.max(state.time, timeOf(state, step.time))
+        syncDay(state, events, id === 'camp')
+      } else if (step.eat) short = eatToday(state, events)
+      else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
+      else if (step.effects)
+        events.push({ type: 'EFFECTS', action: id, effects: step.effects, time: state.time })
+    }
+    if (head.type !== 'CAMP_STARTED') head.minutes = state.time - start
   }
 
   return {
     stepMinutes,
     plan,
-    apply(input, action) {
-      const state = structuredClone(input)
+    availability(input, facts = {}) {
+      const state = upgradeTravelState(input)
+      const out: Record<string, Unavailable> = {}
+      const travelBlocked = blocker(state, 'travel')
+      if (travelBlocked) out.travel = { value: travelBlocked }
+      for (const id of Object.keys(actions.all)) {
+        const why = unavailable(state, id, facts)
+        if (why) out[id] = why
+      }
+      return out
+    },
+    apply(input, action, facts = {}) {
+      const state = structuredClone(upgradeTravelState(input))
       const events: TravelEvent[] = []
+      hostFacts = facts
       switch (action.type) {
         case 'setDestination': {
           const strategy = action.strategy ?? 'fastest'
@@ -470,49 +653,14 @@ export function createTravelEngine(options: {
           syncDay(state, events)
           break
         case 'camp':
-          if (!actions.camp) events.push({ type: 'ACTION_UNAVAILABLE', action: 'camp' })
-          else camp(state, events)
+          takeAction(state, 'camp', events)
           break
-        case 'rest': {
-          if (!actions.rest) {
-            events.push({ type: 'ACTION_UNAVAILABLE', action: 'rest' })
-            break
-          }
-          const minutes = Math.max(0, action.minutes ?? actions.rest.minutes)
-          events.push({ type: 'RESTED', minutes, time: state.time })
-          state.time += minutes
-          syncDay(state, events)
+        case 'rest':
+          takeAction(state, 'rest', events, action.minutes)
           break
-        }
-        case 'action': {
-          const own = actions.custom[action.id]
-          if (!own || (own.oncePerDay && state.actionsToday?.includes(action.id))) {
-            events.push({ type: 'ACTION_UNAVAILABLE', action: action.id })
-            break
-          }
-          syncDay(state, events)
-          const taken = {
-            type: 'ACTION_TAKEN' as const,
-            action: action.id,
-            time: state.time,
-            minutes: own.minutes ?? 0,
-            checks: 0,
-            hex: state.location,
-            ...(world.cell(state.location)?.terrain && {
-              terrain: world.cell(state.location)!.terrain,
-            }),
-          }
-          events.push(taken)
-          // Its checks see the place and moment it starts.
-          const before = state.pendingChecks.length
-          schedule(state, action.id, events)
-          taken.checks = state.pendingChecks.length - before
-          state.time += own.minutes ?? 0
-          syncDay(state, events)
-          state.actionsToday = [...(state.actionsToday ?? []), action.id]
-          if (own.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * own.speed
+        case 'action':
+          takeAction(state, action.id, events)
           break
-        }
         case 'setMode':
           if (rules.modes[action.mode]) state.mode = action.mode
           break
@@ -524,7 +672,8 @@ export function createTravelEngine(options: {
           if (index < 0) break
           const [check] = state.pendingChecks.splice(index, 1)
           const outcome = action.outcome ?? check.rolled ?? {}
-          if (outcome.lost) state.lostToday = true
+          const set = { ...(outcome.lost && { lost: true }), ...outcome.values }
+          if (Object.keys(set).length) state.today = { ...state.today, ...set }
           if (outcome.weather !== undefined) state.weather = outcome.weather
           if (outcome.speed !== undefined)
             state.speedToday = (state.speedToday ?? 1) * outcome.speed

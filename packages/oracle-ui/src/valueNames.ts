@@ -31,7 +31,6 @@ export const BUILT_IN_VALUES = [
   'edges',
   'party.fatigue',
   'party.mode',
-  'yesterday.lost',
   'short',
   'camping',
   'from',
@@ -84,6 +83,11 @@ export function valueNames(
             if (isRecord(info))
               out.set(key, { name: info.name as Text, description: info.description as Text })
         }
+        if (extra.kind === 'travel-rules')
+          // The values of the day a system declares (lost…): also read as yesterday.<id>.
+          for (const [id, v] of Object.entries(isRecord(data.values) ? data.values : {}))
+            if (isRecord(v) && v.name !== undefined)
+              out.set(id, { name: v.name as Text, description: v.description as Text })
         if (extra.kind === 'travel-rules')
           for (const [id, r] of Object.entries(isRecord(data.resources) ? data.resources : {}))
             if (isRecord(r) && r.name !== undefined)

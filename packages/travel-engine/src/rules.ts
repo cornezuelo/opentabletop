@@ -8,13 +8,41 @@ const text = z.union([z.string(), z.record(z.string(), z.string())])
 
 /** Built-in moments for checks; any other value names one of the system's own actions. */
 export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'camp', 'day-end'] as const
-const BUILT_IN_ACTIONS = ['camp', 'rest']
+/** Actions every system has unless it turns them off (`camp: false`). */
+export const BUILT_IN_ACTIONS = ['camp', 'rest'] as const
+/** What a declared value can block besides actions: going on with the trip. */
+export const BLOCKABLE = ['travel'] as const
+
+const effects = z.record(z.string(), z.union([z.number(), z.string()]))
 
 /**
- * An action of the system's own (`actions.forage`…): time passes, today's march may slow
- * down and fatigue may ease; its checks are the ones with `at: <its id>`.
+ * One step of an action (`do:`), doing one thing, optionally only `when` (or `unless`) a
+ * condition holds: pass time (`time: 180`, `time: dawn`, `time: nightfall`, `time:
+ * '14:00'`), eat a day of supplies (`eat: day`; later steps see `short`), change the rest
+ * of today's march (`speed: 0.5`) or apply effects (`effects: { party.stats.fatigue: -1 }`).
  */
-const customAction = z
+const step = z
+  .object({
+    when: condition.optional(),
+    unless: condition.optional(),
+    time: z.union([z.number().nonnegative(), z.enum(['dawn', 'nightfall']), clock]).optional(),
+    eat: z.literal('day').optional(),
+    speed: z.number().nonnegative().optional(),
+    effects: effects.optional(),
+  })
+  .strict()
+  .refine(
+    (s) => [s.time, s.eat, s.speed, s.effects].filter((x) => x !== undefined).length === 1,
+    'a step does one thing: time, eat, speed or effects',
+  )
+
+/**
+ * An action of the party (`actions.forage`, and camp and rest too): what it does as steps
+ * (`do`), when it can be taken (`when` / `unless`, `oncePerDay`); its checks are the ones
+ * with `at: <its id>`. The older columns (`minutes`, `speed`, `fatigue`, `effects`) still
+ * work: they're read as steps.
+ */
+const action = z
   .object({
     name: text.optional(),
     description: text.optional(),
@@ -23,16 +51,37 @@ const customAction = z
      * "Nothing to forage on {terrain}" (`{terrain}` is the hex's terrain).
      */
     nothing: text.optional(),
-    /** Time it takes (default 0). */
+    /** What it does, in order. */
+    do: z.array(step).optional(),
+    /** Only available when this holds (the trip's facts, today's values, the party). */
+    when: condition.optional(),
+    /** Not available when this holds, e.g. `{ forageImpossible: true }`. */
+    unless: condition.optional(),
+    /** Time it takes (older form of `time: <minutes>`; default 0). */
     minutes: z.number().nonnegative().optional(),
-    /** Multiplies the rest of today's march, e.g. 0.5: foraging halves it. */
+    /** Multiplies the rest of today's march (older form of a `speed` step). */
     speed: z.number().nonnegative().optional(),
     /** Fatigue recovered (older form: write it as an effect, `party.stats.fatigue: -1`). */
     fatigue: z.number().nonnegative().optional(),
-    /** What the action changes, as effects (`party.stats.fatigue: -1`), applied when it's taken. */
-    effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
+    /** What the action changes, applied when it's taken (older form of an `effects` step). */
+    effects: effects.optional(),
     /** Only once a day. */
     oncePerDay: z.boolean().optional(),
+  })
+  .strict()
+
+/**
+ * A value the system declares for the day (`lost`, `stranded`…): results set it (`set: {
+ * lost: true }`), it lasts until the day ends (tables read it the day after as
+ * `yesterday.<id>`), and while it holds (any value but false) it `blocks` what it names:
+ * `travel`, or actions by id.
+ */
+const dayValue = z
+  .object({
+    name: text.optional(),
+    description: text.optional(),
+    lasts: z.literal('day').optional(),
+    blocks: z.array(z.string().min(1)).optional(),
   })
   .strict()
 
@@ -54,7 +103,7 @@ const checkRule = z
      * Effects of the check itself (`party.stats.fatigue: 1`): applied when it comes up,
      * without a table (or besides the table's).
      */
-    effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
+    effects: effects.optional(),
     /** Stop the trip after it comes up (rolled or not), until the player presses Continue. */
     pause: z.boolean().optional(),
   })
@@ -124,37 +173,18 @@ export const travelRulesSchema = z
       .record(z.string(), z.object({ speed: z.number().nonnegative().optional() }).strict())
       .optional(),
     checks: z.array(checkRule).optional(),
+    /** Values of the day the system declares (`lost`), with what they block. */
+    values: z.record(z.string(), dayValue).optional(),
     /**
-     * Which party actions this system has. Absent = both, with defaults. `false` removes
-     * an action (e.g. Kal-Arath only camps).
+     * The party's actions. Camp and rest exist unless turned off (`false`; e.g. Kal-Arath
+     * only camps); any other key is one of the system's own (forage…).
      */
-    actions: z
-      .object({
-        camp: z.union([z.literal(false), z.object({}).strict()]).optional(),
-        rest: z
-          .union([
-            z.literal(false),
-            z
-              .object({
-                /** Length of one rest (default 60). */
-                minutes: z.number().positive().optional(),
-                /** Fatigue recovered per rest (default 0: a pause, not a night's sleep). */
-                fatigue: z.number().nonnegative().optional(),
-                /** What a rest changes, as effects (`party.stats.fatigue: -1`). */
-                effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
-              })
-              .strict(),
-          ])
-          .optional(),
-      })
-      // Any other key is one of the system's own actions (false turns it off, like camp).
-      .catchall(z.union([z.literal(false), customAction]))
-      .optional(),
+    actions: z.record(z.string(), z.union([z.literal(false), action])).optional(),
   })
   .strict()
   .superRefine((rules, ctx) => {
     const own = Object.entries(rules.actions ?? {})
-      .filter(([id, action]) => !BUILT_IN_ACTIONS.includes(id) && action !== false)
+      .filter(([id, a]) => !(BUILT_IN_ACTIONS as readonly string[]).includes(id) && a !== false)
       .map(([id]) => id)
     rules.checks?.forEach((check, i) => {
       if (!(CHECK_MOMENTS as readonly string[]).includes(check.at) && !own.includes(check.at))
@@ -164,28 +194,95 @@ export const travelRulesSchema = z
           message: `expected ${[...CHECK_MOMENTS, ...own].join(', ')}`,
         })
     })
+    const blockable = [...BLOCKABLE, ...BUILT_IN_ACTIONS, ...own]
+    for (const [id, value] of Object.entries(rules.values ?? {}))
+      value.blocks?.forEach((what, i) => {
+        if (!blockable.includes(what))
+          ctx.addIssue({
+            code: 'custom',
+            path: ['values', id, 'blocks', i],
+            message: `expected ${blockable.join(', ')}`,
+          })
+      })
   })
 
-export type CustomAction = z.infer<typeof customAction>
+export type ActionDefinition = z.infer<typeof action>
+/** Older name of an action's definition. */
+export type CustomAction = ActionDefinition
+export type ActionStep = z.infer<typeof step> & { when?: Condition; unless?: Condition }
+export type DayValue = z.infer<typeof dayValue>
 
 export type TravelRules = z.infer<typeof travelRulesSchema>
 
+/**
+ * Before systems declared their values, being `lost` was built in: rules that declare no
+ * `values` still have it (it blocks travel for the rest of the day).
+ */
+const LEGACY_VALUES: Record<string, DayValue> = { lost: { lasts: 'day', blocks: ['travel'] } }
+
+/** The values of the day a system declares (the older built-in `lost` if it declares none). */
+export function declaredValues(rules: TravelRules): Record<string, DayValue> {
+  return rules.values ?? LEGACY_VALUES
+}
+
+/** Defaults of camp and rest when the rules don't describe them. */
+const DEFAULT_CAMP: ActionDefinition = { do: [{ time: 'dawn' }] }
+const DEFAULT_REST: ActionDefinition = { minutes: 60 }
+
 /** Actions available under some rules, with their effective settings. */
 export function availableActions(rules: TravelRules): {
-  camp: boolean
-  rest: { minutes: number; fatigue: number } | null
+  /** Camp and rest, null when the system turns them off. */
+  camp: ActionDefinition | null
+  rest: ActionDefinition | null
+  /** How long a rest lasts, in minutes (0 without rest). */
+  restMinutes: number
   /** The system's own actions, in the order the rules list them. */
-  custom: Record<string, CustomAction>
+  custom: Record<string, ActionDefinition>
+  /** Every action, by id: camp and rest first. */
+  all: Record<string, ActionDefinition>
 } {
-  const { camp, rest, ...custom } = rules.actions ?? {}
+  const { camp, rest, ...others } = rules.actions ?? {}
+  const custom = Object.fromEntries(
+    Object.entries(others).filter((e): e is [string, ActionDefinition] => e[1] !== false),
+  )
+  const campDef = camp === false ? null : (camp ?? DEFAULT_CAMP)
+  const restDef = rest === false ? null : (rest ?? DEFAULT_REST)
   return {
-    camp: camp !== false,
-    rest: rest === false ? null : { minutes: rest?.minutes ?? 60, fatigue: rest?.fatigue ?? 0 },
-    custom: Object.fromEntries(
-      Object.entries(custom).filter((e): e is [string, CustomAction] => e[1] !== false),
-    ),
+    camp: campDef,
+    rest: restDef,
+    restMinutes: restDef ? restMinutes(restDef) : 0,
+    custom,
+    all: {
+      ...(campDef && { camp: campDef }),
+      ...(restDef && { rest: restDef }),
+      ...custom,
+    },
   }
 }
+
+/** How long a rest lasts: its time steps in minutes (60 if it says none). */
+function restMinutes(rest: ActionDefinition): number {
+  const steps = rest.do?.filter((s) => typeof s.time === 'number') ?? []
+  if (steps.length) return steps.reduce((n, s) => n + (s.time as number), 0)
+  return rest.minutes ?? 60
+}
+
+/**
+ * An action's steps: its `do`, or the older columns read as steps (time, speed, then
+ * effects). Camp without steps sleeps until dawn.
+ */
+export function actionSteps(id: string, def: ActionDefinition): ActionStep[] {
+  const older: ActionStep[] = []
+  const minutes = def.minutes ?? (id === 'rest' && !def.do ? 60 : undefined)
+  if (minutes) older.push({ time: minutes })
+  if (def.speed !== undefined) older.push({ speed: def.speed })
+  const fx = { ...(def.fatigue ? { 'party.stats.fatigue': -def.fatigue } : {}), ...def.effects }
+  if (Object.keys(fx).length) older.push({ effects: fx })
+  const steps = [...older, ...((def.do ?? []) as ActionStep[])]
+  if (id === 'camp' && !steps.some((s) => s.time !== undefined)) steps.push({ time: 'dawn' })
+  return steps
+}
+
 export type CheckRule = z.infer<typeof checkRule> & { unless?: Condition; when?: Condition }
 
 /** Name and description of a check event, from the first check with that event that has them. */
@@ -209,9 +306,20 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
         (i) => `${i.path.map(String).join('.') || 'rules'}: ${i.message}`,
       ),
     }
-  const errors = (parsed.data.checks ?? []).flatMap((check, i) => [
-    ...(check.unless ? validateCondition(check.unless, `checks[${i}].unless`) : []),
-    ...(check.when ? validateCondition(check.when, `checks[${i}].when`) : []),
-  ])
+  const conditions = (c: { when?: unknown; unless?: unknown }, at: string) => [
+    ...(c.unless ? validateCondition(c.unless as Condition, `${at}.unless`) : []),
+    ...(c.when ? validateCondition(c.when as Condition, `${at}.when`) : []),
+  ]
+  const errors = [
+    ...(parsed.data.checks ?? []).flatMap((check, i) => conditions(check, `checks[${i}]`)),
+    ...Object.entries(parsed.data.actions ?? {}).flatMap(([id, a]) =>
+      a === false
+        ? []
+        : [
+            ...conditions(a, `actions.${id}`),
+            ...(a.do ?? []).flatMap((st, i) => conditions(st, `actions.${id}.do[${i}]`)),
+          ],
+    ),
+  ]
   return errors.length ? { errors } : { rules: parsed.data, errors: [] }
 }

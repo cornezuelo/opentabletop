@@ -53,7 +53,6 @@ export const es: Messages<typeof en> = {
     party_stats: 'Grupo',
     party_resources: vocabulary.es.terms.supplies,
     yesterday: 'Ayer',
-    yesterday_lost: 'Perdidos ayer',
     short: 'Faltaron provisiones',
     camping: 'En el campamento',
     from: 'Visto desde',
@@ -89,7 +88,6 @@ export const es: Messages<typeof en> = {
     party_stats: 'Una característica del grupo.',
     party_resources: 'Cuánto lleva el grupo de una provisión.',
     yesterday: 'Un valor del día anterior.',
-    yesterday_lost: 'true cuando el grupo acabó perdido el día anterior.',
     short: 'Al acabar un día (comprobaciones at: day-end): true si ese día faltó alguna provisión.',
     camping:
       'Al acabar un día (comprobaciones at: day-end): true si el día acabó en el campamento.',

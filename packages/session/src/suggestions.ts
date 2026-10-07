@@ -1,5 +1,5 @@
 import type { Compiled, Registry } from '@open-tabletop/oracle-engine'
-import { genericTravelRules } from '@open-tabletop/travel-engine'
+import { availableActions, declaredValues, genericTravelRules } from '@open-tabletop/travel-engine'
 import { travelSystems } from './trip'
 
 const CONDITION_OPERATORS = new Set(['all', 'any', 'not'])
@@ -37,7 +37,6 @@ export function contextSuggestions(
   add('water', true, false)
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
-  add('yesterday.lost', true, false)
   // The end of each day (checks at: day-end).
   add('short', true, false)
   add('camping', true, false)
@@ -69,6 +68,15 @@ export function contextSuggestions(
     for (const check of rules.checks ?? []) {
       condition(check.when, add)
       condition(check.unless, add)
+    }
+    // The values of the day it declares (lost…), today and the day after.
+    for (const value of Object.keys(declaredValues(rules))) {
+      add(value, true, false)
+      add(`yesterday.${value}`, true, false)
+    }
+    for (const action of Object.values(availableActions(rules).all)) {
+      condition(action.when, add)
+      condition(action.unless, add)
     }
     for (const stat of Object.keys(bindings?.stats ?? {})) {
       add(stat)
@@ -162,7 +170,6 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
       if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
         out.get(key)!.add(String(v))
   }
-  add('lost', true)
   add('weather')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
   add('tags')
@@ -172,6 +179,7 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
   for (const { rules, bindings } of systems) {
     add('weather', ...Object.keys(rules.weather ?? {}))
     add('terrain', ...Object.keys(rules.terrains))
+    for (const value of Object.keys(declaredValues(rules))) add(value, true)
     for (const resource of Object.keys(rules.resources ?? {})) add(`resources.${resource}`)
     for (const stat of Object.keys(bindings?.stats ?? {})) add(`stats.${stat}`)
   }
