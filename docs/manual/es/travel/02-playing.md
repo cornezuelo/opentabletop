@@ -26,4 +26,10 @@ El panel de la derecha es el mismo que en el Hexmapper: día, hora y estación, 
 
 Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga todo el diario en Markdown (un título por día, con el nombre del viaje) para tu aplicación de notas o para imprimir. Una comprobación sin tabla (como los lugares señalados de las Marcas Grises) te espera: resuélvela tú y pulsa **Continuar**.
 
+Lo que cuenta el diario, para que nada pase en silencio:
+
+- **Resultados con lo que han cambiado**: «Buscar comida: Bayas y raíces para un día (Comida +1)», «Peaje: El guarda del puente se cobra un día de comida (Comida −1)», «Perderse: Perdidos en la niebla: hoy no avanzáis (perdidos por hoy)».
+- **Acciones** con lo que han durado, y cuándo no se ha tirado nada: en las Marcas Grises, **Buscar comida** en colinas dice «Buscar comida (3 h): no hay nada que buscar en colinas: solo los bosques, campos, brezales y marismas dan comida». Las tres horas pasan igual y la marcha sigue a la mitad.
+- **Provisiones** consumidas al acabar cada día («Provisiones del día: Comida −1 (quedan 4)»), cuando se acaban («Sin Comida») y los cambios de **fatiga** con su motivo («Sin comida suficiente: fatiga +1 (ahora 2)», «Una noche bien comidos: fatiga −1 (ahora 1)», «El descanso: fatiga −1 (ahora 0)»).
+
 El viaje se guarda en el navegador mientras juegas, y sigue ahí cuando vuelves. Una [copia de seguridad](../technical/05-backups.md) lo lleva a otro ordenador.

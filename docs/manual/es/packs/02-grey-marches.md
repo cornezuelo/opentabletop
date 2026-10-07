@@ -35,18 +35,18 @@ Los hexes se dan por sus coordenadas (columna y fila, como las muestra el mapa: 
 
 Todas las comprobaciones están en `travel.yaml`; el diario dice cada una cuando sale.
 
-| Comprobación       | Cuándo                                                                                                                                                 | Tabla                            |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- |
-| Clima              | Cada amanecer                                                                                                                                          | `weather` (por estación)         |
-| Perderse           | Cada amanecer, salvo si sales por un camino o río, o en barca                                                                                          | `getting-lost` (+ Orientación)   |
-| Encuentro          | Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino                                                         | `encounter` (de día)             |
-| Peaje              | Al entrar en Keld Bridge (0909) por el camino                                                                                                          | `toll`                           |
-| Vado               | Al entrar en el vado (0907), salvo en barca                                                                                                            | oráculo `ford`                   |
-| Santuario          | Al entrar en el santuario (1104)                                                                                                                       | `shrine`                         |
-| **Lugar señalado** | Al entrar en las Piedras Grises (0503), o en un lugar señalado descubierto: **sin tabla, pulsa Continuar**                                             | —                                |
-| Encuentro nocturno | Al acampar con peligro 2 o más                                                                                                                         | `encounter` (de noche)           |
-| Forrajear          | Al pulsar **Forrajear** (una vez al día; 3 horas, la marcha del resto del día a la mitad) en bosque, bosque denso, llanura, cultivos, brezal o marisma | `forage` (+ Supervivencia)       |
-| Hambre             | Al acampar sin comida (`party.resources.food` menor que 1); la moral decide cómo va, hasta la deserción                                                | `hunger` (+ Moral) → `desertion` |
+| Comprobación       | Cuándo                                                                                                                                                     | Tabla                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Clima              | Cada amanecer                                                                                                                                              | `weather` (por estación)         |
+| Perderse           | Cada amanecer, salvo si sales por un camino o río, o en barca                                                                                              | `getting-lost` (+ Orientación)   |
+| Encuentro          | Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino                                                             | `encounter` (de día)             |
+| Peaje              | Al entrar en Keld Bridge (0909) por el camino                                                                                                              | `toll`                           |
+| Vado               | Al entrar en el vado (0907), salvo en barca                                                                                                                | oráculo `ford`                   |
+| Santuario          | Al entrar en el santuario (1104)                                                                                                                           | `shrine`                         |
+| **Lugar señalado** | Al entrar en las Piedras Grises (0503), o en un lugar señalado descubierto: **sin tabla, pulsa Continuar**                                                 | —                                |
+| Encuentro nocturno | Al acampar con peligro 2 o más                                                                                                                             | `encounter` (de noche)           |
+| Buscar comida      | Al pulsar **Buscar comida** (una vez al día; 3 horas, la marcha del resto del día a la mitad) en bosque, bosque denso, llanura, cultivos, brezal o marisma | `forage` (+ Supervivencia)       |
+| Hambre             | Al acampar sin comida (`party.resources.food` menor que 1); la moral decide cómo va, hasta la deserción                                                    | `hunger` (+ Moral) → `desertion` |
 
 **Para ver Continuar**: desde Ashford haz clic en las Piedras Grises (0503) y **Viajar**. El viaje se detiene al llegar con _Lugar señalado: esperando_ y un botón **Continuar** en el panel del viaje; el diario dice lo mismo.
 
@@ -78,7 +78,7 @@ Todas las comprobaciones están en `travel.yaml`; el diario dice cada una cuando
 | Campos de generador con `when`, `value` con plantilla, `context`; `2d6kl1`, `d%`                                                  | `treasure.yaml`: `ruin-delve`                                                                      |
 | Tablas de otro pack: `dependencies` y `aliases`                                                                                   | `pack.yaml`; `decks.yaml`: la carta `twist`                                                        |
 | Comprobaciones con **nombre** y **descripción** para los jugadores                                                                | `travel.yaml` (checks)                                                                             |
-| Una **acción propia del sistema** (Forrajear: tiempo, velocidad del día, una vez al día) y una comprobación en ella               | `travel.yaml`: `actions.forage`, `FORAGE_CHECK_REQUIRED`                                           |
+| Una **acción propia del sistema** (Buscar comida: tiempo, velocidad del día, una vez al día) y una comprobación en ella           | `travel.yaml`: `actions.forage`, `FORAGE_CHECK_REQUIRED`                                           |
 | Tablas que **leen el grupo** (`party.stats.morale`, `party.resources.food`) en dados y condiciones; `exists: false` sin viaje     | `travel-tables.yaml`: `hunger`; `oracles.yaml`: `inn`                                              |
 | Una comprobación cuya condición lee el grupo (`when: { party.resources.food: { lt: 1 } }`)                                        | `travel.yaml`: `HUNGER_CHECK_REQUIRED`                                                             |
 | Tablas que **cambian el grupo**: `stats` (moral; `hirelings`, una característica que nadie declara), `resources`, `fatigue`       | `encounters.yaml`, `travel-tables.yaml`: `getting-lost`, `shrine`, `hunger`; `oracles.yaml`: `inn` |

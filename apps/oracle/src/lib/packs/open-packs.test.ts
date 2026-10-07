@@ -81,6 +81,33 @@ describe('bundled open packs', () => {
     expect(ford?.data?.value).toMatchObject({ odds: 'even' })
   })
 
+  it('the Grey Marches: foraging for food says when there is nothing to find, and how much was found', () => {
+    const system = marches()
+    const world = row([{ terrain: 'hills' }, { terrain: 'forest' }])
+    for (const locale of ['en', 'es']) {
+      const options = {
+        system,
+        world,
+        oracle: createOracleEngine({ registry, random: seeded(`forage-${locale}`) }),
+        locale,
+      }
+      // On the hills the check doesn't apply: the action says it rolled nothing.
+      const { session } = startTrip({ system, location: '0', season: 'summer' })
+      const hills = stepTrip(options, session, { type: 'action', id: 'forage' }).entries
+      expect(hills.map((e) => [e.code, e.data?.checks])).toEqual([['ACTION_TAKEN', 0]])
+      // In the forest it rolls, and the food in the text is the food gained.
+      for (let i = 0; i < 20; i++) {
+        const { session } = startTrip({ system, location: '1', season: 'summer' })
+        session.stats.survival = 6
+        const { state, entries } = stepTrip(options, session, { type: 'action', id: 'forage' })
+        const result = entries.find((e) => e.code === 'ORACLE_RESULT')!
+        const gained = state.travel.resources.food - session.travel.resources.food
+        expect(gained).toBeGreaterThanOrEqual(2)
+        expect(result.text).toContain(String(gained))
+      }
+    }
+  })
+
   it('the Grey Marches discover a map whose terrains their rules know', () => {
     const system = marches()
     expect(system.bindings?.discover?.reveal).toBe('neighbors')

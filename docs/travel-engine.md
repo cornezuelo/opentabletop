@@ -116,6 +116,8 @@ engine.apply(state, ctx, action) → { state, events }
 //       | resolveCheck(id, outcome) | setWeather
 // events: HEX_ENTERED, TRAVEL_SEGMENT_COMPLETED, ENCOUNTER_CHECK_REQUIRED, WEATHER_CHECK_REQUIRED,
 //         NAVIGATION_CHECK_REQUIRED, FORAGE_CHECK_REQUIRED, CAMP_STARTED, DAY_ENDED, RESOURCE_DEPLETED
+//         ACTION_TAKEN (with how many of its checks came up: 0 = nothing to roll here), RESTED,
+//         SUPPLIES_USED (used and left), FATIGUE_CHANGED (change and reason): the journal tells them all
 ```
 
 **Interrupt model:**

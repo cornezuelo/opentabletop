@@ -2,7 +2,7 @@ import type { JournalEntry } from '@open-tabletop/session'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
-import { journalMarkdown } from './journal'
+import { entryText, journalMarkdown, type JournalContext } from './journal'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
 const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): JournalEntry => ({
@@ -55,6 +55,60 @@ describe('journal export', () => {
     expect(journalMarkdown([pending], context, 'T')).toContain('X REQUIRED: waiting for you')
     expect(journalMarkdown([pending], { ...context, checkName: () => 'Landmark' }, 'T')).toContain(
       'Landmark: waiting for you',
+    )
+  })
+})
+
+describe('journal lines', () => {
+  const t = translator(() => 'en')
+  const context = {
+    t,
+    startDay: 1,
+    hexLabel: (h: string) => `Hex ${h}`,
+    nameOf: (id: string) => id,
+    actionName: () => 'Forage for food',
+    valueName: (key: string) => ({ food: 'Food', morale: 'Morale' })[key] ?? key,
+    terrainName: (id: string) => ({ hills: 'Hills' })[id] ?? id,
+  }
+  const line = (code: string, data: Record<string, unknown>, more: Partial<JournalContext> = {}) =>
+    entryText(entry(at(1, '06:00'), code, { data }), { ...context, ...more })
+
+  it('say what results changed', () => {
+    const result = entry(at(1, '09:00'), 'ORACLE_RESULT', {
+      text: 'Berries and roots',
+      data: {
+        event: 'FORAGE_CHECK_REQUIRED',
+        value: { resources: { food: 1 }, stats: { morale: -1 }, lost: true, weather: 'rain' },
+      },
+    })
+    expect(entryText(result, { ...context, checkName: () => 'Foraging' })).toBe(
+      'Foraging: Berries and roots (Food +1, Morale −1, lost for today)',
+    )
+  })
+
+  it('say when an action rolled nothing, in the system’s words or the generic ones', () => {
+    const taken = { action: 'forage', minutes: 180, checks: 0, hex: '4', terrain: 'hills' }
+    expect(line('ACTION_TAKEN', taken)).toBe(
+      'Forage for food (3 h): none of its rolls apply on Hills, so nothing happens',
+    )
+    expect(
+      line('ACTION_TAKEN', taken, { actionNothing: () => 'nothing to forage on {terrain}' }),
+    ).toBe('Forage for food (3 h): nothing to forage on Hills')
+    // An action without checks has nothing to say; one whose check came up neither.
+    expect(line('ACTION_TAKEN', taken, { actionNothing: () => '' })).toBe('Forage for food (3 h)')
+    expect(line('ACTION_TAKEN', { ...taken, checks: 1 })).toBe('Forage for food (3 h)')
+  })
+
+  it('tell supplies eaten, rests and fatigue with its reason', () => {
+    expect(line('SUPPLIES_USED', { used: { food: 1 }, left: { food: 4 } })).toBe(
+      'Supplies for the day: Food −1 (4 left)',
+    )
+    expect(line('RESTED', { minutes: 90 })).toBe('Rest for 1 h 30')
+    expect(line('FATIGUE_CHANGED', { change: 1, fatigue: 2, reason: 'hunger' })).toBe(
+      'Not enough to eat: fatigue +1 (now 2)',
+    )
+    expect(line('FATIGUE_CHANGED', { change: -1, fatigue: 0, reason: 'action', action: 'x' })).toBe(
+      'Forage for food: fatigue −1 (now 0)',
     )
   })
 })

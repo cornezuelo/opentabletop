@@ -8,7 +8,7 @@ Write a name in the box at the bottom of the system list and press **+**. It cre
 
 ## Changing it with forms
 
-- **Rules**: the day (dawn, nightfall, marching hours), the ways of travelling (km per day, what each uses daily, which terrains it can cross), how each terrain and each road or river changes the speed, the supplies used per day, how each weather slows you down, whether the party can camp and rest, and **actions of this system** (buttons of its own, like the Grey Marches' **Forage**: time, today's speed, fatigue, once a day). The **i** next to each part explains it.
+- **Rules**: the day (dawn, nightfall, marching hours), the ways of travelling (km per day, what each uses daily, which terrains it can cross), how each terrain and each road or river changes the speed, the supplies used per day, how each weather slows you down, whether the party can camp and rest, and **actions of this system** (buttons of its own, like the Grey Marches' **Forage for food**: time, today's speed, fatigue, once a day). The **i** next to each part explains it.
 - **Checks**: each check with its **name** and **description** for players (shown in the trip panel and the journal instead of the event id), when it happens (at dawn, entering a hex, in camp, or one of the system's own actions), its conditions, the table that resolves it and any extra context; then the party stats. This tab writes both the travel rules and the bindings, so you don't have to keep them in step: renaming a check takes its table along.
 
 Conditions and context are written as `key: value` pairs, like in tables: `tags: landmark`, `edges: [road, river]`, `danger: { gte: 3 }`. Choosing **nothing: wait for me** as the table makes the trip stop and wait for **Continue**.

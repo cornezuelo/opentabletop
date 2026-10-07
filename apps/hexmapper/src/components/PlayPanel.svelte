@@ -17,6 +17,7 @@
   import { oracleUi } from '../lib/play/oracle'
   import { getSystem, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
+  import { terrainName } from '../lib/terrainName'
   import ColorPicker from './ColorPicker.svelte'
   import TokenIconPicker from './tokens/TokenIconPicker.svelte'
   import { InfoTip, tooltip, confirmAction } from '@open-tabletop/ui-kit'
@@ -44,6 +45,11 @@
   const system = $derived(getSystem(play?.rules?.system ?? 'generic'))
   const coord = (key: string) =>
     formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
+
+  const terrainLabel = (id: string) => {
+    const terrain = editor.terrains.find((x) => x.id === id)
+    return terrain ? terrainName(terrain) : id.replaceAll('-', ' ')
+  }
 
   let newSeason = $state<Season>('spring')
 </script>
@@ -148,6 +154,7 @@
       startDay={play.rules.startDay}
       locale={getLocale()}
       hexLabel={coord}
+      terrainName={terrainLabel}
       title={editor.map.meta.name || t('map.untitled')}
       nameOf={oracleUi.nameOf}
       destinationHint={t('play.destinationHelp')}

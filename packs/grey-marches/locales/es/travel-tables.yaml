@@ -7,11 +7,11 @@ getting-lost:
     lost: 'Os habéis perdido: hoy no avanzáis'
     course: Mantenéis el rumbo
 forage:
-  name: Forrajear
+  name: Buscar comida
   entries:
     nothing: Aquí no hay nada que comer
     some: Bayas y raíces para un día
-    plenty: '¡Caza! Comida para {{1d3+1}} días'
+    plenty: '¡Caza! Comida para {{resources.food}} días'
 toll:
   name: El peaje
   entries:

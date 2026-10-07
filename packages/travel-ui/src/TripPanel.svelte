@@ -24,6 +24,7 @@
     startDay,
     locale,
     hexLabel = (hex) => hex,
+    terrainName = (id) => id.replaceAll('-', ' '),
     nameOf = (id) => id,
     destinationHint = '',
     arrivedHint = '',
@@ -37,6 +38,8 @@
     startDay: number
     locale: string
     hexLabel?: (hex: string) => string
+    /** Name of a terrain id, in the UI language (journal: "nothing to forage on hills"). */
+    terrainName?: (id: string) => string
     /** Display name of an Oracle definition (journal entries of hand rolls). */
     nameOf?: (id: string) => string
     /** Shown when there is no destination yet, e.g. "Click a hex to set the destination." */
@@ -110,17 +113,48 @@
   const checkName = (event: string) => localize(checkInfo(system.rules, event).name, locale, 'en')
   const checkTip = (event: string) =>
     localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
-  const context = $derived({ t, startDay, hexLabel, nameOf, actionName, checkName, calendar })
+  /** Name of a value results change: a stat of the system, fatigue or a resource. */
+  const valueName = (key: string) => {
+    const stat = system.bindings?.stats?.[key]
+    if (stat) return statText(stat.name, key)
+    if (key === 'fatigue') return t('fatigue')
+    return idText(t, `resources.${key}`, key)
+  }
+  /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
+  const actionNothing = (id: string) => {
+    if (!(system.rules.checks ?? []).some((c) => c.at === id)) return ''
+    return localize(actions.custom[id]?.nothing, locale, 'en')
+  }
+  const context = $derived({
+    t,
+    startDay,
+    hexLabel,
+    nameOf,
+    actionName,
+    checkName,
+    calendar,
+    valueName,
+    terrainName,
+    actionNothing,
+  })
   /** What an action of the system's own does, for its tooltip. */
   function actionTip(id: string): string {
     const own = actions.custom[id]
     const described = localize(own.description, locale, 'en')
     if (described) return described
+    const rolls = [
+      ...new Set(
+        (system.rules.checks ?? [])
+          .filter((c) => c.at === id)
+          .map((c) => eventName(t, c.event, checkName)),
+      ),
+    ]
     const parts = [
       own.minutes ? t('tips.actionTime', { minutes: own.minutes }) : '',
       own.speed !== undefined ? t('tips.actionSpeed', { speed: own.speed }) : '',
       own.fatigue ? t('tips.actionFatigue', { fatigue: own.fatigue }) : '',
       own.oncePerDay ? t('tips.actionOnce') : '',
+      rolls.length ? t('tips.actionChecks', { checks: rolls.join(', ') }) : '',
     ]
     return parts.filter(Boolean).join(' ')
   }

@@ -246,6 +246,28 @@ describe('camp, resources and fatigue', () => {
     expect(waited.resources.food).toBe(2)
   })
 
+  it('reports supplies eaten, rests and every change of fatigue', () => {
+    const { events } = run(start(), { type: 'camp' })
+    expect(events).toContainEqual({
+      type: 'SUPPLIES_USED',
+      used: { food: 1 },
+      left: { food: 2 },
+      time: defaultCalendar.at(2, '00:00'),
+    })
+    // Nothing to recover from: no fatigue line.
+    expect(events.some((e) => e.type === 'FATIGUE_CHANGED')).toBe(false)
+    const hungry = run({ ...start(), resources: { food: 0 } }, { type: 'camp' }).events
+    expect(hungry.some((e) => e.type === 'SUPPLIES_USED')).toBe(false)
+    expect(hungry).toContainEqual(
+      expect.objectContaining({ type: 'FATIGUE_CHANGED', change: 1, reason: 'hunger' }),
+    )
+    const fed = run({ ...start(), fatigue: 2 }, { type: 'camp' }).events
+    expect(fed).toContainEqual(
+      expect.objectContaining({ type: 'FATIGUE_CHANGED', change: -1, fatigue: 1, reason: 'camp' }),
+    )
+    expect(run(start(), { type: 'rest' }).events[0]).toMatchObject({ type: 'RESTED', minutes: 60 })
+  })
+
   it('applies check outcomes to resources and fatigue', () => {
     const { state } = run(start(), { type: 'camp' })
     const check = state.pendingChecks[0]
@@ -308,6 +330,24 @@ describe('the system’s own actions', () => {
     expect(own.apply(start(), { type: 'action', id: 'dance' }).events).toEqual([
       { type: 'ACTION_UNAVAILABLE', action: 'dance' },
     ])
+  })
+
+  it('say how many of their checks came up, and what fatigue they eased', () => {
+    const steppe = own.apply(start(), { type: 'action', id: 'forage' }).events[0]
+    expect(steppe).toMatchObject({ minutes: 240, checks: 1, hex: '0,0', terrain: 'steppe' })
+    // In the mountains nothing applies: the journal can say so.
+    const mountains = own.apply(start('3,0'), { type: 'action', id: 'forage' })
+    expect(mountains.events).toEqual([
+      expect.objectContaining({ type: 'ACTION_TAKEN', checks: 0, terrain: 'mountains' }),
+    ])
+    const prayed = own.apply({ ...start(), fatigue: 2 }, { type: 'action', id: 'pray' }).events
+    expect(prayed.at(-1)).toMatchObject({
+      type: 'FATIGUE_CHANGED',
+      change: -1,
+      fatigue: 1,
+      reason: 'action',
+      action: 'pray',
+    })
   })
 
   it('are listed with camp and rest, and checks can only name existing moments', () => {

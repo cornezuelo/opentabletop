@@ -44,11 +44,15 @@ actions:
   rest: { minutes: 120, fatigue: 1 }
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: forage) is rolled where the party stands.
+  # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
   forage:
-    name: { en: Forage, es: Forrajear }
+    name: { en: Forage for food, es: Buscar comida }
     description:
-      en: 'Three hours looking for food (once a day): the rest of the day’s march is halved. Rolled on Foraging with Survival, in woods, fields, heath and marsh.'
-      es: 'Tres horas buscando comida (una vez al día): el resto de la marcha del día va a la mitad. Se tira en Forrajear con Supervivencia, en bosques, campos, brezales y marismas.'
+      en: 'Three hours looking for food (once a day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find.'
+      es: 'Tres horas buscando comida (una vez al día): el resto de la marcha del día va a la mitad. Solo en bosque, bosque denso, llanura, cultivos, brezal y marisma: se tira 1d6 + Supervivencia (dos veces, la mejor); de 4 a 6 da comida para un día, 7 o más para 2 a 4 días. En otros terrenos no hay nada que encontrar.'
+    nothing:
+      en: 'nothing to forage on {terrain}: only woods, fields, heath and marsh give food'
+      es: 'no hay nada que buscar en {terrain}: solo los bosques, campos, brezales y marismas dan comida'
     minutes: 180
     speed: 0.5
     oncePerDay: true
@@ -118,7 +122,10 @@ checks:
     when: { party.resources.food: { lt: 1 } }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
-    name: { en: Foraging, es: Forrajeo }
+    name: { en: Foraging, es: Buscar comida }
+    description:
+      en: 'Rolled when you forage for food in woods, fields, heath or marsh.'
+      es: 'Se tira al buscar comida en bosques, campos, brezales o marismas.'
     at: forage
     when: { terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
 ---
@@ -131,7 +138,7 @@ stats:
     default: 0
   survival:
     name: { en: Survival, es: Supervivencia }
-    description: { en: Added to foraging and fords., es: Se suma a forrajear y a los vados. }
+    description: { en: Added to foraging and fords., es: Se suma a buscar comida y a los vados. }
     default: 1
   # Changed by tables (encounters, getting lost, the shrine, hunger, the inn) and read by
   # them as party.stats.morale. "hirelings" isn't declared: it appears once a table sets it.

@@ -26,4 +26,10 @@ The panel on the right is the same as in the Hexmapper: day, time and season, th
 
 Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. A check with no table (like the Grey Marches' landmarks) waits for you: resolve it yourself and press **Continue**.
 
+What the journal says, so nothing happens silently:
+
+- **Results with what they changed**: "Foraging: Berries and roots for a day (Food +1)", "Toll: The bridge-warden takes a day’s food as toll (Food −1)", "Getting lost: Lost in the fog: no progress today (lost for today)".
+- **Actions** with how long they took, and when nothing was rolled: in the Grey Marches, **Forage for food** on hills says "Forage for food (3 h): nothing to forage on hills: only woods, fields, heath and marsh give food". The three hours still pass and the march is still halved.
+- **Supplies** eaten when each day ends ("Supplies for the day: Food −1 (4 left)"), running out ("Out of Food") and **fatigue** changes with their reason ("Not enough to eat: fatigue +1 (now 2)", "A fed night’s sleep: fatigue −1 (now 1)", "The rest: fatigue −1 (now 0)").
+
 The trip is saved in the browser as you play, and is still there when you come back. A [backup](../technical/05-backups.md) takes it to another computer.

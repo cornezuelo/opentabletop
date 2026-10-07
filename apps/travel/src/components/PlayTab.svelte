@@ -119,6 +119,7 @@
           startDay={trip.saved.startDay}
           locale={getLocale()}
           {hexLabel}
+          {terrainName}
           title={tripLabel(trip.saved)}
           nameOf={texts.nameOf}
           destinationHint={t('play.destinationHint')}

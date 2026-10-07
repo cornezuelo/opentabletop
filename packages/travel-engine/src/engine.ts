@@ -88,7 +88,34 @@ export type TravelEvent =
   | { type: 'CAMP_STARTED'; time: GameTime }
   | { type: 'RESOURCE_DEPLETED'; resource: string }
   | { type: 'ACTION_UNAVAILABLE'; action: string }
-  | { type: 'ACTION_TAKEN'; action: string; time: GameTime }
+  /** `checks`: how many of its checks came up here (0: nothing to roll, e.g. foraging on hills). */
+  | {
+      type: 'ACTION_TAKEN'
+      action: string
+      time: GameTime
+      minutes: number
+      checks: number
+      hex: string
+      terrain?: string
+    }
+  | { type: 'RESTED'; minutes: number; time: GameTime }
+  /** A day of supplies eaten: what was used and what is left. */
+  | {
+      type: 'SUPPLIES_USED'
+      used: Record<string, number>
+      left: Record<string, number>
+      time: GameTime
+    }
+  /** Fatigue changed by the rules (checks' changes go with their results). */
+  | {
+      type: 'FATIGUE_CHANGED'
+      change: number
+      fatigue: number
+      reason: 'hunger' | 'camp' | 'rest' | 'action'
+      /** The system's own action that changed it (reason `action`). */
+      action?: string
+      time: GameTime
+    }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -282,19 +309,62 @@ export function createTravelEngine(options: {
     return consumption
   }
 
-  /** Eats one day of supplies; going without raises fatigue. Returns true if short. */
-  const eatOneDay = (state: TravelState, events: TravelEvent[]): boolean => {
+  /** Changes fatigue (never below 0) and says so when it moved. */
+  const changeFatigue = (
+    state: TravelState,
+    delta: number,
+    reason: 'hunger' | 'camp' | 'rest' | 'action',
+    events: TravelEvent[],
+    action?: string,
+  ): void => {
+    const fatigue = Math.max(0, state.fatigue + delta)
+    if (fatigue === state.fatigue) return
+    events.push({
+      type: 'FATIGUE_CHANGED',
+      change: fatigue - state.fatigue,
+      fatigue,
+      reason,
+      ...(action && { action }),
+      time: state.time,
+    })
+    state.fatigue = fatigue
+  }
+
+  /**
+   * Eats one day of supplies (`at`: when that day ended); going without raises fatigue.
+   * Returns true if short.
+   */
+  const eatOneDay = (state: TravelState, events: TravelEvent[], at: GameTime): boolean => {
     let short = false
+    const used: Record<string, number> = {}
     for (const [id, amount] of Object.entries(dailyConsumption(state))) {
       if (amount <= 0) continue
-      const left = (state.resources[id] ?? 0) - amount
+      const had = state.resources[id] ?? 0
+      const left = had - amount
+      if (had > 0) used[id] = Math.min(had, amount)
       if (left < 0) {
         short = true
         events.push({ type: 'RESOURCE_DEPLETED', resource: id })
       }
       state.resources[id] = Math.max(0, left)
     }
-    if (short) state.fatigue += 1
+    if (Object.keys(used).length)
+      events.push({
+        type: 'SUPPLIES_USED',
+        used,
+        left: Object.fromEntries(Object.keys(used).map((id) => [id, state.resources[id]])),
+        time: at,
+      })
+    if (short) {
+      events.push({
+        type: 'FATIGUE_CHANGED',
+        change: 1,
+        fatigue: state.fatigue + 1,
+        reason: 'hunger',
+        time: at,
+      })
+      state.fatigue += 1
+    }
     return short
   }
 
@@ -307,7 +377,8 @@ export function createTravelEngine(options: {
     const { day } = calendar.describe(state.time)
     if (day <= state.day) return false
     let short = false
-    for (let d = state.day; d < day; d++) short = eatOneDay(state, events) || short
+    for (let d = state.day; d < day; d++)
+      short = eatOneDay(state, events, Math.min(state.time, calendar.at(d + 1, '00:00'))) || short
     state.day = day
     state.travelledToday = 0
     state.dayChecksDone = false
@@ -389,7 +460,7 @@ export function createTravelEngine(options: {
     state.time = nextAt(calendar, state.time + 1, rules.day.start)
     const short = syncDay(state, events)
     // A fed night's sleep recovers fatigue.
-    if (!short) state.fatigue = Math.max(0, state.fatigue - 1)
+    if (!short) changeFatigue(state, -1, 'camp', events)
   }
 
   return {
@@ -428,9 +499,11 @@ export function createTravelEngine(options: {
             events.push({ type: 'ACTION_UNAVAILABLE', action: 'rest' })
             break
           }
-          state.time += Math.max(0, action.minutes ?? actions.rest.minutes)
+          const minutes = Math.max(0, action.minutes ?? actions.rest.minutes)
+          events.push({ type: 'RESTED', minutes, time: state.time })
+          state.time += minutes
           syncDay(state, events)
-          state.fatigue = Math.max(0, state.fatigue - actions.rest.fatigue)
+          changeFatigue(state, -actions.rest.fatigue, 'rest', events)
           break
         }
         case 'action': {
@@ -440,14 +513,27 @@ export function createTravelEngine(options: {
             break
           }
           syncDay(state, events)
-          events.push({ type: 'ACTION_TAKEN', action: action.id, time: state.time })
+          const taken = {
+            type: 'ACTION_TAKEN' as const,
+            action: action.id,
+            time: state.time,
+            minutes: own.minutes ?? 0,
+            checks: 0,
+            hex: state.location,
+            ...(world.cell(state.location)?.terrain && {
+              terrain: world.cell(state.location)!.terrain,
+            }),
+          }
+          events.push(taken)
           // Its checks see the place and moment it starts.
+          const before = state.pendingChecks.length
           schedule(state, action.id, events)
+          taken.checks = state.pendingChecks.length - before
           state.time += own.minutes ?? 0
           syncDay(state, events)
           state.actionsToday = [...(state.actionsToday ?? []), action.id]
           if (own.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * own.speed
-          if (own.fatigue) state.fatigue = Math.max(0, state.fatigue - own.fatigue)
+          if (own.fatigue) changeFatigue(state, -own.fatigue, 'action', events, action.id)
           break
         }
         case 'setMode':

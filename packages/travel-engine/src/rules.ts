@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
 const condition = z.record(z.string(), z.unknown())
-/** Text in one or several languages: "Forage" or { en: Forage, es: Forrajear }. */
+/** Text in one or several languages: "Forage" or { en: Forage for food, es: Buscar comida }. */
 const text = z.union([z.string(), z.record(z.string(), z.string())])
 
 /** Built-in moments for checks; any other value names one of the system's own actions. */
@@ -18,6 +18,11 @@ const customAction = z
   .object({
     name: text.optional(),
     description: text.optional(),
+    /**
+     * What the journal says when none of its checks come up where the party is, e.g.
+     * "Nothing to forage on {terrain}" (`{terrain}` is the hex's terrain).
+     */
+    nothing: text.optional(),
     /** Time it takes (default 0). */
     minutes: z.number().nonnegative().optional(),
     /** Multiplies the rest of today's march, e.g. 0.5: foraging halves it. */

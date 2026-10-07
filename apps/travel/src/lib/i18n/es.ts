@@ -97,7 +97,7 @@ export const es: Messages<typeof en> = {
     restFatigue: 'Fatiga que recupera',
     ownActions: 'Acciones de este sistema',
     ownActionsHelp:
-      'Botones propios junto a Viajar, Acampar y Descansar, p. ej. forage (forrajear): llevan tiempo, pueden frenar el resto de la marcha del día y recuperar fatiga. Dales comprobaciones en la pestaña Comprobaciones (Cuándo: la acción). Su nombre y descripción en cada idioma van en el YAML (name: { en: Forage, es: Forrajear }).',
+      'Botones propios junto a Viajar, Acampar y Descansar, p. ej. forage (buscar comida): llevan tiempo, pueden frenar el resto de la marcha del día y recuperar fatiga. Dales comprobaciones en la pestaña Comprobaciones (Cuándo: la acción). Su nombre, su descripción y lo que dice el diario cuando no se aplica ninguna de sus comprobaciones (nothing) van en el YAML, en cada idioma (name: { en: Forage for food, es: Buscar comida }).',
     actionSpeedHelp:
       'Multiplica el resto de la marcha del día: 0.5 la reduce a la mitad. Vacío: sin cambio.',
     oncePerDay: 'Una vez al día',
