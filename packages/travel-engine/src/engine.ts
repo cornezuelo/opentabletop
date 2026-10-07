@@ -103,6 +103,10 @@ export type StopReason =
   | 'lost'
   | 'no-route'
   | 'weather'
+  /** A wait reached its moment. */
+  | 'waited'
+  /** Night fell on a wait and the party can't camp (`because` says why). */
+  | 'camp'
 
 export type TravelEvent =
   | { type: 'DAY_STARTED'; day: number }
@@ -113,7 +117,13 @@ export type TravelEvent =
   | { type: 'CHECK_RESOLVED'; id: string; outcome: CheckOutcome }
   | { type: 'DESTINATION_REACHED'; hex: string }
   | { type: 'ROUTE_BLOCKED'; from: string; to: string }
-  | { type: 'TRAVEL_STOPPED'; reason: StopReason; time: GameTime; value?: string }
+  | {
+      type: 'TRAVEL_STOPPED'
+      reason: StopReason
+      time: GameTime
+      value?: string
+      because?: Unavailable
+    }
   | { type: 'CAMP_STARTED'; time: GameTime }
   | { type: 'RESOURCE_DEPLETED'; resource: string }
   | { type: 'ACTION_UNAVAILABLE'; action: string; because?: Unavailable }
@@ -151,6 +161,11 @@ export type TravelAction =
   | { type: 'setDestination'; hex: string; strategy?: RouteStrategy }
   | { type: 'travel'; until?: 'hex' | 'destination' }
   | { type: 'advanceTime'; minutes: number }
+  /**
+   * Waits where the party is until a moment, living it: day-start and day-end checks,
+   * eating, the system's camp at nightfall. Stops early when a check is pending.
+   */
+  | { type: 'wait'; until: GameTime }
   | { type: 'camp' }
   /** A rest; its length comes from the rules unless given. */
   | { type: 'rest'; minutes?: number }
@@ -519,6 +534,43 @@ export function createTravelEngine(options: {
     }
   }
 
+  /**
+   * Waits until `until`, moment by moment: dawn (day-start checks), nightfall (the system's
+   * camp, if it has one and the party hasn't camped today), midnight (the day's supplies and
+   * day-end checks). Stops when a check comes up (the host resolves it and waits on), or when
+   * night falls and the party can't camp. Camping may end past `until` (it lasts till dawn).
+   */
+  const wait = (state: TravelState, until: GameTime, events: TravelEvent[]): void => {
+    const stop = (reason: StopReason, because?: Unavailable): void => {
+      events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time, ...(because && { because }) })
+    }
+    for (let guard = 0; guard < 10000; guard++) {
+      syncDay(state, events)
+      if (state.pendingChecks.length) return stop('check')
+      if (state.time >= until) return stop('waited')
+      const dawn = calendar.at(state.day, rules.day.start)
+      const nightfall = calendar.at(state.day, rules.day.nightfall)
+      if (!state.dayChecksDone && state.time >= dawn && state.time < nightfall) {
+        state.dayChecksDone = true
+        schedule(state, 'day-start', events)
+        continue
+      }
+      if (state.time >= nightfall && actions.camp && !state.actionsToday?.includes('camp')) {
+        const because = unavailable(state, 'camp', hostFacts)
+        if (because) return stop('camp', because)
+        takeAction(state, 'camp', events)
+        continue
+      }
+      const next =
+        state.time < dawn
+          ? dawn
+          : state.time < nightfall
+            ? nightfall
+            : calendar.at(state.day + 1, 0)
+      state.time = Math.min(until, next)
+    }
+  }
+
   /** Why an action can't be taken now (undefined: it can). */
   const unavailable = (
     state: TravelState,
@@ -674,6 +726,9 @@ export function createTravelEngine(options: {
         case 'advanceTime':
           state.time += Math.max(0, action.minutes)
           syncDay(state, events)
+          break
+        case 'wait':
+          wait(state, action.until, events)
           break
         case 'camp':
           takeAction(state, 'camp', events)

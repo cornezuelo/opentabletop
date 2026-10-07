@@ -74,6 +74,7 @@ export const es: Messages<typeof en> = {
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Noche',
   },
   journal: {
+    wait: 'Esperar aquí hasta el día {day}, {clock}',
     failed: '{event}: la tabla falló ({error})',
     discoveryFailed: 'El descubrimiento falló en {hex} ({error})',
     worldEvent: 'En el mundo: {name}',
@@ -102,6 +103,7 @@ export const es: Messages<typeof en> = {
     NO_ROUTE: 'No hay ruta hasta allí',
   },
   stop: {
+    camp: 'Cae la noche y el grupo no puede acampar ({why}): la espera se detiene aquí.',
     nightfall: 'Cae la noche. Acampa para seguir mañana.',
     'day-limit': 'Suficiente marcha por hoy. Acampa para seguir mañana.',
     lost: 'Perdidos: no se viaja más hoy',

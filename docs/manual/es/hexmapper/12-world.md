@@ -10,7 +10,21 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo el Oracle) lleva la fe
 
 ## Avanzar el tiempo
 
-**+1 hora**, **+1 guardia**, **Hasta el anochecer**, **Hasta el alba**, **Día siguiente** y **Próximo evento**. Un viaje con reglas mueve el reloj solo mientras el grupo viaja y acampa, y los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación. Lo que llega por el camino se anota en la **cronología** (y, durante un viaje, en su diario): eventos, fiestas, lunas llenas y nuevas.
+**+1 hora**, **+1 guardia**, **Hasta el anochecer**, **Hasta el alba**, **Día siguiente** y **Próximo evento**. Lo que llega por el camino se anota en la **cronología** (y, durante un viaje, en su diario): eventos, fiestas, lunas llenas y nuevas.
+
+## Con un viaje en marcha
+
+El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj es **esperar donde está el grupo**: cada momento de la espera se vive como si lo jugaras.
+
+- Al alba se tiran las comprobaciones del día (el clima, perderse…), como al ponerse en marcha.
+- Al anochecer el grupo **acampa**, con la acción de acampar del sistema (comer, dormir hasta el alba, sus comprobaciones nocturnas), una vez por noche. Un sistema sin acampada simplemente deja pasar la noche.
+- Cada día que acaba gasta sus provisiones y tira las comprobaciones de fin de día del sistema (el hambre, por ejemplo).
+
+El diario empieza con «Esperar aquí hasta el día 3, 06:00» y luego lo cuenta todo. La espera **se detiene antes**, y el reloj con ella, cuando algo te necesita: una comprobación sin tabla o que hace pausa (pulsa **Continuar** y vuelve a avanzar el reloj), o una noche en la que el grupo no puede acampar (lo bloquea un valor del día o no se cumple la regla del sistema para acampar): «Cae la noche y el grupo no puede acampar (…): la espera se detiene aquí.» Un mensaje avisa de que se detuvo antes.
+
+Una acampada dura hasta el alba aunque la espera pidiera menos: **+1 hora** a las 19:30 cruza el anochecer, así que el grupo acampa y el reloj acaba al alba. Una espera de más de un día pregunta antes.
+
+Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashford y pulsa **Día siguiente**: al alba se tiran el clima y perderse, al anochecer el grupo acampa (come la comida de un día, una noche bien comidos quita 1 de fatiga, se tira el encuentro nocturno) y el reloj acaba en el alba siguiente.
 
 ## Eventos
 

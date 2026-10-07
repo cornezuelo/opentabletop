@@ -209,7 +209,7 @@ export interface Session {
   note(state: SessionState, text: string): SessionState
 }
 
-const QUIET_STOPS = new Set(['check', 'destination', 'hex'])
+const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited'])
 /** Journal lines an action's step effects are added to (the action's own line). */
 const ACTION_LINES = new Set(['ACTION_TAKEN', 'RESTED', 'CAMP_STARTED'])
 const JOURNALED: TravelEvent['type'][] = [
@@ -315,7 +315,13 @@ export function createSession(options: {
       if (discovery && (travelling || action.type === 'setDestination'))
         if (arrive(s.travel.location) && travelling) return { state: s, entries }
       let act: TravelAction = discovery && travelling ? { type: 'travel', until: 'hex' } : action
-      for (let i = 0; i <= maxAuto; i++) {
+      // A wait goes on after each check it stops for, like a travel order.
+      const waiting = action.type === 'wait'
+      if (waiting && action.until > s.travel.time)
+        add(s, entries, { source: 'travel', code: 'WAIT', data: { until: action.until } })
+      // A long wait stops for its checks every day.
+      const limit = waiting ? Math.max(maxAuto, 2000) : maxAuto
+      for (let i = 0; i <= limit; i++) {
         const dayBefore = s.travel.day
         const from = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
@@ -452,7 +458,8 @@ export function createSession(options: {
         }
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
         const reason = stopped?.type === 'TRAVEL_STOPPED' ? stopped.reason : undefined
-        const clear = travelling && resolvedAll && s.travel.pendingChecks.length === 0 && !found
+        const clear =
+          (travelling || waiting) && resolvedAll && s.travel.pendingChecks.length === 0 && !found
         // A travel order keeps going once its checks are resolved…
         let keepGoing = clear && reason === 'check'
         // …and, discovering, from hex to hex, with the route re-planned over what was found.

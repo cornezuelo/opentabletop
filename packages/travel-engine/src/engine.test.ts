@@ -663,3 +663,90 @@ describe('water', () => {
     expect(sailing.stepMinutes({ ...start('a'), mode: 'boat' }, 'a', 'b')).toBeLessThan(Infinity)
   })
 })
+
+describe('waiting', () => {
+  /** Waits, resolving every check it stops for, until it stops for something else. */
+  function waitAll(eng: typeof engine, state: TravelState, until: number) {
+    const events = []
+    for (let i = 0; i < 50; i++) {
+      const result = eng.apply(state, { type: 'wait', until })
+      state = result.state
+      events.push(...result.events)
+      const stop = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
+      if (stop?.type !== 'TRAVEL_STOPPED' || stop.reason !== 'check') break
+      for (const check of state.pendingChecks)
+        state = eng.apply(state, { type: 'resolveCheck', id: check.id }).state
+    }
+    return { state, events }
+  }
+  const count = (events: { type: string }[], type: string) =>
+    events.filter((e) => e.type === type).length
+  const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
+
+  it('lives every moment: day-start checks, camp at nightfall, a day of supplies a day', () => {
+    const { state, events } = waitAll(engine, start(), at(3, '06:00'))
+    expect(state.time).toBe(at(3, '06:00'))
+    expect(count(events, 'CAMP_STARTED')).toBe(2)
+    expect(count(events, 'SUPPLIES_USED')).toBe(2)
+    expect(state.resources.food).toBe(1)
+    // Dawn of days 1 and 2 (day 3's dawn is where it ends: travelling will roll them).
+    const dawnChecks = events.filter(
+      (e) => e.type === 'CHECK_REQUIRED' && e.check.event === 'WEATHER_CHECK_REQUIRED',
+    )
+    expect(dawnChecks).toHaveLength(2)
+    expect(events.at(-1)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'waited' })
+  })
+
+  it('stops for a check and goes on from there', () => {
+    const first = engine.apply(start(), { type: 'wait', until: at(1, '12:00') })
+    expect(first.state.time).toBe(at(1, '06:00'))
+    expect(first.state.pendingChecks.length).toBeGreaterThan(0)
+    expect(first.events.at(-1)).toMatchObject({ reason: 'check' })
+  })
+
+  it('a short wait before nightfall neither camps nor eats', () => {
+    const morning = { ...start(), dayChecksDone: true }
+    const { state, events } = waitAll(engine, morning, at(1, '20:00'))
+    expect(state.time).toBe(at(1, '20:00'))
+    expect(count(events, 'CAMP_STARTED')).toBe(0)
+    expect(state.resources.food).toBe(3)
+  })
+
+  it('stops when night falls and the party can’t camp, saying why', () => {
+    const { rules: blocking } = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: {},
+      modes: { foot: { kmPerDay: 30 } },
+      values: { hunted: { blocks: ['camp'] } },
+    })
+    const eng = createTravelEngine({ world, rules: blocking! })
+    const hunted = { ...start(), dayChecksDone: true, today: { hunted: true } }
+    const { state, events } = waitAll(eng, hunted, at(2, '06:00'))
+    expect(state.time).toBe(at(1, '20:00'))
+    expect(events.at(-1)).toMatchObject({
+      type: 'TRAVEL_STOPPED',
+      reason: 'camp',
+      because: { value: 'hunted' },
+    })
+  })
+
+  it('without a camp in the system, the night just passes', () => {
+    const { rules: noCamp } = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: {},
+      modes: { foot: { kmPerDay: 30 } },
+      resources: { food: { perDay: 1 } },
+      actions: { camp: false },
+    })
+    const eng = createTravelEngine({ world, rules: noCamp! })
+    const { state, events } = waitAll(eng, start(), at(2, '10:00'))
+    expect(state.time).toBe(at(2, '10:00'))
+    expect(count(events, 'CAMP_STARTED')).toBe(0)
+    expect(state.resources.food).toBe(2)
+    expect(state.day).toBe(2)
+  })
+})

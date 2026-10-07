@@ -72,6 +72,7 @@ export const en = {
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Night',
   },
   journal: {
+    wait: 'Wait here until day {day}, {clock}',
     failed: '{event}: the table failed ({error})',
     discoveryFailed: 'Discovery failed at {hex} ({error})',
     worldEvent: 'In the world: {name}',
@@ -100,6 +101,7 @@ export const en = {
     NO_ROUTE: 'No route there',
   },
   stop: {
+    camp: 'Night falls and the party can’t camp ({why}): the wait stops here.',
     nightfall: 'Night falls. Camp to continue tomorrow.',
     'day-limit': 'Enough marching for today. Camp to continue tomorrow.',
     lost: 'Lost: no more travel today',

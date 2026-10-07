@@ -1,21 +1,24 @@
 import { calendarOf, localize } from '@open-tabletop/session'
 import { defaultCalendar, type Calendar, type DataCalendar } from '@open-tabletop/time'
+import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
   createWorld,
   initialWorld,
+  type Until,
   type WorldAction,
   type WorldEvent,
   type WorldState,
 } from '@open-tabletop/world-engine'
-import { getLocale } from '../i18n/index.svelte'
+import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
-import { sessionOf } from './play'
+import { sessionOf, step } from './play'
 import { getSystem } from './systems'
 
 /**
  * The map's world clock: the campaign's time, events scheduled on it and progress
  * clocks. It names time with the calendar of the system the map plays (or the default
- * one). Rules trips move it forward; outside a trip it's moved by hand. Play state: saved
+ * one). It and a rules trip share one time: travelling moves it, and moving it waits in the
+ * trip (`advanceWorld`). Play state: saved
  * with the map, outside the undo history.
  */
 
@@ -47,6 +50,38 @@ export function worldAct(action: WorldAction): WorldEvent[] {
   const { state: next, events } = world().apply(state, action)
   editor.setWorld(next)
   return events
+}
+
+/**
+ * Moves time on from the World panel. With a trip going on there is one time for both:
+ * the party waits where it is, living every moment (dawn's checks, eating, camping at
+ * night), and the world follows it. The wait stops early at anything that needs the
+ * player (a check without a table, a pause, a camp the system blocks); a wait of more
+ * than a day asks first.
+ */
+export async function advanceWorld(how: { minutes: number } | { until: Until }): Promise<void> {
+  const state = editor.map.world
+  if (!state) return
+  const play = editor.map.play
+  const trip = play ? sessionOf(play) : null
+  if (!trip)
+    return void worldAct(
+      'minutes' in how
+        ? { type: 'advance', minutes: how.minutes }
+        : { type: 'advanceUntil', until: how.until },
+    )
+  const until =
+    'minutes' in how ? state.time + Math.max(0, how.minutes) : world().target(state, how.until)
+  if (until === undefined || until <= trip.travel.time) {
+    if (until !== undefined) worldAct({ type: 'setTime', time: until })
+    return
+  }
+  const calendar = worldCalendar()
+  const days = (until - trip.travel.time) / calendar.minutesPerDay
+  if (days > 1 && !(await confirmAction(t('world.confirmWait', { days: Math.ceil(days) })))) return
+  step({ type: 'wait', until })
+  const after = editor.map.play ? sessionOf(editor.map.play) : null
+  if (after && after.travel.time < until) showToast(t('world.waitStopped'), 'info', 6000)
 }
 
 /** Events still to come. */

@@ -1,4 +1,5 @@
 import { tripChanges, type JournalEntry } from '@open-tabletop/session'
+import type { Unavailable } from '@open-tabletop/travel-engine'
 import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
 import { idText, type Translate, type TravelUiKey } from './i18n'
 
@@ -38,6 +39,19 @@ export function durationText(minutes: number): string {
   const m = Math.round(minutes % 60)
   if (!h) return `${m} min`
   return m ? `${h} h ${String(m).padStart(2, '0')}` : `${h} h`
+}
+
+/** Why something can't be done now, in words ('' when the system simply has no such thing). */
+export function whyText(
+  because: Unavailable | undefined,
+  { t, dayValues }: Pick<JournalContext, 't' | 'dayValues'>,
+): string {
+  if (!because || 'off' in because) return ''
+  if ('value' in because)
+    return t('blocked.value', {
+      name: dayValues?.[because.value] ?? idText(t, `values.${because.value}`, because.value),
+    })
+  return 'once' in because ? t('blocked.once') : t('blocked.condition')
 }
 
 const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`)
@@ -172,7 +186,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.day', { day: Number(d.day) - startDay + 1 })
     case 'RESOURCE_DEPLETED':
       return t('journal.depleted', { resource: name(String(d.resource)) })
+    case 'WAIT': {
+      const until = Number(d.until)
+      const parts = (context.calendar ?? defaultCalendar).describe(until)
+      return t('journal.wait', { day: parts.day - startDay + 1, clock: formatClock(parts) })
+    }
     case 'TRAVEL_STOPPED':
+      if (d.reason === 'camp')
+        return t('stop.camp', { why: whyText(d.because as Unavailable | undefined, context) })
       if (d.reason === 'value')
         return t('stop.value', {
           name:

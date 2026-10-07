@@ -6,7 +6,7 @@ import ts from 'typescript-eslint'
 import svelteConfig from './apps/hexmapper/svelte.config.js'
 
 export default ts.config(
-  { ignores: ['**/dist', '**/node_modules'] },
+  { ignores: ['**/dist', '**/dist-local', '**/node_modules'] },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...svelte.configs.recommended,

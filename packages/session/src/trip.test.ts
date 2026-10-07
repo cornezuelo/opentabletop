@@ -91,4 +91,31 @@ describe('trips', () => {
     expect(entries.find((e) => e.code === 'ORACLE_RESULT')?.text).toBe('Rain')
     expect(state.travel.location).toBe('b')
   })
+  it('waits for days, rolling each dawn’s checks and camping each night', () => {
+    const sys = travelSystems(registry).systems[1]
+    const oracle = createOracleEngine({ registry, random: sequence([0.1, 0.9, 0.1, 0.9]) })
+    const { session } = startTrip({ system: sys, location: 'a' })
+    const options = { system: sys, world, oracle, locale: 'en' }
+    const until = defaultCalendar.at(4, '12:00')
+    const { state, entries } = stepTrip(options, session, { type: 'wait', until })
+    expect(state.travel.time).toBe(until)
+    expect(entries[0]).toMatchObject({ code: 'WAIT', data: { until } })
+    expect(entries.filter((e) => e.code === 'ORACLE_RESULT').map((e) => e.text)).toEqual([
+      'Sun',
+      'Rain',
+      'Sun',
+      'Rain',
+    ])
+    expect(entries.filter((e) => e.code === 'CAMP_STARTED')).toHaveLength(3)
+    expect(state.travel.resources.water).toBe(3)
+  })
+
+  it('a wait stops at a check nobody answers', () => {
+    const sys = travelSystems(registry).systems[1]
+    const { session } = startTrip({ system: sys, location: 'a' })
+    const until = defaultCalendar.at(3, '12:00')
+    const { state, entries } = stepTrip({ system: sys, world }, session, { type: 'wait', until })
+    expect(state.travel.time).toBeLessThan(until)
+    expect(entries.at(-1)?.code).toBe('CHECK_PENDING')
+  })
 })

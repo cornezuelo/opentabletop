@@ -10,7 +10,21 @@ The **World** panel (☾ in the toolbar, under the Oracle) keeps the campaign's 
 
 ## Moving time on
 
-**+1 hour**, **+1 watch**, **Until dusk**, **Until dawn**, **Next day** and **Next event**. A trip with rules moves the clock by itself as the party travels and camps, and new trips start on the clock's date instead of a season. Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
+**+1 hour**, **+1 watch**, **Until dusk**, **Until dawn**, **Next day** and **Next event**. Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
+
+## With a trip going on
+
+The world and a trip with rules share **one time**. New trips start on the clock's date instead of a season, travelling and camping move the clock, and moving the clock is **waiting where the party is**: every moment of the wait is lived as if you played it.
+
+- At dawn, the day's checks are rolled (the weather, getting lost…), as when setting off.
+- At nightfall the party **camps**, with the system's camp action (eating, sleeping till dawn, its night checks), once a night. A system without a camp just lets the night pass.
+- Each day that ends uses its supplies and rolls the system's end-of-day checks (hunger, for example).
+
+The journal starts with "Wait here until day 3, 06:00" and then tells all of it. The wait **stops early**, and the clock with it, when something needs you: a check without a table or one that pauses (press **Continue**, then move the clock on again), or a night when the party can't camp (a value of the day blocks it, or the system's rule for camping doesn't hold): "Night falls and the party can't camp (…): the wait stops here." A message says it stopped early.
+
+A camp lasts till dawn even if the wait asked for less: **+1 hour** at 19:30 crosses nightfall, so the party camps and the clock ends at dawn. A wait of more than a day asks first.
+
+Example with the Grey Marches: start the clock, place the party in Ashford and press **Next day**: the weather and getting-lost checks are rolled at dawn, the party camps at nightfall (eating a day's food, a fed night takes off 1 fatigue, the night encounter is rolled) and the clock ends at the next dawn.
 
 ## Events
 

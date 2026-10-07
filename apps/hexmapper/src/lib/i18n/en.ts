@@ -505,7 +505,9 @@ export const en = {
     advanceHelp:
       'Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.',
     tripHelp:
-      'A trip is going on: travelling moves the clock too, and new trips start at its date.',
+      'A trip is going on: there is one time for both. Travelling moves the clock, and moving the clock is waiting where the party is: every moment is lived (dawn’s checks, eating, camping at night), and the wait stops early if something needs you.',
+    confirmWait: 'The party will wait here for about {days} days, camping each night. Go on?',
+    waitStopped: 'The wait stopped early: the trip needs you (see its journal).',
     hour: '+1 hour',
     watch: '+1 watch',
     dusk: 'Until dusk',

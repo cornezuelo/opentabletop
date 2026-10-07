@@ -6,7 +6,7 @@ import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { clickHex, partyLocation, sessionOf, setMode, step } from './play'
-import { startWorld, worldAct } from './world.svelte'
+import { advanceWorld, startWorld, worldAct } from './world.svelte'
 import { oracleUi } from './oracle'
 import { playSystems } from './systems'
 
@@ -69,5 +69,19 @@ describe('playing on the map', () => {
     step({ type: 'advanceTime', minutes: 120 })
     expect(editor.map.world!.time).toBe(sessionOf(editor.map.play!)!.travel.time)
     expect(sessionOf(editor.map.play!)!.journal.some((e) => e.code === 'WORLD_EVENT')).toBe(true)
+  })
+
+  it('with a trip on, moving the world on is waiting in the trip: one time for both', async () => {
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    startWorld()
+    clickHex('7,7')
+    const start = editor.map.world!.time
+    await advanceWorld({ until: 'next-day' })
+    const trip = sessionOf(editor.map.play!)!
+    // The wait is journaled and lived (dawn's checks rolled); the world is where the trip is.
+    expect(trip.journal.some((e) => e.code === 'WAIT')).toBe(true)
+    expect(trip.journal.some((e) => e.code === 'ORACLE_RESULT')).toBe(true)
+    expect(trip.travel.time).toBeGreaterThan(start)
+    expect(editor.map.world!.time).toBe(trip.travel.time)
   })
 })

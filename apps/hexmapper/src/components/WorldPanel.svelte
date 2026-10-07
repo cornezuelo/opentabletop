@@ -7,6 +7,7 @@
   import { en } from '../lib/i18n/en'
   import { sessionOf } from '../lib/play/play'
   import {
+    advanceWorld,
     startWorld,
     stopWorld,
     upcoming,
@@ -125,23 +126,14 @@
     <span>{t('world.advance')}<InfoTip text={t('world.advanceHelp')} /></span>
     {#if trip}<p class="help">{t('world.tripHelp')}</p>{/if}
     <div class="buttons">
-      <button onclick={() => worldAct({ type: 'advance', minutes: 60 })}>{t('world.hour')}</button>
-      <button onclick={() => worldAct({ type: 'advance', minutes: watchMinutes })}
-        >{t('world.watch')}</button
-      >
-      <button onclick={() => worldAct({ type: 'advanceUntil', until: 'dusk' })}
-        >{t('world.dusk')}</button
-      >
-      <button onclick={() => worldAct({ type: 'advanceUntil', until: 'dawn' })}
-        >{t('world.dawn')}</button
-      >
-      <button onclick={() => worldAct({ type: 'advanceUntil', until: 'next-day' })}
-        >{t('world.nextDay')}</button
-      >
+      <button onclick={() => advanceWorld({ minutes: 60 })}>{t('world.hour')}</button>
+      <button onclick={() => advanceWorld({ minutes: watchMinutes })}>{t('world.watch')}</button>
+      <button onclick={() => advanceWorld({ until: 'dusk' })}>{t('world.dusk')}</button>
+      <button onclick={() => advanceWorld({ until: 'dawn' })}>{t('world.dawn')}</button>
+      <button onclick={() => advanceWorld({ until: 'next-day' })}>{t('world.nextDay')}</button>
       <button
         disabled={!upcoming(world).length}
-        onclick={() => worldAct({ type: 'advanceUntil', until: 'next-event' })}
-        >{t('world.nextEvent')}</button
+        onclick={() => advanceWorld({ until: 'next-event' })}>{t('world.nextEvent')}</button
       >
     </div>
   </div>

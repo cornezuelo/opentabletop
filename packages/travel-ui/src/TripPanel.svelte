@@ -15,6 +15,7 @@
     eventName,
     journalMarkdown,
     tripDay,
+    whyText,
   } from './journal'
   import {
     actionSteps,
@@ -131,14 +132,7 @@
     ),
   )
   /** Why a button is disabled, in words ('' when it isn't). */
-  const why = (because: Unavailable | undefined): string =>
-    !because || 'off' in because
-      ? ''
-      : 'value' in because
-        ? t('blocked.value', { name: dayValues[because.value] ?? because.value })
-        : 'once' in because
-          ? t('blocked.once')
-          : t('blocked.condition')
+  const why = (because: Unavailable | undefined): string => whyText(because, { t, dayValues })
   /** A button's tooltip: what it does, then why it's disabled. */
   const tipWith = (tip: TooltipText, id: string): TooltipText => {
     const reason = why(blocked[id])
