@@ -1,293 +1,176 @@
 # Backlog
 
-What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to date as work goes on (see the Backlog directives in the root `CLAUDE.md`). ✅ / `[x]` done · `[ ]` or no mark: pending.
+What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to date as work goes on (see the Backlog section of the root `CLAUDE.md`). `[ ]` pending · `[x]` / ✅ done. Within each list, **order is priority**.
 
-## Ecosystem roadmap
+Guiding idea (the user's, 2026-10-07): mechanics like fatigue, morale, reputation, fodder or eating belong to **particular systems**, not to the core. The core knows _generic declared values_, _effects_, _conditions_ and _actions made of steps_; each system (pack) declares what exists, what it's called and how it behaves. Nothing a system doesn't declare is shown.
 
-1. [x] Monorepo, `hex` and `note-refs` packages.
-2. [x] Design review of `docs/otd.md`, `docs/oracle-engine.md` and `docs/travel-engine.md` (open decisions resolved: short optional hex notes, `.otd.json`, one base locale per pack with fallback translations).
-3. [x] `random`, `dice`, `conditions`.
-4. [x] `oracle-engine` MVP and the private Kal-Arath pack (es): tables, settlements, dungeons, travel rules, bindings.
-5. [x] `time`, A\* pathfinding in `hex`, `travel-engine` MVP.
-6. [x] OTD `schema` and hexmapper files in OTD (`.otd.json`).
-7. [x] `session` and the hexmapper Play mode (simple token + trail, or rules: Travel Engine + Oracle with journal). `oracle-ui` and `travel-ui` are extracted and used by the hexmapper.
-8. [ ] Standalone `oracle` (✅ first version: browse and roll every definition, history, form editor for tables with translations, YAML editor with live diagnostics, new packs, zip import/export) and `travel` (✅ first version: play trips without a map, forms for travel rules and checks/bindings, YAML editor with live diagnostics, new systems, edit a copy) apps, each with **creation and editing tools for its rulesets**: the Oracle app edits packs (tables, generators, oracles, decks, translations), the Travel app edits travel rules and bindings. Text files (YAML/JSON) stay the source of truth: the editors read and write them, with live validation.
-9. [ ] Phases ahead, in order of priority (agreed 2026-10-07). Each new engine is headless, with its UI on top, and talks to the others through events and ports. Things in one phase are done together because they share groundwork.
+## Alpha 0.1: what's left (reviewed 2026-10-07)
 
-**Phase A: close the current apps → alpha `0.1`**
+The alpha is the four apps (Hexmapper, Oracle, Travel, Manual) published as a static site with the open packs, a pack format we don't expect to break soon, a complete manual and a repeatable release. In order:
 
-- ✅ **Values on map elements:** custom fields (key/value, like hex fields) on tokens, icons, regions, POIs and wherever it makes sense, readable by tables and travel checks; documented in the manual and used by the Grey Marches.
-- ✅ **Packs per map (Hexmapper):** Settings → Map chooses which packs the map works with (default: all); the Oracle panel and Play's systems list only show those. The example map comes with the Grey Marches and Core. (The Oracle and Travel apps fold their lists, so they don't need it.)
-- ✅ **Realistic discovery:** an empty hex is decided from all its known neighbours, not just the one it's seen from, so lakes, forests and ranges grow together instead of land / water / plains in a row. Shares groundwork with weather inertia (phase B).
-- ✅ **Region styles:** today a fixed light tint (alpha 0.14) and an inner border (alpha 0.85); make the fill optional with its opacity, and style the border (width, solid or dashed), map-wide in Settings with an optional own style per region, like map texts.
-- **Loose ends:** ✅ conditions and `set` in the Oracle table form; ✅ undo across form edits; ✅ several saved trips and journal export in the Travel app; ✅ POI icons, ✅ highlight/filter hexes by tag; ✅ responsive layouts for narrow windows (Hexmapper panel as a sheet, Oracle in one column).
-- **Suggestions while typing, everywhere** (✅ condition, value and context boxes in Oracle and Travel forms, the YAML editor, Travel tags and rules lists, map values; `SuggestInput` + `contextSuggestions`; new inputs must use them): autocomplete in every input whose value comes from a known list, in every app and system (today's and future ones): context keys, field keys and values, table and definition ids, tags, terrains, regions, events, stats… in forms, the roll panel, the hex panel and the YAML editor.
-- ✅ **Save / load the whole state (before any new system):** one backup file (OTD bundle or zip) with everything the apps keep in this browser, not just Hexmapper maps: the map library (IndexedDB), user packs, the Travel app's trip, Oracle histories and deck states, favorites and preferences. Restore it on another machine to resume whole campaigns, or after losing the browser storage. Versioned with migrations like every persisted format; restoring asks before replacing (or merges by id). Done (2026-10-07): app switcher → Save a backup / Restore a backup… (add to mine or replace everything), `@open-tabletop/storage`, manual page technical/05-backups.
-- ✅ **Installable, offline apps (PWA)** (`vite.pwa.ts`: a manifest and a service worker per app) and ✅ the **command line** (`apps/cli`, `make cli ARGS="validate | list | roll …"`).
-- **Release workflow** (see below), per-package build, then alpha `0.1`.
+1. [ ] **Actions the system triggers, and no built-in eating** (agreed with the user 2026-10-07; first because it changes the pack format, and the alpha should start with the format that lasts):
+   - Actions get `on:` (the same moments checks use: `day-start`, `hex-enter`, `day-end`, or an action's id) and run by themselves then, with their conditions; an action with `on:` isn't a button. What happens as each day ends, whether the party camped or not, is an action `on: day-end`.
+   - Steps can trigger the system's own things: `do: <action>` (another action, with its conditions), `roll: <check>` (a check now), `set: { <value>: … }` (a value of the day), besides `time`, `speed` and `effects`.
+   - **`eat` goes away:** using supplies is an effect (`party.resources.food: -1`). **No implicit bounds:** every declared value (supplies, stats; later factions…) has the `min` / `max` its system declares, or none (it may go negative). A change past a bound stops there and later steps (and that day's `day-end` checks) see `below: [ids]` / `above: [ids]`; `short` is read as "something hit its minimum" for older packs.
+   - Older packs keep working: `perDay`, a way of travelling's `consumes` and `eat: day` are read as an equivalent day-end action (once a day; camp's `eat: day` runs it), with `min: 0` on their supplies. The bundled packs migrate: the Generic rules, the Grey Marches, Kal-Arath (private repo).
+   - Travel's step select grows with what the system declares (Do: <each action>, Roll: <each check>) beside a box with the full syntax; supplies get **Min** / **Max** instead of **Per day**, ways of travelling lose **Uses per day**.
+   - Later (not for the alpha): checks' `at:` may become actions' `on:` (a check would be an action that rolls).
+2. [ ] **Our syntax in every field where it fits** (user, 2026-10-07; see the "full syntax" convention): review the forms' plain lists, checkboxes and fixed selects that could take a condition or list what the system declares (a terrain's Passable, what a value blocks, roll modes' `when` / `unless`…), with suggestions.
+3. [ ] **Show off the conditions in the Grey Marches** (user, 2026-10-07): bold uses of conditions and triggered actions, each with its `**Shows:**` line, its manual row and a test that plays it. Ideas: a ritual at the shrine only at a full Ember Moon; horses unusable while it snows (a value that blocks `mode.horse`); a night watch step whose outcome depends on morale; hirelings that refuse to march when not fed (a value blocking travel); a forced march action (more hours, fatigue +1, only if fatigue is low); a cart only by road (`through: { edges: road }`).
+4. [ ] **Contextual help instead of "i" tooltips** (agreed 2026-10-07): the explanatory tooltips (InfoTip) are many and long, cluttering every app; they move to a **Help** panel (the column of the ? in Oracle and Travel, the Help view in the Hexmapper), with room for formatting, examples and a link to the manual section; the app's manual stays below it.
+   - The "i" icons go away. Hovering a label only shows that there is help (a dotted underline, `cursor: help`); the panel doesn't change on hover.
+   - Clicking a label with help opens the panel on its explanation, and it stays until another is chosen. With the panel open, focusing a field (click or Tab) shows and pins its help too. The panel says which control it explains.
+   - Icon-only buttons (undo, save…) keep their short tooltip with their name.
+   - Cheap path: InfoTip registers its text in a shared ui-kit store instead of drawing an icon. Texts stay generic (the mechanism; examples from the Grey Marches or the Generic rules at most).
+5. [ ] **The manual, complete:** review everything that can be done and isn't documented, kind by kind and key by key (Kinds of definition as the index); expand the Travel manual (playing, checks, Continue, actions); more explanation in the Oracle's "Connecting tables to maps and trips".
+6. [ ] **Continuous integration:** a workflow that runs `make verify` and `make site` on every push from a clean clone (no `packs-private/`), so a personal-use pack can never slip into the public build.
+7. [ ] **Release workflow** (Claude defines it and leaves it written for the user to review): versioning (semver, repo-wide), changelog, what triggers a tag; CI builds the public `dist/` and publishes it (e.g. GitHub Pages) and attaches it to the release. **Requirement (user, 2026-10-07): no alpha without builds that leave personal-use packs out** (done: `vite.packs.ts`, `make site` → `dist/`, `make serve` → `dist-local/`). We work on `main` until then; no release until the user is happy with the alpha, which becomes `0.1`.
 
-**Asked by the user on 2026-10-07, being done now (in this order)**
+Nice to have before the alpha, otherwise right after:
 
-- [x] **Roll modes** as system data (`kind: roll-modes`: repeat N, keep highest / lowest / middle, `cancels`; tables list `modes` and `modeWhen`), replacing the built-in advantage (agreed: "modes declared by the system"). Done: dice `repeat`/`keep`, the Oracle engine, roll panel, form, YAML editor, CLI `--mode`; Core, the Grey Marches (+ _Carefully_) and Kal-Arath declare theirs.
-- [x] **Every `kind` in the manual**: briefly in the section that uses it, and a technical page with all of them in detail (`table`, `oracle`, `generator`, `deck`, `roll-modes`, `travel-rules`, `bindings`, `calendar`, `weather`…). Done: technical/07-kinds, linked from Oracle → Packs, Travel → Systems, Hexmapper → World, Core and the Grey Marches.
-- [x] **Oracle pack page**: list translation files under _Translations_, not mixed into _Files_. Done: one group per language under Translations.
-- [x] **Hexmapper layout**: swap the side panels (the right panel to the left, the left to the right), like the other apps. Tried and reverted (2026-10-07): editors keep tools on the left and details on the right; then a top bar like the other apps' (the app and the switcher on the left, the map's name in the window's title; undo, redo, fit, new, maps, save, export, layers, settings and help on the right), with the tools alone on the left.
-- [x] **README.md** at the root of the repo. Done.
-- [x] **Travel → Play → The way**: column headers and tooltips (what each column is, especially tags). Done: a header row with an **i** per column, and one on the roads to the next hex.
+- [ ] **Suggestions panel and cheat sheets** (asked by the user): besides the inline suggestions, a side panel in the Oracle and Travel editors (forms and YAML) listing what tables can read and set right there (names, values and descriptions, grouped: map, trip, party, calendar…) plus cheat sheets of the syntax (dice, conditions, templates, effects, steps, each kind's shape); click to insert at the cursor. Shared component (pack-ui), searchable, bilingual; the same panel as the contextual help (item 4).
+- [ ] Hexmapper: the planned route drawn beside the roads it follows (see Hexmapper → Pending).
+- [ ] Kal-Arath reviewed against its rulebook again (see Packs → Kal-Arath).
 
-**Asked by the user on 2026-10-07 (evening), to do next — start here in a new session**
+## After the alpha
 
-Step 3 status: 3a (effects vocabulary), 3b (fatigue out of the engine, `day-end`, checks with effects) 3c and 3d are done. **3c done (2026-10-07):** actions (camp and rest too) are steps (`do: [{ time: 180 | dawn | nightfall | '14:00' }, { eat: day }, { speed: 0.5 }, { effects: … }]`, each with `when` / `unless`; later steps see `short`), with `when` / `unless` on the action and `oncePerDay`; the older columns are read as steps. A system declares its values of the day (`values: { lost: { name, blocks: [travel] } }`): results set them, they block travel or actions while they hold, and become `yesterday.<id>`; rules without `values` keep the older built-in `lost`. Disabled buttons say why (the value's name, once a day, the system's rule). Engine state `today` / `yesterday` instead of `lostToday` (map format v12, Travel trips v3). The Grey Marches camp (eat, sleep, a fed night −1 fatigue), rest and forage (not in a storm) as steps and declare `lost`; the Generic rules camp and rest as steps and declare no values; Kal-Arath declares `lost` and forage `unless: { forageImpossible: true }`. **3d done (2026-10-07):** Travel → Rules edits the values of the day (name, description, blocks) and the actions as cards (camp and rest can be turned off; name, description, only when / not when, once a day, the journal's text when nothing applies, and the steps: kind, value, condition, order; editing writes `do` and drops the older columns); checks and Oracle entries get a **Changes** box (effects, with suggestions of the declared stats and supplies). Manual: Connecting (values of the day, `…Modifier` / `…Impossible` / declared values, actions as steps), Travel (Rules, disabled buttons), Kinds, What tables see, the Grey Marches. Ways of travelling got `when` / `unless` too (and values can block `mode.<id>`; the Grey Marches' boat is boarded only at the water's edge or the ferry), 2026-10-07. Left for later: `when` / `unless` on roll modes (tables already have `modeWhen`).
+In order (agreed 2026-10-07; each step is groundwork for the next ones):
 
-Bugs:
-
-- [x] **World timeline in Spanish shows moon ids**: "ember está nueva", "pale está llena". Use the calendar's moon names (translated), not ids. Done: the timeline names moons by the calendar ("La Luna Pálida está llena").
-- [x] **Kal-Arath's Play panel shows Charisma, Survival, Morale, Navigation** (the Grey Marches' stats): stats seem to be carried over when switching system in the Hexmapper (or Travel). A trip shows only its system's stats; check, fix, and test. Done: the Hexmapper kept the last trip's stats when restarting with another system; `startTrip` now keeps only the stats the new system declares, and the trip panel shows declared stats only.
-- [x] **Travel → Checks: a ⚠ next to "Rolled on: ford"** (the Grey Marches' ford check): the table picker lists only tables and generators, so a check bound to an oracle (or a deck) looks broken. Any rollable kind can answer a check: list them all. Done: the picker lists tables, oracles, generators and decks grouped by kind (kind names now in ui-kit's `vocabulary`), and the YAML editor suggests all of them after `resolve:`.
-
-Features:
-
-- [x] **Hexmapper: draw the trip with straight lines or curves** (a setting; curves by default, like trails). With the backlog item on drawing the route along roads. Done: Play → **Straight lines** (map format v13); the trail and the planned route curve by default, through the same hexes as the map's lines (the route no longer turns square where a trail cuts the corner). Drawing it beside the road (offset) is still in the Hexmapper backlog.
-- [x] **Pause on any check, with or without a table:** today **Continue** only appears for checks without a table. Let a check (and maybe a table entry) say `pause: true` so the trip stops after rolling it (to write lore, decide something…). Explain in the Travel manual what makes Continue appear. **Decided (2026-10-07):** `pause: true` on a check (always stops after rolling it) and on a table entry or deck card (stops only when it comes up). Done: the rolled check waits in the trip (its outcome applied on **Continue**), journaled as paused; **Pause after it** in Travel's checks form, **Pause** in the Oracle's entries; the Grey Marches pause at the shrine and on the Wyrm (tested); the Travel manual lists what makes Continue appear.
-- [x] **World clock and trips out of step:** the World panel can be at day 20 while the trip is at day 10 and goes on from there (the trip moves the world, the world doesn't move the trip). Explain it, and decide with the user: one time for both (moving the world while a trip is on is waiting), or keep them apart and say so clearly. **Decided (2026-10-07): one time for both.** The user's concern: actions that wait, and rests the party can't skip. Proposed handling (to confirm): with a trip on, advancing the world is the trip's `advanceTime` (waiting where it is): every moment on the way happens as if lived (day-start / day-end checks, eating, the system's camp action each night once 3c makes it one), and it stops early, the world with it, at anything that waits for the player (a check without a table, `pause`, an action the system blocks), saying where and why. Actions that take time (forage, rest, camp) already move the world through the trip. Long waits (more than a day) ask first. Do it after 3c, since waiting camps through the system's camp action. **Confirmed by the user (2026-10-07): do it this way** (3c is done, so it can start). Done: the travel engine's `wait` (until a moment: dawn's checks, the system's camp at nightfall once a night, each day's supplies and day-end checks; it stops for checks, which the session resolves and waits on, and when night falls and camp is blocked); with a trip on, the World panel's buttons wait in the trip and the world follows (more than a day asks; stopping early says so); journal "Wait here until…"; manual: Hexmapper → World clock → With a trip going on.
-
-Manual (much is missing; generic explanations, examples from the Grey Marches or the Generic rules only):
-
-- [x] **Conditions reference:** every operator and comparison (`eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`, `any`, `all`, `not`, lists…) with what each means and an example, in the technical section, linked from wherever conditions are mentioned. Done: technical/08-conditions (en/es), linked from What tables see, Editing, Connecting and Travel → Systems.
-- [x] **Name collisions:** what wins when keys collide (an icon value called `terrain`, a stat called `weather`, a region value and a hex value…), with examples (today only a short note in What tables see). Done: What tables see → Which value wins, with five cases.
-- [x] **`…Modifier` and `…Impossible` day values:** a clear explanation with examples (and, with step 3c, their declared form). Done: Connecting tables → Values of the day.
-- [ ] **Actions the system triggers, and no built-in eating (agreed with the user 2026-10-07):** actions get `on:` (a moment: `dawn`, `nightfall`, `day-end`, `hex-enter`, `camp`…) and run by themselves then, with their conditions (the day-end steps are an action `on: day-end`). Steps can trigger the system's own things: `do: <action>`, `roll: <check>`, `set: { value }`. The step select in Travel grows with what the system declares (Do: <each action>, Roll: <each check>) beside a box with the full syntax. **`eat` goes away:** using supplies is an effect (`party.resources.food: -1`); no implicit bounds: every declared value (supplies, stats…) has the `min` / `max` its system declares, or none (it may go negative); a change past a bound stops there and later steps see `below: [ids]` / `above: [ids]` (`short` read as "something hit its minimum" for older packs). Older packs (`perDay`, `consumes`, `eat: day`) are read as the equivalent day-end action, with `min: 0` on their supplies; the bundled packs migrate (Core/Generic, the Grey Marches, Kal-Arath). Later, checks' `at:` may become actions' `on:`.
-- [ ] **Supplies eaten only by the system's actions (user, 2026-10-07):** today the engine still eats by itself as each day ends (`resources.<id>.perDay`, a way of travelling's `consumes`), and `eat: day` eats those amounts. Like fatigue (already a stat of the system, not built in), eating should be the system's: no automatic daily eating, no **Per day** / **Uses per day** in the rules; the system says what is eaten and when as steps (e.g. camp `{ eat: { food: 1 } }`, `{ when: { mode: horse }, eat: { fodder: 1 } }`), with `short` for later steps. **Agreed (2026-10-07):** the system declares a **list of day-end steps** (same steps as actions: eat, effects, with `when` / `unless`), done as each day ends whether the party camped or not; `perDay` / `consumes` are read as those steps for a while and the bundled packs migrate.
-- [x] **Ways of travelling: "Only through" as a condition (user, 2026-10-07):** today a list of terrains (`allowedTerrains`); make it a condition on the hex being entered (terrain, water, tags, region, fields, the roads or rivers of the step, the mode, the weather, today's values), e.g. a cart only by road (`edges: road`), a boat on water or coast. The old list keeps working. In the Travel form, the "Only when" and "Only through" boxes get more room (the id column less). Done: `through` (a condition on the hex entered and the step; `allowedTerrains` read as one by `modeThrough`), the Travel form's Only through as a condition box with suggestions (writing it drops `allowedTerrains`), condition columns wider; the Grey Marches' boat uses it; manual (Connecting, Systems, Kinds, Conditions, Terrain, the Grey Marches).
-- [ ] **Our syntax in every field where it fits (user, 2026-10-07):** review the forms' plain lists and checkboxes that could take a condition (e.g. a terrain's Passable, what a value blocks) and offer conditions there, with suggestions.
-- [ ] **Show off the conditions in the Grey Marches** (user, 2026-10-07): now that travel has conditions everywhere (actions and their steps, ways of travelling, values that block, checks, pauses), give the Grey Marches some bold uses of them, each with its `**Shows:**` line, its manual row and a test that plays it. Ideas: a ritual at the shrine only at a full Ember Moon; horses unusable while it snows (a value that blocks `mode.horse`); a night watch step whose outcome depends on morale; hirelings that refuse to march when not fed (a value blocking travel); a forced march action (more hours, fatigue +1, only if fatigue is low).
-- [ ] **Review everything that can be done and isn't documented**, kind by kind and key by key (the Kinds of definition page as the index), and expand the Travel manual (playing, checks, Continue, actions).
-- [ ] The Oracle page "Connecting tables to maps and trips" stays in the Oracle (it's how the Oracle connects to the rest) but needs more explanation.
-
-Design for 3c (the user's idea; **agreed 2026-10-07 as sketched**): **camp and rest become actions of the system, like forage**, and actions describe what they do as **effects with conditions**, not fixed columns (minutes, speed, fatigue). E.g. the Grey Marches' camp: "until dawn, eat the day's supplies; if fed: fatigue −1; if not: fatigue +1; once a day". Sketch:
-
-```yaml
-actions:
-  camp:
-    name: Camp
-    do:
-      - { time: until-dawn } # time.advance: 180 / until: dawn, nightfall…
-      - { eat: day } # the day's supplies (sets `short`)
-      - { when: { short: false }, effects: { party.stats.fatigue: -1 } }
-      - { when: { short: true }, effects: { party.stats.fatigue: 1 } }
-    oncePerDay: true
-  forage:
-    { do: [{ time: { advance: 180 } }, { speedToday: 0.5 }, { roll: forage }], oncePerDay: true }
-```
-
-Built-in steps stay generic (move time, eat supplies, change today's speed, roll a check or table, apply effects, all with `when`); the system names and composes them. The Generic rules declare camp and rest this way too. Replaces `day-end` checks with effects for most uses.
-
-**Next, in this order (agreed with the user 2026-10-08; each step is groundwork for the ones after it, so nothing gets rewritten)**
-
-Guiding idea (the user's concern): mechanics like fatigue, morale, reputation, fodder belong to **particular systems**, not to the core. The core only knows _generic declared values_ and _effects_ on them; each system (pack) declares which values exist, what they're called and how they behave. Nothing a system doesn't declare is shown.
-
-1. ✅ **Clearer play messages** (done 2026-10-07: results show what they changed, actions say when nothing was rolled — an action's `nothing` text —, supplies eaten and fatigue changes are journaled with their reason; the Grey Marches' Forage for food / Buscar comida). The journal says what every action did, also when nothing happened: e.g. foraging on a terrain where the system rolls nothing must say so ("nothing to forage on hills"), and a successful forage says how much food was gained. Tooltips and short texts explain how each action and value works. (Background: the user thought Forage did nothing; it works — 1d6 + Survival on the `forage` table, food only on 4+ and only in forest/dense forest/plains/farmland/heath/marsh — but nothing told them so. Also "Forrajear" reads as "gain fodder" in Spanish: rename the Grey Marches action to "Buscar comida" / "Forage for food".)
-2. ✅ **Every visible name from the pack** (done 2026-10-07: translations of every kind in `locales/` keyed `<kind>/<id>`, folded on load, written by the Travel forms in the UI language; ways of travelling and supplies named by their system; context values named — the apps' facts by their dictionary, a system's stats and supplies, and `reads:` in its bindings; the Grey Marches and Kal-Arath migrated and named). Resources, stats, actions, checks, world events, moons… take `name`/`description` from their pack (in one or several languages), falling back to the id; no game words hard-coded in the apps (today `food`, `fodder` and the travel modes are named by the travel-ui dictionary, which only knows a few ids — move that into the packs). Review the manual on party stats (where Charisma, Survival, Navigation come from: the Grey Marches' bindings `stats:`; Kal-Arath declares PRE; Generic none; tables read them as `{{survival}}` / `party.stats.survival`). Fill in names and descriptions for checks, stats, resources, actions in **Core, the Grey Marches and Kal-Arath** (private repo). **Translations the pack way (user, 2026-10-07):** today calendars, weather models, roll modes, travel rules (actions, checks) and stats write their texts in several languages inline (`name: { en: …, es: … }`), against the convention that translations live in `locales/<language>/` overlays. Move them to overlays like tables' (an overlay key for definitions that aren't tables: e.g. by `kind` and `id`, since `default` repeats), keep reading the inline form for a while, and migrate Core, the Grey Marches and Kal-Arath.
-   - **Context values with friendly names (user, 2026-10-07):** the roll panel asks for the values a definition reads by their raw key (`holidays`, `icon.guards`, `party.stats.morale`). Show a name and a tooltip instead: the facts the apps give (`holidays`, `season`, `terrain`, `yesterday.*`…) named by the apps' dictionary; a system's declared values and stats by their pack; and the map values a pack's tables read (`icon.guards`, `danger`, `token.fare`), which today nobody declares, declared by the pack that reads them (e.g. `reads: { icon.guards: { name, description } }` in its bindings), so the Hexmapper can suggest and explain them too. The key stays visible in the tooltip.
-     2b. ✅ **One shared vocabulary (user, 2026-10-07; done: `vocabulary` in ui-kit, referenced by the Hexmapper, Travel, Oracle, travel-ui and oracle-ui dictionaries):** the same words are written in several dictionaries (Terrain six times in Spanish: three in the Hexmapper, two in Travel, one in oracle-ui; also Tags, Region, Weather, Season, Fatigue, and the palette's terrain and edge names in both the Hexmapper and Travel). Move the concepts of maps and trips (terrain, region, tags, seasons, weather, moon phases, fatigue, supplies…) and the default terrain palette and edge kinds into one vocabulary in ui-kit (en/es), used by every app and package; each dictionary keeps only its own UI texts.
-3. **System values and effects (generic).**
-   - **No built-in “lost” (user, 2026-10-07):** the travel engine still knows `lost` (stops travel for the day) and tables read `yesterday.lost`. Being lost is a game's concept: a system declares a day value (Kal-Arath's and the Grey Marches' `lost`, another game's `stranded`…) with a generic effect, and the engine still **enforces** it (travel is blocked, not left to the player). `yesterday.<value>` follows whatever values the system declares.
-   - **Block or enable anything on a condition (user, 2026-10-07):** one generic vocabulary for what the engines let the player do. A value can `block` capabilities while it holds (`blocks: [travel]`, `blocks: [actions.forage, camp]`, a way of travelling), and actions, ways of travelling and roll modes get `when` / `unless` (e.g. Forage `unless: { forageImpossible: true }`). Blocked buttons stay visible, disabled, with a tooltip saying why ("Lost: no more travel today", in the system's words). Sketch:
-
-     ```yaml
-     values:
-       lost: { name: { en: Lost, es: Perdidos }, lasts: day, blocks: [travel] }
-     actions:
-       forage: { speed: 0.5, oncePerDay: true, unless: { forageImpossible: true } }
-     ```
-
-   - A system declares its values: for the party (fatigue, morale, hirelings…), later for factions (reputation…), characters, the world. Each with name/description per language, optional min/max and a default. Engines know none of them by name.
-   - **Fatigue stops being built into the travel engine:** today it always exists, hunger adds 1 and a fed night in camp removes 1. Those become rules of the system, written as data (e.g. "on camp with food: `party.fatigue: -1`"; "short of food: `party.fatigue: +1`"). A system that doesn't declare fatigue doesn't show it. Same for resources consumed per day.
-   - **One effects vocabulary** (syntax agreed with the user) for actions, table entries, deck cards and faction turns: `effects: { party.fatigue: -1, party.resources.food: +2, factions.ironclans.reputation: +1, party.stats.morale: '=3' }` — the key is the dotted path tables already read; a number adds or subtracts, `'=value'` sets; min/max respected; a path the system doesn't declare is a pack error. Replaces fixed form columns like the travel actions' "fatigue recovered" (`actions.rest: { minutes: 120, effects: { party.fatigue: -1 } }`). Today's forms (`set: { resources: { food: 2 } }`, `set: { stats: { morale: -1 } }`, `fatigue: 1`) keep working (read as effects). `set` stays for context values that aren't system values (the day's `weather`, `*Modifier`, `*Impossible`, `lost`).
-   - Forms: a list of "path + change" rows with suggestions of the declared paths.
-4. **Suggestions panel and cheat sheets** (asked by the user): besides the inline suggestions, a side panel in the Oracle and Travel editors (forms and YAML) listing what tables can read and set right there — names with their values and descriptions (from step 2 and 3), grouped (map, trip, party, calendar, factions…) — plus cheat sheets of the syntax (dice, conditions and operators, templates, effects, table/oracle/generator/deck shapes); click to insert at the cursor. Shared component (pack-ui), searchable, bilingual.
-   - **Contextual help instead of “i” tooltips (agreed with the user 2026-10-07):** the explanatory tooltips (InfoTip, the “i”) are many and getting long, cluttering every app. They go into the same side panel, as a **Help** tab next to the suggestions and cheat sheets:
-     - The “i” icons go away. The explanations show in the help panel (the column of the ? in Oracle and Travel, the Help view in the Hexmapper), with room for formatting, **examples** and links to its manual section; the app's manual stays below it.
-     - **Hovering only shows that there is help:** a discreet dotted underline and a **help cursor** (`cursor: help`, the question mark) on the label. The panel doesn't change on hover (moving the mouse to the panel would change it on the way).
-     - **Clicking a label that has help** opens the panel (if closed) on its explanation, and it **stays** until another one is chosen: you can move to the panel, read, copy examples and follow links. With the panel open, focusing a field (click or Tab) shows and pins its help too. The panel says which control it's explaining.
-     - Buttons that are just an icon (undo, redo, save, export…) keep their short tooltip with their name: those aren't explanations.
-     - Cheap path: every InfoTip already goes through one component; it registers its text in a shared ui-kit store instead of drawing an icon, and the panel shows the text of what's being looked at. Existing texts move as they are, then grow with examples.
-     - Texts stay generic (the mechanism, and that it depends on the system); examples may use the Grey Marches or the Generic rules, which everyone has, but prefer generic ones. Never a pack the user may not have.
-5. **System engine.** Today a "system" is just a pack with `travel-rules`. Make it explicit: a system declares everything it brings — travel rules, oracles/tables, calendar, weather models, values (step 3), factions, example maps; later character sheets, bestiary, initiative. Maps and games choose a system (folding in today's "packs per map"); apps show what the chosen system provides; systems export and import as a whole (one file/zip). Every engine reads its part from the system, never from another engine. **Where systems are edited (agreed 2026-10-07):** creating and editing roll modes, travel rules and bindings (today in the Oracle's New definition and the Travel app), and calendars and weather models (today YAML only, validated live), move to the system tools then. Until that step the Oracle gets no visual editors for calendars or weather: YAML stays the way (New definition → Rules of the system adds a valid calendar or weather model to start from, since 2026-10-07). Then review the bundled packs (Core, the Grey Marches, Kal-Arath) so their calendars, weather and rules use the system engine's standard shape.
-6. **World clock dates and world events with ids** (dates asked by the user 2026-10-07: today the clock always starts at dawn of day 1 and can only be advanced by steps, and events are scheduled "in N days"):
-   - Choose the date (year, month, day, time, in the system's calendar) when starting the clock, and **set the date** later: forward like advancing (what comes due is journaled), backward only after asking (events already past aren't undone).
-   - Schedule events **on a date** ("15 Highsun, year 412"), not only in N days; repeating ones as today.
-   - The scheduled events get an `id` (to reference them from YAML: conditions, faction plans, tables) plus their readable title (and optional description), like checks have `event` + `name`.
-7. **Factions** (phase B), built on 3, 5 and 6:
-   - Territory = **hexes** (decided: not whole regions), drawn like a region (tint + border in the faction's colour), growing hex by hex from its border; it may start as "all the hexes of region X". A region can be split between factions.
-   - Turns: an "Advance world turn" button **and** automatic turns with the world clock (on by default, every week, configurable). Each faction's turn rolls a table of its system (expand, recruit, raid, event, rumour) whose `effects` change its values and territory; everything goes to the World timeline.
-   - Values are the system's (step 3): the Grey Marches declare `reputation` (−3..+3, how the faction regards the party) read by reaction/encounter tables as `factions.<id>.reputation`. Another system might declare `heat` or nothing.
+1. **System engine.** Today a "system" is a pack with `travel-rules`. Make it explicit: a system declares everything it brings (travel rules, oracles and tables, calendar, weather models, values, factions, example maps; later character sheets, bestiary, initiative). Maps and games choose a system (folding in today's packs per map); apps show what the chosen system provides; systems export and import as a whole. Every engine reads its part from the system. **Where systems are edited (agreed 2026-10-07):** roll modes, travel rules and bindings (today in the Oracle's New definition and the Travel app), calendars and weather models (today YAML only) move to the system tools then; until then the Oracle gets no visual editors for calendars or weather. Then review the bundled packs so their calendars, weather and rules use the standard shape.
+2. **World clock dates and world events with ids** (user, 2026-10-07): choose the date (year, month, day, time, in the system's calendar) when starting the clock and **set the date** later (forward like advancing, backward only after asking); schedule events **on a date**, not only in N days; scheduled events get an `id` (for conditions, faction plans, tables) besides their title and description.
+3. **Factions and world turns** (`faction-engine`), built on 1 and 2:
+   - Factions with goal, resources, strength and **territory as hexes** (decided: not whole regions), drawn like a region in the faction's colour, growing hex by hex from its border; it may start as "all the hexes of region X"; a region can be split between factions.
+   - Turns: an "Advance world turn" button **and** automatic turns with the world clock (on by default, every week, configurable). Each faction's turn rolls a table of its system (expand, recruit, raid, event, rumour) whose `effects` change its values and territory; everything goes to the World timeline (`FACTION_ACTION_RESOLVED`, `TERRITORY_CHANGED`, `WORLD_EVENT_CREATED`, `RUMOUR_CREATED`…).
+   - Values are the system's: the Grey Marches declare `reputation` (−3..+3, how the faction regards the party), read by reaction and encounter tables as `factions.<id>.reputation`; another system might declare `heat` or nothing.
    - No lore: factions point to notes with `noteRef`.
-8. **A frontier-space showcase pack** (Cowboy Bebop / Firefly style): ships, contracts, bounties, a space map using the sci-fi/space terrain set and the modern/sci-fi icons, a ship mode that only travels space terrains, its own calendar and values. Like the Grey Marches, it must exercise every feature, with tests that play it.
-9. **Release cycle** for alpha 0.1: Claude defines it (versioning, changelog, what triggers a tag) and leaves it written for the user to review. **Requirement (user, 2026-10-07): no alpha without builds that leave personal-use packs out.** Done the same day: `vite.packs.ts` (`@personal-packs` alias; only dev, tests and `OTT_PERSONAL_PACKS=1` include them, other builds fail if one is loaded), `make site` → public `dist/`, `make serve` → `dist-local/`. The release workflow must build in CI from a clean clone (no private checkout) and publish `dist/` only.
+   - Progress clocks filled by faction turns and tables (today by hand).
+4. **A frontier-space showcase pack** (Cowboy Bebop / Firefly style): ships, contracts, bounties, a space map with the sci-fi terrain set and icons, a ship that only travels space (`through`), its own calendar and values. Like the Grey Marches, it exercises every feature, with tests that play it.
+5. **Weather, the rest:** hex flowers (2d6 moves on a small map of weathers) besides Markov tables, and the world clock's own daily weather outside trips.
+6. **Per-package builds** before publishing the libraries to npm (today packages are consumed as TS source), and Web Components for non-Svelte hosts.
 
-**Suggestions while typing (status):** done for condition/value/context boxes in the Oracle and Travel forms (`SuggestInput` in ui-kit + `contextSuggestions` / `setSuggestions` in session), the YAML editor (keys, `kind`, references, one-line conditions), Travel tags and rules lists, and map values (keys the packs' tables read). Every new input must use them; step 3 adds suggestions for effect paths, step 4 a panel of suggestions and cheat sheets.
+**Characters and the campaign record**
 
-**Decisions taken on 2026-10-07/08 (for review):**
+- **Characters engine** (`character-engine`): sheets kept in one place whose values every system can read (e.g. the acting PC's stat in a roll); the PC tokens travelling together as the party.
+- **Statblocks and a bestiary** (like Obsidian's Fantasy Statblocks): sheets for tokens and for creatures to draw from (place a wolf token, roll a bandit), defined in packs per system and usable by every engine (encounters, initiative, combat).
+- **Initiative tracker** and **combat ledger** (like Obsidian's Initiative Tracker and Combat Ledger): a light turn order and a record of a fight, fed by statblocks and written to the journal. No battle map: we stay out of VTTs.
+- **Journal system**: an optional journal of the campaign (sessions, trips, hand rolls, notes), exportable as Markdown with links to hexes; the map's note markers live in the same system.
+- **Our own notes app** (a small SilverBullet / Obsidian): Markdown pages with `[[links]]` and backlinks, link suggestions, `{{…}}` like the Oracle, queries over pages, templates, search, a canvas, graphs; pages also link to hexes, POIs, factions, characters and statblocks. One more `note-refs` provider: engines still store only references.
 
-- ✅ Updates of bundled packs (2026-10-07): a user copy records each bundled file's fingerprint (`basedOn`); when a newer version changes the bundled pack, Oracle and Travel mark it **update** and list each changed file to take or keep (`BundledUpdates` in pack-ui, for every app that edits packs).
-- ✅ Basic Markdown in pack descriptions (2026-10-07): paragraphs, bold, italics, code, lists, quotes, web links; HTML and images stay text (`Markdown` / `renderMarkdown` in ui-kit, `tooltip={{ markdown }}`, `InfoTip markdown`). New places that show a pack's description must use them.
+**Solo play and content**
 
-- Backups (`@open-tabletop/storage`) copy each app's browser data as it is (raw storage entries, maps in the Hexmapper's internal format); see "Revisit the backup format" below.
-- Name precedence in what tables see: party stats by name < today's values < map and trip facts < `party` < the binding's context. A stat named like a fact (`terrain`, `weather`…) can't hide it; `party.stats.<name>` always reaches the stat. Built-in names also win over a token's or icon's own values (`name`, `kind`, `id`).
-- With the world clock running, trips start at its date (the season choice is replaced by a note); travelling moves the clock and journals what comes due.
-- Map format is at v10 (v8 region styles, v9 packs per map, v10 world clock), each with its migration.
-- Travel's edited copies of bundled systems have **Revert to bundled** (like the Oracle app's packs).
-- The Grey Marches' example map opens ready to play (with rules, its system, discovery on, world clock running).
-
-**Phase B: the living world**
-
-- ✅ **Calendar / world clock** (calendars as data in `time`, `kind: calendar` in packs; `world-engine`; the Hexmapper's World panel, map format v10): configurable fantasy calendars (seasons, months, weeks, moon phases, holidays) and scheduled events; advance 1 hour / 1 watch / 1 day / until sunset / until the next event; a timeline ("Day 47: full moon", "Day 53: the Iron Clans attack Black Pass"). Shared by travel and the faction turns.
-- ✅ **Weather with inertia** (`weather-engine`; Markov done, bound to travel checks with `weather:`; hex flower and the world clock's own daily weather pending): today's weather follows from yesterday's, by a Markov table or a hex flower (2d6 moves on a small map of weathers) per climate and season, defined in packs; travel keeps reading `weather` as today.
-- ✅ **Progress clocks** (the OTD `Clock` entity; in `world-engine`, filled by hand for now): segments filled by tables, faction turns, the calendar or by hand ("The Wyrm wakes: 3/6").
-- **Faction / world turn engine** (`faction-engine`): factions with goal, resources, strength and territory (hexes); "Advance world turn" resolves each faction's action on pack tables (expand, recruit, events) and emits `FACTION_ACTION_RESOLVED`, `TERRITORY_CHANGED`, `RESOURCE_CHANGED`, `WORLD_EVENT_CREATED`, `RUMOUR_CREATED`. No lore: factions point to notes with `noteRef` (e.g. `Kal-Arath/Factions/Iron Clans`). With **reputation**: how each faction regards the party, changed by table results and read by reactions and encounters.
-
-**Phase C: characters and the campaign record**
-
-- **Characters engine** (`character-engine`): sheets kept in one place whose values every system can read (e.g. the acting PC's stat in a roll); builds on the values of phase A.
-- **Statblocks and a bestiary** (like Obsidian's Fantasy Statblocks): detailed sheets for tokens and for creatures in a bestiary to draw from (place a wolf token, roll a bandit from it), defined in packs per system and usable by every other engine (encounters, initiative, combat).
-- **Initiative tracker** and **combat ledger** (like Obsidian's Initiative Tracker and Combat Ledger): a light turn order and a record of what happened in a fight (hits, damage, conditions, rounds), fed by statblocks and written to the journal. No battle map: we stay out of VTTs.
-- **Journal system**: an optional journal of the campaign (sessions, trips, hand rolls, notes), exportable as Markdown (SilverBullet, Obsidian) with links to hexes; the map's note markers live in the same system.
-- **Our own notes app** (a small SilverBullet / Obsidian): Markdown pages linked with `[[links]]` and backlinks, each page showing what links to it and what it links to (one click away); link suggestions while typing (autolinking); `{{…}}` like the Oracle (dice, tables, values); queries over pages (like Dataview); page templates; search; a canvas; global and local graphs. Pages also link to hexes, POIs, factions, characters and statblocks, so OpenTabletop can be used without an external notes app. It is one more `note-refs` provider: engines still store only references (principle 8 holds; the lore lives in the notes, ours or someone else's).
-
-**Phase D: solo play and content**
-
-- **Solo scene engine**: chaos factor, lists of threads and characters, and whether a scene goes as expected, is altered or interrupted; our own free mechanics, working with the oracles.
-- **Ironsworn** as a pack, with progress clocks: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item (each object's `source`): CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first (not in our open-pack list); the code and schemas are MIT.
-- **Name generators** by setting (people, settlements, taverns, places…), and not only fantasy: modern, post-apocalyptic, sci-fi (the Hexmapper already has terrain sets and icons for them): bundled per pack and user-editable, built on the Oracle Engine (syllable tables and generators; maybe Markov chains trained on name lists as data).
+- **Solo scene engine**: chaos factor, lists of threads and characters, scenes that go as expected, altered or interrupted; our own free mechanics, working with the oracles.
+- **Ironsworn** as a pack, with progress clocks: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item: CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first; the code and schemas are MIT.
+- **Name generators** by setting (people, settlements, taverns, places…), not only fantasy: bundled per pack and user-editable, on the Oracle Engine (syllable tables, maybe Markov chains trained on name lists as data).
 - **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
-- **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; dungeons once sub-maps exist (phase E).
-- **Dice roller app**: quick, visual rolls (dice that tumble) of any expression the `dice` package knows, with history; reuses the Oracle's roller and result cards. Nothing complex.
+- **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; dungeons once sub-maps exist.
+- **Dice roller app**: quick, visual rolls of any expression `dice` knows, with history; reuses the Oracle's roller and result cards.
+- **Last: more free solo GM / oracle systems** from itch.io and elsewhere, once their licences are checked (each as a pack, licence recorded).
 
-**Phase E: maps in depth**
+**Maps in depth**
 
-- **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively (city → house → a tavern board).
-- **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, secret doors, stairs, pits, statues, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door, S stairs, M marker). Linked to characters and the other engines.
-- **Image maps** (like Obsidian's Leaflet): an image of your own (a city plan, a scanned map) as a map with pins, regions and the same values and links; mostly covered by the hexmapper and sub-maps.
+- **Sub-maps**: a POI opens its own map (a city, a dungeon, an underground hexmap), recursively.
+- **Dungeon / site mapper**: hex and square grids in detail (rooms, corridors, doors, stairs, markers, notes), drawn with the keyboard (arrows extend a corridor, R room, D door…), linked to the other engines.
+- **Image maps** (like Obsidian's Leaflet): an image of your own as a map with pins, regions, values and links.
+- Procedural map generation, curved text, SVG export, a Tauri desktop build.
 
-**Phase F: print and reference**
+**Print and reference**
 
-- **Card studio** (print & play): `cards.yaml` + an SVG template → PDF, PNG, SVG and Tabletop Simulator decks; change the design once, regenerate every card.
-- **Rules reference builder**: from a `rules.yaml`, a GM screen, quick reference, mobile reference, printable cards, HTML and PDF.
+- **Card studio** (print & play): `cards.yaml` + an SVG template → PDF, PNG, SVG and Tabletop Simulator decks.
+- **Rules reference builder**: from a `rules.yaml`, a GM screen, quick reference, printable cards, HTML and PDF.
 
-**Later, or to decide**
+**To decide**
 
-- **Revisit the backup format** (`@open-tabletop/storage`): today it copies each app's browser data as it is (raw storage entries, maps in the Hexmapper's internal format). That ties backups to every app's internal format, so each change there needs a migration the backup also depends on. Consider a stable, documented format (e.g. OTD bundles for maps, pack folders for packs) so old backups keep restoring without chasing internal changes.
-
+- **Revisit the backup format** (`@open-tabletop/storage`): today it copies each app's browser data as it is (raw storage entries, maps in the Hexmapper's internal format), which ties backups to every internal format. Consider a stable, documented one (OTD bundles for maps, pack folders for packs).
 - **Supplies and loot over time** (maybe): when something was spent or found, and who carries what, without becoming an inventory manager.
-- Web Components for non-Svelte hosts.
-- **Last: more free solo GM / oracle systems** found on itch.io and elsewhere, after researching which ones have licences that allow it (each as a pack, licence recorded).
+- **One origin for live development** (user, 2026-10-07: `make dev-all` is useless while each app has its own port and can't see the others' data): a single server on one port routing `/hexmapper/`, `/oracle/`… to the dev servers, with hot reload.
 
-**Versioning and releases (to define):** we work on `main` for now. Before the first release, agree on a workflow for tags and releases (semver; repo-wide vs per-package versions; changelog, e.g. Changesets; what triggers a tag). No release until there is an alpha MVP the user is happy with; that one becomes `0.1`.
+## Decisions in force
 
-The apps' own roadmaps follow: [Hexmapper](#hexmapper), [Oracle](#oracle), [Travel](#travel).
+- **Name precedence** in what tables see: party stats by name < today's values < map and trip facts < `party` < the binding's context. A stat named like a fact (`terrain`, `weather`…) can't hide it; `party.stats.<name>` always reaches the stat. Built-in names win over a token's or icon's own values (`name`, `kind`, `id`).
+- **One time for the world and a trip** (2026-10-07): trips start at the world clock's date; travelling moves the clock; moving the clock with a trip on is waiting in the trip.
+- **Updates of bundled packs** (2026-10-07): a user copy records each bundled file's fingerprint (`basedOn`); when a newer version changes the bundled pack, Oracle and Travel mark it **update** and list each changed file to take or keep. Edited copies have **Revert to bundled**.
+- **Basic Markdown in pack descriptions** (2026-10-07): paragraphs, bold, italics, code, lists, quotes, web links; HTML and images stay text.
+- **Backups** copy each app's browser data as it is (see "Revisit the backup format").
+- The Grey Marches' example map opens ready to play (with rules, its system, discovery on, world clock running).
+- Formats: map format v13, Travel trips v3, each change with its migration.
+
+## Done
+
+Ecosystem, in the order it was built:
+
+- [x] Monorepo, `hex`, `note-refs`, `random`, `dice`, `conditions`, `time`, the OTD `schema` (maps saved as `.otd.json`).
+- [x] Design docs (`otd.md`, `oracle-engine.md`, `travel-engine.md`); one base locale per pack with fallback translations.
+- [x] `oracle-engine`, `travel-engine` (A\* routes), `session` and the Hexmapper's Play mode; `oracle-ui` and `travel-ui` extracted.
+- [x] The Oracle and Travel apps, each with editors for its rulesets (forms and YAML with live diagnostics; text files stay the source of truth), and the Manual app.
+- [x] Values on map elements (tokens, icons, regions, POIs), packs per map, realistic discovery, region styles, POI icons, highlight/filter by tag, responsive layouts.
+- [x] Backups of everything (app switcher → Save / Restore a backup; `@open-tabletop/storage`), installable offline apps (PWA), the command line (`make cli`).
+- [x] Suggestions while typing (`SuggestInput` + `contextSuggestions` / `setSuggestions`): condition, value, context and effect boxes, the YAML editor, Travel lists, map values. Every new input uses them.
+- [x] World clock (`world-engine`, calendars as data, the Hexmapper's World panel), weather with inertia (`weather-engine`, Markov), progress clocks (by hand).
+- [x] Roll modes as system data (`kind: roll-modes`), replacing the built-in advantage.
+- [x] Clearer play messages: results say what they changed, actions what they did (also when nothing), supplies and stat changes journaled with their reason.
+- [x] Every visible name from the pack, translations of every kind in `locales/` keyed `<kind>/<id>`; context values with friendly names (`reads:` in bindings); one shared vocabulary in ui-kit.
+- [x] System values and effects: one effects vocabulary (`effects: { party.stats.morale: -1, party.resources.food: 2, …: '=3' }`); fatigue and being lost are no longer built in (stats and values of the day a system declares, with what they `block`); actions (camp and rest too) are steps with `when` / `unless` and `oncePerDay`; checks at `day-end` and with effects of their own; Travel edits values, actions as cards and changes.
+- [x] Pausing on a check or a result (`pause: true`) until **Continue**.
+- [x] Ways of travelling with `when` / `unless` and `through` (where they can go, a condition on each hex entered).
+- [x] One time for the world and a trip: the travel engine's `wait`, the World panel waiting in the trip.
+- [x] Manual: every kind (technical/07-kinds), conditions reference (08-conditions), name collisions, values of the day; README at the root.
+- [x] Builds without personal-use packs (`vite.packs.ts`, `make site` / `make serve` / `make rebuild`).
 
 ## Hexmapper
 
-### Done
-
-- [x] Phases 0–1: skeleton, grid, terrain, undo/redo, save/load, autosave.
-- [x] Hex metadata, provider-based linked notes, physical size and printing, unique map id.
-- [x] Roads and rivers (nodes, shores, offsets, branches), styled icons, text, layers, editable palette.
-- [x] PNG and real-scale PDF export.
-- [x] Local map library and deep links.
-
 ### Pending
 
-- [ ] UI for the optional hex fields travel may use (elevation, danger, region); custom fields cover them for now.
-- [x] Highlight/filter hexes by tag (Layers panel; dims the rest on demand).
+- [ ] **Planned route drawn beside the roads it follows** (asked 2026-10-07): the route (and trail) already curve through the same hexes as the map's lines (Play → Straight lines to turn it off); draw them offset beside the line so they never sit on top of it, as the first stretch out of Ashford already does on the example map.
 - [ ] Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [ ] Translate icon names (currently English, as they come from game-icons).
-- [ ] **Planned route drawn along the roads it follows** (asked 2026-10-07): when the route goes by a road, trail or river, draw it along that line's smoothed curve, beside it (offset so it never sits on top of it), instead of from hex centre to hex centre. Today it looks like it leaves the obvious way: on the example map the trail to the Grey Stones is stored as 0605 → 0604 → 0504 → 0503 and the route follows exactly those hexes, but the trail's curve cuts the corner at 0604/0504 while the route turns square through the centres. The first stretch out of Ashford already looks right (close beside the road, not over it); keep that.
+- [ ] UI for the optional hex fields travel may use (elevation, danger); custom fields cover them for now.
 
-### Play (with the engines)
+### Done
 
-- [x] Files in OTD (`.otd.json`), world scale.
-- [x] Play mode (tool ▶, key P): party token (bundled party icons or an uploaded image, optional halo), trail. _Simple_: click to move. _With rules_: system (generic or a pack with travel-rules, e.g. Kal-Arath), destination and A\* route, travel / 1 hex / camp / rest (the actions each system declares), pack-declared party stats, checks resolved by the Oracle through pack bindings, journal. Saved as OTD party + log + state.oracle.
-- [x] Oracle side panel (the Oracle icon, key O) from `@open-tabletop/oracle-ui`: roll any definition of the loaded packs, with history. Rolls read the selected hex (or the party's) and, on a rules trip, season, weather, mode, stats and today's values; those rolls are also written in the journal (`ORACLE_ROLL`).
-- [x] User packs created in the Oracle app are loaded too (shared `opentabletop.userPacks` storage when both apps share an origin; live across tabs), including systems with travel rules.
-
-### Next (agreed 2026-10-06, in this order)
-
-- [x] **Tokens** (tool ♟, key K): party, PCs, NPCs and enemies; several per hex (arranged around the center), dragged between hexes (snapping to the center), also with the select and play tools; name, icon (or an imported image), color, halo, linked note; off-map tokens stay in the list. Saved as OTD characters with `kind` and `location` (the party as the OTD party). Play mode moves the party token. Later: the PC tokens travelling together as the party.
-- [x] **Terrain glyphs:** a subtle symbol per hex (mountain, tree…) in a lighter or darker shade of the terrain color (hidden under icons), with an opacity slider (0 hides them); each terrain picks a symbol from the new Terrain icon category or an imported image. Wider default biome palette (farmland, jungle, taiga, tundra, volcanic), with travel costs in the generic rules. Map format v3 gives old maps' built-in terrains their symbol.
-- [x] **Regions** (tool ⛉, key N): paint hexes into a region with the brush (right-click takes them out, Ctrl+click picks); name, color, show name, linked note; drawn as a light tint, an inner border along the outline and the name at the center; region select in the hex panel. Saved as OTD `hex.region` plus the region list in `ext.hexmapper`; travel checks and tables see `region` (its name). Map format v4.
-- [x] **Path kinds:** walls (thick, with stones) and borders (dashed, across water too) besides roads, trails and rivers; closed loops (option for new paths, Close/Open per path in the hex panel). Only roads, trails and rivers are travel edges.
-- [x] **Captions:** the name under tokens (per token, party included) and every hex's name under it. Icons have no caption: the hex name already says what's there.
-- [x] **Map texts** (Settings): hex, region and token names shown or hidden and styled per kind (font, size, color or automatic, italic, halo). Map format v5 (replaces the Hex names layer). Each hex, region and token can also hide its name or use its own style (its panel → Style).
-- [x] **Wider palette from Hexermap (2026-10-07):** heath, savanna, dense forest, marsh, peaks, canyon, oasis, glacier, coast and deep sea, with glyphs and travel speeds (generic rules and Core); the palette is grouped (lowlands, forests, wetlands, highlands, arid, cold, water and coast, other) by a display-only table, so the map format is unchanged; Edit palette adds the defaults an older map lacks.
-- [x] **Values (2026-10-07):** key/value fields on tokens, icons, regions and POIs (map format v7), edited with the shared `FieldEditor` (keys and values used on the map suggested). Region values hold for its hexes (a hex's own win); icons as `icon.*`; the selected token as `token.*` in Oracle-panel rolls; POI values are kept but not read. OTD: characters' and POIs' `stats`, the party's token look, regions and icons in `ext.hexmapper`.
-- [x] **Packs per map (map format v9, `meta.packs`):** Settings → Map chooses the packs this map works with (default all); the Oracle panel and Play's systems list only show those.
-- [x] **Region styles (map format v8):** optional fill with its opacity (now a fixed 0.14 tint), border width and solid/dashed; map-wide in Settings, own style per region (like map texts).
-- [x] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
-
-### Side panel (agreed 2026-10-07)
-
-Each tool shows only what it edits (Select: the hex; Terrain: the palette; Tokens: the token…). Settings, Layers (▤), Help (?), Maps, Export and the Oracle are views opened from the toolbar. Changing tools deselects what the previous one had selected. Keyboard shortcuts live in the manual.
-
-### Backlog (Oracle in the map, agreed 2026-10-06)
-
-- [x] "Roll here" from the hex panel: opens the Oracle with that hex as context (the panel says which hex rolls read).
-- [x] Apply results to the map: "Add to <hex> as a point of interest" under each result (oracle-ui `actions` snippet); long results keep the table name as the POI name and the text as its description. Undoable.
-- [x] Oracle history and deck state per map (map format v6): `map.oracle` = { state, history }, shared by hand rolls and trip checks; in OTD, `state.oracle` and `ext.hexmapper.oracleHistory`. oracle-ui's Roller takes a `store`.
-- [x] Discovery (2026-10-07): bindings `discover: { terrain, contents, reveal }`; session goes hex by hex, decides empty hexes (terrain seen from the current hex; contents on first entry: POI, tags, name), re-plans the route and stops at finds; the Hexmapper writes them on the map outside undo (`editor.applyDiscovery`). Play panel toggle and reveal mode (neighbours / entered) in `play.discover`. The Grey Marches have the full example (`discovery.yaml`); terrain tables see the land around the hex being decided (`around`, `common`).
-
-### Later
-
-- Narrow windows and mobile: keep layouts responsive (content-sized columns instead of fixed widths, panels that collapse).
-
-- Procedural generation, sub-maps, curved text, SVG export, Tauri desktop build.
+- [x] Skeleton, grid, terrain (editable, grouped palette with glyphs), undo/redo, save/load, autosave, local map library and deep links.
+- [x] Hex metadata, provider-based linked notes, physical size and printing, PNG and real-scale PDF export.
+- [x] Roads, trails, rivers, walls and borders (nodes, shores, offsets, branches, closed loops); styled icons; map texts and captions; layers.
+- [x] Tokens, regions (with styles), values on tokens, icons, regions and POIs, packs per map.
+- [x] Play mode: party token and trail, rules trips (system, route, actions, stats, checks resolved by the Oracle, journal, discovery), trail and route as curves or straight lines.
+- [x] Oracle panel: roll any definition with the hex (or party) as context, "Roll here", results added as POIs, history and deck state per map.
+- [x] World panel: the world clock, events, progress clocks, timeline; waiting in the trip.
+- [x] Side panel: each tool shows only what it edits; Settings, Layers, Help, Maps, Export and the Oracle are views; top bar like the other apps.
 
 ### Rejected
 
 - Square grids: better FOSS editors already exist (Tiled, etc.).
 - Fog of war, second-screen player view and other VTT features.
+- Swapping the side panels (tried and reverted 2026-10-07): editors keep tools on the left and details on the right.
 
 ## Oracle
 
-### Done
-
-- Pack list and history can be folded (header buttons; remembered in this browser).
-- Favorites (☆ next to a definition's name): pinned on top of the list, also in the Hexmapper's Oracle panel (shared `opentabletop.favorites`).
-- New definition dialog also adds travel rules and bindings (one travel system per pack).
-- Sidebar with search, packs (bundled / edited / personal-use badges, error count) and their definitions.
-- Roll tab: oracle inputs, detected context variables, advantage/disadvantage, deck draw/shuffle with cards left, result card with dice breakdown and nested results, entries preview with the chosen one highlighted, Space/Enter to roll again, results in the UI language.
-- History (last 100, persisted) and "New session" (resets once-only entries and decks).
-- Undo/redo of every change to user packs (PackLibrary history, ↶ ↷ and Ctrl+Z outside text fields; YAML typing groups per pause).
-- Entry conditions, `set` values, once/at-most (⋯ on a row, one line of flow YAML) and clamp / when-exhausted per table.
-- Form editors for every kind, with translations per language (overlay files): tables (dice, entries with range or weight, delegate to a table/generator, add/duplicate/move/remove, number 1–N, give entries ids), oracles (the input, its options: rename/add/move/remove, default, one entry list per option), generators (fields from a table, generator, dice or fixed value; rename/move/remove; template with {{field}} chips) and decks (cards with copies, reshuffle mode).
-- Definitions: "New definition" dialog (pack, kind, name → id, file; also from the + on each user pack), duplicate, "copy to" one of your packs (with translations; local references become `pack/id`), delete (with translations).
-- Pack view: manifest summary, problems (click → line), definitions, other engines' definitions, files (add/rename/delete), translations (add language), new definition from templates, export .zip, delete / revert.
-- YAML editor (CodeMirror 6, MIT) with diagnostics in the gutter.
-- New pack dialog, import .zip.
-
 ### Pending
 
-- Roll statistics (distribution of a table) and coverage view.
+- [ ] Roll statistics (distribution of a table) and coverage view.
+
+### Done
+
+- Sidebar with search, packs (bundled / edited / personal-use badges, error count), folding, favorites (shared with the Hexmapper).
+- Roll tab: inputs, detected context values with friendly names, roll modes, decks, result card with dice breakdown and nested results, entries preview; history and "New session".
+- Form editors for every kind with translations; entry conditions, `set`, effects, pause, limits; YAML editor (CodeMirror 6) with diagnostics and suggestions.
+- Definitions: new (also travel rules, bindings, calendars, weather from templates), duplicate, copy to, delete. Packs: new, import / export .zip, files and translations, updates of bundled packs, revert. Undo/redo of every change.
 
 ## Travel
 
-- [x] First version: systems list, play an abstract trip, YAML editor with live diagnostics, new system, edit a copy, manual pages.
-- [x] Forms for travel rules (day, modes, terrains, edges, resources, weather, actions) and, in one Checks tab, checks with their bindings (table picker, context) and stats. They write the YAML through pack-ui helpers, keeping comments.
-- [x] Several saved trips (open, name, another, delete); export a trip's journal as Markdown (travel-ui, also in the Hexmapper).
+- [x] Systems list, play an abstract trip, several saved trips, journal export as Markdown, new system, edit a copy, manual pages.
+- [x] Forms for travel rules (day, ways of travelling with their conditions, terrains, edges, supplies, weather, values of the day, actions as cards with steps) and, in one Checks tab, checks with their bindings, changes and pause, and the party's stats; they write the YAML keeping comments.
 
 ## Packs
 
 ### Kal-Arath (checked against the rulebook on 2026-10-07)
 
-Done: the travel procedure (weather, getting lost, points of interest, encounters, camping) matches the rulebook; foraging is a trip action (halves the day's march, once a day, adds to the food; impossible in storms); the Explorer ability is a party stat (`explorer`: advantage to forage and not get lost, points of interest on 4–6); finding the way again after a day lost is rolled with disadvantage (`yesterday.lost`); the autumn storm only halves travel (`autumn-storm`); the extra ration of a heatwave or the first snows is taken; dungeons gained the passages table and the boss rooms (summarised: the full rooms stay in the book).
+Done: the travel procedure (weather, getting lost, points of interest, encounters, camping) matches the rulebook; foraging is a trip action (halves the day's march, once a day, adds to the food; impossible in storms); the Explorer ability is a party stat (`explorer`); finding the way again after a day lost is rolled with disadvantage (`yesterday.lost`); the autumn storm only halves travel; the extra ration of a heatwave or the first snows is taken; dungeons have the passages table and the boss rooms (summarised); fatigue is gone (Kal-Arath declares only what it uses).
 
-- [ ] **Review the whole pack against the PDF rulebook again** (asked by the user 2026-10-07, after steps 3c/3d): check every rule (travel rules, values of the day, actions and their steps, checks, tables and their modifiers, roll modes, calendar if any) is consistent with the book (`~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`), and use the new mechanisms where they fit (e.g. camping as steps, `pause`, `blocks`).
+- [ ] **Review the whole pack against the PDF rulebook again** (asked by the user 2026-10-07): check every rule (travel rules, values of the day, actions and their steps, checks, tables and their modifiers, roll modes, calendar if any) against the book (`~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`), and use the new mechanisms where they fit (triggered actions, `pause`, `blocks`). Best after alpha item 1, which changes how it eats.
 
-Still not as the rulebook has it, waiting for generic support (not Kal-Arath code):
+Not as the rulebook has it yet, waiting for generic support (not Kal-Arath code):
 
-- [x] **Fatigue**: Kal-Arath has none, but the trip panel shows it and hunger raises it. Step 3 of the roadmap (system values) removes it: the pack will declare only what it uses. Done with steps 3b/3c: fatigue is a stat only systems that declare it have; Kal-Arath declares `lost` and its foraging as steps.
-- [ ] **Camping recovers wounds and conditions** after spending a ration: there are no character values yet (phase C, characters).
+- [ ] **Camping recovers wounds and conditions** after spending a ration: needs character values (characters engine).
 - [ ] **An Explorer chooses advantage or disadvantage on encounter rolls**: a choice the player makes when the trip rolls; today only by hand.
-- [ ] **Herbs** are rolled by hand after a rare find (`herbCount` times); _Tarnak berries_ (no ration needed that day) aren't applied.
-- [ ] **Revisited areas** of a dungeon bring an enemy on 1 in 1d6: today by rolling _Passage_ again; dungeons live on the map only once there are sub-maps (phase E).
+- [ ] **Herbs** are rolled by hand after a rare find (`herbCount` times); _Tarnak berries_ (no ration needed that day) aren't applied (possible with triggered actions and `set`).
+- [ ] **Revisited areas** of a dungeon bring an enemy on 1 in 1d6: today by rolling _Passage_ again; dungeons live on the map once there are sub-maps.

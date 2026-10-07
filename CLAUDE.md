@@ -1,65 +1,65 @@
 # OpenTabletop
 
-FOSS tooling for **solo RPGs, hexcrawls and sandbox campaigns**. It started as a hex map editor for playing **Kal-Arath** and is growing into a set of reusable libraries plus the apps built on them.
+FOSS tooling for **solo RPGs, hexcrawls and sandbox campaigns**: a set of reusable libraries plus the apps built on them. It started as a hex map editor for playing **Kal-Arath**.
 
-The point is to be **game-system agnostic**. Kal-Arath is the first supported system and validates the design, but none of its rules live in the core: they live in a data _pack_.
+The point is to be **game-system agnostic**: every game's rules live in data _packs_, never in the code. The Grey Marches, our own showcase pack, exercise every feature.
 
 ## Principles
 
 1. **Separate responsibilities whenever it makes sense.** Small packages with clear interfaces; composition over giant "managers".
 2. **Headless cores.** Engines (`*-engine`) and domain packages are plain TypeScript: no Svelte, no DOM, no `localStorage`, no network. Persistence, UI and filesystem access live in adapters.
 3. **Data, not code.** Each system's rules are declared in packs (YAML/JSON) validated on load. No `eval`, no `Function()`, no embedded scripts: packs may come from third parties.
-4. **Definitions ≠ state.** Static data (tables, rules, the map) is separate from play state (drawn cards, party position, time). Saving a session never modifies definition files.
-5. **Engines don't know each other.** They talk through events and ports, never by calling each other. E.g. the Travel Engine emits `ENCOUNTER_CHECK_REQUIRED` and an integration layer decides which Oracle table to resolve.
-6. **Immutable state and pure functions** in engines: `(state, action) → { state, events }`. Easy to test, undo and replay.
-7. **Injectable randomness.** No engine calls `Math.random()`; all take a `RandomSource`, which can be seeded for tests and replays.
-8. **Lore lives elsewhere.** Notes, NPCs and factions in depth live in the user's notes app (SilverBullet, Obsidian…). OpenTabletop stores mechanical state and **references** (`noteRef`), never duplicated content. Short, optional GM notes on hexes are fine.
-9. **Keep it simple.** The apps are not VTTs or campaign managers. When in doubt, leave it out.
+4. **As system-agnostic as possible, short of madness.** Anything a game names or decides (roll modes, fatigue, morale, being lost, eating, camping, reputation…) is declared by a pack; engines offer generic mechanisms (repeat-and-keep rolls, declared values, effects, conditions, actions made of steps) and know no game concepts. No hidden decisions either: no implicit bounds (a value has the `min` / `max` its system declares, or none, and may go negative), implicit defaults or fixed lists of choices where a system could declare its own. An unavoidable built-in shortcut is a documented default the system can override. Prefer one general mechanism over special cases.
+5. **Definitions ≠ state.** Static data (tables, rules, the map) is separate from play state (drawn cards, party position, time). Saving a session never modifies definition files.
+6. **Engines don't know each other.** They talk through events and ports, never by calling each other. E.g. the Travel Engine emits `ENCOUNTER_CHECK_REQUIRED` and an integration layer decides which Oracle table to resolve.
+7. **Immutable state and pure functions** in engines: `(state, action) → { state, events }`. Easy to test, undo and replay.
+8. **Injectable randomness.** No engine calls `Math.random()`; all take a `RandomSource`, which can be seeded for tests and replays.
+9. **Lore lives elsewhere.** Notes, NPCs and factions in depth live in the user's notes app (SilverBullet, Obsidian…). OpenTabletop stores mechanical state and **references** (`noteRef`), never duplicated content. Short, optional GM notes on hexes are fine.
+10. **Keep it simple.** The apps are not VTTs or campaign managers. When in doubt, leave it out.
 
 ## Monorepo layout
 
-npm workspaces. Packages are consumed as TS source (`exports` → `src/index.ts`) and transpiled by Vite. A per-package build step will be added before publishing to npm.
+npm workspaces. Packages are consumed as TS source (`exports` → `src/index.ts`) and transpiled by Vite.
 
 ```
 packages/                   # libraries, scope @open-tabletop/*
-  hex/                      # ✅ hex grid math (axial/offset, pixels, neighbors, lines, flood fill)
-  note-refs/                # ✅ provider-based links to external notes apps (SilverBullet, Obsidian…)
-  random/                   # ✅ RandomSource, seeded PRNG
-  dice/                     # ✅ dice expressions with breakdown (NdM±K, d66, dF, keep, advantage…)
-  conditions/               # ✅ safe condition evaluator (no eval), shared by oracle and travel
-  time/                     # ✅ GameTime (absolute minutes), calendars, seasons, watches
-  schema/                   # ✅ OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
-  oracle-engine/            # ✅ MVP: tables, oracles, generators, decks; packs; locales; history
-  travel-engine/            # ✅ MVP: A* routes, movement, time, resources, fatigue, event-driven checks
-  world-engine/             # ✅ the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
-  weather-engine/           # ✅ weather with inertia: Markov models per season as data (`kind: weather`); hex flowers later
-  session/                  # ✅ integration layer: travel checks → Oracle via bindings, journal, travel systems from packs, trips, map discovery
-  storage/                  # ✅ browser storage adapter: the map library (IndexedDB), backups of everything
-  ui-kit/                   # ✅ shared Svelte: theme, typed i18n, styled tooltips, info tips, toasts, app switcher (with backups)
-  pack-ui/                  # ✅ pack library (bundled + user packs), editing, YAML helpers, YAML editor
-  oracle-ui/                # ✅ embeddable Oracle: roll panel, result card, history, picker
-  travel-ui/                # ✅ embeddable trip UI: system/season setup, status, supplies, actions, journal
-  manual-ui/                # ✅ user manual: pages from docs/manual, search, in-app help panel, full view
-apps/
-  hexmapper/                # ✅ map editor (see apps/hexmapper/CLAUDE.md)
-  oracle/                   # ✅ roll and edit packs (see apps/oracle/CLAUDE.md)
-  manual/                   # ✅ the user manual of every app, with search (see apps/manual/CLAUDE.md)
-  travel/                   # ✅ play trips without a map, edit travel systems (see apps/travel/CLAUDE.md)
-  cli/                      # ✅ the `opentabletop` command line: validate, list and roll packs (Node, bundled by Vite)
-packs/                      # data packs (tables, travel rules, weather…)
-  core/                     # ✅ generic content for any game (oracles, inspiration, scene twists); no travel system
-  grey-marches/             # ✅ showcase setting: a travel system and tables using every feature, with an example map
-  kal-arath/                # README only; the whole pack (personal use) lives in the private packs repo
-examples/maps/              # ✅ example maps (OTD bundles) listed in the Hexmapper's Maps panel
-packs-private/              # ✅ (git-ignored) checkout of github.com/cornezuelo/opentabletop-packs-private (private)
+  hex/                      # hex grid math (axial/offset, pixels, neighbors, lines, flood fill)
+  note-refs/                # provider-based links to external notes apps (SilverBullet, Obsidian…)
+  random/                   # RandomSource, seeded PRNG
+  dice/                     # dice expressions with breakdown (NdM±K, d66, dF, repeat and keep…)
+  conditions/               # safe condition evaluator (no eval), shared by every engine
+  time/                     # GameTime (absolute minutes), calendars, seasons, watches
+  schema/                   # OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
+  oracle-engine/            # tables, oracles, generators, decks; packs; locales; history
+  travel-engine/            # routes, movement, time, supplies, declared values, actions as steps, checks
+  world-engine/             # the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
+  weather-engine/           # weather with inertia: Markov models per season as data (`kind: weather`)
+  session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
+  storage/                  # browser storage adapter: the map library (IndexedDB), backups of everything
+  ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
+  pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor
+  oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
+  travel-ui/                # embeddable trip UI: setup, status, supplies, actions, journal
+  manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
+apps/                       # each with its own CLAUDE.md
+  hexmapper/                # map editor, and play on the map
+  oracle/                   # roll and edit packs
+  travel/                   # play trips without a map, edit travel systems
+  manual/                   # the user manual of every app, with search
+  cli/                      # the `opentabletop` command line: validate, list and roll packs (Node, bundled by Vite)
+packs/                      # open data packs
+  core/                     # generic content for any game (oracles, inspiration, scene twists); no travel system
+  grey-marches/             # showcase setting: a travel system and tables using every feature, with an example map
+  kal-arath/                # README only (the pack is personal use: see below)
+examples/maps/              # example maps (OTD bundles) listed in the Hexmapper's Maps panel
+packs-private/              # (git-ignored) checkout of the private packs repo
 docs/
-  manual/<locale>/<app>/    # user manual pages (Markdown, en base + es)
+  BACKLOG.md                # everything to do, done, agreed or rejected
+  manual/<locale>/<app>/    # user manual pages (Markdown, en base + es); technical/ for formats and syntax
   otd.md                    # common OpenTabletop Data schema
   oracle-engine.md          # Oracle Engine design
   travel-engine.md          # Travel Engine design
 ```
-
-✅ done · ⏳ designed or pending
 
 **Allowed dependencies** (top to bottom, never upwards):
 
@@ -77,7 +77,7 @@ apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, tim
 Details in [`docs/otd.md`](docs/otd.md). In short:
 
 - **Campaign entities:** Campaign, Map (with Hex), POI, Party, Character, Faction, Clock and LogEntry (the persisted "Event"). They share a base `{ id, type, name, tags, noteRef, refs, ext }`.
-- **Pack definitions:** Table, Generator, Oracle and Deck (Oracle Engine), plus travel rules and weather models, in versioned, namespaced packs (`kal-arath/reaction`).
+- **Pack definitions:** every `kind` a pack can hold (tables, oracles, generators, decks, roll modes, travel rules, bindings, calendars, weather…), in versioned, namespaced packs (`kal-arath/reaction`). Each kind is documented in `docs/manual/*/technical/07-kinds.md` (and briefly where it's used); a new kind adds itself there.
 - **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.hexmapper` (rendering, printing) or `ext.kal-arath`.
 - **References** are `type:id` strings, never nested objects.
 - **Runtime events** (`HEX_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
@@ -87,7 +87,7 @@ Details in [`docs/otd.md`](docs/otd.md). In short:
 
 A pack is a folder with `pack.yaml` (id, version, base locale, license, dependencies) and YAML/JSON definitions. Packs are validated on load: broken references, overlapping ranges, cycles, missing dependencies.
 
-**Goal: apps ship preloaded with oracles from many games.** Each pack is distributed through whatever channel its license allows, and the engine loads every pack found in its **sources**:
+Apps ship preloaded with packs from many games, each distributed through whatever channel its license allows. The engine loads every pack found in its **sources**:
 
 | Source                 | Contents                                                                                                                   | Where                                                                                                                                                                              |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -96,10 +96,9 @@ A pack is a folder with `pack.yaml` (id, version, base locale, license, dependen
 | **User packs**         | Tables created or imported in the app                                                                                      | Browser library or a chosen folder, exportable as packs                                                                                                                            |
 
 - **Kal-Arath is personal use only**: "Copyright 2023 Castle Grief, permission to copy granted for personal use" (rulebook at `~/Descargas/Rol y Wargames/Rol/Solitario/Kal-Arath/`). Its content never goes into this public repo: the whole pack (manifest included, so it can't shadow the real one) lives in the private packs repo. Only a README and our own design work (generic travel rules, bindings without rulebook text) live here.
-- Builds for publishing never include `packs-private/` (see Stack and tooling: `vite.packs.ts`, `dist/` vs `dist-local/`).
-- Before adding a game to `packs/`, check its license and record it in `pack.yaml` (`license`, `attribution`). If in doubt, it goes to the private repo.
-- A personal-use game could move to `packs/` only with the author's permission.
-- **Languages:** every pack has exactly one required base locale (`locale` in `pack.yaml`). Translations are optional overlays per locale; any missing string falls back to the base locale (see `docs/oracle-engine.md`). This holds for every kind: definitions that aren't tables (travel rules, bindings, calendars, weather, roll modes) are translated in the same `locales/<lang>/<file>` overlays, keyed `<kind>/<id>`; never write texts in several languages inline in a definition. Pack content is not translated by the UI's i18n.
+- **Personal-use packs never reach a public build.** Apps glob them as `@personal-packs/**` (`vite.packs.ts`): included in dev, tests and builds with `OTT_PERSONAL_PACKS=1` (`make serve` / `make rebuild`, into `dist-local/`); every other build (`make site` → `dist/`, releases, CI) leaves them out and fails if one is loaded. Publish only `dist/`.
+- Before adding a game to `packs/`, check its license and record it in `pack.yaml` (`license`, `attribution`). If in doubt, it goes to the private repo. A personal-use game could move to `packs/` only with the author's permission.
+- **Languages:** every pack has exactly one required base locale (`locale` in `pack.yaml`). Translations are optional overlays per locale; any missing string falls back to the base locale (see `docs/oracle-engine.md`). This holds for every kind: definitions that aren't tables are translated in the same `locales/<lang>/<file>` overlays, keyed `<kind>/<id>`; never write texts in several languages inline in a definition. Pack content is not translated by the UI's i18n.
 
 ## Stack and tooling
 
@@ -116,29 +115,44 @@ A pack is a folder with `pack.yaml` (id, version, base locale, license, dependen
 
 FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
-Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, `make serve`, `make verify`…); they wrap the npm scripts: `npm run dev` (hexmapper), `npm run dev:oracle`, `npm test`, `npm run check`, `npm run lint`, `npm run format`, `npm run build` (each app into `apps/<app>/dist/`), `npm run build:site` (every app into `dist/<app>/`, to serve from one origin so they share the user packs). Builds use relative URLs (`base: './'`), so they work from any folder.
-
-**Personal-use packs never reach a public build.** Apps glob them as `@personal-packs/**` (`vite.packs.ts`): included in dev, tests and builds with `OTT_PERSONAL_PACKS=1` (`make serve`, which builds into `dist-local/`); every other build (`make site` → `dist/`, releases, CI) leaves them out and fails if one is loaded. Publish only `dist/`.
+**Commands:** `make` lists them all; each wraps an npm script. `make verify` runs what CI runs (lint, types, tests). `make serve` builds every app into one origin (so they share the browser's data) and serves it; `make rebuild` rebuilds it under a running `make serve`. Builds use relative URLs (`base: './'`), so they work from any folder.
 
 ## Conventions
 
+**Language and texts**
+
 - **Everything in the repo is in English**: code, identifiers, comments, commit messages and all Markdown (the repo will be public). Conversation with the user stays in Spanish.
 - **Bilingual UI (en/es), English by default** in every app and `*-ui` package: no hard-coded visible text, always `t('key')`. `en.ts` is the reference dictionary and `es.ts` must have the same keys (enforced by types). Every new key is added in both languages.
-- **No game rules in code, only in packs:** anything a game names or decides (advantage and other roll modes, fatigue, morale, reputation…) is declared by a pack as data; engines offer generic mechanisms (repeat-and-keep rolls, declared values, effects). **Be as system-agnostic as possible, short of madness:** engines know mechanisms, never concepts (no built-in "eat", "fatigue", "lost" or "camp" meaning: a system names and composes them); no hidden decisions either, such as implicit bounds (a value has the `min` / `max` its system declares, or none, and may go negative), implicit defaults or fixed lists of choices where a system could declare its own. When a built-in shortcut is unavoidable, it's a default the system can override, and it's documented as such. Older packs keep being read (their old meaning is migrated, not lost). Every `kind` a pack can hold is documented in `docs/manual/*/technical/07-kinds.md` (and briefly where it's used); a new kind adds itself there.
-- **UI texts are generic:** tooltips, hints and placeholders never describe what a particular pack does ("in the Grey Marches, landmark stops the trip") nor name a pack the user may not have; they explain the mechanism and say it depends on the system. What a pack does goes in its own manual page (and in its own texts: descriptions, names). Syntax examples with made-up values (`tags: landmark`) are fine.
-- **Reuse texts, never copy them:** whenever the same word or sentence means the same thing in several places, write it once and refer to it. Words of maps and trips shared by the apps (terrains, roads and rivers, seasons, moon phases, terrain, region, tags…) live in ui-kit's `vocabulary` and every dictionary refers to it (`terrains: vocabulary.es.terrains`); a text used twice in one app is one key. Only copy when the meaning differs.
 - **Cores don't translate.** They emit codes and parameters (`{ code: 'NAVIGATION_LOST', hex }`) and the UI translates them.
-- **Interconnect the systems:** whenever it makes sense, a new engine or app reads and feeds the others (map, oracle, travel, time, factions, characters, journal, notes) through events, ports and shared OTD data, never by importing another engine.
-- **Every feature lives in the bundled packs too:** when a feature lands, its simple, generic use goes into **Core** (if it makes sense for any game) and its full use into **the Grey Marches** (and its example map), with a test that plays it. Core stays small and generic; the Grey Marches exercise everything. Before closing a milestone, review that the Grey Marches use every feature. Every Grey Marches definition's `description` (en, and es in its overlay) says what it is for and, in a second paragraph, which features it shows (`**Shows:** …` / `**Enseña:** …`; pack descriptions are basic Markdown, rendered safely by `Markdown` / `renderMarkdown` in ui-kit and `tooltip={{ markdown }}`); keep it up to date when a definition changes or a new one is added.
+- **UI texts are generic:** tooltips, hints and placeholders never describe what a particular pack does ("in the Grey Marches, landmark stops the trip") nor name a pack the user may not have; they explain the mechanism and say it depends on the system. What a pack does goes in its own manual page and its own texts. Syntax examples with made-up values (`tags: landmark`) are fine.
+- **Reuse texts, never copy them:** whenever the same word or sentence means the same thing in several places, write it once and refer to it. Words of maps and trips shared by the apps (terrains, roads and rivers, seasons, moon phases, region, tags…) live in ui-kit's `vocabulary` and every dictionary refers to it (`terrains: vocabulary.es.terrains`); a text used twice in one app is one key. Only copy when the meaning differs.
+
+**Forms and UI**
+
+- **The full syntax wherever it fits:** a field that decides when or where something applies takes a [condition](docs/manual/en/technical/08-conditions.md) (the same `when` / `unless` syntax everywhere), not a plain list or a checkbox; a choice among things a system declares lists what the system declares, not a fixed set. Older plain forms keep being read.
+- **Autocomplete where values are known:** an input whose value comes from a known list (ids, tags, terrains, field keys, context values…) suggests them (`SuggestInput`, or `<datalist>` at least).
 - **No native browser UI**: tooltips use `use:tooltip` (never `title=`), questions use `confirmAction()` / `ask()` from `ui-kit` (never `confirm()` or `alert()`); each app mounts `<Toasts />` and `<Dialogs />` once. Actions that Ctrl+Z can't undo (play state, forms without undo, deletions outside the history) ask first.
-- **The full syntax wherever it fits:** a field that decides when or where something applies takes a [condition](docs/manual/en/technical/08-conditions.md) (the same `when` / `unless` syntax everywhere, with suggestions), not a plain list or a checkbox; older plain forms keep being read. Prefer one general mechanism over special cases.
-- **Autocomplete where values are known:** an input whose value comes from a known list (ids, tags, terrains, field keys…) suggests them (`<datalist>` at least).
+- **Interconnect the systems:** whenever it makes sense, a new engine or app reads and feeds the others (map, oracle, travel, time, factions, characters, journal, notes) through events, ports and shared OTD data, never by importing another engine.
+
+**Storage**
+
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
 - **Browser storage keys start with `opentabletop.`** (or the legacy `hexmapper.`), so backups (`@open-tabletop/storage`) include them; data in IndexedDB must be added to the backup explicitly. An app that saves on its own (autosave on page hide) registers `onBeforeBackup` / `onBeforeRestore`.
-- **Every app has a user manual** in `docs/manual/<locale>/<app>/` (English and Spanish, kept in sync: a test checks every English page has a Spanish one and that links resolve) and a help button with `HelpPanel` from `manual-ui`. Update the manual when a feature changes. **Every feature is documented thoroughly as part of the work, not later:** how to use it in its app's pages, in plain words with examples (for people who don't program); the harder details (file formats, what tables see and in which order, YAML, edge cases) in the **technical** section, linked from the app pages. Examples should point to the Grey Marches when they show it.
-- **No feature is done (no commit, no ✅) until its documentation is checked everywhere it belongs.** Before committing, for every new key, option, value or behaviour, search the manual (`rg` in `docs/manual/en` and `docs/manual/es`) for the places that already talk about its neighbours, and update each: (1) the app pages where the user meets it (the form, the button, what playing shows); (2) the technical references that list it (Kinds, Conditions, What tables see, Connecting); (3) **every list that enumerates the alternatives** (what `blocks` accepts, where `when` / `unless` go, which steps exist…); (4) the UI's help texts and the suggestions of the inputs that accept it; (5) the bundled packs' manual pages if they use it. Both languages. In the reply that closes the work, say which pages were updated.
+- **Every persisted format change** (maps, saved trips, pack syntax) bumps the version and adds a migration; older packs keep being read, their old meaning migrated.
+
+**Bundled packs**
+
+- **Every feature lives in the bundled packs too:** its simple, generic use goes into **Core** (if it makes sense for any game) and its full use into **the Grey Marches** (and its example map), with a test that plays it. Core stays small and generic; the Grey Marches exercise everything (review it before closing a milestone).
+- Every Grey Marches definition's `description` (en, and es in its overlay) says what it is for and, in a second paragraph, which features it shows (`**Shows:** …` / `**Enseña:** …`); keep it up to date when a definition changes. Pack descriptions are basic Markdown, rendered safely by `Markdown` / `renderMarkdown` in ui-kit and `tooltip={{ markdown }}`.
+
+**Documentation** — every app has a user manual in `docs/manual/<locale>/<app>/` (English and Spanish, kept in sync: a test checks every English page has a Spanish one and that links resolve) and a help button with `HelpPanel` from `manual-ui`.
+
+- **Every feature is documented as part of the work, not later:** how to use it in its app's pages, in plain words with examples (for people who don't program; point to the Grey Marches when they show it); the harder details (file formats, what tables see and in which order, YAML, edge cases) in the **technical** section, linked from the app pages.
+- **No feature is done (no commit, no ✅) until its documentation is checked everywhere it belongs.** For every new key, option, value or behaviour, search the manual (`rg` in `docs/manual/en` and `docs/manual/es`) for the places that talk about its neighbours, and update each: (1) the app pages where the user meets it; (2) the technical references that list it (Kinds, Conditions, What tables see, Connecting); (3) **every list that enumerates the alternatives** (what `blocks` accepts, where `when` / `unless` go, which steps exist…); (4) the UI's help texts and the suggestions of the inputs that accept it; (5) the bundled packs' manual pages. Both languages. The reply that closes the work says which pages were updated.
+
+**Work**
+
 - Tests are mandatory in every headless package, with deterministic RNG. Snapshots never replace meaningful asserts.
-- Every persisted format change bumps the version and adds a migration.
 - One commit per phase or feature, with a descriptive message.
 
 ## Backlog
@@ -148,4 +162,4 @@ Everything to do, done, agreed, decided or rejected lives in **[`docs/BACKLOG.md
 - Read the backlog before starting work; "continue with the backlog" means its next step in order.
 - When the user asks for something to be noted, or a decision is agreed, write it there (with the date and, if useful, their reason) and tell them the file and line.
 - When something is done, mark it ✅ there in the same commit, with a short note of what was built.
-- Directives that come out of the work (how to do things from now on) go into the conventions above, not the backlog.
+- Directives that come out of the work (how to do things from now on) go into this file, not the backlog.
