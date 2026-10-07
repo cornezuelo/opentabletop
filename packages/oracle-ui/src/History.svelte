@@ -86,7 +86,7 @@
   ol {
     flex: 1;
     margin: 0;
-    padding: 0;
+    padding: 0 var(--scroll-room) 0 0;
     overflow: auto;
     list-style: none;
   }

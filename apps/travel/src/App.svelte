@@ -104,8 +104,9 @@
 
   main {
     min-height: 0;
-    padding: 18px 24px;
+    padding: 18px calc(24px + var(--scroll-room)) 18px 24px;
     overflow: auto;
+    scrollbar-gutter: stable;
   }
 
   .welcome {
@@ -127,8 +128,9 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    padding: 10px;
+    padding: 10px calc(10px + var(--scroll-room)) 10px 10px;
     overflow: auto;
+    scrollbar-gutter: stable;
     background: var(--panel);
     border-left: 1px solid var(--panel-border);
   }

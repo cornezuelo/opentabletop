@@ -351,6 +351,7 @@
 
   .timeline {
     max-height: 220px;
+    padding-right: var(--scroll-room);
     overflow-y: auto;
   }
 

@@ -237,10 +237,9 @@
 
 <style>
   .panel {
-    padding: 12px 16px;
+    padding: 12px calc(16px + var(--scroll-room)) 12px 16px;
     overflow-y: auto;
-    /* The scrollbar in the theme's colours. */
-    scrollbar-color: var(--panel-border) var(--panel);
+    scrollbar-gutter: stable;
     background: var(--panel);
     border-left: 1px solid var(--panel-border);
   }

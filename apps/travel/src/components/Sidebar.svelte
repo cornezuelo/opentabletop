@@ -76,8 +76,9 @@
     flex-direction: column;
     gap: 10px;
     min-height: 0;
-    padding: 10px;
+    padding: 10px calc(10px + var(--scroll-room)) 10px 10px;
     overflow: auto;
+    scrollbar-gutter: stable;
     background: var(--panel);
     border-right: 1px solid var(--panel-border);
   }

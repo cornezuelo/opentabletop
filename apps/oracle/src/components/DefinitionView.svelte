@@ -210,7 +210,9 @@
   .body {
     flex: 1;
     min-height: 0;
+    padding-right: var(--scroll-room);
     overflow: auto;
+    scrollbar-gutter: stable;
   }
 
   .help {

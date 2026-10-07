@@ -147,7 +147,9 @@
 
   .tree {
     flex: 1;
+    padding-right: var(--scroll-room);
     overflow: auto;
+    scrollbar-gutter: stable;
   }
 
   .pack {

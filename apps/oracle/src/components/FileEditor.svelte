@@ -100,7 +100,7 @@
   .problems {
     max-height: 30%;
     margin: 0;
-    padding: 0;
+    padding: 0 var(--scroll-room) 0 0;
     overflow: auto;
     font-size: 12px;
     list-style: none;

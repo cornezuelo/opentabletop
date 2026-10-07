@@ -518,7 +518,7 @@
     gap: 4px;
     max-height: 280px;
     margin: 0;
-    padding: 0;
+    padding: 0 var(--scroll-room) 0 0;
     overflow-y: auto;
     list-style: none;
   }

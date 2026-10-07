@@ -118,7 +118,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 10px 18px 10px 10px;
+    padding: 10px calc(10px + var(--scroll-room)) 10px 10px;
     overflow: auto;
     scrollbar-gutter: stable;
     background: var(--panel);
@@ -155,7 +155,7 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    padding: 18px 44px 18px 28px;
+    padding: 18px calc(28px + var(--scroll-room)) 18px 28px;
     overflow: auto;
     scrollbar-gutter: stable;
   }

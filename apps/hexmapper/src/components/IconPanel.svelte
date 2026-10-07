@@ -219,6 +219,7 @@
     grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
     gap: 4px;
     max-height: 260px;
+    padding-right: var(--scroll-room);
     overflow-y: auto;
   }
 
