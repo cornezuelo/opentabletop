@@ -464,6 +464,7 @@ export const en = {
   fields: {
     hexHelp:
       'Values of this hex that tables and travel checks read by key: a field danger = 3 is {{danger}} in a roll and danger: { gte: 2 } in a condition. Numbers are read as numbers.',
+    fromRegion: 'From its region ({region}): {values}. A field of its own with the same key wins.',
     regionHelp:
       'Values every hex of the region has (a hex’s own field with the same key wins): e.g. danger for a whole forest. Tables read them like the hex’s, {{danger}}.',
     iconHelp:

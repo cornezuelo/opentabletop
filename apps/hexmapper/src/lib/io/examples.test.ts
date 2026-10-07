@@ -241,7 +241,9 @@ describe('example maps', () => {
     const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const world = mapWorld(map)
     expect(world.cell('10,7')).toMatchObject({ region: 'The Greywood', danger: 2 })
-    expect(world.cell('14,3')).toMatchObject({ region: 'The Greywood', danger: 4 })
+    expect(world.cell('14,3')).toMatchObject({ region: 'The Greywood', danger: 5 })
+    // Danger grows towards the heart: edge 2, dense forest 3, around the middle 4.
+    expect([world.cell('12,1')?.danger, world.cell('13,2')?.danger]).toEqual([3, 4])
     expect(world.cell('5,7')).toMatchObject({
       name: 'Ashford',
       region: 'Ashford Vale',

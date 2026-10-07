@@ -9,11 +9,11 @@ name: Who goes there?
 description: 'Depends on the terrain, the region, the hex’s danger and the time of day.'
 roll: '1d6 + {{danger}}'
 entries:
-  # A once-only encounter, only deep in dangerous woods.
+  # A once-only encounter, only at the very heart of the Greywood (danger 5).
   - id: wyrm
     range: 6-20
     once: true
-    when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gt: 3 } }] }
+    when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
   # The calendar (calendar.yaml): when the Ember Moon is full, the hunt rides at night.
   - id: hunt

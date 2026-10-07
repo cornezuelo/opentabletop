@@ -12,7 +12,7 @@ Un hex pertenece como mucho a una región. El panel del hex también tiene una l
 
 ## Valores
 
-Una región también puede tener **campos** (clave–valor, como los de un hex). Valen para **todos los hexes de la región**: pon `danger: 2` al Bosque Gris una vez en lugar de en cada hex. El campo propio de un hex con la misma clave gana, así que el corazón del bosque puede decir `danger: 3`. Las tablas y las comprobaciones de viaje los leen como los del hex: `{{danger}}`. Mira [Lo que ven las tablas](../technical/04-what-tables-see.md).
+Una región también puede tener **campos** (clave–valor, como los de un hex). Valen para **todos los hexes de la región**: pon `danger: 2` al Bosque Gris una vez en lugar de en cada hex. El campo propio de un hex con la misma clave gana, así que el corazón del bosque puede decir `danger: 3`. El panel de un hex muestra, bajo sus propios campos, lo que recibe de su región («De su región (The Greywood): danger = 2»). Las tablas y las comprobaciones de viaje los leen como los del hex: `{{danger}}`. Mira [Lo que ven las tablas](../technical/04-what-tables-see.md).
 
 ## En el mapa
 

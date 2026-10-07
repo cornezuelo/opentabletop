@@ -471,6 +471,7 @@ export const es: Messages = {
   fields: {
     hexHelp:
       'Valores de este hex que leen las tablas y las comprobaciones de viaje por su clave: un campo danger = 3 es {{danger}} en una tirada y danger: { gte: 2 } en una condición. Los números se leen como números.',
+    fromRegion: 'De su región ({region}): {values}. Un campo propio con la misma clave gana.',
     regionHelp:
       'Valores que tienen todos los hexes de la región (un campo propio del hex con la misma clave gana): p. ej. danger para todo un bosque. Las tablas los leen como los del hex, {{danger}}.',
     iconHelp:

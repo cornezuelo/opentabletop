@@ -31,6 +31,20 @@
     }
   })
 
+  /** Values the hex gets from its region (those it doesn't set itself), e.g. danger 2. */
+  const inherited = $derived.by(() => {
+    if (!selected) return null
+    const { hex } = selected
+    const region = editor.regions.find((r) => r.id === hex.region)
+    const own = new Set((hex.fields ?? []).map((f) => f.key))
+    const fields = (region?.fields ?? []).filter((f) => f.key && !own.has(f.key))
+    if (!region || !fields.length) return null
+    return {
+      region: region.name || '—',
+      values: fields.map((f) => `${f.key} = ${f.value}`).join(', '),
+    }
+  })
+
   const suggestions = $derived.by(() => {
     void editor.revision
     return collectSuggestions(Object.values(editor.map.hexes))
@@ -132,6 +146,9 @@
       help={t('fields.hexHelp')}
       onchange={(fields) => editor.editHex(key, (h) => ({ ...h, fields }))}
     />
+    {#if inherited}
+      <p class="inherited">{t('fields.fromRegion', inherited)}</p>
+    {/if}
     <HexPaths {key} />
 
     <button class="clear" onclick={() => clearHex(key)}>{t('hex.clear')}</button>
@@ -189,6 +206,10 @@
     width: 12px;
     height: 12px;
     border-radius: 2px;
+  }
+
+  .inherited {
+    font-size: 12px;
   }
 
   .muted,
