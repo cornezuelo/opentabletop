@@ -3,10 +3,19 @@ travel-rules/default:
     lost:
       name: Perdidos
       description: 'El grupo ha perdido el rumbo (o no puede cruzar): no se viaja más hoy.'
+    snowbound:
+      name: Nieve profunda
+      description: Demasiado profunda hoy para los caballos.
+    hungry:
+      name: Pasaron hambre
+      description: El grupo acabó el día sin comida suficiente.
+    refusing:
+      name: Los mercenarios se niegan a marchar
+      description: Hasta que alguien los convenza (Hablar con los mercenarios).
   actions:
     camp:
       name: Acampar
-      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga.'
+      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga.'
     rest:
       name: Descansar
       description: Dos horas sin marchar. Quita 1 de fatiga.
@@ -17,6 +26,18 @@ travel-rules/default:
     eat:
       name: Comer
       description: 'Al final de cada día, acampando o no: 1 de comida, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
+    forced-march:
+      name: Marcha forzada
+      description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga. Solo con fatiga menor de 2, una vez al día.'
+    rite:
+      name: Rito de la Luna Ascua
+      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2 y fuera la fatiga.'
+    grumble:
+      name: Los mercenarios refunfuñan
+      description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.
+    parley:
+      name: Hablar con los mercenarios
+      description: 'Una hora de charla. Con moral 3 o más vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima
@@ -58,6 +79,9 @@ travel-rules/default:
       name: A caballo
     boat:
       name: En barca
+    cart:
+      name: En carro
+      description: Lento y seguro, y solo por los caminos.
   resources:
     food:
       name: Comida

@@ -1,6 +1,6 @@
 import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
-import { startTrip, stepTrip, travelSystems } from '@open-tabletop/session'
-import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { calendarOf, startTrip, stepTrip, travelSystems } from '@open-tabletop/session'
+import { calendarFacts, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from './bundled'
@@ -124,6 +124,140 @@ describe('bundled open packs', () => {
     }
     expect(rested(3)).toBe(true)
     expect(rested(1)).toBe(false)
+  })
+
+  describe('the Grey Marches show off their conditions', () => {
+    const system = marches()
+    const play = (cells: Record<string, unknown>[], road = false, seed = 'show') => ({
+      system,
+      world: row(cells, road),
+      oracle: createOracleEngine({ registry, random: seeded(seed) }),
+      locale: 'en',
+    })
+    const took = (entries: { code: string; data?: Record<string, unknown> }[], id: string) =>
+      entries.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === id)
+
+    it('deep snow (set by the weather) leaves the horses behind', () => {
+      const sky = registry.extras.get('grey-marches')!.find((e) => e.id === 'sky')!
+      expect((sky.data as { states: Record<string, { set?: object }> }).states.snow.set).toEqual({
+        snowbound: true,
+      })
+      const options = play([{ terrain: 'plains' }, { terrain: 'plains' }])
+      let { session } = startTrip({ system, location: '0', season: 'winter' })
+      session = stepTrip(options, session, { type: 'setMode', mode: 'horse' }).state
+      session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+      session = { ...session, travel: { ...session.travel, today: { snowbound: true } } }
+      const mounted = stepTrip(options, session, { type: 'travel' })
+      expect(mounted.state.travel.location).toBe('0')
+      session = stepTrip(options, mounted.state, { type: 'setMode', mode: 'foot' }).state
+      expect(session.travel.mode).toBe('foot')
+    })
+
+    it('a cart only goes by road', () => {
+      const plains = [{ terrain: 'plains' }, { terrain: 'plains' }]
+      for (const road of [true, false]) {
+        const options = play(plains, road)
+        let { session } = startTrip({ system, location: '0', season: 'summer' })
+        session = stepTrip(options, session, { type: 'setMode', mode: 'cart' }).state
+        const route = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state.travel
+          .route
+        expect(!!route, `road: ${road}`).toBe(road)
+      }
+    })
+
+    it('a forced march goes faster and tires, only while fresh', () => {
+      const options = play([{ terrain: 'plains' }])
+      const fresh = startTrip({ system, location: '0', season: 'summer' }).session
+      const { state, entries } = stepTrip(options, fresh, { type: 'action', id: 'forced-march' })
+      expect(took(entries, 'forced-march')).toBe(true)
+      expect(state.stats.fatigue).toBe(1)
+      expect(state.travel.speedToday).toBe(1.5)
+      const tired = { ...fresh, stats: { ...fresh.stats, fatigue: 2 } }
+      expect(
+        took(
+          stepTrip(options, tired, { type: 'action', id: 'forced-march' }).entries,
+          'forced-march',
+        ),
+      ).toBe(false)
+    })
+
+    it('the rite of the Ember Moon: at a shrine, only under the full moon', () => {
+      const calendar = calendarOf(system)
+      const days = Array.from({ length: 120 }, (_, i) => i + 1)
+      const phase = (day: number) =>
+        (
+          calendarFacts(calendar.describe(calendar.at(day, '06:00'))).moons as Record<
+            string,
+            string
+          >
+        ).ember
+      const full = days.find((d) => phase(d) === 'full')!
+      const other = days.find((d) => phase(d) !== 'full')!
+      const rite = (day: number, tags: string[]) => {
+        const options = play([{ terrain: 'plains', tags }])
+        const { session } = startTrip({
+          system,
+          location: '0',
+          time: calendar.at(day, '06:00'),
+          stats: { morale: 1, fatigue: 3 },
+        })
+        return stepTrip(options, session, { type: 'action', id: 'rite' })
+      }
+      const done = rite(full, ['shrine'])
+      expect(took(done.entries, 'rite')).toBe(true)
+      expect(done.state.stats).toMatchObject({ morale: 3, fatigue: 0 })
+      expect(took(rite(other, ['shrine']).entries, 'rite')).toBe(false)
+      expect(took(rite(full, []).entries, 'rite')).toBe(false)
+    })
+
+    it('hirelings refuse to march after a hungry day, and morale talks them round', () => {
+      const options = play([{ terrain: 'plains' }, { terrain: 'plains' }])
+      const start = (morale: number) => {
+        const { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          stats: { hirelings: 2, morale },
+        })
+        // No food: the day ends hungry; the next dawn they grumble.
+        const hungry = {
+          ...session,
+          travel: { ...session.travel, resources: { food: 0, fodder: 6 } },
+        }
+        return stepTrip(options, hungry, { type: 'wait', until: session.travel.time + 1440 + 60 })
+          .state
+      }
+      const refusing = start(3)
+      expect(refusing.travel.today?.refusing).toBe(true)
+      const blocked = stepTrip(
+        options,
+        stepTrip(options, refusing, { type: 'setDestination', hex: '1' }).state,
+        {
+          type: 'travel',
+        },
+      )
+      expect(blocked.state.travel.location).toBe('0')
+      const talked = stepTrip(options, refusing, { type: 'action', id: 'parley' }).state
+      expect(talked.travel.today?.refusing).toBe(false)
+      expect(talked.stats.hirelings).toBe(2)
+      const low = stepTrip(options, start(1), { type: 'action', id: 'parley' }).state
+      expect(low.stats.hirelings).toBe(1)
+    })
+
+    it('a restless watch with low morale', () => {
+      const options = play([{ terrain: 'plains' }], false, 'watch')
+      const camp = (morale: number) => {
+        const { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          stats: { morale, fatigue: 2 },
+        })
+        return stepTrip(options, session, { type: 'action', id: 'camp' }).state.stats.fatigue
+      }
+      expect(camp(3)).toBe(1)
+      expect(camp(1)).toBe(2)
+    })
   })
 
   it('the Grey Marches: an oracle resolves the ford, with its input from the bindings', () => {

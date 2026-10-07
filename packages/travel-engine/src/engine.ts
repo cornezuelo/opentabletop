@@ -530,7 +530,8 @@ export function createTravelEngine(options: {
       schedule(state, 'day-start', events)
     }
     if (state.pendingChecks.length) return stop('check')
-    const blocked = blocker(state, 'travel')
+    // A value that blocks travel, or the way the party is travelling (`mode.horse`).
+    const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
     if (blocked) {
       events.push({ type: 'TRAVEL_STOPPED', reason: 'value', value: blocked, time: state.time })
       return
@@ -824,7 +825,7 @@ export function createTravelEngine(options: {
     availability(input, facts = {}) {
       const state = upgradeTravelState(input)
       const out: Record<string, Unavailable> = {}
-      const travelBlocked = blocker(state, 'travel')
+      const travelBlocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
       if (travelBlocked) out.travel = { value: travelBlocked }
       for (const id of Object.keys(actions.all)) {
         const why = unavailable(state, id, facts)

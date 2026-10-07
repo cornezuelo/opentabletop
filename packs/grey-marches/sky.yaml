@@ -13,7 +13,8 @@ states:
   storm:
     name: 'Storm: nobody travels'
     set: { fordImpossible: true }
-  snow: { name: Falling snow }
+  # Snow sets a value of the day the travel rules declare: it leaves the horses behind.
+  snow: { name: Falling snow, set: { snowbound: true } }
 seasons:
   spring:
     start: grey

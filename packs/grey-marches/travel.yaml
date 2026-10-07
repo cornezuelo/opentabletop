@@ -44,6 +44,12 @@ modes:
     kmPerDay: 40
     through: { any: [{ water: true }, { terrain: coast }] }
     when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }
+  # A cart only rolls along roads (through: the roads of each step, `edges`).
+  cart:
+    name: By cart
+    description: Slow and steady, and only along the roads.
+    kmPerDay: 30
+    through: { edges: road }
 # Supplies never go below 0 (min): when there's none left, eating hits that minimum, and
 # later steps and checks of the day see it as `below: food`.
 resources:
@@ -62,6 +68,21 @@ values:
     name: Lost
     description: 'The party has lost its way (or can’t cross): no more travel today.'
     blocks: [travel]
+  # Set by the weather (sky.yaml: falling snow): it blocks a way of travelling, so the
+  # horses stay behind (on foot, by boat or by cart the trip goes on).
+  snowbound:
+    name: Deep snow
+    description: Too deep for the horses today.
+    blocks: [mode.horse]
+  # Set by the eat action when the food ran out; read the next day as `yesterday.hungry`.
+  hungry:
+    name: Went hungry
+    description: The party ended the day without enough to eat.
+  # Set by the hirelings' grumbling at dawn, cleared by talking them round.
+  refusing:
+    name: The hirelings refuse to march
+    description: Until someone talks them round (Talk to the hirelings).
+    blocks: [travel]
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
@@ -70,10 +91,12 @@ actions:
   # Night checks (at: camp) come first.
   camp:
     name: Camp
-    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue.'
+    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue; with morale 1 or less, the watch is restless: +1 fatigue.'
     do:
       - { time: dawn }
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      # A night watch kept by a party in low spirits: nobody really sleeps.
+      - { when: { party.stats.morale: { lte: 1 } }, effects: { party.stats.fatigue: 1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat).
   rest:
     name: Rest
@@ -104,6 +127,45 @@ actions:
     do:
       - { effects: { party.resources.food: -1 } }
       - { when: { mode: horse }, effects: { party.resources.fodder: -1 } }
+      # If the food ran out (it hit its minimum), the day is remembered as hungry.
+      - { when: { below: food }, set: { hungry: true } }
+  # Pushing on: half as fast again for the rest of the day, at the cost of fatigue; only
+  # while the party is fresh enough (a condition on a stat), once a day.
+  forced-march:
+    name: Forced march
+    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only with fatigue under 2, once a day.'
+    when: { party.stats.fatigue: { lt: 2 } }
+    oncePerDay: true
+    do:
+      - { speed: 1.5 }
+      - { effects: { party.stats.fatigue: 1 } }
+  # At a shrine (a tag of the hex) under the full Ember Moon (the calendar): a rite.
+  rite:
+    name: Rite of the Ember Moon
+    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2 and fatigue gone.'
+    when: { all: [{ tags: shrine }, { moons.ember: full }] }
+    oncePerDay: true
+    do:
+      - { time: 120 }
+      - { effects: { party.stats.morale: 2, party.stats.fatigue: '=0' } }
+  # The system's own: at dawn after a hungry day, hirelings (if any) refuse to march
+  # (a value that blocks travel) until someone talks them round.
+  grumble:
+    name: The hirelings grumble
+    description: After a day without enough to eat, the hirelings refuse to march.
+    on: day-start
+    when: { all: [{ yesterday.hungry: true }, { party.stats.hirelings: { gte: 1 } }] }
+    do:
+      - { set: { refusing: true } }
+  # Talking them round works with good morale; otherwise one walks off and the rest follow.
+  parley:
+    name: Talk to the hirelings
+    description: 'An hour of talk. With morale 3 or more they march again; otherwise one of them walks off, and the rest follow you grudgingly.'
+    when: { refusing: true }
+    do:
+      - { time: 60 }
+      - { unless: { party.stats.morale: { gte: 3 } }, effects: { party.stats.hirelings: -1 } }
+      - { set: { refusing: false } }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED

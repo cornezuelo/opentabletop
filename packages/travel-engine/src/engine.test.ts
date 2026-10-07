@@ -222,6 +222,28 @@ describe('travel', () => {
     expect(engine.availability(state).travel).toEqual({ value: 'lost' })
   })
 
+  it('stays put while a value blocks the way it travels (mode.horse), until it changes', () => {
+    const { rules: snowy } = parseTravelRules({
+      ...rules!,
+      values: { snowbound: { blocks: ['mode.horse'] } },
+    })
+    const eng = createTravelEngine({ world, rules: snowy! })
+    let state: TravelState = { ...start('0,0', 'horse'), today: { snowbound: true } }
+    state = eng.apply(state, { type: 'setDestination', hex: '2,0' }).state
+    state.dayChecksDone = true
+    const { events } = eng.apply(state, { type: 'travel' })
+    expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'snowbound' })
+    expect(eng.availability(state)).toMatchObject({
+      travel: { value: 'snowbound' },
+      'mode.horse': { value: 'snowbound' },
+    })
+    const afoot = eng.apply(state, { type: 'setMode', mode: 'foot' }).state
+    expect(eng.availability(afoot).travel).toBeUndefined()
+    expect(eng.apply(afoot, { type: 'travel' }).events.some((e) => e.type === 'HEX_ENTERED')).toBe(
+      true,
+    )
+  })
+
   it('applies weather: storms stop travel, heavy rain halves speed', () => {
     let { state } = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
     const weather = state.pendingChecks.find((c) => c.event === 'WEATHER_CHECK_REQUIRED')!

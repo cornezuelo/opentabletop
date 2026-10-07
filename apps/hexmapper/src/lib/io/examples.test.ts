@@ -154,6 +154,10 @@ describe('example maps', () => {
     expect(tripAvailability({ system, world }, storm).forage).toEqual({ condition: 'unless' })
     expect(tripAvailability({ system, world }, session)).toEqual({
       'mode.boat': { condition: 'when' }, // Ashford is inland
+      'forced-march': { condition: 'when' }, // fatigue 2
+      rite: { condition: 'when' }, // no shrine here
+      grumble: { condition: 'when' }, // nobody went hungry
+      parley: { condition: 'when' }, // nobody refuses
     })
   })
 
