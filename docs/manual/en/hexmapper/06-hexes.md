@@ -9,7 +9,7 @@ Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details
 - **Notes**: short GM notes in Markdown. The lore of the place belongs in your notes app (see below).
 - **POIs**: points of interest, each with a name, a description, its own linked note and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).
 - **Tags**: free words (`ruins`, `haunted`, `landmark`…) with suggestions from the rest of the map.
-- **Fields**: key–value pairs (`danger: 3`, `elevation: 1200`). Travel checks and tables read them by key. Keys and values already used on the map are suggested as you type.
+- **Fields**: key–value pairs (`danger: 3`, `elevation: 1200`). Travel checks and tables read them by key. Keys and values already used on the map are suggested as you type, and so are the names the loaded packs' tables read (the Grey Marches' `danger`, for example).
 - **POI fields**: each point of interest has its own (`rooms: 3`), kept with it; tables don't read them.
 - **Linked note**: a page of your notes app.
 - The icon and the lines crossing the hex.

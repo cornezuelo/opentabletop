@@ -150,16 +150,23 @@ function parseDocuments(file: PackFile, diagnostics: Diagnostic[], pack?: string
   const out: unknown[] = []
   // Errors found at the end (an unclosed quote or bracket) belong to the last line with text.
   const lastLine = file.content.trimEnd().split('\n').length
+  const seen = new Set<string>()
   for (const doc of list) {
-    for (const error of doc.errors)
+    for (const error of doc.errors) {
+      const message = `Invalid YAML: ${error.message.split('\n')[0].replace(/ at line \d+, column \d+:?$/, '')}`
+      const line = error.linePos && Math.min(error.linePos[0].line, lastLine)
+      // The parser may say the same thing twice about one spot.
+      if (seen.has(`${line}:${message}`)) continue
+      seen.add(`${line}:${message}`)
       diagnostics.push({
         severity: 'error',
         // The first line says what's wrong; the position and the code excerpt go to `line`.
-        message: `Invalid YAML: ${error.message.split('\n')[0].replace(/ at line \d+, column \d+:?$/, '')}`,
+        message,
         pack,
         file: file.path,
-        ...(error.linePos && { line: Math.min(error.linePos[0].line, lastLine) }),
+        ...(line && { line }),
       })
+    }
     if (doc.errors.length === 0 && doc.contents !== null) out.push(doc.toJS())
   }
   return out

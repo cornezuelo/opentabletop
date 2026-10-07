@@ -3,11 +3,18 @@
   import { go } from '../lib/nav.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '@open-tabletop/pack-ui/yaml'
-  import { CodeEditor } from '@open-tabletop/pack-ui'
+  import { CodeEditor, manifestOf, yamlHints } from '@open-tabletop/pack-ui'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
 
   let { root, path, line }: { root: string; path: string; line?: number } = $props()
 
+  /** Suggestions while typing: this pack's tables first, then everything the packs use. */
+  const hints = $derived(
+    yamlHints(
+      workspace.registry,
+      manifestOf(workspace.pack(root) ?? { root, origin: 'user', files: [] }).id,
+    ),
+  )
   const content = $derived(workspace.readFile(root, path) ?? '')
   const editable = $derived(workspace.isEditable(root))
   const diagnostics = $derived(workspace.diagnostics(root, path))
@@ -40,6 +47,7 @@
         value={content}
         readonly={!editable}
         {problems}
+        {hints}
         line={jump}
         onchange={(text) => workspace.writeFile(root, path, text, true)}
       />

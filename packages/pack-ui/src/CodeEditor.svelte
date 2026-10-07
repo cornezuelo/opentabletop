@@ -11,7 +11,9 @@
   import { yaml } from '@codemirror/lang-yaml'
   import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
   import { lintGutter, setDiagnostics, type Diagnostic } from '@codemirror/lint'
+  import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete'
   import { EditorState } from '@codemirror/state'
+  import { completeYaml, type YamlHints } from './completion'
   import { EditorView, keymap } from '@codemirror/view'
   import { tags } from '@lezer/highlight'
   import { basicSetup } from 'codemirror'
@@ -22,6 +24,7 @@
     readonly = false,
     problems = [],
     line,
+    hints,
     onchange,
   }: {
     value: string
@@ -30,7 +33,24 @@
     /** Line to scroll to and select (1-based). */
     line?: number
     onchange?: (value: string) => void
+    /** What to suggest while typing (references, condition names and values…). */
+    hints?: YamlHints
   } = $props()
+
+  /** Suggestions for the line being typed (Ctrl+Space shows them anywhere). */
+  function complete(context: CompletionContext): CompletionResult | null {
+    if (!hints) return null
+    const line = context.state.doc.lineAt(context.pos)
+    const found = completeYaml(line.text.slice(0, context.pos - line.from), hints)
+    if (!found) return null
+    // While typing, only once a word has started; Ctrl+Space shows them right away.
+    if (!context.explicit && found.from === context.pos - line.from) return null
+    return {
+      from: line.from + found.from,
+      options: found.options.map((label) => ({ label })),
+      validFor: /^[\w./-]*$/,
+    }
+  }
 
   let host: HTMLDivElement
   let view: EditorView | undefined
@@ -61,6 +81,10 @@
         backgroundColor: 'rgb(200 162 74 / 0.25)',
       },
       '.cm-tooltip': { backgroundColor: 'var(--panel)', border: '1px solid var(--accent)' },
+      '.cm-tooltip-autocomplete ul li[aria-selected]': {
+        color: 'var(--text)',
+        backgroundColor: 'rgb(200 162 74 / 0.3)',
+      },
     },
     { dark: true },
   )
@@ -91,6 +115,7 @@
           basicSetup,
           keymap.of([indentWithTab]),
           yaml(),
+          EditorState.languageData.of(() => [{ autocomplete: complete }]),
           syntaxHighlighting(highlight),
           lintGutter(),
           theme,

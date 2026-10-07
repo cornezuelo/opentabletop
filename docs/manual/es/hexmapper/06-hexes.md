@@ -9,7 +9,7 @@ Selecciona un hex con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y e
 - **Notas**: notas breves del máster en Markdown. El trasfondo del lugar va en tu aplicación de notas (ver abajo).
 - **PDI**: puntos de interés, cada uno con nombre, descripción, su propia nota enlazada y, si quieres, un icono para distinguirlos en el panel (no se dibuja en el mapa).
 - **Etiquetas**: palabras libres (`ruinas`, `encantado`, `referencia`…) con sugerencias del resto del mapa.
-- **Campos**: pares clave–valor (`danger: 3`, `elevation: 1200`). Las comprobaciones de viaje y las tablas los leen por su clave. Mientras escribes se sugieren las claves y valores ya usados en el mapa.
+- **Campos**: pares clave–valor (`danger: 3`, `elevation: 1200`). Las comprobaciones de viaje y las tablas los leen por su clave. Mientras escribes se sugieren las claves y valores ya usados en el mapa, y también los nombres que leen las tablas de los packs cargados (por ejemplo, el `danger` de las Marcas Grises).
 - **Campos de los PDI**: cada punto de interés tiene los suyos (`rooms: 3`), guardados con él; las tablas no los leen.
 - **Nota enlazada**: una página de tu aplicación de notas.
 - El icono y las líneas que cruzan el hex.

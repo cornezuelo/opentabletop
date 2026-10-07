@@ -2,6 +2,8 @@
 
 Click a definition's file (or a file in the pack page) to open the YAML editor. Problems are underlined at their line and listed below; click one to jump to it. Changes are saved as you type.
 
+While you type, the editor suggests what fits (<kbd>Ctrl</kbd>+<kbd>Space</kbd> shows the suggestions anywhere): keys at the start of a line, `kind` and other fixed values, tables and generators after `table:`, `generator:` or `resolve:` (this pack's first), and inside one-line `when`, `unless`, `set` and `context` the names tables read or set, with their known values (`terrain: forest`, `season: winter`, `resources: { food }`…). The same suggestions appear in the forms' condition and value boxes.
+
 ## A table
 
 ```yaml

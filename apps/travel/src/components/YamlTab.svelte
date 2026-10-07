@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CodeEditor, locate } from '@open-tabletop/pack-ui'
+  import { CodeEditor, locate, manifestOf, yamlHints } from '@open-tabletop/pack-ui'
   import { t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
   import ReadOnly from './ReadOnly.svelte'
@@ -7,6 +7,13 @@
   /** The file with the system's rules and bindings, with problems at their lines. */
   let { root, path }: { root: string; path: string } = $props()
 
+  /** Suggestions while typing: this pack's tables first, then everything the packs use. */
+  const hints = $derived(
+    yamlHints(
+      library.registry,
+      manifestOf(library.pack(root) ?? { root, origin: 'user', files: [] }).id,
+    ),
+  )
   const content = $derived(library.readFile(root, path) ?? '')
   const editable = $derived(library.isEditable(root))
   const problems = $derived(
@@ -27,6 +34,7 @@
         value={content}
         readonly={!editable}
         {problems}
+        {hints}
         onchange={(text) => library.writeFile(root, path, text, true)}
       />
     {/key}
