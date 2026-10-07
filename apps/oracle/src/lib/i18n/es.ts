@@ -211,8 +211,14 @@ export const es: Messages<typeof en> = {
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',
       bindings: 'Bindings',
+      calendar: 'Calendario',
+      weather: 'Modelo de clima',
     },
     systemTips: {
+      calendar:
+        'Meses y estaciones, días de la semana, lunas y fiestas para sus viajes y el reloj del mundo.',
+      weather:
+        'Clima con memoria: por estación, lo probable que es cada clima mañana. Átalo a una comprobación con weather:.',
       'roll-modes':
         'Formas de tirar sus tablas, como la ventaja: tirar varias veces y quedarse con un total.',
       'travel-rules':
@@ -220,7 +226,7 @@ export const es: Messages<typeof en> = {
       bindings:
         'Qué tabla responde a cada comprobación del viaje, y las estadísticas del grupo que leen las tablas.',
     },
-    alreadyHas: 'Este pack ya las tiene.',
+    alreadyHas: 'Este pack ya tiene uno.',
     title: 'Nueva definición',
     pack: 'En el pack',
     noPacks:

@@ -54,7 +54,13 @@ export const TEMPLATES: Record<Compiled['kind'], (id: string) => Record<string, 
 }
 
 /** Rules of a system a pack can hold (one of each): its roll modes, travel rules, bindings. */
-export const SYSTEM_KINDS = ['roll-modes', 'travel-rules', 'bindings'] as const
+export const SYSTEM_KINDS = [
+  'roll-modes',
+  'travel-rules',
+  'bindings',
+  'calendar',
+  'weather',
+] as const
 export type SystemKind = (typeof SYSTEM_KINDS)[number]
 
 /**
@@ -97,4 +103,43 @@ export const SYSTEM_TEMPLATES: Record<SystemKind, (id: string) => Record<string,
     on: {},
     stats: {},
   }),
+  // A small year to rename and extend: four months, a week, a moon and a feast.
+  calendar: (id) => ({
+    kind: 'calendar',
+    id,
+    name: 'The reckoning',
+    startYear: 1,
+    months: [
+      { id: 'thaw', name: 'Thaw', days: 30, season: 'spring' },
+      { id: 'sun', name: 'Sun', days: 30, season: 'summer' },
+      { id: 'leaf', name: 'Leaf', days: 30, season: 'autumn' },
+      { id: 'frost', name: 'Frost', days: 30, season: 'winter' },
+    ],
+    weekdays: ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh'].map((day) => ({
+      id: day,
+      name: day,
+    })),
+    moons: [{ id: 'moon', name: 'The moon', cycle: 28 }],
+    holidays: [{ id: 'midsummer', name: 'Midsummer', month: 'sun', day: 15 }],
+  }),
+  // Weather with memory, the same in every season: change the weights per season.
+  weather: (id) => {
+    const next = {
+      clear: { clear: 3, rain: 1 },
+      rain: { rain: 2, clear: 1, storm: 1 },
+      storm: { rain: 2, clear: 1 },
+    }
+    const season = { start: 'clear', next }
+    return {
+      kind: 'weather',
+      id,
+      name: 'Weather',
+      states: {
+        clear: { name: 'Clear skies' },
+        rain: { name: 'Rain' },
+        storm: { name: 'Storm' },
+      },
+      seasons: { spring: season, summer: season, autumn: season, winter: season },
+    }
+  },
 }

@@ -73,4 +73,4 @@ Lore stays in your notes app: maps and journals link to SilverBullet or Obsidian
 
 ## License
 
-The code and the open packs are MIT. Bundled third-party assets (icons, fonts) keep their own licenses: see [CREDITS.md](CREDITS.md). Packs record their license and attribution in their `pack.yaml`.
+The code and the open packs are [MIT](LICENSE). Bundled third-party assets (icons, fonts) keep their own licenses: see [CREDITS.md](CREDITS.md). Packs record their license and attribution in their `pack.yaml`.

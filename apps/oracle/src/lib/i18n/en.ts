@@ -201,14 +201,24 @@ export const en = {
     forTravel: 'Rules of the system',
     forTravelHelp:
       'Roll modes are the ways its tables can be rolled (advantage…). A pack with travel rules becomes a system you can pick in the Hexmapper, Play → Rules, and in the Travel app; bindings say which table answers each check. See the manual: Kinds of definition, and Connecting tables to maps and trips.',
-    system: { 'roll-modes': 'Roll modes', 'travel-rules': 'Travel rules', bindings: 'Bindings' },
+    system: {
+      'roll-modes': 'Roll modes',
+      'travel-rules': 'Travel rules',
+      bindings: 'Bindings',
+      calendar: 'Calendar',
+      weather: 'Weather model',
+    },
     systemTips: {
       'roll-modes':
         'Ways of rolling its tables, like advantage: roll several times and keep one total.',
       'travel-rules': 'Speeds, terrains, roads, supplies and which checks are rolled when.',
+      calendar:
+        'Months and seasons, weekdays, moons and holidays for its trips and the world clock.',
+      weather:
+        'Weather with memory: per season, how likely each weather is tomorrow. Bind it to a check with weather:.',
       bindings: 'Which table answers each travel check, and the party stats tables read.',
     },
-    alreadyHas: 'This pack already has them.',
+    alreadyHas: 'This pack already has one.',
     title: 'New definition',
     pack: 'In pack',
     noPacks:

@@ -47,7 +47,7 @@ They could live in separate files just as well. A pack holds at most one travel 
 **How to add them.**
 
 - In the Travel app: **New system** creates a pack with both; its **Rules** and **Checks** tabs edit them with forms.
-- In the Oracle app: **New definition → For travel** adds them to one of your packs. The pack page lists them under **Other definitions**; open them in the YAML editor, where problems are checked like in any other definition.
+- In the Oracle app: **New definition → Rules of the system** adds one of them (roll modes, travel rules, bindings, a calendar or a weather model) to one of your packs, as a valid example to change in the YAML editor ([Kinds of definition](../technical/07-kinds.md) explains each). The pack page lists them under **Other definitions**; open them in the YAML editor, where problems are checked like in any other definition.
 
 What goes inside is explained step by step in [Connecting tables to maps and trips](07-connecting.md#5-your-own-travel-system).
 

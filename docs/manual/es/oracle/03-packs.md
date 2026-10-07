@@ -47,7 +47,7 @@ Igual de bien podrían ir en ficheros separados. Un pack tiene como mucho un sis
 **Cómo añadirlas.**
 
 - En la aplicación Travel: **Nuevo sistema** crea un pack con las dos; sus pestañas **Reglas** y **Comprobaciones** las editan con formularios.
-- En la aplicación Oracle: **Nueva definición → Para viajar** las añade a uno de tus packs. La página del pack las lista en **Otras definiciones**; ábrelas en el editor YAML, donde sus problemas se comprueban como los de cualquier otra definición.
+- En la aplicación Oracle: **Nueva definición → Reglas del sistema** añade una de ellas (modos de tirada, reglas de viaje, bindings, un calendario o un modelo de clima) a uno de tus packs, como un ejemplo válido para cambiar en el editor YAML ([Tipos de definición](../technical/07-kinds.md) explica cada una). La página del pack las lista en **Otras definiciones**; ábrelas en el editor YAML, donde sus problemas se comprueban como los de cualquier otra definición.
 
 Lo que llevan dentro se explica paso a paso en [Conectar tablas con mapas y viajes](07-connecting.md#5-tu-propio-sistema-de-viaje).
 
