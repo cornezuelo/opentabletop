@@ -53,7 +53,7 @@ Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 
 - Entradas: la Sierpe de la tabla de encuentros, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; la cacería, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`; la patrulla del Valle, `when: { region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
 - Campos de generador: la trampa de _Explorar una ruina_, `when: { danger: { lte: 2 } }`, y su ruina intacta, `unless: { untouched: { lt: 90 } }`.
-- Comprobaciones: perderse, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; el vado, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
+- Comprobaciones: los encuentros `at: [hex-enter, rest]`, `when: { any: [{ moment: hex-enter, danger: { gte: 1 } }, { moment: rest, danger: { gte: 3 } }] }`; perderse, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; el vado, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
 - Acciones y pasos: buscar comida, `unless: { weather: storm }`; la noche bien comidos de la acampada, `unless: { below: food }`; comer forraje, `when: { mode: horse }`.
 - Formas de viajar: la barca va `through: { any: [{ water: true }, { terrain: coast }] }` y se sube `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (solo se elige a la orilla o en el transbordador; si no, sale desactivada en el panel del viaje, diciendo por qué).
 - Terrenos: los picos son `passable: { when: { season: summer }, unless: { weather: [snow, storm] } }`; los lagos, `passable: { when: { month: [deepwinter, wolfmoon] } }` (helados). Ven el hex al que se entra y el momento, como `through`.

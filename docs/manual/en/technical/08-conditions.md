@@ -53,7 +53,7 @@ They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 
 - Entries: the encounter table's Wyrm, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; the hunt, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`; the Vale's patrol, `when: { region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
 - Generator fields: _Delving a ruin_'s trap, `when: { danger: { lte: 2 } }`, and its untouched ruin, `unless: { untouched: { lt: 90 } }`.
-- Checks: getting lost, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; the ford, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
+- Checks: encounters `at: [hex-enter, rest]`, `when: { any: [{ moment: hex-enter, danger: { gte: 1 } }, { moment: rest, danger: { gte: 3 } }] }`; getting lost, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; the ford, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
 - Actions and steps: foraging, `unless: { weather: storm }`; camp's fed night, `unless: { below: food }`; eating fodder, `when: { mode: horse }`.
 - Ways of travelling: the boat goes `through: { any: [{ water: true }, { terrain: coast }] }` and is boarded `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
 - Terrains: the peaks are `passable: { when: { season: summer }, unless: { weather: [snow, storm] } }`; lakes, `passable: { when: { month: [deepwinter, wolfmoon] } }` (frozen). They see the hex entered and the moment, like `through`.

@@ -13,7 +13,7 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
-  import type { SystemDoc } from '../../lib/systemDoc.svelte'
+  import { momentsText, parseMoments, type SystemDoc } from '../../lib/systemDoc.svelte'
 
   /**
    * The system's actions as cards, all alike (camp and rest too): id, name and description,
@@ -37,6 +37,16 @@
     ...BUILT_IN_ACTIONS.filter((id) => actions[id] === undefined),
     ...Object.keys(actions).filter((id) => actions[id] !== false),
   ])
+  /** An action's moments in words: "At dawn · After: Camp". */
+  const saidMoments = (on: unknown) =>
+    momentsText(on)
+      .split(', ')
+      .map((m) =>
+        (CHECK_MOMENTS as readonly string[]).includes(m)
+          ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number]}`)
+          : t('actions.onAfter', { action: label(m) }),
+      )
+      .join(' · ')
   /** Check events a step can roll. */
   const events = $derived([
     ...new Set(
@@ -208,19 +218,15 @@
       <div class="row">
         <label>
           <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
-          <select
-            value={d.on ?? ''}
+          <SuggestInput
+            label={t('actions.on')}
+            placeholder={t('actions.onButton')}
+            value={momentsText(d.on)}
+            list={[...CHECK_MOMENTS, ...ids.filter((a) => a !== id)]}
             {disabled}
-            onchange={(e) =>
-              doc.edit('travel-rules', ['actions', id, 'on'], e.currentTarget.value || undefined)}
-          >
-            <option value="">{t('actions.onButton')}</option>
-            {#each CHECK_MOMENTS as m (m)}<option value={m}>{t(`checks.atOptions.${m}`)}</option
-              >{/each}
-            {#each ids.filter((a) => a !== id) as a (a)}<option value={a}
-                >{t('actions.onAfter', { action: label(a) })}</option
-              >{/each}
-          </select>
+            onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
+          />
+          {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
         </label>
         <label>
           <span>{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
@@ -338,6 +344,11 @@
 </div>
 
 <style>
+  .said {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
   .actions {
     display: flex;
     flex-direction: column;

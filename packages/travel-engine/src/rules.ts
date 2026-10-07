@@ -11,6 +11,14 @@ const text = z.union([z.string(), z.record(z.string(), z.string())])
  * names one of the system's actions (`at: camp`).
  */
 export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'day-end'] as const
+/** One moment (`day-start`, an action's id…) or several (`[day-start, hex-enter]`). */
+const moments = z.union([z.string().min(1), z.array(z.string().min(1)).min(1)])
+
+/** The moments an action's `on:` or a check's `at:` names, as a list (none: empty). */
+export function momentsOf(value: string | string[] | undefined): string[] {
+  return value === undefined ? [] : Array.isArray(value) ? value : [value]
+}
+
 /**
  * Actions older systems had without declaring them: rules that don't name them get the
  * usual ones (camp sleeps until dawn, a rest is an hour); `camp: false` leaves one out.
@@ -84,10 +92,11 @@ const action = z
     do: z.array(step).optional(),
     /**
      * The system takes it by itself at this moment (`day-start`, `hex-enter`, `camp`,
-     * `day-end`, or when one of its actions is taken), if its conditions hold; it isn't a
-     * button then. It runs before that moment's checks.
+     * `day-end`, or when one of its actions is taken), or at each of several (`[day-start,
+     * hex-enter]`), if its conditions hold; it isn't a button then. It runs before that
+     * moment's checks, and its conditions see which moment it is (`moment`).
      */
-    on: z.string().min(1).optional(),
+    on: moments.optional(),
     /** Only available when this holds (the trip's facts, today's values, the party). */
     when: condition.optional(),
     /** Not available when this holds, e.g. `{ forageImpossible: true }`. */
@@ -129,10 +138,11 @@ const checkRule = z
     /** What it is about, shown as its tooltip. */
     description: text.optional(),
     /**
-     * day-start, hex-enter, camp, day-end, or the id of one of the system's actions. Without
-     * it, only an action's step rolls it (`roll: <event>`).
+     * day-start, hex-enter, camp, day-end, or the id of one of the system's actions, or
+     * several of them (`[hex-enter, camp]`; its conditions see which one it is: `moment`).
+     * Without it, only an action's step rolls it (`roll: <event>`).
      */
-    at: z.string().min(1).optional(),
+    at: moments.optional(),
     /** Skip the check when this matches the check context (terrain, edges, weather, mode…). */
     unless: condition.optional(),
     /** Only check when this matches. */
@@ -249,14 +259,16 @@ export const travelRulesSchema = z
   .superRefine((rules, ctx) => {
     const actionIds = Object.keys(availableActions(rules as TravelRules).all)
     const moments = [...CHECK_MOMENTS, ...actionIds]
-    rules.checks?.forEach((check, i) => {
-      if (check.at !== undefined && !moments.includes(check.at))
-        ctx.addIssue({
-          code: 'custom',
-          path: ['checks', i, 'at'],
-          message: `expected ${moments.join(', ')}`,
-        })
-    })
+    const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
+      momentsOf(value).forEach((moment, j) => {
+        if (!moments.includes(moment))
+          ctx.addIssue({
+            code: 'custom',
+            path: Array.isArray(value) ? [...path, j] : path,
+            message: `expected ${moments.join(', ')}`,
+          })
+      })
+    rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))
     const blockable = [
       ...BLOCKABLE,
       ...actionIds,
@@ -275,13 +287,7 @@ export const travelRulesSchema = z
     const values = Object.keys(declaredValues(rules as TravelRules))
     for (const [id, a] of Object.entries(rules.actions ?? {})) {
       if (a === false) continue
-      if (a.on !== undefined && !(CHECK_MOMENTS as readonly string[]).includes(a.on))
-        if (!actionIds.includes(a.on))
-          ctx.addIssue({
-            code: 'custom',
-            path: ['actions', id, 'on'],
-            message: `expected ${moments.join(', ')}`,
-          })
+      badMoments(a.on, ['actions', id, 'on'])
       a.do?.forEach((st, i) => {
         if (st.do !== undefined && !actionIds.includes(st.do))
           ctx.addIssue({
@@ -533,7 +539,9 @@ export function actionLoop(rules: TravelRules): string[] | undefined {
   const all = availableActions(rules).all
   const next = (id: string): string[] => [
     ...(all[id]?.do ?? []).flatMap((s) => (s.do ? [s.do] : [])),
-    ...Object.entries(all).flatMap(([other, def]) => (def.on === id ? [other] : [])),
+    ...Object.entries(all).flatMap(([other, def]) =>
+      momentsOf(def.on).includes(id) ? [other] : [],
+    ),
   ]
   const state = new Map<string, 'open' | 'done'>()
   const visit = (id: string, path: string[]): string[] | undefined => {

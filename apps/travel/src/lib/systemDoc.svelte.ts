@@ -18,6 +18,19 @@ import { library } from './packs.svelte'
 
 export type Kind = 'travel-rules' | 'bindings'
 
+/** A check's `at:` or an action's `on:` as typed in a box: `day-start, hex-enter`. */
+export const momentsText = (value: unknown): string =>
+  Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
+
+/** What a box of moments writes: nothing, one moment, or a list of them. */
+export function parseMoments(text: string): string | string[] | undefined {
+  const list = text
+    .split(',')
+    .map((m) => m.trim())
+    .filter((m, i, all) => m && all.indexOf(m) === i)
+  return list.length === 0 ? undefined : list.length === 1 ? list[0] : list
+}
+
 /**
  * The ids of a system's actions, from its raw rules: camp and rest unless it turns them
  * off (older systems had them without declaring them), then the ones it declares.

@@ -1,5 +1,10 @@
 import type { Compiled, Registry } from '@open-tabletop/oracle-engine'
-import { availableActions, declaredValues, genericTravelRules } from '@open-tabletop/travel-engine'
+import {
+  availableActions,
+  CHECK_MOMENTS,
+  declaredValues,
+  genericTravelRules,
+} from '@open-tabletop/travel-engine'
 import { travelSystems } from './trip'
 
 const CONDITION_OPERATORS = new Set(['all', 'any', 'not'])
@@ -85,6 +90,7 @@ export function contextSuggestions(
       add(`yesterday.${value}`, true, false)
     }
     add('doing', ...Object.keys(availableActions(rules).all))
+    add('moment', ...CHECK_MOMENTS, ...Object.keys(availableActions(rules).all))
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
       condition(action.unless, add)

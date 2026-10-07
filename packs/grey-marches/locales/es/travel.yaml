@@ -26,7 +26,7 @@ travel-rules/default:
       description: Cada alba fuera de caminos y ríos (no en barca). La Orientación ayuda; la niebla lo complica.
     ENCOUNTER_CHECK_REQUIRED:
       name: Encuentro
-      description: Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino.
+      description: Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino; o al descansar donde el peligro es 3 o más.
     TOLL_CHECK_REQUIRED:
       name: Peaje
       description: Keld Bridge, llegando por el camino.

@@ -131,10 +131,10 @@ export const es: Messages<typeof en> = {
     steps: 'Qué hace',
     stepsHelp:
       'Sus pasos, en orden, cada uno escrito como en el YAML: time: 180 (minutos; o dawn, nightfall, 14:00), speed: 0.5 (el resto de la marcha de hoy), effects: { party.stats.fatigue: -1 } (un cambio que pasaría el Mín o el Máx de un valor se queda en él; los pasos siguientes ven below: [id] o above: [id]), set: { lost: true } (valores del día), do: forage (otra acción, si se cumplen sus condiciones), roll: ENCOUNTER_CHECK_REQUIRED (una comprobación ya). La casilla de al lado es la condición del paso: solo ocurre si se cumple (below: food, doing: camp…). Las acciones que siguen a esta y sus comprobaciones (pestaña Comprobaciones, En: esta acción) van primero.',
-    on: 'La hace',
+    on: 'Sola en',
     onHelp:
-      'El jugador (un botón), o el propio sistema en un momento (al alba, al entrar en un hex, al final de cada día) o tras otra acción, si se cumplen sus condiciones. Si la hace el sistema no es un botón; va antes de las comprobaciones de ese momento. P. ej. comer al acabar cada día, se acampe o no.',
-    onButton: 'El jugador (un botón)',
+      'Vacío: la hace el jugador, con un botón. O los momentos en que la hace el propio sistema, si se cumplen sus condiciones: day-start (al alba), hex-enter (al entrar en un hex), day-end (al acabar cada día) o el id de una acción (justo después de ella), varios separados por comas, p. ej. day-start, hex-enter. Si la hace el sistema no es un botón, y va antes de las comprobaciones de ese momento; sus condiciones ven qué momento es (moment: hex-enter). P. ej. comer al acabar cada día, se acampe o no: day-end.',
+    onButton: 'nada: un botón para el jugador',
     onAfter: 'Tras: {action}',
     step: 'Paso',
     badStep:
@@ -162,7 +162,9 @@ export const es: Messages<typeof en> = {
       camp: 'Al acampar',
       'day-end': 'Al final del día',
     },
-    atNone: 'Solo cuando un paso la tira',
+    atNone: 'solo cuando un paso la tira',
+    atHelp:
+      'Cuándo se tira: day-start (al alba), hex-enter (al entrar en un hex), day-end (al acabar cada día) o el id de una acción (con ella: camp, forage…), varios separados por comas, p. ej. hex-enter, camp. Sus condiciones y su tabla ven cuál es (moment: camp). Vacío: solo cuando la tira un paso de una acción (roll: <su evento>).',
     atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',

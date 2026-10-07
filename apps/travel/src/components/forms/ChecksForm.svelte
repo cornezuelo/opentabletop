@@ -7,7 +7,13 @@
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import { actionIds, ROLLABLE, type SystemDoc } from '../../lib/systemDoc.svelte'
+  import {
+    actionIds,
+    momentsText,
+    parseMoments,
+    ROLLABLE,
+    type SystemDoc,
+  } from '../../lib/systemDoc.svelte'
   import { CHECK_MOMENTS } from '@open-tabletop/travel-engine'
 
   /**
@@ -25,6 +31,16 @@
     const action = ((doc.rules.actions ?? {}) as Record<string, Raw | undefined>)[id]
     return doc.text('travel-rules', action?.name, ['actions', id, 'name']) || id
   }
+  /** A check's moments in words: "At dawn · Action: Forage". */
+  const saidMoments = (at: unknown) =>
+    momentsText(at)
+      .split(', ')
+      .map((m) =>
+        (AT as readonly string[]).includes(m)
+          ? t(`checks.atOptions.${m as (typeof AT)[number]}`)
+          : t('checks.atAction', { action: actionLabel(m) }),
+      )
+      .join(' · ')
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
   const checkText = (check: Raw, key: 'name' | 'description') =>
     doc.text('travel-rules', check[key], ['checks', String(check.event), key])
@@ -163,19 +179,16 @@
             />
           </label>
           <label>
-            <span>{t('checks.at')}</span>
-            <select
-              value={check.at ?? ''}
+            <span>{t('checks.at')}<InfoTip text={t('checks.atHelp')} /></span>
+            <SuggestInput
+              label={t('checks.at')}
+              placeholder={t('checks.atNone')}
+              value={momentsText(check.at)}
+              list={[...AT, ...ownActions]}
               {disabled}
-              onchange={(e) =>
-                doc.edit('travel-rules', ['checks', i, 'at'], e.currentTarget.value || undefined)}
-            >
-              <option value="">{t('checks.atNone')}</option>
-              {#each AT as at (at)}<option value={at}>{t(`checks.atOptions.${at}`)}</option>{/each}
-              {#each ownActions as id (id)}<option value={id}
-                  >{t('checks.atAction', { action: actionLabel(id) })}</option
-                >{/each}
-            </select>
+              onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
+            />
+            {#if check.at}<small class="said">{saidMoments(check.at)}</small>{/if}
           </label>
           {#if !disabled}
             <button
@@ -403,6 +416,11 @@
 </div>
 
 <style>
+  .said {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
   .form {
     display: flex;
     flex-direction: column;

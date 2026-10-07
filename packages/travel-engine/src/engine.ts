@@ -13,6 +13,7 @@ import {
   availableActions,
   changeValue,
   isPassable,
+  momentsOf,
   modeThrough,
   declaredValues,
   nightAction,
@@ -287,7 +288,8 @@ export function createTravelEngine(options: {
   /** Actions the system takes by itself, by the moment or action they follow. */
   const triggered = new Map<string, string[]>()
   for (const [id, def] of Object.entries(actions.all))
-    if (def.on) triggered.set(def.on, [...(triggered.get(def.on) ?? []), id])
+    for (const moment of momentsOf(def.on))
+      triggered.set(moment, [...(triggered.get(moment) ?? []), id])
   /** A declared value holds while it's set to anything but false. */
   const holds = (v: unknown) => v !== undefined && v !== null && v !== false
   /** The declared value that blocks `what` today (travel, an action), if any. */
@@ -442,12 +444,13 @@ export function createTravelEngine(options: {
     if (!event)
       // The actions the system takes at this moment come first (their checks too).
       for (const id of triggered.get(at) ?? [])
-        takeAction(state, id, events, { on: at, facts, quiet: true })
-    const context = { ...checkContext(state, stretch), ...facts }
-    const seen = { ...checkContext(state, stretch, hostFacts), ...facts }
+        takeAction(state, id, events, { on: at, facts: { ...facts, moment: at }, quiet: true })
+    // Conditions (and the tables) see which moment it is: a check may come at several.
+    const context = { ...checkContext(state, stretch), ...facts, moment: at }
+    const seen = { ...checkContext(state, stretch, hostFacts), ...facts, moment: at }
     let scheduled = 0
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
-      if (event ? rule.event !== event : rule.at !== at) continue
+      if (event ? rule.event !== event : !momentsOf(rule.at).includes(at)) continue
       if (rule.when && !matches(rule.when, seen)) continue
       if (rule.unless && matches(rule.unless, seen)) continue
       const check: PendingCheck = {

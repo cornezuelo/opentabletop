@@ -991,6 +991,44 @@ describe('actions the system triggers, and bounded values', () => {
     expect(state.resources.gold).toBeLessThan(0)
   })
 
+  it('may come at several moments, and their conditions see which one (moment)', () => {
+    const sight = { event: 'SIGHT', at: ['day-start', 'hex-enter'], when: { moment: 'hex-enter' } }
+    const bad = { event: 'BAD', at: ['day-start', 'nowhere'] }
+    expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
+      'checks.1.at.1: expected day-start, hex-enter, day-end, camp, rest, eat, drink, pray, feast, chant',
+    )
+    const { rules: several, errors } = parseTravelRules({
+      ...triggered!,
+      checks: [sight],
+      actions: {
+        watch: {
+          on: ['day-start', 'hex-enter'],
+          do: [
+            { when: { moment: 'day-start' }, effects: { 'party.resources.gold': 1 } },
+            { when: { moment: 'hex-enter' }, effects: { 'party.resources.gold': 10 } },
+          ],
+        },
+      },
+    })
+    expect(errors).toEqual([])
+    const eng = createTravelEngine({ world, rules: several! })
+    let state = begin()
+    let all: TravelEvent[] = []
+    for (const action of [{ type: 'setDestination', hex: '1,0' }, { type: 'travel' }] as const) {
+      const result = eng.apply(state, action)
+      state = result.state
+      all = [...all, ...result.events]
+      for (const c of state.pendingChecks)
+        state = eng.apply(state, { type: 'resolveCheck', id: c.id }).state
+    }
+    // Dawn: +1 and no sighting; entering the hex: +10 and the sighting.
+    expect(state.resources.gold).toBe(11)
+    const sights = all.filter((e) => e.type === 'CHECK_REQUIRED')
+    expect(sights.map((e) => e.type === 'CHECK_REQUIRED' && e.check.context.moment)).toEqual([
+      'hex-enter',
+    ])
+  })
+
   it('reject unknown targets and loops', () => {
     const bad = parseTravelRules({
       ...triggered!,

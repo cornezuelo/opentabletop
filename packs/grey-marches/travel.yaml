@@ -116,12 +116,17 @@ checks:
     description: Every dawn off roads and rivers (not by boat). Navigation helps; fog makes it harder.
     at: day-start
     unless: { any: [{ edges: [road, river] }, { mode: boat }] }
-  # Encounters where the map says there is danger (a hex field), never on the road.
+  # Encounters where the map says there is danger (a hex field), never on the road; also
+  # when resting somewhere dangerous enough. Two moments (at: a list), told apart by
+  # `moment` in the condition.
   - event: ENCOUNTER_CHECK_REQUIRED
     name: Encounter
-    description: Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road.
-    at: hex-enter
-    when: { danger: { gte: 1 } }
+    description: Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
+    at: [hex-enter, rest]
+    when:
+      any:
+        - { moment: hex-enter, danger: { gte: 1 } }
+        - { moment: rest, danger: { gte: 3 } }
     unless: { edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
   - event: TOLL_CHECK_REQUIRED

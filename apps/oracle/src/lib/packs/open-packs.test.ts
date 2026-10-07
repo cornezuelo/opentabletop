@@ -108,6 +108,24 @@ describe('bundled open packs', () => {
     }
   })
 
+  it('the Grey Marches: encounters come entering a hex and resting somewhere dangerous', () => {
+    const system = marches()
+    const rested = (danger: number) => {
+      const options = {
+        system,
+        world: row([{ terrain: 'forest', danger }]),
+        oracle: createOracleEngine({ registry, random: seeded('rest') }),
+        locale: 'en',
+      }
+      const { session } = startTrip({ system, location: '0', season: 'summer' })
+      return stepTrip(options, session, { type: 'action', id: 'rest' }).entries.some(
+        (e) => e.data?.event === 'ENCOUNTER_CHECK_REQUIRED',
+      )
+    }
+    expect(rested(3)).toBe(true)
+    expect(rested(1)).toBe(false)
+  })
+
   it('the Grey Marches: an oracle resolves the ford, with its input from the bindings', () => {
     const system = marches()
     const world = row([{ terrain: 'plains' }, { terrain: 'plains', tags: ['ford'] }])

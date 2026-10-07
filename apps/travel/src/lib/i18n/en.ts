@@ -128,10 +128,10 @@ export const en = {
     steps: 'What it does',
     stepsHelp:
       'Its steps, in order, each written like in the YAML: time: 180 (minutes; or dawn, nightfall, 14:00), speed: 0.5 (the rest of today’s march), effects: { party.stats.fatigue: -1 } (a change past a value’s Min or Max stops there; later steps see below: [id] or above: [id]), set: { lost: true } (values of the day), do: forage (another action, if its conditions hold), roll: ENCOUNTER_CHECK_REQUIRED (a check now). The box next to it is the step’s condition: it only happens when it holds (below: food, doing: camp…). The actions that follow this one and its checks (Checks tab, At: this action) come first.',
-    on: 'Taken',
+    on: 'By itself at',
     onHelp:
-      'By the player (a button), or by the system itself at a moment (at dawn, entering a hex, at the end of each day) or after another action, when its conditions hold. Taken by the system, it isn’t a button; it comes before that moment’s checks. E.g. eating as each day ends, whether the party camped or not.',
-    onButton: 'By the player (a button)',
+      'Empty: the player takes it, with a button. Or the moments the system takes it by itself, if its conditions hold: day-start (at dawn), hex-enter (entering a hex), day-end (as each day ends) or an action’s id (right after it), several separated by commas, e.g. day-start, hex-enter. Taken by the system it isn’t a button, and it comes before that moment’s checks; its conditions see which moment it is (moment: hex-enter). E.g. eating as each day ends, whether the party camped or not: day-end.',
+    onButton: 'nothing: a button for the player',
     onAfter: 'After: {action}',
     step: 'Step',
     badStep:
@@ -159,7 +159,9 @@ export const en = {
       camp: 'In camp',
       'day-end': 'At the end of the day',
     },
-    atNone: 'Only when a step rolls it',
+    atNone: 'only when a step rolls it',
+    atHelp:
+      'When it is rolled: day-start (at dawn), hex-enter (entering a hex), day-end (as each day ends) or an action’s id (with it: camp, forage…), several separated by commas, e.g. hex-enter, camp. Its conditions and table see which one it is (moment: camp). Empty: only when an action’s step rolls it (roll: <its event>).',
     atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',
