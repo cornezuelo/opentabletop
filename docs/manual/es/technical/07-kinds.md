@@ -2,6 +2,8 @@
 
 Un pack es una carpeta de ficheros YAML (o JSON). Cada fichero tiene una o varias **definiciones**, separadas por una línea con `---`, y cada definición dice qué es con `kind:`. Esta página enumera todos los tipos: para qué sirve cada uno, quién lo lee y cómo se escribe. Todos se comprueban al cargar el pack: un error aparece en **Problemas** de la aplicación Oracle, con su fichero y su línea.
 
+Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un pack no puede añadir tipos propios (uno que las aplicaciones no conocen se guarda, pero nadie lo lee). Lo que el pack elige libremente es el contenido: sus tablas, su calendario, su clima, sus modos de tirada, sus reglas de viaje y sus características, con los nombres y las reglas de su juego.
+
 | Tipo           | Qué es                                                                | Quién lo lee                              | Cuántos por pack |
 | -------------- | --------------------------------------------------------------------- | ----------------------------------------- | ---------------- |
 | `table`        | Una lista de resultados que se eligen por dados o por peso            | El Oracle, los viajes, el descubrimiento  | Los que quieras  |
@@ -30,6 +32,8 @@ entries:
 ```
 
 Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` (una condición), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión). La tabla puede tener además `clamp`, `onExhausted`, `modes` y `modeWhen`. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../oracle/06-yaml.md).
+
+**Qué ven otras tablas:** una tabla tirada desde otra (`table:`) da su texto como `{{result}}` y sus valores `set` al viaje y a las comprobaciones siguientes del día (mira [Qué ven las tablas](04-what-tables-see.md)).
 
 ## Oráculos
 
@@ -60,6 +64,8 @@ fields:
 template: '{{name}} (fuerza {{might}})'
 ```
 
+**Qué ven otras tablas:** cada campo por su nombre, dentro del generador (`{{name}}`), y desde un generador que tire este, como `{{npc.name}}`.
+
 ## Mazos
 
 Cartas que se roban sin reponer hasta que se baraja (`reshuffle: when-empty`, `manual` o `after-draw`). Una carta puede tener copias (`count`), tirar una tabla y poner valores, como una entrada.
@@ -88,13 +94,19 @@ Una tabla u oráculo los usa con:
 
 Cuando se aplican varios (uno elegido a mano más otros solos), los que se anulan entre sí se caen y se usa el primero de los demás (el elegido a mano, luego el orden de `modeWhen`). Los modos se referencian como las tablas: primero los del propio pack, luego los de sus dependencias (las Marcas Grises usan el `advantage` de Core), o por su id completo (`core/advantage`). Core declara ventaja y desventaja; las Marcas Grises añaden _Con cuidado_ (tres tiradas, la del medio); Kal-Arath tiene su propia pareja. El antiguo `advantage: true` ya no hace nada y avisa.
 
+**Qué ven las tablas:** nada: los modos no son valores; una tabla los usa con `modes` y `modeWhen`.
+
 ## Reglas de viaje
 
 Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades, el agua, los caminos y ríos, las formas de viajar (km por día, qué gastan, por dónde pueden ir), las provisiones que se gastan al día, el clima que frena, las acciones del grupo (acampar, descansar y las propias del sistema, como forrajear) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al acampar o con una acción, y cuándo (`when` / `unless`). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
 
+**Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) y el grupo (`party.resources.food`, `party.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
+
 ## Bindings
 
 La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
+
+**Qué ven las tablas:** cada característica por su nombre (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
 
 ## Calendarios
 
@@ -114,6 +126,8 @@ moons: [{ id: pale, name: La Luna Pálida, cycle: 28 }]
 holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 ```
 
+**Qué ven las tablas:** `{{month}}` (el id del mes), `{{year}}`, `{{weekday}}`, la fase de cada luna como `moons.<luna>` (`when: { moons.pale: full }`) y las fiestas de hoy como una lista (`when: { holidays: midsummer }`), además de `season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
+
 ## Modelos de clima
 
 Clima con memoria (una cadena de Markov): por estación, para cada tipo de clima, lo probable que es cada tipo mañana, así que la lluvia se instala varios días y las tormentas pasan. Cada tipo de clima tiene un nombre y los valores que da al día (`set: { fordModifier: -1 }`), como el resultado de una tabla. Un viaje usa uno cuando un binding dice `weather: <modelo>` en vez de `resolve:`; el clima de hoy pasa a ser `weather` para las comprobaciones siguientes y las velocidades de las reglas de viaje.
@@ -131,5 +145,7 @@ seasons:
       clear: { clear: 3, rain: 1 }
       rain: { rain: 2, clear: 1 }
 ```
+
+**Qué ven las tablas:** `{{weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{fordModifier}}`, `when: { fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).

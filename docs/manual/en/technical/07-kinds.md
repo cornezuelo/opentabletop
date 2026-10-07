@@ -2,6 +2,8 @@
 
 A pack is a folder of YAML (or JSON) files. Each file holds one or more **definitions**, separated by a line with `---`, and every definition says what it is with `kind:`. This page lists every kind, what it's for, who reads it and what it looks like. Each one is validated when the pack loads: a mistake shows in the Oracle app's **Problems**, with its file and line.
 
+The kinds are a **fixed set**: each one is read by an engine that knows it, and a pack can't add kinds of its own (one the apps don't know is kept but nothing reads it). What a pack chooses freely is the content: its own tables, calendar, weather, roll modes, travel rules and stats, with the names and rules of its game.
+
 | Kind           | What it is                                                        | Read by                            | How many per pack |
 | -------------- | ----------------------------------------------------------------- | ---------------------------------- | ----------------- |
 | `table`        | A list of results picked by dice or weight                        | The Oracle, trips, discovery       | Any               |
@@ -30,6 +32,8 @@ entries:
 ```
 
 Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` (a condition), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session). The table may also have `clamp`, `onExhausted`, `modes` and `modeWhen`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
+
+**What other tables see:** a table rolled from another (`table:`) gives its text as `{{result}}` and its `set` values to the trip and to later checks of the day (see [What tables see](04-what-tables-see.md)).
 
 ## Oracles
 
@@ -61,6 +65,8 @@ fields:
 template: '{{name}} (might {{might}})'
 ```
 
+**What other tables see:** each field by its name, inside the generator (`{{name}}`), and from a generator that rolls this one, as `{{npc.name}}`.
+
 ## Decks
 
 Cards drawn without replacement until the deck is reshuffled (`reshuffle: when-empty`, `manual` or `after-draw`). A card can come in copies (`count`), roll a table and set values, like an entry.
@@ -89,13 +95,19 @@ A table or oracle uses them with:
 
 When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage; the Grey Marches add _Carefully_ (three rolls, the middle one); Kal-Arath has its own pair. The old `advantage: true` does nothing now and warns.
 
+**What tables see:** nothing: modes aren't values; a table uses them through `modes` and `modeWhen`.
+
 ## Travel rules
 
 How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds, water, roads and rivers, ways of travelling (km per day, what they use, where they can go), supplies used per day, weather that slows you down, the party's actions (camp, rest and the system's own, like foraging) and the **checks**: what is rolled at dawn, on entering a hex, in camp or with an action, and when (`when` / `unless`). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Travel app's [Systems](../travel/03-systems.md).
 
+**What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) and the party (`party.resources.food`, `party.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
+
 ## Bindings
 
 The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+
+**What tables see:** each stat by name (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
 
 ## Calendars
 
@@ -115,6 +127,8 @@ moons: [{ id: pale, name: The Pale Moon, cycle: 28 }]
 holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 ```
 
+**What tables see:** `{{month}}` (the month's id), `{{year}}`, `{{weekday}}`, each moon's phase as `moons.<moon>` (`when: { moons.pale: full }`) and today's holidays as a list (`when: { holidays: midsummer }`), plus `season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
+
 ## Weather models
 
 Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `weather` for later checks and the travel rules' speeds.
@@ -132,5 +146,7 @@ seasons:
       clear: { clear: 3, rain: 1 }
       rain: { rain: 2, clear: 1 }
 ```
+
+**What tables see:** `{{weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{fordModifier}}`, `when: { fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).
