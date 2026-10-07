@@ -1,6 +1,6 @@
 # The Oracle in the map
 
-The Oracle button (the gold hexagon under Play, or <kbd>O</kbd>) opens a panel to roll any table, oracle, generator or deck of your packs without leaving the map.
+The Oracle button (the gold hexagon under Play and the World, or <kbd>O</kbd>) opens a panel to roll any table, oracle, generator or deck of your packs without leaving the map.
 
 ## The packs of a map
 

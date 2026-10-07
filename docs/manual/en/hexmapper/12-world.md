@@ -1,6 +1,6 @@
 # The world clock
 
-The **World** panel (☾ in the toolbar, under the Oracle) keeps the campaign's date for this map: time moves on, scheduled events come due on their day, and progress clocks fill up. It's saved with the map (and in its `.otd.json`). Its months, moons and holidays come from the calendar of the map's system (`kind: calendar` in its pack, see [Kinds of definition](../technical/07-kinds.md#calendars)); without one, days and four seasons.
+The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date for this map: time moves on, scheduled events come due on their day, and progress clocks fill up. It's saved with the map (and in its `.otd.json`). Its months, moons and holidays come from the calendar of the map's system (`kind: calendar` in its pack, see [Kinds of definition](../technical/07-kinds.md#calendars)); without one, days and four seasons.
 
 ## Starting it
 
