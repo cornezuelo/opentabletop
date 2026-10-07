@@ -99,7 +99,7 @@ export const en = {
     restFatigueHelp: '0: a pause that recovers nothing (camping does).',
     ownActions: 'Actions of this system',
     ownActionsHelp:
-      'Buttons of your own next to Travel, Camp and Rest, e.g. forage: they take time, can slow the rest of the day’s march and recover fatigue. Give them checks in the Checks tab (When: the action). Their name, description and what the journal says when none of their checks apply (nothing) go in the YAML (name: Forage for food), and their translations in locales/ like the checks'.',
+      'Buttons of your own next to Travel, Camp and Rest, e.g. forage: they take time, can slow the rest of the day’s march and recover fatigue. Give them checks in the Checks tab (When: the action). Their name, description and what the journal says when none of their checks apply (nothing) go in the YAML (name: Forage for food), and their translations in locales/ like the checks’.',
     actionSpeedHelp: 'Multiplies the rest of the day’s march: 0.5 halves it. Empty: no change.',
     oncePerDay: 'Once a day',
   },
