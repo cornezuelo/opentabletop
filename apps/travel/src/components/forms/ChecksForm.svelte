@@ -1,7 +1,7 @@
 <script lang="ts">
   import { idText, translator } from '@open-tabletop/travel-ui'
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
-  import { contextSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, effectSuggestions } from '@open-tabletop/session'
   import { library } from '../../lib/packs.svelte'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
@@ -38,6 +38,7 @@
   const tt = translator(getLocale)
   /** What check conditions and tables can read, for suggestions while typing. */
   const hints = $derived(contextSuggestions(library.registry))
+  const effectHints = $derived(effectSuggestions(library.registry))
   const eventName = (event: string) =>
     idText(tt, `events.${event}`, event.replace(/_CHECK_REQUIRED$/, '').toLowerCase())
 
@@ -65,7 +66,7 @@
   function setFlow(path: (string | number)[], kind: 'travel-rules' | 'bindings', text: string) {
     const value = parseFlow(text)
     if (value === null) return showToast(t('forms.badFlow'), 'error')
-    doc.edit(kind, path, value)
+    doc.edit(kind, path, value && Object.keys(value).length ? value : undefined)
   }
 
   /** Renaming an event takes its table along, unless another check still uses it. */
@@ -266,6 +267,16 @@
               />
             </label>
           {/if}
+          <label>
+            <span>{t('checks.effects')}<InfoTip text={t('checks.effectsHelp')} /></span>
+            <SuggestInput
+              placeholder="party.stats.fatigue: 1"
+              value={bare(check.effects)}
+              suggestions={effectHints}
+              {disabled}
+              onchange={(text) => setFlow(['checks', i, 'effects'], 'travel-rules', text)}
+            />
+          </label>
           <label class="inline">
             <input
               type="checkbox"

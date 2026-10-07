@@ -84,7 +84,7 @@ export const en = {
       'What the party carries and how much is used each day (whether you march or not).',
     perDay: 'Per day',
     perDayHelp:
-      'Used every day by everyone, whatever the way of travelling (a way of travelling can add its own: Ways of travelling → Uses per day). 0 for a supply only some ways of travelling use, like fodder for horses. Running short of any supply raises fatigue by 1 that day.',
+      'Used every day by everyone, whatever the way of travelling (a way of travelling can add its own: Ways of travelling → Uses per day). 0 for a supply only some ways of travelling use, like fodder for horses. What running short does depends on the system (its day-end checks see short).',
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       'How weather slows the party. Tables set it with set: { weather: … } (usually rolled at dawn).',
@@ -92,20 +92,52 @@ export const en = {
     speed: 'Speed ×',
     speedHelp: '0 means no travel that day; 0.5 half speed.',
     actions: 'Actions',
-    actionsHelp: 'What the party can do besides marching.',
-    camp: 'Camp (ends the day)',
-    rest: 'Rest (a short pause)',
-    campHelp:
-      'The party stops for the night: camp checks are rolled, it sleeps until dawn, eats the day’s supplies and, if fed, recovers 1 fatigue.',
-    restHelp: 'A pause of some minutes during the day; it recovers the fatigue set here.',
-    restMinutes: 'Minutes',
-    restFatigue: 'Fatigue recovered',
-    restFatigueHelp: '0: a pause that recovers nothing (camping does).',
-    ownActions: 'Actions of this system',
-    ownActionsHelp:
-      'Buttons of your own next to Travel, Camp and Rest, e.g. forage: they take time, can slow the rest of the day’s march and recover fatigue. Give them checks in the Checks tab (When: the action). Their name, description and what the journal says when none of their checks apply (nothing) go in the YAML (name: Forage for food), and their translations in locales/ like the checks’.',
-    actionSpeedHelp: 'Multiplies the rest of the day’s march: 0.5 halves it. Empty: no change.',
+    actionsHelp:
+      'What the party can do besides marching: camp, rest and the system’s own (forage, pray…), each a button in the trip panel. Each one says when it can be taken and what it does, step by step.',
     oncePerDay: 'Once a day',
+    values: 'Values of the day',
+    valuesHelp:
+      'Values this system’s tables can set for the rest of the day (set: { lost: true }), with what they block while they hold: travel, or actions by id. Tables read them the next day as yesterday.<id>. Without any, the older built-in lost (blocks travel) still works.',
+    blocks: 'Blocks',
+    blocksHelp:
+      'What can’t be done while the value holds: travel, camp, rest or an action’s id. The buttons stay visible, disabled, saying why.',
+    blocksNothing: 'nothing',
+  },
+  actions: {
+    camp: 'Camp',
+    rest: 'Rest',
+    campHelp:
+      'Ends the day: the night’s checks (At: In camp), then its steps. Without steps, the party sleeps until dawn. Turn it off if the system has no camping.',
+    restHelp:
+      'A pause during the day. Without steps it lasts an hour. Turn it off if the system has no rests.',
+    when: 'Only when',
+    unless: 'Not when',
+    whenHelp:
+      'When the button can be pressed, with conditions like the tables’: today’s values (forageImpossible: true), the map (terrain: [forest, hills]), the party (party.stats.faith: { gte: 1 }). Otherwise it stays disabled and says why.',
+    nothing: 'When nothing applies',
+    nothingHelp:
+      'What the journal says when none of its checks apply where the party is; {terrain} is the hex’s terrain. Empty: a generic sentence.',
+    nothingPlaceholder: 'nothing to find on {terrain}',
+    steps: 'What it does',
+    stepsHelp:
+      'Its steps, in order. Pass time (minutes, dawn, nightfall or a time like 14:00), eat the day’s supplies (later steps see short: true if something ran out), change the rest of today’s march (×0.5) or change the party (effects such as party.stats.fatigue: -1). A step with a condition only happens when it holds (short: false, camping: true…). Its checks (Checks tab, At: this action) are rolled first.',
+    stepKind: 'Kind of step',
+    kinds: {
+      time: 'Time passes',
+      eat: 'Eat the day’s supplies',
+      speed: 'Today’s march ×',
+      effects: 'Changes',
+    },
+    eatDay: 'once a day: if already eaten today, nothing',
+    stepWhen: 'only when…',
+    badTime: 'Write minutes (180), dawn, nightfall or a time like 14:00.',
+    dawn: 'Until dawn',
+    nightfall: 'Until nightfall',
+    up: 'Move up',
+    down: 'Move down',
+    noSteps: 'No steps: it does nothing but roll its checks.',
+    addStep: 'Add a step',
+    add: 'Add an action',
   },
   kinds: vocabulary.en.kinds,
   checks: {
@@ -131,6 +163,9 @@ export const en = {
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— nothing: wait for me —',
+    effects: 'Changes',
+    effectsHelp:
+      'What the check itself changes when it comes up, with or without a table: party.stats.fatigue: 1, party.resources.food: -1. A number adds or takes away; =3 sets it. How a system writes its rules as data (a day without food: fatigue +1).',
     pause: 'Pause after it',
     pauseHelp:
       'The trip stops when this check comes up (after rolling it, if something resolves it) and waits until you press Continue: time to describe the place, write lore or decide something. A table entry can also pause, only when it comes up.',

@@ -3,6 +3,7 @@
   import { t } from '../../lib/i18n'
   import type { SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
+  import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
 
   /** Travel rules as forms: the day, terrains, roads, modes, supplies, weather and actions. */
@@ -12,7 +13,6 @@
   const disabled = $derived(!doc.editable)
   const resources = $derived(Object.keys(rules.resources ?? {}))
   const actions = $derived((rules.actions ?? {}) as Record<string, unknown>)
-  const rest = $derived(actions.rest)
 
   const num = (input: HTMLInputElement) =>
     input.value.trim() === '' ? undefined : Number(input.value)
@@ -235,98 +235,31 @@
   </section>
 
   <section>
-    <h3>{t('rules.actions')}<InfoTip text={t('rules.actionsHelp')} /></h3>
-    <label class="check">
-      <input
-        type="checkbox"
-        checked={actions.camp !== false}
-        {disabled}
-        onchange={(e) =>
-          doc.edit(
-            'travel-rules',
-            ['actions', 'camp'],
-            e.currentTarget.checked ? undefined : false,
-          )}
-      />
-      {t('rules.camp')}<InfoTip text={t('rules.campHelp')} />
-    </label>
-    <div class="inline">
-      <label class="check">
-        <input
-          type="checkbox"
-          checked={rest !== false}
-          {disabled}
-          onchange={(e) =>
-            doc.edit(
-              'travel-rules',
-              ['actions', 'rest'],
-              e.currentTarget.checked ? undefined : false,
-            )}
-        />
-        {t('rules.rest')}<InfoTip text={t('rules.restHelp')} />
-      </label>
-      {#if rest !== false}
-        {@const r = (rest ?? {}) as Record<string, unknown>}
-        <label>
-          <span>{t('rules.restMinutes')}</span>
-          <input
-            type="number"
-            min="1"
-            placeholder="60"
-            value={r.minutes ?? ''}
-            {disabled}
-            onchange={(e) =>
-              doc.edit('travel-rules', ['actions', 'rest', 'minutes'], num(e.currentTarget))}
-          />
-        </label>
-        <label>
-          <span>{t('rules.restFatigue')}<InfoTip text={t('rules.restFatigueHelp')} /></span>
-          <input
-            type="number"
-            min="0"
-            placeholder="0"
-            value={r.fatigue ?? ''}
-            {disabled}
-            onchange={(e) =>
-              doc.edit('travel-rules', ['actions', 'rest', 'fatigue'], num(e.currentTarget))}
-          />
-        </label>
-      {/if}
-    </div>
-    <h4>{t('rules.ownActions')}<InfoTip text={t('rules.ownActionsHelp')} /></h4>
+    <h3>{t('rules.values')}<InfoTip text={t('rules.valuesHelp')} /></h3>
     <RecordRows
       {doc}
-      at={['actions']}
-      exclude={['camp', 'rest']}
+      at={['values']}
       idLabel={t('forms.id')}
-      suggestions={['forage', 'hunt', 'scout', 'pray']}
-      template={{ minutes: 60 }}
+      suggestions={['lost', 'stranded', 'exhausted']}
+      template={{ blocks: ['travel'] }}
       columns={[
+        { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
+        { field: 'description', label: t('checks.description'), type: 'text' },
         {
-          field: 'minutes',
-          label: t('rules.restMinutes'),
-          type: 'number',
-          min: 0,
-          placeholder: '0',
+          field: 'blocks',
+          label: t('rules.blocks'),
+          help: t('rules.blocksHelp'),
+          type: 'list',
+          placeholder: t('rules.blocksNothing'),
+          choices: ['travel', 'camp', 'rest', ...Object.keys(actions)],
         },
-        {
-          field: 'speed',
-          label: t('rules.speed'),
-          help: t('rules.actionSpeedHelp'),
-          type: 'number',
-          min: 0,
-          placeholder: '1',
-        },
-        {
-          field: 'fatigue',
-          label: t('rules.restFatigue'),
-          type: 'number',
-          min: 0,
-          placeholder: '0',
-        },
-        { field: 'oncePerDay', label: t('rules.oncePerDay'), type: 'check', default: false },
       ]}
     />
+  </section>
+
+  <section>
+    <h3>{t('rules.actions')}<InfoTip text={t('rules.actionsHelp')} /></h3>
+    <ActionsForm {doc} />
   </section>
 </div>
 

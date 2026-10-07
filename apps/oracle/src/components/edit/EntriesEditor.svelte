@@ -1,6 +1,6 @@
 <script lang="ts">
   import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
-  import { contextSuggestions, setSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, effectSuggestions, setSuggestions } from '@open-tabletop/session'
   import { workspace } from '../../lib/packs/workspace.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
@@ -19,6 +19,7 @@
     set?: unknown
     once?: boolean
     pause?: boolean
+    effects?: unknown
     maxOccurrences?: number
   }
 
@@ -103,6 +104,7 @@
   const advanced = (e: RawEntry) =>
     e.when !== undefined ||
     e.set !== undefined ||
+    e.effects !== undefined ||
     e.once ||
     e.pause ||
     e.maxOccurrences !== undefined
@@ -110,6 +112,7 @@
   /** What conditions can read and entries can set, from every loaded pack. */
   const conditionHints = $derived(contextSuggestions(workspace.registry))
   const setHints = $derived(setSuggestions(workspace.registry))
+  const effectHints = $derived(effectSuggestions(workspace.registry))
 
   /** Rows showing their conditions, values and limits. */
   let open = $state<Record<number, boolean>>({})
@@ -117,10 +120,10 @@
   let invalid = $state<Record<string, boolean>>({})
 
   /** A condition or `set` typed as one line: saved when it reads as a map, flagged if not. */
-  function editFlow(i: number, key: 'when' | 'set', text: string) {
+  function editFlow(i: number, key: 'when' | 'set' | 'effects', text: string) {
     const value = parseFlow(text)
     invalid = { ...invalid, [`${i}.${key}`]: value === null }
-    if (value !== null) edit(i, key, value)
+    if (value !== null) edit(i, key, value && Object.keys(value).length ? value : undefined)
   }
 </script>
 
@@ -277,6 +280,17 @@
                   onchange={(text) => editFlow(i, 'set', text)}
                 />
                 {#if invalid[`${i}.set`]}<small>{t('edit.notAMap')}</small>{/if}
+              </label>
+              <label>
+                <span>{t('edit.effects')}<InfoTip text={t('edit.effectsHelp')} /></span>
+                <SuggestInput
+                  value={flowText(entry.effects).replace(/^\{\s*|\s*\}$/g, '')}
+                  suggestions={effectHints}
+                  placeholder="party.stats.morale: -1"
+                  invalid={invalid[`${i}.effects`]}
+                  onchange={(text) => editFlow(i, 'effects', text)}
+                />
+                {#if invalid[`${i}.effects`]}<small>{t('edit.notAMap')}</small>{/if}
               </label>
               <label class="inline">
                 <input

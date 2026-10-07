@@ -70,13 +70,17 @@ Two other values of the day change the trip when an entry **sets** them:
 | Set              | Effect on the trip                                           |
 | ---------------- | ------------------------------------------------------------ |
 | `weather: storm` | Today's weather; the travel rules say how it slows you down. |
-| `lost: true`     | No more travel today.                                        |
+| `lost: true`     | No more travel today, if the system declares `lost` (below). |
 
 The journal says what each result changed ("Foraging: Berries (Food +2)"). The older way of writing effects (`set: { resources: { food: 2 }, stats: { morale: -1 }, fatigue: 1 }`) still works, read as the same effects. An effect on a value the system doesn't declare still applies, but the pack gets a warning.
 
 Tables read the party back as `party.resources.food`, `party.stats.morale`: `when: { party.resources.food: { lt: 1 } }` for an entry that only comes up when the food has run out.
 
-Values named `weather`, `…Modifier` or `…Impossible` also stay for the rest of the day, so later checks can use them: a weather entry with `set: { lostModifier: -1 }` makes `roll: '1d6 + {{lostModifier}}'` harder in the getting-lost table that comes after it.
+**Values of the day.** Values named `weather`, `…Modifier` or `…Impossible`, and the values the system declares (`lost`), stay for the rest of the day, so later checks can use them; the next day they become `yesterday.<name>`. They're plain values with a naming habit, for the tables that read them:
+
+- `…Modifier` is a number to add to a later roll. A weather entry with `set: { lostModifier: -1 }` makes `roll: '1d6 + {{lostModifier}}'` harder in the getting-lost table that comes after it; with no weather rolled yet, the table reads 0.
+- `…Impossible` is a yes/no for something that can't happen today. The Grey Marches' storm sets `fordImpossible: true`, and the ford's first entry `when: { fordImpossible: true }` says nobody crosses. An action can use one too: `unless: { forageImpossible: true }` disables the button (Kal-Arath's foraging in a storm).
+- A **declared value** is one the system names in its rules, with what it **blocks** while it holds (below): `lost` blocks travel. Unlike `…Impossible`, the apps enforce it: the button is disabled and says why.
 
 ## 5. Your own travel system
 
@@ -100,9 +104,20 @@ resources:
   food: { name: Rations, perDay: 1 }
 weather:
   storm: { speed: 0 } # no travel in a storm
+values:
+  lost: { name: Lost, blocks: [travel] } # set by the getting-lost table: no more travel today
 actions:
-  rest: { minutes: 120, effects: { party.stats.fatigue: -1 } }
-  forage: { name: Forage for food, minutes: 180, speed: 0.5, oncePerDay: true } # an action of this system: a Forage for food button
+  camp: # eat, sleep until dawn, and a fed night eases fatigue
+    do:
+      - { eat: day }
+      - { time: dawn }
+      - { when: { short: false }, effects: { party.stats.fatigue: -1 } }
+  rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
+  forage: # an action of this system: a Forage for food button
+    name: Forage for food
+    unless: { weather: storm }
+    do: [{ time: 180 }, { speed: 0.5 }]
+    oncePerDay: true
 checks:
   - { event: WEATHER, at: day-start }
   - { event: LOST, at: day-start, unless: { edges: [road, river] } }
@@ -126,7 +141,15 @@ stats:
 
 - **terrains** set the speed on each terrain (`multiplier`; 0.5 is half speed) or close it (`passable: false`). **water** does the same for water hexes whose terrain isn't listed (the map's Edit palette → Water), and a way of travelling with `allowedTerrains: [water]` is a boat: it only sails water, even where walking can't go. Tables see `water: true` on water hexes.
 - **modes** and **resources** have a `name` (and a `description`) for players, shown in the trip panel and the journal instead of their id (`horse` → _On horseback_), translated in `locales/` like the rest. Without one, the Generic rules' usual ids (foot, horse, food…) get the app's names and any other shows its id.
-- **actions**: `camp` and `rest` are built in (`false` removes one; `rest` takes `minutes` and its `effects`). Any other key is an **action of the system's own**, a button next to Travel, Camp and Rest: `name` and `description` (in one or several languages), the `minutes` it takes, `speed` (multiplies the rest of the day's march: 0.5 halves it), its `effects` (`party.stats.morale: 1`) and `oncePerDay`. What it rolls are the checks with `at: <its id>`. `nothing` is what the journal says when none of them apply where the party is (`nothing: { en: 'nothing to forage on {terrain}' }`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there.
+- **values** are the values of the day this system declares: a result sets one (`set: { lost: true }`), it holds until the day ends and, while it does, it **blocks** what it names: `travel`, `camp`, `rest` or an action's id. Blocked buttons stay visible, disabled, and say why in the value's `name` ("Lost: not possible for the rest of the day"). The next day tables read it as `yesterday.lost`. A system that declares no `values` still has the older built-in `lost` (blocks travel); one that declares `values: {}` has none.
+- **actions** are the party's buttons: `camp` and `rest` exist unless turned off (`false`), and any other key is an **action of the system's own**, a button next to Travel, Camp and Rest. Each has a `name` and `description` for players, `oncePerDay`, and `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party, deciding whether the button can be pressed now. What it does is a list of **steps** (`do`), done in order, each one only when its own `when` / `unless` holds:
+  - `time: 180` passes three hours; `time: dawn`, `time: nightfall` or `time: '14:00'` until the next one. Supplies are eaten for every day that ends on the way.
+  - `eat: day` eats today's supplies now (once a day: not again at midnight). Later steps see `short`: true if something ran out.
+  - `speed: 0.5` multiplies the rest of today's march.
+  - `effects: { party.stats.fatigue: -1 }` changes the party, like a table's effects.
+
+  Camp without steps sleeps until dawn; rest without steps lasts an hour. What an action rolls are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. The older way (`minutes: 180, speed: 0.5, effects: …` on the action) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
+
 - **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping), `day-end` (as each day ends, after its supplies are eaten: checks see `short`, true if some supply ran short, and `camping`, true if the day ended in camp) or the id of one of the system's own actions (`at: forage`). A check can have `effects` of its own: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). Give each one a `name` (and a `description`) for players (`name: Getting lost`; its translations go in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)), or the trip panel and journal show its event id. `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
 - **bindings** connect each check (by its event name, any name you like) to a table of the pack.
 - **stats** are numbers of the party that appear in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (the trip panel's **i**) and a starting value (`default`), and tables read them by key: `{{charisma}}`, or always unambiguously `party.stats.charisma`. The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none. A table can also change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and appears in the panel by its key, but the pack gets a warning, so declare every stat its tables change. `min` and `max` keep a stat within bounds (fatigue never below 0).

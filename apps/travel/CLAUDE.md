@@ -18,10 +18,11 @@ src/
     nav.svelte.ts     # #/system/<id>/<play|rules|checks|yaml>
     i18n/             # typed en/es dictionaries
   components/         # Sidebar (systems, new system), SystemView (tabs), PlayTab, WayEditor, YamlTab;
-                      # forms/: RulesForm, ChecksForm (checks + bindings + stats), RecordRows
+                      # forms/: RulesForm (+ values of the day), ActionsForm (actions as steps),
+                      # ChecksForm (checks + bindings + stats), RecordRows
 ```
 
-- Several trips are kept (`opentabletop.travel.trips`, version 1; the single `opentabletop.travel.trip` of before is migrated); one is open. Restarting the open trip asks first if its journal has something.
+- Several trips are kept (`opentabletop.travel.trips`, version 3; the single `opentabletop.travel.trip` of before is migrated); one is open. Restarting the open trip asks first if its journal has something.
 - Editing the way re-plans the route to the last hex. Hexes already walked can't change.
 - The Checks tab keeps rules and bindings in step: renaming a check renames its binding; removing it removes its binding.
 - Bundled systems are read-only: **Edit a copy** (PackLibrary `editCopy`) makes an editable copy.

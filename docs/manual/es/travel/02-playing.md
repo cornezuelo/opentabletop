@@ -32,10 +32,12 @@ Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupad
 
 Hasta que pulses **Continuar**, el grupo no sigue. Lo que un resultado en pausa hace al viaje (perderse, el clima) se aplica al continuar; sus efectos sobre provisiones y características, enseguida.
 
+**Los botones que no se pueden usar ahora** siguen visibles, desactivados; al pasar el ratón dicen por qué. Los bloquea un valor del día que declara el sistema (**Perdidos** en las Marcas Grises: «Perdidos: no es posible el resto del día», hasta el siguiente alba), la acción ya se hizo hoy (**Una vez al día**) o la regla del sistema para ella no se cumple aquí y ahora (**Buscar comida** de las Marcas Grises con tormenta). Acampar, descansar y las acciones propias vienen todas del sistema: uno puede no tener descanso, otro acampar de otra forma (mira [Crear un sistema](03-systems.md)).
+
 Lo que cuenta el diario, para que nada pase en silencio:
 
-- **Resultados con lo que han cambiado**: «Buscar comida: Bayas y raíces para un día (Comida +1)», «Peaje: El guarda del puente se cobra un día de comida (Comida −1)», «Perderse: Perdidos en la niebla: hoy no avanzáis (perdidos por hoy)».
+- **Resultados con lo que han cambiado**: «Buscar comida: Bayas y raíces para un día (Comida +1)», «Peaje: El guarda del puente se cobra un día de comida (Comida −1)», «Perderse: Perdidos en la niebla: hoy no avanzáis (Perdidos)».
 - **Acciones** con lo que han durado, y cuándo no se ha tirado nada: en las Marcas Grises, **Buscar comida** en colinas dice «Buscar comida (3 h): no hay nada que buscar en colinas: solo los bosques, campos, brezales y marismas dan comida». Las tres horas pasan igual y la marcha sigue a la mitad.
-- **Provisiones** consumidas al acabar cada día («Provisiones del día: Comida −1 (quedan 4)»), cuando se acaban («Sin Comida») y los cambios de **fatiga** con su motivo («Sin comida suficiente: fatiga +1 (ahora 2)», «Una noche bien comidos: fatiga −1 (ahora 1)», «El descanso: fatiga −1 (ahora 0)»).
+- **Provisiones** consumidas al acabar cada día («Provisiones del día: Comida −1 (quedan 4)»), cuando se acaban («Sin Comida») y los cambios de **fatiga** con su motivo («Sin comida suficiente: Fatiga +1»); lo que cambió una acción va en su propia línea («Acampáis para pasar la noche (Fatiga −1)», «Descansáis 2 h (Fatiga −1)»).
 
 El viaje se guarda en el navegador mientras juegas, y sigue ahí cuando vuelves. Una [copia de seguridad](../technical/05-backups.md) lo lleva a otro ordenador.

@@ -92,6 +92,9 @@ export const es: Messages<typeof en> = {
     set: 'Fija',
     setHelp:
       'Valores que da la entrada cuando sale, en pares clave: valor: weather: storm, lost: true, count: "{{2d6}}". Los leen las tablas siguientes, la plantilla y el viaje.',
+    effects: 'Cambios',
+    effectsHelp:
+      'Lo que cambia la entrada en el grupo del viaje cuando sale: party.stats.morale: -1, party.resources.food: "{{1d3}}". Un número suma o resta, =3 lo fija; los valores son los del sistema (características y provisiones). Tirada a mano, se ofrece al viaje.',
     once: 'Solo una vez',
     onceHelp: 'Sale como mucho una vez por sesión; después la tabla sigue “Al agotarse”.',
     pause: 'Pausar',

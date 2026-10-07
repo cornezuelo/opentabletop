@@ -90,6 +90,9 @@ export const en = {
     set: 'Sets',
     setHelp:
       'Values the entry gives when it comes up, as key: value pairs: weather: storm, lost: true, count: "{{2d6}}". Later tables, the template and the trip read them.',
+    effects: 'Changes',
+    effectsHelp:
+      'What the entry changes in the trip’s party when it comes up: party.stats.morale: -1, party.resources.food: "{{1d3}}". A number adds or takes away, =3 sets it; the values are the system’s (stats and supplies). Rolled by hand, it’s offered to the trip.',
     once: 'Only once',
     onceHelp: 'Comes up at most once per session; then the table does what “When exhausted” says.',
     pause: 'Pause',

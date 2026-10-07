@@ -196,3 +196,17 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
   }
   return Object.fromEntries([...out].map(([key, values]) => [key, [...values].sort()]))
 }
+
+/**
+ * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
+ * stats and its supplies, in every loaded system.
+ */
+export function effectSuggestions(registry: Registry): Record<string, string[]> {
+  const out: Record<string, string[]> = {}
+  for (const { rules, bindings } of travelSystems(registry).systems) {
+    for (const stat of Object.keys(bindings?.stats ?? {})) out[`party.stats.${stat}`] = []
+    for (const resource of Object.keys(rules.resources ?? {}))
+      out[`party.resources.${resource}`] = []
+  }
+  return out
+}

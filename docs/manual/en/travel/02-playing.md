@@ -32,10 +32,12 @@ Checks are rolled on their tables and written in the **journal**, grouped by day
 
 Until you press **Continue** the party doesn't move on. What a paused result does to the trip (getting lost, the weather) applies when you continue; its effects on supplies and stats apply at once.
 
+**Buttons that can't be used now** stay visible, disabled; hovering says why. A value of the day the system declares blocks them (the Grey Marches' **Lost**: "Lost: not possible for the rest of the day", until the next dawn), the action was already done today (**Once a day**), or the system's rule for it doesn't hold here and now (the Grey Marches' **Forage for food** in a storm). Camp, rest and the system's own actions all come from the system: one may have no rest, another camps differently (see [Making a system](03-systems.md)).
+
 What the journal says, so nothing happens silently:
 
-- **Results with what they changed**: "Foraging: Berries and roots for a day (Food +1)", "Toll: The bridge-warden takes a day’s food as toll (Food −1)", "Getting lost: Lost in the fog: no progress today (lost for today)".
+- **Results with what they changed**: "Foraging: Berries and roots for a day (Food +1)", "Toll: The bridge-warden takes a day’s food as toll (Food −1)", "Getting lost: Lost in the fog: no progress today (Lost)".
 - **Actions** with how long they took, and when nothing was rolled: in the Grey Marches, **Forage for food** on hills says "Forage for food (3 h): nothing to forage on hills: only woods, fields, heath and marsh give food". The three hours still pass and the march is still halved.
-- **Supplies** eaten when each day ends ("Supplies for the day: Food −1 (4 left)"), running out ("Out of Food") and **fatigue** changes with their reason ("Not enough to eat: fatigue +1 (now 2)", "A fed night’s sleep: fatigue −1 (now 1)", "The rest: fatigue −1 (now 0)").
+- **Supplies** eaten when each day ends ("Supplies for the day: Food −1 (4 left)"), running out ("Out of Food") and **fatigue** changes with their reason ("Not enough to eat: Fatigue +1"); what an action changed goes on its own line ("Camp for the night (Fatigue −1)", "Rest for 2 h (Fatigue −1)").
 
 The trip is saved in the browser as you play, and is still there when you come back. A [backup](../technical/05-backups.md) takes it to another computer.

@@ -86,7 +86,7 @@ export const es: Messages<typeof en> = {
     resourcesHelp: 'Lo que lleva el grupo y cuánto gasta cada día (marche o no).',
     perDay: 'Al día',
     perDayHelp:
-      'Lo gastan todos cada día, sea cual sea la forma de viajar (cada forma puede añadir lo suyo: Formas de viajar → Gasta al día). 0 para una provisión que solo gastan algunas formas de viajar, como el forraje de los caballos. Quedarse corto de cualquier provisión sube la fatiga 1 ese día.',
+      'Lo gastan todos cada día, sea cual sea la forma de viajar (cada forma puede añadir lo suyo: Formas de viajar → Gasta al día). 0 para una provisión que solo gastan algunas formas de viajar, como el forraje de los caballos. Lo que pasa si falta alguna depende del sistema (sus comprobaciones de fin de día ven short).',
     weather: vocabulary.es.terms.weather,
     weatherHelp:
       'Cómo frena el clima al grupo. Las tablas lo fijan con set: { weather: … } (normalmente al alba).',
@@ -94,21 +94,52 @@ export const es: Messages<typeof en> = {
     speed: 'Velocidad ×',
     speedHelp: '0 es que ese día no se viaja; 0.5 a media velocidad.',
     actions: 'Acciones',
-    actionsHelp: 'Lo que puede hacer el grupo además de marchar.',
-    camp: 'Acampar (termina el día)',
-    rest: 'Descansar (una pausa corta)',
-    campHelp:
-      'El grupo para a pasar la noche: se tiran los chequeos de campamento, duerme hasta el alba, consume las provisiones del día y, si ha comido, recupera 1 de fatiga.',
-    restHelp: 'Una pausa de unos minutos durante el día; recupera la fatiga que se indique aquí.',
-    restMinutes: 'Minutos',
-    restFatigue: 'Fatiga que recupera',
-    ownActions: 'Acciones de este sistema',
-    ownActionsHelp:
-      'Botones propios junto a Viajar, Acampar y Descansar, p. ej. forage (buscar comida): llevan tiempo, pueden frenar el resto de la marcha del día y recuperar fatiga. Dales comprobaciones en la pestaña Comprobaciones (Cuándo: la acción). Su nombre, su descripción y lo que dice el diario cuando no se aplica ninguna de sus comprobaciones (nothing) van en el YAML (name: Forage for food), y sus traducciones en locales/ como las de las comprobaciones.',
-    actionSpeedHelp:
-      'Multiplica el resto de la marcha del día: 0.5 la reduce a la mitad. Vacío: sin cambio.',
+    actionsHelp:
+      'Lo que puede hacer el grupo además de marchar: acampar, descansar y las propias del sistema (buscar comida, rezar…), cada una un botón en el panel del viaje. Cada una dice cuándo se puede hacer y qué hace, paso a paso.',
     oncePerDay: 'Una vez al día',
-    restFatigueHelp: '0: una pausa que no recupera nada (acampar sí).',
+    values: 'Valores del día',
+    valuesHelp:
+      'Valores que las tablas de este sistema pueden poner para el resto del día (set: { lost: true }), con lo que bloquean mientras se cumplen: viajar, o acciones por su id. Las tablas los leen al día siguiente como yesterday.<id>. Sin ninguno, sigue funcionando el antiguo lost incorporado (bloquea el viaje).',
+    blocks: 'Bloquea',
+    blocksHelp:
+      'Lo que no se puede hacer mientras se cumple el valor: travel (viajar), camp, rest o el id de una acción. Los botones siguen visibles, desactivados, diciendo por qué.',
+    blocksNothing: 'nada',
+  },
+  actions: {
+    camp: 'Acampar',
+    rest: 'Descansar',
+    campHelp:
+      'Termina el día: las comprobaciones de la noche (En: Al acampar) y después sus pasos. Sin pasos, el grupo duerme hasta el alba. Desactívala si el sistema no tiene acampadas.',
+    restHelp:
+      'Una pausa durante el día. Sin pasos dura una hora. Desactívala si el sistema no tiene descansos.',
+    when: 'Solo si',
+    unless: 'Salvo si',
+    whenHelp:
+      'Cuándo se puede pulsar el botón, con condiciones como las de las tablas: los valores de hoy (forageImpossible: true), el mapa (terrain: [forest, hills]), el grupo (party.stats.faith: { gte: 1 }). Si no, se queda desactivado y dice por qué.',
+    nothing: 'Cuando no se aplica nada',
+    nothingHelp:
+      'Lo que dice el diario cuando no se aplica ninguna de sus comprobaciones donde está el grupo; {terrain} es el terreno del hex. Vacío: una frase genérica.',
+    nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
+    steps: 'Qué hace',
+    stepsHelp:
+      'Sus pasos, en orden. Pasar tiempo (minutos, dawn, nightfall o una hora como 14:00), comer las provisiones del día (los pasos siguientes ven short: true si faltó algo), cambiar el resto de la marcha de hoy (×0.5) o cambiar al grupo (efectos como party.stats.fatigue: -1). Un paso con condición solo ocurre si se cumple (short: false, camping: true…). Sus comprobaciones (pestaña Comprobaciones, En: esta acción) se tiran primero.',
+    stepKind: 'Tipo de paso',
+    kinds: {
+      time: 'Pasa el tiempo',
+      eat: 'Comer las provisiones del día',
+      speed: 'Marcha de hoy ×',
+      effects: 'Cambios',
+    },
+    eatDay: 'una vez al día: si ya se comió hoy, nada',
+    stepWhen: 'solo si…',
+    badTime: 'Escribe minutos (180), dawn, nightfall o una hora como 14:00.',
+    dawn: 'Hasta el alba',
+    nightfall: 'Hasta el anochecer',
+    up: 'Subir',
+    down: 'Bajar',
+    noSteps: 'Sin pasos: no hace nada salvo tirar sus comprobaciones.',
+    addStep: 'Añadir un paso',
+    add: 'Añadir una acción',
   },
   kinds: vocabulary.es.kinds,
   checks: {
@@ -134,6 +165,9 @@ export const es: Messages<typeof en> = {
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— nada: espérame —',
+    effects: 'Cambios',
+    effectsHelp:
+      'Lo que cambia la propia comprobación cuando sale, con tabla o sin ella: party.stats.fatigue: 1, party.resources.food: -1. Un número suma o resta; =3 lo fija. Así escribe un sistema sus reglas como datos (un día sin comida: fatiga +1).',
     pause: 'Pausar después',
     pauseHelp:
       'El viaje se detiene cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses Continuar: tiempo para describir el lugar, escribir lore o decidir algo. Una entrada de tabla también puede pausar, solo cuando sale.',
