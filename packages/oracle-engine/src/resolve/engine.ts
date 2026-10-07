@@ -491,7 +491,12 @@ class Run {
     const out: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(values))
       out[key] =
-        typeof value === 'string' ? this.evalValue(value, { ...scope, ...out }, node) : value
+        typeof value === 'string'
+          ? this.evalValue(value, { ...scope, ...out }, node)
+          : // Nested values ({ resources: { food: '{{1d3}}' } }) are filled in too.
+            isRecord(value)
+            ? this.evalValues(value, { ...scope, ...out }, node)
+            : value
     return out
   }
 
@@ -545,6 +550,9 @@ function reconcile(
   if (missing.length) draw = shuffled(random, [...draw, ...missing])
   return { draw, discard }
 }
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
 
 function allCards(deck: CompiledDeck): string[] {
   return deck.cards.flatMap((card) => Array.from({ length: card.count }, () => card.key))

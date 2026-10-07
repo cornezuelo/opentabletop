@@ -162,6 +162,37 @@ export function applyStats(s: SessionState, value: Record<string, unknown>): voi
       s.stats[key] = (s.stats[key] ?? 0) + delta
 }
 
+/**
+ * What a result would change in a trip (supplies, fatigue, stats, weather), as
+ * `[name, change]` pairs: `[['food', -1], ['morale', 1], ['weather', 'storm']]`.
+ */
+export function tripChanges(value: Record<string, unknown>): [string, number | string][] {
+  const outcome = toOutcome(value)
+  const changes: [string, number | string][] = Object.entries(outcome.resources ?? {})
+  if (outcome.fatigue) changes.push(['fatigue', outcome.fatigue])
+  const stats = value.stats
+  if (typeof stats === 'object' && stats !== null)
+    for (const [key, delta] of Object.entries(stats))
+      if (typeof delta === 'number' && Number.isFinite(delta)) changes.push([key, delta])
+  if (outcome.weather) changes.push(['weather', outcome.weather])
+  return changes
+}
+
+/**
+ * Applies a result rolled by hand to the trip, as a check's would be: supplies,
+ * fatigue and stats change by the amounts it sets; `weather` becomes today's.
+ */
+export function applyResult(input: SessionState, value: Record<string, unknown>): SessionState {
+  const s = structuredClone(input)
+  const outcome = toOutcome(value)
+  for (const [id, delta] of Object.entries(outcome.resources ?? {}))
+    s.travel.resources[id] = Math.max(0, (s.travel.resources[id] ?? 0) + delta)
+  if (outcome.fatigue) s.travel.fatigue = Math.max(0, s.travel.fatigue + outcome.fatigue)
+  if (outcome.weather) s.travel.weather = outcome.weather
+  applyStats(s, value)
+  return s
+}
+
 export interface Session {
   /** Applies a travel action, resolving checks with the Oracle when bound; returns new entries. */
   step(state: SessionState, action: TravelAction): { state: SessionState; entries: JournalEntry[] }

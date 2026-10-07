@@ -48,6 +48,11 @@ export const en = {
       'No hex selected: rolls read nothing from the map. Select a hex to use its terrain, tags and fields.',
     addPoi: 'Add to {hex} as a point of interest',
     poiAdded: 'Added to {hex}: see it in the hex panel.',
+    apply: 'Apply to the trip: {changes}',
+    applyHelp:
+      'The result changes supplies, fatigue or party stats: apply it to the trip, as a check’s result would be.',
+    applied: 'Applied to the trip: {changes}',
+    appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',
     rollHereHelp: 'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.',
     title: 'Oracle',

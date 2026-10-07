@@ -108,6 +108,14 @@ checks:
       { en: 'Camping where danger is 2 or more.', es: 'Al acampar donde el peligro es 2 o más.' }
     at: camp
     when: { danger: { gte: 2 } }
+  # Conditions on the party: camping with no food left (party.resources.food).
+  - event: HUNGER_CHECK_REQUIRED
+    name: { en: Hunger, es: Hambre }
+    description:
+      en: 'Camping with no food left. Morale decides how it goes.'
+      es: 'Al acampar sin comida. La moral decide cómo va.'
+    at: camp
+    when: { party.resources.food: { lt: 1 } }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
     name: { en: Foraging, es: Forrajeo }
@@ -125,6 +133,14 @@ stats:
     name: { en: Survival, es: Supervivencia }
     description: { en: Added to foraging and fords., es: Se suma a forrajear y a los vados. }
     default: 1
+  # Changed by tables (encounters, getting lost, the shrine, hunger, the inn) and read by
+  # them as party.stats.morale. "hirelings" isn't declared: it appears once a table sets it.
+  morale:
+    name: { en: Morale, es: Moral }
+    description:
+      en: 'Falls with wolves, bandits, getting lost and hunger; rises at the shrine and the inn.'
+      es: 'Baja con lobos, bandidos, perderse y el hambre; sube en el santuario y la posada.'
+    default: 3
   navigation:
     name: { en: Navigation, es: Orientación }
     description: { en: Added to the getting-lost roll., es: Se suma a la tirada de perderse. }
@@ -144,3 +160,4 @@ on:
   FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } }
   SHRINE_CHECK_REQUIRED: { resolve: shrine }
   FORAGE_CHECK_REQUIRED: { resolve: forage }
+  HUNGER_CHECK_REQUIRED: { resolve: hunger }

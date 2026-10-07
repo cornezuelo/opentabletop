@@ -40,3 +40,16 @@ ford-mishap:
     food: se pierde un fardo de comida
     tired: salís del agua agotados
     fodder: el forraje se empapa y se echa a perder
+hunger:
+  name: Hambre
+  description: Acampar sin comida. Cuanto más baja la moral, peor va.
+  entries:
+    desertion: 'Por la noche, {{result}}'
+    grumble: Tripas vacías, mal humor
+    endure: Os apretáis el cinturón y cantáis para olvidarlo
+desertion:
+  name: Deserción
+  entries:
+    food: '{{result}} se escabulle con el último pan'
+    torch: '{{result}} se ha ido al alba, y las antorchas también'
+    note: 'hay una nota clavada en tu mochila: «El Bosque Gris no es lugar para mí.»'

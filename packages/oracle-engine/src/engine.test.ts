@@ -365,6 +365,27 @@ describe('tables', () => {
   })
 })
 
+describe('nested values', () => {
+  it('fill in templates inside maps, and the text reads the value rolled', () => {
+    const { registry } = load([
+      {
+        path: 'test/nested.yaml',
+        content: `
+kind: table
+id: found
+entries:
+  - { result: 'Food for {{resources.food}} days', set: { resources: { food: '{{1d3+1}}' }, tags: [a, b] } }
+`,
+      },
+    ])
+    // The weighted pick takes one value, then the d3 shows 2.
+    const engine = createOracleEngine({ registry, random: sequence([0.1, 1.5 / 3]) })
+    const { resolution } = engine.resolve('test/found')
+    expect(resolution.value).toEqual({ resources: { food: 3 }, tags: ['a', 'b'] })
+    expect(resolution.text).toBe('Food for 3 days')
+  })
+})
+
 describe('oracles', () => {
   const { registry } = load()
 

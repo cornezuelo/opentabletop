@@ -21,11 +21,18 @@ entries:
     when: { region: { exists: false } }
     result: 'No landmarks out here: you wander off course'
     set: { lost: true }
-  - { id: lost, range: 1, result: 'You are lost: no progress today', set: { lost: true } }
+  # Being lost also costs morale: a party stat changed by a table (stats: …).
+  - {
+      id: lost,
+      range: 1,
+      result: 'You are lost: no progress today',
+      set: { lost: true, stats: { morale: -1 } },
+    }
   - { id: course, range: 2-20, result: You keep your course }
 ---
 # A party stat in the roll, with advantage on offer (the panel's Advantage). The amount
-# found is itself rolled ({{1d3}}) and reaches the trip as resources.
+# found is itself rolled inside the value (resources: { food: '{{1d3+1}}' }); the text
+# reads that same value back ({{resources.food}}) and the trip adds it to the supplies.
 kind: table
 id: forage
 name: Foraging
@@ -37,8 +44,8 @@ entries:
   - {
       id: plenty,
       range: 7-20,
-      result: 'Game! Food for {{1d3+1}} days',
-      set: { resources: { food: 2 } },
+      result: 'Game! Food for {{resources.food}} days',
+      set: { resources: { food: '{{1d3+1}}' } },
     }
 ---
 # Spending supplies: the toll is paid in food.
@@ -64,7 +71,7 @@ entries:
       weight: 1,
       once: true,
       result: 'A voice answers your prayer: the road will be kind',
-      set: { fatigue: -2 },
+      set: { fatigue: -2, stats: { morale: 2 } },
     }
   - {
       id: rest,
@@ -129,3 +136,49 @@ entries:
   - { id: food, result: a pack of food is lost, set: { resources: { food: -1 } } }
   - { id: tired, result: you drag yourselves out exhausted, set: { fatigue: 1 } }
   - { id: fodder, result: the fodder is soaked and spoiled, set: { resources: { fodder: -1 } } }
+---
+# Hunger, when camping with no food left (the check reads party.resources.food). The
+# party's morale decides what follows: conditions on party values, a cascade into another
+# table, and limits (once, maxOccurrences).
+kind: table
+id: hunger
+name: Hunger
+description: 'Camping with no food. The lower the morale, the worse it goes.'
+roll: '1d6 + {{party.stats.morale}}'
+onExhausted: next
+entries:
+  # At morale 0 or less, whatever the roll: someone leaves (at most twice a session).
+  - id: desertion
+    range: -20-20
+    when: { party.stats.morale: { lte: 0 } }
+    maxOccurrences: 2
+    result: 'In the night, {{result}}'
+    table: desertion
+    set: { stats: { morale: -1, hirelings: -1 } }
+  # The last time the hirelings leave, the next hungry night grumbles instead (`next`).
+  - {
+      id: grumble,
+      range: -20-4,
+      result: 'Empty bellies, short tempers',
+      set: { stats: { morale: -1 }, fatigue: 1 },
+    }
+  - {
+      id: endure,
+      range: 5-20,
+      result: 'You tighten your belts and sing to forget',
+      set: { fatigue: 1 },
+    }
+---
+# Who leaves: a hireling's name (a generator's table) and what they take.
+kind: table
+id: desertion
+name: Desertion
+entries:
+  - { id: food, result: '{{result}} slips away with the last of the bread', table: npc-names }
+  - { id: torch, result: '{{result}} is gone by dawn, and the torches too', table: npc-names }
+  # Once a session: the deserter leaves a note.
+  - {
+      id: note,
+      once: true,
+      result: 'a note is pinned to your pack: “The Greywood is no place for me.”',
+    }

@@ -33,7 +33,8 @@ entries:
     when: { all: [{ terrain: [forest, dense-forest, heath] }, { season: { not: summer } }] }
     result: '{{1d4+2}} grey wolves — they are {{result}}'
     table: reaction
-    set: { reactionModifier: -2 }
+    # Values for the next table (reactionModifier) and for the party: morale drops.
+    set: { reactionModifier: -2, stats: { morale: -1 } }
   # Then roll a generator: {{result}} is its text.
   - id: traveller
     range: 1-4
@@ -45,7 +46,7 @@ entries:
     when: { terrain: { in: [hills, marsh, swamp] } }
     result: 'Bandits of the Hollow Hills — they are {{result}}'
     table: reaction
-    set: { reactionModifier: -1 }
+    set: { reactionModifier: -1, stats: { morale: -1 } }
   - { id: tracks, range: 1-20, result: 'Only tracks, and the feeling of being watched' }
 ---
 # A party stat plus a modifier the entry before it may set; advantage on offer.

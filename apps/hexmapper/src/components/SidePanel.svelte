@@ -21,11 +21,15 @@
   import { AppBrand, AppSwitcher, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
+  import { editSession, sessionOf } from '../lib/play/play'
+  import { applyResult, tripChanges } from '@open-tabletop/session'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexKey } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
 
   const hexCoord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)
+  /** Hand-rolled results already applied to the trip (by history item). */
+  let applied = $state(new Set<number>())
 </script>
 
 <aside class="panel">
@@ -94,6 +98,29 @@
                 addResultAsPoi(hex, text, oracleUi.displayName(def, item.source))
                 showToast(t('oracle.poiAdded', { hex: coord }))
               }}>{t('oracle.addPoi', { hex: coord })}</button
+            >
+          {/if}
+          {@const changes = tripChanges(item.resolution.value)}
+          {#if changes.length && editor.play && sessionOf(editor.play)}
+            {@const summary = changes
+              .map(([key, change]) =>
+                typeof change === 'number'
+                  ? `${key} ${change > 0 ? '+' : ''}${change}`
+                  : `${key}: ${change}`,
+              )
+              .join(', ')}
+            <button
+              class="result-action"
+              disabled={applied.has(item.id)}
+              use:tooltip={t('oracle.applyHelp')}
+              onclick={() => {
+                editSession((session) => applyResult(session, item.resolution.value))
+                applied = new Set([...applied, item.id])
+                showToast(t('oracle.applied', { changes: summary }))
+              }}
+              >{applied.has(item.id)
+                ? t('oracle.appliedButton')
+                : t('oracle.apply', { changes: summary })}</button
             >
           {/if}
         {/snippet}

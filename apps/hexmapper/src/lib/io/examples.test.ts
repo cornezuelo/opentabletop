@@ -1,7 +1,13 @@
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import { validateBundle } from '@open-tabletop/schema'
-import { startTrip, stepTrip, travelSystems } from '@open-tabletop/session'
+import {
+  startTrip,
+  stepTrip,
+  travelSystems,
+  tripChanges,
+  tripContext,
+} from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { mapWorld } from '../play/world'
 import { EXAMPLE_MAPS } from './examples'
@@ -95,6 +101,40 @@ describe('example maps', () => {
     expect(foraged.state.travel.speedToday).toBe(0.5)
     const again = stepTrip(options, foraged.state, { type: 'action', id: 'forage' })
     expect(again.entries).toEqual([])
+  })
+
+  it('the Grey Marches: the party’s values drive hunger and the inn', () => {
+    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const oracle = createOracleEngine({ registry, random: seeded('hunger') })
+    const options = { system, world: mapWorld(map), oracle, locale: 'en' }
+    // Camping in Ashford with no food and no morale: hunger, and someone deserts.
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    session.travel.resources.food = 0
+    session.stats.morale = 0
+    const camped = stepTrip(options, session, { type: 'camp' })
+    const hunger = camped.entries.find((e) => e.data?.event === 'HUNGER_CHECK_REQUIRED')
+    expect(hunger?.text).toMatch(/^In the night, /)
+    expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: -1 })
+
+    // The inn reads the party: a feast needs food; without a trip, nobody is asked.
+    const fed = { ...session, stats: { ...session.stats, morale: 3 } }
+    fed.travel.resources.food = 4
+    const feast = oracle.resolve('grey-marches/inn', tripContext(fed, {}, { spend: 'feast' }))
+    expect(feast.resolution.entry).toBe('feast')
+    expect(tripChanges(feast.resolution.value)).toEqual([
+      ['food', -2],
+      ['fatigue', -1],
+      ['morale', 2],
+    ])
+    expect(oracle.resolve('grey-marches/inn', { spend: 'feast' }).resolution.entry).toBe('short')
+    expect(oracle.resolve('grey-marches/inn', { spend: 'round' }).resolution.entry).toBe('quiet')
   })
 
   it('the Grey Marches: only the boat crosses the Saltmere', () => {

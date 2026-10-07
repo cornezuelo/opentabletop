@@ -21,3 +21,19 @@ ferry:
     calm: '{{token.name}} os cruza el Lago Salado por {{token.fare}} monedas de plata cada uno'
     secret: '{{token.name}} rechaza las monedas: quiere un secreto a cambio'
     empty: 'El embarcadero está vacío: selecciona a la barquera para hablar con ella'
+inn:
+  name: En El Hurón Mojado
+  description: La posada de Ashford. Lo que gastas cambia la noche.
+  inputs:
+    spend:
+      label: Gastas
+      labels: { nothing: Nada, round: Una ronda para todos, feast: Un banquete }
+  entries:
+    cold: Miradas frías y un rincón junto a la puerta
+    overheard: 'Oyes algo: {{result}}'
+    quiet: Una noche tranquila; nadie pregunta quiénes sois
+    brawl: 'Se arma una pelea: {{result}}'
+    talk: 'La sala os acoge: {{result}}'
+    hireling: '{{result}} bebe con vosotros y se une a la compañía'
+    feast: 'Un banquete para recordar: todos duermen bien'
+    short: No hay bastante en la despensa para un banquete esta noche

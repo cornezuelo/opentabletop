@@ -49,6 +49,11 @@ export const es: Messages = {
       'Ningún hex seleccionado: las tiradas no leen nada del mapa. Selecciona un hex para usar su terreno, etiquetas y campos.',
     addPoi: 'Añadir a {hex} como punto de interés',
     poiAdded: 'Añadido a {hex}: lo verás en el panel del hex.',
+    apply: 'Aplicar al viaje: {changes}',
+    applyHelp:
+      'El resultado cambia provisiones, fatiga o características del grupo: aplícalo al viaje, como se aplicaría el de una comprobación.',
+    applied: 'Aplicado al viaje: {changes}',
+    appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
     rollHereHelp: 'Abre Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.',
     title: 'Oracle',

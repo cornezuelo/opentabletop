@@ -22,7 +22,9 @@ import {
   initialSessionState,
   localize,
   parseBindings,
+  applyResult,
   toOutcome,
+  tripChanges,
   tripContext,
 } from './index'
 
@@ -290,6 +292,19 @@ entries:
     expect(localize(bindings?.stats?.pre.name, 'es')).toBe('Presencia')
     expect(localize(bindings?.stats?.pre.name, 'fr', 'en')).toBe('Presence')
     expect(localize(bindings?.stats?.pre.description, 'es')).toBe('Reaction bonus')
+  })
+
+  it('applies a result rolled by hand to the trip', () => {
+    const value = { resources: { food: -5 }, stats: { morale: 2 }, fatigue: -1, other: 1 }
+    expect(tripChanges(value)).toEqual([
+      ['food', -5],
+      ['fatigue', -1],
+      ['morale', 2],
+    ])
+    const state = applyResult({ ...start(), stats: { pre: 1 } }, value)
+    expect(state.travel.resources.food).toBe(0) // never below zero
+    expect(state.stats).toEqual({ pre: 1, morale: 2 })
+    expect(tripChanges({ result: 'nothing' })).toEqual([])
   })
 
   it('maps table values to travel outcomes', () => {
