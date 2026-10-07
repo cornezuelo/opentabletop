@@ -5,6 +5,7 @@
   import { t } from './lib/i18n/index.svelte'
   import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
+  import TopBar from './components/TopBar.svelte'
   import { startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
   import { bindShortcuts } from './lib/shortcuts'
@@ -32,6 +33,7 @@
 </script>
 
 <div class="layout" class:hidden={editor.panelHidden}>
+  <TopBar />
   <Toolbar />
   <main>
     {#if ready}
@@ -55,7 +57,12 @@
   .layout {
     display: grid;
     grid-template-columns: auto 1fr 300px;
+    grid-template-rows: auto minmax(0, 1fr);
     height: 100%;
+  }
+
+  .layout :global(> header.bar) {
+    grid-column: 1 / -1;
   }
 
   .layout.hidden {
@@ -88,7 +95,7 @@
   @media (max-width: 760px) {
     .layout {
       grid-template-columns: auto 1fr;
-      grid-template-rows: minmax(0, 1fr) auto;
+      grid-template-rows: auto minmax(0, 1fr) auto;
     }
 
     .layout :global(> aside.panel) {
@@ -100,7 +107,7 @@
 
     .layout :global(> nav),
     .layout :global(> .toolbar) {
-      grid-row: 1 / span 2;
+      grid-row: 2 / span 2;
     }
 
     .fold {

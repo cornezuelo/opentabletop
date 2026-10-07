@@ -4,9 +4,10 @@ Hexmapper dibuja mapas de hexágonos para hexcrawls y campañas sandbox, y permi
 
 ## La pantalla
 
-- **Barra de herramientas** (izquierda): arriba del todo el icono de la aplicación (su tooltip dice el nombre del mapa abierto) y el selector de aplicaciones; luego las herramientas —Seleccionar, Terreno, Regiones, Caminos y ríos, Iconos, Texto, Tokens, Jugar y Oracle— y abajo: Ajustes, Capas, Ayuda (?), Deshacer, Rehacer, Encuadrar, Nuevo, Mapas, Guardar y Exportar.
+- **Barra superior**, como en todas las aplicaciones: a la izquierda la aplicación con el nombre del mapa abierto y el botón de nueve puntos que abre las demás aplicaciones de OpenTabletop; a la derecha Deshacer, Rehacer y Encuadrar, luego Nuevo, Mapas, Guardar y Exportar, y luego Capas, Ajustes y Ayuda (?).
+- **Barra de herramientas** (izquierda): las herramientas —Seleccionar, Terreno, Regiones, Caminos y ríos, Iconos, Texto, Tokens, Jugar, Oracle y el reloj del Mundo—.
 - **Mapa** (centro): arrastra con el botón central o con <kbd>Espacio</kbd> + arrastrar para desplazarte, usa la rueda para el zoom y <kbd>F</kbd> encuadra el mapa entero.
-- **Panel lateral** (derecha): lo que edita la herramienta activa —el hex seleccionado con Seleccionar, la paleta con Terreno, el token seleccionado con Tokens…— o Ajustes, Capas, Ayuda, Oracle y las demás vistas de los botones de abajo. Al cambiar de herramienta se deselecciona lo que tenía seleccionado la anterior. El botón de nueve puntos junto al nombre del mapa abre las demás aplicaciones de OpenTabletop.
+- **Panel lateral** (derecha): lo que edita la herramienta activa —el hex seleccionado con Seleccionar, la paleta con Terreno, el token seleccionado con Tokens…— o Ajustes, Capas, Ayuda, Oracle y las demás vistas de los botones de la barra superior. Al cambiar de herramienta se deselecciona lo que tenía seleccionado la anterior.
 
 Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](11-shortcuts.md).
 

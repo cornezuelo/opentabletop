@@ -28,6 +28,9 @@ import type {
 
 export type ToolId = 'select' | 'terrain' | 'region' | 'path' | 'icon' | 'text' | 'token' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
+/** What the side panel shows besides the active tool's view. */
+export type PanelView =
+  'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'help' | 'layers'
 
 export const MAX_BRUSH_RADIUS = 5
 
@@ -92,9 +95,7 @@ class Editor {
       tool === 'play' ? (this.map.tokens.find((t) => t.kind === 'party')?.id ?? null) : token
   }
   /** What the side panel shows: the active tool and hex, or map settings and preferences. */
-  panelView = $state<
-    'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'help' | 'layers'
-  >('tool')
+  panelView = $state<PanelView>('tool')
   /** The side panel is folded away (more room for the map, e.g. on a phone). */
   panelHidden = $state(false)
   terrainMode = $state<TerrainMode>('brush')

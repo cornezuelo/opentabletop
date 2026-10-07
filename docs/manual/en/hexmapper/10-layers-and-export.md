@@ -2,7 +2,7 @@
 
 ## Layers
 
-**Layers** (the ▤ button in the toolbar) lists the parts of the map in the order they're drawn, the top one above the rest: note markers, tokens, trail and route, text, coordinates, icons, roads and rivers, regions, grid and terrain.
+**Layers** (the ▤ button in the top bar) lists the parts of the map in the order they're drawn, the top one above the rest: note markers, tokens, trail and route, text, coordinates, icons, roads and rivers, regions, grid and terrain.
 
 - The **eye** shows or hides a layer while you work. Hidden layers aren't exported either.
 - The **lock** protects a layer from your own clicks: no tool can change it until you unlock it.
@@ -26,7 +26,7 @@ In **Settings → Map size**, size the map by number of hexes, or by paper: choo
 
 ## Export
 
-**Export** (the arrow at the bottom of the toolbar):
+**Export** (the arrow in the top bar):
 
 - **PNG** by pixels per hex, for virtual tabletops, optionally with a transparent background.
 - **PDF** at real scale (150 or 300 dpi) to print: hexes come out at the size you chose.

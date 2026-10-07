@@ -2,7 +2,7 @@
 
 ## Capas
 
-**Capas** (el botón ▤ de la barra) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, rastro y ruta, texto, coordenadas, iconos, caminos y ríos, regiones, rejilla y terreno.
+**Capas** (el botón ▤ de la barra superior) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, rastro y ruta, texto, coordenadas, iconos, caminos y ríos, regiones, rejilla y terreno.
 
 - El **ojo** muestra u oculta una capa mientras trabajas. Las capas ocultas tampoco se exportan.
 - El **candado** protege una capa de tus propios clics: ninguna herramienta puede cambiarla hasta que la desbloquees.
@@ -26,7 +26,7 @@ En **Ajustes → Tamaño del mapa**, dimensiona el mapa por número de hexes o p
 
 ## Exportar
 
-**Exportar** (la flecha al final de la barra):
+**Exportar** (la flecha de la barra superior):
 
 - **PNG** por píxeles por hex, para mesas virtuales, opcionalmente con fondo transparente.
 - **PDF** a escala real (150 o 300 ppp) para imprimir: los hexes salen del tamaño que elegiste.
