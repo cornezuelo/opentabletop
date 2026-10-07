@@ -18,6 +18,7 @@
     when?: unknown
     set?: unknown
     once?: boolean
+    pause?: boolean
     maxOccurrences?: number
   }
 
@@ -100,7 +101,11 @@
   }
 
   const advanced = (e: RawEntry) =>
-    e.when !== undefined || e.set !== undefined || e.once || e.maxOccurrences !== undefined
+    e.when !== undefined ||
+    e.set !== undefined ||
+    e.once ||
+    e.pause ||
+    e.maxOccurrences !== undefined
 
   /** What conditions can read and entries can set, from every loaded pack. */
   const conditionHints = $derived(contextSuggestions(workspace.registry))
@@ -285,6 +290,14 @@
                   }}
                 />
                 {t('edit.once')}<InfoTip text={t('edit.onceHelp')} />
+              </label>
+              <label class="inline">
+                <input
+                  type="checkbox"
+                  checked={entry.pause === true}
+                  onchange={(e) => edit(i, 'pause', e.currentTarget.checked || undefined)}
+                />
+                {t('edit.pause')}<InfoTip text={t('edit.pauseHelp')} />
               </label>
               <label class="inline">
                 {t('edit.maxOccurrences')}<InfoTip text={t('edit.maxOccurrencesHelp')} />

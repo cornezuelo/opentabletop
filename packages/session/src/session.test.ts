@@ -163,6 +163,56 @@ describe('session', () => {
     expect(entered[0].time).toBe(defaultCalendar.at(1, '14:00'))
   })
 
+  it('pauses after a check that says so, or an entry that comes up with pause', () => {
+    const paused = loadPacks([
+      { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'p/t.yaml',
+        content: `
+kind: table
+id: omen
+roll: 1d2
+entries:
+  - { range: 1, result: Nothing }
+  - { range: 2, result: Lost in the fog, set: { lost: true }, pause: true }
+`,
+      },
+    ]).registry
+    const run = (pause: boolean, roll: number) =>
+      createSession({
+        travel: createTravelEngine({
+          world,
+          rules: { ...genericTravelRules, checks: [{ event: 'OMEN', at: 'day-start', pause }] },
+        }),
+        oracle: createOracleEngine({ registry: paused, random: sequence([roll]) }),
+        bindings: parseBindings({ on: { OMEN: { resolve: 'omen' } } }, 'p').bindings,
+        now: () => 'T',
+      })
+    const go = (session: ReturnType<typeof run>) =>
+      session.step(session.step(start(), { type: 'setDestination', hex: '2,0' }).state, {
+        type: 'travel',
+      })
+    // Neither pauses: the trip goes on.
+    expect(go(run(false, 0.1)).state.travel.location).not.toBe('0,0')
+    // The check pauses: rolled, it waits for Continue.
+    const checkPaused = go(run(true, 0.1))
+    expect(checkPaused.state.travel.location).toBe('0,0')
+    expect(checkPaused.entries.map((e) => e.code)).toContain('CHECK_PAUSED')
+    const [pending] = checkPaused.state.travel.pendingChecks
+    expect(pending.rolled).toEqual({})
+    // The entry that came up pauses, and Continue applies what it rolled (lost).
+    const session = run(false, 0.9)
+    const entryPaused = go(session).state
+    expect(entryPaused.travel.pendingChecks[0].rolled).toEqual({ lost: true })
+    expect(entryPaused.travel.lostToday).toBe(false)
+    const continued = session.step(entryPaused, {
+      type: 'resolveCheck',
+      id: entryPaused.travel.pendingChecks[0].id,
+    }).state
+    expect(continued.travel.pendingChecks).toEqual([])
+    expect(continued.travel.lostToday).toBe(true)
+  })
+
   it('applies lost outcomes', () => {
     const { bindings } = parseBindings(
       {

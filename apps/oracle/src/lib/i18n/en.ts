@@ -92,6 +92,9 @@ export const en = {
       'Values the entry gives when it comes up, as key: value pairs: weather: storm, lost: true, count: "{{2d6}}". Later tables, the template and the trip read them.',
     once: 'Only once',
     onceHelp: 'Comes up at most once per session; then the table does what “When exhausted” says.',
+    pause: 'Pause',
+    pauseHelp:
+      'When this comes up during a trip, the trip stops after the roll and waits until you press Continue: time to describe the place, write lore or decide something. Rolled by hand, it does nothing.',
     maxOccurrences: 'At most',
     maxOccurrencesHelp: 'Times it can come up per session (empty: no limit).',
     notAMap: 'Write key: value pairs, e.g. terrain: forest',

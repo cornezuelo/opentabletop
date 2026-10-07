@@ -356,8 +356,8 @@ export function createSession(options: {
               time: event.time,
               data: { event: event.check.event, effects: event.check.effects },
             })
-            // Without a table there's nothing to wait for.
-            if (!binding) {
+            // Without a table there's nothing to wait for (unless the check pauses).
+            if (!binding && !event.check.pause) {
               s.travel = options.travel.apply(s.travel, {
                 type: 'resolveCheck',
                 id: event.check.id,
@@ -430,6 +430,20 @@ export function createSession(options: {
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value) }
           applyEffects(s, effectsOf(value), options.bindings?.stats)
+          // A pause (the check's, or an entry's that came up) stops the trip after the roll:
+          // the check waits, rolled, until the player presses Continue.
+          if (event.check.pause || value.pause === true) {
+            const pending = s.travel.pendingChecks.find((c) => c.id === event.check.id)
+            if (pending) pending.rolled = toOutcome(value)
+            resolvedAll = false
+            add(s, entries, {
+              source: 'travel',
+              code: 'CHECK_PAUSED',
+              time: event.time,
+              data: { event: event.check.event, id: event.check.id },
+            })
+            continue
+          }
           s.travel = options.travel.apply(s.travel, {
             type: 'resolveCheck',
             id: event.check.id,

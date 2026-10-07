@@ -55,6 +55,8 @@ const checkRule = z
      * without a table (or besides the table's).
      */
     effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
+    /** Stop the trip after it comes up (rolled or not), until the player presses Continue. */
+    pause: z.boolean().optional(),
   })
   .strict()
 

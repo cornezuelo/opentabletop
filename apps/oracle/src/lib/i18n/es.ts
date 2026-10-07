@@ -94,6 +94,9 @@ export const es: Messages<typeof en> = {
       'Valores que da la entrada cuando sale, en pares clave: valor: weather: storm, lost: true, count: "{{2d6}}". Los leen las tablas siguientes, la plantilla y el viaje.',
     once: 'Solo una vez',
     onceHelp: 'Sale como mucho una vez por sesión; después la tabla sigue “Al agotarse”.',
+    pause: 'Pausar',
+    pauseHelp:
+      'Si sale durante un viaje, el viaje se detiene tras la tirada y espera a que pulses Continuar: tiempo para describir el lugar, escribir lore o decidir algo. Tirada a mano, no hace nada.',
     maxOccurrences: 'Como mucho',
     maxOccurrencesHelp: 'Veces que puede salir por sesión (vacío: sin límite).',
     notAMap: 'Escribe pares clave: valor, p. ej. terrain: forest',

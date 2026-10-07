@@ -13,15 +13,17 @@ description: |-
 
   - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
   - Conditions on `terrain`, `region`, `tags`, `danger`, `season` and the moons (`moons.ember: full`)
-  - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart
+  - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart; `pause`: the trip stops when it comes up
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
 roll: '1d6 + {{danger}}'
 entries:
-  # A once-only encounter, only at the very heart of the Greywood (danger 5).
+  # A once-only encounter, only at the very heart of the Greywood (danger 5): the trip
+  # stops (pause) until you press Continue.
   - id: wyrm
     range: 6-20
     once: true
+    pause: true
     when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
   # The calendar (calendar.yaml): when the Ember Moon is full, the hunt rides at night.

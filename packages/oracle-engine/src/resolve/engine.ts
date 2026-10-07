@@ -379,7 +379,7 @@ class Run {
   /** Shared by table entries and deck cards: `set` values, delegation, text. */
   private applyEntry(
     def: Compiled,
-    entry: Pick<CompiledEntry, 'key' | 'ref' | 'set' | 'effects'>,
+    entry: Pick<CompiledEntry, 'key' | 'ref' | 'set' | 'effects' | 'pause'>,
     template: string | undefined,
     context: Record<string, unknown>,
     depth: number,
@@ -403,6 +403,8 @@ class Run {
     )
     if (Object.keys(effects).length) node.value.effects = effects
     else delete node.value.effects
+    // A pause anywhere in what was rolled stops the host (a trip waits for the player).
+    if (entry.pause) node.value.pause = true
     node.text = template
       ? this.render(template, { ...context, ...node.value, result: child?.text }, node)
       : child?.text

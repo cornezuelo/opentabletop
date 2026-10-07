@@ -88,6 +88,39 @@ describe('example maps', () => {
     expect(events).toContain('TOLL_CHECK_REQUIRED')
   })
 
+  it('the Grey Marches: the trip pauses at the shrine until Continue', () => {
+    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const options = {
+      system,
+      world: mapWorld(map),
+      oracle: createOracleEngine({ registry, random: seeded('shrine') }),
+      locale: 'en',
+    }
+    // From the trail next to the shrine, heading for it.
+    let { session } = startTrip({ system, location: '9,3', season: 'summer' })
+    session = stepTrip(options, session, { type: 'setDestination', hex: '10,3' }).state
+    for (let i = 0; i < 4 && session.travel.location !== '10,3'; i++) {
+      for (const id of session.travel.pendingChecks.map((c) => c.id))
+        session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+      session = stepTrip(options, session, { type: 'travel' }).state
+    }
+    expect(session.travel.location).toBe('10,3')
+    const codes = session.journal.map((e) => `${e.code} ${e.data?.event ?? ''}`)
+    expect(codes).toContain('ORACLE_RESULT SHRINE_CHECK_REQUIRED')
+    expect(codes).toContain('CHECK_PAUSED SHRINE_CHECK_REQUIRED')
+    const paused = session.travel.pendingChecks.find((c) => c.event === 'SHRINE_CHECK_REQUIRED')!
+    expect(paused.rolled).toBeDefined()
+    const going = stepTrip(options, session, { type: 'resolveCheck', id: paused.id }).state
+    expect(going.travel.pendingChecks.some((c) => c.id === paused.id)).toBe(false)
+  })
+
   it('the Grey Marches: foraging is an action of their own, once a day', () => {
     const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(

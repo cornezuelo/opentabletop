@@ -14,6 +14,7 @@
     table?: string
     generator?: string
     set?: unknown
+    pause?: boolean
     count?: number
   }
 
@@ -140,7 +141,7 @@
                 onchange={(e) => edit(i, 'result', e.currentTarget.value)}
               />
             {/if}
-            {#if card.set !== undefined}
+            {#if card.set !== undefined || card.pause}
               <small class="note">{t('edit.advanced')}</small>
             {/if}
           </td>

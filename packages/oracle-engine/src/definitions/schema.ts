@@ -35,6 +35,8 @@ const entry = z
     generator: ref.optional(),
     set: setValues.optional(),
     effects: effects.optional(),
+    /** Stop the trip (or whatever rolled it) when this comes up, to let the player act. */
+    pause: z.boolean().optional(),
     once: z.boolean().optional(),
     maxOccurrences: z.number().int().positive().optional(),
   })
@@ -136,6 +138,7 @@ const card = z
     generator: ref.optional(),
     set: setValues.optional(),
     effects: effects.optional(),
+    pause: z.boolean().optional(),
     count: z.number().int().positive().optional(),
   })
   .strict()

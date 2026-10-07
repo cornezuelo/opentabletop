@@ -33,7 +33,7 @@ entries:
   - { id: storm, range: 4-6, result: Storm, table: storm-damage }
 ```
 
-Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` (a condition), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session). The table may also have `clamp`, `onExhausted`, `modes` and `modeWhen`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
+Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` (a condition), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes` and `modeWhen`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
 
 **What other tables see:** a table rolled from another (`table:`) gives its text as `{{result}}` and its `set` values to the trip and to later checks of the day (see [What tables see](04-what-tables-see.md)).
 
@@ -71,7 +71,7 @@ template: '{{name}} (might {{might}})'
 
 ## Decks
 
-Cards drawn without replacement until the deck is reshuffled (`reshuffle: when-empty`, `manual` or `after-draw`). A card can come in copies (`count`), roll a table and set values, like an entry.
+Cards drawn without replacement until the deck is reshuffled (`reshuffle: when-empty`, `manual` or `after-draw`). A card can come in copies (`count`), roll a table, set values, have `effects` and `pause`, like an entry.
 
 ## Roll modes
 
@@ -101,7 +101,7 @@ When several apply (one chosen by hand plus some on their own), the ones that ca
 
 ## Travel rules
 
-How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds, water, roads and rivers, ways of travelling (km per day, what they use, where they can go), supplies used per day, weather that slows you down, the party's actions (camp, rest and the system's own, like foraging) and the **checks**: what is rolled at dawn, on entering a hex, in camp or with an action, and when (`when` / `unless`). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Travel app's [Systems](../travel/03-systems.md).
+How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds, water, roads and rivers, ways of travelling (km per day, what they use, where they can go), supplies used per day, weather that slows you down, the party's actions (camp, rest and the system's own, like foraging) and the **checks**: what is rolled at dawn, on entering a hex, in camp or with an action, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Travel app's [Systems](../travel/03-systems.md).
 
 **What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 

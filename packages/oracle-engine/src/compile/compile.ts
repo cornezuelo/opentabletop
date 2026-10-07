@@ -31,6 +31,8 @@ export interface CompiledEntry {
   set?: Record<string, unknown>
   /** Changes to declared values (`party.stats.morale: -1`), applied by the host. */
   effects?: Record<string, number | string>
+  /** Comes up as `pause: true` in the result: the host stops to let the player act. */
+  pause?: boolean
   /** Max times it may come up per session (once = 1). */
   limit?: number
 }
@@ -118,6 +120,7 @@ export interface CompiledCard {
   ref?: Ref
   set?: Record<string, unknown>
   effects?: Record<string, number | string>
+  pause?: boolean
 }
 
 export interface CompiledDeck extends Base {
@@ -322,6 +325,7 @@ class CompileContext {
                 : undefined,
             set: c.set,
             effects: c.effects,
+            ...(c.pause && { pause: true }),
           })),
         }
     }
@@ -359,6 +363,7 @@ class CompileContext {
             : undefined,
         set: e.set,
         effects: e.effects,
+        ...(e.pause && { pause: true }),
         limit: e.once ? 1 : e.maxOccurrences,
       }
     })

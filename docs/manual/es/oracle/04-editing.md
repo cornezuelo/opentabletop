@@ -29,6 +29,7 @@ Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecu
 - **Solo si**: la entrada solo puede salir cuando el contexto encaja, escrito en pares `clave: valor`, p. ej. `terrain: forest`, `season: [autumn, winter]` (cualquiera de ellas), `danger: { gte: 3 }` (3 o más), `tags: landmark` (el hex tiene esa etiqueta). Vacío: siempre. Si ninguna entrada encaja, la tabla no da nada. Las claves que puede leer una tabla están en [Qué ven las tablas](../technical/04-what-tables-see.md).
 - **Fija**: valores que da la entrada cuando sale, p. ej. `weather: storm, lost: true` o `count: "{{2d6}}"`. Los leen el texto del resultado, las tablas y campos de generador siguientes y el viaje (ver [Conectar tablas](07-connecting.md)).
 - **Solo una vez** / **Como mucho**: cuántas veces puede salir la entrada en una sesión (**Nueva sesión** en el Oracle las reinicia).
+- **Pausar**: si la entrada sale durante un viaje, el viaje se detiene tras la tirada hasta que pulses **Continuar** (`pause: true`; tirada a mano no hace nada). Las cartas de un mazo lo llevan en YAML.
 
 Las cajas admiten el mismo texto que el YAML entre `{ }`; una caja que no se puede leer como pares `clave: valor` se pone en rojo y no se guarda.
 

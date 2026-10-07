@@ -83,10 +83,13 @@ checks:
     description: Crossing the river on foot or horseback.
     at: hex-enter
     when: { all: [{ tags: ford }, { not: { mode: boat } }] }
+  # Rolled on a table, then the trip pauses (pause) so you can describe the shrine.
   - event: SHRINE_CHECK_REQUIRED
     name: Shrine
+    description: A wayside shrine. The trip stops after the roll; press Continue to go on.
     at: hex-enter
     when: { tags: shrine }
+    pause: true
   # No table for this one: the trip stops at landmarks and waits for you to Continue.
   - event: LANDMARK_CHECK_REQUIRED
     name: Landmark

@@ -24,7 +24,13 @@ Cambiar el camino vuelve a planear la ruta al momento.
 
 El panel de la derecha es el mismo que en el Hexmapper: día, hora y estación, el clima, las horas de marcha gastadas, el modo de viaje, las provisiones, la fatiga y las características del grupo que declare el sistema (p. ej. el Carisma, la Supervivencia y la Orientación de las Marcas Grises, que se suman a las tiradas). Los botones son las acciones que declara el sistema: **Viajar** (hasta que pase algo o acabe el día), **1 hex**, **Acampar**, **Descansar**…
 
-Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga todo el diario en Markdown (un título por día, con el nombre del viaje) para tu aplicación de notas o para imprimir. Una comprobación sin tabla (como los lugares señalados de las Marcas Grises) te espera: resuélvela tú y pulsa **Continuar**.
+Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga todo el diario en Markdown (un título por día, con el nombre del viaje) para tu aplicación de notas o para imprimir. El viaje se detiene y muestra **Continuar** en tres casos:
+
+- una comprobación sin tabla (como los lugares señalados de las Marcas Grises): resuélvela tú y pulsa **Continuar**;
+- una comprobación que dice **Pausar después** (`pause: true`): se tira, y el viaje espera para que describas el lugar o decidas algo (el santuario de las Marcas Grises);
+- una entrada de tabla o carta con `pause: true` que sale (la Sierpe del Bosque Gris de las Marcas Grises): solo cuando sale ese resultado.
+
+Hasta que pulses **Continuar**, el grupo no sigue. Lo que un resultado en pausa hace al viaje (perderse, el clima) se aplica al continuar; sus efectos sobre provisiones y características, enseguida.
 
 Lo que cuenta el diario, para que nada pase en silencio:
 

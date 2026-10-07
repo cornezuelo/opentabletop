@@ -33,7 +33,7 @@ entries:
   - { id: storm, range: 4-6, result: Tormenta, table: storm-damage }
 ```
 
-Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` (una condición), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión). La tabla puede tener además `clamp`, `onExhausted`, `modes` y `modeWhen`. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../oracle/06-yaml.md).
+Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` (una condición), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión), `effects` (cambios en los valores del grupo) y `pause` (detener el viaje cuando sale). La tabla puede tener además `clamp`, `onExhausted`, `modes` y `modeWhen`. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../oracle/06-yaml.md).
 
 **Qué ven otras tablas:** una tabla tirada desde otra (`table:`) da su texto como `{{result}}` y sus valores `set` al viaje y a las comprobaciones siguientes del día (mira [Qué ven las tablas](04-what-tables-see.md)).
 
@@ -70,7 +70,7 @@ template: '{{name}} (fuerza {{might}})'
 
 ## Mazos
 
-Cartas que se roban sin reponer hasta que se baraja (`reshuffle: when-empty`, `manual` o `after-draw`). Una carta puede tener copias (`count`), tirar una tabla y poner valores, como una entrada.
+Cartas que se roban sin reponer hasta que se baraja (`reshuffle: when-empty`, `manual` o `after-draw`). Una carta puede tener copias (`count`), tirar una tabla, poner valores, tener `effects` y `pause`, como una entrada.
 
 ## Modos de tirada
 
@@ -100,7 +100,7 @@ Cuando se aplican varios (uno elegido a mano más otros solos), los que se anula
 
 ## Reglas de viaje
 
-Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades, el agua, los caminos y ríos, las formas de viajar (km por día, qué gastan, por dónde pueden ir), las provisiones que se gastan al día, el clima que frena, las acciones del grupo (acampar, descansar y las propias del sistema, como forrajear) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al acampar o con una acción, y cuándo (`when` / `unless`). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
+Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades, el agua, los caminos y ríos, las formas de viajar (km por día, qué gastan, por dónde pueden ir), las provisiones que se gastan al día, el clima que frena, las acciones del grupo (acampar, descansar y las propias del sistema, como forrajear) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al acampar o con una acción, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
 
 **Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 

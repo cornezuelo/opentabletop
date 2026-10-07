@@ -30,6 +30,13 @@ export interface PendingCheck {
   context: Record<string, unknown>
   /** The check's own effects (`party.stats.fatigue: 1`), applied by whoever resolves it. */
   effects?: Record<string, number | string>
+  /** The check says to stop after it, until the player goes on. */
+  pause?: boolean
+  /**
+   * Already rolled and waiting for the player (a pause): resolving it applies this outcome
+   * unless another is given.
+   */
+  rolled?: CheckOutcome
 }
 
 export interface CheckOutcome {
@@ -294,6 +301,7 @@ export function createTravelEngine(options: {
         event: rule.event,
         context,
         ...(rule.effects && { effects: rule.effects }),
+        ...(rule.pause && { pause: true }),
       }
       state.pendingChecks.push(check)
       events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
@@ -514,8 +522,8 @@ export function createTravelEngine(options: {
         case 'resolveCheck': {
           const index = state.pendingChecks.findIndex((c) => c.id === action.id)
           if (index < 0) break
-          state.pendingChecks.splice(index, 1)
-          const outcome = action.outcome ?? {}
+          const [check] = state.pendingChecks.splice(index, 1)
+          const outcome = action.outcome ?? check.rolled ?? {}
           if (outcome.lost) state.lostToday = true
           if (outcome.weather !== undefined) state.weather = outcome.weather
           if (outcome.speed !== undefined)

@@ -70,6 +70,7 @@ export const es: Messages<typeof en> = {
     worldEvent: 'En el mundo: {name}',
     holiday: 'Hoy es {name}',
     pending: '{event}: esperando',
+    paused: '{event}: en pausa, sigue cuando quieras',
     entered: 'Entráis en {hex}',
     discovered: 'Descubierto en {hex}: {what}',
     day: 'Empieza el día {day}',

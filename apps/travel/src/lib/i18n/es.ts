@@ -134,6 +134,9 @@ export const es: Messages<typeof en> = {
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— nada: espérame —',
+    pause: 'Pausar después',
+    pauseHelp:
+      'El viaje se detiene cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses Continuar: tiempo para describir el lugar, escribir lore o decidir algo. Una entrada de tabla también puede pausar, solo cuando sale.',
     context: 'Contexto extra',
     contextHelp: 'Valores que la tabla ve solo en esta comprobación, p. ej. timeOfDay: night.',
     none: 'Sin comprobaciones: los viajes solo gastan tiempo y provisiones.',

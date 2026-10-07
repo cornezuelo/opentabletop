@@ -140,6 +140,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
     case 'CHECK_PENDING':
       return t('journal.pending', { event: eventName(t, d.event, checkName) })
+    case 'CHECK_PAUSED':
+      return t('journal.paused', { event: eventName(t, d.event, checkName) })
     case 'DISCOVERY_FAILED':
       return t('journal.discoveryFailed', { hex: hexLabel(String(d.hex)), error: e.text ?? '' })
     case 'CHECK_FAILED':

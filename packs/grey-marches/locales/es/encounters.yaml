@@ -7,7 +7,7 @@ encounter:
 
     - Una tabla para dos comprobaciones, de día y de noche, que distingue el contexto `timeOfDay` de los bindings
     - Condiciones sobre `terrain`, `region`, `tags`, `danger`, `season` y las lunas (`moons.ember: full`)
-    - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris
+    - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris; `pause`: el viaje se detiene cuando sale
     - Cascadas a _Reacción_ y a un generador
     - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
   entries:

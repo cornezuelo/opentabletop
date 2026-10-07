@@ -22,6 +22,7 @@ travel-rules/default:
       description: Cruzar el río a pie o a caballo.
     SHRINE_CHECK_REQUIRED:
       name: Santuario
+      description: Un santuario junto al camino. El viaje se detiene tras la tirada; pulsa Continuar para seguir.
     LANDMARK_CHECK_REQUIRED:
       name: Lugar señalado
       description: Describe tú el lugar (o tira en un oráculo) y pulsa Continuar.

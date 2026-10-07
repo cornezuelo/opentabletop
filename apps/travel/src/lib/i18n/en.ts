@@ -131,6 +131,9 @@ export const en = {
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— nothing: wait for me —',
+    pause: 'Pause after it',
+    pauseHelp:
+      'The trip stops when this check comes up (after rolling it, if something resolves it) and waits until you press Continue: time to describe the place, write lore or decide something. A table entry can also pause, only when it comes up.',
     context: 'Extra context',
     contextHelp: 'Values the table sees only for this check, e.g. timeOfDay: night.',
     none: 'No checks: trips only spend time and supplies.',

@@ -18,7 +18,7 @@ The panel shows the day, time and season, where the party is, the weather, the m
 
 ## Checks and the journal
 
-Systems declare their checks (weather at dawn, getting lost, encounters…) and which table resolves each one; the results go to the **journal**, grouped by day. Checks without a table wait for you: **Continue** when you've resolved them yourself. Results show what they changed (Food +1, Morale −1…), and actions, supplies eaten and fatigue are journaled too, also when nothing happens: see [what the journal says](../travel/02-playing.md#the-trip).
+Systems declare their checks (weather at dawn, getting lost, encounters…) and which table resolves each one; the results go to the **journal**, grouped by day. Checks without a table wait for you: **Continue** when you've resolved them yourself. A check or a result can also pause the trip after rolling ([what makes Continue appear](../travel/02-playing.md#the-trip)). Results show what they changed (Food +1, Morale −1…), and actions, supplies eaten and fatigue are journaled too, also when nothing happens: see [what the journal says](../travel/02-playing.md#the-trip).
 
 The bundled **Grey Marches** show all of it, on their example map (**Maps → Example maps**): weather by season, getting lost off roads, encounters by terrain, region, danger and time of day, a toll on the bridge, a ford rolled on an oracle, a boat on the lake, and checks with no table — the trip stops at the standing stones (`landmark`) until you describe the place and press **Continue**. See [The Grey Marches](../packs/02-grey-marches.md).
 

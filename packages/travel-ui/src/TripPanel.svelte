@@ -346,7 +346,7 @@
   {#each travel.pendingChecks as check (check.id)}
     <div class="pending">
       <span
-        >{t('journal.pending', {
+        >{t(check.rolled ? 'journal.paused' : 'journal.pending', {
           event: pendingName(check.event),
         })}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
       >

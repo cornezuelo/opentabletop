@@ -266,6 +266,20 @@
               />
             </label>
           {/if}
+          <label class="inline">
+            <input
+              type="checkbox"
+              checked={check.pause === true}
+              {disabled}
+              onchange={(e) =>
+                doc.edit(
+                  'travel-rules',
+                  ['checks', i, 'pause'],
+                  e.currentTarget.checked || undefined,
+                )}
+            />
+            {t('checks.pause')}<InfoTip text={t('checks.pauseHelp')} />
+          </label>
         </div>
       </div>
     {:else}
@@ -431,6 +445,18 @@
 
   label textarea {
     resize: vertical;
+  }
+
+  .row label.inline {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 6px;
+  }
+
+  label.inline input {
+    width: auto;
   }
 
   .event {

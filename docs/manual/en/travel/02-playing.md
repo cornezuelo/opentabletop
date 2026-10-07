@@ -24,7 +24,13 @@ Changing the way re-plans the route right away.
 
 The panel on the right is the same as in the Hexmapper: day, time and season, the weather, the marching hours used, the travel mode, supplies, fatigue and the system's party stats (e.g. the Grey Marches' Charisma, Survival and Navigation, which are added to rolls). The buttons are the actions the system declares: **Travel** (until something happens or the day ends), **1 hex**, **Camp**, **Rest**…
 
-Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. A check with no table (like the Grey Marches' landmarks) waits for you: resolve it yourself and press **Continue**.
+Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. The trip stops and shows **Continue** in three cases:
+
+- a check with no table (like the Grey Marches' landmarks): resolve it yourself, then press **Continue**;
+- a check that says **Pause after it** (`pause: true`): it's rolled, and the trip waits so you can describe the place or decide something (the Grey Marches' shrine);
+- a table entry or deck card with `pause: true` that comes up (the Grey Marches' Greywood Wyrm): only when that result comes up.
+
+Until you press **Continue** the party doesn't move on. What a paused result does to the trip (getting lost, the weather) applies when you continue; its effects on supplies and stats apply at once.
 
 What the journal says, so nothing happens silently:
 

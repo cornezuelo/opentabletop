@@ -66,6 +66,7 @@ export const en = {
     worldEvent: 'In the world: {name}',
     holiday: 'Today is {name}',
     pending: '{event}: waiting for you',
+    paused: '{event}: paused, go on when you are ready',
     entered: 'Entered {hex}',
     discovered: 'Discovered in {hex}: {what}',
     day: 'Day {day} begins',
