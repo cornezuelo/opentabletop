@@ -93,10 +93,10 @@ terrains:
 edges:
   road: { multiplier: 1.5 } # faster on roads
 modes:
-  foot: { kmPerDay: 30 }
-  horse: { kmPerDay: 60 }
+  foot: { name: On foot, kmPerDay: 30 }
+  horse: { name: On horseback, kmPerDay: 60 }
 resources:
-  food: { perDay: 1 }
+  food: { name: Rations, perDay: 1 }
 weather:
   storm: { speed: 0 } # no travel in a storm
 actions:
@@ -122,6 +122,7 @@ stats:
 ```
 
 - **terrains** set the speed on each terrain (`multiplier`; 0.5 is half speed) or close it (`passable: false`). **water** does the same for water hexes whose terrain isn't listed (the map's Edit palette → Water), and a way of travelling with `allowedTerrains: [water]` is a boat: it only sails water, even where walking can't go. Tables see `water: true` on water hexes.
+- **modes** and **resources** have a `name` (and a `description`) for players, shown in the trip panel and the journal instead of their id (`horse` → _On horseback_), translated in `locales/` like the rest. Without one, the Generic rules' usual ids (foot, horse, food…) get the app's names and any other shows its id.
 - **actions**: `camp` and `rest` are built in (`false` removes one; `rest` takes `minutes` and the `fatigue` it recovers). Any other key is an **action of the system's own**, a button next to Travel, Camp and Rest: `name` and `description` (in one or several languages), the `minutes` it takes, `speed` (multiplies the rest of the day's march: 0.5 halves it), `fatigue` recovered, and `oncePerDay`. What it rolls are the checks with `at: <its id>`. `nothing` is what the journal says when none of them apply where the party is (`nothing: { en: 'nothing to forage on {terrain}' }`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there.
 - **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping) or the id of one of the system's own actions (`at: forage`). Give each one a `name` (and a `description`) for players (`name: Getting lost`; its translations go in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)), or the trip panel and journal show its event id. `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
 - **bindings** connect each check (by its event name, any name you like) to a table of the pack.

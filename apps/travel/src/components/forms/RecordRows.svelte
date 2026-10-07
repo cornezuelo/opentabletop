@@ -3,8 +3,12 @@
     field: string
     label: string
     help?: string
-    /** number: a number box (empty = not set); check: a checkbox; list: comma-separated; flow: `key: value` pairs. */
-    type: 'number' | 'check' | 'list' | 'flow'
+    /**
+     * number: a number box (empty = not set); check: a checkbox; list: comma-separated;
+     * flow: `key: value` pairs; text: what players read, in the UI's language (written to
+     * the translation file when it isn't the pack's).
+     */
+    type: 'number' | 'check' | 'list' | 'flow' | 'text'
     placeholder?: string
     /** For checks, the value meant when the field is missing. */
     default?: boolean
@@ -81,6 +85,8 @@
   function setText(id: string, column: Column, raw: string) {
     const path = [...at, id, column.field]
     const text = raw.trim()
+    if (column.type === 'text')
+      return doc.setText(kind, path, record[id]?.[column.field], path, raw)
     if (column.type === 'number')
       return doc.edit(kind, path, text === '' ? undefined : Number(text))
     if (column.type === 'list') {
@@ -95,8 +101,9 @@
     doc.edit(kind, path, value)
   }
 
-  function shown(row: Record<string, unknown> | null, column: Column): string {
+  function shown(row: Record<string, unknown> | null, column: Column, id = ''): string {
     const value = row?.[column.field]
+    if (column.type === 'text') return doc.text(kind, value, [...at, id, column.field])
     if (value === undefined) return ''
     if (column.type === 'list') return Array.isArray(value) ? value.join(', ') : String(value)
     if (column.type === 'flow') return flowText(value).replace(/^\{\s*|\s*\}$/g, '')
@@ -163,8 +170,10 @@
                 aria-label={c.label}
                 min={c.min}
                 step="any"
-                placeholder={c.placeholder}
-                value={shown(row, c)}
+                placeholder={c.type === 'text' && doc.translating
+                  ? doc.baseText(row?.[c.field]) || c.placeholder
+                  : c.placeholder}
+                value={shown(row, c, id)}
                 {disabled}
                 onchange={(e) => set(id, c, e.currentTarget)}
               />

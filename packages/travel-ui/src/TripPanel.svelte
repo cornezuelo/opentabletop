@@ -114,12 +114,21 @@
   /** A check's description from its pack (basic Markdown). */
   const checkTip = (event: string) =>
     localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
+  /**
+   * Names the system gives its ways of travelling and supplies (the app's dictionary only
+   * names the Generic rules' ones, then the id made readable).
+   */
+  const modeName = (id: string) =>
+    localize(system.rules.modes[id]?.name, locale, 'en') ?? idText(t, `modes.${id}`, id)
+  const resourceName = (id: string) =>
+    localize(system.rules.resources?.[id]?.name, locale, 'en') ?? idText(t, `resources.${id}`, id)
+
   /** Name of a value results change: a stat of the system, fatigue or a resource. */
   const valueName = (key: string) => {
     const stat = system.bindings?.stats?.[key]
     if (stat) return statText(stat.name, key)
     if (key === 'fatigue') return t('fatigue')
-    return idText(t, `resources.${key}`, key)
+    return resourceName(key)
   }
   /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
   const actionNothing = (id: string) => {
@@ -226,9 +235,7 @@
       >
         {#each Object.keys(system.rules.modes) as mode (mode)}
           <option value={mode}
-            >{idText(t, `modes.${mode}`, mode)} ({system.rules.modes[mode].kmPerDay} km/{t(
-              'dayUnit',
-            )})</option
+            >{modeName(mode)} ({system.rules.modes[mode].kmPerDay} km/{t('dayUnit')})</option
           >
         {/each}
       </select>
@@ -238,8 +245,13 @@
     {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
       <label class="field">
         <span
-          >{idText(t, `resources.${resource}`, resource)}<InfoTip
-            text={t('tips.resource', { perDay: system.rules.resources?.[resource]?.perDay ?? 0 })}
+          >{resourceName(resource)}<InfoTip
+            markdown={[
+              localize(system.rules.resources?.[resource]?.description, locale, 'en'),
+              t('tips.resource', { perDay: system.rules.resources?.[resource]?.perDay ?? 0 }),
+            ]
+              .filter(Boolean)
+              .join('\n\n')}
           /></span
         >
         <input

@@ -146,6 +146,8 @@ describe('bundled open packs', () => {
       'Buscar comida',
     )
     expect(es(system.bindings?.stats?.survival?.name)).toBe('Supervivencia')
+    expect(es(system.rules.modes.horse.name)).toBe('A caballo')
+    expect(es(system.rules.resources?.fodder?.name)).toBe('Forraje')
     expect(es(system.calendar?.def.months[0].name)).toBe('Deshielo')
     expect(es(system.weather?.['grey-marches/sky']?.states.clear.name)).toBe('Cielo despejado')
     expect(es(registry.rollModes.get('grey-marches/careful')?.name)).toBe('Con cuidado')

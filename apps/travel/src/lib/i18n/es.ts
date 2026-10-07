@@ -54,6 +54,9 @@ export const es: Messages<typeof en> = {
     modesHelp:
       'A pie, a caballo… La velocidad va en km por día de marcha en terreno fácil; los terrenos y caminos la cambian.',
     kmPerDay: 'km por día',
+    name: 'Nombre',
+    nameHelp:
+      'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id (p. ej. A caballo, Raciones). Se escribe en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
     consumes: 'Gasta al día',
     consumesHelp:
       'Provisiones que gasta esta forma de viajar cada día además de lo que gastan todos (Provisiones → Al día). P. ej. los caballos de las Marcas Grises: fodder: 1, así que a caballo se gastan 1 de comida y 1 de forraje al día y a pie solo la comida. Vacío: nada más.',

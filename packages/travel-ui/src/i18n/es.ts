@@ -23,6 +23,7 @@ export const es: Messages<typeof en> = {
   arrived: 'Habéis llegado.',
   travelMode: 'Viaje',
   fatigue: 'Fatiga',
+  // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'A pie', horse: 'A caballo', boat: 'En barca', cart: 'En carro' },
   resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
   travel: 'Viajar',

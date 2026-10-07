@@ -34,6 +34,18 @@ travel-rules/default:
     FORAGE_CHECK_REQUIRED:
       name: Buscar comida
       description: Se tira al buscar comida en bosques, campos, brezales o marismas.
+  modes:
+    foot:
+      name: A pie
+    horse:
+      name: A caballo
+    boat:
+      name: En barca
+  resources:
+    food:
+      name: Comida
+    fodder:
+      name: Forraje
 bindings/default:
   stats:
     charisma:

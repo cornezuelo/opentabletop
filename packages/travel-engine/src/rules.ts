@@ -88,6 +88,9 @@ export const travelRulesSchema = z
       z.string(),
       z
         .object({
+          /** What players read: "On horseback" (translated in locales/). */
+          name: text.optional(),
+          description: text.optional(),
           kmPerDay: z.number().positive(),
           consumes: z.record(z.string(), z.number().nonnegative()).optional(),
           allowedTerrains: z.array(z.string()).optional(),
@@ -95,7 +98,17 @@ export const travelRulesSchema = z
         .strict(),
     ),
     resources: z
-      .record(z.string(), z.object({ perDay: z.number().nonnegative().optional() }).strict())
+      .record(
+        z.string(),
+        z
+          .object({
+            /** What players read: "Food", "Rations" (translated in locales/). */
+            name: text.optional(),
+            description: text.optional(),
+            perDay: z.number().nonnegative().optional(),
+          })
+          .strict(),
+      )
       .optional(),
     /** Effect of weather states on movement (0 = no travel). */
     weather: z

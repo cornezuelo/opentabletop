@@ -19,6 +19,7 @@ export const en = {
   arrived: 'Arrived.',
   travelMode: 'Travel',
   fatigue: 'Fatigue',
+  // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'On foot', horse: 'On horseback', boat: 'By boat', cart: 'By cart' },
   resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
   travel: 'Travel',

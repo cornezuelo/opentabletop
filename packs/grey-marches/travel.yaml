@@ -26,14 +26,14 @@ edges:
   road: { multiplier: 1.5 }
   trail: { multiplier: 1.2 }
 modes:
-  foot: { kmPerDay: 25 }
+  foot: { name: On foot, kmPerDay: 25 }
   # Horses go twice as fast and eat fodder.
-  horse: { kmPerDay: 50, consumes: { fodder: 1 } }
+  horse: { name: On horseback, kmPerDay: 50, consumes: { fodder: 1 } }
   # …but a boat only goes on water (and along the coast).
-  boat: { kmPerDay: 40, allowedTerrains: [water, coast] }
+  boat: { name: By boat, kmPerDay: 40, allowedTerrains: [water, coast] }
 resources:
-  food: { perDay: 1 }
-  fodder: {}
+  food: { name: Food, perDay: 1 }
+  fodder: { name: Fodder }
 weather:
   rain: { speed: 0.75 }
   fog: { speed: 0.75 }

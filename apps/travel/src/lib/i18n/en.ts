@@ -51,6 +51,9 @@ export const en = {
     modesHelp:
       'On foot, on horseback… The speed is in km per marching day on easy ground; terrains and roads change it.',
     kmPerDay: 'km per day',
+    name: 'Name',
+    nameHelp:
+      'What players read in the trip panel and the journal instead of the id (e.g. On horseback, Rations). Written in the current language: the pack’s own, or its translation file when the interface is in another one.',
     consumes: 'Uses per day',
     consumesHelp:
       'Supplies this way of travelling uses each day on top of what everyone uses (Supplies → Per day). E.g. the Grey Marches’ horses: fodder: 1, so riding uses 1 food and 1 fodder a day while walking uses only the food. Empty: nothing extra.',

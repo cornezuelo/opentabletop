@@ -65,6 +65,7 @@
       suggestions={['foot', 'horse', 'cart', 'boat']}
       template={{ kmPerDay: 25 }}
       columns={[
+        { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
         { field: 'kmPerDay', label: t('rules.kmPerDay'), type: 'number', min: 0 },
         {
           field: 'consumes',
@@ -199,6 +200,7 @@
       suggestions={['food', 'water', 'fodder', 'torches']}
       template={{ perDay: 1 }}
       columns={[
+        { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
         {
           field: 'perDay',
           label: t('rules.perDay'),
