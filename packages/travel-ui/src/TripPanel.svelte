@@ -7,7 +7,14 @@
     type TravelSystem,
   } from '@open-tabletop/session'
   import { formatClock } from '@open-tabletop/time'
-  import { entryClock, entryText, eventName, journalMarkdown, tripDay } from './journal'
+  import {
+    changesText,
+    entryClock,
+    entryText,
+    eventName,
+    journalMarkdown,
+    tripDay,
+  } from './journal'
   import { availableActions, checkInfo, type TravelAction } from '@open-tabletop/travel-engine'
   import { calendarOf } from '@open-tabletop/session'
   import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
@@ -123,6 +130,14 @@
   const resourceName = (id: string) =>
     localize(system.rules.resources?.[id]?.name, locale, 'en') ?? idText(t, `resources.${id}`, id)
 
+  /** What an action or a rest changes, as words: "Morale +1" (from its effects). */
+  function changes(own: unknown): string {
+    if (typeof own !== 'object' || own === null) return ''
+    const o = own as { effects?: Record<string, number | string>; fatigue?: number }
+    const effects = { ...(o.fatigue ? { 'party.stats.fatigue': -o.fatigue } : {}), ...o.effects }
+    return Object.keys(effects).length ? changesText({ effects }, context) : ''
+  }
+
   /** How tables read a value, for its tooltip: "Tables read it as `{{survival}}`…". */
   const readAs = (...keys: string[]) =>
     t('tips.readAs', { keys: keys.map((k) => '`{{' + k + '}}`').join(' · ') })
@@ -167,7 +182,7 @@
     const parts = [
       own.minutes ? t('tips.actionTime', { minutes: own.minutes }) : '',
       own.speed !== undefined ? t('tips.actionSpeed', { speed: own.speed }) : '',
-      own.fatigue ? t('tips.actionFatigue', { fatigue: own.fatigue }) : '',
+      changes(own) ? t('tips.actionEffects', { changes: changes(own) }) : '',
       own.oncePerDay ? t('tips.actionOnce') : '',
       rolls.length ? t('tips.actionChecks', { checks: rolls.join(', ') }) : '',
     ]
@@ -273,22 +288,6 @@
         />
       </label>
     {/each}
-    <label class="field">
-      <span
-        >{t('fatigue')}<InfoTip
-          markdown={`${t('tips.fatigue')}\n\n${readAs('party.fatigue')}`}
-        /></span
-      >
-      <input
-        type="number"
-        min="0"
-        value={travel.fatigue}
-        onchange={(e) => {
-          const fatigue = Math.round(number(e.currentTarget.value))
-          onedit((s) => ({ ...s, travel: { ...s.travel, fatigue } }))
-        }}
-      />
-    </label>
   </div>
 
   {#each stats as [key, stat] (key)}
@@ -330,7 +329,13 @@
     {/if}
     {#if actions.rest}
       <button
-        use:tooltip={t(actions.rest.fatigue ? 'tips.restRecovers' : 'tips.rest')}
+        use:tooltip={[
+          t('tips.rest'),
+          changes(system.rules.actions?.rest) &&
+            t('tips.actionEffects', { changes: changes(system.rules.actions?.rest) }),
+        ]
+          .filter(Boolean)
+          .join(' ')}
         onclick={() => onstep({ type: 'rest' })}>{t('rest', { length: restLength })}</button
       >
     {/if}

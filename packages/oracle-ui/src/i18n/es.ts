@@ -54,6 +54,8 @@ export const es: Messages<typeof en> = {
     party_resources: vocabulary.es.terms.supplies,
     yesterday: 'Ayer',
     yesterday_lost: 'Perdidos ayer',
+    short: 'Faltaron provisiones',
+    camping: 'En el campamento',
     from: 'Visto desde',
     around: 'Vecinos conocidos de un terreno',
     aroundCount: 'Vecinos conocidos',
@@ -88,6 +90,9 @@ export const es: Messages<typeof en> = {
     party_resources: 'Cuánto lleva el grupo de una provisión.',
     yesterday: 'Un valor del día anterior.',
     yesterday_lost: 'true cuando el grupo acabó perdido el día anterior.',
+    short: 'Al acabar un día (comprobaciones at: day-end): true si ese día faltó alguna provisión.',
+    camping:
+      'Al acabar un día (comprobaciones at: day-end): true si el día acabó en el campamento.',
     from: 'Al descubrir el mapa: el hex desde el que se ve el vacío.',
     around:
       'Al descubrir el mapa: cuántos vecinos conocidos del hex tienen ese terreno (around.lake: 2).',

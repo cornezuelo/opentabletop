@@ -6,6 +6,7 @@ import {
   DEFAULT_REGION_STYLE,
 } from './defaults'
 import { newId } from './id'
+import { migrateFatigue } from '@open-tabletop/session'
 
 /**
  * `migrations[n]` upgrades raw data from version n to n + 1. Every format change
@@ -87,6 +88,16 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   /** v10: the world clock (optional: maps without one have none). */
   9(data) {
     return data
+  },
+  /** v11: the party's fatigue is one of the system's stats (it was in the travel state). */
+  10(data) {
+    const play = data.play as { rules?: { session?: unknown } } | undefined
+    const session = play?.rules?.session as Parameters<typeof migrateFatigue>[0] | undefined
+    if (!session?.travel) return data
+    return {
+      ...data,
+      play: { ...play, rules: { ...play!.rules, session: migrateFatigue(session) } },
+    }
   },
 }
 

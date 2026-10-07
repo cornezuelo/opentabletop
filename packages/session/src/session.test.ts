@@ -346,11 +346,14 @@ entries:
     expect(tripChanges(value)).toEqual([
       ['party.resources.food', -5],
       ['party.stats.morale', 2],
-      ['party.fatigue', -1],
+      ['party.stats.fatigue', -1],
     ])
     const state = applyResult({ ...start(), stats: { pre: 1 } }, value)
     expect(state.travel.resources.food).toBe(0) // never below zero
-    expect(state.stats).toEqual({ pre: 1, morale: 2 })
+    // A stat the system doesn't bound can go anywhere; its min keeps it in place.
+    expect(state.stats).toEqual({ pre: 1, morale: 2, fatigue: -1 })
+    const bounded = applyResult({ ...start(), stats: {} }, value, { fatigue: { min: 0 } })
+    expect(bounded.stats.fatigue).toBe(0)
     expect(tripChanges({ result: 'nothing' })).toEqual([])
   })
 

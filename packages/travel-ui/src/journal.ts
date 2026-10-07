@@ -132,6 +132,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           : ''
       return changes ? `${line} (${changes})` : line
     }
+    case 'CHECK_EFFECTS': {
+      const changed = changesText({ effects: d.effects }, context)
+      return `${eventName(t, d.event, checkName)}${changed ? `: ${changed}` : ''}`
+    }
     case 'ORACLE_ROLL':
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
     case 'CHECK_PENDING':

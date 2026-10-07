@@ -139,6 +139,7 @@ export function travelSystems(registry: Registry): {
       calendarRaw && !calendarErrors.length
         ? calendarFrom(calendarRaw.data as unknown as CalendarDef)
         : undefined
+    problems.push(...undeclaredEffects(registry, id, rules, parsed?.bindings, rulesRaw.file))
     systems.push({
       id,
       name,
@@ -149,6 +150,61 @@ export function travelSystems(registry: Registry): {
     })
   }
   return { systems, problems }
+}
+
+/**
+ * Effects of a system (its actions, rests and checks, and its pack's tables, oracles and
+ * decks) on values it doesn't declare: a stat missing from its bindings, or a supply
+ * missing from its rules. Warnings: the effect still applies, but nobody names the value.
+ */
+function undeclaredEffects(
+  registry: Registry,
+  pack: string,
+  rules: TravelRules,
+  bindings: Bindings | undefined,
+  file: string,
+): Diagnostic[] {
+  const out: Diagnostic[] = []
+  const check = (effects: unknown, where: { file: string; at: string }) => {
+    if (typeof effects !== 'object' || effects === null) return
+    for (const path of Object.keys(effects)) {
+      const [, scope, valueId] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
+      const known =
+        scope === 'stats'
+          ? !!bindings?.stats?.[valueId]
+          : scope === 'resources'
+            ? !!rules.resources?.[valueId]
+            : false
+      if (!known)
+        out.push({
+          severity: 'warning',
+          message: `Effect on "${path}", which this system doesn't declare (stats in its bindings, resources in its rules)`,
+          pack,
+          ...where,
+        })
+    }
+  }
+  for (const [action, own] of Object.entries(rules.actions ?? {}))
+    if (own && typeof own === 'object' && 'effects' in own)
+      check(own.effects, { file, at: `@travel-rules.actions.${action}.effects` })
+  ;(rules.checks ?? []).forEach((c, i) =>
+    check(c.effects, { file, at: `@travel-rules.checks.${i}.effects` }),
+  )
+  for (const def of registry.definitions.values()) {
+    if (def.pack !== pack) continue
+    const lists =
+      def.kind === 'table'
+        ? [def.entries]
+        : def.kind === 'oracle'
+          ? Object.values(def.variants).map((v) => v.entries)
+          : def.kind === 'deck'
+            ? [def.cards]
+            : []
+    for (const items of lists)
+      for (const item of items)
+        check(item.effects, { file: def.file, at: `${def.localId}.${item.key}.effects` })
+  }
+  return out
 }
 
 /** First day of each season in the default calendar. */

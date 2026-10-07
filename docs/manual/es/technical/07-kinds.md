@@ -102,7 +102,7 @@ Cuando se aplican varios (uno elegido a mano más otros solos), los que se anula
 
 Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades, el agua, los caminos y ríos, las formas de viajar (km por día, qué gastan, por dónde pueden ir), las provisiones que se gastan al día, el clima que frena, las acciones del grupo (acampar, descansar y las propias del sistema, como forrajear) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al acampar o con una acción, y cuándo (`when` / `unless`). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
 
-**Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) y el grupo (`party.resources.food`, `party.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
+**Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 
 ## Bindings
 

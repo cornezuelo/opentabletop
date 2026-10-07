@@ -35,6 +35,17 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
     locale: 'es',
   })
 
+  it('has no fatigue: it is not one of its rules', () => {
+    expect(system().bindings?.stats?.fatigue).toBeUndefined()
+    const { session } = startTrip({ system: system(), location: '0', season: 'spring' })
+    const night = stepTrip(
+      options('nofatigue'),
+      { ...session, travel: { ...session.travel, resources: { food: 0 } } },
+      { type: 'camp' },
+    ).state
+    expect(night.stats.fatigue).toBeUndefined()
+  })
+
   it('loads without problems', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
     expect(travelSystems(registry).problems.map(formatDiagnostic)).toEqual([])

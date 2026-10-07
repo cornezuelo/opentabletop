@@ -34,6 +34,12 @@ travel-rules/default:
     FORAGE_CHECK_REQUIRED:
       name: Buscar comida
       description: Se tira al buscar comida en bosques, campos, brezales o marismas.
+    HUNGRY_DAY:
+      name: Sin comida suficiente
+      description: Un día sin comida suficiente cansa al grupo.
+    FED_NIGHT:
+      name: Una noche bien comidos
+      description: Una noche en el campamento con comida suficiente baja la fatiga.
   modes:
     foot:
       name: A pie
@@ -60,6 +66,12 @@ bindings/default:
     navigation:
       name: Orientación
       description: Se suma a la tirada de perderse.
+    fatigue:
+      name: Fatiga
+      description: Sube con cada día sin comida suficiente, los vados y el hambre; baja tras una noche bien comidos en el campamento, un descanso o una oración en el santuario.
+    hirelings:
+      name: Mercenarios
+      description: Espadas de alquiler que viajan con el grupo. Se unen en la posada y pueden desertar cuando no hay comida.
   reads:
     danger:
       name: Peligro

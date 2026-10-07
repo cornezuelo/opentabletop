@@ -51,6 +51,8 @@ export const en = {
     party_resources: vocabulary.en.terms.supplies,
     yesterday: 'Yesterday',
     yesterday_lost: 'Lost yesterday',
+    short: 'Short of supplies',
+    camping: 'In camp',
     from: 'Seen from',
     around: 'Known neighbours of a terrain',
     aroundCount: 'Known neighbours',
@@ -85,6 +87,8 @@ export const en = {
     party_resources: 'How much of a supply the party carries.',
     yesterday: 'A value of the day before.',
     yesterday_lost: 'true when the party ended the day before lost.',
+    short: 'At the end of a day (checks at: day-end): true when some supply ran short that day.',
+    camping: 'At the end of a day (checks at: day-end): true when the day ended in camp.',
     from: 'Discovering the map: the hex the empty one is seen from.',
     around:
       'Discovering the map: how many known neighbours of the hex have that terrain (around.lake: 2).',

@@ -210,7 +210,7 @@ describe('travel', () => {
   })
 })
 
-describe('camp, resources and fatigue', () => {
+describe('camp, resources and the end of the day', () => {
   it('consumes resources, schedules camp checks and moves to the next morning', () => {
     const { state, events } = run(start('0,0', 'horse'), { type: 'camp' })
     expect(state.resources).toEqual({ food: 2, fodder: 0 })
@@ -223,18 +223,42 @@ describe('camp, resources and fatigue', () => {
     ).toBe(true)
   })
 
-  it('tires the party when supplies run out, and rest recovers', () => {
-    const camped = run({ ...start(), resources: { food: 0 } }, { type: 'camp' })
-    let state: TravelState = camped.state
-    const events = camped.events
-    expect(events).toContainEqual({ type: 'RESOURCE_DEPLETED', resource: 'food' })
-    expect(state.fatigue).toBe(1)
-    // A short rest passes time but doesn't recover fatigue by default; a fed camp does.
-    ;({ state } = run(state, { type: 'rest' }))
-    expect(state.fatigue).toBe(1)
-    expect(state.time).toBe(defaultCalendar.at(2, '07:00'))
-    ;({ state } = run({ ...state, resources: { food: 5 } }, { type: 'camp' }))
-    expect(state.fatigue).toBe(0)
+  it('ends every day with the system’s day-end checks: short of supplies, in camp', () => {
+    const tired = createTravelEngine({
+      world,
+      rules: {
+        ...rules!,
+        checks: [
+          {
+            event: 'HUNGER',
+            at: 'day-end',
+            when: { short: true },
+            effects: { 'party.stats.fatigue': 1 },
+          },
+          {
+            event: 'SLEEP',
+            at: 'day-end',
+            when: { all: [{ short: false }, { camping: true }] },
+            effects: { 'party.stats.fatigue': -1 },
+          },
+        ],
+      },
+    })
+    const hungry = tired.apply({ ...start(), resources: { food: 0 } }, { type: 'camp' })
+    expect(hungry.events).toContainEqual({ type: 'RESOURCE_DEPLETED', resource: 'food' })
+    expect(hungry.state.pendingChecks).toEqual([
+      expect.objectContaining({
+        event: 'HUNGER',
+        context: expect.objectContaining({ short: true, camping: true }),
+        effects: { 'party.stats.fatigue': 1 },
+      }),
+    ])
+    expect(tired.apply(start(), { type: 'camp' }).state.pendingChecks.map((c) => c.event)).toEqual([
+      'SLEEP',
+    ])
+    // Waiting a day out, fed, without camping: no day-end check applies.
+    const waited = tired.apply(start(), { type: 'advanceTime', minutes: 24 * 60 }).state
+    expect(waited.pendingChecks).toEqual([])
   })
 
   it('eats supplies for every day that passes, however it passes', () => {
@@ -261,7 +285,7 @@ describe('camp, resources and fatigue', () => {
     )
   })
 
-  it('reports supplies eaten, rests and every change of fatigue', () => {
+  it('reports supplies eaten and rests', () => {
     const { events } = run(start(), { type: 'camp' })
     expect(events).toContainEqual({
       type: 'SUPPLIES_USED',
@@ -269,30 +293,20 @@ describe('camp, resources and fatigue', () => {
       left: { food: 2 },
       time: defaultCalendar.at(2, '00:00'),
     })
-    // Nothing to recover from: no fatigue line.
-    expect(events.some((e) => e.type === 'FATIGUE_CHANGED')).toBe(false)
     const hungry = run({ ...start(), resources: { food: 0 } }, { type: 'camp' }).events
     expect(hungry.some((e) => e.type === 'SUPPLIES_USED')).toBe(false)
-    expect(hungry).toContainEqual(
-      expect.objectContaining({ type: 'FATIGUE_CHANGED', change: 1, reason: 'hunger' }),
-    )
-    const fed = run({ ...start(), fatigue: 2 }, { type: 'camp' }).events
-    expect(fed).toContainEqual(
-      expect.objectContaining({ type: 'FATIGUE_CHANGED', change: -1, fatigue: 1, reason: 'camp' }),
-    )
     expect(run(start(), { type: 'rest' }).events[0]).toMatchObject({ type: 'RESTED', minutes: 60 })
   })
 
-  it('applies check outcomes to resources and fatigue', () => {
+  it('applies check outcomes to resources', () => {
     const { state } = run(start(), { type: 'camp' })
     const check = state.pendingChecks[0]
     const after = run(state, {
       type: 'resolveCheck',
       id: check.id,
-      outcome: { resources: { food: 3 }, fatigue: 2 },
+      outcome: { resources: { food: 3 } },
     }).state
     expect(after.resources.food).toBe(5)
-    expect(after.fatigue).toBe(2)
     expect(after.pendingChecks).toHaveLength(0)
   })
 })
@@ -306,10 +320,9 @@ describe('available actions', () => {
 
     const restful = createTravelEngine({
       world,
-      rules: { ...rules!, actions: { rest: { minutes: 120, fatigue: 1 } } },
+      rules: { ...rules!, actions: { rest: { minutes: 120 } } },
     })
-    const rested = restful.apply({ ...start(), fatigue: 2 }, { type: 'rest' }).state
-    expect(rested.fatigue).toBe(1)
+    const rested = restful.apply(start(), { type: 'rest' }).state
     expect(rested.time - start().time).toBe(120)
   })
 })
@@ -319,13 +332,13 @@ describe('the system’s own actions', () => {
     ...rules!,
     actions: {
       forage: { name: { en: 'Forage' }, minutes: 240, speed: 0.5, oncePerDay: true },
-      pray: { fatigue: 1 },
+      pray: { effects: { 'party.stats.morale': 1 } },
     },
     checks: [{ event: 'FORAGE_CHECK_REQUIRED', at: 'forage', when: { terrain: 'steppe' } }],
   }).rules!
   const own = createTravelEngine({ world, rules: foraging })
 
-  it('take time, slow the day, ease fatigue and roll their checks', () => {
+  it('take time, slow the day and roll their checks', () => {
     const { state, events } = own.apply(start(), { type: 'action', id: 'forage' })
     expect(events.map((e) => e.type)).toEqual(['ACTION_TAKEN', 'CHECK_REQUIRED'])
     expect(state.pendingChecks.map((c) => c.event)).toEqual(['FORAGE_CHECK_REQUIRED'])
@@ -339,15 +352,12 @@ describe('the system’s own actions', () => {
       id: 'forage',
     })
     expect(tomorrow.events[0]).toMatchObject({ type: 'ACTION_TAKEN', action: 'forage' })
-    expect(
-      own.apply({ ...start(), fatigue: 2 }, { type: 'action', id: 'pray' }).state.fatigue,
-    ).toBe(1)
     expect(own.apply(start(), { type: 'action', id: 'dance' }).events).toEqual([
       { type: 'ACTION_UNAVAILABLE', action: 'dance' },
     ])
   })
 
-  it('say how many of their checks came up, and what fatigue they eased', () => {
+  it('say how many of their checks came up', () => {
     const steppe = own.apply(start(), { type: 'action', id: 'forage' }).events[0]
     expect(steppe).toMatchObject({ minutes: 240, checks: 1, hex: '0,0', terrain: 'steppe' })
     // In the mountains nothing applies: the journal can say so.
@@ -355,25 +365,19 @@ describe('the system’s own actions', () => {
     expect(mountains.events).toEqual([
       expect.objectContaining({ type: 'ACTION_TAKEN', checks: 0, terrain: 'mountains' }),
     ])
-    const prayed = own.apply({ ...start(), fatigue: 2 }, { type: 'action', id: 'pray' }).events
-    expect(prayed.at(-1)).toMatchObject({
-      type: 'FATIGUE_CHANGED',
-      change: -1,
-      fatigue: 1,
-      reason: 'action',
-      action: 'pray',
-    })
   })
 
   it('are listed with camp and rest, and checks can only name existing moments', () => {
     expect(Object.keys(availableActions(foraging).custom)).toEqual(['forage', 'pray'])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'fish' }] })
-    expect(bad.errors).toEqual(['checks.0.at: expected day-start, hex-enter, camp, forage, pray'])
+    expect(bad.errors).toEqual([
+      'checks.0.at: expected day-start, hex-enter, camp, day-end, forage, pray',
+    ])
   })
 })
 
 describe('checks that look at the party', () => {
-  it('see its supplies and fatigue', () => {
+  it('see its supplies', () => {
     const hungry = createTravelEngine({
       world,
       rules: {
@@ -385,7 +389,7 @@ describe('checks that look at the party', () => {
     const { state } = hungry.apply({ ...start(), resources: { food: 0 } }, { type: 'camp' })
     expect(state.pendingChecks[0]).toMatchObject({
       event: 'HUNGER',
-      context: { party: { resources: { food: 0 }, fatigue: 0, mode: 'foot' } },
+      context: { party: { resources: { food: 0 }, mode: 'foot' } },
     })
   })
 })

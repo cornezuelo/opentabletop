@@ -18,7 +18,7 @@ export interface ValueBounds {
 /** What the session needs to apply effects: the party's stats and its supplies. */
 export interface EffectTarget {
   stats: Record<string, number>
-  travel: Pick<TravelState, 'resources' | 'fatigue'>
+  travel: Pick<TravelState, 'resources'>
 }
 
 /** One change that happened: the path, before and after. */
@@ -51,8 +51,10 @@ export function effectsOf(value: Record<string, unknown>): Effects {
   for (const [id, change] of Object.entries(record(value.resources)))
     add(`party.resources.${id}`, change)
   for (const [id, change] of Object.entries(record(value.stats))) add(`party.stats.${id}`, change)
-  if (value.fatigue !== undefined) add('party.fatigue', value.fatigue)
-  for (const [path, change] of Object.entries(record(value.effects))) add(path, change)
+  // Fatigue is one of the system's stats now (`party.fatigue` was its older path).
+  if (value.fatigue !== undefined) add('party.stats.fatigue', value.fatigue)
+  for (const [path, change] of Object.entries(record(value.effects)))
+    add(path === 'party.fatigue' ? 'party.stats.fatigue' : path, change)
   return out
 }
 
@@ -87,12 +89,26 @@ export function applyEffects(
       const to = next(from, change, 0, Infinity)
       target.travel.resources[id] = to
       if (to !== from) applied.push({ path, from, to })
-    } else if (path === 'party.fatigue') {
-      const from = target.travel.fatigue
-      const to = next(from, change, 0, Infinity)
-      target.travel.fatigue = to
-      if (to !== from) applied.push({ path, from, to })
     } else unknown.push(path)
   }
   return { applied, unknown }
+}
+
+/**
+ * Older saved trips kept the party's fatigue in the travel state; now it's a stat of the
+ * system (`party.stats.fatigue`). Moves it there (returns a copy).
+ */
+export function migrateFatigue<S extends { stats: Record<string, number>; travel: TravelState }>(
+  session: S,
+): S {
+  const { fatigue, ...travel } = session.travel
+  if (fatigue === undefined) return session
+  return {
+    ...session,
+    travel,
+    stats:
+      fatigue && session.stats.fatigue === undefined
+        ? { ...session.stats, fatigue }
+        : session.stats,
+  }
 }

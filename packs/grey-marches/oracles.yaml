@@ -108,7 +108,7 @@ description: |-
   - Entries for when there is no trip: `party: { exists: false }`
   - `maxOccurrences`: a sell-sword joins twice at most
   - Cascades into tables and generators
-  - Changes to the party: food, morale, fatigue and a stat nobody declared (`hirelings`)
+  - **Effects** on the party: food, morale, fatigue and hirelings
 inputs:
   spend:
     label: You spend
@@ -129,31 +129,32 @@ variants:
         range: -20-40
         when: { party: { exists: false } }
         result: 'A quiet night; nobody asks who you are'
-        set: { resources: { food: -1 } }
+        effects: { party.resources.food: -1 }
       - id: brawl
         range: -20-5
         result: 'A brawl breaks out — {{result}}'
         table: reaction
-        set: { reactionModifier: -2, resources: { food: -1 }, stats: { morale: -1 } }
+        set: { reactionModifier: -2 }
+        effects: { party.resources.food: -1, party.stats.morale: -1 }
       - id: talk
         range: 6-9
         result: 'The room warms to you: {{result}}'
         generator: rumour
-        set: { resources: { food: -1 }, stats: { morale: 1 } }
+        effects: { party.resources.food: -1, party.stats.morale: 1 }
       # At most twice a session, a sell-sword joins (a stat no one declared: hirelings).
       - id: hireling
         range: 10-40
         maxOccurrences: 2
         result: '{{result}} drinks with you and joins the company'
         table: npc-names
-        set: { resources: { food: -1 }, stats: { morale: 1, hirelings: 1 } }
+        effects: { party.resources.food: -1, party.stats.morale: 1, party.stats.hirelings: 1 }
   feast:
     entries:
       # Only with food to spare (2 or more); otherwise the innkeeper shakes her head.
       - id: feast
         when: { party.resources.food: { gte: 2 } }
         result: 'A feast to remember: everyone sleeps well'
-        set: { resources: { food: -2 }, stats: { morale: 2 }, fatigue: -1 }
+        effects: { party.resources.food: -2, party.stats.morale: 2, party.stats.fatigue: -1 }
       - id: short
         when: { any: [{ party.resources.food: { lt: 2 } }, { party: { exists: false } }] }
         result: 'Not enough in the larder for a feast tonight'

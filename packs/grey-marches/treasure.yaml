@@ -26,6 +26,8 @@ entries:
       id: potion,
       range: 91-98,
       result: A flask of the hedge-witches’ cordial (removes all fatigue),
+      # '=value' sets a value instead of adding to it.
+      effects: { party.stats.fatigue: '=0' },
     }
   - { id: prize, range: 99-100, table: prize }
 ---

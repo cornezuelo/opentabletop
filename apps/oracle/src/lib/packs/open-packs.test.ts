@@ -153,6 +153,39 @@ describe('bundled open packs', () => {
     expect(es(registry.rollModes.get('grey-marches/careful')?.name)).toBe('Con cuidado')
   })
 
+  it('the Grey Marches: fatigue is their own rule, written as day-end checks with effects', () => {
+    const system = marches()
+    const world = row([{ terrain: 'plains' }, { terrain: 'plains' }])
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('fatigue') }),
+      locale: 'en',
+    }
+    const { session } = startTrip({ system, location: '0', season: 'summer' })
+    expect(session.stats.fatigue).toBe(0)
+    // A night in camp with no food: the day ended short, fatigue +1 (and hunger is rolled).
+    const hungry = { ...session, travel: { ...session.travel, resources: { food: 0, fodder: 0 } } }
+    const night = stepTrip(options, hungry, { type: 'camp' })
+    expect(night.entries).toContainEqual(
+      expect.objectContaining({
+        code: 'CHECK_EFFECTS',
+        data: expect.objectContaining({ event: 'HUNGRY_DAY' }),
+      }),
+    )
+    expect(night.state.stats.fatigue).toBeGreaterThanOrEqual(1)
+    // A fed night eases it, never below 0.
+    const fed = {
+      ...night.state,
+      travel: { ...night.state.travel, resources: { food: 5, fodder: 0 } },
+    }
+    const tired = night.state.stats.fatigue
+    const rested = stepTrip(options, fed, { type: 'camp' }).state
+    expect(rested.stats.fatigue).toBe(tired - 1)
+    const fresh = stepTrip(options, { ...session }, { type: 'camp' }).state
+    expect(fresh.stats.fatigue).toBe(0)
+  })
+
   it('the Grey Marches discover a map whose terrains their rules know', () => {
     const system = marches()
     expect(system.bindings?.discover?.reveal).toBe('neighbors')

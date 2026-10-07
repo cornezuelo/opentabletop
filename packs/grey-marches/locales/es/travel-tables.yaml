@@ -24,12 +24,12 @@ forage:
 
     - Una comprobación en una acción propia del sistema (`at: forage`)
     - Una característica y ventaja en la tirada: `1d6 + {{survival}}`
-    - Dados dentro de un valor (`food: '{{1d3+1}}'`), que el texto vuelve a leer (`{{resources.food}}`)
-    - `set: { resources }`: la comida ganada
+    - Dados dentro de un valor (`days: '{{1d3+1}}'`), que vuelven a leer el texto y el efecto (`{{days}}`)
+    - **Efectos**: `party.resources.food: 1`, la comida ganada
   entries:
     nothing: Aquí no hay nada que comer
     some: Bayas y raíces para un día
-    plenty: '¡Caza! Comida para {{resources.food}} días'
+    plenty: '¡Caza! Comida para {{days}} días'
 toll:
   name: El peaje
   description: |-
@@ -38,7 +38,7 @@ toll:
     **Enseña:**
 
     - Una comprobación con `all` / `tags` / `edges`
-    - `set: { resources }` con un número negativo: comida gastada
+    - Un efecto con un número negativo: `party.resources.food: -1`, comida gastada
   entries:
     pay: El guarda del puente se cobra un día de comida
     wave: El guarda del puente os deja pasar

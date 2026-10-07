@@ -103,7 +103,7 @@ When several apply (one chosen by hand plus some on their own), the ones that ca
 
 How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds, water, roads and rivers, ways of travelling (km per day, what they use, where they can go), supplies used per day, weather that slows you down, the party's actions (camp, rest and the system's own, like foraging) and the **checks**: what is rolled at dawn, on entering a hex, in camp or with an action, and when (`when` / `unless`). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Travel app's [Systems](../travel/03-systems.md).
 
-**What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) and the party (`party.resources.food`, `party.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
+**What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.lost`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 
 ## Bindings
 

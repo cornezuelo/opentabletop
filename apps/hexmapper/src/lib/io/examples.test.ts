@@ -134,7 +134,7 @@ describe('example maps', () => {
     const camped = stepTrip(options, session, { type: 'camp' })
     const hunger = camped.entries.find((e) => e.data?.event === 'HUNGER_CHECK_REQUIRED')
     expect(hunger?.text).toMatch(/^In the night, /)
-    expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: -1 })
+    expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: 0 }) // hirelings never below 0 (min: 0)
 
     // The inn reads the party: a feast needs food; without a trip, nobody is asked.
     const fed = { ...session, stats: { ...session.stats, morale: 3 } }
@@ -144,7 +144,7 @@ describe('example maps', () => {
     expect(tripChanges(feast.resolution.value)).toEqual([
       ['party.resources.food', -2],
       ['party.stats.morale', 2],
-      ['party.fatigue', -1],
+      ['party.stats.fatigue', -1],
     ])
     expect(oracle.resolve('grey-marches/inn', { spend: 'feast' }).resolution.entry).toBe('short')
     expect(oracle.resolve('grey-marches/inn', { spend: 'round' }).resolution.entry).toBe('quiet')

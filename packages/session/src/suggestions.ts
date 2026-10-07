@@ -38,12 +38,15 @@ export function contextSuggestions(
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
   add('yesterday.lost', true, false)
+  // The end of each day (checks at: day-end).
+  add('short', true, false)
+  add('camping', true, false)
   add('edges', 'road', 'trail', 'river')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
   add('tags')
   add('weather')
   add('mode')
-  add('party.fatigue')
+
   add('party.mode')
 
   const { systems } = travelSystems(registry)
@@ -160,7 +163,6 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
         out.get(key)!.add(String(v))
   }
   add('lost', true)
-  add('fatigue')
   add('weather')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
   add('tags')

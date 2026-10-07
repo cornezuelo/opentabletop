@@ -152,7 +152,6 @@ export function partyValues(s: SessionState): Record<string, unknown> {
   return {
     stats: { ...s.stats },
     resources: { ...s.travel.resources },
-    fatigue: s.travel.fatigue,
     mode: s.travel.mode,
   }
 }
@@ -214,7 +213,6 @@ const JOURNALED: TravelEvent['type'][] = [
   'RESTED',
   'SUPPLIES_USED',
   'RESOURCE_DEPLETED',
-  'FATIGUE_CHANGED',
   'DESTINATION_REACHED',
   'ROUTE_BLOCKED',
   'NO_ROUTE',
@@ -330,15 +328,43 @@ export function createSession(options: {
               : event.type === 'RESTED'
                 ? options.rules?.actions?.rest
                 : undefined
-          if (own && typeof own === 'object' && 'effects' in own && own.effects) {
-            applyEffects(s, own.effects, options.bindings?.stats)
+          // The older `fatigue: n` (recovered) is an effect on the fatigue stat.
+          const ownEffects =
+            own && typeof own === 'object'
+              ? {
+                  ...('fatigue' in own && own.fatigue
+                    ? { 'party.stats.fatigue': -own.fatigue }
+                    : {}),
+                  ...('effects' in own ? own.effects : {}),
+                }
+              : {}
+          if (Object.keys(ownEffects).length) {
+            applyEffects(s, ownEffects, options.bindings?.stats)
             // The journal line of the action says what it changed.
             const line = entries.at(-1)
-            if (line?.code === event.type) line.data = { ...line.data, effects: own.effects }
+            if (line?.code === event.type) line.data = { ...line.data, effects: ownEffects }
           }
           if (event.type === 'HEX_ENTERED') found = arrive(event.hex, from, event.time) || found
           if (event.type !== 'CHECK_REQUIRED') continue
           const binding = options.bindings?.on[event.check.event]
+          // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
+          if (event.check.effects) {
+            applyEffects(s, event.check.effects, options.bindings?.stats)
+            add(s, entries, {
+              source: 'travel',
+              code: 'CHECK_EFFECTS',
+              time: event.time,
+              data: { event: event.check.event, effects: event.check.effects },
+            })
+            // Without a table there's nothing to wait for.
+            if (!binding) {
+              s.travel = options.travel.apply(s.travel, {
+                type: 'resolveCheck',
+                id: event.check.id,
+              }).state
+              continue
+            }
+          }
           if (!binding || !options.oracle) {
             resolvedAll = false
             add(s, entries, {

@@ -35,7 +35,7 @@ export const en = {
   tips: {
     actionTime: 'Takes {minutes} minutes.',
     actionSpeed: 'The rest of today’s march goes at ×{speed}.',
-    actionFatigue: 'Recovers {fatigue} fatigue.',
+    actionEffects: 'Changes: {changes}.',
     actionOnce: 'Once a day.',
     readAs: 'Tables read it as {keys}.',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
@@ -45,15 +45,12 @@ export const en = {
     marched:
       'Hours of marching allowed per day; when they run out, camp to continue tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
     resource:
-      'Supplies: {perDay} per day are eaten for every day that passes, whether you camp, rest or wait. Edit the amount when you buy, find or forage food. Each day without enough raises fatigue.',
-    fatigue:
-      'Rises by 1 for each day without enough food and drops by 1 after a fed night’s camp (or a rest, in systems where resting recovers it). Adjust it by hand when your system or the story says so.',
+      'Supplies: {perDay} per day are eaten for every day that passes, whether you camp, rest or wait. Edit the amount when you buy, find or use some. What running short does depends on the system.',
     travel:
       'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
     travelHex: 'Travel to the next hex of the route only.',
-    camp: 'End the day: roll the night check (if any), eat and wake up at dawn; a fed night lowers fatigue.',
-    rest: 'A short pause: time passes without marching (e.g. to wait out bad weather). It doesn’t recover fatigue; camping does.',
-    restRecovers: 'A short rest: time passes without marching and some fatigue is recovered.',
+    camp: 'End the day: the system’s night checks, the day’s supplies are eaten and you wake up at dawn.',
+    rest: 'A short pause: time passes without marching (e.g. to wait out bad weather).',
   },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Landmark',

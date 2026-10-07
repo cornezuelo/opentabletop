@@ -40,8 +40,8 @@ weather:
   snow: { speed: 0.5 }
   storm: { speed: 0 }
 actions:
-  # A rest is two hours and takes off one point of fatigue.
-  rest: { minutes: 120, fatigue: 1 }
+  # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat).
+  rest: { minutes: 120, effects: { party.stats.fatigue: -1 } }
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: forage) is rolled where the party stands.
   # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
@@ -104,6 +104,21 @@ checks:
     description: Camping with no food left. Morale decides how it goes.
     at: camp
     when: { party.resources.food: { lt: 1 } }
+  # The end of each day (at: day-end): checks see whether supplies ran short (short) and
+  # whether the day ended in camp (camping). With effects and no table, they just apply:
+  # fatigue is this system's own rule, not the app's.
+  - event: HUNGRY_DAY
+    name: Not enough to eat
+    description: A day without enough food tires the party.
+    at: day-end
+    when: { short: true }
+    effects: { party.stats.fatigue: 1 }
+  - event: FED_NIGHT
+    name: A fed night's sleep
+    description: A night in camp with enough to eat eases fatigue.
+    at: day-end
+    when: { all: [{ short: false }, { camping: true }] }
+    effects: { party.stats.fatigue: -1 }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
     name: Foraging
@@ -123,7 +138,7 @@ stats:
     description: Added to foraging and fords.
     default: 1
   # Changed by tables (encounters, getting lost, the shrine, hunger, the inn) and read by
-  # them as party.stats.morale. "hirelings" isn't declared: it appears once a table sets it.
+  # them as party.stats.morale.
   morale:
     name: Morale
     description: Falls with wolves, bandits, getting lost and hunger; rises at the shrine and the inn.
@@ -132,6 +147,19 @@ stats:
     name: Navigation
     description: Added to the getting-lost roll.
     default: 0
+  # Sell-swords who join at the inn and desert when hungry: 0 until a table adds some.
+  hirelings:
+    name: Hirelings
+    description: Sell-swords travelling with the party. They join at the inn and may desert when there is no food.
+    default: 0
+    min: 0
+  # Fatigue is a stat of this system (min: effects never take it below 0), changed by its
+  # day-end checks, rests, the shrine, fords and hunger.
+  fatigue:
+    name: Fatigue
+    description: 'Rises with each day without enough food, fords and hunger; eases after a fed night in camp, a rest or a prayer at the shrine.'
+    default: 0
+    min: 0
 # Values the pack's tables read that nobody else names: the roll panel and the map show
 # these names (the key stays in the tooltip). Map values first, then today's values tables set.
 reads:

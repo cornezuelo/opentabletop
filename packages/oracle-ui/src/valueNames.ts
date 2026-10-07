@@ -32,6 +32,8 @@ export const BUILT_IN_VALUES = [
   'party.fatigue',
   'party.mode',
   'yesterday.lost',
+  'short',
+  'camping',
   'from',
   'aroundCount',
   'common',

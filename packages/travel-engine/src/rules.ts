@@ -7,7 +7,7 @@ const condition = z.record(z.string(), z.unknown())
 const text = z.union([z.string(), z.record(z.string(), z.string())])
 
 /** Built-in moments for checks; any other value names one of the system's own actions. */
-export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'camp'] as const
+export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'camp', 'day-end'] as const
 const BUILT_IN_ACTIONS = ['camp', 'rest']
 
 /**
@@ -50,6 +50,11 @@ const checkRule = z
     unless: condition.optional(),
     /** Only check when this matches. */
     when: condition.optional(),
+    /**
+     * Effects of the check itself (`party.stats.fatigue: 1`): applied when it comes up,
+     * without a table (or besides the table's).
+     */
+    effects: z.record(z.string(), z.union([z.number(), z.string()])).optional(),
   })
   .strict()
 

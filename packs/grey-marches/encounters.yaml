@@ -30,7 +30,8 @@ entries:
     when: { all: [{ moons.ember: full }, { timeOfDay: night }] }
     result: 'Horns in the dark: the Ember Hunt rides under the full moon — they are {{result}}'
     table: reaction
-    set: { reactionModifier: -3, stats: { morale: -1 } }
+    set: { reactionModifier: -3 }
+    effects: { party.stats.morale: -1 }
   # Nights in haunted places, whatever the roll.
   - id: lights
     range: 1-20
@@ -50,7 +51,8 @@ entries:
     result: '{{1d4+2}} grey wolves — they are {{result}}'
     table: reaction
     # Values for the next table (reactionModifier) and for the party: morale drops.
-    set: { reactionModifier: -2, stats: { morale: -1 } }
+    set: { reactionModifier: -2 }
+    effects: { party.stats.morale: -1 }
   # Then roll a generator: {{result}} is its text.
   - id: traveller
     range: 1-4
@@ -62,7 +64,8 @@ entries:
     when: { terrain: { in: [hills, marsh, swamp] } }
     result: 'Bandits of the Hollow Hills — they are {{result}}'
     table: reaction
-    set: { reactionModifier: -1, stats: { morale: -1 } }
+    set: { reactionModifier: -1 }
+    effects: { party.stats.morale: -1 }
   - { id: tracks, range: 1-20, result: 'Only tracks, and the feeling of being watched' }
 ---
 # A party stat plus a modifier the entry before it may set; advantage on offer (Core's roll

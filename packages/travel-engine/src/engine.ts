@@ -28,6 +28,8 @@ export interface PendingCheck {
   event: string
   /** Facts for whoever resolves it (terrain, weather, hex…). */
   context: Record<string, unknown>
+  /** The check's own effects (`party.stats.fatigue: 1`), applied by whoever resolves it. */
+  effects?: Record<string, number | string>
 }
 
 export interface CheckOutcome {
@@ -37,7 +39,6 @@ export interface CheckOutcome {
   /** Movement multiplier for the rest of the day (e.g. 0.5 when foraging). */
   speed?: number
   resources?: Record<string, number>
-  fatigue?: number
 }
 
 export interface TravelState {
@@ -48,7 +49,8 @@ export interface TravelState {
   route?: string[]
   mode: string
   resources: Record<string, number>
-  fatigue: number
+  /** Older trips kept the party's fatigue here; it's a stat of the system now (migrated). */
+  fatigue?: number
   weather?: string
   /** Minutes already spent towards route[1]. */
   progress: number
@@ -108,16 +110,6 @@ export type TravelEvent =
       left: Record<string, number>
       time: GameTime
     }
-  /** Fatigue changed by the rules (checks' changes go with their results). */
-  | {
-      type: 'FATIGUE_CHANGED'
-      change: number
-      fatigue: number
-      reason: 'hunger' | 'camp' | 'rest' | 'action'
-      /** The system's own action that changed it (reason `action`). */
-      action?: string
-      time: GameTime
-    }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -154,7 +146,6 @@ export function initialTravelState(init: {
     location: init.location,
     mode: init.mode,
     resources: { ...init.resources },
-    fatigue: 0,
     progress: 0,
     day: (init.calendar ?? defaultCalendar).describe(time).day,
     travelledToday: 0,
@@ -280,7 +271,7 @@ export function createTravelEngine(options: {
       // What the engine knows of the day before (the session adds that day's values).
       yesterday: { lost: !!state.lostYesterday },
       // What the engine knows of the party (the session adds its stats).
-      party: { resources: { ...state.resources }, fatigue: state.fatigue, mode: state.mode },
+      party: { resources: { ...state.resources }, mode: state.mode },
     }
   }
 
@@ -289,15 +280,21 @@ export function createTravelEngine(options: {
     at: CheckRule['at'],
     events: TravelEvent[],
     from?: string,
+    facts: Record<string, unknown> = {},
   ): void => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
-    const context = checkContext(state, stretch)
+    const context = { ...checkContext(state, stretch), ...facts }
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (rule.at !== at) continue
       if (rule.when && !matches(rule.when, context)) continue
       if (rule.unless && matches(rule.unless, context)) continue
-      const check: PendingCheck = { id: `c${state.nextCheckId++}`, event: rule.event, context }
+      const check: PendingCheck = {
+        id: `c${state.nextCheckId++}`,
+        event: rule.event,
+        context,
+        ...(rule.effects && { effects: rule.effects }),
+      }
       state.pendingChecks.push(check)
       events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
     }
@@ -313,31 +310,7 @@ export function createTravelEngine(options: {
     return consumption
   }
 
-  /** Changes fatigue (never below 0) and says so when it moved. */
-  const changeFatigue = (
-    state: TravelState,
-    delta: number,
-    reason: 'hunger' | 'camp' | 'rest' | 'action',
-    events: TravelEvent[],
-    action?: string,
-  ): void => {
-    const fatigue = Math.max(0, state.fatigue + delta)
-    if (fatigue === state.fatigue) return
-    events.push({
-      type: 'FATIGUE_CHANGED',
-      change: fatigue - state.fatigue,
-      fatigue,
-      reason,
-      ...(action && { action }),
-      time: state.time,
-    })
-    state.fatigue = fatigue
-  }
-
-  /**
-   * Eats one day of supplies (`at`: when that day ended); going without raises fatigue.
-   * Returns true if short.
-   */
+  /** Eats one day of supplies (`at`: when that day ended). Returns true if short. */
   const eatOneDay = (state: TravelState, events: TravelEvent[], at: GameTime): boolean => {
     let short = false
     const used: Record<string, number> = {}
@@ -359,16 +332,6 @@ export function createTravelEngine(options: {
         left: Object.fromEntries(Object.keys(used).map((id) => [id, state.resources[id]])),
         time: at,
       })
-    if (short) {
-      events.push({
-        type: 'FATIGUE_CHANGED',
-        change: 1,
-        fatigue: state.fatigue + 1,
-        reason: 'hunger',
-        time: at,
-      })
-      state.fatigue += 1
-    }
     return short
   }
 
@@ -377,12 +340,17 @@ export function createTravelEngine(options: {
    * that ended (whatever passed the time: camping, resting, waiting), and the daily
    * counters reset. Returns true if the party went short of supplies.
    */
-  const syncDay = (state: TravelState, events: TravelEvent[]): boolean => {
+  const syncDay = (state: TravelState, events: TravelEvent[], camping = false): boolean => {
     const { day } = calendar.describe(state.time)
     if (day <= state.day) return false
     let short = false
-    for (let d = state.day; d < day; d++)
-      short = eatOneDay(state, events, Math.min(state.time, calendar.at(d + 1, '00:00'))) || short
+    for (let d = state.day; d < day; d++) {
+      const dayShort = eatOneDay(state, events, Math.min(state.time, calendar.at(d + 1, '00:00')))
+      short = dayShort || short
+      // Each day that ends: the system's day-end checks see whether supplies ran short and
+      // whether it ended in camp (e.g. hunger and a fed night's sleep, as the rules say).
+      schedule(state, 'day-end', events, undefined, { short: dayShort, camping })
+    }
     state.day = day
     state.travelledToday = 0
     state.dayChecksDone = false
@@ -463,9 +431,7 @@ export function createTravelEngine(options: {
     events.push({ type: 'CAMP_STARTED', time: state.time })
     schedule(state, 'camp', events)
     state.time = nextAt(calendar, state.time + 1, rules.day.start)
-    const short = syncDay(state, events)
-    // A fed night's sleep recovers fatigue.
-    if (!short) changeFatigue(state, -1, 'camp', events)
+    syncDay(state, events, true)
   }
 
   return {
@@ -508,7 +474,6 @@ export function createTravelEngine(options: {
           events.push({ type: 'RESTED', minutes, time: state.time })
           state.time += minutes
           syncDay(state, events)
-          changeFatigue(state, -actions.rest.fatigue, 'rest', events)
           break
         }
         case 'action': {
@@ -538,7 +503,6 @@ export function createTravelEngine(options: {
           syncDay(state, events)
           state.actionsToday = [...(state.actionsToday ?? []), action.id]
           if (own.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * own.speed
-          if (own.fatigue) changeFatigue(state, -own.fatigue, 'action', events, action.id)
           break
         }
         case 'setMode':
@@ -558,7 +522,6 @@ export function createTravelEngine(options: {
             state.speedToday = (state.speedToday ?? 1) * outcome.speed
           for (const [id, delta] of Object.entries(outcome.resources ?? {}))
             state.resources[id] = Math.max(0, (state.resources[id] ?? 0) + delta)
-          if (outcome.fatigue) state.fatigue = Math.max(0, state.fatigue + outcome.fatigue)
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
           break
         }

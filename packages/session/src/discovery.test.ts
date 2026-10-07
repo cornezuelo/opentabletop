@@ -167,7 +167,7 @@ describe('context suggestions', () => {
     expect(s.mode).toContain('walk')
     expect(s.hex).toEqual(expect.arrayContaining(['4']))
     expect(s.danger).toEqual(['1', '2'])
-    expect(s).toHaveProperty(['party.fatigue'])
+    expect(s).toHaveProperty(['party.mode'])
     expect(s).toHaveProperty(['poi'])
     // Only what tables read: no set values.
     expect(contextSuggestions(registry, {}, { reads: true })).not.toHaveProperty(['poi'])

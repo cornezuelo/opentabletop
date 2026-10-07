@@ -39,7 +39,7 @@ export const es: Messages<typeof en> = {
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
     actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
-    actionFatigue: 'Recupera {fatigue} de fatiga.',
+    actionEffects: 'Cambia: {changes}.',
     actionOnce: 'Una vez al día.',
     readAs: 'Las tablas lo leen como {keys}.',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
@@ -49,15 +49,12 @@ export const es: Messages<typeof en> = {
     marched:
       'Horas de marcha permitidas al día; al agotarlas, acampa para seguir mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
     resource:
-      'Provisiones: se comen {perDay} por cada día que pasa, ya sea acampando, descansando o esperando. Ajusta la cantidad al comprar, encontrar o forrajear comida. Cada día sin suficiente sube la fatiga.',
-    fatigue:
-      'Sube 1 por cada día sin comida suficiente y baja 1 tras acampar habiendo comido (o al descansar, en los sistemas donde descansar la recupera). Ajústala a mano cuando tu sistema o la historia lo pidan.',
+      'Provisiones: se comen {perDay} por cada día que pasa, ya sea acampando, descansando o esperando. Ajusta la cantidad al comprar, encontrar o gastar. Lo que pasa si faltan depende del sistema.',
     travel:
       'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
-    camp: 'Termina el día: la comprobación nocturna (si la hay), comer y despertar al alba; una noche con comida baja la fatiga.',
-    rest: 'Una pausa corta: pasa el tiempo sin marchar (p. ej. para esperar a que mejore el clima). No recupera fatiga; acampar sí.',
-    restRecovers: 'Un descanso corto: pasa el tiempo sin marchar y se recupera algo de fatiga.',
+    camp: 'Termina el día: las comprobaciones nocturnas del sistema, se comen las provisiones del día y despertáis al alba.',
+    rest: 'Una pausa corta: pasa el tiempo sin marchar (p. ej. para esperar a que mejore el clima).',
   },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Lugar señalado',

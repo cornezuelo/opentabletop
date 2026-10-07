@@ -40,13 +40,14 @@ entries:
       id: lost,
       range: 1,
       result: 'You are lost: no progress today',
-      set: { lost: true, stats: { morale: -1 } },
+      set: { lost: true },
+      effects: { party.stats.morale: -1 },
     }
   - { id: course, range: 2-20, result: You keep your course }
 ---
 # A party stat in the roll, with Core's advantage and disadvantage on offer. The amount
-# found is itself rolled inside the value (resources: { food: '{{1d3+1}}' }); the text
-# reads that same value back ({{resources.food}}) and the trip adds it to the supplies.
+# found is rolled into a value of the result (set: { days: '{{1d3+1}}' }); the text reads it
+# back ({{days}}) and the effect adds that many days of food to the supplies.
 kind: table
 id: forage
 name: Foraging
@@ -57,18 +58,24 @@ description: |-
 
   - A check at one of the system's own actions (`at: forage`)
   - A stat and advantage in the roll: `1d6 + {{survival}}`
-  - Dice inside a value (`food: '{{1d3+1}}'`), read back by the text (`{{resources.food}}`)
-  - `set: { resources }`: the food gained
+  - Dice inside a value (`days: '{{1d3+1}}'`), read back by the text and the effect (`{{days}}`)
+  - **Effects**: `party.resources.food: 1`, the food gained
 roll: '1d6 + {{survival}}'
 modes: [advantage, disadvantage]
 entries:
   - { id: nothing, range: 1-3, result: Nothing to eat here }
-  - { id: some, range: 4-6, result: Berries and roots for a day, set: { resources: { food: 1 } } }
+  - {
+      id: some,
+      range: 4-6,
+      result: Berries and roots for a day,
+      effects: { party.resources.food: 1 },
+    }
   - {
       id: plenty,
       range: 7-20,
-      result: 'Game! Food for {{resources.food}} days',
-      set: { resources: { food: '{{1d3+1}}' } },
+      result: 'Game! Food for {{days}} days',
+      set: { days: '{{1d3+1}}' },
+      effects: { party.resources.food: '{{days}}' },
     }
 ---
 # Spending supplies: the toll is paid in food.
@@ -81,13 +88,13 @@ description: |-
   **Shows:**
 
   - A check with `all` / `tags` / `edges`
-  - `set: { resources }` with a negative number: food spent
+  - An effect with a negative number: `party.resources.food: -1`, food spent
 entries:
   - {
       id: pay,
       weight: 3,
       result: 'The bridge-warden takes a day’s food as toll',
-      set: { resources: { food: -1 } },
+      effects: { party.resources.food: -1 },
     }
   - { id: wave, weight: 1, result: The bridge-warden waves you through }
 ---
@@ -109,13 +116,13 @@ entries:
       weight: 1,
       once: true,
       result: 'A voice answers your prayer: the road will be kind',
-      set: { fatigue: -2, stats: { morale: 2 } },
+      effects: { party.stats.morale: 2, party.stats.fatigue: -2 },
     }
   - {
       id: rest,
       weight: 3,
       result: A quiet hour at the shrine eases your legs,
-      set: { fatigue: -1 },
+      effects: { party.stats.fatigue: -1 },
     }
 ---
 # An oracle: its input `odds` comes from the bindings' context (FORD: odds even), or is
@@ -173,7 +180,7 @@ variants:
           range: 1-5,
           result: 'The flood sweeps you downstream — {{result}}',
           table: ford-mishap,
-          set: { fatigue: 1 },
+          effects: { party.stats.fatigue: 1 },
         }
       - { id: fine, range: 6-20, result: Somehow you make it across }
 ---
@@ -185,9 +192,13 @@ description: |-
 
   **Shows:** `set` on supplies (`food`, `fodder`) and on `fatigue`
 entries:
-  - { id: food, result: a pack of food is lost, set: { resources: { food: -1 } } }
-  - { id: tired, result: you drag yourselves out exhausted, set: { fatigue: 1 } }
-  - { id: fodder, result: the fodder is soaked and spoiled, set: { resources: { fodder: -1 } } }
+  - { id: food, result: a pack of food is lost, effects: { party.resources.food: -1 } }
+  - { id: tired, result: you drag yourselves out exhausted, effects: { party.stats.fatigue: 1 } }
+  - {
+      id: fodder,
+      result: the fodder is soaked and spoiled,
+      effects: { party.resources.fodder: -1 },
+    }
 ---
 # Hunger, when camping with no food left (the check reads party.resources.food). The
 # party's morale decides what follows: conditions on party values, a cascade into another
@@ -214,19 +225,19 @@ entries:
     maxOccurrences: 2
     result: 'In the night, {{result}}'
     table: desertion
-    set: { stats: { morale: -1, hirelings: -1 } }
+    effects: { party.stats.morale: -1, party.stats.hirelings: -1 }
   # The last time the hirelings leave, the next hungry night grumbles instead (`next`).
   - {
       id: grumble,
       range: -20-4,
       result: 'Empty bellies, short tempers',
-      set: { stats: { morale: -1 }, fatigue: 1 },
+      effects: { party.stats.morale: -1, party.stats.fatigue: 1 },
     }
   - {
       id: endure,
       range: 5-20,
       result: 'You tighten your belts and sing to forget',
-      set: { fatigue: 1 },
+      effects: { party.stats.fatigue: 1 },
     }
 ---
 # Who leaves: a hireling's name (a generator's table) and what they take.

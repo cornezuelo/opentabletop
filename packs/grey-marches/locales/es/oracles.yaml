@@ -57,7 +57,7 @@ inn:
     - Entradas para cuando no hay viaje: `party: { exists: false }`
     - `maxOccurrences`: un mercenario se une dos veces como mucho
     - Cascadas a tablas y generadores
-    - Cambios en el grupo: comida, moral, fatiga y una característica que nadie declaró (`hirelings`)
+    - **Efectos** en el grupo: comida, moral, fatiga y mercenarios
   inputs:
     spend:
       label: Gastas
