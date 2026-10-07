@@ -110,12 +110,17 @@
     flex: 1;
   }
 
+  /*
+   * Scrolling areas keep room on the right: overlay scrollbars (Firefox on Linux) are
+   * drawn over the content, so they fall on the margin instead of the text.
+   */
   nav {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 10px;
+    padding: 10px 18px 10px 10px;
     overflow: auto;
+    scrollbar-gutter: stable;
     background: var(--panel);
     border-right: 1px solid var(--panel-border);
   }
@@ -150,8 +155,9 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    padding: 18px 28px;
+    padding: 18px 44px 18px 28px;
     overflow: auto;
+    scrollbar-gutter: stable;
   }
 
   /*
