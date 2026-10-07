@@ -31,8 +31,9 @@
   })
 </script>
 
+<!-- Like the other apps: the panel on the left, the map, then the tools on the right. -->
 <div class="layout" class:hidden={editor.panelHidden}>
-  <Toolbar />
+  {#if !editor.panelHidden}<SidePanel />{/if}
   <main>
     {#if ready}
       <MapCanvas />
@@ -43,10 +44,10 @@
       aria-label={editor.panelHidden ? t('panel.show') : t('panel.hide')}
       use:tooltip={editor.panelHidden ? t('panel.show') : t('panel.hide')}
       onclick={() => (editor.panelHidden = !editor.panelHidden)}
-      ><span aria-hidden="true">{editor.panelHidden ? '‹' : '›'}</span></button
+      ><span aria-hidden="true">{editor.panelHidden ? '›' : '‹'}</span></button
     >
   </main>
-  {#if !editor.panelHidden}<SidePanel />{/if}
+  <Toolbar />
 </div>
 <Toasts />
 <Dialogs />
@@ -54,18 +55,18 @@
 <style>
   .layout {
     display: grid;
-    grid-template-columns: auto 1fr 300px;
+    grid-template-columns: 300px 1fr auto;
     height: 100%;
   }
 
   .layout.hidden {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr auto;
   }
 
   .fold {
     position: absolute;
     top: 50%;
-    right: 0;
+    left: 0;
     z-index: 2;
     width: 18px;
     height: 48px;
@@ -74,8 +75,8 @@
     color: var(--text-muted);
     background: var(--panel);
     border: 1px solid var(--panel-border);
-    border-right: none;
-    border-radius: 6px 0 0 6px;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
     transform: translateY(-50%);
     cursor: pointer;
   }
@@ -87,37 +88,44 @@
   /* Narrow windows: the panel becomes a sheet under the map. */
   @media (max-width: 760px) {
     .layout {
-      grid-template-columns: auto 1fr;
+      grid-template-columns: 1fr auto;
       grid-template-rows: minmax(0, 1fr) auto;
     }
 
+    .layout main {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
     .layout :global(> aside.panel) {
-      grid-column: 2;
+      grid-column: 1;
+      grid-row: 2;
       max-height: 45vh;
       border-top: 1px solid var(--panel-border);
-      border-left: none;
+      border-right: none;
     }
 
     .layout :global(> nav),
     .layout :global(> .toolbar) {
+      grid-column: 2;
       grid-row: 1 / span 2;
     }
 
     .fold {
       top: auto;
-      right: 50%;
+      left: 50%;
       bottom: 0;
       width: 48px;
       height: 18px;
       border: 1px solid var(--panel-border);
       border-bottom: none;
       border-radius: 6px 6px 0 0;
-      transform: translateX(50%);
+      transform: translateX(-50%);
     }
 
     .fold span {
       display: inline-block;
-      transform: rotate(90deg);
+      transform: rotate(-90deg);
     }
   }
 

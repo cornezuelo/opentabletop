@@ -4,17 +4,19 @@ Un pack es una carpeta de ficheros YAML (o JSON). Cada fichero tiene una o varia
 
 Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un pack no puede añadir tipos propios (uno que las aplicaciones no conocen se guarda, pero nadie lo lee). Lo que el pack elige libremente es el contenido: sus tablas, su calendario, su clima, sus modos de tirada, sus reglas de viaje y sus características, con los nombres y las reglas de su juego.
 
-| Tipo           | Qué es                                                                | Quién lo lee                              | Cuántos por pack |
-| -------------- | --------------------------------------------------------------------- | ----------------------------------------- | ---------------- |
-| `table`        | Una lista de resultados que se eligen por dados o por peso            | El Oracle, los viajes, el descubrimiento  | Los que quieras  |
-| `oracle`       | Una tabla cuyas respuestas dependen de una pregunta (una entrada)     | El Oracle, los viajes                     | Los que quieras  |
-| `generator`    | Varias tiradas unidas en un texto                                     | El Oracle, los viajes                     | Los que quieras  |
-| `deck`         | Cartas que se roban sin devolverlas                                   | El Oracle                                 | Los que quieras  |
-| `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total        | El Oracle (cada tirada)                   | Uno              |
-| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones… | Jugar del Hexmapper, la aplicación Travel | Uno              |
-| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características | Jugar del Hexmapper, la aplicación Travel | Uno              |
-| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper  | Uno              |
-| `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación           | Los viajes (un binding con `weather:`)    | Los que quieras  |
+| Tipo           | Qué es                                                                | Quién lo lee                                                                        | Cuántos por pack |
+| -------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------- |
+| `table`        | Una lista de resultados que se eligen por dados o por peso            | El Oracle; los viajes y el descubrimiento, si un binding la nombra                  | Los que quieras  |
+| `oracle`       | Una tabla cuyas respuestas dependen de una pregunta (una entrada)     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
+| `generator`    | Varias tiradas unidas en un texto                                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
+| `deck`         | Cartas que se roban sin devolverlas                                   | El Oracle; los viajes y el descubrimiento, si un binding lo nombra (roba una carta) | Los que quieras  |
+| `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total        | El Oracle (cada tirada)                                                             | Uno              |
+| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones… | Jugar del Hexmapper, la aplicación Travel                                           | Uno              |
+| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características | Jugar del Hexmapper, la aplicación Travel                                           | Uno              |
+| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno              |
+| `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
+
+**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
 
 Las traducciones de nombres y textos van en ficheros `locales/<idioma>/` con el mismo nombre ([Traducciones](../oracle/05-translations.md)); los textos que no están en una tabla (meses del calendario, nombres de los modos de tirada, comprobaciones…) también pueden escribirse en varios idiomas a la vez: `name: { en: Thaw, es: Deshielo }`.
 

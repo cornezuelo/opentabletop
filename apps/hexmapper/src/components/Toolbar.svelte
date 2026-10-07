@@ -128,7 +128,7 @@
     gap: 4px;
     padding: 8px;
     background: var(--panel);
-    border-right: 1px solid var(--panel-border);
+    border-left: 1px solid var(--panel-border);
   }
 
   .spacer {

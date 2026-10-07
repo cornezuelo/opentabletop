@@ -4,17 +4,19 @@ A pack is a folder of YAML (or JSON) files. Each file holds one or more **defini
 
 The kinds are a **fixed set**: each one is read by an engine that knows it, and a pack can't add kinds of its own (one the apps don't know is kept but nothing reads it). What a pack chooses freely is the content: its own tables, calendar, weather, roll modes, travel rules and stats, with the names and rules of its game.
 
-| Kind           | What it is                                                        | Read by                            | How many per pack |
-| -------------- | ----------------------------------------------------------------- | ---------------------------------- | ----------------- |
-| `table`        | A list of results picked by dice or weight                        | The Oracle, trips, discovery       | Any               |
-| `oracle`       | A table whose answers depend on a question (an input)             | The Oracle, trips                  | Any               |
-| `generator`    | Several rolls joined in one text                                  | The Oracle, trips                  | Any               |
-| `deck`         | Cards drawn without putting them back                             | The Oracle                         | Any               |
-| `roll-modes`   | Ways of rolling a table several times and keeping one total       | The Oracle (every roll)            | One               |
-| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks     | Hexmapper Play, the Travel app     | One               |
-| `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app     | One               |
-| `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel | One               |
-| `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)  | Any               |
+| Kind           | What it is                                                        | Read by                                                                    | How many per pack |
+| -------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------- |
+| `table`        | A list of results picked by dice or weight                        | The Oracle; trips and discovery, when a binding names it                   | Any               |
+| `oracle`       | A table whose answers depend on a question (an input)             | The Oracle; trips and discovery, when a binding names it                   | Any               |
+| `generator`    | Several rolls joined in one text                                  | The Oracle; trips and discovery, when a binding names it                   | Any               |
+| `deck`         | Cards drawn without putting them back                             | The Oracle; trips and discovery, when a binding names it (it draws a card) | Any               |
+| `roll-modes`   | Ways of rolling a table several times and keeping one total       | The Oracle (every roll)                                                    | One               |
+| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks     | Hexmapper Play, the Travel app                                             | One               |
+| `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app                                             | One               |
+| `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel                                         | One               |
+| `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)                                          | Any               |
+
+**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar: a system has one way of doing each), any number of the rest. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
 Translations of names and texts go in `locales/<language>/` files with the same name ([Translations](../oracle/05-translations.md)); texts that aren't in a table (calendar months, roll mode names, checks…) can instead be written in several languages at once: `name: { en: Thaw, es: Deshielo }`.
 

@@ -231,8 +231,10 @@
   .panel {
     padding: 12px 16px;
     overflow-y: auto;
+    /* The scrollbar in the theme's colours (it sits next to the map now). */
+    scrollbar-color: var(--panel-border) var(--panel);
     background: var(--panel);
-    border-left: 1px solid var(--panel-border);
+    border-right: 1px solid var(--panel-border);
   }
 
   header {
