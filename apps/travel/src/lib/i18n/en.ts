@@ -109,7 +109,7 @@ export const en = {
     event: 'Check',
     name: 'Name',
     nameHelp:
-      'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). This box edits it in the current language: the pack's own, or its translation file when the interface is in another one.',
+      'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). This box edits it in the current language: the pack’s own, or its translation file when the interface is in another one.',
     description: 'Description (tooltip)',
     at: 'When',
     atOptions: { 'day-start': 'At dawn', 'hex-enter': 'Entering a hex', camp: 'In camp' },
