@@ -59,7 +59,7 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id (p. ej. A caballo, Raciones). Se escribe en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
     consumes: 'Gasta al día',
     consumesHelp:
-      'Provisiones que gasta esta forma de viajar cada día además de lo que gastan todos (Provisiones → Al día). P. ej. los caballos de las Marcas Grises: fodder: 1, así que a caballo se gastan 1 de comida y 1 de forraje al día y a pie solo la comida. Vacío: nada más.',
+      'Provisiones que gasta esta forma de viajar cada día además de lo que gastan todos (Provisiones → Al día), p. ej. fodder: 1 para los caballos. Vacío: nada más.',
     consumesNone: 'nada más',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
@@ -85,7 +85,7 @@ export const es: Messages<typeof en> = {
     resourcesHelp: 'Lo que lleva el grupo y cuánto gasta cada día (marche o no).',
     perDay: 'Al día',
     perDayHelp:
-      'Lo gastan todos cada día, sea cual sea la forma de viajar (cada forma puede añadir lo suyo: Formas de viajar → Gasta al día). El forraje está a 0 en las Marcas Grises porque solo lo comen los caballos. Quedarse corto de cualquier provisión sube la fatiga 1 ese día.',
+      'Lo gastan todos cada día, sea cual sea la forma de viajar (cada forma puede añadir lo suyo: Formas de viajar → Gasta al día). 0 para una provisión que solo gastan algunas formas de viajar, como el forraje de los caballos. Quedarse corto de cualquier provisión sube la fatiga 1 ese día.',
     weather: 'Clima',
     weatherHelp:
       'Cómo frena el clima al grupo. Las tablas lo fijan con set: { weather: … } (normalmente al alba).',
@@ -173,11 +173,11 @@ export const es: Messages<typeof en> = {
     numberHelp:
       'Los hexes en orden: el grupo empieza en el 1 y va hacia el último. Los hexes ya recorridos no se pueden cambiar; añade más al final para seguir.',
     terrainHelp:
-      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno: p. ej. en las Marcas Grises solo se encuentra comida buscando en bosques, campos, brezales y marismas.',
+      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno (terrain: forest en una condición).',
     tagsHelp:
-      'Palabras que marcan el hex, separadas por comas, para las comprobaciones y tablas que las buscan. En las Marcas Grises: landmark detiene el viaje hasta que pulses Continuar, toll cobra comida en el puente de Keld al llegar por el camino, ford tira el cruce del vado, shrine tira En el santuario (baja la fatiga), haunted trae luces de noche. Las sugerencias son las etiquetas que usan los packs cargados.',
+      'Palabras que marcan el hex, separadas por comas, para las comprobaciones y tablas que las buscan (tags: landmark en una condición). Las sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
     edgesHelp:
-      'Si un camino, sendero o río une este hex con el siguiente. Los caminos y senderos hacen más rápido el tramo (según el sistema), y en ellos se saltan algunas comprobaciones: en las Marcas Grises y Kal-Arath no se tira para perderse en un camino o río, y en las Marcas Grises llegar por el camino no trae encuentros.',
+      'Si un camino, sendero o río une este hex con el siguiente. Lo que eso hace depende del sistema: los caminos suelen ser más rápidos, y un sistema puede saltarse algunas comprobaciones en ellos (edges: road en una condición).',
     addHex: 'Añadir un hex',
     remove: 'Quitar',
     destinationHint: 'Añade hexes al camino para ponerte en marcha.',

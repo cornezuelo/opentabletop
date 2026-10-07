@@ -28,7 +28,7 @@ Besides tables, oracles, generators and decks, a pack can hold definitions for *
 
 **Why two.** The rules belong to the Travel Engine and the tables to the Oracle, and engines don't know each other: the bindings are the bridge. That's also why each is optional on its own: rules without bindings make a system whose checks all wait for you (**Continue**); the generic rules have no checks at all.
 
-**Why in one file.** Only for convenience: they are written and changed together. A YAML file can hold several definitions separated by a line with `---`, so Kal-Arath keeps both in `rules.yaml` and the Grey Marches in `travel.yaml`:
+**Why in one file.** Only for convenience: they are written and changed together. A YAML file can hold several definitions separated by a line with `---`, so the Grey Marches keep both in `travel.yaml`:
 
 ```yaml
 kind: travel-rules

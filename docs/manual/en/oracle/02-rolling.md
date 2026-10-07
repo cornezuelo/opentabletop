@@ -14,9 +14,9 @@ In the Hexmapper these values come from the map and the trip; see [The Oracle in
 
 ## Roll modes (advantage and others)
 
-Some tables can be rolled in more than one way: a **roll mode** rolls the whole roll several times and keeps one total. Which modes exist, what they're called and what they do is up to each system: Core and Kal-Arath have **Advantage** (twice, keep the higher) and **Disadvantage** (twice, keep the lower); the Grey Marches add **Carefully** (three times, keep the middle one) for the ford. A table that offers modes shows a choice next to **Roll**; its **i** says what each one does. The result card shows the totals that weren't kept.
+Some tables can be rolled in more than one way: a **roll mode** rolls the whole roll several times and keeps one total. Which modes exist, what they're called and what they do is up to each system: Core has **Advantage** (twice, keep the higher) and **Disadvantage** (twice, keep the lower); the Grey Marches add **Carefully** (three times, keep the middle one) for the ford. A table that offers modes shows a choice next to **Roll**; its **i** says what each one does. The result card shows the totals that weren't kept.
 
-Some tables also use a mode **by themselves** when a condition holds, whether you roll them by hand or a trip does. In the Grey Marches, _Do we get lost?_ rolls with advantage under clear skies and with disadvantage the day after getting lost; with both, they cancel out and it's a normal roll. Kal-Arath's Explorer works the same way. How to declare modes and use them: [Kinds of definition](../technical/07-kinds.md#roll-modes).
+Some tables also use a mode **by themselves** when a condition holds, whether you roll them by hand or a trip does. In the Grey Marches, _Do we get lost?_ rolls with advantage under clear skies and with disadvantage the day after getting lost; with both, they cancel out and it's a normal roll. How to declare modes and use them: [Kinds of definition](../technical/07-kinds.md#roll-modes).
 
 ## Decks and once-only entries
 

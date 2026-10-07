@@ -94,7 +94,7 @@ Una tabla u oráculo los usa con:
 - `modes: [advantage, disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).
 - `modeWhen: { advantage: { explorer: { gte: 1 } } }`: se usa solo cuando se cumple la condición, también en un viaje. Un modo puede estar en `modeWhen` sin estar en `modes`.
 
-Cuando se aplican varios (uno elegido a mano más otros solos), los que se anulan entre sí se caen y se usa el primero de los demás (el elegido a mano, luego el orden de `modeWhen`). Los modos se referencian como las tablas: primero los del propio pack, luego los de sus dependencias (las Marcas Grises usan el `advantage` de Core), o por su id completo (`core/advantage`). Core declara ventaja y desventaja; las Marcas Grises añaden _Con cuidado_ (tres tiradas, la del medio); Kal-Arath tiene su propia pareja. El antiguo `advantage: true` ya no hace nada y avisa.
+Cuando se aplican varios (uno elegido a mano más otros solos), los que se anulan entre sí se caen y se usa el primero de los demás (el elegido a mano, luego el orden de `modeWhen`). Los modos se referencian como las tablas: primero los del propio pack, luego los de sus dependencias (las Marcas Grises usan el `advantage` de Core), o por su id completo (`core/advantage`). Core declara ventaja y desventaja y las Marcas Grises añaden _Con cuidado_ (tres tiradas, la del medio). El antiguo `advantage: true` ya no hace nada y avisa.
 
 **Qué ven las tablas:** nada: los modos no son valores; una tabla los usa con `modes` y `modeWhen`.
 

@@ -48,7 +48,7 @@ const silverbullet: NoteProvider = {
 const obsidian: NoteProvider = {
   id: 'obsidian',
   name: 'Obsidian',
-  settings: [{ key: 'vault', placeholder: 'Kal-Arath', default: '' }],
+  settings: [{ key: 'vault', placeholder: 'My campaign', default: '' }],
   url(path, settings) {
     const vault = (settings.vault ?? '').trim()
     const file = cleanPath(path)

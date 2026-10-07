@@ -95,7 +95,7 @@ A table or oracle uses them with:
 - `modes: [advantage, disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
 - `modeWhen: { advantage: { explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.
 
-When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage; the Grey Marches add _Carefully_ (three rolls, the middle one); Kal-Arath has its own pair. The old `advantage: true` does nothing now and warns.
+When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage and the Grey Marches add _Carefully_ (three rolls, the middle one). The old `advantage: true` does nothing now and warns.
 
 **What tables see:** nothing: modes aren't values; a table uses them through `modes` and `modeWhen`.
 

@@ -56,7 +56,7 @@ export const en = {
       'What players read in the trip panel and the journal instead of the id (e.g. On horseback, Rations). Written in the current language: the pack’s own, or its translation file when the interface is in another one.',
     consumes: 'Uses per day',
     consumesHelp:
-      'Supplies this way of travelling uses each day on top of what everyone uses (Supplies → Per day). E.g. the Grey Marches’ horses: fodder: 1, so riding uses 1 food and 1 fodder a day while walking uses only the food. Empty: nothing extra.',
+      'Supplies this way of travelling uses each day on top of what everyone uses (Supplies → Per day), e.g. fodder: 1 for horses. Empty: nothing extra.',
     consumesNone: 'nothing extra',
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
@@ -83,7 +83,7 @@ export const en = {
       'What the party carries and how much is used each day (whether you march or not).',
     perDay: 'Per day',
     perDayHelp:
-      'Used every day by everyone, whatever the way of travelling (a way of travelling can add its own: Ways of travelling → Uses per day). Fodder is 0 in the Grey Marches because only horses eat it. Running short of any supply raises fatigue by 1 that day.',
+      'Used every day by everyone, whatever the way of travelling (a way of travelling can add its own: Ways of travelling → Uses per day). 0 for a supply only some ways of travelling use, like fodder for horses. Running short of any supply raises fatigue by 1 that day.',
     weather: 'Weather',
     weatherHelp:
       'How weather slows the party. Tables set it with set: { weather: … } (usually rolled at dawn).',
@@ -170,11 +170,11 @@ export const en = {
     numberHelp:
       'The hexes in order: the party starts at 1 and heads for the last one. Hexes already passed can’t be changed; add more at the end to keep going.',
     terrainHelp:
-      'How fast the hex is crossed (the system’s speed for that terrain, and whether it can be crossed at all) and what tables see as terrain: e.g. in the Grey Marches you only find food foraging in woods, fields, heath and marsh.',
+      'How fast the hex is crossed (the system’s speed for that terrain, and whether it can be crossed at all) and what tables see as terrain (terrain: forest in a condition).',
     tagsHelp:
-      'Words that mark the hex, separated by commas, for the checks and tables that look for them. In the Grey Marches: landmark stops the trip until you press Continue, toll charges food at Keld Bridge when arriving by road, ford rolls the crossing, shrine rolls At the shrine (eases fatigue), haunted brings lights at night. The suggestions are the tags the loaded packs use.',
+      'Words that mark the hex, separated by commas, for the checks and tables that look for them (tags: landmark in a condition). The suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
     edgesHelp:
-      'Whether a road, trail or river joins this hex to the next one. Roads and trails make the stretch faster (as the system says), and some checks are skipped on them: in the Grey Marches and Kal-Arath you don’t roll to get lost on a road or river, and in the Grey Marches arriving by road brings no encounter.',
+      'Whether a road, trail or river joins this hex to the next one. What that does depends on the system: roads are often faster, and a system may skip some checks on them (edges: road in a condition).',
     addHex: 'Add a hex',
     remove: 'Remove',
     destinationHint: 'Add hexes to the way to set off.',

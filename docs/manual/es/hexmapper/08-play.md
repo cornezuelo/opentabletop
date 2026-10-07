@@ -10,11 +10,11 @@ Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y 
 
 El Travel Engine lleva el viaje y Oracle tira las comprobaciones. La [aplicación Travel](../travel/01-getting-started.md) juega los mismos sistemas sin mapa y los edita.
 
-1. Elige las **reglas**: Genéricas, o un sistema cuyo pack tenga reglas de viaje (p. ej. Kal-Arath), y la estación en la que **empezar**. **Nuevo viaje** reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.
+1. Elige las **reglas**: Genéricas, o un sistema cuyo pack tenga reglas de viaje (p. ej. las Marcas Grises), y la estación en la que **empezar**. **Nuevo viaje** reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.
 2. Haz clic en un hex para colocar al grupo y después en el **destino**: se dibuja la ruta.
 3. **Viajar** sigue hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación. **1 hex** avanza un hex. **Acampar** termina el día; **Descansar** es una pausa corta (cada sistema declara qué acciones tiene).
 
-El panel muestra el día, la hora y la estación, dónde está el grupo, el clima, las horas de marcha gastadas, el modo de viaje (a pie, a caballo…), las provisiones, la fatiga y las estadísticas del grupo que declara el sistema (p. ej. la Presencia de Kal-Arath).
+El panel muestra el día, la hora y la estación, dónde está el grupo, el clima, las horas de marcha gastadas, el modo de viaje (a pie, a caballo…), las provisiones, la fatiga y las estadísticas del grupo que declara el sistema (p. ej. la Supervivencia de las Marcas Grises).
 
 ## Comprobaciones y diario
 

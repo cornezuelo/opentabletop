@@ -458,7 +458,7 @@ export const es: Messages = {
     fieldValue: 'Valor',
     addField: 'Añadir campo',
     note: 'Nota enlazada',
-    notePlaceholder: 'p. ej. Kal-Arath/Hexes/{coord}',
+    notePlaceholder: 'p. ej. Mi campaña/Hexes/{coord}',
     openNote: 'Abrir en {provider}',
     noteNotConfigured: 'Configura {provider} en Preferencias',
     remove: 'Quitar',

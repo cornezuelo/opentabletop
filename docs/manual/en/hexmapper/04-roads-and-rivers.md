@@ -16,8 +16,8 @@ The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from hex to hex.
 
 The map only says where each line goes. What it means for a trip is decided by the **travel rules of the system** you play with (Play → Rules), in its pack:
 
-- **Speed**: each kind of line can have a speed multiplier. With the **Generic** rules a road is ×1.5 and a trail ×1.2, and a river changes nothing. With **Kal-Arath**, roads and rivers don't make you faster.
-- **Checks**: a system can skip a check while you follow a line. In **Kal-Arath** you don't roll to get lost when following a road or a river; the Generic rules have no getting-lost roll at all.
+- **Speed**: each kind of line can have a speed multiplier. With the **Generic** rules a road is ×1.5 and a trail ×1.2, and a river changes nothing. With the **Grey Marches**, a road is ×1.5 and a trail ×1.2; another system may make them no faster at all.
+- **Checks**: a system can skip a check while you follow a line. In the **Grey Marches** you don't roll to get lost when following a road or a river, nor meet encounters arriving by road; the Generic rules have no getting-lost roll at all.
 
 Following a line means the route goes from hex to hex along it. To see or change what a system does, open its pack in the Oracle app (`edges` and `checks` in its travel rules); [Connecting tables to maps and trips](../oracle/07-connecting.md) explains them.
 

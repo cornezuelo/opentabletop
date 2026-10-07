@@ -16,8 +16,8 @@ La herramienta **Caminos y ríos** (<kbd>R</kbd>) dibuja líneas de hex a hex.
 
 El mapa solo dice por dónde va cada línea. Lo que significa para un viaje lo deciden las **reglas de viaje del sistema** con el que juegas (Jugar → Reglas), en su pack:
 
-- **Velocidad**: cada tipo de línea puede tener un multiplicador de velocidad. Con las reglas **Genéricas** un camino es ×1,5 y un sendero ×1,2, y un río no cambia nada. Con **Kal-Arath**, los caminos y ríos no te hacen ir más rápido.
-- **Comprobaciones**: un sistema puede saltarse una comprobación mientras sigues una línea. En **Kal-Arath** no se tira para perderse al seguir un camino o un río; las reglas Genéricas no tienen tirada de perderse.
+- **Velocidad**: cada tipo de línea puede tener un multiplicador de velocidad. Con las reglas **Genéricas** un camino es ×1,5 y un sendero ×1,2, y un río no cambia nada. Con las **Marcas Grises**, un camino es ×1,5 y un sendero ×1,2; otro sistema puede hacer que no aceleren nada.
+- **Comprobaciones**: un sistema puede saltarse una comprobación mientras sigues una línea. En las **Marcas Grises** no se tira para perderse al seguir un camino o un río, ni hay encuentros al llegar por el camino; las reglas Genéricas no tienen tirada de perderse.
 
 Seguir una línea significa que la ruta va de hex en hex a lo largo de ella. Para ver o cambiar lo que hace un sistema, abre su pack en la aplicación Oracle (`edges` y `checks` en sus reglas de viaje); [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) lo explica.
 
