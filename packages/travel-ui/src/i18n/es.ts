@@ -1,3 +1,4 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
 import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
@@ -15,14 +16,14 @@ export const es: Messages<typeof en> = {
   dayUnit: 'día',
   journalDay: 'Día {day}',
   dateLine: '{weekday}, {day} de {month}, año {year}',
-  moonPhases: { new: 'nueva', waxing: 'creciente', full: 'llena', waning: 'menguante' },
+  moonPhases: vocabulary.es.moonPhases,
   dayLine: 'Día {day} · {clock} · {season}',
   at: 'En {hex}',
   weather: 'Clima: {weather}',
   destination: 'Rumbo a {hex}',
   arrived: 'Habéis llegado.',
   travelMode: 'Viaje',
-  fatigue: 'Fatiga',
+  fatigue: vocabulary.es.terms.fatigue,
   // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'A pie', horse: 'A caballo', boat: 'En barca', cart: 'En carro' },
   resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
@@ -34,7 +35,7 @@ export const es: Messages<typeof en> = {
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
   emptyJournal: 'Aún no ha pasado nada.',
-  seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
+  seasons: vocabulary.es.seasons,
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
     actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
@@ -60,7 +61,7 @@ export const es: Messages<typeof en> = {
   },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Lugar señalado',
-    WEATHER_CHECK_REQUIRED: 'Clima',
+    WEATHER_CHECK_REQUIRED: vocabulary.es.terms.weather,
     NAVIGATION_CHECK_REQUIRED: 'Navegación',
     POI_CHECK_REQUIRED: 'Punto de interés',
     ENCOUNTER_CHECK_REQUIRED: 'Encuentro',

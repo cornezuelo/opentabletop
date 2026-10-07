@@ -1,3 +1,4 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   system: 'Rules',
   genericSystem: 'Generic',
@@ -11,14 +12,14 @@ export const en = {
   dayUnit: 'day',
   journalDay: 'Day {day}',
   dateLine: '{weekday}, {day} {month}, year {year}',
-  moonPhases: { new: 'new', waxing: 'waxing', full: 'full', waning: 'waning' },
+  moonPhases: vocabulary.en.moonPhases,
   dayLine: 'Day {day} · {clock} · {season}',
   at: 'At {hex}',
   weather: 'Weather: {weather}',
   destination: 'Heading to {hex}',
   arrived: 'Arrived.',
   travelMode: 'Travel',
-  fatigue: 'Fatigue',
+  fatigue: vocabulary.en.terms.fatigue,
   // Names for the Generic rules' ways of travelling and supplies: systems name their own.
   modes: { foot: 'On foot', horse: 'On horseback', boat: 'By boat', cart: 'By cart' },
   resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
@@ -30,7 +31,7 @@ export const en = {
   journalTitle: 'Journal',
   exportJournal: 'Export',
   emptyJournal: 'Nothing has happened yet.',
-  seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
+  seasons: vocabulary.en.seasons,
   tips: {
     actionTime: 'Takes {minutes} minutes.',
     actionSpeed: 'The rest of today’s march goes at ×{speed}.',
@@ -56,7 +57,7 @@ export const en = {
   },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Landmark',
-    WEATHER_CHECK_REQUIRED: 'Weather',
+    WEATHER_CHECK_REQUIRED: vocabulary.en.terms.weather,
     NAVIGATION_CHECK_REQUIRED: 'Navigation',
     POI_CHECK_REQUIRED: 'Point of interest',
     ENCOUNTER_CHECK_REQUIRED: 'Encounter',

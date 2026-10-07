@@ -1,3 +1,4 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
 import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
@@ -27,18 +28,18 @@ export const es: Messages<typeof en> = {
   },
   values: {
     hex: 'Hex',
-    terrain: 'Terreno',
+    terrain: vocabulary.es.terms.terrain,
     water: 'Agua',
-    tags: 'Etiquetas',
-    region: 'Región',
+    tags: vocabulary.es.terms.tags,
+    region: vocabulary.es.terms.region,
     name: 'Nombre del lugar',
     icon: 'Valor del icono',
     icon_id: 'Icono',
     token: 'Valor del token',
     token_name: 'Nombre del token',
     token_kind: 'Tipo de token',
-    season: 'Estación',
-    weather: 'Clima',
+    season: vocabulary.es.terms.season,
+    weather: vocabulary.es.terms.weather,
     mode: 'Forma de viajar',
     day: 'Día',
     month: 'Mes',
@@ -47,10 +48,10 @@ export const es: Messages<typeof en> = {
     holidays: 'Fiestas',
     edges: 'Caminos y ríos',
     moons: 'Luna',
-    party_fatigue: 'Fatiga',
+    party_fatigue: vocabulary.es.terms.fatigue,
     party_mode: 'Forma de viajar',
     party_stats: 'Grupo',
-    party_resources: 'Provisiones',
+    party_resources: vocabulary.es.terms.supplies,
     yesterday: 'Ayer',
     yesterday_lost: 'Perdidos ayer',
     from: 'Visto desde',
