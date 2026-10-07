@@ -23,7 +23,7 @@
   import type { RegionStyle } from '../lib/model/types'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppBrand, AppSwitcher, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
@@ -199,10 +199,6 @@
     </header>
     <div class="export"><ExportPanel /></div>
   {:else}
-    <header>
-      <AppBrand app="hexmapper" name={editor.meta.name || t('app.title')} />
-      <AppSwitcher current="hexmapper" locale={getLocale()} />
-    </header>
     {@render toolView()}
   {/if}
 </aside>
@@ -231,10 +227,10 @@
   .panel {
     padding: 12px 16px;
     overflow-y: auto;
-    /* The scrollbar in the theme's colours (it sits next to the map now). */
+    /* The scrollbar in the theme's colours. */
     scrollbar-color: var(--panel-border) var(--panel);
     background: var(--panel);
-    border-right: 1px solid var(--panel-border);
+    border-left: 1px solid var(--panel-border);
   }
 
   header {

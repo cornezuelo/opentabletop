@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { appIconUrl, tooltip } from '@open-tabletop/ui-kit'
+  import { AppSwitcher, appIconUrl, tooltip } from '@open-tabletop/ui-kit'
   import LineIcon from './LineIcon.svelte'
-  import { t, type MessageKey } from '../lib/i18n/index.svelte'
+  import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import { newMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
@@ -48,6 +48,15 @@
 </script>
 
 <nav class="toolbar" aria-label={t('tools.label')}>
+  <!-- The app, top left like in every app: its icon (the open map's name) and the app switcher. -->
+  <img
+    class="brand"
+    src={appIconUrl('hexmapper')}
+    alt={t('app.title')}
+    use:tooltip={editor.meta.name ? `${t('app.title')} · ${editor.meta.name}` : t('app.title')}
+  />
+  <AppSwitcher current="hexmapper" locale={getLocale()} compact />
+  <hr />
   {#each tools as tool (tool.id)}
     <button
       class:active={editor.tool === tool.id}
@@ -127,15 +136,33 @@
     flex-direction: column;
     gap: 4px;
     padding: 8px;
+    /* Short windows: the buttons scroll instead of being cut off. */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--panel-border) var(--panel);
     background: var(--panel);
-    border-left: 1px solid var(--panel-border);
+    border-right: 1px solid var(--panel-border);
   }
 
   .spacer {
     flex: 1;
   }
 
+  .brand {
+    width: 24px;
+    height: 24px;
+    margin: 6px auto 2px;
+  }
+
+  hr {
+    width: 100%;
+    margin: 2px 0;
+    border: none;
+    border-top: 1px solid var(--panel-border);
+  }
+
   button {
+    flex: none;
     width: 40px;
     height: 40px;
     font-size: 18px;
