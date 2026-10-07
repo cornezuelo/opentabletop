@@ -1174,8 +1174,9 @@ const TEXT_INPUT_TYPES = new Set(['text', 'search', 'number', 'email', 'url', 'p
  * don't count, so shortcuts like Ctrl+Z still work right after using them.
  */
 export function isTyping(e: KeyboardEvent): boolean {
-  const target = e.target as HTMLElement | null
-  if (!target) return false
+  const target = e.target
+  // Keys sent to the window or the document itself aren't typing.
+  if (!(target instanceof Element)) return false
   if (target instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(target.type)
   return !!target.closest('textarea, select, [contenteditable="true"]')
 }
