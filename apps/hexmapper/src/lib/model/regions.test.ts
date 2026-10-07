@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { RemoveRegionCommand, regionSizes } from '../commands/regions'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { mapWorld } from '../play/world'
-import { createMap } from './defaults'
+import { SetRegionStyleCommand } from '../commands/settings'
+import { createMap, DEFAULT_REGION_STYLE } from './defaults'
+import { migrate } from './migrations'
+import { deserializeMap, serializeMap } from './serialize'
 
 function mapWithRegion() {
   const map = createMap()
@@ -20,6 +23,31 @@ describe('regions', () => {
     const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
     expect(back.regions).toEqual(map.regions)
     expect(regionSizes(back).get('marches0001')).toBe(2)
+  })
+
+  it('have a map-wide style and their own, saved, clamped and undoable', () => {
+    const map = mapWithRegion()
+    expect(map.regionStyle).toEqual(DEFAULT_REGION_STYLE)
+    map.regions[0].style = { fill: 0, dashed: true }
+    const command = new SetRegionStyleCommand(map.regionStyle, { ...map.regionStyle, border: 0.2 })
+    command.apply(map)
+    expect(map.regionStyle.border).toBe(0.2)
+    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(map))))
+    expect(back.regionStyle.border).toBe(0.2)
+    expect(back.regions[0].style).toEqual({ fill: 0, dashed: true })
+    command.revert(map)
+    expect(map.regionStyle).toEqual(DEFAULT_REGION_STYLE)
+    // Broken values are clamped or dropped.
+    const raw = JSON.parse(serializeMap(map))
+    raw.regionStyle = { fill: 5, border: 'thick', dashed: 'yes' }
+    raw.regions[0].style = { borderOpacity: -1 }
+    const read = deserializeMap(JSON.stringify(raw))
+    expect(read.regionStyle).toEqual({ ...DEFAULT_REGION_STYLE, fill: 0.6 })
+    expect(read.regions[0].style).toEqual({ borderOpacity: 0 })
+  })
+
+  it('old maps keep the look they had (v7 → v8)', () => {
+    expect(migrate({ version: 7 })).toEqual({ version: 8, regionStyle: DEFAULT_REGION_STYLE })
   })
 
   it('deleting one takes its hexes out of it, and undo puts them back', () => {

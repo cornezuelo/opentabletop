@@ -8,10 +8,11 @@ import type {
   HexMap,
   LabelStyle,
   PrintSettings,
+  RegionStyle,
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 7
+export const CURRENT_VERSION = 8
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -173,6 +174,16 @@ export function terrainGroup(terrain: TerrainType): TerrainGroup {
   return GROUP_OF[terrain.id] ?? (terrain.water ? 'water' : 'other')
 }
 
+/** The look regions had before styles: a light tint and an inner border. */
+export const DEFAULT_REGION_STYLE: RegionStyle = {
+  fill: 0.14,
+  border: 0.09,
+  dashed: false,
+  borderOpacity: 0.85,
+}
+export const REGION_FILL_RANGE = [0, 0.6] as const
+export const REGION_BORDER_RANGE = [0, 0.25] as const
+
 export const DEFAULT_GLYPH_OPACITY = 0.45
 
 export const DEFAULT_GRID: GridSettings = {
@@ -270,6 +281,7 @@ export function createMap(name = ''): HexMap {
     tokens: [],
     regions: [],
     captions: structuredClone(DEFAULT_CAPTIONS) as HexMap['captions'],
+    regionStyle: { ...DEFAULT_REGION_STYLE },
     layers: defaultLayers(),
   }
 }

@@ -1,10 +1,11 @@
 <script lang="ts">
   import FieldEditor from './FieldEditor.svelte'
-  import { confirmAction } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
+  import RegionStyleControls from './RegionStyleControls.svelte'
   import { RemoveRegionCommand, SetRegionsCommand, regionSizes } from '../lib/commands/regions'
   import { t } from '../lib/i18n/index.svelte'
   import { newId } from '../lib/model/id'
-  import type { MapRegion } from '../lib/model/types'
+  import type { MapRegion, RegionStyle } from '../lib/model/types'
   import { editor, MAX_BRUSH_RADIUS } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import NoteRefInput from './NoteRefInput.svelte'
@@ -47,6 +48,25 @@
     editor.map.regions = editor.map.regions.map((r) => (r.id === id ? { ...r, nameStyle } : r))
     editor.notify({ kind: 'regions' })
     if (live) return
+    const after = editor.map.regions
+    editor.map.regions = before
+    before = null
+    editor.execute(new SetRegionsCommand(after))
+  }
+
+  /** The region's own look, previewed while dragging and recorded on release. */
+  function previewStyle(patch: Partial<RegionStyle>) {
+    if (!active) return
+    const id = active.id
+    before ??= structuredClone(editor.map.regions)
+    editor.map.regions = editor.map.regions.map((r) =>
+      r.id === id ? { ...r, style: { ...editor.map.regionStyle, ...r.style, ...patch } } : r,
+    )
+    editor.notify({ kind: 'regions' })
+  }
+
+  function commitStyle() {
+    if (!before) return
     const after = editor.map.regions
     editor.map.regions = before
     before = null
@@ -116,6 +136,24 @@
       onshow={(show) => update((r) => ({ ...r, showName: show ? undefined : false }))}
       onstyle={(nameStyle, live) => restyle(nameStyle, live)}
     />
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={!!active.style}
+        onchange={(e) => {
+          const own = e.currentTarget.checked
+          update((r) => ({ ...r, style: own ? { ...editor.regionStyle } : undefined }))
+        }}
+      />
+      {t('regionStyle.own')}<InfoTip text={t('regionStyle.ownHelp')} />
+    </label>
+    {#if active.style}
+      <RegionStyleControls
+        style={{ ...editor.regionStyle, ...active.style }}
+        onpreview={previewStyle}
+        oncommit={commitStyle}
+      />
+    {/if}
     <label class="field">
       <span>{t('regions.note')}</span>
       <NoteRefInput

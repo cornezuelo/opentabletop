@@ -35,6 +35,12 @@ describe('example maps', () => {
       'The Hollow Hills',
     ])
     expect(Object.values(map.hexes).filter((h) => h.region).length).toBe(224)
+    // Region styles: the map's, and two regions with their own.
+    expect(map.regions.map((r) => r.style)).toEqual([
+      undefined,
+      { fill: 0.22 },
+      { fill: 0, dashed: true, border: 0.07 },
+    ])
     // It opens ready to play with its own system and discovery on, the party in Ashford.
     expect(map.play).toMatchObject({
       mode: 'rules',

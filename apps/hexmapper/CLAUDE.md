@@ -108,7 +108,7 @@ Done:
 - [x] **Wider palette from Hexermap (2026-10-07):** heath, savanna, dense forest, marsh, peaks, canyon, oasis, glacier, coast and deep sea, with glyphs and travel speeds (generic rules and Core); the palette is grouped (lowlands, forests, wetlands, highlands, arid, cold, water and coast, other) by a display-only table, so the map format is unchanged; Edit palette adds the defaults an older map lacks.
 - [x] **Values (2026-10-07):** key/value fields on tokens, icons, regions and POIs (map format v7), edited with the shared `FieldEditor` (keys and values used on the map suggested). Region values hold for its hexes (a hex's own win); icons as `icon.*`; the selected token as `token.*` in Oracle-panel rolls; POI values are kept but not read. OTD: characters' and POIs' `stats`, the party's token look, regions and icons in `ext.hexmapper`.
 - [ ] **Packs per map:** Settings → Map chooses the packs this map works with (default all); the Oracle panel and Play's systems list only show those.
-- [ ] **Region styles:** optional fill with its opacity (now a fixed 0.14 tint), border width and solid/dashed; map-wide in Settings, own style per region (like map texts).
+- [x] **Region styles (map format v8):** optional fill with its opacity (now a fixed 0.14 tint), border width and solid/dashed; map-wide in Settings, own style per region (like map texts).
 - [x] **POI icons:** an optional icon per POI to tell them apart in the hex panel (not drawn on the map).
 
 ### Side panel (agreed 2026-10-07)

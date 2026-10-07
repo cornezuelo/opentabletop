@@ -145,6 +145,19 @@ export interface MapRegion {
   nameStyle?: CaptionOverride
   /** External note path (same providers as hexes). */
   note?: string
+  /** Its own look; what it leaves out comes from the map's region style. */
+  style?: Partial<RegionStyle>
+}
+
+/** How regions are drawn (map-wide, and per region as an override). */
+export interface RegionStyle {
+  /** Opacity of the tint inside (0 = no fill). */
+  fill: number
+  /** Border width in hex sizes (0 = no border). */
+  border: number
+  dashed: boolean
+  /** Opacity of the border. */
+  borderOpacity: number
 }
 
 export const CAPTION_KINDS = ['hexNames', 'regionNames', 'tokenNames'] as const
@@ -313,6 +326,7 @@ export interface HexMap {
   tokens: MapToken[]
   regions: MapRegion[]
   captions: Record<CaptionKind, CaptionStyle>
+  regionStyle: RegionStyle
   layers: Record<LayerId, LayerState>
   play?: PlayState
   /** The Oracle on this map: hand rolls and trip checks share its decks and once-only entries. */

@@ -473,6 +473,21 @@ export const es: Messages = {
     poiHelp:
       'Valores de este punto de interés, guardados con él en el mapa y en su fichero. Las tablas no los leen: un hex puede tener varios puntos de interés.',
   },
+  regionStyle: {
+    title: 'Regiones',
+    help: 'Cómo se ven las regiones en el mapa. Cada región puede tener su propio estilo (su panel → Estilo propio).',
+    fill: 'Relleno',
+    fillHelp: 'Intensidad del tinte dentro de cada región; a 0 no hay relleno.',
+    border: 'Borde',
+    borderHelp:
+      'Grosor del borde por el interior de cada región, en tamaños de hex; a 0 no hay borde.',
+    borderOpacity: 'Opacidad del borde',
+    dashed: 'Borde discontinuo',
+    none: 'ninguno',
+    own: 'Estilo propio',
+    ownHelp:
+      'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (Ajustes → Regiones).',
+  },
   terrainSets: {
     natural: 'Natural (la paleta por defecto)',
     modern: 'Moderno',

@@ -3,6 +3,7 @@ import {
   DEFAULT_CAPTIONS,
   DEFAULT_GLYPH_OPACITY,
   DEFAULT_GLYPHS,
+  DEFAULT_REGION_STYLE,
 } from './defaults'
 import { newId } from './id'
 
@@ -74,6 +75,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   /** v7: key/value fields on tokens, icons, regions and POIs (optional: nothing to convert). */
   6(data) {
     return data
+  },
+  /** v8: region styles. Maps keep the look they had (the defaults are that look). */
+  7(data) {
+    return { ...data, regionStyle: { ...DEFAULT_REGION_STYLE } }
   },
 }
 

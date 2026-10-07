@@ -490,29 +490,46 @@ export class MapRenderer {
     for (const region of regions) {
       const cells = members.get(region.id)
       if (!cells?.length) continue
-      for (const cell of cells) g.poly(this.cornersAt(cell))
-      g.fill({ color: region.color, alpha: 0.14 })
-      // Border on the inner side of the outline, so neighboring regions don't overlap.
-      for (const cell of cells) {
-        const c = this.centerOf(cell)
-        const corners = this.cornersAt(cell)
-        for (let i = 0; i < 6; i++) {
-          const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
-          const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
-          const across = {
-            x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
-            y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
-          }
-          const { orientation } = grid
-          const neighbor = toOffset(pixelToHex(across, orientation, hs), orientation)
-          const inside = inBounds(neighbor, grid) && hexes[keyOf(neighbor)]?.region === region.id
-          if (inside) continue
-          const inset = (p: Point) => ({ x: c.x + (p.x - c.x) * 0.9, y: c.y + (p.y - c.y) * 0.9 })
-          const [p, q] = [inset(a), inset(b)]
-          g.moveTo(p.x, p.y).lineTo(q.x, q.y)
-        }
+      const style = { ...editor.map.regionStyle, ...region.style }
+      if (style.fill > 0) {
+        for (const cell of cells) g.poly(this.cornersAt(cell))
+        g.fill({ color: region.color, alpha: style.fill })
       }
-      g.stroke({ width: hs * 0.09, color: region.color, alpha: 0.85, cap: 'round' })
+      // Border on the inner side of the outline, so neighboring regions don't overlap.
+      if (style.border > 0 && style.borderOpacity > 0)
+        for (const cell of cells) {
+          const c = this.centerOf(cell)
+          const corners = this.cornersAt(cell)
+          for (let i = 0; i < 6; i++) {
+            const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
+            const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
+            const across = {
+              x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
+              y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
+            }
+            const { orientation } = grid
+            const neighbor = toOffset(pixelToHex(across, orientation, hs), orientation)
+            const inside = inBounds(neighbor, grid) && hexes[keyOf(neighbor)]?.region === region.id
+            if (inside) continue
+            // Inset by half the border, so it stays inside the region.
+            const k = 1 - Math.min(0.4, style.border / 2 + 0.055)
+            const inset = (p: Point) => ({ x: c.x + (p.x - c.x) * k, y: c.y + (p.y - c.y) * k })
+            const [p, q] = [inset(a), inset(b)]
+            const runs = style.dashed ? dashes([p, q], hs * 0.22, hs * 0.14) : [[p, q]]
+            for (const run of runs) {
+              if (run.length < 2) continue
+              g.moveTo(run[0].x, run[0].y)
+              for (const point of run.slice(1)) g.lineTo(point.x, point.y)
+            }
+          }
+        }
+      if (style.border > 0 && style.borderOpacity > 0)
+        g.stroke({
+          width: hs * style.border,
+          color: region.color,
+          alpha: style.borderOpacity,
+          cap: style.dashed ? 'butt' : 'round',
+        })
       if (region.showName === false || !region.name || !editor.map.captions.regionNames.show)
         continue
       const center = cells

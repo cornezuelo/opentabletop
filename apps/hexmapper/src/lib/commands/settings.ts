@@ -95,3 +95,21 @@ export class SetCaptionsCommand implements Command {
     return { kind: 'style' }
   }
 }
+
+/** The map's region style (fill, border). */
+export class SetRegionStyleCommand implements Command {
+  constructor(
+    private before: HexMap['regionStyle'],
+    private after: HexMap['regionStyle'],
+  ) {}
+
+  apply(map: HexMap): MapChange {
+    map.regionStyle = { ...this.after }
+    return { kind: 'regions' }
+  }
+
+  revert(map: HexMap): MapChange {
+    map.regionStyle = { ...this.before }
+    return { kind: 'regions' }
+  }
+}

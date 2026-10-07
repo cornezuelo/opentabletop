@@ -16,7 +16,9 @@ A region can have **fields** too (key–value, like a hex's). They hold for **ev
 
 ## On the map
 
-A region is drawn as a light tint, a border along the inside of its outline (so neighboring regions don't overlap) and its name in the middle. The **Regions** layer hides or locks them all; **Settings → Map texts** styles or hides every region name.
+A region is drawn as a light tint, a border along the inside of its outline (so neighboring regions don't overlap) and its name in the middle.
+
+**Settings → Regions** sets how every region looks: the **fill** (how strong the tint is; 0 for none), the **border** width (0 for none), its opacity, and whether it's **dashed**. A region can look its own way instead: tick **Own style** in its panel and move its own sliders. In the Grey Marches the Greywood has a stronger tint and the Hollow Hills only a dashed border. The **Regions** layer hides or locks them all; **Settings → Map texts** styles or hides every region name.
 
 ## In play
 

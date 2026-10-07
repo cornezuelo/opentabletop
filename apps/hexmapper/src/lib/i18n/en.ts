@@ -466,6 +466,21 @@ export const en = {
     poiHelp:
       'Values of this point of interest, kept with it in the map and its file. Tables don’t read them: a hex can have several points of interest.',
   },
+  regionStyle: {
+    title: 'Regions',
+    help: 'How regions look on the map. Each region can have its own style instead (its panel → Own style).',
+    fill: 'Fill',
+    fillHelp: 'How strong the tint inside each region is; at 0 there is no fill.',
+    border: 'Border',
+    borderHelp:
+      'Width of the border along the inside of each region, in hex sizes; at 0 there is no border.',
+    borderOpacity: 'Border opacity',
+    dashed: 'Dashed border',
+    none: 'none',
+    own: 'Own style',
+    ownHelp:
+      'This region looks its own way instead of following the map’s region style (Settings → Regions).',
+  },
   terrainSets: {
     natural: 'Natural (the default palette)',
     modern: 'Modern',

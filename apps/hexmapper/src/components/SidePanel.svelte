@@ -16,6 +16,9 @@
   import TerrainPanel from './TerrainPanel.svelte'
   import CaptionSettings from './CaptionSettings.svelte'
   import RegionPanel from './RegionPanel.svelte'
+  import RegionStyleControls from './RegionStyleControls.svelte'
+  import { SetRegionStyleCommand } from '../lib/commands/settings'
+  import type { RegionStyle } from '../lib/model/types'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import { AppBrand, AppSwitcher, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
@@ -30,6 +33,21 @@
   const hexCoord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)
   /** Hand-rolled results already applied to the trip (by history item). */
   let applied = $state(new Set<number>())
+
+  /** The map's region style before a slider drag: previewed live, one step on release. */
+  let regionStyleBefore: RegionStyle | null = null
+  function previewRegionStyle(patch: Partial<RegionStyle>) {
+    regionStyleBefore ??= { ...editor.map.regionStyle }
+    editor.map.regionStyle = { ...editor.map.regionStyle, ...patch }
+    editor.notify({ kind: 'regions' })
+  }
+  function commitRegionStyle() {
+    if (!regionStyleBefore) return
+    const after = { ...editor.map.regionStyle }
+    editor.map.regionStyle = regionStyleBefore
+    regionStyleBefore = null
+    editor.execute(new SetRegionStyleCommand({ ...editor.map.regionStyle }, after))
+  }
 </script>
 
 <aside class="panel">
@@ -46,6 +64,14 @@
     <Section title={t('panel.map')}><MapSettings /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
     <Section title={t('captions.title')}><CaptionSettings /></Section>
+    <Section title={t('regionStyle.title')}>
+      <p class="help">{t('regionStyle.help')}</p>
+      <RegionStyleControls
+        style={editor.regionStyle}
+        onpreview={previewRegionStyle}
+        oncommit={commitRegionStyle}
+      />
+    </Section>
     <Section title={t('panel.preferences')}>
       <label class="field">
         <span>{t('settings.language')}</span>

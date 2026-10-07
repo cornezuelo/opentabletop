@@ -64,6 +64,7 @@ class Editor {
   tokens = $state.raw<MapToken[]>([])
   regions = $state.raw<MapRegion[]>([])
   captions = $state<HexMap['captions']>(structuredClone(this.map.captions))
+  regionStyle = $state<HexMap['regionStyle']>({ ...this.map.regionStyle })
   /** Region the region tool paints. */
   regionId = $state<string | null>(null)
   canUndo = $state(false)
@@ -343,6 +344,7 @@ class Editor {
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]
     if (change.kind === 'tokens' || change.kind === 'all') this.tokens = [...this.map.tokens]
     if (change.kind === 'regions' || change.kind === 'all') {
+      this.regionStyle = { ...this.map.regionStyle }
       this.regions = [...this.map.regions]
       if (this.regionId && !this.map.regions.some((r) => r.id === this.regionId))
         this.regionId = this.map.regions[0]?.id ?? null

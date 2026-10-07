@@ -12,6 +12,9 @@ import {
   LABEL_SIZE_RANGE,
   MAX_MAP_SIZE,
   MIN_MAP_SIZE,
+  DEFAULT_REGION_STYLE,
+  REGION_BORDER_RANGE,
+  REGION_FILL_RANGE,
 } from './defaults'
 import { MapFormatError, migrate } from './migrations'
 import { isEmptyHex, normalizeHex, normalizePath, cleanFields } from './hex'
@@ -32,6 +35,7 @@ import type {
   MapToken,
   Poi,
   PrintSettings,
+  RegionStyle,
   TerrainType,
 } from './types'
 
@@ -107,6 +111,7 @@ function validate(data: Record<string, unknown>): HexMap {
     tokens: parseTokens(data.tokens),
     regions: parseRegions(data.regions),
     captions: parseCaptions(data.captions),
+    regionStyle: { ...DEFAULT_REGION_STYLE, ...parseRegionStyle(data.regionStyle) },
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.oracle) && { oracle: parseOracle(data.oracle) }),
@@ -339,9 +344,26 @@ function parseRegions(value: unknown): MapRegion[] {
         }),
         ...(typeof r.note === 'string' && r.note && { note: r.note }),
         ...(parseFields(r.fields) && { fields: parseFields(r.fields) }),
+        ...(Object.keys(parseRegionStyle(r.style)).length && { style: parseRegionStyle(r.style) }),
       },
     ]
   })
+}
+
+/** The valid parts of a region style (clamped); missing or broken ones are left out. */
+function parseRegionStyle(value: unknown): Partial<RegionStyle> {
+  if (!isRecord(value)) return {}
+  const num = (v: unknown, [min, max]: readonly [number, number]) =>
+    typeof v === 'number' && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : undefined
+  const fill = num(value.fill, REGION_FILL_RANGE)
+  const border = num(value.border, REGION_BORDER_RANGE)
+  const borderOpacity = num(value.borderOpacity, [0, 1])
+  return {
+    ...(fill !== undefined && { fill }),
+    ...(border !== undefined && { border }),
+    ...(typeof value.dashed === 'boolean' && { dashed: value.dashed }),
+    ...(borderOpacity !== undefined && { borderOpacity }),
+  }
 }
 
 function parseTokens(value: unknown): MapToken[] {

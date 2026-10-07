@@ -18,6 +18,8 @@ Una región también puede tener **campos** (clave–valor, como los de un hex).
 
 Una región se dibuja como un tinte suave, un borde por el interior de su contorno (para que las regiones vecinas no se solapen) y su nombre en el centro. La capa **Regiones** las oculta o bloquea todas; **Ajustes → Textos del mapa** da estilo u oculta todos los nombres de región.
 
+**Ajustes → Regiones** fija cómo se ven todas: el **relleno** (la intensidad del tinte; 0 para ninguno), el grosor del **borde** (0 para ninguno), su opacidad y si es **discontinuo**. Una región puede verse a su manera: marca **Estilo propio** en su panel y mueve sus propios deslizadores. En las Marcas Grises, el Bosque Gris tiene un tinte más intenso y las Hollow Hills solo un borde discontinuo.
+
 ## Al jugar
 
 Las comprobaciones de viaje y las tiradas de Oracle ven la región del hex por su **nombre**, así que una tabla puede decir `when: { region: Las Marcas Negras }`. Consulta [Oracle en el mapa](09-oracle.md).
