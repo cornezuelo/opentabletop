@@ -174,7 +174,7 @@ Commands (from the root): `make` lists them all (`make dev`, `make dev-oracle`, 
 
 - **Solo scene engine**: chaos factor, lists of threads and characters, and whether a scene goes as expected, is altered or interrupted; our own free mechanics, working with the oracles.
 - **Ironsworn** as a pack, with progress clocks: [Datasworn](https://github.com/rsek/datasworn) has its rules as JSON. Licence per item (each object's `source`): CC BY 4.0 (Ironsworn and Starforged core) can go to `packs/` with attribution; CC BY-NC 4.0 items must be decided first (not in our open-pack list); the code and schemas are MIT.
-- **Name generators** by setting (people, settlements, taverns, places…): bundled per pack and user-editable, built on the Oracle Engine (syllable tables and generators; maybe Markov chains trained on name lists as data).
+- **Name generators** by setting (people, settlements, taverns, places…), and not only fantasy: modern, post-apocalyptic, sci-fi (the Hexmapper already has terrain sets and icons for them): bundled per pack and user-editable, built on the Oracle Engine (syllable tables and generators; maybe Markov chains trained on name lists as data).
 - **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
 - **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; dungeons once sub-maps exist (phase E).
 - **Dice roller app**: quick, visual rolls (dice that tumble) of any expression the `dice` package knows, with history; reuses the Oracle's roller and result cards. Nothing complex.

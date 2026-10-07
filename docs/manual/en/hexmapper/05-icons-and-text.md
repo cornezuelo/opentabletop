@@ -4,7 +4,7 @@
 
 The **Icons** tool (<kbd>I</kbd>) places one icon per hex: castles, villages, ruins, caves…
 
-- Pick an icon (search it, or filter by category), then click hexes to place it.
+- Pick an icon (search it, or filter by category: party, terrain, settlements, landmarks, nature, danger, **modern** — vehicles, industry, emergencies — **sci-fi and wasteland** — ships, planets, robots, radiation — and misc), then click hexes to place it.
 - Click a placed icon to edit it; drag it to another hex (it lands centered; <kbd>Shift</kbd> keeps a free position inside the hex). Right-click or <kbd>Delete</kbd> removes it, <kbd>Ctrl</kbd>+click copies an icon and its style.
 - **Style**: color, size, rotation, flip, a halo behind it and an outline. New icons reuse the last style. **Auto** color draws dark ink on painted hexes and light ink on empty ones, so icons always stand out.
 - **Import** your own images (SVG, PNG, JPEG, WebP); they're saved inside the map.

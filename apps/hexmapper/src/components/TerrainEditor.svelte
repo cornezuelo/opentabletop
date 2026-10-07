@@ -3,7 +3,8 @@
   import { SetTerrainsCommand, terrainUsage } from '../lib/commands/terrains'
   import { en } from '../lib/i18n/en'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
-  import { DEFAULT_TERRAINS } from '../lib/model/defaults'
+  import { TERRAIN_SETS, type TerrainSet } from '../lib/model/defaults'
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { newId } from '../lib/model/id'
   import type { TerrainType } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -47,13 +48,14 @@
     if (editor.terrainId === terrain.id) editor.terrainId = editor.map.terrains[0]?.id ?? ''
   }
 
-  /** Default terrains this map doesn't have (maps keep the palette they were made with). */
-  const missing = $derived(
-    DEFAULT_TERRAINS.filter((d) => !editor.terrains.some((x) => x.id === d.id)),
-  )
+  /** A set of terrains to add: the default palette, or one for another kind of game. */
+  let set = $state<TerrainSet>('natural')
+  /** Terrains of a set this map doesn't have (maps keep the palette they were made with). */
+  const missingIn = (id: TerrainSet) =>
+    TERRAIN_SETS[id].filter((d) => !editor.terrains.some((x) => x.id === d.id))
 
-  function addMissing() {
-    const terrains = [...editor.map.terrains, ...missing.map((d) => ({ ...d }))]
+  function addSet() {
+    const terrains = [...editor.map.terrains, ...missingIn(set).map((d) => ({ ...d }))]
     editor.execute(new SetTerrainsCommand(terrains))
   }
 
@@ -129,11 +131,23 @@
   {/each}
 </ul>
 <button class="add" onclick={add}>{t('terrainEditor.add')}</button>
-{#if missing.length}
-  <button class="add" onclick={addMissing}
-    >{t('terrainEditor.addMissing', { count: missing.length })}</button
-  >
-{/if}
+<div class="sets">
+  <span>{t('terrainEditor.sets')}<InfoTip text={t('terrainEditor.setsHelp')} /></span>
+  <div class="row">
+    <select aria-label={t('terrainEditor.sets')} bind:value={set}>
+      {#each Object.keys(TERRAIN_SETS) as TerrainSet[] as id (id)}
+        <option value={id}
+          >{t(`terrainSets.${id}` as MessageKey)} ({t('terrainEditor.missing', {
+            count: missingIn(id).length,
+          })})</option
+        >
+      {/each}
+    </select>
+    <button class="add" disabled={!missingIn(set).length} onclick={addSet}
+      >{t('terrainEditor.addSet')}</button
+    >
+  </div>
+</div>
 
 <style>
   ul {
@@ -188,6 +202,25 @@
 
   .pick {
     display: block;
+  }
+
+  .sets {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .sets .row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .sets select {
+    flex: 1;
+    min-width: 0;
   }
 
   .water {

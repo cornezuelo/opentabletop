@@ -23,7 +23,18 @@ La paleta lista los terrenos del mapa, agrupados:
 | Frío          | tundra, snow, glacier                                                         |
 | Agua y costa  | coast, lake, sea, deep-sea (la costa es tierra: la orilla por la que se anda) |
 
-Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó: en **Editar paleta**, **Añadir los terrenos por defecto que le faltan a este mapa** pone al día los mapas antiguos. **Editar paleta** permite cambiar cada uno:
+Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó.
+
+No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un conjunto entero de una vez (solo los terrenos que le faltan al mapa), cada uno con su símbolo y una velocidad en las reglas de viaje genéricas:
+
+| Conjunto                  | Terrenos                                                                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Natural (por defecto)     | la paleta de arriba; pone al día los mapas antiguos                                                                                       |
+| Moderno                   | ciudad, afueras, industrial (grupo _Pueblos y ciudades_)                                                                                  |
+| Postapocalíptico          | ruinas, páramo, irradiado, ciénaga tóxica, cráter (grupo _Páramo_)                                                                        |
+| Ciencia ficción y espacio | jungla alienígena, campo de cristales, campo de lava, regolito (_Mundos alienígenas_); espacio, nebulosa, campo de asteroides (_Espacio_) |
+
+Los campos de lava, el espacio, las nebulosas y los campos de asteroides están cerrados a pie en las reglas genéricas: un sistema propio da a las naves una forma de viajar que solo va por ahí (`allowedTerrains: [space, nebula]`), como la barca de las Marcas Grises por el agua. **Editar paleta** permite cambiar cada uno:
 
 - **Color** y **nombre** (nombre vacío = el traducido por defecto).
 - **Símbolo**: el pequeño dibujo de sus hexes (ver abajo).

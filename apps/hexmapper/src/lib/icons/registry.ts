@@ -15,6 +15,8 @@ export const ICON_CATEGORIES = [
   'landmarks',
   'nature',
   'danger',
+  'modern',
+  'scifi',
   'misc',
 ] as const
 export type IconCategory = (typeof ICON_CATEGORIES)[number]

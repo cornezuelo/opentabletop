@@ -23,7 +23,18 @@ The palette lists the map's terrains, grouped:
 | Cold            | tundra, snow, glacier                                             |
 | Water and coast | coast, lake, sea, deep-sea (coast is land: the shore you walk on) |
 
-Your own terrains go under **Other**. Each map keeps the palette it was made with: in **Edit palette**, **Add the default terrains this map lacks** brings older maps up to date. **Edit palette** lets you change each one:
+Your own terrains go under **Other**. Each map keeps the palette it was made with.
+
+Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a whole set at once (only the terrains the map lacks), each with its symbol and a speed in the generic travel rules:
+
+| Set               | Terrains                                                                                                    |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- |
+| Natural (default) | the palette above; brings older maps up to date                                                             |
+| Modern            | city, suburbs, industrial (group _Towns and cities_)                                                        |
+| Post-apocalyptic  | ruins, wasteland, irradiated, toxic swamp, crater (group _Wasteland_)                                       |
+| Sci-fi and space  | alien jungle, crystal field, lava field, regolith (_Alien worlds_); space, nebula, asteroid field (_Space_) |
+
+Lava fields, space, nebulae and asteroid fields are closed to walking in the generic rules: a system of your own gives ships a way of travelling that only goes there (`allowedTerrains: [space, nebula]`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
 
 - **Color** and **name** (empty name = the translated default).
 - **Symbol**: the small drawing on its hexes (see below).

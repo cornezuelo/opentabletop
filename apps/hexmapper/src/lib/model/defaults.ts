@@ -78,6 +78,36 @@ export const DEFAULT_TERRAINS: readonly TerrainType[] = (
   ] as TerrainType[]
 ).map((t) => ({ ...t, glyph: DEFAULT_GLYPHS[t.id] }))
 
+/**
+ * Terrains for other kinds of game, added from Edit palette (a map keeps the palette it
+ * was made with). Names come from i18n (`terrains.<id>`), like the default ones.
+ */
+export const TERRAIN_SETS = {
+  natural: DEFAULT_TERRAINS,
+  modern: [
+    { id: 'city', color: '#8d8a86', glyph: 'game:modern-city' },
+    { id: 'suburbs', color: '#b8ae9c', glyph: 'game:house' },
+    { id: 'industrial', color: '#6e6a64', glyph: 'game:factory' },
+  ],
+  wasteland: [
+    { id: 'ruins', color: '#7b7068', glyph: 'game:broken-wall' },
+    { id: 'wasteland', color: '#a69675', glyph: 'game:barbed-wire' },
+    { id: 'irradiated', color: '#8f9d45', glyph: 'game:radioactive' },
+    { id: 'toxic-swamp', color: '#5c6a30', glyph: 'game:biohazard' },
+    { id: 'crater', color: '#6a5d55', glyph: 'game:meteor-impact' },
+  ],
+  scifi: [
+    { id: 'alien-jungle', color: '#3c7c6d', glyph: 'game:alien-bug' },
+    { id: 'crystal-field', color: '#9db6d8', glyph: 'game:crystal-growth' },
+    { id: 'lava-field', color: '#8a3424', glyph: 'game:lava' },
+    { id: 'regolith', color: '#9b978f', glyph: 'game:moon' },
+    { id: 'space', color: '#121729', glyph: 'game:ringed-planet' },
+    { id: 'nebula', color: '#3d2c5e', glyph: 'game:vortex' },
+    { id: 'asteroid-field', color: '#4c4b54', glyph: 'game:asteroid' },
+  ],
+} as const satisfies Record<string, readonly TerrainType[]>
+export type TerrainSet = keyof typeof TERRAIN_SETS
+
 export const TERRAIN_GROUPS = [
   'lowlands',
   'forests',
@@ -86,6 +116,10 @@ export const TERRAIN_GROUPS = [
   'arid',
   'cold',
   'water',
+  'urban',
+  'wasteland',
+  'alien',
+  'space',
   'other',
 ] as const
 export type TerrainGroup = (typeof TERRAIN_GROUPS)[number]
@@ -118,6 +152,21 @@ const GROUP_OF: Readonly<Record<string, TerrainGroup>> = {
   lake: 'water',
   sea: 'water',
   'deep-sea': 'water',
+  city: 'urban',
+  suburbs: 'urban',
+  industrial: 'urban',
+  ruins: 'wasteland',
+  wasteland: 'wasteland',
+  irradiated: 'wasteland',
+  'toxic-swamp': 'wasteland',
+  crater: 'wasteland',
+  'alien-jungle': 'alien',
+  'crystal-field': 'alien',
+  'lava-field': 'alien',
+  regolith: 'alien',
+  space: 'space',
+  nebula: 'space',
+  'asteroid-field': 'space',
 }
 
 export function terrainGroup(terrain: TerrainType): TerrainGroup {

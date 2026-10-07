@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { glyphShade } from '../render/glyphs'
-import { DEFAULT_TERRAINS } from './defaults'
+import { genericTravelRules } from '@open-tabletop/travel-engine'
+import { en } from '../i18n/en'
+import { getBuiltinIcon } from '../icons/registry'
+import { DEFAULT_TERRAINS, TERRAIN_SETS, terrainGroup } from './defaults'
 import { migrate } from './migrations'
 
 describe('terrain glyphs', () => {
@@ -22,6 +25,15 @@ describe('terrain glyphs', () => {
 
   it('every default terrain has a glyph', () => {
     expect(DEFAULT_TERRAINS.filter((t) => !t.glyph)).toEqual([])
+  })
+
+  it('every terrain of every set has a bundled glyph, a name, a group and a generic speed', () => {
+    for (const terrain of Object.values(TERRAIN_SETS).flat()) {
+      expect(getBuiltinIcon(terrain.glyph!), terrain.id).toBeDefined()
+      expect(en.terrains, terrain.id).toHaveProperty([terrain.id])
+      expect(terrainGroup(terrain), terrain.id).not.toBe('other')
+      expect(genericTravelRules.terrains, terrain.id).toHaveProperty([terrain.id])
+    }
   })
 
   it('shades dark colors lighter and light colors darker', () => {
