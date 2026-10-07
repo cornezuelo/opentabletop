@@ -63,6 +63,7 @@ const KEYS = [
   'roll',
   'modes',
   'modeWhen',
+  'reads',
   'repeat',
   'keep',
   'cancels',

@@ -60,3 +60,25 @@ bindings/default:
     navigation:
       name: Orientación
       description: Se suma a la tirada de perderse.
+  reads:
+    danger:
+      name: Peligro
+      description: 'Lo peligroso que es el hex, un valor del hex o de su región (el Bosque Gris: 2 en el borde, hasta 5 en su corazón).'
+    icon.guards:
+      name: Guardias
+      description: 'Un valor del icono del lugar en el mapa: cuántos guardias vigilan sus puertas (0 en Vado Ceniza, 2 en Fuerte Keld).'
+    token.fare:
+      name: Pasaje
+      description: 'Un valor de un token: lo que cobra Brenna la barquera, en plata.'
+    timeOfDay:
+      name: Hora del día
+      description: 'day o night (día o noche): los bindings se lo dan a la tabla de encuentros (night al acampar).'
+    reactionModifier:
+      name: Modificador de reacción
+      description: Lo suma a la siguiente tirada de reacción la entrada que la tira (lobos −2, la cacería −3).
+    fordModifier:
+      name: Modificador del vado
+      description: Lo suma el clima a la tirada del vado de hoy (lluvia −1, helada +1).
+    fordImpossible:
+      name: Hoy no se cruza
+      description: true cuando una tormenta hace imposible el vado el resto del día.

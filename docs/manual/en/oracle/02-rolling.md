@@ -8,7 +8,7 @@ The result card shows the text, the values the entry sets (e.g. `weather: storm`
 
 ## Context
 
-Some definitions read values: the terrain, the season, a modifier… The **Context** box lists the ones a definition (or any table it rolls) needs, with the values seen in its conditions as suggestions. Blank means unknown. An oracle's input (e.g. the odds) is a list here.
+Some definitions read values: the terrain, the season, a modifier… The **Context** box lists the ones a definition (or any table it rolls) needs, by name (_Holidays_, _Guards_…), with what each one is and its key (`{{icon.guards}}`) in its **i**, and the values seen in its conditions as suggestions. The apps name the values maps and trips give; a system names its stats and the other values its tables read (`reads:` in its bindings, see [Connecting](07-connecting.md)). Blank means unknown. An oracle's input (e.g. the odds) is a list here.
 
 In the Hexmapper these values come from the map and the trip; see [The Oracle in the map](../hexmapper/09-oracle.md).
 

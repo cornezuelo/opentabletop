@@ -132,6 +132,44 @@ stats:
     name: Navigation
     description: Added to the getting-lost roll.
     default: 0
+# Values the pack's tables read that nobody else names: the roll panel and the map show
+# these names (the key stays in the tooltip). Map values first, then today's values tables set.
+reads:
+  danger:
+    {
+      name: Danger,
+      description: 'How dangerous the hex is, a value of the hex or its region (the Greywood: 2 at the edge, up to 5 at its heart).',
+    }
+  icon.guards:
+    {
+      name: Guards,
+      description: 'A value of the place’s icon on the map: how many guards watch its gates (0 in Ashford, 2 at Fort Keld).',
+    }
+  token.fare:
+    {
+      name: Fare,
+      description: 'A value of a token: what Brenna the ferrywoman charges, in silver.',
+    }
+  timeOfDay:
+    {
+      name: Time of day,
+      description: 'day or night: the bindings give it to the encounter table (night when camping).',
+    }
+  reactionModifier:
+    {
+      name: Reaction modifier,
+      description: 'Added to the next reaction roll by the entry that rolls it (wolves −2, the hunt −3).',
+    }
+  fordModifier:
+    {
+      name: Ford modifier,
+      description: 'Added to today’s ford roll by the weather (rain −1, frost +1).',
+    }
+  fordImpossible:
+    {
+      name: No crossing today,
+      description: 'true when a storm makes the ford impossible for the rest of the day.',
+    }
 discover:
   terrain: { resolve: next-terrain }
   contents: { resolve: hex-contents }

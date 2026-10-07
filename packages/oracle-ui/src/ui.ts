@@ -2,6 +2,8 @@ import type { Compiled } from '@open-tabletop/oracle-engine'
 import { translator, type Translate } from './i18n'
 import type { PackLibrary } from '@open-tabletop/pack-ui'
 import { packTexts, type PackTexts } from './names'
+import { valueNames, type ValueInfo } from './valueNames'
+import type { OracleUiKey } from './i18n'
 import { localRollerStore, Roller, type HistoryItem, type RollerStore } from './roller.svelte'
 
 /** Everything the Oracle components need, created once by the host app. */
@@ -12,6 +14,8 @@ export interface OracleUi extends PackTexts {
   t: Translate
   /** Whether the host shows this pack's definitions (e.g. a map that works with some packs). */
   showsPack: (packId: string) => boolean
+  /** What a value tables read is called and what it is (`holidays` → Holidays). */
+  valueInfo: (key: string) => ValueInfo
 }
 
 export function createOracleUi(options: {
@@ -43,5 +47,13 @@ export function createOracleUi(options: {
       const shown = options.packs?.()
       return !shown || shown.includes(packId)
     },
+    valueInfo: valueNames(
+      () => options.library.registry,
+      options.locale,
+      (key) => {
+        const text = t(key as OracleUiKey)
+        return text === key ? undefined : text
+      },
+    ),
   }
 }

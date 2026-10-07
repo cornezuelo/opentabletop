@@ -107,7 +107,7 @@ How a trip works: the day (dawn, nightfall, marching hours), terrains and their 
 
 ## Bindings
 
-The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
 **What tables see:** each stat by name (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
 

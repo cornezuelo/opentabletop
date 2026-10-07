@@ -106,7 +106,7 @@ Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terreno
 
 ## Bindings
 
-La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
+La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`); **reads**, nombres para los demás valores que leen sus tablas (`icon.guards`, `fordModifier`…); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
 **Qué ven las tablas:** cada característica por su nombre (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
 

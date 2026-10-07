@@ -15,3 +15,4 @@ export {
 } from './roller.svelte'
 export { createOracleUi, type OracleUi } from './ui'
 export { contextVariables, parseContext, type Variable } from './variables'
+export { BUILT_IN_VALUES, valueNames, type ValueInfo } from './valueNames'

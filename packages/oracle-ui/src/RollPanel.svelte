@@ -108,6 +108,13 @@
       .join(', ')
 
   const chosen = $derived(shown?.resolution.entry)
+
+  /** A value's tooltip: what it is (if anyone says) and how tables write it. */
+  function valueTip(name: string): string {
+    const code = '`{{' + name + '}}`'
+    const description = ui.valueInfo(name).description
+    return description ? `${description}\n\n${code}` : code
+  }
 </script>
 
 <svelte:window {onkeydown} />
@@ -129,8 +136,9 @@
         </label>
       {/each}
       {#each variables as variable (variable.name)}
+        {@const info = ui.valueInfo(variable.name)}
         <label class="field">
-          <span>{variable.name}</span>
+          <span>{info.name ?? variable.name}<InfoTip markdown={valueTip(variable.name)} /></span>
           <input
             type="text"
             list={variable.suggestions.length ? `vars-${variable.name}` : undefined}
