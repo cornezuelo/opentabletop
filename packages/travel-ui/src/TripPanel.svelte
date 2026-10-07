@@ -6,7 +6,7 @@
     type StatDefinition,
     type TravelSystem,
   } from '@open-tabletop/session'
-  import { defaultCalendar, formatClock } from '@open-tabletop/time'
+  import { formatClock } from '@open-tabletop/time'
   import { entryClock, entryText, eventName, journalMarkdown, tripDay } from './journal'
   import { availableActions, checkInfo, type TravelAction } from '@open-tabletop/travel-engine'
   import { calendarOf } from '@open-tabletop/session'
