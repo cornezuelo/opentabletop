@@ -1,0 +1,22 @@
+# Ways of rolling a table's whole roll several times and keeping one total. Tables list the
+# ones they offer (`modes`) and when they apply by themselves (`modeWhen`). Other packs use
+# them through their dependency on Core (`modes: [advantage, disadvantage]`).
+kind: roll-modes
+id: default
+modes:
+  advantage:
+    name: { en: Advantage, es: Ventaja }
+    description:
+      en: Roll twice and keep the higher total.
+      es: Tira dos veces y quédate con el total más alto.
+    repeat: 2
+    keep: highest
+    # Advantage and disadvantage together give a normal roll.
+    cancels: disadvantage
+  disadvantage:
+    name: { en: Disadvantage, es: Desventaja }
+    description:
+      en: Roll twice and keep the lower total.
+      es: Tira dos veces y quédate con el total más bajo.
+    repeat: 2
+    keep: lowest

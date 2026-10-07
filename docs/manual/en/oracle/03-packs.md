@@ -1,6 +1,6 @@
 # Packs
 
-A pack is a folder of YAML files with a `pack.yaml` (id, name, version, base language, license). Definitions refer to each other by id: `weather` inside the same pack, `kal-arath/weather` from another.
+A pack is a folder of YAML files with a `pack.yaml` (id, name, version, base language, license). Definitions refer to each other by id: `weather` inside the same pack, `kal-arath/weather` from another. Every kind of definition a pack can hold (tables, oracles, generators, decks, roll modes, travel rules, bindings, calendars, weather models) is in [Kinds of definition](../technical/07-kinds.md).
 
 ## Where packs come from
 

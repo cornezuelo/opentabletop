@@ -12,11 +12,11 @@ Some definitions read values: the terrain, the season, a modifier… The **Conte
 
 In the Hexmapper these values come from the map and the trip; see [The Oracle in the map](../hexmapper/09-oracle.md).
 
-## Advantage and disadvantage
+## Roll modes (advantage and others)
 
-Tables whose system rolls them that way (they say `advantage: true`) offer **Normal / Advantage / Disadvantage**: roll twice and keep the higher or the lower total.
+Some tables can be rolled in more than one way: a **roll mode** rolls the whole roll several times and keeps one total. Which modes exist, what they're called and what they do is up to each system: Core and Kal-Arath have **Advantage** (twice, keep the higher) and **Disadvantage** (twice, keep the lower); the Grey Marches add **Carefully** (three times, keep the middle one) for the ford. A table that offers modes shows a choice next to **Roll**; its **i** says what each one does. The result card shows the totals that weren't kept.
 
-Some tables also take advantage or disadvantage **by themselves**, when a condition holds (`advantageWhen`, `disadvantageWhen`), whether you roll them by hand or a trip does. In the Grey Marches, _Do we get lost?_ rolls with advantage under clear skies (`advantageWhen: { weather: clear }`) and with disadvantage the day after getting lost (`disadvantageWhen: { yesterday.lost: true }`); with both, they cancel out and it's a normal roll. Kal-Arath's Explorer works the same way (`advantageWhen: { explorer: { gte: 1 } }`, with `explorer` a party stat). The form has them under the dice as **Advantage when** / **Disadvantage when**, in the same one-line conditions as entries.
+Some tables also use a mode **by themselves** when a condition holds, whether you roll them by hand or a trip does. In the Grey Marches, _Do we get lost?_ rolls with advantage under clear skies and with disadvantage the day after getting lost; with both, they cancel out and it's a normal roll. Kal-Arath's Explorer works the same way. How to declare modes and use them: [Kinds of definition](../technical/07-kinds.md#roll-modes).
 
 ## Decks and once-only entries
 

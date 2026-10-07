@@ -1,5 +1,6 @@
 import {
   createOracleEngine,
+  resolveRef,
   formatDiagnostic,
   loadPacks,
   type Compiled,
@@ -29,6 +30,7 @@ Options:
   --packs <dir>     A folder of packs (repeatable; default: packs/ and packs-private/)
   --seed <text>     Roll with a seed: the same seed gives the same results
   --times <n>       Roll n times
+  --mode <id>       Roll with one of the roll modes the table offers (e.g. advantage)
   --locale <code>   Texts in this language when the pack has it (en, es…)
   --json            Print the whole result as JSON
   --help            This help
@@ -143,13 +145,22 @@ export function run(args: readonly string[], io: Io): number {
     const locale = typeof options.locale === 'string' ? options.locale : undefined
     const times = Math.max(1, Number(options.times) || 1)
     const context = contextOf(pairs)
+    // A roll mode found like any reference from the table's pack (its own, then its dependencies').
+    const modeRef = typeof options.mode === 'string' ? options.mode : undefined
+    const mode = modeRef
+      ? (resolveRef(registry, def.pack, modeRef, (x) => registry.rollModes.has(x)) ?? modeRef)
+      : undefined
+    if (mode && !((def.kind === 'table' || def.kind === 'oracle') && def.modes.includes(mode))) {
+      io.err(`roll: "${def.id}" doesn't offer the roll mode "${modeRef}"`)
+      return 1
+    }
     let state: OracleState | undefined
     for (let i = 0; i < times; i++) {
       try {
         const outcome =
           def.kind === 'deck'
             ? engine.draw(def.id, state, context, { locale })
-            : engine.resolve(def.id, context, state, { locale })
+            : engine.resolve(def.id, context, state, { locale, mode })
         state = outcome.state
         io.out(options.json ? JSON.stringify(outcome.resolution) : describe(outcome.resolution))
       } catch (error) {
@@ -167,7 +178,14 @@ export function run(args: readonly string[], io: Io): number {
 /** A result as one line: its text, or its values when it has none, with the dice. */
 function describe(resolution: Resolution): string {
   const dice = flatten(resolution)
-    .flatMap((r) => r.rolls.map((roll) => `${roll.expression} = ${roll.total}`))
+    .flatMap((r) =>
+      r.rolls.map((roll) => {
+        // Rolled with a roll mode: which one, and the totals not kept.
+        const others = roll.discarded?.map((d) => d.total).join(', ')
+        const mode = r.mode ? ` (${r.mode}${others ? `; not kept: ${others}` : ''})` : ''
+        return `${roll.expression} = ${roll.total}${mode}`
+      }),
+    )
     .join(', ')
   const text =
     resolution.text ??

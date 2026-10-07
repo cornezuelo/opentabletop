@@ -1,4 +1,10 @@
-import type { Compiled, CompiledEntry, Registry } from '@open-tabletop/oracle-engine'
+import type {
+  Compiled,
+  CompiledEntry,
+  LocalizedText,
+  Registry,
+  RollMode,
+} from '@open-tabletop/oracle-engine'
 
 /**
  * Pack texts in the UI language when the pack has a translation overlay for it,
@@ -6,10 +12,19 @@ import type { Compiled, CompiledEntry, Registry } from '@open-tabletop/oracle-en
  */
 export function packTexts(registry: () => Registry, locale: () => string) {
   const overlay = (id: string) => registry().overlays.get(locale())?.get(id)
+  /** One language of a text written in one or several (the pack's own words). */
+  const local = (text: LocalizedText | undefined): string | undefined =>
+    text === undefined || typeof text === 'string'
+      ? text
+      : (text[locale()] ?? text.en ?? Object.values(text)[0])
   const displayName = (def: Compiled | undefined, fallback = ''): string =>
     def ? (overlay(def.id)?.name ?? def.name ?? def.localId) : fallback
   return {
     displayName,
+    /** A roll mode's name in the UI language, or its id. */
+    modeName: (mode: RollMode): string => local(mode.name) ?? mode.localId,
+    /** What a roll mode does: its description, if the pack gives one. */
+    modeDescription: (mode: RollMode): string | undefined => local(mode.description),
     displayDescription: (def: Compiled): string | undefined =>
       overlay(def.id)?.description ?? def.description,
     entryText: (def: Compiled, entry: CompiledEntry): string | undefined =>

@@ -11,7 +11,10 @@ export type {
   CompiledGenerator,
   CompiledOracle,
   CompiledTable,
+  LocalizedText,
   Registry,
+  RollMode,
+  WithRollModes,
 } from './compile/compile'
 export * from './definitions/schema'
 export { loadPackFiles } from './loader/load'

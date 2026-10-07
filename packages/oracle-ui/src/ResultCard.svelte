@@ -24,7 +24,10 @@
         ? `[${term.rolls.map((v, i) => (term.kept.includes(i) ? v : `~${v}~`)).join(', ')}]`
         : `${term.sign < 0 ? '−' : '+'}${term.value}`,
     )
-    return `${r.expression} → ${r.total}  ${parts.join(' ')}${r.discarded ? `  (${r.discarded.total})` : ''}`
+    // Rolls not kept (a roll mode); older histories kept a single one.
+    const discarded = r.discarded === undefined ? [] : [r.discarded].flat()
+    const others = discarded.length ? `  (${discarded.map((d) => d.total).join(', ')})` : ''
+    return `${r.expression} → ${r.total}  ${parts.join(' ')}${others}`
   }
 </script>
 

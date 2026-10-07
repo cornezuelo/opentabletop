@@ -45,14 +45,20 @@ const common = {
   tags: z.array(z.string()).optional(),
 }
 
+/**
+ * Ways of rolling a table that a system declares (`kind: roll-modes`): `modes` are offered
+ * when rolling by hand, `modeWhen` apply by themselves when their condition holds.
+ */
+const rollModes = {
+  modes: z.array(ref).optional(),
+  modeWhen: z.record(ref, condition).optional(),
+  /** Replaced by roll modes: kept only to tell authors what to write instead. */
+  advantage: z.boolean().optional(),
+}
+
 const tableBody = {
   roll: z.string().optional(),
-  /** Offer advantage/disadvantage when rolling (off by default: few tables use it). */
-  advantage: z.boolean().optional(),
-  /** Roll with advantage when this matches the context (e.g. an explorer forages). */
-  advantageWhen: condition.optional(),
-  /** Roll with disadvantage when this matches (both at once cancel out). */
-  disadvantageWhen: condition.optional(),
+  ...rollModes,
   clamp: z.boolean().optional(),
   onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
   entries: z.array(entry).min(1, 'a table needs at least one entry'),
@@ -78,9 +84,7 @@ export const oracleSchema = z
         .strict(),
     ),
     roll: z.string().optional(),
-    advantage: z.boolean().optional(),
-    advantageWhen: condition.optional(),
-    disadvantageWhen: condition.optional(),
+    ...rollModes,
     clamp: z.boolean().optional(),
     onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
     variants: z.record(
@@ -192,3 +196,34 @@ export type CardDef = z.infer<typeof card>
 export type Definition = z.infer<typeof definitionSchema>
 export type Manifest = z.infer<typeof manifestSchema>
 export type Overlay = z.infer<typeof overlaySchema>
+
+/** Text in one or several languages: "Advantage" or { en: Advantage, es: Ventaja }. */
+const text = z.union([z.string(), z.record(z.string(), z.string())])
+
+/**
+ * `kind: roll-modes`: a system's ways of rolling a table's whole roll several times and
+ * keeping one total, e.g. advantage (2, the highest) or "steady" (3, the middle one).
+ */
+export const rollModesSchema = z
+  .object({
+    kind: z.literal('roll-modes'),
+    id: id.optional(),
+    modes: z.record(
+      id,
+      z
+        .object({
+          name: text.optional(),
+          description: text.optional(),
+          /** How many times the roll is made (2 or more). */
+          repeat: z.number().int().min(2),
+          /** Which total is kept. */
+          keep: z.enum(['highest', 'lowest', 'middle']),
+          /** Modes that, when both apply, cancel each other out (e.g. advantage and disadvantage). */
+          cancels: z.union([ref, z.array(ref)]).optional(),
+        })
+        .strict(),
+    ),
+  })
+  .strict()
+
+export type RollModesDefinition = z.infer<typeof rollModesSchema>

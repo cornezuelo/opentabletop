@@ -2,9 +2,16 @@ import { randomInt, type RandomSource } from '@open-tabletop/random'
 import { parseDice } from './parse'
 import type { DiceExpression, DiceResult, DiceTerm, TermResult } from './types'
 
+/** Which of several totals of the same expression is kept. */
+export type Keep = 'highest' | 'lowest' | 'middle'
+
 export interface RollOptions {
-  /** +1 = advantage (roll twice, keep the higher total), -1 = disadvantage, 0 = normal. */
-  advantage?: number
+  /**
+   * Roll the whole expression this many times and keep one total (`keep`); the others
+   * are returned as `discarded`. Systems name these ways of rolling (advantage…).
+   */
+  repeat?: number
+  keep?: Keep
 }
 
 /** Rolls an expression (string or parsed) with a full breakdown of every die. */
@@ -14,13 +21,25 @@ export function roll(
   options: RollOptions = {},
 ): DiceResult {
   const parsed = typeof expression === 'string' ? parseDice(expression) : expression
-  const first = rollOnce(parsed, random)
-  const advantage = Math.sign(options.advantage ?? 0)
-  if (advantage === 0) return { expression: parsed.source, ...first }
-  const second = rollOnce(parsed, random)
-  const secondWins = advantage > 0 ? second.total > first.total : second.total < first.total
-  const [kept, discarded] = secondWins ? [second, first] : [first, second]
-  return { expression: parsed.source, ...kept, discarded }
+  const times = Math.max(1, Math.floor(options.repeat ?? 1))
+  const rolls = Array.from({ length: times }, () => rollOnce(parsed, random))
+  if (times === 1) return { expression: parsed.source, ...rolls[0] }
+  // Sorted by total, ties in rolling order: the earlier roll wins a tie.
+  const order = rolls.map((_, i) => i).sort((a, b) => rolls[a].total - rolls[b].total || a - b)
+  const keep = options.keep ?? 'highest'
+  const top = rolls[order[times - 1]].total
+  const kept =
+    keep === 'lowest'
+      ? order[0]
+      : // "middle" of an even count is the lower of the two middle ones.
+        keep === 'middle'
+        ? order[Math.floor((times - 1) / 2)]
+        : rolls.findIndex((r) => r.total === top)
+  return {
+    expression: parsed.source,
+    ...rolls[kept],
+    discarded: rolls.filter((_, i) => i !== kept),
+  }
 }
 
 function rollOnce(

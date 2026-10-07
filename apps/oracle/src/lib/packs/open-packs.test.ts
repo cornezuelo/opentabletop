@@ -118,6 +118,24 @@ describe('bundled open packs', () => {
     expect(twice({ weather: 'clear', yesterday: { lost: true } })).toBe(false)
   })
 
+  it('the Grey Marches: roll modes from Core and of their own', () => {
+    const engine = createOracleEngine({ registry, random: seeded('modes') })
+    const reaction = registry.definitions.get('grey-marches/reaction')
+    expect(reaction?.kind === 'table' && reaction.modes).toEqual([
+      'core/advantage',
+      'core/disadvantage',
+    ])
+    // Crossing carefully: three rolls, the middle one kept.
+    const ford = engine.resolve('grey-marches/ford', { odds: 'high' }, undefined, {
+      mode: 'grey-marches/careful',
+    }).resolution
+    expect(ford.mode).toBe('grey-marches/careful')
+    const totals = [ford.rolls[0].total, ...ford.rolls[0].discarded!.map((d) => d.total)].sort(
+      (a, b) => a - b,
+    )
+    expect(totals[1]).toBe(ford.rolls[0].total)
+  })
+
   it('the Grey Marches discover a map whose terrains their rules know', () => {
     const system = marches()
     expect(system.bindings?.discover?.reveal).toBe('neighbors')

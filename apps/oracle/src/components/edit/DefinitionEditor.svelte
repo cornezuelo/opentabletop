@@ -3,6 +3,7 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { contextSuggestions } from '@open-tabletop/session'
   import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
+  import { oracleUi } from '../../lib/oracle'
   import { workspace } from '../../lib/packs/workspace.svelte'
   import { t } from '../../lib/i18n'
   import { definitionDoc } from '../../lib/packs/doc.svelte'
@@ -18,13 +19,43 @@
   const doc = definitionDoc(() => ({ def, root }))
   const dice = $derived(def.kind === 'table' || def.kind === 'oracle')
 
-  /** When the roll takes advantage or disadvantage by itself: one line of conditions. */
+  /**
+   * The roll modes this definition can use (its pack's and its dependencies'), each offered
+   * by hand (`modes`) and/or applied by itself on a condition (`modeWhen`).
+   */
+  const available = $derived.by(() => {
+    const deps = workspace.registry.packs.get(def.pack)?.dependencies ?? []
+    return [...workspace.registry.rollModes.values()]
+      .filter((m) => m.pack === def.pack || deps.includes(m.pack))
+      .map((m) => ({ mode: m, ref: m.pack === def.pack ? m.localId : m.id }))
+  })
+  const refsOf = (value: unknown) => (Array.isArray(value) ? value.map(String) : [])
+  const whenOf = (value: unknown) =>
+    (typeof value === 'object' && value !== null ? value : {}) as Record<string, unknown>
+  const resolves = (ref: string, id: string) => ref === id || `${def.pack}/${ref}` === id
+  const offered = (id: string) => refsOf(doc.raw.modes).some((r) => resolves(r, id))
+  const whenFor = (id: string) =>
+    Object.entries(whenOf(doc.raw.modeWhen)).find(([r]) => resolves(r, id))?.[1]
+
+  function setOffered(id: string, ref: string, on: boolean) {
+    const rest = refsOf(doc.raw.modes).filter((r) => !resolves(r, id))
+    const modes = on ? [...rest, ref] : rest
+    doc.edit(['modes'], modes.length ? modes : undefined)
+    if (doc.raw.advantage !== undefined) doc.edit(['advantage'], undefined)
+  }
+
+  /** A mode's condition, typed as one line: saved when it reads as a map, flagged if not. */
   const conditionHints = $derived(contextSuggestions(workspace.registry))
   let invalid = $state<Record<string, boolean>>({})
-  function editCondition(key: 'advantageWhen' | 'disadvantageWhen', text: string) {
+  function setWhen(id: string, ref: string, text: string) {
     const value = text.trim() ? parseFlow(text) : undefined
-    invalid = { ...invalid, [key]: value === null }
-    if (value !== null) doc.edit([key], value)
+    invalid = { ...invalid, [id]: value === null }
+    if (value === null) return
+    const rest = Object.fromEntries(
+      Object.entries(whenOf(doc.raw.modeWhen)).filter(([r]) => !resolves(r, id)),
+    )
+    const next = value === undefined ? rest : { ...rest, [ref]: value }
+    doc.edit(['modeWhen'], Object.keys(next).length ? next : undefined)
   }
   const conditionText = (value: unknown) =>
     value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
@@ -66,15 +97,6 @@
       <label class="check">
         <input
           type="checkbox"
-          checked={doc.raw.advantage === true}
-          disabled={doc.translating}
-          onchange={(e) => doc.edit(['advantage'], e.currentTarget.checked || undefined)}
-        />
-        {t('edit.advantage')}<InfoTip text={t('edit.advantageHelp')} />
-      </label>
-      <label class="check">
-        <input
-          type="checkbox"
           checked={doc.raw.clamp !== false}
           disabled={doc.translating}
           onchange={(e) => doc.edit(['clamp'], e.currentTarget.checked ? undefined : false)}
@@ -98,21 +120,37 @@
         </select>
       </label>
     </div>
-    <div class="auto">
-      {#each ['advantageWhen', 'disadvantageWhen'] as const as key (key)}
-        <label class="field">
-          <span>{t(`edit.${key}`)}<InfoTip text={t(`edit.${key}Help`)} /></span>
-          <SuggestInput
-            value={conditionText(doc.raw[key])}
-            suggestions={conditionHints}
-            placeholder={key === 'advantageWhen' ? 'explorer: { gte: 1 }' : 'yesterday.lost: true'}
-            invalid={invalid[key]}
-            disabled={doc.translating}
-            onchange={(text) => editCondition(key, text)}
-          />
-          {#if invalid[key]}<small>{t('edit.notAMap')}</small>{/if}
-        </label>
-      {/each}
+    <div class="field">
+      <span>{t('edit.modes')}<InfoTip text={t('edit.modesHelp')} /></span>
+      {#if available.length}
+        <div class="modes">
+          {#each available as { mode, ref } (mode.id)}
+            <label class="check">
+              <input
+                type="checkbox"
+                checked={offered(mode.id)}
+                disabled={doc.translating}
+                onchange={(e) => setOffered(mode.id, ref, e.currentTarget.checked)}
+              />
+              {oracleUi.modeName(mode)}
+            </label>
+            <label class="when">
+              <span>{t('edit.modeWhen')}</span>
+              <SuggestInput
+                value={conditionText(whenFor(mode.id))}
+                suggestions={conditionHints}
+                placeholder={'explorer: { gte: 1 }'}
+                invalid={invalid[mode.id]}
+                disabled={doc.translating}
+                onchange={(text) => setWhen(mode.id, ref, text)}
+              />
+            </label>
+            {#if invalid[mode.id]}<small>{t('edit.notAMap')}</small>{:else}<span></span>{/if}
+          {/each}
+        </div>
+      {:else}
+        <p class="help">{t('edit.noModes')}</p>
+      {/if}
     </div>
   {/if}
 
@@ -128,13 +166,22 @@
 </div>
 
 <style>
-  .auto {
+  .modes {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 8px;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 6px 12px;
   }
 
-  .auto small {
+  .modes .when {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .modes small {
     color: #e3a19f;
   }
 

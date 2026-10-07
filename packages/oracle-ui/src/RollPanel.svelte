@@ -50,15 +50,31 @@
     return { total, left: roller.state.decks[def.id]?.draw.length ?? total }
   })
 
-  /** Only tables and oracles that ask for it offer advantage/disadvantage. */
-  const offersAdvantage = $derived((def.kind === 'table' || def.kind === 'oracle') && def.advantage)
+  /** The ways of rolling it offers by hand (its system's roll modes), with their names. */
+  const modes = $derived(
+    def.kind === 'table' || def.kind === 'oracle'
+      ? def.modes.flatMap((id) => {
+          const mode = ui.library.registry.rollModes.get(id)
+          if (!mode) return []
+          // The pack's description, or what it does in plain words.
+          const rule = t('roll.modeRule', {
+            times: mode.repeat,
+            keep: t(`roll.keep.${mode.keep}`),
+          })
+          return [{ id, name: ui.modeName(mode), help: ui.modeDescription(mode) ?? rule }]
+        })
+      : [],
+  )
+  const modeHelp = $derived(
+    [t('roll.modeHelp'), ...modes.map((m) => `${m.name}: ${m.help}`)].join(' '),
+  )
 
   function roll() {
     roller.run(
       def.id,
       mergeContext(context, parseContext(values)),
       def.kind === 'deck' ? 'draw' : 'resolve',
-      offersAdvantage ? roller.advantage : 0,
+      modes.some((m) => m.id === roller.mode) ? roller.mode : undefined,
     )
   }
 
@@ -136,14 +152,13 @@
     {#if deck}
       <span class="muted">{t('roll.remaining', deck)}</span>
       <button onclick={() => roller.shuffle(def.id)}>{t('roll.shuffle')}</button>
-    {:else if offersAdvantage}
+    {:else if modes.length}
       <label class="inline">
-        <select bind:value={roller.advantage}>
-          <option value={0}>{t('roll.advantages.normal')}</option>
-          <option value={1}>{t('roll.advantages.advantage')}</option>
-          <option value={-1}>{t('roll.advantages.disadvantage')}</option>
+        <select bind:value={roller.mode} aria-label={t('roll.mode')}>
+          <option value="">{t('roll.normal')}</option>
+          {#each modes as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
         </select>
-        <InfoTip text={t('roll.advantageHelp')} />
+        <InfoTip text={modeHelp} />
       </label>
     {/if}
     {#if hotkeys}<span class="hint">{t('roll.keyHint')}</span>{/if}

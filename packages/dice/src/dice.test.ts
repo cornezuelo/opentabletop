@@ -58,11 +58,15 @@ describe('roll', () => {
     expect(roll('1d6-2', faces(6, 1)).total).toBe(-1)
   })
 
-  it('applies advantage and disadvantage to the whole expression', () => {
-    const adv = roll('1d6', faces(6, 2, 5), { advantage: 1 })
-    expect(adv.total).toBe(5)
-    expect(adv.discarded?.total).toBe(2)
-    expect(roll('1d6', faces(6, 2, 5), { advantage: -1 }).total).toBe(2)
+  it('rolls the whole expression several times and keeps the highest, lowest or middle', () => {
+    const best = roll('1d6', faces(6, 2, 5), { repeat: 2, keep: 'highest' })
+    expect(best.total).toBe(5)
+    expect(best.discarded?.map((d) => d.total)).toEqual([2])
+    expect(roll('1d6', faces(6, 2, 5), { repeat: 2, keep: 'lowest' }).total).toBe(2)
+    expect(roll('1d6', faces(6, 6, 1, 4), { repeat: 3, keep: 'middle' }).total).toBe(4)
+    // An even count keeps the lower middle one.
+    expect(roll('1d6', faces(6, 1, 6, 3, 5), { repeat: 4, keep: 'middle' }).total).toBe(3)
+    expect(roll('1d6', faces(6, 3), {}).discarded).toBeUndefined()
   })
 
   it('is reproducible with a seed', () => {

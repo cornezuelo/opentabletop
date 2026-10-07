@@ -63,6 +63,30 @@ describe('the command line', () => {
     expect(again.out).toEqual(out)
   })
 
+  it('rolls with a roll mode the table offers', () => {
+    const modes = [
+      ...pack.slice(0, 1),
+      {
+        path: 'mine/t.yaml',
+        content: `kind: roll-modes
+modes:
+  best: { repeat: 3, keep: highest }
+---
+kind: table
+id: luck
+roll: 1d6
+modes: [best]
+entries: [{ range: 1-6, result: Luck }]
+`,
+      },
+    ]
+    const { fake, out, err } = io({ here: modes })
+    expect(run(['roll', 'luck', '--mode', 'best', '--packs', 'here', '--seed', 'x'], fake)).toBe(0)
+    expect(out[0]).toMatch(/^Luck {2}\[1d6 = \d \(mine\/best; not kept: \d, \d\)\]$/)
+    expect(run(['roll', 'luck', '--mode', 'worst', '--packs', 'here'], fake)).toBe(1)
+    expect(err[0]).toBe('roll: "mine/luck" doesn\'t offer the roll mode "worst"')
+  })
+
   it('says what went wrong', () => {
     const { fake, err } = io({})
     expect(run(['roll', 'x', '--packs', 'nowhere'], fake)).toBe(2)

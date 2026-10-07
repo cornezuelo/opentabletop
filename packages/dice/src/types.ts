@@ -45,8 +45,8 @@ export interface DiceResult {
   expression: string
   terms: TermResult[]
   total: number
-  /** With advantage/disadvantage, the discarded roll of the expression. */
-  discarded?: { terms: TermResult[]; total: number }
+  /** Rolled several times (a system's roll mode): the totals not kept, in order. */
+  discarded?: { terms: TermResult[]; total: number }[]
 }
 
 export class DiceSyntaxError extends Error {

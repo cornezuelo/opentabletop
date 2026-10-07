@@ -1,0 +1,13 @@
+# A way of rolling of the Grey Marches' own (advantage and disadvantage come from Core, a
+# dependency): three rolls, keeping the middle one. Offered by the ford, where taking it
+# slow avoids both the worst and the best.
+kind: roll-modes
+id: default
+modes:
+  careful:
+    name: { en: Carefully, es: Con cuidado }
+    description:
+      en: 'Roll three times and keep the middle total: neither the worst nor the best.'
+      es: 'Tira tres veces y quédate con el total del medio: ni lo peor ni lo mejor.'
+    repeat: 3
+    keep: middle

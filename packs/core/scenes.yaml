@@ -6,7 +6,7 @@ description: |-
 
   - Roll with **disadvantage** when tension is high: more twists.
   - Roll with **advantage** when things are calm.
-advantage: true
+modes: [advantage, disadvantage]
 roll: 1d6
 entries:
   - { id: twist, range: 1, result: 'Twist: something changes', table: twists }

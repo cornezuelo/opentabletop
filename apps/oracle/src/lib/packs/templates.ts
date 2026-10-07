@@ -53,8 +53,8 @@ export const TEMPLATES: Record<Compiled['kind'], (id: string) => Record<string, 
   }),
 }
 
-/** Definitions for other engines a pack can hold, read by the Hexmapper's Play mode. */
-export const SYSTEM_KINDS = ['travel-rules', 'bindings'] as const
+/** Rules of a system a pack can hold (one of each): its roll modes, travel rules, bindings. */
+export const SYSTEM_KINDS = ['roll-modes', 'travel-rules', 'bindings'] as const
 export type SystemKind = (typeof SYSTEM_KINDS)[number]
 
 /**
@@ -62,6 +62,15 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  * check, and bindings to fill in (which table answers each check).
  */
 export const SYSTEM_TEMPLATES: Record<SystemKind, (id: string) => Record<string, unknown>> = {
+  // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
+  'roll-modes': (id) => ({
+    kind: 'roll-modes',
+    id,
+    modes: {
+      advantage: { name: 'Advantage', repeat: 2, keep: 'highest', cancels: 'disadvantage' },
+      disadvantage: { name: 'Disadvantage', repeat: 2, keep: 'lowest' },
+    },
+  }),
   'travel-rules': (id) => ({
     kind: 'travel-rules',
     id,

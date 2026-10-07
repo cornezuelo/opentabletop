@@ -1,0 +1,136 @@
+# Kinds of definition
+
+A pack is a folder of YAML (or JSON) files. Each file holds one or more **definitions**, separated by a line with `---`, and every definition says what it is with `kind:`. This page lists every kind, what it's for, who reads it and what it looks like. Each one is validated when the pack loads: a mistake shows in the Oracle app's **Problems**, with its file and line.
+
+| Kind           | What it is                                                        | Read by                            | How many per pack |
+| -------------- | ----------------------------------------------------------------- | ---------------------------------- | ----------------- |
+| `table`        | A list of results picked by dice or weight                        | The Oracle, trips, discovery       | Any               |
+| `oracle`       | A table whose answers depend on a question (an input)             | The Oracle, trips                  | Any               |
+| `generator`    | Several rolls joined in one text                                  | The Oracle, trips                  | Any               |
+| `deck`         | Cards drawn without putting them back                             | The Oracle                         | Any               |
+| `roll-modes`   | Ways of rolling a table several times and keeping one total       | The Oracle (every roll)            | One               |
+| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks     | Hexmapper Play, the Travel app     | One               |
+| `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app     | One               |
+| `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel | One               |
+| `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)  | Any               |
+
+Translations of names and texts go in `locales/<language>/` files with the same name ([Translations](../oracle/05-translations.md)); texts that aren't in a table (calendar months, roll mode names, checks…) can instead be written in several languages at once: `name: { en: Thaw, es: Deshielo }`.
+
+## Tables
+
+```yaml
+kind: table
+id: weather
+name: Weather
+roll: 1d6 # empty: pick by weight
+modes: [advantage, disadvantage] # roll modes offered by hand
+entries:
+  - { id: clear, range: 1-3, result: Clear skies, set: { weather: clear } }
+  - { id: storm, range: 4-6, result: Storm, table: storm-damage }
+```
+
+Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` (a condition), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session). The table may also have `clamp`, `onExhausted`, `modes` and `modeWhen`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
+
+## Oracles
+
+A table with one **input** (a question: the odds, the stakes…) and one list of entries per option of the input. The input can be chosen when rolling or come from a trip's bindings (`context: { odds: even }`). Each variant may have its own `roll`.
+
+```yaml
+kind: oracle
+id: yes-no
+inputs:
+  odds: { options: [unlikely, even, likely], default: even }
+roll: 1d6
+variants:
+  unlikely:
+    { entries: [{ id: yes, range: 1, result: 'Yes' }, { id: no, range: 2-6, result: 'No' }] }
+  even: { entries: [{ id: yes, range: 1-3, result: 'Yes' }, { id: no, range: 4-6, result: 'No' }] }
+  likely: { entries: [{ id: yes, range: 1-5, result: 'Yes' }, { id: no, range: 6, result: 'No' }] }
+```
+
+## Generators
+
+Fields rolled in order (each sees the ones before it), joined by a `template`. A field is a `table`, a `generator`, dice (`roll`) or a fixed `value`, and may have `when` and its own `context`.
+
+```yaml
+kind: generator
+id: npc
+fields:
+  name: { table: npc-names }
+  might: { roll: 4d6kh3 }
+template: '{{name}} (might {{might}})'
+```
+
+## Decks
+
+Cards drawn without replacement until the deck is reshuffled (`reshuffle: when-empty`, `manual` or `after-draw`). A card can come in copies (`count`), roll a table and set values, like an entry.
+
+## Roll modes
+
+The ways a system rolls a table **several times and keeps one total**: advantage, disadvantage, or anything else (three rolls keeping the middle one…). The apps know none of them: a pack declares them, with their names, and its tables list the ones they use. One `roll-modes` definition per pack, with any number of modes.
+
+```yaml
+kind: roll-modes
+id: default
+modes:
+  advantage:
+    name: { en: Advantage, es: Ventaja }
+    description: { en: Roll twice and keep the higher total. }
+    repeat: 2 # how many times the whole roll is made
+    keep: highest # highest, lowest or middle (of an even count, the lower middle one)
+    cancels: disadvantage # together, neither applies: a normal roll
+  disadvantage: { name: Disadvantage, repeat: 2, keep: lowest }
+```
+
+A table or oracle uses them with:
+
+- `modes: [advantage, disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
+- `modeWhen: { advantage: { explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.
+
+When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage; the Grey Marches add _Carefully_ (three rolls, the middle one); Kal-Arath has its own pair. The old `advantage: true` does nothing now and warns.
+
+## Travel rules
+
+How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds, water, roads and rivers, ways of travelling (km per day, what they use, where they can go), supplies used per day, weather that slows you down, the party's actions (camp, rest and the system's own, like foraging) and the **checks**: what is rolled at dawn, on entering a hex, in camp or with an action, and when (`when` / `unless`). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Travel app's [Systems](../travel/03-systems.md).
+
+## Bindings
+
+The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+
+## Calendars
+
+The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `month`, `year`, `weekday`, `moons.<moon>` (new, waxing, full, waning) and `holidays`. The Hexmapper's [World](../hexmapper/12-world.md) panel uses the calendar of the map's system. Without one, a plain calendar of days and four seasons is used.
+
+```yaml
+kind: calendar
+id: marcher-reckoning
+name: { en: The Marcher reckoning, es: El cómputo de las Marcas }
+watchHours: 4
+startYear: 412
+months:
+  - { id: thaw, name: { en: Thaw, es: Deshielo }, days: 30, season: spring }
+  - { id: highsun, name: Highsun, days: 30, season: summer }
+weekdays: [{ id: moonday, name: Moonday }]
+moons: [{ id: pale, name: The Pale Moon, cycle: 28 }]
+holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
+```
+
+## Weather models
+
+Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `weather` for later checks and the travel rules' speeds.
+
+```yaml
+kind: weather
+id: sky
+states:
+  clear: { name: Clear skies }
+  rain: { name: Steady rain, set: { fordModifier: -1 } }
+seasons:
+  spring:
+    start: clear # or weights: { clear: 2, rain: 1 }
+    next:
+      clear: { clear: 3, rain: 1 }
+      rain: { rain: 2, clear: 1 }
+```
+
+The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).

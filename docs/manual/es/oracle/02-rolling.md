@@ -12,11 +12,11 @@ Algunas definiciones leen valores: el terreno, la estación, un modificador… E
 
 En el Hexmapper estos valores vienen del mapa y del viaje; consulta [Oracle en el mapa](../hexmapper/09-oracle.md).
 
-## Ventaja y desventaja
+## Modos de tirada (ventaja y otros)
 
-Las tablas que su sistema tira así (indican `advantage: true`) ofrecen **Normal / Ventaja / Desventaja**: tirar dos veces y quedarse con el total más alto o el más bajo.
+Algunas tablas se pueden tirar de más de una forma: un **modo de tirada** tira toda la tirada varias veces y se queda con un total. Qué modos hay, cómo se llaman y qué hacen lo decide cada sistema: Core y Kal-Arath tienen **Ventaja** (dos veces, el más alto) y **Desventaja** (dos veces, el más bajo); las Marcas Grises añaden **Con cuidado** (tres veces, el del medio) para el vado. Una tabla que ofrece modos muestra una opción junto a **Tirar**; su **i** dice qué hace cada uno. La tarjeta del resultado muestra los totales que no se quedaron.
 
-Algunas tablas además toman ventaja o desventaja **por sí solas** cuando se cumple una condición (`advantageWhen`, `disadvantageWhen`), tanto si las tiras a mano como si las tira un viaje. En las Marcas Grises, _¿Nos perdemos?_ se tira con ventaja con el cielo despejado (`advantageWhen: { weather: clear }`) y con desventaja el día después de perderse (`disadvantageWhen: { yesterday.lost: true }`); con las dos, se anulan y es una tirada normal. El Explorador de Kal-Arath funciona igual (`advantageWhen: { explorer: { gte: 1 } }`, con `explorer` una característica del grupo). El formulario las tiene bajo los dados como **Ventaja cuando** / **Desventaja cuando**, con las mismas condiciones de una línea que las entradas.
+Algunas tablas además usan un modo **por sí solas** cuando se cumple una condición, tanto si las tiras a mano como si las tira un viaje. En las Marcas Grises, _¿Nos perdemos?_ se tira con ventaja con el cielo despejado y con desventaja el día después de perderse; con las dos, se anulan y es una tirada normal. El Explorador de Kal-Arath funciona igual. Cómo declarar los modos y usarlos: [Tipos de definición](../technical/07-kinds.md#modos-de-tirada).
 
 ## Mazos y entradas de una vez
 

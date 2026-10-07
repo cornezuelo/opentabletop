@@ -73,7 +73,7 @@ entries:
 ```
 
 - `result` is text (a template) or an object. `table:` / `generator:` delegate to another definition. `set:` adds fields.
-- **Advantage:** `advantage: true` on a table or oracle means the system rolls it with advantage/disadvantage (roll twice, keep the best or worst), so UIs offer that choice. Off by default: most tables don't use it.
+- **Roll modes:** a system declares its ways of rolling in `kind: roll-modes` (`repeat`, `keep: highest | lowest | middle`, `cancels`); a table or oracle lists the ones it offers by hand (`modes`) and the ones that apply by themselves on a condition (`modeWhen`). Modes that cancel each other drop out; the engine knows no "advantage" of its own.
 - **Weighted:** `weight: 3` instead of `range`. The selection method is pluggable (`selector: range | weight`).
 - **Conditions:** `when:` on an entry enables/disables it based on context; only enabled entries are candidates.
 - **Limits:** `once: true` or `maxOccurrences: 3`. An exhausted entry is re-rolled (up to N tries) or skipped to the next available one, per `onExhausted: reroll | next | none`.
@@ -140,7 +140,7 @@ reshuffle: when-empty # when-empty | manual | after-draw
 
 ### Dice (`@open-tabletop/dice`)
 
-- **MVP:** `NdM`, `dM`, `d100`, `d66` (tens and units), `NdF`, `+`/`-` constants, `kh`/`kl` (keep highest/lowest: `2d6kh1`), and **advantage/disadvantage**, which rolls the whole expression twice and keeps the better/worse total.
+- **MVP:** `NdM`, `dM`, `d100`, `d66` (tens and units), `NdF`, `+`/`-` constants, `kh`/`kl` (keep highest/lowest: `2d6kh1`), and **repeat-and-keep** (`roll(expr, random, { repeat, keep })`), which rolls the whole expression several times and keeps the highest, lowest or middle total: what roll modes use.
 - `roll: "2d6 + {{pre}}"`: the template is substituted from context **before** parsing, and only numbers are accepted, so nothing else can be injected.
 - The grammar is extensible with new term types.
 - Breakdown result:
@@ -337,7 +337,7 @@ entries:
 Used by the integration layer when the Travel Engine emits `ENCOUNTER_CHECK_REQUIRED`:
 
 ```ts
-engine.generate('kal-arath/encounter-check', { pre: party.stats.pre, advantage: 0 }, state)
+engine.generate('kal-arath/encounter-check', { pre: party.stats.pre }, state)
 // → value: { check: 5, encounter: { kind: 'humans', … }, reaction: { hostile: true } }, text: '4 nomad scouts — reaction: Hostile'
 ```
 

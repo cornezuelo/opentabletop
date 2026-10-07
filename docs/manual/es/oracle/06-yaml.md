@@ -11,7 +11,7 @@ kind: table
 id: weather
 name: Clima
 roll: 1d6
-advantage: true
+modes: [advantage, disadvantage]
 entries:
   - { id: clear, range: 1-3, result: Cielo despejado, set: { weather: clear } }
   - { id: rain, range: 4-5, result: Lluvia, set: { weather: rain } }

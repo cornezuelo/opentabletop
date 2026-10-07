@@ -65,7 +65,8 @@ entries:
     set: { reactionModifier: -1, stats: { morale: -1 } }
   - { id: tracks, range: 1-20, result: 'Only tracks, and the feeling of being watched' }
 ---
-# A party stat plus a modifier the entry before it may set; advantage on offer.
+# A party stat plus a modifier the entry before it may set; advantage on offer (Core's roll
+# modes, through the dependency).
 kind: table
 id: reaction
 name: Reaction
@@ -79,7 +80,7 @@ description: |-
   - Advantage
   - Negative ranges
 roll: '2d6 + {{charisma}} + {{reactionModifier}}'
-advantage: true
+modes: [advantage, disadvantage]
 entries:
   - { id: hostile, range: -10-3, result: hostile }
   - { id: wary, range: 4-6, result: wary }

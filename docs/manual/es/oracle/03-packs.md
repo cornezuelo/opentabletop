@@ -1,6 +1,6 @@
 # Packs
 
-Un pack es una carpeta de ficheros YAML con un `pack.yaml` (id, nombre, versión, idioma base, licencia). Las definiciones se refieren unas a otras por id: `weather` dentro del mismo pack, `kal-arath/weather` desde otro.
+Un pack es una carpeta de ficheros YAML con un `pack.yaml` (id, nombre, versión, idioma base, licencia). Las definiciones se refieren unas a otras por id: `weather` dentro del mismo pack, `kal-arath/weather` desde otro. Todos los tipos de definición que puede tener un pack (tablas, oráculos, generadores, mazos, modos de tirada, reglas de viaje, bindings, calendarios, modelos de clima) están en [Tipos de definición](../technical/07-kinds.md).
 
 ## De dónde vienen los packs
 

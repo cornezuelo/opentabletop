@@ -110,15 +110,12 @@ export const en = {
     inputLabel: 'Label',
     labelHelp: 'Shown instead of the id when rolling, and translatable. Empty: the id is shown.',
     optionLabel: 'Label',
-    advantage: 'Can be rolled with advantage or disadvantage',
-    advantageHelp:
-      'Shows the Normal / Advantage / Disadvantage choice when rolling (roll twice, keep the best or the worst). Only for tables your system rolls that way.',
-    advantageWhen: 'Advantage when',
-    advantageWhenHelp:
-      'Rolls with advantage by itself when this holds, e.g. explorer: { gte: 1 } (a party stat) or weather: clear. Empty: never. With disadvantage too, they cancel out.',
-    disadvantageWhen: 'Disadvantage when',
-    disadvantageWhenHelp:
-      'Rolls with disadvantage by itself when this holds, e.g. yesterday.lost: true (finding the way again). Empty: never.',
+    modes: 'Roll modes',
+    modesHelp:
+      'Ways of rolling this table that its system declares (kind: roll-modes), such as advantage: roll the whole roll several times and keep one total. Ticked: offered when rolling by hand. When: used by itself when the condition holds, e.g. explorer: { gte: 1 } (a party stat) or yesterday.lost: true. Two modes that cancel each other out, together, give a normal roll.',
+    modeWhen: 'by itself when',
+    noModes:
+      'This pack and its dependencies declare no roll modes. Add a kind: roll-modes definition (New definition → Roll modes) to roll tables with advantage or any other way.',
     default: 'Default',
     defaultHelp: 'Option selected when the roll panel opens.',
     firstOption: 'The first one',
@@ -201,11 +198,13 @@ export const en = {
     copied: 'Copied as {id}',
   },
   newDef: {
-    forTravel: 'For travel (Hexmapper Play mode)',
+    forTravel: 'Rules of the system',
     forTravelHelp:
-      'A pack with travel rules becomes a system you can pick in the Hexmapper, Play → Rules. Bindings say which table answers each check. See the manual: Connecting tables to maps and trips.',
-    system: { 'travel-rules': 'Travel rules', bindings: 'Bindings' },
+      'Roll modes are the ways its tables can be rolled (advantage…). A pack with travel rules becomes a system you can pick in the Hexmapper, Play → Rules, and in the Travel app; bindings say which table answers each check. See the manual: Kinds of definition, and Connecting tables to maps and trips.',
+    system: { 'roll-modes': 'Roll modes', 'travel-rules': 'Travel rules', bindings: 'Bindings' },
     systemTips: {
+      'roll-modes':
+        'Ways of rolling its tables, like advantage: roll several times and keep one total.',
       'travel-rules': 'Speeds, terrains, roads, supplies and which checks are rolled when.',
       bindings: 'Which table answers each travel check, and the party stats tables read.',
     },

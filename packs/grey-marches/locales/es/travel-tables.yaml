@@ -8,7 +8,7 @@ getting-lost:
     - Una comprobación de viaje: atada a `NAVIGATION_CHECK_REQUIRED`
     - Una característica del grupo en la tirada: `{{navigation}}`
     - `set: { lost: true }`: no se viaja más hoy
-    - Ventaja y desventaja según una condición: `advantageWhen: { weather: clear }`, `disadvantageWhen: { yesterday.lost: true }`
+    - Modos de tirada que se aplican solos (`modeWhen`): `advantage` con `weather: clear`, `disadvantage` con `yesterday.lost: true`
     - Condiciones sobre el clima, y sobre estar fuera de toda región (`exists: false`)
   entries:
     fog: 'Perdidos en la niebla: hoy no avanzáis'
@@ -66,6 +66,7 @@ ford:
     - Variantes con sus propios dados
     - Valores del día que pone el clima: `{{fordModifier}}`, `fordImpossible`
     - `set: { lost: true }`: hoy no se cruza
+    - Un modo de tirada del propio pack: _Con cuidado_ (tres tiradas, se queda la del medio)
   inputs:
     odds:
       label: El agua

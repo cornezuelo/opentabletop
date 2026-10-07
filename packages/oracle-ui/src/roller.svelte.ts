@@ -84,8 +84,8 @@ export class Roller {
   history = $state.raw<HistoryItem[]>([])
   /** Typed context per definition id. */
   contexts = $state<Record<string, Record<string, string>>>({})
-  /** Advantage chosen in the roll panel (1, 0 or -1), remembered between rolls. */
-  advantage = $state(0)
+  /** Roll mode chosen in the roll panel (full id, '' = normal), remembered between rolls. */
+  mode = $state('')
   /** Result being shown per definition id. */
   shown = $state.raw<Record<string, HistoryItem>>({})
 
@@ -114,12 +114,12 @@ export class Roller {
     source: string,
     context: Record<string, unknown>,
     mode: 'resolve' | 'draw' = 'resolve',
-    /** 1 advantage, -1 disadvantage. */
-    advantage = 0,
+    /** A roll mode the definition offers (full id). */
+    rollMode?: string,
   ): void {
     const { library, locale, t, onResult } = this.options
     const engine = library.engine
-    const options = { locale: locale(), advantage }
+    const options = { locale: locale(), mode: rollMode || undefined }
     try {
       const outcome =
         mode === 'draw'

@@ -77,9 +77,15 @@ entries:
   - { id: tower, range: 1, result: 'Torre en ruinas', set: { site: tower } }
   - { id: crypt, range: 2, result: 'Cripta', set: { site: crypt } }
 ---
+kind: roll-modes
+modes:
+  advantage: { name: Ventaja, repeat: 2, keep: highest, cancels: disadvantage }
+  disadvantage: { name: Desventaja, repeat: 2, keep: lowest }
+---
 kind: table
 id: reaction
 roll: '2d6 + {{pre}}'
+modes: [advantage, disadvantage]
 entries:
   - { id: hostile, range: 2-6, result: Hostil }
   - { id: neutral, range: 7-9, result: Neutral }
@@ -312,11 +318,16 @@ describe('tables', () => {
     expect(engine.resolve('test/reaction', { pre: 3 }).resolution.entry).toBe('friendly') // 15 → clamps high
   })
 
-  it('rolls with advantage', () => {
+  it('rolls with a roll mode the table offers', () => {
     const engine = createOracleEngine({ registry, random: faces(6, 1, 1, 5, 5) })
-    const { resolution } = engine.resolve('test/reaction', { pre: 0 }, undefined, { advantage: 1 })
+    const mode = { mode: 'test/advantage' }
+    const { resolution } = engine.resolve('test/reaction', { pre: 0 }, undefined, mode)
     expect(resolution.entry).toBe('friendly')
-    expect(resolution.rolls[0].discarded?.total).toBe(2)
+    expect(resolution.mode).toBe('test/advantage')
+    expect(resolution.rolls[0].discarded?.map((d) => d.total)).toEqual([2])
+    // A mode the table doesn't offer isn't used.
+    const plain = engine.resolve('test/terrain-encounter', {}, undefined, mode).resolution
+    expect(plain.mode).toBeUndefined()
   })
 
   it('filters entries by conditions on the context', () => {
@@ -602,63 +613,77 @@ mood:
   })
 })
 
-describe('advantage', () => {
-  it('is off unless a table or oracle asks for it', () => {
-    const { registry, diagnostics } = loadPacks([
-      { path: 'adv/pack.yaml', content: 'id: adv\nversion: 0.1.0\nlocale: en\n' },
-      {
-        path: 'adv/t.yaml',
-        content: `
-kind: table
-id: plain
-entries: [{ result: A }]
+describe('roll modes', () => {
+  const pack = (body: string) =>
+    loadPacks([
+      { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\n' },
+      { path: 'm/t.yaml', content: body },
+    ])
+  const modes = `
+kind: roll-modes
+modes:
+  advantage: { name: { en: Advantage, es: Ventaja }, repeat: 2, keep: highest, cancels: disadvantage }
+  disadvantage: { name: Disadvantage, repeat: 2, keep: lowest }
+  steady: { name: Steady, repeat: 3, keep: middle }
+`
+
+  it('are declared by packs, with names, and referenced by tables', () => {
+    const { registry, diagnostics } = pack(`${modes}
 ---
 kind: table
-id: lost
-advantage: true
+id: t
 roll: 1d6
-entries: [{ range: 1-6, result: B }]
-`,
-      },
+modes: [advantage, steady, nope]
+modeWhen: { disadvantage: { tired: true } }
+entries: [{ range: 1-6, result: X }]
+---
+kind: table
+id: old
+roll: 1d6
+advantage: true
+entries: [{ range: 1-6, result: X }]
+`)
+    expect(diagnostics.map((d) => [d.severity, d.at, d.message])).toEqual([
+      ['error', 't.modes[2]', 'Unknown roll mode "nope"'],
+      ['warning', 'old.advantage', expect.stringContaining('no longer does anything')],
     ])
-    expect(diagnostics).toEqual([])
-    const advantage = (id: string) => {
-      const def = registry.definitions.get(id)
-      return def?.kind === 'table' && def.advantage
-    }
-    expect([advantage('adv/plain'), advantage('adv/lost')]).toEqual([false, true])
+    expect(registry.rollModes.get('m/advantage')).toMatchObject({
+      name: { en: 'Advantage', es: 'Ventaja' },
+      repeat: 2,
+      keep: 'highest',
+      cancels: ['m/disadvantage'],
+    })
+    const t = registry.definitions.get('m/t')
+    expect(t?.kind === 'table' && [t.modes, Object.keys(t.modeWhen)]).toEqual([
+      ['m/advantage', 'm/steady'],
+      ['m/disadvantage'],
+    ])
   })
 
-  it('comes by itself on a condition, and cancels out with disadvantage', () => {
-    const { registry, diagnostics } = loadPacks([
-      { path: 'adv/pack.yaml', content: 'id: adv\nversion: 0.1.0\nlocale: en\n' },
-      {
-        path: 'adv/t.yaml',
-        content: `
+  it('apply by themselves on a condition, and cancelling ones drop out', () => {
+    const { registry } = pack(`${modes}
+---
 kind: table
 id: forage
 roll: 1d6
-advantageWhen: { explorer: { gte: 1 } }
-disadvantageWhen: { yesterday.lost: true }
+modes: [advantage, disadvantage, steady]
+modeWhen:
+  advantage: { explorer: { gte: 1 } }
+  disadvantage: { yesterday.lost: true }
 entries: [{ range: 1-6, result: X }]
----
-kind: table
-id: broken
-roll: 1d6
-advantageWhen: { explorer: { wat: 1 } }
-entries: [{ range: 1-6, result: X }]
-`,
-      },
-    ])
-    expect(diagnostics.map((d) => d.at)).toEqual(['broken.advantageWhen'])
-    const engine = createOracleEngine({ registry, random: seeded('adv') })
-    // With advantage or disadvantage, the other roll is kept as `discarded`.
-    const twice = (context: Record<string, unknown>) =>
-      !!engine.resolve('adv/forage', context).resolution.rolls[0].discarded
-    expect(twice({})).toBe(false)
-    expect(twice({ explorer: 1 })).toBe(true)
-    expect(twice({ yesterday: { lost: true } })).toBe(true)
-    expect(twice({ explorer: 1, yesterday: { lost: true } })).toBe(false)
+`)
+    const engine = createOracleEngine({ registry, random: seeded('modes') })
+    const mode = (context: Record<string, unknown>, chosen?: string) =>
+      engine.resolve('m/forage', context, undefined, { mode: chosen }).resolution.mode
+    expect(mode({})).toBeUndefined()
+    expect(mode({ explorer: 1 })).toBe('m/advantage')
+    expect(mode({ yesterday: { lost: true } })).toBe('m/disadvantage')
+    expect(mode({ explorer: 1, yesterday: { lost: true } })).toBeUndefined()
+    // Chosen by hand: the three rolls of "steady" keep the middle one.
+    const steady = engine.resolve('m/forage', {}, undefined, { mode: 'm/steady' }).resolution
+    expect(steady.rolls[0].discarded).toHaveLength(2)
+    // Chosen advantage and automatic disadvantage cancel out.
+    expect(mode({ yesterday: { lost: true } }, 'm/advantage')).toBeUndefined()
   })
 })
 

@@ -113,15 +113,12 @@ export const es: Messages<typeof en> = {
     inputLabel: 'Etiqueta',
     labelHelp: 'Se muestra en lugar del id al tirar, y se puede traducir. Vacía: se muestra el id.',
     optionLabel: 'Etiqueta',
-    advantage: 'Se puede tirar con ventaja o desventaja',
-    advantageHelp:
-      'Muestra la opción Normal / Ventaja / Desventaja al tirar (tirar dos veces y quedarse con la mejor o la peor). Solo para las tablas que tu sistema tira así.',
-    advantageWhen: 'Ventaja cuando',
-    advantageWhenHelp:
-      'Tira con ventaja por sí sola cuando se cumple esto, p. ej. explorer: { gte: 1 } (una característica del grupo) o weather: clear. Vacío: nunca. Si a la vez hay desventaja, se anulan.',
-    disadvantageWhen: 'Desventaja cuando',
-    disadvantageWhenHelp:
-      'Tira con desventaja por sí sola cuando se cumple esto, p. ej. yesterday.lost: true (reencontrar el camino). Vacío: nunca.',
+    modes: 'Modos de tirada',
+    modesHelp:
+      'Formas de tirar esta tabla que declara su sistema (kind: roll-modes), como la ventaja: tirar toda la tirada varias veces y quedarse con un total. Marcado: se ofrece al tirar a mano. Cuando: se usa solo cuando se cumple la condición, p. ej. explorer: { gte: 1 } (una característica del grupo) o yesterday.lost: true. Dos modos que se anulan entre sí, juntos, dan una tirada normal.',
+    modeWhen: 'solo cuando',
+    noModes:
+      'Este pack y sus dependencias no declaran modos de tirada. Añade una definición kind: roll-modes (Nueva definición → Modos de tirada) para tirar tablas con ventaja o de cualquier otra forma.',
     default: 'Por defecto',
     defaultHelp: 'Opción seleccionada al abrir el panel de tirada.',
     firstOption: 'La primera',
@@ -207,11 +204,17 @@ export const es: Messages<typeof en> = {
     copied: 'Copiado como {id}',
   },
   newDef: {
-    forTravel: 'Para viajar (modo Jugar del Hexmapper)',
+    forTravel: 'Reglas del sistema',
     forTravelHelp:
-      'Un pack con reglas de viaje se convierte en un sistema que puedes elegir en el Hexmapper, Jugar → Reglas. Los bindings dicen qué tabla responde a cada comprobación. Consulta el manual: Conectar tablas con mapas y viajes.',
-    system: { 'travel-rules': 'Reglas de viaje', bindings: 'Bindings' },
+      'Los modos de tirada son las formas de tirar sus tablas (ventaja…). Un pack con reglas de viaje se convierte en un sistema que puedes elegir en el Hexmapper, Jugar → Reglas, y en la aplicación Travel; los bindings dicen qué tabla responde a cada comprobación. Consulta el manual: Tipos de definición, y Conectar tablas con mapas y viajes.',
+    system: {
+      'roll-modes': 'Modos de tirada',
+      'travel-rules': 'Reglas de viaje',
+      bindings: 'Bindings',
+    },
     systemTips: {
+      'roll-modes':
+        'Formas de tirar sus tablas, como la ventaja: tirar varias veces y quedarse con un total.',
       'travel-rules':
         'Velocidades, terrenos, caminos, provisiones y qué comprobaciones se tiran y cuándo.',
       bindings:

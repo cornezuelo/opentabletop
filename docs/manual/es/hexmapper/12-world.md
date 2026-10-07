@@ -1,6 +1,6 @@
 # El reloj del mundo
 
-El panel **Mundo** (☾ en la barra de herramientas, bajo el Oracle) lleva la fecha de la campaña de este mapa: el tiempo avanza, los eventos programados llegan en su día y los relojes de progreso se llenan. Se guarda con el mapa (y en su `.otd.json`).
+El panel **Mundo** (☾ en la barra de herramientas, bajo el Oracle) lleva la fecha de la campaña de este mapa: el tiempo avanza, los eventos programados llegan en su día y los relojes de progreso se llenan. Se guarda con el mapa (y en su `.otd.json`). Sus meses, lunas y fiestas salen del calendario del sistema del mapa (`kind: calendar` en su pack, mira [Tipos de definición](../technical/07-kinds.md#calendarios)); sin uno, días y cuatro estaciones.
 
 ## Ponerlo en marcha
 

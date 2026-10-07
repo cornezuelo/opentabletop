@@ -28,11 +28,12 @@ What is done, pending, agreed, decided and rejected for OpenTabletop, kept up to
 
 **Asked by the user on 2026-10-07, being done now (in this order)**
 
-- [ ] **Roll modes** as system data (`kind: roll-modes`: repeat N, keep highest / lowest / middle, `cancels`; tables list `modes` and `modeWhen`), replacing the built-in advantage (agreed: "modes declared by the system").
-- [ ] **Every `kind` in the manual**: briefly in the section that uses it, and a technical page with all of them in detail (`table`, `oracle`, `generator`, `deck`, `roll-modes`, `travel-rules`, `bindings`, `calendar`, `weather`…).
+- [x] **Roll modes** as system data (`kind: roll-modes`: repeat N, keep highest / lowest / middle, `cancels`; tables list `modes` and `modeWhen`), replacing the built-in advantage (agreed: "modes declared by the system"). Done: dice `repeat`/`keep`, the Oracle engine, roll panel, form, YAML editor, CLI `--mode`; Core, the Grey Marches (+ _Carefully_) and Kal-Arath declare theirs.
+- [x] **Every `kind` in the manual**: briefly in the section that uses it, and a technical page with all of them in detail (`table`, `oracle`, `generator`, `deck`, `roll-modes`, `travel-rules`, `bindings`, `calendar`, `weather`…). Done: technical/07-kinds, linked from Oracle → Packs, Travel → Systems, Hexmapper → World, Core and the Grey Marches.
 - [ ] **Oracle pack page**: list translation files under _Translations_, not mixed into _Files_.
 - [ ] **Hexmapper layout**: swap the side panels (the right panel to the left, the left to the right), like the other apps.
 - [ ] **README.md** at the root of the repo.
+- [ ] **Travel → Play → The way**: column headers and tooltips (what each column is, especially tags).
 
 **Next, in this order (agreed with the user 2026-10-08; each step is groundwork for the ones after it, so nothing gets rewritten)**
 

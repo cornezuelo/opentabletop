@@ -3,7 +3,7 @@ import { parseDice, roll, type DiceExpression, type DiceResult } from '@open-tab
 import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/random'
 import {
   resolveRef,
-  type AutoAdvantage,
+  type RollMode,
   type Compiled,
   type CompiledCard,
   type CompiledDeck,
@@ -36,6 +36,8 @@ export interface Resolution {
   entry?: string
   /** Dice rolled at this node (sub-results keep their own). */
   rolls: DiceResult[]
+  /** The roll mode its roll was made with (full id), if any. */
+  mode?: string
   children: Resolution[]
   context: Record<string, unknown>
 }
@@ -58,8 +60,8 @@ export interface ResolveOutcome {
 
 export interface ResolveOptions {
   locale?: string
-  /** +1 advantage / -1 disadvantage for the top-level roll (also read from context.advantage). */
-  advantage?: number
+  /** A roll mode the definition offers (full id), chosen by hand for the top-level roll. */
+  mode?: string
 }
 
 export type OracleEvent =
@@ -133,9 +135,7 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       maxDepth,
       options.onEvent,
     )
-    const advantage =
-      opts.advantage ?? (typeof context.advantage === 'number' ? context.advantage : 0)
-    const resolution = session.resolve(def, context, 0, advantage)
+    const resolution = session.resolve(def, context, 0, opts.mode)
     return {
       resolution,
       state: session.state,
@@ -197,13 +197,14 @@ class Run {
     def: Compiled,
     context: Record<string, unknown>,
     depth: number,
-    advantage = 0,
+    /** Roll mode chosen by hand (top level only). */
+    chosen?: string,
   ): Resolution {
     if (depth > this.maxDepth)
       throw new OracleError(`Maximum depth (${this.maxDepth}) exceeded at "${def.id}"`)
     switch (def.kind) {
       case 'table': {
-        const res = this.resolveList(def, def, context, depth, advantage, '')
+        const res = this.resolveList(def, def, context, depth, chosen, '')
         this.onEvent?.({ type: 'TABLE_RESOLVED', source: def.id })
         return res
       }
@@ -223,7 +224,7 @@ class Run {
           variant,
           { ...context, [input]: option },
           depth,
-          advantage,
+          chosen,
           option,
         )
         res.value = { [input]: option, ...res.value }
@@ -262,12 +263,37 @@ class Run {
     }
   }
 
+  /**
+   * The roll mode a table or oracle is rolled with: the one chosen by hand (if it offers
+   * it) and those whose `modeWhen` holds. Modes that cancel each other drop out; of the
+   * rest, the first (chosen, then in `modeWhen` order) is used.
+   */
+  private modeFor(
+    def: Compiled,
+    context: Record<string, unknown>,
+    chosen: string | undefined,
+  ): RollMode | undefined {
+    if (def.kind !== 'table' && def.kind !== 'oracle') return undefined
+    const active = [
+      ...(chosen && def.modes.includes(chosen) ? [chosen] : []),
+      ...Object.entries(def.modeWhen)
+        .filter(([, when]) => matches(when, context))
+        .map(([id]) => id),
+    ]
+      .filter((id, i, all) => all.indexOf(id) === i)
+      .map((id) => this.registry.rollModes.get(id))
+      .filter((m): m is RollMode => !!m)
+    const cancel = (a: RollMode, b: RollMode) =>
+      a.cancels.includes(b.id) || b.cancels.includes(a.id)
+    return active.find((m) => !active.some((other) => other !== m && cancel(m, other)))
+  }
+
   private resolveList(
     def: Compiled & { clamp?: boolean; onExhausted?: 'reroll' | 'next' | 'none' },
     list: EntryList,
     context: Record<string, unknown>,
     depth: number,
-    advantage: number,
+    chosen: string | undefined,
     /** The oracle variant the list belongs to ('' for tables). */
     variant: string,
   ): Resolution {
@@ -276,12 +302,9 @@ class Run {
     const candidates = list.entries.filter((e) => !e.when || matches(e.when, context))
     if (candidates.length === 0) return node
 
-    // A table or oracle may roll with advantage or disadvantage by itself, on a condition.
-    const auto = def as AutoAdvantage
-    if (auto.advantageWhen && matches(auto.advantageWhen, context)) advantage += 1
-    if (auto.disadvantageWhen && matches(auto.disadvantageWhen, context)) advantage -= 1
-    advantage = Math.max(-1, Math.min(1, advantage))
-    let entry = this.pick(list, candidates, context, node, advantage, def.clamp ?? true)
+    const mode = this.modeFor(def, context, chosen)
+    if (mode) node.mode = mode.id
+    let entry = this.pick(list, candidates, context, node, mode, def.clamp ?? true)
     if (entry && exhausted(entry)) {
       const policy = def.onExhausted ?? 'reroll'
       const available = candidates.filter((e) => !exhausted(e))
@@ -299,7 +322,7 @@ class Run {
             list.roll ? candidates : available,
             context,
             node,
-            0,
+            mode,
             def.clamp ?? true,
           )
         if (entry && exhausted(entry)) entry = available[0]
@@ -326,7 +349,7 @@ class Run {
     candidates: CompiledEntry[],
     context: Record<string, unknown>,
     node: Resolution,
-    advantage: number,
+    mode: RollMode | undefined,
     clamp: boolean,
   ): CompiledEntry | undefined {
     if (!list.roll) {
@@ -336,7 +359,7 @@ class Run {
       )
       return candidates[index]
     }
-    const total = this.roll(list.parsedRoll ?? list.roll, context, node, advantage).total
+    const total = this.roll(list.parsedRoll ?? list.roll, context, node, mode).total
     const hit = candidates.find((e) => total >= e.min! && total <= e.max!)
     if (hit || !clamp) return hit
     const lowest = candidates.reduce((a, b) => (b.min! < a.min! ? b : a))
@@ -431,7 +454,7 @@ class Run {
     expression: string | DiceExpression,
     context: Record<string, unknown>,
     node: Resolution | undefined,
-    advantage = 0,
+    mode?: RollMode,
   ): DiceResult {
     const parsed =
       typeof expression === 'string'
@@ -446,7 +469,7 @@ class Run {
             }),
           )
         : expression
-    const result = roll(parsed, this.random, { advantage })
+    const result = roll(parsed, this.random, mode && { repeat: mode.repeat, keep: mode.keep })
     node?.rolls.push(result)
     return result
   }

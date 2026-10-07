@@ -1,6 +1,13 @@
 import { validateCondition, type Condition } from '@open-tabletop/conditions'
 import { parseDice, possibleTotals, type DiceExpression } from '@open-tabletop/dice'
-import type { CardDef, Definition, Entry, Manifest, Overlay } from '../definitions/schema'
+import {
+  rollModesSchema,
+  type CardDef,
+  type Definition,
+  type Entry,
+  type Manifest,
+  type Overlay,
+} from '../definitions/schema'
 import type { Diagnostic, LoadedPack } from '../loader/load'
 
 export interface Ref {
@@ -42,23 +49,39 @@ interface Base {
   tags: string[]
 }
 
-/** When a table or oracle rolls with advantage or disadvantage by itself. */
-export interface AutoAdvantage {
-  advantageWhen?: Condition
-  disadvantageWhen?: Condition
+/** Text in one or several languages. */
+export type LocalizedText = string | Record<string, string>
+
+/** A system's way of rolling (`kind: roll-modes`): the roll made `repeat` times, one kept. */
+export interface RollMode {
+  /** Full id: `pack/mode`. */
+  id: string
+  pack: string
+  localId: string
+  name?: LocalizedText
+  description?: LocalizedText
+  repeat: number
+  keep: 'highest' | 'lowest' | 'middle'
+  /** Full ids of the modes it cancels out with. */
+  cancels: string[]
 }
 
-export interface CompiledTable extends Base, EntryList, AutoAdvantage {
+/** How a table or oracle may be rolled: modes offered by hand, and modes that apply alone. */
+export interface WithRollModes {
+  /** Full ids of the modes offered when rolling by hand, in order. */
+  modes: string[]
+  /** Full mode id → when it applies by itself. */
+  modeWhen: Record<string, Condition>
+}
+
+export interface CompiledTable extends Base, EntryList, WithRollModes {
   kind: 'table'
-  /** The table is meant to be rolled with advantage/disadvantage (UIs offer the choice). */
-  advantage: boolean
   clamp: boolean
   onExhausted: 'reroll' | 'next' | 'none'
 }
 
-export interface CompiledOracle extends Base, AutoAdvantage {
+export interface CompiledOracle extends Base, WithRollModes {
   kind: 'oracle'
-  advantage: boolean
   inputs: Record<
     string,
     { options: string[]; default?: string; label?: string; labels?: Record<string, string> }
@@ -111,6 +134,8 @@ export interface Registry {
   overlays: Map<string, Map<string, Overlay[string]>>
   /** Per pack, definitions owned by other engines (travel-rules, bindings…), untouched. */
   extras: Map<string, LoadedPack['extras']>
+  /** The roll modes packs declare (`kind: roll-modes`), by full id. */
+  rollModes: Map<string, RollMode>
   diagnostics: Diagnostic[]
 }
 
@@ -123,6 +148,7 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
     packs: new Map(),
     overlays: new Map(),
     extras: new Map(),
+    rollModes: new Map(),
     diagnostics,
   }
   for (const pack of loaded) {
@@ -143,6 +169,8 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
           pack: pack.manifest.id,
         })
   }
+
+  compileRollModes(loaded, registry, diagnostics)
 
   // First pass: register ids so references can be resolved in any order.
   const raw = new Map<string, { definition: Definition; pack: string; file: string }>()
@@ -196,8 +224,7 @@ class CompileContext {
         return {
           ...base,
           kind: 'table',
-          advantage: d.advantage ?? false,
-          ...this.autoAdvantage(d),
+          ...this.rollModes(d),
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',
           ...this.entryList(d.roll, d.entries, 'entries'),
@@ -226,8 +253,7 @@ class CompileContext {
         return {
           ...base,
           kind: 'oracle',
-          advantage: d.advantage ?? false,
-          ...this.autoAdvantage(d),
+          ...this.rollModes(d),
           inputs: d.inputs,
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',
@@ -382,18 +408,30 @@ class CompileContext {
     for (const problem of validateCondition(condition, at)) this.error(at, problem)
   }
 
-  /** `advantageWhen` / `disadvantageWhen`, checked like any condition. */
-  private autoAdvantage(d: { advantageWhen?: unknown; disadvantageWhen?: unknown }): AutoAdvantage {
-    const out: AutoAdvantage = {}
-    if (d.advantageWhen) {
-      this.conditions(d.advantageWhen, 'advantageWhen')
-      out.advantageWhen = d.advantageWhen as Condition
+  /** `modes` and `modeWhen`: references to roll modes, and conditions checked as usual. */
+  private rollModes(d: {
+    modes?: string[]
+    modeWhen?: Record<string, unknown>
+    advantage?: boolean
+  }): WithRollModes {
+    if (d.advantage !== undefined)
+      this.warn(
+        'advantage',
+        '"advantage" no longer does anything: declare the ways of rolling in a "kind: roll-modes" definition and list them in "modes" (e.g. modes: [advantage, disadvantage])',
+      )
+    const mode = (ref: string, at: string): string | undefined => {
+      const id = resolveRef(this.registry, this.pack, ref, (x) => this.registry.rollModes.has(x))
+      if (!id) this.error(at, `Unknown roll mode "${ref}"`)
+      return id ?? undefined
     }
-    if (d.disadvantageWhen) {
-      this.conditions(d.disadvantageWhen, 'disadvantageWhen')
-      out.disadvantageWhen = d.disadvantageWhen as Condition
+    const modes = (d.modes ?? []).flatMap((ref, i) => mode(ref, `modes[${i}]`) ?? [])
+    const modeWhen: Record<string, Condition> = {}
+    for (const [ref, condition] of Object.entries(d.modeWhen ?? {})) {
+      const id = mode(ref, `modeWhen.${ref}`)
+      this.conditions(condition, `modeWhen.${ref}`)
+      if (id) modeWhen[id] = condition as Condition
     }
-    return out
+    return { modes, modeWhen }
   }
 
   private error(at: string, message: string): void {
@@ -415,6 +453,63 @@ class CompileContext {
       at: `${this.localId}.${at}`,
     })
   }
+}
+
+/** Reads every pack's `kind: roll-modes` into the registry, then resolves their `cancels`. */
+function compileRollModes(loaded: LoadedPack[], registry: Registry, diagnostics: Diagnostic[]) {
+  const pending: { mode: RollMode; cancels: string[]; file: string }[] = []
+  for (const pack of loaded)
+    for (const extra of pack.extras) {
+      if (extra.kind !== 'roll-modes') continue
+      const parsed = rollModesSchema.safeParse(extra.data)
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues)
+          diagnostics.push({
+            severity: 'error',
+            message: issue.message,
+            pack: pack.manifest.id,
+            file: extra.file,
+            at: ['roll-modes', ...issue.path.map(String)].join('.'),
+          })
+        continue
+      }
+      for (const [localId, m] of Object.entries(parsed.data.modes)) {
+        const id = `${pack.manifest.id}/${localId}`
+        if (registry.rollModes.has(id))
+          diagnostics.push({
+            severity: 'error',
+            message: `Duplicate roll mode "${localId}"`,
+            pack: pack.manifest.id,
+            file: extra.file,
+          })
+        const mode: RollMode = {
+          id,
+          pack: pack.manifest.id,
+          localId,
+          name: m.name,
+          description: m.description,
+          repeat: m.repeat,
+          keep: m.keep,
+          cancels: [],
+        }
+        registry.rollModes.set(id, mode)
+        const cancels = m.cancels === undefined ? [] : [m.cancels].flat()
+        pending.push({ mode, cancels, file: extra.file })
+      }
+    }
+  for (const { mode, cancels, file } of pending)
+    for (const ref of cancels) {
+      const target = resolveRef(registry, mode.pack, ref, (x) => registry.rollModes.has(x))
+      if (target) mode.cancels.push(target)
+      else
+        diagnostics.push({
+          severity: 'error',
+          message: `Unknown roll mode "${ref}"`,
+          pack: mode.pack,
+          file,
+          at: `roll-modes.modes.${mode.localId}.cancels`,
+        })
+    }
 }
 
 /**

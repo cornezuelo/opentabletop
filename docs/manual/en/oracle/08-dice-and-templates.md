@@ -18,7 +18,7 @@ Dice go in a table's or oracle's **roll** (Dice in the form), in generator field
 | `2d20kl1`                    | Roll 2d20 and **keep the lowest** 1 (`kl`).                                                                                          |
 | `1d6 + {{danger}}`           | Add a value from the context (see below). If it's missing it counts as 0; if it isn't a number, the roll fails with a clear message. |
 
-**Advantage / disadvantage** (tables with `advantage: true`) rolls the whole expression twice and keeps the higher or lower total. The result card shows every die, with discarded ones crossed out.
+**Roll modes** (advantage, disadvantage… whatever the system declares, see [Kinds of definition](../technical/07-kinds.md#roll-modes)) roll the whole expression several times and keep the highest, lowest or middle total. The result card shows every die, with discarded ones crossed out.
 
 ## Templates in texts
 

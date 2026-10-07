@@ -18,7 +18,7 @@ Los dados van en la **tirada** de una tabla u oráculo (Dados en el formulario),
 | `2d20kl1`                    | Tira 2d20 y **quédate con el más bajo** (`kl`).                                                                                            |
 | `1d6 + {{danger}}`           | Suma un valor del contexto (ver abajo). Si falta cuenta como 0; si no es un número, la tirada falla con un mensaje claro.                  |
 
-**Ventaja / desventaja** (tablas con `advantage: true`) tira la expresión entera dos veces y se queda con el total más alto o más bajo. La tarjeta del resultado muestra cada dado, con los descartados tachados.
+**Los modos de tirada** (ventaja, desventaja… lo que declare el sistema, ver [Tipos de definición](../technical/07-kinds.md#modos-de-tirada)) tiran la expresión entera varias veces y se quedan con el total más alto, el más bajo o el del medio. La tarjeta del resultado muestra cada dado, con los descartados tachados.
 
 ## Plantillas en los textos
 

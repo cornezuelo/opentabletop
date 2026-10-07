@@ -2,8 +2,8 @@
 # lost, weather, fatigue and resources (food, fodder…; negative to spend).
 
 # Dice with context values: missing ones count as 0. Fog and storms make it harder.
-# Advantage and disadvantage that come by themselves: clear skies help; after a day lost,
-# finding the way again is harder (both at once cancel out).
+# Roll modes that apply by themselves (`modeWhen`): clear skies give advantage; after a day
+# lost, finding the way again is rolled with disadvantage (both at once cancel out).
 kind: table
 id: getting-lost
 name: Do we get lost?
@@ -15,11 +15,12 @@ description: |-
   - A travel check: bound to `NAVIGATION_CHECK_REQUIRED`
   - A party stat in the roll: `{{navigation}}`
   - `set: { lost: true }`: no more travel today
-  - Advantage and disadvantage on a condition: `advantageWhen: { weather: clear }`, `disadvantageWhen: { yesterday.lost: true }`
+  - Roll modes that apply by themselves (`modeWhen`): `advantage` with `weather: clear`, `disadvantage` with `yesterday.lost: true`
   - Conditions on the weather, and on being outside any region (`exists: false`)
 roll: '1d6 + {{navigation}}'
-advantageWhen: { weather: clear }
-disadvantageWhen: { yesterday.lost: true }
+modeWhen:
+  advantage: { weather: clear }
+  disadvantage: { yesterday.lost: true }
 entries:
   - {
       id: fog,
@@ -43,7 +44,7 @@ entries:
     }
   - { id: course, range: 2-20, result: You keep your course }
 ---
-# A party stat in the roll, with advantage on offer (the panel's Advantage). The amount
+# A party stat in the roll, with Core's advantage and disadvantage on offer. The amount
 # found is itself rolled inside the value (resources: { food: '{{1d3+1}}' }); the text
 # reads that same value back ({{resources.food}}) and the trip adds it to the supplies.
 kind: table
@@ -59,7 +60,7 @@ description: |-
   - Dice inside a value (`food: '{{1d3+1}}'`), read back by the text (`{{resources.food}}`)
   - `set: { resources }`: the food gained
 roll: '1d6 + {{survival}}'
-advantage: true
+modes: [advantage, disadvantage]
 entries:
   - { id: nothing, range: 1-3, result: Nothing to eat here }
   - { id: some, range: 4-6, result: Berries and roots for a day, set: { resources: { food: 1 } } }
@@ -131,6 +132,8 @@ description: |-
   - Variants with their own dice
   - Day values set by the weather: `{{fordModifier}}`, `fordImpossible`
   - `set: { lost: true }`: no crossing today
+  - A roll mode of the pack's own: _Carefully_ (three rolls, the middle one kept)
+modes: [careful]
 inputs:
   odds:
     label: The water

@@ -11,7 +11,7 @@ kind: table
 id: weather
 name: Weather
 roll: 1d6
-advantage: true
+modes: [advantage, disadvantage]
 entries:
   - { id: clear, range: 1-3, result: Clear skies, set: { weather: clear } }
   - { id: rain, range: 4-5, result: Rain, set: { weather: rain } }
