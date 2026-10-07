@@ -15,6 +15,12 @@
 
   type Raw = Record<string, unknown>
   const AT = ['day-start', 'hex-enter', 'camp'] as const
+  /** The system's own actions can trigger checks too (at: <action id>). */
+  const ownActions = $derived(
+    Object.entries((doc.rules.actions ?? {}) as Record<string, unknown>)
+      .filter(([id, a]) => id !== 'camp' && id !== 'rest' && a !== false)
+      .map(([id]) => id),
+  )
   const tt = translator(getLocale)
   const eventName = (event: string) =>
     idText(tt, `events.${event}`, event.replace(/_CHECK_REQUIRED$/, '').toLowerCase())
@@ -149,6 +155,9 @@
               onchange={(e) => doc.edit('travel-rules', ['checks', i, 'at'], e.currentTarget.value)}
             >
               {#each AT as at (at)}<option value={at}>{t(`checks.atOptions.${at}`)}</option>{/each}
+              {#each ownActions as id (id)}<option value={id}
+                  >{t('checks.atAction', { action: id })}</option
+                >{/each}
             </select>
           </label>
           {#if !disabled}

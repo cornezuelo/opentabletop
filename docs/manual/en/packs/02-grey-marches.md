@@ -33,17 +33,17 @@ Hexes are given by their coordinates (column and row, as the map shows them: `05
 
 Every check is in `travel.yaml`; the journal says each one as it comes up.
 
-| Check           | When                                                                                    | Table                         |
-| --------------- | --------------------------------------------------------------------------------------- | ----------------------------- |
-| Weather         | Every dawn                                                                              | `weather` (by season)         |
-| Getting lost    | Every dawn, unless you set off along a road or river, or by boat                        | `getting-lost` (+ Navigation) |
-| Encounter       | Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road    | `encounter` (by day)          |
-| Toll            | Entering Keld Bridge (0909) by road                                                     | `toll`                        |
-| Ford            | Entering the ford (0907), unless by boat                                                | oracle `ford`                 |
-| Shrine          | Entering the shrine (1104)                                                              | `shrine`                      |
-| **Landmark**    | Entering the Grey Stones (0503), or a discovered landmark: **no table, press Continue** | —                             |
-| Night encounter | Camping in danger 2 or more                                                             | `encounter` (by night)        |
-| Foraging        | Camping in forest, dense forest, plains, farmland, heath or marsh                       | `forage` (+ Survival)         |
+| Check           | When                                                                                                                                    | Table                         |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Weather         | Every dawn                                                                                                                              | `weather` (by season)         |
+| Getting lost    | Every dawn, unless you set off along a road or river, or by boat                                                                        | `getting-lost` (+ Navigation) |
+| Encounter       | Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road                                                    | `encounter` (by day)          |
+| Toll            | Entering Keld Bridge (0909) by road                                                                                                     | `toll`                        |
+| Ford            | Entering the ford (0907), unless by boat                                                                                                | oracle `ford`                 |
+| Shrine          | Entering the shrine (1104)                                                                                                              | `shrine`                      |
+| **Landmark**    | Entering the Grey Stones (0503), or a discovered landmark: **no table, press Continue**                                                 | —                             |
+| Night encounter | Camping in danger 2 or more                                                                                                             | `encounter` (by night)        |
+| Foraging        | Pressing **Forage** (once a day; 3 hours, halves the rest of the day's march) in forest, dense forest, plains, farmland, heath or marsh | `forage` (+ Survival)         |
 
 **To see Continue**: from Ashford click the Grey Stones (0503) and **Travel**. The trip stops on arrival with _Landmark: waiting for you_ and a **Continue** button in the trip panel; the journal says the same.
 

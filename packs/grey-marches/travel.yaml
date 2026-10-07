@@ -42,6 +42,16 @@ weather:
 actions:
   # A rest is two hours and takes off one point of fatigue.
   rest: { minutes: 120, fatigue: 1 }
+  # The system's own action: foraging takes three hours and halves the rest of the day's
+  # march, once a day; its check (below, at: forage) is rolled where the party stands.
+  forage:
+    name: { en: Forage, es: Forrajear }
+    description:
+      en: 'Three hours looking for food (once a day): the rest of the day’s march is halved. Rolled on Foraging with Survival, in woods, fields, heath and marsh.'
+      es: 'Tres horas buscando comida (una vez al día): el resto de la marcha del día va a la mitad. Se tira en Forrajear con Supervivencia, en bosques, campos, brezales y marismas.'
+    minutes: 180
+    speed: 0.5
+    oncePerDay: true
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: day-start }
   # Off roads and rivers, and not by boat: any / edges / mode.
@@ -65,9 +75,9 @@ checks:
   # No table for this one: the trip stops at landmarks and waits for you to Continue.
   - { event: LANDMARK_CHECK_REQUIRED, at: hex-enter, when: { tags: landmark } }
   - { event: CAMP_ENCOUNTER_CHECK_REQUIRED, at: camp, when: { danger: { gte: 2 } } }
-  # Foraging when camping in the woods and fields (a list of terrains).
+  # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
-    at: camp
+    at: forage
     when: { terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
 ---
 kind: bindings

@@ -3,12 +3,38 @@ import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
 const condition = z.record(z.string(), z.unknown())
+/** Text in one or several languages: "Forage" or { en: Forage, es: Forrajear }. */
+const text = z.union([z.string(), z.record(z.string(), z.string())])
+
+/** Built-in moments for checks; any other value names one of the system's own actions. */
+export const CHECK_MOMENTS = ['day-start', 'hex-enter', 'camp'] as const
+const BUILT_IN_ACTIONS = ['camp', 'rest']
+
+/**
+ * An action of the system's own (`actions.forage`…): time passes, today's march may slow
+ * down and fatigue may ease; its checks are the ones with `at: <its id>`.
+ */
+const customAction = z
+  .object({
+    name: text.optional(),
+    description: text.optional(),
+    /** Time it takes (default 0). */
+    minutes: z.number().nonnegative().optional(),
+    /** Multiplies the rest of today's march, e.g. 0.5: foraging halves it. */
+    speed: z.number().nonnegative().optional(),
+    /** Fatigue recovered. */
+    fatigue: z.number().nonnegative().optional(),
+    /** Only once a day. */
+    oncePerDay: z.boolean().optional(),
+  })
+  .strict()
 
 const checkRule = z
   .object({
     /** Event name emitted as CHECK_REQUIRED, e.g. ENCOUNTER_CHECK_REQUIRED. */
     event: z.string().min(1),
-    at: z.enum(['day-start', 'hex-enter', 'camp']),
+    /** day-start, hex-enter, camp, or the id of one of the system's own actions. */
+    at: z.string().min(1),
     /** Skip the check when this matches the check context (terrain, edges, weather, mode…). */
     unless: condition.optional(),
     /** Only check when this matches. */
@@ -88,10 +114,26 @@ export const travelRulesSchema = z
           ])
           .optional(),
       })
-      .strict()
+      // Any other key is one of the system's own actions (false turns it off, like camp).
+      .catchall(z.union([z.literal(false), customAction]))
       .optional(),
   })
   .strict()
+  .superRefine((rules, ctx) => {
+    const own = Object.entries(rules.actions ?? {})
+      .filter(([id, action]) => !BUILT_IN_ACTIONS.includes(id) && action !== false)
+      .map(([id]) => id)
+    rules.checks?.forEach((check, i) => {
+      if (!(CHECK_MOMENTS as readonly string[]).includes(check.at) && !own.includes(check.at))
+        ctx.addIssue({
+          code: 'custom',
+          path: ['checks', i, 'at'],
+          message: `expected ${[...CHECK_MOMENTS, ...own].join(', ')}`,
+        })
+    })
+  })
+
+export type CustomAction = z.infer<typeof customAction>
 
 export type TravelRules = z.infer<typeof travelRulesSchema>
 
@@ -99,11 +141,16 @@ export type TravelRules = z.infer<typeof travelRulesSchema>
 export function availableActions(rules: TravelRules): {
   camp: boolean
   rest: { minutes: number; fatigue: number } | null
+  /** The system's own actions, in the order the rules list them. */
+  custom: Record<string, CustomAction>
 } {
-  const rest = rules.actions?.rest
+  const { camp, rest, ...custom } = rules.actions ?? {}
   return {
-    camp: rules.actions?.camp !== false,
+    camp: camp !== false,
     rest: rest === false ? null : { minutes: rest?.minutes ?? 60, fatigue: rest?.fatigue ?? 0 },
+    custom: Object.fromEntries(
+      Object.entries(custom).filter((e): e is [string, CustomAction] => e[1] !== false),
+    ),
   }
 }
 export type CheckRule = z.infer<typeof checkRule> & { unless?: Condition; when?: Condition }

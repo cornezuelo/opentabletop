@@ -289,6 +289,40 @@
         </label>
       {/if}
     </div>
+    <h4>{t('rules.ownActions')}<InfoTip text={t('rules.ownActionsHelp')} /></h4>
+    <RecordRows
+      {doc}
+      at={['actions']}
+      exclude={['camp', 'rest']}
+      idLabel={t('forms.id')}
+      suggestions={['forage', 'hunt', 'scout', 'pray']}
+      template={{ minutes: 60 }}
+      columns={[
+        {
+          field: 'minutes',
+          label: t('rules.restMinutes'),
+          type: 'number',
+          min: 0,
+          placeholder: '0',
+        },
+        {
+          field: 'speed',
+          label: t('rules.speed'),
+          help: t('rules.actionSpeedHelp'),
+          type: 'number',
+          min: 0,
+          placeholder: '1',
+        },
+        {
+          field: 'fatigue',
+          label: t('rules.restFatigue'),
+          type: 'number',
+          min: 0,
+          placeholder: '0',
+        },
+        { field: 'oncePerDay', label: t('rules.oncePerDay'), type: 'check', default: false },
+      ]}
+    />
   </section>
 </div>
 

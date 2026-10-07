@@ -95,6 +95,12 @@ export const es: Messages<typeof en> = {
     restHelp: 'Una pausa de unos minutos durante el día; recupera la fatiga que se indique aquí.',
     restMinutes: 'Minutos',
     restFatigue: 'Fatiga que recupera',
+    ownActions: 'Acciones de este sistema',
+    ownActionsHelp:
+      'Botones propios junto a Viajar, Acampar y Descansar, p. ej. forage (forrajear): llevan tiempo, pueden frenar el resto de la marcha del día y recuperar fatiga. Dales comprobaciones en la pestaña Comprobaciones (Cuándo: la acción). Su nombre y descripción en cada idioma van en el YAML (name: { en: Forage, es: Forrajear }).',
+    actionSpeedHelp:
+      'Multiplica el resto de la marcha del día: 0.5 la reduce a la mitad. Vacío: sin cambio.',
+    oncePerDay: 'Una vez al día',
     restFatigueHelp: '0: una pausa que no recupera nada (acampar sí).',
   },
   checks: {
@@ -103,6 +109,7 @@ export const es: Messages<typeof en> = {
     event: 'Comprobación',
     at: 'Cuándo',
     atOptions: { 'day-start': 'Al alba', 'hex-enter': 'Al entrar en un hex', camp: 'Al acampar' },
+    atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:

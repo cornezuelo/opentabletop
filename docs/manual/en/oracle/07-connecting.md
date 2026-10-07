@@ -96,11 +96,15 @@ resources:
   food: { perDay: 1 }
 weather:
   storm: { speed: 0 } # no travel in a storm
+actions:
+  rest: { minutes: 120, fatigue: 1 }
+  forage: { name: { en: Forage, es: Forrajear }, minutes: 180, speed: 0.5, oncePerDay: true } # an action of this system: a Forage button
 checks:
   - { event: WEATHER, at: day-start }
   - { event: LOST, at: day-start, unless: { edges: [road, river] } }
   - { event: ENCOUNTER, at: hex-enter, when: { terrain: [forest, swamp] } }
   - { event: NIGHT, at: camp }
+  - { event: FORAGE, at: forage, when: { terrain: [forest, plains] } }
 ---
 kind: bindings
 id: default
@@ -109,12 +113,14 @@ on:
   LOST: { resolve: lost-check }
   ENCOUNTER: { resolve: forest-encounters }
   NIGHT: { resolve: night-encounters }
+  FORAGE: { resolve: forage }
 stats:
   luck: { name: { en: Luck, es: Suerte }, description: 'Added to encounter rolls', default: 0 }
 ```
 
 - **terrains** set the speed on each terrain (`multiplier`; 0.5 is half speed) or close it (`passable: false`). **water** does the same for water hexes whose terrain isn't listed (the map's Edit palette → Water), and a way of travelling with `allowedTerrains: [water]` is a boat: it only sails water, even where walking can't go. Tables see `water: true` on water hexes.
-- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex) or `camp` (when camping). `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
+- **actions**: `camp` and `rest` are built in (`false` removes one; `rest` takes `minutes` and the `fatigue` it recovers). Any other key is an **action of the system's own**, a button next to Travel, Camp and Rest: `name` and `description` (in one or several languages), the `minutes` it takes, `speed` (multiplies the rest of the day's march: 0.5 halves it), `fatigue` recovered, and `oncePerDay`. What it rolls are the checks with `at: <its id>`.
+- **checks** say when something is rolled: `day-start` (at dawn, before marching), `hex-enter` (entering each hex), `camp` (when camping) or the id of one of the system's own actions (`at: forage`). `when` / `unless` use the same conditions as tables, with `edges` being the roads or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.
 - **bindings** connect each check (by its event name, any name you like) to a table of the pack.
 - **stats** are numbers of the party that appear in the trip panel (e.g. Kal-Arath's Presence); tables read them by key: `roll: '2d6 + {{luck}}'`.
 

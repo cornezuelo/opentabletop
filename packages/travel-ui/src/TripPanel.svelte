@@ -77,7 +77,24 @@
   const statText = (text: Parameters<typeof localize>[0], key: string) =>
     localize(text, locale, 'en') ?? key
 
-  const context = $derived({ t, startDay, hexLabel, nameOf })
+  const actionName = (id: string) =>
+    localize(actions.custom[id]?.name, locale, 'en') ?? idText(t, `actions.${id}`, id)
+  const context = $derived({ t, startDay, hexLabel, nameOf, actionName })
+  /** What an action of the system's own does, for its tooltip. */
+  function actionTip(id: string): string {
+    const own = actions.custom[id]
+    const described = localize(own.description, locale, 'en')
+    if (described) return described
+    const parts = [
+      own.minutes ? t('tips.actionTime', { minutes: own.minutes }) : '',
+      own.speed !== undefined ? t('tips.actionSpeed', { speed: own.speed }) : '',
+      own.fatigue ? t('tips.actionFatigue', { fatigue: own.fatigue }) : '',
+      own.oncePerDay ? t('tips.actionOnce') : '',
+    ]
+    return parts.filter(Boolean).join(' ')
+  }
+  const doneToday = (id: string) =>
+    !!actions.custom[id]?.oncePerDay && !!travel.actionsToday?.includes(id)
   const text = (e: JournalEntry) => entryText(e, context)
   const pendingName = (event: unknown) => eventName(t, event)
 
@@ -219,6 +236,13 @@
         onclick={() => onstep({ type: 'rest' })}>{t('rest', { length: restLength })}</button
       >
     {/if}
+    {#each Object.keys(actions.custom) as id (id)}
+      <button
+        use:tooltip={actionTip(id)}
+        disabled={doneToday(id)}
+        onclick={() => onstep({ type: 'action', id })}>{actionName(id)}</button
+      >
+    {/each}
   </div>
 
   {#each travel.pendingChecks as check (check.id)}

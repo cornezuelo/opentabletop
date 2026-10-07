@@ -69,6 +69,34 @@ describe('example maps', () => {
     expect(events).toContain('TOLL_CHECK_REQUIRED')
   })
 
+  it('the Grey Marches: foraging is an action of their own, once a day', () => {
+    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const options = {
+      system,
+      world: mapWorld(map),
+      oracle: createOracleEngine({ registry, random: seeded('forage') }),
+      locale: 'en',
+    }
+    // Ashford is farmland: foraging there is rolled on the Foraging table.
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    const foraged = stepTrip(options, session, { type: 'action', id: 'forage' })
+    expect(foraged.entries.map((e) => e.code)).toEqual(['ACTION_TAKEN', 'ORACLE_RESULT'])
+    expect(foraged.entries[1].data).toMatchObject({
+      event: 'FORAGE_CHECK_REQUIRED',
+      table: 'grey-marches/forage',
+    })
+    expect(foraged.state.travel.speedToday).toBe(0.5)
+    const again = stepTrip(options, foraged.state, { type: 'action', id: 'forage' })
+    expect(again.entries).toEqual([])
+  })
+
   it('the Grey Marches: only the boat crosses the Saltmere', () => {
     const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(

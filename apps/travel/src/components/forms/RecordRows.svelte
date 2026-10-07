@@ -32,6 +32,7 @@
     nameOf = (id: string) => id,
     template = {},
     idLabel,
+    exclude = [],
   }: {
     doc: SystemDoc
     kind?: Kind
@@ -41,6 +42,8 @@
     nameOf?: (id: string) => string
     template?: Record<string, unknown>
     idLabel: string
+    /** Keys of the record that aren't rows (e.g. camp and rest among the actions). */
+    exclude?: string[]
   } = $props()
 
   const record = $derived.by(() => {
@@ -51,7 +54,7 @@
       Record<string, unknown> | null
     >
   })
-  const rows = $derived(Object.entries(record))
+  const rows = $derived(Object.entries(record).filter(([id]) => !exclude.includes(id)))
   const free = $derived(suggestions.filter((s) => !(s in record)))
   const listId = $props.id()
   const disabled = $derived(!doc.editable)

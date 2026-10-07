@@ -35,17 +35,17 @@ Los hexes se dan por sus coordenadas (columna y fila, como las muestra el mapa: 
 
 Todas las comprobaciones están en `travel.yaml`; el diario dice cada una cuando sale.
 
-| Comprobación       | Cuándo                                                                                                     | Tabla                          |
-| ------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| Clima              | Cada amanecer                                                                                              | `weather` (por estación)       |
-| Perderse           | Cada amanecer, salvo si sales por un camino o río, o en barca                                              | `getting-lost` (+ Orientación) |
-| Encuentro          | Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino             | `encounter` (de día)           |
-| Peaje              | Al entrar en Keld Bridge (0909) por el camino                                                              | `toll`                         |
-| Vado               | Al entrar en el vado (0907), salvo en barca                                                                | oráculo `ford`                 |
-| Santuario          | Al entrar en el santuario (1104)                                                                           | `shrine`                       |
-| **Lugar señalado** | Al entrar en las Piedras Grises (0503), o en un lugar señalado descubierto: **sin tabla, pulsa Continuar** | —                              |
-| Encuentro nocturno | Al acampar con peligro 2 o más                                                                             | `encounter` (de noche)         |
-| Forrajear          | Al acampar en bosque, bosque denso, llanura, cultivos, brezal o marisma                                    | `forage` (+ Supervivencia)     |
+| Comprobación       | Cuándo                                                                                                                                                 | Tabla                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------ |
+| Clima              | Cada amanecer                                                                                                                                          | `weather` (por estación)       |
+| Perderse           | Cada amanecer, salvo si sales por un camino o río, o en barca                                                                                          | `getting-lost` (+ Orientación) |
+| Encuentro          | Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino                                                         | `encounter` (de día)           |
+| Peaje              | Al entrar en Keld Bridge (0909) por el camino                                                                                                          | `toll`                         |
+| Vado               | Al entrar en el vado (0907), salvo en barca                                                                                                            | oráculo `ford`                 |
+| Santuario          | Al entrar en el santuario (1104)                                                                                                                       | `shrine`                       |
+| **Lugar señalado** | Al entrar en las Piedras Grises (0503), o en un lugar señalado descubierto: **sin tabla, pulsa Continuar**                                             | —                              |
+| Encuentro nocturno | Al acampar con peligro 2 o más                                                                                                                         | `encounter` (de noche)         |
+| Forrajear          | Al pulsar **Forrajear** (una vez al día; 3 horas, la marcha del resto del día a la mitad) en bosque, bosque denso, llanura, cultivos, brezal o marisma | `forage` (+ Supervivencia)     |
 
 **Para ver Continuar**: desde Ashford haz clic en las Piedras Grises (0503) y **Viajar**. El viaje se detiene al llegar con _Lugar señalado: esperando_ y un botón **Continuar** en el panel del viaje; el diario dice lo mismo.
 

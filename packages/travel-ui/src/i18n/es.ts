@@ -33,6 +33,10 @@ export const es: Messages<typeof en> = {
   emptyJournal: 'Aún no ha pasado nada.',
   seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
   tips: {
+    actionTime: 'Lleva {minutes} minutos.',
+    actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
+    actionFatigue: 'Recupera {fatigue} de fatiga.',
+    actionOnce: 'Una vez al día.',
     exportJournal:
       'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',

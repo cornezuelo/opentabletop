@@ -9,6 +9,7 @@ import {
 } from '@open-tabletop/hex'
 import { defaultCalendar } from '@open-tabletop/time'
 import {
+  availableActions,
   createTravelEngine,
   initialTravelState,
   parseTravelRules,
@@ -273,6 +274,46 @@ describe('available actions', () => {
     const rested = restful.apply({ ...start(), fatigue: 2 }, { type: 'rest' }).state
     expect(rested.fatigue).toBe(1)
     expect(rested.time - start().time).toBe(120)
+  })
+})
+
+describe('the system’s own actions', () => {
+  const foraging = parseTravelRules({
+    ...rules!,
+    actions: {
+      forage: { name: { en: 'Forage' }, minutes: 240, speed: 0.5, oncePerDay: true },
+      pray: { fatigue: 1 },
+    },
+    checks: [{ event: 'FORAGE_CHECK_REQUIRED', at: 'forage', when: { terrain: 'steppe' } }],
+  }).rules!
+  const own = createTravelEngine({ world, rules: foraging })
+
+  it('take time, slow the day, ease fatigue and roll their checks', () => {
+    const { state, events } = own.apply(start(), { type: 'action', id: 'forage' })
+    expect(events.map((e) => e.type)).toEqual(['ACTION_TAKEN', 'CHECK_REQUIRED'])
+    expect(state.pendingChecks.map((c) => c.event)).toEqual(['FORAGE_CHECK_REQUIRED'])
+    expect(state.time - start().time).toBe(240)
+    expect(state.speedToday).toBe(0.5)
+    // Once a day: the second time is refused, the next day it's back.
+    const again = own.apply(state, { type: 'action', id: 'forage' })
+    expect(again.events).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'forage' }])
+    const tomorrow = own.apply(own.apply(state, { type: 'camp' }).state, {
+      type: 'action',
+      id: 'forage',
+    })
+    expect(tomorrow.events[0]).toMatchObject({ type: 'ACTION_TAKEN', action: 'forage' })
+    expect(
+      own.apply({ ...start(), fatigue: 2 }, { type: 'action', id: 'pray' }).state.fatigue,
+    ).toBe(1)
+    expect(own.apply(start(), { type: 'action', id: 'dance' }).events).toEqual([
+      { type: 'ACTION_UNAVAILABLE', action: 'dance' },
+    ])
+  })
+
+  it('are listed with camp and rest, and checks can only name existing moments', () => {
+    expect(Object.keys(availableActions(foraging).custom)).toEqual(['forage', 'pray'])
+    const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'fish' }] })
+    expect(bad.errors).toEqual(['checks.0.at: expected day-start, hex-enter, camp, forage, pray'])
   })
 })
 

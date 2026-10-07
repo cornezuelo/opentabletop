@@ -96,11 +96,15 @@ resources:
   food: { perDay: 1 }
 weather:
   storm: { speed: 0 } # con tormenta no se viaja
+actions:
+  rest: { minutes: 120, fatigue: 1 }
+  forage: { name: { en: Forage, es: Forrajear }, minutes: 180, speed: 0.5, oncePerDay: true } # una acción de este sistema: un botón Forrajear
 checks:
   - { event: WEATHER, at: day-start }
   - { event: LOST, at: day-start, unless: { edges: [road, river] } }
   - { event: ENCOUNTER, at: hex-enter, when: { terrain: [forest, swamp] } }
   - { event: NIGHT, at: camp }
+  - { event: FORAGE, at: forage, when: { terrain: [forest, plains] } }
 ---
 kind: bindings
 id: default
@@ -109,6 +113,7 @@ on:
   LOST: { resolve: lost-check }
   ENCOUNTER: { resolve: forest-encounters }
   NIGHT: { resolve: night-encounters }
+  FORAGE: { resolve: forage }
 stats:
   luck:
     {
@@ -119,7 +124,8 @@ stats:
 ```
 
 - **terrains** fijan la velocidad en cada terreno (`multiplier`; 0.5 es la mitad) o lo cierran (`passable: false`). **water** hace lo mismo con los hexes de agua cuyo terreno no está en la lista (Editar paleta → Agua en el mapa), y una forma de viajar con `allowedTerrains: [water]` es una barca: solo navega por agua, incluso donde a pie no se puede ir. Las tablas ven `water: true` en los hexes de agua.
-- **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex) o `camp` (al acampar). `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos del tramo: el que acabas de recorrer al entrar en un hex, el que tienes por delante al alba y al acampar.
+- **actions**: `camp` y `rest` vienen incluidas (`false` quita una; `rest` admite `minutes` y la `fatigue` que recupera). Cualquier otra clave es una **acción propia del sistema**, un botón junto a Viajar, Acampar y Descansar: `name` y `description` (en uno o varios idiomas), los `minutes` que lleva, `speed` (multiplica el resto de la marcha del día: 0.5 la reduce a la mitad), la `fatigue` que recupera y `oncePerDay` (una vez al día). Lo que tira son las comprobaciones con `at: <su id>`.
+- **checks** dicen cuándo se tira algo: `day-start` (al alba, antes de marchar), `hex-enter` (al entrar en cada hex), `camp` (al acampar) o el id de una acción propia del sistema (`at: forage`). `when` / `unless` usan las mismas condiciones que las tablas; `edges` son los caminos o ríos del tramo: el que acabas de recorrer al entrar en un hex, el que tienes por delante al alba y al acampar.
 - **bindings** conectan cada comprobación (por su nombre de evento, el que quieras) con una tabla del pack.
 - **stats** son números del grupo que aparecen en el panel del viaje (p. ej. la Presencia de Kal-Arath); las tablas los leen por su clave: `roll: '2d6 + {{luck}}'`.
 

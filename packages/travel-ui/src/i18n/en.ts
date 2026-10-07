@@ -29,6 +29,10 @@ export const en = {
   emptyJournal: 'Nothing has happened yet.',
   seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
   tips: {
+    actionTime: 'Takes {minutes} minutes.',
+    actionSpeed: 'The rest of today’s march goes at ×{speed}.',
+    actionFatigue: 'Recovers {fatigue} fatigue.',
+    actionOnce: 'Once a day.',
     exportJournal:
       'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, supplies and journal, keeping the party where it is.',

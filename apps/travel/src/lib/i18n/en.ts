@@ -94,6 +94,11 @@ export const en = {
     restMinutes: 'Minutes',
     restFatigue: 'Fatigue recovered',
     restFatigueHelp: '0: a pause that recovers nothing (camping does).',
+    ownActions: 'Actions of this system',
+    ownActionsHelp:
+      'Buttons of your own next to Travel, Camp and Rest, e.g. forage: they take time, can slow the rest of the day’s march and recover fatigue. Give them checks in the Checks tab (When: the action). Their name and description in each language go in the YAML (name: { en: Forage, es: Forrajear }).',
+    actionSpeedHelp: 'Multiplies the rest of the day’s march: 0.5 halves it. Empty: no change.',
+    oncePerDay: 'Once a day',
   },
   checks: {
     title: 'Checks',
@@ -101,6 +106,7 @@ export const en = {
     event: 'Check',
     at: 'When',
     atOptions: { 'day-start': 'At dawn', 'hex-enter': 'Entering a hex', camp: 'In camp' },
+    atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',
     conditionHelp:

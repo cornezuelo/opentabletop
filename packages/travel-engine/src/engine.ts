@@ -51,6 +51,8 @@ export interface TravelState {
   dayChecksDone: boolean
   lostToday: boolean
   speedToday?: number
+  /** The system's own actions done today (for `oncePerDay`). */
+  actionsToday?: string[]
   pendingChecks: PendingCheck[]
   nextCheckId: number
 }
@@ -79,6 +81,7 @@ export type TravelEvent =
   | { type: 'CAMP_STARTED'; time: GameTime }
   | { type: 'RESOURCE_DEPLETED'; resource: string }
   | { type: 'ACTION_UNAVAILABLE'; action: string }
+  | { type: 'ACTION_TAKEN'; action: string; time: GameTime }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -89,6 +92,8 @@ export type TravelAction =
   | { type: 'camp' }
   /** Short rest; length and fatigue recovery come from the rules unless given. */
   | { type: 'rest'; minutes?: number }
+  /** One of the system's own actions (`actions.<id>` in the rules), e.g. forage. */
+  | { type: 'action'; id: string }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
@@ -283,6 +288,7 @@ export function createTravelEngine(options: {
     state.dayChecksDone = false
     state.lostToday = false
     state.speedToday = undefined
+    delete state.actionsToday
     events.push({ type: 'DAY_STARTED', day })
     return short
   }
@@ -400,6 +406,23 @@ export function createTravelEngine(options: {
           state.time += Math.max(0, action.minutes ?? actions.rest.minutes)
           syncDay(state, events)
           state.fatigue = Math.max(0, state.fatigue - actions.rest.fatigue)
+          break
+        }
+        case 'action': {
+          const own = actions.custom[action.id]
+          if (!own || (own.oncePerDay && state.actionsToday?.includes(action.id))) {
+            events.push({ type: 'ACTION_UNAVAILABLE', action: action.id })
+            break
+          }
+          syncDay(state, events)
+          events.push({ type: 'ACTION_TAKEN', action: action.id, time: state.time })
+          // Its checks see the place and moment it starts.
+          schedule(state, action.id, events)
+          state.time += own.minutes ?? 0
+          syncDay(state, events)
+          state.actionsToday = [...(state.actionsToday ?? []), action.id]
+          if (own.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * own.speed
+          if (own.fatigue) state.fatigue = Math.max(0, state.fatigue - own.fatigue)
           break
         }
         case 'setMode':

@@ -9,15 +9,22 @@ export interface JournalContext {
   startDay: number
   hexLabel: (hex: string) => string
   nameOf: (id: string) => string
+  /** Name of one of the system's own actions (forage…). */
+  actionName?: (id: string) => string
 }
 
 export const eventName = (t: Translate, event: unknown) =>
   idText(t, `events.${String(event)}`, String(event))
 
 /** One journal entry as a line of text in the UI language. */
-export function entryText(e: JournalEntry, { t, startDay, hexLabel, nameOf }: JournalContext) {
+export function entryText(
+  e: JournalEntry,
+  { t, startDay, hexLabel, nameOf, actionName }: JournalContext,
+) {
   const d = (e.data ?? {}) as Record<string, unknown>
   switch (e.code) {
+    case 'ACTION_TAKEN':
+      return actionName?.(String(d.action)) ?? idText(t, `actions.${d.action}`, String(d.action))
     case 'ORACLE_RESULT':
       return `${eventName(t, d.event)}: ${e.text ?? '—'}`
     case 'ORACLE_ROLL':
