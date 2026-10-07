@@ -21,6 +21,20 @@
       .filter(([id, a]) => id !== 'camp' && id !== 'rest' && a !== false)
       .map(([id]) => id),
   )
+  /** A name or description in the UI language: plain text, or one language of a map. */
+  const textIn = (value: unknown): string =>
+    typeof value === 'string'
+      ? value
+      : typeof value === 'object' && value !== null
+        ? String((value as Record<string, unknown>)[getLocale()] ?? '')
+        : ''
+  function setCheckText(i: number, key: 'name' | 'description', current: unknown, text: string) {
+    const value = text.trim() || undefined
+    // Texts in several languages keep their other languages.
+    if (typeof current === 'object' && current !== null)
+      doc.edit('travel-rules', ['checks', i, key, getLocale()], value)
+    else doc.edit('travel-rules', ['checks', i, key], value)
+  }
   const tt = translator(getLocale)
   const eventName = (event: string) =>
     idText(tt, `events.${event}`, event.replace(/_CHECK_REQUIRED$/, '').toLowerCase())
@@ -168,6 +182,28 @@
               onclick={() => remove(i, event)}>×</button
             >
           {/if}
+        </div>
+        <div class="row">
+          <label>
+            <span>{t('checks.name')}<InfoTip text={t('checks.nameHelp')} /></span>
+            <input
+              type="text"
+              placeholder={eventName(event)}
+              value={textIn(check.name)}
+              {disabled}
+              onchange={(e) => setCheckText(i, 'name', check.name, e.currentTarget.value)}
+            />
+          </label>
+          <label>
+            <span>{t('checks.description')}</span>
+            <input
+              type="text"
+              value={textIn(check.description)}
+              {disabled}
+              onchange={(e) =>
+                setCheckText(i, 'description', check.description, e.currentTarget.value)}
+            />
+          </label>
         </div>
         <div class="row">
           <label>

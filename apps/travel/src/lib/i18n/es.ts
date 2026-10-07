@@ -107,6 +107,10 @@ export const es: Messages<typeof en> = {
     title: 'Comprobaciones',
     help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla detiene el viaje y te espera.',
     event: 'Comprobación',
+    name: 'Nombre',
+    nameHelp:
+      'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento (p. ej. Perderse). Los nombres en varios idiomas van en el YAML: name: { en: Getting lost, es: Perderse }; esta caja edita el idioma actual.',
+    description: 'Descripción (tooltip)',
     at: 'Cuándo',
     atOptions: { 'day-start': 'Al alba', 'hex-enter': 'Al entrar en un hex', camp: 'Al acampar' },
     atAction: 'Acción: {action}',

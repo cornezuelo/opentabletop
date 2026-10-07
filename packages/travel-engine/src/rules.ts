@@ -33,6 +33,10 @@ const checkRule = z
   .object({
     /** Event name emitted as CHECK_REQUIRED, e.g. ENCOUNTER_CHECK_REQUIRED. */
     event: z.string().min(1),
+    /** What players read instead of the event name: "Getting lost", in one or several languages. */
+    name: text.optional(),
+    /** What it is about, shown as its tooltip. */
+    description: text.optional(),
     /** day-start, hex-enter, camp, or the id of one of the system's own actions. */
     at: z.string().min(1),
     /** Skip the check when this matches the check context (terrain, edges, weather, mode…). */
@@ -154,6 +158,18 @@ export function availableActions(rules: TravelRules): {
   }
 }
 export type CheckRule = z.infer<typeof checkRule> & { unless?: Condition; when?: Condition }
+
+/** Name and description of a check event, from the first check with that event that has them. */
+export function checkInfo(
+  rules: TravelRules,
+  event: string,
+): { name?: string | Record<string, string>; description?: string | Record<string, string> } {
+  const checks = rules.checks ?? []
+  return {
+    name: checks.find((c) => c.event === event && c.name !== undefined)?.name,
+    description: checks.find((c) => c.event === event && c.description !== undefined)?.description,
+  }
+}
 
 /** Validates raw rules (YAML/JSON) and returns readable problems. */
 export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: string[] } {

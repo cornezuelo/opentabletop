@@ -104,6 +104,10 @@ export const en = {
     title: 'Checks',
     help: 'What is rolled on the way, when, and on which table. A check without a table stops the trip and waits for you.',
     event: 'Check',
+    name: 'Name',
+    nameHelp:
+      'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). Names in several languages go in the YAML: name: { en: Getting lost, es: Perderse }; this box edits the current language.',
+    description: 'Description (tooltip)',
     at: 'When',
     atOptions: { 'day-start': 'At dawn', 'hex-enter': 'Entering a hex', camp: 'In camp' },
     atAction: 'Action: {action}',

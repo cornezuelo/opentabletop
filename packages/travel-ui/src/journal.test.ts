@@ -47,4 +47,14 @@ describe('journal export', () => {
       ].join('\n'),
     )
   })
+
+  it('names checks as the system does', () => {
+    const t = translator(() => 'en')
+    const pending = entry(at(1, '06:00'), 'CHECK_PENDING', { data: { event: 'X_REQUIRED' } })
+    const context = { t, startDay: 1, hexLabel: (h: string) => h, nameOf: (id: string) => id }
+    expect(journalMarkdown([pending], context, 'T')).toContain('X REQUIRED: waiting for you')
+    expect(journalMarkdown([pending], { ...context, checkName: () => 'Landmark' }, 'T')).toContain(
+      'Landmark: waiting for you',
+    )
+  })
 })

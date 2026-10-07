@@ -11,30 +11,33 @@ export interface JournalContext {
   nameOf: (id: string) => string
   /** Name of one of the system's own actions (forage…). */
   actionName?: (id: string) => string
+  /** Name the system gives a check event, if any. */
+  checkName?: (event: string) => string | undefined
 }
 
-export const eventName = (t: Translate, event: unknown) =>
-  idText(t, `events.${String(event)}`, String(event))
+/** A check event for players: the system's name for it, a known one, or the id made readable. */
+export const eventName = (t: Translate, event: unknown, checkName?: JournalContext['checkName']) =>
+  checkName?.(String(event)) ?? idText(t, `events.${String(event)}`, String(event))
 
 /** One journal entry as a line of text in the UI language. */
 export function entryText(
   e: JournalEntry,
-  { t, startDay, hexLabel, nameOf, actionName }: JournalContext,
+  { t, startDay, hexLabel, nameOf, actionName, checkName }: JournalContext,
 ) {
   const d = (e.data ?? {}) as Record<string, unknown>
   switch (e.code) {
     case 'ACTION_TAKEN':
       return actionName?.(String(d.action)) ?? idText(t, `actions.${d.action}`, String(d.action))
     case 'ORACLE_RESULT':
-      return `${eventName(t, d.event)}: ${e.text ?? '—'}`
+      return `${eventName(t, d.event, checkName)}: ${e.text ?? '—'}`
     case 'ORACLE_ROLL':
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
     case 'CHECK_PENDING':
-      return t('journal.pending', { event: eventName(t, d.event) })
+      return t('journal.pending', { event: eventName(t, d.event, checkName) })
     case 'DISCOVERY_FAILED':
       return t('journal.discoveryFailed', { hex: hexLabel(String(d.hex)), error: e.text ?? '' })
     case 'CHECK_FAILED':
-      return t('journal.failed', { event: eventName(t, d.event), error: e.text ?? '' })
+      return t('journal.failed', { event: eventName(t, d.event, checkName), error: e.text ?? '' })
     case 'HEX_ENTERED':
       return t('journal.entered', { hex: hexLabel(String(d.hex)) })
     case 'HEX_DISCOVERED':

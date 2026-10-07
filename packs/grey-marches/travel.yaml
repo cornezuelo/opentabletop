@@ -53,30 +53,64 @@ actions:
     speed: 0.5
     oncePerDay: true
 checks:
-  - { event: WEATHER_CHECK_REQUIRED, at: day-start }
+  # Each check has a name and a description for players (the event id is for the bindings).
+  - event: WEATHER_CHECK_REQUIRED
+    name: { en: Weather, es: Clima }
+    description:
+      { en: 'Rolled every dawn, by season.', es: 'Se tira cada alba, según la estación.' }
+    at: day-start
   # Off roads and rivers, and not by boat: any / edges / mode.
   - event: NAVIGATION_CHECK_REQUIRED
+    name: { en: Getting lost, es: Perderse }
+    description:
+      en: 'Every dawn off roads and rivers (not by boat). Navigation helps; fog makes it harder.'
+      es: 'Cada alba fuera de caminos y ríos (no en barca). La Orientación ayuda; la niebla lo complica.'
     at: day-start
     unless: { any: [{ edges: [road, river] }, { mode: boat }] }
   # Encounters where the map says there is danger (a hex field), never on the road.
   - event: ENCOUNTER_CHECK_REQUIRED
+    name: { en: Encounter, es: Encuentro }
+    description:
+      en: 'Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road.'
+      es: 'Al entrar en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino.'
     at: hex-enter
     when: { danger: { gte: 1 } }
     unless: { edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
   - event: TOLL_CHECK_REQUIRED
+    name: { en: Toll, es: Peaje }
+    description:
+      { en: 'Keld Bridge, arriving by road.', es: 'Keld Bridge, llegando por el camino.' }
     at: hex-enter
     when: { all: [{ tags: toll }, { edges: road }] }
   # Fords are rolled on an oracle, except by boat: not.
   - event: FORD_CHECK_REQUIRED
+    name: { en: Ford, es: Vado }
+    description:
+      { en: 'Crossing the river on foot or horseback.', es: 'Cruzar el río a pie o a caballo.' }
     at: hex-enter
     when: { all: [{ tags: ford }, { not: { mode: boat } }] }
-  - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine } }
+  - event: SHRINE_CHECK_REQUIRED
+    name: { en: Shrine, es: Santuario }
+    at: hex-enter
+    when: { tags: shrine }
   # No table for this one: the trip stops at landmarks and waits for you to Continue.
-  - { event: LANDMARK_CHECK_REQUIRED, at: hex-enter, when: { tags: landmark } }
-  - { event: CAMP_ENCOUNTER_CHECK_REQUIRED, at: camp, when: { danger: { gte: 2 } } }
+  - event: LANDMARK_CHECK_REQUIRED
+    name: { en: Landmark, es: Lugar señalado }
+    description:
+      en: 'Describe the place yourself (or roll on an oracle), then press Continue.'
+      es: 'Describe tú el lugar (o tira en un oráculo) y pulsa Continuar.'
+    at: hex-enter
+    when: { tags: landmark }
+  - event: CAMP_ENCOUNTER_CHECK_REQUIRED
+    name: { en: Night encounter, es: Encuentro nocturno }
+    description:
+      { en: 'Camping where danger is 2 or more.', es: 'Al acampar donde el peligro es 2 o más.' }
+    at: camp
+    when: { danger: { gte: 2 } }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
+    name: { en: Foraging, es: Forrajeo }
     at: forage
     when: { terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
 ---

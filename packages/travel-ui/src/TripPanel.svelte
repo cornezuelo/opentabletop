@@ -7,7 +7,7 @@
   } from '@open-tabletop/session'
   import { defaultCalendar, formatClock } from '@open-tabletop/time'
   import { entryClock, entryText, eventName, journalMarkdown, tripDay } from './journal'
-  import { availableActions, type TravelAction } from '@open-tabletop/travel-engine'
+  import { availableActions, checkInfo, type TravelAction } from '@open-tabletop/travel-engine'
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
 
@@ -79,7 +79,10 @@
 
   const actionName = (id: string) =>
     localize(actions.custom[id]?.name, locale, 'en') ?? idText(t, `actions.${id}`, id)
-  const context = $derived({ t, startDay, hexLabel, nameOf, actionName })
+  const checkName = (event: string) => localize(checkInfo(system.rules, event).name, locale, 'en')
+  const checkTip = (event: string) =>
+    localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
+  const context = $derived({ t, startDay, hexLabel, nameOf, actionName, checkName })
   /** What an action of the system's own does, for its tooltip. */
   function actionTip(id: string): string {
     const own = actions.custom[id]
@@ -96,7 +99,7 @@
   const doneToday = (id: string) =>
     !!actions.custom[id]?.oncePerDay && !!travel.actionsToday?.includes(id)
   const text = (e: JournalEntry) => entryText(e, context)
-  const pendingName = (event: unknown) => eventName(t, event)
+  const pendingName = (event: unknown) => eventName(t, event, checkName)
 
   /** Newest first, grouped by day ("Day N" headers). */
   const journalDays = $derived.by(() => {
@@ -247,7 +250,11 @@
 
   {#each travel.pendingChecks as check (check.id)}
     <div class="pending">
-      <span>{t('journal.pending', { event: pendingName(check.event) })}</span>
+      <span
+        >{t('journal.pending', {
+          event: pendingName(check.event),
+        })}{#if checkTip(check.event)}<InfoTip text={checkTip(check.event)} />{/if}</span
+      >
       <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
       >
     </div>
