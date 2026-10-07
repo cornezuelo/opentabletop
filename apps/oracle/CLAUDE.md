@@ -29,22 +29,6 @@ Principles:
 - **User packs live in the browser** (`localStorage`, key `opentabletop.userPacks`, shared by OpenTabletop apps served from the same origin). Export a pack as `.zip` (its folder at the top, ready for `packs/`) to back it up or share it.
 - **Context variables** a definition reads (roll and reference templates, condition keys) are detected by following its references (`oracle-ui`'s `variables.ts`), so the roll panel asks for them; values seen in conditions are offered as suggestions.
 
-## Done
+## Roadmap
 
-- Pack list and history can be folded (header buttons; remembered in this browser).
-- Favorites (☆ next to a definition's name): pinned on top of the list, also in the Hexmapper's Oracle panel (shared `opentabletop.favorites`).
-- New definition dialog also adds travel rules and bindings (one travel system per pack).
-- Sidebar with search, packs (bundled / edited / personal-use badges, error count) and their definitions.
-- Roll tab: oracle inputs, detected context variables, advantage/disadvantage, deck draw/shuffle with cards left, result card with dice breakdown and nested results, entries preview with the chosen one highlighted, Space/Enter to roll again, results in the UI language.
-- History (last 100, persisted) and "New session" (resets once-only entries and decks).
-- Undo/redo of every change to user packs (PackLibrary history, ↶ ↷ and Ctrl+Z outside text fields; YAML typing groups per pause).
-- Entry conditions, `set` values, once/at-most (⋯ on a row, one line of flow YAML) and clamp / when-exhausted per table.
-- Form editors for every kind, with translations per language (overlay files): tables (dice, entries with range or weight, delegate to a table/generator, add/duplicate/move/remove, number 1–N, give entries ids), oracles (the input, its options: rename/add/move/remove, default, one entry list per option), generators (fields from a table, generator, dice or fixed value; rename/move/remove; template with {{field}} chips) and decks (cards with copies, reshuffle mode).
-- Definitions: "New definition" dialog (pack, kind, name → id, file; also from the + on each user pack), duplicate, "copy to" one of your packs (with translations; local references become `pack/id`), delete (with translations).
-- Pack view: manifest summary, problems (click → line), definitions, other engines' definitions, files (add/rename/delete), translations (add language), new definition from templates, export .zip, delete / revert.
-- YAML editor (CodeMirror 6, MIT) with diagnostics in the gutter.
-- New pack dialog, import .zip.
-
-## Pending
-
-- Roll statistics (distribution of a table) and coverage view.
+In [`docs/BACKLOG.md`](../../docs/BACKLOG.md#oracle).

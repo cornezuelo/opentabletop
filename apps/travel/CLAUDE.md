@@ -28,6 +28,4 @@ src/
 
 ## Roadmap
 
-- [x] First version: systems list, play an abstract trip, YAML editor with live diagnostics, new system, edit a copy, manual pages.
-- [x] Forms for travel rules (day, modes, terrains, edges, resources, weather, actions) and, in one Checks tab, checks with their bindings (table picker, context) and stats. They write the YAML through pack-ui helpers, keeping comments.
-- [x] Several saved trips (open, name, another, delete); export a trip's journal as Markdown (travel-ui, also in the Hexmapper).
+In [`docs/BACKLOG.md`](../../docs/BACKLOG.md#travel).
