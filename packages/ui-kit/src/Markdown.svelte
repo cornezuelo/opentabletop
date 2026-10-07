@@ -10,6 +10,11 @@
 <div class="markdown {className}">{@html html}</div>
 
 <style>
+  /* Room between lines, so code chips on one line never touch the next. */
+  .markdown {
+    line-height: 1.65;
+  }
+
   .markdown :global(p),
   .markdown :global(ul),
   .markdown :global(ol),
@@ -33,9 +38,13 @@
 
   /* Ids, values and YAML stand out as small, quiet chips. */
   .markdown :global(code) {
-    padding: 0.05em 0.4em;
+    margin: 0 0.1em;
+    padding: 0.1em 0.35em;
     font-family: ui-monospace, monospace;
-    font-size: 0.9em;
+    font-size: 0.88em;
+    line-height: 1;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
     color: color-mix(in srgb, var(--text) 80%, var(--accent));
     background: var(--bg);
     border: 1px solid var(--panel-border);

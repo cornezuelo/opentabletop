@@ -22,11 +22,12 @@ const STYLE = `
   opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s;
 }
 .ot-tooltip[data-visible='true'] { opacity: 1; transform: none; }
-.ot-tooltip p, .ot-tooltip ul, .ot-tooltip ol { margin: 0 0 0.45em; }
+.ot-tooltip p, .ot-tooltip ul, .ot-tooltip ol { margin: 0 0 0.45em; line-height: 1.6; }
 .ot-tooltip > :last-child { margin-bottom: 0; }
 .ot-tooltip ul, .ot-tooltip ol { padding-left: 1.2em; }
 .ot-tooltip code {
-  padding: 0 0.35em; font-family: ui-monospace, monospace; font-size: 0.92em;
+  margin: 0 0.1em; padding: 0.1em 0.3em; font-family: ui-monospace, monospace; font-size: 0.9em;
+  line-height: 1; box-decoration-break: clone; -webkit-box-decoration-break: clone;
   color: color-mix(in srgb, var(--text) 80%, var(--accent));
   background: var(--bg); border: 1px solid var(--panel-border); border-radius: 4px;
 }
