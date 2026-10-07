@@ -512,8 +512,9 @@ export const es: Messages = {
     advanceHelp:
       'Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.',
     tripHelp:
-      'Hay un viaje en marcha: el tiempo es uno solo para los dos. Viajar mueve el reloj, y mover el reloj es esperar donde está el grupo: se vive cada momento (las comprobaciones del alba, comer, acampar de noche), y la espera se detiene antes si algo te necesita.',
-    confirmWait: 'El grupo esperará aquí unos {days} días, acampando cada noche. ¿Seguir?',
+      'Hay un viaje en marcha: el tiempo es uno solo para los dos. Viajar mueve el reloj, y mover el reloj es esperar donde está el grupo: se vive cada momento (las comprobaciones del alba, lo que hace el sistema de noche y al acabar cada día), y la espera se detiene antes si algo te necesita.',
+    confirmWait: 'El grupo esperará aquí unos {days} días; cada noche: {action}. ¿Seguir?',
+    confirmWaitNoNight: 'El grupo esperará aquí unos {days} días. ¿Seguir?',
     waitStopped: 'La espera se ha detenido antes: el viaje te necesita (mira su diario).',
     hour: '+1 hora',
     watch: '+1 guardia',

@@ -22,7 +22,7 @@ El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos e
 
 El diario empieza con «Esperar aquí hasta el día 3, 06:00» y luego lo cuenta todo. La espera **se detiene antes**, y el reloj con ella, cuando algo te necesita: una comprobación sin tabla o que hace pausa (pulsa **Continuar** y vuelve a avanzar el reloj), o una noche en la que el grupo no puede hacer su acción para la noche (lo bloquea un valor del día o no se cumplen sus condiciones): «Cae la noche y «Acampar» no es posible (…): la espera se detiene aquí.» Un mensaje avisa de que se detuvo antes.
 
-Una acampada dura hasta el alba aunque la espera pidiera menos: **+1 hora** a las 19:30 cruza el anochecer, así que el grupo acampa y el reloj acaba al alba. Una espera de más de un día pregunta antes.
+Una acampada dura hasta el alba aunque la espera pidiera menos: **+1 hora** a las 19:30 cruza el anochecer, así que el grupo acampa y el reloj acaba al alba. Una espera de más de un día pregunta antes, diciendo qué hace el grupo cada noche (la acción del sistema para la noche, o nada). Esperar nunca mueve al grupo, aunque haya una ruta planeada o el descubrimiento esté activo: se queda donde está hasta que vuelvas a viajar.
 
 Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashford y pulsa **Día siguiente**: al alba se tiran el clima y perderse, al anochecer el grupo acampa (come la comida de un día, una noche bien comidos quita 1 de fatiga, se tira el encuentro nocturno) y el reloj acaba en el alba siguiente.
 

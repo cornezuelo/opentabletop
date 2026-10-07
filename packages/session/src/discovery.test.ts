@@ -231,3 +231,48 @@ entries:
     expect(step.discovered.c).toEqual({ terrain: 'lake' })
   })
 })
+
+describe('waiting while discovering', () => {
+  it('waits where the party is: a check on the way never sets it travelling', () => {
+    const { registry } = loadPacks([
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'w/travel.yaml',
+        content: `
+kind: travel-rules
+day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8 }
+terrains: { forest: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 80 } }
+resources: { food: {} }
+checks: [{ event: DAWN, at: day-start, effects: { party.resources.food: 0 } }]
+---
+kind: bindings
+on: {}
+discover:
+  terrain: { resolve: next }
+  contents: { resolve: next }
+---
+kind: table
+id: next
+entries: [{ result: forest, set: { terrain: forest, poi: false } }]
+`,
+      },
+    ])
+    const system = travelSystems(registry).systems.find((s) => s.id === 'w')!
+    const world = line({ '0': { terrain: 'forest' } })
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('w') }),
+      discover: 'neighbors',
+    } as const
+    let { session } = startTrip({ system, location: '0' })
+    session = stepTrip(options, session, { type: 'setDestination', hex: '5' }).state
+    const until = session.travel.time + 3 * 1440
+    const { state, entries } = stepTrip(options, session, { type: 'wait', until })
+    expect(state.travel.location).toBe('0')
+    expect(entries.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
+    expect(state.travel.time).toBeGreaterThanOrEqual(until)
+  })
+})

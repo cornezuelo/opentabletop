@@ -483,8 +483,10 @@ export function createSession(options: {
           (travelling || waiting) && resolvedAll && s.travel.pendingChecks.length === 0 && !found
         // A travel order keeps going once its checks are resolved…
         let keepGoing = clear && reason === 'check'
-        // …and, discovering, from hex to hex, with the route re-planned over what was found.
+        // …and, discovering, from hex to hex, with the route re-planned over what was found
+        // (only a travel order: a wait goes on waiting where the party is).
         if (
+          travelling &&
           discovery &&
           clear &&
           (reason === 'hex' || reason === 'check') &&
@@ -501,7 +503,7 @@ export function createSession(options: {
           keepGoing = !!s.travel.route
         }
         if (!keepGoing) break
-        act = discovery ? { type: 'travel', until: 'hex' } : action
+        act = discovery && travelling ? { type: 'travel', until: 'hex' } : action
       }
       return { state: s, entries }
     },

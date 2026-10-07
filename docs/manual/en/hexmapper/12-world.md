@@ -22,7 +22,7 @@ The world and a trip with rules share **one time**. New trips start on the clock
 
 The journal starts with "Wait here until day 3, 06:00" and then tells all of it. The wait **stops early**, and the clock with it, when something needs you: a check without a table or one that pauses (press **Continue**, then move the clock on again), or a night when the party can't take its action for the night (a value of the day blocks it, or its conditions don't hold): "Night falls and “Camp” isn't possible (…): the wait stops here." A message says it stopped early.
 
-A camp lasts till dawn even if the wait asked for less: **+1 hour** at 19:30 crosses nightfall, so the party camps and the clock ends at dawn. A wait of more than a day asks first.
+A camp lasts till dawn even if the wait asked for less: **+1 hour** at 19:30 crosses nightfall, so the party camps and the clock ends at dawn. A wait of more than a day asks first, saying what the party does each night (the system's action for the night, or nothing). Waiting never moves the party, even with a route planned or discovery on: it stays where it is until you travel again.
 
 Example with the Grey Marches: start the clock, place the party in Ashford and press **Next day**: the weather and getting-lost checks are rolled at dawn, the party camps at nightfall (eating a day's food, a fed night takes off 1 fatigue, the night encounter is rolled) and the clock ends at the next dawn.
 

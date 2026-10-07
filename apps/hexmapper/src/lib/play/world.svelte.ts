@@ -1,4 +1,5 @@
 import { calendarOf, localize } from '@open-tabletop/session'
+import { availableActions, nightAction } from '@open-tabletop/travel-engine'
 import { defaultCalendar, type Calendar, type DataCalendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
@@ -54,8 +55,8 @@ export function worldAct(action: WorldAction): WorldEvent[] {
 
 /**
  * Moves time on from the World panel. With a trip going on there is one time for both:
- * the party waits where it is, living every moment (dawn's checks, eating, camping at
- * night), and the world follows it. The wait stops early at anything that needs the
+ * the party waits where it is, living every moment (dawn's checks, what the system does
+ * at night and as each day ends), and the world follows it. The wait stops early at anything that needs the
  * player (a check without a table, a pause, a camp the system blocks); a wait of more
  * than a day asks first.
  */
@@ -77,8 +78,16 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
     return
   }
   const calendar = worldCalendar()
-  const days = (until - trip.travel.time) / calendar.minutesPerDay
-  if (days > 1 && !(await confirmAction(t('world.confirmWait', { days: Math.ceil(days) })))) return
+  const days = Math.ceil((until - trip.travel.time) / calendar.minutesPerDay)
+  // What the party does each night is the system's (camp, or nothing).
+  const rules = play?.rules ? getSystem(play.rules.system).rules : undefined
+  const night = rules && nightAction(rules)
+  const nightName =
+    night && (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
+  const question = nightName
+    ? t('world.confirmWait', { days, action: nightName })
+    : t('world.confirmWaitNoNight', { days })
+  if (days > 1 && !(await confirmAction(question))) return
   step({ type: 'wait', until })
   const after = editor.map.play ? sessionOf(editor.map.play) : null
   if (after && after.travel.time < until) showToast(t('world.waitStopped'), 'info', 6000)
