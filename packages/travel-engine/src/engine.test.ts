@@ -423,7 +423,7 @@ describe('actions as steps, and declared values', () => {
     })
     expect(bad.errors).toEqual([
       'actions.nap.do.0: a step does one thing: time, eat, speed or effects',
-      'values.stuck.blocks.0: expected travel, camp, rest, nap',
+      'values.stuck.blocks.0: expected travel, camp, rest, nap, mode.foot, mode.horse',
     ])
   })
 
@@ -493,6 +493,33 @@ describe('actions as steps, and declared values', () => {
     // Undeclared now: lost isn't built in when a system declares its values.
     const lost = { ...start(), today: { lost: true } }
     expect(own.availability(lost).travel).toBeUndefined()
+  })
+})
+
+describe('ways of travelling with conditions', () => {
+  const boating = parseTravelRules({
+    ...rules!,
+    values: { stuck: { blocks: ['mode.horse'] } },
+    modes: {
+      foot: { kmPerDay: 30 },
+      horse: { kmPerDay: 50 },
+      // Only boarded at the water's edge (here: the ferry at 2,0).
+      boat: { kmPerDay: 40, allowedTerrains: ['water'], when: { hex: '2,0' } },
+    },
+  })
+  const own = createTravelEngine({ world, rules: boating.rules! })
+
+  it('can be chosen only when their condition holds, and a value can block one', () => {
+    expect(boating.errors).toEqual([])
+    expect(own.availability(start())['mode.boat']).toEqual({ condition: 'when' })
+    const refused = own.apply(start(), { type: 'setMode', mode: 'boat' })
+    expect(refused.state.mode).toBe('foot')
+    expect(refused.events).toEqual([
+      { type: 'ACTION_UNAVAILABLE', action: 'mode.boat', because: { condition: 'when' } },
+    ])
+    expect(own.apply(start('2,0'), { type: 'setMode', mode: 'boat' }).state.mode).toBe('boat')
+    const stuck = { ...start(), today: { stuck: true } }
+    expect(own.availability(stuck)['mode.horse']).toEqual({ value: 'stuck' })
   })
 })
 

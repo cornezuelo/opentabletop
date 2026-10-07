@@ -3,6 +3,8 @@
   import { t } from '../../lib/i18n'
   import type { SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
+  import { contextSuggestions } from '@open-tabletop/session'
+  import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
 
@@ -82,6 +84,14 @@
           type: 'list',
           placeholder: t('rules.anyTerrain'),
           choices: ['water', ...PALETTE, ...Object.keys(doc.rules.terrains ?? {})],
+        },
+        {
+          field: 'when',
+          label: t('actions.when'),
+          help: t('rules.modeWhenHelp'),
+          type: 'flow',
+          placeholder: t('checks.always'),
+          hints: contextSuggestions(library.registry),
         },
       ]}
     />

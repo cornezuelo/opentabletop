@@ -298,8 +298,11 @@
         }}
       >
         {#each Object.keys(system.rules.modes) as mode (mode)}
-          <option value={mode}
-            >{modeName(mode)} ({system.rules.modes[mode].kmPerDay} km/{t('dayUnit')})</option
+          {@const because = mode === travel.mode ? '' : why(blocked[`mode.${mode}`])}
+          <option value={mode} disabled={!!because}
+            >{modeName(mode)} ({system.rules.modes[mode].kmPerDay} km/{t('dayUnit')}){because
+              ? ` — ${because}`
+              : ''}</option
           >
         {/each}
       </select>

@@ -95,6 +95,8 @@ export const en = {
     actionsHelp:
       'What the party can do besides marching: camp, rest and the system’s own (forage, pray…), each a button in the trip panel. Each one says when it can be taken and what it does, step by step.',
     oncePerDay: 'Once a day',
+    modeWhenHelp:
+      'It can only be chosen when this holds, e.g. a boat only at the water’s edge: any: [{ water: true }, { tags: ferry }]. Empty: always. (In YAML, unless works too.)',
     values: 'Values of the day',
     valuesHelp:
       'Values this system’s tables can set for the rest of the day (set: { lost: true }), with what they block while they hold: travel, or actions by id. Tables read them the next day as yesterday.<id>. Without any, the older built-in lost (blocks travel) still works.',

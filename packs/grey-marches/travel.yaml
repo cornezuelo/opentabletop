@@ -29,8 +29,13 @@ modes:
   foot: { name: On foot, kmPerDay: 25 }
   # Horses go twice as fast and eat fodder.
   horse: { name: On horseback, kmPerDay: 50, consumes: { fodder: 1 } }
-  # …but a boat only goes on water (and along the coast).
-  boat: { name: By boat, kmPerDay: 40, allowedTerrains: [water, coast] }
+  # …but a boat only goes on water (and along the coast), and is only boarded at the
+  # water's edge or at a ferry (when: a condition on where the party is).
+  boat:
+    name: By boat
+    kmPerDay: 40
+    allowedTerrains: [water, coast]
+    when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }
 resources:
   food: { name: Food, perDay: 1 }
   fodder: { name: Fodder }

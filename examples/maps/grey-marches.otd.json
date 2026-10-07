@@ -1260,7 +1260,8 @@
         "9,10": {
           "terrain": "heath",
           "name": "The ferry",
-          "notes": "Take the boat (travel mode) across the Saltmere."
+          "notes": "Take the boat (travel mode) across the Saltmere.",
+          "tags": ["ferry"]
         },
         "9,11": {
           "terrain": "marsh"

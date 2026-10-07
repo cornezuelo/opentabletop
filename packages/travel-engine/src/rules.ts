@@ -152,6 +152,10 @@ export const travelRulesSchema = z
           kmPerDay: z.number().positive(),
           consumes: z.record(z.string(), z.number().nonnegative()).optional(),
           allowedTerrains: z.array(z.string()).optional(),
+          /** It can only be chosen when this holds, e.g. a boat at the water's edge. */
+          when: condition.optional(),
+          /** It can't be chosen when this holds. */
+          unless: condition.optional(),
         })
         .strict(),
     ),
@@ -194,7 +198,12 @@ export const travelRulesSchema = z
           message: `expected ${[...CHECK_MOMENTS, ...own].join(', ')}`,
         })
     })
-    const blockable = [...BLOCKABLE, ...BUILT_IN_ACTIONS, ...own]
+    const blockable = [
+      ...BLOCKABLE,
+      ...BUILT_IN_ACTIONS,
+      ...own,
+      ...Object.keys(rules.modes).map((m) => `mode.${m}`),
+    ]
     for (const [id, value] of Object.entries(rules.values ?? {}))
       value.blocks?.forEach((what, i) => {
         if (!blockable.includes(what))
@@ -312,6 +321,7 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
   ]
   const errors = [
     ...(parsed.data.checks ?? []).flatMap((check, i) => conditions(check, `checks[${i}]`)),
+    ...Object.entries(parsed.data.modes).flatMap(([id, m]) => conditions(m, `modes.${id}`)),
     ...Object.entries(parsed.data.actions ?? {}).flatMap(([id, a]) =>
       a === false
         ? []

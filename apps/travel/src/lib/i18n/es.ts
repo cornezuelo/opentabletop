@@ -97,6 +97,8 @@ export const es: Messages<typeof en> = {
     actionsHelp:
       'Lo que puede hacer el grupo además de marchar: acampar, descansar y las propias del sistema (buscar comida, rezar…), cada una un botón en el panel del viaje. Cada una dice cuándo se puede hacer y qué hace, paso a paso.',
     oncePerDay: 'Una vez al día',
+    modeWhenHelp:
+      'Solo se puede elegir cuando se cumple, p. ej. una barca solo a la orilla: any: [{ water: true }, { tags: ferry }]. Vacío: siempre. (En YAML también vale unless.)',
     values: 'Valores del día',
     valuesHelp:
       'Valores que las tablas de este sistema pueden poner para el resto del día (set: { lost: true }), con lo que bloquean mientras se cumplen: viajar, o acciones por su id. Las tablas los leen al día siguiente como yesterday.<id>. Sin ninguno, sigue funcionando el antiguo lost incorporado (bloquea el viaje).',

@@ -152,7 +152,9 @@ describe('example maps', () => {
     expect(tripAvailability({ system, world }, lost).travel).toEqual({ value: 'lost' })
     const storm = { ...session, travel: { ...session.travel, weather: 'storm' } }
     expect(tripAvailability({ system, world }, storm).forage).toEqual({ condition: 'unless' })
-    expect(tripAvailability({ system, world }, session)).toEqual({})
+    expect(tripAvailability({ system, world }, session)).toEqual({
+      'mode.boat': { condition: 'when' }, // Ashford is inland
+    })
   })
 
   it('the Grey Marches: foraging is an action of their own, once a day', () => {
@@ -299,7 +301,12 @@ describe('example maps', () => {
     const { session } = startTrip({ system, location: '9,10' })
     const onFoot = stepTrip(options, session, { type: 'setDestination', hex: '12,11' }).state
     expect(onFoot.travel.route).toBeUndefined()
+    // The boat is only boarded at the water's edge or the ferry (a condition of the mode).
+    const inland = startTrip({ system, location: '5,7' }).session
+    expect(tripAvailability(options, inland)['mode.boat']).toEqual({ condition: 'when' })
+    expect(tripAvailability(options, session)['mode.boat']).toBeUndefined()
     const boat = stepTrip(options, session, { type: 'setMode', mode: 'boat' }).state
+    expect(boat.travel.mode).toBe('boat')
     const sailing = stepTrip(options, boat, { type: 'setDestination', hex: '12,11' }).state
     expect(sailing.travel.route?.at(-1)).toBe('12,11')
   })

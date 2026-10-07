@@ -172,7 +172,10 @@ export interface TravelEngine {
     action: TravelAction,
     facts?: HostFacts,
   ): { state: TravelState; events: TravelEvent[] }
-  /** What can't be done now and why: `travel` and every action by id (absent: available). */
+  /**
+   * What can't be done now and why: `travel`, every action by id and each way of travelling
+   * as `mode.<id>` (absent: available).
+   */
   availability(state: TravelState, facts?: HostFacts): Record<string, Unavailable>
   /** Minutes to step from `a` to its neighbor `b` in the given state (Infinity if impossible). */
   stepMinutes(state: TravelState, a: string, b: string): number
@@ -533,6 +536,22 @@ export function createTravelEngine(options: {
     return undefined
   }
 
+  /** Why a way of travelling can't be chosen now (undefined: it can). */
+  const modeUnavailable = (
+    state: TravelState,
+    id: string,
+    facts: HostFacts,
+  ): Unavailable | undefined => {
+    const mode = rules.modes[id]
+    if (!mode) return { off: true }
+    const value = blocker(state, `mode.${id}`)
+    if (value) return { value }
+    const context = checkContext(state, [], facts)
+    if (mode.when && !matches(mode.when as Condition, context)) return { condition: 'when' }
+    if (mode.unless && matches(mode.unless as Condition, context)) return { condition: 'unless' }
+    return undefined
+  }
+
   /** Eats today's supplies now, once (later steps see whether the party went short). */
   const eatToday = (state: TravelState, events: TravelEvent[]): boolean => {
     if (state.ate?.day === state.day) return state.ate.short
@@ -625,6 +644,10 @@ export function createTravelEngine(options: {
         const why = unavailable(state, id, facts)
         if (why) out[id] = why
       }
+      for (const id of Object.keys(rules.modes)) {
+        const why = modeUnavailable(state, id, facts)
+        if (why) out[`mode.${id}`] = why
+      }
       return out
     },
     apply(input, action, facts = {}) {
@@ -661,9 +684,14 @@ export function createTravelEngine(options: {
         case 'action':
           takeAction(state, action.id, events)
           break
-        case 'setMode':
-          if (rules.modes[action.mode]) state.mode = action.mode
+        case 'setMode': {
+          if (action.mode === state.mode) break
+          const because = modeUnavailable(state, action.mode, hostFacts)
+          if (because)
+            events.push({ type: 'ACTION_UNAVAILABLE', action: `mode.${action.mode}`, because })
+          else state.mode = action.mode
           break
+        }
         case 'setWeather':
           state.weather = action.weather
           break
