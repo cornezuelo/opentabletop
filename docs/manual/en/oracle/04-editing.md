@@ -26,7 +26,7 @@ Add, duplicate, move and remove entries. **Number 1–N** gives them consecutive
 
 **⋯** on a row opens its conditions, values and limits (rows that have some say so under their text):
 
-- **Only if**: the entry can only come up when the context matches, written as `key: value` pairs, e.g. `terrain: forest`, `season: [autumn, winter]` (any of them), `danger: { gte: 3 }` (3 or more), `tags: landmark` (the hex has that tag). Empty: always. When no entry matches, the table gives nothing. The keys a table can read are in [What tables see](../technical/04-what-tables-see.md).
+- **Only if**: the entry can only come up when the context matches, written as `key: value` pairs, e.g. `terrain: forest`, `season: [autumn, winter]` (any of them), `danger: { gte: 3 }` (3 or more), `tags: landmark` (the hex has that tag). Empty: always. When no entry matches, the table gives nothing. The keys a table can read are in [What tables see](../technical/04-what-tables-see.md), and every way of comparing them (`not`, `lt`, `exists`, `any`…) in [Conditions](../technical/08-conditions.md).
 - **Sets**: values the entry gives when it comes up, e.g. `weather: storm, lost: true` or `count: "{{2d6}}"`. The result text, later tables and generator fields, and the trip read them (see [Connecting tables](07-connecting.md)).
 - **Only once** / **At most**: how many times the entry can come up in a session (the Oracle's **New session** resets them).
 - **Changes**: what the entry changes in a trip's party (`party.stats.morale: -1`, `party.resources.food: 2`; `=3` sets it), with suggestions of the system's stats and supplies. See [effects](07-connecting.md).

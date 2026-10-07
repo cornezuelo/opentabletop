@@ -38,7 +38,7 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 | `edges`                                         | Los caminos, senderos o ríos del tramo: el recién recorrido al entrar en un hex, el de delante al alba y al acampar.                                                                                                                                                                      |
 | _cada característica_                           | Las características del grupo del sistema con su valor actual, por nombre: `{{charisma}}`. Atajo: un dato del mapa o del viaje con el mismo nombre gana (ver abajo).                                                                                                                      |
 | `party`                                         | El grupo, siempre sin ambigüedad: `party.stats.charisma`, `party.resources.food`, `party.mode`. También en las tiradas a mano durante un viaje.                                                                                                                                           |
-| _los valores del día_                           | Los que fijó antes ese mismo día una tabla: `weather`, y cualquier nombre que acabe en `Modifier` o `Impossible` (`fordModifier`, `fordImpossible`). Se borran al alba.                                                                                                                   |
+| _los valores del día_                           | Los que fijó antes ese mismo día una tabla: `weather`, cualquier nombre que acabe en `Modifier` o `Impossible` (`fordModifier`, `fordImpossible`) y los valores del día que declara el sistema (`lost`). Se borran al alba y pasan a `yesterday.*`.                                       |
 | _el contexto del binding_                       | Lo que añaden los bindings para esa comprobación: `context: { timeOfDay: night }`; para un oráculo, su entrada (`odds: even`).                                                                                                                                                            |
 
 ## Descubrir el mapa
@@ -55,11 +55,19 @@ Cuando dos fuentes dan el mismo nombre, gana la posterior:
 2. **Tiradas a mano** (panel Oracle): durante un viaje, el mismo orden que las comprobaciones; después el token → lo que escribes en el **Contexto** del panel de tirada. Un `token.fare` escrito cambia solo ese valor del token.
 3. **Dentro de una tabla:** los valores que fija una entrada (`set`) llegan a la tabla que tira a continuación; los campos de un generador ven los anteriores, y el `context` de un campo añade valores solo para ese campo.
 
+Algunas coincidencias, y lo que pasa:
+
+- **Un valor de región y uno de hex** con el mismo nombre (`danger: 2` en el Bosque Gris, `danger: 5` en uno de sus hexes): allí gana el del hex, en el resto el de la región. Así hacen las Marcas Grises que el bosque sea más peligroso hacia su corazón.
+- **Una característica que se llama como un dato** (una característica `weather`, o `terrain`): `{{weather}}` y `when: { weather: storm }` leen el clima del día, nunca la característica; esta sigue siendo `party.stats.weather`. Mejor no usar esos nombres (la lista de arriba).
+- **Un valor de un icono o token llamado `terrain`**: se lee como `icon.terrain` / `token.terrain`, dentro de su propio nombre, así que no tapa el terreno del hex.
+- **Un valor que fija una entrada con el nombre de una característica** (`set: { morale: 1 }` con una característica `morale`): el texto del resultado y las tablas que tira leen `{{morale}}` como 1, pero no cambia la característica ni se mantiene el resto del día (solo lo hacen `weather`, `…Modifier`, `…Impossible` y los valores declarados). Para cambiarla, usa `effects: { party.stats.morale: 1 }`.
+- **El contexto de un binding** (`context: { timeOfDay: night }`) gana a todo para su comprobación: así la misma tabla responde a los encuentros de día y de noche.
+
 ## Tipos de valor
 
 - Lo escrito como número (`3`, `-1`, `2.5`) es un **número**: se suma en los dados y se compara con `gt`/`gte`/`lt`/`lte`. `true` y `false` son sí/no. Lo demás es texto.
 - En los dados, un valor que falta cuenta como **0**: `1d6 + {{danger}}` funciona donde no hay peligro.
-- En las condiciones, un valor que falta no cumple, salvo con `exists: false` o `not`.
+- En las condiciones, un valor que falta no cumple, salvo con `exists: false` o `not`. Todos los operadores, con ejemplos: [Condiciones](08-conditions.md).
 - Los nombres con puntos leen dentro de un valor: `token.fare`, `icon.guards`, `npc.role` (un campo de un generador).
 
 Las Marcas Grises usan todos ellos; [Las Marcas Grises](../packs/02-grey-marches.md) dice dónde.

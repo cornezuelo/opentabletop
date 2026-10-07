@@ -53,8 +53,8 @@ Features:
 
 Manual (much is missing; generic explanations, examples from the Grey Marches or the Generic rules only):
 
-- [ ] **Conditions reference:** every operator and comparison (`eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`, `any`, `all`, `not`, lists…) with what each means and an example, in the technical section, linked from wherever conditions are mentioned.
-- [ ] **Name collisions:** what wins when keys collide (an icon value called `terrain`, a stat called `weather`, a region value and a hex value…), with examples (today only a short note in What tables see).
+- [x] **Conditions reference:** every operator and comparison (`eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`, `any`, `all`, `not`, lists…) with what each means and an example, in the technical section, linked from wherever conditions are mentioned. Done: technical/08-conditions (en/es), linked from What tables see, Editing, Connecting and Travel → Systems.
+- [x] **Name collisions:** what wins when keys collide (an icon value called `terrain`, a stat called `weather`, a region value and a hex value…), with examples (today only a short note in What tables see). Done: What tables see → Which value wins, with five cases.
 - [x] **`…Modifier` and `…Impossible` day values:** a clear explanation with examples (and, with step 3c, their declared form). Done: Connecting tables → Values of the day.
 - [ ] **Review everything that can be done and isn't documented**, kind by kind and key by key (the Kinds of definition page as the index), and expand the Travel manual (playing, checks, Continue, actions).
 - [ ] The Oracle page "Connecting tables to maps and trips" stays in the Oracle (it's how the Oracle connects to the rest) but needs more explanation.

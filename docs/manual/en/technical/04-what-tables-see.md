@@ -38,7 +38,7 @@ Points of interest keep their values in the map and its file, but tables don't r
 | `edges`                                         | The roads, trails or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.                                                                                                                                                                 |
 | _each party stat_                               | The system's stats with their current value, by name: `{{charisma}}`. Shorthand: a map or trip fact with the same name wins (see below).                                                                                                                                                |
 | `party`                                         | The party, always unambiguous: `party.stats.charisma`, `party.resources.food`, `party.mode`. Also in hand rolls during a trip.                                                                                                                                                          |
-| _today's values_                                | Set earlier the same day by a table: `weather`, and any name ending in `Modifier` or `Impossible` (`fordModifier`, `fordImpossible`). They clear at dawn.                                                                                                                               |
+| _today's values_                                | Set earlier the same day by a table: `weather`, any name ending in `Modifier` or `Impossible` (`fordModifier`, `fordImpossible`) and the values of the day the system declares (`lost`). They clear at dawn and become `yesterday.*`.                                                   |
 | _the binding's context_                         | What the bindings add for that check: `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`).                                                                                                                                                                         |
 
 ## Discovering the map
@@ -55,11 +55,19 @@ When two sources give the same name, the later one wins:
 2. **Hand rolls** (Oracle panel): during a trip, the same order as checks; then the token → what you type in the roll panel's **Context**. A typed `token.fare` changes only that value of the token.
 3. **Inside a table:** values an entry sets (`set`) reach the table it then rolls; a generator's fields see the fields before them, and a field's `context` adds values for that field only.
 
+Some collisions, and what happens:
+
+- **A region value and a hex value** with the same name (`danger: 2` on the Greywood, `danger: 5` on one of its hexes): the hex's wins there, the region's everywhere else. That's how the Grey Marches make the forest more dangerous towards its heart.
+- **A stat called like a fact** (a stat `weather`, or `terrain`): `{{weather}}` and `when: { weather: storm }` read the day's weather, never the stat; the stat is still `party.stats.weather`. Better not to use those names (the list above).
+- **A value of an icon or token called `terrain`**: it's read as `icon.terrain` / `token.terrain`, inside its own name, so it can't hide the hex's terrain.
+- **A value an entry sets with a stat's name** (`set: { morale: 1 }` with a stat `morale`): the result's text and the tables it rolls read `{{morale}}` as 1, but it doesn't change the stat, and it doesn't stay for the day (only `weather`, `…Modifier`, `…Impossible` and the declared values do). To change the stat, use `effects: { party.stats.morale: 1 }`.
+- **A binding's context** (`context: { timeOfDay: night }`) wins over everything for its check: it's how the same table answers day and night encounters.
+
 ## Kinds of value
 
 - Values typed as numbers (`3`, `-1`, `2.5`) are **numbers**: they add up in dice and compare with `gt`/`gte`/`lt`/`lte`. `true` and `false` are yes/no. Anything else is text.
 - In dice, a missing value counts as **0**: `1d6 + {{danger}}` works where there's no danger.
-- In conditions, a missing value doesn't match, except with `exists: false` or `not`.
+- In conditions, a missing value doesn't match, except with `exists: false` or `not`. Every operator, with examples: [Conditions](08-conditions.md).
 - Names with dots read inside a value: `token.fare`, `icon.guards`, `npc.role` (a generator's field).
 
 The Grey Marches use every one of these; [The Grey Marches](../packs/02-grey-marches.md) says where.

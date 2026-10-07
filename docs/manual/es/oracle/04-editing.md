@@ -26,7 +26,7 @@ Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecu
 
 **⋯** en una fila abre sus condiciones, valores y límites (las filas que tienen alguno lo indican bajo su texto):
 
-- **Solo si**: la entrada solo puede salir cuando el contexto encaja, escrito en pares `clave: valor`, p. ej. `terrain: forest`, `season: [autumn, winter]` (cualquiera de ellas), `danger: { gte: 3 }` (3 o más), `tags: landmark` (el hex tiene esa etiqueta). Vacío: siempre. Si ninguna entrada encaja, la tabla no da nada. Las claves que puede leer una tabla están en [Qué ven las tablas](../technical/04-what-tables-see.md).
+- **Solo si**: la entrada solo puede salir cuando el contexto encaja, escrito en pares `clave: valor`, p. ej. `terrain: forest`, `season: [autumn, winter]` (cualquiera de ellas), `danger: { gte: 3 }` (3 o más), `tags: landmark` (el hex tiene esa etiqueta). Vacío: siempre. Si ninguna entrada encaja, la tabla no da nada. Las claves que puede leer una tabla están en [Qué ven las tablas](../technical/04-what-tables-see.md), y todas las formas de compararlas (`not`, `lt`, `exists`, `any`…) en [Condiciones](../technical/08-conditions.md).
 - **Fija**: valores que da la entrada cuando sale, p. ej. `weather: storm, lost: true` o `count: "{{2d6}}"`. Los leen el texto del resultado, las tablas y campos de generador siguientes y el viaje (ver [Conectar tablas](07-connecting.md)).
 - **Solo una vez** / **Como mucho**: cuántas veces puede salir la entrada en una sesión (**Nueva sesión** en el Oracle las reinicia).
 - **Cambios**: lo que cambia la entrada en el grupo de un viaje (`party.stats.morale: -1`, `party.resources.food: 2`; `=3` lo fija), con sugerencias de las características y provisiones del sistema. Mira [efectos](07-connecting.md).
