@@ -181,6 +181,7 @@
       />
     </label>
     <FieldEditor
+      scope="token"
       fields={selected.fields ?? []}
       help={tr('fields.tokenHelp')}
       onchange={(fields) => update((t) => ({ ...t, fields: fields.length ? fields : undefined }))}

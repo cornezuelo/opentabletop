@@ -4,6 +4,26 @@
   import { fieldSuggestions } from '../lib/model/hex'
   import type { CustomField } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
+  import { contextSuggestions } from '@open-tabletop/session'
+  import { library } from '../lib/play/packs'
+
+  /** What the map and trips already give: a value with one of these names is hidden. */
+  const RESERVED = new Set([
+    'hex',
+    'terrain',
+    'water',
+    'tags',
+    'region',
+    'name',
+    'icon',
+    'token',
+    'season',
+    'weather',
+    'mode',
+    'day',
+    'edges',
+    'party',
+  ])
 
   /**
    * Key/value fields of a hex, POI, icon, region or token. Keys and values used anywhere
@@ -13,19 +33,41 @@
     fields,
     onchange,
     help,
+    scope = 'place',
   }: {
     fields: CustomField[]
     onchange: (fields: CustomField[]) => void
     /** What tables see of these values (e.g. "{{token.<key>}}"). */
     help?: string
+    /** Whose values: a place (hex, region, POI), an icon or a token — tables read them differently. */
+    scope?: 'place' | 'icon' | 'token'
   } = $props()
 
   let draftKey = $state('')
   let draftValue = $state('')
   const id = $props.id()
+  /** Names the packs' tables read and nothing on the map gives yet (danger, guards, fare…). */
+  const packHints = $derived.by(() => {
+    const out = new Map<string, string[]>()
+    for (const [key, values] of Object.entries(
+      contextSuggestions(library.registry, {}, { reads: true }),
+    )) {
+      const name =
+        scope === 'icon'
+          ? key.startsWith('icon.') && key.slice(5)
+          : scope === 'token'
+            ? key.startsWith('token.') && key.slice(6)
+            : !key.includes('.') && !RESERVED.has(key) && key
+      if (name && name !== 'id' && name !== 'name' && name !== 'kind') out.set(name, values)
+    }
+    return out
+  })
   const suggestions = $derived.by(() => {
     void editor.revision
-    return fieldSuggestions(editor.map)
+    const out = fieldSuggestions(editor.map)
+    for (const [key, values] of packHints)
+      out.set(key, [...new Set([...(out.get(key) ?? []), ...values])])
+    return out
   })
   const valuesOf = (key: string) => suggestions.get(key.trim()) ?? []
 

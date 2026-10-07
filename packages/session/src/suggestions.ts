@@ -15,6 +15,8 @@ const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exist
 export function contextSuggestions(
   registry: Registry,
   extra: Record<string, readonly string[]> = {},
+  /** Leave out what entries set (only what tables read). */
+  { reads = false }: { reads?: boolean } = {},
 ): Record<string, string[]> {
   const out = new Map<string, Set<string>>()
   const add = (key: string, ...values: unknown[]) => {
@@ -63,32 +65,44 @@ export function contextSuggestions(
       for (const [key, value] of Object.entries(binding.context ?? {})) add(key, value)
   }
 
-  for (const def of registry.definitions.values()) definition(def, add)
+  for (const def of registry.definitions.values()) definition(def, add, reads ? () => {} : add)
   for (const [key, values] of Object.entries(extra)) add(key, ...values)
   return Object.fromEntries([...out].map(([key, values]) => [key, [...values].sort()]))
 }
 
 type Add = (key: string, ...values: unknown[]) => void
 
-function definition(def: Compiled, add: Add): void {
-  const entries =
-    def.kind === 'table'
-      ? def.entries
-      : def.kind === 'oracle'
-        ? Object.values(def.variants).flatMap((v) => v.entries)
-        : []
-  for (const entry of entries) {
-    condition(entry.when, add)
-    values(entry.set, add)
+const TEMPLATE = /\{\{\s*([\w.]+)\s*\}\}/g
+const DICE = /^\d*d(\d+|%|f)(k[hl]\d*)?$/i
+
+/** Names read in `{{…}}` templates (dice, and `result`: what was rolled next, left out). */
+function templates(text: string | undefined, add: Add): void {
+  for (const m of (text ?? '').matchAll(TEMPLATE))
+    if (!DICE.test(m[1]) && m[1] !== 'result' && !m[1].startsWith('result.')) add(m[1])
+}
+
+/** What a definition reads (conditions, templates) and, through `set`, what it gives. */
+function definition(def: Compiled, add: Add, addSet: Add): void {
+  const lists =
+    def.kind === 'table' ? [def] : def.kind === 'oracle' ? Object.values(def.variants) : []
+  for (const list of lists) {
+    templates(list.roll, add)
+    for (const entry of list.entries) {
+      condition(entry.when, add)
+      templates(entry.result, add)
+      values(entry.set, addSet)
+    }
   }
   if (def.kind === 'oracle')
-    for (const [input, spec] of Object.entries(def.inputs)) add(input, ...spec.options)
+    for (const [input, spec] of Object.entries(def.inputs)) addSet(input, ...spec.options)
   if (def.kind === 'generator')
     for (const field of def.fields) {
       condition(field.when, add)
-      values(field.context, add)
+      templates(field.roll, add)
+      if (typeof field.value === 'string') templates(field.value, add)
+      values(field.context, addSet)
     }
-  if (def.kind === 'deck') for (const card of def.cards) values(card.set, add)
+  if (def.kind === 'deck') for (const card of def.cards) values(card.set, addSet)
 }
 
 /** Keys and plain values of a condition, through all / any / not and comparisons. */

@@ -167,6 +167,7 @@
 {#if editing}
   {@const where = editing.key}
   <FieldEditor
+    scope="icon"
     fields={editing.icon.fields ?? []}
     help={t('fields.iconHelp')}
     onchange={(fields) =>

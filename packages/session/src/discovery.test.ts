@@ -169,5 +169,7 @@ describe('context suggestions', () => {
     expect(s.danger).toEqual(['1', '2'])
     expect(s).toHaveProperty(['party.fatigue'])
     expect(s).toHaveProperty(['poi'])
+    // Only what tables read: no set values.
+    expect(contextSuggestions(registry, {}, { reads: true })).not.toHaveProperty(['poi'])
   })
 })
