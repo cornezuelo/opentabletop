@@ -132,6 +132,7 @@ In order (agreed 2026-10-07, reordered 2026-10-08: the characters engine moved u
 
 **To decide**
 
+- **A `pre-push` hook that runs `make verify`** (talked about with the user 2026-10-08): CI only reports after a push and doesn't stop a broken commit reaching `main` (the release workflow does stop it reaching the site). Branch protection would need pull requests, which we don't use while there's one author; a local hook blocks without them.
 - **Revisit the backup format** (`@open-tabletop/storage`): today it copies each app's browser data as it is (raw storage entries, maps in the Hexmapper's internal format), which ties backups to every internal format. Consider a stable, documented one (OTD bundles for maps, pack folders for packs).
 - **Supplies and loot over time** (maybe): when something was spent or found, and who carries what, without becoming an inventory manager.
 - **One origin for live development** (user, 2026-10-07: `make dev-all` is useless while each app has its own port and can't see the others' data): a single server on one port routing `/hexmapper/`, `/oracle/`… to the dev servers, with hot reload.
