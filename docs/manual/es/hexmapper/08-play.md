@@ -1,6 +1,6 @@
 # Jugar un viaje
 
-La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa. Al elegirla se selecciona el token del grupo (al pasar a la herramienta Tokens sigue seleccionado).
+La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa, en uno de dos modos (**Modo de juego**, cuya ayuda los resume). Al elegirla se selecciona el token del grupo (al pasar a la herramienta Tokens sigue seleccionado).
 
 ## Modo simple
 

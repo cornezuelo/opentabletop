@@ -11,7 +11,7 @@ export const APP_LIST = [
   { id: 'manual', name: 'Manual', devPort: 5176, available: true },
 ]
 
-const FRAME = '<rect width="32" height="32" rx="6" fill="#26241f"/>'
+export const FRAME = '<rect width="32" height="32" rx="6" fill="#26241f"/>'
 const GOLD = '#c8a24a'
 
 /** Gold-on-dark app icons (32×32 SVG), one style for the whole ecosystem. */

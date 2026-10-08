@@ -1,6 +1,6 @@
 # Playing a trip
 
-The **Play** tool (<kbd>P</kbd>) moves your party around the map. Choosing it selects the party token (switching to the Tokens tool keeps it selected).
+The **Play** tool (<kbd>P</kbd>) moves your party around the map, in one of two modes (**Play mode**, whose help sums them up). Choosing it selects the party token (switching to the Tokens tool keeps it selected).
 
 ## Simple mode
 

@@ -72,6 +72,16 @@
     return `${date}, ${formatClock(parts)}`
   }
   const now = $derived(world ? when(world.time) : null)
+  /** Where a trip going on is headed, or where it waits. */
+  const tripHex = $derived(
+    trip ? coordOf((travelling ? trip.travel.destination : null) ?? trip.travel.location) : '',
+  )
+  /** What the buttons do, and during a trip what that means for the party. */
+  const advanceHelp = $derived(
+    !trip
+      ? t('world.advanceHelp')
+      : `${t(travelling ? 'world.tripHelpTravel' : 'world.tripHelp', { hex: tripHex })}\n${t('world.advanceHelp')}`,
+  )
   const watchMinutes = $derived(
     ((calendar as { def?: { watchHours?: number } }).def?.watchHours ?? 4) * 60,
   )
@@ -131,13 +141,8 @@
     <span
       >{trip
         ? t(travelling ? 'world.tripAdvanceTravel' : 'world.tripAdvance')
-        : t('world.advance')}<InfoTip text={t('world.advanceHelp')} /></span
+        : t('world.advance')}<InfoTip text={advanceHelp} /></span
     >
-    {#if trip}<p class="help">
-        {travelling
-          ? t('world.tripHelpTravel', { hex: coordOf(trip.travel.destination ?? '') })
-          : t('world.tripHelp', { hex: coordOf(trip.travel.location) })}
-      </p>{/if}
     <div class="buttons">
       <button onclick={() => advanceWorld({ minutes: 60 })}>{t('world.hour')}</button>
       <button onclick={() => advanceWorld({ minutes: watchMinutes })}>{t('world.watch')}</button>
@@ -149,6 +154,9 @@
         onclick={() => advanceWorld({ until: 'next-event' })}>{t('world.nextEvent')}</button
       >
     </div>
+    {#if trip}<p class="trip">
+        {t(travelling ? 'world.tripNoticeTravel' : 'world.tripNotice', { hex: tripHex })}
+      </p>{/if}
   </div>
 
   <div class="field">
@@ -327,6 +335,17 @@
 
   .muted {
     color: var(--text-muted);
+  }
+
+  /* A trip going on: what the buttons will do to the party, where it doesn't get in the way. */
+  .trip {
+    margin: 6px 0 0;
+    padding: 5px 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: rgb(200 162 74 / 0.08);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
   }
 
   .buttons {

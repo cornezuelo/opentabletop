@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appIconUrl, tooltip } from '@open-tabletop/ui-kit'
+  import { appGlyphUrl, tooltip } from '@open-tabletop/ui-kit'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
 
@@ -47,7 +47,8 @@
     aria-label={t('actions.oracle')}
     aria-pressed={editor.panelView === 'oracle'}
     onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}
-    ><img class="app" src={appIconUrl('oracle')} alt="" /></button
+    ><!-- The app's icon as a mask, so it takes the text colour like the other glyphs. -->
+    <span class="app" style:--icon={`url("${appGlyphUrl('oracle')}")`}></span></button
   >
 </nav>
 
@@ -90,6 +91,8 @@
     width: 22px;
     height: 22px;
     margin: auto;
+    background: currentColor;
+    mask: var(--icon) center / contain no-repeat;
   }
 
   button.active {

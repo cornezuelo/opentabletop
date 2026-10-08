@@ -394,8 +394,8 @@ export const es: Messages = {
     revealNeighbors: 'Los hexes alrededor del grupo (lo que ve)',
     revealEntered: 'Solo el hex al que entra el grupo',
     mode: 'Modo de juego',
-    intro:
-      'Mueve a tu grupo por el mapa. Simple: solo un icono y su rastro. Con reglas: el Travel Engine lleva el tiempo, el terreno, las provisiones y la fatiga, y el Oracle tira el clima, perderse, los puntos de interés y los encuentros con las tablas del sistema, anotándolo todo en el diario.',
+    modeHelp:
+      'Cómo se mueve el grupo por el mapa:\n• **Simple** — solo un icono y su rastro: un clic lo pone en ese hex al momento, sin ruta, tiempo ni tiradas\n• **Con reglas** — un viaje con el sistema del mapa: lleva el tiempo, el terreno y las provisiones, y tira las tablas del sistema (clima, perderse, lugares, encuentros) por el camino, anotándolo todo en el diario',
     modes: { simple: 'Simple', rules: 'Con reglas' },
     token: 'Icono del grupo',
     uploadToken: 'Subir uno propio…',
@@ -407,14 +407,7 @@ export const es: Messages = {
     straightTrailHelp:
       'Dibuja el rastro y la ruta planeada como líneas rectas de hex a hex. Sin marcar, se curvan y siguen los caminos, senderos y ríos dibujados que recorren, a su lado.',
     placeHelp: 'Haz clic en un hex para colocar al grupo.',
-    simpleHelp:
-      'El grupo está en {hex}. Haz clic en cualquier hex y saltará directamente allí: sin ruta, sin tiempo, sin nada por el camino (solo el rastro lo recuerda). Para viajar con tiempo, comprobaciones y provisiones, elige Con reglas.',
-    tips: {
-      simple:
-        'Solo un icono: un clic lo pone en ese hex al instante (sin ruta ni viaje). Sin tiempo ni tiradas.',
-      rules:
-        'El Travel Engine lleva el tiempo, el terreno y las provisiones; las tablas del sistema se tiran mientras viajas.',
-    },
+    simpleHelp: 'El grupo está en {hex}: haz clic en un hex para moverlo allí.',
     destinationHelp: 'Haz clic en un hex para fijar el destino.',
     clearTrail: 'Borrar rastro',
     removeParty: 'Quitar grupo',
@@ -526,6 +519,8 @@ export const es: Messages = {
     confirmWait: 'El grupo esperará aquí {days} día(s); cada noche: {action}. ¿Seguir?',
     confirmWaitNoNight: 'El grupo esperará aquí {days} día(s). ¿Seguir?',
     tripAdvanceTravel: 'Seguir viajando',
+    tripNotice: 'Hay un viaje en marcha sin ruta: el grupo espera en {hex}.',
+    tripNoticeTravel: 'Hay un viaje en marcha: el grupo sigue viajando hacia {hex}.',
     tripHelpTravel:
       'Hay un viaje en marcha con una ruta, así que estos botones hacen que el grupo siga viajando hacia {hex}: marcha de día por su ruta, hace lo que el sistema hace de noche (acampar, o la noche pasa sin ello) y espera donde acaba la ruta. Se vive cada momento (las comprobaciones del alba, el final de cada día, comer), y se detiene antes si algo te necesita.',
     confirmTravel:

@@ -22,7 +22,7 @@
   import { terrainName } from '../lib/terrainName'
   import ColorPicker from './ColorPicker.svelte'
   import TokenIconPicker from './tokens/TokenIconPicker.svelte'
-  import { InfoTip, tooltip, confirmAction } from '@open-tabletop/ui-kit'
+  import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
   import { AddTokenCommand } from '../lib/commands/tokens'
   import { newId } from '../lib/model/id'
   import { DEFAULT_TOKEN_ICONS } from '../lib/model/tokens'
@@ -62,12 +62,10 @@
     id === 'generic' ? t('map.genericSystem') : systemName(getSystem(id), getLocale())
 </script>
 
-<p class="help intro">{t('play.intro')}</p>
-
+<span class="label">{t('play.mode')}<InfoTip text={t('play.modeHelp')} /></span>
 <div class="segmented" role="radiogroup" aria-label={t('play.mode')}>
   {#each ['simple', 'rules'] as const as mode (mode)}
     <button
-      use:tooltip={t(`play.tips.${mode}` as MessageKey)}
       role="radio"
       aria-checked={(play?.mode ?? 'simple') === mode}
       class:active={(play?.mode ?? 'simple') === mode}
@@ -247,8 +245,9 @@
     border-color: var(--danger);
   }
 
-  .intro {
-    padding-bottom: 4px;
+  .label {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .help {

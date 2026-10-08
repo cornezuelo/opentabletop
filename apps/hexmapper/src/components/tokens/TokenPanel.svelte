@@ -113,8 +113,6 @@
   }
 </script>
 
-<p class="help">{t('tokens.help')}</p>
-
 {#if selected}
   <div class="group">
     <div class="head">
@@ -240,6 +238,8 @@
     <p class="help">{t('tokens.empty')}</p>
   {/each}
 </div>
+
+<p class="help">{t('tokens.help')}</p>
 
 <style>
   .group {

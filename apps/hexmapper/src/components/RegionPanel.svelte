@@ -85,8 +85,6 @@
   }
 </script>
 
-<p class="help">{t('regions.help')}</p>
-
 <label class="slider">
   <span>{t('panel.brushSize')}: {editor.brushRadius + 1}</span>
   <input type="range" min="0" max={MAX_BRUSH_RADIUS} bind:value={editor.brushRadius} />
@@ -171,6 +169,8 @@
     <button class="danger" onclick={remove}>{t('regions.delete')}</button>
   </div>
 {/if}
+
+<p class="help">{t('regions.help')}</p>
 
 <style>
   ul {

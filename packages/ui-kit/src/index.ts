@@ -13,7 +13,16 @@ export { createI18n, translate, type MessageKey, type Messages } from './i18n.sv
 export { initialLocale, pickLocale } from './locale.mjs'
 export { default as AppBrand } from './AppBrand.svelte'
 export { default as AppSwitcher } from './AppSwitcher.svelte'
-export { APP_ICONS, APPS, appIconUrl, appUrl, logoUrl, type AppId, type AppInfo } from './apps'
+export {
+  APP_ICONS,
+  APPS,
+  appGlyphUrl,
+  appIconUrl,
+  appUrl,
+  logoUrl,
+  type AppId,
+  type AppInfo,
+} from './apps'
 export { default as SuggestInput } from './SuggestInput.svelte'
 export { applyChoice, choicesFor, typingAt, type Suggestions, type Typing } from './suggest'
 export { vocabulary } from './vocabulary'

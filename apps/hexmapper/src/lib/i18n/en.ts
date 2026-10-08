@@ -388,8 +388,8 @@ export const en = {
     revealNeighbors: 'The hexes around the party (what it sees)',
     revealEntered: 'Only the hex the party enters',
     mode: 'Play mode',
-    intro:
-      'Move your party around the map. Simple: just a token and its trail. With rules: the Travel Engine tracks time, terrain, supplies and fatigue, and the Oracle rolls weather, getting lost, points of interest and encounters from the system’s tables, writing everything in the journal.',
+    modeHelp:
+      'How the party moves around the map:\n• **Simple** — just a token and its trail: a click puts it on that hex at once, with no route, time or rolls\n• **With rules** — a trip with the map’s system: it counts time, terrain and supplies, and rolls the system’s tables (weather, getting lost, places, encounters) on the way, writing everything in the journal',
     modes: { simple: 'Simple', rules: 'With rules' },
     token: 'Party icon',
     uploadToken: 'Upload your own…',
@@ -401,14 +401,7 @@ export const en = {
     straightTrailHelp:
       'Draw the trail and the planned route as straight lines from hex to hex. Unticked, they curve and follow the drawn roads, trails and rivers they walk, beside them.',
     placeHelp: 'Click a hex to place the party.',
-    simpleHelp:
-      'The party is at {hex}. Click any hex and it jumps straight there: no route, no time, nothing in between (only the trail remembers it). For travel with time, checks and supplies, choose With rules.',
-    tips: {
-      simple:
-        'Just a token: a click puts it on that hex at once (no route or travel). No time, no rolls.',
-      rules:
-        'The Travel Engine counts time, terrain and supplies; the system’s tables are rolled as you travel.',
-    },
+    simpleHelp: 'The party is at {hex}: click a hex to move it there.',
     destinationHelp: 'Click a hex to set the destination.',
     clearTrail: 'Clear trail',
     removeParty: 'Remove party',
@@ -520,6 +513,8 @@ export const en = {
     confirmWait: 'The party will wait here for {days} day(s); each night: {action}. Go on?',
     confirmWaitNoNight: 'The party will wait here for {days} day(s). Go on?',
     tripAdvanceTravel: 'Travel on',
+    tripNotice: 'A trip is going on with no route: the party waits at {hex}.',
+    tripNoticeTravel: 'A trip is going on: the party travels on towards {hex}.',
     tripHelpTravel:
       'A trip is going on with a route planned, so these buttons make the party travel on towards {hex}: it marches by day along its route, does what the system does at night (camp, or the night passes without it), and waits where the route ends. Every moment is lived (dawn’s checks, the end of each day, eating), and it stops early if something needs you.',
     confirmTravel:

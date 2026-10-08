@@ -3,7 +3,7 @@
  * (`make site`) they live side by side as `<site>/<app>/`; in development each runs on
  * its own port.
  */
-import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, logoSvg } from './apps.data.mjs'
+import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, FRAME, logoSvg } from './apps.data.mjs'
 
 export type AppId = 'hexmapper' | 'oracle' | 'travel' | 'systems' | 'manual'
 
@@ -31,6 +31,13 @@ export const logoUrl = (): string =>
 
 export const appIconUrl = (id: AppId): string =>
   `data:image/svg+xml;charset=utf-8,${encodeURIComponent(APP_ICONS[id])}`
+
+/**
+ * An app's sign without its frame, to use as a CSS mask: drawn in the text's colour like
+ * any other glyph (`background: currentColor; mask: url(…)`).
+ */
+export const appGlyphUrl = (id: AppId): string =>
+  `data:image/svg+xml;charset=utf-8,${encodeURIComponent(APP_ICONS[id].replace(FRAME, ''))}`
 
 /** Where another app is: its dev server in development, its sibling folder when built. */
 export function appUrl(id: AppId): string {
