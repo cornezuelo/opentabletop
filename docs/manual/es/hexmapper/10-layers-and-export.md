@@ -18,6 +18,8 @@ Muchos clics en el mapa podrían cambiar más de una cosa: un clic cerca de un r
 
 Una capa bloqueada se sigue dibujando y exportando. Si intentas cambiarla, un aviso te dice qué capa está bloqueada. Se pueden bloquear el terreno, las regiones, los caminos y ríos, los iconos, el texto y los tokens; la rejilla, las coordenadas, las marcas y el rastro solo se pueden ocultar. Jugar un viaje sigue moviendo al grupo: el candado es para editar, no para jugar.
 
+**Resaltar una etiqueta**, abajo en Capas, marca cada hex con esa etiqueta (`landmark`, `haunted`, `shrine`: la casilla sugiere las del mapa) y dice cuántos hay; **Oscurecer los demás hexes** apaga el resto para que destaquen. Es solo una vista mientras miras: no se guarda nada, y **Dejar de resaltar** la quita.
+
 Los nombres de hex, de región y de token se configuran en **Ajustes → Textos del mapa**.
 
 ## Tamaño e impresión

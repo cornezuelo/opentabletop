@@ -18,6 +18,8 @@ Many clicks on the map could change more than one thing: a click near a river ca
 
 A locked layer is still drawn and exported. Trying to change it shows a notice saying which layer is locked. Terrain, regions, roads and rivers, icons, text and tokens can be locked; the grid, coordinates, markers and the trail can only be hidden. Playing a trip still moves the party: the lock is for editing, not for play.
 
+**Highlight a tag**, at the bottom of Layers, outlines every hex with that tag (`landmark`, `haunted`, `shrine`: the box suggests the map's own) and says how many there are; **Dim the other hexes** shades the rest so they stand out. It's only a view while you look: nothing is saved, and **Stop highlighting** clears it.
+
 Hex, region and token names are set in **Settings → Map texts**.
 
 ## Size and printing
