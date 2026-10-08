@@ -7,6 +7,7 @@
     AppSwitcher,
     contextHelp,
     Dialogs,
+    FoldTab,
     Toasts,
     tooltip,
   } from '@open-tabletop/ui-kit'
@@ -16,6 +17,24 @@
   import { go, nav } from './lib/nav.svelte'
 
   let help = $state(false)
+  /** Whether the systems list is shown: a per-viewer preference, kept in this browser. */
+  const LAYOUT = 'opentabletop.travel.layout'
+  function readSidebar(): boolean {
+    try {
+      return JSON.parse(localStorage.getItem(LAYOUT) ?? '{}').sidebar !== false
+    } catch {
+      return true
+    }
+  }
+  let sidebar = $state(readSidebar())
+  function toggleSidebar() {
+    sidebar = !sidebar
+    try {
+      localStorage.setItem(LAYOUT, JSON.stringify({ sidebar }))
+    } catch {
+      // Not remembered; it still applies now.
+    }
+  }
   // A dotted label clicked: the help column opens on its explanation.
   $effect(() => {
     if (contextHelp.asked) help = true
@@ -25,7 +44,7 @@
   })
 </script>
 
-<div class="app" class:help>
+<div class="app" class:help class:no-sidebar={!sidebar}>
   <header class="bar">
     <AppBrand app="travel" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
     <AppSwitcher current="travel" locale={getLocale()} />
@@ -50,19 +69,35 @@
     >
   </header>
 
-  <Sidebar />
+  {#if sidebar}<Sidebar />{/if}
 
-  <main>
-    {#if nav.view.name === 'system'}
-      {#key nav.view.id}<SystemView id={nav.view.id} tab={nav.view.tab} />{/key}
-    {:else}
-      <div class="welcome">
-        <h1>{t('welcome.title')}</h1>
-        <p class="tagline">{t('app.tagline')}</p>
-        <p>{t('welcome.body')}</p>
-      </div>
-    {/if}
-  </main>
+  <div class="center">
+    <FoldTab
+      side="left"
+      open={sidebar}
+      show={t('nav.showSidebar')}
+      hide={t('nav.hideSidebar')}
+      ontoggle={toggleSidebar}
+    />
+    <main>
+      {#if nav.view.name === 'system'}
+        {#key nav.view.id}<SystemView id={nav.view.id} tab={nav.view.tab} />{/key}
+      {:else}
+        <div class="welcome">
+          <h1>{t('welcome.title')}</h1>
+          <p class="tagline">{t('app.tagline')}</p>
+          <p>{t('welcome.body')}</p>
+        </div>
+      {/if}
+    </main>
+    <FoldTab
+      side="right"
+      open={help}
+      show={t('nav.showHelp')}
+      hide={t('nav.hideHelp')}
+      ontoggle={() => (help = !help)}
+    />
+  </div>
 
   {#if help}
     <aside class="help-column"><HelpPanel app="travel" locale={getLocale()} /></aside>
@@ -82,6 +117,27 @@
 
   .app.help {
     grid-template-columns: 260px minmax(0, 1fr) 320px;
+  }
+
+  /* A folded systems list gives its room to the main view. */
+  .app.no-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app.no-sidebar.help {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  .center {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .center > main {
+    flex: 1;
+    min-width: 0;
   }
 
   .bar {
@@ -151,8 +207,14 @@
 
   @media (max-width: 800px) {
     .app,
-    .app.help {
+    .app.help,
+    .app.no-sidebar,
+    .app.no-sidebar.help {
       grid-template-columns: 1fr;
+    }
+
+    .center > :global(.fold) {
+      display: none;
     }
   }
 </style>

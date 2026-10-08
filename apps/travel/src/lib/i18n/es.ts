@@ -8,6 +8,10 @@ export const es: Messages<typeof en> = {
     tagline: 'Juega viajes y crea sistemas de viaje.',
   },
   nav: {
+    showSidebar: 'Mostrar la lista de sistemas',
+    hideSidebar: 'Ocultar la lista de sistemas (más espacio)',
+    showHelp: 'Mostrar la ayuda',
+    hideHelp: 'Ocultar la ayuda (más espacio)',
     systems: 'Sistemas de viaje',
     generic: 'Genérico',
     help: 'Ayuda y manual',

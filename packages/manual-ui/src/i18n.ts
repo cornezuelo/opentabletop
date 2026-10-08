@@ -20,6 +20,8 @@ const TEXT = {
     contextClose: 'Close this explanation',
     backToManual: 'The manual',
     findInManual: 'Find it in the manual',
+    showContents: 'Show the contents',
+    hideContents: 'Hide the contents (more room)',
   },
   es: {
     help: 'Ayuda',
@@ -42,6 +44,8 @@ const TEXT = {
     contextClose: 'Cerrar esta explicación',
     backToManual: 'El manual',
     findInManual: 'Buscarlo en el manual',
+    showContents: 'Mostrar el índice',
+    hideContents: 'Ocultar el índice (más espacio)',
   },
 }
 

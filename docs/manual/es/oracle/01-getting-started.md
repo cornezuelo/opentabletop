@@ -4,7 +4,7 @@ La aplicación Oracle tira y edita las tablas aleatorias de tus juegos: tablas, 
 
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos), **Nueva definición**, **Nuevo pack**, **Importar .zip** y el idioma. Los botones de los extremos pliegan las columnas laterales para ganar espacio.
+- **Cabecera**: el selector de aplicaciones (nueve puntos), **Nueva definición**, **Nuevo pack**, **Importar .zip** y el idioma. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan las columnas laterales para ganar espacio, y las vuelven a sacar; la aplicación lo recuerda.
 - **Lista de packs** (izquierda): cada pack y sus definiciones, con un buscador (por nombre, id o etiqueta). Las insignias indican de dónde viene un pack: _incluido_, _editado_ (tu copia de un pack incluido), _uso personal_. Un número rojo cuenta sus problemas. El **+** junto a uno de tus packs le añade una definición.
 - **Definición** (centro): la pestaña **Tirar** la tira y **Editar** la cambia. Encima: su id, su fichero (haz clic para abrirlo en el editor YAML) y las acciones **Duplicar**, **Copiar a…** y **Borrar**.
 - **Historial** (derecha): tus últimas tiradas. Haz clic en una para volver a verla.

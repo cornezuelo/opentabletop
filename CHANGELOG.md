@@ -13,6 +13,7 @@ The first alpha, `0.1.0`, is being prepared: everything below is what it will br
 - **Travel**: trips without a map; travel systems edited with forms (the day, ways of travelling, terrains, supplies, values of the day, actions as steps, checks and their tables) or YAML.
 - **Manual**: the user manual of every app, English and Spanish, with search; each app opens it in its help column, which shows the explanation of the field you're on instead, formatted, with working examples.
 - **Command line**: `opentabletop validate`, `list` and `roll`.
+- Side columns fold away with a tab on their edge in every app, as in the Hexmapper.
 
 ### Packs
 

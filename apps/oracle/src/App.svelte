@@ -6,6 +6,7 @@
     confirmAction,
     contextHelp,
     Dialogs,
+    FoldTab,
     showToast,
     Toasts,
     tooltip,
@@ -95,24 +96,6 @@
 
 <div class="app" class:no-sidebar={!layout.sidebar} class:no-history={!layout.history}>
   <header class="bar">
-    <button
-      class="panel-toggle"
-      aria-pressed={layout.sidebar}
-      aria-label={t('nav.toggleSidebar')}
-      use:tooltip={t('nav.toggleSidebar')}
-      onclick={() => toggle('sidebar')}
-    >
-      <svg viewBox="0 0 16 16" aria-hidden="true"
-        ><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><rect
-          class="fill"
-          x="1.5"
-          y="2.5"
-          width="4.5"
-          height="11"
-          rx="1.5"
-        /></svg
-      >
-    </button>
     <AppBrand app="oracle" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
     <AppSwitcher current="oracle" locale={getLocale()} />
     <div class="spacer"></div>
@@ -140,46 +123,44 @@
         if (help && !layout.history) toggle('history')
       }}>?</button
     >
-    <button
-      class="panel-toggle"
-      aria-pressed={layout.history}
-      aria-label={t('nav.toggleHistory')}
-      use:tooltip={t('nav.toggleHistory')}
-      onclick={() => toggle('history')}
-    >
-      <svg viewBox="0 0 16 16" aria-hidden="true"
-        ><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" /><rect
-          class="fill"
-          x="10"
-          y="2.5"
-          width="4.5"
-          height="11"
-          rx="1.5"
-        /></svg
-      >
-    </button>
   </header>
 
   <Sidebar />
 
-  <main>
-    {#if nav.view.name === 'def'}
-      <DefinitionView id={nav.view.id} tab={nav.view.tab} />
-    {:else if nav.view.name === 'pack'}
-      <PackView root={nav.view.root} />
-    {:else if nav.view.name === 'file'}
-      <FileEditor root={nav.view.root} path={nav.view.path} line={nav.view.line} />
-    {:else}
-      <div class="welcome">
-        <h1>{t('welcome.title')}</h1>
-        <p class="tagline">{t('app.tagline')}</p>
-        <p>{t('welcome.body')}</p>
-        <p class="muted">
-          {t('welcome.packs', { packs: workspace.packs.length, definitions: count })}
-        </p>
-      </div>
-    {/if}
-  </main>
+  <div class="center">
+    <FoldTab
+      side="left"
+      open={layout.sidebar}
+      show={t('nav.showSidebar')}
+      hide={t('nav.hideSidebar')}
+      ontoggle={() => toggle('sidebar')}
+    />
+    <main>
+      {#if nav.view.name === 'def'}
+        <DefinitionView id={nav.view.id} tab={nav.view.tab} />
+      {:else if nav.view.name === 'pack'}
+        <PackView root={nav.view.root} />
+      {:else if nav.view.name === 'file'}
+        <FileEditor root={nav.view.root} path={nav.view.path} line={nav.view.line} />
+      {:else}
+        <div class="welcome">
+          <h1>{t('welcome.title')}</h1>
+          <p class="tagline">{t('app.tagline')}</p>
+          <p>{t('welcome.body')}</p>
+          <p class="muted">
+            {t('welcome.packs', { packs: workspace.packs.length, definitions: count })}
+          </p>
+        </div>
+      {/if}
+    </main>
+    <FoldTab
+      side="right"
+      open={layout.history}
+      show={t(help ? 'nav.showHelp' : 'nav.showHistory')}
+      hide={t(help ? 'nav.hideHelp' : 'nav.hideHistory')}
+      ontoggle={() => toggle('history')}
+    />
+  </div>
 
   {#if help}
     <aside class="help-column"><HelpPanel app="oracle" locale={getLocale()} /></aside>
@@ -271,8 +252,17 @@
     grid-column: 1;
   }
 
-  main {
+  .center {
+    position: relative;
+    display: flex;
     grid-column: 2;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .center > main {
+    flex: 1;
+    min-width: 0;
   }
 
   .app > :global(.history),
@@ -330,53 +320,9 @@
     display: none;
   }
 
-  .panel-toggle {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    color: var(--text-muted);
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .panel-toggle:hover {
-    color: var(--text);
-    border-color: var(--panel-border);
-  }
-
-  .panel-toggle svg {
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.2;
-  }
-
-  .panel-toggle svg .fill {
-    fill: currentColor;
-    opacity: 0.25;
-  }
-
-  .panel-toggle[aria-pressed='true'] svg .fill {
-    opacity: 0.8;
-  }
-
   @media (max-width: 1100px) {
     .app {
       --sidebar: 240px;
-      --history: 0px;
-    }
-
-    .app > :global(.history) {
-      display: none;
-    }
-
-    .app.no-sidebar {
-      --sidebar: 0px;
     }
   }
 
@@ -410,10 +356,17 @@
       border-bottom: 1px solid var(--panel-border);
     }
 
-    main {
+    .center {
       grid-row: 3;
       grid-column: 1;
+    }
+
+    main {
       padding: 12px;
+    }
+
+    .center > :global(.fold) {
+      display: none;
     }
 
     .app > :global(.history),
@@ -423,10 +376,6 @@
       max-height: 38vh;
       border-left: none;
       border-top: 1px solid var(--panel-border);
-    }
-
-    .app:not(.no-history) > :global(.history) {
-      display: flex;
     }
   }
 </style>

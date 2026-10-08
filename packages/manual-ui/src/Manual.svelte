@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppBrand, AppSwitcher } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, FoldTab } from '@open-tabletop/ui-kit'
   import { textFor } from './i18n'
   import { manual } from './manual'
   import PageView from './PageView.svelte'
@@ -35,13 +35,32 @@
   const page = $derived(pages.find((p) => p.slug === route.slug) ?? pages[0])
   const results = $derived(query.trim() ? manual.search(query, locale) : [])
 
+  /** Whether the contents are shown: a per-viewer preference, kept in this browser. */
+  const LAYOUT = 'opentabletop.manual.layout'
+  function readNav(): boolean {
+    try {
+      return JSON.parse(localStorage.getItem(LAYOUT) ?? '{}').nav !== false
+    } catch {
+      return true
+    }
+  }
+  let contents = $state(readNav())
+  function toggleNav() {
+    contents = !contents
+    try {
+      localStorage.setItem(LAYOUT, JSON.stringify({ nav: contents }))
+    } catch {
+      // Not remembered; it still applies now.
+    }
+  }
+
   function go(app: string, slug: string, anchor?: string) {
     query = ''
     location.hash = `#/${app}/${slug}${anchor ? `/${anchor}` : ''}`
   }
 </script>
 
-<div class="manual">
+<div class="manual" class:no-nav={!contents}>
   <header>
     <AppBrand app="manual" name={text.title} />
     <AppSwitcher current="manual" {locale} />
@@ -56,36 +75,47 @@
     </select>
   </header>
 
-  <nav>
-    <input type="search" placeholder={text.search} aria-label={text.search} bind:value={query} />
-    {#each manual.apps as app (app)}
-      <span class="app">{text.apps[app] ?? app}</span>
-      <ul>
-        {#each manual.pages(app, locale) as p (p.slug)}
-          <li>
-            <button
-              class:active={app === route.app && p.slug === page?.slug}
-              onclick={() => go(app, p.slug)}>{p.title}</button
-            >
-          </li>
-        {/each}
-      </ul>
-    {/each}
-  </nav>
+  {#if contents}
+    <nav>
+      <input type="search" placeholder={text.search} aria-label={text.search} bind:value={query} />
+      {#each manual.apps as app (app)}
+        <span class="app">{text.apps[app] ?? app}</span>
+        <ul>
+          {#each manual.pages(app, locale) as p (p.slug)}
+            <li>
+              <button
+                class:active={app === route.app && p.slug === page?.slug}
+                onclick={() => go(app, p.slug)}>{p.title}</button
+              >
+            </li>
+          {/each}
+        </ul>
+      {/each}
+    </nav>
+  {/if}
 
-  <main>
-    {#if query.trim()}
-      <SearchResults
-        {results}
-        showApp
-        appName={(app) => text.apps[app] ?? app}
-        empty={text.noResults}
-        onopen={(r) => go(r.page.app, r.page.slug, r.section.id || undefined)}
-      />
-    {:else if page}
-      <PageView {page} anchor={route.anchor} onlink={go} />
-    {/if}
-  </main>
+  <div class="center">
+    <FoldTab
+      side="left"
+      open={contents}
+      show={text.showContents}
+      hide={text.hideContents}
+      ontoggle={toggleNav}
+    />
+    <main>
+      {#if query.trim()}
+        <SearchResults
+          {results}
+          showApp
+          appName={(app) => text.apps[app] ?? app}
+          empty={text.noResults}
+          onopen={(r) => go(r.page.app, r.page.slug, r.section.id || undefined)}
+        />
+      {:else if page}
+        <PageView {page} anchor={route.anchor} onlink={go} />
+      {/if}
+    </main>
+  </div>
 </div>
 
 <style>
@@ -94,6 +124,22 @@
     grid-template-columns: 280px minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     height: 100vh;
+  }
+
+  .manual.no-nav {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .center {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .center > main {
+    flex: 1;
+    min-width: 0;
   }
 
   header {
@@ -179,6 +225,10 @@
       max-height: 35vh;
       border-right: none;
       border-bottom: 1px solid var(--panel-border);
+    }
+
+    .center > :global(.fold) {
+      display: none;
     }
   }
 </style>

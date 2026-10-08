@@ -6,6 +6,10 @@ export const en = {
     tagline: 'Play trips and build travel systems.',
   },
   nav: {
+    showSidebar: 'Show the systems list',
+    hideSidebar: 'Hide the systems list (more room)',
+    showHelp: 'Show the help',
+    hideHelp: 'Hide the help (more room)',
     systems: 'Travel systems',
     generic: 'Generic',
     help: 'Help and manual',
