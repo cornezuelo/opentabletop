@@ -1,8 +1,10 @@
 /**
  * Tiny typed i18n: one reference dictionary (its shape defines the keys) plus
  * translations of the same shape. The active locale is a user preference in
- * localStorage; English is the default.
+ * localStorage; without one, the browser's language if we have it, else the default.
  */
+import { initialLocale } from './locale.mjs'
+
 type Widen<T> = { -readonly [K in keyof T]: T[K] extends string ? string : Widen<T[K]> }
 type Paths<T, P extends string = ''> = {
   [K in keyof T & string]: T[K] extends string ? `${P}${K}` : Paths<T[K], `${P}${K}.`>
@@ -31,14 +33,11 @@ export function createI18n<Ref extends object, L extends string>(options: {
   defaultLocale: L
   storageKey: string
 }) {
-  const isLocale = (v: unknown): v is L => typeof v === 'string' && v in options.dictionaries
-  let initial = options.defaultLocale
-  try {
-    const stored = localStorage.getItem(options.storageKey)
-    if (isLocale(stored)) initial = stored
-  } catch {
-    // Storage unavailable: use the default.
-  }
+  const initial = initialLocale(
+    [options.storageKey],
+    Object.keys(options.dictionaries) as L[],
+    options.defaultLocale,
+  )
   const state = $state({ locale: initial })
   return {
     locales: options.names,

@@ -2,6 +2,8 @@
 
 OpenTabletop is built to be translated at three levels, from easiest to hardest. English is always the base: anything not translated falls back to it.
 
+**Which language you see**: the one you chose, in any app's language list or with the flags at the top of the site's front page; every app on the same site shares it. Until you choose, the apps follow your browser's language when they have it (a browser in `es-ES` or `es-MX` opens them in Spanish), and English otherwise.
+
 ## Pack content (no code)
 
 Tables, oracles, generators and decks are translated inside their pack, with files that replace only the texts. Do it from the Oracle app (**Add language** in the pack page, then choose the language in a definition's **Edit** tab) or by hand: see [Translations](../oracle/05-translations.md). Anyone can translate their own packs, or send translations for open packs.
@@ -24,6 +26,6 @@ Every visible text of the apps comes from a dictionary; there is no text written
 | Trip panel                | `packages/travel-ui/src/i18n/`                                                           |
 | Manual, app switcher      | `packages/manual-ui/src/i18n.ts`, `packages/ui-kit/src/AppSwitcher.svelte`               |
 
-To add a language: copy each `en.ts` to `<code>.ts`, translate the values (never the keys), and add the code to the language lists. Check it with `make verify` and build with `make site`. Contributions are welcome as pull requests.
+To add a language: copy each `en.ts` to `<code>.ts`, translate the values (never the keys), and add the code to the language lists (and to the front page's languages and flags, in `scripts/build-site.mjs`). Check it with `make verify` and build with `make site`. Contributions are welcome as pull requests.
 
 Texts with `{name}` are filled in by the app (`'At {hex}'` → "At 0203"): keep the braces and the name inside them.

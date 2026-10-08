@@ -1,3 +1,4 @@
+import { initialLocale } from '@open-tabletop/ui-kit'
 import { en } from './en'
 import { es } from './es'
 import { translate } from './translate'
@@ -11,21 +12,10 @@ const dictionaries: Record<Locale, Messages> = { es, en }
 const STORAGE_KEY = 'opentabletop.locale'
 const OLD_KEY = 'hexmapper.locale'
 
-function isLocale(value: unknown): value is Locale {
-  return typeof value === 'string' && value in locales
-}
-
-function initialLocale(): Locale {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(OLD_KEY)
-    if (isLocale(stored)) return stored
-  } catch {
-    // Storage unavailable: use the default.
-  }
-  return 'en'
-}
-
-const state = $state({ locale: initialLocale() })
+/** The user's choice, otherwise the browser's language if we have it, otherwise English. */
+const state = $state({
+  locale: initialLocale([STORAGE_KEY, OLD_KEY], Object.keys(locales) as Locale[], 'en'),
+})
 
 export function getLocale(): Locale {
   return state.locale

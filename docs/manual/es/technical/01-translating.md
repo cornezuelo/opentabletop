@@ -2,6 +2,8 @@
 
 OpenTabletop está pensado para traducirse a tres niveles, del más fácil al más difícil. El inglés es siempre la base: lo que no esté traducido se muestra en inglés.
 
+**Qué idioma ves**: el que elegiste, en la lista de idiomas de cualquier aplicación o con las banderas de arriba en la portada del sitio; todas las aplicaciones del mismo sitio lo comparten. Hasta que elijas, las aplicaciones siguen el idioma de tu navegador si lo tienen (un navegador en `es-ES` o `es-MX` las abre en castellano), y si no, el inglés.
+
 ## El contenido de los packs (sin código)
 
 Las tablas, oráculos, generadores y mazos se traducen dentro de su pack, con ficheros que solo sustituyen los textos. Hazlo desde la aplicación Oracle (**Añadir idioma** en la página del pack y después elige el idioma en la pestaña **Editar** de una definición) o a mano: consulta [Traducciones](../oracle/05-translations.md). Cualquiera puede traducir sus propios packs, o enviar traducciones de los packs abiertos.
@@ -24,6 +26,6 @@ Cada texto visible de las aplicaciones sale de un diccionario; no hay texto escr
 | Panel del viaje                  | `packages/travel-ui/src/i18n/`                                                                |
 | Manual, selector de aplicaciones | `packages/manual-ui/src/i18n.ts`, `packages/ui-kit/src/AppSwitcher.svelte`                    |
 
-Para añadir un idioma: copia cada `en.ts` en `<código>.ts`, traduce los valores (nunca las claves) y añade el código a las listas de idiomas. Compruébalo con `make verify` y compila con `make site`. Las contribuciones son bienvenidas como pull requests.
+Para añadir un idioma: copia cada `en.ts` en `<código>.ts`, traduce los valores (nunca las claves) y añade el código a las listas de idiomas (y a los idiomas y banderas de la portada, en `scripts/build-site.mjs`). Compruébalo con `make verify` y compila con `make site`. Las contribuciones son bienvenidas como pull requests.
 
 Los textos con `{nombre}` los completa la aplicación (`'En {hex}'` → «En 0203»): conserva las llaves y el nombre de dentro.

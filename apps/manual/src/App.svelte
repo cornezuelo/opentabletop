@@ -1,19 +1,11 @@
 <script lang="ts">
   import { Manual } from '@open-tabletop/manual-ui'
-  import { Dialogs, Toasts } from '@open-tabletop/ui-kit'
+  import { Dialogs, initialLocale, Toasts } from '@open-tabletop/ui-kit'
 
-  /** Same language preference as the Oracle app (English by default). */
+  /** The language every app shares: the user's choice, else the browser's, else English. */
   const KEY = 'opentabletop.locale'
   const locales = { en: 'English', es: 'Español' }
-  const read = () => {
-    try {
-      const stored = localStorage.getItem(KEY)
-      return stored && stored in locales ? stored : 'en'
-    } catch {
-      return 'en'
-    }
-  }
-  let locale = $state(read())
+  let locale = $state(initialLocale([KEY], Object.keys(locales), 'en'))
   $effect(() => {
     document.documentElement.lang = locale
   })

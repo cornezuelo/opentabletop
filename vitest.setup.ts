@@ -14,3 +14,13 @@ if (typeof globalThis.localStorage === 'undefined') {
   }
   globalThis.localStorage = storage
 }
+
+// Node takes navigator.language from the system's locale, and the apps follow the browser's
+// language: tests start in English on every machine.
+if (typeof globalThis.navigator !== 'undefined') {
+  Object.defineProperty(globalThis.navigator, 'language', { value: 'en-US', configurable: true })
+  Object.defineProperty(globalThis.navigator, 'languages', {
+    value: ['en-US', 'en'],
+    configurable: true,
+  })
+}
