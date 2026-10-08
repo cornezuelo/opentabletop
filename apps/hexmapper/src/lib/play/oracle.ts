@@ -1,6 +1,5 @@
 import { createOracleUi } from '@open-tabletop/oracle-ui'
-import { addEntry, calendarOf, tripContext } from '@open-tabletop/session'
-import { calendarFacts } from '@open-tabletop/travel-engine'
+import { addEntry, tripFacts } from '@open-tabletop/session'
 import { getSystem, mapPacks } from './systems'
 import { getLocale } from '../i18n/index.svelte'
 import { fieldValues } from '../model/hex'
@@ -10,6 +9,7 @@ import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 import { editSession, partyLocation, sessionOf } from './play'
 import { mapWorld } from './world'
+import { worldFactsNow } from './world.svelte'
 
 /**
  * The embedded Oracle: any table of the loaded packs, rolled by hand. Its state (decks,
@@ -74,17 +74,18 @@ export function rollContext(): Record<string, unknown> {
   const hex = rollHex()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
   const facts: Record<string, unknown> = hex && cell ? { ...cell, hex } : {}
-  // The same order as the trip's checks: stats and today's values, then the facts.
+  const world = worldFactsNow()
+  // What the trip's checks would see (the moment, the trip, the party, today's values, the
+  // world clock), with the selected hex's facts in place of the party's.
   const out: Record<string, unknown> = session
-    ? tripContext(session, {
+    ? {
+        ...tripFacts(
+          { system: getSystem(play!.rules!.system), world: mapWorld(editor.map), facts: world },
+          session,
+        ),
         ...facts,
-        ...calendarFacts(calendarOf(getSystem(play!.rules!.system)).describe(session.travel.time)),
-        season: calendarOf(getSystem(play!.rules!.system)).describe(session.travel.time).season,
-        weather: session.travel.weather,
-        mode: session.travel.mode,
-        day: session.travel.day,
-      })
-    : facts
+      }
+    : { ...world, ...facts }
   // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.might}}.
   const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
   // Its own values can't hide its name and kind.

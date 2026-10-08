@@ -10,6 +10,7 @@ import {
   type WorldAction,
   type WorldEvent,
   type WorldState,
+  worldFacts,
 } from '@open-tabletop/world-engine'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
@@ -30,6 +31,12 @@ export function worldCalendar(): Calendar {
 }
 
 const world = () => createWorld({ calendar: worldCalendar() })
+
+/** What tables and conditions read of the world clock (its clocks, today's events), if running. */
+export function worldFactsNow(): Record<string, unknown> | undefined {
+  const state = editor.map.world
+  return state ? worldFacts(state, worldCalendar()) : undefined
+}
 
 /** Starts the clock: at the trip's time if one is going on, else dawn of day 1. */
 export function startWorld(): void {

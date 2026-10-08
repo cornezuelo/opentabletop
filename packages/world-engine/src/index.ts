@@ -302,3 +302,33 @@ export function readWorld(raw: unknown): WorldState {
     nextId: Math.max(1, num(r.nextId, 1)),
   }
 }
+
+/** A name as conditions write it: lowercase, words joined by dashes (`The Wyrm wakes` → `the-wyrm-wakes`). */
+export const factId = (name: string): string =>
+  name
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+
+/**
+ * What tables and conditions read of the world, by names written as ids (`factId`): each
+ * progress clock's filled segments (`clocks.the-wyrm-wakes: 3`) and the events that fall
+ * on the current day, due or already come (`events: [market-day]`).
+ */
+export function worldFacts(state: WorldState, calendar: Calendar): Record<string, unknown> {
+  const { day } = calendar.describe(state.time)
+  const from = calendar.at(day, '00:00')
+  const to = calendar.at(day + 1, '00:00')
+  const today = (time: GameTime) => time >= from && time < to
+  const events = [
+    ...state.events.filter((e) => today(e.at)).map((e) => e.name),
+    ...state.timeline.filter((t) => t.code === 'EVENT' && today(t.time)).map((t) => t.text ?? ''),
+  ]
+  return {
+    clocks: Object.fromEntries(state.clocks.map((c) => [factId(c.name), c.filled])),
+    events: [...new Set(events.map(factId).filter(Boolean))],
+  }
+}

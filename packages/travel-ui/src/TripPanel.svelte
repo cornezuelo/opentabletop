@@ -50,6 +50,7 @@
     arrivedHint = '',
     title = '',
     world,
+    facts,
     onstep,
     onedit,
   }: {
@@ -57,6 +58,8 @@
     session: SessionState
     /** The map, for actions whose conditions read it (terrain, tags…). */
     world?: TravelWorld
+    /** The host's facts for actions' conditions (the world clock's clocks and events). */
+    facts?: Record<string, unknown>
     /** Calendar day the trip started (shown as day 1). */
     startDay: number
     locale: string
@@ -138,7 +141,7 @@
     return minutes ? `${actionName(id)} (${durationText(minutes)})` : actionName(id)
   }
   /** What can't be done now (travel, actions) and why. */
-  const blocked = $derived(tripAvailability({ system, world }, session))
+  const blocked = $derived(tripAvailability({ system, world, facts }, session))
   /** The values of the day the system declares, by their names (lost: Lost). */
   const dayValues = $derived(
     Object.fromEntries(

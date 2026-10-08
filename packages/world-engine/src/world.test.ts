@@ -1,6 +1,14 @@
 import { calendarFrom, defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
-import { createWorld, initialWorld, readWorld, type WorldAction, type WorldState } from './index'
+import {
+  createWorld,
+  factId,
+  initialWorld,
+  readWorld,
+  worldFacts,
+  type WorldAction,
+  type WorldState,
+} from './index'
 
 const DAY = 24 * 60
 
@@ -118,5 +126,29 @@ describe('the world clock', () => {
       timeline: [],
       nextId: 1,
     })
+  })
+})
+
+describe('what tables read of the world', () => {
+  it('reads clocks by their names as ids, and the events of the current day', () => {
+    const world = createWorld({ calendar: defaultCalendar })
+    const start = defaultCalendar.at(1, '06:00')
+    let { state } = run(
+      world,
+      initialWorld(start),
+      { type: 'addClock', clock: { name: 'The Wyrm wakes', segments: 6, filled: 2 } },
+      { type: 'schedule', event: { name: 'Market day', at: defaultCalendar.at(1, '12:00') } },
+      { type: 'schedule', event: { name: 'Harvest Feast', at: defaultCalendar.at(3, '12:00') } },
+    )
+    expect(factId('  Fête de l’Été! ')).toBe('fete-de-l-ete')
+    expect(worldFacts(state, defaultCalendar)).toEqual({
+      clocks: { 'the-wyrm-wakes': 2 },
+      events: ['market-day'],
+    })
+    // Once come, an event of the day is still today's.
+    ;({ state } = run(world, state, { type: 'advance', minutes: 8 * 60 }))
+    expect(worldFacts(state, defaultCalendar).events).toEqual(['market-day'])
+    ;({ state } = run(world, state, { type: 'advance', minutes: DAY }))
+    expect(worldFacts(state, defaultCalendar).events).toEqual([])
   })
 })

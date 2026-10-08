@@ -19,7 +19,7 @@ import { showToast } from '@open-tabletop/ui-kit'
 import { SetMetaCommand } from '../commands/settings'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
-import { followTrip } from './world.svelte'
+import { followTrip, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -179,6 +179,7 @@ export function step(action: TravelAction): void {
     oracle: oracle(),
     locale: getLocale(),
     discover: discoverMode(play, system),
+    facts: worldFactsNow(),
   }
   // Checks roll with the map's Oracle state, the same one hand rolls use.
   const shared = editor.map.oracle

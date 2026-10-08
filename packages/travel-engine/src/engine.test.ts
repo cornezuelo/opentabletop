@@ -7,7 +7,7 @@ import {
   toAxial,
   type GridShape,
 } from '@open-tabletop/hex'
-import { defaultCalendar } from '@open-tabletop/time'
+import { calendarFrom, defaultCalendar } from '@open-tabletop/time'
 import {
   availableActions,
   createTravelEngine,
@@ -1425,6 +1425,101 @@ describe('day and night, and marching past nightfall', () => {
     const { events } = own.apply(quick, { type: 'travel' })
     expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
       check: { event: 'NIGHT_LOST' },
+    })
+  })
+})
+
+describe('what conditions read of the moment, the trip and the land around', () => {
+  const own = createTravelEngine({ world, rules: rules! })
+
+  it('reads the hour, the watch and the system’s own day as numbers', () => {
+    const at = { ...start(), time: defaultCalendar.at(1, '14:30') }
+    expect(own.context(at)).toMatchObject({
+      hour: 14.5,
+      watch: 4, // 4-hour watches: 12:00–16:00 is the fourth
+      dawn: 6,
+      nightfall: 20,
+      hoursPerDay: 8,
+      daylight: true,
+    })
+  })
+
+  it('reads the day of the month with a calendar of the system’s own', () => {
+    const calendar = calendarFrom({
+      months: [
+        { id: 'thaw', days: 10 },
+        { id: 'sowing', days: 10 },
+      ],
+    })
+    const engine = createTravelEngine({ world, rules: rules!, calendar })
+    const state = initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      calendar,
+      time: calendar.at(13, '08:00'),
+    })
+    expect(engine.context(state)).toMatchObject({ month: 'sowing', monthDay: 3 })
+  })
+
+  it('reads the trip: hours marched, actions done, the way left, days, visits', () => {
+    const first = start()
+    expect(own.context(first)).toMatchObject({
+      marched: 0,
+      doneToday: [],
+      routeLeft: 0,
+      arrived: false,
+      tripDay: 1,
+      visits: 1,
+    })
+    const planned = own.apply(first, { type: 'setDestination', hex: '2,0' }).state
+    expect(own.context(planned)).toMatchObject({ routeLeft: 2 })
+    const rested = own.apply(planned, { type: 'rest' }).state
+    expect(own.context(rested).doneToday).toEqual(['rest'])
+    // Marching: one hex is a whole day's march (8 h).
+    const marched = resolveAll(own.apply(rested, { type: 'travel' }).state).state
+    const day = own.apply(marched, { type: 'travel' }).state
+    expect(own.context(day).marched).toBeGreaterThan(0)
+    /** Travels on (resolving every check) until the party gets to `hex`. */
+    const goTo = (from: TravelState, hex: string) => {
+      let state = own.apply(from, { type: 'setDestination', hex }).state
+      for (let i = 0; i < 40 && state.location !== hex; i++) {
+        state = resolveAll(state).state
+        state = own.apply(state, {
+          type: 'travel',
+          until: 'destination',
+          by: state.time + 3 * 1440,
+        }).state
+      }
+      return state
+    }
+    const state = goTo(rested, '2,0')
+    expect(state.location).toBe('2,0')
+    expect(own.context(state)).toMatchObject({ arrived: true, routeLeft: 0, visits: 1 })
+    expect(own.context(state).tripDay).toBeGreaterThan(1)
+    // Back where it started: its second visit.
+    const home = goTo(state, '0,0')
+    expect(home.location).toBe('0,0')
+    expect(own.context(home).visits).toBe(2)
+  })
+
+  it('reads the hexes around, and the one left when entering a hex', () => {
+    // 2,0 is next to the mountains of column 3.
+    const at = { ...start('2,0') }
+    expect(own.context(at)).toMatchObject({
+      around: { terrain: expect.arrayContaining(['steppe', 'mountains']), water: false },
+    })
+    const leaving = parseTravelRules({
+      ...rules!,
+      checks: [{ event: 'LEFT_MOUNTAINS', at: 'hex-enter', when: { 'from.terrain': 'mountains' } }],
+    })
+    const engine = createTravelEngine({ world, rules: leaving.rules! })
+    const planned = engine.apply(
+      { ...start('3,0'), progress: 0 },
+      { type: 'setDestination', hex: '4,0' },
+    ).state
+    const { events } = engine.apply(planned, { type: 'travel' })
+    expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
+      check: { event: 'LEFT_MOUNTAINS', context: { from: { hex: '3,0', terrain: 'mountains' } } },
     })
   })
 })

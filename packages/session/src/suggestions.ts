@@ -42,8 +42,32 @@ export function contextSuggestions(
   add('water', true, false)
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
-  // Between the system's dawn and nightfall.
+  // The moment: day or night, the hour (14.5 is 14:30), the calendar's watch, and the
+  // system's own dawn, nightfall and marching hours as numbers.
   add('daylight', true, false)
+  add('hour')
+  add('watch', 1, 2, 3, 4, 5, 6)
+  add('monthDay')
+  add('dawn')
+  add('nightfall')
+  add('hoursPerDay')
+  // The trip: hours marched today, actions taken, the way left, its days, visits here.
+  add('marched')
+  add('doneToday')
+  add('routeLeft')
+  add('arrived', true, false)
+  add('tripDay')
+  add('visits', 1)
+  // The hex left when entering one, and the neighbours of where the party is.
+  add('from.terrain')
+  add('from.tags')
+  add('from.region')
+  add('around.terrain')
+  add('around.tags')
+  add('around.region')
+  add('around.water', true, false)
+  // The world clock's: each clock by its name as an id, and today's events.
+  add('events')
   // What hit its minimum or maximum today (its id), and whether the day ended in camp.
   add('below')
   add('above')
@@ -51,6 +75,8 @@ export function contextSuggestions(
   add('camping', true, false)
   add('edges', 'road', 'trail', 'river')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
+  add('from.terrain', ...Object.keys(genericTravelRules.terrains))
+  add('around.terrain', ...Object.keys(genericTravelRules.terrains))
   add('tags')
   add('weather')
   add('mode')
@@ -69,6 +95,8 @@ export function contextSuggestions(
       add('season', ...def.months.flatMap((m) => (m.season ? [m.season] : [])))
     }
     add('terrain', ...Object.keys(rules.terrains))
+    add('from.terrain', ...Object.keys(rules.terrains))
+    add('around.terrain', ...Object.keys(rules.terrains))
     add('weather', ...Object.keys(rules.weather ?? {}))
     add('mode', ...Object.keys(rules.modes))
     add('party.mode', ...Object.keys(rules.modes))
@@ -92,6 +120,7 @@ export function contextSuggestions(
       add(`yesterday.${value}`, true, false)
     }
     add('doing', ...Object.keys(availableActions(rules).all))
+    add('doneToday', ...Object.keys(availableActions(rules).all))
     add('moment', ...CHECK_MOMENTS, ...Object.keys(availableActions(rules).all))
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)

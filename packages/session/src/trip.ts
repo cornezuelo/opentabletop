@@ -529,6 +529,8 @@ export function stepTrip(
     discover?: RevealMode
     /** For the weather (tables roll with the Oracle's own); seeded in tests and replays. */
     random?: RandomSource
+    /** The host's facts for conditions and tables (the world clock's `clocks`, `events`). */
+    facts?: Record<string, unknown>
   },
   session: SessionState,
   action: TravelAction,
@@ -559,6 +561,7 @@ export function stepTrip(
     discovery,
     weather: system.weather,
     random: options.random,
+    facts: options.facts,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }
@@ -578,7 +581,7 @@ const NO_WORLD: TravelWorld = {
  * or its `when` / `unless` (which see the map, the party and today's values).
  */
 export function tripAvailability(
-  options: { system: TravelSystem; world?: TravelWorld },
+  options: { system: TravelSystem; world?: TravelWorld; facts?: Record<string, unknown> },
   session: SessionState,
 ): Record<string, Unavailable> {
   const engine = createTravelEngine({
@@ -587,5 +590,24 @@ export function tripAvailability(
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
   })
-  return engine.availability(session.travel, tripContext(session, {}))
+  return engine.availability(session.travel, tripContext(session, options.facts ?? {}))
+}
+
+/**
+ * What conditions and tables see now in a trip, as its checks would: the hex, the moment
+ * (season, hour, daylight, the calendar), the trip, the party, today's values and the
+ * host's facts. For rolls by hand during a trip.
+ */
+export function tripFacts(
+  options: { system: TravelSystem; world?: TravelWorld; facts?: Record<string, unknown> },
+  session: SessionState,
+): Record<string, unknown> {
+  const engine = createTravelEngine({
+    world: options.world ?? NO_WORLD,
+    rules: options.system.rules,
+    calendar: calendarOf(options.system),
+    stats: options.system.bindings?.stats,
+  })
+  const context = tripContext(session, options.facts ?? {})
+  return tripContext(session, engine.context(session.travel, context))
 }

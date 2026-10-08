@@ -17,6 +17,7 @@
   } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { mapWorld } from '../lib/play/world'
+  import { worldFactsNow } from '../lib/play/world.svelte'
   import { activeSystem, getSystem, mapSystemId, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
@@ -176,6 +177,7 @@
       hexLabel={coord}
       terrainName={terrainLabel}
       world={mapWorld(editor.map)}
+      facts={worldFactsNow()}
       title={editor.map.meta.name || t('map.untitled')}
       nameOf={oracleUi.nameOf}
       destinationHint={t('play.destinationHelp')}

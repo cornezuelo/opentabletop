@@ -3,6 +3,7 @@ import { findPath } from '@open-tabletop/hex'
 import {
   defaultCalendar,
   nextAt,
+  parseClock,
   type Calendar,
   type CalendarParts,
   type GameTime,
@@ -102,6 +103,10 @@ export interface TravelState {
    * (`overtime` steps; never past midnight).
    */
   overtimeToday?: number
+  /** The day the trip started (`tripDay` counts from it; absent in older trips). */
+  firstDay?: number
+  /** Times the party has been in each hex this trip, the one it starts in included. */
+  visits?: Record<string, number>
   /** The system's own actions done today (for `oncePerDay`). */
   actionsToday?: string[]
   pendingChecks: PendingCheck[]
@@ -232,6 +237,8 @@ export interface TravelEngine {
    * as `mode.<id>` (absent: available).
    */
   availability(state: TravelState, facts?: HostFacts): Record<string, Unavailable>
+  /** What conditions and tables see now where the party is (the host's facts included). */
+  context(state: TravelState, facts?: HostFacts): Record<string, unknown>
   /** Minutes to step from `a` to its neighbor `b` in the given state (Infinity if impossible). */
   stepMinutes(state: TravelState, a: string, b: string): number
   plan(state: TravelState, to: string, strategy?: RouteStrategy): string[] | null
@@ -252,6 +259,8 @@ export function initialTravelState(init: {
     resources: { ...init.resources },
     progress: 0,
     day: (init.calendar ?? defaultCalendar).describe(time).day,
+    firstDay: (init.calendar ?? defaultCalendar).describe(time).day,
+    visits: { [init.location]: 1 },
     travelledToday: 0,
     dayChecksDone: false,
     pendingChecks: [],
@@ -278,6 +287,7 @@ export function calendarFacts(parts: TimeParts | CalendarParts): Record<string, 
   if (!('month' in parts)) return {}
   return {
     month: parts.month.id,
+    monthDay: parts.month.day,
     year: parts.year,
     ...(parts.weekday && { weekday: parts.weekday.id }),
     moons: Object.fromEntries(parts.moons.map((m) => [m.id, m.phase])),
@@ -319,6 +329,49 @@ export function createTravelEngine(options: {
   const isDaylight = (time: GameTime): boolean => {
     const { day } = calendar.describe(time)
     return time >= calendar.at(day, rules.day.start) && time < calendar.at(day, rules.day.nightfall)
+  }
+
+  /** The system's own day as numbers (hours), for conditions: `hour: { gte: $nightfall }`. */
+  const clockHours = (clock: string) => parseClock(clock) / 60
+  /**
+   * The moment as conditions read it: the season, the day, whether it's day, the hour
+   * (`14.5` is 14:30), the calendar's watch, and the system's dawn, nightfall and
+   * marching hours.
+   */
+  const clockFacts = (state: TravelState): Record<string, unknown> => {
+    const parts = calendar.describe(state.time)
+    return {
+      season: parts.season,
+      day: state.day,
+      daylight: isDaylight(state.time),
+      hour: parts.hour + parts.minute / 60,
+      ...(parts.watch !== undefined && { watch: parts.watch }),
+      dawn: clockHours(rules.day.start),
+      nightfall: clockHours(rules.day.nightfall),
+      hoursPerDay: rules.travel.hoursPerDay,
+    }
+  }
+  /** A hex as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
+  const hexFacts = (hex: string): Record<string, unknown> => {
+    const cell = world.cell(hex)
+    return { ...cell, hex, terrain: cell?.terrain, tags: cell?.tags ?? [], water: !!cell?.water }
+  }
+  /** The neighbours of a hex together: every terrain, tag and region among them. */
+  const aroundFacts = (hex: string): Record<string, unknown> => {
+    type Cell = NonNullable<ReturnType<TravelWorld['cell']>>
+    const cells = world.neighbors(hex).flatMap((h): Cell[] => {
+      const cell = world.cell(h)
+      return cell ? [cell] : []
+    })
+    const all = (pick: (c: Cell) => unknown) => [
+      ...new Set(cells.flatMap((c) => [pick(c)].flat().filter((v) => v !== undefined))),
+    ]
+    return {
+      terrain: all((c) => c.terrain),
+      tags: all((c) => c.tags ?? []),
+      region: all((c) => c.region),
+      water: cells.some((c) => c.water),
+    }
   }
 
   /**
@@ -436,9 +489,16 @@ export function createTravelEngine(options: {
       edges: a && b ? world.edges(a, b) : [],
       weather: state.weather,
       mode: state.mode,
-      season: calendar.describe(state.time).season,
-      day: state.day,
-      daylight: isDaylight(state.time),
+      ...clockFacts(state),
+      // Where the party stands among its neighbours: their terrains, tags and regions.
+      around: aroundFacts(state.location),
+      // How the day and the trip go.
+      marched: state.travelledToday / 60,
+      doneToday: state.actionsToday ?? [],
+      routeLeft: state.route ? Math.max(0, state.route.length - 1) : 0,
+      arrived: !!state.destination && state.destination === state.location,
+      ...(state.firstDay !== undefined && { tripDay: state.day - state.firstDay + 1 }),
+      visits: state.visits?.[state.location] ?? 0,
       // The day before's values (the host's, then the declared ones).
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
       // What hit a bound today; `short` is how older rules read "something hit its minimum".
@@ -471,8 +531,10 @@ export function createTravelEngine(options: {
       for (const id of triggered.get(at) ?? [])
         takeAction(state, id, events, { on: at, facts: { ...facts, moment: at }, quiet: true })
     // Conditions (and the tables) see which moment it is: a check may come at several.
-    const context = { ...checkContext(state, stretch), ...facts, moment: at }
-    const seen = { ...checkContext(state, stretch, hostFacts), ...facts, moment: at }
+    // Entering a hex, the one left: `from.terrain`, `from.region`…
+    const left = from ? { from: hexFacts(from) } : {}
+    const context = { ...checkContext(state, stretch), ...left, ...facts, moment: at }
+    const seen = { ...checkContext(state, stretch, hostFacts), ...left, ...facts, moment: at }
     let scheduled = 0
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (event ? rule.event !== event : !momentsOf(rule.at).includes(at)) continue
@@ -600,6 +662,7 @@ export function createTravelEngine(options: {
       const from = state.location
       state.location = next
       state.route = state.route.slice(1)
+      state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
       events.push({ type: 'HEX_ENTERED', hex: next, time: state.time })
       schedule(state, 'hex-enter', events, from)
       if (state.route.length < 2) {
@@ -948,6 +1011,7 @@ export function createTravelEngine(options: {
   return {
     stepMinutes,
     plan,
+    context: (input, facts = {}) => checkContext(upgradeTravelState(input), [], facts),
     availability(input, facts = {}) {
       const state = upgradeTravelState(input)
       const out: Record<string, Unavailable> = {}

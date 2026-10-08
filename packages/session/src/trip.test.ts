@@ -10,6 +10,8 @@ import {
   systemName,
   systemPackIds,
   travelSystems,
+  tripAvailability,
+  tripFacts,
 } from './trip'
 
 const { registry } = loadPacks([
@@ -349,5 +351,46 @@ ${format}`
     const newer = play(2)
     expect(newer.state.travel.pendingChecks.map((c) => c.event)).not.toContain('LANDMARK')
     expect(newer.entries.find((e) => e.data?.event === 'LANDMARK')?.code).toBe('CHECK_NOTED')
+  })
+
+  it('checks and actions see the host’s facts (the world clock’s clocks and events)', () => {
+    const { registry: clocked } = loadPacks([
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+      {
+        path: 'w/travel.yaml',
+        content: `
+kind: travel-rules
+day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8 }
+terrains: { plains: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 24 } }
+checks:
+  - { event: WYRM, at: hex-enter, when: { clocks.the-wyrm-wakes: { gte: 4 } }, pause: true }
+actions:
+  shop: { when: { events: market-day }, do: [{ time: 60 }] }
+`,
+      },
+    ])
+    const system = travelSystems(clocked).systems.find((s) => s.id === 'w')!
+    const { session } = startTrip({ system, location: 'a' })
+    const go = (facts: Record<string, unknown>) => {
+      const options = { system, world, facts }
+      const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+      return stepTrip(options, planned, { type: 'travel' }).state
+    }
+    const calm = { clocks: { 'the-wyrm-wakes': 3 }, events: [] }
+    const waking = { clocks: { 'the-wyrm-wakes': 4 }, events: ['market-day'] }
+    expect(go(calm).travel.pendingChecks).toEqual([])
+    expect(go(waking).travel.pendingChecks.map((c) => c.event)).toEqual(['WYRM'])
+    expect(tripAvailability({ system, world, facts: calm }, session).shop).toBeDefined()
+    expect(tripAvailability({ system, world, facts: waking }, session).shop).toBeUndefined()
+    // Rolls by hand see what a check would: the moment, the trip, the host's facts.
+    expect(tripFacts({ system, world, facts: waking }, session)).toMatchObject({
+      daylight: true,
+      hour: 7,
+      tripDay: 1,
+      visits: 1,
+      clocks: { 'the-wyrm-wakes': 4 },
+    })
   })
 })

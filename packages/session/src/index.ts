@@ -249,8 +249,14 @@ export function createSession(options: {
   random?: RandomSource
   /** The system's travel rules: the values it declares (lost…), set by results. */
   rules?: TravelRules
+  /**
+   * What the host knows besides the trip, for conditions and tables: the world clock's
+   * `clocks` and today's `events` (`worldFacts` of the world engine).
+   */
+  facts?: Record<string, unknown>
 }): Session {
   const random = options.random ?? mathRandom()
+  const host = options.facts ?? {}
   const now = options.now ?? (() => new Date().toISOString())
   const discovery = options.discovery
   const declared = options.rules ? declaredValues(options.rules) : undefined
@@ -292,7 +298,7 @@ export function createSession(options: {
         if (!discovery) return false
         let outcome: ReturnType<Discovery['arrive']>
         try {
-          outcome = discovery.arrive(s, tripContext(s, {}), hex, from)
+          outcome = discovery.arrive(s, tripContext(s, host), hex, from)
         } catch (error) {
           if (!(error instanceof OracleError)) throw error
           add(s, entries, {
@@ -337,7 +343,7 @@ export function createSession(options: {
         const dayBefore = s.travel.day
         const from = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
-        const result = options.travel.apply(s.travel, act, tripContext(s, {}))
+        const result = options.travel.apply(s.travel, act, tripContext(s, host))
         s.travel = result.state
         if (s.travel.day !== dayBefore) {
           // Today's values become yesterday's (none if more than a day went by).
@@ -414,7 +420,7 @@ export function createSession(options: {
             })
             continue
           }
-          const context = tripContext(s, event.check.context, binding.context)
+          const context = tripContext(s, { ...host, ...event.check.context }, binding.context)
           let value: Record<string, unknown>
           let text: string | undefined
           try {

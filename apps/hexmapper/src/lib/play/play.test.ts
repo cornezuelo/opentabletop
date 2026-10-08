@@ -9,7 +9,7 @@ import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { clickHex, partyLocation, restartRules, sessionOf, setMode, step } from './play'
 import { advanceWorld, startWorld, stopMessage, worldAct, worldCalendar } from './world.svelte'
-import { oracleUi } from './oracle'
+import { oracleUi, rollContext } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 
 /** The maps the bundled systems bring (`maps:` in their `kind: system`). */
@@ -86,6 +86,27 @@ describe('playing on the map', () => {
     restartRules('grey-marches', 'spring')
     expect(editor.meta.system).toBe('grey-marches')
     expect(editor.map.play?.rules?.system).toBe('grey-marches')
+  })
+
+  it('the world clock reaches the trip: hand rolls and checks read its clocks and events', () => {
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    clickHex('7,7')
+    startWorld()
+    const start = editor.map.world!.time
+    worldAct({ type: 'addClock', clock: { name: 'The Wyrm wakes', segments: 6, filled: 2 } })
+    worldAct({ type: 'schedule', event: { name: 'Market day', at: start + 60 } })
+    // A roll by hand sees what the trip's checks would: the moment, the trip, the world.
+    expect(rollContext()).toMatchObject({
+      daylight: true,
+      dawn: 6,
+      nightfall: 20,
+      tripDay: 1,
+      visits: 1,
+      clocks: { 'the-wyrm-wakes': 2 },
+      events: ['market-day'],
+      party: { mode: 'foot' },
+    })
+    expect(typeof rollContext().hour).toBe('number')
   })
 
   it('the world clock is saved in the file and follows a trip, telling what came due', () => {
