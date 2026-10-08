@@ -652,6 +652,45 @@ mood:
   })
 })
 
+describe('generator field translations', () => {
+  const pack: PackFile[] = [
+    { path: 'g/pack.yaml', content: 'id: g\nversion: 0.1.0\nlocale: en\n' },
+    {
+      path: 'g/gen.yaml',
+      content: `
+kind: generator
+id: ruin
+fields:
+  danger: { roll: 1d6 }
+  rating: { value: 'danger {{danger}}' }
+  level: { value: 3 }
+template: '{{rating}}, level {{level}}'
+`,
+    },
+    {
+      path: 'g/locales/es/gen.yaml',
+      content: `
+ruin:
+  template: '{{rating}}, nivel {{level}}'
+  fields: { rating: 'peligro {{danger}}', level: tres, ghost: nadie }
+`,
+    },
+  ]
+
+  it('translates text values, falls back to the base and warns about the rest', () => {
+    const { registry, diagnostics } = loadPacks(pack)
+    const roll = (locale: string) =>
+      createOracleEngine({ registry, random: faces(6, 4), locale }).resolve('g/ruin').resolution
+        .text
+    expect(roll('es')).toBe('peligro 4, nivel 3')
+    expect(roll('en')).toBe('danger 4, level 3')
+    expect(diagnostics.map(formatDiagnostic)).toEqual([
+      expect.stringContaining('"level" of "ruin"'),
+      expect.stringContaining('"ghost" of "ruin"'),
+    ])
+  })
+})
+
 describe('roll modes', () => {
   const pack = (body: string) =>
     loadPacks([

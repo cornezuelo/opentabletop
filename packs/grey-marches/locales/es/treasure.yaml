@@ -32,4 +32,9 @@ ruin-delve:
     - Todos los tipos de campo de un generador: una tabla, dados (`2d6kl1`: el más bajo), `d%` y un valor fijo con plantilla
     - Un campo solo cuando otro lo dice: `when`; y otro salvo cuando otro lo dice: `unless`
     - Una tabla tirada con su propio contexto: el guardián, de noche y con peligro 3
+    - Los textos fijos de los campos, traducidos en `locales/` (`fields:`)
   template: 'Las ruinas de {{site}} ({{rating}}, {{untouched}}% intactas).{{fresh}}{{trap}} Dentro: {{loot}}. La guarda: {{guardian}}.'
+  fields:
+    trap: ' Una trampa guarda la entrada.'
+    fresh: ' Nadie ha puesto un pie aquí en siglos.'
+    rating: 'peligro {{danger}} de 6'

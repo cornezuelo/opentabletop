@@ -106,6 +106,13 @@ describe('bundled open packs', () => {
       const { value, text } = engine.resolve('grey-marches/ruin-delve', {}).resolution
       expect(!!text?.includes('No one has set foot here')).toBe((value.untouched as number) >= 90)
     }
+    const es = createOracleEngine({ registry, random: seeded('ruin'), locale: 'es' })
+    for (let i = 0; i < 20; i++) {
+      const { value, text } = es.resolve('grey-marches/ruin-delve', {}).resolution
+      expect(text).toContain(`peligro ${value.danger as number} de 6`)
+      expect(!!text?.includes('Nadie ha puesto un pie')).toBe((value.untouched as number) >= 90)
+      expect(text).not.toMatch(/No one|A trap/)
+    }
   })
 
   it('the Grey Marches: encounters come entering a hex and resting somewhere dangerous', () => {

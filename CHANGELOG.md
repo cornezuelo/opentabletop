@@ -27,3 +27,4 @@ The first alpha, `0.1.0`, is being prepared: everything below is what it will br
 ### Formats
 
 - Maps as OTD bundles (`.otd.json`, format v13), Travel trips v3, packs as YAML folders; every older format is migrated when read.
+- Translations can translate a generator field's fixed text (`fields:` in `locales/`).

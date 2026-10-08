@@ -645,6 +645,15 @@ function compileOverlays(
                 pack: pack.manifest.id,
                 file,
               })
+          const fields = def.kind === 'generator' ? def.fields : []
+          for (const key of Object.keys(texts.fields ?? {}))
+            if (!fields.some((f) => f.name === key && typeof f.value === 'string'))
+              diagnostics.push({
+                severity: 'warning',
+                message: `Translation for "${key}" of "${localId}", which isn't a generator field with a text value`,
+                pack: pack.manifest.id,
+                file,
+              })
           if (Object.keys(texts.entries ?? {}).length && entryKeysWithoutId(def) > 0)
             diagnostics.push({
               severity: 'warning',

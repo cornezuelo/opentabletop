@@ -247,7 +247,11 @@ class Run {
           } else {
             value =
               typeof field.value === 'string'
-                ? this.evalValue(field.value, scope, node)
+                ? this.evalValue(
+                    this.text(def.id, 'fields', field.name) ?? field.value,
+                    scope,
+                    node,
+                  )
                 : field.value
           }
           node.value[field.name] = value
@@ -546,16 +550,17 @@ class Run {
 
   /** Localized text with per-string fallback to the base locale (the definition itself). */
   private text(id: string, field: 'template' | 'name'): string | undefined
-  private text(id: string, field: 'entries' | 'cards', key: string): string | undefined
+  private text(id: string, field: 'entries' | 'cards' | 'fields', key: string): string | undefined
   private text(
     id: string,
-    field: 'template' | 'name' | 'entries' | 'cards',
+    field: 'template' | 'name' | 'entries' | 'cards' | 'fields',
     key?: string,
   ): string | undefined {
     if (!this.locale) return undefined
     const overlay = this.registry.overlays.get(this.locale)?.get(id)
     if (!overlay) return undefined
-    if (field === 'entries' || field === 'cards') return overlay[field]?.[key!]
+    if (field === 'entries' || field === 'cards' || field === 'fields')
+      return overlay[field]?.[key!]
     return overlay[field]
   }
 

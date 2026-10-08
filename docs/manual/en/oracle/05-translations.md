@@ -7,7 +7,7 @@ Every pack is written in one **base language**. Translations are optional files 
 1. In the pack page, **Add language** (e.g. `es`).
 2. In a definition's **Edit** tab, choose the language: the fields show the base text in grey; type the translation.
 
-Entries need ids to be translated. Names, descriptions, results, generator templates, deck cards and oracle input labels can all be translated.
+Entries need ids to be translated. Names, descriptions, results, generator templates and fixed field texts, deck cards and oracle input labels can all be translated.
 
 ## The files
 
@@ -24,6 +24,17 @@ yes-no:
     odds:
       label: Probabilidad
       labels: { even: Igualada }
+```
+
+A generator's fields with a fixed text (`value: ' A trap guards the way in.'`) are translated under `fields`, by the field's name; numbers and other values aren't texts and stay as they are. While translating, the Oracle's generator form shows those fields' boxes for the translation:
+
+```yaml
+# locales/es/treasure.yaml (the Grey Marches)
+ruin-delve:
+  template: 'Las ruinas de {{site}} ({{rating}}, …'
+  fields:
+    trap: ' Una trampa guarda la entrada.'
+    rating: 'peligro {{danger}} de 6'
 ```
 
 The app shows pack texts in your interface language when the pack has it.

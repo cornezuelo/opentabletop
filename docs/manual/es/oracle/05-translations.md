@@ -7,7 +7,7 @@ Cada pack está escrito en un **idioma base**. Las traducciones son ficheros opc
 1. En la página del pack, **Añadir idioma** (p. ej. `en`).
 2. En la pestaña **Editar** de una definición, elige el idioma: los campos muestran el texto base en gris; escribe la traducción.
 
-Las entradas necesitan id para traducirse. Se pueden traducir nombres, descripciones, resultados, plantillas de generador, cartas de mazo y etiquetas de entrada de los oráculos.
+Las entradas necesitan id para traducirse. Se pueden traducir nombres, descripciones, resultados, plantillas y textos fijos de los campos de generador, cartas de mazo y etiquetas de entrada de los oráculos.
 
 ## Los ficheros
 
@@ -24,6 +24,17 @@ yes-no:
     odds:
       label: Probabilidad
       labels: { even: Igualada }
+```
+
+Los campos de un generador con un texto fijo (`value: ' A trap guards the way in.'`) se traducen en `fields`, por el nombre del campo; los números y otros valores no son textos y se quedan como están. Al traducir, el formulario del generador en la Oracle muestra las casillas de esos campos para la traducción:
+
+```yaml
+# locales/es/treasure.yaml (las Marcas Grises)
+ruin-delve:
+  template: 'Las ruinas de {{site}} ({{rating}}, …'
+  fields:
+    trap: ' Una trampa guarda la entrada.'
+    rating: 'peligro {{danger}} de 6'
 ```
 
 La aplicación muestra los textos de los packs en el idioma de la interfaz cuando el pack lo tiene.

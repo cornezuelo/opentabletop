@@ -153,13 +153,18 @@
             </select>
           </td>
           <td>
-            <input
-              type="text"
-              list={source === 'table' || source === 'generator' ? `gen-${source}` : undefined}
-              value={String(field[source] ?? '')}
-              disabled={doc.translating}
-              onchange={(e) => setValue(name, source, e.currentTarget.value)}
-            />
+            {#if doc.translating && source === 'value' && typeof field.value === 'string'}
+              <!-- A fixed text is translated in the overlay's `fields`. -->
+              <TextField {doc} path={['fields', name, 'value']} overlay={['fields', name]} />
+            {:else}
+              <input
+                type="text"
+                list={source === 'table' || source === 'generator' ? `gen-${source}` : undefined}
+                value={String(field[source] ?? '')}
+                disabled={doc.translating}
+                onchange={(e) => setValue(name, source, e.currentTarget.value)}
+              />
+            {/if}
             {#if !doc.translating}
               <button class="more" onclick={() => (open[name] = !(open[name] ?? hasExtras(field)))}
                 >{(open[name] ?? hasExtras(field)) ? '▾' : '▸'} {t('edit.fieldMore')}</button

@@ -62,6 +62,7 @@ description: |-
   - Every kind of generator field: a table, dice (`2d6kl1`: keep the lowest), `d%` and a fixed value with a template
   - A field only when another says so: `when`; and one unless another says so: `unless`
   - A table rolled with its own context: the guardian, met at night in danger 3
+  - Fields' fixed texts translated in `locales/` (`fields:`)
 fields:
   site: { table: ruins }
   danger: { roll: 2d6kl1 }

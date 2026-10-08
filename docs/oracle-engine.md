@@ -185,7 +185,7 @@ encounters:
     pilgrims: '{{3d6}} monastic pilgrims'
 ```
 
-- Overlays can also translate `description`, a generator's `template`, deck `cards` (by card id) and oracle input labels (`inputs: { odds: { label: Probabilidad, labels: { even: Igualada } } }`).
+- Overlays can also translate `description`, a generator's `template` and its fields' fixed texts (`fields: { trap: ' Una trampa…' }`, by field name; only string `value`s), deck `cards` (by card id) and oracle input labels (`inputs: { odds: { label: Probabilidad, labels: { even: Igualada } } }`).
 - Resolution takes a `locale`; **every string falls back to the base locale** when that locale has no translation for it (missing definitions, entries or fields are fine).
 - Translations only replace text (names, descriptions, result templates, generator templates, deck card texts). Structure (ranges, weights, dice, `set` values, conditions) always comes from the base, so translations can never change mechanics.
 - Entries are matched by **explicit entry ids**; entries without an id can't be translated (the validator warns). Translators therefore never depend on entry order.

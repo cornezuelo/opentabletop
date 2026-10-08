@@ -187,6 +187,8 @@ export const overlaySchema = z.record(
       template: z.string().optional(),
       entries: z.record(z.string(), z.string()).optional(),
       cards: z.record(z.string(), z.string()).optional(),
+      /** Generator fields' fixed texts: { trap: ' Una trampa guarda la entrada.' }. */
+      fields: z.record(z.string(), z.string()).optional(),
       /** Oracle input labels: { odds: { label: Probabilidad, labels: { even: Igualada } } }. */
       inputs: z
         .record(
