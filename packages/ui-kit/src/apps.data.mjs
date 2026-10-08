@@ -21,6 +21,19 @@ export const APP_ICON_SVGS = {
   travel: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="16" r="10" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M16 8l3 8-3 8-3-8z" fill="${GOLD}"/></svg>`,
 }
 
+/**
+ * OpenTabletop's own mark: a d20 seen face on, whose outline is a hexagon (dice and hex
+ * maps). `framed` adds the dark tile the app icons have (favicons).
+ */
+export function logoSvg(framed = false) {
+  const lines =
+    'M32 4v12M32 16 7.8 18M32 16l24.2 2M18 40 7.8 18M18 40 7.8 46M18 40 32 60M46 40l10.2-22M46 40l10.2 6M46 40 32 60'
+  const body = `<path d="M32 4 56.2 18v28L32 60 7.8 46V18z" fill="none" stroke="${GOLD}" stroke-width="3" stroke-linejoin="round"/><path d="M32 16 46 40H18z" fill="${GOLD}" fill-opacity="0.22" stroke="${GOLD}" stroke-width="2.4" stroke-linejoin="round"/><path d="${lines}" stroke="${GOLD}" stroke-width="1.6" stroke-linecap="round" opacity="0.8"/>`
+  return framed
+    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 72 72"><rect x="-4" y="-4" width="72" height="72" rx="13" fill="#26241f"/>${body}</svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">${body}</svg>`
+}
+
 /** What each app is for, in each interface language. */
 export const APP_BLURBS = {
   en: {

@@ -3,7 +3,7 @@
  * (`make site`) they live side by side as `<site>/<app>/`; in development each runs on
  * its own port.
  */
-import { APP_BLURBS, APP_ICON_SVGS, APP_LIST } from './apps.data.mjs'
+import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, logoSvg } from './apps.data.mjs'
 
 export type AppId = 'hexmapper' | 'oracle' | 'travel' | 'manual'
 
@@ -24,6 +24,10 @@ export const APP_ICONS: Record<AppId, string> = APP_ICON_SVGS
 /** What each app is for, in the interface's language (English otherwise). */
 export const appBlurb = (id: AppId, locale: string): string =>
   (APP_BLURBS[locale as keyof typeof APP_BLURBS] ?? APP_BLURBS.en)[id]
+
+/** OpenTabletop's own mark as an image URL. */
+export const logoUrl = (): string =>
+  `data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoSvg())}`
 
 export const appIconUrl = (id: AppId): string =>
   `data:image/svg+xml;charset=utf-8,${encodeURIComponent(APP_ICONS[id])}`

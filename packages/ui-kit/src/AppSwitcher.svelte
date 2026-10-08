@@ -7,7 +7,7 @@
     restoreBackup,
     summarize,
   } from '@open-tabletop/storage'
-  import { APPS, appBlurb, appIconUrl, appUrl, type AppId } from './apps'
+  import { APPS, appBlurb, appIconUrl, appUrl, logoUrl, type AppId } from './apps'
   import { ask } from './dialog.svelte'
   import { showToast } from './toasts.svelte'
   import { tooltip } from './tooltip'
@@ -138,7 +138,7 @@
 </button>
 
 <dialog bind:this={dialog} onclick={(e) => e.target === dialog && dialog.close()}>
-  <h2>{text.title}</h2>
+  <h2><img class="logo" src={logoUrl()} alt="" />{text.title}</h2>
   <ul>
     {#each APPS as app (app.id)}
       <li>
@@ -221,10 +221,18 @@
   }
 
   h2 {
+    display: flex;
+    gap: 10px;
+    align-items: center;
     margin: 0 0 12px;
     font-family: Georgia, serif;
     font-size: 18px;
     font-weight: normal;
+  }
+
+  .logo {
+    width: 28px;
+    height: 28px;
   }
 
   ul {

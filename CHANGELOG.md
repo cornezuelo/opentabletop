@@ -8,6 +8,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Preferences** in every app, under a gear in the header: the language and your notes app (until now only in the Hexmapper's settings), shared by every app; in the Oracle, a **seed** for repeatable rolls (the same seed, the same results; **New session** starts it over) and **which packs the list shows**. The Hexmapper's **Settings** are now **Map settings**, with a map icon.
 - The **help column**: a field's help is part of the column (its **✕** closes the column) and lists the manual's sections about it under **In the manual**; **Syntax** opens the page with everything a pack can write; a click on an example in code puts it into the last text box or YAML editor used, at the cursor; the search looks in the technical and packs pages too and shows the words found in bold (also in the Manual app).
+- The site's **front page**: an OpenTabletop logo (also the site's icon and in the app list), the packs it comes with, and a footer with the source code on GitHub, where to report a problem, the licence and the version with what's new.
 
 ## [0.1.1] - 2026-10-08
 
