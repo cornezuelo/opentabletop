@@ -139,6 +139,21 @@ describe('locating by kind', () => {
     expect(locate(FILE, '@bindings.on.A.resolve')).toBe(9)
   })
 
+  it('tells apart definitions of one kind by @kind/id', () => {
+    const FILE =
+      'kind: travel-rules\ntravel: { hoursPerDay: 8 }\n---\nkind: travel-rules\nid: fast\ntravel: { hoursPerDay: 10 }\n'
+    expect(readDefinition(FILE, '@travel-rules/default')).toMatchObject({
+      travel: { hoursPerDay: 8 },
+    })
+    expect(readDefinition(FILE, '@travel-rules/fast')).toMatchObject({
+      travel: { hoursPerDay: 10 },
+    })
+    expect(locate(FILE, '@travel-rules/fast.travel.hoursPerDay')).toBe(6)
+    const out = setIn(FILE, '@travel-rules/fast', ['travel', 'hoursPerDay'], 12)
+    expect(readDefinition(out, '@travel-rules')).toMatchObject({ travel: { hoursPerDay: 8 } })
+    expect(readDefinition(out, '@travel-rules/fast')).toMatchObject({ travel: { hoursPerDay: 12 } })
+  })
+
   it('edits a definition found by @kind', () => {
     const FILE =
       'kind: travel-rules\nid: default\ntravel: { hoursPerDay: 8 }\n---\nkind: bindings\nid: default\non: {}\n'

@@ -3,7 +3,7 @@ import { sequence } from '@open-tabletop/random'
 import { defaultCalendar } from '@open-tabletop/time'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { GENERIC_SYSTEM, startTrip, stepTrip, travelSystems } from './trip'
+import { GENERIC_SYSTEM, startTrip, stepTrip, systemName, travelSystems } from './trip'
 
 const { registry } = loadPacks([
   { path: 'sys/pack.yaml', content: 'id: sys\nname: Sys\nversion: 0.1.0\nlocale: en\n' },
@@ -54,6 +54,129 @@ describe('trips', () => {
     expect(problems.some((p) => p.pack === 'broken' && p.at?.startsWith('@travel-rules'))).toBe(
       true,
     )
+  })
+
+  it('reads the systems a pack declares, with parts of its own and of its dependencies', () => {
+    const { registry } = loadPacks([
+      { path: 'base/pack.yaml', content: 'id: base\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'base/parts.yaml',
+        content: `
+kind: travel-rules
+id: slow
+day: { start: '07:00', nightfall: '19:00' }
+terrains: { plains: { multiplier: 1 } }
+travel: { hoursPerDay: 4 }
+modes: { walk: { kmPerDay: 10 } }
+---
+kind: weather
+id: sky
+states: { clear: { name: Clear } }
+seasons: { spring: { start: clear, next: { clear: { clear: 1 } } } }
+---
+kind: table
+id: omen
+entries: [{ range: 1-6, result: Crows }]
+`,
+      },
+      {
+        path: 'game/pack.yaml',
+        content: 'id: game\nname: Game\nversion: 0.1.0\nlocale: en\ndependencies: { base: "*" }\n',
+      },
+      {
+        path: 'game/system.yaml',
+        content: `
+kind: system
+id: default
+name: { en: The game, es: El juego }
+travel: fast
+bindings: default
+weather: [base/sky]
+packs: [base]
+---
+kind: system
+id: slow
+travel: base/slow
+---
+kind: system
+id: plain
+---
+kind: travel-rules
+id: fast
+day: { start: '07:00', nightfall: '19:00' }
+terrains: { plains: { multiplier: 1 } }
+travel: { hoursPerDay: 10 }
+modes: { walk: { kmPerDay: 40 } }
+checks: [{ event: SKY, at: day-start }]
+---
+kind: bindings
+on: { SKY: { weather: base/sky } }
+`,
+      },
+      { path: 'other/pack.yaml', content: 'id: other\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'other/system.yaml',
+        content: `
+kind: system
+travel: base/slow
+packs: [base]
+bindings: missing
+colour: red
+`,
+      },
+    ])
+    const { systems, problems } = travelSystems(registry)
+    // A system with id `default` is named by its pack; the others by pack/id. A pack that
+    // declares systems has no implicit one (base has travel rules but declares none: implicit).
+    expect(systems.map((s) => s.id)).toEqual(['generic', 'base', 'game', 'game/slow', 'game/plain'])
+    const [, base, game, slow, plain] = systems
+    expect(base.rules.travel.hoursPerDay).toBe(4)
+    expect(Object.keys(base.weather ?? {})).toEqual(['base/sky'])
+    expect(game).toMatchObject({
+      pack: 'game',
+      packs: ['game', 'base'],
+      rules: { travel: { hoursPerDay: 10 } },
+      sources: { rules: { pack: 'game', id: 'fast' }, bindings: { pack: 'game', id: 'default' } },
+    })
+    expect(systemName(game, 'es')).toBe('El juego')
+    expect(Object.keys(game.weather ?? {})).toEqual(['base/sky'])
+    // Parts of a dependency are its own; without travel rules, the generic ones.
+    expect(slow.sources?.rules).toMatchObject({ pack: 'base', id: 'slow' })
+    expect(systemName(slow, 'en')).toBe('Game')
+    expect(plain.rules).toBe(GENERIC_SYSTEM.rules)
+    expect(plain.weather).toBeUndefined()
+    // A pack can't reach into packs it doesn't depend on, nor name parts that don't exist.
+    const of = (pack: string) =>
+      problems.filter((p) => p.pack === pack).map((p) => `${p.at}: ${p.message}`)
+    expect(of('game')).toEqual([])
+    expect(of('other')).toEqual([
+      '@system/default.colour: Unknown key "colour" in a system',
+      '@system/default.packs.0: "base" isn\'t a dependency of this pack',
+      '@system/default.travel: "base" isn\'t a dependency of this pack',
+    ])
+  })
+
+  it("reports a weather model a system's bindings name but the system doesn't bring", () => {
+    const { registry } = loadPacks([
+      { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'p/system.yaml',
+        content: `
+kind: system
+bindings: default
+---
+kind: bindings
+on: { SKY: { weather: sky } }
+---
+kind: weather
+id: sky
+states: { clear: { name: Clear } }
+seasons: { spring: { start: clear, next: { clear: { clear: 1 } } } }
+`,
+      },
+    ])
+    const { problems } = travelSystems(registry)
+    expect(problems.map((p) => p.message)).toEqual(['Unknown weather model "p/sky"'])
   })
 
   it('starts a trip at dawn of the season, with supplies and declared stats', () => {

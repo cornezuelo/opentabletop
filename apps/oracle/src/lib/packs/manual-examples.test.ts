@@ -45,7 +45,9 @@ function problems(files: string[]): string[] {
     .map(formatDiagnostic)
     .filter(
       (p) =>
-        !/Unknown (table or generator|table|generator|weather model|roll mode) "[\w/-]+"$/.test(p),
+        !/Unknown (table or generator|table|generator|weather model|roll mode|travel rules|bindings|calendar) "[\w/-]+"$/.test(
+          p,
+        ) && !/"[\w-]+" isn't a dependency of this pack$/.test(p),
     )
 }
 
@@ -64,6 +66,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'bindings',
         'calendar',
         'weather',
+        'system',
       ]),
     )
   })

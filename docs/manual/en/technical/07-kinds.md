@@ -11,12 +11,13 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `generator`    | Several rolls joined in one text                                  | The Oracle; trips and discovery, when a binding names it                   | Any               |
 | `deck`         | Cards drawn without putting them back                             | The Oracle; trips and discovery, when a binding names it (it draws a card) | Any               |
 | `roll-modes`   | Ways of rolling a table several times and keeping one total       | The Oracle (every roll)                                                    | One               |
-| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks     | Hexmapper Play, the Travel app                                             | One               |
-| `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app                                             | One               |
-| `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel                                         | One               |
+| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks     | Hexmapper Play, the Travel app                                             | One per system    |
+| `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app                                             | One per system    |
+| `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel                                         | One per system    |
 | `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)                                          | Any               |
+| `system`       | A game system: which of the above it uses, and which packs        | Hexmapper Play and World, the Travel app                                   | Any               |
 
-**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar: a system has one way of doing each), any number of the rest. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
+**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
 Translations of names and texts go in `locales/<language>/` files with the same name, for every kind; the ones that aren't tables are keyed by kind and id (`calendar/marcher-reckoning:`): see [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes). The examples below are in the base language only.
 
@@ -255,3 +256,27 @@ seasons:
 **What tables see:** `{{weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{fordModifier}}`, `when: { fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).
+
+## Systems
+
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. Maps and trips choose a system; Hexmapper Play and the Travel app list them by name.
+
+```yaml
+kind: system
+id: default
+name: The Grey Marches
+description: A haunted frontier, travelled on foot, on horseback or by cart.
+travel: default # its travel rules (kind: travel-rules, id: default)
+bindings: default # its bindings
+calendar: marcher-reckoning # its calendar
+weather: [sky] # the weather models its bindings may use
+packs: [core] # packs whose tables it brings
+```
+
+- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model.
+- Each part is a definition of this pack, by its id (`travel: default`), or of a pack it depends on (`travel: core/slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
+- **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
+- `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.
+- **Older packs** that have travel rules but no `kind: system` keep working: they're a system named after the pack, with its travel rules, bindings and calendar, and every pack's weather models. Once a pack declares a system, only what it declares counts.
+
+The Travel app writes one for every new system. The Grey Marches declare theirs in `system.yaml`.

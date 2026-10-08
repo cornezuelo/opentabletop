@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { t } from '../lib/i18n'
+  import { systemName } from '@open-tabletop/session'
+  import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
   import { rulesFile } from '../lib/newSystem'
   import { systems } from '../lib/packs.svelte'
@@ -15,7 +16,7 @@
   let { id, tab }: { id: string; tab: Tab } = $props()
 
   const system = $derived(systems.get(id))
-  const file = $derived(id === 'generic' ? null : rulesFile(id))
+  const file = $derived(system ? rulesFile(system) : null)
   const tabs = $derived<Tab[]>(file ? ['play', 'rules', 'checks', 'yaml'] : ['play'])
   const doc = systemDoc(() => file ?? { root: '', path: '' })
   const problems = $derived(
@@ -26,7 +27,7 @@
 {#if system}
   <article class="system">
     <header>
-      <h1>{system.id === 'generic' ? t('nav.generic') : system.name}</h1>
+      <h1>{system.id === 'generic' ? t('nav.generic') : systemName(system, getLocale())}</h1>
       {#if !file}<p class="help">{t('edit.builtIn')}</p>{/if}
       <!-- On every tab: edit a copy of a bundled system, or revert your copy to it. -->
       {#if file}<div class="copy"><ReadOnly root={file.root} /></div>{/if}

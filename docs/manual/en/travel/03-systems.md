@@ -1,10 +1,10 @@
 # Making a system
 
-A travel system is two definitions in a pack, usually in one file: **travel rules** (`kind: travel-rules`) and **bindings** (`kind: bindings`); its pack may also bring a calendar (`kind: calendar`), weather models (`kind: weather`) and roll modes (`kind: roll-modes`). Every kind is in [Kinds of definition](../technical/07-kinds.md). [Connecting tables to maps and trips](../oracle/07-connecting.md) explains every part of both, step by step, with examples.
+A travel system is two definitions in a pack, usually in one file: **travel rules** (`kind: travel-rules`) and **bindings** (`kind: bindings`); its pack may also bring a calendar (`kind: calendar`), weather models (`kind: weather`) and roll modes (`kind: roll-modes`). A **system** definition (`kind: system`, in `system.yaml`) names which of them it uses and which packs' tables it brings; a pack can declare several systems: see [Systems](../technical/07-kinds.md#systems). Every kind is in [Kinds of definition](../technical/07-kinds.md). [Connecting tables to maps and trips](../oracle/07-connecting.md) explains every part of both, step by step, with examples.
 
 ## A new system
 
-Write a name in the box at the bottom of the system list and press **+**. It creates one of your packs with the Generic rules to start from and empty bindings, and opens its **YAML** tab. The system is ready to play right away in this app and in the Hexmapper (in the same browser).
+Write a name in the box at the bottom of the system list and press **+**. It creates one of your packs with the Generic rules to start from and empty bindings (in `travel.yaml`) and the system that names them (in `system.yaml`), and opens its **YAML** tab. The system is ready to play right away in this app and in the Hexmapper (in the same browser).
 
 ## Your first system, step by step
 

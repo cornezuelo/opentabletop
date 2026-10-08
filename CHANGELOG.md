@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **Systems as their own definition**: `kind: system` names what a game system uses (its travel rules, bindings, calendar, weather models) and the packs whose tables it brings; a pack may declare several, and use parts of the packs it depends on. Older packs with travel rules keep working as before. The Grey Marches declare theirs (`system.yaml`), with its name in Spanish.
+
+### Apps
+
+- Travel: a new system also writes its `system.yaml`; a pack's file may hold several travel rules, and the forms and the problems list point at the right one.
+
 ## [0.3.0] - 2026-10-08
 
 ### Apps

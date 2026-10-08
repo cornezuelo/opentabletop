@@ -21,7 +21,7 @@ function load(): TravelSystem[] {
 /** The systems this map can be played with: the generic one and its packs' (Map settings → Map). */
 export function playSystems(): TravelSystem[] {
   const packs = editor.meta.packs
-  return load().filter((s) => s.id === 'generic' || !packs || packs.includes(s.id))
+  return load().filter((s) => !s.pack || !packs || packs.includes(s.pack))
 }
 
 export function getSystem(id: string): TravelSystem {

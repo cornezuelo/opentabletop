@@ -3,6 +3,7 @@ import {
   calendarOf,
   startTrip,
   stepTrip,
+  systemName,
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
@@ -44,6 +45,22 @@ describe('bundled open packs', () => {
   }
 
   const marches = () => travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+
+  it('the Grey Marches declare their system: its parts, its packs and its name in Spanish', () => {
+    const system = marches()
+    expect(system).toMatchObject({
+      pack: 'grey-marches',
+      packs: ['grey-marches', 'core'],
+      sources: {
+        rules: { pack: 'grey-marches', id: 'default' },
+        bindings: { pack: 'grey-marches', id: 'default' },
+      },
+    })
+    expect(Object.keys(system.weather ?? {})).toEqual(['grey-marches/sky'])
+    expect(system.calendar?.def.id).toBe('marcher-reckoning')
+    expect(systemName(system, 'es')).toBe('Las Marcas Grises')
+    expect(systemName(system, 'en')).toBe('The Grey Marches')
+  })
 
   it('the Grey Marches: a toll by road costs food, and a landmark waits for you', () => {
     const { problems } = travelSystems(registry)

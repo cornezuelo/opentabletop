@@ -51,20 +51,47 @@ export function actionIds(rules: Record<string, unknown>): string[] {
 /** The kinds of definition that can be rolled, in the order the pickers list them. */
 export const ROLLABLE = ['table', 'oracle', 'generator', 'deck'] as const
 
-export function systemDoc(source: () => { root: string; path: string }) {
+/**
+ * Where a system's parts are written, relative to the root of the pack holding its travel
+ * rules: their file and id, its bindings' (absent: none yet, or not in that pack) and the
+ * `kind: system` that names them (absent for an older pack's implicit system).
+ */
+export interface DocSource {
+  root: string
+  path: string
+  rulesId?: string
+  bindings?: { path: string; id: string }
+  system?: { path: string; id: string }
+}
+
+export function systemDoc(source: () => DocSource) {
   const root = $derived(source().root)
   const path = $derived(source().path)
   const pack = $derived(library.pack(root))
   const packId = $derived((pack && manifestOf(pack).id) ?? root)
-  const bindingsPath = $derived.by(() => {
-    const file = library.registry.extras.get(packId)?.find((e) => e.kind === 'bindings')?.file
-    return file?.startsWith(`${root}/`) ? file.slice(root.length + 1) : path
+  const declared = $derived(source().system)
+  const bindingsSource = $derived.by(() => {
+    const own = source().bindings
+    if (own || declared) return own
+    // An older pack: its first bindings, wherever they are in it.
+    const extra = library.registry.extras.get(packId)?.find((e) => e.kind === 'bindings')
+    return extra?.file.startsWith(`${root}/`)
+      ? { path: extra.file.slice(root.length + 1), id: extra.id ?? 'default' }
+      : undefined
   })
+  const bindingsPath = $derived(bindingsSource?.path ?? path)
   const fileOf = (kind: Kind) => (kind === 'bindings' ? bindingsPath : path)
+  /** The definition of that kind edited here: `@travel-rules/default`, `@bindings/fast`… */
+  const selector = (kind: Kind) =>
+    kind === 'bindings'
+      ? `@bindings/${bindingsSource?.id ?? 'default'}`
+      : `@travel-rules/${source().rulesId ?? 'default'}`
   const read = (kind: Kind) => library.readFile(root, fileOf(kind)) ?? ''
   const content = $derived(read('travel-rules'))
-  const rules = $derived(readDefinition(content, '@travel-rules') ?? {})
-  const bindings = $derived(readDefinition(read('bindings'), '@bindings'))
+  const rules = $derived(readDefinition(content, selector('travel-rules')) ?? {})
+  const bindings = $derived(
+    bindingsSource ? readDefinition(read('bindings'), selector('bindings')) : undefined,
+  )
   const editable = $derived(library.isEditable(root))
   /** Whatever can be rolled (tables, oracles, generators, decks) can resolve a check: this pack's first, by local id. */
   const targets = $derived(
@@ -99,10 +126,7 @@ export function systemDoc(source: () => { root: string; path: string }) {
    */
   const baseLocale = $derived((pack && manifestOf(pack).locale) ?? 'en')
   const overlayFile = (kind: Kind) => `locales/${getLocale()}/${fileOf(kind)}`
-  const overlayKey = (kind: Kind) => {
-    const raw = kind === 'bindings' ? bindings : rules
-    return `${kind}/${typeof raw?.id === 'string' ? raw.id : 'default'}`
-  }
+  const overlayKey = (kind: Kind) => selector(kind).slice(1)
   /** One language of a text written as one string (the base language) or several. */
   const inLanguage = (value: unknown, locale: string): string =>
     typeof value === 'string'
@@ -185,11 +209,20 @@ export function systemDoc(source: () => { root: string; path: string }) {
       if (kind === 'bindings' && !bindings) {
         if (value === undefined || value === '') return
         text = appendDefinition(text, { kind: 'bindings', id: 'default', on: {} })
+        // A declared system names its new bindings.
+        if (declared) {
+          const file = library.readFile(root, declared.path) ?? ''
+          library.writeFile(
+            root,
+            declared.path,
+            setIn(file, `@system/${declared.id}`, ['bindings'], 'default'),
+          )
+        }
       }
-      save(kind, setIn(text, `@${kind}`, at, value))
+      save(kind, setIn(text, selector(kind), at, value))
     },
     rename(kind: Kind, at: Path, from: string, to: string) {
-      save(kind, renameKey(read(kind), `@${kind}`, at, from, to))
+      save(kind, renameKey(read(kind), selector(kind), at, from, to))
       this.renameTranslations(kind, at.map(String), from, to)
     },
     /** A check or stat renamed: its translations (every language) follow it. */
@@ -203,14 +236,14 @@ export function systemDoc(source: () => { root: string; path: string }) {
     },
     /** Inserts into a list, creating it when missing. */
     insert(kind: Kind, at: Path, index: number, value: unknown) {
-      const list = readDefinition(read(kind), `@${kind}`)
+      const list = readDefinition(read(kind), selector(kind))
       let node: unknown = list
       for (const part of at) node = (node as Record<string | number, unknown> | undefined)?.[part]
-      if (Array.isArray(node)) save(kind, insertIn(read(kind), `@${kind}`, at, index, value))
+      if (Array.isArray(node)) save(kind, insertIn(read(kind), selector(kind), at, index, value))
       else this.edit(kind, at, [value])
     },
     remove(kind: Kind, at: Path, index: number) {
-      save(kind, removeIn(read(kind), `@${kind}`, at, index))
+      save(kind, removeIn(read(kind), selector(kind), at, index))
     },
   }
 }

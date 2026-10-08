@@ -1,7 +1,7 @@
 <script lang="ts">
   import { confirmAction } from '@open-tabletop/ui-kit'
   import { packTexts } from '@open-tabletop/oracle-ui'
-  import { calendarOf, type Season, type TravelSystem } from '@open-tabletop/session'
+  import { calendarOf, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -19,7 +19,8 @@
   const texts = packTexts(() => library.registry, getLocale)
   const session = $derived(trip.saved.session)
   const playing = $derived(!!session && trip.saved.system === system.id)
-  const name = (s: TravelSystem) => (s.id === 'generic' ? t('nav.generic') : s.name)
+  const name = (s: TravelSystem) =>
+    s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())
   let season = $state<Season>(trip.saved.season)
 
   /** Starts the open trip again (with this or another system). */

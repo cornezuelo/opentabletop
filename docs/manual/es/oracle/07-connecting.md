@@ -84,7 +84,7 @@ Las tablas leen el grupo como `party.resources.food`, `party.stats.morale`: `whe
 
 ## 5. Tu propio sistema de viaje
 
-Un pack se convierte en un **sistema** que puedes elegir en Jugar → Reglas cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`:
+Un pack se convierte en un **sistema** que puedes elegir en Jugar → Reglas cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
 
 ```yaml
 kind: travel-rules
@@ -303,6 +303,26 @@ stats:
 reads:
   danger: { name: Peligro, description: Lo peligroso que es el hex. }
 ```
+
+### Nombrar el sistema
+
+Las reglas de viaje y los bindings bastan para un sistema con el nombre de su pack. Un `kind: system` lo dice en un solo sitio, con lo demás que trae: su calendario, los modelos de clima que usan sus bindings y tablas de otros packs (packs de los que depende). Un pack puede declarar varios, p. ej. una variante de invierno con sus propias reglas de viaje:
+
+```yaml
+kind: system
+id: default # se elige por el id del pack
+name: Dark Woods
+travel: default
+bindings: default
+---
+kind: system
+id: winter # se elige como <pack>/winter
+name: Dark Woods in winter
+travel: winter # otro kind: travel-rules, con id: winter
+bindings: default
+```
+
+Todas las claves están en [Sistemas](../technical/07-kinds.md#sistemas).
 
 ## 6. Un calendario propio
 

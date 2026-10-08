@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { seasonsFor, type Season, type TravelSystem } from '@open-tabletop/session'
+  import { seasonsFor, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
   import { tooltip } from '@open-tabletop/ui-kit'
   import { idText, translator } from './i18n'
 
@@ -37,7 +37,9 @@
     <span>{t('system')}</span>
     <select value={system} onchange={(e) => onrestart(e.currentTarget.value, season)}>
       {#each systems as s (s.id)}
-        <option value={s.id}>{s.id === 'generic' ? t('genericSystem') : s.name}</option>
+        <option value={s.id}
+          >{s.id === 'generic' ? t('genericSystem') : systemName(s, locale)}</option
+        >
       {/each}
     </select>
   </label>

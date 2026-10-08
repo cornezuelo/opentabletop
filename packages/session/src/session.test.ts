@@ -270,6 +270,7 @@ entries:
     const system = {
       id: 'x',
       name: '',
+      packs: [],
       rules: stepped,
       bindings: { on: {}, stats: { fatigue: { min: 0 } } },
     }

@@ -1,10 +1,10 @@
 # Crear un sistema
 
-Un sistema de viaje son dos definiciones en un pack, normalmente en un mismo fichero: **reglas de viaje** (`kind: travel-rules`) y **bindings** (`kind: bindings`); su pack puede traer además un calendario (`kind: calendar`), modelos de clima (`kind: weather`) y modos de tirada (`kind: roll-modes`). Todos los tipos están en [Tipos de definición](../technical/07-kinds.md). [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) explica cada parte de ambas, paso a paso y con ejemplos.
+Un sistema de viaje son dos definiciones en un pack, normalmente en un mismo fichero: **reglas de viaje** (`kind: travel-rules`) y **bindings** (`kind: bindings`); su pack puede traer además un calendario (`kind: calendar`), modelos de clima (`kind: weather`) y modos de tirada (`kind: roll-modes`). Una definición de **sistema** (`kind: system`, en `system.yaml`) nombra cuáles usa y de qué packs trae tablas; un pack puede declarar varios sistemas: ver [Sistemas](../technical/07-kinds.md#sistemas). Todos los tipos están en [Tipos de definición](../technical/07-kinds.md). [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) explica cada parte de ambas, paso a paso y con ejemplos.
 
 ## Un sistema nuevo
 
-Escribe un nombre en la casilla de abajo de la lista de sistemas y pulsa **+**. Crea un pack tuyo con las reglas Genéricas de partida y unos bindings vacíos, y abre su pestaña **YAML**. El sistema se puede jugar al momento en esta aplicación y en el Hexmapper (en el mismo navegador).
+Escribe un nombre en la casilla de abajo de la lista de sistemas y pulsa **+**. Crea un pack tuyo con las reglas Genéricas de partida y unos bindings vacíos (en `travel.yaml`) y el sistema que los nombra (en `system.yaml`), y abre su pestaña **YAML**. El sistema se puede jugar al momento en esta aplicación y en el Hexmapper (en el mismo navegador).
 
 ## Tu primer sistema, paso a paso
 

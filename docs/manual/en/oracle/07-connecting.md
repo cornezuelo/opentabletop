@@ -84,7 +84,7 @@ Tables read the party back as `party.resources.food`, `party.stats.morale`: `whe
 
 ## 5. Your own travel system
 
-A pack becomes a **system** you can pick in Play → Rules when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`:
+A pack becomes a **system** you can pick in Play → Rules when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
 
 ```yaml
 kind: travel-rules
@@ -297,6 +297,26 @@ stats:
 reads:
   danger: { name: Danger, description: How dangerous the hex is. }
 ```
+
+### Naming the system
+
+Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use and other packs' tables (packs it depends on). A pack may declare several, e.g. a winter variant with its own travel rules:
+
+```yaml
+kind: system
+id: default # chosen by the pack's id
+name: Dark Woods
+travel: default
+bindings: default
+---
+kind: system
+id: winter # chosen as <pack>/winter
+name: Dark Woods in winter
+travel: winter # another kind: travel-rules, with id: winter
+bindings: default
+```
+
+Every key is in [Systems](../technical/07-kinds.md#systems).
 
 ## 6. A calendar of your own
 

@@ -1,0 +1,18 @@
+# The Grey Marches as a system: everything a map or a trip played in the Marches uses,
+# named in one place. Maps and trips choose it by the pack's id (`grey-marches`), since
+# its id is `default`.
+kind: system
+id: default
+name: The Grey Marches
+description: |-
+  A haunted frontier of woods, hollow hills and a salt lake, travelled on foot, on
+  horseback or by cart, with hunger, fatigue, morale and getting lost, under two moons.
+
+  **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
+  weather model its weather check uses, and Core's tables brought along through the
+  pack's dependency.
+travel: default
+bindings: default
+calendar: marcher-reckoning
+weather: [sky]
+packs: [core]

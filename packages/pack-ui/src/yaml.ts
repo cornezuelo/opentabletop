@@ -27,6 +27,19 @@ function idOf(node: unknown): string | undefined {
   return typeof id === 'string' ? id : undefined
 }
 
+/**
+ * Whether a document is the one `@kind` or `@kind/id` names (`@travel-rules/fast`): the
+ * first of that kind, or the one of that kind with that id (`default` when it has none).
+ */
+function isKindDoc(root: unknown, selector: string): boolean {
+  const [kind, id] = selector.split('/', 2)
+  return (
+    isMap(root) &&
+    (root.get('kind') as unknown) === kind &&
+    (id === undefined || (idOf(root) ?? 'default') === id)
+  )
+}
+
 interface Found {
   docs: Document.Parsed[]
   doc: Document.Parsed
@@ -36,7 +49,8 @@ interface Found {
 
 /**
  * The definition with that id — or, with `@kind` (e.g. `@travel-rules`), the one with that
- * kind, for definitions of other engines that share an id.
+ * kind, for definitions of other engines that share an id; `@kind/id` when a file holds
+ * several of that kind.
  */
 function find(content: string, localId: string): Found | undefined {
   const docs = parseAllDocuments(content) as Document.Parsed[]
@@ -44,8 +58,7 @@ function find(content: string, localId: string): Found | undefined {
   const kind = localId.startsWith('@') ? localId.slice(1) : undefined
   for (const doc of docs) {
     const root = doc.contents
-    if (kind ? isMap(root) && (root.get('kind') as unknown) === kind : idOf(root) === localId)
-      return { docs, doc, prefix: [] }
+    if (kind ? isKindDoc(root, kind) : idOf(root) === localId) return { docs, doc, prefix: [] }
     if (kind) continue
     if (isSeq(root)) {
       const index = root.items.findIndex((item) => idOf(item) === localId)
@@ -291,10 +304,9 @@ export function locate(content: string, at: string | undefined): number | undefi
   if (head === 'pack') doc = docs[0]
   else if (head.startsWith('#')) doc = docs[0]
   else if (head.startsWith('@'))
-    // `@kind`: the definition with that kind (e.g. travel-rules and bindings sharing an id).
-    doc = docs.find(
-      (d) => isMap(d.contents) && (d.contents.get('kind') as unknown) === head.slice(1),
-    )
+    // `@kind`: the definition with that kind (e.g. travel-rules and bindings sharing an id);
+    // `@kind/id`: the one of that kind with that id.
+    doc = docs.find((d) => isKindDoc(d.contents, head.slice(1)))
   else {
     for (const d of docs) {
       const root = d.contents

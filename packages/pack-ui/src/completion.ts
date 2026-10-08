@@ -35,7 +35,7 @@ export function yamlHints(registry: Registry, pack?: string): YamlHints {
   ]
   // The pack's own travel system first, then every other one.
   const systems = travelSystems(registry).systems.sort(
-    (a, b) => Number(b.id === pack) - Number(a.id === pack),
+    (a, b) => Number(b.pack === pack) - Number(a.pack === pack),
   )
   const unique = (list: string[]) => [...new Set(list)]
   return {
@@ -61,6 +61,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'bindings',
     'calendar',
     'weather',
+    'system',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -152,6 +153,10 @@ const KEYS = [
   'default',
   'discover',
   'resolve',
+  // Systems.
+  'bindings',
+  'calendar',
+  'packs',
 ]
 
 export interface Completion {

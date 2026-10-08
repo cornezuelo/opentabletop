@@ -27,32 +27,77 @@ import {
   initialSessionState,
   parseBindings,
   type Bindings,
+  localize,
   type JournalEntry,
+  type LocalizedText,
   type SessionState,
   tripContext,
 } from './index'
 
-/** A travel system: rules (and optional bindings) from a pack, or the generic rules. */
+/**
+ * A game system: what a pack declares it brings (`kind: system`), or, for older packs,
+ * its travel rules and bindings, or the generic rules.
+ */
 export interface TravelSystem {
-  /** Pack id, or 'generic' for the built-in rules. */
+  /**
+   * 'generic' for the built-in rules; the pack id for a pack's `default` system (and an
+   * older pack's implicit one); `pack/id` for any other system a pack declares.
+   */
   id: string
-  /** The pack's name ('' for generic: the UI names it). */
-  name: string
+  /** The pack that declares it (absent for the generic system). */
+  pack?: string
+  /** Its name ('' for generic: the UI names it); texts by language when translated. */
+  name: LocalizedText
+  description?: LocalizedText
+  /** The base language of its pack, the fallback for its texts. */
+  locale?: string
   rules: TravelRules
   bindings?: Bindings
-  /** The pack's own calendar (`kind: calendar`), if it has one. */
+  /**
+   * Where its parts are written: travel rules (absent: the generic ones), bindings, and
+   * the `kind: system` naming them (absent for an older pack's implicit system).
+   */
+  sources?: { rules?: SystemSource; bindings?: SystemSource; system?: SystemSource }
+  /** The calendar its trips and world clock use (`kind: calendar`), if it has one. */
   calendar?: DataCalendar
-  /** Weather models its bindings may name (every pack's, by pack/id). */
+  /** Weather models its bindings may name, by pack/id. */
   weather?: Record<string, WeatherModel>
+  /** Packs whose tables, oracles and decks it brings: its own first. */
+  packs: string[]
+}
+
+/** Where a system's part is defined: a definition of a pack. */
+export interface SystemSource {
+  pack: string
+  id: string
+  file: string
 }
 
 /** The calendar a system's trips use: its own, or the default one. */
 export const calendarOf = (system: TravelSystem): Calendar => system.calendar ?? defaultCalendar
 
-export const GENERIC_SYSTEM: TravelSystem = { id: 'generic', name: '', rules: genericTravelRules }
+/** A system's name in a language ('' for the generic one: the UI names it). */
+export const systemName = (system: TravelSystem, locale: string): string =>
+  localize(system.name, locale, system.locale) ?? system.id
 
-/** "checks.2.event: Expected …" → a diagnostic pointing at that path of the definition. */
-function problem(pack: string, file: string, kind: string, error: string): Diagnostic {
+export const GENERIC_SYSTEM: TravelSystem = {
+  id: 'generic',
+  name: '',
+  rules: genericTravelRules,
+  packs: [],
+}
+
+/**
+ * "checks.2.event: Expected …" → a diagnostic pointing at that path of the definition,
+ * found by its kind and id (`@travel-rules/default.checks.2.event`).
+ */
+function problem(
+  pack: string,
+  file: string,
+  kind: string,
+  error: string,
+  id = 'default',
+): Diagnostic {
   const cut = error.indexOf(': ')
   const path = cut > 0 ? error.slice(0, cut).replace(/^(rules|bindings)\.?/, '') : ''
   const message = cut > 0 ? error.slice(cut + 2) : error
@@ -61,15 +106,43 @@ function problem(pack: string, file: string, kind: string, error: string): Diagn
     message,
     pack,
     file,
-    // `@kind` locates the definition by its kind (rules and bindings often share an id).
-    at: `@${kind}${path ? `.${path}` : ''}`,
+    // `@kind/id` locates the definition (rules and bindings often share an id).
+    at: `@${kind}/${id}${path ? `.${path}` : ''}`,
   }
 }
 
+type Extra = Registry['extras'] extends Map<string, (infer E)[]> ? E : never
+const isText = (v: unknown): v is LocalizedText =>
+  typeof v === 'string' ||
+  (typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every((x) => typeof x === 'string'))
+/** How a system's parts are named in its problems. */
+const PART_NAMES: Record<string, string> = {
+  'travel-rules': 'travel rules',
+  bindings: 'bindings',
+  calendar: 'calendar',
+  weather: 'weather model',
+}
+const SYSTEM_KEYS = new Set([
+  'kind',
+  'id',
+  'name',
+  'description',
+  'travel',
+  'bindings',
+  'calendar',
+  'weather',
+  'packs',
+])
+
 /**
- * Travel systems declared by the loaded packs (`kind: travel-rules`, optionally with
- * `kind: bindings`), after the generic one. Broken rules are reported, not loaded;
- * bindings to tables that don't exist are reported too.
+ * Travel systems of the loaded packs, after the generic one. A pack declares its own with
+ * `kind: system` (which travel rules, bindings, calendar, weather models and packs each
+ * brings); an older pack without one has an implicit system from its travel rules, its
+ * bindings, its calendar and every pack's weather models. Broken parts are reported, and
+ * a system whose travel rules are broken isn't loaded.
  */
 export function travelSystems(registry: Registry): {
   systems: TravelSystem[]
@@ -77,80 +150,213 @@ export function travelSystems(registry: Registry): {
 } {
   const systems = [GENERIC_SYSTEM]
   const problems: Diagnostic[] = []
-  // Weather models of every pack (`kind: weather`), by pack/id: any system may use them.
+  const extrasOf = (pack: string) => registry.extras.get(pack) ?? []
+  // Weather models of every pack (`kind: weather`), by pack/id.
   const weather: Record<string, WeatherModel> = {}
   for (const [id] of registry.packs)
-    for (const extra of registry.extras.get(id) ?? []) {
+    for (const extra of extrasOf(id)) {
       if (extra.kind !== 'weather') continue
       const errors = extra.id ? validateWeather(extra.data) : ['id: a weather model needs one']
-      problems.push(...errors.map((e) => problem(id, extra.file, 'weather', e)))
+      problems.push(...errors.map((e) => problem(id, extra.file, 'weather', e, extra.id)))
       if (!errors.length) weather[`${id}/${extra.id}`] = extra.data as unknown as WeatherModel
     }
-  for (const [id, pack] of registry.packs) {
-    const extras = registry.extras.get(id) ?? []
-    const rulesRaw = extras.find((e) => e.kind === 'travel-rules')
-    const bindingsRaw = extras.find((e) => e.kind === 'bindings')
-    const parsed = bindingsRaw ? parseBindings(bindingsRaw.data, id) : undefined
-    if (bindingsRaw) {
-      problems.push(
-        ...(parsed?.errors ?? []).map((e) => problem(id, bindingsRaw.file, 'bindings', e)),
-      )
-      const discover = parsed?.bindings?.discover
+  // Every pack's bindings, parsed once; their tables checked.
+  const bindingsOf = new Map<Extra, ReturnType<typeof parseBindings>>()
+  for (const [id] of registry.packs)
+    for (const extra of extrasOf(id)) {
+      if (extra.kind !== 'bindings') continue
+      const parsed = parseBindings(extra.data, id)
+      bindingsOf.set(extra, parsed)
+      problems.push(...parsed.errors.map((e) => problem(id, extra.file, 'bindings', e, extra.id)))
+      const unknown = (path: string, target: string) =>
+        problems.push(
+          problem(
+            id,
+            extra.file,
+            'bindings',
+            `${path}: Unknown table or generator "${target}"`,
+            extra.id,
+          ),
+        )
+      const discover = parsed.bindings?.discover
       for (const key of ['terrain', 'contents'] as const) {
         const target = discover?.[key]?.resolve
-        if (target && !registry.definitions.has(target))
-          problems.push(
-            problem(
-              id,
-              bindingsRaw.file,
-              'bindings',
-              `discover.${key}.resolve: Unknown table or generator "${target}"`,
-            ),
-          )
+        if (target && !registry.definitions.has(target)) unknown(`discover.${key}.resolve`, target)
       }
-      for (const [event, binding] of Object.entries(parsed?.bindings?.on ?? {}))
+      for (const [event, binding] of Object.entries(parsed.bindings?.on ?? {}))
         if (binding.resolve && !registry.definitions.has(binding.resolve))
-          problems.push(
-            problem(
-              id,
-              bindingsRaw.file,
-              'bindings',
-              `on.${event}.resolve: Unknown table or generator "${binding.resolve}"`,
-            ),
-          )
-        else if (binding.weather && !weather[binding.weather])
-          problems.push(
-            problem(
-              id,
-              bindingsRaw.file,
-              'bindings',
-              `on.${event}.weather: Unknown weather model "${binding.weather}"`,
-            ),
-          )
+          unknown(`on.${event}.resolve`, binding.resolve)
     }
-    if (!rulesRaw) continue
-    const { rules, errors } = parseTravelRules(rulesRaw.data)
-    if (!rules) {
-      problems.push(...errors.map((e) => problem(id, rulesRaw.file, 'travel-rules', e)))
+
+  /** A system made of these parts; undefined (and reported) when its rules are broken. */
+  function build(
+    pack: string,
+    base: Omit<TravelSystem, 'rules' | 'bindings' | 'calendar' | 'weather' | 'sources'>,
+    parts: {
+      rules?: Extra
+      bindings?: Extra
+      calendar?: Extra
+      weather: Record<string, WeatherModel>
+      /** The `kind: system` naming these parts (absent for an implicit system). */
+      system?: Extra
+    },
+  ): TravelSystem | undefined {
+    let rules = genericTravelRules
+    if (parts.rules) {
+      const parsed = parseTravelRules(parts.rules.data)
+      if (!parsed.rules) {
+        problems.push(
+          ...parsed.errors.map((e) =>
+            problem(
+              ownerOf(parts.rules!) ?? pack,
+              parts.rules!.file,
+              'travel-rules',
+              e,
+              parts.rules!.id,
+            ),
+          ),
+        )
+        return undefined
+      }
+      rules = parsed.rules
+    }
+    const bindings = parts.bindings ? bindingsOf.get(parts.bindings)?.bindings : undefined
+    for (const [event, binding] of Object.entries(bindings?.on ?? {}))
+      if (binding.weather && !parts.weather[binding.weather])
+        problems.push(
+          problem(
+            ownerOf(parts.bindings!) ?? pack,
+            parts.bindings!.file,
+            'bindings',
+            `on.${event}.weather: Unknown weather model "${binding.weather}"`,
+            parts.bindings!.id,
+          ),
+        )
+    let calendar: DataCalendar | undefined
+    if (parts.calendar) {
+      const errors = validateCalendar(parts.calendar.data)
+      problems.push(
+        ...errors.map((e) =>
+          problem(
+            ownerOf(parts.calendar!) ?? pack,
+            parts.calendar!.file,
+            'calendar',
+            e,
+            parts.calendar!.id,
+          ),
+        ),
+      )
+      if (!errors.length) calendar = calendarFrom(parts.calendar.data as unknown as CalendarDef)
+    }
+    if (parts.rules)
+      problems.push(
+        ...undeclaredEffects(registry, pack, rules, bindings, parts.rules.file, parts.rules.id),
+      )
+    const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
+      extra && { pack: owner, id: extra.id ?? 'default', file: extra.file }
+    return {
+      ...base,
+      rules,
+      ...(bindings && { bindings }),
+      sources: {
+        ...(parts.rules && { rules: source(parts.rules, ownerOf(parts.rules) ?? pack) }),
+        ...(parts.bindings && {
+          bindings: source(parts.bindings, ownerOf(parts.bindings) ?? pack),
+        }),
+        ...(parts.system && { system: source(parts.system, pack) }),
+      },
+      ...(calendar && { calendar }),
+      ...(Object.keys(parts.weather).length && { weather: parts.weather }),
+    }
+  }
+  const owners = new Map<Extra, string>()
+  for (const [id] of registry.packs) for (const extra of extrasOf(id)) owners.set(extra, id)
+  const ownerOf = (extra: Extra) => owners.get(extra)
+
+  for (const [id, pack] of registry.packs) {
+    const extras = extrasOf(id)
+    const packName = typeof pack.manifest.name === 'string' ? pack.manifest.name : id
+    const locale = typeof pack.manifest.locale === 'string' ? pack.manifest.locale : undefined
+    const declared = extras.filter((e) => e.kind === 'system')
+    if (!declared.length) {
+      // An older pack: its travel rules make a system, with every pack's weather.
+      const rules = extras.find((e) => e.kind === 'travel-rules')
+      if (!rules) continue
+      const system = build(
+        id,
+        { id, pack: id, name: packName, ...(locale && { locale }), packs: [id] },
+        {
+          rules,
+          bindings: extras.find((e) => e.kind === 'bindings'),
+          calendar: extras.find((e) => e.kind === 'calendar'),
+          weather,
+        },
+      )
+      if (system) systems.push(system)
       continue
     }
-    const name = typeof pack.manifest.name === 'string' ? pack.manifest.name : id
-    const calendarRaw = extras.find((e) => e.kind === 'calendar')
-    const calendarErrors = calendarRaw ? validateCalendar(calendarRaw.data) : []
-    problems.push(...calendarErrors.map((e) => problem(id, calendarRaw!.file, 'calendar', e)))
-    const calendar =
-      calendarRaw && !calendarErrors.length
-        ? calendarFrom(calendarRaw.data as unknown as CalendarDef)
-        : undefined
-    problems.push(...undeclaredEffects(registry, id, rules, parsed?.bindings, rulesRaw.file))
-    systems.push({
-      id,
-      name,
-      rules,
-      bindings: parsed?.bindings,
-      ...(calendar && { calendar }),
-      ...(Object.keys(weather).length && { weather }),
-    })
+    const dependencies = Object.keys(pack.manifest.dependencies ?? {})
+    for (const def of declared) {
+      const report = (path: string, message: string) =>
+        problems.push(problem(id, def.file, 'system', `${path}: ${message}`, def.id))
+      const data = def.data
+      const localId = def.id ?? 'default'
+      for (const key of Object.keys(data))
+        if (!SYSTEM_KEYS.has(key)) report(key, `Unknown key "${key}" in a system`)
+      /** A part named `id` (this pack's) or `pack/id` (a dependency's). */
+      const part = (key: string, kind: string, ref: unknown): Extra | undefined => {
+        if (ref === undefined) return undefined
+        if (typeof ref !== 'string' || !ref)
+          return void report(key, `Expected the id of ${PART_NAMES[kind]}`)
+        const [owner, partId] = ref.includes('/') ? ref.split('/', 2) : [id, ref]
+        if (owner !== id && !dependencies.includes(owner))
+          return void report(key, `"${owner}" isn't a dependency of this pack`)
+        const found = extrasOf(owner).find((e) => e.kind === kind && (e.id ?? 'default') === partId)
+        if (!found) report(key, `Unknown ${PART_NAMES[kind]} "${ref}"`)
+        return found
+      }
+      const list = (key: string, value: unknown): string[] => {
+        if (value === undefined) return []
+        if (Array.isArray(value) && value.every((v) => typeof v === 'string')) return value
+        report(key, 'Expected a list of ids')
+        return []
+      }
+      const own: Record<string, WeatherModel> = {}
+      list('weather', data.weather).forEach((ref, i) => {
+        const model = part(`weather.${i}`, 'weather', ref)
+        const key = ref.includes('/') ? ref : `${id}/${ref}`
+        if (model && weather[key]) own[key] = weather[key]
+      })
+      const packs = [id]
+      list('packs', data.packs).forEach((other, i) => {
+        if (other !== id && !dependencies.includes(other))
+          report(`packs.${i}`, `"${other}" isn't a dependency of this pack`)
+        else if (!packs.includes(other)) packs.push(other)
+      })
+      for (const key of ['name', 'description'] as const)
+        if (data[key] !== undefined && !isText(data[key])) report(key, 'Expected a text')
+      const rules = part('travel', 'travel-rules', data.travel)
+      if (data.travel !== undefined && !rules) continue
+      const system = build(
+        id,
+        {
+          id: localId === 'default' ? id : `${id}/${localId}`,
+          pack: id,
+          name: isText(data.name) ? data.name : packName,
+          ...(isText(data.description) && { description: data.description }),
+          ...(locale && { locale }),
+          packs,
+        },
+        {
+          rules,
+          bindings: part('bindings', 'bindings', data.bindings),
+          calendar: part('calendar', 'calendar', data.calendar),
+          weather: own,
+          system: def,
+        },
+      )
+      if (system) systems.push(system)
+    }
   }
   return { systems, problems }
 }
@@ -166,6 +372,7 @@ function undeclaredEffects(
   rules: TravelRules,
   bindings: Bindings | undefined,
   file: string,
+  rulesId = 'default',
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -189,9 +396,9 @@ function undeclaredEffects(
   }
   for (const [action, own] of Object.entries(rules.actions ?? {}))
     if (own && typeof own === 'object' && 'effects' in own)
-      check(own.effects, { file, at: `@travel-rules.actions.${action}.effects` })
+      check(own.effects, { file, at: `@travel-rules/${rulesId}.actions.${action}.effects` })
   ;(rules.checks ?? []).forEach((c, i) =>
-    check(c.effects, { file, at: `@travel-rules.checks.${i}.effects` }),
+    check(c.effects, { file, at: `@travel-rules/${rulesId}.checks.${i}.effects` }),
   )
   for (const def of registry.definitions.values()) {
     if (def.pack !== pack) continue

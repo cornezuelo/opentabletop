@@ -11,12 +11,13 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `generator`    | Varias tiradas unidas en un texto                                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
 | `deck`         | Cartas que se roban sin devolverlas                                   | El Oracle; los viajes y el descubrimiento, si un binding lo nombra (roba una carta) | Los que quieras  |
 | `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total        | El Oracle (cada tirada)                                                             | Uno              |
-| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones… | Jugar del Hexmapper, la aplicación Travel                                           | Uno              |
-| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características | Jugar del Hexmapper, la aplicación Travel                                           | Uno              |
-| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno              |
+| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones… | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
+| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
+| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno por sistema  |
 | `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
+| `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs        | Jugar y Mundo del Hexmapper, la aplicación Travel                                   | Los que quieras  |
 
-**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
+**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
 
 Las traducciones de nombres y textos van en ficheros `locales/<idioma>/` con el mismo nombre, para todos los tipos; los que no son tablas, por tipo e id (`calendar/marcher-reckoning:`): mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada). Los ejemplos de abajo van solo en el idioma base.
 
@@ -254,3 +255,27 @@ seasons:
 **Qué ven las tablas:** `{{weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{fordModifier}}`, `when: { fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).
+
+## Sistemas
+
+Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario y modelos de clima, y los packs cuyas tablas, oráculos y mazos trae consigo. Los mapas y los viajes eligen un sistema; Jugar del Hexmapper y la aplicación Travel los muestran por su nombre.
+
+```yaml
+kind: system
+id: default
+name: The Grey Marches
+description: A haunted frontier, travelled on foot, on horseback or by cart.
+travel: default # sus reglas de viaje (kind: travel-rules, id: default)
+bindings: default # sus bindings
+calendar: marcher-reckoning # su calendario
+weather: [sky] # los modelos de clima que pueden usar sus bindings
+packs: [core] # packs cuyas tablas trae
+```
+
+- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima.
+- Cada parte es una definición de este pack, por su id (`travel: default`), o de un pack del que depende (`travel: core/slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
+- **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
+- `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.
+- **Los packs antiguos** que tienen reglas de viaje pero no `kind: system` siguen funcionando: son un sistema con el nombre del pack, con sus reglas de viaje, bindings y calendario, y los modelos de clima de todos los packs. En cuanto un pack declara un sistema, solo cuenta lo que declara.
+
+La aplicación Travel escribe uno en cada sistema nuevo. Las Marcas Grises declaran el suyo en `system.yaml`.

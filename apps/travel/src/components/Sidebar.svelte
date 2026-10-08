@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
+  import { systemName } from '@open-tabletop/session'
+  import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
   import { createSystem } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
@@ -39,7 +40,9 @@
           class:selected={selected === s.id}
           onclick={() => go({ name: 'system', id: s.id, tab: 'play' })}
         >
-          <span class="name">{s.id === 'generic' ? t('nav.generic') : s.name}</span>
+          <span class="name"
+            >{s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())}</span
+          >
           {#if s.id === 'generic'}
             <span class="tag">{t('nav.builtIn')}</span>
           {:else if o}

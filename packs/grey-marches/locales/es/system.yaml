@@ -1,0 +1,9 @@
+system/default:
+  name: Las Marcas Grises
+  description: |-
+    Una frontera embrujada de bosques, colinas huecas y un lago salado, recorrida a pie,
+    a caballo o en carro, con hambre, fatiga, moral y extravíos, bajo dos lunas.
+
+    **Enseña:** un sistema que nombra sus partes: reglas de viaje y bindings, su
+    calendario, el modelo de clima que usa su tirada de clima, y las tablas de Core
+    traídas gracias a la dependencia del pack.
