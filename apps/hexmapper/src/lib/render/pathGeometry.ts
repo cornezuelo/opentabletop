@@ -79,3 +79,51 @@ export function placeInHex(
   const length = Math.hypot(offset.x, offset.y)
   return length <= max ? offset : { x: (offset.x / length) * max, y: (offset.y / length) * max }
 }
+
+/** A map path a route may follow: its hexes and, for each, where it's drawn. */
+export interface FollowedPath {
+  hexes: readonly string[]
+  /** Where the path passes in its `i`-th hex (center plus offset). */
+  point: (i: number) => Point
+  /** Whether its `i`-th hex is a drawn vertex (crossed-only hexes aren't). */
+  node: (i: number) => boolean
+}
+
+/**
+ * The points a route through `route` (hex keys, in order) is drawn on: along a stretch
+ * that follows a map path (consecutive hexes of the path, either way), the path's own
+ * points, skipping the hexes it merely crosses, so the route bends where the road bends
+ * and runs straight where it runs straight; elsewhere the hexes' centres. `paths` go in
+ * order of preference (roads before rivers).
+ */
+export function routePoints(
+  route: readonly string[],
+  center: (key: string) => Point,
+  paths: readonly FollowedPath[],
+): Point[] {
+  /** The path and index that join `route[a]` → `route[b]`, if any. */
+  const along = (a: number, b: number) => {
+    if (a < 0 || b >= route.length) return null
+    for (const path of paths)
+      for (let j = 0; j < path.hexes.length; j++) {
+        if (path.hexes[j] !== route[a]) continue
+        if (path.hexes[j + 1] === route[b]) return { path, from: j, to: j + 1 }
+        if (path.hexes[j - 1] === route[b]) return { path, from: j, to: j - 1 }
+      }
+    return null
+  }
+  const points: Point[] = []
+  route.forEach((key, i) => {
+    const before = along(i - 1, i)
+    const after = along(i, i + 1)
+    const on = after
+      ? { path: after.path, at: after.from }
+      : before && { path: before.path, at: before.to }
+    if (!on) return points.push(center(key))
+    // A hex in the middle of one path, which the path only crosses, isn't drawn.
+    const through = before && after && before.path === after.path
+    if (through && i > 0 && i < route.length - 1 && !on.path.node(on.at)) return
+    points.push(on.path.point(on.at))
+  })
+  return points
+}

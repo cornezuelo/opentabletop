@@ -13,10 +13,11 @@ import {
 import type { MapChange } from '../commands/command'
 import { hasMetadata, hexesWithTag, ICON_DEFAULTS, nodeFlags } from '../model/hex'
 import type { CaptionKind, CaptionOverride, MapPath, PathKind } from '../model/types'
+import { TRAVEL_PATH_KINDS } from '../model/types'
 import { iconImage } from '../icons/registry'
 import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
 import { catmullRom, catmullRomClosed, dashes, offsetPolyline } from './curves'
-import { pathRuns, type PathVertex } from './pathGeometry'
+import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
 import { setLabelHitTest, setTokenHitTest } from './hitTest'
@@ -664,13 +665,35 @@ export class MapRenderer {
     const hs = grid.hexSize
     const party = partyToken(editor.map)
 
-    // Curves like the map's roads and trails, unless the play settings ask for straight lines,
-    // drawn beside the hexes' centres (the trail on the left of its way, the route on the
-    // right) so they never sit on a road or river through them, nor on each other.
-    const line = (points: { x: number; y: number }[], side: number) =>
-      offsetPolyline(play.straightTrail ? points : catmullRom(points), side * hs * 0.2, hs * 0.6)
+    // Along a road, trail or river they follow, the trail and route take its drawn points
+    // (bending where it bends); they curve like the map's lines unless the play settings ask
+    // for straight ones, and run beside them (the trail on the left of its way, the route on
+    // the right) so they never sit on a road or river, nor on each other.
+    const followed: FollowedPath[] = TRAVEL_PATH_KINDS.flatMap((kind) =>
+      editor.map.paths
+        .filter((path) => path.kind === kind)
+        .map((path) => {
+          const nodes = nodeFlags(path)
+          return {
+            hexes: path.hexes,
+            point: (i: number) => pathVertexPoint(path, i),
+            node: (i: number) => nodes[i],
+          }
+        }),
+    )
+    const line = (keys: string[], side: number) => {
+      const points = routePoints(keys, center, followed)
+      return offsetPolyline(
+        play.straightTrail ? points : catmullRom(points),
+        side * hs * 0.2,
+        hs * 0.6,
+      )
+    }
     if (party?.hex && play.showTrail && play.trail.length > 1) {
-      const points = line(play.trail.filter((k) => inBounds(parseKey(k), grid)).map(center), -1)
+      const points = line(
+        play.trail.filter((k) => inBounds(parseKey(k), grid)),
+        -1,
+      )
       for (const piece of dashes(points, hs * 0.12, hs * 0.14)) this.strokePolyline(lines, piece)
       lines.stroke({
         width: hs * 0.07,
@@ -686,7 +709,7 @@ export class MapRenderer {
         : null
     const route = session?.travel?.route
     if (route && route.length > 1) {
-      const points = line(route.map(center), 1)
+      const points = line(route, 1)
       for (const piece of dashes(points, hs * 0.3, hs * 0.18)) this.strokePolyline(lines, piece)
       lines.stroke({ width: hs * 0.06, color: 0xffffff, alpha: 0.9, cap: 'round' })
       const end = points.at(-1)!
