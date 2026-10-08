@@ -125,3 +125,12 @@ describe('names per element', () => {
     expect(back.tokens[0]).toMatchObject({ showName: true, nameStyle: own })
   })
 })
+
+describe('the scale trips are played at', () => {
+  it('is the map’s, else its system’s, else 10 km', () => {
+    const map = mapWithRegion()
+    expect(mapWorld({ ...map, scale: {} }).hexKm).toBe(10)
+    expect(mapWorld({ ...map, scale: {} }, 30).hexKm).toBe(30)
+    expect(mapWorld({ ...map, scale: { hexKm: 5 } }, 30).hexKm).toBe(5)
+  })
+})

@@ -177,7 +177,7 @@ export function step(action: TravelAction): void {
   const system = getSystem(play.rules.system)
   const options = {
     system,
-    world: mapWorld(editor.map),
+    world: mapWorld(editor.map, system.rules.travel.hexKm),
     oracle: oracle(),
     locale: getLocale(),
     discover: discoverMode(play, system),

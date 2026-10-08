@@ -102,7 +102,8 @@ export const en = {
     orientation: 'Orientation',
     hexKm: 'World scale (km per hex)',
     hexKmHelp:
-      "How many km a hex measures across, for trips: travel times and supplies depend on it.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
+      "How many km a hex measures across, for trips: travel times and supplies depend on it. **Empty: the system's scale** (`travel.hexKm` in its rules; 10 if it sets none), shown faded in the box; write a number only if this map is drawn at another scale.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
+    hexKmOf: "{km}: the system's",
     flat: 'Flat top',
     pointy: 'Pointy top',
     coordFormat: 'Coordinates',

@@ -133,7 +133,7 @@
           {locale}
           {hexLabel}
           terrainName={(id) => terrainName(t, id)}
-          world={wayWorld(trip.saved.way, trip.saved.hexKm)}
+          world={wayWorld(trip.saved.way, trip.hexKm)}
           title={tripLabel(trip.saved)}
           {nameOf}
           destinationHint={t('play.destinationHint')}

@@ -135,6 +135,10 @@ export const en = {
     wayHelp:
       'A trip without a map: list the hexes ahead, each with its terrain and tags and whether a road or river joins it to the next. The party heads for the last one.\n• `plains`, then `forest` with tags `haunted`, then `hills` by `road`\nAdd more hexes at the end to keep going.',
     hexKm: 'km per hex',
+    hexKmHelp:
+      "How many km a hex of the way measures, when the system doesn't set it: with the system's speeds, it says how long each hex takes.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km",
+    hexKmSystem:
+      'The system sets the scale (`travel.hexKm` in its rules): every trip with it is played at that many km a hex. Change it in the system (Systems → Rules).',
     hex: 'Hex {n}',
     here: 'here',
     terrain: vocabulary.en.terms.terrain,

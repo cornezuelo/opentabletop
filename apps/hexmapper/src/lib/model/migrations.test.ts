@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { CURRENT_VERSION } from './defaults'
 import { migrate } from './migrations'
 
 describe('trip migrations', () => {
@@ -18,7 +19,7 @@ describe('trip migrations', () => {
         },
       },
     }) as { version: number; play: { rules: { session: Record<string, unknown> } } }
-    expect(data.version).toBe(14)
+    expect(data.version).toBe(CURRENT_VERSION)
     expect(data.play.rules.session).toEqual({
       travel: { location: '1,1', today: { lost: true }, yesterday: { lost: false } },
       stats: { fatigue: 2 },
@@ -34,5 +35,12 @@ describe('trip migrations', () => {
     const generic = { ...play, rules: { ...play.rules, system: 'generic' } }
     expect(migrate({ version: 13, meta: {}, play: generic }).meta).toEqual({})
     expect(migrate({ version: 13, meta: {} }).meta).toEqual({})
+  })
+})
+
+describe('the map’s scale (v15)', () => {
+  it('the old default, 10 km, becomes the system’s; a scale chosen stays', () => {
+    expect(migrate({ version: 14, scale: { hexKm: 10 } }).scale).toEqual({})
+    expect(migrate({ version: 14, scale: { hexKm: 30 } }).scale).toEqual({ hexKm: 30 })
   })
 })

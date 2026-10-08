@@ -15,7 +15,7 @@ La lista de la izquierda es el camino. El grupo empieza en el hex 1 y se dirige 
 - **Terreno** de cada hex: los terrenos del Hexmapper más los que nombren las reglas del sistema.
 - **Etiquetas**, separadas por comas. Las tablas y las comprobaciones las leen: las Marcas Grises se detienen en los hexes `landmark`, cobran peaje en los `toll` y tienen luces nocturnas en los `haunted`.
 - Debajo de cada hex, **Al siguiente hex**: si un camino, un sendero o un río lo une con el siguiente. Lo que eso hace depende del sistema (en las Marcas Grises, los caminos son más rápidos y evitan perderse y los encuentros).
-- **km por hex**: la escala. Las velocidades de las reglas van en km por día.
+- **km por hex**: la escala. Las velocidades de las reglas van en km por día. Un sistema que fija su propia escala (`travel.hexKm`) se juega siempre a ella: la caja la muestra y aquí no se cambia (se cambia en Systems → Reglas).
 - **Añadir un hex** alarga el camino; **×** quita uno al que el grupo aún no ha llegado. Los hexes ya recorridos salen atenuados y no se pueden cambiar.
 
 Cambiar el camino vuelve a planear la ruta al momento.

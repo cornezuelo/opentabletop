@@ -80,7 +80,11 @@ export function rollContext(): Record<string, unknown> {
   const out: Record<string, unknown> = session
     ? {
         ...tripFacts(
-          { system: getSystem(play!.rules!.system), world: mapWorld(editor.map), facts: world },
+          {
+            system: getSystem(play!.rules!.system),
+            world: mapWorld(editor.map, getSystem(play!.rules!.system).rules.travel.hexKm),
+            facts: world,
+          },
           session,
         ),
         ...facts,

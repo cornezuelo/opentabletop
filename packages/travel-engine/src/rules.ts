@@ -183,7 +183,13 @@ export const travelRulesSchema = z
         night: z.union([z.string().min(1), z.literal(false)]).optional(),
       })
       .strict(),
-    travel: z.object({ hoursPerDay: z.number().positive().max(24) }).strict(),
+    travel: z
+      .object({
+        hoursPerDay: z.number().positive().max(24),
+        /** The scale the system is played at: km a hex measures (maps may set their own). */
+        hexKm: z.number().positive().optional(),
+      })
+      .strict(),
     terrains: z.record(
       z.string(),
       z

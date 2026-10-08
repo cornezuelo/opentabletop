@@ -15,7 +15,7 @@ The list on the left is the way. The party starts on hex 1 and heads for the las
 - **Terrain** of each hex: the Hexmapper's terrains plus any the system's rules name.
 - **Tags**, separated by commas. Tables and checks read them: the Grey Marches stop at `landmark` hexes, charge a toll on `toll` ones and have night lights in `haunted` ones.
 - Under each hex, **To the next hex**: whether a road, trail or river joins it to the next one. What that does depends on the system (in the Grey Marches, roads are faster and keep you from getting lost or meeting anything).
-- **km per hex**: the scale. Speeds in the rules are in km per day.
+- **km per hex**: the scale. Speeds in the rules are in km per day. A system that sets its own scale (`travel.hexKm`) is always played at it: the box shows it and can't be changed here (change it in Systems → Rules).
 - **Add a hex** extends the way; **×** removes one the party hasn't reached. Hexes already walked are greyed out and can't change.
 
 Changing the way re-plans the route right away.

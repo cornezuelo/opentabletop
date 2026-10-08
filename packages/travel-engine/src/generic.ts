@@ -7,7 +7,7 @@ import type { TravelRules } from './rules'
 export const genericTravelRules: TravelRules = {
   id: 'generic',
   day: { start: '06:00', nightfall: '20:00' },
-  travel: { hoursPerDay: 8 },
+  travel: { hoursPerDay: 8, hexKm: 10 },
   terrains: {
     steppe: { multiplier: 1 },
     plains: { multiplier: 1 },

@@ -34,10 +34,13 @@
         type="number"
         min="0.1"
         step="any"
-        value={trip.saved.hexKm}
+        value={trip.hexKm}
+        disabled={system.rules.travel.hexKm !== undefined}
         onchange={(e) => trip.setHexKm(Number(e.currentTarget.value) || 10)}
       />
-      {t('play.hexKm')}
+      {t('play.hexKm')}<InfoTip
+        text={system.rules.travel.hexKm !== undefined ? t('play.hexKmSystem') : t('play.hexKmHelp')}
+      />
     </label>
   </div>
   <div class="columns" aria-hidden="true">

@@ -139,7 +139,7 @@ day:
   start: '06:00' # el alba: comprobaciones y acciones day-start
   nightfall: '20:00' # nadie marcha después
   night: camp # qué hace un grupo que espera al anochecer (false: nada)
-travel: { hoursPerDay: 8 } # horas de marcha al día
+travel: { hoursPerDay: 8, hexKm: 10 } # horas de marcha al día; km por hex (la escala)
 modes: # formas de viajar
   foot: { name: A pie, kmPerDay: 24 }
   horse: { name: A caballo, kmPerDay: 40, unless: { weather: snow } }

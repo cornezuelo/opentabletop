@@ -328,8 +328,11 @@ export interface HexMap {
   version: number
   meta: MapMeta
   grid: GridSettings
-  /** World scale for travel: kilometres per hex (not to be confused with print.hexMm). */
-  scale: { hexKm: number }
+  /**
+   * World scale for travel: kilometres per hex (not to be confused with print.hexMm).
+   * Absent: the system's (`travel.hexKm` in its rules), else DEFAULT_HEX_KM.
+   */
+  scale: { hexKm?: number }
   print: PrintSettings
   terrains: TerrainType[]
   /** Keyed by offset coordinates "col,row". */

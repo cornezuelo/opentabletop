@@ -90,7 +90,7 @@ Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Hexmap
 kind: travel-rules
 id: default
 day: { start: '06:00', nightfall: '20:00' }
-travel: { hoursPerDay: 8 } # horas de marcha al día
+travel: { hoursPerDay: 8, hexKm: 10 } # horas de marcha al día; km por hex
 terrains:
   forest: { multiplier: 0.5 } # a media velocidad
   mountains: { multiplier: 0.33 }
@@ -145,7 +145,7 @@ El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qu�
 
 ### El día y la velocidad
 
-**day** dice cuándo se despierta el grupo (`start`, el alba) y cuándo tiene que parar (`nightfall`): nadie marcha de noche. **travel** dice cuántas horas del día son para marchar (`hoursPerDay`); las acciones también gastan horas. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
+**day** dice cuándo se despierta el grupo (`start`, el alba) y cuándo tiene que parar (`nightfall`): nadie marcha de noche. **travel** dice cuántas horas del día son para marchar (`hoursPerDay`); las acciones también gastan horas. Su `hexKm` es la escala a la que se juega el sistema, cuántos km mide un hex (`hexKm: 30`: un hex es un día de marcha a 30 km al día): la usan los viajes sin mapa, y también un mapa con el sistema salvo que el mapa fije su propia escala (Hexmapper: Ajustes del mapa → Mapa). Sin ella, la del mapa o la del camino de Travel, 10 por defecto. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
 
 - **terrains**: la velocidad en cada terreno (`multiplier`: 0.5 es la mitad, 2 el doble), por los ids de la paleta del Hexmapper. `defaultTerrain: { multiplier: 1 }` cubre los terrenos que usa el mapa y la lista no nombra.
 - **edges**: caminos, senderos y ríos que sigue el grupo (`road: { multiplier: 1.5 }`). Siguiendo uno, su multiplicador sustituye al del terreno.

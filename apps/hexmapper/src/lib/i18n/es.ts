@@ -102,8 +102,9 @@ export const es: Messages = {
     untitled: 'Sin título',
     orientation: 'Orientación',
     hexKm: 'Escala del mundo (km por hex)',
+    hexKmOf: '{km}: la del sistema',
     hexKmHelp:
-      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje y las provisiones dependen de ello.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
+      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje y las provisiones dependen de ello. **Vacío: la escala del sistema** (`travel.hexKm` en sus reglas; 10 si no fija ninguna), que se ve en gris en la caja; escribe un número solo si este mapa está dibujado a otra escala.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',

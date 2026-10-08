@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 14
+export const CURRENT_VERSION = 15
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -196,7 +196,7 @@ export const DEFAULT_GRID: GridSettings = {
   glyphs: 0.45,
 }
 
-/** A common hexcrawl scale (6 miles ≈ 10 km). Kal-Arath uses 30 km. */
+/** A common hexcrawl scale (6 miles ≈ 10 km), when neither the map nor its system sets one. */
 export const DEFAULT_HEX_KM = 10
 
 export const DEFAULT_PRINT: PrintSettings = {
@@ -271,7 +271,7 @@ export function createMap(name = ''): HexMap {
     version: CURRENT_VERSION,
     meta: { id: newId(), name, created: now, modified: now },
     grid: { ...DEFAULT_GRID },
-    scale: { hexKm: DEFAULT_HEX_KM },
+    scale: {},
     print: structuredClone(DEFAULT_PRINT),
     terrains: DEFAULT_TERRAINS.map((t) => ({ ...t })),
     hexes: {},

@@ -125,6 +125,16 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       return data
     return { ...data, meta: { ...meta, system } }
   },
+  /**
+   * v15: a map's scale is optional: without one it's played at its system's (`travel.hexKm`).
+   * Every map had 10 km, the default: that one becomes "the system's" (the same where the
+   * system sets none); any other was chosen, and stays.
+   */
+  14(data) {
+    const scale = data.scale as { hexKm?: unknown } | undefined
+    if (scale?.hexKm !== 10) return data
+    return { ...data, scale: {} }
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

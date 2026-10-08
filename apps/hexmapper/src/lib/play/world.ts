@@ -8,11 +8,15 @@ import {
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { DEFAULT_HEX_KM } from '../model/defaults'
 import { fieldValues } from '../model/hex'
 import { TRAVEL_PATH_KINDS, type HexMap } from '../model/types'
 
-/** The map as the Travel Engine sees it: terrain, neighbors and road/river edges. */
-export function mapWorld(map: HexMap): TravelWorld {
+/**
+ * The map as the Travel Engine sees it: terrain, neighbors and road/river edges, at the
+ * map's scale, else the system's (`systemHexKm`), else the default.
+ */
+export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
   const { grid } = map
   const edges = new Map<string, Set<string>>()
   for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind)))
@@ -26,7 +30,7 @@ export function mapWorld(map: HexMap): TravelWorld {
   const cell = (hex: string) => parseKey(hex as HexKey)
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
   return {
-    hexKm: map.scale.hexKm,
+    hexKm: map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM,
     cell(hex) {
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]

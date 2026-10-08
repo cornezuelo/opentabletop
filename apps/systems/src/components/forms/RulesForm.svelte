@@ -90,6 +90,17 @@
         />
       </label>
       <label>
+        <span>{t('rules.hexKm')}<InfoTip text={t('rules.hexKmHelp')} /></span>
+        <input
+          type="number"
+          min="0.1"
+          step="any"
+          value={rules.travel?.hexKm ?? ''}
+          {disabled}
+          onchange={(e) => doc.edit('travel-rules', ['travel', 'hexKm'], num(e.currentTarget))}
+        />
+      </label>
+      <label>
         <span>{t('rules.night')}<InfoTip text={t('rules.nightHelp')} /></span>
         <select
           value={rules.day?.night === false ? 'false' : String(rules.day?.night ?? '')}

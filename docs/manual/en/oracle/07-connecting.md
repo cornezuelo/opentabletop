@@ -90,7 +90,7 @@ A pack becomes a **system** a map can play (Hexmapper: **Map settings → Map �
 kind: travel-rules
 id: default
 day: { start: '06:00', nightfall: '20:00' }
-travel: { hoursPerDay: 8 } # marching hours per day
+travel: { hoursPerDay: 8, hexKm: 10 } # marching hours per day; km a hex
 terrains:
   forest: { multiplier: 0.5 } # half speed
   mountains: { multiplier: 0.33 }
@@ -145,7 +145,7 @@ The rest of this section goes over each part of that example: what it's for, wha
 
 ### The day and the speed
 
-**day** says when the party wakes (`start`, the dawn) and when it must stop (`nightfall`): nobody marches after dark. **travel** says how many hours of the day are for marching (`hoursPerDay`); actions spend hours too. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
+**day** says when the party wakes (`start`, the dawn) and when it must stop (`nightfall`): nobody marches after dark. **travel** says how many hours of the day are for marching (`hoursPerDay`); actions spend hours too. Its `hexKm` is the scale the system is played at, how many km a hex measures (`hexKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Hexmapper: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
 
 - **terrains**: the speed on each terrain (`multiplier`: 0.5 is half speed, 2 double), by the ids of the Hexmapper's palette. `defaultTerrain: { multiplier: 1 }` covers the terrains the map uses and the list doesn't name.
 - **edges**: roads, trails and rivers the party follows (`road: { multiplier: 1.5 }`). Following one, its multiplier replaces the terrain's.

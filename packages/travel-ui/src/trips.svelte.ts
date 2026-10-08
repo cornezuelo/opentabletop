@@ -201,7 +201,7 @@ export class TripStore {
     try {
       const options = {
         system: this.system,
-        world: wayWorld(this.saved.way, this.saved.hexKm),
+        world: wayWorld(this.saved.way, this.hexKm),
         oracle: this.options.oracle(),
         locale: this.options.locale(),
       }
@@ -217,6 +217,11 @@ export class TripStore {
     if (!this.saved.session) return
     this.saved = { ...this.saved, session: update(structuredClone(this.saved.session)) }
     this.save()
+  }
+
+  /** The scale trips are played at: the system's, if it sets one; else the way's own. */
+  get hexKm(): number {
+    return this.system.rules.travel.hexKm ?? this.saved.hexKm
   }
 
   setHexKm(km: number): void {

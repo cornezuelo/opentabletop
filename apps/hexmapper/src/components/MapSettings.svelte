@@ -1,7 +1,9 @@
 <script lang="ts">
   import { SetMetaCommand } from '../lib/commands/settings'
   import { t } from '../lib/i18n/index.svelte'
+  import { DEFAULT_HEX_KM } from '../lib/model/defaults'
   import type { GridSettings } from '../lib/model/types'
+  import { mapSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
@@ -47,11 +49,15 @@
     type="number"
     min="0.1"
     step="any"
-    value={editor.scale.hexKm}
+    value={editor.scale.hexKm ?? ''}
+    placeholder={t('map.hexKmOf', { km: mapSystem().rules.travel.hexKm ?? DEFAULT_HEX_KM })}
     onchange={(e) => {
-      const value = Number(e.currentTarget.value)
-      if (Number.isFinite(value) && value > 0) applySettings({ scale: { hexKm: value } })
-      else e.currentTarget.value = String(editor.scale.hexKm)
+      const text = e.currentTarget.value.trim()
+      const value = Number(text)
+      // Empty: the system's scale.
+      if (!text) applySettings({ scale: { hexKm: undefined } })
+      else if (Number.isFinite(value) && value > 0) applySettings({ scale: { hexKm: value } })
+      else e.currentTarget.value = String(editor.scale.hexKm ?? '')
     }}
   />
 </label>

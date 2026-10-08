@@ -140,7 +140,7 @@ day:
   start: '06:00' # dawn: day-start checks and actions
   nightfall: '20:00' # nobody marches after it
   night: camp # what a party waiting at nightfall does (false: nothing)
-travel: { hoursPerDay: 8 } # marching hours a day
+travel: { hoursPerDay: 8, hexKm: 10 } # marching hours a day; km a hex (the scale)
 modes: # ways of travelling
   foot: { name: On foot, kmPerDay: 24 }
   horse: { name: On horseback, kmPerDay: 40, unless: { weather: snow } }

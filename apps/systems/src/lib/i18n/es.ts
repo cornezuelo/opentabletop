@@ -242,6 +242,9 @@ export const es: Messages<typeof en> = {
     nightNone: 'nada: la noche pasa',
     hoursPerDayHelp:
       'Cuánto puede marchar el grupo cada día antes de tener que parar, aunque falte mucho para la noche.\n• `8` — una jornada larga a pie\n• `10` — a marchas forzadas\nEl tiempo de las acciones (descansar, buscar comida) no cuenta como marcha.',
+    hexKm: 'km por hex',
+    hexKmHelp:
+      'La escala a la que se juega el sistema: cuántos km mide un hex. Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Travel, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Hexmapper: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
     modes: 'Formas de viajar',
     modesHelp:
       'Formas de viajar: a pie, a caballo, en barca… Cada una tiene una velocidad en **km por día de marcha** en terreno fácil (los terrenos y caminos la cambian) y puede limitarse a algunos sitios y momentos.\n• `foot` — 24 km al día\n• `horse` — 40 km al día, **Salvo si** `weather: snow`\n• `boat` — 50 km al día, **Solo por** `water: true`\nEl panel del viaje deja al jugador cambiar de una a otra.',

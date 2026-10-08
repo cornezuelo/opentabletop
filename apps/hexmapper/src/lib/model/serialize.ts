@@ -4,7 +4,6 @@ import {
   CAPTION_SIZE_RANGE,
   DEFAULT_CAPTIONS,
   ownStyleOf,
-  DEFAULT_HEX_KM,
   DEFAULT_GRID,
   DEFAULT_LABEL_STYLE,
   DEFAULT_PRINT,
@@ -106,9 +105,11 @@ function validate(data: Record<string, unknown>): HexMap {
           ? Math.min(1, Math.max(0, grid.glyphs))
           : DEFAULT_GRID.glyphs,
     },
-    scale: {
-      hexKm: positiveNumber(isRecord(data.scale) ? data.scale.hexKm : undefined, DEFAULT_HEX_KM),
-    },
+    // The map's own scale; absent, the system's (or the default).
+    scale: (() => {
+      const km = isRecord(data.scale) ? data.scale.hexKm : undefined
+      return typeof km === 'number' && Number.isFinite(km) && km > 0 ? { hexKm: km } : {}
+    })(),
     print: parsePrint(data.print),
     terrains: validTerrains,
     hexes: validHexes,

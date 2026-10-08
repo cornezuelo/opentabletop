@@ -28,7 +28,7 @@ Maps are kept in this browser's library and saved automatically while you work. 
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
 
-**Map settings** (the folded map) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper) and the world scale (km per hex, used for travel). Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+**Map settings** (the folded map) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper) and the world scale (km per hex, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another). Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
 
 ## Links to hexes
 

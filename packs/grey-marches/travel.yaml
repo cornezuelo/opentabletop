@@ -6,7 +6,9 @@
 kind: travel-rules
 id: default
 day: { start: '06:00', nightfall: '20:00' }
-travel: { hoursPerDay: 8 }
+# The scale it's played at (travel.hexKm): 10 km a hex, so a day on foot (25 km) crosses
+# two or three; maps with this system take it unless they set their own.
+travel: { hoursPerDay: 8, hexKm: 10 }
 terrains:
   plains: { multiplier: 1 }
   steppe: { multiplier: 1 }

@@ -28,7 +28,7 @@ Los mapas se guardan en la biblioteca de este navegador, automáticamente mientr
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace y <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> rehace cada cambio (una pincelada entera es un paso). Jugar un viaje no forma parte de deshacer: tiene su propio diario.
 
-**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (hexes planos o en punta, coordenadas), su tamaño (por número de hexes o por papel) y la escala del mundo (km por hex, que usa el viaje). Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (hexes planos o en punta, coordenadas), su tamaño (por número de hexes o por papel) y la escala del mundo (km por hex, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra). Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
 
 ## Enlaces a hexes
 

@@ -176,7 +176,7 @@
       locale={getLocale()}
       hexLabel={coord}
       terrainName={terrainLabel}
-      world={mapWorld(editor.map)}
+      world={mapWorld(editor.map, system.rules.travel.hexKm)}
       facts={worldFactsNow()}
       title={editor.map.meta.name || t('map.untitled')}
       nameOf={oracleUi.nameOf}

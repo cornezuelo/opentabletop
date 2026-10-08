@@ -239,6 +239,9 @@ export const en = {
     nightNone: 'nothing: the night passes',
     hoursPerDayHelp:
       "How long the party can march each day before it has to stop, even if night is still far.\n• `8` — a long day on foot\n• `10` — a forced pace\nTime spent on actions (resting, foraging) doesn't count as marching.",
+    hexKm: 'km per hex',
+    hexKmHelp:
+      "The scale the system is played at: how many km a hex measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Hexmapper: Map settings → Map). Empty: the map's or the way's, 10 by default.",
     modes: 'Ways of travelling',
     modesHelp:
       'Ways of travelling: on foot, on horseback, by boat… Each has a speed in **km per marching day** on easy ground (terrains and roads change it), and can be limited to some places and moments.\n• `foot` — 24 km a day\n• `horse` — 40 km a day, **Not when** `weather: snow`\n• `boat` — 50 km a day, **Only through** `water: true`\nThe trip panel lets the player switch between them.',

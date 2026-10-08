@@ -98,4 +98,27 @@ describe('a trip store', () => {
     expect(JSON.parse(memory.get('opentabletop.test.trips')!).trips).toHaveLength(1)
     expect(memory.has('opentabletop.travel.trips')).toBe(false)
   })
+
+  it('plays at the system’s scale when it sets one, else at the way’s', () => {
+    const rules = GENERIC_SYSTEM.rules
+    let system: TravelSystem = {
+      ...GENERIC_SYSTEM,
+      rules: { ...rules, travel: { hoursPerDay: 8 } },
+    }
+    const store = new TripStore({
+      key: 'opentabletop.test.scale',
+      systems: () => [system],
+      oracle: () => undefined,
+      locale: () => 'en',
+    })
+    store.setHexKm(25)
+    expect(store.hexKm).toBe(25)
+    system = { ...system, rules: { ...rules, travel: { hoursPerDay: 8, hexKm: 30 } } }
+    expect(store.hexKm).toBe(30)
+    // A day on foot (30 km in the generic rules) crosses at most one 30 km hex.
+    for (let i = 0; i < 5; i++) store.addHex()
+    store.start('generic', 'spring')
+    store.step({ type: 'travel' })
+    expect(store.location).toBeLessThanOrEqual(1)
+  })
 })
