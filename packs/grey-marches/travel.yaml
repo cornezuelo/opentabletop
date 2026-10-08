@@ -97,13 +97,14 @@ actions:
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
       # A night watch kept by a party in low spirits: nobody really sleeps.
       - { when: { party.stats.morale: { lte: 1 } }, effects: { party.stats.fatigue: 1 } }
-  # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat).
+  # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat),
+  # only with something to eat: you can always stop, but hungry, it doesn't refresh.
   rest:
     name: Rest
-    description: Two hours without marching. Takes off 1 fatigue.
+    description: Two hours without marching. Takes off 1 fatigue, if there is food left.
     do:
       - { time: 120 }
-      - { effects: { party.stats.fatigue: -1 } }
+      - { unless: { party.resources.food: { lt: 1 } }, effects: { party.stats.fatigue: -1 } }
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: forage) is rolled where the party stands.
   # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).

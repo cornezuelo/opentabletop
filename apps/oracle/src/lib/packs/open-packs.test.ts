@@ -244,6 +244,24 @@ describe('bundled open packs', () => {
       expect(low.stats.hirelings).toBe(1)
     })
 
+    it('a rest only eases fatigue with food left; camping is always possible', () => {
+      const options = play([{ terrain: 'plains' }], false, 'rest-food')
+      const after = (action: string, food: number) => {
+        const { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          stats: { fatigue: 2 },
+        })
+        const hungry = { ...session, travel: { ...session.travel, resources: { food, fodder: 6 } } }
+        const out = stepTrip(options, hungry, { type: 'action', id: action })
+        return { took: took(out.entries, action), fatigue: out.state.stats.fatigue }
+      }
+      expect(after('rest', 3)).toEqual({ took: true, fatigue: 1 })
+      expect(after('rest', 0)).toEqual({ took: true, fatigue: 2 })
+      expect(after('camp', 0).took).toBe(true)
+    })
+
     it('a restless watch with low morale', () => {
       const options = play([{ terrain: 'plains' }], false, 'watch')
       const camp = (morale: number) => {
