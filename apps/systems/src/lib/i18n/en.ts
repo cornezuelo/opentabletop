@@ -190,6 +190,19 @@ export const en = {
     rollables: '{count} to roll',
     noDependencies:
       "This pack has no dependencies: add one to its pack.yaml to bring another pack's tables.",
+    maps: 'Example maps',
+    mapsHelp:
+      "Maps to play the system on, kept in its pack as map files (`.otd.json`, written by the Hexmapper's **Save**) and listed in `maps:`. The Hexmapper offers them under **Maps → Example maps**, ready with this system chosen.\n• `maps: [maps/frontier.otd.json]`\n**Add a map file…** copies a saved map into the pack's `maps/` folder; **Remove** takes it out of the pack.",
+    noMaps: 'No example maps.',
+    addMap: 'Add a map file…',
+    openInHexmapper: 'Open in the Hexmapper →',
+    confirmRemoveMap: 'Remove the map “{name}” from the pack? Its file goes too.',
+    mapError: {
+      missing: 'No such file in the pack',
+      notJson: 'That file isn’t a saved map (it isn’t JSON).',
+      notBundle: 'That file isn’t a saved map of OpenTabletop.',
+      noMap: 'That file has no map in it.',
+    },
   },
   forms: {
     confirmRemove: 'Remove “{name}”? The forms can’t undo it (edit the YAML to bring it back).',

@@ -15,6 +15,33 @@ export function parseDeepLink(hash: string): DeepLink | null {
   return hex ? { mapId: match[1], hex } : { mapId: match[1] }
 }
 
+/** An example map a system brings: `#/example/<pack>/<path in the pack>`. */
+export interface ExampleLink {
+  pack: string
+  path: string
+}
+
+/**
+ * Parses `#/example/<pack>/<path>` (the path has a folder and ends in `.otd.json`, so it
+ * never reads as a map id and a hex). Returns null for anything else.
+ */
+export function parseExampleLink(hash: string): ExampleLink | null {
+  const match = /^#\/example\/([^/]+)\/(.+\.otd\.json)$/.exec(hash)
+  if (!match) return null
+  try {
+    return {
+      pack: decodeURIComponent(match[1]),
+      path: match[2].split('/').map(decodeURIComponent).join('/'),
+    }
+  } catch {
+    return null
+  }
+}
+
+export function formatExampleLink(pack: string, path: string): string {
+  return `#/example/${encodeURIComponent(pack)}/${path.split('/').map(encodeURIComponent).join('/')}`
+}
+
 export function formatDeepLink(mapId: string, hex?: string): string {
   return hex ? `#/${mapId}/${encodeURIComponent(hex)}` : `#/${mapId}`
 }

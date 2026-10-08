@@ -96,3 +96,24 @@ export function tooltip(node: HTMLElement, text: TooltipText) {
     },
   }
 }
+
+/**
+ * For a text cut short with an ellipsis (a name beside badges in a narrow list): shows it
+ * whole as a tooltip, only while it doesn't fit.
+ */
+export function fullText(node: HTMLElement) {
+  const enter = () => {
+    if (node.scrollWidth > node.clientWidth) showTooltip(node, node.textContent?.trim())
+  }
+  node.addEventListener('mouseenter', enter)
+  node.addEventListener('mouseleave', hide)
+  node.addEventListener('click', hide)
+  return {
+    destroy() {
+      node.removeEventListener('mouseenter', enter)
+      node.removeEventListener('mouseleave', hide)
+      node.removeEventListener('click', hide)
+      hide()
+    },
+  }
+}

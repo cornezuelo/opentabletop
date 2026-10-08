@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appUrl } from '@open-tabletop/ui-kit'
+  import { appUrl, fullText } from '@open-tabletop/ui-kit'
   import { systemName } from '@open-tabletop/session'
   import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
@@ -21,7 +21,7 @@
       {@const o = s.id === 'generic' ? null : origin(s.id)}
       <li>
         <button class:selected={selected === s.id} onclick={() => go({ name: 'system', id: s.id })}>
-          <span class="name"
+          <span class="name" use:fullText
             >{s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())}</span
           >
           {#if s.id === 'generic'}

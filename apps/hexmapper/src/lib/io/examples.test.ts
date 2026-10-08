@@ -12,10 +12,13 @@ import {
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
 import { mapWorld } from '../play/world'
-import { EXAMPLE_MAPS } from './examples'
+import { exampleMaps } from './examples'
 import { parseMapFile } from './otd'
 
-const packFiles = import.meta.glob('../../../../../packs/grey-marches/**/*.yaml', {
+/** The maps the bundled systems bring (`maps:` in their `kind: system`). */
+const EXAMPLE_MAPS = exampleMaps()
+
+const packFiles = import.meta.glob('../../../../../packs/grey-marches/**/*.{yaml,json}', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -24,6 +27,12 @@ const packFiles = import.meta.glob('../../../../../packs/grey-marches/**/*.yaml'
 describe('example maps', () => {
   it('are valid OTD bundles that open', () => {
     expect(EXAMPLE_MAPS.map((m) => m.id)).toContain('greymarches1')
+    // The Grey Marches' system lists it (`maps:`), a file of their pack.
+    expect(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')).toMatchObject({
+      pack: 'grey-marches',
+      path: 'maps/grey-marches.otd.json',
+      system: { id: 'grey-marches' },
+    })
     for (const example of EXAMPLE_MAPS) {
       expect(validateBundle(JSON.parse(example.json)).errors).toEqual([])
       expect(parseMapFile(example.json).meta.id).toBe(example.id)

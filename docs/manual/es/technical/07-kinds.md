@@ -270,12 +270,14 @@ bindings: default # sus bindings
 calendar: marcher-reckoning # su calendario
 weather: [sky] # los modelos de clima que pueden usar sus bindings
 packs: [core] # packs cuyas tablas trae
+maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 ```
 
 - Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima.
 - Cada parte es una definición de este pack, por su id (`travel: default`), o de un pack del que depende (`travel: core/slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.
+- `maps` lista **mapas de ejemplo** en los que jugar el sistema: ficheros de mapa (`.otd.json`, lo que escribe **Guardar** en el Hexmapper) guardados en este pack, por su ruta en él (normalmente una carpeta `maps/`). El Hexmapper los ofrece en **Mapas → Mapas de ejemplo**, y el **Resumen** del sistema en la aplicación Systems los añade y los quita. Los ficheros de mapa de un pack no son definiciones: nada más los lee.
 - **Los packs antiguos** que tienen reglas de viaje pero no `kind: system` siguen funcionando: son un sistema con el nombre del pack, con sus reglas de viaje, bindings y calendario, y los modelos de clima de todos los packs. En cuanto un pack declara un sistema, solo cuenta lo que declara.
 
 La aplicación Systems escribe uno en cada sistema nuevo, lo edita en el **Resumen** del sistema y declara el de un pack antiguo (**Declararlo**). Las Marcas Grises declaran el suyo en `system.yaml`.

@@ -9,10 +9,12 @@ description: |-
   horseback or by cart, with hunger, fatigue, morale and getting lost, under two moons.
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
-  weather model its weather check uses, and Core's tables brought along through the
-  pack's dependency.
+  weather model its weather check uses, Core's tables brought along through the
+  pack's dependency, and its example map.
 travel: default
 bindings: default
 calendar: marcher-reckoning
 weather: [sky]
 packs: [core]
+# Listed in the Hexmapper's Maps → Example maps.
+maps: [maps/grey-marches.otd.json]

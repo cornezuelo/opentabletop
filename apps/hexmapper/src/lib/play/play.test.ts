@@ -1,7 +1,7 @@
 import type { HexKey } from '@open-tabletop/hex'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { dialog, toasts } from '@open-tabletop/ui-kit'
-import { EXAMPLE_MAPS } from '../io/examples'
+import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
 import { createMap } from '../model/defaults'
 import { editor } from '../store/editor.svelte'
@@ -11,6 +11,9 @@ import { clickHex, partyLocation, restartRules, sessionOf, setMode, step } from 
 import { advanceWorld, startWorld, stopMessage, worldAct, worldCalendar } from './world.svelte'
 import { oracleUi } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
+
+/** The maps the bundled systems bring (`maps:` in their `kind: system`). */
+const EXAMPLE_MAPS = exampleMaps()
 
 describe('playing on the map', () => {
   it('simple: the party jumps to the hex clicked, leaving a trail', () => {

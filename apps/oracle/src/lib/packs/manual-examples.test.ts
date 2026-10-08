@@ -41,14 +41,15 @@ function problems(files: string[]): string[] {
     { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
-  return [...diagnostics, ...travelSystems(registry).problems]
-    .map(formatDiagnostic)
-    .filter(
-      (p) =>
-        !/Unknown (table or generator|table|generator|weather model|roll mode|travel rules|bindings|calendar) "[\w/-]+"$/.test(
-          p,
-        ) && !/"[\w-]+" isn't a dependency of this pack$/.test(p),
-    )
+  return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
+    (p) =>
+      !/Unknown (table or generator|table|generator|weather model|roll mode|travel rules|bindings|calendar) "[\w/-]+"$/.test(
+        p,
+      ) &&
+      !/"[\w-]+" isn't a dependency of this pack$/.test(p) &&
+      // A page can't bring the map files its example names.
+      !/No map "[\w/.-]+" in this pack$/.test(p),
+  )
 }
 
 describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {

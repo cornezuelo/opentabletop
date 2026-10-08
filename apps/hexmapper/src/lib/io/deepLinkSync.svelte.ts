@@ -3,9 +3,10 @@ import { t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 import { view } from '../store/view'
-import { openLibraryMap, openMapFile } from './actions.svelte'
+import { openExampleMap, openLibraryMap, openMapFile } from './actions.svelte'
+import { exampleMaps } from './examples'
 import { ask } from '@open-tabletop/ui-kit'
-import { formatDeepLink, parseDeepLink, resolveHexLabel } from './deepLink'
+import { formatDeepLink, parseDeepLink, parseExampleLink, resolveHexLabel } from './deepLink'
 
 /** Shareable URL of the open map, or of one of its hexes (CCRR/axial label). */
 export function deepLinkUrl(hexLabel?: string): string {
@@ -14,6 +15,16 @@ export function deepLinkUrl(hexLabel?: string): string {
 
 /** Opens the map (and hex) a `#/<mapId>/<hex>` link points to. */
 async function follow(hash: string): Promise<void> {
+  const example = parseExampleLink(hash)
+  if (example) {
+    // A system's example map (e.g. from its page in the Systems app).
+    const found = exampleMaps().find((m) => m.pack === example.pack && m.path === example.path)
+    if (found) await openExampleMap(found)
+    else
+      showToast(t('library.exampleMissing', { path: `${example.pack}/${example.path}` }), 'error')
+    history.replaceState(null, '', formatDeepLink(editor.map.meta.id))
+    return
+  }
   const link = parseDeepLink(hash)
   if (!link) return
   if (link.mapId !== editor.map.meta.id && !(await openLibraryMap(link.mapId))) {

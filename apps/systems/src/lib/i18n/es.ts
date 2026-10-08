@@ -193,6 +193,19 @@ export const es: Messages<typeof en> = {
     rollables: '{count} para tirar',
     noDependencies:
       'Este pack no tiene dependencias: añade una a su pack.yaml para traer las tablas de otro pack.',
+    maps: 'Mapas de ejemplo',
+    mapsHelp:
+      'Mapas para jugar el sistema, guardados en su pack como ficheros de mapa (`.otd.json`, escritos por **Guardar** en el Hexmapper) y listados en `maps:`. El Hexmapper los ofrece en **Mapas → Mapas de ejemplo**, listos con este sistema elegido.\n• `maps: [maps/frontier.otd.json]`\n**Añadir un fichero de mapa…** copia un mapa guardado en la carpeta `maps/` del pack; **Quitar** lo saca del pack.',
+    noMaps: 'Sin mapas de ejemplo.',
+    addMap: 'Añadir un fichero de mapa…',
+    openInHexmapper: 'Abrir en el Hexmapper →',
+    confirmRemoveMap: '¿Quitar el mapa «{name}» del pack? Su fichero se va también.',
+    mapError: {
+      missing: 'El pack no tiene ese fichero',
+      notJson: 'Ese fichero no es un mapa guardado (no es JSON).',
+      notBundle: 'Ese fichero no es un mapa guardado de OpenTabletop.',
+      noMap: 'Ese fichero no tiene ningún mapa.',
+    },
   },
   forms: {
     confirmRemove:

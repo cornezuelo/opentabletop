@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Packs
 
 - **Systems as their own definition**: `kind: system` names what a game system uses (its travel rules, bindings, calendar, weather models) and the packs whose tables it brings; a pack may declare several, and use parts of the packs it depends on. Older packs with travel rules keep working as before. The Grey Marches declare theirs (`system.yaml`), with its name in Spanish.
+- **Example maps of a system**: `maps:` in `kind: system` lists map files (`.otd.json`) kept in the system's pack. The Grey Marches' example map now lives in their pack (`maps/grey-marches.otd.json`).
 
 ### Apps
 
@@ -14,6 +15,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Systems: each system opens on its **Overview**, a form for its own definition: its name and description (also translated), the travel rules, bindings and calendar it plays with (**Create** makes new travel rules or bindings), its weather models and the packs it brings. A system of an older pack gets **Declare it**. The **YAML** tab shows every file of its parts.
 - Systems: a system's **Calendar**, **Weather** and **Roll modes** tabs edit them with forms (they were YAML only): months with their seasons, weekdays, moons and holidays; kinds of weather and, per season, a grid of weights with how often each kind comes up over many days; roll modes with their rolls, the total kept and what they cancel. **New calendar**, **New weather model** and **New roll modes** start from templates and the system names them. The Oracle's New definition template for travel rules now eats with a day-end action instead of the older `perDay`.
 - Systems: a system's **Try it** tab plays a trip without a map with it as it is now (the way hex by hex and the trip, as in Travel), so a change in another tab counts from the next step. Its test trips are kept apart from the Travel app's.
+- Hexmapper: **Maps → Example maps** lists the maps every loaded system brings (also your own packs'), each with the system it's played with. Systems: a system's **Overview** lists its example maps, opens one in the Hexmapper, and adds (**Add a map file…**) or removes them.
+- Oracle, Systems and Travel: a name cut short in the side list shows whole when pointed at.
 - Hexmapper: the **tools bar** on the left folds away too, with a tab on the map's left edge (the tools' keys still work).
 - Hexmapper: less text in the way: the World panel's long note about a trip going on is a short note under the buttons (its explanation is in the help of **Travel on** / **Wait here**); Play's introduction and the modes' tooltips are the help of **Play mode**; Regions' and Tokens' how-to lines go below, as in Icons and Roads. The Oracle's icon in the tools bar is drawn like the other tools (white, gold when open).
 - Help column: a field's explanation no longer has its own **✕** (the column's own fold closes it).

@@ -64,6 +64,11 @@ export interface TravelSystem {
   weather?: Record<string, WeatherModel>
   /** Packs whose tables, oracles and decks it brings: its own first. */
   packs: string[]
+  /**
+   * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
+   * (`maps/frontier.otd.json`), in the order it lists them.
+   */
+  maps?: string[]
 }
 
 /** Where a system's part is defined: a definition of a pack. */
@@ -135,6 +140,7 @@ const SYSTEM_KEYS = new Set([
   'calendar',
   'weather',
   'packs',
+  'maps',
 ])
 
 /**
@@ -333,6 +339,17 @@ export function travelSystems(registry: Registry): {
           report(`packs.${i}`, `"${other}" isn't a dependency of this pack`)
         else if (!packs.includes(other)) packs.push(other)
       })
+      const bundles = registry.packs.get(id)?.bundles ?? []
+      const maps = list('maps', data.maps).filter((path, i) => {
+        if (bundles.includes(path)) return true
+        report(
+          `maps.${i}`,
+          /\.otd\.json$/.test(path)
+            ? `No map "${path}" in this pack`
+            : `Expected the path of an OTD bundle in this pack (…/name.otd.json)`,
+        )
+        return false
+      })
       for (const key of ['name', 'description'] as const)
         if (data[key] !== undefined && !isText(data[key])) report(key, 'Expected a text')
       const rules = part('travel', 'travel-rules', data.travel)
@@ -346,6 +363,7 @@ export function travelSystems(registry: Registry): {
           ...(isText(data.description) && { description: data.description }),
           ...(locale && { locale }),
           packs,
+          ...(maps.length && { maps }),
         },
         {
           rules,

@@ -252,7 +252,9 @@ export const es: Messages = {
     examples: 'Mapas de ejemplo',
     yours: 'Tus mapas',
     exampleHelp:
-      'Un mapa para jugar y aprender, hecho con los packs incluidos (**Las Marcas Grises**): caminos, una barca, un bosque cada vez más peligroso, un santuario, una ruina. Se abre como uno de tus mapas; su página del manual lista cada lugar.',
+      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Systems, dicen qué enseña.',
+    exampleOf: 'con {system}',
+    exampleMissing: 'Los packs cargados no tienen el mapa de ejemplo {path}.',
     exampleTitle: 'Abrir el ejemplo',
     exampleExists:
       'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye)?',

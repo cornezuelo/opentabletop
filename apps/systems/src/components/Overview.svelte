@@ -1,7 +1,7 @@
 <script lang="ts">
   import { manifestOf } from '@open-tabletop/pack-ui'
   import type { TravelSystem } from '@open-tabletop/session'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { appUrl, confirmAction, InfoTip, showToast } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
   import {
@@ -12,6 +12,7 @@
     systemRoot,
     type PartKind,
   } from '../lib/newSystem'
+  import { mapPath, readMap, systemMaps } from '../lib/maps'
   import { library } from '../lib/packs.svelte'
   import { ROLLABLE, type SystemDoc } from '../lib/systemDoc.svelte'
 
@@ -47,6 +48,41 @@
     { key: 'bindings', kind: 'bindings', tab: 'checks' },
     { key: 'calendar', kind: 'calendar' },
   ]
+
+  const listed = $derived(Array.isArray(data?.maps) ? (data.maps as string[]) : [])
+  const maps = $derived(systemMaps(system, listed))
+  /** Opens the map in the Hexmapper, as its Maps → Example maps would. */
+  const hexmapperLink = (path: string) =>
+    `${appUrl('hexmapper')}#/example/${encodeURIComponent(system.pack ?? '')}/${path
+      .split('/')
+      .map(encodeURIComponent)
+      .join('/')}`
+  let picker = $state<HTMLInputElement>()
+
+  /** A map file saved from the Hexmapper becomes a file of the pack, listed in `maps:`. */
+  async function addMap(file: File) {
+    if (!root || !doc) return
+    const json = await file.text()
+    const read = readMap(json)
+    if ('error' in read) {
+      showToast(t(`overview.mapError.${read.error as 'notJson'}`), 'error', 8000)
+      return
+    }
+    const path = mapPath(file.name, (p) => library.readFile(root, p) !== undefined)
+    library.batch(() => {
+      library.writeFile(root, path, json)
+      doc.edit('system', ['maps'], [...listed, path])
+    })
+  }
+
+  async function removeMap(path: string, name: string) {
+    if (!root || !doc || !(await confirmAction(t('overview.confirmRemoveMap', { name })))) return
+    const next = listed.filter((p) => p !== path)
+    library.batch(() => {
+      doc.edit('system', ['maps'], next.length ? next : undefined)
+      if (library.readFile(root, path) !== undefined) library.deleteFile(root, path)
+    })
+  }
 
   function setText(key: 'name' | 'description', text: string) {
     doc?.setText('system', [key], data?.[key], [key], text)
@@ -173,6 +209,46 @@
         <p class="help">{t('overview.noDependencies')}</p>
       {/each}
     </section>
+
+    <section>
+      <h3>{t('overview.maps')}<InfoTip text={t('overview.mapsHelp')} /></h3>
+      {#each maps as map (map.path)}
+        <div class="map">
+          <span class="map-name">
+            {#if map.name}{map.name}{:else}<span class="error"
+                >{t(`overview.mapError.${map.error as 'missing'}`)}</span
+              >{/if}
+            <code>{map.path}</code>
+          </span>
+          {#if map.name}
+            <a class="plain" href={hexmapperLink(map.path)}>{t('overview.openInHexmapper')}</a>
+          {/if}
+          {#if !disabled}
+            <button class="plain" onclick={() => removeMap(map.path, map.name ?? map.path)}
+              >{t('forms.remove')}</button
+            >
+          {/if}
+        </div>
+      {:else}
+        <p class="help">{t('overview.noMaps')}</p>
+      {/each}
+      {#if !disabled}
+        <div>
+          <button class="plain" onclick={() => picker?.click()}>{t('overview.addMap')}</button>
+          <input
+            bind:this={picker}
+            type="file"
+            accept=".json,application/json"
+            hidden
+            onchange={(e) => {
+              const file = e.currentTarget.files?.[0]
+              e.currentTarget.value = ''
+              if (file) addMap(file)
+            }}
+          />
+        </div>
+      {/if}
+    </section>
   {/if}
 </div>
 
@@ -268,6 +344,42 @@
     border: 1px solid var(--panel-border);
     border-radius: 4px;
     cursor: pointer;
+  }
+
+  .map {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .map-name {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    align-items: baseline;
+    min-width: 0;
+  }
+
+  .map-name code {
+    overflow: hidden;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  a.plain {
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+  }
+
+  .error {
+    color: var(--danger, #e06c6c);
   }
 
   .help {

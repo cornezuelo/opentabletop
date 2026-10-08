@@ -17,7 +17,7 @@ export type {
   WithRollModes,
 } from './compile/compile'
 export * from './definitions/schema'
-export { loadPackFiles } from './loader/load'
+export { BUNDLE_FILE, loadPackFiles } from './loader/load'
 export type { Diagnostic, LoadedPack, LoadResult, PackFile } from './loader/load'
 export {
   createOracleEngine,

@@ -11,6 +11,8 @@ my-pack/
   pack.yaml              # id, name, version, base language, license
   tables.yaml            # any number of YAML or JSON files with definitions
   travel.yaml
+  maps/
+    frontier.otd.json    # example maps a system lists (maps:), not definitions
   locales/
     es/tables.yaml       # translations, mirroring the files they translate
 ```

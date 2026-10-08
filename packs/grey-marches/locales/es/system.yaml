@@ -5,5 +5,5 @@ system/default:
     a caballo o en carro, con hambre, fatiga, moral y extravíos, bajo dos lunas.
 
     **Enseña:** un sistema que nombra sus partes: reglas de viaje y bindings, su
-    calendario, el modelo de clima que usa su tirada de clima, y las tablas de Core
-    traídas gracias a la dependencia del pack.
+    calendario, el modelo de clima que usa su tirada de clima, las tablas de Core
+    traídas gracias a la dependencia del pack, y su mapa de ejemplo.

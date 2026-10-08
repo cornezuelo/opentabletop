@@ -50,9 +50,8 @@ apps/                       # each with its own CLAUDE.md
   cli/                      # the `opentabletop` command line: validate, list and roll packs (Node, bundled by Vite)
 packs/                      # open data packs
   core/                     # generic content for any game (oracles, inspiration, scene twists); no travel system
-  grey-marches/             # showcase setting: a travel system and tables using every feature, with an example map
+  grey-marches/             # showcase setting: a travel system and tables using every feature, with an example map (maps/)
   kal-arath/                # README only (the pack is personal use: see below)
-examples/maps/              # example maps (OTD bundles) listed in the Hexmapper's Maps panel
 packs-private/              # (git-ignored) checkout of the private packs repo
 docs/
   BACKLOG.md                # everything to do, done, agreed or rejected

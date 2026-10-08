@@ -13,6 +13,7 @@ src/
     newSystem.ts      # a new user pack (generic rules, empty bindings, system.yaml); where a system's parts are;
                       # its choices, new parts (createPart), declaring an implicit system
     terrains.ts       # terrain and edge names (the Hexmapper palette, suggested in the rules)
+    maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
     nav.svelte.ts     # #/system/<id>/<overview|rules|checks|calendar|weather|modes|try|yaml>
     trial.svelte.ts   # the Try it tab's trips (travel-ui TripStore, `opentabletop.systems.trips`)

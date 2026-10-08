@@ -157,6 +157,7 @@ const KEYS = [
   'bindings',
   'calendar',
   'packs',
+  'maps',
 ]
 
 export interface Completion {

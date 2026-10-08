@@ -156,6 +156,33 @@ colour: red
     ])
   })
 
+  it('lists the example maps a system names, OTD bundles of its own pack', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'p/system.yaml',
+        content: `
+kind: system
+maps: [maps/coast.otd.json, maps/gone.otd.json, notes.yaml, maps/vale.otd.json]
+`,
+      },
+      // Bundles aren't definitions: the loader lists them and never parses them.
+      { path: 'p/maps/coast.otd.json', content: '{"not": "a definition"}' },
+      { path: 'p/maps/vale.otd.json', content: 'not even JSON' },
+    ])
+    expect(diagnostics).toEqual([])
+    expect(registry.packs.get('p')?.bundles).toEqual(['maps/coast.otd.json', 'maps/vale.otd.json'])
+    const { systems, problems } = travelSystems(registry)
+    expect(systems.find((s) => s.id === 'p')?.maps).toEqual([
+      'maps/coast.otd.json',
+      'maps/vale.otd.json',
+    ])
+    expect(problems.map((p) => `${p.at}: ${p.message}`)).toEqual([
+      '@system/default.maps.1: No map "maps/gone.otd.json" in this pack',
+      '@system/default.maps.2: Expected the path of an OTD bundle in this pack (…/name.otd.json)',
+    ])
+  })
+
   it("reports a weather model a system's bindings name but the system doesn't bring", () => {
     const { registry } = loadPacks([
       { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },

@@ -137,7 +137,13 @@ export interface Registry {
   definitions: Map<string, Compiled>
   packs: Map<
     string,
-    { manifest: Manifest; dependencies: string[]; aliases: Record<string, string> }
+    {
+      manifest: Manifest
+      dependencies: string[]
+      aliases: Record<string, string>
+      /** Its OTD bundles (`*.otd.json`) by path in the pack, e.g. a system's maps. */
+      bundles: string[]
+    }
   >
   /** locale → full definition id → overlay. */
   overlays: Map<string, Map<string, Overlay[string]>>
@@ -168,6 +174,7 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
       manifest: pack.manifest,
       dependencies: deps,
       aliases: pack.manifest.aliases ?? {},
+      bundles: pack.bundles,
     })
   }
   for (const pack of loaded) {

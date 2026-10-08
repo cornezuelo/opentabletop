@@ -306,7 +306,7 @@ reads:
 
 ### Nombrar el sistema
 
-Las reglas de viaje y los bindings bastan para un sistema con el nombre de su pack. Un `kind: system` lo dice en un solo sitio, con lo demás que trae: su calendario, los modelos de clima que usan sus bindings y tablas de otros packs (packs de los que depende). Un pack puede declarar varios, p. ej. una variante de invierno con sus propias reglas de viaje: En la aplicación Systems, el **Resumen** del sistema lo escribe con un formulario.
+Las reglas de viaje y los bindings bastan para un sistema con el nombre de su pack. Un `kind: system` lo dice en un solo sitio, con lo demás que trae: su calendario, los modelos de clima que usan sus bindings, tablas de otros packs (packs de los que depende) y mapas de ejemplo para jugarlo (`maps:`, ficheros de mapa del pack, que el Hexmapper lista en **Mapas → Mapas de ejemplo**). Un pack puede declarar varios, p. ej. una variante de invierno con sus propias reglas de viaje: En la aplicación Systems, el **Resumen** del sistema lo escribe con un formulario.
 
 ```yaml
 kind: system

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { fullText, tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { displayName, KIND_ORDER } from '../lib/names'
   import { go, nav } from '../lib/nav.svelte'
@@ -55,7 +55,9 @@
   <div class="tree">
     {#if pinned.length}
       <div class="pack">
-        <div class="pack-row"><span class="pack-name static">★ {t('nav.favorites')}</span></div>
+        <div class="pack-row">
+          <span class="pack-name static" use:fullText>★ {t('nav.favorites')}</span>
+        </div>
         <ul>
           {#each pinned as { def, name } (def.id)}
             <li>
@@ -64,7 +66,7 @@
                 onclick={() => go({ name: 'def', id: def.id, tab: 'roll' })}
               >
                 <KindBadge kind={def.kind} />
-                <span class="name">{name}</span>
+                <span class="name" use:fullText>{name}</span>
               </button>
             </li>
           {/each}
@@ -82,7 +84,11 @@
               onclick={() => (collapsed[pack.root] = !collapsed[pack.root])}
               >{collapsed[pack.root] && !query ? '▸' : '▾'}</button
             >
-            <button class="pack-name" onclick={() => go({ name: 'pack', root: pack.root })}>
+            <button
+              class="pack-name"
+              use:fullText
+              onclick={() => go({ name: 'pack', root: pack.root })}
+            >
               {manifest.name ?? pack.root}
             </button>
             {#if pack.personal}
@@ -122,7 +128,7 @@
                     onclick={() => go({ name: 'def', id: def.id, tab: 'roll' })}
                   >
                     <KindBadge kind={def.kind} />
-                    <span class="name">{name}</span>
+                    <span class="name" use:fullText>{name}</span>
                   </button>
                 </li>
               {/each}

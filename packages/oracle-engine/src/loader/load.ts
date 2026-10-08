@@ -41,6 +41,11 @@ export interface LoadedPack {
   systemTexts: Record<string, { key: string; texts: unknown; file: string }[]>
   /** Definitions for other engines (e.g. kind: travel-rules, bindings), passed through untouched. */
   extras: { kind: string; id?: string; data: Record<string, unknown>; file: string }[]
+  /**
+   * OTD bundles (`*.otd.json`, e.g. a system's example maps) inside the pack, by path
+   * relative to its folder: not definitions, so they're only listed, never parsed here.
+   */
+  bundles: string[]
 }
 
 /** Kinds this engine owns; anything else is kept as an extra for other engines. */
@@ -53,6 +58,8 @@ export interface LoadResult {
 
 const MANIFEST = /(^|\/)pack\.(ya?ml|json)$/
 const DATA_FILE = /\.(ya?ml|json)$/
+/** OTD bundles (maps and the like) a pack may carry besides its definitions. */
+export const BUNDLE_FILE = /\.otd\.json$/
 
 /** Groups files into packs and parses + structurally validates every document. */
 export function loadPackFiles(files: PackFile[]): LoadResult {
@@ -87,6 +94,7 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       overlays: {},
       systemTexts: {},
       extras: [],
+      bundles: [],
     }
     packs.push(pack)
     byRoot.set(root, pack)
@@ -106,6 +114,10 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       continue
     }
     const relative = root ? file.path.slice(root.length + 1) : file.path
+    if (BUNDLE_FILE.test(relative)) {
+      pack.bundles.push(relative)
+      continue
+    }
     const locale = /^locales\/([^/]+)\//.exec(relative)?.[1]
     const docs = parseDocuments(file, diagnostics, pack.manifest.id)
     if (locale) {

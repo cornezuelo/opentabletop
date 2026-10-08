@@ -271,12 +271,14 @@ bindings: default # its bindings
 calendar: marcher-reckoning # its calendar
 weather: [sky] # the weather models its bindings may use
 packs: [core] # packs whose tables it brings
+maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
 - Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model.
 - Each part is a definition of this pack, by its id (`travel: default`), or of a pack it depends on (`travel: core/slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.
+- `maps` lists **example maps** to play the system on: map files (`.otd.json`, what the Hexmapper's **Save** writes) kept in this pack, by their path in it (usually a `maps/` folder). The Hexmapper offers them under **Maps → Example maps**, and the system's **Overview** in the Systems app adds and removes them. Map files in a pack aren't definitions: nothing else reads them.
 - **Older packs** that have travel rules but no `kind: system` keep working: they're a system named after the pack, with its travel rules, bindings and calendar, and every pack's weather models. Once a pack declares a system, only what it declares counts.
 
 The Systems app writes one for every new system, edits it in the system's **Overview**, and declares an older pack's (**Declare it**). The Grey Marches declare theirs in `system.yaml`.

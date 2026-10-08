@@ -22,6 +22,7 @@
     "@open-tabletop/oracle-ui": "*",
     "@open-tabletop/pack-ui": "*",
     "@open-tabletop/random": "*",
+    "@open-tabletop/schema": "*",
     "@open-tabletop/session": "*",
     "@open-tabletop/time": "*",
     "@open-tabletop/travel-engine": "*",

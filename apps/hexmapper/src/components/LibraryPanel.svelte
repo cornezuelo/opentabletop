@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { EXAMPLE_MAPS } from '../lib/io/examples'
+  import { exampleMaps, exampleSystemName } from '../lib/io/examples'
   import LineIcon from './LineIcon.svelte'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
@@ -17,6 +17,8 @@
 
   type Entry = Awaited<ReturnType<typeof listLibrary>>[number]
   let entries = $state<Entry[]>([])
+  /** The maps the loaded systems bring (`maps:` in their `kind: system`). */
+  const examples = $derived(exampleMaps())
 
   $effect(() => {
     void library.version
@@ -59,16 +61,18 @@
 
 <p class="help">{t('library.help')}</p>
 
-{#if EXAMPLE_MAPS.length}
+{#if examples.length}
   <span class="examples-title">{t('library.examples')}</span>
   <ul class="examples">
-    {#each EXAMPLE_MAPS as example (example.id)}
+    {#each examples as example (`${example.pack}/${example.path}`)}
       <li>
         <button
           class="open"
           use:tooltip={{ markdown: helpMarkdown(t('library.exampleHelp')) }}
           onclick={() => openExampleMap(example).then(() => (editor.panelView = 'tool'))}
-          ><span class="name">{example.name}</span></button
+          ><span class="name">{example.name}</span><span class="meta"
+            >{t('library.exampleOf', { system: exampleSystemName(example, getLocale()) })}</span
+          ></button
         >
       </li>
     {/each}
