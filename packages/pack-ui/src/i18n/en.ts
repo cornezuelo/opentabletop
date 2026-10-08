@@ -23,4 +23,12 @@ export const en = {
     show: 'See the bundled version',
     hide: 'Hide',
   },
+  import: {
+    done: 'Imported {packs}.',
+    already: 'Already here, unchanged: {packs}.',
+    noManifest: 'There is no pack.yaml in that file.',
+    failed: 'Could not import: {message}',
+    replace:
+      'The file has its own version of packs you already have: {packs}. Replace them with the file’s? (↶ undoes it; a bundled pack can be reverted.)',
+  },
 } as const

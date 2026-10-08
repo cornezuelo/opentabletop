@@ -22,7 +22,8 @@ export const es: Messages<typeof en> = {
     search: 'Buscar tablas…',
     newPack: 'Nuevo pack',
     import: 'Importar .zip',
-    importTip: 'Importa un pack exportado como .zip (una carpeta con pack.yaml).',
+    importTip:
+      'Importa packs de un .zip: un pack (una carpeta con pack.yaml) o un sistema con los packs que trae.',
     noResults: 'No hay coincidencias.',
     problems: '{count} problemas',
   },
@@ -295,12 +296,6 @@ export const es: Messages<typeof en> = {
     noProblems: 'Sin problemas',
     line: 'línea {line}',
     readOnly: 'Solo lectura (incluido)',
-  },
-  import: {
-    done: 'Importado "{pack}" ({count} ficheros).',
-    noManifest: 'No hay ningún pack.yaml en ese fichero.',
-    failed: 'No se pudo importar: {message}',
-    replace: 'Ya hay un pack "{pack}". ¿Sustituirlo?',
   },
   storage: {
     full: 'El almacenamiento del navegador está lleno: exporta tus packs para no perderlos.',

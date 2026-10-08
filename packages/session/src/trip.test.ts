@@ -3,7 +3,14 @@ import { sequence } from '@open-tabletop/random'
 import { defaultCalendar } from '@open-tabletop/time'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { GENERIC_SYSTEM, startTrip, stepTrip, systemName, travelSystems } from './trip'
+import {
+  GENERIC_SYSTEM,
+  startTrip,
+  stepTrip,
+  systemName,
+  systemPackIds,
+  travelSystems,
+} from './trip'
 
 const { registry } = loadPacks([
   { path: 'sys/pack.yaml', content: 'id: sys\nname: Sys\nversion: 0.1.0\nlocale: en\n' },
@@ -154,6 +161,27 @@ colour: red
       '@system/default.packs.0: "base" isn\'t a dependency of this pack',
       '@system/default.travel: "base" isn\'t a dependency of this pack',
     ])
+  })
+
+  it('gathers every pack a system needs to be taken elsewhere, dependencies included', () => {
+    const { registry } = loadPacks([
+      { path: 'deep/pack.yaml', content: 'id: deep\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'base/pack.yaml',
+        content: 'id: base\nversion: 0.1.0\nlocale: en\ndependencies: { deep: "*" }\n',
+      },
+      { path: 'lonely/pack.yaml', content: 'id: lonely\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'game/pack.yaml',
+        content: 'id: game\nversion: 0.1.0\nlocale: en\ndependencies: { base: "*" }\n',
+      },
+      { path: 'game/system.yaml', content: 'kind: system\nname: Game\n' },
+    ])
+    const { systems } = travelSystems(registry)
+    const game = systems.find((s) => s.id === 'game')!
+    // Its own pack first, then its dependencies as far as they go; unrelated packs stay out.
+    expect(systemPackIds(game, registry)).toEqual(['game', 'base', 'deep'])
+    expect(systemPackIds(GENERIC_SYSTEM, registry)).toEqual([])
   })
 
   it('lists the example maps a system names, OTD bundles of its own pack', () => {

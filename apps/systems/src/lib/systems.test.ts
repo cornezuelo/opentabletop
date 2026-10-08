@@ -1,3 +1,6 @@
+import { loadPacks } from '@open-tabletop/oracle-engine'
+import { engineFiles, packsToZip, planImport, zipToPacks } from '@open-tabletop/pack-ui'
+import { travelSystems } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import {
   createPart,
@@ -13,6 +16,7 @@ import { renameMonth } from './calendar'
 import { partDoc } from './partDoc.svelte'
 import { library, systems } from './packs.svelte'
 import { systemDoc } from './systemDoc.svelte'
+import { importedSystem, systemZipPacks } from './transfer'
 
 describe('systems in the Systems app', () => {
   it('a new system declares itself, and its forms edit the parts it names', () => {
@@ -205,5 +209,48 @@ describe('systems in the Systems app', () => {
     // The system uses the new calendar's seasons.
     expect(system().calendar!.describe(0).month.id).toBe('thaw')
     // Every read after a change reloads the packs: a few seconds in all.
+  }, 30_000)
+
+  it('a system goes elsewhere whole: its .zip holds every pack it needs', () => {
+    const marches = systems.get('grey-marches')!
+    const packs = systemZipPacks(marches)
+    // Its own pack first, then Core (it brings Core's tables and depends on it).
+    expect(packs.map((p) => p.root)).toEqual(['grey-marches', 'core'])
+    const read = zipToPacks(packsToZip(packs))
+    expect(read.map((p) => p.root)).toEqual(['grey-marches', 'core'])
+    expect(read[0].files).toEqual(packs[0].files)
+    // A browser without them gets both, and plays the same system, maps included.
+    expect(planImport([], read).added.map((p) => p.root)).toEqual(['grey-marches', 'core'])
+    const elsewhere = travelSystems(loadPacks(engineFiles(read)).registry).systems
+    const there = elsewhere.find((s) => s.id === 'grey-marches')!
+    expect(there.packs).toEqual(marches.packs)
+    expect(there.maps).toEqual(marches.maps)
+    expect(there.rules).toEqual(marches.rules)
+    expect(importedSystem(read)?.id).toBe('grey-marches')
+    // Here, both are already there unchanged.
+    expect(planImport(library.packs, read).same).toHaveLength(2)
+    // An edited copy brought back replaces only what differs; ↶ undoes it in one step.
+    const edited = read.map((p) =>
+      p.root === 'grey-marches'
+        ? {
+            ...p,
+            files: [
+              ...p.files,
+              {
+                path: 'extra.yaml',
+                content: 'kind: table\nid: x\nentries: [{ range: 1-6, result: X }]\n',
+              },
+            ],
+          }
+        : p,
+    )
+    const plan = planImport(library.packs, edited)
+    expect(plan.replaced.map((p) => p.root)).toEqual(['grey-marches'])
+    expect(plan.same.map((p) => p.root)).toEqual(['core'])
+    library.addPacks(plan.replaced)
+    expect(library.pack('grey-marches')?.overrides).toBe(true)
+    expect(library.registry.definitions.has('grey-marches/x')).toBe(true)
+    library.undo()
+    expect(library.pack('grey-marches')?.origin).toBe('bundled')
   }, 30_000)
 })

@@ -26,4 +26,12 @@ export const es: Messages<typeof en> = {
     show: 'Ver la versión incluida',
     hide: 'Ocultar',
   },
+  import: {
+    done: 'Importado: {packs}.',
+    already: 'Ya estaban, sin cambios: {packs}.',
+    noManifest: 'No hay ningún pack.yaml en ese fichero.',
+    failed: 'No se pudo importar: {message}',
+    replace:
+      'El fichero trae su propia versión de packs que ya tienes: {packs}. ¿Los sustituyes por los del fichero? (↶ lo deshace; un pack incluido se puede devolver a su versión incluida.)',
+  },
 }

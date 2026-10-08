@@ -14,6 +14,7 @@
   } from '../lib/newSystem'
   import { mapPath, readMap, systemMaps } from '../lib/maps'
   import { library } from '../lib/packs.svelte'
+  import { exportSystem, systemZipPacks } from '../lib/transfer'
   import { ROLLABLE, type SystemDoc } from '../lib/systemDoc.svelte'
 
   /**
@@ -83,6 +84,9 @@
       if (library.readFile(root, path) !== undefined) library.deleteFile(root, path)
     })
   }
+
+  /** What its .zip would hold. */
+  const zipped = $derived(system.pack ? systemZipPacks(system) : [])
 
   function setText(key: 'name' | 'description', text: string) {
     doc?.setText('system', [key], data?.[key], [key], text)
@@ -250,6 +254,24 @@
       {/if}
     </section>
   {/if}
+  {#if zipped.length}
+    <section>
+      <h3>{t('overview.export')}<InfoTip text={t('overview.exportHelp')} /></h3>
+      <p class="help">
+        {t('overview.exportIncludes', {
+          packs: zipped.map((p) => manifestOf(p).name ?? p.root).join(', '),
+        })}
+      </p>
+      {#if zipped.some((p) => p.personal)}
+        <p class="help personal">{t('overview.exportPersonal')}</p>
+      {/if}
+      <div>
+        <button class="plain" onclick={() => exportSystem(system)}
+          >{t('overview.exportButton')}</button
+        >
+      </div>
+    </section>
+  {/if}
 </div>
 
 <style>
@@ -385,5 +407,9 @@
   .help {
     margin: 0;
     color: var(--text-muted);
+  }
+
+  .help.personal {
+    color: #d8c58a;
   }
 </style>

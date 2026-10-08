@@ -59,7 +59,7 @@ La página del pack muestra su manifiesto, sus **problemas** (haz clic en uno pa
 
 ## Copias de seguridad y compartir
 
-**Exportar .zip** descarga el pack como carpeta; **Importar .zip** añade uno. Tus packs solo viven en este navegador: expórtalos para no perderlos.
+**Exportar .zip** descarga el pack como carpeta; **Importar .zip** añade los packs de un .zip: un pack, o un sistema entero con los packs que trae, exportado desde la aplicación Systems (los que ya están sin cambios se dejan; sustituir una versión distinta pregunta antes). Tus packs solo viven en este navegador: expórtalos para no perderlos.
 
 El Hexmapper ve tus packs cuando las dos aplicaciones se sirven desde el mismo sitio (p. ej. `…/oracle/` y `…/hexmapper/`).
 

@@ -5,6 +5,7 @@
   import { go, nav } from '../lib/nav.svelte'
   import { createSystem } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
+  import { importSystem } from '../lib/transfer'
 
   let name = $state('')
   const selected = $derived(nav.view.name === 'system' ? nav.view.id : undefined)
@@ -26,6 +27,11 @@
     if (!id) return
     name = ''
     go({ name: 'system', id, tab: 'overview' })
+  }
+
+  async function importOne() {
+    const system = await importSystem()
+    if (system) go({ name: 'system', id: system.id, tab: 'overview' })
   }
 </script>
 
@@ -71,6 +77,7 @@
     <input type="text" placeholder={t('nav.newSystem')} bind:value={name} />
     <button type="submit" class="icon" aria-label={t('nav.newSystem')}>+</button>
   </form>
+  <button class="import" onclick={importOne}>{t('nav.import')}</button>
 </nav>
 
 <style>
@@ -160,5 +167,20 @@
   form input {
     flex: 1;
     min-width: 0;
+  }
+
+  .import {
+    align-self: flex-start;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .import:hover {
+    color: var(--text);
   }
 </style>

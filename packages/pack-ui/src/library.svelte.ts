@@ -179,6 +179,14 @@ export class PackLibrary {
     ])
   }
 
+  /** Adds several packs (e.g. a system imported with the packs it brings) as one undo step. */
+  addPacks(packs: PackSource[]): void {
+    this.setUserPacks([
+      ...this.user.filter((p) => !packs.some((q) => q.root === p.root)),
+      ...packs.map((p) => ({ ...p, origin: 'user' as const })),
+    ])
+  }
+
   /** Copies a bundled pack into the user's packs, overriding it. */
   editCopy(root: string): void {
     const pack = this.pack(root)

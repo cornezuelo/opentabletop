@@ -3,11 +3,9 @@
   import {
     AppBrand,
     AppSwitcher,
-    confirmAction,
     contextHelp,
     Dialogs,
     FoldTab,
-    showToast,
     PreferencesButton,
     Toasts,
     tooltip,
@@ -17,7 +15,7 @@
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { UndoButtons } from '@open-tabletop/pack-ui'
+  import { importZip, UndoButtons } from '@open-tabletop/pack-ui'
   import NewDefinitionDialog from './components/NewDefinitionDialog.svelte'
   import NewPackDialog from './components/NewPackDialog.svelte'
   import { dialogs } from './lib/dialogs.svelte'
@@ -27,37 +25,13 @@
   import { go, nav } from './lib/nav.svelte'
   import { oracleUi } from './lib/oracle'
   import { workspace } from './lib/packs/workspace.svelte'
-  import { manifestOf } from './lib/packs/workspace'
-  import { zipToPack } from './lib/packs/zip'
 
   let creating = $state(false)
 
-  async function importZip() {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.zip,application/zip'
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-      try {
-        const pack = zipToPack(new Uint8Array(await file.arrayBuffer()))
-        if (!pack) return showToast(t('import.noManifest'), 'error')
-        const existing = workspace.pack(pack.root)
-        if (
-          existing?.origin === 'user' &&
-          !(await confirmAction(t('import.replace', { pack: pack.root })))
-        )
-          return
-        workspace.addPack(pack)
-        showToast(
-          t('import.done', { pack: manifestOf(pack).name ?? pack.root, count: pack.files.length }),
-        )
-        go({ name: 'pack', root: pack.root })
-      } catch (error) {
-        showToast(t('import.failed', { message: (error as Error).message }), 'error')
-      }
-    }
-    input.click()
+  async function importPacks() {
+    const packs = await importZip(workspace, getLocale())
+    // A system's file has its own pack first.
+    if (packs?.length) go({ name: 'pack', root: packs[0].root })
   }
 
   const count = $derived(workspace.registry.definitions.size)
@@ -104,7 +78,7 @@
     <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
     <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>
     <button onclick={() => (creating = true)}>{t('nav.newPack')}</button>
-    <button use:tooltip={t('nav.importTip')} onclick={importZip}>{t('nav.import')}</button>
+    <button use:tooltip={t('nav.importTip')} onclick={importPacks}>{t('nav.import')}</button>
     <PreferencesButton
       locale={getLocale()}
       {locales}

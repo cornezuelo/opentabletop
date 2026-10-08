@@ -85,6 +85,29 @@ export const calendarOf = (system: TravelSystem): Calendar => system.calendar ??
 export const systemName = (system: TravelSystem, locale: string): string =>
   localize(system.name, locale, system.locale) ?? system.id
 
+/**
+ * Every pack a system needs, to take it elsewhere as a whole: its own first, then the
+ * packs it brings and those its parts are written in (a declared system's weather models
+ * included), and every dependency of each, as far as they go. Packs that aren't loaded are left out. None for
+ * the generic system.
+ */
+export function systemPackIds(system: TravelSystem, registry: Registry): string[] {
+  const out: string[] = []
+  const add = (id: string | undefined) => {
+    if (!id || out.includes(id) || !registry.packs.has(id)) return
+    out.push(id)
+    for (const dependency of registry.packs.get(id)!.dependencies) add(dependency)
+  }
+  if (!system.pack) return out
+  add(system.pack)
+  for (const id of system.packs) add(id)
+  for (const source of Object.values(system.sources ?? {})) add(source?.pack)
+  // An older pack's implicit system sees every pack's weather: only a declared one names its own.
+  if (system.sources?.system)
+    for (const key of Object.keys(system.weather ?? {})) add(key.split('/')[0])
+  return out
+}
+
 export const GENERIC_SYSTEM: TravelSystem = {
   id: 'generic',
   name: '',

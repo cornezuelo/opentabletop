@@ -21,7 +21,8 @@ export const en = {
     search: 'Search tables…',
     newPack: 'New pack',
     import: 'Import .zip',
-    importTip: 'Import a pack exported as .zip (a folder with pack.yaml).',
+    importTip:
+      'Import packs from a .zip: one pack (a folder with pack.yaml), or a system with the packs it brings.',
     noResults: 'Nothing matches.',
     problems: '{count} problems',
   },
@@ -290,12 +291,6 @@ export const en = {
     noProblems: 'No problems',
     line: 'line {line}',
     readOnly: 'Read-only (bundled)',
-  },
-  import: {
-    done: 'Imported "{pack}" ({count} files).',
-    noManifest: 'There is no pack.yaml in that file.',
-    failed: 'Could not import: {message}',
-    replace: 'There is already a pack "{pack}". Replace it?',
   },
   storage: { full: 'Browser storage is full: export your packs to keep them safe.' },
   common: { cancel: 'Cancel', ok: 'OK', close: 'Close' },

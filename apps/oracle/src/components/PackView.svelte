@@ -12,11 +12,10 @@
     overlayPath,
   } from '../lib/packs/workspace'
   import { locate } from '@open-tabletop/pack-ui/yaml'
-  import { download, packToZip } from '../lib/packs/zip'
   import KindBadge from './KindBadge.svelte'
   import { dialogs } from '../lib/dialogs.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
-  import { BundledUpdates } from '@open-tabletop/pack-ui'
+  import { BundledUpdates, download, packsToZip } from '@open-tabletop/pack-ui'
   import { getLocale } from '../lib/i18n'
 
   let { root }: { root: string } = $props()
@@ -90,7 +89,7 @@
   }
 
   function exportZip() {
-    if (pack) download(packToZip(pack), `${root}.zip`, 'application/zip')
+    if (pack) download(packsToZip([pack]), `${root}.zip`, 'application/zip')
   }
 
   function openProblem(file: string | undefined, at: string | undefined, line?: number) {

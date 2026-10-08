@@ -26,7 +26,6 @@
     "@open-tabletop/session": "*",
     "@open-tabletop/travel-engine": "*",
     "@open-tabletop/ui-kit": "*",
-    "fflate": "^0.8.3",
     "yaml": "^2.9.1"
   }
 }

@@ -16,6 +16,7 @@ export const en = {
     undo: 'Undo the last change to your packs (Ctrl+Z)',
     redo: 'Redo (Ctrl+Shift+Z)',
     newSystem: 'New system',
+    import: 'Import a system (.zip)…',
     problems: '{count} problems',
     builtIn: 'built in',
   },
@@ -195,6 +196,12 @@ export const en = {
       "Maps to play the system on, kept in its pack as map files (`.otd.json`, written by the Hexmapper's **Save**) and listed in `maps:`. The Hexmapper offers them under **Maps → Example maps**, ready with this system chosen.\n• `maps: [maps/frontier.otd.json]`\n**Add a map file…** copies a saved map into the pack's `maps/` folder; **Remove** takes it out of the pack.",
     noMaps: 'No example maps.',
     addMap: 'Add a map file…',
+    export: 'Take it elsewhere',
+    exportHelp:
+      'Saves the system as one .zip with every pack it needs: its own, the ones it brings, those its parts are written in, and their dependencies. Another browser (or another person) gets it whole by importing that file.\n• **Import a system (.zip)…**, under the systems list, reads it back\n• the Oracle’s **Import .zip** reads it too\nPacks already there and unchanged are left alone; a different version of one is replaced only if you say so (↶ undoes it).',
+    exportIncludes: 'The file holds: {packs}',
+    exportButton: 'Export as .zip',
+    exportPersonal: 'It includes personal-use packs: keep the file for yourself, don’t share it.',
     openInHexmapper: 'Open in the Hexmapper →',
     confirmRemoveMap: 'Remove the map “{name}” from the pack? Its file goes too.',
     mapError: {

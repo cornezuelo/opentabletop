@@ -18,6 +18,7 @@ export const es: Messages<typeof en> = {
     undo: 'Deshacer el último cambio en tus packs (Ctrl+Z)',
     redo: 'Rehacer (Ctrl+Shift+Z)',
     newSystem: 'Nuevo sistema',
+    import: 'Importar un sistema (.zip)…',
     problems: '{count} problemas',
     builtIn: 'integrado',
   },
@@ -197,6 +198,12 @@ export const es: Messages<typeof en> = {
       'Mapas para jugar el sistema, guardados en su pack como ficheros de mapa (`.otd.json`, escritos por **Guardar** en el Hexmapper) y listados en `maps:`. El Hexmapper los ofrece en **Mapas → Mapas de ejemplo**, listos con este sistema elegido.\n• `maps: [maps/frontier.otd.json]`\n**Añadir un fichero de mapa…** copia un mapa guardado en la carpeta `maps/` del pack; **Quitar** lo saca del pack.',
     noMaps: 'Sin mapas de ejemplo.',
     addMap: 'Añadir un fichero de mapa…',
+    export: 'Llevarlo a otra parte',
+    exportHelp:
+      'Guarda el sistema en un solo .zip con todos los packs que necesita: el suyo, los que trae, los que tienen sus partes y sus dependencias. Otro navegador (u otra persona) lo recibe entero importando ese fichero.\n• **Importar un sistema (.zip)…**, bajo la lista de sistemas, lo vuelve a leer\n• el **Importar .zip** de la Oracle también lo lee\nLos packs que ya están sin cambios se dejan como están; una versión distinta de uno solo se sustituye si lo dices (↶ lo deshace).',
+    exportIncludes: 'El fichero lleva: {packs}',
+    exportButton: 'Exportar como .zip',
+    exportPersonal: 'Incluye packs de uso personal: guárdate el fichero, no lo compartas.',
     openInHexmapper: 'Abrir en el Hexmapper →',
     confirmRemoveMap: '¿Quitar el mapa «{name}» del pack? Su fichero se va también.',
     mapError: {
