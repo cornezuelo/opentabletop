@@ -71,6 +71,10 @@ Lore stays in your notes app: maps and journals link to SilverBullet or Obsidian
 - What's done and what's next: [`docs/BACKLOG.md`](docs/BACKLOG.md).
 - Conventions for contributors (and AI assistants): [`CLAUDE.md`](CLAUDE.md).
 
+## Releases
+
+One version for the whole repository (semver); what each brings is in [CHANGELOG.md](CHANGELOG.md), and how a release is made (a tag builds the public site, attaches it to the GitHub release and publishes it on GitHub Pages) in [docs/RELEASING.md](docs/RELEASING.md). Every push runs CI from a clean clone.
+
 ## License
 
 The code and the open packs are [MIT](LICENSE). Bundled third-party assets (icons, fonts) keep their own licenses: see [CREDITS.md](CREDITS.md). Packs record their license and attribution in their `pack.yaml`.

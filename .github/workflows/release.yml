@@ -1,0 +1,72 @@
+# A release: pushing a tag vX.Y.Z (see docs/RELEASING.md) builds the public site from a
+# clean clone, checks it like CI, attaches it to a GitHub release (notes from CHANGELOG.md)
+# and publishes it on GitHub Pages. Personal-use packs never reach it: a clean clone has no
+# packs-private/, and the build fails if anything loads one.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: No personal-use packs in this checkout
+        run: test ! -e packs-private
+      - name: The tag matches the version in package.json
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: make verify
+      - run: make site
+      - name: No personal-use pack in the public site
+        run: |
+          if grep -rIl "Permiso de copia para uso personal" dist; then
+            echo "A personal-use pack reached dist/" >&2
+            exit 1
+          fi
+      - name: Release notes from CHANGELOG.md
+        # The section of this version: from its heading to the next one.
+        run: |
+          awk -v v="${GITHUB_REF_NAME#v}" '
+            /^## / { on = index($0, "[" v "]") > 0; next }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          test -s notes.md
+      - name: Zip the site
+        run: cd dist && zip -qr "../opentabletop-${GITHUB_REF_NAME}.zip" .
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" "opentabletop-${GITHUB_REF_NAME}.zip"
+          --title "OpenTabletop ${GITHUB_REF_NAME}" --notes-file notes.md
+          $([[ "$GITHUB_REF_NAME" == v0.* ]] && echo --prerelease)
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  pages:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

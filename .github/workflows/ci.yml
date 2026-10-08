@@ -1,0 +1,51 @@
+# What every push and pull request must pass, from a clean clone: lint, types and tests
+# (`make verify`), then the public site (`make site`). A clean clone has no packs-private/,
+# so a personal-use pack can never reach the public build: the build fails if anything
+# still loads one, and the last step looks for one in dist/ anyway.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        # The oldest Node the README asks for, and the one releases build with.
+        node: [22, 26]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: No personal-use packs in this checkout
+        run: test ! -e packs-private
+      - run: make verify
+      - run: make site
+      - name: No personal-use pack in the public site
+        # The licence line of the private Kal-Arath pack: it must never be in dist/.
+        run: |
+          if grep -rIl "Permiso de copia para uso personal" dist; then
+            echo "A personal-use pack reached dist/" >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: matrix.node == 26
+        with:
+          name: site
+          path: dist/
+          retention-days: 7

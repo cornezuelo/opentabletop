@@ -158,6 +158,7 @@ FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
 - Tests are mandatory in every headless package, with deterministic RNG. Snapshots never replace meaningful asserts.
 - One commit per phase or feature, with a descriptive message.
+- What a user would notice (apps, packs, formats, fixes) gets a line under **Unreleased** in [`CHANGELOG.md`](CHANGELOG.md) in the same commit; releases follow [`docs/RELEASING.md`](docs/RELEASING.md).
 
 ## Backlog
 
