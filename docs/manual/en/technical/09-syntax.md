@@ -139,13 +139,14 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | `time: 120`                                      | 120 minutes pass                             |
 | `time: dawn`, `time: nightfall`, `time: '14:00'` | until then                                   |
 | `speed: 0.5`                                     | the rest of today's march at half speed      |
+| `overtime: 240`                                  | march 240 minutes more today, past nightfall |
 | `effects: { party.stats.fatigue: -1 }`           | changes the party                            |
 | `set: { lost: true }`                            | gives a value of the day                     |
 | `do: forage`                                     | takes another action, if its conditions hold |
 | `roll: ENCOUNTER_CHECK_REQUIRED`                 | rolls a check now                            |
 | `{ unless: { below: food }, effects: { … } }`    | only when its condition holds                |
 
-Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true` and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 

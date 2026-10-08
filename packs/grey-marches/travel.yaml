@@ -101,22 +101,25 @@ actions:
       # A night watch kept by a party in low spirits: nobody really sleeps.
       - { when: { party.stats.morale: { lte: 1 } }, effects: { party.stats.fatigue: 1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat),
-  # only with something to eat and before exhaustion: the button is off otherwise.
+  # only by day (daylight: the night is for camping), with something to eat and before
+  # exhaustion: the button is off otherwise.
   rest:
     name: Rest
-    description: Two hours without marching; takes off 1 fatigue. Only with food left and fatigue under 10.
-    when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
+    description: Two hours without marching; takes off 1 fatigue. Only by day, with food left and fatigue under 10.
+    when: { daylight: true, party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
     do:
       - { time: 120 }
       - { effects: { party.stats.fatigue: -1 } }
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: forage) is rolled where the party stands.
   # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
-  # Not in a storm: `unless` reads today's values (and the map, the party…).
+  # Only by day, and not in a storm: `when` / `unless` read the moment and today's values
+  # (and the map, the party…).
   forage:
     name: Forage for food
-    description: 'Three hours looking for food (once a day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find. Not in a storm.'
+    description: 'Three hours looking for food (once a day, by day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find. Not in a storm.'
     nothing: 'nothing to forage on {terrain}: only woods, fields, heath and marsh give food'
+    when: { daylight: true }
     unless: { weather: storm }
     do:
       - { time: 180 }
@@ -135,20 +138,22 @@ actions:
       # If the food ran out (it hit its minimum), the day is remembered as hungry.
       - { when: { below: food }, set: { hungry: true } }
   # Pushing on: half as fast again for the rest of the day, at the cost of fatigue; only
-  # while the party is fresh enough (a condition on a stat), once a day.
+  # by day, while the party is fresh enough (a condition on a stat), once a day.
   forced-march:
     name: Forced march
-    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only with fatigue under 2, once a day.'
-    when: { party.stats.fatigue: { lt: 2 } }
+    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only by day, with fatigue under 2, once a day.'
+    when: { daylight: true, party.stats.fatigue: { lt: 2 } }
     oncePerDay: true
     do:
       - { speed: 1.5 }
       - { effects: { party.stats.fatigue: 1 } }
-  # At a shrine (a tag of the hex) under the full Ember Moon (the calendar): a rite.
+  # At a shrine (a tag of the hex) under the full Ember Moon (the calendar): a rite. Its
+  # button only shows then (hideWhenUnavailable), day or night.
   rite:
     name: Rite of the Ember Moon
     description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2 and fatigue gone.'
     when: { all: [{ tags: shrine }, { moons.ember: full }] }
+    hideWhenUnavailable: true
     oncePerDay: true
     do:
       - { time: 120 }
@@ -167,10 +172,25 @@ actions:
     name: Talk to the hirelings
     description: 'An hour of talk. With morale 3 or more they march again; otherwise one of them walks off, and the rest follow you grudgingly.'
     when: { refusing: true }
+    hideWhenUnavailable: true
     do:
       - { time: 60 }
       - { unless: { party.stats.morale: { gte: 3 } }, effects: { party.stats.hirelings: -1 } }
       - { set: { refusing: false } }
+  # Marching on in the dark instead of camping: up to four hours more today (overtime: past
+  # nightfall and the day's marching hours), at the cost of fatigue; each hex entered in the
+  # dark rolls to get lost, and night encounters (the checks below, `daylight: false`).
+  # Only after nightfall, so its button only shows then.
+  night-march:
+    name: Night march
+    description: 'After nightfall, march on by torchlight: up to 4 more hours today, but +1 fatigue; each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
+    when: { daylight: false, party.stats.fatigue: { lt: 4 } }
+    unless: { weather: storm }
+    hideWhenUnavailable: true
+    oncePerDay: true
+    do:
+      - { overtime: 240 }
+      - { effects: { party.stats.fatigue: 1 } }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED
@@ -186,13 +206,14 @@ checks:
   # Encounters where the map says there is danger (a hex field), never on the road; also
   # when resting somewhere dangerous enough. Two moments (at: a list), told apart by
   # `moment` in the condition.
+  # By day only (daylight): marching in the dark brings the night encounter below.
   - event: ENCOUNTER_CHECK_REQUIRED
     name: Encounter
-    description: Entering a hex with danger (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
+    description: Entering a hex with danger by day (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
     at: [hex-enter, rest]
     when:
       any:
-        - { moment: hex-enter, danger: { gte: 1 } }
+        - { moment: hex-enter, daylight: true, danger: { gte: 1 } }
         - { moment: rest, danger: { gte: 3 } }
     unless: { edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
@@ -222,11 +243,25 @@ checks:
     at: hex-enter
     when: { tags: landmark }
     pause: true
+  # The night's encounters: in camp, or marching in the dark (a night march) off the road.
   - event: CAMP_ENCOUNTER_CHECK_REQUIRED
     name: Night encounter
-    description: Camping where danger is 2 or more.
-    at: camp
-    when: { danger: { gte: 2 } }
+    description: Camping where danger is 2 or more, or entering a hex with danger in the dark, off the road.
+    at: [camp, hex-enter]
+    when:
+      any:
+        - { moment: camp, danger: { gte: 2 } }
+        - all:
+            - { moment: hex-enter, daylight: false, danger: { gte: 1 } }
+            - { not: { edges: road } }
+  # Marching in the dark (a night march), off the road: each hex entered may get you lost,
+  # rolled on the same table as at dawn (it sees `daylight: false`).
+  - event: NIGHT_NAVIGATION_CHECK_REQUIRED
+    name: Lost in the dark
+    description: Each hex entered after nightfall, off the road. The dark makes it easy to lose your way.
+    at: hex-enter
+    when: { daylight: false }
+    unless: { edges: road }
   # Conditions on the party: a day ending with no food left (party.resources.food), when
   # the party can't camp either (camp needs food): the night out in the open, hungry.
   - event: HUNGER_CHECK_REQUIRED
@@ -331,6 +366,7 @@ on:
   # Weather with inertia: a model (sky.yaml) instead of a table.
   WEATHER_CHECK_REQUIRED: { weather: sky }
   NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }
+  NIGHT_NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }
   # One encounter table for day and night: the context says which.
   ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: day } }
   CAMP_ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: night } }

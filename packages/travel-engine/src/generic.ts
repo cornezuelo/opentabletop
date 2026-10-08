@@ -62,11 +62,12 @@ export const genericTravelRules: TravelRules = {
   checks: [],
   // No values of the day: nothing here blocks travel.
   values: {},
-  // Camp sleeps until dawn; a rest is an hour without marching. As each day ends, whether
-  // the party camped or not, it eats a day of food (an action the system takes by itself).
+  // Camp sleeps until dawn; a rest is an hour without marching, only by day (the night is
+  // for camping). As each day ends, whether the party camped or not, it eats a day of food
+  // (an action the system takes by itself).
   actions: {
     camp: { do: [{ time: 'dawn' }] },
-    rest: { do: [{ time: 60 }] },
+    rest: { when: { daylight: true }, do: [{ time: 60 }] },
     eat: { on: 'day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
   },
 }

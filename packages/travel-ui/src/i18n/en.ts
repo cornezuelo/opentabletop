@@ -37,6 +37,7 @@ export const en = {
   tips: {
     actionTime: 'Takes {minutes} minutes.',
     actionSpeed: 'The rest of today’s march goes at ×{speed}.',
+    actionOvertime: 'Today’s march may go on {time} longer, past nightfall.',
     actionEffects: 'Changes: {changes}.',
     actionOnce: 'Once a day.',
     readAs: 'Tables read it as {keys}.',

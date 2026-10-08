@@ -209,8 +209,11 @@ Blocked buttons stay visible, disabled, and say why with the value's name ("Lost
 When the button can be pressed:
 
 - `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { weather: storm }` and camp only `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
+- `daylight` in those conditions: `true` between the system's dawn and nightfall (`day.start`, `day.nightfall`), `false` the rest of the night. The Grey Marches rest, forage and force the march only `when: { daylight: true }`, so the night can't be skipped resting, and their night march is only `when: { daylight: false }`.
 - `oncePerDay: true`: once a day.
 - A value of the day that `blocks` it (above).
+
+A button that can't be pressed stays visible, disabled, saying why, so the buttons don't move around. `hideWhenUnavailable: true` hides it instead while it can't be taken: for actions that only make sense now and then, like the Grey Marches' rite (at a shrine under the full Ember Moon), talking round the hirelings (only while they refuse) or the night march (only after nightfall).
 
 **Actions the system takes by itself.** With `on:` an action isn't a button: the system takes it at that moment, when its `when` / `unless` hold. The moments are `day-start` (at dawn), `hex-enter` (entering each hex), `day-end` (as each day ends, camping or not) or another action's id (right after that action starts: `on: camp`), or several as a list (`on: [day-start, hex-enter]`). It comes before that moment's checks, so they see what it changed; its conditions see which moment it is as `moment`, and at `day-end` the action under way as `doing` (`doing: camp`).
 
@@ -229,6 +232,7 @@ actions:
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `time: 180`                           | Three hours pass. `time: dawn`, `time: nightfall` or `time: '14:00'`: until the next one. Every day that ends on the way ends with its `day-end` actions and checks.     |
 | `speed: 0.5`                          | The rest of today's march goes at half speed (`1.5`: faster).                                                                                                            |
+| `overtime: 240`                       | Today's march may go on 240 minutes longer: past nightfall and the day's marching hours, never past midnight (the Grey Marches' night march).                            |
 | `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see its id in `below` / `above`.                           |
 | `set: { lost: true }`                 | Sets values of the day the system declares (`values`).                                                                                                                   |
 | `do: forage`                          | Takes another action, if its conditions hold (otherwise nothing happens).                                                                                                |

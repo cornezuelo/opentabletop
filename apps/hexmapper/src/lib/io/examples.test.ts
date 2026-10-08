@@ -1,7 +1,8 @@
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
-import { seeded } from '@open-tabletop/random'
+import { seeded, sequence } from '@open-tabletop/random'
 import { validateBundle } from '@open-tabletop/schema'
 import {
+  calendarOf,
   startTrip,
   stepTrip,
   travelSystems,
@@ -164,6 +165,7 @@ describe('example maps', () => {
     expect(tripAvailability({ system, world }, session)).toEqual({
       'mode.boat': { condition: 'when' }, // Ashford is inland
       'forced-march': { condition: 'when' }, // fatigue 2
+      'night-march': { condition: 'when' }, // by day
       rite: { condition: 'when' }, // no shrine here
       grumble: { condition: 'when' }, // nobody went hungry
       parley: { condition: 'when' }, // nobody refuses
@@ -196,6 +198,54 @@ describe('example maps', () => {
     expect(foraged.state.travel.speedToday).toBe(0.5)
     const again = stepTrip(options, foraged.state, { type: 'action', id: 'forage' })
     expect(again.entries).toEqual([])
+  })
+
+  it('the Grey Marches: by night the party camps, or marches on in the dark', () => {
+    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const options = {
+      system,
+      world: mapWorld(map),
+      oracle: createOracleEngine({ registry, random: seeded('night') }),
+      locale: 'en',
+    }
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    const nightfall = calendarOf(system).at(session.travel.day, '20:00')
+    const night = { ...session, travel: { ...session.travel, time: nightfall } }
+    // By day the night march isn't there (hidden, unavailable); at nightfall, resting,
+    // foraging and the forced march are off (daylight), and the night march is on.
+    expect(tripAvailability({ system, world: options.world }, session)['night-march']).toEqual({
+      condition: 'when',
+    })
+    const dark = tripAvailability({ system, world: options.world }, night)
+    expect(dark.rest).toEqual({ condition: 'when' })
+    expect(dark.forage).toEqual({ condition: 'when' })
+    expect(dark['forced-march']).toEqual({ condition: 'when' })
+    expect(dark['night-march']).toBeUndefined()
+    expect(system.rules.actions?.['night-march']).toMatchObject({ hideWhenUnavailable: true })
+    // At nightfall a travel order goes nowhere; after a night march it goes on, up to
+    // four hours more (never past midnight), at +1 fatigue.
+    const planned = stepTrip(options, night, { type: 'setDestination', hex: '9,7' }).state
+    expect(stepTrip(options, planned, { type: 'travel' }).state.travel.time).toBe(nightfall)
+    const marching = stepTrip(options, planned, { type: 'action', id: 'night-march' }).state
+    expect(marching.stats.fatigue).toBe(session.stats.fatigue + 1)
+    const { state } = stepTrip(options, marching, { type: 'travel', until: 'destination' })
+    expect(state.travel.time).toBeGreaterThan(nightfall)
+    expect(state.travel.time).toBeLessThanOrEqual(
+      calendarOf(system).at(session.travel.day + 1, '00:00'),
+    )
+    // In the dark, getting lost is easier: 1–3 on the same table as at dawn.
+    const lost = createOracleEngine({ registry, random: sequence([0.4]) }).resolve(
+      'grey-marches/getting-lost',
+      { ...tripContext(night, {}), daylight: false },
+    )
+    expect(lost.resolution.text).toBe('Lost in the dark: you stop until dawn')
   })
 
   it('the Grey Marches: the party’s values drive hunger and the inn', () => {

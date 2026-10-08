@@ -306,21 +306,24 @@ export const es: Messages<typeof en> = {
       'Valores que las tablas y acciones de este sistema pueden poner **para el resto del día**, con lo que bloquean mientras se cumplen. Las tablas los leen al día siguiente como `yesterday.<id>`.\n• `lost` — lo pone `set: { lost: true }`, bloquea `travel`\n• `snowed-in` — bloquea `mode.horse`\n• `mutinous` — bloquea `travel` hasta que una acción lo quita (`set: { mutinous: false }`)\nSin ninguno, sigue funcionando el antiguo `lost` integrado (bloquea el viaje).',
     blocks: 'Bloquea',
     blocksHelp:
-      'Lo que no se puede hacer mientras se cumple el valor:\n• `travel` — no se marcha más hoy\n• el id de una acción, p. ej. `camp` o `forage` — su botón se desactiva\n• `mode.<id>`, p. ej. `mode.horse` — esa forma de viajar: no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie\nLa caja sugiere lo que declara este sistema. Los botones bloqueados siguen visibles, desactivados, diciendo por qué.',
+      'Lo que no se puede hacer mientras se cumple el valor:\n• `travel` — no se marcha más hoy\n• el id de una acción, p. ej. `camp` o `forage` — su botón se desactiva\n• `mode.<id>`, p. ej. `mode.horse` — esa forma de viajar: no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie\nLa caja sugiere lo que declara este sistema. Los botones bloqueados siguen visibles, desactivados, diciendo por qué (salvo que la acción esté **Oculta si no se puede hacer**).',
     blocksNothing: 'nada',
   },
   actions: {
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
-      'Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `weather: storm` — el clima de hoy\n• `terrain: [forest, hills]` — el hex donde está el grupo\n• `tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.resources.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `moons.silver: full` — el calendario\nSi no, su botón sale desactivado y dice por qué; la acción de la noche del sistema que no se puede hacer deja pasar la noche sin ella.',
+      'Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `weather: storm` — el clima de hoy\n• `terrain: [forest, hills]` — el hex donde está el grupo\n• `tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.resources.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `moons.silver: full` — el calendario\n• `daylight: true` — solo de día (entre el alba y el anochecer del sistema)\nSi no, su botón sale desactivado y dice por qué (o se oculta, con **Oculta si no se puede hacer**); la acción de la noche del sistema que no se puede hacer deja pasar la noche sin ella.',
+    hide: 'Oculta si no se puede hacer',
+    hideHelp:
+      '**Sin marcar**: su botón siempre está, desactivado (diciendo por qué) mientras no se puede hacer, así los botones no cambian de sitio.\n**Marcada**: su botón solo aparece mientras se puede hacer. Para acciones que solo tienen sentido de vez en cuando:\n• un rito solo en un santuario con luna llena\n• convencer a los porteadores solo mientras se niegan a marchar',
     nothing: 'Cuando no se aplica nada',
     nothingHelp:
       'Lo que dice el diario cuando **no se aplica ninguna de sus comprobaciones** donde está el grupo; `{terrain}` es el terreno del hex.\n• `no hay nada que buscar en {terrain}` → «no hay nada que buscar en Colinas»\nVacío: una frase genérica. Una acción sin comprobaciones no dice nada más.',
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
-      "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
+      "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `overtime: 240` — la marcha de hoy puede durar 4 horas más: pasado el anochecer y las horas de marcha del día (nunca más allá de medianoche)\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
     on: 'Sola en',
     onHelp:
       '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• `day-start` — al alba\n• `hex-enter` — al entrar en cada hex\n• `day-end` — al acabar cada día, se acampe o no\n• el id de una acción, p. ej. `camp` — justo al empezar esa acción\nVarios, separados por comas: `day-start, hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { moment: hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `day-end`\n• los porteadores refunfuñan al alba tras un día de hambre: `day-start` con **Solo si** `yesterday.hungry: true`',
@@ -328,7 +331,7 @@ export const es: Messages<typeof en> = {
     onAfter: 'Tras: {action}',
     step: 'Paso',
     badStep:
-      'Un paso hace una cosa: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <acción> o roll: <comprobación>.',
+      'Un paso hace una cosa: time: 60, speed: 0.5, overtime: 240, effects: { … }, set: { … }, do: <acción> o roll: <comprobación>.',
     stepWhen: 'solo si…',
     up: 'Subir',
     down: 'Bajar',
@@ -359,7 +362,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      'Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), en pares `clave: valor`, como en las tablas:\n• `terrain: forest` — el hex\n• `tags: landmark` — una etiqueta del hex\n• `edges: [road, river]` — el camino o río del paso\n• `danger: { gte: 2 }` — un valor del hex o de su región\n• `season: winter`, `weather: storm` — el momento\n• `party.resources.food: { lt: 1 }` — el grupo\n• `below: food` — la comida llegó hoy a su mínimo (en `day-end`)\n• `moment: rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos',
+      'Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), en pares `clave: valor`, como en las tablas:\n• `terrain: forest` — el hex\n• `tags: landmark` — una etiqueta del hex\n• `edges: [road, river]` — el camino o río del paso\n• `danger: { gte: 2 }` — un valor del hex o de su región\n• `season: winter`, `weather: storm` — el momento\n• `daylight: false` — solo de noche (pasado el anochecer del sistema, antes de su alba)\n• `party.resources.food: { lt: 1 }` — el grupo\n• `below: food` — la comida llegó hoy a su mínimo (en `day-end`)\n• `moment: rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos',
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',

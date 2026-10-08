@@ -209,8 +209,11 @@ Los botones bloqueados siguen visibles, desactivados, y dicen por qué con el no
 Cuándo se puede pulsar el botón:
 
 - `when` / `unless`: condiciones (como las de una tabla) sobre los datos del viaje, los valores de hoy y el grupo. Las Marcas Grises buscan comida `unless: { weather: storm }` y solo acampan `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. Si no se cumplen, el botón se desactiva y dice por qué.
+- `daylight` en esas condiciones: `true` entre el alba y el anochecer del sistema (`day.start`, `day.nightfall`), `false` el resto de la noche. Las Marcas Grises descansan, buscan comida y fuerzan la marcha solo `when: { daylight: true }`, así no se puede saltar la noche descansando, y su marcha nocturna es solo `when: { daylight: false }`.
 - `oncePerDay: true`: una vez al día.
 - Un valor del día que la `blocks` (arriba).
+
+Un botón que no se puede pulsar sigue visible, desactivado, diciendo por qué, así los botones no cambian de sitio. `hideWhenUnavailable: true` lo oculta en cambio mientras no se puede hacer: para acciones que solo tienen sentido de vez en cuando, como el rito de las Marcas Grises (en un santuario con la Luna Ascua llena), convencer a los mercenarios (solo mientras se niegan) o la marcha nocturna (solo pasado el anochecer).
 
 **Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son `day-start` (al alba), `hex-enter` (al entrar en cada hex), `day-end` (al acabar cada día, se acampe o no) u otra acción por su id (justo al empezar esa acción: `on: camp`), o varios en una lista (`on: [day-start, hex-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `moment`, y en `day-end` la acción en curso como `doing` (`doing: camp`).
 
@@ -228,6 +231,7 @@ actions:
 | Paso                                  | Lo que hace                                                                                                                                                                                        |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `time: 180`                           | Pasan tres horas. `time: dawn`, `time: nightfall` o `time: '14:00'`: hasta el siguiente. Cada día que acaba por el camino acaba con sus acciones y comprobaciones de `day-end`.                    |
+| `overtime: 240`                       | La marcha de hoy puede durar 240 minutos más: pasado el anochecer y las horas de marcha del día, nunca más allá de medianoche (la marcha nocturna de las Marcas Grises).                           |
 | `speed: 0.5`                          | El resto de la marcha de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                             |
 | `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes ven su id en `below` / `above`.                          |
 | `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                            |

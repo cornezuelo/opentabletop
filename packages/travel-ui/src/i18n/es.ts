@@ -39,6 +39,7 @@ export const es: Messages<typeof en> = {
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
     actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
+    actionOvertime: 'La marcha de hoy puede durar {time} más, pasado el anochecer.',
     actionEffects: 'Cambia: {changes}.',
     actionOnce: 'Una vez al día.',
     readAs: 'Las tablas lo leen como {keys}.',

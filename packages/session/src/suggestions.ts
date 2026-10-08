@@ -42,6 +42,8 @@ export function contextSuggestions(
   add('water', true, false)
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
+  // Between the system's dawn and nightfall.
+  add('daylight', true, false)
   // What hit its minimum or maximum today (its id), and whether the day ended in camp.
   add('below')
   add('above')

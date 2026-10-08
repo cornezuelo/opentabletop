@@ -55,6 +55,8 @@ const step = z
     unless: condition.optional(),
     time: z.union([z.number().nonnegative(), z.enum(['dawn', 'nightfall']), clock]).optional(),
     speed: z.number().nonnegative().optional(),
+    /** Minutes today's march may go on past nightfall and the day's marching hours. */
+    overtime: z.number().positive().optional(),
     effects: effects.optional(),
     do: z.string().min(1).optional(),
     roll: z.string().min(1).optional(),
@@ -65,13 +67,14 @@ const step = z
   .strict()
   .refine(
     (s) =>
-      [s.time, s.eat, s.speed, s.effects, s.do, s.roll, s.set].filter((x) => x !== undefined)
-        .length === 1,
-    'a step does one thing: time, speed, effects, do, roll or set',
+      [s.time, s.eat, s.speed, s.overtime, s.effects, s.do, s.roll, s.set].filter(
+        (x) => x !== undefined,
+      ).length === 1,
+    'a step does one thing: time, speed, overtime, effects, do, roll or set',
   )
 
 /** What a step does: the one key it has besides `when` / `unless`. */
-export const STEP_KINDS = ['time', 'speed', 'effects', 'do', 'roll', 'set'] as const
+export const STEP_KINDS = ['time', 'speed', 'overtime', 'effects', 'do', 'roll', 'set'] as const
 
 /**
  * An action of the party (`actions.forage`, and camp and rest too): what it does as steps
@@ -111,6 +114,8 @@ const action = z
     effects: effects.optional(),
     /** Only once a day. */
     oncePerDay: z.boolean().optional(),
+    /** Its button is hidden while it can't be taken (instead of shown disabled). */
+    hideWhenUnavailable: z.boolean().optional(),
   })
   .strict()
 

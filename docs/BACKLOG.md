@@ -46,6 +46,8 @@ The alpha is the four apps (Hexmapper, Oracle, Travel, Manual) published as a st
 
 - [x] ✅ **Pack format** (user, 2026-10-09: once others write packs, changing what syntax means would break them; done 2026-10-09: `format` in `pack.yaml` (absent: 1), `PACK_FORMAT` = 2 in oracle-engine, a warning for packs of a newer format; format 1's tableless checks are read as `pause: true` (`migrateRules` in session), and the Systems app's Checks tab offers **Update** (writes them and `format: 2`, one undo step); our packs and every new pack are format 2; File formats en/es has the table of formats; directive in CLAUDE.md).
 
+- [x] ✅ **Day and night, and hidden actions** (user, 2026-10-09: resting two hours again and again skipped the Grey Marches' night, as foraging or a forced march could; decided: those only by day, plus a night march that pays for going on in the dark; situational buttons hide, basic ones stay disabled so they don't move; done 2026-10-09: `daylight` for conditions and tables, the `overtime` step, `hideWhenUnavailable` on actions (Systems: **Hidden when it can't be taken**); the Grey Marches' rest / forage / forced march by day, **Night march** with **Lost in the dark** and night encounters, rite / parley / night march hidden; Generic rest and Kal-Arath forage by day; manual en/es, deep test on the example map).
+
 Right after the alpha (reordered with the user 2026-10-08), in order:
 
 - [x] ✅ Hexmapper: the planned route drawn beside the roads it follows (see Hexmapper → Pending).

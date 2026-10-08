@@ -262,6 +262,20 @@
           />
           {t('rules.oncePerDay')}
         </label>
+        <label class="inline">
+          <input
+            type="checkbox"
+            checked={d.hideWhenUnavailable === true}
+            {disabled}
+            onchange={(e) =>
+              doc.edit(
+                'travel-rules',
+                ['actions', id, 'hideWhenUnavailable'],
+                e.currentTarget.checked || undefined,
+              )}
+          />
+          <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
+        </label>
       </div>
       <label>
         <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>

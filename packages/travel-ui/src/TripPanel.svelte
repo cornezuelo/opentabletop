@@ -126,7 +126,12 @@
   const actions = $derived(availableActions(system.rules))
   const bounds = $derived(resourceBounds(system.rules))
   /** The buttons: every action but those the system takes by itself (`on:`). */
-  const buttons = $derived(Object.keys(actions.all).filter((id) => !actions.all[id].on))
+  /** The player's actions; one that hides while it can't be taken only shows when it can. */
+  const buttons = $derived(
+    Object.keys(actions.all).filter(
+      (id) => !actions.all[id].on && !(actions.all[id].hideWhenUnavailable && blocked[id]),
+    ),
+  )
   /** An action's button: its name, and how long it lasts when that's fixed ("Rest (2 h)"). */
   const buttonText = (id: string) => {
     const minutes = actionMinutes(actions.all[id])
@@ -222,6 +227,7 @@
     const until = always.find((st) => st.time === 'dawn' || st.time === 'nightfall')?.time as
       'dawn' | 'nightfall' | undefined
     const speed = always.find((st) => st.speed !== undefined)?.speed
+    const overtime = always.reduce((n, st) => n + (st.overtime ?? 0), 0)
     const effects = Object.assign({}, ...always.map((st) => st.effects ?? {}))
     const rolls = [
       ...new Set(
@@ -235,6 +241,7 @@
       !fallback && minutes ? t('tips.actionTime', { minutes }) : '',
       !fallback && until ? t('tips.actionUntil', { moment: t(`tips.${until}`) }) : '',
       speed !== undefined ? t('tips.actionSpeed', { speed }) : '',
+      overtime ? t('tips.actionOvertime', { time: durationText(overtime) }) : '',
       changes({ effects }) ? t('tips.actionEffects', { changes: changes({ effects }) }) : '',
       own.oncePerDay ? t('tips.actionOnce') : '',
       rolls.length ? t('tips.actionChecks', { checks: rolls.join(', ') }) : '',

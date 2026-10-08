@@ -97,6 +97,11 @@ export interface TravelState {
   lostToday?: boolean
   lostYesterday?: boolean
   speedToday?: number
+  /**
+   * Minutes today's march may go on past nightfall and the day's marching hours
+   * (`overtime` steps; never past midnight).
+   */
+  overtimeToday?: number
   /** The system's own actions done today (for `oncePerDay`). */
   actionsToday?: string[]
   pendingChecks: PendingCheck[]
@@ -310,6 +315,12 @@ export function createTravelEngine(options: {
       ([id, v]) => v.blocks?.includes(what) && holds(state.today?.[id]),
     )?.[0]
 
+  /** Whether it's day: between the system's dawn and nightfall of the day it is. */
+  const isDaylight = (time: GameTime): boolean => {
+    const { day } = calendar.describe(time)
+    return time >= calendar.at(day, rules.day.start) && time < calendar.at(day, rules.day.nightfall)
+  }
+
   /**
    * What a way of travelling's "only through" and a terrain's `passable` see when stepping
    * from `a` into `b`: the hex entered (everything the map knows of it), the roads or rivers
@@ -331,6 +342,7 @@ export function createTravelEngine(options: {
       edges: world.edges(a, b),
       mode: state.mode,
       weather: state.weather,
+      daylight: isDaylight(state.time),
     }
   }
 
@@ -426,6 +438,7 @@ export function createTravelEngine(options: {
       mode: state.mode,
       season: calendar.describe(state.time).season,
       day: state.day,
+      daylight: isDaylight(state.time),
       // The day before's values (the host's, then the declared ones).
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
       // What hit a bound today; `short` is how older rules read "something hit its minimum".
@@ -512,6 +525,7 @@ export function createTravelEngine(options: {
         delete state.today
         delete state.reached
         state.speedToday = undefined
+        delete state.overtimeToday
         delete state.actionsToday
       }
       events.push({ type: 'DAY_STARTED', day: state.day })
@@ -562,8 +576,13 @@ export function createTravelEngine(options: {
         events.push({ type: 'ROUTE_BLOCKED', from: state.location, to: next })
         return stop('blocked')
       }
-      const untilNight = nightfall - state.time
-      const untilLimit = dayMinutes - state.travelledToday
+      // Overtime (a night march…) moves both on, never past midnight.
+      const extra = state.overtimeToday ?? 0
+      const lastMinute = extra
+        ? Math.min(nightfall + extra, calendar.at(state.day + 1, '00:00'))
+        : nightfall
+      const untilNight = lastMinute - state.time
+      const untilLimit = dayMinutes + extra - state.travelledToday
       if (state.time >= by) return stop('waited')
       const available = Math.min(untilNight, untilLimit, by - state.time)
       if (available <= 0) return stop(untilNight <= untilLimit ? 'nightfall' : 'day-limit')
@@ -915,6 +934,8 @@ export function createTravelEngine(options: {
         state.time = Math.max(state.time, timeOf(state, step.time))
         syncDay(state, events)
       } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
+      else if (step.overtime !== undefined)
+        state.overtimeToday = (state.overtimeToday ?? 0) + step.overtime
       else if (step.effects) applyEffects(state, id, step.effects, events)
       else if (step.do !== undefined)
         takeAction(state, step.do, events, { facts: options.facts, quiet: true, depth: depth + 1 })
