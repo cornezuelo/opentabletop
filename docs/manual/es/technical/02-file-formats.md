@@ -27,7 +27,7 @@ attribution: 'Basado en … de …'
 dependencies: { core: ^0.1.0 } # packs cuyas tablas usa el tuyo
 ```
 
-Un fichero contiene una definición, varias separadas por `---`, o una lista. Cada definición tiene un `kind`: `table`, `oracle`, `generator`, `deck` y, para los viajes del Hexmapper, `travel-rules` y `bindings`. Sus campos están en [Referencia YAML](../oracle/06-yaml.md), [Dados, plantillas y contexto](../oracle/08-dice-and-templates.md) y [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
+Un fichero contiene una definición, varias separadas por `---`, o una lista. Cada definición tiene un `kind`: `table`, `oracle`, `generator`, `deck`, `roll-modes` y, para los viajes, `travel-rules`, `bindings`, `calendar` y `weather` (cada uno, con un ejemplo entero: [Tipos de definición](07-kinds.md); toda la sintaxis: [Sintaxis](09-syntax.md)). Sus campos se explican también en [Referencia YAML](../oracle/06-yaml.md), [Dados, plantillas y contexto](../oracle/08-dice-and-templates.md) y [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
 Las reglas exactas (qué campos, qué valores) están definidas en el código, en `packages/oracle-engine/src/definitions/schema.ts` y `packages/travel-engine/src/rules.ts`; las aplicaciones comprueban cada fichero contra ellas al cargarlo e indican los problemas con su línea.
 

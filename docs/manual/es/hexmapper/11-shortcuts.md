@@ -12,6 +12,7 @@
 | <kbd>K</kbd>                                                                 | Tokens                                                |
 | <kbd>P</kbd>                                                                 | Jugar                                                 |
 | <kbd>O</kbd>                                                                 | Panel de Oracle                                       |
+| <kbd>?</kbd>                                                                 | Ayuda y manual                                        |
 | <kbd>F</kbd>                                                                 | Encuadrar el mapa                                     |
 | <kbd>Espacio</kbd> + arrastrar, botón central                                | Desplazar                                             |
 | Rueda                                                                        | Zoom                                                  |

@@ -13,4 +13,4 @@
 
 Core has no travel system on purpose: trips without a pack use the **Generic** rules built into the apps, and a full travel system lives in its own pack. The Generic rules are the smallest example of one: camp sleeps until dawn, a rest is an hour, and **Eat** is an action the system takes by itself as each day ends (`on: day-end`), using 1 food, which never goes below 0 (`min: 0`); a lake is crossed on the ice in winter, `passable: { when: { season: winter } }`. For one that uses everything, see [The Grey Marches](02-grey-marches.md).
 
-To change Core, make a copy (**Edit a copy** in the Oracle app): your copy replaces the bundled one in your browser, so new versions of Core won't reach you until you delete it.
+To change Core, make a copy (**Edit a copy** in the Oracle app): your copy replaces the bundled one in your browser. When a new version changes Core, your copy is marked **update** and lets you take or keep each change (see [Updates of bundled packs](../oracle/03-packs.md#where-packs-come-from)).

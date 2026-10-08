@@ -381,5 +381,6 @@ El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que 
 ## 8. Probarlo
 
 1. En la aplicación Oracle, tira cada tabla escribiendo valores en **Contexto** (terreno, estación…) para comprobar los resultados.
-2. Sirve las dos aplicaciones desde el mismo sitio (`make serve`), abre el Hexmapper, Jugar → **Con reglas**, elige tu pack como reglas, coloca al grupo y viaja: el diario muestra cada comprobación y su resultado.
-3. Los problemas de las reglas de viaje o de los bindings aparecen en la página del pack, como los de cualquier otra definición.
+2. En la aplicación Travel, elige tu sistema y abre **Jugar**: monta un camino corto con los terrenos y etiquetas que buscan tus comprobaciones, y viaja. El diario muestra cada comprobación y su resultado.
+3. En un mapa: en el Hexmapper, Jugar → **Con reglas**, elige tu pack como reglas, coloca al grupo y viaja.
+4. Los problemas de las reglas de viaje o de los bindings aparecen en la página del pack, como los de cualquier otra definición.

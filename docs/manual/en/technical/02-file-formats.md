@@ -27,7 +27,7 @@ attribution: 'Based on … by …'
 dependencies: { core: ^0.1.0 } # packs whose tables yours uses
 ```
 
-A file holds one definition, several separated by `---`, or a list. Each definition has a `kind`: `table`, `oracle`, `generator`, `deck`, and for the Hexmapper's trips `travel-rules` and `bindings`. Their fields are in [YAML reference](../oracle/06-yaml.md), [Dice, templates and context](../oracle/08-dice-and-templates.md) and [Connecting tables to maps and trips](../oracle/07-connecting.md).
+A file holds one definition, several separated by `---`, or a list. Each definition has a `kind`: `table`, `oracle`, `generator`, `deck`, `roll-modes`, and for trips `travel-rules`, `bindings`, `calendar` and `weather` (each one, with a whole example: [Kinds of definition](07-kinds.md); every piece of syntax: [Syntax](09-syntax.md)). Their fields are also explained in [YAML reference](../oracle/06-yaml.md), [Dice, templates and context](../oracle/08-dice-and-templates.md) and [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
 The exact rules (which fields, which values) are defined in code, in `packages/oracle-engine/src/definitions/schema.ts` and `packages/travel-engine/src/rules.ts`; the apps check every file against them when it loads and report problems with their line.
 

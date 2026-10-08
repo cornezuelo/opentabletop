@@ -32,7 +32,7 @@ It **stops early**, and the clock with it, when something needs you, and **a mes
 
 A camp lasts till dawn even if you asked for less: **+1 hour** at 19:30 crosses nightfall, so the party camps and the clock ends at dawn.
 
-Example with the Grey Marches: start the clock, place the party in Ashford (0608) and click 0808 in Play to plan the way there; then press **Next day**: it asks, the weather and getting-lost checks are rolled at dawn, the party marches along the road, camps at nightfall (eating a day's food, a fed night takes off 1 fatigue, the night encounter is rolled) and the clock ends at the next dawn, a day further on. Clear the route (click the party's own hex) and **Next day** waits in place instead.
+Example with the Grey Marches: start the clock, place the party in Ashford (0608) and click 0808 in Play to plan the way there; then press **Next day**: it asks, the weather and getting-lost checks are rolled at dawn, the party marches along the road, camps at nightfall (eating a day's food, a fed night takes off 1 fatigue, the night encounter is rolled where danger is 2 or more) and the clock ends at the next dawn, a day further on. Clear the route (click the party's own hex) and **Next day** waits in place instead.
 
 ## Events
 

@@ -375,5 +375,6 @@ The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go o
 ## 8. Trying it
 
 1. In the Oracle app, roll each table with values typed in **Context** (terrain, season…) to check the results.
-2. Serve both apps from the same site (`make serve`), open the Hexmapper, Play → **With rules**, pick your pack as the rules, place the party and travel: the journal shows each check and its result.
-3. Problems in the travel rules or bindings appear in the pack page, like any other.
+2. In the Travel app, pick your system and open **Play**: build a short way with the terrains and tags your checks look for, and travel. The journal shows each check and its result.
+3. On a map: in the Hexmapper, Play → **With rules**, pick your pack as the rules, place the party and travel.
+4. Problems in the travel rules or bindings appear in the pack page, like any other.

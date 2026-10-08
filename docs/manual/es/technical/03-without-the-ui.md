@@ -38,4 +38,4 @@ Un mapa `.otd.json` se puede editar con un editor de texto: renombrar hexes en b
 
 ## Comandos útiles
 
-Desde la carpeta del proyecto: `make` los lista todos. Los principales: `make dev` (Hexmapper con recarga en vivo), `make dev-oracle`, `make dev-manual`, `make serve` (todas las aplicaciones en un sitio), `make verify` (formato, tipos y tests).
+Desde la carpeta del proyecto: `make` los lista todos. Los principales: `make dev` (Hexmapper con recarga en vivo), `make dev-oracle`, `make dev-travel`, `make dev-manual`, `make dev-all` (todas), `make serve` (todas las aplicaciones en un sitio), `make verify` (formato, tipos y tests).

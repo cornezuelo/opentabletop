@@ -38,4 +38,4 @@ An `.otd.json` map can be edited with a text editor — renaming hexes in bulk, 
 
 ## Useful commands
 
-From the project folder: `make` lists everything. The main ones: `make dev` (Hexmapper with live reload), `make dev-oracle`, `make dev-manual`, `make serve` (every app on one site), `make verify` (formatting, types and tests).
+From the project folder: `make` lists everything. The main ones: `make dev` (Hexmapper with live reload), `make dev-oracle`, `make dev-travel`, `make dev-manual`, `make dev-all` (all of them), `make serve` (every app on one site), `make verify` (formatting, types and tests).

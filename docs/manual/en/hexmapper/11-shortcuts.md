@@ -12,6 +12,7 @@
 | <kbd>K</kbd>                                                                 | Tokens                                            |
 | <kbd>P</kbd>                                                                 | Play                                              |
 | <kbd>O</kbd>                                                                 | Oracle panel                                      |
+| <kbd>?</kbd>                                                                 | Help and manual                                   |
 | <kbd>F</kbd>                                                                 | Fit the map                                       |
 | <kbd>Space</kbd> + drag, middle button                                       | Pan                                               |
 | Wheel                                                                        | Zoom                                              |
