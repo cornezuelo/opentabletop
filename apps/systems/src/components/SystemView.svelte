@@ -113,8 +113,10 @@
     font-weight: normal;
   }
 
+  /* Wraps instead of pushing the view wider than its column (the help column open). */
   .tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     margin-top: 12px;
     border-bottom: 1px solid var(--panel-border);
@@ -122,6 +124,7 @@
 
   .tabs button {
     padding: 6px 14px;
+    white-space: nowrap;
     color: var(--text-muted);
     background: none;
     border: none;

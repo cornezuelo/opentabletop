@@ -17,6 +17,9 @@
       manifestOf(library.pack(root) ?? { root, origin: 'user', files: [] }).id,
     ),
   )
+  /** A file's name on its tab; with its pack when another pack has a file of that name. */
+  const label = (f: { root: string; path: string }) =>
+    files.filter((g) => g.path === f.path).length > 1 ? `${f.root}/${f.path}` : f.path
   const content = $derived(library.readFile(root, path) ?? '')
   const editable = $derived(library.isEditable(root))
   const problems = $derived(
@@ -36,7 +39,7 @@
           role="tab"
           aria-selected={i === chosen}
           class:active={i === chosen}
-          onclick={() => (chosen = i)}>{f.path}</button
+          onclick={() => (chosen = i)}>{label(f)}</button
         >
       {/each}
     </div>

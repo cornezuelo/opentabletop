@@ -47,7 +47,7 @@ export const es: Messages<typeof en> = {
       'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
     marched:
-      'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda un hex depende de la escala del mundo (km por hex), el terreno, el camino y la forma de viajar.\n• 24 km al día a pie en 8 h, hexes de 12 km: 4 h por hex a campo abierto, 8 h en un bosque (× 0.5)\n• por camino (× 1.5): menos de 3 h por hex',
+      'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda un hex depende de la escala del mundo (km por hex), el terreno, el camino y la forma de viajar, según los fije el sistema. Por ejemplo, si una forma de viajar hace 24 km en 8 h y los hexes son de 12 km:\n• campo abierto (× 1): 4 h por hex\n• un terreno a × 0.5: 8 h por hex\n• un camino a × 1.5: menos de 3 h por hex',
     resource:
       'Provisiones: qué las gasta depende del sistema (sus acciones, como comer al final de cada día, sus comprobaciones y tablas). Ajusta la cantidad al comprar, encontrar o gastar.',
     min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',
@@ -55,7 +55,7 @@ export const es: Messages<typeof en> = {
     travel:
       'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
     waitDawn:
-      'El tiempo pasa donde está el grupo hasta el próximo alba, viviéndolo: la acción del sistema para la noche si se puede hacer (si no, la noche pasa sin ella) y el final del día. Para cuando no se puede hacer nada más: perdidos, con tormenta, sin comida para acampar.',
+      'El tiempo pasa donde está el grupo hasta el próximo alba, viviéndolo: la acción del sistema para la noche si se puede hacer (si no, la noche pasa sin ella) y el final del día. Para cuando no se puede hacer nada más: cuando lo que el sistema fijó para el día bloquea la marcha y sus acciones.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
     actionUntil: 'Dura hasta {moment}.',
     dawn: 'el alba',
@@ -143,7 +143,7 @@ export const es: Messages<typeof en> = {
     numberHelp:
       'Los hexes en orden: el grupo empieza en el 1 y va hacia el último. Los hexes ya recorridos no se pueden cambiar; añade más al final para seguir.',
     terrainHelp:
-      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — a la mitad en la mayoría de sistemas; `terrain: forest` en una condición\n• `lake` — agua: solo en barca, salvo helado',
+      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — las tablas y condiciones leen `terrain: forest`\nSu velocidad, y si se puede cruzar, son cosa del sistema: lo dicen sus reglas de viaje.',
     tagsHelp:
       'Palabras que marcan el hex, separadas por comas, para las comprobaciones y tablas que las buscan:\n• `landmark` — `tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
     edgesHelp:

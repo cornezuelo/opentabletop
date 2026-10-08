@@ -44,7 +44,7 @@ export const en = {
       'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
     marched:
-      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain, the road and the way of travelling.\n• 24 km a day on foot over 8 h, 12 km hexes: 4 h a hex on open ground, 8 h in a forest (× 0.5)\n• by road (× 1.5): under 3 h a hex',
+      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain, the road and the way of travelling, as the system sets them. For example, if a way of travelling makes 24 km in 8 h and hexes are 12 km:\n• open ground (× 1): 4 h a hex\n• a terrain at × 0.5: 8 h a hex\n• a road at × 1.5: under 3 h a hex',
     resource:
       'Supplies: what uses them depends on the system (its actions, like eating at the end of each day, its checks and tables). Edit the amount when you buy, find or use some.',
     min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',
@@ -52,7 +52,7 @@ export const en = {
     travel:
       'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
     waitDawn:
-      'Time passes where the party is until the next dawn, living it: the system’s action for the night if it can be taken (otherwise the night passes without it), and the end of the day. For when nothing else can be done: lost, in a storm, with no food to camp.',
+      'Time passes where the party is until the next dawn, living it: the system’s action for the night if it can be taken (otherwise the night passes without it), and the end of the day. For when nothing else can be done: when what the system set for the day blocks marching and its actions.',
     travelHex: 'Travel to the next hex of the route only.',
     actionUntil: 'Lasts until {moment}.',
     dawn: 'dawn',
@@ -142,7 +142,7 @@ export const en = {
     numberHelp:
       "The hexes in order: the party starts at 1 and heads for the last one. Hexes already passed can't be changed; add more at the end to keep going.",
     terrainHelp:
-      "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — half speed in most systems; `terrain: forest` in a condition\n• `lake` — water: only a boat, unless frozen",
+      "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
     tagsHelp:
       'Words that mark the hex, separated by commas, for the checks and tables that look for them:\n• `landmark` — `tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
     edgesHelp:

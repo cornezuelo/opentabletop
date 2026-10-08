@@ -86,12 +86,12 @@ export const es: Messages = {
     system: vocabulary.es.terms.system,
     genericSystem: vocabulary.es.terms.genericSystem,
     systemHelp:
-      'El sistema de juego con el que se juega este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Las Marcas Grises** — el sistema del mapa de ejemplo\n• **Genéricas** — reglas de viaje sencillas, sin tablas propias\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
+      'El sistema de juego con el que se juega este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Genéricas** — reglas de viaje sencillas, sin tablas propias\n• un sistema de un pack — lo que declare ese pack (su página del manual lo cuenta)\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
     systemMissing:
       'El sistema «{system}» no está cargado en este navegador: el mapa se juega con las reglas genéricas.',
     packs: 'Packs',
     packsHelp:
-      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añadas. Su panel del Oracle solo muestra estos.\n• el sistema **Las Marcas Grises** trae **Core** y **Las Marcas Grises**; añade **Core** al sistema genérico para tirar sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
+      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añadas. Su panel del Oracle solo muestra estos.\n• un sistema que trae dos packs muestra los dos; añade otro pack para tirar también sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
     allPacks: 'Todos los packs cargados',
     fromSystem: 'lo trae el sistema',
     packMissing: 'El pack «{pack}» no está cargado en este navegador.',
@@ -103,7 +103,7 @@ export const es: Messages = {
     orientation: 'Orientación',
     hexKm: 'Escala del mundo (km por hex)',
     hexKmHelp:
-      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje y las provisiones dependen de ello.\n• `10` — un hexcrawl clásico (un día a pie cruza dos o tres)\n• `30` — un día a pie por hex\nNo cambia el dibujo ni la impresión.',
+      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje y las provisiones dependen de ello.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',
@@ -298,7 +298,7 @@ export const es: Messages = {
     color: 'Color',
     water: 'Agua',
     waterHelp:
-      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: no se cruzan a pie en los sistemas incluidos, una barca los navega\n• las tablas ven `water: true` (una condición: `water: true`)',
+      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: si se pueden cruzar, y con qué formas de viajar\n• las tablas ven `water: true` (una condición: `water: true`)',
     delete: 'Borrar terreno',
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',

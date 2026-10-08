@@ -85,12 +85,12 @@ export const en = {
     system: vocabulary.en.terms.system,
     genericSystem: vocabulary.en.terms.genericSystem,
     systemHelp:
-      "The game system this map is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. New trips in **Play** use it; the Oracle panel shows its packs.\n• **The Grey Marches** — the example map's system\n• **Generic** — simple travel rules, no tables of their own\nA trip already going on keeps the system it started with until you start a new one.",
+      "The game system this map is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. New trips in **Play** use it; the Oracle panel shows its packs.\n• **Generic** — simple travel rules, no tables of their own\n• a system from a pack — what that pack declares (its page in the manual says what)\nA trip already going on keeps the system it started with until you start a new one.",
     systemMissing:
       'The system “{system}” is not loaded in this browser: the map plays the generic rules.',
     packs: 'Packs',
     packsHelp:
-      'The packs this map works with: the ones its system brings (always on) and any others you add. Its Oracle panel only shows these.\n• **The Grey Marches** system brings **Core** and **The Grey Marches**; add **Core** to the generic system to roll its oracles\n• **All the loaded packs** — every pack, also ones you add later\nTables can still roll tables of other packs they refer to.',
+      'The packs this map works with: the ones its system brings (always on) and any others you add. Its Oracle panel only shows these.\n• a system that brings two packs shows both; add another pack to roll its oracles too\n• **All the loaded packs** — every pack, also ones you add later\nTables can still roll tables of other packs they refer to.',
     allPacks: 'All the loaded packs',
     fromSystem: 'brought by the system',
     packMissing: 'The pack “{pack}” is not loaded in this browser.',
@@ -102,7 +102,7 @@ export const en = {
     orientation: 'Orientation',
     hexKm: 'World scale (km per hex)',
     hexKmHelp:
-      "How many km a hex measures across, for trips: travel times and supplies depend on it.\n• `10` — a classic hexcrawl (a day on foot crosses two or three)\n• `30` — a day on foot per hex\nIt doesn't change the drawing or printing.",
+      "How many km a hex measures across, for trips: travel times and supplies depend on it.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
     flat: 'Flat top',
     pointy: 'Pointy top',
     coordFormat: 'Coordinates',
@@ -296,7 +296,7 @@ export const en = {
     color: 'Color',
     water: 'Water',
     waterHelp:
-      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the rules' water rule: impassable on foot in the bundled systems, a boat sails them\n• tables see `water: true` (a condition: `water: true`)",
+      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the system's rule for water: whether they can be crossed, and by which ways of travelling\n• tables see `water: true` (a condition: `water: true`)",
     delete: 'Delete terrain',
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',

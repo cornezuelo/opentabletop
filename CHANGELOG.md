@@ -23,6 +23,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Hexmapper: the help opens in **its own column** at the far right, beside the side panel (it used to replace it), as in the other apps: a field and its explanation are seen together, and its examples can be inserted into it.
 - Help column, every app: moving to a field no longer changes what the column shows (only clicking a dotted label, or <kbd>F1</kbd> in a field, does), so an example can be clicked into any field.
 - Oracle: the **?** in the header looks like the other apps' (no button frame).
+- Systems: the tabs wrap when the help column leaves little room, instead of pushing the view (and the YAML editor) wider than its column; the YAML tab names a file's pack when two have the same name.
+- Help texts no longer state what one system decides as if it were general (a forest at half speed, water impassable on foot, a day's march per hex): worked examples are hypotheses, and example names are made up rather than the Grey Marches'.
 - Travel: a new system also writes its `system.yaml`; a pack's file may hold several travel rules, and the forms and the problems list point at the right one.
 - Hexmapper: **a map chooses its system** in **Map settings → Map → System** (the same choice as in Play): its new trips, the World panel's calendar and the Oracle panel use what the system brings. **Packs** are now the ones a map adds to its system's (shown ticked). A trip going on keeps the system it started with, and Play says so when the map's has changed. Maps are migrated (format v14): the system their trip played becomes the map's. In Play and Travel the choice is called **System** (it was **Rules**).
 

@@ -70,8 +70,7 @@ export const es: Messages<typeof en> = {
   },
   calendar: {
     name: 'Nombre',
-    nameHelp:
-      'El nombre del calendario, que se muestra junto a sus fechas.\n• **El cómputo de las Marcas**',
+    nameHelp: 'El nombre del calendario, que se muestra junto a sus fechas.\n• **El cómputo real**',
     startYear: 'Año del día 1',
     startYearHelp: 'El año en el que cae el primer día de juego (por defecto 1).\n• `412`',
     startMonth: 'El día 1 cae en',
@@ -101,7 +100,7 @@ export const es: Messages<typeof en> = {
       'Los días de la semana, en orden; las tablas leen `weekday: restday`. Vacío: sin semana.',
     moons: 'Lunas',
     moonsHelp:
-      'Las lunas y sus fases (nueva, creciente, llena, menguante), que se leen como `moons.<id>: full`.\n• `pale` — 28 días\n• `ember` — 45 días, desfase 20',
+      'Las lunas y sus fases (nueva, creciente, llena, menguante), que se leen como `moons.<id>: full`.\n• `moon` — 28 días\n• `red` — 45 días, desfase 20',
     cycle: 'Ciclo (días)',
     cycleHelp: 'Días de una luna nueva a la siguiente.',
     offset: 'Desfase',
@@ -114,10 +113,10 @@ export const es: Messages<typeof en> = {
   },
   weather: {
     name: 'Nombre',
-    nameHelp: 'El nombre del modelo.\n• **El cielo de las Marcas**',
+    nameHelp: 'El nombre del modelo.\n• **Cielo de montaña**',
     states: 'Tipos de clima',
     statesHelp:
-      'Cada tipo de clima que puede dar el modelo, por su id (lo que las tablas leen como `weather`), con su nombre para el diario y lo que fija para el día:\n• `storm` — **Tormenta: nadie viaja**, fija `fordImpossible: true`\n• `snow` — fija `snowbound: true`, con lo que las reglas de viaje pueden bloquear una forma de viajar',
+      'Cada tipo de clima que puede dar el modelo, por su id (lo que las tablas leen como `weather`), con su nombre para el diario y lo que fija para el día:\n• `storm` — **Tormenta**, fija `stormy: true`\n• `snow` — fija `snowbound: true`, con lo que las reglas de viaje pueden bloquear una forma de viajar',
     stateName: 'Nombre',
     set: 'Fija para el día',
     setHelp:
@@ -159,10 +158,10 @@ export const es: Messages<typeof en> = {
     declare: 'Declararlo',
     name: 'Nombre',
     nameHelp:
-      'El nombre del sistema, como lo muestran todas las aplicaciones (vacío: el nombre del pack).\n• **Las Marcas Grises**\nSe escribe en el idioma actual: el del pack, o su fichero de traducción.',
+      'El nombre del sistema, como lo muestran todas las aplicaciones (vacío: el nombre del pack).\n• **Caminos del desierto**\nSe escribe en el idioma actual: el del pack, o su fichero de traducción.',
     description: 'Descripción',
     descriptionHelp:
-      'Para qué es el sistema, en pocas líneas; se muestra donde se elige. Markdown básico: `**negrita**`, `_cursiva_`, `` `código` ``, listas con `- `.\n• _Una frontera embrujada que se recorre a pie o en carro, con hambre y extravíos._',
+      'Para qué es el sistema, en pocas líneas; se muestra donde se elige. Markdown básico: `**negrita**`, `_cursiva_`, `` `código` ``, listas con `- `.\n• _Un desierto que se cruza en caravana, con el agua escasa y tormentas de arena._',
     parts: 'Sus partes',
     partsHelp:
       'Las definiciones con las que se juega el sistema, cada una por su id: de este pack (`default`) o de una dependencia (`core/default`).\n• **Reglas de viaje** — cómo va un viaje (`kind: travel-rules`); ninguna: las reglas Genéricas\n• **Bindings** — qué tabla responde a cada comprobación, y las características del grupo (`kind: bindings`)\n• **Calendario** — cómo se nombran los días, en los viajes y en el reloj del mundo (`kind: calendar`); ninguno: el de por defecto',
@@ -222,7 +221,7 @@ export const es: Messages<typeof en> = {
   rules: {
     water: 'Hexes de agua',
     waterHelp:
-      'Hexes cuyo terreno el mapa marca como **agua** (Hexmapper: Editar paleta → Agua) y que no tienen regla propia en Terrenos.\nNormalmente **no se cruzan** a pie; una forma de viajar cuyo **Solo por** se cumple en el agua sí puede navegarlos:\n• una barca: `water: true`\n• una barca que además bordea la costa: `any: [{ water: true }, { terrain: coast }]`\nUn terreno listado en Terrenos (un `lake` helado con **Abierto cuando** `season: winter`) usa su propia regla.',
+      'Hexes cuyo terreno el mapa marca como **agua** (Hexmapper: Editar paleta → Agua) y que no tienen regla propia en Terrenos.\nA menudo **no se cruzan**; una forma de viajar cuyo **Solo por** se cumple en el agua sí puede navegarlos:\n• una barca: `water: true`\n• una barca que además bordea la costa: `any: [{ water: true }, { terrain: coast }]`\nUn terreno listado en Terrenos (un `lake` helado con **Abierto cuando** `season: winter`) usa su propia regla.',
     day: 'El día',
     dayHelp:
       'Cuándo empieza el día y cuándo cae la noche, como horas:\n• **Alba** `06:00` — se tiran las comprobaciones del alba y se puede empezar a marchar\n• **Anochecer** `20:00` — nadie marcha después; el grupo acampa (o hace la acción de la noche del sistema)\nCon 8 horas de marcha, un grupo que sale al alba para a las 14:00 aunque falte mucho para la noche.',
@@ -253,7 +252,7 @@ export const es: Messages<typeof en> = {
     terrain: vocabulary.es.terms.terrain,
     multiplier: 'Velocidad ×',
     multiplierHelp:
-      'Lo rápido que se cruza este terreno, comparado con el terreno fácil:\n• `1` — velocidad normal\n• `0.5` — a la mitad (bosque, colinas)\n• `0.25` — a un cuarto (montañas)\n• `2` — el doble de rápido\nCon 24 km al día y hexes de 12 km, un hex de bosque (`0.5`) lleva un día entero de marcha.',
+      'Lo rápido que se cruza este terreno, comparado con el terreno fácil:\n• `1` — velocidad normal\n• `0.5` — a la mitad\n• `0.25` — a un cuarto\n• `2` — el doble de rápido\nPor ejemplo, con una forma de viajar de 24 km al día y hexes de 12 km, un hex a `0.5` lleva un día entero de marcha.',
     passable: 'Transitable',
     passableHelp:
       '**Sin marcar**: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo **Solo por** se cumpla allí (una barca en un lago).\n**Marcado**, aún puede abrirse o cerrarse con una condición:\n• **Abierto cuando** `season: winter` — un lago que se cruza sobre el hielo\n• **Cerrado cuando** `weather: [snow, storm]` — un paso cerrado por el clima',
@@ -269,7 +268,7 @@ export const es: Messages<typeof en> = {
       'Seguir un camino, sendero o río **de un hex al siguiente**: su velocidad sustituye a la del terreno.\n• `road` × `1.5` — la mitad más rápido que a campo abierto\n• `trail` × `1` — como a campo abierto, aunque cruce un bosque\n• `river` × `2` — río abajo en barca\nLas líneas no listadas no hacen nada. Las comprobaciones también las distinguen: `edges: road` en una condición.',
     edge: 'Línea',
     edgeMultiplierHelp:
-      'Velocidad por esta línea, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino por un bosque (`0.5`) con `1.5` es el triple de rápido que el bosque.',
+      'Velocidad por esta línea, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino a `1.5` por un terreno a `0.5` es el triple de rápido que ese terreno.',
     resources: vocabulary.es.terms.supplies,
     resourcesHelp:
       'Lo que lleva el grupo: comida, forraje, agua, antorchas… Qué lo gasta lo decide **el sistema**, nunca la aplicación:\n• una acción al final de cada día come: `effects: { party.resources.food: -1 }`\n• una entrada de tabla encuentra: `effects: { party.resources.food: 2 }`\n• una comprobación sin comida cansa: **Solo si** `below: food`\nEl panel del viaje muestra cada una y deja al jugador cambiarla a mano.',

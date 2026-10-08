@@ -68,7 +68,7 @@ export const en = {
   },
   calendar: {
     name: 'Name',
-    nameHelp: "The calendar's name, shown where its dates are.\n• **The Marcher reckoning**",
+    nameHelp: "The calendar's name, shown where its dates are.\n• **The Royal Reckoning**",
     startYear: 'Year of day 1',
     startYearHelp: 'The year the first day of play falls in (default 1).\n• `412`',
     startMonth: 'Day 1 is in',
@@ -98,7 +98,7 @@ export const en = {
     weekdaysHelp: 'The days of the week, in order; tables read `weekday: restday`. Empty: no week.',
     moons: 'Moons',
     moonsHelp:
-      'Moons and their phases (new, waxing, full, waning), read as `moons.<id>: full`.\n• `pale` — 28 days\n• `ember` — 45 days, offset 20',
+      'Moons and their phases (new, waxing, full, waning), read as `moons.<id>: full`.\n• `moon` — 28 days\n• `red` — 45 days, offset 20',
     cycle: 'Cycle (days)',
     cycleHelp: 'Days from one new moon to the next.',
     offset: 'Offset',
@@ -111,10 +111,10 @@ export const en = {
   },
   weather: {
     name: 'Name',
-    nameHelp: "The model's name.\n• **The Marches' sky**",
+    nameHelp: "The model's name.\n• **Mountain skies**",
     states: 'Kinds of weather',
     statesHelp:
-      'Each kind of weather the model can give, by id (what tables read as `weather`), with its name for the journal and what it sets for the day:\n• `storm` — **Storm: nobody travels**, sets `fordImpossible: true`\n• `snow` — sets `snowbound: true`, which travel rules can make block a way of travelling',
+      'Each kind of weather the model can give, by id (what tables read as `weather`), with its name for the journal and what it sets for the day:\n• `storm` — **Storm**, sets `stormy: true`\n• `snow` — sets `snowbound: true`, which travel rules can make block a way of travelling',
     stateName: 'Name',
     set: 'Sets for the day',
     setHelp:
@@ -156,10 +156,10 @@ export const en = {
     declare: 'Declare it',
     name: 'Name',
     nameHelp:
-      "The system's name, as every app lists it (empty: the pack's name).\n• **The Grey Marches**\nWritten in the current language: the pack's own, or its translation file.",
+      "The system's name, as every app lists it (empty: the pack's name).\n• **Desert Roads**\nWritten in the current language: the pack's own, or its translation file.",
     description: 'Description',
     descriptionHelp:
-      'What the system is for, in a few lines, shown where it is chosen. Basic Markdown: `**bold**`, `_italics_`, `` `code` ``, lists with `- `.\n• _A haunted frontier travelled on foot or by cart, with hunger and getting lost._',
+      'What the system is for, in a few lines, shown where it is chosen. Basic Markdown: `**bold**`, `_italics_`, `` `code` ``, lists with `- `.\n• _A desert crossed by caravan, with water running short and sandstorms._',
     parts: 'Its parts',
     partsHelp:
       "The definitions the system plays with, each by its id: this pack's (`default`) or a dependency's (`core/default`).\n• **Travel rules** — how a trip goes (`kind: travel-rules`); none: the Generic rules\n• **Bindings** — which table answers each check, and the party's stats (`kind: bindings`)\n• **Calendar** — how days are named, by trips and the world clock (`kind: calendar`); none: the default one",
@@ -218,7 +218,7 @@ export const en = {
   rules: {
     water: 'Water hexes',
     waterHelp:
-      'Hexes whose terrain the map marks as **water** (Hexmapper: Edit palette → Water) and that have no rule of their own in Terrains.\nUsually **not passable** on foot; a way of travelling whose **Only through** holds on water can still sail them:\n• a boat: `water: true`\n• a boat that also hugs the shore: `any: [{ water: true }, { terrain: coast }]`\nA terrain listed in Terrains (a frozen `lake` with **Open when** `season: winter`) uses its own rule instead.',
+      'Hexes whose terrain the map marks as **water** (Hexmapper: Edit palette → Water) and that have no rule of their own in Terrains.\nOften **not passable**; a way of travelling whose **Only through** holds on water can still sail them:\n• a boat: `water: true`\n• a boat that also hugs the shore: `any: [{ water: true }, { terrain: coast }]`\nA terrain listed in Terrains (a frozen `lake` with **Open when** `season: winter`) uses its own rule instead.',
     day: 'The day',
     dayHelp:
       "When the day starts and when night falls, as clock times:\n• **Dawn** `06:00` — the day-start checks are rolled and marching can begin\n• **Nightfall** `20:00` — nobody marches after it; the party camps (or takes the system's night action)\nWith 8 marching hours, a party that sets off at dawn stops at 14:00 even if night is far.",
@@ -249,7 +249,7 @@ export const en = {
     terrain: vocabulary.en.terms.terrain,
     multiplier: 'Speed ×',
     multiplierHelp:
-      'How fast this terrain is crossed, compared with easy ground:\n• `1` — normal speed\n• `0.5` — half as fast (forest, hills)\n• `0.25` — a quarter (mountains)\n• `2` — twice as fast\nWith 24 km a day and 12 km hexes, a forest hex (`0.5`) takes a whole marching day.',
+      'How fast this terrain is crossed, compared with easy ground:\n• `1` — normal speed\n• `0.5` — half as fast\n• `0.25` — a quarter\n• `2` — twice as fast\nFor example, with a way of travelling of 24 km a day and 12 km hexes, a hex at `0.5` takes a whole marching day.',
     passable: 'Passable',
     passableHelp:
       '**Unticked**: no way of travelling can enter it (routes go around), except one whose **Only through** holds there (a boat on a lake).\n**Ticked**, it can still open or close on a condition:\n• **Open when** `season: winter` — a lake crossed on the ice\n• **Closed when** `weather: [snow, storm]` — a pass shut by the weather',
@@ -265,7 +265,7 @@ export const en = {
       "Following a road, trail or river **from one hex to the next**: its speed replaces the terrain's.\n• `road` × `1.5` — half again as fast as open ground\n• `trail` × `1` — as open ground, even through a forest\n• `river` × `2` — downstream by boat\nLines not listed do nothing. Checks can tell them apart too: `edges: road` in a condition.",
     edge: 'Line',
     edgeMultiplierHelp:
-      "Speed along this line, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road through a forest (`0.5`) with `1.5` is three times as fast as the forest.",
+      "Speed along this line, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain.",
     resources: vocabulary.en.terms.supplies,
     resourcesHelp:
       'What the party carries: food, fodder, water, torches… What uses it is **up to the system**, never the app:\n• an action at the end of each day eats: `effects: { party.resources.food: -1 }`\n• a table entry finds some: `effects: { party.resources.food: 2 }`\n• a check without food tires: **Only if** `below: food`\nThe trip panel shows each one and lets the player change it by hand.',
