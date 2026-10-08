@@ -4,7 +4,9 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
-The first alpha, `0.1.0`, is being prepared: everything below is what it will bring.
+## [0.1.0] - 2026-10-08
+
+The first alpha: the four apps, the open packs and the manual, published as a static site.
 
 ### Apps
 
