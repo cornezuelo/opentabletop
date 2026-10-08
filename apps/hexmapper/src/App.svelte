@@ -3,7 +3,8 @@
   import MapCanvas from './components/MapCanvas.svelte'
   import SidePanel from './components/SidePanel.svelte'
   import { contextHelp, Dialogs, FoldTab, Toasts, tooltip } from '@open-tabletop/ui-kit'
-  import { t } from './lib/i18n/index.svelte'
+  import { HelpPanel } from '@open-tabletop/manual-ui'
+  import { getLocale, t } from './lib/i18n/index.svelte'
   import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
   import TopBar from './components/TopBar.svelte'
@@ -13,16 +14,13 @@
 
   let ready = $state(false)
 
-  // A dotted label clicked: the side panel shows Help, on its explanation.
+  // A dotted label clicked: the help column opens on its explanation.
   $effect(() => {
     if (!contextHelp.asked) return
-    untrack(() => {
-      editor.panelView = 'help'
-      editor.panelHidden = false
-    })
+    untrack(() => (editor.helpOpen = true))
   })
   $effect(() => {
-    contextHelp.shown = editor.panelView === 'help' && !editor.panelHidden
+    contextHelp.shown = editor.helpOpen
   })
 
   $effect(() => {
@@ -45,7 +43,7 @@
   })
 </script>
 
-<div class="layout" class:hidden={editor.panelHidden}>
+<div class="layout" class:hidden={editor.panelHidden} class:with-help={editor.helpOpen}>
   <TopBar />
   {#if !editor.toolsHidden}<Toolbar />{:else}<span aria-hidden="true"></span>{/if}
   <main>
@@ -69,6 +67,9 @@
     >
   </main>
   {#if !editor.panelHidden}<SidePanel />{/if}
+  {#if editor.helpOpen}
+    <aside class="help-column"><HelpPanel app="hexmapper" locale={getLocale()} /></aside>
+  {/if}
 </div>
 <Toasts />
 <Dialogs />
@@ -87,6 +88,25 @@
 
   .layout.hidden {
     grid-template-columns: auto 1fr;
+  }
+
+  .layout.with-help {
+    grid-template-columns: auto 1fr 300px 320px;
+  }
+
+  .layout.hidden.with-help {
+    grid-template-columns: auto 1fr 320px;
+  }
+
+  .help-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 10px calc(10px + var(--scroll-room, 0px)) 10px 10px;
+    overflow: auto;
+    scrollbar-gutter: stable;
+    background: var(--panel);
+    border-left: 1px solid var(--panel-border);
   }
 
   .fold {
@@ -116,6 +136,19 @@
     .layout {
       grid-template-columns: auto 1fr;
       grid-template-rows: auto minmax(0, 1fr) auto;
+    }
+
+    .layout.with-help,
+    .layout.hidden.with-help {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+    }
+
+    .help-column {
+      grid-column: 2;
+      max-height: 45vh;
+      border-top: 1px solid var(--panel-border);
+      border-left: none;
     }
 
     .layout :global(> aside.panel) {
@@ -151,6 +184,7 @@
   main {
     position: relative;
     min-width: 0;
+    overflow: hidden;
     background: var(--canvas-bg);
   }
 </style>

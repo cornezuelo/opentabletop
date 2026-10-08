@@ -67,7 +67,6 @@ export const es: Messages = {
   panel: {
     hide: 'Ocultar el panel lateral (más sitio para el mapa)',
     show: 'Mostrar el panel lateral',
-    help: 'Ayuda',
     map: 'Mapa',
     terrain: vocabulary.es.terms.terrain,
     paths: 'Caminos y ríos',

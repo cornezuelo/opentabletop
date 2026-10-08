@@ -20,9 +20,8 @@
   import { SetRegionStyleCommand } from '../lib/commands/settings'
   import type { RegionStyle } from '../lib/model/types'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
-  import { HelpPanel } from '@open-tabletop/manual-ui'
   import { helpMarkdown, InfoTip, tooltip, showToast } from '@open-tabletop/ui-kit'
-  import { getLocale, t } from '../lib/i18n/index.svelte'
+  import { t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyResult, tripChanges } from '@open-tabletop/session'
@@ -179,17 +178,6 @@
       >
     </header>
     <div class="export"><LayersPanel /></div>
-  {:else if editor.panelView === 'help'}
-    <header>
-      <h1>{t('panel.help')}</h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
-    <div class="export"><HelpPanel app="hexmapper" locale={getLocale()} /></div>
   {:else if editor.panelView === 'export'}
     <header>
       <h1>{t('export.title')}</h1>

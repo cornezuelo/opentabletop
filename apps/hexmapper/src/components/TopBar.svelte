@@ -32,7 +32,11 @@
     enabled?: () => boolean
     /** A view of the side panel: shown pressed while it's open. */
     panel?: PanelView
+    /** Shown pressed while this holds (a column that isn't a panel view). */
+    active?: () => boolean
   }
+  const pressed = (action: Action) =>
+    action.active ? action.active() : !!action.panel && editor.panelView === action.panel
   const groups: Action[][] = [
     [
       {
@@ -58,7 +62,12 @@
     [
       { label: 'panel.layers', glyph: '▤', run: toggle('layers'), panel: 'layers' },
       { label: 'panel.settings', glyph: 'map', run: toggle('settings'), panel: 'settings' },
-      { label: 'actions.help', glyph: '?', run: toggle('help'), panel: 'help' },
+      {
+        label: 'actions.help',
+        glyph: '?',
+        run: () => (editor.helpOpen = !editor.helpOpen),
+        active: () => editor.helpOpen,
+      },
     ],
   ]
 </script>
@@ -79,10 +88,10 @@
         />
       {/if}
       <button
-        class:active={!!action.panel && editor.panelView === action.panel}
+        class:active={pressed(action)}
         use:tooltip={t(action.label)}
         aria-label={t(action.label)}
-        aria-pressed={action.panel ? editor.panelView === action.panel : undefined}
+        aria-pressed={action.panel || action.active ? pressed(action) : undefined}
         disabled={action.enabled ? !action.enabled() : false}
         onclick={action.run}
       >

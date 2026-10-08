@@ -29,8 +29,7 @@ import type {
 export type ToolId = 'select' | 'terrain' | 'region' | 'path' | 'icon' | 'text' | 'token' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 /** What the side panel shows besides the active tool's view. */
-export type PanelView =
-  'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'help' | 'layers'
+export type PanelView = 'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'layers'
 
 export const MAX_BRUSH_RADIUS = 5
 
@@ -96,6 +95,11 @@ class Editor {
   }
   /** What the side panel shows: the active tool and hex, or map settings and preferences. */
   panelView = $state<PanelView>('tool')
+  /**
+   * The help column (the manual, or a field's explanation) is open beside the side panel,
+   * as in every app, so a field and its help are seen together.
+   */
+  helpOpen = $state(false)
   /** The side panel is folded away (more room for the map, e.g. on a phone). */
   panelHidden = $state(false)
   /** The tools bar on the left is folded away (its keyboard shortcuts still work). */

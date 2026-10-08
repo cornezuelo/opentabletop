@@ -66,7 +66,6 @@ export const en = {
   panel: {
     hide: 'Hide the side panel (more room for the map)',
     show: 'Show the side panel',
-    help: 'Help',
     map: 'Map',
     terrain: vocabulary.en.terms.terrain,
     paths: 'Roads and rivers',

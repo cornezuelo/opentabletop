@@ -13,6 +13,10 @@
     const app = new Application()
     let ready = false
     let destroyed = false
+    // Pixi only follows the window's size: a column opening or folding beside the map
+    // (the help, the side panel, the tools) changes the container's.
+    const observer = new ResizeObserver(() => ready && !destroyed && app.queueResize())
+    observer.observe(container)
 
     app
       .init({
@@ -44,6 +48,7 @@
 
     return () => {
       destroyed = true
+      observer.disconnect()
       view.fit = () => {}
       view.exportCanvas = null
       view.centerOn = (cell) => {

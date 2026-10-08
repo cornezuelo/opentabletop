@@ -1,8 +1,8 @@
 /**
  * Contextual help: the explanation of one control, shown in the app's help column (above
  * its manual) instead of a tooltip. A label with help is underlined with dots; clicking it
- * opens the column on its explanation, and while the column is open, focusing its field
- * shows it too. Apps open their help column when help is asked for (`asked` changes) and
+ * opens the column on its explanation (F1 does it from its field). Moving to a field never
+ * changes what the column shows, so an example there can be inserted into any field. Apps open their help column when help is asked for (`asked` changes) and
  * say whether it is showing (`shown`); the column's own close button closes it.
  */
 export interface HelpEntry {
@@ -29,11 +29,6 @@ export function askHelp(entry: HelpEntry): void {
   contextHelp.asked++
 }
 
-/** Shows an explanation only if the help column is already open (a field got focus). */
-export function focusHelp(entry: HelpEntry): void {
-  if (contextHelp.shown) contextHelp.entry = entry
-}
-
 const tidy = (text: string) => text.replace(/\s+/g, ' ').trim()
 /** A label's own words: its text, not its field's (a select's options…). */
 const words = (el: Element) =>
@@ -46,8 +41,8 @@ const words = (el: Element) =>
 
 /**
  * Gives `anchor`'s parent (a label's text, a column header, a title) the help `content`:
- * dotted underline, click or Enter to ask for it, and focusing the field of its <label>
- * shows it while the help column is open. Returns the cleanup.
+ * dotted underline, click or Enter to ask for it, F1 in the field of its <label> too.
+ * Returns the cleanup.
  */
 export function attachHelp(
   anchor: HTMLElement,
@@ -65,7 +60,7 @@ export function attachHelp(
   if (focusable) target.tabIndex = 0
 
   const onclick = (event: MouseEvent) => {
-    // The field itself (or the click a label passes on to it): only focus shows help.
+    // The field itself (or the click a label passes on to it) doesn't ask for help.
     const control = (event.target as Element).closest('input, select, textarea, button, a')
     if (control && control !== target && target.contains(control)) return
     if (toggle) event.preventDefault()
@@ -76,14 +71,18 @@ export function attachHelp(
     event.preventDefault()
     askHelp(entry())
   }
-  const onfocus = () => focusHelp(entry())
+  const onhelpkey = (event: KeyboardEvent) => {
+    if (event.key !== 'F1') return
+    event.preventDefault()
+    askHelp(entry())
+  }
   target.addEventListener('click', onclick)
   if (focusable) target.addEventListener('keydown', onkeydown)
-  label?.addEventListener('focusin', onfocus)
+  label?.addEventListener('keydown', onhelpkey)
   return () => {
     target.removeEventListener('click', onclick)
     target.removeEventListener('keydown', onkeydown)
-    label?.removeEventListener('focusin', onfocus)
+    label?.removeEventListener('keydown', onhelpkey)
     target.classList.remove('has-help')
     target.removeAttribute('aria-description')
     if (focusable) target.removeAttribute('tabindex')
