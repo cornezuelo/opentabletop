@@ -8,9 +8,11 @@
     Dialogs,
     FoldTab,
     showToast,
+    PreferencesButton,
     Toasts,
     tooltip,
   } from '@open-tabletop/ui-kit'
+  import OraclePreferences from './components/OraclePreferences.svelte'
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
@@ -103,15 +105,14 @@
     <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>
     <button onclick={() => (creating = true)}>{t('nav.newPack')}</button>
     <button use:tooltip={t('nav.importTip')} onclick={importZip}>{t('nav.import')}</button>
-    <select
-      aria-label={t('nav.language')}
-      value={getLocale()}
-      onchange={(e) => setLocale(e.currentTarget.value as 'en' | 'es')}
+    <PreferencesButton
+      locale={getLocale()}
+      {locales}
+      onlocale={(locale) => setLocale(locale as 'en' | 'es')}
+      title={t('app.title')}
     >
-      {#each Object.entries(locales) as [code, name] (code)}
-        <option value={code}>{name}</option>
-      {/each}
-    </select>
+      <OraclePreferences />
+    </PreferencesButton>
     <button
       class="help-toggle"
       class:active={help}

@@ -22,7 +22,6 @@ export const en = {
     newPack: 'New pack',
     import: 'Import .zip',
     importTip: 'Import a pack exported as .zip (a folder with pack.yaml).',
-    language: 'Language',
     noResults: 'Nothing matches.',
     problems: '{count} problems',
   },
@@ -45,6 +44,15 @@ export const en = {
     personal: 'Personal-use content from packs-private/: don’t share or publish it.',
     updated:
       'The bundled version of this pack changed since you made your copy: open the pack to take or keep each change.',
+  },
+  prefs: {
+    seed: 'Seed for rolls',
+    seedPlaceholder: 'Empty: at random',
+    seedHelp:
+      'Any word or number makes the rolls repeatable: the same seed gives the same results to the same rolls, in the same order.\n• `grey-marches-1` — your first session; **New session** in the history starts it over\n• share the seed of a session and someone else can replay it\nEmpty: rolls at random. Kept with the history in this browser.',
+    packs: 'Packs in the list',
+    packsHelp:
+      'Untick the packs you don’t use to leave them out of the list on the left.\nThey still load: other packs’ tables that roll on them and the other apps keep using them. Favorites stay pinned.',
   },
   welcome: {
     title: 'Oracle',

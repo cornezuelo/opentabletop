@@ -5,7 +5,7 @@ import {
   type OracleEngine,
   type Registry,
 } from '@open-tabletop/oracle-engine'
-import { mathRandom } from '@open-tabletop/random'
+import { mathRandom, type RandomSource } from '@open-tabletop/random'
 import {
   bundledChanges,
   effectivePacks,
@@ -46,8 +46,11 @@ export class PackLibrary {
     ...(this.extraDiagnostics?.(this.loaded.registry) ?? []),
   ])
   registry = $derived(this.loaded.registry)
+  /** Where the engine's rolls come from; `setRandom` swaps it (e.g. a seeded session). */
+  private source: RandomSource = mathRandom()
+  private readonly random: RandomSource = { next: () => this.source.next() }
   engine: OracleEngine = $derived(
-    createOracleEngine({ registry: this.registry, random: mathRandom() }),
+    createOracleEngine({ registry: this.registry, random: this.random }),
   )
   /** Earlier and undone states of the user packs, for undo/redo of edits made here. */
   private past = $state.raw<PackSource[][]>([])
@@ -78,6 +81,11 @@ export class PackLibrary {
         this.past = []
         this.future = []
       })
+  }
+
+  /** Rolls from now on come from this source (a seeded one repeats a session). */
+  setRandom(source: RandomSource): void {
+    this.source = source
   }
 
   pack(root: string): WorkspacePack | undefined {

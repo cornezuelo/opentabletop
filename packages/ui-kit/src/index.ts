@@ -17,3 +17,14 @@ export { APP_ICONS, APPS, appIconUrl, appUrl, type AppId, type AppInfo } from '.
 export { default as SuggestInput } from './SuggestInput.svelte'
 export { applyChoice, choicesFor, typingAt, type Suggestions, type Typing } from './suggest'
 export { vocabulary } from './vocabulary'
+export { default as PreferencesButton } from './PreferencesButton.svelte'
+export {
+  noteProviderName,
+  notePreferences,
+  noteUrl,
+  readNotePreferences,
+  setNoteProvider,
+  setNoteSetting,
+  NOTES_KEY,
+  type NotePreferences,
+} from './notes.svelte'

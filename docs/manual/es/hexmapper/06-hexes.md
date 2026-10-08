@@ -18,6 +18,6 @@ Un punto dorado marca los hexes con detalles que no se ven en el mapa.
 
 ## Notas enlazadas
 
-Hexmapper no guarda el trasfondo: lo enlaza. En **Ajustes → Preferencias** elige tu aplicación de notas: SilverBullet (con su dirección) u Obsidian (con el nombre de la bóveda); la nota de un hex o de un PDI es entonces una ruta como `Mi campaña/Hexes/0203` que se abre allí.
+Hexmapper no guarda el trasfondo: lo enlaza. En **Preferencias** (el engranaje de arriba, en cualquier aplicación) elige tu aplicación de notas: SilverBullet (con su dirección) u Obsidian (con el nombre de la bóveda); la nota de un hex o de un PDI es entonces una ruta como `Mi campaña/Hexes/0203` que se abre allí.
 
 En el otro sentido, el enlace del hex (el icono de cadena) pegado en una nota abre el mapa en ese hex.

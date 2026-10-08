@@ -21,3 +21,13 @@ Some tables also use a mode **by themselves** when a condition holds, whether yo
 ## Decks and once-only entries
 
 A deck shows how many cards are left and has **Shuffle**. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.
+
+## Repeatable rolls
+
+In **Preferences** (the gear), **Seed for rolls** makes rolls repeatable: with the same seed, the same rolls in the same order give the same results. The history shows the seed while it's on.
+
+- Write `grey-marches-1`, roll a few tables, then press **New session**: rolling the same tables again brings the same results.
+- Share the seed and the tables you rolled, and someone else can replay your session.
+- Clear the box to roll at random again.
+
+The seed and where its sequence has got to are kept with the history, so a reload carries on where you were. The command line takes a seed too (`--seed`, see [Working without the interface](../technical/03-without-the-ui.md)).

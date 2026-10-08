@@ -18,6 +18,6 @@ A gold dot marks hexes with details you can't see on the map.
 
 ## Linked notes
 
-Hexmapper doesn't store lore: it links to it. In **Settings → Preferences** choose your notes app: SilverBullet (with its address) or Obsidian (with the vault name); a hex's or a POI's note is then a path like `My campaign/Hexes/0203` that opens there.
+Hexmapper doesn't store lore: it links to it. In **Preferences** (the gear at the top of any app) choose your notes app: SilverBullet (with its address) or Obsidian (with the vault name); a hex's or a POI's note is then a path like `My campaign/Hexes/0203` that opens there.
 
 Going the other way, the hex link (the chain icon) pasted in a note opens the map on that hex.

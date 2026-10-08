@@ -111,7 +111,10 @@ export const en = {
     clear: 'Clear',
     resetState: 'New session',
     resetStateTip:
-      'Forget entries that can only come up once and put every drawn card back in its deck.',
+      'Forget entries that can only come up once and put every drawn card back in its deck. With a seed, the rolls start over from it.',
+    seeded: 'Seed: {seed}',
+    seededHelp:
+      'Rolls follow this seed: the same seed gives the same results to the same rolls, in the same order.\n• **New session** starts the sequence over: roll the same tables again and the same results come up\n• Share the seed and someone else can replay your session\nChange it or clear it in **Preferences** (the gear at the top).',
   },
   picker: {
     favorites: 'Favorites',

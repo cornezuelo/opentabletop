@@ -4,8 +4,8 @@ The Oracle app rolls and edits the random tables of your games: tables, oracles,
 
 ## The screen
 
-- **Header**: the app switcher (nine dots), **New definition**, **New pack**, **Import .zip** and the language. The small tabs on the edges of the middle column (‹ ›) fold the side columns away to make room, and bring them back; the app remembers it.
-- **Pack list** (left): every pack and its definitions, with a search box (by name, id or tag). Badges show where a pack comes from: _bundled_, _edited_ (your copy of a bundled pack), _personal use_. A red number counts its problems. The **+** next to one of your packs adds a definition to it.
+- **Header**: the app switcher (nine dots), **New definition**, **New pack**, **Import .zip**, the gear (**Preferences**: the language and notes app every app shares, and the Oracle's own: a seed for repeatable rolls and which packs the list shows) and **?**. The small tabs on the edges of the middle column (‹ ›) fold the side columns away to make room, and bring them back; the app remembers it.
+- **Pack list** (left): every pack and its definitions, with a search box (by name, id or tag). Badges show where a pack comes from: _bundled_, _edited_ (your copy of a bundled pack), _personal use_. A red number counts its problems. The **+** next to one of your packs adds a definition to it. Packs you don't use can leave the list: untick them in **Preferences → Packs in the list** (they still load, and their favorites stay pinned).
 - **Definition** (center): the **Roll** tab rolls it, the **Edit** tab changes it. Above them: its id, its file (click to open it in the YAML editor) and the actions **Duplicate**, **Copy to…** and **Delete**.
 - **History** (right): your last rolls. Click one to see it again.
 

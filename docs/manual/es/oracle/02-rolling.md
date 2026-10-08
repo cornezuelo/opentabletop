@@ -21,3 +21,13 @@ Algunas tablas además usan un modo **por sí solas** cuando se cumple una condi
 ## Mazos y entradas de una vez
 
 Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.
+
+## Tiradas repetibles
+
+En **Preferencias** (el engranaje), **Semilla de las tiradas** hace las tiradas repetibles: con la misma semilla, las mismas tiradas en el mismo orden dan los mismos resultados. El historial muestra la semilla mientras está puesta.
+
+- Escribe `marcas-grises-1`, tira unas cuantas tablas y pulsa **Nueva sesión**: al volver a tirar las mismas tablas salen los mismos resultados.
+- Comparte la semilla y las tablas que tiraste, y otra persona podrá repetir tu sesión.
+- Vacía la casilla para volver a tirar al azar.
+
+La semilla y por dónde va su secuencia se guardan con el historial, así que al recargar sigues donde estabas. La línea de comandos también acepta una semilla (`--seed`, mira [Trabajar sin la interfaz](../technical/03-without-the-ui.md)).

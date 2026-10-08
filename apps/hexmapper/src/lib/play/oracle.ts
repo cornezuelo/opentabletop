@@ -19,7 +19,7 @@ export const oracleUi = createOracleUi({
   library,
   locale: getLocale,
   storageKey: 'opentabletop.hexmapper.oracle',
-  // Only the packs this map works with (Settings → Map → Packs).
+  // Only the packs this map works with (Map settings → Map → Packs).
   packs: () => editor.meta.packs,
   store: {
     load: () => editor.map.oracle,

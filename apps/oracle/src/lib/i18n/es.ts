@@ -23,7 +23,6 @@ export const es: Messages<typeof en> = {
     newPack: 'Nuevo pack',
     import: 'Importar .zip',
     importTip: 'Importa un pack exportado como .zip (una carpeta con pack.yaml).',
-    language: 'Idioma',
     noResults: 'No hay coincidencias.',
     problems: '{count} problemas',
   },
@@ -47,6 +46,15 @@ export const es: Messages<typeof en> = {
     personal: 'Contenido de uso personal de packs-private/: no lo compartas ni lo publiques.',
     updated:
       'La versión incluida de este pack ha cambiado desde que hiciste tu copia: abre el pack para coger o conservar cada cambio.',
+  },
+  prefs: {
+    seed: 'Semilla de las tiradas',
+    seedPlaceholder: 'Vacío: al azar',
+    seedHelp:
+      'Cualquier palabra o número hace las tiradas repetibles: la misma semilla da los mismos resultados a las mismas tiradas, en el mismo orden.\n• `marcas-grises-1` — tu primera sesión; **Nueva sesión** en el historial la vuelve a empezar\n• comparte la semilla de una sesión y otra persona podrá repetirla\nVacío: tiradas al azar. Se guarda con el historial en este navegador.',
+    packs: 'Packs en la lista',
+    packsHelp:
+      'Desmarca los packs que no uses para quitarlos de la lista de la izquierda.\nSiguen cargados: las tablas de otros packs que tiran en ellos y las demás aplicaciones siguen usándolos. Los favoritos siguen fijados.',
   },
   welcome: {
     title: 'Oracle',

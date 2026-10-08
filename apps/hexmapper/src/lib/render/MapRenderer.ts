@@ -892,7 +892,7 @@ export class MapRenderer {
   }
 
   /**
-   * A map text in its kind's style (Settings → Map texts), centered under a point; region
+   * A map text in its kind's style (Map settings → Map texts), centered under a point; region
    * names are centered on it and take `size` (their own, from the region's extent).
    */
   private caption(

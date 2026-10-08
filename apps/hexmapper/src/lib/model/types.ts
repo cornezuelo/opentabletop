@@ -177,7 +177,7 @@ export interface CaptionStyle {
   haloColor: string
 }
 
-/** One element's own text style, replacing its kind's (Settings → Map texts). */
+/** One element's own text style, replacing its kind's (Map settings → Map texts). */
 export type CaptionOverride = Omit<CaptionStyle, 'show'>
 
 export const TOKEN_KINDS = ['party', 'pc', 'npc', 'enemy'] as const

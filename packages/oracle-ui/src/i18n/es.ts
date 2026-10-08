@@ -115,7 +115,10 @@ export const es: Messages<typeof en> = {
     clear: 'Borrar',
     resetState: 'Nueva sesión',
     resetStateTip:
-      'Olvida las entradas que solo pueden salir una vez y devuelve a su mazo todas las cartas robadas.',
+      'Olvida las entradas que solo pueden salir una vez y devuelve a su mazo todas las cartas robadas. Con semilla, las tiradas vuelven a empezar desde ella.',
+    seeded: 'Semilla: {seed}',
+    seededHelp:
+      'Las tiradas siguen esta semilla: la misma semilla da los mismos resultados a las mismas tiradas, en el mismo orden.\n• **Nueva sesión** vuelve a empezar la secuencia: tira las mismas tablas y saldrán los mismos resultados\n• Comparte la semilla y otra persona podrá repetir tu sesión\nCámbiala o bórrala en **Preferencias** (el engranaje de arriba).',
   },
   picker: {
     favorites: 'Favoritos',

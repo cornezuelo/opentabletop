@@ -9,9 +9,12 @@ export { KIND_ORDER, packTexts, type PackTexts } from './names'
 export {
   localRollerStore,
   Roller,
+  seededSession,
   type HistoryItem,
+  type RollerData,
   type RollerOptions,
   type RollerStore,
+  type SeededSession,
 } from './roller.svelte'
 export { createOracleUi, type OracleUi } from './ui'
 export { contextVariables, parseContext, type Variable } from './variables'

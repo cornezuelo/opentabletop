@@ -4,6 +4,7 @@ import {
   type OracleState,
   type Resolution,
 } from '@open-tabletop/oracle-engine'
+import { fromState, mathRandom, seeded, type SeededRandom } from '@open-tabletop/random'
 import { showToast } from '@open-tabletop/ui-kit'
 import type { Translate } from './i18n'
 import type { PackLibrary } from '@open-tabletop/pack-ui'
@@ -49,23 +50,50 @@ export function oracleState(raw: unknown): OracleState {
   }
 }
 
-/** Where a Roller keeps its Oracle state and history. */
-export interface RollerStore {
-  load(): { state: OracleState; history: HistoryItem[] } | undefined
-  save(data: { state: OracleState; history: HistoryItem[] }): void
+/** A seeded session: its seed and where its sequence has got to. */
+export interface SeededSession {
+  seed: string
+  state: number
 }
 
-/** The default store: localStorage (`<key>.state`, `<key>.history`). */
+/** What a Roller keeps: Oracle state, history and, in a seeded session, its sequence. */
+export interface RollerData {
+  state: OracleState
+  history: HistoryItem[]
+  random?: SeededSession
+}
+
+/** Where a Roller keeps its Oracle state and history. */
+export interface RollerStore {
+  load(): RollerData | undefined
+  save(data: RollerData): void
+}
+
+/** A saved seeded session, or undefined when it's missing or broken. */
+export function seededSession(raw: unknown): SeededSession | undefined {
+  if (!isRecord(raw) || typeof raw.seed !== 'string' || !raw.seed) return undefined
+  return typeof raw.state === 'number' && Number.isFinite(raw.state)
+    ? { seed: raw.seed, state: raw.state }
+    : undefined
+}
+
+/** The default store: localStorage (`<key>.state`, `<key>.history`, `<key>.random`). */
 export function localRollerStore(storageKey: string): RollerStore {
-  const keys = { state: `${storageKey}.state`, history: `${storageKey}.history` }
+  const keys = {
+    state: `${storageKey}.state`,
+    history: `${storageKey}.history`,
+    random: `${storageKey}.random`,
+  }
   return {
     load: () => ({
       state: oracleState(read(keys.state, null)),
       history: read<unknown>(keys.history, []) as HistoryItem[],
+      random: seededSession(read(keys.random, null)),
     }),
-    save({ state, history }) {
+    save({ state, history, random }) {
       write(keys.state, state)
       write(keys.history, history)
+      write(keys.random, random ?? null)
     },
   }
 }
@@ -88,7 +116,10 @@ export class Roller {
   mode = $state('')
   /** Result being shown per definition id. */
   shown = $state.raw<Record<string, HistoryItem>>({})
+  /** The seed the session's rolls follow ('' = unseeded): the same seed, the same rolls. */
+  seed = $state('')
 
+  private rng: SeededRandom | null = null
   private nextId = 1
   private options: RollerOptions
 
@@ -104,10 +135,32 @@ export class Roller {
     this.history = Array.isArray(data?.history) ? data.history : []
     this.shown = {}
     this.nextId = Math.max(0, ...this.history.map((h) => h.id)) + 1
+    const random = seededSession(data?.random)
+    this.seed = random?.seed ?? ''
+    this.useRandom(random ? fromState(random.state) : null)
+  }
+
+  private useRandom(rng: SeededRandom | null): void {
+    this.rng = rng
+    this.options.library.setRandom(rng ?? mathRandom())
   }
 
   private save(): void {
-    this.options.store.save({ state: this.state, history: this.history })
+    this.options.store.save({
+      state: this.state,
+      history: this.history,
+      random: this.rng ? { seed: this.seed, state: this.rng.state } : undefined,
+    })
+  }
+
+  /**
+   * Rolls from now on follow this seed ('' = random again). The same seed from a new
+   * session gives the same results to the same rolls: to replay or share a session.
+   */
+  setSeed(seed: string): void {
+    this.seed = seed.trim()
+    this.useRandom(this.seed ? seeded(this.seed) : null)
+    this.save()
   }
 
   run(
@@ -150,9 +203,10 @@ export class Roller {
     }
   }
 
-  /** Forget once-only entries and deck draws (a new session). */
+  /** Forget once-only entries and deck draws (a new session); a seeded one starts over. */
   resetState(): void {
     this.state = emptyState()
+    if (this.seed) this.useRandom(seeded(this.seed))
     this.save()
   }
 

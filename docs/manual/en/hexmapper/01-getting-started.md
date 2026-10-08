@@ -4,7 +4,7 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 
 ## The screen
 
-- **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Hexmapper - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Settings and Help (?).
+- **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Hexmapper - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right the gear (**Preferences**, shared by every app: language and notes app), Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings and Help (?).
 - **Toolbar** (left): the tools — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play, the World clock and the Oracle.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
 - **Side panel** (right): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, Help, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected.
@@ -25,7 +25,7 @@ Maps are kept in this browser's library and saved automatically while you work. 
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
 
-**Settings** (gear) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper), the world scale (km per hex, used for travel) and your preferences: language and the notes app you link to.
+**Map settings** (the folded map) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper) and the world scale (km per hex, used for travel). Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
 
 ## Links to hexes
 

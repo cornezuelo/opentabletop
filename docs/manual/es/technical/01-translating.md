@@ -2,7 +2,7 @@
 
 OpenTabletop está pensado para traducirse a tres niveles, del más fácil al más difícil. El inglés es siempre la base: lo que no esté traducido se muestra en inglés.
 
-**Qué idioma ves**: el que elegiste, en la lista de idiomas de cualquier aplicación o con las banderas de arriba en la portada del sitio; todas las aplicaciones del mismo sitio lo comparten. Hasta que elijas, las aplicaciones siguen el idioma de tu navegador si lo tienen (un navegador en `es-ES` o `es-MX` las abre en castellano), y si no, el inglés.
+**Qué idioma ves**: el que elegiste, en las **Preferencias** de cualquier aplicación (el engranaje) o con las banderas de arriba en la portada del sitio; todas las aplicaciones del mismo sitio lo comparten. Hasta que elijas, las aplicaciones siguen el idioma de tu navegador si lo tienen (un navegador en `es-ES` o `es-MX` las abre en castellano), y si no, el inglés.
 
 ## El contenido de los packs (sin código)
 

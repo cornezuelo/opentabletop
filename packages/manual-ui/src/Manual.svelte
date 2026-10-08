@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppBrand, AppSwitcher, FoldTab } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, FoldTab, PreferencesButton } from '@open-tabletop/ui-kit'
   import { textFor } from './i18n'
   import { manual } from './manual'
   import PageView from './PageView.svelte'
@@ -65,14 +65,7 @@
     <AppBrand app="manual" name={text.title} />
     <AppSwitcher current="manual" {locale} />
     <div class="spacer"></div>
-    <select
-      aria-label={text.language}
-      value={locale}
-      onchange={(e) => onlocale(e.currentTarget.value)}
-    >
-      {#each Object.entries(locales) as [code, name] (code)}<option value={code}>{name}</option
-        >{/each}
-    </select>
+    <PreferencesButton {locale} {locales} {onlocale} />
   </header>
 
   {#if contents}

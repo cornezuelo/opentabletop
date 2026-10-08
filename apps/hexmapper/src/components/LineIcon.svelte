@@ -1,6 +1,6 @@
 <script lang="ts" module>
   export type LineIconName =
-    'folder' | 'save' | 'link' | 'brush' | 'fill' | 'eye' | 'eye-off' | 'lock' | 'unlock'
+    'folder' | 'save' | 'map' | 'link' | 'brush' | 'fill' | 'eye' | 'eye-off' | 'lock' | 'unlock'
 </script>
 
 <script lang="ts">
@@ -16,6 +16,9 @@
   {:else if name === 'save'}
     <path d="M4.5 3.5h12l3 3v13a1 1 0 0 1-1 1h-14a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1z" />
     <path d="M8 3.5v5h7v-5M7.5 20.5v-6.5h9v6.5" />
+  {:else if name === 'map'}
+    <path d="M3.5 6.5 9 4.5l6 2 5.5-2v13l-5.5 2-6-2-5.5 2z" />
+    <path d="M9 4.5v13M15 6.5v13" />
   {:else if name === 'brush'}
     <path d="M20 4 10.5 13.5" />
     <path d="M10.5 13.5c-2.5-.5-4.5 1-4.5 3.5 0 1.3-.7 2.3-2 3 3.5.8 7.5 0 7.9-3.4z" />

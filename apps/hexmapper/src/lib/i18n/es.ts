@@ -76,9 +76,8 @@ export const es: Messages = {
     noSelection: 'Haz clic en un hex para ver y editar sus detalles.',
     brushSize: 'Tamaño del pincel',
     layers: 'Capas',
-    settings: 'Configuración',
-    closeSettings: 'Cerrar configuración',
-    preferences: 'Preferencias',
+    settings: 'Ajustes del mapa',
+    closeSettings: 'Cerrar',
     tokens: 'Tokens',
     regions: vocabulary.es.terms.regions,
   },
@@ -137,15 +136,6 @@ export const es: Messages = {
     legal: 'Legal',
     tabloid: 'Tabloide',
     custom: 'Personalizado',
-  },
-  preferences: {
-    noteProvider: 'App de notas',
-    noteHelp:
-      'Los hexes pueden enlazar con una nota de tu aplicación de notas (SilverBullet, Obsidian…). Se guarda en este navegador, no en el mapa.',
-  },
-  noteSettings: {
-    silverbullet: { baseUrl: 'URL de SilverBullet' },
-    obsidian: { vault: 'Nombre del vault' },
   },
   iconCategories: {
     terrain: vocabulary.es.terms.terrain,
@@ -237,7 +227,8 @@ export const es: Messages = {
     transparent: 'Fondo transparente',
     png: 'Exportar PNG',
     pngDone: 'PNG exportado ({w} × {h} px).',
-    scaleNote: 'Escala real: los hexes se imprimen a {mm} mm entre lados (Configuración → Tamaño).',
+    scaleNote:
+      'Escala real: los hexes se imprimen a {mm} mm entre lados (Ajustes del mapa → Tamaño).',
     gridSize: 'Rejilla: {w} × {h} mm.',
     onPaper: 'Centrado en el papel elegido.',
     fitPage: 'La página se ajusta al mapa más los márgenes.',
@@ -313,11 +304,11 @@ export const es: Messages = {
     mapStyle: 'El estilo del mapa',
     ownStyle: 'Estilo propio',
     mapStyleHelp:
-      'Usa el estilo de Ajustes → Textos del mapa para todos los nombres de este tipo, así todos los nombres de hex (o de región) se ven igual.',
+      'Usa el estilo de Ajustes del mapa → Textos del mapa para todos los nombres de este tipo, así todos los nombres de hex (o de región) se ven igual.',
     hiddenByMap: {
-      hexNames: 'Los nombres de hex están ocultos en Ajustes → Textos del mapa.',
-      regionNames: 'Los nombres de región están ocultos en Ajustes → Textos del mapa.',
-      tokenNames: 'Los nombres de token están ocultos en Ajustes → Textos del mapa.',
+      hexNames: 'Los nombres de hex están ocultos en Ajustes del mapa → Textos del mapa.',
+      regionNames: 'Los nombres de región están ocultos en Ajustes del mapa → Textos del mapa.',
+      tokenNames: 'Los nombres de token están ocultos en Ajustes del mapa → Textos del mapa.',
     },
     title: 'Textos del mapa',
     help: 'Nombres que se dibujan en el mapa. Las regiones y los tokens también pueden ocultar el suyo.',
@@ -464,7 +455,7 @@ export const es: Messages = {
     note: 'Nota enlazada',
     notePlaceholder: 'p. ej. Mi campaña/Hexes/{coord}',
     openNote: 'Abrir en {provider}',
-    noteNotConfigured: 'Configura {provider} en Preferencias',
+    noteNotConfigured: 'Configura {provider} en Preferencias (⚙ arriba)',
     remove: 'Quitar',
     icon: 'Icono',
     paths: 'Caminos y ríos',
@@ -499,7 +490,7 @@ export const es: Messages = {
     none: 'ninguno',
     own: 'Estilo propio',
     ownHelp:
-      'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (**Ajustes → Regiones**): un bosque más oscuro, un reino con un borde marcado.',
+      'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (**Ajustes del mapa → Regiones**): un bosque más oscuro, un reino con un borde marcado.',
   },
   world: {
     title: 'Mundo',
@@ -595,7 +586,4 @@ export const es: Messages = {
     other: 'Otros',
   },
   terrains: vocabulary.es.terrains,
-  settings: {
-    language: 'Idioma',
-  },
 }

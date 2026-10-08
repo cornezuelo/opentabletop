@@ -75,9 +75,8 @@ export const en = {
     noSelection: 'Click a hex to view and edit its details.',
     brushSize: 'Brush size',
     layers: 'Layers',
-    settings: 'Settings',
-    closeSettings: 'Close settings',
-    preferences: 'Preferences',
+    settings: 'Map settings',
+    closeSettings: 'Close',
     tokens: 'Tokens',
     regions: vocabulary.en.terms.regions,
   },
@@ -136,15 +135,6 @@ export const en = {
     legal: 'Legal',
     tabloid: 'Tabloid',
     custom: 'Custom',
-  },
-  preferences: {
-    noteProvider: 'Notes app',
-    noteHelp:
-      'Hexes can link to a note in your notes app (SilverBullet, Obsidian…). Stored in this browser, not in the map.',
-  },
-  noteSettings: {
-    silverbullet: { baseUrl: 'SilverBullet URL' },
-    obsidian: { vault: 'Vault name' },
   },
   iconCategories: {
     terrain: vocabulary.en.terms.terrain,
@@ -236,7 +226,7 @@ export const en = {
     transparent: 'Transparent background',
     png: 'Export PNG',
     pngDone: 'PNG exported ({w} × {h} px).',
-    scaleNote: 'Real scale: hexes print at {mm} mm flat-to-flat (Settings → Size).',
+    scaleNote: 'Real scale: hexes print at {mm} mm flat-to-flat (Map settings → Size).',
     gridSize: 'Grid: {w} × {h} mm.',
     onPaper: 'Centered on the chosen paper.',
     fitPage: 'The page is sized to the map plus margins.',
@@ -312,11 +302,11 @@ export const en = {
     mapStyle: "The map's style",
     ownStyle: 'Its own style',
     mapStyleHelp:
-      'Uses the style set in Settings → Map texts for every name of this kind, so all hex names (or all region names) look alike.',
+      'Uses the style set in Map settings → Map texts for every name of this kind, so all hex names (or all region names) look alike.',
     hiddenByMap: {
-      hexNames: 'Hex names are hidden in Settings → Map texts.',
-      regionNames: 'Region names are hidden in Settings → Map texts.',
-      tokenNames: 'Token names are hidden in Settings → Map texts.',
+      hexNames: 'Hex names are hidden in Map settings → Map texts.',
+      regionNames: 'Region names are hidden in Map settings → Map texts.',
+      tokenNames: 'Token names are hidden in Map settings → Map texts.',
     },
     title: 'Map texts',
     help: 'Names drawn on the map. Regions and tokens can also hide their own name.',
@@ -459,7 +449,7 @@ export const en = {
     note: 'Linked note',
     notePlaceholder: 'e.g. My campaign/Hexes/{coord}',
     openNote: 'Open in {provider}',
-    noteNotConfigured: 'Set up {provider} in Preferences',
+    noteNotConfigured: 'Set up {provider} in Preferences (⚙ at the top)',
     remove: 'Remove',
     icon: 'Icon',
     paths: 'Roads and rivers',
@@ -494,7 +484,7 @@ export const en = {
     none: 'none',
     own: 'Own style',
     ownHelp:
-      "This region looks its own way instead of following the map's region style (**Settings → Regions**): a darker forest, a kingdom with a bold border.",
+      "This region looks its own way instead of following the map's region style (**Map settings → Regions**): a darker forest, a kingdom with a bold border.",
   },
   world: {
     title: 'World',
@@ -589,7 +579,4 @@ export const en = {
     other: 'Other',
   },
   terrains: vocabulary.en.terrains,
-  settings: {
-    language: 'Language',
-  },
 } as const

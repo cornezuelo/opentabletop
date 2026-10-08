@@ -1,7 +1,14 @@
 <script lang="ts">
-  import { AppBrand, AppSwitcher, tooltip } from '@open-tabletop/ui-kit'
+  import { AppBrand, AppSwitcher, PreferencesButton, tooltip } from '@open-tabletop/ui-kit'
   import LineIcon from './LineIcon.svelte'
-  import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
+  import {
+    getLocale,
+    locales,
+    setLocale,
+    t,
+    type Locale,
+    type MessageKey,
+  } from '../lib/i18n/index.svelte'
   import { newMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type PanelView } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
@@ -50,7 +57,7 @@
     ],
     [
       { label: 'panel.layers', glyph: '▤', run: toggle('layers'), panel: 'layers' },
-      { label: 'panel.settings', glyph: '⚙', run: toggle('settings'), panel: 'settings' },
+      { label: 'panel.settings', glyph: 'map', run: toggle('settings'), panel: 'settings' },
       { label: 'actions.help', glyph: '?', run: toggle('help'), panel: 'help' },
     ],
   ]
@@ -60,6 +67,12 @@
   <span class="name"><AppBrand app="hexmapper" name={t('app.title')} /></span>
   <AppSwitcher current="hexmapper" locale={getLocale()} />
   <div class="spacer"></div>
+  <PreferencesButton
+    locale={getLocale()}
+    {locales}
+    onlocale={(locale) => setLocale(locale as Locale)}
+  />
+  <span class="sep" aria-hidden="true"></span>
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}
     {#each group as action (action.label)}
@@ -71,7 +84,7 @@
         disabled={action.enabled ? !action.enabled() : false}
         onclick={action.run}
       >
-        {#if action.glyph === 'folder' || action.glyph === 'save'}
+        {#if action.glyph === 'folder' || action.glyph === 'save' || action.glyph === 'map'}
           <LineIcon name={action.glyph} />
         {:else}
           {action.glyph}

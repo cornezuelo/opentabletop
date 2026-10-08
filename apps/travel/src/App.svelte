@@ -8,6 +8,7 @@
     contextHelp,
     Dialogs,
     FoldTab,
+    PreferencesButton,
     Toasts,
     tooltip,
   } from '@open-tabletop/ui-kit'
@@ -50,15 +51,11 @@
     <AppSwitcher current="travel" locale={getLocale()} />
     <div class="spacer"></div>
     <UndoButtons {library} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
-    <select
-      aria-label={t('nav.language')}
-      value={getLocale()}
-      onchange={(e) => setLocale(e.currentTarget.value as 'en' | 'es')}
-    >
-      {#each Object.entries(locales) as [code, name] (code)}
-        <option value={code}>{name}</option>
-      {/each}
-    </select>
+    <PreferencesButton
+      locale={getLocale()}
+      {locales}
+      onlocale={(locale) => setLocale(locale as 'en' | 'es')}
+    />
     <button
       class="help-toggle"
       class:active={help}

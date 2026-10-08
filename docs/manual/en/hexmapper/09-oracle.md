@@ -4,7 +4,7 @@ The Oracle button (the gold hexagon under Play and the World, or <kbd>O</kbd>) o
 
 ## The packs of a map
 
-A map can work with only some packs: **Settings → Map → Packs** (all the loaded packs by default). The Oracle panel then lists only theirs, and **Play** only offers their travel systems (plus the generic one). A table can still roll tables of other packs it refers to. The Grey Marches' example map works with Core and the Grey Marches.
+A map can work with only some packs: **Map settings → Map → Packs** (all the loaded packs by default). The Oracle panel then lists only theirs, and **Play** only offers their travel systems (plus the generic one). A table can still roll tables of other packs it refers to. The Grey Marches' example map works with Core and the Grey Marches.
 
 ## Context from the map
 

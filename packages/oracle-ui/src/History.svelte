@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip, confirmAction } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import type { HistoryItem } from './roller.svelte'
   import type { OracleUi } from './ui'
 
@@ -41,6 +41,15 @@
       >{t('history.resetState')}</button
     >
   </header>
+  {#if roller.seed}
+    <p class="seed">
+      <span
+        >{t('history.seeded', { seed: roller.seed })}<InfoTip
+          text={t('history.seededHelp')}
+        /></span
+      >
+    </p>
+  {/if}
   <ol>
     {#each roller.history as item (item.id)}
       <li>
@@ -56,6 +65,12 @@
 </aside>
 
 <style>
+  .seed {
+    margin: 0 0 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
   .history {
     display: flex;
     flex-direction: column;

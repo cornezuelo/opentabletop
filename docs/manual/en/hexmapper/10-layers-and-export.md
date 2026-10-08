@@ -20,11 +20,11 @@ A locked layer is still drawn and exported. Trying to change it shows a notice s
 
 **Highlight a tag**, at the bottom of Layers, outlines every hex with that tag (`landmark`, `haunted`, `shrine`: the box suggests the map's own) and says how many there are; **Dim the other hexes** shades the rest so they stand out. It's only a view while you look: nothing is saved, and **Stop highlighting** clears it.
 
-Hex, region and token names are set in **Settings → Map texts**.
+Hex, region and token names are set in **Map settings → Map texts**.
 
 ## Size and printing
 
-In **Settings → Map size**, size the map by number of hexes, or by paper: choose the paper (A5 to A1, Letter, Legal, Tabloid or custom), the margins and the hex size in millimetres, and the grid is fitted to it. The panel shows the printed size and the smallest paper that fits.
+In **Map settings → Map size**, size the map by number of hexes, or by paper: choose the paper (A5 to A1, Letter, Legal, Tabloid or custom), the margins and the hex size in millimetres, and the grid is fitted to it. The panel shows the printed size and the smallest paper that fits.
 
 ## Export
 

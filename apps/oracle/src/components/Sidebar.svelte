@@ -8,6 +8,7 @@
   import KindBadge from './KindBadge.svelte'
   import { favorites } from '@open-tabletop/oracle-ui'
   import { dialogs } from '../lib/dialogs.svelte'
+  import { isHidden } from '../lib/hiddenPacks.svelte'
 
   let query = $state('')
   let collapsed = $state<Record<string, boolean>>({})
@@ -34,6 +35,8 @@
       return { pack, manifest, defs, errors }
     })
   })
+  /** Packs hidden in Preferences stay out of the tree, not out of the favorites. */
+  const shownGroups = $derived(groups.filter((g) => !isHidden(g.manifest.id)))
 
   /** Favorites pinned on top (filtered by the search too). */
   const pinned = $derived(
@@ -68,7 +71,7 @@
         </ul>
       </div>
     {/if}
-    {#each groups as { pack, manifest, defs, errors } (pack.root)}
+    {#each shownGroups as { pack, manifest, defs, errors } (pack.root)}
       {#if !query || defs.length}
         <div class="pack">
           <div class="pack-row" class:selected={selectedPack === pack.root}>

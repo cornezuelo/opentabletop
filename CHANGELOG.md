@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Preferences** in every app, under a gear in the header: the language and your notes app (until now only in the Hexmapper's settings), shared by every app; in the Oracle, a **seed** for repeatable rolls (the same seed, the same results; **New session** starts it over) and **which packs the list shows**. The Hexmapper's **Settings** are now **Map settings**, with a map icon.
+
 ## [0.1.1] - 2026-10-08
 
 ### Apps

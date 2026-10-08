@@ -4,7 +4,6 @@
   import IconPanel from './IconPanel.svelte'
   import LabelPanel from './LabelPanel.svelte'
   import TokenPanel from './tokens/TokenPanel.svelte'
-  import LanguageSelect from './LanguageSelect.svelte'
   import LayersPanel from './LayersPanel.svelte'
   import LibraryPanel from './LibraryPanel.svelte'
   import MapSettings from './MapSettings.svelte'
@@ -13,7 +12,6 @@
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
   import PlayPanel from './PlayPanel.svelte'
-  import Preferences from './Preferences.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
   import CaptionSettings from './CaptionSettings.svelte'
@@ -75,13 +73,6 @@
         onpreview={previewRegionStyle}
         oncommit={commitRegionStyle}
       />
-    </Section>
-    <Section title={t('panel.preferences')}>
-      <label class="field">
-        <span>{t('settings.language')}</span>
-        <LanguageSelect />
-      </label>
-      <Preferences />
     </Section>
   {:else if editor.panelView === 'library'}
     <header>

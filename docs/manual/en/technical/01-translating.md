@@ -2,7 +2,7 @@
 
 OpenTabletop is built to be translated at three levels, from easiest to hardest. English is always the base: anything not translated falls back to it.
 
-**Which language you see**: the one you chose, in any app's language list or with the flags at the top of the site's front page; every app on the same site shares it. Until you choose, the apps follow your browser's language when they have it (a browser in `es-ES` or `es-MX` opens them in Spanish), and English otherwise.
+**Which language you see**: the one you chose, in any app's **Preferences** (the gear) or with the flags at the top of the site's front page; every app on the same site shares it. Until you choose, the apps follow your browser's language when they have it (a browser in `es-ES` or `es-MX` opens them in Spanish), and English otherwise.
 
 ## Pack content (no code)
 
