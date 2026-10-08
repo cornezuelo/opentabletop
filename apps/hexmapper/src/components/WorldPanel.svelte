@@ -24,6 +24,8 @@
     return worldCalendar()
   })
   const trip = $derived(editor.play ? sessionOf(editor.play) : null)
+  /** With a route planned, moving time on travels along it. */
+  const travelling = $derived((trip?.travel.route?.length ?? 0) > 1)
   const coordOf = (key: string) =>
     formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
   const name = (text: Parameters<typeof localize>[0], id: string) =>
@@ -127,12 +129,14 @@
 
   <div class="field">
     <span
-      >{trip ? t('world.tripAdvance') : t('world.advance')}<InfoTip
-        text={t('world.advanceHelp')}
-      /></span
+      >{trip
+        ? t(travelling ? 'world.tripAdvanceTravel' : 'world.tripAdvance')
+        : t('world.advance')}<InfoTip text={t('world.advanceHelp')} /></span
     >
     {#if trip}<p class="help">
-        {t('world.tripHelp', { hex: coordOf(trip.travel.location) })}
+        {travelling
+          ? t('world.tripHelpTravel', { hex: coordOf(trip.travel.destination ?? '') })
+          : t('world.tripHelp', { hex: coordOf(trip.travel.location) })}
       </p>{/if}
     <div class="buttons">
       <button onclick={() => advanceWorld({ minutes: 60 })}>{t('world.hour')}</button>

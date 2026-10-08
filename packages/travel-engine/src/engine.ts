@@ -151,6 +151,11 @@ export type TravelEvent =
       time: GameTime
     }
   | { type: 'ACTION_UNAVAILABLE'; action: string; because?: Unavailable }
+  /**
+   * Night fell and the party couldn't take the night's action (`day.night`, camp by
+   * default; `because` says why): the night passes without it, on to the next day.
+   */
+  | { type: 'NIGHT_WITHOUT'; action: string; because: Unavailable; time: GameTime }
   /** An action's step changes the party (applied by whoever keeps the party's values). */
   | { type: 'EFFECTS'; action: string; effects: Record<string, number | string>; time: GameTime }
   /**
@@ -168,6 +173,8 @@ export type TravelEvent =
       on?: string
     }
 
+type StoppedEvent = Extract<TravelEvent, { type: 'TRAVEL_STOPPED' }>
+
 /**
  * Why an action (or travelling) can't be done now: the system turns it off, a declared
  * value blocks it (`lost`), it was done today (`oncePerDay`), or its `when` / `unless`.
@@ -179,7 +186,12 @@ export type RouteStrategy = 'shortest' | 'fastest'
 
 export type TravelAction =
   | { type: 'setDestination'; hex: string; strategy?: RouteStrategy }
-  | { type: 'travel'; until?: 'hex' | 'destination' }
+  /**
+   * Marches along the route. With `by` (a moment), the trip goes on by itself until then:
+   * it marches each day, passes each night (the system's night action, or the night
+   * without it), and waits where it ends up once the route is done.
+   */
+  | { type: 'travel'; until?: 'hex' | 'destination'; by?: GameTime }
   | { type: 'advanceTime'; minutes: number }
   /**
    * Waits where the party is until a moment, living it: day-start and day-end checks and
@@ -512,6 +524,7 @@ export function createTravelEngine(options: {
     state: TravelState,
     until: 'hex' | 'destination',
     events: TravelEvent[],
+    by = Infinity,
   ): void => {
     const stop = (reason: StopReason): void => {
       events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time })
@@ -551,13 +564,15 @@ export function createTravelEngine(options: {
       }
       const untilNight = nightfall - state.time
       const untilLimit = dayMinutes - state.travelledToday
-      const available = Math.min(untilNight, untilLimit)
+      if (state.time >= by) return stop('waited')
+      const available = Math.min(untilNight, untilLimit, by - state.time)
       if (available <= 0) return stop(untilNight <= untilLimit ? 'nightfall' : 'day-limit')
       const remaining = cost - state.progress
       if (remaining > available) {
         state.time += available
         state.travelledToday += available
         state.progress += available
+        if (state.time >= by && available < Math.min(untilNight, untilLimit)) return stop('waited')
         return stop(untilNight <= untilLimit ? 'nightfall' : 'day-limit')
       }
       state.time += remaining
@@ -578,15 +593,103 @@ export function createTravelEngine(options: {
   }
 
   /**
+   * The trip going on by itself until `by`: a day's march along the route, then the night
+   * (the night's action, or the night without it) until the next dawn, and so on; once the
+   * route is done (or there is none), it waits there. A day travel is blocked (a storm, a
+   * value like lost) is a day lost, said in the journal. Stops early for a check (the host
+   * resolves it and goes on) or a way blocked for good.
+   */
+  const journey = (
+    state: TravelState,
+    until: 'hex' | 'destination',
+    by: GameTime,
+    events: TravelEvent[],
+  ): void => {
+    const stopAt = (reason: StopReason): StoppedEvent => ({
+      type: 'TRAVEL_STOPPED',
+      reason,
+      time: state.time,
+    })
+    const stop = (reason: StopReason): void => void events.push(stopAt(reason))
+    for (let guard = 0; guard < 10000; guard++) {
+      syncDay(state, events)
+      if (state.pendingChecks.length) return stop('check')
+      if (state.time >= by) return stop('waited')
+      const dawn = calendar.at(state.day, rules.day.start)
+      // Before dawn, the night goes on.
+      if (state.time < dawn) {
+        const waited = quietly(events, () => wait(state, Math.min(by, dawn), events))
+        if (waited?.reason !== 'waited') return void events.push(waited ?? stopAt('waited'))
+        continue
+      }
+      if (!state.route || state.route.length < 2) {
+        if (state.destination && state.destination === state.location)
+          events.push({ type: 'DESTINATION_REACHED', hex: state.location })
+        return wait(state, by, events)
+      }
+      const stopped = quietly(events, () => travel(state, until, events, by))
+      const reason = stopped?.reason
+      if (reason === 'destination' || reason === 'no-route') return wait(state, by, events)
+      // A value that blocks travel today (lost…) costs the day: said in the journal.
+      if (reason === 'value') events.push(stopped!)
+      // Nothing more to march today: the night, until the next dawn.
+      if (
+        reason === 'nightfall' ||
+        reason === 'day-limit' ||
+        reason === 'weather' ||
+        reason === 'value'
+      ) {
+        const next = Math.min(by, calendar.at(state.day + 1, rules.day.start))
+        const waited = quietly(events, () => wait(state, next, events))
+        if (waited?.reason !== 'waited') return void events.push(waited ?? stopAt('waited'))
+        continue
+      }
+      return void events.push(stopped ?? stopAt('check'))
+    }
+  }
+
+  /** Runs `go` and takes its stop back out of `events`, to say why it stopped. */
+  const quietly = (events: TravelEvent[], go: () => void): StoppedEvent | undefined => {
+    const at = events.length
+    go()
+    const index = events.findLastIndex((e, i) => i >= at && e.type === 'TRAVEL_STOPPED')
+    return index < 0 ? undefined : (events.splice(index, 1)[0] as StoppedEvent)
+  }
+
+  /**
+   * A travel order with nothing left to march today (night fell, or the day's hours are
+   * spent) while the night's action can't be taken (no food to camp…) or the system has
+   * none: the night passes, without it, and the march goes on at dawn. Otherwise the
+   * party stops, for the player to camp.
+   */
+  const travelOn = (state: TravelState, until: 'hex' | 'destination', events: TravelEvent[]) => {
+    const time = state.time
+    const stopped = quietly(events, () => travel(state, until, events))
+    const stuck =
+      state.time === time &&
+      (stopped?.reason === 'nightfall' || stopped?.reason === 'day-limit') &&
+      (!night || unavailable(state, night, hostFacts))
+    if (!stuck) return void (stopped && events.push(stopped))
+    const waited = quietly(events, () =>
+      wait(state, calendar.at(state.day + 1, rules.day.start), events),
+    )
+    if (waited?.reason !== 'waited') return void events.push(waited ?? stopped!)
+    travel(state, until, events)
+  }
+
+  /**
    * Waits until `until`, moment by moment: dawn (day-start checks), nightfall (the system's
    * camp, if it has one and the party hasn't camped today), midnight (the day's supplies and
-   * day-end checks). Stops when a check comes up (the host resolves it and waits on), or when
-   * night falls and the party can't camp. Camping may end past `until` (it lasts till dawn).
+   * day-end checks). Stops when a check comes up (the host resolves it and waits on). A
+   * night whose action can't be taken (no food to camp…) passes without it. Camping may
+   * end past `until` (it lasts till dawn).
    */
   const wait = (state: TravelState, until: GameTime, events: TravelEvent[]): void => {
     const stop = (reason: StopReason, because?: Unavailable): void => {
       events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time, ...(because && { because }) })
     }
+    /** The day whose night passed without the night's action. */
+    let without = -1
     for (let guard = 0; guard < 10000; guard++) {
       syncDay(state, events)
       if (state.pendingChecks.length) return stop('check')
@@ -598,20 +701,20 @@ export function createTravelEngine(options: {
         schedule(state, 'day-start', events)
         continue
       }
-      if (state.time >= nightfall && night && !state.actionsToday?.includes(night)) {
+      if (
+        state.time >= nightfall &&
+        night &&
+        without !== state.day &&
+        !state.actionsToday?.includes(night)
+      ) {
         const because = unavailable(state, night, hostFacts)
-        if (because) {
-          events.push({
-            type: 'TRAVEL_STOPPED',
-            reason: 'camp',
-            time: state.time,
-            action: night,
-            because,
-          })
-          return
+        if (!because) {
+          takeAction(state, night, events)
+          continue
         }
-        takeAction(state, night, events)
-        continue
+        // Without its night's action (no food to camp…), the night still passes.
+        events.push({ type: 'NIGHT_WITHOUT', action: night, because, time: state.time })
+        without = state.day
       }
       const next =
         state.time < dawn
@@ -866,7 +969,8 @@ export function createTravelEngine(options: {
           break
         }
         case 'travel':
-          travel(state, action.until ?? 'destination', events)
+          if (action.by === undefined) travelOn(state, action.until ?? 'destination', events)
+          else journey(state, action.until ?? 'destination', action.by, events)
           break
         case 'advanceTime':
           state.time += Math.max(0, action.minutes)

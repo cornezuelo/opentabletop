@@ -72,6 +72,7 @@ export const en = {
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Night',
   },
   journal: {
+    nightWithout: 'Night falls and “{action}” isn’t possible ({why}): the night passes without it.',
     wait: 'Wait here until day {day}, {clock}',
     failed: '{event}: the table failed ({error})',
     discoveryFailed: 'Discovery failed at {hex} ({error})',

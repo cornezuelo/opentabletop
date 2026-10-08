@@ -1,3 +1,4 @@
+import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
 import { calendarOf, localize } from '@open-tabletop/session'
 import { availableActions, nightAction } from '@open-tabletop/travel-engine'
 import { defaultCalendar, type Calendar, type DataCalendar } from '@open-tabletop/time'
@@ -54,11 +55,13 @@ export function worldAct(action: WorldAction): WorldEvent[] {
 }
 
 /**
- * Moves time on from the World panel. With a trip going on there is one time for both:
- * the party waits where it is, living every moment (dawn's checks, what the system does
- * at night and as each day ends), and the world follows it. The wait stops early at anything that needs the
- * player (a check without a table, a pause, a camp the system blocks); a wait of more
- * than a day asks first.
+ * Moves time on from the World panel. With a trip going on there is one time for both, and
+ * the world follows the trip: with a route planned the party travels on along it (marching
+ * by day, what the system does at night, waiting where the route ends), without one it
+ * waits where it is; every moment is lived (dawn's checks, nights, the end of each day).
+ * Time passing into another day asks first; the trip stopping early for something that
+ * needs the player (a paused check, a blocked way, a value that blocks travel, a place
+ * found) says so at the bottom, and so does arriving.
  */
 export async function advanceWorld(how: { minutes: number } | { until: Until }): Promise<void> {
   const state = editor.map.world
@@ -78,19 +81,65 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
     return
   }
   const calendar = worldCalendar()
-  const days = Math.ceil((until - trip.travel.time) / calendar.minutesPerDay)
-  // What the party does each night is the system's (camp, or nothing).
-  const rules = play?.rules ? getSystem(play.rules.system).rules : undefined
-  const night = rules && nightAction(rules)
-  const nightName =
-    night && (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
-  const question = nightName
-    ? t('world.confirmWait', { days, action: nightName })
-    : t('world.confirmWaitNoNight', { days })
-  if (days > 1 && !(await confirmAction(question))) return
-  step({ type: 'wait', until })
+  const travelling = (trip.travel.route?.length ?? 0) > 1
+  const days = calendar.describe(until).day - calendar.describe(trip.travel.time).day
+  if (days > 0) {
+    // What the party does each night is the system's (camp, or nothing).
+    const rules = play?.rules ? getSystem(play.rules.system).rules : undefined
+    const night = rules && nightAction(rules)
+    const nightName =
+      night && (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
+    const hex = (key: string | undefined) =>
+      key ? formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid) : ''
+    const question = travelling
+      ? t(nightName ? 'world.confirmTravel' : 'world.confirmTravelNoNight', {
+          days,
+          action: nightName ?? '',
+          hex: hex(trip.travel.destination),
+        })
+      : t(nightName ? 'world.confirmWait' : 'world.confirmWaitNoNight', {
+          days,
+          action: nightName ?? '',
+        })
+    if (!(await confirmAction(question))) return
+  }
+  const before = trip.journal.length
+  step(travelling ? { type: 'travel', by: until } : { type: 'wait', until })
   const after = editor.map.play ? sessionOf(editor.map.play) : null
-  if (after && after.travel.time < until) showToast(t('world.waitStopped'), 'info', 6000)
+  if (!after) return
+  const said = stopMessage(after, before, until)
+  if (said) showToast(said.text, said.kind, 8000)
+}
+
+/** Why a trip moved on by the world clock stopped before its moment, or that it arrived. */
+export function stopMessage(
+  after: NonNullable<ReturnType<typeof sessionOf>>,
+  before: number,
+  until: number,
+): { text: string; kind: 'info' | 'error' } | undefined {
+  const added = after.journal.slice(before)
+  const rules = editor.map.play?.rules ? getSystem(editor.map.play.rules.system).rules : undefined
+  const checkName = (event: string) =>
+    localize(rules?.checks?.find((c) => c.event === event)?.name, getLocale(), 'en') ?? event
+  const arrived = added.some((e) => e.code === 'DESTINATION_REACHED')
+  if (after.travel.time >= until)
+    return arrived ? { text: t('world.arrived'), kind: 'info' } : undefined
+  const pending = after.travel.pendingChecks[0]
+  if (pending)
+    return { text: t('world.stoppedCheck', { check: checkName(pending.event) }), kind: 'info' }
+  if (added.some((e) => e.code === 'HEX_DISCOVERED' && e.data?.poi))
+    return { text: t('world.stoppedFound'), kind: 'info' }
+  const stopped = added.findLast((e) => e.code === 'TRAVEL_STOPPED')
+  const reason = String(stopped?.data?.reason ?? '')
+  if (reason === 'value') {
+    const id = String(stopped?.data?.value)
+    const name = localize(rules?.values?.[id]?.name, getLocale(), 'en') ?? id
+    return { text: t('world.stoppedValue', { name }), kind: 'info' }
+  }
+  if (reason === 'blocked' || added.some((e) => e.code === 'ROUTE_BLOCKED'))
+    return { text: t('world.stoppedBlocked'), kind: 'info' }
+  if (arrived) return { text: t('world.arrived'), kind: 'info' }
+  return { text: t('world.waitStopped'), kind: 'info' }
 }
 
 /** Events still to come. */

@@ -15,6 +15,7 @@ import {
   modeThrough,
   olderEatingEdits,
   parseTravelRules,
+  type TravelAction,
   type TravelEvent,
   type TravelState,
   type TravelWorld,
@@ -849,7 +850,7 @@ describe('waiting', () => {
     expect(state.resources.food).toBe(3)
   })
 
-  it('stops when night falls and the party can’t camp, saying why', () => {
+  it('when night falls and the party can’t camp, the night passes without it, saying why', () => {
     const { rules: blocking } = parseTravelRules({
       kind: 'travel-rules',
       day: { start: '06:00', nightfall: '20:00' },
@@ -861,12 +862,12 @@ describe('waiting', () => {
     const eng = createTravelEngine({ world, rules: blocking! })
     const hunted = { ...start(), dayChecksDone: true, today: { hunted: true } }
     const { state, events } = waitAll(eng, hunted, at(2, '06:00'))
-    expect(state.time).toBe(at(1, '20:00'))
-    expect(events.at(-1)).toMatchObject({
-      type: 'TRAVEL_STOPPED',
-      reason: 'camp',
-      because: { value: 'hunted' },
-    })
+    expect(state.time).toBe(at(2, '06:00'))
+    expect(taken(events, 'camp')).toBe(0)
+    expect(events.filter((e) => e.type === 'NIGHT_WITHOUT')).toEqual([
+      { type: 'NIGHT_WITHOUT', action: 'camp', because: { value: 'hunted' }, time: at(1, '20:00') },
+    ])
+    expect(events.at(-1)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'waited' })
   })
 
   it('without a camp in the system, the night just passes', () => {
@@ -1193,5 +1194,145 @@ describe('actions the system triggers, and bounded values', () => {
     const { state } = engine.apply(older, { type: 'camp' })
     expect(state.resources.food).toBe(3)
     expect(state.ate).toBeUndefined()
+  })
+})
+
+describe('the trip going on by itself (travel by a moment)', () => {
+  const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
+  /** Applies one action until it stops for something else than a check, resolving those. */
+  function go(eng: typeof engine, state: TravelState, action: TravelAction) {
+    const events: TravelEvent[] = []
+    for (let i = 0; i < 100; i++) {
+      const result = eng.apply(state, action)
+      state = result.state
+      events.push(...result.events)
+      const stop = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
+      if (stop?.type !== 'TRAVEL_STOPPED' || stop.reason !== 'check') break
+      for (const check of state.pendingChecks)
+        state = eng.apply(state, { type: 'resolveCheck', id: check.id }).state
+    }
+    return { state, events }
+  }
+  const taken = (events: TravelEvent[], action: string) =>
+    events.filter((e) => e.type === 'ACTION_TAKEN' && e.action === action)
+  const entered = (events: TravelEvent[]) =>
+    events.flatMap((e) => (e.type === 'HEX_ENTERED' ? [[e.hex, e.time]] : []))
+  const stops = (events: TravelEvent[]) =>
+    events.flatMap((e) => (e.type === 'TRAVEL_STOPPED' ? [e.reason] : []))
+  /** Steppe hexes a day apart on foot (8 h each), south from 0,0. */
+  const planned = (eng = engine, hex = '0,3') =>
+    run2(eng, start(), { type: 'setDestination', hex }).state
+  const run2 = (eng: typeof engine, state: TravelState, action: TravelAction) =>
+    eng.apply(state, action)
+  /** Camp only with food left (a condition on the party, like a pack writes it). */
+  const fedCamp = parseTravelRules({
+    kind: 'travel-rules',
+    day: { start: '06:00', nightfall: '20:00' },
+    travel: { hoursPerDay: 8 },
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    values: { hunted: { blocks: ['travel'] } },
+    actions: {
+      camp: {
+        when: { 'party.resources.food': { gte: 1 } },
+        do: [{ time: 'dawn' }, { effects: { 'party.stats.fatigue': -1 } }],
+      },
+    },
+  }).rules!
+  const fed = createTravelEngine({ world, rules: fedCamp })
+
+  it('marches a day at a time, camps each night and waits at the end, until the moment', () => {
+    const { state, events } = go(engine, planned(), { type: 'travel', by: at(5, '12:00') })
+    expect(entered(events)).toEqual([
+      ['0,1', at(1, '14:00')],
+      ['0,2', at(2, '14:00')],
+      ['0,3', at(3, '14:00')],
+    ])
+    // Camped the first two nights on the way, and the nights waited at the end.
+    expect(taken(events, 'camp').map((e) => e.type === 'ACTION_TAKEN' && e.time)).toEqual([
+      at(1, '20:00'),
+      at(2, '20:00'),
+      at(3, '20:00'),
+      at(4, '20:00'),
+    ])
+    expect(events.some((e) => e.type === 'DESTINATION_REACHED')).toBe(true)
+    expect(state.location).toBe('0,3')
+    expect(state.time).toBe(at(5, '12:00'))
+    // Only the end is said: no "night fell" lines on the way.
+    expect(stops(events).filter((r) => r !== 'check')).toEqual(['waited'])
+  })
+
+  it('stops at the moment, halfway between hexes, and goes on from there', () => {
+    const first = go(engine, planned(), { type: 'travel', by: at(1, '10:00') })
+    expect(first.state.location).toBe('0,0')
+    expect(first.state.time).toBe(at(1, '10:00'))
+    expect(first.state.progress).toBe(240)
+    expect(stops(first.events).at(-1)).toBe('waited')
+    const second = go(engine, first.state, { type: 'travel', by: at(1, '18:00') })
+    expect(entered(second.events)).toEqual([['0,1', at(1, '14:00')]])
+    // The day's 8 hours are spent at 14:00: it waits there until the moment.
+    expect(second.state.time).toBe(at(1, '18:00'))
+    expect(second.state.location).toBe('0,1')
+  })
+
+  it('an hour before dawn is an hour of night, not a march', () => {
+    const night = { ...planned(), time: at(1, '03:00') }
+    const { state, events } = go(engine, night, { type: 'travel', by: at(1, '04:00') })
+    expect(state.time).toBe(at(1, '04:00'))
+    expect(entered(events)).toEqual([])
+  })
+
+  it('with no food to camp, the nights pass without camping and the march goes on', () => {
+    const state0 = { ...planned(fed), time: at(1, '06:00'), resources: { food: 0 } }
+    const result = fed.apply(state0, { type: 'travel', by: at(4, '06:00') })
+    expect(entered(result.events).map(([hex]) => hex)).toEqual(['0,1', '0,2', '0,3'])
+    expect(taken(result.events, 'camp')).toEqual([])
+    expect(result.events.filter((e) => e.type === 'NIGHT_WITHOUT')).toHaveLength(3)
+    expect(result.events.find((e) => e.type === 'NIGHT_WITHOUT')).toMatchObject({
+      action: 'camp',
+      because: { condition: 'when' },
+      time: at(1, '20:00'),
+    })
+    // With food, it camps every night instead.
+    const fedResult = fed.apply(
+      { ...state0, resources: { food: 2 } },
+      {
+        type: 'travel',
+        by: at(4, '06:00'),
+      },
+    )
+    expect(taken(fedResult.events, 'camp')).toHaveLength(3)
+    expect(fedResult.events.some((e) => e.type === 'NIGHT_WITHOUT')).toBe(false)
+  })
+
+  it('a value that blocks travel today costs the day, said, and the march goes on', () => {
+    const hunted = { ...planned(fed), dayChecksDone: true, today: { hunted: true } }
+    const { state, events } = fed.apply(hunted, { type: 'travel', by: at(3, '06:00') })
+    expect(events.find((e) => e.type === 'TRAVEL_STOPPED')).toMatchObject({
+      reason: 'value',
+      value: 'hunted',
+      time: at(1, '06:00'),
+    })
+    // Day 1 lost; day 2 (no longer hunted) marches a hex.
+    expect(entered(events)).toEqual([['0,1', at(2, '14:00')]])
+    expect(state.time).toBe(at(3, '06:00'))
+  })
+
+  it('a travel order at nightfall passes the night when the party can’t camp', () => {
+    const late = {
+      ...planned(fed),
+      time: at(1, '20:00'),
+      dayChecksDone: true,
+      resources: { food: 0 },
+    }
+    const hungry = { party: { resources: { food: 0 } } }
+    const { state, events } = fed.apply(late, { type: 'travel', until: 'hex' }, hungry)
+    expect(events.find((e) => e.type === 'NIGHT_WITHOUT')).toMatchObject({ action: 'camp' })
+    expect(entered(events)).toEqual([['0,1', at(2, '14:00')]])
+    expect(state.location).toBe('0,1')
+    // Able to camp, it stops at nightfall instead, for the player to camp.
+    const able = fed.apply({ ...late, resources: { food: 1 } }, { type: 'travel' })
+    expect(stops(able.events)).toEqual(['nightfall'])
+    expect(able.state.time).toBe(at(1, '20:00'))
   })
 })

@@ -73,6 +73,7 @@ export const es: Messages<typeof en> = {
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Noche',
   },
   journal: {
+    nightWithout: 'Cae la noche y «{action}» no es posible ({why}): la noche pasa sin ello.',
     wait: 'Esperar aquí hasta el día {day}, {clock}',
     failed: '{event}: la tabla falló ({error})',
     discoveryFailed: 'El descubrimiento falló en {hex} ({error})',

@@ -15,10 +15,10 @@ travel-rules/default:
   actions:
     camp:
       name: Acampar
-      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga.'
+      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de 10: si no, la noche pasa a la intemperie, sin descanso.'
     rest:
       name: Descansar
-      description: Dos horas sin marchar. Quita 1 de fatiga, si queda comida.
+      description: Dos horas sin marchar; quita 1 de fatiga. Solo con comida y fatiga por debajo de 10.
     forage:
       name: Buscar comida
       description: 'Tres horas buscando comida (una vez al día): el resto de la marcha del día va a la mitad. Solo en bosque, bosque denso, llanura, cultivos, brezal y marisma: se tira 1d6 + Supervivencia (dos veces, la mejor); de 4 a 6 da comida para un día, 7 o más para 2 a 4 días. En otros terrenos no hay nada que encontrar. No con tormenta.'
@@ -65,7 +65,7 @@ travel-rules/default:
       description: Al acampar donde el peligro es 2 o más.
     HUNGER_CHECK_REQUIRED:
       name: Hambre
-      description: Al acampar sin comida. La moral decide cómo va.
+      description: Un día que acaba sin comida, y una noche a la intemperie. La moral decide cómo va.
     FORAGE_CHECK_REQUIRED:
       name: Buscar comida
       description: Se tira al buscar comida en bosques, campos, brezales o marismas.

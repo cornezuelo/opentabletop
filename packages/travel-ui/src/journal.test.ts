@@ -109,6 +109,11 @@ describe('journal lines', () => {
     expect(line('LIMIT_REACHED', { path: 'party.stats.morale', limit: 'max', value: 5 })).toBe(
       'Morale can’t go higher than 5',
     )
+    expect(
+      line('NIGHT_WITHOUT', { action: 'camp', because: { condition: 'when' }, time: 0 }),
+    ).toMatch(
+      /^Night falls and “.+” isn’t possible \(Not possible here and now \(.+\)\): the night passes without it\.$/,
+    )
     expect(line('RESTED', { minutes: 90 })).toBe('Rest for 1 h 30')
     expect(line('FATIGUE_CHANGED', { change: 1, fatigue: 2, reason: 'hunger' })).toBe(
       'Not enough to eat: fatigue +1 (now 2)',

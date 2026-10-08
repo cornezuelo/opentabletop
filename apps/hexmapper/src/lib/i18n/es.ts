@@ -512,10 +512,23 @@ export const es: Messages = {
     advanceHelp:
       'Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.',
     tripHelp:
-      'Hay un viaje en marcha, así que estos botones hacen que el grupo espere en {hex}: no sigue su ruta (para marchar, usa Viajar en Jugar). Se vive cada momento (las comprobaciones del alba, lo que hace el sistema de noche y al acabar cada día, comer), y la espera se detiene antes si algo te necesita.',
+      'Hay un viaje en marcha sin ruta, así que estos botones hacen que el grupo espere en {hex} (planea una ruta y seguirá viajando por ella). Se vive cada momento (las comprobaciones del alba, lo que hace el sistema de noche y al acabar cada día, comer), y la espera se detiene antes si algo te necesita.',
     tripAdvance: 'Esperar aquí',
-    confirmWait: 'El grupo esperará aquí unos {days} días; cada noche: {action}. ¿Seguir?',
-    confirmWaitNoNight: 'El grupo esperará aquí unos {days} días. ¿Seguir?',
+    confirmWait: 'El grupo esperará aquí {days} día(s); cada noche: {action}. ¿Seguir?',
+    confirmWaitNoNight: 'El grupo esperará aquí {days} día(s). ¿Seguir?',
+    tripAdvanceTravel: 'Seguir viajando',
+    tripHelpTravel:
+      'Hay un viaje en marcha con una ruta, así que estos botones hacen que el grupo siga viajando hacia {hex}: marcha de día por su ruta, hace lo que el sistema hace de noche (acampar, o la noche pasa sin ello) y espera donde acaba la ruta. Se vive cada momento (las comprobaciones del alba, el final de cada día, comer), y se detiene antes si algo te necesita.',
+    confirmTravel:
+      'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando de día; cada noche: {action}. ¿Seguir?',
+    confirmTravelNoNight:
+      'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando de día. ¿Seguir?',
+    stoppedCheck:
+      'El viaje se ha detenido: «{check}» te necesita (mira su diario y pulsa Continuar).',
+    stoppedFound: 'El viaje se ha detenido: el grupo ha encontrado un lugar (mira su diario).',
+    stoppedValue: 'El viaje se ha detenido: {name} impide al grupo viajar.',
+    stoppedBlocked: 'El viaje se ha detenido: el camino está cortado; elige otro destino.',
+    arrived: 'El grupo ha llegado a su destino.',
     waitStopped: 'La espera se ha detenido antes: el viaje te necesita (mira su diario).',
     hour: '+1 hora',
     watch: '+1 guardia',

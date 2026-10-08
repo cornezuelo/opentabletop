@@ -222,6 +222,7 @@ const JOURNALED: TravelEvent['type'][] = [
   'HEX_ENTERED',
   'ACTION_TAKEN',
   'LIMIT_REACHED',
+  'NIGHT_WITHOUT',
   'DESTINATION_REACHED',
   'ROUTE_BLOCKED',
   'NO_ROUTE',
@@ -318,13 +319,20 @@ export function createSession(options: {
       // Before setting off (or choosing where to go), see around the party.
       if (discovery && (travelling || action.type === 'setDestination'))
         if (arrive(s.travel.location) && travelling) return { state: s, entries }
-      let act: TravelAction = discovery && travelling ? { type: 'travel', until: 'hex' } : action
+      // Discovering, a travel order goes hex by hex (until a moment, if it has one).
+      const hexByHex: TravelAction = {
+        type: 'travel',
+        until: 'hex',
+        ...(action.type === 'travel' && action.by !== undefined && { by: action.by }),
+      }
+      let act: TravelAction = discovery && travelling ? hexByHex : action
       // A wait goes on after each check it stops for, like a travel order.
       const waiting = action.type === 'wait'
       if (waiting && action.until > s.travel.time)
         add(s, entries, { source: 'travel', code: 'WAIT', data: { until: action.until } })
-      // A long wait stops for its checks every day.
-      const limit = waiting ? Math.max(maxAuto, 2000) : maxAuto
+      // A long wait, or a trip going on by itself until a moment, stops for its checks every day.
+      const long = waiting || (action.type === 'travel' && action.by !== undefined)
+      const limit = long ? Math.max(maxAuto, 2000) : maxAuto
       for (let i = 0; i <= limit; i++) {
         const dayBefore = s.travel.day
         const from = s.travel.location
@@ -503,7 +511,7 @@ export function createSession(options: {
           keepGoing = !!s.travel.route
         }
         if (!keepGoing) break
-        act = discovery && travelling ? { type: 'travel', until: 'hex' } : action
+        act = discovery && travelling ? hexByHex : action
       }
       return { state: s, entries }
     },

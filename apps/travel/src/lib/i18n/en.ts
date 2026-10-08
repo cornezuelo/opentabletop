@@ -49,7 +49,7 @@ export const en = {
     hoursPerDay: 'Marching hours a day',
     night: 'At nightfall, while waiting',
     nightHelp:
-      'What the party does when night falls while it waits (the world clock moving with a trip on): one of the system’s actions, e.g. camp.\nBy default camp, if the system has it; none: the night just passes.',
+      'What the party does when night falls while it waits (the world clock moving with a trip on): one of the system’s actions, e.g. camp.\nBy default camp, if the system has it; none: the night just passes.\nWhen the action can’t be taken (its Only when / Not when, or a value that blocks it), the night passes without it and the journal says why; a party told to travel at nightfall does the same and marches on at dawn.\n• camp with Only when party.resources.food: { gte: 1 } — a hungry party sleeps in the open',
     nightDefault: 'camp, if there is one',
     nightNone: 'nothing: the night passes',
     hoursPerDayHelp: 'How long the party can march each day before it has to stop.',

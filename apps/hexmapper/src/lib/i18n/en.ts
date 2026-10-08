@@ -505,10 +505,22 @@ export const en = {
     advanceHelp:
       'Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.',
     tripHelp:
-      'A trip is going on, so these buttons make the party wait at {hex}: it doesn’t follow its route (to march, use Travel in Play). Every moment is lived (dawn’s checks, what the system does at night and as each day ends, eating), and the wait stops early if something needs you.',
+      'A trip is going on without a route, so these buttons make the party wait at {hex} (plan a route and they travel on along it). Every moment is lived (dawn’s checks, what the system does at night and as each day ends, eating), and the wait stops early if something needs you.',
     tripAdvance: 'Wait here',
-    confirmWait: 'The party will wait here for about {days} days; each night: {action}. Go on?',
-    confirmWaitNoNight: 'The party will wait here for about {days} days. Go on?',
+    confirmWait: 'The party will wait here for {days} day(s); each night: {action}. Go on?',
+    confirmWaitNoNight: 'The party will wait here for {days} day(s). Go on?',
+    tripAdvanceTravel: 'Travel on',
+    tripHelpTravel:
+      'A trip is going on with a route planned, so these buttons make the party travel on towards {hex}: it marches by day along its route, does what the system does at night (camp, or the night passes without it), and waits where the route ends. Every moment is lived (dawn’s checks, the end of each day, eating), and it stops early if something needs you.',
+    confirmTravel:
+      'The party will travel on towards {hex} for {days} day(s), marching by day; each night: {action}. Go on?',
+    confirmTravelNoNight:
+      'The party will travel on towards {hex} for {days} day(s), marching by day. Go on?',
+    stoppedCheck: 'The trip stopped: “{check}” needs you (see its journal, then Continue).',
+    stoppedFound: 'The trip stopped: the party found a place (see its journal).',
+    stoppedValue: 'The trip stopped: {name} keeps the party from travelling.',
+    stoppedBlocked: 'The trip stopped: the way ahead is blocked; choose another destination.',
+    arrived: 'The party reached its destination.',
     waitStopped: 'The wait stopped early: the trip needs you (see its journal).',
     hour: '+1 hour',
     watch: '+1 watch',

@@ -200,11 +200,16 @@ describe('example maps', () => {
     const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
     const oracle = createOracleEngine({ registry, random: seeded('hunger') })
     const options = { system, world: mapWorld(map), oracle, locale: 'en' }
-    // Camping in Ashford with no food and no morale: hunger, and someone deserts.
+    // A night in Ashford with no food (no camping without it) and no morale: the day ends
+    // hungry, and someone deserts.
     const { session } = startTrip({ system, location: '5,7', season: 'summer' })
     session.travel.resources.food = 0
     session.stats.morale = 0
-    const camped = stepTrip(options, session, { type: 'camp' })
+    const camped = stepTrip(options, session, {
+      type: 'wait',
+      until: session.travel.time + 24 * 60,
+    })
+    expect(camped.entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
     const hunger = camped.entries.find((e) => e.data?.event === 'HUNGER_CHECK_REQUIRED')
     expect(hunger?.text).toMatch(/^In the night, /)
     expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: 0 }) // hirelings never below 0 (min: 0)

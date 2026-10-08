@@ -50,8 +50,8 @@ Qué pasa y cuándo, con las Marcas Grises de ejemplo (otros sistemas tiran otra
 
 1. **Alba**: se tiran las comprobaciones del inicio del día: el clima (el cielo sigue al de ayer) y, fuera de caminos y ríos, perderse. Las acciones que hace el sistema al alba van primero (los mercenarios refunfuñan si ayer pasaron hambre).
 2. **Marcha**: cada hex en el que se entra tira sus comprobaciones: un encuentro donde el mapa dice que hay peligro, el peaje del Puente de Keld por camino, el vado, el santuario (que pausa), un lugar señalado (que te espera).
-3. **Anochecer**: nadie marcha de noche. **Acampar** (o la acción del sistema para la noche) tira las comprobaciones de la noche: un encuentro nocturno donde el peligro es 2 o más, hambre sin comida.
-4. **El final del día** (medianoche): las acciones del sistema de fin de día (comer: 1 de comida, y 1 de forraje a caballo) y sus comprobaciones (un día sin comida suficiente: fatiga +1). Los valores de hoy terminan; las tablas de mañana los leen como `yesterday.…`.
+3. **Anochecer**: nadie marcha de noche. **Acampar** (o la acción del sistema para la noche) tira las comprobaciones de la noche: un encuentro nocturno donde el peligro es 2 o más. Acampar necesita comida y fatiga por debajo de 10: si no, el botón queda desactivado y **Viajar** pasa la noche a la intemperie («Cae la noche y «Acampar» no es posible (…): la noche pasa sin ello»), sin el alivio de una noche bien comidos, y sigue marchando al alba.
+4. **El final del día** (medianoche): las acciones del sistema de fin de día (comer: 1 de comida, y 1 de forraje a caballo) y sus comprobaciones (un día sin comida suficiente: fatiga +1; acabarlo sin nada de comida, hambre, donde la moral decide cómo va). Los valores de hoy terminan; las tablas de mañana los leen como `yesterday.…`.
 
 Tus propias acciones caben entre medias: **Descansar** dos horas, **Buscar comida** (tres horas, la marcha a la mitad), una **Marcha forzada** (más rápido, más cansados), y en las Marcas Grises descansar donde el peligro es 3 o más también puede traer un encuentro.
 

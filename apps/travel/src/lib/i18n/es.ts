@@ -52,7 +52,7 @@ export const es: Messages<typeof en> = {
     hoursPerDay: 'Horas de marcha al día',
     night: 'Al anochecer, esperando',
     nightHelp:
-      'Lo que hace el grupo cuando cae la noche mientras espera (el reloj del mundo avanzando con un viaje en marcha): una de las acciones del sistema, p. ej. camp.\nPor defecto camp, si el sistema la tiene; ninguna: la noche simplemente pasa.',
+      'Lo que hace el grupo cuando cae la noche mientras espera (el reloj del mundo avanzando con un viaje en marcha): una de las acciones del sistema, p. ej. camp.\nPor defecto camp, si el sistema la tiene; ninguna: la noche simplemente pasa.\nSi la acción no se puede hacer (su Solo cuando / Salvo cuando, o un valor que la bloquea), la noche pasa sin ella y el diario dice por qué; un grupo al que mandas viajar al anochecer hace lo mismo y sigue marchando al alba.\n• camp con Solo cuando party.resources.food: { gte: 1 } — un grupo sin comida duerme a la intemperie',
     nightDefault: 'camp, si existe',
     nightNone: 'nada: la noche pasa',
     hoursPerDayHelp: 'Cuánto puede marchar el grupo cada día antes de tener que parar.',

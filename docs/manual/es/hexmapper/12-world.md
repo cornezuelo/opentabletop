@@ -14,17 +14,25 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 ## Con un viaje en marcha
 
-El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj es **esperar donde está el grupo**: cada momento de la espera se vive como si lo jugaras. El panel lo dice: sus botones quedan bajo **Esperar aquí**, con el hex donde espera el grupo. Una ruta planeada se conserva pero no se sigue (un grupo que espera come, pero no marcha): para marchar, pulsa **Viajar** en Jugar, y el reloj sigue al viaje.
+El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj hace avanzar el viaje, viviendo cada momento como si lo jugaras:
+
+- **Con una ruta planeada**, el grupo **sigue viajando** por ella: los botones quedan bajo **Seguir viajando**, con el hex hacia el que va. Marcha de día (como hace **Viajar** en Jugar), hace la acción del sistema para la noche al anochecer, sigue marchando al alba y, cuando llega, espera allí el resto del tiempo. **+1 hora** a las 08:00 es una hora de marcha; **Día siguiente** es lo que queda de marcha hoy, la noche y el alba.
+- **Sin ruta**, el grupo **espera donde está**: los botones quedan bajo **Esperar aquí**, con el hex donde espera. Un grupo que espera come, pero no marcha.
+
+En los dos casos:
 
 - Al alba se tiran las comprobaciones del día (el clima, perderse…), como al ponerse en marcha.
-- Al anochecer el grupo hace **la acción del sistema para la noche**, una vez por noche: acampar, salvo que el sistema nombre otra (`day.night` en sus reglas: mira [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)). Un sistema sin ninguna simplemente deja pasar la noche.
+- Al anochecer el grupo hace **la acción del sistema para la noche**, una vez por noche: acampar, salvo que el sistema nombre otra (`day.night` en sus reglas: mira [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)). Si no puede hacerla (la bloquea un valor del día o no se cumplen sus condiciones: las Marcas Grises solo acampan con comida), la noche pasa sin ella y el diario dice por qué: «Cae la noche y «Acampar» no es posible (…): la noche pasa sin ello.» Un sistema sin ninguna simplemente deja pasar la noche.
 - Cada día que acaba hace las acciones de fin de día del sistema (comer, por ejemplo) y tira sus comprobaciones de fin de día (el hambre, por ejemplo).
+- Un día en que el grupo no puede marchar (una tormenta, un valor que bloquea el viaje, como estar perdidos) es un día perdido, y el diario lo dice; al día siguiente sigue la marcha.
 
-El diario empieza con «Esperar aquí hasta el día 3, 06:00» y luego lo cuenta todo. La espera **se detiene antes**, y el reloj con ella, cuando algo te necesita: una comprobación sin tabla o que hace pausa (pulsa **Continuar** y vuelve a avanzar el reloj), o una noche en la que el grupo no puede hacer su acción para la noche (lo bloquea un valor del día o no se cumplen sus condiciones): «Cae la noche y «Acampar» no es posible (…): la espera se detiene aquí.» Un mensaje avisa de que se detuvo antes.
+**Mover el tiempo a otro día pregunta antes**: «El grupo seguirá viajando hacia 0808 durante 1 día(s), marchando de día; cada noche: Acampar. ¿Seguir?» (o «esperará aquí»). Si dices que no, todo queda como estaba. Al esperar, el diario empieza con «Esperar aquí hasta el día 3, 06:00» y luego lo cuenta todo.
 
-Una acampada dura hasta el alba aunque la espera pidiera menos: **+1 hora** a las 19:30 cruza el anochecer, así que el grupo acampa y el reloj acaba al alba. Una espera de más de un día pregunta antes, diciendo qué hace el grupo cada noche (la acción del sistema para la noche, o nada). Esperar nunca mueve al grupo, aunque haya una ruta planeada o el descubrimiento esté activo: se queda donde está hasta que vuelvas a viajar.
+**Se detiene antes**, y el reloj con él, cuando algo te necesita, y **un mensaje abajo dice por qué**: una comprobación sin tabla o que hace pausa («“Encuentro” te necesita»: mira el diario, pulsa **Continuar** y vuelve a avanzar el reloj), un lugar encontrado por el camino (descubrimiento), un camino cortado del todo (elige otro destino). Llegar también se avisa: «El grupo ha llegado a su destino.»
 
-Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashford y pulsa **Día siguiente**: al alba se tiran el clima y perderse, al anochecer el grupo acampa (come la comida de un día, una noche bien comidos quita 1 de fatiga, se tira el encuentro nocturno) y el reloj acaba en el alba siguiente.
+Una acampada dura hasta el alba aunque pidieras menos: **+1 hora** a las 19:30 cruza el anochecer, así que el grupo acampa y el reloj acaba al alba.
+
+Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashford (0608) y haz clic en 0808 en Jugar para planear el camino; luego pulsa **Día siguiente**: pregunta, al alba se tiran el clima y perderse, el grupo marcha por el camino, acampa al anochecer (come la comida de un día, una noche bien comidos quita 1 de fatiga, se tira el encuentro nocturno) y el reloj acaba en el alba siguiente, un día más allá. Quita la ruta (clic en el hex del propio grupo) y **Día siguiente** espera en el sitio.
 
 ## Eventos
 

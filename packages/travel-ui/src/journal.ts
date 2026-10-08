@@ -201,12 +201,19 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const parts = (context.calendar ?? defaultCalendar).describe(until)
       return t('journal.wait', { day: parts.day - startDay + 1, clock: formatClock(parts) })
     }
+    case 'NIGHT_WITHOUT':
+      return t('journal.nightWithout', {
+        action: actionText(String(d.action)),
+        // Inside brackets: without its full stop.
+        why: whyText(d.because as Unavailable | undefined, context).replace(/\.$/, ''),
+      })
+    // Older journals: a wait stopped at a night that couldn't be camped.
     case 'TRAVEL_STOPPED':
       if (d.reason === 'camp')
         return t('stop.camp', {
           // Older entries didn't say which action: it was camp.
           action: actionText(String(d.action ?? 'camp')),
-          why: whyText(d.because as Unavailable | undefined, context),
+          why: whyText(d.because as Unavailable | undefined, context).replace(/\.$/, ''),
         })
       if (d.reason === 'value')
         return t('stop.value', {

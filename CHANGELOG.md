@@ -17,10 +17,13 @@ The first alpha, `0.1.0`, is being prepared: everything below is what it will br
 ### Packs
 
 - **Core**: generic oracles and inspiration for any game, and the Generic travel rules.
-- **The Grey Marches**: a frontier setting with an example map that uses every feature.
+- **The Grey Marches**: a frontier setting with an example map that uses every feature. Camp and rest only with food left and fatigue under 10; hunger is rolled when a day ends without food.
 
 ### Fixes
 
+- Moving the world clock on with a trip and a route planned travels along the route (marching by day, nights, waiting on arrival) instead of waiting in place; a day passing asks first, and a message at the bottom says why the trip stopped early, or that it arrived.
+- A night when the party can't take its night action (camp) passes without it, said in the journal, instead of leaving the trip stuck at nightfall.
+- The trail and planned route follow the drawn shape of the roads, trails and rivers they walk.
 - The party's trail and planned route are drawn beside the roads and rivers they follow, not on top of them.
 - Waiting with the world clock never moves the party, even with a route planned and discovery on.
 

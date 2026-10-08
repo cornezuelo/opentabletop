@@ -1,5 +1,11 @@
 import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
-import { calendarOf, startTrip, stepTrip, travelSystems } from '@open-tabletop/session'
+import {
+  calendarOf,
+  startTrip,
+  stepTrip,
+  travelSystems,
+  type SessionState,
+} from '@open-tabletop/session'
 import { calendarFacts, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
@@ -251,24 +257,6 @@ describe('bundled open packs', () => {
       expect(low.stats.hirelings).toBe(1)
     })
 
-    it('a rest only eases fatigue with food left; camping is always possible', () => {
-      const options = play([{ terrain: 'plains' }], false, 'rest-food')
-      const after = (action: string, food: number) => {
-        const { session } = startTrip({
-          system,
-          location: '0',
-          season: 'summer',
-          stats: { fatigue: 2 },
-        })
-        const hungry = { ...session, travel: { ...session.travel, resources: { food, fodder: 6 } } }
-        const out = stepTrip(options, hungry, { type: 'action', id: action })
-        return { took: took(out.entries, action), fatigue: out.state.stats.fatigue }
-      }
-      expect(after('rest', 3)).toEqual({ took: true, fatigue: 1 })
-      expect(after('rest', 0)).toEqual({ took: true, fatigue: 2 })
-      expect(after('camp', 0).took).toBe(true)
-    })
-
     it('a restless watch with low morale', () => {
       const options = play([{ terrain: 'plains' }], false, 'watch')
       const camp = (morale: number) => {
@@ -385,15 +373,25 @@ describe('bundled open packs', () => {
     }
     const { session } = startTrip({ system, location: '0', season: 'summer' })
     expect(session.stats.fatigue).toBe(0)
-    // A night in camp with no food: the day ended short, fatigue +1 (and hunger is rolled).
+    // A night with no food: no camping (camp needs food), the night passes in the open; the
+    // day ended short, fatigue +1, and hunger is rolled.
     const hungry = { ...session, travel: { ...session.travel, resources: { food: 0, fodder: 0 } } }
-    const night = stepTrip(options, hungry, { type: 'camp' })
+    const night = stepTrip(options, hungry, {
+      type: 'wait',
+      until: session.travel.time + 24 * 60,
+    })
     expect(night.entries).toContainEqual(
       expect.objectContaining({
         code: 'CHECK_EFFECTS',
         data: expect.objectContaining({ event: 'HUNGRY_DAY' }),
       }),
     )
+    expect(night.entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+    expect(
+      night.entries.some(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'HUNGER_CHECK_REQUIRED',
+      ),
+    ).toBe(true)
     expect(night.state.stats.fatigue).toBeGreaterThanOrEqual(1)
     // A fed night eases it, never below 0.
     const fed = {
@@ -405,6 +403,100 @@ describe('bundled open packs', () => {
     expect(rested.stats.fatigue).toBe(tired - 1)
     const fresh = stepTrip(options, { ...session }, { type: 'camp' }).state
     expect(fresh.stats.fatigue).toBe(0)
+  })
+
+  describe('the Grey Marches camp and rest only with food left and fatigue under 10', () => {
+    const system = marches()
+    const options = {
+      system,
+      world: row(Array.from({ length: 30 }, () => ({ terrain: 'plains' }))),
+      oracle: createOracleEngine({ registry, random: seeded('camp-rest') }),
+      locale: 'en',
+    }
+    const trip = (food: number, fatigue: number): SessionState => {
+      const { session } = startTrip({ system, location: '0', season: 'summer' })
+      return {
+        ...session,
+        stats: { ...session.stats, fatigue },
+        travel: { ...session.travel, resources: { food, fodder: 0 } },
+      }
+    }
+    const took = (entries: { code: string; data?: Record<string, unknown> }[], id: string) =>
+      entries.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === id)
+
+    it('rests with food and fatigue under 10: two hours, fatigue −1', () => {
+      const before = trip(3, 4)
+      const { state, entries } = stepTrip(options, before, { type: 'action', id: 'rest' })
+      expect(took(entries, 'rest')).toBe(true)
+      expect(state.travel.time).toBe(before.travel.time + 120)
+      expect(state.stats.fatigue).toBe(3)
+    })
+
+    for (const [food, fatigue, why] of [
+      [0, 4, 'hungry'],
+      [3, 10, 'exhausted'],
+      [0, 12, 'both'],
+    ] as const)
+      it(`can’t rest or camp ${why} (food ${food}, fatigue ${fatigue}): nothing happens`, () => {
+        const before = trip(food, fatigue)
+        for (const id of ['rest', 'camp']) {
+          const { state, entries } = stepTrip(options, before, { type: 'action', id })
+          expect(took(entries, id)).toBe(false)
+          expect(state.travel.time).toBe(before.travel.time)
+          expect(state.stats.fatigue).toBe(fatigue)
+        }
+      })
+
+    it('at nightfall, fed, the party camps; hungry or exhausted, the night passes without it', () => {
+      const night = (food: number, fatigue: number) => {
+        const before = trip(food, fatigue)
+        const nightfall = before.travel.time + 14 * 60
+        return stepTrip(options, before, { type: 'wait', until: nightfall + 60 })
+      }
+      const fed = night(3, 4)
+      expect(took(fed.entries, 'camp')).toBe(true)
+      expect(fed.entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(false)
+      for (const [food, fatigue] of [
+        [0, 4],
+        [3, 10],
+      ]) {
+        const out = night(food, fatigue)
+        expect(took(out.entries, 'camp')).toBe(false)
+        expect(out.entries).toContainEqual(
+          expect.objectContaining({
+            code: 'NIGHT_WITHOUT',
+            data: expect.objectContaining({ action: 'camp', because: { condition: 'when' } }),
+          }),
+        )
+        // No fed night's relief: fatigue never goes down.
+        expect(out.state.stats.fatigue).toBeGreaterThanOrEqual(fatigue)
+      }
+    })
+
+    it('travelling on hungry passes the night in the open and marches at dawn', () => {
+      let state = trip(0, 2)
+      state = stepTrip(options, state, { type: 'setDestination', hex: '29' }).state
+      // March the first day until night falls (the party can't camp).
+      const day = state.travel.day
+      for (let i = 0; i < 10 && state.travel.day === day; i++) {
+        const out = stepTrip(options, state, { type: 'travel' })
+        state = out.state
+        for (const c of state.travel.pendingChecks)
+          state = stepTrip(options, state, { type: 'resolveCheck', id: c.id }).state
+      }
+      expect(state.travel.day).toBeGreaterThan(day)
+      expect(state.journal.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+      // On the way again the next day (unless the hungry hirelings refuse: a value).
+      const where = state.travel.location
+      const next = stepTrip(options, state, { type: 'travel', until: 'hex' })
+      const refused = next.state.journal.some(
+        (e) => e.code === 'TRAVEL_STOPPED' && e.data?.reason === 'value',
+      )
+      expect(next.state.travel.location !== where || refused).toBe(true)
+      expect(
+        state.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp'),
+      ).toBe(false)
+    })
   })
 
   it('the Grey Marches eat by themselves as each day ends: food, and fodder on horseback', () => {
