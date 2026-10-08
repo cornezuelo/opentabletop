@@ -6,5 +6,6 @@ export default defineConfig({
   plugins: [packSources(), svelte()],
   test: {
     include: ['packages/*/src/**/*.test.ts', 'apps/*/src/**/*.test.ts'],
+    setupFiles: ['./vitest.setup.ts'],
   },
 })
