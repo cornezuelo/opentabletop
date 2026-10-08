@@ -72,6 +72,32 @@ template: '{{name}} (fuerza {{might}})'
 
 Cartas que se roban sin reponer hasta que se baraja (`reshuffle: when-empty`, `manual` o `after-draw`). Una carta puede tener copias (`count`), tirar una tabla, poner valores, tener `effects` y `pause`, como una entrada.
 
+```yaml
+kind: deck
+id: omens
+reshuffle: when-empty # when-empty, manual o after-draw
+cards:
+  - { id: crows, result: Los cuervos os siguen todo el día, count: 3 } # tres copias
+  - { id: stranger, result: 'Un desconocido en el camino: {{result}}', table: npc }
+  - { id: cache, result: 'El escondite de un cazador', effects: { party.resources.food: 2 } }
+  - { id: wyrm-sign, result: Árboles chamuscados, set: { omen: wyrm }, pause: true }
+```
+
+Cada carta necesita un `id` (lo usan las traducciones y el registro de cartas robadas). **Lo que ven las tablas:** los valores `set` de una carta, como los de una entrada; una tabla que tira una carta da su texto como `{{result}}`.
+
+## Entradas de los oráculos
+
+La entrada de un oráculo puede tener `label` y `labels` para sus opciones, que se muestran en lugar de los ids y se traducen en `locales/`:
+
+```yaml
+inputs:
+  odds:
+    label: Probabilidad
+    options: [unlikely, even, likely]
+    labels: { unlikely: Improbable, even: Igualada, likely: Probable }
+    default: even
+```
+
 ## Modos de tirada
 
 Las formas en que un sistema tira una tabla **varias veces y se queda con un total**: ventaja, desventaja o cualquier otra (tres tiradas quedándose con la del medio…). Las aplicaciones no conocen ninguna: las declara un pack, con sus nombres, y sus tablas dicen cuáles usan. Una definición `roll-modes` por pack, con los modos que quieras.
@@ -103,11 +129,87 @@ Cuando se aplican varios (uno elegido a mano más otros solos), los que se anula
 
 Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades y si se puede entrar (`passable`: `false`, o `{ when, unless }` para un paso cerrado en invierno o un lago que se cruza sobre el hielo), el agua (lo mismo), los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), qué hace el grupo al anochecer si espera (`day.night`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel`, el id de una de sus acciones (camp, rest, forage…) o `mode.<id>`), las **acciones** del grupo (todas iguales: acampar, descansar, buscar comida…: `when` / `unless`, `oncePerDay`, `on:` para las que hace el propio sistema en un momento o tras otra acción (o varios: una lista), y sus pasos, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y los [Sistemas](../travel/03-systems.md) de la aplicación Travel.
 
+Todas las claves, en un sistema pequeño (los comentarios dicen qué hace cada una):
+
+```yaml
+kind: travel-rules
+id: default
+day:
+  start: '06:00' # el alba: comprobaciones y acciones day-start
+  nightfall: '20:00' # nadie marcha después
+  night: camp # qué hace un grupo que espera al anochecer (false: nada)
+travel: { hoursPerDay: 8 } # horas de marcha al día
+modes: # formas de viajar
+  foot: { name: A pie, kmPerDay: 24 }
+  horse: { name: A caballo, kmPerDay: 40, unless: { weather: snow } }
+  boat:
+    { kmPerDay: 50, through: { water: true }, when: { any: [{ water: true }, { tags: ferry }] } }
+terrains:
+  plains: { multiplier: 1 }
+  forest: { multiplier: 0.5 }
+  peaks: { multiplier: 0.25, passable: { when: { season: summer } } }
+  lake: { multiplier: 0.5, passable: { when: { month: [1, 12] } } } # helado en pleno invierno
+defaultTerrain: { multiplier: 1 } # velocidad × de los terrenos no listados
+water: { passable: false } # hexes de agua sin regla propia
+edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # por un camino o río
+resources: # provisiones, con sus límites
+  food: { name: Raciones, min: 0 }
+weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
+values: # valores del día que ponen tablas y acciones
+  lost: { name: Perdidos, blocks: [travel] }
+  snowbound: { blocks: [mode.horse] }
+actions:
+  camp:
+    when: { party.resources.food: { gte: 1 } } # si no, la noche pasa sin ello
+    do:
+      - { time: dawn }
+      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+  rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
+  forage:
+    oncePerDay: true
+    unless: { weather: storm }
+    nothing: 'no hay nada que buscar en {terrain}' # el diario cuando no se aplica ninguna comprobación
+    do: [{ time: 180 }, { speed: 0.5 }]
+  eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] } # no es un botón
+checks:
+  - { event: WEATHER_CHECK_REQUIRED, at: day-start }
+  - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: day-start, unless: { edges: road } }
+  - { event: ENCOUNTER_CHECK_REQUIRED, at: [hex-enter, rest], when: { danger: { gte: 2 } } }
+  - { event: FORAGE_CHECK_REQUIRED, at: forage }
+  - { event: HUNGRY_DAY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
+```
+
+Un paso hace una cosa: `time` (minutos, o `dawn`, `nightfall`, `'14:00'`), `speed` (lo que queda de marcha hoy), `effects`, `set`, `do` (otra acción) o `roll` (una comprobación); cada paso puede tener `when` / `unless`. El `on:` de una acción es `day-start`, `hex-enter`, `day-end` o el id de otra acción (o una lista). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora). Los `perDay` de los packs antiguos, el `consumes` de una forma de viajar y los pasos con `eat: day` se siguen leyendo, como una acción `eat` en day-end.
+
 **Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 
 ## Bindings
 
 La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`); **reads**, nombres para los demás valores que leen sus tablas (`icon.guards`, `fordModifier`…); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
+
+```yaml
+kind: bindings
+id: default
+stats: # los números del grupo, que se editan durante el viaje
+  survival: { name: Supervivencia, description: Se suma al buscar comida., default: 1 }
+  hirelings: { name: Mercenarios, default: 0, min: 0 }
+  fatigue: { name: Fatiga, default: 0, min: 0 }
+reads: # nombres para otros valores que leen sus tablas (en el panel de tirada y el mapa)
+  danger: { name: Peligro, description: Lo peligroso que es el hex. }
+  icon.guards: { name: Guardias }
+discover: # tablas que deciden los hexes vacíos según viaja el grupo
+  terrain: { resolve: next-terrain }
+  contents: { resolve: hex-contents }
+  reveal: neighbors # o entered
+on: # por evento de comprobación: qué la responde
+  WEATHER_CHECK_REQUIRED: { weather: sky } # un modelo de clima
+  NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost } # una tabla, oráculo, generador o mazo
+  ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: day } }
+  FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } } # la entrada de un oráculo
+```
+
+Una comprobación sin binding (y sin `effects`) detiene el viaje y te espera.
 
 **Qué ven las tablas:** cada característica por su nombre (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
 

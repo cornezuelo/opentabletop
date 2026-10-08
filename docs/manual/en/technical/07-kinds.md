@@ -73,6 +73,32 @@ template: '{{name}} (might {{might}})'
 
 Cards drawn without replacement until the deck is reshuffled (`reshuffle: when-empty`, `manual` or `after-draw`). A card can come in copies (`count`), roll a table, set values, have `effects` and `pause`, like an entry.
 
+```yaml
+kind: deck
+id: omens
+reshuffle: when-empty # when-empty, manual or after-draw
+cards:
+  - { id: crows, result: Crows follow you all day, count: 3 } # three copies
+  - { id: stranger, result: 'A stranger on the road: {{result}}', table: npc }
+  - { id: cache, result: 'A hunter’s cache', effects: { party.resources.food: 2 } }
+  - { id: wyrm-sign, result: Scorched trees, set: { omen: wyrm }, pause: true }
+```
+
+Each card needs an `id` (translations and the drawn-cards record use it). **What tables see:** a card's `set` values, like an entry's; a table rolled by a card gives its text as `{{result}}`.
+
+## Oracle inputs
+
+An oracle's input can have a `label` and `labels` for its options, shown instead of the ids and translated in `locales/`:
+
+```yaml
+inputs:
+  odds:
+    label: The odds
+    options: [unlikely, even, likely]
+    labels: { unlikely: Unlikely, even: Even, likely: Likely }
+    default: even
+```
+
 ## Roll modes
 
 The ways a system rolls a table **several times and keeps one total**: advantage, disadvantage, or anything else (three rolls keeping the middle one…). The apps know none of them: a pack declares them, with their names, and its tables list the ones they use. One `roll-modes` definition per pack, with any number of modes.
@@ -104,11 +130,87 @@ When several apply (one chosen by hand plus some on their own), the ones that ca
 
 How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), what the party does at nightfall while waiting (`day.night`), supplies (with their `min` / `max`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel`, one of its actions' id (camp, rest, forage…) or `mode.<id>`), the party's **actions** (all alike: camp, rest, foraging…: `when` / `unless`, `oncePerDay`, `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`) and the **checks**: what is rolled at dawn, on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Travel app's [Systems](../travel/03-systems.md).
 
+Every key, in a small system (the comments say what each does):
+
+```yaml
+kind: travel-rules
+id: default
+day:
+  start: '06:00' # dawn: day-start checks and actions
+  nightfall: '20:00' # nobody marches after it
+  night: camp # what a party waiting at nightfall does (false: nothing)
+travel: { hoursPerDay: 8 } # marching hours a day
+modes: # ways of travelling
+  foot: { name: On foot, kmPerDay: 24 }
+  horse: { name: On horseback, kmPerDay: 40, unless: { weather: snow } }
+  boat:
+    { kmPerDay: 50, through: { water: true }, when: { any: [{ water: true }, { tags: ferry }] } }
+terrains:
+  plains: { multiplier: 1 }
+  forest: { multiplier: 0.5 }
+  peaks: { multiplier: 0.25, passable: { when: { season: summer } } }
+  lake: { multiplier: 0.5, passable: { when: { month: [1, 12] } } } # frozen in deep winter
+defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
+water: { passable: false } # water hexes without a rule of their own
+edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
+resources: # supplies, with their bounds
+  food: { name: Rations, min: 0 }
+weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
+values: # values of the day tables and actions set
+  lost: { name: Lost, blocks: [travel] }
+  snowbound: { blocks: [mode.horse] }
+actions:
+  camp:
+    when: { party.resources.food: { gte: 1 } } # otherwise the night passes without it
+    do:
+      - { time: dawn }
+      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+  rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
+  forage:
+    oncePerDay: true
+    unless: { weather: storm }
+    nothing: 'nothing to forage on {terrain}' # the journal when no check applies
+    do: [{ time: 180 }, { speed: 0.5 }]
+  eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] } # not a button
+checks:
+  - { event: WEATHER_CHECK_REQUIRED, at: day-start }
+  - { event: NAVIGATION_CHECK_REQUIRED, name: Getting lost, at: day-start, unless: { edges: road } }
+  - { event: ENCOUNTER_CHECK_REQUIRED, at: [hex-enter, rest], when: { danger: { gte: 2 } } }
+  - { event: FORAGE_CHECK_REQUIRED, at: forage }
+  - { event: HUNGRY_DAY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
+```
+
+A step does one thing: `time` (minutes, or `dawn`, `nightfall`, `'14:00'`), `speed` (the rest of today's march), `effects`, `set`, `do` (another action) or `roll` (a check); each step may have `when` / `unless`. An action's `on:` is `day-start`, `hex-enter`, `day-end` or another action's id (or a list). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now). Older packs' `perDay`, a mode's `consumes` and steps with `eat: day` are still read, as an `eat` action at day-end.
+
 **What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 
 ## Bindings
 
 The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+
+```yaml
+kind: bindings
+id: default
+stats: # the party's numbers, edited during the trip
+  survival: { name: Survival, description: Added to foraging., default: 1 }
+  hirelings: { name: Hirelings, default: 0, min: 0 }
+  fatigue: { name: Fatigue, default: 0, min: 0 }
+reads: # names for other values its tables read (shown in the roll panel and on the map)
+  danger: { name: Danger, description: How dangerous the hex is. }
+  icon.guards: { name: Guards }
+discover: # tables that decide empty hexes as the party travels
+  terrain: { resolve: next-terrain }
+  contents: { resolve: hex-contents }
+  reveal: neighbors # or entered
+on: # per check event: what answers it
+  WEATHER_CHECK_REQUIRED: { weather: sky } # a weather model
+  NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost } # a table, oracle, generator or deck
+  ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: day } }
+  FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } } # an oracle's input
+```
+
+A check with no binding (and no `effects`) stops the trip and waits for you.
 
 **What tables see:** each stat by name (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
 

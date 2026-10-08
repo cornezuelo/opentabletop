@@ -6,6 +6,69 @@ A travel system is two definitions in a pack, usually in one file: **travel rule
 
 Write a name in the box at the bottom of the system list and press **+**. It creates one of your packs with the Generic rules to start from and empty bindings, and opens its **YAML** tab. The system is ready to play right away in this app and in the Hexmapper (in the same browser).
 
+## Your first system, step by step
+
+A small system for a game where the party carries torches, can get lost in the woods and must rest when tired. Each step is done in the forms (or the same in YAML), and **Play** tries it at once.
+
+1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from the Generic rules: walking 30 km a day, eating 1 food as each day ends.
+2. **A supply**: in **Rules → Supplies**, add `torches` with **Min** `0`. Now the trip panel shows Torches, and the player can change them by hand.
+3. **Spend it**: open the action **eat** (it runs by itself at `day-end`) and add a step `effects: { party.resources.torches: -1 }`. Each day now burns a torch too.
+4. **Being lost**: in **Values of the day**, add `lost` and, in **Blocks**, `travel`. A table that sets `lost: true` will stop the party for the rest of the day.
+5. **A check**: in **Checks**, **Add a check**: event `LOST_CHECK`, **When** `day-start`, **Only if** `terrain: forest`. In **Rolled on**, pick a table of yours whose bad result has **Sets** `lost: true` (make it in the Oracle app: _1d6_, 1–2 sets `lost: true`).
+6. **Fatigue**: in **Checks → Party stats**, add `fatigue`, starting at `0` (its minimum, `min: 0`, is written in YAML). Then a check **When** `day-end`, **Only if** `below: torches`, **Changes** `party.stats.fatigue: 1`: a day without torches tires the party.
+7. **Resting only when tired**: open **rest**: **Only when** `party.stats.fatigue: { gte: 1 }`; steps `time: 120` and `effects: { party.stats.fatigue: -1 }`. The button is off while the party is fresh, and says why.
+8. **Try it**: **Play** → a way of three hexes, the middle one `forest`; travel and read the journal: the lost check at dawn in the forest, the torches going down each night, the rest button turning on once tired.
+
+The same system in YAML (the **YAML** tab shows it like this):
+
+```yaml
+kind: travel-rules
+id: default
+day: { start: '06:00', nightfall: '20:00' }
+travel: { hoursPerDay: 8 }
+terrains: { plains: { multiplier: 1 }, forest: { multiplier: 0.5 } }
+modes: { foot: { kmPerDay: 30 } }
+resources:
+  food: { min: 0 }
+  torches: { min: 0 } # step 2
+values:
+  lost: { blocks: [travel] } # step 4
+actions:
+  camp: { do: [{ time: dawn }] }
+  rest: # step 7
+    when: { party.stats.fatigue: { gte: 1 } }
+    do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
+  eat:
+    on: day-end
+    do:
+      - { effects: { party.resources.food: -1 } }
+      - { effects: { party.resources.torches: -1 } } # step 3
+checks:
+  - { event: LOST_CHECK, at: day-start, when: { terrain: forest } } # step 5
+  - {
+      event: NO_TORCHES,
+      at: day-end,
+      when: { below: torches },
+      effects: { party.stats.fatigue: 1 },
+    } # step 6
+---
+kind: bindings
+id: default
+stats:
+  fatigue: { name: Fatigue, default: 0, min: 0 } # step 6
+on:
+  LOST_CHECK: { resolve: dark-lost }
+---
+kind: table # step 5, made in the Oracle app
+id: dark-lost
+roll: 1d6
+entries:
+  - { range: 1-2, result: Lost among the trees, set: { lost: true } }
+  - { range: 3-6, result: The path holds }
+```
+
+The Grey Marches do all of this and much more; their [page](../packs/02-grey-marches.md) says where each part is.
+
 ## Changing it with forms
 
 - **Rules**: the day (dawn, nightfall, marching hours, and **At nightfall, while waiting**: the action the party takes when night falls while the world clock moves, camp by default; when its conditions don't hold, the night passes without it), the ways of travelling (km per day, **Only through**: where it can go, a condition on each hex it enters, e.g. the Grey Marches' boat on water or coast, `any: [{ water: true }, { terrain: coast }]`, or a cart only by road, `edges: road`; and **Only when**: where and when it can be chosen, e.g. the Grey Marches' boat only at the water's edge or the ferry, `any: [{ water: true }, { terrain: coast }, { tags: ferry }]`; **Not when**: when it can't), how each terrain and each road or river changes the speed and whether a terrain can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment, e.g. the Grey Marches' peaks, open only in summer and closed in snow or storm, `season: summer` / `weather: [snow, storm]`; water hexes have the same), the supplies (with their **Min** and **Max**), how each weather slows you down, the **values of the day** and the **actions**. Help next to each part explains it. Supplies are used by the system's own actions, checks and tables, never by the app: the Grey Marches eat with an action the system takes at the end of each day (1 food, and 1 fodder on horseback). **Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum). Older systems that used supplies **per day** show a note with **Convert**, which writes the same as such an action. Grey text in an empty box is only the default or a hint, not a value.
