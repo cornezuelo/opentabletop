@@ -28,6 +28,7 @@ import {
   type CheckRule,
   type TravelRules,
 } from './rules'
+import { hexIdOf, qualify } from './facts'
 
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
 export interface TravelWorld {
@@ -350,11 +351,11 @@ export function createTravelEngine(options: {
     condition: Condition | undefined,
     seen: Record<string, unknown>,
     moment?: string,
-  ): boolean => matches(condition, seen, { roller: rollsOf(state, seen, moment) })
+  ): boolean => matches(condition, qualify(seen), { roller: rollsOf(state, seen, moment) })
   const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>
     momentRolls(
       state,
-      typeof seen.hex === 'string' ? seen.hex : state.location,
+      hexIdOf(seen) ?? state.location,
       typeof seen.moment === 'string' ? seen.moment : moment,
     )
   /** The declared value that blocks `what` today (travel, an action), if any. */
@@ -392,7 +393,13 @@ export function createTravelEngine(options: {
   /** A hex as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
   const hexFacts = (hex: string): Record<string, unknown> => {
     const cell = world.cell(hex)
-    return { ...cell, hex, terrain: cell?.terrain, tags: cell?.tags ?? [], water: !!cell?.water }
+    return {
+      ...cell,
+      id: hex,
+      terrain: cell?.terrain,
+      tags: cell?.tags ?? [],
+      water: !!cell?.water,
+    }
   }
   /** The neighbours of a hex together: every terrain, tag and region among them. */
   const aroundFacts = (hex: string): Record<string, unknown> => {
@@ -423,10 +430,11 @@ export function createTravelEngine(options: {
     const date = calendar.describe(state.time)
     return {
       ...state.today,
+      today: { ...state.today },
       ...calendarFacts(date),
       season: date.season,
       ...cell,
-      hex: b,
+      hex: hexFacts(b),
       terrain: cell?.terrain,
       water: !!cell?.water,
       tags: cell?.tags ?? [],
@@ -451,7 +459,11 @@ export function createTravelEngine(options: {
       // "Only through" where its condition holds: there, even closed terrains are open to it.
       if (!test(state, through, throughContext(state, a, b))) return 0
     } else if (
-      !isPassable(terrainRule?.passable, () => throughContext(state, a, b), momentRolls(state, b))
+      !isPassable(
+        terrainRule?.passable,
+        () => qualify(throughContext(state, a, b)),
+        momentRolls(state, b),
+      )
     )
       return 0
     const edgeMultipliers = world
@@ -524,7 +536,7 @@ export function createTravelEngine(options: {
       ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the hex (fields, region…), then the travel facts.
       ...cell,
-      hex: state.location,
+      hex: hexFacts(state.location),
       terrain: cell?.terrain,
       tags: cell?.tags ?? [],
       edges: a && b ? world.edges(a, b) : [],
@@ -540,7 +552,8 @@ export function createTravelEngine(options: {
       arrived: !!state.destination && state.destination === state.location,
       ...(state.firstDay !== undefined && { tripDay: state.day - state.firstDay + 1 }),
       visits: state.visits?.[state.location] ?? 0,
-      // The day before's values (the host's, then the declared ones).
+      // Today's values (the host's, then the declared ones), and the day before's.
+      today: { ...(facts.today as object | undefined), ...state.today },
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
       // What hit a bound today; `short` is how older rules read "something hit its minimum".
       below: state.reached?.below ?? [],
@@ -1097,7 +1110,7 @@ export function createTravelEngine(options: {
   return {
     stepMinutes,
     plan,
-    context: (input, facts = {}) => checkContext(upgradeTravelState(input), [], facts),
+    context: (input, facts = {}) => qualify(checkContext(upgradeTravelState(input), [], facts)),
     availability(input, facts = {}) {
       const state = upgradeTravelState(input)
       const out: Record<string, Unavailable> = {}

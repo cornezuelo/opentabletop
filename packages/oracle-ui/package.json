@@ -16,6 +16,7 @@
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/pack-ui": "*",
     "@open-tabletop/random": "*",
+    "@open-tabletop/session": "*",
     "@open-tabletop/ui-kit": "*"
   },
   "peerDependencies": {

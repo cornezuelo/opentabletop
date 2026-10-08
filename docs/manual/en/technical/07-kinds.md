@@ -169,9 +169,16 @@ actions:
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { when: { daylight: true }, do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   march: # the Travel buttons: when the party can march (by day, or by torchlight)
-    when: { any: [{ daylight: true, marched: { lt: '{{hoursPerDay}}' } }, { torchlit: true }] }
+    when:
+      {
+        any:
+          [
+            { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } },
+            { today.torchlit: true },
+          ],
+      }
   night-march: # from nightfall; its button hides the rest of the day
-    when: { hour: { gte: '{{nightfall}}' } }
+    when: { time.hour: { gte: '{{system.nightfall}}' } }
     hideWhenUnavailable: true
     do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
   forage:

@@ -16,7 +16,9 @@ import {
 } from './discovery'
 import {
   declaredValues,
+  hexIdOf,
   momentRolls,
+  qualify,
   resolveChange,
   resourceBounds,
   upgradeTravelState,
@@ -165,8 +167,7 @@ export function partyValues(s: SessionState): Record<string, unknown> {
 }
 
 /** The hex and moment a context is about (for its rolls). */
-const hexOf = (seen: Record<string, unknown>) =>
-  typeof seen.hex === 'string' ? seen.hex : undefined
+const hexOf = (seen: Record<string, unknown>) => hexIdOf(seen)
 const momentOf = (seen: Record<string, unknown>) =>
   typeof seen.moment === 'string' ? seen.moment : undefined
 
@@ -184,7 +185,17 @@ export function tripContext(
 ): Record<string, unknown> {
   // The day before's values: the session's, then the ones the system declares (lost…).
   const yesterday = { ...s.yesterday, ...upgradeTravelState(s.travel).yesterday }
-  return { ...s.stats, ...s.dayVars, ...facts, party: partyValues(s), yesterday, ...extra }
+  // Today's values: the session's (weather, modifiers…), then the ones the system declares.
+  const today = { ...s.dayVars, ...upgradeTravelState(s.travel).today }
+  return qualify({
+    ...s.stats,
+    ...s.dayVars,
+    ...facts,
+    party: partyValues(s),
+    today,
+    yesterday,
+    ...extra,
+  })
 }
 
 /**
@@ -622,3 +633,5 @@ export * from './trip'
 export * from './discovery'
 export * from './suggestions'
 export * from './formats'
+// The full names of facts (`hex.terrain`, `trip.day`…), for hosts that build contexts.
+export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'

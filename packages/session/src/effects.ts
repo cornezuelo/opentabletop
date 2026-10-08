@@ -1,5 +1,6 @@
 import {
   changeValue,
+  hexIdOf,
   momentRolls,
   resolveChange,
   upgradeTravelState,
@@ -98,7 +99,7 @@ export function applyEffects(
     travel.day !== undefined
       ? momentRolls(
           { seed: travel.seed, day: travel.day, location: travel.location ?? '' },
-          typeof context.hex === 'string' ? context.hex : undefined,
+          hexIdOf(context),
           typeof context.moment === 'string' ? context.moment : undefined,
         )
       : undefined

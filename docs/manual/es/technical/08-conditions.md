@@ -29,6 +29,7 @@ Varias comparaciones sobre el mismo valor se deben cumplir todas: `danger: { gte
 - **Las listas** del contexto, como las `tags` de un hex o las `holidays` del día, se cumplen cuando **contienen** el valor: `tags: landmark` se cumple en un hex con las etiquetas `ford, landmark`; `tags: [ford, toll]`, en uno con cualquiera de las dos.
 - **Los valores que faltan** no encajan, salvo con `not` y `exists: false`.
 - **Los nombres con puntos** leen dentro de un valor: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
+- **Los nombres completos** dicen de dónde sale un valor, y una característica con el mismo nombre no los tapa: `hex.terrain: forest` es `terrain: forest`, `time.daylight: true` es `daylight: true`, `trip.mode: boat` es `mode: boat`. Todos, con su nombre corto: [Lo que ven las tablas](04-what-tables-see.md#nombres-completos-y-nombres-cortos).
 
 ## Variables y tiradas: `{{…}}`
 

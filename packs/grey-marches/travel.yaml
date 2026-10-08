@@ -1,6 +1,8 @@
 # The Grey Marches as a travel system. Every part of travel rules and bindings is used;
-# comments say what each one shows. Play it on the example map (Hexmapper: Maps → Example
-# maps, then Play → With rules), without a map in the Travel app, or edit it in Systems.
+# comments say what each one shows. Conditions use the full names of what they read
+# (`hex.terrain`, `time.daylight`, `trip.mode`, `today.refusing`…): see What tables see.
+# Play it on the example map (Hexmapper: Maps → Example maps, then Play → With rules),
+# without a map in the Travel app, or edit it in Systems.
 kind: travel-rules
 id: default
 day: { start: '06:00', nightfall: '20:00' }
@@ -19,14 +21,14 @@ terrains:
   # (passable as a condition on the hex entered and the moment: season, weather…).
   peaks:
     multiplier: 0.25
-    passable: { when: { season: summer }, unless: { weather: [snow, storm] } }
+    passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }
   swamp: { multiplier: 0.33 }
   marsh: { multiplier: 0.5 }
   # Lakes freeze hard in the two coldest months of the calendar (month: …): then they're
   # crossed on foot, slowly; the rest of the year they're water like the sea.
   lake:
     multiplier: 0.5
-    passable: { when: { month: [deepwinter, wolfmoon] } }
+    passable: { when: { time.month: [deepwinter, wolfmoon] } }
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
 water: { passable: false }
 defaultTerrain: { multiplier: 1 }
@@ -42,16 +44,16 @@ modes:
   boat:
     name: By boat
     kmPerDay: 40
-    through: { any: [{ water: true }, { terrain: coast }] }
-    when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }
-  # A cart only rolls along roads (through: the roads of each step, `edges`).
+    through: { any: [{ hex.water: true }, { hex.terrain: coast }] }
+    when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }
+  # A cart only rolls along roads (through: the roads of each step, `trip.edges`).
   cart:
     name: By cart
     description: Slow and steady, and only along the roads.
     kmPerDay: 30
-    through: { edges: road }
+    through: { trip.edges: road }
 # Supplies never go below 0 (min): when there's none left, eating hits that minimum, and
-# later steps and checks of the day see it as `below: food`.
+# later steps and checks of the day see it as `trip.below: food`.
 resources:
   food: { name: Food, min: 0 }
   fodder: { name: Fodder, min: 0 }
@@ -96,10 +98,10 @@ actions:
   march:
     when:
       any:
-        - { daylight: true, marched: { lt: '{{hoursPerDay}}' } }
-        - { torchlit: true }
+        - { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+        - { today.torchlit: true }
   # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
-  # fed night eases fatigue: unless food hit its minimum (`below`) during the night.
+  # fed night eases fatigue: unless food hit its minimum (`trip.below`) during the night.
   # Night checks (at: camp) come first. Only with food left and not exhausted (`when` on the
   # party): otherwise the night passes without camping (no night checks, no relief), as
   # `day.night` is camp and can't be taken.
@@ -109,7 +111,7 @@ actions:
     when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
     do:
       - { time: dawn }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
       # A night watch kept by a party in low spirits: nobody really sleeps.
       - { when: { party.stats.morale: { lte: 1 } }, effects: { party.stats.fatigue: 1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat),
@@ -118,7 +120,7 @@ actions:
   rest:
     name: Rest
     description: Two hours without marching; takes off 1 fatigue. Only by day, with food left and fatigue under 10.
-    when: { daylight: true, party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
+    when: { time.daylight: true, party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
     do:
       - { time: 120 }
       - { effects: { party.stats.fatigue: -1 } }
@@ -131,8 +133,8 @@ actions:
     name: Forage for food
     description: 'Three hours looking for food (once a day, by day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find. Not in a storm.'
     nothing: 'nothing to forage on {terrain}: only woods, fields, heath and marsh give food'
-    when: { daylight: true }
-    unless: { weather: storm }
+    when: { time.daylight: true }
+    unless: { trip.weather: storm }
     do:
       - { time: 180 }
       - { speed: 0.5 }
@@ -146,15 +148,15 @@ actions:
     on: day-end
     do:
       - { effects: { party.resources.food: -1 } }
-      - { when: { mode: horse }, effects: { party.resources.fodder: -1 } }
+      - { when: { trip.mode: horse }, effects: { party.resources.fodder: -1 } }
       # If the food ran out (it hit its minimum), the day is remembered as hungry.
-      - { when: { below: food }, set: { hungry: true } }
+      - { when: { trip.below: food }, set: { hungry: true } }
   # Pushing on: half as fast again for the rest of the day, at the cost of fatigue; only
   # by day, while the party is fresh enough (a condition on a stat), once a day.
   forced-march:
     name: Forced march
     description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only by day, with fatigue under 2, once a day.'
-    when: { daylight: true, party.stats.fatigue: { lt: 2 } }
+    when: { time.daylight: true, party.stats.fatigue: { lt: 2 } }
     oncePerDay: true
     do:
       - { speed: 1.5 }
@@ -164,7 +166,7 @@ actions:
   rite:
     name: Rite of the Ember Moon
     description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2 and fatigue gone.'
-    when: { all: [{ tags: shrine }, { moons.ember: full }] }
+    when: { all: [{ hex.tags: shrine }, { time.moons.ember: full }] }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
@@ -184,7 +186,7 @@ actions:
   parley:
     name: Talk to the hirelings
     description: 'An hour of talk: roll a d6. At or under your morale they march again; otherwise one of them walks off, and the rest follow you grudgingly.'
-    when: { refusing: true }
+    when: { today.refusing: true }
     hideWhenUnavailable: true
     do:
       - { time: 60 }
@@ -193,14 +195,19 @@ actions:
       - { set: { refusing: false } }
   # Marching on in the dark instead of camping: it lights the torches (a value of the day
   # the march above admits) until midnight, at the cost of fatigue; each hex entered in the
-  # dark rolls to get lost, and night encounters (the checks below, `daylight: false`).
-  # Only in the evening (from nightfall: `hour` against the system's own `{{nightfall}}`), so
+  # dark rolls to get lost, and night encounters (the checks below, `time.daylight: false`).
+  # Only in the evening (from nightfall: `time.hour` against the system's own `{{system.nightfall}}`), so
   # its button only shows then.
   night-march:
     name: Night march
     description: 'From nightfall, march on by torchlight until midnight, but +1 fatigue; each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
-    when: { daylight: false, hour: { gte: '{{nightfall}}' }, party.stats.fatigue: { lt: 4 } }
-    unless: { weather: storm }
+    when:
+      {
+        time.daylight: false,
+        time.hour: { gte: '{{system.nightfall}}' },
+        party.stats.fatigue: { lt: 4 },
+      }
+    unless: { trip.weather: storm }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
@@ -217,10 +224,10 @@ checks:
     name: Getting lost
     description: Every dawn off roads and rivers (not by boat). Navigation helps; fog makes it harder.
     at: day-start
-    unless: { any: [{ edges: [road, river] }, { mode: boat }] }
+    unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }
   # Encounters where the map says there is danger (a hex field), never on the road; also
   # when resting somewhere dangerous enough. Two moments (at: a list), told apart by
-  # `moment` in the condition.
+  # `trip.moment` in the condition.
   # By day only (daylight): marching in the dark brings the night encounter below.
   - event: ENCOUNTER_CHECK_REQUIRED
     name: Encounter
@@ -228,27 +235,27 @@ checks:
     at: [hex-enter, rest]
     when:
       any:
-        - { moment: hex-enter, daylight: true, danger: { gte: 1 } }
-        - { moment: rest, danger: { gte: 3 } }
-    unless: { edges: road }
+        - { trip.moment: hex-enter, time.daylight: true, hex.danger: { gte: 1 } }
+        - { trip.moment: rest, hex.danger: { gte: 3 } }
+    unless: { trip.edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
   - event: TOLL_CHECK_REQUIRED
     name: Toll
     description: Keld Bridge, arriving by road.
     at: hex-enter
-    when: { all: [{ tags: toll }, { edges: road }] }
+    when: { all: [{ hex.tags: toll }, { trip.edges: road }] }
   # Fords are rolled on an oracle, except by boat: not.
   - event: FORD_CHECK_REQUIRED
     name: Ford
     description: Crossing the river on foot or horseback.
     at: hex-enter
-    when: { all: [{ tags: ford }, { not: { mode: boat } }] }
+    when: { all: [{ hex.tags: ford }, { not: { trip.mode: boat } }] }
   # Rolled on a table, then the trip pauses (pause) so you can describe the shrine.
   - event: SHRINE_CHECK_REQUIRED
     name: Shrine
     description: A wayside shrine. The trip stops after the roll; press Continue to go on.
     at: hex-enter
-    when: { tags: shrine }
+    when: { hex.tags: shrine }
     pause: true
   # No table for this one: it only stops the trip because it says so (pause), and waits
   # for you to describe the place and press Continue.
@@ -256,7 +263,7 @@ checks:
     name: Landmark
     description: Describe the place yourself (or roll on an oracle), then press Continue.
     at: hex-enter
-    when: { tags: landmark }
+    when: { hex.tags: landmark }
     pause: true
   # The night's encounters: in camp, or marching in the dark (a night march) off the road.
   - event: CAMP_ENCOUNTER_CHECK_REQUIRED
@@ -265,18 +272,18 @@ checks:
     at: [camp, hex-enter]
     when:
       any:
-        - { moment: camp, danger: { gte: 2 } }
+        - { trip.moment: camp, hex.danger: { gte: 2 } }
         - all:
-            - { moment: hex-enter, daylight: false, danger: { gte: 1 } }
-            - { not: { edges: road } }
+            - { trip.moment: hex-enter, time.daylight: false, hex.danger: { gte: 1 } }
+            - { not: { trip.edges: road } }
   # Marching in the dark (a night march), off the road: each hex entered may get you lost,
-  # rolled on the same table as at dawn (it sees `daylight: false`).
+  # rolled on the same table as at dawn (it sees `time.daylight: false`).
   - event: NIGHT_NAVIGATION_CHECK_REQUIRED
     name: Lost in the dark
     description: Each hex entered after nightfall, off the road. The dark makes it easy to lose your way.
     at: hex-enter
-    when: { daylight: false }
-    unless: { edges: road }
+    when: { time.daylight: false }
+    unless: { trip.edges: road }
   # Conditions on the party: a day ending with no food left (party.resources.food), when
   # the party can't camp either (camp needs food): the night out in the open, hungry.
   - event: HUNGER_CHECK_REQUIRED
@@ -292,14 +299,14 @@ checks:
     name: Not enough to eat
     description: A day without enough food tires the party, in camp or not.
     at: day-end
-    when: { below: food }
+    when: { trip.below: food }
     effects: { party.stats.fatigue: 1 }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
     name: Foraging
     description: Rolled when you forage for food in woods, fields, heath or marsh.
     at: forage
-    when: { terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
+    when: { hex.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
 ---
 kind: bindings
 id: default

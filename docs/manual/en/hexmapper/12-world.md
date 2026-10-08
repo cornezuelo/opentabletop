@@ -42,7 +42,7 @@ Things that happen on a date whether the party is there or not: a festival, an a
 
 A clock is a number of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it.
 
-**Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `clocks.the-wyrm-wakes`, its filled segments), and the day's events the same way (`events: market-day`), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
+**Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), and the day's events the same way (`world.events: market-day`, or `events`), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
 
 ## Timeline
 

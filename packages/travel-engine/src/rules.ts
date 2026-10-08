@@ -381,7 +381,7 @@ const DEFAULT_CAMP: ActionDefinition = { do: [{ time: 'dawn' }] }
 const DEFAULT_REST: ActionDefinition = { do: [{ time: 60 }] }
 /** Marching as the engine did before systems declared it: by day, the day's hours. */
 const DEFAULT_MARCH: ActionDefinition = {
-  when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } },
+  when: { 'time.daylight': true, 'trip.marched': { lt: '{{system.hoursPerDay}}' } },
 }
 
 /**

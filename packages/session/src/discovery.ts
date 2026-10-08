@@ -150,7 +150,12 @@ export function createDiscovery(options: {
   function terrain(roll: Roll, hex: string, from: string): boolean {
     if (!discover.terrain || !isEmpty(world, hex)) return false
     const here = world.cell(from) ?? {}
-    const { value } = roll(discover.terrain, { ...here, from, hex, ...surroundings(hex, here) })
+    const { value } = roll(discover.terrain, {
+      ...here,
+      from: { ...here, id: from },
+      hex: { id: hex },
+      ...surroundings(hex, here),
+    })
     if (typeof value.terrain !== 'string' || !value.terrain) return false
     record(hex, {
       terrain: value.terrain,
@@ -190,7 +195,10 @@ export function createDiscovery(options: {
       let result: { text?: string; discovered?: DiscoveredHex } = {}
       if (pending.has(hex) && discover.contents) {
         pending.delete(hex)
-        const { text, value } = roll(discover.contents, { ...world.cell(hex), hex })
+        const { text, value } = roll(discover.contents, {
+          ...world.cell(hex),
+          hex: { ...world.cell(hex), id: hex },
+        })
         const tags = tagsOf(value.tags)
         const poi =
           value.poi === false ? undefined : typeof value.poi === 'string' ? value.poi : text

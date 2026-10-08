@@ -5,6 +5,7 @@ import {
   type Resolution,
 } from '@open-tabletop/oracle-engine'
 import { fromState, mathRandom, seeded, type SeededRandom } from '@open-tabletop/random'
+import { qualify } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
 import type { Translate } from './i18n'
 import type { PackLibrary } from '@open-tabletop/pack-ui'
@@ -173,6 +174,8 @@ export class Roller {
     const { library, locale, t, onResult } = this.options
     const engine = library.engine
     const options = { locale: locale(), mode: rollMode || undefined }
+    // Short names set their full names too (`terrain: forest` is `hex.terrain` as well).
+    context = qualify(context)
     try {
       const outcome =
         mode === 'draw'

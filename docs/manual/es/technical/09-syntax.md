@@ -27,6 +27,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
   Una comilla dentro de un texto entre comillas se escribe doble: `'El perro de la guardia d''Arcy'`. Si dudas, pon comillas: nunca estorban. Los formularios las ponen por ti.
 
 - **Los nombres con puntos** llegan dentro de un valor: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Todos los nombres que puede leer una tabla: [Lo que ven las tablas](04-what-tables-see.md).
+- **Nombres completos y cortos**: cada dato del mapa, del viaje y del mundo tiene un nombre completo según de dónde sale, y casi todos uno corto: `hex.terrain` / `terrain`, `time.season` / `season`, `system.nightfall` / `nightfall`, `trip.day` / `tripDay`, `world.events` / `events`; además `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Los dos leen el mismo valor; una característica con el mismo nombre no puede tapar el completo. La lista: [Nombres completos y nombres cortos](04-what-tables-see.md#nombres-completos-y-nombres-cortos).
 
 ## Ids y referencias
 
@@ -158,7 +159,7 @@ El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa 
 | `roll: ENCOUNTER_CHECK_REQUIRED`                 | tira una comprobación ya                        |
 | `{ unless: { below: food }, effects: { … } }`    | solo cuando se cumple su condición              |
 
-`march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (por defecto: `when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } }`). Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+`march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (por defecto: `when: { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Lo que bloquea: `blocks`
 

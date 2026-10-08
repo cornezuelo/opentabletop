@@ -27,6 +27,7 @@ Most boxes and most of the YAML are `key: value` pairs.
   A quote inside a quoted text is written twice: `'The guard''s dog'`. When in doubt, quote: it never hurts. Forms do it for you.
 
 - **Dotted names** reach inside a value: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
+- **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `hex.terrain` / `terrain`, `time.season` / `season`, `system.nightfall` / `nightfall`, `trip.day` / `tripDay`, `world.events` / `events`; also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#full-names-and-short-names).
 
 ## Ids and references
 
@@ -158,7 +159,7 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | `roll: ENCOUNTER_CHECK_REQUIRED`                 | rolls a check now                            |
 | `{ unless: { below: food }, effects: { … } }`    | only when its condition holds                |
 
-`march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (default: `when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } }`). Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+`march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (default: `when: { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 

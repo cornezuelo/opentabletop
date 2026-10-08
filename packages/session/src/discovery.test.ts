@@ -33,7 +33,7 @@ kind: table
 id: contents
 roll: 1d6
 entries:
-  - { id: tower, range: 1-6, result: An old tower, when: { hex: '4' }, set: { tags: landmark, name: The Tower } }
+  - { id: tower, range: 1-6, result: An old tower, when: { hex.id: '4' }, set: { tags: landmark, name: The Tower } }
   - { id: nothing, range: 1-6, result: Nothing, set: { poi: false } }
 `,
   },
@@ -165,9 +165,15 @@ describe('context suggestions', () => {
     expect(s.terrain).toEqual(expect.arrayContaining(['forest', 'plains', 'peaks']))
     expect(s.season).toEqual(['autumn', 'spring', 'summer', 'winter'])
     expect(s.mode).toContain('walk')
-    expect(s.hex).toEqual(expect.arrayContaining(['4']))
+    expect(s['hex.id']).toEqual(expect.arrayContaining(['4']))
     expect(s.danger).toEqual(['1', '2'])
     expect(s).toHaveProperty(['party.mode'])
+    // Full names too, with the same values.
+    expect(s['hex.terrain']).toEqual(s.terrain)
+    expect(s['time.season']).toEqual(s.season)
+    expect(s['trip.mode']).toEqual(s.mode)
+    expect(s).toHaveProperty(['trip.day'])
+    expect(s).toHaveProperty(['system.nightfall'])
     expect(s).toHaveProperty(['poi'])
     // Only what tables read: no set values.
     expect(contextSuggestions(registry, {}, { reads: true })).not.toHaveProperty(['poi'])

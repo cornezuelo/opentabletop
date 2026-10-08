@@ -4,25 +4,23 @@
   import { fieldSuggestions } from '../lib/model/hex'
   import type { CustomField } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
-  import { contextSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, FACT_GROUPS, FACT_PATHS } from '@open-tabletop/session'
   import { library } from '../lib/play/packs'
 
   /** What the map and trips already give: a value with one of these names is hidden. */
+  /** Names the map or a trip already gives: a field with one would be hidden by it. */
   const RESERVED = new Set([
     'hex',
-    'terrain',
-    'water',
-    'tags',
-    'region',
     'name',
     'icon',
     'token',
-    'season',
-    'weather',
-    'mode',
-    'day',
-    'edges',
     'party',
+    'today',
+    'yesterday',
+    'from',
+    'around',
+    ...FACT_GROUPS,
+    ...Object.keys(FACT_PATHS),
   ])
 
   /**
@@ -49,7 +47,9 @@
   /** Names the packs' tables read and nothing on the map gives yet (danger, guards, fare…). */
   const packHints = $derived(
     Object.entries(contextSuggestions(library.registry, {}, { reads: true })).flatMap(
-      ([key, values]): [string, string[]][] => {
+      ([full, values]): [string, string[]][] => {
+        // A hex's values by their full names too (`hex.danger`, `hex.icon.guards`).
+        const key = full.startsWith('hex.') ? full.slice(4) : full
         const name =
           scope === 'icon'
             ? key.startsWith('icon.') && key.slice(5)

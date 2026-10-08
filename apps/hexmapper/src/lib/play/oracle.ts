@@ -1,5 +1,5 @@
 import { createOracleUi } from '@open-tabletop/oracle-ui'
-import { addEntry, tripFacts } from '@open-tabletop/session'
+import { addEntry, qualify, tripFacts } from '@open-tabletop/session'
 import { getSystem, mapPacks } from './systems'
 import { getLocale } from '../i18n/index.svelte'
 import { fieldValues } from '../model/hex'
@@ -73,7 +73,7 @@ export function rollContext(): Record<string, unknown> {
   const session = play ? sessionOf(play) : null
   const hex = rollHex()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
-  const facts: Record<string, unknown> = hex && cell ? { ...cell, hex } : {}
+  const facts: Record<string, unknown> = hex && cell ? { ...cell, hex: { ...cell, id: hex } } : {}
   const world = worldFactsNow()
   // What the trip's checks would see (the moment, the trip, the party, today's values, the
   // world clock), with the selected hex's facts in place of the party's.
@@ -90,5 +90,8 @@ export function rollContext(): Record<string, unknown> {
   const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
   // Its own values can't hide its name and kind.
   if (token) out.token = { ...fieldValues(token.fields), name: token.name, kind: token.kind }
-  return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined && v !== null))
+  // With their full names too (`hex.terrain`, `time.season`, `world.clocks`…).
+  return Object.fromEntries(
+    Object.entries(qualify(out)).filter(([, v]) => v !== undefined && v !== null),
+  )
 }

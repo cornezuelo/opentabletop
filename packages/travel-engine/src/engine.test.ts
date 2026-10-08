@@ -604,7 +604,7 @@ describe('ways of travelling with conditions', () => {
       foot: { kmPerDay: 30 },
       horse: { kmPerDay: 50 },
       // Only boarded at the water's edge (here: the ferry at 2,0).
-      boat: { kmPerDay: 40, allowedTerrains: ['water'], when: { hex: '2,0' } },
+      boat: { kmPerDay: 40, allowedTerrains: ['water'], when: { 'hex.id': '2,0' } },
     },
   })
   const own = createTravelEngine({ world, rules: boating.rules! })
@@ -1187,7 +1187,7 @@ describe('actions the system triggers, and bounded values', () => {
     expect(availableActions(older!).all).toEqual({
       camp: { name: 'Camp', do: [{ time: 'dawn' }] },
       rest: { name: 'Rest', do: [{ time: 60 }] },
-      march: { when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } } },
+      march: { when: { 'time.daylight': true, 'trip.marched': { lt: '{{system.hoursPerDay}}' } } },
     })
   })
 
@@ -1562,7 +1562,7 @@ describe('what conditions read of the moment, the trip and the land around', () 
     ).state
     const { events } = engine.apply(planned, { type: 'travel' })
     expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
-      check: { event: 'LEFT_MOUNTAINS', context: { from: { hex: '3,0', terrain: 'mountains' } } },
+      check: { event: 'LEFT_MOUNTAINS', context: { from: { id: '3,0', terrain: 'mountains' } } },
     })
   })
 })
@@ -1635,5 +1635,54 @@ describe('progress made on a slower day', () => {
       hex: '1,0',
       time: walked.time,
     })
+  })
+})
+
+describe('full names of facts', () => {
+  it('read the same as the short ones, and a stat can’t hide them', () => {
+    const state = { ...start('2,9'), today: { lost: true } }
+    const host = {
+      // A stat called like a fact: the short name is the fact, the stat is party.stats.*.
+      season: 'never',
+      party: { stats: { season: 3 } },
+      clocks: { 'the-flood': 4 },
+      events: ['market-day'],
+    }
+    const seen = engine.context(state, host)
+    expect(seen).toMatchObject({
+      hex: { id: '2,9', terrain: 'steppe', tags: [] },
+      time: { season: 'spring', day: state.day, daylight: true, hour: 6 },
+      system: { dawn: 6, nightfall: 20, hoursPerDay: 8 },
+      trip: { day: 1, marched: 0, mode: 'foot', visits: 1, edges: [] },
+      world: { clocks: { 'the-flood': 4 }, events: ['market-day'] },
+      today: { lost: true },
+      season: 'spring',
+    })
+  })
+
+  it('work in conditions wherever short names do', () => {
+    const { rules: own } = parseTravelRules({
+      ...rules!,
+      actions: {
+        dawn: {
+          when: {
+            'time.daylight': true,
+            'hex.terrain': 'steppe',
+            'trip.day': 1,
+            'time.hour': { gte: '{{system.dawn}}' },
+          },
+          do: [{ time: 60 }],
+        },
+        flood: { when: { 'world.clocks.the-flood': { gte: 4 } }, do: [{ time: 60 }] },
+        roadside: { when: { 'trip.edges': 'road' }, do: [{ time: 60 }] },
+      },
+    })
+    const engine = createTravelEngine({ world, rules: own! })
+    const why = (facts = {}) => engine.availability(start(), facts)
+    expect(why().dawn).toBeUndefined()
+    expect(why().flood).toEqual({ condition: 'when' })
+    expect(why({ clocks: { 'the-flood': 4 } }).flood).toBeUndefined()
+    // Entering a hex by road: the step's edges.
+    expect(engine.availability({ ...start('5,9') }).roadside).toEqual({ condition: 'when' })
   })
 })

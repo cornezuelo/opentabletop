@@ -3,6 +3,7 @@ import {
   availableActions,
   CHECK_MOMENTS,
   declaredValues,
+  FACT_PATHS,
   genericTravelRules,
   MARCH,
 } from '@open-tabletop/travel-engine'
@@ -34,8 +35,9 @@ export function contextSuggestions(
   }
 
   // What the map and a trip always give.
-  add('hex')
+  add('hex.id')
   add('name')
+  add('hex.name')
   add('region')
   add('icon.id')
   add('token.name')
@@ -118,6 +120,7 @@ export function contextSuggestions(
     // The values of the day it declares (lost…), today and the day after.
     for (const value of Object.keys(declaredValues(rules))) {
       add(value, true, false)
+      add(`today.${value}`, true, false)
       add(`yesterday.${value}`, true, false)
     }
     // Marching is no action taken (the Travel buttons): not a moment, never done.
@@ -139,6 +142,13 @@ export function contextSuggestions(
 
   for (const def of registry.definitions.values()) definition(def, add, reads ? () => {} : add)
   for (const [key, values] of Object.entries(extra)) add(key, ...values)
+  // Every short name by its full name too (`terrain` → `hex.terrain`, `moons.pale` →
+  // `time.moons.pale`), with the same values.
+  for (const [key, values] of [...out]) {
+    const [head, ...rest] = key.split('.')
+    const full = FACT_PATHS[head]
+    if (full) add([full, ...rest].join('.'), ...values)
+  }
   return Object.fromEntries([...out].map(([key, values]) => [key, [...values].sort()]))
 }
 

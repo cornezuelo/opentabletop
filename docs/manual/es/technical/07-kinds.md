@@ -168,9 +168,16 @@ actions:
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { when: { daylight: true }, do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   march: # los botones de Viajar: cuándo se puede marchar (de día, o con antorchas)
-    when: { any: [{ daylight: true, marched: { lt: '{{hoursPerDay}}' } }, { torchlit: true }] }
+    when:
+      {
+        any:
+          [
+            { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } },
+            { today.torchlit: true },
+          ],
+      }
   night-march: # desde el anochecer; su botón se oculta el resto del día
-    when: { hour: { gte: '{{nightfall}}' } }
+    when: { time.hour: { gte: '{{system.nightfall}}' } }
     hideWhenUnavailable: true
     do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
   forage:
