@@ -21,27 +21,10 @@
   import { activeSystem, getSystem, mapSystemId, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
-  import ColorPicker from './ColorPicker.svelte'
-  import TokenIconPicker from './tokens/TokenIconPicker.svelte'
   import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
-  import { AddTokenCommand } from '../lib/commands/tokens'
-  import { newId } from '../lib/model/id'
-  import { DEFAULT_TOKEN_ICONS } from '../lib/model/tokens'
-  import type { MapToken } from '../lib/model/types'
 
-  /** The party is a token: its look is edited here, its position by playing. */
+  /** The party is a token: its look is edited in Tokens, its position by playing. */
   const party = $derived(editor.tokens.find((t) => t.kind === 'party'))
-
-  function editParty(change: (token: MapToken) => MapToken) {
-    if (party) return editor.updateToken(party.id, change)
-    const token: MapToken = {
-      id: newId(),
-      name: '',
-      kind: 'party',
-      iconId: DEFAULT_TOKEN_ICONS.party,
-    }
-    editor.execute(new AddTokenCommand(change(token)))
-  }
 
   const play = $derived(editor.play)
   const session = $derived(play ? sessionOf(play) : null)
@@ -75,31 +58,6 @@
   {/each}
 </div>
 
-<div class="field">
-  <span>{t('play.token')}</span>
-  <TokenIconPicker
-    value={party?.iconId ?? DEFAULT_TOKEN_ICONS.party}
-    onchange={(iconId) => iconId && editParty((t) => ({ ...t, iconId }))}
-  />
-  <ColorPicker
-    value={party?.color}
-    auto
-    onchange={(color) => editParty((t) => ({ ...t, color }))}
-  />
-</div>
-
-<label class="check">
-  <input
-    type="checkbox"
-    checked={party?.halo !== false}
-    onchange={(e) => {
-      const halo = e.currentTarget.checked
-      editParty((t) => ({ ...t, halo: halo ? undefined : false }))
-    }}
-  />
-  {t('iconStyle.halo')}<InfoTip text={t('iconStyle.haloHelp')} />
-</label>
-
 <label class="check">
   <input
     type="checkbox"
@@ -131,6 +89,7 @@
     locale={getLocale()}
     bind:season={newSeason}
     startNote={editor.world ? t('play.worldStart') : undefined}
+    systemNote={t('play.systemNote')}
     onrestart={async (system, season) =>
       (!session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
       restartRules(system, season)}

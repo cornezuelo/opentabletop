@@ -399,9 +399,9 @@ export const es: Messages = {
     modeHelp:
       'Cómo se mueve el grupo por el mapa:\n• **Simple** — solo un icono y su rastro: un clic lo pone en ese hex al momento, sin ruta, tiempo ni tiradas\n• **Con reglas** — un viaje con el sistema del mapa: lleva el tiempo, el terreno y las provisiones, y tira las tablas del sistema (clima, perderse, lugares, encuentros) por el camino, anotándolo todo en el diario',
     modes: { simple: 'Simple', rules: 'Con reglas' },
-    token: 'Icono del grupo',
     uploadToken: 'Subir uno propio…',
     worldStart: 'Los viajes nuevos empiezan en la fecha del reloj del mundo (el panel Mundo, ☾).',
+    systemNote: 'El del mapa, que se elige en Ajustes del mapa → Mapa → Sistema.',
     showTrail: 'Mostrar rastro',
     showTrailHelp:
       'Dibuja en el mapa los hexes por los que ha pasado el grupo, como una línea discontinua junto a los caminos que siguió.',

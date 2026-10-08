@@ -393,9 +393,9 @@ export const en = {
     modeHelp:
       'How the party moves around the map:\n• **Simple** — just a token and its trail: a click puts it on that hex at once, with no route, time or rolls\n• **With rules** — a trip with the map’s system: it counts time, terrain and supplies, and rolls the system’s tables (weather, getting lost, places, encounters) on the way, writing everything in the journal',
     modes: { simple: 'Simple', rules: 'With rules' },
-    token: 'Party icon',
     uploadToken: 'Upload your own…',
     worldStart: 'New trips start on the world clock’s date (the World panel, ☾).',
+    systemNote: 'The map’s, chosen in Map settings → Map → System.',
     showTrail: 'Show trail',
     showTrailHelp:
       'Draw the hexes the party has walked through on the map, as a dashed line beside the roads it followed.',

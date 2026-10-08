@@ -1,6 +1,6 @@
 # Jugar un viaje
 
-La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa, en uno de dos modos (**Modo de juego**, cuya ayuda los resume). Al elegirla se selecciona el token del grupo (al pasar a la herramienta Tokens sigue seleccionado).
+La herramienta **Jugar** (<kbd>P</kbd>) mueve a tu grupo por el mapa, en uno de dos modos (**Modo de juego**, cuya ayuda los resume). Al elegirla se selecciona el token del grupo (al pasar a la herramienta Tokens sigue seleccionado, y allí se cambian su icono, color y halo).
 
 ## Modo simple
 
@@ -10,7 +10,7 @@ Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y 
 
 El Travel Engine lleva el viaje y Oracle tira las comprobaciones. La [aplicación Travel](../travel/01-getting-started.md) juega los mismos sistemas sin mapa, y la [aplicación Systems](../systems/01-getting-started.md) los edita.
 
-1. Comprueba el **sistema**: el del mapa (**Ajustes del mapa → Mapa → Sistema**, la misma elección): Genéricas, o el sistema de un pack (p. ej. las Marcas Grises). Trae las reglas de viaje, las tablas que tiran, el calendario y el clima. Elige la estación en la que **empezar**. **Nuevo viaje** reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está; elegir aquí otro sistema empieza un viaje nuevo con él y lo hace el del mapa.
+1. Comprueba el **sistema**: el del mapa, que se ve aquí y se elige en **Ajustes del mapa → Mapa → Sistema**: Genéricas, o el sistema de un pack (p. ej. las Marcas Grises). Trae las reglas de viaje, las tablas que tiran, el calendario y el clima. Elige la estación en la que **empezar**. **Nuevo viaje** reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.
 2. Haz clic en un hex para colocar al grupo y después en el **destino**: se dibuja la ruta.
 3. **Viajar** sigue hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación. **1 hex** avanza un hex. **Acampar** duerme hasta el alba; **Descansar** es una pausa corta (cada sistema declara qué acciones tiene, y cuándo se pueden hacer). Si el grupo no puede hacer la acción de la noche (las Marcas Grises solo acampan con comida y fatiga por debajo de 10), **Viajar** al anochecer (o con una tormenta que no deja salir) pasa la noche sin ella y sigue marchando al alba. **Esperar al alba** siempre deja pasar el tiempo donde está el grupo, viviendo la noche: para un día en que no se puede hacer nada más (perdidos, sin comida para acampar). El [reloj del mundo](12-world.md#con-un-viaje-en-marcha) también hace avanzar el viaje: con una ruta planeada, **Día siguiente** sigue por ella.
 

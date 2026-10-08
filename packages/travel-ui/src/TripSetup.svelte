@@ -11,6 +11,7 @@
     season = $bindable('spring'),
     onrestart,
     startNote,
+    systemNote,
   }: {
     systems: TravelSystem[]
     /** Id of the current system. */
@@ -20,6 +21,11 @@
     onrestart: (system: string, season: Season) => void
     /** Said instead of the season choice when the host decides when trips start. */
     startNote?: string
+    /**
+     * Said beside the system, shown instead of a choice, when the host chooses it elsewhere
+     * (the Hexmapper: the map's).
+     */
+    systemNote?: string
   } = $props()
 
   const t = translator(() => locale)
@@ -33,16 +39,28 @@
 </script>
 
 <div class="group">
-  <label class="field">
-    <span>{t('system')}</span>
-    <select value={system} onchange={(e) => onrestart(e.currentTarget.value, season)}>
-      {#each systems as s (s.id)}
-        <option value={s.id}
-          >{s.id === 'generic' ? t('genericSystem') : systemName(s, locale)}</option
-        >
-      {/each}
-    </select>
-  </label>
+  {#if systemNote}
+    <div class="field">
+      <span>{t('system')}</span>
+      <strong
+        >{current && current.id !== 'generic'
+          ? systemName(current, locale)
+          : t('genericSystem')}</strong
+      >
+      <p class="note">{systemNote}</p>
+    </div>
+  {:else}
+    <label class="field">
+      <span>{t('system')}</span>
+      <select value={system} onchange={(e) => onrestart(e.currentTarget.value, season)}>
+        {#each systems as s (s.id)}
+          <option value={s.id}
+            >{s.id === 'generic' ? t('genericSystem') : systemName(s, locale)}</option
+          >
+        {/each}
+      </select>
+    </label>
+  {/if}
   <div class="row">
     {#if startNote}
       <p class="note">{startNote}</p>

@@ -1,6 +1,6 @@
 # Playing a trip
 
-The **Play** tool (<kbd>P</kbd>) moves your party around the map, in one of two modes (**Play mode**, whose help sums them up). Choosing it selects the party token (switching to the Tokens tool keeps it selected).
+The **Play** tool (<kbd>P</kbd>) moves your party around the map, in one of two modes (**Play mode**, whose help sums them up). Choosing it selects the party token (switching to the Tokens tool keeps it selected, and there you change its icon, color and halo).
 
 ## Simple mode
 
@@ -10,7 +10,7 @@ Just the party token and its trail: click a hex to place the party, click anothe
 
 The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map, and the [Systems app](../systems/01-getting-started.md) edits them.
 
-1. Check the **system**: the map's own (**Map settings → Map → System**, the same choice): Generic, or a system of a pack (e.g. the Grey Marches). It brings the travel rules, the tables they roll, the calendar and the weather. Choose the season to **start in**. **New trip** restarts time, supplies and journal, keeping the party where it is; choosing another system here starts a new trip with it and makes it the map's.
+1. Check the **system**: the map's own, shown here and chosen in **Map settings → Map → System**: Generic, or a system of a pack (e.g. the Grey Marches). It brings the travel rules, the tables they roll, the calendar and the weather. Choose the season to **start in**. **New trip** restarts time, supplies and journal, keeping the party where it is.
 2. Click a hex to place the party, then click the **destination**: the route is drawn.
 3. **Travel** goes on until you arrive, night falls, the day's marching hours run out or a check needs you. **1 hex** moves one hex. **Camp** sleeps until dawn; **Rest** is a short pause (each system declares which actions it has, and when they can be taken). When the party can't take the night's action (the Grey Marches camp only with food left and fatigue under 10), **Travel** at nightfall (or in a storm that keeps it in) passes the night without it and marches on at dawn. **Wait until dawn** always lets time pass where the party is, living the night: for a day nothing else can be done (lost, no food to camp). The [World clock](12-world.md#with-a-trip-going-on) moves the trip on too: with a route planned, **Next day** travels along it.
 
