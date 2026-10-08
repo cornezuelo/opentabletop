@@ -57,7 +57,7 @@ entries:
 
 ## 4. Results the trip understands
 
-An entry (or a deck's card) changes the party with **effects**: each one is a value the system declares, by the path tables read it with. A number adds or subtracts; `'=value'` sets it; dice and values work inside (`'{{1d3+1}}'`). A value stops at the `min` and `max` its system declares (stats and supplies alike); without them it may go anywhere, negative too.
+An entry (or a deck's card) changes the party with **effects**: each one is a value the system declares, by the path tables read it with. A number adds or subtracts; `'=value'` sets it; dice and values work inside (`'{{1d3+1}}'`); `$` takes another value as the amount (`-$party.stats.mouths`, `=$party.stats.endurance`, or `-$loss`, a value the entry sets). A value stops at the `min` and `max` its system declares (stats and supplies alike); without them it may go anywhere, negative too.
 
 ```yaml
 - { id: berries, range: 6, result: 'Berries: +2 food', effects: { party.resources.food: 2 } }

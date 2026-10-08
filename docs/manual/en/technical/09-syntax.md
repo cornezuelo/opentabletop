@@ -74,6 +74,7 @@ When something applies. The same syntax everywhere: `when` (must hold) and `unle
 | `danger: { gte: 2, lte: 4 }`             | every comparison holds                      |
 | `weather: { in: [rain, storm] }`         | the same as a list                          |
 | `region: { exists: false }`              | it's missing (`true`: it's there)           |
+| `danger: { gt: $party.stats.stealth }`   | `$`: compared with another value            |
 | `{ terrain: forest, timeOfDay: night }`  | every pair holds                            |
 | `any: [{ edges: road }, { mode: boat }]` | one of them holds                           |
 | `all: [{ tags: ford }, { tags: toll }]`  | all of them (one name twice)                |
@@ -108,12 +109,14 @@ An action's step takes `set` too: `{ set: { lost: true } }`.
 
 On entries, cards, checks and action steps. Each key is a value the system declares, by its path; each value says how it changes:
 
-| Write                               | Does         |
-| ----------------------------------- | ------------ |
-| `party.resources.food: -1`          | takes 1 away |
-| `party.stats.morale: 2`             | adds 2       |
-| `party.stats.fatigue: '=0'`         | sets it to 0 |
-| `party.resources.food: '{{1d3+1}}'` | adds a roll  |
+| Write                                        | Does                                     |
+| -------------------------------------------- | ---------------------------------------- |
+| `party.resources.food: -1`                   | takes 1 away                             |
+| `party.stats.morale: 2`                      | adds 2                                   |
+| `party.stats.fatigue: '=0'`                  | sets it to 0                             |
+| `party.resources.food: '{{1d3+1}}'`          | adds a roll                              |
+| `party.resources.food: -$party.stats.mouths` | takes away as many as another value says |
+| `party.stats.morale: =$party.stats.charisma` | sets it to another value                 |
 
 A change stops at the value's `min` / `max`; what hit one is seen afterwards as `below: [ids]` / `above: [ids]`. Without bounds a value may go anywhere, negative too.
 

@@ -73,6 +73,7 @@ Cuándo se aplica algo. La misma sintaxis en todas partes: `when` (debe cumplirs
 | `danger: { gte: 3 }`                     | `gt`, `gte`, `lt`, `lte`: un número comparado   |
 | `danger: { gte: 2, lte: 4 }`             | se cumplen todas las comparaciones              |
 | `weather: { in: [rain, storm] }`         | lo mismo que una lista                          |
+| `danger: { gt: $party.stats.stealth }`   | `$`: comparado con otro valor                   |
 | `region: { exists: false }`              | falta (`true`: está)                            |
 | `{ terrain: forest, timeOfDay: night }`  | se cumplen todos los pares                      |
 | `any: [{ edges: road }, { mode: boat }]` | se cumple uno de ellos                          |
@@ -108,12 +109,14 @@ Un paso de una acción también acepta `set`: `{ set: { lost: true } }`.
 
 En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor que declara el sistema, por su ruta; cada valor dice cómo cambia:
 
-| Escribe                             | Hace            |
-| ----------------------------------- | --------------- |
-| `party.resources.food: -1`          | quita 1         |
-| `party.stats.morale: 2`             | suma 2          |
-| `party.stats.fatigue: '=0'`         | lo pone a 0     |
-| `party.resources.food: '{{1d3+1}}'` | suma una tirada |
+| Escribe                                      | Hace                              |
+| -------------------------------------------- | --------------------------------- |
+| `party.resources.food: -1`                   | quita 1                           |
+| `party.stats.morale: 2`                      | suma 2                            |
+| `party.stats.fatigue: '=0'`                  | lo pone a 0                       |
+| `party.resources.food: '{{1d3+1}}'`          | suma una tirada                   |
+| `party.resources.food: -$party.stats.mouths` | quita tantos como dice otro valor |
+| `party.stats.morale: =$party.stats.charisma` | lo pone al valor de otro          |
 
 Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo.
 

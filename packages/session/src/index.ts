@@ -16,6 +16,7 @@ import {
 } from './discovery'
 import {
   declaredValues,
+  resolveChange,
   resourceBounds,
   upgradeTravelState,
   type Bounds,
@@ -201,7 +202,7 @@ export function applyResult(
   resources: Record<string, Bounds> = {},
 ): SessionState {
   const s = structuredClone(input)
-  applyEffects(s, effectsOf(value), stats, resources)
+  applyEffects(s, effectsOf(value), stats, resources, { ...tripContext(s, {}), ...value })
   if (typeof value.weather === 'string') s.travel.weather = value.weather
   return s
 }
@@ -377,7 +378,13 @@ export function createSession(options: {
           const binding = options.bindings?.on[event.check.event]
           // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
           if (event.check.effects) {
-            const { limits } = applyEffects(s, event.check.effects, stats, supplies)
+            const { limits } = applyEffects(
+              s,
+              event.check.effects,
+              stats,
+              supplies,
+              tripContext(s, { ...host, ...event.check.context }),
+            )
             add(s, entries, {
               source: 'travel',
               code: 'CHECK_EFFECTS',
@@ -461,6 +468,14 @@ export function createSession(options: {
             })
             continue
           }
+          // Its effects with the values they name read now (`-$party.stats.mouths`): the
+          // journal says what they did.
+          const seen = { ...tripContext(s, { ...host, ...event.check.context }), ...value }
+          const written = effectsOf(value)
+          const effects = Object.fromEntries(
+            Object.entries(written).map(([p, c]) => [p, resolveChange(c, seen)]),
+          )
+          const named = Object.values(written).some((c) => typeof c === 'string' && c.includes('$'))
           add(s, entries, {
             source: 'oracle',
             code: 'ORACLE_RESULT',
@@ -470,11 +485,11 @@ export function createSession(options: {
             data: {
               event: event.check.event,
               ...(binding.weather ? { weather: binding.weather } : { table: binding.resolve }),
-              value,
+              value: named ? { ...value, effects } : value,
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
-          for (const limit of applyEffects(s, effectsOf(value), stats, supplies).limits)
+          for (const limit of applyEffects(s, effects, stats, supplies).limits)
             add(s, entries, {
               source: 'travel',
               code: 'LIMIT_REACHED',

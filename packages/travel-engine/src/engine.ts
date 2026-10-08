@@ -19,6 +19,7 @@ import {
   declaredValues,
   nightAction,
   olderEatingId,
+  resolveChange,
   resourceBounds,
   type ActionStep,
   type Bounds,
@@ -880,11 +881,16 @@ export function createTravelEngine(options: {
   const applyEffects = (
     state: TravelState,
     action: string,
-    effects: Record<string, number | string>,
+    written: Record<string, number | string>,
     events: TravelEvent[],
   ): void => {
     const limits: TravelEvent[] = []
     const party = hostFacts.party as { stats?: Record<string, number> } | undefined
+    // The values they name (`-$party.stats.mouths`) are read now, before any changes.
+    const now = checkContext(state, [], hostFacts)
+    const effects = Object.fromEntries(
+      Object.entries(written).map(([path, change]) => [path, resolveChange(change, now)]),
+    )
     for (const [path, change] of Object.entries(effects)) {
       const [, scope, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
       if (!scope) continue

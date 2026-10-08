@@ -57,7 +57,7 @@ entries:
 
 ## 4. Resultados que entiende el viaje
 
-Una entrada (o una carta de un mazo) cambia el grupo con **efectos** (`effects`): cada uno es un valor que declara el sistema, por la ruta con la que lo leen las tablas. Un número suma o resta; `'=valor'` lo fija; dentro funcionan los dados y los valores (`'{{1d3+1}}'`). Un valor se queda en el `min` y el `max` que declara su sistema (características y provisiones por igual); sin ellos puede ir a cualquier parte, también a negativo.
+Una entrada (o una carta de un mazo) cambia el grupo con **efectos** (`effects`): cada uno es un valor que declara el sistema, por la ruta con la que lo leen las tablas. Un número suma o resta; `'=valor'` lo fija; dentro funcionan los dados y los valores (`'{{1d3+1}}'`); `$` toma otro valor como cantidad (`-$party.stats.mouths`, `=$party.stats.endurance`, o `-$loss`, un valor que fija la entrada). Un valor se queda en el `min` y el `max` que declara su sistema (características y provisiones por igual); sin ellos puede ir a cualquier parte, también a negativo.
 
 ```yaml
 - { id: berries, range: 6, result: 'Bayas: +2 de comida', effects: { party.resources.food: 2 } }

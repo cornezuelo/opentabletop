@@ -1,5 +1,6 @@
 import {
   changeValue,
+  resolveChange,
   upgradeTravelState,
   type Bounds,
   type TravelState,
@@ -8,7 +9,8 @@ import {
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
  * with (`party.stats.morale`, `party.resources.food`). A number adds or subtracts (also
- * written as text: '+2'), '=value' sets. One vocabulary for table entries, deck cards and
+ * written as text: '+2'), '=value' sets; `$name` is another value (`-$party.stats.mouths`,
+ * `=$party.stats.endurance`), read when it's applied. One vocabulary for table entries, deck cards and
  * actions; the engines only pass them on, the session applies them.
  */
 export type Effects = Record<string, number | string>
@@ -57,7 +59,7 @@ export function effectsOf(value: Record<string, unknown>): Effects {
   const add = (path: string, change: unknown) => {
     const n = number(change)
     if (n !== undefined) out[path] = (number(out[path]) ?? 0) + n
-    else if (typeof change === 'string' && change.startsWith('=')) out[path] = change
+    else if (typeof change === 'string' && /^\s*(=|[+-]?\$)/.test(change)) out[path] = change
   }
   const record = (v: unknown) =>
     typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {}
@@ -82,6 +84,8 @@ export function applyEffects(
   effects: Effects,
   bounds: Record<string, ValueBounds> = {},
   resources: Record<string, Bounds> = {},
+  /** What `$name` changes read (the trip's context); none: they change nothing. */
+  context: Record<string, unknown> = {},
 ): { applied: AppliedEffect[]; limits: LimitReached[]; unknown: string[] } {
   const applied: AppliedEffect[] = []
   const limits: LimitReached[] = []
@@ -95,7 +99,11 @@ export function applyEffects(
     const stat = scope === 'stats'
     const values = stat ? target.stats : target.travel.resources
     const from = values[id] ?? (stat ? bounds[id]?.default : undefined) ?? 0
-    const { to, limit } = changeValue(from, change, stat ? bounds[id] : resources[id])
+    const { to, limit } = changeValue(
+      from,
+      resolveChange(change, context),
+      stat ? bounds[id] : resources[id],
+    )
     values[id] = to
     if (to !== from) applied.push({ path, from, to })
     if (limit) {

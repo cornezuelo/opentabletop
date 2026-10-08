@@ -30,6 +30,20 @@ Varias comparaciones sobre el mismo valor se deben cumplir todas: `danger: { gte
 - **Los valores que faltan** no encajan, salvo con `not` y `exists: false`.
 - **Los nombres con puntos** leen dentro de un valor: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
 
+## Comparar con otro valor: `$`
+
+Un valor escrito con `$` delante es **otro valor del contexto**, leído al comprobar la condición, en vez de uno fijo. Va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`.
+
+| Escribe                                                | Se cumple cuando                                          |
+| ------------------------------------------------------ | --------------------------------------------------------- |
+| `danger: { gt: $party.stats.stealth }`                 | el peligro supera el sigilo del grupo                     |
+| `hour: { gte: $nightfall }`                            | es el anochecer del sistema o más tarde                   |
+| `party.stats.fatigue: { gte: $party.stats.endurance }` | la fatiga ha llegado al aguante                           |
+| `faction: $rival`                                      | la facción del hex es la del valor `rival`                |
+| `tags: $wanted`                                        | el hex tiene alguna de las etiquetas de la lista `wanted` |
+
+Un valor con `$` que no está (o que no es un número, tras `gte`…) nunca se cumple. Para escribir un valor que empiece por `$`, dóblalo: `$$5` es el texto `$5`. Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tables-see.md).
+
 ## Juntar condiciones
 
 | Escribe      | Se cumple cuando                  | Ejemplo                                                              |

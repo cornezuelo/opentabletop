@@ -7,8 +7,10 @@
  *   { danger: { gte: 4 }, season: { not: winter } }
  *   { 'party.stats.pre': { gt: 0 } }             dotted paths
  *   { any: [{ weather: storm }, { lost: true }] }  all / any / not
+ *   { danger: { gt: $party.stats.stealth } }     another value of the context
  *
- * Array context values (e.g. tags) match when they contain the expected value.
+ * Array context values (e.g. tags) match when they contain the expected value. A value
+ * written `$path` is the context's value at that path (`$$` starts a literal `$`).
  */
 export type Primitive = string | number | boolean | null
 
@@ -16,10 +18,11 @@ export interface Comparison {
   eq?: Primitive
   not?: Primitive | Primitive[]
   in?: Primitive[]
-  gt?: number
-  gte?: number
-  lt?: number
-  lte?: number
+  /** A number, or `$path` for another value of the context. */
+  gt?: number | string
+  gte?: number | string
+  lt?: number | string
+  lte?: number | string
   exists?: boolean
 }
 
@@ -47,34 +50,71 @@ function evaluate(condition: Condition, context: Record<string, unknown>, depth:
   if ('not' in condition && isObject(condition.not) && !isComparison(condition.not))
     return !evaluate(condition.not as Condition, context, depth + 1)
   return Object.entries(condition).every(([path, matcher]) =>
-    matchValue(resolvePath(context, path), matcher as Matcher),
+    matchValue(resolvePath(context, path), matcher as Matcher, context),
   )
 }
 
-function matchValue(value: unknown, matcher: Matcher): boolean {
-  if (Array.isArray(matcher)) return matcher.some((m) => equals(value, m))
-  if (!isObject(matcher)) return equals(value, matcher as Primitive)
+/**
+ * Whether a written value names another value of the context (`$party.stats.stealth`):
+ * the path, or undefined for a plain value (`$$5` is the text `$5`).
+ */
+export function referenceOf(value: unknown): string | undefined {
+  return typeof value === 'string' && value.startsWith('$') && !value.startsWith('$$')
+    ? value.slice(1)
+    : undefined
+}
+
+/** A written value as the condition means it: another value of the context, or itself. */
+export function valueOf(written: unknown, context: Record<string, unknown>): unknown {
+  const path = referenceOf(written)
+  if (path !== undefined) return resolvePath(context, path)
+  return typeof written === 'string' && written.startsWith('$$') ? written.slice(1) : written
+}
+
+function matchValue(
+  value: unknown,
+  matcher: Matcher,
+  context: Record<string, unknown> = {},
+): boolean {
+  const is = (expected: unknown) => equals(value, valueOf(expected, context))
+  if (Array.isArray(matcher)) return matcher.some(is)
+  if (!isObject(matcher)) return is(matcher)
   const c = matcher as Comparison
   if (c.exists !== undefined && (value !== undefined && value !== null) !== c.exists) return false
-  if ('eq' in c && !equals(value, c.eq!)) return false
+  if ('eq' in c && !is(c.eq)) return false
   if ('not' in c) {
     const excluded = Array.isArray(c.not) ? c.not : [c.not!]
-    if (excluded.some((m) => equals(value, m))) return false
+    if (excluded.some(is)) return false
   }
-  if (c.in && !c.in.some((m) => equals(value, m))) return false
+  if (c.in && !c.in.some(is)) return false
   const numeric = ['gt', 'gte', 'lt', 'lte'].some((k) => k in c)
   if (numeric) {
     if (typeof value !== 'number' || Number.isNaN(value)) return false
-    if (c.gt !== undefined && !(value > c.gt)) return false
-    if (c.gte !== undefined && !(value >= c.gte)) return false
-    if (c.lt !== undefined && !(value < c.lt)) return false
-    if (c.lte !== undefined && !(value <= c.lte)) return false
+    // A reference that isn't a number never compares.
+    const bound = (written: unknown) => {
+      const n = valueOf(written, context)
+      return typeof n === 'number' && !Number.isNaN(n) ? n : undefined
+    }
+    for (const [op, holds] of [
+      ['gt', (b: number) => value > b],
+      ['gte', (b: number) => value >= b],
+      ['lt', (b: number) => value < b],
+      ['lte', (b: number) => value <= b],
+    ] as const) {
+      if (!(op in c) || c[op] === undefined) continue
+      const b = bound(c[op])
+      if (b === undefined || !holds(b)) return false
+    }
   }
   return true
 }
 
-/** Equality, where an array context value matches if it contains the expected value. */
-function equals(value: unknown, expected: Primitive): boolean {
+/**
+ * Equality, where an array context value matches if it contains the expected value, and
+ * an expected list (a reference to one) if it holds the value.
+ */
+function equals(value: unknown, expected: unknown): boolean {
+  if (Array.isArray(expected)) return expected.some((e) => equals(value, e))
   if (Array.isArray(value)) return value.some((v) => v === expected)
   return value === expected
 }
@@ -122,8 +162,12 @@ function checkMatcher(matcher: unknown, at: string): string[] {
   const errors: string[] = []
   for (const [op, value] of Object.entries(matcher)) {
     if (!COMPARISON_KEYS.has(op)) errors.push(`${at}: unknown operator "${op}"`)
-    else if (['gt', 'gte', 'lt', 'lte'].includes(op) && typeof value !== 'number')
-      errors.push(`${at}.${op}: must be a number`)
+    else if (
+      ['gt', 'gte', 'lt', 'lte'].includes(op) &&
+      typeof value !== 'number' &&
+      referenceOf(value) === undefined
+    )
+      errors.push(`${at}.${op}: must be a number, or $ and another value's name`)
     else if (op === 'in' && !(Array.isArray(value) && value.every(isPrimitive)))
       errors.push(`${at}.in: must be a list of plain values`)
     else if (op === 'exists' && typeof value !== 'boolean')

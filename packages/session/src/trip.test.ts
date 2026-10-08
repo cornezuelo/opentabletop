@@ -394,3 +394,74 @@ actions:
     })
   })
 })
+
+describe('values that name another value ($)', () => {
+  const { registry: mouths } = loadPacks([
+    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+    {
+      path: 'm/travel.yaml',
+      content: `
+kind: travel-rules
+day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8 }
+terrains: { plains: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 24 } }
+resources: { food: { min: 0 } }
+checks:
+  - { event: AMBUSH, at: hex-enter, when: { danger: { gt: $party.stats.stealth } } }
+actions:
+  eat: { on: day-end, do: [{ effects: { party.resources.food: -$party.stats.mouths } }] }
+  feast: { do: [{ effects: { party.stats.morale: =$party.stats.mouths } }] }
+---
+kind: bindings
+on: { AMBUSH: { resolve: ambush } }
+stats:
+  mouths: { default: 3 }
+  stealth: { default: 1 }
+  morale: { default: 0 }
+---
+kind: table
+id: ambush
+roll: 1d6
+entries:
+  - { range: 1-6, result: Ambush!, set: { loss: 2 }, effects: { party.resources.food: -$loss } }
+`,
+    },
+  ])
+  const system = travelSystems(mouths).systems.find((s) => s.id === 'm')!
+  const danger = (d: number): TravelWorld => ({
+    ...world,
+    cell: () => ({ terrain: 'plains', danger: d }),
+  })
+
+  it('in conditions: a check against a stat', () => {
+    const go = (d: number) => {
+      const { session } = startTrip({ system, location: 'a' })
+      const options = {
+        system,
+        world: danger(d),
+        oracle: createOracleEngine({ registry: mouths, random: sequence([0.5]) }),
+      }
+      const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+      return stepTrip(options, planned, { type: 'travel' })
+    }
+    expect(go(1).entries.some((e) => e.data?.event === 'AMBUSH')).toBe(false)
+    const ambushed = go(2)
+    const result = ambushed.entries.find((e) => e.data?.event === 'AMBUSH')
+    // The table's effect reads its own value: −2 food, said as such in the journal.
+    expect(result?.data?.value).toMatchObject({ effects: { 'party.resources.food': -2 } })
+  })
+
+  it('in effects: as many as a stat says, or set to it', () => {
+    const { session } = startTrip({ system, location: 'a' })
+    session.travel.resources.food = 10
+    const options = { system, world }
+    const fed = stepTrip(options, session, {
+      type: 'wait',
+      until: session.travel.time + 24 * 60,
+    }).state
+    expect(fed.travel.resources.food).toBe(7) // three mouths
+    const feast = stepTrip(options, session, { type: 'action', id: 'feast' }).state
+    expect(feast.stats.morale).toBe(3)
+  })
+})

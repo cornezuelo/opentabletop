@@ -30,6 +30,20 @@ Several comparisons on the same value must all hold: `danger: { gte: 2, lte: 4 }
 - **Missing values** don't match, except with `not` and `exists: false`.
 - **Dotted names** read inside a value: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
 
+## Comparing with another value: `$`
+
+A value written with `$` in front is **another value of the context**, read when the condition is checked, instead of a fixed one. It goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`.
+
+| Write                                                  | Holds when                                          |
+| ------------------------------------------------------ | --------------------------------------------------- |
+| `danger: { gt: $party.stats.stealth }`                 | the danger is over the party's stealth              |
+| `hour: { gte: $nightfall }`                            | it's the system's nightfall or later                |
+| `party.stats.fatigue: { gte: $party.stats.endurance }` | fatigue has reached endurance                       |
+| `faction: $rival`                                      | the hex's faction is the one in the value `rival`   |
+| `tags: $wanted`                                        | the hex has any of the tags the list `wanted` holds |
+
+A `$` value that isn't there (or isn't a number, after `gte`…) never holds. To write a value that starts with `$` itself, double it: `$$5` is the text `$5`. Everything a condition can read is in [What tables see](04-what-tables-see.md).
+
 ## Joining conditions
 
 | Write         | Holds when                   | Example                                                              |

@@ -1,4 +1,10 @@
-import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
+import {
+  matches,
+  referenceOf,
+  validateCondition,
+  valueOf,
+  type Condition,
+} from '@open-tabletop/conditions'
 import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
@@ -517,6 +523,36 @@ export function resourceBounds(rules: TravelRules): Record<string, Bounds> {
  * A value changed by an effect: a number adds (also as text, '+2'), '=3' sets; the result
  * stops at the bounds, and `limit` says which one it was cut by.
  */
+/**
+ * An effect's change with the values it names read (`-$party.stats.mouths`: as many as
+ * the party's mouths, taken away; `=$party.stats.endurance`: set to it; `$days`: add
+ * them): a number to add, or `'=N'` to set. A name that isn't a number changes nothing.
+ */
+export function resolveChange(
+  change: number | string,
+  context: Record<string, unknown>,
+): number | string {
+  if (typeof change !== 'string') return change
+  const text = change.trim()
+  const set = text.startsWith('=')
+  let rest = set ? text.slice(1).trim() : text
+  let sign = 1
+  if (/^[+-]\$/.test(rest)) {
+    if (rest[0] === '-') sign = -1
+    rest = rest.slice(1)
+  }
+  if (referenceOf(rest) === undefined) return change
+  const value = valueOf(rest, context)
+  const n =
+    typeof value === 'number' && Number.isFinite(value)
+      ? value
+      : typeof value === 'string' && /^[+-]?\d+(\.\d+)?$/.test(value.trim())
+        ? Number(value)
+        : undefined
+  if (n === undefined) return 0
+  return set ? `=${n * sign}` : n * sign
+}
+
 export function changeValue(
   from: number,
   change: number | string,
