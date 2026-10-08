@@ -274,7 +274,7 @@ packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
-- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model.
+- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model.
 - Each part is a definition of this pack, by its id (`travel: default`), or of a pack it depends on (`travel: core/slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.

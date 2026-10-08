@@ -339,7 +339,7 @@ export const es: Messages<typeof en> = {
   kinds: vocabulary.es.kinds,
   checks: {
     title: 'Comprobaciones',
-    help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla detiene el viaje y te espera.',
+    help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla solo se apunta en el diario (con sus **Cambios**); solo **Pausar después** detiene el viaje.',
     event: 'Comprobación',
     name: 'Nombre',
     nameHelp:
@@ -364,16 +364,16 @@ export const es: Messages<typeof en> = {
     never: 'nunca',
     resolve: 'Se tira en',
     resolveHelp:
-      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores `set` y `effects` llegan al viaje.\n• `my-pack/getting-lost` — pone `lost: true` con una mala tirada\n• un modelo de clima — el clima del día con inercia\n• **nada: espérame** — el viaje se detiene hasta que la resuelvas a mano',
+      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores `set` y `effects` llegan al viaje.\n• `my-pack/getting-lost` — pone `lost: true` con una mala tirada\n• un modelo de clima — el clima del día con inercia\n• **sin tabla** — solo se apunta en el diario, con sus **Cambios**; marca **Pausar después** para resolverla a mano',
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
-    waits: '— nada: espérame —',
+    waits: '— sin tabla —',
     effects: 'Cambios',
     effectsHelp:
       "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• `party.stats.fatigue: 1` — suma 1\n• `party.resources.food: -1` — quita 1\n• `party.stats.fatigue: '=0'` — lo fija\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `day-end`, **Solo si** `below: food`, **Cambios** `party.stats.fatigue: 1`.",
     pause: 'Pausar después',
     pauseHelp:
-      'El viaje **se detiene** cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo.\n• un santuario encontrado por el camino\n• un hito que describir\nUna entrada de tabla también puede pausar, solo cuando sale (`pause: true` en la entrada).',
+      'El viaje **se detiene** cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo. Es lo único que hace que una comprobación detenga el viaje: sin ello, una sin tabla solo se apunta en el diario.\n• un santuario encontrado por el camino, tirado en su tabla\n• un hito que describir, sin tabla\nUna entrada de tabla también puede pausar, solo cuando sale (`pause: true` en la entrada).',
     context: 'Contexto extra',
     contextHelp:
       'Valores que la tabla ve **solo en esta comprobación**, escritos como pares `clave: valor`:\n• `timeOfDay: night` — un encuentro nocturno tirado en la tabla de día\n• `danger: 3` — como si el hex fuera más peligroso',

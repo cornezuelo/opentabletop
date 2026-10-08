@@ -8,9 +8,9 @@ export const es: Messages<typeof en> = {
   startSeason: 'Empezar en',
   newTrip: 'Nuevo viaje',
   withTables:
-    'Este sistema tira sus comprobaciones en tablas y anota los resultados en el diario. Las comprobaciones sin tabla esperan a que continúes.',
+    'Este sistema tira sus comprobaciones en tablas y anota los resultados en el diario. Las comprobaciones sin tabla solo se apuntan en el diario, salvo que pausen.',
   noBindings:
-    'Estas reglas no tienen tablas asociadas: las comprobaciones esperan a que continúes.',
+    'Estas reglas no tienen tablas asociadas: las comprobaciones solo se apuntan en el diario, y detienen el viaje cuando pausan.',
   noChecks: 'Estas reglas no tienen comprobaciones: un viaje solo gasta tiempo y provisiones.',
   marched: 'Marcha de hoy: {used} de {limit} h',
   dayUnit: 'día',

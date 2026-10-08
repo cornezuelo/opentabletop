@@ -310,7 +310,8 @@ entries:
       },
       'sys',
     )
-    // weather d2=2 (rain, -1), lost d6=2 (-1 → 1, lost); encounter check stays pending (no binding)
+    // weather d2=2 (rain, -1), lost d6=2 (-1 → 1, lost); the encounter check has no table
+    // and doesn't pause: the journal notes it and the trip goes on
     const oracle = createOracleEngine({ registry, random: sequence([0.9, 1.5 / 6]) })
     const session = createSession({
       travel: createTravelEngine({ world, rules }),
@@ -322,8 +323,11 @@ entries:
       { type: 'travel' },
     )
     expect(state.travel.today).toEqual({ lost: true })
-    expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['ENCOUNTER_CHECK_REQUIRED'])
-    expect(state.journal.some((e) => e.code === 'CHECK_PENDING')).toBe(true)
+    expect(state.travel.pendingChecks).toEqual([])
+    expect(state.journal.find((e) => e.code === 'CHECK_NOTED')?.data).toEqual({
+      event: 'ENCOUNTER_CHECK_REQUIRED',
+    })
+    expect(state.journal.some((e) => e.code === 'CHECK_PENDING')).toBe(false)
   })
 
   it('keeps the trip going when a bound table is broken', () => {
@@ -386,13 +390,28 @@ entries:
     })
   })
 
-  it('leaves checks pending without an oracle and records user notes', () => {
+  it('only stops for checks without a table when they pause, and records user notes', () => {
     const session = createSession({ travel: createTravelEngine({ world, rules }) })
-    let { state } = session.step(
-      session.step(start(), { type: 'setDestination', hex: '2,0' }).state,
+    const go = (s: ReturnType<typeof session.step>['state']) =>
+      session.step(session.step(s, { type: 'setDestination', hex: '2,0' }).state, {
+        type: 'travel',
+      }).state
+    let state = go(start())
+    // Nothing rolls them and none says `pause: true`: noted in the journal, the trip goes on.
+    expect(state.travel.pendingChecks).toEqual([])
+    expect(state.journal.filter((e) => e.code === 'CHECK_NOTED')).toHaveLength(3)
+    const pausing = createSession({
+      travel: createTravelEngine({
+        world,
+        rules: { ...rules, checks: [{ event: 'LANDMARK', at: 'day-start', pause: true }] },
+      }),
+    })
+    const waiting = pausing.step(
+      pausing.step(start(), { type: 'setDestination', hex: '2,0' }).state,
       { type: 'travel' },
-    )
-    expect(state.travel.pendingChecks).toHaveLength(3)
+    ).state
+    expect(waiting.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK'])
+    expect(waiting.journal.at(-1)).toMatchObject({ code: 'CHECK_PENDING' })
     state = session.note(state, 'Acampamos junto al pozo')
     expect(state.journal.at(-1)).toMatchObject({
       source: 'user',

@@ -56,6 +56,11 @@ describe('journal export', () => {
     expect(journalMarkdown([pending], { ...context, checkName: () => 'Landmark' }, 'T')).toContain(
       'Landmark: waiting for you',
     )
+    // A check nothing rolls and that doesn't pause: just its name.
+    const noted = entry(at(1, '06:00'), 'CHECK_NOTED', { data: { event: 'X_REQUIRED' } })
+    expect(journalMarkdown([noted], { ...context, checkName: () => 'Landmark' }, 'T')).toContain(
+      'Landmark',
+    )
   })
 })
 

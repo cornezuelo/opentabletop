@@ -273,7 +273,7 @@ packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 ```
 
-- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima.
+- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima.
 - Cada parte es una definición de este pack, por su id (`travel: default`), o de un pack del que depende (`travel: core/slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.

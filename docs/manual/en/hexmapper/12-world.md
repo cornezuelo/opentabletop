@@ -28,7 +28,7 @@ Either way:
 
 **Moving time into another day asks first**: "The party will travel on towards 0808 for 1 day(s), marching by day; each night: Camp. Go on?" (or "will wait here"). Saying no leaves everything as it was. The journal starts with "Wait here until day 3, 06:00" when waiting, and then tells all of it.
 
-It **stops early**, and the clock with it, when something needs you, and **a message at the bottom says why**: a check without a table or one that pauses ("“Encounter” needs you": see the journal, press **Continue**, then move the clock on again), a place found on the way (discovery), a way blocked for good (choose another destination). Arriving says so too: "The party reached its destination."
+It **stops early**, and the clock with it, when something needs you, and **a message at the bottom says why**: a check that pauses, with a table or without ("“Encounter” needs you": see the journal, press **Continue**, then move the clock on again), a place found on the way (discovery), a way blocked for good (choose another destination). Arriving says so too: "The party reached its destination."
 
 A camp lasts till dawn even if you asked for less: **+1 hour** at 19:30 crosses nightfall, so the party camps and the clock ends at dawn.
 

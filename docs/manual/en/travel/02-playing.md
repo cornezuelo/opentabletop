@@ -24,10 +24,9 @@ Changing the way re-plans the route right away.
 
 The panel on the right is the same as in the Hexmapper: day, time and season, the weather, the marching hours used, the way of travelling, the supplies and the party stats the system declares (e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls, and their Morale, Fatigue and Hirelings, changed by what happens). **Travel** marches until something happens or the day ends, **1 hex** only to the next hex; the other buttons are the actions the system declares (the Grey Marches: **Camp**, **Rest**, **Forage for food**, **Forced march**, **Rite of the Ember Moon**, **Talk to the hirelings**). Actions the system takes by itself (eating as each day ends) are not buttons: they just happen, and the journal says so.
 
-Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. The trip stops and shows **Continue** in three cases:
+Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. A check with no table is only written in the journal (with what it changes, if anything) and the trip goes on, unless it says to pause. The trip stops and shows **Continue** in two cases:
 
-- a check with no table (like the Grey Marches' landmarks): resolve it yourself, then press **Continue**;
-- a check that says **Pause after it** (`pause: true`): it's rolled, and the trip waits so you can describe the place or decide something (the Grey Marches' shrine);
+- a check that says **Pause after it** (`pause: true`): it's rolled if a table resolves it, and the trip waits so you can describe the place, resolve it yourself or decide something (the Grey Marches' shrine, rolled; their landmarks, with no table);
 - a table entry or deck card with `pause: true` that comes up (the Grey Marches' Greywood Wyrm): only when that result comes up.
 
 Until you press **Continue** the party doesn't move on. What a paused result does to the trip (getting lost, the weather) applies when you continue; its effects on supplies and stats apply at once.
@@ -49,7 +48,7 @@ The list in the panel has the ways of travelling the system declares, each with 
 What happens and when, with the Grey Marches as the example (other systems roll other things, at the same moments):
 
 1. **Dawn**: the checks of the day start are rolled: the weather (the sky follows yesterday's) and, off roads and rivers, getting lost. The actions the system takes at dawn go first (the hirelings grumble if yesterday went hungry).
-2. **Marching**: each hex entered rolls its own checks: an encounter where the map says there's danger, the toll at Keld Bridge by road, the ford, the shrine (which pauses), a landmark (which waits for you).
+2. **Marching**: each hex entered rolls its own checks: an encounter where the map says there's danger, the toll at Keld Bridge by road, the ford, the shrine (which pauses), a landmark (no table, but it pauses).
 3. **Nightfall**: nobody marches after dark. **Camp** (or the system's action for the night) rolls the night's checks: a night encounter where danger is 2 or more. Camp needs food left and fatigue under 10: without, the button is off, and **Travel** passes the night in the open ("Night falls and “Camp” isn't possible (…): the night passes without it"), with no fed night's relief, and marches on at dawn. **Wait until dawn** lets the time pass where the party is, whatever happens: lost and hungry, the day is gone and the party wakes on the next.
 4. **The end of the day** (midnight): the system's day-end actions (eating: 1 food, and 1 fodder on horseback) and checks (a day without enough food: fatigue +1; ending it with no food left, hunger, where morale decides how it goes). Today's values end; tomorrow's tables read them as `yesterday.…`.
 

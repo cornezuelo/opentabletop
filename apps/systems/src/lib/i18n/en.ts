@@ -336,7 +336,7 @@ export const en = {
   kinds: vocabulary.en.kinds,
   checks: {
     title: 'Checks',
-    help: 'What is rolled on the way, when, and on which table. A check without a table stops the trip and waits for you.',
+    help: 'What is rolled on the way, when, and on which table. A check without a table is only written in the journal (with its **Changes**); only **Pause after it** stops the trip.',
     event: 'Check',
     name: 'Name',
     nameHelp:
@@ -361,16 +361,16 @@ export const en = {
     never: 'never',
     resolve: 'Rolled on',
     resolveHelp:
-      "The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its `set` values and `effects` reach the trip.\n• `my-pack/getting-lost` — sets `lost: true` on a bad roll\n• a weather model — the day's weather with inertia\n• **nothing: wait for me** — the trip stops until you resolve it by hand",
+      "The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its `set` values and `effects` reach the trip.\n• `my-pack/getting-lost` — sets `lost: true` on a bad roll\n• a weather model — the day's weather with inertia\n• **no table** — it's only written in the journal, with its **Changes**; tick **Pause after it** to resolve it by hand",
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
-    waits: '— nothing: wait for me —',
+    waits: '— no table —',
     effects: 'Changes',
     effectsHelp:
       "What the check itself changes when it comes up, with or without a table:\n• `party.stats.fatigue: 1` — adds 1\n• `party.resources.food: -1` — takes 1 away\n• `party.stats.fatigue: '=0'` — sets it\nHow a system writes its rules as data, e.g. a day without enough food: **When** `day-end`, **Only if** `below: food`, **Changes** `party.stats.fatigue: 1`.",
     pause: 'Pause after it',
     pauseHelp:
-      'The trip **stops** when this check comes up (after rolling it, if something resolves it) and waits until you press **Continue**: time to describe the place, write lore or decide something.\n• a shrine found on the way\n• a landmark to describe\nA table entry can also pause, only when it comes up (`pause: true` on the entry).',
+      'The trip **stops** when this check comes up (after rolling it, if something resolves it) and waits until you press **Continue**: time to describe the place, write lore or decide something. The only way a check stops the trip: without it, a check with no table is just written in the journal.\n• a shrine found on the way, rolled on its table\n• a landmark to describe, with no table\nA table entry can also pause, only when it comes up (`pause: true` on the entry).',
     context: 'Extra context',
     contextHelp:
       'Values the table sees **only for this check**, written as `key: value` pairs:\n• `timeOfDay: night` — a night encounter rolled on the day table\n• `danger: 3` — as if the hex were more dangerous',

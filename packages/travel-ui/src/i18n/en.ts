@@ -5,8 +5,9 @@ export const en = {
   startSeason: 'Start in',
   newTrip: 'New trip',
   withTables:
-    'This system rolls its checks on tables and writes the results in the journal. Checks without a table wait for you to continue.',
-  noBindings: 'These rules have no tables bound: checks wait for you to continue.',
+    'This system rolls its checks on tables and writes the results in the journal. Checks without a table are only written in the journal, unless they pause.',
+  noBindings:
+    'These rules have no tables bound: checks are only written in the journal, and stop the trip when they pause.',
   noChecks: 'These rules have no checks: a trip only spends time and supplies.',
   marched: 'Marched today: {used} of {limit} h',
   dayUnit: 'day',

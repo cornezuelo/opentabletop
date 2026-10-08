@@ -172,6 +172,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     }
     case 'ORACLE_ROLL':
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
+    case 'CHECK_NOTED':
+      return eventName(t, d.event, checkName)
     case 'CHECK_PENDING':
       return t('journal.pending', { event: eventName(t, d.event, checkName) })
     case 'CHECK_PAUSED':

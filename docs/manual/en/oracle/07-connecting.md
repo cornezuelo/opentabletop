@@ -275,7 +275,7 @@ checks:
   - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). `pause: true` rolls it and then stops the trip until **Continue**, so you can describe the place or decide something. Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): `day-start` at each dawn, the camp's at each nightfall, `day-end` as each day ends. Older packs' `short` means something hit its minimum, and `camping` that the night's action was under way.
+A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). A check with no table and no effects is just written in the journal. `pause: true` rolls it (if a table resolves it) and then stops the trip until **Continue**, so you can describe the place, resolve it yourself or decide something: **only `pause: true` stops the trip**, with a table or without (a landmark to describe: `pause: true` and no table). Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): `day-start` at each dawn, the camp's at each nightfall, `day-end` as each day ends. Older packs' `short` means something hit its minimum, and `camping` that the night's action was under way.
 
 ### Bindings, stats and reads
 

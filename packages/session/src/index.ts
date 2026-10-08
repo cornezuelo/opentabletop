@@ -385,8 +385,18 @@ export function createSession(options: {
                 time: event.time,
                 data: { ...limit },
               })
-            // Without a table there's nothing to wait for (unless the check pauses).
-            if (!binding && !event.check.pause) {
+          }
+          if (!binding) {
+            // Nothing rolls it: the journal says it came up (its effects' line, if it has
+            // any), and it only stops the trip when it says so (`pause: true`).
+            if (!event.check.effects)
+              add(s, entries, {
+                source: 'travel',
+                code: 'CHECK_NOTED',
+                time: event.time,
+                data: { event: event.check.event },
+              })
+            if (!event.check.pause) {
               s.travel = options.travel.apply(s.travel, {
                 type: 'resolveCheck',
                 id: event.check.id,

@@ -214,12 +214,14 @@ checks:
     at: hex-enter
     when: { tags: shrine }
     pause: true
-  # No table for this one: the trip stops at landmarks and waits for you to Continue.
+  # No table for this one: it only stops the trip because it says so (pause), and waits
+  # for you to describe the place and press Continue.
   - event: LANDMARK_CHECK_REQUIRED
     name: Landmark
     description: Describe the place yourself (or roll on an oracle), then press Continue.
     at: hex-enter
     when: { tags: landmark }
+    pause: true
   - event: CAMP_ENCOUNTER_CHECK_REQUIRED
     name: Night encounter
     description: Camping where danger is 2 or more.

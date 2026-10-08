@@ -275,7 +275,7 @@ checks:
   - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). `pause: true` la tira y luego detiene el viaje hasta **Continuar**, para que describas el lugar o decidas algo. Esperar con el reloj del mundo (Hexmapper → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): `day-start` en cada alba, las de acampar en cada anochecer, `day-end` al acabar cada día. En los packs antiguos, `short` significa que algo llegó a su mínimo, y `camping` que estaba en curso la acción de la noche.
+Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). Una comprobación sin tabla ni efectos solo se apunta en el diario. `pause: true` la tira (si una tabla la resuelve) y luego detiene el viaje hasta **Continuar**, para que describas el lugar, la resuelvas tú o decidas algo: **solo `pause: true` detiene el viaje**, con tabla o sin ella (un lugar señalado que describir: `pause: true` y sin tabla). Esperar con el reloj del mundo (Hexmapper → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): `day-start` en cada alba, las de acampar en cada anochecer, `day-end` al acabar cada día. En los packs antiguos, `short` significa que algo llegó a su mínimo, y `camping` que estaba en curso la acción de la noche.
 
 ### Bindings, características y lecturas
 

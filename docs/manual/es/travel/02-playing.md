@@ -24,10 +24,9 @@ Cambiar el camino vuelve a planear la ruta al momento.
 
 El panel de la derecha es el mismo que en el Hexmapper: día, hora y estación, el clima, las horas de marcha gastadas, la forma de viajar, las provisiones y las características del grupo que declare el sistema (p. ej. el Carisma, la Supervivencia y la Orientación de las Marcas Grises, que se suman a las tiradas, y su Moral, Fatiga y Mercenarios, que cambian con lo que pasa). **Viajar** marcha hasta que pase algo o acabe el día, **1 hex** solo hasta el hex siguiente; los demás botones son las acciones que declara el sistema (las Marcas Grises: **Acampar**, **Descansar**, **Buscar comida**, **Marcha forzada**, **Rito de la Luna Ascua**, **Hablar con los mercenarios**). Las acciones que hace el propio sistema (comer al acabar cada día) no son botones: simplemente ocurren, y el diario lo cuenta.
 
-Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga todo el diario en Markdown (un título por día, con el nombre del viaje) para tu aplicación de notas o para imprimir. El viaje se detiene y muestra **Continuar** en tres casos:
+Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga todo el diario en Markdown (un título por día, con el nombre del viaje) para tu aplicación de notas o para imprimir. Una comprobación sin tabla solo se apunta en el diario (con lo que cambie, si cambia algo) y el viaje sigue, salvo que diga que pausa. El viaje se detiene y muestra **Continuar** en dos casos:
 
-- una comprobación sin tabla (como los lugares señalados de las Marcas Grises): resuélvela tú y pulsa **Continuar**;
-- una comprobación que dice **Pausar después** (`pause: true`): se tira, y el viaje espera para que describas el lugar o decidas algo (el santuario de las Marcas Grises);
+- una comprobación que dice **Pausar después** (`pause: true`): se tira si una tabla la resuelve, y el viaje espera para que describas el lugar, la resuelvas tú o decidas algo (el santuario de las Marcas Grises, que se tira; sus lugares señalados, sin tabla);
 - una entrada de tabla o carta con `pause: true` que sale (la Sierpe del Bosque Gris de las Marcas Grises): solo cuando sale ese resultado.
 
 Hasta que pulses **Continuar**, el grupo no sigue. Lo que un resultado en pausa hace al viaje (perderse, el clima) se aplica al continuar; sus efectos sobre provisiones y características, enseguida.
@@ -49,7 +48,7 @@ La lista del panel tiene las formas de viajar que declara el sistema, cada una c
 Qué pasa y cuándo, con las Marcas Grises de ejemplo (otros sistemas tiran otras cosas, en los mismos momentos):
 
 1. **Alba**: se tiran las comprobaciones del inicio del día: el clima (el cielo sigue al de ayer) y, fuera de caminos y ríos, perderse. Las acciones que hace el sistema al alba van primero (los mercenarios refunfuñan si ayer pasaron hambre).
-2. **Marcha**: cada hex en el que se entra tira sus comprobaciones: un encuentro donde el mapa dice que hay peligro, el peaje del Puente de Keld por camino, el vado, el santuario (que pausa), un lugar señalado (que te espera).
+2. **Marcha**: cada hex en el que se entra tira sus comprobaciones: un encuentro donde el mapa dice que hay peligro, el peaje del Puente de Keld por camino, el vado, el santuario (que pausa), un lugar señalado (sin tabla, pero pausa).
 3. **Anochecer**: nadie marcha de noche. **Acampar** (o la acción del sistema para la noche) tira las comprobaciones de la noche: un encuentro nocturno donde el peligro es 2 o más. Acampar necesita comida y fatiga por debajo de 10: si no, el botón queda desactivado y **Viajar** pasa la noche a la intemperie («Cae la noche y «Acampar» no es posible (…): la noche pasa sin ello»), sin el alivio de una noche bien comidos, y sigue marchando al alba. **Esperar al alba** deja pasar el tiempo donde está el grupo, pase lo que pase: perdidos y sin comida, el día se pierde y el grupo despierta en el siguiente.
 4. **El final del día** (medianoche): las acciones del sistema de fin de día (comer: 1 de comida, y 1 de forraje a caballo) y sus comprobaciones (un día sin comida suficiente: fatiga +1; acabarlo sin nada de comida, hambre, donde la moral decide cómo va). Los valores de hoy terminan; las tablas de mañana los leen como `yesterday.…`.
 
