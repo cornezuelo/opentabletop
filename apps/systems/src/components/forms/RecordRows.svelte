@@ -7,9 +7,9 @@
     /**
      * number: a number box (empty = not set); check: a checkbox; list: comma-separated;
      * flow: `key: value` pairs; text: what players read, in the UI's language (written to
-     * the translation file when it isn't the pack's).
+     * the translation file when it isn't the pack's); select: one of `choices` (or none).
      */
-    type: 'number' | 'check' | 'list' | 'flow' | 'text'
+    type: 'number' | 'check' | 'list' | 'flow' | 'text' | 'select'
     placeholder?: string
     /** For checks, the value meant when the field is missing. */
     default?: boolean
@@ -42,7 +42,7 @@
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import type { Kind, SystemDoc } from '../../lib/systemDoc.svelte'
+  import type { RowsDoc } from '../../lib/partDoc.svelte'
 
   /**
    * A map of the rules keyed by id (terrains, modes, resources…) as rows: the id, one
@@ -59,8 +59,8 @@
     idLabel,
     exclude = [],
   }: {
-    doc: SystemDoc
-    kind?: Kind
+    doc: RowsDoc
+    kind?: string
     at: string[]
     columns: Column[]
     suggestions?: string[]
@@ -72,7 +72,7 @@
   } = $props()
 
   const record = $derived.by(() => {
-    let node: unknown = kind === 'bindings' ? doc.bindings : doc.rules
+    let node: unknown = doc.data(kind)
     for (const part of at) node = (node as Record<string, unknown> | undefined)?.[part]
     return (typeof node === 'object' && node !== null ? node : {}) as Record<
       string,
@@ -197,6 +197,17 @@
                 disabled={disabled || (!!row && !!c.off?.(row))}
                 onchange={(e) => set(id, c, e.currentTarget)}
               />
+            {:else if c.type === 'select'}
+              <select
+                aria-label={c.label}
+                value={shown(row, c)}
+                {disabled}
+                onchange={(e) => write(id, c.field, e.currentTarget.value || undefined)}
+              >
+                <option value="">{c.placeholder ?? ''}</option>
+                {#each c.choices ?? [] as choice (choice)}<option value={choice}>{choice}</option
+                  >{/each}
+              </select>
             {:else if (c.type === 'list' && c.choices) || (c.type === 'flow' && c.hints)}
               <SuggestInput
                 label={c.label}

@@ -1,9 +1,11 @@
 import type { TravelSystem } from '@open-tabletop/session'
 import { genericTravelRules } from '@open-tabletop/travel-engine'
-import { appendDefinition, freeId, setIn } from '@open-tabletop/pack-ui/yaml'
+import { SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
+import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
 import { stringify } from 'yaml'
 import { getLocale } from './i18n'
 import { library } from './packs.svelte'
+import type { PartSource } from './partDoc.svelte'
 import type { DocSource } from './systemDoc.svelte'
 
 /** "My Rules!" → "my-rules" (a pack id). */
@@ -181,4 +183,88 @@ export function declareSystem(system: TravelSystem): boolean {
   const file = 'system.yaml'
   library.writeFile(root, file, appendDefinition(library.readFile(root, file) ?? '', definition))
   return true
+}
+
+/** The kinds of definition a system's tabs edit besides its rules and bindings. */
+export type PartTabKind = 'calendar' | 'weather' | 'roll-modes'
+
+/** Where a part named `ref` (`id` of the system's pack, or `pack/id`) is written. */
+function partSource(pack: string, kind: string, ref: string): PartSource | null {
+  const [owner, id] = ref.includes('/') ? ref.split('/', 2) : [pack, ref]
+  const extra = (library.registry.extras.get(owner) ?? []).find(
+    (e) => e.kind === kind && (e.id ?? 'default') === id,
+  )
+  const root = library.rootOf(owner)
+  if (!extra || !root || !extra.file.startsWith(`${root}/`)) return null
+  return { root, path: extra.file.slice(root.length + 1), kind, id }
+}
+
+/** The raw `kind: system` of a declared system, as loaded. */
+function systemData(system: TravelSystem): Record<string, unknown> | undefined {
+  const declared = system.sources?.system
+  if (!declared) return undefined
+  return (library.registry.extras.get(declared.pack) ?? []).find(
+    (e) => e.kind === 'system' && (e.id ?? 'default') === declared.id,
+  )?.data
+}
+
+/**
+ * The definitions of a kind a system uses, to edit in its tabs: its calendar and weather
+ * models (named by its `kind: system`; an older pack's implicit system uses its pack's),
+ * and the roll modes of the packs it brings.
+ */
+export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource[] {
+  const pack = system.pack
+  if (!pack) return []
+  const ownOfKind = (owner: string) =>
+    (library.registry.extras.get(owner) ?? [])
+      .filter((e) => e.kind === kind)
+      .map((e) => `${owner}/${e.id ?? 'default'}`)
+  const data = systemData(system)
+  let refs: string[]
+  if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
+  else if (kind === 'calendar')
+    refs = data
+      ? typeof data.calendar === 'string'
+        ? [data.calendar]
+        : []
+      : ownOfKind(pack).slice(0, 1)
+  else
+    refs = data ? (Array.isArray(data.weather) ? (data.weather as string[]) : []) : ownOfKind(pack)
+  return refs.flatMap((ref) => partSource(pack, kind, ref) ?? [])
+}
+
+/**
+ * A new definition of a kind for a system, from its template (calendar, weather model or
+ * roll modes), in its pack's file for that kind (`calendar.yaml`, `weather.yaml`,
+ * `roll-modes.yaml`); a calendar or weather model is named by its system. One undo step.
+ */
+export function createSystemPart(system: TravelSystem, kind: PartTabKind): string | null {
+  const root = systemRoot(system)
+  if (!root || !library.isEditable(root)) return null
+  const pack = system.pack!
+  const taken = (library.registry.extras.get(pack) ?? [])
+    .filter((e) => e.kind === kind)
+    .map((e) => e.id ?? 'default')
+  const base = kind === 'calendar' ? 'calendar' : kind === 'weather' ? 'weather' : 'default'
+  const id = freeId(base, taken)
+  const file = `${kind}.yaml`
+  const declared = systemFile(system)?.system
+  library.batch(() => {
+    library.writeFile(
+      root,
+      file,
+      appendDefinition(library.readFile(root, file) ?? '', SYSTEM_TEMPLATES[kind](id)),
+    )
+    if (!declared || kind === 'roll-modes') return
+    const text = library.readFile(root, declared.path) ?? ''
+    const selector = `@system/${declared.id}`
+    const current = readDefinition(text, selector) ?? {}
+    const value =
+      kind === 'calendar'
+        ? id
+        : [...(Array.isArray(current.weather) ? (current.weather as string[]) : []), id]
+    library.writeFile(root, declared.path, setIn(text, selector, [kind], value))
+  })
+  return id
 }

@@ -32,7 +32,124 @@ export const es: Messages<typeof en> = {
     title: 'Systems',
     body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: edita una copia. Juégalos en la aplicación Travel (viajes sin mapa) o sobre un mapa en el Hexmapper.',
   },
-  tabs: { overview: 'Resumen', rules: 'Reglas', checks: 'Comprobaciones', yaml: 'YAML' },
+  tabs: {
+    overview: 'Resumen',
+    rules: 'Reglas',
+    checks: 'Comprobaciones',
+    calendar: 'Calendario',
+    weather: 'Clima',
+    modes: 'Modos de tirada',
+    yaml: 'YAML',
+  },
+  parts: {
+    calendar: {
+      title: 'El calendario del sistema',
+      intro:
+        'El calendario con el que sus viajes y el reloj del mundo nombran el tiempo: meses y sus estaciones, días de la semana, lunas y fiestas.',
+      help: 'Un calendario por sistema (`kind: calendar`), nombrado en su **Resumen**. Las tablas y comprobaciones leen lo que dice de cada momento:\n• `month: thaw`, `weekday: restday`, `year: { gte: 413 }`\n• `moons.ember: full`\n• `holidays: midsummer`\nSin él, el calendario por defecto cuenta días y cuatro estaciones de 90 días.',
+      none: 'Este sistema no tiene calendario: usa el de por defecto (días y cuatro estaciones).',
+      create: 'Nuevo calendario',
+    },
+    weather: {
+      title: 'Sus modelos de clima',
+      intro:
+        'Clima con inercia: hoy sigue a ayer, con probabilidades por estación. Una comprobación cuyo binding nombra un modelo lo tira (`weather: sky`).',
+      help: 'Modelos de clima (`kind: weather`) que pueden nombrar los bindings del sistema, enumerados en su **Resumen**. Cada tipo de clima puede fijar valores del día (`set: { snowbound: true }`) que leen las condiciones; el clima del día es `weather` en tablas y condiciones:\n• `weather: storm`\n• `weather: [rain, storm]`',
+      none: 'Este sistema no nombra modelos de clima.',
+      create: 'Nuevo modelo de clima',
+    },
+    modes: {
+      title: 'Los modos de tirada de sus packs',
+      intro:
+        'Formas de tirar sus tablas: ventaja, desventaja o las tuyas (tres tiradas quedándose con la del medio…). Las tablas las ofrecen con `modes:` y las usan solas con `modeWhen:`.',
+      help: 'Modos de tirada (`kind: roll-modes`) de los packs que trae el sistema, primero el suyo; los de un pack incluido son de solo lectura (**Editar una copia**). Una tabla los usa:\n• `modes: [advantage, disadvantage]` — se ofrecen al tirar a mano\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — solo cuando se cumple',
+      none: 'Los packs de este sistema no declaran modos de tirada.',
+      create: 'Nuevos modos de tirada',
+    },
+  },
+  calendar: {
+    name: 'Nombre',
+    nameHelp:
+      'El nombre del calendario, que se muestra junto a sus fechas.\n• **El cómputo de las Marcas**',
+    startYear: 'Año del día 1',
+    startYearHelp: 'El año en el que cae el primer día de juego (por defecto 1).\n• `412`',
+    startMonth: 'El día 1 cae en',
+    startHelp:
+      'El mes y el día del primer día de juego (por defecto el primer día del primer mes). Un viaje que empieza en una estación empieza el primer día de esa estación.',
+    firstMonth: 'el primer mes',
+    startDay: 'el día',
+    hoursPerDay: 'Horas del día',
+    hoursPerDayHelp: 'Lo que dura un día (por defecto 24).\n• `30` — un mundo de días más largos',
+    watchHours: 'Horas por guardia',
+    watchHoursHelp:
+      'Divide el día en guardias, que las tablas leen como `watch` (1, 2…).\n• `4` — seis guardias al día\nVacío: sin guardias.',
+    dawn: 'Alba',
+    dawnHelp:
+      'Cuándo empieza el día y cae la noche, para «hasta el alba» y «hasta el anochecer» del reloj del mundo (las reglas de viaje tienen los suyos).\n• `06:00` y `20:00`',
+    dusk: 'Anochecer',
+    months: 'Meses',
+    monthsHelp:
+      'Los meses de un año, en orden, cada uno con sus días y su estación (la estación que leen las tablas mientras dura):\n• `thaw` — **Deshielo**, 30 días, `spring`\nLas estaciones son cualquier nombre: las cuatro de siempre, o las de tu mundo (`wet`, `dry`).',
+    itemName: 'Nombre',
+    days: 'Días',
+    season: 'Estación',
+    seasonHelp: 'La estación durante este mes: `spring`, `summer`, `autumn`, `winter`, o la tuya.',
+    yearDays: 'Un año de {days} días.',
+    weekdays: 'Días de la semana',
+    weekdaysHelp:
+      'Los días de la semana, en orden; las tablas leen `weekday: restday`. Vacío: sin semana.',
+    moons: 'Lunas',
+    moonsHelp:
+      'Las lunas y sus fases (nueva, creciente, llena, menguante), que se leen como `moons.<id>: full`.\n• `pale` — 28 días\n• `ember` — 45 días, desfase 20',
+    cycle: 'Ciclo (días)',
+    cycleHelp: 'Días de una luna nueva a la siguiente.',
+    offset: 'Desfase',
+    offsetHelp: 'El día de su ciclo en el día 1 (por defecto 0: nueva el día 1).',
+    holidays: 'Fiestas',
+    holidaysHelp:
+      'Días fijos del año, que se leen como `holidays: midsummer` (una lista, porque pueden caer varias el mismo día).',
+    month: 'Mes',
+    day: 'Día',
+  },
+  weather: {
+    name: 'Nombre',
+    nameHelp: 'El nombre del modelo.\n• **El cielo de las Marcas**',
+    states: 'Tipos de clima',
+    statesHelp:
+      'Cada tipo de clima que puede dar el modelo, por su id (lo que las tablas leen como `weather`), con su nombre para el diario y lo que fija para el día:\n• `storm` — **Tormenta: nadie viaja**, fija `fordImpossible: true`\n• `snow` — fija `snowbound: true`, con lo que las reglas de viaje pueden bloquear una forma de viajar',
+    stateName: 'Nombre',
+    set: 'Fija para el día',
+    setHelp:
+      'Valores del día que fija este clima, como pares `clave: valor`:\n• `fordModifier: -1`\n• `snowbound: true`',
+    setNothing: 'nada',
+    season: 'Estación: {season}',
+    start: 'Empieza como',
+    startHelp:
+      'El clima del primer día de un viaje en esta estación, y siempre que el de ayer no tenga fila.',
+    startWeights: 'pesos (en YAML)',
+    fromTo: 'Ayer ↓ / hoy →',
+    matrixHelp:
+      'Para cada clima de ayer (filas), cuán probable es cada clima hoy (columnas): pesos, no porcentajes; vacío es 0.\n• Fila **Lluvia**: `rain 3`, `grey 2`, `storm 1` — la lluvia se asienta y a veces se vuelve tormenta\nUna fila vacía vuelve a empezar como empieza la estación.',
+    shares: 'En muchos días',
+    sharesHelp:
+      'Con qué frecuencia sale cada clima en esta estación a lo largo de muchos días, según los pesos de arriba: para comprobar que la estación se siente bien.',
+    newSeason: 'Estación',
+    addSeason: 'Añadir una estación',
+  },
+  modes: {
+    title: 'Modos de tirada',
+    help: 'Cada modo hace la tirada entera varias veces y se queda con una:\n• `advantage` — 2 tiradas, la más alta, anula `disadvantage`\n• `careful` — 3 tiradas, la del medio',
+    name: 'Nombre',
+    description: 'Descripción',
+    repeat: 'Tiradas',
+    repeatHelp: 'Cuántas veces se hace la tirada entera.',
+    keep: 'Quedarse con',
+    keepHelp:
+      'Qué total se queda: `highest` (el más alto), `lowest` (el más bajo) o `middle` (el del medio; con un número par, el menor de los dos del medio).',
+    cancels: 'Anula',
+    cancelsHelp:
+      'Modos con los que se anula: si se aplican los dos, no se aplica ninguno (una tirada normal).\n• `disadvantage`',
+  },
   overview: {
     generic:
       'Las reglas Genéricas: viaje sencillo sin comprobaciones, integrado en las aplicaciones. No tienen definición que editar; crea un sistema nuevo para hacer el tuyo a partir de ellas.',
@@ -82,6 +199,8 @@ export const es: Messages<typeof en> = {
     id: 'Id',
     add: 'Añadir',
     remove: 'Quitar',
+    moveUp: 'Subir',
+    moveDown: 'Bajar',
     idExists: 'Ya hay uno que se llama «{id}».',
     badFlow: 'Escríbelo como pares clave: valor, p. ej. tags: landmark o terrain: [forest, hills].',
     problems: 'Este fichero tiene {count} problemas: abre el YAML para verlos.',

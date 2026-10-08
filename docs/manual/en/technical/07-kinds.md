@@ -102,7 +102,7 @@ inputs:
 
 ## Roll modes
 
-The ways a system rolls a table **several times and keeps one total**: advantage, disadvantage, or anything else (three rolls keeping the middle one…). The apps know none of them: a pack declares them, with their names, and its tables list the ones they use. One `roll-modes` definition per pack, with any number of modes.
+The ways a system rolls a table **several times and keeps one total**: advantage, disadvantage, or anything else (three rolls keeping the middle one…). The apps know none of them: a pack declares them, with their names, and its tables list the ones they use. One `roll-modes` definition per pack, with any number of modes. In the Systems app, a system's **Roll modes** tab edits its packs' with a form.
 
 ```yaml
 kind: roll-modes
@@ -217,7 +217,7 @@ A check with no binding (and no `effects`) stops the trip and waits for you.
 
 ## Calendars
 
-The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `month`, `year`, `weekday`, `moons.<moon>` (new, waxing, full, waning) and `holidays`. The Hexmapper's [World](../hexmapper/12-world.md) panel uses the calendar of the map's system. Without one, a plain calendar of days and four seasons is used.
+The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `month`, `year`, `weekday`, `moons.<moon>` (new, waxing, full, waning) and `holidays`. The Hexmapper's [World](../hexmapper/12-world.md) panel uses the calendar of the map's system. Without one, a plain calendar of days and four seasons is used. In the Systems app, a system's **Calendar** tab edits it with a form (renaming a month carries its holidays and translations along).
 
 ```yaml
 kind: calendar
@@ -237,7 +237,7 @@ holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 
 ## Weather models
 
-Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `weather` for later checks and the travel rules' speeds.
+Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `weather` for later checks and the travel rules' speeds. In the Systems app, a system's **Weather** tab edits its models with a form: the kinds of weather, and per season a grid of weights from yesterday's weather to today's, with how often each kind comes up over many days.
 
 ```yaml
 kind: weather

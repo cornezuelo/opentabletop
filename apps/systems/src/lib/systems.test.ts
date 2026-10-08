@@ -2,11 +2,15 @@ import { describe, expect, it } from 'vitest'
 import {
   createPart,
   createSystem,
+  createSystemPart,
   declareSystem,
   partChoices,
   rulesFile,
   systemFile,
+  systemParts,
 } from './newSystem'
+import { renameMonth } from './calendar'
+import { partDoc } from './partDoc.svelte'
 import { library, systems } from './packs.svelte'
 import { systemDoc } from './systemDoc.svelte'
 
@@ -145,4 +149,61 @@ describe('systems in the Systems app', () => {
       /travel: default[\s\S]*bindings: default/,
     )
   })
+
+  it("a system's calendar, weather and roll modes are found and edited in forms", () => {
+    const marches = systems.get('grey-marches')!
+    expect(systemParts(marches, 'calendar')).toEqual([
+      { root: 'grey-marches', path: 'calendar.yaml', kind: 'calendar', id: 'marcher-reckoning' },
+    ])
+    expect(systemParts(marches, 'weather').map((p) => p.id)).toEqual(['sky'])
+    // Roll modes of the packs it brings: its own, then Core's.
+    expect(systemParts(marches, 'roll-modes').map((p) => `${p.root}/${p.id}`)).toEqual([
+      'grey-marches/default',
+      'core/default',
+    ])
+    library.editCopy('grey-marches')
+    const calendar = partDoc(() => systemParts(systems.get('grey-marches')!, 'calendar')[0])
+    expect(calendar.editable).toBe(true)
+    // A month renamed: its Spanish name and its holiday follow it; a longer month changes the year.
+    expect(renameMonth(calendar, 0, 'sowing')).toBe(false)
+    expect(renameMonth(calendar, 0, 'melt')).toBe(true)
+    expect(calendar.data().holidays).toContainEqual(
+      expect.objectContaining({ id: 'first-thaw', month: 'melt' }),
+    )
+    calendar.edit('', ['months', 0, 'days'], 31)
+    expect(library.readFile('grey-marches', 'locales/es/calendar.yaml')).toContain('melt:')
+    const months = systems.get('grey-marches')!.calendar!.describe(30 * 24 * 60).month
+    expect(months).toMatchObject({ id: 'melt', day: 31 })
+    // Moving a weekday keeps the rest in order.
+    calendar.move('', ['weekdays'], 0, 1)
+    expect((calendar.data().weekdays as { id: string }[]).slice(0, 2).map((d) => d.id)).toEqual([
+      'ironday',
+      'moonday',
+    ])
+    // A weather weight, written where the form puts it.
+    const sky = partDoc(() => systemParts(systems.get('grey-marches')!, 'weather')[0])
+    sky.edit('', ['seasons', 'summer', 'next', 'clear', 'storm'], 3)
+    expect(
+      systems.get('grey-marches')!.weather?.['grey-marches/sky'].seasons.summer.next.clear,
+    ).toMatchObject({ storm: 3 })
+    library.removePack('grey-marches')
+    // Every read after a change reloads the packs: a few seconds in all.
+  }, 30_000)
+
+  it('a new calendar, weather model and roll modes are created and named by the system', () => {
+    const id = createSystem('Weathered')!
+    const system = () => systems.get(id)!
+    expect(systemParts(system(), 'calendar')).toEqual([])
+    expect(createSystemPart(system(), 'calendar')).toBe('calendar')
+    expect(createSystemPart(system(), 'weather')).toBe('weather')
+    expect(createSystemPart(system(), 'weather')).toBe('weather-2')
+    expect(createSystemPart(system(), 'roll-modes')).toBe('default')
+    expect(system().calendar).toBeDefined()
+    expect(Object.keys(system().weather ?? {})).toEqual([`${id}/weather`, `${id}/weather-2`])
+    expect(systemParts(system(), 'roll-modes').map((p) => p.root)).toEqual([id])
+    expect(library.readFile(id, 'system.yaml')).toMatch(/calendar: calendar[\s\S]*weather:/)
+    // The system uses the new calendar's seasons.
+    expect(system().calendar!.describe(0).month.id).toBe('thaw')
+    // Every read after a change reloads the packs: a few seconds in all.
+  }, 30_000)
 })

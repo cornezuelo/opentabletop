@@ -30,7 +30,123 @@ export const en = {
     title: 'Systems',
     body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: edit a copy. Play them in the Travel app (trips without a map) or on a map in the Hexmapper.',
   },
-  tabs: { overview: 'Overview', rules: 'Rules', checks: 'Checks', yaml: 'YAML' },
+  tabs: {
+    overview: 'Overview',
+    rules: 'Rules',
+    checks: 'Checks',
+    calendar: 'Calendar',
+    weather: 'Weather',
+    modes: 'Roll modes',
+    yaml: 'YAML',
+  },
+  parts: {
+    calendar: {
+      title: "The system's calendar",
+      intro:
+        'The calendar its trips and the world clock name time with: months and their seasons, weekdays, moons and holidays.',
+      help: 'One calendar per system (`kind: calendar`), named in its **Overview**. Tables and checks read what it says about each moment:\n• `month: thaw`, `weekday: restday`, `year: { gte: 413 }`\n• `moons.ember: full`\n• `holidays: midsummer`\nWithout one, the default calendar counts days and four seasons of 90 days.',
+      none: 'This system has no calendar: it uses the default one (days and four seasons).',
+      create: 'New calendar',
+    },
+    weather: {
+      title: 'Its weather models',
+      intro:
+        'Weather with inertia: today follows yesterday, with odds per season. A check whose binding names a model rolls it (`weather: sky`).',
+      help: "Weather models (`kind: weather`) the system's bindings can name, listed in its **Overview**. Each kind of weather can set values for the day (`set: { snowbound: true }`) that conditions read; the day's weather is `weather` in tables and conditions:\n• `weather: storm`\n• `weather: [rain, storm]`",
+      none: 'This system names no weather models.',
+      create: 'New weather model',
+    },
+    modes: {
+      title: 'Roll modes of its packs',
+      intro:
+        'Ways of rolling its tables: advantage, disadvantage, or your own (three rolls keeping the middle one…). Tables offer them with `modes:` and use them by themselves with `modeWhen:`.',
+      help: "Roll modes (`kind: roll-modes`) of the packs the system brings, its own first; a bundled pack's are read-only (**Edit a copy**). A table uses them:\n• `modes: [advantage, disadvantage]` — offered when rolling by hand\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — by itself when it holds",
+      none: 'The packs of this system declare no roll modes.',
+      create: 'New roll modes',
+    },
+  },
+  calendar: {
+    name: 'Name',
+    nameHelp: "The calendar's name, shown where its dates are.\n• **The Marcher reckoning**",
+    startYear: 'Year of day 1',
+    startYearHelp: 'The year the first day of play falls in (default 1).\n• `412`',
+    startMonth: 'Day 1 is in',
+    startHelp:
+      "The month and day of the first day of play (default the first day of the first month). A trip that starts in a season starts on that season's first day.",
+    firstMonth: 'the first month',
+    startDay: 'on day',
+    hoursPerDay: 'Hours in a day',
+    hoursPerDayHelp: 'How long a day is (default 24).\n• `30` — a world with longer days',
+    watchHours: 'Hours per watch',
+    watchHoursHelp:
+      'Splits the day into watches, which tables read as `watch` (1, 2…).\n• `4` — six watches a day\nEmpty: no watches.',
+    dawn: 'Dawn',
+    dawnHelp:
+      'When the day starts and night falls, for the world clock\'s "until dawn" and "until nightfall" (travel rules have their own).\n• `06:00` and `20:00`',
+    dusk: 'Nightfall',
+    months: 'Months',
+    monthsHelp:
+      "The months of a year, in order, each with its days and its season (the season tables read while it lasts):\n• `thaw` — **Thaw**, 30 days, `spring`\nSeasons are any names: the usual four, or your world's (`wet`, `dry`).",
+    itemName: 'Name',
+    days: 'Days',
+    season: 'Season',
+    seasonHelp:
+      'The season during this month: `spring`, `summer`, `autumn`, `winter`, or your own.',
+    yearDays: 'A year of {days} days.',
+    weekdays: 'Weekdays',
+    weekdaysHelp: 'The days of the week, in order; tables read `weekday: restday`. Empty: no week.',
+    moons: 'Moons',
+    moonsHelp:
+      'Moons and their phases (new, waxing, full, waning), read as `moons.<id>: full`.\n• `pale` — 28 days\n• `ember` — 45 days, offset 20',
+    cycle: 'Cycle (days)',
+    cycleHelp: 'Days from one new moon to the next.',
+    offset: 'Offset',
+    offsetHelp: 'The day of its cycle on day 1 (default 0: new on day 1).',
+    holidays: 'Holidays',
+    holidaysHelp:
+      'Fixed days of the year, read as `holidays: midsummer` (a list, since several may fall on one day).',
+    month: 'Month',
+    day: 'Day',
+  },
+  weather: {
+    name: 'Name',
+    nameHelp: "The model's name.\n• **The Marches' sky**",
+    states: 'Kinds of weather',
+    statesHelp:
+      'Each kind of weather the model can give, by id (what tables read as `weather`), with its name for the journal and what it sets for the day:\n• `storm` — **Storm: nobody travels**, sets `fordImpossible: true`\n• `snow` — sets `snowbound: true`, which travel rules can make block a way of travelling',
+    stateName: 'Name',
+    set: 'Sets for the day',
+    setHelp:
+      'Values of the day this weather sets, as `key: value` pairs:\n• `fordModifier: -1`\n• `snowbound: true`',
+    setNothing: 'nothing',
+    season: 'Season: {season}',
+    start: 'Starts as',
+    startHelp:
+      "The weather on the first day of a trip in this season, and whenever yesterday's has no row.",
+    startWeights: 'weights (in YAML)',
+    fromTo: 'Yesterday ↓ / today →',
+    matrixHelp:
+      'For each kind of weather yesterday (rows), how likely each kind is today (columns): weights, not percentages; empty is 0.\n• **Rain** row: `rain 3`, `grey 2`, `storm 1` — rain sets in, sometimes turns to storm\nA row left empty starts over as the season starts.',
+    shares: 'Over many days',
+    sharesHelp:
+      'How often each kind comes up in this season over a long run of days, from the weights above: a check that the season feels right.',
+    newSeason: 'Season',
+    addSeason: 'Add a season',
+  },
+  modes: {
+    title: 'Roll modes',
+    help: 'Each mode rolls the whole roll several times and keeps one:\n• `advantage` — 2 rolls, keep the highest, cancels `disadvantage`\n• `careful` — 3 rolls, keep the middle one',
+    name: 'Name',
+    description: 'Description',
+    repeat: 'Rolls',
+    repeatHelp: 'How many times the whole roll is made.',
+    keep: 'Keep',
+    keepHelp:
+      'Which total is kept: `highest`, `lowest` or `middle` (of an even count, the lower middle one).',
+    cancels: 'Cancels',
+    cancelsHelp:
+      'Modes this one cancels out with: when both apply, neither does (a normal roll).\n• `disadvantage`',
+  },
   overview: {
     generic:
       'The Generic rules: plain travel with no checks, built into the apps. They have no definition to edit; create a new system to start your own from them.',
@@ -79,6 +195,8 @@ export const en = {
     id: 'Id',
     add: 'Add',
     remove: 'Remove',
+    moveUp: 'Move up',
+    moveDown: 'Move down',
     idExists: 'There is already one called "{id}".',
     badFlow: 'Write it as key: value pairs, e.g. tags: landmark or terrain: [forest, hills].',
     problems: 'This file has {count} problems: open the YAML to see them.',

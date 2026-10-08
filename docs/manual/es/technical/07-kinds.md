@@ -101,7 +101,7 @@ inputs:
 
 ## Modos de tirada
 
-Las formas en que un sistema tira una tabla **varias veces y se queda con un total**: ventaja, desventaja o cualquier otra (tres tiradas quedándose con la del medio…). Las aplicaciones no conocen ninguna: las declara un pack, con sus nombres, y sus tablas dicen cuáles usan. Una definición `roll-modes` por pack, con los modos que quieras.
+Las formas en que un sistema tira una tabla **varias veces y se queda con un total**: ventaja, desventaja o cualquier otra (tres tiradas quedándose con la del medio…). Las aplicaciones no conocen ninguna: las declara un pack, con sus nombres, y sus tablas dicen cuáles usan. Una definición `roll-modes` por pack, con los modos que quieras. En la aplicación Systems, la pestaña **Modos de tirada** de un sistema edita los de sus packs con un formulario.
 
 ```yaml
 kind: roll-modes
@@ -216,7 +216,7 @@ Una comprobación sin binding (y sin `effects`) detiene el viaje y te espera.
 
 ## Calendarios
 
-Los meses del año (con sus días y estaciones), los días de la semana, las lunas (ciclo y fase) y las fiestas, y el año del día 1. Los viajes con ese sistema ponen fecha a su diario con él, y las tablas ven `month`, `year`, `weekday`, `moons.<luna>` (new, waxing, full, waning) y `holidays`. El panel [Mundo](../hexmapper/12-world.md) del Hexmapper usa el calendario del sistema del mapa. Sin uno, se usa un calendario sencillo de días y cuatro estaciones.
+Los meses del año (con sus días y estaciones), los días de la semana, las lunas (ciclo y fase) y las fiestas, y el año del día 1. Los viajes con ese sistema ponen fecha a su diario con él, y las tablas ven `month`, `year`, `weekday`, `moons.<luna>` (new, waxing, full, waning) y `holidays`. El panel [Mundo](../hexmapper/12-world.md) del Hexmapper usa el calendario del sistema del mapa. Sin uno, se usa un calendario sencillo de días y cuatro estaciones. En la aplicación Systems, la pestaña **Calendario** de un sistema lo edita con un formulario (renombrar un mes arrastra sus fiestas y traducciones).
 
 ```yaml
 kind: calendar
@@ -236,7 +236,7 @@ holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 
 ## Modelos de clima
 
-Clima con memoria (una cadena de Markov): por estación, para cada tipo de clima, lo probable que es cada tipo mañana, así que la lluvia se instala varios días y las tormentas pasan. Cada tipo de clima tiene un nombre y los valores que da al día (`set: { fordModifier: -1 }`), como el resultado de una tabla. Un viaje usa uno cuando un binding dice `weather: <modelo>` en vez de `resolve:`; el clima de hoy pasa a ser `weather` para las comprobaciones siguientes y las velocidades de las reglas de viaje.
+Clima con memoria (una cadena de Markov): por estación, para cada tipo de clima, lo probable que es cada tipo mañana, así que la lluvia se instala varios días y las tormentas pasan. Cada tipo de clima tiene un nombre y los valores que da al día (`set: { fordModifier: -1 }`), como el resultado de una tabla. Un viaje usa uno cuando un binding dice `weather: <modelo>` en vez de `resolve:`; el clima de hoy pasa a ser `weather` para las comprobaciones siguientes y las velocidades de las reglas de viaje. En la aplicación Systems, la pestaña **Clima** de un sistema edita sus modelos con un formulario: los tipos de clima, y por estación una cuadrícula de pesos del clima de ayer al de hoy, con la frecuencia de cada uno a lo largo de muchos días.
 
 ```yaml
 kind: weather

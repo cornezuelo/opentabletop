@@ -3,12 +3,13 @@
   import { appUrl } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
-  import { rulesFile, systemFile, systemRoot } from '../lib/newSystem'
+  import { rulesFile, systemFile, systemParts, systemRoot } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
   import { systemDoc } from '../lib/systemDoc.svelte'
   import ChecksForm from './forms/ChecksForm.svelte'
   import RulesForm from './forms/RulesForm.svelte'
   import Overview from './Overview.svelte'
+  import PartsTab from './parts/PartsTab.svelte'
   import ReadOnly from './ReadOnly.svelte'
   import YamlTab from './YamlTab.svelte'
 
@@ -23,6 +24,7 @@
   const tabs = $derived<Tab[]>([
     'overview',
     ...(file ? (['rules', 'checks'] as Tab[]) : []),
+    ...(system?.pack ? (['calendar', 'weather', 'modes'] as Tab[]) : []),
     ...(file || declared ? (['yaml'] as Tab[]) : []),
   ])
   const doc = systemDoc(() => file ?? { root: '', path: '' })
@@ -37,6 +39,9 @@
     add(file?.root, file?.path)
     add(file?.root, file?.bindings?.path)
     add(declared?.root, declared?.system?.path)
+    if (system)
+      for (const kind of ['calendar', 'weather', 'roll-modes'] as const)
+        for (const part of systemParts(system, kind)) add(part.root, part.path)
     return out
   })
   const problems = $derived(
@@ -73,6 +78,8 @@
       {/if}
       {#if tab === 'yaml' && files.length}
         <YamlTab {files} />
+      {:else if (tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
+        <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
           {#if tab === 'rules'}<RulesForm {doc} />{:else}<ChecksForm {doc} />{/if}
