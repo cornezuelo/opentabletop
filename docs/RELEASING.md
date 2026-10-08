@@ -1,6 +1,6 @@
 # Releasing
 
-How a version of OpenTabletop is made and published. Agreed with the author on 2026-10-09; the first release, `0.1.0` (the alpha), came out on 2026-10-08.
+How a version of OpenTabletop is made and published. Agreed with the author; the first release, `0.1.0` (the alpha), came out on 2026-10-08.
 
 ## Versions
 
