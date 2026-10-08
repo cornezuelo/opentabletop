@@ -8,6 +8,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - The apps open in your browser's language when we have it (Spanish for `es-*`), until you choose one; the site's front page has flags to choose it, shared with every app.
 
+### Fixes
+
+- The "new version" question comes back after a reload: closing it without answering no longer counts as **Later**, and **Later** only silences that version, so a newer build asks again.
+
 ## [0.1.0] - 2026-10-08
 
 The first alpha: the four apps, the open packs and the manual, published as a static site.

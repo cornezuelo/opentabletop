@@ -46,6 +46,11 @@ Nice to have before the alpha, otherwise right after:
 
 - [ ] **Suggestions panel and cheat sheets** (asked by the user): besides the inline suggestions, a side panel in the Oracle and Travel editors (forms and YAML) listing what tables can read and set right there (names, values and descriptions, grouped: map, trip, party, calendar…) plus cheat sheets of the syntax (dice, conditions, templates, effects, steps, each kind's shape); click to insert at the cursor. Shared component (pack-ui), searchable, bilingual; the same panel as the contextual help (item 4).
 - [x] ✅ Hexmapper: the planned route drawn beside the roads it follows (see Hexmapper → Pending).
+- [ ] **Preferences panel, shared** (agreed with the user 2026-10-08): one Preferences panel in ui-kit, opened from a gear in every app's header, instead of each app's own (the language list moves there from the Oracle's and Travel's headers). Start with what every app shares; add an app's own only when it's missed.
+  - Shared: **language**; **notes app** (SilverBullet / Obsidian, today only in the Hexmapper's settings; Travel and the Oracle could link notes too); **light or dark theme** (only dark today); **text size**; **help column open at start** or folded.
+  - Oracle: **which packs are shown** (hide the ones you don't use, like a map's packs); **seeded rolls**, repeatable to replay or share a session (the engines already take a seed; the app can't set one); **always show the dice breakdown** and **Details**; **how many rolls the history keeps**; the **YAML editor**'s font size and line wrap.
+  - Travel: the **system and season** a new trip starts with; the way's default **km per hex**; **24 h or 12 h** clock; **ask before a day passes** (yes / no); the **journal export** (date format, whether it includes the rolls).
+  - The most valuable first: which packs are shown, and seeded rolls.
 - [ ] Kal-Arath reviewed against its rulebook again (see Packs → Kal-Arath).
 
 ## After the alpha
