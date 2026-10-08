@@ -7,6 +7,8 @@ export const es: Messages = {
   },
   tools: {
     label: 'Herramientas',
+    show: 'Mostrar las herramientas',
+    hide: 'Ocultar las herramientas (más sitio para el mapa; sus teclas siguen funcionando)',
     select: 'Seleccionar (V)',
     terrain: 'Terreno (B)',
     path: 'Caminos y ríos (R)',

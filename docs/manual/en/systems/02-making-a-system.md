@@ -8,7 +8,7 @@ Write a name in the box at the bottom of the system list and press **+**. It cre
 
 ## Your first system, step by step
 
-A small system for a game where the party carries torches, can get lost in the woods and must rest when tired. Each step is done in the forms (or the same in YAML), and the Travel app's **Play** tries it at once (keep it open in another tab: your changes reach it at once).
+A small system for a game where the party carries torches, can get lost in the woods and must rest when tired. Each step is done in the forms (or the same in YAML), and its **Try it** tab plays it at once: your changes count from the next step.
 
 1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from the Generic rules: walking 30 km a day, eating 1 food as each day ends.
 2. **A supply**: in **Rules → Supplies**, add `torches` with **Min** `0`. Now the trip panel shows Torches, and the player can change them by hand.
@@ -17,7 +17,7 @@ A small system for a game where the party carries torches, can get lost in the w
 5. **A check**: in **Checks**, **Add a check**: event `LOST_CHECK`, **When** `day-start`, **Only if** `terrain: forest`. In **Rolled on**, pick a table of yours whose bad result has **Sets** `lost: true` (make it in the Oracle app: _1d6_, 1–2 sets `lost: true`).
 6. **Fatigue**: in **Checks → Party stats**, add `fatigue`, starting at `0` (its minimum, `min: 0`, is written in YAML). Then a check **When** `day-end`, **Only if** `below: torches`, **Changes** `party.stats.fatigue: 1`: a day without torches tires the party.
 7. **Resting only when tired**: open **rest**: **Only when** `party.stats.fatigue: { gte: 1 }`; steps `time: 120` and `effects: { party.stats.fatigue: -1 }`. The button is off while the party is fresh, and says why.
-8. **Try it**: **Play it in Travel →**, then a way of three hexes, the middle one `forest`; travel and read the journal: the lost check at dawn in the forest, the torches going down each night, the rest button turning on once tired.
+8. **Try it**: open the **Try it** tab and make a way of three hexes, the middle one `forest`; travel and read the journal: the lost check at dawn in the forest, the torches going down each night, the rest button turning on once tired.
 
 The same system in YAML (the **YAML** tab shows it like this):
 
@@ -94,4 +94,8 @@ Bundled systems are read-only. Under the system's name (on every tab), **Edit a 
 
 ## Trying it out
 
-The Travel app's **Play** tab (**Play it in Travel →** on the system's page) is the fastest way to check a system: build a short way with the terrains, roads and tags your rules care about, and watch the journal. For example, to test a check with `when: { tags: landmark }`, tag the last hex `landmark` and travel.
+The system's **Try it** tab is the fastest way to check it while you make it: build a short way with the terrains, roads and tags your rules care about, travel, and watch the journal. For example, to test a check with `when: { tags: landmark }`, tag the last hex `landmark` and travel.
+
+- It is the Travel app's trip without a map (see [Playing a trip](../travel/02-playing.md)): **The way** on the left, hex by hex (terrain, tags, road or river to the next one), and the trip on the right (its day, supplies, actions, checks and journal).
+- It plays the rules **as they are now**: change a speed in **Rules** or a check in **Checks**, come back and the next step uses the change. What the trip already started with (the season, the supplies of its first day) stays until **New trip** starts it over, keeping the way.
+- These test trips are kept in this browser apart from the Travel app's, so trying doesn't mix with your games; to play a real trip with the system, **Play it in Travel →**. Choosing another system in **System** opens that system's **Try it**.

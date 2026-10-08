@@ -2,7 +2,7 @@
   import { untrack } from 'svelte'
   import MapCanvas from './components/MapCanvas.svelte'
   import SidePanel from './components/SidePanel.svelte'
-  import { contextHelp, Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import { contextHelp, Dialogs, FoldTab, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import { t } from './lib/i18n/index.svelte'
   import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
@@ -19,13 +19,6 @@
     untrack(() => {
       editor.panelView = 'help'
       editor.panelHidden = false
-    })
-  })
-  // Its explanation closed: back to the tool's panel.
-  $effect(() => {
-    if (!contextHelp.closed) return
-    untrack(() => {
-      if (editor.panelView === 'help') editor.panelView = 'tool'
     })
   })
   $effect(() => {
@@ -54,11 +47,18 @@
 
 <div class="layout" class:hidden={editor.panelHidden}>
   <TopBar />
-  <Toolbar />
+  {#if !editor.toolsHidden}<Toolbar />{:else}<span aria-hidden="true"></span>{/if}
   <main>
     {#if ready}
       <MapCanvas />
     {/if}
+    <FoldTab
+      side="left"
+      open={!editor.toolsHidden}
+      show={t('tools.show')}
+      hide={t('tools.hide')}
+      ontoggle={() => (editor.toolsHidden = !editor.toolsHidden)}
+    />
     <button
       class="fold"
       aria-expanded={!editor.panelHidden}

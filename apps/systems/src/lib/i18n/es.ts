@@ -39,6 +39,7 @@ export const es: Messages<typeof en> = {
     calendar: 'Calendario',
     weather: 'Clima',
     modes: 'Modos de tirada',
+    try: 'Pruébalo',
     yaml: 'YAML',
   },
   parts: {
@@ -383,6 +384,10 @@ export const es: Messages<typeof en> = {
     builtIn:
       'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (debajo de la lista de la izquierda) para hacer el tuyo a partir de ellas.',
     playInTravel: 'Jugarlo en Travel →',
+  },
+  try: {
+    intro:
+      'Un viaje sin mapa para probar el sistema mientras lo haces: describe un camino hex a hex y recórrelo. Juega las reglas tal como están ahora, así que un cambio en otra pestaña cuenta desde el siguiente paso; **Nuevo viaje** empieza de nuevo con los cambios también en el primer día. Estos viajes de prueba se guardan aparte de los de la aplicación Travel.',
   },
   yaml: { line: 'línea {line}' },
   terrains: vocabulary.es.terrains,

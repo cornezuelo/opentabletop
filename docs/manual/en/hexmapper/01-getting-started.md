@@ -5,13 +5,13 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 ## The screen
 
 - **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Hexmapper - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
-- **Toolbar** (left): the tools — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play, the World clock and the Oracle.
+- **Toolbar** (left): the tools — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play, the World clock and the Oracle. The small tab on the map's left edge folds it away for more room (the tools' keys still work) and brings it back.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
-- **Side panel** (right): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, Help, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected.
+- **Side panel** (right): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, Help, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected. The tab on the map's right edge folds it away and brings it back.
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
-**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, in place of this manual: what the field does, examples that work and, under **In the manual**, the manual's sections about it (the Syntax page first); **✕** closes the column and **← The manual** goes back to the manual. While the column is open, moving to a field (click or Tab) shows its help too.
+**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, in place of this manual: what the field does, examples that work and, under **In the manual**, the manual's sections about it (the Syntax page first); **← The manual** goes back to the manual. While the column is open, moving to a field (click or Tab) shows its help too.
 
 **Examples go in with a click**: after you've been in a text box or the YAML editor, click an example in `code` in the help column (in a field's help, on the **Syntax** page or anywhere in the manual) and it goes in where the cursor was; **Ctrl+Z** takes it back. **Syntax**, next to the column's search box, opens the page with everything a pack can write. The search looks in this app's pages, the technical ones and the packs', and shows the words found in bold. Buttons with only an icon say their name when you hover them.
 

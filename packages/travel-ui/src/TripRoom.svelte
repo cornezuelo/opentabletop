@@ -1,31 +1,48 @@
 <script lang="ts">
-  import { confirmAction } from '@open-tabletop/ui-kit'
-  import { packTexts } from '@open-tabletop/oracle-ui'
   import { calendarOf, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
-  import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
-  import { getLocale, t } from '../lib/i18n'
-  import { go } from '../lib/nav.svelte'
-  import { library, systems } from '../lib/packs.svelte'
-  import { terrainName } from '../lib/terrains'
-  import { wayWorld } from '../lib/way'
-  import { trip, type Saved } from '../lib/trip.svelte'
   import { defaultCalendar } from '@open-tabletop/time'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
+  import { translator } from './i18n'
+  import { terrainName } from './terrains'
+  import TripPanel from './TripPanel.svelte'
+  import TripSetup from './TripSetup.svelte'
+  import type { Saved, TripStore } from './trips.svelte'
+  import { wayWorld } from './way'
   import WayEditor from './WayEditor.svelte'
 
   /** Play a trip without a map with one system: the way on the left, the trip on the right. */
-  let { system }: { system: TravelSystem } = $props()
+  let {
+    trip,
+    system,
+    systems,
+    locale,
+    tags,
+    nameOf,
+    onsystem,
+  }: {
+    trip: TripStore
+    system: TravelSystem
+    systems: TravelSystem[]
+    locale: string
+    /** Tags the packs' tables and checks look for, suggested on the way. */
+    tags: string[]
+    /** A definition's name in the UI's language (`@kind/id` → name), for the journal. */
+    nameOf?: (ref: string) => string
+    /** The open trip is another system's: the host shows that system. */
+    onsystem: (id: string) => void
+  } = $props()
 
-  const texts = packTexts(() => library.registry, getLocale)
+  const t = translator(() => locale)
   const session = $derived(trip.saved.session)
   const playing = $derived(!!session && trip.saved.system === system.id)
   const name = (s: TravelSystem) =>
-    s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())
+    s.id === 'generic' ? t('genericSystem') : systemName(s, locale)
+  const find = (id: string) => systems.find((s) => s.id === id)
   let season = $state<Season>(trip.saved.season)
 
   /** Starts the open trip again (with this or another system). */
   async function start(id: string, s: Season) {
-    const target = systems.get(id) ?? system
+    const target = find(id) ?? system
     // Only a trip with something in its journal has anything to lose.
     if (
       session?.journal.length &&
@@ -33,12 +50,12 @@
     )
       return
     trip.start(target.id, s)
-    if (target.id !== system.id) go({ name: 'system', id: target.id })
+    if (target.id !== system.id) onsystem(target.id)
   }
 
   /** The open trip's system page (trips of other systems open there). */
   function follow() {
-    if (trip.saved.system !== system.id) go({ name: 'system', id: trip.saved.system })
+    if (trip.saved.system !== system.id) onsystem(trip.saved.system)
   }
 
   function openTrip(id: string) {
@@ -58,7 +75,7 @@
 
   const tripLabel = (saved: Saved) => {
     if (saved.name) return saved.name
-    const of = systems.get(saved.system)
+    const of = find(saved.system)
     const calendar = of ? calendarOf(of) : defaultCalendar
     const day = saved.session
       ? calendar.describe(saved.session.travel.time).day - saved.startDay + 1
@@ -68,7 +85,7 @@
 
   const hexLabel = (hex: string) => {
     const h = trip.saved.way[Number(hex)]
-    return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(h.terrain)})` : ''}`
+    return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain)})` : ''}`
   }
 </script>
 
@@ -96,13 +113,7 @@
         <button onclick={() => trip.create(system.id, season)}>{t('trips.new')}</button>
         <button class="danger" onclick={removeTrip}>{t('trips.delete')}</button>
       </div>
-      <TripSetup
-        systems={systems.list}
-        system={system.id}
-        locale={getLocale()}
-        bind:season
-        onrestart={start}
-      />
+      <TripSetup {systems} system={system.id} {locale} bind:season onrestart={start} />
       {#if !playing && session}
         <div class="notice">
           <span>{t('play.current', { system: name(trip.system) })}</span>
@@ -111,7 +122,7 @@
           >
         </div>
       {/if}
-      <WayEditor {system} />
+      <WayEditor {trip} {system} {locale} {tags} />
     </section>
     <section class="right">
       {#if playing && session}
@@ -119,12 +130,12 @@
           {system}
           {session}
           startDay={trip.saved.startDay}
-          locale={getLocale()}
+          {locale}
           {hexLabel}
-          {terrainName}
+          terrainName={(id) => terrainName(t, id)}
           world={wayWorld(trip.saved.way, trip.saved.hexKm)}
           title={tripLabel(trip.saved)}
-          nameOf={texts.nameOf}
+          {nameOf}
           destinationHint={t('play.destinationHint')}
           arrivedHint={t('play.arrivedHint')}
           onstep={(action) => trip.step(action)}

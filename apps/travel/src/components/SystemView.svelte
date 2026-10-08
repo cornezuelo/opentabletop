@@ -1,14 +1,20 @@
 <script lang="ts">
-  import { systemName } from '@open-tabletop/session'
+  import { packTexts } from '@open-tabletop/oracle-ui'
+  import { contextSuggestions, systemName } from '@open-tabletop/session'
+  import { TripRoom } from '@open-tabletop/travel-ui'
   import { appUrl } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
-  import { systems } from '../lib/packs.svelte'
-  import PlayTab from './PlayTab.svelte'
+  import { go } from '../lib/nav.svelte'
+  import { library, systems } from '../lib/packs.svelte'
+  import { trip } from '../lib/trip.svelte'
 
   /** One system: a trip with it. Its rules are edited in the Systems app. */
   let { id }: { id: string } = $props()
 
   const system = $derived(systems.get(id))
+  const texts = packTexts(() => library.registry, getLocale)
+  /** Tags the packs' tables and checks look for (landmark, toll, haunted…). */
+  const tags = $derived(contextSuggestions(library.registry).tags ?? [])
 </script>
 
 {#if system}
@@ -19,7 +25,17 @@
         >{t('nav.editInSystems')}</a
       >
     </header>
-    <div class="body"><PlayTab {system} /></div>
+    <div class="body">
+      <TripRoom
+        {trip}
+        {system}
+        systems={systems.list}
+        locale={getLocale()}
+        {tags}
+        nameOf={texts.nameOf}
+        onsystem={(other) => go({ name: 'system', id: other })}
+      />
+    </div>
   </article>
 {:else}
   <p class="help">{id}?</p>

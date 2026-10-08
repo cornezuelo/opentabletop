@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     appUrl,
-    closeHelp,
     contextHelp,
     helpMarkdown,
     insertTarget,
@@ -96,12 +95,6 @@
     <section class="context" aria-live="polite">
       <header>
         <h2>{entry.title}</h2>
-        <button
-          class="close"
-          aria-label={text.contextClose}
-          use:tooltip={text.contextClose}
-          onclick={closeHelp}>✕</button
-        >
       </header>
       <Markdown text={entry.markdown ?? helpMarkdown(entry.text ?? '')} />
       {#if related.length}
@@ -249,18 +242,6 @@
   .context :global(code) {
     font-size: 12px;
     white-space: pre-wrap;
-  }
-
-  .close {
-    padding: 0 4px;
-    color: var(--text-muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  .close:hover {
-    color: var(--accent);
   }
 
   .link {

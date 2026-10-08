@@ -6,6 +6,8 @@ export const en = {
   },
   tools: {
     label: 'Tools',
+    show: 'Show the tools',
+    hide: 'Hide the tools (more room for the map; their keys still work)',
     select: 'Select (V)',
     terrain: 'Terrain (B)',
     path: 'Roads and rivers (R)',

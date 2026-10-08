@@ -84,9 +84,6 @@
     })
   })
   $effect(() => {
-    if (contextHelp.closed) untrack(() => (help = false))
-  })
-  $effect(() => {
     contextHelp.shown = help && layout.history
   })
   function toggle(panel: 'sidebar' | 'history') {
@@ -207,7 +204,7 @@
     border-bottom: 1px solid var(--panel-border);
   }
 
-  .bar > button {
+  .bar > button:not(.help-toggle) {
     padding: 5px 12px;
     background: var(--bg);
     border: 1px solid var(--panel-border);
@@ -215,7 +212,7 @@
     cursor: pointer;
   }
 
-  .bar > button:hover {
+  .bar > button:not(.help-toggle):hover {
     border-color: var(--accent);
   }
 
@@ -343,7 +340,7 @@
       padding: 6px 8px;
     }
 
-    .bar > button {
+    .bar > button:not(.help-toggle) {
       padding: 4px 8px;
       font-size: 13px;
     }

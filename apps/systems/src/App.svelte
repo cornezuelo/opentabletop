@@ -41,9 +41,6 @@
     if (contextHelp.asked) help = true
   })
   $effect(() => {
-    if (contextHelp.closed) help = false
-  })
-  $effect(() => {
     contextHelp.shown = help
   })
 </script>

@@ -11,6 +11,7 @@
   import Overview from './Overview.svelte'
   import PartsTab from './parts/PartsTab.svelte'
   import ReadOnly from './ReadOnly.svelte'
+  import TryTab from './TryTab.svelte'
   import YamlTab from './YamlTab.svelte'
 
   /** One system: its overview, its rules and checks, its files; play it in Travel. */
@@ -25,6 +26,7 @@
     'overview',
     ...(file ? (['rules', 'checks'] as Tab[]) : []),
     ...(system?.pack ? (['calendar', 'weather', 'modes'] as Tab[]) : []),
+    'try',
     ...(file || declared ? (['yaml'] as Tab[]) : []),
   ])
   const doc = systemDoc(() => file ?? { root: '', path: '' })
@@ -76,7 +78,9 @@
           {t('forms.problems', { count: problems.length })}
         </button>
       {/if}
-      {#if tab === 'yaml' && files.length}
+      {#if tab === 'try'}
+        <TryTab {system} />
+      {:else if tab === 'yaml' && files.length}
         <YamlTab {files} />
       {:else if (tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />

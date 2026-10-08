@@ -8,7 +8,7 @@ Escribe un nombre en la casilla de abajo de la lista de sistemas y pulsa **+**. 
 
 ## Tu primer sistema, paso a paso
 
-Un sistema pequeño para un juego en el que el grupo lleva antorchas, se puede perder en el bosque y tiene que descansar cuando está cansado. Cada paso se hace en los formularios (o lo mismo en YAML), y **Jugar** de la aplicación Travel lo prueba al momento (tenla abierta en otra pestaña: tus cambios le llegan al momento).
+Un sistema pequeño para un juego en el que el grupo lleva antorchas, se puede perder en el bosque y tiene que descansar cuando está cansado. Cada paso se hace en los formularios (o lo mismo en YAML), y su pestaña **Pruébalo** lo juega al momento: tus cambios cuentan desde el siguiente paso.
 
 1. **Créalo**: escribe _Bosques Oscuros_ bajo la lista de sistemas y pulsa **+**. Empieza con las reglas Genéricas: 30 km al día a pie y 1 de comida al acabar cada día.
 2. **Una provisión**: en **Reglas → Provisiones**, añade `torches` con **Mín** `0`. El panel del viaje muestra ahora las antorchas, y el jugador puede cambiarlas a mano.
@@ -17,7 +17,7 @@ Un sistema pequeño para un juego en el que el grupo lleva antorchas, se puede p
 5. **Una comprobación**: en **Comprobaciones**, **Añadir una comprobación**: evento `LOST_CHECK`, **Cuándo** `day-start`, **Solo si** `terrain: forest`. En **Se tira en**, elige una tabla tuya cuyo mal resultado tenga **Fija** `lost: true` (hazla en la aplicación Oracle: _1d6_, del 1 al 2 fija `lost: true`).
 6. **La fatiga**: en **Comprobaciones → Características del grupo**, añade `fatigue`, que empieza en `0` (su mínimo, `min: 0`, se escribe en YAML). Luego una comprobación **Cuándo** `day-end`, **Solo si** `below: torches`, **Cambios** `party.stats.fatigue: 1`: un día sin antorchas cansa al grupo.
 7. **Descansar solo si hay cansancio**: abre **rest**: **Solo si** `party.stats.fatigue: { gte: 1 }`; pasos `time: 120` y `effects: { party.stats.fatigue: -1 }`. El botón queda desactivado mientras el grupo está fresco, y dice por qué.
-8. **Pruébalo**: **Jugarlo en Travel →** y un camino de tres hexes, el del medio `forest`; viaja y lee el diario: la comprobación de perderse al alba en el bosque, las antorchas bajando cada noche, el botón de descansar activándose al cansarse.
+8. **Pruébalo**: abre la pestaña **Pruébalo** y monta un camino de tres hexes, el del medio `forest`; viaja y lee el diario: la comprobación de perderse al alba en el bosque, las antorchas bajando cada noche, el botón de descansar activándose al cansarse.
 
 El mismo sistema en YAML (la pestaña **YAML** lo muestra así):
 
@@ -94,4 +94,8 @@ Los sistemas incluidos son de solo lectura. Bajo el nombre del sistema (en todas
 
 ## Probarlo
 
-La pestaña **Jugar** de la aplicación Travel (**Jugarlo en Travel →** en la página del sistema) es la forma más rápida de comprobar un sistema: monta un camino corto con los terrenos, caminos y etiquetas que importan a tus reglas, y mira el diario. Por ejemplo, para probar una comprobación con `when: { tags: landmark }`, pon la etiqueta `landmark` al último hex y viaja.
+La pestaña **Pruébalo** del sistema es la forma más rápida de comprobarlo mientras lo haces: monta un camino corto con los terrenos, caminos y etiquetas que importan a tus reglas, viaja y mira el diario. Por ejemplo, para probar una comprobación con `when: { tags: landmark }`, pon la etiqueta `landmark` al último hex y viaja.
+
+- Es el viaje sin mapa de la aplicación Travel (mira [Jugar un viaje](../travel/02-playing.md)): **El camino** a la izquierda, hex a hex (terreno, etiquetas, camino o río al siguiente), y el viaje a la derecha (su día, provisiones, acciones, comprobaciones y diario).
+- Juega las reglas **tal como están ahora**: cambia una velocidad en **Reglas** o una comprobación en **Comprobaciones**, vuelve y el siguiente paso usa el cambio. Lo que el viaje ya tenía al empezar (la estación, las provisiones de su primer día) se queda hasta que **Nuevo viaje** lo empieza de nuevo, conservando el camino.
+- Estos viajes de prueba se guardan en este navegador aparte de los de la aplicación Travel, para que probar no se mezcle con tus partidas; para jugar un viaje de verdad con el sistema, **Jugarlo en Travel →**. Elegir otro sistema en **Sistema** abre el **Pruébalo** de ese sistema.

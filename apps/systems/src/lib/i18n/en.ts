@@ -37,6 +37,7 @@ export const en = {
     calendar: 'Calendar',
     weather: 'Weather',
     modes: 'Roll modes',
+    try: 'Try it',
     yaml: 'YAML',
   },
   parts: {
@@ -380,6 +381,10 @@ export const en = {
     builtIn:
       "The Generic rules are built in and can't be edited. Create a new system (below the list on the left) to start your own from them.",
     playInTravel: 'Play it in Travel →',
+  },
+  try: {
+    intro:
+      "A trip without a map to try the system while you make it: describe a way hex by hex and travel it. It plays the rules as they are now, so a change in another tab counts from the next step; **New trip** starts over with the changes in the first day too. These test trips are kept apart from the Travel app's.",
   },
   yaml: { line: 'line {line}' },
   terrains: vocabulary.en.terrains,

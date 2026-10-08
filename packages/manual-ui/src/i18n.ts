@@ -17,7 +17,6 @@ const TEXT = {
     } as Record<string, string>,
     contextHint:
       'Labels underlined with dots have help: click one to read it here. While this column is open, moving to a field shows its help too.',
-    contextClose: 'Close the help',
     backToManual: 'The manual',
     inTheManual: 'In the manual',
     syntax: 'Syntax',
@@ -46,7 +45,6 @@ const TEXT = {
     } as Record<string, string>,
     contextHint:
       'Las etiquetas subrayadas con puntos tienen ayuda: pulsa una para leerla aquí. Mientras esta columna está abierta, pasar a un campo también muestra su ayuda.',
-    contextClose: 'Cerrar la ayuda',
     backToManual: 'El manual',
     inTheManual: 'En el manual',
     syntax: 'Sintaxis',

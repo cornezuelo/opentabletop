@@ -1,21 +1,29 @@
 <script lang="ts">
   import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
-  import { contextSuggestions } from '@open-tabletop/session'
-  import { library } from '../lib/packs.svelte'
-  import { t } from '../lib/i18n'
-  import { edgeChoices, edgeName, terrainChoices, terrainName } from '../lib/terrains'
-  import { trip } from '../lib/trip.svelte'
+  import { translator } from './i18n'
+  import { edgeChoices, edgeName, terrainChoices, terrainName } from './terrains'
+  import type { TripStore } from './trips.svelte'
 
-  /** The hexes of an abstract trip: terrain, tags and the road or river to the next one. */
-  let { system }: { system: TravelSystem } = $props()
+  /** The hexes of a trip without a map: terrain, tags and the road or river to the next one. */
+  let {
+    trip,
+    system,
+    locale,
+    tags,
+  }: {
+    trip: TripStore
+    system: TravelSystem
+    locale: string
+    /** Tags the packs' tables and checks look for (landmark, toll, haunted…), suggested. */
+    tags: string[]
+  } = $props()
 
+  const t = translator(() => locale)
   const way = $derived(trip.saved.way)
   const here = $derived(trip.location)
   const terrains = $derived(terrainChoices(system))
   const edges = $derived(edgeChoices(system))
-  /** Tags the packs' tables and checks look for (landmark, toll, haunted…). */
-  const knownTags = $derived(contextSuggestions(library.registry).tags ?? [])
 </script>
 
 <div class="way">
@@ -52,13 +60,13 @@
             trip.updateHex(i, (h) => ({ ...h, terrain }))
           }}
         >
-          {#each terrains as id (id)}<option value={id}>{terrainName(id)}</option>{/each}
+          {#each terrains as id (id)}<option value={id}>{terrainName(t, id)}</option>{/each}
         </select>
         <SuggestInput
           label={t('play.tags')}
           placeholder={t('play.tagsPlaceholder')}
           value={hex.tags.join(', ')}
-          list={knownTags}
+          list={tags}
           disabled={i < here}
           onchange={(text) => {
             const tags = text
@@ -94,7 +102,7 @@
                     }))
                   }}
                 />
-                {edgeName(kind)}
+                {edgeName(t, kind)}
               </label>
             {/each}
           </div>

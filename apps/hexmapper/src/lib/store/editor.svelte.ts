@@ -98,6 +98,8 @@ class Editor {
   panelView = $state<PanelView>('tool')
   /** The side panel is folded away (more room for the map, e.g. on a phone). */
   panelHidden = $state(false)
+  /** The tools bar on the left is folded away (its keyboard shortcuts still work). */
+  toolsHidden = $state(false)
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)
