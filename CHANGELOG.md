@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- The Hexmapper's top bar looks like the other apps': its icons in the same muted tone, and Preferences (the gear) next to Help.
+- The site's front page no longer lists the bundled packs: the apps show them.
+
 ## [0.2.0] - 2026-10-08
 
 ### Apps

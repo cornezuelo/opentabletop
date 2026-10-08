@@ -4,7 +4,7 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 
 ## The screen
 
-- **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Hexmapper - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right the gear (**Preferences**, shared by every app: language and notes app), Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings and Help (?).
+- **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Hexmapper - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
 - **Toolbar** (left): the tools — Select, Terrain, Regions, Roads and rivers, Icons, Text, Tokens, Play, the World clock and the Oracle.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
 - **Side panel** (right): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, Help, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected.

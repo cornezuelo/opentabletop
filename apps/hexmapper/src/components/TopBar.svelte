@@ -67,15 +67,17 @@
   <span class="name"><AppBrand app="hexmapper" name={t('app.title')} /></span>
   <AppSwitcher current="hexmapper" locale={getLocale()} />
   <div class="spacer"></div>
-  <PreferencesButton
-    locale={getLocale()}
-    {locales}
-    onlocale={(locale) => setLocale(locale as Locale)}
-  />
-  <span class="sep" aria-hidden="true"></span>
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}
     {#each group as action (action.label)}
+      <!-- Preferences next to Help, as in every app. -->
+      {#if action.label === 'actions.help'}
+        <PreferencesButton
+          locale={getLocale()}
+          {locales}
+          onlocale={(locale) => setLocale(locale as Locale)}
+        />
+      {/if}
       <button
         class:active={!!action.panel && editor.panelView === action.panel}
         use:tooltip={t(action.label)}
@@ -138,7 +140,7 @@
     height: 32px;
     padding: 0;
     font-size: 16px;
-    color: var(--text);
+    color: var(--text-muted);
     background: transparent;
     border: 1px solid transparent;
     border-radius: 6px;
@@ -146,6 +148,7 @@
   }
 
   button:hover:not(:disabled) {
+    color: var(--accent);
     border-color: var(--panel-border);
   }
 

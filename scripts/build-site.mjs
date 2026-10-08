@@ -75,13 +75,6 @@ writeFileSync(
       .langs button:hover, .langs button:focus-visible { opacity: 1; outline: none; border-color: #3a362d; }
       .langs button[aria-pressed='true'] { opacity: 1; border-color: #c8a24a; }
       .langs svg { width: 30px; height: 15px; border-radius: 2px; }
-      h2 { margin: 32px 0 10px; font-size: 13px; font-weight: normal; text-transform: uppercase;
-        letter-spacing: 0.06em; color: #9c9480; }
-      .packs { grid-template-columns: 1fr 1fr; }
-      .packs a { flex-direction: column; align-items: flex-start; gap: 4px; height: 100%; box-sizing: border-box;
-        font-size: 14px; color: #9c9480; }
-      .packs strong { font-size: 15px; }
-      @media (max-width: 520px) { .packs { grid-template-columns: 1fr; } }
       footer { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; padding: 18px 0 28px;
         font-size: 13px; color: #9c9480; border-top: 1px solid #3a362d; }
       footer a { display: inline-flex; gap: 6px; padding: 0; color: #9c9480; background: none; border: none;
@@ -115,13 +108,6 @@ writeFileSync(
       <p class="tagline" data-en="Free, open-source tools for solo RPGs, hexcrawls and sandbox campaigns. Everything runs in your browser, offline." data-es="Herramientas libres para rol en solitario, hexcrawls y campañas sandbox. Todo funciona en tu navegador, sin conexión.">Free, open-source tools for solo RPGs, hexcrawls and sandbox campaigns. Everything runs in your browser, offline.</p>
       <ul>
       ${items}
-      </ul>
-      <h2>${both('Comes with', 'Incluye')}</h2>
-      <ul class="packs">
-        <li><a href="manual/#/packs/core"><strong>Core</strong>
-          ${both('Oracles and inspiration for any game: yes or no, action and theme, scene twists.', 'Oráculos e inspiración para cualquier partida: sí o no, acción y asunto, giros de escena.')}</a></li>
-        <li><a href="manual/#/packs/grey-marches"><strong data-en="The Grey Marches" data-es="Las Marcas Grises">The Grey Marches</strong>
-          ${both('A frontier setting to play straight away: an example map, travel rules, weather, a calendar and tables that work together.', 'Una ambientación de frontera para jugar ya: un mapa de ejemplo, reglas de viaje, clima, un calendario y tablas que funcionan juntas.')}</a></li>
       </ul>
     </main>
     <footer>
