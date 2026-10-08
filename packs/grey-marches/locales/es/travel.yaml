@@ -16,6 +16,9 @@ travel-rules/default:
       name: Los mercenarios se niegan a marchar
       description: Hasta que alguien los convenza (Hablar con los mercenarios).
   actions:
+    march:
+      name: Marchar
+      description: 'Marchar por la ruta: de día durante 8 horas, o tras una marcha nocturna a la luz de las antorchas hasta medianoche.'
     camp:
       name: Acampar
       description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de 10: si no, la noche pasa a la intemperie, sin descanso.'

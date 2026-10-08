@@ -97,7 +97,10 @@ actions:
   # Marching (the Travel buttons): when the party can march, checked as it marches. By
   # day for the day's marching hours, as usual (the `{{…}}` variables are the system's own), or
   # after a night march by torchlight (a value of the day) until the day ends.
+  # Its name and description are the Travel button's.
   march:
+    name: March
+    description: 'March along the route: by day for 8 hours, or after a night march by torchlight until midnight.'
     when:
       any:
         - { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }

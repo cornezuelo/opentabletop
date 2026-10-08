@@ -128,6 +128,12 @@
   /** The system's declared stats only: nothing it doesn't declare is shown. */
   const stats = $derived<[string, StatDefinition][]>(Object.entries(system.bindings?.stats ?? {}))
   const actions = $derived(availableActions(system.rules))
+  /** The system's march (`actions.march`): its name is the Travel button's, its description its help. */
+  const marchName = $derived(localize(actions.all[MARCH]?.name, locale, 'en') ?? t('travel'))
+  const marchTip = $derived.by((): TooltipText => {
+    const described = localize(actions.all[MARCH]?.description, locale, 'en')
+    return described ? { markdown: described } : t('tips.travel')
+  })
   const bounds = $derived(resourceBounds(system.rules))
   /** The buttons: every action but those the system takes by itself (`on:`). */
   /** The player's actions; one that hides while it can't be taken only shows when it can. */
@@ -381,9 +387,9 @@
   <div class="actions">
     <button
       class="primary"
-      use:tooltip={tipWith(t('tips.travel'), 'travel')}
+      use:tooltip={tipWith(marchTip, 'travel')}
       disabled={!travel.route || !!blocked.travel}
-      onclick={() => onstep({ type: 'travel' })}>{t('travel')}</button
+      onclick={() => onstep({ type: 'travel' })}>{marchName}</button
     >
     <button
       use:tooltip={tipWith(t('tips.travelHex'), 'travel')}
