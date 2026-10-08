@@ -242,7 +242,7 @@ export const en = {
   newDef: {
     forTravel: 'Rules of the system',
     forTravelHelp:
-      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in the Hexmapper (Play → With rules) and in Travel\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
+      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in the Hexmapper (Play → With rules) and in Travel, edited in the Systems app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
     system: {
       'roll-modes': 'Roll modes',
       'travel-rules': 'Travel rules',

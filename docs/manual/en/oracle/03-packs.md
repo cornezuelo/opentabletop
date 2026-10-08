@@ -7,7 +7,7 @@ A pack is a folder of YAML files with a `pack.yaml` (id, name, version, base lan
 - **Bundled**: they come with the app and can't be changed. **Edit a copy** copies one into your packs; the copy replaces it (references from other packs keep working) and **Revert to bundled** deletes it. Copies of personal-use packs stay personal use: don't share them.
 - **Yours**: made with **New pack** or imported, stored in this browser.
 
-When a new version of OpenTabletop changes a bundled pack you have a copy of, your copy doesn't change by itself: it is marked **update** in the list, and its page (in the Oracle app, and under the system's name in the Travel app) lists the files the bundled pack changed, added or removed since you made the copy, saying for each one whether you touched it too. For each file, **Take bundled** brings in the new version (yours of that file is replaced) and **Keep mine** leaves yours and stops telling you about it; **See the bundled version** shows it first. **Take the updates you haven't touched** brings in, at once, every changed file your copy left as it was, so nothing of yours is lost. **Keep my copy as it is** ignores them all. All of it can be undone with ↶. Copies made before this existed list the files that differ from the bundled version, since whether you or an update changed them can't be told; choose once, and from then on only real updates are shown.
+When a new version of OpenTabletop changes a bundled pack you have a copy of, your copy doesn't change by itself: it is marked **update** in the list, and its page (in the Oracle app, and under the system's name in the Systems app) lists the files the bundled pack changed, added or removed since you made the copy, saying for each one whether you touched it too. For each file, **Take bundled** brings in the new version (yours of that file is replaced) and **Keep mine** leaves yours and stops telling you about it; **See the bundled version** shows it first. **Take the updates you haven't touched** brings in, at once, every changed file your copy left as it was, so nothing of yours is lost. **Keep my copy as it is** ignores them all. All of it can be undone with ↶. Copies made before this existed list the files that differ from the bundled version, since whether you or an update changed them can't be told; choose once, and from then on only real updates are shown.
 
 ## Personal-use packs
 
@@ -46,7 +46,7 @@ They could live in separate files just as well. A pack holds at most one travel 
 
 **How to add them.**
 
-- In the Travel app: **New system** creates a pack with both; its **Rules** and **Checks** tabs edit them with forms.
+- In the Systems app: **New system** creates a pack with both; its **Rules** and **Checks** tabs edit them with forms.
 - In the Oracle app: **New definition → Rules of the system** adds one of them (roll modes, travel rules, bindings, a calendar or a weather model) to one of your packs, as a valid example to change in the YAML editor ([Kinds of definition](../technical/07-kinds.md) explains each). The pack page lists them under **Other definitions**; open them in the YAML editor, where problems are checked like in any other definition.
 
 What goes inside is explained step by step in [Connecting tables to maps and trips](07-connecting.md#5-your-own-travel-system).

@@ -12,7 +12,8 @@ It is **game-system agnostic**: the apps know no game's rules. A game comes as a
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Hexmapper** | Draw hex maps (terrain, roads and rivers, regions, icons, tokens, notes), print or export them, and **play** on them: trips with rules, discovery of blank hexes, the world clock. |
 | **Oracle**    | Browse, roll and **edit** every table, oracle, generator and deck of your packs, with forms or a YAML editor with live problems; create and share packs.                           |
-| **Travel**    | Play trips without a map, and edit travel systems (rules, checks and the tables that answer them).                                                                                 |
+| **Travel**    | Play trips without a map, with any system.                                                                                                                                         |
+| **Systems**   | Make and edit game systems: travel rules, checks and the tables that answer them.                                                                                                  |
 | **Manual**    | The user manual of every app, in English and Spanish, with search. Each app also opens it in a side panel.                                                                         |
 | **CLI**       | `opentabletop validate`, `list` and `roll` packs from the command line.                                                                                                            |
 
@@ -29,7 +30,7 @@ make install   # dependencies
 make serve     # build every app and serve them at http://localhost:8080/
 ```
 
-Then open `http://localhost:8080/hexmapper/`, `/oracle/`, `/travel/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
+Then open `http://localhost:8080/hexmapper/`, `/oracle/`, `/travel/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
 
 `make` lists every command. The usual ones:
 
@@ -60,7 +61,7 @@ packages/   hex, random, dice, conditions, time        building blocks
             schema, storage, note-refs                  saved data, browser storage, links to notes apps
             ui-kit, pack-ui, oracle-ui, travel-ui,      shared Svelte pieces
             manual-ui
-apps/       hexmapper, oracle, travel, manual, cli
+apps/       hexmapper, oracle, travel, systems, manual, cli
 packs/      core, grey-marches
 docs/       design notes, the manual (docs/manual/<language>/<app>/), the backlog
 ```

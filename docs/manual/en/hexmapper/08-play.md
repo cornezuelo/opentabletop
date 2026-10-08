@@ -8,7 +8,7 @@ Just the party token and its trail: click a hex to place the party, click anothe
 
 ## With rules
 
-The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map and edits them.
+The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map, and the [Systems app](../systems/01-getting-started.md) edits them.
 
 1. Check the **system**: the map's own (**Map settings → Map → System**, the same choice): Generic, or a system of a pack (e.g. the Grey Marches). It brings the travel rules, the tables they roll, the calendar and the weather. Choose the season to **start in**. **New trip** restarts time, supplies and journal, keeping the party where it is; choosing another system here starts a new trip with it and makes it the map's.
 2. Click a hex to place the party, then click the **destination**: the route is drawn.

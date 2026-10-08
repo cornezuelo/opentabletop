@@ -32,7 +32,7 @@ Checks are rolled on their tables and written in the **journal**, grouped by day
 
 Until you press **Continue** the party doesn't move on. What a paused result does to the trip (getting lost, the weather) applies when you continue; its effects on supplies and stats apply at once.
 
-**Buttons that can't be used now** stay visible, disabled: hovering one says why. A value of the day the system declares blocks them (the Grey Marches' **Lost**: "Lost: not possible for the rest of the day", until the next dawn; or **The hirelings refuse to march**, until you talk them round), the action was already done today (**Once a day**), or the system's rule for it doesn't hold here and now (the Grey Marches' **Forage for food** in a storm, **Forced march** with fatigue 2 or more, the **Rite** away from a shrine or without a full Ember Moon). Camp, rest and the system's own actions all come from the system: one may have no rest, another camps differently (see [Making a system](03-systems.md)).
+**Buttons that can't be used now** stay visible, disabled: hovering one says why. A value of the day the system declares blocks them (the Grey Marches' **Lost**: "Lost: not possible for the rest of the day", until the next dawn; or **The hirelings refuse to march**, until you talk them round), the action was already done today (**Once a day**), or the system's rule for it doesn't hold here and now (the Grey Marches' **Forage for food** in a storm, **Forced march** with fatigue 2 or more, the **Rite** away from a shrine or without a full Ember Moon). Camp, rest and the system's own actions all come from the system: one may have no rest, another camps differently (see [Making a system](../systems/02-making-a-system.md)).
 
 What the journal says, so nothing happens silently:
 

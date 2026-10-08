@@ -84,7 +84,7 @@ Tables read the party back as `party.resources.food`, `party.stats.morale`: `whe
 
 ## 5. Your own travel system
 
-A pack becomes a **system** a map can play (Hexmapper: **Map settings → Map → System**) and the Travel app lists when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
+A pack becomes a **system** a map can play (Hexmapper: **Map settings → Map → System**) and the Systems and Travel apps list when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
 
 ```yaml
 kind: travel-rules
@@ -141,7 +141,7 @@ stats:
   fatigue: { name: Fatigue, default: 0, min: 0 }
 ```
 
-The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Travel app's [Your first system](../travel/03-systems.md#your-first-system-step-by-step); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
+The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Systems app's [Your first system](../systems/02-making-a-system.md#your-first-system-step-by-step); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
 
 ### The day and the speed
 
@@ -169,7 +169,7 @@ water: { passable: false } # water hexes whose terrain isn't listed
 **modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the Generic rules' usual ids (foot, horse…) get the app's names and any other shows its id. Two conditions shape each one:
 
 - `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ water: true }, { terrain: coast }] }`; a cart only by road: `through: { edges: road }`. The older `allowedTerrains: [water, coast]` still works.
-- `when` / `unless` (**Only when** / **Not when** in the Travel app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; a horse not in snow: `unless: { weather: snow }`.
+- `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; a horse not in snow: `unless: { weather: snow }`.
 
 A value of the day can block one too (`blocks: [mode.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
 
@@ -248,7 +248,7 @@ actions:
     do: [{ roll: NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-What an action **rolls** are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. In the Travel editor each step is written the same way, one box per step, with suggestions. The older way (`minutes: 180, speed: 0.5, effects: …` on the action, or an `eat: day` step) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
+What an action **rolls** are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. The older way (`minutes: 180, speed: 0.5, effects: …` on the action, or an `eat: day` step) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
 
 **At nightfall.** `day: { night: camp }` says what the party does when night falls while it waits with the world clock: camp (the default, if the system has camp), another action, or `false` (the night just passes). When the action can't be taken (a value blocks it, or its `when` / `unless` don't hold), the night passes without it and the journal says why; a travel order at nightfall does the same and marches on at dawn.
 
@@ -369,7 +369,7 @@ on:
 
 - **states**: each kind of weather, with its name and the values it gives the day (like a table's `set`); its id is what the travel rules' `weather` reads.
 - **seasons**: per season, where the weather starts and, from each kind, the weights of the next day's. Yesterday's weather the season has no row for starts over from `start`.
-- The journal shows the day's weather by its name. In the Travel app's **Checks**, pick the model under _Weather with inertia_.
+- The journal shows the day's weather by its name. In the Systems app's **Checks**, pick the model under _Weather with inertia_.
 
 The Grey Marches' `sky.yaml` is the full example (their tables in `weather.yaml` still roll weather by hand, without memory).
 

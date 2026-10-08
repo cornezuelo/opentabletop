@@ -44,7 +44,8 @@ packages/                   # libraries, scope @open-tabletop/*
 apps/                       # each with its own CLAUDE.md
   hexmapper/                # map editor, and play on the map
   oracle/                   # roll and edit packs
-  travel/                   # play trips without a map, edit travel systems
+  travel/                   # play trips without a map
+  systems/                  # make and edit game systems (travel rules, checks, bindings…)
   manual/                   # the user manual of every app, with search
   cli/                      # the `opentabletop` command line: validate, list and roll packs (Node, bundled by Vite)
 packs/                      # open data packs

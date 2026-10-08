@@ -7,4 +7,11 @@ const files = import.meta.glob('../../../docs/manual/**/*.md', {
   eager: true,
 }) as Record<string, string>
 
-export const manual = createManual(files, ['hexmapper', 'oracle', 'travel', 'packs', 'technical'])
+export const manual = createManual(files, [
+  'hexmapper',
+  'oracle',
+  'travel',
+  'systems',
+  'packs',
+  'technical',
+])

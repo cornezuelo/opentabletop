@@ -1,21 +1,17 @@
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked:
- * #/system/<id>/<tab>.
+ * #/system/<id>/play (older links to the editing tabs, now in the Systems app, open play).
  */
-export type Tab = 'play' | 'rules' | 'checks' | 'yaml'
-export type View = { name: 'welcome' } | { name: 'system'; id: string; tab: Tab }
-
-const TABS: Tab[] = ['play', 'rules', 'checks', 'yaml']
+export type View = { name: 'welcome' } | { name: 'system'; id: string }
 
 function parse(hash: string): View {
-  const [name, id, tab] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
-  if (name === 'system' && id)
-    return { name, id, tab: TABS.includes(tab as Tab) ? (tab as Tab) : 'play' }
+  const [name, id] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
+  if (name === 'system' && id) return { name, id }
   return { name: 'welcome' }
 }
 
 const format = (view: View): string =>
-  view.name === 'system' ? `#/system/${encodeURIComponent(view.id)}/${view.tab}` : '#/'
+  view.name === 'system' ? `#/system/${encodeURIComponent(view.id)}/play` : '#/'
 
 export const nav = $state<{ view: View }>({ view: parse(location.hash) })
 

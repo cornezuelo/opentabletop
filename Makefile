@@ -7,7 +7,7 @@ ARGS ?= --help
 APPS := $(filter-out cli,$(notdir $(wildcard apps/*)))
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev dev-hexmapper dev-oracle dev-travel dev-manual dev-all build site serve rebuild preview \
+.PHONY: help install dev dev-hexmapper dev-oracle dev-travel dev-systems dev-manual dev-all build site serve rebuild preview \
 	test test-watch check lint format verify clean cli private-status private-commit private-push
 
 help: ## List the commands
@@ -29,6 +29,9 @@ dev-oracle: ## Run the Oracle app with live reload
 dev-travel: ## Run the Travel app with live reload
 	npm run dev -w apps/travel
 
+dev-systems: ## Run the Systems app with live reload
+	npm run dev -w apps/systems
+
 dev-manual: ## Run the Manual app with live reload
 	npm run dev -w apps/manual
 
@@ -44,7 +47,7 @@ site: ## Build the public site into dist/<app>/ (open packs only: safe to publis
 
 serve: ## Build the site for this machine (with packs-private/) into dist-local/ and serve it
 	OTT_PERSONAL_PACKS=1 npm run build:site
-	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
+	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/, /systems/ or /manual/ (Ctrl+C to stop)"
 	@echo "dist-local/ has your personal-use packs: never publish it (make site builds the public dist/)."
 	python3 -m http.server $(PORT) -d dist-local
 
@@ -52,7 +55,7 @@ rebuild: ## Rebuild dist-local/ for a running make serve (then reload the page a
 	OTT_PERSONAL_PACKS=1 npm run build:site
 
 preview: ## Serve the last local build (dist-local/) again without rebuilding
-	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/ or /manual/ (Ctrl+C to stop)"
+	@echo "Open http://localhost:$(PORT)/hexmapper/, /oracle/, /travel/, /systems/ or /manual/ (Ctrl+C to stop)"
 	python3 -m http.server $(PORT) -d dist-local
 
 cli: ## Build and run the command line (make cli ARGS="roll core/action")

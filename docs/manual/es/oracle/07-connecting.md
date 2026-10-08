@@ -84,7 +84,7 @@ Las tablas leen el grupo como `party.resources.food`, `party.stats.morale`: `whe
 
 ## 5. Tu propio sistema de viaje
 
-Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Hexmapper: **Ajustes del mapa → Mapa → Sistema**) y que muestra la aplicación Travel cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
+Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Hexmapper: **Ajustes del mapa → Mapa → Sistema**) y que muestran las aplicaciones Systems y Travel cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
 
 ```yaml
 kind: travel-rules
@@ -141,7 +141,7 @@ stats:
   fatigue: { name: Fatiga, default: 0, min: 0 }
 ```
 
-El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../travel/03-systems.md#tu-primer-sistema-paso-a-paso) en la aplicación Travel; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
+El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../systems/02-making-a-system.md#tu-primer-sistema-paso-a-paso) en la aplicación Systems; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
 
 ### El día y la velocidad
 
@@ -169,7 +169,7 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 **modes** son las formas de viajar entre las que elige el jugador en el panel del viaje, cada una con su `kmPerDay` y un `name` (y una `description`) para los jugadores: el panel y el diario muestran _A caballo_ en lugar de `horse`, traducido en `locales/` como el resto. Sin nombre, los ids habituales de las reglas Genéricas (foot, horse…) toman los nombres de la aplicación y cualquier otro muestra su id. Dos condiciones dan forma a cada una:
 
 - `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ water: true }, { terrain: coast }] }`; un carro solo por camino: `through: { edges: road }`. El antiguo `allowedTerrains: [water, coast]` sigue funcionando.
-- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Travel): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; un caballo, no con nieve: `unless: { weather: snow }`.
+- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Systems): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; un caballo, no con nieve: `unless: { weather: snow }`.
 
 Un valor del día también puede bloquear una (`blocks: [mode.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
 
@@ -248,7 +248,7 @@ actions:
     do: [{ roll: NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-Lo que **tira** una acción son las comprobaciones con `at: <su id>` (las de acampar: `at: camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En el editor de Travel cada paso se escribe igual, una casilla por paso, con sugerencias. La forma antigua (`minutes: 180, speed: 0.5, effects: …` en la acción, o un paso `eat: day`) sigue funcionando, leída como esos pasos. Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
+Lo que **tira** una acción son las comprobaciones con `at: <su id>` (las de acampar: `at: camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En los formularios de la aplicación Systems cada paso se escribe igual, una casilla por paso, con sugerencias. La forma antigua (`minutes: 180, speed: 0.5, effects: …` en la acción, o un paso `eat: day`) sigue funcionando, leída como esos pasos. Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
 
 **Al anochecer.** `day: { night: camp }` dice qué hace el grupo cuando cae la noche mientras espera con el reloj del mundo: acampar (por defecto, si el sistema tiene camp), otra acción, o `false` (la noche simplemente pasa). Si la acción no se puede hacer (la bloquea un valor o no se cumplen su `when` / `unless`), la noche pasa sin ella y el diario dice por qué; una orden de viajar al anochecer hace lo mismo y sigue marchando al alba.
 
@@ -375,7 +375,7 @@ on:
 
 - **states**: cada tipo de clima, con su nombre y los valores que da al día (como el `set` de una tabla); su id es lo que lee el `weather` de las reglas de viaje.
 - **seasons**: por estación, dónde empieza el clima y, desde cada tipo, los pesos del día siguiente. Si la estación no tiene fila para el clima de ayer, se empieza de nuevo desde `start`.
-- El diario muestra el clima del día por su nombre. En **Comprobaciones** de la aplicación Travel, elige el modelo bajo _Clima con inercia_.
+- El diario muestra el clima del día por su nombre. En **Comprobaciones** de la aplicación Systems, elige el modelo bajo _Clima con inercia_.
 
 El `sky.yaml` de las Marcas Grises es el ejemplo completo (sus tablas de `weather.yaml` siguen tirando el clima a mano, sin memoria).
 

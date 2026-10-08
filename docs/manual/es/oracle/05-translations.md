@@ -59,4 +59,4 @@ calendar/marcher-reckoning:
   months: { thaw: Deshielo, sowing: Siembra }
 ```
 
-Los formularios de la aplicación Travel las escriben por ti: con la interfaz en un idioma que no es el del pack, el nombre y la descripción de una comprobación o de una característica van al fichero de ese idioma (el texto del pack se ve en gris como pista). Los packs antiguos que escriben un texto en varios idiomas a la vez (`name: { en: Thaw, es: Deshielo }`) siguen funcionando.
+Los formularios de la aplicación Systems las escriben por ti: con la interfaz en un idioma que no es el del pack, el nombre y la descripción de una comprobación o de una característica van al fichero de ese idioma (el texto del pack se ve en gris como pista). Los packs antiguos que escriben un texto en varios idiomas a la vez (`name: { en: Thaw, es: Deshielo }`) siguen funcionando.

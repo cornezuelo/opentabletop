@@ -5,7 +5,7 @@
  */
 import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, logoSvg } from './apps.data.mjs'
 
-export type AppId = 'hexmapper' | 'oracle' | 'travel' | 'manual'
+export type AppId = 'hexmapper' | 'oracle' | 'travel' | 'systems' | 'manual'
 
 export interface AppInfo {
   id: AppId

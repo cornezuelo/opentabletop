@@ -16,7 +16,7 @@ import { describe, expect, it } from 'vitest'
  * that another example (or another pack) holds.
  */
 
-/** The manual's pages, by path from `docs/manual/` (`en/travel/03-systems.md`). */
+/** The manual's pages, by path from `docs/manual/` (`en/systems/02-making-a-system.md`). */
 const files = Object.fromEntries(
   Object.entries(
     import.meta.glob('../../../../../docs/manual/**/*.md', {
@@ -85,7 +85,9 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
 })
 
 describe('Travel → Making a system: the step-by-step system plays as the manual says', () => {
-  const yaml = examples(read('en/travel/03-systems.md')).find((y) => y.includes('dark-lost'))!
+  const yaml = examples(read('en/systems/02-making-a-system.md')).find((y) =>
+    y.includes('dark-lost'),
+  )!
   const { registry } = loadPacks([
     { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nlocale: en\n' },
     { path: 'dark/travel.yaml', content: yaml },

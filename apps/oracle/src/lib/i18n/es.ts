@@ -245,7 +245,7 @@ export const es: Messages<typeof en> = {
   newDef: {
     forTravel: 'Reglas del sistema',
     forTravelHelp:
-      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en el Hexmapper (Jugar → Con reglas) y en Travel\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
+      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en el Hexmapper (Jugar → Con reglas) y en Travel, y que se edita en la aplicación Systems\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
     system: {
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',

@@ -33,12 +33,12 @@
     )
       return
     trip.start(target.id, s)
-    if (target.id !== system.id) go({ name: 'system', id: target.id, tab: 'play' })
+    if (target.id !== system.id) go({ name: 'system', id: target.id })
   }
 
   /** The open trip's system page (trips of other systems open there). */
   function follow() {
-    if (trip.saved.system !== system.id) go({ name: 'system', id: trip.saved.system, tab: 'play' })
+    if (trip.saved.system !== system.id) go({ name: 'system', id: trip.saved.system })
   }
 
   function openTrip(id: string) {

@@ -8,7 +8,7 @@ Solo el token del grupo y su rastro: haz clic en un hex para colocar al grupo y 
 
 ## Con reglas
 
-El Travel Engine lleva el viaje y Oracle tira las comprobaciones. La [aplicación Travel](../travel/01-getting-started.md) juega los mismos sistemas sin mapa y los edita.
+El Travel Engine lleva el viaje y Oracle tira las comprobaciones. La [aplicación Travel](../travel/01-getting-started.md) juega los mismos sistemas sin mapa, y la [aplicación Systems](../systems/01-getting-started.md) los edita.
 
 1. Comprueba el **sistema**: el del mapa (**Ajustes del mapa → Mapa → Sistema**, la misma elección): Genéricas, o el sistema de un pack (p. ej. las Marcas Grises). Trae las reglas de viaje, las tablas que tiran, el calendario y el clima. Elige la estación en la que **empezar**. **Nuevo viaje** reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está; elegir aquí otro sistema empieza un viaje nuevo con él y lo hace el del mapa.
 2. Haz clic en un hex para colocar al grupo y después en el **destino**: se dibuja la ruta.
