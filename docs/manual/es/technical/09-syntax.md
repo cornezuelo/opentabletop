@@ -8,16 +8,24 @@ En las aplicaciones esta página está a un clic: **Sintaxis**, arriba en la col
 
 Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 
-| Escribe                    | Significa                                                                                            |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `terrain: forest`          | una palabra                                                                                          |
-| `danger: 3`, `lost: true`  | un número, un sí/no                                                                                  |
-| `terrain: [forest, hills]` | una lista                                                                                            |
-| `danger: { gte: 3 }`       | un valor dentro de otro (aquí, una comparación)                                                      |
-| `count: '{{2d6}}'`         | una [plantilla](#plantillas); pon entre comillas los textos con `{{`, `:`, `#` o un `-` al principio |
+| Escribe                    | Significa                                                 |
+| -------------------------- | --------------------------------------------------------- |
+| `terrain: forest`          | una palabra                                               |
+| `danger: 3`, `lost: true`  | un número, un sí/no                                       |
+| `terrain: [forest, hills]` | una lista                                                 |
+| `danger: { gte: 3 }`       | un valor dentro de otro (aquí, una comparación)           |
+| `count: '{{2d6}}'`         | una [plantilla](#plantillas), entre comillas (mira abajo) |
 
 - **En la casilla de un formulario**, escribe los pares sin llaves, separados por comas: `terrain: forest, danger: { gte: 3 }`. Una casilla que no se puede leer se pone roja y no se guarda.
 - **En YAML**, lo mismo entre llaves en una línea (`when: { terrain: forest }`) o un par por línea sangrada.
+- **Las comillas** (`'…'`) mantienen un texto como texto. El YAML da a unos pocos caracteres un significado propio, así que un texto que los tenga va entre comillas, o el YAML lee otra cosa:
+  - **que empiece por `{`**: el YAML abre un valor dentro de otro, así que toda plantilla necesita comillas: `count: '{{2d6}}'`, no `count: {{2d6}}`;
+  - **con `: ` dentro** (dos puntos y un espacio): el YAML lo toma por una clave nueva: `result: 'Emboscada: dos lobos'`;
+  - **con ` #` dentro** (un espacio y una almohadilla): el YAML toma el resto por un comentario y lo descarta: `result: 'Puerta #3'`;
+  - **que empiece por `- `** (un guion y un espacio): el YAML lo toma por un elemento de una lista: `result: '- nada -'`.
+
+  Una comilla dentro de un texto entre comillas se escribe doble: `'El perro de la guardia d''Arcy'`. Si dudas, pon comillas: nunca estorban. Los formularios las ponen por ti.
+
 - **Los nombres con puntos** llegan dentro de un valor: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Todos los nombres que puede leer una tabla: [Lo que ven las tablas](04-what-tables-see.md).
 
 ## Ids y referencias

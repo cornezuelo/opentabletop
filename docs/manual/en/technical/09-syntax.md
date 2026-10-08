@@ -8,16 +8,24 @@ In the apps this page is one click away: **Syntax** at the top of the help colum
 
 Most boxes and most of the YAML are `key: value` pairs.
 
-| Write                      | Means                                                                      |
-| -------------------------- | -------------------------------------------------------------------------- |
-| `terrain: forest`          | a word                                                                     |
-| `danger: 3`, `lost: true`  | a number, a yes/no                                                         |
-| `terrain: [forest, hills]` | a list                                                                     |
-| `danger: { gte: 3 }`       | a value inside another (here, a comparison)                                |
-| `count: '{{2d6}}'`         | a [template](#templates); quote texts with `{{`, `:`, `#` or a leading `-` |
+| Write                      | Means                                           |
+| -------------------------- | ----------------------------------------------- |
+| `terrain: forest`          | a word                                          |
+| `danger: 3`, `lost: true`  | a number, a yes/no                              |
+| `terrain: [forest, hills]` | a list                                          |
+| `danger: { gte: 3 }`       | a value inside another (here, a comparison)     |
+| `count: '{{2d6}}'`         | a [template](#templates), in quotes (see below) |
 
 - **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved.
 - **In YAML**, the same between braces on one line (`when: { terrain: forest }`) or one pair per indented line.
+- **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
+  - **starting with `{`**: YAML opens a value inside another, so every template needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`;
+  - **`: ` inside** (a colon and a space): YAML takes it for a new key: `result: 'Ambush: two wolves'`;
+  - **` #` inside** (a space and a hash): YAML takes the rest for a comment and drops it: `result: 'Door #3'`;
+  - **starting with `- `** (a dash and a space): YAML takes it for an item of a list: `result: '- nothing -'`.
+
+  A quote inside a quoted text is written twice: `'The guard''s dog'`. When in doubt, quote: it never hurts. Forms do it for you.
+
 - **Dotted names** reach inside a value: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
 
 ## Ids and references
