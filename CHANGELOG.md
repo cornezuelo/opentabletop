@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-08
+
 ### Apps
 
 - The apps open in your browser's language when we have it (Spanish for `es-*`), until you choose one; the site's front page has flags to choose it, shared with every app.
