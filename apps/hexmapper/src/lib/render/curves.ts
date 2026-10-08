@@ -76,3 +76,30 @@ export function dashes(points: Point[], dash: number, gap: number): Point[][] {
   if (drawing && current.length > 1) segments.push(current)
   return segments
 }
+
+/**
+ * The same line moved `distance` to one side (right of the way it goes, in screen
+ * coordinates; negative: left), so it runs beside another drawn on the same points (a
+ * road) instead of on top of it. Within `ramp` of each end it eases back onto the
+ * points, so it still starts and ends where they do.
+ */
+export function offsetPolyline(points: Point[], distance: number, ramp = 0): Point[] {
+  if (points.length < 2 || distance === 0) return points.map((p) => ({ ...p }))
+  const along = [0]
+  for (let i = 1; i < points.length; i++)
+    along.push(
+      along[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y),
+    )
+  const total = along.at(-1)!
+  return points.map((p, i) => {
+    const a = points[Math.max(0, i - 1)]
+    const b = points[Math.min(points.length - 1, i + 1)]
+    const dx = b.x - a.x
+    const dy = b.y - a.y
+    const length = Math.hypot(dx, dy) || 1
+    const ease = ramp > 0 ? Math.min(1, along[i] / ramp, (total - along[i]) / ramp) : 1
+    const d = distance * Math.max(0, ease)
+    // The right-hand normal of the direction of travel (y grows downwards on screen).
+    return { x: p.x - (dy / length) * d, y: p.y + (dx / length) * d }
+  })
+}

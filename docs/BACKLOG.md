@@ -34,7 +34,7 @@ The alpha is the four apps (Hexmapper, Oracle, Travel, Manual) published as a st
 Nice to have before the alpha, otherwise right after:
 
 - [ ] **Suggestions panel and cheat sheets** (asked by the user): besides the inline suggestions, a side panel in the Oracle and Travel editors (forms and YAML) listing what tables can read and set right there (names, values and descriptions, grouped: map, trip, party, calendar…) plus cheat sheets of the syntax (dice, conditions, templates, effects, steps, each kind's shape); click to insert at the cursor. Shared component (pack-ui), searchable, bilingual; the same panel as the contextual help (item 4).
-- [ ] Hexmapper: the planned route drawn beside the roads it follows (see Hexmapper → Pending).
+- [x] ✅ Hexmapper: the planned route drawn beside the roads it follows (see Hexmapper → Pending).
 - [ ] Kal-Arath reviewed against its rulebook again (see Packs → Kal-Arath).
 
 ## After the alpha
@@ -165,7 +165,7 @@ Ecosystem, in the order it was built:
 
 ### Pending
 
-- [ ] **Planned route drawn beside the roads it follows** (asked 2026-10-07): the route (and trail) already curve through the same hexes as the map's lines (Play → Straight lines to turn it off); draw them offset beside the line so they never sit on top of it, as the first stretch out of Ashford already does on the example map.
+- [x] ✅ **Planned route drawn beside the roads it follows** (asked 2026-10-07; done 2026-10-08: trail and route are drawn as parallel lines a fifth of a hex to each side of the centres, easing back at the ends, `offsetPolyline`): the route (and trail) already curve through the same hexes as the map's lines (Play → Straight lines to turn it off); draw them offset beside the line so they never sit on top of it, as the first stretch out of Ashford already does on the example map.
 - [ ] Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [ ] Translate icon names (currently English, as they come from game-icons).
 - [ ] UI for the optional hex fields travel may use (elevation, danger); custom fields cover them for now.
