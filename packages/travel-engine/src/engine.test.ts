@@ -277,6 +277,78 @@ describe('travel', () => {
   })
 })
 
+describe('the trip’s totals', () => {
+  it('counts hexes, hours marched, actions, checks and supplies, read as trip.*', () => {
+    let { state } = run(
+      start('0,0', 'horse'),
+      { type: 'setDestination', hex: '2,0' },
+      { type: 'travel' },
+    )
+    ;({ state } = resolveAll(state))
+    ;({ state } = run(state, { type: 'travel' }, { type: 'camp' }))
+    ;({ state } = resolveAll(state))
+    expect(state.totals).toEqual({
+      hexes: 2,
+      marched: 8 * 60,
+      taken: { camp: 1, eat: 1 },
+      checks: 4,
+      spent: { food: 1, fodder: 1 },
+      gained: {},
+    })
+    const seen = engine.context(state)
+    expect(seen.trip).toMatchObject({
+      hexes: 2,
+      km: 60,
+      hours: 8,
+      taken: { camp: 1, eat: 1 },
+      checks: 4,
+      spent: { food: 1, fodder: 1 },
+      day: 2,
+    })
+    // A check's outcome that gives supplies counts as gained.
+    state.pendingChecks.push({ id: 'x', event: 'FORAGE', context: {} })
+    ;({ state } = run(state, {
+      type: 'resolveCheck',
+      id: 'x',
+      outcome: { resources: { food: 2 } },
+    }))
+    expect(state.totals?.gained).toEqual({ food: 2 })
+  })
+
+  it('lets conditions read them: an action only after 50 km', () => {
+    const { rules: far, errors: farErrors } = parseTravelRules({
+      kind: 'travel-rules',
+      day: { start: '06:00', nightfall: '20:00' },
+      travel: { hoursPerDay: 8 },
+      terrains: { steppe: { multiplier: 1 } },
+      modes: { horse: { kmPerDay: 60 } },
+      actions: { boast: { when: { 'trip.km': { gte: 50 } }, minutes: 10 } },
+    })
+    expect(farErrors).toEqual([])
+    const tripEngine = createTravelEngine({ world, rules: far! })
+    let state = initialTravelState({
+      location: '0,0',
+      mode: 'horse',
+      time: defaultCalendar.at(1, '06:00'),
+    })
+    state = tripEngine.apply(state, { type: 'setDestination', hex: '1,0' }).state
+    expect(tripEngine.availability(state).boast).toEqual({ condition: 'when' })
+    state = tripEngine.apply(state, { type: 'travel' }).state
+    expect(state.location).toBe('1,0')
+    expect(tripEngine.availability(state).boast).toEqual({ condition: 'when' })
+    state = tripEngine.apply(state, { type: 'setDestination', hex: '2,0' }).state
+    state = tripEngine.apply(state, { type: 'travel' }).state
+    expect(tripEngine.availability(state).boast).toBeUndefined()
+  })
+
+  it('starts counting in older trips without them', () => {
+    const older = start('0,0')
+    delete older.totals
+    const { state } = run(older, { type: 'camp' })
+    expect(state.totals).toMatchObject({ taken: { camp: 1, eat: 1 }, spent: { food: 1 } })
+  })
+})
+
 describe('camp, resources and the end of the day', () => {
   it('consumes resources, schedules camp checks and moves to the next morning', () => {
     const { state, events } = run(start('0,0', 'horse'), { type: 'camp' })

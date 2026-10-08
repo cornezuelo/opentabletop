@@ -47,6 +47,9 @@ travel-rules/default:
     night-march:
       name: Marcha nocturna
       description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga; cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
+    tale:
+      name: Historias del camino
+      description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: una hora de historias junto al fuego. Moral +1.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

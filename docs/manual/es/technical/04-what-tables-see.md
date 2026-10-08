@@ -6,17 +6,17 @@ Cada tirada recibe un **contexto**: valores que una tabla puede usar en sus dado
 
 Cada dato que dan el mapa, el viaje y el mundo tiene un **nombre completo** que dice de dónde sale, y casi todos también un **nombre corto**:
 
-| Nombres completos    | De qué tratan                                                                    | Ejemplo                                  |
-| -------------------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
-| `hex.*`              | el hex: su id, terreno, etiquetas, región y sus propios valores                  | `hex.terrain`, `hex.danger`, `hex.id`    |
-| `time.*`             | el momento: estación, día, hora, luz del día y el calendario                     | `time.daylight`, `time.moons.pale`       |
-| `system.*`           | el día del propio sistema, como números                                          | `system.nightfall`                       |
-| `trip.*`             | el viaje: su día, la forma de viajar, el clima, lo marchado y hecho, el momento  | `trip.day`, `trip.mode`, `trip.moment`   |
-| `world.*`            | el reloj del mundo (Hexmapper)                                                   | `world.clocks.the-flood`, `world.events` |
-| `party.*`            | el grupo: sus características y provisiones                                      | `party.stats.charisma`                   |
-| `today.*`            | los valores del día (los que fijan las tablas y los valores propios del sistema) | `today.lost`, `today.fordModifier`       |
-| `yesterday.*`        | los del día anterior                                                             | `yesterday.lost`                         |
-| `from.*`, `around.*` | el hex que se deja al entrar en otro, los hexes de alrededor                     | `from.terrain`, `around.terrain`         |
+| Nombres completos    | De qué tratan                                                                                         | Ejemplo                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `hex.*`              | el hex: su id, terreno, etiquetas, región y sus propios valores                                       | `hex.terrain`, `hex.danger`, `hex.id`    |
+| `time.*`             | el momento: estación, día, hora, luz del día y el calendario                                          | `time.daylight`, `time.moons.pale`       |
+| `system.*`           | el día del propio sistema, como números                                                               | `system.nightfall`                       |
+| `trip.*`             | el viaje: su día, la forma de viajar, el clima, lo marchado y hecho, el momento, y lo que lleva hecho | `trip.day`, `trip.mode`, `trip.moment`   |
+| `world.*`            | el reloj del mundo (Hexmapper)                                                                        | `world.clocks.the-flood`, `world.events` |
+| `party.*`            | el grupo: sus características y provisiones                                                           | `party.stats.charisma`                   |
+| `today.*`            | los valores del día (los que fijan las tablas y los valores propios del sistema)                      | `today.lost`, `today.fordModifier`       |
+| `yesterday.*`        | los del día anterior                                                                                  | `yesterday.lost`                         |
+| `from.*`, `around.*` | el hex que se deja al entrar en otro, los hexes de alrededor                                          | `from.terrain`, `around.terrain`         |
 
 El nombre corto y el completo leen el mismo valor: `terrain: forest` y `hex.terrain: forest` se cumplen en los mismos hexes, y `{{season}}` escribe lo mismo que `{{time.season}}`. Usa el que se lea mejor:
 
@@ -66,19 +66,24 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 
 **El viaje**, `trip.*`:
 
-| Nombre completo                  | Nombre corto           | Qué es                                                                                                                                                                                                                |
-| -------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trip.day`                       | `tripDay`              | El día de este viaje: 1 el día que empezó.                                                                                                                                                                            |
-| `trip.mode`                      | `mode`                 | La forma de viajar (`foot`, `horse`, `boat`…).                                                                                                                                                                        |
-| `trip.weather`                   | `weather`              | El clima de hoy, cuando una tabla lo ha fijado.                                                                                                                                                                       |
-| `trip.edges`                     | `edges`                | Los caminos, senderos o ríos del tramo: el recién recorrido al entrar en un hex, el de delante al alba y al acampar.                                                                                                  |
-| `trip.marched`                   | `marched`              | Horas marchadas hoy.                                                                                                                                                                                                  |
-| `trip.doneToday`                 | `doneToday`            | Las acciones hechas hoy, por id (una lista): `trip.doneToday: forage`.                                                                                                                                                |
-| `trip.routeLeft`, `trip.arrived` | `routeLeft`, `arrived` | Hexes que faltan hasta el destino, y si el grupo ya está en él.                                                                                                                                                       |
-| `trip.visits`                    | `visits`               | Veces que el grupo ha estado en este hex durante el viaje: `1` la primera vez.                                                                                                                                        |
-| `trip.moment`                    | `moment`               | Para las acciones y comprobaciones de un sistema: el momento que las trajo: `day-start`, `hex-enter`, `day-end` o el id de una acción (para una acción con `on:` o una comprobación con `at:` que nombra varios).     |
-| `trip.below`, `trip.above`       | `below`, `above`       | Los ids de los valores (provisiones, características) que un efecto intentó llevar más allá de su `min` (`trip.below: food`) o su `max` ese día. El `short` de los packs antiguos es true cuando hay algo en `below`. |
-| `trip.doing`                     | `doing`                | La acción en curso (`camp`; en `day-end`, aquella con la que acabó el día). El `camping` de los packs antiguos es true mientras dura la acción de la noche.                                                           |
+| Nombre completo                                     | Nombre corto           | Qué es                                                                                                                                                                                                                |
+| --------------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trip.day`                                          | `tripDay`              | El día de este viaje: 1 el día que empezó.                                                                                                                                                                            |
+| `trip.mode`                                         | `mode`                 | La forma de viajar (`foot`, `horse`, `boat`…).                                                                                                                                                                        |
+| `trip.weather`                                      | `weather`              | El clima de hoy, cuando una tabla lo ha fijado.                                                                                                                                                                       |
+| `trip.edges`                                        | `edges`                | Los caminos, senderos o ríos del tramo: el recién recorrido al entrar en un hex, el de delante al alba y al acampar.                                                                                                  |
+| `trip.marched`                                      | `marched`              | Horas marchadas hoy.                                                                                                                                                                                                  |
+| `trip.doneToday`                                    | `doneToday`            | Las acciones hechas hoy, por id (una lista): `trip.doneToday: forage`.                                                                                                                                                |
+| `trip.routeLeft`, `trip.arrived`                    | `routeLeft`, `arrived` | Hexes que faltan hasta el destino, y si el grupo ya está en él.                                                                                                                                                       |
+| `trip.visits`                                       | `visits`               | Veces que el grupo ha estado en este hex durante el viaje: `1` la primera vez.                                                                                                                                        |
+| `trip.moment`                                       | `moment`               | Para las acciones y comprobaciones de un sistema: el momento que las trajo: `day-start`, `hex-enter`, `day-end` o el id de una acción (para una acción con `on:` o una comprobación con `at:` que nombra varios).     |
+| `trip.below`, `trip.above`                          | `below`, `above`       | Los ids de los valores (provisiones, características) que un efecto intentó llevar más allá de su `min` (`trip.below: food`) o su `max` ese día. El `short` de los packs antiguos es true cuando hay algo en `below`. |
+| `trip.doing`                                        | `doing`                | La acción en curso (`camp`; en `day-end`, aquella con la que acabó el día). El `camping` de los packs antiguos es true mientras dura la acción de la noche.                                                           |
+| `trip.hexes`, `trip.km`                             | —                      | El viaje hasta ahora: hexes en los que ha entrado, y sus km a la escala del mapa (la del sistema, sin mapa). `trip.km: { gte: 100 }`: cuando el grupo lleva 100 km.                                                   |
+| `trip.hours`                                        | —                      | Horas de marcha desde que empezó el viaje (`trip.marched` es la de hoy).                                                                                                                                              |
+| `trip.taken.<acción>`                               | —                      | Veces que se ha hecho cada acción durante el viaje, por el jugador o por el propio sistema: `trip.taken.camp: { gte: 7 }`, a partir del séptimo campamento.                                                           |
+| `trip.checks`                                       | —                      | Comprobaciones que han salido durante el viaje.                                                                                                                                                                       |
+| `trip.spent.<provisión>`, `trip.gained.<provisión>` | —                      | Cuánto han quitado de una provisión las acciones, comprobaciones y tablas del sistema, y cuánto le han añadido (lo que cambias a mano no cuenta): `trip.spent.food: { gte: 10 }`.                                     |
 
 **Alrededor del grupo:**
 

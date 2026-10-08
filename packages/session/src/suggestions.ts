@@ -61,6 +61,11 @@ export function contextSuggestions(
   add('arrived', true, false)
   add('tripDay')
   add('visits', 1)
+  // What the trip has done so far (only by their full names).
+  add('trip.hexes')
+  add('trip.km')
+  add('trip.hours')
+  add('trip.checks')
   // The hex left when entering one, and the neighbours of where the party is.
   add('from.terrain')
   add('from.tags')
@@ -106,6 +111,8 @@ export function contextSuggestions(
     add('edges', ...Object.keys(rules.edges ?? {}))
     for (const resource of Object.keys(rules.resources ?? {})) {
       add(`party.resources.${resource}`)
+      add(`trip.spent.${resource}`)
+      add(`trip.gained.${resource}`)
       add('below', resource)
       add('above', resource)
     }
@@ -128,6 +135,7 @@ export function contextSuggestions(
     add('doing', ...taken)
     add('doneToday', ...taken)
     add('moment', ...CHECK_MOMENTS, ...taken)
+    for (const id of taken) add(`trip.taken.${id}`)
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
       condition(action.unless, add)

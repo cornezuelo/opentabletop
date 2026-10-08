@@ -23,6 +23,7 @@
     actionSteps,
     availableActions,
     MARCH,
+    noTotals,
     resourceBounds,
     checkInfo,
     declaredValues,
@@ -122,6 +123,29 @@
     return {
       used: `${Math.floor(used / 60)} h ${String(Math.round(used % 60)).padStart(2, '0')}`,
       limit: system.rules.travel.hoursPerDay,
+    }
+  })
+
+  /** What the trip has done so far (`trip.*` for conditions and tables). */
+  const totals = $derived.by(() => {
+    const all = travel.totals ?? noTotals()
+    const hexKm = world?.hexKm ?? system.rules.travel.hexKm
+    const km = hexKm === undefined ? '' : Math.round(all.hexes * hexKm * 10) / 10
+    const list = (counts: Record<string, number>, name: (id: string) => string) =>
+      Object.entries(counts)
+        .filter(([, n]) => n)
+        .map(([id, n]) => `${name(id)} ${Math.round(n * 100) / 100}`)
+        .join(' · ')
+    return {
+      title: t('totals.title', {
+        hexes: all.hexes,
+        km: km === '' ? '' : t('totals.km', { km }),
+        hours: `${Math.floor(all.marched / 60)} h ${String(Math.round(all.marched % 60)).padStart(2, '0')}`,
+      }),
+      checks: all.checks,
+      taken: list(all.taken, actionName),
+      spent: list(all.spent, resourceName),
+      gained: list(all.gained, resourceName),
     }
   })
 
@@ -421,6 +445,16 @@
     </div>
   {/each}
 
+  <details class="totals">
+    <summary>{totals.title}<InfoTip text={t('tips.totals')} /></summary>
+    <div class="lines">
+      <span>{t('totals.checks', { count: totals.checks })}</span>
+      {#if totals.taken}<span>{t('totals.taken', { list: totals.taken })}</span>{/if}
+      {#if totals.spent}<span>{t('totals.spent', { list: totals.spent })}</span>{/if}
+      {#if totals.gained}<span>{t('totals.gained', { list: totals.gained })}</span>{/if}
+    </div>
+  </details>
+
   <div class="field">
     <div class="journal-head">
       <span>{t('journalTitle')}</span>
@@ -496,6 +530,23 @@
     background: var(--bg);
     border-left: 3px solid var(--accent);
     border-radius: 6px;
+  }
+
+  .totals {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .totals summary {
+    cursor: pointer;
+  }
+
+  .totals .lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 2px;
+    padding-left: 14px;
   }
 
   .status strong {

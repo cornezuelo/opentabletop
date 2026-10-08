@@ -169,6 +169,7 @@ describe('example maps', () => {
       rite: { condition: 'when' }, // no shrine here
       grumble: { condition: 'when' }, // nobody went hungry
       parley: { condition: 'when' }, // nobody refuses
+      tale: { condition: 'when' }, // not 50 km yet
     })
   })
 

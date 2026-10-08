@@ -70,6 +70,48 @@ export interface CheckOutcome {
   resources?: Record<string, number>
 }
 
+/**
+ * What a trip has done so far, for the trip panel and for conditions and tables
+ * (`trip.hexes`, `trip.km`, `trip.hours`, `trip.taken.camp`, `trip.checks`,
+ * `trip.spent.food`, `trip.gained.food`).
+ */
+export interface TripTotals {
+  /** Hexes entered (`trip.km` is them at the map's scale). */
+  hexes: number
+  /** Minutes marched (`trip.hours`). */
+  marched: number
+  /** Times each of the system's actions was taken, by the player or by itself. */
+  taken: Record<string, number>
+  /** Checks that came up. */
+  checks: number
+  /** How much effects took from each supply, and added to it (hand edits don't count). */
+  spent: Record<string, number>
+  gained: Record<string, number>
+}
+
+/** A trip that has done nothing yet. */
+export const noTotals = (): TripTotals => ({
+  hexes: 0,
+  marched: 0,
+  taken: {},
+  checks: 0,
+  spent: {},
+  gained: {},
+})
+
+/** Counts a supply's change in the trip's totals (spent when it went down, gained when up). */
+export function tallySupply(
+  travel: { totals?: TripTotals },
+  id: string,
+  from: number,
+  to: number,
+): void {
+  if (to === from) return
+  const totals = (travel.totals ??= noTotals())
+  const key = to < from ? 'spent' : 'gained'
+  totals[key] = { ...totals[key], [id]: (totals[key][id] ?? 0) + Math.abs(to - from) }
+}
+
 export interface TravelState {
   time: GameTime
   location: string
@@ -113,6 +155,8 @@ export interface TravelState {
    * day, hex and moment (see `momentRolls`); older trips have none.
    */
   seed?: string
+  /** What the trip has done so far (absent in older trips: counted from then on). */
+  totals?: TripTotals
   pendingChecks: PendingCheck[]
   nextCheckId: number
 }
@@ -271,6 +315,7 @@ export function initialTravelState(init: {
     visits: { [init.location]: 1 },
     travelledToday: 0,
     dayChecksDone: false,
+    totals: noTotals(),
     pendingChecks: [],
     nextCheckId: 1,
     ...(init.seed !== undefined && { seed: init.seed }),
@@ -552,6 +597,8 @@ export function createTravelEngine(options: {
       arrived: !!state.destination && state.destination === state.location,
       ...(state.firstDay !== undefined && { tripDay: state.day - state.firstDay + 1 }),
       visits: state.visits?.[state.location] ?? 0,
+      // What the trip has done so far (only by its full names: `trip.km`…).
+      trip: tripTotals(state),
       // Today's values (the host's, then the declared ones), and the day before's.
       today: { ...(facts.today as object | undefined), ...state.today },
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
@@ -563,6 +610,29 @@ export function createTravelEngine(options: {
       party: { ...host, resources: { ...state.resources }, mode: state.mode },
     }
   }
+
+  /** Every action and supply the system declares at 0, so `trip.taken.rite: 0` holds. */
+  const zeros = (ids: string[]) => Object.fromEntries(ids.map((id) => [id, 0]))
+  const takenIds = Object.keys(actions.all).filter((id) => id !== MARCH)
+  const supplyIds = Object.keys(rules.resources ?? {})
+  /**
+   * The trip's totals as conditions read them: `trip.km`, `trip.hours`, `trip.taken.camp`…
+   * (each of the system's actions and supplies, 0 until it counts).
+   */
+  const tripTotals = (state: TravelState): Record<string, unknown> => {
+    const totals = state.totals ?? noTotals()
+    return {
+      hexes: totals.hexes,
+      km: totals.hexes * world.hexKm,
+      hours: totals.marched / 60,
+      taken: { ...zeros(takenIds), ...totals.taken },
+      checks: totals.checks,
+      spent: { ...zeros(supplyIds), ...totals.spent },
+      gained: { ...zeros(supplyIds), ...totals.gained },
+    }
+  }
+  /** The trip's totals, to count in (older trips start them now). */
+  const totalsOf = (state: TravelState): TripTotals => (state.totals ??= noTotals())
 
   /** Facts of the current action or step (the host's, given to `apply`). */
   let hostFacts: HostFacts = {}
@@ -602,6 +672,7 @@ export function createTravelEngine(options: {
         ...(rule.pause && { pause: true }),
       }
       state.pendingChecks.push(check)
+      totalsOf(state).checks++
       events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
       scheduled++
     }
@@ -735,6 +806,7 @@ export function createTravelEngine(options: {
       const marched = Math.min(time, end) - state.time
       state.time += marched
       state.travelledToday += marched
+      totalsOf(state).marched += marched
       state.progress += marched
       if (state.progress < cost) {
         if (state.time >= by) return stop('waited')
@@ -750,6 +822,7 @@ export function createTravelEngine(options: {
       state.location = next
       state.route = state.route.slice(1)
       state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
+      totalsOf(state).hexes++
       events.push({ type: 'HEX_ENTERED', hex: next, time: state.time })
       schedule(state, 'hex-enter', events, from)
       if (state.route.length < 2) {
@@ -993,6 +1066,7 @@ export function createTravelEngine(options: {
       const from = values[id] ?? 0
       const { to, limit } = changeValue(from, change, (own ? supplies : options.stats)?.[id])
       values[id] = to
+      if (own) tallySupply(state, id, from, to)
       // A stat by its own name too (`{{fatigue}}`), unless something else hides it.
       if (!own && hostFacts[id] === from) hostFacts[id] = to
       if (limit) {
@@ -1053,6 +1127,8 @@ export function createTravelEngine(options: {
     }
     events.push(head)
     state.actionsToday = [...(state.actionsToday ?? []), id]
+    const totals = totalsOf(state)
+    totals.taken = { ...totals.taken, [id]: (totals.taken[id] ?? 0) + 1 }
     // Its checks see the place and moment it starts (after the actions that follow it).
     const checks = schedule(state, id, events, undefined, options.facts)
     head.checks = checks
@@ -1196,8 +1272,11 @@ export function createTravelEngine(options: {
           if (outcome.weather !== undefined) state.weather = outcome.weather
           if (outcome.speed !== undefined)
             state.speedToday = (state.speedToday ?? 1) * outcome.speed
-          for (const [id, delta] of Object.entries(outcome.resources ?? {}))
-            state.resources[id] = changeValue(state.resources[id] ?? 0, delta, supplies[id]).to
+          for (const [id, delta] of Object.entries(outcome.resources ?? {})) {
+            const from = state.resources[id] ?? 0
+            state.resources[id] = changeValue(from, delta, supplies[id]).to
+            tallySupply(state, id, from, state.resources[id])
+          }
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
           break
         }

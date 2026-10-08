@@ -6,17 +6,17 @@ Every roll gets a **context**: values a table can use in its dice (`{{danger}}`)
 
 Every fact the map, the trip and the world give has a **full name** that says where it comes from, and most a **short name** too:
 
-| Full names           | What they are about                                                                          | Example                                  |
-| -------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `hex.*`              | the hex: its id, terrain, tags, region and its own values                                    | `hex.terrain`, `hex.danger`, `hex.id`    |
-| `time.*`             | the moment: season, day, hour, daylight, and the calendar                                    | `time.daylight`, `time.moons.pale`       |
-| `system.*`           | the system's own day, as numbers                                                             | `system.nightfall`                       |
-| `trip.*`             | the trip: its day, the way of travelling, the weather, what was marched and done, the moment | `trip.day`, `trip.mode`, `trip.moment`   |
-| `world.*`            | the world clock (Hexmapper)                                                                  | `world.clocks.the-flood`, `world.events` |
-| `party.*`            | the party: its stats and supplies                                                            | `party.stats.charisma`                   |
-| `today.*`            | the values of the day (set by tables and by the system's own values)                         | `today.lost`, `today.fordModifier`       |
-| `yesterday.*`        | the day before's                                                                             | `yesterday.lost`                         |
-| `from.*`, `around.*` | the hex left when entering one, the hexes around                                             | `from.terrain`, `around.terrain`         |
+| Full names           | What they are about                                                                                                       | Example                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `hex.*`              | the hex: its id, terrain, tags, region and its own values                                                                 | `hex.terrain`, `hex.danger`, `hex.id`    |
+| `time.*`             | the moment: season, day, hour, daylight, and the calendar                                                                 | `time.daylight`, `time.moons.pale`       |
+| `system.*`           | the system's own day, as numbers                                                                                          | `system.nightfall`                       |
+| `trip.*`             | the trip: its day, the way of travelling, the weather, what was marched and done, the moment, and what it has done so far | `trip.day`, `trip.mode`, `trip.moment`   |
+| `world.*`            | the world clock (Hexmapper)                                                                                               | `world.clocks.the-flood`, `world.events` |
+| `party.*`            | the party: its stats and supplies                                                                                         | `party.stats.charisma`                   |
+| `today.*`            | the values of the day (set by tables and by the system's own values)                                                      | `today.lost`, `today.fordModifier`       |
+| `yesterday.*`        | the day before's                                                                                                          | `yesterday.lost`                         |
+| `from.*`, `around.*` | the hex left when entering one, the hexes around                                                                          | `from.terrain`, `around.terrain`         |
 
 The short name and the full name read the same value: `terrain: forest` and `hex.terrain: forest` hold in the same hexes, and `{{season}}` writes the same as `{{time.season}}`. Use whichever reads better:
 
@@ -66,19 +66,24 @@ Points of interest keep their values in the map and its file, but tables don't r
 
 **The trip**, `trip.*`:
 
-| Full name                        | Short name             | What it is                                                                                                                                                                              |
-| -------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trip.day`                       | `tripDay`              | The day of this trip: 1 the day it started.                                                                                                                                             |
-| `trip.mode`                      | `mode`                 | The way of travelling (`foot`, `horse`, `boat`…).                                                                                                                                       |
-| `trip.weather`                   | `weather`              | Today's weather, once a table has set it.                                                                                                                                               |
-| `trip.edges`                     | `edges`                | The roads, trails or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.                                                                 |
-| `trip.marched`                   | `marched`              | Hours marched today.                                                                                                                                                                    |
-| `trip.doneToday`                 | `doneToday`            | The actions taken today, by id (a list): `trip.doneToday: forage`.                                                                                                                      |
-| `trip.routeLeft`, `trip.arrived` | `routeLeft`, `arrived` | Hexes left to the destination, and whether the party is there.                                                                                                                          |
-| `trip.visits`                    | `visits`               | Times the party has been in this hex during the trip: `1` the first time.                                                                                                               |
-| `trip.moment`                    | `moment`               | For a system's actions and checks: the moment that brought them: `day-start`, `hex-enter`, `day-end` or an action's id (for an action with `on:` or a check with `at:` naming several). |
-| `trip.below`, `trip.above`       | `below`, `above`       | The ids of the values (supplies, stats) an effect tried to take past their `min` (`trip.below: food`) or `max` that day. Older packs' `short` is true when something is in `below`.     |
-| `trip.doing`                     | `doing`                | The action under way (`camp`; at `day-end`, the one the day ended in). Older packs' `camping` is true while the night's action is under way.                                            |
+| Full name                                     | Short name             | What it is                                                                                                                                                                              |
+| --------------------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trip.day`                                    | `tripDay`              | The day of this trip: 1 the day it started.                                                                                                                                             |
+| `trip.mode`                                   | `mode`                 | The way of travelling (`foot`, `horse`, `boat`…).                                                                                                                                       |
+| `trip.weather`                                | `weather`              | Today's weather, once a table has set it.                                                                                                                                               |
+| `trip.edges`                                  | `edges`                | The roads, trails or rivers of the stretch: the one just walked when entering a hex, the one ahead at dawn and in camp.                                                                 |
+| `trip.marched`                                | `marched`              | Hours marched today.                                                                                                                                                                    |
+| `trip.doneToday`                              | `doneToday`            | The actions taken today, by id (a list): `trip.doneToday: forage`.                                                                                                                      |
+| `trip.routeLeft`, `trip.arrived`              | `routeLeft`, `arrived` | Hexes left to the destination, and whether the party is there.                                                                                                                          |
+| `trip.visits`                                 | `visits`               | Times the party has been in this hex during the trip: `1` the first time.                                                                                                               |
+| `trip.moment`                                 | `moment`               | For a system's actions and checks: the moment that brought them: `day-start`, `hex-enter`, `day-end` or an action's id (for an action with `on:` or a check with `at:` naming several). |
+| `trip.below`, `trip.above`                    | `below`, `above`       | The ids of the values (supplies, stats) an effect tried to take past their `min` (`trip.below: food`) or `max` that day. Older packs' `short` is true when something is in `below`.     |
+| `trip.doing`                                  | `doing`                | The action under way (`camp`; at `day-end`, the one the day ended in). Older packs' `camping` is true while the night's action is under way.                                            |
+| `trip.hexes`, `trip.km`                       | —                      | The trip so far: hexes entered, and their km at the map's scale (the system's, without a map). `trip.km: { gte: 100 }`: once the party has covered 100 km.                              |
+| `trip.hours`                                  | —                      | Hours marched since the trip started (`trip.marched` is today's).                                                                                                                       |
+| `trip.taken.<action>`                         | —                      | Times each action was taken during the trip, by the player or by the system itself: `trip.taken.camp: { gte: 7 }`, from the seventh camp on.                                            |
+| `trip.checks`                                 | —                      | Checks that have come up during the trip.                                                                                                                                               |
+| `trip.spent.<supply>`, `trip.gained.<supply>` | —                      | How much the system's actions, checks and tables have taken from a supply, and added to it (hand edits of the amounts don't count): `trip.spent.food: { gte: 10 }`.                     |
 
 **Around the party:**
 

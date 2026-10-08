@@ -2,7 +2,9 @@ import {
   changeValue,
   hexIdOf,
   momentRolls,
+  noTotals,
   resolveChange,
+  tallySupply,
   upgradeTravelState,
   type Bounds,
   type TravelState,
@@ -30,7 +32,7 @@ export interface ValueBounds extends Bounds {
 export interface EffectTarget {
   stats: Record<string, number>
   travel: Pick<TravelState, 'resources' | 'reached'> &
-    Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
+    Partial<Pick<TravelState, 'seed' | 'day' | 'location' | 'totals'>>
 }
 
 /** One change that happened: the path, before and after. */
@@ -122,6 +124,8 @@ export function applyEffects(
     )
     values[id] = to
     if (to !== from) applied.push({ path, from, to })
+    // What effects take from the supplies, and add, counts in the trip's totals.
+    if (!stat) tallySupply(target.travel, id, from, to)
     if (limit) {
       limits.push({ path, limit, value: to })
       const key = limit === 'min' ? 'below' : 'above'
@@ -159,4 +163,23 @@ export function migrateFatigue<S extends { stats: Record<string, number>; travel
 export function migrateLost<S extends { travel: TravelState }>(session: S): S {
   const travel = upgradeTravelState(session.travel)
   return travel === session.travel ? session : { ...session, travel }
+}
+
+/**
+ * Older saved trips had no totals (`travel.totals`): rebuilt from their journal what it
+ * says (hexes entered, actions taken); the rest (hours marched, checks, supplies spent)
+ * counts from then on (returns a copy).
+ */
+export function migrateTotals<
+  S extends { travel: TravelState; journal: { code: string; data?: Record<string, unknown> }[] },
+>(session: S): S {
+  if (session.travel.totals) return session
+  const totals = noTotals()
+  for (const entry of session.journal) {
+    if (entry.code === 'HEX_ENTERED') totals.hexes++
+    const action = entry.data?.action
+    if (entry.code === 'ACTION_TAKEN' && typeof action === 'string')
+      totals.taken[action] = (totals.taken[action] ?? 0) + 1
+  }
+  return { ...session, travel: { ...session.travel, totals } }
 }

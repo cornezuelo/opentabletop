@@ -1,6 +1,7 @@
 import {
   migrateFatigue,
   migrateLost,
+  migrateTotals,
   SEASON_START_DAYS,
   startTrip,
   stepTrip,
@@ -14,9 +15,10 @@ import { wayWorld, type WayHex } from './way'
 
 /**
  * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the
- * system declares (`today.lost`). Both migrated on reading.
+ * system declares (`today.lost`); v4: the trip's totals (`travel.totals`), rebuilt from the
+ * journal. All migrated on reading.
  */
-const VERSION = 3
+const VERSION = 4
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -80,7 +82,7 @@ export function readTrips(
         ...t,
         id: t.id || newTripId(),
         name: t.name ?? '',
-        session: t.session && migrateLost(migrateFatigue(t.session)),
+        session: t.session && migrateTotals(migrateLost(migrateFatigue(t.session))),
       }))
       if (trips.length)
         return {

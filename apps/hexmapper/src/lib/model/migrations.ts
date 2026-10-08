@@ -6,7 +6,7 @@ import {
   DEFAULT_REGION_STYLE,
 } from './defaults'
 import { newId } from './id'
-import { migrateFatigue, migrateLost } from '@open-tabletop/session'
+import { migrateFatigue, migrateLost, migrateTotals } from '@open-tabletop/session'
 
 /**
  * `migrations[n]` upgrades raw data from version n to n + 1. Every format change
@@ -134,6 +134,16 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     const scale = data.scale as { hexKm?: unknown } | undefined
     if (scale?.hexKm !== 10) return data
     return { ...data, scale: {} }
+  },
+  /** v16: the trip's totals (`travel.totals`: hexes, hours, actions…), rebuilt from its journal. */
+  15(data) {
+    const play = data.play as { rules?: { session?: unknown } } | undefined
+    const session = play?.rules?.session as Parameters<typeof migrateTotals>[0] | undefined
+    if (!session?.travel || !Array.isArray(session.journal)) return data
+    return {
+      ...data,
+      play: { ...play, rules: { ...play!.rules, session: migrateTotals(session) } },
+    }
   },
 }
 

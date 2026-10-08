@@ -26,6 +26,7 @@ import {
   applyResult,
   applyEffects,
   effectsOf,
+  migrateTotals,
   toOutcome,
   tripChanges,
   tripContext,
@@ -560,5 +561,27 @@ entries:
     })
     // Effects on the party are the session's (effectsOf), not the travel engine's.
     expect(toOutcome({ resources: { food: 2 }, fatigue: -1 })).toEqual({})
+  })
+})
+
+describe('older trips without totals', () => {
+  it('rebuild hexes and actions from the journal', () => {
+    const travel = initialTravelState({ location: 'a', mode: 'walk' })
+    delete travel.totals
+    const journal = [
+      { code: 'HEX_ENTERED', data: { hex: 'b' } },
+      { code: 'ACTION_TAKEN', data: { action: 'camp' } },
+      { code: 'NOTE' },
+    ]
+    const migrated = migrateTotals({ travel, journal })
+    expect(migrated.travel.totals).toEqual({
+      hexes: 1,
+      marched: 0,
+      taken: { camp: 1 },
+      checks: 0,
+      spent: {},
+      gained: {},
+    })
+    expect(migrateTotals(migrated)).toBe(migrated)
   })
 })

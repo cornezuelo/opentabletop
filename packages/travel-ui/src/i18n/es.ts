@@ -13,6 +13,14 @@ export const es: Messages<typeof en> = {
     'Estas reglas no tienen tablas asociadas: las comprobaciones solo se apuntan en el diario, y detienen el viaje cuando pausan.',
   noChecks: 'Estas reglas no tienen comprobaciones: un viaje solo gasta tiempo y provisiones.',
   marched: 'Marcha de hoy: {used} de {limit} h',
+  totals: {
+    title: 'Hasta ahora: {hexes} hexes{km} · {hours} de marcha',
+    km: ' · {km} km',
+    checks: 'Comprobaciones: {count}',
+    taken: 'Acciones: {list}',
+    spent: 'Gastado: {list}',
+    gained: 'Obtenido: {list}',
+  },
   dayUnit: 'día',
   journalDay: 'Día {day}',
   dateLine: '{weekday}, {day} de {month}, año {year}',
@@ -42,6 +50,8 @@ export const es: Messages<typeof en> = {
     actionEffects: 'Cambia: {changes}.',
     actionOnce: 'Una vez al día.',
     readAs: 'Las tablas lo leen como {keys}.',
+    totals:
+      'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido a cada provisión sus acciones, comprobaciones y tablas (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.hexes`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
     exportJournal:
       'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',

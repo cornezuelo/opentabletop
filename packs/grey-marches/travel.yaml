@@ -218,6 +218,17 @@ actions:
     do:
       - { set: { torchlit: true } }
       - { effects: { party.stats.fatigue: 1 } }
+  # Once a trip: what the trip has done so far (`trip.km`, the hexes entered at the map's
+  # scale; `trip.taken.tale`, the times this action was taken, 0 until it is). After 50 km
+  # on the road, an evening of tales around the fire; its button only shows then.
+  tale:
+    name: Tales of the road
+    description: 'Once a trip, after 50 km on the road, from nightfall: an hour of tales around the fire. Morale +1.'
+    when: { trip.km: { gte: 50 }, trip.taken.tale: { lt: 1 }, time.daylight: false }
+    hideWhenUnavailable: true
+    do:
+      - { time: 60 }
+      - { effects: { party.stats.morale: 1 } }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED

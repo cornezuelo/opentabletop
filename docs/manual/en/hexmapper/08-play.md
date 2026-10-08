@@ -14,7 +14,7 @@ The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app
 2. Click a hex to place the party, then click the **destination**: the route is drawn.
 3. **Travel** goes on until you arrive, night falls, the day's marching hours run out or a check needs you. **1 hex** moves one hex. **Camp** sleeps until dawn; **Rest** is a short pause (each system declares which actions it has, and when they can be taken). When the party can't take the night's action (the Grey Marches camp only with food left and fatigue under 10), **Travel** at nightfall (or in a storm that keeps it in) passes the night without it and marches on at dawn. **Wait until dawn** always lets time pass where the party is, living the night: for a day nothing else can be done (lost, no food to camp). The [World clock](12-world.md#with-a-trip-going-on) moves the trip on too: with a route planned, **Next day** travels along it.
 
-The panel shows the day, time and season, where the party is, the weather, the marching hours used, the travel mode (on foot, on horseback…), supplies, fatigue and the system's party stats (e.g. the Grey Marches' Survival).
+The panel shows the day, time and season, where the party is, the weather, the marching hours used, the travel mode (on foot, on horseback…), supplies, fatigue and the system's party stats (e.g. the Grey Marches' Survival), and **So far**: what the trip has done (hexes, km, hours marched, checks, actions, supplies spent and gained; see [Playing a trip](../travel/02-playing.md#the-trip)).
 
 A trip keeps the system it started with. If the map's system changes later (in **Map settings**, or undoing a change), the panel says so and the trip plays on with its own; **New trip** starts one with the map's.
 

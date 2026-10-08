@@ -452,6 +452,26 @@ entries:
     expect(result?.data?.value).toMatchObject({ effects: { 'party.resources.food': -2 } })
   })
 
+  it('what tables and actions spend counts in the trip’s totals (trip.spent)', () => {
+    const { session } = startTrip({ system, location: 'a' })
+    session.travel.resources.food = 10
+    const options = {
+      system,
+      world: danger(2),
+      oracle: createOracleEngine({ registry: mouths, random: sequence([0.5]) }),
+    }
+    const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+    const { state } = stepTrip(options, planned, { type: 'travel' })
+    // The ambush's 2, from its table.
+    expect(state.travel.totals).toMatchObject({ hexes: 1, checks: 1, spent: { food: 2 } })
+    expect(tripFacts(options, state)).toMatchObject({
+      trip: { hexes: 1, km: state.travel.totals!.hexes * world.hexKm, spent: { food: 2 } },
+    })
+    // A day ends: the three mouths eat (an action the system takes by itself).
+    const fed = stepTrip(options, state, { type: 'wait', until: state.travel.time + 24 * 60 })
+    expect(fed.state.travel.totals).toMatchObject({ spent: { food: 5 }, taken: { eat: 1 } })
+  })
+
   it('in effects: as many as a stat says, or set to it', () => {
     const { session } = startTrip({ system, location: 'a' })
     session.travel.resources.food = 10

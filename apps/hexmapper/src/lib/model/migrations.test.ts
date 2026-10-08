@@ -44,3 +44,26 @@ describe('the map’s scale (v15)', () => {
     expect(migrate({ version: 14, scale: { hexKm: 30 } }).scale).toEqual({ hexKm: 30 })
   })
 })
+
+describe('the trip’s totals (v16)', () => {
+  it('rebuilds hexes entered and actions taken from the journal; the rest counts from now', () => {
+    const journal = [
+      { code: 'HEX_ENTERED', data: { hex: '1,0' } },
+      { code: 'HEX_ENTERED', data: { hex: '2,0' } },
+      { code: 'ACTION_TAKEN', data: { action: 'camp' } },
+      { code: 'ACTION_TAKEN', data: { action: 'eat', on: 'day-end' } },
+      { code: 'ACTION_TAKEN', data: { action: 'camp' } },
+    ]
+    const play = { rules: { system: 'generic', session: { travel: { day: 3 }, journal } } }
+    const data = migrate({ version: 15, play }) as { play: typeof play }
+    expect((data.play.rules.session.travel as Record<string, unknown>).totals).toEqual({
+      hexes: 2,
+      marched: 0,
+      taken: { camp: 2, eat: 1 },
+      checks: 0,
+      spent: {},
+      gained: {},
+    })
+    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 16, meta: {} })
+  })
+})

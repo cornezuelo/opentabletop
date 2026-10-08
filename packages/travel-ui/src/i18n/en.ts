@@ -10,6 +10,14 @@ export const en = {
     'These rules have no tables bound: checks are only written in the journal, and stop the trip when they pause.',
   noChecks: 'These rules have no checks: a trip only spends time and supplies.',
   marched: 'Marched today: {used} of {limit} h',
+  totals: {
+    title: 'So far: {hexes} hexes{km} · {hours} marched',
+    km: ' · {km} km',
+    checks: 'Checks: {count}',
+    taken: 'Actions: {list}',
+    spent: 'Spent: {list}',
+    gained: 'Gained: {list}',
+  },
   dayUnit: 'day',
   journalDay: 'Day {day}',
   dateLine: '{weekday}, {day} {month}, year {year}',
@@ -40,6 +48,8 @@ export const en = {
     actionEffects: 'Changes: {changes}.',
     actionOnce: 'Once a day.',
     readAs: 'Tables read it as {keys}.',
+    totals:
+      'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from each supply or added to it (your own edits of the amounts don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.hexes`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
     exportJournal:
       'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',

@@ -308,6 +308,36 @@ describe('bundled open packs', () => {
       expect(outcomes.map((_, i) => kept(`talk-${i}`))).toEqual(outcomes)
     })
 
+    it('tales of the road: once a trip, after 50 km, from nightfall', () => {
+      const options = play(
+        Array.from({ length: 8 }, () => ({ terrain: 'plains' })),
+        true,
+        'tale',
+      )
+      const calendar = calendarOf(system)
+      let { session } = startTrip({ system, location: '0', season: 'summer', stats: { morale: 2 } })
+      const nightfall = () => calendar.at(session.travel.day, '20:00')
+      const tale = () => stepTrip(options, session, { type: 'action', id: 'tale' })
+      // The first day's march, by road: 30 km by nightfall, not far enough yet.
+      session = stepTrip(options, session, { type: 'setDestination', hex: '7' }).state
+      session = stepTrip(options, session, { type: 'travel', by: nightfall() }).state
+      expect(session.travel.totals?.hexes).toBe(3)
+      expect(took(tale().entries, 'tale')).toBe(false)
+      // Two more days along the road: past 50 km, it can be told once, by night only.
+      session = stepTrip(options, session, {
+        type: 'travel',
+        by: calendar.at(session.travel.day + 2, '20:00'),
+      }).state
+      expect(session.travel.totals!.hexes * 10).toBeGreaterThanOrEqual(50)
+      const told = tale()
+      expect(took(told.entries, 'tale')).toBe(true)
+      expect(told.state.stats.morale).toBe(session.stats.morale + 1)
+      expect(told.state.travel.totals?.taken.tale).toBe(1)
+      expect(
+        took(stepTrip(options, told.state, { type: 'action', id: 'tale' }).entries, 'tale'),
+      ).toBe(false)
+    })
+
     it('a restless watch with low morale', () => {
       const options = play([{ terrain: 'plains' }], false, 'watch')
       const camp = (morale: number) => {
