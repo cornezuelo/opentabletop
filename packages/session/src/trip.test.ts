@@ -408,10 +408,10 @@ terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { food: { min: 0 } }
 checks:
-  - { event: AMBUSH, at: hex-enter, when: { danger: { gt: $party.stats.stealth } } }
+  - { event: AMBUSH, at: hex-enter, when: { danger: { gt: '{{party.stats.stealth}}' } } }
 actions:
-  eat: { on: day-end, do: [{ effects: { party.resources.food: -$party.stats.mouths } }] }
-  feast: { do: [{ effects: { party.stats.morale: =$party.stats.mouths } }] }
+  eat: { on: day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
+  feast: { do: [{ effects: { party.stats.morale: '={{party.stats.mouths}}' } }] }
 ---
 kind: bindings
 on: { AMBUSH: { resolve: ambush } }
@@ -424,7 +424,7 @@ kind: table
 id: ambush
 roll: 1d6
 entries:
-  - { range: 1-6, result: Ambush!, set: { loss: 2 }, effects: { party.resources.food: -$loss } }
+  - { range: 1-6, result: Ambush!, set: { loss: 2 }, effects: { party.resources.food: '-{{loss}}' } }
 `,
     },
   ])

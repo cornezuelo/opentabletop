@@ -57,7 +57,7 @@ entries:
 
 ## 4. Results the trip understands
 
-An entry (or a deck's card) changes the party with **effects**: each one is a value the system declares, by the path tables read it with. A number adds or subtracts; `'=value'` sets it; dice and values work inside (`'{{1d3+1}}'`); `$` takes another value as the amount (`-$party.stats.mouths`, `=$party.stats.endurance`, or `-$loss`, a value the entry sets). A value stops at the `min` and `max` its system declares (stats and supplies alike); without them it may go anywhere, negative too.
+An entry (or a deck's card) changes the party with **effects**: each one is a value the system declares, by the path tables read it with. A number adds or subtracts; `'=value'` sets it; a roll or a variable works inside (`'{{1d3+1}}'`; `'-{{party.stats.mouths}}'` takes away as many as another value, `'={{party.stats.endurance}}'` sets it to it, `'-{{loss}}'` reads a value the entry sets). A value stops at the `min` and `max` its system declares (stats and supplies alike); without them it may go anywhere, negative too.
 
 ```yaml
 - { id: berries, range: 6, result: 'Berries: +2 food', effects: { party.resources.food: 2 } }
@@ -206,16 +206,16 @@ Blocked buttons stay visible, disabled, and say why with the value's name ("Lost
 
 **actions** are what the party does. Camp and rest are actions like any other: an id, conditions, steps; the trip panel shows each one as a button next to **Travel**, by its `name` (and its `description` as help). Rules that don't declare `camp` or `rest` still get the usual ones (sleep until dawn, rest an hour), and `camp: false` leaves one out.
 
-**Marching is an action too**, `march`: not a button of its own but the **Travel** buttons. Its `when` / `unless` say when the party can march, and they're checked as it marches: it stops the moment they no longer hold (said in the journal as night falling, the day's hours spent, or the system's rule). Without `when`, the party marches by day for the day's marching hours, as `when: { daylight: true, marched: { lt: $hoursPerDay } }`; an `unless` adds to that. It has no steps, and nothing takes it but the Travel buttons. The Grey Marches march by day or, after a night march, by torchlight until midnight:
+**Marching is an action too**, `march`: not a button of its own but the **Travel** buttons. Its `when` / `unless` say when the party can march, and they're checked as it marches: it stops the moment they no longer hold (said in the journal as night falling, the day's hours spent, or the system's rule). Without `when`, the party marches by day for the day's marching hours, as `when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } }`; an `unless` adds to that. It has no steps, and nothing takes it but the Travel buttons. The Grey Marches march by day or, after a night march, by torchlight until midnight:
 
 ```yaml
 values:
   torchlit: { name: By torchlight }
 actions:
   march:
-    when: { any: [{ daylight: true, marched: { lt: $hoursPerDay } }, { torchlit: true }] }
+    when: { any: [{ daylight: true, marched: { lt: '{{hoursPerDay}}' } }, { torchlit: true }] }
   night-march:
-    when: { hour: { gte: $nightfall } }
+    when: { hour: { gte: '{{nightfall}}' } }
     do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
 ```
 

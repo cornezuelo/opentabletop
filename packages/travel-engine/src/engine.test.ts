@@ -1187,7 +1187,7 @@ describe('actions the system triggers, and bounded values', () => {
     expect(availableActions(older!).all).toEqual({
       camp: { name: 'Camp', do: [{ time: 'dawn' }] },
       rest: { name: 'Rest', do: [{ time: 60 }] },
-      march: { when: { daylight: true, marched: { lt: '$hoursPerDay' } } },
+      march: { when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } } },
     })
   })
 
@@ -1377,12 +1377,12 @@ describe('day and night, and marching as the system says', () => {
       // By day for the day's hours, or by torchlight until midnight.
       march: {
         when: {
-          any: [{ daylight: true, marched: { lt: '$hoursPerDay' } }, { torchlit: true }],
+          any: [{ daylight: true, marched: { lt: '{{hoursPerDay}}' } }, { torchlit: true }],
         },
       },
       rest: { when: { daylight: true }, do: [{ time: 120 }] },
       'night-march': {
-        when: { daylight: false, hour: { gte: '$nightfall' } },
+        when: { daylight: false, hour: { gte: '{{nightfall}}' } },
         hideWhenUnavailable: true,
         oncePerDay: true,
         do: [{ set: { torchlit: true } }],
@@ -1437,7 +1437,9 @@ describe('day and night, and marching as the system says', () => {
   it('stops for a rule of the system’s own, said as such', () => {
     const tired = parseTravelRules({
       ...rules!,
-      actions: { march: { unless: { 'party.stats.fatigue': { gte: '$party.stats.endurance' } } } },
+      actions: {
+        march: { unless: { 'party.stats.fatigue': { gte: '{{party.stats.endurance}}' } } },
+      },
     })
     const engine = createTravelEngine({ world, rules: tired.rules! })
     const planned = engine.apply(resolveAll(start()).state, {
@@ -1561,6 +1563,77 @@ describe('what conditions read of the moment, the trip and the land around', () 
     const { events } = engine.apply(planned, { type: 'travel' })
     expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
       check: { event: 'LEFT_MOUNTAINS', context: { from: { hex: '3,0', terrain: 'mountains' } } },
+    })
+  })
+})
+
+describe('variables and rolls in conditions and effects', () => {
+  const { rules: own } = parseTravelRules({
+    ...rules!,
+    actions: {
+      // A roll-under against a stat: the same roll however often it's asked, that day there.
+      scout: {
+        when: { 'party.stats.wits': { gte: '{{1d20}}' } },
+        do: [{ effects: { 'party.resources.food': '-{{party.stats.mouths}}' } }],
+      },
+      hunt: { do: [{ effects: { 'party.resources.food': '+{{1d3}}' } }] },
+      feast: { do: [{ effects: { 'party.resources.food': '={{party.stats.mouths}}' } }] },
+    },
+  })
+  const engine = createTravelEngine({ world, rules: own! })
+  const party = { party: { stats: { wits: 10, mouths: 2 } } }
+  const trip = (seed: string, location = '0,0') => ({
+    ...initialTravelState({ location, mode: 'foot', resources: { food: 5 }, seed }),
+    dayChecksDone: true,
+  })
+
+  it('roll once per day, hex and moment: availability doesn’t flicker', () => {
+    const answers = new Set<boolean>()
+    const seeds = Array.from({ length: 12 }, (_, i) => `trip-${i}`)
+    for (const seed of seeds) {
+      const first = engine.availability(trip(seed), party).scout === undefined
+      for (let i = 0; i < 5; i++)
+        expect(engine.availability(trip(seed), party).scout === undefined).toBe(first)
+      answers.add(first)
+    }
+    // Different trips roll differently: some can scout, some can't.
+    expect([...answers].sort()).toEqual([false, true])
+  })
+
+  it('take what a variable names, and roll the dice of an effect within them', () => {
+    const fed = (action: string, seed = 'a') =>
+      engine.apply(trip(seed), { type: 'action', id: action }, party).state.resources.food
+    expect(fed('feast')).toBe(2)
+    const hunted = Array.from({ length: 10 }, (_, i) => fed('hunt', `s${i}`))
+    for (const food of hunted) expect([6, 7, 8]).toContain(food)
+    expect(new Set(hunted).size).toBeGreaterThan(1)
+    // Hunting again the same day and hex is the same roll.
+    expect(fed('hunt', 's1')).toBe(hunted[1])
+    const scouts = ['a', 'b', 'c', 'd', 'e', 'f'].map((seed) => {
+      const state = trip(seed)
+      return engine.availability(state, party).scout === undefined
+        ? engine.apply(state, { type: 'action', id: 'scout' }, party).state.resources.food
+        : undefined
+    })
+    expect(scouts.filter((f) => f !== undefined).every((f) => f === 3)).toBe(true)
+  })
+})
+
+describe('progress made on a slower day', () => {
+  it('enters the hex at once when the way got faster, and time never goes back', () => {
+    const planned = engine.apply(resolveAll(start()).state, {
+      type: 'setDestination',
+      hex: '2,0',
+    }).state
+    // Ten hours towards a hex in heavy rain (half speed: 960 minutes then); the rain is
+    // gone and it costs 480 now, already walked.
+    const walked = { ...planned, progress: 600, dayChecksDone: true }
+    const { state, events } = engine.apply(walked, { type: 'travel', until: 'hex' })
+    expect(state.time).toBe(walked.time)
+    expect(state.travelledToday).toBe(0)
+    expect(events.find((e) => e.type === 'HEX_ENTERED')).toMatchObject({
+      hex: '1,0',
+      time: walked.time,
     })
   })
 })

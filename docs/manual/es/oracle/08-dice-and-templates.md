@@ -1,4 +1,4 @@
-# Dados, plantillas y contexto
+# Dados, variables y contexto
 
 Esta página reúne todo lo que se puede escribir en los dados de una tabla, en sus textos y en sus condiciones, y de dónde salen los valores. No hace falta nada más: no hay que abrir ningún JSON ni declarar una lista de variables; una tabla lee lo que contenga su contexto cuando se tira.
 
@@ -35,21 +35,35 @@ entries:
 
 Usa pesos cuando ningún dado da la probabilidad que quieres, o para hacer más raros algunos resultados sin renumerar los rangos. Sin ningún peso, todas las entradas son igual de probables (las _Ruinas_ de las Marcas Grises). Las entradas que una condición (`when`) deja fuera no cuentan, así que las demás se reparten su probabilidad. Una tabla usa dados y rangos o pesos, no las dos cosas; los modos de tirada necesitan dados. En las Marcas Grises, _Oficios_ y _Verano en las Marcas_ usan pesos.
 
-## Plantillas en los textos
+## Variables en los textos
 
-Los textos (resultados, plantillas de generador, textos de carta) pueden incluir `{{…}}`:
+`{{…}}` lleva una **variable** (`{{season}}`: el valor con ese nombre) o una **tirada** (`{{2d6}}`: dados). Los textos (resultados, plantillas de generador, textos de carta) pueden incluirlas:
 
 | Escribe        | Muestra                                                                                                                        |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `{{2d6}}`      | Una tirada, ahí mismo: `'{{2d6}} lobos'` → «7 lobos».                                                                          |
-| `{{season}}`   | Un valor del contexto.                                                                                                         |
+| `{{season}}`   | Una variable: un valor del contexto.                                                                                           |
 | `{{npc.role}}` | Una parte de un valor (el campo de un generador guarda los valores de su tabla).                                               |
 | `{{result}}`   | En una entrada con **luego tira**: el texto de la tabla que tiró, p. ej. `'Bandidos: están {{result}}'` con `table: reaction`. |
 | `{{campo}}`    | En la plantilla de un generador: el valor de un campo (su texto, si vino de una tabla).                                        |
 
-Un valor que falta no muestra nada. Las plantillas nunca ejecutan código: solo buscan valores y tiran dados.
+Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores y tiran dados. Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
 
-Las referencias a tablas y generadores también pueden ser plantillas: `table: 'weather-{{season}}'` tira `weather-spring`, `weather-autumn`… según la estación.
+Las referencias a tablas y generadores también pueden usar variables: `table: 'weather-{{season}}'` tira `weather-spring`, `weather-autumn`… según la estación.
+
+## Variables y tiradas en las condiciones
+
+Las condiciones comparan igual con una variable o una tirada: `when: { danger: { gt: '{{party.stats.stealth}}' } }`, o una tirada por debajo de una característica:
+
+```yaml
+kind: table
+id: climb-the-wall
+entries:
+  - { id: up, result: Lo escalas, when: { party.stats.str: { gte: '{{1d20}}' } } }
+  - { id: fall, result: Te caes, unless: { party.stats.str: { gte: '{{1d20}}' } } }
+```
+
+En una tirada de la tabla, los mismos dados son la misma tirada en todas partes, así que sale exactamente una de las dos entradas, y la tarjeta del resultado muestra el d20. Más en [Condiciones](../technical/08-conditions.md#variables-y-tiradas).
 
 ## De dónde salen los valores del contexto
 
@@ -63,7 +77,7 @@ Cuando se tira una definición recibe un **contexto**: un conjunto de valores co
    - Los valores que **fija** (`set`) una entrada pasan a la tabla que tira después (**luego tira**) y forman parte del resultado.
    - Los **campos** de un generador se tiran en orden y cada uno ve los anteriores; el `context: { … }` de un campo añade valores solo para ese campo.
 
-Las condiciones (`when`) leen el mismo contexto. Consulta [Referencia YAML](06-yaml.md#condiciones) para su sintaxis.
+Las condiciones (`when`) leen el mismo contexto, y también las variables. Consulta [Referencia YAML](06-yaml.md#condiciones) para su sintaxis.
 
 ## Todo junto
 

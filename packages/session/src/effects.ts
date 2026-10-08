@@ -1,5 +1,6 @@
 import {
   changeValue,
+  momentRolls,
   resolveChange,
   upgradeTravelState,
   type Bounds,
@@ -9,9 +10,10 @@ import {
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
  * with (`party.stats.morale`, `party.resources.food`). A number adds or subtracts (also
- * written as text: '+2'), '=value' sets; `$name` is another value (`-$party.stats.mouths`,
- * `=$party.stats.endurance`), read when it's applied. One vocabulary for table entries, deck cards and
- * actions; the engines only pass them on, the session applies them.
+ * written as text: '+2'), '=value' sets; a variable is another value
+ * (`'-{{party.stats.mouths}}'`, `'={{party.stats.endurance}}'`) and dice a roll (`'-{{1d3}}'`),
+ * read when it's applied. One vocabulary for table entries, deck cards and actions; the
+ * engines only pass them on, the session applies them.
  */
 export type Effects = Record<string, number | string>
 
@@ -26,7 +28,8 @@ export interface ValueBounds extends Bounds {
  */
 export interface EffectTarget {
   stats: Record<string, number>
-  travel: Pick<TravelState, 'resources' | 'reached'>
+  travel: Pick<TravelState, 'resources' | 'reached'> &
+    Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
 }
 
 /** One change that happened: the path, before and after. */
@@ -59,7 +62,7 @@ export function effectsOf(value: Record<string, unknown>): Effects {
   const add = (path: string, change: unknown) => {
     const n = number(change)
     if (n !== undefined) out[path] = (number(out[path]) ?? 0) + n
-    else if (typeof change === 'string' && /^\s*(=|[+-]?\$)/.test(change)) out[path] = change
+    else if (typeof change === 'string' && /^\s*(=|[+-]?\s*\{\{)/.test(change)) out[path] = change
   }
   const record = (v: unknown) =>
     typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {}
@@ -84,9 +87,21 @@ export function applyEffects(
   effects: Effects,
   bounds: Record<string, ValueBounds> = {},
   resources: Record<string, Bounds> = {},
-  /** What `$name` changes read (the trip's context); none: they change nothing. */
+  /**
+   * What variables in the changes read (the trip's context; none: they change nothing).
+   * Their rolls are the trip's, fixed for the moment the context says (`moment`, `hex`).
+   */
   context: Record<string, unknown> = {},
 ): { applied: AppliedEffect[]; limits: LimitReached[]; unknown: string[] } {
+  const { travel } = target
+  const roller =
+    travel.day !== undefined
+      ? momentRolls(
+          { seed: travel.seed, day: travel.day, location: travel.location ?? '' },
+          typeof context.hex === 'string' ? context.hex : undefined,
+          typeof context.moment === 'string' ? context.moment : undefined,
+        )
+      : undefined
   const applied: AppliedEffect[] = []
   const limits: LimitReached[] = []
   const unknown: string[] = []
@@ -101,7 +116,7 @@ export function applyEffects(
     const from = values[id] ?? (stat ? bounds[id]?.default : undefined) ?? 0
     const { to, limit } = changeValue(
       from,
-      resolveChange(change, context),
+      resolveChange(change, context, roller),
       stat ? bounds[id] : resources[id],
     )
     values[id] = to

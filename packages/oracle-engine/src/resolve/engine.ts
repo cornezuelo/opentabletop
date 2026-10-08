@@ -1,6 +1,7 @@
-import { matches, resolvePath } from '@open-tabletop/conditions'
+import { matches, resolvePath, type Condition } from '@open-tabletop/conditions'
 import { parseDice, roll, type DiceExpression, type DiceResult } from '@open-tabletop/dice'
 import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/random'
+import { evaluate, isRoll, onceRoller, render, type Roller } from '@open-tabletop/variables'
 import {
   resolveRef,
   type RollMode,
@@ -83,7 +84,6 @@ export interface EngineOptions {
 
 export class OracleError extends Error {}
 
-const DICE = /^\s*\d*d(\d+|%|f)(k[hl]\d*)?(\s*[+-]\s*\d+)?\s*$/i
 const MAX_REROLLS = 20
 
 export interface OracleEngine {
@@ -193,6 +193,25 @@ class Run {
     private onEvent?: (event: OracleEvent) => void,
   ) {}
 
+  /** Where the dice conditions roll are told (the node being resolved). */
+  private rollingFor: Resolution | undefined
+  /**
+   * The dice conditions name (`gte: '{{1d20}}'`), rolled once in a resolution: every entry
+   * that asks for the same dice sees the same roll (a roll-under and its `unless`).
+   */
+  private conditionRolls: Roller | undefined
+
+  /** Whether a condition holds, its dice rolled once in this resolution. */
+  private holds(
+    condition: Condition | undefined,
+    context: Record<string, unknown>,
+    node: Resolution | undefined,
+  ): boolean {
+    this.rollingFor = node
+    this.conditionRolls ??= onceRoller(this.random, (result) => this.rollingFor?.rolls.push(result))
+    return matches(condition, context, { roller: this.conditionRolls })
+  }
+
   resolve(
     def: Compiled,
     context: Record<string, unknown>,
@@ -235,7 +254,7 @@ class Run {
         const scope: Record<string, unknown> = { ...context }
         const node = this.node(def, context)
         for (const field of def.fields) {
-          if (field.when && !matches(field.when, scope)) continue
+          if (field.when && !this.holds(field.when, scope, node)) continue
           const fieldContext = { ...scope, ...this.evalValues(field.context, scope, node) }
           let value: unknown
           if (field.kind === 'table' || field.kind === 'generator') {
@@ -277,14 +296,15 @@ class Run {
     def: Compiled,
     context: Record<string, unknown>,
     chosen: string | undefined,
+    node: Resolution,
   ): RollMode | undefined {
     if (def.kind !== 'table' && def.kind !== 'oracle') return undefined
     const active = [
       ...(chosen && def.modes.includes(chosen) ? [chosen] : []),
       ...[...Object.keys(def.modeWhen), ...Object.keys(def.modeUnless)].filter(
         (id) =>
-          matches(def.modeWhen[id], context) &&
-          !(def.modeUnless[id] && matches(def.modeUnless[id], context)),
+          this.holds(def.modeWhen[id], context, node) &&
+          !(def.modeUnless[id] && this.holds(def.modeUnless[id], context, node)),
       ),
     ]
       .filter((id, i, all) => all.indexOf(id) === i)
@@ -306,10 +326,10 @@ class Run {
   ): Resolution {
     const node = this.node(def, context)
     const exhausted = (e: CompiledEntry) => this.exhausted(def.id, variant, e)
-    const candidates = list.entries.filter((e) => !e.when || matches(e.when, context))
+    const candidates = list.entries.filter((e) => !e.when || this.holds(e.when, context, node))
     if (candidates.length === 0) return node
 
-    const mode = this.modeFor(def, context, chosen)
+    const mode = this.modeFor(def, context, chosen, node)
     if (mode) node.mode = mode.id
     let entry = this.pick(list, candidates, context, node, mode, def.clamp ?? true)
     if (entry && exhausted(entry)) {
@@ -499,15 +519,7 @@ class Run {
     scope: Record<string, unknown>,
     node: Resolution | undefined,
   ): string {
-    return template.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, expr: string) => {
-      const value = this.lookupValue(expr, scope, node)
-      if (value === undefined || value === null) return ''
-      if (typeof value === 'object') {
-        const text = (value as Record<string, unknown>).text
-        return typeof text === 'string' ? text : ''
-      }
-      return String(value)
-    })
+    return render(template, (expr) => this.lookupValue(expr, scope, node))
   }
 
   private lookupValue(
@@ -515,7 +527,7 @@ class Run {
     scope: Record<string, unknown>,
     node: Resolution | undefined,
   ): unknown {
-    if (DICE.test(expr)) return this.roll(expr, scope, node).total
+    if (isRoll(expr)) return this.roll(expr, scope, node).total
     return resolvePath(scope, expr)
   }
 
@@ -525,9 +537,7 @@ class Run {
     scope: Record<string, unknown>,
     node: Resolution | undefined,
   ): unknown {
-    const whole = /^\{\{\s*([^}]+?)\s*\}\}$/.exec(value)
-    if (whole) return this.lookupValue(whole[1], scope, node)
-    return /\{\{/.test(value) ? this.render(value, scope, node) : value
+    return evaluate(value, (expr) => this.lookupValue(expr, scope, node))
   }
 
   private evalValues(

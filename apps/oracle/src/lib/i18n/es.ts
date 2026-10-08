@@ -105,7 +105,7 @@ export const es: Messages<typeof en> = {
     more: 'Condiciones, valores y límites',
     when: 'Solo si',
     whenHelp:
-      'Cuándo puede salir la entrada, en pares `clave: valor` sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores):\n• `terrain: forest` — solo en bosques\n• `tags: landmark` — una etiqueta del hex\n• `danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `season: [autumn, winter]` — cualquiera de las dos estaciones\n• `timeOfDay: night`\n**Salvo**: no puede salir cuando se cumple:\n• `edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.',
+      "Cuándo puede salir la entrada, en pares `clave: valor` sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores):\n• `terrain: forest` — solo en bosques\n• `tags: landmark` — una etiqueta del hex\n• `danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `season: [autumn, winter]` — cualquiera de las dos estaciones\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.str: { gte: '{{1d20}}' }` — una tirada bajo una característica (el mismo d20 para todas las entradas de la tirada)\n**Salvo**: no puede salir cuando se cumple:\n• `edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.",
     unless: 'Salvo',
     set: 'Fija',
     setHelp:
@@ -166,7 +166,7 @@ export const es: Messages<typeof en> = {
     insertField: 'Añadir a la plantilla',
     fields: 'Campos',
     fieldsHelp:
-      'Cada campo se tira **en orden**; los campos y tablas siguientes pueden usar los valores anteriores (`{{danger}}`). Un campo sale de:\n• una **Tabla** — `ruins`\n• un **Generador** — otro generador\n• **Dados** — `2d6kl1`, `d%`\n• un **Valor fijo** — `3`, o un texto con plantilla: `peligro {{danger}} de 6`',
+      'Cada campo se tira **en orden**; los campos y tablas siguientes pueden usar los valores anteriores (`{{danger}}`). Un campo sale de:\n• una **Tabla** — `ruins`\n• un **Generador** — otro generador\n• **Dados** — `2d6kl1`, `d%`\n• un **Valor fijo** — `3`, o un texto con variables: `peligro {{danger}} de 6`',
     fieldName: 'Nombre',
     fieldSource: 'Sale de',
     fieldValue: 'Tabla, dados o valor',

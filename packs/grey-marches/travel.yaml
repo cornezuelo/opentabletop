@@ -91,12 +91,12 @@ values:
 # condition holds. Camp and rest are actions like the system's own.
 actions:
   # Marching (the Travel buttons): when the party can march, checked as it marches. By
-  # day for the day's marching hours, as usual (the `$` values are the system's own), or
+  # day for the day's marching hours, as usual (the `{{…}}` variables are the system's own), or
   # after a night march by torchlight (a value of the day) until the day ends.
   march:
     when:
       any:
-        - { daylight: true, marched: { lt: $hoursPerDay } }
+        - { daylight: true, marched: { lt: '{{hoursPerDay}}' } }
         - { torchlit: true }
   # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
   # fed night eases fatigue: unless food hit its minimum (`below`) during the night.
@@ -179,25 +179,27 @@ actions:
     when: { all: [{ yesterday.hungry: true }, { party.stats.hirelings: { gte: 1 } }] }
     do:
       - { set: { refusing: true } }
-  # Talking them round works with good morale; otherwise one walks off and the rest follow.
+  # Talking them round: a d6 at or under morale (a roll in a step's condition, the same
+  # all through the talk); otherwise one walks off and the rest follow.
   parley:
     name: Talk to the hirelings
-    description: 'An hour of talk. With morale 3 or more they march again; otherwise one of them walks off, and the rest follow you grudgingly.'
+    description: 'An hour of talk: roll a d6. At or under your morale they march again; otherwise one of them walks off, and the rest follow you grudgingly.'
     when: { refusing: true }
     hideWhenUnavailable: true
     do:
       - { time: 60 }
-      - { unless: { party.stats.morale: { gte: 3 } }, effects: { party.stats.hirelings: -1 } }
+      - unless: { party.stats.morale: { gte: '{{1d6}}' } }
+        effects: { party.stats.hirelings: -1 }
       - { set: { refusing: false } }
   # Marching on in the dark instead of camping: it lights the torches (a value of the day
   # the march above admits) until midnight, at the cost of fatigue; each hex entered in the
   # dark rolls to get lost, and night encounters (the checks below, `daylight: false`).
-  # Only in the evening (from nightfall: `hour` against the system's own `$nightfall`), so
+  # Only in the evening (from nightfall: `hour` against the system's own `{{nightfall}}`), so
   # its button only shows then.
   night-march:
     name: Night march
     description: 'From nightfall, march on by torchlight until midnight, but +1 fatigue; each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
-    when: { daylight: false, hour: { gte: $nightfall }, party.stats.fatigue: { lt: 4 } }
+    when: { daylight: false, hour: { gte: '{{nightfall}}' }, party.stats.fatigue: { lt: 4 } }
     unless: { weather: storm }
     hideWhenUnavailable: true
     oncePerDay: true
@@ -304,7 +306,7 @@ id: default
 stats:
   charisma:
     name: Charisma
-    description: Added to reaction rolls.
+    description: Added to reaction rolls; at Keld Bridge, a d6 at or under it saves the toll.
     default: 0
   survival:
     name: Survival

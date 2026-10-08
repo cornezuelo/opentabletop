@@ -336,6 +336,8 @@ describe('example maps', () => {
       world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json)),
       oracle: createOracleEngine({ registry, random: seeded('sky') }),
       locale: 'en',
+      // The weather model's rolls too (without it, Math.random: a different run each time).
+      random: seeded('sky-model'),
     }
     let { session } = startTrip({ system, location: '5,7', season: 'winter' })
     const days: string[] = []

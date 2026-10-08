@@ -40,7 +40,7 @@ travel-rules/default:
       description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.
     parley:
       name: Hablar con los mercenarios
-      description: 'Una hora de charla. Con moral 3 o más vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
+      description: 'Una hora de charla: tira un d6. Si saca vuestra moral o menos, vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
     night-march:
       name: Marcha nocturna
       description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga; cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
@@ -100,7 +100,7 @@ bindings/default:
   stats:
     charisma:
       name: Carisma
-      description: Se suma a las tiradas de reacción.
+      description: Se suma a las tiradas de reacción; en el puente de Keld, un d6 que saque esto o menos os ahorra el peaje.
     survival:
       name: Supervivencia
       description: Se suma a buscar comida y a los vados.

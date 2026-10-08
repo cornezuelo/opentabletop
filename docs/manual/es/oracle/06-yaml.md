@@ -4,7 +4,7 @@ Haz clic en el fichero de una definición (o en un fichero de la página del pac
 
 Mientras escribes, el editor sugiere lo que encaja (<kbd>Ctrl</kbd>+<kbd>Espacio</kbd> muestra las sugerencias en cualquier punto): claves al principio de una línea, `kind` y otros valores fijos, tablas y generadores tras `table:` o `generator:`, y todo lo que se tira (tablas, oráculos, generadores, mazos) tras `resolve:` (primero los de este pack), y dentro de los `when`, `unless`, `set` y `context` de una línea los nombres que leen o fijan las tablas, con sus valores conocidos (`terrain: forest`, `season: winter`…), y dentro de `effects` las características y provisiones que declara el sistema (`party.resources.food`, `party.stats.fatigue`). Las mismas sugerencias aparecen en las cajas de condiciones y valores de los formularios.
 
-Toda la sintaxis de un vistazo (valores, dados, plantillas, condiciones, `set`, `effects`, momentos, pasos, límites): [Sintaxis](../technical/09-syntax.md).
+Toda la sintaxis de un vistazo (valores, dados, variables, condiciones, `set`, `effects`, momentos, pasos, límites): [Sintaxis](../technical/09-syntax.md).
 
 ## Una tabla
 
@@ -27,7 +27,7 @@ entries:
 
 ## Dados
 
-La lista completa, con las plantillas y de dónde salen los valores del contexto: [Dados, plantillas y contexto](08-dice-and-templates.md).
+La lista completa, con las variables y de dónde salen los valores del contexto: [Dados, variables y contexto](08-dice-and-templates.md).
 
 `2d6+1`, `d100`, `d%`, `d66`, `4dF`, `4d6kh3` (quedarse los 3 más altos), `2d20kl1` (quedarse el más bajo). Los valores del contexto van entre llaves: `1d6 + {{lostModifier}}`. Los resultados también pueden tirar: `'{{1d6}} lobos'`.
 
@@ -42,7 +42,7 @@ when: { danger: { gte: 4 }, season: { not: winter } }
 when: { any: [{ weather: storm }, { lost: true }] } # all / any / not
 ```
 
-Comparaciones: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. Los valores de lista del contexto (como las etiquetas de un hex) coinciden cuando contienen el valor. Gana la primera entrada que cumple y encaja con la tirada.
+Comparaciones: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. Los valores de lista del contexto (como las etiquetas de un hex) coinciden cuando contienen el valor. Un valor puede ser una variable o una tirada, entre comillas: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (el mismo d20 para todas las entradas de la tirada; ver [Condiciones](../technical/08-conditions.md#variables-y-tiradas)). Gana la primera entrada que cumple y encaja con la tirada.
 
 ## Oráculos, generadores y mazos
 

@@ -525,6 +525,50 @@ template: '{{watch}}/{{sky}}'
   })
 })
 
+describe('variables and rolls in conditions', () => {
+  const { registry, diagnostics } = loadPacks([
+    { path: 'v/pack.yaml', content: 'id: v\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+    {
+      path: 'v/t.yaml',
+      content: `
+kind: table
+id: climb
+entries:
+  - { id: up, result: Up, when: { str: { gte: '{{1d20}}' } } }
+  - { id: fall, result: Fall, unless: { str: { gte: '{{1d20}}' } } }
+---
+kind: table
+id: spot
+entries:
+  - { id: seen, result: Seen, when: { danger: { gt: '{{stealth}}' } } }
+  - { id: hidden, result: Hidden, unless: { danger: { gt: '{{stealth}}' } } }
+`,
+    },
+  ])
+
+  it('load without problems', () => expect(diagnostics).toEqual([]))
+
+  it('roll the same dice once in a resolution, and tell the roll', () => {
+    // 1d20 shows 8: under a strength of 10 it's Up, the Fall entry sees the same 8.
+    const engine = createOracleEngine({ registry, random: faces(20, 8, 1) })
+    const out = engine.resolve('v/climb', { str: 10 }).resolution
+    expect(out.entry).toBe('up')
+    expect(out.rolls.map((r) => r.total)).toEqual([8])
+    const counts = { up: 0, fall: 0 }
+    const seededEngine = createOracleEngine({ registry, random: seeded('climb') })
+    for (let i = 0; i < 40; i++)
+      counts[seededEngine.resolve('v/climb', { str: 10 }).resolution.entry as 'up' | 'fall']++
+    expect(counts.up).toBeGreaterThan(0)
+    expect(counts.fall).toBeGreaterThan(0)
+  })
+
+  it('compare with another value', () => {
+    const engine = createOracleEngine({ registry, random: seeded(1) })
+    expect(engine.resolve('v/spot', { danger: 3, stealth: 2 }).resolution.entry).toBe('seen')
+    expect(engine.resolve('v/spot', { danger: 3, stealth: 4 }).resolution.entry).toBe('hidden')
+  })
+})
+
 describe('decks', () => {
   const { registry } = load()
 

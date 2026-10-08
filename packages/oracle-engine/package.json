@@ -15,6 +15,7 @@
     "@open-tabletop/conditions": "*",
     "@open-tabletop/dice": "*",
     "@open-tabletop/random": "*",
+    "@open-tabletop/variables": "*",
     "yaml": "^2.9.1",
     "zod": "^4.6.5"
   }

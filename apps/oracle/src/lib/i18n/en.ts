@@ -103,7 +103,7 @@ export const en = {
     more: 'Conditions, values and limits',
     when: 'Only if',
     whenHelp:
-      "When the entry can come up, as `key: value` pairs on what the table sees (the map, the trip, the inputs, earlier fields):\n• `terrain: forest` — only in forests\n• `tags: landmark` — a tag of the hex\n• `danger: { gte: 3 }` — a value of the hex or region, 3 or more\n• `season: [autumn, winter]` — either season\n• `timeOfDay: night`\n**Unless**: it can't come up when this matches:\n• `edges: road` — not by road\nEmpty: always. An entry that can't come up is skipped as if it weren't there.",
+      "When the entry can come up, as `key: value` pairs on what the table sees (the map, the trip, the inputs, earlier fields):\n• `terrain: forest` — only in forests\n• `tags: landmark` — a tag of the hex\n• `danger: { gte: 3 }` — a value of the hex or region, 3 or more\n• `season: [autumn, winter]` — either season\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.str: { gte: '{{1d20}}' }` — a roll under a stat (the same d20 for every entry of the roll)\n**Unless**: it can't come up when this matches:\n• `edges: road` — not by road\nEmpty: always. An entry that can't come up is skipped as if it weren't there.",
     unless: 'Unless',
     set: 'Sets',
     setHelp:
@@ -164,7 +164,7 @@ export const en = {
     insertField: 'Add to the template',
     fields: 'Fields',
     fieldsHelp:
-      'Each field is rolled **in order**; later fields and tables can use earlier values (`{{danger}}`). A field comes from:\n• a **Table** — `ruins`\n• a **Generator** — another generator\n• **Dice** — `2d6kl1`, `d%`\n• a **Fixed value** — `3`, or a text with a template: `danger {{danger}} of 6`',
+      'Each field is rolled **in order**; later fields and tables can use earlier values (`{{danger}}`). A field comes from:\n• a **Table** — `ruins`\n• a **Generator** — another generator\n• **Dice** — `2d6kl1`, `d%`\n• a **Fixed value** — `3`, or a text with variables: `danger {{danger}} of 6`',
     fieldName: 'Name',
     fieldSource: 'From',
     fieldValue: 'Table, dice or value',

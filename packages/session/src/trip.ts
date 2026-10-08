@@ -491,6 +491,8 @@ export function startTrip(options: {
   stats?: Record<string, number>
   /** Start at this moment instead (e.g. the world clock's), whatever the season. */
   time?: number
+  /** Seeds the trip's rolls in conditions and effects (`'{{1d20}}'`); the host picks one. */
+  seed?: string
 }): { startDay: number; session: SessionState } {
   const { rules, bindings } = options.system
   const calendar = calendarOf(options.system)
@@ -504,6 +506,7 @@ export function startTrip(options: {
     calendar,
     time: options.time ?? calendar.at(startDay, rules.day.start),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
+    ...(options.seed !== undefined && { seed: options.seed }),
   })
   const stats = Object.fromEntries(
     Object.entries(bindings?.stats ?? {}).map(([k, v]) => [

@@ -57,7 +57,7 @@ entries:
 
 ## 4. Resultados que entiende el viaje
 
-Una entrada (o una carta de un mazo) cambia el grupo con **efectos** (`effects`): cada uno es un valor que declara el sistema, por la ruta con la que lo leen las tablas. Un número suma o resta; `'=valor'` lo fija; dentro funcionan los dados y los valores (`'{{1d3+1}}'`); `$` toma otro valor como cantidad (`-$party.stats.mouths`, `=$party.stats.endurance`, o `-$loss`, un valor que fija la entrada). Un valor se queda en el `min` y el `max` que declara su sistema (características y provisiones por igual); sin ellos puede ir a cualquier parte, también a negativo.
+Una entrada (o una carta de un mazo) cambia el grupo con **efectos** (`effects`): cada uno es un valor que declara el sistema, por la ruta con la que lo leen las tablas. Un número suma o resta; `'=valor'` lo fija; dentro funcionan una tirada o una variable (`'{{1d3+1}}'`; `'-{{party.stats.mouths}}'` quita tantos como otro valor, `'={{party.stats.endurance}}'` lo fija a él, `'-{{loss}}'` lee un valor que fija la entrada). Un valor se queda en el `min` y el `max` que declara su sistema (características y provisiones por igual); sin ellos puede ir a cualquier parte, también a negativo.
 
 ```yaml
 - { id: berries, range: 6, result: 'Bayas: +2 de comida', effects: { party.resources.food: 2 } }
@@ -206,16 +206,16 @@ Los botones bloqueados siguen visibles, desactivados, y dicen por qué con el no
 
 **actions** son lo que hace el grupo. Acampar y descansar son acciones como cualquier otra: un id, condiciones, pasos; el panel del viaje muestra cada una como un botón junto a **Viajar**, con su `name` (y su `description` como ayuda). Las reglas que no declaran `camp` o `rest` siguen teniendo las habituales (dormir hasta el alba, descansar una hora), y `camp: false` deja una fuera.
 
-**Marchar también es una acción**, `march`: no un botón propio, sino los botones de **Viajar**. Su `when` / `unless` dicen cuándo puede marchar el grupo, y se comprueban mientras marcha: se para en cuanto dejan de cumplirse (el diario lo cuenta como que cae la noche, que se acabaron las horas del día o que lo dice la regla del sistema). Sin `when`, el grupo marcha de día durante las horas de marcha del día, como `when: { daylight: true, marched: { lt: $hoursPerDay } }`; un `unless` se suma a eso. No tiene pasos, y nada la hace salvo los botones de Viajar. Las Marcas Grises marchan de día o, tras una marcha nocturna, a la luz de las antorchas hasta medianoche:
+**Marchar también es una acción**, `march`: no un botón propio, sino los botones de **Viajar**. Su `when` / `unless` dicen cuándo puede marchar el grupo, y se comprueban mientras marcha: se para en cuanto dejan de cumplirse (el diario lo cuenta como que cae la noche, que se acabaron las horas del día o que lo dice la regla del sistema). Sin `when`, el grupo marcha de día durante las horas de marcha del día, como `when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } }`; un `unless` se suma a eso. No tiene pasos, y nada la hace salvo los botones de Viajar. Las Marcas Grises marchan de día o, tras una marcha nocturna, a la luz de las antorchas hasta medianoche:
 
 ```yaml
 values:
   torchlit: { name: A la luz de las antorchas }
 actions:
   march:
-    when: { any: [{ daylight: true, marched: { lt: $hoursPerDay } }, { torchlit: true }] }
+    when: { any: [{ daylight: true, marched: { lt: '{{hoursPerDay}}' } }, { torchlit: true }] }
   night-march:
-    when: { hour: { gte: $nightfall } }
+    when: { hour: { gte: '{{nightfall}}' } }
     do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
 ```
 

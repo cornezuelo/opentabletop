@@ -4,7 +4,7 @@ Click a definition's file (or a file in the pack page) to open the YAML editor. 
 
 While you type, the editor suggests what fits (<kbd>Ctrl</kbd>+<kbd>Space</kbd> shows the suggestions anywhere): keys at the start of a line, `kind` and other fixed values, tables and generators after `table:` or `generator:`, and anything that rolls (tables, oracles, generators, decks) after `resolve:` (this pack's first), and inside one-line `when`, `unless`, `set` and `context` the names tables read or set, with their known values (`terrain: forest`, `season: winter`…), and inside `effects` the stats and supplies the system declares (`party.resources.food`, `party.stats.fatigue`). The same suggestions appear in the forms' condition and value boxes.
 
-Every piece of syntax at a glance (values, dice, templates, conditions, `set`, `effects`, moments, steps, limits): [Syntax](../technical/09-syntax.md).
+Every piece of syntax at a glance (values, dice, variables, conditions, `set`, `effects`, moments, steps, limits): [Syntax](../technical/09-syntax.md).
 
 ## A table
 
@@ -27,7 +27,7 @@ entries:
 
 ## Dice
 
-The full list, with templates and where context values come from: [Dice, templates and context](08-dice-and-templates.md).
+The full list, with variables and where context values come from: [Dice, variables and context](08-dice-and-templates.md).
 
 `2d6+1`, `d100`, `d%`, `d66`, `4dF`, `4d6kh3` (keep the highest 3), `2d20kl1` (keep the lowest). Context values go in braces: `1d6 + {{lostModifier}}`. Results can roll too: `'{{1d6}} wolves'`.
 
@@ -42,7 +42,7 @@ when: { danger: { gte: 4 }, season: { not: winter } }
 when: { any: [{ weather: storm }, { lost: true }] } # all / any / not
 ```
 
-Comparisons: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. List values in the context (like a hex's tags) match when they contain the value. The first entry that matches and fits the roll wins.
+Comparisons: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. List values in the context (like a hex's tags) match when they contain the value. A value can be a variable or a roll, in quotes: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (the same d20 for every entry of the roll; see [Conditions](../technical/08-conditions.md#variables-and-rolls)). The first entry that matches and fits the roll wins.
 
 ## Oracles, generators and decks
 

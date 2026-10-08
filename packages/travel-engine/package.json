@@ -15,6 +15,7 @@
     "@open-tabletop/conditions": "*",
     "@open-tabletop/hex": "*",
     "@open-tabletop/time": "*",
+    "@open-tabletop/variables": "*",
     "zod": "^4.6.5"
   }
 }

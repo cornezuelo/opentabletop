@@ -8,18 +8,18 @@ In the apps this page is one click away: **Syntax** at the top of the help colum
 
 Most boxes and most of the YAML are `key: value` pairs.
 
-| Write                      | Means                                           |
-| -------------------------- | ----------------------------------------------- |
-| `terrain: forest`          | a word                                          |
-| `danger: 3`, `lost: true`  | a number, a yes/no                              |
-| `terrain: [forest, hills]` | a list                                          |
-| `danger: { gte: 3 }`       | a value inside another (here, a comparison)     |
-| `count: '{{2d6}}'`         | a [template](#templates), in quotes (see below) |
+| Write                      | Means                                                   |
+| -------------------------- | ------------------------------------------------------- |
+| `terrain: forest`          | a word                                                  |
+| `danger: 3`, `lost: true`  | a number, a yes/no                                      |
+| `terrain: [forest, hills]` | a list                                                  |
+| `danger: { gte: 3 }`       | a value inside another (here, a comparison)             |
+| `count: '{{2d6}}'`         | a [variable or roll](#variables), in quotes (see below) |
 
 - **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved.
 - **In YAML**, the same between braces on one line (`when: { terrain: forest }`) or one pair per indented line.
 - **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
-  - **starting with `{`**: YAML opens a value inside another, so every template needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`;
+  - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{nightfall}}'`, not `gte: {{nightfall}}`;
   - **`: ` inside** (a colon and a space): YAML takes it for a new key: `result: 'Ambush: two wolves'`;
   - **` #` inside** (a space and a hash): YAML takes the rest for a comment and drops it: `result: 'Door #3'`;
   - **starting with `- `** (a dash and a space): YAML takes it for an item of a list: `result: '- nothing -'`.
@@ -31,12 +31,12 @@ Most boxes and most of the YAML are `key: value` pairs.
 ## Ids and references
 
 - **Ids** use lowercase letters, digits and dashes: `getting-lost`, `npc-roles`.
-- **References** to a definition: `weather` (the same pack), `core/weather` (another pack, by its id), or a template that picks one: `'weather-{{season}}'`.
+- **References** to a definition: `weather` (the same pack), `core/weather` (another pack, by its id), or one a variable picks: `'weather-{{season}}'`.
 - Entries and cards have ids too, for translations and once-only entries.
 
 ## Dice
 
-In a table's or oracle's `roll`, a generator field's `roll`, and inside texts as `{{…}}`. More: [Dice, templates and context](../oracle/08-dice-and-templates.md).
+In a table's or oracle's `roll`, a generator field's `roll`, and inside texts as `{{…}}`. More: [Dice, variables and context](../oracle/08-dice-and-templates.md).
 
 | Write                        | Rolls                                    |
 | ---------------------------- | ---------------------------------------- |
@@ -54,39 +54,40 @@ Without `roll`, a table picks by `weight` (1 if none): `{ weight: 3, result: pil
 
 An entry's `range` is the totals it covers: `3`, `2-5`, `-1` (a total below zero), `11-16` with `d66`. Ranges can't overlap; with **clamp** (`clamp: true`, the default) a total below the lowest takes the first entry and above the highest the last.
 
-## Templates
+## Variables
 
-`{{…}}` inside a text: a value or a roll. More: [Dice, templates and context](../oracle/08-dice-and-templates.md#templates-in-texts).
+`{{name}}` is a **variable**: the value with that name. `{{2d6}}` is a **roll**. Inside a text, each is written in its place; a value that is a whole `'{{…}}'` is what it names (a number stays a number, a list a list). More: [Dice, variables and context](../oracle/08-dice-and-templates.md#variables-in-texts).
 
-| Write          | Shows                                                 |
+| Write          | Is                                                    |
 | -------------- | ----------------------------------------------------- |
 | `{{2d6}}`      | a roll: `'{{2d6}} wolves'` → "7 wolves"               |
-| `{{season}}`   | a value of the context                                |
+| `{{season}}`   | a variable: a value of the context                    |
 | `{{npc.role}}` | a part of a value                                     |
 | `{{result}}`   | the text of the table an entry rolled next (`table:`) |
 | `{{field}}`    | a generator's field, in its template                  |
 
-A missing value shows as nothing. Templates work in results, generator templates and fixed fields, card texts, `set` and `effects` values, references, and a check action's **When nothing applies** (`{terrain}`, with single braces there).
+A missing value shows as nothing. Variables work in results, generator templates and fixed fields, card texts, `set` and `effects` values, references, [conditions](08-conditions.md#variables-and-rolls) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: a roll is the same all through a moment), and a check action's **When nothing applies** (`{terrain}`, with single braces there).
 
 ## Conditions
 
 When something applies. The same syntax everywhere: `when` (must hold) and `unless` (must not). Full reference: [Conditions](08-conditions.md).
 
-| Write                                    | Holds when                                  |
-| ---------------------------------------- | ------------------------------------------- |
-| `terrain: forest`                        | it's exactly that                           |
-| `terrain: [forest, hills]`               | it's any of them                            |
-| `tags: landmark`                         | a list (tags, holidays) contains it         |
-| `season: { not: summer }`                | it's anything else (or missing)             |
-| `danger: { gte: 3 }`                     | `gt`, `gte`, `lt`, `lte`: a number compared |
-| `danger: { gte: 2, lte: 4 }`             | every comparison holds                      |
-| `weather: { in: [rain, storm] }`         | the same as a list                          |
-| `region: { exists: false }`              | it's missing (`true`: it's there)           |
-| `danger: { gt: $party.stats.stealth }`   | `$`: compared with another value            |
-| `{ terrain: forest, timeOfDay: night }`  | every pair holds                            |
-| `any: [{ edges: road }, { mode: boat }]` | one of them holds                           |
-| `all: [{ tags: ford }, { tags: toll }]`  | all of them (one name twice)                |
-| `not: { timeOfDay: night }`              | the condition inside doesn't                |
+| Write                                       | Holds when                                  |
+| ------------------------------------------- | ------------------------------------------- |
+| `terrain: forest`                           | it's exactly that                           |
+| `terrain: [forest, hills]`                  | it's any of them                            |
+| `tags: landmark`                            | a list (tags, holidays) contains it         |
+| `season: { not: summer }`                   | it's anything else (or missing)             |
+| `danger: { gte: 3 }`                        | `gt`, `gte`, `lt`, `lte`: a number compared |
+| `danger: { gte: 2, lte: 4 }`                | every comparison holds                      |
+| `weather: { in: [rain, storm] }`            | the same as a list                          |
+| `region: { exists: false }`                 | it's missing (`true`: it's there)           |
+| `danger: { gt: '{{party.stats.stealth}}' }` | a variable: compared with another value     |
+| `party.stats.wits: { gte: '{{1d20}}' }`     | a roll: under the wits (once a moment)      |
+| `{ terrain: forest, timeOfDay: night }`     | every pair holds                            |
+| `any: [{ edges: road }, { mode: boat }]`    | one of them holds                           |
+| `all: [{ tags: ford }, { tags: toll }]`     | all of them (one name twice)                |
+| `not: { timeOfDay: night }`                 | the condition inside doesn't                |
 
 **Where they go:**
 
@@ -117,14 +118,15 @@ An action's step takes `set` too: `{ set: { lost: true } }`.
 
 On entries, cards, checks and action steps. Each key is a value the system declares, by its path; each value says how it changes:
 
-| Write                                        | Does                                     |
-| -------------------------------------------- | ---------------------------------------- |
-| `party.resources.food: -1`                   | takes 1 away                             |
-| `party.stats.morale: 2`                      | adds 2                                   |
-| `party.stats.fatigue: '=0'`                  | sets it to 0                             |
-| `party.resources.food: '{{1d3+1}}'`          | adds a roll                              |
-| `party.resources.food: -$party.stats.mouths` | takes away as many as another value says |
-| `party.stats.morale: =$party.stats.charisma` | sets it to another value                 |
+| Write                                             | Does                                                           |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| `party.resources.food: -1`                        | takes 1 away                                                   |
+| `party.stats.morale: 2`                           | adds 2                                                         |
+| `party.stats.fatigue: '=0'`                       | sets it to 0                                                   |
+| `party.resources.food: '{{1d3+1}}'`               | adds a roll                                                    |
+| `party.resources.food: '-{{party.stats.mouths}}'` | takes away as many as another value says                       |
+| `party.stats.morale: '={{party.stats.charisma}}'` | sets it to another value                                       |
+| `party.resources.food: '-{{1d3}}'`                | takes away a roll (in a trip, the same all through the moment) |
 
 A change stops at the value's `min` / `max`; what hit one is seen afterwards as `below: [ids]` / `above: [ids]`. Without bounds a value may go anywhere, negative too.
 
@@ -156,7 +158,7 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | `roll: ENCOUNTER_CHECK_REQUIRED`                 | rolls a check now                            |
 | `{ unless: { below: food }, effects: { … } }`    | only when its condition holds                |
 
-`march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (default: `when: { daylight: true, marched: { lt: $hoursPerDay } }`). Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+`march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (default: `when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } }`). Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 

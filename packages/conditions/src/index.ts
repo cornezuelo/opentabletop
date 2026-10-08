@@ -7,18 +7,24 @@
  *   { danger: { gte: 4 }, season: { not: winter } }
  *   { 'party.stats.pre': { gt: 0 } }             dotted paths
  *   { any: [{ weather: storm }, { lost: true }] }  all / any / not
- *   { danger: { gt: $party.stats.stealth } }     another value of the context
+ *   { danger: { gt: '{{party.stats.stealth}}' } }  a variable: another value of the context
+ *   { party.stats.str: { gte: '{{1d20}}' } }       a roll
  *
  * Array context values (e.g. tags) match when they contain the expected value. A value
- * written `$path` is the context's value at that path (`$$` starts a literal `$`).
+ * written as a whole `{{…}}` is a variable (the context's value with that name) or a roll
+ * (dice, rolled by the `roller` the caller gives: see `@open-tabletop/variables`).
  */
+import { lookupIn, resolvePath, variableOf, type Roller } from '@open-tabletop/variables'
+
+export { resolvePath }
+
 export type Primitive = string | number | boolean | null
 
 export interface Comparison {
   eq?: Primitive
   not?: Primitive | Primitive[]
   in?: Primitive[]
-  /** A number, or `$path` for another value of the context. */
+  /** A number, or a variable or roll (`'{{party.stats.stealth}}'`, `'{{1d20}}'`). */
   gt?: number | string
   gte?: number | string
   lt?: number | string
@@ -34,49 +40,61 @@ export type Condition =
 const COMPARISON_KEYS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists'])
 const MAX_DEPTH = 32
 
+export interface MatchOptions {
+  /**
+   * Rolls the dice a condition names (`'{{1d20}}'`); without it a roll reads nothing, and
+   * never holds. Engines give one that rolls once per moment (`momentRoller`).
+   */
+  roller?: Roller
+}
+
 export function matches(
   condition: Condition | undefined,
   context: Record<string, unknown>,
+  options: MatchOptions = {},
 ): boolean {
-  return condition === undefined || evaluate(condition, context, 0)
+  return condition === undefined || evaluate(condition, context, options.roller, 0)
 }
 
-function evaluate(condition: Condition, context: Record<string, unknown>, depth: number): boolean {
+function evaluate(
+  condition: Condition,
+  context: Record<string, unknown>,
+  roller: Roller | undefined,
+  depth: number,
+): boolean {
   if (depth > MAX_DEPTH) return false
+  const inner = (c: Condition) => evaluate(c, context, roller, depth + 1)
   if ('all' in condition && Array.isArray(condition.all))
-    return (condition.all as Condition[]).every((c) => evaluate(c, context, depth + 1))
+    return (condition.all as Condition[]).every(inner)
   if ('any' in condition && Array.isArray(condition.any))
-    return (condition.any as Condition[]).some((c) => evaluate(c, context, depth + 1))
+    return (condition.any as Condition[]).some(inner)
   if ('not' in condition && isObject(condition.not) && !isComparison(condition.not))
-    return !evaluate(condition.not as Condition, context, depth + 1)
+    return !inner(condition.not as Condition)
   return Object.entries(condition).every(([path, matcher]) =>
-    matchValue(resolvePath(context, path), matcher as Matcher, context),
+    matchValue(resolvePath(context, path), matcher as Matcher, context, roller),
   )
 }
 
 /**
- * Whether a written value names another value of the context (`$party.stats.stealth`):
- * the path, or undefined for a plain value (`$$5` is the text `$5`).
+ * A written value as the condition means it: a variable or a roll (`'{{…}}'`) reads what
+ * it names, anything else is itself.
  */
-export function referenceOf(value: unknown): string | undefined {
-  return typeof value === 'string' && value.startsWith('$') && !value.startsWith('$$')
-    ? value.slice(1)
-    : undefined
-}
-
-/** A written value as the condition means it: another value of the context, or itself. */
-export function valueOf(written: unknown, context: Record<string, unknown>): unknown {
-  const path = referenceOf(written)
-  if (path !== undefined) return resolvePath(context, path)
-  return typeof written === 'string' && written.startsWith('$$') ? written.slice(1) : written
+export function valueOf(
+  written: unknown,
+  context: Record<string, unknown>,
+  roller?: Roller,
+): unknown {
+  const expression = variableOf(written)
+  return expression === undefined ? written : lookupIn(context, roller)(expression)
 }
 
 function matchValue(
   value: unknown,
   matcher: Matcher,
-  context: Record<string, unknown> = {},
+  context: Record<string, unknown>,
+  roller: Roller | undefined,
 ): boolean {
-  const is = (expected: unknown) => equals(value, valueOf(expected, context))
+  const is = (expected: unknown) => equals(value, valueOf(expected, context, roller))
   if (Array.isArray(matcher)) return matcher.some(is)
   if (!isObject(matcher)) return is(matcher)
   const c = matcher as Comparison
@@ -90,9 +108,9 @@ function matchValue(
   const numeric = ['gt', 'gte', 'lt', 'lte'].some((k) => k in c)
   if (numeric) {
     if (typeof value !== 'number' || Number.isNaN(value)) return false
-    // A reference that isn't a number never compares.
+    // A variable that isn't a number never compares.
     const bound = (written: unknown) => {
-      const n = valueOf(written, context)
+      const n = valueOf(written, context, roller)
       return typeof n === 'number' && !Number.isNaN(n) ? n : undefined
     }
     for (const [op, holds] of [
@@ -117,16 +135,6 @@ function equals(value: unknown, expected: unknown): boolean {
   if (Array.isArray(expected)) return expected.some((e) => equals(value, e))
   if (Array.isArray(value)) return value.some((v) => v === expected)
   return value === expected
-}
-
-/** Reads `a.b.c` from nested plain objects; never touches prototypes. */
-export function resolvePath(context: Record<string, unknown>, path: string): unknown {
-  let node: unknown = context
-  for (const part of path.split('.')) {
-    if (!isObject(node) || !Object.prototype.hasOwnProperty.call(node, part)) return undefined
-    node = (node as Record<string, unknown>)[part]
-  }
-  return node
 }
 
 /** Structural validation for pack loading. Returns human-readable problems (empty = valid). */
@@ -165,9 +173,9 @@ function checkMatcher(matcher: unknown, at: string): string[] {
     else if (
       ['gt', 'gte', 'lt', 'lte'].includes(op) &&
       typeof value !== 'number' &&
-      referenceOf(value) === undefined
+      variableOf(value) === undefined
     )
-      errors.push(`${at}.${op}: must be a number, or $ and another value's name`)
+      errors.push(`${at}.${op}: must be a number, or a variable or roll in {{…}}`)
     else if (op === 'in' && !(Array.isArray(value) && value.every(isPrimitive)))
       errors.push(`${at}.in: must be a list of plain values`)
     else if (op === 'exists' && typeof value !== 'boolean')

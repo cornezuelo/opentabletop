@@ -8,18 +8,18 @@ En las aplicaciones esta página está a un clic: **Sintaxis**, arriba en la col
 
 Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 
-| Escribe                    | Significa                                                 |
-| -------------------------- | --------------------------------------------------------- |
-| `terrain: forest`          | una palabra                                               |
-| `danger: 3`, `lost: true`  | un número, un sí/no                                       |
-| `terrain: [forest, hills]` | una lista                                                 |
-| `danger: { gte: 3 }`       | un valor dentro de otro (aquí, una comparación)           |
-| `count: '{{2d6}}'`         | una [plantilla](#plantillas), entre comillas (mira abajo) |
+| Escribe                    | Significa                                                        |
+| -------------------------- | ---------------------------------------------------------------- |
+| `terrain: forest`          | una palabra                                                      |
+| `danger: 3`, `lost: true`  | un número, un sí/no                                              |
+| `terrain: [forest, hills]` | una lista                                                        |
+| `danger: { gte: 3 }`       | un valor dentro de otro (aquí, una comparación)                  |
+| `count: '{{2d6}}'`         | una [variable o tirada](#variables), entre comillas (mira abajo) |
 
 - **En la casilla de un formulario**, escribe los pares sin llaves, separados por comas: `terrain: forest, danger: { gte: 3 }`. Una casilla que no se puede leer se pone roja y no se guarda.
 - **En YAML**, lo mismo entre llaves en una línea (`when: { terrain: forest }`) o un par por línea sangrada.
 - **Las comillas** (`'…'`) mantienen un texto como texto. El YAML da a unos pocos caracteres un significado propio, así que un texto que los tenga va entre comillas, o el YAML lee otra cosa:
-  - **que empiece por `{`**: el YAML abre un valor dentro de otro, así que toda plantilla necesita comillas: `count: '{{2d6}}'`, no `count: {{2d6}}`;
+  - **que empiece por `{`**: el YAML abre un valor dentro de otro, así que toda variable o tirada necesita comillas: `count: '{{2d6}}'`, no `count: {{2d6}}`; `gte: '{{nightfall}}'`, no `gte: {{nightfall}}`;
   - **con `: ` dentro** (dos puntos y un espacio): el YAML lo toma por una clave nueva: `result: 'Emboscada: dos lobos'`;
   - **con ` #` dentro** (un espacio y una almohadilla): el YAML toma el resto por un comentario y lo descarta: `result: 'Puerta #3'`;
   - **que empiece por `- `** (un guion y un espacio): el YAML lo toma por un elemento de una lista: `result: '- nada -'`.
@@ -31,12 +31,12 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 ## Ids y referencias
 
 - **Los ids** usan minúsculas, dígitos y guiones: `getting-lost`, `npc-roles`.
-- **Las referencias** a una definición: `weather` (el mismo pack), `core/weather` (otro pack, por su id), o una plantilla que elige una: `'weather-{{season}}'`.
+- **Las referencias** a una definición: `weather` (el mismo pack), `core/weather` (otro pack, por su id), o una que elige una variable: `'weather-{{season}}'`.
 - Las entradas y las cartas también tienen id, para las traducciones y las entradas de una sola vez.
 
 ## Dados
 
-En el `roll` de una tabla u oráculo, en el `roll` de un campo de generador y dentro de los textos como `{{…}}`. Más: [Dados, plantillas y contexto](../oracle/08-dice-and-templates.md).
+En el `roll` de una tabla u oráculo, en el `roll` de un campo de generador y dentro de los textos como `{{…}}`. Más: [Dados, variables y contexto](../oracle/08-dice-and-templates.md).
 
 | Escribe                      | Tira                                          |
 | ---------------------------- | --------------------------------------------- |
@@ -54,39 +54,40 @@ Sin `roll`, una tabla elige por `weight` (1 si no tiene): `{ weight: 3, result: 
 
 El `range` de una entrada son los totales que cubre: `3`, `2-5`, `-1` (un total bajo cero), `11-16` con `d66`. Los rangos no pueden solaparse; con **Ajustar totales** (`clamp: true`, lo normal) un total por debajo del más bajo toma la primera entrada y por encima del más alto, la última.
 
-## Plantillas
+## Variables
 
-`{{…}}` dentro de un texto: un valor o una tirada. Más: [Dados, plantillas y contexto](../oracle/08-dice-and-templates.md#plantillas-en-los-textos).
+`{{nombre}}` es una **variable**: el valor con ese nombre. `{{2d6}}` es una **tirada**. Dentro de un texto, cada una se escribe en su sitio; un valor que es entero un `'{{…}}'` es lo que nombra (un número sigue siendo un número; una lista, una lista). Más: [Dados, variables y contexto](../oracle/08-dice-and-templates.md#variables-en-los-textos).
 
-| Escribe        | Muestra                                                      |
+| Escribe        | Es                                                           |
 | -------------- | ------------------------------------------------------------ |
 | `{{2d6}}`      | una tirada: `'{{2d6}} lobos'` → «7 lobos»                    |
-| `{{season}}`   | un valor del contexto                                        |
+| `{{season}}`   | una variable: un valor del contexto                          |
 | `{{npc.role}}` | una parte de un valor                                        |
 | `{{result}}`   | el texto de la tabla que una entrada tiró después (`table:`) |
 | `{{field}}`    | un campo de un generador, en su plantilla                    |
 
-Un valor que falta no muestra nada. Las plantillas sirven en resultados, plantillas y campos fijos de generador, textos de cartas, valores de `set` y `effects`, referencias, y en **Cuando no se aplica nada** de una acción (`{terrain}`, ahí con llaves simples).
+Un valor que falta no muestra nada. Las variables sirven en resultados, plantillas y campos fijos de generador, textos de cartas, valores de `set` y `effects`, referencias, [condiciones](08-conditions.md#variables-y-tiradas) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: una tirada es la misma durante todo un momento), y en **Cuando no se aplica nada** de una acción (`{terrain}`, ahí con llaves simples).
 
 ## Condiciones
 
 Cuándo se aplica algo. La misma sintaxis en todas partes: `when` (debe cumplirse) y `unless` (no debe). Referencia completa: [Condiciones](08-conditions.md).
 
-| Escribe                                  | Se cumple cuando                                |
-| ---------------------------------------- | ----------------------------------------------- |
-| `terrain: forest`                        | es exactamente eso                              |
-| `terrain: [forest, hills]`               | es cualquiera de ellos                          |
-| `tags: landmark`                         | una lista (etiquetas, festividades) lo contiene |
-| `season: { not: summer }`                | es cualquier otra cosa (o falta)                |
-| `danger: { gte: 3 }`                     | `gt`, `gte`, `lt`, `lte`: un número comparado   |
-| `danger: { gte: 2, lte: 4 }`             | se cumplen todas las comparaciones              |
-| `weather: { in: [rain, storm] }`         | lo mismo que una lista                          |
-| `danger: { gt: $party.stats.stealth }`   | `$`: comparado con otro valor                   |
-| `region: { exists: false }`              | falta (`true`: está)                            |
-| `{ terrain: forest, timeOfDay: night }`  | se cumplen todos los pares                      |
-| `any: [{ edges: road }, { mode: boat }]` | se cumple uno de ellos                          |
-| `all: [{ tags: ford }, { tags: toll }]`  | todos (un nombre dos veces)                     |
-| `not: { timeOfDay: night }`              | la condición de dentro no se cumple             |
+| Escribe                                     | Se cumple cuando                                |
+| ------------------------------------------- | ----------------------------------------------- |
+| `terrain: forest`                           | es exactamente eso                              |
+| `terrain: [forest, hills]`                  | es cualquiera de ellos                          |
+| `tags: landmark`                            | una lista (etiquetas, festividades) lo contiene |
+| `season: { not: summer }`                   | es cualquier otra cosa (o falta)                |
+| `danger: { gte: 3 }`                        | `gt`, `gte`, `lt`, `lte`: un número comparado   |
+| `danger: { gte: 2, lte: 4 }`                | se cumplen todas las comparaciones              |
+| `weather: { in: [rain, storm] }`            | lo mismo que una lista                          |
+| `danger: { gt: '{{party.stats.stealth}}' }` | una variable: comparado con otro valor          |
+| `party.stats.wits: { gte: '{{1d20}}' }`     | una tirada: bajo el ingenio (una por momento)   |
+| `region: { exists: false }`                 | falta (`true`: está)                            |
+| `{ terrain: forest, timeOfDay: night }`     | se cumplen todos los pares                      |
+| `any: [{ edges: road }, { mode: boat }]`    | se cumple uno de ellos                          |
+| `all: [{ tags: ford }, { tags: toll }]`     | todos (un nombre dos veces)                     |
+| `not: { timeOfDay: night }`                 | la condición de dentro no se cumple             |
 
 **Dónde van:**
 
@@ -117,14 +118,15 @@ Un paso de una acción también acepta `set`: `{ set: { lost: true } }`.
 
 En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor que declara el sistema, por su ruta; cada valor dice cómo cambia:
 
-| Escribe                                      | Hace                              |
-| -------------------------------------------- | --------------------------------- |
-| `party.resources.food: -1`                   | quita 1                           |
-| `party.stats.morale: 2`                      | suma 2                            |
-| `party.stats.fatigue: '=0'`                  | lo pone a 0                       |
-| `party.resources.food: '{{1d3+1}}'`          | suma una tirada                   |
-| `party.resources.food: -$party.stats.mouths` | quita tantos como dice otro valor |
-| `party.stats.morale: =$party.stats.charisma` | lo pone al valor de otro          |
+| Escribe                                           | Hace                                                             |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| `party.resources.food: -1`                        | quita 1                                                          |
+| `party.stats.morale: 2`                           | suma 2                                                           |
+| `party.stats.fatigue: '=0'`                       | lo pone a 0                                                      |
+| `party.resources.food: '{{1d3+1}}'`               | suma una tirada                                                  |
+| `party.resources.food: '-{{party.stats.mouths}}'` | quita tantos como dice otro valor                                |
+| `party.stats.morale: '={{party.stats.charisma}}'` | lo pone al valor de otro                                         |
+| `party.resources.food: '-{{1d3}}'`                | quita una tirada (en un viaje, la misma durante todo el momento) |
 
 Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo.
 
@@ -156,7 +158,7 @@ El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa 
 | `roll: ENCOUNTER_CHECK_REQUIRED`                 | tira una comprobación ya                        |
 | `{ unless: { below: food }, effects: { … } }`    | solo cuando se cumple su condición              |
 
-`march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (por defecto: `when: { daylight: true, marched: { lt: $hoursPerDay } }`). Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+`march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (por defecto: `when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } }`). Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Lo que bloquea: `blocks`
 

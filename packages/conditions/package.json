@@ -11,5 +11,7 @@
   "scripts": {
     "check": "tsc --noEmit -p ."
   },
-  "dependencies": {}
+  "dependencies": {
+    "@open-tabletop/variables": "*"
+  }
 }

@@ -27,6 +27,7 @@ packages/                   # libraries, scope @open-tabletop/*
   note-refs/                # provider-based links to external notes apps (SilverBullet, Obsidian…)
   random/                   # RandomSource, seeded PRNG
   dice/                     # dice expressions with breakdown (NdM±K, d66, dF, repeat and keep…)
+  variables/                # {{…}} variables and rolls in written values; rolls fixed for a moment
   conditions/               # safe condition evaluator (no eval), shared by every engine
   time/                     # GameTime (absolute minutes), calendars, seasons, watches
   schema/                   # OTD schema (OpenTabletop Data) in Zod → TS types + JSON Schema
@@ -64,10 +65,11 @@ docs/
 **Allowed dependencies** (top to bottom, never upwards):
 
 ```
-apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, time, hex  →  random
+apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
                                          ↘ schema (types/validation of persisted data only)
 ```
 
+- Among the lower packages: `conditions` → `variables` → `dice` (variables and rolls in written values are read in one place).
 - An engine **never imports another engine**. Whatever they share (dice, time, conditions) goes into a lower-level package.
 - `note-refs` depends on nothing, and no engine depends on it: external references are opaque strings to engines.
 - `storage` is a browser adapter (IndexedDB, localStorage) with no dependencies; only apps and UI packages use it, never engines.

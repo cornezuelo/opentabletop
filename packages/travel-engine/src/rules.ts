@@ -1,10 +1,5 @@
-import {
-  matches,
-  referenceOf,
-  validateCondition,
-  valueOf,
-  type Condition,
-} from '@open-tabletop/conditions'
+import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
+import { lookupIn, variableOf, type Roller } from '@open-tabletop/variables'
 import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
@@ -386,7 +381,7 @@ const DEFAULT_CAMP: ActionDefinition = { do: [{ time: 'dawn' }] }
 const DEFAULT_REST: ActionDefinition = { do: [{ time: 60 }] }
 /** Marching as the engine did before systems declared it: by day, the day's hours. */
 const DEFAULT_MARCH: ActionDefinition = {
-  when: { daylight: true, marched: { lt: '$hoursPerDay' } },
+  when: { daylight: true, marched: { lt: '{{hoursPerDay}}' } },
 }
 
 /**
@@ -557,29 +552,28 @@ export function resourceBounds(rules: TravelRules): Record<string, Bounds> {
 }
 
 /**
- * A value changed by an effect: a number adds (also as text, '+2'), '=3' sets; the result
- * stops at the bounds, and `limit` says which one it was cut by.
- */
-/**
- * An effect's change with the values it names read (`-$party.stats.mouths`: as many as
- * the party's mouths, taken away; `=$party.stats.endurance`: set to it; `$days`: add
- * them): a number to add, or `'=N'` to set. A name that isn't a number changes nothing.
+ * An effect's change with the variables and rolls it names read (`'-{{party.stats.mouths}}'`:
+ * as many as the party's mouths, taken away; `'={{party.stats.endurance}}'`: set to it;
+ * `'{{days}}'`: add them; `'-{{1d3}}'`: a roll, with `roller`): a number to add, or `'=N'`
+ * to set. A variable that isn't a number changes nothing.
  */
 export function resolveChange(
   change: number | string,
   context: Record<string, unknown>,
+  roller?: Roller,
 ): number | string {
   if (typeof change !== 'string') return change
   const text = change.trim()
   const set = text.startsWith('=')
   let rest = set ? text.slice(1).trim() : text
   let sign = 1
-  if (/^[+-]\$/.test(rest)) {
+  if (/^[+-]\s*\{\{/.test(rest)) {
     if (rest[0] === '-') sign = -1
-    rest = rest.slice(1)
+    rest = rest.slice(1).trim()
   }
-  if (referenceOf(rest) === undefined) return change
-  const value = valueOf(rest, context)
+  const expression = variableOf(rest)
+  if (expression === undefined) return change
+  const value = lookupIn(context, roller)(expression)
   const n =
     typeof value === 'number' && Number.isFinite(value)
       ? value
@@ -590,6 +584,10 @@ export function resolveChange(
   return set ? `=${n * sign}` : n * sign
 }
 
+/**
+ * A value changed by an effect: a number adds (also as text, '+2'), '=3' sets; the result
+ * stops at the bounds, and `limit` says which one it was cut by.
+ */
 export function changeValue(
   from: number,
   change: number | string,
@@ -688,13 +686,15 @@ export type Passable = z.infer<typeof passable>
 export function isPassable(
   rule: Passable | undefined,
   context: () => Record<string, unknown>,
+  /** Rolls the dice its conditions name (the engine's, fixed for the moment). */
+  roller?: Roller,
 ): boolean {
   if (rule === undefined || rule === true) return true
   if (rule === false) return false
   const seen = context()
   return (
-    (!rule.when || matches(rule.when as Condition, seen)) &&
-    !(rule.unless && matches(rule.unless as Condition, seen))
+    (!rule.when || matches(rule.when as Condition, seen, { roller })) &&
+    !(rule.unless && matches(rule.unless as Condition, seen, { roller }))
   )
 }
 

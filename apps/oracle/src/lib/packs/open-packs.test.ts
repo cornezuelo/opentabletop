@@ -86,6 +86,26 @@ describe('bundled open packs', () => {
     const toll = entries.find((e) => e.data?.event === 'TOLL_CHECK_REQUIRED')
     expect(toll?.code).toBe('ORACLE_RESULT')
     expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK_CHECK_REQUIRED'])
+    // A roll-under against Charisma (one d6 for both entries): with none, the toll is paid.
+    expect(toll?.data?.value).toMatchObject({ effects: { 'party.resources.food': -1 } })
+    expect(state.travel.resources.food).toBe(5)
+  })
+
+  it('the Grey Marches: the toll is a d6 under Charisma, one d6 for both entries', () => {
+    const engine = createOracleEngine({ registry, random: seeded('toll') })
+    const toll = (charisma: number) =>
+      engine.resolve('grey-marches/toll', { party: { stats: { charisma } } }).resolution
+    for (let i = 0; i < 10; i++) {
+      expect(toll(0).entry).toBe('pay')
+      expect(toll(6).entry).toBe('wave')
+    }
+    const rolls = Array.from({ length: 30 }, () => toll(3))
+    // Always exactly one entry, the d6 shown on the card, and both outcomes over time.
+    for (const r of rolls) {
+      expect(r.rolls).toHaveLength(1)
+      expect(r.entry).toBe(r.rolls[0].total <= 3 ? 'wave' : 'pay')
+    }
+    expect(new Set(rolls.map((r) => r.entry))).toEqual(new Set(['pay', 'wave']))
   })
 
   it('the Grey Marches: peaks open in summer but not in snow, lakes freeze in deep winter', () => {
@@ -240,14 +260,15 @@ describe('bundled open packs', () => {
       expect(took(rite(full, []).entries, 'rite')).toBe(false)
     })
 
-    it('hirelings refuse to march after a hungry day, and morale talks them round', () => {
+    it('hirelings refuse to march after a hungry day, and a d6 under morale talks them round', () => {
       const options = play([{ terrain: 'plains' }, { terrain: 'plains' }])
-      const start = (morale: number) => {
+      const start = (morale: number, seed?: string) => {
         const { session } = startTrip({
           system,
           location: '0',
           season: 'summer',
           stats: { hirelings: 2, morale },
+          seed,
         })
         // No food: the day ends hungry; the next dawn they grumble.
         const hungry = {
@@ -257,7 +278,7 @@ describe('bundled open packs', () => {
         return stepTrip(options, hungry, { type: 'wait', until: session.travel.time + 1440 + 60 })
           .state
       }
-      const refusing = start(3)
+      const refusing = start(6)
       expect(refusing.travel.today?.refusing).toBe(true)
       const blocked = stepTrip(
         options,
@@ -269,9 +290,22 @@ describe('bundled open packs', () => {
       expect(blocked.state.travel.location).toBe('0')
       const talked = stepTrip(options, refusing, { type: 'action', id: 'parley' }).state
       expect(talked.travel.today?.refusing).toBe(false)
+      // Morale 6: any d6 is at or under it. Morale 0: none is.
       expect(talked.stats.hirelings).toBe(2)
-      const low = stepTrip(options, start(1), { type: 'action', id: 'parley' }).state
+      // (Morale set to 0 after the hungry night, whose own table may cost a hireling.)
+      const sulking = start(1)
+      const low = stepTrip(
+        options,
+        { ...sulking, stats: { ...sulking.stats, morale: 0 } },
+        { type: 'action', id: 'parley' },
+      ).state
       expect(low.stats.hirelings).toBe(1)
+      // Morale 3: each trip rolls its own d6; the same talk again is the same roll.
+      const kept = (seed: string) =>
+        stepTrip(options, start(3, seed), { type: 'action', id: 'parley' }).state.stats.hirelings
+      const outcomes = Array.from({ length: 12 }, (_, i) => kept(`talk-${i}`))
+      expect(new Set(outcomes)).toEqual(new Set([1, 2]))
+      expect(outcomes.map((_, i) => kept(`talk-${i}`))).toEqual(outcomes)
     })
 
     it('a restless watch with low morale', () => {

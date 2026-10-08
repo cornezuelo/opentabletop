@@ -30,19 +30,28 @@ Varias comparaciones sobre el mismo valor se deben cumplir todas: `danger: { gte
 - **Los valores que faltan** no encajan, salvo con `not` y `exists: false`.
 - **Los nombres con puntos** leen dentro de un valor: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
 
-## Comparar con otro valor: `$`
+## Variables y tiradas: `{{…}}`
 
-Un valor escrito con `$` delante es **otro valor del contexto**, leído al comprobar la condición, en vez de uno fijo. Va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`.
+Un valor escrito como `'{{nombre}}'` es una **variable**: otro valor del contexto, leído al comprobar la condición, en vez de uno fijo. Escrito como `'{{dados}}'` es una **tirada**. Cualquiera de las dos va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`. En YAML, **ponlas entre comillas** (`'{{nightfall}}'`): sin comillas, las llaves abren un valor dentro de otro (ver [Sintaxis](09-syntax.md#valores-clave-valor)).
 
-| Escribe                                                | Se cumple cuando                                          |
-| ------------------------------------------------------ | --------------------------------------------------------- |
-| `danger: { gt: $party.stats.stealth }`                 | el peligro supera el sigilo del grupo                     |
-| `hour: { gte: $nightfall }`                            | es el anochecer del sistema o más tarde                   |
-| `party.stats.fatigue: { gte: $party.stats.endurance }` | la fatiga ha llegado al aguante                           |
-| `faction: $rival`                                      | la facción del hex es la del valor `rival`                |
-| `tags: $wanted`                                        | el hex tiene alguna de las etiquetas de la lista `wanted` |
+| Escribe                                                     | Se cumple cuando                                          |
+| ----------------------------------------------------------- | --------------------------------------------------------- |
+| `danger: { gt: '{{party.stats.stealth}}' }`                 | el peligro supera el sigilo del grupo                     |
+| `hour: { gte: '{{nightfall}}' }`                            | es el anochecer del sistema o más tarde                   |
+| `party.stats.fatigue: { gte: '{{party.stats.endurance}}' }` | la fatiga ha llegado al aguante                           |
+| `faction: '{{rival}}'`                                      | la facción del hex es la del valor `rival`                |
+| `tags: '{{wanted}}'`                                        | el hex tiene alguna de las etiquetas de la lista `wanted` |
+| `party.stats.wits: { gte: '{{1d20}}' }`                     | un d20 saca el ingenio del grupo o menos                  |
+| `danger: { gt: '{{1d6}}' }`                                 | un d6 saca menos que el peligro                           |
 
-Un valor con `$` que no está (o que no es un número, tras `gte`…) nunca se cumple. Para escribir un valor que empiece por `$`, dóblalo: `$$5` es el texto `$5`. Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tables-see.md).
+Una variable que no está (o que no es un número, tras `gte`…) nunca se cumple. Solo un valor entero es una variable: `'the {{rival}}'` es ese texto, tal cual.
+
+**Una tirada es la misma durante todo un momento.** Donde se vuelva a leer en el mismo momento, los mismos dados dan el mismo total, así que lo que decide no cambia al volver a mirarlo:
+
+- En un **viaje** (comprobaciones, acciones y sus pasos, la marcha, formas de viajar, terrenos y `through`), un momento es el día, el hex y lo que está pasando: un momento como `hex-enter` o `day-end`, o la acción que se hace (`march` para la marcha). Una acción cuyo `when` tira `'{{1d20}}'` está disponible o no todo el día en ese hex, la ruta no cambia mientras la planeas, y los efectos de la acción ven la misma tirada. Cada viaje tira las suyas.
+- En una **tabla** (entradas, campos de generador, `modeWhen` / `modeUnless`), un momento es una tirada de la tabla, con lo que tire después: una entrada con `when` y otra con `unless` sobre el mismo `'{{1d20}}'` ven el mismo d20, así que sale una de las dos (una tirada por debajo). La tarjeta del resultado muestra la tirada.
+
+Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tables-see.md); los dados, en [Dados y variables](../oracle/08-dice-and-templates.md).
 
 ## Juntar condiciones
 

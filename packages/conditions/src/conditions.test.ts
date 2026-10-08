@@ -64,7 +64,7 @@ describe('validateCondition', () => {
       'when.danger: unknown operator "between"',
     ])
     expect(validateCondition({ danger: { gte: 'four' } })).toEqual([
-      "when.danger.gte: must be a number, or $ and another value's name",
+      'when.danger.gte: must be a number, or a variable or roll in {{…}}',
     ])
     expect(validateCondition({ any: [] })).toEqual(['when.any: must be a non-empty list'])
     expect(validateCondition({ all: [{ x: { in: [{}] } }] })).toEqual([
@@ -73,7 +73,7 @@ describe('validateCondition', () => {
   })
 })
 
-describe('values that name another value ($)', () => {
+describe('variables and rolls ({{…}})', () => {
   const context = {
     danger: 3,
     hour: 21,
@@ -83,33 +83,48 @@ describe('values that name another value ($)', () => {
     tags: ['ford', 'shrine'],
     wanted: ['shrine', 'ruin'],
     note: '$5',
-    party: { stats: { stealth: 2, endurance: 5, fatigue: 5 } },
+    party: { stats: { stealth: 2, endurance: 5, fatigue: 5, str: 12 } },
   }
 
   it('compare with another value of the context', () => {
-    expect(matches({ danger: { gt: '$party.stats.stealth' } }, context)).toBe(true)
-    expect(matches({ hour: { gte: '$nightfall' } }, context)).toBe(true)
-    expect(matches({ 'party.stats.fatigue': { lt: '$party.stats.endurance' } }, context)).toBe(
+    expect(matches({ danger: { gt: '{{party.stats.stealth}}' } }, context)).toBe(true)
+    expect(matches({ hour: { gte: '{{ nightfall }}' } }, context)).toBe(true)
+    expect(matches({ 'party.stats.fatigue': { lt: '{{party.stats.endurance}}' } }, context)).toBe(
       false,
     )
-    expect(matches({ faction: '$rival' }, context)).toBe(true)
-    expect(matches({ faction: { not: '$rival' } }, context)).toBe(false)
-    expect(matches({ faction: ['$nobody', '$rival'] }, context)).toBe(true)
-    // A reference to a list: any of its values.
-    expect(matches({ tags: '$wanted' }, context)).toBe(true)
+    expect(matches({ faction: '{{rival}}' }, context)).toBe(true)
+    expect(matches({ faction: { not: '{{rival}}' } }, context)).toBe(false)
+    expect(matches({ faction: ['{{nobody}}', '{{rival}}'] }, context)).toBe(true)
+    // A variable holding a list: any of its values.
+    expect(matches({ tags: '{{wanted}}' }, context)).toBe(true)
   })
 
-  it('never compare with what isn’t there or isn’t a number; $$ is a plain $', () => {
-    expect(matches({ danger: { gt: '$nothing' } }, context)).toBe(false)
-    expect(matches({ danger: { gt: '$faction' } }, context)).toBe(false)
-    expect(matches({ faction: '$nothing' }, context)).toBe(false)
-    expect(matches({ note: '$$5' }, context)).toBe(true)
+  it('never compare with what isn’t there or isn’t a number; other texts are themselves', () => {
+    expect(matches({ danger: { gt: '{{nothing}}' } }, context)).toBe(false)
+    expect(matches({ danger: { gt: '{{faction}}' } }, context)).toBe(false)
+    expect(matches({ faction: '{{nothing}}' }, context)).toBe(false)
+    expect(matches({ note: '$5' }, context)).toBe(true)
+    expect(matches({ faction: 'the {{rival}}' }, context)).toBe(false)
+  })
+
+  it('roll dice with the roller given, and never hold without one', () => {
+    const condition = { 'party.stats.str': { gte: '{{1d20}}' } }
+    expect(matches(condition, context, { roller: () => 12 })).toBe(true)
+    expect(matches(condition, context, { roller: () => 13 })).toBe(false)
+    expect(matches(condition, context)).toBe(false)
+    // The roller sees the dice as written.
+    const seen: string[] = []
+    matches({ danger: { lt: '{{2d6+1}}' } }, context, {
+      roller: (dice) => (seen.push(dice), 7),
+    })
+    expect(seen).toEqual(['2d6+1'])
   })
 
   it('are valid where a number goes', () => {
-    expect(validateCondition({ danger: { gte: '$party.stats.stealth' } })).toEqual([])
-    expect(validateCondition({ danger: { gte: '$$5' } })).toEqual([
-      "when.danger.gte: must be a number, or $ and another value's name",
+    expect(validateCondition({ danger: { gte: '{{party.stats.stealth}}' } })).toEqual([])
+    expect(validateCondition({ danger: { gte: '{{1d20}}' } })).toEqual([])
+    expect(validateCondition({ danger: { gte: '$party.stats.stealth' } })).toEqual([
+      'when.danger.gte: must be a number, or a variable or roll in {{…}}',
     ])
   })
 })

@@ -16,6 +16,7 @@ import {
 } from './discovery'
 import {
   declaredValues,
+  momentRolls,
   resolveChange,
   resourceBounds,
   upgradeTravelState,
@@ -162,6 +163,12 @@ export function partyValues(s: SessionState): Record<string, unknown> {
     mode: s.travel.mode,
   }
 }
+
+/** The hex and moment a context is about (for its rolls). */
+const hexOf = (seen: Record<string, unknown>) =>
+  typeof seen.hex === 'string' ? seen.hex : undefined
+const momentOf = (seen: Record<string, unknown>) =>
+  typeof seen.moment === 'string' ? seen.moment : undefined
 
 /**
  * What a table rolled during a trip sees, later sources winning: the party stats by
@@ -468,14 +475,21 @@ export function createSession(options: {
             })
             continue
           }
-          // Its effects with the values they name read now (`-$party.stats.mouths`): the
-          // journal says what they did.
+          // Its effects with the variables they name read now (`'-{{party.stats.mouths}}'`;
+          // the Oracle reads its own entries' first): the journal says what they did.
           const seen = { ...tripContext(s, { ...host, ...event.check.context }), ...value }
           const written = effectsOf(value)
           const effects = Object.fromEntries(
-            Object.entries(written).map(([p, c]) => [p, resolveChange(c, seen)]),
+            Object.entries(written).map(([p, c]) => [
+              p,
+              resolveChange(c, seen, momentRolls(s.travel, hexOf(seen), momentOf(seen))),
+            ]),
           )
-          const named = Object.values(written).some((c) => typeof c === 'string' && c.includes('$'))
+          // Written with variables (the Oracle renders its own: '-{{loss}}' comes as '-2'),
+          // the journal keeps them as numbers.
+          const named = Object.values((value.effects ?? {}) as Record<string, unknown>).some(
+            (c) => typeof c === 'string' && !c.trim().startsWith('='),
+          )
           add(s, entries, {
             source: 'oracle',
             code: 'ORACLE_RESULT',

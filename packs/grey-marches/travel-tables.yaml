@@ -88,25 +88,27 @@ entries:
       effects: { party.resources.food: '{{days}}' },
     }
 ---
-# Spending supplies: the toll is paid in food.
+# Spending supplies: the toll is paid in food, unless a d6 rolls the party's charisma or
+# under (a roll in a condition: both entries read the same d6, so exactly one comes up).
 kind: table
 id: toll
 name: The toll
 description: |-
-  **Keld Bridge**'s toll, arriving by road.
+  **Keld Bridge**'s toll, arriving by road: roll a d6; at or under the party's **Charisma**, the bridge-warden waves you through, otherwise he takes a day's food.
 
   **Shows:**
 
   - A check with `all` / `tags` / `edges`
+  - A roll-under against a stat in a condition: `party.stats.charisma: { gte: '{{1d6}}' }`, one d6 for both entries (`when` on one, `unless` on the other)
   - An effect with a negative number: `party.resources.food: -1`, food spent
 entries:
-  - {
-      id: pay,
-      weight: 3,
-      result: 'The bridge-warden takes a day’s food as toll',
-      effects: { party.resources.food: -1 },
-    }
-  - { id: wave, weight: 1, result: The bridge-warden waves you through }
+  - id: pay
+    result: 'The bridge-warden takes a day’s food as toll'
+    unless: { party.stats.charisma: { gte: '{{1d6}}' } }
+    effects: { party.resources.food: -1 }
+  - id: wave
+    result: The bridge-warden likes your look and waves you through
+    when: { party.stats.charisma: { gte: '{{1d6}}' } }
 ---
 # Fatigue down (negative) at a shrine; a once-only blessing comes up a single time.
 kind: table

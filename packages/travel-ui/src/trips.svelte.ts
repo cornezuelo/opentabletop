@@ -177,6 +177,8 @@ export class TripStore {
       location: '0',
       season,
       stats: this.saved.system === system ? this.saved.session?.stats : undefined,
+      // What the trip's rolls in conditions are seeded with: each trip its own.
+      seed: Math.random().toString(36).slice(2, 10),
     })
     this.saved = { ...this.saved, system: s.id, season, startDay, session }
     this.aim()

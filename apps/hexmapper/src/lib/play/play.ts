@@ -117,6 +117,8 @@ function newSession(
     stats: play.rules?.system === system ? sessionOf(play)?.stats : undefined,
     // With the world clock running, trips start at the world's time.
     ...(editor.map.world && { time: editor.map.world.time }),
+    // What the trip's rolls in conditions are seeded with: each trip its own.
+    seed: Math.random().toString(36).slice(2, 10),
   })
   return { ...play, rules: { system, startDay, session } }
 }

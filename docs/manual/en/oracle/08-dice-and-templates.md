@@ -1,4 +1,4 @@
-# Dice, templates and context
+# Dice, variables and context
 
 This page lists everything you can write in a table's dice, its texts and its conditions, and where the values come from. Nothing else is needed: there is no JSON to open and no list of variables to declare — a table reads whatever its context holds when it's rolled.
 
@@ -35,21 +35,35 @@ entries:
 
 Use weights when no die fits the odds you want, or to make some results rarer without renumbering ranges. With no weights at all, every entry is equally likely (the Grey Marches' _Ruins_). Entries that a condition (`when`) leaves out don't count, so the others share their chance. A table uses either dice and ranges or weights, not both; roll modes need dice. In the Grey Marches, _Roles_ and _Summer in the Marches_ use weights.
 
-## Templates in texts
+## Variables in texts
 
-Texts (results, generator templates, card texts) can include `{{…}}`:
+`{{…}}` holds a **variable** (`{{season}}`: the value with that name) or a **roll** (`{{2d6}}`: dice). Texts (results, generator templates, card texts) can include them:
 
 | Write          | Shows                                                                                                                           |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `{{2d6}}`      | A roll, right there: `'{{2d6}} wolves'` → "7 wolves".                                                                           |
-| `{{season}}`   | A context value.                                                                                                                |
+| `{{season}}`   | A variable: a context value.                                                                                                    |
 | `{{npc.role}}` | A part of a value (a generator's field holds its table's values).                                                               |
 | `{{result}}`   | In an entry with **then roll**: the text of the table it rolled, e.g. `'Bandits — they are {{result}}'` with `table: reaction`. |
 | `{{field}}`    | In a generator's template: a field's value (its text, if it came from a table).                                                 |
 
-A missing value shows as nothing. Templates never run code: they only look values up and roll dice.
+A missing value shows as nothing. Variables never run code: they only look values up and roll dice. A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
 
-Table and generator references can be templates too: `table: 'weather-{{season}}'` rolls `weather-spring`, `weather-autumn`… depending on the season.
+Table and generator references can use variables too: `table: 'weather-{{season}}'` rolls `weather-spring`, `weather-autumn`… depending on the season.
+
+## Variables and rolls in conditions
+
+Conditions compare with a variable or a roll the same way: `when: { danger: { gt: '{{party.stats.stealth}}' } }`, or a roll-under against a stat:
+
+```yaml
+kind: table
+id: climb-the-wall
+entries:
+  - { id: up, result: You climb it, when: { party.stats.str: { gte: '{{1d20}}' } } }
+  - { id: fall, result: You fall, unless: { party.stats.str: { gte: '{{1d20}}' } } }
+```
+
+In one roll of the table, the same dice are the same roll everywhere, so exactly one of the two entries comes up, and the result card shows the d20. More in [Conditions](../technical/08-conditions.md#variables-and-rolls).
 
 ## Where context values come from
 
@@ -63,7 +77,7 @@ When a definition is rolled it receives a **context**: a set of named values. Th
    - An entry's **set** values are passed to the table it rolls next (**then roll**), and become values of the result.
    - A generator's **fields** are rolled in order, and each one sees the ones before it; a field's `context: { … }` adds values just for that field.
 
-Conditions (`when`) read the same context. See [YAML reference](06-yaml.md#conditions) for their syntax.
+Conditions (`when`) read the same context, and so do variables. See [YAML reference](06-yaml.md#conditions) for their syntax.
 
 ## Putting it together
 

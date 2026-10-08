@@ -30,19 +30,28 @@ Several comparisons on the same value must all hold: `danger: { gte: 2, lte: 4 }
 - **Missing values** don't match, except with `not` and `exists: false`.
 - **Dotted names** read inside a value: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
 
-## Comparing with another value: `$`
+## Variables and rolls: `{{…}}`
 
-A value written with `$` in front is **another value of the context**, read when the condition is checked, instead of a fixed one. It goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`.
+A value written as `'{{name}}'` is a **variable**: another value of the context, read when the condition is checked, instead of a fixed one. Written as `'{{dice}}'` it's a **roll**. Either goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`. In YAML, **quote them** (`'{{nightfall}}'`): without quotes, braces start a list of pairs (see [Syntax](09-syntax.md#values-key-value)).
 
-| Write                                                  | Holds when                                          |
-| ------------------------------------------------------ | --------------------------------------------------- |
-| `danger: { gt: $party.stats.stealth }`                 | the danger is over the party's stealth              |
-| `hour: { gte: $nightfall }`                            | it's the system's nightfall or later                |
-| `party.stats.fatigue: { gte: $party.stats.endurance }` | fatigue has reached endurance                       |
-| `faction: $rival`                                      | the hex's faction is the one in the value `rival`   |
-| `tags: $wanted`                                        | the hex has any of the tags the list `wanted` holds |
+| Write                                                       | Holds when                                          |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| `danger: { gt: '{{party.stats.stealth}}' }`                 | the danger is over the party's stealth              |
+| `hour: { gte: '{{nightfall}}' }`                            | it's the system's nightfall or later                |
+| `party.stats.fatigue: { gte: '{{party.stats.endurance}}' }` | fatigue has reached endurance                       |
+| `faction: '{{rival}}'`                                      | the hex's faction is the one in the value `rival`   |
+| `tags: '{{wanted}}'`                                        | the hex has any of the tags the list `wanted` holds |
+| `party.stats.wits: { gte: '{{1d20}}' }`                     | a d20 rolls the party's wits or under               |
+| `danger: { gt: '{{1d6}}' }`                                 | a d6 rolls under the danger                         |
 
-A `$` value that isn't there (or isn't a number, after `gte`…) never holds. To write a value that starts with `$` itself, double it: `$$5` is the text `$5`. Everything a condition can read is in [What tables see](04-what-tables-see.md).
+A variable that isn't there (or isn't a number, after `gte`…) never holds. Only a whole value is a variable: `'the {{rival}}'` is that text, as written.
+
+**A roll is the same all through a moment.** Wherever it's read again in the same moment, the same dice give the same total, so what it decides doesn't change when you look again:
+
+- In a **trip** (checks, actions and their steps, marching, ways of travelling, terrains and `through`), a moment is the day, the hex and what's happening: a moment like `hex-enter` or `day-end`, or the action being taken (`march` for marching). An action whose `when` rolls `'{{1d20}}'` is available or not for the whole day in that hex, the route doesn't change as you plan it, and the action's effects see the same roll. Each trip rolls its own.
+- In a **table** (entries, generator fields, `modeWhen` / `modeUnless`), a moment is one roll of the table, with what it rolls next: an entry with `when` and another with `unless` on the same `'{{1d20}}'` see the same d20, so one of them comes up (a roll-under). The result card shows the roll.
+
+Everything a condition can read is in [What tables see](04-what-tables-see.md); dice are in [Dice and variables](../oracle/08-dice-and-templates.md).
 
 ## Joining conditions
 

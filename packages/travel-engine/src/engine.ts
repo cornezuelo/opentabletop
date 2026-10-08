@@ -1,5 +1,6 @@
 import { matches, type Condition } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
+import { momentRoller, type Roller } from '@open-tabletop/variables'
 import {
   defaultCalendar,
   nextAt,
@@ -106,6 +107,11 @@ export interface TravelState {
   visits?: Record<string, number>
   /** The system's own actions done today (for `oncePerDay`). */
   actionsToday?: string[]
+  /**
+   * What the trip's rolls in conditions and effects (`'{{1d20}}'`) are seeded with, with the
+   * day, hex and moment (see `momentRolls`); older trips have none.
+   */
+  seed?: string
   pendingChecks: PendingCheck[]
   nextCheckId: number
 }
@@ -249,6 +255,8 @@ export function initialTravelState(init: {
   time?: GameTime
   resources?: Record<string, number>
   calendar?: Calendar
+  /** Seeds the trip's rolls in conditions and effects (any text; the host picks one). */
+  seed?: string
 }): TravelState {
   const time = init.time ?? 0
   return {
@@ -264,7 +272,22 @@ export function initialTravelState(init: {
     dayChecksDone: false,
     pendingChecks: [],
     nextCheckId: 1,
+    ...(init.seed !== undefined && { seed: init.seed }),
   }
+}
+
+/**
+ * The rolls a trip's conditions and effects make (`gte: '{{1d20}}'`), fixed for a moment:
+ * the same dice give the same total all through the same day, hex and moment (a moment
+ * such as `hex-enter`, or the action being taken), however many times they're read, so
+ * what's available, the route and the checks don't change when they're looked at again.
+ */
+export function momentRolls(
+  state: Pick<TravelState, 'seed' | 'day' | 'location'>,
+  hex: string = state.location,
+  moment = '',
+): Roller {
+  return momentRoller(`${state.seed ?? ''}|${state.day}|${hex}|${moment}`)
 }
 
 /** Older trips (built-in `lost`) in today's shape: `today.lost`, `yesterday.lost`. */
@@ -318,6 +341,22 @@ export function createTravelEngine(options: {
       triggered.set(moment, [...(triggered.get(moment) ?? []), id])
   /** A declared value holds while it's set to anything but false. */
   const holds = (v: unknown) => v !== undefined && v !== null && v !== false
+  /**
+   * Whether a condition holds where it's read, its rolls fixed for the moment: the hex it
+   * reads (`hex`), and the moment (`moment`, else the one given: the action, `march`…).
+   */
+  const test = (
+    state: TravelState,
+    condition: Condition | undefined,
+    seen: Record<string, unknown>,
+    moment?: string,
+  ): boolean => matches(condition, seen, { roller: rollsOf(state, seen, moment) })
+  const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>
+    momentRolls(
+      state,
+      typeof seen.hex === 'string' ? seen.hex : state.location,
+      typeof seen.moment === 'string' ? seen.moment : moment,
+    )
   /** The declared value that blocks `what` today (travel, an action), if any. */
   const blocker = (state: TravelState, what: string): string | undefined =>
     Object.entries(values).find(
@@ -330,7 +369,7 @@ export function createTravelEngine(options: {
     return time >= calendar.at(day, rules.day.start) && time < calendar.at(day, rules.day.nightfall)
   }
 
-  /** The system's own day as numbers (hours), for conditions: `hour: { gte: $nightfall }`. */
+  /** The system's own day as numbers (hours), for conditions: `hour: { gte: '{{nightfall}}' }`. */
   const clockHours = (clock: string) => parseClock(clock) / 60
   /**
    * The moment as conditions read it: the season, the day, whether it's day, the hour
@@ -410,8 +449,11 @@ export function createTravelEngine(options: {
     const through = modeThrough(mode)
     if (through) {
       // "Only through" where its condition holds: there, even closed terrains are open to it.
-      if (!matches(through, throughContext(state, a, b))) return 0
-    } else if (!isPassable(terrainRule?.passable, () => throughContext(state, a, b))) return 0
+      if (!test(state, through, throughContext(state, a, b))) return 0
+    } else if (
+      !isPassable(terrainRule?.passable, () => throughContext(state, a, b), momentRolls(state, b))
+    )
+      return 0
     const edgeMultipliers = world
       .edges(a, b)
       .map((e) => rules.edges?.[e]?.multiplier)
@@ -537,8 +579,8 @@ export function createTravelEngine(options: {
     let scheduled = 0
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (event ? rule.event !== event : !momentsOf(rule.at).includes(at)) continue
-      if (rule.when && !matches(rule.when, seen)) continue
-      if (rule.unless && matches(rule.unless, seen)) continue
+      if (rule.when && !test(state, rule.when, seen)) continue
+      if (rule.unless && test(state, rule.unless, seen)) continue
       const check: PendingCheck = {
         id: `c${state.nextCheckId++}`,
         event: rule.event,
@@ -610,8 +652,8 @@ export function createTravelEngine(options: {
     if (march && !blocker(now, MARCH)) {
       const seen = checkContext(now, [], hostFacts)
       if (
-        (!march.when || matches(march.when as Condition, seen)) &&
-        !(march.unless && matches(march.unless as Condition, seen))
+        (!march.when || test(now, march.when as Condition, seen, MARCH)) &&
+        !(march.unless && test(now, march.unless as Condition, seen, MARCH))
       )
         return undefined
     }
@@ -671,7 +713,8 @@ export function createTravelEngine(options: {
       if (why) return stop(why)
       // March minute by minute while the system's march holds, up to the next hex, the
       // moment asked for, dawn (its checks come first) or midnight (a new day).
-      const remaining = cost - state.progress
+      // Already past it (the way got faster since: better weather…): the hex is entered now.
+      const remaining = Math.max(0, cost - state.progress)
       let end = Math.min(by, midnight, state.time + remaining)
       if (state.time < start) end = Math.min(end, start)
       let time = state.time + 1
@@ -857,8 +900,9 @@ export function createTravelEngine(options: {
     if (value) return { value }
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
     const context = { ...checkContext(state, [], facts), ...moment }
-    if (def.when && !matches(def.when as Condition, context)) return { condition: 'when' }
-    if (def.unless && matches(def.unless as Condition, context)) return { condition: 'unless' }
+    if (def.when && !test(state, def.when as Condition, context, id)) return { condition: 'when' }
+    if (def.unless && test(state, def.unless as Condition, context, id))
+      return { condition: 'unless' }
     return undefined
   }
 
@@ -873,8 +917,10 @@ export function createTravelEngine(options: {
     const value = blocker(state, `mode.${id}`)
     if (value) return { value }
     const context = checkContext(state, [], facts)
-    if (mode.when && !matches(mode.when as Condition, context)) return { condition: 'when' }
-    if (mode.unless && matches(mode.unless as Condition, context)) return { condition: 'unless' }
+    const at = `mode.${id}`
+    if (mode.when && !test(state, mode.when as Condition, context, at)) return { condition: 'when' }
+    if (mode.unless && test(state, mode.unless as Condition, context, at))
+      return { condition: 'unless' }
     return undefined
   }
 
@@ -916,13 +962,15 @@ export function createTravelEngine(options: {
     action: string,
     written: Record<string, number | string>,
     events: TravelEvent[],
+    /** The rolls they make (`'-{{1d3}}'`): the step's moment's. */
+    roller: Roller,
   ): void => {
     const limits: TravelEvent[] = []
     const party = hostFacts.party as { stats?: Record<string, number> } | undefined
-    // The values they name (`-$party.stats.mouths`) are read now, before any changes.
+    // The variables they name (`'-{{party.stats.mouths}}'`) are read now, before any changes.
     const now = checkContext(state, [], hostFacts)
     const effects = Object.fromEntries(
-      Object.entries(written).map(([path, change]) => [path, resolveChange(change, now)]),
+      Object.entries(written).map(([path, change]) => [path, resolveChange(change, now, roller)]),
     )
     for (const [path, change] of Object.entries(effects)) {
       const [, scope, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
@@ -1030,13 +1078,14 @@ export function createTravelEngine(options: {
         ...doingFacts(),
         ...options.facts,
       }
-      if (step.when && !matches(step.when, context)) continue
-      if (step.unless && matches(step.unless, context)) continue
+      if (step.when && !test(state, step.when, context, id)) continue
+      if (step.unless && test(state, step.unless, context, id)) continue
       if (step.time !== undefined) {
         state.time = Math.max(state.time, timeOf(state, step.time))
         syncDay(state, events)
       } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
-      else if (step.effects) applyEffects(state, id, step.effects, events)
+      else if (step.effects)
+        applyEffects(state, id, step.effects, events, rollsOf(state, context, id))
       else if (step.do !== undefined)
         takeAction(state, step.do, events, { facts: options.facts, quiet: true, depth: depth + 1 })
       else if (step.roll !== undefined)
