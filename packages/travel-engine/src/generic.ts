@@ -45,7 +45,7 @@ export const genericTravelRules: TravelRules = {
     'crystal-field': { multiplier: 0.5 },
     'lava-field': { passable: false },
     regolith: { multiplier: 0.75 },
-    // Open space and nebulae are for ships: a system with a mode `allowedTerrains: [space…]`.
+    // Open space and nebulae are for ships: a system with a mode `through: { terrain: [space…] }`.
     space: { passable: false },
     nebula: { passable: false },
     'asteroid-field': { passable: false },

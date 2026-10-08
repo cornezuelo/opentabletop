@@ -1,5 +1,5 @@
-# Discovering the map as you travel (Hexmapper: Play → With rules → The Grey Marches,
-# "Discover the map as you travel"). The bindings name these two tables under `discover`;
+# Discovering the map as you travel (Hexmapper: Play → With rules, with The Grey Marches
+# as the map's system, "Discover the map as you travel"). The bindings name these two tables under `discover`;
 # see travel.yaml. The example map leaves its east unpainted for this.
 
 # The terrain of an empty hex, seen from where you stand. The context has `terrain` (the

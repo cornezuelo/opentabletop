@@ -1,4 +1,4 @@
-import type { TravelSystem } from '@open-tabletop/session'
+import { localize, type LocalizedText, type TravelSystem } from '@open-tabletop/session'
 import { genericTravelRules } from '@open-tabletop/travel-engine'
 import { SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
@@ -111,6 +111,21 @@ export function partChoices(system: TravelSystem, kind: PartKind): string[] {
         return owner === pack ? id : `${owner}/${id}`
       }),
   )
+}
+
+/**
+ * The name of one of `partChoices` (a calendar's, a weather model's…) in the UI's
+ * language, or undefined when the definition has none.
+ */
+export function partName(system: TravelSystem, kind: PartKind, choice: string): string | undefined {
+  const [owner, id] = choice.includes('/')
+    ? [choice.slice(0, choice.indexOf('/')), choice.slice(choice.indexOf('/') + 1)]
+    : [system.pack ?? '', choice]
+  const extra = (library.registry.extras.get(owner) ?? []).find(
+    (e) => e.kind === kind && (e.id ?? 'default') === id,
+  )
+  const locale = library.registry.packs.get(owner)?.manifest.locale
+  return localize(extra?.data.name as LocalizedText | undefined, getLocale(), locale) || undefined
 }
 
 /** The packs a system's pack depends on (the only ones it can bring or take parts from). */

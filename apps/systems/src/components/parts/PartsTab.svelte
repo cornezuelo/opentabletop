@@ -1,6 +1,6 @@
 <script lang="ts">
   import { seasonsFor, type TravelSystem } from '@open-tabletop/session'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import { createSystemPart, systemParts, systemRoot, type PartTabKind } from '../../lib/newSystem'
   import { library } from '../../lib/packs.svelte'
@@ -35,7 +35,7 @@
 
 <div class="parts">
   <h3>{t(`parts.${key}.title`)}<InfoTip text={t(`parts.${key}.help`)} /></h3>
-  <p class="intro">{t(`parts.${key}.intro`)}</p>
+  <div class="intro"><Markdown text={t(`parts.${key}.intro`)} /></div>
   {#if parts.length > 1}
     <div class="choose" role="tablist">
       {#each parts as p, i (`${p.root}/${p.path}/${p.id}`)}
@@ -87,6 +87,10 @@
     margin: 0;
     max-width: 760px;
     color: var(--text-muted);
+  }
+
+  .intro :global(p) {
+    margin: 0;
   }
 
   .file {

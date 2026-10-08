@@ -9,6 +9,7 @@
     declareSystem,
     dependencies,
     partChoices,
+    partName,
     systemRoot,
     type PartKind,
   } from '../lib/newSystem'
@@ -88,6 +89,12 @@
   /** What its .zip would hold. */
   const zipped = $derived(system.pack ? systemZipPacks(system) : [])
 
+  /** A part as the selects list it: its name and its id, or its id alone. */
+  const choiceLabel = (kind: PartKind, id: string) => {
+    const name = partName(system, kind, id)
+    return name ? `${name} (${id})` : id
+  }
+
   function setText(key: 'name' | 'description', text: string) {
     doc?.setText('system', [key], data?.[key], [key], text)
   }
@@ -152,7 +159,8 @@
                 <option value=""
                   >{t(`overview.no.${part.key as 'travel' | 'bindings' | 'calendar'}`)}</option
                 >
-                {#each choices as id (id)}<option value={id}>{id}</option>{/each}
+                {#each choices as id (id)}<option value={id}>{choiceLabel(part.kind, id)}</option
+                  >{/each}
                 {#if value && !choices.includes(value)}<option {value}>{value}</option>{/if}
               </select>
               {#if part.tab && value}
@@ -184,6 +192,7 @@
             {disabled}
             onchange={(e) => toggle('weather', weather, id, e.currentTarget.checked)}
           />
+          {#if partName(system, 'weather', id)}{partName(system, 'weather', id)}{/if}
           <code>{id}</code>
         </label>
       {:else}

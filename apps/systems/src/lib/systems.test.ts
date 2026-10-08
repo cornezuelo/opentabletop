@@ -8,6 +8,7 @@ import {
   createSystemPart,
   declareSystem,
   partChoices,
+  partName,
   rulesFile,
   systemFile,
   systemParts,
@@ -76,6 +77,22 @@ describe('systems in the Systems app', () => {
       bindings: { path: 'travel.yaml', id: 'default' },
       system: { path: 'system.yaml', id: 'default' },
     })
+  })
+
+  it('every bundled system declares itself, and its overview names its parts', () => {
+    const bundled = systems.list.filter((s) => s.pack && library.pack(s.pack)?.origin === 'bundled')
+    expect(bundled.map((s) => s.id)).toContain('grey-marches')
+    // None plays as an older pack's implicit system (Kal-Arath too, when its pack is here).
+    for (const system of bundled) expect(system.sources?.system, system.id).toBeDefined()
+    const marches = systems.get('grey-marches')!
+    expect(partName(marches, 'calendar', 'marcher-reckoning')).toBe('The Marcher reckoning')
+    expect(partName(marches, 'weather', 'sky')).toBe("The Marches' sky")
+    expect(partName(marches, 'travel-rules', 'default')).toBeUndefined()
+    const kalArath = systems.get('kal-arath')
+    if (kalArath) {
+      expect(kalArath.rules.actions?.camp).toMatchObject({ do: [{ time: 'dawn' }] })
+      expect(kalArath.rules.actions?.rest).toBe(false)
+    }
   })
 
   it("a system's overview edits its own definition: name in two languages, parts, packs", () => {

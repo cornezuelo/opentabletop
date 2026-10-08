@@ -46,15 +46,15 @@ export const en = {
       title: "The system's calendar",
       intro:
         'The calendar its trips and the world clock name time with: months and their seasons, weekdays, moons and holidays.',
-      help: 'One calendar per system (`kind: calendar`), named in its **Overview**. Tables and checks read what it says about each moment:\n• `month: thaw`, `weekday: restday`, `year: { gte: 413 }`\n• `moons.ember: full`\n• `holidays: midsummer`\nWithout one, the default calendar counts days and four seasons of 90 days.',
+      help: 'One calendar per system (`kind: calendar`), named in its **Overview**. Tables and checks read what it says about each moment:\n• `month: seedtime`, `weekday: fairday`, `year: { gte: 1022 }`\n• `moons.silver: full`\n• `holidays: lantern-night`\nWithout one, the default calendar counts days and four seasons of 90 days.',
       none: 'This system has no calendar: it uses the default one (days and four seasons).',
       create: 'New calendar',
     },
     weather: {
       title: 'Its weather models',
       intro:
-        'Weather with inertia: today follows yesterday, with odds per season. A check whose binding names a model rolls it (`weather: sky`).',
-      help: "Weather models (`kind: weather`) the system's bindings can name, listed in its **Overview**. Each kind of weather can set values for the day (`set: { snowbound: true }`) that conditions read; the day's weather is `weather` in tables and conditions:\n• `weather: storm`\n• `weather: [rain, storm]`",
+        'Weather with inertia: today follows yesterday, with odds per season. A check whose binding names a model rolls it (`weather: highland-skies`).',
+      help: "Weather models (`kind: weather`) the system's bindings can name, listed in its **Overview**. Each kind of weather can set values for the day (`set: { snowed-in: true }`) that conditions read; the day's weather is `weather` in tables and conditions:\n• `weather: storm`\n• `weather: [rain, storm]`",
       none: 'This system names no weather models.',
       create: 'New weather model',
     },
@@ -71,7 +71,7 @@ export const en = {
     name: 'Name',
     nameHelp: "The calendar's name, shown where its dates are.\n• **The Royal Reckoning**",
     startYear: 'Year of day 1',
-    startYearHelp: 'The year the first day of play falls in (default 1).\n• `412`',
+    startYearHelp: 'The year the first day of play falls in (default 1).\n• `1021`',
     startMonth: 'Day 1 is in',
     startHelp:
       "The month and day of the first day of play (default the first day of the first month). A trip that starts in a season starts on that season's first day.",
@@ -88,7 +88,7 @@ export const en = {
     dusk: 'Nightfall',
     months: 'Months',
     monthsHelp:
-      "The months of a year, in order, each with its days and its season (the season tables read while it lasts):\n• `thaw` — **Thaw**, 30 days, `spring`\nSeasons are any names: the usual four, or your world's (`wet`, `dry`).",
+      "The months of a year, in order, each with its days and its season (the season tables read while it lasts):\n• `seedtime` — **Seedtime**, 30 days, `spring`\nSeasons are any names: the usual four, or your world's (`wet`, `dry`).",
     itemName: 'Name',
     days: 'Days',
     season: 'Season',
@@ -96,7 +96,7 @@ export const en = {
       'The season during this month: `spring`, `summer`, `autumn`, `winter`, or your own.',
     yearDays: 'A year of {days} days.',
     weekdays: 'Weekdays',
-    weekdaysHelp: 'The days of the week, in order; tables read `weekday: restday`. Empty: no week.',
+    weekdaysHelp: 'The days of the week, in order; tables read `weekday: fairday`. Empty: no week.',
     moons: 'Moons',
     moonsHelp:
       'Moons and their phases (new, waxing, full, waning), read as `moons.<id>: full`.\n• `moon` — 28 days\n• `red` — 45 days, offset 20',
@@ -106,7 +106,7 @@ export const en = {
     offsetHelp: 'The day of its cycle on day 1 (default 0: new on day 1).',
     holidays: 'Holidays',
     holidaysHelp:
-      'Fixed days of the year, read as `holidays: midsummer` (a list, since several may fall on one day).',
+      'Fixed days of the year, read as `holidays: lantern-night` (a list, since several may fall on one day).',
     month: 'Month',
     day: 'Day',
   },
@@ -115,11 +115,11 @@ export const en = {
     nameHelp: "The model's name.\n• **Mountain skies**",
     states: 'Kinds of weather',
     statesHelp:
-      'Each kind of weather the model can give, by id (what tables read as `weather`), with its name for the journal and what it sets for the day:\n• `storm` — **Storm**, sets `stormy: true`\n• `snow` — sets `snowbound: true`, which travel rules can make block a way of travelling',
+      'Each kind of weather the model can give, by id (what tables read as `weather`), with its name for the journal and what it sets for the day:\n• `storm` — **Storm**, sets `stormy: true`\n• `snow` — sets `snowed-in: true`, which travel rules can make block a way of travelling',
     stateName: 'Name',
     set: 'Sets for the day',
     setHelp:
-      'Values of the day this weather sets, as `key: value` pairs:\n• `fordModifier: -1`\n• `snowbound: true`',
+      'Values of the day this weather sets, as `key: value` pairs:\n• `climbModifier: -1`\n• `snowed-in: true`',
     setNothing: 'nothing',
     season: 'Season: {season}',
     start: 'Starts as',
@@ -172,7 +172,7 @@ export const en = {
       "Which table answers each check, and the party's stats (`bindings: default`). **Open** edits them in the Checks tab; **Create** adds empty ones.\n• none — every check waits for the player",
     calendar: 'Calendar',
     calendarHelp:
-      'How its trips and the world clock name days: months, weekdays, seasons, moons, holidays (`calendar: marcher-reckoning`, a `kind: calendar`).\n• none — the default calendar: days and four seasons',
+      'How its trips and the world clock name days: months, weekdays, seasons, moons, holidays (`calendar: royal-reckoning`, a `kind: calendar`).\n• none — the default calendar: days and four seasons',
     no: {
       travel: '(none: the Generic rules)',
       bindings: '(none)',
@@ -182,7 +182,7 @@ export const en = {
     create: 'Create',
     weather: 'Weather models',
     weatherHelp:
-      "The weather models (`kind: weather`) its bindings can name in a check (`weather: sky`), so the day's weather has inertia: this pack's and its dependencies'.\n• `weather: [sky]`",
+      "The weather models (`kind: weather`) its bindings can name in a check (`weather: highland-skies`), so the day's weather has inertia: this pack's and its dependencies'.\n• `weather: [highland-skies]`",
     noWeather: 'No weather models in this pack or its dependencies.',
     packs: 'Packs it brings',
     packsHelp:
@@ -294,13 +294,13 @@ export const en = {
       'How fast the party marches in this weather:\n• `0` — no travel that day (the day is lost)\n• `0.5` — half speed\n• `1` — as usual',
     actions: 'Actions',
     actionsHelp:
-      "What the party can do besides marching: **camp**, **rest** and the system's own (forage, pray, talk to the hirelings…), each a button in the trip panel, or taken by the system itself (**By itself at**).\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `speed: 0.5`, its check at `forage`\n• eat, by itself at `day-end`: `effects: { party.resources.food: -1 }`",
+      "What the party can do besides marching: **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**).\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `speed: 0.5`, its check at `forage`\n• eat, by itself at `day-end`: `effects: { party.resources.food: -1 }`",
     oncePerDay: 'Once a day',
     modeWhenHelp:
       "When it can be chosen (**Only when**) or not (**Not when**), as a condition on where the party is and the moment.\n• a boat only at the water's edge: `any: [{ water: true }, { tags: ferry }]`\n• no horses in the snow: **Not when** `weather: snow`\n• a cart only in summer: **Only when** `season: summer`\nEmpty: always. A value of the day can block it too (**Blocks** `mode.<id>`).",
     values: 'Values of the day',
     valuesHelp:
-      "Values this system's tables and actions can set **for the rest of the day**, with what they block while they hold. Tables read them the next day as `yesterday.<id>`.\n• `lost` — set by `set: { lost: true }`, blocks `travel`\n• `snowbound` — blocks `mode.horse`\n• `refusing` — blocks `travel` until an action clears it (`set: { refusing: false }`)\nWithout any, the older built-in `lost` (blocks travel) still works.",
+      "Values this system's tables and actions can set **for the rest of the day**, with what they block while they hold. Tables read them the next day as `yesterday.<id>`.\n• `lost` — set by `set: { lost: true }`, blocks `travel`\n• `snowed-in` — blocks `mode.horse`\n• `mutinous` — blocks `travel` until an action clears it (`set: { mutinous: false }`)\nWithout any, the older built-in `lost` (blocks travel) still works.",
     blocks: 'Blocks',
     blocksHelp:
       "What can't be done while the value holds:\n• `travel` — no more marching today\n• an action's id, e.g. `camp` or `forage` — its button turns off\n• `mode.<id>`, e.g. `mode.horse` — that way of travelling: it can't be chosen, and a party already travelling so stops until it changes\nThe box suggests what this system declares. Blocked buttons stay visible, disabled, saying why.",
@@ -310,7 +310,7 @@ export const en = {
     when: 'Only when',
     unless: 'Not when',
     whenHelp:
-      "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `weather: storm` — today's weather\n• `terrain: [forest, hills]` — the hex the party is in\n• `tags: shrine` — a tag of that hex\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.resources.food: { gte: 1 }` — food left\n• `refusing: true` — a value of the day\n• `moons.ember: full` — the calendar\nOtherwise its button stays disabled and says why; the system's night action that can't be taken lets the night pass without it.",
+      "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `weather: storm` — today's weather\n• `terrain: [forest, hills]` — the hex the party is in\n• `tags: shrine` — a tag of that hex\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.resources.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `moons.silver: full` — the calendar\nOtherwise its button stays disabled and says why; the system's night action that can't be taken lets the night pass without it.",
     nothing: 'When nothing applies',
     nothingHelp:
       'What the journal says when **none of its checks apply** where the party is; `{terrain}` is the hex\'s terrain.\n• `nothing to forage on {terrain}` → "nothing to forage on Hills"\nEmpty: a generic sentence. An action without checks says nothing more.',
@@ -320,7 +320,7 @@ export const en = {
       "What the action does, **one step per box, in order**, each written like in the YAML:\n• `time: 180` — three hours pass (or `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — the rest of today's march goes at half speed\n• `effects: { party.stats.fatigue: -1 }` — change the party (a number adds or takes away; `'=0'` sets it)\n• `set: { lost: true }` — give a value of the day\n• `do: forage` — take another action (if its conditions hold)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — roll a check now\nA change past a value's **Min** or **Max** stops there, and later steps see `below: [id]` or `above: [id]`.\nThe box beside each step is **its condition**: the step only happens when it holds.\n• `below: food` — only if food hit its minimum today\n• `party.stats.morale: { lte: 1 }` — only with low morale\n• `moment: hex-enter` — only when the action came at that moment\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
     on: 'By itself at',
     onHelp:
-      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• `day-start` — at dawn\n• `hex-enter` — entering each hex\n• `day-end` — as each day ends, camping or not\n• an action's id, e.g. `camp` — right after that action starts\nSeveral, separated by commas: `day-start, hex-enter`. Its conditions see which one it is as `moment` (`when: { moment: hex-enter }`).\nExamples:\n• eating as each day ends: `day-end`\n• hirelings grumbling at dawn after a hungry day: `day-start` with **Only when** `yesterday.hungry: true`",
+      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• `day-start` — at dawn\n• `hex-enter` — entering each hex\n• `day-end` — as each day ends, camping or not\n• an action's id, e.g. `camp` — right after that action starts\nSeveral, separated by commas: `day-start, hex-enter`. Its conditions see which one it is as `moment` (`when: { moment: hex-enter }`).\nExamples:\n• eating as each day ends: `day-end`\n• porters grumbling at dawn after a hungry day: `day-start` with **Only when** `yesterday.hungry: true`",
     onButton: 'nothing: a button for the player',
     onAfter: 'After: {action}',
     step: 'Step',
@@ -361,7 +361,7 @@ export const en = {
     never: 'never',
     resolve: 'Rolled on',
     resolveHelp:
-      "The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its `set` values and `effects` reach the trip.\n• `grey-marches/getting-lost` — sets `lost: true` on a bad roll\n• a weather model — the day's weather with inertia\n• **nothing: wait for me** — the trip stops until you resolve it by hand",
+      "The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its `set` values and `effects` reach the trip.\n• `my-pack/getting-lost` — sets `lost: true` on a bad roll\n• a weather model — the day's weather with inertia\n• **nothing: wait for me** — the trip stops until you resolve it by hand",
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— nothing: wait for me —',

@@ -1,6 +1,6 @@
 # The Grey Marches as a travel system. Every part of travel rules and bindings is used;
-# comments say what each one shows. Play it in the Hexmapper (Play → With rules → The
-# Grey Marches) on the example map, or without a map in the Travel app.
+# comments say what each one shows. Play it on the example map (Hexmapper: Maps → Example
+# maps, then Play → With rules), without a map in the Travel app, or edit it in Systems.
 kind: travel-rules
 id: default
 day: { start: '06:00', nightfall: '20:00' }

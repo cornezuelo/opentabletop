@@ -48,15 +48,15 @@ export const es: Messages<typeof en> = {
       title: 'El calendario del sistema',
       intro:
         'El calendario con el que sus viajes y el reloj del mundo nombran el tiempo: meses y sus estaciones, días de la semana, lunas y fiestas.',
-      help: 'Un calendario por sistema (`kind: calendar`), nombrado en su **Resumen**. Las tablas y comprobaciones leen lo que dice de cada momento:\n• `month: thaw`, `weekday: restday`, `year: { gte: 413 }`\n• `moons.ember: full`\n• `holidays: midsummer`\nSin él, el calendario por defecto cuenta días y cuatro estaciones de 90 días.',
+      help: 'Un calendario por sistema (`kind: calendar`), nombrado en su **Resumen**. Las tablas y comprobaciones leen lo que dice de cada momento:\n• `month: seedtime`, `weekday: fairday`, `year: { gte: 1022 }`\n• `moons.silver: full`\n• `holidays: lantern-night`\nSin él, el calendario por defecto cuenta días y cuatro estaciones de 90 días.',
       none: 'Este sistema no tiene calendario: usa el de por defecto (días y cuatro estaciones).',
       create: 'Nuevo calendario',
     },
     weather: {
       title: 'Sus modelos de clima',
       intro:
-        'Clima con inercia: hoy sigue a ayer, con probabilidades por estación. Una comprobación cuyo binding nombra un modelo lo tira (`weather: sky`).',
-      help: 'Modelos de clima (`kind: weather`) que pueden nombrar los bindings del sistema, enumerados en su **Resumen**. Cada tipo de clima puede fijar valores del día (`set: { snowbound: true }`) que leen las condiciones; el clima del día es `weather` en tablas y condiciones:\n• `weather: storm`\n• `weather: [rain, storm]`',
+        'Clima con inercia: hoy sigue a ayer, con probabilidades por estación. Una comprobación cuyo binding nombra un modelo lo tira (`weather: highland-skies`).',
+      help: 'Modelos de clima (`kind: weather`) que pueden nombrar los bindings del sistema, enumerados en su **Resumen**. Cada tipo de clima puede fijar valores del día (`set: { snowed-in: true }`) que leen las condiciones; el clima del día es `weather` en tablas y condiciones:\n• `weather: storm`\n• `weather: [rain, storm]`',
       none: 'Este sistema no nombra modelos de clima.',
       create: 'Nuevo modelo de clima',
     },
@@ -73,7 +73,7 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     nameHelp: 'El nombre del calendario, que se muestra junto a sus fechas.\n• **El cómputo real**',
     startYear: 'Año del día 1',
-    startYearHelp: 'El año en el que cae el primer día de juego (por defecto 1).\n• `412`',
+    startYearHelp: 'El año en el que cae el primer día de juego (por defecto 1).\n• `1021`',
     startMonth: 'El día 1 cae en',
     startHelp:
       'El mes y el día del primer día de juego (por defecto el primer día del primer mes). Un viaje que empieza en una estación empieza el primer día de esa estación.',
@@ -90,7 +90,7 @@ export const es: Messages<typeof en> = {
     dusk: 'Anochecer',
     months: 'Meses',
     monthsHelp:
-      'Los meses de un año, en orden, cada uno con sus días y su estación (la estación que leen las tablas mientras dura):\n• `thaw` — **Deshielo**, 30 días, `spring`\nLas estaciones son cualquier nombre: las cuatro de siempre, o las de tu mundo (`wet`, `dry`).',
+      'Los meses de un año, en orden, cada uno con sus días y su estación (la estación que leen las tablas mientras dura):\n• `seedtime` — **Siembra**, 30 días, `spring`\nLas estaciones son cualquier nombre: las cuatro de siempre, o las de tu mundo (`wet`, `dry`).',
     itemName: 'Nombre',
     days: 'Días',
     season: 'Estación',
@@ -98,7 +98,7 @@ export const es: Messages<typeof en> = {
     yearDays: 'Un año de {days} días.',
     weekdays: 'Días de la semana',
     weekdaysHelp:
-      'Los días de la semana, en orden; las tablas leen `weekday: restday`. Vacío: sin semana.',
+      'Los días de la semana, en orden; las tablas leen `weekday: fairday`. Vacío: sin semana.',
     moons: 'Lunas',
     moonsHelp:
       'Las lunas y sus fases (nueva, creciente, llena, menguante), que se leen como `moons.<id>: full`.\n• `moon` — 28 días\n• `red` — 45 días, desfase 20',
@@ -108,7 +108,7 @@ export const es: Messages<typeof en> = {
     offsetHelp: 'El día de su ciclo en el día 1 (por defecto 0: nueva el día 1).',
     holidays: 'Fiestas',
     holidaysHelp:
-      'Días fijos del año, que se leen como `holidays: midsummer` (una lista, porque pueden caer varias el mismo día).',
+      'Días fijos del año, que se leen como `holidays: lantern-night` (una lista, porque pueden caer varias el mismo día).',
     month: 'Mes',
     day: 'Día',
   },
@@ -117,11 +117,11 @@ export const es: Messages<typeof en> = {
     nameHelp: 'El nombre del modelo.\n• **Cielo de montaña**',
     states: 'Tipos de clima',
     statesHelp:
-      'Cada tipo de clima que puede dar el modelo, por su id (lo que las tablas leen como `weather`), con su nombre para el diario y lo que fija para el día:\n• `storm` — **Tormenta**, fija `stormy: true`\n• `snow` — fija `snowbound: true`, con lo que las reglas de viaje pueden bloquear una forma de viajar',
+      'Cada tipo de clima que puede dar el modelo, por su id (lo que las tablas leen como `weather`), con su nombre para el diario y lo que fija para el día:\n• `storm` — **Tormenta**, fija `stormy: true`\n• `snow` — fija `snowed-in: true`, con lo que las reglas de viaje pueden bloquear una forma de viajar',
     stateName: 'Nombre',
     set: 'Fija para el día',
     setHelp:
-      'Valores del día que fija este clima, como pares `clave: valor`:\n• `fordModifier: -1`\n• `snowbound: true`',
+      'Valores del día que fija este clima, como pares `clave: valor`:\n• `climbModifier: -1`\n• `snowed-in: true`',
     setNothing: 'nada',
     season: 'Estación: {season}',
     start: 'Empieza como',
@@ -174,7 +174,7 @@ export const es: Messages<typeof en> = {
       'Qué tabla responde a cada comprobación, y las características del grupo (`bindings: default`). **Abrir** los edita en la pestaña Comprobaciones; **Crear** añade unos vacíos.\n• ninguno — cada comprobación espera al jugador',
     calendar: 'Calendario',
     calendarHelp:
-      'Cómo nombran los días sus viajes y el reloj del mundo: meses, días de la semana, estaciones, lunas, fiestas (`calendar: marcher-reckoning`, un `kind: calendar`).\n• ninguno — el calendario por defecto: días y cuatro estaciones',
+      'Cómo nombran los días sus viajes y el reloj del mundo: meses, días de la semana, estaciones, lunas, fiestas (`calendar: royal-reckoning`, un `kind: calendar`).\n• ninguno — el calendario por defecto: días y cuatro estaciones',
     no: {
       travel: '(ninguna: las reglas Genéricas)',
       bindings: '(ninguno)',
@@ -184,7 +184,7 @@ export const es: Messages<typeof en> = {
     create: 'Crear',
     weather: 'Modelos de clima',
     weatherHelp:
-      'Los modelos de clima (`kind: weather`) que sus bindings pueden nombrar en una comprobación (`weather: sky`), para que el clima del día tenga inercia: los de este pack y los de sus dependencias.\n• `weather: [sky]`',
+      'Los modelos de clima (`kind: weather`) que sus bindings pueden nombrar en una comprobación (`weather: highland-skies`), para que el clima del día tenga inercia: los de este pack y los de sus dependencias.\n• `weather: [highland-skies]`',
     noWeather: 'No hay modelos de clima en este pack ni en sus dependencias.',
     packs: 'Packs que trae',
     packsHelp:
@@ -297,13 +297,13 @@ export const es: Messages<typeof en> = {
       'A qué velocidad marcha el grupo con este clima:\n• `0` — ese día no se viaja (es un día perdido)\n• `0.5` — a media velocidad\n• `1` — como siempre',
     actions: 'Acciones',
     actionsHelp:
-      'Lo que puede hacer el grupo además de marchar: **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los mercenarios…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Sola en**).\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `speed: 0.5`, su comprobación en `forage`\n• comer, sola en `day-end`: `effects: { party.resources.food: -1 }`',
+      'Lo que puede hacer el grupo además de marchar: **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Sola en**).\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `speed: 0.5`, su comprobación en `forage`\n• comer, sola en `day-end`: `effects: { party.resources.food: -1 }`',
     oncePerDay: 'Una vez al día',
     modeWhenHelp:
       'Cuándo se puede elegir (**Solo si**) o no (**Salvo si**), como condición sobre dónde está el grupo y el momento.\n• una barca solo a la orilla: `any: [{ water: true }, { tags: ferry }]`\n• sin caballos con nieve: **Salvo si** `weather: snow`\n• un carro solo en verano: **Solo si** `season: summer`\nVacío: siempre. Un valor del día también puede bloquearla (**Bloquea** `mode.<id>`).',
     values: 'Valores del día',
     valuesHelp:
-      'Valores que las tablas y acciones de este sistema pueden poner **para el resto del día**, con lo que bloquean mientras se cumplen. Las tablas los leen al día siguiente como `yesterday.<id>`.\n• `lost` — lo pone `set: { lost: true }`, bloquea `travel`\n• `snowbound` — bloquea `mode.horse`\n• `refusing` — bloquea `travel` hasta que una acción lo quita (`set: { refusing: false }`)\nSin ninguno, sigue funcionando el antiguo `lost` integrado (bloquea el viaje).',
+      'Valores que las tablas y acciones de este sistema pueden poner **para el resto del día**, con lo que bloquean mientras se cumplen. Las tablas los leen al día siguiente como `yesterday.<id>`.\n• `lost` — lo pone `set: { lost: true }`, bloquea `travel`\n• `snowed-in` — bloquea `mode.horse`\n• `mutinous` — bloquea `travel` hasta que una acción lo quita (`set: { mutinous: false }`)\nSin ninguno, sigue funcionando el antiguo `lost` integrado (bloquea el viaje).',
     blocks: 'Bloquea',
     blocksHelp:
       'Lo que no se puede hacer mientras se cumple el valor:\n• `travel` — no se marcha más hoy\n• el id de una acción, p. ej. `camp` o `forage` — su botón se desactiva\n• `mode.<id>`, p. ej. `mode.horse` — esa forma de viajar: no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie\nLa caja sugiere lo que declara este sistema. Los botones bloqueados siguen visibles, desactivados, diciendo por qué.',
@@ -313,7 +313,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
-      'Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `weather: storm` — el clima de hoy\n• `terrain: [forest, hills]` — el hex donde está el grupo\n• `tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.resources.food: { gte: 1 }` — queda comida\n• `refusing: true` — un valor del día\n• `moons.ember: full` — el calendario\nSi no, su botón sale desactivado y dice por qué; la acción de la noche del sistema que no se puede hacer deja pasar la noche sin ella.',
+      'Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `weather: storm` — el clima de hoy\n• `terrain: [forest, hills]` — el hex donde está el grupo\n• `tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.resources.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `moons.silver: full` — el calendario\nSi no, su botón sale desactivado y dice por qué; la acción de la noche del sistema que no se puede hacer deja pasar la noche sin ella.',
     nothing: 'Cuando no se aplica nada',
     nothingHelp:
       'Lo que dice el diario cuando **no se aplica ninguna de sus comprobaciones** donde está el grupo; `{terrain}` es el terreno del hex.\n• `no hay nada que buscar en {terrain}` → «no hay nada que buscar en Colinas»\nVacío: una frase genérica. Una acción sin comprobaciones no dice nada más.',
@@ -323,7 +323,7 @@ export const es: Messages<typeof en> = {
       "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
     on: 'Sola en',
     onHelp:
-      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• `day-start` — al alba\n• `hex-enter` — al entrar en cada hex\n• `day-end` — al acabar cada día, se acampe o no\n• el id de una acción, p. ej. `camp` — justo al empezar esa acción\nVarios, separados por comas: `day-start, hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { moment: hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `day-end`\n• los mercenarios refunfuñan al alba tras un día de hambre: `day-start` con **Solo si** `yesterday.hungry: true`',
+      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• `day-start` — al alba\n• `hex-enter` — al entrar en cada hex\n• `day-end` — al acabar cada día, se acampe o no\n• el id de una acción, p. ej. `camp` — justo al empezar esa acción\nVarios, separados por comas: `day-start, hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { moment: hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `day-end`\n• los porteadores refunfuñan al alba tras un día de hambre: `day-start` con **Solo si** `yesterday.hungry: true`',
     onButton: 'nada: un botón para el jugador',
     onAfter: 'Tras: {action}',
     step: 'Paso',
@@ -364,7 +364,7 @@ export const es: Messages<typeof en> = {
     never: 'nunca',
     resolve: 'Se tira en',
     resolveHelp:
-      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores `set` y `effects` llegan al viaje.\n• `grey-marches/getting-lost` — pone `lost: true` con una mala tirada\n• un modelo de clima — el clima del día con inercia\n• **nada: espérame** — el viaje se detiene hasta que la resuelvas a mano',
+      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores `set` y `effects` llegan al viaje.\n• `my-pack/getting-lost` — pone `lost: true` con una mala tirada\n• un modelo de clima — el clima del día con inercia\n• **nada: espérame** — el viaje se detiene hasta que la resuelvas a mano',
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— nada: espérame —',
