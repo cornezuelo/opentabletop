@@ -1,6 +1,13 @@
 export { default as InfoTip } from './InfoTip.svelte'
 export { default as FoldTab } from './FoldTab.svelte'
-export { askHelp, attachHelp, contextHelp, focusHelp, type HelpEntry } from './contextHelp.svelte'
+export {
+  askHelp,
+  attachHelp,
+  closeHelp,
+  contextHelp,
+  focusHelp,
+  type HelpEntry,
+} from './contextHelp.svelte'
 export { default as Toasts } from './Toasts.svelte'
 export { default as Dialogs } from './Dialogs.svelte'
 export { ask, confirmAction, dialog, type DialogButton } from './dialog.svelte'
@@ -28,3 +35,11 @@ export {
   NOTES_KEY,
   type NotePreferences,
 } from './notes.svelte'
+export {
+  fieldLabel,
+  inserting,
+  insertTarget,
+  insertText,
+  registerInserter,
+  type InsertTarget,
+} from './insert.svelte'

@@ -2,6 +2,8 @@
 
 Everything a pack can write, in one place: each piece of syntax, where it goes, every form it takes and an example that works, with a link to the page that explains it at length. Packs are plain data: nothing here runs code, so a pack from anyone is safe to load.
 
+In the apps this page is one click away: **Syntax** at the top of the help column. Click an example in `code` there and it goes into the text box or YAML editor you were in, where the cursor was.
+
 ## Values: `key: value`
 
 Most boxes and most of the YAML are `key: value` pairs.

@@ -2,6 +2,8 @@
 
 Todo lo que puede escribir un pack, en un solo sitio: cada pieza de sintaxis, dónde va, todas las formas que toma y un ejemplo que funciona, con un enlace a la página que la explica a fondo. Los packs son datos sin más: nada de esto ejecuta código, así que un pack de cualquiera es seguro de cargar.
 
+En las aplicaciones esta página está a un clic: **Sintaxis**, arriba en la columna de ayuda. Pulsa allí un ejemplo en `código` y entra en la casilla de texto o el editor YAML en el que estabas, donde estaba el cursor.
+
 ## Valores: `clave: valor`
 
 Casi todas las casillas y casi todo el YAML son pares `clave: valor`.

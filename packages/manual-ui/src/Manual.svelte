@@ -99,6 +99,7 @@
       {#if query.trim()}
         <SearchResults
           {results}
+          {query}
           showApp
           appName={(app) => text.apps[app] ?? app}
           empty={text.noResults}

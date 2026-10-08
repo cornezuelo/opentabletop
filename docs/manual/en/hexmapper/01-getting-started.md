@@ -11,7 +11,9 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
-**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, in place of this manual: what the field does and examples that work, with **← The manual** to come back and **Find it in the manual** to search for it. While the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
+**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, in place of this manual: what the field does, examples that work and, under **In the manual**, the manual's sections about it (the Syntax page first); **✕** closes the column and **← The manual** goes back to the manual. While the column is open, moving to a field (click or Tab) shows its help too.
+
+**Examples go in with a click**: after you've been in a text box or the YAML editor, click an example in `code` in the help column (in a field's help, on the **Syntax** page or anywhere in the manual) and it goes in where the cursor was; **Ctrl+Z** takes it back. **Syntax**, next to the column's search box, opens the page with everything a pack can write. The search looks in this app's pages, the technical ones and the packs', and shows the words found in bold. Buttons with only an icon say their name when you hover them.
 
 ## Your maps
 

@@ -84,6 +84,9 @@
     })
   })
   $effect(() => {
+    if (contextHelp.closed) untrack(() => (help = false))
+  })
+  $effect(() => {
     contextHelp.shown = help && layout.history
   })
   function toggle(panel: 'sidebar' | 'history') {

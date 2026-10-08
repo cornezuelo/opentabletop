@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { manual } from './manual'
-import { createManual, parsePage } from './pages'
+import { createManual, highlight, parsePage, searchWords } from './pages'
 import { pageLink } from './render'
 
 describe('manual pages', () => {
@@ -68,5 +68,37 @@ describe('search text', () => {
       '# A\n\n- Press <kbd>K</kbd> to place\n1. then drag',
     )!
     expect(page.sections[0].text).toBe('Press K to place then drag')
+  })
+
+  it('drops the rule lines of tables', () => {
+    const page = parsePage(
+      'x/en/app/01-a.md',
+      '# A\n\n| Write | Means |\n| --- | :---: |\n| `2d6` | two dice |',
+    )!
+    expect(page.sections[0].text).toBe('Write Means 2d6 two dice')
+  })
+})
+
+describe('search highlights', () => {
+  const bold = (text: string, query: string) =>
+    highlight(text, searchWords(query))
+      .map((p) => (p.match ? `**${p.text}**` : p.text))
+      .join('')
+
+  it('marks every match of every word, ignoring case and accents', () => {
+    expect(bold('Roll a die; dice rolls again', 'roll')).toBe(
+      '**Roll** a die; dice **roll**s again',
+    )
+    expect(bold('La condición y las condiciones', 'condicion')).toBe(
+      'La **condición** y las **condicion**es',
+    )
+    expect(bold('when and unless', 'unless when')).toBe('**when** and **unless**')
+  })
+
+  it('leaves text without matches alone', () => {
+    expect(highlight('nothing here', searchWords('dice'))).toEqual([
+      { text: 'nothing here', match: false },
+    ])
+    expect(highlight('', ['x'])).toEqual([])
   })
 })

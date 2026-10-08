@@ -18,6 +18,7 @@
   import { tags } from '@lezer/highlight'
   import { basicSetup } from 'codemirror'
   import { onDestroy, onMount } from 'svelte'
+  import { registerInserter } from '@open-tabletop/ui-kit'
 
   let {
     value,
@@ -131,9 +132,19 @@
       }),
     })
     view.dispatch(setDiagnostics(view.state, toDiagnostics(view.state)))
+    // Examples clicked in the help column go in at the cursor.
+    if (!readonly)
+      unregister = registerInserter(host, (text) => {
+        if (!view) return
+        view.dispatch(view.state.replaceSelection(text), { scrollIntoView: true })
+        view.focus()
+      })
   })
 
+  let unregister: (() => void) | undefined
+
   onDestroy(() => {
+    unregister?.()
     flush()
     view?.destroy()
   })
@@ -159,7 +170,7 @@
   })
 </script>
 
-<div class="editor" bind:this={host}></div>
+<div class="editor" data-field-label="YAML" bind:this={host}></div>
 
 <style>
   .editor {

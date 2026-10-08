@@ -38,16 +38,20 @@ export function anchorOf(text: string): string {
 
 /** Markdown to plain text for searching (no syntax, links reduced to their text). */
 function plain(markdown: string): string {
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/<[^>]+>/g, '')
-    .replace(/^\s*(?:[-+*]|\d+\.)\s+/gm, '')
-    .replace(/[`*_]/g, '')
-    .replace(/[>#|]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  return (
+    markdown
+      .replace(/```[\s\S]*?```/g, ' ')
+      // Table rule lines (|---|:---:|).
+      .replace(/^[\s|:-]*-{3,}[\s|:-]*$/gm, ' ')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/<[^>]+>/g, '')
+      .replace(/^\s*(?:[-+*]|\d+\.)\s+/gm, '')
+      .replace(/[`*_]/g, '')
+      .replace(/[>#|]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  )
 }
 
 /** Parses one page file. `path` ends in `<locale>/<app>/<NN-slug>.md`. */
@@ -118,9 +122,7 @@ export function createManual(files: Record<string, string>, appOrder: string[] =
     pages,
     page: (app, slug, locale) => pages(app, locale).find((p) => p.slug === slug),
     search(query, locale, app) {
-      const words = anchorOf(query)
-        .split('-')
-        .filter((w) => w.length > 1)
+      const words = searchWords(query)
       if (!words.length) return []
       const results: SearchResult[] = []
       for (const a of app ? [app] : apps)
@@ -141,13 +143,46 @@ export function createManual(files: Record<string, string>, appOrder: string[] =
   }
 }
 
+/** The words a search looks for: lowercase, without accents, two letters or more. */
+export function searchWords(query: string): string[] {
+  return anchorOf(query)
+    .split('-')
+    .filter((w) => w.length > 1)
+}
+
+/** Lowercase without accents, one character for each of `text`'s, so positions line up. */
+function folded(text: string): string {
+  return text
+    .split('')
+    .map((c) => {
+      const f = c
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+      return f.length === 1 ? f : c
+    })
+    .join('')
+}
+
+/** `text` split into the parts a search matched (shown in bold) and the rest. */
+export function highlight(text: string, words: string[]): { text: string; match: boolean }[] {
+  const lower = folded(text)
+  const marked = new Array<boolean>(text.length).fill(false)
+  for (const w of words)
+    for (let at = lower.indexOf(w); at >= 0; at = lower.indexOf(w, at + w.length))
+      marked.fill(true, at, at + w.length)
+  const parts: { text: string; match: boolean }[] = []
+  for (let i = 0; i < text.length; i++) {
+    const last = parts.at(-1)
+    if (last && last.match === marked[i]) last.text += text[i]
+    else parts.push({ text: text[i], match: marked[i] })
+  }
+  return parts
+}
+
 /** ~140 characters around the first word found. */
 function snippet(text: string, words: string[]): string {
-  // Same length as `text` (accents dropped one by one), so positions line up.
-  const lower = text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+  const lower = folded(text)
   let at = -1
   for (const w of words) {
     at = lower.indexOf(w)

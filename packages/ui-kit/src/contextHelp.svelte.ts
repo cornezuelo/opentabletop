@@ -2,8 +2,9 @@
  * Contextual help: the explanation of one control, shown in the app's help column (above
  * its manual) instead of a tooltip. A label with help is underlined with dots; clicking it
  * opens the column on its explanation, and while the column is open, focusing its field
- * shows it too. Apps open their help column when help is asked for (`asked` changes) and
- * say whether it is showing (`shown`).
+ * shows it too. Apps open their help column when help is asked for (`asked` changes), close
+ * it when the reader closes the explanation (`closed` changes), and say whether it is
+ * showing (`shown`).
  */
 export interface HelpEntry {
   /** What it explains: the label's own text. */
@@ -17,6 +18,8 @@ class ContextHelp {
   entry = $state<HelpEntry | null>(null)
   /** Bumped each time help is asked for: apps open their help column then. */
   asked = $state(0)
+  /** Bumped when the reader closes the explanation: apps close their help column then. */
+  closed = $state(0)
   /** Whether the app's help column is open (set by the app). */
   shown = $state(false)
 }
@@ -27,6 +30,12 @@ export const contextHelp = new ContextHelp()
 export function askHelp(entry: HelpEntry): void {
   contextHelp.entry = entry
   contextHelp.asked++
+}
+
+/** Closes the explanation and asks the app to close its help column. */
+export function closeHelp(): void {
+  contextHelp.entry = null
+  contextHelp.closed++
 }
 
 /** Shows an explanation only if the help column is already open (a field got focus). */

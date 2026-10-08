@@ -21,6 +21,13 @@
       editor.panelHidden = false
     })
   })
+  // Its explanation closed: back to the tool's panel.
+  $effect(() => {
+    if (!contextHelp.closed) return
+    untrack(() => {
+      if (editor.panelView === 'help') editor.panelView = 'tool'
+    })
+  })
   $effect(() => {
     contextHelp.shown = editor.panelView === 'help' && !editor.panelHidden
   })
