@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import {
     AppBrand,
     AppSwitcher,
     confirmAction,
+    contextHelp,
     Dialogs,
     showToast,
     Toasts,
@@ -70,6 +72,17 @@
   let layout = $state(readLayout())
   /** The right column shows the manual instead of the history. */
   let help = $state(false)
+  // A dotted label clicked: the help column opens on its explanation.
+  $effect(() => {
+    if (!contextHelp.asked) return
+    untrack(() => {
+      help = true
+      if (!layout.history) toggle('history')
+    })
+  })
+  $effect(() => {
+    contextHelp.shown = help && layout.history
+  })
   function toggle(panel: 'sidebar' | 'history') {
     layout[panel] = !layout[panel]
     try {

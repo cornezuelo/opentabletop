@@ -2,13 +2,27 @@
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import { UndoButtons } from '@open-tabletop/pack-ui'
   import { library } from './lib/packs.svelte'
-  import { AppBrand, AppSwitcher, Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    AppBrand,
+    AppSwitcher,
+    contextHelp,
+    Dialogs,
+    Toasts,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import Sidebar from './components/Sidebar.svelte'
   import SystemView from './components/SystemView.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
 
   let help = $state(false)
+  // A dotted label clicked: the help column opens on its explanation.
+  $effect(() => {
+    if (contextHelp.asked) help = true
+  })
+  $effect(() => {
+    contextHelp.shown = help
+  })
 </script>
 
 <div class="app" class:help>

@@ -162,11 +162,11 @@
       <button onclick={() => roller.shuffle(def.id)}>{t('roll.shuffle')}</button>
     {:else if modes.length}
       <label class="inline">
+        <span>{t('roll.mode')}<InfoTip text={modeHelp} /></span>
         <select bind:value={roller.mode} aria-label={t('roll.mode')}>
           <option value="">{t('roll.normal')}</option>
           {#each modes as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
         </select>
-        <InfoTip text={modeHelp} />
       </label>
     {/if}
     {#if hotkeys}<span class="hint">{t('roll.keyHint')}</span>{/if}

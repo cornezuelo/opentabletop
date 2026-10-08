@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import MapCanvas from './components/MapCanvas.svelte'
   import SidePanel from './components/SidePanel.svelte'
-  import { Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import { contextHelp, Dialogs, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import { t } from './lib/i18n/index.svelte'
   import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
@@ -11,6 +12,18 @@
   import { bindShortcuts } from './lib/shortcuts'
 
   let ready = $state(false)
+
+  // A dotted label clicked: the side panel shows Help, on its explanation.
+  $effect(() => {
+    if (!contextHelp.asked) return
+    untrack(() => {
+      editor.panelView = 'help'
+      editor.panelHidden = false
+    })
+  })
+  $effect(() => {
+    contextHelp.shown = editor.panelView === 'help' && !editor.panelHidden
+  })
 
   $effect(() => {
     const unbind = bindShortcuts()

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appUrl } from '@open-tabletop/ui-kit'
+  import { appUrl, contextHelp, Markdown } from '@open-tabletop/ui-kit'
   import { textFor } from './i18n'
   import { manual } from './manual'
   import PageView from './PageView.svelte'
@@ -30,6 +30,23 @@
 </script>
 
 <div class="help">
+  <!-- The control being explained (a dotted label clicked, or the field with focus). -->
+  {#if contextHelp.entry}
+    {@const entry = contextHelp.entry}
+    <section class="context" aria-live="polite">
+      <header>
+        <strong>{entry.title}</strong>
+        <button
+          class="close"
+          aria-label={text.contextClose}
+          onclick={() => (contextHelp.entry = null)}>✕</button
+        >
+      </header>
+      {#if entry.markdown}<Markdown text={entry.markdown} />{:else}<p>{entry.text}</p>{/if}
+    </section>
+  {:else}
+    <p class="hint">{text.contextHint}</p>
+  {/if}
   <input type="search" placeholder={text.search} aria-label={text.search} bind:value={query} />
   {#if query.trim()}
     <SearchResults
@@ -77,6 +94,46 @@
 
   .help :global(.page h2) {
     font-size: 15px;
+  }
+
+  .context {
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--panel-border));
+    border-radius: 6px;
+  }
+
+  .context header {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+
+  .context strong {
+    flex: 1;
+    color: var(--accent);
+  }
+
+  .context p {
+    margin: 0;
+    white-space: pre-line;
+  }
+
+  .close {
+    padding: 0 4px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .full {

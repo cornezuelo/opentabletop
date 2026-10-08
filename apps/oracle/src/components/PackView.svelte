@@ -133,9 +133,12 @@
         {#if manifest.version}<span>{t('pack.version')} {manifest.version}</span>{/if}
         {#if manifest.locale}<span>{t('pack.locale')}: {manifest.locale}</span>{/if}
         {#if manifest.license}<span>{t('pack.license')}: {manifest.license}</span>{/if}
-        <button class="link" onclick={() => go({ name: 'file', root, path: MANIFEST_FILE })}
-          >pack.yaml</button
-        ><InfoTip text={t('pack.manifestHelp')} />
+        <span
+          >{t('pack.manifest')}<InfoTip text={t('pack.manifestHelp')} />:
+          <button class="link" onclick={() => go({ name: 'file', root, path: MANIFEST_FILE })}
+            >pack.yaml</button
+          ></span
+        >
       </div>
       <div class="actions">
         <button onclick={exportZip}>{t('pack.export')}</button>

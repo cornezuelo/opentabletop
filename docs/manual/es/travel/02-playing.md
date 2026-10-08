@@ -10,7 +10,7 @@ Puedes tener varios viajes (en este navegador), cada uno con su sistema, su cami
 
 ## El camino
 
-La lista de la izquierda es el camino. El grupo empieza en el hex 1 y se dirige al último. Sus columnas tienen una cabecera con una **i** que explica cada una.
+La lista de la izquierda es el camino. El grupo empieza en el hex 1 y se dirige al último. Las cabeceras de sus columnas están subrayadas con puntos: pulsa una para leer qué es.
 
 - **Terreno** de cada hex: los terrenos del Hexmapper más los que nombren las reglas del sistema.
 - **Etiquetas**, separadas por comas. Las tablas y las comprobaciones las leen: las Marcas Grises se detienen en los hexes `landmark`, cobran peaje en los `toll` y tienen luces nocturnas en los `haunted`.

@@ -11,6 +11,8 @@ Hexmapper dibuja mapas de hexágonos para hexcrawls y campañas sandbox, y permi
 
 Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](11-shortcuts.md).
 
+**Ayuda donde estás**: una etiqueta subrayada con puntos tiene una explicación, a menudo con ejemplos de qué escribir. Púlsala y la columna de ayuda (la **Ayuda** del panel lateral) se abre en ella, encima de este manual; mientras la columna está abierta, pasar a un campo (clic o Tab) también muestra su ayuda. Los botones que solo tienen un icono dicen su nombre al pasar el ratón.
+
 ## Tus mapas
 
 Los mapas se guardan en la biblioteca de este navegador, automáticamente mientras trabajas. **Mapas** (el botón de la carpeta) los lista: abre uno, bórralo de este navegador o copia su enlace; **Importar fichero…** abre uno guardado. En **Mapas de ejemplo**, _The Grey Marches_ es un mapa listo para jugar y aprender (mira [Las Marcas Grises](../packs/02-grey-marches.md)).

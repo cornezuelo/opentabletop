@@ -204,6 +204,7 @@ export const es: Messages<typeof en> = {
     invalidId: 'Los id usan minúsculas, números y guiones.',
     idTaken: 'Ya hay una definición "{id}" en este pack.',
     fileExists: 'Ya existe el fichero {file}.',
+    manifest: 'Manifiesto',
     manifestHelp: 'El nombre, la versión, el idioma base y la licencia están en pack.yaml.',
     other: 'Otras definiciones',
     otherHelp: 'Reglas para otros motores (reglas de viaje, bindings…). Edítalas en sus ficheros.',

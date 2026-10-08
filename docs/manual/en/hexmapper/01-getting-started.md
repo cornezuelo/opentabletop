@@ -11,6 +11,8 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
+**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, above this manual; while the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
+
 ## Your maps
 
 Maps are kept in this browser's library and saved automatically while you work. **Maps** (the folder button) lists them: open one, delete it from this browser or copy its link; **Import file…** opens a saved file. Under **Example maps**, _The Grey Marches_ is a ready map to play and to learn from (see [The Grey Marches](../packs/02-grey-marches.md)).

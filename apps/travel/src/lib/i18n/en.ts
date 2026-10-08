@@ -49,7 +49,7 @@ export const en = {
     hoursPerDay: 'Marching hours a day',
     night: 'At nightfall, while waiting',
     nightHelp:
-      'What the party does when night falls while it waits (the world clock moving with a trip on): one of the system’s actions, e.g. camp. By default camp, if the system has it; none: the night just passes.',
+      'What the party does when night falls while it waits (the world clock moving with a trip on): one of the system’s actions, e.g. camp.\nBy default camp, if the system has it; none: the night just passes.',
     nightDefault: 'camp, if there is one',
     nightNone: 'nothing: the night passes',
     hoursPerDayHelp: 'How long the party can march each day before it has to stop.',
@@ -62,7 +62,7 @@ export const en = {
       'What players read in the trip panel and the journal instead of the id (e.g. On horseback, Rations). Written in the current language: the pack’s own, or its translation file when the interface is in another one.',
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
-      'Where it can go: a condition on each hex it enters (its terrain, water, tags, region, fields, the roads or rivers of the step), e.g. a boat: any: [{ water: true }, { terrain: coast }]; a cart only by road: edges: road. Where it holds, even closed terrains are open to it. Empty: wherever terrains allow.',
+      'Where it can go: a condition on each hex it enters (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: any: [{ water: true }, { terrain: coast }]\n• a cart only by road: edges: road\nWhere it holds, even closed terrains are open to it. Empty: wherever terrains allow.',
     anyTerrain: 'wherever terrains allow',
     terrains: vocabulary.en.terms.terrains,
     terrainsHelp:
@@ -76,7 +76,7 @@ export const en = {
     openWhen: 'Open when',
     closedWhen: 'Closed when',
     passableWhenHelp:
-      'When it can be entered, as a condition on the hex entered and the moment (its terrain, tags, region, fields, the roads or rivers of the step, the way of travelling, the weather, the season and calendar, today’s values). Open when: only while it holds, e.g. a lake crossed on the ice, season: winter. Closed when: not while it holds, e.g. a mountain pass, any: [{ season: winter }, { weather: blizzard }]. Empty: always open / never closed.',
+      'When the terrain can be entered, as a condition on the hex entered and the moment (its terrain, tags, region, fields, the roads or rivers of the step, the way of travelling, the weather, the season and calendar, today’s values).\n• Open when: only while it holds, e.g. a lake crossed on the ice: season: winter\n• Closed when: not while it holds, e.g. a mountain pass: any: [{ season: winter }, { weather: snow }]\nEmpty: always open / never closed.',
     defaultTerrain: 'Speed × for terrains not listed',
     defaultTerrainHelp: 'Used for any terrain missing above (1 if empty).',
     edges: 'Roads and rivers',
@@ -89,10 +89,10 @@ export const en = {
       'What the party carries. What uses it is up to the system: effects of its actions (an action at the end of the day eats), checks and tables (party.resources.food: -1).',
     min: 'Min',
     minHelp:
-      'Effects never take it below this: a change past it stops there, and later steps and that day’s checks see below: [its id]. Empty: no minimum (it may go negative).',
+      'Effects never take it below this: a change past it stops there, the journal says so, and later steps and that day’s checks see below: [its id].\nE.g. food with Min 0: eating with none left stays at 0, and a day-end check with Only if below: food tires the party.\nEmpty: no minimum (it may go negative, like a debt).',
     max: 'Max',
     maxHelp:
-      'Effects never take it above this (later steps and checks see above: [its id]). Empty: no maximum.',
+      'Effects never take it above this; later steps and checks see above: [its id].\nE.g. water with Max 4: a full waterskin can’t hold more.\nEmpty: no maximum.',
     olderEating:
       'These rules eat the older way (supplies used “per day”, ways of travelling that use supplies, or steps that eat the day’s supplies). They still play the same; converting writes it as an action the system takes at the end of each day, with Min 0 on the supplies.',
     olderEatingConvert: 'Convert',
@@ -107,30 +107,30 @@ export const en = {
       'What the party can do besides marching: camp, rest and the system’s own (forage, pray…), each a button in the trip panel. Each one says when it can be taken and what it does, step by step.',
     oncePerDay: 'Once a day',
     modeWhenHelp:
-      'It can only be chosen when this holds, e.g. a boat only at the water’s edge: any: [{ water: true }, { tags: ferry }]. Empty: always. Unless: it can’t be chosen while this holds.',
+      'When it can be chosen (Only when) or not (Not when), as a condition on where the party is and the moment.\n• a boat only at the water’s edge: any: [{ water: true }, { tags: ferry }]\n• no horses in the snow: weather: snow\nEmpty: always. A value of the day can block it too (Blocks: mode.<id>).',
     values: 'Values of the day',
     valuesHelp:
-      'Values this system’s tables can set for the rest of the day (set: { lost: true }), with what they block while they hold: travel, actions by id, or ways of travelling (mode.<id>). Tables read them the next day as yesterday.<id>. Without any, the older built-in lost (blocks travel) still works.',
+      'Values this system’s tables and actions can set for the rest of the day (set: { lost: true }), with what they block while they hold. Tables read them the next day as yesterday.<id>.\n• lost — blocks travel\n• snowbound — blocks mode.horse\nWithout any, the older built-in lost (blocks travel) still works.',
     blocks: 'Blocks',
     blocksHelp:
-      'What can’t be done while the value holds: travel, one of the system’s actions by its id (camp, forage…) or a way of travelling as mode.<id> (mode.horse); the box suggests what this system declares. The buttons stay visible, disabled, saying why.',
+      'What can’t be done while the value holds:\n• travel — no more marching\n• an action’s id, e.g. camp or forage\n• mode.<id>, e.g. mode.horse — that way of travelling: it can’t be chosen, and a party already travelling so stops until it changes\n\nThe box suggests what this system declares. Blocked buttons stay visible, disabled, saying why.',
     blocksNothing: 'nothing',
   },
   actions: {
     when: 'Only when',
     unless: 'Not when',
     whenHelp:
-      'When the button can be pressed, with conditions like the tables’: today’s values (forageImpossible: true), the map (terrain: [forest, hills]), the party (party.stats.faith: { gte: 1 }). Otherwise it stays disabled and says why.',
+      'When the button can be pressed (Only when) or not (Not when), with conditions like the tables’:\n• weather: storm — today’s weather\n• terrain: [forest, hills] — the hex the party is in\n• tags: shrine — a tag of that hex\n• party.stats.fatigue: { lt: 2 } — the party\n• refusing: true — a value of the day\n• moons.ember: full — the calendar\n\nOtherwise it stays disabled and says why.',
     nothing: 'When nothing applies',
     nothingHelp:
       'What the journal says when none of its checks apply where the party is; {terrain} is the hex’s terrain. Empty: a generic sentence.',
     nothingPlaceholder: 'nothing to find on {terrain}',
     steps: 'What it does',
     stepsHelp:
-      'Its steps, in order, each written like in the YAML: time: 180 (minutes; or dawn, nightfall, 14:00), speed: 0.5 (the rest of today’s march), effects: { party.stats.fatigue: -1 } (a change past a value’s Min or Max stops there; later steps see below: [id] or above: [id]), set: { lost: true } (values of the day), do: forage (another action, if its conditions hold), roll: ENCOUNTER_CHECK_REQUIRED (a check now). The box next to it is the step’s condition: it only happens when it holds (below: food, doing: camp…). The actions that follow this one and its checks (Checks tab, At: this action) come first.',
+      "What the action does, one step per box, in order, each written like in the YAML:\n• time: 180 — three hours pass (or time: dawn, time: nightfall, time: '14:00')\n• speed: 0.5 — the rest of today’s march goes at half speed\n• effects: { party.stats.fatigue: -1 } — change the party (a number adds or takes away; '=0' sets it). A change past a value’s Min or Max stops there, and later steps see below: [id] or above: [id]\n• set: { lost: true } — give a value of the day\n• do: forage — take another action (if its conditions hold)\n• roll: ENCOUNTER_CHECK_REQUIRED — roll a check now\n\nThe box beside each step is its condition: the step only happens when it holds.\n• below: food — only if food hit its minimum today\n• party.stats.morale: { lte: 1 } — only with low morale\n• moment: hex-enter — only when the action came at that moment\n\nThe actions that follow this one, and its checks (Checks → When: this action), come first.",
     on: 'By itself at',
     onHelp:
-      'Empty: the player takes it, with a button. Or the moments the system takes it by itself, if its conditions hold: day-start (at dawn), hex-enter (entering a hex), day-end (as each day ends) or an action’s id (right after it), several separated by commas, e.g. day-start, hex-enter. Taken by the system it isn’t a button, and it comes before that moment’s checks; its conditions see which moment it is (moment: hex-enter). E.g. eating as each day ends, whether the party camped or not: day-end.',
+      'Empty: the player takes it, with a button.\n\nOtherwise the moments the system takes it by itself, if its conditions hold; it isn’t a button then, and it comes before that moment’s checks:\n• day-start — at dawn\n• hex-enter — entering each hex\n• day-end — as each day ends, camping or not\n• an action’s id, e.g. camp — right after that action starts\n\nSeveral, separated by commas: day-start, hex-enter. Its conditions see which one it is as moment (when: { moment: hex-enter }).\n\nE.g. eating as each day ends: day-end.',
     onButton: 'nothing: a button for the player',
     onAfter: 'After: {action}',
     step: 'Step',
@@ -151,7 +151,7 @@ export const en = {
     name: 'Name',
     nameHelp:
       'What players read in the trip panel and the journal instead of the event id (e.g. Getting lost). This box edits it in the current language: the pack’s own, or its translation file when the interface is in another one.',
-    description: 'Description (tooltip)',
+    description: 'Description (its help)',
     at: 'When',
     atOptions: {
       'day-start': 'At dawn',
@@ -161,12 +161,12 @@ export const en = {
     },
     atNone: 'only when a step rolls it',
     atHelp:
-      'When it is rolled: day-start (at dawn), hex-enter (entering a hex), day-end (as each day ends) or an action’s id (with it: camp, forage…), several separated by commas, e.g. hex-enter, camp. Its conditions and table see which one it is (moment: camp). Empty: only when an action’s step rolls it (roll: <its event>).',
+      'When it is rolled:\n• day-start — at dawn, before marching\n• hex-enter — entering each hex\n• day-end — as each day ends (after the system’s day-end actions)\n• an action’s id, e.g. camp or forage — when the party takes it\n\nSeveral, separated by commas: hex-enter, rest. Its conditions and its table see which one it is as moment (when: { moment: rest }).\n\nEmpty: only when an action’s step rolls it (roll: <its event>).',
     atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',
     conditionHelp:
-      'Conditions like in tables, as key: value pairs: terrain: forest, tags: landmark, edges: [road, river], season: winter, weather: storm.',
+      'When the check is rolled (Only if) or skipped (Skip if), as key: value pairs, like in tables:\n• terrain: forest — the hex\n• tags: landmark — a tag of the hex\n• edges: [road, river] — the road or river of the step\n• danger: { gte: 2 } — a value of the hex or its region\n• season: winter, weather: storm — the moment\n• party.resources.food: { lt: 1 } — the party\n• moment: rest — which of its moments it is (when it has several)',
     always: 'always',
     never: 'never',
     resolve: 'Rolled on',
@@ -177,7 +177,7 @@ export const en = {
     waits: '— nothing: wait for me —',
     effects: 'Changes',
     effectsHelp:
-      'What the check itself changes when it comes up, with or without a table: party.stats.fatigue: 1, party.resources.food: -1. A number adds or takes away; =3 sets it. How a system writes its rules as data (a day without food: fatigue +1).',
+      "What the check itself changes when it comes up, with or without a table:\n• party.stats.fatigue: 1 — adds 1\n• party.resources.food: -1 — takes 1 away\n• party.stats.fatigue: '=0' — sets it\n\nHow a system writes its rules as data, e.g. a day without enough food: at day-end, Only if below: food, Changes party.stats.fatigue: 1.",
     pause: 'Pause after it',
     pauseHelp:
       'The trip stops when this check comes up (after rolling it, if something resolves it) and waits until you press Continue: time to describe the place, write lore or decide something. A table entry can also pause, only when it comes up.',

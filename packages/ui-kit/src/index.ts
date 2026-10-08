@@ -1,4 +1,5 @@
 export { default as InfoTip } from './InfoTip.svelte'
+export { askHelp, attachHelp, contextHelp, focusHelp, type HelpEntry } from './contextHelp.svelte'
 export { default as Toasts } from './Toasts.svelte'
 export { default as Dialogs } from './Dialogs.svelte'
 export { ask, confirmAction, dialog, type DialogButton } from './dialog.svelte'

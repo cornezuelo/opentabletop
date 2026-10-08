@@ -52,7 +52,7 @@ export const es: Messages<typeof en> = {
     hoursPerDay: 'Horas de marcha al día',
     night: 'Al anochecer, esperando',
     nightHelp:
-      'Lo que hace el grupo cuando cae la noche mientras espera (el reloj del mundo avanzando con un viaje en marcha): una acción del sistema, p. ej. camp. Por defecto camp, si el sistema la tiene; ninguna: la noche simplemente pasa.',
+      'Lo que hace el grupo cuando cae la noche mientras espera (el reloj del mundo avanzando con un viaje en marcha): una de las acciones del sistema, p. ej. camp.\nPor defecto camp, si el sistema la tiene; ninguna: la noche simplemente pasa.',
     nightDefault: 'camp, si existe',
     nightNone: 'nada: la noche pasa',
     hoursPerDayHelp: 'Cuánto puede marchar el grupo cada día antes de tener que parar.',
@@ -65,7 +65,7 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id (p. ej. A caballo, Raciones). Se escribe en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
-      'Por dónde puede ir: una condición sobre cada hex en el que entra (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso), p. ej. una barca: any: [{ water: true }, { terrain: coast }]; un carro solo por camino: edges: road. Donde se cumple, ni los terrenos cerrados la paran. Vacío: por donde dejen los terrenos.',
+      'Por dónde puede ir: una condición sobre cada hex en el que entra (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: any: [{ water: true }, { terrain: coast }]\n• un carro solo por camino: edges: road\nDonde se cumple, ni los terrenos cerrados la paran. Vacío: por donde dejen los terrenos.',
     anyTerrain: 'por donde dejen los terrenos',
     terrains: vocabulary.es.terms.terrains,
     terrainsHelp:
@@ -79,7 +79,7 @@ export const es: Messages<typeof en> = {
     openWhen: 'Abierto cuando',
     closedWhen: 'Cerrado cuando',
     passableWhenHelp:
-      'Cuándo se puede entrar, como condición sobre el hex al que se entra y el momento (su terreno, etiquetas, región, campos, los caminos o ríos del paso, la forma de viajar, el clima, la estación y el calendario, los valores del día). Abierto cuando: solo mientras se cumple, p. ej. un lago que se cruza sobre el hielo, season: winter. Cerrado cuando: no mientras se cumple, p. ej. un paso de montaña, any: [{ season: winter }, { weather: blizzard }]. Vacío: siempre abierto / nunca cerrado.',
+      'Cuándo se puede entrar en el terreno, como condición sobre el hex al que se entra y el momento (su terreno, etiquetas, región, campos, los caminos o ríos del paso, la forma de viajar, el clima, la estación y el calendario, los valores del día).\n• Abierto cuando: solo mientras se cumple, p. ej. un lago que se cruza sobre el hielo: season: winter\n• Cerrado cuando: no mientras se cumple, p. ej. un paso de montaña: any: [{ season: winter }, { weather: snow }]\nVacío: siempre abierto / nunca cerrado.',
     defaultTerrain: 'Velocidad × de los terrenos no listados',
     defaultTerrainHelp: 'Para cualquier terreno que no esté arriba (1 si está vacío).',
     edges: 'Caminos y ríos',
@@ -92,10 +92,10 @@ export const es: Messages<typeof en> = {
       'Lo que lleva el grupo. Qué lo gasta lo decide el sistema: efectos de sus acciones (una acción al final del día come), comprobaciones y tablas (party.resources.food: -1).',
     min: 'Mín',
     minHelp:
-      'Los efectos nunca la bajan de aquí: un cambio que lo pasaría se queda en él, y los pasos siguientes y las comprobaciones de ese día ven below: [su id]. Vacío: sin mínimo (puede quedar en negativo).',
+      'Los efectos nunca lo bajan de aquí: un cambio más allá se queda ahí, el diario lo dice, y los pasos siguientes y las comprobaciones de ese día ven below: [su id].\nP. ej. comida con Mín 0: comer sin nada se queda en 0, y una comprobación day-end con Solo si below: food cansa al grupo.\nVacío: sin mínimo (puede ser negativo, como una deuda).',
     max: 'Máx',
     maxHelp:
-      'Los efectos nunca la suben de aquí (los pasos siguientes y las comprobaciones ven above: [su id]). Vacío: sin máximo.',
+      'Los efectos nunca lo suben de aquí; los pasos y comprobaciones siguientes ven above: [su id].\nP. ej. agua con Máx 4: un odre lleno no admite más.\nVacío: sin máximo.',
     olderEating:
       'Estas reglas comen a la manera antigua (provisiones gastadas “al día”, formas de viajar que gastan provisiones o pasos que comen las provisiones del día). Se siguen jugando igual; convertirlas lo escribe como una acción que el sistema hace al final de cada día, con Mín 0 en las provisiones.',
     olderEatingConvert: 'Convertir',
@@ -110,30 +110,30 @@ export const es: Messages<typeof en> = {
       'Lo que puede hacer el grupo además de marchar: acampar, descansar y las propias del sistema (buscar comida, rezar…), cada una un botón en el panel del viaje. Cada una dice cuándo se puede hacer y qué hace, paso a paso.',
     oncePerDay: 'Una vez al día',
     modeWhenHelp:
-      'Solo se puede elegir cuando se cumple, p. ej. una barca solo a la orilla: any: [{ water: true }, { tags: ferry }]. Vacío: siempre. Salvo: no se puede elegir mientras se cumple.',
+      'Cuándo se puede elegir (Solo si) o no (Salvo si), como condición sobre dónde está el grupo y el momento.\n• una barca solo a la orilla: any: [{ water: true }, { tags: ferry }]\n• sin caballos con nieve: weather: snow\nVacío: siempre. Un valor del día también puede bloquearla (Bloquea: mode.<id>).',
     values: 'Valores del día',
     valuesHelp:
-      'Valores que las tablas de este sistema pueden poner para el resto del día (set: { lost: true }), con lo que bloquean mientras se cumplen: viajar, acciones por su id o formas de viajar (mode.<id>). Las tablas los leen al día siguiente como yesterday.<id>. Sin ninguno, sigue funcionando el antiguo lost incorporado (bloquea el viaje).',
+      'Valores que las tablas y acciones de este sistema pueden poner para el resto del día (set: { lost: true }), con lo que bloquean mientras se cumplen. Las tablas los leen al día siguiente como yesterday.<id>.\n• lost — bloquea el viaje\n• snowbound — bloquea mode.horse\nSin ninguno, sigue funcionando el antiguo lost integrado (bloquea el viaje).',
     blocks: 'Bloquea',
     blocksHelp:
-      'Lo que no se puede hacer mientras se cumple el valor: travel (viajar), una de las acciones del sistema por su id (camp, forage…) o una forma de viajar como mode.<id> (mode.horse); la caja sugiere lo que declara este sistema. Los botones siguen visibles, desactivados, diciendo por qué.',
+      'Lo que no se puede hacer mientras se cumple el valor:\n• travel — no se marcha más\n• el id de una acción, p. ej. camp o forage\n• mode.<id>, p. ej. mode.horse — esa forma de viajar: no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie\n\nLa caja sugiere lo que declara este sistema. Los botones bloqueados siguen visibles, desactivados, diciendo por qué.',
     blocksNothing: 'nada',
   },
   actions: {
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
-      'Cuándo se puede pulsar el botón, con condiciones como las de las tablas: los valores de hoy (forageImpossible: true), el mapa (terrain: [forest, hills]), el grupo (party.stats.faith: { gte: 1 }). Si no, se queda desactivado y dice por qué.',
+      'Cuándo se puede pulsar el botón (Solo si) o no (Salvo si), con condiciones como las de las tablas:\n• weather: storm — el clima de hoy\n• terrain: [forest, hills] — el hex donde está el grupo\n• tags: shrine — una etiqueta de ese hex\n• party.stats.fatigue: { lt: 2 } — el grupo\n• refusing: true — un valor del día\n• moons.ember: full — el calendario\n\nSi no, sale desactivado y dice por qué.',
     nothing: 'Cuando no se aplica nada',
     nothingHelp:
       'Lo que dice el diario cuando no se aplica ninguna de sus comprobaciones donde está el grupo; {terrain} es el terreno del hex. Vacío: una frase genérica.',
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
-      'Sus pasos, en orden, cada uno escrito como en el YAML: time: 180 (minutos; o dawn, nightfall, 14:00), speed: 0.5 (el resto de la marcha de hoy), effects: { party.stats.fatigue: -1 } (un cambio que pasaría el Mín o el Máx de un valor se queda en él; los pasos siguientes ven below: [id] o above: [id]), set: { lost: true } (valores del día), do: forage (otra acción, si se cumplen sus condiciones), roll: ENCOUNTER_CHECK_REQUIRED (una comprobación ya). La casilla de al lado es la condición del paso: solo ocurre si se cumple (below: food, doing: camp…). Las acciones que siguen a esta y sus comprobaciones (pestaña Comprobaciones, En: esta acción) van primero.',
+      "Lo que hace la acción, un paso por caja, en orden, cada uno escrito como en el YAML:\n• time: 180 — pasan tres horas (o time: dawn, time: nightfall, time: '14:00')\n• speed: 0.5 — lo que queda de marcha hoy va a media velocidad\n• effects: { party.stats.fatigue: -1 } — cambia el grupo (un número suma o resta; '=0' lo fija). Un cambio más allá del Mín o Máx de un valor se queda ahí, y los pasos siguientes ven below: [id] o above: [id]\n• set: { lost: true } — da un valor del día\n• do: forage — hace otra acción (si se cumplen sus condiciones)\n• roll: ENCOUNTER_CHECK_REQUIRED — tira una comprobación ya\n\nLa caja junto a cada paso es su condición: el paso solo ocurre cuando se cumple.\n• below: food — solo si la comida llegó hoy a su mínimo\n• party.stats.morale: { lte: 1 } — solo con la moral baja\n• moment: hex-enter — solo cuando la acción llegó en ese momento\n\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → Cuándo: esta acción), van primero.",
     on: 'Sola en',
     onHelp:
-      'Vacío: la hace el jugador, con un botón. O los momentos en que la hace el propio sistema, si se cumplen sus condiciones: day-start (al alba), hex-enter (al entrar en un hex), day-end (al acabar cada día) o el id de una acción (justo después de ella), varios separados por comas, p. ej. day-start, hex-enter. Si la hace el sistema no es un botón, y va antes de las comprobaciones de ese momento; sus condiciones ven qué momento es (moment: hex-enter). P. ej. comer al acabar cada día, se acampe o no: day-end.',
+      'Vacío: la hace el jugador, con un botón.\n\nSi no, los momentos en que la hace el propio sistema, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• day-start — al alba\n• hex-enter — al entrar en cada hex\n• day-end — al acabar cada día, se acampe o no\n• el id de una acción, p. ej. camp — justo al empezar esa acción\n\nVarios, separados por comas: day-start, hex-enter. Sus condiciones ven cuál es como moment (when: { moment: hex-enter }).\n\nP. ej. comer al acabar cada día: day-end.',
     onButton: 'nada: un botón para el jugador',
     onAfter: 'Tras: {action}',
     step: 'Paso',
@@ -154,7 +154,7 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     nameHelp:
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento (p. ej. Perderse). Esta caja lo edita en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
-    description: 'Descripción (tooltip)',
+    description: 'Descripción (su ayuda)',
     at: 'Cuándo',
     atOptions: {
       'day-start': 'Al alba',
@@ -164,12 +164,12 @@ export const es: Messages<typeof en> = {
     },
     atNone: 'solo cuando un paso la tira',
     atHelp:
-      'Cuándo se tira: day-start (al alba), hex-enter (al entrar en un hex), day-end (al acabar cada día) o el id de una acción (con ella: camp, forage…), varios separados por comas, p. ej. hex-enter, camp. Sus condiciones y su tabla ven cuál es (moment: camp). Vacío: solo cuando la tira un paso de una acción (roll: <su evento>).',
+      'Cuándo se tira:\n• day-start — al alba, antes de marchar\n• hex-enter — al entrar en cada hex\n• day-end — al acabar cada día (tras las acciones day-end del sistema)\n• el id de una acción, p. ej. camp o forage — cuando el grupo la hace\n\nVarios, separados por comas: hex-enter, rest. Sus condiciones y su tabla ven cuál es como moment (when: { moment: rest }).\n\nVacío: solo cuando la tira un paso de una acción (roll: <su evento>).',
     atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      'Condiciones como en las tablas, en pares clave: valor: terrain: forest, tags: landmark, edges: [road, river], season: winter, weather: storm.',
+      'Cuándo se tira la comprobación (Solo si) o se salta (Salvo si), en pares clave: valor, como en las tablas:\n• terrain: forest — el hex\n• tags: landmark — una etiqueta del hex\n• edges: [road, river] — el camino o río del paso\n• danger: { gte: 2 } — un valor del hex o de su región\n• season: winter, weather: storm — el momento\n• party.resources.food: { lt: 1 } — el grupo\n• moment: rest — cuál de sus momentos es (si tiene varios)',
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',
@@ -180,7 +180,7 @@ export const es: Messages<typeof en> = {
     waits: '— nada: espérame —',
     effects: 'Cambios',
     effectsHelp:
-      'Lo que cambia la propia comprobación cuando sale, con tabla o sin ella: party.stats.fatigue: 1, party.resources.food: -1. Un número suma o resta; =3 lo fija. Así escribe un sistema sus reglas como datos (un día sin comida: fatiga +1).',
+      "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• party.stats.fatigue: 1 — suma 1\n• party.resources.food: -1 — quita 1\n• party.stats.fatigue: '=0' — lo fija\n\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: en day-end, Solo si below: food, Cambios party.stats.fatigue: 1.",
     pause: 'Pausar después',
     pauseHelp:
       'El viaje se detiene cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses Continuar: tiempo para describir el lugar, escribir lore o decidir algo. Una entrada de tabla también puede pausar, solo cuando sale.',

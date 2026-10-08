@@ -9,6 +9,8 @@ The Oracle app rolls and edits the random tables of your games: tables, oracles,
 - **Definition** (center): the **Roll** tab rolls it, the **Edit** tab changes it. Above them: its id, its file (click to open it in the YAML editor) and the actions **Duplicate**, **Copy to…** and **Delete**.
 - **History** (right): your last rolls. Click one to see it again.
 
+**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (**?**, on the right) opens on it, above this manual; while the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
+
 ## Four kinds of definition
 
 | Kind          | What it does                                                                  |

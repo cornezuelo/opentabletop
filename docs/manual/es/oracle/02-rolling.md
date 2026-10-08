@@ -8,13 +8,13 @@ La tarjeta del resultado muestra el texto, los valores que fija la entrada (p. e
 
 ## Contexto
 
-Algunas definiciones leen valores: el terreno, la estación, un modificador… El recuadro **Contexto** lista los que necesita una definición (o cualquier tabla que tire), por su nombre (_Fiestas_, _Guardias_…), con lo que es cada uno y su clave (`{{icon.guards}}`) en su **i**, y los valores que aparecen en sus condiciones como sugerencias. Las aplicaciones nombran los valores que dan los mapas y los viajes; un sistema nombra sus características y los demás valores que leen sus tablas (`reads:` en sus bindings, mira [Conectar](07-connecting.md)). En blanco significa desconocido. La entrada de un oráculo (p. ej. la probabilidad) es aquí una lista.
+Algunas definiciones leen valores: el terreno, la estación, un modificador… El recuadro **Contexto** lista los que necesita una definición (o cualquier tabla que tire), por su nombre (_Fiestas_, _Guardias_…), con lo que es cada uno y su clave (`{{icon.guards}}`) en su ayuda (pulsa su nombre subrayado con puntos), y los valores que aparecen en sus condiciones como sugerencias. Las aplicaciones nombran los valores que dan los mapas y los viajes; un sistema nombra sus características y los demás valores que leen sus tablas (`reads:` en sus bindings, mira [Conectar](07-connecting.md)). En blanco significa desconocido. La entrada de un oráculo (p. ej. la probabilidad) es aquí una lista.
 
 En el Hexmapper estos valores vienen del mapa y del viaje; consulta [Oracle en el mapa](../hexmapper/09-oracle.md).
 
 ## Modos de tirada (ventaja y otros)
 
-Algunas tablas se pueden tirar de más de una forma: un **modo de tirada** tira toda la tirada varias veces y se queda con un total. Qué modos hay, cómo se llaman y qué hacen lo decide cada sistema: Core tiene **Ventaja** (dos veces, el más alto) y **Desventaja** (dos veces, el más bajo); las Marcas Grises añaden **Con cuidado** (tres veces, el del medio) para el vado. Una tabla que ofrece modos muestra una opción junto a **Tirar**; su **i** dice qué hace cada uno. La tarjeta del resultado muestra los totales que no se quedaron.
+Algunas tablas se pueden tirar de más de una forma: un **modo de tirada** tira toda la tirada varias veces y se queda con un total. Qué modos hay, cómo se llaman y qué hacen lo decide cada sistema: Core tiene **Ventaja** (dos veces, el más alto) y **Desventaja** (dos veces, el más bajo); las Marcas Grises añaden **Con cuidado** (tres veces, el del medio) para el vado. Una tabla que ofrece modos muestra una opción junto a **Tirar**; su ayuda (pulsa **Modo de tirada**) dice qué hace cada uno. La tarjeta del resultado muestra los totales que no se quedaron.
 
 Algunas tablas además usan un modo **por sí solas** cuando se cumple una condición, tanto si las tiras a mano como si las tira un viaje. En las Marcas Grises, _¿Nos perdemos?_ se tira con ventaja con el cielo despejado y con desventaja el día después de perderse; con las dos, se anulan y es una tirada normal. Cómo declarar los modos y usarlos: [Tipos de definición](../technical/07-kinds.md#modos-de-tirada).
 

@@ -199,6 +199,7 @@ export const en = {
     invalidId: 'Ids use lowercase letters, digits and dashes.',
     idTaken: 'There is already a definition "{id}" in this pack.',
     fileExists: 'There is already a file {file}.',
+    manifest: 'Manifest',
     manifestHelp: 'Name, version, base language and license are in pack.yaml.',
     other: 'Other definitions',
     otherHelp: 'Rules for other engines (travel rules, bindings…). Edit them in their files.',

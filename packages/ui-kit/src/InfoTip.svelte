@@ -1,58 +1,33 @@
 <script lang="ts">
-  import { markdownText } from './markdown'
-  import { showTooltip, tooltip } from './tooltip'
+  import { attachHelp } from './contextHelp.svelte'
 
   /**
-   * Small "i" badge that explains the control next to it. Not a <button>: inside a
-   * <label> a button would become the labelled control instead of the field, and a
-   * click on it must not toggle the label's checkbox. Tapping or Enter shows the text.
+   * The explanation of the control it sits in (a label's text, a column header, a title).
+   * It draws nothing: its parent gets a dotted underline, and clicking it shows the text in
+   * the app's help column (see contextHelp). `markdown`: a pack's text, with its formatting.
    */
   let { text = '', markdown = '' }: { text?: string; markdown?: string } = $props()
-  /** `markdown`: a pack's text (description…), shown with its formatting. */
-  const content = $derived(markdown ? { markdown } : text)
-  const label = $derived(markdown ? markdownText(markdown) : text)
+  let anchor: HTMLSpanElement
 
-  function open(event: Event) {
-    event.preventDefault()
-    showTooltip(event.currentTarget as HTMLElement, content)
-  }
+  $effect(() => {
+    if (!text && !markdown) return
+    return attachHelp(anchor, markdown ? { markdown } : { text })
+  })
 </script>
 
-{#if text || markdown}
-  <span
-    class="info"
-    role="button"
-    tabindex="0"
-    aria-label={label}
-    use:tooltip={content}
-    onclick={open}
-    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && open(e)}>i</span
-  >
-{/if}
+<span bind:this={anchor} hidden></span>
 
 <style>
-  .info {
-    display: inline-grid;
-    padding: 0;
-    border: none;
-    place-items: center;
-    width: 15px;
-    height: 15px;
-    margin-left: 4px;
-    font:
-      italic 600 10px/1 Georgia,
-      serif;
-    color: var(--panel);
-    vertical-align: 2px;
-    background: var(--text-muted);
-    border-radius: 50%;
+  /* Labels with help: a dotted underline says there is help; the help column shows it. */
+  :global(.has-help) {
+    text-decoration: underline dotted color-mix(in srgb, var(--text-muted) 70%, transparent);
+    text-underline-offset: 3px;
     cursor: help;
-    user-select: none;
   }
 
-  .info:hover,
-  .info:focus-visible {
-    background: var(--accent);
+  :global(.has-help:hover),
+  :global(.has-help:focus-visible) {
+    text-decoration-color: var(--accent);
     outline: none;
   }
 </style>
