@@ -43,21 +43,27 @@ function pick<T extends object>(source: T, patch: Partial<T> | undefined): Parti
   return out
 }
 
+/** No choice is no key: every pack, the generic system. */
+function tidy(meta: MapMeta): void {
+  if (meta.packs === undefined) delete meta.packs
+  if (meta.system === undefined || meta.system === 'generic') delete meta.system
+}
+
 export class SetMetaCommand implements Command {
   private before: Partial<MapMeta> = {}
 
-  constructor(private patch: Partial<Pick<MapMeta, 'name' | 'packs'>>) {}
+  constructor(private patch: Partial<Pick<MapMeta, 'name' | 'packs' | 'system'>>) {}
 
   apply(map: HexMap): MapChange {
-    this.before = { name: map.meta.name, packs: map.meta.packs }
+    this.before = { name: map.meta.name, packs: map.meta.packs, system: map.meta.system }
     Object.assign(map.meta, this.patch)
-    if (map.meta.packs === undefined) delete map.meta.packs
+    tidy(map.meta)
     return { kind: 'meta' }
   }
 
   revert(map: HexMap): MapChange {
     Object.assign(map.meta, this.before)
-    if (map.meta.packs === undefined) delete map.meta.packs
+    tidy(map.meta)
     return { kind: 'meta' }
   }
 }

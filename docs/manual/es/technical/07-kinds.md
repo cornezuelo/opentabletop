@@ -258,7 +258,7 @@ Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-gre
 
 ## Sistemas
 
-Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario y modelos de clima, y los packs cuyas tablas, oráculos y mazos trae consigo. Los mapas y los viajes eligen un sistema; Jugar del Hexmapper y la aplicación Travel los muestran por su nombre.
+Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario y modelos de clima, y los packs cuyas tablas, oráculos y mazos trae consigo. Los mapas y los viajes eligen un sistema: un mapa del Hexmapper en **Ajustes del mapa → Mapa → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), un viaje de la aplicación Travel en la página del sistema; ambos los muestran por su nombre.
 
 ```yaml
 kind: system

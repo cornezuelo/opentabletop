@@ -81,10 +81,17 @@ export const en = {
     regions: vocabulary.en.terms.regions,
   },
   map: {
+    system: vocabulary.en.terms.system,
+    genericSystem: vocabulary.en.terms.genericSystem,
+    systemHelp:
+      "The game system this map is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. New trips in **Play** use it; the Oracle panel shows its packs.\n• **The Grey Marches** — the example map's system\n• **Generic** — simple travel rules, no tables of their own\nA trip already going on keeps the system it started with until you start a new one.",
+    systemMissing:
+      'The system “{system}” is not loaded in this browser: the map plays the generic rules.',
     packs: 'Packs',
     packsHelp:
-      "The packs this map works with: its Oracle panel and the systems of Play only show these.\n• **Core** and **The Grey Marches** — the example map's choice\n• all the loaded packs — nothing chosen\nTables can still roll tables of other packs they refer to.",
+      'The packs this map works with: the ones its system brings (always on) and any others you add. Its Oracle panel only shows these.\n• **The Grey Marches** system brings **Core** and **The Grey Marches**; add **Core** to the generic system to roll its oracles\n• **All the loaded packs** — every pack, also ones you add later\nTables can still roll tables of other packs they refer to.',
     allPacks: 'All the loaded packs',
+    fromSystem: 'brought by the system',
     packMissing: 'The pack “{pack}” is not loaded in this browser.',
     id: 'ID (file name)',
     copyId: 'Copy ID',
@@ -364,6 +371,8 @@ export const en = {
     empty: 'No tokens yet.',
   },
   play: {
+    otherSystem:
+      'This trip plays {trip}, the system it started with; the map now plays {map}. New trip starts one with it.',
     confirmNewTrip:
       'Start a new trip? Time, supplies and the journal start over (the party stays where it is). This can’t be undone.',
     confirmClearTrail: 'Clear the party’s trail? This can’t be undone.',

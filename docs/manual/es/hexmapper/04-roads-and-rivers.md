@@ -14,7 +14,7 @@ La herramienta **Caminos y ríos** (<kbd>R</kbd>) dibuja líneas de hex a hex.
 
 ## Qué hacen los caminos y ríos al viajar
 
-El mapa solo dice por dónde va cada línea. Lo que significa para un viaje lo deciden las **reglas de viaje del sistema** con el que juegas (Jugar → Reglas), en su pack:
+El mapa solo dice por dónde va cada línea. Lo que significa para un viaje lo deciden las **reglas de viaje del sistema** con el que se juega el mapa (**Ajustes del mapa → Mapa → Sistema**), en su pack:
 
 - **Velocidad**: cada tipo de línea puede tener un multiplicador de velocidad. Con las reglas **Genéricas** un camino es ×1,5 y un sendero ×1,2, y un río no cambia nada. Con las **Marcas Grises**, un camino es ×1,5 y un sendero ×1,2; otro sistema puede hacer que no aceleren nada.
 - **Comprobaciones**: un sistema puede saltarse una comprobación mientras sigues una línea. En las **Marcas Grises** no se tira para perderse al seguir un camino o un río, ni hay encuentros al llegar por el camino; las reglas Genéricas no tienen tirada de perderse.

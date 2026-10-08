@@ -16,7 +16,8 @@ import { DEFAULT_TOKEN_ICONS, partyToken } from '../model/tokens'
 import type { PlayState } from '../model/types'
 import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
-import { getSystem, oracle } from './systems'
+import { SetMetaCommand } from '../commands/settings'
+import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
 import { followTrip } from './world.svelte'
 
@@ -127,7 +128,7 @@ export function clickHex(key: HexKey): void {
   // The party is placed and a system chosen, but the trip hasn't started: it starts
   // where the party is, heading for the hex clicked.
   if (play.mode === 'rules' && location && !sessionOf(play)) {
-    save(newSession(play, location, play.rules?.system ?? 'generic'))
+    save(newSession(play, location, mapSystemId()))
     if (location !== key) step({ type: 'setDestination', hex: key })
     return
   }
@@ -135,7 +136,7 @@ export function clickHex(key: HexKey): void {
     if (location === key && (play.mode === 'simple' || sessionOf(play))) return
     placeParty(key)
     if (play.trail.at(-1) !== key) play.trail = [...play.trail, key]
-    if (play.mode === 'rules') return save(newSession(play, key, play.rules?.system ?? 'generic'))
+    if (play.mode === 'rules') return save(newSession(play, key, mapSystemId()))
     return save(play)
   }
   step({ type: 'setDestination', hex: key })
@@ -146,12 +147,16 @@ export function setMode(mode: PlayState['mode']): void {
   play.mode = mode
   const location = partyLocation()
   if (mode === 'rules' && location && !sessionOf(play))
-    return save(newSession(play, location, play.rules?.system ?? 'generic'))
+    return save(newSession(play, location, mapSystemId()))
   save(play)
 }
 
-/** Starts a new trip with another system (or season); the party stays where it is. */
+/**
+ * Starts a new trip (with another system, which becomes the map's, or season); the party
+ * stays where it is.
+ */
 export function restartRules(system: string, season: Season): void {
+  if (system !== mapSystemId()) editor.execute(new SetMetaCommand({ system }))
   const play = current()
   const location = partyLocation()
   if (!location)

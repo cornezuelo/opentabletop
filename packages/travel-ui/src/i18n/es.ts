@@ -3,8 +3,8 @@ import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
-  system: 'Reglas',
-  genericSystem: 'Genéricas',
+  system: vocabulary.es.terms.system,
+  genericSystem: vocabulary.es.terms.genericSystem,
   startSeason: 'Empezar en',
   newTrip: 'Nuevo viaje',
   withTables:

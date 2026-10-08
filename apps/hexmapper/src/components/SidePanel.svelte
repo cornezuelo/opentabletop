@@ -7,7 +7,7 @@
   import LayersPanel from './LayersPanel.svelte'
   import LibraryPanel from './LibraryPanel.svelte'
   import MapSettings from './MapSettings.svelte'
-  import MapPacks from './MapPacks.svelte'
+  import MapSystem from './MapSystem.svelte'
   import WorldPanel from './WorldPanel.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
@@ -27,7 +27,7 @@
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyResult, tripChanges } from '@open-tabletop/session'
   import { resourceBounds } from '@open-tabletop/travel-engine'
-  import { getSystem } from '../lib/play/systems'
+  import { activeSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexKey } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -63,7 +63,7 @@
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
     </header>
-    <Section title={t('panel.map')}><MapSettings /><MapPacks /></Section>
+    <Section title={t('panel.map')}><MapSettings /><MapSystem /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
     <Section title={t('captions.title')}><CaptionSettings /></Section>
     <Section title={t('regionStyle.title')}>
@@ -137,7 +137,7 @@
               disabled={applied.has(item.id)}
               use:tooltip={{ markdown: helpMarkdown(t('oracle.applyHelp')) }}
               onclick={() => {
-                const system = getSystem(editor.play?.rules?.system ?? 'generic')
+                const system = activeSystem()
                 editSession((session) =>
                   applyResult(
                     session,

@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Travel: a new system also writes its `system.yaml`; a pack's file may hold several travel rules, and the forms and the problems list point at the right one.
+- Hexmapper: **a map chooses its system** in **Map settings → Map → System** (the same choice as in Play): its new trips, the World panel's calendar and the Oracle panel use what the system brings. **Packs** are now the ones a map adds to its system's (shown ticked). A trip going on keeps the system it started with, and Play says so when the map's has changed. Maps are migrated (format v14): the system their trip played becomes the map's. In Play and Travel the choice is called **System** (it was **Rules**).
 
 ## [0.3.0] - 2026-10-08
 

@@ -84,7 +84,7 @@ Las tablas leen el grupo como `party.resources.food`, `party.stats.morale`: `whe
 
 ## 5. Tu propio sistema de viaje
 
-Un pack se convierte en un **sistema** que puedes elegir en Jugar → Reglas cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
+Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Hexmapper: **Ajustes del mapa → Mapa → Sistema**) y que muestra la aplicación Travel cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
 
 ```yaml
 kind: travel-rules

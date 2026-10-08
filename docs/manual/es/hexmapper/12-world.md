@@ -4,7 +4,7 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 ## Ponerlo en marcha
 
-**Poner en marcha el reloj del mundo** lo sitúa al alba del primer día o, durante un viaje, a la hora del viaje. Nombra el tiempo con el calendario del sistema con el que se juega el mapa (Jugar → Reglas): las Marcas Grises muestran «Pozodía, 3 de Deshielo, año 412» con sus lunas y fiestas; las reglas genéricas cuentan días y estaciones.
+**Poner en marcha el reloj del mundo** lo sitúa al alba del primer día o, durante un viaje, a la hora del viaje. Nombra el tiempo con el calendario del sistema con el que se juega el mapa (**Ajustes del mapa → Mapa → Sistema**; durante un viaje, el del viaje): las Marcas Grises muestran «Pozodía, 3 de Deshielo, año 412» con sus lunas y fiestas; las reglas genéricas cuentan días y estaciones.
 
 **Parar el reloj del mundo** lo olvida (pregunta antes).
 

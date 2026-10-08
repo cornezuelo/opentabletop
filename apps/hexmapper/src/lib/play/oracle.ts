@@ -1,7 +1,7 @@
 import { createOracleUi } from '@open-tabletop/oracle-ui'
 import { addEntry, calendarOf, tripContext } from '@open-tabletop/session'
 import { calendarFacts } from '@open-tabletop/travel-engine'
-import { getSystem } from './systems'
+import { getSystem, mapPacks } from './systems'
 import { getLocale } from '../i18n/index.svelte'
 import { fieldValues } from '../model/hex'
 import type { HexKey } from '../model/types'
@@ -19,8 +19,8 @@ export const oracleUi = createOracleUi({
   library,
   locale: getLocale,
   storageKey: 'opentabletop.hexmapper.oracle',
-  // Only the packs this map works with (Map settings → Map → Packs).
-  packs: () => editor.meta.packs,
+  // Only the packs this map works with: its system's and the ones it adds (Map settings → Map).
+  packs: mapPacks,
   store: {
     load: () => editor.map.oracle,
     save: ({ state, history }) => editor.setOracle({ state, history }),

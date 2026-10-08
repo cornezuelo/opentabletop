@@ -224,6 +224,10 @@ export interface PlayState {
   /** The trail and the planned route as straight lines between hexes (default: curves). */
   straightTrail?: boolean
   /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
+  /**
+   * The trip: `system` is the one it was started with (the map's, `meta.system`, at that
+   * moment); a trip keeps playing it until a new one starts.
+   */
   rules?: { system: string; startDay: number; session: unknown }
   /**
    * Discovery (rules mode, systems with `discover` bindings): empty hexes are decided as
@@ -311,7 +315,12 @@ export interface MapMeta {
   name: string
   created: string
   modified: string
-  /** Pack ids this map works with (its Oracle panel and play systems); absent = all. */
+  /** The system the map is played with (`kind: system` id); absent = the generic one. */
+  system?: string
+  /**
+   * Packs the map works with besides the ones its system brings (its Oracle panel shows
+   * both); absent = every loaded pack.
+   */
   packs?: string[]
 }
 

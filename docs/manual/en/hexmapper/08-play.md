@@ -10,11 +10,13 @@ Just the party token and its trail: click a hex to place the party, click anothe
 
 The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map and edits them.
 
-1. Choose the **rules**: Generic, or a system whose pack has travel rules (e.g. the Grey Marches), and the season to **start in**. **New trip** restarts time, supplies and journal, keeping the party where it is.
+1. Check the **system**: the map's own (**Map settings → Map → System**, the same choice): Generic, or a system of a pack (e.g. the Grey Marches). It brings the travel rules, the tables they roll, the calendar and the weather. Choose the season to **start in**. **New trip** restarts time, supplies and journal, keeping the party where it is; choosing another system here starts a new trip with it and makes it the map's.
 2. Click a hex to place the party, then click the **destination**: the route is drawn.
 3. **Travel** goes on until you arrive, night falls, the day's marching hours run out or a check needs you. **1 hex** moves one hex. **Camp** sleeps until dawn; **Rest** is a short pause (each system declares which actions it has, and when they can be taken). When the party can't take the night's action (the Grey Marches camp only with food left and fatigue under 10), **Travel** at nightfall (or in a storm that keeps it in) passes the night without it and marches on at dawn. **Wait until dawn** always lets time pass where the party is, living the night: for a day nothing else can be done (lost, no food to camp). The [World clock](12-world.md#with-a-trip-going-on) moves the trip on too: with a route planned, **Next day** travels along it.
 
 The panel shows the day, time and season, where the party is, the weather, the marching hours used, the travel mode (on foot, on horseback…), supplies, fatigue and the system's party stats (e.g. the Grey Marches' Survival).
+
+A trip keeps the system it started with. If the map's system changes later (in **Map settings**, or undoing a change), the panel says so and the trip plays on with its own; **New trip** starts one with the map's.
 
 ## Checks and the journal
 

@@ -82,10 +82,17 @@ export const es: Messages = {
     regions: vocabulary.es.terms.regions,
   },
   map: {
+    system: vocabulary.es.terms.system,
+    genericSystem: vocabulary.es.terms.genericSystem,
+    systemHelp:
+      'El sistema de juego con el que se juega este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Las Marcas Grises** — el sistema del mapa de ejemplo\n• **Genéricas** — reglas de viaje sencillas, sin tablas propias\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
+    systemMissing:
+      'El sistema «{system}» no está cargado en este navegador: el mapa se juega con las reglas genéricas.',
     packs: 'Packs',
     packsHelp:
-      'Los packs con los que trabaja este mapa: su panel del Oracle y los sistemas de Jugar solo muestran estos.\n• **Core** y **Las Marcas Grises** — lo que elige el mapa de ejemplo\n• todos los packs cargados — si no eliges nada\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
+      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añadas. Su panel del Oracle solo muestra estos.\n• el sistema **Las Marcas Grises** trae **Core** y **Las Marcas Grises**; añade **Core** al sistema genérico para tirar sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
     allPacks: 'Todos los packs cargados',
+    fromSystem: 'lo trae el sistema',
     packMissing: 'El pack «{pack}» no está cargado en este navegador.',
     id: 'ID (nombre del fichero)',
     copyId: 'Copiar ID',
@@ -370,6 +377,8 @@ export const es: Messages = {
     empty: 'Aún no hay tokens.',
   },
   play: {
+    otherSystem:
+      'Este viaje juega {trip}, el sistema con el que empezó; el mapa ahora se juega con {map}. Nuevo viaje empieza uno con él.',
     confirmNewTrip:
       '¿Empezar un viaje nuevo? El tiempo, las provisiones y el diario vuelven a empezar (el grupo se queda donde está). No se puede deshacer.',
     confirmClearTrail: '¿Borrar el rastro del grupo? No se puede deshacer.',

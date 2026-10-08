@@ -14,7 +14,7 @@ The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from hex to hex.
 
 ## What roads and rivers do when you travel
 
-The map only says where each line goes. What it means for a trip is decided by the **travel rules of the system** you play with (Play → Rules), in its pack:
+The map only says where each line goes. What it means for a trip is decided by the **travel rules of the system** the map plays (**Map settings → Map → System**), in its pack:
 
 - **Speed**: each kind of line can have a speed multiplier. With the **Generic** rules a road is ×1.5 and a trail ×1.2, and a river changes nothing. With the **Grey Marches**, a road is ×1.5 and a trail ×1.2; another system may make them no faster at all.
 - **Checks**: a system can skip a check while you follow a line. In the **Grey Marches** you don't roll to get lost when following a road or a river, nor meet encounters arriving by road; the Generic rules have no getting-lost roll at all.

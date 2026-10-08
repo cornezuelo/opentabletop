@@ -259,7 +259,7 @@ The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches
 
 ## Systems
 
-A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. Maps and trips choose a system; Hexmapper Play and the Travel app list them by name.
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. Maps and trips choose a system: a Hexmapper map in **Map settings → Map → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), a trip in the Travel app on the system's page; both list them by name.
 
 ```yaml
 kind: system

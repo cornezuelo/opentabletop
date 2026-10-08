@@ -4,7 +4,7 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 ## Starting it
 
-**Start the world clock** sets it at dawn of the first day — or, during a trip, at the trip's time. It names time with the calendar of the system the map plays (Play → Rules): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the generic rules count days and seasons.
+**Start the world clock** sets it at dawn of the first day — or, during a trip, at the trip's time. It names time with the calendar of the system the map plays (**Map settings → Map → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the generic rules count days and seasons.
 
 **Stop the world clock** forgets it (it asks first).
 

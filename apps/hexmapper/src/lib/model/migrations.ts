@@ -113,6 +113,18 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   12(data) {
     return data
   },
+  /**
+   * v14: the map chooses a system (`meta.system`): the one its trip plays. Its packs become
+   * the ones it adds to the system's; the old list still holds them all, so nothing changes.
+   */
+  13(data) {
+    const meta = (data.meta ?? {}) as Record<string, unknown>
+    const play = data.play as { rules?: { system?: unknown } } | undefined
+    const system = play?.rules?.system
+    if (typeof meta.system === 'string' || typeof system !== 'string' || system === 'generic')
+      return data
+    return { ...data, meta: { ...meta, system } }
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

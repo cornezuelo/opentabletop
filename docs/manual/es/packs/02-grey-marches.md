@@ -9,7 +9,7 @@ Los nombres del mapa y del pack están en inglés, que es la lengua base del pac
 ## Jugarlo
 
 1. En el Hexmapper, **Mapas → Mapas de ejemplo → The Grey Marches**. Se abre como uno de tus mapas; vuelve a abrirlo más tarde para seguir, o empiézalo de cero.
-2. **Jugar** (<kbd>P</kbd>): el mapa se abre listo, **Con reglas** y **The Grey Marches**, con el descubrimiento activado. Elige la estación si quieres (**Nuevo viaje**) y haz clic en un destino: el grupo empieza en Ashford.
+2. **Jugar** (<kbd>P</kbd>): el mapa se abre listo, **Con reglas**, jugando **Las Marcas Grises** (su sistema en **Ajustes del mapa → Mapa → Sistema**), con el descubrimiento activado. Elige la estación si quieres (**Nuevo viaje**) y haz clic en un destino: el grupo empieza en Ashford.
 3. Prueba el camino a Fuerte Keld (el peaje), la senda al santuario (el vado), el sendero a las Piedras Grises (un lugar señalado que te espera), una noche en el Bosque Gris o la barca por el lago: en la orilla de Brenna, cambia el modo de viaje a **En barca**; solo va por agua y costa, así que vuelve a **A pie** para desembarcar.
 4. Ve hacia el este, a los hexes en blanco: se descubren según avanzas (desmarca **Descubrir el mapa al viajar** para dejarlos en blanco).
 

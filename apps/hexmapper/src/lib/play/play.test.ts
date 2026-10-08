@@ -7,10 +7,10 @@ import { createMap } from '../model/defaults'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
-import { clickHex, partyLocation, sessionOf, setMode, step } from './play'
-import { advanceWorld, startWorld, stopMessage, worldAct } from './world.svelte'
+import { clickHex, partyLocation, restartRules, sessionOf, setMode, step } from './play'
+import { advanceWorld, startWorld, stopMessage, worldAct, worldCalendar } from './world.svelte'
 import { oracleUi } from './oracle'
-import { playSystems } from './systems'
+import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 
 describe('playing on the map', () => {
   it('simple: the party jumps to the hex clicked, leaving a trail', () => {
@@ -32,18 +32,57 @@ describe('playing on the map', () => {
     expect(editor.map.play?.rules?.system).toBe('grey-marches')
   })
 
-  it('a map works with the packs it chooses (the example: Core and the Grey Marches)', () => {
+  it('a map chooses its system and the packs it adds (the example: the Grey Marches alone)', () => {
     editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
-    expect(editor.meta.packs).toEqual(['core', 'grey-marches'])
-    expect(playSystems().map((s) => s.id)).toEqual(['generic', 'grey-marches'])
+    expect(editor.meta.system).toBe('grey-marches')
+    expect(editor.meta.packs).toEqual([])
+    // The system brings its own pack and Core; nothing else is shown.
+    expect(mapPacks()).toEqual(['grey-marches', 'core'])
     expect(oracleUi.showsPack('grey-marches')).toBe(true)
+    expect(oracleUi.showsPack('core')).toBe(true)
     expect(oracleUi.showsPack('kal-arath')).toBe(false)
+    // Every system can be chosen, whatever the packs.
+    expect(playSystems().map((s) => s.id)).toEqual(
+      expect.arrayContaining(['generic', 'grey-marches']),
+    )
     // Back to every pack: undoable, and saved in the file.
     editor.execute(new SetMetaCommand({ packs: undefined }))
     expect(oracleUi.showsPack('kal-arath')).toBe(true)
     expect(mapToBundle(editor.map).maps[0].ext).not.toHaveProperty(['hexmapper', 'packs'])
     editor.undo()
-    expect(editor.meta.packs).toEqual(['core', 'grey-marches'])
+    expect(editor.meta.packs).toEqual([])
+    // The generic system brings no packs: only the ones the map adds.
+    editor.execute(new SetMetaCommand({ system: 'generic', packs: ['core'] }))
+    expect(editor.meta).not.toHaveProperty('system')
+    expect(mapPacks()).toEqual(['core'])
+    expect(oracleUi.showsPack('grey-marches')).toBe(false)
+    expect(mapToBundle(editor.map).maps[0].ext).not.toHaveProperty(['hexmapper', 'system'])
+    editor.undo()
+    expect(editor.meta.system).toBe('grey-marches')
+    // Saved in the file and read back.
+    const back = bundleToMap(mapToBundle(editor.map))
+    expect(back.meta).toMatchObject({ system: 'grey-marches', packs: [] })
+  })
+
+  it("new trips play the map's system; a trip going on keeps its own until a new one", () => {
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    clickHex('7,7')
+    expect(editor.map.play?.rules?.system).toBe('grey-marches')
+    startWorld()
+    const marches = worldCalendar().describe(editor.map.world!.time)
+    // The map changes system: the trip and the world's calendar stay the trip's.
+    editor.execute(new SetMetaCommand({ system: 'generic' }))
+    expect(activeSystem().id).toBe('grey-marches')
+    expect(worldCalendar().describe(editor.map.world!.time)).toEqual(marches)
+    // A new trip (Play → New trip) plays the map's system, and so does the world.
+    restartRules(mapSystemId(), 'spring')
+    expect(editor.map.play?.rules?.system).toBe('generic')
+    expect(activeSystem().id).toBe('generic')
+    expect(worldCalendar().describe(editor.map.world!.time)).not.toEqual(marches)
+    // Choosing a system in Play is choosing the map's: undoable like Map settings.
+    restartRules('grey-marches', 'spring')
+    expect(editor.meta.system).toBe('grey-marches')
+    expect(editor.map.play?.rules?.system).toBe('grey-marches')
   })
 
   it('the world clock is saved in the file and follows a trip, telling what came due', () => {

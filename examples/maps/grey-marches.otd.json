@@ -1801,7 +1801,8 @@
             "dashed": false,
             "borderOpacity": 0.85
           },
-          "packs": ["core", "grey-marches"]
+          "system": "grey-marches",
+          "packs": []
         }
       }
     }

@@ -84,7 +84,7 @@ Tables read the party back as `party.resources.food`, `party.stats.morale`: `whe
 
 ## 5. Your own travel system
 
-A pack becomes a **system** you can pick in Play → Rules when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
+A pack becomes a **system** a map can play (Hexmapper: **Map settings → Map → System**) and the Travel app lists when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
 
 ```yaml
 kind: travel-rules

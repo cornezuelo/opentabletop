@@ -1,5 +1,6 @@
 <script lang="ts">
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
+  import { systemName } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import {
@@ -16,7 +17,7 @@
   } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { mapWorld } from '../lib/play/world'
-  import { getSystem, playSystems } from '../lib/play/systems'
+  import { activeSystem, getSystem, mapSystemId, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
   import ColorPicker from './ColorPicker.svelte'
@@ -43,7 +44,10 @@
 
   const play = $derived(editor.play)
   const session = $derived(play ? sessionOf(play) : null)
-  const system = $derived(getSystem(play?.rules?.system ?? 'generic'))
+  // The trip plays the system it was started with; new trips, the map's.
+  const system = $derived(activeSystem())
+  const mapSystem = $derived(mapSystemId())
+  const otherSystem = $derived(session && play?.rules && play.rules.system !== mapSystem)
   const coord = (key: string) =>
     formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
 
@@ -53,6 +57,9 @@
   }
 
   let newSeason = $state<Season>('spring')
+
+  const systemLabel = (id: string) =>
+    id === 'generic' ? t('map.genericSystem') : systemName(getSystem(id), getLocale())
 </script>
 
 <p class="help intro">{t('play.intro')}</p>
@@ -121,7 +128,7 @@
 {#if play?.mode === 'rules'}
   <TripSetup
     systems={playSystems()}
-    system={play.rules?.system ?? 'generic'}
+    system={mapSystem}
     locale={getLocale()}
     bind:season={newSeason}
     startNote={editor.world ? t('play.worldStart') : undefined}
@@ -129,6 +136,11 @@
       (!session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
       restartRules(system, season)}
   />
+  {#if otherSystem}
+    <p class="help">
+      {t('play.otherSystem', { trip: systemLabel(system.id), map: systemLabel(mapSystem) })}
+    </p>
+  {/if}
   {#if system.bindings?.discover}
     {@const discover = play.discover}
     <div class="discover">

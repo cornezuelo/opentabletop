@@ -48,7 +48,7 @@ Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared betwee
 - Hexes are keyed by `"column,row"`.
 - POIs, the party and tokens (as characters with a `location`) are entities of their own; a trip's journal is in `log`.
 - `state.oracle` is the Oracle's state on that map (decks, once-only results, values set); the Hexmapper keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
-- `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`). Tools keep what they don't understand untouched when they save.
+- `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`, and the map's `system` and the `packs` it adds to the system's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
 
 The full description is in `docs/otd.md`, and the schema in `packages/schema` (it can also produce a JSON Schema).
 

@@ -1,7 +1,7 @@
 import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
 import { calendarOf, localize } from '@open-tabletop/session'
 import { availableActions, nightAction } from '@open-tabletop/travel-engine'
-import { defaultCalendar, type Calendar, type DataCalendar } from '@open-tabletop/time'
+import { type Calendar, type DataCalendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
   createWorld,
@@ -14,7 +14,7 @@ import {
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
-import { getSystem } from './systems'
+import { activeSystem, getSystem } from './systems'
 
 /**
  * The map's world clock: the campaign's time, events scheduled on it and progress
@@ -24,10 +24,9 @@ import { getSystem } from './systems'
  * with the map, outside the undo history.
  */
 
-/** The calendar the world uses: the play system's own, or the default one. */
+/** The calendar the world uses: the system's own (the trip's, or the map's), or the default one. */
 export function worldCalendar(): Calendar {
-  const system = editor.play?.rules?.system
-  return system ? calendarOf(getSystem(system)) : defaultCalendar
+  return calendarOf(activeSystem())
 }
 
 const world = () => createWorld({ calendar: worldCalendar() })
