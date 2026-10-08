@@ -14,7 +14,7 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 ## With a trip going on
 
-The world and a trip with rules share **one time**. New trips start on the clock's date instead of a season, travelling and camping move the clock, and moving the clock is **waiting where the party is**: every moment of the wait is lived as if you played it.
+The world and a trip with rules share **one time**. New trips start on the clock's date instead of a season, travelling and camping move the clock, and moving the clock is **waiting where the party is**: every moment of the wait is lived as if you played it. The panel says so: its buttons are under **Wait here**, with the hex where the party waits. A planned route is kept but not followed (a party waiting eats, but doesn't march): to march, press **Travel** in Play, and the clock follows the trip.
 
 - At dawn, the day's checks are rolled (the weather, getting lost…), as when setting off.
 - At nightfall the party takes **the system's action for the night**, once a night: camp, unless the system names another (`day.night` in its rules: see [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system)). A system without one just lets the night pass.

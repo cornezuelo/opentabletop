@@ -84,4 +84,71 @@ describe('playing on the map', () => {
     expect(trip.travel.time).toBeGreaterThan(start)
     expect(editor.map.world!.time).toBe(trip.travel.time)
   })
+
+  describe('playing with the world clock', () => {
+    const grey = () =>
+      editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    const trip = () => sessionOf(editor.map.play!)!
+
+    it('waiting with a route planned stays put, eats, and keeps the route for later', async () => {
+      grey()
+      startWorld()
+      clickHex('7,7')
+      const before = trip()
+      expect(before.travel.route?.length).toBeGreaterThan(1)
+      const food = before.travel.resources.food
+      await advanceWorld({ until: 'next-day' })
+      const after = trip()
+      expect(partyLocation()).toBe('5,7')
+      expect(after.travel.location).toBe('5,7')
+      expect(after.travel.destination).toBe('7,7')
+      expect(after.travel.route?.[0]).toBe('5,7')
+      expect(after.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
+      // A day ended on the way: the party ate.
+      expect(after.travel.resources.food).toBeLessThan(food)
+      expect(editor.map.world!.time).toBe(after.travel.time)
+      // Travelling afterwards follows the route.
+      for (let i = 0; i < 6 && partyLocation() === '5,7'; i++) {
+        step({ type: 'travel' })
+        for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+      }
+      expect(partyLocation()).not.toBe('5,7')
+      expect(editor.map.world!.time).toBe(trip().travel.time)
+    })
+
+    it('an hour waited is an hour for both; without a trip only the world moves', async () => {
+      grey()
+      startWorld()
+      const start = editor.map.world!.time
+      await advanceWorld({ minutes: 60 })
+      expect(editor.map.world!.time).toBe(start + 60)
+      clickHex('7,7')
+      expect(trip().travel.time).toBe(start + 60)
+      await advanceWorld({ minutes: 60 })
+      expect(trip().travel.time).toBe(start + 120)
+      expect(editor.map.world!.time).toBe(start + 120)
+    })
+
+    it('a clock started during a trip starts at the trip’s time', () => {
+      grey()
+      clickHex('7,7')
+      step({ type: 'advanceTime', minutes: 90 })
+      startWorld()
+      expect(editor.map.world!.time).toBe(trip().travel.time)
+    })
+
+    it('several days waited end with the world and the trip at the same time', async () => {
+      grey()
+      startWorld()
+      clickHex('7,7')
+      for (let i = 0; i < 3; i++) {
+        await advanceWorld({ until: 'next-day' })
+        // Whatever stopped it (a check waiting for the player), both share one time.
+        for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+        expect(editor.map.world!.time).toBe(trip().travel.time)
+      }
+      expect(partyLocation()).toBe('5,7')
+      expect(trip().travel.day).toBeGreaterThanOrEqual(3)
+    })
+  })
 })

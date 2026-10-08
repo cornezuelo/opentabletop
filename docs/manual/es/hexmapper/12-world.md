@@ -14,7 +14,7 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 ## Con un viaje en marcha
 
-El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj es **esperar donde está el grupo**: cada momento de la espera se vive como si lo jugaras.
+El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj es **esperar donde está el grupo**: cada momento de la espera se vive como si lo jugaras. El panel lo dice: sus botones quedan bajo **Esperar aquí**, con el hex donde espera el grupo. Una ruta planeada se conserva pero no se sigue (un grupo que espera come, pero no marcha): para marchar, pulsa **Viajar** en Jugar, y el reloj sigue al viaje.
 
 - Al alba se tiran las comprobaciones del día (el clima, perderse…), como al ponerse en marcha.
 - Al anochecer el grupo hace **la acción del sistema para la noche**, una vez por noche: acampar, salvo que el sistema nombre otra (`day.night` en sus reglas: mira [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)). Un sistema sin ninguna simplemente deja pasar la noche.

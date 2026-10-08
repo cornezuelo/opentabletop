@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
   import { localize } from '@open-tabletop/session'
   import { formatClock, type CalendarParts, type GameTime } from '@open-tabletop/time'
   import type { ScheduledEvent } from '@open-tabletop/world-engine'
@@ -23,6 +24,8 @@
     return worldCalendar()
   })
   const trip = $derived(editor.play ? sessionOf(editor.play) : null)
+  const coordOf = (key: string) =>
+    formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
   const name = (text: Parameters<typeof localize>[0], id: string) =>
     localize(text, getLocale(), 'en') ?? id
   /** A line that starts with a moon's name ("the Pale Moon is full") starts in capitals. */
@@ -123,8 +126,14 @@
   </div>
 
   <div class="field">
-    <span>{t('world.advance')}<InfoTip text={t('world.advanceHelp')} /></span>
-    {#if trip}<p class="help">{t('world.tripHelp')}</p>{/if}
+    <span
+      >{trip ? t('world.tripAdvance') : t('world.advance')}<InfoTip
+        text={t('world.advanceHelp')}
+      /></span
+    >
+    {#if trip}<p class="help">
+        {t('world.tripHelp', { hex: coordOf(trip.travel.location) })}
+      </p>{/if}
     <div class="buttons">
       <button onclick={() => advanceWorld({ minutes: 60 })}>{t('world.hour')}</button>
       <button onclick={() => advanceWorld({ minutes: watchMinutes })}>{t('world.watch')}</button>
