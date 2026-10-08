@@ -37,7 +37,6 @@ export const en = {
   tips: {
     actionTime: 'Takes {minutes} minutes.',
     actionSpeed: 'The rest of today’s march goes at ×{speed}.',
-    actionOvertime: 'Today’s march may go on {time} longer, past nightfall.',
     actionEffects: 'Changes: {changes}.',
     actionOnce: 'Once a day.',
     readAs: 'Tables read it as {keys}.',
@@ -112,6 +111,7 @@ export const en = {
     camp: 'Night falls and “{action}” isn’t possible ({why}): the wait stops here.',
     nightfall: 'Night falls: no more marching today.',
     'day-limit': 'Enough marching for today.',
+    march: 'The system’s rule for marching doesn’t let the party march on now.',
     lost: 'Lost: no more travel today',
     value: '{name}: no more travel today',
     weather: 'The weather prevents travel',

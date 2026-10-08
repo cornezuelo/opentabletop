@@ -9,6 +9,9 @@ travel-rules/default:
     hungry:
       name: Pasaron hambre
       description: El grupo acabó el día sin comida suficiente.
+    torchlit:
+      name: A la luz de las antorchas
+      description: Seguir marchando pasado el anochecer, hasta medianoche.
     refusing:
       name: Los mercenarios se niegan a marchar
       description: Hasta que alguien los convenza (Hablar con los mercenarios).
@@ -40,7 +43,7 @@ travel-rules/default:
       description: 'Una hora de charla. Con moral 3 o más vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
     night-march:
       name: Marcha nocturna
-      description: 'Pasado el anochecer, seguir marchando a la luz de las antorchas: hasta 4 horas más hoy, pero +1 de fatiga; cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
+      description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga; cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

@@ -206,6 +206,19 @@ Blocked buttons stay visible, disabled, and say why with the value's name ("Lost
 
 **actions** are what the party does. Camp and rest are actions like any other: an id, conditions, steps; the trip panel shows each one as a button next to **Travel**, by its `name` (and its `description` as help). Rules that don't declare `camp` or `rest` still get the usual ones (sleep until dawn, rest an hour), and `camp: false` leaves one out.
 
+**Marching is an action too**, `march`: not a button of its own but the **Travel** buttons. Its `when` / `unless` say when the party can march, and they're checked as it marches: it stops the moment they no longer hold (said in the journal as night falling, the day's hours spent, or the system's rule). Without `when`, the party marches by day for the day's marching hours, as `when: { daylight: true, marched: { lt: $hoursPerDay } }`; an `unless` adds to that. It has no steps, and nothing takes it but the Travel buttons. The Grey Marches march by day or, after a night march, by torchlight until midnight:
+
+```yaml
+values:
+  torchlit: { name: By torchlight }
+actions:
+  march:
+    when: { any: [{ daylight: true, marched: { lt: $hoursPerDay } }, { torchlit: true }] }
+  night-march:
+    when: { hour: { gte: $nightfall } }
+    do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
+```
+
 When the button can be pressed:
 
 - `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { weather: storm }` and camp only `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
@@ -232,7 +245,6 @@ actions:
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `time: 180`                           | Three hours pass. `time: dawn`, `time: nightfall` or `time: '14:00'`: until the next one. Every day that ends on the way ends with its `day-end` actions and checks.     |
 | `speed: 0.5`                          | The rest of today's march goes at half speed (`1.5`: faster).                                                                                                            |
-| `overtime: 240`                       | Today's march may go on 240 minutes longer: past nightfall and the day's marching hours, never past midnight (the Grey Marches' night march).                            |
 | `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see its id in `below` / `above`.                           |
 | `set: { lost: true }`                 | Sets values of the day the system declares (`values`).                                                                                                                   |
 | `do: forage`                          | Takes another action, if its conditions hold (otherwise nothing happens).                                                                                                |

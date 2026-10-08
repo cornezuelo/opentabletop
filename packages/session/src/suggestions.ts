@@ -4,6 +4,7 @@ import {
   CHECK_MOMENTS,
   declaredValues,
   genericTravelRules,
+  MARCH,
 } from '@open-tabletop/travel-engine'
 import { travelSystems } from './trip'
 
@@ -119,9 +120,11 @@ export function contextSuggestions(
       add(value, true, false)
       add(`yesterday.${value}`, true, false)
     }
-    add('doing', ...Object.keys(availableActions(rules).all))
-    add('doneToday', ...Object.keys(availableActions(rules).all))
-    add('moment', ...CHECK_MOMENTS, ...Object.keys(availableActions(rules).all))
+    // Marching is no action taken (the Travel buttons): not a moment, never done.
+    const taken = Object.keys(availableActions(rules).all).filter((id) => id !== MARCH)
+    add('doing', ...taken)
+    add('doneToday', ...taken)
+    add('moment', ...CHECK_MOMENTS, ...taken)
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
       condition(action.unless, add)

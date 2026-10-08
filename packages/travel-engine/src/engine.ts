@@ -18,6 +18,7 @@ import {
   modeThrough,
   declaredValues,
   nightAction,
+  MARCH,
   olderEatingId,
   resolveChange,
   resourceBounds,
@@ -99,11 +100,6 @@ export interface TravelState {
   lostToday?: boolean
   lostYesterday?: boolean
   speedToday?: number
-  /**
-   * Minutes today's march may go on past nightfall and the day's marching hours
-   * (`overtime` steps; never past midnight).
-   */
-  overtimeToday?: number
   /** The day the trip started (`tripDay` counts from it; absent in older trips). */
   firstDay?: number
   /** Times the party has been in each hex this trip, the one it starts in included. */
@@ -119,6 +115,8 @@ export type StopReason =
   | 'hex'
   | 'nightfall'
   | 'day-limit'
+  /** The system's own rule for marching (`actions.march`) doesn't hold now. */
+  | 'march'
   | 'check'
   | 'blocked'
   /** A declared value blocks travel (`value` says which: lost…). */
@@ -588,13 +586,37 @@ export function createTravelEngine(options: {
         delete state.today
         delete state.reached
         state.speedToday = undefined
-        delete state.overtimeToday
         delete state.actionsToday
       }
       events.push({ type: 'DAY_STARTED', day: state.day })
     } finally {
       syncing = false
     }
+  }
+
+  /**
+   * Why the party can't march at `time`, having marched `marched` minutes today
+   * (undefined: it can): the system's march (`actions.march`, its `when` / `unless`; by
+   * default by day, for the day's marching hours) or a value of the day that blocks it.
+   * Said as night falling, the day's hours spent, or the system's rule.
+   */
+  const marchStop = (
+    state: TravelState,
+    time: GameTime,
+    marched: number,
+  ): StopReason | undefined => {
+    const now = { ...state, time, travelledToday: marched }
+    const march = actions.all[MARCH]
+    if (march && !blocker(now, MARCH)) {
+      const seen = checkContext(now, [], hostFacts)
+      if (
+        (!march.when || matches(march.when as Condition, seen)) &&
+        !(march.unless && matches(march.unless as Condition, seen))
+      )
+        return undefined
+    }
+    if (!isDaylight(time)) return 'nightfall'
+    return marched >= dayMinutes ? 'day-limit' : 'march'
   }
 
   const travel = (
@@ -609,16 +631,20 @@ export function createTravelEngine(options: {
     syncDay(state, events)
     const start = calendar.at(state.day, rules.day.start)
     const nightfall = calendar.at(state.day, rules.day.nightfall)
-    if (state.time < start) state.time = start
+    const midnight = calendar.at(state.day + 1, '00:00')
     if (!state.route || state.route.length < 2) {
       if (state.destination && state.destination === state.location)
         events.push({ type: 'DESTINATION_REACHED', hex: state.location })
       return stop(state.route ? 'destination' : 'no-route')
     }
-    if (!state.dayChecksDone && state.time < nightfall) {
+    /** Dawn's checks, once the day has dawned: the first march of the day comes after them. */
+    const dawnChecks = (): boolean => {
+      if (state.dayChecksDone || state.time < start || state.time >= nightfall) return false
       state.dayChecksDone = true
       schedule(state, 'day-start', events)
+      return state.pendingChecks.length > 0
     }
+    dawnChecks()
     if (state.pendingChecks.length) return stop('check')
     // A value that blocks travel, or the way the party is travelling (`mode.horse`).
     const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
@@ -639,26 +665,30 @@ export function createTravelEngine(options: {
         events.push({ type: 'ROUTE_BLOCKED', from: state.location, to: next })
         return stop('blocked')
       }
-      // Overtime (a night march…) moves both on, never past midnight.
-      const extra = state.overtimeToday ?? 0
-      const lastMinute = extra
-        ? Math.min(nightfall + extra, calendar.at(state.day + 1, '00:00'))
-        : nightfall
-      const untilNight = lastMinute - state.time
-      const untilLimit = dayMinutes + extra - state.travelledToday
       if (state.time >= by) return stop('waited')
-      const available = Math.min(untilNight, untilLimit, by - state.time)
-      if (available <= 0) return stop(untilNight <= untilLimit ? 'nightfall' : 'day-limit')
+      if (state.time >= midnight) return stop('nightfall')
+      const why = marchStop(state, state.time, state.travelledToday)
+      if (why) return stop(why)
+      // March minute by minute while the system's march holds, up to the next hex, the
+      // moment asked for, dawn (its checks come first) or midnight (a new day).
       const remaining = cost - state.progress
-      if (remaining > available) {
-        state.time += available
-        state.travelledToday += available
-        state.progress += available
-        if (state.time >= by && available < Math.min(untilNight, untilLimit)) return stop('waited')
-        return stop(untilNight <= untilLimit ? 'nightfall' : 'day-limit')
+      let end = Math.min(by, midnight, state.time + remaining)
+      if (state.time < start) end = Math.min(end, start)
+      let time = state.time + 1
+      while (time < end && !marchStop(state, time, state.travelledToday + time - state.time)) time++
+      const marched = Math.min(time, end) - state.time
+      state.time += marched
+      state.travelledToday += marched
+      state.progress += marched
+      if (state.progress < cost) {
+        if (state.time >= by) return stop('waited')
+        if (state.time === start) {
+          if (dawnChecks()) return stop('check')
+          continue
+        }
+        if (state.time >= midnight) return stop('nightfall')
+        return stop(marchStop(state, state.time, state.travelledToday) ?? 'march')
       }
-      state.time += remaining
-      state.travelledToday += remaining
       state.progress = 0
       const from = state.location
       state.location = next
@@ -719,6 +749,7 @@ export function createTravelEngine(options: {
       if (
         reason === 'nightfall' ||
         reason === 'day-limit' ||
+        reason === 'march' ||
         reason === 'weather' ||
         reason === 'value'
       ) {
@@ -752,6 +783,7 @@ export function createTravelEngine(options: {
       state.time === time &&
       (stopped?.reason === 'nightfall' ||
         stopped?.reason === 'day-limit' ||
+        stopped?.reason === 'march' ||
         stopped?.reason === 'weather') &&
       (!night || unavailable(state, night, hostFacts))
     if (!stuck) return void (stopped && events.push(stopped))
@@ -819,7 +851,8 @@ export function createTravelEngine(options: {
     moment: Record<string, unknown> = {},
   ): Unavailable | undefined => {
     const def = actions.all[id]
-    if (!def) return { off: true }
+    // Marching isn't taken like an action: it's the Travel buttons.
+    if (!def || id === MARCH) return { off: true }
     const value = blocker(state, id)
     if (value) return { value }
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
@@ -1003,8 +1036,6 @@ export function createTravelEngine(options: {
         state.time = Math.max(state.time, timeOf(state, step.time))
         syncDay(state, events)
       } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
-      else if (step.overtime !== undefined)
-        state.overtimeToday = (state.overtimeToday ?? 0) + step.overtime
       else if (step.effects) applyEffects(state, id, step.effects, events)
       else if (step.do !== undefined)
         takeAction(state, step.do, events, { facts: options.facts, quiet: true, depth: depth + 1 })
@@ -1024,6 +1055,7 @@ export function createTravelEngine(options: {
       const travelBlocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
       if (travelBlocked) out.travel = { value: travelBlocked }
       for (const id of Object.keys(actions.all)) {
+        if (id === MARCH) continue
         const why = unavailable(state, id, facts)
         if (why) out[id] = why
       }

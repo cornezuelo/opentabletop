@@ -311,6 +311,9 @@ export const en = {
     unless: 'Not when',
     whenHelp:
       "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `weather: storm` — today's weather\n• `terrain: [forest, hills]` — the hex the party is in\n• `tags: shrine` — a tag of that hex\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.resources.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `moons.silver: full` — the calendar\n• `daylight: true` — only by day (between the system's dawn and nightfall); `hour: { gte: 18 }` — from 18:00\n• `visits: 1` — the first time here; `around.terrain: lake` — next to a lake\n• `doneToday: forage` — after foraging today; `marched: { gte: 6 }` — after 6 hours of marching\n• `party.stats.fatigue: { lt: $party.stats.endurance }` — `$`: compared with another value\nOtherwise its button stays disabled and says why (or hides, with **Hidden when it can't be taken**); the system's night action that can't be taken lets the night pass without it.",
+    marchNote:
+      'Marching is the Travel buttons, not a button of its own: Only when / Not when say when the party can march, checked as it marches (it stops as soon as they no longer hold). It has no steps.',
+    marchDefault: 'by day, for the day’s marching hours',
     hide: "Hidden when it can't be taken",
     hideHelp:
       "**Unticked**: its button is always there, disabled (saying why) while it can't be taken, so the buttons don't move around.\n**Ticked**: its button only appears while it can be taken. For actions that only make sense now and then:\n• a rite only at a shrine under a full moon\n• talking round porters only while they refuse to march",
@@ -320,7 +323,7 @@ export const en = {
     nothingPlaceholder: 'nothing to find on {terrain}',
     steps: 'What it does',
     stepsHelp:
-      "What the action does, **one step per box, in order**, each written like in the YAML:\n• `time: 180` — three hours pass (or `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — the rest of today's march goes at half speed\n• `overtime: 240` — today's march may go on 4 hours longer: past nightfall and the day's marching hours (never past midnight)\n• `effects: { party.stats.fatigue: -1 }` — change the party (a number adds or takes away; `'=0'` sets it; `-$party.stats.mouths`: as many as another value)\n• `set: { lost: true }` — give a value of the day\n• `do: forage` — take another action (if its conditions hold)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — roll a check now\nA change past a value's **Min** or **Max** stops there, and later steps see `below: [id]` or `above: [id]`.\nThe box beside each step is **its condition**: the step only happens when it holds.\n• `below: food` — only if food hit its minimum today\n• `party.stats.morale: { lte: 1 }` — only with low morale\n• `moment: hex-enter` — only when the action came at that moment\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
+      "What the action does, **one step per box, in order**, each written like in the YAML:\n• `time: 180` — three hours pass (or `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — the rest of today's march goes at half speed\n• `effects: { party.stats.fatigue: -1 }` — change the party (a number adds or takes away; `'=0'` sets it; `-$party.stats.mouths`: as many as another value)\n• `set: { lost: true }` — give a value of the day\n• `do: forage` — take another action (if its conditions hold)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — roll a check now\nA change past a value's **Min** or **Max** stops there, and later steps see `below: [id]` or `above: [id]`.\nThe box beside each step is **its condition**: the step only happens when it holds.\n• `below: food` — only if food hit its minimum today\n• `party.stats.morale: { lte: 1 }` — only with low morale\n• `moment: hex-enter` — only when the action came at that moment\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
     on: 'By itself at',
     onHelp:
       "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• `day-start` — at dawn\n• `hex-enter` — entering each hex\n• `day-end` — as each day ends, camping or not\n• an action's id, e.g. `camp` — right after that action starts\nSeveral, separated by commas: `day-start, hex-enter`. Its conditions see which one it is as `moment` (`when: { moment: hex-enter }`).\nExamples:\n• eating as each day ends: `day-end`\n• porters grumbling at dawn after a hungry day: `day-start` with **Only when** `yesterday.hungry: true`",
@@ -328,7 +331,7 @@ export const en = {
     onAfter: 'After: {action}',
     step: 'Step',
     badStep:
-      'A step does one thing: time: 60, speed: 0.5, overtime: 240, effects: { … }, set: { … }, do: <action> or roll: <check>.',
+      'A step does one thing: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <action> or roll: <check>.',
     stepWhen: 'only when…',
     up: 'Move up',
     down: 'Move down',

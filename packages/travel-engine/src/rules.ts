@@ -27,9 +27,16 @@ export function momentsOf(value: string | string[] | undefined): string[] {
 
 /**
  * Actions older systems had without declaring them: rules that don't name them get the
- * usual ones (camp sleeps until dawn, a rest is an hour); `camp: false` leaves one out.
+ * usual ones (camp sleeps until dawn, a rest is an hour, marching by day for the day's
+ * marching hours); `camp: false` leaves one out.
  */
-export const BUILT_IN_ACTIONS = ['camp', 'rest'] as const
+export const BUILT_IN_ACTIONS = ['camp', 'rest', 'march'] as const
+/**
+ * Marching: the Travel buttons, not a button of its own. Its `when` / `unless` say when
+ * the party can march, checked as it marches (it stops when they no longer hold); it has
+ * no steps.
+ */
+export const MARCH = 'march'
 /** What a declared value can block besides actions: going on with the trip. */
 export const BLOCKABLE = ['travel'] as const
 
@@ -61,8 +68,6 @@ const step = z
     unless: condition.optional(),
     time: z.union([z.number().nonnegative(), z.enum(['dawn', 'nightfall']), clock]).optional(),
     speed: z.number().nonnegative().optional(),
-    /** Minutes today's march may go on past nightfall and the day's marching hours. */
-    overtime: z.number().positive().optional(),
     effects: effects.optional(),
     do: z.string().min(1).optional(),
     roll: z.string().min(1).optional(),
@@ -73,14 +78,13 @@ const step = z
   .strict()
   .refine(
     (s) =>
-      [s.time, s.eat, s.speed, s.overtime, s.effects, s.do, s.roll, s.set].filter(
-        (x) => x !== undefined,
-      ).length === 1,
-    'a step does one thing: time, speed, overtime, effects, do, roll or set',
+      [s.time, s.eat, s.speed, s.effects, s.do, s.roll, s.set].filter((x) => x !== undefined)
+        .length === 1,
+    'a step does one thing: time, speed, effects, do, roll or set',
   )
 
 /** What a step does: the one key it has besides `when` / `unless`. */
-export const STEP_KINDS = ['time', 'speed', 'overtime', 'effects', 'do', 'roll', 'set'] as const
+export const STEP_KINDS = ['time', 'speed', 'effects', 'do', 'roll', 'set'] as const
 
 /**
  * An action of the party (`actions.forage`, and camp and rest too): what it does as steps
@@ -269,7 +273,9 @@ export const travelRulesSchema = z
   .strict()
   .superRefine((rules, ctx) => {
     const actionIds = Object.keys(availableActions(rules as TravelRules).all)
-    const moments = [...CHECK_MOMENTS, ...actionIds]
+    // Marching is no moment and no step: the Travel buttons and their conditions.
+    const taken = actionIds.filter((id) => id !== MARCH)
+    const moments = [...CHECK_MOMENTS, ...taken]
     const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
       momentsOf(value).forEach((moment, j) => {
         if (!moments.includes(moment))
@@ -299,12 +305,29 @@ export const travelRulesSchema = z
     for (const [id, a] of Object.entries(rules.actions ?? {})) {
       if (a === false) continue
       badMoments(a.on, ['actions', id, 'on'])
+      if (id === MARCH)
+        for (const key of [
+          'do',
+          'on',
+          'oncePerDay',
+          'hideWhenUnavailable',
+          'minutes',
+          'speed',
+          'fatigue',
+          'effects',
+        ] as const)
+          if (a[key] !== undefined)
+            ctx.addIssue({
+              code: 'custom',
+              path: ['actions', id, key],
+              message: 'marching has no steps: its when / unless say when the party can march',
+            })
       a.do?.forEach((st, i) => {
-        if (st.do !== undefined && !actionIds.includes(st.do))
+        if (st.do !== undefined && !taken.includes(st.do))
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'do', i, 'do'],
-            message: `expected ${actionIds.join(', ')}`,
+            message: `expected ${taken.join(', ')}`,
           })
         if (st.roll !== undefined && !events.includes(st.roll))
           ctx.addIssue({
@@ -324,11 +347,11 @@ export const travelRulesSchema = z
       })
     }
     const night = rules.day.night
-    if (night && !actionIds.includes(night))
+    if (night && !taken.includes(night))
       ctx.addIssue({
         code: 'custom',
         path: ['day', 'night'],
-        message: `expected ${actionIds.join(', ') || 'an action'}`,
+        message: `expected ${taken.join(', ') || 'an action'}`,
       })
     const loop = actionLoop(rules as TravelRules)
     if (loop)
@@ -361,6 +384,10 @@ export function declaredValues(rules: TravelRules): Record<string, DayValue> {
 /** What older systems got for camp and rest without describing them. */
 const DEFAULT_CAMP: ActionDefinition = { do: [{ time: 'dawn' }] }
 const DEFAULT_REST: ActionDefinition = { do: [{ time: 60 }] }
+/** Marching as the engine did before systems declared it: by day, the day's hours. */
+const DEFAULT_MARCH: ActionDefinition = {
+  when: { daylight: true, marched: { lt: '$hoursPerDay' } },
+}
 
 /**
  * Whether the rules eat the older way: supplies with `perDay`, ways of travelling that
@@ -431,12 +458,22 @@ export function availableActions(rules: TravelRules): {
   const older = eatsTheOlderWay(rules)
   const eat = older ? olderEatingId(rules) : ''
   const read = (def: ActionDefinition) => (older ? withoutEat(def, eat) : def)
-  const defaults: Record<string, ActionDefinition> = { camp: DEFAULT_CAMP, rest: DEFAULT_REST }
+  const defaults: Record<string, ActionDefinition> = {
+    camp: DEFAULT_CAMP,
+    rest: DEFAULT_REST,
+    march: DEFAULT_MARCH,
+  }
   const declared = rules.actions ?? {}
   const all: Record<string, ActionDefinition> = {}
   for (const id of BUILT_IN_ACTIONS) if (declared[id] === undefined) all[id] = defaults[id]
   for (const [id, def] of Object.entries(declared)) {
     if (def === false) continue
+    // Marching without its own `when` marches when it usually does (by day, the day's
+    // hours); its `unless` adds to that.
+    if (id === MARCH) {
+      all[id] = { ...def, when: def.when ?? DEFAULT_MARCH.when }
+      continue
+    }
     all[id] = read(id in defaults && describesNothing(def) ? { ...def, ...defaults[id] } : def)
   }
   if (older) all[eat] = olderEating(rules)

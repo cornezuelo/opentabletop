@@ -78,6 +78,10 @@ values:
   hungry:
     name: Went hungry
     description: The party ended the day without enough to eat.
+  # Set by the night march: the party may march on in the dark until the day ends.
+  torchlit:
+    name: By torchlight
+    description: Marching on after nightfall, until midnight.
   # Set by the hirelings' grumbling at dawn, cleared by talking them round.
   refusing:
     name: The hirelings refuse to march
@@ -86,6 +90,14 @@ values:
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
+  # Marching (the Travel buttons): when the party can march, checked as it marches. By
+  # day for the day's marching hours, as usual (the `$` values are the system's own), or
+  # after a night march by torchlight (a value of the day) until the day ends.
+  march:
+    when:
+      any:
+        - { daylight: true, marched: { lt: $hoursPerDay } }
+        - { torchlit: true }
   # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
   # fed night eases fatigue: unless food hit its minimum (`below`) during the night.
   # Night checks (at: camp) come first. Only with food left and not exhausted (`when` on the
@@ -177,19 +189,20 @@ actions:
       - { time: 60 }
       - { unless: { party.stats.morale: { gte: 3 } }, effects: { party.stats.hirelings: -1 } }
       - { set: { refusing: false } }
-  # Marching on in the dark instead of camping: up to four hours more today (overtime: past
-  # nightfall and the day's marching hours), at the cost of fatigue; each hex entered in the
+  # Marching on in the dark instead of camping: it lights the torches (a value of the day
+  # the march above admits) until midnight, at the cost of fatigue; each hex entered in the
   # dark rolls to get lost, and night encounters (the checks below, `daylight: false`).
-  # Only after nightfall, so its button only shows then.
+  # Only in the evening (from nightfall: `hour` against the system's own `$nightfall`), so
+  # its button only shows then.
   night-march:
     name: Night march
-    description: 'After nightfall, march on by torchlight: up to 4 more hours today, but +1 fatigue; each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
-    when: { daylight: false, party.stats.fatigue: { lt: 4 } }
+    description: 'From nightfall, march on by torchlight until midnight, but +1 fatigue; each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
+    when: { daylight: false, hour: { gte: $nightfall }, party.stats.fatigue: { lt: 4 } }
     unless: { weather: storm }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
-      - { overtime: 240 }
+      - { set: { torchlit: true } }
       - { effects: { party.stats.fatigue: 1 } }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).

@@ -473,6 +473,7 @@ describe('the system’s own actions', () => {
     expect(Object.keys(availableActions(foraging).all)).toEqual([
       'camp',
       'rest',
+      'march',
       'forage',
       'pray',
       'eat',
@@ -520,8 +521,8 @@ describe('actions as steps, and declared values', () => {
       actions: { nap: { do: [{ time: 30, speed: 0.5 }] } },
     })
     expect(bad.errors).toEqual([
-      'actions.nap.do.0: a step does one thing: time, speed, overtime, effects, do, roll or set',
-      'values.stuck.blocks.0: expected travel, camp, rest, nap, eat, mode.foot, mode.horse',
+      'actions.nap.do.0: a step does one thing: time, speed, effects, do, roll or set',
+      'values.stuck.blocks.0: expected travel, camp, rest, march, nap, eat, mode.foot, mode.horse',
     ])
   })
 
@@ -1155,7 +1156,7 @@ describe('actions the system triggers, and bounded values', () => {
       },
     })
     expect(errors).toEqual([])
-    expect(Object.keys(availableActions(own!).all)).toEqual(['bivouac', 'note'])
+    expect(Object.keys(availableActions(own!).all)).toEqual(['march', 'bivouac', 'note'])
     const eng = createTravelEngine({ world, rules: own! })
     const morning = { ...start(), dayChecksDone: true }
     const { events } = eng.apply(morning, { type: 'wait', until: defaultCalendar.at(2, '12:00') })
@@ -1186,6 +1187,7 @@ describe('actions the system triggers, and bounded values', () => {
     expect(availableActions(older!).all).toEqual({
       camp: { name: 'Camp', do: [{ time: 'dawn' }] },
       rest: { name: 'Rest', do: [{ time: 60 }] },
+      march: { when: { daylight: true, marched: { lt: '$hoursPerDay' } } },
     })
   })
 
@@ -1365,18 +1367,25 @@ describe('the trip going on by itself (travel by a moment)', () => {
   })
 })
 
-describe('day and night, and marching past nightfall', () => {
+describe('day and night, and marching as the system says', () => {
   const nightly = parseTravelRules({
     ...rules!,
     resources: { food: { min: 0 } },
+    values: { torchlit: { name: 'By torchlight' } },
     checks: [{ event: 'NIGHT_LOST', at: 'hex-enter', when: { daylight: false } }],
     actions: {
+      // By day for the day's hours, or by torchlight until midnight.
+      march: {
+        when: {
+          any: [{ daylight: true, marched: { lt: '$hoursPerDay' } }, { torchlit: true }],
+        },
+      },
       rest: { when: { daylight: true }, do: [{ time: 120 }] },
       'night-march': {
-        when: { daylight: false },
+        when: { daylight: false, hour: { gte: '$nightfall' } },
         hideWhenUnavailable: true,
         oncePerDay: true,
-        do: [{ overtime: 240 }],
+        do: [{ set: { torchlit: true } }],
       },
     },
   })
@@ -1389,43 +1398,75 @@ describe('day and night, and marching past nightfall', () => {
     expect(own.availability(at('20:00')).rest).toEqual({ condition: 'when' })
     expect(own.availability(at('20:00'))['night-march']).toBeUndefined()
     expect(own.availability(at('12:00'))['night-march']).toEqual({ condition: 'when' })
-    expect(own.availability({ ...start(), time: defaultCalendar.at(2, '05:59') }).rest).toEqual({
+    // After midnight it isn't the evening any more (hour < nightfall).
+    expect(
+      own.availability({ ...start(), time: defaultCalendar.at(2, '03:00') })['night-march'],
+    ).toEqual({
       condition: 'when',
     })
+    // Marching is no button.
+    expect(own.availability(at('12:00')).march).toBeUndefined()
+    expect(own.apply(at('12:00'), { type: 'action', id: 'march' }).events).toEqual([
+      { type: 'ACTION_UNAVAILABLE', action: 'march', because: { off: true } },
+    ])
   })
 
-  it('overtime marches past nightfall, never past midnight, and checks see the night', () => {
-    // At nightfall the party can't march, until a night march gives it 4 hours more.
+  it('marches while the system’s march holds: by torchlight past nightfall, until midnight', () => {
     const planned = own.apply(at('20:00'), { type: 'setDestination', hex: '9,0' }).state
     const stopped = own.apply(planned, { type: 'travel' })
     expect(stopped.state.time).toBe(defaultCalendar.at(1, '20:00'))
     expect(stopped.events.at(-1)).toMatchObject({ reason: 'nightfall' })
-    const marching = own.apply(planned, { type: 'action', id: 'night-march' }).state
-    expect(marching.overtimeToday).toBe(240)
-    const { state, events } = own.apply(marching, { type: 'travel', until: 'destination' })
+    const lit = own.apply(planned, { type: 'action', id: 'night-march' }).state
+    expect(lit.today).toMatchObject({ torchlit: true })
+    const { state, events } = own.apply(lit, { type: 'travel', until: 'destination' })
     // 30 km hexes at 30 km a day of 8 h: one hex in 8 h, so 4 h is half a hex.
     expect(state.time).toBe(defaultCalendar.at(2, '00:00'))
     expect(state.progress).toBe(240)
     expect(events.at(-1)).toMatchObject({ reason: 'nightfall' })
-    // Three hours of overtime from 23:00: it stops at midnight all the same.
-    const late = own.apply(
-      { ...planned, time: defaultCalendar.at(1, '23:00'), overtimeToday: 600 },
-      { type: 'travel' },
-    )
-    expect(late.state.time).toBe(defaultCalendar.at(2, '00:00'))
-    // A new day starts without it.
-    const dawn = own.apply(state, { type: 'wait', until: defaultCalendar.at(2, '06:00') }).state
-    expect(dawn.overtimeToday).toBeUndefined()
   })
 
   it('checks at night see daylight: false', () => {
     const planned = own.apply(at('20:00'), { type: 'setDestination', hex: '1,0' }).state
-    const marching = own.apply(planned, { type: 'action', id: 'night-march' }).state
-    const quick = { ...marching, progress: 300 }
-    const { events } = own.apply(quick, { type: 'travel' })
+    const lit = own.apply(planned, { type: 'action', id: 'night-march' }).state
+    const { events } = own.apply({ ...lit, progress: 300 }, { type: 'travel' })
     expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
       check: { event: 'NIGHT_LOST' },
     })
+  })
+
+  it('stops for a rule of the system’s own, said as such', () => {
+    const tired = parseTravelRules({
+      ...rules!,
+      actions: { march: { unless: { 'party.stats.fatigue': { gte: '$party.stats.endurance' } } } },
+    })
+    const engine = createTravelEngine({ world, rules: tired.rules! })
+    const planned = engine.apply(resolveAll(start()).state, {
+      type: 'setDestination',
+      hex: '2,0',
+    }).state
+    const ready = { ...planned, dayChecksDone: true }
+    const party = (fatigue: number) => ({ party: { stats: { fatigue, endurance: 3 } } })
+    expect(engine.apply(ready, { type: 'travel' }, party(3)).events.at(-1)).toMatchObject({
+      reason: 'march',
+    })
+    expect(engine.apply(ready, { type: 'travel' }, party(1)).state.location).toBe('1,0')
+  })
+
+  it('validates marching: no steps, no moment, no step that takes it', () => {
+    const bad = parseTravelRules({
+      ...rules!,
+      actions: {
+        march: { on: 'day-start', do: [{ time: 60 }] },
+        nap: { do: [{ do: 'march' }] },
+      },
+    })
+    expect(bad.errors).toEqual(
+      expect.arrayContaining([
+        'actions.march.do: marching has no steps: its when / unless say when the party can march',
+        'actions.march.on: marching has no steps: its when / unless say when the party can march',
+        expect.stringMatching(/^actions\.nap\.do\.0\.do: expected /),
+      ]),
+    )
   })
 })
 

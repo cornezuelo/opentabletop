@@ -159,6 +159,7 @@ weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones
   lost: { name: Perdidos, blocks: [travel] }
   snowbound: { blocks: [mode.horse] }
+  torchlit: { name: By torchlight }
 actions:
   camp:
     when: { party.resources.food: { gte: 1 } } # si no, la noche pasa sin ello
@@ -166,10 +167,12 @@ actions:
       - { time: dawn }
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { when: { daylight: true }, do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
-  night-march: # only after nightfall; its button hides by day
-    when: { daylight: false }
+  march: # los botones de Viajar: cuándo se puede marchar (de día, o con antorchas)
+    when: { any: [{ daylight: true, marched: { lt: $hoursPerDay } }, { torchlit: true }] }
+  night-march: # desde el anochecer; su botón se oculta el resto del día
+    when: { hour: { gte: $nightfall } }
     hideWhenUnavailable: true
-    do: [{ overtime: 240 }, { effects: { party.stats.fatigue: 1 } }]
+    do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
   forage:
     oncePerDay: true
     unless: { weather: storm }
@@ -185,7 +188,7 @@ checks:
   - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
 ```
 
-Un paso hace una cosa: `time` (minutos, o `dawn`, `nightfall`, `'14:00'`), `speed` (lo que queda de marcha hoy), `overtime` (minutos que la marcha de hoy puede seguir pasado el anochecer), `effects`, `set`, `do` (otra acción) o `roll` (una comprobación); cada paso puede tener `when` / `unless`. El `on:` de una acción es `day-start`, `hex-enter`, `day-end` o el id de otra acción (o una lista). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora). Los `perDay` de los packs antiguos, el `consumes` de una forma de viajar y los pasos con `eat: day` se siguen leyendo, como una acción `eat` en day-end.
+Un paso hace una cosa: `time` (minutos, o `dawn`, `nightfall`, `'14:00'`), `speed` (lo que queda de marcha hoy), `effects`, `set`, `do` (otra acción) o `roll` (una comprobación); cada paso puede tener `when` / `unless`. El `on:` de una acción es `day-start`, `hex-enter`, `day-end` o el id de otra acción (o una lista). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora). Los `perDay` de los packs antiguos, el `consumes` de una forma de viajar y los pasos con `eat: day` se siguen leyendo, como una acción `eat` en day-end.
 
 **Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 

@@ -39,7 +39,6 @@ export const es: Messages<typeof en> = {
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
     actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
-    actionOvertime: 'La marcha de hoy puede durar {time} más, pasado el anochecer.',
     actionEffects: 'Cambia: {changes}.',
     actionOnce: 'Una vez al día.',
     readAs: 'Las tablas lo leen como {keys}.',
@@ -112,6 +111,7 @@ export const es: Messages<typeof en> = {
     camp: 'Cae la noche y «{action}» no es posible ({why}): la espera se detiene aquí.',
     nightfall: 'Cae la noche: no se marcha más hoy.',
     'day-limit': 'Suficiente marcha por hoy.',
+    march: 'La regla del sistema para marchar no deja seguir marchando ahora.',
     lost: 'Perdidos: no se viaja más hoy',
     value: '{name}: no se viaja más hoy',
     weather: 'El clima impide viajar',

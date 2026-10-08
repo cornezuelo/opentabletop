@@ -314,6 +314,9 @@ export const es: Messages<typeof en> = {
     unless: 'Salvo si',
     whenHelp:
       'Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `weather: storm` — el clima de hoy\n• `terrain: [forest, hills]` — el hex donde está el grupo\n• `tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.resources.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `moons.silver: full` — el calendario\n• `daylight: true` — solo de día (entre el alba y el anochecer del sistema); `hour: { gte: 18 }` — desde las 18:00\n• `visits: 1` — la primera vez aquí; `around.terrain: lake` — junto a un lago\n• `doneToday: forage` — si hoy se buscó comida; `marched: { gte: 6 }` — tras 6 horas de marcha\n• `party.stats.fatigue: { lt: $party.stats.endurance }` — `$`: comparado con otro valor\nSi no, su botón sale desactivado y dice por qué (o se oculta, con **Oculta si no se puede hacer**); la acción de la noche del sistema que no se puede hacer deja pasar la noche sin ella.',
+    marchNote:
+      'Marchar son los botones de Viajar, no un botón propio: Solo si / Salvo si dicen cuándo puede marchar el grupo, comprobado mientras marcha (se para en cuanto dejan de cumplirse). No tiene pasos.',
+    marchDefault: 'de día, durante las horas de marcha del día',
     hide: 'Oculta si no se puede hacer',
     hideHelp:
       '**Sin marcar**: su botón siempre está, desactivado (diciendo por qué) mientras no se puede hacer, así los botones no cambian de sitio.\n**Marcada**: su botón solo aparece mientras se puede hacer. Para acciones que solo tienen sentido de vez en cuando:\n• un rito solo en un santuario con luna llena\n• convencer a los porteadores solo mientras se niegan a marchar',
@@ -323,7 +326,7 @@ export const es: Messages<typeof en> = {
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
-      "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `overtime: 240` — la marcha de hoy puede durar 4 horas más: pasado el anochecer y las horas de marcha del día (nunca más allá de medianoche)\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija; `-$party.stats.mouths`: tantos como otro valor)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
+      "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija; `-$party.stats.mouths`: tantos como otro valor)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
     on: 'Sola en',
     onHelp:
       '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• `day-start` — al alba\n• `hex-enter` — al entrar en cada hex\n• `day-end` — al acabar cada día, se acampe o no\n• el id de una acción, p. ej. `camp` — justo al empezar esa acción\nVarios, separados por comas: `day-start, hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { moment: hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `day-end`\n• los porteadores refunfuñan al alba tras un día de hambre: `day-start` con **Solo si** `yesterday.hungry: true`',
@@ -331,7 +334,7 @@ export const es: Messages<typeof en> = {
     onAfter: 'Tras: {action}',
     step: 'Paso',
     badStep:
-      'Un paso hace una cosa: time: 60, speed: 0.5, overtime: 240, effects: { … }, set: { … }, do: <acción> o roll: <comprobación>.',
+      'Un paso hace una cosa: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <acción> o roll: <comprobación>.',
     stepWhen: 'solo si…',
     up: 'Subir',
     down: 'Bajar',

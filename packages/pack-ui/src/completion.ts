@@ -74,7 +74,6 @@ const ENUMS: Record<string, readonly string[]> = {
   passable: ['false', 'true'],
   oncePerDay: ['true', 'false'],
   hideWhenUnavailable: ['true', 'false'],
-  overtime: ['60', '120', '240'],
 }
 /** Keys whose value is a reference to a table or generator. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve'])
@@ -148,7 +147,6 @@ const KEYS = [
   'time',
   'oncePerDay',
   'hideWhenUnavailable',
-  'overtime',
   'nothing',
   'checks',
   'event',

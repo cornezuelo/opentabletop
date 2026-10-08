@@ -160,6 +160,7 @@ weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set
   lost: { name: Lost, blocks: [travel] }
   snowbound: { blocks: [mode.horse] }
+  torchlit: { name: By torchlight }
 actions:
   camp:
     when: { party.resources.food: { gte: 1 } } # otherwise the night passes without it
@@ -167,10 +168,12 @@ actions:
       - { time: dawn }
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { when: { daylight: true }, do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
-  night-march: # only after nightfall; its button hides by day
-    when: { daylight: false }
+  march: # the Travel buttons: when the party can march (by day, or by torchlight)
+    when: { any: [{ daylight: true, marched: { lt: $hoursPerDay } }, { torchlit: true }] }
+  night-march: # from nightfall; its button hides the rest of the day
+    when: { hour: { gte: $nightfall } }
     hideWhenUnavailable: true
-    do: [{ overtime: 240 }, { effects: { party.stats.fatigue: 1 } }]
+    do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
   forage:
     oncePerDay: true
     unless: { weather: storm }
@@ -186,7 +189,7 @@ checks:
   - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
 ```
 
-A step does one thing: `time` (minutes, or `dawn`, `nightfall`, `'14:00'`), `speed` (the rest of today's march), `overtime` (minutes today's march may go on past nightfall), `effects`, `set`, `do` (another action) or `roll` (a check); each step may have `when` / `unless`. An action's `on:` is `day-start`, `hex-enter`, `day-end` or another action's id (or a list). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now). Older packs' `perDay`, a mode's `consumes` and steps with `eat: day` are still read, as an `eat` action at day-end.
+A step does one thing: `time` (minutes, or `dawn`, `nightfall`, `'14:00'`), `speed` (the rest of today's march), `effects`, `set`, `do` (another action) or `roll` (a check); each step may have `when` / `unless`. An action's `on:` is `day-start`, `hex-enter`, `day-end` or another action's id (or a list). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now). Older packs' `perDay`, a mode's `consumes` and steps with `eat: day` are still read, as an `eat` action at day-end.
 
 **What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 
