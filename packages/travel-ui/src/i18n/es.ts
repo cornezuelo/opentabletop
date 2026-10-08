@@ -46,7 +46,7 @@ export const es: Messages<typeof en> = {
       'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
     marched:
-      'Horas de marcha permitidas al día; al agotarlas, la marcha sigue mañana. Lo que tarda cada hex depende de la escala del mundo (km por hex), del terreno y del modo de viaje.',
+      'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda un hex depende de la escala del mundo (km por hex), el terreno, el camino y la forma de viajar.\n• 24 km al día a pie en 8 h, hexes de 12 km: 4 h por hex a campo abierto, 8 h en un bosque (× 0.5)\n• por camino (× 1.5): menos de 3 h por hex',
     resource:
       'Provisiones: qué las gasta depende del sistema (sus acciones, como comer al final de cada día, sus comprobaciones y tablas). Ajusta la cantidad al comprar, encontrar o gastar.',
     min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',

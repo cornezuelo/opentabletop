@@ -43,7 +43,7 @@ export const en = {
       'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
     marched:
-      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain and the travel mode.',
+      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain, the road and the way of travelling.\n• 24 km a day on foot over 8 h, 12 km hexes: 4 h a hex on open ground, 8 h in a forest (× 0.5)\n• by road (× 1.5): under 3 h a hex',
     resource:
       'Supplies: what uses them depends on the system (its actions, like eating at the end of each day, its checks and tables). Edit the amount when you buy, find or use some.',
     min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',

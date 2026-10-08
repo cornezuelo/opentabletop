@@ -58,56 +58,62 @@ export const es: Messages<typeof en> = {
     description: 'Descripción',
     roll: 'Dados',
     rollHelp:
-      'Dados que se tiran en la tabla: 1d6, 2d6, d66, d%, 1d6 + {{modificador}}… Déjalo vacío para elegir la entrada por peso.',
+      'Los dados que se tiran en la tabla; el **Rango** de cada entrada dice qué totales la eligen.\n• `1d6`, `2d6`, `1d20` — los dados de siempre\n• `d66` — dos d6 leídos como decenas y unidades (11–66)\n• `d%` — de 1 a 100\n• `2d6kh1` — tira 2d6 y quédate con el más alto\n• `1d6 + {{survival}}` — más un valor que recibe la tirada (una característica del grupo, un campo)\nVacío: se elige una entrada por **Peso**.',
     entries: 'Entradas',
     range: 'Rango',
-    rangeHelp: 'Totales de la tirada para esta entrada: "3" o "2-5". Sin dados, usa pesos.',
+    rangeHelp:
+      'Los totales que eligen esta entrada:\n• `3` — solo un 3\n• `2-5` — del 2 al 5\n• `11-16` — con `d66`\nLos rangos no deben solaparse; la lista de problemas dice qué totales faltan. Sin dados, usa **Peso**.',
     weight: 'Peso',
-    weightHelp: 'Probabilidad relativa cuando la tabla no tiene dados (1 por defecto).',
+    weightHelp:
+      'Probabilidad relativa cuando la tabla no tiene dados (por defecto `1`):\n• `3` en una entrada y `1` en otra — el triple de probable\n• `0` — nunca, salvo que la elija una condición',
     result: 'Resultado',
     then: 'Luego tira',
-    thenHelp: 'Otra tabla o generador que se tira cuando sale esta entrada; su resultado se añade.',
+    thenHelp:
+      'Otra tabla o generador que se tira **cuando sale esta entrada**; su resultado se añade a este.\n• `ruins` — qué son las ruinas\n• `core/npc` — una tabla de otro pack (`pack/id`)\nLa tabla que tira ve lo que esta entrada **Fija**.',
     nothing: 'nada',
     id: 'Id',
     idHelp:
-      'Nombre estable de la entrada, que usan las traducciones y las entradas que solo pueden salir una vez.',
+      'Nombre estable de la entrada, que usan las **traducciones** (`entries: { bandits: … }` en `locales/`) y los límites (**Solo una vez**, **Como mucho**).\n• `bandits`, `old-shrine`\nCambiarlo rompe sus traducciones; reordenar las entradas no.',
     addEntry: 'Añadir entrada',
     remove: 'Quitar',
     moveUp: 'Subir',
     moveDown: 'Bajar',
     renumber: 'Numerar 1–{count}',
-    renumberHelp: 'Da a las entradas rangos consecutivos 1, 2, 3… y ajusta los dados.',
+    renumberHelp:
+      'Da a las entradas rangos seguidos `1`, `2`, `3`… y ajusta los dados (`1d6` para seis entradas). Útil tras añadir o quitar entradas.',
     clamp: 'Ajustar totales',
     clampHelp:
-      'Un total por debajo del rango más bajo toma la primera entrada y por encima del más alto la última (los modificadores pueden sacar la tirada de rango). Desactivado: no sale nada.',
+      'Los modificadores pueden sacar una tirada del rango (`1d6 + 3` da 9). **Activado**: un total por debajo del rango más bajo toma la primera entrada, por encima del más alto la última.\n**Desactivado**: no sale nada.\n• una tirada de reacción `2d6 + {{charisma}}` — normalmente activado',
     onExhausted: 'Al agotarse',
     onExhaustedHelp:
-      'Qué pasa cuando la entrada que sale ya llegó a su límite (“Solo una vez” o “Como mucho”).',
+      'Qué pasa cuando la entrada que sale ya llegó a su límite (**Solo una vez** o **Como mucho**):\n• **Tirar otra vez** — hasta una entrada que aún pueda salir\n• **Tomar la siguiente** — la siguiente de la lista\n• **Nada** — esta vez no hay resultado',
     exhausted: { reroll: 'Tirar otra vez', next: 'Tomar la siguiente', none: 'Nada' },
     advanced: 'Tiene condiciones, valores o límites (⋯ para verlos).',
     more: 'Condiciones, valores y límites',
     when: 'Solo si',
     whenHelp:
-      'La entrada solo puede salir cuando el contexto encaja, en pares clave: valor: terrain: forest, tags: landmark, danger: { gte: 3 }, season: [autumn, winter]. Salvo: no puede salir cuando esto encaja, p. ej. edges: road. Vacío: siempre.',
+      'Cuándo puede salir la entrada, en pares `clave: valor` sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores):\n• `terrain: forest` — solo en bosques\n• `tags: landmark` — una etiqueta del hex\n• `danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `season: [autumn, winter]` — cualquiera de las dos estaciones\n• `timeOfDay: night`\n**Salvo**: no puede salir cuando se cumple:\n• `edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.',
     unless: 'Salvo',
     set: 'Fija',
     setHelp:
-      'Valores que da la entrada cuando sale, en pares clave: valor: weather: storm, lost: true, count: "{{2d6}}". Los leen las tablas siguientes, la plantilla y el viaje.',
+      "Valores que da la entrada cuando sale, en pares `clave: valor`. Las tablas siguientes, la plantilla y el viaje los leen:\n• `weather: storm` — el clima del día\n• `lost: true` — un valor del día que declara el sistema (puede bloquear el viaje)\n• `count: '{{2d6}}'` — un número tirado ahora\n• `terrain: '{{common}}'` — copiado de lo que ve la tabla",
     effects: 'Cambios',
     effectsHelp:
-      'Lo que cambia la entrada en el grupo del viaje cuando sale: party.stats.morale: -1, party.resources.food: "{{1d3}}". Un número suma o resta, =3 lo fija; los valores son los del sistema (características y provisiones). Tirada a mano, se ofrece al viaje.',
+      "Lo que cambia la entrada en el grupo del viaje cuando sale:\n• `party.stats.morale: -1` — quita 1\n• `party.resources.food: '{{1d3}}'` — suma una cantidad tirada\n• `party.stats.fatigue: '=0'` — lo fija\nLos valores son los del sistema (características y provisiones). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
     once: 'Solo una vez',
-    onceHelp: 'Sale como mucho una vez por sesión; después la tabla sigue “Al agotarse”.',
+    onceHelp:
+      'Sale **como mucho una vez por sesión** (un PNJ único, un tesoro irrepetible); después la tabla hace lo que diga **Al agotarse**. Necesita **Id**.',
     pause: 'Pausar',
     pauseHelp:
-      'Si sale durante un viaje, el viaje se detiene tras la tirada y espera a que pulses Continuar: tiempo para describir el lugar, escribir lore o decidir algo. Tirada a mano, no hace nada.',
+      'Cuando sale **durante un viaje**, el viaje se detiene tras la tirada y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo.\n• una guarida encontrada en el bosque\n• una emboscada\nTirada a mano, no hace nada.',
     maxOccurrences: 'Como mucho',
-    maxOccurrencesHelp: 'Veces que puede salir por sesión (vacío: sin límite).',
+    maxOccurrencesHelp:
+      'Veces que puede salir por sesión:\n• `2` — dos veces, luego **Al agotarse**\nVacío: sin límite. Necesita **Id**.',
     notAMap: 'Escribe pares clave: valor, p. ej. terrain: forest',
     language: 'Idioma',
     baseLanguage: '{locale} (base)',
     translationHelp:
-      'Las traducciones se guardan en locales/<idioma>/ junto al fichero. Los campos vacíos usan el idioma base.',
+      'Las traducciones se guardan en `locales/<idioma>/` junto al fichero (`locales/es/encounters.yaml`), por id de definición y de entrada. Elige aquí un idioma y escribe los textos; los campos vacíos usan el idioma base.',
     needsIds: 'Las entradas necesitan id para poder traducirse.',
     assignIds: 'Dar id a las entradas',
     deleteDefinition: 'Borrar',
@@ -116,23 +122,25 @@ export const es: Messages<typeof en> = {
     duplicateRow: 'Duplicar',
     input: 'Entrada',
     inputHelp:
-      'Lo que eliges antes de tirar, p. ej. la probabilidad o la actitud de un PNJ. Cada opción tiene su propia lista de entradas.',
+      'Lo que eliges **antes de tirar**, cada opción con su propia lista de entradas:\n• la probabilidad: `low`, `even`, `high`\n• la actitud de un PNJ: `hostile`, `wary`, `friendly`\nLas tablas y los viajes también pueden elegirla, con un valor del mismo nombre (`odds: high`).',
     inputLabel: 'Etiqueta',
-    labelHelp: 'Se muestra en lugar del id al tirar, y se puede traducir. Vacía: se muestra el id.',
+    labelHelp:
+      'Se muestra en lugar del id al tirar, y se puede traducir:\n• `odds` → _Probabilidad_\n• `even` → _Igualada_\nVacío: se muestra el id.',
     optionLabel: 'Etiqueta',
     modes: 'Modos de tirada',
     modesHelp:
-      'Formas de tirar esta tabla que declara su sistema (kind: roll-modes), como la ventaja: tirar toda la tirada varias veces y quedarse con un total. Marcado: se ofrece al tirar a mano. Solo cuando: se usa sin preguntar cuando se cumple la condición, p. ej. explorer: { gte: 1 } (una característica del grupo) o yesterday.lost: true. Salvo: no se usa solo cuando esto se cumple (escrito solo, el modo se usa siempre menos entonces), p. ej. tags: lit. Dos modos que se anulan entre sí, juntos, dan una tirada normal.',
+      'Formas de tirar esta tabla que declara su sistema (`kind: roll-modes`), como la ventaja: tirar toda la tirada varias veces y quedarse con un total.\n**Marcado**: se ofrece al tirar a mano.\n**Solo cuando**: se usa sin preguntar cuando se cumple la condición:\n• `explorer: { gte: 1 }` — una característica del grupo\n• `yesterday.lost: true` — ayer se perdieron\n• `weather: clear`\n**Salvo**: no se usa sola cuando se cumple (escrito solo, el modo se usa siempre salvo entonces):\n• `terrain: dense-forest`\nDos modos que se anulan (ventaja y desventaja), juntos, dan una tirada normal.',
     modeWhen: 'solo cuando',
     modeUnless: 'salvo',
     noModes:
       'Este pack y sus dependencias no declaran modos de tirada. Añade una definición kind: roll-modes (Nueva definición → Modos de tirada) para tirar tablas con ventaja o de cualquier otra forma.',
     default: 'Por defecto',
-    defaultHelp: 'Opción seleccionada al abrir el panel de tirada.',
+    defaultHelp:
+      'La opción elegida al abrir el panel de tirada:\n• `even` — para la probabilidad\nVacío: la primera.',
     firstOption: 'La primera',
     options: 'Opciones',
     optionsHelp:
-      'Las opciones de la entrada. Al renombrar una opción también se renombra su lista de entradas.',
+      'Las opciones de la entrada, cada una con su lista de entradas:\n• `low`, `even`, `high`\nCambiar el nombre de una opción cambia también el de su lista de entradas.',
     newOption: 'Nueva opción',
     addOption: 'Añadir opción',
     optionExists: 'Ya hay una opción «{option}».',
@@ -141,25 +149,26 @@ export const es: Messages<typeof en> = {
     createVariant: 'Crearlas',
     template: 'Plantilla',
     templateHelp:
-      'Texto del resultado: escribe {{campo}} donde va el valor de cada campo. Vacía: se listan los campos, uno por línea.',
+      'Texto del resultado: escribe `{{campo}}` donde va el valor de cada campo.\n• `Las ruinas de {{site}}, guardadas por {{guardian}}.`\n• `{{count}} lobos ({{mood}})`\nLas fichas de abajo añaden un campo al final. Vacío: se listan los campos, uno por línea.',
     insertField: 'Añadir a la plantilla',
     fields: 'Campos',
     fieldsHelp:
-      'Los campos se tiran en orden; los siguientes campos y tablas pueden usar los valores anteriores.',
+      'Cada campo se tira **en orden**; los campos y tablas siguientes pueden usar los valores anteriores (`{{danger}}`). Un campo sale de:\n• una **Tabla** — `ruins`\n• un **Generador** — otro generador\n• **Dados** — `2d6kl1`, `d%`\n• un **Valor fijo** — `3`, o un texto con plantilla: `peligro {{danger}} de 6`',
     fieldName: 'Nombre',
     fieldSource: 'Sale de',
     fieldValue: 'Tabla, dados o valor',
     sources: { table: 'Tabla', generator: 'Generador', roll: 'Dados', value: 'Valor fijo' },
     fieldMore: 'Condiciones y contexto',
     fieldWhenHelp:
-      'Solo si: el campo solo se tira cuando esto encaja con lo que ve el generador (sus entradas, los campos anteriores, el mapa o el viaje), p. ej. season: winter; si no, queda vacío. Salvo: no cuando esto encaja. Vacío: siempre.',
+      '**Solo si**: el campo solo se tira cuando se cumple sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',
     fieldContext: 'Contexto',
     fieldContextHelp:
-      'Valores que recibe la tabla o generador que tira este campo, en pares clave: valor, p. ej. danger: 3 o terrain: "{{terrain}}".',
+      "Valores que recibe la tabla o generador que tira este campo, en pares `clave: valor`:\n• `danger: 3` — como si el lugar fuera más peligroso\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — pasado de lo que ve el generador",
     fieldExists: 'Ya hay un campo «{field}».',
     addField: 'Añadir campo',
     reshuffle: 'Barajar',
-    reshuffleHelp: 'Cuándo vuelven al mazo las cartas robadas.',
+    reshuffleHelp:
+      'Cuándo vuelven al mazo las cartas robadas:\n• **Cuando se acaba el mazo** — como un mazo de verdad\n• **Solo a mano** — un mazo que se vacía para siempre\n• **Tras cada robo** — todas las cartas siempre posibles',
     reshuffles: {
       'when-empty': 'Cuando se acaba el mazo',
       manual: 'Solo a mano',
@@ -167,9 +176,10 @@ export const es: Messages<typeof en> = {
     },
     cards: 'Cartas ({count} en el mazo)',
     cardIdHelp:
-      'Nombre estable de la carta, usado por las traducciones y para saber cuáles se han robado.',
+      'Nombre estable de la carta, que usan las **traducciones** (`cards: { ace: … }`) y el registro de cartas robadas:\n• `ace-of-cups`',
     copies: 'Copias',
-    copiesHelp: 'Cuántas cartas como esta tiene el mazo.',
+    copiesHelp:
+      'Cuántas de esta carta tiene el mazo:\n• `3` — el triple de probable que una carta sola\n• `1` — una carta única',
     cardText: 'Texto',
     addCard: 'Añadir carta',
   },
@@ -205,22 +215,25 @@ export const es: Messages<typeof en> = {
     idTaken: 'Ya hay una definición "{id}" en este pack.',
     fileExists: 'Ya existe el fichero {file}.',
     manifest: 'Manifiesto',
-    manifestHelp: 'El nombre, la versión, el idioma base y la licencia están en pack.yaml.',
+    manifestHelp:
+      'Nombre, versión, idioma base, licencia y dependencias están en `pack.yaml`:\n• `version: 1.2.0`\n• `dependencies: { core: ^0.1.0 }` — tablas de otro pack que usa',
     other: 'Otras definiciones',
-    otherHelp: 'Reglas para otros motores (reglas de viaje, bindings…). Edítalas en sus ficheros.',
+    otherHelp:
+      'Reglas para otros motores: reglas de viaje, bindings, calendarios, modelos de clima. Edítalas en sus ficheros (YAML), o las reglas de viaje en la aplicación **Travel**.',
   },
   defActions: {
     duplicate: 'Duplicar',
-    duplicateHelp: 'Hace una copia en este pack para usarla como punto de partida.',
+    duplicateHelp:
+      'Hace una copia en este pack (como `<id>-copy`) para usarla de punto de partida.',
     copyTo: 'Copiar a…',
     copyToHelp:
-      'Copia a uno de tus packs, con sus traducciones. Las referencias a las tablas de este pack siguen funcionando.',
+      'Copia en uno de tus packs, con sus traducciones. Las referencias a tablas de este pack siguen funcionando (`grey-marches/ruins`).',
     copied: 'Copiado como {id}',
   },
   newDef: {
     forTravel: 'Reglas del sistema',
     forTravelHelp:
-      'Los modos de tirada son las formas de tirar sus tablas (ventaja…). Un pack con reglas de viaje se convierte en un sistema que puedes elegir en el Hexmapper, Jugar → Reglas, y en la aplicación Travel; los bindings dicen qué tabla responde a cada comprobación. Consulta el manual: Tipos de definición, y Conectar tablas con mapas y viajes.',
+      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en el Hexmapper (Jugar → Con reglas) y en Travel\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
     system: {
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',
@@ -248,16 +261,19 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     idPreview: 'Id: {id}',
     file: 'Fichero',
-    fileHelp: 'Fichero YAML del pack donde se escribe. Cualquiera vale; agrúpalas como prefieras.',
+    fileHelp:
+      'Fichero YAML del pack donde se escribe. Vale cualquiera; agrúpalos como quieras:\n• `encounters.yaml`\n• `tables/weather.yaml`',
     newFile: 'Nuevo fichero…',
   },
   newPack: {
     title: 'Nuevo pack',
     id: 'Carpeta / id',
-    idHelp: 'Minúsculas, números y guiones. Otros packs se refieren a sus tablas como id/tabla.',
+    idHelp:
+      'Minúsculas, dígitos y guiones. Otros packs se refieren a sus tablas como `id/tabla`:\n• `mi-mundo` → `mi-mundo/encounters`',
     name: 'Nombre',
     locale: 'Idioma base',
-    localeHelp: 'Idioma en el que están escritas las tablas; luego se pueden añadir traducciones.',
+    localeHelp:
+      'Idioma en que están escritas las tablas (`en`, `es`…); las traducciones a otros idiomas se pueden añadir después.',
     create: 'Crear',
     cancel: 'Cancelar',
     idTaken: 'Ya hay un pack "{id}".',

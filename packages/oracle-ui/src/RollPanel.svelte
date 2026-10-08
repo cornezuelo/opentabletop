@@ -66,7 +66,7 @@
       : [],
   )
   const modeHelp = $derived(
-    [t('roll.modeHelp'), ...modes.map((m) => `${m.name}: ${m.help}`)].join(' '),
+    [t('roll.modeHelp'), ...modes.map((m) => `• **${m.name}**: ${m.help}`)].join('\n'),
   )
 
   function roll() {

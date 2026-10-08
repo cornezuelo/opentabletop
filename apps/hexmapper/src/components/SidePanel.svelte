@@ -23,7 +23,7 @@
   import type { RegionStyle } from '../lib/model/types'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { helpMarkdown, InfoTip, tooltip, showToast } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
@@ -144,7 +144,7 @@
             <button
               class="result-action"
               disabled={applied.has(item.id)}
-              use:tooltip={t('oracle.applyHelp')}
+              use:tooltip={{ markdown: helpMarkdown(t('oracle.applyHelp')) }}
               onclick={() => {
                 const system = getSystem(editor.play?.rules?.system ?? 'generic')
                 editSession((session) =>

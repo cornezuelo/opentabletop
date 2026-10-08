@@ -18,6 +18,8 @@ const TEXT = {
     contextHint:
       'Labels underlined with dots have help: click one to read it here. While this column is open, moving to a field shows its help too.',
     contextClose: 'Close this explanation',
+    backToManual: 'The manual',
+    findInManual: 'Find it in the manual',
   },
   es: {
     help: 'Ayuda',
@@ -38,6 +40,8 @@ const TEXT = {
     contextHint:
       'Las etiquetas subrayadas con puntos tienen ayuda: pulsa una para leerla aquí. Mientras esta columna está abierta, pasar a un campo también muestra su ayuda.',
     contextClose: 'Cerrar esta explicación',
+    backToManual: 'El manual',
+    findInManual: 'Buscarlo en el manual',
   },
 }
 

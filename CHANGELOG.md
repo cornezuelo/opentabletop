@@ -11,7 +11,7 @@ The first alpha, `0.1.0`, is being prepared: everything below is what it will br
 - **Hexmapper**: hex maps (terrain, roads, rivers, walls and borders, regions, icons, texts, tokens, notes), printing and PNG / real-scale PDF export, a map library in the browser; **Play** on the map with any travel system (routes, checks resolved by the Oracle, discovery of blank hexes, a journal); the **Oracle** panel and the **World clock** (calendars, events, holidays and moons, progress clocks).
 - **Oracle**: browse, roll and edit tables, oracles, generators and decks with forms or a YAML editor with live problems; packs (new, import and export, translations, updates of bundled packs).
 - **Travel**: trips without a map; travel systems edited with forms (the day, ways of travelling, terrains, supplies, values of the day, actions as steps, checks and their tables) or YAML.
-- **Manual**: the user manual of every app, English and Spanish, with search; each app opens it in its help column, with the explanation of the field you're on above it.
+- **Manual**: the user manual of every app, English and Spanish, with search; each app opens it in its help column, which shows the explanation of the field you're on instead, formatted, with working examples.
 - **Command line**: `opentabletop validate`, `list` and `roll`.
 
 ### Packs

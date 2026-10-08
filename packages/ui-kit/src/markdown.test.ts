@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { markdownText, renderMarkdown } from './markdown'
+import { helpMarkdown, markdownText, renderMarkdown } from './markdown'
 
 describe('pack texts in Markdown', () => {
   it('format paragraphs, bold, code and lists', () => {
@@ -28,5 +28,21 @@ describe('pack texts in Markdown', () => {
 
   it('read as plain text for labels', () => {
     expect(markdownText('One **two**.\n\n**Shows:** `x` & y')).toBe('One two.\nShows: x & y')
+  })
+})
+
+describe('help texts', () => {
+  it('keep one line per paragraph and "• " lines as a list, with Markdown inside', () => {
+    const text = 'What it does.\n• `time: 180` — three hours\n• `speed: 0.5` — half speed\nAfter.'
+    expect(helpMarkdown(text)).toBe(
+      'What it does.\n\n- `time: 180` — three hours\n- `speed: 0.5` — half speed\n\nAfter.',
+    )
+    expect(renderMarkdown(helpMarkdown(text))).toBe(
+      '<p>What it does.</p>\n<ul>\n<li><code>time: 180</code> — three hours</li>\n<li><code>speed: 0.5</code> — half speed</li>\n</ul>\n<p>After.</p>\n',
+    )
+  })
+
+  it('a plain text stays a paragraph', () => {
+    expect(helpMarkdown('Only this.')).toBe('Only this.')
   })
 })

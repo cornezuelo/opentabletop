@@ -13,7 +13,7 @@
   } from '../lib/io/actions.svelte'
   import { formatDeepLink } from '../lib/io/deepLink'
   import { editor } from '../lib/store/editor.svelte'
-  import { confirmAction, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, helpMarkdown, tooltip, showToast } from '@open-tabletop/ui-kit'
 
   type Entry = Awaited<ReturnType<typeof listLibrary>>[number]
   let entries = $state<Entry[]>([])
@@ -66,7 +66,7 @@
       <li>
         <button
           class="open"
-          use:tooltip={t('library.exampleHelp')}
+          use:tooltip={{ markdown: helpMarkdown(t('library.exampleHelp')) }}
           onclick={() => openExampleMap(example).then(() => (editor.panelView = 'tool'))}
           ><span class="name">{example.name}</span></button
         >

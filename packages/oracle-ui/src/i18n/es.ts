@@ -10,10 +10,10 @@ export const es: Messages<typeof en> = {
     remaining: 'Quedan {left} de {total} cartas',
     context: 'Contexto',
     contextHelp:
-      'Valores que lee esta definición, como el terreno o la estación. Los que la aplicación ya conoce aparecen en gris; escribe para cambiarlos. En blanco significa desconocido.',
+      'Valores que lee esta definición, como el terreno o la estación. Los que la aplicación ya conoce (el hex, el viaje) aparecen en gris; escribe para cambiarlos. En blanco significa desconocido.\n• `forest` en terrain — como si se tirara en un bosque\n• `3` en danger\n• `night` en timeOfDay',
     mode: 'Modo de tirada',
     normal: 'Normal',
-    modeHelp: 'Formas de tirar esta tabla que declara su sistema.',
+    modeHelp: 'Formas de tirar esta tabla que declara su sistema:',
     modeRule: 'tira {times} veces y quédate con el total {keep}.',
     keep: { highest: 'más alto', lowest: 'más bajo', middle: 'del medio' },
     nothing: 'No se aplica ninguna entrada. Revisa los valores del contexto.',

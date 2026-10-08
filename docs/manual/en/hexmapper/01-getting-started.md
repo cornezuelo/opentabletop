@@ -11,7 +11,7 @@ Hexmapper draws hex maps for hexcrawls and sandbox campaigns, and lets you play 
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
-**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, above this manual; while the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
+**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (the side panel's **Help**) opens on it, in place of this manual: what the field does and examples that work, with **← The manual** to come back and **Find it in the manual** to search for it. While the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
 
 ## Your maps
 

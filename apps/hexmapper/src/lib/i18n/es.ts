@@ -53,11 +53,12 @@ export const es: Messages = {
     poiAdded: 'Añadido a {hex}: lo verás en el panel del hex.',
     apply: 'Aplicar al viaje: {changes}',
     applyHelp:
-      'El resultado cambia provisiones, fatiga o características del grupo: aplícalo al viaje, como se aplicaría el de una comprobación.',
+      'El resultado cambia el grupo del viaje (provisiones, fatiga, características): aplícalo al viaje, como se aplicaría el resultado de una comprobación.\n• `party.resources.food: 2` — el grupo gana 2 de comida\n• `party.stats.morale: -1`\nNada cambia hasta que lo apliques.',
     applied: 'Aplicado al viaje: {changes}',
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
-    rollHereHelp: 'Abre Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.',
+    rollHereHelp:
+      'Abre el Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{danger}}` en una tirada, `danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `tags: landmark`',
     title: 'Oracle',
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oracle aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
@@ -84,7 +85,7 @@ export const es: Messages = {
   map: {
     packs: 'Packs',
     packsHelp:
-      'Los packs con los que trabaja este mapa: su panel Oracle y los sistemas de Jugar solo muestran estos. Las tablas pueden seguir tirando tablas de otros packs a las que se refieran.',
+      'Los packs con los que trabaja este mapa: su panel del Oracle y los sistemas de Jugar solo muestran estos.\n• **Core** y **Las Marcas Grises** — lo que elige el mapa de ejemplo\n• todos los packs cargados — si no eliges nada\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
     allPacks: 'Todos los packs cargados',
     packMissing: 'El pack «{pack}» no está cargado en este navegador.',
     id: 'ID (nombre del fichero)',
@@ -95,12 +96,12 @@ export const es: Messages = {
     orientation: 'Orientación',
     hexKm: 'Escala del mundo (km por hex)',
     hexKmHelp:
-      'Cuántos km mide un hex, para los viajes: los tiempos y provisiones dependen de ello. No cambia el dibujo ni la impresión.',
+      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje y las provisiones dependen de ello.\n• `10` — un hexcrawl clásico (un día a pie cruza dos o tres)\n• `30` — un día a pie por hex\nNo cambia el dibujo ni la impresión.',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',
     coordFormatHelp:
-      'Cómo se nombran los hexes en etiquetas, enlaces y el diario: CCRR (columna y fila, 0101) o axiales (q,r). Los datos del mapa no cambian.',
+      'Cómo se nombran los hexes en etiquetas, enlaces y el diario:\n• **CCRR** — columna y fila: `0101`, `0608`\n• **axial** — `q,r`: `5,3`\nLos datos del mapa no cambian.',
     coordCCRR: 'CCFF (0101)',
     coordAxial: 'Axiales (q,r)',
     showCoords: 'Mostrar coordenadas',
@@ -120,7 +121,7 @@ export const es: Messages = {
     print: 'Impresión',
     hexMm: 'Hex entre lados (mm)',
     hexMmHelp:
-      'Tamaño de cada hex en papel, de un lado plano al opuesto (como las peanas de miniaturas). Solo para imprimir y el PDF.',
+      'Tamaño de cada hex en papel, de un lado plano al opuesto (como las peanas de las miniaturas):\n• `25.4` — una pulgada, para miniaturas de 25–28 mm\n• `19` — un mapa de viaje impreso\nSolo para imprimir y el PDF.',
     cornerToCorner: 'Entre vértices: {mm} mm',
     printedSize: 'Tamaño impreso: {w} × {h} mm',
     fitsOn: 'Cabe en {paper} {orientation}',
@@ -140,7 +141,7 @@ export const es: Messages = {
   preferences: {
     noteProvider: 'App de notas',
     noteHelp:
-      'Los hexes pueden enlazar a una nota externa. Se guarda en este navegador, no en el mapa.',
+      'Los hexes pueden enlazar con una nota de tu aplicación de notas (SilverBullet, Obsidian…). Se guarda en este navegador, no en el mapa.',
   },
   noteSettings: {
     silverbullet: { baseUrl: 'URL de SilverBullet' },
@@ -185,9 +186,10 @@ export const es: Messages = {
     flip: 'Voltear',
     halo: 'Halo',
     haloHelp:
-      'Un resplandor suave del color elegido a su alrededor, para que destaque sobre cualquier terreno.',
+      'Un brillo suave del color elegido alrededor del icono, para que destaque sobre cualquier terreno (una torre oscura sobre un bosque oscuro).',
     outline: 'Contorno',
-    outlineHelp: 'Una línea del color y grosor elegidos alrededor de la forma del icono.',
+    outlineHelp:
+      'Una línea del color y grosor elegidos alrededor de la forma del icono: un contorno blanco sobre terreno oscuro, uno negro sobre nieve.',
     thickness: 'Grosor',
     reset: 'Restablecer',
     edit: 'Estilo',
@@ -195,7 +197,7 @@ export const es: Messages = {
   layers: {
     highlight: 'Resaltar una etiqueta',
     highlightHelp:
-      'Los hexes con esta etiqueta se marcan en el mapa, p. ej. todos los lugares señalados o todos los hexes encantados. Solo mientras miras: no se guarda nada.',
+      'Los hexes con esta etiqueta se resaltan en el mapa, solo mientras miras (no se guarda nada):\n• `landmark` — todos los hitos\n• `haunted`\n• `shrine`',
     clearHighlight: 'Dejar de resaltar',
     dimRest: 'Oscurecer los demás hexes',
     highlighted: '{count} hexes la tienen.',
@@ -250,7 +252,7 @@ export const es: Messages = {
     examples: 'Mapas de ejemplo',
     yours: 'Tus mapas',
     exampleHelp:
-      'Un mapa para jugar y para aprender, hecho con los packs incluidos (Las Marcas Grises). Se abre como uno de tus mapas.',
+      'Un mapa para jugar y aprender, hecho con los packs incluidos (**Las Marcas Grises**): caminos, una barca, un bosque cada vez más peligroso, un santuario, una ruina. Se abre como uno de tus mapas; su página del manual lista cada lugar.',
     exampleTitle: 'Abrir el ejemplo',
     exampleExists:
       'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye)?',
@@ -288,20 +290,20 @@ export const es: Messages = {
     importGlyph: 'Importar una imagen…',
     glyphs: 'Símbolos del terreno',
     glyphsHelp:
-      'Cuánto se ven los símbolos de cada terreno (un árbol, un pico…); 0 los oculta. Los iconos los tapan.',
+      'Lo visible que es el pequeño símbolo de cada terreno (un árbol, un pico…):\n• `0` — oculto\n• `0.5` — tenue\n• `1` — entero\nLos iconos los tapan.',
     palette: 'Paleta',
     edit: 'Editar paleta',
     name: 'Nombre',
     color: 'Color',
     water: 'Agua',
     waterHelp:
-      'Hexes de agua: caminos, senderos y ríos se detienen en su orilla (muros y fronteras la cruzan). En los viajes siguen la regla water del sistema (intransitables a pie en los sistemas incluidos; las barcas los navegan) y las tablas ven water: true',
+      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: no se cruzan a pie en los sistemas incluidos, una barca los navega\n• las tablas ven `water: true` (una condición: `water: true`)',
     delete: 'Borrar terreno',
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',
     sets: 'Añadir terrenos de…',
     setsHelp:
-      'Conjuntos de terrenos para otros tipos de partida, con sus símbolos y velocidades de viaje en las reglas genéricas: la paleta natural por defecto, ciudades modernas, un páramo postapocalíptico, mundos alienígenas y el espacio. Solo se añaden los que le faltan a este mapa.',
+      'Conjuntos de terrenos para otros tipos de juego, con sus símbolos y velocidades de viaje en las reglas genéricas:\n• la paleta natural por defecto\n• ciudades modernas\n• un páramo postapocalíptico\n• mundos alienígenas y el espacio\nSolo se añaden los que le faltan a este mapa.',
     missing: '{count} por añadir',
     addSet: 'Añadir',
     newName: 'Terreno nuevo',
@@ -310,7 +312,8 @@ export const es: Messages = {
     showOnMap: 'Mostrar el nombre en el mapa',
     mapStyle: 'El estilo del mapa',
     ownStyle: 'Estilo propio',
-    mapStyleHelp: 'Usa el estilo de Ajustes → Textos del mapa para todos los nombres de este tipo.',
+    mapStyleHelp:
+      'Usa el estilo de Ajustes → Textos del mapa para todos los nombres de este tipo, así todos los nombres de hex (o de región) se ven igual.',
     hiddenByMap: {
       hexNames: 'Los nombres de hex están ocultos en Ajustes → Textos del mapa.',
       regionNames: 'Los nombres de región están ocultos en Ajustes → Textos del mapa.',
@@ -367,7 +370,8 @@ export const es: Messages = {
     notePlaceholder: 'Personajes/Ilyana',
     deselect: 'Hecho',
     at: 'En {hex}.',
-    offMapHelp: 'Fuera del mapa: haz clic en un hex para ponerlo allí.',
+    offMapHelp:
+      'Fuera del mapa: haz clic en un hex para ponerlo allí (un PNJ que aún no ha aparecido, un monstruo esperando en su guarida).',
     takeOff: 'Quitar del mapa',
     delete: 'Borrar',
     list: 'Tokens de este mapa',
@@ -383,7 +387,7 @@ export const es: Messages = {
       '¿Quitar el grupo del mapa? Se termina el viaje: se pierden su tiempo, provisiones y diario. No se puede deshacer.',
     discover: 'Descubrir el mapa al viajar',
     discoverHelp:
-      'Las tablas del sistema deciden los hexes vacíos mientras el grupo viaja: su terreno, y qué hay en ellos (un punto de interés, etiquetas, un nombre) la primera vez que entráis. Los hexes pintados nunca se cambian. Los descubrimientos son parte de la partida: Ctrl+Z no los deshace.',
+      'Las tablas del sistema deciden los hexes vacíos según viaja el grupo: su terreno, y lo que hay en ellos (un punto de interés, etiquetas, un nombre) la primera vez que entras.\n• **Los hexes alrededor del grupo** — se revelan al moverse, hasta donde ve\n• **Solo el hex al que entra el grupo**\nLos hexes pintados nunca cambian. Los descubrimientos son parte del juego: Ctrl+Z no los deshace.',
     reveal: 'Qué se descubre',
     revealNeighbors: 'Los hexes alrededor del grupo (lo que ve)',
     revealEntered: 'Solo el hex al que entra el grupo',
@@ -395,13 +399,14 @@ export const es: Messages = {
     uploadToken: 'Subir uno propio…',
     worldStart: 'Los viajes nuevos empiezan en la fecha del reloj del mundo (el panel Mundo, ☾).',
     showTrail: 'Mostrar rastro',
-    showTrailHelp: 'Dibuja en el mapa los hexes por los que ha pasado el grupo.',
+    showTrailHelp:
+      'Dibuja en el mapa los hexes por los que ha pasado el grupo, como una línea discontinua junto a los caminos que siguió.',
     straightTrail: 'Líneas rectas',
     straightTrailHelp:
-      'Dibuja el rastro y la ruta prevista con rectas de hex a hex. Sin marcar, se curvan como los caminos y senderos del mapa.',
+      'Dibuja el rastro y la ruta planeada como líneas rectas de hex a hex. Sin marcar, se curvan y siguen los caminos, senderos y ríos dibujados que recorren, a su lado.',
     placeHelp: 'Haz clic en un hex para colocar al grupo.',
     simpleHelp:
-      'El grupo está en {hex}. Haz clic en cualquier hex y saltará directamente allí: sin ruta, sin tiempo, sin nada por el camino (solo el rastro lo recuerda).',
+      'El grupo está en {hex}. Haz clic en cualquier hex y saltará directamente allí: sin ruta, sin tiempo, sin nada por el camino (solo el rastro lo recuerda). Para viajar con tiempo, comprobaciones y provisiones, elige Con reglas.',
     tips: {
       simple:
         'Solo un icono: un clic lo pone en ese hex al instante (sin ruta ni viaje). Sin tiempo ni tiradas.',
@@ -422,9 +427,10 @@ export const es: Messages = {
     cancel: 'Cancelar (Esc)',
     count: '{count} caminos y ríos en el mapa',
     straight: 'Tramos rectos',
-    straightHelp: 'Líneas rectas entre los puntos que colocas, en lugar de curvas suaves.',
+    straightHelp:
+      'Líneas rectas entre los puntos que colocas, en lugar de curvas suaves: una calzada romana, un muro, una frontera a lo largo de un río.',
     editHelp:
-      'Mayús + clic coloca el punto donde haces clic (Ctrl: sin ajuste). Clic en un tirador blanco para seguir dibujando desde él (desde un extremo alarga el camino, desde el medio sale una rama); arrástralo para mover el punto; clic derecho para recentrarlo. Los caminos se detienen en la orilla de lagos y mares.',
+      '• **Mayús+clic** coloca un punto donde haces clic (**Ctrl**: sin ajuste)\n• haz clic en un tirador blanco para seguir dibujando desde él: desde un extremo alarga el trazo, desde el medio lo ramifica\n• arrastra un tirador para mover el punto (incluso a otro hex)\n• clic derecho en un tirador para volver a centrarlo\nLos trazos se paran en la orilla de lagos y mares.',
     makeStraight: 'Recto',
     makeCurved: 'Curvo',
     closed: 'Cerrado (el final se une al principio)',
@@ -468,31 +474,32 @@ export const es: Messages = {
   },
   fields: {
     hexHelp:
-      'Valores de este hex que leen las tablas y las comprobaciones de viaje por su clave: un campo danger = 3 es {{danger}} en una tirada y danger: { gte: 2 } en una condición. Los números se leen como números.',
+      'Valores de este hex que las tablas y comprobaciones de viaje leen por clave; los números se leen como números.\n• `danger` = `3` → `{{danger}}` en una tirada, `danger: { gte: 2 }` en una condición\n• `guards` = `6` → `2d6 + {{guards}}`\n• `name` = `El Viejo Molino`\nUn campo propio gana al de su región.',
     fromRegion: 'De su región ({region}): {values}. Un campo propio con la misma clave gana.',
     regionHelp:
-      'Valores que tienen todos los hexes de la región (un campo propio del hex con la misma clave gana): p. ej. danger para todo un bosque. Las tablas los leen como los del hex, {{danger}}.',
+      'Valores que tiene cada hex de la región (un campo propio del hex con la misma clave gana):\n• `danger` = `2` para todo un bosque, `4` en los hexes de su corazón\nLas tablas los leen como los del hex: `{{danger}}`.',
     iconHelp:
-      'Valores de este icono (un pueblo, un puente…). Las tablas que se tiran en su hex los leen como {{icon.<clave>}}, p. ej. {{icon.guards}}.',
+      'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su hex los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
-      'Valores de este token (un PNJ, un monstruo…). Las tablas que se tiran desde el panel Oracle con él seleccionado los leen como {{token.<clave>}}, p. ej. {{token.might}}.',
+      'Valores de esta ficha (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oracle mientras está seleccionada los leen como `{{token.<clave>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
     poiHelp:
-      'Valores de este punto de interés, guardados con él en el mapa y en su fichero. Las tablas no los leen: un hex puede tener varios puntos de interés.',
+      'Valores de este punto de interés, guardados con él en el mapa y su fichero (`treasure = 40`, `cleared = yes`). Las tablas no los leen: un hex puede tener varios puntos de interés.',
   },
   regionStyle: {
     title: vocabulary.es.terms.regions,
     help: 'Cómo se ven las regiones en el mapa. Cada región puede tener su propio estilo (su panel → Estilo propio).',
     fill: 'Relleno',
-    fillHelp: 'Intensidad del tinte dentro de cada región; a 0 no hay relleno.',
+    fillHelp:
+      'Lo intenso que es el tinte dentro de cada región:\n• `0` — sin relleno\n• `0.15` — un velo suave\n• `0.4` — fuerte',
     border: 'Borde',
     borderHelp:
-      'Grosor del borde por el interior de cada región, en tamaños de hex; a 0 no hay borde.',
+      'Anchura del borde por dentro de cada región, en tamaños de hex:\n• `0` — sin borde\n• `0.08` — una línea fina\n• `0.2` — una banda ancha',
     borderOpacity: 'Opacidad del borde',
     dashed: 'Borde discontinuo',
     none: 'ninguno',
     own: 'Estilo propio',
     ownHelp:
-      'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (Ajustes → Regiones).',
+      'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (**Ajustes → Regiones**): un bosque más oscuro, un reino con un borde marcado.',
   },
   world: {
     title: 'Mundo',
@@ -510,7 +517,7 @@ export const es: Messages = {
     moonLine: '{moon} está {phase}',
     advance: 'Avanzar el tiempo',
     advanceHelp:
-      'Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.',
+      'Hace avanzar el tiempo del mundo. Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.\n• **+1 guardia** — unas horas\n• **Día siguiente** — hasta el próximo alba\n• **Próximo evento** — directamente al siguiente evento programado',
     tripHelp:
       'Hay un viaje en marcha sin ruta, así que estos botones hacen que el grupo espere en {hex} (planea una ruta y seguirá viajando por ella). Se vive cada momento (las comprobaciones del alba, lo que hace el sistema de noche y al acabar cada día, comer), y la espera se detiene antes si algo te necesita.',
     tripAdvance: 'Esperar aquí',
@@ -538,7 +545,7 @@ export const es: Messages = {
     nextEvent: 'Próximo evento',
     events: 'Eventos',
     eventsHelp:
-      'Cosas que pasan en una fecha: una fiesta, un ataque, la llegada de un barco. Llegan cuando el tiempo las alcanza; las que se repiten vuelven.',
+      'Cosas que pasan en una fecha: una fiesta, un ataque, la llegada de un barco. Llegan cuando el tiempo las alcanza, en la cronología y el diario del viaje; las que se repiten vuelven.\n• _Atacan los Clanes de Hierro_ en 3 días\n• _Día de mercado_ cada 7 días',
     noEvents: 'Nada programado.',
     eventName: 'Qué pasa',
     inDays: 'Dentro de (días)',
@@ -553,7 +560,7 @@ export const es: Messages = {
     confirmCancel: '¿Cancelar «{name}»?',
     clocks: 'Relojes de progreso',
     clocksHelp:
-      'Segmentos que se llenan según algo avanza (una amenaza, un proyecto, el plan de una facción). Haz clic en un segmento para llenar hasta él; en el último lleno para vaciarlo.',
+      'Segmentos que se llenan según algo avanza (una amenaza, un proyecto, el plan de una facción):\n• _La Sierpe despierta_ 2/6\n• _Se reconstruye el puente_ 1/4\nHaz clic en un segmento para llenar hasta él; en el último lleno para vaciarlo.',
     clockName: 'Nombre del reloj',
     segments: 'Segmentos',
     addClock: 'Añadir',
@@ -561,7 +568,8 @@ export const es: Messages = {
     confirmRemoveClock: '¿Quitar el reloj «{name}»?',
     clockFilled: '{name}: ¡lleno!',
     timeline: 'Cronología',
-    timelineHelp: 'Lo que ha pasado en el mundo, lo más reciente primero. Añade tus propias notas.',
+    timelineHelp:
+      'Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas. Añade tus propias notas («Derrocaron al barón»).',
     noTimeline: 'Aún nada.',
     note: 'Una nota para la cronología',
     addNote: 'Añadir',

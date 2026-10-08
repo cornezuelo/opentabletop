@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { helpMarkdown, InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { PATH_KINDS } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
@@ -55,7 +55,7 @@
   <p class="help">{t('path.help')}</p>
 {/if}
 
-<p class="help">{t('path.editHelp')}</p>
+<div class="help"><Markdown text={helpMarkdown(t('path.editHelp'))} /></div>
 <p class="help">{t('path.count', { count: pathCount })}</p>
 
 <style>
@@ -137,5 +137,14 @@
     margin: 0;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .help :global(p),
+  .help :global(ul) {
+    margin: 0 0 4px;
+  }
+
+  .help :global(ul) {
+    padding-left: 16px;
   }
 </style>

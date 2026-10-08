@@ -12,7 +12,13 @@
   import { t } from '../../lib/i18n/index.svelte'
   import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
   import { collectSuggestions } from '../../lib/model/hex'
-  import { appIconUrl, showToast, tooltip, confirmAction } from '@open-tabletop/ui-kit'
+  import {
+    appIconUrl,
+    confirmAction,
+    helpMarkdown,
+    tooltip,
+    showToast,
+  } from '@open-tabletop/ui-kit'
   import type { HexData, HexKey } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
   import { terrainName } from '../../lib/terrainName'
@@ -78,7 +84,7 @@
     </span>
     <button
       class="roll-here"
-      use:tooltip={t('oracle.rollHereHelp')}
+      use:tooltip={{ markdown: helpMarkdown(t('oracle.rollHereHelp')) }}
       onclick={() => (editor.panelView = 'oracle')}
       ><img class="app" src={appIconUrl('oracle')} alt="" /> {t('oracle.rollHere')}</button
     >

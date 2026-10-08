@@ -52,11 +52,12 @@ export const en = {
     poiAdded: 'Added to {hex}: see it in the hex panel.',
     apply: 'Apply to the trip: {changes}',
     applyHelp:
-      'The result changes supplies, fatigue or party stats: apply it to the trip, as a check’s result would be.',
+      "The result changes the trip's party (supplies, fatigue, stats): apply it to the trip, as a check's result would be.\n• `party.resources.food: 2` — the party gains 2 food\n• `party.stats.morale: -1`\nNothing changes until you apply it.",
     applied: 'Applied to the trip: {changes}',
     appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',
-    rollHereHelp: 'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.',
+    rollHereHelp:
+      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{danger}}` in a roll, `danger: { gte: 2 }` in a condition\n• tags `landmark` → `tags: landmark`',
     title: 'Oracle',
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
@@ -83,7 +84,7 @@ export const en = {
   map: {
     packs: 'Packs',
     packsHelp:
-      'The packs this map works with: its Oracle panel and the systems of Play only show these. Tables can still roll tables of other packs they refer to.',
+      "The packs this map works with: its Oracle panel and the systems of Play only show these.\n• **Core** and **The Grey Marches** — the example map's choice\n• all the loaded packs — nothing chosen\nTables can still roll tables of other packs they refer to.",
     allPacks: 'All the loaded packs',
     packMissing: 'The pack “{pack}” is not loaded in this browser.',
     id: 'ID (file name)',
@@ -94,12 +95,12 @@ export const en = {
     orientation: 'Orientation',
     hexKm: 'World scale (km per hex)',
     hexKmHelp:
-      'How many km a hex measures across, for trips: travel times and supplies depend on it. It doesn’t change the drawing or printing.',
+      "How many km a hex measures across, for trips: travel times and supplies depend on it.\n• `10` — a classic hexcrawl (a day on foot crosses two or three)\n• `30` — a day on foot per hex\nIt doesn't change the drawing or printing.",
     flat: 'Flat top',
     pointy: 'Pointy top',
     coordFormat: 'Coordinates',
     coordFormatHelp:
-      'How hexes are named in labels, links and the journal: CCRR (column and row, 0101) or axial (q,r). The map data doesn’t change.',
+      "How hexes are named in labels, links and the journal:\n• **CCRR** — column and row: `0101`, `0608`\n• **axial** — `q,r`: `5,3`\nThe map data doesn't change.",
     coordCCRR: 'CCRR (0101)',
     coordAxial: 'Axial (q,r)',
     showCoords: 'Show coordinates',
@@ -119,7 +120,7 @@ export const en = {
     print: 'Printing',
     hexMm: 'Hex flat-to-flat (mm)',
     hexMmHelp:
-      'Size of each hex on paper, from one flat side to the opposite one (like miniature bases). Only for printing and PDF.',
+      'Size of each hex on paper, from one flat side to the opposite one (like miniature bases):\n• `25.4` — one inch, for 25–28 mm miniatures\n• `19` — a printed overland map\nOnly for printing and PDF.',
     cornerToCorner: 'Corner to corner: {mm} mm',
     printedSize: 'Printed size: {w} × {h} mm',
     fitsOn: 'Fits on {paper} {orientation}',
@@ -138,7 +139,8 @@ export const en = {
   },
   preferences: {
     noteProvider: 'Notes app',
-    noteHelp: 'Hexes can link to an external note. Stored in this browser, not in the map.',
+    noteHelp:
+      'Hexes can link to a note in your notes app (SilverBullet, Obsidian…). Stored in this browser, not in the map.',
   },
   noteSettings: {
     silverbullet: { baseUrl: 'SilverBullet URL' },
@@ -182,9 +184,11 @@ export const en = {
     rotation: 'Rotation',
     flip: 'Flip',
     halo: 'Halo',
-    haloHelp: 'A soft glow of the chosen color around it, so it stands out over any terrain.',
+    haloHelp:
+      'A soft glow of the chosen colour around the icon, so it stands out over any terrain (a dark tower over a dark forest).',
     outline: 'Outline',
-    outlineHelp: 'A line of the chosen color and thickness around the icon’s shape.',
+    outlineHelp:
+      "A line of the chosen colour and thickness around the icon's shape: a white outline over dark terrain, a black one over snow.",
     thickness: 'Thickness',
     reset: 'Reset',
     edit: 'Style',
@@ -192,7 +196,7 @@ export const en = {
   layers: {
     highlight: 'Highlight a tag',
     highlightHelp:
-      'Hexes with this tag are outlined on the map, e.g. every landmark or every haunted hex. Only while you look: nothing is saved.',
+      'Hexes with this tag are outlined on the map, only while you look (nothing is saved):\n• `landmark` — every landmark\n• `haunted`\n• `shrine`',
     clearHighlight: 'Stop highlighting',
     dimRest: 'Dim the other hexes',
     highlighted: '{count} hexes have it.',
@@ -247,7 +251,7 @@ export const en = {
     examples: 'Example maps',
     yours: 'Your maps',
     exampleHelp:
-      'A map to play and to learn from, made with the bundled packs (The Grey Marches). It opens as one of your maps.',
+      'A map to play and to learn from, made with the bundled packs (**The Grey Marches**): roads, a ferry, a forest growing in danger, a shrine, a ruin. It opens as one of your maps; its page in the manual lists every place.',
     exampleTitle: 'Open the example',
     exampleExists:
       'This browser already has this example, with your changes and your trip. Go on with it, or start the example fresh (your copy is replaced)?',
@@ -285,20 +289,20 @@ export const en = {
     importGlyph: 'Import an image…',
     glyphs: 'Terrain symbols',
     glyphsHelp:
-      'How visible the small symbol of each terrain is (a tree, a peak…); 0 hides them. Icons cover them.',
+      'How visible the small symbol of each terrain is (a tree, a peak…):\n• `0` — hidden\n• `0.5` — faint\n• `1` — full\nIcons cover them.',
     palette: 'Palette',
     edit: 'Edit palette',
     name: 'Name',
     color: 'Color',
     water: 'Water',
     waterHelp:
-      'Water hexes: roads, trails and rivers stop at their shore (walls and borders cross them). On trips they follow the rules’ water rule (impassable on foot in the bundled systems; boats sail them), and tables see water: true',
+      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the rules' water rule: impassable on foot in the bundled systems, a boat sails them\n• tables see `water: true` (a condition: `water: true`)",
     delete: 'Delete terrain',
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',
     sets: 'Add terrains for…',
     setsHelp:
-      'Sets of terrains for other kinds of game, with their symbols and travel speeds in the generic rules: the default natural palette, modern towns, a post-apocalyptic wasteland, alien worlds and space. Only the ones this map lacks are added.',
+      'Sets of terrains for other kinds of game, with their symbols and travel speeds in the generic rules:\n• the default natural palette\n• modern towns\n• a post-apocalyptic wasteland\n• alien worlds and space\nOnly the ones this map lacks are added.',
     missing: '{count} to add',
     addSet: 'Add',
     newName: 'New terrain',
@@ -307,7 +311,8 @@ export const en = {
     showOnMap: 'Show the name on the map',
     mapStyle: "The map's style",
     ownStyle: 'Its own style',
-    mapStyleHelp: 'Uses the style set in Settings → Map texts for every name of this kind.',
+    mapStyleHelp:
+      'Uses the style set in Settings → Map texts for every name of this kind, so all hex names (or all region names) look alike.',
     hiddenByMap: {
       hexNames: 'Hex names are hidden in Settings → Map texts.',
       regionNames: 'Region names are hidden in Settings → Map texts.',
@@ -360,7 +365,8 @@ export const en = {
     notePlaceholder: 'Characters/Ilyana',
     deselect: 'Done',
     at: 'On {hex}.',
-    offMapHelp: 'Off the map: click a hex to put it there.',
+    offMapHelp:
+      "Off the map: click a hex to put it there (an NPC who hasn't appeared yet, a monster waiting in its lair).",
     takeOff: 'Take off the map',
     delete: 'Delete',
     list: 'Tokens on this map',
@@ -376,7 +382,7 @@ export const en = {
       'Take the party off the map? This ends the trip: its time, supplies and journal are lost. This can’t be undone.',
     discover: 'Discover the map as you travel',
     discoverHelp:
-      'Empty hexes are decided by the system’s tables as the party travels: their terrain, and what is in them (a point of interest, tags, a name) the first time you enter. Painted hexes are never changed. Discoveries are part of the game: Ctrl+Z doesn’t undo them.',
+      "Empty hexes are decided by the system's tables as the party travels: their terrain, and what is in them (a point of interest, tags, a name) the first time you enter.\n• **The hexes around the party** — revealed as it moves, as far as it sees\n• **Only the hex the party enters**\nPainted hexes are never changed. Discoveries are part of the game: Ctrl+Z doesn't undo them.",
     reveal: 'What is discovered',
     revealNeighbors: 'The hexes around the party (what it sees)',
     revealEntered: 'Only the hex the party enters',
@@ -388,13 +394,14 @@ export const en = {
     uploadToken: 'Upload your own…',
     worldStart: 'New trips start on the world clock’s date (the World panel, ☾).',
     showTrail: 'Show trail',
-    showTrailHelp: 'Draw the hexes the party has walked through on the map.',
+    showTrailHelp:
+      'Draw the hexes the party has walked through on the map, as a dashed line beside the roads it followed.',
     straightTrail: 'Straight lines',
     straightTrailHelp:
-      'Draw the trail and the planned route as straight lines from hex to hex. Unticked, they curve like the map’s roads and trails.',
+      'Draw the trail and the planned route as straight lines from hex to hex. Unticked, they curve and follow the drawn roads, trails and rivers they walk, beside them.',
     placeHelp: 'Click a hex to place the party.',
     simpleHelp:
-      'The party is at {hex}. Click any hex and it jumps straight there: no route, no time, nothing in between (only the trail remembers it).',
+      'The party is at {hex}. Click any hex and it jumps straight there: no route, no time, nothing in between (only the trail remembers it). For travel with time, checks and supplies, choose With rules.',
     tips: {
       simple:
         'Just a token: a click puts it on that hex at once (no route or travel). No time, no rolls.',
@@ -415,9 +422,10 @@ export const en = {
     cancel: 'Cancel (Esc)',
     count: '{count} roads and rivers on the map',
     straight: 'Straight segments',
-    straightHelp: 'Straight lines between the points you place, instead of smooth curves.',
+    straightHelp:
+      'Straight lines between the points you place, instead of smooth curves: a Roman road, a wall, a border along a river.',
     editHelp:
-      'Shift+click places a point where you click (Ctrl: no snapping). Click a white handle to keep drawing from it (from an end it extends the path, from the middle it branches); drag it to move the point; right-click to re-center it. Paths stop at the shore of lakes and seas.',
+      '• **Shift+click** places a point where you click (**Ctrl**: no snapping)\n• click a white handle to keep drawing from it: from an end it extends the path, from the middle it branches\n• drag a handle to move the point (even to another hex)\n• right-click a handle to re-centre it\nPaths stop at the shore of lakes and seas.',
     makeStraight: 'Straight',
     makeCurved: 'Curved',
     closed: 'Closed loop (the end joins the start)',
@@ -461,31 +469,32 @@ export const en = {
   },
   fields: {
     hexHelp:
-      'Values of this hex that tables and travel checks read by key: a field danger = 3 is {{danger}} in a roll and danger: { gte: 2 } in a condition. Numbers are read as numbers.',
+      "Values of this hex that tables and travel checks read by key; numbers are read as numbers.\n• `danger` = `3` → `{{danger}}` in a roll, `danger: { gte: 2 }` in a condition\n• `guards` = `6` → `2d6 + {{guards}}`\n• `name` = `The Old Mill`\nA field of its own wins over its region's.",
     fromRegion: 'From its region ({region}): {values}. A field of its own with the same key wins.',
     regionHelp:
-      'Values every hex of the region has (a hex’s own field with the same key wins): e.g. danger for a whole forest. Tables read them like the hex’s, {{danger}}.',
+      "Values every hex of the region has (a hex's own field with the same key wins):\n• `danger` = `2` for a whole forest, `4` on its heart's hexes\nTables read them like the hex's: `{{danger}}`.",
     iconHelp:
-      'Values of this icon (a village, a bridge…). Tables rolled on its hex read them as {{icon.<key>}}, e.g. {{icon.guards}}.',
+      'Values of this icon (a village, a bridge…). Tables rolled on its hex read them as `{{icon.<key>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
-      'Values of this token (an NPC, a monster…). Tables rolled from the Oracle panel while it is selected read them as {{token.<key>}}, e.g. {{token.might}}.',
+      'Values of this token (an NPC, a monster…). Tables rolled from the Oracle panel while it is selected read them as `{{token.<key>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
     poiHelp:
-      'Values of this point of interest, kept with it in the map and its file. Tables don’t read them: a hex can have several points of interest.',
+      "Values of this point of interest, kept with it in the map and its file (`treasure = 40`, `cleared = yes`). Tables don't read them: a hex can have several points of interest.",
   },
   regionStyle: {
     title: vocabulary.en.terms.regions,
     help: 'How regions look on the map. Each region can have its own style instead (its panel → Own style).',
     fill: 'Fill',
-    fillHelp: 'How strong the tint inside each region is; at 0 there is no fill.',
+    fillHelp:
+      'How strong the tint inside each region is:\n• `0` — no fill\n• `0.15` — a light wash\n• `0.4` — strong',
     border: 'Border',
     borderHelp:
-      'Width of the border along the inside of each region, in hex sizes; at 0 there is no border.',
+      'Width of the border along the inside of each region, in hex sizes:\n• `0` — no border\n• `0.08` — a fine line\n• `0.2` — a wide band',
     borderOpacity: 'Border opacity',
     dashed: 'Dashed border',
     none: 'none',
     own: 'Own style',
     ownHelp:
-      'This region looks its own way instead of following the map’s region style (Settings → Regions).',
+      "This region looks its own way instead of following the map's region style (**Settings → Regions**): a darker forest, a kingdom with a bold border.",
   },
   world: {
     title: 'World',
@@ -503,7 +512,7 @@ export const en = {
     moonLine: '{moon} is {phase}',
     advance: 'Move time on',
     advanceHelp:
-      'Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.',
+      "Moves the world's time on. Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.\n• **+1 watch** — a few hours\n• **Next day** — to the next dawn\n• **Next event** — straight to the next scheduled event",
     tripHelp:
       'A trip is going on without a route, so these buttons make the party wait at {hex} (plan a route and they travel on along it). Every moment is lived (dawn’s checks, what the system does at night and as each day ends, eating), and the wait stops early if something needs you.',
     tripAdvance: 'Wait here',
@@ -530,7 +539,7 @@ export const en = {
     nextEvent: 'Next event',
     events: 'Events',
     eventsHelp:
-      'Things that happen on a date: a festival, an attack, a ship arriving. They come due when time reaches them; repeating ones come back.',
+      "Things that happen on a date: a festival, an attack, a ship arriving. They come due when time reaches them, in the timeline and the trip's journal; repeating ones come back.\n• _The Iron Clans attack_ in 3 days\n• _Market day_ every 7 days",
     noEvents: 'Nothing scheduled.',
     eventName: 'What happens',
     inDays: 'In days',
@@ -545,7 +554,7 @@ export const en = {
     confirmCancel: 'Cancel “{name}”?',
     clocks: 'Progress clocks',
     clocksHelp:
-      'Segments filled as something advances (a threat, a project, a faction’s plan). Click a segment to fill up to it; click the last filled one to empty it.',
+      "Segments filled as something advances (a threat, a project, a faction's plan):\n• _The Wyrm wakes_ 2/6\n• _The bridge is rebuilt_ 1/4\nClick a segment to fill up to it; click the last filled one to empty it.",
     clockName: 'Clock name',
     segments: 'Segments',
     addClock: 'Add',
@@ -553,7 +562,8 @@ export const en = {
     confirmRemoveClock: 'Remove the clock “{name}”?',
     clockFilled: '{name}: filled!',
     timeline: 'Timeline',
-    timelineHelp: 'What happened in the world, newest first. Add your own notes.',
+    timelineHelp:
+      'What happened in the world, newest first: events that came due, holidays, moons. Add your own notes ("The baron was overthrown").',
     noTimeline: 'Nothing yet.',
     note: 'A note for the timeline',
     addNote: 'Add',

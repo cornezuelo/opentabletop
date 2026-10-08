@@ -45,3 +45,26 @@ export function markdownText(text: string): string {
     .replace(/\n{2,}/g, '\n')
     .trim()
 }
+
+/**
+ * A help text as Markdown: each line its own paragraph and lines starting with "• " a
+ * list, so texts written one example per line keep their shape; the rest is basic
+ * Markdown (`code`, **bold**, _italics_).
+ */
+export function helpMarkdown(text: string): string {
+  const out: string[] = []
+  let listing = false
+  for (const line of text.split('\n')) {
+    const item = /^\s*•\s*(.*)$/.exec(line)
+    if (item) {
+      if (!listing && out.length) out.push('')
+      out.push(`- ${item[1]}`)
+      listing = true
+    } else if (line.trim()) {
+      if (out.length) out.push('')
+      out.push(line)
+      listing = false
+    }
+  }
+  return out.join('\n')
+}

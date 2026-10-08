@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appUrl, contextHelp, Markdown } from '@open-tabletop/ui-kit'
+  import { appUrl, contextHelp, helpMarkdown, Markdown } from '@open-tabletop/ui-kit'
   import { textFor } from './i18n'
   import { manual } from './manual'
   import PageView from './PageView.svelte'
@@ -30,7 +30,8 @@
 </script>
 
 <div class="help">
-  <!-- The control being explained (a dotted label clicked, or the field with focus). -->
+  <!-- The control being explained (a dotted label clicked, or the field with focus): only
+       its explanation, the manual a click away. -->
   {#if contextHelp.entry}
     {@const entry = contextHelp.entry}
     <section class="context" aria-live="polite">
@@ -42,33 +43,45 @@
           onclick={() => (contextHelp.entry = null)}>✕</button
         >
       </header>
-      {#if entry.markdown}<Markdown text={entry.markdown} />{:else}<p>{entry.text}</p>{/if}
+      <Markdown text={entry.markdown ?? helpMarkdown(entry.text ?? '')} />
     </section>
+    <div class="context-actions">
+      <button onclick={() => (contextHelp.entry = null)}>← {text.backToManual}</button>
+      <button
+        onclick={() => {
+          query = entry.title
+          contextHelp.entry = null
+        }}>{text.findInManual}</button
+      >
+    </div>
   {:else}
     <p class="hint">{text.contextHint}</p>
-  {/if}
-  <input type="search" placeholder={text.search} aria-label={text.search} bind:value={query} />
-  {#if query.trim()}
-    <SearchResults
-      {results}
-      empty={text.noResults}
-      onopen={(r) => open(r.page.app, r.page.slug, r.section.id || undefined)}
-    />
-  {:else}
-    <select
-      aria-label={text.contents}
-      value={page?.slug}
-      onchange={(e) => open(app, e.currentTarget.value)}
-    >
-      {#each pages as p (p.slug)}<option value={p.slug}>{p.title}</option>{/each}
-    </select>
-    {#if page}
-      <PageView {page} {anchor} onlink={open} />
+    <input type="search" placeholder={text.search} aria-label={text.search} bind:value={query} />
+    {#if query.trim()}
+      <SearchResults
+        {results}
+        empty={text.noResults}
+        onopen={(r) => open(r.page.app, r.page.slug, r.section.id || undefined)}
+      />
+    {:else}
+      <select
+        aria-label={text.contents}
+        value={page?.slug}
+        onchange={(e) => open(app, e.currentTarget.value)}
+      >
+        {#each pages as p (p.slug)}<option value={p.slug}>{p.title}</option>{/each}
+      </select>
+      {#if page}
+        <PageView {page} {anchor} onlink={open} />
+      {/if}
     {/if}
+    <a
+      class="full"
+      href="{appUrl('manual')}#/{app}/{page?.slug ?? ''}"
+      target="_blank"
+      rel="noopener">{text.openFull} ↗</a
+    >
   {/if}
-  <a class="full" href="{appUrl('manual')}#/{app}/{page?.slug ?? ''}" target="_blank" rel="noopener"
-    >{text.openFull} ↗</a
-  >
 </div>
 
 <style>
@@ -105,6 +118,26 @@
     border-radius: 6px;
   }
 
+  .context-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .context :global(ul) {
+    margin: 4px 0;
+    padding-left: 18px;
+  }
+
+  .context :global(p) {
+    margin: 0 0 6px;
+  }
+
+  .context :global(code) {
+    font-size: 12px;
+    white-space: pre-wrap;
+  }
+
   .context header {
     display: flex;
     gap: 8px;
@@ -115,11 +148,6 @@
   .context strong {
     flex: 1;
     color: var(--accent);
-  }
-
-  .context p {
-    margin: 0;
-    white-space: pre-line;
   }
 
   .close {

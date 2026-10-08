@@ -9,7 +9,7 @@ La aplicación Oracle tira y edita las tablas aleatorias de tus juegos: tablas, 
 - **Definición** (centro): la pestaña **Tirar** la tira y **Editar** la cambia. Encima: su id, su fichero (haz clic para abrirlo en el editor YAML) y las acciones **Duplicar**, **Copiar a…** y **Borrar**.
 - **Historial** (derecha): tus últimas tiradas. Haz clic en una para volver a verla.
 
-**Ayuda donde estás**: una etiqueta subrayada con puntos tiene una explicación, a menudo con ejemplos de qué escribir. Púlsala y la columna de ayuda (**?**, a la derecha) se abre en ella, encima de este manual; mientras la columna está abierta, pasar a un campo (clic o Tab) también muestra su ayuda. Los botones que solo tienen un icono dicen su nombre al pasar el ratón.
+**Ayuda donde estás**: una etiqueta subrayada con puntos tiene una explicación, a menudo con ejemplos de qué escribir. Púlsala y la columna de ayuda (**?**, a la derecha) se abre en ella, en lugar de este manual: qué hace el campo y ejemplos que funcionan, con **← El manual** para volver y **Buscarlo en el manual** para buscarlo. Mientras la columna está abierta, pasar a un campo (clic o Tab) también muestra su ayuda. Los botones que solo tienen un icono dicen su nombre al pasar el ratón.
 
 ## Cuatro tipos de definición
 

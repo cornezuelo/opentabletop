@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { confirmAction, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, helpMarkdown, tooltip } from '@open-tabletop/ui-kit'
   import { SetTerrainsCommand, terrainUsage } from '../lib/commands/terrains'
   import { en } from '../lib/i18n/en'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
@@ -104,7 +104,7 @@
           ∅
         {/if}
       </button>
-      <label class="water" use:tooltip={t('terrainEditor.waterHelp')}>
+      <label class="water" use:tooltip={{ markdown: helpMarkdown(t('terrainEditor.waterHelp')) }}>
         <input
           type="checkbox"
           checked={!!terrain.water}

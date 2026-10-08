@@ -11,7 +11,7 @@ Hexmapper dibuja mapas de hexágonos para hexcrawls y campañas sandbox, y permi
 
 Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](11-shortcuts.md).
 
-**Ayuda donde estás**: una etiqueta subrayada con puntos tiene una explicación, a menudo con ejemplos de qué escribir. Púlsala y la columna de ayuda (la **Ayuda** del panel lateral) se abre en ella, encima de este manual; mientras la columna está abierta, pasar a un campo (clic o Tab) también muestra su ayuda. Los botones que solo tienen un icono dicen su nombre al pasar el ratón.
+**Ayuda donde estás**: una etiqueta subrayada con puntos tiene una explicación, a menudo con ejemplos de qué escribir. Púlsala y la columna de ayuda (la **Ayuda** del panel lateral) se abre en ella, en lugar de este manual: qué hace el campo y ejemplos que funcionan, con **← El manual** para volver y **Buscarlo en el manual** para buscarlo. Mientras la columna está abierta, pasar a un campo (clic o Tab) también muestra su ayuda. Los botones que solo tienen un icono dicen su nombre al pasar el ratón.
 
 ## Tus mapas
 

@@ -7,10 +7,10 @@ export const en = {
     remaining: '{left} of {total} cards left',
     context: 'Context',
     contextHelp:
-      'Values this definition reads, such as the terrain or the season. Values the app already knows appear in grey; type to override them. Blank means unknown.',
+      'Values this definition reads, such as the terrain or the season. Values the app already knows (the hex, the trip) appear in grey; type to override them. Blank means unknown.\n• `forest` for terrain — as if rolled in a forest\n• `3` for danger\n• `night` for timeOfDay',
     mode: 'Roll mode',
     normal: 'Normal',
-    modeHelp: 'Ways of rolling this table that its system declares.',
+    modeHelp: 'Ways of rolling this table that its system declares:',
     modeRule: 'roll {times} times and keep the {keep} total.',
     keep: { highest: 'highest', lowest: 'lowest', middle: 'middle' },
     nothing: 'No entry applies. Check the context values.',

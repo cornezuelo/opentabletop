@@ -8,7 +8,7 @@ The Travel app plays trips with a **travel system** and lets you see and change 
 - **Systems** (left): **Generic** (built in) and every pack with travel rules, with the same badges as in the Oracle app (_bundled_, _edited_, _yours_, _personal use_) and a red number when its files have problems. The box at the bottom creates a new system.
 - **System** (center): its tabs. **Play** plays a trip with it; **Rules** and **Checks** change it with forms; **YAML** shows the file with its rules and bindings.
 
-**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (**?**) opens on it, above this manual; while the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
+**Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (**?**) opens on it, in place of this manual: what the field does and examples that work, with **← The manual** to come back and **Find it in the manual** to search for it. While the column is open, moving to a field (click or Tab) shows its help too. Buttons with only an icon say their name when you hover them.
 
 ## Systems you have
 
