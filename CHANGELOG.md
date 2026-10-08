@@ -23,6 +23,7 @@ The first alpha, `0.1.0`, is being prepared: everything below is what it will br
 
 - Moving the world clock on with a trip and a route planned travels along the route (marching by day, nights, waiting on arrival) instead of waiting in place; a day passing asks first, and a message at the bottom says why the trip stopped early, or that it arrived.
 - A night when the party can't take its night action (camp) passes without it, said in the journal, instead of leaving the trip stuck at nightfall.
+- The trip panel has **Wait until dawn**, and travelling in a storm that can't be camped out passes to the next day: a party lost or stormbound with no food is never stuck.
 - The trail and planned route follow the drawn shape of the roads, trails and rivers they walk.
 - The party's trail and planned route are drawn beside the roads and rivers they follow, not on top of them.
 - Waiting with the world clock never moves the party, even with a route planned and discovery on.

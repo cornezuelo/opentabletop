@@ -79,6 +79,11 @@
   const travel = $derived(session.travel)
 
   const calendar = $derived(calendarOf(system))
+  /** The next dawn: today's if it hasn't come yet, else tomorrow's. */
+  const nextDawn = $derived.by(() => {
+    const today = calendar.at(travel.day, system.rules.day.start)
+    return travel.time < today ? today : calendar.at(travel.day + 1, system.rules.day.start)
+  })
   const time = $derived.by(() => {
     const parts = calendar.describe(travel.time)
     return {
@@ -372,6 +377,10 @@
       use:tooltip={tipWith(t('tips.travelHex'), 'travel')}
       disabled={!travel.route || !!blocked.travel}
       onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
+    >
+    <button
+      use:tooltip={t('tips.waitDawn')}
+      onclick={() => onstep({ type: 'wait', until: nextDawn })}>{t('waitDawn')}</button
     >
     {#each buttons as id (id)}
       <button

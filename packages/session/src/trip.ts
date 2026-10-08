@@ -1,4 +1,5 @@
 import type { Diagnostic, OracleEngine, Registry } from '@open-tabletop/oracle-engine'
+import type { RandomSource } from '@open-tabletop/random'
 import { validateWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
   calendarFrom,
@@ -272,6 +273,8 @@ export function stepTrip(
     locale?: string
     /** Turn discovery on, revealing the entered hex only or its neighbours too. */
     discover?: RevealMode
+    /** For the weather (tables roll with the Oracle's own); seeded in tests and replays. */
+    random?: RandomSource
   },
   session: SessionState,
   action: TravelAction,
@@ -301,6 +304,7 @@ export function stepTrip(
     locale: options.locale,
     discovery,
     weather: system.weather,
+    random: options.random,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }

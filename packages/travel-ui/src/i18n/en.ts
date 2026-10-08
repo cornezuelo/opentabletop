@@ -27,6 +27,7 @@ export const en = {
   actions: { eat: 'Eat', camp: 'Camp', rest: 'Rest' },
   travel: 'Travel',
   travelHex: '1 hex',
+  waitDawn: 'Wait until dawn',
   continue: 'Continue',
   journalTitle: 'Journal',
   exportJournal: 'Export',
@@ -50,6 +51,8 @@ export const en = {
     max: 'It never goes above {max}.',
     travel:
       'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
+    waitDawn:
+      'Time passes where the party is until the next dawn, living it: the system’s action for the night if it can be taken (otherwise the night passes without it), and the end of the day. For when nothing else can be done: lost, in a storm, with no food to camp.',
     travelHex: 'Travel to the next hex of the route only.',
     actionUntil: 'Lasts until {moment}.',
     dawn: 'dawn',

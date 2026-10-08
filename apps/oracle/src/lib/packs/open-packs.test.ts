@@ -412,6 +412,8 @@ describe('bundled open packs', () => {
       world: row(Array.from({ length: 30 }, () => ({ terrain: 'plains' }))),
       oracle: createOracleEngine({ registry, random: seeded('camp-rest') }),
       locale: 'en',
+      // The weather too: every run the same.
+      random: seeded('camp-rest-weather'),
     }
     const trip = (food: number, fatigue: number): SessionState => {
       const { session } = startTrip({ system, location: '0', season: 'summer' })
@@ -471,6 +473,18 @@ describe('bundled open packs', () => {
         // No fed night's relief: fatigue never goes down.
         expect(out.state.stats.fatigue).toBeGreaterThanOrEqual(fatigue)
       }
+    })
+
+    it('lost and hungry, waiting until dawn gets the party out of a day it can do nothing in', () => {
+      const stuck = {
+        ...trip(0, 4),
+        dayVars: { lost: true },
+      }
+      const dawn = calendarOf(system).at(stuck.travel.day + 1, system.rules.day.start)
+      const { state, entries } = stepTrip(options, stuck, { type: 'wait', until: dawn })
+      expect(state.travel.time).toBeGreaterThanOrEqual(dawn)
+      expect(entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+      expect(state.dayVars?.lost).toBeUndefined()
     })
 
     it('travelling on hungry passes the night in the open and marches at dawn', () => {

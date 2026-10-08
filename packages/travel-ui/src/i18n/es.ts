@@ -30,6 +30,7 @@ export const es: Messages<typeof en> = {
   actions: { eat: 'Comer', camp: 'Acampar', rest: 'Descansar' },
   travel: 'Viajar',
   travelHex: '1 hex',
+  waitDawn: 'Esperar al alba',
   continue: 'Continuar',
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
@@ -53,6 +54,8 @@ export const es: Messages<typeof en> = {
     max: 'Nunca sube de {max}.',
     travel:
       'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
+    waitDawn:
+      'El tiempo pasa donde está el grupo hasta el próximo alba, viviéndolo: la acción del sistema para la noche si se puede hacer (si no, la noche pasa sin ella) y el final del día. Para cuando no se puede hacer nada más: perdidos, con tormenta, sin comida para acampar.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
     actionUntil: 'Dura hasta {moment}.',
     dawn: 'el alba',

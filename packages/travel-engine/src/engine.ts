@@ -657,8 +657,8 @@ export function createTravelEngine(options: {
   }
 
   /**
-   * A travel order with nothing left to march today (night fell, or the day's hours are
-   * spent) while the night's action can't be taken (no food to camp…) or the system has
+   * A travel order with nothing left to march today (night fell, the day's hours are spent,
+   * or the weather keeps the party in) while the night's action can't be taken (no food to camp…) or the system has
    * none: the night passes, without it, and the march goes on at dawn. Otherwise the
    * party stops, for the player to camp.
    */
@@ -667,7 +667,9 @@ export function createTravelEngine(options: {
     const stopped = quietly(events, () => travel(state, until, events))
     const stuck =
       state.time === time &&
-      (stopped?.reason === 'nightfall' || stopped?.reason === 'day-limit') &&
+      (stopped?.reason === 'nightfall' ||
+        stopped?.reason === 'day-limit' ||
+        stopped?.reason === 'weather') &&
       (!night || unavailable(state, night, hostFacts))
     if (!stuck) return void (stopped && events.push(stopped))
     const waited = quietly(events, () =>

@@ -1318,6 +1318,34 @@ describe('the trip going on by itself (travel by a moment)', () => {
     expect(state.time).toBe(at(3, '06:00'))
   })
 
+  it('a travel order in a storm that can’t be camped out passes to the next day', () => {
+    const stormy = parseTravelRules({
+      ...{
+        kind: 'travel-rules',
+        day: { start: '06:00', nightfall: '20:00' },
+        travel: { hoursPerDay: 8 },
+        terrains: { steppe: { multiplier: 1 } },
+        modes: { foot: { kmPerDay: 30 } },
+        weather: { storm: { speed: 0 } },
+      },
+      actions: { camp: { when: { 'party.resources.food': { gte: 1 } }, do: [{ time: 'dawn' }] } },
+    }).rules!
+    const eng = createTravelEngine({ world, rules: stormy })
+    const state = {
+      ...run2(eng, start(), { type: 'setDestination', hex: '0,3' }).state,
+      weather: 'storm',
+      dayChecksDone: true,
+      resources: { food: 0 },
+    }
+    const out = eng.apply(state, { type: 'travel' })
+    expect(out.events.some((e) => e.type === 'NIGHT_WITHOUT')).toBe(true)
+    expect(out.state.time).toBeGreaterThanOrEqual(at(2, '06:00'))
+    // Able to camp, it stops for the player instead.
+    const fed = eng.apply({ ...state, resources: { food: 1 } }, { type: 'travel' })
+    expect(stops(fed.events)).toEqual(['weather'])
+    expect(fed.state.time).toBe(state.time)
+  })
+
   it('a travel order at nightfall passes the night when the party can’t camp', () => {
     const late = {
       ...planned(fed),
