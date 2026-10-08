@@ -142,7 +142,7 @@ export const es: Messages<typeof en> = {
     optionLabel: 'Etiqueta',
     modes: 'Modos de tirada',
     modesHelp:
-      'Formas de tirar esta tabla que declara su sistema (`kind: roll-modes`), como la ventaja: tirar toda la tirada varias veces y quedarse con un total.\n**Marcado**: se ofrece al tirar a mano.\n**Solo cuando**: se usa sin preguntar cuando se cumple la condición:\n• `explorer: { gte: 1 }` — una característica del grupo\n• `yesterday.lost: true` — ayer se perdieron\n• `weather: clear`\n**Salvo**: no se usa sola cuando se cumple (escrito solo, el modo se usa siempre salvo entonces):\n• `terrain: dense-forest`\nDos modos que se anulan (ventaja y desventaja), juntos, dan una tirada normal.',
+      'Formas de tirar esta tabla que declara su sistema (`kind: roll-modes`), como la ventaja: tirar toda la tirada varias veces y quedarse con un total.\n**Marcado**: se ofrece al tirar a mano.\n**Solo cuando**: se usa sin preguntar cuando se cumple la condición:\n• `explorer: { gte: 1 }` — una característica del grupo\n• `yesterday.lost: true` — ayer se perdieron\n• `weather: clear`\n**Salvo**: no se usa por sí mismo cuando se cumple (escrito solo, el modo se usa siempre salvo entonces):\n• `terrain: dense-forest`\nDos modos que se anulan (ventaja y desventaja), juntos, dan una tirada normal.',
     modeWhen: 'solo cuando',
     modeUnless: 'salvo',
     noModes:
