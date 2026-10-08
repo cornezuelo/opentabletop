@@ -53,9 +53,9 @@ What goes inside is explained step by step in [Connecting tables to maps and tri
 
 ## Making a pack
 
-**New pack** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New definition** (or the **+** next to the pack): pick the kind, the name and the file. Definitions can live in any file of the pack; group them as you like.
+**New pack** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New definition** (or the **+** next to the pack): pick the kind, its id and name, and the file it goes **In** (an existing one or a new one). Definitions can live in any file of the pack; group them as you like.
 
-The pack page shows its manifest, its **problems** (click one to jump to the line), its definitions, other engines' definitions (travel rules, bindings), its files (add, rename, delete) and its translations.
+The pack page shows its manifest, its **problems** (click one to jump to the line), its definitions, other engines' definitions (travel rules, bindings), its files (add, rename, delete) and its translations. Under its name, **Export .zip** and **Delete pack**, which removes the pack and all its files from this browser (it asks first; export it before if you may want it back).
 
 ## Backups and sharing
 

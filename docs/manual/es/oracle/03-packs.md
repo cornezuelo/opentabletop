@@ -53,9 +53,9 @@ Lo que llevan dentro se explica paso a paso en [Conectar tablas con mapas y viaj
 
 ## Crear un pack
 
-**Nuevo pack** pide un nombre, una carpeta o id (minúsculas, dígitos y guiones) y el idioma base en el que están escritas las tablas. Después añade definiciones con **Nueva definición** (o el **+** junto al pack): elige el tipo, el nombre y el fichero. Las definiciones pueden estar en cualquier fichero del pack; agrúpalas como prefieras.
+**Nuevo pack** pide un nombre, una carpeta o id (minúsculas, dígitos y guiones) y el idioma base en el que están escritas las tablas. Después añade definiciones con **Nueva definición** (o el **+** junto al pack): elige el tipo, su id y nombre, y el fichero en que va (**En el fichero**: uno que ya existe o uno nuevo). Las definiciones pueden estar en cualquier fichero del pack; agrúpalas como prefieras.
 
-La página del pack muestra su manifiesto, sus **problemas** (haz clic en uno para ir a la línea), sus definiciones, las definiciones de otros motores (reglas de viaje, bindings), sus ficheros (añadir, renombrar, borrar) y sus traducciones.
+La página del pack muestra su manifiesto, sus **problemas** (haz clic en uno para ir a la línea), sus definiciones, las definiciones de otros motores (reglas de viaje, bindings), sus ficheros (añadir, renombrar, borrar) y sus traducciones. Bajo su nombre, **Exportar .zip** y **Borrar pack**, que quita el pack y todos sus ficheros de este navegador (pregunta antes; expórtalo primero si puedes quererlo de vuelta).
 
 ## Copias de seguridad y compartir
 

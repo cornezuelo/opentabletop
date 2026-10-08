@@ -14,6 +14,7 @@ The first alpha, `0.1.0`, is being prepared: everything below is what it will br
 - **Manual**: the user manual of every app, English and Spanish, with search; each app opens it in its help column, which shows the explanation of the field you're on instead, formatted, with working examples.
 - **Command line**: `opentabletop validate`, `list` and `roll`.
 - Side columns fold away with a tab on their edge in every app, as in the Hexmapper.
+- The manual's technical section has a **Syntax** page: every piece of syntax a pack can write (values, ids, dice, ranges, templates, conditions, `set`, `effects`, moments, steps, `blocks`, limits), with examples and links.
 
 ### Packs
 

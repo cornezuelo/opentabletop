@@ -6,7 +6,7 @@ Trips here have **no map**: you describe the way ahead hex by hex. It's quick fo
 
 Pick a system on the left and open **Play**. Choose the season to start in and press **Start a trip**.
 
-You can keep several trips (in this browser), each with its own system, way and journal. At the top, **Trip** opens another one (its system's page opens with it), **Name** gives the open trip a name (unnamed trips show their system and day), **Another trip** starts one more with this system and season (the others are kept), and **Delete** removes the open one. **New trip**, under the system and season, starts the open trip again from scratch; it asks first if its journal has something.
+You can keep several trips (in this browser), each with its own system, way and journal. At the top, **Trip** opens another one (its system's page opens with it), **Name** gives the open trip a name (unnamed trips show their system and day), **Another trip** starts one more with this system and season (the others are kept), and **Delete** removes the open one. **New trip**, under the system and season, starts the open trip again from scratch; it asks first if its journal has something. Opening another system's **Play** tab with a trip open says which system that trip uses ("The open trip uses The Grey Marches."), with **Start a trip with …** to start one more with this system (the open one is kept: **Trip** goes back to it).
 
 ## The way
 

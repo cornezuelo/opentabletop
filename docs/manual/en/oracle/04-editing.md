@@ -37,15 +37,15 @@ The boxes take the same text as the YAML between `{ }`; a box that can't be read
 
 ## Oracles
 
-An **input** (its id, a **label** to show, and its **options**, each with a label) and, for each option, its own list of entries. Renaming an option renames its list. The **default** option is the one selected when rolling.
+An **input** (its id, a **label** to show, and its **options**, each with a label) and, for each option, its own list of entries. Renaming an option renames its list. An option without entries yet says so, with **Create them** to start its list. The **default** option is the one selected when rolling.
 
 ## Generators
 
-**Fields** are rolled in order; each comes from a table, a generator, dice or a fixed value, and later fields can use earlier ones. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only at `danger: { lte: 2 }`) and **Context** (values given to the table or generator it rolls, e.g. `timeOfDay: night, danger: 3`).
+**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, dice or a fixed value, and later fields can use earlier ones. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only at `danger: { lte: 2 }`) and **Context** (values given to the table or generator it rolls, e.g. `timeOfDay: night, danger: 3`).
 
 ## Decks
 
-**Cards** with an id, the number of **copies**, a text and an optional table or generator; and when to **reshuffle** (when the deck runs out, only by hand, or after every draw).
+**Cards** (**Add card**) with an id, the number of **copies**, a text and an optional table or generator; and when to **reshuffle** (when the deck runs out, only by hand, or after every draw).
 
 ## What the forms don't edit
 

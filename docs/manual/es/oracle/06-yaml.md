@@ -2,7 +2,9 @@
 
 Haz clic en el fichero de una definición (o en un fichero de la página del pack) para abrir el editor YAML. Los problemas se subrayan en su línea y se listan debajo; haz clic en uno para ir a él. Los cambios se guardan mientras escribes.
 
-Mientras escribes, el editor sugiere lo que encaja (<kbd>Ctrl</kbd>+<kbd>Espacio</kbd> muestra las sugerencias en cualquier punto): claves al principio de una línea, `kind` y otros valores fijos, tablas y generadores tras `table:` o `generator:`, y todo lo que se tira (tablas, oráculos, generadores, mazos) tras `resolve:` (primero los de este pack), y dentro de los `when`, `unless`, `set` y `context` de una línea los nombres que leen o fijan las tablas, con sus valores conocidos (`terrain: forest`, `season: winter`, `resources: { food }`…). Las mismas sugerencias aparecen en las cajas de condiciones y valores de los formularios.
+Mientras escribes, el editor sugiere lo que encaja (<kbd>Ctrl</kbd>+<kbd>Espacio</kbd> muestra las sugerencias en cualquier punto): claves al principio de una línea, `kind` y otros valores fijos, tablas y generadores tras `table:` o `generator:`, y todo lo que se tira (tablas, oráculos, generadores, mazos) tras `resolve:` (primero los de este pack), y dentro de los `when`, `unless`, `set` y `context` de una línea los nombres que leen o fijan las tablas, con sus valores conocidos (`terrain: forest`, `season: winter`…), y dentro de `effects` las características y provisiones que declara el sistema (`party.resources.food`, `party.stats.fatigue`). Las mismas sugerencias aparecen en las cajas de condiciones y valores de los formularios.
+
+Toda la sintaxis de un vistazo (valores, dados, plantillas, condiciones, `set`, `effects`, momentos, pasos, límites): [Sintaxis](../technical/09-syntax.md).
 
 ## Una tabla
 

@@ -37,15 +37,15 @@ Las cajas admiten el mismo texto que el YAML entre `{ }`; una caja que no se pue
 
 ## Oráculos
 
-Una **entrada** (su id, una **etiqueta** que mostrar y sus **opciones**, cada una con su etiqueta) y, para cada opción, su propia lista de entradas. Al renombrar una opción se renombra su lista. La opción **por defecto** es la que aparece seleccionada al tirar.
+Una **entrada** (su id, una **etiqueta** que mostrar y sus **opciones**, cada una con su etiqueta) y, para cada opción, su propia lista de entradas. Al renombrar una opción se renombra su lista. Una opción que aún no tiene entradas lo dice, con **Crearlas** para empezar su lista. La opción **por defecto** es la que aparece seleccionada al tirar.
 
 ## Generadores
 
-Los **campos** se tiran en orden; cada uno sale de una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo con `danger: { lte: 2 }`) y **Contexto** (valores que recibe la tabla o generador que tira, p. ej. `timeOfDay: night, danger: 3`).
+Los **campos** se tiran en orden; cada uno (**Añadir campo**) tiene un nombre y **Sale de** una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo con `danger: { lte: 2 }`) y **Contexto** (valores que recibe la tabla o generador que tira, p. ej. `timeOfDay: night, danger: 3`).
 
 ## Mazos
 
-**Cartas** con un id, el número de **copias**, un texto y una tabla o generador opcional; y cuándo **barajar** (cuando se acaba el mazo, solo a mano o tras cada robo).
+**Cartas** (**Añadir carta**) con un id, el número de **copias**, un texto y una tabla o generador opcional; y cuándo **barajar** (cuando se acaba el mazo, solo a mano o tras cada robo).
 
 ## Lo que no editan los formularios
 

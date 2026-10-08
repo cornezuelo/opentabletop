@@ -20,7 +20,7 @@ They appear in grey in the roll panel's **Context**; type over them to try other
 
 Under each result, **Add to … as a point of interest** adds it to the hex's points of interest: a short result becomes its name; a long one keeps the table's name as the name and the text as its description. Edit it in the hex panel like any other point of interest; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it.
 
-During a trip with rules, a result that changes supplies, fatigue or party stats (`set: { resources: { food: -2 }, stats: { morale: 2 } }`) also shows **Apply to the trip: food -2, morale +2**: press it to apply those changes as a check's result would be (once per result). Checks rolled by the trip apply theirs by themselves; hand rolls only when you say so. Try it at Ashford with the Grey Marches' _At The Wet Ferret_.
+During a trip with rules, a result that changes supplies, fatigue or party stats (`effects: { party.resources.food: -2, party.stats.morale: 2 }`) also shows **Apply to the trip** with what it changes: press it to apply those changes as a check's result would be (once per result). Checks rolled by the trip apply theirs by themselves; hand rolls only when you say so. Try it at Ashford with the Grey Marches' _At The Wet Ferret_.
 
 ## Try it
 

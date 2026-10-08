@@ -8,7 +8,7 @@ Regions name areas of the map: kingdoms, territories, danger zones. Use the **Re
 2. Paint its hexes with the brush (same **brush size** as terrain). Right-click takes hexes out of their region; <kbd>Ctrl</kbd>+click picks the region of a hex.
 3. In the region's settings: **name**, **color**, **show the name on the map** with its **style** (the map's, or its own) and a **linked note**.
 
-A hex belongs to one region at most. The hex panel also has a **Region** list to change it.
+A hex belongs to one region at most. The hex panel also has a **Region** list to change it. **Delete region**, in its settings, removes it (it asks first if it has hexes, which are left without a region; ↶ undoes it).
 
 ## Values
 

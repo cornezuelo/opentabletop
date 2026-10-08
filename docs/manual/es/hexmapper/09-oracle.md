@@ -20,7 +20,7 @@ Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para pro
 
 Bajo cada resultado, **Añadir a … como punto de interés** lo añade a los puntos de interés del hex: un resultado corto pasa a ser su nombre; uno largo se queda con el nombre de la tabla como nombre y el texto como descripción. Edítalo en el panel del hex como cualquier otro punto de interés; <kbd>Ctrl</kbd>+<kbd>Z</kbd> lo deshace.
 
-Durante un viaje con reglas, un resultado que cambia provisiones, fatiga o características del grupo (`set: { resources: { food: -2 }, stats: { morale: 2 } }`) muestra además **Aplicar al viaje: food -2, morale +2**: púlsalo para aplicar esos cambios como se aplicaría el de una comprobación (una vez por resultado). Las comprobaciones del viaje aplican los suyos solas; las tiradas a mano, solo cuando tú lo dices. Pruébalo en Ashford con _En El Hurón Mojado_ de las Marcas Grises.
+Durante un viaje con reglas, un resultado que cambia provisiones, fatiga o características del grupo (`effects: { party.resources.food: -2, party.stats.morale: 2 }`) muestra además **Aplicar al viaje** con lo que cambia: púlsalo para aplicar esos cambios como se aplicaría el de una comprobación (una vez por resultado). Las comprobaciones del viaje aplican los suyos solas; las tiradas a mano, solo cuando tú lo dices. Pruébalo en Ashford con _En El Hurón Mojado_ de las Marcas Grises.
 
 ## Pruébalo
 
