@@ -7,6 +7,8 @@
     Dialogs,
     FoldTab,
     PreferencesButton,
+    readLastSystem,
+    rememberSystem,
     Toasts,
     tooltip,
   } from '@open-tabletop/ui-kit'
@@ -25,8 +27,26 @@
   import { go, nav } from './lib/nav.svelte'
   import { oracleUi } from './lib/oracle'
   import { workspace } from './lib/packs/workspace.svelte'
+  import { manifestOf } from './lib/packs/workspace'
+  import { isHidden } from './lib/hiddenPacks.svelte'
+  import { systemOfPack, travelSystems } from '@open-tabletop/session'
 
   let creating = $state(false)
+
+  // The system last chosen here, in Travel or in Systems: opened without a view, the Oracle
+  // starts on its pack; a pack with a system chosen here becomes the last system.
+  const systems = $derived(travelSystems(workspace.registry).systems)
+  const lastPack = location.hash ? undefined : systems.find((s) => s.id === readLastSystem())?.pack
+  const lastRoot = lastPack && !isHidden(lastPack) ? workspace.rootOf(lastPack) : undefined
+  if (lastRoot) go({ name: 'pack', root: lastRoot }, true)
+  $effect(() => {
+    const view = nav.view
+    const folder =
+      view.name === 'pack' || view.name === 'file' ? workspace.pack(view.root) : undefined
+    const pack = view.name === 'def' ? view.id.split('/')[0] : folder && manifestOf(folder).id
+    const system = pack ? untrack(() => systemOfPack(systems, pack, readLastSystem())) : undefined
+    if (system) rememberSystem(system.id)
+  })
 
   async function importPacks() {
     const packs = await importZip(workspace, getLocale())

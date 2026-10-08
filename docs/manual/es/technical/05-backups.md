@@ -11,7 +11,7 @@ Contiene todo lo que las aplicaciones guardan en este navegador:
 - **Mapas**: todos los de la biblioteca del Hexmapper, con su estado de juego (grupo, rastro, viaje, diario) y su Oracle (historial, mazos, resultados que solo salen una vez).
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
 - **Los viajes de la aplicación Travel**, el historial, los mazos y la semilla de la **aplicación Oracle**, y los **favoritos**.
-- **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oracle, disposición de paneles y similares.
+- **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oracle, el último sistema elegido, disposición de paneles y similares.
 
 Los packs incluidos no van en ella: vienen con las aplicaciones.
 

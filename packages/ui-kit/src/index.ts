@@ -45,3 +45,4 @@ export {
   registerInserter,
   type InsertTarget,
 } from './insert.svelte'
+export { LAST_SYSTEM_KEY, readLastSystem, rememberSystem } from './lastSystem'

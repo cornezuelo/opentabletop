@@ -117,6 +117,20 @@ export const GENERIC_SYSTEM: TravelSystem = {
 }
 
 /**
+ * The system a pack belongs to, for an app that shows packs (the Oracle) to follow the
+ * system last chosen elsewhere: `last` when that pack declares it, else the pack's default
+ * system, else the first it declares; undefined for a pack with no system.
+ */
+export function systemOfPack(
+  systems: TravelSystem[],
+  pack: string,
+  last?: string,
+): TravelSystem | undefined {
+  const own = systems.filter((s) => s.pack === pack)
+  return own.find((s) => s.id === last) ?? own.find((s) => s.id === pack) ?? own[0]
+}
+
+/**
  * "checks.2.event: Expected …" → a diagnostic pointing at that path of the definition,
  * found by its kind and id (`@travel-rules/default.checks.2.event`).
  */

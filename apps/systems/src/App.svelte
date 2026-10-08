@@ -1,7 +1,7 @@
 <script lang="ts">
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import { UndoButtons } from '@open-tabletop/pack-ui'
-  import { library } from './lib/packs.svelte'
+  import { library, systems } from './lib/packs.svelte'
   import {
     AppBrand,
     AppSwitcher,
@@ -9,6 +9,8 @@
     Dialogs,
     FoldTab,
     PreferencesButton,
+    readLastSystem,
+    rememberSystem,
     Toasts,
     tooltip,
   } from '@open-tabletop/ui-kit'
@@ -16,6 +18,13 @@
   import SystemView from './components/SystemView.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
+
+  // Opened without a view, it starts on the system last chosen here or in another app.
+  const last = location.hash ? undefined : readLastSystem()
+  if (last && systems.get(last)) go({ name: 'system', id: last, tab: 'overview' }, true)
+  $effect(() => {
+    if (nav.view.name === 'system' && systems.get(nav.view.id)) rememberSystem(nav.view.id)
+  })
 
   let help = $state(false)
   /** Whether the systems list is shown: a per-viewer preference, kept in this browser. */

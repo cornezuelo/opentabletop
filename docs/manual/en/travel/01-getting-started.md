@@ -5,7 +5,7 @@ The Travel app plays trips without a map, with any **system**: a game's travel r
 ## The screen
 
 - **Header**: the app switcher (nine dots), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the systems list and the help column away, and bring them back.
-- **Systems** (left): **Generic** (built in) and every pack with travel rules, with the same badges as in the Oracle app (_bundled_, _edited_, _yours_, _personal use_) and a red number when its files have problems. Under the list, **Make or edit systems** opens the Systems app.
+- **Systems** (left): **Generic** (built in) and every pack with travel rules, with the same badges as in the Oracle app (_bundled_, _edited_, _yours_, _personal use_) and a red number when its files have problems. Under the list, **Make or edit systems** opens the Systems app. The app opens on the system you last chose here, in Systems or in the Oracle (this browser remembers it; the Hexmapper plays each map's own system).
 - **System** (center): a trip with it. **Edit in Systems →**, under its name, opens it in the Systems app.
 
 **Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (**?**) opens on it, in place of this manual: what the field does, examples that work and, under **In the manual**, the manual's sections about it (the Syntax page first); **← The manual** goes back to the manual. From a field, <kbd>F1</kbd> shows its help. Moving to another field doesn't change what the column shows, so a click on an example there inserts it into the field you're writing in.

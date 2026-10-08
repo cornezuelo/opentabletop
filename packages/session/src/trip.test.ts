@@ -8,6 +8,7 @@ import {
   startTrip,
   stepTrip,
   systemName,
+  systemOfPack,
   systemPackIds,
   travelSystems,
   tripAvailability,
@@ -483,5 +484,28 @@ entries:
     expect(fed.travel.resources.food).toBe(7) // three mouths
     const feast = stepTrip(options, session, { type: 'action', id: 'feast' }).state
     expect(feast.stats.morale).toBe(3)
+  })
+})
+
+describe('the system of a pack', () => {
+  const system = (id: string, pack?: string) => ({ ...GENERIC_SYSTEM, id, pack })
+  const systems = [
+    GENERIC_SYSTEM,
+    system('marches/winter', 'marches'),
+    system('marches', 'marches'),
+    system('kal', 'kal'),
+  ]
+
+  it('keeps the system last chosen when the pack declares it', () => {
+    expect(systemOfPack(systems, 'marches', 'marches/winter')?.id).toBe('marches/winter')
+  })
+
+  it("otherwise is the pack's default system, or the first it declares", () => {
+    expect(systemOfPack(systems, 'marches', 'kal')?.id).toBe('marches')
+    expect(systemOfPack(systems.slice(0, 2), 'marches')?.id).toBe('marches/winter')
+  })
+
+  it('is none for a pack without a system', () => {
+    expect(systemOfPack(systems, 'core', 'generic')).toBeUndefined()
   })
 })

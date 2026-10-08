@@ -11,7 +11,7 @@ It holds everything the apps keep in this browser:
 - **Maps**: every map of the Hexmapper's library, with its play state (party, trail, trip, journal) and its Oracle (history, decks, once-only results).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
 - **The Travel app's trips**, the **Oracle app's** history, decks and seed, and **favorites**.
-- **Preferences**: language, notes app, the packs hidden in the Oracle, layouts and the like.
+- **Preferences**: language, notes app, the packs hidden in the Oracle, the last system chosen, layouts and the like.
 
 Bundled packs are not in it: they come with the apps.
 

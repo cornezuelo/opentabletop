@@ -36,7 +36,7 @@
       </li>
     {/each}
   </ul>
-  <a class="make" href={`${appUrl('systems')}#/`}>{t('nav.makeSystems')}</a>
+  <a class="make" href={appUrl('systems')}>{t('nav.makeSystems')}</a>
 </nav>
 
 <style>

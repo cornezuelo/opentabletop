@@ -20,10 +20,13 @@ const format = (view: View): string =>
 
 export const nav = $state<{ view: View }>({ view: parse(location.hash) })
 
-export function go(view: View): void {
+/** Shows a view; `replace` takes the place of the current history entry instead of adding one. */
+export function go(view: View, replace = false): void {
   nav.view = view
   const hash = format(view)
-  if (location.hash !== hash) history.pushState(null, '', hash)
+  if (location.hash === hash) return
+  if (replace) history.replaceState(null, '', hash)
+  else history.pushState(null, '', hash)
 }
 
 window.addEventListener('popstate', () => {
