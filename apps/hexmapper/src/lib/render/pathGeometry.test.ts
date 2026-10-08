@@ -130,7 +130,21 @@ describe('routePoints', () => {
   it('keeps a crossed-only hex where the route turns off the road', () => {
     // Leaves the road at 3 (only crossed) for 7: 3 must stay, or the route would cut across.
     const points = routePoints(['1', '2', '3', '7'], center, [road(['1', '2', '3', '4', '5'], [])])
-    expect(points.map((p) => p.x)).toEqual([10, 30, 70])
+    // 3 lies on the road's line (y 3), not at its centre.
+    expect(points).toEqual([
+      { x: 10, y: 3 },
+      { x: 30, y: 3 },
+      { x: 70, y: 0 },
+    ])
+  })
+
+  it('a route ending on a hex the road only crosses ends on the road, not at its centre', () => {
+    // As the example map's road out of Ashford: drawn from 1 to 5, the route stops at 3.
+    const points = routePoints(['1', '2', '3'], center, [road(['1', '2', '3', '4', '5'], [])])
+    expect(points).toEqual([
+      { x: 10, y: 3 },
+      { x: 30, y: 3 },
+    ])
   })
 
   it('prefers the first path given (roads before rivers)', () => {

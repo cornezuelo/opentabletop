@@ -123,7 +123,27 @@ export function routePoints(
     // A hex in the middle of one path, which the path only crosses, isn't drawn.
     const through = before && after && before.path === after.path
     if (through && i > 0 && i < route.length - 1 && !on.path.node(on.at)) return
-    points.push(on.path.point(on.at))
+    points.push(on.path.node(on.at) ? on.path.point(on.at) : onLine(on.path, on.at, center(key)))
   })
   return points
+}
+
+/**
+ * Where a hex the path only crosses lies on its drawn line: the point nearest its centre
+ * on the stretch between the path's nodes before and after it (a route that starts, ends
+ * or turns off there stays on the road instead of jumping to the hex's centre).
+ */
+function onLine(path: FollowedPath, at: number, centre: Point): Point {
+  let a = at
+  while (a > 0 && !path.node(a)) a--
+  let b = at
+  while (b < path.hexes.length - 1 && !path.node(b)) b++
+  const p = path.point(a)
+  const q = path.point(b)
+  const dx = q.x - p.x
+  const dy = q.y - p.y
+  const length = dx * dx + dy * dy
+  if (!length) return p
+  const t = Math.max(0, Math.min(1, ((centre.x - p.x) * dx + (centre.y - p.y) * dy) / length))
+  return { x: p.x + t * dx, y: p.y + t * dy }
 }
