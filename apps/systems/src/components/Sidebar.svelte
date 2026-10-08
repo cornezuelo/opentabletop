@@ -25,7 +25,7 @@
     const id = createSystem(name)
     if (!id) return
     name = ''
-    go({ name: 'system', id, tab: 'yaml' })
+    go({ name: 'system', id, tab: 'overview' })
   }
 </script>
 
@@ -38,7 +38,7 @@
       <li>
         <button
           class:selected={selected === s.id}
-          onclick={() => go({ name: 'system', id: s.id, tab: 'rules' })}
+          onclick={() => go({ name: 'system', id: s.id, tab: 'overview' })}
         >
           <span class="name"
             >{s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())}</span

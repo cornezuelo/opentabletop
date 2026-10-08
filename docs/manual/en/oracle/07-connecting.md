@@ -300,7 +300,7 @@ reads:
 
 ### Naming the system
 
-Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use and other packs' tables (packs it depends on). A pack may declare several, e.g. a winter variant with its own travel rules:
+Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use and other packs' tables (packs it depends on). A pack may declare several, e.g. a winter variant with its own travel rules: In the Systems app, the system's **Overview** writes it with a form.
 
 ```yaml
 kind: system

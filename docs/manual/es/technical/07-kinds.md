@@ -278,4 +278,4 @@ packs: [core] # packs cuyas tablas trae
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.
 - **Los packs antiguos** que tienen reglas de viaje pero no `kind: system` siguen funcionando: son un sistema con el nombre del pack, con sus reglas de viaje, bindings y calendario, y los modelos de clima de todos los packs. En cuanto un pack declara un sistema, solo cuenta lo que declara.
 
-La aplicación Systems escribe uno en cada sistema nuevo. Las Marcas Grises declaran el suyo en `system.yaml`.
+La aplicación Systems escribe uno en cada sistema nuevo, lo edita en el **Resumen** del sistema y declara el de un pack antiguo (**Declararlo**). Las Marcas Grises declaran el suyo en `system.yaml`.

@@ -2,15 +2,15 @@
  * What the main area shows, mirrored in the URL hash so views can be linked:
  * #/system/<id>/<tab>.
  */
-export type Tab = 'rules' | 'checks' | 'yaml'
+export type Tab = 'overview' | 'rules' | 'checks' | 'yaml'
 export type View = { name: 'welcome' } | { name: 'system'; id: string; tab: Tab }
 
-const TABS: Tab[] = ['rules', 'checks', 'yaml']
+const TABS: Tab[] = ['overview', 'rules', 'checks', 'yaml']
 
 function parse(hash: string): View {
   const [name, id, tab] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
   if (name === 'system' && id)
-    return { name, id, tab: TABS.includes(tab as Tab) ? (tab as Tab) : 'rules' }
+    return { name, id, tab: TABS.includes(tab as Tab) ? (tab as Tab) : 'overview' }
   return { name: 'welcome' }
 }
 

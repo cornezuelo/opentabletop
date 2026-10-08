@@ -279,4 +279,4 @@ packs: [core] # packs whose tables it brings
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.
 - **Older packs** that have travel rules but no `kind: system` keep working: they're a system named after the pack, with its travel rules, bindings and calendar, and every pack's weather models. Once a pack declares a system, only what it declares counts.
 
-The Systems app writes one for every new system. The Grey Marches declare theirs in `system.yaml`.
+The Systems app writes one for every new system, edits it in the system's **Overview**, and declares an older pack's (**Declare it**). The Grey Marches declare theirs in `system.yaml`.

@@ -3,8 +3,12 @@
   import { t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
 
-  /** The file with the system's rules and bindings, with problems at their lines. */
-  let { root, path }: { root: string; path: string } = $props()
+  /** The files of the system's parts (one at a time), with problems at their lines. */
+  let { files }: { files: { root: string; path: string }[] } = $props()
+
+  let chosen = $state(0)
+  const root = $derived(files[Math.min(chosen, files.length - 1)].root)
+  const path = $derived(files[Math.min(chosen, files.length - 1)].path)
 
   /** Suggestions while typing: this pack's tables first, then everything the packs use. */
   const hints = $derived(
@@ -25,6 +29,18 @@
 </script>
 
 <div class="yaml">
+  {#if files.length > 1}
+    <div class="files" role="tablist">
+      {#each files as f, i (`${f.root}/${f.path}`)}
+        <button
+          role="tab"
+          aria-selected={i === chosen}
+          class:active={i === chosen}
+          onclick={() => (chosen = i)}>{f.path}</button
+        >
+      {/each}
+    </div>
+  {/if}
   <p class="file">{root}/{path}</p>
   <div class="code">
     {#key `${root}/${path}/${editable}`}
@@ -58,6 +74,28 @@
     font-family: ui-monospace, monospace;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .files button {
+    padding: 3px 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .files button.active {
+    color: var(--text);
+    border-color: var(--accent);
   }
 
   .code {

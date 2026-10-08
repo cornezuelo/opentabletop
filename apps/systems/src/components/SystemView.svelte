@@ -1,26 +1,46 @@
 <script lang="ts">
   import { systemName } from '@open-tabletop/session'
+  import { appUrl } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
-  import { rulesFile } from '../lib/newSystem'
-  import { systems } from '../lib/packs.svelte'
-  import { library } from '../lib/packs.svelte'
+  import { rulesFile, systemFile, systemRoot } from '../lib/newSystem'
+  import { library, systems } from '../lib/packs.svelte'
   import { systemDoc } from '../lib/systemDoc.svelte'
   import ChecksForm from './forms/ChecksForm.svelte'
   import RulesForm from './forms/RulesForm.svelte'
-  import { appUrl } from '@open-tabletop/ui-kit'
+  import Overview from './Overview.svelte'
   import ReadOnly from './ReadOnly.svelte'
   import YamlTab from './YamlTab.svelte'
 
-  /** One system: see and edit its rules, checks and files; play it in Travel. */
+  /** One system: its overview, its rules and checks, its files; play it in Travel. */
   let { id, tab }: { id: string; tab: Tab } = $props()
 
   const system = $derived(systems.get(id))
+  /** Where its travel rules (and bindings) are, and where its own definition is. */
   const file = $derived(system ? rulesFile(system) : null)
-  const tabs: Tab[] = ['rules', 'checks', 'yaml']
+  const declared = $derived(system ? systemFile(system) : null)
+  const root = $derived(system ? (systemRoot(system) ?? file?.root) : undefined)
+  const tabs = $derived<Tab[]>([
+    'overview',
+    ...(file ? (['rules', 'checks'] as Tab[]) : []),
+    ...(file || declared ? (['yaml'] as Tab[]) : []),
+  ])
   const doc = systemDoc(() => file ?? { root: '', path: '' })
+  const overview = systemDoc(() => declared ?? { root: '', path: '' })
+  /** The files its parts are written in, for the YAML tab (its rules' first). */
+  const files = $derived.by(() => {
+    const out: { root: string; path: string }[] = []
+    const add = (root: string | undefined, path: string | undefined) => {
+      if (root && path && !out.some((f) => f.root === root && f.path === path))
+        out.push({ root, path })
+    }
+    add(file?.root, file?.path)
+    add(file?.root, file?.bindings?.path)
+    add(declared?.root, declared?.system?.path)
+    return out
+  })
   const problems = $derived(
-    file ? library.diagnostics(file.root, file.path).filter((d) => d.severity === 'error') : [],
+    files.flatMap((f) => library.diagnostics(f.root, f.path).filter((d) => d.severity === 'error')),
   )
 </script>
 
@@ -28,35 +48,37 @@
   <article class="system">
     <header>
       <h1>{system.id === 'generic' ? t('nav.generic') : systemName(system, getLocale())}</h1>
-      {#if !file}<p class="help">{t('edit.builtIn')}</p>{/if}
+      {#if system.id === 'generic'}<p class="help">{t('edit.builtIn')}</p>{/if}
       <a class="play" href={`${appUrl('travel')}#/system/${encodeURIComponent(id)}/play`}
         >{t('edit.playInTravel')}</a
       >
       <!-- On every tab: edit a copy of a bundled system, or revert your copy to it. -->
-      {#if file}<div class="copy"><ReadOnly root={file.root} /></div>{/if}
-      {#if file}<div class="tabs" role="tablist">
-          {#each tabs as name (name)}
-            <button
-              role="tab"
-              aria-selected={tab === name}
-              class:active={tab === name}
-              onclick={() => go({ name: 'system', id, tab: name })}>{t(`tabs.${name}`)}</button
-            >
-          {/each}
-        </div>{/if}
+      {#if root}<div class="copy"><ReadOnly {root} /></div>{/if}
+      <div class="tabs" role="tablist">
+        {#each tabs as name (name)}
+          <button
+            role="tab"
+            aria-selected={tab === name}
+            class:active={tab === name}
+            onclick={() => go({ name: 'system', id, tab: name })}>{t(`tabs.${name}`)}</button
+          >
+        {/each}
+      </div>
     </header>
     <div class="body">
-      {#if tab === 'yaml' && file}
-        <YamlTab root={file.root} path={file.path} />
+      {#if problems.length && tab !== 'yaml'}
+        <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
+          {t('forms.problems', { count: problems.length })}
+        </button>
+      {/if}
+      {#if tab === 'yaml' && files.length}
+        <YamlTab {files} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
-          {#if problems.length}
-            <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
-              {t('forms.problems', { count: problems.length })}
-            </button>
-          {/if}
           {#if tab === 'rules'}<RulesForm {doc} />{:else}<ChecksForm {doc} />{/if}
         </div>
+      {:else}
+        <Overview {system} doc={declared ? overview : null} />
       {/if}
     </div>
   </article>
@@ -115,6 +137,7 @@
 
   .problems {
     align-self: flex-start;
+    margin-bottom: 14px;
     padding: 6px 10px;
     color: #e3a19f;
     text-align: left;

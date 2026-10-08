@@ -6,7 +6,7 @@ The Systems app is where game systems are made and edited. A **system** is what 
 
 - **Header**: the app switcher (nine dots), **↶ ↷** (undo and redo changes to your packs), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the systems list and the help column away, and bring them back.
 - **Systems** (left): **Generic** (built in) and every system of your packs, with the same badges as in the Oracle app (_bundled_, _edited_, _yours_, _personal use_, _update_) and a red number when its files have problems. The box at the bottom creates a new system.
-- **System** (center): under its name, **Play it in Travel →** opens it in the Travel app, and on a bundled system **Edit a copy**; then its tabs: **Rules** and **Checks** change it with forms, **YAML** shows the file with its rules and bindings.
+- **System** (center): under its name, **Play it in Travel →** opens it in the Travel app, and on a bundled system **Edit a copy**; then its tabs: **Overview** (its name, its parts and the packs it brings), **Rules** and **Checks** change it with forms, **YAML** shows the files of its parts.
 
 **Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (**?**) opens on it, in place of this manual: what the field does, examples that work and, under **In the manual**, the manual's sections about it (the Syntax page first); **✕** closes the column and **← The manual** goes back to the manual. While the column is open, moving to a field (click or Tab) shows its help too.
 

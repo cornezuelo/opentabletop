@@ -16,7 +16,7 @@ import { manifestOf } from '@open-tabletop/pack-ui/packs'
 import { getLocale } from './i18n'
 import { library } from './packs.svelte'
 
-export type Kind = 'travel-rules' | 'bindings'
+export type Kind = 'travel-rules' | 'bindings' | 'system'
 
 /** A check's `at:` or an action's `on:` as typed in a box: `day-start, hex-enter`. */
 export const momentsText = (value: unknown): string =>
@@ -80,18 +80,23 @@ export function systemDoc(source: () => DocSource) {
       : undefined
   })
   const bindingsPath = $derived(bindingsSource?.path ?? path)
-  const fileOf = (kind: Kind) => (kind === 'bindings' ? bindingsPath : path)
+  const fileOf = (kind: Kind) =>
+    kind === 'bindings' ? bindingsPath : kind === 'system' ? (declared?.path ?? path) : path
   /** The definition of that kind edited here: `@travel-rules/default`, `@bindings/fast`… */
   const selector = (kind: Kind) =>
     kind === 'bindings'
       ? `@bindings/${bindingsSource?.id ?? 'default'}`
-      : `@travel-rules/${source().rulesId ?? 'default'}`
+      : kind === 'system'
+        ? `@system/${declared?.id ?? 'default'}`
+        : `@travel-rules/${source().rulesId ?? 'default'}`
   const read = (kind: Kind) => library.readFile(root, fileOf(kind)) ?? ''
   const content = $derived(read('travel-rules'))
   const rules = $derived(readDefinition(content, selector('travel-rules')) ?? {})
   const bindings = $derived(
     bindingsSource ? readDefinition(read('bindings'), selector('bindings')) : undefined,
   )
+  /** The `kind: system` naming the parts (undefined for an older pack's implicit system). */
+  const system = $derived(declared ? readDefinition(read('system'), selector('system')) : undefined)
   const editable = $derived(library.isEditable(root))
   /** Whatever can be rolled (tables, oracles, generators, decks) can resolve a check: this pack's first, by local id. */
   const targets = $derived(
@@ -149,6 +154,10 @@ export function systemDoc(source: () => DocSource) {
     },
     get rules(): Record<string, unknown> {
       return rules
+    },
+    /** The system's own definition (undefined for an older pack's implicit system). */
+    get system(): Record<string, unknown> | undefined {
+      return system
     },
     /** The bindings in this file (undefined when it has none yet). */
     get bindings(): Record<string, unknown> | undefined {

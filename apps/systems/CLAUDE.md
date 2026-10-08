@@ -10,12 +10,13 @@ Makes and edits game systems. It is one app of the OpenTabletop ecosystem: read 
 src/
   lib/
     packs.svelte.ts   # PackLibrary (bundled + user packs, shared with the other apps) and the systems
-    newSystem.ts      # a new user pack with the generic rules, empty bindings and its system.yaml
+    newSystem.ts      # a new user pack (generic rules, empty bindings, system.yaml); where a system's parts are;
+                      # its choices, new parts (createPart), declaring an implicit system
     terrains.ts       # terrain and edge names (the Hexmapper palette, suggested in the rules)
-    systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules) or bindings (@bindings) of a file
-    nav.svelte.ts     # #/system/<id>/<rules|checks|yaml>
+    systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
+    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|yaml>
     i18n/             # typed en/es dictionaries
-  components/         # Sidebar (systems, new system), SystemView (tabs), YamlTab, ReadOnly (edit a copy / revert);
+  components/         # Sidebar (systems, new system), SystemView (tabs), Overview (the kind: system form), YamlTab (the parts' files), ReadOnly (edit a copy / revert);
                       # forms/: RulesForm (+ values of the day), ActionsForm (actions as steps),
                       # ChecksForm (checks + bindings + stats), RecordRows
 ```

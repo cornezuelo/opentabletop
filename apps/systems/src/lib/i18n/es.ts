@@ -32,7 +32,50 @@ export const es: Messages<typeof en> = {
     title: 'Systems',
     body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: edita una copia. Juégalos en la aplicación Travel (viajes sin mapa) o sobre un mapa en el Hexmapper.',
   },
-  tabs: { rules: 'Reglas', checks: 'Comprobaciones', yaml: 'YAML' },
+  tabs: { overview: 'Resumen', rules: 'Reglas', checks: 'Comprobaciones', yaml: 'YAML' },
+  overview: {
+    generic:
+      'Las reglas Genéricas: viaje sencillo sin comprobaciones, integrado en las aplicaciones. No tienen definición que editar; crea un sistema nuevo para hacer el tuyo a partir de ellas.',
+    implicit:
+      'Este sistema viene de un pack antiguo: sus reglas de viaje forman un sistema con el nombre del pack, con sus bindings y su calendario. Declararlo escribe un system.yaml que nombra lo que usa, para que puedas elegir aquí sus partes y los packs que trae; se juega igual.',
+    declare: 'Declararlo',
+    name: 'Nombre',
+    nameHelp:
+      'El nombre del sistema, como lo muestran todas las aplicaciones (vacío: el nombre del pack).\n• **Las Marcas Grises**\nSe escribe en el idioma actual: el del pack, o su fichero de traducción.',
+    description: 'Descripción',
+    descriptionHelp:
+      'Para qué es el sistema, en pocas líneas; se muestra donde se elige. Markdown básico: `**negrita**`, `_cursiva_`, `` `código` ``, listas con `- `.\n• _Una frontera embrujada que se recorre a pie o en carro, con hambre y extravíos._',
+    parts: 'Sus partes',
+    partsHelp:
+      'Las definiciones con las que se juega el sistema, cada una por su id: de este pack (`default`) o de una dependencia (`core/default`).\n• **Reglas de viaje** — cómo va un viaje (`kind: travel-rules`); ninguna: las reglas Genéricas\n• **Bindings** — qué tabla responde a cada comprobación, y las características del grupo (`kind: bindings`)\n• **Calendario** — cómo se nombran los días, en los viajes y en el reloj del mundo (`kind: calendar`); ninguno: el de por defecto',
+    travel: 'Reglas de viaje',
+    travelHelp:
+      'Cómo va un viaje: el día, las velocidades, las provisiones, las acciones, las comprobaciones (`travel: default`). **Abrir** las edita en la pestaña Reglas; **Crear** empieza unas nuevas a partir de las Genéricas.\n• ninguna — las reglas Genéricas',
+    bindings: 'Bindings',
+    bindingsHelp:
+      'Qué tabla responde a cada comprobación, y las características del grupo (`bindings: default`). **Abrir** los edita en la pestaña Comprobaciones; **Crear** añade unos vacíos.\n• ninguno — cada comprobación espera al jugador',
+    calendar: 'Calendario',
+    calendarHelp:
+      'Cómo nombran los días sus viajes y el reloj del mundo: meses, días de la semana, estaciones, lunas, fiestas (`calendar: marcher-reckoning`, un `kind: calendar`).\n• ninguno — el calendario por defecto: días y cuatro estaciones',
+    no: {
+      travel: '(ninguna: las reglas Genéricas)',
+      bindings: '(ninguno)',
+      calendar: '(ninguno: el de por defecto)',
+    },
+    open: 'Abrir',
+    create: 'Crear',
+    weather: 'Modelos de clima',
+    weatherHelp:
+      'Los modelos de clima (`kind: weather`) que sus bindings pueden nombrar en una comprobación (`weather: sky`), para que el clima del día tenga inercia: los de este pack y los de sus dependencias.\n• `weather: [sky]`',
+    noWeather: 'No hay modelos de clima en este pack ni en sus dependencias.',
+    packs: 'Packs que trae',
+    packsHelp:
+      'Los packs cuyas tablas, oráculos, generadores y mazos vienen con el sistema: el suyo siempre, y las dependencias que marques (`packs: [core]`). Un mapa que se juega con el sistema los muestra en su panel del Oracle. Para traer otro pack, añádelo a las dependencias del pack (`pack.yaml`).',
+    ownPack: 'el suyo · {count} para tirar',
+    rollables: '{count} para tirar',
+    noDependencies:
+      'Este pack no tiene dependencias: añade una a su pack.yaml para traer las tablas de otro pack.',
+  },
   forms: {
     confirmRemove:
       '¿Quitar «{name}»? Los formularios no lo pueden deshacer (edita el YAML para recuperarlo).',

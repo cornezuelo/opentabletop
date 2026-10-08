@@ -30,7 +30,50 @@ export const en = {
     title: 'Systems',
     body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: edit a copy. Play them in the Travel app (trips without a map) or on a map in the Hexmapper.',
   },
-  tabs: { rules: 'Rules', checks: 'Checks', yaml: 'YAML' },
+  tabs: { overview: 'Overview', rules: 'Rules', checks: 'Checks', yaml: 'YAML' },
+  overview: {
+    generic:
+      'The Generic rules: plain travel with no checks, built into the apps. They have no definition to edit; create a new system to start your own from them.',
+    implicit:
+      'This system comes from an older pack: its travel rules make a system named after the pack, with its bindings and calendar. Declaring it writes a system.yaml naming what it uses, so you can choose its parts and the packs it brings here; it plays the same.',
+    declare: 'Declare it',
+    name: 'Name',
+    nameHelp:
+      "The system's name, as every app lists it (empty: the pack's name).\n• **The Grey Marches**\nWritten in the current language: the pack's own, or its translation file.",
+    description: 'Description',
+    descriptionHelp:
+      'What the system is for, in a few lines, shown where it is chosen. Basic Markdown: `**bold**`, `_italics_`, `` `code` ``, lists with `- `.\n• _A haunted frontier travelled on foot or by cart, with hunger and getting lost._',
+    parts: 'Its parts',
+    partsHelp:
+      "The definitions the system plays with, each by its id: this pack's (`default`) or a dependency's (`core/default`).\n• **Travel rules** — how a trip goes (`kind: travel-rules`); none: the Generic rules\n• **Bindings** — which table answers each check, and the party's stats (`kind: bindings`)\n• **Calendar** — how days are named, by trips and the world clock (`kind: calendar`); none: the default one",
+    travel: 'Travel rules',
+    travelHelp:
+      'How a trip goes: the day, speeds, supplies, actions, checks (`travel: default`). **Open** edits them in the Rules tab; **Create** starts new ones from the Generic rules.\n• none — the Generic rules',
+    bindings: 'Bindings',
+    bindingsHelp:
+      "Which table answers each check, and the party's stats (`bindings: default`). **Open** edits them in the Checks tab; **Create** adds empty ones.\n• none — every check waits for the player",
+    calendar: 'Calendar',
+    calendarHelp:
+      'How its trips and the world clock name days: months, weekdays, seasons, moons, holidays (`calendar: marcher-reckoning`, a `kind: calendar`).\n• none — the default calendar: days and four seasons',
+    no: {
+      travel: '(none: the Generic rules)',
+      bindings: '(none)',
+      calendar: '(none: the default calendar)',
+    },
+    open: 'Open',
+    create: 'Create',
+    weather: 'Weather models',
+    weatherHelp:
+      "The weather models (`kind: weather`) its bindings can name in a check (`weather: sky`), so the day's weather has inertia: this pack's and its dependencies'.\n• `weather: [sky]`",
+    noWeather: 'No weather models in this pack or its dependencies.',
+    packs: 'Packs it brings',
+    packsHelp:
+      "The packs whose tables, oracles, generators and decks come with the system: its own always, and the dependencies you tick (`packs: [core]`). A map playing the system shows them in its Oracle panel. To bring another pack, add it to the pack's dependencies (`pack.yaml`).",
+    ownPack: 'its own · {count} to roll',
+    rollables: '{count} to roll',
+    noDependencies:
+      "This pack has no dependencies: add one to its pack.yaml to bring another pack's tables.",
+  },
   forms: {
     confirmRemove: 'Remove “{name}”? The forms can’t undo it (edit the YAML to bring it back).',
     id: 'Id',
