@@ -1,6 +1,6 @@
 # Releasing
 
-How a version of OpenTabletop is made and published. Written to be reviewed before the first release (`0.1.0`, the alpha); until then we work on `main` and nothing is tagged.
+How a version of OpenTabletop is made and published. Agreed with the author on 2026-10-09; the first release (`0.1.0`, the alpha) is tagged once the apps have been tried by hand.
 
 ## Versions
 
@@ -27,7 +27,9 @@ The tag starts the **Release** workflow ([`.github/workflows/release.yml`](../.g
 - creates the GitHub release with the notes of that version and `opentabletop-vX.Y.Z.zip` (the whole site: unzip and serve it from any folder, the builds use relative URLs);
 - publishes the same site on **GitHub Pages**.
 
-One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**. Pages needs the repository to be public (on GitHub's free plan): it stays private until `0.1.0` and is made public when that version is released.
+
+We work on `main` only, with tags for releases: no release branches or pull requests while the project has one author.
 
 ## Personal-use packs never ship
 
