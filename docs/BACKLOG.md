@@ -44,6 +44,8 @@ The alpha is the four apps (Hexmapper, Oracle, Travel, Manual) published as a st
 
 - [x] ✅ **Checks without a table only pause when they say so** (user, 2026-10-09: with **Pause after it** there, a tableless check stopping by itself made no sense; done 2026-10-09: a check no table resolves is journaled (`CHECK_NOTED`, or its effects' line) and resolved, and only `pause: true` stops the trip; the Grey Marches' landmark says `pause: true`, Kal-Arath and the Generic rules have no tableless checks; Systems, Travel and the manual en/es say so).
 
+- [x] ✅ **Pack format** (user, 2026-10-09: once others write packs, changing what syntax means would break them; done 2026-10-09: `format` in `pack.yaml` (absent: 1), `PACK_FORMAT` = 2 in oracle-engine, a warning for packs of a newer format; format 1's tableless checks are read as `pause: true` (`migrateRules` in session), and the Systems app's Checks tab offers **Update** (writes them and `format: 2`, one undo step); our packs and every new pack are format 2; File formats en/es has the table of formats; directive in CLAUDE.md).
+
 Right after the alpha (reordered with the user 2026-10-08), in order:
 
 - [x] ✅ Hexmapper: the planned route drawn beside the roads it follows (see Hexmapper → Pending).

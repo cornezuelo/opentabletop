@@ -4,6 +4,7 @@ import {
   definitionSchema,
   manifestSchema,
   overlaySchema,
+  PACK_FORMAT,
   type Definition,
   type Manifest,
   type Overlay,
@@ -79,6 +80,12 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       report(diagnostics, parsed.error, { file: file.path, at: 'pack' })
       continue
     }
+    if ((parsed.data.format ?? 1) > PACK_FORMAT)
+      diagnostics.push({
+        severity: 'warning',
+        message: `Written for pack format ${parsed.data.format}, newer than this version reads (${PACK_FORMAT}): update OpenTabletop`,
+        file: file.path,
+      })
     if (packs.some((p) => p.manifest.id === parsed.data.id)) {
       diagnostics.push({
         severity: 'error',

@@ -298,4 +298,56 @@ seasons: { spring: { start: clear, next: { clear: { clear: 1 } } } }
     expect(state.travel.time).toBeLessThan(until)
     expect(entries.at(-1)?.code).toBe('CHECK_PENDING')
   })
+
+  it('reads packs of an older format with their old meaning: tableless checks pause', () => {
+    const rules = (format: string) => `
+kind: travel-rules
+day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8 }
+terrains: { plains: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 24 } }
+checks:
+  - { event: LANDMARK, at: hex-enter }
+  - { event: TIRED, at: day-end, effects: { party.stats.fatigue: 1 } }
+  - { event: WEATHER, at: day-start }
+  - { event: OMEN, at: hex-enter, pause: false }
+---
+kind: bindings
+on: { WEATHER: { resolve: weather } }
+stats: { fatigue: { default: 0 } }
+---
+kind: table
+id: weather
+roll: 1d2
+entries: [{ range: 1-2, result: Sun }]
+${format}`
+    const registryOf = (format?: number) =>
+      loadPacks([
+        {
+          path: 'old/pack.yaml',
+          content: `id: old\nversion: 0.1.0\nlocale: en\n${format ? `format: ${format}\n` : ''}`,
+        },
+        { path: 'old/travel.yaml', content: rules('') },
+      ]).registry
+    const load = (format?: number) =>
+      travelSystems(registryOf(format)).systems.find((s) => s.id === 'old')!
+    const pauses = (system: ReturnType<typeof load>) => system.rules.checks!.map((c) => c.pause)
+    // Format 1 (no `format`): only the check with neither a table nor effects (nor a
+    // `pause` of its own) stopped the trip, so it pauses.
+    expect(pauses(load())).toEqual([true, undefined, undefined, false])
+    expect(pauses(load(2))).toEqual([undefined, undefined, undefined, false])
+    // Played: entering b stops at the landmark in format 1, and goes on in format 2.
+    const play = (format?: number) => {
+      const system = load(format)
+      const { session } = startTrip({ system, location: 'a' })
+      const oracle = createOracleEngine({ registry: registryOf(format), random: sequence([0.1]) })
+      const options = { system, world, oracle }
+      const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+      return stepTrip(options, planned, { type: 'travel' })
+    }
+    expect(play().state.travel.pendingChecks.map((c) => c.event)).toContain('LANDMARK')
+    const newer = play(2)
+    expect(newer.state.travel.pendingChecks.map((c) => c.event)).not.toContain('LANDMARK')
+    expect(newer.entries.find((e) => e.data?.event === 'LANDMARK')?.code).toBe('CHECK_NOTED')
+  })
 })

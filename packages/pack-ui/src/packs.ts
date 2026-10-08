@@ -35,6 +35,8 @@ export interface ManifestInfo {
   version?: string
   locale?: string
   license?: string
+  /** The pack format it was written for (absent: 1). */
+  format?: number
 }
 
 export const MANIFEST_FILE = 'pack.yaml'
@@ -179,6 +181,7 @@ export function manifestOf(pack: PackSource): ManifestInfo {
       version: text(data?.version),
       locale: text(data?.locale),
       license: text(data?.license),
+      ...(typeof data?.format === 'number' && { format: data.format }),
     }
   } catch {
     return {}

@@ -365,6 +365,11 @@ export const en = {
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— no table —',
+    olderFormat:
+      'This pack is written for an older pack format. It plays the same; updating it writes the format of this version in its pack.yaml.',
+    olderFormatPausing:
+      'This pack is written for an older pack format, where a check without a table or changes stopped the trip by itself: {checks}. It still plays that way; updating it writes “Pause after it” on them and the new format in its pack.yaml.',
+    olderFormatUpdate: 'Update',
     effects: 'Changes',
     effectsHelp:
       "What the check itself changes when it comes up, with or without a table:\n• `party.stats.fatigue: 1` — adds 1\n• `party.resources.food: -1` — takes 1 away\n• `party.stats.fatigue: '=0'` — sets it\nHow a system writes its rules as data, e.g. a day without enough food: **When** `day-end`, **Only if** `below: food`, **Changes** `party.stats.fatigue: 1`.",

@@ -1,3 +1,4 @@
+import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import { MANIFEST_FILE, type PackSource } from '@open-tabletop/pack-ui/packs'
 
 export {
@@ -20,6 +21,7 @@ export function newPack(id: string, name: string, locale: string): PackSource {
     `id: ${id}`,
     `name: ${JSON.stringify(name || id)}`,
     'version: 0.1.0',
+    `format: ${PACK_FORMAT}`,
     `locale: ${locale}`,
     'license: CC-BY-4.0',
     '',

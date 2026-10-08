@@ -7,11 +7,14 @@ import {
   createSystem,
   createSystemPart,
   declareSystem,
+  olderFormatChecks,
+  packFormat,
   partChoices,
   partName,
   rulesFile,
   systemFile,
   systemParts,
+  updateFormat,
 } from './newSystem'
 import { renameMonth } from './calendar'
 import { partDoc } from './partDoc.svelte'
@@ -40,6 +43,37 @@ describe('systems in the Systems app', () => {
     expect(edited.rules.travel.hoursPerDay).toBe(6)
     expect(edited.bindings?.stats?.luck).toMatchObject({ name: 'Luck', default: 1 })
     expect(library.readFile(id, 'system.yaml')).toContain('travel: default')
+  })
+
+  it('a pack of an older format is updated keeping what it does', () => {
+    // New systems are written for today's format.
+    expect(packFormat(createSystem('Fresh')!)).toBe(2)
+    library.addPack({
+      root: 'aged',
+      origin: 'user',
+      files: [
+        { path: 'pack.yaml', content: 'id: aged\nname: Aged\nversion: 0.1.0\nlocale: en\n' },
+        {
+          path: 'travel.yaml',
+          content:
+            "kind: travel-rules\nday: { start: '06:00', nightfall: '20:00' }\nterrains: { plains: { multiplier: 1 } }\ntravel: { hoursPerDay: 8 }\nmodes: { walk: { kmPerDay: 20 } }\nchecks:\n  - { event: LANDMARK, at: hex-enter }\n  - { event: TIRED, at: day-end, effects: { party.stats.fatigue: 1 } }\n",
+        },
+      ],
+    })
+    expect(packFormat('aged')).toBe(1)
+    // Format 1: the tableless check without effects pauses (read so, and played so).
+    expect(systems.get('aged')!.rules.checks!.map((c) => c.pause)).toEqual([true, undefined])
+    const doc = systemDoc(() => rulesFile(systems.get('aged')!)!)
+    expect(olderFormatChecks(doc.rules, doc.bindings)).toEqual([0])
+    updateFormat(doc)
+    expect(packFormat('aged')).toBe(2)
+    expect(library.readFile('aged', 'pack.yaml')).toContain('format: 2')
+    expect(library.readFile('aged', 'travel.yaml')).toContain('pause: true')
+    // It plays the same, now in today's syntax; one undo takes it all back.
+    expect(systems.get('aged')!.rules.checks!.map((c) => c.pause)).toEqual([true, undefined])
+    library.undo()
+    expect(packFormat('aged')).toBe(1)
+    expect(library.readFile('aged', 'travel.yaml')).not.toContain('pause')
   })
 
   it('bindings added to a declared system are named by it', () => {

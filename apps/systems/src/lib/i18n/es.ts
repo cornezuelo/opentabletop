@@ -368,6 +368,11 @@ export const es: Messages<typeof en> = {
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— sin tabla —',
+    olderFormat:
+      'Este pack está escrito para un formato de pack antiguo. Se juega igual; actualizarlo escribe el formato de esta versión en su pack.yaml.',
+    olderFormatPausing:
+      'Este pack está escrito para un formato de pack antiguo, en el que una comprobación sin tabla ni cambios detenía el viaje por sí sola: {checks}. Se sigue jugando así; actualizarlo les escribe «Pausar después» y el formato nuevo en su pack.yaml.',
+    olderFormatUpdate: 'Actualizar',
     effects: 'Cambios',
     effectsHelp:
       "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• `party.stats.fatigue: 1` — suma 1\n• `party.resources.food: -1` — quita 1\n• `party.stats.fatigue: '=0'` — lo fija\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `day-end`, **Solo si** `below: food`, **Cambios** `party.stats.fatigue: 1`.",

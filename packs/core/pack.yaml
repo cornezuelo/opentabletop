@@ -1,5 +1,7 @@
 id: core
 name: Core
 version: 0.3.0
+# The pack format it is written for (what its syntax means; see the manual: Packs).
+format: 2
 locale: en
 license: MIT

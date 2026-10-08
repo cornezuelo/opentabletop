@@ -164,9 +164,23 @@ export const definitionSchema = z.discriminatedUnion('kind', [
   deckSchema,
 ])
 
+/**
+ * The pack format the apps read today: what a pack's syntax means. A pack says which one
+ * it was written for (`format` in pack.yaml; absent: 1), and a pack of an older format
+ * keeps its old meaning, migrated on reading. Bump it (and add the migration) whenever
+ * the same syntax would mean something else.
+ *
+ * 1. The first one.
+ * 2. A check that no table resolves stops the trip only with `pause: true` (in 1, a
+ *    check with neither a table nor effects always stopped it).
+ */
+export const PACK_FORMAT = 2
+
 export const manifestSchema = z
   .object({
     id,
+    /** The pack format it was written for (see PACK_FORMAT); absent: 1. */
+    format: z.number().int().positive().optional(),
     name: z.union([z.string(), z.record(z.string(), z.string())]).optional(),
     version: z.string().regex(/^\d+\.\d+\.\d+/, 'versions use semver, e.g. 1.0.0'),
     locale: z.string().min(2),

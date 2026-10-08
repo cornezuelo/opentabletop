@@ -23,11 +23,19 @@ my-pack/
 id: my-pack # minúsculas, dígitos y guiones
 name: Mi pack # o { en: My pack, es: Mi pack }
 version: 0.1.0
+format: 2 # el formato de pack para el que está escrito (abajo)
 locale: es # el idioma base
 license: CC-BY-4.0 # consulta «Packs» para el contenido de uso personal
 attribution: 'Basado en … de …'
 dependencies: { core: ^0.1.0 } # packs cuyas tablas usa el tuyo
 ```
+
+**`format`** dice para qué **formato de pack** se escribió el pack: qué significa su sintaxis. Cuando una versión nueva de OpenTabletop hace que el mismo YAML signifique otra cosa, el formato sube, y un pack escrito para uno anterior conserva su significado antiguo: las aplicaciones lo leen como se quiso decir. Los packs nuevos (**Nuevo pack** en el Oracle, **Nuevo sistema** en Systems) se escriben para el de hoy; sin `format`, un pack es de formato 1. Un pack escrito para un formato más nuevo del que lee tu versión recibe un aviso: actualiza OpenTabletop. Los formatos hasta ahora:
+
+| Formato | Qué cambió                                                                                                                                                                                                                                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1       | El primero.                                                                                                                                                                                                                                                                                                                                            |
+| 2 (hoy) | Una comprobación que ninguna tabla resuelve solo detiene el viaje con `pause: true`. En el formato 1, una sin tabla ni efectos lo detenía siempre, así que las aplicaciones las leen como `pause: true`; la pestaña **Comprobaciones** de Systems muestra un pack de formato 1 con **Actualizar**, que escribe ese `pause: true` y `format: 2` por ti. |
 
 Un fichero contiene una definición, varias separadas por `---`, o una lista. Cada definición tiene un `kind`: `table`, `oracle`, `generator`, `deck`, `roll-modes` y, para los viajes, `travel-rules`, `bindings`, `calendar` y `weather` (cada uno, con un ejemplo entero: [Tipos de definición](07-kinds.md); toda la sintaxis: [Sintaxis](09-syntax.md)). Sus campos se explican también en [Referencia YAML](../oracle/06-yaml.md), [Dados, plantillas y contexto](../oracle/08-dice-and-templates.md) y [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 

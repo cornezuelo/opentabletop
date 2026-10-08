@@ -7,6 +7,7 @@ import {
   loadPackFiles,
   loadPacks,
   OracleError,
+  PACK_FORMAT,
   type OracleState,
   type PackFile,
 } from './index'
@@ -275,6 +276,22 @@ cards: []
     const messages = diagnostics.map((d) => d.message)
     expect(messages).toContain('Translation for unknown definition "ghost"')
     expect(messages).toContain('Translation for unknown entry "cellar" of "ruins"')
+  })
+
+  it('reads the pack format a pack was written for, and warns about a newer one', () => {
+    const pack = (format: string) =>
+      loadPacks([{ path: 'p/pack.yaml', content: `id: p\nversion: 0.1.0\nlocale: en\n${format}` }])
+    expect(pack('').registry.packs.get('p')?.manifest.format).toBeUndefined()
+    expect(pack(`format: ${PACK_FORMAT}\n`).diagnostics).toEqual([])
+    const newer = pack(`format: ${PACK_FORMAT + 1}\n`)
+    expect(newer.ok).toBe(true)
+    expect(newer.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'warning',
+        message: expect.stringContaining(`pack format ${PACK_FORMAT + 1}`),
+      }),
+    ])
+    expect(pack('format: 0\n').ok).toBe(false)
   })
 })
 

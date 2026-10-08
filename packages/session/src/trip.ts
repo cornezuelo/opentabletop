@@ -21,6 +21,7 @@ import {
   type TravelWorld,
   type Unavailable,
 } from '@open-tabletop/travel-engine'
+import { migrateRules } from './formats'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
 import {
   createSession,
@@ -250,6 +251,11 @@ export function travelSystems(registry: Registry): {
       rules = parsed.rules
     }
     const bindings = parts.bindings ? bindingsOf.get(parts.bindings)?.bindings : undefined
+    // Rules of a pack written for an older format keep their old meaning.
+    if (parts.rules) {
+      const owner = registry.packs.get(ownerOf(parts.rules) ?? pack)
+      rules = migrateRules(rules, bindings, owner?.manifest.format ?? 1)
+    }
     for (const [event, binding] of Object.entries(bindings?.on ?? {}))
       if (binding.weather && !parts.weather[binding.weather])
         problems.push(

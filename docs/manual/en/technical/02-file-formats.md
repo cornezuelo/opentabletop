@@ -23,11 +23,19 @@ my-pack/
 id: my-pack # lowercase letters, digits and dashes
 name: My pack # or { en: My pack, es: Mi pack }
 version: 0.1.0
+format: 2 # the pack format it is written for (below)
 locale: en # the base language
 license: CC-BY-4.0 # see "Packs" for personal-use content
 attribution: 'Based on … by …'
 dependencies: { core: ^0.1.0 } # packs whose tables yours uses
 ```
+
+**`format`** says which **pack format** the pack was written for: what its syntax means. When a new version of OpenTabletop makes the same YAML mean something else, the format goes up, and a pack written for an older one keeps its old meaning: the apps read it as it was meant. New packs (the Oracle's **New pack**, the Systems app's **New system**) are written for today's; without `format`, a pack is format 1. A pack written for a newer format than your version reads gets a warning: update OpenTabletop. The formats so far:
+
+| Format    | What changed                                                                                                                                                                                                                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1         | The first one.                                                                                                                                                                                                                                                                                                           |
+| 2 (today) | A check that no table resolves stops the trip only with `pause: true`. In format 1, one with neither a table nor effects always stopped it, so the apps read those as `pause: true`; the Systems app's **Checks** tab shows a pack of format 1 with **Update**, which writes that `pause: true` and `format: 2` for you. |
 
 A file holds one definition, several separated by `---`, or a list. Each definition has a `kind`: `table`, `oracle`, `generator`, `deck`, `roll-modes`, and for trips `travel-rules`, `bindings`, `calendar` and `weather` (each one, with a whole example: [Kinds of definition](07-kinds.md); every piece of syntax: [Syntax](09-syntax.md)). Their fields are also explained in [YAML reference](../oracle/06-yaml.md), [Dice, templates and context](../oracle/08-dice-and-templates.md) and [Connecting tables to maps and trips](../oracle/07-connecting.md).
 

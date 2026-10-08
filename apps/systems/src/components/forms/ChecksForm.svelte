@@ -15,12 +15,18 @@
     type SystemDoc,
   } from '../../lib/systemDoc.svelte'
   import { CHECK_MOMENTS } from '@open-tabletop/travel-engine'
+  import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
+  import { olderFormatChecks, packFormat, updateFormat } from '../../lib/newSystem'
 
   /**
    * The checks of the rules, each with the table that resolves it (from the bindings):
    * one place to say "at dawn, unless on a road, roll getting-lost". Then the party stats.
    */
   let { doc }: { doc: SystemDoc } = $props()
+
+  /** A pack written for an older format: the checks it pauses without saying so. */
+  const olderFormat = $derived(packFormat(doc.root) < PACK_FORMAT)
+  const olderPausing = $derived(olderFormat ? olderFormatChecks(doc.rules, doc.bindings) : [])
 
   type Raw = Record<string, unknown>
   /** The moments of the day; then every action of the system (at: <action id>). */
@@ -160,6 +166,16 @@
 <div class="form">
   <section>
     <h3>{t('checks.title')}<InfoTip text={t('checks.help')} /></h3>
+    {#if olderFormat}
+      <p class="older">
+        {t(olderPausing.length ? 'checks.olderFormatPausing' : 'checks.olderFormat', {
+          checks: olderPausing.map((i) => String(checks[i]?.event ?? '')).join(', '),
+        })}
+        {#if doc.editable}<button onclick={() => updateFormat(doc)}
+            >{t('checks.olderFormatUpdate')}</button
+          >{/if}
+      </p>
+    {/if}
     {#each checks as check, i (i)}
       {@const event = String(check.event ?? '')}
       {@const binding = on[event]}
@@ -416,6 +432,16 @@
 </div>
 
 <style>
+  .older {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .older button {
+    margin-left: 6px;
+  }
+
   .said {
     font-size: 11px;
     color: var(--text-muted);

@@ -4,6 +4,8 @@
 id: grey-marches
 name: The Grey Marches
 version: 0.1.0
+# The pack format it is written for (what its syntax means; see the manual: Packs).
+format: 2
 locale: en
 license: MIT
 # Tables of other packs: Core must be loaded, and `twist` is a short name for one of its tables.
