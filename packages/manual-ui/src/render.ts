@@ -3,16 +3,16 @@ import { marked } from 'marked'
 import { anchorOf } from './pages'
 
 /**
- * Manual Markdown to sanitized HTML. `## headings` get anchor ids (search results scroll
+ * Manual Markdown to sanitized HTML. `##` and `###` headings get anchor ids (search results scroll
  * to them); links to other pages (`tokens.md`, `../oracle/rolling.md#decks`) keep their
  * href so the views can turn clicks into navigation.
  */
 export function renderPage(markdown: string): string {
   const html = marked.parse(markdown, { async: false, gfm: true })
   const clean = DOMPurify.sanitize(html)
-  return clean.replace(/<h2>(.*?)<\/h2>/g, (_, inner: string) => {
+  return clean.replace(/<h([23])>(.*?)<\/h\1>/g, (_, level: string, inner: string) => {
     const text = inner.replace(/<[^>]+>/g, '')
-    return `<h2 id="${anchorOf(text)}">${inner}</h2>`
+    return `<h${level} id="${anchorOf(text)}">${inner}</h${level}>`
   })
 }
 

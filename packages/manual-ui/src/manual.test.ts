@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { manual } from './manual'
-import { createManual, highlight, parsePage, searchWords } from './pages'
+import { anchorOf, createManual, highlight, parsePage, searchWords } from './pages'
 import { pageLink } from './render'
 
 describe('manual pages', () => {
@@ -58,6 +58,19 @@ describe('the bundled manual', () => {
                 href,
               ).toBe(true)
           }
+  })
+
+  it('links within a page only to its own sections', () => {
+    for (const locale of ['en', 'es'])
+      for (const app of manual.apps)
+        for (const page of manual.pages(app, locale))
+          for (const [, anchor] of page.body.matchAll(/\]\(#([\w-]+)\)/g))
+            expect(
+              [...page.body.matchAll(/^###? (.+)$/gm)].some(
+                ([, title]) => anchorOf(title) === anchor,
+              ),
+              `${locale}/${app}/${page.slug} → #${anchor}`,
+            ).toBe(true)
   })
 })
 

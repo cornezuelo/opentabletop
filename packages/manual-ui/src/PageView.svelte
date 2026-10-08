@@ -28,6 +28,12 @@
     const a = (e.target as HTMLElement).closest('a')
     const href = a?.getAttribute('href')
     if (!a || !href) return
+    // A section of this page: scroll to it (the hash belongs to the app's own routes).
+    if (href.startsWith('#')) {
+      e.preventDefault()
+      onlink(page.app, page.slug, href.slice(1))
+      return
+    }
     const link = pageLink(href)
     if (link) {
       e.preventDefault()
