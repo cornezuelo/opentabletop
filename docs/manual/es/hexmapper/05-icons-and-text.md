@@ -4,7 +4,7 @@
 
 La herramienta **Iconos** (<kbd>I</kbd>) coloca un icono por hex: castillos, aldeas, ruinas, cuevas…
 
-- Elige un icono (búscalo o filtra por categoría: grupo, terreno, asentamientos, lugares, naturaleza, peligro, **moderno** —vehículos, industria, emergencias—, **ciencia ficción y páramo** —naves, planetas, robots, radiación— y varios) y haz clic en los hexes para colocarlo.
+- Elige un icono (búscalo o filtra por categoría: grupo, terreno, asentamientos, lugares, naturaleza, peligro, **moderno** —vehículos, industria, emergencias—, **ciencia ficción y páramo** —naves, planetas, robots, radiación— y varios) y haz clic en los hexes para colocarlo. Debajo de los iconos, **Un clic en un hex pone** dice cuál has elegido.
 - Haz clic en un icono colocado para editarlo; arrástralo a otro hex (queda centrado; <kbd>Mayús</kbd> mantiene una posición libre dentro del hex). Clic derecho o <kbd>Supr</kbd> lo quita y <kbd>Ctrl</kbd>+clic copia un icono y su estilo.
 - **Estilo**: color, tamaño, rotación, volteo, un halo detrás y un contorno. Los iconos nuevos usan el último estilo. El color **Auto** usa tinta oscura en los hexes pintados y clara en los vacíos, para que los iconos siempre se vean.
 - **Importa** tus propias imágenes (SVG, PNG, JPEG, WebP); se guardan dentro del mapa.

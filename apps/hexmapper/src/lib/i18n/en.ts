@@ -148,6 +148,7 @@ export const en = {
   iconCategories: {
     terrain: vocabulary.en.terms.terrain,
     all: 'All',
+    suggested: 'Suggested',
     party: 'Party',
     settlements: 'Settlements',
     landmarks: 'Landmarks',
@@ -162,7 +163,7 @@ export const en = {
     search: 'Search icons…',
     category: 'Category',
     empty: 'No icons match.',
-    selected: 'New icons: {name}',
+    selected: 'Clicking a hex places: {name}',
     editing: 'Editing {name} on {coord}',
     deselect: 'Done (Esc)',
     import: 'Import SVG/PNG…',

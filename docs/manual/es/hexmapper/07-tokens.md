@@ -4,7 +4,7 @@ Los tokens son piezas que mueves por el mapa: el grupo, los personajes jugadores
 
 ## Colocar y mover
 
-- Elige el tipo de los tokens nuevos (PJ, PNJ o Enemigo), su icono (o **Importar una imagen…**) y su color, y haz clic en un hex vacío.
+- Elige el tipo de los tokens nuevos (PJ, PNJ o Enemigo), su icono (los **Sugeridos** son personajes y criaturas; las etiquetas filtran por categoría como en Iconos, y la búsqueda mira entre todos; o **Importar una imagen…**) y su color, y haz clic en un hex vacío.
 - Haz clic en un token (o en cualquier punto de su hex) para editarlo. Arrástralo a otro hex: queda centrado.
 - Varios tokens pueden compartir hex: se colocan alrededor del centro. <kbd>Mayús</kbd>+clic siempre añade un token nuevo, aunque el hex ya tenga tokens (o hagas clic justo sobre uno).
 - Clic derecho o <kbd>Supr</kbd> borra un token. **Quitar del mapa** lo deja en la lista sin hex.

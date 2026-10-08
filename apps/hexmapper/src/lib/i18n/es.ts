@@ -149,6 +149,7 @@ export const es: Messages = {
   iconCategories: {
     terrain: vocabulary.es.terms.terrain,
     all: 'Todos',
+    suggested: 'Sugeridos',
     party: 'Grupo',
     settlements: 'Asentamientos',
     landmarks: 'Lugares',
@@ -163,7 +164,7 @@ export const es: Messages = {
     search: 'Buscar iconos (en inglés)…',
     category: 'Categoría',
     empty: 'Ningún icono coincide.',
-    selected: 'Iconos nuevos: {name}',
+    selected: 'Un clic en un hex pone: {name}',
     editing: 'Editando {name} en {coord}',
     deselect: 'Hecho (Esc)',
     import: 'Importar SVG/PNG…',

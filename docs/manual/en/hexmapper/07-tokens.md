@@ -4,7 +4,7 @@ Tokens are pieces you move around the map: the party, player characters, NPCs an
 
 ## Placing and moving
 
-- Choose the kind of the new tokens (PC, NPC or Enemy), their icon (or **Import an image…**) and color, then click an empty hex.
+- Choose the kind of the new tokens (PC, NPC or Enemy), their icon (the **Suggested** ones are characters and creatures; the chips filter by category as in Icons, and searching looks through them all; or **Import an image…**) and color, then click an empty hex.
 - Click a token (or anywhere on its hex) to edit it. Drag it to another hex: it lands centered.
 - Several tokens can share a hex: they're arranged around the center. <kbd>Shift</kbd>+click always adds a new token, even on a hex that already has tokens (or right on one).
 - Right-click or <kbd>Delete</kbd> removes a token. **Take off the map** keeps it in the list without a hex.
