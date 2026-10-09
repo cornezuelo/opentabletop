@@ -18,6 +18,12 @@ Algunas tablas se pueden tirar de más de una forma: un **modo de tirada** tira 
 
 Algunas tablas además usan un modo **por sí solas** cuando se cumple una condición, tanto si las tiras a mano como si las tira un viaje. En las Marcas Grises, _¿Nos perdemos?_ se tira con ventaja con el cielo despejado y con desventaja el día después de perderse; con las dos, se anulan y es una tirada normal. Cómo declarar los modos y usarlos: [Tipos de definición](../technical/07-kinds.md#modos-de-tirada).
 
+## Probabilidades
+
+**Probabilidades**, junto a **Entradas**, muestra lo probable que es cada entrada **con el contexto que escribiste y el modo de tirada elegido**: la tabla se tira unos miles de veces como en juego, así que cuentan las condiciones, los rangos, los pesos y los modos (los límites como `once`, no: cada tirada empieza de cero); es una estimación, con un margen de un uno por ciento o así. Una última línea dice cuántas veces no sale ninguna entrada, si pasa. Con dados, unas barras sobre las entradas muestran lo probable que es cada total, exacto.
+
+Cambia el contexto o el modo y las probabilidades lo siguen: en _¿Quién va?_ de las Marcas Grises, escribe `forest` en el terreno y `3` en el peligro para ver que los lobos salen más; en _Reacción_, elige **Ventaja** para ver crecer las respuestas amistosas.
+
 ## Mazos y entradas de una vez
 
 Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.

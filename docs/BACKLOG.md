@@ -238,7 +238,7 @@ Ecosystem, in the order it was built:
 - [x] ✅ (2026-10-09: **Texts on the map** under the Text tool's form, with font and size; a click selects and centres (`centerOnPoint`); Icons and text page en/es) **A list of the map's texts in the Text tool** (user, 2026-10-09): the Text section of the side panel lists every free label on the map (its text, with font and size at a glance); clicking one selects it and centres the map on it, so labels far away or hidden under others are easy to find and edit.
 - [x] ✅ (2026-10-09: **Split into pages** with a paper and orientation, each page rendered on its own at the dpi asked (`frame` in `exportCanvas`), 10 mm overlap, a corner label B3; **Empty hexes in white** for PDF and PNG; tried on the example map: six A4 pages; Layers and export page en/es) Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [x] ✅ (2026-10-09: `iconNames` en/es for the 193 bundled icons, `iconLabel` / `iconMatches`; the search finds either language; Icons and text page en/es) Translate icon names (currently English, as they come from game-icons).
-- [ ] UI for the optional hex fields travel may use (elevation, danger); custom fields cover them for now.
+- [x] ✅ Closed (2026-10-09): no fixed UI for elevation or danger, which are a system's own (principle 4); a hex's **fields** cover them, and the field editor already suggests the keys the map system's tables read (`reads:` in its bindings) as you type. ~~UI for the optional hex fields travel may use (elevation, danger); custom fields cover them for now.~~
 
 ### Done
 
@@ -261,7 +261,7 @@ Ecosystem, in the order it was built:
 
 ### Pending
 
-- [ ] Roll statistics (distribution of a table) and coverage view.
+- [x] ✅ (2026-10-09: **Odds** in the roll panel: each entry's chance by rolling the definition a few thousand times with the context and mode (`entryOdds` in oracle-ui), how often nothing applies (coverage), and each total's exact chance (`distribution` in dice, with roll modes as order statistics); Rolling page en/es) Roll statistics (distribution of a table) and coverage view.
 
 ### Done
 

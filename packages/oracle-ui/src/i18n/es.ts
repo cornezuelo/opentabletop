@@ -25,6 +25,11 @@ export const es: Messages<typeof en> = {
     details: 'Detalles',
     error: 'No se pudo tirar: {message}',
     keyHint: 'Espacio o Intro vuelve a tirar',
+    odds: 'Probabilidades',
+    oddsHelp:
+      'Lo probable que es cada entrada **con el contexto escrito arriba y el modo de tirada elegido**: la tabla se tira unos miles de veces como en juego (cuentan las condiciones, los rangos, los pesos y los modos; los límites como `once`, no). Con un margen de un uno por ciento o así.\nCon dados, las barras de arriba muestran lo probable que es cada total, exacto.\n• Escribe `forest` en el terreno para ver las probabilidades en un bosque\n• Elige un **Modo de tirada** para ver cómo las cambia',
+    oddsNothing: 'no sale ninguna entrada',
+    totals: 'Probabilidad de cada total',
   },
   values: {
     hex: 'Hex',

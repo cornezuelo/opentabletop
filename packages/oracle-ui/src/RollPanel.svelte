@@ -5,6 +5,7 @@
   import { InfoTip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
+  import { entryOdds, rollOdds } from './odds'
   import ResultCard from './ResultCard.svelte'
 
   let {
@@ -109,6 +110,35 @@
 
   const chosen = $derived(shown?.resolution.entry)
 
+  /**
+   * The odds of each entry with the context typed and the mode chosen (rolled many times by
+   * the engine), and of each total of the dice; only while shown.
+   */
+  let showOdds = $state(false)
+  const usedMode = $derived(modes.some((m) => m.id === roller.mode) ? roller.mode : undefined)
+  const odds = $derived.by(() => {
+    if (!showOdds || !list) return undefined
+    const ctx = mergeContext(context, parseContext(values))
+    try {
+      return entryOdds(ui.library.registry, def.id, ctx, usedMode)
+    } catch {
+      return undefined
+    }
+  })
+  const totals = $derived.by(() => {
+    if (!showOdds || !list?.roll) return undefined
+    const mode = usedMode ? ui.library.registry.rollModes.get(usedMode) : undefined
+    const dist = rollOdds(
+      list.roll,
+      mergeContext(context, parseContext(values)),
+      mode && { repeat: mode.repeat, keep: mode.keep },
+    )
+    if (!dist) return undefined
+    const top = Math.max(...dist.values())
+    return [...dist].map(([total, p]) => ({ total, p, height: p / top }))
+  })
+  const percent = (p: number) => (p === 0 ? '0%' : p < 0.005 ? '<1%' : `${Math.round(p * 100)}%`)
+
   /** A value's tooltip: what it is (if anyone says) and how tables write it. */
   function valueTip(name: string): string {
     const code = '`{{' + name + '}}`'
@@ -180,14 +210,32 @@
   {/if}
 
   {#if list}
-    <h3>
-      {t('roll.entries')}{#if list.roll}<span class="muted"> · {list.roll}</span>{/if}
-    </h3>
+    <div class="entries-head">
+      <h3>
+        {t('roll.entries')}{#if list.roll}<span class="muted"> · {list.roll}</span>{/if}
+      </h3>
+      <label class="inline odds-toggle">
+        <input type="checkbox" bind:checked={showOdds} />
+        <span>{t('roll.odds')}<InfoTip text={t('roll.oddsHelp')} /></span>
+      </label>
+    </div>
+    {#if totals}
+      <div class="totals" aria-label={t('roll.totals')}>
+        {#each totals as bar (bar.total)}
+          <div class="bar">
+            <span class="fill" style:height="{Math.max(2, bar.height * 40)}px"></span>
+            <small>{bar.total}</small>
+            <small class="p">{percent(bar.p)}</small>
+          </div>
+        {/each}
+      </div>
+    {/if}
     <table>
       <tbody>
         {#each list.entries as entry (entry.key)}
           <tr class:chosen={chosen === entry.key}>
             <td class="range">{range(entry, list)}</td>
+            {#if odds}<td class="odds">{percent(odds.entries.get(entry.key) ?? 0)}</td>{/if}
             <td>
               {ui.entryText(def, entry) ?? ''}
               {#if entry.ref}
@@ -205,6 +253,13 @@
             </td>
           </tr>
         {/each}
+        {#if odds && odds.nothing > 0}
+          <tr>
+            <td class="range">—</td>
+            <td class="odds">{percent(odds.nothing)}</td>
+            <td class="muted">{t('roll.oddsNothing')}</td>
+          </tr>
+        {/if}
       </tbody>
     </table>
   {/if}
@@ -302,6 +357,54 @@
     padding: 4px 6px;
     vertical-align: top;
     border-bottom: 1px solid var(--panel-border);
+  }
+
+  td.odds {
+    width: 1%;
+    color: var(--accent);
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .entries-head {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .odds-toggle {
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  .totals {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .bar {
+    display: flex;
+    flex: 1 0 22px;
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .bar .fill {
+    width: 70%;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+    opacity: 0.7;
+  }
+
+  .bar .p {
+    font-size: 9px;
   }
 
   td.range {

@@ -22,6 +22,11 @@ export const en = {
     details: 'Details',
     error: 'Could not roll: {message}',
     keyHint: 'Space or Enter rolls again',
+    odds: 'Odds',
+    oddsHelp:
+      "How likely each entry is **with the context typed above and the roll mode chosen**: the table is rolled a few thousand times as it would be in play (conditions, ranges, weights and modes count; limits like `once` don't). Within a percent or so.\nWith dice, the bars above show how likely each total is, exactly.\n• Type `forest` for terrain to see the odds in a forest\n• Choose a **Roll mode** to see how it shifts them",
+    oddsNothing: 'no entry applies',
+    totals: 'Chance of each total',
   },
   values: {
     hex: 'Hex',

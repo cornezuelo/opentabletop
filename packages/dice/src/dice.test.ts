@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { seeded, sequence } from '@open-tabletop/random'
-import { bounds, DiceSyntaxError, parseDice, possibleTotals, roll } from './index'
+import { bounds, DiceSyntaxError, distribution, parseDice, possibleTotals, roll } from './index'
 
 /** Unit-interval values that make randomInt(1, n) return the given faces. */
 const faces = (n: number, ...values: number[]) => sequence(values.map((v) => (v - 1 + 0.5) / n))
@@ -95,5 +95,41 @@ describe('outcome space', () => {
   it('falls back to contiguous ranges for large plain sums, and gives up otherwise', () => {
     expect(possibleTotals('20d6')).toHaveLength(101)
     expect(possibleTotals('20d6kh3', 1000)).toBeNull()
+  })
+})
+
+describe('distribution', () => {
+  const near = (a: number, b: number) => expect(a).toBeCloseTo(b, 10)
+  const total = (d: Map<number, number>) => [...d.values()].reduce((s, p) => s + p, 0)
+
+  it('says how likely each total is', () => {
+    const d = distribution('2d6')!
+    near(d.get(7)!, 6 / 36)
+    near(d.get(2)!, 1 / 36)
+    near(total(d), 1)
+    expect([...d.keys()][0]).toBe(2)
+    const plus = distribution('1d6 + 2 - 1d4')!
+    expect(Math.min(...plus.keys())).toBe(-1)
+    near(total(plus), 1)
+    near(distribution('d66')!.get(11)!, 1 / 36)
+    near(distribution('4dF')!.get(0)!, 19 / 81)
+  })
+
+  it('keeps some dice, and a roll mode keeps one of several totals', () => {
+    const best = distribution('2d6kh1')!
+    near(best.get(6)!, 11 / 36)
+    const advantage = distribution('1d20', { repeat: 2, keep: 'highest' })!
+    near(advantage.get(20)!, 39 / 400)
+    near(advantage.get(1)!, 1 / 400)
+    const careful = distribution('1d6', { repeat: 3, keep: 'middle' })!
+    near(total(careful), 1)
+    // The middle of three d6 is 1 only if two or three of them are 1: 16/216.
+    near(careful.get(1)!, 16 / 216)
+    near(distribution('1d6', { repeat: 2, keep: 'lowest' })!.get(6)!, 1 / 36)
+  })
+
+  it('gives up on too many combinations', () => {
+    expect(distribution('20d6kh3', {}, 1000)).toBeNull()
+    expect(distribution('20d6')).not.toBeNull()
   })
 })

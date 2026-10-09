@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Oracle: **Odds** beside a table's entries shows how likely each one is with the context typed and the roll mode chosen (and, with dice, how likely each total is).
 - Hexmapper: **icon names in Spanish** too (and the search finds an icon by its name in either language).
 - Hexmapper, Export: **Split into pages** prints a big map on several sheets of a paper you pick (A4, Letter…), at real scale, overlapping 10 mm to glue, each page saying where it goes (B3); **Empty hexes in white** saves ink in the PDF and PNG.
 - Hexmapper: the Text tool lists **Texts on the map** (each with its font and size); clicking one selects it and centres the map on it.

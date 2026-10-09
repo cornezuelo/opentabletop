@@ -18,6 +18,12 @@ Some tables can be rolled in more than one way: a **roll mode** rolls the whole 
 
 Some tables also use a mode **by themselves** when a condition holds, whether you roll them by hand or a trip does. In the Grey Marches, _Do we get lost?_ rolls with advantage under clear skies and with disadvantage the day after getting lost; with both, they cancel out and it's a normal roll. How to declare modes and use them: [Kinds of definition](../technical/07-kinds.md#roll-modes).
 
+## Odds
+
+**Odds**, beside **Entries**, shows how likely each entry is **with the context you typed and the roll mode chosen**: the table is rolled a few thousand times as it would be in play, so conditions, ranges, weights and modes all count (limits like `once` don't: each roll starts afresh); it's an estimate, within a percent or so. A last line says how often no entry applies, if ever. With dice, bars above the entries show how likely each total is, exactly.
+
+Change the context or the mode and the odds follow: in the Grey Marches' _Who goes there?_, type `forest` for the terrain and `3` for the danger to see the wolves come up more often; in _Reaction_, choose **Advantage** to see the friendly answers grow.
+
 ## Decks and once-only entries
 
 A deck shows how many cards are left and has **Shuffle**. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.

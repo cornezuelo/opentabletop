@@ -88,3 +88,93 @@ function faceRange(sides: DiceTerm['sides']): [number, number] {
   if (sides === 'd66') return [11, 66]
   return [1, sides]
 }
+
+/**
+ * How likely each total is: total → probability (they add up to 1), exactly. With
+ * `repeat` and `keep` (a system's roll mode), the chances of the total kept. Null when
+ * there are too many combinations to count (dice that keep some of many, above `limit`).
+ */
+export function distribution(
+  expression: string | DiceExpression,
+  options: { repeat?: number; keep?: 'highest' | 'lowest' | 'middle' } = {},
+  limit = 200_000,
+): Map<number, number> | null {
+  const parsed = typeof expression === 'string' ? parseDice(expression) : expression
+  let dist = new Map<number, number>([[0, 1]])
+  for (const term of parsed.terms) {
+    const own = term.kind === 'const' ? new Map([[term.value, 1]]) : termDistribution(term, limit)
+    if (!own) return null
+    const next = new Map<number, number>()
+    for (const [a, pa] of dist)
+      for (const [b, pb] of own) {
+        const total = a + term.sign * b
+        next.set(total, (next.get(total) ?? 0) + pa * pb)
+      }
+    dist = next
+  }
+  const times = Math.max(1, Math.floor(options.repeat ?? 1))
+  if (times === 1) return sorted(dist)
+  // The total kept is an order statistic of `times` rolls: its j-th smallest.
+  const j =
+    options.keep === 'lowest'
+      ? 1
+      : options.keep === 'middle'
+        ? Math.floor((times - 1) / 2) + 1
+        : times
+  const totals = [...dist.keys()].sort((a, b) => a - b)
+  const atMost = (f: number) => {
+    let p = 0
+    for (let i = j; i <= times; i++) p += choose(times, i) * f ** i * (1 - f) ** (times - i)
+    return p
+  }
+  const out = new Map<number, number>()
+  let cumulative = 0
+  let before = 0
+  for (const total of totals) {
+    cumulative += dist.get(total)!
+    const now = atMost(Math.min(1, cumulative))
+    out.set(total, now - before)
+    before = now
+  }
+  return out
+}
+
+function termDistribution(term: DiceTerm, limit: number): Map<number, number> | null {
+  const faces = faceValues(term.sides)
+  const one = 1 / faces.length
+  if (!term.keep) {
+    let dist = new Map<number, number>([[0, 1]])
+    for (let i = 0; i < term.count; i++) {
+      const next = new Map<number, number>()
+      for (const [a, pa] of dist)
+        for (const face of faces) next.set(a + face, (next.get(a + face) ?? 0) + pa * one)
+      dist = next
+    }
+    return dist
+  }
+  if (Math.pow(faces.length, term.count) > limit) return null
+  const kept = term.keep.count
+  const out = new Map<number, number>()
+  const p = Math.pow(one, term.count)
+  const walk = (rolled: number[]) => {
+    if (rolled.length === term.count) {
+      const order = [...rolled].sort((a, b) => (term.keep!.mode === 'lowest' ? a - b : b - a))
+      const total = order.slice(0, kept).reduce((s, v) => s + v, 0)
+      out.set(total, (out.get(total) ?? 0) + p)
+      return
+    }
+    for (const face of faces) walk([...rolled, face])
+  }
+  walk([])
+  return out
+}
+
+function sorted(dist: Map<number, number>): Map<number, number> {
+  return new Map([...dist].sort(([a], [b]) => a - b))
+}
+
+function choose(n: number, k: number): number {
+  let r = 1
+  for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i
+  return r
+}
