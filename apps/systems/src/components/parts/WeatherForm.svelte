@@ -98,7 +98,7 @@
     {#if flower}
       <section class="season">
         <div class="head">
-          <h3>{t('weather.season', { season })}</h3>
+          <h3>{t('weather.season', { season })}<InfoTip text={t('weather.flowerHelp')} /></h3>
           <label class="start">
             <span>{t('weather.flowerStart')}<InfoTip text={t('weather.flowerStartHelp')} /></span>
             <select
@@ -141,7 +141,6 @@
             >
           {/if}
         </div>
-        <p class="help">{t('weather.flowerHelp')}</p>
         <div class="flower" role="group" aria-label={t('weather.season', { season })}>
           {#each (flower.rows as string[][] | undefined) ?? [] as row, i (i)}
             <div class="flower-row">
