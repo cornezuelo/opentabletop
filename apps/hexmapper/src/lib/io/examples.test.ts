@@ -52,6 +52,7 @@ describe('example maps', () => {
     expect(map.world?.clocks.map((c) => `${c.name} ${c.filled}/${c.segments}`)).toEqual([
       'The Greywood Wyrm wakes 1/6',
       'Fort Keld’s unpaid garrison mutinies 3/8',
+      'The Iron Clans march 1/6',
     ])
     // Region styles: the map's, and two regions with their own.
     expect(map.regions.map((r) => r.style)).toEqual([

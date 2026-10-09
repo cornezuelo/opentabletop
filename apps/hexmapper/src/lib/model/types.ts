@@ -214,6 +214,19 @@ export interface MapToken {
   character?: Omit<CharacterState, 'id' | 'name'>
 }
 
+/**
+ * The factions on a map: those of the system they were brought from (`system`), each as a
+ * character of its factions' sheet, the hexes each holds, the last world turn, and whether
+ * turns come by themselves with the world clock (`auto: false`: only by hand).
+ */
+export interface MapFactions {
+  system: string
+  factions: CharacterState[]
+  territories: Record<string, string[]>
+  lastTurn: number
+  auto?: false
+}
+
 /** Oracle state (decks drawn, once-only entries, values set) and the history of hand rolls. */
 export interface MapOracle {
   state: OracleState
@@ -261,6 +274,7 @@ export const LAYER_IDS = [
   'terrain',
   'grid',
   'regions',
+  'factions',
   'paths',
   'icons',
   'coords',
@@ -367,6 +381,8 @@ export interface HexMap {
   oracle?: MapOracle
   /** The world clock of the campaign on this map (time, scheduled events, progress clocks). */
   world?: WorldState
+  /** The factions of the map's system on this map: their sheets, territory and turns. */
+  factions?: MapFactions
   /**
    * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
    * kept verbatim so saving never loses it.

@@ -8,7 +8,9 @@ import {
   type SessionState,
 } from '@open-tabletop/session'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { parseFactions } from '@open-tabletop/faction-engine'
 import { describe, expect, it } from 'vitest'
+import { parse } from 'yaml'
 
 /**
  * The definitions the manual shows as examples are real: each YAML block with a `kind:`
@@ -69,6 +71,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'weather',
         'system',
         'sheet',
+        'factions',
       ]),
     )
   })
@@ -87,6 +90,8 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         ? [yaml, bindings, sheet]
         : [yaml]
     expect(problems(withBindings)).toEqual([])
+    // Factions are read by a system: on their own, their shape is checked here.
+    if (kindOf(yaml) === 'factions') expect(parseFactions(parse(yaml)).errors).toEqual([])
   })
 })
 

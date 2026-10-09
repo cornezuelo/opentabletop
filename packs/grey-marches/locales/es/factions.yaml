@@ -1,0 +1,56 @@
+sheet/faction:
+  name: Facción
+  description: |-
+    Lo que tiene cada poder de las Marcas: su fuerza, cómo ve al grupo y si está en guerra.
+
+    **Enseña:** una hoja para facciones (del mismo tipo que la de los personajes): valores con límites, un estado y tipos de relación entre facciones.
+  values:
+    strength:
+      name: Fuerza
+    reputation:
+      name: Reputación
+  conditions:
+    at-war:
+      name: En guerra
+  relations:
+    rival:
+      name: Rival
+    ally:
+      name: Aliado
+factions/default:
+  name: Los poderes de las Marcas
+  description: |-
+    Los Clanes de Hierro de las Colinas Huecas, el Valle de Ashford y la guarnición sin paga de Fort Keld.
+
+    **Enseña:** facciones declaradas por un pack: una hoja para sus valores, territorio inicial por región (las Colinas, el Valle) y por hex (Fort Keld), una tabla de turno por defecto, una propia (la de los Clanes) y una de Core (la de la guarnición), y turnos cada 7 días.
+  factions:
+    iron-clans:
+      name: Los Clanes de Hierro
+      description: Clanes de las colinas que no responden ante ningún rey; codician los campos del Valle.
+    the-vale:
+      name: El Valle de Ashford
+      description: Granjeros y su milicia, lo último que queda del orden del viejo reino.
+    fort-keld:
+      name: La guarnición de Fort Keld
+      description: Soldados sin paga desde hace un año, que guardan el camino del puente.
+faction-turn:
+  name: El turno de un poder
+  description: |-
+    Lo que hace el Valle (y cualquier poder sin tabla propia) en un turno del mundo: si es fuerte, extiende la mano; si es débil, reúne a su gente.
+
+    **Enseña:** el turno de una facción: condiciones sobre sus propios valores (`faction.values.strength`), efectos sobre ellos, sobre su territorio (`faction.territory: 1`) y sobre su reputación con el grupo.
+  entries:
+    reach: Fuerte, busca más tierra
+    gather: Reúne a su gente y sus provisiones
+    feast: Celebra un banquete en honor de los viajeros
+    quiet: Una semana tranquila
+clan-turn:
+  name: El turno de los Clanes
+  description: |-
+    Lo que hacen los Clanes de Hierro en un turno del mundo: saquear el Valle, empujar su frontera o reunir a los clanes para la marcha sobre Fort Keld.
+
+    **Enseña:** efectos sobre otra facción (`factions.the-vale.values.strength: -1`), un estado puesto en sí misma (`faction.conditions.at-war`), territorio quitado a un vecino, y un reloj de progreso del reloj del mundo que avanza (`world.clocks.the-iron-clans-march: 1`).
+  entries:
+    raid: Unos saqueadores atacan las granjas apartadas del Valle
+    push: Los clanes bajan su frontera desde las colinas
+    gather: Los jefes se reúnen; la marcha sobre Fort Keld se acerca

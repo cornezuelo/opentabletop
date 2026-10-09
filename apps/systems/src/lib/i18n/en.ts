@@ -36,6 +36,7 @@ export const en = {
     rules: 'Rules',
     checks: 'Checks',
     sheet: 'Sheet',
+    factions: 'Factions',
     calendar: 'Calendar',
     weather: 'Weather',
     modes: 'Roll modes',
@@ -43,6 +44,14 @@ export const en = {
     yaml: 'YAML',
   },
   parts: {
+    factions: {
+      title: 'Its factions',
+      intro:
+        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. In the Hexmapper they're brought onto a map in the World panel.",
+      help: 'One factions definition per system, named in its **Overview** (`factions:`). Tables and conditions read them anywhere:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `hex.faction: the-crown` — who holds the hex\nTheir turn tables change them with effects:\n• `faction.values.strength: 1` — the faction whose turn it is\n• `factions.the-rebels.values.strength: -1` — another\n• `faction.territory: 1` — a hex more, from its border\n• `world.clocks.the-siege: 1` — a progress clock of the world clock',
+      none: 'This system has no factions.',
+      create: 'New factions',
+    },
     sheet: {
       title: "Its characters' sheet",
       intro:
@@ -75,6 +84,36 @@ export const en = {
       none: 'The packs of this system declare no roll modes.',
       create: 'New roll modes',
     },
+  },
+  factionsForm: {
+    name: 'Name',
+    nameHelp: 'What these factions are called together.\n• **The powers of the realm**',
+    sheet: 'Their sheet',
+    sheetHelp:
+      "The sheet every faction is made with (`kind: sheet`): their values (strength, wealth…), conditions (at war…) and kinds of relation (ally, rival). It can be the characters' or one of their own.",
+    turn: 'Their turn',
+    turnHelp:
+      "What each faction rolls on a world turn (a table, oracle, generator or deck), with its own values as `faction.*`:\n• `faction-turn` — a table of this pack\n• `core/faction-turn` — Core's, for any game: it grows, holds or loses ground",
+    every: 'Every (days)',
+    everyHelp:
+      "Days of the world clock between turns. Empty or 0: only by hand (the Hexmapper's **World turn**).\n• `7` — a turn a week",
+    byHand: 'by hand',
+    factions: 'Factions',
+    factionsHelp:
+      'Each faction, by an id tables read it with (`factions.<id>.*`): its name, its colour on the map, its starting values, where it starts and, if it has one, a turn table of its own.',
+    factionName: 'Name',
+    color: 'Colour',
+    colorHelp: 'Its colour on the map, as `#rrggbb`.\n• `#8b1e1e`',
+    values: 'Starts with',
+    valuesHelp:
+      "Starting values of its sheet, as `key: value` pairs; the rest are the sheet's defaults.\n• `strength: 4, reputation: -1`",
+    regions: 'Regions',
+    regionsHelp:
+      'It starts holding every hex of these regions of the map (by name), comma-separated.\n• `The Hollow Hills`',
+    hexes: 'Hexes',
+    hexesHelp: 'And these hexes (column,row), comma-separated.\n• `15,9`',
+    ownTurn: 'Own turn',
+    ownTurnHelp: "A turn table of its own, instead of the factions' one.\n• `clan-turn`",
   },
   sheet: {
     name: 'Name',

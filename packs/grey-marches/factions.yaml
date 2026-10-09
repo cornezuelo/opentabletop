@@ -1,0 +1,109 @@
+# The powers of the Marches, as factions (Factions in the Hexmapper's World panel). Each is
+# a character of the `faction` sheet below, holding hexes of the map; on each world turn
+# (every 7 days of the world clock, or by hand) it rolls its turn table, whose effects change
+# its values, another faction's, its territory and the world clock's progress clocks.
+kind: sheet
+id: faction
+name: Faction
+description: |-
+  What every power of the Marches has: its strength, how it regards the party, and whether it's at war.
+
+  **Shows:** a sheet for factions (the same kind as characters'): values with bounds, a condition, and kinds of relation between factions.
+values:
+  strength: { name: Strength, default: 3, min: 0, max: 6 }
+  # How the faction regards the party, read by tables as factions.<id>.values.reputation.
+  reputation: { name: Reputation, default: 0, min: -3, max: 3 }
+conditions:
+  at-war: { name: At war }
+relations:
+  rival: { name: Rival }
+  ally: { name: Ally }
+---
+kind: factions
+id: default
+name: The powers of the Marches
+description: |-
+  The Iron Clans of the Hollow Hills, the Vale of Ashford and the unpaid garrison of Fort Keld.
+
+  **Shows:** factions declared by a pack: a sheet for their values, starting territory by region (the Hills, the Vale) and by hex (Fort Keld), a default turn table, one of their own (the Clans') and one from Core (the garrison's), and turns every 7 days.
+sheet: faction
+turn: faction-turn
+every: 7
+factions:
+  iron-clans:
+    name: The Iron Clans
+    description: Hill clans who answer to no king; they covet the Vale's fields.
+    color: '#8b1e1e'
+    values: { strength: 4, reputation: -1 }
+    territory: { regions: [The Hollow Hills] }
+    turn: clan-turn
+  the-vale:
+    name: The Vale of Ashford
+    description: Farmers and their militia, the last of the old kingdom's order.
+    color: '#c9a227'
+    values: { strength: 3, reputation: 1 }
+    territory: { regions: [Ashford Vale] }
+  fort-keld:
+    name: The Garrison of Fort Keld
+    description: Soldiers unpaid for a year, holding the bridge road.
+    color: '#4a6b8a'
+    values: { strength: 2 }
+    territory: { hexes: ['15,9'] }
+    # A turn table of another pack (Core, a dependency): it only grows or loses ground.
+    turn: core/faction-turn
+---
+# The default turn: what a power does depends on its strength (conditions on its own values,
+# `faction.values.strength`).
+kind: table
+id: faction-turn
+name: A power's turn
+description: |-
+  What the Vale (and any power without a table of its own) does on a world turn: strong, it reaches out; weak, it gathers its people.
+
+  **Shows:** a faction's turn: conditions on its own values (`faction.values.strength`), effects on them, on its territory (`faction.territory: 1`) and on its reputation with the party.
+roll: 1d6
+entries:
+  - id: reach
+    range: 1-6
+    when: { faction.values.strength: { gte: 4 } }
+    result: Strong, it reaches out for more land
+    effects: { faction.territory: 1, faction.values.strength: -1 }
+  - id: gather
+    range: 1-3
+    result: Gathers its people and its stores
+    effects: { faction.values.strength: 1 }
+  - id: feast
+    range: 4-5
+    result: Holds a feast in the travellers' honour
+    effects: { faction.values.reputation: 1 }
+  - { id: quiet, range: 6, result: A quiet week }
+---
+# The Clans' own turn: they raid the Vale (an effect on another faction), push their border
+# (territory) and bring their march on Fort Keld closer (a progress clock of the world clock,
+# by its name as an id: world.clocks.the-iron-clans-march).
+kind: table
+id: clan-turn
+name: The Clans' turn
+description: |-
+  What the Iron Clans do on a world turn: raid the Vale, push their border, or call the clans together for the march on Fort Keld.
+
+  **Shows:** effects on another faction (`factions.the-vale.values.strength: -1`), a condition set on itself (`faction.conditions.at-war`), territory taken from a neighbour, and a world clock's progress clock ticked (`world.clocks.the-iron-clans-march: 1`).
+roll: 1d6
+entries:
+  - id: raid
+    range: 1-2
+    result: Raiders strike the Vale's outlying farms
+    effects:
+      {
+        factions.the-vale.values.strength: -1,
+        faction.conditions.at-war: true,
+        faction.values.reputation: -1,
+      }
+  - id: push
+    range: 3-4
+    result: Clansmen push their border down from the hills
+    effects: { faction.territory: 1 }
+  - id: gather
+    range: 5-6
+    result: The chiefs gather; the march on Fort Keld draws closer
+    effects: { faction.values.strength: 1, world.clocks.the-iron-clans-march: 1 }

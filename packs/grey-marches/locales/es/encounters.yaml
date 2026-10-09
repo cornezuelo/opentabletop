@@ -7,7 +7,7 @@ encounter:
 
     - Una tabla para dos comprobaciones, de día y de noche, que distingue el contexto `timeOfDay` de los bindings
     - Condiciones sobre `terrain`, `region`, `tags`, `danger`, `season` y las lunas (`moons.ember: full`)
-    - El `unless` de una entrada: la patrulla del Valle, nunca de noche
+    - El `unless` de una entrada: la patrulla del Valle, nunca de noche; recorre cualquier tierra que tenga el Valle (`hex.faction`, el territorio de una facción)
     - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris; `pause`: el viaje se detiene cuando sale
     - El reloj del mundo: cuando _The Greywood Wyrm wakes_ está lleno (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), la Sierpe recorre el bosque desde peligro 3
     - Cascadas a _Reacción_ y a un generador

@@ -17,7 +17,11 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  * Starting points for a travel system: rules like the generic ones with one weather
  * check, and bindings to fill in (which table answers each check).
  */
-export const SYSTEM_TEMPLATES: Record<SystemKind, (id: string) => Record<string, unknown>> = {
+/** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
+export const SYSTEM_TEMPLATES: Record<
+  SystemKind | 'factions',
+  (id: string) => Record<string, unknown>
+> = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
   'roll-modes': (id) => ({
     kind: 'roll-modes',
@@ -110,4 +114,26 @@ export const SYSTEM_TEMPLATES: Record<SystemKind, (id: string) => Record<string,
     groups: { attributes: { name: 'Attributes' } },
     conditions: { wounded: { name: 'Wounded' } },
   }),
+  // Two factions on Core's generic turn table, with a sheet of their own for their values
+  // (written with them when the pack has none called `faction`).
+  factions: (id) => ({
+    kind: 'factions',
+    id,
+    sheet: 'faction',
+    turn: 'core/faction-turn',
+    every: 7,
+    factions: {
+      'the-crown': { name: 'The Crown', color: '#c9a227', values: { strength: 3 } },
+      'the-rebels': { name: 'The Rebels', color: '#8b1e1e', values: { strength: 2 } },
+    },
+  }),
 }
+
+/** The sheet a new factions definition names, when its pack has none (`faction`). */
+export const FACTION_SHEET = (): Record<string, unknown> => ({
+  kind: 'sheet',
+  id: 'faction',
+  name: 'Faction',
+  values: { strength: { name: 'Strength', default: 3, min: 0, max: 6 } },
+  conditions: { 'at-war': { name: 'At war' } },
+})

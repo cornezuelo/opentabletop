@@ -120,19 +120,21 @@ An action's step takes `set` too: `{ set: { lost: true } }`.
 
 On entries, cards, checks and action steps. Each key is a value the system declares, by its path; each value says how it changes:
 
-| Write                                             | Does                                                           |
-| ------------------------------------------------- | -------------------------------------------------------------- |
-| `party.resources.food: -1`                        | takes 1 away                                                   |
-| `party.stats.morale: 2`                           | adds 2                                                         |
-| `party.stats.fatigue: '=0'`                       | sets it to 0                                                   |
-| `party.resources.food: '{{1d3+1}}'`               | adds a roll                                                    |
-| `party.resources.food: '-{{party.stats.mouths}}'` | takes away as many as another value says                       |
-| `party.stats.morale: '={{party.stats.charisma}}'` | sets it to another value                                       |
-| `party.resources.food: '-{{1d3}}'`                | takes away a roll (in a trip, the same all through the moment) |
-| `party.members.values.health: 1`                  | adds 1 to every character of the party                         |
-| `characters.kael.values.health: -1`               | takes 1 from one character, by id                              |
-| `acting.conditions.wounded: true`                 | the character acting now gets a condition (`false` clears it)  |
-| `roles.lookout.values.health: -1`                 | whoever holds a journey role                                   |
+| Write                                                 | Does                                                           |
+| ----------------------------------------------------- | -------------------------------------------------------------- |
+| `party.resources.food: -1`                            | takes 1 away                                                   |
+| `party.stats.morale: 2`                               | adds 2                                                         |
+| `party.stats.fatigue: '=0'`                           | sets it to 0                                                   |
+| `party.resources.food: '{{1d3+1}}'`                   | adds a roll                                                    |
+| `party.resources.food: '-{{party.stats.mouths}}'`     | takes away as many as another value says                       |
+| `party.stats.morale: '={{party.stats.charisma}}'`     | sets it to another value                                       |
+| `party.resources.food: '-{{1d3}}'`                    | takes away a roll (in a trip, the same all through the moment) |
+| `party.members.values.health: 1`                      | adds 1 to every character of the party                         |
+| `characters.kael.values.health: -1`                   | takes 1 from one character, by id                              |
+| `acting.conditions.wounded: true`                     | the character acting now gets a condition (`false` clears it)  |
+| `roles.lookout.values.health: -1`                     | whoever holds a journey role                                   |
+| `faction.territory: 1`, `faction.values.strength: -1` | in a faction's turn table: its land, its values                |
+| `world.clocks.the-siege: 1`                           | in a faction's turn table: ticks a progress clock              |
 
 A change stops at the value's `min` / `max`; what hit one is seen afterwards as `below: [ids]` / `above: [ids]`. Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 

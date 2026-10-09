@@ -57,4 +57,12 @@ A clock is a number of segments filled as something advances: a threat (“The W
 
 What happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).
 
-The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and two clocks — the Greywood Wyrm (when it fills, the Wyrm roams the Greywood) and Fort Keld's unpaid garrison.
+The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and three clocks — the Greywood Wyrm (when it fills, the Wyrm roams the Greywood), Fort Keld's unpaid garrison, and the Iron Clans' march (their world turns move it on).
+
+## Factions
+
+When the map's system has factions (the powers of its world, `kind: factions` in its pack), the World view lists them under **Factions**; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one shows its colour and how many hexes it holds; open it for its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
+
+**World turn** has every faction take its turn now, in order: each rolls its turn table, and what comes up changes it, another faction, its land (a hex more from its border, or one less) or a progress clock; each result goes to the timeline ("The Iron Clans: Raiders strike the Vale's outlying farms"). With **Turns by themselves, every N days** ticked, turns come as the clock moves on, by hand or with a trip, every so many days as the system says.
+
+Tables and conditions read them everywhere: `factions.the-vale.values.strength`, `hex.faction` (who holds the hex: the Grey Marches' Vale patrol rides wherever the Vale holds the land). **Take the factions off the map** forgets them (after asking). The Grey Marches' example map comes with the Iron Clans, the Vale of Ashford and the garrison of Fort Keld, and the clock _The Iron Clans march_ their turns move on. How a system declares them: [Factions](../technical/07-kinds.md#factions).

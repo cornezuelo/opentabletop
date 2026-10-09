@@ -14,6 +14,8 @@ export type MapChange =
   | { kind: 'oracle' }
   /** The world clock (time, events, progress clocks). */
   | { kind: 'world' }
+  /** The factions: their sheets, territory and turns. */
+  | { kind: 'factions' }
   | { kind: 'tokens' }
   | { kind: 'regions' }
   /** Look-only settings (glyph opacity): redraw without rebuilding the grid. */

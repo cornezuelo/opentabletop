@@ -28,6 +28,9 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
       }
     }
   const cell = (hex: string) => parseKey(hex as HexKey)
+  const territories = map.factions?.territories ?? {}
+  const holder = (hex: string) =>
+    Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
   return {
     hexKm: map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM,
@@ -49,6 +52,8 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
         ...(data?.terrain && water.has(data.terrain) && { water: true }),
         // The hex's icon (a village, a bridge…) and its values: {{icon.guards}}.
         ...(data?.icon && { icon: { ...fieldValues(data.icon.fields), id: data.icon.id } }),
+        // The faction that holds it, if any (`hex.faction`).
+        ...(holder(hex) && { faction: holder(hex) }),
         // The places in it, by id: characters' relations to them (`poi:<id>`) hold here.
         ...(data?.pois?.length && { pois: data.pois.map((p) => p.id) }),
       }

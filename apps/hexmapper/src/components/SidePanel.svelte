@@ -8,6 +8,7 @@
   import LibraryPanel from './LibraryPanel.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSystem from './MapSystem.svelte'
+  import FactionsPanel from './FactionsPanel.svelte'
   import WorldPanel from './WorldPanel.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
@@ -167,7 +168,7 @@
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
     </header>
-    <div class="export"><WorldPanel /></div>
+    <div class="export"><WorldPanel /><FactionsPanel /></div>
   {:else if editor.panelView === 'layers'}
     <header>
       <h1>{t('panel.layers')}</h1>

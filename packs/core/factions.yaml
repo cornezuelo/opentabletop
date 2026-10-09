@@ -1,0 +1,17 @@
+# A faction's turn for any game: what it does when the world turns (Factions in the
+# Hexmapper's World panel). It only changes the territory, which every faction has; a
+# system with values of its own (strength, wealth…) writes its own turn table.
+kind: table
+id: faction-turn
+name: A faction's turn
+description: |-
+  What a faction does on a **world turn**, for any game: it grows, holds, schemes or loses ground. A system's factions can roll it (`turn: core/faction-turn`).
+
+  - **Expands** (+1 hex, from its border) or **loses ground** (−1 hex)
+  - **Holds** or **schemes**: nothing changes on the map, a hook for your story
+roll: 1d6
+entries:
+  - { id: setback, range: 1, result: 'Loses ground', effects: { faction.territory: -1 } }
+  - { id: hold, range: 2-3, result: Holds what it has }
+  - { id: scheme, range: 4, result: 'Schemes in secret: something is coming' }
+  - { id: expand, range: 5-6, result: 'Expands its reach', effects: { faction.territory: 1 } }

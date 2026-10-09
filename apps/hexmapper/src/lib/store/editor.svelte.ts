@@ -64,6 +64,7 @@ class Editor {
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state<HexMap['play']>(undefined)
   world = $state.raw<HexMap['world']>(undefined)
+  factions = $state.raw<HexMap['factions']>(undefined)
   tokens = $state.raw<MapToken[]>([])
   regions = $state.raw<MapRegion[]>([])
   captions = $state<HexMap['captions']>(structuredClone(this.map.captions))
@@ -253,6 +254,12 @@ class Editor {
     this.notify({ kind: 'world' })
   }
 
+  /** The factions: saved with the map, outside the undo history (like the world clock). */
+  setFactions(factions: HexMap['factions']): void {
+    this.map.factions = factions
+    this.notify({ kind: 'factions' })
+  }
+
   /** Play state changes: saved with the map but not part of the editor's undo history. */
   setPlay(play: HexMap['play']): void {
     this.map.play = play
@@ -352,6 +359,7 @@ class Editor {
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
     if (change.kind === 'world' || change.kind === 'all') this.world = this.map.world
+    if (change.kind === 'factions' || change.kind === 'all') this.factions = this.map.factions
     if (change.kind === 'play' || change.kind === 'all')
       this.play = this.map.play ? structuredClone(this.map.play) : undefined
     if (change.kind === 'layers' || change.kind === 'all')

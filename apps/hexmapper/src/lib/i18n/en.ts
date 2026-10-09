@@ -218,6 +218,7 @@ export const en = {
       markers: 'Note markers',
       tokens: 'Tokens',
       regions: vocabulary.en.terms.regions,
+      factions: 'Factions',
     },
   },
   labels: {
@@ -356,6 +357,27 @@ export const en = {
     confirmDelete: 'Delete "{name}"? Its {count} hexes will belong to no region.',
     pickFirst: 'Add or pick a region first.',
     none: 'No region',
+  },
+  factions: {
+    title: 'Factions',
+    help: "The factions of the map's system (`kind: factions` in its pack): each with its colour, the hexes it holds (drawn on the map, in the Factions layer) and its sheet (its values, conditions and relations, like a character's). On a **world turn** each one rolls its turn table, and what comes up changes them, their territory and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds",
+    none: "The map's system has factions, not yet on this map.",
+    bring: 'Bring in its factions',
+    noSystem: "The map's system declares no factions.",
+    territory: '{n} hexes',
+    territoryOne: '1 hex',
+    turn: 'World turn',
+    turnHelp:
+      'Every faction takes its turn now, in order, each seeing what the ones before it did: it rolls its table and applies what comes up (its values, another faction’s, its territory growing or shrinking hex by hex, the world clock’s progress clocks). Each result goes to the timeline.',
+    auto: 'Turns by themselves, every {days} days',
+    autoHelp:
+      'As the world clock moves on (by hand, or with a trip), a world turn comes every so many days, as the system says. Untick to take them only with **World turn**.',
+    remove: 'Take the factions off the map',
+    confirmRemove: 'Take the factions off this map? Their sheets and territory are forgotten.',
+    line: '{name}: {text}',
+    gained: 'land +{n}',
+    lost: 'land −{n}',
+    failed: '{name}: the turn table failed ({error})',
   },
   tokens: {
     sheet: 'Sheet',

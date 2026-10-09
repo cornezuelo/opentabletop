@@ -7,7 +7,7 @@ import {
   type TravelSystem,
 } from '@open-tabletop/session'
 import { genericTravelRules, parseTravelRules } from '@open-tabletop/travel-engine'
-import { manifestOf, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
+import { FACTION_SHEET, manifestOf, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
 import { parseDocument, stringify } from 'yaml'
 import { getLocale } from './i18n'
@@ -209,7 +209,7 @@ export function declareSystem(system: TravelSystem): boolean {
 }
 
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
-export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet'
+export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'factions'
 
 /** Where a part named `ref` (`id` of the system's pack, or `pack/id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
@@ -246,7 +246,7 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   const data = systemData(system)
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
-  else if (kind === 'calendar' || kind === 'sheet')
+  else if (kind === 'calendar' || kind === 'sheet' || kind === 'factions')
     refs = data
       ? typeof data[kind] === 'string'
         ? [data[kind] as string]
@@ -280,12 +280,24 @@ export function createSystemPart(system: TravelSystem, kind: PartTabKind): strin
       file,
       appendDefinition(library.readFile(root, file) ?? '', SYSTEM_TEMPLATES[kind](id)),
     )
+    // New factions name a sheet `faction`: written beside them when the pack has none.
+    if (
+      kind === 'factions' &&
+      !(library.registry.extras.get(pack) ?? []).some(
+        (e) => e.kind === 'sheet' && e.id === 'faction',
+      )
+    )
+      library.writeFile(
+        root,
+        file,
+        appendDefinition(library.readFile(root, file) ?? '', FACTION_SHEET()),
+      )
     if (!declared || kind === 'roll-modes') return
     const text = library.readFile(root, declared.path) ?? ''
     const selector = `@system/${declared.id}`
     const current = readDefinition(text, selector) ?? {}
     const value =
-      kind === 'calendar' || kind === 'sheet'
+      kind === 'calendar' || kind === 'sheet' || kind === 'factions'
         ? id
         : [...(Array.isArray(current.weather) ? (current.weather as string[]) : []), id]
     library.writeFile(root, declared.path, setIn(text, selector, [kind], value))

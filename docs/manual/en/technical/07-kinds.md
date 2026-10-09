@@ -16,6 +16,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel                                         | One per system    |
 | `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)                                          | Any               |
 | `sheet`        | What each of the party's characters has: values, conditions       | Trips (the party's characters), the Systems app                            | One per system    |
+| `factions`     | The powers of its world: their land and their world turns         | The Hexmapper's World view, the Systems app                                | One per system    |
 | `system`       | A game system: which of the above it uses, and which packs        | Hexmapper Play and World, the Travel app                                   | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
@@ -323,6 +324,33 @@ relations: # kinds of relation a character may hold to anything with a reference
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`).
 
+## Factions
+
+The powers of a system's world (`factions:` in its [system](#systems)): each a character of a [sheet](#sheets) (its values, conditions and relations) holding hexes of a map, taking a turn on every **world turn**. In the Hexmapper's World view they're brought onto a map, drawn and played ([Factions](../hexmapper/12-world.md#factions)).
+
+```yaml
+kind: factions
+id: default
+name: The powers of the realm
+sheet: faction # the kind: sheet every faction is made with (this pack's, or pack/id)
+turn: faction-turn # what each one rolls on its turn: a table, oracle, generator or deck
+every: 7 # days of the world clock between turns (absent or 0: only by hand)
+factions:
+  the-crown:
+    name: The Crown
+    color: '#c9a227' # its land on the map
+    values: { strength: 4 } # starting values (the rest: the sheet's defaults)
+    territory: { regions: [The Royal Vale], hexes: ['12,4'] } # where it starts
+  the-rebels:
+    name: The Rebels
+    color: '#8b1e1e'
+    turn: core/faction-turn # a turn table of its own (here, Core's)
+```
+
+- A **turn table** sees the faction whose turn it is as `faction.*` (`faction.values.strength`, `faction.territory`: how many hexes it holds, `faction.id`) and every faction as `factions.<id>.*`, besides the world clock's facts. Its entries' **effects** change the world: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (another faction), `faction.territory: 1` (a hex more, from its border: nobody's land first, then a neighbour's) or `-1`, `world.clocks.the-siege: 1` (a progress clock, by its name as an id).
+- Everywhere else (trips, hand rolls, discovery), `factions.<id>.*` and `hex.faction` (the id of the faction that holds the hex) read them: [What tables see](04-what-tables-see.md).
+- Translated keyed `factions/<id>`, by faction (`factions: { the-crown: { name: La Corona } }`). Core's `core/faction-turn` is a turn table for any game (it grows, holds, schemes or loses ground).
+
 ## Systems
 
 A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. Maps and trips choose a system: a Hexmapper map in **Map settings → Map → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), a trip in the Travel app on the system's page; both list them by name.
@@ -336,6 +364,7 @@ travel: default # its travel rules (kind: travel-rules, id: default)
 bindings: default # its bindings
 calendar: marcher-reckoning # its calendar
 sheet: companion # its characters' sheet
+factions: default # the powers of its world
 weather: [sky] # the weather models its bindings may use
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack

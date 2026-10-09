@@ -152,6 +152,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   16(data) {
     return data
   },
+  /** v18: the factions of the map's system on the map (`factions`); older maps have none. */
+  17(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

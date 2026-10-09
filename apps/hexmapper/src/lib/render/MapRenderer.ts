@@ -40,6 +40,7 @@ import {
   toOffset,
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
+import { getSystem } from '../play/systems'
 import { getTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 const EMPTY_FILL = 0x2a2823
@@ -143,6 +144,8 @@ export class MapRenderer {
   /** Regions: tint, inner border along the outline, and the name. */
   private regionLayer = new Container()
   private regionShapes = new Graphics()
+  /** The factions' territory: a tint of each one's colour, and its outline. */
+  private factionShapes = new Graphics()
   /** Terrain glyphs: one tinted sprite per painted hex. */
   private glyphLayer = new Container()
   private glyphSprites = new Map<HexKey, Sprite>()
@@ -192,6 +195,7 @@ export class MapRenderer {
       this.glyphLayer,
       this.gridLines,
       this.regionLayer,
+      this.factionShapes,
       this.pathsLayer,
       this.iconLayer,
       this.nameLayer,
@@ -217,6 +221,7 @@ export class MapRenderer {
     loadLabelFonts().then(() => {
       this.drawLabels()
       this.drawRegions()
+      this.drawFactions()
       this.drawIcons()
       this.drawTokens()
     })
@@ -441,6 +446,8 @@ export class MapRenderer {
       this.drawParty()
     } else if (change.kind === 'regions') {
       this.drawRegions()
+    } else if (change.kind === 'factions') {
+      this.drawFactions()
     } else if (change.kind === 'style') {
       this.drawGlyphs()
       this.drawNames()
@@ -517,6 +524,46 @@ export class MapRenderer {
     this.drawTokens()
     this.drawHighlight()
     this.onViewChanged()
+  }
+
+  /** Each faction's hexes in its colour: a light tint and an outline where its land ends. */
+  private drawFactions(): void {
+    const g = this.factionShapes.clear()
+    const own = editor.map.factions
+    if (!own) return
+    const { grid } = editor.map
+    const hs = grid.hexSize
+    const system = getSystem(own.system).factions
+    for (const [id, hexes] of Object.entries(own.territories)) {
+      const color = system?.def.factions[id]?.color ?? '#8a7f6e'
+      const cells = hexes.map((k) => parseKey(k as HexKey)).filter((c) => inBounds(c, grid))
+      if (!cells.length) continue
+      for (const cell of cells) g.poly(this.cornersAt(cell))
+      g.fill({ color, alpha: 0.16 })
+      const held = new Set(hexes)
+      for (const cell of cells) {
+        const c = this.centerOf(cell)
+        const corners = this.cornersAt(cell)
+        for (let i = 0; i < 6; i++) {
+          const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
+          const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
+          const across = {
+            x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
+            y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
+          }
+          const neighbor = toOffset(pixelToHex(across, grid.orientation, hs), grid.orientation)
+          if (held.has(keyOf(neighbor))) continue
+          // On the inner side, so two factions side by side both show.
+          const inset = (p: { x: number; y: number }) => ({
+            x: p.x + (c.x - p.x) * 0.08,
+            y: p.y + (c.y - p.y) * 0.08,
+          })
+          const [p, q] = [inset(a), inset(b)]
+          g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+        }
+      }
+      g.stroke({ width: hs * 0.06, color, alpha: 0.85 })
+    }
   }
 
   private drawRegions(): void {
@@ -1068,6 +1115,7 @@ export class MapRenderer {
     this.terrainLayer.visible = layers.terrain.visible
     this.glyphLayer.visible = layers.terrain.visible
     this.regionLayer.visible = layers.regions.visible
+    this.factionShapes.visible = layers.factions?.visible ?? true
     this.gridLines.visible = layers.grid.visible
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible

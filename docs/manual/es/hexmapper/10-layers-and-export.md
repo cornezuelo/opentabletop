@@ -2,7 +2,7 @@
 
 ## Capas
 
-**Capas** (el botón ▤ de la barra superior) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, rastro y ruta, texto, coordenadas, iconos, caminos y ríos, regiones, rejilla y terreno.
+**Capas** (el botón ▤ de la barra superior) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, rastro y ruta, texto, coordenadas, iconos, caminos y ríos, facciones (las tierras de cada una en su color), regiones, rejilla y terreno.
 
 - El **ojo** muestra u oculta una capa mientras trabajas. Las capas ocultas tampoco se exportan.
 - El **candado** protege una capa de tus propios clics: ninguna herramienta puede cambiarla hasta que la desbloquees.

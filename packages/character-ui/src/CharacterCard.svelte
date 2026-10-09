@@ -245,7 +245,11 @@
             relate()
           }}
         >
-          <select aria-label={t('relationKind')} bind:value={newKind}>
+          <select
+            aria-label={t('relationKind')}
+            value={newKind || kinds[0]}
+            onchange={(e) => (newKind = e.currentTarget.value)}
+          >
             {#each kinds as kind (kind)}<option value={kind}
                 >{text(sheet.relations[kind].name, kind)}</option
               >{/each}

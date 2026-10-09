@@ -259,6 +259,11 @@ describe('systems in the Systems app', () => {
     expect(library.readFile(id, 'system.yaml')).toMatch(/calendar: calendar[\s\S]*weather:/)
     // The system uses the new calendar's seasons.
     expect(system().calendar!.describe(0).month.id).toBe('thaw')
+    // New factions come with a sheet of their own, and are named by the system.
+    expect(createSystemPart(system(), 'factions')).toBe('default')
+    expect(system().factions?.sheet.id).toBe(`${id}/faction`)
+    expect(Object.keys(system().factions!.def.factions)).toEqual(['the-crown', 'the-rebels'])
+    expect(library.readFile(id, 'system.yaml')).toMatch(/factions: default/)
     // Every read after a change reloads the packs: a few seconds in all.
   }, 30_000)
 

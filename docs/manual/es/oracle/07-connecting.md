@@ -401,6 +401,10 @@ conditions:
 
 Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que no están heridos, Sigilo del más torpe, una ración por boca de lo que llevan, una noche bien comidos que cura a todos, un vado que tuerce el tobillo de quien guía el cruce, **Curar a los heridos** para quien actúe con Supervivencia 2 o más, un guía y un vigía, y En casa cuando el grupo llega al hogar de un compañero ([Las Marcas Grises](../packs/02-grey-marches.md)). Todas las claves están en [Hojas](../technical/07-kinds.md#hojas).
 
+### Facciones
+
+Los poderes del mundo del sistema son **facciones** (`kind: factions`, nombradas con `factions:` en su sistema): cada una, un personaje de una hoja (fuerza, reputación…) con tierras en un mapa. En cada turno del mundo (a mano, o cada pocos días del reloj del mundo) cada una tira una tabla de turno cuyos efectos la cambian a ella (`faction.values.strength: 1`, `faction.territory: 1`), a otra (`factions.the-vale.values.strength: -1`) o un reloj de progreso (`world.clocks.the-iron-clans-march: 1`). Cualquier tabla las lee: `factions.iron-clans.values.strength`, `hex.faction: the-vale` (la patrulla de las Marcas Grises recorre las tierras que tenga el Valle). Todas las claves: [Facciones](../technical/07-kinds.md#facciones).
+
 ## 6. Un calendario propio
 
 Los viajes cuentan los días con un calendario sencillo (cuatro estaciones de 90 días) salvo que el pack del sistema tenga uno propio: una definición `kind: calendar`, en cualquier fichero del pack.

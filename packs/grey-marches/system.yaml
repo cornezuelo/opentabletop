@@ -10,12 +10,14 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its example map, and the sheet its companions are made with.
+  pack's dependency, its example map, the sheet its companions are made with, and its factions.
 travel: default
 bindings: default
 calendar: marcher-reckoning
 # The Company's characters (sheet.yaml): a trip's party may be made of them.
 sheet: companion
+# The powers of the Marches (factions.yaml): their territory and their world turns.
+factions: default
 weather: [sky]
 packs: [core]
 # Listed in the Hexmapper's Maps → Example maps.

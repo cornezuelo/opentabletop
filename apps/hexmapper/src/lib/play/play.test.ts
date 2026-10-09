@@ -32,7 +32,9 @@ import {
   stopMessage,
   worldAct,
   worldCalendar,
+  worldTurnNow,
 } from './world.svelte'
+import { bringFactions, removeFactions } from './factions'
 import { oracleUi, rollContext } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 
@@ -553,3 +555,80 @@ function refreshed(s: SessionState): SessionState {
   refreshParty(s, partyOf(activeSystem()))
   return s
 }
+
+describe('the powers of the Marches: factions on the map', () => {
+  const grey = () =>
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+  beforeEach(() => {
+    let seed = 11
+    vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('the example map brings them, holding their land; tables read them', () => {
+    grey()
+    const own = editor.map.factions!
+    expect(own.system).toBe('grey-marches')
+    expect(own.factions.map((f) => [f.id, f.values.strength])).toEqual([
+      ['iron-clans', 4],
+      ['the-vale', 3],
+      ['fort-keld', 2],
+    ])
+    expect(own.territories['fort-keld']).toEqual(['15,9'])
+    expect(own.territories['iron-clans']).not.toContain('15,9')
+    // Who holds a hex, for trips and hand rolls; every faction by id.
+    expect(mapWorld(editor.map).cell('15,9')).toMatchObject({ faction: 'fort-keld' })
+    expect(rollContext()).toMatchObject({
+      factions: {
+        'the-vale': { name: 'The Vale of Ashford', values: { strength: 3 } },
+        'fort-keld': { territory: 1 },
+      },
+    })
+    // Kept in the file.
+    const back = bundleToMap(mapToBundle(editor.map)).factions
+    expect(back).toEqual(own)
+  })
+
+  it('a world turn rolls each one’s table: values, territory, clocks and the timeline change', () => {
+    grey()
+    const before = structuredClone(editor.map.factions!)
+    const clock = () =>
+      editor.map.world!.clocks.find((c) => c.name === 'The Iron Clans march')!.filled
+    const filled = clock()
+    worldTurnNow()
+    const lines = editor.map.world!.timeline.filter((e) => e.code === 'LOG')
+    expect(lines.map((l) => l.data?.faction)).toEqual(['iron-clans', 'the-vale', 'fort-keld'])
+    expect(lines[0].text).toMatch(/^The Iron Clans: /)
+    // Something changed: a value, the territory or the Clans' march.
+    const after = editor.map.factions!
+    const changed =
+      JSON.stringify(after.factions) !== JSON.stringify(before.factions) ||
+      JSON.stringify(after.territories) !== JSON.stringify(before.territories) ||
+      clock() !== filled
+    expect(changed).toBe(true)
+    expect(after.lastTurn).toBe(editor.map.world!.time)
+  })
+
+  it('turns come by themselves every 7 days of the world clock, unless asked not to', async () => {
+    grey()
+    const turns = () =>
+      editor.map.world!.timeline.filter((e) => e.code === 'LOG' && e.data?.faction === 'the-vale')
+        .length
+    worldAct({ type: 'advance', minutes: 15 * 1440 })
+    expect(turns()).toBe(2)
+    editor.setFactions({ ...editor.map.factions!, auto: false })
+    worldAct({ type: 'advance', minutes: 15 * 1440 })
+    expect(turns()).toBe(2)
+  })
+
+  it('a map without them can bring the system’s, and take them off', () => {
+    grey()
+    removeFactions()
+    expect(editor.map.factions).toBeUndefined()
+    bringFactions()
+    expect(editor.map.factions!.territories['the-vale'].length).toBeGreaterThan(10)
+  })
+})

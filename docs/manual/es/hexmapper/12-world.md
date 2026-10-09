@@ -57,4 +57,12 @@ Un reloj es un número de segmentos que se llenan según algo avanza: una amenaz
 
 Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas, relojes que se movieron y tus propias notas (escribe una y **Añadir**).
 
-El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado cada semana (`market-day`: ese día, en Ashford, **Día de mercado** da provisiones), los Clanes de Hierro marchando sobre Fort Keld (`clan-march`), las crecidas de primavera (`spring-floods`) y dos relojes: la Sierpe del Bosque Gris (cuando se llena, la Sierpe recorre el Bosque Gris) y la guarnición sin paga de Fort Keld.
+El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado cada semana (`market-day`: ese día, en Ashford, **Día de mercado** da provisiones), los Clanes de Hierro marchando sobre Fort Keld (`clan-march`), las crecidas de primavera (`spring-floods`) y tres relojes: la Sierpe del Bosque Gris (cuando se llena, la Sierpe recorre el Bosque Gris), la guarnición sin paga de Fort Keld y la marcha de los Clanes de Hierro (la hacen avanzar sus turnos del mundo).
+
+## Facciones
+
+Cuando el sistema del mapa tiene facciones (los poderes de su mundo, `kind: factions` en su pack), la vista Mundo las lista en **Facciones**; **Traer sus facciones** las pone en un mapa que aún no las tiene, cada una con sus tierras iniciales (las regiones y hexes que nombra su pack). Cada una muestra su color y cuántos hexes tiene; ábrela para ver su hoja (sus valores, estados y relaciones, como los de un personaje: cámbialos a mano cuando lo diga la historia). Sus tierras se dibujan en el mapa en su color (la capa **Facciones**).
+
+**Turno del mundo** hace que cada facción juegue su turno ahora, en orden: cada una tira su tabla de turno, y lo que sale la cambia a ella, a otra facción, sus tierras (un hex más desde su frontera, o uno menos) o un reloj de progreso; cada resultado va a la cronología («Los Clanes de Hierro: Unos saqueadores atacan las granjas apartadas del Valle»). Con **Turnos por sí solos, cada N días** marcado, los turnos llegan según avanza el reloj, a mano o con un viaje, cada tantos días como diga el sistema.
+
+Las tablas y condiciones las leen en todas partes: `factions.the-vale.values.strength`, `hex.faction` (quién tiene el hex: la patrulla del Valle de las Marcas Grises recorre cualquier tierra que tenga el Valle). **Quitar las facciones del mapa** las olvida (tras preguntar). El mapa de ejemplo de las Marcas Grises trae a los Clanes de Hierro, el Valle de Ashford y la guarnición de Fort Keld, y el reloj _The Iron Clans march_ que sus turnos hacen avanzar. Cómo las declara un sistema: [Facciones](../technical/07-kinds.md#facciones).

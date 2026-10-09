@@ -1,0 +1,12 @@
+faction-turn:
+  name: El turno de una facción
+  description: |-
+    Lo que hace una facción en un **turno del mundo**, para cualquier juego: crece, aguanta, conspira o pierde terreno. Las facciones de un sistema pueden tirarla (`turn: core/faction-turn`).
+
+    - **Se expande** (+1 hex, desde su frontera) o **pierde terreno** (−1 hex)
+    - **Aguanta** o **conspira**: nada cambia en el mapa, un gancho para tu historia
+  entries:
+    setback: Pierde terreno
+    hold: Aguanta lo que tiene
+    scheme: 'Conspira en secreto: algo se avecina'
+    expand: Extiende su alcance

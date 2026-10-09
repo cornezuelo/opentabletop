@@ -13,7 +13,7 @@ description: |-
 
   - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
   - Conditions on `terrain`, `region`, `tags`, `danger`, `season` and the moons (`moons.ember: full`)
-  - An entry's `unless`: the Vale's patrol, never at night
+  - An entry's `unless`: the Vale's patrol, never at night; it rides wherever the Vale holds the land (`hex.faction`, a faction's territory)
   - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart; `pause`: the trip stops when it comes up
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
@@ -51,9 +51,10 @@ entries:
     result: Pale lights drift between the trees, calling your names
     effects: { party.members.values.dread: 1 }
   # In a named region, by day: its own people (`unless`: not at night).
+  # …or wherever the Vale holds the land (a faction's territory: `hex.faction`).
   - id: patrol
     range: 1-4
-    when: { region: { eq: Ashford Vale } }
+    when: { any: [{ region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they are {{result}}'
     table: reaction

@@ -44,7 +44,8 @@ export interface ProgressClock {
 export interface TimelineEntry {
   id: string
   time: GameTime
-  code: 'EVENT' | 'HOLIDAY' | 'MOON' | 'CLOCK_FILLED' | 'CLOCK' | 'NOTE' | 'REWOUND'
+  /** `LOG`: a line another part of the campaign wrote (a world turn's result, with `data`). */
+  code: 'EVENT' | 'HOLIDAY' | 'MOON' | 'CLOCK_FILLED' | 'CLOCK' | 'NOTE' | 'REWOUND' | 'LOG'
   text?: string
   data?: Record<string, unknown>
 }
@@ -85,6 +86,8 @@ export type WorldAction =
   | { type: 'tick'; id: string; segments: number }
   | { type: 'removeClock'; id: string }
   | { type: 'note'; text: string }
+  /** A line of the timeline written by someone else (a faction's turn), at a moment or now. */
+  | { type: 'log'; text: string; data?: Record<string, unknown>; time?: GameTime }
 
 export type WorldEvent =
   | { type: 'TIME_ADVANCED'; from: GameTime; to: GameTime }
@@ -286,6 +289,14 @@ export function createWorld(options: WorldOptions = {}) {
       case 'note':
         if (action.text.trim())
           log(state, { time: state.time, code: 'NOTE', text: action.text.trim() })
+        break
+      case 'log':
+        log(state, {
+          time: action.time ?? state.time,
+          code: 'LOG',
+          text: action.text,
+          ...(action.data && { data: action.data }),
+        })
         break
     }
     return { state, events }

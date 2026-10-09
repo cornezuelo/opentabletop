@@ -125,6 +125,7 @@ function validate(data: Record<string, unknown>): HexMap {
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
     ...(isRecord(data.oracle) && { oracle: parseOracle(data.oracle) }),
     ...(isRecord(data.world) && { world: readWorld(data.world) }),
+    ...(isRecord(data.factions) && { factions: parseFactions(data.factions) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }
@@ -506,5 +507,24 @@ function parseOracle(o: Record<string, unknown>): NonNullable<HexMap['oracle']> 
     history: Array.isArray(o.history)
       ? (o.history.filter(isRecord) as unknown as NonNullable<HexMap['oracle']>['history'])
       : [],
+  }
+}
+
+/** The factions on a map (their sheets are re-read by the character engine when used). */
+function parseFactions(f: Record<string, unknown>): NonNullable<HexMap['factions']> {
+  const territories: Record<string, string[]> = {}
+  if (isRecord(f.territories))
+    for (const [id, hexes] of Object.entries(f.territories))
+      if (Array.isArray(hexes))
+        territories[id] = hexes.filter((h): h is string => typeof h === 'string' && HEX_KEY.test(h))
+  return {
+    system: typeof f.system === 'string' ? f.system : '',
+    factions: (Array.isArray(f.factions) ? f.factions : []).filter(
+      (c): c is CharacterState =>
+        isRecord(c) && typeof c.id === 'string' && typeof c.sheet === 'string',
+    ),
+    territories,
+    lastTurn: typeof f.lastTurn === 'number' ? f.lastTurn : 0,
+    ...(f.auto === false && { auto: false as const }),
   }
 }

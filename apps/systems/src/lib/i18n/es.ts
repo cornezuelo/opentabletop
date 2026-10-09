@@ -38,6 +38,7 @@ export const es: Messages<typeof en> = {
     rules: 'Reglas',
     checks: 'Comprobaciones',
     sheet: 'Hoja',
+    factions: 'Facciones',
     calendar: 'Calendario',
     weather: 'Clima',
     modes: 'Modos de tirada',
@@ -45,6 +46,14 @@ export const es: Messages<typeof en> = {
     yaml: 'YAML',
   },
   parts: {
+    factions: {
+      title: 'Sus facciones',
+      intro:
+        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. En el Hexmapper se traen a un mapa desde el panel Mundo.',
+      help: 'Una definición de facciones por sistema, nombrada en su **Resumen** (`factions:`). Las tablas y condiciones las leen en todas partes:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `hex.faction: the-crown` — quién tiene el hex\nSus tablas de turno las cambian con efectos:\n• `faction.values.strength: 1` — la facción a la que le toca\n• `factions.the-rebels.values.strength: -1` — otra\n• `faction.territory: 1` — un hex más, desde su frontera\n• `world.clocks.the-siege: 1` — un reloj de progreso del reloj del mundo',
+      none: 'Este sistema no tiene facciones.',
+      create: 'Nuevas facciones',
+    },
     sheet: {
       title: 'La hoja de sus personajes',
       intro:
@@ -77,6 +86,36 @@ export const es: Messages<typeof en> = {
       none: 'Los packs de este sistema no declaran modos de tirada.',
       create: 'Nuevos modos de tirada',
     },
+  },
+  factionsForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llaman estas facciones en conjunto.\n• **Los poderes del reino**',
+    sheet: 'Su hoja',
+    sheetHelp:
+      'La hoja con la que se hace cada facción (`kind: sheet`): sus valores (fuerza, riqueza…), estados (en guerra…) y tipos de relación (aliado, rival). Puede ser la de los personajes o una propia.',
+    turn: 'Su turno',
+    turnHelp:
+      'Lo que tira cada facción en un turno del mundo (una tabla, oráculo, generador o mazo), con sus propios valores como `faction.*`:\n• `faction-turn` — una tabla de este pack\n• `core/faction-turn` — la de Core, para cualquier juego: crece, aguanta o pierde terreno',
+    every: 'Cada (días)',
+    everyHelp:
+      'Días del reloj del mundo entre turnos. Vacío o 0: solo a mano (el **Turno del mundo** del Hexmapper).\n• `7` — un turno a la semana',
+    byHand: 'a mano',
+    factions: 'Facciones',
+    factionsHelp:
+      'Cada facción, con un id con el que la leen las tablas (`factions.<id>.*`): su nombre, su color en el mapa, sus valores iniciales, dónde empieza y, si la tiene, una tabla de turno propia.',
+    factionName: 'Nombre',
+    color: 'Color',
+    colorHelp: 'Su color en el mapa, como `#rrggbb`.\n• `#8b1e1e`',
+    values: 'Empieza con',
+    valuesHelp:
+      'Valores iniciales de su hoja, como pares `clave: valor`; el resto, los de por defecto de la hoja.\n• `strength: 4, reputation: -1`',
+    regions: 'Regiones',
+    regionsHelp:
+      'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), separadas por comas.\n• `The Hollow Hills`',
+    hexes: 'Hexes',
+    hexesHelp: 'Y estos hexes (columna,fila), separados por comas.\n• `15,9`',
+    ownTurn: 'Turno propio',
+    ownTurnHelp: 'Una tabla de turno propia, en vez de la de las facciones.\n• `clan-turn`',
   },
   sheet: {
     name: 'Nombre',

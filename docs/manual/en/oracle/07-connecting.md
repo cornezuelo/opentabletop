@@ -395,6 +395,10 @@ conditions:
 
 The Grey Marches play their Company this way: Survival from the best of those not wounded, Stealth from the clumsiest, a ration per mouth from what they carry, a fed night healing everyone, a ford that sprains the ankle of whoever leads the crossing, **Tend the wounded** for whoever acts with Survival 2 or more, a guide and a lookout, and Home ground when the party comes into a companion's home ([The Grey Marches](../packs/02-grey-marches.md)). Every key is in [Sheets](../technical/07-kinds.md#sheets).
 
+### Factions
+
+The powers of the system's world are **factions** (`kind: factions`, named by `factions:` in its system): each a character of a sheet (strength, reputation…) holding land on a map. On every world turn (by hand, or every few days of the world clock) each one rolls a turn table whose effects change it (`faction.values.strength: 1`, `faction.territory: 1`), another (`factions.the-vale.values.strength: -1`) or a progress clock (`world.clocks.the-iron-clans-march: 1`). Any table reads them: `factions.iron-clans.values.strength`, `hex.faction: the-vale` (the Grey Marches' patrol rides where the Vale holds the land). Every key: [Factions](../technical/07-kinds.md#factions).
+
 ## 6. A calendar of your own
 
 Trips count days with a plain calendar (four seasons of 90 days) unless the system's pack has its own: a `kind: calendar` definition, in any file of the pack.

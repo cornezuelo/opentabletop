@@ -370,6 +370,8 @@ export function travelSystems(registry: Registry): {
         for (const [at, table] of tables) {
           if (!table) continue
           const full = table.includes('/') ? table : `${owner}/${table}`
+          // Another pack's that isn't loaded: the missing dependency is reported already.
+          if (!registry.packs.has(full.split('/')[0])) continue
           if (!registry.definitions.has(full))
             report(`${at}: Unknown table or generator "${table}"`)
         }
@@ -404,6 +406,7 @@ export function travelSystems(registry: Registry): {
           parts.rules.file,
           parts.rules.id,
           sheet?.def,
+          factions,
         ),
       )
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
@@ -574,6 +577,7 @@ function undeclaredEffects(
   file: string,
   rulesId = 'default',
   sheet?: Sheet,
+  factions?: SystemFactions,
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -582,6 +586,16 @@ function undeclaredEffects(
       const [, scope, valueId] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
       // A member's value or condition: its sheet's.
       const [, , part, partId] = MEMBER_PATH.exec(path) ?? []
+      // A faction's (on a world turn): its sheet's values and conditions, its territory.
+      const [, factionPart, factionId] =
+        /^(?:faction|factions\.[^.]+)\.(values|conditions|territory)(?:\.(.+))?$/.exec(path) ?? []
+      if (/^world\.clocks\./.test(path)) continue
+      const factionKnown =
+        factions &&
+        (factionPart === 'territory' ||
+          (!!factionPart &&
+            !!factions.sheet.def[factionPart as 'values' | 'conditions'][factionId ?? '']))
+      if (factionKnown) continue
       const known = part
         ? !!sheet?.[part as 'values' | 'conditions'][partId]
         : scope === 'stats'

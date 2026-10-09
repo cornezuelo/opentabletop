@@ -8,6 +8,7 @@
   import ReadOnly from '../ReadOnly.svelte'
   import CalendarForm from './CalendarForm.svelte'
   import RollModesForm from './RollModesForm.svelte'
+  import FactionsForm from './FactionsForm.svelte'
   import SheetForm from './SheetForm.svelte'
   import WeatherForm from './WeatherForm.svelte'
 
@@ -26,7 +27,7 @@
   const canCreate = $derived(
     !!root &&
       library.isEditable(root) &&
-      ((kind !== 'calendar' && kind !== 'sheet') || parts.length === 0),
+      ((kind !== 'calendar' && kind !== 'sheet' && kind !== 'factions') || parts.length === 0),
   )
   const key = $derived(kind === 'roll-modes' ? 'modes' : kind)
 
@@ -57,6 +58,8 @@
     {#key `${part.root}/${part.path}/${part.id}`}
       {#if kind === 'calendar'}
         <CalendarForm {doc} />
+      {:else if kind === 'factions'}
+        <FactionsForm {doc} {system} />
       {:else if kind === 'sheet'}
         <SheetForm {doc} {system} />
       {:else if kind === 'weather'}

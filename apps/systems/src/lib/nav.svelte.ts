@@ -3,7 +3,16 @@
  * #/system/<id>/<tab>.
  */
 export type Tab =
-  'overview' | 'rules' | 'checks' | 'sheet' | 'calendar' | 'weather' | 'modes' | 'try' | 'yaml'
+  | 'overview'
+  | 'rules'
+  | 'checks'
+  | 'sheet'
+  | 'factions'
+  | 'calendar'
+  | 'weather'
+  | 'modes'
+  | 'try'
+  | 'yaml'
 export type View = { name: 'welcome' } | { name: 'system'; id: string; tab: Tab }
 
 const TABS: Tab[] = [
@@ -11,6 +20,7 @@ const TABS: Tab[] = [
   'rules',
   'checks',
   'sheet',
+  'factions',
   'calendar',
   'weather',
   'modes',

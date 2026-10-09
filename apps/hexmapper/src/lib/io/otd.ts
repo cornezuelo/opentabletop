@@ -259,9 +259,36 @@ export function mapToBundle(map: HexMap): OtdBundle {
         ...((extra.clocks as OtdClock[] | undefined) ?? []),
       ],
     }),
+    // The factions: each as an OTD faction (its values as `stats`, its sheet and territory in
+    // `ext`), the rest (their system, the last turn) as engine state.
+    ...(map.factions && {
+      factions: [
+        ...map.factions.factions.map((f) => {
+          const as = characterToOtd(f)
+          return {
+            id: f.id,
+            type: 'faction' as const,
+            ...(as.tags && { tags: as.tags }),
+            stats: as.stats,
+            ext: {
+              character: as.ext.character,
+              hexmapper: { territory: map.factions!.territories[f.id] ?? [] },
+            },
+          }
+        }),
+        ...((extra.factions as OtdBundle['factions'] | undefined) ?? []),
+      ],
+    }),
     state: {
       ...(extra.state as Record<string, unknown> | undefined),
       ...(oracle && { oracle }),
+      ...(map.factions && {
+        factions: {
+          system: map.factions.system,
+          lastTurn: map.factions.lastTurn,
+          ...(map.factions.auto === false && { auto: false }),
+        },
+      }),
       ...(map.world && {
         world: {
           time: map.world.time,
@@ -482,6 +509,29 @@ export function bundleToMap(raw: unknown): HexMap {
     delete otherState.world
     extraBundle.clocks = []
   }
+  // The factions, if this app wrote them (their state says from which system).
+  const factionState = bundle.state.factions as
+    { system?: unknown; lastTurn?: unknown; auto?: unknown } | undefined
+  let factions: Record<string, unknown> | undefined
+  if (factionState && typeof factionState.system === 'string') {
+    const territories: Record<string, unknown> = {}
+    const list = bundle.factions.flatMap((f) => {
+      const ext = f.ext as { character?: unknown; hexmapper?: { territory?: unknown } } | undefined
+      const character = characterFromOtd({ ...f, ext: { character: ext?.character } })
+      if (!character) return []
+      territories[f.id] = ext?.hexmapper?.territory ?? []
+      return [character]
+    })
+    factions = {
+      system: factionState.system,
+      factions: list,
+      territories,
+      lastTurn: factionState.lastTurn,
+      ...(factionState.auto === false && { auto: false }),
+    }
+    delete otherState.factions
+    extraBundle.factions = bundle.factions.filter((f) => !list.some((c) => c.id === f.id))
+  }
   extraBundle.state = otherState
   // Our tokens are rebuilt from the map when saving.
   extraBundle.characters = otherCharacters
@@ -521,6 +571,7 @@ export function bundleToMap(raw: unknown): HexMap {
     layers: ext.layers,
     ...(play && { play }),
     ...(world && { world }),
+    ...(factions && { factions }),
     ...((oracleState || ext.oracleHistory) && {
       oracle: { state: oracleState ?? {}, history: ext.oracleHistory ?? [] },
     }),

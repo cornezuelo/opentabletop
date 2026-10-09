@@ -16,6 +16,7 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno por sistema  |
 | `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
 | `sheet`        | Lo que tiene cada personaje del grupo: valores, estados               | Los viajes (los personajes del grupo), la aplicación Systems                        | Uno por sistema  |
+| `factions`     | Los poderes de su mundo: sus tierras y sus turnos del mundo           | La vista Mundo del Hexmapper, la aplicación Systems                                 | Uno por sistema  |
 | `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs        | Jugar y Mundo del Hexmapper, la aplicación Travel                                   | Los que quieras  |
 
 **Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
@@ -322,6 +323,33 @@ relations: # tipos de relación que un personaje puede tener con cualquier cosa 
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
 - Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`).
 
+## Facciones
+
+Los poderes del mundo de un sistema (`factions:` en su [sistema](#sistemas)): cada uno, un personaje de una [hoja](#hojas) (sus valores, estados y relaciones) que tiene hexes de un mapa, y juega un turno en cada **turno del mundo**. En la vista Mundo del Hexmapper se traen a un mapa, se dibujan y se juegan ([Facciones](../hexmapper/12-world.md#facciones)).
+
+```yaml
+kind: factions
+id: default
+name: Los poderes del reino
+sheet: faction # la kind: sheet con la que se hace cada facción (de este pack, o pack/id)
+turn: faction-turn # lo que tira cada una en su turno: una tabla, oráculo, generador o mazo
+every: 7 # días del reloj del mundo entre turnos (sin poner o 0: solo a mano)
+factions:
+  the-crown:
+    name: La Corona
+    color: '#c9a227' # sus tierras en el mapa
+    values: { strength: 4 } # valores iniciales (el resto: los de la hoja)
+    territory: { regions: [The Royal Vale], hexes: ['12,4'] } # dónde empieza
+  the-rebels:
+    name: Los Rebeldes
+    color: '#8b1e1e'
+    turn: core/faction-turn # una tabla de turno propia (aquí, la de Core)
+```
+
+- Una **tabla de turno** ve a la facción a la que le toca como `faction.*` (`faction.values.strength`, `faction.territory`: cuántos hexes tiene, `faction.id`) y a todas como `factions.<id>.*`, además de lo del reloj del mundo. Los **efectos** de sus entradas cambian el mundo: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (otra facción), `faction.territory: 1` (un hex más, desde su frontera: primero tierra de nadie, luego la de un vecino) o `-1`, `world.clocks.the-siege: 1` (un reloj de progreso, por su nombre como id).
+- En todo lo demás (viajes, tiradas a mano, descubrimiento), `factions.<id>.*` y `hex.faction` (el id de la facción que tiene el hex) las leen: [Lo que ven las tablas](04-what-tables-see.md).
+- Se traduce con la clave `factions/<id>`, por facción (`factions: { the-crown: { name: La Corona } }`). La `core/faction-turn` de Core es una tabla de turno para cualquier juego (crece, aguanta, conspira o pierde terreno).
+
 ## Sistemas
 
 Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario y modelos de clima, y los packs cuyas tablas, oráculos y mazos trae consigo. Los mapas y los viajes eligen un sistema: un mapa del Hexmapper en **Ajustes del mapa → Mapa → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), un viaje de la aplicación Travel en la página del sistema; ambos los muestran por su nombre.
@@ -335,6 +363,7 @@ travel: default # sus reglas de viaje (kind: travel-rules, id: default)
 bindings: default # sus bindings
 calendar: marcher-reckoning # su calendario
 sheet: companion # la hoja de sus personajes
+factions: default # los poderes de su mundo
 weather: [sky] # los modelos de clima que pueden usar sus bindings
 packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack

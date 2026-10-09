@@ -121,6 +121,8 @@ Las características del grupo que un sistema saca de sus personajes (`from` en 
 
 ## Del reloj del mundo (Hexmapper)
 
+Con facciones en el mapa (las **Facciones** de la vista Mundo): `factions.<id>.*`, los valores, estados, etiquetas y relaciones de cada una como los de un personaje (`factions.the-vale.values.strength`), su `name` y su `territory` (cuántos hexes tiene); y `hex.faction`, el id de la facción que tiene un hex (`hex.faction: iron-clans`). En la tabla de turno de una facción, la facción a la que le toca es también `faction.*`. También en las tiradas a mano.
+
 Con el reloj del mundo en marcha: `world.clocks.<nombre>`, lo lleno de cada reloj de progreso por su nombre en minúsculas con guiones (`world.clocks.the-flood: { gte: 4 }`), y `world.events`, los eventos de hoy por su id (`world.events: market-day`; también sus nombres escritos así). En corto: `clocks`, `events`. También en las tiradas a mano.
 
 ## Descubrir el mapa
@@ -133,7 +135,7 @@ Con el reloj del mundo en marcha: `world.clocks.<nombre>`, lo lleno de cada relo
 
 Cuando dos fuentes dan el mismo nombre, gana la posterior:
 
-1. **Comprobaciones:** características del grupo por nombre → valores del día → lo del mapa y del viaje → `party` → contexto del binding. Así una característica o un valor del día llamado `terrain` o `weather` no puede tapar el de verdad; `party.stats.terrain` sigue llegando a ella. **Los nombres completos nunca coinciden**: `hex.terrain`, `trip.weather`, `party.stats.weather` son siempre lo que dicen; solo se comparten los cortos. Nombres reservados que una característica no debería usar: los nombres cortos de las tablas de arriba, y los grupos `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `characters`, `acting`, `roles`, `icon`, `token`, `name`; en una tabla con tirada, `roll` y `result`.
+1. **Comprobaciones:** características del grupo por nombre → valores del día → lo del mapa y del viaje → `party` → contexto del binding. Así una característica o un valor del día llamado `terrain` o `weather` no puede tapar el de verdad; `party.stats.terrain` sigue llegando a ella. **Los nombres completos nunca coinciden**: `hex.terrain`, `trip.weather`, `party.stats.weather` son siempre lo que dicen; solo se comparten los cortos. Nombres reservados que una característica no debería usar: los nombres cortos de las tablas de arriba, y los grupos `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `characters`, `acting`, `roles`, `factions`, `faction`, `icon`, `token`, `name`; en una tabla con tirada, `roll` y `result`.
 2. **Tiradas a mano** (panel Oracle): durante un viaje, el mismo orden que las comprobaciones; después el token → lo que escribes en el **Contexto** del panel de tirada. Un `token.fare` escrito cambia solo ese valor del token.
 3. **Dentro de una tabla:** una tabla con tirada propia da a sus entradas el total como `roll` (en sus condiciones, textos, `set` y efectos: `when: { party.stats.survival: { gte: '{{roll}}' } }`, una tirada por debajo); los valores que fija una entrada (`set`) llegan a la tabla que tira a continuación; los campos de un generador ven los anteriores, y el `context` de un campo añade valores solo para ese campo.
 

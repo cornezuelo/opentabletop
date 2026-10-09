@@ -121,6 +121,8 @@ The party's stats a system makes of its characters (`from` in its bindings) and 
 
 ## From the world clock (Hexmapper)
 
+With factions on the map (the World view's **Factions**): `factions.<id>.*`, each one's values, conditions, tags and relations as a character's (`factions.the-vale.values.strength`), its `name` and `territory` (how many hexes it holds); and `hex.faction`, the id of the faction that holds a hex (`hex.faction: iron-clans`). In a faction's turn table, the faction whose turn it is is also `faction.*`. Also in hand rolls.
+
 With the world clock running: `world.clocks.<name>`, each progress clock's filled segments by its name in lowercase with dashes (`world.clocks.the-flood: { gte: 4 }`), and `world.events`, today's events by their ids (`world.events: market-day`; their names written that way too). Short: `clocks`, `events`. Also in hand rolls.
 
 ## Discovering the map
@@ -133,7 +135,7 @@ With the world clock running: `world.clocks.<name>`, each progress clock's fille
 
 When two sources give the same name, the later one wins:
 
-1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. **Full names never collide**: `hex.terrain`, `trip.weather`, `party.stats.weather` are always what they say; only short names are shared. Reserved names a stat shouldn't use: the short names in the tables above, and the groups `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `characters`, `acting`, `roles`, `icon`, `token`, `name`; in a table with a roll, `roll` and `result`.
+1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. **Full names never collide**: `hex.terrain`, `trip.weather`, `party.stats.weather` are always what they say; only short names are shared. Reserved names a stat shouldn't use: the short names in the tables above, and the groups `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `characters`, `acting`, `roles`, `factions`, `faction`, `icon`, `token`, `name`; in a table with a roll, `roll` and `result`.
 2. **Hand rolls** (Oracle panel): during a trip, the same order as checks; then the token → what you type in the roll panel's **Context**. A typed `token.fare` changes only that value of the token.
 3. **Inside a table:** a table with a roll of its own gives its entries the total as `roll` (their conditions, texts, `set` and effects: `when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under); values an entry sets (`set`) reach the table it then rolls; a generator's fields see the fields before them, and a field's `context` adds values for that field only.
 

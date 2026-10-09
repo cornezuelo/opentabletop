@@ -12,7 +12,9 @@ import {
   type WorldEvent,
   type WorldState,
   worldFacts,
+  factId,
 } from '@open-tabletop/world-engine'
+import { dueTurns, factionFactsNow, takeWorldTurn } from './factions'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
@@ -33,10 +35,15 @@ export function worldCalendar(): Calendar {
 
 const world = () => createWorld({ calendar: worldCalendar() })
 
-/** What tables and conditions read of the world clock (its clocks, today's events), if running. */
+/**
+ * What tables and conditions read of the world: the world clock's (its clocks, today's
+ * events), if running, and the factions' (`factions.<id>.*`), if the map has them.
+ */
 export function worldFactsNow(): Record<string, unknown> | undefined {
   const state = editor.map.world
-  return state ? worldFacts(state, worldCalendar()) : undefined
+  const factions = factionFactsNow()
+  if (!state && !factions) return undefined
+  return { ...(state && worldFacts(state, worldCalendar())), ...factions }
 }
 
 /** When the clock starts unless another date is chosen: the trip's time, else dawn of day 1. */
@@ -81,7 +88,30 @@ export function worldAct(action: WorldAction): WorldEvent[] {
   if (!state) return []
   const { state: next, events } = world().apply(state, action)
   editor.setWorld(next)
+  // The factions take the turns that came due on the way (every so many days).
+  if (next.time > state.time)
+    for (const at of dueTurns(next.time, worldCalendar().minutesPerDay)) worldTurnNow(at)
   return events
+}
+
+/**
+ * A world turn: every faction of the map takes its turn (at `time`, the world clock's by
+ * default); what they did goes to the timeline, and the progress clocks they tick move.
+ */
+export function worldTurnNow(time = editor.map.world?.time): void {
+  takeWorldTurn(
+    {
+      facts: worldFactsNow(),
+      log: (text, data, at) => void worldAct({ type: 'log', text, data, time: at }),
+      tick: (clock, segments) => {
+        const found = editor.map.world?.clocks.find(
+          (c) => factId(c.name) === clock || c.id === clock,
+        )
+        if (found) worldAct({ type: 'tick', id: found.id, segments })
+      },
+    },
+    time,
+  )
 }
 
 /**
