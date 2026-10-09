@@ -38,13 +38,35 @@ export class PackLibrary {
   private onStorageFull?: () => void
   private extraDiagnostics?: (registry: Registry) => Diagnostic[]
   user = $state.raw<PackSource[]>([])
-  packs: WorkspacePack[] = $derived(effectivePacks(this.bundled, this.user))
-  loaded = $derived(loadPacks(engineFiles(this.packs)))
+  /**
+   * What the packs compile to, kept while the user packs stay the same: Svelte's server
+   * build (tests, the command line) doesn't keep `$derived` values between reads, and
+   * compiling every pack on each read made long trips crawl there.
+   */
+  private cache: {
+    user: PackSource[]
+    packs: WorkspacePack[]
+    loaded: ReturnType<typeof loadPacks>
+    problems?: Diagnostic[]
+  } | null = null
+  private compiled() {
+    const user = this.user
+    if (this.cache?.user !== user) {
+      const packs = effectivePacks(this.bundled, user)
+      this.cache = { user, packs, loaded: loadPacks(engineFiles(packs)) }
+    }
+    return this.cache
+  }
+  packs: WorkspacePack[] = $derived(this.compiled().packs)
+  loaded = $derived(this.compiled().loaded)
   /** The Oracle Engine's diagnostics plus other engines' (travel rules, bindings…). */
-  problems: Diagnostic[] = $derived([
-    ...this.loaded.diagnostics,
-    ...(this.extraDiagnostics?.(this.loaded.registry) ?? []),
-  ])
+  problems: Diagnostic[] = $derived.by(() => {
+    const compiled = this.compiled()
+    return (compiled.problems ??= [
+      ...compiled.loaded.diagnostics,
+      ...(this.extraDiagnostics?.(compiled.loaded.registry) ?? []),
+    ])
+  })
   registry = $derived(this.loaded.registry)
   /** Where the engine's rolls come from; `setRandom` swaps it (e.g. a seeded session). */
   private source: RandomSource = mathRandom()
