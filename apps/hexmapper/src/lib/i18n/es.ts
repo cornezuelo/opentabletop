@@ -1,4 +1,5 @@
 import { vocabulary } from '@open-tabletop/ui-kit'
+import { iconNamesEs } from './iconNames'
 import type { Messages } from './types'
 
 export const es: Messages = {
@@ -146,6 +147,7 @@ export const es: Messages = {
     tabloid: 'Tabloide',
     custom: 'Personalizado',
   },
+  iconNames: iconNamesEs,
   iconCategories: {
     terrain: vocabulary.es.terms.terrain,
     all: 'Todos',

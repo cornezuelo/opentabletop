@@ -9,7 +9,7 @@ The **Icons** tool (<kbd>I</kbd>) places one icon per hex: castles, villages, ru
 - **Style**: color, size, rotation, flip, a halo behind it and an outline. New icons reuse the last style. **Auto** color draws dark ink on painted hexes and light ink on empty ones, so icons always stand out.
 - **Import** your own images (SVG, PNG, JPEG, WebP); they're saved inside the map.
 
-The icons come from [game-icons.net](https://game-icons.net) (CC BY 3.0).
+Icons are named in the app's language; the search finds them by that name or by their English one (_puente_ or _bridge_ in Spanish). The icons come from [game-icons.net](https://game-icons.net) (CC BY 3.0).
 
 ### Values of an icon
 

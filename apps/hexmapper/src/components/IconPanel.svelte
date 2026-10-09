@@ -7,6 +7,7 @@
     getBuiltinIcon,
     ICON_CATEGORIES,
     iconLabel,
+    iconMatches,
     type IconCategory,
   } from '../lib/icons/registry'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
@@ -33,8 +34,7 @@
     if (filter === 'custom') return []
     const q = query.trim().toLowerCase()
     return BUILTIN_ICONS.filter(
-      (icon) =>
-        (filter === 'all' || icon.category === filter) && (!q || iconLabel(icon).includes(q)),
+      (icon) => (filter === 'all' || icon.category === filter) && iconMatches(icon, q),
     )
   })
 

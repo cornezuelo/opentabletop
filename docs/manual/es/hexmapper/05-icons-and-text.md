@@ -9,7 +9,7 @@ La herramienta **Iconos** (<kbd>I</kbd>) coloca un icono por hex: castillos, ald
 - **Estilo**: color, tamaño, rotación, volteo, un halo detrás y un contorno. Los iconos nuevos usan el último estilo. El color **Auto** usa tinta oscura en los hexes pintados y clara en los vacíos, para que los iconos siempre se vean.
 - **Importa** tus propias imágenes (SVG, PNG, JPEG, WebP); se guardan dentro del mapa.
 
-Los iconos son de [game-icons.net](https://game-icons.net) (CC BY 3.0).
+Los iconos se nombran en el idioma de la app; la búsqueda los encuentra por ese nombre o por el inglés (_puente_ o _bridge_). Los iconos son de [game-icons.net](https://game-icons.net) (CC BY 3.0).
 
 ### Valores de un icono
 

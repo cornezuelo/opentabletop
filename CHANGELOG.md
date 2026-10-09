@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Hexmapper: **icon names in Spanish** too (and the search finds an icon by its name in either language).
 - Hexmapper, Export: **Split into pages** prints a big map on several sheets of a paper you pick (A4, Letter…), at real scale, overlapping 10 mm to glue, each page saying where it goes (B3); **Empty hexes in white** saves ink in the PDF and PNG.
 - Hexmapper: the Text tool lists **Texts on the map** (each with its font and size); clicking one selects it and centres the map on it.
 - Hexmapper, World: **the world clock starts on a date you choose** (day, month, year and time in the system's calendar), and **Set the date** moves it later (like moving time on) or earlier (asking first, and never during a trip; the timeline says the clock went back). **Events on a date** of the calendar, besides in N days, each with an **id** (`market-day`: what conditions read as `world.events`) and a description. The example map's events have ids (`market-day`, `clan-march`, `spring-floods`), and the Grey Marches' Market day reads `world.events: market-day`.

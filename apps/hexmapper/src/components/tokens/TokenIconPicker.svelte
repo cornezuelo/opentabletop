@@ -2,7 +2,13 @@
   import { showToast, tooltip } from '@open-tabletop/ui-kit'
   import { AddAssetCommand } from '../../lib/commands/assets'
   import { t, type MessageKey } from '../../lib/i18n/index.svelte'
-  import { BUILTIN_ICONS, builtinSvg, ICON_CATEGORIES, iconLabel } from '../../lib/icons/registry'
+  import {
+    BUILTIN_ICONS,
+    builtinSvg,
+    ICON_CATEGORIES,
+    iconLabel,
+    iconMatches,
+  } from '../../lib/icons/registry'
   import { importImageFile, pickImageFiles } from '../../lib/io/importImage'
   import { newId } from '../../lib/model/id'
   import { editor } from '../../lib/store/editor.svelte'
@@ -43,7 +49,7 @@
     const shown = (i: (typeof BUILTIN_ICONS)[number]) =>
       filter === 'all' ||
       (filter === 'suggested' ? !!q || categories.includes(i.category) : i.category === filter)
-    return BUILTIN_ICONS.filter((i) => shown(i) && (!q || iconLabel(i).includes(q)))
+    return BUILTIN_ICONS.filter((i) => shown(i) && iconMatches(i, q))
   })
 
   async function upload() {

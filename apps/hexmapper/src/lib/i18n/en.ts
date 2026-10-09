@@ -1,4 +1,5 @@
 import { vocabulary } from '@open-tabletop/ui-kit'
+import { iconNamesEn } from './iconNames'
 // Source of truth for UI strings (English is the default locale). `es.ts` must mirror this shape.
 export const en = {
   app: {
@@ -145,6 +146,7 @@ export const en = {
     tabloid: 'Tabloid',
     custom: 'Custom',
   },
+  iconNames: iconNamesEn,
   iconCategories: {
     terrain: vocabulary.en.terms.terrain,
     all: 'All',

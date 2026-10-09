@@ -1,4 +1,5 @@
 import data from '../../assets/icons/game-icons.json'
+import { t, type MessageKey } from '../i18n/index.svelte'
 import type { MapAsset } from '../model/types'
 
 export interface BuiltinIcon {
@@ -57,7 +58,17 @@ export function iconImage(iconId: string, assets: MapAsset[]): IconImage | null 
   return asset ? { url: asset.dataUrl, tintable: false } : null
 }
 
-/** "stone-bridge" → "stone bridge" */
+/** The icon's name in the UI's language ("stone-bridge" → "stone bridge", "puente de piedra"). */
 export function iconLabel(icon: BuiltinIcon): string {
-  return icon.name.replaceAll('-', ' ')
+  const key = `iconNames.${icon.name}` as MessageKey
+  const name = t(key)
+  return name === key ? icon.name.replaceAll('-', ' ') : name
+}
+
+/** Whether an icon matches a search, by its name in the UI's language or in English. */
+export function iconMatches(icon: BuiltinIcon, query: string): boolean {
+  const q = query.trim().toLowerCase()
+  return (
+    !q || iconLabel(icon).toLowerCase().includes(q) || icon.name.replaceAll('-', ' ').includes(q)
+  )
 }
