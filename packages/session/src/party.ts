@@ -16,6 +16,7 @@ import {
   type Bounds,
   type TravelRules,
   type TravelState,
+  type TravelWorld,
 } from '@open-tabletop/travel-engine'
 import type { Bindings } from './index'
 import type { Effects, LimitReached } from './effects'
@@ -34,6 +35,8 @@ export interface PartyRules {
 export interface PartyTarget {
   members?: CharacterState[]
   acting?: string
+  /** Who holds each of the system's journey roles (`roles.<id>.*`), by role id. */
+  roles?: Record<string, string>
   stats: Record<string, number>
   travel: Pick<TravelState, 'resources'> & Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
 }
@@ -153,20 +156,39 @@ export function partyBlocks(
  * `characters.kael.values.health`, `characters.kael.conditions`…) and `acting.*` (the one
  * acting now, if any).
  */
-export function memberFacts(s: Pick<PartyTarget, 'members' | 'acting'>): Record<string, unknown> {
+export function memberFacts(
+  s: Pick<PartyTarget, 'members' | 'acting' | 'roles'>,
+): Record<string, unknown> {
   if (!s.members?.length) return {}
   const characters = Object.fromEntries(s.members.map((m) => [m.id, characterFacts(m)]))
   const acting = s.acting !== undefined ? characters[s.acting] : undefined
-  return { characters, ...(acting && { acting }) }
+  // Each journey role held, as its holder (`roles.guide.values.pathfinding`).
+  const roles = Object.fromEntries(
+    Object.entries(s.roles ?? {}).flatMap(([role, id]) =>
+      characters[id] ? [[role, characters[id]]] : [],
+    ),
+  )
+  return {
+    characters,
+    ...(acting && { acting }),
+    ...(Object.keys(roles).length && { roles }),
+  }
 }
 
+/**
+ * Who an effect's or a fact's path is about, and the rest: `party.members` (every member),
+ * `characters.<id>`, `acting`, `roles.<id>` (whoever holds the role).
+ */
+export const MEMBER_PATH =
+  /^(party\.members|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions)\.(.+)$/
+
 /** Whether an effect's path is about members (`party.members.…`, `characters.<id>.…`, `acting.…`). */
-export const isMemberPath = (path: string): boolean =>
-  /^(party\.members|characters\.[^.]+|acting)\.(values|conditions)\./.test(path)
+export const isMemberPath = (path: string): boolean => MEMBER_PATH.test(path)
 
 /**
  * Applies the effects on members: `party.members.values.health: -1` (every member),
- * `characters.<id>.…` (one), `acting.…` (the one acting; nobody acting: `nobody`). Within
+ * `characters.<id>.…` (one), `acting.…` (the one acting) or `roles.<id>.…` (whoever holds
+ * the role; nobody: `nobody`). Within
  * each one's sheet; what hits a bound is in `limits` (by the member's path). Other paths
  * are left alone, and so is everything for a party without members.
  */
@@ -193,17 +215,22 @@ export function applyMemberEffects(
         )
       : undefined
   for (const [path, change] of Object.entries(effects)) {
-    const [, who, rest] = /^(party\.members|characters\.[^.]+|acting)\.(.+)$/.exec(path) ?? []
-    if (!who || !/^(values|conditions)\./.test(rest)) continue
+    const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
+    if (!who) continue
+    const rest = `${part}.${id}`
     const members: CharacterState[] = s.members ?? []
+    const holder = who.startsWith('roles.') ? s.roles?.[who.slice('roles.'.length)] : undefined
     const targets: CharacterState[] =
       who === 'party.members'
         ? members
         : who === 'acting'
           ? members.filter((m) => m.id === s.acting)
-          : members.filter((m) => m.id === who.slice('characters.'.length))
+          : who.startsWith('roles.')
+            ? members.filter((m) => m.id === holder)
+            : members.filter((m) => m.id === who.slice('characters.'.length))
     if (!targets.length) {
-      ;(who === 'acting' ? nobody : unknown).push(path)
+      // Nobody acting, or nobody holding the role: nothing happens, and the journal says so.
+      ;(who === 'acting' || who.startsWith('roles.') ? nobody : unknown).push(path)
       continue
     }
     for (const target of targets) {
@@ -297,5 +324,37 @@ export function characterFromOtd(raw: {
     tags: Array.isArray(raw.tags) ? raw.tags.filter((t) => typeof t === 'string') : [],
     cards: Array.isArray(own.cards) ? own.cards.filter((c) => typeof c === 'string') : [],
     relations: Array.isArray(own.relations) ? (own.relations as CharacterState['relations']) : [],
+  }
+}
+
+/**
+ * The map as the trip sees it, with the members' relations to each hex: a relation to
+ * `hex:<id>`, to the hex's region (`region:<name>`) or to a place in it (`poi:<id>`, when
+ * the map lists its places as `pois`) is read there as `hex.related` (who) and
+ * `hex.relations.<kind>` (who, by kind of relation).
+ */
+export function relatedWorld(
+  world: TravelWorld,
+  members: CharacterState[] | undefined,
+): TravelWorld {
+  const relations = (members ?? []).flatMap((m) => m.relations.map((r) => ({ who: m.id, ...r })))
+  if (!relations.length) return world
+  return {
+    ...world,
+    cell(hex) {
+      const cell = world.cell(hex)
+      if (!cell) return cell
+      const pois = Array.isArray(cell.pois) ? (cell.pois as unknown[]) : []
+      const here = relations.filter(
+        (r) =>
+          r.to === `hex:${hex}` ||
+          (typeof cell.region === 'string' && r.to === `region:${cell.region}`) ||
+          (r.to.startsWith('poi:') && pois.includes(r.to.slice(4))),
+      )
+      if (!here.length) return cell
+      const byKind: Record<string, string[]> = {}
+      for (const r of here) if (!(byKind[r.kind] ??= []).includes(r.who)) byKind[r.kind].push(r.who)
+      return { ...cell, related: [...new Set(here.map((r) => r.who))], relations: byKind }
+    },
   }
 }

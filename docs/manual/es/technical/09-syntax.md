@@ -132,6 +132,7 @@ En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor 
 | `party.members.values.health: 1`                  | suma 1 a todos los personajes del grupo                          |
 | `characters.kael.values.health: -1`               | quita 1 a un personaje, por su id                                |
 | `acting.conditions.wounded: true`                 | el personaje que actúa ahora recibe un estado (`false` lo quita) |
+| `roles.lookout.values.health: -1`                 | quien tenga un rol de viaje                                      |
 
 Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
 
@@ -172,7 +173,7 @@ Un valor del día lista lo que no se puede hacer mientras dura: `travel` (no se 
 
 ## Los personajes del grupo: `from` y `carried`
 
-En los bindings, cuando el sistema tiene hoja: una característica que sale de los valores de los personajes, `from: { max: survival }` (también `min`, `sum`, o `count: true`, con `when` / `unless` sobre cada personaje y `none` para cuando no cuenta ninguno), y una provisión que llevan, `resources: { food: { carried: rations, share: even } }`. Las dos, solo mientras el grupo tenga personajes. Mira [Bindings](07-kinds.md#bindings).
+En los bindings, cuando el sistema tiene hoja: una característica que sale de los valores de los personajes, `from: { max: survival }` (también `min`, `sum`, o `count: true`, con `when` / `unless` sobre cada personaje y `none` para cuando no cuenta ninguno), y una provisión que llevan, `resources: { food: { carried: rations, share: even } }`. Las dos, solo mientras el grupo tenga personajes. Roles de viaje: `roles: { guide: { name: Guía } }`, que se leen como `roles.guide.…`. Mira [Bindings](07-kinds.md#bindings).
 
 ## Velocidades
 

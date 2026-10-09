@@ -413,6 +413,9 @@ export const en = {
     uploadToken: 'Upload your own…',
     worldStart: 'New trips start on the world clock’s date (the World panel, ☾).',
     systemNote: 'The map’s, chosen in Map settings → Map → System.',
+    showRelations: 'Show relations',
+    showRelationsHelp:
+      'Thin threads from the party to the places, regions and hexes its characters are tied to (a home, a bond…), when the system has characters. Untick to hide them; they stay in the sheets.',
     showTrail: 'Show trail',
     showTrailHelp:
       'Draw the hexes the party has walked through on the map, as a dashed line beside the roads it followed.',

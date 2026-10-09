@@ -6,7 +6,7 @@
     type CharacterState,
     type Sheet,
   } from '@open-tabletop/character-engine'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import { knownName, sheetText } from './texts'
 
@@ -24,6 +24,7 @@
     path,
     time,
     names = (id) => id,
+    targets = [],
     onchange,
   }: {
     sheet: Sheet
@@ -36,6 +37,11 @@
     time?: number
     /** Names of what a condition blocks (an action, `travel`, `mode.horse`), in words. */
     names?: (id: string) => string
+    /**
+     * What a relation may point at, by reference (`character:mara`, `poi:inn`,
+     * `region:The Vale`, `hex:5,7`), with a name for each: suggested, and shown by name.
+     */
+    targets?: { ref: string; label: string }[]
     onchange: (next: CharacterState) => void
   } = $props()
 
@@ -82,6 +88,25 @@
       ),
     ]
     onchange({ ...character, tags })
+  }
+
+  const kinds = $derived(Object.keys(sheet.relations))
+  let newKind = $state('')
+  let newTo = $state('')
+  /** A reference by its target's name, or as it's written. */
+  const targetName = (ref: string) => targets.find((x) => x.ref === ref)?.label ?? ref
+  /** What's typed: a target's name, or a reference as it's written. */
+  const refOf = (text: string) => targets.find((x) => x.label === text)?.ref ?? text.trim()
+  function relate() {
+    const kind = newKind || kinds[0]
+    const to = refOf(newTo)
+    if (!kind || !to) return
+    change({ type: 'relate', to, kind, ...(sheet.relations[kind]?.value && { value: 0 }) })
+    newTo = ''
+  }
+  function setRelationValue(to: string, kind: string, value: number) {
+    const r = character.relations.find((x) => x.to === to && x.kind === kind)
+    change({ type: 'relate', to, kind, value: value - (r?.value ?? 0) })
   }
 
   /** A value's explanation: its description, its bounds, how tables read it. */
@@ -180,6 +205,58 @@
     </div>
   {/if}
 
+  {#if kinds.length}
+    <div class="field">
+      <span>{t('relations')}<InfoTip markdown={t('relationsHelp', { path: where })} /></span>
+      {#each character.relations as r (`${r.kind}|${r.to}`)}
+        <div class="relation">
+          <span class="kind">{text(sheet.relations[r.kind]?.name, r.kind)}</span>
+          <span class="to">{targetName(r.to)}</span>
+          {#if sheet.relations[r.kind]?.value}
+            <input
+              type="number"
+              aria-label={t('relationValue')}
+              value={r.value ?? 0}
+              {disabled}
+              onchange={(e) => setRelationValue(r.to, r.kind, Number(e.currentTarget.value) || 0)}
+            />
+          {/if}
+          {#if !disabled}
+            <button
+              class="icon"
+              aria-label={t('unrelate')}
+              use:tooltip={t('unrelate')}
+              onclick={() => change({ type: 'unrelate', to: r.to, kind: r.kind })}>×</button
+            >
+          {/if}
+        </div>
+      {/each}
+      {#if !disabled}
+        <form
+          class="relation new"
+          onsubmit={(e) => {
+            e.preventDefault()
+            relate()
+          }}
+        >
+          <select aria-label={t('relationKind')} bind:value={newKind}>
+            {#each kinds as kind (kind)}<option value={kind}
+                >{text(sheet.relations[kind].name, kind)}</option
+              >{/each}
+          </select>
+          <SuggestInput
+            label={t('relationTo')}
+            placeholder={t('relationToPlaceholder')}
+            value={newTo}
+            list={targets.filter((x) => x.ref !== `character:${character.id}`).map((x) => x.label)}
+            onchange={(v) => (newTo = v)}
+          />
+          <button type="submit">{t('relate')}</button>
+        </form>
+      {/if}
+    </div>
+  {/if}
+
   <label class="field">
     <span>{t('tags')}<InfoTip markdown={t('tagsHelp')} /></span>
     <input
@@ -274,5 +351,37 @@
 
   .condition.on span {
     color: var(--accent);
+  }
+
+  .relation {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+  }
+
+  .relation .kind {
+    color: var(--text-muted);
+  }
+
+  .relation input[type='number'] {
+    width: 4em;
+  }
+
+  .relation.new {
+    flex-wrap: wrap;
+  }
+
+  .relation.new :global(input) {
+    flex: 1;
+    min-width: 8em;
+  }
+
+  .icon {
+    padding: 0 5px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 </style>

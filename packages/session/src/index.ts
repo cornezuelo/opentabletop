@@ -90,6 +90,11 @@ export interface Bindings {
   stats?: Record<string, StatDefinition>
   /** Supplies the members carry, by the travel rules' id. */
   resources?: Record<string, CarriedSupply>
+  /**
+   * Journey roles (lead the way, keep watch…): jobs the player gives the characters, read
+   * as `roles.<id>.*` (the holder's values and conditions), each with a name for players.
+   */
+  roles?: Record<string, { name?: LocalizedText; description?: LocalizedText }>
   /** Tables that decide empty hexes as the party travels (the host may turn it off). */
   discover?: DiscoverBindings
 }
@@ -157,6 +162,29 @@ export function parseBindings(
       }
     }
   }
+  const roles = (raw as { roles?: unknown })?.roles
+  if (roles !== undefined) {
+    if (typeof roles !== 'object' || roles === null || Array.isArray(roles))
+      errors.push('bindings.roles: expected roles by id')
+    else
+      for (const [key, value] of Object.entries(roles)) {
+        const v = (typeof value === 'object' && value !== null ? value : {}) as Record<
+          string,
+          unknown
+        >
+        for (const k of Object.keys(v))
+          if (k !== 'name' && k !== 'description')
+            errors.push(`bindings.roles.${key}: unknown key "${k}"`)
+        const text = (t: unknown) =>
+          typeof t === 'string' || (typeof t === 'object' && t !== null)
+            ? (t as LocalizedText)
+            : undefined
+        ;(out.roles ??= {})[key] = {
+          ...(text(v.name) && { name: text(v.name) }),
+          ...(text(v.description) && { description: text(v.description) }),
+        }
+      }
+  }
   const resources = (raw as { resources?: unknown })?.resources
   if (resources !== undefined) {
     if (typeof resources !== 'object' || resources === null || Array.isArray(resources))
@@ -218,6 +246,8 @@ export interface SessionState {
   members?: CharacterState[]
   /** The member acting now (`acting.*`), chosen by the player. */
   acting?: string
+  /** Who holds each of the system's journey roles (`roles.<id>.*`), chosen by the player. */
+  roles?: Record<string, string>
 }
 
 export function initialSessionState(

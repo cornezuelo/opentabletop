@@ -455,6 +455,21 @@
   </section>
 
   <section>
+    <h3>{t('checks.roles')}<InfoTip text={t('checks.rolesHelp')} /></h3>
+    <RecordRows
+      {doc}
+      kind="bindings"
+      at={['roles']}
+      idLabel={t('forms.id')}
+      suggestions={['guide', 'lookout', 'forager', 'quartermaster']}
+      columns={[
+        { field: 'name', label: t('checks.roleName'), type: 'text' },
+        { field: 'description', label: t('checks.roleDescription'), type: 'text' },
+      ]}
+    />
+  </section>
+
+  <section>
     <h3>{t('checks.carried')}<InfoTip text={t('checks.carriedHelp')} /></h3>
     {#if !system?.sheet}<p class="help">{t('checks.noSheet')}</p>{/if}
     <RecordRows

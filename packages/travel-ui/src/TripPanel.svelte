@@ -53,6 +53,7 @@
     destinationHint = '',
     arrivedHint = '',
     title = '',
+    relationTargets = [],
     world,
     facts,
     onstep,
@@ -78,6 +79,8 @@
     /** Title of the exported journal (and its file name), e.g. the map's or system's name. */
     title?: string
     onstep: (action: TravelAction) => void
+    /** What the characters' relations may point at, besides each other (places, regions…). */
+    relationTargets?: { ref: string; label: string }[]
     /** Changes the session directly (supplies, stats, mode) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
@@ -434,6 +437,7 @@
       {session}
       {locale}
       names={blockName}
+      targets={relationTargets}
       {onedit}
     />
   {/if}

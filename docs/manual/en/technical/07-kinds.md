@@ -218,6 +218,8 @@ stats: # the party's numbers, edited during the trip
   mouths: { name: Mouths, default: 1, from: { count: true } }
 resources: # with characters, the food is what they carry between them (their rations)
   food: { carried: rations, share: even }
+roles: # journey roles the player gives the characters (read as roles.<id>)
+  guide: { name: Guide, description: Leads the way. }
 reads: # names for other values its tables read (shown in the roll panel and on the map)
   danger: { name: Danger, description: How dangerous the hex is. }
   icon.guards: { name: Guards }
@@ -241,6 +243,8 @@ A check with no binding is written in the journal (with its `effects`, if it has
 - `none` — what it is when no character counts (default 0).
 
 **Carried supplies** (`resources`): with characters, the supply named (an id of the travel rules' `resources`) is what they carry in a value of their sheet (`carried: rations`): the trip shows their sum, its bounds are the sums of theirs, and whatever the trip spends or gains is shared out among them: `share: even` (the default: taken from whoever has most, given to whoever has least, one at a time) or `share: order` (the first character first). Without characters, the party keeps it as a whole.
+
+**Journey roles** (`roles`): jobs the player gives the characters in a trip (lead the way, keep watch, forage…), each with a `name` and `description` for players. Checks, tables and actions read whoever holds one as `roles.<id>.…` (`roles.guide.values.pathfinding: { gte: 2 }`) and their effects reach them (`roles.lookout.values.health: -1`); with nobody in the role, what reads it doesn't hold and its effects change nothing.
 
 **What tables see:** each stat by name (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
 
@@ -315,6 +319,7 @@ relations: # kinds of relation a character may hold to anything with a reference
 
 - `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{name}}'`), `track: true` (shown as boxes, as many as its `max`, which must be a number), `group` (one of `groups`).
 - `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action's id, `travel`, or `mode.<id>`. The trip says who has it.
+- `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds. A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`).
 

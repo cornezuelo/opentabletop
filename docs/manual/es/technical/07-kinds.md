@@ -217,6 +217,8 @@ stats: # los números del grupo, que se editan durante el viaje
   mouths: { name: Bocas, default: 1, from: { count: true } }
 resources: # con personajes, la comida es la que llevan entre todos (sus raciones)
   food: { carried: rations, share: even }
+roles: # roles de viaje que el jugador da a los personajes (se leen como roles.<id>)
+  guide: { name: Guía, description: Abre el camino. }
 reads: # nombres para otros valores que leen sus tablas (en el panel de tirada y el mapa)
   danger: { name: Peligro, description: Lo peligroso que es el hex. }
   icon.guards: { name: Guardias }
@@ -240,6 +242,8 @@ Una comprobación sin binding se apunta en el diario (con sus `effects`, si tien
 - `none` — lo que vale cuando no cuenta ningún personaje (0 si no se dice).
 
 **Provisiones que se llevan** (`resources`): con personajes, la provisión nombrada (un id de los `resources` de las reglas de viaje) es lo que llevan en un valor de su hoja (`carried: rations`): el viaje muestra su suma, sus límites son la suma de los suyos, y lo que el viaje gaste o gane se reparte entre ellos: `share: even` (lo normal: se quita a quien más tiene y se da a quien menos, de una en una) o `share: order` (primero el primer personaje). Sin personajes, el grupo la guarda como un todo.
+
+**Roles de viaje** (`roles`): tareas que el jugador da a los personajes en un viaje (guiar, montar guardia, buscar comida…), cada una con un `name` y una `description` para los jugadores. Las comprobaciones, tablas y acciones leen a quien tiene una como `roles.<id>.…` (`roles.guide.values.pathfinding: { gte: 2 }`) y sus efectos le llegan (`roles.lookout.values.health: -1`); si nadie tiene el rol, lo que lo lee no se cumple y sus efectos no cambian nada.
 
 **Qué ven las tablas:** cada característica por su nombre (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
 
@@ -314,6 +318,7 @@ relations: # tipos de relación que un personaje puede tener con cualquier cosa 
 
 - `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{nombre}}'`), `track: true` (se muestra como casillas, tantas como su `max`, que debe ser un número), `group` (uno de `groups`).
 - `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: el id de una acción, `travel`, o `mode.<id>`. El viaje dice quién lo tiene.
+- `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites. Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
 - Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`).
 

@@ -1,3 +1,4 @@
+import type { CharacterState } from '@open-tabletop/character-engine'
 import {
   Application,
   BitmapFont,
@@ -750,6 +751,24 @@ export class MapRenderer {
       })
     }
 
+    // Threads from the party to what its characters are tied to: a hex, a place in one, a
+    // region (its middle). Hidden with Play → Show relations.
+    if (party?.hex && play.mode === 'rules' && play.showRelations !== false) {
+      const from = center(party.hex)
+      for (const to of relationTargets(play)) {
+        const end = to.length === 1 ? center(to[0]) : middleOf(to.map(center))
+        if (Math.hypot(end.x - from.x, end.y - from.y) < hs * 0.5) continue
+        for (const piece of dashes([from, end], hs * 0.14, hs * 0.1))
+          this.strokePolyline(lines, piece)
+        lines.stroke({ width: hs * 0.05, color: tokenColor(party, editor.map.tokens), alpha: 0.85 })
+        lines.circle(end.x, end.y, hs * 0.18).stroke({
+          width: hs * 0.04,
+          color: tokenColor(party, editor.map.tokens),
+          alpha: 0.7,
+        })
+      }
+    }
+
     const session =
       play.mode === 'rules'
         ? (play.rules?.session as { travel?: { route?: string[]; destination?: string } } | null)
@@ -1272,4 +1291,45 @@ export function isTyping(e: KeyboardEvent): boolean {
   if (!(target instanceof Element)) return false
   if (target instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(target.type)
   return !!target.closest('textarea, select, [contenteditable="true"]')
+}
+
+/** The middle of some points. */
+function middleOf(points: { x: number; y: number }[]): { x: number; y: number } {
+  const n = points.length || 1
+  return {
+    x: points.reduce((a, p) => a + p.x, 0) / n,
+    y: points.reduce((a, p) => a + p.y, 0) / n,
+  }
+}
+
+/**
+ * The hexes each relation of the party's characters points at on this map, one list per
+ * target: `hex:<key>` its hex, `poi:<id>` the hex the place is in, `region:<name>` the
+ * region's hexes. Others (another character, a note) aren't on the map.
+ */
+function relationTargets(play: NonNullable<typeof editor.map.play>): HexKey[][] {
+  const session = play.rules?.session as { members?: CharacterState[] } | null | undefined
+  const members = session?.members ?? play.rules?.members ?? []
+  const refs = [...new Set(members.flatMap((m) => m.relations.map((r) => r.to)))]
+  const { hexes, regions } = editor.map
+  return refs.flatMap((ref): HexKey[][] => {
+    const [kind, ...rest] = ref.split(':')
+    const id = rest.join(':')
+    if (kind === 'hex')
+      return hexes[id as HexKey] !== undefined || /^\d+,\d+$/.test(id) ? [[id as HexKey]] : []
+    if (kind === 'poi') {
+      const at = (Object.keys(hexes) as HexKey[]).find((k) =>
+        hexes[k]?.pois?.some((p) => p.id === id),
+      )
+      return at ? [[at]] : []
+    }
+    if (kind === 'region') {
+      const region = regions.find((r) => r.name === id)
+      const keys = region
+        ? (Object.keys(hexes) as HexKey[]).filter((k) => hexes[k]?.region === region.id)
+        : []
+      return keys.length ? [keys] : []
+    }
+    return []
+  })
 }

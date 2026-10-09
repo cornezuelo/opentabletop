@@ -86,7 +86,7 @@ travel-rules/default:
       description: Describe tú el lugar (o tira en un oráculo) y pulsa Continuar.
     CAMP_ENCOUNTER_CHECK_REQUIRED:
       name: Encuentro nocturno
-      description: Al acampar donde el peligro es 2 o más, o al entrar a oscuras en un hex con peligro, fuera del camino.
+      description: Al acampar donde el peligro es 2 o más, o al entrar a oscuras en un hex con peligro, fuera del camino. Un vigía sigiloso (Sigilo 2 o más) mantiene oculto el campamento donde el peligro es menor de 3.
     NIGHT_NAVIGATION_CHECK_REQUIRED:
       name: Perdidos en la oscuridad
       description: En cada hex en el que se entra pasado el anochecer, fuera del camino. A oscuras es fácil perder el rumbo.
@@ -105,6 +105,9 @@ travel-rules/default:
     LONG_DAY:
       name: Un día largo
       description: Un día en que se marcha más de sus 8 horas (una marcha nocturna tras un día completo) cuesta 1 de fatiga al acabar.
+    HOMECOMING:
+      name: En casa
+      description: Entrar en el hogar de uno de los compañeros (su región, lugar o hex). Moral +1.
     SADDLE_SORE:
       name: Molidos de la silla
       description: Un día a caballo de más de sus 8 horas deja molidos a todos los compañeros, que no pueden montar hasta pasar una noche fuera de la silla.
@@ -167,6 +170,13 @@ bindings/default:
     hirelings:
       name: Mercenarios
       description: Espadas de alquiler que viajan con el grupo. Se unen en la posada y pueden desertar cuando no hay comida.
+  roles:
+    guide:
+      name: Guía
+      description: Abre el camino. Con Rastreo 2 o más, la tirada de perderse va con ventaja.
+    lookout:
+      name: Vigía
+      description: Monta guardia de noche. Con Sigilo 2 o más, el campamento sigue oculto donde el peligro es menor de 3.
   reads:
     danger:
       name: Peligro

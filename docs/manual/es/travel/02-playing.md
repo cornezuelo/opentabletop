@@ -45,6 +45,10 @@ Lo que cuenta el diario, para que nada pase en silencio:
 
 Cuando el sistema tiene una hoja para sus personajes (los compañeros de las Marcas Grises; la más pequeña de las reglas Genéricas, con salud y una herida), el viaje tiene una sección **Personajes** encima de las acciones. **Añadir un personaje** crea uno con los valores iniciales de la hoja; ponle nombre, y su id sigue al nombre (`Viejo Tobin` → `viejo-tobin`, como lo alcanzan las tablas y las condiciones: `characters.viejo-tobin.values.health`). Cada personaje se despliega para mostrar sus valores (agrupados como dice la hoja; un contador como casillas: haz clic en una para llenar hasta ella), sus estados (márcalos según pasan) y sus etiquetas (palabras libres, separadas por comas). ↑ lo sube en la lista, × lo quita (tras preguntar).
 
+Cada personaje tiene también **Relaciones**: a qué está unido, según los tipos de la hoja (un vínculo con otro personaje, un hogar): elige el tipo, escribe un nombre de la lista (los demás personajes; en un mapa, sus lugares, regiones y hexes con nombre; en Travel, los hexes del camino) y **Añadir**; un tipo con número lo muestra al lado, para cambiarlo. Las comprobaciones del sistema las leen allí donde está el grupo (las Marcas Grises: llegar al hogar de un compañero sube la moral).
+
+**Roles**, cuando el sistema declara roles de viaje, da cada tarea a un personaje hasta que la cambies: el **Guía** de las Marcas Grises (con Rastreo 2 o más, perderse se tira con ventaja) y el **Vigía** (con Sigilo 2 o más, el campamento sigue oculto donde el peligro es menor de 3).
+
 **Actúa** dice quién hace ahora las acciones del grupo: lo que un sistema escribe para `acting` le llega a ese personaje (en las Marcas Grises, las rocas de un vado hieren y tuercen el tobillo de quien guía el cruce; **Curar a los heridos** solo funciona si quien actúa tiene Supervivencia 2 o más). Con **Nadie**, esos efectos no cambian nada y el diario lo dice: «No actúa nadie, así que «Quien actúa: Tobillo torcido» no cambia nada».
 
 Con personajes, el grupo son sus miembros, como diga el sistema:

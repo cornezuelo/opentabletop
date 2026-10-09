@@ -375,7 +375,11 @@ Then the bindings say what the party takes from them:
 - **Stats made of theirs:** `navigation: { name: Navigation, from: { max: pathfinding } }` is the best Pathfinding among them; `min` the worst, `sum` all together, `count: true` how many; `when` / `unless` leave some out (`count: true, unless: { conditions: wounded }`: those not wounded). Without characters the stat is kept as usual, so the same system plays both ways.
 - **Supplies they carry:** `resources: { food: { carried: rations } }`: the party's food is the sum of their rations, and what the trip eats or finds is shared out among them (evenly by default, `share: order` for the first one first).
 
-Effects reach them: `party.members.values.health: 1` (every character), `acting.conditions.wounded: true` (whoever acts), `characters.kael.values.health: -1` (one). Conditions read `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
+- **Journey roles:** `roles: { guide: { name: Guide }, lookout: { name: Lookout } }`: in a trip the player gives each to a character, and checks and tables read the holder, `roles.guide.values.pathfinding: { gte: 2 }`.
+
+Effects reach them: `party.members.values.health: 1` (every character), `acting.conditions.wounded: true` (whoever acts), `roles.lookout.values.health: -1` (a role's holder), `characters.kael.values.health: -1` (one). Conditions read `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
+
+**Relations** tie a character to another, a place, a region or a hex (the sheet's kinds: a bond, a home…). Where the party goes, `hex.related` says who is tied to the hex (it, its region or a place in it) and `hex.relations.home` who has it as home: a check `when: { hex.relations.home: { exists: true } }, unless: { from.relations.home: { exists: true } }` comes up when the party comes home.
 
 ```yaml
 kind: sheet
@@ -389,7 +393,7 @@ conditions:
   wounded: { name: Wounded, blocks: [forced-march] }
 ```
 
-The Grey Marches play their Company this way: Survival from the best of those not wounded, Stealth from the clumsiest, a ration per mouth from what they carry, a fed night healing everyone, a ford that sprains the ankle of whoever leads the crossing, and **Tend the wounded** for whoever acts with Survival 2 or more ([The Grey Marches](../packs/02-grey-marches.md)). Every key is in [Sheets](../technical/07-kinds.md#sheets).
+The Grey Marches play their Company this way: Survival from the best of those not wounded, Stealth from the clumsiest, a ration per mouth from what they carry, a fed night healing everyone, a ford that sprains the ankle of whoever leads the crossing, **Tend the wounded** for whoever acts with Survival 2 or more, a guide and a lookout, and Home ground when the party comes into a companion's home ([The Grey Marches](../packs/02-grey-marches.md)). Every key is in [Sheets](../technical/07-kinds.md#sheets).
 
 ## 6. A calendar of your own
 

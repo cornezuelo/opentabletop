@@ -80,6 +80,9 @@ export const es: Messages<typeof en> = {
     remove: 'Quitar',
     up: 'Subir',
     confirmRemove: '¿Quitar a {name} del grupo?',
+    roles: 'Roles',
+    rolesHelp:
+      'Tareas que el sistema da a los personajes del grupo para el viaje (guiar, montar guardia…), cada una en manos de uno de ellos hasta que la cambies. Las comprobaciones y tablas del sistema leen a quien la tiene: `roles.guide.values.pathfinding: { gte: 2 }`; sus efectos le llegan: `roles.lookout.values.health: -1`. Si nadie tiene un rol, lo que lo lee no se cumple, y sus efectos no cambian nada.',
     acting: 'Actúa',
     actingHelp:
       'Quién hace ahora las acciones del grupo. Los efectos escritos para `acting` cambian a este personaje (`acting.values.health: -1`), y las condiciones y tablas leen los suyos (`acting.values.wits: { gte: 3 }`). Si no actúa nadie, esos efectos no cambian nada y el diario lo dice.',

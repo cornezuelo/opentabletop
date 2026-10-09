@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    localize,
     newMember,
     partyOf,
     refreshParty,
@@ -22,6 +23,7 @@
     session,
     locale,
     names = (id) => id,
+    targets = [],
     onedit,
   }: {
     system: TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
@@ -29,11 +31,26 @@
     locale: string
     /** What a condition blocks, in words (an action, travel, a way of travelling). */
     names?: (id: string) => string
+    /** Places relations may point at, from the host (the map's places, regions…). */
+    targets?: { ref: string; label: string }[]
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
   const t = translator(() => locale)
   const members = $derived(session.members ?? [])
+  /** What relations may point at: the other characters, then the host's places. */
+  const allTargets = $derived([
+    ...members.map((m) => ({ ref: `character:${m.id}`, label: memberLabel(m) })),
+    ...targets,
+  ])
+  /** The system's journey roles, by id, with their names. */
+  const roles = $derived(
+    Object.entries(system.bindings?.roles ?? {}).map(([id, role]) => ({
+      id,
+      name: localize(role.name, locale, system.locale) ?? id,
+      description: localize(role.description, locale, system.locale) ?? '',
+    })),
+  )
 
   /** Changes the members, then the party follows them. */
   function edit(change: (s: SessionState) => void) {
@@ -42,6 +59,10 @@
       change(s)
       if (!s.members?.length) delete s.members
       if (s.acting !== undefined && !s.members?.some((m) => m.id === s.acting)) delete s.acting
+      // Roles of characters no longer in the party go with them.
+      for (const [role, id] of Object.entries(s.roles ?? {}))
+        if (!s.members?.some((m) => m.id === id)) delete s.roles![role]
+      if (s.roles && !Object.keys(s.roles).length) delete s.roles
       refreshParty(s, partyOf(system))
       return s
     })
@@ -67,6 +88,12 @@
     edit((s) => {
       s.members = (s.members ?? []).map((m) => (m.id === old.id ? { ...next, id } : m))
       if (s.acting === old.id) s.acting = id
+      for (const [role, holder] of Object.entries(s.roles ?? {}))
+        if (holder === old.id) s.roles![role] = id
+      // Relations to this character follow its new id.
+      if (id !== old.id)
+        for (const m of s.members)
+          for (const r of m.relations) if (r.to === `character:${old.id}`) r.to = `character:${id}`
     })
   }
 
@@ -109,6 +136,33 @@
       </label>
     {/if}
   </div>
+  {#if members.length && roles.length}
+    <div class="roles">
+      <span>{t('members.roles')}<InfoTip markdown={t('members.rolesHelp')} /></span>
+      {#each roles as role (role.id)}
+        <label class="role">
+          <span
+            >{role.name}{#if role.description}<InfoTip markdown={role.description} />{/if}</span
+          >
+          <select
+            value={session.roles?.[role.id] ?? ''}
+            onchange={(e) => {
+              const id = e.currentTarget.value
+              edit((s) => {
+                const next = { ...s.roles }
+                if (id) next[role.id] = id
+                else delete next[role.id]
+                s.roles = next
+              })
+            }}
+          >
+            <option value="">{t('members.nobody')}</option>
+            {#each members as m (m.id)}<option value={m.id}>{memberLabel(m)}</option>{/each}
+          </select>
+        </label>
+      {/each}
+    </div>
+  {/if}
   {#each members as member, i (member.id)}
     <details class="member" open={members.length === 1}>
       <summary>
@@ -142,6 +196,7 @@
         {locale}
         {names}
         time={session.travel.time}
+        targets={allTargets}
         onchange={(next) => change(member, next)}
       />
     </details>
@@ -166,6 +221,24 @@
     gap: 6px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 4px 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .roles > span {
+    grid-column: 1 / -1;
+  }
+
+  .role {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .acting {

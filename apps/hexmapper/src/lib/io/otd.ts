@@ -271,12 +271,14 @@ function playToOtd(map: HexMap) {
         ...(token && { token: lookOf(token) }),
         ...(play && { mode: play.mode, trail: play.trail, showTrail: play.showTrail }),
         ...(play?.straightTrail && { straightTrail: true }),
+        ...(play?.showRelations === false && { showRelations: false }),
         ...(play?.discover && { discover: play.discover }),
         ...(play?.rules && { system: play.rules.system, startDay: play.rules.startDay }),
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
         ...(session?.yesterday && { yesterday: session.yesterday }),
         ...(session?.discovery && { discovery: session.discovery }),
         ...(session?.acting !== undefined && { acting: session.acting }),
+        ...(session?.roles && { roles: session.roles }),
       },
     },
   }
@@ -330,6 +332,7 @@ function playFromOtd(
             ...(ext.discovery !== undefined && { discovery: ext.discovery }),
             ...(members.length && { members }),
             ...(typeof ext.acting === 'string' && { acting: ext.acting }),
+            ...(typeof ext.roles === 'object' && ext.roles !== null && { roles: ext.roles }),
           },
           // No trip yet: the company waits for one.
           ...(!party.travel && members.length && { members }),
@@ -340,6 +343,7 @@ function playFromOtd(
     trail: ext.trail,
     showTrail: ext.showTrail,
     ...(ext.straightTrail === true && { straightTrail: true }),
+    ...(ext.showRelations === false && { showRelations: false }),
     ...(ext.discover !== undefined && { discover: ext.discover }),
     ...(rules && { rules }),
   }

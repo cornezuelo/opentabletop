@@ -1,4 +1,4 @@
-import { tripChanges, type JournalEntry } from '@open-tabletop/session'
+import { MEMBER_PATH, tripChanges, type JournalEntry } from '@open-tabletop/session'
 import type { Unavailable } from '@open-tabletop/travel-engine'
 import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
 import { idText, type Translate, type TravelUiKey } from './i18n'
@@ -40,8 +40,7 @@ export interface JournalContext {
 }
 
 /** Whether an effect's path is about the party's characters. */
-const isMemberPath = (path: string) =>
-  /^(party\.members|characters\.[^.]+|acting)\.(values|conditions)\./.test(path)
+const isMemberPath = (path: string) => MEMBER_PATH.test(path)
 
 /** Minutes as "3 h", "1 h 30" or "45 min". */
 export function durationText(minutes: number): string {

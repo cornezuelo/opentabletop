@@ -45,6 +45,10 @@ What the journal says, so nothing happens silently:
 
 When the system has a sheet for its characters (the Grey Marches' companions; the Generic rules' smallest one, with health and a wound), the trip has a **Characters** section above the actions. **Add a character** makes one with the sheet's starting values; name it, and its id follows the name (`Old Tobin` → `old-tobin`, how tables and conditions reach it: `characters.old-tobin.values.health`). Each character folds open to show its values (grouped as the sheet says; a track as boxes, click one to fill up to it), its conditions (tick them as they happen) and its tags (free words, comma-separated). ↑ moves one up the list, × removes one (after asking).
 
+Each character also has **Relations**: what they're tied to, as the sheet's kinds say (a bond with another character, a home): pick the kind, type a name from the list (the other characters; on a map, its places, regions and named hexes; in Travel, the way's hexes) and **Add**; a kind with a number shows it beside, to change. The system's checks read them where the party is (the Grey Marches: coming into a companion's home lifts morale).
+
+**Roles**, when the system declares journey roles, give each job to a character until you change it: the Grey Marches' **Guide** (with Pathfinding 2 or more, getting lost is rolled with advantage) and **Lookout** (with Stealth 2 or more, the camp stays hidden where danger is under 3).
+
 **Acting** says who takes the party's actions now: what a system writes for `acting` reaches that character (in the Grey Marches, the rocks of a ford hurt and sprain whoever leads the crossing; **Tend the wounded** works only if whoever acts has Survival 2 or more). With **Nobody**, those effects change nothing and the journal says so: "Nobody is acting, so “Whoever acts: Sprained ankle” changed nothing".
 
 With characters, the party is its members, as the system says:

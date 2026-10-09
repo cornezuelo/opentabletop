@@ -175,6 +175,7 @@ const KEYS = [
   'sum',
   'none',
   'carried',
+  'roles',
   'share',
 ]
 

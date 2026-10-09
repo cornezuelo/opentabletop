@@ -7,7 +7,13 @@ import { createMap } from '../model/defaults'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
-import { partyOf, refreshParty, tripAvailability, type SessionState } from '@open-tabletop/session'
+import {
+  partyOf,
+  refreshParty,
+  tripAvailability,
+  tripFacts,
+  type SessionState,
+} from '@open-tabletop/session'
 import { mapWorld } from './world'
 import {
   clickHex,
@@ -17,6 +23,7 @@ import {
   sessionOf,
   setMode,
   step,
+  updatePlay,
 } from './play'
 import {
   advanceWorld,
@@ -477,6 +484,29 @@ describe('the Company: a party made of characters', () => {
     step({ type: 'action', id: 'tend' })
     expect(member('kael').conditions).toEqual({})
     expect(trip().stats.survival).toBe(3)
+  })
+
+  it('keeps their roles and relations in the file; the map knows where they are tied', () => {
+    grey()
+    clickHex('7,7')
+    editSession((s) => ({ ...s, roles: { guide: 'kael', lookout: 'mara' } }))
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map)).play!)!
+    expect(back.roles).toEqual({ guide: 'kael', lookout: 'mara' })
+    expect(back.members!.find((m) => m.id === 'mara')!.relations).toEqual([
+      { to: 'region:Ashford Vale', kind: 'home' },
+    ])
+    // Ashford is in the Vale, Mara's home; Fort Keld holds Old Tobin's.
+    const facts = (hex: string) =>
+      tripFacts(
+        { system: activeSystem(), world: mapWorld(editor.map) },
+        { ...trip(), travel: { ...trip().travel, location: hex } },
+      ).hex as Record<string, unknown>
+    expect(facts('5,7')).toMatchObject({ related: ['mara'], relations: { home: ['mara'] } })
+    expect(facts('15,9')).toMatchObject({ related: ['tobin'], relations: { home: ['tobin'] } })
+    expect(facts('14,3').related).toBeUndefined()
+    // The threads can be hidden, and stay hidden in the file.
+    updatePlay((p) => ({ ...p, showRelations: false }))
+    expect(bundleToMap(mapToBundle(editor.map)).play?.showRelations).toBe(false)
   })
 
   it('a sprained ankle stops the party, and the stop says whose', () => {

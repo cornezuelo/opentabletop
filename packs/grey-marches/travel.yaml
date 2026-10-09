@@ -358,7 +358,7 @@ checks:
   # The night's encounters: in camp, or marching in the dark (a night march) off the road.
   - event: CAMP_ENCOUNTER_CHECK_REQUIRED
     name: Night encounter
-    description: Camping where danger is 2 or more, or entering a hex with danger in the dark, off the road.
+    description: Camping where danger is 2 or more, or entering a hex with danger in the dark, off the road. A stealthy lookout (Stealth 2 or more) keeps the camp hidden where danger is under 3.
     at: [camp, hex-enter]
     when:
       any:
@@ -366,6 +366,9 @@ checks:
         - all:
             - { trip.moment: hex-enter, time.daylight: false, hex.danger: { gte: 1 } }
             - { not: { trip.edges: road } }
+    # A journey role: whoever keeps watch (`roles.lookout`, chosen in the trip), read by their
+    # own values. With nobody on watch, this never holds.
+    unless: { trip.moment: camp, hex.danger: { lt: 3 }, roles.lookout.values.stealth: { gte: 2 } }
   # Marching in the dark (a night march), off the road: each hex entered may get you lost,
   # rolled on the same table as at dawn (it sees `time.daylight: false`).
   - event: NIGHT_NAVIGATION_CHECK_REQUIRED
@@ -418,6 +421,15 @@ checks:
     at: day-end
     when: { trip.mode: horse, trip.marched: { gt: '{{system.hoursPerDay}}' } }
     effects: { party.members.conditions.saddle-sore: true }
+  # Relations: entering a companion's home (a region, a place or a hex they're tied to as
+  # `home`: `hex.relations.home`, who) from outside it (`from.relations.home`: the hex left).
+  - event: HOMECOMING
+    name: Home ground
+    description: Coming into the home of one of the companions (their region, place or hex). Morale +1.
+    at: hex-enter
+    when: { hex.relations.home: { exists: true } }
+    unless: { from.relations.home: { exists: true } }
+    effects: { party.stats.morale: 1 }
   # The trip's own days (`trip.day`, a list of them): on the tenth, twentieth and thirtieth
   # day on the road, the party misses home.
   - event: HOMESICK
@@ -517,6 +529,15 @@ stats:
 # shows the sum, and what the party eats or finds is shared out, evenly by default.
 resources:
   food: { carried: rations }
+# Journey roles: the player gives each to a companion; checks and tables read the holder as
+# `roles.<id>.…` (the getting-lost table, the night encounter).
+roles:
+  guide:
+    name: Guide
+    description: Leads the way. With Pathfinding 2 or more, getting lost is rolled with advantage.
+  lookout:
+    name: Lookout
+    description: Keeps watch at night. With Stealth 2 or more, the camp stays hidden where danger is under 3.
 # Values the pack's tables read that nobody else names: the roll panel and the map show
 # these names (the key stays in the tooltip). Map values first, then today's values tables set.
 reads:

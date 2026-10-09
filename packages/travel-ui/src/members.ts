@@ -1,6 +1,6 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { knownName, sheetText } from '@open-tabletop/character-ui'
-import type { TravelSystem } from '@open-tabletop/session'
+import { localize, MEMBER_PATH, type TravelSystem } from '@open-tabletop/session'
 import type { Translate } from './i18n'
 
 /** A member's name: the one given, or its id. */
@@ -21,8 +21,7 @@ export function memberNamer(
   return (path) => {
     // A party without characters: nothing happens to them, nothing is told.
     if (!members?.length) return undefined
-    const [, who, part, id] =
-      /^(party\.members|characters\.[^.]+|acting)\.(values|conditions)\.(.+)$/.exec(path) ?? []
+    const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
     if (!who) return undefined
     const sheet = system.sheet?.def
     const own = part === 'values' ? sheet?.values[id] : sheet?.conditions[id]
@@ -34,9 +33,12 @@ export function memberNamer(
         ? t('members.everyone')
         : who === 'acting'
           ? t('members.whoActs')
-          : member
-            ? memberLabel(member)
-            : (memberId ?? who)
+          : who.startsWith('roles.')
+            ? (localize(system.bindings?.roles?.[who.slice(6)]?.name, locale, system.locale) ??
+              who.slice(6))
+            : member
+              ? memberLabel(member)
+              : (memberId ?? who)
     return `${name}: ${what}`
   }
 }

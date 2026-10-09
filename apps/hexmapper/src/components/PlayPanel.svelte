@@ -44,6 +44,22 @@
 
   const systemLabel = (id: string) =>
     id === 'generic' ? t('map.genericSystem') : systemName(getSystem(id), getLocale())
+
+  /**
+   * What the characters' relations may point at on this map: its places, its regions and
+   * its named hexes (by reference: `poi:<id>`, `region:<name>`, `hex:<col,row>`).
+   */
+  function relationTargets(): { ref: string; label: string }[] {
+    const out: { ref: string; label: string }[] = []
+    for (const [key, hex] of Object.entries(editor.map.hexes)) {
+      for (const poi of hex?.pois ?? [])
+        if (poi.name) out.push({ ref: `poi:${poi.id}`, label: poi.name })
+      if (hex?.name) out.push({ ref: `hex:${key}`, label: `${hex.name} (${coord(key)})` })
+    }
+    for (const region of editor.map.regions)
+      if (region.name) out.push({ ref: `region:${region.name}`, label: region.name })
+    return out
+  }
 </script>
 
 <span class="label">{t('play.mode')}<InfoTip text={t('play.modeHelp')} /></span>
@@ -65,6 +81,15 @@
     onchange={(e) => updatePlay((p) => ({ ...p, showTrail: e.currentTarget.checked }))}
   />
   {t('play.showTrail')}<InfoTip text={t('play.showTrailHelp')} />
+</label>
+<label class="check">
+  <input
+    type="checkbox"
+    checked={play?.showRelations ?? true}
+    onchange={(e) =>
+      updatePlay((p) => ({ ...p, showRelations: e.currentTarget.checked ? undefined : false }))}
+  />
+  {t('play.showRelations')}<InfoTip text={t('play.showRelationsHelp')} />
 </label>
 <label class="check">
   <input
@@ -134,6 +159,7 @@
       startDay={play.rules.startDay}
       locale={getLocale()}
       hexLabel={coord}
+      relationTargets={relationTargets()}
       terrainName={terrainLabel}
       world={mapWorld(editor.map, system.rules.travel.hexKm)}
       facts={worldFactsNow()}

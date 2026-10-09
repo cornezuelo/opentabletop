@@ -1,6 +1,8 @@
 import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
 import {
   calendarOf,
+  newMember,
+  partyOf,
   startTrip,
   stepTrip,
   systemName,
@@ -175,6 +177,67 @@ describe('bundled open packs', () => {
     }
     expect(rested(3)).toBe(true)
     expect(rested(1)).toBe(false)
+  })
+
+  describe('the Grey Marches: the Company, its roles and its homes', () => {
+    const system = marches()
+    const company = () => [
+      newMember(partyOf(system), { id: 'kael', values: { pathfinding: 2, stealth: 1 } }),
+      newMember(partyOf(system), { id: 'mara', values: { stealth: 2 } }),
+    ]
+    const options = (cells: Record<string, unknown>[], seed = 'company') => ({
+      system,
+      world: row(cells),
+      oracle: createOracleEngine({ registry, random: seeded(seed) }),
+      locale: 'en',
+    })
+    const nightCheck = (roles?: Record<string, string>) => {
+      const { session } = startTrip({ system, location: '0', season: 'summer', members: company() })
+      const camped = stepTrip(
+        options([{ terrain: 'heath', danger: 2 }]),
+        { ...session, ...(roles && { roles }) },
+        { type: 'camp' },
+      )
+      return camped.entries.some((e) => e.data?.event === 'CAMP_ENCOUNTER_CHECK_REQUIRED')
+    }
+
+    it('a stealthy lookout keeps the camp hidden; nobody on watch, or a clumsy one, does not', () => {
+      expect(nightCheck()).toBe(true)
+      expect(nightCheck({ lookout: 'kael' })).toBe(true) // Stealth 1
+      expect(nightCheck({ lookout: 'mara' })).toBe(false) // Stealth 2
+    })
+
+    it('a guide who knows the way rolls getting lost with advantage', () => {
+      const { session } = startTrip({ system, location: '0', season: 'summer', members: company() })
+      const facts = (roles?: Record<string, string>) =>
+        tripFacts(
+          { system, world: row([{ terrain: 'plains' }]) },
+          { ...session, ...(roles && { roles }) },
+        )
+      const engine = createOracleEngine({ registry, random: seeded('guide') })
+      const mode = (roles?: Record<string, string>) =>
+        engine.resolve('grey-marches/getting-lost', facts(roles)).resolution.mode
+      expect(mode()).toBeUndefined()
+      expect(mode({ guide: 'kael' })).toBe('core/advantage') // Pathfinding 2
+      expect(mode({ guide: 'mara' })).toBeUndefined()
+    })
+
+    it("coming home lifts the morale: entering a companion's home region from outside", () => {
+      const members = company()
+      members[1].relations = [{ to: 'region:Ashford Vale', kind: 'home' }]
+      const cells = [
+        { terrain: 'plains' },
+        { terrain: 'plains', region: 'Ashford Vale' },
+        { terrain: 'plains', region: 'Ashford Vale' },
+      ]
+      const { session } = startTrip({ system, location: '0', season: 'summer', members })
+      let s = stepTrip(options(cells), session, { type: 'setDestination', hex: '2' }).state
+      s = { ...s, travel: { ...s.travel, dayChecksDone: true } }
+      const { state, entries } = stepTrip(options(cells), s, { type: 'travel' })
+      const home = entries.filter((e) => e.data?.event === 'HOMECOMING')
+      expect(home).toHaveLength(1) // into the Vale, not from one of its hexes to another
+      expect(state.stats.morale).toBe(session.stats.morale + 1)
+    })
   })
 
   describe('the Grey Marches show off their conditions', () => {

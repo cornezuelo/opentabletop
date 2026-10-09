@@ -132,6 +132,10 @@
           startDay={trip.saved.startDay}
           {locale}
           {hexLabel}
+          relationTargets={trip.saved.way.map((_, i) => ({
+            ref: `hex:${i}`,
+            label: hexLabel(String(i)),
+          }))}
           terrainName={(id) => terrainName(t, id)}
           world={wayWorld(trip.saved.way, trip.hexKm)}
           title={tripLabel(trip.saved)}

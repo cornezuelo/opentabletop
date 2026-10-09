@@ -46,6 +46,7 @@ actions:
   eat: { on: day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
   forced-march: { do: [{ time: 60 }, { effects: { acting.values.health: -1 } }] }
   bandage: { do: [{ effects: { acting.conditions.wounded: false } }] }
+  scout: { when: { roles.guide.values.survival: { gte: 2 } }, do: [{ effects: { roles.guide.values.health: -1 } }] }
   ambushed: { do: [{ effects: { party.members.values.health: -1, characters.mara.conditions.wounded: true } }] }
 checks: [{ event: TRAIL, at: day-start }]
 ---
@@ -57,6 +58,8 @@ stats:
   fit: { from: { count: true, unless: { conditions: wounded } } }
 resources:
   food: { carried: rations }
+roles:
+  guide: { name: Guide }
 ---
 kind: table
 id: trail
@@ -233,5 +236,48 @@ describe('the party is its members', () => {
     ).state
     expect(t.journal.find((e) => e.code === 'ORACLE_RESULT')?.text).toBe('Hard')
     expect(t.members![0].values.health).toBe(2)
+  })
+
+  it('reads where the characters are related: a hex, its region, a place in it', () => {
+    const regionWorld: TravelWorld = {
+      ...world,
+      cell: (h) => ({ terrain: 'plains', region: h === 'b' ? 'Vale' : undefined, pois: ['inn'] }),
+    }
+    const company = members()
+    company[0].relations = [{ to: 'hex:a', kind: 'home' }]
+    company[1].relations = [
+      { to: 'region:Vale', kind: 'bond', value: 2 },
+      { to: 'poi:inn', kind: 'debt' },
+    ]
+    const { session } = startTrip({ system: band, location: 'a', members: company })
+    const here = tripFacts({ system: band, world: regionWorld }, session)
+    expect(here).toMatchObject({
+      hex: { related: ['kael', 'mara'], relations: { home: ['kael'], debt: ['mara'] } },
+      characters: {
+        mara: { relations: { bond: ['region:Vale'] }, bonds: { bond: { 'region:Vale': 2 } } },
+      },
+    })
+    const there = tripFacts(
+      { system: band, world: regionWorld },
+      { ...session, travel: { ...session.travel, location: 'b' } },
+    )
+    expect(there.hex).toMatchObject({
+      related: ['mara'],
+      relations: { bond: ['mara'], debt: ['mara'] },
+    })
+  })
+
+  it('gives journey roles to characters: conditions read the holder, effects reach them', () => {
+    const { session } = startTrip({ system: band, location: 'a', members: members() })
+    expect(band.bindings?.roles).toEqual({ guide: { name: 'Guide' } })
+    // Nobody guides: the scout's condition doesn't hold.
+    expect(tripAvailability({ system: band, world }, session).scout).toEqual({ condition: 'when' })
+    const guided = { ...session, roles: { guide: 'kael' } }
+    expect(tripFacts({ system: band, world }, guided)).toMatchObject({
+      roles: { guide: { id: 'kael', values: { survival: 3 } } },
+    })
+    expect(tripAvailability({ system: band, world }, guided).scout).toBeUndefined()
+    const s = stepTrip({ system: band, world }, guided, { type: 'action', id: 'scout' }).state
+    expect(s.members!.map((m) => m.values.health)).toEqual([2, 3])
   })
 })

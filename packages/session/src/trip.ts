@@ -23,7 +23,14 @@ import {
 } from '@open-tabletop/travel-engine'
 import { parseSheet, type CharacterState, type Sheet } from '@open-tabletop/character-engine'
 import { migrateRules } from './formats'
-import { partyBlocks, refreshParty, rulesWithMembers, type PartyRules } from './party'
+import {
+  MEMBER_PATH,
+  partyBlocks,
+  refreshParty,
+  relatedWorld,
+  rulesWithMembers,
+  type PartyRules,
+} from './party'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
 import {
   createSession,
@@ -483,7 +490,8 @@ function membersBindings(bindings: Bindings, rules: TravelRules, sheet?: Sheet):
   const out: string[] = []
   const usesMembers =
     Object.values(bindings.stats ?? {}).some((s) => s.from) ||
-    Object.keys(bindings.resources ?? {}).length > 0
+    Object.keys(bindings.resources ?? {}).length > 0 ||
+    Object.keys(bindings.roles ?? {}).length > 0
   if (usesMembers && !sheet)
     out.push(
       `bindings: Members' values are named, but the system has no sheet (sheet: in kind: system)`,
@@ -521,8 +529,7 @@ function undeclaredEffects(
     for (const path of Object.keys(effects)) {
       const [, scope, valueId] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
       // A member's value or condition: its sheet's.
-      const [, , part, partId] =
-        /^(party\.members|characters\.[^.]+|acting)\.(values|conditions)\.(.+)$/.exec(path) ?? []
+      const [, , part, partId] = MEMBER_PATH.exec(path) ?? []
       const known = part
         ? !!sheet?.[part as 'values' | 'conditions'][partId]
         : scope === 'stats'
@@ -673,11 +680,13 @@ export function stepTrip(
   action: TravelAction,
 ): { state: SessionState; entries: JournalEntry[]; discovered: Record<string, DiscoveredHex> } {
   const { system } = options
+  // The members' relations to the places they come to (`hex.related`).
+  const world = relatedWorld(options.world, session.members)
   const discover = system.bindings?.discover
   const discovery =
     options.discover && discover && options.oracle
       ? createDiscovery({
-          world: options.world,
+          world,
           oracle: options.oracle,
           discover,
           reveal: options.discover,
@@ -686,7 +695,7 @@ export function stepTrip(
       : undefined
   const result = createSession({
     travel: createTravelEngine({
-      world: discovery?.world ?? options.world,
+      world: discovery?.world ?? world,
       // The supplies the members carry have the bounds of theirs together.
       rules: rulesWithMembers(system.rules, session, partyOf(system)),
       calendar: calendarOf(system),
@@ -724,7 +733,7 @@ export function tripAvailability(
   session: SessionState,
 ): Record<string, Unavailable> {
   const engine = createTravelEngine({
-    world: options.world ?? NO_WORLD,
+    world: relatedWorld(options.world ?? NO_WORLD, session.members),
     rules: options.system.rules,
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
@@ -747,7 +756,7 @@ export function tripFacts(
   session: SessionState,
 ): Record<string, unknown> {
   const engine = createTravelEngine({
-    world: options.world ?? NO_WORLD,
+    world: relatedWorld(options.world ?? NO_WORLD, session.members),
     rules: options.system.rules,
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,

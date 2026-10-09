@@ -49,6 +49,8 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
         ...(data?.terrain && water.has(data.terrain) && { water: true }),
         // The hex's icon (a village, a bridge…) and its values: {{icon.guards}}.
         ...(data?.icon && { icon: { ...fieldValues(data.icon.fields), id: data.icon.id } }),
+        // The places in it, by id: characters' relations to them (`poi:<id>`) hold here.
+        ...(data?.pois?.length && { pois: data.pois.map((p) => p.id) }),
       }
     },
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),

@@ -98,11 +98,16 @@ export function contextSuggestions(
       add('party.members')
       const values = Object.keys(sheet.def.values)
       const conditions = Object.keys(sheet.def.conditions)
-      for (const who of ['acting', 'characters.<id>']) {
+      const roles = Object.keys(bindings?.roles ?? {}).map((r) => `roles.${r}`)
+      for (const who of ['acting', 'characters.<id>', ...roles]) {
         for (const value of values) add(`${who}.values.${value}`)
         add(`${who}.conditions`, ...conditions)
         add(`${who}.tags`)
+        for (const kind of Object.keys(sheet.def.relations)) add(`${who}.relations.${kind}`)
       }
+      // Where the characters are tied to the hex (it, its region, a place in it).
+      add('hex.related')
+      for (const kind of Object.keys(sheet.def.relations)) add(`hex.relations.${kind}`)
     }
     if (calendar) {
       const def = calendar.def
@@ -292,7 +297,8 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     for (const resource of Object.keys(rules.resources ?? {}))
       out[`party.resources.${resource}`] = []
     // Its characters: every member, the one acting, one by id.
-    for (const who of sheet ? ['party.members', 'acting', 'characters.<id>'] : []) {
+    const roles = Object.keys(bindings?.roles ?? {}).map((r) => `roles.${r}`)
+    for (const who of sheet ? ['party.members', 'acting', 'characters.<id>', ...roles] : []) {
       for (const value of Object.keys(sheet!.def.values)) out[`${who}.values.${value}`] = []
       for (const condition of Object.keys(sheet!.def.conditions))
         out[`${who}.conditions.${condition}`] = ['true', 'false']

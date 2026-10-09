@@ -66,7 +66,14 @@
       },
       "ext": {
         "character": {
-          "sheet": "grey-marches/companion"
+          "sheet": "grey-marches/companion",
+          "relations": [
+            {
+              "to": "character:mara",
+              "kind": "bond",
+              "value": 2
+            }
+          ]
         }
       }
     },
@@ -88,7 +95,13 @@
       },
       "ext": {
         "character": {
-          "sheet": "grey-marches/companion"
+          "sheet": "grey-marches/companion",
+          "relations": [
+            {
+              "to": "region:Ashford Vale",
+              "kind": "home"
+            }
+          ]
         }
       }
     },
@@ -110,7 +123,18 @@
       },
       "ext": {
         "character": {
-          "sheet": "grey-marches/companion"
+          "sheet": "grey-marches/companion",
+          "relations": [
+            {
+              "to": "poi:poi15x9x0",
+              "kind": "home"
+            },
+            {
+              "to": "character:kael",
+              "kind": "bond",
+              "value": 1
+            }
+          ]
         }
       }
     },

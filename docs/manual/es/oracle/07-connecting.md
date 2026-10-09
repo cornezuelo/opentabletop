@@ -381,7 +381,11 @@ Luego los bindings dicen qué toma el grupo de ellos:
 - **Características que salen de las suyas:** `navigation: { name: Orientación, from: { max: pathfinding } }` es el mejor Rastreo de ellos; `min` el peor, `sum` el de todos juntos, `count: true` cuántos son; `when` / `unless` dejan fuera a algunos (`count: true, unless: { conditions: wounded }`: los que no están heridos). Sin personajes la característica se guarda como siempre, así que el mismo sistema se juega de las dos formas.
 - **Provisiones que llevan:** `resources: { food: { carried: rations } }`: la comida del grupo es la suma de sus raciones, y lo que el viaje come o encuentra se reparte entre ellos (por igual si no se dice otra cosa, `share: order` para empezar por el primero).
 
-Los efectos llegan a ellos: `party.members.values.health: 1` (todos los personajes), `acting.conditions.wounded: true` (el que actúa), `characters.kael.values.health: -1` (uno). Las condiciones leen `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
+- **Roles de viaje:** `roles: { guide: { name: Guía }, lookout: { name: Vigía } }`: en un viaje el jugador da cada uno a un personaje, y las comprobaciones y tablas leen a quien lo tiene, `roles.guide.values.pathfinding: { gte: 2 }`.
+
+Los efectos llegan a ellos: `party.members.values.health: 1` (todos los personajes), `acting.conditions.wounded: true` (el que actúa), `roles.lookout.values.health: -1` (quien tenga un rol), `characters.kael.values.health: -1` (uno). Las condiciones leen `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
+
+**Las relaciones** unen a un personaje con otro, un lugar, una región o un hex (los tipos de la hoja: un vínculo, un hogar…). Allí donde va el grupo, `hex.related` dice quién está unido al hex (él, su región o un lugar en él) y `hex.relations.home` quién lo tiene por hogar: una comprobación `when: { hex.relations.home: { exists: true } }, unless: { from.relations.home: { exists: true } }` sale cuando el grupo llega a casa.
 
 ```yaml
 kind: sheet
@@ -395,7 +399,7 @@ conditions:
   wounded: { name: Herido, blocks: [forced-march] }
 ```
 
-Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que no están heridos, Sigilo del más torpe, una ración por boca de lo que llevan, una noche bien comidos que cura a todos, un vado que tuerce el tobillo de quien guía el cruce, y **Curar a los heridos** para quien actúe con Supervivencia 2 o más ([Las Marcas Grises](../packs/02-grey-marches.md)). Todas las claves están en [Hojas](../technical/07-kinds.md#hojas).
+Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que no están heridos, Sigilo del más torpe, una ración por boca de lo que llevan, una noche bien comidos que cura a todos, un vado que tuerce el tobillo de quien guía el cruce, **Curar a los heridos** para quien actúe con Supervivencia 2 o más, un guía y un vigía, y En casa cuando el grupo llega al hogar de un compañero ([Las Marcas Grises](../packs/02-grey-marches.md)). Todas las claves están en [Hojas](../technical/07-kinds.md#hojas).
 
 ## 6. Un calendario propio
 

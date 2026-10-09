@@ -224,6 +224,8 @@ export interface PlayState {
   showTrail: boolean
   /** The trail and the planned route as straight lines between hexes (default: curves). */
   straightTrail?: boolean
+  /** Threads from the party to the places its characters are tied to (`false`: hidden). */
+  showRelations?: false
   /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
   /**
    * The trip: `system` is the one it was started with (the map's, `meta.system`, at that

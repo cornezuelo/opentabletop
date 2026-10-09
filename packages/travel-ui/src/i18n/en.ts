@@ -78,6 +78,9 @@ export const en = {
     remove: 'Remove',
     up: 'Move up',
     confirmRemove: 'Remove {name} from the party?',
+    roles: 'Roles',
+    rolesHelp:
+      "Jobs the system gives the party's characters for the journey (lead the way, keep watch…), each held by one of them until you change it. The system's checks and tables read the holder: `roles.guide.values.pathfinding: { gte: 2 }`; its effects reach them: `roles.lookout.values.health: -1`. With nobody in a role, what reads it doesn't hold, and its effects change nothing.",
     acting: 'Acting',
     actingHelp:
       "Who takes the party's actions now. Effects written for `acting` change this character (`acting.values.health: -1`), and conditions and tables read theirs (`acting.values.wits: { gte: 3 }`). With nobody acting, those effects change nothing and the journal says so.",

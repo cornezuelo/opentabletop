@@ -420,6 +420,9 @@ export const es: Messages = {
     uploadToken: 'Subir uno propio…',
     worldStart: 'Los viajes nuevos empiezan en la fecha del reloj del mundo (el panel Mundo, ☾).',
     systemNote: 'El del mapa, que se elige en Ajustes del mapa → Mapa → Sistema.',
+    showRelations: 'Mostrar relaciones',
+    showRelationsHelp:
+      'Hilos finos del grupo a los lugares, regiones y hexes a los que están unidos sus personajes (un hogar, un vínculo…), cuando el sistema tiene personajes. Desmárcalo para ocultarlos; siguen en las hojas.',
     showTrail: 'Mostrar rastro',
     showTrailHelp:
       'Dibuja en el mapa los hexes por los que ha pasado el grupo, como una línea discontinua junto a los caminos que siguió.',
