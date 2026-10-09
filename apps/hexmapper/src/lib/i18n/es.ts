@@ -163,11 +163,15 @@ export const es: Messages = {
     custom: 'Propios',
   },
   icons: {
-    search: 'Buscar iconos (en inglés)…',
+    search: 'Buscar iconos…',
     category: 'Categoría',
     empty: 'Ningún icono coincide.',
     selected: 'Un clic en un hex pone: {name}',
     editing: 'Editando {name} en {coord}',
+    id: 'Id',
+    idTip: 'Su id, como lo leen las tablas: icon.id',
+    idHelp:
+      'El id del icono, como lo leen las tablas, las comprobaciones y las condiciones (sea cual sea el idioma de su nombre):\n• `icon.id: game:castle` — solo en un hex con un castillo\n• `hex.icon.id: { in: [game:castle, game:castle-ruins] }` — un castillo, en pie o en ruinas\n• `icon.id: { exists: true }` — cualquier icono\nLos iconos que importas son `asset:<id>`. Pulsa el id para seleccionarlo, o cópialo.',
     deselect: 'Hecho (Esc)',
     import: 'Importar SVG/PNG…',
     removeCustom: 'Borrar icono propio',

@@ -6,6 +6,7 @@
   import { editor } from '../lib/store/editor.svelte'
   import { contextSuggestions, FACT_GROUPS, FACT_PATHS } from '@open-tabletop/session'
   import { library } from '../lib/play/packs'
+  import { mapSystem } from '../lib/play/systems'
 
   /** What the map and trips already give: a value with one of these names is hidden. */
   /** Names the map or a trip already gives: a field with one would be hidden by it. */
@@ -44,21 +45,28 @@
   let draftKey = $state('')
   let draftValue = $state('')
   const id = $props.id()
-  /** Names the packs' tables read and nothing on the map gives yet (danger, guards, fare…). */
+  /**
+   * Names the tables of the map's system (and the packs the map adds) read and nothing on
+   * the map gives yet (danger, guards, fare…): not other systems'.
+   */
   const packHints = $derived(
-    Object.entries(contextSuggestions(library.registry, {}, { reads: true })).flatMap(
-      ([full, values]): [string, string[]][] => {
-        // A hex's values by their full names too (`hex.danger`, `hex.icon.guards`).
-        const key = full.startsWith('hex.') ? full.slice(4) : full
-        const name =
-          scope === 'icon'
-            ? key.startsWith('icon.') && key.slice(5)
-            : scope === 'token'
-              ? key.startsWith('token.') && key.slice(6)
-              : !key.includes('.') && !RESERVED.has(key) && key
-        return name && name !== 'id' && name !== 'name' && name !== 'kind' ? [[name, values]] : []
-      },
-    ),
+    Object.entries(
+      contextSuggestions(
+        library.registry,
+        {},
+        { reads: true, packs: [...mapSystem().packs, ...(editor.meta.packs ?? [])] },
+      ),
+    ).flatMap(([full, values]): [string, string[]][] => {
+      // A hex's values by their full names too (`hex.danger`, `hex.icon.guards`).
+      const key = full.startsWith('hex.') ? full.slice(4) : full
+      const name =
+        scope === 'icon'
+          ? key.startsWith('icon.') && key.slice(5)
+          : scope === 'token'
+            ? key.startsWith('token.') && key.slice(6)
+            : !key.includes('.') && !RESERVED.has(key) && key
+      return name && name !== 'id' && name !== 'name' && name !== 'kind' ? [[name, values]] : []
+    }),
   )
   const suggestions = $derived.by(() => {
     void editor.revision

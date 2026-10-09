@@ -27,7 +27,7 @@
     {#if image}
       <img src={image.url} alt="" class:tint={image.tintable} />
     {/if}
-    <span class="name">{label}</span>
+    <span class="name">{label} <code use:tooltip={t('icons.idTip')}>{icon.id}</code></span>
     <button class="link" onclick={() => (editing = !editing)}
       >{editing ? t('hex.done') : t('iconStyle.edit')}</button
     >
@@ -79,7 +79,16 @@
   .name {
     flex: 1;
     color: var(--text);
-    text-transform: capitalize;
+  }
+
+  .name::first-letter {
+    text-transform: uppercase;
+  }
+
+  .name code {
+    font-size: 11px;
+    color: var(--text-muted);
+    user-select: all;
   }
 
   .icon {

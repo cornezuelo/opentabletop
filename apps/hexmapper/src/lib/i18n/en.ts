@@ -167,6 +167,10 @@ export const en = {
     empty: 'No icons match.',
     selected: 'Clicking a hex places: {name}',
     editing: 'Editing {name} on {coord}',
+    id: 'Id',
+    idTip: 'Its id, as tables read it: icon.id',
+    idHelp:
+      'The icon’s id, as tables, checks and conditions read it (whatever the language of its name):\n• `icon.id: game:castle` — only on a hex with a castle\n• `hex.icon.id: { in: [game:castle, game:castle-ruins] }` — a castle, standing or in ruins\n• `icon.id: { exists: true }` — any icon\nIcons you import are `asset:<id>`. Click the id to select it, or copy it.',
     deselect: 'Done (Esc)',
     import: 'Import SVG/PNG…',
     removeCustom: 'Delete custom icon',

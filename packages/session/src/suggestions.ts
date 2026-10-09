@@ -22,9 +22,14 @@ const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exist
 export function contextSuggestions(
   registry: Registry,
   extra: Record<string, readonly string[]> = {},
-  /** Leave out what entries set (only what tables read). */
-  { reads = false }: { reads?: boolean } = {},
+  /**
+   * `reads`: leave out what entries set (only what tables read). `packs`: only what these
+   * packs' systems and definitions name (e.g. a map's system and the packs it adds);
+   * absent: every pack's.
+   */
+  { reads = false, packs }: { reads?: boolean; packs?: readonly string[] } = {},
 ): Record<string, string[]> {
+  const ours = (pack: string | undefined) => !packs || (pack !== undefined && packs.includes(pack))
   const out = new Map<string, Set<string>>()
   const add = (key: string, ...values: unknown[]) => {
     if (!key) return
@@ -92,7 +97,9 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { rules, bindings, calendar, sheet, factions } of systems) {
+  for (const { pack, rules, bindings, calendar, sheet, factions } of systems) {
+    // The generic system names nothing a pack would.
+    if (pack !== undefined && !ours(pack)) continue
     // Its factions: each one's values and conditions, and who holds a hex.
     if (factions) {
       const ids = Object.keys(factions.def.factions)
@@ -174,7 +181,8 @@ export function contextSuggestions(
       for (const [key, value] of Object.entries(binding.context ?? {})) add(key, value)
   }
 
-  for (const def of registry.definitions.values()) definition(def, add, reads ? () => {} : add)
+  for (const [id, def] of registry.definitions)
+    if (ours(id.split('/')[0])) definition(def, add, reads ? () => {} : add)
   for (const [key, values] of Object.entries(extra)) add(key, ...values)
   // Every short name by its full name too (`terrain` → `hex.terrain`, `moons.pale` →
   // `time.moons.pale`), with the same values.

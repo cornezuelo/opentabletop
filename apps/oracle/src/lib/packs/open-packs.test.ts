@@ -1,6 +1,7 @@
 import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
 import {
   calendarOf,
+  contextSuggestions,
   newMember,
   partyOf,
   startTrip,
@@ -21,6 +22,20 @@ describe('bundled open packs', () => {
 
   it('load without problems', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
+  })
+
+  it("suggest the values a map's own system reads, not every pack's", () => {
+    const of = (packs?: string[]) => contextSuggestions(registry, {}, { reads: true, packs })
+    // The Grey Marches' tables read their icons' guards and tokens' fares.
+    expect(of(['grey-marches', 'core'])).toHaveProperty(['icon.guards'])
+    expect(of(['grey-marches', 'core'])).toHaveProperty(['token.fare'])
+    expect(of()).toHaveProperty(['icon.guards'])
+    // A map with the Generic rules and no packs of its own: nothing of theirs.
+    expect(of([])).not.toHaveProperty(['icon.guards'])
+    expect(of([])).not.toHaveProperty(['token.fare'])
+    expect(of(['core'])).not.toHaveProperty(['icon.guards'])
+    // What every map gives is still there.
+    expect(of([])).toHaveProperty(['terrain'])
   })
 
   it('roll every definition, also translated', () => {

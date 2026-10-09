@@ -17,7 +17,7 @@
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import type { HexData, IconStyle } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
-  import { showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
 
   type Filter = 'all' | IconCategory | 'custom'
   const filters: Filter[] = ['all', ...ICON_CATEGORIES, 'custom']
@@ -60,6 +60,16 @@
     const builtin = getBuiltinIcon(activeId)
     return builtin ? iconLabel(builtin) : (selectedAsset?.name ?? '')
   })
+
+  /** Its id, as tables and conditions read it (`icon.id`). */
+  async function copyId() {
+    try {
+      await navigator.clipboard.writeText(activeId ?? '')
+      showToast(t('map.idCopied'))
+    } catch {
+      // Clipboard blocked (e.g. insecure context): the id is still selectable.
+    }
+  }
 
   function choose(id: string) {
     editor.iconId = id
@@ -123,7 +133,7 @@
       role="radio"
       aria-checked={activeId === icon.id}
       class:active={activeId === icon.id}
-      use:tooltip={iconLabel(icon)}
+      use:tooltip={`${iconLabel(icon)} · ${icon.id}`}
       aria-label={iconLabel(icon)}
       onclick={() => choose(icon.id)}
     >
@@ -137,7 +147,7 @@
       role="radio"
       aria-checked={activeId === `asset:${asset.id}`}
       class:active={activeId === `asset:${asset.id}`}
-      use:tooltip={asset.name}
+      use:tooltip={`${asset.name} · asset:${asset.id}`}
       aria-label={asset.name}
       onclick={() => choose(`asset:${asset.id}`)}
     >
@@ -156,6 +166,13 @@
   </div>
 {:else}
   <p class="selected">{t('icons.selected', { name: selectedName })}</p>
+{/if}
+{#if activeId}
+  <div class="id">
+    <span>{t('icons.id')}<InfoTip markdown={t('icons.idHelp')} /></span>
+    <code>{activeId}</code>
+    <button class="link" onclick={copyId}>{t('map.copyId')}</button>
+  </div>
 {/if}
 
 <IconStyleControls
@@ -265,7 +282,24 @@
   .selected {
     margin: 0;
     color: var(--accent);
-    text-transform: capitalize;
+  }
+
+  .selected::first-letter {
+    text-transform: uppercase;
+  }
+
+  .id {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: baseline;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .id code {
+    color: var(--text);
+    user-select: all;
   }
 
   .actions {
