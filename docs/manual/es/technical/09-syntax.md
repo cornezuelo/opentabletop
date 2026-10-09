@@ -149,16 +149,17 @@ Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` 
 
 El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa y puede tener su propio `when` / `unless`.
 
-| Paso                                             | Hace                                            |
-| ------------------------------------------------ | ----------------------------------------------- |
-| `time: 120`                                      | pasan 120 minutos                               |
-| `time: dawn`, `time: nightfall`, `time: '14:00'` | hasta entonces                                  |
-| `speed: 0.5`                                     | el resto de la marcha de hoy, a media velocidad |
-| `effects: { party.stats.fatigue: -1 }`           | cambia el grupo                                 |
-| `set: { lost: true }`                            | da un valor del día                             |
-| `do: forage`                                     | hace otra acción, si se cumplen sus condiciones |
-| `roll: ENCOUNTER_CHECK_REQUIRED`                 | tira una comprobación ya                        |
-| `{ unless: { below: food }, effects: { … } }`    | solo cuando se cumple su condición              |
+| Paso                                             | Hace                                              |
+| ------------------------------------------------ | ------------------------------------------------- |
+| `time: 120`                                      | pasan 120 minutos                                 |
+| `time: dawn`, `time: nightfall`, `time: '14:00'` | hasta entonces                                    |
+| `speed: 0.5`                                     | el resto de la marcha de hoy, a media velocidad   |
+| `effects: { party.stats.fatigue: -1 }`           | cambia el grupo                                   |
+| `set: { lost: true }`                            | da un valor del día                               |
+| `do: forage`                                     | hace otra acción, si se cumplen sus condiciones   |
+| `roll: ENCOUNTER_CHECK_REQUIRED`                 | tira una comprobación ya                          |
+| `advance: 1`                                     | avanza un hex por la ruta, sin que pase el tiempo |
+| `{ unless: { below: food }, effects: { … } }`    | solo cuando se cumple su condición                |
 
 `march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (por defecto: `when: { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 

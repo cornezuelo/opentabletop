@@ -67,19 +67,26 @@ const step = z
     do: z.string().min(1).optional(),
     roll: z.string().min(1).optional(),
     set: z.record(z.string(), z.unknown()).optional(),
+    /**
+     * Moves the party along its route this many hexes (legs of a way) at once, without
+     * time passing: progress made by a move, not by marching. A number or a variable
+     * (`'{{party.stats.rank}}'`).
+     */
+    advance: z.union([z.number().int().nonnegative(), z.string().min(1)]).optional(),
     /** Older form: eat a day of supplies (read as `do:` the generated day-end action). */
     eat: z.literal('day').optional(),
   })
   .strict()
   .refine(
     (s) =>
-      [s.time, s.eat, s.speed, s.effects, s.do, s.roll, s.set].filter((x) => x !== undefined)
-        .length === 1,
-    'a step does one thing: time, speed, effects, do, roll or set',
+      [s.time, s.eat, s.speed, s.effects, s.do, s.roll, s.set, s.advance].filter(
+        (x) => x !== undefined,
+      ).length === 1,
+    'a step does one thing: time, speed, effects, do, roll, set or advance',
   )
 
 /** What a step does: the one key it has besides `when` / `unless`. */
-export const STEP_KINDS = ['time', 'speed', 'effects', 'do', 'roll', 'set'] as const
+export const STEP_KINDS = ['time', 'speed', 'effects', 'do', 'roll', 'set', 'advance'] as const
 
 /**
  * An action of the party (`actions.forage`, and camp and rest too): what it does as steps

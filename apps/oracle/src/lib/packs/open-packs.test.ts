@@ -617,6 +617,27 @@ describe('bundled open packs', () => {
       expect(mode('09:00')).toBeUndefined()
     })
 
+    it('a carter takes the party two hexes along the road in two hours (an advance step)', () => {
+      const options = play(plains(5), true)
+      let { session } = startTrip({ system, location: '0', season: 'summer' })
+      session = stepTrip(options, session, { type: 'setDestination', hex: '4' }).state
+      const { state, entries } = stepTrip(options, session, { type: 'action', id: 'carter' })
+      expect(took(entries, 'carter')).toBe(true)
+      expect(state.travel.location).toBe('2')
+      expect(state.travel.time).toBe(session.travel.time + 120)
+      expect(state.travel.totals?.hexes).toBe(2)
+      expect(
+        took(stepTrip(options, state, { type: 'action', id: 'carter' }).entries, 'carter'),
+      ).toBe(false)
+      // Off the road there's no carter.
+      const wild = play(plains(5))
+      let off = startTrip({ system, location: '0', season: 'summer' }).session
+      off = stepTrip(wild, off, { type: 'setDestination', hex: '4' }).state
+      expect(took(stepTrip(wild, off, { type: 'action', id: 'carter' }).entries, 'carter')).toBe(
+        false,
+      )
+    })
+
     it('the Wyrm roams the Greywood once the world clock says it wakes', () => {
       const met = (filled: number) =>
         Array.from({ length: 60 }, (_, i) =>

@@ -248,14 +248,15 @@ actions:
 
 **What an action does** is a list of **steps** (`do`), done in order. Each step does one thing, and only when its own `when` / `unless` holds:
 
-| Step                                  | What it does                                                                                                                                                             |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `time: 180`                           | Three hours pass. `time: dawn`, `time: nightfall` or `time: '14:00'`: until the next one. Every day that ends on the way ends with its `day-end` actions and checks.     |
-| `speed: 0.5`                          | The rest of today's march goes at half speed (`1.5`: faster).                                                                                                            |
-| `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see its id in `below` / `above`.                           |
-| `set: { lost: true }`                 | Sets values of the day the system declares (`values`).                                                                                                                   |
-| `do: forage`                          | Takes another action, if its conditions hold (otherwise nothing happens).                                                                                                |
-| `roll: ENCOUNTER`                     | Rolls a check now: every check with that event whose `when` / `unless` hold, whatever its `at`. It's resolved when the action ends, so later steps don't see its result. |
+| Step                                  | What it does                                                                                                                                                                                                                                                                               |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `time: 180`                           | Three hours pass. `time: dawn`, `time: nightfall` or `time: '14:00'`: until the next one. Every day that ends on the way ends with its `day-end` actions and checks.                                                                                                                       |
+| `speed: 0.5`                          | The rest of today's march goes at half speed (`1.5`: faster).                                                                                                                                                                                                                              |
+| `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see its id in `below` / `above`.                                                                                                                                             |
+| `set: { lost: true }`                 | Sets values of the day the system declares (`values`).                                                                                                                                                                                                                                     |
+| `do: forage`                          | Takes another action, if its conditions hold (otherwise nothing happens).                                                                                                                                                                                                                  |
+| `roll: ENCOUNTER`                     | Rolls a check now: every check with that event whose `when` / `unless` hold, whatever its `at`. It's resolved when the action ends, so later steps don't see its result.                                                                                                                   |
+| `advance: 1`                          | Moves the party that many hexes along its route at once, no time passing: each hex is entered as by marching (its `hex-enter` checks, its visit, the trip's totals); it stops at the destination, at a way it can't take or at a check. A variable too: `advance: '{{party.stats.rank}}'`. |
 
 ```yaml
 actions:
@@ -274,6 +275,30 @@ actions:
 What an action **rolls** are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. The older way (`minutes: 180, speed: 0.5, effects: …` on the action, or an `eat: day` step) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
 
 **At nightfall.** `day: { night: camp }` says what the party does when night falls while it waits with the world clock: camp (the default, if the system has camp), another action, or `false` (the night just passes). When the action can't be taken (a value blocks it, or its `when` / `unless` don't hold), the night passes without it and the journal says why; a travel order at nightfall does the same and marches on at dawn.
+
+### Journeys by moves
+
+Some games don't march hour by hour: a journey is made of **moves**, each one bringing the party closer by some progress, and arriving may need a roll. The `advance` step is that progress: the party moves along its route as many hexes (or legs of a way, in the Travel app) as it says, at once.
+
+- **No marching**: give the march a condition nobody meets, and only the moves bring the party forward (`march: { when: { today.marching: true } }`, a value no one sets).
+- **A move**: an action whose steps pass time, spend supplies and advance (`do: [{ time: 240 }, { effects: { party.resources.food: -1 } }, { advance: 1 }]`); with a check (`roll:` or `at:` its id) whose table decides how it went.
+- **Progress that depends on something**: `advance: '{{party.stats.rank}}'` moves as many legs as a stat; a step with `when` advances only on a good result of the day (`when: { today.made-way: true }`, set by the move's table).
+- **Arriving as a roll**: the last leg is a terrain that's only `passable` with a value of the day (`passable: { when: { reached: true } }`), set by an action whose table rolls for it; then that action's `advance: 1` takes the party in.
+
+```yaml
+actions:
+  march: { when: { today.marching: true } } # nobody marches: moves only
+  press-on:
+    name: Press on
+    description: 'Half a day on the way: a ration, and one leg closer.'
+    do:
+      - { time: 360 }
+      - { effects: { party.resources.food: -1 } }
+      - { advance: 1 }
+… # the rest of the travel rules
+```
+
+The Grey Marches' **Ride with a carter** uses it on the road.
 
 ### Checks
 

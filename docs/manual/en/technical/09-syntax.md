@@ -149,16 +149,17 @@ A check without `at` is rolled only by a step (`roll:`); an action without `on` 
 
 An action's `do:` is a list of steps, in order; each does one thing and may have its own `when` / `unless`.
 
-| Step                                             | Does                                         |
-| ------------------------------------------------ | -------------------------------------------- |
-| `time: 120`                                      | 120 minutes pass                             |
-| `time: dawn`, `time: nightfall`, `time: '14:00'` | until then                                   |
-| `speed: 0.5`                                     | the rest of today's march at half speed      |
-| `effects: { party.stats.fatigue: -1 }`           | changes the party                            |
-| `set: { lost: true }`                            | gives a value of the day                     |
-| `do: forage`                                     | takes another action, if its conditions hold |
-| `roll: ENCOUNTER_CHECK_REQUIRED`                 | rolls a check now                            |
-| `{ unless: { below: food }, effects: { … } }`    | only when its condition holds                |
+| Step                                             | Does                                           |
+| ------------------------------------------------ | ---------------------------------------------- |
+| `time: 120`                                      | 120 minutes pass                               |
+| `time: dawn`, `time: nightfall`, `time: '14:00'` | until then                                     |
+| `speed: 0.5`                                     | the rest of today's march at half speed        |
+| `effects: { party.stats.fatigue: -1 }`           | changes the party                              |
+| `set: { lost: true }`                            | gives a value of the day                       |
+| `do: forage`                                     | takes another action, if its conditions hold   |
+| `roll: ENCOUNTER_CHECK_REQUIRED`                 | rolls a check now                              |
+| `advance: 1`                                     | moves one hex along the route, no time passing |
+| `{ unless: { below: food }, effects: { … } }`    | only when its condition holds                  |
 
 `march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (default: `when: { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 

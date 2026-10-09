@@ -67,6 +67,7 @@
     'set.*': Object.keys((doc.rules.values ?? {}) as Raw),
     do: ids,
     roll: events,
+    advance: ['1', '2', "'{{party.stats.rank}}'"],
     unless: [],
   })
 

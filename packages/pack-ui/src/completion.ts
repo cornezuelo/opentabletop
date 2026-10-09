@@ -145,6 +145,7 @@ const KEYS = [
   'on',
   'do',
   'time',
+  'advance',
   'oncePerDay',
   'hideWhenUnavailable',
   'nothing',

@@ -593,7 +593,7 @@ describe('actions as steps, and declared values', () => {
       actions: { nap: { do: [{ time: 30, speed: 0.5 }] } },
     })
     expect(bad.errors).toEqual([
-      'actions.nap.do.0: a step does one thing: time, speed, effects, do, roll or set',
+      'actions.nap.do.0: a step does one thing: time, speed, effects, do, roll, set or advance',
       'values.stuck.blocks.0: expected travel, camp, rest, march, nap, eat, mode.foot, mode.horse',
     ])
   })
@@ -1756,5 +1756,51 @@ describe('full names of facts', () => {
     expect(why({ clocks: { 'the-flood': 4 } }).flood).toBeUndefined()
     // Entering a hex by road: the step's edges.
     expect(engine.availability({ ...start('5,9') }).roadside).toEqual({ condition: 'when' })
+  })
+})
+
+describe('progress by moves: the advance step', () => {
+  // A journey of moves: nobody marches (the march's condition reads a value no one sets);
+  // each move takes an hour and moves the party as many legs as its rank.
+  const { rules: moves, errors } = parseTravelRules({
+    ...rules!,
+    actions: {
+      march: { when: { 'today.marching': true } },
+      undertake: { do: [{ time: 60 }, { advance: '{{party.stats.rank}}' }] },
+      leap: { do: [{ advance: 9 }] },
+    },
+    checks: [{ event: 'ARRIVED', at: 'hex-enter', when: { 'trip.arrived': true } }],
+  })
+  const journey = createTravelEngine({ world, rules: moves! })
+  const planned = () => journey.apply(start('0,0'), { type: 'setDestination', hex: '4,0' }).state
+
+  it('is valid, and moves along the route as many legs as it says, no time passing', () => {
+    expect(errors).toEqual([])
+    const marched = journey.apply(planned(), { type: 'travel' })
+    expect(marched.state.location).toBe('0,0')
+    const before = planned()
+    const { state, events } = journey.apply(
+      before,
+      { type: 'action', id: 'undertake' },
+      { party: { stats: { rank: 2 } } },
+    )
+    expect(state.route?.length).toBe(before.route!.length - 2)
+    expect(state.location).toBe(before.route![2])
+    expect(state.time).toBe(before.time + 60)
+    expect(events.filter((e) => e.type === 'HEX_ENTERED')).toHaveLength(2)
+    expect(state.totals?.hexes).toBe(2)
+    expect(state.visits?.[state.location]).toBe(1)
+  })
+
+  it('stops at the destination, and its checks come up there', () => {
+    const { state, events } = journey.apply(planned(), { type: 'action', id: 'leap' })
+    expect(state.location).toBe('4,0')
+    expect(events.some((e) => e.type === 'DESTINATION_REACHED')).toBe(true)
+    expect(state.pendingChecks.map((c) => c.event)).toEqual(['ARRIVED'])
+  })
+
+  it('without a rank (a variable that isn’t there) it moves nothing', () => {
+    const { state } = journey.apply(planned(), { type: 'action', id: 'undertake' })
+    expect(state.location).toBe('0,0')
   })
 })

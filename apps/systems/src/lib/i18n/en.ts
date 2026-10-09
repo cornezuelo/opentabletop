@@ -326,7 +326,7 @@ export const en = {
     nothingPlaceholder: 'nothing to find on {terrain}',
     steps: 'What it does',
     stepsHelp:
-      "What the action does, **one step per box, in order**, each written like in the YAML:\n• `time: 180` — three hours pass (or `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — the rest of today's march goes at half speed\n• `effects: { party.stats.fatigue: -1 }` — change the party (a number adds or takes away; `'=0'` sets it; `'-{{party.stats.mouths}}'`: as many as another value, `'+{{1d3}}'`: a roll)\n• `set: { lost: true }` — give a value of the day\n• `do: forage` — take another action (if its conditions hold)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — roll a check now\nA change past a value's **Min** or **Max** stops there, and later steps see `below: [id]` or `above: [id]`.\nThe box beside each step is **its condition**: the step only happens when it holds.\n• `below: food` — only if food hit its minimum today\n• `party.stats.morale: { lte: 1 }` — only with low morale\n• `moment: hex-enter` — only when the action came at that moment\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
+      "What the action does, **one step per box, in order**, each written like in the YAML:\n• `time: 180` — three hours pass (or `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — the rest of today's march goes at half speed\n• `effects: { party.stats.fatigue: -1 }` — change the party (a number adds or takes away; `'=0'` sets it; `'-{{party.stats.mouths}}'`: as many as another value, `'+{{1d3}}'`: a roll)\n• `set: { lost: true }` — give a value of the day\n• `do: forage` — take another action (if its conditions hold)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — roll a check now\n• `advance: 1` — move one hex (one leg of a way) along the route at once, no time passing: progress by moves instead of marching (`advance: '{{party.stats.rank}}'`: as many as a value)\nA change past a value's **Min** or **Max** stops there, and later steps see `below: [id]` or `above: [id]`.\nThe box beside each step is **its condition**: the step only happens when it holds.\n• `below: food` — only if food hit its minimum today\n• `party.stats.morale: { lte: 1 }` — only with low morale\n• `moment: hex-enter` — only when the action came at that moment\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
     on: 'By itself at',
     onHelp:
       "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• `day-start` — at dawn\n• `hex-enter` — entering each hex\n• `day-end` — as each day ends, camping or not\n• an action's id, e.g. `camp` — right after that action starts\nSeveral, separated by commas: `day-start, hex-enter`. Its conditions see which one it is as `moment` (`when: { moment: hex-enter }`).\nExamples:\n• eating as each day ends: `day-end`\n• porters grumbling at dawn after a hungry day: `day-start` with **Only when** `yesterday.hungry: true`",
@@ -334,7 +334,7 @@ export const en = {
     onAfter: 'After: {action}',
     step: 'Step',
     badStep:
-      'A step does one thing: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <action> or roll: <check>.',
+      'A step does one thing: time: 60, speed: 0.5, effects: { … }, set: { … }, do: <action>, roll: <check> or advance: 1.',
     stepWhen: 'only when…',
     up: 'Move up',
     down: 'Move down',

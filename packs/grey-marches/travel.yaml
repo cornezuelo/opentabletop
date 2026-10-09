@@ -239,6 +239,17 @@ actions:
     do:
       - { time: 60 }
       - { effects: { party.stats.morale: 1 } }
+  # Progress by a move, not by marching (an `advance` step): on the road, by day, a carter
+  # takes the party two hexes along its route in two hours. Once a day; hidden off the road.
+  carter:
+    name: Ride with a carter
+    description: 'On a road, by day: a carter going your way takes you two hexes along your route in two hours. Once a day.'
+    when: { time.daylight: true, trip.edges: road }
+    hideWhenUnavailable: true
+    oncePerDay: true
+    do:
+      - { time: 120 }
+      - { advance: 2 }
   # Next to water (`around.water`: one of the hexes around is water) or on the coast: two
   # hours with a line, by day, once a day; the Fishing check (at: fish) rolls a d6 under
   # Survival. Hidden elsewhere.

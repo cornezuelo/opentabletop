@@ -584,7 +584,13 @@ export function createTravelEngine(options: {
       hex: hexFacts(state.location),
       terrain: cell?.terrain,
       tags: cell?.tags ?? [],
-      edges: a && b ? world.edges(a, b) : [],
+      // The stretch given (the one just walked entering a hex), or else the one ahead.
+      edges:
+        a && b
+          ? world.edges(a, b)
+          : state.route?.[1]
+            ? world.edges(state.location, state.route[1])
+            : [],
       weather: state.weather,
       mode: state.mode,
       ...clockFacts(state),
@@ -817,13 +823,8 @@ export function createTravelEngine(options: {
         if (state.time >= midnight) return stop('nightfall')
         return stop(marchStop(state, state.time, state.travelledToday) ?? 'march')
       }
-      state.progress = 0
       const from = state.location
-      state.location = next
-      state.route = state.route.slice(1)
-      state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
-      totalsOf(state).hexes++
-      events.push({ type: 'HEX_ENTERED', hex: next, time: state.time })
+      enter(state, next, events)
       schedule(state, 'hex-enter', events, from)
       if (state.route.length < 2) {
         events.push({ type: 'DESTINATION_REACHED', hex: next })
@@ -1180,7 +1181,43 @@ export function createTravelEngine(options: {
       else if (step.roll !== undefined)
         schedule(state, id, events, undefined, options.facts, step.roll)
       else if (step.set) state.today = { ...state.today, ...step.set }
+      else if (step.advance !== undefined) {
+        const legs = resolveChange(step.advance, qualify(context), rollsOf(state, context, id))
+        advance(state, typeof legs === 'number' ? Math.floor(legs) : 0, events)
+      }
     }
+  }
+
+  /**
+   * Moves the party `legs` hexes along its route at once, no time passing (a move that
+   * makes progress): each hex entered as by marching (its visit, the trip's totals, its
+   * `hex-enter` checks). Stops at the destination, at a way it can't take, or at a check.
+   */
+  const advance = (state: TravelState, legs: number, events: TravelEvent[]): void => {
+    for (let i = 0; i < legs; i++) {
+      const next = state.route?.[1]
+      if (!state.route || !next) return
+      if (!Number.isFinite(stepMinutes(state, state.location, next))) {
+        events.push({ type: 'ROUTE_BLOCKED', from: state.location, to: next })
+        return
+      }
+      const from = state.location
+      enter(state, next, events)
+      schedule(state, 'hex-enter', events, from)
+      if (state.route.length < 2)
+        return void events.push({ type: 'DESTINATION_REACHED', hex: next })
+      if (state.pendingChecks.length) return
+    }
+  }
+
+  /** The party steps into the next hex of its route: its visit, the totals, the journal. */
+  const enter = (state: TravelState, next: string, events: TravelEvent[]): void => {
+    state.progress = 0
+    state.location = next
+    state.route = state.route!.slice(1)
+    state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
+    totalsOf(state).hexes++
+    events.push({ type: 'HEX_ENTERED', hex: next, time: state.time })
   }
 
   return {

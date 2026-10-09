@@ -50,6 +50,9 @@ travel-rules/default:
     tale:
       name: Historias del camino
       description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: una hora de historias junto al fuego. Moral +1.'
+    carter:
+      name: Ir con un carretero
+      description: 'Por un camino, de día: un carretero que va en vuestra dirección os lleva dos hexes por la ruta en dos horas. Una vez al día.'
     fish:
       name: Pescar
       description: 'Junto a un lago, el mar o en la costa, de día: dos horas con el sedal, una vez al día. Tira un d6: si saca vuestra Supervivencia o menos, pescado para dos días; si no, de 1 a 3, para uno; si no, no pica nada.'

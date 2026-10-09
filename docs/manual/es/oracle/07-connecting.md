@@ -248,14 +248,15 @@ actions:
 
 **Lo que hace una acción** es una lista de **pasos** (`do`), en orden. Cada paso hace una cosa, y solo si se cumple su propio `when` / `unless`:
 
-| Paso                                  | Lo que hace                                                                                                                                                                                        |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `time: 180`                           | Pasan tres horas. `time: dawn`, `time: nightfall` o `time: '14:00'`: hasta el siguiente. Cada día que acaba por el camino acaba con sus acciones y comprobaciones de `day-end`.                    |
-| `speed: 0.5`                          | El resto de la marcha de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                             |
-| `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes ven su id en `below` / `above`.                          |
-| `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                            |
-| `do: forage`                          | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada).                                                                                                                             |
-| `roll: ENCOUNTER`                     | Tira ya una comprobación: todas las de ese evento cuyo `when` / `unless` se cumplan, tengan el `at` que tengan. Se resuelve al acabar la acción, así que los pasos siguientes no ven su resultado. |
+| Paso                                  | Lo que hace                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `time: 180`                           | Pasan tres horas. `time: dawn`, `time: nightfall` o `time: '14:00'`: hasta el siguiente. Cada día que acaba por el camino acaba con sus acciones y comprobaciones de `day-end`.                                                                                                                                         |
+| `speed: 0.5`                          | El resto de la marcha de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                                                                                                                                                  |
+| `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes ven su id en `below` / `above`.                                                                                                                                               |
+| `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                                                                                                                                                 |
+| `do: forage`                          | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada).                                                                                                                                                                                                                                                  |
+| `roll: ENCOUNTER`                     | Tira ya una comprobación: todas las de ese evento cuyo `when` / `unless` se cumplan, tengan el `at` que tengan. Se resuelve al acabar la acción, así que los pasos siguientes no ven su resultado.                                                                                                                      |
+| `advance: 1`                          | Avanza al grupo tantos hexes por su ruta de golpe, sin que pase el tiempo: cada hex se entra como marchando (sus comprobaciones `hex-enter`, su visita, los totales del viaje); se detiene en el destino, en un paso que no puede tomar o en una comprobación. También una variable: `advance: '{{party.stats.rank}}'`. |
 
 ```yaml
 actions:
@@ -274,6 +275,30 @@ actions:
 Lo que **tira** una acción son las comprobaciones con `at: <su id>` (las de acampar: `at: camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En los formularios de la aplicación Systems cada paso se escribe igual, una casilla por paso, con sugerencias. La forma antigua (`minutes: 180, speed: 0.5, effects: …` en la acción, o un paso `eat: day`) sigue funcionando, leída como esos pasos. Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
 
 **Al anochecer.** `day: { night: camp }` dice qué hace el grupo cuando cae la noche mientras espera con el reloj del mundo: acampar (por defecto, si el sistema tiene camp), otra acción, o `false` (la noche simplemente pasa). Si la acción no se puede hacer (la bloquea un valor o no se cumplen su `when` / `unless`), la noche pasa sin ella y el diario dice por qué; una orden de viajar al anochecer hace lo mismo y sigue marchando al alba.
+
+### Viajes por movimientos
+
+Algunos juegos no marchan hora a hora: un viaje se hace de **movimientos**, cada uno acerca al grupo un tanto, y llegar puede pedir una tirada. El paso `advance` es ese avance: el grupo avanza por su ruta tantos hexes (o tramos de un camino, en la app Travel) como diga, de golpe.
+
+- **Sin marchar**: da a la marcha una condición que nadie cumpla, y solo los movimientos hacen avanzar al grupo (`march: { when: { today.marching: true } }`, un valor que nadie fija).
+- **Un movimiento**: una acción cuyos pasos pasan tiempo, gastan provisiones y avanzan (`do: [{ time: 240 }, { effects: { party.resources.food: -1 } }, { advance: 1 }]`); con una comprobación (`roll:` o `at:` su id) cuya tabla decide cómo fue.
+- **Un avance que depende de algo**: `advance: '{{party.stats.rank}}'` avanza tantos tramos como una característica; un paso con `when` solo avanza con un buen resultado del día (`when: { today.made-way: true }`, que fija la tabla del movimiento).
+- **Llegar con una tirada**: el último tramo es un terreno que solo es `passable` con un valor del día (`passable: { when: { reached: true } }`), que fija una acción cuya tabla tira por ello; luego el `advance: 1` de esa acción mete al grupo.
+
+```yaml
+actions:
+  march: { when: { today.marching: true } } # nadie marcha: solo movimientos
+  press-on:
+    name: Seguir adelante
+    description: 'Medio día de camino: una ración, y un tramo más cerca.'
+    do:
+      - { time: 360 }
+      - { effects: { party.resources.food: -1 } }
+      - { advance: 1 }
+… # el resto de las reglas de viaje
+```
+
+El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 
 ### Comprobaciones
 

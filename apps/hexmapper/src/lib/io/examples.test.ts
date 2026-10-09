@@ -171,6 +171,7 @@ describe('example maps', () => {
       parley: { condition: 'when' }, // nobody refuses
       tale: { condition: 'when' }, // not 50 km yet
       fish: { condition: 'when' }, // no water around Ashford
+      carter: { condition: 'when' }, // no road ahead without a route
       market: { condition: 'when' }, // a market town, but not on market day
     })
   })
