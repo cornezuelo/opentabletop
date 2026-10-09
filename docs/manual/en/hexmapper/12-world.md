@@ -4,9 +4,16 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 ## Starting it
 
-**Start the world clock** sets it at dawn of the first day — or, during a trip, at the trip's time. It names time with the calendar of the system the map plays (**Map settings → Map → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the generic rules count days and seasons.
+**Starting on** chooses its date in the calendar's terms: the day of the month, the month and the year, and the time (with the default calendar, the day number and the time); it starts at dawn of the first day unless you change it. **Start the world clock** sets it there — or, during a trip, at the trip's time (they share one time). A date the calendar doesn't have (the 31st of a 30-day month, or before its first day) is said under the boxes. It names time with the calendar of the system the map plays (**Map settings → Map → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the generic rules count days and seasons.
 
 **Stop the world clock** forgets it (it asks first).
+
+## Setting the date
+
+**Set the date**, under the date, moves the clock to a day and time you choose:
+
+- **Later**: it's moving time on, the same as the buttons below (with a trip going on the party travels or waits until then, asking before days pass); events, holidays and moons on the way come due.
+- **Earlier**: it asks first, and only without a trip going on (a trip's time never goes back). Nothing that happened is undone: the timeline keeps it and says "The clock went back (from …)"; repeating events don't come back.
 
 ## Moving time on
 
@@ -36,16 +43,18 @@ Example with the Grey Marches: start the clock, place the party in Ashford (0608
 
 ## Events
 
-Things that happen on a date whether the party is there or not: a festival, an attack, a ship arriving. Write what happens, **in how many days** and **at what time**, and whether it happens **once**, **every N days** (a weekly market) or **every year**. The list shows what's coming, soonest first; ✕ cancels one.
+Things that happen on a date whether the party is there or not: a festival, an attack, a ship arriving. Write what happens, its **Id**, a **description** if you like, when (**in how many days** and **at what time**, or **on a date** of the calendar), and whether it happens **once**, **every N days** (a weekly market) or **every year**. The list shows what's coming, soonest first, with each one's id and description; ✕ cancels one.
+
+The **Id** is how conditions and tables name the event on its day: lowercase words joined by dashes (`market-day`, `clan-raid`), one per event. Left empty, it's the name written that way (**Market day** → `market-day`; a number is added if it's taken).
 
 ## Progress clocks
 
 A clock is a number of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it.
 
-**Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), and the day's events the same way (`world.events: market-day`, or `events`), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
+**Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), and the day's events by their ids (`world.events: market-day`, or `events`; their names written as ids work too), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
 
 ## Timeline
 
 What happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).
 
-The Grey Marches' example map comes with the clock running: a market every week, the Iron Clans marching on Fort Keld, the spring floods, and two clocks — the Greywood Wyrm and Fort Keld's unpaid garrison.
+The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and two clocks — the Greywood Wyrm (when it fills, the Wyrm roams the Greywood) and Fort Keld's unpaid garrison.

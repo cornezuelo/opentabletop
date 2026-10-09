@@ -47,6 +47,12 @@ export interface DataCalendar extends Calendar {
   describe(time: GameTime): CalendarParts
   /** Days in a year. */
   readonly yearDays: number
+  /**
+   * The game day (1-based) of a date of the calendar: a year, a month's id and its day.
+   * Undefined for a month it doesn't have, a day the month doesn't have, or a date
+   * before day 1.
+   */
+  dayOf(date: { year: number; month: string; day: number }): number | undefined
 }
 
 /** Readable problems of a calendar definition (empty: valid). */
@@ -130,11 +136,22 @@ export function calendarFrom(def: CalendarDef): DataCalendar {
     }
   }
 
+  const dayOf = (date: { year: number; month: string; day: number }): number | undefined => {
+    const month = months.find((m) => m.id === date.month)
+    if (!month || !Number.isInteger(date.day) || date.day < 1 || date.day > month.days)
+      return undefined
+    const absolute =
+      (date.year - (def.startYear ?? 1)) * yearDays + monthStart(month.id) + date.day - 1
+    const day = absolute - startOfYear + 1
+    return Number.isInteger(day) && day >= 1 ? day : undefined
+  }
+
   return {
     def,
     minutesPerDay,
     yearDays,
     describe,
+    dayOf,
     at(day, clock) {
       const minutes = typeof clock === 'number' ? clock : parseClock(clock)
       return (day - 1) * minutesPerDay + minutes

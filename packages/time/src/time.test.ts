@@ -63,6 +63,21 @@ describe('calendars as data', () => {
     watchHours: 6,
   }
 
+  it('find the game day of a date, and none for dates they don’t have', () => {
+    const cal = calendarFrom(def)
+    // Day 1 is the 2nd of Thaw, 300.
+    expect(cal.dayOf({ year: 300, month: 'thaw', day: 2 })).toBe(1)
+    expect(cal.dayOf({ year: 300, month: 'sun', day: 2 })).toBe(4)
+    expect(cal.dayOf({ year: 301, month: 'thaw', day: 1 })).toBe(7)
+    for (let day = 1; day <= 20; day++) {
+      const p = cal.describe(cal.at(day, 0))
+      expect(cal.dayOf({ year: p.year, month: p.month.id, day: p.month.day })).toBe(day)
+    }
+    expect(cal.dayOf({ year: 300, month: 'thaw', day: 1 })).toBeUndefined()
+    expect(cal.dayOf({ year: 300, month: 'sun', day: 3 })).toBeUndefined()
+    expect(cal.dayOf({ year: 300, month: 'nope', day: 1 })).toBeUndefined()
+  })
+
   it('name every day: year, month, weekday, moons, holidays and season', () => {
     expect(validateCalendar(def)).toEqual([])
     const cal = calendarFrom(def)

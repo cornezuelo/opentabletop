@@ -566,6 +566,34 @@ export const en = {
     noTimeline: 'Nothing yet.',
     note: 'A note for the timeline',
     addNote: 'Add',
+    startAt: 'Starting on',
+    startAtHelp:
+      "The date the world clock starts at, in the calendar of the map's system: day, month, year and time (with the default calendar, the day number and time).\n• **15 Highsun 412, 06:00** — a start at midsummer\nWith a trip going on, the clock starts at the trip's time (they share one time).",
+    startAtTrip: 'A trip is going on: the clock starts at its time.',
+    setDate: 'Set the date',
+    setDateHelp:
+      "Moves the world clock to a date.\n• **Later**: like moving time on (with a trip going on the party travels or waits until then, and you're asked before days pass); events, holidays and moons on the way come due.\n• **Earlier**: asked first, and only without a trip going on. Nothing that happened is undone: the timeline keeps it and says the clock went back.",
+    setDateGo: 'Go to this date',
+    setDateCancel: 'Cancel',
+    confirmRewind:
+      'Put the clock back to this date? What happened stays in the timeline; repeating events don’t come back.',
+    noRewindTrip:
+      'The clock can’t go back while a trip is going on: a trip’s time never goes back.',
+    rewound: 'The clock went back (from {from})',
+    dateDay: 'Day of the month',
+    dateMonth: 'Month',
+    dateYear: 'Year',
+    dateDayNumber: 'Day',
+    dateMissing: 'The calendar has no such date (or it’s before the first day).',
+    eventId: 'Id',
+    eventIdHelp:
+      "How conditions and tables name the event on its day: `world.events: <id>`. Lowercase words joined by dashes, one per event.\n• `market-day` — `when: { world.events: market-day }`\n• `clan-raid`\nEmpty: its name written that way (**Market day** → `market-day`; a number is added if it's taken). Its name works too, as an id.",
+    eventIdBad: 'An id is lowercase words joined by dashes: market-day.',
+    eventIdTaken: 'Taken: a number will be added to it.',
+    eventDescription: 'Description (optional)',
+    when: 'When',
+    onDate: 'On a date',
+    onDatePast: 'That date has passed.',
   },
   terrainSets: {
     natural: 'Natural (the default palette)',

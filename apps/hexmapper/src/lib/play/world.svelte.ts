@@ -38,12 +38,35 @@ export function worldFactsNow(): Record<string, unknown> | undefined {
   return state ? worldFacts(state, worldCalendar()) : undefined
 }
 
-/** Starts the clock: at the trip's time if one is going on, else dawn of day 1. */
-export function startWorld(): void {
+/** When the clock starts unless another date is chosen: the trip's time, else dawn of day 1. */
+export function defaultStart(): number {
   const play = editor.map.play
   const session = play ? sessionOf(play) : null
-  const time = session?.travel.time ?? worldCalendar().at(1, '06:00')
-  editor.setWorld(initialWorld(time))
+  return session?.travel.time ?? worldCalendar().at(1, '06:00')
+}
+
+/**
+ * Starts the clock at a date (by default `defaultStart`). With a trip going on, the world
+ * and the trip share one time, so it starts at the trip's.
+ */
+export function startWorld(time = defaultStart()): void {
+  const play = editor.map.play
+  const trip = play ? sessionOf(play) : null
+  editor.setWorld(initialWorld(trip ? trip.travel.time : time))
+}
+
+/**
+ * Sets the world's date. Forward it's moving time on (the trip, if any, travels or waits
+ * until then, asking before days pass); back it asks first, and is only possible without a
+ * trip going on (a trip's time never goes back). Nothing that happened is undone.
+ */
+export async function setWorldDate(time: number): Promise<void> {
+  const state = editor.map.world
+  if (!state || time === state.time) return
+  if (time > state.time) return advanceWorld({ minutes: time - state.time })
+  const play = editor.map.play
+  if (play && sessionOf(play)) return void showToast(t('world.noRewindTrip'), 'error')
+  if (await confirmAction(t('world.confirmRewind'))) worldAct({ type: 'rewind', time })
 }
 
 /** Stops it (forgets its events, clocks and timeline). */

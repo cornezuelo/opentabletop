@@ -8,7 +8,14 @@ import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { clickHex, partyLocation, restartRules, sessionOf, setMode, step } from './play'
-import { advanceWorld, startWorld, stopMessage, worldAct, worldCalendar } from './world.svelte'
+import {
+  advanceWorld,
+  setWorldDate,
+  startWorld,
+  stopMessage,
+  worldAct,
+  worldCalendar,
+} from './world.svelte'
 import { oracleUi, rollContext } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 
@@ -292,5 +299,93 @@ describe('playing on the map', () => {
       // Reaching the moment with nothing to say says nothing.
       expect(stopMessage(at({ time: 100 }), base.journal.length, 100)).toBeUndefined()
     })
+  })
+})
+
+describe('the world clock’s dates', () => {
+  // The Oracle rolls with Math.random: a fixed sequence makes every run the same.
+  beforeEach(() => {
+    let seed = 7
+    vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    })
+  })
+  afterEach(() => {
+    vi.restoreAllMocks()
+    dialog.current?.resolve(null)
+  })
+  const grey = () =>
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+  const calendar = () => worldCalendar() as import('@open-tabletop/time').DataCalendar
+  /** Sets the date, answering the question it asks (if any). */
+  async function setDate(time: number, answer: 'ok' | 'cancel' = 'ok') {
+    const done = setWorldDate(time)
+    const asked = dialog.current?.message
+    dialog.current?.resolve(answer)
+    await done
+    return asked
+  }
+
+  it('starts on the date chosen, in the system’s calendar', () => {
+    grey()
+    editor.setWorld(undefined)
+    editor.map.play = undefined
+    const midsummer = calendar().at(
+      calendar().dayOf({ year: 412, month: 'highsun', day: 15 })!,
+      '06:00',
+    )
+    startWorld(midsummer)
+    const parts = calendar().describe(editor.map.world!.time)
+    expect(parts).toMatchObject({ year: 412, month: { id: 'highsun', day: 15 }, hour: 6 })
+    expect(parts.holidays.map((h) => h.id)).toEqual(['midsummer'])
+  })
+
+  it('goes forward like moving time on, and back only after asking, without a trip', async () => {
+    grey()
+    editor.map.play = undefined
+    startWorld(calendar().at(1, '06:00'))
+    const start = editor.map.world!.time
+    worldAct({ type: 'schedule', event: { id: 'fair', name: 'The fair', at: start + 1440 } })
+    await setDate(start + 3 * 1440)
+    expect(editor.map.world!.time).toBe(start + 3 * 1440)
+    expect(editor.map.world!.timeline.some((e) => e.code === 'EVENT')).toBe(true)
+    // Back: asked first; saying no changes nothing.
+    expect(await setDate(start, 'cancel')).toMatch(/back/i)
+    expect(editor.map.world!.time).toBe(start + 3 * 1440)
+    await setDate(start)
+    expect(editor.map.world!.time).toBe(start)
+    expect(editor.map.world!.timeline.at(-1)?.code).toBe('REWOUND')
+  })
+
+  it('the example map’s market day (an event by its id) lets the party trade in Ashford', async () => {
+    // The example map comes with its world clock running, and its events.
+    grey()
+    clickHex('5,7')
+    const fair = editor.map.world!.events.find((e) => e.id === 'market-day')!
+    expect(fair.description).toBeTruthy()
+    const traded = () =>
+      sessionOf(editor.map.play!)!.journal.some(
+        (e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'market',
+      )
+    // Day 1 is no market day: nothing to trade.
+    step({ type: 'action', id: 'market' })
+    expect(traded()).toBe(false)
+    // On the event's day (not a Marketday of the calendar), the party trades.
+    await setDate(fair.at + 60)
+    expect(calendar().describe(editor.map.world!.time).weekday?.id).not.toBe('marketday')
+    step({ type: 'action', id: 'market' })
+    expect(traded()).toBe(true)
+  })
+
+  it('never goes back while a trip is going on', async () => {
+    grey()
+    startWorld()
+    clickHex('5,7')
+    const now = editor.map.world!.time
+    toasts.length = 0
+    await setDate(now - 60)
+    expect(editor.map.world!.time).toBe(now)
+    expect(toasts.at(-1)?.kind).toBe('error')
   })
 })

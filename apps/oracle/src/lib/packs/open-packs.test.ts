@@ -481,7 +481,7 @@ describe('bundled open packs', () => {
       expect(traded.state.travel.resources).toMatchObject({ food: 9, fodder: 8 })
       expect(took(trade(market, []).entries, 'market')).toBe(false)
       expect(took(trade(other, ['market']).entries, 'market')).toBe(false)
-      const fair = { events: ['market-day-in-ashford'] }
+      const fair = { events: ['market-day'] }
       expect(took(trade(other, ['market'], fair).entries, 'market')).toBe(true)
     })
 

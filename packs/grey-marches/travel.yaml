@@ -263,14 +263,14 @@ actions:
       - { time: 120 }
   # Market day: in a market town (a tag of the hex) on the calendar's Marketday, or when
   # the world clock says it's market day there (an event of the world, `world.events`, by
-  # its name as an id). Two hours of trading for supplies, once a day; hidden otherwise.
+  # its id: the example map's `market-day`). Two hours of trading for supplies, once a day; hidden otherwise.
   market:
     name: Market day
     description: 'In a market town, on Marketday (or on the world clock’s market day): two hours of trading. Food +3 and fodder +2, once a day.'
     when:
       time.daylight: true
       hex.tags: market
-      any: [{ time.weekday: marketday }, { world.events: market-day-in-ashford }]
+      any: [{ time.weekday: marketday }, { world.events: market-day }]
     hideWhenUnavailable: true
     oncePerDay: true
     do:

@@ -15,8 +15,15 @@ import {
  */
 
 export interface ScheduledEvent {
+  /**
+   * How conditions, tables and plans name it (`world.events: market-day`): lowercase words
+   * joined by dashes, unique among the world's events. Given when scheduling, or made from
+   * its name.
+   */
   id: string
   name: string
+  /** A few words on what it is, for the player. */
+  description?: string
   /** When it comes due (absolute game minutes). */
   at: GameTime
   /** Comes back every N days, or every year of the calendar. */
@@ -37,7 +44,7 @@ export interface ProgressClock {
 export interface TimelineEntry {
   id: string
   time: GameTime
-  code: 'EVENT' | 'HOLIDAY' | 'MOON' | 'CLOCK_FILLED' | 'CLOCK' | 'NOTE'
+  code: 'EVENT' | 'HOLIDAY' | 'MOON' | 'CLOCK_FILLED' | 'CLOCK' | 'NOTE' | 'REWOUND'
   text?: string
   data?: Record<string, unknown>
 }
@@ -60,10 +67,17 @@ export type Until = 'dawn' | 'dusk' | 'next-day' | 'next-event'
 export type WorldAction =
   | { type: 'advance'; minutes: number }
   | { type: 'advanceUntil'; until: Until }
-  /** Moves the clock to a moment (forward only: the past is the past). */
+  /** Moves the clock to a moment (forward only, living what comes on the way). */
   | { type: 'setTime'; time: GameTime }
-  | { type: 'schedule'; event: Omit<ScheduledEvent, 'id'> }
-  | { type: 'updateEvent'; id: string; patch: Partial<Omit<ScheduledEvent, 'id'>> }
+  /**
+   * Puts the clock back to an earlier moment (the host asks first). Nothing that happened
+   * is undone: the timeline keeps it, and says the clock went back.
+   */
+  | { type: 'rewind'; time: GameTime }
+  /** A new event; its `id` is the one given (if free and well written) or made from its name. */
+  | { type: 'schedule'; event: Omit<ScheduledEvent, 'id'> & { id?: string } }
+  /** Changes an event; a new `id` in the patch is taken only if free and well written. */
+  | { type: 'updateEvent'; id: string; patch: Partial<ScheduledEvent> }
   | { type: 'cancel'; id: string }
   | { type: 'addClock'; clock: Omit<ProgressClock, 'id' | 'filled'> & { filled?: number } }
   | { type: 'updateClock'; id: string; patch: Partial<Omit<ProgressClock, 'id'>> }
@@ -74,6 +88,7 @@ export type WorldAction =
 
 export type WorldEvent =
   | { type: 'TIME_ADVANCED'; from: GameTime; to: GameTime }
+  | { type: 'TIME_REWOUND'; from: GameTime; to: GameTime }
   | { type: 'DAY_STARTED'; day: number; time: GameTime }
   | { type: 'EVENT_DUE'; event: ScheduledEvent; time: GameTime }
   | { type: 'HOLIDAY'; id: string; time: GameTime }
@@ -184,14 +199,38 @@ export function createWorld(options: WorldOptions = {}) {
       case 'setTime':
         pass(state, action.time, events)
         break
-      case 'schedule':
-        state.events = [...state.events, { ...action.event, id: `e${state.nextId++}` }]
+      case 'rewind': {
+        const to = Math.max(0, action.time)
+        if (to >= state.time) break
+        const from = state.time
+        state.time = to
+        log(state, { time: to, code: 'REWOUND', data: { from } })
+        events.push({ type: 'TIME_REWOUND', from, to })
         break
-      case 'updateEvent':
+      }
+      case 'schedule': {
+        const taken = new Set(state.events.map((e) => e.id))
+        const given = action.event.id?.trim()
+        const id =
+          given && isEventId(given) && !taken.has(given)
+            ? given
+            : freeId(factId(action.event.name) || `e${state.nextId}`, taken)
+        state.nextId++
+        state.events = [...state.events, { ...action.event, id }]
+        break
+      }
+      case 'updateEvent': {
+        const { id: wanted, ...patch } = action.patch as Partial<ScheduledEvent>
+        const free =
+          wanted !== undefined &&
+          wanted !== action.id &&
+          isEventId(wanted) &&
+          !state.events.some((e) => e.id === wanted)
         state.events = state.events.map((e) =>
-          e.id === action.id ? { ...e, ...action.patch, id: e.id } : e,
+          e.id === action.id ? { ...e, ...patch, id: free ? wanted : e.id } : e,
         )
         break
+      }
       case 'cancel':
         state.events = state.events.filter((e) => e.id !== action.id)
         break
@@ -303,6 +342,15 @@ export function readWorld(raw: unknown): WorldState {
   }
 }
 
+/** Whether a text is an event id as conditions write it: lowercase words joined by dashes. */
+export const isEventId = (text: string): boolean => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(text)
+
+/** `id`, or `id-2`, `id-3`… the first one not taken. */
+function freeId(id: string, taken: Set<string>): string {
+  if (!taken.has(id)) return id
+  for (let n = 2; ; n++) if (!taken.has(`${id}-${n}`)) return `${id}-${n}`
+}
+
 /** A name as conditions write it: lowercase, words joined by dashes (`The Wyrm wakes` → `the-wyrm-wakes`). */
 export const factId = (name: string): string =>
   name
@@ -323,12 +371,20 @@ export function worldFacts(state: WorldState, calendar: Calendar): Record<string
   const from = calendar.at(day, '00:00')
   const to = calendar.at(day + 1, '00:00')
   const today = (time: GameTime) => time >= from && time < to
+  // Each event by its id and by its name written as one (older events have ids like `e3`).
+  const byId = new Map(state.events.map((e) => [e.id, e]))
+  const names = (id: unknown, name: string | undefined): string[] => [
+    ...(typeof id === 'string' ? [id] : []),
+    factId(byId.get(id as string)?.name ?? name ?? ''),
+  ]
   const events = [
-    ...state.events.filter((e) => today(e.at)).map((e) => e.name),
-    ...state.timeline.filter((t) => t.code === 'EVENT' && today(t.time)).map((t) => t.text ?? ''),
+    ...state.events.filter((e) => today(e.at)).flatMap((e) => names(e.id, e.name)),
+    ...state.timeline
+      .filter((t) => t.code === 'EVENT' && today(t.time))
+      .flatMap((t) => names(t.data?.event, t.text)),
   ]
   return {
     clocks: Object.fromEntries(state.clocks.map((c) => [factId(c.name), c.filled])),
-    events: [...new Set(events.map(factId).filter(Boolean))],
+    events: [...new Set(events.filter(Boolean))],
   }
 }

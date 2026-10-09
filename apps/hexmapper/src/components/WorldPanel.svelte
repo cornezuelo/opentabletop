@@ -2,13 +2,15 @@
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
   import { localize } from '@open-tabletop/session'
   import { formatClock, type CalendarParts, type GameTime } from '@open-tabletop/time'
-  import type { ScheduledEvent } from '@open-tabletop/world-engine'
+  import { factId, isEventId, type ScheduledEvent } from '@open-tabletop/world-engine'
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import { en } from '../lib/i18n/en'
   import { sessionOf } from '../lib/play/play'
   import {
     advanceWorld,
+    defaultStart,
+    setWorldDate,
     startWorld,
     stopWorld,
     upcoming,
@@ -16,6 +18,7 @@
     worldCalendar,
   } from '../lib/play/world.svelte'
   import { editor } from '../lib/store/editor.svelte'
+  import DateInput from './DateInput.svelte'
 
   /** The world clock: the date, moving time on, events to come, progress clocks, timeline. */
   const world = $derived(editor.world)
@@ -86,27 +89,55 @@
     ((calendar as { def?: { watchHours?: number } }).def?.watchHours ?? 4) * 60,
   )
 
-  // New event: in N days at a time of day, maybe repeating.
+  // The date the clock starts at, and the date it's set to.
+  let startAt = $state(0)
+  $effect.pre(() => {
+    if (!world) startAt = defaultStart()
+  })
+  let settingDate = $state(false)
+  let dateTo = $state(0)
+
+  // New event: in N days or on a date, at a time of day, maybe repeating; with an id.
   let eventName = $state('')
+  let eventId = $state('')
+  let eventDescription = $state('')
+  let when_ = $state<'in' | 'on'>('in')
   let inDays = $state(1)
   let atClock = $state('12:00')
+  let onDate = $state(0)
   let repeat = $state<'none' | 'days' | 'yearly'>('none')
   let every = $state(7)
+  // A date to schedule on starts at tomorrow's same time.
+  $effect.pre(() => {
+    if (when_ === 'on' && world && !onDate) onDate = world.time + calendar.minutesPerDay
+  })
+  /** The id an event gets if none is typed: its name as an id, made unique by the engine. */
+  const madeId = $derived(factId(eventName))
+  const badId = $derived(!!eventId.trim() && !isEventId(eventId.trim()))
+  const takenId = $derived(!!world?.events.some((e) => e.id === eventId.trim()))
   function schedule() {
-    if (!world || !eventName.trim()) return
-    const day = calendar.describe(world.time).day + Math.max(0, Math.round(inDays))
-    let at = calendar.at(day, /^\d{1,2}:\d{2}$/.test(atClock) ? atClock : '12:00')
-    if (at <= world.time) at += calendar.minutesPerDay
+    if (!world || !eventName.trim() || badId) return
+    let at: number
+    if (when_ === 'on') at = onDate
+    else {
+      const day = calendar.describe(world.time).day + Math.max(0, Math.round(inDays))
+      at = calendar.at(day, /^\d{1,2}:\d{2}$/.test(atClock) ? atClock : '12:00')
+      if (at <= world.time) at += calendar.minutesPerDay
+    }
     worldAct({
       type: 'schedule',
       event: {
         name: eventName.trim(),
         at,
+        ...(eventId.trim() && { id: eventId.trim() }),
+        ...(eventDescription.trim() && { description: eventDescription.trim() }),
         ...(repeat === 'days' && { repeat: { days: Math.max(1, Math.round(every)) } }),
         ...(repeat === 'yearly' && { repeat: { yearly: true as const } }),
       },
     })
     eventName = ''
+    eventId = ''
+    eventDescription = ''
   }
   const repeatText = (e: ScheduledEvent) =>
     !e.repeat
@@ -129,12 +160,41 @@
 
 {#if !world}
   <p class="help">{t('world.intro')}</p>
-  <button class="primary" onclick={startWorld}>{t('world.start')}</button>
+  <div class="field">
+    <span>{t('world.startAt')}<InfoTip text={t('world.startAtHelp')} /></span>
+    {#if trip}<p class="muted small">{t('world.startAtTrip')}</p>
+    {:else}<DateInput {calendar} bind:value={startAt} />{/if}
+  </div>
+  <button class="primary" onclick={() => startWorld(startAt)}>{t('world.start')}</button>
 {:else}
   <div class="now">
     <strong>{now?.head}</strong>
     {#if now?.date}<span>{now.date}{now.holidays ? ` · ${now.holidays}` : ''}</span>{/if}
     {#if now?.moons}<span class="muted">{now.moons}</span>{/if}
+    {#if !settingDate}
+      <button
+        class="link"
+        onclick={() => {
+          dateTo = world.time
+          settingDate = true
+        }}>{t('world.setDate')}</button
+      >
+    {:else}
+      <div class="field">
+        <span>{t('world.setDate')}<InfoTip text={t('world.setDateHelp')} /></span>
+        <DateInput {calendar} bind:value={dateTo} />
+        <div class="row">
+          <button
+            onclick={async () => {
+              await setWorldDate(dateTo)
+              settingDate = false
+            }}
+            disabled={dateTo === world.time}>{t('world.setDateGo')}</button
+          >
+          <button onclick={() => (settingDate = false)}>{t('world.setDateCancel')}</button>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <div class="field">
@@ -166,7 +226,11 @@
         <li>
           <span class="when">{short(event.at)}</span>
           <span class="what"
-            >{event.name}{#if event.repeat}<small> · {repeatText(event)}</small>{/if}</span
+            >{event.name}{#if event.repeat}<small> · {repeatText(event)}</small>{/if}
+            <small class="muted desc"
+              ><code>{event.id}</code>{#if event.description}
+                — {event.description}{/if}</small
+            ></span
           >
           <button
             class="icon"
@@ -189,16 +253,30 @@
       }}
     >
       <input type="text" bind:value={eventName} placeholder={t('world.eventName')} />
+      <label class="row"
+        ><span class="small">{t('world.eventId')}<InfoTip text={t('world.eventIdHelp')} /></span>
+        <input type="text" bind:value={eventId} placeholder={madeId} />
+      </label>
+      {#if badId}<p class="bad">{t('world.eventIdBad')}</p>
+      {:else if takenId}<p class="muted small">{t('world.eventIdTaken')}</p>{/if}
+      <input type="text" bind:value={eventDescription} placeholder={t('world.eventDescription')} />
       <div class="row">
-        <label
-          >{t('world.inDays')}
-          <input type="number" min="0" bind:value={inDays} />
-        </label>
-        <label
-          >{t('world.at')}
-          <input type="text" class="clock" bind:value={atClock} placeholder="12:00" />
-        </label>
+        <select bind:value={when_} aria-label={t('world.when')}>
+          <option value="in">{t('world.inDays')}</option>
+          <option value="on">{t('world.onDate')}</option>
+        </select>
+        {#if when_ === 'in'}
+          <input type="number" min="0" bind:value={inDays} aria-label={t('world.inDays')} />
+          <label
+            >{t('world.at')}
+            <input type="text" class="clock" bind:value={atClock} placeholder="12:00" />
+          </label>
+        {/if}
       </div>
+      {#if when_ === 'on'}
+        <DateInput {calendar} bind:value={onDate} />
+        {#if onDate <= world.time}<p class="bad">{t('world.onDatePast')}</p>{/if}
+      {/if}
       <div class="row">
         <select bind:value={repeat} aria-label={t('world.repeat')}>
           <option value="none">{t('world.once')}</option>
@@ -208,7 +286,11 @@
         {#if repeat === 'days'}
           <input type="number" min="1" bind:value={every} aria-label={t('world.everyN')} />
         {/if}
-        <button type="submit" disabled={!eventName.trim()}>{t('world.schedule')}</button>
+        <button
+          type="submit"
+          disabled={!eventName.trim() || badId || (when_ === 'on' && onDate <= world.time)}
+          >{t('world.schedule')}</button
+        >
       </div>
     </form>
   </div>
@@ -308,7 +390,9 @@
                   ? `${entry.text} ${entry.data?.filled}/${entry.data?.segments}`
                   : entry.code === 'CLOCK_FILLED'
                     ? t('world.clockFilled', { name: entry.text ?? '' })
-                    : entry.text}</span
+                    : entry.code === 'REWOUND'
+                      ? t('world.rewound', { from: short(Number(entry.data?.from)) })
+                      : entry.text}</span
           >
         </li>
       {:else}
@@ -335,6 +419,31 @@
 
   .muted {
     color: var(--text-muted);
+  }
+
+  .small {
+    font-size: 12px;
+  }
+
+  .desc {
+    display: block;
+  }
+
+  .bad {
+    margin: 0;
+    font-size: 12px;
+    color: var(--danger, #c0392b);
+  }
+
+  .link {
+    align-self: flex-start;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   /* A trip going on: what the buttons will do to the party, where it doesn't get in the way. */

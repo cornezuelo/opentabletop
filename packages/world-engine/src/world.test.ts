@@ -1,6 +1,7 @@
 import { calendarFrom, defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import {
+  isEventId,
   createWorld,
   factId,
   initialWorld,
@@ -150,5 +151,78 @@ describe('what tables read of the world', () => {
     expect(worldFacts(state, defaultCalendar).events).toEqual(['market-day'])
     ;({ state } = run(world, state, { type: 'advance', minutes: DAY }))
     expect(worldFacts(state, defaultCalendar).events).toEqual([])
+  })
+})
+
+describe('events with ids, and putting the clock back', () => {
+  const world = createWorld({ calendar: defaultCalendar })
+  const start = defaultCalendar.at(1, '06:00')
+  const at = defaultCalendar.at(2, '12:00')
+
+  it('take the id given, or one made from their name, never twice the same', () => {
+    const { state } = run(
+      world,
+      initialWorld(start),
+      { type: 'schedule', event: { name: 'Market day', at } },
+      { type: 'schedule', event: { name: 'Market day', at, description: 'In Ashford' } },
+      { type: 'schedule', event: { id: 'raid', name: 'The Iron Clans attack', at } },
+      { type: 'schedule', event: { id: 'raid', name: 'Another raid', at } },
+      { type: 'schedule', event: { id: 'Not An Id', name: '¡!', at } },
+    )
+    expect(state.events.map((e) => e.id)).toEqual([
+      'market-day',
+      'market-day-2',
+      'raid',
+      'another-raid',
+      'e5',
+    ])
+    expect(state.events[1].description).toBe('In Ashford')
+    expect(isEventId('market-day')).toBe(true)
+    expect(isEventId('Market day')).toBe(false)
+  })
+
+  it('change their id only to a free, well written one', () => {
+    let { state } = run(
+      world,
+      initialWorld(start),
+      { type: 'schedule', event: { name: 'Market day', at } },
+      { type: 'schedule', event: { name: 'Raid', at } },
+    )
+    ;({ state } = run(world, state, {
+      type: 'updateEvent',
+      id: 'raid',
+      patch: { id: 'market-day' },
+    }))
+    expect(state.events.map((e) => e.id)).toEqual(['market-day', 'raid'])
+    ;({ state } = run(world, state, {
+      type: 'updateEvent',
+      id: 'raid',
+      patch: { id: 'clan-raid', name: 'Clan raid' },
+    }))
+    expect(state.events[1]).toMatchObject({ id: 'clan-raid', name: 'Clan raid' })
+  })
+
+  it('are read by their ids and by their names', () => {
+    const { state } = run(world, initialWorld(start), {
+      type: 'schedule',
+      event: { id: 'fair', name: 'The Great Fair', at: defaultCalendar.at(1, '12:00') },
+    })
+    expect(worldFacts(state, defaultCalendar).events).toEqual(['fair', 'the-great-fair'])
+  })
+
+  it('put back, the clock goes to an earlier moment and the timeline says so', () => {
+    let { state } = run(world, initialWorld(start), { type: 'advance', minutes: 3 * DAY })
+    const later = state.time
+    const out = world.apply(state, { type: 'rewind', time: start })
+    state = out.state
+    expect(state.time).toBe(start)
+    expect(out.events).toEqual([{ type: 'TIME_REWOUND', from: later, to: start }])
+    expect(state.timeline.at(-1)).toMatchObject({
+      code: 'REWOUND',
+      time: start,
+      data: { from: later },
+    })
+    // Forward isn't putting back.
+    expect(world.apply(state, { type: 'rewind', time: later }).state.time).toBe(start)
   })
 })

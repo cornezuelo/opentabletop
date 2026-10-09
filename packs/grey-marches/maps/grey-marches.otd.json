@@ -1873,20 +1873,22 @@
       "time": 360,
       "events": [
         {
-          "id": "e1",
+          "id": "market-day",
           "name": "Market day in Ashford",
+          "description": "Farmers and pedlars fill Ashford's green: supplies for those who trade (the Market day action).",
           "at": 3360,
           "repeat": {
             "days": 7
           }
         },
         {
-          "id": "e2",
+          "id": "clan-march",
           "name": "The Iron Clans march on Fort Keld",
+          "description": "The hill clans come down on the unpaid garrison.",
           "at": 16920
         },
         {
-          "id": "e3",
+          "id": "spring-floods",
           "name": "Spring floods: the ferry stops for three days",
           "at": 27720
         }

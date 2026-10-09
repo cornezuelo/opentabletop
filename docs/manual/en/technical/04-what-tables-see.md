@@ -104,7 +104,7 @@ Points of interest keep their values in the map and its file, but tables don't r
 
 ## From the world clock (Hexmapper)
 
-With the world clock running: `world.clocks.<name>`, each progress clock's filled segments by its name in lowercase with dashes (`world.clocks.the-flood: { gte: 4 }`), and `world.events`, today's events the same way (`world.events: market-day`). Short: `clocks`, `events`. Also in hand rolls.
+With the world clock running: `world.clocks.<name>`, each progress clock's filled segments by its name in lowercase with dashes (`world.clocks.the-flood: { gte: 4 }`), and `world.events`, today's events by their ids (`world.events: market-day`; their names written that way too). Short: `clocks`, `events`. Also in hand rolls.
 
 ## Discovering the map
 

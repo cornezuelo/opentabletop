@@ -4,9 +4,16 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 ## Ponerlo en marcha
 
-**Poner en marcha el reloj del mundo** lo sitúa al alba del primer día o, durante un viaje, a la hora del viaje. Nombra el tiempo con el calendario del sistema con el que se juega el mapa (**Ajustes del mapa → Mapa → Sistema**; durante un viaje, el del viaje): las Marcas Grises muestran «Pozodía, 3 de Deshielo, año 412» con sus lunas y fiestas; las reglas genéricas cuentan días y estaciones.
+**Empieza el** elige su fecha en los términos del calendario: el día del mes, el mes y el año, y la hora (con el calendario por defecto, el número de día y la hora); empieza al alba del primer día salvo que lo cambies. **Poner en marcha el reloj del mundo** lo sitúa ahí o, durante un viaje, a la hora del viaje (comparten el tiempo). Una fecha que el calendario no tiene (el 31 de un mes de 30 días, o antes de su primer día) se dice bajo las casillas. Nombra el tiempo con el calendario del sistema con el que se juega el mapa (**Ajustes del mapa → Mapa → Sistema**; durante un viaje, el del viaje): las Marcas Grises muestran «Pozodía, 3 de Deshielo, año 412» con sus lunas y fiestas; las reglas genéricas cuentan días y estaciones.
 
 **Parar el reloj del mundo** lo olvida (pregunta antes).
+
+## Fijar la fecha
+
+**Fijar la fecha**, bajo la fecha, lleva el reloj al día y la hora que elijas:
+
+- **Más tarde**: es avanzar el tiempo, igual que los botones de abajo (con un viaje en marcha el grupo viaja o espera hasta entonces, y pregunta antes de que pasen días); llegan los eventos, fiestas y lunas del camino.
+- **Antes**: pregunta primero, y solo sin un viaje en marcha (el tiempo de un viaje nunca retrocede). No se deshace nada de lo que pasó: la cronología lo conserva y dice «El reloj volvió atrás (desde …)»; los eventos que se repiten no vuelven.
 
 ## Avanzar el tiempo
 
@@ -36,16 +43,18 @@ Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashfor
 
 ## Eventos
 
-Cosas que pasan en una fecha, esté el grupo allí o no: una fiesta, un ataque, la llegada de un barco. Escribe qué pasa, **dentro de cuántos días** y **a qué hora**, y si pasa **una vez**, **cada N días** (un mercado semanal) o **cada año**. La lista muestra lo que viene, lo más próximo primero; ✕ cancela uno.
+Cosas que pasan en una fecha, esté el grupo allí o no: una fiesta, un ataque, la llegada de un barco. Escribe qué pasa, su **Id**, una **descripción** si quieres, cuándo (**dentro de cuántos días** y **a qué hora**, o **en una fecha** del calendario), y si pasa **una vez**, **cada N días** (un mercado semanal) o **cada año**. La lista muestra lo que viene, lo más próximo primero, con el id y la descripción de cada uno; ✕ cancela uno.
+
+El **Id** es cómo nombran al evento las condiciones y las tablas en su día: palabras en minúscula unidas por guiones (`market-day`, `clan-raid`), uno por evento. Si lo dejas vacío, es su nombre escrito así (**Market day** → `market-day`; si está ocupado se le añade un número).
 
 ## Relojes de progreso
 
 Un reloj es un número de segmentos que se llenan según algo avanza: una amenaza («La Sierpe despierta: 1/6»), un proyecto, el plan de una facción. Haz clic en un segmento para llenar hasta él, o en el último lleno para vaciarlo. Cuando un reloj se llena, la cronología lo dice. Cámbiale el nombre editándolo; ✕ lo quita.
 
-**Las tablas y las reglas de un sistema leen el mundo**: cada reloj por su nombre en minúsculas con guiones («The Wyrm wakes» es `world.clocks.the-wyrm-wakes`, sus segmentos llenos; `clocks.the-wyrm-wakes` en corto) y los eventos del día igual (`world.events: market-day`, o `events`), en condiciones y en tiradas, a mano o del viaje: un encuentro que solo llega cuando una amenaza está cerca (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), una acción solo el día de mercado. La lista completa: [Qué ven las tablas](../technical/04-what-tables-see.md).
+**Las tablas y las reglas de un sistema leen el mundo**: cada reloj por su nombre en minúsculas con guiones («The Wyrm wakes» es `world.clocks.the-wyrm-wakes`, sus segmentos llenos; `clocks.the-wyrm-wakes` en corto) y los eventos del día por su id (`world.events: market-day`, o `events`; sus nombres escritos como id también valen), en condiciones y en tiradas, a mano o del viaje: un encuentro que solo llega cuando una amenaza está cerca (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), una acción solo el día de mercado. La lista completa: [Qué ven las tablas](../technical/04-what-tables-see.md).
 
 ## Cronología
 
 Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas, relojes que se movieron y tus propias notas (escribe una y **Añadir**).
 
-El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado cada semana, los Clanes de Hierro marchando sobre Fort Keld, las crecidas de primavera y dos relojes: la Sierpe del Bosque Gris y la guarnición sin paga de Fort Keld.
+El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado cada semana (`market-day`: ese día, en Ashford, **Día de mercado** da provisiones), los Clanes de Hierro marchando sobre Fort Keld (`clan-march`), las crecidas de primavera (`spring-floods`) y dos relojes: la Sierpe del Bosque Gris (cuando se llena, la Sierpe recorre el Bosque Gris) y la guarnición sin paga de Fort Keld.

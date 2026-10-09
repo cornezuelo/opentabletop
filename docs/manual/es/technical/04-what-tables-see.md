@@ -104,7 +104,7 @@ Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las 
 
 ## Del reloj del mundo (Hexmapper)
 
-Con el reloj del mundo en marcha: `world.clocks.<nombre>`, lo lleno de cada reloj de progreso por su nombre en minúsculas con guiones (`world.clocks.the-flood: { gte: 4 }`), y `world.events`, los eventos de hoy igual (`world.events: market-day`). En corto: `clocks`, `events`. También en las tiradas a mano.
+Con el reloj del mundo en marcha: `world.clocks.<nombre>`, lo lleno de cada reloj de progreso por su nombre en minúsculas con guiones (`world.clocks.the-flood: { gte: 4 }`), y `world.events`, los eventos de hoy por su id (`world.events: market-day`; también sus nombres escritos así). En corto: `clocks`, `events`. También en las tiradas a mano.
 
 ## Descubrir el mapa
 

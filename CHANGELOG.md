@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Hexmapper, World: **the world clock starts on a date you choose** (day, month, year and time in the system's calendar), and **Set the date** moves it later (like moving time on) or earlier (asking first, and never during a trip; the timeline says the clock went back). **Events on a date** of the calendar, besides in N days, each with an **id** (`market-day`: what conditions read as `world.events`) and a description. The example map's events have ids (`market-day`, `clan-march`, `spring-floods`), and the Grey Marches' Market day reads `world.events: market-day`.
+
 ## [0.4.0] - 2026-10-09
 
 ### Packs

@@ -573,6 +573,34 @@ export const es: Messages = {
     noTimeline: 'Aún nada.',
     note: 'Una nota para la cronología',
     addNote: 'Añadir',
+    startAt: 'Empieza el',
+    startAtHelp:
+      'La fecha en la que empieza el reloj del mundo, en el calendario del sistema del mapa: día, mes, año y hora (con el calendario por defecto, el número de día y la hora).\n• **15 de Altosol de 412, 06:00** — empezar a mitad del verano\nCon un viaje en marcha, el reloj empieza a la hora del viaje (comparten el tiempo).',
+    startAtTrip: 'Hay un viaje en marcha: el reloj empieza a su hora.',
+    setDate: 'Fijar la fecha',
+    setDateHelp:
+      'Lleva el reloj del mundo a una fecha.\n• **Más tarde**: como avanzar el tiempo (con un viaje en marcha el grupo viaja o espera hasta entonces, y se pregunta antes de que pasen días); llegan los eventos, fiestas y lunas del camino.\n• **Antes**: se pregunta primero, y solo sin un viaje en marcha. No se deshace nada de lo que pasó: la cronología lo conserva y dice que el reloj volvió atrás.',
+    setDateGo: 'Ir a esta fecha',
+    setDateCancel: 'Cancelar',
+    confirmRewind:
+      '¿Volver el reloj a esta fecha? Lo que pasó sigue en la cronología; los eventos que se repiten no vuelven.',
+    noRewindTrip:
+      'El reloj no puede volver atrás con un viaje en marcha: el tiempo de un viaje nunca retrocede.',
+    rewound: 'El reloj volvió atrás (desde {from})',
+    dateDay: 'Día del mes',
+    dateMonth: 'Mes',
+    dateYear: 'Año',
+    dateDayNumber: 'Día',
+    dateMissing: 'El calendario no tiene esa fecha (o es anterior al primer día).',
+    eventId: 'Id',
+    eventIdHelp:
+      'Cómo nombran al evento las condiciones y las tablas en su día: `world.events: <id>`. Palabras en minúscula unidas por guiones, una por evento.\n• `market-day` — `when: { world.events: market-day }`\n• `clan-raid`\nVacío: su nombre escrito así (**Market day** → `market-day`; si está ocupado se le añade un número). Su nombre también vale, como id.',
+    eventIdBad: 'Un id son palabras en minúscula unidas por guiones: market-day.',
+    eventIdTaken: 'Ocupado: se le añadirá un número.',
+    eventDescription: 'Descripción (opcional)',
+    when: 'Cuándo',
+    onDate: 'En una fecha',
+    onDatePast: 'Esa fecha ya pasó.',
   },
   terrainSets: {
     natural: 'Natural (la paleta por defecto)',
