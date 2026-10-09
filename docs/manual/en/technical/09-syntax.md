@@ -65,6 +65,7 @@ An entry's `range` is the totals it covers: `3`, `2-5`, `-1` (a total below zero
 | `{{season}}`   | a variable: a value of the context                    |
 | `{{npc.role}}` | a part of a value                                     |
 | `{{result}}`   | the text of the table an entry rolled next (`table:`) |
+| `{{roll}}`     | in a table's entries, the total of its own roll       |
 | `{{field}}`    | a generator's field, in its template                  |
 
 A missing value shows as nothing. Variables work in results, generator templates and fixed fields, card texts, `set` and `effects` values, references, [conditions](08-conditions.md#variables-and-rolls) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: a roll is the same all through a moment), and a check action's **When nothing applies** (`{terrain}`, with single braces there).

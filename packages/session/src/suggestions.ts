@@ -165,10 +165,14 @@ type Add = (key: string, ...values: unknown[]) => void
 const TEMPLATE = /\{\{\s*([\w.]+)\s*\}\}/g
 const DICE = /^\d*d(\d+|%|f)(k[hl]\d*)?$/i
 
-/** Names read in `{{…}}` templates (dice, and `result`: what was rolled next, left out). */
+/**
+ * Names read in `{{…}}` templates (dice, `result`: what was rolled next, and `roll`: the
+ * table's own roll, left out).
+ */
 function templates(text: string | undefined, add: Add): void {
   for (const m of (text ?? '').matchAll(TEMPLATE))
-    if (!DICE.test(m[1]) && m[1] !== 'result' && !m[1].startsWith('result.')) add(m[1])
+    if (!DICE.test(m[1]) && m[1] !== 'result' && m[1] !== 'roll' && !m[1].startsWith('result.'))
+      add(m[1])
 }
 
 /** What a definition reads (conditions, templates) and, through `set`, what it gives. */

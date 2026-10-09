@@ -88,6 +88,32 @@ entries:
       effects: { party.resources.food: '{{days}}' },
     }
 ---
+# A roll-under on the table's own roll: its entries read the d6 as `roll`, in a condition
+# against a stat (at or under Survival) and in their texts.
+kind: table
+id: fishing
+name: Fishing
+description: |-
+  What bites when you **fish** (the _Fish_ action), next to a lake, the sea or on the coast: a d6 **at or under Survival** catches fish for two days; otherwise 1–3 for one day.
+
+  **Shows:**
+
+  - A check at one of the system's own actions (`at: fish`), and an action only next to water (`around.water`)
+  - A **roll-under** on the table's own roll: `party.stats.survival: { gte: '{{roll}}' }`
+  - The roll's total in the texts: `{{roll}}`
+roll: 1d6
+entries:
+  - id: catch
+    range: 1-6
+    when: { party.stats.survival: { gte: '{{roll}}' } }
+    result: 'A {{roll}}, at or under your Survival: a fine catch, food for two days'
+    effects: { party.resources.food: 2 }
+  - id: some
+    range: 1-3
+    result: 'A {{roll}}: a few small fish, food for a day'
+    effects: { party.resources.food: 1 }
+  - { id: nothing, range: 4-6, result: 'A {{roll}}: nothing bites' }
+---
 # Spending supplies: the toll is paid in food, unless a d6 rolls the party's charisma or
 # under (a roll in a condition: both entries read the same d6, so exactly one comes up).
 kind: table

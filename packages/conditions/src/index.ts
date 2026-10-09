@@ -64,15 +64,14 @@ function evaluate(
 ): boolean {
   if (depth > MAX_DEPTH) return false
   const inner = (c: Condition) => evaluate(c, context, roller, depth + 1)
-  if ('all' in condition && Array.isArray(condition.all))
-    return (condition.all as Condition[]).every(inner)
-  if ('any' in condition && Array.isArray(condition.any))
-    return (condition.any as Condition[]).some(inner)
-  if ('not' in condition && isObject(condition.not) && !isComparison(condition.not))
-    return !inner(condition.not as Condition)
-  return Object.entries(condition).every(([path, matcher]) =>
-    matchValue(resolvePath(context, path), matcher as Matcher, context, roller),
-  )
+  // Every key holds together: `all` / `any` / `not` beside values (`{ tags: market, any:
+  // […] }`) are one more of them.
+  return Object.entries(condition).every(([key, value]) => {
+    if (key === 'all' && Array.isArray(value)) return (value as Condition[]).every(inner)
+    if (key === 'any' && Array.isArray(value)) return (value as Condition[]).some(inner)
+    if (key === 'not' && isObject(value) && !isComparison(value)) return !inner(value as Condition)
+    return matchValue(resolvePath(context, key), value as Matcher, context, roller)
+  })
 }
 
 /**

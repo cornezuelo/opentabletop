@@ -45,6 +45,7 @@ Use weights when no die fits the odds you want, or to make some results rarer wi
 | `{{season}}`   | A variable: a context value.                                                                                                    |
 | `{{npc.role}}` | A part of a value (a generator's field holds its table's values).                                                               |
 | `{{result}}`   | In an entry with **then roll**: the text of the table it rolled, e.g. `'Bandits — they are {{result}}'` with `table: reaction`. |
+| `{{roll}}`     | In a table's entries: the total of the table's own **Roll**, e.g. `'You rolled {{roll}}'`.                                      |
 | `{{field}}`    | In a generator's template: a field's value (its text, if it came from a table).                                                 |
 
 A missing value shows as nothing. Variables never run code: they only look values up and roll dice. A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
@@ -64,6 +65,22 @@ entries:
 ```
 
 In one roll of the table, the same dice are the same roll everywhere, so exactly one of the two entries comes up, and the result card shows the d20. More in [Conditions](../technical/08-conditions.md#variables-and-rolls).
+
+A table with a **Roll** of its own gives its entries the total as `roll`: their conditions can compare with it, and their texts, `set` and changes can show or use it. The roll is made first, then the entries are chosen by their conditions and ranges:
+
+```yaml
+kind: table
+id: pick-the-lock
+roll: 1d6
+entries:
+  - id: open
+    range: 1-6
+    when: { party.stats.dex: { gte: '{{roll}}' } }
+    result: 'A {{roll}}, at or under your Dexterity: it clicks open'
+  - { id: stuck, range: 1-6, result: 'A {{roll}}: it won’t budge' }
+```
+
+Both entries cover every total; the first whose condition holds comes up. The Grey Marches' _Fishing_ works like this.
 
 ## Where context values come from
 

@@ -56,6 +56,8 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
   }
   const entries = (list: EntryList) => {
     scanText(list.roll)
+    // A list with a roll gives its entries its total as `roll`.
+    if (list.roll) produced.add('roll')
     for (const e of list.entries) {
       scanCondition(e.when)
       follow(e.ref)

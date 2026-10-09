@@ -547,7 +547,8 @@
           "terrain": "farmland",
           "region": "ashfordvale",
           "name": "Ashford",
-          "notes": "Where the road begins. Ask at the inn for news (oracle: Will they let us in?)."
+          "tags": ["market"],
+          "notes": "Where the road begins. Ask at the inn for news (oracle: Will they let us in?). A market town: on Marketday (and the world clock's market day), Market day trades for supplies."
         },
         "5,8": {
           "terrain": "farmland",

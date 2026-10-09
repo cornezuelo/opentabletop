@@ -50,7 +50,8 @@ entries:
 ---
 # A generator using every kind of field: a table, dice (keep the lowest of 2d6: mostly
 # low), percentile dice, a fixed value with a template, a field only when another says so,
-# and a table rolled with its own context (the guardian is met at night, deep in danger).
+# and a table rolled with its own context (the guardian is met at night, as dangerous as the
+# ruin: the danger field before it).
 kind: generator
 id: ruin-delve
 name: Delving a ruin
@@ -61,7 +62,7 @@ description: |-
 
   - Every kind of generator field: a table, dice (`2d6kl1`: keep the lowest), `d%` and a fixed value with a template
   - A field only when another says so: `when`; and one unless another says so: `unless`
-  - A table rolled with its own context: the guardian, met at night in danger 3
+  - A table rolled with its own context: the guardian, met at night, as dangerous as the ruin (fields see the fields before them: `danger`)
   - Fields' fixed texts translated in `locales/` (`fields:`)
 fields:
   site: { table: ruins }
@@ -72,5 +73,5 @@ fields:
   fresh: { unless: { untouched: { lt: 90 } }, value: ' No one has set foot here in an age.' }
   rating: { value: 'danger {{danger}} of 6' }
   loot: { table: treasure }
-  guardian: { table: encounter, context: { timeOfDay: night, danger: 3 } }
+  guardian: { table: encounter, context: { timeOfDay: night } }
 template: 'The ruins of {{site}} ({{rating}}, {{untouched}}% untouched).{{fresh}}{{trap}} Inside: {{loot}}. Guarding it: {{guardian}}.'

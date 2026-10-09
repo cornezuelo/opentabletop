@@ -9,3 +9,10 @@ modes:
     description: 'Roll three times and keep the middle total: neither the worst nor the best.'
     repeat: 3
     keep: middle
+  # Rolled twice keeping the lower total: where a low roll is good (the gates). The gates
+  # take it by themselves when the party's Charisma beats the guards (a variable).
+  charm:
+    name: Talking your way in
+    description: 'Roll twice and keep the lower total: where low is good, it helps.'
+    repeat: 2
+    keep: lowest

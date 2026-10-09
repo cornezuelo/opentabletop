@@ -65,6 +65,7 @@ El `range` de una entrada son los totales que cubre: `3`, `2-5`, `-1` (un total 
 | `{{season}}`   | una variable: un valor del contexto                          |
 | `{{npc.role}}` | una parte de un valor                                        |
 | `{{result}}`   | el texto de la tabla que una entrada tiró después (`table:`) |
+| `{{roll}}`     | en las entradas de una tabla, el total de su propia tirada   |
 | `{{field}}`    | un campo de un generador, en su plantilla                    |
 
 Un valor que falta no muestra nada. Las variables sirven en resultados, plantillas y campos fijos de generador, textos de cartas, valores de `set` y `effects`, referencias, [condiciones](08-conditions.md#variables-y-tiradas) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: una tirada es la misma durante todo un momento), y en **Cuando no se aplica nada** de una acción (`{terrain}`, ahí con llaves simples).

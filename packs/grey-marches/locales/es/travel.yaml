@@ -21,17 +21,17 @@ travel-rules/default:
       description: 'Marchar por la ruta: de día durante 8 horas, o tras una marcha nocturna a la luz de las antorchas hasta medianoche.'
     camp:
       name: Acampar
-      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de 10: si no, la noche pasa a la intemperie, sin descanso.'
+      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de vuestro Aguante: si no, la noche pasa a la intemperie, sin descanso.'
     rest:
       name: Descansar
-      description: Dos horas sin marchar; quita 1 de fatiga. Solo de día, con comida y fatiga por debajo de 10.
+      description: Dos horas sin marchar; quita 1 de fatiga. Solo de día, con comida y fatiga por debajo de vuestro Aguante.
     forage:
       name: Buscar comida
       description: 'Tres horas buscando comida (una vez al día, de día): el resto de la marcha del día va a la mitad. Solo en bosque, bosque denso, llanura, cultivos, brezal y marisma: se tira 1d6 + Supervivencia (dos veces, la mejor); de 4 a 6 da comida para un día, 7 o más para 2 a 4 días. En otros terrenos no hay nada que encontrar. No con tormenta.'
       nothing: 'no hay nada que buscar en {terrain}: solo los bosques, campos, brezales y marismas dan comida'
     eat:
       name: Comer
-      description: 'Al final de cada día, acampando o no: 1 de comida, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
+      description: 'Al final de cada día, acampando o no: 1 de comida, 1 más por cada mercenario, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
     forced-march:
       name: Marcha forzada
       description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga. Solo de día, con fatiga menor de 2, una vez al día.'
@@ -46,10 +46,16 @@ travel-rules/default:
       description: 'Una hora de charla: tira un d6. Si saca vuestra moral o menos, vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
     night-march:
       name: Marcha nocturna
-      description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga; cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
+      description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga (y +1 más al acabar el día si se marchó más de sus 8 horas); cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
     tale:
       name: Historias del camino
       description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: una hora de historias junto al fuego. Moral +1.'
+    fish:
+      name: Pescar
+      description: 'Junto a un lago, el mar o en la costa, de día: dos horas con el sedal, una vez al día. Tira un d6: si saca vuestra Supervivencia o menos, pescado para dos días; si no, de 1 a 3, para uno; si no, no pica nada.'
+    market:
+      name: Día de mercado
+      description: 'En un pueblo con mercado, el día de Mercado (o el día de mercado del reloj del mundo): dos horas de trueque. Comida +3 y forraje +2, una vez al día.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima
@@ -59,7 +65,7 @@ travel-rules/default:
       description: Cada alba fuera de caminos y ríos (no en barca). La Orientación ayuda; la niebla lo complica.
     ENCOUNTER_CHECK_REQUIRED:
       name: Encuentro
-      description: Al entrar de día en un hex con peligro (el Bosque Gris, las Hollow Hills), salvo si llegas por camino; o al descansar donde el peligro es 3 o más.
+      description: Al entrar de día en un hex cuyo peligro supera vuestro Sigilo (el Bosque Gris, las Colinas Huecas), salvo si llegas por camino; o al descansar donde el peligro es 3 o más.
     TOLL_CHECK_REQUIRED:
       name: Peaje
       description: Keld Bridge, llegando por el camino.
@@ -68,7 +74,7 @@ travel-rules/default:
       description: Cruzar el río a pie o a caballo.
     SHRINE_CHECK_REQUIRED:
       name: Santuario
-      description: Un santuario junto al camino. El viaje se detiene tras la tirada; pulsa Continuar para seguir.
+      description: Un santuario junto al camino, la primera vez que el viaje pasa por él. El viaje se detiene tras la tirada; pulsa Continuar para seguir.
     LANDMARK_CHECK_REQUIRED:
       name: Lugar señalado
       description: Describe tú el lugar (o tira en un oráculo) y pulsa Continuar.
@@ -87,6 +93,21 @@ travel-rules/default:
     HUNGRY_DAY:
       name: Sin comida suficiente
       description: Un día sin comida suficiente cansa al grupo, acampe o no.
+    FISHING_CHECK_REQUIRED:
+      name: Pesca
+      description: Se tira al pescar.
+    LONG_DAY:
+      name: Un día largo
+      description: Un día en que se marcha más de sus 8 horas (una marcha nocturna tras un día completo) cuesta 1 de fatiga al acabar.
+    HOMESICK:
+      name: Morriña
+      description: Los días 10, 20 y 30 de un viaje, el grupo echa de menos su casa. Moral −1.
+    IN_CIRCLES:
+      name: Dando vueltas
+      description: Entrar por tercera vez en un mismo hex durante un viaje. Moral −1.
+    OUT_OF_THE_WOOD:
+      name: Fuera del Bosque Gris
+      description: Al salir del Bosque Gris, los árboles se abren y se levantan los ánimos. Moral +1.
   modes:
     foot:
       name: A pie
@@ -116,9 +137,15 @@ bindings/default:
     navigation:
       name: Orientación
       description: Se suma a la tirada de perderse.
+    endurance:
+      name: Aguante
+      description: El grupo puede acampar y descansar mientras su fatiga esté por debajo de esto.
+    stealth:
+      name: Sigilo
+      description: Al entrar de día en un hex, solo hay encuentro donde el peligro supera esto.
     fatigue:
       name: Fatiga
-      description: Sube con cada día sin comida suficiente, los vados y el hambre; baja tras una noche bien comidos en el campamento, un descanso o una oración en el santuario.
+      description: Sube con cada día sin comida suficiente, los días largos, los vados y el hambre; baja tras una noche bien comidos en el campamento, un descanso o una oración en el santuario.
     hirelings:
       name: Mercenarios
       description: Espadas de alquiler que viajan con el grupo. Se unen en la posada y pueden desertar cuando no hay comida.

@@ -3,3 +3,6 @@ roll-modes/default:
     careful:
       name: Con cuidado
       description: 'Tira tres veces y quédate con el total del medio: ni lo peor ni lo mejor.'
+    charm:
+      name: Con buena labia
+      description: 'Tira dos veces y quédate con el total más bajo: donde bajo es bueno, ayuda.'

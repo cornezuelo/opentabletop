@@ -354,6 +354,272 @@ describe('bundled open packs', () => {
     })
   })
 
+  describe('the Grey Marches use it all', () => {
+    const system = marches()
+    type Entry = { code: string; data?: Record<string, unknown>; text?: string }
+    const play = (cells: Record<string, unknown>[], road = false, seed = 'all') => ({
+      system,
+      world: row(cells, road),
+      oracle: createOracleEngine({ registry, random: seeded(seed) }),
+      locale: 'en',
+    })
+    const took = (entries: Entry[], id: string) =>
+      entries.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === id)
+    const checked = (entries: Entry[], event: string) =>
+      entries.filter((e) => e.data?.event === event).length
+    const plains = (n: number) => Array.from({ length: n }, () => ({ terrain: 'plains' }))
+
+    it('camp and rest while fatigue is under the party’s Endurance (a variable)', () => {
+      const options = play(plains(1))
+      const rest = (fatigue: number, endurance: number) =>
+        took(
+          stepTrip(
+            options,
+            startTrip({ system, location: '0', season: 'summer', stats: { fatigue, endurance } })
+              .session,
+            { type: 'action', id: 'rest' },
+          ).entries,
+          'rest',
+        )
+      expect(rest(10, 12)).toBe(true)
+      expect(rest(10, 10)).toBe(false)
+      expect(rest(9, 10)).toBe(true)
+      expect(system.bindings?.stats?.endurance?.default).toBe(10)
+    })
+
+    it('each hireling eats a ration too (an amount that is a variable)', () => {
+      const options = play(plains(1))
+      const eaten = (hirelings: number) => {
+        const { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          stats: { hirelings },
+        })
+        const until = calendarOf(system).at(session.travel.day + 1, '01:00')
+        return 6 - stepTrip(options, session, { type: 'wait', until }).state.travel.resources.food
+      }
+      expect(eaten(0)).toBe(1)
+      expect(eaten(2)).toBe(3)
+    })
+
+    it('a stealthy party crosses the safer hexes unseen (danger against Stealth)', () => {
+      const met = (danger: number, stealth: number) => {
+        const options = play([{ terrain: 'plains' }, { terrain: 'plains', danger }])
+        let { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          stats: { stealth, navigation: 20 },
+        })
+        session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+        return checked(
+          stepTrip(options, session, { type: 'travel' }).entries,
+          'ENCOUNTER_CHECK_REQUIRED',
+        )
+      }
+      expect(met(1, 0)).toBe(1)
+      expect(met(1, 1)).toBe(0)
+      expect(met(2, 1)).toBe(1)
+    })
+
+    it('fishing next to water: a d6 under Survival, the roll in the text', () => {
+      expect(
+        took(
+          stepTrip(
+            play(plains(2)),
+            startTrip({ system, location: '0', season: 'summer' }).session,
+            {
+              type: 'action',
+              id: 'fish',
+            },
+          ).entries,
+          'fish',
+        ),
+      ).toBe(false)
+      const caught = new Set<number>()
+      for (let i = 0; i < 24; i++) {
+        const options = play(
+          [{ terrain: 'plains' }, { terrain: 'lake', water: true }],
+          false,
+          `fish-${i}`,
+        )
+        const { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          stats: { survival: 2 },
+        })
+        const { state, entries } = stepTrip(options, session, { type: 'action', id: 'fish' })
+        expect(took(entries, 'fish')).toBe(true)
+        const result = entries.find((e) => e.data?.event === 'FISHING_CHECK_REQUIRED')!
+        const roll = Number(/^A (\d)/.exec(result.text ?? '')?.[1])
+        const gained = state.travel.resources.food - 6
+        // At or under Survival (2): two days; 3: one; over: nothing.
+        expect(gained).toBe(roll <= 2 ? 2 : roll <= 3 ? 1 : 0)
+        caught.add(gained)
+      }
+      expect(caught).toEqual(new Set([0, 1, 2]))
+    })
+
+    it('market day: in a market town on Marketday, or on the world clock’s market day', () => {
+      const calendar = calendarOf(system)
+      const weekday = (day: number) =>
+        calendarFacts(calendar.describe(calendar.at(day, '06:00'))).weekday
+      const market = Array.from({ length: 7 }, (_, i) => i + 1).find(
+        (d) => weekday(d) === 'marketday',
+      )!
+      const other = market + 1
+      const trade = (day: number, tags: string[], facts?: Record<string, unknown>) => {
+        const options = { ...play([{ terrain: 'farmland', tags }]), facts }
+        const { session } = startTrip({ system, location: '0', time: calendar.at(day, '08:00') })
+        return stepTrip(options, session, { type: 'action', id: 'market' })
+      }
+      const traded = trade(market, ['market'])
+      expect(took(traded.entries, 'market')).toBe(true)
+      expect(traded.state.travel.resources).toMatchObject({ food: 9, fodder: 8 })
+      expect(took(trade(market, []).entries, 'market')).toBe(false)
+      expect(took(trade(other, ['market']).entries, 'market')).toBe(false)
+      const fair = { events: ['market-day-in-ashford'] }
+      expect(took(trade(other, ['market'], fair).entries, 'market')).toBe(true)
+    })
+
+    it('a long day: marching past the day’s hours tires the party as it ends', () => {
+      const options = play(plains(12), false, 'long')
+      const calendar = calendarOf(system)
+      const day = (nightMarch: boolean) => {
+        let { session } = startTrip({ system, location: '0', season: 'summer' })
+        const first = session.travel.day
+        const entries: Entry[] = []
+        const step = (action: Parameters<typeof stepTrip>[2]) => {
+          const out = stepTrip(options, session, action)
+          entries.push(...out.entries)
+          session = out.state
+        }
+        step({ type: 'setDestination', hex: '11' })
+        step({ type: 'travel', by: calendar.at(session.travel.day, '20:00') })
+        if (nightMarch) {
+          step({ type: 'action', id: 'night-march' })
+          step({ type: 'travel', until: 'destination' })
+        }
+        step({ type: 'wait', until: calendar.at(first + 1, '05:00') })
+        return checked(entries, 'LONG_DAY')
+      }
+      expect(day(false)).toBe(0)
+      expect(day(true)).toBe(1)
+    })
+
+    it('homesick on the tenth day of a trip (`trip.day`)', () => {
+      const options = play(plains(1))
+      const { session } = startTrip({ system, location: '0', season: 'summer' })
+      let state: SessionState = {
+        ...session,
+        travel: { ...session.travel, resources: { food: 99, fodder: 99 } },
+      }
+      const calendar = calendarOf(system)
+      const days: number[] = []
+      // Each dawn of the trip's days 2 to 11.
+      for (let d = 2; d <= 11; d++) {
+        const out = stepTrip(options, state, {
+          type: 'wait',
+          until: calendar.at(session.travel.day + d - 1, '07:00'),
+        })
+        if (checked(out.entries, 'HOMESICK')) days.push(d)
+        state = out.state
+      }
+      expect(days).toEqual([10])
+    })
+
+    it('the shrine only the first time, and going in circles the third', () => {
+      const options = play([{ terrain: 'plains' }, { terrain: 'plains', tags: ['shrine'] }], true)
+      let { session } = startTrip({ system, location: '0', season: 'summer' })
+      // On horseback, so the four moves fit in a day.
+      session = stepTrip(options, session, { type: 'setMode', mode: 'horse' }).state
+      const shrines: number[] = []
+      const circles: number[] = []
+      for (let move = 1; move <= 4; move++) {
+        session = stepTrip(options, session, {
+          type: 'setDestination',
+          hex: move % 2 ? '1' : '0',
+        }).state
+        const out = stepTrip(options, session, { type: 'travel' })
+        session = out.state
+        for (const check of session.travel.pendingChecks)
+          session = stepTrip(options, session, { type: 'resolveCheck', id: check.id }).state
+        if (checked(out.entries, 'SHRINE_CHECK_REQUIRED')) shrines.push(move)
+        if (checked(out.entries, 'IN_CIRCLES')) circles.push(move)
+      }
+      // The start is the first visit to 0: back there the second time on move 2, the third on 4.
+      expect(shrines).toEqual([1])
+      expect(circles).toEqual([4])
+    })
+
+    it('leaving the Greywood raises morale (`from.region`)', () => {
+      const leave = (cells: Record<string, unknown>[]) => {
+        const options = play(cells, true)
+        let { session } = startTrip({ system, location: '0', season: 'summer' })
+        session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+        return checked(stepTrip(options, session, { type: 'travel' }).entries, 'OUT_OF_THE_WOOD')
+      }
+      const wood = { terrain: 'forest', region: 'The Greywood' }
+      expect(leave([wood, { terrain: 'plains' }])).toBe(1)
+      expect(leave([{ terrain: 'plains' }, wood])).toBe(0)
+      expect(leave([wood, wood])).toBe(0)
+    })
+
+    it('the gates: Talking your way in when Charisma beats the guards (a roll mode with a variable)', () => {
+      const engine = createOracleEngine({ registry, random: seeded('gates') })
+      const mode = (context: Record<string, unknown>) =>
+        engine.resolve('grey-marches/gates', context).resolution.mode
+      expect(mode({ party: { stats: { charisma: 3 } }, icon: { guards: 2 } })).toBe(
+        'grey-marches/charm',
+      )
+      expect(mode({ party: { stats: { charisma: 2 } }, icon: { guards: 2 } })).toBeUndefined()
+      expect(mode({ icon: { guards: 2 } })).toBeUndefined()
+    })
+
+    it('someone on the road wants what fits who they are; a ruin’s guardian is as dangerous as it', () => {
+      const engine = createOracleEngine({ registry, random: seeded('npcs') })
+      const own: Record<string, string> = {
+        pilgrim: 'is bound for the wayside shrine in the Greywood',
+        deserter: 'is running from Fort Keld and begs you not to tell',
+        witch: 'gathers herbs and will brew a cordial for a song',
+      }
+      const seen = new Set<string>()
+      for (let i = 0; i < 200; i++) {
+        const { value } = engine.resolve('grey-marches/npc').resolution
+        const role = (value.role as { id: string }).id
+        const want = (value.want as { text: string }).text
+        seen.add(role)
+        for (const [who, text] of Object.entries(own)) if (want === text) expect(role).toBe(who)
+        if (role === 'deserter') expect(want).not.toBe('wants an escort to Fort Keld')
+      }
+      expect(seen.size).toBe(5)
+      for (let i = 0; i < 20; i++) {
+        const ruin = engine.resolve('grey-marches/ruin-delve').resolution
+        const guardian = ruin.children.find((c) => c.source === 'grey-marches/encounter')!
+        expect(guardian.context.danger).toBe(ruin.value.danger)
+        expect(guardian.context.timeOfDay).toBe('night')
+      }
+    })
+
+    it('the Wyrm roams the Greywood once the world clock says it wakes', () => {
+      const met = (filled: number) =>
+        Array.from({ length: 60 }, (_, i) =>
+          createOracleEngine({ registry, random: seeded(`wyrm-${i}`) }).resolve(
+            'grey-marches/encounter',
+            {
+              terrain: 'forest',
+              danger: 3,
+              world: { clocks: { 'the-greywood-wyrm-wakes': filled } },
+            },
+          ),
+        ).some((o) => o.resolution.entry === 'wyrm')
+      expect(met(5)).toBe(false)
+      expect(met(6)).toBe(true)
+    })
+  })
+
   it('the Grey Marches: an oracle resolves the ford, with its input from the bindings', () => {
     const system = marches()
     const world = row([{ terrain: 'plains' }, { terrain: 'plains', tags: ['ford'] }])

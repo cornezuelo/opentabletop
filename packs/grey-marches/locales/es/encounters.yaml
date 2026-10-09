@@ -9,6 +9,7 @@ encounter:
     - Condiciones sobre `terrain`, `region`, `tags`, `danger`, `season` y las lunas (`moons.ember: full`)
     - El `unless` de una entrada: la patrulla del Valle, nunca de noche
     - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris; `pause`: el viaje se detiene cuando sale
+    - El reloj del mundo: cuando _The Greywood Wyrm wakes_ está lleno (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), la Sierpe recorre el bosque desde peligro 3
     - Cascadas a _Reacción_ y a un generador
     - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
   entries:
@@ -45,6 +46,7 @@ npc:
     **Enseña:**
 
     - Un **generador**: campos de tablas y de dados (`4d6kh3`: las 3 mejores)
+    - Campos que encajan: lo que quiere depende de quién es (_Deseos_ lee el `role.id` del campo del oficio)
     - Una plantilla que los une
   template: '{{name}}, {{role}} que {{want}} (fuerza {{might}})'
 rumour:
@@ -65,7 +67,10 @@ npc-roles:
   description: |-
     Quién es alguien.
 
-    **Enseña:** Pesos: buhoneros, peregrinos y cazadores son comunes; desertores y brujas, raros
+    **Enseña:**
+
+    - Pesos: buhoneros, peregrinos y cazadores son comunes; desertores y brujas, raros
+    - `set: { id: … }`: el id del oficio, que _Deseos_ lee en _Alguien en el camino_ (`role.id`) sea cual sea el idioma
   entries:
     pedlar: buhonero
     pilgrim: peregrino
@@ -75,12 +80,17 @@ npc-roles:
 npc-wants:
   name: Deseos
   description: |-
-    Qué quiere alguien. Una tabla sencilla para el generador _Alguien en el camino_.
+    Qué quiere alguien, de acuerdo con quién es: la tira el generador _Alguien en el camino_ después de su oficio.
+
+    **Enseña:** Condiciones sobre un campo anterior del generador: `role.id` (un desertor nunca pide escolta hasta el fuerte; peregrinos, desertores y brujas tienen deseos propios)
   entries:
     escort: busca escolta hasta Fuerte Keld
     trade: tiene algo que cambiar
     lost: está perdido y asustado
     news: quiere noticias del sur
+    shrine: va camino del santuario del Bosque Gris
+    hiding: huye de Fuerte Keld y os ruega que no digáis nada
+    herbs: recoge hierbas y os prepara un cordial a cambio de una canción
 rumours:
   name: Rumores (d66)
   description: |-

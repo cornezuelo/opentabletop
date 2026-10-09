@@ -8,6 +8,7 @@ gates:
     - Un **oráculo** con una entrada: cómo llegáis
     - Una variante con sus propios dados
     - Un valor del icono del lugar en el mapa: `{{icon.guards}}` es 0 en Vado Ceniza y 2 en Fuerte Keld (selecciona el hex antes de tirar)
+    - Un modo de tirada con una variable: cuando el **Carisma** del grupo supera a los guardias (`party.stats.charisma: { gt: '{{icon.guards}}' }`), _Con buena labia_ (dos veces, la más baja)
     - Respuestas que tiran otra tabla
   inputs:
     arrival:

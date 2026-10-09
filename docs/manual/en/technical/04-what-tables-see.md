@@ -116,9 +116,9 @@ With the world clock running: `world.clocks.<name>`, each progress clock's fille
 
 When two sources give the same name, the later one wins:
 
-1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. **Full names never collide**: `hex.terrain`, `trip.weather`, `party.stats.weather` are always what they say; only short names are shared. Reserved names a stat shouldn't use: the short names in the tables above, and the groups `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `icon`, `token`, `name`.
+1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. **Full names never collide**: `hex.terrain`, `trip.weather`, `party.stats.weather` are always what they say; only short names are shared. Reserved names a stat shouldn't use: the short names in the tables above, and the groups `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `icon`, `token`, `name`; in a table with a roll, `roll` and `result`.
 2. **Hand rolls** (Oracle panel): during a trip, the same order as checks; then the token → what you type in the roll panel's **Context**. A typed `token.fare` changes only that value of the token.
-3. **Inside a table:** values an entry sets (`set`) reach the table it then rolls; a generator's fields see the fields before them, and a field's `context` adds values for that field only.
+3. **Inside a table:** a table with a roll of its own gives its entries the total as `roll` (their conditions, texts, `set` and effects: `when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under); values an entry sets (`set`) reach the table it then rolls; a generator's fields see the fields before them, and a field's `context` adds values for that field only.
 
 Some collisions, and what happens:
 

@@ -50,7 +50,7 @@ Una variable que no está (o que no es un número, tras `gte`…) nunca se cumpl
 **Una tirada es la misma durante todo un momento.** Donde se vuelva a leer en el mismo momento, los mismos dados dan el mismo total, así que lo que decide no cambia al volver a mirarlo:
 
 - En un **viaje** (comprobaciones, acciones y sus pasos, la marcha, formas de viajar, terrenos y `through`), un momento es el día, el hex y lo que está pasando: un momento como `hex-enter` o `day-end`, o la acción que se hace (`march` para la marcha). Una acción cuyo `when` tira `'{{1d20}}'` está disponible o no todo el día en ese hex, la ruta no cambia mientras la planeas, y los efectos de la acción ven la misma tirada. Cada viaje tira las suyas.
-- En una **tabla** (entradas, campos de generador, `modeWhen` / `modeUnless`), un momento es una tirada de la tabla, con lo que tire después: una entrada con `when` y otra con `unless` sobre el mismo `'{{1d20}}'` ven el mismo d20, así que sale una de las dos (una tirada por debajo). La tarjeta del resultado muestra la tirada.
+- En una **tabla** (entradas, campos de generador, `modeWhen` / `modeUnless`), un momento es una tirada de la tabla, con lo que tire después: una entrada con `when` y otra con `unless` sobre el mismo `'{{1d20}}'` ven el mismo d20, así que sale una de las dos (una tirada por debajo). La tarjeta del resultado muestra la tirada. Una tabla con tirada propia da además a sus entradas ese total como `'{{roll}}'`: `party.stats.survival: { gte: '{{roll}}' }` es una tirada por debajo con el propio dado de la tabla (mira [Dados y variables](../oracle/08-dice-and-templates.md)).
 
 Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tables-see.md); los dados, en [Dados y variables](../oracle/08-dice-and-templates.md).
 
@@ -63,7 +63,7 @@ Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tab
 | `any: [ … ]` | al menos una                      | `any: [{ edges: road }, { edges: river }, { mode: boat }]`           |
 | `not: { … }` | la condición de dentro no         | `not: { timeOfDay: night }`                                          |
 
-Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` hace falta cuando un valor aparece dos veces, porque un par solo se puede escribir una vez (`{ all: [{ tags: ford }, { tags: toll }] }`: un hex con las dos etiquetas).
+`all`, `any` y `not` cuentan como un par más junto a los otros: `{ tags: market, any: [{ weekday: marketday }, { events: market-day }] }` es un pueblo con mercado en cualquiera de los dos días. Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` hace falta cuando un valor aparece dos veces, porque un par solo se puede escribir una vez (`{ all: [{ tags: ford }, { tags: toll }] }`: un hex con las dos etiquetas).
 
 `not` tiene dos sentidos según lo que le sigue: `season: { not: summer }` compara un valor; `not: { season: summer }`, arriba del todo, da la vuelta a una condición entera. Aquí se cumplen en los mismos casos; con más pares dentro, la segunda dice «no todos estos».
 
@@ -84,6 +84,8 @@ Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 
 Un valor del día no es una condición, pero funciona como una: mientras se cumple, **bloquea** lo que lista (`blocks: [travel]`, el id de una acción, `mode.horse`). Mira [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
-- Modos de tirada: perderse con desventaja al día siguiente, `modeWhen: { disadvantage: { yesterday.lost: true } }`.
+- Modos de tirada: perderse con desventaja al día siguiente, `modeWhen: { disadvantage: { yesterday.lost: true } }`; el _Con buena labia_ propio de las puertas cuando el Carisma supera a los guardias, `modeWhen: { charm: { party.stats.charisma: { gt: '{{icon.guards}}' } } }`.
+- Variables y tiradas: acampar y descansar mientras `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }`; encuentros solo donde `hex.danger: { gt: '{{party.stats.stealth}}' }`; el d6 del peaje bajo el Carisma, `party.stats.charisma: { gte: '{{1d6}}' }`; el d6 de la _Pesca_ bajo la Supervivencia con la propia tirada de la tabla, `party.stats.survival: { gte: '{{roll}}' }`; un día largo, `trip.marched: { gt: '{{system.hoursPerDay}}' }`.
+- El viaje y el mundo: el santuario solo la primera vez, `trip.visits: 1`; morriña en `trip.day: [10, 20, 30]`; fuera del Bosque Gris, `from.region: The Greywood`; pescar junto al agua, `around.water: true`; día de mercado, `any: [{ time.weekday: marketday }, { world.events: market-day-in-ashford }]`; la Sierpe cuando `world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`.
 
 Cuando una condición está mal escrita (un operador desconocido, una lista donde va un número), el pack muestra un problema en esa línea al cargar.

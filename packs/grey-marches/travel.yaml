@@ -108,12 +108,13 @@ actions:
   # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
   # fed night eases fatigue: unless food hit its minimum (`trip.below`) during the night.
   # Night checks (at: camp) come first. Only with food left and not exhausted (`when` on the
-  # party): otherwise the night passes without camping (no night checks, no relief), as
-  # `day.night` is camp and can't be taken.
+  # party: fatigue under the party's own Endurance, a variable): otherwise the night passes
+  # without camping (no night checks, no relief), as `day.night` is camp and can't be taken.
   camp:
     name: Camp
-    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue; with morale 1 or less, the watch is restless: +1 fatigue. Only with food left and fatigue under 10: otherwise the night passes in the open, without rest.'
-    when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
+    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue; with morale 1 or less, the watch is restless: +1 fatigue. Only with food left and fatigue under your Endurance: otherwise the night passes in the open, without rest.'
+    when:
+      { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: '{{party.stats.endurance}}' } }
     do:
       - { time: dawn }
       - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
@@ -121,11 +122,16 @@ actions:
       - { when: { party.stats.morale: { lte: 1 } }, effects: { party.stats.fatigue: 1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat),
   # only by day (daylight: the night is for camping), with something to eat and before
-  # exhaustion: the button is off otherwise.
+  # exhaustion (the party's Endurance): the button is off otherwise.
   rest:
     name: Rest
-    description: Two hours without marching; takes off 1 fatigue. Only by day, with food left and fatigue under 10.
-    when: { time.daylight: true, party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }
+    description: Two hours without marching; takes off 1 fatigue. Only by day, with food left and fatigue under your Endurance.
+    when:
+      {
+        time.daylight: true,
+        party.resources.food: { gte: 1 },
+        party.stats.fatigue: { lt: '{{party.stats.endurance}}' },
+      }
     do:
       - { time: 120 }
       - { effects: { party.stats.fatigue: -1 } }
@@ -145,14 +151,17 @@ actions:
       - { speed: 0.5 }
     oncePerDay: true
   # Nobody presses this one: the system takes it by itself as each day ends (on: day-end),
-  # whether the party camped or not. A day of food, and of fodder when riding (a step with
-  # a condition on the way of travelling).
+  # whether the party camped or not. A day of food, one more per hireling (an amount that
+  # is a variable: as many as the stat says), and fodder when riding (a step with a
+  # condition on the way of travelling).
   eat:
     name: Eat
-    description: 'At the end of each day, in camp or not: 1 food, and 1 fodder on horseback. With none left, the party goes hungry.'
+    description: 'At the end of each day, in camp or not: 1 food, 1 more for each hireling, and 1 fodder on horseback. With none left, the party goes hungry.'
     on: day-end
     do:
       - { effects: { party.resources.food: -1 } }
+      - when: { party.stats.hirelings: { gte: 1 } }
+        effects: { party.resources.food: '-{{party.stats.hirelings}}' }
       - { when: { trip.mode: horse }, effects: { party.resources.fodder: -1 } }
       # If the food ran out (it hit its minimum), the day is remembered as hungry.
       - { when: { trip.below: food }, set: { hungry: true } }
@@ -199,13 +208,14 @@ actions:
         effects: { party.stats.hirelings: -1 }
       - { set: { refusing: false } }
   # Marching on in the dark instead of camping: it lights the torches (a value of the day
-  # the march above admits) until midnight, at the cost of fatigue; each hex entered in the
-  # dark rolls to get lost, and night encounters (the checks below, `time.daylight: false`).
+  # the march above admits) until midnight, at the cost of fatigue (and more if the day's
+  # hours were marched already: the Long day check below); each hex entered in the dark
+  # rolls to get lost, and night encounters (the checks below, `time.daylight: false`).
   # Only in the evening (from nightfall: `time.hour` against the system's own `{{system.nightfall}}`), so
   # its button only shows then.
   night-march:
     name: Night march
-    description: 'From nightfall, march on by torchlight until midnight, but +1 fatigue; each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
+    description: 'From nightfall, march on by torchlight until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
     when:
       {
         time.daylight: false,
@@ -229,6 +239,32 @@ actions:
     do:
       - { time: 60 }
       - { effects: { party.stats.morale: 1 } }
+  # Next to water (`around.water`: one of the hexes around is water) or on the coast: two
+  # hours with a line, by day, once a day; the Fishing check (at: fish) rolls a d6 under
+  # Survival. Hidden elsewhere.
+  fish:
+    name: Fish
+    description: 'Next to a lake, the sea or on the coast, by day: two hours with a line, once a day. Roll a d6: at or under your Survival, fish for two days; 1 to 3 otherwise, for one; else nothing bites.'
+    when: { time.daylight: true, any: [{ around.water: true }, { hex.terrain: coast }] }
+    hideWhenUnavailable: true
+    oncePerDay: true
+    do:
+      - { time: 120 }
+  # Market day: in a market town (a tag of the hex) on the calendar's Marketday, or when
+  # the world clock says it's market day there (an event of the world, `world.events`, by
+  # its name as an id). Two hours of trading for supplies, once a day; hidden otherwise.
+  market:
+    name: Market day
+    description: 'In a market town, on Marketday (or on the world clock’s market day): two hours of trading. Food +3 and fodder +2, once a day.'
+    when:
+      time.daylight: true
+      hex.tags: market
+      any: [{ time.weekday: marketday }, { world.events: market-day-in-ashford }]
+    hideWhenUnavailable: true
+    oncePerDay: true
+    do:
+      - { time: 120 }
+      - { effects: { party.resources.food: 3, party.resources.fodder: 2 } }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED
@@ -241,17 +277,22 @@ checks:
     description: Every dawn off roads and rivers (not by boat). Navigation helps; fog makes it harder.
     at: day-start
     unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }
-  # Encounters where the map says there is danger (a hex field), never on the road; also
-  # when resting somewhere dangerous enough. Two moments (at: a list), told apart by
+  # Encounters where the map says there is danger (a hex field) over the party's Stealth (a
+  # variable: a stealthy party slips through the safer hexes unseen), never on the road;
+  # also when resting somewhere dangerous enough. Two moments (at: a list), told apart by
   # `trip.moment` in the condition.
   # By day only (daylight): marching in the dark brings the night encounter below.
   - event: ENCOUNTER_CHECK_REQUIRED
     name: Encounter
-    description: Entering a hex with danger by day (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
+    description: Entering by day a hex whose danger is over your Stealth (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
     at: [hex-enter, rest]
     when:
       any:
-        - { trip.moment: hex-enter, time.daylight: true, hex.danger: { gte: 1 } }
+        - {
+            trip.moment: hex-enter,
+            time.daylight: true,
+            hex.danger: { gt: '{{party.stats.stealth}}' },
+          }
         - { trip.moment: rest, hex.danger: { gte: 3 } }
     unless: { trip.edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
@@ -266,12 +307,13 @@ checks:
     description: Crossing the river on foot or horseback.
     at: hex-enter
     when: { all: [{ hex.tags: ford }, { not: { trip.mode: boat } }] }
-  # Rolled on a table, then the trip pauses (pause) so you can describe the shrine.
+  # Rolled on a table, then the trip pauses (pause) so you can describe the shrine. Only the
+  # first time the trip comes by (`trip.visits`: 1 the first time in a hex).
   - event: SHRINE_CHECK_REQUIRED
     name: Shrine
-    description: A wayside shrine. The trip stops after the roll; press Continue to go on.
+    description: A wayside shrine, the first time the trip comes by. The trip stops after the roll; press Continue to go on.
     at: hex-enter
-    when: { hex.tags: shrine }
+    when: { hex.tags: shrine, trip.visits: 1 }
     pause: true
   # No table for this one: it only stops the trip because it says so (pause), and waits
   # for you to describe the place and press Continue.
@@ -323,6 +365,42 @@ checks:
     description: Rolled when you forage for food in woods, fields, heath or marsh.
     at: forage
     when: { hex.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
+  # Fishing (the fish action above): a table rolled on a d6 under Survival.
+  - event: FISHING_CHECK_REQUIRED
+    name: Fishing
+    description: Rolled when you fish.
+    at: fish
+  # Hours marched today over the system's own (`trip.marched` against `system.hoursPerDay`,
+  # a variable): a night march, or a long day of it, tires the party as the day ends.
+  - event: LONG_DAY
+    name: A long day
+    description: A day marched past its 8 hours (a night march after a full day) costs 1 fatigue as it ends.
+    at: day-end
+    when: { trip.marched: { gt: '{{system.hoursPerDay}}' } }
+    effects: { party.stats.fatigue: 1 }
+  # The trip's own days (`trip.day`, a list of them): on the tenth, twentieth and thirtieth
+  # day on the road, the party misses home.
+  - event: HOMESICK
+    name: Homesick
+    description: On the 10th, 20th and 30th day of a trip, the party misses home. Morale −1.
+    at: day-start
+    when: { trip.day: [10, 20, 30] }
+    effects: { party.stats.morale: -1 }
+  # Coming back to the same hex a third time in a trip (`trip.visits`): lost heart.
+  - event: IN_CIRCLES
+    name: Going in circles
+    description: Entering a hex for the third time in a trip. Morale −1.
+    at: hex-enter
+    when: { trip.visits: 3 }
+    effects: { party.stats.morale: -1 }
+  # Leaving the Greywood (`from.region`, the hex just left, against the one entered).
+  - event: OUT_OF_THE_WOOD
+    name: Out of the Greywood
+    description: Leaving the Greywood, the trees thin out and spirits rise. Morale +1.
+    at: hex-enter
+    when: { from.region: The Greywood }
+    unless: { hex.region: The Greywood }
+    effects: { party.stats.morale: 1 }
 ---
 kind: bindings
 id: default
@@ -351,11 +429,22 @@ stats:
     description: Sell-swords travelling with the party. They join at the inn and may desert when there is no food.
     default: 0
     min: 0
+  # How much fatigue the party takes before it can't camp or rest: the camp and rest
+  # actions compare fatigue with it (a variable, `{{party.stats.endurance}}`).
+  endurance:
+    name: Endurance
+    description: The party can camp and rest while its fatigue is under this.
+    default: 10
+  # Hexes with danger at or under it are crossed unseen (the encounter check reads it).
+  stealth:
+    name: Stealth
+    description: Entering a hex by day, an encounter comes only where danger is over this.
+    default: 0
   # Fatigue is a stat of this system (min: effects never take it below 0), changed by its
   # day-end checks, rests, the shrine, fords and hunger.
   fatigue:
     name: Fatigue
-    description: 'Rises with each day without enough food, fords and hunger; eases after a fed night in camp, a rest or a prayer at the shrine.'
+    description: 'Rises with each day without enough food, long days, fords and hunger; eases after a fed night in camp, a rest or a prayer at the shrine.'
     default: 0
     min: 0
 # Values the pack's tables read that nobody else names: the roll panel and the map show
@@ -413,4 +502,5 @@ on:
   FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } }
   SHRINE_CHECK_REQUIRED: { resolve: shrine }
   FORAGE_CHECK_REQUIRED: { resolve: forage }
+  FISHING_CHECK_REQUIRED: { resolve: fishing }
   HUNGER_CHECK_REQUIRED: { resolve: hunger }

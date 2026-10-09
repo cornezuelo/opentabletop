@@ -170,6 +170,8 @@ describe('example maps', () => {
       grumble: { condition: 'when' }, // nobody went hungry
       parley: { condition: 'when' }, // nobody refuses
       tale: { condition: 'when' }, // not 50 km yet
+      fish: { condition: 'when' }, // no water around Ashford
+      market: { condition: 'when' }, // a market town, but not on market day
     })
   })
 

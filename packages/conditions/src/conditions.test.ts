@@ -47,6 +47,15 @@ describe('matches', () => {
     expect(matches({ not: { terrain: 'forest' } }, ctx)).toBe(false)
   })
 
+  it('holds every key together: all / any / not beside values are one more of them', () => {
+    const any = [{ season: 'winter' }, { danger: { gte: 4 } }]
+    expect(matches({ tags: 'ruins', any } as Condition, ctx)).toBe(true)
+    expect(matches({ tags: 'camp', any } as Condition, ctx)).toBe(false)
+    expect(matches({ terrain: 'desert', not: { lost: true } } as Condition, ctx)).toBe(false)
+    expect(matches({ terrain: 'forest', all: [{ danger: 4 }] } as Condition, ctx)).toBe(true)
+    expect(matches({ terrain: 'forest', all: [{ danger: 5 }] } as Condition, ctx)).toBe(false)
+  })
+
   it('never reads prototype properties', () => {
     expect(resolvePath(ctx, 'constructor')).toBeUndefined()
     expect(matches({ 'terrain.length': { gt: 0 } }, ctx)).toBe(false)

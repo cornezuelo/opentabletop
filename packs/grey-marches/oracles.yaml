@@ -15,7 +15,11 @@ description: |-
   - An **oracle** with an input: how you arrive
   - A variant with its own dice
   - A value of the place's icon on the map: `{{icon.guards}}` is 0 in Ashford and 2 at Fort Keld (select the hex before rolling)
+  - A roll mode with a variable: when the party's **Charisma** is over the guards (`party.stats.charisma: { gt: '{{icon.guards}}' }`), _Talking your way in_ (twice, the lower kept)
   - Answers that roll another table
+# The pack's own roll mode, by itself when the party's Charisma beats the guards.
+modeWhen:
+  charm: { party.stats.charisma: { gt: '{{icon.guards}}' } }
 inputs:
   arrival:
     label: You arrive as

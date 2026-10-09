@@ -15,17 +15,24 @@ description: |-
   - Conditions on `terrain`, `region`, `tags`, `danger`, `season` and the moons (`moons.ember: full`)
   - An entry's `unless`: the Vale's patrol, never at night
   - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart; `pause`: the trip stops when it comes up
+  - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
 roll: '1d6 + {{danger}}'
 entries:
-  # A once-only encounter, only at the very heart of the Greywood (danger 5): the trip
-  # stops (pause) until you press Continue.
+  # A once-only encounter, only at the very heart of the Greywood (danger 5), or deeper
+  # than its edge once the world clock's _The Greywood Wyrm wakes_ is full (a progress
+  # clock by its name as an id): the trip stops (pause) until you press Continue.
   - id: wyrm
     range: 6-20
     once: true
     pause: true
-    when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }
+    when:
+      all:
+        - { terrain: [forest, dense-forest] }
+        - any:
+            - { danger: { gte: 5 } }
+            - { danger: { gte: 3 }, world.clocks.the-greywood-wyrm-wakes: { gte: 6 } }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
   # The calendar (calendar.yaml): when the Ember Moon is full, the hunt rides at night.
   - id: hunt
@@ -105,6 +112,7 @@ description: |-
   **Shows:**
 
   - A **generator**: fields from tables and from dice (`4d6kh3`: keep the best 3)
+  - Fields that agree: what they want depends on who they are (_Wants_ reads the role field's `role.id`)
   - A template that joins them
 fields:
   name: { table: npc-names }
@@ -148,24 +156,41 @@ name: Roles
 description: |-
   Who someone is.
 
-  **Shows:** Weights: pedlars, pilgrims and hunters are common; deserters and hedge-witches, rare
+  **Shows:**
+
+  - Weights: pedlars, pilgrims and hunters are common; deserters and hedge-witches, rare
+  - `set: { id: … }`: the role's id, read by _Wants_ in _Someone on the road_ (`role.id`) whatever the language
 entries:
-  - { id: pedlar, weight: 2, result: pedlar }
-  - { id: pilgrim, weight: 2, result: pilgrim }
-  - { id: hunter, weight: 2, result: hunter }
-  - { id: deserter, weight: 1, result: deserter }
-  - { id: witch, weight: 1, result: hedge-witch }
+  - { id: pedlar, weight: 2, result: pedlar, set: { id: pedlar } }
+  - { id: pilgrim, weight: 2, result: pilgrim, set: { id: pilgrim } }
+  - { id: hunter, weight: 2, result: hunter, set: { id: hunter } }
+  - { id: deserter, weight: 1, result: deserter, set: { id: deserter } }
+  - { id: witch, weight: 1, result: hedge-witch, set: { id: witch } }
 ---
 kind: table
 id: npc-wants
 name: Wants
 description: |-
-  What someone wants. A plain table for the _Someone on the road_ generator.
+  What someone wants, in keeping with who they are: rolled by the _Someone on the road_ generator after their role.
+
+  **Shows:** Conditions on an earlier field of the generator: `role.id` (a deserter never asks for an escort to the fort; pilgrims, deserters and hedge-witches have wants of their own)
 entries:
-  - { id: escort, result: wants an escort to Fort Keld }
+  - { id: escort, result: wants an escort to Fort Keld, unless: { role.id: deserter } }
   - { id: trade, result: has something to trade }
   - { id: lost, result: is lost and frightened }
   - { id: news, result: wants news from the south }
+  - id: shrine
+    weight: 3
+    when: { role.id: pilgrim }
+    result: is bound for the wayside shrine in the Greywood
+  - id: hiding
+    weight: 3
+    when: { role.id: deserter }
+    result: is running from Fort Keld and begs you not to tell
+  - id: herbs
+    weight: 3
+    when: { role.id: witch }
+    result: gathers herbs and will brew a cordial for a song
 ---
 # d66: two dice read as tens and units (11–66), 36 results; ranges like 11-16.
 kind: table

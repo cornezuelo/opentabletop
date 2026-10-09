@@ -32,6 +32,20 @@ forage:
     nothing: Aquí no hay nada que comer
     some: Bayas y raíces para un día
     plenty: '¡Caza! Comida para {{days}} días'
+fishing:
+  name: Pesca
+  description: |-
+    Lo que pica al **pescar** (la acción _Pescar_), junto a un lago, el mar o en la costa: un d6 **igual o menor que la Supervivencia** saca pescado para dos días; si no, de 1 a 3 para un día.
+
+    **Enseña:**
+
+    - Una comprobación en una acción propia del sistema (`at: fish`), y una acción solo junto al agua (`around.water`)
+    - Una tirada **por debajo** sobre la propia tirada de la tabla: `party.stats.survival: { gte: '{{roll}}' }`
+    - El total de la tirada en los textos: `{{roll}}`
+  entries:
+    catch: 'Un {{roll}}, igual o menor que vuestra Supervivencia: buena pesca, comida para dos días'
+    some: 'Un {{roll}}: unos pocos peces pequeños, comida para un día'
+    nothing: 'Un {{roll}}: no pica nada'
 toll:
   name: El peaje
   description: |-

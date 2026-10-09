@@ -326,12 +326,24 @@ class Run {
   ): Resolution {
     const node = this.node(def, context)
     const exhausted = (e: CompiledEntry) => this.exhausted(def.id, variant, e)
-    const candidates = list.entries.filter((e) => !e.when || this.holds(e.when, context, node))
-    if (candidates.length === 0) return node
-
     const mode = this.modeFor(def, context, chosen, node)
     if (mode) node.mode = mode.id
-    let entry = this.pick(list, candidates, context, node, mode, def.clamp ?? true)
+    // The list's own roll comes first, so its entries read its total as `roll`: in their
+    // conditions (a roll-under: `when: { party.stats.survival: { gte: '{{roll}}' } }`),
+    // texts, `set` and effects.
+    let total = list.roll
+      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode).total
+      : undefined
+    const scope = total === undefined ? context : { ...context, roll: total }
+    const candidates = list.entries.filter((e) => !e.when || this.holds(e.when, scope, node))
+    if (candidates.length === 0) return node
+
+    const pick = (from: CompiledEntry[], again: boolean) => {
+      if (again && list.roll)
+        total = this.roll(list.parsedRoll ?? list.roll, context, node, mode).total
+      return this.pick(from, total, def.clamp ?? true)
+    }
+    let entry = pick(candidates, false)
     if (entry && exhausted(entry)) {
       const policy = def.onExhausted ?? 'reroll'
       const available = candidates.filter((e) => !exhausted(e))
@@ -344,14 +356,7 @@ class Run {
       } else {
         let tries = 0
         while (entry && exhausted(entry) && tries++ < MAX_REROLLS)
-          entry = this.pick(
-            list,
-            list.roll ? candidates : available,
-            context,
-            node,
-            mode,
-            def.clamp ?? true,
-          )
+          entry = pick(list.roll ? candidates : available, true)
         if (entry && exhausted(entry)) entry = available[0]
       }
     }
@@ -364,29 +369,26 @@ class Run {
       def,
       entry,
       this.text(def.id, 'entries', entry.key) ?? entry.result,
-      context,
+      total === undefined ? context : { ...context, roll: total },
       depth,
       node,
     )
     return node
   }
 
+  /** An entry by the roll's total (ranges), or by weight when the list has no roll. */
   private pick(
-    list: EntryList,
     candidates: CompiledEntry[],
-    context: Record<string, unknown>,
-    node: Resolution,
-    mode: RollMode | undefined,
+    total: number | undefined,
     clamp: boolean,
   ): CompiledEntry | undefined {
-    if (!list.roll) {
+    if (total === undefined) {
       const index = weightedIndex(
         this.random,
         candidates.map((e) => e.weight),
       )
       return candidates[index]
     }
-    const total = this.roll(list.parsedRoll ?? list.roll, context, node, mode).total
     const hit = candidates.find((e) => total >= e.min! && total <= e.max!)
     if (hit || !clamp) return hit
     const lowest = candidates.reduce((a, b) => (b.min! < a.min! ? b : a))

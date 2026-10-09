@@ -50,7 +50,7 @@ A variable that isn't there (or isn't a number, after `gte`…) never holds. Onl
 **A roll is the same all through a moment.** Wherever it's read again in the same moment, the same dice give the same total, so what it decides doesn't change when you look again:
 
 - In a **trip** (checks, actions and their steps, marching, ways of travelling, terrains and `through`), a moment is the day, the hex and what's happening: a moment like `hex-enter` or `day-end`, or the action being taken (`march` for marching). An action whose `when` rolls `'{{1d20}}'` is available or not for the whole day in that hex, the route doesn't change as you plan it, and the action's effects see the same roll. Each trip rolls its own.
-- In a **table** (entries, generator fields, `modeWhen` / `modeUnless`), a moment is one roll of the table, with what it rolls next: an entry with `when` and another with `unless` on the same `'{{1d20}}'` see the same d20, so one of them comes up (a roll-under). The result card shows the roll.
+- In a **table** (entries, generator fields, `modeWhen` / `modeUnless`), a moment is one roll of the table, with what it rolls next: an entry with `when` and another with `unless` on the same `'{{1d20}}'` see the same d20, so one of them comes up (a roll-under). The result card shows the roll. A table with a roll of its own also gives its entries that total as `'{{roll}}'`: `party.stats.survival: { gte: '{{roll}}' }` is a roll-under on the table's own die (see [Dice and variables](../oracle/08-dice-and-templates.md)).
 
 Everything a condition can read is in [What tables see](04-what-tables-see.md); dice are in [Dice and variables](../oracle/08-dice-and-templates.md).
 
@@ -63,7 +63,7 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 | `any: [ … ]`  | at least one of them         | `any: [{ edges: road }, { edges: river }, { mode: boat }]`           |
 | `not: { … }`  | the condition inside doesn't | `not: { timeOfDay: night }`                                          |
 
-They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ tags: ford }, { tags: toll }] }`: a hex with both tags).
+`all`, `any` and `not` count as one more pair beside the others: `{ tags: market, any: [{ weekday: marketday }, { events: market-day }] }` is a market town on either day. They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ tags: ford }, { tags: toll }] }`: a hex with both tags).
 
 `not` has two meanings by what follows it: `season: { not: summer }` compares one value; `not: { season: summer }`, at the top, turns a whole condition around. Both hold in the same cases here; with more pairs inside, the second says "not all of these".
 
@@ -84,6 +84,8 @@ They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all`
 
 A value of the day isn't a condition but works like one: while it holds, it **blocks** what it lists (`blocks: [travel]`, an action's id, `mode.horse`). See [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
-- Roll modes: getting lost with disadvantage the day after, `modeWhen: { disadvantage: { yesterday.lost: true } }`.
+- Roll modes: getting lost with disadvantage the day after, `modeWhen: { disadvantage: { yesterday.lost: true } }`; the gates' own _Talking your way in_ when Charisma beats the guards, `modeWhen: { charm: { party.stats.charisma: { gt: '{{icon.guards}}' } } }`.
+- Variables and rolls: camping and resting while `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }`; encounters only where `hex.danger: { gt: '{{party.stats.stealth}}' }`; the toll's d6 under Charisma, `party.stats.charisma: { gte: '{{1d6}}' }`; _Fishing_'s d6 under Survival on the table's own roll, `party.stats.survival: { gte: '{{roll}}' }`; a long day, `trip.marched: { gt: '{{system.hoursPerDay}}' }`.
+- The trip and the world: the shrine only the first time, `trip.visits: 1`; homesick on `trip.day: [10, 20, 30]`; out of the Greywood, `from.region: The Greywood`; fishing next to water, `around.water: true`; market day, `any: [{ time.weekday: marketday }, { world.events: market-day-in-ashford }]`; the Wyrm once `world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`.
 
 When a condition is written wrong (an unknown operator, a list where a number goes), the pack shows a problem at that line when it loads.

@@ -45,6 +45,7 @@ Usa pesos cuando ningún dado da la probabilidad que quieres, o para hacer más 
 | `{{season}}`   | Una variable: un valor del contexto.                                                                                           |
 | `{{npc.role}}` | Una parte de un valor (el campo de un generador guarda los valores de su tabla).                                               |
 | `{{result}}`   | En una entrada con **luego tira**: el texto de la tabla que tiró, p. ej. `'Bandidos: están {{result}}'` con `table: reaction`. |
+| `{{roll}}`     | En las entradas de una tabla: el total de la propia **Tirada** de la tabla, p. ej. `'Has sacado {{roll}}'`.                    |
 | `{{campo}}`    | En la plantilla de un generador: el valor de un campo (su texto, si vino de una tabla).                                        |
 
 Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores y tiran dados. Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
@@ -64,6 +65,22 @@ entries:
 ```
 
 En una tirada de la tabla, los mismos dados son la misma tirada en todas partes, así que sale exactamente una de las dos entradas, y la tarjeta del resultado muestra el d20. Más en [Condiciones](../technical/08-conditions.md#variables-y-tiradas).
+
+Una tabla con **Tirada** propia da a sus entradas el total como `roll`: sus condiciones pueden compararse con él, y sus textos, `set` y cambios pueden mostrarlo o usarlo. Primero se tira, y luego se eligen las entradas por sus condiciones y rangos:
+
+```yaml
+kind: table
+id: pick-the-lock
+roll: 1d6
+entries:
+  - id: open
+    range: 1-6
+    when: { party.stats.dex: { gte: '{{roll}}' } }
+    result: 'Un {{roll}}, igual o menor que tu Destreza: se abre con un clic'
+  - { id: stuck, range: 1-6, result: 'Un {{roll}}: no cede' }
+```
+
+Las dos entradas cubren todos los totales; sale la primera cuya condición se cumple. Así funciona la _Pesca_ de las Marcas Grises.
 
 ## De dónde salen los valores del contexto
 

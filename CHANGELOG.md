@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- **The Grey Marches use it all**: the party's **Endurance** (camp and rest while fatigue is under it) and **Stealth** (encounters only where danger is over it); hirelings eat a ration each; **Fish** next to water (a d6 under Survival) and **Market day** in Ashford (on Marketday, or the world clock's market day); checks for **A long day** (marching past 8 hours), **Homesick** (the 10th, 20th and 30th day of a trip), **Going in circles** (a hex entered a third time) and **Out of the Greywood**; the shrine only the first time each trip; the gates roll _Talking your way in_ (a roll mode of their own) when Charisma beats the guards; someone on the road wants what fits their role, and a ruin's guardian is as dangerous as the ruin; the Wyrm roams the Greywood once the world clock's _The Greywood Wyrm wakes_ is full. Ashford is tagged `market` on the example map.
+- **A table's own roll, as `roll`**: a table with dice gives its entries the total, for their conditions (`party.stats.survival: { gte: '{{roll}}' }`, a roll-under on the table's own die), texts (`'You rolled {{roll}}'`), `set` and effects. The table rolls first, then picks among the entries whose conditions hold, so a table now rolls (and shows the dice) even when no entry applies.
 - **What the trip has done so far**, for conditions and tables: `trip.hexes` and `trip.km` (at the map's scale), `trip.hours` marched, `trip.checks`, `trip.taken.<action>` (each action of the system, 0 until it's taken) and `trip.spent.<supply>` / `trip.gained.<supply>` (what actions, checks and tables took or added; hand edits don't count). The Grey Marches get **Tales of the road**: once a trip, after 50 km, from nightfall, morale +1.
 - **Marching is an action the system declares** (`actions.march`, the Travel buttons): its `when` / `unless` are checked as the party marches, and it stops as soon as they no longer hold. Without it, or without its `when`, the party marches by day for the day's marching hours, as before; the engine no longer decides it (nor that nobody marches before dawn). The Grey Marches' **Night march** now lights the torches (`torchlit`, a value of the day their march admits) until midnight, from their own nightfall (`hour: { gte: $nightfall }`).
 - **The march's name is the Travel button's**: a system that names its march (`actions.march.name`, editable in Systems) sees it on the trip panel's first button (Travel and the Hexmapper), with its description as help. The Grey Marches call it **March** (**Marchar**).
@@ -46,6 +48,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Conditions: `all`, `any` or `not` beside other pairs (`{ tags: market, any: [ … ] }`) left the other pairs unchecked; now every pair counts.
 - Trips: a hex half-walked on a slow day (snow, rain) and faster to walk the next is entered at once; the trip's clock used to go back in time and enter it before dawn.
 
 ## [0.3.0] - 2026-10-08

@@ -100,6 +100,17 @@ entries:
   - { id: desert, range: 1-6, when: { terrain: desert }, result: Escorpiones }
 ---
 kind: table
+id: roll-under
+roll: 1d6
+entries:
+  - id: made
+    range: 1-6
+    when: { skill: { gte: '{{roll}}' } }
+    result: '{{roll}}, at or under {{skill}}'
+    effects: { gold: '{{roll}}' }
+  - { id: missed, range: 1-6, result: '{{roll}}, over {{skill}}' }
+---
+kind: table
 id: weather-by-season
 roll: 1d2
 entries:
@@ -336,7 +347,7 @@ describe('tables', () => {
   })
 
   it('rolls with a roll mode the table offers', () => {
-    const engine = createOracleEngine({ registry, random: faces(6, 1, 1, 5, 5) })
+    const engine = createOracleEngine({ registry, random: faces(6, 1, 1, 5, 5, 3, 3) })
     const mode = { mode: 'test/advantage' }
     const { resolution } = engine.resolve('test/reaction', { pre: 0 }, undefined, mode)
     expect(resolution.entry).toBe('friendly')
@@ -345,6 +356,18 @@ describe('tables', () => {
     // A mode the table doesn't offer isn't used.
     const plain = engine.resolve('test/terrain-encounter', {}, undefined, mode).resolution
     expect(plain.mode).toBeUndefined()
+  })
+
+  it("reads the table's own roll as `roll`: in conditions, texts and effects", () => {
+    const roll = (face: number, skill: number) =>
+      createOracleEngine({ registry, random: faces(6, face) }).resolve('test/roll-under', { skill })
+        .resolution
+    const made = roll(2, 3)
+    expect(made.entry).toBe('made')
+    expect(made.text).toBe('2, at or under 3')
+    expect(made.value.effects).toEqual({ gold: 2 })
+    expect(made.rolls).toHaveLength(1)
+    expect(roll(4, 3)).toMatchObject({ entry: 'missed', text: '4, over 3' })
   })
 
   it('filters entries by conditions on the context', () => {
