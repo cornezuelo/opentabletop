@@ -9,6 +9,7 @@
   import { systemDoc } from '../lib/systemDoc.svelte'
   import { staleCopies } from '../lib/transfer'
   import ChecksForm from './forms/ChecksForm.svelte'
+  import GenericYaml from './GenericYaml.svelte'
   import RulesForm from './forms/RulesForm.svelte'
   import Overview from './Overview.svelte'
   import PartsTab from './parts/PartsTab.svelte'
@@ -29,7 +30,7 @@
     ...(file ? (['rules', 'checks'] as Tab[]) : []),
     ...(system?.pack ? (['sheet', 'factions', 'calendar', 'weather', 'modes'] as Tab[]) : []),
     'try',
-    ...(file || declared ? (['yaml'] as Tab[]) : []),
+    ...(file || declared || system?.id === 'generic' ? (['yaml'] as Tab[]) : []),
   ])
   const doc = systemDoc(() => file ?? { root: '', path: '' })
   const overview = systemDoc(() => declared ?? { root: '', path: '' })
@@ -90,6 +91,8 @@
       {/if}
       {#if tab === 'try'}
         <TryTab {system} />
+      {:else if tab === 'yaml' && system.id === 'generic'}
+        <GenericYaml />
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} />
       {:else if (tab === 'sheet' || tab === 'factions' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}

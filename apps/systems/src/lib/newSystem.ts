@@ -1,5 +1,6 @@
 import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import {
+  GENERIC_SHEET,
   localize,
   olderPauseChecks,
   parseBindings,
@@ -340,4 +341,15 @@ export function updateFormat(doc: {
     manifest.set('format', PACK_FORMAT)
     library.writeFile(doc.root, 'pack.yaml', manifest.toString())
   })
+}
+
+/**
+ * The Generic rules as a pack would write them (travel rules and the characters' sheet),
+ * for a read-only view: they are built in, and a new system starts from the same rules.
+ */
+export function genericYaml(): string {
+  return [
+    stringify({ kind: 'travel-rules', ...genericTravelRules }),
+    stringify(GENERIC_SHEET),
+  ].join('---\n')
 }

@@ -14,7 +14,7 @@ The Systems app is where game systems are made and edited. A **system** is what 
 
 ## Systems you have
 
-- **Generic**: plain travel with no checks, built into the apps; the party eats 1 food as each day ends. It can't be edited; create a new system to start from it.
+- **Generic**: plain travel with no checks, built into the apps; the party eats 1 food as each day ends. It can't be edited, but its **YAML** tab shows it as a pack would write it (its travel rules and its characters' sheet), to read or copy from; create a new system to start from it.
 - **The Grey Marches**: the bundled example, a small frontier with its own rules, using every feature. See [The Grey Marches](../packs/02-grey-marches.md).
 - Systems from your packs, personal-use ones included (see [Packs](../oracle/03-packs.md)).
 

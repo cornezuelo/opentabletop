@@ -7,6 +7,7 @@ import {
   createSystem,
   createSystemPart,
   declareSystem,
+  genericYaml,
   olderFormatChecks,
   packFormat,
   partChoices,
@@ -155,6 +156,24 @@ describe('systems in the Systems app', () => {
     library.undo()
     expect(systems.get('grey-marches')!.calendar).toBeDefined()
     library.removePack('grey-marches')
+  })
+
+  it('shows the Generic rules as a pack would write them, and they load as one', () => {
+    const { registry, diagnostics } = loadPacks([
+      {
+        path: 'g/pack.yaml',
+        content: 'id: g\nname: G\nversion: 0.1.0\nlocale: en\nlicense: MIT\n',
+      },
+      { path: 'g/rules.yaml', content: genericYaml() },
+    ])
+    expect(diagnostics.map((d) => d.message)).toEqual([])
+    const { systems: found, problems } = travelSystems(registry)
+    expect(problems).toEqual([])
+    const g = found.find((s) => s.id === 'g')!
+    expect(g.rules.travel.hoursPerDay).toBe(systems.get('generic')!.rules.travel.hoursPerDay)
+    expect(Object.keys(g.rules.terrains)).toEqual(
+      Object.keys(systems.get('generic')!.rules.terrains),
+    )
   })
 
   it('a copy of a pack a system uses, older than the bundled one, is named on the system', () => {

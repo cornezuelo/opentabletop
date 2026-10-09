@@ -537,7 +537,9 @@ export const es: Messages<typeof en> = {
       '¿Descartar tus cambios en este sistema y volver a la versión incluida? (↶ lo deshace.)',
     makeCopy: 'Editar una copia',
     builtIn:
-      'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (debajo de la lista de la izquierda) para hacer el tuyo a partir de ellas.',
+      'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (debajo de la lista de la izquierda) para hacer el tuyo a partir de ellas; su pestaña YAML las enseña.',
+    genericYaml:
+      'Las reglas Genéricas, escritas como las escribiría un pack: sus reglas de viaje y la hoja de sus personajes. Solo lectura (vienen integradas); un sistema nuevo empieza con estas mismas reglas.',
     staleCopy:
       'Este sistema usa tu copia de «{pack}», y el «{pack}» incluido ha cambiado desde que la hiciste. Tu copia sustituye entero al pack incluido, así que lo que trae el nuevo (una tabla que este sistema nombra…) falta hasta que lo cojas:',
     staleTip:

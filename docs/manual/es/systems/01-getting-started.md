@@ -14,7 +14,7 @@ La aplicación Systems es donde se crean y editan los sistemas de juego. Un **si
 
 ## Los sistemas que tienes
 
-- **Genéricas**: viaje sencillo sin comprobaciones, integrado en las aplicaciones; el grupo come 1 de comida al acabar cada día. No se pueden editar; crea un sistema nuevo para partir de ellas.
+- **Genéricas**: viaje sencillo sin comprobaciones, integrado en las aplicaciones; el grupo come 1 de comida al acabar cada día. No se pueden editar, pero su pestaña **YAML** las enseña como las escribiría un pack (sus reglas de viaje y la hoja de sus personajes), para leerlas o copiar de ellas; crea un sistema nuevo para partir de ellas.
 - **Las Marcas Grises**: el ejemplo incluido, una pequeña frontera con reglas propias que usa todas las funciones. Mira [Las Marcas Grises](../packs/02-grey-marches.md).
 - Los sistemas de tus packs, incluidos los de uso personal (ver [Packs](../oracle/03-packs.md)).
 

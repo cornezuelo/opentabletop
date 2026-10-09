@@ -533,7 +533,9 @@ export const en = {
       'Discard your changes to this system and go back to the bundled version? (↶ undoes it.)',
     makeCopy: 'Edit a copy',
     builtIn:
-      "The Generic rules are built in and can't be edited. Create a new system (below the list on the left) to start your own from them.",
+      "The Generic rules are built in and can't be edited. Create a new system (below the list on the left) to start your own from them; their YAML tab shows them.",
+    genericYaml:
+      'The Generic rules, written as a pack would write them: their travel rules and the sheet of their characters. Read-only (they are built in); a new system starts from the same rules.',
     playInTravel: 'Play it in Travel →',
     staleCopy:
       'This system uses your copy of «{pack}», and the bundled «{pack}» changed since you made it. Your copy replaces the bundled pack whole, so what the newer one added (a table this system names…) is missing until you take it:',
