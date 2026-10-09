@@ -23,7 +23,7 @@ La paleta lista los terrenos del mapa, agrupados:
 | Frío          | tundra, snow, glacier                                                         |
 | Agua y costa  | coast, lake, sea, deep-sea (la costa es tierra: la orilla por la que se anda) |
 
-Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó.
+Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó. **Editar paleta** enseña el **id** de cada terreno junto a su nombre (`dense-forest`): lo que escriben las tablas, las condiciones y las reglas de viaje (`hex.terrain: dense-forest`), sea cual sea el idioma de su nombre.
 
 No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un conjunto entero de una vez (solo los terrenos que le faltan al mapa), cada uno con su símbolo y una velocidad en las reglas de viaje genéricas:
 

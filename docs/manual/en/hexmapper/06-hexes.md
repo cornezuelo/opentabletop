@@ -1,6 +1,6 @@
 # Hex details
 
-Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel.
+Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel. Beside its coordinates is its **id** (`4,2`: column and row counted from 0, whatever the map's coordinate labels), and beside its terrain the terrain's id (`heath`): what tables and conditions read as `hex.id` and `hex.terrain`.
 
 ## What a hex can hold
 

@@ -85,7 +85,15 @@ export function fieldValues(fields: CustomField[] | undefined): Record<string, u
   for (const field of fields ?? []) {
     if (!field.key) continue
     const n = Number(field.value)
-    out[field.key] = field.value !== '' && Number.isFinite(n) ? n : field.value
+    // As in YAML: numbers are numbers, true and false are yes/no, the rest is text.
+    out[field.key] =
+      field.value === 'true'
+        ? true
+        : field.value === 'false'
+          ? false
+          : field.value !== '' && Number.isFinite(n)
+            ? n
+            : field.value
   }
   return out
 }

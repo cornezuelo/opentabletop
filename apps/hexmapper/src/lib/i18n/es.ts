@@ -496,6 +496,9 @@ export const es: Messages = {
     makeOpen: 'Abrir',
   },
   hex: {
+    idTip:
+      'El id del hex, como lo leen las tablas: hex.id (columna,fila, contadas desde 0, sea cual sea el formato de coordenadas del mapa)',
+    terrainIdTip: 'El id del terreno, como lo leen las tablas y las reglas de viaje: hex.terrain',
     poiIcon: 'Icono (solo para distinguir los PDI aquí)',
     noIcon: 'Sin icono',
     coord: 'Coordenada',
@@ -560,6 +563,8 @@ export const es: Messages = {
       'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (**Ajustes del mapa → Regiones**): un bosque más oscuro, un reino con un borde marcado.',
   },
   world: {
+    clockIdTip:
+      'Cómo leen este reloj las tablas y las condiciones: world.clocks.{id} (su nombre en minúsculas con guiones)',
     weatherLine: 'Clima: {weather}',
     weatherHelp:
       'El clima de hoy. Con un viaje en marcha, el del viaje (su tirada de clima); sin él, el del propio reloj del mundo: cada día que pasa se tira con el modelo de clima del sistema del mapa, siguiendo al del día anterior. Las tiradas a mano lo leen como `weather`.',

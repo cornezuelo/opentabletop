@@ -51,7 +51,7 @@ El **Id** es cómo nombran al evento las condiciones y las tablas en su día: pa
 
 ## Relojes de progreso
 
-Un reloj es un número de segmentos que se llenan según algo avanza: una amenaza («La Sierpe despierta: 1/6»), un proyecto, el plan de una facción. Haz clic en un segmento para llenar hasta él, o en el último lleno para vaciarlo. Cuando un reloj se llena, la cronología lo dice. Cámbiale el nombre editándolo; ✕ lo quita.
+Un reloj es un número de segmentos que se llenan según algo avanza: una amenaza («La Sierpe despierta: 1/6»), un proyecto, el plan de una facción. Haz clic en un segmento para llenar hasta él, o en el último lleno para vaciarlo. Cuando un reloj se llena, la cronología lo dice. Cámbiale el nombre editándolo; ✕ lo quita. Junto a cada reloj está el nombre con el que lo leen las tablas (`the-wyrm-wakes`).
 
 **Las tablas y las reglas de un sistema leen el mundo**: cada reloj por su nombre en minúsculas con guiones («The Wyrm wakes» es `world.clocks.the-wyrm-wakes`, sus segmentos llenos; `clocks.the-wyrm-wakes` en corto) y los eventos del día por su id (`world.events: market-day`, o `events`; sus nombres escritos como id también valen), en condiciones y en tiradas, a mano o del viaje: un encuentro que solo llega cuando una amenaza está cerca (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), una acción solo el día de mercado. La lista completa: [Qué ven las tablas](../technical/04-what-tables-see.md).
 

@@ -336,6 +336,9 @@
         <span class="count" class:full={clock.filled === clock.segments}
           >{clock.filled}/{clock.segments}</span
         >
+        <code class="id" use:tooltip={t('world.clockIdTip', { id: factId(clock.name) })}
+          >{factId(clock.name)}</code
+        >
         <button
           class="icon"
           aria-label={t('world.removeClock')}
@@ -578,6 +581,12 @@
   .count {
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .id {
+    font-size: 11px;
+    color: var(--text-muted);
+    user-select: all;
   }
 
   .count.full {

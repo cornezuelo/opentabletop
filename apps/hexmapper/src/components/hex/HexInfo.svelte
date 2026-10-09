@@ -75,6 +75,7 @@
   <div class="summary">
     <span class="coord">
       {selected.coord}
+      <code class="id" use:tooltip={t('hex.idTip')}>{key}</code>
       <button
         class="link"
         use:tooltip={t('library.copyHexLink')}
@@ -92,6 +93,7 @@
       <span class="terrain">
         <span class="swatch" style:background={selected.terrain.color}></span>
         {terrainName(selected.terrain)}
+        <code class="id" use:tooltip={t('hex.terrainIdTip')}>{selected.terrain.id}</code>
       </span>
     {:else}
       <span class="muted">{t('hex.none')}</span>
@@ -239,5 +241,11 @@
   .clear:hover {
     color: var(--danger);
     border-color: var(--danger);
+  }
+
+  .id {
+    font-size: 11px;
+    color: var(--text-muted);
+    user-select: all;
   }
 </style>

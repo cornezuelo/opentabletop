@@ -1,6 +1,6 @@
 # Detalles del hex
 
-Selecciona un hex con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y editar sus detalles en el panel lateral.
+Selecciona un hex con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y editar sus detalles en el panel lateral. Junto a sus coordenadas está su **id** (`4,2`: columna y fila contadas desde 0, sea cual sea el formato de coordenadas del mapa), y junto a su terreno el id del terreno (`heath`): lo que las tablas y las condiciones leen como `hex.id` y `hex.terrain`.
 
 ## Qué puede tener un hex
 

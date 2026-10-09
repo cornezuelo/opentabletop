@@ -51,7 +51,7 @@ The **Id** is how conditions and tables name the event on its day: lowercase wor
 
 ## Progress clocks
 
-A clock is a number of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it.
+A clock is a number of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it. Beside each clock is the name tables read it by (`the-wyrm-wakes`).
 
 **Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), and the day's events by their ids (`world.events: market-day`, or `events`; their names written as ids work too), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
 

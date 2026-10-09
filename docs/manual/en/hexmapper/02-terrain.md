@@ -23,7 +23,7 @@ The palette lists the map's terrains, grouped:
 | Cold            | tundra, snow, glacier                                             |
 | Water and coast | coast, lake, sea, deep-sea (coast is land: the shore you walk on) |
 
-Your own terrains go under **Other**. Each map keeps the palette it was made with.
+Your own terrains go under **Other**. Each map keeps the palette it was made with. **Edit palette** shows each terrain's **id** beside its name (`dense-forest`): what tables, conditions and travel rules write (`hex.terrain: dense-forest`), whatever the language of its name.
 
 Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a whole set at once (only the terrains the map lacks), each with its symbol and a speed in the generic travel rules:
 

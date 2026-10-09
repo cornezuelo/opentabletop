@@ -489,6 +489,9 @@ export const en = {
     makeOpen: 'Open',
   },
   hex: {
+    idTip:
+      'The hex’s id, as tables read it: hex.id (column,row, counted from 0, whatever the map’s coordinate labels)',
+    terrainIdTip: 'The terrain’s id, as tables and travel rules read it: hex.terrain',
     poiIcon: 'Icon (only to tell POIs apart here)',
     noIcon: 'No icon',
     coord: 'Coordinate',
@@ -553,6 +556,8 @@ export const en = {
       "This region looks its own way instead of following the map's region style (**Map settings → Regions**): a darker forest, a kingdom with a bold border.",
   },
   world: {
+    clockIdTip:
+      'How tables and conditions read this clock: world.clocks.{id} (its name in lowercase with dashes)',
     weatherLine: 'Weather: {weather}',
     weatherHelp:
       "Today's weather. With a trip going on, the trip's (its weather check); without one, the world clock's own: each day that passes is rolled on the map system's weather model, following the day before's. Hand rolls read it as `weather`.",

@@ -86,6 +86,7 @@
         aria-label={t('terrainEditor.name')}
         onchange={(e) => update(terrain.id, { name: e.currentTarget.value })}
       />
+      <code class="id" use:tooltip={t('hex.terrainIdTip')}>{terrain.id}</code>
       <button
         class="glyph"
         style:background={terrain.color}
@@ -246,5 +247,11 @@
 
   .add:hover {
     border-color: var(--accent);
+  }
+
+  .id {
+    font-size: 11px;
+    color: var(--text-muted);
+    user-select: all;
   }
 </style>
