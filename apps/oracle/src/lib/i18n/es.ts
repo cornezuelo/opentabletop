@@ -67,6 +67,9 @@ export const es: Messages<typeof en> = {
     readOnly: 'Este pack viene incluido y es de solo lectura.',
     personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
     makeCopy: 'Editar una copia',
+    duplicate: 'Duplicar como pack nuevo',
+    duplicateHelp:
+      'Otros packs dependen de este, así que no puede sustituirlo una copia: haz un pack tuyo nuevo a partir de él, con su propio id, y cambia ese.',
     name: 'Nombre',
     description: 'Descripción',
     roll: 'Dados',
@@ -300,6 +303,10 @@ export const es: Messages<typeof en> = {
     create: 'Crear',
     cancel: 'Cancelar',
     idTaken: 'Ya hay un pack "{id}".',
+    duplicateTitle: 'Duplicar como pack nuevo',
+    duplicateHelp:
+      'Un pack tuyo nuevo con todos los ficheros de este. El original se queda como está, con sus actualizaciones, para los packs que dependen de él; tus tablas se refieren al nuevo por su id.',
+    copyName: '{name} (mío)',
   },
   file: {
     problems: '{count} problemas',

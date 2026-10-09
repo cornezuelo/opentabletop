@@ -1,4 +1,5 @@
 import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
+import { parseDocument } from 'yaml'
 import { MANIFEST_FILE, type PackSource } from '@open-tabletop/pack-ui/packs'
 
 export {
@@ -34,6 +35,22 @@ export function newPack(id: string, name: string, locale: string): PackSource {
       { path: 'tables.yaml', content: '' },
     ],
   }
+}
+
+/**
+ * A new pack of your own made from another (a bundled one others depend on, like Core):
+ * every file the same, its manifest with a new id and name. It doesn't replace the
+ * original, so the packs that depend on it keep the bundled one and its updates.
+ */
+export function duplicatePack(source: PackSource, id: string, name: string): PackSource {
+  const files = source.files.map((f) => {
+    if (f.path !== MANIFEST_FILE) return { ...f }
+    const doc = parseDocument(f.content)
+    doc.set('id', id)
+    doc.set('name', name || id)
+    return { ...f, content: String(doc) }
+  })
+  return { root: id, origin: 'user', files }
 }
 
 /** Normalizes a user-typed file path: relative, forward slashes, .yaml by default. */

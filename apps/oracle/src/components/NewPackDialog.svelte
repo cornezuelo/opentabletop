@@ -3,13 +3,18 @@
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
-  import { isValidId, newPack } from '../lib/packs/workspace'
+  import { duplicatePack, isValidId, manifestOf, newPack } from '../lib/packs/workspace'
 
-  let { onclose }: { onclose: () => void } = $props()
+  /** With `from` (a pack's folder): a new pack of yours made from that one. */
+  let { onclose, from }: { onclose: () => void; from?: string } = $props()
 
-  let id = $state('')
-  let name = $state('')
-  let locale = $state<string>(getLocale())
+  const source = from ? workspace.pack(from) : undefined
+  const original = source ? manifestOf(source) : undefined
+  let id = $state(original ? `${original.id ?? from}-mine` : '')
+  let name = $state(
+    original ? t('newPack.copyName', { name: original.name ?? original.id ?? '' }) : '',
+  )
+  let locale = $state<string>(original?.locale ?? getLocale())
   let dialog: HTMLDialogElement
 
   $effect(() => {
@@ -29,7 +34,11 @@
     const packId = id.trim() || slug(name)
     if (!isValidId(packId)) return showToast(t('pack.invalidId'), 'error')
     if (workspace.pack(packId)) return showToast(t('newPack.idTaken', { id: packId }), 'error')
-    workspace.addPack(newPack(packId, name.trim(), locale.trim() || 'en'))
+    workspace.addPack(
+      source
+        ? duplicatePack(source, packId, name.trim())
+        : newPack(packId, name.trim(), locale.trim() || 'en'),
+    )
     onclose()
     go({ name: 'pack', root: packId })
   }
@@ -43,7 +52,8 @@
       create()
     }}
   >
-    <h2>{t('newPack.title')}</h2>
+    <h2>{t(source ? 'newPack.duplicateTitle' : 'newPack.title')}</h2>
+    {#if source}<p class="help">{t('newPack.duplicateHelp')}</p>{/if}
     <label class="field">
       <span>{t('newPack.name')}</span>
       <!-- svelte-ignore a11y_autofocus -->
@@ -53,10 +63,12 @@
       <span>{t('newPack.id')}<InfoTip text={t('newPack.idHelp')} /></span>
       <input type="text" bind:value={id} placeholder={slug(name)} />
     </label>
-    <label class="field">
-      <span>{t('newPack.locale')}<InfoTip text={t('newPack.localeHelp')} /></span>
-      <input type="text" bind:value={locale} />
-    </label>
+    {#if !source}
+      <label class="field">
+        <span>{t('newPack.locale')}<InfoTip text={t('newPack.localeHelp')} /></span>
+        <input type="text" bind:value={locale} />
+      </label>
+    {/if}
     <div class="buttons">
       <button type="button" onclick={() => dialog.close()}>{t('newPack.cancel')}</button>
       <button type="submit" class="primary">{t('newPack.create')}</button>
@@ -87,6 +99,12 @@
   h2 {
     margin: 0;
     font-size: 16px;
+  }
+
+  .help {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
   }
 
   .buttons {

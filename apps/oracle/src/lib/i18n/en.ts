@@ -65,6 +65,9 @@ export const en = {
     readOnly: 'This pack is bundled and read-only.',
     personalCopy: 'Your copy stays in this browser and is personal use only.',
     makeCopy: 'Edit a copy',
+    duplicate: 'Duplicate as a new pack',
+    duplicateHelp:
+      'Other packs depend on this one, so it can’t be replaced by a copy: make a new pack of yours from it, with its own id, and change that one.',
     name: 'Name',
     description: 'Description',
     roll: 'Dice',
@@ -295,6 +298,10 @@ export const en = {
     create: 'Create',
     cancel: 'Cancel',
     idTaken: 'There is already a pack "{id}".',
+    duplicateTitle: 'Duplicate as a new pack',
+    duplicateHelp:
+      'A new pack of yours with all of this one’s files. The original stays as it is, with its updates, for the packs that depend on it; tables of yours refer to the new one by its id.',
+    copyName: '{name} (mine)',
   },
   file: {
     problems: '{count} problems',
