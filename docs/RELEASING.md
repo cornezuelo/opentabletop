@@ -18,8 +18,9 @@ How a version of OpenTabletop is made and published. Agreed with the author; the
 1. `make verify` and `make site` pass locally (and CI is green on `main`).
 2. In `CHANGELOG.md`, rename **Unreleased** to `## [X.Y.Z] - YYYY-MM-DD` and add an empty `## [Unreleased]` above it.
 3. `npm version X.Y.Z --no-git-tag-version` (updates `package.json` and the lockfile).
-4. Commit (`Release vX.Y.Z`), then tag it: `git tag -a vX.Y.Z -m "OpenTabletop vX.Y.Z"`.
-5. Push the commit and the tag: `git push origin main vX.Y.Z`.
+4. `make old-maps`: writes this version's library maps of the example with a trip going on (one paused on a check, one camped with the factions' world turn taken) into `apps/hexmapper/src/lib/play/old-maps/`. From then on the tests open them, show Play and play on, so a map stored by this version never stops opening in a later one.
+5. Commit (`Release vX.Y.Z`, with those maps), then tag it: `git tag -a vX.Y.Z -m "OpenTabletop vX.Y.Z"`.
+6. Push the commit and the tag: `git push origin main vX.Y.Z`.
 
 The tag starts the **Release** workflow ([`.github/workflows/release.yml`](../.github/workflows/release.yml)), from a clean clone:
 

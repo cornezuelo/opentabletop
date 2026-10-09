@@ -8,7 +8,7 @@ APPS := $(filter-out cli,$(notdir $(wildcard apps/*)))
 
 .DEFAULT_GOAL := help
 .PHONY: help install dev dev-hexmapper dev-oracle dev-travel dev-systems dev-manual dev-all build site serve rebuild preview \
-	test test-watch check lint format verify clean cli private-status private-commit private-push
+	test test-watch check lint format verify old-maps clean cli private-status private-commit private-push
 
 help: ## List the commands
 	@awk 'BEGIN {FS = ":.*## "; printf "OpenTabletop\n\n"} \
@@ -78,6 +78,10 @@ format: ## Format every file with Prettier
 	npm run format
 
 verify: lint check test ## Everything CI would run: lint, types and tests
+
+old-maps: ## Write this version's example maps with trips going on, for later versions to keep opening (before a release)
+	OTT_OLD_MAPS_OUT=$(CURDIR)/apps/hexmapper/src/lib/play/old-maps/v$$(node -p "require('./package.json').version") \
+		npx vitest run apps/hexmapper/src/lib/play/old-maps.gen.test.ts
 
 clean: ## Remove build output (dist folders)
 	rm -rf dist apps/cli/dist $(addprefix apps/,$(addsuffix /dist,$(APPS)))
