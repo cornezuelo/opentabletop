@@ -1,9 +1,12 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
+  import { createCharacter } from '@open-tabletop/character-engine'
+  import { CharacterCard, sheetText } from '@open-tabletop/character-ui'
+  import { activeSystem } from '../../lib/play/systems'
   import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
-  import { t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
+  import { getLocale, t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
   import { DEFAULT_TOKEN_ICONS, tokenColor } from '../../lib/model/tokens'
   import { TOKEN_KINDS, type MapToken, type TokenKind } from '../../lib/model/types'
   import { partyChanged, partyMoved } from '../../lib/play/play'
@@ -40,6 +43,19 @@
 
   function update(change: (token: MapToken) => MapToken) {
     if (selected) editor.updateToken(selected.id, change)
+  }
+
+  /** The sheet of the map's system, for its characters and creatures (a statblock). */
+  const sheet = $derived(activeSystem().sheet)
+  const sheetName = $derived(
+    (sheet && sheetText(sheet.def.name, getLocale())) || t('tokens.sheetDefault'),
+  )
+  function giveSheet() {
+    if (!sheet || !selected) return
+    const made = createCharacter(sheet.def, sheet.id, { id: selected.id })
+    const character: Partial<typeof made> = { ...made }
+    delete character.id
+    update((tk) => ({ ...tk, character: character as MapToken['character'] }))
   }
 
   /**
@@ -178,6 +194,35 @@
         onchange={(note) => update((t) => ({ ...t, note: note.trim() || undefined }))}
       />
     </label>
+    {#if sheet && selected.kind !== 'party'}
+      <div class="field">
+        <span>{t('tokens.sheet')}<InfoTip text={t('tokens.sheetHelp')} /></span>
+        {#if selected.character}
+          <CharacterCard
+            sheet={sheet.def}
+            character={{ ...selected.character, id: selected.id, name: selected.name }}
+            locale={getLocale()}
+            named={false}
+            path="token"
+            onchange={(next) =>
+              update((tk) => {
+                const character: Partial<typeof next> = { ...next }
+                delete character.id
+                delete character.name
+                return { ...tk, character: character as MapToken['character'] }
+              })}
+          />
+          <button
+            class="link"
+            onclick={async () =>
+              (await confirmAction(t('tokens.confirmNoSheet'))) &&
+              update((tk) => ({ ...tk, character: undefined }))}>{t('tokens.removeSheet')}</button
+          >
+        {:else}
+          <button onclick={giveSheet}>{t('tokens.giveSheet', { sheet: sheetName })}</button>
+        {/if}
+      </div>
+    {/if}
     <FieldEditor
       scope="token"
       fields={selected.fields ?? []}
@@ -355,5 +400,15 @@
     margin: 0;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .link {
+    align-self: flex-start;
+    padding: 0;
+    font-size: 12px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 </style>

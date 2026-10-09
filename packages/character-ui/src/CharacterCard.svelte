@@ -25,6 +25,7 @@
     time,
     names = (id) => id,
     targets = [],
+    named = true,
     onchange,
   }: {
     sheet: Sheet
@@ -42,6 +43,8 @@
      * `region:The Vale`, `hex:5,7`), with a name for each: suggested, and shown by name.
      */
     targets?: { ref: string; label: string }[]
+    /** Whether it shows its own Name box (off where the host names it, like a map token). */
+    named?: boolean
     onchange: (next: CharacterState) => void
   } = $props()
 
@@ -135,16 +138,19 @@
 </script>
 
 <div class="card">
-  <label class="field name">
-    <span>{t('name')}</span>
-    <input
-      type="text"
-      value={character.name ?? ''}
-      placeholder={character.id}
-      {disabled}
-      onchange={(e) => onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
-    />
-  </label>
+  {#if named}
+    <label class="field name">
+      <span>{t('name')}</span>
+      <input
+        type="text"
+        value={character.name ?? ''}
+        placeholder={character.id}
+        {disabled}
+        onchange={(e) =>
+          onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
+      />
+    </label>
+  {/if}
 
   {#each groups as { group, ids } (group)}
     {#if group}<h4>{text(sheet.groups?.[group]?.name, group)}</h4>{/if}

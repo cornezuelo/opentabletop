@@ -207,6 +207,11 @@ export interface MapToken {
   nameStyle?: CaptionOverride
   /** External note path (same providers as hexes). */
   note?: string
+  /**
+   * Its sheet, when it's a character of the map's system (an NPC, a creature: a statblock),
+   * as the character engine keeps it; its id and name are the token's.
+   */
+  character?: Omit<CharacterState, 'id' | 'name'>
 }
 
 /** Oracle state (decks drawn, once-only entries, values set) and the history of hand rolls. */

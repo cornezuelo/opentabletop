@@ -509,6 +509,25 @@ describe('the Company: a party made of characters', () => {
     expect(bundleToMap(mapToBundle(editor.map)).play?.showRelations).toBe(false)
   })
 
+  it('a token can have a sheet too: Brenna, read by hand rolls, kept in the file', () => {
+    grey()
+    const brenna = editor.tokens.find((t) => t.name === 'Brenna')!
+    expect(brenna.character).toMatchObject({
+      sheet: 'grey-marches/companion',
+      values: { charisma: 1, survival: 3 },
+      tags: ['ferrywoman'],
+    })
+    editor.selectedToken = brenna.id
+    expect(rollContext()).toMatchObject({
+      token: { name: 'Brenna', fare: 2, charisma: 1, values: { survival: 3 }, conditions: [] },
+    })
+    const back = bundleToMap(mapToBundle(editor.map)).tokens.find((t) => t.id === brenna.id)!
+    expect(back.character).toEqual(brenna.character)
+    // Her sheet's relation is no party member's: it draws no thread from the party.
+    expect(sessionOf(editor.map.play!)?.members ?? editor.map.play?.rules?.members).toHaveLength(3)
+    editor.selectedToken = null
+  })
+
   it('a sprained ankle stops the party, and the stop says whose', () => {
     grey()
     clickHex('7,7')

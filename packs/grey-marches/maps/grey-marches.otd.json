@@ -153,11 +153,31 @@
             "id": "brenna",
             "iconId": "game:cowled"
           }
+        },
+        "character": {
+          "sheet": "grey-marches/companion",
+          "values": {
+            "survival": 3,
+            "charisma": 1,
+            "pathfinding": 2,
+            "stealth": 1,
+            "maxHealth": 3,
+            "health": 3,
+            "rations": 2,
+            "dread": 0
+          },
+          "relations": [
+            {
+              "to": "poi:poi9x10x0",
+              "kind": "home"
+            }
+          ]
         }
       },
       "stats": {
         "fare": "2"
-      }
+      },
+      "tags": ["ferrywoman"]
     },
     {
       "id": "greywoodwyrm",

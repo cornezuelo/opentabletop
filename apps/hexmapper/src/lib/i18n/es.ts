@@ -365,6 +365,13 @@ export const es: Messages = {
     none: 'Sin región',
   },
   tokens: {
+    sheet: 'Hoja',
+    sheetHelp:
+      'La ficha como personaje del sistema del mapa: los valores, estados, etiquetas y relaciones de su hoja, como el bloque de estadísticas de un PNJ o una criatura. Las tablas que se tiran con la ficha seleccionada los leen: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Sus campos de abajo siguen como están.',
+    sheetDefault: 'la del sistema',
+    giveSheet: 'Darle una hoja ({sheet})',
+    removeSheet: 'Quitarle la hoja',
+    confirmNoSheet: '¿Quitar la hoja de esta ficha y todo lo que hay en ella?',
     confirmParty: '¿Convertir «{name}» en el grupo? «{old}» pasa a ser un personaje jugador.',
     confirmPartyTrip:
       '¿Convertir «{name}» en el grupo? El viaje sigue desde donde está (mismo día, provisiones y diario) y su rastro empieza ahí.',

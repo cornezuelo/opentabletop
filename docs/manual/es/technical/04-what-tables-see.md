@@ -42,9 +42,9 @@ Del hex seleccionado (o el del grupo), y en un viaje, de cada hex del que trata 
 
 Desde el panel Oracle, también el **token seleccionado**:
 
-| Nombre  | Qué es                                                                                                   |
-| ------- | -------------------------------------------------------------------------------------------------------- |
-| `token` | `token.name`, `token.kind` (`pc`, `npc`, `enemy`, `party`) y cada uno de sus valores (`{{token.fare}}`). |
+| Nombre  | Qué es                                                                                                                                                                                                                                                 |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `token` | `token.name`, `token.kind` (`pc`, `npc`, `enemy`, `party`) y cada uno de sus valores (`{{token.fare}}`); con hoja, también los de su hoja: `token.values.health` (también `token.health`), `token.conditions`, `token.tags`, `token.relations.<tipo>`. |
 
 Los puntos de interés guardan sus valores en el mapa y en su fichero, pero las tablas no los leen: un hex puede tener varios.
 

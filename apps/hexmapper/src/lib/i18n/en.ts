@@ -358,6 +358,13 @@ export const en = {
     none: 'No region',
   },
   tokens: {
+    sheet: 'Sheet',
+    sheetHelp:
+      "The token as a character of the map's system: its sheet's values, conditions, tags and relations, like a statblock for an NPC or a creature. Tables rolled with the token selected read them: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Its fields below stay as they are.",
+    sheetDefault: 'the system’s',
+    giveSheet: 'Give it a sheet ({sheet})',
+    removeSheet: 'Remove its sheet',
+    confirmNoSheet: 'Remove this token’s sheet and everything on it?',
     confirmParty: 'Make "{name}" the party? "{old}" becomes a player character.',
     confirmPartyTrip:
       'Make "{name}" the party? The trip goes on from where it stands (same day, supplies and journal) and its trail starts there.',

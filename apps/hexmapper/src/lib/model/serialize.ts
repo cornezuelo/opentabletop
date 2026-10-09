@@ -402,6 +402,11 @@ function parseTokens(value: unknown): MapToken[] {
       }),
       ...(typeof t.note === 'string' && t.note && { note: t.note }),
       ...(parseFields(t.fields) && { fields: parseFields(t.fields) }),
+      // The character engine's own (re-read by it when used).
+      ...(isRecord(t.character) &&
+        typeof t.character.sheet === 'string' && {
+          character: t.character as unknown as MapToken['character'],
+        }),
     })
   }
   // One party at most: extra ones become player characters.

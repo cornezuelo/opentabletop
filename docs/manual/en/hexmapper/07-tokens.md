@@ -17,6 +17,8 @@ With the color on **Auto**, each token gets its own color from its kind's family
 
 Name, kind (party, PC, NPC, enemy), icon, color, halo, **show the name on the map** with its **style** (the map's, or its own), a linked note and **fields** (key–value: `might: 18`, `fare: 2`). While a token is selected, tables rolled from the Oracle panel read its fields as `{{token.might}}`, and its name and kind as `{{token.name}}` and `{{token.kind}}` (in the Grey Marches, select Brenna and roll _The ferry_). **Tokens on this map** lists them all by kind: click one to select it and center the map on it.
 
+**Sheet**: when the map's system has a sheet for its characters (the Grey Marches' companions), a PC, NPC or enemy token can have one too: **Give it a sheet** makes it a character of that sheet, like a statblock, with its values (tracks as boxes), conditions, tags and relations, the same as the party's characters in Play. Tables rolled with the token selected read them (`{{token.health}}`, `token.conditions: wounded`); its fields stay as they are. **Remove its sheet** takes it away (after asking). The Grey Marches' example map gives one to Brenna the ferrywoman. One engine for every character: the sheet a system declares for its party is the one its NPCs and creatures use.
+
 ## The party
 
 The party is a token too: Play mode moves it (see [Playing a trip](08-play.md)). There is one party per map; making another token the party turns the old one into a PC. A trip in progress goes on with the new party, from where it stands: same day, supplies and journal; its trail starts there.

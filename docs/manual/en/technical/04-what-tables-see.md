@@ -42,9 +42,9 @@ For the selected hex (or the party's), and on a trip for each hex a check is abo
 
 From the Oracle panel, the **selected token** too:
 
-| Name    | What it is                                                                                            |
-| ------- | ----------------------------------------------------------------------------------------------------- |
-| `token` | `token.name`, `token.kind` (`pc`, `npc`, `enemy`, `party`) and each of its values (`{{token.fare}}`). |
+| Name    | What it is                                                                                                                                                                                                                                    |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `token` | `token.name`, `token.kind` (`pc`, `npc`, `enemy`, `party`) and each of its values (`{{token.fare}}`); with a sheet, its sheet's too: `token.values.health` (also `token.health`), `token.conditions`, `token.tags`, `token.relations.<kind>`. |
 
 Points of interest keep their values in the map and its file, but tables don't read them: a hex can have several.
 

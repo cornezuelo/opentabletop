@@ -1,3 +1,4 @@
+import { characterFacts } from '@open-tabletop/character-engine'
 import { createOracleUi } from '@open-tabletop/oracle-ui'
 import { addEntry, qualify, tripFacts } from '@open-tabletop/session'
 import { getSystem, mapPacks } from './systems'
@@ -93,7 +94,15 @@ export function rollContext(): Record<string, unknown> {
   // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.might}}.
   const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
   // Its own values can't hide its name and kind.
-  if (token) out.token = { ...fieldValues(token.fields), name: token.name, kind: token.kind }
+  // A token with a sheet: its values and conditions too (`token.values.health`, `token.health`).
+  if (token)
+    out.token = {
+      ...fieldValues(token.fields),
+      ...(token.character &&
+        characterFacts({ ...token.character, id: token.id, name: token.name })),
+      name: token.name,
+      kind: token.kind,
+    }
   // With their full names too (`hex.terrain`, `time.season`, `world.clocks`…).
   return Object.fromEntries(
     Object.entries(qualify(out)).filter(([, v]) => v !== undefined && v !== null),

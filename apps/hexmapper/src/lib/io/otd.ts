@@ -69,7 +69,17 @@ function tokensToOtd(map: HexMap): OtdCharacter[] {
       ...(t.hex && { location: { map: map.meta.id, hex: t.hex } }),
       ...(t.note && { noteRef: t.note }),
       ...(toStats(t.fields) && { stats: toStats(t.fields) }),
-      ext: { hexmapper: { token: lookOf(t) } },
+      ...(t.character?.tags.length && { tags: [...t.character.tags] }),
+      ext: {
+        hexmapper: { token: lookOf(t) },
+        // Its sheet, as the party's characters keep theirs (`stats` stay its fields).
+        ...(t.character && {
+          character: {
+            ...characterToOtd({ ...t.character, id: t.id }).ext.character,
+            values: t.character.values,
+          },
+        }),
+      },
     }))
 }
 
@@ -90,7 +100,25 @@ function tokenOf(c: OtdCharacter, mapId: string): Record<string, unknown> | null
     nameStyle: look.nameStyle,
     note: c.noteRef,
     fields: look.fields ?? fromStats(c.stats as Record<string, unknown> | undefined),
+    ...(tokenCharacter(c) && { character: tokenCharacter(c) }),
   }
+}
+
+/** A token's sheet, as `tokensToOtd` writes it (`ext.character` with its values). */
+function tokenCharacter(c: OtdCharacter): MapToken['character'] | undefined {
+  const own = (c.ext as { character?: Record<string, unknown> } | undefined)?.character
+  if (!own) return undefined
+  const read = characterFromOtd({
+    id: c.id,
+    stats: own.values as Record<string, unknown> | undefined,
+    ext: { character: own },
+    tags: c.tags,
+  })
+  if (!read) return undefined
+  const character: Partial<typeof read> = { ...read }
+  delete character.id
+  delete character.name
+  return character as MapToken['character']
 }
 
 /** What the hexmapper keeps in `map.ext.hexmapper`: rendering, printing and editor-only data. */
