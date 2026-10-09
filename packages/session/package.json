@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@open-tabletop/character-engine": "*",
+    "@open-tabletop/faction-engine": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/random": "*",
     "@open-tabletop/time": "*",
     "@open-tabletop/travel-engine": "*",
+    "@open-tabletop/variables": "*",
     "@open-tabletop/weather-engine": "*"
   }
 }

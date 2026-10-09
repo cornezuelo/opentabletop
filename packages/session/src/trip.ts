@@ -22,6 +22,8 @@ import {
   type Unavailable,
 } from '@open-tabletop/travel-engine'
 import { parseSheet, type CharacterState, type Sheet } from '@open-tabletop/character-engine'
+import { parseFactions } from '@open-tabletop/faction-engine'
+import type { SystemFactions } from './factions'
 import { migrateRules } from './formats'
 import {
   MEMBER_PATH,
@@ -76,6 +78,8 @@ export interface TravelSystem {
   packs: string[]
   /** The sheet its party's members are made with (`sheet` in `kind: system`), by `pack/id`. */
   sheet?: { id: string; def: Sheet }
+  /** Its factions (`factions` in `kind: system`): who they are and the sheet they're made with. */
+  factions?: SystemFactions
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -188,6 +192,7 @@ const isText = (v: unknown): v is LocalizedText =>
 /** How a system's parts are named in its problems. */
 const PART_NAMES: Record<string, string> = {
   sheet: 'sheet',
+  factions: 'factions',
   'travel-rules': 'travel rules',
   bindings: 'bindings',
   calendar: 'calendar',
@@ -205,6 +210,7 @@ const SYSTEM_KEYS = new Set([
   'packs',
   'maps',
   'sheet',
+  'factions',
 ])
 
 /**
@@ -270,6 +276,7 @@ export function travelSystems(registry: Registry): {
       /** The `kind: system` naming these parts (absent for an implicit system). */
       system?: Extra
       sheet?: Extra
+      factions?: Extra
     },
   ): TravelSystem | undefined {
     let rules = genericTravelRules
@@ -333,6 +340,48 @@ export function travelSystems(registry: Registry): {
       )
       if (parsed.sheet) sheet = { id: `${owner}/${parts.sheet.id ?? 'default'}`, def: parsed.sheet }
     }
+    let factions: SystemFactions | undefined
+    if (parts.factions) {
+      const owner = ownerOf(parts.factions) ?? pack
+      const report = (e: string) =>
+        problems.push(problem(owner, parts.factions!.file, 'factions', e, parts.factions!.id))
+      const parsed = parseFactions(parts.factions.data)
+      parsed.errors.forEach(report)
+      if (parsed.factions) {
+        const ref = parsed.factions.sheet
+        const [sheetPack, sheetId] = ref.includes('/') ? ref.split('/', 2) : [owner, ref]
+        const extra = extrasOf(sheetPack).find(
+          (e) => e.kind === 'sheet' && (e.id ?? 'default') === sheetId,
+        )
+        const read = extra && parseSheet(extra.data)
+        if (!extra) report(`sheet: Unknown sheet "${ref}"`)
+        else
+          read!.errors.forEach((e) =>
+            problems.push(problem(sheetPack, extra.file, 'sheet', e, extra.id)),
+          )
+        // What each faction rolls on its turn must be something to roll.
+        const tables = [
+          ['turn', parsed.factions.turn],
+          ...Object.entries(parsed.factions.factions).map(([id, f]) => [
+            `factions.${id}.turn`,
+            f.turn,
+          ]),
+        ] as const
+        for (const [at, table] of tables) {
+          if (!table) continue
+          const full = table.includes('/') ? table : `${owner}/${table}`
+          if (!registry.definitions.has(full))
+            report(`${at}: Unknown table or generator "${table}"`)
+        }
+        if (read?.sheet)
+          factions = {
+            id: `${owner}/${parts.factions.id ?? 'default'}`,
+            pack: owner,
+            def: parsed.factions,
+            sheet: { id: `${sheetPack}/${sheetId}`, def: read.sheet },
+          }
+      }
+    }
     if (parts.bindings && bindings)
       problems.push(
         ...membersBindings(bindings, rules, sheet?.def).map((e) =>
@@ -373,6 +422,7 @@ export function travelSystems(registry: Registry): {
       ...(calendar && { calendar }),
       ...(Object.keys(parts.weather).length && { weather: parts.weather }),
       ...(sheet && { sheet }),
+      ...(factions && { factions }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -397,6 +447,7 @@ export function travelSystems(registry: Registry): {
           calendar: extras.find((e) => e.kind === 'calendar'),
           weather,
           sheet: extras.find((e) => e.kind === 'sheet'),
+          factions: extras.find((e) => e.kind === 'factions'),
         },
       )
       if (system) systems.push(system)
@@ -473,6 +524,7 @@ export function travelSystems(registry: Registry): {
           weather: own,
           system: def,
           sheet: part('sheet', 'sheet', data.sheet),
+          factions: part('factions', 'factions', data.factions),
         },
       )
       if (system) systems.push(system)

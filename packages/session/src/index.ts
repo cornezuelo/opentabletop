@@ -816,3 +816,4 @@ export * from './formats'
 // The full names of facts (`hex.terrain`, `trip.day`…), for hosts that build contexts.
 export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'
 export * from './party'
+export * from './factions'

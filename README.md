@@ -57,7 +57,7 @@ TypeScript, Svelte 5 and PixiJS (the map), in npm workspaces. The rules engines 
 packages/   hex, random, dice, conditions, time        building blocks
             oracle-engine, travel-engine,               engines (pure: state + action → state + events)
             world-engine, weather-engine,
-            character-engine
+            character-engine, faction-engine
             session                                     ties the engines together for a trip
             schema, storage, note-refs                  saved data, browser storage, links to notes apps
             ui-kit, pack-ui, oracle-ui, travel-ui,      shared Svelte pieces

@@ -92,7 +92,17 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { rules, bindings, calendar, sheet } of systems) {
+  for (const { rules, bindings, calendar, sheet, factions } of systems) {
+    // Its factions: each one's values and conditions, and who holds a hex.
+    if (factions) {
+      const ids = Object.keys(factions.def.factions)
+      add('hex.faction', ...ids)
+      for (const who of ['faction', ...ids.map((id) => `factions.${id}`)]) {
+        for (const value of Object.keys(factions.sheet.def.values)) add(`${who}.values.${value}`)
+        add(`${who}.conditions`, ...Object.keys(factions.sheet.def.conditions))
+        add(`${who}.territory`)
+      }
+    }
     // Its characters, by the values and conditions of their sheet.
     if (sheet) {
       add('party.members')
@@ -292,7 +302,19 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
-  for (const { rules, bindings, sheet } of travelSystems(registry).systems) {
+  for (const { rules, bindings, sheet, factions } of travelSystems(registry).systems) {
+    // A faction's turn: its own values, another's, its territory, the world's clocks.
+    if (factions)
+      for (const who of [
+        'faction',
+        ...Object.keys(factions.def.factions).map((id) => `factions.${id}`),
+      ]) {
+        for (const value of Object.keys(factions.sheet.def.values))
+          out[`${who}.values.${value}`] = []
+        for (const c of Object.keys(factions.sheet.def.conditions))
+          out[`${who}.conditions.${c}`] = ['true', 'false']
+        out[`${who}.territory`] = ['1', '-1']
+      }
     for (const stat of Object.keys(bindings?.stats ?? {})) out[`party.stats.${stat}`] = []
     for (const resource of Object.keys(rules.resources ?? {}))
       out[`party.resources.${resource}`] = []

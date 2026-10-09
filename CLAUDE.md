@@ -35,6 +35,7 @@ packages/                   # libraries, scope @open-tabletop/*
   travel-engine/            # routes, movement, time, supplies, declared values, actions as steps, checks
   world-engine/             # the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
   weather-engine/           # weather with inertia: Markov models per season as data (`kind: weather`)
+  faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library (IndexedDB), backups of everything
@@ -63,6 +64,7 @@ docs/
   oracle-engine.md          # Oracle Engine design
   travel-engine.md          # Travel Engine design
   character-engine.md       # Character Engine design (research of famous sheets, phases)
+  faction-engine.md         # Factions and world turns design (phases, decisions to review)
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):

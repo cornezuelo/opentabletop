@@ -63,6 +63,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'weather',
     'system',
     'sheet',
+    'factions',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -176,6 +177,13 @@ const KEYS = [
   'none',
   'carried',
   'roles',
+  'factions',
+  'every',
+  'turn',
+  'territory',
+  'regions',
+  'hexes',
+  'color',
   'share',
 ]
 
