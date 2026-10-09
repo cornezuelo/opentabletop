@@ -538,6 +538,10 @@ export const es: Messages<typeof en> = {
     makeCopy: 'Editar una copia',
     builtIn:
       'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (debajo de la lista de la izquierda) para hacer el tuyo a partir de ellas.',
+    staleCopy:
+      'Este sistema usa tu copia de «{pack}», y el «{pack}» incluido ha cambiado desde que la hiciste. Tu copia sustituye entero al pack incluido, así que lo que trae el nuevo (una tabla que este sistema nombra…) falta hasta que lo cojas:',
+    staleTip:
+      'Un pack que usa este sistema es tu copia de un pack incluido que ha cambiado desde entonces: ábrelo para coger o conservar cada cambio.',
     playInTravel: 'Jugarlo en Travel →',
   },
   try: {

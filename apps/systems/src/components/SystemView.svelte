@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { BundledUpdates, manifestOf } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
   import { appUrl } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
@@ -6,6 +7,7 @@
   import { rulesFile, systemFile, systemParts, systemRoot } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
   import { systemDoc } from '../lib/systemDoc.svelte'
+  import { staleCopies } from '../lib/transfer'
   import ChecksForm from './forms/ChecksForm.svelte'
   import RulesForm from './forms/RulesForm.svelte'
   import Overview from './Overview.svelte'
@@ -49,6 +51,8 @@
   const problems = $derived(
     files.flatMap((f) => library.diagnostics(f.root, f.path).filter((d) => d.severity === 'error')),
   )
+  /** Packs it uses (Core…) that are your copies, older than the bundled ones. */
+  const stale = $derived(system ? staleCopies(system) : [])
 </script>
 
 {#if system}
@@ -73,6 +77,12 @@
       </div>
     </header>
     <div class="body">
+      {#each stale as copy (copy)}
+        <div class="stale">
+          <p>{t('edit.staleCopy', { pack: manifestOf(library.pack(copy)!).name ?? copy })}</p>
+          <BundledUpdates {library} root={copy} locale={getLocale()} />
+        </div>
+      {/each}
       {#if problems.length && tab !== 'yaml'}
         <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
           {t('forms.problems', { count: problems.length })}
@@ -147,6 +157,11 @@
     flex-direction: column;
     gap: 14px;
     padding-bottom: 24px;
+  }
+
+  .stale p {
+    margin: 0 0 6px;
+    font-size: 13px;
   }
 
   .problems {

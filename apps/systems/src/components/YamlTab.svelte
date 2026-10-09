@@ -6,7 +6,15 @@
   /** The files of the system's parts (one at a time), with problems at their lines. */
   let { files }: { files: { root: string; path: string }[] } = $props()
 
-  let chosen = $state(0)
+  /** The first file with an error, so the problems button lands on it. */
+  let chosen = $state(
+    Math.max(
+      0,
+      files.findIndex((f) =>
+        library.diagnostics(f.root, f.path).some((d) => d.severity === 'error'),
+      ),
+    ),
+  )
   const root = $derived(files[Math.min(chosen, files.length - 1)].root)
   const path = $derived(files[Math.min(chosen, files.length - 1)].path)
 

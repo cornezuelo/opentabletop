@@ -20,7 +20,8 @@ import { renameMonth } from './calendar'
 import { partDoc } from './partDoc.svelte'
 import { library, systems } from './packs.svelte'
 import { systemDoc } from './systemDoc.svelte'
-import { importedSystem, systemZipPacks } from './transfer'
+import { importedSystem, staleCopies, systemZipPacks } from './transfer'
+import { fingerprints } from '@open-tabletop/pack-ui'
 
 describe('systems in the Systems app', () => {
   it('a new system declares itself, and its forms edit the parts it names', () => {
@@ -154,6 +155,25 @@ describe('systems in the Systems app', () => {
     library.undo()
     expect(systems.get('grey-marches')!.calendar).toBeDefined()
     library.removePack('grey-marches')
+  })
+
+  it('a copy of a pack a system uses, older than the bundled one, is named on the system', () => {
+    // A copy of Core made before it had factions: it replaces the whole bundled Core.
+    const core = library.bundledPack('core')!
+    const old = { ...core, files: core.files.filter((f) => !f.path.endsWith('factions.yaml')) }
+    library.addPack({ ...old, basedOn: fingerprints(old) })
+    const marches = () => systems.get('grey-marches')!
+    const missing = () =>
+      library
+        .diagnostics('grey-marches', 'factions.yaml')
+        .filter((d) => d.message.includes('core/faction-turn'))
+    expect(missing()).toHaveLength(1)
+    expect(staleCopies(marches())).toEqual(['core'])
+    // Taking the bundled pack's new files brings the table back.
+    library.updateFromBundled('core', { take: library.bundledChanges('core').map((c) => c.path) })
+    expect(missing()).toEqual([])
+    expect(staleCopies(marches())).toEqual([])
+    library.removePack('core')
   })
 
   it('a declared system without travel rules or bindings gets new ones in one step', () => {

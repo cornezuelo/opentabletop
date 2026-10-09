@@ -5,7 +5,7 @@
   import { go, nav } from '../lib/nav.svelte'
   import { createSystem } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
-  import { importSystem } from '../lib/transfer'
+  import { importSystem, staleCopies } from '../lib/transfer'
 
   let name = $state('')
   const selected = $derived(nav.view.name === 'system' ? nav.view.id : undefined)
@@ -57,6 +57,8 @@
           {#if s.id !== 'generic' && library.bundledChanges(library.rootOf(s.id) ?? '').length}
             <span class="tag updated" use:tooltip={t('edit.updatedTip')}>{t('origin.updated')}</span
             >
+          {:else if staleCopies(s).length}
+            <span class="tag updated" use:tooltip={t('edit.staleTip')}>{t('origin.updated')}</span>
           {/if}
           {#if library.pack(library.rootOf(s.id) ?? '')?.personal}
             <span class="tag personal">{t('origin.personal')}</span>

@@ -372,8 +372,14 @@ export function travelSystems(registry: Registry): {
           const full = table.includes('/') ? table : `${owner}/${table}`
           // Another pack's that isn't loaded: the missing dependency is reported already.
           if (!registry.packs.has(full.split('/')[0])) continue
-          if (!registry.definitions.has(full))
-            report(`${at}: Unknown table or generator "${table}"`)
+          if (registry.definitions.has(full)) continue
+          const other = full.split('/')[0]
+          // Another pack loaded without it: most likely an older version, or a copy of it.
+          report(
+            other === owner
+              ? `${at}: Unknown table or generator "${table}"`
+              : `${at}: Unknown table or generator "${table}": the loaded pack "${other}" has no "${full.slice(other.length + 1)}" (an older version of it, or your own copy made before it had one?)`,
+          )
         }
         if (read?.sheet)
           factions = {

@@ -535,6 +535,10 @@ export const en = {
     builtIn:
       "The Generic rules are built in and can't be edited. Create a new system (below the list on the left) to start your own from them.",
     playInTravel: 'Play it in Travel →',
+    staleCopy:
+      'This system uses your copy of «{pack}», and the bundled «{pack}» changed since you made it. Your copy replaces the bundled pack whole, so what the newer one added (a table this system names…) is missing until you take it:',
+    staleTip:
+      'A pack this system uses is your copy of a bundled pack that changed since: open it to take or keep each change.',
   },
   try: {
     intro:

@@ -10,6 +10,18 @@ export function systemZipPacks(system: TravelSystem): PackSource[] {
     .filter((p): p is NonNullable<typeof p> => !!p)
 }
 
+/**
+ * The packs a system needs (Core…) that are your copies of a bundled pack the bundled
+ * version changed since: a copy replaces the whole bundled pack, so what the newer one
+ * added (a table the system names) is missing until you take it. Its own pack left out.
+ */
+export function staleCopies(system: TravelSystem): string[] {
+  return systemPackIds(system, library.registry)
+    .slice(1)
+    .map((id) => library.rootOf(id) ?? '')
+    .filter((root) => library.pack(root)?.overrides && library.bundledChanges(root).length)
+}
+
 /** Saves a system as one .zip, to import it whole elsewhere. */
 export function exportSystem(system: TravelSystem): void {
   const packs = systemZipPacks(system)
