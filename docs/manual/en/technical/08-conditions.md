@@ -29,7 +29,7 @@ Several comparisons on the same value must all hold: `danger: { gte: 2, lte: 4 }
 - **Lists** in the context, like a hex's `tags` or the day's `holidays`, hold when they **contain** the value: `tags: landmark` holds for a hex tagged `ford, landmark`; `tags: [ford, toll]` for one with either.
 - **Missing values** don't match, except with `not` and `exists: false`.
 - **Dotted names** read inside a value: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
-- **Full names** say where a value comes from, and can't be hidden by a stat with the same name: `hex.terrain: forest` is `terrain: forest`, `time.daylight: true` is `daylight: true`, `trip.mode: boat` is `mode: boat`. Every one, with its short name: [What tables see](04-what-tables-see.md#full-names-and-short-names).
+- **Full names** say where a value comes from, and can't be hidden by a stat with the same name: `hex.terrain: forest` is `terrain: forest`, `time.daylight: true` is `daylight: true`, `trip.mode: boat` is `mode: boat`. Every one, with its short name: [What tables see](04-what-tables-see.md#how-to-read-this-page).
 
 ## Variables and rolls: `{{…}}`
 
