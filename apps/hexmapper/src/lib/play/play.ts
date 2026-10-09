@@ -19,7 +19,7 @@ import { showToast } from '@open-tabletop/ui-kit'
 import { SetMetaCommand } from '../commands/settings'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
-import { followTrip, worldFactsNow } from './world.svelte'
+import { applyWorldEffects, followTrip, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -198,6 +198,12 @@ export function step(action: TravelAction): void {
   }
   const { state, entries, discovered } = result
   editor.applyDiscovery(discovered)
+  // What the trip's results, checks and actions did to the world: its clocks, its factions.
+  for (const entry of entries) {
+    const value = entry.data?.value as { effects?: Record<string, unknown> } | undefined
+    const effects = (entry.data?.effects as Record<string, unknown> | undefined) ?? value?.effects
+    if (effects) applyWorldEffects(effects)
+  }
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   placeParty(state.travel.location as HexKey)
   editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })

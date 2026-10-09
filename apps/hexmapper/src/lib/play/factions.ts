@@ -1,5 +1,6 @@
 import { inBounds, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
-import { turnsDue, type TerritoryWorld } from '@open-tabletop/faction-engine'
+import { changeTerritory, turnsDue, type TerritoryWorld } from '@open-tabletop/faction-engine'
+import { applyCharacter } from '@open-tabletop/character-engine'
 import { mathRandom } from '@open-tabletop/random'
 import {
   factionFacts,
@@ -145,4 +146,38 @@ export function lineText(system: SystemFactions, line: FactionLine): string {
     .filter(Boolean)
     .join(', ')
   return t('factions.line', { name, text: line.text ?? '' }) + (land ? ` (${land})` : '')
+}
+
+/**
+ * Effects of a trip's results on the factions (`factions.<id>.values.reputation: 1`,
+ * `factions.<id>.territory: -1`): applied to the map's factions. Numbers and `'=N'` only
+ * (variables were read when the result came up). Returns what it changed, by faction.
+ */
+export function applyFactionEffects(effects: Record<string, unknown>): string[] {
+  const own = editor.map.factions
+  const system = factionsSystem()
+  if (!own || !system) return []
+  let state = structuredClone(own)
+  const changed = new Set<string>()
+  for (const [path, change] of Object.entries(effects)) {
+    const [, id, rest] = /^factions\.([^.]+)\.(.+)$/.exec(path) ?? []
+    if (!id || (typeof change !== 'number' && typeof change !== 'string')) continue
+    if (rest === 'territory') {
+      const by = Number(change)
+      if (!Number.isFinite(by)) continue
+      const done = changeTerritory(state.territories, id, by, territoryWorld(), mathRandom())
+      state = { ...state, territories: done.territories }
+      changed.add(id)
+      continue
+    }
+    const at = state.factions.findIndex((f) => f.id === id)
+    if (at < 0 || !/^(values|conditions)\./.test(rest)) continue
+    state.factions[at] = applyCharacter(system.sheet.def, state.factions[at], {
+      type: 'change',
+      effects: { [rest]: change },
+    }).state
+    changed.add(id)
+  }
+  if (changed.size) editor.setFactions(state)
+  return [...changed]
 }

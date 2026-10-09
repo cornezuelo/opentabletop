@@ -70,6 +70,8 @@ export const en = {
     nightfall: 'nightfall',
   },
   members: {
+    land: 'land',
+    clock: 'Clock “{name}”',
     title: 'Characters',
     help: "The party's characters, made with the system's sheet. With them, the party is its members: the stats the system makes of theirs (the best Survival, how many they are…) and the supplies they carry follow them, and effects can reach each one. Without any, the party is played as a whole.\nConditions and tables read them:\n• `party.members: kael` — whether Kael travels with the party\n• `characters.kael.values.health: { lte: 1 }` — one of them\n• `acting.values.wits` — whoever acts now",
     none: 'No characters: the party is played as a whole.',

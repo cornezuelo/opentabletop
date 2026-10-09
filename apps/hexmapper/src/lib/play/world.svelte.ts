@@ -14,7 +14,7 @@ import {
   worldFacts,
   factId,
 } from '@open-tabletop/world-engine'
-import { dueTurns, factionFactsNow, takeWorldTurn } from './factions'
+import { applyFactionEffects, dueTurns, factionFactsNow, takeWorldTurn } from './factions'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
@@ -92,6 +92,21 @@ export function worldAct(action: WorldAction): WorldEvent[] {
   if (next.time > state.time)
     for (const at of dueTurns(next.time, worldCalendar().minutesPerDay)) worldTurnNow(at)
   return events
+}
+
+/**
+ * What a trip's results do to the world: progress clocks they tick (`world.clocks.<name>: 1`,
+ * by name as an id) and the factions they change (`factions.<id>.…`).
+ */
+export function applyWorldEffects(effects: Record<string, unknown>): void {
+  for (const [path, change] of Object.entries(effects)) {
+    const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
+    const n = Number(change)
+    if (!clock || !Number.isFinite(n) || !n) continue
+    const found = editor.map.world?.clocks.find((c) => factId(c.name) === clock || c.id === clock)
+    if (found) worldAct({ type: 'tick', id: found.id, segments: n })
+  }
+  applyFactionEffects(effects)
 }
 
 /**

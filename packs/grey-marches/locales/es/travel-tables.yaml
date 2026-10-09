@@ -57,6 +57,7 @@ toll:
     - Una comprobación con `all` / `tags` / `edges`
     - Una tirada por debajo de una característica en una condición: `party.stats.charisma: { gte: '{{1d6}}' }`, un solo d6 para las dos entradas (`when` en una, `unless` en la otra)
     - Un efecto con un número negativo: `party.resources.food: -1`, comida gastada
+    - Un efecto sobre una facción desde un viaje: pagar hace que la guarnición de Fort Keld os aprecie más (`factions.fort-keld.values.reputation: 1`, en un mapa con sus facciones)
   entries:
     pay: El guarda del puente se cobra un día de comida
     wave: Al guarda del puente le caéis bien y os deja pasar

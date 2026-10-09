@@ -348,7 +348,7 @@ factions:
 ```
 
 - A **turn table** sees the faction whose turn it is as `faction.*` (`faction.values.strength`, `faction.territory`: how many hexes it holds, `faction.id`) and every faction as `factions.<id>.*`, besides the world clock's facts. Its entries' **effects** change the world: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (another faction), `faction.territory: 1` (a hex more, from its border: nobody's land first, then a neighbour's) or `-1`, `world.clocks.the-siege: 1` (a progress clock, by its name as an id).
-- Everywhere else (trips, hand rolls, discovery), `factions.<id>.*` and `hex.faction` (the id of the faction that holds the hex) read them: [What tables see](04-what-tables-see.md).
+- Everywhere else (trips, hand rolls, discovery), `factions.<id>.*` and `hex.faction` (the id of the faction that holds the hex) read them: [What tables see](04-what-tables-see.md). On a map with them, a trip's results change them too, and tick the world clock's progress clocks: `factions.fort-keld.values.reputation: 1`, `world.clocks.the-wyrm-wakes: 1` (the Grey Marches' toll and haunted lights).
 - Translated keyed `factions/<id>`, by faction (`factions: { the-crown: { name: La Corona } }`). Core's `core/faction-turn` is a turn table for any game (it grows, holds, schemes or loses ground).
 
 ## Systems

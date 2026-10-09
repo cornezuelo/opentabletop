@@ -120,21 +120,21 @@ Un paso de una acción también acepta `set`: `{ set: { lost: true } }`.
 
 En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor que declara el sistema, por su ruta; cada valor dice cómo cambia:
 
-| Escribe                                               | Hace                                                             |
-| ----------------------------------------------------- | ---------------------------------------------------------------- |
-| `party.resources.food: -1`                            | quita 1                                                          |
-| `party.stats.morale: 2`                               | suma 2                                                           |
-| `party.stats.fatigue: '=0'`                           | lo pone a 0                                                      |
-| `party.resources.food: '{{1d3+1}}'`                   | suma una tirada                                                  |
-| `party.resources.food: '-{{party.stats.mouths}}'`     | quita tantos como dice otro valor                                |
-| `party.stats.morale: '={{party.stats.charisma}}'`     | lo pone al valor de otro                                         |
-| `party.resources.food: '-{{1d3}}'`                    | quita una tirada (en un viaje, la misma durante todo el momento) |
-| `party.members.values.health: 1`                      | suma 1 a todos los personajes del grupo                          |
-| `characters.kael.values.health: -1`                   | quita 1 a un personaje, por su id                                |
-| `acting.conditions.wounded: true`                     | el personaje que actúa ahora recibe un estado (`false` lo quita) |
-| `roles.lookout.values.health: -1`                     | quien tenga un rol de viaje                                      |
-| `faction.territory: 1`, `faction.values.strength: -1` | en la tabla de turno de una facción: sus tierras, sus valores    |
-| `world.clocks.the-siege: 1`                           | en la tabla de turno de una facción: avanza un reloj de progreso |
+| Escribe                                               | Hace                                                                                         |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `party.resources.food: -1`                            | quita 1                                                                                      |
+| `party.stats.morale: 2`                               | suma 2                                                                                       |
+| `party.stats.fatigue: '=0'`                           | lo pone a 0                                                                                  |
+| `party.resources.food: '{{1d3+1}}'`                   | suma una tirada                                                                              |
+| `party.resources.food: '-{{party.stats.mouths}}'`     | quita tantos como dice otro valor                                                            |
+| `party.stats.morale: '={{party.stats.charisma}}'`     | lo pone al valor de otro                                                                     |
+| `party.resources.food: '-{{1d3}}'`                    | quita una tirada (en un viaje, la misma durante todo el momento)                             |
+| `party.members.values.health: 1`                      | suma 1 a todos los personajes del grupo                                                      |
+| `characters.kael.values.health: -1`                   | quita 1 a un personaje, por su id                                                            |
+| `acting.conditions.wounded: true`                     | el personaje que actúa ahora recibe un estado (`false` lo quita)                             |
+| `roles.lookout.values.health: -1`                     | quien tenga un rol de viaje                                                                  |
+| `faction.territory: 1`, `faction.values.strength: -1` | en la tabla de turno de una facción: sus tierras, sus valores                                |
+| `world.clocks.the-siege: 1`                           | avanza un reloj de progreso (el turno de una facción, o el resultado de un viaje en un mapa) |
 
 Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
 

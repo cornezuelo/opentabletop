@@ -40,7 +40,9 @@ export interface JournalContext {
 }
 
 /** Whether an effect's path is about the party's characters. */
-const isMemberPath = (path: string) => MEMBER_PATH.test(path)
+/** Whether an effect's path is about characters, or the world (factions, clocks): named apart. */
+const isMemberPath = (path: string) =>
+  MEMBER_PATH.test(path) || /^(factions\.[^.]+|world\.clocks)\./.test(path)
 
 /** Minutes as "3 h", "1 h 30" or "45 min". */
 export function durationText(minutes: number): string {

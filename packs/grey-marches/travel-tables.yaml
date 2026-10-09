@@ -132,11 +132,12 @@ description: |-
   - A check with `all` / `tags` / `edges`
   - A roll-under against a stat in a condition: `party.stats.charisma: { gte: '{{1d6}}' }`, one d6 for both entries (`when` on one, `unless` on the other)
   - An effect with a negative number: `party.resources.food: -1`, food spent
+  - An effect on a faction from a trip: paying makes the garrison of Fort Keld think better of you (`factions.fort-keld.values.reputation: 1`, on a map with its factions)
 entries:
   - id: pay
     result: 'The bridge-warden takes a day’s food as toll'
     unless: { party.stats.charisma: { gte: '{{1d6}}' } }
-    effects: { party.resources.food: -1 }
+    effects: { party.resources.food: -1, factions.fort-keld.values.reputation: 1 }
   - id: wave
     result: The bridge-warden likes your look and waves you through
     when: { party.stats.charisma: { gte: '{{1d6}}' } }

@@ -25,6 +25,7 @@
   import { t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
+  import { applyWorldEffects } from '../lib/play/world.svelte'
   import { applyResult, partyOf, tripChanges } from '@open-tabletop/session'
   import { resourceBounds } from '@open-tabletop/travel-engine'
   import { activeSystem } from '../lib/play/systems'
@@ -147,6 +148,9 @@
                     partyOf(system),
                   ),
                 )
+                // …and what it does to the world: its clocks, its factions.
+                const value = item.resolution.value as { effects?: Record<string, unknown> }
+                if (value.effects) applyWorldEffects(value.effects)
                 applied = new Set([...applied, item.id])
                 showToast(t('oracle.applied', { changes: summary }))
               }}

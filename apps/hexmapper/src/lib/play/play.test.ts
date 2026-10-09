@@ -33,6 +33,7 @@ import {
   worldAct,
   worldCalendar,
   worldTurnNow,
+  applyWorldEffects,
 } from './world.svelte'
 import { bringFactions, removeFactions } from './factions'
 import { oracleUi, rollContext } from './oracle'
@@ -622,6 +623,23 @@ describe('the powers of the Marches: factions on the map', () => {
     editor.setFactions({ ...editor.map.factions!, auto: false })
     worldAct({ type: 'advance', minutes: 15 * 1440 })
     expect(turns()).toBe(2)
+  })
+
+  it('a trip’s results reach the world: a clock ticks, a faction thinks better of you', () => {
+    grey()
+    const wyrm = () =>
+      editor.map.world!.clocks.find((c) => c.name === 'The Greywood Wyrm wakes')!.filled
+    const before = wyrm()
+    applyWorldEffects({
+      'world.clocks.the-greywood-wyrm-wakes': 1,
+      'factions.fort-keld.values.reputation': 1,
+      'factions.the-vale.territory': 1,
+      'party.resources.food': -1,
+    })
+    expect(wyrm()).toBe(before + 1)
+    const own = editor.map.factions!
+    expect(own.factions.find((f) => f.id === 'fort-keld')!.values.reputation).toBe(1)
+    expect(own.territories['the-vale'].length).toBe(97)
   })
 
   it('a map without them can bring the system’s, and take them off', () => {

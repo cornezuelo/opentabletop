@@ -18,7 +18,8 @@ description: |-
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
-  - An effect on every companion: the haunted lights fill each one's dread
+  - An effect on every companion: the haunted lights fill each one's dread, and tick the world clock's _The Greywood Wyrm wakes_ (`world.clocks…`)
+  - A faction's value in a condition: the Vale's patrol shares its bread when the Vale thinks well of you (`factions.the-vale.values.reputation`)
 roll: '1d6 + {{danger}}'
 entries:
   # A once-only encounter, only at the very heart of the Greywood (danger 5), or deeper
@@ -49,9 +50,21 @@ entries:
     range: 1-20
     when: { all: [{ tags: haunted }, { timeOfDay: night }] }
     result: Pale lights drift between the trees, calling your names
-    effects: { party.members.values.dread: 1 }
+    # …and the Wyrm stirs: a progress clock of the world clock, ticked from a trip.
+    effects: { party.members.values.dread: 1, world.clocks.the-greywood-wyrm-wakes: 1 }
   # In a named region, by day: its own people (`unless`: not at night).
   # …or wherever the Vale holds the land (a faction's territory: `hex.faction`).
+  # The Vale's patrol, when the Vale thinks well of you (a faction's value, on a map with
+  # its factions): friendly, whatever the roll.
+  - id: friends
+    range: 1-4
+    when:
+      all:
+        - { any: [{ region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
+        - { factions.the-vale.values.reputation: { gte: 2 } }
+    unless: { timeOfDay: night }
+    result: 'A patrol of the Vale — they greet you as friends and share their bread'
+    effects: { party.resources.food: 1 }
   - id: patrol
     range: 1-4
     when: { any: [{ region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }

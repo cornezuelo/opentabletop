@@ -1,6 +1,6 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { knownName, sheetText } from '@open-tabletop/character-ui'
-import { localize, MEMBER_PATH, type TravelSystem } from '@open-tabletop/session'
+import { factionName, localize, MEMBER_PATH, type TravelSystem } from '@open-tabletop/session'
 import type { Translate } from './i18n'
 
 /** A member's name: the one given, or its id. */
@@ -17,8 +17,28 @@ export function memberNamer(
   members: CharacterState[] | undefined,
   locale: string,
   t: Translate,
+  /** The host's facts: factions and clocks are named only where the host has them. */
+  world?: Record<string, unknown>,
 ): (path: string) => string | undefined {
   return (path) => {
+    // The world's: a faction's value ("The Vale: Reputation"), a clock of the world clock.
+    const [, faction, facPart, facWhat] =
+      /^factions\.([^.]+)\.(values|conditions|territory)\.?(.*)$/.exec(path) ?? []
+    if (faction && !world?.factions) return undefined
+    if (faction && system.factions) {
+      const sheet = system.factions.sheet.def
+      const own =
+        facPart === 'values'
+          ? sheet.values[facWhat]
+          : facPart === 'conditions'
+            ? sheet.conditions[facWhat]
+            : undefined
+      const name = factionName(system.factions, faction, locale, system.locale)
+      return `${name}: ${facPart === 'territory' ? t('members.land') : (sheetText(own?.name, locale) ?? knownName(facWhat, locale))}`
+    }
+    const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
+    if (clock)
+      return world?.clocks ? t('members.clock', { name: clock.replaceAll('-', ' ') }) : undefined
     // A party without characters: nothing happens to them, nothing is told.
     if (!members?.length) return undefined
     const [, who, part, id] = MEMBER_PATH.exec(path) ?? []

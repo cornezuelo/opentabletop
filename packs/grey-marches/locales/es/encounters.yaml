@@ -12,11 +12,13 @@ encounter:
     - El reloj del mundo: cuando _The Greywood Wyrm wakes_ está lleno (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), la Sierpe recorre el bosque desde peligro 3
     - Cascadas a _Reacción_ y a un generador
     - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
-    - Un efecto sobre cada compañero: las luces embrujadas llenan el pavor de cada uno
+    - Un efecto sobre cada compañero: las luces embrujadas llenan el pavor de cada uno, y hacen avanzar el _The Greywood Wyrm wakes_ del reloj del mundo (`world.clocks…`)
+    - El valor de una facción en una condición: la patrulla del Valle comparte su pan cuando el Valle os aprecia (`factions.the-vale.values.reputation`)
   entries:
     hunt: 'Cuernos en la oscuridad: la Cacería Ascua cabalga bajo la luna llena; están {{result}}'
     wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
     lights: Luces pálidas flotan entre los árboles y dicen vuestros nombres
+    friends: 'Una patrulla del Valle: os saludan como amigos y comparten su pan'
     patrol: 'Una patrulla del Valle: están {{result}}'
     wolves: '{{1d4+2}} lobos grises: están {{result}}'
     traveller: 'Por el camino os cruzáis con {{result}}'

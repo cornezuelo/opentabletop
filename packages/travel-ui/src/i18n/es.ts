@@ -72,6 +72,8 @@ export const es: Messages<typeof en> = {
     nightfall: 'el anochecer',
   },
   members: {
+    land: 'tierras',
+    clock: 'Reloj «{name}»',
     title: 'Personajes',
     help: 'Los personajes del grupo, hechos con la hoja del sistema. Con ellos, el grupo son sus miembros: las características que el sistema saca de las suyas (la mejor Supervivencia, cuántos son…) y las provisiones que llevan los siguen, y los efectos pueden llegar a cada uno. Sin ninguno, el grupo se juega como un todo.\nLas condiciones y las tablas los leen:\n• `party.members: kael` — si Kael viaja con el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno de ellos\n• `acting.values.wits` — el que actúa ahora',
     none: 'Sin personajes: el grupo se juega como un todo.',

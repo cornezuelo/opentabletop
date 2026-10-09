@@ -347,7 +347,7 @@ factions:
 ```
 
 - Una **tabla de turno** ve a la facción a la que le toca como `faction.*` (`faction.values.strength`, `faction.territory`: cuántos hexes tiene, `faction.id`) y a todas como `factions.<id>.*`, además de lo del reloj del mundo. Los **efectos** de sus entradas cambian el mundo: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (otra facción), `faction.territory: 1` (un hex más, desde su frontera: primero tierra de nadie, luego la de un vecino) o `-1`, `world.clocks.the-siege: 1` (un reloj de progreso, por su nombre como id).
-- En todo lo demás (viajes, tiradas a mano, descubrimiento), `factions.<id>.*` y `hex.faction` (el id de la facción que tiene el hex) las leen: [Lo que ven las tablas](04-what-tables-see.md).
+- En todo lo demás (viajes, tiradas a mano, descubrimiento), `factions.<id>.*` y `hex.faction` (el id de la facción que tiene el hex) las leen: [Lo que ven las tablas](04-what-tables-see.md). En un mapa que las tenga, los resultados de un viaje también las cambian, y hacen avanzar los relojes de progreso del reloj del mundo: `factions.fort-keld.values.reputation: 1`, `world.clocks.the-wyrm-wakes: 1` (el peaje y las luces embrujadas de las Marcas Grises).
 - Se traduce con la clave `factions/<id>`, por facción (`factions: { the-crown: { name: La Corona } }`). La `core/faction-turn` de Core es una tabla de turno para cualquier juego (crece, aguanta, conspira o pierde terreno).
 
 ## Sistemas

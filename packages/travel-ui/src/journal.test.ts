@@ -1,8 +1,9 @@
-import type { JournalEntry } from '@open-tabletop/session'
+import { GENERIC_SYSTEM, type JournalEntry } from '@open-tabletop/session'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
 import { entryText, journalMarkdown, type JournalContext } from './journal'
+import { memberNamer } from './members'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
 const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): JournalEntry => ({
@@ -126,5 +127,73 @@ describe('journal lines', () => {
     expect(line('FATIGUE_CHANGED', { change: -1, fatigue: 0, reason: 'action', action: 'x' })).toBe(
       'Forage for food: fatigue −1 (now 0)',
     )
+  })
+})
+
+describe('what results did to characters and the world', () => {
+  const t = translator(() => 'en')
+  const sheet = {
+    kind: 'sheet' as const,
+    id: 'companion',
+    values: { health: { name: 'Health' } },
+    conditions: { wounded: { name: 'Wounded' } },
+    relations: {},
+  }
+  const factions = {
+    id: 'm/default',
+    pack: 'm',
+    def: {
+      kind: 'factions' as const,
+      id: 'default',
+      sheet: 'faction',
+      factions: { vale: { name: 'The Vale' } },
+    },
+    sheet: { id: 'm/faction', def: { ...sheet, values: { reputation: { name: 'Reputation' } } } },
+  }
+  const system = {
+    ...GENERIC_SYSTEM,
+    sheet: { id: 'm/companion', def: sheet },
+    factions,
+  }
+  const kael = {
+    id: 'kael',
+    name: 'Kael',
+    sheet: 'm/companion',
+    values: {},
+    conditions: {},
+    tags: [],
+    cards: [],
+    relations: [],
+  }
+  const line = (members: (typeof kael)[] | undefined, world?: Record<string, unknown>) =>
+    entryText(
+      entry(0, 'ACTION_TAKEN', {
+        data: {
+          action: 'rest',
+          minutes: 0,
+          checks: 1,
+          effects: {
+            'characters.kael.values.health': 1,
+            'acting.conditions.wounded': 'false',
+            'factions.vale.values.reputation': 1,
+            'world.clocks.the-siege': 1,
+          },
+        },
+      }),
+      {
+        t,
+        startDay: 1,
+        hexLabel: (h) => h,
+        nameOf: (id) => id,
+        memberName: memberNamer(system, members, 'en', t, world),
+      },
+    )
+
+  it('names whom, and leaves out what didn’t happen here', () => {
+    expect(line([kael], { factions: {}, clocks: {} })).toBe(
+      'Rest (Kael: Health +1, Whoever acts: Wounded (no more), The Vale: Reputation +1, Clock “the siege” +1)',
+    )
+    // No characters, no factions or clocks on this host: none of it is told.
+    expect(line(undefined)).toBe('Rest')
   })
 })

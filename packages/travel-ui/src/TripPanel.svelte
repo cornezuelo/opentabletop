@@ -191,7 +191,7 @@
     ),
   )
   /** The party's characters' values and conditions in words ("Kael: Health"). */
-  const memberName = $derived(memberNamer(system, session.members, locale, t))
+  const memberName = $derived(memberNamer(system, session.members, locale, t, facts))
   /** Why a button is disabled, in words ('' when it isn't). */
   const why = (because: Unavailable | undefined): string =>
     whyText(because, { t, dayValues, memberName })
