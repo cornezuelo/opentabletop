@@ -228,6 +228,10 @@ export const es: Messages = {
     color: 'Color',
     italic: 'Cursiva',
     delete: 'Borrar etiqueta',
+    list: 'Textos del mapa ({count})',
+    goTo: 'Seleccionarlo y mostrarlo en el mapa',
+    empty: '(vacío)',
+    none: 'Aún no hay textos.',
     help: 'Haz clic en un espacio vacío para añadir una etiqueta; clic en una para editarla y arrástrala para moverla. Clic derecho o Supr la borra.',
   },
   export: {

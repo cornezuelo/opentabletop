@@ -6,6 +6,7 @@
   import ColorPicker from './ColorPicker.svelte'
   import { LABEL_FONTS, type LabelStyle, type MapLabel } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
+  import { view } from '../lib/store/view'
   import { deleteSelectedLabel } from '../lib/tools/tools'
 
   const SWATCHES = ['#2b2118', '#f4eedd', '#8b1e1e', '#c8a24a', '#2f5d8a', '#3d6b35']
@@ -25,6 +26,17 @@
       textarea?.select()
     })
   })
+
+  /** Every free label of the map, in the order they were made. */
+  const all = $derived.by((): MapLabel[] => {
+    void editor.revision
+    return [...editor.map.labels]
+  })
+  /** Selects a label and brings it into view. */
+  function goTo(l: MapLabel) {
+    editor.selectedLabel = l.id
+    view.centerOnPoint(l)
+  }
 
   function setStyle(patch: Partial<LabelStyle>, live = false) {
     const id = editor.selectedLabel
@@ -156,6 +168,31 @@
   <p class="help">{t('labels.help')}</p>
 {/if}
 
+<div class="field">
+  <span>{t('labels.list', { count: all.length })}</span>
+  {#if all.length}
+    <ul class="list">
+      {#each all as l (l.id)}
+        <li>
+          <button
+            class="item"
+            class:active={l.id === editor.selectedLabel}
+            onclick={() => goTo(l)}
+            use:tooltip={t('labels.goTo')}
+          >
+            <span class="text" style:font-family={FONT_FAMILIES[l.style.font].family}
+              >{l.text.trim() || t('labels.empty')}</span
+            >
+            <small>{FONT_FAMILIES[l.style.font].name} · {Math.round(l.style.size * 100)}%</small>
+          </button>
+        </li>
+      {/each}
+    </ul>
+  {:else}
+    <p class="help">{t('labels.none')}</p>
+  {/if}
+</div>
+
 <style>
   textarea,
   select {
@@ -228,6 +265,52 @@
     color: var(--text-muted);
     background: var(--bg);
     border-radius: 6px;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 260px;
+    margin: 0;
+    padding: 0 var(--scroll-room, 0) 0 0;
+    overflow-y: auto;
+    list-style: none;
+  }
+
+  .item {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 3px 6px;
+    color: var(--text);
+    text-align: left;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .item:hover {
+    background: var(--bg);
+  }
+
+  .item.active {
+    border-color: var(--accent);
+  }
+
+  .item .text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .item small {
+    flex: none;
+    color: var(--text-muted);
+    font-size: 11px;
   }
 
   .help {

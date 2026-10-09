@@ -235,7 +235,7 @@ Ecosystem, in the order it was built:
 ### Pending
 
 - [x] ✅ **Planned route drawn beside the roads it follows** (asked 2026-10-07; done 2026-10-08: trail and route are drawn as parallel lines a fifth of a hex to each side of the centres, easing back at the ends, `offsetPolyline`): the route (and trail) already curve through the same hexes as the map's lines (Play → Straight lines to turn it off); draw them offset beside the line so they never sit on top of it, as the first stretch out of Ashford already does on the example map.
-- [ ] **A list of the map's texts in the Text tool** (user, 2026-10-09): the Text section of the side panel lists every free label on the map (its text, with font and size at a glance); clicking one selects it and centres the map on it, so labels far away or hidden under others are easy to find and edit.
+- [x] ✅ (2026-10-09: **Texts on the map** under the Text tool's form, with font and size; a click selects and centres (`centerOnPoint`); Icons and text page en/es) **A list of the map's texts in the Text tool** (user, 2026-10-09): the Text section of the side panel lists every free label on the map (its text, with font and size at a glance); clicking one selects it and centres the map on it, so labels far away or hidden under others are easy to find and edit.
 - [ ] Multi-page PDF tiling for large maps, and an option to print empty hexes white.
 - [ ] Translate icon names (currently English, as they come from game-icons).
 - [ ] UI for the optional hex fields travel may use (elevation, danger); custom fields cover them for now.

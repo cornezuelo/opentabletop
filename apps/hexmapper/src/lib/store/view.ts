@@ -9,6 +9,8 @@ export const view = {
     view.pendingCenter = cell
   },
   pendingCenter: null as Offset | null,
+  /** Centers a point of the map, in hexes (a label's `x` / `y`). Nothing before the renderer exists. */
+  centerOnPoint: (() => {}) as (p: { x: number; y: number }) => void,
   exportCanvas: null as
     ((options: { pixelsPerUnit: number; background: number | null }) => ExportResult) | null,
 }

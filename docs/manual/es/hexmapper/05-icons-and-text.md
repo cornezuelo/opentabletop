@@ -19,6 +19,8 @@ Selecciona un icono colocado (haz clic en él con la herramienta Iconos) para da
 
 La herramienta **Texto** (<kbd>T</kbd>) escribe rótulos libres en cualquier sitio, incluso fuera de la rejilla: nombres de mares, cordilleras, caminos… Haz clic en un espacio vacío para añadir uno, haz clic en un rótulo para editarlo y arrástralo para moverlo. Fuente (IM Fell English, Cinzel o sans), tamaño, color, rotación, cursiva y halo.
 
+**Textos del mapa**, debajo, lista todos los rótulos con su fuente y tamaño; un clic en uno lo selecciona y centra el mapa en él, útil para rótulos lejanos, pequeños o tapados por otros (el mapa de ejemplo de las Marcas Grises: The Grey Sea, Saltmere, Unknown lands).
+
 ## Nombres de hex
 
 El nombre de un hex (se pone en el panel del hex) se dibuja debajo de él. Los nombres se configuran en dos sitios:

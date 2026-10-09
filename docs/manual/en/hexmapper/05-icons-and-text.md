@@ -19,6 +19,8 @@ Select a placed icon (click it with the Icons tool) to give it **fields**: a vil
 
 The **Text** tool (<kbd>T</kbd>) writes free labels anywhere, even outside the grid: names of seas, mountain ranges, roads… Click empty space to add one, click a label to edit it and drag it to move it. Font (IM Fell English, Cinzel or sans), size, color, rotation, italic and halo.
 
+**Texts on the map**, below, lists every label with its font and size; clicking one selects it and centres the map on it, handy for labels far away, small or hidden under others (the Grey Marches' example map: The Grey Sea, Saltmere, Unknown lands).
+
 ## Hex names
 
 A hex's name (set in the hex panel) is drawn under it. Names are styled in two places:

@@ -34,6 +34,7 @@
         view.fit = () => renderer?.fit()
         view.exportCanvas = (options) => renderer!.exportCanvas(options)
         view.centerOn = (cell) => renderer?.centerOn(cell)
+        view.centerOnPoint = (p) => renderer?.centerOnPoint(p)
         if (view.pendingCenter) renderer.centerOn(view.pendingCenter)
         view.pendingCenter = null
         // Dev-only hook for browser tests: map world points to screen coordinates.
@@ -50,6 +51,7 @@
       destroyed = true
       observer.disconnect()
       view.fit = () => {}
+      view.centerOnPoint = () => {}
       view.exportCanvas = null
       view.centerOn = (cell) => {
         view.pendingCenter = cell

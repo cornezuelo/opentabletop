@@ -298,6 +298,16 @@ export class MapRenderer {
     this.onViewChanged()
   }
 
+  /** Centers a point of the map (in hexes, like labels' `x` / `y`), zooming in like `centerOn`. */
+  centerOnPoint(p: Point): void {
+    const { hexSize } = editor.map.grid
+    const scale = Math.max(this.world.scale.x, clampZoom(70 / (hexSize * 2)))
+    const { width, height } = this.app.screen
+    this.world.scale.set(scale)
+    this.world.position.set(width / 2 - p.x * hexSize * scale, height / 2 - p.y * hexSize * scale)
+    this.onViewChanged()
+  }
+
   /** Redraws hover, brush preview and selection outlines. */
   drawOverlay(): void {
     this.updateCursor()

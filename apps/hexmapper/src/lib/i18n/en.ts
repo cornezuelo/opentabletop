@@ -227,6 +227,10 @@ export const en = {
     color: 'Color',
     italic: 'Italic',
     delete: 'Delete label',
+    list: 'Texts on the map ({count})',
+    goTo: 'Select it and show it on the map',
+    empty: '(empty)',
+    none: 'No texts yet.',
     help: 'Click empty space to add a label; click a label to edit it and drag it to move. Right-click or Delete removes it.',
   },
   export: {
