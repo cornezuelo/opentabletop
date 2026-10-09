@@ -20,13 +20,14 @@ getting-lost:
 forage:
   name: Buscar comida
   description: |-
-    Lo que encontráis al **buscar comida** (la acción _Buscar comida_), solo en bosques, campos, brezales y marismas: de **4 a 6** da comida para un día, **7 o más** para 2 a 4 días.
+    Lo que encontráis al **buscar comida** (la acción _Buscar comida_), solo en bosques, campos, brezales y marismas: de **4 a 6** da comida para un día, **7 o más** para 2 a 4 días. En la guardia del alba (hasta las 8 de la mañana, cuando se mueve la caza) se tira con ventaja.
 
     **Enseña:**
 
     - Una comprobación en una acción propia del sistema (`at: forage`)
     - Una característica y ventaja en la tirada: `1d6 + {{survival}}`
     - Dados dentro de un valor (`days: '{{1d3+1}}'`), que vuelven a leer el texto y el efecto (`{{days}}`)
+    - Las **guardias** del calendario: ventaja por sí sola en la segunda guardia del día (`modeWhen: { advantage: { watch: 2 } }`, de 4 a 8 con guardias de 4 horas)
     - **Efectos**: `party.resources.food: 1`, la comida ganada
   entries:
     nothing: Aquí no hay nada que comer

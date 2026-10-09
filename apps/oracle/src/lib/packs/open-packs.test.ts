@@ -4,6 +4,7 @@ import {
   startTrip,
   stepTrip,
   systemName,
+  tripFacts,
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
@@ -601,6 +602,19 @@ describe('bundled open packs', () => {
         expect(guardian.context.danger).toBe(ruin.value.danger)
         expect(guardian.context.timeOfDay).toBe('night')
       }
+    })
+
+    it('foraging in the dawn watch is rolled with advantage (the calendar’s watches)', () => {
+      const calendar = calendarOf(system)
+      const engine = createOracleEngine({ registry, random: seeded('dawn') })
+      const mode = (hour: string) => {
+        const { session } = startTrip({ system, location: '0', time: calendar.at(100, hour) })
+        const context = tripFacts(play([{ terrain: 'plains' }]), session)
+        return engine.resolve('grey-marches/forage', context).resolution.mode
+      }
+      expect(mode('06:00')).toBe('core/advantage')
+      expect(mode('07:59')).toBe('core/advantage')
+      expect(mode('09:00')).toBeUndefined()
     })
 
     it('the Wyrm roams the Greywood once the world clock says it wakes', () => {

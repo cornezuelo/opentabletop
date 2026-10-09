@@ -62,16 +62,20 @@ kind: table
 id: forage
 name: Foraging
 description: |-
-  What you find when you **forage for food** (the _Forage for food_ action), only in woods, fields, heath and marsh: **4–6** feeds you a day, **7 or more** 2–4 days.
+  What you find when you **forage for food** (the _Forage for food_ action), only in woods, fields, heath and marsh: **4–6** feeds you a day, **7 or more** 2–4 days. In the dawn watch (until 8 in the morning, when game is about) it's rolled with advantage.
 
   **Shows:**
 
   - A check at one of the system's own actions (`at: forage`)
   - A stat and advantage in the roll: `1d6 + {{survival}}`
   - Dice inside a value (`days: '{{1d3+1}}'`), read back by the text and the effect (`{{days}}`)
+  - The calendar's **watches**: advantage by itself in the second watch of the day (`modeWhen: { advantage: { watch: 2 } }`, 4 to 8 with watches of 4 hours)
   - **Effects**: `party.resources.food: 1`, the food gained
 roll: '1d6 + {{survival}}'
 modes: [advantage, disadvantage]
+# The calendar's watches (watchHours: 4): the second, 4 to 8, is the dawn watch.
+modeWhen:
+  advantage: { watch: 2 }
 entries:
   - { id: nothing, range: 1-3, result: Nothing to eat here }
   - {
