@@ -248,6 +248,8 @@ export interface SessionState {
   acting?: string
   /** Who holds each of the system's journey roles (`roles.<id>.*`), chosen by the player. */
   roles?: Record<string, string>
+  /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
+  weatherAt?: string
 }
 
 export function initialSessionState(
@@ -631,8 +633,12 @@ export function createSession(options: {
               const day = nextWeather(model, {
                 season: typeof context.season === 'string' ? context.season : undefined,
                 previous: s.travel.weather,
+                at: s.weatherAt,
                 random,
               })
+              // On a hex flower, where the day is: tomorrow moves on from there.
+              if (day.at) s.weatherAt = day.at
+              else delete s.weatherAt
               value = day.value
               text = localize(day.name, options.locale ?? 'en', 'en') ?? day.weather
             } else {

@@ -254,6 +254,12 @@ class Editor {
     this.notify({ kind: 'world' })
   }
 
+  /** The world clock's weather: saved with the map, outside the undo history. */
+  setWorldWeather(weather: HexMap['worldWeather']): void {
+    this.map.worldWeather = weather
+    this.notify({ kind: 'world' })
+  }
+
   /** The factions: saved with the map, outside the undo history (like the world clock). */
   setFactions(factions: HexMap['factions']): void {
     this.map.factions = factions

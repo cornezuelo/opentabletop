@@ -287,6 +287,32 @@ seasons:
       rain: { rain: 2, clear: 1 }
 ```
 
+A season can be a **hex flower** instead: 19 cells, five rows of 3, 4, 5, 4 and 3 kinds of weather, top to bottom. Each day 2d6 moves the weather one cell (by default 2–3 north-east, 4–5 east, 6–7 south-east, 8–9 south-west, 10–11 west, 12 north-west; `moves` changes it), so weather drifts to its neighbours; off the edge it comes back in on the far side (`edge: wrap`) or stays (`edge: stay`). A model may mix both, season by season.
+
+```yaml
+kind: weather
+id: highland-skies
+states:
+  clear: { name: Clear }
+  grey: { name: Overcast }
+  snow: { name: Snow, set: { snowed-in: true } }
+  storm: { name: Blizzard }
+seasons:
+  winter:
+    flower:
+      start: snow # the first day: the cell with it nearest the middle (absent: the middle)
+      rows:
+        - [storm, storm, snow]
+        - [storm, snow, snow, snow]
+        - [snow, snow, grey, grey, grey]
+        - [grey, grey, clear, clear]
+        - [clear, clear, clear]
+      moves: { ne: '2-3', e: '4-5', se: '6-7', sw: '8-9', w: '10-11', nw: '12' } # the default
+      edge: wrap
+```
+
+The Hexmapper's world clock also rolls its own weather each day on the map system's model while no trip is going on ([The world clock](../hexmapper/12-world.md#moving-time-on)).
+
 **What tables see:** `{{weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{fordModifier}}`, `when: { fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).

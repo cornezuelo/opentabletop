@@ -286,6 +286,32 @@ seasons:
       rain: { rain: 2, clear: 1 }
 ```
 
+Una estación puede ser en cambio una **flor hexagonal**: 19 casillas, cinco filas de 3, 4, 5, 4 y 3 tipos de clima, de arriba abajo. Cada día 2d6 mueve el clima una casilla (por defecto 2–3 al noreste, 4–5 al este, 6–7 al sureste, 8–9 al suroeste, 10–11 al oeste, 12 al noroeste; `moves` lo cambia), así que el clima deriva hacia sus vecinos; al salirse por el borde vuelve por el lado opuesto (`edge: wrap`) o se queda (`edge: stay`). Un modelo puede mezclar las dos cosas, estación a estación.
+
+```yaml
+kind: weather
+id: highland-skies
+states:
+  clear: { name: Despejado }
+  grey: { name: Cubierto }
+  snow: { name: Nieve, set: { snowed-in: true } }
+  storm: { name: Ventisca }
+seasons:
+  winter:
+    flower:
+      start: snow # el primer día: la casilla con él más cercana al centro (sin poner: el centro)
+      rows:
+        - [storm, storm, snow]
+        - [storm, snow, snow, snow]
+        - [snow, snow, grey, grey, grey]
+        - [grey, grey, clear, clear]
+        - [clear, clear, clear]
+      moves: { ne: '2-3', e: '4-5', se: '6-7', sw: '8-9', w: '10-11', nw: '12' } # los de por defecto
+      edge: wrap
+```
+
+El reloj del mundo del Hexmapper también tira su propio clima cada día con el modelo del sistema del mapa mientras no haya un viaje en marcha ([El reloj del mundo](../hexmapper/12-world.md#avanzar-el-tiempo)).
+
 **Qué ven las tablas:** `{{weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{fordModifier}}`, `when: { fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).

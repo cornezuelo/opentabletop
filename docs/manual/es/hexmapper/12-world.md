@@ -19,6 +19,8 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 **+1 hora**, **+1 guardia**, **Hasta el anochecer**, **Hasta el alba**, **Día siguiente** y **Próximo evento**. Lo que llega por el camino se anota en la **cronología** (y, durante un viaje, en su diario): eventos, fiestas, lunas llenas y nuevas.
 
+**El clima** del día aparece bajo la fecha. Con un viaje en marcha es el del viaje (su tirada de clima); sin él, el reloj del mundo tira el suyo cada día que pasa, con el modelo de clima del sistema del mapa, cada día siguiendo al anterior (el cielo de las Marcas Grises, una flor hexagonal en invierno). Las tiradas a mano lo leen como `weather`.
+
 ## Con un viaje en marcha
 
 El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj hace avanzar el viaje, viviendo cada momento como si lo jugaras:

@@ -282,6 +282,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     state: {
       ...(extra.state as Record<string, unknown> | undefined),
       ...(oracle && { oracle }),
+      ...(map.worldWeather && { worldWeather: map.worldWeather }),
       ...(map.factions && {
         factions: {
           system: map.factions.system,
@@ -331,6 +332,7 @@ function playToOtd(map: HexMap) {
         ...(play?.rules && { system: play.rules.system, startDay: play.rules.startDay }),
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
         ...(session?.yesterday && { yesterday: session.yesterday }),
+        ...(session?.weatherAt && { weatherAt: session.weatherAt }),
         ...(session?.discovery && { discovery: session.discovery }),
         ...(session?.acting !== undefined && { acting: session.acting }),
         ...(session?.roles && { roles: session.roles }),
@@ -387,6 +389,7 @@ function playFromOtd(
             ...(ext.discovery !== undefined && { discovery: ext.discovery }),
             ...(members.length && { members }),
             ...(typeof ext.acting === 'string' && { acting: ext.acting }),
+            ...(typeof ext.weatherAt === 'string' && { weatherAt: ext.weatherAt }),
             ...(typeof ext.roles === 'object' && ext.roles !== null && { roles: ext.roles }),
           },
           // No trip yet: the company waits for one.
@@ -532,6 +535,7 @@ export function bundleToMap(raw: unknown): HexMap {
     delete otherState.factions
     extraBundle.factions = bundle.factions.filter((f) => !list.some((c) => c.id === f.id))
   }
+  delete otherState.worldWeather
   extraBundle.state = otherState
   // Our tokens are rebuilt from the map when saving.
   extraBundle.characters = otherCharacters
@@ -572,6 +576,7 @@ export function bundleToMap(raw: unknown): HexMap {
     ...(play && { play }),
     ...(world && { world }),
     ...(factions && { factions }),
+    ...(isRecordLike(bundle.state.worldWeather) && { worldWeather: bundle.state.worldWeather }),
     ...((oracleState || ext.oracleHistory) && {
       oracle: { state: oracleState ?? {}, history: ext.oracleHistory ?? [] },
     }),
@@ -595,3 +600,6 @@ export function parseMapFile(json: string): HexMap {
   if (!isBundle(raw)) throw new MapFormatError('invalid')
   return bundleToMap(raw)
 }
+
+const isRecordLike = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)

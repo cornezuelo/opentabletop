@@ -217,6 +217,21 @@ export const en = {
     shares: 'Over many days',
     sharesHelp:
       'How often each kind comes up in this season over a long run of days, from the weights above: a check that the season feels right.',
+    flowerStart: 'Starts on',
+    flowerStartHelp:
+      'The weather the first day starts on: the cell with it nearest the middle. Empty: the middle cell.',
+    flowerMiddle: 'the middle',
+    edge: 'At the edge',
+    edgeHelp:
+      'When a day would leave the flower: **comes back on the far side** (along the same line), or **stays** where it is.',
+    edgeWrap: 'comes back on the far side',
+    edgeStay: 'stays',
+    flowerHelp:
+      'A hex flower: 19 cells, five rows of 3, 4, 5, 4 and 3. Each day 2d6 moves the weather one cell: 2–3 north-east, 4–5 east, 6–7 south-east, 8–9 south-west, 10–11 west, 12 north-west (a pack may change it with `moves` in YAML). Put the harsh weathers at the top and the fair ones at the bottom: the middle rolls drift south-east, towards fair weather.',
+    toFlower: 'Make it a hex flower',
+    toFlowerConfirm: 'Replace this season’s weights with a hex flower?',
+    toWeights: 'Use weights instead',
+    toWeightsConfirm: 'Replace this season’s hex flower with weights?',
     newSeason: 'Season',
     addSeason: 'Add a season',
   },

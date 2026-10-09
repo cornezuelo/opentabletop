@@ -432,6 +432,8 @@ El `calendar.yaml` de las Marcas Grises es un ejemplo completo.
 
 ### Clima con inercia
 
+_Una estación también puede ser una flor hexagonal: 19 casillas por las que el clima deriva con 2d6, mira [Modelos de clima](../technical/07-kinds.md#modelos-de-clima)._
+
 Una tabla de clima tira cada día de nuevo. Para un clima que dura —lluvia que se instala, tormentas que pasan—, un pack puede tener un **modelo de clima** (`kind: weather`) y ligar a él la comprobación del clima con `weather:` en lugar de `resolve:`:
 
 ```yaml

@@ -426,6 +426,8 @@ The Grey Marches' `calendar.yaml` is a full example.
 
 ### Weather with inertia
 
+_A season may also be a hex flower: 19 cells the weather drifts across by 2d6, see [Weather models](../technical/07-kinds.md#weather-models)._
+
 A weather table rolls each day afresh. For weather that lasts — rain that sets in, storms that blow over — a pack can have a **weather model** (`kind: weather`) and bind the weather check to it with `weather:` instead of `resolve:`:
 
 ```yaml

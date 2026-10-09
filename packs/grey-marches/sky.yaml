@@ -1,6 +1,7 @@
 # The weather check of the Marches' trips (travel.yaml binds WEATHER_CHECK_REQUIRED to
 # it): today's weather follows yesterday's. Per season, each kind of weather says how
-# likely tomorrow is to be each kind, so rain sets in for days and storms blow over.
+# likely tomorrow is to be each kind, so rain sets in for days and storms blow over; winter
+# is a hex flower.
 # The tables in weather.yaml roll weather without memory (for rolls by hand).
 kind: weather
 id: sky
@@ -39,10 +40,16 @@ seasons:
       fog: { fog: 3, grey: 2, rain: 1 }
       rain: { rain: 3, grey: 2, storm: 1 }
       storm: { rain: 2, fog: 1 }
+  # Winter is a hex flower instead: 19 cells, harsh at the top, fair at the bottom, and
+  # each day 2d6 moves the weather one cell (the usual moves: the middle rolls go
+  # south-east, towards fair weather; off the edge it comes back in on the far side).
+  # Weather drifts: from snow to grey to clear, rarely straight from storm to sun.
   winter:
-    start: snow
-    next:
-      clear: { clear: 3, snow: 1, grey: 1 }
-      grey: { grey: 2, snow: 2, clear: 1 }
-      snow: { snow: 3, clear: 1, storm: 1 }
-      storm: { snow: 2, storm: 1 }
+    flower:
+      start: snow
+      rows:
+        - [storm, storm, snow]
+        - [storm, snow, snow, snow]
+        - [snow, snow, grey, grey, grey]
+        - [grey, grey, clear, clear]
+        - [clear, clear, clear]

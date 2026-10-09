@@ -642,6 +642,21 @@ describe('the powers of the Marches: factions on the map', () => {
     expect(own.territories['the-vale'].length).toBe(97)
   })
 
+  it('without a trip, the world clock rolls its own weather each day', () => {
+    grey()
+    worldAct({ type: 'advance', minutes: 3 * 1440 })
+    const weather = editor.map.worldWeather!
+    expect(weather.day).toBe(worldCalendar().describe(editor.map.world!.time).day)
+    expect(['clear', 'grey', 'rain', 'fog', 'storm', 'snow']).toContain(weather.weather)
+    expect(rollContext()).toMatchObject({ weather: weather.weather })
+    expect(bundleToMap(mapToBundle(editor.map)).worldWeather).toEqual(weather)
+    // With a trip, the trip's weather is the world's: its own isn't rolled.
+    clickHex('7,7')
+    const day = editor.map.worldWeather!.day
+    worldAct({ type: 'advance', minutes: 60 })
+    expect(editor.map.worldWeather!.day).toBe(day)
+  })
+
   it('a map without them can bring the system’s, and take them off', () => {
     grey()
     removeFactions()

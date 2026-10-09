@@ -358,6 +358,8 @@ describe('example maps', () => {
     }
     // Winter weather from the model's states.
     for (const w of days) expect(['clear', 'grey', 'snow', 'storm']).toContain(w)
+    // Winter is a hex flower: the trip knows which of its cells the day is on.
+    expect(session.weatherAt).toMatch(/^-?\d,-?\d$/)
   })
 
   it('the Grey Marches: only the boat crosses the Saltmere', () => {

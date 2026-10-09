@@ -19,6 +19,8 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 **+1 hour**, **+1 watch**, **Until dusk**, **Until dawn**, **Next day** and **Next event**. Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
 
+**The weather** of the day shows under the date. With a trip going on it's the trip's (its weather check); without one, the world clock rolls its own each day that passes, on the map system's weather model, each day following the day before's (the Grey Marches' sky, a hex flower in winter). Hand rolls read it as `weather`.
+
 ## With a trip going on
 
 The world and a trip with rules share **one time**. New trips start on the clock's date instead of a season, travelling and camping move the clock, and moving the clock moves the trip on, living every moment as if you played it:

@@ -220,6 +220,21 @@ export const es: Messages<typeof en> = {
     shares: 'En muchos días',
     sharesHelp:
       'Con qué frecuencia sale cada clima en esta estación a lo largo de muchos días, según los pesos de arriba: para comprobar que la estación se siente bien.',
+    flowerStart: 'Empieza en',
+    flowerStartHelp:
+      'El clima en el que empieza el primer día: la casilla con él más cercana al centro. Vacío: la casilla del centro.',
+    flowerMiddle: 'el centro',
+    edge: 'En el borde',
+    edgeHelp:
+      'Cuando un día saldría de la flor: **vuelve por el lado opuesto** (por la misma línea), o **se queda** donde está.',
+    edgeWrap: 'vuelve por el lado opuesto',
+    edgeStay: 'se queda',
+    flowerHelp:
+      'Una flor hexagonal: 19 casillas, cinco filas de 3, 4, 5, 4 y 3. Cada día 2d6 mueve el clima una casilla: 2–3 al noreste, 4–5 al este, 6–7 al sureste, 8–9 al suroeste, 10–11 al oeste, 12 al noroeste (un pack puede cambiarlo con `moves` en el YAML). Pon los climas duros arriba y los buenos abajo: las tiradas del medio derivan al sureste, hacia el buen tiempo.',
+    toFlower: 'Convertir en flor hexagonal',
+    toFlowerConfirm: '¿Cambiar los pesos de esta estación por una flor hexagonal?',
+    toWeights: 'Usar pesos',
+    toWeightsConfirm: '¿Cambiar la flor hexagonal de esta estación por pesos?',
     newSeason: 'Estación',
     addSeason: 'Añadir una estación',
   },

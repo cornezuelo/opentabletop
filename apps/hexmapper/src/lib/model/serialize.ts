@@ -126,6 +126,15 @@ function validate(data: Record<string, unknown>): HexMap {
     ...(isRecord(data.oracle) && { oracle: parseOracle(data.oracle) }),
     ...(isRecord(data.world) && { world: readWorld(data.world) }),
     ...(isRecord(data.factions) && { factions: parseFactions(data.factions) }),
+    ...(isRecord(data.worldWeather) &&
+      typeof data.worldWeather.weather === 'string' &&
+      typeof data.worldWeather.day === 'number' && {
+        worldWeather: {
+          weather: data.worldWeather.weather,
+          day: data.worldWeather.day,
+          ...(typeof data.worldWeather.at === 'string' && { at: data.worldWeather.at }),
+        },
+      }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }

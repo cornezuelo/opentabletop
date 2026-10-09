@@ -542,6 +542,9 @@ export const en = {
       "This region looks its own way instead of following the map's region style (**Map settings → Regions**): a darker forest, a kingdom with a bold border.",
   },
   world: {
+    weatherLine: 'Weather: {weather}',
+    weatherHelp:
+      "Today's weather. With a trip going on, the trip's (its weather check); without one, the world clock's own: each day that passes is rolled on the map system's weather model, following the day before's. Hand rolls read it as `weather`.",
     title: 'World',
     help: 'The campaign’s clock: today’s date, events you schedule (a festival, an attack, a deadline), progress clocks and a timeline. It uses the calendar of the system the map plays. Trips with rules move it on by themselves.',
     intro:

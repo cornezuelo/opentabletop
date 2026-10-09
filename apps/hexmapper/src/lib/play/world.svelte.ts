@@ -18,7 +18,9 @@ import { applyFactionEffects, dueTurns, factionFactsNow, takeWorldTurn } from '.
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
-import { activeSystem, getSystem } from './systems'
+import { activeSystem, getSystem, mapSystemId } from './systems'
+import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
+import { mathRandom } from '@open-tabletop/random'
 
 /**
  * The map's world clock: the campaign's time, events scheduled on it and progress
@@ -43,7 +45,14 @@ export function worldFactsNow(): Record<string, unknown> | undefined {
   const state = editor.map.world
   const factions = factionFactsNow()
   if (!state && !factions) return undefined
-  return { ...(state && worldFacts(state, worldCalendar())), ...factions }
+  // Without a trip, today's weather is the world clock's own (`weather`, as a trip's).
+  const play = editor.map.play
+  const weather = !(play && sessionOf(play)) ? editor.map.worldWeather?.weather : undefined
+  return {
+    ...(state && worldFacts(state, worldCalendar())),
+    ...factions,
+    ...(weather && { weather }),
+  }
 }
 
 /** When the clock starts unless another date is chosen: the trip's time, else dawn of day 1. */
@@ -61,6 +70,57 @@ export function startWorld(time = defaultStart()): void {
   const play = editor.map.play
   const trip = play ? sessionOf(play) : null
   editor.setWorld(initialWorld(trip ? trip.travel.time : time))
+  editor.setWorldWeather(undefined)
+  rollWorldWeather()
+}
+
+/**
+ * The weather model the world clock's own weather is rolled on: the one the map system's
+ * weather check uses (its bindings' `weather:`), else the first it names.
+ */
+function worldWeatherModel(): WeatherModel | undefined {
+  const system = getSystem(mapSystemId())
+  const bound = Object.values(system.bindings?.on ?? {}).find((b) => b.weather)?.weather
+  return (bound ? system.weather?.[bound] : undefined) ?? Object.values(system.weather ?? {})[0]
+}
+
+/**
+ * The world clock's own weather, day by day up to today, while no trip is going on (a
+ * trip's weather is the world's then): each day follows the day before's, on the map
+ * system's weather model, in that day's season.
+ */
+export function rollWorldWeather(): void {
+  const state = editor.map.world
+  const model = worldWeatherModel()
+  const play = editor.map.play
+  if (!state || !model || (play && sessionOf(play))) return
+  const calendar = worldCalendar()
+  const today = calendar.describe(state.time).day
+  let weather = editor.map.worldWeather
+  if (weather && weather.day >= today) return
+  // A long jump: only the last days matter.
+  const from = Math.max(weather ? weather.day + 1 : today, today - 30)
+  const random = mathRandom()
+  for (let day = from; day <= today; day++) {
+    const next = nextWeather(model, {
+      season: calendar.describe(calendar.at(day, '12:00')).season,
+      previous: weather?.weather,
+      at: weather?.at,
+      random,
+    })
+    weather = { weather: next.weather, day, ...(next.at && { at: next.at }) }
+  }
+  editor.setWorldWeather(weather)
+}
+
+/** Today's weather of the world: the trip's while one goes on, else the world clock's own. */
+export function worldWeatherNow(): { id: string; name: string } | undefined {
+  const play = editor.map.play
+  const trip = play ? sessionOf(play) : null
+  const id = trip ? trip.travel.weather : editor.map.worldWeather?.weather
+  if (!id) return undefined
+  const state = worldWeatherModel()?.states[id]
+  return { id, name: localize(state?.name, getLocale(), 'en') ?? id.replaceAll('-', ' ') }
 }
 
 /**
@@ -88,6 +148,8 @@ export function worldAct(action: WorldAction): WorldEvent[] {
   if (!state) return []
   const { state: next, events } = world().apply(state, action)
   editor.setWorld(next)
+  // The world's own weather, day by day, while no trip has a weather of its own.
+  if (next.time > state.time) rollWorldWeather()
   // The factions take the turns that came due on the way (every so many days).
   if (next.time > state.time)
     for (const at of dueTurns(next.time, worldCalendar().minutesPerDay)) worldTurnNow(at)

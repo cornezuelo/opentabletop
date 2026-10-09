@@ -384,6 +384,12 @@ export interface HexMap {
   /** The factions of the map's system on this map: their sheets, territory and turns. */
   factions?: MapFactions
   /**
+   * The world clock's own weather, rolled each day on the map system's weather model while
+   * no trip is going on (a trip's weather is the trip's): the kind, the day it's for, and
+   * where it is on a hex flower.
+   */
+  worldWeather?: { weather: string; day: number; at?: string }
+  /**
    * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
    * kept verbatim so saving never loses it.
    */

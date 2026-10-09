@@ -549,6 +549,9 @@ export const es: Messages = {
       'Esta región se ve a su manera en lugar de seguir el estilo de regiones del mapa (**Ajustes del mapa → Regiones**): un bosque más oscuro, un reino con un borde marcado.',
   },
   world: {
+    weatherLine: 'Clima: {weather}',
+    weatherHelp:
+      'El clima de hoy. Con un viaje en marcha, el del viaje (su tirada de clima); sin él, el del propio reloj del mundo: cada día que pasa se tira con el modelo de clima del sistema del mapa, siguiendo al del día anterior. Las tiradas a mano lo leen como `weather`.',
     title: 'Mundo',
     help: 'El reloj de la campaña: la fecha de hoy, eventos que programas (una fiesta, un ataque, un plazo), relojes de progreso y una cronología. Usa el calendario del sistema con el que se juega el mapa. Los viajes con reglas lo hacen avanzar solos.',
     intro:

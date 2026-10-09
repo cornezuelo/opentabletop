@@ -238,9 +238,12 @@ describe('systems in the Systems app', () => {
     // A weather weight, written where the form puts it.
     const sky = partDoc(() => systemParts(systems.get('grey-marches')!, 'weather')[0])
     sky.edit('', ['seasons', 'summer', 'next', 'clear', 'storm'], 3)
-    expect(
-      systems.get('grey-marches')!.weather?.['grey-marches/sky'].seasons.summer.next.clear,
-    ).toMatchObject({ storm: 3 })
+    const summer = systems.get('grey-marches')!.weather?.['grey-marches/sky'].seasons.summer
+    expect(summer && 'next' in summer && summer.next.clear).toMatchObject({ storm: 3 })
+    // A cell of the winter's hex flower.
+    sky.edit('', ['seasons', 'winter', 'flower', 'rows', 0, 0], 'snow')
+    const winter = systems.get('grey-marches')!.weather?.['grey-marches/sky'].seasons.winter
+    expect(winter && 'flower' in winter && winter.flower.rows[0][0]).toBe('snow')
     library.removePack('grey-marches')
     // Every read after a change reloads the packs: a few seconds in all.
   }, 30_000)

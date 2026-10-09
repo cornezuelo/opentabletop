@@ -16,6 +16,7 @@
     upcoming,
     worldAct,
     worldCalendar,
+    worldWeatherNow,
   } from '../lib/play/world.svelte'
   import { editor } from '../lib/store/editor.svelte'
   import DateInput from './DateInput.svelte'
@@ -75,6 +76,12 @@
     return `${date}, ${formatClock(parts)}`
   }
   const now = $derived(world ? when(world.time) : null)
+  /** Today's weather: the trip's, or the world clock's own. */
+  const weather = $derived.by(() => {
+    void world
+    void editor.play
+    return worldWeatherNow()
+  })
   /** Where a trip going on is headed, or where it waits. */
   const tripHex = $derived(
     trip ? coordOf((travelling ? trip.travel.destination : null) ?? trip.travel.location) : '',
@@ -171,6 +178,11 @@
     <strong>{now?.head}</strong>
     {#if now?.date}<span>{now.date}{now.holidays ? ` · ${now.holidays}` : ''}</span>{/if}
     {#if now?.moons}<span class="muted">{now.moons}</span>{/if}
+    {#if weather}<span
+        >{t('world.weatherLine', { weather: weather.name })}<InfoTip
+          text={t('world.weatherHelp')}
+        /></span
+      >{/if}
     {#if !settingDate}
       <button
         class="link"
