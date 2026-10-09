@@ -32,5 +32,7 @@ In **Map settings → Map size**, size the map by number of hexes, or by paper: 
 
 - **PNG** by pixels per hex, for virtual tabletops, optionally with a transparent background.
 - **PDF** at real scale (150 or 300 dpi) to print: hexes come out at the size you chose.
+- **Split into pages** (PDF): a map too big for one sheet is printed on several pages of the paper you pick (A4, Letter…, upright or **Landscape**), still at real scale. Before exporting it says how many: "6 page(s): 3 across, 2 down, overlapping 10 mm". Neighbouring pages repeat 10 mm of the map, to trim and glue them, and each page says in its corner where it goes (**B3**: second row, third column). The Grey Marches' example map at 25 mm hexes takes six A4 pages.
+- **Empty hexes in white** (PNG and PDF): hexes without terrain print white instead of dark, with dark coordinates and icons on them, to save ink (a map still being explored, or one to fill in by hand). The editor keeps showing them as before.
 
 Only visible layers are exported.

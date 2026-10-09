@@ -33,6 +33,7 @@
         renderer = new MapRenderer(app, canvas)
         view.fit = () => renderer?.fit()
         view.exportCanvas = (options) => renderer!.exportCanvas(options)
+        view.exportBounds = () => renderer!.exportBounds()
         view.centerOn = (cell) => renderer?.centerOn(cell)
         view.centerOnPoint = (p) => renderer?.centerOnPoint(p)
         if (view.pendingCenter) renderer.centerOn(view.pendingCenter)
@@ -53,6 +54,7 @@
       view.fit = () => {}
       view.centerOnPoint = () => {}
       view.exportCanvas = null
+      view.exportBounds = null
       view.centerOn = (cell) => {
         view.pendingCenter = cell
       }

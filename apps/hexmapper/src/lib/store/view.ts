@@ -12,5 +12,13 @@ export const view = {
   /** Centers a point of the map, in hexes (a label's `x` / `y`). Nothing before the renderer exists. */
   centerOnPoint: (() => {}) as (p: { x: number; y: number }) => void,
   exportCanvas: null as
-    ((options: { pixelsPerUnit: number; background: number | null }) => ExportResult) | null,
+    | ((options: {
+        pixelsPerUnit: number
+        background: number | null
+        emptyWhite?: boolean
+        frame?: { x: number; y: number; width: number; height: number }
+      }) => ExportResult)
+    | null,
+  /** What an export covers, in world units (the whole map with a little padding). */
+  exportBounds: null as (() => { x: number; y: number; width: number; height: number }) | null,
 }

@@ -42,6 +42,8 @@ import { editor } from '../store/editor.svelte'
 import { getTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 const EMPTY_FILL = 0x2a2823
+/** Empty hexes on paper, when exporting to print. */
+const PAPER_FILL = 0xffffff
 const GRID_COLOR = 0x000000
 const GRID_ALPHA = 0.35
 const HOVER_COLOR = 0xffffff
@@ -168,6 +170,8 @@ export class MapRenderer {
   private coordLabels = new Map<HexKey, BitmapText>()
   private contexts = new Map<string, GraphicsContext>()
   private emptyContext = new GraphicsContext()
+  /** Exporting with empty hexes as paper: white, with dark ink on them (`exportCanvas`). */
+  private paper = false
   private corners: number[] = []
 
   private shapeSignature = ''
@@ -243,19 +247,23 @@ export class MapRenderer {
    * `pixelsPerUnit` pixels per world unit. Large exports are scaled down to fit the
    * GPU texture limit; the returned `pixelsPerUnit` is the one actually used.
    */
-  exportCanvas(options: { pixelsPerUnit: number; background: number | null }): ExportResult {
+  exportCanvas(options: {
+    pixelsPerUnit: number
+    background: number | null
+    /** Empty hexes white, with dark coordinates and icons on them (saves ink). */
+    emptyWhite?: boolean
+    /** Only this part of the map (world units), e.g. one page of a tiled print. */
+    frame?: { x: number; y: number; width: number; height: number }
+  }): ExportResult {
     const { layers, grid } = editor.map
+    if (options.emptyWhite) this.setPaper(true)
     this.overlay.visible = false
     // Coordinates follow the layer setting, not the on-screen zoom threshold.
     this.coordLayer.visible = layers.coords.visible && grid.showCoords
-    const local = this.world.getLocalBounds()
     const pad = grid.hexSize * 0.1
-    const bounds = new Rectangle(
-      local.minX - pad,
-      local.minY - pad,
-      local.width + pad * 2,
-      local.height + pad * 2,
-    )
+    const whole = this.exportBounds()
+    const f = options.frame
+    const bounds = f ? new Rectangle(f.x, f.y, f.width, f.height) : whole
     const gl = (this.app.renderer as { gl?: WebGLRenderingContext }).gl
     const maxSide = Math.min(8192, gl?.getParameter(gl.MAX_TEXTURE_SIZE) ?? 8192)
     const pixelsPerUnit = Math.min(
@@ -275,10 +283,37 @@ export class MapRenderer {
       texture.destroy(true)
       return { canvas, bounds, padding: pad, pixelsPerUnit }
     } finally {
+      if (options.emptyWhite) this.setPaper(false)
       this.overlay.visible = true
       this.applyLayers()
       this.updateLabelResolution()
     }
+  }
+
+  /** What an export covers: everything drawn, plus a little padding (world units). */
+  exportBounds(): Rectangle {
+    const overlay = this.overlay.visible
+    this.overlay.visible = false
+    const local = this.world.getLocalBounds()
+    this.overlay.visible = overlay
+    const pad = editor.map.grid.hexSize * 0.1
+    return new Rectangle(
+      local.minX - pad,
+      local.minY - pad,
+      local.width + pad * 2,
+      local.height + pad * 2,
+    )
+  }
+
+  /** Empty hexes as paper (white, dark ink on them) or as the editor shows them. */
+  private setPaper(on: boolean): void {
+    this.paper = on
+    this.emptyContext
+      .clear()
+      .poly(this.corners)
+      .fill(on ? PAPER_FILL : EMPTY_FILL)
+    for (const [key, label] of this.coordLabels) this.styleCoord(label, key)
+    this.drawIcons()
   }
 
   /** World point → canvas pixel coordinates (used by tests and future UI overlays). */
@@ -438,7 +473,9 @@ export class MapRenderer {
     this.coordLabels.clear()
     this.destroyContexts()
 
-    this.emptyContext = new GraphicsContext().poly(this.corners).fill(EMPTY_FILL)
+    this.emptyContext = new GraphicsContext()
+      .poly(this.corners)
+      .fill(this.paper ? PAPER_FILL : EMPTY_FILL)
     for (const terrain of terrains)
       this.contexts.set(terrain.id, new GraphicsContext().poly(this.corners).fill(terrain.color))
 
@@ -879,7 +916,8 @@ export class MapRenderer {
       }
       const sprite = new Sprite(texture)
       if (image.tintable)
-        sprite.tint = icon.color ?? (hex.terrain || icon.halo ? ICON_INK : ICON_INK_EMPTY)
+        sprite.tint =
+          icon.color ?? (hex.terrain || icon.halo || this.paper ? ICON_INK : ICON_INK_EMPTY)
       place(sprite)
     }
     this.drawNames()
@@ -979,7 +1017,7 @@ export class MapRenderer {
   }
 
   private styleCoord(label: BitmapText, key: HexKey): void {
-    const painted = !!editor.map.hexes[key]?.terrain
+    const painted = !!editor.map.hexes[key]?.terrain || this.paper
     label.tint = painted ? COORD_COLOR : COORD_COLOR_EMPTY
     label.alpha = painted ? 0.7 : 0.35
   }

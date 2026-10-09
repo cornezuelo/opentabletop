@@ -250,6 +250,16 @@ export const en = {
     reduced: 'Resolution reduced to {value} to fit the GPU limit.',
     overflow: 'Some content falls outside the printable area.',
     error: 'Export failed.',
+    emptyWhite: 'Empty hexes in white',
+    emptyWhiteHelp:
+      'Hexes without terrain print **white** instead of dark, with dark coordinates and icons on them: less ink for a map still being explored, or one to fill in by hand.\nThe editor keeps showing them as before.',
+    tiled: 'Split into pages',
+    tiledHelp:
+      'Prints a map too big for one sheet on several pages of the paper chosen, at real scale. Neighbouring pages repeat {mm} mm of the map, so they can be trimmed and glued; each page says where it goes in its corner (**B3**: second row, third column).\n• A 40 × 30 hex map at 25 mm on **A4**: several pages to glue into one big map',
+    tilePaper: 'Paper of the pages',
+    landscape: 'Landscape',
+    tilePages: '{pages} page(s): {columns} across, {rows} down, overlapping {mm} mm.',
+    pdfTiled: 'PDF exported: {pages} pages of {w} × {h} mm ({columns} across, {rows} down).',
   },
   library: {
     examples: 'Example maps',

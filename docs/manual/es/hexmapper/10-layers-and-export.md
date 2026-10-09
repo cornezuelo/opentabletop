@@ -32,5 +32,7 @@ En **Ajustes del mapa → Tamaño del mapa**, dimensiona el mapa por número de 
 
 - **PNG** por píxeles por hex, para mesas virtuales, opcionalmente con fondo transparente.
 - **PDF** a escala real (150 o 300 ppp) para imprimir: los hexes salen del tamaño que elegiste.
+- **Dividir en páginas** (PDF): un mapa demasiado grande para una hoja se imprime en varias páginas del papel que elijas (A4, Carta…, vertical o **Apaisado**), igual a escala real. Antes de exportar dice cuántas: «6 página(s): 3 de ancho, 2 de alto, solapadas 10 mm». Las páginas vecinas repiten 10 mm del mapa, para recortarlas y pegarlas, y cada página dice en su esquina dónde va (**B3**: segunda fila, tercera columna). El mapa de ejemplo de las Marcas Grises con hexes de 25 mm ocupa seis páginas A4.
+- **Hexes vacíos en blanco** (PNG y PDF): los hexes sin terreno se imprimen en blanco en vez de oscuros, con las coordenadas y los iconos en oscuro, para ahorrar tinta (un mapa que aún se explora, o uno para rellenar a mano). El editor los sigue mostrando como antes.
 
 Solo se exportan las capas visibles.

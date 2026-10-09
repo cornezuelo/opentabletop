@@ -252,6 +252,17 @@ export const es: Messages = {
     reduced: 'Resolución reducida a {value} por el límite de la GPU.',
     overflow: 'Parte del contenido queda fuera del área imprimible.',
     error: 'No se pudo exportar.',
+    emptyWhite: 'Hexes vacíos en blanco',
+    emptyWhiteHelp:
+      'Los hexes sin terreno se imprimen en **blanco** en vez de oscuros, con las coordenadas y los iconos en oscuro: menos tinta para un mapa que aún se está explorando, o uno para rellenar a mano.\nEl editor los sigue mostrando como antes.',
+    tiled: 'Dividir en páginas',
+    tiledHelp:
+      'Imprime un mapa demasiado grande para una hoja en varias páginas del papel elegido, a escala real. Las páginas vecinas repiten {mm} mm del mapa, para recortarlas y pegarlas; cada una dice en su esquina dónde va (**B3**: segunda fila, tercera columna).\n• Un mapa de 40 × 30 hexes a 25 mm en **A4**: varias páginas que pegar en un mapa grande',
+    tilePaper: 'Papel de las páginas',
+    landscape: 'Apaisado',
+    tilePages: '{pages} página(s): {columns} de ancho, {rows} de alto, solapadas {mm} mm.',
+    pdfTiled:
+      'PDF exportado: {pages} páginas de {w} × {h} mm ({columns} de ancho, {rows} de alto).',
   },
   library: {
     examples: 'Mapas de ejemplo',
