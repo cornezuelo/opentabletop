@@ -1,0 +1,21 @@
+{
+  "name": "@open-tabletop/character-ui",
+  "version": "0.0.0",
+  "description": "Embeddable Svelte UI for characters made from a sheet: values, tracks, conditions and tags.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@open-tabletop/character-engine": "*",
+    "@open-tabletop/ui-kit": "*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

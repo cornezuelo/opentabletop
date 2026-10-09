@@ -12,6 +12,8 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
+    "@open-tabletop/character-engine": "*",
+    "@open-tabletop/character-ui": "*",
     "@open-tabletop/session": "*",
     "@open-tabletop/time": "*",
     "@open-tabletop/travel-engine": "*",

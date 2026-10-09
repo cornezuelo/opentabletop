@@ -112,12 +112,16 @@ actions:
   # without camping (no night checks, no relief), as `day.night` is camp and can't be taken.
   camp:
     name: Camp
-    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue; with morale 1 or less, the watch is restless: +1 fatigue. Only with food left and fatigue under your Endurance: otherwise the night passes in the open, without rest.'
+    description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue and gives each companion 1 health back; with morale 1 or less, the watch is restless: +1 fatigue. Only with food left and fatigue under your Endurance: otherwise the night passes in the open, without rest.'
     when:
       { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: '{{party.stats.endurance}}' } }
     do:
       - { time: dawn }
       - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      # …and gives every companion a point of health back (an effect on every member).
+      - { unless: { trip.below: food }, effects: { party.members.values.health: 1 } }
+      # A night out of the saddle eases the saddle-sore (a condition cleared on every member).
+      - { unless: { trip.mode: horse }, effects: { party.members.conditions.saddle-sore: false } }
       # A night watch kept by a party in low spirits: nobody really sleeps.
       - { when: { party.stats.morale: { lte: 1 } }, effects: { party.stats.fatigue: 1 } }
   # A rest is two hours and takes off one point of fatigue (an effect on the fatigue stat),
@@ -156,10 +160,10 @@ actions:
   # condition on the way of travelling).
   eat:
     name: Eat
-    description: 'At the end of each day, in camp or not: 1 food, 1 more for each hireling, and 1 fodder on horseback. With none left, the party goes hungry.'
+    description: 'At the end of each day, in camp or not: 1 food per mouth (each companion, or 1 for a party without them), 1 more for each hireling, and 1 fodder on horseback. With none left, the party goes hungry.'
     on: day-end
     do:
-      - { effects: { party.resources.food: -1 } }
+      - { effects: { party.resources.food: '-{{party.stats.mouths}}' } }
       - when: { party.stats.hirelings: { gte: 1 } }
         effects: { party.resources.food: '-{{party.stats.hirelings}}' }
       - { when: { trip.mode: horse }, effects: { party.resources.fodder: -1 } }
@@ -179,13 +183,14 @@ actions:
   # button only shows then (hideWhenUnavailable), day or night.
   rite:
     name: Rite of the Ember Moon
-    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2 and fatigue gone.'
+    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone and every companion’s dread emptied.'
     when: { all: [{ hex.tags: shrine }, { time.moons.ember: full }] }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
       - { time: 120 }
-      - { effects: { party.stats.morale: 2, party.stats.fatigue: '=0' } }
+      - effects:
+          { party.stats.morale: 2, party.stats.fatigue: '=0', party.members.values.dread: '=0' }
   # The system's own: at dawn after a hungry day, hirelings (if any) refuse to march
   # (a value that blocks travel) until someone talks them round.
   grumble:
@@ -276,6 +281,22 @@ actions:
     do:
       - { time: 120 }
       - { effects: { party.resources.food: 3, party.resources.fodder: 2 } }
+  # Characters: only while a companion is wounded (a party stat counting them), by day.
+  # Whoever acts tends the others: with Survival 2 or more (`acting.values.survival`, a
+  # condition on the acting character), every wound and sprain is bound (effects on every
+  # member); otherwise the hour is spent for nothing. The acting one is chosen in the trip.
+  tend:
+    name: Tend the wounded
+    description: 'An hour binding wounds and sprains, by day, while a companion is wounded or sprained. Whoever acts needs Survival 2 or more: then every companion’s wounds and sprains are tended.'
+    when:
+      time.daylight: true
+      any: [{ party.stats.wounded: { gte: 1 } }, { party.stats.sprained: { gte: 1 } }]
+    hideWhenUnavailable: true
+    do:
+      - { time: 60 }
+      - when: { acting.values.survival: { gte: 2 } }
+        effects:
+          { party.members.conditions.wounded: false, party.members.conditions.sprained: false }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED
@@ -389,6 +410,14 @@ checks:
     at: day-end
     when: { trip.marched: { gt: '{{system.hoursPerDay}}' } }
     effects: { party.stats.fatigue: 1 }
+  # The same long day on horseback leaves every companion saddle-sore (a condition set on
+  # every member), which blocks riding until a night out of the saddle.
+  - event: SADDLE_SORE
+    name: Saddle-sore
+    description: A day ridden past its 8 hours leaves every companion saddle-sore, unable to ride until a night spent off horseback.
+    at: day-end
+    when: { trip.mode: horse, trip.marched: { gt: '{{system.hoursPerDay}}' } }
+    effects: { party.members.conditions.saddle-sore: true }
   # The trip's own days (`trip.day`, a list of them): on the tenth, twentieth and thirtieth
   # day on the road, the party misses home.
   - event: HOMESICK
@@ -415,15 +444,22 @@ checks:
 ---
 kind: bindings
 id: default
+# Stats with `from` are the companions' while the party has any (sheet.yaml): the best, the
+# worst or how many of them, among those a condition lets in. Without companions, the party
+# keeps them as a whole like any other stat. Morale, fatigue and hirelings are always the
+# party's own: a system may mix both.
 stats:
   charisma:
     name: Charisma
-    description: Added to reaction rolls; at Keld Bridge, a d6 at or under it saves the toll.
+    description: Added to reaction rolls; at Keld Bridge, a d6 at or under it saves the toll. With companions, the best Charisma among them.
     default: 0
+    from: { max: charisma }
+  # The best Survival among the companions who aren't wounded (none standing: 0).
   survival:
     name: Survival
-    description: Added to foraging and fords.
+    description: Added to foraging and fords. With companions, the best Survival among those not wounded.
     default: 1
+    from: { max: survival, unless: { conditions: wounded }, none: 0 }
   # Changed by tables (encounters, getting lost, the shrine, hunger, the inn) and read by
   # them as party.stats.morale.
   morale:
@@ -432,8 +468,9 @@ stats:
     default: 3
   navigation:
     name: Navigation
-    description: Added to the getting-lost roll.
+    description: Added to the getting-lost roll. With companions, their best Pathfinding.
     default: 0
+    from: { max: pathfinding }
   # Sell-swords who join at the inn and desert when hungry: 0 until a table adds some.
   hirelings:
     name: Hirelings
@@ -449,8 +486,26 @@ stats:
   # Hexes with danger at or under it are crossed unseen (the encounter check reads it).
   stealth:
     name: Stealth
-    description: Entering a hex by day, an encounter comes only where danger is over this.
+    description: Entering a hex by day, an encounter comes only where danger is over this. With companions, the clumsiest one's.
     default: 0
+    from: { min: stealth }
+  # How many eat: one without companions, one per companion with them (`count`).
+  mouths:
+    name: Mouths
+    description: How many eat each day (besides the hirelings). With companions, how many they are.
+    default: 1
+    from: { count: true }
+  # How many companions are wounded: the Tend the wounded action shows only then.
+  wounded:
+    name: Wounded
+    description: How many companions are wounded.
+    default: 0
+    from: { count: true, when: { conditions: wounded } }
+  sprained:
+    name: Sprained
+    description: How many companions have a sprained ankle.
+    default: 0
+    from: { count: true, when: { conditions: sprained } }
   # Fatigue is a stat of this system (min: effects never take it below 0), changed by its
   # day-end checks, rests, the shrine, fords and hunger.
   fatigue:
@@ -458,6 +513,10 @@ stats:
     description: 'Rises with each day without enough food, long days, fords and hunger; eases after a fed night in camp, a rest or a prayer at the shrine.'
     default: 0
     min: 0
+# With companions, the food is what they carry between them (their `rations`): the trip
+# shows the sum, and what the party eats or finds is shared out, evenly by default.
+resources:
+  food: { carried: rations }
 # Values the pack's tables read that nobody else names: the roll panel and the map show
 # these names (the key stays in the tooltip). Map values first, then today's values tables set.
 reads:

@@ -1,3 +1,4 @@
+import type { CharacterState } from '@open-tabletop/character-engine'
 import type { WorldState } from '@open-tabletop/world-engine'
 import { type CoordFormat, type HexKey, type Orientation } from '@open-tabletop/hex'
 import type { OracleState } from '@open-tabletop/oracle-engine'
@@ -228,7 +229,16 @@ export interface PlayState {
    * The trip: `system` is the one it was started with (the map's, `meta.system`, at that
    * moment); a trip keeps playing it until a new one starts.
    */
-  rules?: { system: string; startDay: number; session: unknown }
+  rules?: {
+    system: string
+    startDay: number
+    session: unknown
+    /**
+     * The party's characters before a trip starts (a map can bring its company); once it
+     * starts they're the trip's (`session.members`).
+     */
+    members?: CharacterState[]
+  }
   /**
    * Discovery (rules mode, systems with `discover` bindings): empty hexes are decided as
    * the party travels. `reveal` overrides the system's choice (neighbours or entered hex).

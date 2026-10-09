@@ -173,6 +173,7 @@ describe('example maps', () => {
       fish: { condition: 'when' }, // no water around Ashford
       carter: { condition: 'when' }, // no road ahead without a route
       market: { condition: 'when' }, // a market town, but not on market day
+      tend: { condition: 'when' }, // nobody is wounded
     })
   })
 

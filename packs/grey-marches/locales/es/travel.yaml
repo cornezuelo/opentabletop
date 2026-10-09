@@ -21,7 +21,7 @@ travel-rules/default:
       description: 'Marchar por la ruta: de día durante 8 horas, o tras una marcha nocturna a la luz de las antorchas hasta medianoche.'
     camp:
       name: Acampar
-      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de vuestro Aguante: si no, la noche pasa a la intemperie, sin descanso.'
+      description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga y devuelve 1 de salud a cada compañero; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de vuestro Aguante: si no, la noche pasa a la intemperie, sin descanso.'
     rest:
       name: Descansar
       description: Dos horas sin marchar; quita 1 de fatiga. Solo de día, con comida y fatiga por debajo de vuestro Aguante.
@@ -31,13 +31,13 @@ travel-rules/default:
       nothing: 'no hay nada que buscar en {terrain}: solo los bosques, campos, brezales y marismas dan comida'
     eat:
       name: Comer
-      description: 'Al final de cada día, acampando o no: 1 de comida, 1 más por cada mercenario, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
+      description: 'Al final de cada día, acampando o no: 1 de comida por boca (cada compañero, o 1 para un grupo sin ellos), 1 más por cada mercenario, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
     forced-march:
       name: Marcha forzada
       description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga. Solo de día, con fatiga menor de 2, una vez al día.'
     rite:
       name: Rito de la Luna Ascua
-      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2 y fuera la fatiga.'
+      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga y se vacía el pavor de cada compañero.'
     grumble:
       name: Los mercenarios refunfuñan
       description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.
@@ -59,6 +59,9 @@ travel-rules/default:
     market:
       name: Día de mercado
       description: 'En un pueblo con mercado, el día de Mercado (o el día de mercado del reloj del mundo): dos horas de trueque. Comida +3 y forraje +2, una vez al día.'
+    tend:
+      name: Curar a los heridos
+      description: 'Una hora vendando heridas y tobillos, de día, mientras algún compañero esté herido o con un tobillo torcido. Quien actúa necesita Supervivencia 2 o más: entonces se curan las heridas y los tobillos de todos los compañeros.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima
@@ -102,6 +105,9 @@ travel-rules/default:
     LONG_DAY:
       name: Un día largo
       description: Un día en que se marcha más de sus 8 horas (una marcha nocturna tras un día completo) cuesta 1 de fatiga al acabar.
+    SADDLE_SORE:
+      name: Molidos de la silla
+      description: Un día a caballo de más de sus 8 horas deja molidos a todos los compañeros, que no pueden montar hasta pasar una noche fuera de la silla.
     HOMESICK:
       name: Morriña
       description: Los días 10, 20 y 30 de un viaje, el grupo echa de menos su casa. Moral −1.
@@ -130,22 +136,31 @@ bindings/default:
   stats:
     charisma:
       name: Carisma
-      description: Se suma a las tiradas de reacción; en el puente de Keld, un d6 que saque esto o menos os ahorra el peaje.
+      description: Se suma a las tiradas de reacción; en el puente de Keld, un d6 que saque esto o menos os ahorra el peaje. Con compañeros, el mejor Carisma de ellos.
     survival:
       name: Supervivencia
-      description: Se suma a buscar comida y a los vados.
+      description: Se suma a buscar comida y a los vados. Con compañeros, la mejor Supervivencia de los que no están heridos.
     morale:
       name: Moral
       description: Baja con lobos, bandidos, perderse y el hambre; sube en el santuario y la posada.
     navigation:
       name: Orientación
-      description: Se suma a la tirada de perderse.
+      description: Se suma a la tirada de perderse. Con compañeros, su mejor Rastreo.
     endurance:
       name: Aguante
       description: El grupo puede acampar y descansar mientras su fatiga esté por debajo de esto.
     stealth:
       name: Sigilo
-      description: Al entrar de día en un hex, solo hay encuentro donde el peligro supera esto.
+      description: Al entrar de día en un hex, solo hay encuentro donde el peligro supera esto. Con compañeros, el del más torpe.
+    mouths:
+      name: Bocas
+      description: Cuántos comen cada día (además de los mercenarios). Con compañeros, cuántos son.
+    wounded:
+      name: Heridos
+      description: Cuántos compañeros están heridos.
+    sprained:
+      name: Torceduras
+      description: Cuántos compañeros tienen un tobillo torcido.
     fatigue:
       name: Fatiga
       description: Sube con cada día sin comida suficiente, los días largos, los vados y el hambre; baja tras una noche bien comidos en el campamento, un descanso o una oración en el santuario.

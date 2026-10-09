@@ -1,7 +1,8 @@
 <script lang="ts">
   import { idText, translator } from '@open-tabletop/travel-ui'
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
-  import { contextSuggestions, effectSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
+  import RecordRows from './RecordRows.svelte'
   import { library } from '../../lib/packs.svelte'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
@@ -22,7 +23,19 @@
    * The checks of the rules, each with the table that resolves it (from the bindings):
    * one place to say "at dawn, unless on a road, roll getting-lost". Then the party stats.
    */
-  let { doc }: { doc: SystemDoc } = $props()
+  let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
+
+  /** The values of the members' sheet (the system's `sheet`), for stats made of them. */
+  const sheetValues = $derived(Object.keys(system?.sheet?.def.values ?? {}))
+  const fromHints = $derived({
+    max: sheetValues,
+    min: sheetValues,
+    sum: sheetValues,
+    count: ['true'],
+    when: [],
+    unless: [],
+    none: [],
+  })
 
   /** A pack written for an older format: the checks it pauses without saying so. */
   const olderFormat = $derived(packFormat(doc.root) < PACK_FORMAT)
@@ -357,6 +370,7 @@
             <th>{t('checks.statName')}</th>
             <th>{t('checks.statDescription')}</th>
             <th>{t('checks.statDefault')}</th>
+            <th>{t('checks.statFrom')}<InfoTip text={t('checks.statFromHelp')} /></th>
             <th></th>
           </tr>
         </thead>
@@ -407,6 +421,16 @@
                   }}
                 />
               </td>
+              <td class="from">
+                <SuggestInput
+                  label={t('checks.statFrom')}
+                  placeholder={t('checks.statFromNone')}
+                  value={stat?.from ? bare(stat.from) : ''}
+                  suggestions={fromHints}
+                  {disabled}
+                  onchange={(text) => setFlow(['stats', id, 'from'], 'bindings', text)}
+                />
+              </td>
               <td>
                 {#if !disabled}
                   <button
@@ -428,6 +452,36 @@
       <p class="help">{t('checks.noStats')}</p>
     {/if}
     {#if !disabled}<button class="add" onclick={addStat}>{t('checks.addStat')}</button>{/if}
+  </section>
+
+  <section>
+    <h3>{t('checks.carried')}<InfoTip text={t('checks.carriedHelp')} /></h3>
+    {#if !system?.sheet}<p class="help">{t('checks.noSheet')}</p>{/if}
+    <RecordRows
+      {doc}
+      kind="bindings"
+      at={['resources']}
+      idLabel={t('checks.carriedSupply')}
+      suggestions={Object.keys((doc.rules.resources ?? {}) as Raw)}
+      template={{ carried: sheetValues[0] ?? 'rations' }}
+      columns={[
+        {
+          field: 'carried',
+          label: t('checks.carriedIn'),
+          help: t('checks.carriedInHelp'),
+          type: 'select',
+          choices: sheetValues,
+        },
+        {
+          field: 'share',
+          label: t('checks.share'),
+          help: t('checks.shareHelp'),
+          type: 'select',
+          choices: ['even', 'order'],
+          placeholder: t('checks.shareEven'),
+        },
+      ]}
+    />
   </section>
 </div>
 

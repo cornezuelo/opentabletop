@@ -16,6 +16,8 @@ El Travel Engine lleva el viaje y Oracle tira las comprobaciones. La [aplicació
 
 El panel muestra el día, la hora y la estación, dónde está el grupo, el clima, las horas de marcha gastadas, el modo de viaje (a pie, a caballo…), las provisiones, la fatiga y las estadísticas del grupo que declara el sistema (p. ej. la Supervivencia de las Marcas Grises), y **Hasta ahora**: lo que lleva hecho el viaje (hexes, km, horas de marcha, comprobaciones, acciones, provisiones gastadas y obtenidas; ver [Jugar un viaje](../travel/02-playing.md#el-viaje)).
 
+**Personajes**: cuando el sistema del mapa tiene una hoja, el panel tiene una sección **Personajes**, la misma que en Travel ([Personajes](../travel/02-playing.md#personajes)): añade los personajes del grupo, elige quién actúa, cambia sus valores y estados; las características y provisiones que el sistema saca de los suyos los siguen. Se guardan en el fichero del mapa (como personajes OTD del grupo), y un mapa puede traer su compañía antes de que empiece ningún viaje: el mapa de ejemplo de las Marcas Grises trae a Kael, Mara y el viejo Tobin, que empiezan el primer viaje. Un viaje nuevo con el mismo sistema los conserva.
+
 Un viaje sigue con el sistema con el que empezó. Si después cambia el sistema del mapa (en **Ajustes del mapa**, o deshaciendo un cambio), el panel lo dice y el viaje sigue con el suyo; **Nuevo viaje** empieza uno con el del mapa.
 
 ## Comprobaciones y diario

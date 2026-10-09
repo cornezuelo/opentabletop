@@ -329,7 +329,7 @@ Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente lo
 
 Los **bindings** (`kind: bindings`) son la otra mitad del sistema:
 
-- `on` conecta cada comprobación, por su evento, con lo que la responde: `resolve:` una tabla, oráculo, generador o mazo del pack (o de otro pack, por su id completo: `core/weather`), o `weather:` un [modelo de clima](#clima-con-inercia). `context` añade valores solo para esa comprobación, y gana a todo lo demás: la misma tabla de encuentros responde de día y de noche con `context: { timeOfDay: night }` en la comprobación de acampar, y un oráculo recibe su pregunta como `context: { odds: likely }`. **Las comprobaciones sin binding** (y sin efectos) esperan en el diario a que las resuelvas tú, y el viaje se detiene hasta **Continuar**: los hitos de las Marcas Grises.
+- `on` conecta cada comprobación, por su evento, con lo que la responde: `resolve:` una tabla, oráculo, generador o mazo del pack (o de otro pack, por su id completo: `core/weather`), o `weather:` un [modelo de clima](#clima-con-inercia). `context` añade valores solo para esa comprobación, y gana a todo lo demás: la misma tabla de encuentros responde de día y de noche con `context: { timeOfDay: night }` en la comprobación de acampar, y un oráculo recibe su pregunta como `context: { odds: likely }`. **Las comprobaciones sin binding** se apuntan en el diario (con sus efectos, si tienen), y detienen el viaje hasta **Continuar** solo si dicen `pause: true`: los hitos de las Marcas Grises.
 - `stats` son los números del grupo, que aparecen en el panel del viaje, donde los pones al empezar y los cambias mientras juegas. Las aplicaciones no se inventan ninguno: cada sistema declara los suyos, con un `name`, una `description` (su ayuda en el panel del viaje), un valor inicial (`default`) y, si los tiene, `min` y `max` (la fatiga nunca baja de 0). Las tablas los leen por su clave, `{{charisma}}`, o siempre sin ambigüedad `party.stats.charisma`. Las Marcas Grises declaran Carisma, Supervivencia, Orientación y Moral; las reglas Genéricas no tienen ninguno. Una tabla puede cambiar uno que nadie declaró (`effects: { party.stats.hirelings: 1 }`): funciona y aparece con su clave, pero el pack recibe un aviso, así que declara todas las características que cambian sus tablas.
 - `reads` da nombre a los demás valores que leen las tablas del sistema y que nadie más nombra: un valor del mapa (`danger`, `icon.guards`, `token.fare`), el contexto de los bindings (`timeOfDay`) o los valores del día que ponen las tablas (`fordModifier`). Con un `name` y una `description` cada uno, el panel de tirada los muestra por su nombre, con lo que son en su ayuda: `reads: { icon.guards: { name: Guardias, description: Cuántos guardias vigilan las puertas. } }`. Los valores que dan los mapas y los viajes (terreno, estación, fiestas…) ya tienen nombre en las aplicaciones.
 
@@ -371,6 +371,31 @@ bindings: default
 ```
 
 Todas las claves están en [Sistemas](../technical/07-kinds.md#sistemas).
+
+### Personajes
+
+Un sistema puede jugar su grupo como un todo (sus características y provisiones son las del grupo) o personaje a personaje, o las dos cosas. Para los personajes, declara una **hoja** (`kind: sheet`: sus valores con límites, sus estados y lo que bloquea cada uno, los tipos de relación que tienen) y la nombra en su sistema (`sheet: companion`). Los viajes tienen entonces una sección **Personajes**: añádelos, elige quién actúa, cambia sus valores.
+
+Luego los bindings dicen qué toma el grupo de ellos:
+
+- **Características que salen de las suyas:** `navigation: { name: Orientación, from: { max: pathfinding } }` es el mejor Rastreo de ellos; `min` el peor, `sum` el de todos juntos, `count: true` cuántos son; `when` / `unless` dejan fuera a algunos (`count: true, unless: { conditions: wounded }`: los que no están heridos). Sin personajes la característica se guarda como siempre, así que el mismo sistema se juega de las dos formas.
+- **Provisiones que llevan:** `resources: { food: { carried: rations } }`: la comida del grupo es la suma de sus raciones, y lo que el viaje come o encuentra se reparte entre ellos (por igual si no se dice otra cosa, `share: order` para empezar por el primero).
+
+Los efectos llegan a ellos: `party.members.values.health: 1` (todos los personajes), `acting.conditions.wounded: true` (el que actúa), `characters.kael.values.health: -1` (uno). Las condiciones leen `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
+
+```yaml
+kind: sheet
+id: companion
+name: Compañero
+values:
+  survival: { name: Supervivencia, default: 1, min: 0, max: 5 }
+  health: { name: Salud, default: 3, min: 0, max: 3 }
+  rations: { name: Raciones, default: 2, min: 0, max: 6 }
+conditions:
+  wounded: { name: Herido, blocks: [forced-march] }
+```
+
+Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que no están heridos, Sigilo del más torpe, una ración por boca de lo que llevan, una noche bien comidos que cura a todos, un vado que tuerce el tobillo de quien guía el cruce, y **Curar a los heridos** para quien actúe con Supervivencia 2 o más ([Las Marcas Grises](../packs/02-grey-marches.md)). Todas las claves están en [Hojas](../technical/07-kinds.md#hojas).
 
 ## 6. Un calendario propio
 

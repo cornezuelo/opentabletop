@@ -31,7 +31,17 @@ export interface JournalContext {
    * absent: the older built-in `lost`.
    */
   dayValues?: Record<string, string>
+  /**
+   * A member's value or condition in words (`characters.kael.values.health` → "Kael:
+   * Health", `party.members.…` → everyone's, `acting.…` → whoever acts), when the system's
+   * party is made of characters.
+   */
+  memberName?: (path: string) => string | undefined
 }
+
+/** Whether an effect's path is about the party's characters. */
+const isMemberPath = (path: string) =>
+  /^(party\.members|characters\.[^.]+|acting)\.(values|conditions)\./.test(path)
 
 /** Minutes as "3 h", "1 h 30" or "45 min". */
 export function durationText(minutes: number): string {
@@ -44,9 +54,16 @@ export function durationText(minutes: number): string {
 /** Why something can't be done now, in words ('' when the system simply has no such thing). */
 export function whyText(
   because: Unavailable | undefined,
-  { t, dayValues }: Pick<JournalContext, 't' | 'dayValues'>,
+  { t, dayValues, memberName }: Pick<JournalContext, 't' | 'dayValues' | 'memberName'>,
 ): string {
   if (!because || 'off' in because) return ''
+  // A member's condition: who has it, until it's cleared.
+  if ('value' in because && because.who !== undefined)
+    return t('blocked.member', {
+      name:
+        memberName?.(`characters.${because.who}.conditions.${because.value}`) ??
+        `${because.who}: ${because.value}`,
+    })
   if ('value' in because)
     return t('blocked.value', {
       name: dayValues?.[because.value] ?? idText(t, `values.${because.value}`, because.value),
@@ -62,23 +79,38 @@ const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`)
  */
 export function changesText(
   value: Record<string, unknown>,
-  { t, valueName, dayValues }: Pick<JournalContext, 't' | 'valueName' | 'dayValues'>,
+  {
+    t,
+    valueName,
+    dayValues,
+    memberName,
+  }: Pick<JournalContext, 't' | 'valueName' | 'dayValues' | 'memberName'>,
 ): string {
   // Effects are by path (party.stats.morale): named by the value's id.
   const id = (path: string) =>
     path.replace(/^party\.(stats|resources)\./, '').replace(/^party\./, '')
   const name = (path: string) =>
-    valueName ? valueName(id(path)) : idText(t, `resources.${id(path)}`, id(path))
+    isMemberPath(path)
+      ? (memberName?.(path) ?? path)
+      : valueName
+        ? valueName(id(path))
+        : idText(t, `resources.${id(path)}`, id(path))
   const parts = tripChanges(value)
-    .filter(([path]) => path !== 'weather')
+    // Weather is told by the result; what a party without characters can't feel, not at all.
+    .filter(([path]) => path !== 'weather' && (!isMemberPath(path) || !!memberName?.(path)))
     .flatMap(([path, change]) =>
-      typeof change === 'number'
-        ? change !== 0
-          ? [`${name(path)} ${signed(change)}`]
-          : []
-        : typeof change === 'string' && change.startsWith('=')
-          ? [`${name(path)} ${change}`]
-          : [],
+      // A character's condition set, or cleared.
+      change === 'true'
+        ? [name(path)]
+        : change === 'false'
+          ? [t('journal.cleared', { name: name(path) })]
+          : typeof change === 'number'
+            ? change !== 0
+              ? [`${name(path)} ${signed(change)}`]
+              : []
+            : typeof change === 'string' && change.startsWith('=')
+              ? [`${name(path)} ${change}`]
+              : [],
     )
   // Values of the day the result sets (lost…), by the system's name.
   if (!dayValues) {
@@ -189,9 +221,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'DAY_STARTED':
       return t('journal.day', { day: Number(d.day) - startDay + 1 })
     case 'LIMIT_REACHED': {
-      const key = String(d.path).replace(/^party\.(stats|resources)\./, '')
+      const path = String(d.path)
+      const key = path.replace(/^party\.(stats|resources)\./, '')
       return t(d.limit === 'max' ? 'journal.limitMax' : 'journal.limitMin', {
-        name: name(key),
+        name: isMemberPath(path) ? (context.memberName?.(path) ?? path) : name(key),
         value: Number(d.value),
       })
     }
@@ -217,12 +250,23 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           action: actionText(String(d.action ?? 'camp')),
           why: whyText(d.because as Unavailable | undefined, context).replace(/\.$/, ''),
         })
+      // A member's condition that blocks travel: who has it.
+      if (d.reason === 'value' && typeof d.who === 'string')
+        return t('stop.member', {
+          name:
+            context.memberName?.(`characters.${d.who}.conditions.${String(d.value)}`) ??
+            `${d.who}: ${String(d.value)}`,
+        })
       if (d.reason === 'value')
         return t('stop.value', {
           name:
             context.dayValues?.[String(d.value)] ?? idText(t, `values.${d.value}`, String(d.value)),
         })
       return t(`stop.${String(d.reason)}` as TravelUiKey)
+    case 'NOBODY_ACTING':
+      return t('journal.nobodyActing', {
+        name: context.memberName?.(String(d.path)) ?? String(d.path),
+      })
     case 'NOTE':
       return e.text ?? ''
     case 'WORLD_EVENT':

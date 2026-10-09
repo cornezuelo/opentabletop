@@ -16,6 +16,8 @@ The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app
 
 The panel shows the day, time and season, where the party is, the weather, the marching hours used, the travel mode (on foot, on horseback…), supplies, fatigue and the system's party stats (e.g. the Grey Marches' Survival), and **So far**: what the trip has done (hexes, km, hours marched, checks, actions, supplies spent and gained; see [Playing a trip](../travel/02-playing.md#the-trip)).
 
+**Characters**: when the map's system has a sheet, the panel has a **Characters** section, the same as in Travel ([Characters](../travel/02-playing.md#characters)): add the party's characters, choose who acts, change their values and conditions; the stats and supplies the system makes of theirs follow them. They're saved in the map file (as OTD characters of the party), and a map can bring its company before any trip starts: the Grey Marches' example map comes with Kael, Mara and Old Tobin, who start the first trip. A new trip with the same system keeps them.
+
 A trip keeps the system it started with. If the map's system changes later (in **Map settings**, or undoing a change), the panel says so and the trip plays on with its own; **New trip** starts one with the map's.
 
 ## Checks and the journal

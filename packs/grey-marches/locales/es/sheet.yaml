@@ -1,0 +1,57 @@
+sheet/companion:
+  name: Compañero
+  description: |-
+    Uno de la Compañía: sus habilidades, sus heridas y las raciones que lleva. Con
+    compañeros en el grupo, su Supervivencia, Carisma, Orientación y Sigilo son los suyos,
+    come una ración por boca de lo que llevan, y las heridas retienen a algunos.
+
+    **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
+    `max: '{{maxHealth}}'`), un contador (el pavor), grupos con nombre, estados que bloquean una
+    acción, una forma de viajar o el propio viaje, y tipos de relación (un vínculo con un
+    número, un hogar).
+  values:
+    survival:
+      name: Supervivencia
+    charisma:
+      name: Carisma
+    pathfinding:
+      name: Rastreo
+      description: La Orientación del grupo es el mejor Rastreo de los compañeros.
+    stealth:
+      name: Sigilo
+      description: El grupo es tan sigiloso como su compañero más torpe.
+    maxHealth:
+      name: Salud máxima
+    health:
+      name: Salud
+      description: Se pierde en vados, emboscadas y con el frío; una noche bien comidos en el campamento devuelve una.
+    rations:
+      name: Raciones
+      description: La comida que lleva este compañero; la comida del grupo es la de todos juntos.
+    dread:
+      name: Pavor
+      description: Lo llenan las luces embrujadas del Bosque Gris; el rito en un santuario lo vacía.
+  groups:
+    skills:
+      name: Habilidades
+    body:
+      name: Cuerpo
+    gear:
+      name: Equipo
+  conditions:
+    wounded:
+      name: Herido
+      description: Malherido y sangrando. No puede forzar la marcha ni marchar de noche; no cuenta para la Supervivencia del grupo.
+    sprained:
+      name: Tobillo torcido
+      description: No puede seguir andando. El grupo no puede marchar hasta que alguien se lo cure.
+    saddle-sore:
+      name: Molido de la silla
+      description: No aguanta otro día a caballo.
+  relations:
+    bond:
+      name: Vínculo
+      description: Lo unidos que están dos compañeros (o un compañero y un lugar), de 0 a 3.
+    home:
+      name: Hogar
+      description: De dónde viene un compañero.

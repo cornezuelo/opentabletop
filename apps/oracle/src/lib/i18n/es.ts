@@ -112,7 +112,7 @@ export const es: Messages<typeof en> = {
       "Valores que da la entrada cuando sale, en pares `clave: valor`. Las tablas siguientes, la plantilla y el viaje los leen:\n• `weather: storm` — el clima del día\n• `lost: true` — un valor del día que declara el sistema (puede bloquear el viaje)\n• `count: '{{2d6}}'` — un número tirado ahora\n• `terrain: '{{common}}'` — copiado de lo que ve la tabla\n• `rolled: '{{roll}}'` — el total de la propia tirada de la tabla",
     effects: 'Cambios',
     effectsHelp:
-      "Lo que cambia la entrada en el grupo del viaje cuando sale:\n• `party.stats.morale: -1` — quita 1\n• `party.resources.food: '{{1d3}}'` — suma una cantidad tirada\n• `party.stats.fatigue: '=0'` — lo fija\nLos valores son los del sistema (características y provisiones). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
+      "Lo que cambia la entrada en el grupo del viaje cuando sale:\n• `party.stats.morale: -1` — quita 1\n• `party.resources.food: '{{1d3}}'` — suma una cantidad tirada\n• `party.stats.fatigue: '=0'` — lo fija\n• `acting.values.health: -1` — el personaje que actúa, cuando el sistema tiene personajes\nLos valores son los del sistema (características, provisiones y personajes). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
     once: 'Solo una vez',
     onceHelp:
       'Sale **como mucho una vez por sesión** (un PNJ único, un tesoro irrepetible); después la tabla hace lo que diga **Al agotarse**. Necesita **Id**.',
@@ -246,13 +246,14 @@ export const es: Messages<typeof en> = {
   newDef: {
     forTravel: 'Reglas del sistema',
     forTravelHelp:
-      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en el Hexmapper (Jugar → Con reglas) y en Travel, y que se edita en la aplicación Systems\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
+      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en el Hexmapper (Jugar → Con reglas) y en Travel, y que se edita en la aplicación Systems\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
     system: {
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',
       bindings: 'Bindings',
       calendar: 'Calendario',
       weather: 'Modelo de clima',
+      sheet: 'Hoja',
     },
     systemTips: {
       calendar:
@@ -265,6 +266,8 @@ export const es: Messages<typeof en> = {
         'Velocidades, terrenos, caminos, provisiones y qué comprobaciones se tiran y cuándo.',
       bindings:
         'Qué tabla responde a cada comprobación del viaje, y las estadísticas del grupo que leen las tablas.',
+      sheet:
+        'Los personajes del grupo: sus valores (con límites, contadores), estados y las relaciones que tienen.',
     },
     alreadyHas: 'Este pack ya tiene uno.',
     title: 'Nueva definición',

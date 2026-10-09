@@ -99,11 +99,13 @@ ford-mishap:
   description: |-
     Lo que se lleva el río. Se tira desde las respuestas del _Vado_.
 
-    **Enseña:** `set` sobre provisiones (`food`, `fodder`) y sobre `fatigue`
+    **Enseña:** `set` sobre provisiones (`food`, `fodder`) y sobre `fatigue`, y efectos
+    sobre el personaje que actúa (`acting.…`): quien guía el cruce se tuerce un tobillo.
   entries:
     food: se pierde un fardo de comida
     tired: salís del agua agotados
     fodder: el forraje se empapa y se echa a perder
+    rocks: quien guía el cruce se golpea contra las rocas
 hunger:
   name: Hambre
   description: |-

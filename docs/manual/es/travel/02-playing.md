@@ -41,6 +41,21 @@ Lo que cuenta el diario, para que nada pase en silencio:
 - **Acciones** con lo que han durado, y cuándo no se ha tirado nada: en las Marcas Grises, **Buscar comida** en colinas dice «Buscar comida (3 h): no hay nada que buscar en colinas: solo los bosques, campos, brezales y marismas dan comida». Las tres horas pasan igual y la marcha sigue a la mitad.
 - **Acciones que hace el propio sistema**, como comer al acabar cada día, con lo que cambiaron («Comer (Comida −1)»); un valor que llega a su mínimo o su máximo («Comida no puede bajar de 0») y los cambios de **fatiga** con su motivo («Sin comida suficiente: Fatiga +1»); lo que cambió una acción va en su propia línea («Acampáis para pasar la noche (Fatiga −1)», «Descansáis 2 h (Fatiga −1)»).
 
+## Personajes
+
+Cuando el sistema tiene una hoja para sus personajes (los compañeros de las Marcas Grises; la más pequeña de las reglas Genéricas, con salud y una herida), el viaje tiene una sección **Personajes** encima de las acciones. **Añadir un personaje** crea uno con los valores iniciales de la hoja; ponle nombre, y su id sigue al nombre (`Viejo Tobin` → `viejo-tobin`, como lo alcanzan las tablas y las condiciones: `characters.viejo-tobin.values.health`). Cada personaje se despliega para mostrar sus valores (agrupados como dice la hoja; un contador como casillas: haz clic en una para llenar hasta ella), sus estados (márcalos según pasan) y sus etiquetas (palabras libres, separadas por comas). ↑ lo sube en la lista, × lo quita (tras preguntar).
+
+**Actúa** dice quién hace ahora las acciones del grupo: lo que un sistema escribe para `acting` le llega a ese personaje (en las Marcas Grises, las rocas de un vado hieren y tuercen el tobillo de quien guía el cruce; **Curar a los heridos** solo funciona si quien actúa tiene Supervivencia 2 o más). Con **Nadie**, esos efectos no cambian nada y el diario lo dice: «No actúa nadie, así que «Quien actúa: Tobillo torcido» no cambia nada».
+
+Con personajes, el grupo son sus miembros, como diga el sistema:
+
+- **Las características que salen de las suyas** aparecen en gris y los siguen: la Supervivencia de las Marcas Grises es la mejor de los que no están heridos, el Sigilo el del más torpe, las Bocas cuántos son. Cambia los valores de los personajes, no los del grupo. Las que el sistema guarda para el grupo entero (Moral, Fatiga) se editan como antes.
+- **Las provisiones que llevan** muestran su suma, en gris: la comida de las Marcas Grises son las raciones de todos. Lo que el viaje come o encuentra se les quita (o se les da) a ellos, por igual salvo que el sistema diga otra cosa; edita la parte de cada uno en su hoja.
+- **Sus estados bloquean** lo que dice la hoja para todo el grupo: un compañero herido impide a las Marcas Grises la marcha forzada, un tobillo torcido marchar («Mara: Tobillo torcido: no es posible mientras dure»), estar molido de la silla montar.
+- **Los efectos les llegan**: una noche bien comidos cura a todos los compañeros, las luces embrujadas llenan el pavor de todos; el diario dice a quién («Todos: Salud +1»).
+
+Sin personajes, el mismo sistema juega el grupo como un todo, y lo que dice de los personajes no pasa. Un viaje nuevo con el mismo sistema se lleva a los mismos personajes. La sintaxis, para los sistemas: [Personajes, en Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+
 ## Formas de viajar
 
 La lista del panel tiene las formas de viajar que declara el sistema, cada una con su velocidad. Algunas no se pueden elegir en todas partes: **En barca** de las Marcas Grises solo a la orilla o en el transbordador, y solo por agua y costa; **En carro** solo por los caminos (sin camino por delante no hay ruta). Un valor del día puede dejar una atrás: la **Nieve profunda** de las Marcas Grises (la pone la nieve) bloquea **A caballo**, y un grupo que ya va montado se detiene hasta que elijas otra forma (a pie el viaje sigue). Los terrenos también pueden abrirse y cerrarse: los picos de las Marcas Grises solo en verano y no con nieve, sus lagos solo en los dos meses más fríos (se cruzan sobre el hielo); las rutas rodean lo cerrado.

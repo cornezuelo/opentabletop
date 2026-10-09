@@ -41,7 +41,8 @@ packages/                   # libraries, scope @open-tabletop/*
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
   pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
-  travel-ui/                # embeddable trip UI: setup, status, supplies, actions, journal; the trip without a map (way, store, room)
+  character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags)
+  travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
   manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
 apps/                       # each with its own CLAUDE.md
   hexmapper/                # map editor, and play on the map

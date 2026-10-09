@@ -7,3 +7,5 @@ export { entryText, journalMarkdown, whyText, type JournalContext } from './jour
 export { edgeChoices, edgeName, PALETTE, terrainChoices, terrainName } from './terrains'
 export { readTrips, TripStore, type Saved, type TripStoreOptions } from './trips.svelte'
 export { WATER, wayWorld, type WayHex } from './way'
+export { default as PartyMembers } from './PartyMembers.svelte'
+export { memberLabel, memberNamer } from './members'

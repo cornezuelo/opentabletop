@@ -59,6 +59,7 @@ Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared betwee
 
 - Hexes are keyed by `"column,row"`.
 - POIs, the party and tokens (as characters with a `location`) are entities of their own; a trip's journal is in `log`.
+- The party's characters (when its system has a [sheet](07-kinds.md#sheets)) are characters too, listed by id in the party's `members`, with `kind: pc`, their values as `stats`, their tags, and what only the character engine reads (their sheet, conditions, relations) in `ext.character`. A map can bring its company that way before any trip starts: the Grey Marches' example map has Kael, Mara and Old Tobin.
 - `state.oracle` is the Oracle's state on that map (decks, once-only results, values set); the Hexmapper keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
 - `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`, and the map's `system` and the `packs` it adds to the system's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
 

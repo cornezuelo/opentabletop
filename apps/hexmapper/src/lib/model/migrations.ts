@@ -145,6 +145,13 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       play: { ...play, rules: { ...play!.rules, session: migrateTotals(session) } },
     }
   },
+  /**
+   * v17: a trip's party may be made of characters (`session.members`, who is acting in
+   * `session.acting`); older trips have none, and their party plays as a whole as before.
+   */
+  16(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

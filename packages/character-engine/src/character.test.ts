@@ -195,6 +195,18 @@ describe('characters', () => {
   })
 })
 
+describe('translated sheets', () => {
+  it('reads texts in several languages, as translations fold them in', () => {
+    const { sheet: translated, errors } = parseSheet({
+      ...raw,
+      name: { en: 'Wanderer', es: 'Errante' },
+      values: { wits: { name: { en: 'Wits', es: 'Ingenio' } } },
+    })
+    expect(errors).toEqual([])
+    expect(translated?.values.wits.name).toEqual({ en: 'Wits', es: 'Ingenio' })
+  })
+})
+
 describe('a party of characters', () => {
   const band = () => [
     createCharacter(sheet!, 'test/wanderer', { id: 'kael', values: { wits: 3, health: 4 } }),

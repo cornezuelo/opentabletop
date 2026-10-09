@@ -1,0 +1,88 @@
+# The Company's characters: what each companion has. The system names this sheet
+# (system.yaml: `sheet: companion`), so a trip's party can be made of companions; the
+# bindings (travel.yaml) say which party stats come from them and that they carry the food.
+kind: sheet
+id: companion
+name: Companion
+description: |-
+  One of the Company: their skills, their wounds and the rations they carry. With
+  companions in the party, its Survival, Charisma, Navigation and Stealth are theirs, it
+  eats a ration per mouth from what they carry, and wounds keep some of them back.
+
+  **Shows:** a sheet of values with bounds (one bounded by another value,
+  `max: '{{maxHealth}}'`), a track (dread), named groups, conditions that block an action, a
+  way of travelling or travel itself, and kinds of relation (a bond with a number, a home).
+values:
+  # Skills: the party takes the best (or the worst) of them (bindings' `from`).
+  survival: { name: Survival, default: 1, min: 0, max: 5, group: skills }
+  charisma: { name: Charisma, default: 0, min: -2, max: 3, group: skills }
+  pathfinding:
+    name: Pathfinding
+    description: The party's Navigation is the best Pathfinding among the companions.
+    default: 0
+    min: 0
+    max: 3
+    group: skills
+  stealth:
+    name: Stealth
+    description: The party is only as stealthy as its clumsiest companion.
+    default: 1
+    min: 0
+    max: 3
+    group: skills
+  # Health under a maximum that is another value (a variable as the bound).
+  maxHealth: { name: Max health, default: 3, min: 1, max: 6, group: body }
+  health:
+    name: Health
+    description: Lost to fords, ambushes and the cold; a fed night in camp gives one back.
+    default: 3
+    min: 0
+    max: '{{maxHealth}}'
+    group: body
+  # What each one carries of the party's food (bindings: `resources.food: { carried: rations }`).
+  rations:
+    name: Rations
+    description: The food this companion carries; the party's food is everyone's together.
+    default: 2
+    min: 0
+    max: 6
+    group: gear
+  # A track of boxes, filled by haunted nights and emptied by the Ember Moon's rite.
+  dread:
+    name: Dread
+    description: Filled by the haunted lights of the Greywood; the rite at a shrine empties it.
+    default: 0
+    min: 0
+    max: 6
+    track: true
+    group: body
+# The headings the values are shown under, in this order.
+groups:
+  skills: { name: Skills }
+  body: { name: Body }
+  gear: { name: Gear }
+conditions:
+  # A wounded companion can't push on (blocks two of the system's actions) nor guide
+  # (the party's Survival leaves the wounded out).
+  wounded:
+    name: Wounded
+    description: Hurt and bleeding. Can't force a march or march by night; doesn't count for the party's Survival.
+    blocks: [forced-march, night-march]
+  # A sprained ankle stops the whole party until it's tended.
+  sprained:
+    name: Sprained ankle
+    description: Can't walk on. The party can't march until someone tends it.
+    blocks: [travel]
+  # Riding is out of the question while saddle-sore (a way of travelling blocked).
+  saddle-sore:
+    name: Saddle-sore
+    description: Can't bear another day on horseback.
+    blocks: [mode.horse]
+relations:
+  bond:
+    name: Bond
+    description: How close two companions (or a companion and a place) are, 0 to 3.
+    value: { min: 0, max: 3 }
+  home:
+    name: Home
+    description: Where a companion comes from.

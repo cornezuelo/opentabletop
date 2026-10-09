@@ -61,7 +61,7 @@ packages/   hex, random, dice, conditions, time        building blocks
             session                                     ties the engines together for a trip
             schema, storage, note-refs                  saved data, browser storage, links to notes apps
             ui-kit, pack-ui, oracle-ui, travel-ui,      shared Svelte pieces
-            manual-ui
+            character-ui, manual-ui
 apps/       hexmapper, oracle, travel, systems, manual, cli
 packs/      core, grey-marches
 docs/       design notes, the manual (docs/manual/<language>/<app>/), the backlog

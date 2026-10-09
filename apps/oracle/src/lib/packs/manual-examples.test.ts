@@ -68,19 +68,24 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'calendar',
         'weather',
         'system',
+        'sheet',
       ]),
     )
   })
 
-  // Travel rules come with the page's bindings, as in a system (their stats).
+  // Travel rules come with the page's bindings and sheet, as in a system (their stats, some
+  // made of the characters').
   const bindings = kinds.find((y) => kindOf(y) === 'bindings')!
+  const sheet = kinds.find((y) => kindOf(y) === 'sheet')!
   const all = pages(locale).flatMap((page) =>
     examples(read(page)).map((yaml, i) => [`${page} #${i + 1} (${kindOf(yaml)})`, yaml]),
   )
 
   it.each(all)('%s loads', (_, yaml) => {
     const withBindings =
-      kindOf(yaml) === 'travel-rules' && !/^kind: bindings/m.test(yaml) ? [yaml, bindings] : [yaml]
+      kindOf(yaml) === 'travel-rules' && !/^kind: bindings/m.test(yaml)
+        ? [yaml, bindings, sheet]
+        : [yaml]
     expect(problems(withBindings)).toEqual([])
   })
 })

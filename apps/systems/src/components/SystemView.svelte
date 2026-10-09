@@ -25,7 +25,7 @@
   const tabs = $derived<Tab[]>([
     'overview',
     ...(file ? (['rules', 'checks'] as Tab[]) : []),
-    ...(system?.pack ? (['calendar', 'weather', 'modes'] as Tab[]) : []),
+    ...(system?.pack ? (['sheet', 'calendar', 'weather', 'modes'] as Tab[]) : []),
     'try',
     ...(file || declared ? (['yaml'] as Tab[]) : []),
   ])
@@ -42,7 +42,7 @@
     add(file?.root, file?.bindings?.path)
     add(declared?.root, declared?.system?.path)
     if (system)
-      for (const kind of ['calendar', 'weather', 'roll-modes'] as const)
+      for (const kind of ['sheet', 'calendar', 'weather', 'roll-modes'] as const)
         for (const part of systemParts(system, kind)) add(part.root, part.path)
     return out
   })
@@ -82,11 +82,11 @@
         <TryTab {system} />
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} />
-      {:else if (tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
+      {:else if (tab === 'sheet' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
-          {#if tab === 'rules'}<RulesForm {doc} />{:else}<ChecksForm {doc} />{/if}
+          {#if tab === 'rules'}<RulesForm {doc} />{:else}<ChecksForm {doc} {system} />{/if}
         </div>
       {:else}
         <Overview {system} doc={declared ? overview : null} />

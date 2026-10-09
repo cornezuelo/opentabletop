@@ -37,6 +37,7 @@ export const es: Messages<typeof en> = {
     overview: 'Resumen',
     rules: 'Reglas',
     checks: 'Comprobaciones',
+    sheet: 'Hoja',
     calendar: 'Calendario',
     weather: 'Clima',
     modes: 'Modos de tirada',
@@ -44,6 +45,14 @@ export const es: Messages<typeof en> = {
     yaml: 'YAML',
   },
   parts: {
+    sheet: {
+      title: 'La hoja de sus personajes',
+      intro:
+        'Lo que tiene cada personaje del grupo: valores con sus límites, estados y las relaciones que mantiene. Con una hoja, el grupo de un viaje puede estar hecho de personajes, y la pestaña **Comprobaciones** dice qué características del grupo salen de ellos y qué provisiones llevan.',
+      help: 'Una hoja por sistema (`kind: sheet`), nombrada en su **Resumen** (`sheet:`). Las condiciones y las tablas leen cada personaje:\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\n• `party.members: kael` — si Kael viaja con el grupo\nLos efectos los cambian:\n• `party.members.values.health: -1` — a todos los miembros\n• `acting.conditions.wounded: true` — al que actúa\nSin hoja, el grupo se juega como un todo.',
+      none: 'Este sistema no tiene hoja: su grupo se juega como un todo.',
+      create: 'Nueva hoja',
+    },
     calendar: {
       title: 'El calendario del sistema',
       intro:
@@ -68,6 +77,44 @@ export const es: Messages<typeof en> = {
       none: 'Los packs de este sistema no declaran modos de tirada.',
       create: 'Nuevos modos de tirada',
     },
+  },
+  sheet: {
+    name: 'Nombre',
+    nameHelp: 'El nombre de la hoja, que se ve donde se crean personajes.\n• **Compañero**',
+    values: 'Valores',
+    valuesHelp:
+      "Números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite, puede bajar de cero). Las tablas y condiciones los leen como `characters.<id>.values.<valor>` y `acting.values.<valor>`:\n• `wits` — empieza en `2`, mín. `0`, máx. `5`\n• `health` — máx. `'{{maxHealth}}'`: otro valor es su límite\n• `stress` — un **contador** de 9 casillas",
+    valueName: 'Nombre',
+    default: 'Empieza en',
+    defaultHelp: 'Lo que tiene un personaje nuevo (vacío: 0).\n• `2`',
+    min: 'Mín.',
+    max: 'Máx.',
+    boundHelp:
+      "Los efectos nunca lo llevan más allá. Un número, u otro valor de la hoja entre llaves:\n• `0`\n• `'{{maxHealth}}'` — tan alto como el maxHealth del personaje\nVacío: sin límite.",
+    track: 'Contador',
+    trackHelp:
+      'Se muestra como casillas, tantas como su máximo (estrés, experiencia, un juramento). Necesita un número como máximo.',
+    group: 'Grupo',
+    groupHelp: 'Un encabezado bajo el que se muestra, nada más.\n• `attributes`\n• `meters`',
+    groups: 'Grupos',
+    groupsHelp:
+      'Los encabezados bajo los que se muestran los valores, en este orden, con un nombre en cada idioma. Un valor dice su grupo en su columna **Grupo**.\n• `skills` — **Habilidades**\n• `body` — **Cuerpo**',
+    groupName: 'Nombre',
+    conditions: 'Estados',
+    conditionsHelp:
+      'Estados que un personaje tiene o no (herido, hambriento, un trauma). Cada uno puede bloquear cosas a todo el grupo mientras alguien lo tenga. Los efectos los ponen y los quitan, las condiciones los leen:\n• `acting.conditions.wounded: true` — el personaje que actúa queda herido\n• `characters.mara.conditions: wounded` — si Mara lo está\n• `unless: { conditions: wounded }` en una característica del grupo — cuenta solo a los que no están heridos',
+    conditionName: 'Nombre',
+    blocks: 'Bloquea',
+    blocksHelp:
+      'Lo que el grupo no puede hacer mientras algún miembro lo tenga, separado por comas:\n• `travel` — no se marcha\n• `forced-march` — una acción del sistema\n• `mode.horse` — una forma de viajar\nEl viaje dice quién lo tiene.',
+    relations: 'Tipos de relación',
+    relationsHelp:
+      'Relaciones que un personaje puede tener con cualquier cosa que tenga referencia (otro personaje, un lugar, una facción, una nota), como los vínculos de Ironsworn. Un tipo con límites lleva un número:\n• `bond` — mín. `0`, máx. `10`\n• `home` — sin número',
+    relationName: 'Nombre',
+    relationMin: 'Número desde',
+    relationMax: 'hasta',
+    relationValueHelp:
+      'Los límites del número que lleva una relación de este tipo; los dos vacíos: ninguno.',
   },
   calendar: {
     name: 'Nombre',
@@ -329,7 +376,7 @@ export const es: Messages<typeof en> = {
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
-      "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija; `'-{{party.stats.mouths}}'`: tantos como otro valor, `'+{{1d3}}'`: una tirada)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\n• `advance: 1` — avanza un hex (un tramo de un camino) por la ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchando (`advance: '{{party.stats.rank}}'`: tantos como un valor)\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
+      "Lo que hace la acción, **un paso por caja, en orden**, cada uno escrito como en el YAML:\n• `time: 180` — pasan tres horas (o `time: dawn`, `time: nightfall`, `time: '14:00'`)\n• `speed: 0.5` — lo que queda de marcha hoy va a media velocidad\n• `effects: { party.stats.fatigue: -1 }` — cambia el grupo (un número suma o resta; `'=0'` lo fija; `'-{{party.stats.mouths}}'`: tantos como otro valor, `'+{{1d3}}'`: una tirada; `party.members.values.health: 1`, `acting.conditions.wounded: false`: sus personajes)\n• `set: { lost: true }` — da un valor del día\n• `do: forage` — hace otra acción (si se cumplen sus condiciones)\n• `roll: ENCOUNTER_CHECK_REQUIRED` — tira una comprobación ya\n• `advance: 1` — avanza un hex (un tramo de un camino) por la ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchando (`advance: '{{party.stats.rank}}'`: tantos como un valor)\nUn cambio más allá del **Mín** o **Máx** de un valor se queda ahí, y los pasos siguientes ven `below: [id]` o `above: [id]`.\nLa caja junto a cada paso es **su condición**: el paso solo ocurre cuando se cumple.\n• `below: food` — solo si la comida llegó hoy a su mínimo\n• `party.stats.morale: { lte: 1 }` — solo con la moral baja\n• `moment: hex-enter` — solo cuando la acción llegó en ese momento\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.",
     on: 'Automática en',
     onHelp:
       '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• `day-start` — al alba\n• `hex-enter` — al entrar en cada hex\n• `day-end` — al acabar cada día, se acampe o no\n• el id de una acción, p. ej. `camp` — justo al empezar esa acción\nVarios, separados por comas: `day-start, hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { moment: hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `day-end`\n• los porteadores refunfuñan al alba tras un día de hambre: `day-start` con **Solo si** `yesterday.hungry: true`',
@@ -368,7 +415,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), en pares `clave: valor`, como en las tablas:\n• `terrain: forest` — el hex\n• `tags: landmark` — una etiqueta del hex\n• `edges: [road, river]` — el camino o río del paso\n• `danger: { gte: 2 }` — un valor del hex o de su región\n• `season: winter`, `weather: storm` — el momento\n• `daylight: false` — solo de noche (pasado el anochecer del sistema, antes de su alba); `watch: 3` — la tercera guardia\n• `from.terrain: forest` — saliendo de un bosque; `visits: { gte: 2 }` — de vuelta\n• `clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\n• `hex.terrain: forest`, `trip.weather: storm`, `time.daylight: true` — por **nombre completo** (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`): los mismos valores, sin que los tape una característica con el mismo nombre\n• `party.resources.food: { lt: 1 }` — el grupo\n• `below: food` — la comida llegó hoy a su mínimo (en `day-end`)\n• `moment: rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos",
+      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), en pares `clave: valor`, como en las tablas:\n• `terrain: forest` — el hex\n• `tags: landmark` — una etiqueta del hex\n• `edges: [road, river]` — el camino o río del paso\n• `danger: { gte: 2 }` — un valor del hex o de su región\n• `season: winter`, `weather: storm` — el momento\n• `daylight: false` — solo de noche (pasado el anochecer del sistema, antes de su alba); `watch: 3` — la tercera guardia\n• `from.terrain: forest` — saliendo de un bosque; `visits: { gte: 2 }` — de vuelta\n• `clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\n• `hex.terrain: forest`, `trip.weather: storm`, `time.daylight: true` — por **nombre completo** (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`): los mismos valores, sin que los tape una característica con el mismo nombre\n• `party.resources.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `below: food` — la comida llegó hoy a su mínimo (en `day-end`)\n• `moment: rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos",
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',
@@ -384,7 +431,7 @@ export const es: Messages<typeof en> = {
     olderFormatUpdate: 'Actualizar',
     effects: 'Cambios',
     effectsHelp:
-      "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• `party.stats.fatigue: 1` — suma 1\n• `party.resources.food: -1` — quita 1\n• `party.stats.fatigue: '=0'` — lo fija\n• `party.resources.food: '-{{party.stats.mouths}}'` — tantos como dice otro valor (una variable)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `day-end`, **Solo si** `below: food`, **Cambios** `party.stats.fatigue: 1`.",
+      "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• `party.stats.fatigue: 1` — suma 1\n• `party.resources.food: -1` — quita 1\n• `party.stats.fatigue: '=0'` — lo fija\n• `party.resources.food: '-{{party.stats.mouths}}'` — tantos como dice otro valor (una variable)\n• `party.members.values.health: -1`, `acting.conditions.wounded: true` — sus personajes (todos, el que actúa)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `day-end`, **Solo si** `below: food`, **Cambios** `party.stats.fatigue: 1`.",
     pause: 'Pausar después',
     pauseHelp:
       'El viaje **se detiene** cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo. Es lo único que hace que una comprobación detenga el viaje: sin ello, una sin tabla solo se apunta en el diario.\n• un santuario encontrado por el camino, tirado en su tabla\n• un hito que describir, sin tabla\nUna entrada de tabla también puede pausar, solo cuando sale (`pause: true` en la entrada).',
@@ -403,6 +450,22 @@ export const es: Messages<typeof en> = {
     statDefault: 'Empieza en',
     noStats: 'Sin características del grupo.',
     addStat: 'Añadir una característica',
+    statFrom: 'De los miembros',
+    statFromHelp:
+      'Con personajes en el grupo, la característica sale de las suyas (y los efectos sobre ella se sobrescriben); sin ellos, se guarda como cualquier otra. Una de:\n• `max: survival` — la mejor Supervivencia entre ellos\n• `min: stealth` — la peor\n• `sum: strength` — la de todos juntos\n• `count: true` — cuántos son\nAñade `when` / `unless` para contar solo a algunos, y `none` para cuando no cuenta nadie:\n• `count: true, unless: { conditions: wounded }` — los que no están heridos\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — la mejor de los que siguen en pie\nNecesita una hoja (la pestaña **Hoja**).',
+    statFromNone: 'la guarda el grupo',
+    carried: 'Provisiones que llevan los miembros',
+    carriedHelp:
+      'Con personajes en el grupo, una provisión aquí es lo que llevan entre todos: el viaje muestra su suma, sus límites son la suma de los suyos, y lo que el viaje gasta o gana se reparte entre ellos. Sin personajes, el grupo la guarda como un todo.\n• **food**, llevada en `rations`, repartida por igual',
+    noSheet: 'Este sistema aún no tiene hoja (la pestaña Hoja): el grupo se juega como un todo.',
+    carriedSupply: 'Provisión',
+    carriedIn: 'Llevada en',
+    carriedInHelp:
+      'El valor de la hoja de los miembros que guarda la parte de cada uno.\n• `rations`',
+    share: 'Reparto',
+    shareHelp:
+      '**even** (por igual, lo normal): se quita a quien más tiene y se da a quien menos, de una en una.\n**order** (en orden): el primer miembro da (o recibe) todo lo que puede, luego el siguiente.',
+    shareEven: 'even (por defecto)',
   },
   edit: {
     readOnly: 'Este sistema viene incluido y es de solo lectura.',

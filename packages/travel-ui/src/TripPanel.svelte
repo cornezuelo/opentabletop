@@ -34,6 +34,8 @@
   import { calendarOf } from '@open-tabletop/session'
   import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
+  import { memberNamer } from './members'
+  import PartyMembers from './PartyMembers.svelte'
 
   /**
    * A trip in progress: day and time, where the party is and where it's heading, travel
@@ -185,8 +187,18 @@
       ]),
     ),
   )
+  /** The party's characters' values and conditions in words ("Kael: Health"). */
+  const memberName = $derived(memberNamer(system, session.members, locale, t))
   /** Why a button is disabled, in words ('' when it isn't). */
-  const why = (because: Unavailable | undefined): string => whyText(because, { t, dayValues })
+  const why = (because: Unavailable | undefined): string =>
+    whyText(because, { t, dayValues, memberName })
+  /** With characters, the stats made of theirs and the supplies they carry follow them. */
+  const hasMembers = $derived(!!system.sheet && !!session.members?.length)
+  const fromMembers = (stat: StatDefinition) => hasMembers && !!stat.from
+  const carried = (resource: string) => hasMembers && !!system.bindings?.resources?.[resource]
+  /** What a condition blocks, in words: an action, travel or a way of travelling. */
+  const blockName = (id: string) =>
+    id === 'travel' ? marchName : id.startsWith('mode.') ? modeName(id.slice(5)) : actionName(id)
   /** A button's tooltip: what it does, then why it's disabled. */
   const tipWith = (tip: TooltipText, id: string): TooltipText => {
     const reason = why(blocked[id])
@@ -250,6 +262,7 @@
     terrainName,
     actionNothing,
     dayValues,
+    memberName,
   })
   /** What an action does, for its tooltip: its description, or what its steps do. */
   function actionTip(id: string, fallback = ''): TooltipText {
@@ -366,6 +379,7 @@
               t('tips.resource'),
               bounds[resource]?.min !== undefined && t('tips.min', { min: bounds[resource].min! }),
               bounds[resource]?.max !== undefined && t('tips.max', { max: bounds[resource].max! }),
+              carried(resource) && t('members.carried'),
               readAs(`party.resources.${resource}`),
             ]
               .filter(Boolean)
@@ -376,6 +390,7 @@
           type="number"
           min="0"
           value={travel.resources[resource] ?? 0}
+          disabled={carried(resource)}
           onchange={(e) => {
             const amount = number(e.currentTarget.value)
             onedit((s) => ({
@@ -392,7 +407,11 @@
     <label class="field">
       <span
         >{statText(stat.name, key)}<InfoTip
-          markdown={[statText(stat.description, ''), readAs(key, `party.stats.${key}`)]
+          markdown={[
+            statText(stat.description, ''),
+            fromMembers(stat) && t('members.fromMembers'),
+            readAs(key, `party.stats.${key}`),
+          ]
             .filter(Boolean)
             .join('\n\n')}
         /></span
@@ -400,6 +419,7 @@
       <input
         type="number"
         value={session.stats[key] ?? stat.default ?? 0}
+        disabled={fromMembers(stat)}
         onchange={(e) => {
           const value = Number(e.currentTarget.value) || 0
           onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
@@ -407,6 +427,16 @@
       />
     </label>
   {/each}
+
+  {#if system.sheet}
+    <PartyMembers
+      system={{ ...system, sheet: system.sheet }}
+      {session}
+      {locale}
+      names={blockName}
+      {onedit}
+    />
+  {/if}
 
   <div class="actions">
     <button
@@ -519,6 +549,11 @@
   input[type='number'] {
     width: 100%;
     min-width: 0;
+  }
+
+  /* Made of the characters' values: shown, not edited here. */
+  input[type='number']:disabled {
+    opacity: 0.6;
   }
 
   .status {

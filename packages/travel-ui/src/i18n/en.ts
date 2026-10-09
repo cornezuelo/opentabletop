@@ -69,11 +69,32 @@ export const en = {
     dawn: 'dawn',
     nightfall: 'nightfall',
   },
+  members: {
+    title: 'Characters',
+    help: "The party's characters, made with the system's sheet. With them, the party is its members: the stats the system makes of theirs (the best Survival, how many they are…) and the supplies they carry follow them, and effects can reach each one. Without any, the party is played as a whole.\nConditions and tables read them:\n• `party.members: kael` — whether Kael travels with the party\n• `characters.kael.values.health: { lte: 1 }` — one of them\n• `acting.values.wits` — whoever acts now",
+    none: 'No characters: the party is played as a whole.',
+    add: 'Add a character',
+    newName: 'Character',
+    remove: 'Remove',
+    up: 'Move up',
+    confirmRemove: 'Remove {name} from the party?',
+    acting: 'Acting',
+    actingHelp:
+      "Who takes the party's actions now. Effects written for `acting` change this character (`acting.values.health: -1`), and conditions and tables read theirs (`acting.values.wits: { gte: 3 }`). With nobody acting, those effects change nothing and the journal says so.",
+    actingNow: 'acting',
+    nobody: 'Nobody',
+    everyone: 'Everyone',
+    whoActs: 'Whoever acts',
+    fromMembers:
+      'Made of the characters’ values while the party has any (the system’s rule): edit theirs.',
+    carried: 'What the characters carry between them: edit each one’s share in their sheets.',
+  },
   /** Why a button is disabled. */
   blocked: {
     value: '{name}: not possible for the rest of the day.',
     once: 'Once a day: already done today.',
     condition: 'Not possible here and now (the system’s rule for it).',
+    member: '{name}: not possible while it lasts.',
   },
   /** Names of the older built-in values of the day (systems name their own). */
   values: { lost: 'Lost' },
@@ -112,6 +133,9 @@ export const en = {
       action: 'The action',
     },
     lostToday: 'lost for today',
+    cleared: '{name} (no more)',
+    nobodyActing:
+      'Nobody is acting, so “{name}” changed nothing (choose who acts above the actions)',
     CAMP_STARTED: 'Camp for the night',
     DESTINATION_REACHED: 'Destination reached',
     ROUTE_BLOCKED: 'The route is blocked',
@@ -124,6 +148,7 @@ export const en = {
     march: 'The system’s rule for marching doesn’t let the party march on now.',
     lost: 'Lost: no more travel today',
     value: '{name}: no more travel today',
+    member: '{name}: the party can’t travel while it lasts',
     weather: 'The weather prevents travel',
     blocked: 'The way is blocked',
     'no-route': 'No destination set',

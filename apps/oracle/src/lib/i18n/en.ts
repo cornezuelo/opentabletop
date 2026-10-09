@@ -110,7 +110,7 @@ export const en = {
       "Values the entry gives when it comes up, as `key: value` pairs. Later tables, the template and the trip read them:\n• `weather: storm` — the day's weather\n• `lost: true` — a value of the day the system declares (it can block travel)\n• `count: '{{2d6}}'` — a number rolled now\n• `terrain: '{{common}}'` — copied from what the table sees\n• `rolled: '{{roll}}'` — the total of the table's own roll",
     effects: 'Changes',
     effectsHelp:
-      "What the entry changes in the trip's party when it comes up:\n• `party.stats.morale: -1` — takes 1 away\n• `party.resources.food: '{{1d3}}'` — adds a rolled amount\n• `party.stats.fatigue: '=0'` — sets it\nThe values are the system's (stats and supplies). During a trip they apply at once; rolled by hand, they're offered to the trip (**Apply to the trip**).",
+      "What the entry changes in the trip's party when it comes up:\n• `party.stats.morale: -1` — takes 1 away\n• `party.resources.food: '{{1d3}}'` — adds a rolled amount\n• `party.stats.fatigue: '=0'` — sets it\n• `acting.values.health: -1` — the character acting, when the system has characters\nThe values are the system's (stats, supplies and characters). During a trip they apply at once; rolled by hand, they're offered to the trip (**Apply to the trip**).",
     once: 'Only once',
     onceHelp:
       'Comes up **at most once per session** (a unique NPC, a one-off treasure); after that the table does what **When exhausted** says. Needs an **Id**.',
@@ -243,13 +243,14 @@ export const en = {
   newDef: {
     forTravel: 'Rules of the system',
     forTravelHelp:
-      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in the Hexmapper (Play → With rules) and in Travel, edited in the Systems app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
+      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in the Hexmapper (Play → With rules) and in Travel, edited in the Systems app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
     system: {
       'roll-modes': 'Roll modes',
       'travel-rules': 'Travel rules',
       bindings: 'Bindings',
       calendar: 'Calendar',
       weather: 'Weather model',
+      sheet: 'Sheet',
     },
     systemTips: {
       'roll-modes':
@@ -260,6 +261,8 @@ export const en = {
       weather:
         'Weather with memory: per season, how likely each weather is tomorrow. Bind it to a check with weather:.',
       bindings: 'Which table answers each travel check, and the party stats tables read.',
+      sheet:
+        "The party's characters: their values (with bounds, tracks), conditions and the relations they hold.",
     },
     alreadyHas: 'This pack already has one.',
     title: 'New definition',

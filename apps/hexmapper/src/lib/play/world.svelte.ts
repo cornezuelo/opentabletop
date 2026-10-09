@@ -1,5 +1,6 @@
 import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
 import { calendarOf, localize } from '@open-tabletop/session'
+import { memberNamer, translator } from '@open-tabletop/travel-ui'
 import { availableActions, nightAction } from '@open-tabletop/travel-engine'
 import { type Calendar, type DataCalendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
@@ -160,6 +161,20 @@ export function stopMessage(
     return { text: t('world.stoppedFound'), kind: 'info' }
   const stopped = added.findLast((e) => e.code === 'TRAVEL_STOPPED')
   const reason = String(stopped?.data?.reason ?? '')
+  // A character's condition that blocks travel: whose.
+  if (reason === 'value' && typeof stopped?.data?.who === 'string') {
+    const id = String(stopped.data.value)
+    const play = editor.map.play
+    const name =
+      play?.rules &&
+      memberNamer(
+        getSystem(play.rules.system),
+        sessionOf(play)?.members,
+        getLocale(),
+        translator(getLocale),
+      )(`characters.${stopped.data.who}.conditions.${id}`)
+    return { text: t('world.stoppedValue', { name: name || id }), kind: 'info' }
+  }
   if (reason === 'value') {
     const id = String(stopped?.data?.value)
     const name = localize(rules?.values?.[id]?.name, getLocale(), 'en') ?? id

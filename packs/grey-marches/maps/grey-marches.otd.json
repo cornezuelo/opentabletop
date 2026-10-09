@@ -8,6 +8,7 @@
         "map": "greymarches1",
         "hex": "5,7"
       },
+      "members": ["kael", "mara", "tobin"],
       "ext": {
         "hexmapper": {
           "token": {
@@ -47,6 +48,72 @@
   "log": [],
   "otd": "0.2.0",
   "characters": [
+    {
+      "id": "kael",
+      "type": "character",
+      "name": "Kael",
+      "kind": "pc",
+      "tags": ["ranger"],
+      "stats": {
+        "survival": 3,
+        "charisma": 0,
+        "pathfinding": 2,
+        "stealth": 1,
+        "maxHealth": 3,
+        "health": 3,
+        "rations": 3,
+        "dread": 0
+      },
+      "ext": {
+        "character": {
+          "sheet": "grey-marches/companion"
+        }
+      }
+    },
+    {
+      "id": "mara",
+      "type": "character",
+      "name": "Mara",
+      "kind": "pc",
+      "tags": ["envoy"],
+      "stats": {
+        "survival": 1,
+        "charisma": 2,
+        "pathfinding": 0,
+        "stealth": 2,
+        "maxHealth": 3,
+        "health": 3,
+        "rations": 2,
+        "dread": 0
+      },
+      "ext": {
+        "character": {
+          "sheet": "grey-marches/companion"
+        }
+      }
+    },
+    {
+      "id": "tobin",
+      "type": "character",
+      "name": "Old Tobin",
+      "kind": "pc",
+      "tags": ["veteran"],
+      "stats": {
+        "survival": 2,
+        "charisma": -1,
+        "pathfinding": 1,
+        "stealth": 0,
+        "maxHealth": 4,
+        "health": 4,
+        "rations": 3,
+        "dread": 0
+      },
+      "ext": {
+        "character": {
+          "sheet": "grey-marches/companion"
+        }
+      }
+    },
     {
       "id": "brenna",
       "type": "character",

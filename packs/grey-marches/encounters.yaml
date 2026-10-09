@@ -18,6 +18,7 @@ description: |-
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
+  - An effect on every companion: the haunted lights fill each one's dread
 roll: '1d6 + {{danger}}'
 entries:
   # A once-only encounter, only at the very heart of the Greywood (danger 5), or deeper
@@ -43,10 +44,12 @@ entries:
     set: { reactionModifier: -3 }
     effects: { party.stats.morale: -1 }
   # Nights in haunted places, whatever the roll.
+  # …and every companion's dread fills a box (an effect on every member of the party).
   - id: lights
     range: 1-20
     when: { all: [{ tags: haunted }, { timeOfDay: night }] }
     result: Pale lights drift between the trees, calling your names
+    effects: { party.members.values.dread: 1 }
   # In a named region, by day: its own people (`unless`: not at night).
   - id: patrol
     range: 1-4

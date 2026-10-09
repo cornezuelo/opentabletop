@@ -18,6 +18,7 @@ import {
   applyMemberEffects,
   carriedBounds,
   carriedNow,
+  isMemberPath,
   memberFacts,
   partyBlocks,
   refreshParty,
@@ -516,12 +517,16 @@ export function createSession(options: {
               })
             settle()
             const line = entries.findLast((e) => isActionLine(e, event.action))
-            if (line)
+            // A party without characters: what the system says of them didn't happen.
+            const told = s.members?.length
+              ? event.effects
+              : Object.fromEntries(Object.entries(event.effects).filter(([p]) => !isMemberPath(p)))
+            if (line && Object.keys(told).length)
               line.data = {
                 ...line.data,
                 effects: mergeEffects(
                   line.data?.effects as Record<string, number | string> | undefined,
-                  event.effects,
+                  told,
                 ),
               }
             continue
@@ -535,12 +540,20 @@ export function createSession(options: {
             const { limits } = applyEffects(s, event.check.effects, stats, suppliesNow(), seenNow)
             limits.push(...memberEffects(event.check.effects, seenNow, event.time))
             settle()
-            add(s, entries, {
-              source: 'travel',
-              code: 'CHECK_EFFECTS',
-              time: event.time,
-              data: { event: event.check.event, effects: event.check.effects },
-            })
+            // A party without characters: only what happened to it is told (nothing, when
+            // the check only changes characters).
+            const told = s.members?.length
+              ? event.check.effects
+              : Object.fromEntries(
+                  Object.entries(event.check.effects).filter(([p]) => !isMemberPath(p)),
+                )
+            if (Object.keys(told).length)
+              add(s, entries, {
+                source: 'travel',
+                code: 'CHECK_EFFECTS',
+                time: event.time,
+                data: { event: event.check.event, effects: told },
+              })
             for (const limit of limits)
               add(s, entries, {
                 source: 'travel',

@@ -129,8 +129,11 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 | `party.resources.food: '-{{party.stats.mouths}}'` | takes away as many as another value says                       |
 | `party.stats.morale: '={{party.stats.charisma}}'` | sets it to another value                                       |
 | `party.resources.food: '-{{1d3}}'`                | takes away a roll (in a trip, the same all through the moment) |
+| `party.members.values.health: 1`                  | adds 1 to every character of the party                         |
+| `characters.kael.values.health: -1`               | takes 1 from one character, by id                              |
+| `acting.conditions.wounded: true`                 | the character acting now gets a condition (`false` clears it)  |
 
-A change stops at the value's `min` / `max`; what hit one is seen afterwards as `below: [ids]` / `above: [ids]`. Without bounds a value may go anywhere, negative too.
+A change stops at the value's `min` / `max`; what hit one is seen afterwards as `below: [ids]` / `above: [ids]`. Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 
 ## Moments
 
@@ -165,7 +168,11 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 
 ## What blocks: `blocks`
 
-A value of the day lists what can't be done while it holds: `travel` (no more marching), an action's id (`camp`, `forage`) or a way of travelling as `mode.<id>` (`mode.horse`). `values: { snowbound: { blocks: [mode.horse] } }`.
+A value of the day lists what can't be done while it holds: `travel` (no more marching), an action's id (`camp`, `forage`) or a way of travelling as `mode.<id>` (`mode.horse`). `values: { snowbound: { blocks: [mode.horse] } }`. A character's condition on a [sheet](07-kinds.md#sheets) blocks the same way while any character of the party has it: `conditions: { sprained: { blocks: [travel] } }`; the trip says who.
+
+## The party's characters: `from` and `carried`
+
+In bindings, when the system has a sheet: a stat made of the characters' values, `from: { max: survival }` (also `min`, `sum`, or `count: true`, with `when` / `unless` on each character and `none` for when none counts), and a supply they carry, `resources: { food: { carried: rations, share: even } }`. Both only while the party has characters. See [Bindings](07-kinds.md#bindings).
 
 ## Speeds
 

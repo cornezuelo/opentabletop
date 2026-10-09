@@ -6,12 +6,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Characters**: a system can give its party characters made with a **sheet** of its own (`kind: sheet`: values with bounds, tracks, groups, conditions that block things, kinds of relation). Trips in Travel, the Hexmapper and Systems' **Try it** get a **Characters** section: add them, choose who acts, change their values and conditions. The party's stats can be made of theirs (`from: { max: survival }` in the bindings: the best, the worst, the sum or how many, leaving some out with `when` / `unless`) and its supplies carried by them (`resources: { food: { carried: rations } }`, shared out as the trip spends them); effects reach them (`party.members.…`, `characters.<id>.…`, `acting.…`, `true` / `false` for conditions), conditions read them, and their conditions block what they say, naming who. The same system still plays with no characters. The Systems app has a **Sheet** tab and, in **Checks**, **From the members** and **Supplies the members carry**; the Generic system has the smallest sheet (health and a wound). Maps keep their party's characters (map format v17, as OTD characters of the party) and saved trips too (trips v5).
 - Oracle: **New definition → Table** can start **From pasted text**: a numbered list from a PDF, a CSV or a spreadsheet copy, or a plain list, with the dice guessed from the numbers.
 - Oracle: **Odds** beside a table's entries shows how likely each one is with the context typed and the roll mode chosen (and, with dice, how likely each total is).
 - Hexmapper: **icon names in Spanish** too (and the search finds an icon by its name in either language).
 - Hexmapper, Export: **Split into pages** prints a big map on several sheets of a paper you pick (A4, Letter…), at real scale, overlapping 10 mm to glue, each page saying where it goes (B3); **Empty hexes in white** saves ink in the PDF and PNG.
 - Hexmapper: the Text tool lists **Texts on the map** (each with its font and size); clicking one selects it and centres the map on it.
 - Hexmapper, World: **the world clock starts on a date you choose** (day, month, year and time in the system's calendar), and **Set the date** moves it later (like moving time on) or earlier (asking first, and never during a trip; the timeline says the clock went back). **Events on a date** of the calendar, besides in N days, each with an **id** (`market-day`: what conditions read as `world.events`) and a description. The example map's events have ids (`market-day`, `clan-march`, `spring-floods`), and the Grey Marches' Market day reads `world.events: market-day`.
+
+### Packs
+
+- The Grey Marches: **the Company** (Kael, Mara and Old Tobin) comes with the example map, made with the system's **Companion** sheet: Survival, Charisma, Navigation and Stealth are theirs (the best of those not wounded, the clumsiest one's…), the food is their rations, eaten a ration per mouth; a fed night heals them, the haunted lights fill their **Dread** and the rite empties it, a ford's rocks sprain the ankle of whoever leads the crossing (which stops the party), a long day on horseback leaves them saddle-sore (no riding), and **Tend the wounded** heals everyone when whoever acts knows how.
 
 ## [0.4.0] - 2026-10-09
 

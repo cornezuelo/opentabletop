@@ -92,7 +92,18 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { rules, bindings, calendar } of systems) {
+  for (const { rules, bindings, calendar, sheet } of systems) {
+    // Its characters, by the values and conditions of their sheet.
+    if (sheet) {
+      add('party.members')
+      const values = Object.keys(sheet.def.values)
+      const conditions = Object.keys(sheet.def.conditions)
+      for (const who of ['acting', 'characters.<id>']) {
+        for (const value of values) add(`${who}.values.${value}`)
+        add(`${who}.conditions`, ...conditions)
+        add(`${who}.tags`)
+      }
+    }
     if (calendar) {
       const def = calendar.def
       add('month', ...def.months.map((m) => m.id))
@@ -272,14 +283,20 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
 
 /**
  * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
- * stats and its supplies, in every loaded system.
+ * stats and its supplies, and its characters' values and conditions, in every loaded system.
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
-  for (const { rules, bindings } of travelSystems(registry).systems) {
+  for (const { rules, bindings, sheet } of travelSystems(registry).systems) {
     for (const stat of Object.keys(bindings?.stats ?? {})) out[`party.stats.${stat}`] = []
     for (const resource of Object.keys(rules.resources ?? {}))
       out[`party.resources.${resource}`] = []
+    // Its characters: every member, the one acting, one by id.
+    for (const who of sheet ? ['party.members', 'acting', 'characters.<id>'] : []) {
+      for (const value of Object.keys(sheet!.def.values)) out[`${who}.values.${value}`] = []
+      for (const condition of Object.keys(sheet!.def.conditions))
+        out[`${who}.conditions.${condition}`] = ['true', 'false']
+    }
   }
   return out
 }

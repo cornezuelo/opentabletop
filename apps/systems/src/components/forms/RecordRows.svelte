@@ -7,9 +7,10 @@
     /**
      * number: a number box (empty = not set); check: a checkbox; list: comma-separated;
      * flow: `key: value` pairs; text: what players read, in the UI's language (written to
-     * the translation file when it isn't the pack's); select: one of `choices` (or none).
+     * the translation file when it isn't the pack's); select: one of `choices` (or none);
+     * value: a number, or a word or a variable (`'{{maxHealth}}'`) as it's written.
      */
-    type: 'number' | 'check' | 'list' | 'flow' | 'text' | 'select'
+    type: 'number' | 'check' | 'list' | 'flow' | 'text' | 'select' | 'value'
     placeholder?: string
     /** For checks, the value meant when the field is missing. */
     default?: boolean
@@ -126,6 +127,12 @@
       return doc.setText(kind, path, record[id]?.[column.field], path, raw)
     if (column.type === 'number')
       return write(id, column.field, text === '' ? undefined : Number(text))
+    if (column.type === 'value')
+      return write(
+        id,
+        column.field,
+        text === '' ? undefined : /^[+-]?\d+(\.\d+)?$/.test(text) ? Number(text) : text,
+      )
     if (column.type === 'list') {
       const items = text
         .split(',')
@@ -285,7 +292,8 @@
     width: 10em;
   }
 
-  .wide .number {
+  .wide .number,
+  .wide .value {
     width: 5.5em;
   }
 
@@ -351,6 +359,10 @@
 
   .rows:not(.wide) td.number input {
     width: 6em;
+  }
+
+  .rows:not(.wide) td.value input {
+    width: 8em;
   }
 
   td.check,

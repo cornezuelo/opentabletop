@@ -232,9 +232,15 @@ name: Ford mishap
 description: |-
   What the river takes. Rolled from the _Ford_'s answers.
 
-  **Shows:** `set` on supplies (`food`, `fodder`) and on `fatigue`
+  **Shows:** `set` on supplies (`food`, `fodder`) and on `fatigue`, and effects on the
+  character who acts (`acting.…`): whoever leads the crossing sprains an ankle.
 entries:
   - { id: food, result: a pack of food is lost, effects: { party.resources.food: -1 } }
+  # Whoever leads the crossing (the character acting, chosen in the trip): hurt, and an
+  # ankle sprained, which stops the party until it's tended.
+  - id: rocks
+    result: whoever leads the crossing is dashed against the rocks
+    effects: { acting.values.health: -1, acting.conditions.sprained: true }
   - { id: tired, result: you drag yourselves out exhausted, effects: { party.stats.fatigue: 1 } }
   - {
       id: fodder,

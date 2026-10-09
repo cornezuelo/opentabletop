@@ -1,3 +1,4 @@
+import type { CharacterState } from '@open-tabletop/character-engine'
 import { readWorld } from '@open-tabletop/world-engine'
 import { PAPERS, type PaperId } from '../print/paper'
 import {
@@ -438,6 +439,9 @@ function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
           // The session belongs to the engines; it is re-validated when play resumes.
           // None yet: the system is chosen but the trip hasn't started.
           session: isRecord(rules.session) ? rules.session : null,
+          // The company waiting for a trip (the character engine's, as the session is).
+          ...(Array.isArray(rules.members) &&
+            rules.members.length && { members: rules.members as CharacterState[] }),
         },
       }),
   }

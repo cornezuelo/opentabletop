@@ -15,9 +15,10 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `bindings`     | Qué tabla responde a cada comprobación del viaje, las características | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
 | `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno por sistema  |
 | `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
+| `sheet`        | Lo que tiene cada personaje del grupo: valores, estados               | Los viajes (los personajes del grupo), la aplicación Systems                        | Uno por sistema  |
 | `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs        | Jugar y Mundo del Hexmapper, la aplicación Travel                                   | Los que quieras  |
 
-**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
+**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
 
 Las traducciones de nombres y textos van en ficheros `locales/<idioma>/` con el mismo nombre, para todos los tipos; los que no son tablas, por tipo e id (`calendar/marcher-reckoning:`): mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada). Los ejemplos de abajo van solo en el idioma base.
 
@@ -201,7 +202,7 @@ Un paso hace una cosa: `time` (minutos, o `dawn`, `nightfall`, `'14:00'`), `spee
 
 ## Bindings
 
-La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`); **reads**, nombres para los demás valores que leen sus tablas (`icon.guards`, `fordModifier`…); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
+La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`), y cuáles salen de sus personajes (`from`); las provisiones que **llevan** sus personajes (`resources`); **reads**, nombres para los demás valores que leen sus tablas (`icon.guards`, `fordModifier`…); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
 ```yaml
 kind: bindings
@@ -210,6 +211,12 @@ stats: # los números del grupo, que se editan durante el viaje
   survival: { name: Supervivencia, description: Se suma al buscar comida., default: 1 }
   hirelings: { name: Mercenarios, default: 0, min: 0 }
   fatigue: { name: Fatiga, default: 0, min: 0 }
+  # Con personajes en el grupo, sale de los suyos (la hoja del sistema): el mejor Rastreo,
+  navigation: { name: Orientación, default: 0, from: { max: pathfinding } }
+  # o cuántos comen, sin dejar a nadie fuera (sin personajes: 1, su valor inicial).
+  mouths: { name: Bocas, default: 1, from: { count: true } }
+resources: # con personajes, la comida es la que llevan entre todos (sus raciones)
+  food: { carried: rations, share: even }
 reads: # nombres para otros valores que leen sus tablas (en el panel de tirada y el mapa)
   danger: { name: Peligro, description: Lo peligroso que es el hex. }
   icon.guards: { name: Guardias }
@@ -224,7 +231,15 @@ on: # por evento de comprobación: qué la responde
   FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } } # la entrada de un oráculo
 ```
 
-Una comprobación sin binding (y sin `effects`) detiene el viaje y te espera.
+Una comprobación sin binding se apunta en el diario (con sus `effects`, si tiene) y solo detiene el viaje si dice `pause: true`.
+
+**Características que salen de los personajes** (`from`, cuando el sistema tiene una [hoja](#hojas)): mientras el grupo tenga personajes, la característica sale de las suyas, y los efectos sobre ella se sobrescriben; mientras no tenga ninguno, se guarda como cualquier otra, así que el mismo sistema se juega con personajes o sin ellos. Una de:
+
+- `max: <valor>` — la mejor de ellos; `min: <valor>` — la peor; `sum: <valor>` — la de todos juntos; `count: true` — cuántos son.
+- `when` / `unless` — solo los personajes para los que se cumple esta [condición](08-conditions.md), leída con los valores de cada uno (`unless: { conditions: wounded }`, `when: { values.health: { gt: 0 } }`).
+- `none` — lo que vale cuando no cuenta ningún personaje (0 si no se dice).
+
+**Provisiones que se llevan** (`resources`): con personajes, la provisión nombrada (un id de los `resources` de las reglas de viaje) es lo que llevan en un valor de su hoja (`carried: rations`): el viaje muestra su suma, sus límites son la suma de los suyos, y lo que el viaje gaste o gane se reparte entre ellos: `share: even` (lo normal: se quita a quien más tiene y se da a quien menos, de una en una) o `share: order` (primero el primer personaje). Sin personajes, el grupo la guarda como un todo.
 
 **Qué ven las tablas:** cada característica por su nombre (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
 
@@ -270,6 +285,38 @@ seasons:
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).
 
+## Hojas
+
+Lo que tiene cada personaje del grupo, cuando un sistema los juega uno a uno (`sheet:` en su [sistema](#sistemas)). Los viajes tienen entonces una sección **Personajes** donde los añades, eliges quién actúa y cambias sus valores; las características y provisiones del grupo pueden salir de ellos ([bindings](#bindings): `from`, `resources`). PJ, compañeros, mercenarios o enemigos son todos personajes de una hoja.
+
+```yaml
+kind: sheet
+id: companion
+name: Compañero
+values: # números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite)
+  survival: { name: Supervivencia, default: 1, min: 0, max: 5, group: skills }
+  pathfinding: { name: Rastreo, default: 0, min: 0, max: 3, group: skills }
+  maxHealth: { name: Salud máxima, default: 3, min: 1, max: 6, group: body }
+  health: { name: Salud, default: 3, min: 0, max: '{{maxHealth}}', group: body } # otro valor como límite
+  rations: { name: Raciones, default: 2, min: 0, max: 6 }
+  dread: { name: Pavor, default: 0, min: 0, max: 6, track: true } # se muestra como 6 casillas
+groups: # los encabezados bajo los que se muestran los valores, en este orden
+  skills: { name: Habilidades }
+  body: { name: Cuerpo }
+conditions: # estados que un personaje tiene o no, y lo que el grupo no puede hacer mientras alguien lo tenga
+  wounded: { name: Herido, blocks: [forced-march] } # una acción del sistema
+  sprained: { name: Tobillo torcido, blocks: [travel] } # marchar
+  saddle-sore: { name: Molido de la silla, blocks: [mode.horse] } # una forma de viajar
+relations: # tipos de relación que un personaje puede tener con cualquier cosa con referencia
+  bond: { name: Vínculo, value: { min: 0, max: 3 } } # con un número
+  home: { name: Hogar }
+```
+
+- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{nombre}}'`), `track: true` (se muestra como casillas, tantas como su `max`, que debe ser un número), `group` (uno de `groups`).
+- `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: el id de una acción, `travel`, o `mode.<id>`. El viaje dice quién lo tiene.
+- Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
+- Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`).
+
 ## Sistemas
 
 Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario y modelos de clima, y los packs cuyas tablas, oráculos y mazos trae consigo. Los mapas y los viajes eligen un sistema: un mapa del Hexmapper en **Ajustes del mapa → Mapa → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), un viaje de la aplicación Travel en la página del sistema; ambos los muestran por su nombre.
@@ -282,12 +329,13 @@ description: A haunted frontier, travelled on foot, on horseback or by cart.
 travel: default # sus reglas de viaje (kind: travel-rules, id: default)
 bindings: default # sus bindings
 calendar: marcher-reckoning # su calendario
+sheet: companion # la hoja de sus personajes
 weather: [sky] # los modelos de clima que pueden usar sus bindings
 packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 ```
 
-- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima.
+- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `sheet`, su grupo se juega como un todo (el sistema **Genérico** tiene una pequeña propia: salud y una herida).
 - Cada parte es una definición de este pack, por su id (`travel: default`), o de un pack del que depende (`travel: core/slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.

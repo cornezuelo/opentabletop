@@ -329,7 +329,7 @@ A check can have **effects of its own**: without a table it just applies them, w
 
 The **bindings** (`kind: bindings`) are the other half of the system:
 
-- `on` connects each check, by its event, to what answers it: `resolve:` a table, oracle, generator or deck of the pack (or another pack's, by full id: `core/weather`), or `weather:` a [weather model](#weather-with-inertia). `context` adds values for that check only, and wins over everything else: the same encounter table answers day and night with `context: { timeOfDay: night }` on the camp's check, and an oracle gets its input as `context: { odds: likely }`. **Checks with no binding** (and no effects) wait in the journal for you to resolve them yourself, and the trip stops until **Continue**: the Grey Marches' landmarks.
+- `on` connects each check, by its event, to what answers it: `resolve:` a table, oracle, generator or deck of the pack (or another pack's, by full id: `core/weather`), or `weather:` a [weather model](#weather-with-inertia). `context` adds values for that check only, and wins over everything else: the same encounter table answers day and night with `context: { timeOfDay: night }` on the camp's check, and an oracle gets its input as `context: { odds: likely }`. **Checks with no binding** are written in the journal (with their effects, if they have any), and stop the trip until **Continue** only when they say `pause: true`: the Grey Marches' landmarks.
 - `stats` are the party's numbers, shown in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (its help in the trip panel), a starting value (`default`) and, if it has them, `min` and `max` (fatigue never below 0). Tables read them by key, `{{charisma}}`, or always unambiguously `party.stats.charisma`. The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none. A table can change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and shows by its key, but the pack gets a warning, so declare every stat its tables change.
 - `reads` names the other values the system's tables read that nobody else names: a value of the map (`danger`, `icon.guards`, `token.fare`), the bindings' context (`timeOfDay`) or today's values tables set (`fordModifier`). With a `name` and `description` each, the roll panel shows them by name, with what they are in their help: `reads: { icon.guards: { name: Guards, description: How many guards watch the gates. } }`. The values maps and trips give (terrain, season, holidays…) already have names in the apps.
 
@@ -365,6 +365,31 @@ bindings: default
 ```
 
 Every key is in [Systems](../technical/07-kinds.md#systems).
+
+### Characters
+
+A system may play its party as a whole (its stats and supplies are the party's) or one character at a time, or both. For characters, it declares a **sheet** (`kind: sheet`: their values with bounds, their conditions and what each blocks, the kinds of relation they hold) and names it in its system (`sheet: companion`). Trips then have a **Characters** section: add them, choose who acts, change their values.
+
+Then the bindings say what the party takes from them:
+
+- **Stats made of theirs:** `navigation: { name: Navigation, from: { max: pathfinding } }` is the best Pathfinding among them; `min` the worst, `sum` all together, `count: true` how many; `when` / `unless` leave some out (`count: true, unless: { conditions: wounded }`: those not wounded). Without characters the stat is kept as usual, so the same system plays both ways.
+- **Supplies they carry:** `resources: { food: { carried: rations } }`: the party's food is the sum of their rations, and what the trip eats or finds is shared out among them (evenly by default, `share: order` for the first one first).
+
+Effects reach them: `party.members.values.health: 1` (every character), `acting.conditions.wounded: true` (whoever acts), `characters.kael.values.health: -1` (one). Conditions read `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
+
+```yaml
+kind: sheet
+id: companion
+name: Companion
+values:
+  survival: { name: Survival, default: 1, min: 0, max: 5 }
+  health: { name: Health, default: 3, min: 0, max: 3 }
+  rations: { name: Rations, default: 2, min: 0, max: 6 }
+conditions:
+  wounded: { name: Wounded, blocks: [forced-march] }
+```
+
+The Grey Marches play their Company this way: Survival from the best of those not wounded, Stealth from the clumsiest, a ration per mouth from what they carry, a fed night healing everyone, a ford that sprains the ankle of whoever leads the crossing, and **Tend the wounded** for whoever acts with Survival 2 or more ([The Grey Marches](../packs/02-grey-marches.md)). Every key is in [Sheets](../technical/07-kinds.md#sheets).
 
 ## 6. A calendar of your own
 

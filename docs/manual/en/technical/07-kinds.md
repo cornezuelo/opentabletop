@@ -15,9 +15,10 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app                                             | One per system    |
 | `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel                                         | One per system    |
 | `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)                                          | Any               |
+| `sheet`        | What each of the party's characters has: values, conditions       | Trips (the party's characters), the Systems app                            | One per system    |
 | `system`       | A game system: which of the above it uses, and which packs        | Hexmapper Play and World, the Travel app                                   | Any               |
 
-**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
+**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
 Translations of names and texts go in `locales/<language>/` files with the same name, for every kind; the ones that aren't tables are keyed by kind and id (`calendar/marcher-reckoning:`): see [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes). The examples below are in the base language only.
 
@@ -202,7 +203,7 @@ A step does one thing: `time` (minutes, or `dawn`, `nightfall`, `'14:00'`), `spe
 
 ## Bindings
 
-The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`), and which of them come from its characters (`from`); the supplies its characters **carry** (`resources`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
 ```yaml
 kind: bindings
@@ -211,6 +212,12 @@ stats: # the party's numbers, edited during the trip
   survival: { name: Survival, description: Added to foraging., default: 1 }
   hirelings: { name: Hirelings, default: 0, min: 0 }
   fatigue: { name: Fatigue, default: 0, min: 0 }
+  # With characters in the party, made of theirs (the system's sheet): the best Pathfinding,
+  navigation: { name: Navigation, default: 0, from: { max: pathfinding } }
+  # or how many eat, leaving none out (without characters: 1, its default).
+  mouths: { name: Mouths, default: 1, from: { count: true } }
+resources: # with characters, the food is what they carry between them (their rations)
+  food: { carried: rations, share: even }
 reads: # names for other values its tables read (shown in the roll panel and on the map)
   danger: { name: Danger, description: How dangerous the hex is. }
   icon.guards: { name: Guards }
@@ -225,7 +232,15 @@ on: # per check event: what answers it
   FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } } # an oracle's input
 ```
 
-A check with no binding (and no `effects`) stops the trip and waits for you.
+A check with no binding is written in the journal (with its `effects`, if it has any) and only stops the trip when it says `pause: true`.
+
+**Stats from the characters** (`from`, when the system has a [sheet](#sheets)): while the party has characters, the stat is made of theirs, and effects on it are overwritten; while it has none, it's kept like any other, so the same system plays with or without characters. One of:
+
+- `max: <value>` — the best among them; `min: <value>` — the worst; `sum: <value>` — all together; `count: true` — how many they are.
+- `when` / `unless` — only the characters this [condition](08-conditions.md) holds for, read with each one's values (`unless: { conditions: wounded }`, `when: { values.health: { gt: 0 } }`).
+- `none` — what it is when no character counts (default 0).
+
+**Carried supplies** (`resources`): with characters, the supply named (an id of the travel rules' `resources`) is what they carry in a value of their sheet (`carried: rations`): the trip shows their sum, its bounds are the sums of theirs, and whatever the trip spends or gains is shared out among them: `share: even` (the default: taken from whoever has most, given to whoever has least, one at a time) or `share: order` (the first character first). Without characters, the party keeps it as a whole.
 
 **What tables see:** each stat by name (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
 
@@ -271,6 +286,38 @@ seasons:
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).
 
+## Sheets
+
+What each of the party's characters has, when a system plays them one by one (`sheet:` in its [system](#systems)). Trips then have a **Characters** section where you add them, choose who is acting and change their values; the party's stats and supplies can come from them ([bindings](#bindings): `from`, `resources`). PCs, companions, hirelings or enemies are all characters of a sheet.
+
+```yaml
+kind: sheet
+id: companion
+name: Companion
+values: # numbers each character has, with the bounds the system gives them (none: no bound)
+  survival: { name: Survival, default: 1, min: 0, max: 5, group: skills }
+  pathfinding: { name: Pathfinding, default: 0, min: 0, max: 3, group: skills }
+  maxHealth: { name: Max health, default: 3, min: 1, max: 6, group: body }
+  health: { name: Health, default: 3, min: 0, max: '{{maxHealth}}', group: body } # another value as its bound
+  rations: { name: Rations, default: 2, min: 0, max: 6 }
+  dread: { name: Dread, default: 0, min: 0, max: 6, track: true } # shown as 6 boxes
+groups: # the headings values are shown under, in this order
+  skills: { name: Skills }
+  body: { name: Body }
+conditions: # states a character has or not, and what the party can't do while someone has one
+  wounded: { name: Wounded, blocks: [forced-march] } # an action of the system
+  sprained: { name: Sprained ankle, blocks: [travel] } # marching
+  saddle-sore: { name: Saddle-sore, blocks: [mode.horse] } # a way of travelling
+relations: # kinds of relation a character may hold to anything with a reference
+  bond: { name: Bond, value: { min: 0, max: 3 } } # with a number
+  home: { name: Home }
+```
+
+- `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{name}}'`), `track: true` (shown as boxes, as many as its `max`, which must be a number), `group` (one of `groups`).
+- `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action's id, `travel`, or `mode.<id>`. The trip says who has it.
+- Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
+- Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`).
+
 ## Systems
 
 A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. Maps and trips choose a system: a Hexmapper map in **Map settings → Map → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), a trip in the Travel app on the system's page; both list them by name.
@@ -283,12 +330,13 @@ description: A haunted frontier, travelled on foot, on horseback or by cart.
 travel: default # its travel rules (kind: travel-rules, id: default)
 bindings: default # its bindings
 calendar: marcher-reckoning # its calendar
+sheet: companion # its characters' sheet
 weather: [sky] # the weather models its bindings may use
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
-- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model.
+- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `sheet`, its party is played as a whole (the **Generic** system has a small one of its own: health and a wound).
 - Each part is a definition of this pack, by its id (`travel: default`), or of a pack it depends on (`travel: core/slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.

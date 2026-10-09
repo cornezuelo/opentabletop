@@ -21,6 +21,7 @@
   "dependencies": {
     "@fontsource/cinzel": "^5.3.0",
     "@fontsource/im-fell-english": "^5.3.0",
+    "@open-tabletop/character-engine": "*",
     "@open-tabletop/hex": "*",
     "@open-tabletop/manual-ui": "*",
     "@open-tabletop/note-refs": "*",

@@ -129,8 +129,11 @@ En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor 
 | `party.resources.food: '-{{party.stats.mouths}}'` | quita tantos como dice otro valor                                |
 | `party.stats.morale: '={{party.stats.charisma}}'` | lo pone al valor de otro                                         |
 | `party.resources.food: '-{{1d3}}'`                | quita una tirada (en un viaje, la misma durante todo el momento) |
+| `party.members.values.health: 1`                  | suma 1 a todos los personajes del grupo                          |
+| `characters.kael.values.health: -1`               | quita 1 a un personaje, por su id                                |
+| `acting.conditions.wounded: true`                 | el personaje que actúa ahora recibe un estado (`false` lo quita) |
 
-Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo.
+Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
 
 ## Momentos
 
@@ -165,7 +168,11 @@ El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa 
 
 ## Lo que bloquea: `blocks`
 
-Un valor del día lista lo que no se puede hacer mientras dura: `travel` (no se marcha más), el id de una acción (`camp`, `forage`) o una forma de viajar como `mode.<id>` (`mode.horse`). `values: { snowbound: { blocks: [mode.horse] } }`.
+Un valor del día lista lo que no se puede hacer mientras dura: `travel` (no se marcha más), el id de una acción (`camp`, `forage`) o una forma de viajar como `mode.<id>` (`mode.horse`). `values: { snowbound: { blocks: [mode.horse] } }`. Un estado de un personaje en una [hoja](07-kinds.md#hojas) bloquea igual mientras algún personaje del grupo lo tenga: `conditions: { sprained: { blocks: [travel] } }`; el viaje dice quién.
+
+## Los personajes del grupo: `from` y `carried`
+
+En los bindings, cuando el sistema tiene hoja: una característica que sale de los valores de los personajes, `from: { max: survival }` (también `min`, `sum`, o `count: true`, con `when` / `unless` sobre cada personaje y `none` para cuando no cuenta ninguno), y una provisión que llevan, `resources: { food: { carried: rations, share: even } }`. Las dos, solo mientras el grupo tenga personajes. Mira [Bindings](07-kinds.md#bindings).
 
 ## Velocidades
 

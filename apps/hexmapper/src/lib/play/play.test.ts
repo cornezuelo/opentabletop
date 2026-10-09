@@ -7,7 +7,17 @@ import { createMap } from '../model/defaults'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
-import { clickHex, partyLocation, restartRules, sessionOf, setMode, step } from './play'
+import { partyOf, refreshParty, tripAvailability, type SessionState } from '@open-tabletop/session'
+import { mapWorld } from './world'
+import {
+  clickHex,
+  editSession,
+  partyLocation,
+  restartRules,
+  sessionOf,
+  setMode,
+  step,
+} from './play'
 import {
   advanceWorld,
   setWorldDate,
@@ -389,3 +399,108 @@ describe('the world clock’s dates', () => {
     expect(toasts.at(-1)?.kind).toBe('error')
   })
 })
+
+describe('the Company: a party made of characters', () => {
+  const grey = () =>
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+  const trip = () => sessionOf(editor.map.play!)!
+  const member = (id: string) => trip().members!.find((m) => m.id === id)!
+  beforeEach(() => {
+    let seed = 7
+    vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('the example map brings it, and its trip starts with it', () => {
+    grey()
+    // Before the trip, the company waits on the map.
+    expect(editor.map.play?.rules?.members?.map((m) => m.id)).toEqual(['kael', 'mara', 'tobin'])
+    clickHex('7,7')
+    expect(trip().members?.map((m) => m.name)).toEqual(['Kael', 'Mara', 'Old Tobin'])
+    // The party's stats are theirs: the best, the worst, how many they are.
+    expect(trip().stats).toMatchObject({
+      survival: 3, // Kael's
+      charisma: 2, // Mara's
+      navigation: 2, // Kael's Pathfinding
+      stealth: 0, // Old Tobin, the clumsiest
+      mouths: 3,
+      wounded: 0,
+    })
+    // The food is what they carry: 3 + 2 + 3 rations.
+    expect(trip().travel.resources.food).toBe(8)
+    // Saved in the file as OTD characters of the party, and read back.
+    const bundle = mapToBundle(editor.map)
+    expect(bundle.parties[0].members).toEqual(['kael', 'mara', 'tobin'])
+    expect(bundle.characters.find((c) => c.id === 'tobin')).toMatchObject({
+      kind: 'pc',
+      stats: { survival: 2, maxHealth: 4 },
+      ext: { character: { sheet: 'grey-marches/companion' } },
+    })
+    const back = sessionOf(bundleToMap(bundle).play!)!
+    expect(back.members).toEqual(trip().members)
+  })
+
+  it('eats a ration per mouth from whoever carries most, and a fed night heals', () => {
+    grey()
+    clickHex('5,7')
+    editSession((s) => {
+      s.members![0].values.health = 1
+      return s
+    })
+    step({ type: 'camp' })
+    // Three mouths: Kael 3 → 2, Old Tobin 3 → 2, then Kael again (the first of equals).
+    expect(trip().members!.map((m) => m.values.rations)).toEqual([1, 2, 2])
+    expect(trip().travel.resources.food).toBe(5)
+    // A fed night: everyone gets a point of health back, within each one's maximum.
+    expect(member('kael').values.health).toBe(2)
+    expect(member('tobin').values.health).toBe(4)
+  })
+
+  it('wounds keep someone back, and whoever acts tends them', () => {
+    grey()
+    clickHex('7,7')
+    // Kael is wounded: the party's Survival is the best of the others, and he can't force a march.
+    editSession((s) => {
+      s.members![0].conditions = { wounded: {} }
+      return refreshed(s)
+    })
+    expect(trip().stats).toMatchObject({ survival: 2, wounded: 1 })
+    const why = tripAvailability({ system: activeSystem(), world: mapWorld(editor.map) }, trip())
+    expect(why['forced-march']).toEqual({ value: 'wounded', who: 'kael' })
+    // Tending with nobody acting does nothing; with Old Tobin (Survival 2) acting, it heals.
+    step({ type: 'action', id: 'tend' })
+    expect(member('kael').conditions).toHaveProperty('wounded')
+    editSession((s) => ({ ...s, acting: 'tobin' }))
+    step({ type: 'action', id: 'tend' })
+    expect(member('kael').conditions).toEqual({})
+    expect(trip().stats.survival).toBe(3)
+  })
+
+  it('a sprained ankle stops the party, and the stop says whose', () => {
+    grey()
+    clickHex('7,7')
+    editSession((s) => {
+      s.members![1].conditions = { sprained: {} }
+      return s
+    })
+    const before = trip().journal.length
+    step({ type: 'travel' })
+    const stopped = trip()
+      .journal.slice(before)
+      .find((e) => e.code === 'TRAVEL_STOPPED')
+    expect(stopped?.data).toMatchObject({ reason: 'value', value: 'sprained', who: 'mara' })
+    expect(trip().travel.location).toBe('5,7')
+    expect(stopMessage(trip(), before, trip().travel.time + 1)?.text).toContain(
+      'Mara: Sprained ankle',
+    )
+  })
+})
+
+/** A session brought up to date with its members, as the trip panel's edits do. */
+function refreshed(s: SessionState): SessionState {
+  refreshParty(s, partyOf(activeSystem()))
+  return s
+}

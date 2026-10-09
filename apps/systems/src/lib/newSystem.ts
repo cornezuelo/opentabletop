@@ -209,7 +209,7 @@ export function declareSystem(system: TravelSystem): boolean {
 }
 
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
-export type PartTabKind = 'calendar' | 'weather' | 'roll-modes'
+export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet'
 
 /** Where a part named `ref` (`id` of the system's pack, or `pack/id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
@@ -246,10 +246,10 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   const data = systemData(system)
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
-  else if (kind === 'calendar')
+  else if (kind === 'calendar' || kind === 'sheet')
     refs = data
-      ? typeof data.calendar === 'string'
-        ? [data.calendar]
+      ? typeof data[kind] === 'string'
+        ? [data[kind] as string]
         : []
       : ownOfKind(pack).slice(0, 1)
   else
@@ -258,9 +258,10 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
 }
 
 /**
- * A new definition of a kind for a system, from its template (calendar, weather model or
- * roll modes), in its pack's file for that kind (`calendar.yaml`, `weather.yaml`,
- * `roll-modes.yaml`); a calendar or weather model is named by its system. One undo step.
+ * A new definition of a kind for a system, from its template (calendar, weather model,
+ * roll modes or sheet), in its pack's file for that kind (`calendar.yaml`, `weather.yaml`,
+ * `roll-modes.yaml`, `sheet.yaml`); a calendar, weather model or sheet is named by its
+ * system. One undo step.
  */
 export function createSystemPart(system: TravelSystem, kind: PartTabKind): string | null {
   const root = systemRoot(system)
@@ -269,7 +270,7 @@ export function createSystemPart(system: TravelSystem, kind: PartTabKind): strin
   const taken = (library.registry.extras.get(pack) ?? [])
     .filter((e) => e.kind === kind)
     .map((e) => e.id ?? 'default')
-  const base = kind === 'calendar' ? 'calendar' : kind === 'weather' ? 'weather' : 'default'
+  const base = kind === 'calendar' || kind === 'weather' || kind === 'sheet' ? kind : 'default'
   const id = freeId(base, taken)
   const file = `${kind}.yaml`
   const declared = systemFile(system)?.system
@@ -284,7 +285,7 @@ export function createSystemPart(system: TravelSystem, kind: PartTabKind): strin
     const selector = `@system/${declared.id}`
     const current = readDefinition(text, selector) ?? {}
     const value =
-      kind === 'calendar'
+      kind === 'calendar' || kind === 'sheet'
         ? id
         : [...(Array.isArray(current.weather) ? (current.weather as string[]) : []), id]
     library.writeFile(root, declared.path, setIn(text, selector, [kind], value))

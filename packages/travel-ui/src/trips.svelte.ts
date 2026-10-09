@@ -16,9 +16,10 @@ import { wayWorld, type WayHex } from './way'
 /**
  * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the
  * system declares (`today.lost`); v4: the trip's totals (`travel.totals`), rebuilt from the
- * journal. All migrated on reading.
+ * journal; v5: the party's characters (`session.members`, `acting`), none in older trips.
+ * All migrated on reading.
  */
-const VERSION = 4
+const VERSION = 5
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -179,6 +180,8 @@ export class TripStore {
       location: '0',
       season,
       stats: this.saved.system === system ? this.saved.session?.stats : undefined,
+      // The same party of characters goes on to the next trip with the same system.
+      members: this.saved.system === system ? this.saved.session?.members : undefined,
       // What the trip's rolls in conditions are seeded with: each trip its own.
       seed: Math.random().toString(36).slice(2, 10),
     })

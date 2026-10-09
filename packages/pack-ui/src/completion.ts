@@ -62,6 +62,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'calendar',
     'weather',
     'system',
+    'sheet',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -74,6 +75,8 @@ const ENUMS: Record<string, readonly string[]> = {
   passable: ['false', 'true'],
   oncePerDay: ['true', 'false'],
   hideWhenUnavailable: ['true', 'false'],
+  share: ['even', 'order'],
+  track: ['true', 'false'],
 }
 /** Keys whose value is a reference to a table or generator. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve'])
@@ -161,6 +164,18 @@ const KEYS = [
   'calendar',
   'packs',
   'maps',
+  'sheet',
+  // Sheets, and the party made of their characters (bindings' stats and resources).
+  'conditions',
+  'relations',
+  'track',
+  'group',
+  'groups',
+  'from',
+  'sum',
+  'none',
+  'carried',
+  'share',
 ]
 
 export interface Completion {

@@ -59,6 +59,7 @@ El Hexmapper guarda los mapas como **paquetes OTD**, un formato JSON pensado par
 
 - Los hexes van indexados por `"columna,fila"`.
 - Los PDI, el grupo y los tokens (como personajes con `location`) son entidades propias; el diario de un viaje está en `log`.
+- Los personajes del grupo (cuando su sistema tiene una [hoja](07-kinds.md#hojas)) también son personajes, listados por id en los `members` del grupo, con `kind: pc`, sus valores como `stats`, sus etiquetas, y lo que solo lee el motor de personajes (su hoja, estados, relaciones) en `ext.character`. Un mapa puede traer así su compañía antes de que empiece ningún viaje: el mapa de ejemplo de las Marcas Grises tiene a Kael, Mara y el viejo Tobin.
 - `state.oracle` es el estado de Oracle en ese mapa (mazos, resultados de una sola vez, valores fijados); el Hexmapper guarda su historial de tiradas a mano en `ext.hexmapper.oracleHistory`.
 - `ext.<herramienta>` guarda los datos propios de cada herramienta (el Hexmapper guarda iconos, rótulos, estilos y su configuración de impresión en `ext.hexmapper`, y el `system` del mapa y los `packs` que añade a los del sistema; el `ext.hexmapper.system` del grupo es el sistema con el que empezó su viaje). Las herramientas conservan intacto lo que no entienden al guardar.
 

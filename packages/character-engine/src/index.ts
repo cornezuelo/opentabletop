@@ -18,7 +18,10 @@ import {
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import { z } from 'zod'
 
-const text = z.string()
+/** A text a player reads, or the same in several languages (translations fold in as these). */
+const text = z.union([z.string(), z.record(z.string(), z.string())])
+/** Text in one or several languages: "Wits" or { en: Wits, es: Ingenio }. */
+export type SheetText = z.infer<typeof text>
 /** A bound: a number, or a variable naming another value (`'{{maxHealth}}'`). */
 const bound = z.union([z.number(), z.string().min(1)])
 
@@ -63,6 +66,13 @@ export const sheetSchema = z
     values: z.record(z.string().min(1), value).default({}),
     conditions: z.record(z.string().min(1), condition).default({}),
     relations: z.record(z.string().min(1), relation).default({}),
+    /** The headings values are shown under (`group:`), with their names; in this order. */
+    groups: z
+      .record(
+        z.string().min(1),
+        z.object({ name: text.optional(), description: text.optional() }).strict(),
+      )
+      .optional(),
   })
   .strict()
 
@@ -90,6 +100,9 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
     if (v.track && typeof v.max !== 'number')
       errors.push(`values.${id}: a track needs a number as its max (its boxes)`)
   }
+  for (const [id, v] of Object.entries(sheet.values))
+    if (sheet.groups && v.group !== undefined && !(v.group in sheet.groups))
+      errors.push(`values.${id}.group: no group "${v.group}" in groups`)
   for (const [id, c] of Object.entries(sheet.conditions))
     if (c.blocks?.some((b) => !b.trim())) errors.push(`conditions.${id}.blocks: empty entry`)
   return errors.length ? { errors } : { sheet, errors }

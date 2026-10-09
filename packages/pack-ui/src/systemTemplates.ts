@@ -9,6 +9,7 @@ export const SYSTEM_KINDS = [
   'bindings',
   'calendar',
   'weather',
+  'sheet',
 ] as const
 export type SystemKind = (typeof SYSTEM_KINDS)[number]
 
@@ -97,4 +98,16 @@ export const SYSTEM_TEMPLATES: Record<SystemKind, (id: string) => Record<string,
       seasons: { spring: season, summer: season, autumn: season, winter: season },
     }
   },
+  // A small sheet for the party's members: a few values, a track and a condition.
+  sheet: (id) => ({
+    kind: 'sheet',
+    id,
+    name: 'Companion',
+    values: {
+      wits: { name: 'Wits', default: 1, min: 0, max: 5, group: 'attributes' },
+      health: { name: 'Health', default: 5, min: 0, max: 5, track: true },
+    },
+    groups: { attributes: { name: 'Attributes' } },
+    conditions: { wounded: { name: 'Wounded' } },
+  }),
 }

@@ -6,4 +6,5 @@ system/default:
 
     **Enseña:** un sistema que nombra sus partes: reglas de viaje y bindings, su
     calendario, el modelo de clima que usa su tirada de clima, las tablas de Core
-    traídas gracias a la dependencia del pack, y su mapa de ejemplo.
+    traídas gracias a la dependencia del pack, su mapa de ejemplo y la hoja con la que
+    se hacen sus compañeros.

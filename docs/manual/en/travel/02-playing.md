@@ -41,6 +41,21 @@ What the journal says, so nothing happens silently:
 - **Actions** with how long they took, and when nothing was rolled: in the Grey Marches, **Forage for food** on hills says "Forage for food (3 h): nothing to forage on hills: only woods, fields, heath and marsh give food". The three hours still pass and the march is still halved.
 - **Actions the system takes by itself**, like eating as each day ends, with what they changed ("Eat (Food −1)"); a value that hits its minimum or maximum ("Food can’t go lower than 0") and **fatigue** changes with their reason ("Not enough to eat: Fatigue +1"); what an action changed goes on its own line ("Camp for the night (Fatigue −1)", "Rest for 2 h (Fatigue −1)").
 
+## Characters
+
+When the system has a sheet for its characters (the Grey Marches' companions; the Generic rules' smallest one, with health and a wound), the trip has a **Characters** section above the actions. **Add a character** makes one with the sheet's starting values; name it, and its id follows the name (`Old Tobin` → `old-tobin`, how tables and conditions reach it: `characters.old-tobin.values.health`). Each character folds open to show its values (grouped as the sheet says; a track as boxes, click one to fill up to it), its conditions (tick them as they happen) and its tags (free words, comma-separated). ↑ moves one up the list, × removes one (after asking).
+
+**Acting** says who takes the party's actions now: what a system writes for `acting` reaches that character (in the Grey Marches, the rocks of a ford hurt and sprain whoever leads the crossing; **Tend the wounded** works only if whoever acts has Survival 2 or more). With **Nobody**, those effects change nothing and the journal says so: "Nobody is acting, so “Whoever acts: Sprained ankle” changed nothing".
+
+With characters, the party is its members, as the system says:
+
+- **Stats made of theirs** show greyed out, and follow them: the Grey Marches' Survival is the best of those not wounded, Stealth the clumsiest one's, Mouths how many they are. Change the characters' values, not the party's. Stats the system keeps for the party as a whole (Morale, Fatigue) are edited as before.
+- **Supplies they carry** show their sum, greyed out: the Grey Marches' food is everyone's rations. What the trip eats or finds is taken from (or given to) them, evenly unless the system says otherwise; edit each one's share in their sheet.
+- **Their conditions block** what the sheet says for the whole party: a wounded companion keeps the Grey Marches from the forced march, a sprained ankle from marching at all ("Mara: Sprained ankle: not possible while it lasts"), being saddle-sore from riding.
+- **Effects reach them**: a fed night heals every companion, the haunted lights fill everyone's dread; the journal names whom ("Everyone: Health +1").
+
+Without characters, the same system plays the party as a whole, and what it says of characters doesn't happen. A new trip with the same system takes the same characters along. The syntax, for systems: [Characters, in Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+
 ## Ways of travelling
 
 The list in the panel has the ways of travelling the system declares, each with its speed. Some can't be chosen everywhere: the Grey Marches' **By boat** only at the water's edge or the ferry, and only through water and coast; **By cart** only along roads (with no road ahead there's no route). A value of the day can leave one behind: the Grey Marches' **Deep snow** (falling snow sets it) blocks **On horseback**, and a party already riding stops until you choose another way (on foot the trip goes on). Terrains may open and close too: the Grey Marches' peaks only in summer and not in snow, their lakes only in the two coldest months (crossed on the ice); routes go around what's closed.

@@ -96,11 +96,25 @@ Points of interest keep their values in the map and its file, but tables don't r
 
 | Name                    | What it is                                                                                                                                                                                                                                                                                                  |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `party`                 | The party, always unambiguous: `party.stats.charisma`, `party.resources.food`, `party.mode`. Also in hand rolls during a trip.                                                                                                                                                                              |
+| `party`                 | The party, always unambiguous: `party.stats.charisma`, `party.resources.food`, `party.mode`, and its characters' ids, `party.members` (when it has any). Also in hand rolls during a trip.                                                                                                                  |
 | _each party stat_       | The system's stats with their current value, by name: `{{charisma}}`. Shorthand: a map or trip fact with the same name wins (see below).                                                                                                                                                                    |
 | `today`                 | Today's values: set earlier the same day by a table (`weather`, any name ending in `Modifier` or `Impossible`: `today.fordModifier`) and the values of the day the system declares (`today.lost`). They clear at dawn and become `yesterday.*`. Each is also there by its own name: `lost`, `fordModifier`. |
 | `yesterday`             | The day before: that day's values (`yesterday.weather`, `yesterday.fordModifier`…) and the values of the day the system declares (`yesterday.lost`: the party ended it lost; false if not). E.g. finding the way again with disadvantage: `modeWhen: { disadvantage: { yesterday.lost: true } }`.           |
 | _the binding's context_ | What the bindings add for that check: `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`).                                                                                                                                                                                             |
+
+## Characters
+
+When the system has a [sheet](07-kinds.md#sheets) and the party has characters (the trip's **Characters** section):
+
+| Name                | What it is                                                                                                                                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `party.members`     | The characters' ids, a list: `party.members: kael` holds while Kael travels with the party.                                                                                                                                                |
+| `characters.<id>.*` | One character: `characters.kael.values.health` (each value, also by its own name: `characters.kael.health`), `characters.kael.conditions` (a list: `characters.kael.conditions: wounded`), `characters.kael.tags`, `characters.kael.name`. |
+| `acting.*`          | The character acting now, chosen in the trip, with the same names: `acting.values.survival: { gte: 2 }`, `acting.conditions: wounded`. Nobody acting: there is no `acting`, and a condition on it doesn't hold.                            |
+
+Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party-effects)): `party.members.values.health: -1` (every character), `characters.kael.conditions.wounded: true` (one), `acting.values.health: 1` (the one acting; with nobody acting it changes nothing, and the journal says so). A party with no characters ignores them: the same system plays with or without characters.
+
+The party's stats a system makes of its characters (`from` in its bindings) and the supplies they carry (`carried`) are read as any other stat or supply: `party.stats.navigation`, `party.resources.food`.
 
 ## From the world clock (Hexmapper)
 
@@ -116,7 +130,7 @@ With the world clock running: `world.clocks.<name>`, each progress clock's fille
 
 When two sources give the same name, the later one wins:
 
-1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. **Full names never collide**: `hex.terrain`, `trip.weather`, `party.stats.weather` are always what they say; only short names are shared. Reserved names a stat shouldn't use: the short names in the tables above, and the groups `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `icon`, `token`, `name`; in a table with a roll, `roll` and `result`.
+1. **Checks:** party stats by name → today's values → the map and trip facts → `party` → the binding's context. So a stat or a value of the day called `terrain` or `weather` can't hide the real one; `party.stats.terrain` still reaches it. **Full names never collide**: `hex.terrain`, `trip.weather`, `party.stats.weather` are always what they say; only short names are shared. Reserved names a stat shouldn't use: the short names in the tables above, and the groups `hex`, `time`, `system`, `trip`, `world`, `party`, `today`, `yesterday`, `from`, `around`, `characters`, `acting`, `icon`, `token`, `name`; in a table with a roll, `roll` and `result`.
 2. **Hand rolls** (Oracle panel): during a trip, the same order as checks; then the token → what you type in the roll panel's **Context**. A typed `token.fare` changes only that value of the token.
 3. **Inside a table:** a table with a roll of its own gives its entries the total as `roll` (their conditions, texts, `set` and effects: `when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under); values an entry sets (`set`) reach the table it then rolls; a generator's fields see the fields before them, and a field's `context` adds values for that field only.
 

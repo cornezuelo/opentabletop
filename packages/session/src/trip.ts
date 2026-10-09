@@ -113,11 +113,24 @@ export function systemPackIds(system: TravelSystem, registry: Registry): string[
   return out
 }
 
+/**
+ * The generic system's characters: the smallest sheet that works, health and a wound
+ * (named by the UI: a core doesn't translate).
+ */
+export const GENERIC_SHEET: Sheet = {
+  kind: 'sheet',
+  id: 'character',
+  values: { health: { default: 3, min: 0, max: 3 } },
+  conditions: { wounded: {} },
+  relations: {},
+}
+
 export const GENERIC_SYSTEM: TravelSystem = {
   id: 'generic',
   name: '',
   rules: genericTravelRules,
   packs: [],
+  sheet: { id: 'generic/character', def: GENERIC_SHEET },
 }
 
 /**

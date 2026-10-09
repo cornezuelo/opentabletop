@@ -11,7 +11,7 @@ import {
   type OtdParty,
   type OtdPoi,
 } from '@open-tabletop/schema'
-import type { SessionState } from '@open-tabletop/session'
+import { characterFromOtd, characterToOtd, type SessionState } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
 import { MapFormatError } from '../model/migrations'
 import { deserializeMap } from '../model/serialize'
@@ -200,6 +200,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
   const oracle = map.oracle?.state ?? play?.oracle
   const characters = [
     ...tokensToOtd(map),
+    ...(play?.members ?? []),
     ...((extra.characters as OtdCharacter[] | undefined) ?? []),
   ]
   return {
@@ -254,6 +255,8 @@ function playToOtd(map: HexMap) {
   const token = partyToken(map)
   if (!play && !token) return null
   const session = play?.rules?.session as Partial<SessionState> | null | undefined
+  // The party's characters: the trip's, or those waiting for one to start.
+  const members = session?.members ?? play?.rules?.members ?? []
   const party: OtdParty = {
     id: `party-${map.meta.id}`,
     type: 'party',
@@ -262,6 +265,7 @@ function playToOtd(map: HexMap) {
     ...(token?.hex && { location: { map: map.meta.id, hex: token.hex } }),
     ...(session?.stats && { stats: session.stats }),
     ...(session?.travel && { travel: session.travel as unknown as Record<string, unknown> }),
+    ...(members.length && { members: members.map((m) => m.id) }),
     ext: {
       hexmapper: {
         ...(token && { token: lookOf(token) }),
@@ -272,11 +276,17 @@ function playToOtd(map: HexMap) {
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
         ...(session?.yesterday && { yesterday: session.yesterday }),
         ...(session?.discovery && { discovery: session.discovery }),
+        ...(session?.acting !== undefined && { acting: session.acting }),
       },
     },
   }
   const log = (session?.journal ?? []) as unknown as OtdLogEntry[]
-  return { party, log, oracle: session?.oracle }
+  return {
+    party,
+    log,
+    oracle: session?.oracle,
+    members: members.map((m) => characterToOtd(m) as OtdCharacter),
+  }
 }
 
 /**
@@ -287,10 +297,22 @@ function playFromOtd(
   bundle: OtdBundle,
   mapId: string,
   legacy: boolean,
-): { play?: Record<string, unknown>; partyId?: string; token?: Record<string, unknown> } {
+): {
+  play?: Record<string, unknown>
+  partyId?: string
+  token?: Record<string, unknown>
+  /** The party's characters' ids: they're the trip's, not other characters. */
+  members?: string[]
+} {
   const party = bundle.parties.find((p) => p.id === `party-${mapId}`)
   const ext = (party?.ext as { hexmapper?: Record<string, unknown> } | undefined)?.hexmapper
   if (!party || !ext) return {}
+  // Its characters, in the party's order.
+  const members = (party.members ?? []).flatMap((id) => {
+    const c = bundle.characters.find((x) => x.id === id)
+    const member = c && characterFromOtd(c)
+    return member ? [member] : []
+  })
   const rules =
     typeof ext.system === 'string'
       ? {
@@ -306,7 +328,11 @@ function playFromOtd(
             journal: bundle.log.filter((e) => ['travel', 'oracle', 'user'].includes(e.source)),
             nextEntry: ext.nextEntry ?? bundle.log.length + 1,
             ...(ext.discovery !== undefined && { discovery: ext.discovery }),
+            ...(members.length && { members }),
+            ...(typeof ext.acting === 'string' && { acting: ext.acting }),
           },
+          // No trip yet: the company waits for one.
+          ...(!party.travel && members.length && { members }),
         }
       : undefined
   const play = {
@@ -335,6 +361,7 @@ function playFromOtd(
   }
   return {
     partyId: party.id,
+    members: members.map((m) => m.id),
     ...(typeof ext.mode === 'string' && { play }),
     ...(token && { token }),
   }
@@ -384,10 +411,11 @@ export function bundleToMap(raw: unknown): HexMap {
   }
 
   const version = ext.version ?? 1
-  const { play, partyId, token: party } = playFromOtd(bundle, otdMap.id, version < 2)
+  const { play, partyId, token: party, members } = playFromOtd(bundle, otdMap.id, version < 2)
   const tokens: Record<string, unknown>[] = party ? [party] : []
   const otherCharacters: OtdCharacter[] = []
   for (const c of bundle.characters) {
+    if (members?.includes(c.id)) continue
     const token = tokenOf(c, otdMap.id)
     if (token) tokens.push(token)
     else otherCharacters.push(c)

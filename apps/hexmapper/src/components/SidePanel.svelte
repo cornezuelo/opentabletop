@@ -24,7 +24,7 @@
   import { t } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
-  import { applyResult, tripChanges } from '@open-tabletop/session'
+  import { applyResult, partyOf, tripChanges } from '@open-tabletop/session'
   import { resourceBounds } from '@open-tabletop/travel-engine'
   import { activeSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
@@ -143,6 +143,7 @@
                     item.resolution.value,
                     system.bindings?.stats,
                     resourceBounds(system.rules),
+                    partyOf(system),
                   ),
                 )
                 applied = new Set([...applied, item.id])

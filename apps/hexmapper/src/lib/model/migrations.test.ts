@@ -64,6 +64,11 @@ describe('the trip’s totals (v16)', () => {
       spent: {},
       gained: {},
     })
-    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 16, meta: {} })
+    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 17, meta: {} })
+  })
+
+  it('v17 reads older trips as a party without characters', () => {
+    const data = { version: 16, play: { rules: { session: { travel: {} } } } }
+    expect(migrate(data)).toEqual({ ...data, version: 17 })
   })
 })

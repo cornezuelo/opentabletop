@@ -168,7 +168,7 @@ export const isMemberPath = (path: string): boolean =>
  * Applies the effects on members: `party.members.values.health: -1` (every member),
  * `characters.<id>.…` (one), `acting.…` (the one acting; nobody acting: `nobody`). Within
  * each one's sheet; what hits a bound is in `limits` (by the member's path). Other paths
- * are left alone.
+ * are left alone, and so is everything for a party without members.
  */
 export function applyMemberEffects(
   s: PartyTarget,
@@ -181,6 +181,8 @@ export function applyMemberEffects(
   const events: CharacterEvent[] = []
   const nobody: string[] = []
   const unknown: string[] = []
+  // A party played as a whole: what its system says of characters doesn't apply.
+  if (!s.members?.length) return { limits, events, nobody, unknown }
   const { travel } = s
   const roller =
     travel.day !== undefined
@@ -193,8 +195,8 @@ export function applyMemberEffects(
   for (const [path, change] of Object.entries(effects)) {
     const [, who, rest] = /^(party\.members|characters\.[^.]+|acting)\.(.+)$/.exec(path) ?? []
     if (!who || !/^(values|conditions)\./.test(rest)) continue
-    const members = s.members ?? []
-    const targets =
+    const members: CharacterState[] = s.members ?? []
+    const targets: CharacterState[] =
       who === 'party.members'
         ? members
         : who === 'acting'
@@ -216,7 +218,9 @@ export function applyMemberEffects(
         { type: 'change', effects: { [rest]: change }, ...(time !== undefined && { time }) },
         { roller, context },
       )
-      s.members = (s.members ?? []).map((m) => (m.id === target.id ? done.state : m))
+      s.members = (s.members ?? []).map((m: CharacterState) =>
+        m.id === target.id ? done.state : m,
+      )
       for (const e of done.events) {
         events.push(e)
         if (e.type === 'LIMIT_REACHED')
@@ -229,4 +233,69 @@ export function applyMemberEffects(
     }
   }
   return { limits, events, nobody, unknown }
+}
+
+/**
+ * A character as an OTD `character` entity: its values as `stats`, its tags, and what only
+ * the character engine reads (its sheet, conditions, cards, relations) in `ext.character`.
+ * `kind` says what it is in play (`pc` for the party's members).
+ */
+export function characterToOtd(
+  member: CharacterState,
+  kind = 'pc',
+): {
+  id: string
+  type: 'character'
+  name?: string
+  kind: string
+  tags?: string[]
+  stats: Record<string, number>
+  ext: { character: Record<string, unknown> }
+} {
+  return {
+    id: member.id,
+    type: 'character',
+    ...(member.name !== undefined && { name: member.name }),
+    kind,
+    ...(member.tags.length && { tags: [...member.tags] }),
+    stats: { ...member.values },
+    ext: {
+      character: {
+        sheet: member.sheet,
+        ...(Object.keys(member.conditions).length && { conditions: member.conditions }),
+        ...(member.cards.length && { cards: member.cards }),
+        ...(member.relations.length && { relations: member.relations }),
+      },
+    },
+  }
+}
+
+/** An OTD character back as a character (undefined when it isn't one this engine made). */
+export function characterFromOtd(raw: {
+  id: string
+  name?: string
+  tags?: string[]
+  stats?: Record<string, unknown>
+  ext?: Record<string, unknown>
+}): CharacterState | undefined {
+  const own = raw.ext?.character as Record<string, unknown> | undefined
+  if (!own || typeof own.sheet !== 'string') return undefined
+  const values = Object.fromEntries(
+    Object.entries(raw.stats ?? {}).flatMap(([k, v]) => {
+      const n = typeof v === 'number' ? v : Number(v)
+      return Number.isFinite(n) ? [[k, n]] : []
+    }),
+  )
+  const record = (v: unknown) =>
+    typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, never>) : {}
+  return {
+    id: raw.id,
+    sheet: own.sheet,
+    ...(raw.name !== undefined && { name: raw.name }),
+    values,
+    conditions: record(own.conditions),
+    tags: Array.isArray(raw.tags) ? raw.tags.filter((t) => typeof t === 'string') : [],
+    cards: Array.isArray(own.cards) ? own.cards.filter((c) => typeof c === 'string') : [],
+    relations: Array.isArray(own.relations) ? (own.relations as CharacterState['relations']) : [],
+  }
 }
