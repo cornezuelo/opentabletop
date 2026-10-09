@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-09
+
 ### Packs
 
 - **Progress by moves**: an action's step `advance: 2` (or `'{{party.stats.rank}}'`) moves the party that many hexes along its route at once, no time passing, entering each as by marching (its checks, its visit, the trip's totals): journeys made of moves instead of hours of marching, in the Hexmapper and on the Travel app's ways (see _Journeys by moves_ in Connecting). The Grey Marches get **Ride with a carter**: on a road by day, two hexes in two hours, once a day.
