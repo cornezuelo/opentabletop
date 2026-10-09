@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-09
+
 ### Apps
 
 - **Characters**: a system can give its party characters made with a **sheet** of its own (`kind: sheet`: values with bounds, tracks, groups, conditions that block things, kinds of relation). Trips in Travel, the Hexmapper and Systems' **Try it** get a **Characters** section: add them, choose who acts, change their values and conditions. The party's stats can be made of theirs (`from: { max: survival }` in the bindings: the best, the worst, the sum or how many, leaving some out with `when` / `unless`) and its supplies carried by them (`resources: { food: { carried: rations } }`, shared out as the trip spends them); effects reach them (`party.members.…`, `characters.<id>.…`, `acting.…`, `true` / `false` for conditions), conditions read them, and their conditions block what they say, naming who. The same system still plays with no characters. The Systems app has a **Sheet** tab and, in **Checks**, **From the members** and **Supplies the members carry**; the Generic system has the smallest sheet (health and a wound). Maps keep their party's characters (map format v17, as OTD characters of the party) and saved trips too (trips v5).
