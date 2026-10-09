@@ -79,9 +79,11 @@ format: ## Format every file with Prettier
 
 verify: lint check test ## Everything CI would run: lint, types and tests
 
-old-maps: ## Write this version's example maps with trips going on, for later versions to keep opening (before a release)
+old-maps: ## Write this version's example maps and Travel's saved trips with trips going on, for later versions to keep opening (before a release)
 	OTT_OLD_MAPS_OUT=$(CURDIR)/apps/hexmapper/src/lib/play/old-maps/v$$(node -p "require('./package.json').version") \
 		npx vitest run apps/hexmapper/src/lib/play/old-maps.gen.test.ts
+	OTT_OLD_TRIPS_OUT=$(CURDIR)/apps/travel/src/lib/old-trips/v$$(node -p "require('./package.json').version") \
+		npx vitest run apps/travel/src/lib/old-trips.gen.test.ts
 
 clean: ## Remove build output (dist folders)
 	rm -rf dist apps/cli/dist $(addprefix apps/,$(addsuffix /dist,$(APPS)))

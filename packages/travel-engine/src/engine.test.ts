@@ -1740,6 +1740,25 @@ describe('progress made on a slower day', () => {
       time: walked.time,
     })
   })
+
+  // Minutes towards a hex add up with decimals: a hex can be left a sliver short of its
+  // cost, less than the clock can tell apart from now (trips saved by v0.5.0 did). Such a
+  // hex is reached, not marched towards for no time at all: at dawn that looped for ever.
+  it('a hex walked all but a sliver is entered at once, at dawn or later', () => {
+    const planned = engine.apply(resolveAll(start()).state, {
+      type: 'setDestination',
+      hex: '2,0',
+    }).state
+    // Late in the year, when the clock's minutes are big numbers.
+    const dawn = defaultCalendar.at(200, '06:00')
+    for (const time of [dawn, dawn + 120]) {
+      const walked = { ...planned, day: 200, time, progress: 480 - 1e-12, dayChecksDone: true }
+      expect(walked.time + (480 - walked.progress)).toBe(walked.time)
+      const { state, events } = engine.apply(walked, { type: 'travel', until: 'hex' })
+      expect(events.find((e) => e.type === 'HEX_ENTERED')).toMatchObject({ hex: '1,0', time })
+      expect(state.location).toBe('1,0')
+    }
+  })
 })
 
 describe('full names of facts', () => {

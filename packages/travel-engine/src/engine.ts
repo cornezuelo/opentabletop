@@ -827,8 +827,8 @@ export function createTravelEngine(options: {
       // March minute by minute while the system's march holds, up to the next hex, the
       // moment asked for, dawn (its checks come first) or midnight (a new day).
       // Already past it (the way got faster since: better weather…): the hex is entered now.
-      const remaining = Math.max(0, cost - state.progress)
-      let end = Math.min(by, midnight, state.time + remaining)
+      const reach = state.time + Math.max(0, cost - state.progress)
+      let end = Math.min(by, midnight, reach)
       if (state.time < start) end = Math.min(end, start)
       let time = state.time + 1
       while (time < end && !marchStop(state, time, state.travelledToday + time - state.time)) time++
@@ -836,7 +836,10 @@ export function createTravelEngine(options: {
       state.time += marched
       state.travelledToday += marched
       totalsOf(state).marched += marched
-      state.progress += marched
+      // Marched up to the hex's moment, the hex is reached: minutes add up with decimals, and
+      // a sliver left short of the cost (less than the clock tells apart from now) would be
+      // marched towards for no time at all, for ever at dawn.
+      state.progress = state.time >= reach ? cost : state.progress + marched
       if (state.progress < cost) {
         if (state.time >= by) return stop('waited')
         if (state.time === start) {

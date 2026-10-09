@@ -147,7 +147,7 @@ FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
 - **Browser storage keys start with `opentabletop.`** (or the legacy `hexmapper.`), so backups (`@open-tabletop/storage`) include them; data in IndexedDB must be added to the backup explicitly. An app that saves on its own (autosave on page hide) registers `onBeforeBackup` / `onBeforeRestore`.
-- **Every persisted format change** (maps, saved trips) bumps the version and adds a migration. Every release keeps its stored maps with trips going on (`make old-maps`, `old-maps.test.ts`): they must keep opening in Play and playing on, so a change that breaks one is fixed with a migration, never by regenerating them.
+- **Every persisted format change** (maps, saved trips) bumps the version and adds a migration. Every release keeps its stored maps and Travel's saved trips with trips going on (`make old-maps`, `old-maps.test.ts`, `old-trips.test.ts`): they must keep opening in Play (or Travel) and playing on, so a change that breaks one is fixed with a migration, never by regenerating them.
 - **Pack syntax never changes meaning silently:** if existing YAML would mean something else, bump `PACK_FORMAT` (oracle-engine), migrate the old meaning on reading (packs say their `format` in `pack.yaml`; absent: 1), add its row to the formats table in File formats, and move our packs to the new format. New keys that change nothing old need no bump.
 
 **Bundled packs**
