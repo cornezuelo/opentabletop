@@ -13,7 +13,7 @@ import {
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
 import { mapWorld } from '../play/world'
-import { exampleMaps } from './examples'
+import { exampleMaps, exampleState, forgetExample, rememberExample } from './examples'
 import { parseMapFile } from './otd'
 
 /** The maps the bundled systems bring (`maps:` in their `kind: system`). */
@@ -26,6 +26,20 @@ const packFiles = import.meta.glob('../../../../../packs/grey-marches/**/*.{yaml
 }) as Record<string, string>
 
 describe('example maps', () => {
+  it('tell when the example changed since your map of it started (a newer app)', () => {
+    const example = EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!
+    // A map started before this was kept: nothing can be said.
+    expect(exampleState(example)).toBe('unknown')
+    rememberExample(example.id, example)
+    expect(exampleState(example)).toBe('same')
+    // The app brings a newer example.
+    const newer = { ...example, json: example.json.replace('The Grey Stones', 'The Grey Menhirs') }
+    expect(exampleState(newer)).toBe('newer')
+    // Removed from the library: forgotten.
+    forgetExample(example.id)
+    expect(exampleState(newer)).toBe('unknown')
+  })
+
   it('are valid OTD bundles that open', () => {
     expect(EXAMPLE_MAPS.map((m) => m.id)).toContain('greymarches1')
     // The Grey Marches' system lists it (`maps:`), a file of their pack.

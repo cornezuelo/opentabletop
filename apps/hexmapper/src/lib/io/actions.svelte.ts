@@ -6,7 +6,7 @@ import { deserializeMap, serializeMap } from '../model/serialize'
 import type { HexMap } from '../model/types'
 import { editor } from '../store/editor.svelte'
 import { ask, showToast } from '@open-tabletop/ui-kit'
-import type { ExampleMap } from './examples'
+import { exampleState, forgetExample, rememberExample, type ExampleMap } from './examples'
 import {
   deleteLibraryMap,
   getLibraryMap,
@@ -103,20 +103,32 @@ export async function openMapFile(): Promise<string | null> {
  * asks whether to go on with that copy or start the example fresh.
  */
 export async function openExampleMap(example: ExampleMap): Promise<void> {
+  let id = example.id
   if (await getLibraryMap(example.id)) {
-    const choice = await ask(t('library.exampleTitle'), t('library.exampleExists'), [
-      { value: 'cancel', label: t('newMap.cancel') },
-      { value: 'fresh', label: t('library.exampleFresh'), kind: 'danger' },
-      { value: 'open', label: t('library.exampleOpen'), kind: 'primary' },
-    ])
+    // A newer app may bring a newer example than the one this map started from.
+    const newer = exampleState(example) === 'newer'
+    const choice = await ask(
+      t(newer ? 'library.exampleNewerTitle' : 'library.exampleTitle'),
+      t(newer ? 'library.exampleNewer' : 'library.exampleExists'),
+      [
+        { value: 'cancel', label: t('newMap.cancel') },
+        { value: 'fresh', label: t('library.exampleFresh'), kind: 'danger' },
+        { value: 'beside', label: t('library.exampleBeside') },
+        { value: 'open', label: t('library.exampleOpen'), kind: 'primary' },
+      ],
+    )
     if (choice === 'open') {
       await openLibraryMap(example.id)
       return
     }
-    if (choice !== 'fresh') return
+    if (choice === 'beside') id = newId()
+    else if (choice !== 'fresh') return
   }
   try {
-    await switchTo(parseMapFile(example.json))
+    const map = parseMapFile(example.json)
+    map.meta.id = id
+    await switchTo(map)
+    rememberExample(id, example)
     showToast(t('file.loaded'))
   } catch (error) {
     showToast(errorMessage(error), 'error')
@@ -164,6 +176,7 @@ export async function openLibraryMap(id: string): Promise<boolean> {
 
 export async function removeLibraryMap(id: string): Promise<void> {
   await deleteLibraryMap(id)
+  forgetExample(id)
   library.version++
   if (id === editor.map.meta.id) {
     dirty = false

@@ -1,3 +1,4 @@
+import { fingerprint } from '@open-tabletop/pack-ui'
 import { systemName, type TravelSystem } from '@open-tabletop/session'
 import { library } from '../play/packs'
 import { playSystems } from '../play/systems'
@@ -55,3 +56,50 @@ export function exampleMaps(): ExampleMap[] {
 /** The name of the system an example map comes with, in a language. */
 export const exampleSystemName = (example: ExampleMap, locale: string): string =>
   systemName(example.system, locale)
+
+/**
+ * Which version of its example each library map started from (map id → a fingerprint of
+ * the example's file), so a newer example (a newer app) can be told apart from the one
+ * the player has been playing. A preference of this browser, kept in backups.
+ */
+const STARTED_KEY = 'opentabletop.hexmapper.examples'
+
+function started(): Record<string, string> {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(STARTED_KEY) ?? '{}')
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, string>) : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeStarted(all: Record<string, string>): void {
+  try {
+    localStorage.setItem(STARTED_KEY, JSON.stringify(all))
+  } catch {
+    // Storage full or blocked: the notice of a newer example is only a convenience.
+  }
+}
+
+/** The library map `id` starts from this example as it is now. */
+export function rememberExample(id: string, example: ExampleMap): void {
+  writeStarted({ ...started(), [id]: fingerprint(example.json) })
+}
+
+/** The library map `id` is gone (or no longer an example's). */
+export function forgetExample(id: string): void {
+  const all = started()
+  delete all[id]
+  writeStarted(all)
+}
+
+/**
+ * How the library's map of an example compares with the example now: `newer` when the
+ * example changed since the map started from it, `same`, or `unknown` (a map started
+ * before this was kept, or none).
+ */
+export function exampleState(example: ExampleMap): 'newer' | 'same' | 'unknown' {
+  const print = started()[example.id]
+  if (!print) return 'unknown'
+  return print === fingerprint(example.json) ? 'same' : 'newer'
+}

@@ -276,6 +276,13 @@ export const en = {
       'This browser already has this example, with your changes and your trip. Go on with it, or start the example fresh (your copy is replaced)?',
     exampleOpen: 'Go on with mine',
     exampleFresh: 'Start fresh',
+    exampleBeside: 'Open it beside mine',
+    exampleNewerTitle: 'A newer example',
+    exampleNewer:
+      'This example has changed since you started yours (a newer version of the app or its packs). Go on with yours, open the new one beside it as another map (yours is kept), or start it fresh in place of yours (your changes and your trip are lost)?',
+    exampleNewerTag: 'new version',
+    exampleNewerTip:
+      'The example has changed since you started your map from it. Open it to choose: go on with yours, or open the new one beside it.',
     title: 'Maps',
     import: 'Import file… (Ctrl+O)',
     help: 'Maps opened in this browser, saved automatically. Links like #/<map id>/<hex> open a map and center a hex.',

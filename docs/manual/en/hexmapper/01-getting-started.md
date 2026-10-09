@@ -20,6 +20,8 @@ Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortc
 
 Maps are kept in this browser's library and saved automatically while you work. **Maps** (the folder button) lists them: open one, delete it from this browser or copy its link; **Import file…** opens a saved file. Under **Example maps** are the maps the loaded systems bring (`maps:` in their definition, see [Kinds of definition](../technical/07-kinds.md#systems)), each with the system it's played with: _The Grey Marches_ is a ready map to play and to learn from (see [The Grey Marches](../packs/02-grey-marches.md)).
 
+An example you open becomes **your map**: your changes and your trip are kept in it. Opening the example again asks whether to **go on with yours**, **open it beside yours** (a fresh copy as another map, yours kept) or **start fresh** in its place (yours is lost). When a newer version of the app brings a changed example, the list marks it **new version** and the question says so: your map keeps playing as it was, and you choose when to try the new one.
+
 **Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map).
 
 > Clearing the browser's data deletes its library: save files of the maps you care about, or a [backup of everything](../technical/05-backups.md) (app switcher → **Save a backup**).

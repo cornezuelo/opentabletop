@@ -279,6 +279,13 @@ export const es: Messages = {
       'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye)?',
     exampleOpen: 'Seguir con el mío',
     exampleFresh: 'Empezar de cero',
+    exampleBeside: 'Abrirlo junto al mío',
+    exampleNewerTitle: 'Un ejemplo más nuevo',
+    exampleNewer:
+      'Este ejemplo ha cambiado desde que empezaste el tuyo (una versión más nueva de la app o de sus packs). ¿Sigues con el tuyo, abres el nuevo junto a él como otro mapa (el tuyo se conserva) o lo empiezas de cero en lugar del tuyo (se pierden tus cambios y tu viaje)?',
+    exampleNewerTag: 'nueva versión',
+    exampleNewerTip:
+      'El ejemplo ha cambiado desde que empezaste tu mapa con él. Ábrelo para elegir: seguir con el tuyo o abrir el nuevo junto a él.',
     title: 'Mapas',
     import: 'Importar fichero… (Ctrl+O)',
     help: 'Mapas abiertos en este navegador, guardados automáticamente. Los enlaces #/<id del mapa>/<hex> abren un mapa y centran un hex.',

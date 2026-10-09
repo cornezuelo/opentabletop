@@ -20,6 +20,8 @@ Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o cons
 
 Los mapas se guardan en la biblioteca de este navegador, automáticamente mientras trabajas. **Mapas** (el botón de la carpeta) los lista: abre uno, bórralo de este navegador o copia su enlace; **Importar fichero…** abre uno guardado. En **Mapas de ejemplo** están los mapas que traen los sistemas cargados (`maps:` en su definición, mira [Tipos de definición](../technical/07-kinds.md#sistemas)), cada uno con el sistema con el que se juega: _The Grey Marches_ es un mapa listo para jugar y aprender (mira [Las Marcas Grises](../packs/02-grey-marches.md)).
 
+Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan en él. Al abrir el ejemplo otra vez se pregunta si **seguir con el tuyo**, **abrirlo junto al tuyo** (una copia nueva como otro mapa, conservando el tuyo) o **empezar de cero** en su lugar (el tuyo se pierde). Cuando una versión más nueva de la app trae un ejemplo cambiado, la lista lo marca como **nueva versión** y la pregunta lo dice: tu mapa sigue jugándose como estaba, y tú eliges cuándo probar el nuevo.
+
 **Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Si el fichero es un mapa que este navegador ya tiene (por ejemplo, una copia antigua) y son distintos, Hexmapper pregunta si **sustituir** tu copia por el fichero o **conservar ambos** (el fichero se abre como un mapa aparte).
 
 > Si borras los datos del navegador se borra su biblioteca: guarda en fichero los mapas que te importen, o una [copia de seguridad de todo](../technical/05-backups.md) (selector de aplicaciones → **Guardar una copia**).

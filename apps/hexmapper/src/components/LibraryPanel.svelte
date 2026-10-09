@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { exampleMaps, exampleSystemName } from '../lib/io/examples'
+  import { exampleMaps, exampleState, exampleSystemName } from '../lib/io/examples'
   import LineIcon from './LineIcon.svelte'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
@@ -19,6 +19,12 @@
   let entries = $state<Entry[]>([])
   /** The maps the loaded systems bring (`maps:` in their `kind: system`). */
   const examples = $derived(exampleMaps())
+  /** Examples that changed since your map of them started (a newer app or pack). */
+  const newer = $derived.by(() => {
+    void library.version
+    void entries
+    return new Set(examples.filter((e) => exampleState(e) === 'newer').map((e) => e.id))
+  })
 
   $effect(() => {
     void library.version
@@ -68,11 +74,18 @@
       <li>
         <button
           class="open"
-          use:tooltip={{ markdown: helpMarkdown(t('library.exampleHelp')) }}
+          use:tooltip={{
+            markdown: helpMarkdown(
+              newer.has(example.id)
+                ? `${t('library.exampleNewerTip')}\n${t('library.exampleHelp')}`
+                : t('library.exampleHelp'),
+            ),
+          }}
           onclick={() => openExampleMap(example).then(() => (editor.panelView = 'tool'))}
           ><span class="name">{example.name}</span><span class="meta"
             >{t('library.exampleOf', { system: exampleSystemName(example, getLocale()) })}</span
-          ></button
+          >{#if newer.has(example.id)}<span class="newer">{t('library.exampleNewerTag')}</span
+            >{/if}</button
         >
       </li>
     {/each}
@@ -185,6 +198,11 @@
     margin: 0;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .newer {
+    font-size: 11px;
+    color: var(--accent);
   }
 
   .examples-title {
