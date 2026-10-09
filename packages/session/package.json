@@ -12,6 +12,7 @@
     "check": "tsc --noEmit -p ."
   },
   "dependencies": {
+    "@open-tabletop/character-engine": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/random": "*",
     "@open-tabletop/time": "*",

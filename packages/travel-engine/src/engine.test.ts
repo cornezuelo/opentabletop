@@ -245,6 +245,17 @@ describe('travel', () => {
     )
   })
 
+  it("stays put while the host says something blocks it (a member's condition), saying who", () => {
+    let state: TravelState = start('0,0')
+    state = engine.apply(state, { type: 'setDestination', hex: '2,0' }).state
+    state.dayChecksDone = true
+    const facts = { party: { blocked: { travel: { value: 'wounded', who: 'kael' } } } }
+    const { events } = engine.apply(state, { type: 'travel' }, facts)
+    expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'wounded', who: 'kael' })
+    expect(engine.availability(state, facts).travel).toEqual({ value: 'wounded', who: 'kael' })
+    expect(engine.availability(state).travel).toBeUndefined()
+  })
+
   it('applies weather: storms stop travel, heavy rain halves speed', () => {
     let { state } = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
     const weather = state.pendingChecks.find((c) => c.event === 'WEATHER_CHECK_REQUIRED')!

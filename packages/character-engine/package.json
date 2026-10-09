@@ -12,6 +12,7 @@
     "check": "tsc --noEmit -p ."
   },
   "dependencies": {
+    "@open-tabletop/conditions": "*",
     "@open-tabletop/variables": "*",
     "zod": "^4.6.5"
   }

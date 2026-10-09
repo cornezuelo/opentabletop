@@ -7,7 +7,23 @@ import {
   type OracleEngine,
   type OracleState,
 } from '@open-tabletop/oracle-engine'
-import { applyEffects, effectsOf } from './effects'
+import {
+  validatePartyFrom,
+  type CharacterState,
+  type PartyFrom,
+  type Share,
+} from '@open-tabletop/character-engine'
+import { applyEffects, effectsOf, type Effects, type LimitReached } from './effects'
+import {
+  applyMemberEffects,
+  carriedBounds,
+  carriedNow,
+  memberFacts,
+  partyBlocks,
+  refreshParty,
+  settleParty,
+  type PartyRules,
+} from './party'
 import {
   parseDiscover,
   type DiscoverBindings,
@@ -43,6 +59,21 @@ export interface StatDefinition {
   /** Effects never take it below / above these. */
   min?: number
   max?: number
+  /**
+   * Made of the members' values while the party has members (`{ max: survival }`, `{ count:
+   * true }`); kept like any other stat while it has none.
+   */
+  from?: PartyFrom
+}
+
+/**
+ * A supply the members carry between them (`carried`: the value of their sheet that holds
+ * it): with members, the party's is their sum, and what the trip spends or gains is shared
+ * out among them (`share`: `even` by default, or `order`).
+ */
+export interface CarriedSupply {
+  carried: string
+  share?: Share
 }
 
 /**
@@ -56,6 +87,8 @@ export interface Bindings {
    */
   on: Record<string, { resolve?: string; weather?: string; context?: Record<string, unknown> }>
   stats?: Record<string, StatDefinition>
+  /** Supplies the members carry, by the travel rules' id. */
+  resources?: Record<string, CarriedSupply>
   /** Tables that decide empty hexes as the party travels (the host may turn it off). */
   discover?: DiscoverBindings
 }
@@ -116,7 +149,39 @@ export function parseBindings(
         ...(typeof v.min === 'number' && { min: v.min }),
         ...(typeof v.max === 'number' && { max: v.max }),
       }
+      if (v.from !== undefined) {
+        const problems = validatePartyFrom(v.from, `bindings.stats.${key}.from`)
+        if (problems.length) errors.push(...problems)
+        else out.stats[key].from = v.from as PartyFrom
+      }
     }
+  }
+  const resources = (raw as { resources?: unknown })?.resources
+  if (resources !== undefined) {
+    if (typeof resources !== 'object' || resources === null || Array.isArray(resources))
+      errors.push('bindings.resources: expected supplies by id')
+    else
+      for (const [key, value] of Object.entries(resources)) {
+        const at = `bindings.resources.${key}`
+        const v = (typeof value === 'object' && value !== null ? value : {}) as Record<
+          string,
+          unknown
+        >
+        if (typeof v.carried !== 'string' || !v.carried) {
+          errors.push(`${at}.carried: the id of a value of the members' sheet`)
+          continue
+        }
+        if (v.share !== undefined && v.share !== 'even' && v.share !== 'order') {
+          errors.push(`${at}.share: even or order`)
+          continue
+        }
+        for (const k of Object.keys(v))
+          if (k !== 'carried' && k !== 'share') errors.push(`${at}: unknown key "${k}"`)
+        ;(out.resources ??= {})[key] = {
+          carried: v.carried,
+          ...(v.share !== undefined && { share: v.share as Share }),
+        }
+      }
   }
   return errors.length ? { errors } : { bindings: out, errors: [] }
 }
@@ -148,6 +213,10 @@ export interface SessionState {
   nextEntry: number
   /** Discovery: hexes revealed whose contents are still to be rolled. */
   discovery?: DiscoveryState
+  /** The party's characters, in order (none: the party is played as a whole). */
+  members?: CharacterState[]
+  /** The member acting now (`acting.*`), chosen by the player. */
+  acting?: string
 }
 
 export function initialSessionState(
@@ -157,14 +226,21 @@ export function initialSessionState(
   return { travel, oracle: emptyState(), stats, dayVars: {}, journal: [], nextEntry: 1 }
 }
 
-/** The party as tables read it: `{{party.resources.food}}`, `party.stats.survival`… */
+/**
+ * The party as tables read it: `{{party.resources.food}}`, `party.stats.survival`…, and
+ * its members' ids (`party.members`) when it has them.
+ */
 export function partyValues(s: SessionState): Record<string, unknown> {
   return {
     stats: { ...s.stats },
     resources: { ...s.travel.resources },
     mode: s.travel.mode,
+    ...(s.members?.length && { members: s.members.map((m) => m.id) }),
   }
 }
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
 
 /** The hex and moment a context is about (for its rolls). */
 const hexOf = (seen: Record<string, unknown>) => hexIdOf(seen)
@@ -187,11 +263,14 @@ export function tripContext(
   const yesterday = { ...s.yesterday, ...upgradeTravelState(s.travel).yesterday }
   // Today's values: the session's (weather, modifiers…), then the ones the system declares.
   const today = { ...s.dayVars, ...upgradeTravelState(s.travel).today }
+  // What the host says of the party (what its members block) goes with the party.
+  const host = isRecord(facts.party) ? facts.party : {}
   return qualify({
     ...s.stats,
     ...s.dayVars,
     ...facts,
-    party: partyValues(s),
+    ...memberFacts(s),
+    party: { ...host, ...partyValues(s) },
     today,
     yesterday,
     ...extra,
@@ -218,9 +297,17 @@ export function applyResult(
   value: Record<string, unknown>,
   stats: Record<string, StatDefinition> = {},
   resources: Record<string, Bounds> = {},
+  /** The party's members' sheet and bindings, when the system has them. */
+  party: PartyRules = {},
 ): SessionState {
   const s = structuredClone(input)
-  applyEffects(s, effectsOf(value), stats, resources, { ...tripContext(s, {}), ...value })
+  refreshParty(s, party)
+  const before = carriedNow(s, party)
+  const effects = effectsOf(value)
+  const context = { ...tripContext(s, {}), ...value }
+  applyEffects(s, effects, stats, { ...resources, ...carriedBounds(s, party) }, context)
+  applyMemberEffects(s, effects, party, context, s.travel.time)
+  settleParty(s, party, before)
   if (typeof value.weather === 'string') s.travel.weather = value.weather
   return s
 }
@@ -273,6 +360,8 @@ export function createSession(options: {
    * `clocks` and today's `events` (`worldFacts` of the world engine).
    */
   facts?: Record<string, unknown>
+  /** The sheet the party's members are made with (the system's), if it has one. */
+  sheet?: PartyRules['sheet']
 }): Session {
   const random = options.random ?? mathRandom()
   const host = options.facts ?? {}
@@ -281,6 +370,18 @@ export function createSession(options: {
   const declared = options.rules ? declaredValues(options.rules) : undefined
   const supplies = options.rules ? resourceBounds(options.rules) : {}
   const stats = options.bindings?.stats
+  const party: PartyRules = { sheet: options.sheet, bindings: options.bindings }
+  /** The host's facts, with what the members' conditions block (for the travel engine). */
+  const hostOf = (s: SessionState, more: Record<string, unknown> = {}) => {
+    const blocked = partyBlocks(s, party)
+    return Object.keys(blocked).length
+      ? {
+          ...host,
+          ...more,
+          party: { ...(isRecord(host.party) ? host.party : {}), blocked },
+        }
+      : { ...host, ...more }
+  }
   // Hex by hex, a long trip takes many steps.
   const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
 
@@ -312,12 +413,36 @@ export function createSession(options: {
     step(input, action) {
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
+      // The members as they are now (the player may have changed them by hand).
+      refreshParty(s, party)
+      let carried = carriedNow(s, party)
+      /** Shares out what the supplies the members carry changed, and brings the party up to date. */
+      const settle = () => {
+        settleParty(s, party, carried)
+        carried = carriedNow(s, party)
+      }
+      /**
+       * Effects on the members (`party.members.…`, `characters.<id>.…`, `acting.…`): applied,
+       * with what hit a bound, and a line when nobody was acting.
+       */
+      const memberEffects = (
+        effects: Effects,
+        context: Record<string, unknown>,
+        time: number,
+      ): LimitReached[] => {
+        const done = applyMemberEffects(s, effects, party, context, time)
+        for (const path of done.nobody)
+          add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
+        return done.limits
+      }
+      /** Supplies' bounds now (the members' sums for what they carry). */
+      const suppliesNow = () => ({ ...supplies, ...carriedBounds(s, party) })
       /** Discovers at the party's hex; true when it found something to stop for. */
       const arrive = (hex: string, from?: string, time?: number): boolean => {
         if (!discovery) return false
         let outcome: ReturnType<Discovery['arrive']>
         try {
-          outcome = discovery.arrive(s, tripContext(s, host), hex, from)
+          outcome = discovery.arrive(s, tripContext(s, hostOf(s)), hex, from)
         } catch (error) {
           if (!(error instanceof OracleError)) throw error
           add(s, entries, {
@@ -362,8 +487,10 @@ export function createSession(options: {
         const dayBefore = s.travel.day
         const from = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
-        const result = options.travel.apply(s.travel, act, tripContext(s, host))
+        const result = options.travel.apply(s.travel, act, tripContext(s, hostOf(s)))
         s.travel = result.state
+        // What the engine took from the supplies the members carry, taken from them.
+        settle()
         if (s.travel.day !== dayBefore) {
           // Today's values become yesterday's (none if more than a day went by).
           s.yesterday = s.travel.day === dayBefore + 1 ? s.dayVars : {}
@@ -376,10 +503,18 @@ export function createSession(options: {
           // An action's step changes the party (the engine already changed the supplies, and
           // told what hit a bound): applied, and told on the action's line.
           if (event.type === 'EFFECTS') {
-            const party = Object.fromEntries(
+            const own = Object.fromEntries(
               Object.entries(event.effects).filter(([p]) => !p.startsWith('party.resources.')),
             )
-            applyEffects({ stats: s.stats, travel: { resources: {} } }, party, stats)
+            applyEffects({ stats: s.stats, travel: { resources: {} } }, own, stats)
+            for (const limit of memberEffects(event.effects, tripContext(s, host), event.time))
+              add(s, entries, {
+                source: 'travel',
+                code: 'LIMIT_REACHED',
+                time: event.time,
+                data: { ...limit },
+              })
+            settle()
             const line = entries.findLast((e) => isActionLine(e, event.action))
             if (line)
               line.data = {
@@ -396,13 +531,10 @@ export function createSession(options: {
           const binding = options.bindings?.on[event.check.event]
           // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
           if (event.check.effects) {
-            const { limits } = applyEffects(
-              s,
-              event.check.effects,
-              stats,
-              supplies,
-              tripContext(s, { ...host, ...event.check.context }),
-            )
+            const seenNow = tripContext(s, { ...host, ...event.check.context })
+            const { limits } = applyEffects(s, event.check.effects, stats, suppliesNow(), seenNow)
+            limits.push(...memberEffects(event.check.effects, seenNow, event.time))
+            settle()
             add(s, entries, {
               source: 'travel',
               code: 'CHECK_EFFECTS',
@@ -514,7 +646,12 @@ export function createSession(options: {
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
-          for (const limit of applyEffects(s, effects, stats, supplies).limits)
+          const limits = [
+            ...applyEffects(s, effects, stats, suppliesNow()).limits,
+            ...memberEffects(effects, seen, event.time),
+          ]
+          settle()
+          for (const limit of limits)
             add(s, entries, {
               source: 'travel',
               code: 'LIMIT_REACHED',
@@ -635,3 +772,4 @@ export * from './suggestions'
 export * from './formats'
 // The full names of facts (`hex.terrain`, `trip.day`…), for hosts that build contexts.
 export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'
+export * from './party'

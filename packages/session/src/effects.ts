@@ -66,6 +66,9 @@ export function effectsOf(value: Record<string, unknown>): Effects {
     const n = number(change)
     if (n !== undefined) out[path] = (number(out[path]) ?? 0) + n
     else if (typeof change === 'string' && /^\s*(=|[+-]?\s*\{\{)/.test(change)) out[path] = change
+    // A character's condition set or cleared.
+    else if (change === true || change === false || change === 'true' || change === 'false')
+      out[path] = String(change)
   }
   const record = (v: unknown) =>
     typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {}

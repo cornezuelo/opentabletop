@@ -85,10 +85,20 @@ type CharacterAction =
 4. **Relations** on the map and in conditions; **journey roles**.
 5. **The bundled packs**: the Grey Marches and Core with sheets; Kal-Arath's camping and the review against its rulebook (backlog → Packs).
 
-## 7. To settle with the author
+## 7. Settled with the author (2026-10-09)
 
-- **Names**: `kind: sheet` and "values" (as in travel) vs "stats" (as in OTD and today's party stats).
-- **The party's stats** once characters exist: always derived from members (the system's party rules), or still a sheet of their own that members add to?
-- **Supplies**: the party's (as today) or carried by characters (inventory, slots)? Proposal: the party's, unless a system declares items.
-- **NPCs and enemies**: the same sheets (one engine), or statblocks as a separate, lighter kind (backlog: statblocks and a bestiary)? Proposal: one engine, statblocks are sheets with fewer pieces.
-- **How far relations go** in phase 4: drawn on the map, read in conditions, or both.
+- **Names**: `kind: sheet` and "values" (as in travel), as phase 1 built them.
+- **The party's stats**: both, as the system says. A system that abstracts the party keeps its own stats (bindings' `stats`, as today); one that plays characters one by one derives them from the members (`from: { max: survival }`). A derived stat reads as its kept value while the party has no members, so the same system plays with or without characters.
+- **Supplies**: both, as the system says: the party's (as today), or carried by the members (`carried: rations`: the party's food is what they carry between them, and spending it takes from them).
+- **NPCs and enemies**: one engine; statblocks are sheets with fewer pieces.
+- **Relations** in phase 4: both drawn on the map and read in conditions, and the drawing can be hidden.
+
+## 8. Phase 2 in detail: the party is its members
+
+- **A system names its members' sheet**: `sheet: companion` in `kind: system` (a `kind: sheet` of its pack or a dependency's), validated with the system.
+- **Members in the trip**: the trip keeps its characters in order (`members`, `CharacterState`s of that sheet) and who is acting now (`acting`, an id, set by the host when the player chooses). Trips format v5, maps v17 (no members in older ones).
+- **Derived party stats** (bindings): `stats.navigation: { from: { max: survival } }`, with `max`, `min` or `sum` of a value of the members, or `count: true` (how many), each with `when` / `unless` on each member's facts (`count: true, unless: { conditions: wounded }`). With members the stat is computed (effects on it are overwritten); without, it's kept as any other.
+- **Carried supplies** (bindings): `resources.food: { carried: rations, share: even }`: with members, the party's food is the sum of their `rations` and its bounds the sums of theirs; what the trip spends or gains is shared out (`even`, the default: taken from whoever has most, given to whoever has least; `order`: the first member first). Without members, the party's own.
+- **What conditions and tables read**: `party.members` (their ids), `characters.<id>.*` (each member's facts: `characters.kael.values.health`, `characters.kael.conditions`), `acting.*` (the acting member's, when there is one).
+- **Effects**: `party.members.values.health: -1` (every member), `party.members.conditions.wounded: true`, `characters.<id>.values.…`, `acting.values.…` (nobody acting: nothing happens, and the journal says so). Within the sheet's bounds; what hits a bound is journaled.
+- **Conditions block**: a member's condition that `blocks` an action, `travel` or `mode.<id>` blocks it for the party, saying who (`{ value: wounded, who: kael }`).

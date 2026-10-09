@@ -15,6 +15,7 @@ import {
   type Bounds,
   type Roller,
 } from '@open-tabletop/variables'
+import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import { z } from 'zod'
 
 const text = z.string()
@@ -338,4 +339,138 @@ export function characterFacts(state: CharacterState): Record<string, unknown> {
 /** The condition a character has that blocks `what` (an action, `travel`…), if any. */
 export function blockedBy(sheet: Sheet, state: CharacterState, what: string): string | undefined {
   return Object.keys(state.conditions).find((id) => sheet.conditions[id]?.blocks?.includes(what))
+}
+
+/**
+ * A party value made of its members' (`from` in a system's party stats): the best (`max`),
+ * the worst (`min`) or the `sum` of one of their values, or how many they are (`count`),
+ * among the members its `when` / `unless` let in (each read with the member's facts).
+ * `none` is what it is when no member counts (0 unless the system says otherwise).
+ */
+export interface PartyFrom {
+  max?: string
+  min?: string
+  sum?: string
+  count?: boolean
+  when?: Condition
+  unless?: Condition
+  none?: number
+}
+
+/** Problems of a `from` (empty: fine), each `<path>: message`. */
+export function validatePartyFrom(raw: unknown, at = 'from'): string[] {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw))
+    return [`${at}: expected { max | min | sum: <value> } or { count: true }`]
+  const from = raw as Record<string, unknown>
+  const errors: string[] = []
+  const ways = (['max', 'min', 'sum', 'count'] as const).filter((k) => from[k] !== undefined)
+  if (ways.length !== 1)
+    errors.push(`${at}: one of max, min, sum (a value of the members) or count: true`)
+  for (const k of ['max', 'min', 'sum'] as const)
+    if (from[k] !== undefined && (typeof from[k] !== 'string' || !from[k]))
+      errors.push(`${at}.${k}: the id of a value of the members' sheet`)
+  if (from.count !== undefined && from.count !== true) errors.push(`${at}.count: true`)
+  if (from.none !== undefined && typeof from.none !== 'number') errors.push(`${at}.none: a number`)
+  for (const k of ['when', 'unless'] as const)
+    if (from[k] !== undefined) errors.push(...validateCondition(from[k], `${at}.${k}`))
+  for (const k of Object.keys(from))
+    if (!['max', 'min', 'sum', 'count', 'when', 'unless', 'none'].includes(k))
+      errors.push(`${at}: unknown key "${k}"`)
+  return errors
+}
+
+/** The party value `from` makes of these members. */
+export function partyValue(members: CharacterState[], from: PartyFrom): number {
+  const counted = members.filter((m) => {
+    const seen = characterFacts(m)
+    return matches(from.when, seen) && !(from.unless && matches(from.unless, seen))
+  })
+  if (from.count) return counted.length
+  const id = from.max ?? from.min ?? from.sum
+  if (id === undefined || !counted.length) return from.none ?? 0
+  const numbers = counted.map((m) => m.values[id] ?? 0)
+  if (from.sum !== undefined) return numbers.reduce((a, b) => a + b, 0)
+  return from.max !== undefined ? Math.max(...numbers) : Math.min(...numbers)
+}
+
+/**
+ * How a change to something the members carry between them is shared out: `even` takes
+ * from whoever has most and gives to whoever has least, a unit at a time; `order` takes
+ * from (and gives to) the first member first, as far as its bounds let it.
+ */
+export type Share = 'even' | 'order'
+
+/**
+ * The members after the party's `value` changed by `delta` (what they carry between them),
+ * each within its own bounds; what no member can take stays undone (`left`).
+ */
+export function shareChange(
+  sheets: (state: CharacterState) => Sheet | undefined,
+  members: CharacterState[],
+  value: string,
+  delta: number,
+  share: Share = 'even',
+): { members: CharacterState[]; events: CharacterEvent[]; left: number } {
+  const out = members.map((m) => ({ ...m, values: { ...m.values } }))
+  const room = (m: CharacterState, up: boolean): number => {
+    const sheet = sheets(m)
+    const bounds = sheet ? boundsOf(sheet, m, value) : {}
+    const now = m.values[value] ?? 0
+    const limit = up ? bounds.max : bounds.min
+    return limit === undefined ? Infinity : Math.max(0, up ? limit - now : now - limit)
+  }
+  const up = delta > 0
+  let left = Math.abs(delta)
+  if (share === 'order') {
+    for (const m of out) {
+      if (left <= 0) break
+      const moved = Math.min(left, room(m, up))
+      m.values[value] = (m.values[value] ?? 0) + (up ? moved : -moved)
+      left -= moved
+    }
+  } else {
+    while (left > 0) {
+      const open = out.filter((m) => room(m, up) > 0)
+      if (!open.length) break
+      // Taking: whoever has most; giving: whoever has least (the first of equals).
+      const pick = open.reduce((best, m) =>
+        up
+          ? (m.values[value] ?? 0) < (best.values[value] ?? 0)
+            ? m
+            : best
+          : (m.values[value] ?? 0) > (best.values[value] ?? 0)
+            ? m
+            : best,
+      )
+      const moved = Math.min(left, 1, room(pick, up))
+      pick.values[value] = (pick.values[value] ?? 0) + (up ? moved : -moved)
+      left -= moved
+    }
+  }
+  const events: CharacterEvent[] = []
+  out.forEach((m, i) => {
+    const from = members[i].values[value] ?? 0
+    const to = m.values[value] ?? 0
+    if (to !== from) events.push({ type: 'VALUE_CHANGED', character: m.id, value, from, to })
+  })
+  return { members: out, events, left }
+}
+
+/**
+ * What the members' conditions block for the party (`blocks` on the sheet): each thing
+ * blocked (an action's id, `travel`, `mode.<id>`) with the first member's condition that
+ * blocks it.
+ */
+export function membersBlock(
+  sheets: (state: CharacterState) => Sheet | undefined,
+  members: CharacterState[],
+): Record<string, { value: string; who: string }> {
+  const out: Record<string, { value: string; who: string }> = {}
+  for (const m of members) {
+    const sheet = sheets(m)
+    if (!sheet) continue
+    for (const id of Object.keys(m.conditions))
+      for (const what of sheet.conditions[id]?.blocks ?? []) out[what] ??= { value: id, who: m.id }
+  }
+  return out
 }

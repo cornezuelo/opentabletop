@@ -195,6 +195,8 @@ export type TravelEvent =
       reason: StopReason
       time: GameTime
       value?: string
+      /** With `value`: who has it, when it's a member's condition (the host's `party.blocked`). */
+      who?: string
       /** With `camp`: the night's action, which the party can't take (`because`). */
       action?: string
       because?: Unavailable
@@ -240,7 +242,11 @@ type StoppedEvent = Extract<TravelEvent, { type: 'TRAVEL_STOPPED' }>
  * value blocks it (`lost`), it was done today (`oncePerDay`), or its `when` / `unless`.
  */
 export type Unavailable =
-  { off: true } | { value: string } | { once: true } | { condition: 'when' | 'unless' }
+  | { off: true }
+  /** A value of the day blocks it, or a member's condition (`who` has it). */
+  | { value: string; who?: string }
+  | { once: true }
+  | { condition: 'when' | 'unless' }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -272,7 +278,8 @@ export type TravelAction =
 
 /**
  * What the host knows that conditions may read besides the trip's facts: the party's
- * stats, today's values, `yesterday` (the session passes `tripContext`).
+ * stats, today's values, `yesterday` (the session passes `tripContext`). `party.blocked`
+ * says what else is blocked and by what (`{ travel: { value: 'wounded', who: 'kael' } }`).
  */
 export type HostFacts = Record<string, unknown>
 
@@ -403,11 +410,25 @@ export function createTravelEngine(options: {
       hexIdOf(seen) ?? state.location,
       typeof seen.moment === 'string' ? seen.moment : moment,
     )
-  /** The declared value that blocks `what` today (travel, an action), if any. */
-  const blocker = (state: TravelState, what: string): string | undefined =>
-    Object.entries(values).find(
+  /**
+   * What blocks `what` (travel, an action, `mode.<id>`) now, if anything: a value of the
+   * day the system declares, or what the host says blocks it (`party.blocked`: a member's
+   * condition, with who has it).
+   */
+  const blocker = (
+    state: TravelState,
+    what: string,
+    facts: HostFacts = hostFacts,
+  ): { value: string; who?: string } | undefined => {
+    const value = Object.entries(values).find(
       ([id, v]) => v.blocks?.includes(what) && holds(state.today?.[id]),
     )?.[0]
+    if (value) return { value }
+    const party = facts.party as { blocked?: Record<string, unknown> } | undefined
+    const held = party?.blocked?.[what] as { value?: unknown; who?: unknown } | undefined
+    if (typeof held?.value !== 'string') return undefined
+    return { value: held.value, ...(typeof held.who === 'string' && { who: held.who }) }
+  }
 
   /** Whether it's day: between the system's dawn and nightfall of the day it is. */
   const isDaylight = (time: GameTime): boolean => {
@@ -781,7 +802,7 @@ export function createTravelEngine(options: {
     // A value that blocks travel, or the way the party is travelling (`mode.horse`).
     const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
     if (blocked) {
-      events.push({ type: 'TRAVEL_STOPPED', reason: 'value', value: blocked, time: state.time })
+      events.push({ type: 'TRAVEL_STOPPED', reason: 'value', ...blocked, time: state.time })
       return
     }
     if (dayFactor(state) <= 0) return stop('weather')
@@ -983,8 +1004,8 @@ export function createTravelEngine(options: {
     const def = actions.all[id]
     // Marching isn't taken like an action: it's the Travel buttons.
     if (!def || id === MARCH) return { off: true }
-    const value = blocker(state, id)
-    if (value) return { value }
+    const value = blocker(state, id, facts)
+    if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
     const context = { ...checkContext(state, [], facts), ...moment }
     if (def.when && !test(state, def.when as Condition, context, id)) return { condition: 'when' }
@@ -1001,8 +1022,8 @@ export function createTravelEngine(options: {
   ): Unavailable | undefined => {
     const mode = rules.modes[id]
     if (!mode) return { off: true }
-    const value = blocker(state, `mode.${id}`)
-    if (value) return { value }
+    const value = blocker(state, `mode.${id}`, facts)
+    if (value) return value
     const context = checkContext(state, [], facts)
     const at = `mode.${id}`
     if (mode.when && !test(state, mode.when as Condition, context, at)) return { condition: 'when' }
@@ -1227,8 +1248,9 @@ export function createTravelEngine(options: {
     availability(input, facts = {}) {
       const state = upgradeTravelState(input)
       const out: Record<string, Unavailable> = {}
-      const travelBlocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
-      if (travelBlocked) out.travel = { value: travelBlocked }
+      const travelBlocked =
+        blocker(state, 'travel', facts) ?? blocker(state, `mode.${state.mode}`, facts)
+      if (travelBlocked) out.travel = travelBlocked
       for (const id of Object.keys(actions.all)) {
         if (id === MARCH) continue
         const why = unavailable(state, id, facts)

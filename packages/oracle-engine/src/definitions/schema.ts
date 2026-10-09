@@ -16,7 +16,12 @@ const setValues = z.record(z.string(), z.unknown())
  * (a number adds or subtracts, '=value' sets). The engine only fills in templates and
  * passes them on (`effects` in the result); the host applies them.
  */
-const effects = z.record(z.string(), z.union([z.number(), z.string()]))
+// `true` / `false` set and clear a character's condition (`acting.conditions.wounded: true`);
+// read as text, like every other change.
+const effects = z.record(
+  z.string(),
+  z.union([z.number(), z.string(), z.boolean().transform((b) => String(b))]),
+)
 
 /** Single number or "a-b". */
 const range = z.union([

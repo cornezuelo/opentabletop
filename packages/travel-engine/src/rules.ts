@@ -35,7 +35,12 @@ export const MARCH = 'march'
 /** What a declared value can block besides actions: going on with the trip. */
 export const BLOCKABLE = ['travel'] as const
 
-const effects = z.record(z.string(), z.union([z.number(), z.string()]))
+// `true` / `false` set and clear a character's condition (`acting.conditions.wounded: true`);
+// read as text, like every other change.
+const effects = z.record(
+  z.string(),
+  z.union([z.number(), z.string(), z.boolean().transform((b) => String(b))]),
+)
 
 /**
  * Whether a terrain can be entered: `false` never, `true` (or missing) always, or `{ when,

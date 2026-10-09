@@ -21,7 +21,9 @@ import {
   type TravelWorld,
   type Unavailable,
 } from '@open-tabletop/travel-engine'
+import { parseSheet, type CharacterState, type Sheet } from '@open-tabletop/character-engine'
 import { migrateRules } from './formats'
+import { partyBlocks, refreshParty, rulesWithMembers, type PartyRules } from './party'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
 import {
   createSession,
@@ -65,6 +67,8 @@ export interface TravelSystem {
   weather?: Record<string, WeatherModel>
   /** Packs whose tables, oracles and decks it brings: its own first. */
   packs: string[]
+  /** The sheet its party's members are made with (`sheet` in `kind: system`), by `pack/id`. */
+  sheet?: { id: string; def: Sheet }
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -163,6 +167,7 @@ const isText = (v: unknown): v is LocalizedText =>
     Object.values(v).every((x) => typeof x === 'string'))
 /** How a system's parts are named in its problems. */
 const PART_NAMES: Record<string, string> = {
+  sheet: 'sheet',
   'travel-rules': 'travel rules',
   bindings: 'bindings',
   calendar: 'calendar',
@@ -179,6 +184,7 @@ const SYSTEM_KEYS = new Set([
   'weather',
   'packs',
   'maps',
+  'sheet',
 ])
 
 /**
@@ -243,6 +249,7 @@ export function travelSystems(registry: Registry): {
       weather: Record<string, WeatherModel>
       /** The `kind: system` naming these parts (absent for an implicit system). */
       system?: Extra
+      sheet?: Extra
     },
   ): TravelSystem | undefined {
     let rules = genericTravelRules
@@ -297,9 +304,38 @@ export function travelSystems(registry: Registry): {
       )
       if (!errors.length) calendar = calendarFrom(parts.calendar.data as unknown as CalendarDef)
     }
+    let sheet: TravelSystem['sheet']
+    if (parts.sheet) {
+      const owner = ownerOf(parts.sheet) ?? pack
+      const parsed = parseSheet(parts.sheet.data)
+      problems.push(
+        ...parsed.errors.map((e) => problem(owner, parts.sheet!.file, 'sheet', e, parts.sheet!.id)),
+      )
+      if (parsed.sheet) sheet = { id: `${owner}/${parts.sheet.id ?? 'default'}`, def: parsed.sheet }
+    }
+    if (parts.bindings && bindings)
+      problems.push(
+        ...membersBindings(bindings, rules, sheet?.def).map((e) =>
+          problem(
+            ownerOf(parts.bindings!) ?? pack,
+            parts.bindings!.file,
+            'bindings',
+            e,
+            parts.bindings!.id,
+          ),
+        ),
+      )
     if (parts.rules)
       problems.push(
-        ...undeclaredEffects(registry, pack, rules, bindings, parts.rules.file, parts.rules.id),
+        ...undeclaredEffects(
+          registry,
+          pack,
+          rules,
+          bindings,
+          parts.rules.file,
+          parts.rules.id,
+          sheet?.def,
+        ),
       )
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
       extra && { pack: owner, id: extra.id ?? 'default', file: extra.file }
@@ -316,6 +352,7 @@ export function travelSystems(registry: Registry): {
       },
       ...(calendar && { calendar }),
       ...(Object.keys(parts.weather).length && { weather: parts.weather }),
+      ...(sheet && { sheet }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -339,6 +376,7 @@ export function travelSystems(registry: Registry): {
           bindings: extras.find((e) => e.kind === 'bindings'),
           calendar: extras.find((e) => e.kind === 'calendar'),
           weather,
+          sheet: extras.find((e) => e.kind === 'sheet'),
         },
       )
       if (system) systems.push(system)
@@ -414,12 +452,40 @@ export function travelSystems(registry: Registry): {
           calendar: part('calendar', 'calendar', data.calendar),
           weather: own,
           system: def,
+          sheet: part('sheet', 'sheet', data.sheet),
         },
       )
       if (system) systems.push(system)
     }
   }
   return { systems, problems }
+}
+
+/**
+ * What the bindings take from the members that their sheet or the rules don't have: a
+ * stat `from` a value the sheet doesn't declare, a carried supply the rules don't declare
+ * or held in a value the sheet doesn't. Paths as `bindings.<…>: message`.
+ */
+function membersBindings(bindings: Bindings, rules: TravelRules, sheet?: Sheet): string[] {
+  const out: string[] = []
+  const usesMembers =
+    Object.values(bindings.stats ?? {}).some((s) => s.from) ||
+    Object.keys(bindings.resources ?? {}).length > 0
+  if (usesMembers && !sheet)
+    out.push(
+      `bindings: Members' values are named, but the system has no sheet (sheet: in kind: system)`,
+    )
+  for (const [id, stat] of Object.entries(bindings.stats ?? {})) {
+    const value = stat.from?.max ?? stat.from?.min ?? stat.from?.sum
+    if (sheet && value !== undefined && !sheet.values[value])
+      out.push(`stats.${id}.from: The members' sheet has no value "${value}"`)
+  }
+  for (const [id, supply] of Object.entries(bindings.resources ?? {})) {
+    if (!rules.resources?.[id]) out.push(`resources.${id}: The travel rules have no supply "${id}"`)
+    if (sheet && !sheet.values[supply.carried])
+      out.push(`resources.${id}.carried: The members' sheet has no value "${supply.carried}"`)
+  }
+  return out
 }
 
 /**
@@ -434,14 +500,19 @@ function undeclaredEffects(
   bindings: Bindings | undefined,
   file: string,
   rulesId = 'default',
+  sheet?: Sheet,
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
     if (typeof effects !== 'object' || effects === null) return
     for (const path of Object.keys(effects)) {
       const [, scope, valueId] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
-      const known =
-        scope === 'stats'
+      // A member's value or condition: its sheet's.
+      const [, , part, partId] =
+        /^(party\.members|characters\.[^.]+|acting)\.(values|conditions)\.(.+)$/.exec(path) ?? []
+      const known = part
+        ? !!sheet?.[part as 'values' | 'conditions'][partId]
+        : scope === 'stats'
           ? !!bindings?.stats?.[valueId]
           : scope === 'resources'
             ? !!rules.resources?.[valueId]
@@ -449,7 +520,9 @@ function undeclaredEffects(
       if (!known)
         out.push({
           severity: 'warning',
-          message: `Effect on "${path}", which this system doesn't declare (stats in its bindings, resources in its rules)`,
+          message: part
+            ? `Effect on "${path}", which the members' sheet doesn't declare`
+            : `Effect on "${path}", which this system doesn't declare (stats in its bindings, resources in its rules)`,
           pack,
           ...where,
         })
@@ -507,6 +580,8 @@ export function startTrip(options: {
   time?: number
   /** Seeds the trip's rolls in conditions and effects (`'{{1d20}}'`); the host picks one. */
   seed?: string
+  /** The party's characters (of the system's sheet), in order. */
+  members?: CharacterState[]
 }): { startDay: number; session: SessionState } {
   const { rules, bindings } = options.system
   const calendar = calendarOf(options.system)
@@ -528,7 +603,39 @@ export function startTrip(options: {
       options.stats?.[k] ?? v.default ?? 0,
     ]),
   )
-  return { startDay, session: initialSessionState(travel, stats) }
+  const session = initialSessionState(travel, stats)
+  if (options.members?.length) {
+    session.members = structuredClone(options.members)
+    refreshParty(session, partyOf(options.system))
+  }
+  return { startDay, session }
+}
+
+/** What a system says of its party's members: their sheet and its bindings. */
+export const partyOf = (system: TravelSystem): PartyRules => ({
+  sheet: system.sheet,
+  bindings: system.bindings,
+})
+
+/**
+ * The host's facts with what the members' conditions block (`party.blocked`), for the
+ * travel engine.
+ */
+function withBlocks(
+  system: TravelSystem,
+  session: SessionState,
+  facts: Record<string, unknown>,
+): Record<string, unknown> {
+  const blocked = partyBlocks(session, partyOf(system))
+  if (!Object.keys(blocked).length) return facts
+  const party = facts.party
+  return {
+    ...facts,
+    party: {
+      ...(typeof party === 'object' && party !== null && !Array.isArray(party) ? party : {}),
+      blocked,
+    },
+  }
 }
 
 /**
@@ -567,7 +674,8 @@ export function stepTrip(
   const result = createSession({
     travel: createTravelEngine({
       world: discovery?.world ?? options.world,
-      rules: system.rules,
+      // The supplies the members carry have the bounds of theirs together.
+      rules: rulesWithMembers(system.rules, session, partyOf(system)),
       calendar: calendarOf(system),
       stats: system.bindings?.stats,
     }),
@@ -579,6 +687,7 @@ export function stepTrip(
     weather: system.weather,
     random: options.random,
     facts: options.facts,
+    sheet: system.sheet,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }
@@ -607,7 +716,12 @@ export function tripAvailability(
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
   })
-  return engine.availability(session.travel, tripContext(session, options.facts ?? {}))
+  const current = structuredClone(session)
+  refreshParty(current, partyOf(options.system))
+  return engine.availability(
+    current.travel,
+    tripContext(current, withBlocks(options.system, current, options.facts ?? {})),
+  )
 }
 
 /**
@@ -625,6 +739,8 @@ export function tripFacts(
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
   })
-  const context = tripContext(session, options.facts ?? {})
-  return tripContext(session, engine.context(session.travel, context))
+  const current = structuredClone(session)
+  refreshParty(current, partyOf(options.system))
+  const context = tripContext(current, options.facts ?? {})
+  return tripContext(current, engine.context(current.travel, context))
 }
