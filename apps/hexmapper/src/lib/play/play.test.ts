@@ -243,6 +243,39 @@ describe('playing on the map', () => {
       expect(editor.map.world!.time).toBe(time)
     })
 
+    it('paused on a check, nothing moves the trip on until Continue', { timeout: 120000 }, () => {
+      grey()
+      clickHex('4,2')
+      // March on (hex by hex, past whatever else comes up) until the Grey Stones' landmark pauses it.
+      for (let i = 0; i < 200 && !landmark(); i++) {
+        for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+        const before = trip().travel.time
+        step({ type: 'travel', until: 'hex' })
+        // The day's march is done: wait for the next day, as the player would.
+        if (trip().travel.time === before && !trip().travel.pendingChecks.length)
+          step({ type: 'wait', until: before + 18 * 60 })
+      }
+      expect(landmark()).toBeTruthy()
+      const paused = structuredClone(trip().travel)
+      const why = tripAvailability({ system: activeSystem(), world: mapWorld(editor.map) }, trip())
+      expect(why.travel).toEqual({ pending: 'LANDMARK_CHECK_REQUIRED' })
+      expect(why.rest).toEqual({ pending: 'LANDMARK_CHECK_REQUIRED' })
+      for (const order of [
+        { type: 'action', id: 'rest' },
+        { type: 'travel' },
+        { type: 'wait', until: paused.time + 600 },
+      ] as const)
+        step(order)
+      expect(trip().travel).toEqual(paused)
+      // Continue: the trip moves again.
+      step({ type: 'resolveCheck', id: landmark()!.id })
+      expect(trip().travel.pendingChecks.some((c) => c.id === landmark()?.id)).toBe(false)
+      step({ type: 'action', id: 'rest' })
+      expect(trip().travel.time).toBeGreaterThan(paused.time)
+    })
+    const landmark = () =>
+      trip().travel.pendingChecks.find((c) => c.event === 'LANDMARK_CHECK_REQUIRED')
+
     it('an hour with a route is an hour of marching, without asking', async () => {
       grey()
       startWorld()

@@ -101,6 +101,7 @@ export const es: Messages<typeof en> = {
     once: 'Una vez al día: ya se ha hecho hoy.',
     condition: 'No es posible aquí y ahora (lo dice la regla del sistema).',
     member: '{name}: no es posible mientras dure.',
+    pending: 'El viaje está en pausa por una comprobación: pulsa Continuar primero.',
   },
   values: { lost: 'Perdidos' },
   events: {

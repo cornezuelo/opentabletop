@@ -58,6 +58,7 @@ export function whyText(
   { t, dayValues, memberName }: Pick<JournalContext, 't' | 'dayValues' | 'memberName'>,
 ): string {
   if (!because || 'off' in because) return ''
+  if ('pending' in because) return t('blocked.pending')
   // A member's condition: who has it, until it's cleared.
   if ('value' in because && because.who !== undefined)
     return t('blocked.member', {

@@ -455,7 +455,10 @@
       onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
     >
     <button
-      use:tooltip={t('tips.waitDawn')}
+      use:tooltip={travel.pendingChecks.length
+        ? tipWith(t('tips.waitDawn'), 'travel')
+        : t('tips.waitDawn')}
+      disabled={travel.pendingChecks.length > 0}
       onclick={() => onstep({ type: 'wait', until: nextDawn })}>{t('waitDawn')}</button
     >
     {#each buttons as id (id)}

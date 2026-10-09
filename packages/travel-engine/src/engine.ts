@@ -247,6 +247,8 @@ export type Unavailable =
   | { value: string; who?: string }
   | { once: true }
   | { condition: 'when' | 'unless' }
+  /** The trip is paused on a check (its event): it must be resolved first (Continue). */
+  | { pending: string }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -1231,6 +1233,12 @@ export function createTravelEngine(options: {
     }
   }
 
+  /** Why nothing can move the trip on: a check it's paused on (undefined: none). */
+  const pausedOn = (state: TravelState): Unavailable | undefined => {
+    const check = state.pendingChecks[0]
+    return check && { pending: check.event }
+  }
+
   /** The party steps into the next hex of its route: its visit, the totals, the journal. */
   const enter = (state: TravelState, next: string, events: TravelEvent[]): void => {
     state.progress = 0
@@ -1248,6 +1256,17 @@ export function createTravelEngine(options: {
     availability(input, facts = {}) {
       const state = upgradeTravelState(input)
       const out: Record<string, Unavailable> = {}
+      // Paused on a check: nothing moves the trip on until it's resolved.
+      const paused = pausedOn(state)
+      if (paused) {
+        out.travel = paused
+        for (const id of Object.keys(actions.all)) if (id !== MARCH) out[id] = paused
+        for (const id of Object.keys(rules.modes)) {
+          const why = modeUnavailable(state, id, facts)
+          if (why) out[`mode.${id}`] = why
+        }
+        return out
+      }
       const travelBlocked =
         blocker(state, 'travel', facts) ?? blocker(state, `mode.${state.mode}`, facts)
       if (travelBlocked) out.travel = travelBlocked
@@ -1276,6 +1295,14 @@ export function createTravelEngine(options: {
       hostFacts = party
         ? { ...facts, party: { ...party, stats: { ...party.stats } } }
         : { ...facts }
+      // Paused on a check: what moves the trip on waits until it's resolved (Continue).
+      const paused = pausedOn(state)
+      const moves = ['travel', 'wait', 'camp', 'rest', 'action'].includes(action.type)
+      if (paused && moves) {
+        const id = action.type === 'action' ? action.id : action.type
+        events.push({ type: 'ACTION_UNAVAILABLE', action: id, because: paused })
+        return { state, events }
+      }
       switch (action.type) {
         case 'setDestination': {
           const strategy = action.strategy ?? 'fastest'

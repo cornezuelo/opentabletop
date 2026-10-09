@@ -100,6 +100,7 @@ export const en = {
     once: 'Once a day: already done today.',
     condition: 'Not possible here and now (the system’s rule for it).',
     member: '{name}: not possible while it lasts.',
+    pending: 'The trip is paused on a check: press Continue first.',
   },
   /** Names of the older built-in values of the day (systems name their own). */
   values: { lost: 'Lost' },

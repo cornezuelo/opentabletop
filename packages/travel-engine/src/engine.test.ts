@@ -526,12 +526,33 @@ describe('the system’s own actions', () => {
     expect(state.pendingChecks.map((c) => c.event)).toEqual(['FORAGE_CHECK_REQUIRED'])
     expect(state.time - start().time).toBe(240)
     expect(state.speedToday).toBe(0.5)
+    // Paused on its check: nothing moves the trip on until it's resolved (Continue).
+    const paused = { pending: 'FORAGE_CHECK_REQUIRED' }
+    for (const order of [
+      { type: 'action', id: 'pray' },
+      { type: 'travel' },
+      { type: 'wait', until: state.time + 60 },
+      { type: 'camp' },
+    ] as const) {
+      const refused = own.apply(state, order)
+      expect(refused.events).toEqual([
+        {
+          type: 'ACTION_UNAVAILABLE',
+          action: order.type === 'action' ? order.id : order.type,
+          because: paused,
+        },
+      ])
+      expect(refused.state).toEqual(state)
+    }
+    expect(own.availability(state)).toMatchObject({ travel: paused, pray: paused, forage: paused })
+    const resolved = own.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }).state
+    expect(own.availability(resolved).pray).toBeUndefined()
     // Once a day: the second time is refused, the next day it's back.
-    const again = own.apply(state, { type: 'action', id: 'forage' })
+    const again = own.apply(resolved, { type: 'action', id: 'forage' })
     expect(again.events).toEqual([
       { type: 'ACTION_UNAVAILABLE', action: 'forage', because: { once: true } },
     ])
-    const tomorrow = own.apply(own.apply(state, { type: 'camp' }).state, {
+    const tomorrow = own.apply(own.apply(resolved, { type: 'camp' }).state, {
       type: 'action',
       id: 'forage',
     })
