@@ -141,7 +141,7 @@ stats:
   fatigue: { name: Fatigue, default: 0, min: 0 }
 ```
 
-The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Systems app's [Your first system](../systems/02-making-a-system.md#your-first-system-step-by-step); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
+The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Systems app's [Your first system](../systems/03-your-first-system.md); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
 
 ### The day and the speed
 

@@ -1,92 +1,27 @@
 # Making a system
 
-A travel system is two definitions in a pack, usually in one file: **travel rules** (`kind: travel-rules`) and **bindings** (`kind: bindings`); its pack may also bring a calendar (`kind: calendar`), weather models (`kind: weather`) and roll modes (`kind: roll-modes`). A **system** definition (`kind: system`, in `system.yaml`) names which of them it uses and which packs' tables it brings; a pack can declare several systems: see [Systems](../technical/07-kinds.md#systems). Every kind is in [Kinds of definition](../technical/07-kinds.md). [Connecting tables to maps and trips](../oracle/07-connecting.md) explains every part of both, step by step, with examples.
+A system is a few definitions in a pack: **travel rules** (`kind: travel-rules`: the day, speeds, supplies, actions, checks) and **bindings** (`kind: bindings`: which table answers each check), and, if it wants them, a characters' **sheet**, **factions**, a **calendar**, **weather** models and **roll modes**. A **system** definition (`kind: system`, in `system.yaml`) names which of them it plays with and which packs' tables it brings. You don't need to write any of it by hand: each tab of the app edits one part with forms. Every kind is in [Kinds of definition](../technical/07-kinds.md); [Connecting tables to maps and trips](../oracle/07-connecting.md) explains the travel rules and bindings in YAML, with examples.
 
 ## A new system
 
 Write a name in the box at the bottom of the system list and press **+**. It creates one of your packs with the Generic rules to start from and empty bindings (in `travel.yaml`) and the system that names them (in `system.yaml`), and opens its **Overview**. The system is ready to play right away in the Travel app and in the Hexmapper (in the same browser): **Play it in Travel →**, under its name, opens its trip in Travel.
 
-## Your first system, step by step
+To learn by doing, [Your first system](03-your-first-system.md) builds a small one step by step.
 
-A small system for a game where the party carries torches, can get lost in the woods and must rest when tired. Each step is done in the forms (or the same in YAML), and its **Try it** tab plays it at once: your changes count from the next step.
+## The tabs
 
-1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from the Generic rules: walking 30 km a day, eating 1 food as each day ends.
-2. **A supply**: in **Rules → Supplies**, add `torches` with **Min** `0`. Now the trip panel shows Torches, and the player can change them by hand.
-3. **Spend it**: open the action **eat** (it runs by itself at `day-end`) and add a step `effects: { party.resources.torches: -1 }`. Each day now burns a torch too.
-4. **Being lost**: in **Values of the day**, add `lost` and, in **Blocks**, `travel`. A table that sets `lost: true` will stop the party for the rest of the day.
-5. **A check**: in **Checks**, **Add a check**: event `LOST_CHECK`, **When** `day-start`, **Only if** `terrain: forest`. In **Rolled on**, pick a table of yours whose bad result has **Sets** `lost: true` (make it in the Oracle app: _1d6_, 1–2 sets `lost: true`).
-6. **Fatigue**: in **Checks → Party stats**, add `fatigue`, starting at `0` (its minimum, `min: 0`, is written in YAML). Then a check **When** `day-end`, **Only if** `below: torches`, **Changes** `party.stats.fatigue: 1`: a day without torches tires the party.
-7. **Resting only when tired**: open **rest**: **Only when** `party.stats.fatigue: { gte: 1 }`; steps `time: 120` and `effects: { party.stats.fatigue: -1 }`. The button is off while the party is fresh, and says why.
-8. **Try it**: open the **Try it** tab and make a way of three hexes, the middle one `forest`; travel and read the journal: the lost check at dawn in the forest, the torches going down each night, the rest button turning on once tired.
+Each tab has its own page:
 
-The same system in YAML (the **YAML** tab shows it like this):
-
-```yaml
-kind: travel-rules
-id: default
-day: { start: '06:00', nightfall: '20:00' }
-travel: { hoursPerDay: 8 }
-terrains: { plains: { multiplier: 1 }, forest: { multiplier: 0.5 } }
-modes: { foot: { kmPerDay: 30 } }
-resources:
-  food: { min: 0 }
-  torches: { min: 0 } # step 2
-values:
-  lost: { blocks: [travel] } # step 4
-actions:
-  camp: { do: [{ time: dawn }] }
-  rest: # step 7
-    when: { party.stats.fatigue: { gte: 1 } }
-    do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
-  eat:
-    on: day-end
-    do:
-      - { effects: { party.resources.food: -1 } }
-      - { effects: { party.resources.torches: -1 } } # step 3
-checks:
-  - { event: LOST_CHECK, at: day-start, when: { terrain: forest } } # step 5
-  - {
-      event: NO_TORCHES,
-      at: day-end,
-      when: { below: torches },
-      effects: { party.stats.fatigue: 1 },
-    } # step 6
----
-kind: bindings
-id: default
-stats:
-  fatigue: { name: Fatigue, default: 0, min: 0 } # step 6
-on:
-  LOST_CHECK: { resolve: dark-lost }
----
-kind: table # step 5, made in the Oracle app
-id: dark-lost
-roll: 1d6
-entries:
-  - { range: 1-2, result: Lost among the trees, set: { lost: true } }
-  - { range: 3-6, result: The path holds }
-```
-
-The Grey Marches do all of this and much more; their [page](../packs/02-grey-marches.md) says where each part is.
-
-## Changing it with forms
-
-- **Overview**: the system's own definition (`kind: system`). Its **Name** and **Description**, as every app shows them (in the interface's language: the pack's own, or its translation). **Its parts**: the **Travel rules**, **Bindings** and **Calendar** it plays with, each chosen among this pack's (by id) and its dependencies' (`core/default`), listed by name when they have one (_The Royal Reckoning (royal-reckoning)_); **Open** goes to the tab that edits them, **Create** makes new travel rules (from the Generic ones) or empty bindings and names them. **Weather models** its bindings can name (`weather: highland-skies`), each with its name and id. **Packs it brings**: its own always, and the dependencies you tick, whose tables come with it (a map playing it shows them in its Oracle panel; to bring another pack, add it to the dependencies in `pack.yaml`). **Example maps**: maps to play the system on, kept in its pack (`maps:`); **Open in the Hexmapper →** opens one there as its **Maps → Example maps** would, **Add a map file…** copies a map file the Hexmapper's **Save** wrote into the pack's `maps/` folder, and **Remove** takes it out of the pack. **Take it elsewhere**: what the system's .zip holds and **Export as .zip** (see [Taking it elsewhere](#taking-it-elsewhere)). A system of an older pack (travel rules and no `kind: system`) shows **Declare it** instead: it writes `system.yaml` naming what the system uses today, and plays the same.
-- **Sheet**: what each of the party's characters has (`kind: sheet`, one per system; **New sheet** makes a small one and names it in the system). Its **Name**; its **Values**, each with a name, the value it **Starts at**, **Min** and **Max** (a number, or another value in braces, `'{{maxHealth}}'`: as high as the character's maxHealth), **Track** (shown as boxes, as many as its max) and **Group**; the **Groups** values are shown under, in order, with their names; its **Conditions**, each with what it **Blocks** for the whole party while someone has it (`travel`, one of the system's actions, `mode.horse`: the box suggests them); and its **Kinds of relation**, with the bounds of the number one carries (a bond from 0 to 3). With a sheet, trips have a **Characters** section ([Playing a trip](../travel/02-playing.md#characters)), and the **Checks** tab says which party stats come from them and which supplies they carry. Without one, the party is played as a whole.
-- **Factions**: the powers of its world (`kind: factions`, one per system; **New factions** makes two on Core's turn table, with a sheet of their own, and names them in the system): their **Name**, **Their sheet** (the values, conditions and relations every faction has), **Their turn** (what each rolls on a world turn), **Every (days)** (empty: only by hand) and each faction with its **Name**, **Colour**, what it **Starts with**, the **Regions** and **Hexes** it starts holding and its **Own turn** table. In the Hexmapper they're brought onto a map from the World view ([Factions](../hexmapper/12-world.md#factions)).
-- **Calendar**: the calendar the system names (one; **New calendar** makes one from a small template and names it): its name, the year and day of day 1, the hours of a day and of a watch, dawn and nightfall for the world clock; its **months** in order, each with its days and its season (any name: `spring`, or your world's `wet`), with the length of the year below; **weekdays**; **moons** with their cycle and offset; **holidays** on a month and day. Renaming a month carries its holidays, its translations and day 1 along. The arrows reorder a list.
-- **Weather**: the weather models the system names (**New weather model** adds one and names it). Its **kinds of weather**, each with a name and what it **sets for the day** (`snowbound: true`); then each **season**: what the weather **starts as**, and a grid of weights, yesterday's weather in rows and today's in columns (the Grey Marches' summer: from **Clear**, `clear 5`, `grey 1`, `storm 1`: clear spells last). **Over many days** below each grid says how often each kind comes up in that season, to check it feels right. **Add a season** for each season its calendar uses. **Make it a hex flower** turns a season into a flower of 19 cells instead (**Use weights instead** turns it back): a kind of weather per cell, where the first day **Starts on** and what happens **At the edge**, with how often each kind comes up (the Grey Marches' winter).
-- **Roll modes**: the roll modes of the packs the system brings (its own and, read-only, a bundled dependency's like Core's advantage), each with its name, how many **rolls** and which total it **keeps** (`highest`, `lowest`, `middle`) and the modes it **cancels**. **New roll modes** adds them to its own pack.
-- **Rules**: the day (dawn, nightfall, marching hours, and **At nightfall, while waiting**: the action the party takes when night falls while the world clock moves, camp by default; when its conditions don't hold, the night passes without it), the ways of travelling (km per day, **Only through**: where it can go, a condition on each hex it enters, e.g. the Grey Marches' boat on water or coast, `any: [{ water: true }, { terrain: coast }]`, or a cart only by road, `edges: road`; and **Only when**: where and when it can be chosen, e.g. the Grey Marches' boat only at the water's edge or the ferry, `any: [{ water: true }, { terrain: coast }, { tags: ferry }]`; **Not when**: when it can't), how each terrain and each road or river changes the speed and whether a terrain can be entered (**Passable**, and **Open when** / **Closed when**; **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list: conditions on the hex entered and the moment, e.g. the Grey Marches' peaks, open only in summer and closed in snow or storm, `season: summer` / `weather: [snow, storm]`; water hexes have the same), the supplies (with their **Min** and **Max**), how each weather slows you down, the **values of the day** and the **actions**. Help next to each part explains it. Supplies are used by the system's own actions, checks and tables, never by the app: the Grey Marches eat with an action the system takes at the end of each day (1 food, and 1 fodder on horseback). **Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum). Older systems that used supplies **per day** show a note with **Convert**, which writes the same as such an action. Grey text in an empty box is only the default or a hint, not a value.
-  - **Values of the day**: values tables can set for the rest of the day, each with a name and what it **blocks** while it holds (travel, one of the system's actions, or a way of travelling as `mode.<id>`; the box suggests what the system declares: `mode.horse` leaves the horses behind while it holds). The Grey Marches declare **Lost**, which blocks travel: the getting-lost table sets it, and the trip's Travel buttons stay disabled until the next day, saying why.
-  - **Actions**: all alike, camp, rest and **march** too (march is the Travel buttons: only **Only when** / **Not when**, checked as the party marches; empty, by day for the day's marching hours) (**Add an action**; × removes one; the arrows move a step up or down), as cards: an id, a name and description for players, **Only when** / **Not when** (when the button can be pressed: e.g. the Grey Marches' Forage for food, not in a storm; `daylight: true` for only by day), **Once a day**, **Hidden when it can't be taken** (otherwise its button stays, disabled, saying why; e.g. the Grey Marches' rite, only at a shrine under a full moon), **By itself at** (empty: the player takes it, with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: `day-start`, `hex-enter`, `day-end` or another action's id, several separated by commas, e.g. the Grey Marches' Eat, `day-end`; the words below the box say it back), what the journal says when none of its checks apply, and **What it does**, step by step, each written like in the YAML with suggestions: `time: 180` (or `dawn`, `nightfall`, `14:00`), `speed: 0.5`, `effects: { party.stats.fatigue: -1 }`, `set: { lost: true }`, `do: forage` (another action, if its conditions hold) `roll: <check>` (a check, now) and `advance: 1` (move along the route that many hexes or legs at once, no time passing: progress by moves, see _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system)). A step can have its own condition: the Grey Marches' camp sleeps until dawn and, **unless** `below: food` (food ran out at the end of the day), takes off 1 fatigue. The actions that follow it and its checks (in Checks, at this action) come first. All of it, with the YAML: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
-- **Checks**: each check with its **name** and **description** for players (shown in the trip panel and the journal instead of the event id), when it happens (**When**, written like in the YAML with suggestions: `day-start`, `hex-enter`, `day-end`, one of the system's actions such as `camp`, or several separated by commas, e.g. the Grey Marches' encounters, `hex-enter, rest`; empty: only when a step rolls it), its conditions (**Only if** / **Skip if**, e.g. the Grey Marches' getting lost, skipped on roads and rivers: `edges: [road, river]`), what resolves it (any table, oracle, generator or deck, grouped by kind, or a weather model, under _Weather with inertia_; e.g. the Grey Marches' ford is rolled on an oracle), **Extra context** (values its table sees only for this check, e.g. `timeOfDay: night` to roll a night encounter on the day's table, or `danger: 3` as if the hex were more dangerous), **Changes** (its own effects, e.g. the Grey Marches' Not enough to eat: `party.stats.fatigue: 1`) and **Pause after it**. Below them, the **Party stats**: each with an id, a **Name** and **Description** for players and the value it **Starts at** (**Add a stat**; its `min` / `max` are written in YAML). The trip panel shows them and lets the player change them; tables read them in rolls (`1d6 + {{survival}}`) and conditions (`party.stats.morale: { lte: 1 }`), and effects change them (`party.stats.fatigue: 1`). With a **Sheet**, **From the members** makes a stat of the characters' values while the party has any (`max: survival`, the best Survival; `min`, `sum`, `count: true`, with `when` / `unless` to leave some out: the Grey Marches' Survival, `max: survival, unless: { conditions: wounded }, none: 0`); empty, the party keeps it. **Supplies the members carry** names a supply of the rules and the value of the sheet each character carries it in (**Carried in**: the Grey Marches' food in `rations`), and how what the trip spends or gains is **Shared out** (evenly, or in order). **Journey roles** are the jobs the player gives the characters in a trip (the Grey Marches' **Guide** and **Lookout**), each with a name and description; checks and tables read the holder as `roles.<id>.…`. When the bindings still name tables for checks the rules no longer have (a check removed in the YAML), a note lists them and **Remove them** clears them. This tab writes both the travel rules and the bindings, so you don't have to keep them in step: renaming a check takes its table along.
-
-Conditions and context are written as `key: value` pairs, like in tables: `tags: landmark`, `edges: [road, river]`, `danger: { gte: 3 }`, `danger: { gt: '{{party.stats.stealth}}' }` (every operator, variables and rolls: [Conditions](../technical/08-conditions.md); every piece of syntax at a glance: [Syntax](../technical/09-syntax.md)). With **no table**, a check is only written in the journal (with its **Changes**) and the trip goes on; **Pause after it** is what stops the trip and waits for **Continue**, after rolling it if it has a table (a landmark to describe: no table and **Pause after it**). A pack written for an older [pack format](../technical/02-file-formats.md), where tableless checks stopped the trip by themselves, plays as it did, and the tab offers **Update** to write it in today's (see [what makes Continue appear](../travel/02-playing.md#the-trip)).
-
-The forms change the YAML file, keeping your comments and order; the **YAML** tab shows the result (one button per file when the system's parts are in several, e.g. `travel.yaml` and `system.yaml`) and marks any problem at its line; a button above the forms says how many problems there are and opens it. Anything the forms don't cover can be written there.
-
-The tables its bindings name go in the same pack: add them in the Oracle app (your new pack is listed there too), or refer to tables of other packs with their full id (`core/weather`).
+- [**Overview**](04-overview.md): its name, the parts it plays with, the packs it brings, its example maps, and exporting it as a file.
+- [**Rules**](05-rules.md): the day, ways of travelling, terrains, roads and rivers, supplies, weather's speed, values of the day and actions.
+- [**Checks**](06-checks.md): what is rolled on the way and when, the party's stats, journey roles and supplies the characters carry.
+- [**Sheet**](07-sheet.md): what each character has.
+- [**Factions**](08-factions.md): the powers of its world and their turns.
+- [**Calendar**](09-calendar.md): months, weekdays, moons and holidays.
+- [**Weather**](10-weather.md): weather with inertia, season by season.
+- [**Roll modes**](11-roll-modes.md): advantage, disadvantage and the like.
+- [**Try it**](12-try-it.md): a trip without a map, to test it as you make it.
+- [**YAML**](13-yaml.md): the files the forms write, for anything they don't cover.
 
 ## Changing a bundled system
 
@@ -94,22 +29,4 @@ Bundled systems are read-only. Under the system's name (on every tab), **Edit a 
 
 **↶ ↷** in the header (or <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> outside text boxes) undo and redo changes to your systems, while the page is open.
 
-## Trying it out
-
-The system's **Try it** tab is the fastest way to check it while you make it: build a short way with the terrains, roads and tags your rules care about, travel, and watch the journal. For example, to test a check with `when: { tags: landmark }`, tag the last hex `landmark` and travel.
-
-- It is the Travel app's trip without a map (see [Playing a trip](../travel/02-playing.md)): **The way** on the left, hex by hex (terrain, tags, road or river to the next one), and the trip on the right (its day, supplies, actions, checks and journal).
-- It plays the rules **as they are now**: change a speed in **Rules** or a check in **Checks**, come back and the next step uses the change. What the trip already started with (the season, the supplies of its first day) stays until **New trip** starts it over, keeping the way.
-- These test trips are kept in this browser apart from the Travel app's, so trying doesn't mix with your games; to play a real trip with the system, **Play it in Travel →**. Choosing another system in **System** opens that system's **Try it**.
-
-## Taking it elsewhere
-
-Your systems live only in this browser. To keep one safe, take it to another browser or give it to someone, the system's **Overview** ends with **Take it elsewhere**: it lists what the file holds and **Export as .zip** downloads it. The .zip holds every pack the system needs, each in its own folder: its own pack, the packs it brings, those its parts are written in and their dependencies, as far as they go. The Grey Marches' file, for instance, holds the Grey Marches and Core.
-
-**Import a system (.zip)…**, under the systems list, reads such a file back and opens the system it brought (the Oracle's **Import .zip** reads it too):
-
-- packs you don't have are added to yours;
-- packs already here and unchanged (a bundled Core, say) are left as they are;
-- a pack you have in a different version is replaced only after asking: a user pack is overwritten, a bundled one gets your imported copy over it (**Revert to bundled** brings it back). **↶** undoes the whole import in one step.
-
-A system that uses personal-use packs says so next to the button: keep that file for yourself. The file's layout is in [File formats](../technical/02-file-formats.md#packs).
+Read on: [Your first system](03-your-first-system.md).

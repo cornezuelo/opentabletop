@@ -18,7 +18,7 @@ import { parse } from 'yaml'
  * that another example (or another pack) holds.
  */
 
-/** The manual's pages, by path from `docs/manual/` (`en/systems/02-making-a-system.md`). */
+/** The manual's pages, by path from `docs/manual/` (`en/systems/03-your-first-system.md`). */
 const files = Object.fromEntries(
   Object.entries(
     import.meta.glob('../../../../../docs/manual/**/*.md', {
@@ -95,8 +95,8 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
   })
 })
 
-describe('Travel → Making a system: the step-by-step system plays as the manual says', () => {
-  const yaml = examples(read('en/systems/02-making-a-system.md')).find((y) =>
+describe('Systems → Your first system: the step-by-step system plays as the manual says', () => {
+  const yaml = examples(read('en/systems/03-your-first-system.md')).find((y) =>
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([

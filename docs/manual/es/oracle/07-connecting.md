@@ -141,7 +141,7 @@ stats:
   fatigue: { name: Fatiga, default: 0, min: 0 }
 ```
 
-El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../systems/02-making-a-system.md#tu-primer-sistema-paso-a-paso) en la aplicación Systems; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
+El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../systems/03-your-first-system.md) en la aplicación Systems; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
 
 ### El día y la velocidad
 
