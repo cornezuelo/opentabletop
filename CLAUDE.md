@@ -35,6 +35,7 @@ packages/                   # libraries, scope @open-tabletop/*
   travel-engine/            # routes, movement, time, supplies, declared values, actions as steps, checks
   world-engine/             # the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
   weather-engine/           # weather with inertia: Markov models per season as data (`kind: weather`)
+  character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library (IndexedDB), backups of everything
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
@@ -60,6 +61,7 @@ docs/
   otd.md                    # common OpenTabletop Data schema
   oracle-engine.md          # Oracle Engine design
   travel-engine.md          # Travel Engine design
+  character-engine.md       # Character Engine design (research of famous sheets, phases)
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):

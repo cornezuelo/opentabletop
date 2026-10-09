@@ -1,5 +1,5 @@
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
-import { lookupIn, variableOf, type Roller } from '@open-tabletop/variables'
+import type { Bounds, Roller } from '@open-tabletop/variables'
 import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
@@ -542,10 +542,9 @@ export function olderEatingEdits(
 }
 
 /** The bounds of a value: effects never take it past them. */
-export interface Bounds {
-  min?: number
-  max?: number
-}
+export type { Bounds }
+/** Moved to `@open-tabletop/variables`, shared with the other engines. */
+export { changeValue, resolveChange } from '@open-tabletop/variables'
 
 /**
  * The bounds of each supply: the `min` / `max` it declares, or none. Older rules (see
@@ -562,62 +561,6 @@ export function resourceBounds(rules: TravelRules): Record<string, Bounds> {
       },
     ]),
   )
-}
-
-/**
- * An effect's change with the variables and rolls it names read (`'-{{party.stats.mouths}}'`:
- * as many as the party's mouths, taken away; `'={{party.stats.endurance}}'`: set to it;
- * `'{{days}}'`: add them; `'-{{1d3}}'`: a roll, with `roller`): a number to add, or `'=N'`
- * to set. A variable that isn't a number changes nothing.
- */
-export function resolveChange(
-  change: number | string,
-  context: Record<string, unknown>,
-  roller?: Roller,
-): number | string {
-  if (typeof change !== 'string') return change
-  const text = change.trim()
-  const set = text.startsWith('=')
-  let rest = set ? text.slice(1).trim() : text
-  let sign = 1
-  if (/^[+-]\s*\{\{/.test(rest)) {
-    if (rest[0] === '-') sign = -1
-    rest = rest.slice(1).trim()
-  }
-  const expression = variableOf(rest)
-  if (expression === undefined) return change
-  const value = lookupIn(context, roller)(expression)
-  const n =
-    typeof value === 'number' && Number.isFinite(value)
-      ? value
-      : typeof value === 'string' && /^[+-]?\d+(\.\d+)?$/.test(value.trim())
-        ? Number(value)
-        : undefined
-  if (n === undefined) return 0
-  return set ? `=${n * sign}` : n * sign
-}
-
-/**
- * A value changed by an effect: a number adds (also as text, '+2'), '=3' sets; the result
- * stops at the bounds, and `limit` says which one it was cut by.
- */
-export function changeValue(
-  from: number,
-  change: number | string,
-  bounds: Bounds = {},
-): { to: number; limit?: 'min' | 'max' } {
-  const number = (v: unknown): number | undefined =>
-    typeof v === 'number' && Number.isFinite(v)
-      ? v
-      : typeof v === 'string' && /^[+-]?\d+(\.\d+)?$/.test(v.trim())
-        ? Number(v)
-        : undefined
-  const set =
-    typeof change === 'string' && change.startsWith('=') ? number(change.slice(1)) : undefined
-  const wanted = set !== undefined ? set : from + (number(change) ?? 0)
-  if (bounds.min !== undefined && wanted < bounds.min) return { to: bounds.min, limit: 'min' }
-  if (bounds.max !== undefined && wanted > bounds.max) return { to: bounds.max, limit: 'max' }
-  return { to: wanted }
 }
 
 /**

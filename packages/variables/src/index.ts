@@ -110,6 +110,68 @@ export function onceRoller(random: RandomSource, onRoll?: (result: DiceResult) =
   }
 }
 
+/** The bounds a value declares: its `min` / `max`, or none. */
+export interface Bounds {
+  min?: number
+  max?: number
+}
+
+/**
+ * An effect's change with the variables and rolls it names read (`'-{{party.stats.mouths}}'`:
+ * as many as the party's mouths, taken away; `'={{party.stats.endurance}}'`: set to it;
+ * `'{{days}}'`: add them; `'-{{1d3}}'`: a roll, with `roller`): a number to add, or `'=N'`
+ * to set. A variable that isn't a number changes nothing.
+ */
+export function resolveChange(
+  change: number | string,
+  context: Record<string, unknown>,
+  roller?: Roller,
+): number | string {
+  if (typeof change !== 'string') return change
+  const text = change.trim()
+  const set = text.startsWith('=')
+  let rest = set ? text.slice(1).trim() : text
+  let sign = 1
+  if (/^[+-]\s*\{\{/.test(rest)) {
+    if (rest[0] === '-') sign = -1
+    rest = rest.slice(1).trim()
+  }
+  const expression = variableOf(rest)
+  if (expression === undefined) return change
+  const value = lookupIn(context, roller)(expression)
+  const n =
+    typeof value === 'number' && Number.isFinite(value)
+      ? value
+      : typeof value === 'string' && /^[+-]?\d+(\.\d+)?$/.test(value.trim())
+        ? Number(value)
+        : undefined
+  if (n === undefined) return 0
+  return set ? `=${n * sign}` : n * sign
+}
+
+/**
+ * A value changed by an effect: a number adds (also as text, '+2'), '=3' sets; the result
+ * stops at the bounds, and `limit` says which one it was cut by.
+ */
+export function changeValue(
+  from: number,
+  change: number | string,
+  bounds: Bounds = {},
+): { to: number; limit?: 'min' | 'max' } {
+  const number = (v: unknown): number | undefined =>
+    typeof v === 'number' && Number.isFinite(v)
+      ? v
+      : typeof v === 'string' && /^[+-]?\d+(\.\d+)?$/.test(v.trim())
+        ? Number(v)
+        : undefined
+  const set =
+    typeof change === 'string' && change.startsWith('=') ? number(change.slice(1)) : undefined
+  const wanted = set !== undefined ? set : from + (number(change) ?? 0)
+  if (bounds.min !== undefined && wanted < bounds.min) return { to: bounds.min, limit: 'min' }
+  if (bounds.max !== undefined && wanted > bounds.max) return { to: bounds.max, limit: 'max' }
+  return { to: wanted }
+}
+
 /** Dice written one way (`1d20`, ` 1D20 ` alike), or undefined if they aren't dice. */
 function normalized(expression: string): string | undefined {
   if (!isRoll(expression)) return undefined
