@@ -55,6 +55,8 @@ Lo que llevan dentro se explica paso a paso en [Conectar tablas con mapas y viaj
 
 **Nuevo pack** pide un nombre, una carpeta o id (minúsculas, dígitos y guiones) y el idioma base en el que están escritas las tablas. Después añade definiciones con **Nueva definición** (o el **+** junto al pack): elige el tipo, su id y nombre, y el fichero en que va (**En el fichero**: uno que ya existe o uno nuevo). Las definiciones pueden estar en cualquier fichero del pack; agrúpalas como prefieras.
 
+Una tabla puede empezar **Desde texto pegado**: márcalo y pega una tabla copiada de un PDF, un CSV o una hoja de cálculo, y se crean sus entradas. Una lista numerada (`1. Lobos`, `2–3 Bandidos`, `4) Un buhonero`) da entradas con esos rangos, y una línea que el PDF partió se une a la anterior; una copia de CSV o de hoja de cálculo (`1,Lobos`, o el número y el texto en dos columnas), igual; una lista sin números, una entrada por línea, todas igual de probables. Los dados salen de los números (1–6 es `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`), y bajo la caja dice qué encontró («4 entradas, con 1d6»). Revisa luego la tabla en su formulario, y activa **Probabilidades** para verla como sale.
+
 La página del pack muestra su manifiesto, sus **problemas** (haz clic en uno para ir a la línea), sus definiciones, las definiciones de otros motores (reglas de viaje, bindings), sus ficheros (añadir, renombrar, borrar) y sus traducciones. Bajo su nombre, **Exportar .zip** y **Borrar pack**, que quita el pack y todos sus ficheros de este navegador (pregunta antes; expórtalo primero si puedes quererlo de vuelta).
 
 ## Copias de seguridad y compartir

@@ -55,6 +55,8 @@ What goes inside is explained step by step in [Connecting tables to maps and tri
 
 **New pack** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New definition** (or the **+** next to the pack): pick the kind, its id and name, and the file it goes **In** (an existing one or a new one). Definitions can live in any file of the pack; group them as you like.
 
+A table can start **From pasted text**: tick it and paste a table copied from a PDF, a CSV or a spreadsheet, and its entries are made for you. A numbered list (`1. Wolves`, `2–3 Bandits`, `4) A pedlar`) gives entries with those ranges, and a line the PDF wrapped joins the one before; a CSV or spreadsheet copy (`1,Wolves`, or the number and the text in two columns) the same; a list without numbers, one entry per line, equally likely. The dice come from the numbers (1–6 is `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`), and below the box it says what it found ("4 entries, rolled on 1d6"). Check the table afterwards in its form, and turn **Odds** on to see it as it rolls.
+
 The pack page shows its manifest, its **problems** (click one to jump to the line), its definitions, other engines' definitions (travel rules, bindings), its files (add, rename, delete) and its translations. Under its name, **Export .zip** and **Delete pack**, which removes the pack and all its files from this browser (it asks first; export it before if you may want it back).
 
 ## Backups and sharing

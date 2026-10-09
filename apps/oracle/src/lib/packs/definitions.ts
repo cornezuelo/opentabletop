@@ -40,13 +40,17 @@ export function createDefinition(
   kind: Compiled['kind'],
   name: string,
   file?: string,
+  /** What it holds instead of the template's (a table made from pasted text). */
+  body?: Record<string, unknown>,
 ): string | null {
   const pack = workspace.pack(root)
   const packId = pack && manifestOf(pack).id
   if (!pack || !packId) return null
   const id = freeId(slugify(name), idsOf(pack))
   const target = file || dataFiles(pack)[0] || 'tables.yaml'
-  const definition = { ...TEMPLATES[kind](id), name: name.trim() || id }
+  const definition = body
+    ? { kind, id, name: name.trim() || id, ...body }
+    : { ...TEMPLATES[kind](id), name: name.trim() || id }
   workspace.writeFile(
     root,
     target,

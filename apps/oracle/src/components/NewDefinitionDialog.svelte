@@ -11,6 +11,7 @@
     hasKind,
     slugify,
   } from '../lib/packs/definitions'
+  import { tableFromText } from '../lib/packs/fromText'
   import { SYSTEM_KINDS, type SystemKind } from '../lib/packs/templates'
   import { cleanFilePath, manifestOf } from '../lib/packs/workspace'
   import { workspace } from '../lib/packs/workspace.svelte'
@@ -29,6 +30,10 @@
   let newFile = $state('')
   const files = $derived(workspace.pack(root) ? dataFiles(workspace.pack(root)!) : [])
   let dialog: HTMLDialogElement
+  /** A table made from pasted text (a numbered list from a PDF, a CSV, a plain list). */
+  let fromText = $state(false)
+  let pasted = $state('')
+  const imported = $derived(kind === 'table' && fromText ? tableFromText(pasted) : undefined)
 
   $effect(() => {
     dialog.showModal()
@@ -44,7 +49,11 @@
       return
     }
     if (!root || !name.trim()) return
-    const id = createDefinition(root, kind as Compiled['kind'], name, target ?? undefined)
+    const body =
+      imported && imported.entries.length
+        ? { ...(imported.roll && { roll: imported.roll }), entries: imported.entries }
+        : undefined
+    const id = createDefinition(root, kind as Compiled['kind'], name, target ?? undefined, body)
     dialog.close()
     if (id) go({ name: 'def', id, tab: 'edit' })
   }
@@ -99,6 +108,31 @@
           {#if name.trim()}<small>{t('newDef.idPreview', { id: slugify(name) })}</small>{/if}
         </label>
       {/if}
+      {#if kind === 'table'}
+        <label class="check">
+          <input type="checkbox" bind:checked={fromText} />
+          <span>{t('newDef.fromText')}<InfoTip text={t('newDef.fromTextHelp')} /></span>
+        </label>
+        {#if fromText}
+          <textarea rows="7" bind:value={pasted} placeholder={t('newDef.fromTextPlaceholder')}
+          ></textarea>
+          {#if imported?.entries.length}
+            <small
+              >{imported.roll
+                ? t('newDef.fromTextRolled', {
+                    count: imported.entries.length,
+                    roll: imported.roll,
+                  })
+                : t('newDef.fromTextWeighted', {
+                    count: imported.entries.length,
+                  })}{#if imported.skipped.length}
+                &nbsp;· {t('newDef.fromTextSkipped', {
+                  lines: imported.skipped.join(', '),
+                })}{/if}</small
+            >
+          {/if}
+        {/if}
+      {/if}
       <label class="field">
         <span>{t('newDef.file')}<InfoTip text={t('newDef.fileHelp')} /></span>
         <select bind:value={file}>
@@ -112,8 +146,12 @@
     {/if}
     <div class="buttons">
       <button type="button" onclick={() => dialog.close()}>{t('newPack.cancel')}</button>
-      <button type="submit" class="primary" disabled={!packs.length || (!system && !name.trim())}
-        >{t('newPack.create')}</button
+      <button
+        type="submit"
+        class="primary"
+        disabled={!packs.length ||
+          (!system && !name.trim()) ||
+          (!!imported && !imported.entries.length)}>{t('newPack.create')}</button
       >
     </div>
   </form>
@@ -142,6 +180,18 @@
   h2 {
     margin: 0;
     font-size: 16px;
+  }
+
+  .check {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  textarea {
+    width: 100%;
+    font-family: var(--mono, monospace);
+    font-size: 12px;
   }
 
   .kinds {

@@ -212,7 +212,7 @@
   {#if list}
     <div class="entries-head">
       <h3>
-        {t('roll.entries')}{#if list.roll}<span class="muted"> · {list.roll}</span>{/if}
+        {t('roll.entries')}{#if list.roll}<span class="muted">&nbsp;· {list.roll}</span>{/if}
       </h3>
       <label class="inline odds-toggle">
         <input type="checkbox" bind:checked={showOdds} />

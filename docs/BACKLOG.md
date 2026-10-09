@@ -145,7 +145,7 @@ In order (agreed 2026-10-07, reordered 2026-10-08: the characters engine moved u
 
 - **Solo scene engine**: chaos factor, lists of threads and characters, scenes that go as expected, altered or interrupted; our own free mechanics, working with the oracles.
 - **Name generators** by setting (people, settlements, taverns, places…), not only fantasy: bundled per pack and user-editable, on the Oracle Engine (syllable tables, maybe Markov chains trained on name lists as data).
-- **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
+- [x] ✅ (2026-10-09: **From pasted text** in New definition → Table: numbered lists with ranges, wrapped lines, CSV and spreadsheet copies, plain lists; the dice guessed (`1dN`, `2d6`, `3d6`, `d66`, `d100` with `00`); Packs page en/es) **Import tables from text**: paste a numbered list (from a PDF) or a CSV and get a table.
 - **Settlement and dungeon generators on the map**: "generate a village here" fills the hex (POIs, name, NPCs) with pack generators; dungeons once sub-maps exist.
 - **Dice roller app**: quick, visual rolls of any expression `dice` knows, with history; reuses the Oracle's roller and result cards.
 - **More open systems as packs** (user, 2026-10-07; not a priority): games whose licence allows redistribution, each in `packs/` with its licence and attribution recorded; **check every licence before adding** (candidates from memory, unverified unless said):

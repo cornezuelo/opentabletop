@@ -268,6 +268,13 @@ export const en = {
       'Definitions go into your own packs: create a pack first (or edit a copy of a bundled one).',
     name: 'Name',
     idPreview: 'Id: {id}',
+    fromText: 'From pasted text',
+    fromTextHelp:
+      'Paste a table and its entries are made for you:\n• a numbered list copied from a PDF: `1. Wolves`, `2–3 Bandits`, `4) A pedlar` (a line the PDF wrapped joins the one before)\n• a CSV or spreadsheet copy: `1,Wolves` or the number and the text in two columns\n• a plain list, one entry per line: equally likely\nThe dice come from the numbers: 1–6 is `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`. Check the table afterwards in its form.',
+    fromTextPlaceholder: '1. Wolves\n2-3 Bandits\n4 A pedlar\n5-6 Nothing',
+    fromTextRolled: '{count} entries, rolled on {roll}',
+    fromTextWeighted: '{count} entries, equally likely',
+    fromTextSkipped: 'left out line(s) {lines}',
     file: 'File',
     fileHelp:
       'YAML file of the pack it is written to. Any file works; group them as you like:\n• `encounters.yaml`\n• `tables/weather.yaml`',

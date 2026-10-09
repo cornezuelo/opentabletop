@@ -273,6 +273,13 @@ export const es: Messages<typeof en> = {
       'Las definiciones van en tus propios packs: crea un pack primero (o edita una copia de uno incluido).',
     name: 'Nombre',
     idPreview: 'Id: {id}',
+    fromText: 'Desde texto pegado',
+    fromTextHelp:
+      'Pega una tabla y se crean sus entradas:\n• una lista numerada copiada de un PDF: `1. Lobos`, `2–3 Bandidos`, `4) Un buhonero` (una línea que el PDF partió se une a la anterior)\n• una copia de CSV o de hoja de cálculo: `1,Lobos` o el número y el texto en dos columnas\n• una lista sin números, una entrada por línea: todas igual de probables\nLos dados salen de los números: 1–6 es `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`. Revisa luego la tabla en su formulario.',
+    fromTextPlaceholder: '1. Lobos\n2-3 Bandidos\n4 Un buhonero\n5-6 Nada',
+    fromTextRolled: '{count} entradas, con {roll}',
+    fromTextWeighted: '{count} entradas, igual de probables',
+    fromTextSkipped: 'líneas que se dejan fuera: {lines}',
     file: 'Fichero',
     fileHelp:
       'Fichero YAML del pack donde se escribe. Vale cualquiera; agrúpalos como quieras:\n• `encounters.yaml`\n• `tables/weather.yaml`',
