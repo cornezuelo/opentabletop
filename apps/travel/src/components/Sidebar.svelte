@@ -4,6 +4,7 @@
   import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
   import { library, systems } from '../lib/packs.svelte'
+  import { OlderPacks } from '@open-tabletop/pack-ui'
 
   const selected = $derived(nav.view.name === 'system' ? nav.view.id : undefined)
 
@@ -36,6 +37,7 @@
       </li>
     {/each}
   </ul>
+  <OlderPacks {library} locale={getLocale()} />
   <a class="make" href={appUrl('systems')}>{t('nav.makeSystems')}</a>
 </nav>
 

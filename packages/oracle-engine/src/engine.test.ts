@@ -795,10 +795,24 @@ describe('roll modes', () => {
   const modes = `
 kind: roll-modes
 modes:
-  advantage: { name: { en: Advantage, es: Ventaja }, repeat: 2, keep: highest, cancels: disadvantage }
+  advantage: { name: Advantage, repeat: 2, keep: highest, cancels: disadvantage }
   disadvantage: { name: Disadvantage, repeat: 2, keep: lowest }
   steady: { name: Steady, repeat: 3, keep: middle }
 `
+
+  it('take their texts in the pack’s language: several languages in the file are an error', () => {
+    const { diagnostics } = pack(`
+kind: roll-modes
+modes:
+  bold: { name: { en: Bold, es: Audaz }, repeat: 2, keep: highest }
+`)
+    expect(diagnostics.map((d) => [d.severity, d.message])).toEqual([
+      [
+        'error',
+        expect.stringContaining('roll-modes/default: modes.bold.name: write it in the pack'),
+      ],
+    ])
+  })
 
   it('are declared by packs, with names, and referenced by tables', () => {
     const { registry, diagnostics } = pack(`${modes}
@@ -821,7 +835,7 @@ entries: [{ range: 1-6, result: X }]
       ['warning', 'old.advantage', expect.stringContaining('no longer does anything')],
     ])
     expect(registry.rollModes.get('m/advantage')).toMatchObject({
-      name: { en: 'Advantage', es: 'Ventaja' },
+      name: 'Advantage',
       repeat: 2,
       keep: 'highest',
       cancels: ['m/disadvantage'],
@@ -920,7 +934,7 @@ id: reckoning
 name: The reckoning
 months:
   - { id: thaw, name: Thaw, days: 30 }
-  - { id: sun, name: { en: Sun, fr: Soleil }, days: 30 }
+  - { id: sun, name: Sun, days: 30 }
 ---
 kind: travel-rules
 id: default
@@ -950,7 +964,7 @@ calendar/nope: { name: Y }
     expect(calendar.name).toEqual({ en: 'The reckoning', es: 'El cómputo' })
     expect(calendar.months).toEqual([
       { id: 'thaw', name: { en: 'Thaw', es: 'Deshielo' }, days: 30 },
-      { id: 'sun', name: { en: 'Sun', fr: 'Soleil', es: 'Sol' }, days: 30 },
+      { id: 'sun', name: { en: 'Sun', es: 'Sol' }, days: 30 },
     ])
     const rules = extras.find((e) => e.kind === 'travel-rules')!.data as {
       actions: Record<string, unknown>

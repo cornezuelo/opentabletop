@@ -59,4 +59,4 @@ calendar/marcher-reckoning:
   months: { thaw: Deshielo, sowing: Siembra }
 ```
 
-Los formularios de la aplicación Systems las escriben por ti: con la interfaz en un idioma que no es el del pack, el nombre y la descripción de una comprobación o de una característica van al fichero de ese idioma (el texto del pack se ve en gris como pista). Los packs antiguos que escriben un texto en varios idiomas a la vez (`name: { en: Thaw, es: Deshielo }`) siguen funcionando.
+Los formularios de la aplicación Systems las escriben por ti: con la interfaz en un idioma que no es el del pack, el nombre y la descripción de una comprobación o de una característica van al fichero de ese idioma (el texto del pack se ve en gris como pista). Una definición escribe sus textos solo en el idioma del pack: un texto en varios idiomas a la vez en la propia definición (`name: { en: Thaw, es: Deshielo }`) es un problema del pack; sus otros idiomas van en `locales/`. (Solo el nombre del propio pack en `pack.yaml` puede escribirse en varios idiomas.)

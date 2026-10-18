@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fullText, tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
+  import { getLocale, t } from '../lib/i18n'
+  import { OlderPacks } from '@open-tabletop/pack-ui'
   import { displayName, KIND_ORDER } from '../lib/names'
   import { go, nav } from '../lib/nav.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
@@ -140,6 +141,7 @@
     {#if query && groups.every((g) => !g.defs.length)}
       <p class="help">{t('nav.noResults')}</p>
     {/if}
+    <OlderPacks library={workspace} locale={getLocale()} />
   </div>
 </nav>
 

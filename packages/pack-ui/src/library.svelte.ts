@@ -1,6 +1,7 @@
 import {
   createOracleEngine,
   loadPacks,
+  PACK_FORMAT,
   type Diagnostic,
   type OracleEngine,
   type Registry,
@@ -68,6 +69,13 @@ export class PackLibrary {
     ])
   })
   registry = $derived(this.loaded.registry)
+  /**
+   * The user's packs written for an older pack format: they aren't read (nor shown in
+   * place of a bundled pack they copy), but they're still in the library.
+   */
+  olderPacks: PackSource[] = $derived(
+    this.user.filter((p) => (manifestOf(p).format ?? PACK_FORMAT) < PACK_FORMAT),
+  )
   /** Where the engine's rolls come from; `setRandom` swaps it (e.g. a seeded session). */
   private source: RandomSource = mathRandom()
   private readonly random: RandomSource = { next: () => this.source.next() }

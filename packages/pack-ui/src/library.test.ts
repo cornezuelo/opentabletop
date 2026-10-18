@@ -120,3 +120,33 @@ describe('updates of the bundled pack under a user copy', () => {
     expect(library.readFile('marches', 'a.yaml')).toBe('a old')
   })
 })
+
+describe('packs of an older pack format', () => {
+  beforeEach(() => {
+    const data = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => data.get(k) ?? null,
+      setItem: (k: string, v: string) => void data.set(k, v),
+    })
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  const older = (root: string) => ({
+    root,
+    origin: 'user' as const,
+    files: [{ path: 'pack.yaml', content: `id: ${root}\nversion: 0.1.0\nformat: 2\nlocale: en\n` }],
+  })
+
+  it('aren’t read but stay listed, and a copy of a bundled pack leaves the bundled one in use', () => {
+    const library = new PackLibrary([{ ...pack('core'), origin: 'bundled' }])
+    library.addPack(older('core'))
+    library.addPack(older('mine'))
+    // The bundled Core is the one read; the older copy is kept, unused.
+    expect(library.pack('core')?.origin).toBe('bundled')
+    expect(library.registry.packs.has('core')).toBe(true)
+    // An older pack of its own isn't read either, and says why.
+    expect(library.registry.packs.has('mine')).toBe(false)
+    expect(library.problems.some((d) => d.message.includes('no longer reads'))).toBe(true)
+    expect(library.olderPacks.map((p) => p.root)).toEqual(['core', 'mine'])
+  })
+})

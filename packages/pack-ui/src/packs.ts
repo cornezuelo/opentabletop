@@ -1,4 +1,4 @@
-import type { PackFile as EngineFile } from '@open-tabletop/oracle-engine'
+import { PACK_FORMAT, type PackFile as EngineFile } from '@open-tabletop/oracle-engine'
 import { parse } from 'yaml'
 
 /** A file inside a pack; `path` is relative to the pack folder (e.g. "tables/weather.yaml"). */
@@ -148,10 +148,16 @@ export function updateCopy(
   return { ...copy, files, basedOn }
 }
 
-/** User packs replace bundled packs with the same folder; the rest are listed side by side. */
+/**
+ * User packs replace bundled packs with the same folder; the rest are listed side by side.
+ * A user copy of a bundled pack written for an older pack format (which isn't read) doesn't
+ * hide the bundled one: it stays in the library, unused.
+ */
 export function effectivePacks(bundled: PackSource[], user: PackSource[]): WorkspacePack[] {
-  const userRoots = new Set(user.map((p) => p.root))
   const bundledRoots = new Set(bundled.map((p) => p.root))
+  const older = (p: PackSource) => (manifestOf(p).format ?? PACK_FORMAT) < PACK_FORMAT
+  user = user.filter((p) => !(bundledRoots.has(p.root) && older(p)))
+  const userRoots = new Set(user.map((p) => p.root))
   return [
     ...bundled.filter((p) => !userRoots.has(p.root)),
     ...user.map((p) => ({ ...p, overrides: bundledRoots.has(p.root) })),

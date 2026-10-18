@@ -23,6 +23,13 @@ export const en = {
     show: 'See the bundled version',
     hide: 'Hide',
   },
+  older: {
+    title: 'Not read: written for an older pack format',
+    help: 'These packs of yours were written for an older pack format, whose syntax means something else now, so the apps don’t read them (for now, older formats aren’t converted). They’re still here: download one to keep it, and bring it to format {format} (the manual’s File formats says what changed) to use it again. A copy of a bundled pack: the bundled one is used meanwhile.',
+    item: '{name} (format {format})',
+    copy: 'your copy of a bundled pack',
+    download: 'Download .zip',
+  },
   import: {
     done: 'Imported {packs}.',
     already: 'Already here, unchanged: {packs}.',

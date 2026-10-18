@@ -26,6 +26,13 @@ export const es: Messages<typeof en> = {
     show: 'Ver la versión incluida',
     hide: 'Ocultar',
   },
+  older: {
+    title: 'Sin leer: escritos para un formato de pack anterior',
+    help: 'Estos packs tuyos se escribieron para un formato de pack anterior, cuya sintaxis ahora significa otra cosa, así que las aplicaciones no los leen (por ahora, los formatos anteriores no se convierten). Siguen aquí: descarga uno para guardarlo, y llévalo al formato {format} (Formatos de fichero, en el manual, dice qué cambió) para volver a usarlo. Si es una copia de un pack incluido, mientras tanto se usa el incluido.',
+    item: '{name} (formato {format})',
+    copy: 'tu copia de un pack incluido',
+    download: 'Descargar .zip',
+  },
   import: {
     done: 'Importado: {packs}.',
     already: 'Ya estaban, sin cambios: {packs}.',

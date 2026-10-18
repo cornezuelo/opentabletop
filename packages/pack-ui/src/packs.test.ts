@@ -55,6 +55,16 @@ describe('packs', () => {
     expect(engineFiles(packs).map((f) => f.path)).toContain('mine/pack.yaml')
   })
 
+  it('keeps a bundled pack when the user copy is written for an older pack format', () => {
+    const older = {
+      root: 'core',
+      origin: 'user' as const,
+      files: [{ path: 'pack.yaml', content: 'id: core\nversion: 0.1.0\nformat: 1\nlocale: en\n' }],
+    }
+    const packs = effectivePacks([pack('core', 'bundled')], [older])
+    expect(packs.map((p) => [p.root, p.origin])).toEqual([['core', 'bundled']])
+  })
+
   it('reads and writes user packs, tolerating broken or full storage', () => {
     const data = new Map<string, string>()
     const storage = {

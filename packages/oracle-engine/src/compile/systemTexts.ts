@@ -80,10 +80,35 @@ export function foldTexts(
   return out
 }
 
+/**
+ * The texts a definition writes in several languages itself (`name: { en: …, es: … }`),
+ * by path: a pack writes its texts in its own language, and their translations in
+ * `locales/` (only folding makes that form).
+ */
+export function inlineLanguages(data: unknown, path = ''): string[] {
+  if (Array.isArray(data))
+    return data.flatMap((item, i) => inlineLanguages(item, `${path}.${itemKey(item) ?? i}`))
+  if (!isRecord(data)) return []
+  return Object.entries(data).flatMap(([key, value]) => {
+    const at = path ? `${path}.${key}` : key
+    if (TEXT_KEYS.has(key) && isRecord(value)) return [at]
+    return inlineLanguages(value, at)
+  })
+}
+
 /** Folds every pack's system-text overlays into its definitions for other engines. */
 export function foldSystemTexts(loaded: LoadedPack[], diagnostics: Diagnostic[]): void {
   for (const pack of loaded) {
     const baseLocale = pack.manifest.locale
+    // Texts written in several languages in the definition itself: not pack syntax.
+    for (const extra of pack.extras)
+      for (const at of inlineLanguages(extra.data))
+        diagnostics.push({
+          severity: 'error',
+          message: `${extra.kind}/${extra.id ?? 'default'}: ${at}: write it in the pack's language (${baseLocale}); its translations go in locales/<language>/ (see Translations)`,
+          pack: pack.manifest.id,
+          file: extra.file,
+        })
     for (const [locale, overlays] of Object.entries(pack.systemTexts)) {
       if (locale === baseLocale) continue
       for (const { key, texts, file } of overlays) {

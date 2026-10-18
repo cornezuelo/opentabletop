@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fullText, tooltip } from '@open-tabletop/ui-kit'
+  import { OlderPacks } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
   import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
@@ -70,6 +71,7 @@
       </li>
     {/each}
   </ul>
+  <OlderPacks {library} locale={getLocale()} />
   <form
     onsubmit={(e) => {
       e.preventDefault()
