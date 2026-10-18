@@ -85,15 +85,6 @@
 <label class="check">
   <input
     type="checkbox"
-    checked={play?.showRelations ?? true}
-    onchange={(e) =>
-      updatePlay((p) => ({ ...p, showRelations: e.currentTarget.checked ? undefined : false }))}
-  />
-  {t('play.showRelations')}<InfoTip text={t('play.showRelationsHelp')} />
-</label>
-<label class="check">
-  <input
-    type="checkbox"
     checked={play?.straightTrail ?? false}
     onchange={(e) =>
       updatePlay((p) => ({ ...p, straightTrail: e.currentTarget.checked || undefined }))}

@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 20
+export const CURRENT_VERSION = 21
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -259,9 +259,12 @@ export const ownStyleOf = ({
 export const LABEL_SIZE_RANGE = [0.2, 4] as const
 export const LABEL_HALO_RANGE = [0.05, 0.4] as const
 
+/** Layers hidden until the user shows them: the characters' relations clutter the map. */
+const HIDDEN_LAYERS: readonly LayerId[] = ['relations']
+
 export function defaultLayers(): Record<LayerId, LayerState> {
   return Object.fromEntries(
-    LAYER_IDS.map((id) => [id, { visible: true, locked: false }]),
+    LAYER_IDS.map((id) => [id, { visible: !HIDDEN_LAYERS.includes(id), locked: false }]),
   ) as Record<LayerId, LayerState>
 }
 

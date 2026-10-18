@@ -7,6 +7,7 @@ import { createMap } from '../model/defaults'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
+import { deserializeMap, serializeMap } from '../model/serialize'
 import {
   applyResult,
   partyOf,
@@ -24,7 +25,6 @@ import {
   sessionOf,
   setMode,
   step,
-  updatePlay,
 } from './play'
 import {
   advanceWorld,
@@ -613,9 +613,19 @@ describe('the Company: a party made of characters', () => {
     expect(facts('5,7')).toMatchObject({ related: ['mara'], relations: { home: ['mara'] } })
     expect(facts('15,9')).toMatchObject({ related: ['tobin'], relations: { home: ['tobin'] } })
     expect(facts('14,3').related).toBeUndefined()
-    // The threads can be hidden, and stay hidden in the file.
-    updatePlay((p) => ({ ...p, showRelations: false }))
-    expect(bundleToMap(mapToBundle(editor.map)).play?.showRelations).toBe(false)
+    // The threads are a layer of their own, hidden until shown, and stay as left in the file.
+    expect(editor.map.layers.relations.visible).toBe(false)
+    expect(editor.map.layers.party.visible).toBe(true)
+    editor.setLayer('relations', { visible: true })
+    expect(bundleToMap(mapToBundle(editor.map)).layers.relations.visible).toBe(true)
+    // A map saved before the layer, with Play's old Show relations, opens with it hidden.
+    const old = JSON.parse(serializeMap(editor.map))
+    old.version = 20
+    old.play.showRelations = false
+    delete old.layers.relations
+    const opened = deserializeMap(JSON.stringify(old))
+    expect(opened.layers.relations.visible).toBe(false)
+    expect(opened.play).not.toHaveProperty('showRelations')
   })
 
   it('a token can have a sheet too: Brenna, read by hand rolls, kept in the file', () => {

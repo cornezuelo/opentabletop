@@ -438,7 +438,6 @@ function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
     ),
     showTrail: p.showTrail !== false,
     ...(p.straightTrail === true && { straightTrail: true }),
-    ...(p.showRelations === false && { showRelations: false as const }),
     ...(isRecord(p.discover) && {
       discover: {
         on: p.discover.on === true,
@@ -469,7 +468,8 @@ function parseLayers(value: unknown): HexMap['layers'] {
   for (const id of Object.keys(layers) as (keyof typeof layers)[]) {
     const raw = value[id]
     if (!isRecord(raw)) continue
-    layers[id] = { visible: raw.visible !== false, locked: raw.locked === true }
+    const visible = typeof raw.visible === 'boolean' ? raw.visible : layers[id].visible
+    layers[id] = { visible, locked: raw.locked === true }
   }
   return layers
 }

@@ -171,6 +171,17 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   19(data) {
     return data
   },
+  /**
+   * v21: the characters' relations are a layer of their own (`layers.relations`), hidden
+   * until shown in Layers; Play's **Show relations** (`play.showRelations`) is gone.
+   */
+  20(data) {
+    const play = data.play as Record<string, unknown> | undefined
+    if (!play || !('showRelations' in play)) return data
+    const rest = { ...play }
+    delete rest.showRelations
+    return { ...data, play: rest }
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

@@ -155,6 +155,8 @@ export class MapRenderer {
   /** Party trail and route (play mode). */
   private partyLayer = new Container()
   private partyLines = new Graphics()
+  /** Threads from the party to what its characters are tied to (play mode, its own layer). */
+  private relationLines = new Graphics()
   private tokenLayer = new Container()
   private labelTexts = new Map<string, Text>()
   private markers = new Graphics()
@@ -202,6 +204,7 @@ export class MapRenderer {
       this.coordLayer,
       this.labelLayer,
       this.partyLayer,
+      this.relationLines,
       this.tokenLayer,
       this.markers,
       this.highlight,
@@ -755,6 +758,7 @@ export class MapRenderer {
   /** Trail and route of the party (play mode); the party itself is a token. */
   private drawParty(): void {
     const lines = this.partyLines.clear()
+    const threads = this.relationLines.clear()
     const play = editor.map.play
     const { grid } = editor.map
     if (!play) return
@@ -801,16 +805,20 @@ export class MapRenderer {
     }
 
     // Threads from the party to what its characters are tied to: a hex, a place in one, a
-    // region (its middle). Hidden with Play → Show relations.
-    if (party?.hex && play.mode === 'rules' && play.showRelations !== false) {
+    // region (its middle). Their own layer (Layers → Relations), hidden by default.
+    if (party?.hex && play.mode === 'rules') {
       const from = center(party.hex)
       for (const to of relationTargets(play)) {
         const end = to.length === 1 ? center(to[0]) : middleOf(to.map(center))
         if (Math.hypot(end.x - from.x, end.y - from.y) < hs * 0.5) continue
         for (const piece of dashes([from, end], hs * 0.14, hs * 0.1))
-          this.strokePolyline(lines, piece)
-        lines.stroke({ width: hs * 0.05, color: tokenColor(party, editor.map.tokens), alpha: 0.85 })
-        lines.circle(end.x, end.y, hs * 0.18).stroke({
+          this.strokePolyline(threads, piece)
+        threads.stroke({
+          width: hs * 0.05,
+          color: tokenColor(party, editor.map.tokens),
+          alpha: 0.85,
+        })
+        threads.circle(end.x, end.y, hs * 0.18).stroke({
           width: hs * 0.04,
           color: tokenColor(party, editor.map.tokens),
           alpha: 0.7,
@@ -1124,6 +1132,7 @@ export class MapRenderer {
     this.labelLayer.visible = layers.labels.visible
     this.nameLayer.visible = editor.map.captions.hexNames.show
     this.partyLayer.visible = layers.party.visible
+    this.relationLines.visible = layers.relations?.visible ?? false
     this.tokenLayer.visible = layers.tokens.visible
     this.markers.visible = layers.markers.visible
     this.coordLayer.visible =

@@ -64,11 +64,15 @@ describe('the trip’s totals (v16)', () => {
       spent: {},
       gained: {},
     })
-    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 20, meta: {} })
+    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 21, meta: {} })
   })
 
   it('v17 reads older trips as a party without characters', () => {
     const data = { version: 16, play: { rules: { session: { travel: {} } } } }
-    expect(migrate(data)).toEqual({ ...data, version: 20 })
+    expect(migrate(data)).toEqual({ ...data, version: 21 })
+  })
+  it('v21 drops Play’s Show relations: the relations are a layer, hidden until shown', () => {
+    const data = { version: 20, play: { mode: 'rules', showRelations: false, trail: [] } }
+    expect(migrate(data)).toEqual({ version: 21, play: { mode: 'rules', trail: [] } })
   })
 })
