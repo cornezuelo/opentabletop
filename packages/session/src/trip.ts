@@ -4,6 +4,7 @@ import { validateWeather, type WeatherModel } from '@open-tabletop/weather-engin
 import {
   calendarFrom,
   defaultCalendar,
+  findPart,
   seasonsOf,
   seasonStartDay,
   validateCalendar,
@@ -13,6 +14,8 @@ import {
 } from '@open-tabletop/time'
 import {
   createTravelEngine,
+  dayClock,
+  partRefsOf,
   genericTravelRules,
   initialTravelState,
   parseTravelRules,
@@ -356,6 +359,20 @@ export function travelSystems(registry: Registry): {
       )
       if (!errors.length) calendar = calendarFrom(parts.calendar.data as unknown as CalendarDef)
     }
+    // Parts of the day the rules name (`day.start: meal.breakfast`, `at: watch.middle`): the
+    // calendar's own.
+    if (parts.rules)
+      for (const [path, ref] of partRefsOf(rules))
+        if (!findPart((calendar ?? defaultCalendar).divisions ?? [], ref))
+          problems.push(
+            problem(
+              ownerOf(parts.rules) ?? pack,
+              parts.rules.file,
+              'travel-rules',
+              `${path}: the calendar has no part of the day "${ref}"`,
+              parts.rules.id,
+            ),
+          )
     let sheet: TravelSystem['sheet']
     if (parts.sheet) {
       const owner = ownerOf(parts.sheet) ?? pack
@@ -767,7 +784,7 @@ export function startTrip(options: {
     location: options.location,
     mode: Object.keys(rules.modes)[0],
     calendar,
-    time: options.time ?? calendar.at(startDay, rules.day.start),
+    time: options.time ?? calendar.at(startDay, dayClock(rules.day.start, calendar, '06:00')),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
     ...(options.seed !== undefined && { seed: options.seed }),
   })

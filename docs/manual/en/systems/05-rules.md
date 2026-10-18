@@ -4,7 +4,7 @@ The **Rules** tab edits the system's travel rules (`kind: travel-rules`): how a 
 
 ## The day
 
-- **Dawn** and **Nightfall**.
+- **Dawn** and **Nightfall**: a clock (`06:00`) or a part of the calendar's day (`meal.breakfast`, suggested: when it starts).
 - **Marching hours a day**: how long the party can march before it has to stop, even if night is still far. Time spent on actions (resting, foraging) doesn't count as marching.
 - **km per hex**: the scale the system is played at. Trips without a map (Travel, **Try it**) use it; a map with this system takes it, unless the map sets its own scale.
 - **At nightfall, while waiting**: the action the party takes when night falls while the world clock moves, camp by default. When its conditions don't hold, the night passes without it.
@@ -47,7 +47,7 @@ What the party can do: camp, rest, **march** and the system's own, all alike, as
 - **Only when** / **Not when**: when its button can be pressed. E.g. the Grey Marches' Forage for food, not in a storm; `daylight: true` for only by day;
 - **Once a day**;
 - **Hidden when it can't be taken**: otherwise its button stays, disabled, saying why. E.g. the Grey Marches' rite, only at a shrine under a full moon;
-- **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: `day-start`, `hex-enter`, `day-end` or another action's id, several separated by commas (the Grey Marches' Eat, `day-end`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
+- **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: `day-start`, `hex-enter`, `day-end`, a part of the calendar's day (`meal.elevenses`: as it begins) or another action's id, several separated by commas (the Grey Marches' Eat, `day-end`). A step's `time` may also go until a part (`time: meal.luncheon`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
 - **When nothing applies**: what the journal says when none of its checks apply;
 - **What it does**, step by step (the arrows move a step up or down).
 

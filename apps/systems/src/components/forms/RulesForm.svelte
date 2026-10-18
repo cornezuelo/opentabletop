@@ -4,7 +4,8 @@
   import { t } from '../../lib/i18n'
   import { actionIds, type SystemDoc } from '../../lib/systemDoc.svelte'
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
-  import { contextSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, type TravelSystem } from '@open-tabletop/session'
+  import { dayPartRefs } from '../../lib/dayParts'
   import {
     BLOCKABLE,
     modeThrough,
@@ -16,7 +17,9 @@
   import RecordRows from './RecordRows.svelte'
 
   /** Travel rules as forms: the day, terrains, roads, modes, supplies, weather and actions. */
-  let { doc }: { doc: SystemDoc } = $props()
+  let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
+  /** The parts of its calendar's day: the day may start and end at one. */
+  const parts = $derived(dayPartRefs(system))
 
   const rules = $derived(doc.rules as Record<string, Record<string, unknown> | undefined>)
   const disabled = $derived(!doc.editable)
@@ -60,20 +63,22 @@
     <div class="inline">
       <label>
         <span>{t('rules.start')}</span>
-        <input
-          type="time"
-          value={rules.day?.start ?? ''}
+        <SuggestInput
+          label={t('rules.start')}
+          value={String(rules.day?.start ?? '')}
+          list={['06:00', ...parts]}
           {disabled}
-          onchange={(e) => doc.edit('travel-rules', ['day', 'start'], e.currentTarget.value)}
+          onchange={(v) => doc.edit('travel-rules', ['day', 'start'], v.trim())}
         />
       </label>
       <label>
         <span>{t('rules.nightfall')}</span>
-        <input
-          type="time"
-          value={rules.day?.nightfall ?? ''}
+        <SuggestInput
+          label={t('rules.nightfall')}
+          value={String(rules.day?.nightfall ?? '')}
+          list={['20:00', ...parts]}
           {disabled}
-          onchange={(e) => doc.edit('travel-rules', ['day', 'nightfall'], e.currentTarget.value)}
+          onchange={(v) => doc.edit('travel-rules', ['day', 'nightfall'], v.trim())}
         />
       </label>
       <label>
@@ -370,7 +375,7 @@
 
   <section>
     <h3>{t('rules.actions')}<InfoTip text={t('rules.actionsHelp')} /></h3>
-    <ActionsForm {doc} />
+    <ActionsForm {doc} {system} />
   </section>
 </div>
 

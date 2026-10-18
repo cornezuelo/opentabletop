@@ -1,8 +1,13 @@
+import { PART_REF } from './day'
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import type { Bounds, Roller } from '@open-tabletop/variables'
 import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
+/** A part of the calendar's day: `<division>.<part>` (`meal.supper`). */
+const partRef = z.string().regex(PART_REF, 'a part of the day looks like "meal.supper"')
+/** A moment of the day: a clock, or when a part of the calendar's day starts. */
+const dayMoment = z.union([clock, partRef])
 const condition = z.record(z.string(), z.unknown())
 /** Text in one or several languages: "Forage" or { en: Forage for food, es: Buscar comida }. */
 const text = z.union([z.string(), z.record(z.string(), z.string())])
@@ -56,7 +61,7 @@ const passable = z.union([
 /**
  * One step of an action (`do:`), doing one thing, optionally only `when` (or `unless`) a
  * condition holds: pass time (`time: 180`, `time: dawn`, `time: nightfall`, `time:
- * '14:00'`), change the rest of today's march (`speed: 0.5`), apply effects (`effects: {
+ * '14:00'`, or until a part of the calendar's day starts: `time: meal.luncheon`), change the rest of today's march (`speed: 0.5`), apply effects (`effects: {
  * party.stats.fatigue: -1 }`; a change past a value's `min` / `max` stops there, and later
  * steps see `below` / `above`), take another action (`do: forage`, with its conditions),
  * roll a check now (`roll: <its event>`) or set values of the day (`set: { lost: true }`).
@@ -66,7 +71,9 @@ const step = z
   .object({
     when: condition.optional(),
     unless: condition.optional(),
-    time: z.union([z.number().nonnegative(), z.enum(['dawn', 'nightfall']), clock]).optional(),
+    time: z
+      .union([z.number().nonnegative(), z.enum(['dawn', 'nightfall']), clock, partRef])
+      .optional(),
     speed: z.number().nonnegative().optional(),
     effects: effects.optional(),
     do: z.string().min(1).optional(),
@@ -186,8 +193,9 @@ export const travelRulesSchema = z
     id: z.string().optional(),
     day: z
       .object({
-        start: clock,
-        nightfall: clock,
+        /** When the day starts: a clock, or a part of the calendar's day (`meal.breakfast`). */
+        start: dayMoment,
+        nightfall: dayMoment,
         /**
          * The action the party takes when night falls while it waits (e.g. `camp`);
          * default: `camp` if the system has it. `false`: none, the night just passes.
@@ -291,11 +299,12 @@ export const travelRulesSchema = z
     const moments = [...CHECK_MOMENTS, ...taken]
     const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
       momentsOf(value).forEach((moment, j) => {
-        if (!moments.includes(moment))
+        // A part of the calendar's day (`meal.elevenses`): checked against the calendar.
+        if (!moments.includes(moment) && !PART_REF.test(moment))
           ctx.addIssue({
             code: 'custom',
             path: Array.isArray(value) ? [...path, j] : path,
-            message: `expected ${moments.join(', ')}`,
+            message: `expected ${moments.join(', ')}, or a part of the day (meal.supper)`,
           })
       })
     rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))

@@ -237,6 +237,41 @@ seasons: { spring: { start: clear, next: { clear: { clear: 1 } } } }
     expect(problems.map((p) => p.message)).toEqual(['Unknown weather model "p/sky"'])
   })
 
+  it('reports a part of the day the rules name but the calendar lacks; starts at a part', () => {
+    const { registry } = loadPacks([
+      { path: 'p/pack.yaml', content: 'id: p\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'p/system.yaml',
+        content: `
+kind: system
+travel: default
+calendar: shire
+---
+kind: travel-rules
+day: { start: meal.breakfast, nightfall: meal.supper }
+travel: { hoursPerDay: 8 }
+terrains: {}
+modes: { foot: { kmPerDay: 30 } }
+checks: [{ event: TEA, at: meal.tea }]
+---
+kind: calendar
+id: shire
+months: [{ id: m, days: 30, season: spring }]
+divisions:
+  meal: { parts: [{ id: breakfast, from: '07:00' }, { id: supper, from: '21:00' }] }
+`,
+      },
+    ])
+    const { systems, problems } = travelSystems(registry)
+    expect(problems.map((p) => p.message)).toEqual([
+      'the calendar has no part of the day "meal.tea"',
+    ])
+    // A new trip starts as the system's day does: at breakfast.
+    const system = systems.find((s) => s.id === 'p')!
+    const { session } = startTrip({ system, location: 'a' })
+    expect(system.calendar!.describe(session.travel.time)).toMatchObject({ hour: 7 })
+  })
+
   it('starts a trip at dawn of the season, with supplies and declared stats', () => {
     const sys = travelSystems(registry).systems[1]
     const { startDay, session } = startTrip({ system: sys, location: 'a', season: 'summer' })

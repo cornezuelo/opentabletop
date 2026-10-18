@@ -584,7 +584,7 @@ describe('the system’s own actions', () => {
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected day-start, hex-enter, day-end, camp, rest, forage, pray, eat',
+      'checks.0.at: expected day-start, hex-enter, day-end, camp, rest, forage, pray, eat, or a part of the day (meal.supper)',
     ])
   })
 })
@@ -1123,7 +1123,7 @@ describe('actions the system triggers, and bounded values', () => {
     const sight = { event: 'SIGHT', at: ['day-start', 'hex-enter'], when: { moment: 'hex-enter' } }
     const bad = { event: 'BAD', at: ['day-start', 'nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected day-start, hex-enter, day-end, camp, rest, eat, drink, pray, feast, chant',
+      'checks.1.at.1: expected day-start, hex-enter, day-end, camp, rest, eat, drink, pray, feast, chant, or a part of the day (meal.supper)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
@@ -1170,8 +1170,8 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected day-start, hex-enter, day-end, camp, rest, a, b, c, d, e',
-      'actions.a.on: expected day-start, hex-enter, day-end, camp, rest, a, b, c, d, e',
+      'checks.1.at: expected day-start, hex-enter, day-end, camp, rest, a, b, c, d, e, or a part of the day (meal.supper)',
+      'actions.a.on: expected day-start, hex-enter, day-end, camp, rest, a, b, c, d, e, or a part of the day (meal.supper)',
       'actions.a.do.1.roll: expected HUNGER, OMEN, AMBUSH',
       'actions.a.do.2.set.nope: expected lost, weary',
       'actions.d: actions take each other in a loop: d → e → d',
@@ -1854,4 +1854,128 @@ describe('progress by moves: the advance step', () => {
     const { state } = journey.apply(planned(), { type: 'action', id: 'undertake' })
     expect(state.location).toBe('0,0')
   })
+})
+
+describe('the parts of the calendar’s day', () => {
+  // A hobbit's day: meals that cover it, watches only at night.
+  const calendar = calendarFrom({
+    months: [{ id: 'm', days: 30 }],
+    divisions: {
+      meal: {
+        parts: [
+          { id: 'breakfast', from: '07:00' },
+          { id: 'elevenses', from: '11:00', tags: ['meal'] },
+          { id: 'supper', from: '21:00', tags: ['meal', 'dark'] },
+        ],
+      },
+      watch: {
+        parts: [
+          { id: 'first', from: '21:00' },
+          { id: 'middle', from: '01:00' },
+          { id: 'morning', from: '04:00', until: '07:00' },
+        ],
+      },
+    },
+  })
+  const parsed = parseTravelRules({
+    kind: 'travel-rules',
+    // The system's day named by parts of the calendar's.
+    day: { start: 'meal.breakfast', nightfall: 'meal.supper' },
+    travel: { hoursPerDay: 8 },
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { food: { min: 0 } },
+    actions: {
+      // By itself as elevenses begins: a bite and half an hour.
+      elevenses: {
+        on: 'meal.elevenses',
+        do: [{ effects: { 'party.resources.food': -1 } }, { time: 30 }],
+      },
+      // Until a part of the day.
+      nap: { do: [{ time: 'meal.supper' }] },
+    },
+    checks: [
+      { event: 'NIGHT', at: 'watch.middle' },
+      {
+        event: 'TEA',
+        at: 'meal.elevenses',
+        // What the moment is in each division, its tags and when a part starts.
+        when: {
+          'time.meal': 'elevenses',
+          meal: 'elevenses',
+          'time.tags': 'meal',
+          hour: { gte: '{{system.meal.elevenses}}' },
+        },
+      },
+    ],
+  })
+  const shire = createTravelEngine({ world, rules: parsed.rules!, calendar })
+  const at = (day: number, clock: string) => calendar.at(day, clock)
+  const fresh = (clock = '07:00'): TravelState => ({
+    ...initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      time: at(1, clock),
+      resources: { food: 3 },
+    }),
+    dayChecksDone: true,
+  })
+  const checkAt = (events: TravelEvent[], event: string) =>
+    events.find((e) => e.type === 'CHECK_REQUIRED' && e.check.event === event) as
+      { time: number; check: { context: Record<string, unknown> } } | undefined
+
+  it('reads them: moments and steps name parts, the day starts and falls at them', () => {
+    expect(parsed.errors).toEqual([])
+    expect(shire.context(fresh('12:00'))).toMatchObject({
+      daylight: true,
+      dawn: 7,
+      nightfall: 21,
+      meal: 'elevenses',
+      time: { meal: 'elevenses', tags: ['meal'] },
+      system: { meal: { breakfast: 7, elevenses: 11, supper: 21 } },
+    })
+    expect(shire.context(fresh('02:00'))).toMatchObject({ daylight: false, watch: 'middle' })
+  })
+
+  it('waiting, a part’s moment comes: its actions, then its checks', () => {
+    const { state, events } = run2(fresh(), { type: 'wait', until: at(1, '12:00') })
+    expect(events.some((e) => e.type === 'ACTION_TAKEN' && e.action === 'elevenses')).toBe(true)
+    expect(state.resources.food).toBe(2)
+    expect(checkAt(events, 'TEA')?.time).toBe(at(1, '11:30'))
+    expect(events.at(-1)).toMatchObject({ reason: 'check' })
+  })
+
+  it('asleep in camp, the middle watch still comes; a step waits until a part', () => {
+    const night = run2(fresh('21:00'), { type: 'camp' })
+    expect(night.state.time).toBe(at(2, '07:00'))
+    expect(checkAt(night.events, 'NIGHT')?.time).toBe(at(2, '01:00'))
+    const napped = run2(fresh('12:00'), { type: 'action', id: 'nap' })
+    expect(napped.state.time).toBe(at(1, '21:00'))
+  })
+
+  it('on the march, elevenses stops the party for its moment, and it marches on', () => {
+    const first = run2(fresh(), { type: 'setDestination', hex: '1,0' }, { type: 'travel' })
+    expect(first.events.some((e) => e.type === 'ACTION_TAKEN' && e.action === 'elevenses')).toBe(
+      true,
+    )
+    expect(first.events.at(-1)).toMatchObject({ reason: 'check' })
+    expect(first.state.location).toBe('0,0')
+    let state = first.state
+    for (const c of state.pendingChecks)
+      state = shire.apply(state, { type: 'resolveCheck', id: c.id }).state
+    const on = run2(state, { type: 'travel' })
+    expect(on.state.location).toBe('1,0')
+    // Eight hours marched, besides elevenses' half hour.
+    expect(on.state.time).toBe(at(1, '15:30'))
+  })
+
+  function run2(state: TravelState, ...actions: TravelAction[]) {
+    const events: TravelEvent[] = []
+    for (const action of actions) {
+      const result = shire.apply(state, action)
+      state = result.state
+      events.push(...result.events)
+    }
+    return { state, events }
+  }
 })

@@ -4,7 +4,7 @@ La pestaña **Reglas** edita las reglas de viaje del sistema (`kind: travel-rule
 
 ## El día
 
-- **Alba** y **Anochecer**.
+- **Alba** y **Anochecer**: una hora (`06:00`) o una parte del día del calendario (`meal.breakfast`, sugerida: cuando empieza).
 - **Horas de marcha al día**: cuánto puede marchar el grupo antes de tener que parar, aunque falte mucho para la noche. El tiempo de las acciones (descansar, buscar comida) no cuenta como marcha.
 - **km por hex**: la escala a la que se juega el sistema. Los viajes sin mapa (Travel, **Pruébalo**) la usan; un mapa con este sistema la toma, salvo que el mapa fije su propia escala.
 - **Al anochecer, esperando**: la acción que hace el grupo cuando cae la noche mientras avanza el reloj del mundo, acampar por defecto. Si no se cumplen sus condiciones, la noche pasa sin ella.
@@ -47,7 +47,7 @@ Lo que puede hacer el grupo: acampar, descansar, **marchar** y las propias del s
 - **Solo si** / **Salvo si**: cuándo se puede pulsar su botón. P. ej. Buscar comida de las Marcas Grises, no con tormenta; `daylight: true` para solo de día;
 - **Una vez al día**;
 - **Oculta si no se puede hacer**: si no, su botón sigue, desactivado, diciendo por qué. P. ej. el rito de las Marcas Grises, solo en un santuario con luna llena;
-- **Automática en**: vacío, la hace el jugador con un botón; o los momentos en que la hace el propio sistema, escritos como en el YAML con sugerencias: `day-start`, `hex-enter`, `day-end` u otra acción, varios separados por comas (Comer de las Marcas Grises, `day-end`). Las palabras bajo la caja lo repiten. Las acciones que la siguen y sus comprobaciones (en [Comprobaciones](06-checks.md), en esta acción) van primero;
+- **Automática en**: vacío, la hace el jugador con un botón; o los momentos en que la hace el propio sistema, escritos como en el YAML con sugerencias: `day-start`, `hex-enter`, `day-end`, una parte del día del calendario (`meal.elevenses`: al empezar) u otra acción, varios separados por comas (Comer de las Marcas Grises, `day-end`). El `time` de un paso también puede llegar hasta una parte (`time: meal.luncheon`). Las palabras bajo la caja lo repiten. Las acciones que la siguen y sus comprobaciones (en [Comprobaciones](06-checks.md), en esta acción) van primero;
 - **Cuando no se aplica nada**: lo que dice el diario cuando no se aplica ninguna de sus comprobaciones;
 - **Qué hace**, paso a paso (las flechas suben o bajan un paso).
 

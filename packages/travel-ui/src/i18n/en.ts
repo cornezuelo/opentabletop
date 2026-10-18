@@ -2,6 +2,7 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   system: vocabulary.en.terms.system,
   genericSystem: vocabulary.en.terms.genericSystem,
+  watches: vocabulary.en.terms.watches,
   startSeason: 'Start in',
   newTrip: 'New trip',
   withTables:

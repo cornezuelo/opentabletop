@@ -15,7 +15,8 @@
     ROLLABLE,
     type SystemDoc,
   } from '../../lib/systemDoc.svelte'
-  import { CHECK_MOMENTS } from '@open-tabletop/travel-engine'
+  import { CHECK_MOMENTS, isPartRef } from '@open-tabletop/travel-engine'
+  import { dayPartRefs, partLabel } from '../../lib/dayParts'
   import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
   import { olderFormatChecks, packFormat, updateFormat } from '../../lib/newSystem'
 
@@ -59,7 +60,9 @@
       .map((m) =>
         (AT as readonly string[]).includes(m)
           ? t(`checks.atOptions.${m as (typeof AT)[number]}`)
-          : t('checks.atAction', { action: actionLabel(m) }),
+          : isPartRef(m)
+            ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
+            : t('checks.atAction', { action: actionLabel(m) }),
       )
       .join(' · ')
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
@@ -215,7 +218,7 @@
               label={t('checks.at')}
               placeholder={t('checks.atNone')}
               value={momentsText(check.at)}
-              list={[...AT, ...ownActions]}
+              list={[...AT, ...dayPartRefs(system), ...ownActions]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
             />

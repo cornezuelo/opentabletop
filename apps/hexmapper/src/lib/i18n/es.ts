@@ -609,7 +609,7 @@ export const es: Messages = {
     arrived: 'El grupo ha llegado a su destino.',
     waitStopped: 'La espera se ha detenido antes: el viaje te necesita (mira su diario).',
     hour: '+1 hora',
-    watches: 'Guardias',
+    watches: vocabulary.es.terms.watches,
     nextPart: 'Siguiente: {division}',
     untilPart: 'Hasta…',
     untilPartGo: 'Ir',

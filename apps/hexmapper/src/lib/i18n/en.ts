@@ -601,7 +601,7 @@ export const en = {
     arrived: 'The party reached its destination.',
     waitStopped: 'The wait stopped early: the trip needs you (see its journal).',
     hour: '+1 hour',
-    watches: 'Watches',
+    watches: vocabulary.en.terms.watches,
     nextPart: 'Next: {division}',
     untilPart: 'Until…',
     untilPartGo: 'Go',

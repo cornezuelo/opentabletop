@@ -160,6 +160,7 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | ------------------------------------------------ | ---------------------------------------------- |
 | `time: 120`                                      | 120 minutes pass                               |
 | `time: dawn`, `time: nightfall`, `time: '14:00'` | until then                                     |
+| `time: meal.luncheon`                            | until a part of the calendar's day next starts |
 | `speed: 0.5`                                     | the rest of today's march at half speed        |
 | `effects: { party.stats.fatigue: -1 }`           | changes the party                              |
 | `set: { lost: true }`                            | gives a value of the day                       |

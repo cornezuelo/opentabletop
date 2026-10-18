@@ -25,6 +25,8 @@
     actionMinutes,
     actionSteps,
     availableActions,
+    dayClock,
+    isPartRef,
     MARCH,
     noTotals,
     resourceBounds,
@@ -38,6 +40,8 @@
   import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberNamer } from './members'
+  import { dayPartsLine, divisionName, partName } from './dayParts'
+  import { findPart } from '@open-tabletop/time'
   import PartyMembers from './PartyMembers.svelte'
   import { CharacterCard } from '@open-tabletop/character-ui'
 
@@ -95,8 +99,9 @@
   const calendar = $derived(calendarOf(system))
   /** The next dawn: today's if it hasn't come yet, else tomorrow's. */
   const nextDawn = $derived.by(() => {
-    const today = calendar.at(travel.day, system.rules.day.start)
-    return travel.time < today ? today : calendar.at(travel.day + 1, system.rules.day.start)
+    const dawn = dayClock(system.rules.day.start, calendar, '06:00')
+    const today = calendar.at(travel.day, dawn)
+    return travel.time < today ? today : calendar.at(travel.day + 1, dawn)
   })
   const time = $derived.by(() => {
     const parts = calendar.describe(travel.time)
@@ -104,6 +109,8 @@
       day: parts.day - startDay + 1,
       clock: formatClock(parts),
       season: parts.season ? idText(t, `seasons.${parts.season}`, parts.season) : '',
+      // What it is in each division of the calendar's day: "Meals: elevenses".
+      parts: dayPartsLine(calendar, travel.time, locale, t('watches')),
     }
   })
   /** With a calendar of the system's own: the date, its moons and holidays. */
@@ -308,8 +315,17 @@
     const steps = actionSteps(own)
     const always = steps.filter((st) => !st.when && !st.unless)
     const minutes = always.reduce((n, st) => n + (typeof st.time === 'number' ? st.time : 0), 0)
-    const until = always.find((st) => st.time === 'dawn' || st.time === 'nightfall')?.time as
-      'dawn' | 'nightfall' | undefined
+    const until = always.find(
+      (st) => st.time === 'dawn' || st.time === 'nightfall' || isPartRef(st.time),
+    )?.time as string | undefined
+    /** Until dawn, nightfall, or a part of the calendar's day (its name: "until supper"). */
+    const untilText = (moment: string) => {
+      if (!isPartRef(moment)) return t(`tips.${moment}` as TravelUiKey)
+      const found = findPart(calendar.divisions ?? [], moment)
+      return found
+        ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`
+        : moment
+    }
     const speed = always.find((st) => st.speed !== undefined)?.speed
     const effects = Object.assign({}, ...always.map((st) => st.effects ?? {}))
     const rolls = [
@@ -322,7 +338,7 @@
     const parts = [
       fallback,
       !fallback && minutes ? t('tips.actionTime', { minutes }) : '',
-      !fallback && until ? t('tips.actionUntil', { moment: t(`tips.${until}`) }) : '',
+      !fallback && until ? t('tips.actionUntil', { moment: untilText(until) }) : '',
       speed !== undefined ? t('tips.actionSpeed', { speed }) : '',
       changes({ effects }) ? t('tips.actionEffects', { changes: changes({ effects }) }) : '',
       own.oncePerDay ? t('tips.actionOnce') : '',
@@ -360,6 +376,7 @@
 <div class="trip">
   <div class="status">
     <strong>{t('dayLine', time)}</strong>
+    {#if time.parts}<span>{time.parts}</span>{/if}
     {#if date}
       <span>{date.line}{date.holidays ? ` · ${date.holidays}` : ''}</span>
       {#if date.moons}<span class="moons">{date.moons}</span>{/if}

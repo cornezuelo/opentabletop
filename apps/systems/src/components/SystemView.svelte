@@ -108,7 +108,7 @@
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
-          {#if tab === 'rules'}<RulesForm {doc} />{:else}<ChecksForm {doc} {system} />{/if}
+          {#if tab === 'rules'}<RulesForm {doc} {system} />{:else}<ChecksForm {doc} {system} />{/if}
         </div>
       {:else}
         <Overview {system} doc={declared ? overview : null} />

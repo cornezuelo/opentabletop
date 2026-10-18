@@ -5,6 +5,7 @@ import type { en } from './en'
 export const es: Messages<typeof en> = {
   system: vocabulary.es.terms.system,
   genericSystem: vocabulary.es.terms.genericSystem,
+  watches: vocabulary.es.terms.watches,
   startSeason: 'Empezar en',
   newTrip: 'Nuevo viaje',
   withTables:

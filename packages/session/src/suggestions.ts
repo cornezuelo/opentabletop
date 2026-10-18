@@ -100,6 +100,15 @@ export function contextSuggestions(
   for (const { pack, rules, bindings, calendar, sheet, factions, clocks } of systems) {
     // The generic system names nothing a pack would.
     if (pack !== undefined && !ours(pack)) continue
+    // The divisions of its calendar's day: the part it is (`time.meal: elevenses`), the
+    // parts' tags (`time.tags: dark`) and when each starts (`system.meal.dinner`).
+    for (const d of calendar?.divisions ?? []) {
+      const parts = d.parts.map((p) => (d.numbered ? Number(p.id) : p.id))
+      add(`time.${d.id}`, ...parts)
+      if (!(d.id in FACT_PATHS)) add(d.id, ...parts)
+      add('time.tags', ...d.parts.flatMap((p) => p.tags))
+      for (const p of d.parts) add(`system.${d.id}.${p.id}`)
+    }
     // Its progress clocks, by their declared ids: how many segments are filled.
     for (const [id, c] of Object.entries(clocks?.def.clocks ?? {}))
       add(`world.clocks.${id}`, ...Array.from({ length: c.segments + 1 }, (_, i) => i))

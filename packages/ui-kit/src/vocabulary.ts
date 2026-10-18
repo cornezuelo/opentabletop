@@ -18,6 +18,8 @@ export const vocabulary = {
       supplies: 'Supplies',
       system: 'System',
       genericSystem: 'Generic',
+      /** The older `watchHours` division, which has no name of its own. */
+      watches: 'Watches',
     },
     seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
     moonPhases: { new: 'new', waxing: 'waxing', full: 'full', waning: 'waning' },
@@ -87,6 +89,7 @@ export const vocabulary = {
       supplies: 'Provisiones',
       system: 'Sistema',
       genericSystem: 'Genéricas',
+      watches: 'Guardias',
     },
     seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
     moonPhases: { new: 'nueva', waxing: 'creciente', full: 'llena', waning: 'menguante' },

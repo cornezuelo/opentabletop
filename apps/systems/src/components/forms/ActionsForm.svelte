@@ -4,15 +4,17 @@
     BUILT_IN_ACTIONS,
     MARCH,
     CHECK_MOMENTS,
+    isPartRef,
     STEP_KINDS,
     type ActionDefinition,
     type ActionStep,
   } from '@open-tabletop/travel-engine'
-  import { contextSuggestions, effectSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import { t } from '../../lib/i18n'
+  import { getLocale, t } from '../../lib/i18n'
+  import { dayPartRefs, partLabel } from '../../lib/dayParts'
   import { library } from '../../lib/packs.svelte'
   import { momentsText, parseMoments, type SystemDoc } from '../../lib/systemDoc.svelte'
 
@@ -22,7 +24,9 @@
    * they do, step by step, each step written in the pack's own syntax (`time: dawn`,
    * `do: forage`) with suggestions. Editing the steps writes them as `do`.
    */
-  let { doc }: { doc: SystemDoc } = $props()
+  let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
+  /** The parts of its calendar's day: moments and time steps may name them. */
+  const parts = $derived(dayPartRefs(system))
 
   type Raw = Record<string, unknown>
   /** What older systems had for camp and rest without declaring them (shown as cards). */
@@ -45,7 +49,9 @@
       .map((m) =>
         (CHECK_MOMENTS as readonly string[]).includes(m)
           ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number]}`)
-          : t('actions.onAfter', { action: label(m) }),
+          : isPartRef(m)
+            ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
+            : t('actions.onAfter', { action: label(m) }),
       )
       .join(' · ')
   /** Check events a step can roll. */
@@ -59,7 +65,7 @@
   const hints = $derived(contextSuggestions(library.registry))
   /** What a step can say: its keys, and the values each one takes here. */
   const stepHints = $derived({
-    time: ['dawn', 'nightfall', '60', '120', '180', '14:00'],
+    time: ['dawn', 'nightfall', '60', '120', '180', '14:00', ...parts],
     speed: ['0.5', '0'],
     effects: [],
     'effects.*': Object.keys(effectSuggestions(library.registry)),
@@ -226,7 +232,7 @@
               label={t('actions.on')}
               placeholder={t('actions.onButton')}
               value={momentsText(d.on)}
-              list={[...CHECK_MOMENTS, ...ids.filter((a) => a !== id)]}
+              list={[...CHECK_MOMENTS, ...parts, ...ids.filter((a) => a !== id)]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
             />

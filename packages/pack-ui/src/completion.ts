@@ -24,6 +24,8 @@ export interface YamlHints {
   actions?: readonly string[]
   /** The travel system's check events (`roll:`). */
   events?: readonly string[]
+  /** The parts of its calendar's day (`meal.elevenses`): moments, time steps, the day. */
+  parts?: readonly string[]
 }
 
 /** Hints from the loaded packs; `pack` lists its own definitions first, by local id. */
@@ -46,6 +48,11 @@ export function yamlHints(registry: Registry, pack?: string): YamlHints {
     effects: effectSuggestions(registry),
     actions: unique(systems.flatMap((s) => Object.keys(availableActions(s.rules).all))),
     events: unique(systems.flatMap((s) => (s.rules.checks ?? []).map((c) => c.event))),
+    parts: unique(
+      systems.flatMap((s) =>
+        (s.calendar?.divisions ?? []).flatMap((d) => d.parts.map((p) => `${d.id}.${p.id}`)),
+      ),
+    ),
   }
 }
 
@@ -231,12 +238,14 @@ export function completeYaml(before: string, hints: YamlHints): Completion | nul
           : key === 'do'
             ? actions
             : key === 'on' || key === 'at'
-              ? [...CHECK_MOMENTS, ...actions]
+              ? [...CHECK_MOMENTS, ...(hints.parts ?? []), ...actions]
               : key === 'night'
                 ? [...actions, 'false']
                 : key === 'roll'
                   ? (hints.events ?? [])
-                  : (ENUMS[key] ?? hints.context[key] ?? [])
+                  : key === 'time'
+                    ? [...ENUMS.time, ...(hints.parts ?? [])]
+                    : (ENUMS[key] ?? hints.context[key] ?? [])
     const options = filter(pool, typed)
     return options.length ? { from: before.length - typed.length, options } : null
   }

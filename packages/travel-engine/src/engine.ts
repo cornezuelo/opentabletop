@@ -3,8 +3,9 @@ import { findPath } from '@open-tabletop/hex'
 import { momentRoller, type Roller } from '@open-tabletop/variables'
 import {
   defaultCalendar,
+  findPart,
   nextAt,
-  parseClock,
+  nextPartStart,
   type Calendar,
   type CalendarParts,
   type GameTime,
@@ -28,7 +29,8 @@ import {
   type CheckRule,
   type TravelRules,
 } from './rules'
-import { hexIdOf, qualify } from './facts'
+import { FACT_PATHS, hexIdOf, qualify } from './facts'
+import { dayClock, isPartRef } from './day'
 
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
 export interface TravelWorld {
@@ -387,6 +389,15 @@ export function createTravelEngine(options: {
   const dayMinutes = rules.travel.hoursPerDay * 60
   const actions = availableActions(rules)
   const night = nightAction(rules)
+  /** When the system's day starts and night falls, in minutes (a clock or a part of the day). */
+  const dawnAt = dayClock(rules.day.start, calendar, '06:00')
+  const nightfallAt = dayClock(rules.day.nightfall, calendar, '20:00')
+  /** The calendar's divisions of the day (meals, watches…). */
+  const divisions = calendar.divisions ?? []
+  /** The hour each part starts, as a number: `system.<division>.<part>`. */
+  const partHours = Object.fromEntries(
+    divisions.map((d) => [d.id, Object.fromEntries(d.parts.map((p) => [p.id, p.from / 60]))]),
+  )
   const values = declaredValues(rules)
   const supplies = resourceBounds(rules)
   /** Actions the system takes by itself, by the moment or action they follow. */
@@ -435,11 +446,9 @@ export function createTravelEngine(options: {
   /** Whether it's day: between the system's dawn and nightfall of the day it is. */
   const isDaylight = (time: GameTime): boolean => {
     const { day } = calendar.describe(time)
-    return time >= calendar.at(day, rules.day.start) && time < calendar.at(day, rules.day.nightfall)
+    return time >= calendar.at(day, dawnAt) && time < calendar.at(day, nightfallAt)
   }
 
-  /** The system's own day as numbers (hours), for conditions: `hour: { gte: '{{nightfall}}' }`. */
-  const clockHours = (clock: string) => parseClock(clock) / 60
   /**
    * The moment as conditions read it: the season, the day, whether it's day, the hour
    * (`14.5` is 14:30), the calendar's watch, and the system's dawn, nightfall and
@@ -453,9 +462,20 @@ export function createTravelEngine(options: {
       daylight: isDaylight(state.time),
       hour: parts.hour + parts.minute / 60,
       ...(parts.watch !== undefined && { watch: parts.watch }),
-      dawn: clockHours(rules.day.start),
-      nightfall: clockHours(rules.day.nightfall),
+      // The divisions of the day by their own names too (`meal`), unless one is a fact's.
+      ...Object.fromEntries(
+        Object.entries(parts.divisions ?? {}).filter(
+          ([id]) => !(id in FACT_PATHS) || FACT_PATHS[id] === `time.${id}`,
+        ),
+      ),
+      // The system's own day as numbers (hours): `hour: { gte: '{{nightfall}}' }`.
+      dawn: dawnAt / 60,
+      nightfall: nightfallAt / 60,
       hoursPerDay: rules.travel.hoursPerDay,
+      // What it is in each division (`time.meal: elevenses`) and its parts' tags.
+      time: { ...parts.divisions, tags: parts.tags ?? [] },
+      // When each part starts (`system.meal.dinner`: 18).
+      system: partHours,
     }
   }
   /** A hex as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
@@ -708,6 +728,42 @@ export function createTravelEngine(options: {
     return scheduled
   }
 
+  /** The parts of the calendar's day a check (`at`) or an action (`on`) names: their moments. */
+  const namedParts = [
+    ...new Set([
+      ...((rules.checks ?? []) as CheckRule[]).flatMap((c) => momentsOf(c.at)),
+      ...Object.values(actions.all).flatMap((a) => momentsOf(a.on)),
+    ]),
+  ].filter((ref) => isPartRef(ref) && findPart(divisions, ref))
+  /** The next moment after `time` a named part begins, and which (several may at once). */
+  const nextNamed = (time: GameTime): { time: GameTime; refs: string[] } | undefined => {
+    let next: { time: GameTime; refs: string[] } | undefined
+    for (const ref of namedParts) {
+      const at = nextPartStart(calendar, time, ref)
+      if (at === undefined || (next && at > next.time)) continue
+      next =
+        next && at === next.time
+          ? { time: at, refs: [...next.refs, ref] }
+          : { time: at, refs: [ref] }
+    }
+    return next
+  }
+  /**
+   * Time passes up to `to`: each named part that begins on the way has its moment (its
+   * actions, then its checks), in order, the day changing as it goes.
+   */
+  const passTo = (state: TravelState, to: GameTime, events: TravelEvent[]): void => {
+    for (let guard = 0; guard < 1000; guard++) {
+      const next = nextNamed(state.time)
+      if (!next || next.time > to) break
+      state.time = next.time
+      syncDay(state, events)
+      for (const ref of next.refs) schedule(state, ref, events, undefined, doingFacts())
+    }
+    if (state.time < to) state.time = to
+    syncDay(state, events)
+  }
+
   /** Whether the day is being changed (actions at day-end may pass time themselves). */
   let syncing = false
 
@@ -784,8 +840,8 @@ export function createTravelEngine(options: {
       events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time })
     }
     syncDay(state, events)
-    const start = calendar.at(state.day, rules.day.start)
-    const nightfall = calendar.at(state.day, rules.day.nightfall)
+    const start = calendar.at(state.day, dawnAt)
+    const nightfall = calendar.at(state.day, nightfallAt)
     const midnight = calendar.at(state.day + 1, '00:00')
     if (!state.route || state.route.length < 2) {
       if (state.destination && state.destination === state.location)
@@ -830,6 +886,9 @@ export function createTravelEngine(options: {
       const reach = state.time + Math.max(0, cost - state.progress)
       let end = Math.min(by, midnight, reach)
       if (state.time < start) end = Math.min(end, start)
+      // A part of the day a check or action names: its moment comes on the march.
+      const part = nextNamed(state.time)
+      if (part) end = Math.min(end, part.time)
       let time = state.time + 1
       while (time < end && !marchStop(state, time, state.travelledToday + time - state.time)) time++
       const marched = Math.min(time, end) - state.time
@@ -840,8 +899,14 @@ export function createTravelEngine(options: {
       // a sliver left short of the cost (less than the clock tells apart from now) would be
       // marched towards for no time at all, for ever at dawn.
       state.progress = state.time >= reach ? cost : state.progress + marched
+      const atPart = !!part && state.time === part.time
+      if (atPart) {
+        for (const ref of part.refs) schedule(state, ref, events, undefined, doingFacts())
+        if (state.pendingChecks.length) return stop('check')
+      }
       if (state.progress < cost) {
         if (state.time >= by) return stop('waited')
+        if (atPart) continue
         if (state.time === start) {
           if (dawnChecks()) return stop('check')
           continue
@@ -884,7 +949,7 @@ export function createTravelEngine(options: {
       syncDay(state, events)
       if (state.pendingChecks.length) return stop('check')
       if (state.time >= by) return stop('waited')
-      const dawn = calendar.at(state.day, rules.day.start)
+      const dawn = calendar.at(state.day, dawnAt)
       // Before dawn, the night goes on.
       if (state.time < dawn) {
         const waited = quietly(events, () => wait(state, Math.min(by, dawn), events))
@@ -909,7 +974,7 @@ export function createTravelEngine(options: {
         reason === 'weather' ||
         reason === 'value'
       ) {
-        const next = Math.min(by, calendar.at(state.day + 1, rules.day.start))
+        const next = Math.min(by, calendar.at(state.day + 1, dawnAt))
         const waited = quietly(events, () => wait(state, next, events))
         if (waited?.reason !== 'waited') return void events.push(waited ?? stopAt('waited'))
         continue
@@ -943,9 +1008,7 @@ export function createTravelEngine(options: {
         stopped?.reason === 'weather') &&
       (!night || unavailable(state, night, hostFacts))
     if (!stuck) return void (stopped && events.push(stopped))
-    const waited = quietly(events, () =>
-      wait(state, calendar.at(state.day + 1, rules.day.start), events),
-    )
+    const waited = quietly(events, () => wait(state, calendar.at(state.day + 1, dawnAt), events))
     if (waited?.reason !== 'waited') return void events.push(waited ?? stopped!)
     travel(state, until, events)
   }
@@ -967,8 +1030,8 @@ export function createTravelEngine(options: {
       syncDay(state, events)
       if (state.pendingChecks.length) return stop('check')
       if (state.time >= until) return stop('waited')
-      const dawn = calendar.at(state.day, rules.day.start)
-      const nightfall = calendar.at(state.day, rules.day.nightfall)
+      const dawn = calendar.at(state.day, dawnAt)
+      const nightfall = calendar.at(state.day, nightfallAt)
       if (!state.dayChecksDone && state.time >= dawn && state.time < nightfall) {
         state.dayChecksDone = true
         schedule(state, 'day-start', events)
@@ -989,13 +1052,16 @@ export function createTravelEngine(options: {
         events.push({ type: 'NIGHT_WITHOUT', action: night, because, time: state.time })
         without = state.day
       }
-      const next =
+      const next = Math.min(
         state.time < dawn
           ? dawn
           : state.time < nightfall
             ? nightfall
-            : calendar.at(state.day + 1, 0)
-      state.time = Math.min(until, next)
+            : calendar.at(state.day + 1, 0),
+        // A part of the day a check or action names: its moment comes on the way.
+        nextNamed(state.time)?.time ?? Infinity,
+      )
+      passTo(state, Math.min(until, next), events)
     }
   }
 
@@ -1041,11 +1107,13 @@ export function createTravelEngine(options: {
   const timeOf = (state: TravelState, time: NonNullable<ActionStep['time']>): GameTime =>
     typeof time === 'number'
       ? state.time + time
-      : nextAt(
-          calendar,
-          state.time + 1,
-          time === 'dawn' ? rules.day.start : time === 'nightfall' ? rules.day.nightfall : time,
-        )
+      : isPartRef(time)
+        ? (nextPartStart(calendar, state.time, time) ?? state.time)
+        : nextAt(
+            calendar,
+            state.time + 1,
+            time === 'dawn' ? dawnAt : time === 'nightfall' ? nightfallAt : time,
+          )
 
   type Hits = { below: Set<string>; above: Set<string> }
   /** The actions under way, the one the player (or a moment) started first. */
@@ -1197,8 +1265,7 @@ export function createTravelEngine(options: {
       if (step.when && !test(state, step.when, context, id)) continue
       if (step.unless && test(state, step.unless, context, id)) continue
       if (step.time !== undefined) {
-        state.time = Math.max(state.time, timeOf(state, step.time))
-        syncDay(state, events)
+        passTo(state, Math.max(state.time, timeOf(state, step.time)), events)
       } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
       else if (step.effects)
         applyEffects(state, id, step.effects, events, rollsOf(state, context, id))
@@ -1325,8 +1392,7 @@ export function createTravelEngine(options: {
           else journey(state, action.until ?? 'destination', action.by, events)
           break
         case 'advanceTime':
-          state.time += Math.max(0, action.minutes)
-          syncDay(state, events)
+          passTo(state, state.time + Math.max(0, action.minutes), events)
           break
         case 'wait':
           wait(state, action.until, events)
