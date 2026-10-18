@@ -17,7 +17,7 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 ## Moving time on
 
-**+1 hour**, **+1 watch**, **Until dusk**, **Until dawn**, **Next day** and **Next event**. Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
+**+1 hour**, **Until dusk**, **Until dawn**, **Next day** and **Next event**, and a **Next: …** button for each division of the day the calendar declares (**Next: Watches**, **Next: Meals**: to when its next part begins); **Until…** chooses a part of any division and **Go** moves time on to when it next begins. Under the date, what the moment is in each division (“Part of the day: evening · Watches: 5”); a calendar without divisions shows none (the plain calendar used without one has watches of 4 hours). What a calendar's divisions are: [Calendars](../technical/07-kinds.md#calendars). Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
 
 **The weather** of the day shows under the date. With a trip going on it's the trip's (its weather check); without one, the world clock rolls its own each day that passes, on the map system's weather model, each day following the day before's (the Grey Marches' sky, a hex flower in winter). Hand rolls read it as `weather`.
 

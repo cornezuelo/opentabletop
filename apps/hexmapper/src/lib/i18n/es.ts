@@ -586,7 +586,7 @@ export const es: Messages = {
     moonLine: '{moon} está {phase}',
     advance: 'Avanzar el tiempo',
     advanceHelp:
-      'Hace avanzar el tiempo del mundo. Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.\n• **+1 guardia** — unas horas\n• **Día siguiente** — hasta el próximo alba\n• **Próximo evento** — directamente al siguiente evento programado',
+      'Hace avanzar el tiempo del mundo. Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.\n• **Siguiente: Guardias** — hasta que empieza la siguiente parte de una división del día (las del calendario: comidas, guardias… cada sistema las suyas)\n• **Hasta…** — hasta que empieza la parte elegida\n• **Día siguiente** — hasta el próximo alba\n• **Próximo evento** — directamente al siguiente evento programado',
     tripHelp:
       'Hay un viaje en marcha sin ruta, así que estos botones hacen que el grupo espere en {hex} (planea una ruta y seguirá viajando por ella). Se vive cada momento (las comprobaciones del alba, lo que hace el sistema de noche y al acabar cada día, comer), y la espera se detiene antes si algo te necesita.',
     tripAdvance: 'Esperar aquí',
@@ -609,7 +609,10 @@ export const es: Messages = {
     arrived: 'El grupo ha llegado a su destino.',
     waitStopped: 'La espera se ha detenido antes: el viaje te necesita (mira su diario).',
     hour: '+1 hora',
-    watch: '+1 guardia',
+    watches: 'Guardias',
+    nextPart: 'Siguiente: {division}',
+    untilPart: 'Hasta…',
+    untilPartGo: 'Ir',
     dusk: 'Hasta el anochecer',
     dawn: 'Hasta el alba',
     nextDay: 'Día siguiente',

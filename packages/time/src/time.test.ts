@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { defaultCalendar, formatClock, nextAt, parseClock, simpleCalendar } from './index'
+import {
+  defaultCalendar,
+  formatClock,
+  nextAt,
+  nextPartStart,
+  parseClock,
+  simpleCalendar,
+} from './index'
 import { calendarFrom, moonPhase, seasonStartDay, seasonsOf, validateCalendar } from './calendar'
 
 describe('calendar', () => {
@@ -12,6 +19,8 @@ describe('calendar', () => {
       minuteOfDay: 545,
       season: 'spring',
       watch: 3,
+      divisions: { watch: 3 },
+      tags: [],
     })
     expect(defaultCalendar.describe(defaultCalendar.at(91, '00:00')).season).toBe('summer')
     expect(defaultCalendar.describe(defaultCalendar.at(361, '12:00')).season).toBe('spring')
@@ -120,6 +129,107 @@ describe('calendars as data', () => {
       'months[0].days: a whole number',
       'holidays[0].month: no month "b"',
       'dawn: times look like "06:00"',
+    ])
+  })
+})
+
+describe('divisions of the day', () => {
+  // A hobbit's day: meals that cover it, watches only at night, bells of half an hour.
+  const shire = calendarFrom({
+    months: [{ id: 'm', days: 30 }],
+    divisions: {
+      meal: {
+        name: 'Meals',
+        parts: [
+          { id: 'first-breakfast', from: '07:00' },
+          { id: 'elevenses', from: '11:00', tags: ['meal'] },
+          { id: 'supper', from: '21:00', tags: ['meal', 'dark'] },
+        ],
+      },
+      watch: {
+        parts: [
+          { id: 'first', from: '21:00' },
+          { id: 'middle', from: '01:00' },
+          { id: 'morning', from: '04:00', until: '07:00' },
+        ],
+      },
+      bell: { every: 0.5 },
+    },
+  })
+  const at = (clock: string) => shire.describe(shire.at(2, clock))
+
+  it('says what the moment is in each division, and the tags of its parts', () => {
+    expect(at('11:20')).toMatchObject({
+      divisions: { meal: 'elevenses', bell: 23 },
+      tags: ['meal'],
+    })
+    // No watch by day: the morning watch ends at 07:00.
+    expect(at('11:20').watch).toBeUndefined()
+    expect(at('06:59')).toMatchObject({ watch: 'morning', divisions: { meal: 'supper' } })
+    // Before the first part of the day, the last one goes on since yesterday.
+    expect(at('02:00')).toMatchObject({
+      watch: 'middle',
+      divisions: { meal: 'supper', watch: 'middle', bell: 5 },
+      tags: ['meal', 'dark'],
+    })
+    expect(at('23:00').divisions).toMatchObject({ meal: 'supper', watch: 'first' })
+  })
+
+  it('finds when a part (or any part of a division) next begins', () => {
+    const now = shire.at(2, '11:20')
+    expect(nextPartStart(shire, now, 'meal.supper')).toBe(shire.at(2, '21:00'))
+    expect(nextPartStart(shire, now, 'meal.first-breakfast')).toBe(shire.at(3, '07:00'))
+    expect(nextPartStart(shire, now, 'watch')).toBe(shire.at(2, '21:00'))
+    expect(nextPartStart(shire, now, 'bell')).toBe(shire.at(2, '11:30'))
+    expect(nextPartStart(shire, now, 'bell.1')).toBe(shire.at(3, '00:00'))
+    // A moment that is now is the next one, not this one.
+    expect(nextPartStart(shire, shire.at(2, '21:00'), 'meal.supper')).toBe(shire.at(3, '21:00'))
+    expect(nextPartStart(shire, now, 'meal.lunch')).toBeUndefined()
+    expect(nextPartStart(shire, now, 'tide')).toBeUndefined()
+  })
+
+  it('reads the older watchHours as numbered watches; no divisions, none', () => {
+    const old = calendarFrom({ months: [{ id: 'm', days: 30 }], watchHours: 4 })
+    expect(old.divisions?.map((d) => [d.id, d.parts.length])).toEqual([['watch', 6]])
+    expect(old.describe(old.at(1, '09:05'))).toMatchObject({ watch: 3, divisions: { watch: 3 } })
+    const none = calendarFrom({ months: [{ id: 'm', days: 30 }] })
+    expect(none.divisions).toEqual([])
+    expect(none.describe(0)).not.toHaveProperty('divisions')
+  })
+
+  it('reports broken divisions', () => {
+    const months = [{ id: 'm', days: 30 }]
+    expect(
+      validateCalendar({
+        months,
+        watchHours: 4,
+        divisions: {
+          watch: { every: 2 },
+          day: { every: 4 },
+          meal: {
+            parts: [
+              { id: 'a', from: '09:00' },
+              { id: 'a', from: '09:00' },
+            ],
+          },
+          tide: { parts: [], every: 6 },
+          bell: { every: 30 },
+          night: {
+            parts: [
+              { id: 'dusk', from: '20:00', until: '23:00' },
+              { id: 'dark', from: '22:00' },
+            ],
+          },
+        },
+      }),
+    ).toEqual([
+      'watchHours: the calendar has divisions.watch too; keep one',
+      'divisions.day: "day" is already a name of the moment; choose another',
+      'divisions.meal.parts[1].id: "a" is repeated',
+      'divisions.meal.parts[1].from: another part starts then too',
+      'divisions.tide: needs parts or every (one of them)',
+      'divisions.bell.every: hours, more than 0 and at most 24',
+      "divisions.night.parts[0].until: after its from, and not past the next part's",
     ])
   })
 })

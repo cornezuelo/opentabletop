@@ -76,7 +76,7 @@ export const en = {
     calendar: {
       title: "The system's calendar",
       intro:
-        'The calendar its trips and the world clock name time with: months and their seasons, weekdays, moons and holidays.',
+        'The calendar its trips and the world clock name time with: the divisions of the day (meals, watches…), months and their seasons, weekdays, moons and holidays.',
       help: 'One calendar per system (`kind: calendar`), named in its **Overview**. Tables and checks read what it says about each moment:\n• `month: seedtime`, `weekday: fairday`, `year: { gte: 1022 }`\n• `moons.silver: full`\n• `holidays: lantern-night`\nWithout one, the default calendar counts days and four seasons of 90 days.',
       none: 'This system has no calendar: it uses the default one (days and four seasons).',
       create: 'New calendar',
@@ -206,11 +206,33 @@ export const en = {
     hoursPerDayHelp: 'How long a day is (default 24).\n• `30` — a world with longer days',
     watchHours: 'Hours per watch',
     watchHoursHelp:
-      'Splits the day into watches, which tables read as `watch` (1, 2…).\n• `4` — six watches a day\nEmpty: no watches.',
+      'A shortcut for a division of numbered watches of equal length (`divisions: { watch: { every: 4 } }`), which tables read as `watch` (1, 2…).\n• `4` — six watches a day\nEmpty: no watches (unless the divisions below have one).',
     dawn: 'Dawn',
     dawnHelp:
       'When the day starts and night falls, for the world clock\'s "until dawn" and "until nightfall" (travel rules have their own).\n• `06:00` and `20:00`',
     dusk: 'Nightfall',
+    divisions: 'Divisions of the day',
+    divisionsHelp:
+      'The ways your world divides the day, as many as you want: meals, watches, bells, prayers… Each one has its parts, and lasts from one part to the next (the last one until the first, past midnight). Conditions and tables read what it is now as `time.<id>`, and the tags of the parts it is in as `time.tags`; the World panel waits until any part.\n• `meal` with **elevenses** from `11:00` — `time.meal: elevenses` holds from 11:00 to the next meal\n• `watch` every `4` hours — `time.watch: 2` from 04:00 to 08:00\n• a part with **Until** `07:00` — none of its division after 07:00 until the next part\n• **Tags** `dark` on the night — `time.tags: dark`',
+    divisionIdHelp:
+      'How conditions and tables read it: `time.<id>` (`time.meal: elevenses`). It can’t be a name the moment already has (`day`, `hour`, `season`, `tags`…).',
+    divisionReserved: '“{id}” is already a name of the moment (time.{id}); choose another.',
+    divisionShape: 'Parts',
+    divisionShapeHelp:
+      'Parts of their own, each with its time, or numbered parts of equal length from midnight.\n• **Its own parts** — breakfast, elevenses, supper…\n• **Every N hours** — `4`: 1 to 6',
+    shapeParts: 'Its own parts',
+    shapeEvery: 'Every N hours',
+    every: 'Every (hours)',
+    partFrom: 'From',
+    partFromHelp:
+      'When it starts; it lasts until the next part starts, in the order of the day, whatever order they are written in.\n• `11:00`',
+    partUntil: 'Until',
+    partUntilHelp:
+      'When it ends, if before the next part starts: until then, none of this division’s parts.\n• watches only at night: the last one **Until** `06:00`\nEmpty: until the next part.',
+    partTags: 'Tags',
+    partTagsHelp:
+      'Words a system may read while it lasts (`time.tags`), with commas; they mean only what your rules make of them.\n• `dark` — `when: { time.tags: dark }`\n• `meal, rest`',
+    addDivision: 'Add a division',
     months: 'Months',
     monthsHelp:
       "The months of a year, in order, each with its days and its season (the season tables read while it lasts):\n• `seedtime` — **Seedtime**, 30 days, `spring`\nSeasons are any names: the usual four, or your world's (`wet`, `dry`).",

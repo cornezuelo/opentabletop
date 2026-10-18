@@ -79,7 +79,7 @@ export const es: Messages<typeof en> = {
     calendar: {
       title: 'El calendario del sistema',
       intro:
-        'El calendario con el que sus viajes y el reloj del mundo nombran el tiempo: meses y sus estaciones, días de la semana, lunas y fiestas.',
+        'El calendario con el que sus viajes y el reloj del mundo nombran el tiempo: las divisiones del día (comidas, guardias…), meses y sus estaciones, días de la semana, lunas y fiestas.',
       help: 'Un calendario por sistema (`kind: calendar`), nombrado en su **Resumen**. Las tablas y comprobaciones leen lo que dice de cada momento:\n• `month: seedtime`, `weekday: fairday`, `year: { gte: 1022 }`\n• `moons.silver: full`\n• `holidays: lantern-night`\nSin él, el calendario por defecto cuenta días y cuatro estaciones de 90 días.',
       none: 'Este sistema no tiene calendario: usa el de por defecto (días y cuatro estaciones).',
       create: 'Nuevo calendario',
@@ -210,11 +210,33 @@ export const es: Messages<typeof en> = {
     hoursPerDayHelp: 'Lo que dura un día (por defecto 24).\n• `30` — un mundo de días más largos',
     watchHours: 'Horas por guardia',
     watchHoursHelp:
-      'Divide el día en guardias, que las tablas leen como `watch` (1, 2…).\n• `4` — seis guardias al día\nVacío: sin guardias.',
+      'Un atajo para una división de guardias numeradas de la misma duración (`divisions: { watch: { every: 4 } }`), que las tablas leen como `watch` (1, 2…).\n• `4` — seis guardias al día\nVacío: sin guardias (salvo que las divisiones de abajo tengan una).',
     dawn: 'Alba',
     dawnHelp:
       'Cuándo empieza el día y cae la noche, para «hasta el alba» y «hasta el anochecer» del reloj del mundo (las reglas de viaje tienen los suyos).\n• `06:00` y `20:00`',
     dusk: 'Anochecer',
+    divisions: 'Divisiones del día',
+    divisionsHelp:
+      'Las maneras en que tu mundo divide el día, tantas como quieras: comidas, guardias, campanadas, rezos… Cada una tiene sus partes, y cada parte dura hasta que empieza la siguiente (la última hasta la primera, pasada la medianoche). Las condiciones y las tablas leen lo que es ahora como `time.<id>`, y las etiquetas de las partes en que está como `time.tags`; el panel Mundo espera hasta cualquier parte.\n• `meal` con **elevenses** desde las `11:00` — `time.meal: elevenses` se cumple desde las 11:00 hasta la siguiente comida\n• `watch` cada `4` horas — `time.watch: 2` de 04:00 a 08:00\n• una parte con **Hasta** `07:00` — ninguna de su división desde las 07:00 hasta la siguiente parte\n• **Etiquetas** `dark` en la noche — `time.tags: dark`',
+    divisionIdHelp:
+      'Cómo la leen las condiciones y las tablas: `time.<id>` (`time.meal: elevenses`). No puede ser un nombre que el momento ya tiene (`day`, `hour`, `season`, `tags`…).',
+    divisionReserved: '«{id}» ya es un nombre del momento (time.{id}); elige otro.',
+    divisionShape: 'Partes',
+    divisionShapeHelp:
+      'Partes propias, cada una con su hora, o partes numeradas de la misma duración desde la medianoche.\n• **Sus propias partes** — desayuno, almuerzo, cena…\n• **Cada N horas** — `4`: de 1 a 6',
+    shapeParts: 'Sus propias partes',
+    shapeEvery: 'Cada N horas',
+    every: 'Cada (horas)',
+    partFrom: 'Desde',
+    partFromHelp:
+      'Cuándo empieza; dura hasta que empieza la siguiente parte, en el orden del día, se escriban en el orden que se escriban.\n• `11:00`',
+    partUntil: 'Hasta',
+    partUntilHelp:
+      'Cuándo acaba, si es antes de que empiece la siguiente parte: hasta entonces, ninguna parte de esta división.\n• guardias solo de noche: la última **Hasta** `06:00`\nVacío: hasta la siguiente parte.',
+    partTags: 'Etiquetas',
+    partTagsHelp:
+      'Palabras que un sistema puede leer mientras dura (`time.tags`), separadas por comas; solo significan lo que tus reglas hagan con ellas.\n• `dark` — `when: { time.tags: dark }`\n• `meal, rest`',
+    addDivision: 'Añadir una división',
     months: 'Meses',
     monthsHelp:
       'Los meses de un año, en orden, cada uno con sus días y su estación (la estación que leen las tablas mientras dura):\n• `seedtime` — **Siembra**, 30 días, `spring`\nLas estaciones son cualquier nombre: las cuatro de siempre, o las de tu mundo (`wet`, `dry`).',

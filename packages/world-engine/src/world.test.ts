@@ -46,6 +46,31 @@ describe('the world clock', () => {
     expect(run(world, start, { type: 'setTime', time: 0 }).state.time).toBe(start.time)
   })
 
+  it('advances to the next part of a division of the calendar’s day, or to one of them', () => {
+    const calendar = calendarFrom({
+      months: [{ id: 'm', days: 30 }],
+      divisions: {
+        meal: {
+          parts: [
+            { id: 'breakfast', from: '07:00' },
+            { id: 'luncheon', from: '13:00' },
+          ],
+        },
+        watch: { every: 4 },
+      },
+    })
+    const shire = createWorld({ calendar })
+    const start = initialWorld(calendar.at(1, '10:00'))
+    const to = (part: string) =>
+      run(shire, start, { type: 'advanceUntil', until: { part } }).state.time
+    expect(to('meal')).toBe(calendar.at(1, '13:00'))
+    expect(to('meal.breakfast')).toBe(calendar.at(2, '07:00'))
+    expect(to('watch')).toBe(calendar.at(1, '12:00'))
+    expect(to('watch.1')).toBe(calendar.at(2, '00:00'))
+    // A part the calendar doesn't have: the clock stays.
+    expect(to('meal.supper')).toBe(start.time)
+  })
+
   it('brings scheduled events due, repeating ones again, in order (ties as scheduled)', () => {
     const { state } = run(
       world,

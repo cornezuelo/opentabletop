@@ -5,7 +5,26 @@
 kind: calendar
 id: marcher-reckoning
 name: The Marcher reckoning
+description: |-
+  How the Marches count time: twelve months of thirty days in four seasons, a seven-day
+  week, two moons, the feasts the tables know and the parts of a Marcher's day.
+
+  **Shows:** months with their seasons, weekdays, moons with their cycles, holidays, a
+  division of the day of its own (`divisions: { part: … }`, read as `time.part`, with a
+  `dark` tag on the grey hour and the night) and numbered watches (`watchHours`).
 watchHours: 4
+# The parts of a Marcher's day, from the grey hour before dawn to the night: the World
+# panel waits until one (Until…), and conditions read `time.part` and `time.tags`.
+divisions:
+  part:
+    name: Part of the day
+    parts:
+      - { id: grey-hour, name: the grey hour, from: '04:00', tags: [dark] }
+      - { id: morning, name: morning, from: '06:00' }
+      - { id: midday, name: midday, from: '11:00' }
+      - { id: afternoon, name: afternoon, from: '14:00' }
+      - { id: evening, name: evening, from: '18:00' }
+      - { id: night, name: night, from: '20:00', tags: [dark] }
 startYear: 412
 months:
   - { id: thaw, name: Thaw, days: 30, season: spring }

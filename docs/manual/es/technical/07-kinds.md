@@ -271,6 +271,28 @@ holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 
 **Qué ven las tablas:** `{{month}}` (el id del mes), `{{year}}`, `{{weekday}}`, la fase de cada luna como `moons.<luna>` (`when: { moons.pale: full }`) y las fiestas de hoy como una lista (`when: { holidays: midsummer }`), además de `season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
 
+**Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. `watchHours: 4` es la forma antigua de `divisions: { watch: { every: 4 } }`. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `daylight`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../hexmapper/12-world.md) del Hexmapper avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
+
+```yaml
+kind: calendar
+id: hearth-reckoning
+months: [{ id: first, days: 30 }]
+divisions:
+  meal:
+    name: Comidas
+    parts:
+      - { id: breakfast, name: el desayuno, from: '07:00' }
+      - { id: elevenses, name: el tentempié, from: '11:00', tags: [meal] }
+      - { id: supper, name: la cena, from: '21:00', tags: [meal, dark] }
+  watch:
+    name: Guardias
+    parts: # solo de noche: la última acaba a las 07:00
+      - { id: first, from: '21:00' }
+      - { id: middle, from: '01:00' }
+      - { id: morning, from: '04:00', until: '07:00' }
+  bell: { name: Campanadas, every: 0.5 }
+```
+
 ## Modelos de clima
 
 Clima con memoria (una cadena de Markov): por estación, para cada tipo de clima, lo probable que es cada tipo mañana, así que la lluvia se instala varios días y las tormentas pasan. Cada tipo de clima tiene un nombre y los valores que da al día (`set: { fordModifier: -1 }`), como el resultado de una tabla. Un viaje usa uno cuando un binding dice `weather: <modelo>` en vez de `resolve:`; el clima de hoy pasa a ser `weather` para las comprobaciones siguientes y las velocidades de las reglas de viaje. En la aplicación Systems, la pestaña **Clima** de un sistema edita sus modelos con un formulario: los tipos de clima, y por estación una cuadrícula de pesos del clima de ayer al de hoy, con la frecuencia de cada uno a lo largo de muchos días.

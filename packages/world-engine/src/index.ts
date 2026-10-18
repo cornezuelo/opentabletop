@@ -3,6 +3,7 @@ export * from './clocks'
 import {
   defaultCalendar,
   nextAt,
+  nextPartStart,
   type Calendar,
   type CalendarParts,
   type GameTime,
@@ -69,8 +70,11 @@ export function initialWorld(time: GameTime = 0): WorldState {
   return { time, events: [], clocks: [], timeline: [], nextId: 1 }
 }
 
-/** How far to go. */
-export type Until = 'dawn' | 'dusk' | 'next-day' | 'next-event'
+/**
+ * How far to go: dawn, dusk, the next day or event, or the next start of a part of the
+ * calendar's day (`{ part: 'meal.supper' }`) or of any part of a division (`{ part: 'watch' }`).
+ */
+export type Until = 'dawn' | 'dusk' | 'next-day' | 'next-event' | { part: string }
 
 export type WorldAction =
   | { type: 'advance'; minutes: number }
@@ -184,6 +188,7 @@ export function createWorld(options: WorldOptions = {}) {
   /** The moment `until` names, from now. */
   function target(state: WorldState, until: Until): GameTime | undefined {
     const now = state.time
+    if (typeof until === 'object') return nextPartStart(calendar, now, until.part)
     if (until === 'dawn') return nextAt(calendar, now + 1, dawn)
     if (until === 'dusk') return nextAt(calendar, now + 1, dusk)
     if (until === 'next-day') return calendar.at(day(now) + 1, 0)

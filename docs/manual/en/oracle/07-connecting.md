@@ -424,6 +424,7 @@ moons: [{ id: pale, name: the Pale Moon, cycle: 28 }]
 holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 ```
 
+- **divisions** of the day, if the system wants any (meals, watches…, each with its parts or `every` N hours): see [Calendars](../technical/07-kinds.md#calendars).
 - **months** in order, with their days and **season** (the seasons a trip can start in come from here); **weekdays**, **moons** (a cycle in days and an optional `offset`), **holidays** (a month and a day), the **startYear** and, optionally, `start: { month, day }` for the first day.
 - The trip panel shows the date (“Moonday, 1 Thaw, year 412”), the moons' phases and the day's holidays.
 - Tables and checks see `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` or `waning`) and `holidays` (a list): `when: { moons.ember: full }`, `when: { holidays: midsummer }`.

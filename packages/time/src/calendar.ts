@@ -1,4 +1,12 @@
-import { MINUTES_PER_HOUR, parseClock, type Calendar, type GameTime, type TimeParts } from './index'
+import {
+  MINUTES_PER_HOUR,
+  divisionParts,
+  parseClock,
+  type Calendar,
+  type GameTime,
+  type TimeParts,
+} from './index'
+import { readDivisions, validateDivisions, type DivisionDef } from './divisions'
 
 /** Text in one or several languages: "Thaw" or { en: Thaw, es: Deshielo }. */
 export type CalendarText = string | Record<string, string>
@@ -12,8 +20,14 @@ export interface CalendarDef {
   id?: string
   name?: CalendarText
   hoursPerDay?: number
-  /** Watch length in hours (4 → six watches a day). */
+  /** Older form of `divisions: { watch: { every: 4 } }`: watch length in hours. */
   watchHours?: number
+  /**
+   * The ways the day is divided, as many as the system wants, each with its parts
+   * (`meal: { parts: [{ id: elevenses, from: '11:00' }…] }`) or numbered parts of equal
+   * length (`watch: { every: 4 }`). Read as `time.<division>`; none: none.
+   */
+  divisions?: Record<string, DivisionDef>
   /** The months of a year, in order; each may say its season (spring…). */
   months: { id: string; name?: CalendarText; days: number; season?: string }[]
   weekdays?: { id: string; name?: CalendarText }[]
@@ -79,6 +93,7 @@ export function validateCalendar(raw: unknown): string[] {
   for (const key of ['dawn', 'dusk'] as const)
     if (def[key] !== undefined && !/^\d{1,2}:\d{2}$/.test(String(def[key])))
       errors.push(`${key}: times look like "06:00"`)
+  errors.push(...validateDivisions(def.divisions, def.watchHours, def.hoursPerDay ?? 24))
   return errors
 }
 
@@ -97,7 +112,7 @@ export function calendarFrom(def: CalendarDef): DataCalendar {
   }
   // Day of the year (0-based) of day 1.
   const startOfYear = def.start ? monthStart(def.start.month) + (def.start.day ?? 1) - 1 : 0
-  const watchMinutes = def.watchHours ? def.watchHours * MINUTES_PER_HOUR : undefined
+  const divisions = readDivisions(def.divisions, def.watchHours, def.hoursPerDay ?? 24)
 
   const describe = (time: GameTime): CalendarParts => {
     const t = Math.max(0, Math.floor(time))
@@ -121,7 +136,7 @@ export function calendarFrom(def: CalendarDef): DataCalendar {
       minute: minuteOfDay % MINUTES_PER_HOUR,
       minuteOfDay,
       ...(month.season && { season: month.season }),
-      ...(watchMinutes && { watch: Math.floor(minuteOfDay / watchMinutes) + 1 }),
+      ...divisionParts(divisions, minuteOfDay, minutesPerDay),
       year,
       month: { id: month.id, ...(month.name && { name: month.name }), day: monthDay },
       ...(def.weekdays?.length && { weekday: def.weekdays[dayIndex % def.weekdays.length] }),
@@ -149,6 +164,7 @@ export function calendarFrom(def: CalendarDef): DataCalendar {
   return {
     def,
     minutesPerDay,
+    divisions,
     yearDays,
     describe,
     dayOf,

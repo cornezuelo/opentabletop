@@ -4,10 +4,11 @@
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import { renameMonth } from '../../lib/calendar'
   import ListRows from '../forms/ListRows.svelte'
+  import DivisionsForm from './DivisionsForm.svelte'
 
   /**
    * A calendar (`kind: calendar`) as forms: its name, the year it starts in, the length
-   * of the day and its watches, its months (with their seasons), weekdays, moons and
+   * of the day, its divisions (meals, watches…), its months (with their seasons), weekdays, moons and
    * holidays. Trips and the world clock name time with it.
    */
   let { doc }: { doc: PartDoc } = $props()
@@ -131,6 +132,8 @@
       </label>
     </div>
   </section>
+
+  <DivisionsForm {doc} />
 
   <section>
     <h3>{t('calendar.months')}<InfoTip text={t('calendar.monthsHelp')} /></h3>

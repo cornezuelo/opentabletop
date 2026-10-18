@@ -17,7 +17,7 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 ## Avanzar el tiempo
 
-**+1 hora**, **+1 guardia**, **Hasta el anochecer**, **Hasta el alba**, **Día siguiente** y **Próximo evento**. Lo que llega por el camino se anota en la **cronología** (y, durante un viaje, en su diario): eventos, fiestas, lunas llenas y nuevas.
+**+1 hora**, **Hasta el anochecer**, **Hasta el alba**, **Día siguiente** y **Próximo evento**, y un botón **Siguiente: …** por cada división del día que declara el calendario (**Siguiente: Guardias**, **Siguiente: Comidas**: hasta que empieza su siguiente parte); **Hasta…** elige una parte de cualquier división e **Ir** avanza el tiempo hasta que vuelve a empezar. Bajo la fecha, lo que es el momento en cada división («Parte del día: el atardecer · Guardias: 5»); un calendario sin divisiones no muestra ninguna (el calendario sencillo que se usa sin uno tiene guardias de 4 horas). Qué son las divisiones de un calendario: [Calendarios](../technical/07-kinds.md#calendarios). Lo que llega por el camino se anota en la **cronología** (y, durante un viaje, en su diario): eventos, fiestas, lunas llenas y nuevas.
 
 **El clima** del día aparece bajo la fecha. Con un viaje en marcha es el del viaje (su tirada de clima); sin él, el reloj del mundo tira el suyo cada día que pasa, con el modelo de clima del sistema del mapa, cada día siguiendo al anterior (el cielo de las Marcas Grises, una flor hexagonal en invierno). Las tiradas a mano lo leen como `weather`.
 

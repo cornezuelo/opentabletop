@@ -579,7 +579,7 @@ export const en = {
     moonLine: '{moon} is {phase}',
     advance: 'Move time on',
     advanceHelp:
-      "Moves the world's time on. Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.\n• **+1 watch** — a few hours\n• **Next day** — to the next dawn\n• **Next event** — straight to the next scheduled event",
+      "Moves the world's time on. Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.\n• **Next: Watches** — to when the next part of a division of the day begins (the calendar's: meals, watches… each system its own)\n• **Until…** — to when the part chosen next begins\n• **Next day** — to the next dawn\n• **Next event** — straight to the next scheduled event",
     tripHelp:
       'A trip is going on without a route, so these buttons make the party wait at {hex} (plan a route and they travel on along it). Every moment is lived (dawn’s checks, what the system does at night and as each day ends, eating), and the wait stops early if something needs you.',
     tripAdvance: 'Wait here',
@@ -601,7 +601,10 @@ export const en = {
     arrived: 'The party reached its destination.',
     waitStopped: 'The wait stopped early: the trip needs you (see its journal).',
     hour: '+1 hour',
-    watch: '+1 watch',
+    watches: 'Watches',
+    nextPart: 'Next: {division}',
+    untilPart: 'Until…',
+    untilPartGo: 'Go',
     dusk: 'Until dusk',
     dawn: 'Until dawn',
     nextDay: 'Next day',

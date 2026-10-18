@@ -430,6 +430,7 @@ moons: [{ id: pale, name: la Luna Pálida, cycle: 28 }]
 holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 ```
 
+- **divisions** del día, si el sistema quiere alguna (comidas, guardias…, cada una con sus partes o `every` N horas): mira [Calendarios](../technical/07-kinds.md#calendarios).
 - **months** en orden, con sus días y su **season** (de aquí salen las estaciones en que puede empezar un viaje); **weekdays**, **moons** (un ciclo en días y un `offset` opcional), **holidays** (un mes y un día), el **startYear** y, si quieres, `start: { month, day }` para el primer día.
 - El panel del viaje muestra la fecha («Lunadía, 1 de Deshielo, año 412»), las fases de las lunas y las fiestas del día.
 - Las tablas y comprobaciones ven `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` o `waning`) y `holidays` (una lista): `when: { moons.ember: full }`, `when: { holidays: midsummer }`.

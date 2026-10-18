@@ -1,7 +1,13 @@
 <script lang="ts">
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
   import { localize } from '@open-tabletop/session'
-  import { formatClock, type CalendarParts, type GameTime } from '@open-tabletop/time'
+  import {
+    formatClock,
+    type CalendarParts,
+    type DayPart,
+    type Division,
+    type GameTime,
+  } from '@open-tabletop/time'
   import {
     factId,
     isEventId,
@@ -58,10 +64,12 @@
           ? t(`world.seasons.${parts.season}` as MessageKey)
           : parts.season,
     })
-    if (!('month' in parts)) return { head, date: '', moons: '', holidays: '' }
+    if (!('month' in parts))
+      return { head, parts: partsLine(time), date: '', moons: '', holidays: '' }
     const p = parts as CalendarParts
     return {
       head,
+      parts: partsLine(time),
       date: t('world.date', {
         weekday: p.weekday ? name(p.weekday.name, p.weekday.id) : '',
         day: p.month.day,
@@ -100,9 +108,28 @@
       ? t('world.advanceHelp')
       : `${t(travelling ? 'world.tripHelpTravel' : 'world.tripHelp', { hex: tripHex })}\n${t('world.advanceHelp')}`,
   )
-  const watchMinutes = $derived(
-    ((calendar as { def?: { watchHours?: number } }).def?.watchHours ?? 4) * 60,
-  )
+  /** The ways the calendar divides the day (meals, watches…), each system its own. */
+  const divisions = $derived(calendar.divisions ?? [])
+  /** A division's name: its own, Watches for the older `watchHours`, else its id. */
+  const divisionName = (d: Division) =>
+    d.name !== undefined
+      ? name(d.name, d.id)
+      : d.id === 'watch' && d.numbered
+        ? t('world.watches')
+        : d.id
+  const partName = (d: Division, p: DayPart) => (d.numbered ? p.id : name(p.name, p.id))
+  /** "Meals: elevenses · Watches: 3": what the moment is in each division. */
+  function partsLine(time: GameTime): string {
+    const values = calendar.describe(time).divisions ?? {}
+    return divisions
+      .flatMap((d) => {
+        const part = d.parts.find((p) => p.id === String(values[d.id]))
+        return part ? [`${divisionName(d)}: ${partName(d, part)}`] : []
+      })
+      .join(' · ')
+  }
+  /** The part chosen to wait (or travel) until: `<division>.<part>`. */
+  let untilPart = $state('')
 
   // The date the clock starts at, and the date it's set to.
   let startAt = $state(0)
@@ -209,6 +236,7 @@
 {:else}
   <div class="now">
     <strong>{now?.head}</strong>
+    {#if now?.parts}<span>{now.parts}</span>{/if}
     {#if now?.date}<span>{now.date}{now.holidays ? ` · ${now.holidays}` : ''}</span>{/if}
     {#if now?.moons}<span class="muted">{now.moons}</span>{/if}
     {#if weather}<span
@@ -250,7 +278,11 @@
     >
     <div class="buttons">
       <button onclick={() => advanceWorld({ minutes: 60 })}>{t('world.hour')}</button>
-      <button onclick={() => advanceWorld({ minutes: watchMinutes })}>{t('world.watch')}</button>
+      {#each divisions as d (d.id)}
+        <button onclick={() => advanceWorld({ until: { part: d.id } })}
+          >{t('world.nextPart', { division: divisionName(d) })}</button
+        >
+      {/each}
       <button onclick={() => advanceWorld({ until: 'dusk' })}>{t('world.dusk')}</button>
       <button onclick={() => advanceWorld({ until: 'dawn' })}>{t('world.dawn')}</button>
       <button onclick={() => advanceWorld({ until: 'next-day' })}>{t('world.nextDay')}</button>
@@ -259,6 +291,27 @@
         onclick={() => advanceWorld({ until: 'next-event' })}>{t('world.nextEvent')}</button
       >
     </div>
+    {#if divisions.length}
+      <div class="row">
+        <select aria-label={t('world.untilPart')} bind:value={untilPart}>
+          <option value="">{t('world.untilPart')}</option>
+          {#each divisions as d (d.id)}
+            <optgroup label={divisionName(d)}>
+              {#each d.parts as p (p.id)}
+                <option value="{d.id}.{p.id}">{partName(d, p)}</option>
+              {/each}
+            </optgroup>
+          {/each}
+        </select>
+        <button
+          disabled={!untilPart}
+          onclick={async () => {
+            await advanceWorld({ until: { part: untilPart } })
+            untilPart = ''
+          }}>{t('world.untilPartGo')}</button
+        >
+      </div>
+    {/if}
     {#if trip}<p class="trip">
         {t(travelling ? 'world.tripNoticeTravel' : 'world.tripNotice', { hex: tripHex })}
       </p>{/if}

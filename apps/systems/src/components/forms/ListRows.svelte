@@ -6,9 +6,10 @@
     /**
      * text: what players read, in the UI's language (written to the translation file when
      * it isn't the pack's); number: a number box; select: one of `choices` (or none);
-     * suggest: free text with `choices` suggested.
+     * suggest: free text with `choices` suggested; time: a time of day (`HH:MM`); words: a
+     * list of words written with commas (`dark, meal`).
      */
-    type: 'text' | 'number' | 'select' | 'suggest'
+    type: 'text' | 'number' | 'select' | 'suggest' | 'time' | 'words'
     choices?: readonly string[]
     placeholder?: string
     min?: number
@@ -74,12 +75,20 @@
       return doc.setText(kind, path, items[i]?.[column.field], [...at, ids[i], column.field], raw)
     if (column.type === 'number')
       return doc.edit(kind, path, text === '' ? undefined : Number(text))
+    if (column.type === 'words') {
+      const words = text
+        .split(',')
+        .map((w) => w.trim())
+        .filter(Boolean)
+      return doc.edit(kind, path, words.length ? words : undefined)
+    }
     doc.edit(kind, path, text || undefined)
   }
 
   function shown(i: number, column: ListColumn): string {
     const value = items[i]?.[column.field]
     if (column.type === 'text') return doc.text(kind, value, [...at, ids[i], column.field])
+    if (column.type === 'words') return Array.isArray(value) ? value.join(', ') : ''
     return value === undefined || value === null ? '' : String(value)
   }
 
@@ -143,7 +152,7 @@
                 />
               {:else}
                 <input
-                  type={c.type === 'number' ? 'number' : 'text'}
+                  type={c.type === 'number' ? 'number' : c.type === 'time' ? 'time' : 'text'}
                   aria-label={c.label}
                   min={c.min}
                   step="any"

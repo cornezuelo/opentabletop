@@ -14,12 +14,21 @@ export interface TimeParts {
   /** Minutes since midnight. */
   minuteOfDay: number
   season?: string
-  /** 1-based watch of the day, when the calendar defines watches. */
-  watch?: number
+  /**
+   * The watch of the day, when the calendar has a `watch` division: its number (1-based,
+   * `watchHours` / `every`) or its part's id.
+   */
+  watch?: number | string
+  /** What it is in each division of the day: `{ meal: 'elevenses', watch: 2 }` (a gap: absent). */
+  divisions?: Record<string, string | number>
+  /** The tags of every part it is now. */
+  tags?: string[]
 }
 
 export interface Calendar {
   readonly minutesPerDay: number
+  /** The divisions of its day (meals, watches…), in the order the calendar declares them. */
+  readonly divisions?: readonly Division[]
   describe(time: GameTime): TimeParts
   /** Absolute time of `clock` ("06:00") on the given 1-based day. */
   at(day: number, clock: string | number): GameTime
@@ -40,9 +49,10 @@ export function simpleCalendar(options: SimpleCalendarOptions = {}): Calendar {
   const minutesPerDay = hoursPerDay * MINUTES_PER_HOUR
   const seasons = options.seasons ?? []
   const year = seasons.reduce((sum, s) => sum + s.days, 0)
-  const watchMinutes = options.watchHours ? options.watchHours * MINUTES_PER_HOUR : undefined
+  const divisions = readDivisions(undefined, options.watchHours, hoursPerDay)
   return {
     minutesPerDay,
+    divisions,
     describe(time) {
       const t = Math.max(0, Math.floor(time))
       const dayIndex = Math.floor(t / minutesPerDay)
@@ -63,8 +73,7 @@ export function simpleCalendar(options: SimpleCalendarOptions = {}): Calendar {
           dayOfYear -= season.days
         }
       }
-      if (watchMinutes) parts.watch = Math.floor(minuteOfDay / watchMinutes) + 1
-      return parts
+      return { ...parts, ...divisionParts(divisions, minuteOfDay, minutesPerDay) }
     },
     at(day, clock) {
       const minutes = typeof clock === 'number' ? clock : parseClock(clock)
@@ -83,6 +92,39 @@ export const defaultCalendar = simpleCalendar({
     { id: 'winter', days: 90 },
   ],
 })
+
+/** What a moment is in a calendar's divisions, as `TimeParts` says it (none: nothing). */
+export function divisionParts(
+  divisions: readonly Division[],
+  minuteOfDay: number,
+  minutesPerDay: number,
+): Pick<TimeParts, 'watch' | 'divisions' | 'tags'> {
+  if (!divisions.length) return {}
+  const { values, tags } = divisionValues(divisions, minuteOfDay, minutesPerDay)
+  return {
+    ...(values.watch !== undefined && { watch: values.watch }),
+    divisions: values,
+    tags,
+  }
+}
+
+/**
+ * The next moment (after `time`) a part begins: `<division>.<part>` (`meal.luncheon`), or
+ * any part of a division (`watch`). Undefined: the calendar has no such part.
+ */
+export function nextPartStart(
+  calendar: Calendar,
+  time: GameTime,
+  ref: string,
+): GameTime | undefined {
+  const divisions = calendar.divisions ?? []
+  const found = findPart(divisions, ref)
+  const starts = found
+    ? [found.part.from]
+    : (divisions.find((d) => d.id === ref)?.parts.map((p) => p.from) ?? [])
+  if (!starts.length) return undefined
+  return Math.min(...starts.map((from) => nextAt(calendar, time + 1, from)))
+}
 
 /** "06:30" → 390 minutes. */
 export function parseClock(clock: string): number {
@@ -103,3 +145,5 @@ export function formatClock(parts: Pick<TimeParts, 'hour' | 'minute'>): string {
   return `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`
 }
 export * from './calendar'
+export * from './divisions'
+import { divisionValues, findPart, readDivisions, type Division } from './divisions'

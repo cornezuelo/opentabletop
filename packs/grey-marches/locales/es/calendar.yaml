@@ -1,5 +1,29 @@
 calendar/marcher-reckoning:
   name: El cómputo de las Marcas
+  description: |-
+    Cómo cuentan el tiempo las Marcas: doce meses de treinta días en cuatro estaciones, una
+    semana de siete días, dos lunas, las fiestas que conocen las tablas y las partes del día
+    de un marcano.
+
+    **Enseña:** meses con sus estaciones, días de la semana, lunas con sus ciclos, fiestas,
+    una división del día propia (`divisions: { part: … }`, leída como `time.part`, con la
+    etiqueta `dark` en la hora gris y la noche) y guardias numeradas (`watchHours`).
+  divisions:
+    part:
+      name: Parte del día
+      parts:
+        grey-hour:
+          name: la hora gris
+        morning:
+          name: la mañana
+        midday:
+          name: el mediodía
+        afternoon:
+          name: la tarde
+        evening:
+          name: el atardecer
+        night:
+          name: la noche
   months:
     thaw:
       name: Deshielo

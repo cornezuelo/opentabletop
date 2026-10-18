@@ -272,6 +272,28 @@ holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 
 **What tables see:** `{{month}}` (the month's id), `{{year}}`, `{{weekday}}`, each moon's phase as `moons.<moon>` (`when: { moons.pale: full }`) and today's holidays as a list (`when: { holidays: midsummer }`), plus `season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
 
+**Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. `watchHours: 4` is the older form of `divisions: { watch: { every: 4 } }`. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `daylight`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). The Hexmapper's [World](../hexmapper/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
+
+```yaml
+kind: calendar
+id: hearth-reckoning
+months: [{ id: first, days: 30 }]
+divisions:
+  meal:
+    name: Meals
+    parts:
+      - { id: breakfast, name: breakfast, from: '07:00' }
+      - { id: elevenses, name: elevenses, from: '11:00', tags: [meal] }
+      - { id: supper, name: supper, from: '21:00', tags: [meal, dark] }
+  watch:
+    name: Watches
+    parts: # only at night: the last one ends at 07:00
+      - { id: first, from: '21:00' }
+      - { id: middle, from: '01:00' }
+      - { id: morning, from: '04:00', until: '07:00' }
+  bell: { name: Bells, every: 0.5 }
+```
+
 ## Weather models
 
 Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `weather` for later checks and the travel rules' speeds. In the Systems app, a system's **Weather** tab edits its models with a form: the kinds of weather, and per season a grid of weights from yesterday's weather to today's, with how often each kind comes up over many days.

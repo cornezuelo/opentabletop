@@ -206,6 +206,32 @@ describe('playing on the map', () => {
       expect(trip().travel.route?.length ?? 0).toBeLessThan(2)
     }
 
+    it('the Grey Marches’ calendar divides the day: the clock waits until a part of it', async () => {
+      grey()
+      startWorld()
+      const calendar = worldCalendar()
+      expect(calendar.divisions?.map((d) => d.id)).toEqual(['part', 'watch'])
+      const at = (time: number) => calendar.describe(time)
+      const day = at(editor.map.world!.time).day
+      // Without a trip, the world alone: to the evening, then to the next watch.
+      await advance({ until: { part: 'part.evening' } })
+      expect(editor.map.world!.time).toBe(calendar.at(day, '18:00'))
+      expect(at(editor.map.world!.time)).toMatchObject({
+        divisions: { part: 'evening', watch: 5 },
+        tags: [],
+      })
+      await advance({ until: { part: 'watch' } })
+      expect(at(editor.map.world!.time)).toMatchObject({
+        hour: 20,
+        divisions: { part: 'night', watch: 6 },
+        tags: ['dark'],
+      })
+      // A part the calendar doesn't have: nothing moves.
+      const now = editor.map.world!.time
+      await advance({ until: { part: 'part.supper' } })
+      expect(editor.map.world!.time).toBe(now)
+    })
+
     it('moving the world on a day with a route planned asks, then travels along it', async () => {
       grey()
       startWorld()
