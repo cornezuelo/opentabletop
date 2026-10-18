@@ -21,12 +21,17 @@ const { registry } = loadPacks([
     path: 'sys/travel.yaml',
     content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-resources: { water: { perDay: 1 } }
-checks: [{ event: WEATHER, at: day-start }]
+resources: { water: { min: 0 } }
+checks: [{ event: WEATHER, at: '07:00' }]
+actions:
+  drink: { on: day-end, do: [{ effects: { party.resources.water: -1 } }] }
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: { WEATHER: { resolve: weather } }
@@ -74,10 +79,14 @@ describe('trips', () => {
         content: `
 kind: travel-rules
 id: slow
-day: { start: '07:00', nightfall: '19:00' }
 terrains: { plains: { multiplier: 1 } }
-travel: { hoursPerDay: 4 }
+travel: { hoursPerDay: 4, start: '07:00', halt: { at: '19:00', do: camp } }
 modes: { walk: { kmPerDay: 10 } }
+actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: weather
 id: sky
@@ -113,11 +122,15 @@ id: plain
 ---
 kind: travel-rules
 id: fast
-day: { start: '07:00', nightfall: '19:00' }
 terrains: { plains: { multiplier: 1 } }
-travel: { hoursPerDay: 10 }
+travel: { hoursPerDay: 10, start: '07:00', halt: { at: '19:00', do: camp } }
 modes: { walk: { kmPerDay: 40 } }
-checks: [{ event: SKY, at: day-start }]
+checks: [{ event: SKY, at: '07:00' }]
+actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: { SKY: { weather: base/sky } }
@@ -248,11 +261,15 @@ travel: default
 calendar: shire
 ---
 kind: travel-rules
-day: { start: meal.breakfast, nightfall: meal.supper }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: meal.breakfast, halt: { at: meal.supper, do: camp } }
 terrains: {}
 modes: { foot: { kmPerDay: 30 } }
 checks: [{ event: TEA, at: meal.tea }]
+actions:
+  march: { when: { time.tags: { not: dark }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: meal.breakfast }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: calendar
 id: shire
@@ -337,73 +354,24 @@ divisions:
     expect(entries.at(-1)?.code).toBe('CHECK_PENDING')
   })
 
-  it('reads packs of an older format with their old meaning: tableless checks pause', () => {
-    const rules = (format: string) => `
-kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
-terrains: { plains: { multiplier: 1 } }
-modes: { walk: { kmPerDay: 24 } }
-checks:
-  - { event: LANDMARK, at: hex-enter }
-  - { event: TIRED, at: day-end, effects: { party.stats.fatigue: 1 } }
-  - { event: WEATHER, at: day-start }
-  - { event: OMEN, at: hex-enter, pause: false }
----
-kind: bindings
-on: { WEATHER: { resolve: weather } }
-stats: { fatigue: { default: 0 } }
----
-kind: table
-id: weather
-roll: 1d2
-entries: [{ range: 1-2, result: Sun }]
-${format}`
-    const registryOf = (format?: number) =>
-      loadPacks([
-        {
-          path: 'old/pack.yaml',
-          content: `id: old\nversion: 0.1.0\nlocale: en\n${format ? `format: ${format}\n` : ''}`,
-        },
-        { path: 'old/travel.yaml', content: rules('') },
-      ]).registry
-    const load = (format?: number) =>
-      travelSystems(registryOf(format)).systems.find((s) => s.id === 'old')!
-    const pauses = (system: ReturnType<typeof load>) => system.rules.checks!.map((c) => c.pause)
-    // Format 1 (no `format`): only the check with neither a table nor effects (nor a
-    // `pause` of its own) stopped the trip, so it pauses.
-    expect(pauses(load())).toEqual([true, undefined, undefined, false])
-    expect(pauses(load(2))).toEqual([undefined, undefined, undefined, false])
-    // Played: entering b stops at the landmark in format 1, and goes on in format 2.
-    const play = (format?: number) => {
-      const system = load(format)
-      const { session } = startTrip({ system, location: 'a' })
-      const oracle = createOracleEngine({ registry: registryOf(format), random: sequence([0.1]) })
-      const options = { system, world, oracle }
-      const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
-      return stepTrip(options, planned, { type: 'travel' })
-    }
-    expect(play().state.travel.pendingChecks.map((c) => c.event)).toContain('LANDMARK')
-    const newer = play(2)
-    expect(newer.state.travel.pendingChecks.map((c) => c.event)).not.toContain('LANDMARK')
-    expect(newer.entries.find((e) => e.data?.event === 'LANDMARK')?.code).toBe('CHECK_NOTED')
-  })
-
   it('checks and actions see the host’s facts (the world clock’s clocks and events)', () => {
     const { registry: clocked } = loadPacks([
-      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
       {
         path: 'w/travel.yaml',
         content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 checks:
   - { event: WYRM, at: hex-enter, when: { clocks.the-wyrm-wakes: { gte: 4 } }, pause: true }
 actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
   shop: { when: { events: market-day }, do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 `,
       },
     ])
@@ -437,7 +405,6 @@ actions:
     })
     // Rolls by hand see what a check would: the moment, the trip, the host's facts.
     expect(tripFacts({ system, world, facts: waking }, session)).toMatchObject({
-      daylight: true,
       hour: 7,
       tripDay: 1,
       visits: 1,
@@ -448,21 +415,24 @@ actions:
 
 describe('values that name another value ($)', () => {
   const { registry: mouths } = loadPacks([
-    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
     {
       path: 'm/travel.yaml',
       content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { food: { min: 0 } }
 checks:
   - { event: AMBUSH, at: hex-enter, when: { danger: { gt: '{{party.stats.stealth}}' } } }
 actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
   eat: { on: day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
   feast: { do: [{ effects: { party.stats.morale: '={{party.stats.mouths}}' } }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: { AMBUSH: { resolve: ambush } }

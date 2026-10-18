@@ -263,7 +263,7 @@ describe('example maps', () => {
     // In the dark, getting lost is easier: 1–3 on the same table as at dawn.
     const lost = createOracleEngine({ registry, random: sequence([0.4]) }).resolve(
       'grey-marches/getting-lost',
-      { ...tripContext(night, {}), daylight: false },
+      { ...tripContext(night, {}), time: { tags: ['dark'] } },
     )
     expect(lost.resolution.text).toBe('Lost in the dark: you stop until dawn, shaken')
   })

@@ -20,8 +20,6 @@ export interface CalendarDef {
   id?: string
   name?: CalendarText
   hoursPerDay?: number
-  /** Older form of `divisions: { watch: { every: 4 } }`: watch length in hours. */
-  watchHours?: number
   /**
    * The ways the day is divided, as many as the system wants, each with its parts
    * (`meal: { parts: [{ id: elevenses, from: '11:00' }…] }`) or numbered parts of equal
@@ -87,7 +85,7 @@ export function validateCalendar(raw: unknown): string[] {
       errors.push(`moons[${i}].cycle: a number of days`)
   if (def.start && !months.has(def.start.month))
     errors.push(`start.month: no month "${def.start.month}"`)
-  errors.push(...validateDivisions(def.divisions, def.watchHours, def.hoursPerDay ?? 24))
+  errors.push(...validateDivisions(def.divisions, def.hoursPerDay ?? 24))
   return errors
 }
 
@@ -106,7 +104,7 @@ export function calendarFrom(def: CalendarDef): DataCalendar {
   }
   // Day of the year (0-based) of day 1.
   const startOfYear = def.start ? monthStart(def.start.month) + (def.start.day ?? 1) - 1 : 0
-  const divisions = readDivisions(def.divisions, def.watchHours, def.hoursPerDay ?? 24)
+  const divisions = readDivisions(def.divisions, def.hoursPerDay ?? 24)
 
   const describe = (time: GameTime): CalendarParts => {
     const t = Math.max(0, Math.floor(time))

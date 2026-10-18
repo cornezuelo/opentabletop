@@ -208,9 +208,6 @@ export const es: Messages<typeof en> = {
     startDay: 'el día',
     hoursPerDay: 'Horas del día',
     hoursPerDayHelp: 'Lo que dura un día (por defecto 24).\n• `30` — un mundo de días más largos',
-    watchHours: 'Horas por guardia',
-    watchHoursHelp:
-      'Un atajo para una división de guardias numeradas de la misma duración (`divisions: { watch: { every: 4 } }`), que las tablas leen como `watch` (1, 2…).\n• `4` — seis guardias al día\nVacío: sin guardias (salvo que las divisiones de abajo tengan una).',
     divisions: 'Divisiones del día',
     divisionsHelp:
       'Las maneras en que tu mundo divide el día, tantas como quieras: comidas, guardias, campanadas, rezos… Cada una tiene sus partes, y cada parte dura hasta que empieza la siguiente (la última hasta la primera, pasada la medianoche). Las condiciones y las tablas leen lo que es ahora como `time.<id>`, y las etiquetas de las partes en que está como `time.tags`; el panel Mundo espera hasta cualquier parte.\n• `meal` con **elevenses** desde las `11:00` — `time.meal: elevenses` se cumple desde las 11:00 hasta la siguiente comida\n• `watch` cada `4` horas — `time.watch: 2` de 04:00 a 08:00\n• una parte con **Hasta** `07:00` — ninguna de su división desde las 07:00 hasta la siguiente parte\n• **Etiquetas** `dark` en la noche — `time.tags: dark`',
@@ -401,17 +398,7 @@ export const es: Messages<typeof en> = {
     haltHelp:
       'Lo que hace el grupo cuando **no puede marchar y el tiempo avanza solo**: el reloj del mundo avanzando con un viaje en marcha, una orden de viajar sin nada más que marchar, **Esperar a la próxima marcha**. Desde este momento (una hora o una parte del día) hasta que acaba el día, un grupo que no está marchando hace la acción, una vez al día.\n• **desde** `20:00`, **acción** `camp`\n• **desde** `part.night`, **acción** `watch`\nSi la acción **no se puede hacer** (su **Solo si** / **Salvo si**, o un valor que la bloquea), el diario dice por qué y el tiempo pasa sin ella hasta que el grupo pueda marchar.\n• camp con **Solo si** `party.resources.food: { gte: 1 }` — un grupo sin comida duerme a la intemperie\nSin acción: el grupo simplemente espera.',
     haltNone: 'nada: el grupo espera',
-    olderDay: 'Día antiguo (formato de pack 2)',
-    olderDayHelp:
-      'Los packs escritos para el formato de pack 2 tenían un día integrado: el alba (las comprobaciones del alba, cuando podía empezar la marcha), el anochecer (nadie marchaba después) y la acción de la noche. Se siguen leyendo así; el formato 3 lo dice con **Los viajes empiezan**, **Parada**, las condiciones de la acción **Marchar** y momentos que nombran partes del día u horas.',
-    start: 'Alba',
-    nightfall: 'Anochecer',
     hoursPerDay: 'Horas de marcha al día',
-    night: 'Al anochecer, esperando',
-    nightHelp:
-      'Lo que hace el grupo cuando cae la noche **mientras el tiempo avanza solo**: el reloj del mundo avanzando con un viaje en marcha, o una orden de viajar que llega a la noche. Una de las acciones del sistema:\n• `camp` — por defecto, si el sistema la tiene\n• otra acción, p. ej. `watch`\n• ninguna — la noche simplemente pasa\nSi la acción **no se puede hacer** (su **Solo si** / **Salvo si**, o un valor que la bloquea), la noche pasa sin ella y el diario dice por qué; un grupo al que mandas viajar al anochecer hace lo mismo y sigue marchando al alba.\n• camp con **Solo si** `party.resources.food: { gte: 1 }` — un grupo sin comida duerme a la intemperie, sin el alivio de una noche bien comidos',
-    nightDefault: 'camp, si existe',
-    nightNone: 'nada: la noche pasa',
     hoursPerDayHelp:
       "Las horas en que una forma de viajar hace sus **km al día**: la escala de su velocidad (km por hora). Cuánto puede marchar el grupo cada día lo dice la acción **Marchar** (`trip.marched: { lt: '{{system.hoursPerDay}}' }` lee este número).\n• `8` — 24 km al día son 3 km por hora\n• `10` — los mismos 24 km a 2,4 km por hora",
     hexKm: 'km por hex',
@@ -460,9 +447,6 @@ export const es: Messages<typeof en> = {
     max: 'Máx',
     maxHelp:
       'Los efectos nunca lo suben de aquí; los pasos y comprobaciones siguientes ven `above: [su id]`.\n• agua con Máx `4` — un odre lleno no admite más\n• moral con Máx `5` — un festín no la sube de 5\nVacío: sin máximo.',
-    olderEating:
-      'Estas reglas comen a la manera antigua (provisiones gastadas “al día”, formas de viajar que gastan provisiones o pasos que comen las provisiones del día). Se siguen jugando igual; convertirlas lo escribe como una acción que el sistema hace al final de cada día, con Mín 0 en las provisiones.',
-    olderEatingConvert: 'Convertir',
     weather: vocabulary.es.terms.weather,
     weatherHelp:
       'Cómo frena cada clima al grupo. Las tablas lo fijan con `set: { weather: … }` (normalmente al alba), o un modelo de clima con inercia.\n• `storm` × `0` — ese día no se viaja\n• `heavy-rain` × `0.5` — a media velocidad\n• `fog` × `0.75`\nLos climas no listados no cambian la velocidad; las condiciones aún pueden leerlos (`weather: storm`).',
@@ -492,7 +476,6 @@ export const es: Messages<typeof en> = {
     marchNote:
       'Marchar son los botones de Viajar, no un botón propio: Solo si / Salvo si dicen cuándo puede marchar el grupo, comprobado mientras marcha (se para en cuanto dejan de cumplirse). Su nombre y su descripción son los del primer botón de Viajar. No tiene pasos.',
     marchDefault: 'siempre que nada más lo impida',
-    marchDefaultOlder: 'de día, durante las horas de marcha del día',
     hide: 'Oculta si no se puede hacer',
     hideHelp:
       '**Sin marcar**: su botón siempre está, desactivado (diciendo por qué) mientras no se puede hacer, así los botones no cambian de sitio.\n**Marcada**: su botón solo aparece mientras se puede hacer. Para acciones que solo tienen sentido de vez en cuando:\n• un rito solo en un santuario con luna llena\n• convencer a los porteadores solo mientras se niegan a marchar',
@@ -529,7 +512,6 @@ export const es: Messages<typeof en> = {
     description: 'Descripción (su ayuda)',
     at: 'Cuándo',
     atOptions: {
-      'day-start': 'Al alba',
       'hex-enter': 'Al entrar en un hex',
       camp: 'Al acampar',
       'day-end': 'Al final del día',
@@ -552,11 +534,6 @@ export const es: Messages<typeof en> = {
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— sin tabla —',
-    olderFormat:
-      'Este pack está escrito para un formato de pack antiguo. Se juega igual; actualizarlo escribe el formato de esta versión en su pack.yaml.',
-    olderFormatPausing:
-      'Este pack está escrito para un formato de pack antiguo, en el que una comprobación sin tabla ni cambios detenía el viaje por sí sola: {checks}. Se sigue jugando así; actualizarlo les escribe «Pausar después» y el formato nuevo en su pack.yaml.',
-    olderFormatUpdate: 'Actualizar',
     effects: 'Cambios',
     effectsHelp:
       "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• `party.stats.fatigue: 1` — suma 1\n• `party.resources.food: -1` — quita 1\n• `party.stats.fatigue: '=0'` — lo fija\n• `party.resources.food: '-{{party.stats.mouths}}'` — tantos como dice otro valor (una variable)\n• `party.members.values.health: -1`, `acting.conditions.wounded: true` — sus personajes (todos, el que actúa)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `day-end`, **Solo si** `below: food`, **Cambios** `party.stats.fatigue: 1`.",

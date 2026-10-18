@@ -3,15 +3,13 @@ import {
   GENERIC_SHEET,
   GENERIC_PARTY_SHEET,
   localize,
-  olderPauseChecks,
-  parseBindings,
   type LocalizedText,
   type TravelSystem,
 } from '@open-tabletop/session'
-import { genericTravelRules, parseTravelRules } from '@open-tabletop/travel-engine'
+import { genericTravelRules } from '@open-tabletop/travel-engine'
 import { FACTION_SHEET, manifestOf, PARTY_SHEET, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
-import { parseDocument, stringify } from 'yaml'
+import { stringify } from 'yaml'
 import { getLocale } from './i18n'
 import { library } from './packs.svelte'
 import type { PartSource } from './partDoc.svelte'
@@ -330,41 +328,10 @@ export function createSystemPart(
   return id
 }
 
-/** The pack format a pack was written for (`format` in its pack.yaml; absent: 1). */
+/** The pack format a pack was written for (`format` in its pack.yaml; absent: today's). */
 export function packFormat(root: string): number {
   const pack = library.pack(root)
-  return (pack && manifestOf(pack).format) ?? 1
-}
-
-/**
- * What updating raw rules from an older pack format to today's changes: the checks that
- * format 1 paused without saying so (each gets `pause: true`).
- */
-export function olderFormatChecks(
-  rules: Record<string, unknown>,
-  bindings: Record<string, unknown> | undefined,
-): number[] {
-  const parsed = parseTravelRules(rules).rules
-  return parsed ? olderPauseChecks(parsed, bindings && parseBindings(bindings).bindings) : []
-}
-
-/**
- * Brings a system's pack from format 1 to 2, keeping what it does: its checks that paused
- * by themselves say `pause: true`, and its pack.yaml says `format: 2`. One undo step.
- */
-export function updateFormat(doc: {
-  root: string
-  rules: Record<string, unknown>
-  bindings?: Record<string, unknown>
-  edit: (kind: 'travel-rules', at: (string | number)[], value: unknown) => void
-}): void {
-  const checks = olderFormatChecks(doc.rules, doc.bindings)
-  library.batch(() => {
-    for (const i of checks) doc.edit('travel-rules', ['checks', i, 'pause'], true)
-    const manifest = parseDocument(library.readFile(doc.root, 'pack.yaml') ?? '')
-    manifest.set('format', 2)
-    library.writeFile(doc.root, 'pack.yaml', manifest.toString())
-  })
+  return (pack && manifestOf(pack).format) ?? PACK_FORMAT
 }
 
 /**

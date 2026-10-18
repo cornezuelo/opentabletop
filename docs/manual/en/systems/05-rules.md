@@ -10,7 +10,6 @@ There's no built-in day: when the party can march is the **march** action's (bel
 - **Marching hours a day**: the hours a way of travelling's km a day are marched in, the scale of its speed. How long the party may march each day is the march's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number). Time spent on actions (resting, foraging) doesn't count as marching.
 - **km per hex**: the scale the system is played at. Trips without a map (Travel, **Try it**) use it; a map with this system takes it, unless the map sets its own scale.
 - **Halt from** and **Halt action**: what the party does when it can't march while the time moves on by itself (the world clock, **Wait for the next march**, a travel order with nothing left to march): from that moment (a clock, `20:00`, or a part, `part.night`) until the day ends, a party that isn't marching takes the action, once a day; camp, for example. When its conditions don't hold, the journal says why and the time passes without it. No action: the party just waits.
-- **Older day (pack format 2)**: only for packs written for pack format 2 or before, their **Dawn**, **Nightfall** and **At nightfall, while waiting**, still read as they were (see [File formats](../technical/02-file-formats.md#packs)).
 
 ## Ways of travelling
 
@@ -30,7 +29,7 @@ Each with its **km per day** and:
 
 What the party carries, each with its **Min** and **Max**. Supplies are used by the system's own actions, checks and tables, never by the app: the Grey Marches eat with an action the system takes at the end of each day (1 food, and 1 fodder on horseback).
 
-**Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum). Older systems that used supplies **per day** show a note with **Convert**, which writes the same as such an action.
+**Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum).
 
 ## Weather
 
@@ -54,7 +53,7 @@ What the party can do: only what the system declares (camp, rest, **march** and 
 - **When nothing applies**: what the journal says when none of its checks apply;
 - **What it does**, step by step (the arrows move a step up or down).
 
-**March** is the Travel buttons, not a button of its own: it only has **Only when** / **Not when**, checked as the party marches, which stops as soon as they no longer hold. Empty, the party marches whenever nothing else stops it, day and night (older packs: by day for the day's marching hours). Its name and description are the first Travel button's.
+**March** is the Travel buttons, not a button of its own: it only has **Only when** / **Not when**, checked as the party marches, which stops as soon as they no longer hold. Empty, the party marches whenever nothing else stops it, day and night. Its name and description are the first Travel button's.
 
 ### Steps
 

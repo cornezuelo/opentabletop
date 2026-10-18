@@ -15,9 +15,8 @@
     ROLLABLE,
     type SystemDoc,
   } from '../../lib/systemDoc.svelte'
-  import { CHECK_MOMENTS, isClock, isPartRef, OLDER_DAY_START } from '@open-tabletop/travel-engine'
+  import { CHECK_MOMENTS, isClock, isPartRef } from '@open-tabletop/travel-engine'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
-  import { olderFormatChecks, packFormat, updateFormat } from '../../lib/newSystem'
 
   /**
    * The checks of the rules, each with the table that resolves it (from the bindings):
@@ -39,10 +38,6 @@
     none: [],
   })
 
-  /** A pack written for pack format 1: the checks it pauses without saying so. */
-  const olderFormat = $derived(packFormat(doc.root) < 2)
-  const olderPausing = $derived(olderFormat ? olderFormatChecks(doc.rules, doc.bindings) : [])
-
   type Raw = Record<string, unknown>
   /** The moments of the day; then every action of the system (at: <action id>). */
   const AT = CHECK_MOMENTS
@@ -57,8 +52,8 @@
     momentsText(at)
       .split(', ')
       .map((m) =>
-        (AT as readonly string[]).includes(m) || m === OLDER_DAY_START
-          ? t(`checks.atOptions.${m as (typeof AT)[number] | typeof OLDER_DAY_START}`)
+        (AT as readonly string[]).includes(m)
+          ? t(`checks.atOptions.${m as (typeof AT)[number]}`)
           : isClock(m)
             ? t('checks.atClock', { clock: m })
             : isPartRef(m)
@@ -185,16 +180,6 @@
 <div class="form">
   <section>
     <h3>{t('checks.title')}<InfoTip text={t('checks.help')} /></h3>
-    {#if olderFormat}
-      <p class="older">
-        {t(olderPausing.length ? 'checks.olderFormatPausing' : 'checks.olderFormat', {
-          checks: olderPausing.map((i) => String(checks[i]?.event ?? '')).join(', '),
-        })}
-        {#if doc.editable}<button onclick={() => updateFormat(doc)}
-            >{t('checks.olderFormatUpdate')}</button
-          >{/if}
-      </p>
-    {/if}
     {#each checks as check, i (i)}
       {@const event = String(check.event ?? '')}
       {@const binding = on[event]}
@@ -219,13 +204,7 @@
               label={t('checks.at')}
               placeholder={t('checks.atNone')}
               value={momentsText(check.at)}
-              list={[
-                ...(doc.rules.day ? [OLDER_DAY_START] : []),
-                ...AT,
-                '06:00',
-                ...dayPartRefs(system),
-                ...ownActions,
-              ]}
+              list={[...AT, '06:00', ...dayPartRefs(system), ...ownActions]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
             />
@@ -513,16 +492,6 @@
 </div>
 
 <style>
-  .older {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .older button {
-    margin-left: 6px;
-  }
-
   .said {
     font-size: 11px;
     color: var(--text-muted);

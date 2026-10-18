@@ -309,17 +309,11 @@
     const steps = actionSteps(own)
     const always = steps.filter((st) => !st.when && !st.unless)
     const minutes = always.reduce((n, st) => n + (typeof st.time === 'number' ? st.time : 0), 0)
-    const until = always.find(
-      (st) =>
-        st.time === 'dawn' || st.time === 'nightfall' || isPartRef(st.time) || isClock(st.time),
-    )?.time as string | undefined
-    /**
-     * Until a clock (`06:00`), a part of the calendar's day (its name: "until supper"), or
-     * older rules' dawn or nightfall.
-     */
+    const until = always.find((st) => isPartRef(st.time) || isClock(st.time))?.time as
+      string | undefined
+    /** Until a clock (`06:00`) or a part of the calendar's day (its name: "until supper"). */
     const untilText = (moment: string) => {
-      if (isClock(moment)) return moment
-      if (!isPartRef(moment)) return t(`tips.${moment}` as TravelUiKey)
+      if (!isPartRef(moment)) return moment
       const found = findPart(calendar.divisions ?? [], moment)
       return found
         ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`

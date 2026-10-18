@@ -22,8 +22,6 @@ import {
   declaredValues,
   isClock,
   MARCH,
-  olderDay,
-  olderEatingId,
   resolveChange,
   resourceBounds,
   type ActionStep,
@@ -412,8 +410,7 @@ export function createTravelEngine(options: {
   stats?: Record<string, Bounds>
 }): TravelEngine {
   const world = options.world
-  // Older rules (`day:`) in today's terms: their moments, actions and halt.
-  const rules = olderDay(options.rules)
+  const rules = options.rules
   const calendar = options.calendar ?? defaultCalendar
   const actions = availableActions(rules)
   /** The calendar's divisions of the day (meals, watches…). */
@@ -424,11 +421,6 @@ export function createTravelEngine(options: {
   /** What the party does when it can't march (`travel.halt`), and from when. */
   const halt = rules.travel.halt
   const haltAt = halt && clockOf(halt.at)
-  /** Older rules' dawn and nightfall, for the facts they read (`daylight`, `camping`). */
-  const older = rules.day && {
-    dawn: clockOf(rules.day.start) ?? parseClock('06:00'),
-    nightfall: clockOf(rules.day.nightfall) ?? parseClock('20:00'),
-  }
   /** The hour each part starts, as a number: `system.<division>.<part>`. */
   const partHours = Object.fromEntries(
     divisions.map((d) => [d.id, Object.fromEntries(d.parts.map((p) => [p.id, p.from / 60]))]),
@@ -478,26 +470,15 @@ export function createTravelEngine(options: {
     return { value: held.value, ...(typeof held.who === 'string' && { who: held.who }) }
   }
 
-  /** Older rules: whether it's day, between their dawn and nightfall of the day it is. */
-  const daylight = (time: GameTime) => {
-    if (!older) return {}
-    const { day } = calendar.describe(time)
-    return {
-      daylight: time >= calendar.at(day, older.dawn) && time < calendar.at(day, older.nightfall),
-    }
-  }
-
   /**
    * The moment as conditions read it: the season, the day, the hour (`14.5` is 14:30), the
-   * calendar's divisions of the day, and the system's marching hours (older rules: whether
-   * it's day, their dawn and nightfall).
+   * calendar's divisions of the day, and the system's marching hours.
    */
   const clockFacts = (state: TravelState): Record<string, unknown> => {
     const parts = calendar.describe(state.time)
     return {
       season: parts.season,
       day: state.day,
-      ...daylight(state.time),
       hour: parts.hour + parts.minute / 60,
       ...(parts.watch !== undefined && { watch: parts.watch }),
       // The divisions of the day by their own names too (`meal`), unless one is a fact's.
@@ -506,8 +487,6 @@ export function createTravelEngine(options: {
           ([id]) => !(id in FACT_PATHS) || FACT_PATHS[id] === `time.${id}`,
         ),
       ),
-      // Older rules' day as numbers (hours): `hour: { gte: '{{nightfall}}' }`.
-      ...(older && { dawn: older.dawn / 60, nightfall: older.nightfall / 60 }),
       hoursPerDay: rules.travel.hoursPerDay,
       // What it is in each division (`time.meal: elevenses`) and its parts' tags.
       time: { ...parts.divisions, tags: parts.tags ?? [] },
@@ -566,7 +545,6 @@ export function createTravelEngine(options: {
       edges: world.edges(a, b),
       mode: state.mode,
       weather: state.weather,
-      ...daylight(state.time),
     }
   }
 
@@ -688,10 +666,9 @@ export function createTravelEngine(options: {
       // Today's values (the host's, then the declared ones), and the day before's.
       today: { ...(facts.today as object | undefined), ...state.today },
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
-      // What hit a bound today; `short` is how older rules read "something hit its minimum".
+      // What hit a bound today.
       below: state.reached?.below ?? [],
       above: state.reached?.above ?? [],
-      short: !!state.reached?.below?.length,
       // What the engine knows of the party (the host adds its stats).
       party: { ...host, resources: { ...state.resources }, mode: state.mode },
     }
@@ -891,17 +868,14 @@ export function createTravelEngine(options: {
 
   /**
    * The next moment after `time` something may change while the party waits: a moment a
-   * check or action names, the start of any part of the day, the halt, older rules' dawn
-   * and nightfall, midnight.
+   * check or action names, the start of any part of the day, the halt, midnight.
    */
   const nextBoundary = (time: GameTime): GameTime =>
     Math.min(
       calendar.at(calendar.describe(time).day + 1, 0),
       nextNamed(time)?.time ?? Infinity,
       ...allParts.map((ref) => nextPartStart(calendar, time, ref) ?? Infinity),
-      ...[haltAt, older?.dawn, older?.nightfall].map((at) =>
-        at === undefined ? Infinity : nextAt(calendar, time + 1, at),
-      ),
+      haltAt === undefined ? Infinity : nextAt(calendar, time + 1, haltAt),
     )
 
   /**
@@ -1206,28 +1180,20 @@ export function createTravelEngine(options: {
 
   /**
    * The moment a `time` step goes to: minutes from now, the next start of a part, or the
-   * next time a clock strikes (older rules' `dawn` / `nightfall` are read as theirs).
+   * next time a clock strikes.
    */
   const timeOf = (state: TravelState, time: NonNullable<ActionStep['time']>): GameTime =>
     typeof time === 'number'
       ? state.time + time
       : isPartRef(time)
         ? (nextPartStart(calendar, state.time, time) ?? state.time)
-        : isClock(time)
-          ? nextAt(calendar, state.time + 1, time)
-          : state.time
+        : nextAt(calendar, state.time + 1, time)
 
   type Hits = { below: Set<string>; above: Set<string> }
   /** The actions under way, the one the player (or a moment) started first. */
   const doing: string[] = []
-  /**
-   * What conditions see of the action under way: `doing` (its id), and for older rules
-   * `camping` (it's the night's action: their way of asking whether the day ended in camp).
-   */
-  const doingFacts = () => ({
-    doing: doing[0],
-    ...(older && { camping: !!halt && doing[0] === halt.do }),
-  })
+  /** What conditions see of the action under way: `doing` (its id). */
+  const doingFacts = () => ({ doing: doing[0] })
   /** What hit a bound during each action under way: its later steps see it past midnight. */
   const underWay: Hits[] = []
 
@@ -1291,7 +1257,7 @@ export function createTravelEngine(options: {
       minutes?: number
       /** The moment or action that took it by itself. */
       on?: string
-      /** Facts of that moment for its conditions (`camping` at day-end). */
+      /** Facts of that moment for its conditions (`doing` at day-end). */
       facts?: Record<string, unknown>
       quiet?: boolean
       depth?: number
@@ -1363,7 +1329,6 @@ export function createTravelEngine(options: {
         ...checkContext(state, [], hostFacts),
         below: [...hit.below],
         above: [...hit.above],
-        short: hit.below.size > 0,
         ...doingFacts(),
         ...options.facts,
       }
@@ -1458,10 +1423,15 @@ export function createTravelEngine(options: {
     },
     apply(input, action, facts = {}) {
       const state = structuredClone(upgradeTravelState(input))
-      // Older trips: a day already eaten by `eat: day` is the day-end eating done today.
+      // Older trips: a day already eaten by an `eat: day` step is today's day-end actions done.
       if (state.ate) {
         if (state.ate.day === state.day)
-          state.actionsToday = [...(state.actionsToday ?? []), olderEatingId(rules)]
+          state.actionsToday = [
+            ...(state.actionsToday ?? []),
+            ...Object.keys(actions.all).filter((id) =>
+              momentsOf(actions.all[id].on).includes('day-end'),
+            ),
+          ]
         delete state.ate
       }
       const events: TravelEvent[] = []

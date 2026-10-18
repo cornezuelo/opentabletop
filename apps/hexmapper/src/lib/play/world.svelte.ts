@@ -9,7 +9,7 @@ import {
 } from '@open-tabletop/session'
 import { emptyState } from '@open-tabletop/oracle-engine'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
-import { availableActions, haltOf } from '@open-tabletop/travel-engine'
+import { availableActions } from '@open-tabletop/travel-engine'
 import { type Calendar, type DataCalendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
@@ -302,7 +302,7 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
   if (days > 0) {
     // What the party does when it can't march is the system's halt (camp, or nothing).
     const rules = play?.rules ? getSystem(play.rules.system).rules : undefined
-    const night = rules && haltOf(rules)?.do
+    const night = rules?.travel.halt?.do
     const nightName =
       night && (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
     const hex = (key: string | undefined) =>

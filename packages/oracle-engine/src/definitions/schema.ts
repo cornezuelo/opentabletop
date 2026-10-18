@@ -187,7 +187,7 @@ export const PACK_FORMAT = 3
 export const manifestSchema = z
   .object({
     id,
-    /** The pack format it was written for (see PACK_FORMAT); absent: 1. */
+    /** The pack format it was written for (see PACK_FORMAT); absent: today's. Older ones aren't read. */
     format: z.number().int().positive().optional(),
     name: z.union([z.string(), z.record(z.string(), z.string())]).optional(),
     version: z.string().regex(/^\d+\.\d+\.\d+/, 'versions use semver, e.g. 1.0.0'),

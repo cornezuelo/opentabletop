@@ -72,7 +72,7 @@ Two other values of the day change the trip when an entry **sets** them:
 | `weather: storm` | Today's weather; the travel rules say how it slows you down. |
 | `lost: true`     | No more travel today, if the system declares `lost` (below). |
 
-The journal says what each result changed ("Foraging: Berries (Food +2)"). The older way of writing effects (`set: { resources: { food: 2 }, stats: { morale: -1 }, fatigue: 1 }`) still works, read as the same effects. An effect on a value the system doesn't declare still applies, but the pack gets a warning.
+The journal says what each result changed ("Foraging: Berries (Food +2)"). An effect on a value the system doesn't declare still applies, but the pack gets a warning.
 
 Tables read the party back as `party.resources.food`, `party.stats.morale`: `when: { party.resources.food: { lt: 1 } }` for an entry that only comes up when the food has run out.
 
@@ -173,7 +173,7 @@ water: { passable: false } # water hexes whose terrain isn't listed
 
 **modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the Generic rules' usual ids (foot, horse…) get the app's names and any other shows its id. Two conditions shape each one:
 
-- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ water: true }, { terrain: coast }] }`; a cart only by road: `through: { edges: road }`. The older `allowedTerrains: [water, coast]` still works.
+- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ water: true }, { terrain: coast }] }`; a cart only by road: `through: { edges: road }`.
 - `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; a horse not in snow: `unless: { weather: snow }`.
 
 A value of the day can block one too (`blocks: [mode.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
@@ -192,7 +192,7 @@ checks:
   - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-Without `min`, a supply may go negative (a debt, say). Older packs that wrote `perDay` on a supply, `consumes` on a way of travelling or `eat: day` steps keep working, read as an action at day-end with `min: 0` (the Travel editor's **Convert** writes it that way).
+Without `min`, a supply may go negative (a debt, say).
 
 ### Values of the day
 
@@ -205,11 +205,11 @@ values:
   mutiny: { name: The hirelings refuse to march, blocks: [travel, forage] }
 ```
 
-Blocked buttons stay visible, disabled, and say why with the value's name ("Lost: not possible for the rest of the day"). A system that declares no `values` has none (older packs, of format 2 and before, still have the built-in `lost`, which blocks travel). Values that block nothing are still useful: conditions read them (`unless: { mutiny: true }`), as they read the `…Modifier` and `…Impossible` values of [section 4](#4-results-the-trip-understands).
+Blocked buttons stay visible, disabled, and say why with the value's name ("Lost: not possible for the rest of the day"). A system that declares no `values` has none. Values that block nothing are still useful: conditions read them (`unless: { mutiny: true }`), as they read the `…Modifier` and `…Impossible` values of [section 4](#4-results-the-trip-understands).
 
 ### Actions
 
-**actions** are what the party does, only the ones the system declares. Camp and rest are actions like any other: an id, conditions, steps; the trip panel shows each one as a button next to **Travel**, by its `name` (and its `description` as help). A system without `camp` has no camp. (Older packs, of format 2 and before, still get the camp and rest they had without declaring them; `camp: false` leaves one out.)
+**actions** are what the party does, only the ones the system declares. Camp and rest are actions like any other: an id, conditions, steps; the trip panel shows each one as a button next to **Travel**, by its `name` (and its `description` as help). A system without `camp` has no camp.
 
 **Marching is an action too**, `march`: not a button of its own but the **Travel** buttons, whose first one takes its `name` and shows its `description` as help (`name: March`). Its `when` / `unless` say when the party can march, and they're checked as it marches: it stops the moment they no longer hold (said in the journal as the system's rule). **Without `march`, the party marches whenever nothing else stops it**, day and night; by day for 8 hours is `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`, or with the parts of the calendar's day, `time.tags: { not: dark }`. It has no steps, and nothing takes it but the Travel buttons. A system may march by day or, after a night march, by torchlight until midnight:
 
@@ -277,9 +277,9 @@ actions:
     do: [{ roll: NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-What an action **rolls** are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. The older way (`minutes: 180, speed: 0.5, effects: …` on the action, or an `eat: day` step) still works, read as those steps. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
+What an action **rolls** are the checks with `at: <its id>` (camp's: `at: camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
 
-**The halt.** `travel: { halt: { at: '20:00', do: camp } }` says what the party does when it can't march while the time moves on by itself (the world clock, **Wait for the next march**, a travel order with nothing left to march): from that moment (a clock or a part of the day, `at: part.night`) until the day ends, a party that isn't marching takes that action, once a day. When the action can't be taken (a value blocks it, or its `when` / `unless` don't hold), the journal says why and the time passes without it; a travel order then waits until the party can march, and marches on. Without a halt, the party just waits. (Older packs said it as `day: { night: camp }`, at their nightfall.)
+**The halt.** `travel: { halt: { at: '20:00', do: camp } }` says what the party does when it can't march while the time moves on by itself (the world clock, **Wait for the next march**, a travel order with nothing left to march): from that moment (a clock or a part of the day, `at: part.night`) until the day ends, a party that isn't marching takes that action, once a day. When the action can't be taken (a value blocks it, or its `when` / `unless` don't hold), the journal says why and the time passes without it; a travel order then waits until the party can march, and marches on. Without a halt, the party just waits.
 
 ### Journeys by moves
 
@@ -328,7 +328,7 @@ checks:
   - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). A check with no table and no effects is just written in the journal. `pause: true` rolls it (if a table resolves it) and then stops the trip until **Continue**, so you can describe the place, resolve it yourself or decide something: **only `pause: true` stops the trip**, with a table or without (a landmark to describe: `pause: true` and no table). Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): each moment as it comes, the halt's action's from its moment, `day-end` as each day ends. Older packs' `short` means something hit its minimum, `camping` that the night's action was under way, and `day-start` their dawn.
+A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). A check with no table and no effects is just written in the journal. `pause: true` rolls it (if a table resolves it) and then stops the trip until **Continue**, so you can describe the place, resolve it yourself or decide something: **only `pause: true` stops the trip**, with a table or without (a landmark to describe: `pause: true` and no table). Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): each moment as it comes, the halt's action's from its moment, `day-end` as each day ends.
 
 ### Bindings, stats and reads
 
@@ -419,7 +419,7 @@ kind: calendar
 id: reckoning
 name: The Marcher reckoning
 startYear: 412
-watchHours: 4
+divisions: { watch: { every: 4 } }
 months:
   - { id: thaw, name: Thaw, days: 30, season: spring }
   - { id: highsun, name: Highsun, days: 30, season: summer }

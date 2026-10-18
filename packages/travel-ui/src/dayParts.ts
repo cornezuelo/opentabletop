@@ -2,8 +2,8 @@ import { localize } from '@open-tabletop/session'
 import type { Calendar, DayPart, Division, GameTime } from '@open-tabletop/time'
 
 /**
- * A division of the day's name: its own, `watches` for the older `watchHours` (it has no
- * name of its own), else its id.
+ * A division of the day's name: its own, `watches` for a numbered `watch` division without
+ * one (the plain calendar's), else its id.
  */
 export function divisionName(division: Division, locale: string, watches: string): string {
   if (division.name !== undefined) return localize(division.name, locale, 'en') ?? division.id

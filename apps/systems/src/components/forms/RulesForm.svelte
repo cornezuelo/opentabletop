@@ -6,12 +6,7 @@
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { dayPartRefs } from '../../lib/dayParts'
-  import {
-    BLOCKABLE,
-    modeThrough,
-    olderEatingEdits,
-    parseTravelRules,
-  } from '@open-tabletop/travel-engine'
+  import { BLOCKABLE } from '@open-tabletop/travel-engine'
   import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
@@ -23,14 +18,6 @@
 
   const rules = $derived(doc.rules as Record<string, Record<string, unknown> | undefined>)
   const disabled = $derived(!doc.editable)
-  /** Rules that eat the older way: the edits that write it as a day-end action. */
-  const olderEating = $derived.by(() => {
-    const parsed = parseTravelRules(doc.rules).rules
-    return parsed ? olderEatingEdits(parsed) : []
-  })
-  function convertEating() {
-    for (const { path, value } of olderEating) doc.edit('travel-rules', path.map(String), value)
-  }
 
   /** What a terrain's conditions read: the hex entered, the step, the calendar, today. */
   const passableHints = $derived({
@@ -128,51 +115,6 @@
         </select>
       </label>
     </div>
-    {#if rules.day}
-      <!-- Packs of format 2: their built-in day, still read (and edited) as it was. -->
-      <h4>{t('rules.olderDay')}<InfoTip text={t('rules.olderDayHelp')} /></h4>
-      <div class="inline">
-        <label>
-          <span>{t('rules.start')}</span>
-          <SuggestInput
-            label={t('rules.start')}
-            value={String(rules.day?.start ?? '')}
-            list={['06:00', ...parts]}
-            {disabled}
-            onchange={(v) => doc.edit('travel-rules', ['day', 'start'], v.trim())}
-          />
-        </label>
-        <label>
-          <span>{t('rules.nightfall')}</span>
-          <SuggestInput
-            label={t('rules.nightfall')}
-            value={String(rules.day?.nightfall ?? '')}
-            list={['20:00', ...parts]}
-            {disabled}
-            onchange={(v) => doc.edit('travel-rules', ['day', 'nightfall'], v.trim())}
-          />
-        </label>
-        <label>
-          <span>{t('rules.night')}<InfoTip text={t('rules.nightHelp')} /></span>
-          <select
-            value={rules.day?.night === false ? 'false' : String(rules.day?.night ?? '')}
-            {disabled}
-            onchange={(e) => {
-              const v = e.currentTarget.value
-              doc.edit(
-                'travel-rules',
-                ['day', 'night'],
-                v === '' ? undefined : v === 'false' ? false : v,
-              )
-            }}
-          >
-            <option value="">{t('rules.nightDefault')}</option>
-            <option value="false">{t('rules.nightNone')}</option>
-            {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
-          </select>
-        </label>
-      </div>
-    {/if}
   </section>
 
   <section>
@@ -193,8 +135,6 @@
           type: 'flow',
           placeholder: t('rules.anyTerrain'),
           hints: passableHints,
-          read: (row) => modeThrough(row as { allowedTerrains?: string[] }),
-          replaces: ['allowedTerrains'],
         },
         {
           field: 'when',
@@ -353,12 +293,6 @@
 
   <section>
     <h3>{t('rules.resources')}<InfoTip text={t('rules.resourcesHelp')} /></h3>
-    {#if olderEating.length}
-      <p class="older">
-        {t('rules.olderEating')}
-        {#if !disabled}<button onclick={convertEating}>{t('rules.olderEatingConvert')}</button>{/if}
-      </p>
-    {/if}
     <RecordRows
       {doc}
       at={['resources']}
@@ -439,16 +373,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
-
-  .older {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .older button {
-    margin-left: 6px;
   }
 
   h3 {

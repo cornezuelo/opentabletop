@@ -84,10 +84,15 @@ describe('journal lines', () => {
       text: 'Berries and roots',
       data: {
         event: 'FORAGE_CHECK_REQUIRED',
-        value: { resources: { food: 1 }, stats: { morale: -1 }, lost: true, weather: 'rain' },
+        value: {
+          effects: { 'party.resources.food': 1, 'party.stats.morale': -1 },
+          lost: true,
+          weather: 'rain',
+        },
       },
     })
-    expect(entryText(result, { ...context, checkName: () => 'Foraging' })).toBe(
+    const dayValues = { lost: 'lost for today' }
+    expect(entryText(result, { ...context, dayValues, checkName: () => 'Foraging' })).toBe(
       'Foraging: Berries and roots (Food +1, Morale −1, lost for today)',
     )
   })

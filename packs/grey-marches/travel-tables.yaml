@@ -18,7 +18,7 @@ description: |-
   - `set: { lost: true }`: no more travel today
   - Roll modes that apply by themselves (`modeWhen`): `advantage` with `weather: clear` or a guide with Pathfinding 2 (`roles.guide.values.pathfinding`, a journey role), `disadvantage` with `yesterday.lost: true`
   - A roll mode's `modeUnless`: no advantage in forests, `terrain: [forest, dense-forest]`
-  - Conditions on the weather, on the dark (`daylight: false`), and on being outside any region (`exists: false`)
+  - Conditions on the weather, on the dark (`time.tags: dark`), and on being outside any region (`exists: false`)
 roll: '1d6 + {{navigation}}'
 modeWhen:
   # Clear skies, or a guide who knows the way (a journey role, read by its holder's value).
@@ -34,10 +34,10 @@ entries:
       result: 'Lost in the fog: no progress today',
       set: { lost: true },
     }
-  # In the dark (a night march: `daylight: false`), half the rolls go astray.
+  # In the dark (a night march: `time.tags: dark`), half the rolls go astray.
   - id: dark
     range: 1-3
-    when: { daylight: false }
+    when: { time.tags: dark }
     result: 'Lost in the dark: you stop until dawn, shaken'
     set: { lost: true }
     # The Company's own sheet: shaken, it can't force a march until it rests.

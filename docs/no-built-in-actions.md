@@ -88,6 +88,8 @@ Core's manual page says what its system does and which feature each part shows.
 
 ## 6. Format and compatibility
 
+**Superseded (2026-10-18, backlog item 23):** older pack formats aren't read at all for now; the `olderDay` reading below was built in phase (a) and removed with item 23. Our packs moved to format 3 instead.
+
 - **`PACK_FORMAT` 3.** Packs of format 1–2 keep their meaning, read by `migrateRules` (session): their `day.start` / `nightfall` become the moments, `daylight` and the march they had (an implicit division of the day from those clocks, only for them), camp, rest and march by default, `lost`, `day.night` as the halt at nightfall; the formats table in File formats gets its row. Our packs move to format 3: Core (with its new system), the Grey Marches, Kal-Arath (private repo).
 - **Maps and trips**: a format bump each, reading `generic` as `core`. Old trips with the Generic rules keep their ids (`camp`, `eat`, `food`, `health`, `morale`); `dayChecksDone` is no longer read. `old-maps.test.ts` and `old-trips.test.ts` must keep passing.
 - Systems' **Rules** tab: _Day starts_, _Nightfall_ and _Night's action_ become **Halt** (moment and action); old packs get an **Update** button that writes the format-3 form, as for format 2.

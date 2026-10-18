@@ -289,7 +289,7 @@ cards: []
     expect(messages).toContain('Translation for unknown entry "cellar" of "ruins"')
   })
 
-  it('reads the pack format a pack was written for, and warns about a newer one', () => {
+  it('reads the pack format a pack was written for, warns about a newer one and refuses an older one', () => {
     const pack = (format: string) =>
       loadPacks([{ path: 'p/pack.yaml', content: `id: p\nversion: 0.1.0\nlocale: en\n${format}` }])
     expect(pack('').registry.packs.get('p')?.manifest.format).toBeUndefined()
@@ -303,6 +303,17 @@ cards: []
       }),
     ])
     expect(pack('format: 0\n').ok).toBe(false)
+    // An older format isn't read: the pack isn't loaded, and it says why.
+    const older = pack(`format: ${PACK_FORMAT - 1}\n`)
+    expect(older.registry.packs.has('p')).toBe(false)
+    expect(older.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'error',
+        message: expect.stringContaining(
+          `pack format ${PACK_FORMAT - 1}, which this version no longer reads`,
+        ),
+      }),
+    ])
   })
 })
 
@@ -550,7 +561,7 @@ template: '{{watch}}/{{sky}}'
 
 describe('variables and rolls in conditions', () => {
   const { registry, diagnostics } = loadPacks([
-    { path: 'v/pack.yaml', content: 'id: v\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+    { path: 'v/pack.yaml', content: 'id: v\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
     {
       path: 'v/t.yaml',
       content: `

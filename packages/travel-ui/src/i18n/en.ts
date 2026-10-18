@@ -67,8 +67,6 @@ export const en = {
       'Time passes where the party is until it can march again, living it: if it could march now, today’s march goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t march, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
     travelHex: 'Travel to the next hex of the route only.',
     actionUntil: 'Lasts until {moment}.',
-    dawn: 'dawn',
-    nightfall: 'nightfall',
   },
   rolls: {
     label: 'Rolls with',
@@ -151,7 +149,6 @@ export const en = {
       rest: 'The rest',
       action: 'The action',
     },
-    lostToday: 'lost for today',
     cleared: '{name} (no more)',
     nobodyActing:
       'Nobody is acting, so “{name}” changed nothing (choose who acts above the actions)',

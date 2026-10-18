@@ -1,4 +1,3 @@
-import { OLDER_ACTIONS } from '@open-tabletop/travel-engine'
 import {
   appendDefinition,
   insertIn,
@@ -30,16 +29,9 @@ export function parseMoments(text: string): string | string[] | undefined {
   return list.length === 0 ? undefined : list.length === 1 ? list[0] : list
 }
 
-/**
- * The ids of a system's actions, from its raw rules: older rules' (`day:`, pack format 2)
- * camp, rest and march unless they turn them off, then the ones it declares.
- */
+/** The ids of a system's actions, from its raw rules: the ones it declares. */
 export function actionIds(rules: Record<string, unknown>): string[] {
-  const actions = (rules.actions ?? {}) as Record<string, unknown>
-  return [
-    ...(rules.day ? OLDER_ACTIONS : []).filter((id) => actions[id] === undefined),
-    ...Object.keys(actions).filter((id) => actions[id] !== false),
-  ]
+  return Object.keys((rules.actions ?? {}) as Record<string, unknown>)
 }
 
 /**

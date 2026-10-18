@@ -27,8 +27,7 @@ export interface JournalContext {
    */
   actionNothing?: (id: string) => string | undefined
   /**
-   * The values of the day the system declares, by id with their names (`lost: 'Lost'`);
-   * absent: the older built-in `lost`.
+   * The values of the day the system declares, by id with their names (`lost: 'Lost'`).
    */
   dayValues?: Record<string, string>
   /**
@@ -118,11 +117,8 @@ export function changesText(
               : [],
     )
   // Values of the day the result sets (lost…), by the system's name.
-  if (!dayValues) {
-    if (value.lost === true) parts.push(t('journal.lostToday'))
-  } else
-    for (const [id, name] of Object.entries(dayValues))
-      if (value[id] !== undefined && value[id] !== false && value[id] !== null) parts.push(name)
+  for (const [id, name] of Object.entries(dayValues ?? {}))
+    if (value[id] !== undefined && value[id] !== false && value[id] !== null) parts.push(name)
   return parts.join(', ')
 }
 

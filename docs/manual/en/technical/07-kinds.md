@@ -205,7 +205,7 @@ A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the cal
 
 **Nothing the system doesn't declare.** Without `march`, the party marches whenever nothing else stops it (a value of the day, the weather, the way), day and night; without `halt`, a party that can't march just waits; without actions, there are none (no camp or rest of the engine's own); without `values`, there are none. The **halt** (`travel.halt`): from its moment until the day ends, a party that isn't marching while the time moves on by itself (the world clock, a travel order with nothing left to march, **Wait for the next march**) takes its action, once a day; when it can't (its `when` / `unless`, a value that blocks it), the journal says so and the time passes until the party can march.
 
-**Older packs** (pack format 2 and before: see [File formats](02-file-formats.md#packs)) are still read as they were: their `day: { start, nightfall, night }` (dawn: the `day-start` moment and `time: dawn`; nightfall: `daylight` and `time: nightfall`; the night's action: their halt from nightfall), camp, rest and march they had without declaring them (`camp: false` left one out) and the built-in `lost`. Their `perDay`, a mode's `consumes` and steps with `eat: day` are still read too, as an `eat` action at day-end.
+Packs written for an older pack format aren't read (see [File formats](02-file-formats.md#packs)).
 
 **What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 
@@ -266,7 +266,6 @@ The months of the year (with their days and seasons), weekdays, moons (cycle and
 kind: calendar
 id: marcher-reckoning
 name: The Marcher reckoning
-watchHours: 4
 startYear: 412
 months:
   - { id: thaw, name: Thaw, days: 30, season: spring }
@@ -278,7 +277,7 @@ holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 
 **What tables see:** `{{month}}` (the month's id), `{{year}}`, `{{weekday}}`, each moon's phase as `moons.<moon>` (`when: { moons.pale: full }`) and today's holidays as a list (`when: { holidays: midsummer }`), plus `season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
 
-**Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. `watchHours: 4` is the older form of `divisions: { watch: { every: 4 } }`. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `daylight`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). The Hexmapper's [World](../hexmapper/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
+**Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). The Hexmapper's [World](../hexmapper/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
 ```yaml
 kind: calendar

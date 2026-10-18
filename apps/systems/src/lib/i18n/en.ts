@@ -204,9 +204,6 @@ export const en = {
     startDay: 'on day',
     hoursPerDay: 'Hours in a day',
     hoursPerDayHelp: 'How long a day is (default 24).\n• `30` — a world with longer days',
-    watchHours: 'Hours per watch',
-    watchHoursHelp:
-      'A shortcut for a division of numbered watches of equal length (`divisions: { watch: { every: 4 } }`), which tables read as `watch` (1, 2…).\n• `4` — six watches a day\nEmpty: no watches (unless the divisions below have one).',
     divisions: 'Divisions of the day',
     divisionsHelp:
       'The ways your world divides the day, as many as you want: meals, watches, bells, prayers… Each one has its parts, and lasts from one part to the next (the last one until the first, past midnight). Conditions and tables read what it is now as `time.<id>`, and the tags of the parts it is in as `time.tags`; the World panel waits until any part.\n• `meal` with **elevenses** from `11:00` — `time.meal: elevenses` holds from 11:00 to the next meal\n• `watch` every `4` hours — `time.watch: 2` from 04:00 to 08:00\n• a part with **Until** `07:00` — none of its division after 07:00 until the next part\n• **Tags** `dark` on the night — `time.tags: dark`',
@@ -396,17 +393,7 @@ export const en = {
     haltHelp:
       "What the party does when **it can't march and the time moves on by itself**: the world clock moving with a trip on, a travel order with nothing left to march, **Wait for the next march**. From this moment (a clock or a part of the day) until the day ends, a party that isn't marching takes the action, once a day.\n• **from** `20:00`, **action** `camp`\n• **from** `part.night`, **action** `watch`\nWhen the action **can't be taken** (its **Only when** / **Not when**, or a value that blocks it), the journal says why and the time passes without it until the party can march.\n• camp with **Only when** `party.resources.food: { gte: 1 }` — a hungry party sleeps in the open\nNo action: the party just waits.",
     haltNone: 'nothing: the party waits',
-    olderDay: 'Older day (pack format 2)',
-    olderDayHelp:
-      "Packs written for pack format 2 had a built-in day: dawn (the day-start checks, when marching could begin), nightfall (nobody marched after it) and the night's action. They're still read that way; format 3 says it with **Trips start**, **Halt**, the **March** action's conditions and moments that name parts of the day or clocks.",
-    start: 'Dawn',
-    nightfall: 'Nightfall',
     hoursPerDay: 'Marching hours a day',
-    night: 'At nightfall, while waiting',
-    nightHelp:
-      "What the party does when night falls **while time moves on by itself**: the world clock moving with a trip on, or a travel order that runs into the night. One of the system's actions:\n• `camp` — the default, if the system has it\n• another action, e.g. `watch`\n• none — the night just passes\nWhen the action **can't be taken** (its **Only when** / **Not when**, or a value that blocks it), the night passes without it and the journal says why; a party told to travel at nightfall does the same and marches on at dawn.\n• camp with **Only when** `party.resources.food: { gte: 1 }` — a hungry party sleeps in the open, without a fed night's relief",
-    nightDefault: 'camp, if there is one',
-    nightNone: 'nothing: the night passes',
     hoursPerDayHelp:
       "The hours a way of travelling's **km a day** are marched in: the scale of its speed (km an hour). How long the party may march each day is the **March** action's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number).\n• `8` — 24 km a day is 3 km an hour\n• `10` — the same 24 km at 2.4 km an hour",
     hexKm: 'km per hex',
@@ -455,9 +442,6 @@ export const en = {
     max: 'Max',
     maxHelp:
       "Effects never take it above this; later steps and checks see `above: [its id]`.\n• water with Max `4` — a full waterskin can't hold more\n• morale with Max `5` — a feast can't raise it past 5\nEmpty: no maximum.",
-    olderEating:
-      'These rules eat the older way (supplies used “per day”, ways of travelling that use supplies, or steps that eat the day’s supplies). They still play the same; converting writes it as an action the system takes at the end of each day, with Min 0 on the supplies.',
-    olderEatingConvert: 'Convert',
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       "How each weather slows the party. Tables set it with `set: { weather: … }` (usually rolled at dawn), or a weather model with inertia.\n• `storm` × `0` — no travel that day\n• `heavy-rain` × `0.5` — half speed\n• `fog` × `0.75`\nWeather not listed doesn't change the speed; conditions can still read it (`weather: storm`).",
@@ -487,7 +471,6 @@ export const en = {
     marchNote:
       'Marching is the Travel buttons, not a button of its own: Only when / Not when say when the party can march, checked as it marches (it stops as soon as they no longer hold). Its name and description are the first Travel button’s. It has no steps.',
     marchDefault: 'whenever nothing else stops it',
-    marchDefaultOlder: 'by day, for the day’s marching hours',
     hide: "Hidden when it can't be taken",
     hideHelp:
       "**Unticked**: its button is always there, disabled (saying why) while it can't be taken, so the buttons don't move around.\n**Ticked**: its button only appears while it can be taken. For actions that only make sense now and then:\n• a rite only at a shrine under a full moon\n• talking round porters only while they refuse to march",
@@ -524,7 +507,6 @@ export const en = {
     description: 'Description (its help)',
     at: 'When',
     atOptions: {
-      'day-start': 'At dawn',
       'hex-enter': 'Entering a hex',
       camp: 'In camp',
       'day-end': 'At the end of the day',
@@ -547,11 +529,6 @@ export const en = {
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— no table —',
-    olderFormat:
-      'This pack is written for an older pack format. It plays the same; updating it writes the format of this version in its pack.yaml.',
-    olderFormatPausing:
-      'This pack is written for an older pack format, where a check without a table or changes stopped the trip by itself: {checks}. It still plays that way; updating it writes “Pause after it” on them and the new format in its pack.yaml.',
-    olderFormatUpdate: 'Update',
     effects: 'Changes',
     effectsHelp:
       "What the check itself changes when it comes up, with or without a table:\n• `party.stats.fatigue: 1` — adds 1\n• `party.resources.food: -1` — takes 1 away\n• `party.stats.fatigue: '=0'` — sets it\n• `party.resources.food: '-{{party.stats.mouths}}'` — as many as another value says (a variable)\n• `party.members.values.health: -1`, `acting.conditions.wounded: true` — its characters (every one, whoever acts)\nHow a system writes its rules as data, e.g. a day without enough food: **When** `day-end`, **Only if** `below: food`, **Changes** `party.stats.fatigue: 1`.",

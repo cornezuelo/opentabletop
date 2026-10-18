@@ -129,9 +129,6 @@ describe('playing on the map', () => {
     worldAct({ type: 'schedule', event: { name: 'Market day', at: start + 60 } })
     // A roll by hand sees what the trip's checks would: the moment, the trip, the world.
     expect(rollContext()).toMatchObject({
-      daylight: true,
-      dawn: 6,
-      nightfall: 20,
       tripDay: 1,
       visits: 1,
       clocks: { 'the-wyrm-wakes': 2 },

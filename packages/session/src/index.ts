@@ -837,8 +837,8 @@ export function addEntry(
  */
 export function toOutcome(
   value: Record<string, unknown>,
-  /** The system's declared values (default: the older built-in `lost`). */
-  declared: Record<string, DayValue> = { lost: {} },
+  /** The system's declared values. */
+  declared: Record<string, DayValue> = {},
 ): CheckOutcome {
   const outcome: CheckOutcome = {}
   const values = Object.fromEntries(
@@ -872,7 +872,6 @@ export * from './effects'
 export * from './trip'
 export * from './discovery'
 export * from './suggestions'
-export * from './formats'
 // The full names of facts (`hex.terrain`, `trip.day`…), for hosts that build contexts.
 export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'
 export * from './party'

@@ -56,10 +56,7 @@ const number = (v: unknown): number | undefined =>
       ? Number(v)
       : undefined
 
-/**
- * A result's effects: its `effects`, plus the older ways of writing the same
- * (`set: { resources: { food: 2 }, stats: { morale: -1 }, fatigue: 1 }`), read as effects.
- */
+/** A result's effects: its `effects` (`party.resources.food: 2`). */
 export function effectsOf(value: Record<string, unknown>): Effects {
   const out: Effects = {}
   const add = (path: string, change: unknown) => {
@@ -72,13 +69,7 @@ export function effectsOf(value: Record<string, unknown>): Effects {
   }
   const record = (v: unknown) =>
     typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {}
-  for (const [id, change] of Object.entries(record(value.resources)))
-    add(`party.resources.${id}`, change)
-  for (const [id, change] of Object.entries(record(value.stats))) add(`party.stats.${id}`, change)
-  // Fatigue is one of the system's stats now (`party.fatigue` was its older path).
-  if (value.fatigue !== undefined) add('party.stats.fatigue', value.fatigue)
-  for (const [path, change] of Object.entries(record(value.effects)))
-    add(path === 'party.fatigue' ? 'party.stats.fatigue' : path, change)
+  for (const [path, change] of Object.entries(record(value.effects))) add(path, change)
   return out
 }
 

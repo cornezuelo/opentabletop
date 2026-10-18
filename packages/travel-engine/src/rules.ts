@@ -19,11 +19,6 @@ const text = z.union([z.string(), z.record(z.string(), z.string())])
  * (`at: camp`).
  */
 export const CHECK_MOMENTS = ['hex-enter', 'day-end'] as const
-/**
- * The older moment the system's day started at (formats 1–2, with `day:`): read as its
- * `day.start` (see `olderDay`).
- */
-export const OLDER_DAY_START = 'day-start'
 /** A moment that's a clock (`'06:00'`): when it strikes. */
 export const CLOCK = /^\d{1,2}:\d{2}$/
 /** Whether a moment or a time is a clock (`'06:00'`). */
@@ -37,13 +32,6 @@ export function momentsOf(value: string | string[] | undefined): string[] {
   return value === undefined ? [] : Array.isArray(value) ? value : [value]
 }
 
-/**
- * Actions older systems (formats 1–2, with `day:`) had without declaring them: rules that
- * don't name them get the usual ones (camp sleeps until dawn, a rest is an hour, marching
- * by day for the day's marching hours); `camp: false` leaves one out. Today's systems
- * have only the actions they declare.
- */
-export const OLDER_ACTIONS = ['camp', 'rest', 'march'] as const
 /**
  * Marching: the Travel buttons, not a button of its own. Its `when` / `unless` say when
  * the party can march, checked as it marches (it stops when they no longer hold); it has
@@ -75,20 +63,16 @@ const passable = z.union([
 /**
  * One step of an action (`do:`), doing one thing, optionally only `when` (or `unless`) a
  * condition holds: pass time (`time: 180`, until a clock: `time: '14:00'`, or until a part
- * of the calendar's day starts: `time: meal.luncheon`; older rules' `dawn` / `nightfall`
- * are their `day:`), change the rest of today's march (`speed: 0.5`), apply effects (`effects: {
+ * of the calendar's day starts: `time: meal.luncheon`), change the rest of today's march (`speed: 0.5`), apply effects (`effects: {
  * party.stats.fatigue: -1 }`; a change past a value's `min` / `max` stops there, and later
  * steps see `below` / `above`), take another action (`do: forage`, with its conditions),
  * roll a check now (`roll: <its event>`) or set values of the day (`set: { lost: true }`).
- * `eat: day` is the older way of eating: read as `do:` the day's supplies.
  */
 const step = z
   .object({
     when: condition.optional(),
     unless: condition.optional(),
-    time: z
-      .union([z.number().nonnegative(), z.enum(['dawn', 'nightfall']), clock, partRef])
-      .optional(),
+    time: z.union([z.number().nonnegative(), clock, partRef]).optional(),
     speed: z.number().nonnegative().optional(),
     effects: effects.optional(),
     do: z.string().min(1).optional(),
@@ -100,15 +84,12 @@ const step = z
      * (`'{{party.stats.rank}}'`).
      */
     advance: z.union([z.number().int().nonnegative(), z.string().min(1)]).optional(),
-    /** Older form: eat a day of supplies (read as `do:` the generated day-end action). */
-    eat: z.literal('day').optional(),
   })
   .strict()
   .refine(
     (s) =>
-      [s.time, s.eat, s.speed, s.effects, s.do, s.roll, s.set, s.advance].filter(
-        (x) => x !== undefined,
-      ).length === 1,
+      [s.time, s.speed, s.effects, s.do, s.roll, s.set, s.advance].filter((x) => x !== undefined)
+        .length === 1,
     'a step does one thing: time, speed, effects, do, roll, set or advance',
   )
 
@@ -118,8 +99,7 @@ export const STEP_KINDS = ['time', 'speed', 'effects', 'do', 'roll', 'set', 'adv
 /**
  * An action of the party (`actions.forage`, and camp and rest too): what it does as steps
  * (`do`), when it can be taken (`when` / `unless`, `oncePerDay`); its checks are the ones
- * with `at: <its id>`. The older columns (`minutes`, `speed`, `fatigue`, `effects`) still
- * work: they're read as steps.
+ * with `at: <its id>`.
  */
 const action = z
   .object({
@@ -143,14 +123,6 @@ const action = z
     when: condition.optional(),
     /** Not available when this holds, e.g. `{ forageImpossible: true }`. */
     unless: condition.optional(),
-    /** Time it takes (older form of `time: <minutes>`; default 0). */
-    minutes: z.number().nonnegative().optional(),
-    /** Multiplies the rest of today's march (older form of a `speed` step). */
-    speed: z.number().nonnegative().optional(),
-    /** Fatigue recovered (older form: write it as an effect, `party.stats.fatigue: -1`). */
-    fatigue: z.number().nonnegative().optional(),
-    /** What the action changes, applied when it's taken (older form of an `effects` step). */
-    effects: effects.optional(),
     /** Only once a day. */
     oncePerDay: z.boolean().optional(),
     /** Its button is hidden while it can't be taken (instead of shown disabled). */
@@ -207,20 +179,6 @@ export const travelRulesSchema = z
   .object({
     kind: z.literal('travel-rules').optional(),
     id: z.string().optional(),
-    /**
-     * Older systems' day (pack formats 1–2): dawn, nightfall and the night's action, read
-     * as today's moments, halt and facts by `olderDay`. Format 3 has no `day:`.
-     */
-    day: z
-      .object({
-        /** When the day started: a clock, or a part of the calendar's day. */
-        start: dayMoment,
-        nightfall: dayMoment,
-        /** The action taken at nightfall while waiting (default: camp); `false`: none. */
-        night: z.union([z.string().min(1), z.literal(false)]).optional(),
-      })
-      .strict()
-      .optional(),
     travel: z
       .object({
         /** The hours a way of travelling's `kmPerDay` is marched in (its speed's scale). */
@@ -252,7 +210,7 @@ export const travelRulesSchema = z
     ),
     /**
      * Water hexes (the map marks their terrain as water) whose terrain isn't listed above,
-     * e.g. `{ passable: false }`; a mode with `allowedTerrains: [water]` still sails them.
+     * e.g. `{ passable: false }`; a mode whose `through` holds on water still sails them.
      */
     water: z
       .object({
@@ -275,16 +233,12 @@ export const travelRulesSchema = z
           name: text.optional(),
           description: text.optional(),
           kmPerDay: z.number().positive(),
-          /** Older form: supplies it uses per day (read as a step of the day-end action). */
-          consumes: z.record(z.string(), z.number().nonnegative()).optional(),
           /**
            * Where it can go: a condition on each hex it enters (its terrain, water, tags,
            * region, fields, the roads or rivers of the step…), e.g. a boat on water or coast.
            * Where it holds, the terrain's own `passable: false` doesn't stop it.
            */
           through: condition.optional(),
-          /** Older form of `through`: only these terrains (`water`: any water hex). */
-          allowedTerrains: z.array(z.string()).optional(),
           /** It can only be chosen when this holds, e.g. a boat at the water's edge. */
           when: condition.optional(),
           /** It can't be chosen when this holds. */
@@ -303,8 +257,6 @@ export const travelRulesSchema = z
             /** Effects never take it below / above these (none: it may go negative). */
             min: z.number().optional(),
             max: z.number().optional(),
-            /** Older form: used per day (read as a step of the day-end action, with `min: 0`). */
-            perDay: z.number().nonnegative().optional(),
           })
           .strict(),
       )
@@ -317,18 +269,17 @@ export const travelRulesSchema = z
     /** Values of the day the system declares (`lost`), with what they block. */
     values: z.record(z.string(), dayValue).optional(),
     /**
-     * The party's actions, the system's own (camp, forage…); `march` says when the party
-     * can march. `false` leaves out one older systems had by default (see `OLDER_ACTIONS`).
+     * The party's actions, only the ones the system declares (camp, forage…); `march` says
+     * when the party can march.
      */
-    actions: z.record(z.string(), z.union([z.literal(false), action])).optional(),
+    actions: z.record(z.string(), action).optional(),
   })
   .strict()
   .superRefine((rules, ctx) => {
     const actionIds = Object.keys(availableActions(rules as TravelRules).all)
     // Marching is no moment and no step: the Travel buttons and their conditions.
     const taken = actionIds.filter((id) => id !== MARCH)
-    // Older rules (`day:`) still start their day at `day-start`.
-    const moments = [...(rules.day ? [OLDER_DAY_START] : []), ...CHECK_MOMENTS, ...taken]
+    const moments = [...CHECK_MOMENTS, ...taken]
     const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
       momentsOf(value).forEach((moment, j) => {
         // A part of the calendar's day (`meal.elevenses`): checked against the calendar.
@@ -336,10 +287,7 @@ export const travelRulesSchema = z
           ctx.addIssue({
             code: 'custom',
             path: Array.isArray(value) ? [...path, j] : path,
-            message:
-              moment === OLDER_DAY_START
-                ? 'day-start is gone: name a part of the day (part.morning) or a clock (06:00)'
-                : `expected ${moments.join(', ')}, a clock (06:00) or a part of the day (meal.supper)`,
+            message: `expected ${moments.join(', ')}, a clock (06:00) or a part of the day (meal.supper)`,
           })
       })
     rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))
@@ -360,19 +308,9 @@ export const travelRulesSchema = z
     const events = [...new Set((rules.checks ?? []).map((c) => c.event))]
     const values = Object.keys(declaredValues(rules as TravelRules))
     for (const [id, a] of Object.entries(rules.actions ?? {})) {
-      if (a === false) continue
       badMoments(a.on, ['actions', id, 'on'])
       if (id === MARCH)
-        for (const key of [
-          'do',
-          'on',
-          'oncePerDay',
-          'hideWhenUnavailable',
-          'minutes',
-          'speed',
-          'fatigue',
-          'effects',
-        ] as const)
+        for (const key of ['do', 'on', 'oncePerDay', 'hideWhenUnavailable'] as const)
           if (a[key] !== undefined)
             ctx.addIssue({
               code: 'custom',
@@ -380,12 +318,6 @@ export const travelRulesSchema = z
               message: 'marching has no steps: its when / unless say when the party can march',
             })
       a.do?.forEach((st, i) => {
-        if (!rules.day && (st.time === 'dawn' || st.time === 'nightfall'))
-          ctx.addIssue({
-            code: 'custom',
-            path: ['actions', id, 'do', i, 'time'],
-            message: `${st.time} is gone: name a part of the day (part.morning) or a clock (06:00)`,
-          })
         if (st.do !== undefined && !taken.includes(st.do))
           ctx.addIssue({
             code: 'custom',
@@ -409,13 +341,6 @@ export const travelRulesSchema = z
             })
       })
     }
-    const night = rules.day?.night
-    if (night && !taken.includes(night))
-      ctx.addIssue({
-        code: 'custom',
-        path: ['day', 'night'],
-        message: `expected ${taken.join(', ') || 'an action'}`,
-      })
     const halt = rules.travel.halt?.do
     if (halt !== undefined && !taken.includes(halt))
       ctx.addIssue({
@@ -433,177 +358,30 @@ export const travelRulesSchema = z
   })
 
 export type ActionDefinition = z.infer<typeof action>
-/** Older name of an action's definition. */
-export type CustomAction = ActionDefinition
 export type ActionStep = z.infer<typeof step> & { when?: Condition; unless?: Condition }
 export type DayValue = z.infer<typeof dayValue>
 
 export type TravelRules = z.infer<typeof travelRulesSchema>
 
-/**
- * Before systems declared their values, being `lost` was built in: older rules (`day:`)
- * that declare no `values` still have it (it blocks travel for the rest of the day).
- */
-const LEGACY_VALUES: Record<string, DayValue> = { lost: { lasts: 'day', blocks: ['travel'] } }
-
-/** The values of the day a system declares (older rules' built-in `lost` if they declare none). */
+/** The values of the day a system declares (none if it declares none). */
 export function declaredValues(rules: TravelRules): Record<string, DayValue> {
-  return rules.values ?? (rules.day ? LEGACY_VALUES : {})
-}
-
-/** What older systems got for camp and rest without describing them. */
-const OLDER_CAMP: ActionDefinition = { do: [{ time: 'dawn' }] }
-const OLDER_REST: ActionDefinition = { do: [{ time: 60 }] }
-/** Marching as the engine did before systems declared it: by day, the day's hours. */
-const OLDER_MARCH: ActionDefinition = {
-  when: { 'time.daylight': true, 'trip.marched': { lt: '{{system.hoursPerDay}}' } },
-}
-
-/**
- * Older rules (pack formats 1–2, with `day:`) in today's terms, keeping what they meant:
- * `day-start` is their `day.start`, `time: dawn` / `nightfall` go to theirs, camp, rest and
- * march are there unless declared (or `false`), and their night's action (`day.night`,
- * camp by default) is the halt at nightfall. `day:` stays, for the facts they read
- * (`daylight`, `dawn`, `nightfall`, `camping`). Rules without `day:` are returned as they are.
- */
-export function olderDay(rules: TravelRules): TravelRules {
-  const day = rules.day
-  if (!day) return rules
-  const moment = (m: string) => (m === OLDER_DAY_START ? day.start : m)
-  const moments = <T extends string | string[] | undefined>(v: T): T =>
-    (v === undefined ? v : Array.isArray(v) ? v.map(moment) : moment(v)) as T
-  const time = (t: ActionStep['time']) =>
-    t === 'dawn' ? day.start : t === 'nightfall' ? day.nightfall : t
-  const steps = (def: ActionDefinition): ActionDefinition => ({
-    ...def,
-    ...(def.on !== undefined && { on: moments(def.on) }),
-    ...(def.do && {
-      do: def.do.map((st) => (st.time === undefined ? st : { ...st, time: time(st.time) })),
-    }),
-  })
-  const defaults: Record<string, ActionDefinition> = {
-    camp: OLDER_CAMP,
-    rest: OLDER_REST,
-    march: OLDER_MARCH,
-  }
-  const declared = rules.actions ?? {}
-  // `false` stays, so reading them again leaves them out.
-  const actions: Record<string, ActionDefinition | false> = {}
-  for (const id of OLDER_ACTIONS) if (declared[id] === undefined) actions[id] = defaults[id]
-  for (const [id, def] of Object.entries(declared)) {
-    if (def === false) {
-      actions[id] = false
-      continue
-    }
-    // Marching without its own `when` marches when it used to (by day, the day's hours);
-    // its `unless` adds to that.
-    if (id === MARCH) actions[id] = { ...def, when: def.when ?? OLDER_MARCH.when }
-    else actions[id] = id in defaults && describesNothing(def) ? { ...def, ...defaults[id] } : def
-  }
-  const night = day.night === false ? undefined : (day.night ?? (actions.camp ? 'camp' : undefined))
-  return {
-    ...rules,
-    travel: {
-      ...rules.travel,
-      start: rules.travel.start ?? day.start,
-      ...(night && !rules.travel.halt && { halt: { at: day.nightfall, do: night } }),
-    },
-    values: declaredValues(rules),
-    checks: rules.checks?.map((c) => (c.at === undefined ? c : { ...c, at: moments(c.at) })),
-    actions: Object.fromEntries(
-      Object.entries(actions).map(([id, def]) => [id, def && steps(def)]),
-    ),
-  }
+  return rules.values ?? {}
 }
 
 /**
  * When a new trip starts on its first day, as minutes of the day: the rules'
- * `travel.start` (older rules: their dawn), or midnight.
+ * `travel.start`, or midnight.
  */
 export function tripStart(rules: TravelRules, calendar: Calendar): number {
-  const start = olderDay(rules).travel.start
+  const start = rules.travel.start
   return start === undefined ? 0 : dayClock(start, calendar, '00:00')
 }
 
-/** What the party does when it can't march and the trip goes on by itself (see `halt`). */
-export function haltOf(rules: TravelRules): { at: string; do: string } | undefined {
-  return olderDay(rules).travel.halt
-}
-
-/**
- * Whether the rules eat the older way: supplies with `perDay`, ways of travelling that
- * `consume`, or `eat: day` steps.
- */
-export function eatsTheOlderWay(rules: TravelRules): boolean {
-  return (
-    Object.values(rules.resources ?? {}).some((r) => r.perDay !== undefined) ||
-    Object.values(rules.modes).some((m) => m.consumes !== undefined) ||
-    Object.values(rules.actions ?? {}).some((a) => a !== false && !!a.do?.some((s) => s.eat))
-  )
-}
-
-/** The id of the day-end action older rules eat with (`eat`, unless the system has one). */
-export function olderEatingId(rules: TravelRules): string {
-  const taken = (id: string) =>
-    (!!rules.day && (OLDER_ACTIONS as readonly string[]).includes(id)) || !!rules.actions?.[id]
-  return ['eat', 'eat-day', 'day-supplies'].find((id) => !taken(id)) ?? 'eat-day-supplies'
-}
-
-/**
- * The older way of eating as an action: each supply's `perDay` and the way of travelling's
- * `consumes` as effects, once a day, at day-end (`eat: day` steps take it earlier).
- */
-function olderEating(rules: TravelRules): ActionDefinition {
-  const perDay = Object.fromEntries(
-    Object.entries(rules.resources ?? {}).flatMap(([id, r]) =>
-      r.perDay ? [[`party.resources.${id}`, -r.perDay]] : [],
-    ),
-  )
-  const steps: ActionStep[] = Object.keys(perDay).length ? [{ effects: perDay }] : []
-  for (const [mode, m] of Object.entries(rules.modes)) {
-    const uses = Object.entries(m.consumes ?? {}).filter(([, n]) => n > 0)
-    if (uses.length)
-      steps.push({
-        when: { mode },
-        effects: Object.fromEntries(uses.map(([id, n]) => [`party.resources.${id}`, -n])),
-      })
-  }
-  return { on: 'day-end', oncePerDay: true, do: steps }
-}
-
-/** An action with its older `eat: day` steps read as `do:` the day's supplies. */
-const withoutEat = (def: ActionDefinition, eat: string): ActionDefinition =>
-  def.do?.some((s) => s.eat)
-    ? { ...def, do: def.do.map(({ eat: older, ...st }) => (older ? { ...st, do: eat } : st)) }
-    : def
-
-/**
- * Whether an older form describes nothing for camp or rest (`camp: { name: Camp }`):
- * read with what it did then.
- */
-const describesNothing = (def: ActionDefinition) =>
-  def.do === undefined &&
-  def.minutes === undefined &&
-  def.speed === undefined &&
-  def.fatigue === undefined &&
-  def.effects === undefined
-
-/**
- * The system's actions, by id, in the order the rules list them: what each one does, read
- * from older forms too (`eat: day`, the generated day-end eating, and older rules' `day:`:
- * see `olderDay`).
- */
+/** The system's actions, by id, in the order the rules list them. */
 export function availableActions(rules: TravelRules): {
   all: Record<string, ActionDefinition>
 } {
-  const older = eatsTheOlderWay(rules)
-  const eat = older ? olderEatingId(rules) : ''
-  const read = (def: ActionDefinition) => (older ? withoutEat(def, eat) : def)
-  const all: Record<string, ActionDefinition> = {}
-  for (const [id, def] of Object.entries(olderDay(rules).actions ?? {}))
-    if (def !== false) all[id] = read(def)
-  if (older) all[eat] = olderEating(rules)
-  return { all }
+  return { all: { ...rules.actions } }
 }
 
 /**
@@ -617,53 +395,18 @@ export function actionMinutes(def: ActionDefinition): number | undefined {
   return minutes || undefined
 }
 
-/**
- * The edits that turn older rules' eating into the new way, keeping what they do: each
- * supply loses `perDay` and gets `min: 0` (they never went below 0), ways of travelling
- * lose `consumes`, and an action at day-end (`olderEatingId`) uses them; `eat: day` steps
- * become `do:` that action, which then happens once a day. Each edit is a path in the
- * rules and its new value (undefined: removed).
- */
-export function olderEatingEdits(
-  rules: TravelRules,
-): { path: (string | number)[]; value: unknown }[] {
-  if (!eatsTheOlderWay(rules)) return []
-  const eat = olderEatingId(rules)
-  const edits: { path: (string | number)[]; value: unknown }[] = []
-  for (const [id, r] of Object.entries(rules.resources ?? {})) {
-    if (r.perDay !== undefined) edits.push({ path: ['resources', id, 'perDay'], value: undefined })
-    if (r.min === undefined) edits.push({ path: ['resources', id, 'min'], value: 0 })
-  }
-  for (const [id, m] of Object.entries(rules.modes))
-    if (m.consumes !== undefined) edits.push({ path: ['modes', id, 'consumes'], value: undefined })
-  let ateEarlier = false
-  for (const [id, a] of Object.entries(rules.actions ?? {}))
-    if (a !== false && a.do?.some((st) => st.eat)) {
-      ateEarlier = true
-      edits.push({ path: ['actions', id, 'do'], value: withoutEat(a, eat).do })
-    }
-  const action = olderEating(rules)
-  if (!ateEarlier) delete action.oncePerDay
-  edits.push({ path: ['actions', eat], value: action })
-  return edits
-}
-
 /** The bounds of a value: effects never take it past them. */
 export type { Bounds }
 /** Moved to `@open-tabletop/variables`, shared with the other engines. */
 export { changeValue, resolveChange } from '@open-tabletop/variables'
 
-/**
- * The bounds of each supply: the `min` / `max` it declares, or none. Older rules (see
- * `eatsTheOlderWay`) never went below 0: their supplies keep `min: 0` unless they say.
- */
+/** The bounds of each supply: the `min` / `max` it declares, or none. */
 export function resourceBounds(rules: TravelRules): Record<string, Bounds> {
-  const older = eatsTheOlderWay(rules)
   return Object.fromEntries(
     Object.entries(rules.resources ?? {}).map(([id, r]) => [
       id,
       {
-        ...((r.min !== undefined || older) && { min: r.min ?? 0 }),
+        ...(r.min !== undefined && { min: r.min }),
         ...(r.max !== undefined && { max: r.max }),
       },
     ]),
@@ -701,14 +444,9 @@ export function actionLoop(rules: TravelRules): string[] | undefined {
   return undefined
 }
 
-/** An action's steps: its `do`, or the older columns read as steps (time, speed, effects). */
+/** An action's steps, its `do`. */
 export function actionSteps(def: ActionDefinition): ActionStep[] {
-  const older: ActionStep[] = []
-  if (def.minutes) older.push({ time: def.minutes })
-  if (def.speed !== undefined) older.push({ speed: def.speed })
-  const fx = { ...(def.fatigue ? { 'party.stats.fatigue': -def.fatigue } : {}), ...def.effects }
-  if (Object.keys(fx).length) older.push({ effects: fx })
-  return [...older, ...((def.do ?? []) as ActionStep[])]
+  return (def.do ?? []) as ActionStep[]
 }
 
 export type CheckRule = z.infer<typeof checkRule> & { unless?: Condition; when?: Condition }
@@ -725,22 +463,9 @@ export function checkInfo(
   }
 }
 
-/**
- * Where a way of travelling can go, as a condition (`through`, or the older
- * `allowedTerrains` list read as one); undefined: wherever terrains allow.
- */
-export function modeThrough(mode: {
-  through?: unknown
-  allowedTerrains?: string[]
-}): Condition | undefined {
-  if (mode.through) return mode.through as Condition
-  const list = mode.allowedTerrains
-  if (!list) return undefined
-  const terrains = list.filter((t) => t !== 'water')
-  const water = list.includes('water')
-  const byTerrain: Condition = { terrain: terrains }
-  if (!water) return byTerrain
-  return terrains.length ? { any: [byTerrain, { water: true }] } : { water: true }
+/** Where a way of travelling can go, as a condition (`through`); undefined: wherever terrains allow. */
+export function modeThrough(mode: { through?: unknown }): Condition | undefined {
+  return mode.through as Condition | undefined
 }
 
 export type Passable = z.infer<typeof passable>
@@ -786,14 +511,10 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
       ...conditions(m, `modes.${id}`),
       ...(m.through ? validateCondition(m.through as Condition, `modes.${id}.through`) : []),
     ]),
-    ...Object.entries(parsed.data.actions ?? {}).flatMap(([id, a]) =>
-      a === false
-        ? []
-        : [
-            ...conditions(a, `actions.${id}`),
-            ...(a.do ?? []).flatMap((st, i) => conditions(st, `actions.${id}.do[${i}]`)),
-          ],
-    ),
+    ...Object.entries(parsed.data.actions ?? {}).flatMap(([id, a]) => [
+      ...conditions(a, `actions.${id}`),
+      ...(a.do ?? []).flatMap((st, i) => conditions(st, `actions.${id}.do[${i}]`)),
+    ]),
   ]
   return errors.length ? { errors } : { rules: parsed.data, errors: [] }
 }

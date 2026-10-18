@@ -59,7 +59,6 @@ export const RESERVED_DIVISIONS = [
   'minute',
   'minuteOfDay',
   'season',
-  'daylight',
   'year',
   'month',
   'monthDay',
@@ -68,8 +67,6 @@ export const RESERVED_DIVISIONS = [
   'holidays',
   'tags',
   'divisions',
-  'dawn',
-  'nightfall',
   'hoursPerDay',
 ] as const
 
@@ -77,18 +74,12 @@ const CLOCK = /^\d{1,2}:\d{2}$/
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
-/** Readable problems of a calendar's `divisions` (and its older `watchHours`). */
-export function validateDivisions(
-  divisions: unknown,
-  watchHours: unknown,
-  hoursPerDay = 24,
-): string[] {
+/** Readable problems of a calendar's `divisions`. */
+export function validateDivisions(divisions: unknown, hoursPerDay = 24): string[] {
   const errors: string[] = []
   const minutesPerDay = hoursPerDay * MINUTES_PER_HOUR
   if (divisions === undefined) return errors
   if (!isRecord(divisions)) return ['divisions: a map of divisions (`meal: { parts: […] }`)']
-  if (watchHours !== undefined && 'watch' in divisions)
-    errors.push('watchHours: the calendar has divisions.watch too; keep one')
   for (const [id, raw] of Object.entries(divisions)) {
     const at = `divisions.${id}`
     if (!/^[a-z][\w-]*$/i.test(id)) errors.push(`${at}: an id of letters, digits and -`)
@@ -179,16 +170,14 @@ function readParts(parts: DayPartDef[], minutesPerDay: number): DayPart[] {
 
 /**
  * The divisions a calendar declares, ready to read (validate them first: broken parts are
- * skipped). `watchHours` is read as `watch: { every }` when there's no `watch` of its own.
+ * skipped).
  */
 export function readDivisions(
   divisions: Record<string, DivisionDef> | undefined,
-  watchHours: number | undefined,
   hoursPerDay = 24,
 ): Division[] {
   const minutesPerDay = hoursPerDay * MINUTES_PER_HOUR
   const all: [string, DivisionDef][] = Object.entries(divisions ?? {})
-  if (watchHours && !all.some(([id]) => id === 'watch')) all.push(['watch', { every: watchHours }])
   return all.flatMap(([id, def]): Division[] => {
     if (typeof def !== 'object' || def === null) return []
     const texts = {

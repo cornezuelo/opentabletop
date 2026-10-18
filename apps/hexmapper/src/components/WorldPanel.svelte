@@ -110,7 +110,7 @@
   )
   /** The ways the calendar divides the day (meals, watches…), each system its own. */
   const divisions = $derived(calendar.divisions ?? [])
-  /** A division's name: its own, Watches for the older `watchHours`, else its id. */
+  /** A division's name: its own, Watches for a numbered `watch` without one, else its id. */
   const divisionName = (d: Division) =>
     d.name !== undefined
       ? name(d.name, d.id)

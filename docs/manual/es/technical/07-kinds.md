@@ -204,7 +204,7 @@ Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del dí
 
 **Nada que el sistema no declare.** Sin `march`, el grupo marcha siempre que nada más lo impida (un valor del día, el clima, el camino), de día y de noche; sin `halt`, un grupo que no puede marchar simplemente espera; sin acciones, no hay ninguna (ni acampar ni descansar propios del motor); sin `values`, no hay ninguno. La **parada** (`travel.halt`): desde su momento hasta que acaba el día, un grupo que no está marchando mientras el tiempo avanza solo (el reloj del mundo, una orden de viajar sin nada más que marchar, **Esperar a la próxima marcha**) hace su acción, una vez al día; si no puede (su `when` / `unless`, un valor que la bloquea), el diario lo dice y el tiempo pasa hasta que el grupo pueda marchar.
 
-**Los packs antiguos** (formato de pack 2 y anteriores: mira [Formatos de fichero](02-file-formats.md#packs)) se siguen leyendo como eran: su `day: { start, nightfall, night }` (el alba: el momento `day-start` y `time: dawn`; el anochecer: `daylight` y `time: nightfall`; la acción de la noche: su parada desde el anochecer), la acampada, el descanso y la marcha que tenían sin declararlos (`camp: false` quitaba uno) y el `lost` integrado. Sus `perDay`, el `consumes` de una forma de viajar y los pasos con `eat: day` también se siguen leyendo, como una acción `eat` en day-end.
+Los packs escritos para un formato de pack anterior no se leen (mira [Formatos de fichero](02-file-formats.md#packs)).
 
 **Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 
@@ -265,7 +265,6 @@ Los meses del año (con sus días y estaciones), los días de la semana, las lun
 kind: calendar
 id: marcher-reckoning
 name: El cómputo de las Marcas
-watchHours: 4
 startYear: 412
 months:
   - { id: thaw, name: Deshielo, days: 30, season: spring }
@@ -277,7 +276,7 @@ holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 
 **Qué ven las tablas:** `{{month}}` (el id del mes), `{{year}}`, `{{weekday}}`, la fase de cada luna como `moons.<luna>` (`when: { moons.pale: full }`) y las fiestas de hoy como una lista (`when: { holidays: midsummer }`), además de `season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
 
-**Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. `watchHours: 4` es la forma antigua de `divisions: { watch: { every: 4 } }`. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `daylight`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../hexmapper/12-world.md) del Hexmapper avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
+**Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../hexmapper/12-world.md) del Hexmapper avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
 ```yaml
 kind: calendar

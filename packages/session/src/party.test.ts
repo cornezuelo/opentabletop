@@ -8,7 +8,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system whose party is its members: stats from them, food they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
   {
     path: 'band/system.yaml',
     content: `
@@ -37,18 +37,21 @@ conditions:
     path: 'band/travel.yaml',
     content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { food: { min: 0 } }
 actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
   eat: { on: day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
   forced-march: { do: [{ time: 60 }, { effects: { acting.values.health: -1 } }] }
   bandage: { do: [{ effects: { acting.conditions.wounded: false } }] }
   scout: { when: { roles.guide.values.survival: { gte: 2 } }, do: [{ effects: { roles.guide.values.health: -1 } }] }
   ambushed: { do: [{ effects: { party.members.values.health: -1, characters.mara.conditions.wounded: true } }] }
-checks: [{ event: TRAIL, at: day-start }]
+checks: [{ event: TRAIL, at: '07:00' }]
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: { TRAIL: { resolve: trail } }

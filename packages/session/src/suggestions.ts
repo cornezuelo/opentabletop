@@ -171,13 +171,6 @@ export function contextSuggestions(
       add(`today.${value}`, true, false)
       add(`yesterday.${value}`, true, false)
     }
-    // Older rules (`day:`): whether it's day, their dawn and nightfall, the day ended in camp.
-    if (rules.day) {
-      add('daylight', true, false)
-      add('dawn')
-      add('nightfall')
-      add('camping', true, false)
-    }
     // Marching is no action taken (the Travel buttons): not a moment, never done.
     const taken = Object.keys(availableActions(rules).all).filter((id) => id !== MARCH)
     add('doing', ...taken)

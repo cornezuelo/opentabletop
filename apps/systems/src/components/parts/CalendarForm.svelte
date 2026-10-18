@@ -101,17 +101,6 @@
           onchange={(e) => doc.edit('', ['hoursPerDay'], num(e.currentTarget))}
         />
       </label>
-      <label>
-        <span>{t('calendar.watchHours')}<InfoTip text={t('calendar.watchHoursHelp')} /></span>
-        <input
-          type="number"
-          min="1"
-          step="any"
-          value={data.watchHours ?? ''}
-          {disabled}
-          onchange={(e) => doc.edit('', ['watchHours'], num(e.currentTarget))}
-        />
-      </label>
     </div>
   </section>
 

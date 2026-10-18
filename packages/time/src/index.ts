@@ -16,7 +16,7 @@ export interface TimeParts {
   season?: string
   /**
    * The watch of the day, when the calendar has a `watch` division: its number (1-based,
-   * `watchHours` / `every`) or its part's id.
+   * `every`) or its part's id.
    */
   watch?: number | string
   /** What it is in each division of the day: `{ meal: 'elevenses', watch: 2 }` (a gap: absent). */
@@ -36,8 +36,8 @@ export interface Calendar {
 
 export interface SimpleCalendarOptions {
   hoursPerDay?: number
-  /** Watch length in hours (e.g. 4 → six watches a day). */
-  watchHours?: number
+  /** Its divisions of the day (`{ watch: { every: 4 } }`: six watches). */
+  divisions?: Record<string, DivisionDef>
   /** Seasons in order with their length in days; the cycle repeats. */
   seasons?: { id: string; days: number }[]
   /** Day of the cycle the campaign starts on (0-based), e.g. to start in autumn. */
@@ -49,7 +49,7 @@ export function simpleCalendar(options: SimpleCalendarOptions = {}): Calendar {
   const minutesPerDay = hoursPerDay * MINUTES_PER_HOUR
   const seasons = options.seasons ?? []
   const year = seasons.reduce((sum, s) => sum + s.days, 0)
-  const divisions = readDivisions(undefined, options.watchHours, hoursPerDay)
+  const divisions = readDivisions(options.divisions, hoursPerDay)
   return {
     minutesPerDay,
     divisions,
@@ -84,7 +84,7 @@ export function simpleCalendar(options: SimpleCalendarOptions = {}): Calendar {
 
 /** The usual default: 24 h days, 4 h watches, four 90-day seasons starting in spring. */
 export const defaultCalendar = simpleCalendar({
-  watchHours: 4,
+  divisions: { watch: { every: 4 } },
   seasons: [
     { id: 'spring', days: 90 },
     { id: 'summer', days: 90 },
@@ -146,4 +146,10 @@ export function formatClock(parts: Pick<TimeParts, 'hour' | 'minute'>): string {
 }
 export * from './calendar'
 export * from './divisions'
-import { divisionValues, findPart, readDivisions, type Division } from './divisions'
+import {
+  divisionValues,
+  findPart,
+  readDivisions,
+  type Division,
+  type DivisionDef,
+} from './divisions'

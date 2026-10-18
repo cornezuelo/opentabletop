@@ -12,8 +12,6 @@ import {
   availableActions,
   createTravelEngine,
   initialTravelState,
-  modeThrough,
-  olderEatingEdits,
   parseTravelRules,
   type TravelAction,
   type TravelEvent,
@@ -48,24 +46,50 @@ function makeWorld(): TravelWorld {
   }
 }
 
+/**
+ * The day most of these tests play: new trips start at 06:00; the party marches by day
+ * (06:00–20:00) for the day's 8 hours, camps from 20:00 (the halt) until 06:00, and rests
+ * an hour.
+ */
+const DAY = { hoursPerDay: 8, start: '06:00', halt: { at: '20:00', do: 'camp' } }
+const DAY_ACTIONS = {
+  camp: { do: [{ time: '06:00' }] },
+  rest: { do: [{ time: 60 }] },
+  march: {
+    when: { 'time.hour': { gte: 6, lt: 20 }, 'trip.marched': { lt: '{{system.hoursPerDay}}' } },
+  },
+}
+
 /** Kal-Arath-like rules: 1 hex = 30 km = 1 day on foot (8 h of marching). */
 const { rules, errors } = parseTravelRules({
   kind: 'travel-rules',
-  day: { start: '06:00', nightfall: '20:00' },
-  travel: { hoursPerDay: 8 },
+  travel: DAY,
   terrains: {
     steppe: { multiplier: 1 },
     mountains: { multiplier: 0.25 },
     sea: { passable: false },
   },
   edges: { road: { multiplier: 1.5 } },
-  modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 60, consumes: { fodder: 1 } } },
-  resources: { food: { perDay: 1 } },
+  modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 60 } },
+  resources: { food: { min: 0 } },
   weather: { storm: { speed: 0 }, 'heavy-rain': { speed: 0.5 } },
+  values: { lost: { blocks: ['travel'] } },
+  actions: {
+    ...DAY_ACTIONS,
+    // A day of food as each day ends, and of fodder on horseback.
+    eat: {
+      on: 'day-end',
+      oncePerDay: true,
+      do: [
+        { effects: { 'party.resources.food': -1 } },
+        { when: { mode: 'horse' }, effects: { 'party.resources.fodder': -1 } },
+      ],
+    },
+  },
   checks: [
-    { event: 'WEATHER_CHECK_REQUIRED', at: 'day-start' },
-    { event: 'NAVIGATION_CHECK_REQUIRED', at: 'day-start', unless: { edges: ['road', 'river'] } },
-    { event: 'ENCOUNTER_CHECK_REQUIRED', at: 'day-start' },
+    { event: 'WEATHER_CHECK_REQUIRED', at: '06:00' },
+    { event: 'NAVIGATION_CHECK_REQUIRED', at: '06:00', unless: { edges: ['road', 'river'] } },
+    { event: 'ENCOUNTER_CHECK_REQUIRED', at: '06:00' },
     { event: 'CAMP_ENCOUNTER_CHECK_REQUIRED', at: 'camp' },
   ],
 })
@@ -97,13 +121,12 @@ describe('rules', () => {
   it('validates rules', () => {
     expect(errors).toEqual([])
     const bad = parseTravelRules({
-      day: { start: '6am', nightfall: '20:00' },
-      travel: { hoursPerDay: 30 },
+      travel: { hoursPerDay: 30, start: '6am' },
       terrains: {},
       modes: {},
     })
     expect(bad.rules).toBeUndefined()
-    expect(bad.errors.join('\n')).toContain('day.start')
+    expect(bad.errors.join('\n')).toContain('travel.start')
     expect(bad.errors.join('\n')).toContain('travel.hoursPerDay')
   })
 })
@@ -330,11 +353,10 @@ describe('the trip’s totals', () => {
   it('lets conditions read them: an action only after 50 km', () => {
     const { rules: far, errors: farErrors } = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
       terrains: { steppe: { multiplier: 1 } },
       modes: { horse: { kmPerDay: 60 } },
-      actions: { boast: { when: { 'trip.km': { gte: 50 } }, minutes: 10 } },
+      actions: { ...DAY_ACTIONS, boast: { when: { 'trip.km': { gte: 50 } }, do: [{ time: 10 }] } },
     })
     expect(farErrors).toEqual([])
     const tripEngine = createTravelEngine({ world, rules: far! })
@@ -383,13 +405,14 @@ describe('camp, resources and the end of the day', () => {
           {
             event: 'HUNGER',
             at: 'day-end',
-            when: { short: true },
+            when: { below: 'food' },
             effects: { 'party.stats.fatigue': 1 },
           },
           {
             event: 'SLEEP',
             at: 'day-end',
-            when: { all: [{ short: false }, { camping: true }] },
+            when: { doing: 'camp' },
+            unless: { below: 'food' },
             effects: { 'party.stats.fatigue': -1 },
           },
         ],
@@ -409,7 +432,7 @@ describe('camp, resources and the end of the day', () => {
     expect(hungry.state.pendingChecks).toEqual([
       expect.objectContaining({
         event: 'HUNGER',
-        context: expect.objectContaining({ short: true, camping: true }),
+        context: expect.objectContaining({ below: ['food'], doing: 'camp' }),
         effects: { 'party.stats.fatigue': 1 },
       }),
     ])
@@ -503,15 +526,17 @@ describe('camp, resources and the end of the day', () => {
 })
 
 describe('available actions', () => {
-  it('lets systems remove or tune camp and rest', () => {
-    const campOnly = createTravelEngine({ world, rules: { ...rules!, actions: { rest: false } } })
-    const { state, events } = campOnly.apply(start(), { type: 'action', id: 'rest' })
+  it('has only the actions the system declares, as it declares them', () => {
+    const campOnly = { ...rules!.actions! }
+    delete campOnly.rest
+    const noRest = createTravelEngine({ world, rules: { ...rules!, actions: campOnly } })
+    const { state, events } = noRest.apply(start(), { type: 'action', id: 'rest' })
     expect(events).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'rest', because: { off: true } }])
     expect(state.time).toBe(start().time)
 
     const restful = createTravelEngine({
       world,
-      rules: { ...rules!, actions: { rest: { minutes: 120 } } },
+      rules: { ...rules!, actions: { ...rules!.actions, rest: { do: [{ time: 120 }] } } },
     })
     const rested = restful.apply(start(), { type: 'action', id: 'rest' }).state
     expect(rested.time - start().time).toBe(120)
@@ -522,8 +547,9 @@ describe('the system’s own actions', () => {
   const foraging = parseTravelRules({
     ...rules!,
     actions: {
-      forage: { name: { en: 'Forage' }, minutes: 240, speed: 0.5, oncePerDay: true },
-      pray: { effects: { 'party.stats.morale': 1 } },
+      ...rules!.actions,
+      forage: { name: { en: 'Forage' }, oncePerDay: true, do: [{ time: 240 }, { speed: 0.5 }] },
+      pray: { do: [{ effects: { 'party.stats.morale': 1 } }] },
     },
     checks: [{ event: 'FORAGE_CHECK_REQUIRED', at: 'forage', when: { terrain: 'steppe' } }],
   }).rules!
@@ -581,19 +607,18 @@ describe('the system’s own actions', () => {
     ])
   })
 
-  it('are listed with camp and rest, and checks can only name existing moments', () => {
-    // Older rules (perDay) also eat with an action at day-end.
+  it('are listed as the system declares them, and checks can only name existing moments', () => {
     expect(Object.keys(availableActions(foraging).all)).toEqual([
       'camp',
       'rest',
       'march',
+      'eat',
       'forage',
       'pray',
-      'eat',
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected day-start, hex-enter, day-end, camp, rest, forage, pray, eat, a clock (06:00) or a part of the day (meal.supper)',
+      'checks.0.at: expected hex-enter, day-end, camp, rest, eat, forage, pray, a clock (06:00) or a part of the day (meal.supper)',
     ])
   })
 })
@@ -601,18 +626,18 @@ describe('the system’s own actions', () => {
 describe('actions as steps, and declared values', () => {
   const stepped = parseTravelRules({
     ...rules!,
-    resources: { food: { perDay: 1 } },
     values: {
       stranded: { name: 'Stranded', blocks: ['travel', 'forage'] },
     },
     actions: {
-      // The Grey Marches' way of camping: eat, then sleep, with or without enough food.
+      ...rules!.actions,
+      // Eat, then sleep, with or without enough food.
       camp: {
         do: [
-          { eat: 'day' },
-          { time: 'dawn' },
-          { when: { short: false }, effects: { 'party.stats.fatigue': -1 } },
-          { when: { short: true }, effects: { 'party.stats.fatigue': 1 } },
+          { do: 'eat' },
+          { time: '06:00' },
+          { unless: { below: 'food' }, effects: { 'party.stats.fatigue': -1 } },
+          { when: { below: 'food' }, effects: { 'party.stats.fatigue': 1 } },
         ],
       },
       rest: { do: [{ time: 90 }] },
@@ -621,7 +646,7 @@ describe('actions as steps, and declared values', () => {
         do: [{ time: 180 }, { speed: 0.5 }],
         oncePerDay: true,
       },
-      pray: { when: { 'party.stats.faith': { gte: 1 } }, do: [{ time: 'nightfall' }] },
+      pray: { when: { 'party.stats.faith': { gte: 1 } }, do: [{ time: '20:00' }] },
     },
   })
   const own = createTravelEngine({ world, rules: stepped.rules! })
@@ -631,11 +656,11 @@ describe('actions as steps, and declared values', () => {
     const bad = parseTravelRules({
       ...rules!,
       values: { stuck: { blocks: ['fly'] } },
-      actions: { nap: { do: [{ time: 30, speed: 0.5 }] } },
+      actions: { ...rules!.actions, nap: { do: [{ time: 30, speed: 0.5 }] } },
     })
     expect(bad.errors).toEqual([
       'actions.nap.do.0: a step does one thing: time, speed, effects, do, roll, set or advance',
-      'values.stuck.blocks.0: expected travel, camp, rest, march, nap, eat, mode.foot, mode.horse',
+      'values.stuck.blocks.0: expected travel, camp, rest, march, eat, nap, mode.foot, mode.horse',
     ])
   })
 
@@ -719,7 +744,7 @@ describe('ways of travelling with conditions', () => {
       foot: { kmPerDay: 30 },
       horse: { kmPerDay: 50 },
       // Only boarded at the water's edge (here: the ferry at 2,0).
-      boat: { kmPerDay: 40, allowedTerrains: ['water'], when: { 'hex.id': '2,0' } },
+      boat: { kmPerDay: 40, through: { water: true }, when: { 'hex.id': '2,0' } },
     },
   })
   const own = createTravelEngine({ world, rules: boating.rules! })
@@ -774,13 +799,13 @@ describe('check context', () => {
     }
     const { rules: r } = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
+      actions: DAY_ACTIONS,
       terrains: {},
       modes: { foot: { kmPerDay: 30 } },
       checks: [
-        { event: 'MARCHES_PATROL', at: 'day-start', when: { region: 'Black Marches' } },
-        { event: 'ELSEWHERE', at: 'day-start', unless: { region: 'Black Marches' } },
+        { event: 'MARCHES_PATROL', at: '06:00', when: { region: 'Black Marches' } },
+        { event: 'ELSEWHERE', at: '06:00', unless: { region: 'Black Marches' } },
       ],
     })
     const e = createTravelEngine({ world: marches, rules: r! })
@@ -801,8 +826,8 @@ describe('check context', () => {
   it('entering a hex sees the edge just walked, also at the destination', () => {
     const { rules: enter } = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
+      actions: DAY_ACTIONS,
       terrains: { steppe: { multiplier: 1 } },
       edges: { road: { multiplier: 1.5 } },
       modes: { foot: { kmPerDay: 90 } },
@@ -836,10 +861,10 @@ describe('water', () => {
   const rulesWith = (extra: object) =>
     parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
+      actions: DAY_ACTIONS,
       terrains: { plains: { multiplier: 1 } },
-      modes: { foot: { kmPerDay: 30 }, boat: { kmPerDay: 40, allowedTerrains: ['water'] } },
+      modes: { foot: { kmPerDay: 30 }, boat: { kmPerDay: 40, through: { water: true } } },
       ...extra,
     }).rules!
 
@@ -886,8 +911,8 @@ describe('only through', () => {
   it('a condition on the hex entered and the step: a cart only by road', () => {
     const { rules: carts, errors } = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
+      actions: DAY_ACTIONS,
       terrains: { steppe: {}, mountains: { multiplier: 0.25 }, sea: { passable: false } },
       edges: { road: { multiplier: 1.5 } },
       modes: { foot: { kmPerDay: 30 }, cart: { kmPerDay: 40, through: { edges: 'road' } } },
@@ -902,21 +927,12 @@ describe('only through', () => {
     // A broken condition is a problem of the pack.
     const bad = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
+      actions: DAY_ACTIONS,
       terrains: {},
       modes: { cart: { kmPerDay: 40, through: { edges: { near: 'road' } } } },
     })
     expect(bad.errors.some((e) => e.startsWith('modes.cart.through'))).toBe(true)
-  })
-
-  it('reads the older list of terrains as a condition', () => {
-    expect(modeThrough({ allowedTerrains: ['water', 'coast'] })).toEqual({
-      any: [{ terrain: ['coast'] }, { water: true }],
-    })
-    expect(modeThrough({ allowedTerrains: ['water'] })).toEqual({ water: true })
-    expect(modeThrough({ allowedTerrains: ['space'] })).toEqual({ terrain: ['space'] })
-    expect(modeThrough({})).toBeUndefined()
   })
 })
 
@@ -972,8 +988,8 @@ describe('waiting', () => {
   it('when night falls and the party can’t camp, the night passes without it, saying why', () => {
     const { rules: blocking } = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: DAY,
+      actions: DAY_ACTIONS,
       terrains: {},
       modes: { foot: { kmPerDay: 30 } },
       values: { hunted: { blocks: ['camp'] } },
@@ -992,12 +1008,11 @@ describe('waiting', () => {
   it('without a camp in the system, the night just passes', () => {
     const { rules: noCamp } = parseTravelRules({
       kind: 'travel-rules',
-      day: { start: '06:00', nightfall: '20:00' },
-      travel: { hoursPerDay: 8 },
+      travel: { hoursPerDay: 8, start: '06:00' },
       terrains: {},
       modes: { foot: { kmPerDay: 30 } },
-      resources: { food: { perDay: 1 } },
-      actions: { camp: false },
+      resources: { food: { min: 0 } },
+      actions: { eat: { on: 'day-end', do: [{ effects: { 'party.resources.food': -1 } }] } },
     })
     const eng = createTravelEngine({ world, rules: noCamp! })
     const { state, events } = waitAll(eng, start(), at(2, '10:00'))
@@ -1012,8 +1027,7 @@ describe('actions the system triggers, and bounded values', () => {
   /** The new way: supplies with bounds, eating as an action at day-end, nothing built in. */
   const { rules: triggered, errors } = parseTravelRules({
     kind: 'travel-rules',
-    day: { start: '06:00', nightfall: '20:00' },
-    travel: { hoursPerDay: 8 },
+    travel: DAY,
     terrains: { steppe: { multiplier: 1 } },
     modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 60 } },
     resources: { food: { min: 0 }, water: { min: 0, max: 4 }, gold: {} },
@@ -1025,6 +1039,7 @@ describe('actions the system triggers, and bounded values', () => {
       { event: 'AMBUSH', when: { terrain: 'steppe' } },
     ],
     actions: {
+      ...DAY_ACTIONS,
       eat: {
         on: 'day-end',
         do: [
@@ -1134,19 +1149,19 @@ describe('actions the system triggers, and bounded values', () => {
   })
 
   it('may come at several moments, and their conditions see which one (moment)', () => {
-    const sight = { event: 'SIGHT', at: ['day-start', 'hex-enter'], when: { moment: 'hex-enter' } }
-    const bad = { event: 'BAD', at: ['day-start', 'nowhere'] }
+    const sight = { event: 'SIGHT', at: ['06:00', 'hex-enter'], when: { moment: 'hex-enter' } }
+    const bad = { event: 'BAD', at: ['06:00', 'nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected day-start, hex-enter, day-end, camp, rest, eat, drink, pray, feast, chant, a clock (06:00) or a part of the day (meal.supper)',
+      'checks.1.at.1: expected hex-enter, day-end, camp, rest, eat, drink, pray, feast, chant, a clock (06:00) or a part of the day (meal.supper)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
       checks: [sight],
       actions: {
+        camp: triggered!.actions!.camp,
         watch: {
-          on: ['day-start', 'hex-enter'],
+          on: ['06:00', 'hex-enter'],
           do: [
-            // Older rules' day-start is their day.start: the moment is its clock.
             { when: { moment: '06:00' }, effects: { 'party.resources.gold': 1 } },
             { when: { moment: 'hex-enter' }, effects: { 'party.resources.gold': 10 } },
           ],
@@ -1185,10 +1200,12 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected day-start, hex-enter, day-end, camp, rest, a, b, c, d, e, a clock (06:00) or a part of the day (meal.supper)',
-      'actions.a.on: expected day-start, hex-enter, day-end, camp, rest, a, b, c, d, e, a clock (06:00) or a part of the day (meal.supper)',
+      'checks.1.at: expected hex-enter, day-end, a, b, c, d, e, a clock (06:00) or a part of the day (meal.supper)',
+      'actions.a.on: expected hex-enter, day-end, a, b, c, d, e, a clock (06:00) or a part of the day (meal.supper)',
       'actions.a.do.1.roll: expected HUNGER, OMEN, AMBUSH',
       'actions.a.do.2.set.nope: expected lost, weary',
+      // (camp is gone too, and the halt named it)
+      'travel.halt.do: expected a, b, c, d, e',
       'actions.d: actions take each other in a loop: d → e → d',
     ])
   })
@@ -1200,7 +1217,7 @@ describe('actions the system triggers, and bounded values', () => {
         ...triggered!.actions,
         camp: {
           do: [
-            { time: 'dawn' },
+            { time: '06:00' },
             { unless: { below: 'food' }, effects: { 'party.stats.faith': 1 } },
           ],
         },
@@ -1219,101 +1236,42 @@ describe('actions the system triggers, and bounded values', () => {
     expect(fx(0)).toHaveLength(0)
   })
 
-  it('turns older rules’ eating into the new way, doing the same', () => {
-    const older = parseTravelRules({
-      ...rules!,
-      actions: { camp: { do: [{ eat: 'day' }, { time: 'dawn' }] } },
-    }).rules!
-    const edits = olderEatingEdits(older)
-    expect(edits).toEqual([
-      { path: ['resources', 'food', 'perDay'], value: undefined },
-      { path: ['resources', 'food', 'min'], value: 0 },
-      { path: ['modes', 'horse', 'consumes'], value: undefined },
-      { path: ['actions', 'camp', 'do'], value: [{ do: 'eat' }, { time: 'dawn' }] },
-      {
-        path: ['actions', 'eat'],
-        value: {
-          on: 'day-end',
-          oncePerDay: true,
-          do: [
-            { effects: { 'party.resources.food': -1 } },
-            { when: { mode: 'horse' }, effects: { 'party.resources.fodder': -1 } },
-          ],
-        },
-      },
-    ])
-    // Applied, the rules are the new way and play the same.
-    const next = structuredClone(older) as Record<string, unknown>
-    for (const { path, value } of edits) {
-      let at = next as Record<string | number, unknown>
-      for (const key of path.slice(0, -1)) at = (at[key] ??= {}) as typeof at
-      if (value === undefined) delete at[path.at(-1)!]
-      else at[path.at(-1)!] = value
-    }
-    const upgraded = parseTravelRules(next)
-    expect(upgraded.errors).toEqual([])
-    expect(olderEatingEdits(upgraded.rules!)).toEqual([])
-    const play = (r: typeof older) =>
-      createTravelEngine({ world, rules: r }).apply(start('0,0', 'horse'), {
-        type: 'action',
-        id: 'camp',
-      }).state.resources
-    expect(play(upgraded.rules!)).toEqual(play(older))
-  })
-
-  it('camp and rest are ordinary actions; the night’s action is data', () => {
+  it('camp and rest are ordinary actions; the halt is data', () => {
     const base = {
       kind: 'travel-rules',
-      travel: { hoursPerDay: 8 },
       terrains: {},
       modes: { foot: { kmPerDay: 30 } },
       values: {},
     }
-    // A system without camp, whose party bivouacs: waiting, night falls and it bivouacs.
+    // A system without camp, whose party bivouacs: waiting, the halt comes and it bivouacs.
     const { rules: own, errors } = parseTravelRules({
       ...base,
-      day: { start: '06:00', nightfall: '20:00', night: 'bivouac' },
+      travel: { hoursPerDay: 8, halt: { at: '20:00', do: 'bivouac' } },
       actions: {
-        camp: false,
-        rest: false,
-        bivouac: { do: [{ time: 'dawn' }] },
+        bivouac: { do: [{ time: '06:00' }] },
         note: { on: 'day-end', when: { doing: 'bivouac' }, do: [{ set: {} }] },
       },
     })
     expect(errors).toEqual([])
-    expect(Object.keys(availableActions(own!).all)).toEqual(['march', 'bivouac', 'note'])
+    expect(Object.keys(availableActions(own!).all)).toEqual(['bivouac', 'note'])
     const eng = createTravelEngine({ world, rules: own! })
     const morning = { ...start(), dayChecksDone: true }
     const { events } = eng.apply(morning, { type: 'wait', until: defaultCalendar.at(2, '12:00') })
     const taken = events.flatMap((e) => (e.type === 'ACTION_TAKEN' ? [e.action] : []))
     // The day ended while bivouacking: `doing` says so.
     expect(taken).toEqual(['bivouac', 'note'])
-    // `night: false`: the night just passes.
-    const { rules: none } = parseTravelRules({
-      ...base,
-      day: { start: '06:00', nightfall: '20:00', night: false },
-    })
+    // No halt: the night just passes.
+    const { rules: none } = parseTravelRules({ ...base, travel: { hoursPerDay: 8 } })
     const passes = createTravelEngine({ world, rules: none! }).apply(morning, {
       type: 'wait',
       until: defaultCalendar.at(2, '12:00'),
     })
     expect(passes.events.some((e) => e.type === 'ACTION_TAKEN')).toBe(false)
-    // The night's action must exist.
+    // The halt's action must exist.
     expect(
-      parseTravelRules({ ...base, day: { start: '06:00', nightfall: '20:00', night: 'nap' } })
+      parseTravelRules({ ...base, travel: { hoursPerDay: 8, halt: { at: '20:00', do: 'nap' } } })
         .errors,
-    ).toEqual(['day.night: expected camp, rest'])
-    // Older systems that named camp or rest without steps keep what they did then.
-    const { rules: older } = parseTravelRules({
-      ...base,
-      day: { start: '06:00', nightfall: '20:00' },
-      actions: { camp: { name: 'Camp' }, rest: { name: 'Rest' } },
-    })
-    expect(availableActions(older!).all).toEqual({
-      camp: { name: 'Camp', do: [{ time: '06:00' }] },
-      rest: { name: 'Rest', do: [{ time: 60 }] },
-      march: { when: { 'time.daylight': true, 'trip.marched': { lt: '{{system.hoursPerDay}}' } } },
-    })
+    ).toEqual(['travel.halt.do: expected an action'])
   })
 
   it('older trips: a day already eaten by `eat: day` isn’t eaten again', () => {
@@ -1354,15 +1312,15 @@ describe('the trip going on by itself (travel by a moment)', () => {
   /** Camp only with food left (a condition on the party, like a pack writes it). */
   const fedCamp = parseTravelRules({
     kind: 'travel-rules',
-    day: { start: '06:00', nightfall: '20:00' },
-    travel: { hoursPerDay: 8 },
+    travel: DAY,
     terrains: { steppe: { multiplier: 1 } },
     modes: { foot: { kmPerDay: 30 } },
     values: { hunted: { blocks: ['travel'] } },
     actions: {
+      ...DAY_ACTIONS,
       camp: {
         when: { 'party.resources.food': { gte: 1 } },
-        do: [{ time: 'dawn' }, { effects: { 'party.stats.fatigue': -1 } }],
+        do: [{ time: '06:00' }, { effects: { 'party.stats.fatigue': -1 } }],
       },
     },
   }).rules!
@@ -1449,13 +1407,15 @@ describe('the trip going on by itself (travel by a moment)', () => {
     const stormy = parseTravelRules({
       ...{
         kind: 'travel-rules',
-        day: { start: '06:00', nightfall: '20:00' },
-        travel: { hoursPerDay: 8 },
+        travel: DAY,
         terrains: { steppe: { multiplier: 1 } },
         modes: { foot: { kmPerDay: 30 } },
         weather: { storm: { speed: 0 } },
       },
-      actions: { camp: { when: { 'party.resources.food': { gte: 1 } }, do: [{ time: 'dawn' }] } },
+      actions: {
+        ...DAY_ACTIONS,
+        camp: { when: { 'party.resources.food': { gte: 1 } }, do: [{ time: '06:00' }] },
+      },
     }).rules!
     const eng = createTravelEngine({ world, rules: stormy })
     const state = {
@@ -1497,17 +1457,27 @@ describe('day and night, and marching as the system says', () => {
     ...rules!,
     resources: { food: { min: 0 } },
     values: { torchlit: { name: 'By torchlight' } },
-    checks: [{ event: 'NIGHT_LOST', at: 'hex-enter', when: { daylight: false } }],
+    checks: [
+      {
+        event: 'NIGHT_LOST',
+        at: 'hex-enter',
+        when: { any: [{ hour: { gte: 20 } }, { hour: { lt: 6 } }] },
+      },
+    ],
     actions: {
+      ...rules!.actions,
       // By day for the day's hours, or by torchlight until midnight.
       march: {
         when: {
-          any: [{ daylight: true, marched: { lt: '{{hoursPerDay}}' } }, { torchlit: true }],
+          any: [
+            { hour: { gte: 6, lt: 20 }, marched: { lt: '{{hoursPerDay}}' } },
+            { torchlit: true },
+          ],
         },
       },
-      rest: { when: { daylight: true }, do: [{ time: 120 }] },
+      rest: { when: { hour: { gte: 6, lt: 20 } }, do: [{ time: 120 }] },
       'night-march': {
-        when: { daylight: false, hour: { gte: '{{nightfall}}' } },
+        when: { hour: { gte: 20 } },
         hideWhenUnavailable: true,
         oncePerDay: true,
         do: [{ set: { torchlit: true } }],
@@ -1551,7 +1521,7 @@ describe('day and night, and marching as the system says', () => {
     expect(events.at(-1)).toMatchObject({ reason: 'march' })
   })
 
-  it('checks at night see daylight: false', () => {
+  it('checks at night see the hour', () => {
     const planned = own.apply(at('20:00'), { type: 'setDestination', hex: '1,0' }).state
     const lit = own.apply(planned, { type: 'action', id: 'night-march' }).state
     const { events } = own.apply({ ...lit, progress: 300 }, { type: 'travel' })
@@ -1564,7 +1534,11 @@ describe('day and night, and marching as the system says', () => {
     const tired = parseTravelRules({
       ...rules!,
       actions: {
-        march: { unless: { 'party.stats.fatigue': { gte: '{{party.stats.endurance}}' } } },
+        ...rules!.actions,
+        march: {
+          ...DAY_ACTIONS.march,
+          unless: { 'party.stats.fatigue': { gte: '{{party.stats.endurance}}' } },
+        },
       },
     })
     const engine = createTravelEngine({ world, rules: tired.rules! })
@@ -1584,6 +1558,7 @@ describe('day and night, and marching as the system says', () => {
     const bad = parseTravelRules({
       ...rules!,
       actions: {
+        ...rules!.actions,
         march: { on: 'day-start', do: [{ time: 60 }] },
         nap: { do: [{ do: 'march' }] },
       },
@@ -1606,10 +1581,7 @@ describe('what conditions read of the moment, the trip and the land around', () 
     expect(own.context(at)).toMatchObject({
       hour: 14.5,
       watch: 4, // 4-hour watches: 12:00–16:00 is the fourth
-      dawn: 6,
-      nightfall: 20,
       hoursPerDay: 8,
-      daylight: true,
     })
   })
 
@@ -1697,6 +1669,7 @@ describe('variables and rolls in conditions and effects', () => {
   const { rules: own } = parseTravelRules({
     ...rules!,
     actions: {
+      ...rules!.actions,
       // A roll-under against a stat: the same roll however often it's asked, that day there.
       scout: {
         when: { 'party.stats.wits': { gte: '{{1d20}}' } },
@@ -1796,8 +1769,8 @@ describe('full names of facts', () => {
     const seen = engine.context(state, host)
     expect(seen).toMatchObject({
       hex: { id: '2,9', terrain: 'steppe', tags: [] },
-      time: { season: 'spring', day: state.day, daylight: true, hour: 6 },
-      system: { dawn: 6, nightfall: 20, hoursPerDay: 8 },
+      time: { season: 'spring', day: state.day, hour: 6 },
+      system: { hoursPerDay: 8 },
       trip: { day: 1, marched: 0, mode: 'foot', visits: 1, edges: [] },
       world: { clocks: { 'the-flood': 4 }, events: ['market-day'] },
       today: { lost: true },
@@ -1809,12 +1782,12 @@ describe('full names of facts', () => {
     const { rules: own } = parseTravelRules({
       ...rules!,
       actions: {
+        ...rules!.actions,
         dawn: {
           when: {
-            'time.daylight': true,
             'hex.terrain': 'steppe',
             'trip.day': 1,
-            'time.hour': { gte: '{{system.dawn}}' },
+            'time.hour': { lt: '{{system.hoursPerDay}}' },
           },
           do: [{ time: 60 }],
         },
@@ -1838,6 +1811,7 @@ describe('progress by moves: the advance step', () => {
   const { rules: moves, errors } = parseTravelRules({
     ...rules!,
     actions: {
+      ...rules!.actions,
       march: { when: { 'today.marching': true } },
       undertake: { do: [{ time: 60 }, { advance: '{{party.stats.rank}}' }] },
       leap: { do: [{ advance: 9 }] },
@@ -1901,13 +1875,18 @@ describe('the parts of the calendar’s day', () => {
   })
   const parsed = parseTravelRules({
     kind: 'travel-rules',
-    // The system's day named by parts of the calendar's.
-    day: { start: 'meal.breakfast', nightfall: 'meal.supper' },
-    travel: { hoursPerDay: 8 },
+    // The system's day named by parts of the calendar's: trips start at breakfast, the
+    // party marches while it isn't dark (from breakfast to supper) and camps from supper.
+    travel: { hoursPerDay: 8, start: 'meal.breakfast', halt: { at: 'meal.supper', do: 'camp' } },
     terrains: { steppe: { multiplier: 1 } },
     modes: { foot: { kmPerDay: 30 } },
     resources: { food: { min: 0 } },
     actions: {
+      march: {
+        when: { 'time.tags': { not: 'dark' }, 'trip.marched': { lt: '{{system.hoursPerDay}}' } },
+      },
+      camp: { do: [{ time: 'meal.breakfast' }] },
+      rest: { do: [{ time: 60 }] },
       // By itself as elevenses begins: a bite and half an hour.
       elevenses: {
         on: 'meal.elevenses',
@@ -1949,14 +1928,14 @@ describe('the parts of the calendar’s day', () => {
   it('reads them: moments and steps name parts, the day starts and falls at them', () => {
     expect(parsed.errors).toEqual([])
     expect(shire.context(fresh('12:00'))).toMatchObject({
-      daylight: true,
-      dawn: 7,
-      nightfall: 21,
       meal: 'elevenses',
       time: { meal: 'elevenses', tags: ['meal'] },
       system: { meal: { breakfast: 7, elevenses: 11, supper: 21 } },
     })
-    expect(shire.context(fresh('02:00'))).toMatchObject({ daylight: false, watch: 'middle' })
+    expect(shire.context(fresh('02:00'))).toMatchObject({
+      time: { tags: expect.arrayContaining(['dark']) },
+      watch: 'middle',
+    })
   })
 
   it('waiting, a part’s moment comes: its actions, then its checks', () => {
@@ -2137,18 +2116,18 @@ describe('rules without a built-in day (format 3)', () => {
     ])
   })
 
-  it('tells what’s gone from older rules', () => {
+  it('knows no older moments, times or keys', () => {
     const { errors } = parseTravelRules({
       ...base,
       checks: [{ event: 'X', at: 'day-start' }],
       actions: { camp: { do: [{ time: 'dawn' }] } },
       travel: { hoursPerDay: 8, halt: { at: 'part.late', do: 'sleep' } },
+      day: { start: '06:00', nightfall: '20:00' },
     })
-    expect(errors).toEqual([
-      'checks.0.at: day-start is gone: name a part of the day (part.morning) or a clock (06:00)',
-      'actions.camp.do.0.time: dawn is gone: name a part of the day (part.morning) or a clock (06:00)',
-      'travel.halt.do: expected camp',
-    ])
+    expect(errors.map((e) => e.split(':')[0])).toEqual(
+      expect.arrayContaining(['rules', 'actions.camp.do.0.time']),
+    )
+    expect(errors.join('\n')).toMatch(/day/)
   })
 })
 

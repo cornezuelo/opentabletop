@@ -19,7 +19,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 - **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved.
 - **In YAML**, the same between braces on one line (`when: { terrain: forest }`) or one pair per indented line.
 - **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
-  - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{nightfall}}'`, not `gte: {{nightfall}}`;
+  - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{hoursPerDay}}'`, not `gte: {{hoursPerDay}}`;
   - **`: ` inside** (a colon and a space): YAML takes it for a new key: `result: 'Ambush: two wolves'`;
   - **` #` inside** (a space and a hash): YAML takes the rest for a comment and drops it: `result: 'Door #3'`;
   - **starting with `- `** (a dash and a space): YAML takes it for an item of a list: `result: '- nothing -'`.
@@ -27,7 +27,7 @@ Most boxes and most of the YAML are `key: value` pairs.
   A quote inside a quoted text is written twice: `'The guard''s dog'`. When in doubt, quote: it never hurts. Forms do it for you.
 
 - **Dotted names** reach inside a value: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
-- **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `hex.terrain` / `terrain`, `time.season` / `season`, `system.nightfall` / `nightfall`, `trip.day` / `tripDay`, `world.events` / `events`; the trip so far only by its full names (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#how-to-read-this-page).
+- **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `hex.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; the trip so far only by its full names (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#how-to-read-this-page).
 
 ## Ids and references
 
@@ -151,7 +151,7 @@ When a check is rolled (`at:`) or an action is taken by the system itself (`on:`
 | `day-end`                          | as each day ends, camping or not (actions first, then checks) |
 | an action's id (`camp`, `forage`)  | when the party takes that action                              |
 
-A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button. Older packs (format 2 and before) also have `day-start`: their dawn.
+A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
 
 ## Steps of an action
 

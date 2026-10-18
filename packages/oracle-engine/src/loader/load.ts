@@ -80,12 +80,22 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       report(diagnostics, parsed.error, { file: file.path, at: 'pack' })
       continue
     }
-    if ((parsed.data.format ?? 1) > PACK_FORMAT)
+    const format = parsed.data.format ?? PACK_FORMAT
+    if (format > PACK_FORMAT)
       diagnostics.push({
         severity: 'warning',
-        message: `Written for pack format ${parsed.data.format}, newer than this version reads (${PACK_FORMAT}): update OpenTabletop`,
+        message: `Written for pack format ${format}, newer than this version reads (${PACK_FORMAT}): update OpenTabletop`,
         file: file.path,
       })
+    // Older formats aren't read (for now: nobody else writes packs yet). Not loaded at all.
+    if (format < PACK_FORMAT) {
+      diagnostics.push({
+        severity: 'error',
+        message: `Written for pack format ${format}, which this version no longer reads (it reads ${PACK_FORMAT}): bring it to format ${PACK_FORMAT} (the manual's File formats says what changed) and set format: ${PACK_FORMAT} in pack.yaml`,
+        file: file.path,
+      })
+      continue
+    }
     if (packs.some((p) => p.manifest.id === parsed.data.id)) {
       diagnostics.push({
         severity: 'error',

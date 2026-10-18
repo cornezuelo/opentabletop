@@ -10,7 +10,6 @@ No hay un día integrado: cuándo puede marchar el grupo lo dice la acción **ma
 - **Horas de marcha al día**: las horas en que una forma de viajar hace sus km al día, la escala de su velocidad. Cuánto puede marchar el grupo cada día lo dice la marcha (`trip.marched: { lt: '{{system.hoursPerDay}}' }` lee este número). El tiempo de las acciones (descansar, buscar comida) no cuenta como marcha.
 - **km por hex**: la escala a la que se juega el sistema. Los viajes sin mapa (Travel, **Pruébalo**) la usan; un mapa con este sistema la toma, salvo que el mapa fije su propia escala.
 - **Parada desde** y **Acción de la parada**: lo que hace el grupo cuando no puede marchar mientras el tiempo avanza solo (el reloj del mundo, **Esperar a la próxima marcha**, una orden de viajar sin nada más que marchar): desde ese momento (una hora, `20:00`, o una parte, `part.night`) hasta que acaba el día, un grupo que no está marchando hace la acción, una vez al día; acampar, por ejemplo. Si no se cumplen sus condiciones, el diario dice por qué y el tiempo pasa sin ella. Sin acción: el grupo simplemente espera.
-- **Día antiguo (formato de pack 2)**: solo para packs escritos para el formato de pack 2 o anteriores, su **Alba**, **Anochecer** y **Al anochecer, esperando**, que se siguen leyendo como eran (mira [Formatos de fichero](../technical/02-file-formats.md#packs)).
 
 ## Formas de viajar
 
@@ -30,7 +29,7 @@ Cada una con sus **km por día** y:
 
 Lo que lleva el grupo, cada una con su **Mín** y **Máx**. Las provisiones las gastan las acciones, comprobaciones y tablas del propio sistema, nunca la app: las Marcas Grises comen con una acción que el sistema hace al final de cada día (1 de comida, y 1 de forraje a caballo).
 
-**Mín** y **Máx** acotan una provisión: un cambio que pasaría de uno se queda en él, el diario lo dice y las reglas del sistema pueden reaccionar (las Marcas Grises: una comprobación de fin de día, fatiga +1, cuando la comida llegó a su mínimo). Los sistemas antiguos que gastaban provisiones **al día** muestran un aviso con **Convertir**, que escribe lo mismo como una acción así.
+**Mín** y **Máx** acotan una provisión: un cambio que pasaría de uno se queda en él, el diario lo dice y las reglas del sistema pueden reaccionar (las Marcas Grises: una comprobación de fin de día, fatiga +1, cuando la comida llegó a su mínimo).
 
 ## Clima
 
@@ -54,7 +53,7 @@ Lo que puede hacer el grupo: solo lo que declara el sistema (acampar, descansar,
 - **Cuando no se aplica nada**: lo que dice el diario cuando no se aplica ninguna de sus comprobaciones;
 - **Qué hace**, paso a paso (las flechas suben o bajan un paso).
 
-**Marchar** son los botones de Viajar, no un botón propio: solo tiene **Solo si** / **Salvo si**, comprobados mientras el grupo marcha, que se detiene en cuanto dejan de cumplirse. Vacío, el grupo marcha siempre que nada más lo impida, de día y de noche (packs antiguos: de día, durante las horas de marcha del día). Su nombre y su descripción son los del primer botón de Viajar.
+**Marchar** son los botones de Viajar, no un botón propio: solo tiene **Solo si** / **Salvo si**, comprobados mientras el grupo marcha, que se detiene en cuanto dejan de cumplirse. Vacío, el grupo marcha siempre que nada más lo impida, de día y de noche. Su nombre y su descripción son los del primer botón de Viajar.
 
 ### Pasos
 

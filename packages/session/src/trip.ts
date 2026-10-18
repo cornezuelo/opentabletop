@@ -29,7 +29,6 @@ import { parseFactions } from '@open-tabletop/faction-engine'
 import { parseClocks } from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
 import type { SystemClocks } from './clocks'
-import { migrateRules } from './formats'
 import {
   MEMBER_PATH,
   partyBlocks,
@@ -327,23 +326,6 @@ export function travelSystems(registry: Registry): {
       rules = parsed.rules
     }
     const bindings = parts.bindings ? bindingsOf.get(parts.bindings)?.bindings : undefined
-    // Rules of a pack written for an older format keep their old meaning.
-    if (parts.rules) {
-      const owner = registry.packs.get(ownerOf(parts.rules) ?? pack)
-      const format = owner?.manifest.format ?? 1
-      rules = migrateRules(rules, bindings, format)
-      // Format 3 has no dawn and nightfall: an older `day:` is still read, and said.
-      if (format >= 3 && rules.day)
-        problems.push(
-          problem(
-            ownerOf(parts.rules) ?? pack,
-            parts.rules.file,
-            'travel-rules',
-            'day: gone in pack format 3: name when trips start (travel.start) and the halt (travel.halt), and parts of the day or clocks for its moments',
-            parts.rules.id,
-          ),
-        )
-    }
     for (const [event, binding] of Object.entries(bindings?.on ?? {}))
       if (binding.weather && !parts.weather[binding.weather])
         problems.push(

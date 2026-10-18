@@ -11,10 +11,14 @@ const { registry } = loadPacks([
     path: 'x/travel.yaml',
     content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { forest: { multiplier: 1 }, plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
+actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: {}
@@ -173,7 +177,7 @@ describe('context suggestions', () => {
     expect(s['time.season']).toEqual(s.season)
     expect(s['trip.mode']).toEqual(s.mode)
     expect(s).toHaveProperty(['trip.day'])
-    expect(s).toHaveProperty(['system.nightfall'])
+    expect(s).toHaveProperty(['system.hoursPerDay'])
     expect(s).toHaveProperty(['poi'])
     // Only what tables read: no set values.
     expect(contextSuggestions(registry, {}, { reads: true })).not.toHaveProperty(['poi'])
@@ -187,10 +191,14 @@ describe('discovering from the land around', () => {
       path: 'y/t.yaml',
       content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
+actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: {}
@@ -246,12 +254,16 @@ describe('waiting while discovering', () => {
         path: 'w/travel.yaml',
         content: `
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { forest: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 resources: { food: {} }
-checks: [{ event: DAWN, at: day-start, effects: { party.resources.food: 0 } }]
+checks: [{ event: DAWN, at: '07:00', effects: { party.resources.food: 0 } }]
+actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: {}

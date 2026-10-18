@@ -69,7 +69,7 @@ describe('calendars as data', () => {
     holidays: [{ id: 'feast', month: 'sun', day: 2 }],
     startYear: 300,
     start: { month: 'thaw', day: 2 },
-    watchHours: 6,
+    divisions: { watch: { every: 6 } },
   }
 
   it('find the game day of a date, and none for dates they don’t have', () => {
@@ -183,8 +183,11 @@ describe('divisions of the day', () => {
     expect(nextPartStart(shire, now, 'tide')).toBeUndefined()
   })
 
-  it('reads the older watchHours as numbered watches; no divisions, none', () => {
-    const old = calendarFrom({ months: [{ id: 'm', days: 30 }], watchHours: 4 })
+  it('reads numbered watches; no divisions, none', () => {
+    const old = calendarFrom({
+      months: [{ id: 'm', days: 30 }],
+      divisions: { watch: { every: 4 } },
+    })
     expect(old.divisions?.map((d) => [d.id, d.parts.length])).toEqual([['watch', 6]])
     expect(old.describe(old.at(1, '09:05'))).toMatchObject({ watch: 3, divisions: { watch: 3 } })
     const none = calendarFrom({ months: [{ id: 'm', days: 30 }] })
@@ -197,7 +200,6 @@ describe('divisions of the day', () => {
     expect(
       validateCalendar({
         months,
-        watchHours: 4,
         divisions: {
           watch: { every: 2 },
           day: { every: 4 },
@@ -218,7 +220,6 @@ describe('divisions of the day', () => {
         },
       }),
     ).toEqual([
-      'watchHours: the calendar has divisions.watch too; keep one',
       'divisions.day: "day" is already a name of the moment; choose another',
       'divisions.meal.parts[1].id: "a" is repeated',
       'divisions.meal.parts[1].from: another part starts then too',

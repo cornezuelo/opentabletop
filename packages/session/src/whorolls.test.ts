@@ -7,7 +7,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripFacts } from './trip'
 
 /** A party whose Talk is one character's Charisma: whoever the player chooses, or the best. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 2\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
   {
     path: 'band/system.yaml',
     content: 'kind: system\nname: Band\ntravel: default\nbindings: default\nsheet: companion\n',
@@ -20,11 +20,15 @@ id: companion
 values: { charisma: { default: 0 } }
 ---
 kind: travel-rules
-day: { start: '07:00', nightfall: '19:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-checks: [{ event: GATE, at: day-start }]
+checks: [{ event: GATE, at: '07:00' }]
+actions:
+  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '07:00' }] }
+  rest: { do: [{ time: 60 }] }
+values: { lost: { blocks: [travel] } }
 ---
 kind: bindings
 on: { GATE: { resolve: gate } }

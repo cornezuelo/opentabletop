@@ -18,7 +18,7 @@ export const vocabulary = {
       supplies: 'Supplies',
       system: 'System',
       genericSystem: 'Generic',
-      /** The older `watchHours` division, which has no name of its own. */
+      /** The plain calendar's numbered `watch` division, which has no name of its own. */
       watches: 'Watches',
     },
     seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },

@@ -69,8 +69,6 @@ export const es: Messages<typeof en> = {
       'El tiempo pasa donde está el grupo hasta que pueda volver a marchar, viviéndolo: si ahora pudiera marchar, primero deja pasar la marcha de hoy. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede marchar, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
     actionUntil: 'Dura hasta {moment}.',
-    dawn: 'el alba',
-    nightfall: 'el anochecer',
   },
   rolls: {
     label: 'Tira',
@@ -151,7 +149,6 @@ export const es: Messages<typeof en> = {
       rest: 'El descanso',
       action: 'La acción',
     },
-    lostToday: 'perdidos por hoy',
     cleared: '{name} (ya no)',
     nobodyActing:
       'No actúa nadie, así que «{name}» no cambia nada (elige quién actúa encima de las acciones)',

@@ -1,12 +1,10 @@
 <script lang="ts">
   import {
     actionSteps,
-    OLDER_ACTIONS,
     MARCH,
     CHECK_MOMENTS,
     isClock,
     isPartRef,
-    OLDER_DAY_START,
     STEP_KINDS,
     type ActionDefinition,
     type ActionStep,
@@ -31,28 +29,17 @@
   const parts = $derived(dayPartRefs(system))
 
   type Raw = Record<string, unknown>
-  /** What older systems had for camp and rest without declaring them (shown as cards). */
-  const DEFAULTS: Record<string, ActionDefinition> = {
-    camp: { do: [{ time: 'dawn' }] },
-    rest: { do: [{ time: 60 }] },
-  }
-
   const disabled = $derived(!doc.editable)
-  const actions = $derived((doc.rules.actions ?? {}) as Record<string, Raw | false | undefined>)
-  /** Older rules (`day:`, pack format 2): camp and rest are there unless turned off. */
-  const older = $derived<readonly string[]>(doc.rules.day ? OLDER_ACTIONS : [])
-  /** Every action the system has: older rules' camp and rest, then the rest in order. */
-  const ids = $derived([
-    ...older.filter((id) => actions[id] === undefined),
-    ...Object.keys(actions).filter((id) => actions[id] !== false),
-  ])
+  const actions = $derived((doc.rules.actions ?? {}) as Record<string, Raw | undefined>)
+  /** Every action the system declares, in order. */
+  const ids = $derived(Object.keys(actions))
   /** An action's moments in words: "At dawn · After: Camp". */
   const saidMoments = (on: unknown) =>
     momentsText(on)
       .split(', ')
       .map((m) =>
-        (CHECK_MOMENTS as readonly string[]).includes(m) || m === OLDER_DAY_START
-          ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number] | typeof OLDER_DAY_START}`)
+        (CHECK_MOMENTS as readonly string[]).includes(m)
+          ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number]}`)
           : isClock(m)
             ? t('checks.atClock', { clock: m })
             : isPartRef(m)
@@ -71,7 +58,7 @@
   const hints = $derived(contextSuggestions(library.registry))
   /** What a step can say: its keys, and the values each one takes here. */
   const stepHints = $derived({
-    time: [...(doc.rules.day ? ['dawn', 'nightfall'] : []), '60', '120', '180', '14:00', ...parts],
+    time: ['60', '120', '180', '14:00', ...parts],
     speed: ['0.5', '0'],
     effects: [],
     'effects.*': Object.keys(effectSuggestions(library.registry)),
@@ -85,8 +72,7 @@
 
   /** A map as `key: value` pairs, without the outer braces. */
   const bare = (value: unknown) => flowText(value).replace(/^\{\s*|\s*\}$/g, '')
-  const def = (id: string): ActionDefinition =>
-    (actions[id] as ActionDefinition | undefined) ?? DEFAULTS[id] ?? {}
+  const def = (id: string): ActionDefinition => (actions[id] as ActionDefinition | undefined) ?? {}
   const steps = (id: string): ActionStep[] => actionSteps(def(id))
   /** A step as the pack writes it, but its `when` (it has its own box). */
   const stepText = (step: ActionStep) => {
@@ -112,12 +98,8 @@
     doc.edit('travel-rules', path, Object.keys(parsed ?? {}).length ? parsed : undefined)
   }
 
-  /** Writes an action's steps as `do`, dropping the older columns they replace. */
+  /** Writes an action's steps as `do`. */
   function writeSteps(id: string, next: ActionStep[]) {
-    if (actions[id] === undefined) doc.edit('travel-rules', ['actions', id], { ...def(id) })
-    for (const key of ['minutes', 'speed', 'fatigue', 'effects'])
-      if (def(id)[key as keyof ActionDefinition] !== undefined)
-        doc.edit('travel-rules', ['actions', id, key], undefined)
     doc.edit(
       'travel-rules',
       ['actions', id, 'do'],
@@ -162,12 +144,11 @@
 
   async function removeAction(id: string) {
     if (!(await confirmAction(t('forms.confirmRemove', { name: label(id) })))) return
-    // Camp and rest are left out with `false` (older systems had them without saying).
-    doc.edit('travel-rules', ['actions', id], older.includes(id) ? false : undefined)
+    doc.edit('travel-rules', ['actions', id], undefined)
   }
 
   function addAction() {
-    const id = freeId('action', [...Object.keys(actions), ...older])
+    const id = freeId('action', Object.keys(actions))
     doc.edit('travel-rules', ['actions', id], { do: [{ time: 60 }] })
   }
 
@@ -175,10 +156,7 @@
     const to = next.trim()
     if (!to || to === id) return
     if (ids.includes(to)) return showToast(t('forms.idExists', { id: to }), 'error')
-    if (actions[id] === undefined) doc.edit('travel-rules', ['actions', id], { ...def(id) })
     doc.rename('travel-rules', ['actions'], id, to)
-    // The old id of camp or rest would come back as a default: it's gone.
-    if (older.includes(id)) doc.edit('travel-rules', ['actions', id], false)
   }
 </script>
 
@@ -233,13 +211,7 @@
               label={t('actions.on')}
               placeholder={t('actions.onButton')}
               value={momentsText(d.on)}
-              list={[
-                ...(doc.rules.day ? [OLDER_DAY_START] : []),
-                ...CHECK_MOMENTS,
-                '06:00',
-                ...parts,
-                ...ids.filter((a) => a !== id),
-              ]}
+              list={[...CHECK_MOMENTS, '06:00', ...parts, ...ids.filter((a) => a !== id)]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
             />
@@ -249,9 +221,7 @@
         <label>
           <span>{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
           <SuggestInput
-            placeholder={id === MARCH
-              ? t(doc.rules.day ? 'actions.marchDefaultOlder' : 'actions.marchDefault')
-              : t('checks.always')}
+            placeholder={id === MARCH ? t('actions.marchDefault') : t('checks.always')}
             value={bare(d.when)}
             suggestions={hints}
             {disabled}
