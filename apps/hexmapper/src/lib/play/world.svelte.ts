@@ -1,5 +1,13 @@
 import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
-import { calendarOf, localize } from '@open-tabletop/session'
+import {
+  calendarOf,
+  clockFull,
+  localize,
+  startClocks,
+  type StartingClock,
+  type SystemClocks,
+} from '@open-tabletop/session'
+import { emptyState } from '@open-tabletop/oracle-engine'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
 import { availableActions, nightAction } from '@open-tabletop/travel-engine'
 import { type Calendar, type DataCalendar } from '@open-tabletop/time'
@@ -11,14 +19,15 @@ import {
   type WorldAction,
   type WorldEvent,
   type WorldState,
+  type ProgressClock,
   worldFacts,
-  factId,
+  findClock,
 } from '@open-tabletop/world-engine'
 import { applyFactionEffects, dueTurns, factionFactsNow, takeWorldTurn } from './factions'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
-import { activeSystem, getSystem, mapSystemId } from './systems'
+import { activeSystem, getSystem, mapSystem, mapSystemId, oracle } from './systems'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import { mathRandom } from '@open-tabletop/random'
 
@@ -72,6 +81,24 @@ export function startWorld(time = defaultStart()): void {
   editor.setWorld(initialWorld(trip ? trip.travel.time : time))
   editor.setWorldWeather(undefined)
   rollWorldWeather()
+  bringClocks()
+}
+
+/** The progress clocks the map's system declares (`kind: clocks`), if any. */
+export const systemClocks = (): SystemClocks | undefined => mapSystem().clocks
+
+/** The clocks the map's system declares that the world doesn't have (by their declared id). */
+export function missingClocks(): StartingClock[] {
+  const system = systemClocks()
+  const state = editor.map.world
+  if (!system || !state) return []
+  const have = state.clocks.map((c) => c.ref)
+  return startClocks(system, getLocale(), mapSystem().locale).filter((c) => !have.includes(c.ref))
+}
+
+/** Adds the clocks the map's system declares that the world doesn't have yet. */
+export function bringClocks(): void {
+  for (const clock of missingClocks()) worldAct({ type: 'addClock', clock })
 }
 
 /**
@@ -153,20 +180,74 @@ export function worldAct(action: WorldAction): WorldEvent[] {
   // The factions take the turns that came due on the way (every so many days).
   if (next.time > state.time)
     for (const at of dueTurns(next.time, worldCalendar().minutesPerDay)) worldTurnNow(at)
+  // A clock the system declares does what it says when it fills.
+  for (const e of events) if (e.type === 'CLOCK_FILLED' && e.clock.ref) clockFilled(e.clock)
   return events
+}
+
+/** How many full clocks deep a chain may go (a full clock ticking another that fills…). */
+const MAX_CHAIN = 10
+let chain = 0
+
+/**
+ * What a clock the map's system declares does when it fills (`onFull`): its words and the
+ * table it rolls go to the timeline (and a notice), its effects change the world (other
+ * clocks, factions), and then it stays full, starts over or goes away.
+ */
+function clockFilled(clock: ProgressClock): void {
+  const system = systemClocks()
+  if (!system || !clock.ref || chain >= MAX_CHAIN) return
+  chain++
+  try {
+    const shared = editor.map.oracle
+    const done = clockFull(
+      {
+        system,
+        oracle: oracle(),
+        random: mathRandom(),
+        facts: worldFactsNow(),
+        locale: getLocale(),
+        fallback: mapSystem().locale,
+      },
+      shared?.state ?? emptyState(),
+      clock.ref,
+    )
+    if (!done) return
+    const { full } = done
+    editor.setOracle({ state: done.oracle, history: shared?.history ?? [] })
+    const said = [
+      full.description,
+      full.error ? t('world.clockRollFailed', { error: full.error }) : full.text,
+      full.then === 'reset' ? t('world.clockStartsOver') : '',
+      full.then === 'remove' ? t('world.clockGone') : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+    if (said) worldAct({ type: 'log', text: `${clock.name}: ${said}`, data: { clock: clock.id } })
+    showToast(`${t('world.clockFilled', { name: clock.name })} ${said}`, 'info', 8000)
+    applyWorldEffects(full.effects)
+    if (full.then === 'reset') worldAct({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
+    if (full.then === 'remove') worldAct({ type: 'removeClock', id: clock.id })
+  } finally {
+    chain--
+  }
 }
 
 /**
  * What a trip's results do to the world: progress clocks they tick (`world.clocks.<name>: 1`,
- * by name as an id) and the factions they change (`factions.<id>.…`).
+ * by name as an id or by the id its system declares it with; `'=N'` fills it up to N) and the factions they change (`factions.<id>.…`).
  */
 export function applyWorldEffects(effects: Record<string, unknown>): void {
   for (const [path, change] of Object.entries(effects)) {
     const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
-    const n = Number(change)
-    if (!clock || !Number.isFinite(n) || !n) continue
-    const found = editor.map.world?.clocks.find((c) => factId(c.name) === clock || c.id === clock)
-    if (found) worldAct({ type: 'tick', id: found.id, segments: n })
+    const found = clock && editor.map.world && findClock(editor.map.world, clock)
+    if (!found) continue
+    // A number fills (or empties) segments; `'=N'` fills it up to N.
+    const set = typeof change === 'string' && /^\s*=/.test(change)
+    const n = Number(set ? (change as string).replace('=', '') : change)
+    if (!Number.isFinite(n)) continue
+    const by = set ? n - found.filled : n
+    if (by) worldAct({ type: 'tick', id: found.id, segments: by })
   }
   applyFactionEffects(effects)
 }
@@ -181,9 +262,7 @@ export function worldTurnNow(time = editor.map.world?.time): void {
       facts: worldFactsNow(),
       log: (text, data, at) => void worldAct({ type: 'log', text, data, time: at }),
       tick: (clock, segments) => {
-        const found = editor.map.world?.clocks.find(
-          (c) => factId(c.name) === clock || c.id === clock,
-        )
+        const found = editor.map.world && findClock(editor.map.world, clock)
         if (found) worldAct({ type: 'tick', id: found.id, segments })
       },
     },

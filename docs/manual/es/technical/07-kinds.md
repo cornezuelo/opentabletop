@@ -4,20 +4,21 @@ Un pack es una carpeta de ficheros YAML (o JSON). Cada fichero tiene una o varia
 
 Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un pack no puede añadir tipos propios (uno que las aplicaciones no conocen se guarda, pero nadie lo lee). Lo que el pack elige libremente es el contenido: sus tablas, su calendario, su clima, sus modos de tirada, sus reglas de viaje y sus características, con los nombres y las reglas de su juego.
 
-| Tipo           | Qué es                                                                | Quién lo lee                                                                        | Cuántos por pack |
-| -------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------- |
-| `table`        | Una lista de resultados que se eligen por dados o por peso            | El Oracle; los viajes y el descubrimiento, si un binding la nombra                  | Los que quieras  |
-| `oracle`       | Una tabla cuyas respuestas dependen de una pregunta (una entrada)     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
-| `generator`    | Varias tiradas unidas en un texto                                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
-| `deck`         | Cartas que se roban sin devolverlas                                   | El Oracle; los viajes y el descubrimiento, si un binding lo nombra (roba una carta) | Los que quieras  |
-| `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total        | El Oracle (cada tirada)                                                             | Uno              |
-| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones… | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
-| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
-| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno por sistema  |
-| `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
-| `sheet`        | Lo que tiene cada personaje del grupo: valores, estados               | Los viajes (los personajes del grupo), la aplicación Systems                        | Uno por sistema  |
-| `factions`     | Los poderes de su mundo: sus tierras y sus turnos del mundo           | La vista Mundo del Hexmapper, la aplicación Systems                                 | Uno por sistema  |
-| `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs        | Jugar y Mundo del Hexmapper, la aplicación Travel                                   | Los que quieras  |
+| Tipo           | Qué es                                                                                | Quién lo lee                                                                        | Cuántos por pack |
+| -------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------- |
+| `table`        | Una lista de resultados que se eligen por dados o por peso                            | El Oracle; los viajes y el descubrimiento, si un binding la nombra                  | Los que quieras  |
+| `oracle`       | Una tabla cuyas respuestas dependen de una pregunta (una entrada)                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
+| `generator`    | Varias tiradas unidas en un texto                                                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
+| `deck`         | Cartas que se roban sin devolverlas                                                   | El Oracle; los viajes y el descubrimiento, si un binding lo nombra (roba una carta) | Los que quieras  |
+| `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total                        | El Oracle (cada tirada)                                                             | Uno              |
+| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones…                 | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
+| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características                 | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
+| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno por sistema  |
+| `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación                           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
+| `sheet`        | Lo que tiene cada personaje del grupo: valores, estados                               | Los viajes (los personajes del grupo), la aplicación Systems                        | Uno por sistema  |
+| `factions`     | Los poderes de su mundo: sus tierras y sus turnos del mundo                           | La vista Mundo del Hexmapper, la aplicación Systems                                 | Uno por sistema  |
+| `clocks`       | Los relojes de progreso con los que empieza su mundo, y qué hace cada uno al llenarse | La vista Mundo del Hexmapper, la aplicación Systems                                 | Uno por sistema  |
+| `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs                        | Jugar y Mundo del Hexmapper, la aplicación Travel                                   | Los que quieras  |
 
 **Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
 
@@ -372,9 +373,38 @@ factions:
     turn: core/faction-turn # una tabla de turno propia (aquí, la de Core)
 ```
 
-- Una **tabla de turno** ve a la facción a la que le toca como `faction.*` (`faction.values.strength`, `faction.territory`: cuántos hexes tiene, `faction.id`) y a todas como `factions.<id>.*`, además de lo del reloj del mundo. Los **efectos** de sus entradas cambian el mundo: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (otra facción), `faction.territory: 1` (un hex más, desde su frontera: primero tierra de nadie, luego la de un vecino) o `-1`, `world.clocks.the-siege: 1` (un reloj de progreso, por su nombre como id).
+- Una **tabla de turno** ve a la facción a la que le toca como `faction.*` (`faction.values.strength`, `faction.territory`: cuántos hexes tiene, `faction.id`) y a todas como `factions.<id>.*`, además de lo del reloj del mundo. Los **efectos** de sus entradas cambian el mundo: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (otra facción), `faction.territory: 1` (un hex más, desde su frontera: primero tierra de nadie, luego la de un vecino) o `-1`, `world.clocks.the-siege: 1` (un [reloj de progreso](#relojes-de-progreso), por su id).
 - En todo lo demás (viajes, tiradas a mano, descubrimiento), `factions.<id>.*` y `hex.faction` (el id de la facción que tiene el hex) las leen: [Lo que ven las tablas](04-what-tables-see.md). En un mapa que las tenga, los resultados de un viaje también las cambian, y hacen avanzar los relojes de progreso del reloj del mundo: `factions.fort-keld.values.reputation: 1`, `world.clocks.the-wyrm-wakes: 1` (el peaje y las luces embrujadas de las Marcas Grises).
 - Se traduce con la clave `factions/<id>`, por facción (`factions: { the-crown: { name: La Corona } }`). La `core/faction-turn` de Core es una tabla de turno para cualquier juego (crece, aguanta, conspira o pierde terreno).
+
+## Relojes de progreso
+
+Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con lo que pasa cuando se llena. En el Hexmapper llegan con el reloj del mundo al ponerlo en marcha ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
+
+```yaml
+kind: clocks
+id: default
+name: Amenazas del reino
+clocks:
+  the-siege: # su id: cómo lo nombran las reglas (world.clocks.the-siege)
+    name: El asedio de la capital
+    description: Los rebeldes se atrincheran alrededor de las murallas.
+    segments: 8 # cualquier número desde 1
+    filled: 2 # ya lleno al poner en marcha el reloj del mundo (sin él: nada)
+    onFull: # lo que pasa cuando se llena (todo opcional)
+      description: La capital cae. # una línea en la cronología, y un aviso
+      resolve: the-fall # una tabla, oráculo, generador o mazo que se tira (de este pack, o pack/id)
+      effects: { factions.the-crown.territory: -1, world.clocks.the-reprisals: 2 }
+      then: reset # keep (por defecto): se queda lleno; reset: vuelve a empezar; remove: desaparece
+  the-reprisals:
+    name: Represalias
+    segments: 4
+```
+
+- **Lo llenan los efectos**, allí donde van efectos: los resultados y acciones de un viaje, una tabla tirada a mano en un mapa, el turno de una facción. `world.clocks.the-siege: 1` llena un segmento, `-2` vacía dos, `'=0'` lo fija (vacío), `'{{1d3}}'` tira. **Lo leen las condiciones** y las tablas: `world.clocks.the-siege: { gte: 8 }` (lleno), `{{world.clocks.the-siege}}` en un texto.
+- Las reglas nombran un reloj declarado por **su id**, aunque el jugador lo renombre en el mapa; uno creado a mano en el mapa se nombra por su nombre en minúsculas con guiones (_The Wyrm wakes_ es `the-wyrm-wakes`).
+- **Cuando se llena**, su `onFull` pasa una vez: su descripción y lo que salga en la tabla van a la cronología, se aplican los efectos de ambos (otros relojes y las facciones: el grupo de un viaje no es del mundo), y después se queda lleno, vuelve a empezar vacío o desaparece. La tabla ve el mundo como las condiciones (`world.clocks.*`, `factions.<id>.*`, la fecha). Un reloj lleno puede llenar otro (hasta diez seguidos).
+- Se traduce con la clave `clocks/<id>`, por reloj (`clocks: { the-siege: { name: El asedio, onFull: { description: La capital cae. } } }`). `core/threat`, de Core, es un reloj para cualquier juego: la amenaza crece y, al llenarse, golpea con uno de los giros de Core y vuelve a empezar.
 
 ## Sistemas
 
@@ -390,12 +420,13 @@ bindings: default # sus bindings
 calendar: marcher-reckoning # su calendario
 sheet: companion # la hoja de sus personajes
 factions: default # los poderes de su mundo
+clocks: default # los relojes de progreso con los que empieza su mundo
 weather: [sky] # los modelos de clima que pueden usar sus bindings
 packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 ```
 
-- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `sheet`, su grupo se juega como un todo (el sistema **Genérico** tiene una pequeña propia: salud y una herida).
+- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `sheet`, su grupo se juega como un todo (el sistema **Genérico** tiene una pequeña propia: salud y una herida).
 - Cada parte es una definición de este pack, por su id (`travel: default`), o de un pack del que depende (`travel: core/slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.

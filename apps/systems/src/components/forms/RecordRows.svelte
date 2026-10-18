@@ -119,12 +119,12 @@
   }
 
   function setText(id: string, column: Column, raw: string) {
-    const path = [...at, id, column.field]
+    const path = [...at, id, ...column.field.split('.')]
     for (const old of column.replaces ?? [])
       if (record[id]?.[old] !== undefined) doc.edit(kind, [...at, id, old], undefined)
     const text = raw.trim()
     if (column.type === 'text')
-      return doc.setText(kind, path, record[id]?.[column.field], path, raw)
+      return doc.setText(kind, path, valueAt(record[id], column.field), path, raw)
     if (column.type === 'number')
       return write(id, column.field, text === '' ? undefined : Number(text))
     if (column.type === 'value')
@@ -147,7 +147,8 @@
 
   function shown(row: Record<string, unknown> | null, column: Column, id = ''): string {
     const value = valueAt(row, column.field) ?? (row && column.read?.(row))
-    if (column.type === 'text') return doc.text(kind, value, [...at, id, column.field])
+    if (column.type === 'text')
+      return doc.text(kind, value, [...at, id, ...column.field.split('.')])
     if (value === undefined) return ''
     if (column.type === 'list') return Array.isArray(value) ? value.join(', ') : String(value)
     if (column.type === 'flow') return flowText(value).replace(/^\{\s*|\s*\}$/g, '')
@@ -232,7 +233,7 @@
                 min={c.min}
                 step="any"
                 placeholder={c.type === 'text' && doc.translating
-                  ? doc.baseText(row?.[c.field]) || c.placeholder
+                  ? doc.baseText(valueAt(row, c.field)) || c.placeholder
                   : c.placeholder}
                 value={shown(row, c, id)}
                 {disabled}

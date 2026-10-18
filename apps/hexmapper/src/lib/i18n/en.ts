@@ -620,13 +620,29 @@ export const en = {
     confirmCancel: 'Cancel “{name}”?',
     clocks: 'Progress clocks',
     clocksHelp:
-      "Segments filled as something advances (a threat, a project, a faction's plan):\n• _The Wyrm wakes_ 2/6\n• _The bridge is rebuilt_ 1/4\nClick a segment to fill up to it; click the last filled one to empty it.",
+      "Segments filled as something advances (a threat, a project, a faction's plan):\n• _The Wyrm wakes_ 2/6\n• _The bridge is rebuilt_ 1/4\nClick a segment to fill up to it; click the last filled one to empty it. Any number of segments: change it beside the count.\nThe map's system may declare its own (`kind: clocks`): they come with the world clock, and do what the system says when they fill (a line here, a table rolled, other clocks and factions changed, starting over).",
     clockName: 'Clock name',
     segments: 'Segments',
     addClock: 'Add',
     removeClock: 'Remove this clock',
     confirmRemoveClock: 'Remove the clock “{name}”?',
     clockFilled: '{name}: filled!',
+    clockRollFailed: '(its roll failed: {error})',
+    clockStartsOver: 'It starts over.',
+    clockGone: 'It goes away.',
+    systemClocks: "Add the system's clocks ({count})",
+    systemClocksHelp:
+      "The progress clocks the map's system declares (`kind: clocks` in its pack), each with its segments, where it starts and what happens when it fills. They come with the world clock when it starts; this adds the ones it doesn't have yet (taken off, or declared later).",
+    declaredClock:
+      "Declared by the system: tables and conditions also read it as world.clocks.{id}, whatever it's called here.",
+    whenFull: 'When it fills: {what}',
+    fullRolls: 'rolls {table}',
+    fullEffects: 'changes {effects}',
+    fullThen: {
+      keep: 'stays full',
+      reset: 'starts over',
+      remove: 'goes away',
+    },
     timeline: 'Timeline',
     timelineHelp:
       'What happened in the world, newest first: events that came due, holidays, moons. Add your own notes ("The baron was overthrown").',

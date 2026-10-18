@@ -628,13 +628,29 @@ export const es: Messages = {
     confirmCancel: '¿Cancelar «{name}»?',
     clocks: 'Relojes de progreso',
     clocksHelp:
-      'Segmentos que se llenan según algo avanza (una amenaza, un proyecto, el plan de una facción):\n• _La Sierpe despierta_ 2/6\n• _Se reconstruye el puente_ 1/4\nHaz clic en un segmento para llenar hasta él; en el último lleno para vaciarlo.',
+      'Segmentos que se llenan según algo avanza (una amenaza, un proyecto, el plan de una facción):\n• _La Sierpe despierta_ 2/6\n• _Se reconstruye el puente_ 1/4\nHaz clic en un segmento para llenar hasta él; en el último lleno para vaciarlo. Con los segmentos que quieras: cámbialos junto a la cuenta.\nEl sistema del mapa puede declarar los suyos (`kind: clocks`): llegan con el reloj del mundo y hacen lo que dice el sistema al llenarse (una línea aquí, una tabla tirada, otros relojes y facciones cambiados, volver a empezar).',
     clockName: 'Nombre del reloj',
     segments: 'Segmentos',
     addClock: 'Añadir',
     removeClock: 'Quitar este reloj',
     confirmRemoveClock: '¿Quitar el reloj «{name}»?',
     clockFilled: '{name}: ¡lleno!',
+    clockRollFailed: '(su tirada falló: {error})',
+    clockStartsOver: 'Vuelve a empezar.',
+    clockGone: 'Desaparece.',
+    systemClocks: 'Añadir los relojes del sistema ({count})',
+    systemClocksHelp:
+      'Los relojes de progreso que declara el sistema del mapa (`kind: clocks` en su pack), cada uno con sus segmentos, por dónde empieza y qué pasa cuando se llena. Llegan con el reloj del mundo al ponerlo en marcha; esto añade los que aún no tiene (quitados, o declarados después).',
+    declaredClock:
+      'Declarado por el sistema: las tablas y las condiciones también lo leen como world.clocks.{id}, se llame como se llame aquí.',
+    whenFull: 'Cuando se llena: {what}',
+    fullRolls: 'tira {table}',
+    fullEffects: 'cambia {effects}',
+    fullThen: {
+      keep: 'se queda lleno',
+      reset: 'vuelve a empezar',
+      remove: 'desaparece',
+    },
     timeline: 'Cronología',
     timelineHelp:
       'Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas. Añade tus propias notas («Derrocaron al barón»).',

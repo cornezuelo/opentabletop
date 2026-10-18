@@ -16,6 +16,7 @@ import {
 import { OracleError, type OracleEngine, type OracleState } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import { onceRoller, resolveChange } from '@open-tabletop/variables'
+import { qualify as qualifyFacts } from '@open-tabletop/travel-engine'
 import { effectsOf } from './effects'
 import { localize, type LocalizedText } from './index'
 
@@ -149,8 +150,9 @@ export function factionTurn(
   if (!self || !table) return { state, oracle: oracleState, line, ticks }
   const qualify = (ref: string) => (ref.includes('/') ? ref : `${system.pack}/${ref}`)
   const facts = factionFacts(state, system, options.locale)
+  // The host's facts by their short and full names (`clocks.x`, `world.clocks.x`).
   const context = {
-    ...options.facts,
+    ...qualifyFacts(options.facts ?? {}),
     ...facts,
     faction: (facts.factions as Record<string, unknown>)[faction],
   }

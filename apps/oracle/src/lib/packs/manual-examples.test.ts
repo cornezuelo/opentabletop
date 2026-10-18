@@ -72,6 +72,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'system',
         'sheet',
         'factions',
+        'clocks',
       ]),
     )
   })

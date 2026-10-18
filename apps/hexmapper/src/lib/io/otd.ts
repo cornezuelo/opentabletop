@@ -255,6 +255,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
           segments: c.segments,
           filled: c.filled,
           ...(c.noteRef && { noteRef: c.noteRef }),
+          ...(c.ref && { ref: c.ref }),
         })),
         ...((extra.clocks as OtdClock[] | undefined) ?? []),
       ],
@@ -505,6 +506,7 @@ export function bundleToMap(raw: unknown): HexMap {
             segments: c.segments,
             filled: c.filled,
             ...(c.noteRef && { noteRef: c.noteRef }),
+            ...(typeof c.ref === 'string' && { ref: c.ref }),
           })),
         })
       : undefined

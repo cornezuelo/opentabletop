@@ -34,6 +34,9 @@ import {
   worldCalendar,
   worldTurnNow,
   applyWorldEffects,
+  bringClocks,
+  missingClocks,
+  stopWorld,
 } from './world.svelte'
 import { bringFactions, removeFactions } from './factions'
 import { oracleUi, rollContext } from './oracle'
@@ -144,7 +147,11 @@ describe('playing on the map', () => {
     worldAct({ type: 'addClock', clock: { name: 'The Wyrm wakes', segments: 6, filled: 1 } })
     // In the file: clocks as OTD clocks, the rest as engine state; and back.
     const bundle = mapToBundle(editor.map)
+    // The system's own clocks come with the world clock (`ref`: their declared ids).
     expect(bundle.clocks).toEqual([
+      expect.objectContaining({ ref: 'the-greywood-wyrm-wakes', segments: 6, filled: 1 }),
+      expect.objectContaining({ ref: 'the-iron-clans-march', segments: 6, filled: 1 }),
+      expect.objectContaining({ ref: 'fort-keld-mutinies', segments: 8, filled: 3 }),
       expect.objectContaining({ type: 'clock', name: 'The Wyrm wakes', segments: 6, filled: 1 }),
     ])
     expect(bundle.state.world).toMatchObject({
@@ -696,5 +703,119 @@ describe('the powers of the Marches: factions on the map', () => {
     expect(editor.map.factions).toBeUndefined()
     bringFactions()
     expect(editor.map.factions!.territories['the-vale'].length).toBeGreaterThan(10)
+  })
+})
+
+describe('the threats of the Marches: progress clocks the system declares', () => {
+  const grey = () =>
+    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+  const clock = (ref: string) => editor.map.world!.clocks.find((c) => c.ref === ref)
+  const faction = (id: string) => editor.map.factions!.factions.find((f) => f.id === id)!
+  beforeEach(() => {
+    let seed = 7
+    vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('the example map has them, by their declared ids whatever they are called', () => {
+    grey()
+    expect(editor.map.world!.clocks.map((c) => [c.ref, c.filled, c.segments])).toEqual([
+      ['the-greywood-wyrm-wakes', 1, 6],
+      ['fort-keld-mutinies', 3, 8],
+      ['the-iron-clans-march', 1, 6],
+    ])
+    const march = clock('the-iron-clans-march')!
+    worldAct({ type: 'updateClock', id: march.id, patch: { name: 'Los Clanes marchan' } })
+    applyWorldEffects({ 'world.clocks.the-iron-clans-march': 1 })
+    expect(clock('the-iron-clans-march')!.filled).toBe(2)
+    expect(rollContext()).toMatchObject({
+      clocks: { 'the-iron-clans-march': 2, 'los-clanes-marchan': 2 },
+    })
+    // `'=N'` fills it up to N.
+    applyWorldEffects({ 'world.clocks.fort-keld-mutinies': '=5' })
+    expect(clock('fort-keld-mutinies')!.filled).toBe(5)
+  })
+
+  it('the Clans march when theirs fills: at war, the garrison weaker and closer to mutiny; it starts over', () => {
+    grey()
+    const strength = faction('fort-keld').values.strength
+    applyWorldEffects({ 'world.clocks.the-iron-clans-march': 5 })
+    expect(clock('the-iron-clans-march')!.filled).toBe(0)
+    expect(faction('iron-clans').conditions).toHaveProperty('at-war')
+    expect(faction('fort-keld').values.strength).toBe(strength - 1)
+    expect(clock('fort-keld-mutinies')!.filled).toBe(5)
+    const lines = editor.map.world!.timeline.map((e) => e.text ?? e.code)
+    expect(lines).toContain('The Iron Clans march: The Clans march on Fort Keld. It starts over.')
+    expect(toasts.at(-1)?.message).toMatch(/^The Iron Clans march: filled! The Clans march/)
+    // It may fill again.
+    applyWorldEffects({ 'world.clocks.the-iron-clans-march': 6 })
+    expect(clock('fort-keld-mutinies')!.filled).toBe(7)
+  })
+
+  it('one full clock fills another: the march brings the mutiny, and the garrison is gone', () => {
+    grey()
+    applyWorldEffects({ 'world.clocks.fort-keld-mutinies': 4 })
+    applyWorldEffects({ 'world.clocks.the-iron-clans-march': 5 })
+    // Both filled: the march started over, the mutiny went away with the garrison's fort.
+    expect(clock('the-iron-clans-march')!.filled).toBe(0)
+    expect(clock('fort-keld-mutinies')).toBeUndefined()
+    expect(faction('fort-keld').values.strength).toBe(0)
+    expect(editor.map.factions!.territories['fort-keld']).toEqual([])
+    expect(
+      editor.map.world!.timeline.some((e) => /garrison mutinies and scatters/.test(e.text ?? '')),
+    ).toBe(true)
+    // Brought back by hand, as it starts.
+    bringClocks()
+    expect(clock('fort-keld-mutinies')!.filled).toBe(3)
+  })
+
+  it('the Wyrm wakes: its table rolled, read by the wood’s encounters; it stays full', () => {
+    grey()
+    const vale = faction('the-vale').values.strength
+    const clans = faction('iron-clans').values.strength
+    applyWorldEffects({ 'world.clocks.the-greywood-wyrm-wakes': 5 })
+    expect(clock('the-greywood-wyrm-wakes')!.filled).toBe(6)
+    const line = editor.map.world!.timeline.find((e) =>
+      /^The Greywood Wyrm wakes: /.test(e.text ?? ''),
+    )!
+    expect(line.text).toMatch(
+      /The Wyrm wakes, and the Greywood goes quiet\. (It falls on the Vale’s herds \(the Vale’s strength was 3\)|It scatters the Clans’ watch-fires in the hills|It lies in wait under the trees)$/,
+    )
+    const changes = [
+      faction('the-vale').values.strength - vale,
+      faction('iron-clans').values.strength - clans,
+    ]
+    expect([
+      [-1, 0],
+      [0, -1],
+      [0, 0],
+    ]).toContainEqual(changes)
+    expect(rollContext()).toMatchObject({ clocks: { 'the-greywood-wyrm-wakes': 6 } })
+    // Full, it stays so: more doesn't wake it again.
+    const count = editor.map.world!.timeline.length
+    applyWorldEffects({ 'world.clocks.the-greywood-wyrm-wakes': 1 })
+    expect(editor.map.world!.timeline.length).toBe(count)
+  })
+
+  it('a new world clock starts with the system’s clocks; a map without them can bring them', () => {
+    grey()
+    stopWorld()
+    startWorld()
+    expect(editor.map.world!.clocks.map((c) => c.ref)).toEqual([
+      'the-greywood-wyrm-wakes',
+      'the-iron-clans-march',
+      'fort-keld-mutinies',
+    ])
+    worldAct({ type: 'removeClock', id: clock('the-iron-clans-march')!.id })
+    expect(missingClocks().map((c) => c.ref)).toEqual(['the-iron-clans-march'])
+    bringClocks()
+    expect(missingClocks()).toEqual([])
+    // The generic system declares none.
+    editor.load(createMap())
+    startWorld()
+    expect(editor.map.world!.clocks).toEqual([])
   })
 })

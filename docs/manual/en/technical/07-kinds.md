@@ -4,20 +4,21 @@ A pack is a folder of YAML (or JSON) files. Each file holds one or more **defini
 
 The kinds are a **fixed set**: each one is read by an engine that knows it, and a pack can't add kinds of its own (one the apps don't know is kept but nothing reads it). What a pack chooses freely is the content: its own tables, calendar, weather, roll modes, travel rules and stats, with the names and rules of its game.
 
-| Kind           | What it is                                                        | Read by                                                                    | How many per pack |
-| -------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------- |
-| `table`        | A list of results picked by dice or weight                        | The Oracle; trips and discovery, when a binding names it                   | Any               |
-| `oracle`       | A table whose answers depend on a question (an input)             | The Oracle; trips and discovery, when a binding names it                   | Any               |
-| `generator`    | Several rolls joined in one text                                  | The Oracle; trips and discovery, when a binding names it                   | Any               |
-| `deck`         | Cards drawn without putting them back                             | The Oracle; trips and discovery, when a binding names it (it draws a card) | Any               |
-| `roll-modes`   | Ways of rolling a table several times and keeping one total       | The Oracle (every roll)                                                    | One               |
-| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks     | Hexmapper Play, the Travel app                                             | One per system    |
-| `bindings`     | Which table answers each check of a trip, the party's stats       | Hexmapper Play, the Travel app                                             | One per system    |
-| `calendar`     | Months, seasons, weekdays, moons and holidays                     | Trips, the Hexmapper's World panel                                         | One per system    |
-| `weather`      | Weather with memory: today's follows from yesterday's, per season | Trips (a binding with `weather:`)                                          | Any               |
-| `sheet`        | What each of the party's characters has: values, conditions       | Trips (the party's characters), the Systems app                            | One per system    |
-| `factions`     | The powers of its world: their land and their world turns         | The Hexmapper's World view, the Systems app                                | One per system    |
-| `system`       | A game system: which of the above it uses, and which packs        | Hexmapper Play and World, the Travel app                                   | Any               |
+| Kind           | What it is                                                              | Read by                                                                    | How many per pack |
+| -------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------- |
+| `table`        | A list of results picked by dice or weight                              | The Oracle; trips and discovery, when a binding names it                   | Any               |
+| `oracle`       | A table whose answers depend on a question (an input)                   | The Oracle; trips and discovery, when a binding names it                   | Any               |
+| `generator`    | Several rolls joined in one text                                        | The Oracle; trips and discovery, when a binding names it                   | Any               |
+| `deck`         | Cards drawn without putting them back                                   | The Oracle; trips and discovery, when a binding names it (it draws a card) | Any               |
+| `roll-modes`   | Ways of rolling a table several times and keeping one total             | The Oracle (every roll)                                                    | One               |
+| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks           | Hexmapper Play, the Travel app                                             | One per system    |
+| `bindings`     | Which table answers each check of a trip, the party's stats             | Hexmapper Play, the Travel app                                             | One per system    |
+| `calendar`     | Months, seasons, weekdays, moons and holidays                           | Trips, the Hexmapper's World panel                                         | One per system    |
+| `weather`      | Weather with memory: today's follows from yesterday's, per season       | Trips (a binding with `weather:`)                                          | Any               |
+| `sheet`        | What each of the party's characters has: values, conditions             | Trips (the party's characters), the Systems app                            | One per system    |
+| `factions`     | The powers of its world: their land and their world turns               | The Hexmapper's World view, the Systems app                                | One per system    |
+| `clocks`       | The progress clocks its world starts with, and what each does when full | The Hexmapper's World view, the Systems app                                | One per system    |
+| `system`       | A game system: which of the above it uses, and which packs              | Hexmapper Play and World, the Travel app                                   | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
@@ -373,9 +374,38 @@ factions:
     turn: core/faction-turn # a turn table of its own (here, Core's)
 ```
 
-- A **turn table** sees the faction whose turn it is as `faction.*` (`faction.values.strength`, `faction.territory`: how many hexes it holds, `faction.id`) and every faction as `factions.<id>.*`, besides the world clock's facts. Its entries' **effects** change the world: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (another faction), `faction.territory: 1` (a hex more, from its border: nobody's land first, then a neighbour's) or `-1`, `world.clocks.the-siege: 1` (a progress clock, by its name as an id).
+- A **turn table** sees the faction whose turn it is as `faction.*` (`faction.values.strength`, `faction.territory`: how many hexes it holds, `faction.id`) and every faction as `factions.<id>.*`, besides the world clock's facts. Its entries' **effects** change the world: `faction.values.strength: 1`, `faction.conditions.at-war: true`, `factions.the-rebels.values.strength: -1` (another faction), `faction.territory: 1` (a hex more, from its border: nobody's land first, then a neighbour's) or `-1`, `world.clocks.the-siege: 1` (a [progress clock](#progress-clocks), by its id).
 - Everywhere else (trips, hand rolls, discovery), `factions.<id>.*` and `hex.faction` (the id of the faction that holds the hex) read them: [What tables see](04-what-tables-see.md). On a map with them, a trip's results change them too, and tick the world clock's progress clocks: `factions.fort-keld.values.reputation: 1`, `world.clocks.the-wyrm-wakes: 1` (the Grey Marches' toll and haunted lights).
 - Translated keyed `factions/<id>`, by faction (`factions: { the-crown: { name: La Corona } }`). Core's `core/faction-turn` is a turn table for any game (it grows, holds, schemes or loses ground).
+
+## Progress clocks
+
+The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what happens when it fills. In the Hexmapper they come with the world clock when it starts ([Progress clocks](../hexmapper/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
+
+```yaml
+kind: clocks
+id: default
+name: Threats of the realm
+clocks:
+  the-siege: # its id: how rules name it (world.clocks.the-siege)
+    name: The siege of the capital
+    description: The rebels dig in around the walls.
+    segments: 8 # any number from 1
+    filled: 2 # already filled when the world clock starts (absent: none)
+    onFull: # what happens when it fills (all optional)
+      description: The capital falls. # a line on the timeline, and a notice
+      resolve: the-fall # a table, oracle, generator or deck rolled (this pack's, or pack/id)
+      effects: { factions.the-crown.territory: -1, world.clocks.the-reprisals: 2 }
+      then: reset # keep (the default): it stays full; reset: it starts over; remove: it goes away
+  the-reprisals:
+    name: Reprisals
+    segments: 4
+```
+
+- **Filled by effects**, anywhere effects go: a trip's results and actions, a table rolled by hand on a map, a faction's turn. `world.clocks.the-siege: 1` fills a segment, `-2` empties two, `'=0'` sets it (empty), `'{{1d3}}'` rolls. **Read by conditions** and tables: `world.clocks.the-siege: { gte: 8 }` (full), `{{world.clocks.the-siege}}` in a text.
+- Rules name a declared clock by **its id**, whatever the player renames it on the map; a clock made by hand on the map is named by its name in lowercase with dashes (_The Wyrm wakes_ is `the-wyrm-wakes`).
+- **When it fills**, its `onFull` happens once: its description and what the table rolled go to the timeline, the effects of both apply (other clocks and the factions: a trip's party isn't the world's), and then it stays full, starts over empty or goes away. The table sees the world as conditions do (`world.clocks.*`, `factions.<id>.*`, the date). One full clock may fill another (up to ten in a row).
+- Translated keyed `clocks/<id>`, by clock (`clocks: { the-siege: { name: El asedio, onFull: { description: La capital cae. } } }`). Core's `core/threat` is a clock for any game: the threat grows and, when full, strikes with one of Core's twists and starts over.
 
 ## Systems
 
@@ -391,12 +421,13 @@ bindings: default # its bindings
 calendar: marcher-reckoning # its calendar
 sheet: companion # its characters' sheet
 factions: default # the powers of its world
+clocks: default # the progress clocks its world starts with
 weather: [sky] # the weather models its bindings may use
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
-- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `sheet`, its party is played as a whole (the **Generic** system has a small one of its own: health and a wound).
+- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `sheet`, its party is played as a whole (the **Generic** system has a small one of its own: health and a wound).
 - Each part is a definition of this pack, by its id (`travel: default`), or of a pack it depends on (`travel: core/slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.

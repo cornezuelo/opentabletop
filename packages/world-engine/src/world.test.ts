@@ -4,7 +4,9 @@ import {
   isEventId,
   createWorld,
   factId,
+  findClock,
   initialWorld,
+  parseClocks,
   readWorld,
   worldFacts,
   type WorldAction,
@@ -224,5 +226,62 @@ describe('events with ids, and putting the clock back', () => {
     })
     // Forward isn't putting back.
     expect(world.apply(state, { type: 'rewind', time: later }).state.time).toBe(start)
+  })
+})
+
+describe('progress clocks a system declares', () => {
+  const world = createWorld()
+
+  it('reads `kind: clocks`, or says what is wrong', () => {
+    const ok = parseClocks({
+      kind: 'clocks',
+      id: 'default',
+      clocks: {
+        'the-wyrm-wakes': {
+          name: 'The Wyrm wakes',
+          segments: 6,
+          filled: 1,
+          onFull: { description: 'It wakes.', resolve: 'wyrm', then: 'reset' },
+        },
+      },
+    })
+    expect(ok.errors).toEqual([])
+    expect(ok.clocks?.clocks['the-wyrm-wakes'].onFull?.then).toBe('reset')
+    expect(
+      parseClocks({ kind: 'clocks', id: 'x', clocks: { a: { segments: 2, filled: 3 } } }).errors,
+    ).toEqual(['clocks.a.filled: more than its 2 segments'])
+    expect(
+      parseClocks({ kind: 'clocks', id: 'x', clocks: { a: { segments: 0 } } }).errors[0],
+    ).toMatch(/^clocks\.a\.segments/)
+    expect(
+      parseClocks({
+        kind: 'clocks',
+        id: 'x',
+        clocks: { a: { segments: 2, onFull: { then: 'x' } } },
+      }).errors[0],
+    ).toMatch(/^clocks\.a\.onFull\.then/)
+  })
+
+  it('names a declared clock by its declared id, whatever it is called', () => {
+    const { state } = run(world, initialWorld(), {
+      type: 'addClock',
+      clock: { name: 'La Sierpe despierta', segments: 6, ref: 'the-wyrm-wakes' },
+    })
+    expect(findClock(state, 'the-wyrm-wakes')?.name).toBe('La Sierpe despierta')
+    expect(findClock(state, 'la-sierpe-despierta')?.ref).toBe('the-wyrm-wakes')
+    expect(worldFacts(state, defaultCalendar).clocks).toEqual({
+      'la-sierpe-despierta': 0,
+      'the-wyrm-wakes': 0,
+    })
+    // Filling it says which one filled, with its declared id, for the host to do the rest.
+    const full = run(world, state, { type: 'tick', id: state.clocks[0].id, segments: 9 })
+    expect(full.events).toEqual([
+      {
+        type: 'CLOCK_FILLED',
+        clock: expect.objectContaining({ ref: 'the-wyrm-wakes', filled: 6 }),
+      },
+    ])
+    // Kept when saved and read back.
+    expect(readWorld(JSON.parse(JSON.stringify(full.state))).clocks[0].ref).toBe('the-wyrm-wakes')
   })
 })

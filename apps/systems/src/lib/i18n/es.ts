@@ -39,6 +39,7 @@ export const es: Messages<typeof en> = {
     checks: 'Comprobaciones',
     sheet: 'Hoja',
     factions: 'Facciones',
+    clocks: 'Relojes',
     calendar: 'Calendario',
     weather: 'Clima',
     modes: 'Modos de tirada',
@@ -46,6 +47,14 @@ export const es: Messages<typeof en> = {
     yaml: 'YAML',
   },
   parts: {
+    clocks: {
+      title: 'Sus relojes de progreso',
+      intro:
+        'Relojes de su mundo (`kind: clocks`): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con lo que pasa cuando se llena. En el Hexmapper llegan con el reloj del mundo al ponerlo en marcha; los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.',
+      help: "Una definición de relojes por sistema, nombrada en su **Resumen** (`clocks:`). Las condiciones y las tablas leen cada uno por su id:\n• `world.clocks.the-wyrm-wakes: { gte: 6 }` — una vez lleno\nLos efectos lo llenan, desde un viaje, una tabla o el turno de una facción:\n• `world.clocks.the-wyrm-wakes: 1` — un segmento más\n• `world.clocks.the-wyrm-wakes: -2` — dos menos\n• `world.clocks.the-wyrm-wakes: '=0'` — vacío",
+      none: 'Este sistema no declara relojes de progreso: se pueden seguir creando a mano en un mapa.',
+      create: 'Nuevos relojes',
+    },
     factions: {
       title: 'Sus facciones',
       intro:
@@ -86,6 +95,33 @@ export const es: Messages<typeof en> = {
       none: 'Los packs de este sistema no declaran modos de tirada.',
       create: 'Nuevos modos de tirada',
     },
+  },
+  clocksForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llaman estos relojes en conjunto.\n• **Amenazas del reino**',
+    clocks: 'Relojes',
+    clocksHelp:
+      'Cada reloj, por un id con el que lo leen las tablas y las condiciones (`world.clocks.<id>`): su nombre, sus segmentos, por dónde empieza y qué pasa cuando se llena. Deja vacíos **Al llenarse**, **Tira** y **Cambia** para un reloj que solo se llena.',
+    clockName: 'Nombre',
+    segments: 'Segmentos',
+    segmentsHelp:
+      'Cuántos segmentos tiene: cualquier número desde 1.\n• `4` — una amenaza corta\n• `12` — una campaña larga',
+    filled: 'Empieza en',
+    filledHelp:
+      'Segmentos ya llenos cuando se pone en marcha el reloj del mundo (vacío: ninguno).\n• `2` — ya en marcha',
+    description: 'Al llenarse',
+    descriptionHelp:
+      'Qué pasa cuando se llena, en palabras: una línea en la cronología y un aviso.\n• **La Sierpe despierta y deja su guarida.**',
+    resolve: 'Tira',
+    resolveHelp:
+      'Una tabla, oráculo, generador o mazo que se tira cuando se llena, con lo que dicen el reloj del mundo y las facciones (como el turno de una facción). Lo que sale va a la cronología, y se aplican sus efectos.\n• `wyrm-wakes` — una tabla de este pack\n• `core/twists` — los giros de Core',
+    effects: 'Cambia',
+    effectsHelp:
+      'Lo que cambia cuando se llena, como pares `clave: valor`: otros relojes y las facciones (el grupo de un viaje no es del mundo).\n• `world.clocks.the-siege: 2` — llena dos segmentos de otro\n• `factions.the-crown.values.strength: -1`\n• `factions.the-rebels.territory: 1` — un hex más',
+    then: 'Después',
+    thenHelp:
+      'Qué es de él una vez lleno:\n• `keep` — se queda lleno (por defecto): las condiciones lo leen lleno\n• `reset` — vuelve a empezar, vacío, y puede volver a llenarse\n• `remove` — desaparece',
+    keepByDefault: 'keep',
   },
   factionsForm: {
     name: 'Nombre',

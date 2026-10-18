@@ -228,6 +228,7 @@
       "id": "c4",
       "type": "clock",
       "name": "The Greywood Wyrm wakes",
+      "ref": "the-greywood-wyrm-wakes",
       "segments": 6,
       "filled": 1
     },
@@ -235,6 +236,7 @@
       "id": "c5",
       "type": "clock",
       "name": "Fort Keld’s unpaid garrison mutinies",
+      "ref": "fort-keld-mutinies",
       "segments": 8,
       "filled": 3
     },
@@ -242,6 +244,7 @@
       "id": "clansmarch",
       "type": "clock",
       "name": "The Iron Clans march",
+      "ref": "the-iron-clans-march",
       "segments": 6,
       "filled": 1
     }

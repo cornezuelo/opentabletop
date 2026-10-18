@@ -1,3 +1,5 @@
+export * from './clocks'
+
 import {
   defaultCalendar,
   nextAt,
@@ -38,6 +40,11 @@ export interface ProgressClock {
   segments: number
   filled: number
   noteRef?: string
+  /**
+   * The clock a system declares that this one was made from (its id in `kind: clocks`):
+   * how rules name it whatever it's called, and where its `onFull` is read.
+   */
+  ref?: string
 }
 
 /** One line of the timeline: what happened, when. Codes are translated by the UI. */
@@ -314,6 +321,14 @@ export function createWorld(options: WorldOptions = {}) {
 
 export type World = ReturnType<typeof createWorld>
 
+/**
+ * The clock rules name `id`: by the id of the clock it was declared as (`ref`), its name
+ * written as an id (`factId`), or its own id.
+ */
+export const findClock = (state: WorldState, id: string): ProgressClock | undefined =>
+  state.clocks.find((c) => c.ref === id) ??
+  state.clocks.find((c) => factId(c.name) === id || c.id === id)
+
 const clamp = (n: number, max: number) => Math.min(max, Math.max(0, Math.round(n)))
 
 function isData(parts: TimeParts | CalendarParts): parts is CalendarParts {
@@ -374,7 +389,8 @@ export const factId = (name: string): string =>
 
 /**
  * What tables and conditions read of the world, by names written as ids (`factId`): each
- * progress clock's filled segments (`clocks.the-wyrm-wakes: 3`) and the events that fall
+ * progress clock's filled segments (`clocks.the-wyrm-wakes: 3`; a declared one also by
+ * its declared id) and the events that fall
  * on the current day, due or already come (`events: [market-day]`).
  */
 export function worldFacts(state: WorldState, calendar: Calendar): Record<string, unknown> {
@@ -395,7 +411,12 @@ export function worldFacts(state: WorldState, calendar: Calendar): Record<string
       .flatMap((t) => names(t.data?.event, t.text)),
   ]
   return {
-    clocks: Object.fromEntries(state.clocks.map((c) => [factId(c.name), c.filled])),
+    clocks: Object.fromEntries(
+      state.clocks.flatMap((c) => [
+        [factId(c.name), c.filled],
+        ...(c.ref ? [[c.ref, c.filled]] : []),
+      ]),
+    ),
     events: [...new Set(events.filter(Boolean))],
   }
 }

@@ -135,6 +135,8 @@ export const clock = z
     segments: z.number().int().positive(),
     filled: z.number().int().nonnegative(),
     kind: z.string().optional(),
+    /** The clock its system declares that it was made from (its id in `kind: clocks`). */
+    ref: z.string().optional(),
   })
   .loose()
 

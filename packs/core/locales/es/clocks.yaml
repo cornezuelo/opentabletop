@@ -1,0 +1,9 @@
+clocks/threat:
+  name: Una amenaza que crece
+  description: |-
+    Un reloj de progreso para cualquier juego: **la amenaza crece** de segmento en segmento (a mano, o con los efectos de tus tablas: `world.clocks.the-threat-grows: 1`), y cuando se llena golpea con uno de los _Giros_ de Core y vuelve a empezar. Un sistema lo trae con `clocks: core/threat`.
+  clocks:
+    the-threat-grows:
+      name: La amenaza crece
+      onFull:
+        description: La amenaza golpea.

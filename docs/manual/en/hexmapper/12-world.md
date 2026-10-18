@@ -51,15 +51,17 @@ The **Id** is how conditions and tables name the event on its day: lowercase wor
 
 ## Progress clocks
 
-A clock is a number of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it. Beside each clock is the name tables read it by (`the-wyrm-wakes`).
+A clock is a round dial of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it. Its **segments** can be any number: set them when adding it (beside its name) or change them later (beside the count). Under the count is the name tables read it by (`the-wyrm-wakes`).
 
-**Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), and the day's events by their ids (`world.events: market-day`, or `events`; their names written as ids work too), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
+**The system's own clocks.** A system may declare the clocks its world starts with ([Progress clocks](../technical/07-kinds.md#progress-clocks), the Systems app's **Clocks** tab): they come with the world clock when you start it, already filled as far as the system says. Click the name under a declared clock's count to see what it is and **what happens when it fills**: a line on the timeline and a notice, a table rolled, effects on the factions and on other clocks, and then it stays full, starts over or goes away. Rules read it by the id the system gives it, whatever you rename it. **Add the system's clocks** brings back the ones the world doesn't have (removed, or declared after the clock started).
+
+**Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), a declared one also by its id, and the day's events by their ids (`world.events: market-day`, or `events`; their names written as ids work too), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
 
 ## Timeline
 
 What happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).
 
-The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and three clocks — the Greywood Wyrm (when it fills, the Wyrm roams the Greywood), Fort Keld's unpaid garrison, and the Iron Clans' march (their world turns move it on).
+The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and the system's three clocks — the Greywood Wyrm (filled by the haunted lights; full, it rolls what the Wyrm does first and roams the Greywood), the Iron Clans' march (filled by their world turns; full, they go to war on Fort Keld, bringing its mutiny two segments closer, and gather again) and Fort Keld's unpaid garrison (full, it mutinies: the fort is lost and the clock goes away).
 
 ## Factions
 

@@ -17,11 +17,12 @@ Each tab has its own page:
 - [**Checks**](06-checks.md): what is rolled on the way and when, the party's stats, journey roles and supplies the characters carry.
 - [**Sheet**](07-sheet.md): what each character has.
 - [**Factions**](08-factions.md): the powers of its world and their turns.
-- [**Calendar**](09-calendar.md): months, weekdays, moons and holidays.
-- [**Weather**](10-weather.md): weather with inertia, season by season.
-- [**Roll modes**](11-roll-modes.md): advantage, disadvantage and the like.
-- [**Try it**](12-try-it.md): a trip without a map, to test it as you make it.
-- [**YAML**](13-yaml.md): the files the forms write, for anything they don't cover.
+- [**Clocks**](09-clocks.md): the progress clocks its world starts with, and what each does when full.
+- [**Calendar**](10-calendar.md): months, weekdays, moons and holidays.
+- [**Weather**](11-weather.md): weather with inertia, season by season.
+- [**Roll modes**](12-roll-modes.md): advantage, disadvantage and the like.
+- [**Try it**](13-try-it.md): a trip without a map, to test it as you make it.
+- [**YAML**](14-yaml.md): the files the forms write, for anything they don't cover.
 
 ## Changing a bundled system
 

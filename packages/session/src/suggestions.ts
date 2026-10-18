@@ -97,9 +97,12 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { pack, rules, bindings, calendar, sheet, factions } of systems) {
+  for (const { pack, rules, bindings, calendar, sheet, factions, clocks } of systems) {
     // The generic system names nothing a pack would.
     if (pack !== undefined && !ours(pack)) continue
+    // Its progress clocks, by their declared ids: how many segments are filled.
+    for (const [id, c] of Object.entries(clocks?.def.clocks ?? {}))
+      add(`world.clocks.${id}`, ...Array.from({ length: c.segments + 1 }, (_, i) => i))
     // Its factions: each one's values and conditions, and who holds a hex.
     if (factions) {
       const ids = Object.keys(factions.def.factions)
@@ -310,7 +313,9 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
-  for (const { rules, bindings, sheet, factions } of travelSystems(registry).systems) {
+  for (const { rules, bindings, sheet, factions, clocks } of travelSystems(registry).systems) {
+    // Its progress clocks: segments filled (or emptied) by a result.
+    for (const id of Object.keys(clocks?.def.clocks ?? {})) out[`world.clocks.${id}`] = ['1', '-1']
     // A faction's turn: its own values, another's, its territory, the world's clocks.
     if (factions)
       for (const who of [

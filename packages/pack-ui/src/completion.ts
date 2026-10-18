@@ -64,6 +64,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'system',
     'sheet',
     'factions',
+    'clocks',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -73,6 +74,7 @@ const ENUMS: Record<string, readonly string[]> = {
   clamp: ['true', 'false'],
   once: ['true', 'false'],
   pause: ['true', 'false'],
+  then: ['keep', 'reset', 'remove'],
   passable: ['false', 'true'],
   oncePerDay: ['true', 'false'],
   hideWhenUnavailable: ['true', 'false'],
@@ -185,6 +187,12 @@ const KEYS = [
   'hexes',
   'color',
   'share',
+  // Progress clocks.
+  'clocks',
+  'segments',
+  'filled',
+  'onFull',
+  'then',
 ]
 
 export interface Completion {

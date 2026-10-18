@@ -405,6 +405,10 @@ Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que 
 
 Los poderes del mundo del sistema son **facciones** (`kind: factions`, nombradas con `factions:` en su sistema): cada una, un personaje de una hoja (fuerza, reputación…) con tierras en un mapa. En cada turno del mundo (a mano, o cada pocos días del reloj del mundo) cada una tira una tabla de turno cuyos efectos la cambian a ella (`faction.values.strength: 1`, `faction.territory: 1`), a otra (`factions.the-vale.values.strength: -1`) o un reloj de progreso (`world.clocks.the-iron-clans-march: 1`). Cualquier tabla las lee: `factions.iron-clans.values.strength`, `hex.faction: the-vale` (la patrulla de las Marcas Grises recorre las tierras que tenga el Valle). Todas las claves: [Facciones](../technical/07-kinds.md#facciones).
 
+### Relojes de progreso
+
+Un sistema puede declarar los **relojes de progreso** con los que empieza su mundo (`kind: clocks`, nombrados con `clocks:` en su sistema): cada uno con sus segmentos, por dónde empieza y qué pasa cuando se llena. Los efectos los llenan desde cualquier sitio (un encuentro de un viaje, el turno de una facción: `world.clocks.the-greywood-wyrm-wakes: 1`), las condiciones los leen (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), y una vez llenos cada uno hace lo que dice: una línea en la cronología, una tabla tirada (`resolve: wyrm-wakes`), efectos sobre las facciones y otros relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), y después se queda lleno, vuelve a empezar o desaparece. Todas las claves: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
+
 ## 6. Un calendario propio
 
 Los viajes cuentan los días con un calendario sencillo (cuatro estaciones de 90 días) salvo que el pack del sistema tenga uno propio: una definición `kind: calendar`, en cualquier fichero del pack.

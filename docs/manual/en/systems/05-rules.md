@@ -31,7 +31,7 @@ What the party carries, each with its **Min** and **Max**. Supplies are used by 
 
 ## Weather
 
-How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](10-weather.md).
+How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](11-weather.md).
 
 ## Values of the day
 

@@ -17,11 +17,12 @@ Cada pestaña tiene su página:
 - [**Comprobaciones**](06-checks.md): qué se tira por el camino y cuándo, las características del grupo, los roles de viaje y las provisiones que llevan los personajes.
 - [**Hoja**](07-sheet.md): lo que tiene cada personaje.
 - [**Facciones**](08-factions.md): los poderes de su mundo y sus turnos.
-- [**Calendario**](09-calendar.md): meses, días de la semana, lunas y fiestas.
-- [**Clima**](10-weather.md): clima con inercia, estación a estación.
-- [**Modos de tirada**](11-roll-modes.md): ventaja, desventaja y similares.
-- [**Pruébalo**](12-try-it.md): un viaje sin mapa, para probarlo mientras lo haces.
-- [**YAML**](13-yaml.md): los ficheros que escriben los formularios, para lo que estos no cubren.
+- [**Relojes**](09-clocks.md): los relojes de progreso con los que empieza su mundo, y qué hace cada uno al llenarse.
+- [**Calendario**](10-calendar.md): meses, días de la semana, lunas y fiestas.
+- [**Clima**](11-weather.md): clima con inercia, estación a estación.
+- [**Modos de tirada**](12-roll-modes.md): ventaja, desventaja y similares.
+- [**Pruébalo**](13-try-it.md): un viaje sin mapa, para probarlo mientras lo haces.
+- [**YAML**](14-yaml.md): los ficheros que escriben los formularios, para lo que estos no cubren.
 
 ## Cambiar un sistema incluido
 

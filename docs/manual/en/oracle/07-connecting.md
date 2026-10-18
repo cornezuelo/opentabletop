@@ -399,6 +399,10 @@ The Grey Marches play their Company this way: Survival from the best of those no
 
 The powers of the system's world are **factions** (`kind: factions`, named by `factions:` in its system): each a character of a sheet (strength, reputation…) holding land on a map. On every world turn (by hand, or every few days of the world clock) each one rolls a turn table whose effects change it (`faction.values.strength: 1`, `faction.territory: 1`), another (`factions.the-vale.values.strength: -1`) or a progress clock (`world.clocks.the-iron-clans-march: 1`). Any table reads them: `factions.iron-clans.values.strength`, `hex.faction: the-vale` (the Grey Marches' patrol rides where the Vale holds the land). Every key: [Factions](../technical/07-kinds.md#factions).
 
+### Progress clocks
+
+A system can declare the **progress clocks** its world starts with (`kind: clocks`, named by `clocks:` in its system): each with its segments, where it starts and what happens when it fills. Effects fill them from anywhere (a trip's encounter, a faction's turn: `world.clocks.the-greywood-wyrm-wakes: 1`), conditions read them (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), and once full each does what it says: a line on the timeline, a table rolled (`resolve: wyrm-wakes`), effects on the factions and other clocks (the Iron Clans' march brings Fort Keld's mutiny closer), then it stays full, starts over or goes away. Every key: [Progress clocks](../technical/07-kinds.md#progress-clocks).
+
 ## 6. A calendar of your own
 
 Trips count days with a plain calendar (four seasons of 90 days) unless the system's pack has its own: a `kind: calendar` definition, in any file of the pack.

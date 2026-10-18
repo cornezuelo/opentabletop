@@ -19,6 +19,7 @@
     "@open-tabletop/time": "*",
     "@open-tabletop/travel-engine": "*",
     "@open-tabletop/variables": "*",
-    "@open-tabletop/weather-engine": "*"
+    "@open-tabletop/weather-engine": "*",
+    "@open-tabletop/world-engine": "*"
   }
 }

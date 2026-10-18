@@ -37,6 +37,7 @@ export const en = {
     checks: 'Checks',
     sheet: 'Sheet',
     factions: 'Factions',
+    clocks: 'Clocks',
     calendar: 'Calendar',
     weather: 'Weather',
     modes: 'Roll modes',
@@ -44,6 +45,14 @@ export const en = {
     yaml: 'YAML',
   },
   parts: {
+    clocks: {
+      title: 'Its progress clocks',
+      intro:
+        'Clocks of its world (`kind: clocks`): segments that fill as something advances (a threat, a plan, a season of raids), each with what happens when it fills. In the Hexmapper they come with the world clock when it starts; trips, tables and faction turns fill them with effects, and conditions read them.',
+      help: "One clocks definition per system, named in its **Overview** (`clocks:`). Conditions and tables read each by its id:\n• `world.clocks.the-wyrm-wakes: { gte: 6 }` — once it is full\nEffects fill it, from a trip, a table or a faction turn:\n• `world.clocks.the-wyrm-wakes: 1` — a segment more\n• `world.clocks.the-wyrm-wakes: -2` — two less\n• `world.clocks.the-wyrm-wakes: '=0'` — empty",
+      none: 'This system declares no progress clocks: they can still be made by hand on a map.',
+      create: 'New clocks',
+    },
     factions: {
       title: 'Its factions',
       intro:
@@ -84,6 +93,33 @@ export const en = {
       none: 'The packs of this system declare no roll modes.',
       create: 'New roll modes',
     },
+  },
+  clocksForm: {
+    name: 'Name',
+    nameHelp: 'What these clocks are called together.\n• **Threats of the realm**',
+    clocks: 'Clocks',
+    clocksHelp:
+      'Each clock, by an id tables and conditions read it with (`world.clocks.<id>`): its name, its segments, where it starts and what happens when it fills. Leave **When full**, **Rolls** and **Changes** empty for a clock that only fills.',
+    clockName: 'Name',
+    segments: 'Segments',
+    segmentsHelp:
+      'How many segments it has: any number from 1.\n• `4` — a short threat\n• `12` — a long campaign',
+    filled: 'Starts at',
+    filledHelp:
+      'Segments already filled when the world clock starts (empty: none).\n• `2` — already under way',
+    description: 'When full',
+    descriptionHelp:
+      'What happens when it fills, in words: a line on the timeline and a notice.\n• **The Wyrm wakes and leaves its lair.**',
+    resolve: 'Rolls',
+    resolveHelp:
+      "A table, oracle, generator or deck rolled when it fills, with what the world clock and the factions say (like a faction's turn). What comes up goes to the timeline, and its effects apply.\n• `wyrm-wakes` — a table of this pack\n• `core/twists` — Core's twists",
+    effects: 'Changes',
+    effectsHelp:
+      "What it changes when it fills, as `key: value` pairs: other clocks and the factions (a trip's party isn't the world's).\n• `world.clocks.the-siege: 2` — fills two segments of another\n• `factions.the-crown.values.strength: -1`\n• `factions.the-rebels.territory: 1` — a hex more",
+    then: 'Then',
+    thenHelp:
+      'What becomes of it once full:\n• `keep` — it stays full (the default): conditions read it full\n• `reset` — it starts over, empty, and may fill again\n• `remove` — it goes away',
+    keepByDefault: 'keep',
   },
   factionsForm: {
     name: 'Name',

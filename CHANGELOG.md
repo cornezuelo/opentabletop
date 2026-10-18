@@ -4,6 +4,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Progress clocks, declared by systems**: a system can name the clocks its world starts with (`kind: clocks`: segments, where each starts, and what happens when it fills: words for the timeline, a table rolled, effects on the factions and other clocks, then it stays full, starts over or goes away). The Hexmapper's world clock starts with them (**Add the system's clocks** brings back missing ones); rules read a declared clock by its id whatever it's renamed; one full clock can fill another. The Systems app has a **Clocks** tab. Map format v19.
+- Hexmapper: **progress clocks look like clocks**: a round dial, one wedge per segment, click to fill; **any number of segments**, set when adding one and changed later. An effect can set a clock (`world.clocks.the-siege: '=0'`).
+- Faction turn tables read the world's clocks by their full names too (`world.clocks.<id>`, not only `clocks.<id>`).
+
+### Packs
+
+- The Grey Marches: **their three threats are the system's clocks** (`clocks.yaml`): the Greywood Wyrm wakes (rolling what it does first), the Iron Clans' march (at war, the garrison weakened and closer to mutiny, starting over) and the garrison's mutiny (the fort lost).
+- Core: **A growing threat** (`core/threat`), a progress clock for any game that strikes with a twist when full and starts over.
+
 ### Fixes
 
 - Travel, Hexmapper: **the browser could hang on March**. A hex walked all but a sliver of a minute (minutes towards a hex add up with decimals) was marched towards for no time at all: during the day the trip stopped saying the system's rule didn't let it march on, and at dawn it went round for ever. Such a hex is now entered at once, and trips already saved like that go on.

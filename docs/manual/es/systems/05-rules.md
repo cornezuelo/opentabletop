@@ -31,7 +31,7 @@ Lo que lleva el grupo, cada una con su **Mín** y **Máx**. Las provisiones las 
 
 ## Clima
 
-Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](10-weather.md).
+Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](11-weather.md).
 
 ## Valores del día
 

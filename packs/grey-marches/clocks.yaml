@@ -1,0 +1,69 @@
+# The threats of the Marches, as progress clocks (the Hexmapper's World panel). They come
+# with the world clock when it starts; trips, tables and faction turns fill them with
+# effects (`world.clocks.<id>: 1`), conditions read them, and each does what it says once
+# full: words for the timeline, a table rolled, effects on the factions and on another
+# clock, and then it stays full, starts over or goes away.
+kind: clocks
+id: default
+name: Threats of the Marches
+description: |-
+  Three things coming to the Marches: the Greywood Wyrm waking, the Iron Clans' march on Fort Keld, and the mutiny of its unpaid garrison.
+
+  **Shows:** progress clocks declared by a pack: where each starts, what happens when one fills (words on the timeline, a table rolled, effects on factions and on another clock), and what becomes of it then (it stays full, starts over or goes away); one full clock filling another (the Clans' march brings the mutiny closer).
+clocks:
+  # Filled by the Greywood's haunted lights (encounters.yaml); once full, the Wyrm roams
+  # the wood (the encounters read `world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), so
+  # it stays full.
+  the-greywood-wyrm-wakes:
+    name: The Greywood Wyrm wakes
+    description: The haunted lights of the Greywood stir it in its sleep.
+    segments: 6
+    filled: 1
+    onFull:
+      description: The Wyrm wakes, and the Greywood goes quiet.
+      resolve: wyrm-wakes
+  # Filled by the Clans' own turn (factions.yaml). Full, they march: at war, the garrison
+  # weakened and two segments closer to mutiny; then they gather again.
+  the-iron-clans-march:
+    name: The Iron Clans march
+    description: The chiefs of the Hollow Hills gather for the march on Fort Keld.
+    segments: 6
+    filled: 1
+    onFull:
+      description: The Clans march on Fort Keld.
+      effects:
+        factions.iron-clans.conditions.at-war: true
+        factions.fort-keld.values.strength: -1
+        world.clocks.fort-keld-mutinies: 2
+      then: reset
+  # Filled by the Clans' march. Full, the garrison is gone: it loses its fort, and the clock
+  # with it.
+  fort-keld-mutinies:
+    name: Fort Keld’s unpaid garrison mutinies
+    description: A year without pay, and the Clans at the gates.
+    segments: 8
+    filled: 3
+    onFull:
+      description: The garrison mutinies and scatters; the bridge road is left to whoever takes it.
+      effects: { factions.fort-keld.territory: -1, factions.fort-keld.values.strength: '=0' }
+      then: remove
+---
+# What the Wyrm does first, once awake: the table a full clock rolls.
+kind: table
+id: wyrm-wakes
+name: The Wyrm wakes
+description: |-
+  What the Greywood Wyrm does when it wakes: it falls on the Vale's herds, on the Clans' watch-fires, or lies in wait in the wood.
+
+  **Shows:** a table a full progress clock rolls (`onFull.resolve`), whose effects change the factions (`factions.the-vale.values.strength: -1`), reading the world as it is (`{{factions.the-vale.values.strength}}`).
+roll: 1d6
+entries:
+  - id: herds
+    range: 1-2
+    result: 'It falls on the Vale’s herds (the Vale’s strength was {{factions.the-vale.values.strength}})'
+    effects: { factions.the-vale.values.strength: -1 }
+  - id: fires
+    range: 3-4
+    result: It scatters the Clans’ watch-fires in the hills
+    effects: { factions.iron-clans.values.strength: -1 }
+  - { id: waits, range: 5-6, result: It lies in wait under the trees }

@@ -28,7 +28,9 @@
   const tabs = $derived<Tab[]>([
     'overview',
     ...(file ? (['rules', 'checks'] as Tab[]) : []),
-    ...(system?.pack ? (['sheet', 'factions', 'calendar', 'weather', 'modes'] as Tab[]) : []),
+    ...(system?.pack
+      ? (['sheet', 'factions', 'clocks', 'calendar', 'weather', 'modes'] as Tab[])
+      : []),
     'try',
     ...(file || declared || system?.id === 'generic' ? (['yaml'] as Tab[]) : []),
   ])
@@ -45,7 +47,14 @@
     add(file?.root, file?.bindings?.path)
     add(declared?.root, declared?.system?.path)
     if (system)
-      for (const kind of ['sheet', 'factions', 'calendar', 'weather', 'roll-modes'] as const)
+      for (const kind of [
+        'sheet',
+        'factions',
+        'clocks',
+        'calendar',
+        'weather',
+        'roll-modes',
+      ] as const)
         for (const part of systemParts(system, kind)) add(part.root, part.path)
     return out
   })
@@ -95,7 +104,7 @@
         <GenericYaml />
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} />
-      {:else if (tab === 'sheet' || tab === 'factions' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
+      {:else if (tab === 'sheet' || tab === 'factions' || tab === 'clocks' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">

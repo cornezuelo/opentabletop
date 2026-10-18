@@ -29,6 +29,7 @@
     "@open-tabletop/travel-ui": "*",
     "@open-tabletop/ui-kit": "*",
     "@open-tabletop/weather-engine": "*",
+    "@open-tabletop/world-engine": "*",
     "yaml": "^2.9.1"
   }
 }

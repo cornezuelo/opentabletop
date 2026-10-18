@@ -79,8 +79,8 @@ entries:
   - { id: quiet, range: 6, result: A quiet week }
 ---
 # The Clans' own turn: they raid the Vale (an effect on another faction), push their border
-# (territory) and bring their march on Fort Keld closer (a progress clock of the world clock,
-# by its name as an id: world.clocks.the-iron-clans-march).
+# (territory) and bring their march on Fort Keld closer (a progress clock the system declares,
+# clocks.yaml, by its id: world.clocks.the-iron-clans-march).
 kind: table
 id: clan-turn
 name: The Clans' turn

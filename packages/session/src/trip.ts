@@ -23,7 +23,9 @@ import {
 } from '@open-tabletop/travel-engine'
 import { parseSheet, type CharacterState, type Sheet } from '@open-tabletop/character-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
+import { parseClocks } from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
+import type { SystemClocks } from './clocks'
 import { migrateRules } from './formats'
 import {
   MEMBER_PATH,
@@ -80,6 +82,8 @@ export interface TravelSystem {
   sheet?: { id: string; def: Sheet }
   /** Its factions (`factions` in `kind: system`): who they are and the sheet they're made with. */
   factions?: SystemFactions
+  /** Its progress clocks (`clocks` in `kind: system`): the ones its world clock starts with. */
+  clocks?: SystemClocks
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -193,6 +197,7 @@ const isText = (v: unknown): v is LocalizedText =>
 const PART_NAMES: Record<string, string> = {
   sheet: 'sheet',
   factions: 'factions',
+  clocks: 'clocks',
   'travel-rules': 'travel rules',
   bindings: 'bindings',
   calendar: 'calendar',
@@ -211,6 +216,7 @@ const SYSTEM_KEYS = new Set([
   'maps',
   'sheet',
   'factions',
+  'clocks',
 ])
 
 /**
@@ -277,6 +283,7 @@ export function travelSystems(registry: Registry): {
       system?: Extra
       sheet?: Extra
       factions?: Extra
+      clocks?: Extra
     },
   ): TravelSystem | undefined {
     let rules = genericTravelRules
@@ -390,6 +397,25 @@ export function travelSystems(registry: Registry): {
           }
       }
     }
+    let clocks: SystemClocks | undefined
+    if (parts.clocks) {
+      const owner = ownerOf(parts.clocks) ?? pack
+      const report = (e: string) =>
+        problems.push(problem(owner, parts.clocks!.file, 'clocks', e, parts.clocks!.id))
+      const parsed = parseClocks(parts.clocks.data)
+      parsed.errors.forEach(report)
+      if (parsed.clocks) {
+        // What a full clock rolls must be something to roll.
+        for (const [id, c] of Object.entries(parsed.clocks.clocks)) {
+          const table = c.onFull?.resolve
+          if (!table) continue
+          const full = table.includes('/') ? table : `${owner}/${table}`
+          if (!registry.packs.has(full.split('/')[0]) || registry.definitions.has(full)) continue
+          report(`clocks.${id}.onFull.resolve: Unknown table or generator "${table}"`)
+        }
+        clocks = { id: `${owner}/${parts.clocks.id ?? 'default'}`, pack: owner, def: parsed.clocks }
+      }
+    }
     if (parts.bindings && bindings)
       problems.push(
         ...membersBindings(bindings, rules, sheet?.def).map((e) =>
@@ -432,6 +458,7 @@ export function travelSystems(registry: Registry): {
       ...(Object.keys(parts.weather).length && { weather: parts.weather }),
       ...(sheet && { sheet }),
       ...(factions && { factions }),
+      ...(clocks && { clocks }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -457,6 +484,7 @@ export function travelSystems(registry: Registry): {
           weather,
           sheet: extras.find((e) => e.kind === 'sheet'),
           factions: extras.find((e) => e.kind === 'factions'),
+          clocks: extras.find((e) => e.kind === 'clocks'),
         },
       )
       if (system) systems.push(system)
@@ -534,6 +562,7 @@ export function travelSystems(registry: Registry): {
           system: def,
           sheet: part('sheet', 'sheet', data.sheet),
           factions: part('factions', 'factions', data.factions),
+          clocks: part('clocks', 'clocks', data.clocks),
         },
       )
       if (system) systems.push(system)

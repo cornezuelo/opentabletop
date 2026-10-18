@@ -2,14 +2,22 @@
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
   import { localize } from '@open-tabletop/session'
   import { formatClock, type CalendarParts, type GameTime } from '@open-tabletop/time'
-  import { factId, isEventId, type ScheduledEvent } from '@open-tabletop/world-engine'
-  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    factId,
+    isEventId,
+    type ProgressClock,
+    type ScheduledEvent,
+  } from '@open-tabletop/world-engine'
+  import { ClockDial, confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import { en } from '../lib/i18n/en'
   import { sessionOf } from '../lib/play/play'
   import {
     advanceWorld,
+    bringClocks,
     defaultStart,
+    missingClocks,
+    systemClocks,
     setWorldDate,
     startWorld,
     stopWorld,
@@ -153,13 +161,38 @@
         ? t('world.everyDays', { days: e.repeat.days })
         : t('world.yearly')
 
-  // New progress clock.
+  // New progress clock, of any number of segments.
   let clockName = $state('')
   let segments = $state(6)
   function addClock() {
-    if (!clockName.trim()) return
+    if (!clockName.trim() || !(segments >= 1)) return
     worldAct({ type: 'addClock', clock: { name: clockName.trim(), segments } })
     clockName = ''
+  }
+  /** The clocks the map's system declares that the world doesn't have yet. */
+  const missing = $derived.by(() => {
+    void world
+    void editor.meta
+    return missingClocks()
+  })
+  /** A declared clock's help: how rules read it, what it is, what it does when it fills. */
+  function declaredHelp(clock: ProgressClock): string {
+    const def = clock.ref ? systemClocks()?.def.clocks[clock.ref] : undefined
+    if (!def || !clock.ref) return ''
+    const on = def.onFull ?? {}
+    const what = [
+      name(on.description, '').replace(/[.\s]+$/, ''),
+      on.resolve ? t('world.fullRolls', { table: on.resolve }) : '',
+      on.effects ? t('world.fullEffects', { effects: Object.keys(on.effects).join(', ') }) : '',
+      t(`world.fullThen.${on.then ?? 'keep'}`),
+    ].filter(Boolean)
+    return [
+      name(def.description, ''),
+      t('world.whenFull', { what: `${what.join('; ')}.` }),
+      t('world.declaredClock', { id: clock.ref }),
+    ]
+      .filter(Boolean)
+      .join('\n')
   }
 
   let note = $state('')
@@ -310,45 +343,71 @@
   <div class="field">
     <span>{t('world.clocks')}<InfoTip text={t('world.clocksHelp')} /></span>
     {#each world.clocks as clock (clock.id)}
-      <div class="clock-row">
-        <input
-          type="text"
-          value={clock.name}
-          aria-label={t('world.clockName')}
-          onchange={(e) =>
-            worldAct({ type: 'updateClock', id: clock.id, patch: { name: e.currentTarget.value } })}
-        />
-        <div class="segments" role="group" aria-label={`${clock.filled}/${clock.segments}`}>
-          {#each Array.from({ length: clock.segments }, (_, i) => i) as i (i)}
-            <button
-              class="segment"
-              class:on={i < clock.filled}
-              aria-label={`${i + 1}/${clock.segments}`}
-              onclick={() =>
-                worldAct({
-                  type: 'tick',
-                  id: clock.id,
-                  segments: (i + 1 === clock.filled ? i : i + 1) - clock.filled,
-                })}
-            ></button>
-          {/each}
+      <div class="progress">
+        <div class="progress-row">
+          <input
+            type="text"
+            class="progress-name"
+            value={clock.name}
+            aria-label={t('world.clockName')}
+            onchange={(e) =>
+              worldAct({
+                type: 'updateClock',
+                id: clock.id,
+                patch: { name: e.currentTarget.value },
+              })}
+          />
+          <button
+            class="icon"
+            aria-label={t('world.removeClock')}
+            use:tooltip={t('world.removeClock')}
+            onclick={async () =>
+              (await confirmAction(t('world.confirmRemoveClock', { name: clock.name }))) &&
+              worldAct({ type: 'removeClock', id: clock.id })}>✕</button
+          >
         </div>
-        <span class="count" class:full={clock.filled === clock.segments}
-          >{clock.filled}/{clock.segments}</span
-        >
-        <code class="id" use:tooltip={t('world.clockIdTip', { id: factId(clock.name) })}
-          >{factId(clock.name)}</code
-        >
-        <button
-          class="icon"
-          aria-label={t('world.removeClock')}
-          use:tooltip={t('world.removeClock')}
-          onclick={async () =>
-            (await confirmAction(t('world.confirmRemoveClock', { name: clock.name }))) &&
-            worldAct({ type: 'removeClock', id: clock.id })}>✕</button
-        >
+        <div class="progress-row">
+          <ClockDial
+            segments={clock.segments}
+            filled={clock.filled}
+            size={56}
+            label={clock.name}
+            onfill={(n) => worldAct({ type: 'tick', id: clock.id, segments: n - clock.filled })}
+          />
+          <div class="progress-body">
+            <span class="count" class:full={clock.filled === clock.segments}
+              >{clock.filled} /
+              <input
+                type="number"
+                class="size"
+                min="1"
+                value={clock.segments}
+                aria-label={t('world.segments')}
+                use:tooltip={t('world.segments')}
+                onchange={(e) => {
+                  const n = Math.round(Number(e.currentTarget.value))
+                  if (n >= 1)
+                    worldAct({ type: 'updateClock', id: clock.id, patch: { segments: n } })
+                  else e.currentTarget.value = String(clock.segments)
+                }}
+              /></span
+            >
+            <code class="id"
+              >{clock.ref ?? factId(clock.name)}<InfoTip
+                text={declaredHelp(clock) ||
+                  t('world.clockIdTip', { id: clock.ref ?? factId(clock.name) })}
+              /></code
+            >
+          </div>
+        </div>
       </div>
     {/each}
+    {#if missing.length}
+      <div class="row">
+        <button onclick={bringClocks}>{t('world.systemClocks', { count: missing.length })}</button>
+        <InfoTip text={t('world.systemClocksHelp')} />
+      </div>
+    {/if}
     <form
       class="row"
       onsubmit={(e) => {
@@ -357,10 +416,16 @@
       }}
     >
       <input type="text" bind:value={clockName} placeholder={t('world.clockName')} />
-      <select bind:value={segments} aria-label={t('world.segments')}>
-        {#each [4, 6, 8, 10, 12] as n (n)}<option value={n}>{n}</option>{/each}
-      </select>
-      <button type="submit" disabled={!clockName.trim()}>{t('world.addClock')}</button>
+      <input
+        type="number"
+        class="size"
+        min="1"
+        bind:value={segments}
+        aria-label={t('world.segments')}
+      />
+      <button type="submit" disabled={!clockName.trim() || !(segments >= 1)}
+        >{t('world.addClock')}</button
+      >
     </form>
   </div>
 
@@ -546,36 +611,56 @@
     flex: none !important;
   }
 
-  .clock-row {
+  .progress {
     display: flex;
+    flex-direction: column;
     gap: 6px;
-    align-items: center;
-    margin-bottom: 4px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
   }
 
-  .clock-row input {
+  .progress-body {
+    display: flex;
     flex: 1;
+    flex-direction: column;
+    gap: 4px;
     min-width: 0;
   }
 
-  .segments {
+  .progress .count {
     display: flex;
-    gap: 2px;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+    white-space: nowrap;
   }
 
-  .segment {
-    width: 12px;
-    height: 16px;
-    padding: 0;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 2px;
-    cursor: pointer;
+  .progress-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    min-width: 0;
   }
 
-  .segment.on {
-    background: var(--accent);
-    border-color: var(--accent);
+  .progress-name {
+    flex: 1 1 0;
+    width: 100%;
+    min-width: 0;
+    font-weight: 600;
+  }
+
+  input.size {
+    flex: none;
+    width: 3.5em;
+  }
+
+  .id {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .count {

@@ -210,7 +210,7 @@ export function declareSystem(system: TravelSystem): boolean {
 }
 
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
-export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'factions'
+export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'factions' | 'clocks'
 
 /** Where a part named `ref` (`id` of the system's pack, or `pack/id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
@@ -247,7 +247,7 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   const data = systemData(system)
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
-  else if (kind === 'calendar' || kind === 'sheet' || kind === 'factions')
+  else if (kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks')
     refs = data
       ? typeof data[kind] === 'string'
         ? [data[kind] as string]
@@ -298,7 +298,7 @@ export function createSystemPart(system: TravelSystem, kind: PartTabKind): strin
     const selector = `@system/${declared.id}`
     const current = readDefinition(text, selector) ?? {}
     const value =
-      kind === 'calendar' || kind === 'sheet' || kind === 'factions'
+      kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks'
         ? id
         : [...(Array.isArray(current.weather) ? (current.weather as string[]) : []), id]
     library.writeFile(root, declared.path, setIn(text, selector, [kind], value))

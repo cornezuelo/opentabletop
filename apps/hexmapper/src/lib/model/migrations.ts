@@ -156,6 +156,13 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   17(data) {
     return data
   },
+  /**
+   * v19: a progress clock may name the clock its system declares that it was made from
+   * (`ref`); older maps' clocks are all made by hand.
+   */
+  18(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

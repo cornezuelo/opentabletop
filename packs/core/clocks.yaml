@@ -1,0 +1,15 @@
+# A progress clock for any game: a threat that grows, strikes with a twist when full, and
+# starts over (the Hexmapper's World panel). A system brings it with `clocks: core/threat`.
+kind: clocks
+id: threat
+name: A growing threat
+description: |-
+  One progress clock for any game: **the threat grows** a segment at a time (by hand, or by your tables' effects: `world.clocks.the-threat-grows: 1`), and when it fills it strikes with one of Core's _Twists_ and starts over. A system brings it with `clocks: core/threat`.
+clocks:
+  the-threat-grows:
+    name: The threat grows
+    segments: 6
+    onFull:
+      description: The threat strikes.
+      resolve: twists
+      then: reset
