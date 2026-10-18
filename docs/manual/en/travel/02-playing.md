@@ -41,6 +41,10 @@ What the journal says, so nothing happens silently:
 - **Actions** with how long they took, and when nothing was rolled: in the Grey Marches, **Forage for food** on hills says "Forage for food (3 h): nothing to forage on hills: only woods, fields, heath and marsh give food". The three hours still pass and the march is still halved.
 - **Actions the system takes by itself**, like eating as each day ends, with what they changed ("Eat (Food −1)"); a value that hits its minimum or maximum ("Food can’t go lower than 0") and **fatigue** changes with their reason ("Not enough to eat: Fatigue +1"); what an action changed goes on its own line ("Camp for the night (Fatigue −1)", "Rest for 2 h (Fatigue −1)").
 
+## The party's own sheet
+
+When the system has a sheet for the party itself (the Grey Marches' **Company**; the Generic rules' **Morale**), every trip shows it as **The party**, above the characters: what belongs to the whole party, whoever travels. Characters can join and leave (they fall, others are hired); this stays. Change its values and conditions by hand, as a character's; checks and actions change them too (the Grey Marches: lost in the dark, the Company is **Shaken** and can't force a march until it rests). A party stat made of one of its values (the Grey Marches' Morale and Fatigue) has no box of its own among the stats: it's edited on this card.
+
 ## Characters
 
 When the system has a sheet for its characters (the Grey Marches' companions; the Generic rules' smallest one, with health and a wound), the trip has a **Characters** section under the supplies and stats. **Add a character** makes one with the sheet's starting values; name it, and its id follows the name (`Old Tobin` → `old-tobin`, how tables and conditions reach it: `characters.old-tobin.values.health`). Each character folds open to show its values (grouped as the sheet says; a track as boxes, click one to fill up to it), its conditions (tick them as they happen) and its tags (free words, comma-separated). ↑ moves one up the list, × removes one (after asking).

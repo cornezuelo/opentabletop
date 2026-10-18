@@ -8,6 +8,7 @@ import {
   type OracleState,
 } from '@open-tabletop/oracle-engine'
 import {
+  characterFacts,
   validatePartyFrom,
   type CharacterState,
   type PartyFrom,
@@ -151,7 +152,11 @@ export function parseBindings(
       out.stats[key] = {
         name: text(v.name),
         description: text(v.description),
-        default: typeof v.default === 'number' ? v.default : 0,
+        // A stat made of a party sheet's value starts as that value does (unless it says).
+        ...((typeof v.default === 'number' ||
+          !(typeof v.from === 'object' && v.from !== null && 'party' in v.from)) && {
+          default: typeof v.default === 'number' ? v.default : 0,
+        }),
         ...(typeof v.min === 'number' && { min: v.min }),
         ...(typeof v.max === 'number' && { max: v.max }),
       }
@@ -242,6 +247,8 @@ export interface SessionState {
   nextEntry: number
   /** Discovery: hexes revealed whose contents are still to be rolled. */
   discovery?: DiscoveryState
+  /** The party itself, a character of the system's party sheet (none without one). */
+  party?: CharacterState
   /** The party's characters, in order (none: the party is played as a whole). */
   members?: CharacterState[]
   /** The member acting now (`acting.*`), chosen by the player. */
@@ -264,7 +271,10 @@ export function initialSessionState(
  * its members' ids (`party.members`) when it has them.
  */
 export function partyValues(s: SessionState): Record<string, unknown> {
+  // Its own sheet's: `party.values.morale`, `party.conditions`, `party.tags`.
+  const own = s.party && characterFacts(s.party)
   return {
+    ...(own && { values: own.values, conditions: own.conditions, tags: own.tags }),
     stats: { ...s.stats },
     resources: { ...s.travel.resources },
     mode: s.travel.mode,
@@ -395,6 +405,8 @@ export function createSession(options: {
   facts?: Record<string, unknown>
   /** The sheet the party's members are made with (the system's), if it has one. */
   sheet?: PartyRules['sheet']
+  /** The party's own sheet (the system's `partySheet`), if it has one. */
+  partySheet?: PartyRules['partySheet']
 }): Session {
   const random = options.random ?? mathRandom()
   const host = options.facts ?? {}
@@ -403,7 +415,11 @@ export function createSession(options: {
   const declared = options.rules ? declaredValues(options.rules) : undefined
   const supplies = options.rules ? resourceBounds(options.rules) : {}
   const stats = options.bindings?.stats
-  const party: PartyRules = { sheet: options.sheet, bindings: options.bindings }
+  const party: PartyRules = {
+    sheet: options.sheet,
+    partySheet: options.partySheet,
+    bindings: options.bindings,
+  }
   /** The host's facts, with what the members' conditions block (for the travel engine). */
   const hostOf = (s: SessionState, more: Record<string, unknown> = {}) => {
     const blocked = partyBlocks(s, party)

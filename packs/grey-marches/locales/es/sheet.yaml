@@ -55,3 +55,16 @@ sheet/companion:
     home:
       name: Hogar
       description: De dónde viene un compañero.
+sheet/company:
+  name: La Compañía
+  description: |-
+    La Compañía en conjunto: su moral, su fatiga, los mercenarios que ha contratado y cuánto aguanta. Sigue igual cuando se unen o caen compañeros: todo viaje la tiene.
+
+    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar.
+  values:
+    morale: Moral
+    fatigue: Fatiga
+    hirelings: Mercenarios
+    endurance: Aguante
+  conditions:
+    shaken: Desanimada

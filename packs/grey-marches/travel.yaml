@@ -129,7 +129,7 @@ actions:
   # exhaustion (the party's Endurance): the button is off otherwise.
   rest:
     name: Rest
-    description: Two hours without marching; takes off 1 fatigue. Only by day, with food left and fatigue under your Endurance.
+    description: Two hours without marching; takes off 1 fatigue and the Company is no longer shaken. Only by day, with food left and fatigue under your Endurance.
     when:
       {
         time.daylight: true,
@@ -138,7 +138,8 @@ actions:
       }
     do:
       - { time: 120 }
-      - { effects: { party.stats.fatigue: -1 } }
+      # A condition of the party's own sheet, cleared.
+      - { effects: { party.stats.fatigue: -1, party.conditions.shaken: false } }
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: forage) is rolled where the party stands.
   # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
@@ -170,10 +171,11 @@ actions:
       # If the food ran out (it hit its minimum), the day is remembered as hungry.
       - { when: { trip.below: food }, set: { hungry: true } }
   # Pushing on: half as fast again for the rest of the day, at the cost of fatigue; only
-  # by day, while the party is fresh enough (a condition on a stat), once a day.
+  # by day, while the party is fresh enough (a condition on a stat), once a day; a shaken
+  # Company (a condition of its sheet that blocks it) can't.
   forced-march:
     name: Forced march
-    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only by day, with fatigue under 2, once a day.'
+    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only by day, with fatigue under 2 and the Company not shaken, once a day.'
     when: { time.daylight: true, party.stats.fatigue: { lt: 2 } }
     oncePerDay: true
     do:
@@ -458,8 +460,9 @@ kind: bindings
 id: default
 # Stats with `from` are the companions' while the party has any (sheet.yaml): the best, the
 # worst or how many of them, among those a condition lets in. Without companions, the party
-# keeps them as a whole like any other stat. Morale, fatigue and hirelings are always the
-# party's own: a system may mix both.
+# keeps them as a whole like any other stat. Morale, fatigue, hirelings and endurance are
+# values of the Company's own sheet (`from: { party: … }`, sheet.yaml), whoever travels:
+# effects on them change the sheet, within its bounds.
 stats:
   charisma:
     name: Charisma
@@ -477,7 +480,7 @@ stats:
   morale:
     name: Morale
     description: Falls with wolves, bandits, getting lost and hunger; rises at the shrine and the inn.
-    default: 3
+    from: { party: morale }
   navigation:
     name: Navigation
     description: Added to the getting-lost roll. With companions, their best Pathfinding.
@@ -487,14 +490,13 @@ stats:
   hirelings:
     name: Hirelings
     description: Sell-swords travelling with the party. They join at the inn and may desert when there is no food.
-    default: 0
-    min: 0
+    from: { party: hirelings }
   # How much fatigue the party takes before it can't camp or rest: the camp and rest
   # actions compare fatigue with it (a variable, `{{party.stats.endurance}}`).
   endurance:
     name: Endurance
     description: The party can camp and rest while its fatigue is under this.
-    default: 10
+    from: { party: endurance }
   # Hexes with danger at or under it are crossed unseen (the encounter check reads it).
   stealth:
     name: Stealth
@@ -518,13 +520,12 @@ stats:
     description: How many companions have a sprained ankle.
     default: 0
     from: { count: true, when: { conditions: sprained } }
-  # Fatigue is a stat of this system (min: effects never take it below 0), changed by its
-  # day-end checks, rests, the shrine, fords and hunger.
+  # Fatigue is a value of the Company's sheet (min: effects never take it below 0), changed
+  # by its day-end checks, rests, the shrine, fords and hunger.
   fatigue:
     name: Fatigue
     description: 'Rises with each day without enough food, long days, fords and hunger; eases after a fed night in camp, a rest or a prayer at the shrine.'
-    default: 0
-    min: 0
+    from: { party: fatigue }
 # With companions, the food is what they carry between them (their `rations`): the trip
 # shows the sum, and what the party eats or finds is shared out, evenly by default.
 resources:

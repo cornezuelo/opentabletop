@@ -71,6 +71,10 @@ export const es: Messages<typeof en> = {
     dawn: 'el alba',
     nightfall: 'el anochecer',
   },
+  partySheet: {
+    title: 'El grupo',
+    help: 'El propio grupo, con la hoja de grupo de su sistema: lo que es de todo el grupo (moral, fatiga, mercenarios…), sean quienes sean sus personajes. Los personajes pueden unirse e irse; esto se queda.\nLas condiciones y las tablas lo leen:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nLos efectos lo cambian:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nUna característica del grupo hecha de uno de sus valores (`from: { party: morale }`) es ese valor: se edita aquí.',
+  },
   members: {
     land: 'tierras',
     clock: 'Reloj «{name}»',

@@ -8,6 +8,7 @@ import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import {
+  applyResult,
   partyOf,
   refreshParty,
   tripAvailability,
@@ -491,6 +492,47 @@ describe('the Company: a party made of characters', () => {
     })
     const back = sessionOf(bundleToMap(bundle).play!)!
     expect(back.members).toEqual(trip().members)
+  })
+
+  it('the Company has a sheet of its own, whoever travels: shaken, it can’t force a march until it rests', () => {
+    grey()
+    clickHex('7,7')
+    // Its morale, fatigue, hirelings and endurance are the party's stats.
+    expect(trip().party).toMatchObject({
+      sheet: 'grey-marches/company',
+      values: { morale: 3, fatigue: 0, endurance: 10 },
+    })
+    expect(trip().stats).toMatchObject({ morale: 3, fatigue: 0, endurance: 10 })
+    expect(tripAvailability({ system: activeSystem() }, trip())['forced-march']).toBeUndefined()
+    // Lost in the dark (a table's effect on the party's own sheet): shaken.
+    editSession((s) =>
+      applyResult(
+        s,
+        { effects: { 'party.conditions.shaken': true, 'party.stats.morale': -1 } },
+        activeSystem().bindings?.stats,
+        {},
+        partyOf(activeSystem()),
+      ),
+    )
+    expect(trip().party!.conditions).toHaveProperty('shaken')
+    expect(trip().party!.values.morale).toBe(2)
+    expect(tripAvailability({ system: activeSystem() }, trip())['forced-march']).toMatchObject({
+      value: 'shaken',
+      who: 'party',
+    })
+    expect(rollContext()).toMatchObject({
+      party: { values: { morale: 2 }, conditions: ['shaken'] },
+    })
+    // A rest clears it; the fatigue it eases is the sheet's, never below 0.
+    step({ type: 'action', id: 'rest' })
+    expect(trip().party!.conditions).not.toHaveProperty('shaken')
+    expect(trip().party!.values.fatigue).toBe(0)
+    // Characters leave and join: the Company stays.
+    editSession((s) => ({ ...s, members: s.members!.slice(1) }))
+    expect(trip().party!.values.morale).toBe(2)
+    // Kept in the map file.
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map)).play!)!
+    expect(back.party).toEqual(trip().party)
   })
 
   it('eats a ration per mouth from whoever carries most, and a fed night heals', () => {

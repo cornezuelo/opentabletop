@@ -1,6 +1,7 @@
 import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import {
   GENERIC_SHEET,
+  GENERIC_PARTY_SHEET,
   localize,
   olderPauseChecks,
   parseBindings,
@@ -8,7 +9,7 @@ import {
   type TravelSystem,
 } from '@open-tabletop/session'
 import { genericTravelRules, parseTravelRules } from '@open-tabletop/travel-engine'
-import { FACTION_SHEET, manifestOf, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
+import { FACTION_SHEET, manifestOf, PARTY_SHEET, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
 import { parseDocument, stringify } from 'yaml'
 import { getLocale } from './i18n'
@@ -247,7 +248,14 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   const data = systemData(system)
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
-  else if (kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks')
+  else if (kind === 'sheet')
+    // Its characters' sheet, then the party's own.
+    refs = data
+      ? (['sheet', 'partySheet'] as const).flatMap((key) =>
+          typeof data[key] === 'string' ? [data[key] as string] : [],
+        )
+      : ownOfKind(pack).slice(0, 1)
+  else if (kind === 'calendar' || kind === 'factions' || kind === 'clocks')
     refs = data
       ? typeof data[kind] === 'string'
         ? [data[kind] as string]
@@ -264,14 +272,23 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
  * `roll-modes.yaml`, `sheet.yaml`); a calendar, weather model or sheet is named by its
  * system. One undo step.
  */
-export function createSystemPart(system: TravelSystem, kind: PartTabKind): string | null {
+export function createSystemPart(
+  system: TravelSystem,
+  kind: PartTabKind,
+  /** A sheet for the party itself (`partySheet`), not for its characters. */
+  party = false,
+): string | null {
   const root = systemRoot(system)
   if (!root || !library.isEditable(root)) return null
   const pack = system.pack!
   const taken = (library.registry.extras.get(pack) ?? [])
     .filter((e) => e.kind === kind)
     .map((e) => e.id ?? 'default')
-  const base = kind === 'calendar' || kind === 'weather' || kind === 'sheet' ? kind : 'default'
+  const base = party
+    ? 'party'
+    : kind === 'calendar' || kind === 'weather' || kind === 'sheet'
+      ? kind
+      : 'default'
   const id = freeId(base, taken)
   const file = `${kind}.yaml`
   const declared = systemFile(system)?.system
@@ -279,7 +296,10 @@ export function createSystemPart(system: TravelSystem, kind: PartTabKind): strin
     library.writeFile(
       root,
       file,
-      appendDefinition(library.readFile(root, file) ?? '', SYSTEM_TEMPLATES[kind](id)),
+      appendDefinition(
+        library.readFile(root, file) ?? '',
+        party ? PARTY_SHEET(id) : SYSTEM_TEMPLATES[kind](id),
+      ),
     )
     // New factions name a sheet `faction`: written beside them when the pack has none.
     if (
@@ -301,7 +321,11 @@ export function createSystemPart(system: TravelSystem, kind: PartTabKind): strin
       kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks'
         ? id
         : [...(Array.isArray(current.weather) ? (current.weather as string[]) : []), id]
-    library.writeFile(root, declared.path, setIn(text, selector, [kind], value))
+    library.writeFile(
+      root,
+      declared.path,
+      setIn(text, selector, [party ? 'partySheet' : kind], value),
+    )
   })
   return id
 }
@@ -351,5 +375,6 @@ export function genericYaml(): string {
   return [
     stringify({ kind: 'travel-rules', ...genericTravelRules }),
     stringify(GENERIC_SHEET),
+    stringify(GENERIC_PARTY_SHEET),
   ].join('---\n')
 }

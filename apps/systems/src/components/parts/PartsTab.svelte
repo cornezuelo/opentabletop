@@ -25,16 +25,22 @@
   const doc = partDoc(() => part)
   const root = $derived(systemRoot(system))
   /** Whether a new one can be made here: in the system's own pack, once it's editable. */
+  const editable = $derived(!!root && library.isEditable(root))
   const canCreate = $derived(
-    !!root &&
-      library.isEditable(root) &&
-      ((kind !== 'calendar' && kind !== 'sheet' && kind !== 'factions' && kind !== 'clocks') ||
-        parts.length === 0),
+    editable &&
+      (kind === 'sheet'
+        ? !system.sheet
+        : (kind !== 'calendar' && kind !== 'factions' && kind !== 'clocks') || parts.length === 0),
   )
+  /** A sheet for the party itself, beside its characters'. */
+  const canCreateParty = $derived(editable && kind === 'sheet' && !system.partySheet)
+  /** Whether a sheet is the party's own (`partySheet`), not its characters'. */
+  const isParty = (p: { id: string }) =>
+    kind === 'sheet' && !!system.partySheet?.id.endsWith(`/${p.id}`)
   const key = $derived(kind === 'roll-modes' ? 'modes' : kind)
 
-  function create() {
-    const id = createSystemPart(system, kind)
+  function create(party = false) {
+    const id = createSystemPart(system, kind, party)
     if (id) chosen = systemParts(system, kind).findIndex((p) => p.id === id && p.root === root)
   }
 </script>
@@ -49,10 +55,16 @@
           role="tab"
           aria-selected={i === chosen}
           class:active={i === chosen}
-          onclick={() => (chosen = i)}>{p.root === root ? p.id : `${p.root}/${p.id}`}</button
+          onclick={() => (chosen = i)}
+          >{p.root === root ? p.id : `${p.root}/${p.id}`}{kind === 'sheet'
+            ? ` · ${t(isParty(p) ? 'parts.sheet.partyTab' : 'parts.sheet.charactersTab')}`
+            : ''}</button
         >
       {/each}
     </div>
+  {/if}
+  {#if part && kind === 'sheet' && parts.length === 1 && isParty(part)}
+    <p class="help">{t('parts.sheet.onlyParty')}</p>
   {/if}
   {#if part}
     <p class="file">{part.root}/{part.path} · <code>@{part.kind}/{part.id}</code></p>
@@ -76,7 +88,10 @@
     <p class="help">{t(`parts.${key}.none`)}</p>
   {/if}
   {#if canCreate}
-    <button class="add" onclick={create}>{t(`parts.${key}.create`)}</button>
+    <button class="add" onclick={() => create()}>{t(`parts.${key}.create`)}</button>
+  {/if}
+  {#if canCreateParty}
+    <button class="add" onclick={() => create(true)}>{t('parts.sheet.createParty')}</button>
   {/if}
 </div>
 

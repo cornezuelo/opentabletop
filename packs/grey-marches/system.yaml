@@ -10,12 +10,14 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its example map, the sheet its companions are made with, its factions and its progress clocks.
+  pack's dependency, its example map, the sheet its companions are made with and the Company's own, its factions and its progress clocks.
 travel: default
 bindings: default
 calendar: marcher-reckoning
 # The Company's characters (sheet.yaml): a trip's party may be made of them.
 sheet: companion
+# The Company itself (sheet.yaml): morale, fatigue, hirelings, whoever travels.
+partySheet: company
 # The powers of the Marches (factions.yaml): their territory and their world turns.
 factions: default
 # The threats of the Marches (clocks.yaml): the progress clocks its world clock starts with.

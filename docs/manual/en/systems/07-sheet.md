@@ -1,6 +1,6 @@
 # Sheet
 
-The **Sheet** tab edits what each of the party's characters has (`kind: sheet`, one per system). **New sheet** makes a small one and names it in the system. Without a sheet, the party is played as a whole; with one, trips have a **Characters** section ([Playing a trip](../travel/02-playing.md#characters)), and the [Checks](06-checks.md) tab says which party stats come from them and which supplies they carry. The YAML of a sheet: [Sheets](../technical/07-kinds.md#sheets).
+The **Sheet** tab edits the system's two sheets, both optional (`kind: sheet`): **its characters'** (`sheet`), what each character has, and **the party's own** (`partySheet`), what belongs to the whole party (morale, fatigue, hirelings…) in every trip, whoever travels. With both, a tab above the form chooses which. **New characters sheet** and **New party sheet** make a small one and name it in the system. The party's sheet shows as **The party** in every trip, above the characters; tables read it as `party.values.morale`, and a party stat can be one of its values (**From the sheets** in [Checks](06-checks.md): `party: morale`). Without a characters' sheet, the party is played as a whole; with one, trips have a **Characters** section ([Playing a trip](../travel/02-playing.md#characters)), and the [Checks](06-checks.md) tab says which party stats come from them and which supplies they carry. The YAML of a sheet: [Sheets](../technical/07-kinds.md#sheets).
 
 ## What a sheet has
 

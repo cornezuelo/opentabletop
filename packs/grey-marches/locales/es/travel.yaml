@@ -24,7 +24,7 @@ travel-rules/default:
       description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga y devuelve 1 de salud a cada compañero; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de vuestro Aguante: si no, la noche pasa a la intemperie, sin descanso.'
     rest:
       name: Descansar
-      description: Dos horas sin marchar; quita 1 de fatiga. Solo de día, con comida y fatiga por debajo de vuestro Aguante.
+      description: Dos horas sin marchar; quita 1 de fatiga y la Compañía deja de estar desanimada. Solo de día, con comida y fatiga por debajo de vuestro Aguante.
     forage:
       name: Buscar comida
       description: 'Tres horas buscando comida (una vez al día, de día): el resto de la marcha del día va a la mitad. Solo en bosque, bosque denso, llanura, cultivos, brezal y marisma: se tira 1d6 + Supervivencia (dos veces, la mejor); de 4 a 6 da comida para un día, 7 o más para 2 a 4 días. En otros terrenos no hay nada que encontrar. No con tormenta.'
@@ -34,7 +34,7 @@ travel-rules/default:
       description: 'Al final de cada día, acampando o no: 1 de comida por boca (cada compañero, o 1 para un grupo sin ellos), 1 más por cada mercenario, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
     forced-march:
       name: Marcha forzada
-      description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga. Solo de día, con fatiga menor de 2, una vez al día.'
+      description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga. Solo de día, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
     rite:
       name: Rito de la Luna Ascua
       description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga y se vacía el pavor de cada compañero.'

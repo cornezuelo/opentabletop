@@ -163,6 +163,13 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   18(data) {
     return data
   },
+  /**
+   * v20: a trip keeps the party's own sheet (`session.party`, the system's `partySheet`);
+   * older trips have none, and get one when they next play if their system has one.
+   */
+  19(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

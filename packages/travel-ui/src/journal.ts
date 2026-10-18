@@ -63,8 +63,11 @@ export function whyText(
   if ('value' in because && because.who !== undefined)
     return t('blocked.member', {
       name:
-        memberName?.(`characters.${because.who}.conditions.${because.value}`) ??
-        `${because.who}: ${because.value}`,
+        memberName?.(
+          because.who === 'party'
+            ? `party.conditions.${because.value}`
+            : `characters.${because.who}.conditions.${because.value}`,
+        ) ?? `${because.who}: ${because.value}`,
     })
   if ('value' in because)
     return t('blocked.value', {

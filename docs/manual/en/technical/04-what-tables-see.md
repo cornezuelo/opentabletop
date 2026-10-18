@@ -125,13 +125,15 @@ In Travel, a hex's neighbours are the ones before and after it on the way.
 
 ## The party, `party.*`
 
-| Name                       | Kind        | Values, and where they come from                                                                                                                                                                                   |
-| -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `party.stats.<stat>`       | number      | Each stat the system's bindings declare (Systems → **Checks** → Party stats), with its current value, as the trip panel shows them. Also by its own name, `{{charisma}}`, unless a fact has that name (see below). |
-| `party.resources.<supply>` | number      | Each supply the system's rules declare (Systems → **Rules** → Supplies), as the trip panel shows them. May go below 0 unless the system sets a `min`.                                                              |
-| `party.mode`               | id          | The way of travelling, as `trip.mode`.                                                                                                                                                                             |
-| `party.members`            | list of ids | The characters' ids, when the party has characters.                                                                                                                                                                |
-| _each party stat_          | number      | `{{charisma}}`: the stat by its own name (the short way).                                                                                                                                                          |
+| Name                             | Kind        | Values, and where they come from                                                                                                                                                                                   |
+| -------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `party.stats.<stat>`             | number      | Each stat the system's bindings declare (Systems → **Checks** → Party stats), with its current value, as the trip panel shows them. Also by its own name, `{{charisma}}`, unless a fact has that name (see below). |
+| `party.resources.<supply>`       | number      | Each supply the system's rules declare (Systems → **Rules** → Supplies), as the trip panel shows them. May go below 0 unless the system sets a `min`.                                                              |
+| `party.mode`                     | id          | The way of travelling, as `trip.mode`.                                                                                                                                                                             |
+| `party.members`                  | list of ids | The characters' ids, when the party has characters.                                                                                                                                                                |
+| `party.values.<value>`           | number      | The party's own sheet's values (Systems → **Sheet**, the party's: `partySheet`), within its bounds, whoever travels: `party.values.morale`.                                                                        |
+| `party.conditions`, `party.tags` | list of ids | The conditions and tags of the party's own sheet: `party.conditions: shaken`.                                                                                                                                      |
+| _each party stat_                | number      | `{{charisma}}`: the stat by its own name (the short way).                                                                                                                                                          |
 
 Also in hand rolls during a trip.
 

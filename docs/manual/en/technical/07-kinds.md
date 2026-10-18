@@ -350,6 +350,7 @@ relations: # kinds of relation a character may hold to anything with a reference
 - `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds. A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`).
+- **The party's own sheet** (`partySheet:` in its [system](#systems)) is a sheet like this one for the party itself: what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels, while characters join and leave. Tables read it as `party.values.<id>`, `party.conditions` and `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`), within its bounds; its conditions' `blocks` stop the whole party. A party stat can be one of its values (`stats: { morale: { from: { party: morale } } }`): the stat is that value, takes its bounds, and effects on `party.stats.morale` change the sheet. The trip shows its card above the characters.
 
 ## Factions
 
@@ -420,6 +421,7 @@ travel: default # its travel rules (kind: travel-rules, id: default)
 bindings: default # its bindings
 calendar: marcher-reckoning # its calendar
 sheet: companion # its characters' sheet
+partySheet: company # the party's own sheet
 factions: default # the powers of its world
 clocks: default # the progress clocks its world starts with
 weather: [sky] # the weather models its bindings may use
@@ -427,7 +429,7 @@ packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
-- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `sheet`, its party is played as a whole (the **Generic** system has a small one of its own: health and a wound).
+- Every part is optional. Without `travel`, the system uses the **Generic** rules; without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole (the **Generic** system has a small one of its own: health and a wound).
 - Each part is a definition of this pack, by its id (`travel: default`), or of a pack it depends on (`travel: core/slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.

@@ -349,6 +349,7 @@ relations: # tipos de relación que un personaje puede tener con cualquier cosa 
 - `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites. Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
 - Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`).
+- **La hoja del propio grupo** (`partySheet:` en su [sistema](#sistemas)) es una hoja como esta para el grupo en sí: lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje, mientras los personajes se unen y se van. Las tablas la leen como `party.values.<id>`, `party.conditions` y `party.tags`; los efectos la cambian (`party.values.morale: -1`, `party.conditions.shaken: true`), dentro de sus límites; los `blocks` de sus estados detienen a todo el grupo. Una característica del grupo puede ser uno de sus valores (`stats: { morale: { from: { party: morale } } }`): la característica es ese valor, toma sus límites, y los efectos sobre `party.stats.morale` cambian la hoja. El viaje enseña su ficha encima de los personajes.
 
 ## Facciones
 
@@ -419,6 +420,7 @@ travel: default # sus reglas de viaje (kind: travel-rules, id: default)
 bindings: default # sus bindings
 calendar: marcher-reckoning # su calendario
 sheet: companion # la hoja de sus personajes
+partySheet: company # la hoja del propio grupo
 factions: default # los poderes de su mundo
 clocks: default # los relojes de progreso con los que empieza su mundo
 weather: [sky] # los modelos de clima que pueden usar sus bindings
@@ -426,7 +428,7 @@ packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 ```
 
-- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `sheet`, su grupo se juega como un todo (el sistema **Genérico** tiene una pequeña propia: salud y una herida).
+- Todas las partes son opcionales. Sin `travel`, el sistema usa las reglas **Genéricas**; sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `partySheet`, el grupo no tiene hoja propia; sin `sheet`, su grupo se juega como un todo (el sistema **Genérico** tiene una pequeña propia: salud y una herida).
 - Cada parte es una definición de este pack, por su id (`travel: default`), o de un pack del que depende (`travel: core/slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.

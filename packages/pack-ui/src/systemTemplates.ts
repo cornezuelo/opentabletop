@@ -146,6 +146,15 @@ export const SYSTEM_TEMPLATES: Record<
   }),
 }
 
+/** A sheet for the party itself (a system's `partySheet`): its morale, and a condition. */
+export const PARTY_SHEET = (id: string): Record<string, unknown> => ({
+  kind: 'sheet',
+  id,
+  name: 'The party',
+  values: { morale: { name: 'Morale', default: 3, min: 0, max: 5, track: true } },
+  conditions: { shaken: { name: 'Shaken' } },
+})
+
 /** The sheet a new factions definition names, when its pack has none (`faction`). */
 export const FACTION_SHEET = (): Record<string, unknown> => ({
   kind: 'sheet',

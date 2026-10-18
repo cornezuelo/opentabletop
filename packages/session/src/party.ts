@@ -24,15 +24,23 @@ import type { Effects, LimitReached } from './effects'
 /**
  * The party as its members: the sheet they're made with (the system's `sheet`), and what
  * the system's bindings say the party takes from them (stats `from` their values, supplies
- * they carry). A system without a sheet plays the party as a whole, as before.
+ * they carry). A system without a sheet plays the party as a whole, as before. Beside
+ * them, the party's own sheet (`partySheet`): the party itself as one character (`party`),
+ * whatever its members, whose values stats may be (`from: { party: morale }`).
  */
 export interface PartyRules {
   sheet?: { id: string; def: Sheet }
+  partySheet?: { id: string; def: Sheet }
   bindings?: Bindings
 }
 
+/** The id of the party's own character (made with the party sheet). */
+export const PARTY_ID = 'party'
+
 /** What the session keeps of the members (a trip's state has more). */
 export interface PartyTarget {
+  /** The party itself, a character of the system's party sheet (none without one). */
+  party?: CharacterState
   members?: CharacterState[]
   acting?: string
   /** Who holds each of the system's journey roles (`roles.<id>.*`), by role id. */
@@ -41,11 +49,40 @@ export interface PartyTarget {
   travel: Pick<TravelState, 'resources'> & Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
 }
 
-/** The sheet a member is made with, when it's the system's (one sheet per system for now). */
+/** The sheet a member (or the party itself) is made with, when it's the system's. */
 export const sheetOf =
   (rules: PartyRules) =>
   (member: CharacterState): Sheet | undefined =>
-    rules.sheet && member.sheet === rules.sheet.id ? rules.sheet.def : undefined
+    rules.sheet && member.sheet === rules.sheet.id
+      ? rules.sheet.def
+      : rules.partySheet && member.sheet === rules.partySheet.id
+        ? rules.partySheet.def
+        : undefined
+
+/** The stats that are a value of the party sheet: `[stat, value]` pairs. */
+export const partyStats = (rules: PartyRules): [string, string][] =>
+  Object.entries(rules.bindings?.stats ?? {}).flatMap(([id, stat]) =>
+    stat.from?.party ? [[id, stat.from.party] as [string, string]] : [],
+  )
+
+/**
+ * Makes sure the party has its own character when the system has a party sheet (in place):
+ * a new one with the sheet's defaults (and the stats it backs as they are), or none.
+ */
+function ensureParty(s: PartyTarget, rules: PartyRules): void {
+  const own = rules.partySheet
+  if (!own) {
+    delete s.party
+    return
+  }
+  if (s.party?.sheet === own.id) return
+  const values = Object.fromEntries(
+    partyStats(rules).flatMap(([stat, value]) =>
+      s.stats[stat] !== undefined ? [[value, s.stats[stat]]] : [],
+    ),
+  )
+  s.party = createCharacter(own.def, own.id, { id: PARTY_ID, values })
+}
 
 /** A new member of the system's sheet, with its defaults and `init`. */
 export function newMember(
@@ -64,11 +101,44 @@ const hasMembers = (s: PartyTarget): s is PartyTarget & { members: CharacterStat
  * the supplies they carry as their sum. Nothing changes for a party without members.
  */
 export function refreshParty(s: PartyTarget, rules: PartyRules): void {
+  ensureParty(s, rules)
+  syncPartySheet(s, rules)
   if (!hasMembers(s)) return
   for (const [id, stat] of Object.entries(rules.bindings?.stats ?? {}))
-    if (stat.from) s.stats[id] = partyValue(s.members, stat.from)
+    if (stat.from && !stat.from.party) s.stats[id] = partyValue(s.members, stat.from)
   for (const [id, supply] of Object.entries(rules.bindings?.resources ?? {}))
     s.travel.resources[id] = s.members.reduce((sum, m) => sum + (m.values[supply.carried] ?? 0), 0)
+}
+
+/**
+ * The party sheet's values the stats are made of, as the stats are (in place), within the
+ * sheet's bounds: whatever changed a stat (effects, the engine, a hand edit) is the value.
+ * A hand edit of the party's sheet writes the stat too (`editPartySheet`).
+ */
+function syncPartySheet(s: PartyTarget, rules: PartyRules): void {
+  const sheet = rules.partySheet?.def
+  if (!s.party || !sheet) return
+  for (const [stat, value] of partyStats(rules)) {
+    if (!sheet.values[value]) continue
+    const { min, max } = boundsOf(sheet, s.party, value)
+    const at = s.stats[stat] ?? s.party.values[value]
+    if (at === undefined) continue
+    const to = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, at))
+    s.stats[stat] = to
+    if (s.party.values[value] !== to)
+      s.party = { ...s.party, values: { ...s.party.values, [value]: to } }
+  }
+}
+
+/**
+ * The party's own sheet changed by hand (in place): the stats made of its values follow,
+ * and the party is brought up to date.
+ */
+export function editPartySheet(s: PartyTarget, rules: PartyRules, next: CharacterState): void {
+  s.party = next
+  for (const [stat, value] of partyStats(rules))
+    if (next.values[value] !== undefined) s.stats[stat] = next.values[value]
+  refreshParty(s, rules)
 }
 
 /** The supplies the members carry, as they are now (to settle what changes later). */
@@ -148,7 +218,8 @@ export function partyBlocks(
   s: PartyTarget,
   rules: PartyRules,
 ): Record<string, { value: string; who: string }> {
-  return hasMembers(s) ? membersBlock(sheetOf(rules), s.members) : {}
+  // The party's own conditions block for it, then its members'.
+  return membersBlock(sheetOf(rules), [...(s.party ? [s.party] : []), ...(s.members ?? [])])
 }
 
 /**
@@ -180,10 +251,14 @@ export function memberFacts(
  * `characters.<id>`, `acting`, `roles.<id>` (whoever holds the role).
  */
 export const MEMBER_PATH =
-  /^(party\.members|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions)\.(.+)$/
+  /^(party\.members|party|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions)\.(.+)$/
 
 /** Whether an effect's path is about members (`party.members.…`, `characters.<id>.…`, `acting.…`). */
-export const isMemberPath = (path: string): boolean => MEMBER_PATH.test(path)
+export const isMemberPath = (path: string): boolean =>
+  MEMBER_PATH.exec(path)?.[1] !== undefined && MEMBER_PATH.exec(path)?.[1] !== 'party'
+
+/** Whether an effect's path is about the party's own sheet (`party.values.…`, `party.conditions.…`). */
+export const isPartySheetPath = (path: string): boolean => MEMBER_PATH.exec(path)?.[1] === 'party'
 
 /**
  * Applies the effects on members: `party.members.values.health: -1` (every member),
@@ -203,8 +278,8 @@ export function applyMemberEffects(
   const events: CharacterEvent[] = []
   const nobody: string[] = []
   const unknown: string[] = []
-  // A party played as a whole: what its system says of characters doesn't apply.
-  if (!s.members?.length) return { limits, events, nobody, unknown }
+  // A party played as a whole, without a sheet of its own: nothing here applies.
+  if (!s.members?.length && !s.party) return { limits, events, nobody, unknown }
   const { travel } = s
   const roller =
     travel.day !== undefined
@@ -221,13 +296,17 @@ export function applyMemberEffects(
     const members: CharacterState[] = s.members ?? []
     const holder = who.startsWith('roles.') ? s.roles?.[who.slice('roles.'.length)] : undefined
     const targets: CharacterState[] =
-      who === 'party.members'
-        ? members
-        : who === 'acting'
-          ? members.filter((m) => m.id === s.acting)
-          : who.startsWith('roles.')
-            ? members.filter((m) => m.id === holder)
-            : members.filter((m) => m.id === who.slice('characters.'.length))
+      who === 'party'
+        ? s.party
+          ? [s.party]
+          : []
+        : who === 'party.members'
+          ? members
+          : who === 'acting'
+            ? members.filter((m) => m.id === s.acting)
+            : who.startsWith('roles.')
+              ? members.filter((m) => m.id === holder)
+              : members.filter((m) => m.id === who.slice('characters.'.length))
     if (!targets.length) {
       // Nobody acting, or nobody holding the role: nothing happens, and the journal says so.
       ;(who === 'acting' || who.startsWith('roles.') ? nobody : unknown).push(path)
@@ -245,14 +324,24 @@ export function applyMemberEffects(
         { type: 'change', effects: { [rest]: change }, ...(time !== undefined && { time }) },
         { roller, context },
       )
-      s.members = (s.members ?? []).map((m: CharacterState) =>
-        m.id === target.id ? done.state : m,
-      )
+      if (target === s.party) {
+        s.party = done.state
+        // The value changed, if a stat is made of it: the stat follows it.
+        for (const [stat, value] of partyStats(rules))
+          if (part === 'values' && value === id && done.state.values[value] !== undefined)
+            s.stats[stat] = done.state.values[value]
+      } else
+        s.members = (s.members ?? []).map((m: CharacterState) =>
+          m.id === target.id ? done.state : m,
+        )
       for (const e of done.events) {
         events.push(e)
         if (e.type === 'LIMIT_REACHED')
           limits.push({
-            path: `characters.${target.id}.values.${e.value}`,
+            path:
+              target === s.party
+                ? `party.values.${e.value}`
+                : `characters.${target.id}.values.${e.value}`,
             limit: e.limit,
             value: done.state.values[e.value],
           })

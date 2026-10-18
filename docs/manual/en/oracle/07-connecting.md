@@ -373,6 +373,7 @@ A system may play its party as a whole (its stats and supplies are the party's) 
 Then the bindings say what the party takes from them:
 
 - **Stats made of theirs:** `navigation: { name: Navigation, from: { max: pathfinding } }` is the best Pathfinding among them; `min` the worst, `sum` all together, `count: true` how many; `when` / `unless` leave some out (`count: true, unless: { conditions: wounded }`: those not wounded). Without characters the stat is kept as usual, so the same system plays both ways.
+- **Values of the party's own sheet:** with `partySheet:` in the system, a sheet for the party itself (morale, fatigue…, whoever travels), `morale: { from: { party: morale } }` is that value: effects on the stat change the sheet, within its bounds.
 - **Supplies they carry:** `resources: { food: { carried: rations } }`: the party's food is the sum of their rations, and what the trip eats or finds is shared out among them (evenly by default, `share: order` for the first one first).
 
 - **Journey roles:** `roles: { guide: { name: Guide }, lookout: { name: Lookout } }`: in a trip the player gives each to a character, and checks and tables read the holder, `roles.guide.values.pathfinding: { gte: 2 }`.

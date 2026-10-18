@@ -86,3 +86,21 @@ relations:
   home:
     name: Home
     description: Where a companion comes from.
+---
+# The Company itself: what belongs to the whole party, whoever travels in it. The system
+# names it (system.yaml: `partySheet: company`); its morale, fatigue, hirelings and
+# endurance are the party's stats (travel.yaml: `from: { party: … }`).
+kind: sheet
+id: company
+name: The Company
+description: |-
+  The Company as a whole: its morale, its fatigue, the sell-swords it has hired and how much it can take. It stays the same as companions join and fall: every trip has it.
+
+  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
+values:
+  morale: { name: Morale, default: 3 }
+  fatigue: { name: Fatigue, default: 0, min: 0 }
+  hirelings: { name: Hirelings, default: 0, min: 0 }
+  endurance: { name: Endurance, default: 10 }
+conditions:
+  shaken: { name: Shaken, blocks: [forced-march] }

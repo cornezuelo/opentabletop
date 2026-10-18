@@ -21,6 +21,6 @@ export const en = {
   max: 'At most {max}.',
   blocks: 'While someone has it, the party can’t: {list}.',
   /** Names of the generic system's values and conditions (packs name their own). */
-  known: { health: 'Health', wounded: 'Wounded' },
+  known: { health: 'Health', wounded: 'Wounded', morale: 'Morale' },
   box: '{value} of {max}',
 }

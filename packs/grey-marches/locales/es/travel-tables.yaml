@@ -13,7 +13,7 @@ getting-lost:
     - Condiciones sobre el clima, sobre la oscuridad (`daylight: false`) y sobre estar fuera de toda región (`exists: false`)
   entries:
     fog: 'Perdidos en la niebla: hoy no avanzáis'
-    dark: 'Perdidos en la oscuridad: os paráis hasta el alba'
+    dark: 'Perdidos en la oscuridad: os paráis hasta el alba, desanimados'
     wild: 'Aquí no hay referencias: os desviáis del rumbo'
     lost: 'Os habéis perdido: hoy no avanzáis'
     course: Mantenéis el rumbo

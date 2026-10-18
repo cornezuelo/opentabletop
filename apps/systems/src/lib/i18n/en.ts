@@ -62,12 +62,16 @@ export const en = {
       create: 'New factions',
     },
     sheet: {
-      title: "Its characters' sheet",
+      title: 'Its sheets: the party and its characters',
       intro:
-        "What each character of the party has: values with their bounds, conditions and the relations they hold. With a sheet, a trip's party can be made of characters, and the **Checks** tab says which party stats come from them and which supplies they carry.",
-      help: 'One sheet per system (`kind: sheet`), named in its **Overview** (`sheet:`). Conditions and tables read each character:\n• `characters.kael.values.health: { lte: 1 }` — one by id\n• `acting.values.wits: { gte: 3 }` — the one acting now\n• `party.members: kael` — whether Kael travels with the party\nEffects change them:\n• `party.members.values.health: -1` — every member\n• `acting.conditions.wounded: true` — the one acting\nWithout a sheet, the party is played as a whole.',
-      none: 'This system has no sheet: its party is played as a whole.',
-      create: 'New sheet',
+        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them and which supplies they carry. Each has values with their bounds, tracks, conditions and relations.",
+      help: "Named in its **Overview** (`partySheet:`, `sheet:`). Conditions and tables read the party's sheet and each character:\n• `party.values.morale: { gte: 3 }` — the party\n• `characters.kael.values.health: { lte: 1 }` — one by id\n• `acting.values.wits: { gte: 3 }` — the one acting now\nEffects change them:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — every character\nA party stat can be a value of the party sheet: `from: { party: morale }` (in **Checks**).",
+      none: 'This system has no sheet: its party is played as a whole, with its stats.',
+      create: 'New characters sheet',
+      createParty: 'New party sheet',
+      partyTab: 'the party',
+      charactersTab: 'its characters',
+      onlyParty: "This is the party's own sheet; the system has none for its characters yet.",
     },
     calendar: {
       title: "The system's calendar",
@@ -536,9 +540,9 @@ export const en = {
     statDefault: 'Starts at',
     noStats: 'No party stats.',
     addStat: 'Add a stat',
-    statFrom: 'From the members',
+    statFrom: 'From the sheets',
     statFromHelp:
-      "With characters in the party, the stat is made of theirs (and effects on it are overwritten); without, it's kept as any other. One of:\n• `max: survival` — the best Survival among them\n• `min: stealth` — the worst\n• `sum: strength` — all of them together\n• `count: true` — how many they are\nAdd `when` / `unless` to count only some, and `none` for when nobody counts:\n• `count: true, unless: { conditions: wounded }` — those not wounded\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — the best of those still standing\nNeeds a sheet (the **Sheet** tab).",
+      "With characters in the party, the stat is made of theirs (and effects on it are overwritten); without, it's kept as any other. One of:\n• `max: survival` — the best Survival among them\n• `min: stealth` — the worst\n• `sum: strength` — all of them together\n• `count: true` — how many they are\nAdd `when` / `unless` to count only some, and `none` for when nobody counts:\n• `count: true, unless: { conditions: wounded }` — those not wounded\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — the best of those still standing\nNeeds a sheet (the **Sheet** tab).\nOr one value of the party's own sheet, always: the stat is that value, and effects on it change the sheet:\n• `party: morale` — the party sheet's Morale",
     statFromNone: 'kept by the party',
     roles: 'Journey roles',
     rolesHelp:

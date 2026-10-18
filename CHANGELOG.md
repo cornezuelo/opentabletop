@@ -8,12 +8,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Progress clocks, declared by systems**: a system can name the clocks its world starts with (`kind: clocks`: segments, where each starts, and what happens when it fills: words for the timeline, a table rolled, effects on the factions and other clocks, then it stays full, starts over or goes away). The Hexmapper's world clock starts with them (**Add the system's clocks** brings back missing ones); rules read a declared clock by its id whatever it's renamed; one full clock can fill another. The Systems app has a **Clocks** tab. Map format v19.
 - Hexmapper: **progress clocks look like clocks**: a round dial, one wedge per segment, click to fill; **any number of segments**, set when adding one and changed later. An effect can set a clock (`world.clocks.the-siege: '=0'`).
+- **The party's own sheet**: a system can name a sheet for the party itself (`partySheet:` in `kind: system`) beside its characters': morale, fatigue, hirelings… in every trip, whoever travels, while characters join and leave. Trips show it as **The party**, above the characters; tables read `party.values.<id>`, `party.conditions`, `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`) and its conditions block for the whole party. A party stat can be one of its values (`from: { party: morale }`): effects on the stat change the sheet, within its bounds. The Systems app's **Sheet** tab edits both sheets (**New party sheet**); the Generic rules have the smallest one (Morale). Map format v20, trips v6.
 - Travel, Hexmapper: **the trip's buttons are at the top**, right under where the party is (and a check waiting for **Continue** above them), instead of under the supplies, stats and characters.
 - Faction turn tables read the world's clocks by their full names too (`world.clocks.<id>`, not only `clocks.<id>`).
 
 ### Packs
 
 - The Grey Marches: **their three threats are the system's clocks** (`clocks.yaml`): the Greywood Wyrm wakes (rolling what it does first), the Iron Clans' march (at war, the garrison weakened and closer to mutiny, starting over) and the garrison's mutiny (the fort lost).
+- The Grey Marches: **The Company** is the party's own sheet (its Morale, Fatigue, Hirelings and Endurance), and getting lost in the dark leaves it **Shaken**: no forced march until a rest.
 - Core: **A growing threat** (`core/threat`), a progress clock for any game that strikes with a twist when full and starts over.
 
 ### Fixes

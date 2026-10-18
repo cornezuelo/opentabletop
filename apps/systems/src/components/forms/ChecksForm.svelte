@@ -28,6 +28,7 @@
   /** The values of the members' sheet (the system's `sheet`), for stats made of them. */
   const sheetValues = $derived(Object.keys(system?.sheet?.def.values ?? {}))
   const fromHints = $derived({
+    party: Object.keys(system?.partySheet?.def.values ?? {}),
     max: sheetValues,
     min: sheetValues,
     sum: sheetValues,

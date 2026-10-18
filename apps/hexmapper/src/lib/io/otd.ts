@@ -337,6 +337,7 @@ function playToOtd(map: HexMap) {
         ...(session?.discovery && { discovery: session.discovery }),
         ...(session?.acting !== undefined && { acting: session.acting }),
         ...(session?.roles && { roles: session.roles }),
+        ...(session?.party && { party: characterToOtd(session.party, 'party') }),
       },
     },
   }
@@ -373,6 +374,11 @@ function playFromOtd(
     const member = c && characterFromOtd(c)
     return member ? [member] : []
   })
+  // The party's own sheet, kept as an OTD character inside the party.
+  const partySheet =
+    typeof ext.party === 'object' && ext.party !== null
+      ? characterFromOtd(ext.party as Parameters<typeof characterFromOtd>[0])
+      : undefined
   const rules =
     typeof ext.system === 'string'
       ? {
@@ -392,6 +398,7 @@ function playFromOtd(
             ...(typeof ext.acting === 'string' && { acting: ext.acting }),
             ...(typeof ext.weatherAt === 'string' && { weatherAt: ext.weatherAt }),
             ...(typeof ext.roles === 'object' && ext.roles !== null && { roles: ext.roles }),
+            ...(partySheet && { party: partySheet }),
           },
           // No trip yet: the company waits for one.
           ...(!party.travel && members.length && { members }),

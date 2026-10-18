@@ -28,7 +28,7 @@ Conditions and context are written as `key: value` pairs, like in tables: `tags:
 
 Numbers of the party, each with an id, a **Name** and **Description** for players and the value it **Starts at** (**Add a stat**; its `min` / `max` are written in YAML). The trip panel shows them and lets the player change them; tables read them in rolls (`1d6 + {{survival}}`) and conditions (`party.stats.morale: { lte: 1 }`), and effects change them (`party.stats.fatigue: 1`).
 
-With a **Sheet**, **From the members** makes a stat of the characters' values while the party has any: `max: survival` (the best Survival), `min`, `sum`, `count: true`, with `when` / `unless` to leave some out. The Grey Marches' Survival: `max: survival, unless: { conditions: wounded }, none: 0`. Empty, the party keeps it.
+With a party sheet, **From the sheets** can make a stat one of its values, always: `party: morale` (the Grey Marches' Morale, Fatigue, Hirelings and Endurance are the Company's). With a characters' sheet, it makes a stat of the characters' values while the party has any: `max: survival` (the best Survival), `min`, `sum`, `count: true`, with `when` / `unless` to leave some out. The Grey Marches' Survival: `max: survival, unless: { conditions: wounded }, none: 0`. Empty, the party keeps it.
 
 ## Journey roles
 

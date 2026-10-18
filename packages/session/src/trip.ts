@@ -80,6 +80,8 @@ export interface TravelSystem {
   packs: string[]
   /** The sheet its party's members are made with (`sheet` in `kind: system`), by `pack/id`. */
   sheet?: { id: string; def: Sheet }
+  /** The party's own sheet (`partySheet` in `kind: system`): the party itself, beside its members. */
+  partySheet?: { id: string; def: Sheet }
   /** Its factions (`factions` in `kind: system`): who they are and the sheet they're made with. */
   factions?: SystemFactions
   /** Its progress clocks (`clocks` in `kind: system`): the ones its world clock starts with. */
@@ -140,12 +142,25 @@ export const GENERIC_SHEET: Sheet = {
   relations: {},
 }
 
+/**
+ * The generic system's party sheet: the smallest that works, the party's morale (named by
+ * the UI, like the characters').
+ */
+export const GENERIC_PARTY_SHEET: Sheet = {
+  kind: 'sheet',
+  id: 'party',
+  values: { morale: { default: 3, min: 0, max: 5, track: true } },
+  conditions: {},
+  relations: {},
+}
+
 export const GENERIC_SYSTEM: TravelSystem = {
   id: 'generic',
   name: '',
   rules: genericTravelRules,
   packs: [],
   sheet: { id: 'generic/character', def: GENERIC_SHEET },
+  partySheet: { id: 'generic/party', def: GENERIC_PARTY_SHEET },
 }
 
 /**
@@ -196,6 +211,7 @@ const isText = (v: unknown): v is LocalizedText =>
 /** How a system's parts are named in its problems. */
 const PART_NAMES: Record<string, string> = {
   sheet: 'sheet',
+  partySheet: 'sheet',
   factions: 'factions',
   clocks: 'clocks',
   'travel-rules': 'travel rules',
@@ -215,6 +231,7 @@ const SYSTEM_KEYS = new Set([
   'packs',
   'maps',
   'sheet',
+  'partySheet',
   'factions',
   'clocks',
 ])
@@ -282,6 +299,7 @@ export function travelSystems(registry: Registry): {
       /** The `kind: system` naming these parts (absent for an implicit system). */
       system?: Extra
       sheet?: Extra
+      partySheet?: Extra
       factions?: Extra
       clocks?: Extra
     },
@@ -346,6 +364,18 @@ export function travelSystems(registry: Registry): {
         ...parsed.errors.map((e) => problem(owner, parts.sheet!.file, 'sheet', e, parts.sheet!.id)),
       )
       if (parsed.sheet) sheet = { id: `${owner}/${parts.sheet.id ?? 'default'}`, def: parsed.sheet }
+    }
+    let partySheet: TravelSystem['partySheet']
+    if (parts.partySheet) {
+      const owner = ownerOf(parts.partySheet) ?? pack
+      const parsed = parseSheet(parts.partySheet.data)
+      problems.push(
+        ...parsed.errors.map((e) =>
+          problem(owner, parts.partySheet!.file, 'sheet', e, parts.partySheet!.id),
+        ),
+      )
+      if (parsed.sheet)
+        partySheet = { id: `${owner}/${parts.partySheet.id ?? 'default'}`, def: parsed.sheet }
     }
     let factions: SystemFactions | undefined
     if (parts.factions) {
@@ -418,7 +448,7 @@ export function travelSystems(registry: Registry): {
     }
     if (parts.bindings && bindings)
       problems.push(
-        ...membersBindings(bindings, rules, sheet?.def).map((e) =>
+        ...membersBindings(bindings, rules, sheet?.def, partySheet?.def).map((e) =>
           problem(
             ownerOf(parts.bindings!) ?? pack,
             parts.bindings!.file,
@@ -439,6 +469,7 @@ export function travelSystems(registry: Registry): {
           parts.rules.id,
           sheet?.def,
           factions,
+          partySheet?.def,
         ),
       )
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
@@ -446,7 +477,7 @@ export function travelSystems(registry: Registry): {
     return {
       ...base,
       rules,
-      ...(bindings && { bindings }),
+      ...(bindings && { bindings: withPartyBounds(bindings, partySheet?.def) }),
       sources: {
         ...(parts.rules && { rules: source(parts.rules, ownerOf(parts.rules) ?? pack) }),
         ...(parts.bindings && {
@@ -457,6 +488,7 @@ export function travelSystems(registry: Registry): {
       ...(calendar && { calendar }),
       ...(Object.keys(parts.weather).length && { weather: parts.weather }),
       ...(sheet && { sheet }),
+      ...(partySheet && { partySheet }),
       ...(factions && { factions }),
       ...(clocks && { clocks }),
     }
@@ -561,6 +593,7 @@ export function travelSystems(registry: Registry): {
           weather: own,
           system: def,
           sheet: part('sheet', 'sheet', data.sheet),
+          partySheet: part('partySheet', 'sheet', data.partySheet),
           factions: part('factions', 'factions', data.factions),
           clocks: part('clocks', 'clocks', data.clocks),
         },
@@ -576,10 +609,25 @@ export function travelSystems(registry: Registry): {
  * stat `from` a value the sheet doesn't declare, a carried supply the rules don't declare
  * or held in a value the sheet doesn't. Paths as `bindings.<…>: message`.
  */
-function membersBindings(bindings: Bindings, rules: TravelRules, sheet?: Sheet): string[] {
+function membersBindings(
+  bindings: Bindings,
+  rules: TravelRules,
+  sheet?: Sheet,
+  partySheet?: Sheet,
+): string[] {
   const out: string[] = []
+  for (const [id, stat] of Object.entries(bindings.stats ?? {})) {
+    const value = stat.from?.party
+    if (value === undefined) continue
+    if (!partySheet)
+      out.push(
+        `stats.${id}.from.party: the system has no party sheet (partySheet: in kind: system)`,
+      )
+    else if (!partySheet.values[value])
+      out.push(`stats.${id}.from.party: The party sheet has no value "${value}"`)
+  }
   const usesMembers =
-    Object.values(bindings.stats ?? {}).some((s) => s.from) ||
+    Object.values(bindings.stats ?? {}).some((s) => s.from && !s.from.party) ||
     Object.keys(bindings.resources ?? {}).length > 0 ||
     Object.keys(bindings.roles ?? {}).length > 0
   if (usesMembers && !sheet)
@@ -613,6 +661,7 @@ function undeclaredEffects(
   rulesId = 'default',
   sheet?: Sheet,
   factions?: SystemFactions,
+  partySheet?: Sheet,
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -620,7 +669,9 @@ function undeclaredEffects(
     for (const path of Object.keys(effects)) {
       const [, scope, valueId] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
       // A member's value or condition: its sheet's.
-      const [, , part, partId] = MEMBER_PATH.exec(path) ?? []
+      const [, who, part, partId] = MEMBER_PATH.exec(path) ?? []
+      // The party's own (`party.values.morale`): its party sheet's.
+      const own = who === 'party' ? partySheet : sheet
       // A faction's (on a world turn): its sheet's values and conditions, its territory.
       const [, factionPart, factionId] =
         /^(?:faction|factions\.[^.]+)\.(values|conditions|territory)(?:\.(.+))?$/.exec(path) ?? []
@@ -632,7 +683,7 @@ function undeclaredEffects(
             !!factions.sheet.def[factionPart as 'values' | 'conditions'][factionId ?? '']))
       if (factionKnown) continue
       const known = part
-        ? !!sheet?.[part as 'values' | 'conditions'][partId]
+        ? !!own?.[part as 'values' | 'conditions'][partId]
         : scope === 'stats'
           ? !!bindings?.stats?.[valueId]
           : scope === 'resources'
@@ -642,7 +693,9 @@ function undeclaredEffects(
         out.push({
           severity: 'warning',
           message: part
-            ? `Effect on "${path}", which the members' sheet doesn't declare`
+            ? who === 'party'
+              ? `Effect on "${path}", which the party sheet doesn't declare`
+              : `Effect on "${path}", which the members' sheet doesn't declare`
             : `Effect on "${path}", which this system doesn't declare (stats in its bindings, resources in its rules)`,
           pack,
           ...where,
@@ -725,16 +778,16 @@ export function startTrip(options: {
     ]),
   )
   const session = initialSessionState(travel, stats)
-  if (options.members?.length) {
-    session.members = structuredClone(options.members)
-    refreshParty(session, partyOf(options.system))
-  }
+  if (options.members?.length) session.members = structuredClone(options.members)
+  // Its members, and the party's own sheet when the system has one.
+  refreshParty(session, partyOf(options.system))
   return { startDay, session }
 }
 
 /** What a system says of its party's members: their sheet and its bindings. */
 export const partyOf = (system: TravelSystem): PartyRules => ({
   sheet: system.sheet,
+  partySheet: system.partySheet,
   bindings: system.bindings,
 })
 
@@ -811,8 +864,37 @@ export function stepTrip(
     random: options.random,
     facts: options.facts,
     sheet: system.sheet,
+    partySheet: system.partySheet,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
+}
+
+/**
+ * Bindings whose stats made of a party sheet's value have that value's bounds and default
+ * (unless they give their own): so effects on `party.stats.<id>` keep within them.
+ */
+function withPartyBounds(bindings: Bindings, partySheet?: Sheet): Bindings {
+  if (!partySheet || !bindings.stats) return bindings
+  const stats = Object.fromEntries(
+    Object.entries(bindings.stats).map(([id, stat]) => {
+      const value = stat.from?.party ? partySheet.values[stat.from.party] : undefined
+      if (!value) return [id, stat]
+      const num = (v: unknown) => (typeof v === 'number' ? v : undefined)
+      const min = stat.min ?? num(value.min)
+      const max = stat.max ?? num(value.max)
+      const fallback = stat.default ?? num(value.default)
+      return [
+        id,
+        {
+          ...stat,
+          ...(min !== undefined && { min }),
+          ...(max !== undefined && { max }),
+          ...(fallback !== undefined && { default: fallback }),
+        },
+      ]
+    }),
+  )
+  return { ...bindings, stats }
 }
 
 /** A world that knows nothing (for questions that don't need the map). */

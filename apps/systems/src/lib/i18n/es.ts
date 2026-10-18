@@ -64,12 +64,17 @@ export const es: Messages<typeof en> = {
       create: 'Nuevas facciones',
     },
     sheet: {
-      title: 'La hoja de sus personajes',
+      title: 'Sus hojas: el grupo y sus personajes',
       intro:
-        'Lo que tiene cada personaje del grupo: valores con sus límites, estados y las relaciones que mantiene. Con una hoja, el grupo de un viaje puede estar hecho de personajes, y la pestaña **Comprobaciones** dice qué características del grupo salen de ellos y qué provisiones llevan.',
-      help: 'Una hoja por sistema (`kind: sheet`), nombrada en su **Resumen** (`sheet:`). Las condiciones y las tablas leen cada personaje:\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\n• `party.members: kael` — si Kael viaja con el grupo\nLos efectos los cambian:\n• `party.members.values.health: -1` — a todos los miembros\n• `acting.conditions.wounded: true` — al que actúa\nSin hoja, el grupo se juega como un todo.',
-      none: 'Este sistema no tiene hoja: su grupo se juega como un todo.',
-      create: 'Nueva hoja',
+        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos y qué provisiones llevan. Cada una tiene valores con sus límites, contadores, estados y relaciones.',
+      help: 'Nombradas en su **Resumen** (`partySheet:`, `sheet:`). Las condiciones y las tablas leen la hoja del grupo y cada personaje:\n• `party.values.morale: { gte: 3 }` — el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\nLos efectos los cambian:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — a todos los personajes\nUna característica del grupo puede ser un valor de la hoja de grupo: `from: { party: morale }` (en **Comprobaciones**).',
+      none: 'Este sistema no tiene hoja: su grupo se juega como un todo, con sus características.',
+      create: 'Nueva hoja de personajes',
+      createParty: 'Nueva hoja de grupo',
+      partyTab: 'el grupo',
+      charactersTab: 'sus personajes',
+      onlyParty:
+        'Esta es la hoja del propio grupo; el sistema aún no tiene una para sus personajes.',
     },
     calendar: {
       title: 'El calendario del sistema',
@@ -540,9 +545,9 @@ export const es: Messages<typeof en> = {
     statDefault: 'Empieza en',
     noStats: 'Sin características del grupo.',
     addStat: 'Añadir una característica',
-    statFrom: 'De los miembros',
+    statFrom: 'De las hojas',
     statFromHelp:
-      'Con personajes en el grupo, la característica sale de las suyas (y los efectos sobre ella se sobrescriben); sin ellos, se guarda como cualquier otra. Una de:\n• `max: survival` — la mejor Supervivencia entre ellos\n• `min: stealth` — la peor\n• `sum: strength` — la de todos juntos\n• `count: true` — cuántos son\nAñade `when` / `unless` para contar solo a algunos, y `none` para cuando no cuenta nadie:\n• `count: true, unless: { conditions: wounded }` — los que no están heridos\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — la mejor de los que siguen en pie\nNecesita una hoja (la pestaña **Hoja**).',
+      'Con personajes en el grupo, la característica sale de las suyas (y los efectos sobre ella se sobrescriben); sin ellos, se guarda como cualquier otra. Una de:\n• `max: survival` — la mejor Supervivencia entre ellos\n• `min: stealth` — la peor\n• `sum: strength` — la de todos juntos\n• `count: true` — cuántos son\nAñade `when` / `unless` para contar solo a algunos, y `none` para cuando no cuenta nadie:\n• `count: true, unless: { conditions: wounded }` — los que no están heridos\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — la mejor de los que siguen en pie\nNecesita una hoja (la pestaña **Hoja**).\nO un valor de la hoja del propio grupo, siempre: la característica es ese valor, y los efectos sobre ella cambian la hoja:\n• `party: morale` — la Moral de la hoja de grupo',
     statFromNone: 'la guarda el grupo',
     roles: 'Roles de viaje',
     rolesHelp:

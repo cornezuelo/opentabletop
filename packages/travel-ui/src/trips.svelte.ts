@@ -16,10 +16,11 @@ import { wayWorld, type WayHex } from './way'
 /**
  * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the
  * system declares (`today.lost`); v4: the trip's totals (`travel.totals`), rebuilt from the
- * journal; v5: the party's characters (`session.members`, `acting`), none in older trips.
- * All migrated on reading.
+ * journal; v5: the party's characters (`session.members`, `acting`), none in older trips;
+ * v6: the party's own sheet (`session.party`), made when the trip next plays if its
+ * system has one. All migrated on reading.
  */
-const VERSION = 5
+const VERSION = 6
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {

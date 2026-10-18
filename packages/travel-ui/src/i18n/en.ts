@@ -69,6 +69,10 @@ export const en = {
     dawn: 'dawn',
     nightfall: 'nightfall',
   },
+  partySheet: {
+    title: 'The party',
+    help: "The party itself, with its system's party sheet: what belongs to the whole party (morale, fatigue, hirelings…), whoever its characters are. Characters can join and leave; this stays.\nConditions and tables read it:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nEffects change it:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nA party stat made of one of its values (`from: { party: morale }`) is that value: it's edited here.",
+  },
   members: {
     land: 'land',
     clock: 'Clock “{name}”',

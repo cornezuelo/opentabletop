@@ -39,9 +39,16 @@ export function memberNamer(
     const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
     if (clock)
       return world?.clocks ? t('members.clock', { name: clock.replaceAll('-', ' ') }) : undefined
+    const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
+    // The party's own sheet: its value or condition, by its name ("Renown").
+    if (who === 'party') {
+      const sheet = system.partySheet?.def
+      if (!sheet) return undefined
+      const own = part === 'values' ? sheet.values[id] : sheet.conditions[id]
+      return sheetText(own?.name, locale) ?? knownName(id, locale)
+    }
     // A party without characters: nothing happens to them, nothing is told.
     if (!members?.length) return undefined
-    const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
     if (!who) return undefined
     const sheet = system.sheet?.def
     const own = part === 'values' ? sheet?.values[id] : sheet?.conditions[id]

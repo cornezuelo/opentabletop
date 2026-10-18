@@ -358,9 +358,12 @@ export function blockedBy(sheet: Sheet, state: CharacterState, what: string): st
  * A party value made of its members' (`from` in a system's party stats): the best (`max`),
  * the worst (`min`) or the `sum` of one of their values, or how many they are (`count`),
  * among the members its `when` / `unless` let in (each read with the member's facts).
- * `none` is what it is when no member counts (0 unless the system says otherwise).
+ * `none` is what it is when no member counts (0 unless the system says otherwise). Or one
+ * value of the party's own sheet (`party`), kept in step with it by the integration layer.
  */
 export interface PartyFrom {
+  /** A value of the party sheet: the stat is that value (`from: { party: morale }`). */
+  party?: string
   max?: string
   min?: string
   sum?: string
@@ -373,21 +376,30 @@ export interface PartyFrom {
 /** Problems of a `from` (empty: fine), each `<path>: message`. */
 export function validatePartyFrom(raw: unknown, at = 'from'): string[] {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw))
-    return [`${at}: expected { max | min | sum: <value> } or { count: true }`]
+    return [`${at}: expected { max | min | sum | party: <value> } or { count: true }`]
   const from = raw as Record<string, unknown>
   const errors: string[] = []
-  const ways = (['max', 'min', 'sum', 'count'] as const).filter((k) => from[k] !== undefined)
+  const ways = (['max', 'min', 'sum', 'count', 'party'] as const).filter(
+    (k) => from[k] !== undefined,
+  )
   if (ways.length !== 1)
-    errors.push(`${at}: one of max, min, sum (a value of the members) or count: true`)
+    errors.push(
+      `${at}: one of max, min, sum (a value of the members), count: true, or party (a value of the party sheet)`,
+    )
   for (const k of ['max', 'min', 'sum'] as const)
     if (from[k] !== undefined && (typeof from[k] !== 'string' || !from[k]))
       errors.push(`${at}.${k}: the id of a value of the members' sheet`)
+  if (from.party !== undefined && (typeof from.party !== 'string' || !from.party))
+    errors.push(`${at}.party: the id of a value of the party sheet`)
+  if (from.party !== undefined)
+    for (const k of ['when', 'unless', 'none'] as const)
+      if (from[k] !== undefined) errors.push(`${at}.${k}: not with party (it is one value)`)
   if (from.count !== undefined && from.count !== true) errors.push(`${at}.count: true`)
   if (from.none !== undefined && typeof from.none !== 'number') errors.push(`${at}.none: a number`)
   for (const k of ['when', 'unless'] as const)
     if (from[k] !== undefined) errors.push(...validateCondition(from[k], `${at}.${k}`))
   for (const k of Object.keys(from))
-    if (!['max', 'min', 'sum', 'count', 'when', 'unless', 'none'].includes(k))
+    if (!['max', 'min', 'sum', 'count', 'party', 'when', 'unless', 'none'].includes(k))
       errors.push(`${at}: unknown key "${k}"`)
   return errors
 }

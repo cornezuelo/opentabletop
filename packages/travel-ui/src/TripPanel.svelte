@@ -1,6 +1,8 @@
 <script lang="ts">
   import {
     localize,
+    editPartySheet,
+    partyOf,
     tripAvailability,
     type JournalEntry,
     type SessionState,
@@ -36,6 +38,7 @@
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberNamer } from './members'
   import PartyMembers from './PartyMembers.svelte'
+  import { CharacterCard } from '@open-tabletop/character-ui'
 
   /**
    * A trip in progress: day and time, where the party is and where it's heading, travel
@@ -155,7 +158,24 @@
   })
 
   /** The system's declared stats only: nothing it doesn't declare is shown. */
-  const stats = $derived<[string, StatDefinition][]>(Object.entries(system.bindings?.stats ?? {}))
+  // A stat made of the party sheet's value is edited there, on the party's card.
+  const stats = $derived<[string, StatDefinition][]>(
+    Object.entries(system.bindings?.stats ?? {}).filter(
+      ([, stat]) => !(stat.from?.party && system.partySheet && session.party),
+    ),
+  )
+  /** The party's own sheet changed by hand: the stats made of it follow. */
+  function editParty(next: NonNullable<SessionState['party']>) {
+    onedit((s) => {
+      const copy = {
+        ...s,
+        stats: { ...s.stats },
+        travel: { ...s.travel, resources: { ...s.travel.resources } },
+      }
+      editPartySheet(copy, partyOf(system), next)
+      return copy
+    })
+  }
   const actions = $derived(availableActions(system.rules))
   /** The system's march (`actions.march`): its name is the Travel button's, its description its help. */
   const marchName = $derived(localize(actions.all[MARCH]?.name, locale, 'en') ?? t('travel'))
@@ -472,6 +492,22 @@
     </label>
   {/each}
 
+  {#if system.partySheet && session.party}
+    <section class="party-sheet">
+      <h4>{t('partySheet.title')}<InfoTip text={t('partySheet.help')} /></h4>
+      <CharacterCard
+        sheet={system.partySheet.def}
+        character={session.party}
+        {locale}
+        names={blockName}
+        path="party"
+        time={session.travel.time}
+        named={false}
+        onchange={editParty}
+      />
+    </section>
+  {/if}
+
   {#if system.sheet}
     <PartyMembers
       system={{ ...system, sheet: system.sheet }}
@@ -520,6 +556,18 @@
 </div>
 
 <style>
+  .party-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .party-sheet h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
   .journal-head {
     display: flex;
     justify-content: space-between;

@@ -265,7 +265,7 @@ describe('example maps', () => {
       'grey-marches/getting-lost',
       { ...tripContext(night, {}), daylight: false },
     )
-    expect(lost.resolution.text).toBe('Lost in the dark: you stop until dawn')
+    expect(lost.resolution.text).toBe('Lost in the dark: you stop until dawn, shaken')
   })
 
   it('the Grey Marches: the party’s values drive hunger and the inn', () => {
