@@ -39,7 +39,7 @@
             onclick={() => download(packsToZip([pack]), `${pack.root}.zip`, 'application/zip')}
             >{t('older.download')}</button
           >
-          <button class="link" onclick={() => remove(pack)}>{t('older.delete')}</button>
+          <button class="link delete" onclick={() => remove(pack)}>{t('older.delete')}</button>
         </li>
       {/each}
     </ul>
@@ -70,5 +70,8 @@
   }
   .copy {
     color: var(--text-muted);
+  }
+  .delete {
+    color: var(--danger);
   }
 </style>

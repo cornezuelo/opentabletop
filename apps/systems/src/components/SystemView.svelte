@@ -103,7 +103,7 @@
       {:else if tab === 'yaml' && system.id === 'generic'}
         <GenericYaml />
       {:else if tab === 'yaml' && files.length}
-        <YamlTab {files} />
+        <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
       {:else if (tab === 'sheet' || tab === 'factions' || tab === 'clocks' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}

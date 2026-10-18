@@ -3,8 +3,12 @@
   import { t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
 
-  /** The files of the system's parts (one at a time), with problems at their lines. */
-  let { files }: { files: { root: string; path: string }[] } = $props()
+  /**
+   * The files of the system's parts (one at a time), with problems at their lines. Only
+   * the system's own pack's are edited here: another pack it brings (Core…) is shared by
+   * every system that brings it, so its files are read-only.
+   */
+  let { files, own }: { files: { root: string; path: string }[]; own?: string } = $props()
 
   /** The first file with an error, so the problems button lands on it. */
   let chosen = $state(
@@ -29,7 +33,9 @@
   const label = (f: { root: string; path: string }) =>
     files.filter((g) => g.path === f.path).length > 1 ? `${f.root}/${f.path}` : f.path
   const content = $derived(library.readFile(root, path) ?? '')
-  const editable = $derived(library.isEditable(root))
+  /** A file of another pack the system brings: read-only here. */
+  const dependency = $derived(root !== own)
+  const editable = $derived(!dependency && library.isEditable(root))
   const problems = $derived(
     library.diagnostics(root, path).map((d) => ({
       line: d.line ?? locate(content, d.at) ?? 1,
@@ -53,6 +59,13 @@
     </div>
   {/if}
   <p class="file">{root}/{path}</p>
+  {#if dependency}
+    <p class="help">
+      {t('edit.dependency', {
+        pack: manifestOf(library.pack(root) ?? { root, origin: 'user', files: [] }).name ?? root,
+      })}
+    </p>
+  {/if}
   <div class="code">
     {#key `${root}/${path}/${editable}`}
       <CodeEditor
@@ -78,6 +91,12 @@
     gap: 8px;
     height: 100%;
     min-height: 0;
+  }
+
+  .help {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .file {
