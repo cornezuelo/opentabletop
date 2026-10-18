@@ -104,3 +104,33 @@ Core's manual page says what its system does and which feature each part shows.
 2. **The Generic rules go in Core** (§5; user: "¿no tenemos Core ya para las genéricas?"), not a pack of their own: Core gets a system, `core`.
 3. **A system says which travel rules it plays** (§5; user: "¿no hay manera de que un sistema diga qué reglas de viaje usa, y entonces pueda definir si ninguno (y no se podrá viajar) o genérico?"): none, and it doesn't travel; Core's, by naming them. A map with no system chosen plays Core's.
 4. **`day-start` goes** (§3): checks name a part or a clock.
+
+## 9. Marching as an action like the rest (proposal, to review)
+
+The user (2026-10-18): `march` is still too intrinsic. What the engine must keep is the mechanism, **moving along the route while time passes** (speeds from `kmPerDay`, terrains, roads, weather); what's still built in around it is the action: its reserved id, the **Travel** / **1 hex** buttons, being the one way to move.
+
+Proposal: moving is a **step**, `go`, any action may take; the system's actions with it are the buttons that move the party.
+
+```yaml
+travel:
+  move: march # what the trip does to move when it goes on by itself (the world clock…)
+  halt: { at: part.night, do: camp }
+actions:
+  march:
+    name: March
+    when: { time.tags: { not: dark }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+    do: [{ go: destination }] # moves while its when / unless hold, until it arrives
+  sail:
+    name: Sail on
+    when: { trip.mode: boat }
+    do: [{ go: destination }]
+  press-on: # a move by progress, no marching (as today)
+    do: [{ time: 360 }, { advance: 1 }]
+```
+
+- `go: destination` moves along the route while the action's `when` / `unless` hold (as `march` does today), until it arrives, a check needs the player or they stop holding; `go: hex` only to the next hex. Steps before and after it run as usual (a forced march: `speed: 1.5`, then `go`).
+- The trip panel shows these actions as the moving buttons, by their names; **1 hex** becomes the same action taken `go: hex` (a small option beside each moving button).
+- `travel.move` says which one the trip takes when it goes on by itself (absent: the first action with a `go` step); with none, the trip only waits (moves by `advance`).
+- `trip.marched` stays as "minutes moved today", whatever action moved.
+- Older rules: `actions.march` with only `when` / `unless` is read as `march: { …, do: [{ go: destination }] }` and `travel.move: march`; a system that never declared one (format 2) gets the older by-day march. No `MARCH` reserved id.
+- Cost: the engine's travel loop becomes a step; the trip panel's buttons, Hexmapper Play and the World panel read `travel.move`; Systems' Actions shows `go` as a step. One more pack-format change: it would go into format 3 (not released yet), so no format 4.
