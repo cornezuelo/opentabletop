@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import type { PackLibrary } from './library.svelte'
   import { manifestOf, type PackSource } from './packs'
@@ -14,6 +14,10 @@
 
   const t = translator(() => locale)
   const older = $derived(library.olderPacks)
+  async function remove(p: PackSource) {
+    if (await confirmAction(t('older.confirmDelete', { name: label(p) })))
+      library.removePack(p.root)
+  }
   const label = (p: PackSource) => {
     const m = manifestOf(p)
     return t('older.item', { name: m.name ?? m.id ?? p.root, format: m.format ?? 1 })
@@ -35,6 +39,7 @@
             onclick={() => download(packsToZip([pack]), `${pack.root}.zip`, 'application/zip')}
             >{t('older.download')}</button
           >
+          <button class="link" onclick={() => remove(pack)}>{t('older.delete')}</button>
         </li>
       {/each}
     </ul>

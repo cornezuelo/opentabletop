@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- A pack of yours in an older pack format can be **deleted** from the notice that lists it (**Delete**, after **Download .zip** to keep it), and an older copy of a bundled pack no longer marks the bundled one as having an **update**.
+
 ## [0.6.0] - 2026-10-18
 
 ### Apps

@@ -29,6 +29,9 @@ export const en = {
     item: '{name} (format {format})',
     copy: 'your copy of a bundled pack',
     download: 'Download .zip',
+    delete: 'Delete',
+    confirmDelete:
+      'Delete {name} from this browser? (↶ undoes it; download it first to keep a copy.)',
   },
   import: {
     done: 'Imported {packs}.',

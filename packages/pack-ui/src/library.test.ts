@@ -148,5 +148,9 @@ describe('packs of an older pack format', () => {
     expect(library.registry.packs.has('mine')).toBe(false)
     expect(library.problems.some((d) => d.message.includes('no longer reads'))).toBe(true)
     expect(library.olderPacks.map((p) => p.root)).toEqual(['core', 'mine'])
+    // Its older copy says nothing about updates of the bundled one; deleting it is clean.
+    expect(library.bundledChanges('core')).toEqual([])
+    library.removePack('core')
+    expect(library.olderPacks.map((p) => p.root)).toEqual(['mine'])
   })
 })

@@ -234,10 +234,13 @@ export class PackLibrary {
     return this.bundled.find((p) => p.root === root)
   }
 
-  /** What the bundled pack changed since the user copy of it was made ([] if not a copy). */
+  /**
+   * What the bundled pack changed since the user copy of it was made ([] if not a copy, or
+   * if the copy is in an older pack format: it isn't used, the bundled one is).
+   */
   bundledChanges(root: string): BundledChange[] {
     const bundled = this.bundledPack(root)
-    const copy = this.user.find((p) => p.root === root)
+    const copy = this.user.find((p) => p.root === root && !this.olderPacks.includes(p))
     return bundled && copy ? bundledChanges(bundled, copy) : []
   }
 

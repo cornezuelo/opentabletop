@@ -32,6 +32,9 @@ export const es: Messages<typeof en> = {
     item: '{name} (formato {format})',
     copy: 'tu copia de un pack incluido',
     download: 'Descargar .zip',
+    delete: 'Borrar',
+    confirmDelete:
+      '¿Borrar {name} de este navegador? (↶ lo deshace; descárgalo antes para guardar una copia.)',
   },
   import: {
     done: 'Importado: {packs}.',
