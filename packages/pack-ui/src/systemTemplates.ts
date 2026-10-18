@@ -34,8 +34,14 @@ export const SYSTEM_TEMPLATES: Record<
   'travel-rules': (id) => ({
     kind: 'travel-rules',
     id,
-    // Trips start at 06:00; a party that can't march camps from 20:00.
-    travel: { hoursPerDay: 8, start: '06:00', halt: { at: '20:00', do: 'camp' } },
+    // Trips start at 06:00; going on by itself the party marches to its destination, and a
+    // party that can't march camps from 20:00.
+    travel: {
+      hoursPerDay: 8,
+      start: '06:00',
+      onward: { do: 'march', with: { until: 'destination' } },
+      halt: { at: '20:00', do: 'camp' },
+    },
     terrains: {
       plains: { multiplier: 1 },
       forest: { multiplier: 0.5 },
@@ -50,9 +56,12 @@ export const SYSTEM_TEMPLATES: Record<
     // Food never goes below 0; the party eats a day of it as each day ends.
     resources: { food: { min: 0 } },
     actions: {
-      // Marching by day (06:00–20:00) for 8 hours; camp sleeps until 06:00.
+      // Marching by day (06:00–20:00) for 8 hours, to the destination or one hex; camp
+      // sleeps until 06:00.
       march: {
+        params: { until: { choices: ['destination', 'hex'] } },
         when: { 'time.hour': { gte: 6, lt: 20 }, 'trip.marched': { lt: '{{system.hoursPerDay}}' } },
+        do: [{ 'travel.move': '{{params.until}}' }],
       },
       camp: { do: [{ time: '06:00' }] },
       rest: { do: [{ time: 60 }] },

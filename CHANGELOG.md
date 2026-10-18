@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Marching is an action like the rest (pack format 4)**: nothing about moving is built in any more. An action moves the party with a `travel.move` step, along the route while time passes and its conditions hold (`march: { do: [{ travel.move: destination }] }`); actions take **parameters** (`params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`), chosen beside their button in the trip panel and given by a `do:` step's `with:`; the trip goes on by itself (the World clock, a travel order) with the action `travel.onward` names (`onward: { do: march, with: { until: destination } }`). The steps `speed` and `advance` are `travel.speed` and `travel.advance`. The trip panel's **Travel** and **1 hex** buttons are gone: its buttons are the system's actions, the moving ones first, each with its choices (**March** · to the destination / one hex / three hexes); a check that stops a march on the way leaves it under way, and **Go on** finishes it (and the rest of what the action does). **Wait for the next march** is **Wait to go on**. Packs of format 3 aren't read: our packs (Core, the Grey Marches) are at format 4, and the Grey Marches' forced march and night march now march too. Systems' **Rules** tab has **Goes on by itself with**, and its actions **Parameters**.
+
 ### Fixes
 
 - Systems: a system's **YAML** tab no longer edits the files of another pack it brings (Core's roll modes…): they show read-only, saying whose they are. The notice of packs not read shows **Delete** in red.

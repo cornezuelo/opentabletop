@@ -112,6 +112,8 @@ On a trip (Hexmapper Play, Travel), for its checks and actions, and in hand roll
 
 The trip panel's **So far** line (open it for the rest) shows these counts as they stand.
 
+**An action's parameters, `params.*`.** An action's own conditions (`when` / `unless`), its steps and their conditions also read the parameters it was taken with: `params.until` is the choice made beside its button (or given by a `do:` step's `with:`, or by `travel.onward`), its default when nobody chose (`travel.move: '{{params.until}}'`, a step `when: { params.pace: quick }`). Only there: checks and tables don't see them. See [Actions](../oracle/07-connecting.md#5-your-own-travel-system).
+
 ## Around the party, `from.*`, `around.*`
 
 | Name                           | Kind        | Values                                                                                                                                           |

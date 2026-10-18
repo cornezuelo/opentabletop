@@ -112,6 +112,8 @@ En un viaje (Jugar en el Hexmapper, Travel), para sus comprobaciones y acciones,
 
 La línea **Hasta ahora** del panel del viaje (ábrela para ver el resto) enseña estas cuentas tal como van.
 
+**Los parámetros de una acción, `params.*`.** Las propias condiciones de una acción (`when` / `unless`), sus pasos y las condiciones de estos también leen los parámetros con los que se hizo: `params.until` es la opción elegida junto a su botón (o la que da el `with:` de un paso `do:`, o `travel.onward`), la de por defecto si nadie eligió (`travel.move: '{{params.until}}'`, un paso `when: { params.pace: quick }`). Solo ahí: las comprobaciones y las tablas no los ven. Mira [Acciones](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+
 ## Alrededor del grupo, `from.*`, `around.*`
 
 | Nombre                         | Tipo         | Valores                                                                                                                                                      |

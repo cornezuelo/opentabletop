@@ -9,11 +9,14 @@ id: default
 # two or three; maps with this system take it unless they set their own. Its day is named
 # by parts of its calendar's (calendar.yaml): trips start as the morning begins (06:00),
 # and from the night (20:00) a party that can't march camps (the halt; the night is
-# tagged `dark`, as is the grey hour before the morning).
+# tagged `dark`, as is the grey hour before the morning). Going on by itself (the world
+# clock, a travel order), the party marches to its destination whenever it can (onward:
+# the action march, with its parameter).
 travel:
   hoursPerDay: 8
   hexKm: 10
   start: part.morning
+  onward: { do: march, with: { until: destination } }
   halt: { at: part.night, do: camp }
 terrains:
   plains: { multiplier: 1 }
@@ -100,17 +103,28 @@ values:
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
-  # Marching (the Travel buttons): when the party can march, checked as it marches. By
-  # day for the day's marching hours, as usual (the `{{…}}` variables are the system's own), or
-  # after a night march by torchlight (a value of the day) until the day ends.
-  # Its name and description are the Travel button's.
+  # Marching is an action like the rest: its step `travel.move` moves the party along the
+  # route while its conditions hold, checked as it marches. By day for the day's marching
+  # hours, as usual (the `{{…}}` variables are the system's own), or after a night march by
+  # torchlight (a value of the day) until the day ends. How far is a parameter (`params`):
+  # its button offers the choices (to the destination, one hex, three hexes), and its step
+  # reads the one chosen (`{{params.until}}`).
   march:
     name: March
-    description: 'March along the route: by day for 8 hours, or after a night march by torchlight until midnight.'
+    description: 'March along the route: by day for 8 hours, or after a night march by torchlight until midnight. To the destination, one hex or three hexes.'
+    params:
+      until:
+        name: How far
+        choices:
+          - { id: destination, name: To the destination }
+          - { id: hex, name: One hex }
+          - { id: 3, name: Three hexes }
     when:
       any:
         - { time.tags: { not: dark }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
         - { today.torchlit: true }
+    do:
+      - { travel.move: '{{params.until}}' }
   # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
   # fed night eases fatigue: unless food hit its minimum (`trip.below`) during the night.
   # Night checks (at: camp) come first. Only with food left and not exhausted (`when` on the
@@ -159,7 +173,7 @@ actions:
     unless: { trip.weather: storm }
     do:
       - { time: 180 }
-      - { speed: 0.5 }
+      - { travel.speed: 0.5 }
     oncePerDay: true
   # Nobody presses this one: the system takes it by itself as each day ends (on: day-end),
   # whether the party camped or not. A day of food, one more per hireling (an amount that
@@ -176,17 +190,25 @@ actions:
       - { when: { trip.mode: horse }, effects: { party.resources.fodder: -1 } }
       # If the food ran out (it hit its minimum), the day is remembered as hungry.
       - { when: { trip.below: food }, set: { hungry: true } }
-  # Pushing on: half as fast again for the rest of the day, at the cost of fatigue; only
-  # by day, while the party is fresh enough (a condition on a stat), once a day; a shaken
-  # Company (a condition of its sheet that blocks it) can't.
+  # Pushing on: half as fast again for the rest of the day, at the cost of fatigue, and
+  # off at once (it takes the march, with its parameter: an action taking another with
+  # `do:` and `with:`); only by day with marching hours left, while the party is fresh
+  # enough (a condition on a stat), once a day; a shaken Company (a condition of its sheet
+  # that blocks it) can't.
   forced-march:
     name: Forced march
-    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue. Only by day, with fatigue under 2 and the Company not shaken, once a day.'
-    when: { time.tags: { not: dark }, party.stats.fatigue: { lt: 2 } }
+    description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue, and the party marches on to its destination. Only by day with marching hours left, with fatigue under 2 and the Company not shaken, once a day.'
+    when:
+      {
+        time.tags: { not: dark },
+        trip.marched: { lt: '{{system.hoursPerDay}}' },
+        party.stats.fatigue: { lt: 2 },
+      }
     oncePerDay: true
     do:
-      - { speed: 1.5 }
+      - { travel.speed: 1.5 }
       - { effects: { party.stats.fatigue: 1 } }
+      - { do: march, with: { until: destination } }
   # At a shrine (a tag of the hex) under the full Ember Moon (the calendar): a rite. Its
   # button only shows then (hideWhenUnavailable), day or night.
   rite:
@@ -221,14 +243,14 @@ actions:
         effects: { party.stats.hirelings: -1 }
       - { set: { refusing: false } }
   # Marching on in the dark instead of camping: it lights the torches (a value of the day
-  # the march above admits) until midnight, at the cost of fatigue (and more if the day's
+  # the march above admits) and marches on (`do: march`) until midnight, at the cost of fatigue (and more if the day's
   # hours were marched already: the Long day check below); each hex entered in the dark
   # rolls to get lost, and night encounters (the checks below, `time.tags: dark`).
   # Only in the evening (from nightfall: `time.hour` against when its calendar's night starts, `{{system.part.night}}`), so
   # its button only shows then.
   night-march:
     name: Night march
-    description: 'From nightfall, march on by torchlight until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
+    description: 'From nightfall, light the torches and march on until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
     when: { time.hour: { gte: '{{system.part.night}}' }, party.stats.fatigue: { lt: 4 } }
     unless: { trip.weather: storm }
     hideWhenUnavailable: true
@@ -236,6 +258,7 @@ actions:
     do:
       - { set: { torchlit: true } }
       - { effects: { party.stats.fatigue: 1 } }
+      - { do: march }
   # Once a trip: what the trip has done so far (`trip.km`, the hexes entered at the map's
   # scale; `trip.taken.tale`, the times this action was taken, 0 until it is). After 50 km
   # on the road, an evening of tales around the fire; its button only shows then.
@@ -248,7 +271,7 @@ actions:
       # Until a part of the calendar's day: the middle watch (23:00).
       - { time: watch.middle }
       - { effects: { party.stats.morale: 1 } }
-  # Progress by a move, not by marching (an `advance` step): on the road, by day, a carter
+  # Progress by a move, not by marching (a `travel.advance` step): on the road, by day, a carter
   # takes the party two hexes along its route in two hours. Once a day; hidden off the road.
   carter:
     name: Ride with a carter
@@ -258,7 +281,7 @@ actions:
     oncePerDay: true
     do:
       - { time: 120 }
-      - { advance: 2 }
+      - { travel.advance: 2 }
   # Next to water (`around.water`: one of the hexes around is water) or on the coast: two
   # hours with a line, by day, once a day; the Fishing check (at: fish) rolls a d6 under
   # Survival. Hidden elsewhere.

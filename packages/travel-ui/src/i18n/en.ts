@@ -35,9 +35,12 @@ export const en = {
   resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
   // The Generic rules' action at the end of each day (and older systems' eating).
   actions: { eat: 'Eat', camp: 'Camp', rest: 'Rest' },
+  // What blocks travel, said as such (a value of the day that blocks `travel`).
   travel: 'Travel',
-  travelHex: '1 hex',
-  waitMarch: 'Wait for the next march',
+  goOn: 'Go on',
+  waitOnward: 'Wait to go on',
+  // A move's targets, when a choice of a parameter has no name of its own.
+  choices: { destination: 'to the destination', hex: 'one hex', hexes: '{n} hexes' },
   continue: 'Continue',
   journalTitle: 'Journal',
   exportJournal: 'Export',
@@ -45,6 +48,7 @@ export const en = {
   seasons: vocabulary.en.seasons,
   tips: {
     actionTime: 'Takes {minutes} minutes.',
+    actionMove: 'Moves the party along its route while its conditions hold.',
     actionSpeed: 'The rest of today’s march goes at ×{speed}.',
     actionEffects: 'Changes: {changes}.',
     actionOnce: 'Once a day.',
@@ -61,11 +65,9 @@ export const en = {
       'Supplies: what uses them depends on the system (its actions, like eating at the end of each day, its checks and tables). Edit the amount when you buy, find or use some.',
     min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',
     max: 'It never goes above {max}.',
-    travel:
-      'Travel towards the destination until you arrive, the system’s rule for marching stops the party (at night, when the day’s hours are spent…, as the system says) or a check needs you.',
-    waitMarch:
-      'Time passes where the party is until it can march again, living it: if it could march now, today’s march goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t march, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
-    travelHex: 'Travel to the next hex of the route only.',
+    goOn: 'Goes on with “{action}”, which stopped on the way for a check: the rest of its move, then the rest of what it does. Taking another action or waiting leaves it.',
+    waitOnward:
+      'Time passes where the party is until it can take “{action}” again (how the trip goes on by itself, as the system says), living it: if it could now, that chance goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t go on, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
     actionUntil: 'Lasts until {moment}.',
   },
   rolls: {
@@ -162,6 +164,7 @@ export const en = {
     nightfall: 'Night falls: no more marching today.',
     'day-limit': 'Enough marching for today.',
     march: 'The system’s rule for marching doesn’t let the party march on now.',
+    conditions: '“{action}” stops here: its conditions don’t hold now.',
     lost: 'Lost: no more travel today',
     value: '{name}: no more travel today',
     member: '{name}: the party can’t travel while it lasts',

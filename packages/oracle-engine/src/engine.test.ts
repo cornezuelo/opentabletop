@@ -561,7 +561,7 @@ template: '{{watch}}/{{sky}}'
 
 describe('variables and rolls in conditions', () => {
   const { registry, diagnostics } = loadPacks([
-    { path: 'v/pack.yaml', content: 'id: v\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
+    { path: 'v/pack.yaml', content: 'id: v\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
     {
       path: 'v/t.yaml',
       content: `

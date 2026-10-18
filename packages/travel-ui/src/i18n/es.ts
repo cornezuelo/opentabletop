@@ -38,8 +38,9 @@ export const es: Messages<typeof en> = {
   resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
   actions: { eat: 'Comer', camp: 'Acampar', rest: 'Descansar' },
   travel: 'Viajar',
-  travelHex: '1 hex',
-  waitMarch: 'Esperar a la próxima marcha',
+  goOn: 'Seguir',
+  waitOnward: 'Esperar para seguir',
+  choices: { destination: 'hasta el destino', hex: 'un hex', hexes: '{n} hexes' },
   continue: 'Continuar',
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
@@ -47,6 +48,7 @@ export const es: Messages<typeof en> = {
   seasons: vocabulary.es.seasons,
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
+    actionMove: 'Mueve al grupo por su ruta mientras se cumplan sus condiciones.',
     actionSpeed: 'El resto de la marcha de hoy va a ×{speed}.',
     actionEffects: 'Cambia: {changes}.',
     actionOnce: 'Una vez al día.',
@@ -63,11 +65,9 @@ export const es: Messages<typeof en> = {
       'Provisiones: qué las gasta depende del sistema (sus acciones, como comer al final de cada día, sus comprobaciones y tablas). Ajusta la cantidad al comprar, encontrar o gastar.',
     min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',
     max: 'Nunca sube de {max}.',
-    travel:
-      'Viaja hacia el destino hasta llegar, hasta que la regla del sistema para marchar detenga al grupo (de noche, al acabarse las horas del día…, según diga el sistema) o haga falta una comprobación.',
-    waitMarch:
-      'El tiempo pasa donde está el grupo hasta que pueda volver a marchar, viviéndolo: si ahora pudiera marchar, primero deja pasar la marcha de hoy. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede marchar, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
-    travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
+    goOn: 'Sigue con «{action}», que se detuvo por el camino por una comprobación: el resto de su movimiento y después el resto de lo que hace. Hacer otra acción o esperar lo deja.',
+    waitOnward:
+      'El tiempo pasa donde está el grupo hasta que pueda volver a hacer «{action}» (cómo sigue el viaje por sí solo, según diga el sistema), viviéndolo: si ahora pudiera, primero deja pasar esa ocasión. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede seguir, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
     actionUntil: 'Dura hasta {moment}.',
   },
   rolls: {
@@ -162,6 +162,7 @@ export const es: Messages<typeof en> = {
     nightfall: 'Cae la noche: no se marcha más hoy.',
     'day-limit': 'Suficiente marcha por hoy.',
     march: 'La regla del sistema para marchar no deja seguir marchando ahora.',
+    conditions: '«{action}» se detiene aquí: sus condiciones no se cumplen ahora.',
     lost: 'Perdidos: no se viaja más hoy',
     value: '{name}: no se viaja más hoy',
     member: '{name}: el grupo no puede viajar mientras dure',

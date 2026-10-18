@@ -342,13 +342,60 @@ describe('bundled open packs', () => {
       }
     })
 
-    it('a forced march goes faster and tires, only while fresh', () => {
-      const options = play([{ terrain: 'plains' }])
-      const fresh = startTrip({ system, location: '0', season: 'summer' }).session
+    it('march as far as chosen beside its button, and go on after a landmark that waits', () => {
+      // On the road (no getting lost); a landmark (a check with pause: true) at hex 1.
+      const cells = [
+        { terrain: 'plains' },
+        { terrain: 'plains', tags: ['landmark'] },
+        { terrain: 'plains' },
+        { terrain: 'plains' },
+        { terrain: 'plains' },
+      ]
+      const options = play(cells, true)
+      const trip = (from: string) => {
+        const started = startTrip({ system, location: from, season: 'summer' }).session
+        return stepTrip(options, started, { type: 'setDestination', hex: '4' }).state
+      }
+      const one = stepTrip(options, trip('2'), {
+        type: 'action',
+        id: 'march',
+        with: { until: 'hex' },
+      }).state
+      expect(one.travel.location).toBe('3')
+      expect(one.travel.moving).toBeUndefined()
+      // Three hexes: the landmark stops it on the way, still under way.
+      const three = stepTrip(options, trip('0'), {
+        type: 'action',
+        id: 'march',
+        with: { until: 3 },
+      })
+      expect(three.state.travel.location).toBe('1')
+      expect(three.entries.some((e) => e.code === 'CHECK_PENDING')).toBe(true)
+      expect(three.state.travel.moving).toMatchObject({ left: 2 })
+      // Continue, then Go on: the rest of the three hexes, not a new march.
+      const check = three.state.travel.pendingChecks[0]
+      const resolved = stepTrip(options, three.state, { type: 'resolveCheck', id: check.id }).state
+      const on = stepTrip(options, resolved, { type: 'travel' })
+      expect(on.state.travel.location).toBe('3')
+      expect(on.state.travel.moving).toBeUndefined()
+      expect(took(on.entries, 'march')).toBe(false)
+    })
+
+    it('a forced march goes faster, tires and marches on, only while fresh', () => {
+      // On the road, so the morning's getting lost doesn't block it (it moves the party).
+      const options = play(
+        [{ terrain: 'plains' }, { terrain: 'plains' }, { terrain: 'plains' }],
+        true,
+      )
+      const started = startTrip({ system, location: '0', season: 'summer' }).session
+      const fresh = stepTrip(options, started, { type: 'setDestination', hex: '2' }).state
       const { state, entries } = stepTrip(options, fresh, { type: 'action', id: 'forced-march' })
       expect(took(entries, 'forced-march')).toBe(true)
       expect(state.stats.fatigue).toBe(1)
       expect(state.travel.speedToday).toBe(1.5)
+      // It takes the march (`do: march`), which moves the party along its route.
+      expect(took(entries, 'march')).toBe(true)
+      expect(state.travel.location).not.toBe('0')
       const tired = { ...fresh, stats: { ...fresh.stats, fatigue: 2 } }
       expect(
         took(

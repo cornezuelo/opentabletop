@@ -1,6 +1,6 @@
 import { matches, type Condition } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
-import { momentRoller, type Roller } from '@open-tabletop/variables'
+import { evaluate, lookupIn, momentRoller, type Roller } from '@open-tabletop/variables'
 import {
   defaultCalendar,
   findPart,
@@ -21,7 +21,8 @@ import {
   modeThrough,
   declaredValues,
   isClock,
-  MARCH,
+  movingActions,
+  paramsOf,
   resolveChange,
   resourceBounds,
   type ActionStep,
@@ -166,8 +167,33 @@ export interface TravelState {
   seed?: string
   /** What the trip has done so far (absent in older trips: counted from then on). */
   totals?: TripTotals
+  /**
+   * A move under way that stopped before it was done (a check came up, the host asked for
+   * one hex at a time, the moment it was given came): going on (`travel`) continues it, then
+   * the rest of the steps of the actions it was part of. Taking another action or waiting
+   * drops it.
+   */
+  moving?: MoveUnderWay
   pendingChecks: PendingCheck[]
   nextCheckId: number
+}
+
+/**
+ * One action along a move under way: its id, its parameters, the step to go on with once
+ * the move is done (`next`), and the facts of the moment that took it.
+ */
+export interface MoveFrame {
+  action: string
+  params?: Record<string, unknown>
+  next: number
+  facts?: Record<string, unknown>
+}
+
+/** A move under way: the actions it's part of, innermost first, and the hexes left. */
+export interface MoveUnderWay {
+  frames: MoveFrame[]
+  /** Hexes still to go (absent: to the destination). */
+  left?: number
 }
 
 export type StopReason =
@@ -176,8 +202,10 @@ export type StopReason =
   /** Older trips: night fell, or the day's marching hours were spent. */
   | 'nightfall'
   | 'day-limit'
-  /** The system's own rule for marching (`actions.march`) doesn't hold now. */
+  /** Older journals: the system's rule for marching didn't hold. */
   | 'march'
+  /** The moving action's conditions (`action`: its id) don't hold now. */
+  | 'conditions'
   | 'check'
   | 'blocked'
   /** A declared value blocks travel (`value` says which: lost…). */
@@ -207,7 +235,10 @@ export type TravelEvent =
       value?: string
       /** With `value`: who has it, when it's a member's condition (the host's `party.blocked`). */
       who?: string
-      /** With `camp`: the night's action, which the party can't take (`because`). */
+      /**
+       * With `conditions`: the action whose move stopped; with `camp` (older journals): the
+       * night's action, which the party couldn't take (`because`).
+       */
       action?: string
       because?: Unavailable
     }
@@ -267,9 +298,11 @@ export type RouteStrategy = 'shortest' | 'fastest'
 export type TravelAction =
   | { type: 'setDestination'; hex: string; strategy?: RouteStrategy }
   /**
-   * Marches along the route. With `by` (a moment), the trip goes on by itself until then:
-   * it marches while the system's march lets it, waits (with the system's halt) until it
-   * can march again, and waits where it ends up once the route is done.
+   * Goes on: the move under way (`moving`), else the way the trip goes on by itself
+   * (`travel.onward`, once). With `by` (a moment), the trip goes on by itself until then:
+   * it moves while the system's way on lets it, waits (with the system's halt) until it can
+   * again, and waits where it ends up once the route is done. With `until: 'hex'`, a move
+   * stops at each hex it enters, still under way (for hosts that discover hex by hex).
    */
   | { type: 'travel'; until?: 'hex' | 'destination'; by?: GameTime }
   | { type: 'advanceTime'; minutes: number }
@@ -285,10 +318,17 @@ export type TravelAction =
    */
   | { type: 'waitForMarch' }
   /**
-   * One of the system's actions (`actions.<id>` in the rules), e.g. camp or forage. With
-   * `minutes`, a length chosen by hand replaces the time its steps pass.
+   * One of the system's actions (`actions.<id>` in the rules), e.g. march, camp or forage,
+   * with the values of its parameters (`with`). With `minutes`, a length chosen by hand
+   * replaces the time its steps pass; with `until: 'hex'`, as for `travel`.
    */
-  | { type: 'action'; id: string; minutes?: number }
+  | {
+      type: 'action'
+      id: string
+      with?: Record<string, unknown>
+      minutes?: number
+      until?: 'hex' | 'destination'
+    }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
@@ -421,6 +461,15 @@ export function createTravelEngine(options: {
   /** What the party does when it can't march (`travel.halt`), and from when. */
   const halt = rules.travel.halt
   const haltAt = halt && clockOf(halt.at)
+  /** How the trip goes on by itself (`travel.onward`): an action and its parameters. */
+  const onward = rules.travel.onward
+  /** The actions that move the party (a `travel.move` step, theirs or another's they take). */
+  const movers = new Set(movingActions(rules))
+  /**
+   * Where moves stop besides their own end, for this order: at each hex entered (still
+   * under way), at a moment (`by`).
+   */
+  let cap: { hexByHex: boolean; by: GameTime } = { hexByHex: false, by: Infinity }
   /** The hour each part starts, as a number: `system.<division>.<part>`. */
   const partHours = Object.fromEntries(
     divisions.map((d) => [d.id, Object.fromEntries(d.parts.map((p) => [p.id, p.from / 60]))]),
@@ -676,7 +725,7 @@ export function createTravelEngine(options: {
 
   /** Every action and supply the system declares at 0, so `trip.taken.rite: 0` holds. */
   const zeros = (ids: string[]) => Object.fromEntries(ids.map((id) => [id, 0]))
-  const takenIds = Object.keys(actions.all).filter((id) => id !== MARCH)
+  const takenIds = Object.keys(actions.all)
   const supplyIds = Object.keys(rules.resources ?? {})
   /**
    * The trip's totals as conditions read them: `trip.km`, `trip.hours`, `trip.taken.camp`…
@@ -834,37 +883,45 @@ export function createTravelEngine(options: {
   }
 
   /**
-   * Why the party can't march at `time`, having marched `marched` minutes today
-   * (undefined: it can): the system's march (`actions.march`, its `when` / `unless`) or a
-   * value of the day that blocks marching. Without a march of its own, the party can.
+   * Why a move of action `id` can't go on at `time`, having moved `marched` minutes today
+   * (undefined: it can): a value that blocks the action, or its `when` / `unless`.
    */
-  const marchStop = (
+  const moveStop = (
     state: TravelState,
     time: GameTime,
     marched: number,
-  ): StopReason | undefined => {
+    id: string,
+    params: Record<string, unknown> | undefined,
+  ): Omit<StoppedEvent, 'type' | 'time'> | undefined => {
     const now = { ...state, time, travelledToday: marched }
-    if (blocker(now, MARCH)) return 'march'
-    const march = actions.all[MARCH]
-    if (!march) return undefined
-    const seen = checkContext(now, [], hostFacts)
+    const value = blocker(now, id)
+    if (value) return { reason: 'value', ...value }
+    const def = actions.all[id]
+    if (!def) return { reason: 'conditions', action: id }
+    const seen = { ...checkContext(now, [], hostFacts), params: paramsOf(def, params) }
     if (
-      (!march.when || test(now, march.when as Condition, seen, MARCH)) &&
-      !(march.unless && test(now, march.unless as Condition, seen, MARCH))
+      (!def.when || test(now, def.when as Condition, seen, id)) &&
+      !(def.unless && test(now, def.unless as Condition, seen, id))
     )
       return undefined
-    return 'march'
+    return { reason: 'conditions', action: id }
   }
 
   /** Every part of the calendar's day, as `<division>.<part>`. */
   const allParts = divisions.flatMap((d) => d.parts.map((p) => `${d.id}.${p.id}`))
 
-  /** Whether nothing stops the party marching at `time` (today's march, values, weather). */
-  const canMarchAt = (state: TravelState, time: GameTime): boolean =>
-    !blocker(state, 'travel') &&
-    !blocker(state, `mode.${state.mode}`) &&
-    dayFactor(state) > 0 &&
-    !marchStop(state, time, state.travelledToday)
+  /** What stops any move now, whatever the action: a value, the way of travelling, the weather. */
+  const travelBlocked = (state: TravelState): boolean =>
+    !!blocker(state, 'travel') || !!blocker(state, `mode.${state.mode}`) || dayFactor(state) <= 0
+
+  /** Whether the trip can go on by itself at `time`: its way on (`travel.onward`) can be taken. */
+  const canGoOn = (state: TravelState, time: GameTime): boolean => {
+    if (!onward || travelBlocked(state)) return false
+    const def = actions.all[onward.do]
+    return !unavailable({ ...state, time }, onward.do, hostFacts, {
+      params: paramsOf(def, onward.with),
+    })
+  }
 
   /**
    * The next moment after `time` something may change while the party waits: a moment a
@@ -879,10 +936,11 @@ export function createTravelEngine(options: {
     )
 
   /**
-   * Waits until the party can march again (or `by`), moment by moment, living them: the
-   * halt is taken on the way. Undefined once it can; else why it stopped (a check, `by`).
+   * Waits until the trip can go on by itself again (or `by`), moment by moment, living
+   * them: the halt is taken on the way. Undefined once it can; else why it stopped (a
+   * check, `by`).
    */
-  const untilMarch = (
+  const untilOnward = (
     state: TravelState,
     by: GameTime,
     events: TravelEvent[],
@@ -896,34 +954,47 @@ export function createTravelEngine(options: {
       syncDay(state, events)
       if (state.pendingChecks.length) return stopAt('check')
       if (state.time >= by) return stopAt('waited')
-      if (canMarchAt(state, state.time)) return undefined
+      if (canGoOn(state, state.time)) return undefined
       const boundary = Math.min(by, nextBoundary(state.time))
-      // Up to it, the march may hold again minute by minute (`time.hour: { gte: 6.5 }`);
+      // Up to it, the way on may hold again minute by minute (`time.hour: { gte: 6.5 }`);
       // what blocks it otherwise (values, weather) only changes at a moment.
-      let next = state.time + 1
-      if (
-        !blocker(state, 'travel') &&
-        !blocker(state, `mode.${state.mode}`) &&
-        dayFactor(state) > 0
-      )
-        while (next < boundary && marchStop(state, next, state.travelledToday)) next++
+      let next = boundary
+      if (onward && !travelBlocked(state)) {
+        next = state.time + 1
+        while (next < boundary && !canGoOn(state, next)) next++
+      }
       const waited = quietly(events, () => wait(state, Math.min(next, boundary), events))
       if (waited?.reason !== 'waited') return waited ?? stopAt('waited')
     }
     return stopAt('waited')
   }
 
-  const travel = (
+  /**
+   * Moves the party along its route while time passes, as the step `travel.move` of action
+   * `id` (with its parameters): minute by minute while the action's conditions hold, up to
+   * the destination or `left` hexes. Returns the hexes still to go when the move stops
+   * before it's done (a check came up, one hex at a time, the moment of the order: it's
+   * still under way); undefined when it's over (got there, its conditions or a value, the
+   * weather or the way stopped it). Says why it stopped (`TRAVEL_STOPPED`).
+   */
+  const move = (
     state: TravelState,
-    until: 'hex' | 'destination',
+    id: string,
+    params: Record<string, unknown> | undefined,
+    left: number | undefined,
     events: TravelEvent[],
-    by = Infinity,
-  ): void => {
-    const stop = (reason: StopReason): void => {
-      events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time })
+  ): { left?: number } | undefined => {
+    const stop = (reason: StopReason): undefined =>
+      void events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time })
+    const stopWith = (why: Omit<StoppedEvent, 'type' | 'time'>): undefined =>
+      void events.push({ type: 'TRAVEL_STOPPED', ...why, time: state.time })
+    const suspend = (reason: StopReason) => {
+      stop(reason)
+      return left === undefined ? {} : { left }
     }
+    const by = cap.by
     syncDay(state, events)
-    if (state.pendingChecks.length) return stop('check')
+    if (state.pendingChecks.length) return suspend('check')
     if (!state.route || state.route.length < 2) {
       if (state.destination && state.destination === state.location)
         events.push({ type: 'DESTINATION_REACHED', hex: state.location })
@@ -931,10 +1002,7 @@ export function createTravelEngine(options: {
     }
     // A value that blocks travel, or the way the party is travelling (`mode.horse`).
     const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
-    if (blocked) {
-      events.push({ type: 'TRAVEL_STOPPED', reason: 'value', ...blocked, time: state.time })
-      return
-    }
+    if (blocked) return stopWith({ reason: 'value', ...blocked })
     if (dayFactor(state) <= 0) return stop('weather')
 
     for (;;) {
@@ -948,80 +1016,147 @@ export function createTravelEngine(options: {
         events.push({ type: 'ROUTE_BLOCKED', from: state.location, to: next })
         return stop('blocked')
       }
-      if (state.time >= by) return stop('waited')
-      const why = marchStop(state, state.time, state.travelledToday)
-      if (why) return stop(why)
-      // March minute by minute while the system's march holds, up to the next hex, the
+      if (state.time >= by) return suspend('waited')
+      const why = moveStop(state, state.time, state.travelledToday, id, params)
+      if (why) return stopWith(why)
+      // Move minute by minute while the action's conditions hold, up to the next hex, the
       // moment asked for, a moment the system names or midnight (a new day).
       // Already past it (the way got faster since: better weather…): the hex is entered now.
       const reach = state.time + Math.max(0, cost - state.progress)
       const midnight = calendar.at(state.day + 1, 0)
       let end = Math.min(by, midnight, reach)
-      // A moment a check or action names: it comes on the march.
+      // A moment a check or action names: it comes on the way.
       const part = nextNamed(state.time)
       if (part) end = Math.min(end, part.time)
       let time = state.time + 1
-      while (time < end && !marchStop(state, time, state.travelledToday + time - state.time)) time++
+      while (
+        time < end &&
+        !moveStop(state, time, state.travelledToday + time - state.time, id, params)
+      )
+        time++
       const marched = Math.min(time, end) - state.time
       state.time += marched
       state.travelledToday += marched
       totalsOf(state).marched += marched
-      // Marched up to the hex's moment, the hex is reached: minutes add up with decimals, and
+      // Moved up to the hex's moment, the hex is reached: minutes add up with decimals, and
       // a sliver left short of the cost (less than the clock tells apart from now) would be
-      // marched towards for no time at all, for ever.
+      // moved towards for no time at all, for ever.
       state.progress = state.time >= reach ? cost : state.progress + marched
       // Midnight: the day ends (its actions and checks) and a new one starts.
       if (state.time >= midnight) {
         syncDay(state, events)
-        if (state.pendingChecks.length) return stop('check')
+        if (state.pendingChecks.length) return suspend('check')
       }
       const atPart = !!part && state.time === part.time
       if (atPart) {
         for (const ref of part.refs) schedule(state, ref, events, undefined, doingFacts())
-        if (state.pendingChecks.length) return stop('check')
+        if (state.pendingChecks.length) return suspend('check')
       }
       if (state.progress < cost) {
-        if (state.time >= by) return stop('waited')
+        if (state.time >= by) return suspend('waited')
         if (atPart || state.time >= midnight) {
-          // What the moment set (a value, the weather) may stop the march.
+          // What the moment set (a value, the weather) may stop the move.
           const blockedNow = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
-          if (blockedNow)
-            return void events.push({
-              type: 'TRAVEL_STOPPED',
-              reason: 'value',
-              ...blockedNow,
-              time: state.time,
-            })
+          if (blockedNow) return stopWith({ reason: 'value', ...blockedNow })
           if (dayFactor(state) <= 0) return stop('weather')
           continue
         }
-        return stop(marchStop(state, state.time, state.travelledToday) ?? 'march')
+        return stopWith(
+          moveStop(state, state.time, state.travelledToday, id, params) ?? {
+            reason: 'conditions',
+            action: id,
+          },
+        )
       }
       const from = state.location
       enter(state, next, events)
       schedule(state, 'hex-enter', events, from)
+      if (left !== undefined) left--
       if (state.route.length < 2) {
         events.push({ type: 'DESTINATION_REACHED', hex: next })
         return stop('destination')
       }
-      if (state.pendingChecks.length) return stop('check')
-      if (until === 'hex') return stop('hex')
+      if (left === 0) return stop('hex')
+      if (state.pendingChecks.length) return suspend('check')
+      if (cap.hexByHex) return suspend('hex')
     }
   }
 
   /**
-   * The trip going on by itself until `by`: it marches along the route while the system's
-   * march lets it, then waits (taking the system's halt) until it can march again, and so
-   * on; once the route is done (or there is none), it waits there. A value that blocks
-   * travel (a storm, lost…) is said in the journal once a day. Stops early for a check
-   * (the host resolves it and goes on) or a way blocked for good.
+   * Goes on with the move under way: the rest of the move, then the rest of the steps of
+   * the actions it was part of, innermost first. It may stop under way again.
    */
-  const journey = (
-    state: TravelState,
-    until: 'hex' | 'destination',
-    by: GameTime,
-    events: TravelEvent[],
-  ): void => {
+  const resume = (state: TravelState, events: TravelEvent[]): void => {
+    const under = state.moving!
+    delete state.moving
+    const frames = under.frames.filter((f) => actions.all[f.action])
+    if (!frames.length) return
+    const hit: Hits = {
+      below: new Set(state.reached?.below),
+      above: new Set(state.reached?.above),
+    }
+    const ids = frames.map((f) => f.action).reverse()
+    underWay.push(hit)
+    doing.push(...ids)
+    try {
+      const [inner] = frames
+      const still = move(state, inner.action, inner.params, under.left, events)
+      if (still) return void (state.moving = { frames, ...still })
+      for (let k = 0; k < frames.length; k++) {
+        const f = frames[k]
+        const steps = actionSteps(actions.all[f.action])
+        const again = runSteps(
+          state,
+          f.action,
+          steps,
+          hit,
+          events,
+          { facts: f.facts, params: f.params },
+          0,
+          f.next,
+        )
+        if (again)
+          return void (state.moving = {
+            frames: [...again.frames, ...frames.slice(k + 1)],
+            ...(again.left !== undefined && { left: again.left }),
+          })
+      }
+    } finally {
+      underWay.pop()
+      doing.splice(doing.length - ids.length, ids.length)
+    }
+  }
+
+  /**
+   * Goes on once: the move under way, else the way the trip goes on by itself
+   * (`travel.onward`), if the system has one.
+   */
+  const goOn = (state: TravelState, events: TravelEvent[]): void => {
+    if (state.moving) return resume(state, events)
+    if (!onward) return
+    // What stops any move is said as the trip's stop (lost, the weather), not the action's.
+    const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
+    if (blocked)
+      return void events.push({
+        type: 'TRAVEL_STOPPED',
+        reason: 'value',
+        ...blocked,
+        time: state.time,
+      })
+    if (dayFactor(state) <= 0)
+      return void events.push({ type: 'TRAVEL_STOPPED', reason: 'weather', time: state.time })
+    takeAction(state, onward.do, events, { with: onward.with })
+  }
+
+  /**
+   * The trip going on by itself until `by`: the move under way, then its way on
+   * (`travel.onward`) whenever it can be taken, waiting (with the system's halt) while it
+   * can't; once the route is done (or there is none, or no way on), it waits there. A value
+   * that blocks travel (a storm, lost…) is said in the journal once a day. Stops early for
+   * a check (the host resolves it and goes on), a hex when it asked for one at a time, or a
+   * way blocked for good.
+   */
+  const journey = (state: TravelState, by: GameTime, events: TravelEvent[]): void => {
     const stop = (reason: StopReason): void =>
       void events.push({ type: 'TRAVEL_STOPPED', reason, time: state.time })
     /** The value that blocked travel already said, by day. */
@@ -1030,28 +1165,45 @@ export function createTravelEngine(options: {
       syncDay(state, events)
       if (state.pendingChecks.length) return stop('check')
       if (state.time >= by) return stop('waited')
-      if (!state.route || state.route.length < 2) {
+      if (!state.moving && (!onward || !state.route || state.route.length < 2)) {
         if (state.destination && state.destination === state.location)
           events.push({ type: 'DESTINATION_REACHED', hex: state.location })
         return wait(state, by, events)
       }
-      const stopped = quietly(events, () => travel(state, until, events, by))
+      if (!state.moving && !canGoOn(state, state.time)) {
+        // A value that blocks travel today (lost…): said in the journal.
+        const value = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
+        if (value && said !== `${state.day}|${value.value}`) {
+          said = `${state.day}|${value.value}`
+          events.push({ type: 'TRAVEL_STOPPED', reason: 'value', ...value, time: state.time })
+        }
+        const waited = untilOnward(state, by, events)
+        if (waited) return void events.push(waited)
+        continue
+      }
+      const [time, location] = [state.time, state.location]
+      const stopped = quietly(events, () => goOn(state, events))
       const reason = stopped?.reason
       if (reason === 'destination' || reason === 'no-route') return wait(state, by, events)
-      // A value that blocks travel today (lost…): said in the journal.
       if (reason === 'value' && said !== `${state.day}|${stopped!.value}`) {
         said = `${state.day}|${stopped!.value}`
         events.push(stopped!)
       }
-      // Nothing more to march now: wait until it can march again.
-      if (reason === 'march' || reason === 'weather' || reason === 'value') {
-        const waited = untilMarch(state, by, events)
-        if (waited) return void events.push(waited)
-        continue
-      }
-      return void events.push(
-        stopped ?? { type: 'TRAVEL_STOPPED', reason: 'check', time: state.time },
+      if (
+        reason === 'check' ||
+        reason === 'blocked' ||
+        reason === 'waited' ||
+        (reason === 'hex' && state.moving)
       )
+        return void events.push(stopped!)
+      // Nothing moved (a way on that doesn't move, or stops at once): the time goes on to
+      // the next moment, so the trip doesn't take it over and over.
+      if (state.time === time && state.location === location) {
+        const waited = quietly(events, () =>
+          wait(state, Math.min(by, nextBoundary(state.time)), events),
+        )
+        if (waited && waited.reason !== 'waited') return void events.push(waited)
+      }
     }
   }
 
@@ -1061,25 +1213,6 @@ export function createTravelEngine(options: {
     go()
     const index = events.findLastIndex((e, i) => i >= at && e.type === 'TRAVEL_STOPPED')
     return index < 0 ? undefined : (events.splice(index, 1)[0] as StoppedEvent)
-  }
-
-  /**
-   * A travel order when the party can't march now (the system's march, the weather) while
-   * the halt's action can't be taken (no food to camp…) or the system has none: the time
-   * passes until it can march (until tomorrow ends at most), and the march goes on.
-   * Otherwise the party stops, for the player to choose (camp…).
-   */
-  const travelOn = (state: TravelState, until: 'hex' | 'destination', events: TravelEvent[]) => {
-    const time = state.time
-    const stopped = quietly(events, () => travel(state, until, events))
-    const stuck =
-      state.time === time &&
-      (stopped?.reason === 'march' || stopped?.reason === 'weather') &&
-      (!halt || unavailable(state, halt.do, hostFacts))
-    if (!stuck) return void (stopped && events.push(stopped))
-    const waited = untilMarch(state, calendar.at(state.day + 2, 0), events)
-    if (waited) return void events.push(waited.reason === 'waited' ? stopped! : waited)
-    travel(state, until, events)
   }
 
   /**
@@ -1125,18 +1258,20 @@ export function createTravelEngine(options: {
     }
   }
 
-  /** See the `waitForMarch` action: today's march goes by, then until the next. */
+  /** See the `waitForMarch` action: today's way on goes by, then until the next. */
   const waitForMarch = (state: TravelState, events: TravelEvent[]): void => {
+    if (!onward)
+      return void events.push({ type: 'TRAVEL_STOPPED', reason: 'waited', time: state.time })
     const by = calendar.at(state.day + 3, 0)
-    for (let guard = 0; guard < 10000 && canMarchAt(state, state.time); guard++) {
+    for (let guard = 0; guard < 10000 && canGoOn(state, state.time); guard++) {
       const boundary = Math.min(by, nextBoundary(state.time))
       let next = state.time + 1
-      while (next < boundary && !marchStop(state, next, state.travelledToday)) next++
+      while (next < boundary && canGoOn(state, next)) next++
       const waited = quietly(events, () => wait(state, next, events))
       if (waited?.reason !== 'waited') return void (waited && events.push(waited))
       if (state.time >= by) return void events.push(waited)
     }
-    const stopped = untilMarch(state, by, events)
+    const stopped = untilOnward(state, by, events)
     events.push(stopped ?? { type: 'TRAVEL_STOPPED', reason: 'waited', time: state.time })
   }
 
@@ -1148,12 +1283,16 @@ export function createTravelEngine(options: {
     moment: Record<string, unknown> = {},
   ): Unavailable | undefined => {
     const def = actions.all[id]
-    // Marching isn't taken like an action: it's the Travel buttons.
-    if (!def || id === MARCH) return { off: true }
-    const value = blocker(state, id, facts)
+    if (!def) return { off: true }
+    const value =
+      blocker(state, id, facts) ??
+      // What blocks travel blocks the actions that move the party.
+      (movers.has(id)
+        ? (blocker(state, 'travel', facts) ?? blocker(state, `mode.${state.mode}`, facts))
+        : undefined)
     if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
-    const context = { ...checkContext(state, [], facts), ...moment }
+    const context = { ...checkContext(state, [], facts), params: paramsOf(def), ...moment }
     if (def.when && !test(state, def.when as Condition, context, id)) return { condition: 'when' }
     if (def.unless && test(state, def.unless as Condition, context, id))
       return { condition: 'unless' }
@@ -1255,22 +1394,28 @@ export function createTravelEngine(options: {
     events: TravelEvent[],
     options: {
       minutes?: number
+      /** The values of its parameters (`with:`). */
+      with?: Record<string, unknown>
       /** The moment or action that took it by itself. */
       on?: string
       /** Facts of that moment for its conditions (`doing` at day-end). */
       facts?: Record<string, unknown>
       quiet?: boolean
       depth?: number
+      /** Taken by the player: it drops the move under way. */
+      fresh?: boolean
     } = {},
-  ): void => {
+  ): Suspended | undefined => {
     const depth = options.depth ?? 0
     // Validation rejects loops; this only guards rules that were never validated.
     if (depth > 32) return
-    const because = unavailable(state, id, hostFacts, options.facts)
+    const params = paramsOf(actions.all[id], options.with)
+    const because = unavailable(state, id, hostFacts, { ...options.facts, params })
     if (because) {
       if (!options.quiet) events.push({ type: 'ACTION_UNAVAILABLE', action: id, because })
       return
     }
+    if (options.fresh) delete state.moving
     syncDay(state, events)
     let steps = actionSteps(actions.all[id])
     // A rest of a length chosen by hand replaces the rules' time.
@@ -1305,50 +1450,109 @@ export function createTravelEngine(options: {
     }
     underWay.push(hit)
     doing.push(id)
+    let suspended: Suspended | undefined
     try {
-      runSteps(state, id, steps, hit, events, options, depth)
+      suspended = runSteps(state, id, steps, hit, events, { ...options, params }, depth)
     } finally {
       underWay.pop()
       doing.pop()
     }
     head.minutes = state.time - start
+    // Taken at the top (by the player, a moment, the halt, the way on): its move stays under way.
+    if (suspended && depth === 0)
+      state.moving = {
+        frames: suspended.frames,
+        ...(suspended.left !== undefined && { left: suspended.left }),
+      }
+    return suspended
   }
 
-  /** An action's steps in order, each only when its condition holds. */
+  /** A move that stopped under way, from where it stopped: its actions, innermost first. */
+  type Suspended = MoveUnderWay
+
+  /**
+   * An action's steps in order (from step `from`), each only when its condition holds.
+   * Stops when a move stops under way, and says where (to go on from there).
+   */
   const runSteps = (
     state: TravelState,
     id: string,
     steps: ActionStep[],
     hit: Hits,
     events: TravelEvent[],
-    options: { facts?: Record<string, unknown> },
+    options: { facts?: Record<string, unknown>; params?: Record<string, unknown> },
     depth: number,
-  ): void => {
-    for (const step of steps) {
+    from = 0,
+  ): Suspended | undefined => {
+    const params = options.params ?? paramsOf(actions.all[id])
+    /** This action, to go on with after step `i`. */
+    const frame = (i: number): MoveFrame => ({
+      action: id,
+      ...(Object.keys(params).length && { params }),
+      next: i + 1,
+      ...(options.facts && { facts: options.facts }),
+    })
+    for (let i = from; i < steps.length; i++) {
+      const step = steps[i]
       const context = {
         ...checkContext(state, [], hostFacts),
         below: [...hit.below],
         above: [...hit.above],
         ...doingFacts(),
+        params,
         ...options.facts,
       }
+      /** A written value as it reads now (`'{{params.until}}'`). */
+      const read = (value: unknown) =>
+        evaluate(value, lookupIn(qualify(context), rollsOf(state, context, id)))
       if (step.when && !test(state, step.when, context, id)) continue
       if (step.unless && test(state, step.unless, context, id)) continue
       if (step.time !== undefined) {
         passTo(state, Math.max(state.time, timeOf(state, step.time)), events)
-      } else if (step.speed !== undefined) state.speedToday = (state.speedToday ?? 1) * step.speed
-      else if (step.effects)
+      } else if (step['travel.move'] !== undefined) {
+        const target = read(step['travel.move'])
+        const n = Number(target)
+        const left =
+          target === 'destination'
+            ? undefined
+            : target === 'hex'
+              ? 1
+              : Number.isInteger(n) && n > 0
+                ? n
+                : 0
+        if (left === 0) continue
+        const still = move(state, id, params, left, events)
+        if (still) return { frames: [frame(i)], ...still }
+      } else if (step['travel.speed'] !== undefined)
+        state.speedToday = (state.speedToday ?? 1) * step['travel.speed']
+      else if (step['travel.advance'] !== undefined) {
+        const legs = resolveChange(
+          step['travel.advance'],
+          qualify(context),
+          rollsOf(state, context, id),
+        )
+        advance(state, typeof legs === 'number' ? Math.floor(legs) : 0, events)
+      } else if (step.effects)
         applyEffects(state, id, step.effects, events, rollsOf(state, context, id))
-      else if (step.do !== undefined)
-        takeAction(state, step.do, events, { facts: options.facts, quiet: true, depth: depth + 1 })
-      else if (step.roll !== undefined)
+      else if (step.do !== undefined) {
+        const given =
+          step.with && Object.fromEntries(Object.entries(step.with).map(([k, v]) => [k, read(v)]))
+        const still = takeAction(state, step.do, events, {
+          facts: options.facts,
+          quiet: true,
+          depth: depth + 1,
+          ...(given && { with: given }),
+        })
+        if (still)
+          return {
+            frames: [...still.frames, frame(i)],
+            ...(still.left !== undefined && { left: still.left }),
+          }
+      } else if (step.roll !== undefined)
         schedule(state, id, events, undefined, options.facts, step.roll)
       else if (step.set) state.today = { ...state.today, ...step.set }
-      else if (step.advance !== undefined) {
-        const legs = resolveChange(step.advance, qualify(context), rollsOf(state, context, id))
-        advance(state, typeof legs === 'number' ? Math.floor(legs) : 0, events)
-      }
     }
+    return undefined
   }
 
   /**
@@ -1400,7 +1604,7 @@ export function createTravelEngine(options: {
       const paused = pausedOn(state)
       if (paused) {
         out.travel = paused
-        for (const id of Object.keys(actions.all)) if (id !== MARCH) out[id] = paused
+        for (const id of Object.keys(actions.all)) out[id] = paused
         for (const id of Object.keys(rules.modes)) {
           const why = modeUnavailable(state, id, facts)
           if (why) out[`mode.${id}`] = why
@@ -1411,7 +1615,6 @@ export function createTravelEngine(options: {
         blocker(state, 'travel', facts) ?? blocker(state, `mode.${state.mode}`, facts)
       if (travelBlocked) out.travel = travelBlocked
       for (const id of Object.keys(actions.all)) {
-        if (id === MARCH) continue
         const why = unavailable(state, id, facts)
         if (why) out[id] = why
       }
@@ -1450,8 +1653,15 @@ export function createTravelEngine(options: {
       }
       // A new trip's first moments (a clock, a part beginning as it starts) happen as it
       // first marches or waits that day; a check they bring comes first.
+      cap = {
+        hexByHex: (action.type === 'travel' || action.type === 'action') && action.until === 'hex',
+        by: action.type === 'travel' ? (action.by ?? Infinity) : Infinity,
+      }
       if (
-        (action.type === 'travel' || action.type === 'wait' || action.type === 'waitForMarch') &&
+        (action.type === 'travel' ||
+          action.type === 'wait' ||
+          action.type === 'waitForMarch' ||
+          (action.type === 'action' && movers.has(action.id))) &&
         state.momentsDue !== undefined
       ) {
         const due = state.momentsDue
@@ -1460,6 +1670,14 @@ export function createTravelEngine(options: {
         const now = nextNamed(due - 1)
         if (now?.time === due && calendar.describe(due).day === state.day)
           for (const ref of now.refs) schedule(state, ref, events, undefined, doingFacts())
+      }
+      // A check those moments brought comes before setting off: the move waits for it.
+      const setsOff =
+        (action.type === 'travel' && action.by === undefined) ||
+        (action.type === 'action' && movers.has(action.id))
+      if (setsOff && state.pendingChecks.length) {
+        events.push({ type: 'TRAVEL_STOPPED', reason: 'check', time: state.time })
+        return { state, events }
       }
       switch (action.type) {
         case 'setDestination': {
@@ -1476,20 +1694,26 @@ export function createTravelEngine(options: {
           break
         }
         case 'travel':
-          if (action.by === undefined) travelOn(state, action.until ?? 'destination', events)
-          else journey(state, action.until ?? 'destination', action.by, events)
+          if (action.by === undefined) goOn(state, events)
+          else journey(state, action.by, events)
           break
         case 'advanceTime':
           passTo(state, state.time + Math.max(0, action.minutes), events)
           break
         case 'wait':
+          delete state.moving
           wait(state, action.until, events)
           break
         case 'waitForMarch':
+          delete state.moving
           waitForMarch(state, events)
           break
         case 'action':
-          takeAction(state, action.id, events, { minutes: action.minutes })
+          takeAction(state, action.id, events, {
+            minutes: action.minutes,
+            ...(action.with && { with: action.with }),
+            fresh: true,
+          })
           break
         case 'setMode': {
           if (action.mode === state.mode) break

@@ -18,11 +18,11 @@ const TEXT_KEYS = new Set(['name', 'description', 'nothing'])
 type Text = string | Record<string, string>
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
-/** What identifies an item of a list: its id, or a check's event. */
+/** What identifies an item of a list: its id (a number too: a choice `3`), or a check's event. */
 const itemKey = (item: unknown): string | undefined =>
   isRecord(item)
-    ? typeof item.id === 'string'
-      ? item.id
+    ? typeof item.id === 'string' || typeof item.id === 'number'
+      ? String(item.id)
       : typeof item.event === 'string'
         ? item.event
         : undefined

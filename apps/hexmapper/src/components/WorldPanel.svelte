@@ -18,6 +18,7 @@
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import { en } from '../lib/i18n/en'
   import { sessionOf } from '../lib/play/play'
+  import { activeSystem } from '../lib/play/systems'
   import {
     advanceWorld,
     bringClocks,
@@ -42,8 +43,13 @@
     return worldCalendar()
   })
   const trip = $derived(editor.play ? sessionOf(editor.play) : null)
-  /** With a route planned, moving time on travels along it. */
-  const travelling = $derived((trip?.travel.route?.length ?? 0) > 1)
+  /**
+   * With a route planned, moving time on travels along it (as the system goes on by itself,
+   * `travel.onward`; a system without one only waits).
+   */
+  const travelling = $derived(
+    (trip?.travel.route?.length ?? 0) > 1 && !!activeSystem().rules.travel.onward,
+  )
   const coordOf = (key: string) =>
     formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
   const name = (text: Parameters<typeof localize>[0], id: string) =>

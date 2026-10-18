@@ -39,6 +39,7 @@ import {
   momentRolls,
   qualify,
   resolveChange,
+  movingActions,
   resourceBounds,
   upgradeTravelState,
   type Bounds,
@@ -421,6 +422,8 @@ export function createSession(options: {
   const discovery = options.discovery
   const declared = options.rules ? declaredValues(options.rules) : undefined
   const supplies = options.rules ? resourceBounds(options.rules) : {}
+  /** The system's actions that move the party: taking one is setting off. */
+  const movers = new Set(options.rules ? movingActions(options.rules) : [])
   const stats = options.bindings?.stats
   const party: PartyRules = {
     sheet: options.sheet,
@@ -521,23 +524,34 @@ export function createSession(options: {
         })
         return !!discovered.poi
       }
-      const travelling = action.type === 'travel'
+      // Going on, or an action that moves the party (march…).
+      const travelling =
+        action.type === 'travel' || (action.type === 'action' && movers.has(action.id))
       // Before setting off (or choosing where to go), see around the party.
       if (discovery && (travelling || action.type === 'setDestination'))
         if (arrive(s.travel.location) && travelling) return { state: s, entries }
-      // Discovering, a travel order goes hex by hex (until a moment, if it has one).
-      const hexByHex: TravelAction = {
+      const by = action.type === 'travel' ? action.by : undefined
+      /**
+       * Going on with the move under way (or the trip by itself until a moment): discovering,
+       * hex by hex.
+       */
+      const goOn: TravelAction = {
         type: 'travel',
-        until: 'hex',
-        ...(action.type === 'travel' && action.by !== undefined && { by: action.by }),
+        ...(discovery && { until: 'hex' as const }),
+        ...(by !== undefined && { by }),
       }
-      let act: TravelAction = discovery && travelling ? hexByHex : action
+      // Discovering, a move goes hex by hex, still under way at each.
+      const first: TravelAction =
+        discovery && travelling && (action.type === 'travel' || action.type === 'action')
+          ? { ...action, until: 'hex' }
+          : action
+      let act = first
       // A wait goes on after each check it stops for, like a travel order.
       const waiting = action.type === 'wait'
       if (waiting && action.until > s.travel.time)
         add(s, entries, { source: 'travel', code: 'WAIT', data: { until: action.until } })
       // A long wait, or a trip going on by itself until a moment, stops for its checks every day.
-      const long = waiting || (action.type === 'travel' && action.by !== undefined)
+      const long = waiting || by !== undefined
       const limit = long ? Math.max(maxAuto, 2000) : maxAuto
       // Going on from a check that waited for who rolls: it's rolled now, with the choice.
       let replay: TravelEvent[] | undefined
@@ -787,14 +801,14 @@ export function createSession(options: {
           (travelling || waiting) && resolvedAll && s.travel.pendingChecks.length === 0 && !found
         // A travel order keeps going once its checks are resolved…
         let keepGoing = clear && reason === 'check'
-        // …and, discovering, from hex to hex, with the route re-planned over what was found
-        // (only a travel order: a wait goes on waiting where the party is).
+        // …and, discovering, from hex to hex while the move is under way, with the route
+        // re-planned over what was found (a wait goes on waiting where the party is).
         if (
           travelling &&
           discovery &&
           clear &&
           (reason === 'hex' || reason === 'check') &&
-          (action as { until?: string }).until !== 'hex'
+          (s.travel.moving || by !== undefined)
         ) {
           const destination = s.travel.destination
           if (!destination) break
@@ -807,7 +821,9 @@ export function createSession(options: {
           keepGoing = !!s.travel.route
         }
         if (!keepGoing) break
-        act = discovery && travelling ? hexByHex : action
+        // A wait waits on; a move goes on from where it stopped (not taken again), and an
+        // action that waited for a check before setting off is taken now.
+        act = travelling && (s.travel.moving || action.type === 'travel') ? goOn : first
       }
       return { state: s, entries }
     },

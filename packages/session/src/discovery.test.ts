@@ -11,11 +11,18 @@ const { registry } = loadPacks([
     path: 'x/travel.yaml',
     content: `
 kind: travel-rules
-travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
+travel:
+  hoursPerDay: 8
+  start: '07:00'
+  onward: { do: march, with: { until: destination } }
+  halt: { at: '19:00', do: camp }
 terrains: { forest: { multiplier: 1 }, plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
-  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  march:
+    params: { until: { choices: [destination, hex] } }
+    when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+    do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
 values: { lost: { blocks: [travel] } }
@@ -191,11 +198,18 @@ describe('discovering from the land around', () => {
       path: 'y/t.yaml',
       content: `
 kind: travel-rules
-travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
+travel:
+  hoursPerDay: 8
+  start: '07:00'
+  onward: { do: march, with: { until: destination } }
+  halt: { at: '19:00', do: camp }
 terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
-  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  march:
+    params: { until: { choices: [destination, hex] } }
+    when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+    do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
 values: { lost: { blocks: [travel] } }
@@ -254,13 +268,20 @@ describe('waiting while discovering', () => {
         path: 'w/travel.yaml',
         content: `
 kind: travel-rules
-travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
+travel:
+  hoursPerDay: 8
+  start: '07:00'
+  onward: { do: march, with: { until: destination } }
+  halt: { at: '19:00', do: camp }
 terrains: { forest: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 resources: { food: {} }
 checks: [{ event: DAWN, at: '07:00', effects: { party.resources.food: 0 } }]
 actions:
-  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  march:
+    params: { until: { choices: [destination, hex] } }
+    when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+    do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
 values: { lost: { blocks: [travel] } }

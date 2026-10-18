@@ -47,6 +47,37 @@
     doc.edit('travel-rules', ['travel', 'halt'], next.do && next.at ? next : undefined)
   }
 
+  /** How the trip goes on by itself (`travel.onward`): an action and its parameters. */
+  const onward = $derived(
+    rules.travel?.onward as { do?: string; with?: Record<string, unknown> } | undefined,
+  )
+  function setOnward(key: 'do' | 'with', value: unknown) {
+    const next = { ...onward, [key]: value }
+    if (next.with === undefined) delete next.with
+    doc.edit('travel-rules', ['travel', 'onward'], next.do ? next : undefined)
+  }
+  function setOnwardWith(text: string) {
+    const value = text.trim() ? parseFlow(text) : undefined
+    if (value === null) return showToast(t('forms.badFlow'), 'error')
+    setOnward('with', value && Object.keys(value).length ? value : undefined)
+  }
+  /** What the way on can be taken with: its action's parameters and their choices. */
+  const onwardHints = $derived.by(() => {
+    const actions = (doc.rules.actions ?? {}) as Record<string, { params?: unknown }>
+    const params = (actions[onward?.do ?? '']?.params ?? {}) as Record<
+      string,
+      { choices?: unknown[] }
+    >
+    return Object.fromEntries(
+      Object.entries(params).map(([key, p]) => [
+        key,
+        (p.choices ?? []).map((c) =>
+          String(typeof c === 'object' && c !== null ? (c as { id: unknown }).id : c),
+        ),
+      ]),
+    )
+  })
+
   const num = (input: HTMLInputElement) =>
     input.value.trim() === '' ? undefined : Number(input.value)
 </script>
@@ -109,11 +140,34 @@
           onchange={(e) => setHalt('do', e.currentTarget.value)}
         >
           <option value="">{t('rules.haltNone')}</option>
-          {#each actionIds(doc.rules).filter((id) => id !== 'march') as id (id)}<option value={id}
-              >{id}</option
-            >{/each}
+          {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
         </select>
       </label>
+    </div>
+    <div class="inline">
+      <label>
+        <span>{t('rules.onwardDo')}<InfoTip text={t('rules.onwardHelp')} /></span>
+        <select
+          value={String(onward?.do ?? '')}
+          {disabled}
+          onchange={(e) => setOnward('do', e.currentTarget.value || undefined)}
+        >
+          <option value="">{t('rules.onwardNone')}</option>
+          {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
+        </select>
+      </label>
+      {#if onward?.do}
+        <label>
+          <span>{t('rules.onwardWith')}<InfoTip text={t('rules.onwardWithHelp')} /></span>
+          <SuggestInput
+            label={t('rules.onwardWith')}
+            value={conditionText(onward.with)}
+            suggestions={onwardHints}
+            {disabled}
+            onchange={(v) => setOnwardWith(v)}
+          />
+        </label>
+      {/if}
     </div>
   </section>
 

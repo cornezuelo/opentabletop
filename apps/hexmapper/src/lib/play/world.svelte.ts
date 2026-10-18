@@ -297,7 +297,8 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
     return
   }
   const calendar = worldCalendar()
-  const travelling = (trip.travel.route?.length ?? 0) > 1
+  // With a route and a way the system goes on by itself (`travel.onward`), it travels on.
+  const travelling = (trip.travel.route?.length ?? 0) > 1 && !!activeSystem().rules.travel.onward
   const days = calendar.describe(until).day - calendar.describe(trip.travel.time).day
   if (days > 0) {
     // What the party does when it can't march is the system's halt (camp, or nothing).

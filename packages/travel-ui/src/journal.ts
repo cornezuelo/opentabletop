@@ -266,6 +266,9 @@ export function entryText(e: JournalEntry, context: JournalContext) {
             context.memberName?.(`characters.${d.who}.conditions.${String(d.value)}`) ??
             `${d.who}: ${String(d.value)}`,
         })
+      // A moving action whose conditions stopped holding: which.
+      if (d.reason === 'conditions')
+        return t('stop.conditions', { action: actionText(String(d.action)) })
       if (d.reason === 'value')
         return t('stop.value', {
           name:

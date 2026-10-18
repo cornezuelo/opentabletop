@@ -107,7 +107,7 @@ Core's manual page says what its system does and which feature each part shows.
 3. **A system says which travel rules it plays** (§5; user: "¿no hay manera de que un sistema diga qué reglas de viaje usa, y entonces pueda definir si ninguno (y no se podrá viajar) o genérico?"): none, and it doesn't travel; Core's, by naming them. A map with no system chosen plays Core's.
 4. **`day-start` goes** (§3): checks name a part or a clock.
 
-## 9. Marching as an action like the rest (proposal, to review)
+## 9. Marching as an action like the rest (agreed 2026-10-18)
 
 The user (2026-10-18): `march` is still too intrinsic. What the engine must keep is the mechanism, **moving along the route while time passes** (speeds from `kmPerDay`, terrains, roads, weather); what's still built in around it is the action: its reserved id, the **Travel** / **1 hex** buttons, being the one way to move.
 
@@ -148,5 +148,5 @@ actions:
 - Nothing is reserved: the trip panel's moving buttons are the system's actions with a `travel.move` step, by their names; **1 hex** is one of their parameters' choices, not a button of the engine's.
 - `do:` takes an action and, optionally, `with:` its parameters (`{ do: march, with: { until: hex } }`).
 - `trip.marched` stays as "minutes moved today", whatever action moved.
-- Older rules: `actions.march` with only `when` / `unless` is read as that action with `params.until` (destination, hex) and `travel.move`, and `travel.onward: march`; format 2 systems get their older by-day march. `advance` / `speed` steps are read as `travel.advance` / `travel.speed`.
-- Cost: the travel loop becomes a step; parameters are a new piece of the actions' syntax (validation: choices, defaults, unknown params); the trip panel, Hexmapper Play and the World panel read the moving actions and `travel.onward`; Systems' Actions edits parameters. Still pack format 3 (not released yet).
+- **`PACK_FORMAT` 4** (agreed with the user 2026-10-18: format 3 was released in v0.6.0, and item 23 reads no older syntax): `advance` / `speed` steps and a bare `actions.march` are refused with the rest of format 3; our packs (Core, the Grey Marches, Kal-Arath) move to format 4 in the same work, and File formats gets its row.
+- Cost: the travel loop becomes a step; parameters are a new piece of the actions' syntax (validation: choices, defaults, unknown params); the trip panel, Hexmapper Play and the World panel read the moving actions and `travel.onward`; Systems' Actions edits parameters.

@@ -8,7 +8,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system with a sheet for the party itself (morale, routed) beside its characters'. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 3\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
   {
     path: 'band/system.yaml',
     content:
@@ -34,11 +34,18 @@ conditions:
     path: 'band/travel.yaml',
     content: `
 kind: travel-rules
-travel: { hoursPerDay: 8, start: '07:00', halt: { at: '19:00', do: camp } }
+travel:
+  hoursPerDay: 8
+  start: '07:00'
+  onward: { do: march, with: { until: destination } }
+  halt: { at: '19:00', do: camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 actions:
-  march: { when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  march:
+    params: { until: { choices: [destination, hex] } }
+    when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+    do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
   sing: { do: [{ effects: { party.stats.morale: 1, party.values.renown: 1 } }] }

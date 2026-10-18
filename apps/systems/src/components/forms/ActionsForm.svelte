@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     actionSteps,
-    MARCH,
     CHECK_MOMENTS,
     isClock,
     isPartRef,
@@ -59,14 +58,16 @@
   /** What a step can say: its keys, and the values each one takes here. */
   const stepHints = $derived({
     time: ['60', '120', '180', '14:00', ...parts],
-    speed: ['0.5', '0'],
+    'travel.move': ['destination', 'hex', '3', "'{{params.until}}'"],
+    'travel.speed': ['0.5', '1.5', '0'],
+    'travel.advance': ['1', '2', "'{{party.stats.rank}}'"],
     effects: [],
     'effects.*': Object.keys(effectSuggestions(library.registry)),
     set: [],
     'set.*': Object.keys((doc.rules.values ?? {}) as Raw),
     do: ids,
     roll: events,
-    advance: ['1', '2', "'{{party.stats.rank}}'"],
+    with: [],
     unless: [],
   })
 
@@ -107,11 +108,19 @@
     )
   }
 
-  /** A step written in the box: one thing it does (and maybe `unless`), keeping its `when`. */
+  /**
+   * A step written in the box: one thing it does (and maybe `unless`, and a `do:`'s `with:`),
+   * keeping its `when`.
+   */
   function setStep(id: string, i: number, raw: string) {
     const parsed = parseFlow(raw) as Raw | null
-    const does = Object.keys(parsed ?? {}).filter((k) => k !== 'unless')
-    if (!parsed || does.length !== 1 || !(STEP_KINDS as readonly string[]).includes(does[0]))
+    const does = Object.keys(parsed ?? {}).filter((k) => k !== 'unless' && k !== 'with')
+    if (
+      !parsed ||
+      does.length !== 1 ||
+      !(STEP_KINDS as readonly string[]).includes(does[0]) ||
+      ('with' in parsed && does[0] !== 'do')
+    )
       return showToast(t('actions.badStep'), 'error')
     const when = steps(id)[i]?.when
     writeSteps(
@@ -202,26 +211,23 @@
           {disabled}
           onchange={(e) => setText(id, 'description', e.currentTarget.value)}></textarea>
       </label>
-      {#if id === MARCH}<p class="said">{t('actions.marchNote')}</p>{/if}
       <div class="row">
-        {#if id !== MARCH}
-          <label>
-            <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
-            <SuggestInput
-              label={t('actions.on')}
-              placeholder={t('actions.onButton')}
-              value={momentsText(d.on)}
-              list={[...CHECK_MOMENTS, '06:00', ...parts, ...ids.filter((a) => a !== id)]}
-              {disabled}
-              onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
-            />
-            {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
-          </label>
-        {/if}
+        <label>
+          <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
+          <SuggestInput
+            label={t('actions.on')}
+            placeholder={t('actions.onButton')}
+            value={momentsText(d.on)}
+            list={[...CHECK_MOMENTS, '06:00', ...parts, ...ids.filter((a) => a !== id)]}
+            {disabled}
+            onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
+          />
+          {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
+        </label>
         <label>
           <span>{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
           <SuggestInput
-            placeholder={id === MARCH ? t('actions.marchDefault') : t('checks.always')}
+            placeholder={t('checks.always')}
             value={bare(d.when)}
             suggestions={hints}
             {disabled}
@@ -238,113 +244,117 @@
             onchange={(v) => setFlow(['actions', id, 'unless'], v)}
           />
         </label>
-        {#if id !== MARCH}
-          <label class="inline">
-            <input
-              type="checkbox"
-              checked={d.oncePerDay === true}
-              {disabled}
-              onchange={(e) =>
-                doc.edit(
-                  'travel-rules',
-                  ['actions', id, 'oncePerDay'],
-                  e.currentTarget.checked || undefined,
-                )}
-            />
-            {t('rules.oncePerDay')}
-          </label>
-          <label class="inline">
-            <input
-              type="checkbox"
-              checked={d.hideWhenUnavailable === true}
-              {disabled}
-              onchange={(e) =>
-                doc.edit(
-                  'travel-rules',
-                  ['actions', id, 'hideWhenUnavailable'],
-                  e.currentTarget.checked || undefined,
-                )}
-            />
-            <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
-          </label>
-        {/if}
-      </div>
-      {#if id !== MARCH}
-        <label>
-          <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>
+        <label class="inline">
           <input
-            type="text"
-            placeholder={doc.translating
-              ? doc.baseText(d.nothing)
-              : t('actions.nothingPlaceholder')}
-            value={text(id, 'nothing')}
+            type="checkbox"
+            checked={d.oncePerDay === true}
             {disabled}
-            onchange={(e) => setText(id, 'nothing', e.currentTarget.value)}
+            onchange={(e) =>
+              doc.edit(
+                'travel-rules',
+                ['actions', id, 'oncePerDay'],
+                e.currentTarget.checked || undefined,
+              )}
           />
+          {t('rules.oncePerDay')}
         </label>
+        <label class="inline">
+          <input
+            type="checkbox"
+            checked={d.hideWhenUnavailable === true}
+            {disabled}
+            onchange={(e) =>
+              doc.edit(
+                'travel-rules',
+                ['actions', id, 'hideWhenUnavailable'],
+                e.currentTarget.checked || undefined,
+              )}
+          />
+          <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
+        </label>
+      </div>
+      <label>
+        <span>{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span>
+        <SuggestInput
+          label={t('actions.params')}
+          placeholder={t('actions.noParams')}
+          value={bare(d.params)}
+          {disabled}
+          onchange={(v) => setFlow(['actions', id, 'params'], v)}
+        />
+      </label>
+      <label>
+        <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>
+        <input
+          type="text"
+          placeholder={doc.translating ? doc.baseText(d.nothing) : t('actions.nothingPlaceholder')}
+          value={text(id, 'nothing')}
+          {disabled}
+          onchange={(e) => setText(id, 'nothing', e.currentTarget.value)}
+        />
+      </label>
 
-        <h4>{t('actions.steps')}<InfoTip text={t('actions.stepsHelp')} /></h4>
-        <ol class="steps">
-          {#each steps(id) as step, i (i)}
-            <li class="step">
-              <div class="value">
-                <SuggestInput
-                  label={t('actions.step')}
-                  placeholder="time: 180"
-                  value={stepText(step)}
-                  suggestions={stepHints}
-                  {disabled}
-                  onchange={(v) => setStep(id, i, v)}
-                />
-              </div>
-              <div class="cond">
-                <SuggestInput
-                  label={t('actions.stepWhen')}
-                  placeholder={t('actions.stepWhen')}
-                  value={bare(step.when)}
-                  suggestions={{ ...hints, doing: ids }}
-                  {disabled}
-                  onchange={(v) => setWhen(id, i, v)}
-                />
-              </div>
-              {#if !disabled}
-                <span class="buttons">
-                  <button
-                    class="icon"
-                    aria-label={t('actions.up')}
-                    use:tooltip={t('actions.up')}
-                    disabled={i === 0}
-                    onclick={() => move(id, i, -1)}>↑</button
-                  >
-                  <button
-                    class="icon"
-                    aria-label={t('actions.down')}
-                    use:tooltip={t('actions.down')}
-                    disabled={i === steps(id).length - 1}
-                    onclick={() => move(id, i, 1)}>↓</button
-                  >
-                  <button
-                    class="icon"
-                    aria-label={t('forms.remove')}
-                    use:tooltip={t('forms.remove')}
-                    onclick={() =>
-                      writeSteps(
-                        id,
-                        steps(id).filter((_, j) => j !== i),
-                      )}>×</button
-                  >
-                </span>
-              {/if}
-            </li>
-          {:else}
-            <li class="muted">{t('actions.noSteps')}</li>
-          {/each}
-        </ol>
-        {#if !disabled}
-          <button onclick={() => writeSteps(id, [...steps(id), { time: 60 }])}
-            >{t('actions.addStep')}</button
-          >
-        {/if}
+      <h4>{t('actions.steps')}<InfoTip text={t('actions.stepsHelp')} /></h4>
+      <ol class="steps">
+        {#each steps(id) as step, i (i)}
+          <li class="step">
+            <div class="value">
+              <SuggestInput
+                label={t('actions.step')}
+                placeholder="time: 180"
+                value={stepText(step)}
+                suggestions={stepHints}
+                {disabled}
+                onchange={(v) => setStep(id, i, v)}
+              />
+            </div>
+            <div class="cond">
+              <SuggestInput
+                label={t('actions.stepWhen')}
+                placeholder={t('actions.stepWhen')}
+                value={bare(step.when)}
+                suggestions={{ ...hints, doing: ids }}
+                {disabled}
+                onchange={(v) => setWhen(id, i, v)}
+              />
+            </div>
+            {#if !disabled}
+              <span class="buttons">
+                <button
+                  class="icon"
+                  aria-label={t('actions.up')}
+                  use:tooltip={t('actions.up')}
+                  disabled={i === 0}
+                  onclick={() => move(id, i, -1)}>↑</button
+                >
+                <button
+                  class="icon"
+                  aria-label={t('actions.down')}
+                  use:tooltip={t('actions.down')}
+                  disabled={i === steps(id).length - 1}
+                  onclick={() => move(id, i, 1)}>↓</button
+                >
+                <button
+                  class="icon"
+                  aria-label={t('forms.remove')}
+                  use:tooltip={t('forms.remove')}
+                  onclick={() =>
+                    writeSteps(
+                      id,
+                      steps(id).filter((_, j) => j !== i),
+                    )}>×</button
+                >
+              </span>
+            {/if}
+          </li>
+        {:else}
+          <li class="muted">{t('actions.noSteps')}</li>
+        {/each}
+      </ol>
+      {#if !disabled}
+        <button onclick={() => writeSteps(id, [...steps(id), { time: 60 }])}
+          >{t('actions.addStep')}</button
+        >
       {/if}
     </div>
   {/each}

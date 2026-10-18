@@ -27,11 +27,14 @@
     availableActions,
     isClock,
     isPartRef,
-    MARCH,
+    movingActions,
     noTotals,
+    paramDefault,
     resourceBounds,
     checkInfo,
     declaredValues,
+    type ActionParam,
+    type ParamChoice,
     type TravelAction,
     type TravelWorld,
     type Unavailable,
@@ -189,23 +192,54 @@
     })
   }
   const actions = $derived(availableActions(system.rules))
-  /** The system's march (`actions.march`): its name is the Travel button's, its description its help. */
-  const marchName = $derived(localize(actions.all[MARCH]?.name, locale, 'en') ?? t('travel'))
-  const marchTip = $derived.by((): TooltipText => {
-    const described = localize(actions.all[MARCH]?.description, locale, 'en')
-    return described ? { markdown: described } : t('tips.travel')
-  })
+  /** The actions that move the party (a `travel.move` step): they need a route. */
+  const movers = $derived(new Set(movingActions(system.rules)))
+  /** How the trip goes on by itself (`travel.onward`), if the system says. */
+  const onward = $derived(system.rules.travel.onward)
   const bounds = $derived(resourceBounds(system.rules))
-  /** The buttons: every action but those the system takes by itself (`on:`). */
-  /** The player's actions; one that hides while it can't be taken only shows when it can. */
+  /**
+   * The player's actions: every action but those the system takes by itself (`on:`), the
+   * ones that move first; one that hides while it can't be taken only shows when it can.
+   */
   const buttons = $derived(
-    Object.keys(actions.all).filter(
-      (id) =>
-        id !== MARCH &&
-        !actions.all[id].on &&
-        !(actions.all[id].hideWhenUnavailable && blocked[id]),
-    ),
+    Object.keys(actions.all)
+      .filter((id) => !actions.all[id].on && !(actions.all[id].hideWhenUnavailable && blocked[id]))
+      .sort((a, b) => Number(movers.has(b)) - Number(movers.has(a))),
   )
+  /** The action whose move is under way (stopped by a check): **Go on** goes on with it. */
+  const goingOn = $derived(travel.moving?.frames.at(-1)?.action)
+  /** The button that stands out: going on, else the way the trip goes on by itself. */
+  const main = $derived(goingOn ? undefined : (onward?.do ?? buttons.find((id) => movers.has(id))))
+
+  /** The choices made in each action's parameters, by action and parameter (none: its default). */
+  let chosen = $state<Record<string, Record<string, string>>>({})
+  const choiceId = (c: ParamChoice) => (typeof c === 'object' ? c.id : c)
+  /** A choice in words: its name, or what a move's target says ("to the destination", "3 hexes"). */
+  const choiceName = (c: ParamChoice) => {
+    const named = typeof c === 'object' ? localize(c.name, locale, 'en') : undefined
+    if (named) return named
+    const id = String(choiceId(c))
+    if (id === 'destination' || id === 'hex') return t(`choices.${id}`)
+    return /^\d+$/.test(id) ? t('choices.hexes', { n: id }) : id.replaceAll('-', ' ')
+  }
+  const paramName = (key: string, param: ActionParam) => localize(param.name, locale, 'en') ?? key
+  const choiceOf = (id: string, key: string, param: ActionParam) =>
+    chosen[id]?.[key] ?? String(paramDefault(param))
+  /** What an action is taken with: each parameter's choice, as the pack wrote it (`3`, not `'3'`). */
+  const withOf = (id: string): Record<string, unknown> | undefined => {
+    const params = Object.entries(actions.all[id]?.params ?? {})
+    if (!params.length) return undefined
+    return Object.fromEntries(
+      params.map(([key, param]) => {
+        const value = choiceOf(id, key, param)
+        return [key, param.choices.map(choiceId).find((c) => String(c) === value) ?? value]
+      }),
+    )
+  }
+  function take(id: string) {
+    const given = withOf(id)
+    onstep({ type: 'action', id, ...(given && { with: given }) })
+  }
   /** An action's button: its name, and how long it lasts when that's fixed ("Rest (2 h)"). */
   const buttonText = (id: string) => {
     const minutes = actionMinutes(actions.all[id])
@@ -233,7 +267,7 @@
   const carried = (resource: string) => hasMembers && !!system.bindings?.resources?.[resource]
   /** What a condition blocks, in words: an action, travel or a way of travelling. */
   const blockName = (id: string) =>
-    id === 'travel' ? marchName : id.startsWith('mode.') ? modeName(id.slice(5)) : actionName(id)
+    id === 'travel' ? t('travel') : id.startsWith('mode.') ? modeName(id.slice(5)) : actionName(id)
   /** A button's tooltip: what it does, then why it's disabled. */
   const tipWith = (tip: TooltipText, id: string): TooltipText => {
     const reason = why(blocked[id])
@@ -319,7 +353,8 @@
         ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`
         : moment
     }
-    const speed = always.find((st) => st.speed !== undefined)?.speed
+    const speed = always.find((st) => st['travel.speed'] !== undefined)?.['travel.speed']
+    const moves = steps.some((st) => st['travel.move'] !== undefined)
     const effects = Object.assign({}, ...always.map((st) => st.effects ?? {}))
     const rolls = [
       ...new Set(
@@ -332,6 +367,7 @@
       fallback,
       !fallback && minutes ? t('tips.actionTime', { minutes }) : '',
       !fallback && until ? t('tips.actionUntil', { moment: untilText(until) }) : '',
+      moves ? t('tips.actionMove') : '',
       speed !== undefined ? t('tips.actionSpeed', { speed }) : '',
       changes({ effects }) ? t('tips.actionEffects', { changes: changes({ effects }) }) : '',
       own.oncePerDay ? t('tips.actionOnce') : '',
@@ -414,31 +450,47 @@
   {/each}
 
   <div class="actions">
-    <button
-      class="primary"
-      use:tooltip={tipWith(marchTip, 'travel')}
-      disabled={!travel.route || !!blocked.travel}
-      onclick={() => onstep({ type: 'travel' })}>{marchName}</button
-    >
-    <button
-      use:tooltip={tipWith(t('tips.travelHex'), 'travel')}
-      disabled={!travel.route || !!blocked.travel}
-      onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
-    >
-    <button
-      use:tooltip={travel.pendingChecks.length
-        ? tipWith(t('tips.waitMarch'), 'travel')
-        : t('tips.waitMarch')}
-      disabled={travel.pendingChecks.length > 0}
-      onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitMarch')}</button
-    >
-    {#each buttons as id (id)}
+    {#if goingOn}
       <button
-        use:tooltip={tipWith(actionTip(id), id)}
-        disabled={!!blocked[id]}
-        onclick={() => onstep({ type: 'action', id })}>{buttonText(id)}</button
+        class="primary"
+        use:tooltip={tipWith(t('tips.goOn', { action: actionName(goingOn) }), 'travel')}
+        disabled={!!blocked.travel}
+        onclick={() => onstep({ type: 'travel' })}>{t('goOn')}</button
       >
+    {/if}
+    {#each buttons as id (id)}
+      {@const params = Object.entries(actions.all[id].params ?? {})}
+      <span class="take" class:joined={params.length > 0}>
+        <button
+          class:primary={id === main}
+          use:tooltip={tipWith(actionTip(id), id)}
+          disabled={!!blocked[id] || (movers.has(id) && !travel.route)}
+          onclick={() => take(id)}>{buttonText(id)}</button
+        >
+        {#each params as [key, param] (key)}
+          <select
+            aria-label={paramName(key, param)}
+            use:tooltip={paramName(key, param)}
+            value={choiceOf(id, key, param)}
+            onchange={(e) =>
+              (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
+          >
+            {#each param.choices as c (String(choiceId(c)))}<option value={String(choiceId(c))}
+                >{choiceName(c)}</option
+              >{/each}
+          </select>
+        {/each}
+      </span>
     {/each}
+    {#if onward}
+      <button
+        use:tooltip={travel.pendingChecks.length
+          ? tipWith(t('tips.waitOnward', { action: actionName(onward.do) }), 'travel')
+          : t('tips.waitOnward', { action: actionName(onward.do) })}
+        disabled={travel.pendingChecks.length > 0}
+        onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitOnward')}</button
+      >
+    {/if}
   </div>
 
   {#snippet whoRolls()}
@@ -760,6 +812,32 @@
   .actions button:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+
+  /* An action and the choices of its parameters, as one control: March · to the destination. */
+  .take {
+    display: inline-flex;
+  }
+
+  .take.joined button {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .take select {
+    max-width: 10em;
+    padding: 0 4px;
+    font-size: 12px;
+    color: inherit;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-left: none;
+    border-radius: 0;
+  }
+
+  .take select:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
   }
 
   .pending {

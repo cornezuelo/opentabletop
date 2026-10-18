@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TravelSystem } from '@open-tabletop/session'
-  import { availableActions, MARCH } from '@open-tabletop/travel-engine'
+  import { availableActions } from '@open-tabletop/travel-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
@@ -18,7 +18,7 @@
   /** What a condition may block: travel, the system's actions and its ways of travelling. */
   const blockable = $derived([
     'travel',
-    ...Object.keys(availableActions(system.rules).all).filter((id) => id !== MARCH),
+    ...Object.keys(availableActions(system.rules).all),
     ...Object.keys(system.rules.modes).map((id) => `mode.${id}`),
   ])
 </script>

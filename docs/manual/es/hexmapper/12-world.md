@@ -25,7 +25,7 @@ El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha 
 
 El mundo y un viaje con reglas comparten **un solo tiempo**. Los viajes nuevos empiezan en la fecha del reloj en lugar de en una estación, viajar y acampar mueven el reloj, y mover el reloj hace avanzar el viaje, viviendo cada momento como si lo jugaras:
 
-- **Con una ruta planeada**, el grupo **sigue viajando** por ella: los botones quedan bajo **Seguir viajando**, y una nota debajo dice el hex hacia el que va (la ayuda de **Seguir viajando** explica qué hace entonces el paso del tiempo). Marcha cuando la marcha del sistema lo deja (como hace **Viajar** en Jugar), hace la **parada** del sistema cuando no puede (acampar, por ejemplo), sigue marchando cuando vuelve a poder y, cuando llega, espera allí el resto del tiempo. Con un sistema que marcha de día, **+1 hora** a las 08:00 es una hora de marcha.
+- **Con una ruta planeada**, el grupo **sigue viajando** por ella: los botones quedan bajo **Seguir viajando**, y una nota debajo dice el hex hacia el que va (la ayuda de **Seguir viajando** explica qué hace entonces el paso del tiempo). Sigue como diga el sistema (`travel.onward`: su marcha hasta el destino, como hace el botón **Marchar** en Jugar), hace la **parada** del sistema cuando no puede (acampar, por ejemplo), sigue marchando cuando vuelve a poder y, cuando llega, espera allí el resto del tiempo. Con un sistema que marcha de día, **+1 hora** a las 08:00 es una hora de marcha.
 - **Sin ruta**, el grupo **espera donde está**: los botones quedan bajo **Esperar aquí**, y la nota de debajo dice el hex donde espera. Un grupo que espera come, pero no marcha.
 
 En los dos casos:

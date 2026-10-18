@@ -1,7 +1,7 @@
 import { dayClock, PART_REF } from './day'
 import type { Calendar } from '@open-tabletop/time'
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
-import type { Bounds, Roller } from '@open-tabletop/variables'
+import { hasVariables, type Bounds, type Roller } from '@open-tabletop/variables'
 import { z } from 'zod'
 
 const clock = z.string().regex(/^\d{1,2}:\d{2}$/, 'times look like "06:00"')
@@ -32,13 +32,6 @@ export function momentsOf(value: string | string[] | undefined): string[] {
   return value === undefined ? [] : Array.isArray(value) ? value : [value]
 }
 
-/**
- * Marching: the Travel buttons, not a button of its own. Its `when` / `unless` say when
- * the party can march, checked as it marches (it stops when they no longer hold); it has
- * no steps. Without it, the party marches whenever nothing else stops it (a value of the
- * day, the weather, the way).
- */
-export const MARCH = 'march'
 /** What a declared value can block besides actions: going on with the trip. */
 export const BLOCKABLE = ['travel'] as const
 
@@ -60,41 +53,97 @@ const passable = z.union([
   z.object({ when: condition.optional(), unless: condition.optional() }).strict(),
 ])
 
+/** A parameter's value: a word or a number (`destination`, `3`). */
+const paramValue = z.union([z.string().min(1), z.number()])
+/** Values given to an action's parameters (`with: { until: hex }`), or variables. */
+const given = z.record(z.string(), paramValue)
+
+/** Where a `travel.move` step goes: the destination, the next hex, or a number of hexes. */
+export const MOVE_TARGETS = ['destination', 'hex'] as const
+
 /**
  * One step of an action (`do:`), doing one thing, optionally only `when` (or `unless`) a
  * condition holds: pass time (`time: 180`, until a clock: `time: '14:00'`, or until a part
- * of the calendar's day starts: `time: meal.luncheon`), change the rest of today's march (`speed: 0.5`), apply effects (`effects: {
+ * of the calendar's day starts: `time: meal.luncheon`), move along the route while time
+ * passes (`travel.move: destination`), change the rest of today's moving (`travel.speed:
+ * 0.5`), move at once (`travel.advance: 1`), apply effects (`effects: {
  * party.stats.fatigue: -1 }`; a change past a value's `min` / `max` stops there, and later
- * steps see `below` / `above`), take another action (`do: forage`, with its conditions),
- * roll a check now (`roll: <its event>`) or set values of the day (`set: { lost: true }`).
+ * steps see `below` / `above`), take another action (`do: forage`, with its conditions,
+ * and `with:` its parameters), roll a check now (`roll: <its event>`) or set values of the
+ * day (`set: { lost: true }`).
  */
 const step = z
   .object({
     when: condition.optional(),
     unless: condition.optional(),
     time: z.union([z.number().nonnegative(), clock, partRef]).optional(),
-    speed: z.number().nonnegative().optional(),
-    effects: effects.optional(),
-    do: z.string().min(1).optional(),
-    roll: z.string().min(1).optional(),
-    set: z.record(z.string(), z.unknown()).optional(),
+    /**
+     * Moves the party along its route while time passes and the action's `when` / `unless`
+     * hold: to the `destination`, to the next `hex`, or that many hexes (a number, or a
+     * variable: `'{{params.until}}'`).
+     */
+    'travel.move': z.union([z.number().int().positive(), z.string().min(1)]).optional(),
+    /** Multiplies the speed of the rest of today's moving (`0.5`: half as fast). */
+    'travel.speed': z.number().nonnegative().optional(),
     /**
      * Moves the party along its route this many hexes (legs of a way) at once, without
      * time passing: progress made by a move, not by marching. A number or a variable
      * (`'{{party.stats.rank}}'`).
      */
-    advance: z.union([z.number().int().nonnegative(), z.string().min(1)]).optional(),
+    'travel.advance': z.union([z.number().int().nonnegative(), z.string().min(1)]).optional(),
+    effects: effects.optional(),
+    do: z.string().min(1).optional(),
+    /** With `do:`, the values of that action's parameters (`with: { until: hex }`). */
+    with: given.optional(),
+    roll: z.string().min(1).optional(),
+    set: z.record(z.string(), z.unknown()).optional(),
   })
   .strict()
   .refine(
-    (s) =>
-      [s.time, s.speed, s.effects, s.do, s.roll, s.set, s.advance].filter((x) => x !== undefined)
-        .length === 1,
-    'a step does one thing: time, speed, effects, do, roll, set or advance',
+    (s) => STEP_KINDS.filter((kind) => s[kind] !== undefined).length === 1,
+    `a step does one thing: time, travel.move, travel.speed, travel.advance, effects, do, roll or set`,
   )
+  .refine((s) => s.with === undefined || s.do !== undefined, {
+    message: 'with: gives the parameters of the action a do: step takes',
+    path: ['with'],
+  })
 
-/** What a step does: the one key it has besides `when` / `unless`. */
-export const STEP_KINDS = ['time', 'speed', 'effects', 'do', 'roll', 'set', 'advance'] as const
+/** What a step does: the one key it has besides `when` / `unless` (and a `do:`'s `with:`). */
+export const STEP_KINDS = [
+  'time',
+  'travel.move',
+  'travel.speed',
+  'travel.advance',
+  'effects',
+  'do',
+  'roll',
+  'set',
+] as const
+
+/** One choice of a parameter: its value, or its value with a name (`{ id: hex, name: One hex }`). */
+const choice = z.union([
+  paramValue,
+  z
+    .object({
+      id: paramValue,
+      name: text.optional(),
+      description: text.optional(),
+    })
+    .strict(),
+])
+
+/**
+ * A parameter of an action (`params.until`): the choices it offers (the first is its
+ * default, unless `default` says another), read by its steps as `{{params.<id>}}`.
+ */
+const param = z
+  .object({
+    name: text.optional(),
+    description: text.optional(),
+    choices: z.array(choice).min(1),
+    default: paramValue.optional(),
+  })
+  .strict()
 
 /**
  * An action of the party (`actions.forage`, and camp and rest too): what it does as steps
@@ -110,6 +159,11 @@ const action = z
      * "Nothing to forage on {terrain}" (`{terrain}` is the hex's terrain).
      */
     nothing: text.optional(),
+    /**
+     * What a button, `do:` or the system may choose when taking it, read by its steps and
+     * conditions as `{{params.<id>}}` (`params: { until: { choices: [destination, hex] } }`).
+     */
+    params: z.record(z.string(), param).optional(),
     /** What it does, in order. */
     do: z.array(step).optional(),
     /**
@@ -197,6 +251,14 @@ export const travelRulesSchema = z
           .object({ at: dayMoment, do: z.string().min(1) })
           .strict()
           .optional(),
+        /**
+         * How the trip goes on by itself (the world clock, a travel order): it takes this
+         * action, with these parameters, whenever it can. Without it, the trip only waits.
+         */
+        onward: z
+          .object({ do: z.string().min(1), with: given.optional() })
+          .strict()
+          .optional(),
       })
       .strict(),
     terrains: z.record(
@@ -269,17 +331,42 @@ export const travelRulesSchema = z
     /** Values of the day the system declares (`lost`), with what they block. */
     values: z.record(z.string(), dayValue).optional(),
     /**
-     * The party's actions, only the ones the system declares (camp, forage…); `march` says
-     * when the party can march.
+     * The party's actions, only the ones the system declares (march, camp, forage…); the
+     * ones with a `travel.move` step move the party.
      */
     actions: z.record(z.string(), action).optional(),
   })
   .strict()
   .superRefine((rules, ctx) => {
-    const actionIds = Object.keys(availableActions(rules as TravelRules).all)
-    // Marching is no moment and no step: the Travel buttons and their conditions.
-    const taken = actionIds.filter((id) => id !== MARCH)
+    const all = availableActions(rules as TravelRules).all
+    const actionIds = Object.keys(all)
+    const taken = actionIds
     const moments = [...CHECK_MOMENTS, ...taken]
+    /** An action taken with parameters: they're its own, and a value written out is a choice. */
+    const badWith = (
+      target: string,
+      values: Record<string, unknown> | undefined,
+      path: (string | number)[],
+    ) => {
+      const params = all[target]?.params ?? {}
+      for (const [key, value] of Object.entries(values ?? {})) {
+        const param = params[key]
+        if (!param)
+          ctx.addIssue({
+            code: 'custom',
+            path: [...path, key],
+            message: Object.keys(params).length
+              ? `expected ${Object.keys(params).join(', ')}`
+              : `${target} has no parameters`,
+          })
+        else if (!hasVariables(value) && !choiceIds(param).includes(String(value)))
+          ctx.addIssue({
+            code: 'custom',
+            path: [...path, key],
+            message: `expected ${choiceIds(param).join(', ')}`,
+          })
+      }
+    }
     const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
       momentsOf(value).forEach((moment, j) => {
         // A part of the calendar's day (`meal.elevenses`): checked against the calendar.
@@ -309,20 +396,32 @@ export const travelRulesSchema = z
     const values = Object.keys(declaredValues(rules as TravelRules))
     for (const [id, a] of Object.entries(rules.actions ?? {})) {
       badMoments(a.on, ['actions', id, 'on'])
-      if (id === MARCH)
-        for (const key of ['do', 'on', 'oncePerDay', 'hideWhenUnavailable'] as const)
-          if (a[key] !== undefined)
-            ctx.addIssue({
-              code: 'custom',
-              path: ['actions', id, key],
-              message: 'marching has no steps: its when / unless say when the party can march',
-            })
+      for (const [key, p] of Object.entries(a.params ?? {}))
+        if (p.default !== undefined && !choiceIds(p).includes(String(p.default)))
+          ctx.addIssue({
+            code: 'custom',
+            path: ['actions', id, 'params', key, 'default'],
+            message: `expected ${choiceIds(p).join(', ')}`,
+          })
       a.do?.forEach((st, i) => {
         if (st.do !== undefined && !taken.includes(st.do))
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'do', i, 'do'],
             message: `expected ${taken.join(', ')}`,
+          })
+        else if (st.do !== undefined) badWith(st.do, st.with, ['actions', id, 'do', i, 'with'])
+        const target = st['travel.move']
+        if (
+          typeof target === 'string' &&
+          !hasVariables(target) &&
+          !(MOVE_TARGETS as readonly string[]).includes(target) &&
+          !/^[1-9]\d*$/.test(target)
+        )
+          ctx.addIssue({
+            code: 'custom',
+            path: ['actions', id, 'do', i, 'travel.move'],
+            message: 'expected destination, hex, a number of hexes or a variable',
           })
         if (st.roll !== undefined && !events.includes(st.roll))
           ctx.addIssue({
@@ -348,6 +447,14 @@ export const travelRulesSchema = z
         path: ['travel', 'halt', 'do'],
         message: `expected ${taken.join(', ') || 'an action'}`,
       })
+    const onward = rules.travel.onward
+    if (onward && !taken.includes(onward.do))
+      ctx.addIssue({
+        code: 'custom',
+        path: ['travel', 'onward', 'do'],
+        message: `expected ${taken.join(', ') || 'an action'}`,
+      })
+    else if (onward) badWith(onward.do, onward.with, ['travel', 'onward', 'with'])
     const loop = actionLoop(rules as TravelRules)
     if (loop)
       ctx.addIssue({
@@ -358,6 +465,49 @@ export const travelRulesSchema = z
   })
 
 export type ActionDefinition = z.infer<typeof action>
+export type ActionParam = z.infer<typeof param>
+export type ParamChoice = z.infer<typeof choice>
+
+/** A parameter's choices by their values, as text (`['destination', 'hex', '3']`). */
+export function choiceIds(param: ActionParam): string[] {
+  return param.choices.map((c) => String(typeof c === 'object' ? c.id : c))
+}
+
+/** A parameter's default: its `default`, or its first choice. */
+export function paramDefault(param: ActionParam): string | number {
+  const first = param.choices[0]
+  return param.default ?? (typeof first === 'object' ? first.id : first)
+}
+
+/**
+ * An action's parameters as its steps read them (`params.until`): each one's default,
+ * then what it was given.
+ */
+export function paramsOf(
+  def: ActionDefinition | undefined,
+  given: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    ...Object.fromEntries(Object.entries(def?.params ?? {}).map(([k, p]) => [k, paramDefault(p)])),
+    ...given,
+  }
+}
+
+/**
+ * The actions that move the party: a `travel.move` step of their own, or a `do:` that takes
+ * one that does (whatever their steps' conditions).
+ */
+export function movingActions(rules: TravelRules): string[] {
+  const all = availableActions(rules).all
+  const moves = (id: string, seen: Set<string>): boolean => {
+    if (seen.has(id)) return false
+    seen.add(id)
+    return actionSteps(all[id] ?? {}).some(
+      (s) => s['travel.move'] !== undefined || (s.do !== undefined && moves(s.do, seen)),
+    )
+  }
+  return Object.keys(all).filter((id) => moves(id, new Set()))
+}
 export type ActionStep = z.infer<typeof step> & { when?: Condition; unless?: Condition }
 export type DayValue = z.infer<typeof dayValue>
 

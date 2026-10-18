@@ -4,14 +4,14 @@ A small system for a game where the party carries torches, can get lost in the w
 
 ## Step by step
 
-1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from the Generic rules: walking 30 km a day by day, camping from 20:00 until 06:00, eating 1 food as each day ends.
+1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from the Generic rules: a **march** action walking 30 km a day by day (to the destination or one hex, chosen beside its button), camping from 20:00 until 06:00, eating 1 food as each day ends.
 2. **A supply**: in **Rules → Supplies**, add `torches` with **Min** `0`. Now the trip panel shows Torches, and the player can change them by hand.
 3. **Spend it**: open the action **eat** (it runs by itself at `day-end`) and add a step `effects: { party.resources.torches: -1 }`. Each day now burns a torch too.
 4. **Being lost**: in **Values of the day**, add `lost` and, in **Blocks**, `travel`. A table that sets `lost: true` will stop the party for the rest of the day.
 5. **A check**: in **Checks**, **Add a check**: event `LOST_CHECK`, **When** `06:00`, **Only if** `terrain: forest`. In **Rolled on**, pick a table of yours whose bad result has **Sets** `lost: true` (make it in the Oracle app: _1d6_, 1–2 sets `lost: true`).
 6. **Fatigue**: in **Checks → Party stats**, add `fatigue`, starting at `0` (its minimum, `min: 0`, is written in YAML). Then a check **When** `day-end`, **Only if** `below: torches`, **Changes** `party.stats.fatigue: 1`: a day without torches tires the party.
 7. **Resting only when tired**: open **rest**: **Only when** `party.stats.fatigue: { gte: 1 }`; steps `time: 120` and `effects: { party.stats.fatigue: -1 }`. The button is off while the party is fresh, and says why.
-8. **Try it**: open the **Try it** tab and make a way of three hexes, the middle one `forest`; travel and read the journal: the lost check each morning in the forest, the torches going down each night, the rest button turning on once tired.
+8. **Try it**: open the **Try it** tab and make a way of three hexes, the middle one `forest`; march and read the journal: the lost check each morning in the forest, the torches going down each night, the rest button turning on once tired.
 
 ## The same in YAML
 
@@ -20,7 +20,11 @@ The **YAML** tab shows it like this:
 ```yaml
 kind: travel-rules
 id: default
-travel: { hoursPerDay: 8, start: '06:00', halt: { at: '20:00', do: camp } }
+travel:
+  hoursPerDay: 8
+  start: '06:00'
+  onward: { do: march, with: { until: destination } }
+  halt: { at: '20:00', do: camp }
 terrains: { plains: { multiplier: 1 }, forest: { multiplier: 0.5 } }
 modes: { foot: { kmPerDay: 30 } }
 resources:
@@ -29,7 +33,10 @@ resources:
 values:
   lost: { blocks: [travel] } # step 4
 actions:
-  march: { when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  march:
+    params: { until: { choices: [destination, hex] } }
+    when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
+    do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '06:00' }] }
   rest: # step 7
     when: { party.stats.fatigue: { gte: 1 } }

@@ -5,7 +5,7 @@ import {
   declaredValues,
   FACT_PATHS,
   genericTravelRules,
-  MARCH,
+  choiceIds,
 } from '@open-tabletop/travel-engine'
 import { travelSystems } from './trip'
 
@@ -171,8 +171,7 @@ export function contextSuggestions(
       add(`today.${value}`, true, false)
       add(`yesterday.${value}`, true, false)
     }
-    // Marching is no action taken (the Travel buttons): not a moment, never done.
-    const taken = Object.keys(availableActions(rules).all).filter((id) => id !== MARCH)
+    const taken = Object.keys(availableActions(rules).all)
     add('doing', ...taken)
     add('doneToday', ...taken)
     add('moment', ...CHECK_MOMENTS, ...taken)
@@ -180,6 +179,9 @@ export function contextSuggestions(
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
       condition(action.unless, add)
+      // Its parameters, with their choices (`params.until: hex`).
+      for (const [id, param] of Object.entries(action.params ?? {}))
+        add(`params.${id}`, ...choiceIds(param))
     }
     for (const stat of Object.keys(bindings?.stats ?? {})) {
       add(stat)

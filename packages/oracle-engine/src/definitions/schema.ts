@@ -181,8 +181,12 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  * 3. Travel rules have no built-in day: no `day:` (dawn, nightfall, the night's action),
  *    no `day-start`, `daylight`, `time: dawn`, no camp, rest or march nobody declares and
  *    no `lost` (in 2, rules had them all); `travel.start` and `travel.halt` instead.
+ * 4. Marching is an action like the rest: actions move the party with a `travel.move`
+ *    step, take parameters (`params`, `do:` with `with:`), and the trip goes on by itself
+ *    with `travel.onward`; `speed` and `advance` steps are `travel.speed` and
+ *    `travel.advance` (in 3, `actions.march` only said when the built-in march held).
  */
-export const PACK_FORMAT = 3
+export const PACK_FORMAT = 4
 
 export const manifestSchema = z
   .object({

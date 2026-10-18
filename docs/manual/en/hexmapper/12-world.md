@@ -25,7 +25,7 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 The world and a trip with rules share **one time**. New trips start on the clock's date instead of a season, travelling and camping move the clock, and moving the clock moves the trip on, living every moment as if you played it:
 
-- **With a route planned**, the party **travels on** along it: the buttons are under **Travel on**, and a note below them says the hex it's heading for (the help of **Travel on** explains what passing time does then). It marches when the system's march lets it (as **Travel** in Play does), takes the system's **halt** when it can't (camp, for example), marches on when it can again, and once it arrives it waits there for the rest of the time. With a system that marches by day, **+1 hour** at 08:00 is an hour of marching.
+- **With a route planned**, the party **travels on** along it: the buttons are under **Travel on**, and a note below them says the hex it's heading for (the help of **Travel on** explains what passing time does then). It goes on the way the system says (`travel.onward`: its march to the destination, as the **March** button in Play does), takes the system's **halt** when it can't (camp, for example), marches on when it can again, and once it arrives it waits there for the rest of the time. With a system that marches by day, **+1 hour** at 08:00 is an hour of marching.
 - **Without a route**, the party **waits where it is**: the buttons are under **Wait here**, and the note below them says the hex where it waits. A waiting party eats, but doesn't march.
 
 Either way:

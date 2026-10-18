@@ -18,7 +18,14 @@ travel-rules/default:
   actions:
     march:
       name: Marchar
-      description: 'Marchar por la ruta: de día durante 8 horas, o tras una marcha nocturna a la luz de las antorchas hasta medianoche.'
+      description: 'Marchar por la ruta: de día durante 8 horas, o tras una marcha nocturna a la luz de las antorchas hasta medianoche. Hasta el destino, un hex o tres hexes.'
+      params:
+        until:
+          name: Hasta dónde
+          choices:
+            destination: Hasta el destino
+            hex: Un hex
+            '3': Tres hexes
     camp:
       name: Acampar
       description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga y devuelve 1 de salud a cada compañero; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de vuestro Aguante: si no, la noche pasa a la intemperie, sin descanso.'
@@ -34,7 +41,7 @@ travel-rules/default:
       description: 'Al final de cada día, acampando o no: 1 de comida por boca (cada compañero, o 1 para un grupo sin ellos), 1 más por cada mercenario, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
     forced-march:
       name: Marcha forzada
-      description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga. Solo de día, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
+      description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga, y el grupo sigue marchando hasta su destino. Solo de día con horas de marcha por delante, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
     rite:
       name: Rito de la Luna Ascua
       description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga y se vacía el pavor de cada compañero.'
@@ -46,7 +53,7 @@ travel-rules/default:
       description: 'Una hora de charla: tira un d6. Si saca vuestra moral o menos, vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
     night-march:
       name: Marcha nocturna
-      description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga (y +1 más al acabar el día si se marchó más de sus 8 horas); cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
+      description: 'Desde el anochecer, encender las antorchas y seguir marchando hasta medianoche, pero +1 de fatiga (y +1 más al acabar el día si se marchó más de sus 8 horas); cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
     tale:
       name: Historias del camino
       description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: historias junto al fuego hasta la guardia de en medio. Moral +1.'
