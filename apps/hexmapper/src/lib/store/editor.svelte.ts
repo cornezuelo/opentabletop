@@ -62,7 +62,7 @@ class Editor {
   meta = $state<MapMeta>({ ...this.map.meta })
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
-  play = $state<HexMap['play']>(undefined)
+  play = $state.raw<HexMap['play']>(undefined)
   world = $state.raw<HexMap['world']>(undefined)
   factions = $state.raw<HexMap['factions']>(undefined)
   tokens = $state.raw<MapToken[]>([])

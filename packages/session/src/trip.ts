@@ -825,6 +825,12 @@ const NO_WORLD: TravelWorld = {
 }
 
 /**
+ * A copy of a trip to work on. The UI may hand its reactive state (a proxy, which
+ * `structuredClone` refuses); a trip is plain data, so JSON copies it whole.
+ */
+const copyOf = (session: SessionState): SessionState => JSON.parse(JSON.stringify(session))
+
+/**
  * What the party can't do now and why, for the trip's buttons: `travel` and each action
  * by id (absent: available). A declared value blocks (`lost`), an action was done today,
  * or its `when` / `unless` (which see the map, the party and today's values).
@@ -839,7 +845,7 @@ export function tripAvailability(
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
   })
-  const current = structuredClone(session)
+  const current = copyOf(session)
   refreshParty(current, partyOf(options.system))
   return engine.availability(
     current.travel,
@@ -862,7 +868,7 @@ export function tripFacts(
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
   })
-  const current = structuredClone(session)
+  const current = copyOf(session)
   refreshParty(current, partyOf(options.system))
   const context = tripContext(current, options.facts ?? {})
   return tripContext(current, engine.context(current.travel, context))

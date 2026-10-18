@@ -17,6 +17,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Hexmapper: **Play broke on a trip with rules** (since 0.5.0): working out which buttons the party could use failed on the app's live state, so the trip's buttons (March, Camp…) never showed and the panels stopped answering (**Play** wouldn't open, **Map settings** wouldn't close) until the page was reloaded.
+
 - Travel, Hexmapper: **the browser could hang on March**. A hex walked all but a sliver of a minute (minutes towards a hex add up with decimals) was marched towards for no time at all: during the day the trip stopped saying the system's rule didn't let it march on, and at dawn it went round for ever. Such a hex is now entered at once, and trips already saved like that go on.
 - Travel: saved trips from every release (one paused on a check, one camped, one with the Generic rules) are kept and tested to open and play on in each new version.
 

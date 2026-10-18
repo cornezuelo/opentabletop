@@ -385,6 +385,21 @@ actions:
     expect(go(waking).travel.pendingChecks.map((c) => c.event)).toEqual(['WYRM'])
     expect(tripAvailability({ system, world, facts: calm }, session).shop).toBeDefined()
     expect(tripAvailability({ system, world, facts: waking }, session).shop).toBeUndefined()
+    // A UI's reactive state is a proxy (structuredClone refuses it): read all the same.
+    const reactive = <T extends object>(o: T): T =>
+      new Proxy(o, {
+        get: (t, k) => {
+          const v = Reflect.get(t, k)
+          return typeof v === 'object' && v !== null ? reactive(v) : v
+        },
+      })
+    expect(() => structuredClone(reactive(session))).toThrow()
+    expect(
+      tripAvailability({ system, world, facts: waking }, reactive(session)).shop,
+    ).toBeUndefined()
+    expect(tripFacts({ system, world, facts: waking }, reactive(session))).toMatchObject({
+      hour: 7,
+    })
     // Rolls by hand see what a check would: the moment, the trip, the host's facts.
     expect(tripFacts({ system, world, facts: waking }, session)).toMatchObject({
       daylight: true,
