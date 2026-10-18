@@ -370,6 +370,11 @@ export const en = {
     none: 'No region',
   },
   factions: {
+    paint: 'Paint its land',
+    stopPainting: 'Stop painting',
+    paintHint: 'on the map: click or drag',
+    paintHelp:
+      "Gives this faction hexes by hand: with it on, a click or a drag on the map makes the hexes its own (taken from whoever held them), and a right click takes them away. Water and hexes off the map stay nobody's. It isn't undone with Ctrl+Z, like a world turn: paint them back.",
     title: 'Factions',
     help: "The factions of the map's system (`kind: factions` in its pack): each with its colour, the hexes it holds (drawn on the map, in the Factions layer) and its sheet (its values, conditions and relations, like a character's). On a **world turn** each one rolls its turn table, and what comes up changes them, their territory and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds",
     none: "The map's system has factions, not yet on this map.",

@@ -10,6 +10,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Hexmapper: **progress clocks look like clocks**: a round dial, one wedge per segment, click to fill; **any number of segments**, set when adding one and changed later. An effect can set a clock (`world.clocks.the-siege: '=0'`).
 - **The party's own sheet**: a system can name a sheet for the party itself (`partySheet:` in `kind: system`) beside its characters': morale, fatigue, hirelings… in every trip, whoever travels, while characters join and leave. Trips show it as **The party**, above the characters; tables read `party.values.<id>`, `party.conditions`, `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`) and its conditions block for the whole party. A party stat can be one of its values (`from: { party: morale }`): effects on the stat change the sheet, within its bounds. The Systems app's **Sheet** tab edits both sheets (**New party sheet**); the Generic rules have the smallest one (Morale). Map format v20, trips v6.
 - **Who rolls**: a party stat can be one character's value (`from: { pick: charisma }`): **Rolls with**, under the trip's buttons, chooses whose (**The best** by default), and **Ask at every roll** makes each check rolled on a table wait for the choice beside **Continue**. The Grey Marches' Charisma is whoever does the talking.
+- Hexmapper: **a faction's land is painted by hand**: **Paint its land** in the World view, then click or drag on the map (right click takes hexes away).
 - Travel, Hexmapper: **the trip's buttons are at the top**, right under where the party is (and a check waiting for **Continue** above them), instead of under the supplies, stats and characters.
 - Faction turn tables read the world's clocks by their full names too (`world.clocks.<id>`, not only `clocks.<id>`).
 
@@ -20,6 +21,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Core: **A growing threat** (`core/threat`), a progress clock for any game that strikes with a twist when full and starts over.
 
 ### Fixes
+
+- Hexmapper: **a new map no longer shows the last map's factions**: their land stayed drawn after **New map** (the map had none: only the drawing was left).
 
 - Hexmapper: **Play broke on a trip with rules** (since 0.5.0): working out which buttons the party could use failed on the app's live state, so the trip's buttons (March, Camp…) never showed and the panels stopped answering (**Play** wouldn't open, **Map settings** wouldn't close) until the page was reloaded.
 

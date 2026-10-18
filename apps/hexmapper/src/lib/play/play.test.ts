@@ -39,7 +39,8 @@ import {
   missingClocks,
   stopWorld,
 } from './world.svelte'
-import { bringFactions, removeFactions } from './factions'
+import { bringFactions, paintTerritory, removeFactions } from './factions'
+import { currentTool } from '../tools/tools'
 import { oracleUi, rollContext } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 
@@ -760,6 +761,49 @@ describe('the powers of the Marches: factions on the map', () => {
     const day = editor.map.worldWeather!.day
     worldAct({ type: 'advance', minutes: 60 })
     expect(editor.map.worldWeather!.day).toBe(day)
+  })
+
+  it('their land is painted by hand from the World panel: claimed from others, or given up', () => {
+    grey()
+    const land = (id: string) => editor.map.factions!.territories[id]
+    expect(land('fort-keld')).toEqual(['15,9'])
+    // With the brush on and the World panel open, the map's clicks paint.
+    editor.panelView = 'world'
+    editor.factionBrush = 'fort-keld'
+    const tool = currentTool()
+    const at = (key: string) => {
+      const [col, row] = key.split(',').map(Number)
+      return { col, row }
+    }
+    const info = {
+      button: 0,
+      alt: false,
+      ctrl: false,
+      shift: false,
+      world: { x: 0, y: 0 },
+      pickRadius: 1,
+    }
+    const vale = land('the-vale')[0]
+    tool.down(at(vale), info)
+    tool.up()
+    expect(land('fort-keld')).toContain(vale)
+    expect(land('the-vale')).not.toContain(vale)
+    // A right click gives it up: nobody's.
+    tool.down(at(vale), { ...info, button: 2 })
+    tool.up()
+    expect(Object.values(editor.map.factions!.territories).flat()).not.toContain(vale)
+    // Water stays nobody's.
+    const water = new Set(editor.map.terrains.filter((t) => t.water).map((t) => t.id))
+    const lake = Object.entries(editor.map.hexes).find(
+      ([, h]) => h?.terrain && water.has(h.terrain),
+    )![0]
+    paintTerritory('fort-keld', [lake], true)
+    expect(land('fort-keld')).not.toContain(lake)
+    // Another panel, or no brush: the tool's own clicks again; a new map forgets the brush.
+    editor.panelView = 'tool'
+    expect(currentTool()).not.toBe(tool)
+    editor.load(createMap())
+    expect(editor.factionBrush).toBeNull()
   })
 
   it('a map without them can bring the system’s, and take them off', () => {

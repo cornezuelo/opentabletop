@@ -377,6 +377,11 @@ export const es: Messages = {
     none: 'Sin región',
   },
   factions: {
+    paint: 'Pintar su tierra',
+    stopPainting: 'Dejar de pintar',
+    paintHint: 'en el mapa: clic o arrastrar',
+    paintHelp:
+      'Le da hexes a esta facción a mano: activado, un clic o arrastrar en el mapa hace suyos los hexes (quitándoselos a quien los tuviera), y un clic derecho se los quita. El agua y los hexes fuera del mapa siguen sin ser de nadie. No se deshace con Ctrl+Z, como un turno del mundo: vuelve a pintarlos.',
     title: 'Facciones',
     help: 'Las facciones del sistema del mapa (`kind: factions` en su pack): cada una con su color, los hexes que tiene (dibujados en el mapa, en la capa Facciones) y su hoja (sus valores, estados y relaciones, como los de un personaje). En un **turno del mundo** cada una tira su tabla de turno, y lo que sale las cambia a ellas, su territorio y los relojes de progreso del reloj del mundo; la línea temporal dice qué hizo cada una. Las tablas y condiciones las leen en todas partes:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — quién tiene el hex\n• `factions.iron-clans.territory: { gt: 10 }` — cuántos hexes tiene',
     none: 'El sistema del mapa tiene facciones, aún no en este mapa.',

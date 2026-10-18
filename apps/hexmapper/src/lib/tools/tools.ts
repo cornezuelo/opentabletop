@@ -4,6 +4,7 @@ import { hitTestLabel, hitTestToken } from '../render/hitTest'
 import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
 import { layoutTokens, nextTokenName } from '../model/tokens'
 import { clickHex, partyMoved } from '../play/play'
+import { paintTerritory } from '../play/factions'
 import { nodeFlags, normalizePath } from '../model/hex'
 import type { MapPath } from '../model/types'
 import { placeInHex } from '../render/pathGeometry'
@@ -816,6 +817,35 @@ const playTool: Tool = {
   },
 }
 
+/**
+ * A faction's land, painted by hand (the World panel's **Paint its land**): a click or a
+ * drag gives it hexes, a right click takes them away.
+ */
+class FactionTool implements Tool {
+  private claiming = true
+  private last: Offset | null = null
+
+  down(cell: Offset, info: PointerInfo): void {
+    if (!editor.factionBrush) return
+    this.claiming = info.button !== 2
+    this.last = cell
+    paintTerritory(editor.factionBrush, [keyOf(cell)], this.claiming)
+  }
+
+  move(cell: Offset): void {
+    if (!this.last || !editor.factionBrush) return
+    if (cell.col === this.last.col && cell.row === this.last.row) return
+    const line = cellLine(this.last, cell, editor.map.grid.orientation).slice(1)
+    paintTerritory(editor.factionBrush, line.map(keyOf), this.claiming)
+    this.last = cell
+  }
+
+  up(): void {
+    this.last = null
+  }
+}
+const factionTool = new FactionTool()
+
 const tools: Record<ToolId, Tool> = {
   play: playTool,
   region: new RegionTool(),
@@ -833,4 +863,9 @@ const tools: Record<ToolId, Tool> = {
 
 export function getTool(id: ToolId): Tool {
   return tools[id]
+}
+
+/** What a click on the map does now: painting a faction's land while the World panel asks, else the tool's. */
+export function currentTool(): Tool {
+  return editor.factionBrush && editor.panelView === 'world' ? factionTool : tools[editor.tool]
 }

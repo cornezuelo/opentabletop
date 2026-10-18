@@ -43,6 +43,20 @@
               : t('factions.territory', { n: own.territories[faction.id]?.length ?? 0 })}</span
           >
         </summary>
+        <div class="paint">
+          <button
+            class:active={editor.factionBrush === faction.id}
+            aria-pressed={editor.factionBrush === faction.id}
+            onclick={() =>
+              (editor.factionBrush = editor.factionBrush === faction.id ? null : faction.id)}
+            >{editor.factionBrush === faction.id
+              ? t('factions.stopPainting')
+              : t('factions.paint')}</button
+          >
+          <span class="help"
+            >{t('factions.paintHint')}<InfoTip markdown={t('factions.paintHelp')} /></span
+          >
+        </div>
         <CharacterCard
           sheet={system.sheet.def}
           character={faction}
@@ -110,6 +124,20 @@
 
   .faction[open] summary {
     margin-bottom: 6px;
+  }
+
+  .paint {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+
+  .paint button.active {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .swatch {

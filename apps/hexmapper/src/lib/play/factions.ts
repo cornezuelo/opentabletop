@@ -1,5 +1,11 @@
 import { inBounds, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
-import { changeTerritory, turnsDue, type TerritoryWorld } from '@open-tabletop/faction-engine'
+import {
+  changeTerritory,
+  claim,
+  release,
+  turnsDue,
+  type TerritoryWorld,
+} from '@open-tabletop/faction-engine'
 import { applyCharacter } from '@open-tabletop/character-engine'
 import { mathRandom } from '@open-tabletop/random'
 import {
@@ -65,6 +71,23 @@ export function bringFactions(): void {
     editor.map.world?.time ?? 0,
   )
   editor.setFactions({ system: getSystem(mapSystemId()).id, ...state })
+}
+
+/**
+ * Paints a faction's land by hand: `claim` gives it these hexes (taken from whoever held
+ * them; water and hexes off the map stay nobody's), otherwise it gives them up. Play
+ * state, like a world turn: outside the undo history.
+ */
+export function paintTerritory(faction: string, hexes: string[], claimIt: boolean): void {
+  const own = editor.map.factions
+  if (!own || !own.factions.some((f) => f.id === faction)) return
+  const world = territoryWorld()
+  const ok = hexes.filter((h) => world.holdable?.(h) ?? true)
+  const next = claimIt
+    ? claim(own.territories, faction, ok)
+    : release(own.territories, faction, hexes)
+  if (JSON.stringify(next) !== JSON.stringify(own.territories))
+    editor.setFactions({ ...own, territories: next })
 }
 
 /** Takes the factions off the map (their sheets and territory are forgotten). */

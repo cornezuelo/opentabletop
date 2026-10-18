@@ -41,7 +41,7 @@ import {
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
-import { getTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
+import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 const EMPTY_FILL = 0x2a2823
 /** Empty hexes on paper, when exporting to print. */
@@ -517,6 +517,8 @@ export class MapRenderer {
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
     this.drawGlyphs()
     this.drawRegions()
+    // The map's factions (none on a new map: the last map's land mustn't stay drawn).
+    this.drawFactions()
     this.drawPaths()
     this.drawIcons()
     this.drawLabels()
@@ -1246,7 +1248,7 @@ export class MapRenderer {
       const cell = this.cellAt(e)
       // Labels may sit outside the grid (titles, margins); other tools edit hexes.
       if (!inBounds(cell, editor.map.grid) && editor.tool !== 'text') return
-      this.activeTool = getTool(editor.tool)
+      this.activeTool = currentTool()
       this.activeTool.down(cell, this.pointerInfo(e))
     })
 
@@ -1265,7 +1267,7 @@ export class MapRenderer {
       this.setHovered(cell)
       this.updateCursor()
       if (this.activeTool) this.activeTool.move(cell, this.pointerInfo(e))
-      else getTool(editor.tool).hover?.(cell, this.pointerInfo(e))
+      else currentTool().hover?.(cell, this.pointerInfo(e))
     })
 
     const release = () => {

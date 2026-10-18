@@ -71,6 +71,8 @@ class Editor {
   regionStyle = $state<HexMap['regionStyle']>({ ...this.map.regionStyle })
   /** Region the region tool paints. */
   regionId = $state<string | null>(null)
+  /** The faction whose land a click on the map paints (World panel, Paint its land), if any. */
+  factionBrush = $state<string | null>(null)
   canUndo = $state(false)
   canRedo = $state(false)
 
@@ -333,6 +335,7 @@ class Editor {
     this.labelEdits.clear()
     this.hexPreviews.clear()
     this.pathDraft = null
+    this.factionBrush = null
     if (!map.terrains.some((t) => t.id === this.terrainId))
       this.terrainId = map.terrains[0]?.id ?? ''
     this.notify({ kind: 'all' })
