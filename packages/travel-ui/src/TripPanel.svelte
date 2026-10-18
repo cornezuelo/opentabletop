@@ -630,7 +630,9 @@
     flex: 1;
   }
 
+  /* Ask at every roll: a line of its own, under who rolls. */
   .rolls .check {
+    flex: 1 1 100%;
     display: flex;
     gap: 4px;
     align-items: center;

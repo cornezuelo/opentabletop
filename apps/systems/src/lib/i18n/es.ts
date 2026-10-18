@@ -96,7 +96,7 @@ export const es: Messages<typeof en> = {
       title: 'Los modos de tirada de sus packs',
       intro:
         'Formas de tirar sus tablas: ventaja, desventaja o las tuyas (tres tiradas quedándose con la del medio…). Las tablas las ofrecen con `modes:` y las usan solas con `modeWhen:`.',
-      help: 'Modos de tirada (`kind: roll-modes`) de los packs que trae el sistema, primero el suyo; los de un pack incluido son de solo lectura (**Editar una copia**). Una tabla los usa:\n• `modes: [advantage, disadvantage]` — se ofrecen al tirar a mano\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — solo cuando se cumple',
+      help: 'Modos de tirada (`kind: roll-modes`) de los packs que trae el sistema, primero el suyo; los de otro pack (los de Core) son de solo lectura aquí, porque los comparten todos los sistemas que lo traen: para cambiarlos, haz los tuyos en el pack del sistema. Una tabla los usa:\n• `modes: [advantage, disadvantage]` — se ofrecen al tirar a mano\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — solo cuando se cumple',
       none: 'Los packs de este sistema no declaran modos de tirada.',
       create: 'Nuevos modos de tirada',
     },
@@ -599,6 +599,8 @@ export const es: Messages<typeof en> = {
     confirmRevert:
       '¿Descartar tus cambios en este sistema y volver a la versión incluida? (↶ lo deshace.)',
     makeCopy: 'Editar una copia',
+    dependency:
+      'De {pack}, un pack que trae este sistema: aquí es de solo lectura, porque lo comparten todos los sistemas que lo traen. Para cambiarlo en este sistema, haz el tuyo en el pack del sistema.',
     builtIn:
       'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (debajo de la lista de la izquierda) para hacer el tuyo a partir de ellas; su pestaña YAML las enseña.',
     genericYaml:

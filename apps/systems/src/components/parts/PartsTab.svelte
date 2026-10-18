@@ -68,7 +68,7 @@
   {/if}
   {#if part}
     <p class="file">{part.root}/{part.path} · <code>@{part.kind}/{part.id}</code></p>
-    {#if part.root !== root}<ReadOnly root={part.root} />{/if}
+    {#if part.root !== root}<ReadOnly root={part.root} dependency />{/if}
     {#key `${part.root}/${part.path}/${part.id}`}
       {#if kind === 'calendar'}
         <CalendarForm {doc} />

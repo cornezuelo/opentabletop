@@ -93,7 +93,7 @@ export const en = {
       title: 'Roll modes of its packs',
       intro:
         'Ways of rolling its tables: advantage, disadvantage, or your own (three rolls keeping the middle one…). Tables offer them with `modes:` and use them by themselves with `modeWhen:`.',
-      help: "Roll modes (`kind: roll-modes`) of the packs the system brings, its own first; a bundled pack's are read-only (**Edit a copy**). A table uses them:\n• `modes: [advantage, disadvantage]` — offered when rolling by hand\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — by itself when it holds",
+      help: "Roll modes (`kind: roll-modes`) of the packs the system brings, its own first; another pack's (Core's) are read-only here, shared by every system that brings it: make your own in the system's pack to change them. A table uses them:\n• `modes: [advantage, disadvantage]` — offered when rolling by hand\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — by itself when it holds",
       none: 'The packs of this system declare no roll modes.',
       create: 'New roll modes',
     },
@@ -594,6 +594,8 @@ export const en = {
     confirmRevert:
       'Discard your changes to this system and go back to the bundled version? (↶ undoes it.)',
     makeCopy: 'Edit a copy',
+    dependency:
+      'From {pack}, a pack this system brings along: read-only here, since every system that brings it shares it. To change it for this system, make your own in the system’s pack.',
     builtIn:
       "The Generic rules are built in and can't be edited. Create a new system (below the list on the left) to start your own from them; their YAML tab shows them.",
     genericYaml:

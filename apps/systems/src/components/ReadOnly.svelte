@@ -7,8 +7,11 @@
   /**
    * On bundled packs: they can't change, but a copy can. On your edited copy of a
    * bundled pack: going back to the bundled version (undoable with ↶). Nothing otherwise.
+   * A pack the system only brings along (`dependency`: Core's roll modes in another
+   * system) offers no copy: it's shared by every system that brings it, and an edited
+   * copy would fall behind its updates.
    */
-  let { root }: { root: string } = $props()
+  let { root, dependency = false }: { root: string; dependency?: boolean } = $props()
   const pack = $derived(library.pack(root))
   const personal = $derived(pack?.personal)
 
@@ -17,7 +20,11 @@
   }
 </script>
 
-{#if pack?.origin === 'bundled'}
+{#if pack?.origin === 'bundled' && dependency}
+  <div class="notice">
+    <span>{t('edit.dependency', { pack: root })}</span>
+  </div>
+{:else if pack?.origin === 'bundled'}
   <div class="notice">
     <span>{t('edit.readOnly')}{personal ? ` ${t('edit.personalCopy')}` : ''}</span>
     <button onclick={() => library.editCopy(root)}>{t('edit.makeCopy')}</button>
