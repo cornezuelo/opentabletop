@@ -9,10 +9,10 @@ description: |-
   How the Marches count time: twelve months of thirty days in four seasons, a seven-day
   week, two moons, the feasts the tables know and the parts of a Marcher's day.
 
-  **Shows:** months with their seasons, weekdays, moons with their cycles, holidays, a
-  division of the day of its own (`divisions: { part: … }`, read as `time.part`, with a
-  `dark` tag on the grey hour and the night) and numbered watches (`watchHours`).
-watchHours: 4
+  **Shows:** months with their seasons, weekdays, moons with their cycles, holidays, and
+  two divisions of the day of its own: its parts (`divisions: { part: … }`, read as
+  `time.part`, with a `dark` tag on the grey hour and the night) and watches only at night
+  (`watch`, with a gap by day: `until`).
 # The parts of a Marcher's day, from the grey hour before dawn to the night: the World
 # panel waits until one (Until…), and conditions read `time.part` and `time.tags`.
 divisions:
@@ -25,6 +25,14 @@ divisions:
       - { id: afternoon, name: afternoon, from: '14:00' }
       - { id: evening, name: evening, from: '18:00' }
       - { id: night, name: night, from: '20:00', tags: [dark] }
+  # The camp's watches, only at night: the last one ends at dawn, and by day there is none
+  # (`time.watch` is absent). A check comes in the middle watch (travel.yaml).
+  watch:
+    name: Watches
+    parts:
+      - { id: first, name: the first watch, from: '20:00' }
+      - { id: middle, name: the middle watch, from: '23:00' }
+      - { id: last, name: the last watch, from: '02:00', until: '06:00' }
 startYear: 412
 months:
   - { id: thaw, name: Thaw, days: 30, season: spring }

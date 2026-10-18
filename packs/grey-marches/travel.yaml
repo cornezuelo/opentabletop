@@ -5,7 +5,9 @@
 # without a map in the Travel app, or edit it in Systems.
 kind: travel-rules
 id: default
-day: { start: '06:00', nightfall: '20:00' }
+# The system's day named by parts of its calendar's (calendar.yaml): it dawns as the
+# morning begins (06:00) and night falls with the night (20:00).
+day: { start: part.morning, nightfall: part.night }
 # The scale it's played at (travel.hexKm): 10 km a hex, so a day on foot (25 km) crosses
 # two or three; maps with this system take it unless they set their own.
 travel: { hoursPerDay: 8, hexKm: 10 }
@@ -240,11 +242,12 @@ actions:
   # on the road, an evening of tales around the fire; its button only shows then.
   tale:
     name: Tales of the road
-    description: 'Once a trip, after 50 km on the road, from nightfall: an hour of tales around the fire. Morale +1.'
+    description: 'Once a trip, after 50 km on the road, from nightfall: tales around the fire until the middle watch. Morale +1.'
     when: { trip.km: { gte: 50 }, trip.taken.tale: { lt: 1 }, time.daylight: false }
     hideWhenUnavailable: true
     do:
-      - { time: 60 }
+      # Until a part of the calendar's day: the middle watch (23:00).
+      - { time: watch.middle }
       - { effects: { party.stats.morale: 1 } }
   # Progress by a move, not by marching (an `advance` step): on the road, by day, a carter
   # takes the party two hexes along its route in two hours. Once a day; hidden off the road.
@@ -371,6 +374,17 @@ checks:
     # A journey role: whoever keeps watch (`roles.lookout`, chosen in the trip), read by their
     # own values. With nobody on watch, this never holds.
     unless: { trip.moment: camp, hex.danger: { lt: 3 }, roles.lookout.values.stealth: { gte: 2 } }
+  # A moment of the calendar's day (`at: watch.middle`, the middle watch beginning, 23:00),
+  # while the party sleeps in camp (`trip.doing`) in the dark (`time.tags`, the night's
+  # tag) where danger is 3 or more, with nobody keeping watch (the lookout's values only
+  # hold with someone in the role): the haunted lights come close. No table: its effects.
+  - event: HAUNTED_WATCH
+    name: Lights in the middle watch
+    description: Asleep in camp where danger is 3 or more, with nobody keeping watch, the haunted lights come close in the middle watch. Every companion's dread +1.
+    at: watch.middle
+    when: { trip.doing: camp, time.tags: dark, hex.danger: { gte: 3 } }
+    unless: { roles.lookout.values.stealth: { gte: 0 } }
+    effects: { party.members.values.dread: 1 }
   # Marching in the dark (a night march), off the road: each hex entered may get you lost,
   # rolled on the same table as at dawn (it sees `time.daylight: false`).
   - event: NIGHT_NAVIGATION_CHECK_REQUIRED

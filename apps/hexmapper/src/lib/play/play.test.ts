@@ -216,15 +216,23 @@ describe('playing on the map', () => {
       // Without a trip, the world alone: to the evening, then to the next watch.
       await advance({ until: { part: 'part.evening' } })
       expect(editor.map.world!.time).toBe(calendar.at(day, '18:00'))
-      expect(at(editor.map.world!.time)).toMatchObject({
-        divisions: { part: 'evening', watch: 5 },
-        tags: [],
-      })
+      expect(at(editor.map.world!.time)).toMatchObject({ divisions: { part: 'evening' }, tags: [] })
+      // No watch by day: the Marches keep them only at night.
+      expect(at(editor.map.world!.time).watch).toBeUndefined()
       await advance({ until: { part: 'watch' } })
       expect(at(editor.map.world!.time)).toMatchObject({
         hour: 20,
-        divisions: { part: 'night', watch: 6 },
+        watch: 'first',
+        divisions: { part: 'night', watch: 'first' },
         tags: ['dark'],
+      })
+      // During a trip, hand rolls see the part of the day, its tags and when parts start.
+      clickHex('5,7')
+      expect(rollContext()).toMatchObject({
+        part: 'night',
+        watch: 'first',
+        time: { part: 'night', watch: 'first', tags: ['dark'] },
+        system: { part: { morning: 6, night: 20 }, watch: { middle: 23 } },
       })
       // A part the calendar doesn't have: nothing moves.
       const now = editor.map.world!.time

@@ -49,7 +49,7 @@ travel-rules/default:
       description: 'Desde el anochecer, seguir marchando a la luz de las antorchas hasta medianoche, pero +1 de fatiga (y +1 más al acabar el día si se marchó más de sus 8 horas); cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
     tale:
       name: Historias del camino
-      description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: una hora de historias junto al fuego. Moral +1.'
+      description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: historias junto al fuego hasta la guardia de en medio. Moral +1.'
     carter:
       name: Ir con un carretero
       description: 'Por un camino, de día: un carretero que va en vuestra dirección os lleva dos hexes por la ruta en dos horas. Una vez al día.'
@@ -87,6 +87,9 @@ travel-rules/default:
     CAMP_ENCOUNTER_CHECK_REQUIRED:
       name: Encuentro nocturno
       description: Al acampar donde el peligro es 2 o más, o al entrar a oscuras en un hex con peligro, fuera del camino. Un vigía sigiloso (Sigilo 2 o más) mantiene oculto el campamento donde el peligro es menor de 3.
+    HAUNTED_WATCH:
+      name: Luces en la guardia de en medio
+      description: Dormidos en el campamento donde el peligro es 3 o más, sin nadie de guardia, las luces encantadas se acercan en la guardia de en medio. El pavor de cada compañero +1.
     NIGHT_NAVIGATION_CHECK_REQUIRED:
       name: Perdidos en la oscuridad
       description: En cada hex en el que se entra pasado el anochecer, fuera del camino. A oscuras es fácil perder el rumbo.

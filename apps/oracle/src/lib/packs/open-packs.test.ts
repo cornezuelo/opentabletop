@@ -11,7 +11,7 @@ import {
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
-import { calendarFacts, type TravelWorld } from '@open-tabletop/travel-engine'
+import { calendarFacts, dayClock, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from './bundled'
@@ -220,6 +220,54 @@ describe('bundled open packs', () => {
       expect(nightCheck()).toBe(true)
       expect(nightCheck({ lookout: 'kael' })).toBe(true) // Stealth 1
       expect(nightCheck({ lookout: 'mara' })).toBe(false) // Stealth 2
+    })
+
+    it('asleep in camp where danger is 3 or more, nobody on watch: the middle watch brings the lights', () => {
+      const camp = (roles?: Record<string, string>, danger = 3) => {
+        const { session } = startTrip({
+          system,
+          location: '0',
+          season: 'summer',
+          members: company(),
+        })
+        return stepTrip(
+          options([{ terrain: 'heath', danger }]),
+          { ...session, ...(roles && { roles }) },
+          { type: 'camp' },
+        )
+      }
+      const lights = (entries: { data?: Record<string, unknown> }[]) =>
+        entries.filter((e) => e.data?.event === 'HAUNTED_WATCH')
+      const night = camp()
+      // One night, one middle watch: at 23:00, while the Company sleeps until the morning.
+      expect(lights(night.entries)).toHaveLength(1)
+      expect(night.state.members!.map((m) => m.values.dread)).toEqual([1, 1])
+      expect(calendarOf(system).describe(night.state.travel.time)).toMatchObject({
+        hour: 6,
+        divisions: { part: 'morning' },
+      })
+      // Someone on watch, or a safer place: no lights.
+      expect(lights(camp({ lookout: 'kael' }).entries)).toHaveLength(0)
+      expect(lights(camp(undefined, 2).entries)).toHaveLength(0)
+    })
+
+    it('tales of the road last until the middle watch begins (a time step to a part)', () => {
+      const calendar = calendarOf(system)
+      const { session } = startTrip({ system, location: '0', time: calendar.at(100, '20:30') })
+      const travelled = {
+        ...session,
+        travel: { ...session.travel, totals: { ...session.travel.totals!, hexes: 6 } },
+      }
+      const { state, entries } = stepTrip(options([{ terrain: 'plains' }]), travelled, {
+        type: 'action',
+        id: 'tale',
+      })
+      expect(entries.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'tale')).toBe(true)
+      expect(calendar.describe(state.travel.time)).toMatchObject({
+        hour: 23,
+        divisions: { part: 'night', watch: 'middle' },
+      })
+      expect(state.stats.morale).toBe(session.stats.morale + 1)
     })
 
     it('a guide who knows the way rolls getting lost with advantage', () => {
@@ -682,7 +730,7 @@ describe('bundled open packs', () => {
       }
     })
 
-    it('foraging in the dawn watch is rolled with advantage (the calendar’s watches)', () => {
+    it('foraging in the morning is rolled with advantage (a part of the calendar’s day)', () => {
       const calendar = calendarOf(system)
       const engine = createOracleEngine({ registry, random: seeded('dawn') })
       const mode = (hour: string) => {
@@ -690,9 +738,10 @@ describe('bundled open packs', () => {
         const context = tripFacts(play([{ terrain: 'plains' }]), session)
         return engine.resolve('grey-marches/forage', context).resolution.mode
       }
+      expect(mode('05:59')).toBeUndefined()
       expect(mode('06:00')).toBe('core/advantage')
-      expect(mode('07:59')).toBe('core/advantage')
-      expect(mode('09:00')).toBeUndefined()
+      expect(mode('10:59')).toBe('core/advantage')
+      expect(mode('11:00')).toBeUndefined()
     })
 
     it('a carter takes the party two hexes along the road in two hours (an advance step)', () => {
@@ -940,7 +989,11 @@ describe('bundled open packs', () => {
         ...trip(0, 4),
         dayVars: { lost: true },
       }
-      const dawn = calendarOf(system).at(stuck.travel.day + 1, system.rules.day.start)
+      // The system's dawn is a part of its calendar's day (`part.morning`).
+      const dawn = calendarOf(system).at(
+        stuck.travel.day + 1,
+        dayClock(system.rules.day.start, calendarOf(system), '06:00'),
+      )
       const { state, entries } = stepTrip(options, stuck, { type: 'wait', until: dawn })
       expect(state.travel.time).toBeGreaterThanOrEqual(dawn)
       expect(entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)

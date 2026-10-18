@@ -6,8 +6,9 @@ calendar/marcher-reckoning:
     de un marcano.
 
     **Enseña:** meses con sus estaciones, días de la semana, lunas con sus ciclos, fiestas,
-    una división del día propia (`divisions: { part: … }`, leída como `time.part`, con la
-    etiqueta `dark` en la hora gris y la noche) y guardias numeradas (`watchHours`).
+    y dos divisiones del día propias: sus partes (`divisions: { part: … }`, leída como
+    `time.part`, con la etiqueta `dark` en la hora gris y la noche) y guardias solo de noche
+    (`watch`, con un hueco de día: `until`).
   divisions:
     part:
       name: Parte del día
@@ -24,6 +25,15 @@ calendar/marcher-reckoning:
           name: el atardecer
         night:
           name: la noche
+    watch:
+      name: Guardias
+      parts:
+        first:
+          name: la primera guardia
+        middle:
+          name: la guardia de en medio
+        last:
+          name: la última guardia
   months:
     thaw:
       name: Deshielo
