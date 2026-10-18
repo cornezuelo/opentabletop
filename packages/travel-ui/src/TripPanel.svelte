@@ -351,6 +351,47 @@
     {/if}
   </div>
 
+  <!-- What needs you first, then what the party can do: right under where it is. -->
+  {#each travel.pendingChecks as check (check.id)}
+    <div class="pending">
+      <span
+        >{t(check.rolled ? 'journal.paused' : 'journal.pending', {
+          event: pendingName(check.event),
+        })}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
+      >
+      <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
+      >
+    </div>
+  {/each}
+
+  <div class="actions">
+    <button
+      class="primary"
+      use:tooltip={tipWith(marchTip, 'travel')}
+      disabled={!travel.route || !!blocked.travel}
+      onclick={() => onstep({ type: 'travel' })}>{marchName}</button
+    >
+    <button
+      use:tooltip={tipWith(t('tips.travelHex'), 'travel')}
+      disabled={!travel.route || !!blocked.travel}
+      onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
+    >
+    <button
+      use:tooltip={travel.pendingChecks.length
+        ? tipWith(t('tips.waitDawn'), 'travel')
+        : t('tips.waitDawn')}
+      disabled={travel.pendingChecks.length > 0}
+      onclick={() => onstep({ type: 'wait', until: nextDawn })}>{t('waitDawn')}</button
+    >
+    {#each buttons as id (id)}
+      <button
+        use:tooltip={tipWith(actionTip(id), id)}
+        disabled={!!blocked[id]}
+        onclick={() => onstep({ type: 'action', id })}>{buttonText(id)}</button
+      >
+    {/each}
+  </div>
+
   <div class="row">
     <label class="field">
       <span>{t('travelMode')}</span>
@@ -441,46 +482,6 @@
       {onedit}
     />
   {/if}
-
-  <div class="actions">
-    <button
-      class="primary"
-      use:tooltip={tipWith(marchTip, 'travel')}
-      disabled={!travel.route || !!blocked.travel}
-      onclick={() => onstep({ type: 'travel' })}>{marchName}</button
-    >
-    <button
-      use:tooltip={tipWith(t('tips.travelHex'), 'travel')}
-      disabled={!travel.route || !!blocked.travel}
-      onclick={() => onstep({ type: 'travel', until: 'hex' })}>{t('travelHex')}</button
-    >
-    <button
-      use:tooltip={travel.pendingChecks.length
-        ? tipWith(t('tips.waitDawn'), 'travel')
-        : t('tips.waitDawn')}
-      disabled={travel.pendingChecks.length > 0}
-      onclick={() => onstep({ type: 'wait', until: nextDawn })}>{t('waitDawn')}</button
-    >
-    {#each buttons as id (id)}
-      <button
-        use:tooltip={tipWith(actionTip(id), id)}
-        disabled={!!blocked[id]}
-        onclick={() => onstep({ type: 'action', id })}>{buttonText(id)}</button
-      >
-    {/each}
-  </div>
-
-  {#each travel.pendingChecks as check (check.id)}
-    <div class="pending">
-      <span
-        >{t(check.rolled ? 'journal.paused' : 'journal.pending', {
-          event: pendingName(check.event),
-        })}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
-      >
-      <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
-      >
-    </div>
-  {/each}
 
   <details class="totals">
     <summary>{totals.title}<InfoTip text={t('tips.totals')} /></summary>

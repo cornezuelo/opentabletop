@@ -8,6 +8,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Progress clocks, declared by systems**: a system can name the clocks its world starts with (`kind: clocks`: segments, where each starts, and what happens when it fills: words for the timeline, a table rolled, effects on the factions and other clocks, then it stays full, starts over or goes away). The Hexmapper's world clock starts with them (**Add the system's clocks** brings back missing ones); rules read a declared clock by its id whatever it's renamed; one full clock can fill another. The Systems app has a **Clocks** tab. Map format v19.
 - Hexmapper: **progress clocks look like clocks**: a round dial, one wedge per segment, click to fill; **any number of segments**, set when adding one and changed later. An effect can set a clock (`world.clocks.the-siege: '=0'`).
+- Travel, Hexmapper: **the trip's buttons are at the top**, right under where the party is (and a check waiting for **Continue** above them), instead of under the supplies, stats and characters.
 - Faction turn tables read the world's clocks by their full names too (`world.clocks.<id>`, not only `clocks.<id>`).
 
 ### Packs
