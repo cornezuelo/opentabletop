@@ -102,3 +102,17 @@ type CharacterAction =
 - **What conditions and tables read**: `party.members` (their ids), `characters.<id>.*` (each member's facts: `characters.kael.values.health`, `characters.kael.conditions`), `acting.*` (the acting member's, when there is one).
 - **Effects**: `party.members.values.health: -1` (every member), `party.members.conditions.wounded: true`, `characters.<id>.values.…`, `acting.values.…` (nobody acting: nothing happens, and the journal says so). Within the sheet's bounds; what hits a bound is journaled.
 - **Conditions block**: a member's condition that `blocks` an action, `travel` or `mode.<id>` blocks it for the party, saying who (`{ value: wounded, who: kael }`).
+
+## 9. What the party is (agreed with the author, 2026-10-18)
+
+**The ask** (author, 2026-10-18): a party is one or more characters, always travelling together (no separate trips per character). What should be decided is **what the party carries: a joint party sheet, and/or character sheets**; and where party stats take part in a roll, **the player chooses whose sheet** rolls. Before this, the party "as a whole" was a handful of loose numbers (the bindings' `stats`) with no sheet, and only characters had sheets: the author couldn't tell the two apart in play.
+
+**Agreed:**
+
+1. **A party sheet, beside the characters'.** `kind: system` may name `partySheet:` (a `kind: sheet`, like `sheet:` for characters): the values, tracks and conditions of the party itself (morale, fatigue, hirelings…). When a system declares one, every trip has it; characters (`sheet:`) are optional on top, and **come and go during the trip** (they die, others join): there is no "mode" to choose (author: "no entiendo por qué permitir añadir o quitar personajes… es un problema").
+2. **Read and changed like the rest.** Conditions and tables read `party.values.<id>`, `party.conditions`, `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`), within its bounds, journaled when one is hit; its conditions `block` what they say for the whole party. The trip's panel shows its card above the characters. Without a party sheet, the bindings' `stats` as before.
+3. **Whose sheet rolls.** A bindings stat may take the value of **one character**: `from: { pick: survival }`. Next to the trip's buttons, **Rolls with: [the best ▾ | Kael | Brenna…]** chooses who: _the best_ (the default) or a character, for every roll until changed; ticking **Ask at every roll** makes each check that reads such a stat wait (pending, not rolled) with the choice beside **Continue**. `max` / `min` / `sum` / `count` stay for what the whole party counts.
+4. **Formats.** New pack keys only (no `PACK_FORMAT` bump). Trips and maps gain the party's sheet and who rolls (absent: none, the best).
+5. **Bundled packs.** The Grey Marches get _The Company_ as a party sheet and their skill stats picked from a companion; the Generic rules the smallest party sheet; Core nothing (it has no system).
+
+**Phases:** (a) the party sheet, headless and in the panels, Systems' Sheet tab, packs; (b) **Rolls with** and **Ask at every roll**; each with its manual pages and tests.
