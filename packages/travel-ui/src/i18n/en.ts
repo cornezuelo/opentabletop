@@ -37,7 +37,7 @@ export const en = {
   actions: { eat: 'Eat', camp: 'Camp', rest: 'Rest' },
   travel: 'Travel',
   travelHex: '1 hex',
-  waitDawn: 'Wait until dawn',
+  waitMarch: 'Wait for the next march',
   continue: 'Continue',
   journalTitle: 'Journal',
   exportJournal: 'Export',
@@ -62,9 +62,9 @@ export const en = {
     min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',
     max: 'It never goes above {max}.',
     travel:
-      'Travel towards the destination until you arrive, night falls, the day’s marching hours run out or a check needs you.',
-    waitDawn:
-      'Time passes where the party is until the next dawn, living it: the system’s action for the night if it can be taken (otherwise the night passes without it), and the end of the day. For when nothing else can be done: when what the system set for the day blocks marching and its actions.',
+      'Travel towards the destination until you arrive, the system’s rule for marching stops the party (at night, when the day’s hours are spent…, as the system says) or a check needs you.',
+    waitMarch:
+      'Time passes where the party is until it can march again, living it: if it could march now, today’s march goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t march, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
     travelHex: 'Travel to the next hex of the route only.',
     actionUntil: 'Lasts until {moment}.',
     dawn: 'dawn',
@@ -125,6 +125,7 @@ export const en = {
   },
   journal: {
     nightWithout: 'Night falls and “{action}” isn’t possible ({why}): the night passes without it.',
+    haltWithout: '“{action}” isn’t possible ({why}): the time passes without it.',
     wait: 'Wait here until day {day}, {clock}',
     failed: '{event}: the table failed ({error})',
     discoveryFailed: 'Discovery failed at {hex} ({error})',

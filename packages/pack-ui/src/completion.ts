@@ -76,7 +76,7 @@ const ENUMS: Record<string, readonly string[]> = {
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
   reshuffle: ['when-empty', 'manual', 'after-draw'],
-  time: ['dawn', 'nightfall', '60', '120', '180'],
+  time: ['60', '120', '180', '06:00'],
   reveal: ['neighbors', 'entered'],
   clamp: ['true', 'false'],
   once: ['true', 'false'],
@@ -133,11 +133,9 @@ const KEYS = [
   'count',
   'reshuffle',
   // Travel rules and bindings.
-  'day',
-  'start',
-  'nightfall',
-  'night',
   'travel',
+  'start',
+  'halt',
   'hoursPerDay',
   'terrains',
   'multiplier',
@@ -239,13 +237,11 @@ export function completeYaml(before: string, hints: YamlHints): Completion | nul
             ? actions
             : key === 'on' || key === 'at'
               ? [...CHECK_MOMENTS, ...(hints.parts ?? []), ...actions]
-              : key === 'night'
-                ? [...actions, 'false']
-                : key === 'roll'
-                  ? (hints.events ?? [])
-                  : key === 'time'
-                    ? [...ENUMS.time, ...(hints.parts ?? [])]
-                    : (ENUMS[key] ?? hints.context[key] ?? [])
+              : key === 'roll'
+                ? (hints.events ?? [])
+                : key === 'time'
+                  ? [...ENUMS.time, ...(hints.parts ?? [])]
+                  : (ENUMS[key] ?? hints.context[key] ?? [])
     const options = filter(pool, typed)
     return options.length ? { from: before.length - typed.length, options } : null
   }

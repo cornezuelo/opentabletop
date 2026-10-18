@@ -6,8 +6,8 @@ import type { TravelRules } from './rules'
  */
 export const genericTravelRules: TravelRules = {
   id: 'generic',
-  day: { start: '06:00', nightfall: '20:00' },
-  travel: { hoursPerDay: 8, hexKm: 10 },
+  // Trips start at 06:00; a party that can't march camps from 20:00 (the halt).
+  travel: { hoursPerDay: 8, hexKm: 10, start: '06:00', halt: { at: '20:00', do: 'camp' } },
   terrains: {
     steppe: { multiplier: 1 },
     plains: { multiplier: 1 },
@@ -62,12 +62,19 @@ export const genericTravelRules: TravelRules = {
   checks: [],
   // No values of the day: nothing here blocks travel.
   values: {},
-  // Camp sleeps until dawn; a rest is an hour without marching, only by day (the night is
-  // for camping). As each day ends, whether the party camped or not, it eats a day of food
-  // (an action the system takes by itself).
+  // Marching by day (06:00–20:00) for the day's 8 hours; camp sleeps until 06:00; a rest is
+  // an hour without marching, only by day (the night is for camping). As each day ends,
+  // whether the party camped or not, it eats a day of food (an action the system takes by
+  // itself).
   actions: {
-    camp: { do: [{ time: 'dawn' }] },
-    rest: { when: { daylight: true }, do: [{ time: 60 }] },
+    march: {
+      when: {
+        'time.hour': { gte: 6, lt: 20 },
+        'trip.marched': { lt: '{{system.hoursPerDay}}' },
+      },
+    },
+    camp: { do: [{ time: '06:00' }] },
+    rest: { when: { 'time.hour': { gte: 6, lt: 20 } }, do: [{ time: 60 }] },
     eat: { on: 'day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
   },
 }

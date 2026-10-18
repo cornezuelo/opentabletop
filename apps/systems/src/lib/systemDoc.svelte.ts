@@ -1,4 +1,4 @@
-import { BUILT_IN_ACTIONS } from '@open-tabletop/travel-engine'
+import { OLDER_ACTIONS } from '@open-tabletop/travel-engine'
 import {
   appendDefinition,
   insertIn,
@@ -31,13 +31,13 @@ export function parseMoments(text: string): string | string[] | undefined {
 }
 
 /**
- * The ids of a system's actions, from its raw rules: camp and rest unless it turns them
- * off (older systems had them without declaring them), then the ones it declares.
+ * The ids of a system's actions, from its raw rules: older rules' (`day:`, pack format 2)
+ * camp, rest and march unless they turn them off, then the ones it declares.
  */
 export function actionIds(rules: Record<string, unknown>): string[] {
   const actions = (rules.actions ?? {}) as Record<string, unknown>
   return [
-    ...BUILT_IN_ACTIONS.filter((id) => actions[id] === undefined),
+    ...(rules.day ? OLDER_ACTIONS : []).filter((id) => actions[id] === undefined),
     ...Object.keys(actions).filter((id) => actions[id] !== false),
   ]
 }

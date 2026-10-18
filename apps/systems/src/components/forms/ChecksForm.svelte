@@ -15,9 +15,8 @@
     ROLLABLE,
     type SystemDoc,
   } from '../../lib/systemDoc.svelte'
-  import { CHECK_MOMENTS, isPartRef } from '@open-tabletop/travel-engine'
+  import { CHECK_MOMENTS, isClock, isPartRef, OLDER_DAY_START } from '@open-tabletop/travel-engine'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
-  import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
   import { olderFormatChecks, packFormat, updateFormat } from '../../lib/newSystem'
 
   /**
@@ -40,8 +39,8 @@
     none: [],
   })
 
-  /** A pack written for an older format: the checks it pauses without saying so. */
-  const olderFormat = $derived(packFormat(doc.root) < PACK_FORMAT)
+  /** A pack written for pack format 1: the checks it pauses without saying so. */
+  const olderFormat = $derived(packFormat(doc.root) < 2)
   const olderPausing = $derived(olderFormat ? olderFormatChecks(doc.rules, doc.bindings) : [])
 
   type Raw = Record<string, unknown>
@@ -58,11 +57,13 @@
     momentsText(at)
       .split(', ')
       .map((m) =>
-        (AT as readonly string[]).includes(m)
-          ? t(`checks.atOptions.${m as (typeof AT)[number]}`)
-          : isPartRef(m)
-            ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
-            : t('checks.atAction', { action: actionLabel(m) }),
+        (AT as readonly string[]).includes(m) || m === OLDER_DAY_START
+          ? t(`checks.atOptions.${m as (typeof AT)[number] | typeof OLDER_DAY_START}`)
+          : isClock(m)
+            ? t('checks.atClock', { clock: m })
+            : isPartRef(m)
+              ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
+              : t('checks.atAction', { action: actionLabel(m) }),
       )
       .join(' · ')
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
@@ -218,7 +219,13 @@
               label={t('checks.at')}
               placeholder={t('checks.atNone')}
               value={momentsText(check.at)}
-              list={[...AT, ...dayPartRefs(system), ...ownActions]}
+              list={[
+                ...(doc.rules.day ? [OLDER_DAY_START] : []),
+                ...AT,
+                '06:00',
+                ...dayPartRefs(system),
+                ...ownActions,
+              ]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
             />

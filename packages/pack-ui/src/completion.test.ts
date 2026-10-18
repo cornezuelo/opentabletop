@@ -38,18 +38,13 @@ describe('YAML suggestions', () => {
       events: ['ENCOUNTER', 'FORAGE'],
       effects: { 'party.stats.fatigue': [], 'party.resources.food': [] },
     }
-    expect(completeYaml('    on: day', travel)?.options).toEqual(['day-start', 'day-end'])
+    expect(completeYaml('    on: day', travel)?.options).toEqual(['day-end'])
     expect(completeYaml('    at: fo', travel)?.options).toEqual(['forage'])
     expect(completeYaml('      - { do: fo', travel)?.options).toEqual(['forage'])
     expect(completeYaml('      - { roll: EN', travel)?.options).toEqual(['ENCOUNTER'])
-    expect(completeYaml('  night: ', travel)?.options).toEqual([
-      'camp',
-      'rest',
-      'forage',
-      'eat',
-      'false',
-    ])
-    expect(completeYaml('      - { time: d', travel)?.options).toEqual(['dawn'])
+    // The halt takes an action, like a step's `do`.
+    expect(completeYaml("    halt: { at: '20:00', do: fo", travel)?.options).toEqual(['forage'])
+    expect(completeYaml('      - { time: 06', travel)?.options).toEqual(['06:00'])
     expect(
       completeYaml('      - { when: { mode: horse }, effects: { party.r', travel)?.options,
     ).toEqual(['party.resources.food'])

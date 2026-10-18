@@ -4,10 +4,13 @@ The **Rules** tab edits the system's travel rules (`kind: travel-rules`): how a 
 
 ## The day
 
-- **Dawn** and **Nightfall**: a clock (`06:00`) or a part of the calendar's day (`meal.breakfast`, suggested: when it starts).
-- **Marching hours a day**: how long the party can march before it has to stop, even if night is still far. Time spent on actions (resting, foraging) doesn't count as marching.
+There's no built-in day: when the party can march is the **march** action's (below), by day, for some hours, by torchlight…, as the system says.
+
+- **Trips start**: when a new trip starts on its first day, a clock (`06:00`) or a part of the calendar's day (`part.morning`, suggested: when it starts). Empty: at midnight.
+- **Marching hours a day**: the hours a way of travelling's km a day are marched in, the scale of its speed. How long the party may march each day is the march's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number). Time spent on actions (resting, foraging) doesn't count as marching.
 - **km per hex**: the scale the system is played at. Trips without a map (Travel, **Try it**) use it; a map with this system takes it, unless the map sets its own scale.
-- **At nightfall, while waiting**: the action the party takes when night falls while the world clock moves, camp by default. When its conditions don't hold, the night passes without it.
+- **Halt from** and **Halt action**: what the party does when it can't march while the time moves on by itself (the world clock, **Wait for the next march**, a travel order with nothing left to march): from that moment (a clock, `20:00`, or a part, `part.night`) until the day ends, a party that isn't marching takes the action, once a day; camp, for example. When its conditions don't hold, the journal says why and the time passes without it. No action: the party just waits.
+- **Older day (pack format 2)**: only for packs written for pack format 2 or before, their **Dawn**, **Nightfall** and **At nightfall, while waiting**, still read as they were (see [File formats](../technical/02-file-formats.md#packs)).
 
 ## Ways of travelling
 
@@ -41,23 +44,23 @@ The Grey Marches declare **Lost**, which blocks travel: the getting-lost table s
 
 ## Actions
 
-What the party can do: camp, rest, **march** and the system's own, all alike, as cards (**Add an action**; × removes one). Each has:
+What the party can do: only what the system declares (camp, rest, **march** and its own), all alike, as cards (**Add an action**; × removes one). Each has:
 
 - an **id**, and a **Name** and description for players;
-- **Only when** / **Not when**: when its button can be pressed. E.g. the Grey Marches' Forage for food, not in a storm; `daylight: true` for only by day;
+- **Only when** / **Not when**: when its button can be pressed. E.g. the Grey Marches' Forage for food, not in a storm; `time.hour: { gte: 6, lt: 20 }` for only by day;
 - **Once a day**;
 - **Hidden when it can't be taken**: otherwise its button stays, disabled, saying why. E.g. the Grey Marches' rite, only at a shrine under a full moon;
-- **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: `day-start`, `hex-enter`, `day-end`, a part of the calendar's day (`meal.elevenses`: as it begins) or another action's id, several separated by commas (the Grey Marches' Eat, `day-end`). A step's `time` may also go until a part (`time: meal.luncheon`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
+- **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: a clock (`06:00`: as it strikes), a part of the calendar's day (`meal.elevenses`: as it begins), `hex-enter`, `day-end` or another action's id, several separated by commas (the Grey Marches' Eat, `day-end`). A step's `time` may also go until a part (`time: meal.luncheon`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
 - **When nothing applies**: what the journal says when none of its checks apply;
 - **What it does**, step by step (the arrows move a step up or down).
 
-**March** is the Travel buttons, not a button of its own: it only has **Only when** / **Not when**, checked as the party marches, which stops as soon as they no longer hold. Empty, it marches by day for the day's marching hours. Its name and description are the first Travel button's.
+**March** is the Travel buttons, not a button of its own: it only has **Only when** / **Not when**, checked as the party marches, which stops as soon as they no longer hold. Empty, the party marches whenever nothing else stops it, day and night (older packs: by day for the day's marching hours). Its name and description are the first Travel button's.
 
 ### Steps
 
 Each step is written like in the YAML, with suggestions:
 
-- `time: 180`: three hours pass (or `dawn`, `nightfall`, `14:00`);
+- `time: 180`: three hours pass (or until a clock, `06:00`, or a part of the day, `part.morning`);
 - `speed: 0.5`: the rest of today's march goes at half speed;
 - `effects: { party.stats.fatigue: -1 }`: changes the party's stats, supplies or characters;
 - `set: { lost: true }`: sets a value of the day;
@@ -65,4 +68,4 @@ Each step is written like in the YAML, with suggestions:
 - `roll: <check>`: a check, now;
 - `advance: 1`: move along the route that many hexes or legs at once, no time passing: progress by moves, see _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
-A step can have its own condition: the Grey Marches' camp sleeps until dawn and, **unless** `below: food` (food ran out at the end of the day), takes off 1 fatigue.
+A step can have its own condition: the Grey Marches' camp sleeps until morning and, **unless** `below: food` (food ran out at the end of the day), takes off 1 fatigue.

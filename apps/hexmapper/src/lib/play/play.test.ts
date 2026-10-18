@@ -600,7 +600,7 @@ describe('the Company: a party made of characters', () => {
       s.members![0].values.health = 1
       return s
     })
-    step({ type: 'camp' })
+    step({ type: 'action', id: 'camp' })
     // Three mouths: Kael 3 → 2, Old Tobin 3 → 2, then Kael again (the first of equals).
     expect(trip().members!.map((m) => m.values.rations)).toEqual([1, 2, 2])
     expect(trip().travel.resources.food).toBe(5)

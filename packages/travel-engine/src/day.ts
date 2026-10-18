@@ -18,19 +18,22 @@ export function dayClock(value: string, calendar: Calendar, fallback: string): n
 }
 
 /**
- * Every part of the day travel rules name, with where: the system's day
- * (`day.start: meal.breakfast`), checks' moments, actions' moments and their time steps.
- * The calendar must have each one.
+ * Every part of the day travel rules name, with where: when trips start and the halt
+ * (`travel.start`, `travel.halt.at`), older rules' day (`day.start: meal.breakfast`),
+ * checks' moments, actions' moments and their time steps. The calendar must have each one.
  */
 export function partRefsOf(rules: {
-  day: { start: string; nightfall: string }
+  day?: { start: string; nightfall: string }
+  travel?: { start?: string; halt?: { at: string } }
   checks?: { at?: string | string[] }[]
   actions?: Record<string, false | { on?: string | string[]; do?: { time?: unknown }[] }>
 }): [path: string, ref: string][] {
   const out: [string, string][] = []
   const list = (v: string | string[] | undefined) => (v === undefined ? [] : [v].flat())
   for (const key of ['start', 'nightfall'] as const)
-    if (isPartRef(rules.day[key])) out.push([`day.${key}`, rules.day[key]])
+    if (rules.day && isPartRef(rules.day[key])) out.push([`day.${key}`, rules.day[key]])
+  if (isPartRef(rules.travel?.start)) out.push(['travel.start', rules.travel.start])
+  if (isPartRef(rules.travel?.halt?.at)) out.push(['travel.halt.at', rules.travel.halt.at])
   rules.checks?.forEach((c, i) =>
     list(c.at).forEach((m) => isPartRef(m) && out.push([`checks.${i}.at`, m])),
   )

@@ -39,7 +39,7 @@ export const es: Messages<typeof en> = {
   actions: { eat: 'Comer', camp: 'Acampar', rest: 'Descansar' },
   travel: 'Viajar',
   travelHex: '1 hex',
-  waitDawn: 'Esperar al alba',
+  waitMarch: 'Esperar a la próxima marcha',
   continue: 'Continuar',
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
@@ -64,9 +64,9 @@ export const es: Messages<typeof en> = {
     min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',
     max: 'Nunca sube de {max}.',
     travel:
-      'Viaja hacia el destino hasta llegar, que caiga la noche, se acaben las horas de marcha del día o haga falta una comprobación.',
-    waitDawn:
-      'El tiempo pasa donde está el grupo hasta el próximo alba, viviéndolo: la acción del sistema para la noche si se puede hacer (si no, la noche pasa sin ella) y el final del día. Para cuando no se puede hacer nada más: cuando lo que el sistema fijó para el día bloquea la marcha y sus acciones.',
+      'Viaja hacia el destino hasta llegar, hasta que la regla del sistema para marchar detenga al grupo (de noche, al acabarse las horas del día…, según diga el sistema) o haga falta una comprobación.',
+    waitMarch:
+      'El tiempo pasa donde está el grupo hasta que pueda volver a marchar, viviéndolo: si ahora pudiera marchar, primero deja pasar la marcha de hoy. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede marchar, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
     travelHex: 'Viaja solo hasta el siguiente hex de la ruta.',
     actionUntil: 'Dura hasta {moment}.',
     dawn: 'el alba',
@@ -125,6 +125,7 @@ export const es: Messages<typeof en> = {
   },
   journal: {
     nightWithout: 'Cae la noche y «{action}» no es posible ({why}): la noche pasa sin ello.',
+    haltWithout: '«{action}» no es posible ({why}): el tiempo pasa sin ello.',
     wait: 'Esperar aquí hasta el día {day}, {clock}',
     failed: '{event}: la tabla falló ({error})',
     discoveryFailed: 'El descubrimiento falló en {hex} ({error})',

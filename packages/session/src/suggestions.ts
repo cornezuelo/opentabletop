@@ -50,14 +50,11 @@ export function contextSuggestions(
   add('water', true, false)
   add('season', 'spring', 'summer', 'autumn', 'winter')
   add('day')
-  // The moment: day or night, the hour (14.5 is 14:30), the calendar's watch, and the
-  // system's own dawn, nightfall and marching hours as numbers.
-  add('daylight', true, false)
+  // The moment: the hour (14.5 is 14:30), the calendar's watch, and the system's
+  // marching hours as a number.
   add('hour')
   add('watch', 1, 2, 3, 4, 5, 6)
   add('monthDay')
-  add('dawn')
-  add('nightfall')
   add('hoursPerDay')
   // The trip: hours marched today, actions taken, the way left, its days, visits here.
   add('marched')
@@ -81,11 +78,10 @@ export function contextSuggestions(
   add('around.water', true, false)
   // The world clock's: each clock by its name as an id, and today's events.
   add('events')
-  // What hit its minimum or maximum today (its id), and whether the day ended in camp.
+  // What hit its minimum or maximum today (its id), and the action under way.
   add('below')
   add('above')
   add('doing')
-  add('camping', true, false)
   add('edges', 'road', 'trail', 'river')
   add('terrain', ...Object.keys(genericTravelRules.terrains))
   add('from.terrain', ...Object.keys(genericTravelRules.terrains))
@@ -174,6 +170,13 @@ export function contextSuggestions(
       add(value, true, false)
       add(`today.${value}`, true, false)
       add(`yesterday.${value}`, true, false)
+    }
+    // Older rules (`day:`): whether it's day, their dawn and nightfall, the day ended in camp.
+    if (rules.day) {
+      add('daylight', true, false)
+      add('dawn')
+      add('nightfall')
+      add('camping', true, false)
     }
     // Marching is no action taken (the Travel buttons): not a moment, never done.
     const taken = Object.keys(availableActions(rules).all).filter((id) => id !== MARCH)

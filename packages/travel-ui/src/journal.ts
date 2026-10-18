@@ -243,6 +243,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const parts = (context.calendar ?? defaultCalendar).describe(until)
       return t('journal.wait', { day: parts.day - startDay + 1, clock: formatClock(parts) })
     }
+    case 'HALT_WITHOUT':
+      return t('journal.haltWithout', {
+        action: actionText(String(d.action)),
+        why: whyText(d.because as Unavailable | undefined, context).replace(/\.$/, ''),
+      })
+    // Older journals: a night that passed without the night's action.
     case 'NIGHT_WITHOUT':
       return t('journal.nightWithout', {
         action: actionText(String(d.action)),

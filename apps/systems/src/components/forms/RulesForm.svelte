@@ -53,6 +53,13 @@
     doc.edit('travel-rules', ['water', 'passable'], Object.keys(next).length ? next : undefined)
   }
 
+  /** The halt (`travel.halt`): from when, and which action; without an action, none. */
+  const halt = $derived(rules.travel?.halt as { at?: string; do?: string } | undefined)
+  function setHalt(key: 'at' | 'do', value: string) {
+    const next = { at: halt?.at ?? '20:00', do: halt?.do ?? '', [key]: value }
+    doc.edit('travel-rules', ['travel', 'halt'], next.do && next.at ? next : undefined)
+  }
+
   const num = (input: HTMLInputElement) =>
     input.value.trim() === '' ? undefined : Number(input.value)
 </script>
@@ -62,23 +69,13 @@
     <h3>{t('rules.day')}<InfoTip text={t('rules.dayHelp')} /></h3>
     <div class="inline">
       <label>
-        <span>{t('rules.start')}</span>
+        <span>{t('rules.tripStart')}<InfoTip text={t('rules.tripStartHelp')} /></span>
         <SuggestInput
-          label={t('rules.start')}
-          value={String(rules.day?.start ?? '')}
+          label={t('rules.tripStart')}
+          value={String(rules.travel?.start ?? '')}
           list={['06:00', ...parts]}
           {disabled}
-          onchange={(v) => doc.edit('travel-rules', ['day', 'start'], v.trim())}
-        />
-      </label>
-      <label>
-        <span>{t('rules.nightfall')}</span>
-        <SuggestInput
-          label={t('rules.nightfall')}
-          value={String(rules.day?.nightfall ?? '')}
-          list={['20:00', ...parts]}
-          {disabled}
-          onchange={(v) => doc.edit('travel-rules', ['day', 'nightfall'], v.trim())}
+          onchange={(v) => doc.edit('travel-rules', ['travel', 'start'], v.trim() || undefined)}
         />
       </label>
       <label>
@@ -105,26 +102,77 @@
           onchange={(e) => doc.edit('travel-rules', ['travel', 'hexKm'], num(e.currentTarget))}
         />
       </label>
+    </div>
+    <div class="inline">
       <label>
-        <span>{t('rules.night')}<InfoTip text={t('rules.nightHelp')} /></span>
-        <select
-          value={rules.day?.night === false ? 'false' : String(rules.day?.night ?? '')}
+        <span>{t('rules.haltAt')}<InfoTip text={t('rules.haltHelp')} /></span>
+        <SuggestInput
+          label={t('rules.haltAt')}
+          value={String(halt?.at ?? '')}
+          list={['20:00', ...parts]}
           {disabled}
-          onchange={(e) => {
-            const v = e.currentTarget.value
-            doc.edit(
-              'travel-rules',
-              ['day', 'night'],
-              v === '' ? undefined : v === 'false' ? false : v,
-            )
-          }}
+          onchange={(v) => setHalt('at', v.trim())}
+        />
+      </label>
+      <label>
+        <span>{t('rules.haltDo')}</span>
+        <select
+          value={String(halt?.do ?? '')}
+          {disabled}
+          onchange={(e) => setHalt('do', e.currentTarget.value)}
         >
-          <option value="">{t('rules.nightDefault')}</option>
-          <option value="false">{t('rules.nightNone')}</option>
-          {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
+          <option value="">{t('rules.haltNone')}</option>
+          {#each actionIds(doc.rules).filter((id) => id !== 'march') as id (id)}<option value={id}
+              >{id}</option
+            >{/each}
         </select>
       </label>
     </div>
+    {#if rules.day}
+      <!-- Packs of format 2: their built-in day, still read (and edited) as it was. -->
+      <h4>{t('rules.olderDay')}<InfoTip text={t('rules.olderDayHelp')} /></h4>
+      <div class="inline">
+        <label>
+          <span>{t('rules.start')}</span>
+          <SuggestInput
+            label={t('rules.start')}
+            value={String(rules.day?.start ?? '')}
+            list={['06:00', ...parts]}
+            {disabled}
+            onchange={(v) => doc.edit('travel-rules', ['day', 'start'], v.trim())}
+          />
+        </label>
+        <label>
+          <span>{t('rules.nightfall')}</span>
+          <SuggestInput
+            label={t('rules.nightfall')}
+            value={String(rules.day?.nightfall ?? '')}
+            list={['20:00', ...parts]}
+            {disabled}
+            onchange={(v) => doc.edit('travel-rules', ['day', 'nightfall'], v.trim())}
+          />
+        </label>
+        <label>
+          <span>{t('rules.night')}<InfoTip text={t('rules.nightHelp')} /></span>
+          <select
+            value={rules.day?.night === false ? 'false' : String(rules.day?.night ?? '')}
+            {disabled}
+            onchange={(e) => {
+              const v = e.currentTarget.value
+              doc.edit(
+                'travel-rules',
+                ['day', 'night'],
+                v === '' ? undefined : v === 'false' ? false : v,
+              )
+            }}
+          >
+            <option value="">{t('rules.nightDefault')}</option>
+            <option value="false">{t('rules.nightNone')}</option>
+            {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
+          </select>
+        </label>
+      </div>
+    {/if}
   </section>
 
   <section>

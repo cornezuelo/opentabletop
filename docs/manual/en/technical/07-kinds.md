@@ -132,18 +132,18 @@ When several apply (one chosen by hand plus some on their own), the ones that ca
 
 ## Travel rules
 
-How a trip works: the day (dawn, nightfall, marching hours), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), what the party does at nightfall while waiting (`day.night`), supplies (with their `min` / `max`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel`, one of its actions' id (camp, rest, forage…) or `mode.<id>`), the party's **actions** (all alike: camp, rest, foraging…: `when` / `unless`, `oncePerDay`, `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`, `advance`) and the **checks**: what is rolled at dawn, on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Systems app's [Rules](../systems/05-rules.md) and [Checks](../systems/06-checks.md) tabs.
+How a trip works: when trips start, the scale of their speeds (`hoursPerDay`) and what the party does when it can't march (`travel.halt`), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), supplies (with their `min` / `max`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel`, one of its actions' id (camp, rest, forage…) or `mode.<id>`), the party's **actions** (only the ones it declares, all alike: camp, rest, foraging…; `march` says when the party can march: `when` / `unless`, `oncePerDay`, `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`, `advance`) and the **checks**: what is rolled at a clock or a part of the calendar's day (the morning), on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Systems app's [Rules](../systems/05-rules.md) and [Checks](../systems/06-checks.md) tabs.
 
 Every key, in a small system (the comments say what each does):
 
 ```yaml
 kind: travel-rules
 id: default
-day:
-  start: '06:00' # dawn: day-start checks and actions
-  nightfall: '20:00' # nobody marches after it
-  night: camp # what a party waiting at nightfall does (false: nothing)
-travel: { hoursPerDay: 8, hexKm: 10 } # marching hours a day; km a hex (the scale)
+travel:
+  hoursPerDay: 8 # the hours a way's kmPerDay is marched in (the speed's scale)
+  hexKm: 10 # km a hex (the scale)
+  start: '06:00' # when a new trip starts (a clock or a part of the day; empty: midnight)
+  halt: { at: '20:00', do: camp } # from then on, a party that can't march camps by itself
 modes: # ways of travelling
   foot: { name: On foot, kmPerDay: 24 }
   horse: { name: On horseback, kmPerDay: 40, unless: { weather: snow } }
@@ -166,22 +166,24 @@ values: # values of the day tables and actions set
   torchlit: { name: By torchlight }
 actions:
   camp:
-    when: { party.resources.food: { gte: 1 } } # otherwise the night passes without it
+    when: { party.resources.food: { gte: 1 } } # otherwise the halt passes without it
     do:
-      - { time: dawn }
+      - { time: '06:00' }
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
-  rest: { when: { daylight: true }, do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
-  march: # the Travel buttons: when the party can march (by day, or by torchlight)
+  rest:
+    when: { time.hour: { gte: 6, lt: 20 } }
+    do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
+  march: # the Travel buttons: when the party can march (by day for 8 h, or by torchlight)
     when:
       {
         any:
           [
-            { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } },
+            { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } },
             { today.torchlit: true },
           ],
       }
-  night-march: # from nightfall; its button hides the rest of the day
-    when: { time.hour: { gte: '{{system.nightfall}}' } }
+  night-march: # from 20:00; its button hides the rest of the day
+    when: { time.hour: { gte: 20 } }
     hideWhenUnavailable: true
     do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
   forage:
@@ -191,15 +193,19 @@ actions:
     do: [{ time: 180 }, { speed: 0.5 }]
   eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] } # not a button
 checks:
-  - { event: WEATHER_CHECK_REQUIRED, at: day-start }
-  - { event: NAVIGATION_CHECK_REQUIRED, name: Getting lost, at: day-start, unless: { edges: road } }
+  - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
+  - { event: NAVIGATION_CHECK_REQUIRED, name: Getting lost, at: '06:00', unless: { edges: road } }
   - { event: ENCOUNTER_CHECK_REQUIRED, at: [hex-enter, rest], when: { danger: { gte: 2 } } }
   - { event: FORAGE_CHECK_REQUIRED, at: forage }
   - { event: HUNGRY_DAY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
   - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
 ```
 
-A step does one thing: `time` (minutes, or `dawn`, `nightfall`, `'14:00'`, or a part of the calendar's day, `meal.luncheon`: until it next starts), `speed` (the rest of today's march), `effects`, `set`, `do` (another action), `roll` (a check) or `advance` (that many hexes along the route at once, a number or a variable); each step may have `when` / `unless`. An action's `on:` is `day-start`, `hex-enter`, `day-end`, a part of the calendar's day (`meal.elevenses`: as it begins, while marching, waiting or asleep in camp; see [Divisions of the day](#calendars)) or another action's id (or a list). The system's `day: { start, nightfall }` take a clock or a part (`day: { start: meal.breakfast, nightfall: meal.supper }`). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now). Older packs' `perDay`, a mode's `consumes` and steps with `eat: day` are still read, as an `eat` action at day-end.
+A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the calendar's day, `meal.luncheon`: until it next comes), `speed` (the rest of today's march), `effects`, `set`, `do` (another action), `roll` (a check) or `advance` (that many hexes along the route at once, a number or a variable); each step may have `when` / `unless`. An action's `on:` is `hex-enter`, `day-end`, a clock (`'06:00'`: as it strikes) or a part of the calendar's day (`meal.elevenses`: as it begins), while marching, waiting or asleep in camp (see [Divisions of the day](#calendars)), or another action's id (or a list). `travel.start` and the halt's `at` take a clock or a part (`halt: { at: meal.supper, do: camp }`). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now).
+
+**Nothing the system doesn't declare.** Without `march`, the party marches whenever nothing else stops it (a value of the day, the weather, the way), day and night; without `halt`, a party that can't march just waits; without actions, there are none (no camp or rest of the engine's own); without `values`, there are none. The **halt** (`travel.halt`): from its moment until the day ends, a party that isn't marching while the time moves on by itself (the world clock, a travel order with nothing left to march, **Wait for the next march**) takes its action, once a day; when it can't (its `when` / `unless`, a value that blocks it), the journal says so and the time passes until the party can march.
+
+**Older packs** (pack format 2 and before: see [File formats](02-file-formats.md#packs)) are still read as they were: their `day: { start, nightfall, night }` (dawn: the `day-start` moment and `time: dawn`; nightfall: `daylight` and `time: nightfall`; the night's action: their halt from nightfall), camp, rest and march they had without declaring them (`camp: false` left one out) and the built-in `lost`. Their `perDay`, a mode's `consumes` and steps with `eat: day` are still read too, as an `eat` action at day-end.
 
 **What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 

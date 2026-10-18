@@ -283,8 +283,6 @@
           >{t('world.nextPart', { division: divisionName(d) })}</button
         >
       {/each}
-      <button onclick={() => advanceWorld({ until: 'dusk' })}>{t('world.dusk')}</button>
-      <button onclick={() => advanceWorld({ until: 'dawn' })}>{t('world.dawn')}</button>
       <button onclick={() => advanceWorld({ until: 'next-day' })}>{t('world.nextDay')}</button>
       <button
         disabled={!upcoming(world).length}

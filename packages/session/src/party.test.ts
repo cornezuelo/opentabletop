@@ -132,8 +132,9 @@ describe('the party is its members', () => {
       members: members(),
       time: 7 * 60,
     })
-    const oracle = createOracleEngine({ registry, random: sequence([0]) })
-    // Waiting until the next morning: dawn's trail check, then eating at day-end (2 mouths).
+    const oracle = createOracleEngine({ registry, random: sequence([0, 0]) })
+    // Waiting until the next morning: dawn's trail check, eating at day-end (2 mouths), and
+    // the next dawn's check as the wait reaches it.
     let s = session
     for (let i = 0; i < 3 && s.travel.time < 31 * 60; i++)
       s = stepTrip({ system: band, world, oracle }, s, { type: 'wait', until: 31 * 60 }).state

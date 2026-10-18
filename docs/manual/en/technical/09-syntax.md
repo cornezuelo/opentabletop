@@ -143,33 +143,34 @@ A change stops at the value's `min` / `max`; what hit one is seen afterwards as 
 
 When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[hex-enter, rest]`); conditions and tables see which one as `moment`.
 
-| Moment                            | When                                                          |
-| --------------------------------- | ------------------------------------------------------------- |
-| `day-start`                       | at dawn, before marching                                      |
-| `hex-enter`                       | entering each hex                                             |
-| `day-end`                         | as each day ends, camping or not (actions first, then checks) |
-| an action's id (`camp`, `forage`) | when the party takes that action                              |
+| Moment                             | When                                                          |
+| ---------------------------------- | ------------------------------------------------------------- |
+| a clock (`'06:00'`)                | as it strikes, marching, waiting or asleep in camp            |
+| a part of the day (`part.morning`) | as the calendar's part begins, the same way                   |
+| `hex-enter`                        | entering each hex                                             |
+| `day-end`                          | as each day ends, camping or not (actions first, then checks) |
+| an action's id (`camp`, `forage`)  | when the party takes that action                              |
 
-A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
+A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button. Older packs (format 2 and before) also have `day-start`: their dawn.
 
 ## Steps of an action
 
 An action's `do:` is a list of steps, in order; each does one thing and may have its own `when` / `unless`.
 
-| Step                                             | Does                                           |
-| ------------------------------------------------ | ---------------------------------------------- |
-| `time: 120`                                      | 120 minutes pass                               |
-| `time: dawn`, `time: nightfall`, `time: '14:00'` | until then                                     |
-| `time: meal.luncheon`                            | until a part of the calendar's day next starts |
-| `speed: 0.5`                                     | the rest of today's march at half speed        |
-| `effects: { party.stats.fatigue: -1 }`           | changes the party                              |
-| `set: { lost: true }`                            | gives a value of the day                       |
-| `do: forage`                                     | takes another action, if its conditions hold   |
-| `roll: ENCOUNTER_CHECK_REQUIRED`                 | rolls a check now                              |
-| `advance: 1`                                     | moves one hex along the route, no time passing |
-| `{ unless: { below: food }, effects: { … } }`    | only when its condition holds                  |
+| Step                                          | Does                                           |
+| --------------------------------------------- | ---------------------------------------------- |
+| `time: 120`                                   | 120 minutes pass                               |
+| `time: '14:00'`                               | until it next strikes                          |
+| `time: meal.luncheon`                         | until a part of the calendar's day next starts |
+| `speed: 0.5`                                  | the rest of today's march at half speed        |
+| `effects: { party.stats.fatigue: -1 }`        | changes the party                              |
+| `set: { lost: true }`                         | gives a value of the day                       |
+| `do: forage`                                  | takes another action, if its conditions hold   |
+| `roll: ENCOUNTER_CHECK_REQUIRED`              | rolls a check now                              |
+| `advance: 1`                                  | moves one hex along the route, no time passing |
+| `{ unless: { below: food }, effects: { … } }` | only when its condition holds                  |
 
-`march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (default: `when: { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+`march` is the system's marching (the Travel buttons): only `when` / `unless`, checked as the party marches (without it, the party marches whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). The halt, `travel: { halt: { at: '20:00', do: camp } }`, is what a party that can't march does while the time moves on by itself. Besides `do`, an action has `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 

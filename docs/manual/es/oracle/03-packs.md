@@ -33,7 +33,7 @@ Además de tablas, oráculos, generadores y mazos, un pack puede tener definicio
 ```yaml
 kind: travel-rules
 id: default
-day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8, start: '07:00' }
 # …terrenos, modos, comprobaciones…
 ---
 kind: bindings

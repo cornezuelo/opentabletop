@@ -108,7 +108,7 @@ describe('example maps', () => {
       events.push(...step.entries.flatMap((e) => (e.data?.event ? [String(e.data.event)] : [])))
       session = step.state
       if (session.travel.location !== '15,9' && !session.travel.pendingChecks.length)
-        session = stepTrip(options, session, { type: 'camp' }).state
+        session = stepTrip(options, session, { type: 'action', id: 'camp' }).state
     }
     expect(session.travel.location).toBe('15,9')
     expect(events).toContain('TOLL_CHECK_REQUIRED')
@@ -166,7 +166,7 @@ describe('example maps', () => {
     // A fed night in camp: the day's food is eaten once and fatigue goes down.
     const { session } = startTrip({ system, location: '5,7', season: 'summer' })
     session.stats.fatigue = 2
-    const camped = stepTrip(options, session, { type: 'camp' })
+    const camped = stepTrip(options, session, { type: 'action', id: 'camp' })
     expect(camped.state.stats.fatigue).toBe(1)
     expect(camped.state.travel.resources.food).toBe(5)
     expect(camped.entries.find((e) => e.data?.action === 'camp')?.data?.effects).toEqual({
@@ -288,7 +288,7 @@ describe('example maps', () => {
       type: 'wait',
       until: session.travel.time + 24 * 60,
     })
-    expect(camped.entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+    expect(camped.entries.some((e) => e.code === 'HALT_WITHOUT')).toBe(true)
     const hunger = camped.entries.find((e) => e.data?.event === 'HUNGER_CHECK_REQUIRED')
     expect(hunger?.text).toMatch(/^In the night, /)
     expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: 0 }) // hirelings never below 0 (min: 0)
@@ -361,14 +361,20 @@ describe('example maps', () => {
     }
     let { session } = startTrip({ system, location: '5,7', season: 'winter' })
     const days: string[] = []
+    /** What happened since the last day's weather: its dawn comes as the party wakes. */
+    let woke: { data?: Record<string, unknown> }[] = []
     for (let day = 0; day < 3; day++) {
-      // Far away (Fort Keld): every day starts with a march, and its weather check.
+      // Far away (Fort Keld): every day starts with its weather check, and a march.
       session = stepTrip(options, session, { type: 'setDestination', hex: '15,9' }).state
       const step = stepTrip(options, session, { type: 'travel' })
-      const weather = step.entries.find((e) => e.data?.event === 'WEATHER_CHECK_REQUIRED')
+      const weather = [...woke, ...step.entries].find(
+        (e) => e.data?.event === 'WEATHER_CHECK_REQUIRED',
+      )
       expect(weather?.data).toMatchObject({ weather: 'grey-marches/sky' })
       days.push(String(step.state.travel.weather))
-      session = stepTrip(options, step.state, { type: 'camp' }).state
+      const camped = stepTrip(options, step.state, { type: 'action', id: 'camp' })
+      session = camped.state
+      woke = camped.entries
     }
     // Winter weather from the model's states.
     for (const w of days) expect(['clear', 'grey', 'snow', 'storm']).toContain(w)

@@ -2,7 +2,6 @@ export * from './clocks'
 
 import {
   defaultCalendar,
-  nextAt,
   nextPartStart,
   type Calendar,
   type CalendarParts,
@@ -71,10 +70,10 @@ export function initialWorld(time: GameTime = 0): WorldState {
 }
 
 /**
- * How far to go: dawn, dusk, the next day or event, or the next start of a part of the
- * calendar's day (`{ part: 'meal.supper' }`) or of any part of a division (`{ part: 'watch' }`).
+ * How far to go: the next day or event, or the next start of a part of the calendar's day
+ * (`{ part: 'meal.supper' }`) or of any part of a division (`{ part: 'watch' }`).
  */
-export type Until = 'dawn' | 'dusk' | 'next-day' | 'next-event' | { part: string }
+export type Until = 'next-day' | 'next-event' | { part: string }
 
 export type WorldAction =
   | { type: 'advance'; minutes: number }
@@ -111,9 +110,6 @@ export type WorldEvent =
 
 export interface WorldOptions {
   calendar?: Calendar
-  /** When the day starts and night falls (default the calendar's, else 06:00 / 20:00). */
-  dawn?: string
-  dusk?: string
 }
 
 /** Days are checked one by one up to this many when advancing (a year and a bit). */
@@ -121,9 +117,6 @@ const MAX_DAYS = 400
 
 export function createWorld(options: WorldOptions = {}) {
   const calendar = options.calendar ?? defaultCalendar
-  const def = (calendar as { def?: { dawn?: string; dusk?: string } }).def
-  const dawn = options.dawn ?? def?.dawn ?? '06:00'
-  const dusk = options.dusk ?? def?.dusk ?? '20:00'
   const day = (time: GameTime) => calendar.describe(time).day
 
   /** When a repeating event comes back after `at`. */
@@ -189,8 +182,6 @@ export function createWorld(options: WorldOptions = {}) {
   function target(state: WorldState, until: Until): GameTime | undefined {
     const now = state.time
     if (typeof until === 'object') return nextPartStart(calendar, now, until.part)
-    if (until === 'dawn') return nextAt(calendar, now + 1, dawn)
-    if (until === 'dusk') return nextAt(calendar, now + 1, dusk)
     if (until === 'next-day') return calendar.at(day(now) + 1, 0)
     const next = state.events.filter((e) => e.at > now).sort((a, b) => a.at - b.at)[0]
     return next?.at

@@ -39,9 +39,6 @@ export interface CalendarDef {
   startYear?: number
   /** Month and day of day 1 (default the first day of the first month). */
   start?: { month: string; day?: number }
-  /** When the day starts and night falls, for "until dawn" / "until nightfall". */
-  dawn?: string
-  dusk?: string
 }
 
 export type MoonPhase = 'new' | 'waxing' | 'full' | 'waning'
@@ -90,9 +87,6 @@ export function validateCalendar(raw: unknown): string[] {
       errors.push(`moons[${i}].cycle: a number of days`)
   if (def.start && !months.has(def.start.month))
     errors.push(`start.month: no month "${def.start.month}"`)
-  for (const key of ['dawn', 'dusk'] as const)
-    if (def[key] !== undefined && !/^\d{1,2}:\d{2}$/.test(String(def[key])))
-      errors.push(`${key}: times look like "06:00"`)
   errors.push(...validateDivisions(def.divisions, def.watchHours, def.hoursPerDay ?? 24))
   return errors
 }

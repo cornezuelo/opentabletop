@@ -48,9 +48,9 @@ const rules = {
   // Being lost is a value this system declares: it blocks travel for the day.
   values: { lost: { blocks: ['travel'] } },
   checks: [
-    { event: 'WEATHER_CHECK_REQUIRED', at: 'day-start' as const },
-    { event: 'NAVIGATION_CHECK_REQUIRED', at: 'day-start' as const },
-    { event: 'ENCOUNTER_CHECK_REQUIRED', at: 'day-start' as const },
+    { event: 'WEATHER_CHECK_REQUIRED', at: '06:00' },
+    { event: 'NAVIGATION_CHECK_REQUIRED', at: '06:00' },
+    { event: 'ENCOUNTER_CHECK_REQUIRED', at: '06:00' },
   ],
 }
 
@@ -119,7 +119,7 @@ describe('session', () => {
     const session = createSession({ travel: createTravelEngine({ world, rules }), now: () => 'T' })
     const today = { ...start(), dayVars: { weather: 'storm', fordModifier: -1 } }
     today.travel = { ...today.travel, lostToday: true }
-    const { state } = session.step(today, { type: 'camp' })
+    const { state } = session.step(today, { type: 'action', id: 'camp' })
     expect(state.dayVars).toEqual({})
     expect(tripContext(state, {}).yesterday).toEqual({
       weather: 'storm',
@@ -127,7 +127,7 @@ describe('session', () => {
       lost: true,
     })
     // Two nights later, nothing is left of that day.
-    const later = session.step(session.step(state, { type: 'camp' }).state, {
+    const later = session.step(session.step(state, { type: 'action', id: 'camp' }).state, {
       type: 'advanceTime',
       minutes: 2 * 24 * 60,
     }).state
@@ -186,7 +186,7 @@ entries:
       createSession({
         travel: createTravelEngine({
           world,
-          rules: { ...genericTravelRules, checks: [{ event: 'OMEN', at: 'day-start', pause }] },
+          rules: { ...genericTravelRules, checks: [{ event: 'OMEN', at: '06:00', pause }] },
         }),
         oracle: createOracleEngine({ registry: paused, random: sequence([roll]) }),
         bindings: parseBindings({ on: { OMEN: { resolve: 'omen' } } }, 'p').bindings,
@@ -243,7 +243,7 @@ entries:
     })
     const hungry = { ...start(), stats: { morale: 1 } }
     hungry.travel.resources = { food: 0 }
-    const { state, entries } = session.step(hungry, { type: 'camp' })
+    const { state, entries } = session.step(hungry, { type: 'action', id: 'camp' })
     const lines = entries.map((e) => [e.code, e.data?.action ?? e.data?.path, e.data?.effects])
     expect(lines).toContainEqual(['ACTION_TAKEN', 'eat', { 'party.resources.food': -1 }])
     expect(lines).toContainEqual(['LIMIT_REACHED', 'party.resources.food', undefined])
@@ -260,7 +260,7 @@ entries:
         camp: {
           do: [
             { eat: 'day' as const },
-            { time: 'dawn' as const },
+            { time: '06:00' },
             { when: { short: false }, effects: { 'party.stats.fatigue': -1 } },
             { when: { short: true }, effects: { 'party.stats.fatigue': 1 } },
           ],
@@ -282,7 +282,7 @@ entries:
       now: () => 'T',
     })
     const tired = { ...start(), stats: { fatigue: 2 } }
-    const { state, entries } = session.step(tired, { type: 'camp' })
+    const { state, entries } = session.step(tired, { type: 'action', id: 'camp' })
     expect(state.stats.fatigue).toBe(1)
     expect(entries.find((e) => e.data?.action === 'camp')?.data?.effects).toEqual({
       'party.stats.fatigue': -1,
@@ -372,7 +372,7 @@ entries:
     const session = createSession({
       travel: createTravelEngine({
         world,
-        rules: { ...rules, checks: [{ event: 'WEATHER_CHECK_REQUIRED', at: 'day-start' }] },
+        rules: { ...rules, checks: [{ event: 'WEATHER_CHECK_REQUIRED', at: '06:00' }] },
       }),
       oracle: createOracleEngine({ registry: party, random: sequence([0.5, 0.5]) }),
       bindings,
@@ -404,7 +404,7 @@ entries:
     const pausing = createSession({
       travel: createTravelEngine({
         world,
-        rules: { ...rules, checks: [{ event: 'LANDMARK', at: 'day-start', pause: true }] },
+        rules: { ...rules, checks: [{ event: 'LANDMARK', at: '06:00', pause: true }] },
       }),
     })
     const waiting = pausing.step(
@@ -456,7 +456,7 @@ entries:
       ...start(),
       travel: { ...start().travel, time: defaultCalendar.at(1, '18:00') },
     }
-    const { entries } = session.step(evening, { type: 'camp' })
+    const { entries } = session.step(evening, { type: 'action', id: 'camp' })
     const night = entries.find((e) => e.code === 'ORACLE_RESULT')
     expect(night?.time).toBe(defaultCalendar.at(1, '18:00'))
   })

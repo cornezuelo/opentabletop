@@ -586,21 +586,22 @@ export const es: Messages = {
     moonLine: '{moon} está {phase}',
     advance: 'Avanzar el tiempo',
     advanceHelp:
-      'Hace avanzar el tiempo del mundo. Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.\n• **Siguiente: Guardias** — hasta que empieza la siguiente parte de una división del día (las del calendario: comidas, guardias… cada sistema las suyas)\n• **Hasta…** — hasta que empieza la parte elegida\n• **Día siguiente** — hasta el próximo alba\n• **Próximo evento** — directamente al siguiente evento programado',
+      'Hace avanzar el tiempo del mundo. Los eventos que llegan por el camino se anotan en la cronología (y, durante un viaje, en su diario), junto a las fiestas y las lunas llenas y nuevas.\n• **Siguiente: Guardias** — hasta que empieza la siguiente parte de una división del día (las del calendario: comidas, guardias… cada sistema las suyas)\n• **Hasta…** — hasta que empieza la parte elegida\n• **Día siguiente** — hasta que empieza el día siguiente, a medianoche\n• **Próximo evento** — directamente al siguiente evento programado',
     tripHelp:
-      'Hay un viaje en marcha sin ruta, así que estos botones hacen que el grupo espere en {hex} (planea una ruta y seguirá viajando por ella). Se vive cada momento (las comprobaciones del alba, lo que hace el sistema de noche y al acabar cada día, comer), y la espera se detiene antes si algo te necesita.',
+      'Hay un viaje en marcha sin ruta, así que estos botones hacen que el grupo espere en {hex} (planea una ruta y seguirá viajando por ella). Se vive cada momento (las comprobaciones de cada momento que nombra el sistema, su parada cuando el grupo no puede marchar, el final de cada día, comer), y la espera se detiene antes si algo te necesita.',
     tripAdvance: 'Esperar aquí',
-    confirmWait: 'El grupo esperará aquí {days} día(s); cada noche: {action}. ¿Seguir?',
+    confirmWait:
+      'El grupo esperará aquí {days} día(s); cuando no pueda marchar: {action}. ¿Seguir?',
     confirmWaitNoNight: 'El grupo esperará aquí {days} día(s). ¿Seguir?',
     tripAdvanceTravel: 'Seguir viajando',
     tripNotice: 'Hay un viaje en marcha sin ruta: el grupo espera en {hex}.',
     tripNoticeTravel: 'Hay un viaje en marcha: el grupo sigue viajando hacia {hex}.',
     tripHelpTravel:
-      'Hay un viaje en marcha con una ruta, así que estos botones hacen que el grupo siga viajando hacia {hex}: marcha de día por su ruta, hace lo que el sistema hace de noche (acampar, o la noche pasa sin ello) y espera donde acaba la ruta. Se vive cada momento (las comprobaciones del alba, el final de cada día, comer), y se detiene antes si algo te necesita.',
+      'Hay un viaje en marcha con una ruta, así que estos botones hacen que el grupo siga viajando hacia {hex}: marcha por su ruta cuando el sistema lo deja, hace la parada del sistema cuando no puede (acampar, o el tiempo pasa sin ello) y espera donde acaba la ruta. Se vive cada momento (las comprobaciones de cada momento que nombra el sistema, el final de cada día, comer), y se detiene antes si algo te necesita.',
     confirmTravel:
-      'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando de día; cada noche: {action}. ¿Seguir?',
+      'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando cuando el sistema lo deje; cuando no pueda marchar: {action}. ¿Seguir?',
     confirmTravelNoNight:
-      'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando de día. ¿Seguir?',
+      'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando cuando el sistema lo deje. ¿Seguir?',
     stoppedCheck:
       'El viaje se ha detenido: «{check}» te necesita (mira su diario y pulsa Continuar).',
     stoppedFound: 'El viaje se ha detenido: el grupo ha encontrado un lugar (mira su diario).',
@@ -613,8 +614,6 @@ export const es: Messages = {
     nextPart: 'Siguiente: {division}',
     untilPart: 'Hasta…',
     untilPartGo: 'Ir',
-    dusk: 'Hasta el anochecer',
-    dawn: 'Hasta el alba',
     nextDay: 'Día siguiente',
     nextEvent: 'Próximo evento',
     events: 'Eventos',

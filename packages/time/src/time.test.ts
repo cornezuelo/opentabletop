@@ -123,13 +123,8 @@ describe('calendars as data', () => {
       validateCalendar({
         months: [{ id: 'a', days: 0 }],
         holidays: [{ id: 'h', month: 'b', day: 1 }],
-        dawn: 'early',
       }),
-    ).toEqual([
-      'months[0].days: a whole number',
-      'holidays[0].month: no month "b"',
-      'dawn: times look like "06:00"',
-    ])
+    ).toEqual(['months[0].days: a whole number', 'holidays[0].month: no month "b"'])
   })
 })
 

@@ -41,7 +41,7 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
     const night = stepTrip(
       options('nofatigue'),
       { ...session, travel: { ...session.travel, resources: { food: 0 } } },
-      { type: 'camp' },
+      { type: 'action', id: 'camp' },
     ).state
     expect(night.stats.fatigue).toBeUndefined()
   })

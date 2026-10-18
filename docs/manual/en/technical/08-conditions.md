@@ -29,16 +29,16 @@ Several comparisons on the same value must all hold: `danger: { gte: 2, lte: 4 }
 - **Lists** in the context, like a hex's `tags` or the day's `holidays`, hold when they **contain** the value: `tags: landmark` holds for a hex tagged `ford, landmark`; `tags: [ford, toll]` for one with either.
 - **Missing values** don't match, except with `not` and `exists: false`.
 - **Dotted names** read inside a value: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
-- **Full names** say where a value comes from, and can't be hidden by a stat with the same name: `hex.terrain: forest` is `terrain: forest`, `time.daylight: true` is `daylight: true`, `trip.mode: boat` is `mode: boat`. Every one, with its short name: [What tables see](04-what-tables-see.md#how-to-read-this-page).
+- **Full names** say where a value comes from, and can't be hidden by a stat with the same name: `hex.terrain: forest` is `terrain: forest`, `time.part: night` is `part: night`, `trip.mode: boat` is `mode: boat`. Every one, with its short name: [What tables see](04-what-tables-see.md#how-to-read-this-page).
 
 ## Variables and rolls: `{{…}}`
 
-A value written as `'{{name}}'` is a **variable**: another value of the context, read when the condition is checked, instead of a fixed one. Written as `'{{dice}}'` it's a **roll**. Either goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`. In YAML, **quote them** (`'{{nightfall}}'`): without quotes, braces start a list of pairs (see [Syntax](09-syntax.md#values-key-value)).
+A value written as `'{{name}}'` is a **variable**: another value of the context, read when the condition is checked, instead of a fixed one. Written as `'{{dice}}'` it's a **roll**. Either goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`. In YAML, **quote them** (`'{{hoursPerDay}}'`): without quotes, braces start a list of pairs (see [Syntax](09-syntax.md#values-key-value)).
 
 | Write                                                       | Holds when                                          |
 | ----------------------------------------------------------- | --------------------------------------------------- |
 | `danger: { gt: '{{party.stats.stealth}}' }`                 | the danger is over the party's stealth              |
-| `hour: { gte: '{{nightfall}}' }`                            | it's the system's nightfall or later                |
+| `hour: { gte: '{{system.part.night}}' }`                    | it's when the calendar's night starts, or later     |
 | `party.stats.fatigue: { gte: '{{party.stats.endurance}}' }` | fatigue has reached endurance                       |
 | `faction: '{{rival}}'`                                      | the hex's faction is the one in the value `rival`   |
 | `tags: '{{wanted}}'`                                        | the hex has any of the tags the list `wanted` holds |

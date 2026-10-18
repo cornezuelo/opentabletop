@@ -579,21 +579,22 @@ export const en = {
     moonLine: '{moon} is {phase}',
     advance: 'Move time on',
     advanceHelp:
-      "Moves the world's time on. Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.\n• **Next: Watches** — to when the next part of a division of the day begins (the calendar's: meals, watches… each system its own)\n• **Until…** — to when the part chosen next begins\n• **Next day** — to the next dawn\n• **Next event** — straight to the next scheduled event",
+      "Moves the world's time on. Events that come due on the way are written in the timeline (and, during a trip, in its journal), with holidays and full and new moons.\n• **Next: Watches** — to when the next part of a division of the day begins (the calendar's: meals, watches… each system its own)\n• **Until…** — to when the part chosen next begins\n• **Next day** — to when the next day starts, at midnight\n• **Next event** — straight to the next scheduled event",
     tripHelp:
-      'A trip is going on without a route, so these buttons make the party wait at {hex} (plan a route and they travel on along it). Every moment is lived (dawn’s checks, what the system does at night and as each day ends, eating), and the wait stops early if something needs you.',
+      'A trip is going on without a route, so these buttons make the party wait at {hex} (plan a route and they travel on along it). Every moment is lived (the checks of each moment the system names, its halt when the party can’t march, the end of each day, eating), and the wait stops early if something needs you.',
     tripAdvance: 'Wait here',
-    confirmWait: 'The party will wait here for {days} day(s); each night: {action}. Go on?',
+    confirmWait:
+      'The party will wait here for {days} day(s); when it can’t march: {action}. Go on?',
     confirmWaitNoNight: 'The party will wait here for {days} day(s). Go on?',
     tripAdvanceTravel: 'Travel on',
     tripNotice: 'A trip is going on with no route: the party waits at {hex}.',
     tripNoticeTravel: 'A trip is going on: the party travels on towards {hex}.',
     tripHelpTravel:
-      'A trip is going on with a route planned, so these buttons make the party travel on towards {hex}: it marches by day along its route, does what the system does at night (camp, or the night passes without it), and waits where the route ends. Every moment is lived (dawn’s checks, the end of each day, eating), and it stops early if something needs you.',
+      'A trip is going on with a route planned, so these buttons make the party travel on towards {hex}: it marches along its route when the system lets it, does the system’s halt when it can’t (camp, or the time passes without it), and waits where the route ends. Every moment is lived (the checks of each moment the system names, the end of each day, eating), and it stops early if something needs you.',
     confirmTravel:
-      'The party will travel on towards {hex} for {days} day(s), marching by day; each night: {action}. Go on?',
+      'The party will travel on towards {hex} for {days} day(s), marching when the system lets it; when it can’t march: {action}. Go on?',
     confirmTravelNoNight:
-      'The party will travel on towards {hex} for {days} day(s), marching by day. Go on?',
+      'The party will travel on towards {hex} for {days} day(s), marching when the system lets it. Go on?',
     stoppedCheck: 'The trip stopped: “{check}” needs you (see its journal, then Continue).',
     stoppedFound: 'The trip stopped: the party found a place (see its journal).',
     stoppedValue: 'The trip stopped: {name} keeps the party from travelling.',
@@ -605,8 +606,6 @@ export const en = {
     nextPart: 'Next: {division}',
     untilPart: 'Until…',
     untilPartGo: 'Go',
-    dusk: 'Until dusk',
-    dawn: 'Until dawn',
     nextDay: 'Next day',
     nextEvent: 'Next event',
     events: 'Events',

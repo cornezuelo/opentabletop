@@ -14,7 +14,7 @@ import {
 } from '@open-tabletop/time'
 import {
   createTravelEngine,
-  dayClock,
+  tripStart,
   partRefsOf,
   genericTravelRules,
   initialTravelState,
@@ -330,7 +330,19 @@ export function travelSystems(registry: Registry): {
     // Rules of a pack written for an older format keep their old meaning.
     if (parts.rules) {
       const owner = registry.packs.get(ownerOf(parts.rules) ?? pack)
-      rules = migrateRules(rules, bindings, owner?.manifest.format ?? 1)
+      const format = owner?.manifest.format ?? 1
+      rules = migrateRules(rules, bindings, format)
+      // Format 3 has no dawn and nightfall: an older `day:` is still read, and said.
+      if (format >= 3 && rules.day)
+        problems.push(
+          problem(
+            ownerOf(parts.rules) ?? pack,
+            parts.rules.file,
+            'travel-rules',
+            'day: gone in pack format 3: name when trips start (travel.start) and the halt (travel.halt), and parts of the day or clocks for its moments',
+            parts.rules.id,
+          ),
+        )
     }
     for (const [event, binding] of Object.entries(bindings?.on ?? {}))
       if (binding.weather && !parts.weather[binding.weather])
@@ -784,7 +796,8 @@ export function startTrip(options: {
     location: options.location,
     mode: Object.keys(rules.modes)[0],
     calendar,
-    time: options.time ?? calendar.at(startDay, dayClock(rules.day.start, calendar, '06:00')),
+    // When the system's trips start (`travel.start`; older rules: their dawn), else midnight.
+    time: options.time ?? calendar.at(startDay, tripStart(rules, calendar)),
     resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
     ...(options.seed !== undefined && { seed: options.seed }),
   })

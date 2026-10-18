@@ -112,24 +112,6 @@
           onchange={(e) => doc.edit('', ['watchHours'], num(e.currentTarget))}
         />
       </label>
-      <label>
-        <span>{t('calendar.dawn')}<InfoTip text={t('calendar.dawnHelp')} /></span>
-        <input
-          type="time"
-          value={data.dawn ?? ''}
-          {disabled}
-          onchange={(e) => doc.edit('', ['dawn'], e.currentTarget.value || undefined)}
-        />
-      </label>
-      <label>
-        <span>{t('calendar.dusk')}</span>
-        <input
-          type="time"
-          value={data.dusk ?? ''}
-          {disabled}
-          onchange={(e) => doc.edit('', ['dusk'], e.currentTarget.value || undefined)}
-        />
-      </label>
     </div>
   </section>
 

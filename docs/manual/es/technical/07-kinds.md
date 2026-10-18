@@ -131,18 +131,18 @@ Cuando se aplican varios (uno elegido a mano más otros solos), los que se anula
 
 ## Reglas de viaje
 
-Cómo funciona un viaje: el día (alba, anochecer, horas de marcha), los terrenos y sus velocidades y si se puede entrar (`passable`: `false`, o `{ when, unless }` para un paso cerrado en invierno o un lago que se cruza sobre el hielo), el agua (lo mismo), los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), qué hace el grupo al anochecer si espera (`day.night`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel`, el id de una de sus acciones (camp, rest, forage…) o `mode.<id>`), las **acciones** del grupo (todas iguales: acampar, descansar, buscar comida…: `when` / `unless`, `oncePerDay`, `on:` para las que hace el propio sistema en un momento o tras otra acción (o varios: una lista), y sus pasos, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`, `advance`) y las **comprobaciones**: qué se tira al alba, al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y las pestañas [Reglas](../systems/05-rules.md) y [Comprobaciones](../systems/06-checks.md) de la aplicación Systems.
+Cómo funciona un viaje: cuándo empiezan los viajes, la escala de sus velocidades (`hoursPerDay`) y qué hace el grupo cuando no puede marchar (`travel.halt`), los terrenos y sus velocidades y si se puede entrar (`passable`: `false`, o `{ when, unless }` para un paso cerrado en invierno o un lago que se cruza sobre el hielo), el agua (lo mismo), los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel`, el id de una de sus acciones (camp, rest, forage…) o `mode.<id>`), las **acciones** del grupo (solo las que declara, todas iguales: acampar, descansar, buscar comida…; `march` dice cuándo puede marchar el grupo: `when` / `unless`, `oncePerDay`, `on:` para las que hace el propio sistema en un momento o tras otra acción (o varios: una lista), y sus pasos, `do`: `time`, `speed`, `effects`, `set`, `do`, `roll`, `advance`) y las **comprobaciones**: qué se tira a una hora o en una parte del día del calendario (la mañana), al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y las pestañas [Reglas](../systems/05-rules.md) y [Comprobaciones](../systems/06-checks.md) de la aplicación Systems.
 
 Todas las claves, en un sistema pequeño (los comentarios dicen qué hace cada una):
 
 ```yaml
 kind: travel-rules
 id: default
-day:
-  start: '06:00' # el alba: comprobaciones y acciones day-start
-  nightfall: '20:00' # nadie marcha después
-  night: camp # qué hace un grupo que espera al anochecer (false: nada)
-travel: { hoursPerDay: 8, hexKm: 10 } # horas de marcha al día; km por hex (la escala)
+travel:
+  hoursPerDay: 8 # las horas en que una forma de viajar hace su kmPerDay (la escala de su velocidad)
+  hexKm: 10 # km por hex (la escala)
+  start: '06:00' # cuándo empieza un viaje nuevo (una hora o una parte del día; vacío: medianoche)
+  halt: { at: '20:00', do: camp } # desde entonces, un grupo que no puede marchar acampa por sí solo
 modes: # formas de viajar
   foot: { name: A pie, kmPerDay: 24 }
   horse: { name: A caballo, kmPerDay: 40, unless: { weather: snow } }
@@ -165,22 +165,24 @@ values: # valores del día que ponen tablas y acciones
   torchlit: { name: By torchlight }
 actions:
   camp:
-    when: { party.resources.food: { gte: 1 } } # si no, la noche pasa sin ello
+    when: { party.resources.food: { gte: 1 } } # si no, la parada pasa sin ello
     do:
-      - { time: dawn }
+      - { time: '06:00' }
       - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
-  rest: { when: { daylight: true }, do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
-  march: # los botones de Viajar: cuándo se puede marchar (de día, o con antorchas)
+  rest:
+    when: { time.hour: { gte: 6, lt: 20 } }
+    do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
+  march: # los botones de Viajar: cuándo se puede marchar (de día 8 h, o con antorchas)
     when:
       {
         any:
           [
-            { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } },
+            { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } },
             { today.torchlit: true },
           ],
       }
-  night-march: # desde el anochecer; su botón se oculta el resto del día
-    when: { time.hour: { gte: '{{system.nightfall}}' } }
+  night-march: # desde las 20:00; su botón se oculta el resto del día
+    when: { time.hour: { gte: 20 } }
     hideWhenUnavailable: true
     do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }]
   forage:
@@ -190,15 +192,19 @@ actions:
     do: [{ time: 180 }, { speed: 0.5 }]
   eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] } # no es un botón
 checks:
-  - { event: WEATHER_CHECK_REQUIRED, at: day-start }
-  - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: day-start, unless: { edges: road } }
+  - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
+  - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: '06:00', unless: { edges: road } }
   - { event: ENCOUNTER_CHECK_REQUIRED, at: [hex-enter, rest], when: { danger: { gte: 2 } } }
   - { event: FORAGE_CHECK_REQUIRED, at: forage }
   - { event: HUNGRY_DAY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
   - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
 ```
 
-Un paso hace una cosa: `time` (minutos, o `dawn`, `nightfall`, `'14:00'`, o una parte del día del calendario, `meal.luncheon`: hasta que vuelve a empezar), `speed` (lo que queda de marcha hoy), `effects`, `set`, `do` (otra acción) o `roll` (una comprobación) o `advance` (tantos hexes por la ruta de golpe, un número o una variable); cada paso puede tener `when` / `unless`. El `on:` de una acción es `day-start`, `hex-enter`, `day-end`, una parte del día del calendario (`meal.elevenses`: al empezar, marchando, esperando o dormidos en el campamento; mira [Divisiones del día](#calendarios)) o el id de otra acción (o una lista). El `day: { start, nightfall }` del sistema admite una hora o una parte (`day: { start: meal.breakfast, nightfall: meal.supper }`). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora). Los `perDay` de los packs antiguos, el `consumes` de una forma de viajar y los pasos con `eat: day` se siguen leyendo, como una acción `eat` en day-end.
+Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del día del calendario, `meal.luncheon`: hasta que vuelve a llegar), `speed` (lo que queda de marcha hoy), `effects`, `set`, `do` (otra acción) o `roll` (una comprobación) o `advance` (tantos hexes por la ruta de golpe, un número o una variable); cada paso puede tener `when` / `unless`. El `on:` de una acción es `hex-enter`, `day-end`, una hora (`'06:00'`: al dar esa hora) o una parte del día del calendario (`meal.elevenses`: al empezar), marchando, esperando o dormidos en el campamento (mira [Divisiones del día](#calendarios)), o el id de otra acción (o una lista). `travel.start` y el `at` de la parada admiten una hora o una parte (`halt: { at: meal.supper, do: camp }`). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora).
+
+**Nada que el sistema no declare.** Sin `march`, el grupo marcha siempre que nada más lo impida (un valor del día, el clima, el camino), de día y de noche; sin `halt`, un grupo que no puede marchar simplemente espera; sin acciones, no hay ninguna (ni acampar ni descansar propios del motor); sin `values`, no hay ninguno. La **parada** (`travel.halt`): desde su momento hasta que acaba el día, un grupo que no está marchando mientras el tiempo avanza solo (el reloj del mundo, una orden de viajar sin nada más que marchar, **Esperar a la próxima marcha**) hace su acción, una vez al día; si no puede (su `when` / `unless`, un valor que la bloquea), el diario lo dice y el tiempo pasa hasta que el grupo pueda marchar.
+
+**Los packs antiguos** (formato de pack 2 y anteriores: mira [Formatos de fichero](02-file-formats.md#packs)) se siguen leyendo como eran: su `day: { start, nightfall, night }` (el alba: el momento `day-start` y `time: dawn`; el anochecer: `daylight` y `time: nightfall`; la acción de la noche: su parada desde el anochecer), la acampada, el descanso y la marcha que tenían sin declararlos (`camp: false` quitaba uno) y el `lost` integrado. Sus `perDay`, el `consumes` de una forma de viajar y los pasos con `eat: day` también se siguen leyendo, como una acción `eat` en day-end.
 
 **Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 

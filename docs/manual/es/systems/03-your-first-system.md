@@ -4,14 +4,14 @@ Un sistema pequeño para un juego en el que el grupo lleva antorchas, se puede p
 
 ## Paso a paso
 
-1. **Créalo**: escribe _Bosques Oscuros_ bajo la lista de sistemas y pulsa **+**. Empieza con las reglas Genéricas: 30 km al día a pie y 1 de comida al acabar cada día.
+1. **Créalo**: escribe _Bosques Oscuros_ bajo la lista de sistemas y pulsa **+**. Empieza con las reglas Genéricas: 30 km al día a pie, de día, acampada de las 20:00 a las 06:00 y 1 de comida al acabar cada día.
 2. **Una provisión**: en **Reglas → Provisiones**, añade `torches` con **Mín** `0`. El panel del viaje muestra ahora las antorchas, y el jugador puede cambiarlas a mano.
 3. **Gastarla**: abre la acción **eat** (la hace el propio sistema en `day-end`) y añade un paso `effects: { party.resources.torches: -1 }`. Cada día quema también una antorcha.
 4. **Perderse**: en **Valores del día**, añade `lost` y, en **Bloquea**, `travel`. Una tabla que ponga `lost: true` detendrá al grupo el resto del día.
-5. **Una comprobación**: en **Comprobaciones**, **Añadir una comprobación**: evento `LOST_CHECK`, **Cuándo** `day-start`, **Solo si** `terrain: forest`. En **Se tira en**, elige una tabla tuya cuyo mal resultado tenga **Fija** `lost: true` (hazla en la aplicación Oracle: _1d6_, del 1 al 2 fija `lost: true`).
+5. **Una comprobación**: en **Comprobaciones**, **Añadir una comprobación**: evento `LOST_CHECK`, **Cuándo** `06:00`, **Solo si** `terrain: forest`. En **Se tira en**, elige una tabla tuya cuyo mal resultado tenga **Fija** `lost: true` (hazla en la aplicación Oracle: _1d6_, del 1 al 2 fija `lost: true`).
 6. **La fatiga**: en **Comprobaciones → Características del grupo**, añade `fatigue`, que empieza en `0` (su mínimo, `min: 0`, se escribe en YAML). Luego una comprobación **Cuándo** `day-end`, **Solo si** `below: torches`, **Cambios** `party.stats.fatigue: 1`: un día sin antorchas cansa al grupo.
 7. **Descansar solo si hay cansancio**: abre **rest**: **Solo si** `party.stats.fatigue: { gte: 1 }`; pasos `time: 120` y `effects: { party.stats.fatigue: -1 }`. El botón queda desactivado mientras el grupo está fresco, y dice por qué.
-8. **Pruébalo**: abre la pestaña **Pruébalo** y monta un camino de tres hexes, el del medio `forest`; viaja y lee el diario: la comprobación de perderse al alba en el bosque, las antorchas bajando cada noche, el botón de descansar activándose al cansarse.
+8. **Pruébalo**: abre la pestaña **Pruébalo** y monta un camino de tres hexes, el del medio `forest`; viaja y lee el diario: la comprobación de perderse cada mañana en el bosque, las antorchas bajando cada noche, el botón de descansar activándose al cansarse.
 
 ## Lo mismo en YAML
 
@@ -20,8 +20,7 @@ La pestaña **YAML** lo muestra así:
 ```yaml
 kind: travel-rules
 id: default
-day: { start: '06:00', nightfall: '20:00' }
-travel: { hoursPerDay: 8 }
+travel: { hoursPerDay: 8, start: '06:00', halt: { at: '20:00', do: camp } }
 terrains: { plains: { multiplier: 1 }, forest: { multiplier: 0.5 } }
 modes: { foot: { kmPerDay: 30 } }
 resources:
@@ -30,7 +29,8 @@ resources:
 values:
   lost: { blocks: [travel] } # paso 4
 actions:
-  camp: { do: [{ time: dawn }] }
+  march: { when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } } }
+  camp: { do: [{ time: '06:00' }] }
   rest: # paso 7
     when: { party.stats.fatigue: { gte: 1 } }
     do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
@@ -40,7 +40,7 @@ actions:
       - { effects: { party.resources.food: -1 } }
       - { effects: { party.resources.torches: -1 } } # paso 3
 checks:
-  - { event: LOST_CHECK, at: day-start, when: { terrain: forest } } # paso 5
+  - { event: LOST_CHECK, at: '06:00', when: { terrain: forest } } # paso 5
   - {
       event: NO_TORCHES,
       at: day-end,

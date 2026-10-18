@@ -49,7 +49,7 @@ describe('systems in the Systems app', () => {
 
   it('a pack of an older format is updated keeping what it does', () => {
     // New systems are written for today's format.
-    expect(packFormat(createSystem('Fresh')!)).toBe(2)
+    expect(packFormat(createSystem('Fresh')!)).toBe(3)
     library.addPack({
       root: 'aged',
       origin: 'user',

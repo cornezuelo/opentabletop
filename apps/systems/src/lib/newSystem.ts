@@ -349,8 +349,8 @@ export function olderFormatChecks(
 }
 
 /**
- * Brings a system's pack to today's format, keeping what it does: its checks that paused
- * by themselves say `pause: true`, and its pack.yaml says `format`. One undo step.
+ * Brings a system's pack from format 1 to 2, keeping what it does: its checks that paused
+ * by themselves say `pause: true`, and its pack.yaml says `format: 2`. One undo step.
  */
 export function updateFormat(doc: {
   root: string
@@ -362,7 +362,7 @@ export function updateFormat(doc: {
   library.batch(() => {
     for (const i of checks) doc.edit('travel-rules', ['checks', i, 'pause'], true)
     const manifest = parseDocument(library.readFile(doc.root, 'pack.yaml') ?? '')
-    manifest.set('format', PACK_FORMAT)
+    manifest.set('format', 2)
     library.writeFile(doc.root, 'pack.yaml', manifest.toString())
   })
 }

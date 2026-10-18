@@ -7,7 +7,7 @@ import {
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
-import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
@@ -40,7 +40,7 @@ const kindOf = (yaml: string) => /^kind: ([\w-]+)/m.exec(yaml)![1]
 /** Problems of an example, without the references it leaves to others. */
 function problems(files: string[]): string[] {
   const { registry, diagnostics } = loadPacks([
-    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nlocale: en\n' },
+    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 3\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
@@ -101,7 +101,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([
-    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nlocale: en\n' },
+    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 3\nlocale: en\n' },
     { path: 'dark/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'dark')!
@@ -126,7 +126,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     return { ...session, travel: { ...session.travel, resources: { food: 5, torches } } }
   }
   const nextDawn = (s: SessionState) =>
-    calendarOf(system).at(s.travel.day + 1, system.rules.day.start)
+    calendarOf(system).at(s.travel.day + 1, tripStart(system.rules, calendarOf(system)))
 
   it('burns a torch a day; without torches the day tires the party (steps 2, 3, 6)', () => {
     let s = start(1)

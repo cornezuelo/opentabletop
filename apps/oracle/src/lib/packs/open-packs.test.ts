@@ -11,7 +11,7 @@ import {
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
-import { calendarFacts, dayClock, type TravelWorld } from '@open-tabletop/travel-engine'
+import { calendarFacts, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from './bundled'
@@ -211,7 +211,7 @@ describe('bundled open packs', () => {
       const camped = stepTrip(
         options([{ terrain: 'heath', danger: 2 }]),
         { ...session, ...(roles && { roles }) },
-        { type: 'camp' },
+        { type: 'action', id: 'camp' },
       )
       return camped.entries.some((e) => e.data?.event === 'CAMP_ENCOUNTER_CHECK_REQUIRED')
     }
@@ -233,7 +233,7 @@ describe('bundled open packs', () => {
         return stepTrip(
           options([{ terrain: 'heath', danger }]),
           { ...session, ...(roles && { roles }) },
-          { type: 'camp' },
+          { type: 'action', id: 'camp' },
         )
       }
       const lights = (entries: { data?: Record<string, unknown> }[]) =>
@@ -895,7 +895,7 @@ describe('bundled open packs', () => {
         data: expect.objectContaining({ event: 'HUNGRY_DAY' }),
       }),
     )
-    expect(night.entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+    expect(night.entries.some((e) => e.code === 'HALT_WITHOUT')).toBe(true)
     expect(
       night.entries.some(
         (e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'HUNGER_CHECK_REQUIRED',
@@ -908,9 +908,9 @@ describe('bundled open packs', () => {
       travel: { ...night.state.travel, resources: { food: 5, fodder: 0 } },
     }
     const tired = night.state.stats.fatigue
-    const rested = stepTrip(options, fed, { type: 'camp' }).state
+    const rested = stepTrip(options, fed, { type: 'action', id: 'camp' }).state
     expect(rested.stats.fatigue).toBe(tired - 1)
-    const fresh = stepTrip(options, { ...session }, { type: 'camp' }).state
+    const fresh = stepTrip(options, { ...session }, { type: 'action', id: 'camp' }).state
     expect(fresh.stats.fatigue).toBe(0)
   })
 
@@ -966,7 +966,7 @@ describe('bundled open packs', () => {
       }
       const fed = night(3, 4)
       expect(took(fed.entries, 'camp')).toBe(true)
-      expect(fed.entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(false)
+      expect(fed.entries.some((e) => e.code === 'HALT_WITHOUT')).toBe(false)
       for (const [food, fatigue] of [
         [0, 4],
         [3, 10],
@@ -975,7 +975,7 @@ describe('bundled open packs', () => {
         expect(took(out.entries, 'camp')).toBe(false)
         expect(out.entries).toContainEqual(
           expect.objectContaining({
-            code: 'NIGHT_WITHOUT',
+            code: 'HALT_WITHOUT',
             data: expect.objectContaining({ action: 'camp', because: { condition: 'when' } }),
           }),
         )
@@ -992,11 +992,11 @@ describe('bundled open packs', () => {
       // The system's dawn is a part of its calendar's day (`part.morning`).
       const dawn = calendarOf(system).at(
         stuck.travel.day + 1,
-        dayClock(system.rules.day.start, calendarOf(system), '06:00'),
+        tripStart(system.rules, calendarOf(system)),
       )
       const { state, entries } = stepTrip(options, stuck, { type: 'wait', until: dawn })
       expect(state.travel.time).toBeGreaterThanOrEqual(dawn)
-      expect(entries.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+      expect(entries.some((e) => e.code === 'HALT_WITHOUT')).toBe(true)
       expect(state.dayVars?.lost).toBeUndefined()
     })
 
@@ -1008,11 +1008,14 @@ describe('bundled open packs', () => {
       for (let i = 0; i < 10 && state.travel.day === day; i++) {
         const out = stepTrip(options, state, { type: 'travel' })
         state = out.state
+        // Lost for the day (a value that blocks travel): wait for the next march instead.
+        if (out.entries.at(-1)?.data?.reason === 'value')
+          state = stepTrip(options, state, { type: 'waitForMarch' }).state
         for (const c of state.travel.pendingChecks)
           state = stepTrip(options, state, { type: 'resolveCheck', id: c.id }).state
       }
       expect(state.travel.day).toBeGreaterThan(day)
-      expect(state.journal.some((e) => e.code === 'NIGHT_WITHOUT')).toBe(true)
+      expect(state.journal.some((e) => e.code === 'HALT_WITHOUT')).toBe(true)
       // On the way again the next day (unless the hungry hirelings refuse: a value).
       const where = state.travel.location
       const next = stepTrip(options, state, { type: 'travel', until: 'hex' })
@@ -1078,9 +1081,9 @@ describe('bundled open packs', () => {
     for (const action of [
       { type: 'setDestination', hex: '11' },
       { type: 'travel' },
-      { type: 'camp' },
+      { type: 'action', id: 'camp' },
       { type: 'travel' },
-      { type: 'camp' },
+      { type: 'action', id: 'camp' },
       { type: 'travel' },
     ] as const) {
       const step = stepTrip(options, session, action)

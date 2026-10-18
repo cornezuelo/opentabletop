@@ -145,31 +145,32 @@ Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (
 
 | Momento                                | Cuándo                                                                      |
 | -------------------------------------- | --------------------------------------------------------------------------- |
-| `day-start`                            | al alba, antes de marchar                                                   |
+| una hora (`'06:00'`)                   | al dar esa hora, marchando, esperando o dormidos en el campamento           |
+| una parte del día (`part.morning`)     | al empezar esa parte del calendario, igual                                  |
 | `hex-enter`                            | al entrar en cada hex                                                       |
 | `day-end`                              | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones) |
 | el id de una acción (`camp`, `forage`) | cuando el grupo hace esa acción                                             |
 
-Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
+Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón. Los packs antiguos (formato 2 y anteriores) tienen además `day-start`: su alba.
 
 ## Pasos de una acción
 
 El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa y puede tener su propio `when` / `unless`.
 
-| Paso                                             | Hace                                                        |
-| ------------------------------------------------ | ----------------------------------------------------------- |
-| `time: 120`                                      | pasan 120 minutos                                           |
-| `time: dawn`, `time: nightfall`, `time: '14:00'` | hasta entonces                                              |
-| `time: meal.luncheon`                            | hasta que vuelve a empezar una parte del día del calendario |
-| `speed: 0.5`                                     | el resto de la marcha de hoy, a media velocidad             |
-| `effects: { party.stats.fatigue: -1 }`           | cambia el grupo                                             |
-| `set: { lost: true }`                            | da un valor del día                                         |
-| `do: forage`                                     | hace otra acción, si se cumplen sus condiciones             |
-| `roll: ENCOUNTER_CHECK_REQUIRED`                 | tira una comprobación ya                                    |
-| `advance: 1`                                     | avanza un hex por la ruta, sin que pase el tiempo           |
-| `{ unless: { below: food }, effects: { … } }`    | solo cuando se cumple su condición                          |
+| Paso                                          | Hace                                                        |
+| --------------------------------------------- | ----------------------------------------------------------- |
+| `time: 120`                                   | pasan 120 minutos                                           |
+| `time: '14:00'`                               | hasta que vuelve a dar esa hora                             |
+| `time: meal.luncheon`                         | hasta que vuelve a empezar una parte del día del calendario |
+| `speed: 0.5`                                  | el resto de la marcha de hoy, a media velocidad             |
+| `effects: { party.stats.fatigue: -1 }`        | cambia el grupo                                             |
+| `set: { lost: true }`                         | da un valor del día                                         |
+| `do: forage`                                  | hace otra acción, si se cumplen sus condiciones             |
+| `roll: ENCOUNTER_CHECK_REQUIRED`              | tira una comprobación ya                                    |
+| `advance: 1`                                  | avanza un hex por la ruta, sin que pase el tiempo           |
+| `{ unless: { below: food }, effects: { … } }` | solo cuando se cumple su condición                          |
 
-`march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (por defecto: `when: { time.daylight: true, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+`march` es la marcha del sistema (los botones de Viajar): solo `when` / `unless`, comprobados mientras el grupo marcha (sin ella, el grupo marcha siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). La parada, `travel: { halt: { at: '20:00', do: camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Además de `do`, una acción tiene `name`, `description`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Lo que bloquea: `blocks`
 

@@ -9,7 +9,7 @@ import {
 } from '@open-tabletop/session'
 import { emptyState } from '@open-tabletop/oracle-engine'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
-import { availableActions, nightAction } from '@open-tabletop/travel-engine'
+import { availableActions, haltOf } from '@open-tabletop/travel-engine'
 import { type Calendar, type DataCalendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
@@ -64,7 +64,7 @@ export function worldFactsNow(): Record<string, unknown> | undefined {
   }
 }
 
-/** When the clock starts unless another date is chosen: the trip's time, else dawn of day 1. */
+/** When the clock starts unless another date is chosen: the trip's time, else 06:00 of day 1. */
 export function defaultStart(): number {
   const play = editor.map.play
   const session = play ? sessionOf(play) : null
@@ -300,9 +300,9 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
   const travelling = (trip.travel.route?.length ?? 0) > 1
   const days = calendar.describe(until).day - calendar.describe(trip.travel.time).day
   if (days > 0) {
-    // What the party does each night is the system's (camp, or nothing).
+    // What the party does when it can't march is the system's halt (camp, or nothing).
     const rules = play?.rules ? getSystem(play.rules.system).rules : undefined
-    const night = rules && nightAction(rules)
+    const night = rules && haltOf(rules)?.do
     const nightName =
       night && (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
     const hex = (key: string | undefined) =>

@@ -33,7 +33,7 @@ Besides tables, oracles, generators and decks, a pack can hold definitions for *
 ```yaml
 kind: travel-rules
 id: default
-day: { start: '07:00', nightfall: '19:00' }
+travel: { hoursPerDay: 8, start: '07:00' }
 # …terrains, modes, checks…
 ---
 kind: bindings

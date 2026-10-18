@@ -25,7 +25,7 @@
     actionMinutes,
     actionSteps,
     availableActions,
-    dayClock,
+    isClock,
     isPartRef,
     MARCH,
     noTotals,
@@ -97,12 +97,6 @@
   const travel = $derived(session.travel)
 
   const calendar = $derived(calendarOf(system))
-  /** The next dawn: today's if it hasn't come yet, else tomorrow's. */
-  const nextDawn = $derived.by(() => {
-    const dawn = dayClock(system.rules.day.start, calendar, '06:00')
-    const today = calendar.at(travel.day, dawn)
-    return travel.time < today ? today : calendar.at(travel.day + 1, dawn)
-  })
   const time = $derived.by(() => {
     const parts = calendar.describe(travel.time)
     return {
@@ -316,10 +310,15 @@
     const always = steps.filter((st) => !st.when && !st.unless)
     const minutes = always.reduce((n, st) => n + (typeof st.time === 'number' ? st.time : 0), 0)
     const until = always.find(
-      (st) => st.time === 'dawn' || st.time === 'nightfall' || isPartRef(st.time),
+      (st) =>
+        st.time === 'dawn' || st.time === 'nightfall' || isPartRef(st.time) || isClock(st.time),
     )?.time as string | undefined
-    /** Until dawn, nightfall, or a part of the calendar's day (its name: "until supper"). */
+    /**
+     * Until a clock (`06:00`), a part of the calendar's day (its name: "until supper"), or
+     * older rules' dawn or nightfall.
+     */
     const untilText = (moment: string) => {
+      if (isClock(moment)) return moment
       if (!isPartRef(moment)) return t(`tips.${moment}` as TravelUiKey)
       const found = findPart(calendar.divisions ?? [], moment)
       return found
@@ -434,10 +433,10 @@
     >
     <button
       use:tooltip={travel.pendingChecks.length
-        ? tipWith(t('tips.waitDawn'), 'travel')
-        : t('tips.waitDawn')}
+        ? tipWith(t('tips.waitMarch'), 'travel')
+        : t('tips.waitMarch')}
       disabled={travel.pendingChecks.length > 0}
-      onclick={() => onstep({ type: 'wait', until: nextDawn })}>{t('waitDawn')}</button
+      onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitMarch')}</button
     >
     {#each buttons as id (id)}
       <button

@@ -178,8 +178,11 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  * 1. The first one.
  * 2. A check that no table resolves stops the trip only with `pause: true` (in 1, a
  *    check with neither a table nor effects always stopped it).
+ * 3. Travel rules have no built-in day: no `day:` (dawn, nightfall, the night's action),
+ *    no `day-start`, `daylight`, `time: dawn`, no camp, rest or march nobody declares and
+ *    no `lost` (in 2, rules had them all); `travel.start` and `travel.halt` instead.
  */
-export const PACK_FORMAT = 2
+export const PACK_FORMAT = 3
 
 export const manifestSchema = z
   .object({

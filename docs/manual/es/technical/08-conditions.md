@@ -29,16 +29,16 @@ Varias comparaciones sobre el mismo valor se deben cumplir todas: `danger: { gte
 - **Las listas** del contexto, como las `tags` de un hex o las `holidays` del día, se cumplen cuando **contienen** el valor: `tags: landmark` se cumple en un hex con las etiquetas `ford, landmark`; `tags: [ford, toll]`, en uno con cualquiera de las dos.
 - **Los valores que faltan** no encajan, salvo con `not` y `exists: false`.
 - **Los nombres con puntos** leen dentro de un valor: `party.stats.survival`, `icon.guards`, `moons.pale`, `yesterday.lost`.
-- **Los nombres completos** dicen de dónde sale un valor, y una característica con el mismo nombre no los tapa: `hex.terrain: forest` es `terrain: forest`, `time.daylight: true` es `daylight: true`, `trip.mode: boat` es `mode: boat`. Todos, con su nombre corto: [Lo que ven las tablas](04-what-tables-see.md#como-leer-esta-pagina).
+- **Los nombres completos** dicen de dónde sale un valor, y una característica con el mismo nombre no los tapa: `hex.terrain: forest` es `terrain: forest`, `time.part: night` es `part: night`, `trip.mode: boat` es `mode: boat`. Todos, con su nombre corto: [Lo que ven las tablas](04-what-tables-see.md#como-leer-esta-pagina).
 
 ## Variables y tiradas: `{{…}}`
 
-Un valor escrito como `'{{nombre}}'` es una **variable**: otro valor del contexto, leído al comprobar la condición, en vez de uno fijo. Escrito como `'{{dados}}'` es una **tirada**. Cualquiera de las dos va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`. En YAML, **ponlas entre comillas** (`'{{nightfall}}'`): sin comillas, las llaves abren un valor dentro de otro (ver [Sintaxis](09-syntax.md#valores-clave-valor)).
+Un valor escrito como `'{{nombre}}'` es una **variable**: otro valor del contexto, leído al comprobar la condición, en vez de uno fijo. Escrito como `'{{dados}}'` es una **tirada**. Cualquiera de las dos va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`. En YAML, **ponlas entre comillas** (`'{{hoursPerDay}}'`): sin comillas, las llaves abren un valor dentro de otro (ver [Sintaxis](09-syntax.md#valores-clave-valor)).
 
 | Escribe                                                     | Se cumple cuando                                          |
 | ----------------------------------------------------------- | --------------------------------------------------------- |
 | `danger: { gt: '{{party.stats.stealth}}' }`                 | el peligro supera el sigilo del grupo                     |
-| `hour: { gte: '{{nightfall}}' }`                            | es el anochecer del sistema o más tarde                   |
+| `hour: { gte: '{{system.part.night}}' }`                    | es cuando empieza la noche del calendario, o más tarde    |
 | `party.stats.fatigue: { gte: '{{party.stats.endurance}}' }` | la fatiga ha llegado al aguante                           |
 | `faction: '{{rival}}'`                                      | la facción del hex es la del valor `rival`                |
 | `tags: '{{wanted}}'`                                        | el hex tiene alguna de las etiquetas de la lista `wanted` |

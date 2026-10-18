@@ -48,6 +48,12 @@ actions:
 
 `day-start` as a moment goes (no meaning of its own left: "when the day starts" is the system's part or clock). `day-end` stays: midnight, when the calendar's day changes and the day's values become yesterday's.
 
+## 3b. When trips start, and waiting for the next march (added while building phase a)
+
+- `travel.start` (a clock or a part; absent: midnight): when a new trip starts on its first day, which `day.start` used to say. A new trip's moments of its first minute (a clock, a part beginning then) happen as it first marches or waits that day, as dawn's checks did; actions taken before don't use them up.
+- The trip panel's **Wait until dawn** becomes **Wait for the next march** (`{ type: 'waitForMarch' }`): today's march goes by (while the party could march, the wait goes on until it can't), then the time passes until the march holds again, the halt taken on the way; three days at most.
+- Moments now come as they're reached, asleep in camp too: older rules' `day-start` (their dawn's clock) rolls as the party wakes, not at its first march.
+
 ## 4. The halt: what the trip does when it can't march
 
 Today, when the trip goes on by itself (or **March** is pressed with nothing left to march today), the party takes the night's action at nightfall, or the night passes without it, said in the journal. That's useful (the user asked for it: _a night that can't be camped passes_), so it stays as a mechanism, named by the system:

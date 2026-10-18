@@ -1,10 +1,12 @@
 <script lang="ts">
   import {
     actionSteps,
-    BUILT_IN_ACTIONS,
+    OLDER_ACTIONS,
     MARCH,
     CHECK_MOMENTS,
+    isClock,
     isPartRef,
+    OLDER_DAY_START,
     STEP_KINDS,
     type ActionDefinition,
     type ActionStep,
@@ -21,7 +23,7 @@
   /**
    * The system's actions as cards, all alike (camp and rest too): id, name and description,
    * when they can be taken, who takes them (the player, or the system at a moment) and what
-   * they do, step by step, each step written in the pack's own syntax (`time: dawn`,
+   * they do, step by step, each step written in the pack's own syntax (`time: 180`,
    * `do: forage`) with suggestions. Editing the steps writes them as `do`.
    */
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
@@ -37,9 +39,11 @@
 
   const disabled = $derived(!doc.editable)
   const actions = $derived((doc.rules.actions ?? {}) as Record<string, Raw | false | undefined>)
-  /** Every action the system has: camp and rest when not turned off, then the rest in order. */
+  /** Older rules (`day:`, pack format 2): camp and rest are there unless turned off. */
+  const older = $derived<readonly string[]>(doc.rules.day ? OLDER_ACTIONS : [])
+  /** Every action the system has: older rules' camp and rest, then the rest in order. */
   const ids = $derived([
-    ...BUILT_IN_ACTIONS.filter((id) => actions[id] === undefined),
+    ...older.filter((id) => actions[id] === undefined),
     ...Object.keys(actions).filter((id) => actions[id] !== false),
   ])
   /** An action's moments in words: "At dawn · After: Camp". */
@@ -47,11 +51,13 @@
     momentsText(on)
       .split(', ')
       .map((m) =>
-        (CHECK_MOMENTS as readonly string[]).includes(m)
-          ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number]}`)
-          : isPartRef(m)
-            ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
-            : t('actions.onAfter', { action: label(m) }),
+        (CHECK_MOMENTS as readonly string[]).includes(m) || m === OLDER_DAY_START
+          ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number] | typeof OLDER_DAY_START}`)
+          : isClock(m)
+            ? t('checks.atClock', { clock: m })
+            : isPartRef(m)
+              ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
+              : t('actions.onAfter', { action: label(m) }),
       )
       .join(' · ')
   /** Check events a step can roll. */
@@ -65,7 +71,7 @@
   const hints = $derived(contextSuggestions(library.registry))
   /** What a step can say: its keys, and the values each one takes here. */
   const stepHints = $derived({
-    time: ['dawn', 'nightfall', '60', '120', '180', '14:00', ...parts],
+    time: [...(doc.rules.day ? ['dawn', 'nightfall'] : []), '60', '120', '180', '14:00', ...parts],
     speed: ['0.5', '0'],
     effects: [],
     'effects.*': Object.keys(effectSuggestions(library.registry)),
@@ -157,15 +163,11 @@
   async function removeAction(id: string) {
     if (!(await confirmAction(t('forms.confirmRemove', { name: label(id) })))) return
     // Camp and rest are left out with `false` (older systems had them without saying).
-    doc.edit(
-      'travel-rules',
-      ['actions', id],
-      (BUILT_IN_ACTIONS as readonly string[]).includes(id) ? false : undefined,
-    )
+    doc.edit('travel-rules', ['actions', id], older.includes(id) ? false : undefined)
   }
 
   function addAction() {
-    const id = freeId('action', [...Object.keys(actions), ...BUILT_IN_ACTIONS])
+    const id = freeId('action', [...Object.keys(actions), ...older])
     doc.edit('travel-rules', ['actions', id], { do: [{ time: 60 }] })
   }
 
@@ -176,8 +178,7 @@
     if (actions[id] === undefined) doc.edit('travel-rules', ['actions', id], { ...def(id) })
     doc.rename('travel-rules', ['actions'], id, to)
     // The old id of camp or rest would come back as a default: it's gone.
-    if ((BUILT_IN_ACTIONS as readonly string[]).includes(id))
-      doc.edit('travel-rules', ['actions', id], false)
+    if (older.includes(id)) doc.edit('travel-rules', ['actions', id], false)
   }
 </script>
 
@@ -232,7 +233,13 @@
               label={t('actions.on')}
               placeholder={t('actions.onButton')}
               value={momentsText(d.on)}
-              list={[...CHECK_MOMENTS, ...parts, ...ids.filter((a) => a !== id)]}
+              list={[
+                ...(doc.rules.day ? [OLDER_DAY_START] : []),
+                ...CHECK_MOMENTS,
+                '06:00',
+                ...parts,
+                ...ids.filter((a) => a !== id),
+              ]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
             />
@@ -242,7 +249,9 @@
         <label>
           <span>{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
           <SuggestInput
-            placeholder={id === MARCH ? t('actions.marchDefault') : t('checks.always')}
+            placeholder={id === MARCH
+              ? t(doc.rules.day ? 'actions.marchDefaultOlder' : 'actions.marchDefault')
+              : t('checks.always')}
             value={bare(d.when)}
             suggestions={hints}
             {disabled}
@@ -311,7 +320,7 @@
               <div class="value">
                 <SuggestInput
                   label={t('actions.step')}
-                  placeholder="time: dawn"
+                  placeholder="time: 180"
                   value={stepText(step)}
                   suggestions={stepHints}
                   {disabled}
@@ -323,7 +332,7 @@
                   label={t('actions.stepWhen')}
                   placeholder={t('actions.stepWhen')}
                   value={bare(step.when)}
-                  suggestions={{ ...hints, doing: ids, camping: ['true', 'false'] }}
+                  suggestions={{ ...hints, doing: ids }}
                   {disabled}
                   onchange={(v) => setWhen(id, i, v)}
                 />

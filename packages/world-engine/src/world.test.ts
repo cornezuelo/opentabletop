@@ -28,16 +28,14 @@ function run(world: ReturnType<typeof createWorld>, state: WorldState, ...action
 describe('the world clock', () => {
   const world = createWorld()
 
-  it('advances by minutes, to dawn, to dusk and to the next day', () => {
+  it('advances by minutes, to the next watch and to the next day', () => {
     const start = initialWorld(defaultCalendar.at(1, '10:00'))
     expect(run(world, start, { type: 'advance', minutes: 90 }).state.time).toBe(
       defaultCalendar.at(1, '11:30'),
     )
-    expect(run(world, start, { type: 'advanceUntil', until: 'dusk' }).state.time).toBe(
-      defaultCalendar.at(1, '20:00'),
-    )
-    expect(run(world, start, { type: 'advanceUntil', until: 'dawn' }).state.time).toBe(
-      defaultCalendar.at(2, '06:00'),
+    // The plain calendar's watches of 4 hours: the next one starts at 12:00.
+    expect(run(world, start, { type: 'advanceUntil', until: { part: 'watch' } }).state.time).toBe(
+      defaultCalendar.at(1, '12:00'),
     )
     const { state, events } = run(world, start, { type: 'advanceUntil', until: 'next-day' })
     expect(state.time).toBe(defaultCalendar.at(2, 0))
