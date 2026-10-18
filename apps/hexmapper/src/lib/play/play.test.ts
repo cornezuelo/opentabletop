@@ -535,6 +535,29 @@ describe('the Company: a party made of characters', () => {
     expect(back.party).toEqual(trip().party)
   })
 
+  it('who does the talking: the best, or whoever the player chooses; asked at every roll if wished', () => {
+    grey()
+    clickHex('7,7')
+    expect(trip().stats.charisma).toBe(2) // Mara's, the best
+    editSession((s) => ({ ...s, rolls: 'tobin' }))
+    expect(rollContext()).toMatchObject({
+      party: { stats: { charisma: member('tobin').values.charisma } },
+    })
+    // Asked at every roll: a check rolled on a table (foraging's) waits for the choice.
+    editSession((s) => ({ ...s, askRolls: true }))
+    step({ type: 'action', id: 'forage' })
+    const asking = trip().asking ?? []
+    expect(asking.length).toBeGreaterThan(0)
+    expect(trip().journal.some((e) => e.code === 'CHECK_ASKS')).toBe(true)
+    const results = trip().journal.filter((e) => e.code === 'ORACLE_RESULT').length
+    step({ type: 'resolveCheck', id: asking[0] })
+    expect(trip().journal.filter((e) => e.code === 'ORACLE_RESULT').length).toBe(results + 1)
+    expect(trip().asking ?? []).not.toContain(asking[0])
+    // Kept in the map file.
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map)).play!)!
+    expect(back).toMatchObject({ rolls: 'tobin', askRolls: true })
+  })
+
   it('eats a ration per mouth from whoever carries most, and a fed night heals', () => {
     grey()
     clickHex('5,7')

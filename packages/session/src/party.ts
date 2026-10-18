@@ -45,6 +45,8 @@ export interface PartyTarget {
   acting?: string
   /** Who holds each of the system's journey roles (`roles.<id>.*`), by role id. */
   roles?: Record<string, string>
+  /** Who rolls for the stats made of one character (`from: { pick }`); absent: the best. */
+  rolls?: string
   stats: Record<string, number>
   travel: Pick<TravelState, 'resources'> & Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
 }
@@ -58,6 +60,10 @@ export const sheetOf =
       : rules.partySheet && member.sheet === rules.partySheet.id
         ? rules.partySheet.def
         : undefined
+
+/** Whether the system has stats made of one character the player chooses (`from: { pick }`). */
+export const picksWho = (rules: PartyRules): boolean =>
+  Object.values(rules.bindings?.stats ?? {}).some((stat) => stat.from?.pick !== undefined)
 
 /** The stats that are a value of the party sheet: `[stat, value]` pairs. */
 export const partyStats = (rules: PartyRules): [string, string][] =>
@@ -105,7 +111,7 @@ export function refreshParty(s: PartyTarget, rules: PartyRules): void {
   syncPartySheet(s, rules)
   if (!hasMembers(s)) return
   for (const [id, stat] of Object.entries(rules.bindings?.stats ?? {}))
-    if (stat.from && !stat.from.party) s.stats[id] = partyValue(s.members, stat.from)
+    if (stat.from && !stat.from.party) s.stats[id] = partyValue(s.members, stat.from, s.rolls)
   for (const [id, supply] of Object.entries(rules.bindings?.resources ?? {}))
     s.travel.resources[id] = s.members.reduce((sum, m) => sum + (m.values[supply.carried] ?? 0), 0)
 }

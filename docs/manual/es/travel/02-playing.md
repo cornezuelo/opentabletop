@@ -41,6 +41,10 @@ Lo que cuenta el diario, para que nada pase en silencio:
 - **Acciones** con lo que han durado, y cuándo no se ha tirado nada: en las Marcas Grises, **Buscar comida** en colinas dice «Buscar comida (3 h): no hay nada que buscar en colinas: solo los bosques, campos, brezales y marismas dan comida». Las tres horas pasan igual y la marcha sigue a la mitad.
 - **Acciones que hace el propio sistema**, como comer al acabar cada día, con lo que cambiaron («Comer (Comida −1)»); un valor que llega a su mínimo o su máximo («Comida no puede bajar de 0») y los cambios de **fatiga** con su motivo («Sin comida suficiente: Fatiga +1»); lo que cambió una acción va en su propia línea («Acampáis para pasar la noche (Fatiga −1)», «Descansáis 2 h (Fatiga −1)»).
 
+## Quién tira
+
+Cuando el sistema tiene características hechas de un solo personaje (`from: { pick: … }`: el Carisma de las Marcas Grises, quien hable), **Tira**, bajo los botones del viaje, elige de quién toman el valor: **El mejor** (por defecto) o un personaje, en todas las tiradas hasta que lo cambies. Marca **Preguntar en cada tirada** para elegir cada vez: una comprobación que se tira en una tabla espera (su línea dice _¿quién tira?_) con la elección junto a **Continuar**, y se tira al pulsarlo.
+
 ## La hoja del propio grupo
 
 Cuando el sistema tiene una hoja para el grupo en sí (la **Compañía** de las Marcas Grises; la **Moral** de las reglas Genéricas), cada viaje la enseña como **El grupo**, encima de los personajes: lo que es de todo el grupo, viaje quien viaje. Los personajes pueden unirse e irse (caen, se contratan otros); esto se queda. Cambia sus valores y estados a mano, como los de un personaje; las comprobaciones y las acciones también los cambian (las Marcas Grises: perdida en la oscuridad, la Compañía queda **Desanimada** y no puede forzar la marcha hasta descansar). Una característica del grupo hecha de uno de sus valores (la Moral y la Fatiga de las Marcas Grises) no tiene casilla propia entre las características: se edita en esta ficha.

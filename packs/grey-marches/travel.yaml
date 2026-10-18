@@ -464,11 +464,13 @@ id: default
 # values of the Company's own sheet (`from: { party: … }`, sheet.yaml), whoever travels:
 # effects on them change the sheet, within its bounds.
 stats:
+  # Whoever does the talking: the companion the player chooses in the trip (Rolls with), or
+  # the best Charisma among them (`pick`).
   charisma:
     name: Charisma
-    description: Added to reaction rolls; at Keld Bridge, a d6 at or under it saves the toll. With companions, the best Charisma among them.
+    description: Added to reaction rolls; at Keld Bridge, a d6 at or under it saves the toll. With companions, the Charisma of whoever does the talking (Rolls with), or the best.
     default: 0
-    from: { max: charisma }
+    from: { pick: charisma }
   # The best Survival among the companions who aren't wounded (none standing: 0).
   survival:
     name: Survival

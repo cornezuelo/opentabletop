@@ -364,6 +364,11 @@ export function blockedBy(sheet: Sheet, state: CharacterState, what: string): st
 export interface PartyFrom {
   /** A value of the party sheet: the stat is that value (`from: { party: morale }`). */
   party?: string
+  /**
+   * One character's value, the one the player chooses (who rolls); nobody chosen: the best
+   * (as `max`). The choice is the integration layer's: `partyValue` takes it as `chosen`.
+   */
+  pick?: string
   max?: string
   min?: string
   sum?: string
@@ -379,14 +384,14 @@ export function validatePartyFrom(raw: unknown, at = 'from'): string[] {
     return [`${at}: expected { max | min | sum | party: <value> } or { count: true }`]
   const from = raw as Record<string, unknown>
   const errors: string[] = []
-  const ways = (['max', 'min', 'sum', 'count', 'party'] as const).filter(
+  const ways = (['max', 'min', 'sum', 'count', 'party', 'pick'] as const).filter(
     (k) => from[k] !== undefined,
   )
   if (ways.length !== 1)
     errors.push(
-      `${at}: one of max, min, sum (a value of the members), count: true, or party (a value of the party sheet)`,
+      `${at}: one of max, min, sum, pick (a value of the members), count: true, or party (a value of the party sheet)`,
     )
-  for (const k of ['max', 'min', 'sum'] as const)
+  for (const k of ['max', 'min', 'sum', 'pick'] as const)
     if (from[k] !== undefined && (typeof from[k] !== 'string' || !from[k]))
       errors.push(`${at}.${k}: the id of a value of the members' sheet`)
   if (from.party !== undefined && (typeof from.party !== 'string' || !from.party))
@@ -399,23 +404,34 @@ export function validatePartyFrom(raw: unknown, at = 'from'): string[] {
   for (const k of ['when', 'unless'] as const)
     if (from[k] !== undefined) errors.push(...validateCondition(from[k], `${at}.${k}`))
   for (const k of Object.keys(from))
-    if (!['max', 'min', 'sum', 'count', 'party', 'when', 'unless', 'none'].includes(k))
+    if (!['max', 'min', 'sum', 'count', 'party', 'pick', 'when', 'unless', 'none'].includes(k))
       errors.push(`${at}: unknown key "${k}"`)
   return errors
 }
 
 /** The party value `from` makes of these members. */
-export function partyValue(members: CharacterState[], from: PartyFrom): number {
+export function partyValue(
+  members: CharacterState[],
+  from: PartyFrom,
+  /** For `pick`: the member the player chose (absent, or not among them: the best). */
+  chosen?: string,
+): number {
   const counted = members.filter((m) => {
     const seen = characterFacts(m)
     return matches(from.when, seen) && !(from.unless && matches(from.unless, seen))
   })
   if (from.count) return counted.length
-  const id = from.max ?? from.min ?? from.sum
+  if (from.pick !== undefined) {
+    const one = members.find((m) => m.id === chosen)
+    if (one) return one.values[from.pick] ?? 0
+  }
+  const id = from.max ?? from.min ?? from.sum ?? from.pick
   if (id === undefined || !counted.length) return from.none ?? 0
   const numbers = counted.map((m) => m.values[id] ?? 0)
   if (from.sum !== undefined) return numbers.reduce((a, b) => a + b, 0)
-  return from.max !== undefined ? Math.max(...numbers) : Math.min(...numbers)
+  return from.max !== undefined || from.pick !== undefined
+    ? Math.max(...numbers)
+    : Math.min(...numbers)
 }
 
 /**

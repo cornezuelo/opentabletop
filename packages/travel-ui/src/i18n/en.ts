@@ -69,6 +69,12 @@ export const en = {
     dawn: 'dawn',
     nightfall: 'nightfall',
   },
+  rolls: {
+    label: 'Rolls with',
+    best: 'The best',
+    ask: 'Ask at every roll',
+    help: "Whose value the system's stats made of one character take (`from: { pick: charisma }` in its bindings): **The best** (the default) or one character, for every roll until you change it. Tick **Ask at every roll** to choose before each check rolled on a table: it waits, with this choice beside **Continue**.",
+  },
   partySheet: {
     title: 'The party',
     help: "The party itself, with its system's party sheet: what belongs to the whole party (morale, fatigue, hirelings…), whoever its characters are. Characters can join and leave; this stays.\nConditions and tables read it:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nEffects change it:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nA party stat made of one of its values (`from: { party: morale }`) is that value: it's edited here.",
@@ -125,6 +131,7 @@ export const en = {
     holiday: 'Today is {name}',
     pending: '{event}: waiting for you',
     paused: '{event}: paused, go on when you are ready',
+    asks: '{event}: who rolls? Choose, then Continue',
     entered: 'Entered {hex}',
     discovered: 'Discovered in {hex}: {what}',
     day: 'Day {day} begins',

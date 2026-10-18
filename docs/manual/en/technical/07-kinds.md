@@ -241,6 +241,8 @@ A check with no binding is written in the journal (with its `effects`, if it has
 **Stats from the characters** (`from`, when the system has a [sheet](#sheets)): while the party has characters, the stat is made of theirs, and effects on it are overwritten; while it has none, it's kept like any other, so the same system plays with or without characters. One of:
 
 - `max: <value>` — the best among them; `min: <value>` — the worst; `sum: <value>` — all together; `count: true` — how many they are.
+- `pick: <value>` — one character's: whoever the player chooses in the trip (**Rolls with**), the best when nobody is chosen. With **Ask at every roll** ticked in the trip, each check rolled on a table waits for the choice before rolling (the Grey Marches' Charisma: whoever does the talking).
+- `party: <value>` — not the characters' but a value of the party's own sheet (`partySheet`), always: see [Sheets](#sheets).
 - `when` / `unless` — only the characters this [condition](08-conditions.md) holds for, read with each one's values (`unless: { conditions: wounded }`, `when: { values.health: { gt: 0 } }`).
 - `none` — what it is when no character counts (default 0).
 

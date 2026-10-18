@@ -3,6 +3,7 @@
     localize,
     editPartySheet,
     partyOf,
+    picksWho,
     tripAvailability,
     type JournalEntry,
     type SessionState,
@@ -164,6 +165,16 @@
       ([, stat]) => !(stat.from?.party && system.partySheet && session.party),
     ),
   )
+  /** Whether the player chooses who rolls (stats made of one character, and characters). */
+  const choosesWho = $derived(picksWho(partyOf(system)) && (session.members?.length ?? 0) > 0)
+  const setRolls = (who: string) =>
+    onedit((s) => {
+      const next = { ...s, stats: { ...s.stats } }
+      if (who) next.rolls = who
+      else delete next.rolls
+      return next
+    })
+
   /** The party's own sheet changed by hand: the stats made of it follow. */
   function editParty(next: NonNullable<SessionState['party']>) {
     onedit((s) => {
@@ -373,12 +384,20 @@
 
   <!-- What needs you first, then what the party can do: right under where it is. -->
   {#each travel.pendingChecks as check (check.id)}
-    <div class="pending">
+    <div class="pending" class:asks={session.asking?.includes(check.id)}>
       <span
-        >{t(check.rolled ? 'journal.paused' : 'journal.pending', {
-          event: pendingName(check.event),
-        })}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
+        >{t(
+          session.asking?.includes(check.id)
+            ? 'journal.asks'
+            : check.rolled
+              ? 'journal.paused'
+              : 'journal.pending',
+          {
+            event: pendingName(check.event),
+          },
+        )}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
       >
+      {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
       <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
       >
     </div>
@@ -411,6 +430,39 @@
       >
     {/each}
   </div>
+
+  {#snippet whoRolls()}
+    <select
+      class="who"
+      aria-label={t('rolls.label')}
+      value={session.rolls ?? ''}
+      onchange={(e) => setRolls(e.currentTarget.value)}
+    >
+      <option value="">{t('rolls.best')}</option>
+      {#each session.members ?? [] as m (m.id)}<option value={m.id}>{m.name ?? m.id}</option>{/each}
+    </select>
+  {/snippet}
+  {#if choosesWho}
+    <div class="rolls">
+      <span>{t('rolls.label')}<InfoTip text={t('rolls.help')} /></span>
+      {@render whoRolls()}
+      <label class="check"
+        ><input
+          type="checkbox"
+          checked={!!session.askRolls}
+          onchange={(e) => {
+            const on = e.currentTarget.checked
+            onedit((s) => {
+              const next = { ...s }
+              if (on) next.askRolls = true
+              else delete next.askRolls
+              return next
+            })
+          }}
+        />{t('rolls.ask')}</label
+      >
+    </div>
+  {/if}
 
   <div class="row">
     <label class="field">
@@ -556,6 +608,34 @@
 </div>
 
 <style>
+  .rolls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  /* Waiting for who rolls: the line above, the choice and Continue under it. */
+  .pending.asks > span {
+    flex: 1 1 100%;
+  }
+
+  .pending .who {
+    flex: 1;
+  }
+
+  .rolls .who {
+    width: auto;
+    flex: 1;
+  }
+
+  .rolls .check {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
   .party-sheet {
     display: flex;
     flex-direction: column;
@@ -672,6 +752,7 @@
 
   .pending {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 6px;

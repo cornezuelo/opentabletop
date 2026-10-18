@@ -32,6 +32,7 @@
     max: sheetValues,
     min: sheetValues,
     sum: sheetValues,
+    pick: sheetValues,
     count: ['true'],
     when: [],
     unless: [],

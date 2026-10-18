@@ -379,6 +379,7 @@ Un sistema puede jugar su grupo como un todo (sus características y provisiones
 Luego los bindings dicen qué toma el grupo de ellos:
 
 - **Características que salen de las suyas:** `navigation: { name: Orientación, from: { max: pathfinding } }` es el mejor Rastreo de ellos; `min` el peor, `sum` el de todos juntos, `count: true` cuántos son; `when` / `unless` dejan fuera a algunos (`count: true, unless: { conditions: wounded }`: los que no están heridos). Sin personajes la característica se guarda como siempre, así que el mismo sistema se juega de las dos formas.
+- **El que elija el jugador:** `charisma: { from: { pick: charisma } }` es el Carisma de un personaje, el elegido en **Tira** del viaje (el mejor por defecto); **Preguntar en cada tirada** hace que cada comprobación en una tabla espere a la elección.
 - **Valores de la hoja del propio grupo:** con `partySheet:` en el sistema, una hoja para el grupo en sí (moral, fatiga…, viaje quien viaje), `morale: { from: { party: morale } }` es ese valor: los efectos sobre la característica cambian la hoja, dentro de sus límites.
 - **Provisiones que llevan:** `resources: { food: { carried: rations } }`: la comida del grupo es la suma de sus raciones, y lo que el viaje come o encuentra se reparte entre ellos (por igual si no se dice otra cosa, `share: order` para empezar por el primero).
 

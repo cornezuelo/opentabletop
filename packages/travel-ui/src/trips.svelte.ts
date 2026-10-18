@@ -18,7 +18,8 @@ import { wayWorld, type WayHex } from './way'
  * system declares (`today.lost`); v4: the trip's totals (`travel.totals`), rebuilt from the
  * journal; v5: the party's characters (`session.members`, `acting`), none in older trips;
  * v6: the party's own sheet (`session.party`), made when the trip next plays if its
- * system has one. All migrated on reading.
+ * system has one, and who rolls (`rolls`, `askRolls`; absent: the best). All migrated on
+ * reading.
  */
 const VERSION = 6
 

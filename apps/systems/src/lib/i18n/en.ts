@@ -542,7 +542,7 @@ export const en = {
     addStat: 'Add a stat',
     statFrom: 'From the sheets',
     statFromHelp:
-      "With characters in the party, the stat is made of theirs (and effects on it are overwritten); without, it's kept as any other. One of:\n• `max: survival` — the best Survival among them\n• `min: stealth` — the worst\n• `sum: strength` — all of them together\n• `count: true` — how many they are\nAdd `when` / `unless` to count only some, and `none` for when nobody counts:\n• `count: true, unless: { conditions: wounded }` — those not wounded\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — the best of those still standing\nNeeds a sheet (the **Sheet** tab).\nOr one value of the party's own sheet, always: the stat is that value, and effects on it change the sheet:\n• `party: morale` — the party sheet's Morale",
+      "With characters in the party, the stat is made of theirs (and effects on it are overwritten); without, it's kept as any other. One of:\n• `max: survival` — the best Survival among them\n• `min: stealth` — the worst\n• `sum: strength` — all of them together\n• `count: true` — how many they are\n• `pick: charisma` — whoever the player chooses to roll in the trip (the best by default)\nAdd `when` / `unless` to count only some, and `none` for when nobody counts:\n• `count: true, unless: { conditions: wounded }` — those not wounded\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — the best of those still standing\nNeeds a sheet (the **Sheet** tab).\nOr one value of the party's own sheet, always: the stat is that value, and effects on it change the sheet:\n• `party: morale` — the party sheet's Morale",
     statFromNone: 'kept by the party',
     roles: 'Journey roles',
     rolesHelp:

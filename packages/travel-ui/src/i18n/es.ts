@@ -71,6 +71,12 @@ export const es: Messages<typeof en> = {
     dawn: 'el alba',
     nightfall: 'el anochecer',
   },
+  rolls: {
+    label: 'Tira',
+    best: 'El mejor',
+    ask: 'Preguntar en cada tirada',
+    help: 'De quién toman el valor las características del sistema hechas de un solo personaje (`from: { pick: charisma }` en sus bindings): **El mejor** (por defecto) o un personaje, en todas las tiradas hasta que lo cambies. Marca **Preguntar en cada tirada** para elegir antes de cada comprobación que se tira en una tabla: espera, con esta elección junto a **Continuar**.',
+  },
   partySheet: {
     title: 'El grupo',
     help: 'El propio grupo, con la hoja de grupo de su sistema: lo que es de todo el grupo (moral, fatiga, mercenarios…), sean quienes sean sus personajes. Los personajes pueden unirse e irse; esto se queda.\nLas condiciones y las tablas lo leen:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nLos efectos lo cambian:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nUna característica del grupo hecha de uno de sus valores (`from: { party: morale }`) es ese valor: se edita aquí.',
@@ -125,6 +131,7 @@ export const es: Messages<typeof en> = {
     holiday: 'Hoy es {name}',
     pending: '{event}: esperando',
     paused: '{event}: en pausa, sigue cuando quieras',
+    asks: '{event}: ¿quién tira? Elige y pulsa Continuar',
     entered: 'Entráis en {hex}',
     discovered: 'Descubierto en {hex}: {what}',
     day: 'Empieza el día {day}',

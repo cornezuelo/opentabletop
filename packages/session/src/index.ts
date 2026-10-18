@@ -22,6 +22,7 @@ import {
   isMemberPath,
   memberFacts,
   partyBlocks,
+  picksWho,
   refreshParty,
   settleParty,
   type PartyRules,
@@ -255,6 +256,12 @@ export interface SessionState {
   acting?: string
   /** Who holds each of the system's journey roles (`roles.<id>.*`), chosen by the player. */
   roles?: Record<string, string>
+  /** Who rolls for the stats made of one character (`from: { pick }`); absent: the best. */
+  rolls?: string
+  /** Each check rolled on a table waits for the player to choose who rolls (**Ask at every roll**). */
+  askRolls?: boolean
+  /** The checks waiting for that choice: rolled when the player goes on. */
+  asking?: string[]
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
 }
@@ -532,11 +539,23 @@ export function createSession(options: {
       // A long wait, or a trip going on by itself until a moment, stops for its checks every day.
       const long = waiting || (action.type === 'travel' && action.by !== undefined)
       const limit = long ? Math.max(maxAuto, 2000) : maxAuto
+      // Going on from a check that waited for who rolls: it's rolled now, with the choice.
+      let replay: TravelEvent[] | undefined
+      if (action.type === 'resolveCheck' && s.asking?.includes(action.id)) {
+        s.asking = s.asking.filter((id) => id !== action.id)
+        if (!s.asking.length) delete s.asking
+        const check = s.travel.pendingChecks.find((c) => c.id === action.id)
+        if (check) replay = [{ type: 'CHECK_REQUIRED', check, time: s.travel.time }]
+      }
+      const replaying = !!replay
       for (let i = 0; i <= limit; i++) {
         const dayBefore = s.travel.day
         const from = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
-        const result = options.travel.apply(s.travel, act, tripContext(s, hostOf(s)))
+        const result = replay
+          ? { state: s.travel, events: replay }
+          : options.travel.apply(s.travel, act, tripContext(s, hostOf(s)))
+        replay = undefined
         s.travel = result.state
         // What the engine took from the supplies the members carry, taken from them.
         settle()
@@ -583,7 +602,8 @@ export function createSession(options: {
           if (event.type !== 'CHECK_REQUIRED') continue
           const binding = options.bindings?.on[event.check.event]
           // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
-          if (event.check.effects) {
+          // (A check rolled after waiting for who rolls had its own effects then.)
+          if (event.check.effects && !replaying) {
             const seenNow = tripContext(s, { ...host, ...event.check.context })
             const { limits } = applyEffects(s, event.check.effects, stats, suppliesNow(), seenNow)
             limits.push(...memberEffects(event.check.effects, seenNow, event.time))
@@ -633,6 +653,24 @@ export function createSession(options: {
             add(s, entries, {
               source: 'travel',
               code: 'CHECK_PENDING',
+              time: event.time,
+              data: { event: event.check.event, id: event.check.id },
+            })
+            continue
+          }
+          // The player asked to choose who rolls each time: the check waits for it.
+          if (
+            s.askRolls &&
+            !replaying &&
+            !binding.weather &&
+            picksWho(party) &&
+            (s.members?.length ?? 0) > 1
+          ) {
+            s.asking = [...(s.asking ?? []), event.check.id]
+            resolvedAll = false
+            add(s, entries, {
+              source: 'travel',
+              code: 'CHECK_ASKS',
               time: event.time,
               data: { event: event.check.event, id: event.check.id },
             })

@@ -139,7 +139,7 @@ bindings/default:
   stats:
     charisma:
       name: Carisma
-      description: Se suma a las tiradas de reacción; en el puente de Keld, un d6 que saque esto o menos os ahorra el peaje. Con compañeros, el mejor Carisma de ellos.
+      description: Se suma a las tiradas de reacción; en el puente de Keld, un d6 que saque esto o menos os ahorra el peaje. Con compañeros, el Carisma de quien hable (Tira), o el mejor.
     survival:
       name: Supervivencia
       description: Se suma a buscar comida y a los vados. Con compañeros, la mejor Supervivencia de los que no están heridos.

@@ -338,6 +338,9 @@ function playToOtd(map: HexMap) {
         ...(session?.acting !== undefined && { acting: session.acting }),
         ...(session?.roles && { roles: session.roles }),
         ...(session?.party && { party: characterToOtd(session.party, 'party') }),
+        ...(session?.rolls !== undefined && { rolls: session.rolls }),
+        ...(session?.askRolls && { askRolls: true }),
+        ...(session?.asking?.length && { asking: session.asking }),
       },
     },
   }
@@ -399,6 +402,9 @@ function playFromOtd(
             ...(typeof ext.weatherAt === 'string' && { weatherAt: ext.weatherAt }),
             ...(typeof ext.roles === 'object' && ext.roles !== null && { roles: ext.roles }),
             ...(partySheet && { party: partySheet }),
+            ...(typeof ext.rolls === 'string' && { rolls: ext.rolls }),
+            ...(ext.askRolls === true && { askRolls: true }),
+            ...(Array.isArray(ext.asking) && { asking: ext.asking }),
           },
           // No trip yet: the company waits for one.
           ...(!party.travel && members.length && { members }),

@@ -240,6 +240,8 @@ Una comprobación sin binding se apunta en el diario (con sus `effects`, si tien
 **Características que salen de los personajes** (`from`, cuando el sistema tiene una [hoja](#hojas)): mientras el grupo tenga personajes, la característica sale de las suyas, y los efectos sobre ella se sobrescriben; mientras no tenga ninguno, se guarda como cualquier otra, así que el mismo sistema se juega con personajes o sin ellos. Una de:
 
 - `max: <valor>` — la mejor de ellos; `min: <valor>` — la peor; `sum: <valor>` — la de todos juntos; `count: true` — cuántos son.
+- `pick: <valor>` — la de un personaje: el que elija el jugador en el viaje (**Tira**), el mejor si no se elige a nadie. Con **Preguntar en cada tirada** marcado en el viaje, cada comprobación que se tira en una tabla espera a la elección antes de tirar (el Carisma de las Marcas Grises: quien hable).
+- `party: <valor>` — no la de los personajes sino un valor de la hoja del propio grupo (`partySheet`), siempre: mira [Hojas](#hojas).
 - `when` / `unless` — solo los personajes para los que se cumple esta [condición](08-conditions.md), leída con los valores de cada uno (`unless: { conditions: wounded }`, `when: { values.health: { gt: 0 } }`).
 - `none` — lo que vale cuando no cuenta ningún personaje (0 si no se dice).
 

@@ -164,8 +164,9 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     return data
   },
   /**
-   * v20: a trip keeps the party's own sheet (`session.party`, the system's `partySheet`);
-   * older trips have none, and get one when they next play if their system has one.
+   * v20: a trip keeps the party's own sheet (`session.party`, the system's `partySheet`)
+   * and who rolls (`rolls`, `askRolls`, `asking`); older trips have none (a party sheet is
+   * made when they next play, if their system has one; the best rolls).
    */
   19(data) {
     return data
