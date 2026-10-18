@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-18
+
 ### Apps
 
 - **Packs of an older format don't just vanish**: the Oracle, Travel and Systems lists say which of yours aren't read (**Not read: written for an older pack format**), with **Download .zip** to keep each one; a copy of yours of a bundled pack in an older format no longer hides the bundled one (Core, the Grey Marches), which is used meanwhile.
