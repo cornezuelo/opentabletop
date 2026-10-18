@@ -109,28 +109,42 @@ Core's manual page says what its system does and which feature each part shows.
 
 The user (2026-10-18): `march` is still too intrinsic. What the engine must keep is the mechanism, **moving along the route while time passes** (speeds from `kmPerDay`, terrains, roads, weather); what's still built in around it is the action: its reserved id, the **Travel** / **1 hex** buttons, being the one way to move.
 
-Proposal: moving is a **step**, `go`, any action may take; the system's actions with it are the buttons that move the party.
+First draft (a loose `go` step, a fixed **1 hex** button, `travel.move: <action>`) reviewed with the user, who asked (2026-10-18): why can't an action take **parameters** instead of a fixed **1 hex**; why is `go` loose instead of tied to the travel subsystem; and why name the action in `travel.move` instead of invoking the move directly. Second draft:
+
+**Steps named by their subsystem.** What moves the party is the travel subsystem's, so its steps say so: `travel.move` (along the route while the action's conditions hold), and the existing `advance` and `speed` become `travel.advance` and `travel.speed` (their older names still read). Generic steps keep plain names: `time`, `effects`, `set`, `do`, `roll`.
+
+**Actions take parameters.** An action declares `params`, each with its choices and a default; its steps read them as variables (`'{{params.until}}'`), as they read any value. A button of an action with parameters offers their choices (a button and a small menu: _March_ · to the destination / one hex / 3 hexes); `do:` and the system's own invocations pass them.
 
 ```yaml
 travel:
-  move: march # what the trip does to move when it goes on by itself (the world clock…)
+  # When the trip goes on by itself (the world clock, a travel order), it moves like this:
+  onward: { do: march, with: { until: destination } }
   halt: { at: part.night, do: camp }
 actions:
   march:
     name: March
+    params:
+      until: { choices: [destination, hex, 3], default: destination } # 3: three hexes
     when: { time.tags: { not: dark }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
-    do: [{ go: destination }] # moves while its when / unless hold, until it arrives
+    do: [{ travel.move: '{{params.until}}' }]
+  forced-march:
+    name: Forced march
+    do:
+      [
+        { travel.speed: 1.5 },
+        { effects: { party.stats.fatigue: 1 } },
+        { do: march, with: { until: hex } },
+      ]
   sail:
     name: Sail on
     when: { trip.mode: boat }
-    do: [{ go: destination }]
-  press-on: # a move by progress, no marching (as today)
-    do: [{ time: 360 }, { advance: 1 }]
+    do: [{ travel.move: destination }]
 ```
 
-- `go: destination` moves along the route while the action's `when` / `unless` hold (as `march` does today), until it arrives, a check needs the player or they stop holding; `go: hex` only to the next hex. Steps before and after it run as usual (a forced march: `speed: 1.5`, then `go`).
-- The trip panel shows these actions as the moving buttons, by their names; **1 hex** becomes the same action taken `go: hex` (a small option beside each moving button).
-- `travel.move` says which one the trip takes when it goes on by itself (absent: the first action with a `go` step); with none, the trip only waits (moves by `advance`).
+- `travel.move: destination | hex | <N>` moves along the route while the action's `when` / `unless` hold (as `march` does today), until it gets there, a check needs the player or they stop holding.
+- `travel.onward` is the same invocation a button makes (an action and its parameters), for the trip going on by itself; without it, the trip only waits (or moves by `travel.advance` steps). It mirrors `travel.halt`.
+- Nothing is reserved: the trip panel's moving buttons are the system's actions with a `travel.move` step, by their names; **1 hex** is one of their parameters' choices, not a button of the engine's.
+- `do:` takes an action and, optionally, `with:` its parameters (`{ do: march, with: { until: hex } }`).
 - `trip.marched` stays as "minutes moved today", whatever action moved.
-- Older rules: `actions.march` with only `when` / `unless` is read as `march: { …, do: [{ go: destination }] }` and `travel.move: march`; a system that never declared one (format 2) gets the older by-day march. No `MARCH` reserved id.
-- Cost: the engine's travel loop becomes a step; the trip panel's buttons, Hexmapper Play and the World panel read `travel.move`; Systems' Actions shows `go` as a step. One more pack-format change: it would go into format 3 (not released yet), so no format 4.
+- Older rules: `actions.march` with only `when` / `unless` is read as that action with `params.until` (destination, hex) and `travel.move`, and `travel.onward: march`; format 2 systems get their older by-day march. `advance` / `speed` steps are read as `travel.advance` / `travel.speed`.
+- Cost: the travel loop becomes a step; parameters are a new piece of the actions' syntax (validation: choices, defaults, unknown params); the trip panel, Hexmapper Play and the World panel read the moving actions and `travel.onward`; Systems' Actions edits parameters. Still pack format 3 (not released yet).
