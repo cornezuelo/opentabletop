@@ -56,33 +56,38 @@ export function territoryWorld(map: HexMap): TerritoryWorld {
  * they start (unless it has them already, from this system), and the map the land each
  * starts with on it (every hex of its regions, by name, and, when the map is the one of the
  * factions' pack they're on (`from`: the map's path in that pack, if it's one of its example
- * maps), the hexes it lists). `time` is the moment they come (their last turn).
+ * maps), the hexes it lists). Without a map, only their sheets come (no land). `time` is
+ * the moment they come (their last turn).
  */
 export function bringFactions(
   campaign: Campaign,
-  map: HexMap,
+  map: HexMap | undefined,
   system: SystemFactions,
   systemId: string,
   time: number,
   from?: { pack: string; path: string },
 ): FactionsOnMap {
-  const { regions, hexes, grid } = map
   const start = startFactions(
     system,
-    {
-      regionHexes: (name) => {
-        const region = regions.find((r) => r.name === name)
-        return region
-          ? (Object.keys(hexes) as HexKey[]).filter((k) => hexes[k]?.region === region.id)
-          : []
-      },
-      exists: (hex) => /^\d+,\d+$/.test(hex) && inBounds(parseKey(hex as HexKey), grid),
-      is: (path) => from?.pack === system.pack && from.path === path,
-    },
+    map
+      ? {
+          regionHexes: (name) => {
+            const region = map.regions.find((r) => r.name === name)
+            return region
+              ? (Object.keys(map.hexes) as HexKey[]).filter(
+                  (k) => map.hexes[k]?.region === region.id,
+                )
+              : []
+          },
+          exists: (hex) => /^\d+,\d+$/.test(hex) && inBounds(parseKey(hex as HexKey), map.grid),
+          is: (path) => from?.pack === system.pack && from.path === path,
+        }
+      : { regionHexes: () => [], exists: () => false },
     time,
   )
   const own = campaign.factions
   if (!own || own.system !== systemId) return { system: systemId, ...start }
+  if (!map) return { ...own, territories: {} }
   // The campaign has them (another map brought them): only their land comes to this map,
   // for the factions it doesn't have land of yet.
   let territories = { ...(factionsOn(campaign, map)?.territories ?? {}) }

@@ -224,6 +224,14 @@ describe('campaigns', () => {
     expect(there.factions).toBe(withThem.factions!.factions)
     expect(there.lastTurn).toBe(60)
     expect(there.territories).toEqual({ clans: ['0,0'] })
+    // Without a map (the Campaign app, a campaign with no maps yet): their sheets, no land.
+    const alone = bringFactions(campaign, undefined, marks.factions!, 'marks', 60)
+    expect(alone.factions.map((f) => f.id)).toEqual(['clans', 'vale'])
+    expect(alone.territories).toEqual({})
+    expect(bringFactions(withThem, undefined, marks.factions!, 'marks', 600)).toEqual({
+      ...withThem.factions,
+      territories: {},
+    })
     // The land of a faction the campaign no longer has is not shown.
     const gone = { ...withThem, factions: { ...split.factions!, factions: [] } }
     expect(factionsOn(gone, { ...map, territories: split.territories })?.territories).toEqual({})

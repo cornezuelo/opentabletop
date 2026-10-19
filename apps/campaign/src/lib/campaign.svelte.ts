@@ -1,11 +1,15 @@
 import {
   bringClocks,
+  bringFactions,
   createCampaign,
   serializeCampaign,
   missingClocks,
+  splitFactions,
   startWorld,
   worldAct,
+  worldTurnNow,
   type Campaign,
+  type CampaignFactions,
   type WorldDone,
   type WorldHost,
 } from '@open-tabletop/campaign'
@@ -15,14 +19,17 @@ import {
   worldWords,
   type WorldControls,
 } from '@open-tabletop/campaign-ui'
-import { newId } from '@open-tabletop/map'
+import { deserializeMap, newId, serializeMap, type HexMap } from '@open-tabletop/map'
 import { mathRandom } from '@open-tabletop/random'
 import { calendarOf, localize, type TravelSystem } from '@open-tabletop/session'
 import {
+  allLibraryMaps,
   deleteCampaign,
   listCampaigns,
   onCampaignChange,
+  onLibraryChange,
   putCampaign,
+  putLibraryMap,
 } from '@open-tabletop/storage'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { CampaignKeeper, confirmAction, showToast } from '@open-tabletop/ui-kit'
@@ -91,12 +98,110 @@ function weatherModel(system: TravelSystem): WeatherModel | undefined {
   return (bound ? system.weather?.[bound] : undefined) ?? Object.values(system.weather ?? {})[0]
 }
 
+/** Where the map each campaign plays its factions' land on here is remembered (per viewer). */
+const LAND_MAP_KEY = 'opentabletop.campaign.landMap'
+
+function readLandMaps(): Record<string, string> {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LAND_MAP_KEY) ?? '{}') as unknown
+    return stored && typeof stored === 'object' ? (stored as Record<string, string>) : {}
+  } catch {
+    return {}
+  }
+}
+
+/** The maps of the library in a campaign (a map saved before campaigns is in its own). */
+async function mapsIn(campaign: string): Promise<HexMap[]> {
+  const maps: HexMap[] = []
+  for (const entry of await allLibraryMaps().catch(() => [])) {
+    try {
+      const map = deserializeMap(entry.json)
+      if ((map.meta.campaign ?? map.meta.id) === campaign) maps.push(map)
+    } catch {
+      // A map that can't be read is in no campaign (the Hexmapper says what's wrong).
+    }
+  }
+  return maps.sort((a, b) => a.meta.name.localeCompare(b.meta.name))
+}
+
+/** Writes a map of the library back (its land changed here); the Hexmapper hears it. */
+async function keepMap(map: HexMap): Promise<void> {
+  const next = { ...map, meta: { ...map.meta, modified: new Date().toISOString() } }
+  await putLibraryMap({
+    id: next.meta.id,
+    name: next.meta.name,
+    modified: next.meta.modified,
+    json: serializeMap(next),
+  })
+}
+
+const sameLand = (a: HexMap['territories'], b: HexMap['territories']) =>
+  JSON.stringify(a ?? {}) === JSON.stringify(b ?? {})
+
+/**
+ * The example map of a loaded pack a map is (opened from a system's `maps:`, it keeps the
+ * bundle's id), if any: the factions' starting hexes go only on the map they're for.
+ */
+function exampleOf(map: HexMap): { pack: string; path: string } | undefined {
+  for (const system of systems.list) {
+    const root = system.pack ? library.rootOf(system.pack) : undefined
+    if (root === undefined) continue
+    for (const path of system.maps ?? []) {
+      try {
+        const json = library.readFile(root, path)
+        const ids = (JSON.parse(json ?? '{}') as { maps?: { id?: string }[] }).maps
+        if (ids?.[0]?.id === map.meta.id) return { pack: system.pack!, path }
+      } catch {
+        // Not a map: the system's page in Systems says what's wrong with it.
+      }
+    }
+  }
+  return undefined
+}
+
 /** The campaign open in the app. */
 class OpenCampaign {
   private readonly keeper = new CampaignKeeper()
   /** The id asked for, and whether it's kept here (false: not in this browser). */
   id = $state('')
   found = $state<boolean | undefined>(undefined)
+  /** The campaign's maps (read from the library, again when it changes). */
+  maps = $state.raw<HexMap[]>([])
+  private landMaps = $state<Record<string, string>>(readLandMaps())
+
+  constructor() {
+    onLibraryChange(() => void this.readMaps())
+  }
+
+  private async readMaps(): Promise<void> {
+    const id = this.id
+    if (!id) return
+    const maps = await mapsIn(id)
+    if (this.id === id) this.maps = maps
+  }
+
+  /**
+   * The map the factions' land changes on here (world turns, by hand or as time moves on):
+   * the one chosen, else the map of the trip going on, else the first. None without maps.
+   */
+  get landMap(): HexMap | undefined {
+    const campaign = this.campaign
+    if (!campaign) return undefined
+    const by = (id: string | undefined) => this.maps.find((m) => m.meta.id === id)
+    const playing = campaign.playing?.app === 'hexmapper' ? campaign.playing.id : undefined
+    return by(this.landMaps[campaign.id]) ?? by(playing) ?? this.maps[0]
+  }
+
+  /** Chooses the map the land changes on (remembered in this browser). */
+  chooseLandMap(id: string): void {
+    if (!this.campaign) return
+    this.landMaps = { ...this.landMaps, [this.campaign.id]: id }
+    try {
+      localStorage.setItem(LAND_MAP_KEY, JSON.stringify(this.landMaps))
+    } catch {
+      // Not remembered: the default map next time.
+    }
+  }
 
   get campaign(): Campaign | undefined {
     const c = this.keeper.campaign
@@ -121,6 +226,8 @@ class OpenCampaign {
     }
     await this.keeper.open(id, kept.name)
     if (this.id === id) this.found = true
+    this.maps = []
+    await this.readMaps()
   }
 
   /** Changes the open campaign (its name, notes…) and keeps it. */
@@ -133,25 +240,41 @@ class OpenCampaign {
     return this.campaign && worldHost(this.campaign, this.system)
   }
 
-  /** Keeps what the world did, and tells the clocks that filled on the way. */
-  private take(done: WorldDone): void {
+  /** Where the world plays here: the campaign, and the map its factions' land is on. */
+  private place(): { campaign: Campaign; map?: HexMap } | undefined {
+    const campaign = this.campaign
+    return campaign && { campaign, map: this.landMap }
+  }
+
+  /**
+   * Keeps what the world did (the campaign, and the map if its land changed), and tells the
+   * clocks that filled on the way.
+   */
+  private take(done: WorldDone, before?: HexMap): void {
     this.set(done.campaign)
+    if (done.map && before && !sameLand(before.territories, done.map.territories))
+      this.putMap(done.map)
     for (const { clock, text } of done.filled)
       showToast(clockFilledText(getLocale(), clock, text), 'info', 8000)
   }
 
+  private putMap(map: HexMap): void {
+    this.maps = this.maps.map((m) => (m.meta.id === map.meta.id ? map : m))
+    keepMap(map).catch(() => showToast(t('storage.full'), 'error', 8000))
+  }
+
   private act(action: Parameters<typeof worldAct>[1]): void {
-    const campaign = this.campaign
+    const place = this.place()
     const host = this.host()
-    if (campaign && host) this.take(worldAct({ campaign }, action, host))
+    if (place && host) this.take(worldAct(place, action, host), place.map)
   }
 
   /** What the world clock's UI does here: the campaign alone, without a map or a trip. */
   readonly controls: WorldControls = {
     start: (time) => {
-      const campaign = this.campaign
+      const place = this.place()
       const host = this.host()
-      if (campaign && host) this.take(startWorld({ campaign }, time, host))
+      if (place && host) this.take(startWorld(place, time, host), place.map)
     },
     stop: () => {
       const campaign = this.campaign
@@ -176,10 +299,71 @@ class OpenCampaign {
       if (await confirmAction(texts.world.confirmRewind)) this.act({ type: 'rewind', time })
     },
     bringClocks: () => {
-      const campaign = this.campaign
+      const place = this.place()
       const host = this.host()
-      if (campaign && host) this.take(bringClocks({ campaign }, host))
+      if (place && host) this.take(bringClocks(place, host), place.map)
     },
+  }
+
+  /**
+   * Brings the system's factions to the campaign: their sheets, and the land each starts
+   * with on the map chosen (none without maps; another map gets its own with `bringLand`).
+   */
+  bringFactions(): void {
+    const campaign = this.campaign
+    const system = this.system
+    if (!campaign || !system.factions) return
+    this.bringOn(campaign, undefined, this.landMap)
+  }
+
+  /** Gives the factions the land the system starts them with on a map that has none of theirs. */
+  bringLand(map: HexMap): void {
+    const campaign = this.campaign
+    if (campaign?.factions) this.bringOn(campaign, campaign.factions.system, map)
+  }
+
+  private bringOn(campaign: Campaign, systemId: string | undefined, map?: HexMap): void {
+    const system = systems.get(systemId ?? campaign.system)
+    if (!system.factions) return
+    const time = campaign.world?.time ?? 0
+    const split = splitFactions(
+      bringFactions(campaign, map, system.factions, system.id, time, map && exampleOf(map)),
+    )
+    this.set({ ...campaign, factions: split.factions })
+    if (map && !sameLand(map.territories, split.territories))
+      this.putMap({ ...map, territories: split.territories })
+  }
+
+  /** The factions' sheets or whether turns come by themselves, changed by hand. */
+  setFactions(factions: CampaignFactions): void {
+    const campaign = this.campaign
+    if (campaign) this.set({ ...campaign, factions })
+  }
+
+  /** A world turn now, the land changing on the map chosen. */
+  worldTurn(): void {
+    const place = this.place()
+    const host = this.host()
+    if (place && host) this.take(worldTurnNow(place, host), place.map)
+  }
+
+  /**
+   * Takes the factions out of the campaign: their sheets are forgotten, and their land on
+   * every map of it. Asks first. True if taken.
+   */
+  async removeFactions(): Promise<boolean> {
+    const campaign = this.campaign
+    if (!campaign?.factions || !(await confirmAction(t('factions.confirmRemove')))) return false
+    const next = { ...campaign }
+    delete next.factions
+    this.set(next)
+    for (const map of this.maps)
+      if (map.territories && Object.keys(map.territories).length) {
+        const bare = { ...map }
+        delete bare.territories
+        this.putMap(bare)
+      }
+    return true
   }
 
   /** How many clocks the system declares that the world doesn't have. */

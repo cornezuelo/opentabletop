@@ -1,3 +1,4 @@
+import { campaignTexts } from '@open-tabletop/campaign-ui'
 import { vocabulary } from '@open-tabletop/ui-kit'
 
 // Source of truth for UI strings (English is the default locale). `es.ts` mirrors this shape.
@@ -59,9 +60,42 @@ export const en = {
     noRewindTrip:
       'The clock can’t go back while a trip is going on in the campaign: a trip’s time never goes back.',
   },
+  whatItDoes: campaignTexts.en.whatItDoes,
+  factions: {
+    intro:
+      'The powers of this world: each one’s sheet, kept by the campaign, and the land it holds on each of its maps. Open one to see and change its sheet.',
+    help: campaignTexts.en.factions.help,
+    landOn: 'Their land on',
+    landOnHelp:
+      'The map of the campaign whose land you see here, and where world turns win and lose ground: **World turn** below, and the turns that come by themselves as the world clock moves on in **World**. Each map keeps its own land; the sheets are the campaign’s, the same on every map.\nBy default, the map of the trip going on, else the first. Painting land by hand is done on the map, in the Hexmapper (**Paint in the Hexmapper ↗**, then **World → Factions**).\nIf that map is open in the Hexmapper, it takes the new land at once.',
+    paintIn: 'Paint in the Hexmapper ↗',
+    minimap: 'The factions’ land on {map}',
+    bringLand: 'Give them their starting land here',
+    bringLandHelp:
+      'No faction holds land on this map yet (it joined the campaign after they came): each gets the land its system says it starts with here, every hex of its starting regions by name (and its starting hexes, if this is the map they’re for). Their sheets don’t change.',
+    noMaps:
+      'No map is in this campaign: world turns change the factions’ sheets and the progress clocks, but no land. Add a map from the Hexmapper (**Map settings → Campaign**).',
+    none: 'The campaign’s system has factions, not yet in this campaign: bring them in, each holding the land the system says it starts with on the map chosen.',
+    noneNoMaps:
+      'The campaign’s system has factions, not yet in this campaign: bring them in. With no map in the campaign yet, only their sheets come; a map that joins gets their land here.',
+    bring: campaignTexts.en.factions.bring,
+    noSystem: 'The campaign’s system declares no factions.',
+    missing:
+      'These factions came from “{system}”, a system not loaded in this browser: their sheets are kept, but can’t be shown or take turns until it is.',
+    territory: campaignTexts.en.factions.territory,
+    territoryOne: campaignTexts.en.factions.territoryOne,
+    turn: campaignTexts.en.factions.turn,
+    turnHelp: campaignTexts.en.factions.turnHelp,
+    auto: campaignTexts.en.factions.auto,
+    autoHelp: campaignTexts.en.factions.autoHelp,
+    remove: 'Take the factions out of the campaign',
+    confirmRemove:
+      'Take the factions out of this campaign? Their sheets are forgotten, and their land on every map of it.',
+  },
   tabs: {
     label: 'The campaign',
     world: 'World',
+    factions: campaignTexts.en.factions.title,
     timeline: 'Timeline',
     places: 'Maps and trips',
   },

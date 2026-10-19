@@ -77,7 +77,7 @@
     />
     <main>
       {#if nav.view.name === 'campaign'}
-        <CampaignView id={nav.view.id} tab={nav.view.tab} />
+        <CampaignView id={nav.view.id} tab={nav.view.tab} faction={nav.view.faction} />
       {:else if nav.view.name === 'new'}
         <NewCampaign />
       {:else}

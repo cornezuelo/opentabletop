@@ -5,18 +5,26 @@ import type { LibraryChange, LibraryEntry } from '@open-tabletop/storage'
  * The Campaign app: a campaign made here with the Grey Marches' system, its world clock
  * played without a map (the system's clocks, an event coming due, the world's own weather),
  * the clock not going back while a trip plays in it elsewhere, and a campaign deleted only
- * when nothing is in it.
+ * when nothing is in it; its factions brought in, their land on a map of the library (the
+ * Grey Marches' example map), world turns by hand and by themselves changing it there.
  */
 
 // Where campaigns and maps are kept: in memory here (IndexedDB in a browser).
 const kept = new Map<string, LibraryEntry>()
 const maps: LibraryEntry[] = []
+const putMaps: LibraryEntry[] = []
 let hear: ((change: LibraryChange) => void) | undefined
 vi.mock('@open-tabletop/storage', async (original) => ({
   ...(await original<typeof import('@open-tabletop/storage')>()),
   getCampaign: async (id: string) => kept.get(id) ?? null,
   deleteCampaign: async (id: string) => void kept.delete(id),
   allLibraryMaps: async () => maps,
+  putLibraryMap: async (entry: LibraryEntry) => {
+    putMaps.push(entry)
+    const at = maps.findIndex((m) => m.id === entry.id)
+    if (at >= 0) maps[at] = entry
+    else maps.push(entry)
+  },
   putCampaign: async (entry: LibraryEntry) => void kept.set(entry.id, entry),
   listCampaigns: async () =>
     [...kept.values()].map(({ id, name, modified }) => ({ id, name, modified })),
@@ -44,6 +52,7 @@ describe('the Campaign app', () => {
     localStorage.clear()
     kept.clear()
     maps.length = 0
+    putMaps.length = 0
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 
@@ -116,5 +125,99 @@ describe('the Campaign app', () => {
     await app.open.open('nowhere')
     expect(app.open.found).toBe(false)
     expect(app.open.campaign).toBeUndefined()
+  })
+
+  it('brings in the factions, and plays their land on a map of the campaign', async () => {
+    const { c, dialog, app, systems, calendarOf } = await openApp()
+    const { createMap, deserializeMap, serializeMap } = await import('@open-tabletop/map')
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const calendar = calendarOf(greyMarches)
+    const id = await app.newCampaign('The Marches at war', greyMarches.id)
+
+    // The Grey Marches' example map (its id is the bundle's), in the campaign: its Hills and
+    // Vale by name, and Fort Keld's hex.
+    const example = (): ReturnType<typeof createMap> => {
+      const map = createMap('The Grey Marches')
+      map.meta = { ...map.meta, id: 'greymarches1', campaign: id }
+      map.grid = { ...map.grid, width: 20, height: 12 }
+      map.regions = [
+        { id: 'hollowhills', name: 'The Hollow Hills', color: '#000' },
+        { id: 'ashfordvale', name: 'Ashford Vale', color: '#000' },
+      ]
+      for (let col = 1; col <= 4; col++) map.hexes[`${col},2`] = { region: 'hollowhills' }
+      for (let col = 8; col <= 11; col++) map.hexes[`${col},6`] = { region: 'ashfordvale' }
+      return map
+    }
+    const keep = (map: ReturnType<typeof createMap>) =>
+      maps.push({ id: map.meta.id, name: map.meta.name, modified: '', json: serializeMap(map) })
+    keep(example())
+    await app.open.open(id)
+    expect(app.open.maps.map((m) => m.meta.id)).toEqual(['greymarches1'])
+    expect(app.open.landMap?.meta.id).toBe('greymarches1')
+
+    // Brought in: their sheets in the campaign, their starting land on the map (written back).
+    app.open.bringFactions()
+    await settle()
+    const own = c.deserializeCampaign(kept.get(id)!.json).factions!
+    expect(own.factions.map((f) => f.id)).toEqual(['iron-clans', 'the-vale', 'fort-keld'])
+    const land = () => deserializeMap(maps.find((m) => m.id === 'greymarches1')!.json).territories!
+    expect(land()['iron-clans']).toHaveLength(4)
+    expect(land()['the-vale']).toHaveLength(4)
+    expect(land()['fort-keld']).toEqual(['15,9'])
+
+    // A world turn by hand: in the timeline, and the land changes on the map. The Vale (3
+    // strength) gathers; the Clans (4) reach out.
+    app.open.controls.start(calendar.at(1, '06:00'))
+    const writes = putMaps.length
+    app.open.worldTurn()
+    await settle()
+    const turned = c.deserializeCampaign(kept.get(id)!.json)
+    expect(turned.world!.timeline.some((e) => /The Iron Clans/.test(e.text ?? ''))).toBe(true)
+    expect(turned.factions!.lastTurn).toBe(calendar.at(1, '06:00'))
+    expect(putMaps.length).toBeGreaterThan(writes)
+    expect(land()).toEqual(app.open.landMap!.territories)
+
+    // Turns by themselves: a week later, another turn came, on the map.
+    const before = JSON.stringify(land())
+    await app.open.controls.advance({ minutes: 7 * calendar.minutesPerDay })
+    await settle()
+    const week = c.deserializeCampaign(kept.get(id)!.json)
+    expect(week.factions!.lastTurn).toBeGreaterThan(turned.factions!.lastTurn)
+    expect(JSON.stringify(land())).not.toBe(before)
+    // Untick it: time moves on with no turn.
+    app.open.setFactions({ ...week.factions!, auto: false })
+    await app.open.controls.advance({ minutes: 14 * calendar.minutesPerDay })
+    await settle()
+    expect(c.deserializeCampaign(kept.get(id)!.json).factions!.lastTurn).toBe(
+      week.factions!.lastTurn,
+    )
+
+    // A second map joins, with no land of theirs: given here, by region (no Fort Keld: its
+    // hex is for the example map only). It's the one chosen now.
+    const second = example()
+    second.meta = { ...second.meta, id: 'secondmap1', name: 'A second map' }
+    keep(second)
+    await app.open.open('elsewhere')
+    await app.open.open(id)
+    expect(app.open.maps.map((m) => m.meta.id)).toEqual(['secondmap1', 'greymarches1'])
+    app.open.chooseLandMap('secondmap1')
+    expect(app.open.landMap?.meta.id).toBe('secondmap1')
+    app.open.bringLand(app.open.landMap!)
+    await settle()
+    const there = deserializeMap(maps.find((m) => m.id === 'secondmap1')!.json).territories!
+    expect(Object.keys(there).sort()).toEqual(['iron-clans', 'the-vale'])
+    // The sheets didn't change.
+    expect(c.deserializeCampaign(kept.get(id)!.json).factions!.factions).toEqual(
+      app.open.campaign!.factions!.factions,
+    )
+
+    // Taken out: their sheets, and their land on every map.
+    const removing = app.open.removeFactions()
+    await settle()
+    dialog.current!.resolve('ok')
+    expect(await removing).toBe(true)
+    await settle()
+    expect(c.deserializeCampaign(kept.get(id)!.json).factions).toBeUndefined()
+    for (const m of maps) expect(deserializeMap(m.json).territories).toBeUndefined()
   })
 })

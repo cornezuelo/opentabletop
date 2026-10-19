@@ -26,13 +26,17 @@ Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran l
 
 **Borrar** solo se puede cuando no hay ningún mapa ni viaje en la campaña: llévalos a otra campaña (o bórralos) antes. Pregunta, y olvida el reloj, la cronología, las facciones y el estado del Oráculo de la campaña.
 
-Las pestañas de la campaña (la dirección de cada una, como `#/campaign/<id>/timeline`, se puede enlazar):
+Las pestañas de la campaña (la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar):
 
 ### Mundo
 
 El reloj del mundo, el mismo que muestra el panel **Mundo** del Hexmapper para un mapa de la campaña: ponlo en marcha en una fecha, avanza el tiempo (una hora, hasta la siguiente parte del día, el día siguiente, el próximo evento, o hasta una parte elegida), fija la fecha, programa eventos, lleva relojes de progreso y añade los del sistema, y mira el clima de hoy. Todo funciona como en [El reloj del mundo](../hexmapper/12-world.md), y es un solo reloj: moverlo aquí lo mueve en todos los mapas y viajes de la campaña, y lo ven al momento.
 
-Aquí no hay mapa ni grupo, así que avanzar el tiempo solo mueve el mundo: llegan sus eventos, su clima se tira día a día, sus relojes hacen lo que dice el sistema al llenarse. Un viaje en marcha en la campaña (en un mapa, o en Travel) espera hasta la nueva fecha cuando da su siguiente paso, viviendo el tiempo que pasó. Mientras hay un viaje en marcha, el reloj no puede volver atrás, y el clima del mundo es el del viaje (aquí no se muestra).
+Aquí no hay grupo, así que avanzar el tiempo solo mueve el mundo: llegan sus eventos, su clima se tira día a día, sus relojes hacen lo que dice el sistema al llenarse, y se juegan los turnos de las facciones que tocan, cambiando su tierra en el mapa elegido en [Facciones](02-factions.md). Un viaje en marcha en la campaña (en un mapa, o en Travel) espera hasta la nueva fecha cuando da su siguiente paso, viviendo el tiempo que pasó. Mientras hay un viaje en marcha, el reloj no puede volver atrás, y el clima del mundo es el del viaje (aquí no se muestra).
+
+### Facciones
+
+Los poderes del mundo de la campaña, sus hojas y su tierra en cada uno de sus mapas, y los turnos del mundo: [Facciones](02-factions.md).
 
 ### Cronología
 

@@ -110,4 +110,17 @@ export const es: Messages = {
     onDate: 'En una fecha',
     onDatePast: 'Esa fecha ya pasó.',
   },
+  factions: {
+    title: 'Facciones',
+    help: 'Las facciones del sistema de la campaña (`kind: factions` en su pack): cada una con su color, su hoja (sus valores, estados y relaciones, como los de un personaje), que guarda la campaña, y los hexes que tiene en cada uno de sus mapas. En un **turno del mundo** cada una tira su tabla de turno, y lo que sale las cambia a ellas, su tierra en el mapa en que se juega y los relojes de progreso del reloj del mundo; la línea temporal dice qué hizo cada una. Las tablas y condiciones las leen en todas partes:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — quién tiene el hex\n• `factions.iron-clans.territory: { gt: 10 }` — cuántos hexes tiene en el mapa que se juega',
+    bring: 'Traer sus facciones',
+    territory: '{n} hexes',
+    territoryOne: '1 hex',
+    turn: 'Turno del mundo',
+    turnHelp:
+      'Cada facción juega su turno ahora, en orden, viendo lo que hicieron las anteriores: tira su tabla y aplica lo que sale (sus valores, los de otra facción, su tierra en el mapa que se juega creciendo o menguando hex a hex, los relojes de progreso del reloj del mundo). Cada resultado va a la línea temporal.',
+    auto: 'Turnos por sí solos, cada {days} días',
+    autoHelp:
+      'Según avanza el reloj del mundo (a mano, o con un viaje), llega un turno del mundo cada tantos días como diga el sistema. Desmárcalo para jugarlos solo con **Turno del mundo**.',
+  },
 }

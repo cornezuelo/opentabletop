@@ -109,4 +109,17 @@ export const en = {
     onDate: 'On a date',
     onDatePast: 'That date has passed.',
   },
+  factions: {
+    title: 'Factions',
+    help: "The factions of the campaign's system (`kind: factions` in its pack): each with its colour, its sheet (its values, conditions and relations, like a character's), kept by the campaign, and the hexes it holds on each of its maps. On a **world turn** each one rolls its turn table, and what comes up changes them, their land on the map it's played on and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds on the map being played",
+    bring: 'Bring in its factions',
+    territory: '{n} hexes',
+    territoryOne: '1 hex',
+    turn: 'World turn',
+    turnHelp:
+      'Every faction takes its turn now, in order, each seeing what the ones before it did: it rolls its table and applies what comes up (its values, another faction’s, its land on the map being played growing or shrinking hex by hex, the world clock’s progress clocks). Each result goes to the timeline.',
+    auto: 'Turns by themselves, every {days} days',
+    autoHelp:
+      'As the world clock moves on (by hand, or with a trip), a world turn comes every so many days, as the system says. Untick to take them only with **World turn**.',
+  },
 }

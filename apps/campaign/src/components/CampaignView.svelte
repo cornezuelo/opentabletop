@@ -6,10 +6,11 @@
   import { open, removeCampaign } from '../lib/campaign.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go, TABS, type Tab } from '../lib/nav.svelte'
+  import Factions from './Factions.svelte'
   import Places from './Places.svelte'
 
   /** A campaign: its name, system and notes, and its world in tabs. */
-  let { id, tab }: { id: string; tab: Tab } = $props()
+  let { id, tab, faction }: { id: string; tab: Tab; faction?: string } = $props()
 
   $effect(() => {
     void open.open(id)
@@ -114,6 +115,8 @@
           defaultStart={calendar.at(1, '06:00')}
           timeline={false}
         />
+      {:else if tab === 'factions'}
+        <Factions {campaign} {faction} />
       {:else if tab === 'timeline'}
         {#if campaign.world}
           <WorldTimeline

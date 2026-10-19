@@ -1,3 +1,4 @@
+import { campaignTexts } from '@open-tabletop/campaign-ui'
 import { vocabulary } from '@open-tabletop/ui-kit'
 import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
@@ -59,9 +60,42 @@ export const es: Messages<typeof en> = {
     noRewindTrip:
       'El reloj no puede volver atrás con un viaje en marcha en la campaña: el tiempo de un viaje nunca retrocede.',
   },
+  whatItDoes: campaignTexts.es.whatItDoes,
+  factions: {
+    intro:
+      'Los poderes de este mundo: la hoja de cada uno, que guarda la campaña, y la tierra que tiene en cada uno de sus mapas. Abre uno para ver y cambiar su hoja.',
+    help: campaignTexts.es.factions.help,
+    landOn: 'Su tierra en',
+    landOnHelp:
+      'El mapa de la campaña cuya tierra ves aquí, y donde los turnos del mundo ganan y pierden terreno: **Turno del mundo** abajo, y los turnos que llegan por sí solos según avanza el reloj del mundo en **Mundo**. Cada mapa guarda su propia tierra; las hojas son de la campaña, las mismas en todos los mapas.\nPor defecto, el mapa del viaje en curso; si no, el primero. La tierra se pinta a mano en el mapa, en el Hexmapper (**Pintar en el Hexmapper ↗**, y luego **Mundo → Facciones**).\nSi ese mapa está abierto en el Hexmapper, coge la tierra nueva al momento.',
+    paintIn: 'Pintar en el Hexmapper ↗',
+    minimap: 'La tierra de las facciones en {map}',
+    bringLand: 'Darles aquí su tierra inicial',
+    bringLandHelp:
+      'Ninguna facción tiene aún tierra en este mapa (entró en la campaña después de que llegaran): cada una recibe la tierra con la que su sistema dice que empieza aquí, todos los hexes de sus regiones iniciales por nombre (y sus hexes iniciales, si este es el mapa para el que son). Sus hojas no cambian.',
+    noMaps:
+      'No hay ningún mapa en esta campaña: los turnos del mundo cambian las hojas de las facciones y los relojes de progreso, pero no la tierra. Añade un mapa desde el Hexmapper (**Ajustes del mapa → Campaña**).',
+    none: 'El sistema de la campaña tiene facciones, aún no en esta campaña: tráelas, cada una con la tierra con la que el sistema dice que empieza en el mapa elegido.',
+    noneNoMaps:
+      'El sistema de la campaña tiene facciones, aún no en esta campaña: tráelas. Sin ningún mapa en la campaña todavía, solo llegan sus hojas; a un mapa que entre se le da su tierra aquí.',
+    bring: campaignTexts.es.factions.bring,
+    noSystem: 'El sistema de la campaña no declara facciones.',
+    missing:
+      'Estas facciones vienen de «{system}», un sistema que no está cargado en este navegador: sus hojas se guardan, pero no se pueden mostrar ni jugar turnos hasta que lo esté.',
+    territory: campaignTexts.es.factions.territory,
+    territoryOne: campaignTexts.es.factions.territoryOne,
+    turn: campaignTexts.es.factions.turn,
+    turnHelp: campaignTexts.es.factions.turnHelp,
+    auto: campaignTexts.es.factions.auto,
+    autoHelp: campaignTexts.es.factions.autoHelp,
+    remove: 'Quitar las facciones de la campaña',
+    confirmRemove:
+      '¿Quitar las facciones de esta campaña? Se olvidan sus hojas, y su tierra en todos sus mapas.',
+  },
   tabs: {
     label: 'La campaña',
     world: 'Mundo',
+    factions: campaignTexts.es.factions.title,
     timeline: 'Cronología',
     places: 'Mapas y viajes',
   },

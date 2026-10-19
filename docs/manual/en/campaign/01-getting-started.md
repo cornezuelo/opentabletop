@@ -26,13 +26,17 @@ At the top, its **name** (click it to change it; every app names the campaign wi
 
 **Delete** is only possible when no map or trip is in the campaign: move them to another campaign (or delete them) first. It asks, and forgets the campaign's clock, timeline, factions and Oracle state.
 
-The campaign's tabs (the address of each, such as `#/campaign/<id>/timeline`, can be linked):
+The campaign's tabs (the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked):
 
 ### World
 
 The world clock, the same one the Hexmapper's **World** panel shows for a map of the campaign: start it on a date, move time on (an hour, to the next part of the day, the next day, the next event, or until a part chosen), set the date, schedule events, keep progress clocks and add the system's ones, and see today's weather. Everything works as in [The world clock](../hexmapper/12-world.md), and it is one clock: moving it here moves it on every map and trip of the campaign, and they see it at once.
 
-Here there is no map and no party, so moving time on only moves the world: its events come due, its weather is rolled day by day, its clocks do what the system says when they fill. A trip going on in the campaign (on a map, or in Travel) waits until the new date when it next steps, living the time that passed. While a trip goes on, the clock can't go back, and the world's weather is the trip's (it isn't shown here).
+Here there is no party, so moving time on only moves the world: its events come due, its weather is rolled day by day, its clocks do what the system says when they fill, and the factions' turns that come due are played, their land changing on the map chosen in [Factions](02-factions.md). A trip going on in the campaign (on a map, or in Travel) waits until the new date when it next steps, living the time that passed. While a trip goes on, the clock can't go back, and the world's weather is the trip's (it isn't shown here).
+
+### Factions
+
+The powers of the campaign's world, their sheets and their land on each of its maps, and world turns: [Factions](02-factions.md).
 
 ### Timeline
 
