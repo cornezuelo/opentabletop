@@ -18,6 +18,8 @@ export const vocabulary = {
     },
     /** A campaign's trips: one goes on at a time, so its world has one time. */
     campaign: {
+      /** A link to the campaign in the Campaign app, from wherever it's played. */
+      open: 'Open in Campaign ↗',
       pauseOther:
         'Another trip is going on in this campaign: “{trip}”. Pause it and play this one? Time is one in a campaign: if its clock went on, this party waits until then.',
       caughtUp: "The campaign's clock had gone on: the party waited until then.",
@@ -127,6 +129,7 @@ export const vocabulary = {
       open: 'Abrir en Characters',
     },
     campaign: {
+      open: 'Abrir en Campaign ↗',
       pauseOther:
         'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, este grupo espera hasta entonces.',
       caughtUp: 'El reloj de la campaña había avanzado: el grupo ha esperado hasta entonces.',

@@ -19,7 +19,7 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 - **Duplicar** hace una copia con sus valores, solo en el plantel; **Exportar** lo descarga como fichero `.otd.json`; **Borrar** lo quita del plantel (tras preguntar).
 - **Hoja**: la hoja con la que está hecho y su sistema, con **Editar la hoja en Systems →**. Un personaje cuya hoja no está cargada (su pack quitado, o un pack de uso personal en otra compilación) muestra sus valores tal cual, y no se puede cambiar hasta que vuelva la hoja.
 - **Id**: cómo se lee, como arriba.
-- **Dónde juega**: el mapa o el viaje en el que viaja ahora, con **Abrir**, o _solo en el plantel_.
+- **Dónde juega**: el mapa o el viaje en el que viaja ahora, con **Abrir**, o _solo en el plantel_; debajo, la campaña en la que está ese mapa o viaje, con **Abrir en Campaign ↗** (la aplicación [Campaign](../campaign/01-getting-started.md)).
 - **Notas**: su página en tu aplicación de notas (una ruta como `Personajes/Viejo Tobin`); **↗** la abre. La aplicación de notas se elige en **Preferencias**. Su historia, su aspecto y sus secretos viven allí, no aquí.
 - Debajo, su ficha, la misma que en un viaje: sus valores por grupos (un contador como casillas: haz clic en una para llenar hasta ella), sus estados, sus etiquetas y sus relaciones (con lugares, regiones, hexes u otros personajes del plantel).
 

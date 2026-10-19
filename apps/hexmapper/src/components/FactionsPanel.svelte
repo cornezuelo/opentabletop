@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CharacterCard } from '@open-tabletop/character-ui'
   import { factionName, localize, type LocalizedText } from '@open-tabletop/session'
-  import { confirmAction, InfoTip, Markdown } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
     bringFactions,
@@ -34,37 +34,46 @@
   const color = (id: string) => system?.def.factions[id]?.color ?? '#8a7f6e'
 </script>
 
+<!-- The World panel's Factions tab: a line per faction with its brush; its sheet unfolds. -->
 <div class="field">
-  <span>{t('factions.title')}<InfoTip markdown={t('factions.help')} /></span>
   {#if own && system}
-    <p class="help">{t('factions.intro')}</p>
+    <p class="help">{t('factions.intro')}<InfoTip markdown={t('factions.help')} /></p>
     <span class="help what">{t('factions.land')}<InfoTip markdown={t('factions.landHelp')} /></span>
     {#each own.factions as faction (faction.id)}
       <details class="faction">
         <summary>
           <span class="swatch" style:background={color(faction.id)}></span>
-          <strong>{name(faction.id)}</strong>
-          <span class="count"
-            >{(own.territories[faction.id]?.length ?? 0) === 1
-              ? t('factions.territoryOne')
-              : t('factions.territory', { n: own.territories[faction.id]?.length ?? 0 })}</span
+          <span class="who"
+            ><strong>{name(faction.id)}</strong>
+            <span class="count"
+              >{(own.territories[faction.id]?.length ?? 0) === 1
+                ? t('factions.territoryOne')
+                : t('factions.territory', { n: own.territories[faction.id]?.length ?? 0 })}</span
+            ></span
           >
-        </summary>
-        {#if about(faction.id)}<Markdown class="about" text={about(faction.id)} />{/if}
-        <div class="paint">
+          <!-- Its brush on the line itself: pressing it doesn't unfold the sheet. -->
           <button
+            class="brush"
             class:active={editor.factionBrush === faction.id}
             aria-pressed={editor.factionBrush === faction.id}
-            onclick={() =>
-              (editor.factionBrush = editor.factionBrush === faction.id ? null : faction.id)}
-            >{editor.factionBrush === faction.id
+            aria-label={editor.factionBrush === faction.id
               ? t('factions.stopPainting')
-              : t('factions.paint')}</button
+              : t('factions.paint')}
+            use:tooltip={editor.factionBrush === faction.id
+              ? t('factions.stopPainting')
+              : t('factions.paint')}
+            onclick={(e) => {
+              e.preventDefault()
+              editor.factionBrush = editor.factionBrush === faction.id ? null : faction.id
+            }}>✎</button
           >
-          <span class="help"
-            >{t('factions.paintHint')}<InfoTip markdown={t('factions.paintHelp')} /></span
-          >
-        </div>
+        </summary>
+        {#if editor.factionBrush === faction.id}
+          <p class="help paint">
+            {t('factions.paintHint')}<InfoTip markdown={t('factions.paintHelp')} />
+          </p>
+        {/if}
+        {#if about(faction.id)}<Markdown class="about" text={about(faction.id)} />{/if}
         <CharacterCard
           sheet={system.sheet.def}
           character={faction}
@@ -115,7 +124,6 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-top: 12px;
   }
 
   .faction {
@@ -136,27 +144,35 @@
   }
 
   .paint {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 8px;
-    align-items: center;
     margin-bottom: 6px;
-    font-size: 12px;
   }
 
-  .paint button.active {
+  .who {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .brush {
+    flex: none;
+    padding: 2px 8px;
+    font-size: 14px;
+  }
+
+  .brush.active {
     color: var(--accent);
     border-color: var(--accent);
   }
 
   .swatch {
+    flex: none;
     width: 12px;
     height: 12px;
     border-radius: 3px;
   }
 
   .count {
-    margin-left: auto;
     font-size: 12px;
     color: var(--text-muted);
   }

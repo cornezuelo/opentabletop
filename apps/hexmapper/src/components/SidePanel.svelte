@@ -9,7 +9,6 @@
   import MapCampaign from './MapCampaign.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSystem from './MapSystem.svelte'
-  import FactionsPanel from './FactionsPanel.svelte'
   import WorldPanel from './WorldPanel.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
@@ -165,7 +164,7 @@
     </div>
   {:else if editor.panelView === 'world'}
     <header>
-      <h1>{t('world.title')}<InfoTip text={t('world.help')} /></h1>
+      <h1>{t('world.title')}<InfoTip markdown={t('world.help')} /></h1>
       <button
         class="close"
         use:tooltip={t('panel.closeSettings')}
@@ -173,7 +172,7 @@
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
     </header>
-    <div class="export"><WorldPanel /><FactionsPanel /></div>
+    <div class="export"><WorldPanel /></div>
   {:else if editor.panelView === 'layers'}
     <header>
       <h1>{t('panel.layers')}</h1>

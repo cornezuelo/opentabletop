@@ -51,6 +51,8 @@ The maps of the Hexmapper (its library in this browser) and Travel's trips that 
 
 If the map or trip brings a world of its own (a world clock, factions, Oracle rolls), its app asks which one stays. The campaign it leaves is deleted if nothing else is in it.
 
+The other apps bring you back here with **Open in Campaign ↗**: the Hexmapper's World panel (above its tabs), Travel's trip room (under **Campaign**), the Oracle (under **Campaign**, with one chosen) and a roster character's **Where it plays** in Characters.
+
 ## Where campaigns are kept
 
 Campaigns live in this browser (IndexedDB), beside the Hexmapper's maps, and a [backup](../technical/05-backups.md) includes them. A map saved to a file carries its campaign ([File formats](../technical/02-file-formats.md)).

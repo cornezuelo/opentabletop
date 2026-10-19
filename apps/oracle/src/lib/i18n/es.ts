@@ -50,6 +50,7 @@ export const es: Messages<typeof en> = {
   },
   campaign: {
     title: vocabulary.es.terms.campaign,
+    open: vocabulary.es.campaign.open,
     none: 'Sin campaña',
     help: 'Dónde guardan las tiradas a mano sus mazos, sus resultados de una sola vez y su historial:\n• **Sin campaña** — los propios del Oracle, en este navegador\n• una campaña (la de un mapa del Hexmapper, o la de un viaje de Travel) — compartidos con ella: una carta robada aquí ya no sale en los viajes de ese mapa, y las tiradas aparecen en su panel del Oracle\nTu semilla (Preferencias) sigue siendo la de este navegador en ambos casos.',
   },

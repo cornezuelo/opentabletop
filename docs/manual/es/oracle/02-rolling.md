@@ -30,7 +30,7 @@ Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcada
 
 ## Tirar en una campaña
 
-**Campaña**, arriba del historial, elige dónde guardan tus tiradas sus mazos, sus resultados de una sola vez y su historial. **Sin campaña** (lo normal) son los propios del Oracle, en este navegador. Elige una campaña (la de un mapa del Hexmapper, que aparece con el nombre del mapa, o la de un viaje de Travel) para tirar en ese mundo: una carta que robas aquí ya no está en el mazo para los viajes de ese mapa, un resultado de una sola vez que salió allí no sale aquí, y el historial es el que muestra el panel del Oracle del mapa. **Nueva sesión** y **Borrar** actúan entonces sobre los de la campaña. Cuando el mapa o un viaje la cambian en otra ventana, el Oracle la vuelve a leer. Tu semilla sigue siendo la de este navegador en ambos casos.
+**Campaña**, arriba del historial, elige dónde guardan tus tiradas sus mazos, sus resultados de una sola vez y su historial. **Sin campaña** (lo normal) son los propios del Oracle, en este navegador. Elige una campaña (la de un mapa del Hexmapper, que aparece con el nombre del mapa, o la de un viaje de Travel) para tirar en ese mundo: una carta que robas aquí ya no está en el mazo para los viajes de ese mapa, un resultado de una sola vez que salió allí no sale aquí, y el historial es el que muestra el panel del Oracle del mapa. **Nueva sesión** y **Borrar** actúan entonces sobre los de la campaña. Cuando el mapa o un viaje la cambian en otra ventana, el Oracle la vuelve a leer. Tu semilla sigue siendo la de este navegador en ambos casos. Con una campaña elegida, **Abrir en Campaign ↗**, debajo, la muestra en la aplicación [Campaign](../campaign/01-getting-started.md).
 
 ## Tiradas repetibles
 

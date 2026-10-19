@@ -51,6 +51,8 @@ Los mapas del Hexmapper (su biblioteca en este navegador) y los viajes de Travel
 
 Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tiradas del Oráculo), su aplicación pregunta cuál se queda. La campaña que deja se borra si no queda nada más en ella.
 
+Las demás aplicaciones te traen aquí con **Abrir en Campaign ↗**: el panel Mundo del Hexmapper (encima de sus pestañas), la sala del viaje de Travel (bajo **Campaña**), el Oracle (bajo **Campaña**, con una elegida) y **Dónde juega** de un personaje del plantel en Characters.
+
 ## Dónde se guardan las campañas
 
 Las campañas viven en este navegador (IndexedDB), junto a los mapas del Hexmapper, y una [copia de seguridad](../technical/05-backups.md) las incluye. Un mapa guardado en un archivo lleva su campaña ([Formatos de archivo](../technical/02-file-formats.md)).

@@ -2,6 +2,8 @@
 
 The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date for this map: time moves on, scheduled events come due on their day, and progress clocks fill up. A map belongs to a **campaign**, the world it's played in, which keeps the world clock, its weather, the factions and the Oracle; a new map has a campaign of its own, made with it (a map saved before campaigns gets one with its clock, factions and Oracle), and it can join another one in **Map settings → Campaign**, sharing its date with the other maps there ([Campaigns](01-getting-started.md#campaigns)); a trip of the Travel app can play in it too ([The campaign](../travel/02-playing.md#the-campaign)). It's saved with the campaign, beside the map, and in the map's `.otd.json`. Its months, moons and holidays come from the calendar of the map's system (`kind: calendar` in its pack, see [Kinds of definition](../technical/07-kinds.md#calendars)); without one, days and four seasons. The [Campaign](../campaign/01-getting-started.md) app shows the same clock, without a map, with the campaign's timeline, maps and trips.
 
+The panel is in **tabs**: **Now** (the date, moving time on, starting and stopping the clock), **Events**, **Clocks**, **Timeline** and **Factions**. The tab you chose last opens the next time (in this browser); before the clock starts there are only **Now** and **Factions**. **Open in Campaign ↗**, above the tabs, shows this map's campaign in the Campaign app, on the same tab when it has one (**Timeline**, **Factions**).
+
 ## Starting it
 
 **Starting on** chooses its date in the calendar's terms: the day of the month, the month and the year, and the time (with the default calendar, the day number and the time); it starts at 06:00 of the first day unless you change it. **Start the world clock** sets it there — or, during a trip, at the trip's time (they share one time). A date the calendar doesn't have (the 31st of a 30-day month, or before its first day) is said under the boxes. It names time with the calendar of the system the map plays (**Map settings → Campaign → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the Generic rules' plain calendar counts the days of its seasons and seasons.
@@ -47,13 +49,13 @@ Example with the Grey Marches: start the clock, place the party in Ashford (0608
 
 ## Events
 
-Things that happen on a date whether the party is there or not: a festival, an attack, a ship arriving. Write what happens, its **Id**, a **description** if you like, when (**in how many days** and **at what time**, or **on a date** of the calendar), and whether it happens **once**, **every N days** (a weekly market) or **every year**. The list shows what's coming, soonest first, with each one's id and description; ✕ cancels one.
+The **Events** tab: things that happen on a date whether the party is there or not: a festival, an attack, a ship arriving. Write what happens, its **Id**, a **description** if you like, when (**in how many days** and **at what time**, or **on a date** of the calendar), and whether it happens **once**, **every N days** (a weekly market) or **every year**. The list shows what's coming, soonest first, with each one's id and description; ✕ cancels one.
 
 The **Id** is how conditions and tables name the event on its day: lowercase words joined by dashes (`market-day`, `clan-raid`), one per event. Left empty, it's the name written that way (**Market day** → `market-day`; a number is added if it's taken).
 
 ## Progress clocks
 
-A clock is a round dial of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it. Its **segments** can be any number: set them when adding it (beside its name) or change them later (beside the count). Under the count is the name tables read it by (`the-wyrm-wakes`).
+The **Clocks** tab. A clock is a round dial of segments filled as something advances: a threat (“The Wyrm wakes: 1/6”), a project, a faction's plan. Click a segment to fill up to it, or the last filled one to empty it. When a clock fills up, the timeline says so. Rename one by editing its name; ✕ removes it. Its **segments** can be any number: set them when adding it (beside its name) or change them later (beside the count). Under the count is the name tables read it by (`the-wyrm-wakes`).
 
 **The system's own clocks.** A system may declare the clocks its world starts with ([Progress clocks](../technical/07-kinds.md#progress-clocks), the Systems app's **Clocks** tab): they come with the world clock when you start it, already filled as far as the system says. Click the name under a declared clock's count to see what it is and **what happens when it fills**: a line on the timeline and a notice, a table rolled, effects on the factions and on other clocks, and then it stays full, starts over or goes away. Rules read it by the id the system gives it, whatever you rename it. **Add the system's clocks** brings back the ones the world doesn't have (removed, or declared after the clock started).
 
@@ -61,23 +63,23 @@ A clock is a round dial of segments filled as something advances: a threat (“T
 
 ## Timeline
 
-What happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).
+The **Timeline** tab: what happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).
 
 The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and the system's three clocks — the Greywood Wyrm (filled by the haunted lights; full, it rolls what the Wyrm does first and roams the Greywood), the Iron Clans' march (filled by their world turns; full, they go to war on Fort Keld, bringing its mutiny two segments closer, and gather again) and Fort Keld's unpaid garrison (full, it mutinies: the fort is lost and the clock goes away).
 
 ## Factions
 
-A faction is one of the powers of the world (a kingdom, a clan, a guild): a sheet of values and conditions like a character's, kept by the campaign, and **land**, the hexes it holds on each map. When the map's system has factions (`kind: factions` in its pack), the World view lists them under **Factions**; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one shows its colour and how many hexes it holds; open it for what the system says it is and its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
+A faction is one of the powers of the world (a kingdom, a clan, a guild): a sheet of values and conditions like a character's, kept by the campaign, and **land**, the hexes it holds on each map. When the map's system has factions (`kind: factions` in its pack), the **Factions** tab lists them; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one is a line with its colour, its name, how many hexes it holds and **✎**, its brush; open it for what the system says it is and its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
 
 **Their land** comes from three places, and the map keeps it (the **Their land** label in the panel says so too):
 
 - **Where it starts**: the regions its system names for each, on any map that has them, and the hexes it names, only on the example map they're on (Systems → [Factions](../systems/08-factions.md)), given when you bring them in. Changing them in the system later doesn't move a map's land.
-- **By hand**: **Paint its land**, below.
+- **By hand**: its brush, **✎**, below.
 - **World turns**: a faction's turn table may win ground (`faction.territory: 1`, a hex from its border) or lose it (`-1`).
 
 A hex has one holder at most: taking it takes it from whoever held it. Tables read who holds a hex as `hex.faction`, and how much each holds as `factions.<id>.territory`.
 
-**Their land, by hand.** Open a faction and press **Paint its land**: while it's on (and the World panel open), a click or a drag on the map gives it hexes, taken from whoever held them, and a right click takes them away (water and hexes off the map stay nobody's). Press **Stop painting** when done. Like a world turn, it isn't undone with Ctrl+Z: paint them back. Their values and conditions are changed in each one's sheet, under it.
+**Their land, by hand.** Press **✎** on a faction's line (**Paint its land**): while it's on (and the World panel open), a click or a drag on the map gives it hexes, taken from whoever held them, and a right click takes them away (water and hexes off the map stay nobody's). Press **✎** again (**Stop painting**) when done. Like a world turn, it isn't undone with Ctrl+Z: paint them back. Their values and conditions are changed in each one's sheet, under it.
 
 **World turn** has every faction take its turn now (its explanation is in **What it does**, beside it, so reading it doesn't run a turn), in order: each rolls its turn table, and what comes up changes it, another faction, its land (a hex more from its border, or one less) or a progress clock; each result goes to the timeline ("The Iron Clans: Raiders strike the Vale's outlying farms"). With **Turns by themselves, every N days** ticked, turns come as the clock moves on, by hand or with a trip, every so many days as the system says.
 

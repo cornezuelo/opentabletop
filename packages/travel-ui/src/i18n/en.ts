@@ -194,6 +194,7 @@ export const en = {
   },
   campaign: {
     title: vocabulary.en.terms.campaign,
+    open: vocabulary.en.campaign.open,
     help: "The world the trip plays in: its system, its world clock, its factions and its Oracle (decks drawn, once-only results), shared with the maps and trips of the same campaign. A trip starts in a campaign of its own, with the trip's system; choose a map's campaign to travel in that map's world: the trip's days are the campaign's, what its checks and actions do to clocks and factions happens there, and events coming due on the way go to the journal.\n• **Its own** — a world of its own, as a trip without a map always had\n• a map's name — that map's campaign\nIf the trip's campaign has a world, joining another asks which one stays; the campaign it leaves is deleted if nothing else is in it. A trip keeps the system it started with; a new trip in a campaign shared with others with another system asks first, since the system is the campaign's.\nOne trip goes on in a campaign at a time: playing another asks to pause the one that played last. If the campaign's clock went on meanwhile, the party waits until then.",
     own: 'Its own',
     pauseOther: vocabulary.en.campaign.pauseOther,

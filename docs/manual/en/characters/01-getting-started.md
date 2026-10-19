@@ -19,7 +19,7 @@ Labels underlined with dots have an explanation: click one and the help column o
 - **Duplicate** makes a copy with its values, in the roster only; **Export** downloads it as an `.otd.json` file; **Delete** removes it from the roster (after asking).
 - **Sheet**: the sheet it's made with and its system, with **Edit the sheet in Systems →**. A character whose sheet isn't loaded (its pack removed, or a personal-use pack in another build) shows its values as they are, and can't be changed until the sheet is back.
 - **Id**: how it's read, as above.
-- **Where it plays**: the map or trip it travels on now, with **Open**, or _only in the roster_.
+- **Where it plays**: the map or trip it travels on now, with **Open**, or _only in the roster_; under it, the campaign that map or trip is in, with **Open in Campaign ↗** (the [Campaign](../campaign/01-getting-started.md) app).
 - **Notes**: its page in your notes app (a path such as `People/Old Tobin`); **↗** opens it. The notes app is chosen in **Preferences**. Its story, looks and secrets live there, not here.
 - Under them, its card, the same as in a trip: its values by group (a track as boxes: click one to fill up to it), its conditions, its tags and its relations (to places, regions, hexes or other roster characters).
 

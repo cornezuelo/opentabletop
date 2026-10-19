@@ -1,4 +1,4 @@
-import type { Messages } from '@open-tabletop/ui-kit'
+import { vocabulary, type Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
@@ -54,11 +54,14 @@ export const es: Messages<typeof en> = {
     notesPlaceholder: 'Personajes/{name}',
     where: 'Dónde juega',
     whereHelp:
-      'Un personaje viaja en un sitio a la vez: el viaje de un mapa en el Hexmapper, un viaje en Travel o un token en un mapa. Lo que le pasa allí se vuelca aquí tras cada paso; lo que cambies aquí, el viaje lo encuentra la próxima vez que se abra.',
+      'Un personaje viaja en un sitio a la vez: el viaje de un mapa en el Hexmapper, un viaje en Travel o un token en un mapa. Lo que le pasa allí se vuelca aquí tras cada paso; lo que cambies aquí, el viaje lo encuentra la próxima vez que se abra. Al lado sale la campaña en la que está ese sitio, con un enlace a ella en la aplicación Campaign.',
     nowhere:
       'Solo en el plantel. Para llevarlo de viaje, abre la pestaña **Grupo** del viaje y elígelo en **Del plantel**.',
     playsIn: '{place}, en {app}',
     playsAsToken: 'un token en {place}, en {app}',
+    inCampaign: 'en la campaña {campaign}',
+    untitledCampaign: 'una campaña sin nombre',
+    openCampaign: vocabulary.es.campaign.open,
     open: 'Abrir',
     duplicate: 'Duplicar',
     duplicateTip: 'Una copia con sus valores, solo en el plantel.',

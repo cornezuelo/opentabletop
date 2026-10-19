@@ -5,6 +5,7 @@
   import {
     APPS,
     appUrl,
+    campaignUrl,
     confirmAction,
     InfoTip,
     Markdown,
@@ -12,6 +13,7 @@
     showToast,
     tooltip,
   } from '@open-tabletop/ui-kit'
+  import { placeCampaign } from '@open-tabletop/travel-ui'
   import { deleteCharacter, duplicateCharacter, exportCharacters } from '../lib/actions'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -54,6 +56,14 @@
       place: place.name,
       app: appName(place),
     })
+
+  /** The campaign the place it plays in is in (read from the map library or Travel's trips). */
+  let campaign = $state<{ id: string; name: string }>()
+  $effect(() => {
+    const place = entry?.playing
+    campaign = undefined
+    if (place) void placeCampaign(place).then((found) => (campaign = found))
+  })
 
   function duplicate() {
     go({ name: 'character', id: duplicateCharacter(id, t('character.copyName', { name: label })) })
@@ -110,6 +120,10 @@
           {@const url = placeUrl(entry.playing)}
           {placeText(entry.playing)}
           {#if url}<a href={url}>{t('character.open')}</a>{/if}
+          {#if campaign}<br />{t('character.inCampaign', {
+              campaign: campaign.name || t('character.untitledCampaign'),
+            })}
+            <a href={campaignUrl(campaign.id)}>{t('character.openCampaign')}</a>{/if}
         {:else}
           <Markdown class="inline" text={t('character.nowhere')} />
         {/if}

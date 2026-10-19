@@ -406,7 +406,7 @@ export const en = {
       "Gives this faction hexes by hand: with it on, a click or a drag on the map makes the hexes its own (taken from whoever held them), and a right click takes them away. Water and hexes off the map stay nobody's. It isn't undone with Ctrl+Z, like a world turn: paint them back.",
     title: campaignTexts.en.factions.title,
     intro:
-      'The powers of this world, each holding land on the map in its colour. Open one to see its sheet and paint its land.',
+      'The powers of this world, each holding land on the map in its colour. Open one to see its sheet; ✎ paints its land.',
     land: 'Their land',
     landHelp:
       "Which hexes each faction holds (`hex.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the regions and hexes the system names for it (Systems → **Factions**), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes hexes away\n• **world turns** — its turn table may win or lose ground hex by hex (`faction.territory: 1` takes a hex from its border, `-1` gives one up)\nA hex has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
@@ -599,7 +599,16 @@ export const en = {
   },
   world: {
     title: 'World',
-    help: 'The campaign’s clock: today’s date, events you schedule (a festival, an attack, a deadline), progress clocks and a timeline. It uses the calendar of the system the map plays. Trips with rules move it on by themselves.',
+    help: 'The campaign’s clock: today’s date, events you schedule (a festival, an attack, a deadline), progress clocks and a timeline, with the campaign’s factions, a tab each. It uses the calendar of the system the map plays. Trips with rules move it on by themselves.\nIt is the same world in every map and trip of the campaign; **Open in Campaign ↗** shows it in the Campaign app.',
+    openCampaign: vocabulary.en.campaign.open,
+    tabs: {
+      label: 'The world',
+      now: 'Now',
+      events: campaignTexts.en.world.events,
+      clocks: 'Clocks',
+      timeline: campaignTexts.en.world.timeline,
+      factions: campaignTexts.en.factions.title,
+    },
     confirmWait:
       'The party will wait here for {days} day(s); when it can’t march: {action}. Go on?',
     confirmWaitNoNight: 'The party will wait here for {days} day(s). Go on?',

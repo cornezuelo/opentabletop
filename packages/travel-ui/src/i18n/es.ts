@@ -192,6 +192,7 @@ export const es: Messages<typeof en> = {
   },
   campaign: {
     title: vocabulary.es.terms.campaign,
+    open: vocabulary.es.campaign.open,
     help: 'El mundo en el que se juega el viaje: su sistema, su reloj del mundo, sus facciones y su Oráculo (mazos robados, resultados que salen una sola vez), compartido con los mapas y viajes de la misma campaña. Un viaje empieza en una campaña propia, con el sistema del viaje; elige la campaña de un mapa para viajar en el mundo de ese mapa: los días del viaje son los de la campaña, lo que sus comprobaciones y acciones hacen a relojes y facciones pasa allí, y los eventos que llegan por el camino van al diario.\n• **La suya** — un mundo propio, como el que siempre tuvo un viaje sin mapa\n• el nombre de un mapa — la campaña de ese mapa\nSi la campaña del viaje tiene mundo, unirse a otra pregunta cuál se queda; la campaña que se deja se borra si no queda nada más en ella. Un viaje mantiene el sistema con el que empezó; un viaje nuevo en una campaña compartida con otros y con otro sistema pregunta antes, porque el sistema es de la campaña.\nEn una campaña se juega un viaje cada vez: jugar otro pide pausar el que se jugó el último. Si el reloj de la campaña avanzó entretanto, el grupo espera hasta entonces.',
     own: 'La suya',
     pauseOther: vocabulary.es.campaign.pauseOther,

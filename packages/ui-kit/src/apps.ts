@@ -44,5 +44,15 @@ export const appGlyphUrl = (id: AppId): string =>
 export function appUrl(id: AppId): string {
   const app = APPS.find((a) => a.id === id)!
   const dev = (import.meta as { env?: { DEV?: boolean } }).env?.DEV
-  return dev ? `${location.protocol}//${location.hostname}:${app.devPort}/` : `../${id}/`
+  // Rendered without a page (tests render on the server), the built layout.
+  return dev && typeof location !== 'undefined'
+    ? `${location.protocol}//${location.hostname}:${app.devPort}/`
+    : `../${id}/`
 }
+
+/** A campaign in the Campaign app (the other apps' **Open in Campaign ↗**), at one of its tabs. */
+export const campaignUrl = (
+  id: string,
+  tab?: 'world' | 'factions' | 'timeline' | 'places',
+): string =>
+  `${appUrl('campaign')}#/campaign/${encodeURIComponent(id)}${tab && tab !== 'world' ? `/${tab}` : ''}`

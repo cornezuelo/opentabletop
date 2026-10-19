@@ -1,6 +1,6 @@
 <script lang="ts">
   import { listCampaigns } from '@open-tabletop/storage'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { campaignUrl, InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { campaignChoice, chooseCampaign, keeper } from '../lib/oracle.svelte'
 
@@ -26,6 +26,7 @@
       <option value={campaignChoice.id}>{keeper.campaign?.name || campaignChoice.id}</option>
     {/if}
   </select>
+  {#if campaignChoice.id}<a href={campaignUrl(campaignChoice.id)}>{t('campaign.open')}</a>{/if}
 </label>
 
 <style>
@@ -36,5 +37,10 @@
     margin: 0 0 8px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .campaign a {
+    align-self: flex-start;
+    color: var(--accent);
   }
 </style>

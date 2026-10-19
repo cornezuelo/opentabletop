@@ -17,6 +17,7 @@ vi.mock('@open-tabletop/storage', async (original) => ({
   getCampaign: async (id: string) => kept.get(id) ?? null,
   deleteCampaign: async (id: string) => void kept.delete(id),
   allLibraryMaps: async () => maps,
+  getLibraryMap: async (id: string) => maps.find((m) => m.id === id) ?? null,
   putCampaign: async (entry: LibraryEntry) => void kept.set(entry.id, entry),
   listCampaigns: async () =>
     [...kept.values()].map(({ id, name, modified }) => ({ id, name, modified })),
@@ -88,6 +89,17 @@ describe('trips in campaigns', () => {
     expect(trip.campaign?.name).toBe('The Frontier')
     expect(trip.saved.session!.travel.time).toBe(start)
     expect((await trip.campaigns()).map((x) => x.name)).toContain('The Frontier')
+    // Where a roster character plays says the campaign (Characters' **Where it plays**).
+    const { placeCampaign } = await import('@open-tabletop/travel-ui')
+    expect(await placeCampaign({ app: 'travel', id: trip.saved.id })).toEqual({
+      id: 'm1',
+      name: 'The Frontier',
+    })
+    expect(await placeCampaign({ app: 'hexmapper', id: 'm1' })).toEqual({
+      id: 'm1',
+      name: 'The Frontier',
+    })
+    expect(await placeCampaign({ app: 'hexmapper', id: 'gone' })).toBeUndefined()
     for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], edges: ['road'] })
     await settle()
 

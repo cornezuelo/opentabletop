@@ -2,7 +2,7 @@
   import { calendarOf, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
   import { defaultCalendar } from '@open-tabletop/time'
   import { roster } from '@open-tabletop/character-ui'
-  import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
+  import { campaignUrl, confirmAction, InfoTip } from '@open-tabletop/ui-kit'
   import { untrack } from 'svelte'
   import { translator } from './i18n'
   import { terrainName } from './terrains'
@@ -153,6 +153,7 @@
               >
             {/if}
           </select>
+          <a class="open" href={campaignUrl(trip.saved.campaign)}>{t('campaign.open')}</a>
         </label>
       {/if}
       <TripSetup {systems} system={system.id} {locale} bind:season onrestart={start} />
@@ -230,6 +231,11 @@
     max-width: 360px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .campaign .open {
+    align-self: flex-start;
+    color: var(--accent);
   }
 
   .trips .field {

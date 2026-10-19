@@ -412,7 +412,7 @@ export const es: Messages = {
       'Le da hexes a esta facción a mano: activado, un clic o arrastrar en el mapa hace suyos los hexes (quitándoselos a quien los tuviera), y un clic derecho se los quita. El agua y los hexes fuera del mapa siguen sin ser de nadie. No se deshace con Ctrl+Z, como un turno del mundo: vuelve a pintarlos.',
     title: campaignTexts.es.factions.title,
     intro:
-      'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja y pintar su tierra.',
+      'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja; ✎ pinta su tierra.',
     land: 'Su tierra',
     landHelp:
       'Qué hexes tiene cada facción (`hex.faction`), dibujados en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las regiones y hexes que el sistema le da (Systems → **Facciones**), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita hexes\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno hex a hex (`faction.territory: 1` coge un hex de su frontera, `-1` cede uno)\nUn hex tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
@@ -605,7 +605,16 @@ export const es: Messages = {
   },
   world: {
     title: 'Mundo',
-    help: 'El reloj de la campaña: la fecha de hoy, eventos que programas (una fiesta, un ataque, un plazo), relojes de progreso y una cronología. Usa el calendario del sistema con el que se juega el mapa. Los viajes con reglas lo hacen avanzar solos.',
+    help: 'El reloj de la campaña: la fecha de hoy, eventos que programas (una fiesta, un ataque, un plazo), relojes de progreso y una cronología, con las facciones de la campaña, cada cosa en su pestaña. Usa el calendario del sistema con el que se juega el mapa. Los viajes con reglas lo hacen avanzar solos.\nEs el mismo mundo en todos los mapas y viajes de la campaña; **Abrir en Campaign ↗** lo muestra en la aplicación Campaign.',
+    openCampaign: vocabulary.es.campaign.open,
+    tabs: {
+      label: 'El mundo',
+      now: 'Ahora',
+      events: campaignTexts.es.world.events,
+      clocks: 'Relojes',
+      timeline: campaignTexts.es.world.timeline,
+      factions: campaignTexts.es.factions.title,
+    },
     confirmWait:
       'El grupo esperará aquí {days} día(s); cuando no pueda marchar: {action}. ¿Seguir?',
     confirmWaitNoNight: 'El grupo esperará aquí {days} día(s). ¿Seguir?',

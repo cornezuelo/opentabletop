@@ -25,3 +25,6 @@ export interface WorldTrip {
   /** The hex it heads to (travelling) or waits at, as the map writes it. */
   hex: string
 }
+
+/** A part of the world clock's UI, for a host that shows them in tabs (`all`: every one). */
+export type WorldPart = 'all' | 'now' | 'events' | 'clocks'

@@ -21,6 +21,7 @@ export {
   appGlyphUrl,
   appIconUrl,
   appUrl,
+  campaignUrl,
   logoUrl,
   type AppId,
   type AppInfo,

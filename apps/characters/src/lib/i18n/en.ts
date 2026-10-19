@@ -1,4 +1,5 @@
 // Source of truth for UI strings (English is the default locale). `es.ts` mirrors this shape.
+import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   app: {
     title: 'Characters',
@@ -50,11 +51,14 @@ export const en = {
     notesPlaceholder: 'People/{name}',
     where: 'Where it plays',
     whereHelp:
-      'A character travels in one place at a time: a map’s trip in the Hexmapper, a trip in Travel, or a token on a map. What happens to it there is written back here after every step; what you change here, the trip finds when it next opens.',
+      'A character travels in one place at a time: a map’s trip in the Hexmapper, a trip in Travel, or a token on a map. What happens to it there is written back here after every step; what you change here, the trip finds when it next opens. The campaign that place is in shows beside it, with a link to it in the Campaign app.',
     nowhere:
       'Only in the roster. To take it on a trip, open the trip’s **Party** tab and choose it under **From the roster**.',
     playsIn: '{place}, in {app}',
     playsAsToken: 'a token on {place}, in {app}',
+    inCampaign: 'in the campaign {campaign}',
+    untitledCampaign: 'an untitled campaign',
+    openCampaign: vocabulary.en.campaign.open,
     open: 'Open',
     duplicate: 'Duplicate',
     duplicateTip: 'A copy with its values, in the roster only.',
