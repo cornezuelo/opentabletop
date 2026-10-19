@@ -181,6 +181,12 @@
       template={{ kmPerDay: 25 }}
       columns={[
         { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
         { field: 'kmPerDay', label: t('rules.kmPerDay'), type: 'number', min: 0 },
         {
           field: 'through',
@@ -355,6 +361,12 @@
       template={{ min: 0 }}
       columns={[
         { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
         { field: 'min', label: t('rules.min'), help: t('rules.minHelp'), type: 'number' },
         { field: 'max', label: t('rules.max'), help: t('rules.maxHelp'), type: 'number' },
       ]}
@@ -392,7 +404,12 @@
       template={{ blocks: ['travel'] }}
       columns={[
         { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
-        { field: 'description', label: t('checks.description'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
         {
           field: 'blocks',
           label: t('rules.blocks'),

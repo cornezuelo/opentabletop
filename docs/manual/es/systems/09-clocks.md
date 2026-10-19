@@ -5,7 +5,7 @@ La pestaña **Relojes** edita los relojes de progreso con los que empieza el mun
 ## Qué tiene
 
 - Su **Nombre**.
-- Cada reloj, por su id (cómo lo leen las reglas: `world.clocks.<id>`), con su **Nombre**, sus **Segmentos** (cualquier número desde 1) y en qué **Empieza**.
+- Cada reloj, por su id (cómo lo leen las reglas: `world.clocks.<id>`), con su **Nombre**, su **Descripción (su ayuda**, en la ayuda de su id en el panel Mundo), sus **Segmentos** (cualquier número desde 1) y en qué **Empieza**.
 - Lo que pasa cuando se llena: **Al llenarse** (qué pasa, en palabras: una línea en la cronología y un aviso), **Tira** (una tabla, oráculo, generador o mazo), **Cambia** (otros relojes y las facciones: `world.clocks.the-siege: 2`, `factions.the-crown.values.strength: -1`) y **Después**: `keep` lo deja lleno (por defecto), `reset` lo hace volver a empezar, `remove` lo quita.
 
 Lo llenan los efectos, allí donde van efectos: un encuentro de un viaje, la tabla de turno de una facción, otro reloj lleno (`world.clocks.the-siege: 1`). Un reloj que nada llena se llena a mano en el mapa.

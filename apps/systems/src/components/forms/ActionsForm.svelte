@@ -203,7 +203,7 @@
         {/if}
       </div>
       <label>
-        <span>{t('checks.description')}</span>
+        <span>{t('forms.description')}<InfoTip text={t('forms.descriptionHelp')} /></span>
         <textarea
           rows="2"
           placeholder={doc.translating ? doc.baseText(d.description) : ''}

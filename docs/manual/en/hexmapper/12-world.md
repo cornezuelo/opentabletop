@@ -65,7 +65,7 @@ The Grey Marches' example map comes with the clock running: a market every week 
 
 ## Factions
 
-A faction is one of the powers of the world (a kingdom, a clan, a guild): a sheet of values and conditions like a character's, and **land**, the hexes it holds on the map. When the map's system has factions (`kind: factions` in its pack), the World view lists them under **Factions**; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one shows its colour and how many hexes it holds; open it for its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
+A faction is one of the powers of the world (a kingdom, a clan, a guild): a sheet of values and conditions like a character's, and **land**, the hexes it holds on the map. When the map's system has factions (`kind: factions` in its pack), the World view lists them under **Factions**; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one shows its colour and how many hexes it holds; open it for what the system says it is and its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
 
 **Their land** comes from three places, and the map keeps it (the **Their land** label in the panel says so too):
 

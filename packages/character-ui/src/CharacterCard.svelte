@@ -153,7 +153,12 @@
   {/if}
 
   {#each groups as { group, ids } (group)}
-    {#if group}<h4>{text(sheet.groups?.[group]?.name, group)}</h4>{/if}
+    {#if group}
+      {@const about = text(sheet.groups?.[group]?.description)}
+      <h4>
+        {text(sheet.groups?.[group]?.name, group)}{#if about}<InfoTip markdown={about} />{/if}
+      </h4>
+    {/if}
     <div class="values">
       {#each ids as id (id)}
         {@const def = sheet.values[id]}
@@ -216,7 +221,14 @@
       <span>{t('relations')}<InfoTip markdown={t('relationsHelp', { path: where })} /></span>
       {#each character.relations as r (`${r.kind}|${r.to}`)}
         <div class="relation">
-          <span class="kind">{text(sheet.relations[r.kind]?.name, r.kind)}</span>
+          <span class="kind"
+            >{text(
+              sheet.relations[r.kind]?.name,
+              r.kind,
+            )}{#if text(sheet.relations[r.kind]?.description)}<InfoTip
+                markdown={text(sheet.relations[r.kind]?.description)}
+              />{/if}</span
+          >
           <span class="to">{targetName(r.to)}</span>
           {#if sheet.relations[r.kind]?.value}
             <input

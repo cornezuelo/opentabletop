@@ -4,8 +4,10 @@ The **Sheet** tab edits the system's two sheets, both optional (`kind: sheet`): 
 
 ## What a sheet has
 
-- Its **Name**.
+- Its **Name** and **Description** (what the sheet is for).
 - Its **Values**, each with a name, the value it **Starts at**, **Min** and **Max** (a number, or another value in braces, `'{{maxHealth}}'`: as high as the character's maxHealth), **Track** (shown as boxes, as many as its max) and **Group**.
 - The **Groups** values are shown under, in order, with their names.
 - Its **Conditions**, each with what it **Blocks** for the whole party while someone has it: `travel`, one of the system's actions, `mode.horse` (the box suggests them).
 - Its **Kinds of relation**, with the bounds of the number one carries (a bond from 0 to 3).
+
+Values, groups, conditions and kinds of relation each have a **Description (its help)**: what it is, in a sentence or two. Wherever the sheet is shown (a character's card, the party's, a faction's), its name is underlined and clicking it shows that description first in the help column, before what the apps add (how tables read it, its bounds, what it blocks). Like names, it's written in the current language: the pack's own, or its translation file. The Grey Marches describe every part of theirs.

@@ -65,7 +65,7 @@ El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado
 
 ## Facciones
 
-Una facción es uno de los poderes del mundo (un reino, un clan, un gremio): una hoja de valores y estados como la de un personaje, y **tierra**, los hexes que tiene en el mapa. Cuando el sistema del mapa tiene facciones (`kind: factions` en su pack), la vista Mundo las lista en **Facciones**; **Traer sus facciones** las pone en un mapa que aún no las tiene, cada una con sus tierras iniciales (las regiones y hexes que nombra su pack). Cada una muestra su color y cuántos hexes tiene; ábrela para ver su hoja (sus valores, estados y relaciones, como los de un personaje: cámbialos a mano cuando lo diga la historia). Sus tierras se dibujan en el mapa en su color (la capa **Facciones**).
+Una facción es uno de los poderes del mundo (un reino, un clan, un gremio): una hoja de valores y estados como la de un personaje, y **tierra**, los hexes que tiene en el mapa. Cuando el sistema del mapa tiene facciones (`kind: factions` en su pack), la vista Mundo las lista en **Facciones**; **Traer sus facciones** las pone en un mapa que aún no las tiene, cada una con sus tierras iniciales (las regiones y hexes que nombra su pack). Cada una muestra su color y cuántos hexes tiene; ábrela para ver lo que el sistema dice que es y su hoja (sus valores, estados y relaciones, como los de un personaje: cámbialos a mano cuando lo diga la historia). Sus tierras se dibujan en el mapa en su color (la capa **Facciones**).
 
 **Su tierra** sale de tres sitios, y la guarda el mapa (la etiqueta **Su tierra** del panel también lo dice):
 

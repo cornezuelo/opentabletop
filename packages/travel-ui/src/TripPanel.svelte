@@ -529,7 +529,13 @@
 
   <div class="row">
     <label class="field">
-      <span>{t('travelMode')}</span>
+      <span
+        >{t(
+          'travelMode',
+        )}{#if localize(system.rules.modes[travel.mode]?.description, locale, 'en')}<InfoTip
+            markdown={localize(system.rules.modes[travel.mode]?.description, locale, 'en')}
+          />{/if}</span
+      >
       <select
         value={travel.mode}
         onchange={(e) => {

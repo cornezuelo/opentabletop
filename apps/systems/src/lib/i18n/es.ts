@@ -159,6 +159,8 @@ export const es: Messages<typeof en> = {
   sheet: {
     name: 'Nombre',
     nameHelp: 'El nombre de la hoja, que se ve donde se crean personajes.\n• **Compañero**',
+    descriptionHelp:
+      'Para qué es la hoja, se ve donde se crean los personajes. Markdown básico.\n• _Uno de la Compañía: sus habilidades, sus heridas y las raciones que lleva._',
     values: 'Valores',
     valuesHelp:
       "Números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite, puede bajar de cero). Las tablas y condiciones los leen como `characters.<id>.values.<valor>` y `acting.values.<valor>`:\n• `wits` — empieza en `2`, mín. `0`, máx. `5`\n• `health` — máx. `'{{maxHealth}}'`: otro valor es su límite\n• `stress` — un **contador** de 9 casillas",
@@ -296,7 +298,6 @@ export const es: Messages<typeof en> = {
     title: 'Modos de tirada',
     help: 'Cada modo hace la tirada entera varias veces y se queda con una:\n• `advantage` — 2 tiradas, la más alta, anula `disadvantage`\n• `careful` — 3 tiradas, la del medio',
     name: 'Nombre',
-    description: 'Descripción',
     repeat: 'Tiradas',
     repeatHelp: 'Cuántas veces se hace la tirada entera.',
     keep: 'Quedarse con',
@@ -367,6 +368,9 @@ export const es: Messages<typeof en> = {
     },
   },
   forms: {
+    description: 'Descripción (su ayuda)',
+    descriptionHelp:
+      'Qué es y para qué sirve, en una o dos frases: los jugadores la leen como su ayuda donde se lo encuentran (el panel del viaje, la ficha de un personaje o de una facción, el panel Mundo), antes de lo que añaden las aplicaciones (cómo lo leen las tablas, sus límites…). Markdown básico. Escrita en el idioma actual: el del pack o su fichero de traducción.\n• _Se pierde en vados, emboscadas y con el frío; una noche bien comidos en el campamento devuelve una._',
     confirmRemove:
       '¿Quitar «{name}»? Los formularios no lo pueden deshacer (edita el YAML para recuperarlo).',
     id: 'Id',
@@ -513,7 +517,6 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     nameHelp:
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento:\n• `NAVIGATION_CHECK_REQUIRED` → _Perderse_\n• `HUNGER_CHECK_REQUIRED` → _Hambre_\nEsta caja lo edita en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
-    description: 'Descripción (su ayuda)',
     at: 'Cuándo',
     atOptions: {
       'hex-enter': 'Al entrar en un hex',
@@ -567,7 +570,6 @@ export const es: Messages<typeof en> = {
     rolesHelp:
       'Tareas que asumen los personajes del grupo durante el viaje (guiar, montar guardia, buscar comida…), al estilo de Forbidden Lands: en un viaje, cada rol se le da a un personaje, y las comprobaciones, tablas y acciones del sistema leen a quien lo tiene y le cambian cosas:\n• `roles.guide.values.pathfinding: { gte: 2 }` — el guía es lo bastante bueno\n• `modeWhen: { advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — una tabla tirada con ventaja\n• `roles.lookout.values.health: -1` — un efecto sobre el vigía\nNecesita una hoja.',
     roleName: 'Nombre',
-    roleDescription: 'Descripción',
     carried: 'Provisiones que llevan los miembros',
     carriedHelp:
       'Con personajes en el grupo, una provisión aquí es lo que llevan entre todos: el viaje muestra su suma, sus límites son la suma de los suyos, y lo que el viaje gasta o gana se reparte entre ellos. Sin personajes, el grupo la guarda como un todo.\n• **food**, llevada en `rations`, repartida por igual',

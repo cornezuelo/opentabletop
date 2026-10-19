@@ -8,7 +8,7 @@ sheet/companion:
     **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
     `max: '{{maxHealth}}'`), un contador (el pavor), grupos con nombre, estados que bloquean una
     acción, una forma de viajar o el propio viaje, y tipos de relación (un vínculo con un
-    número, un hogar).
+    número, un hogar); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
     survival:
       name: Supervivencia
@@ -34,10 +34,13 @@ sheet/companion:
   groups:
     skills:
       name: Habilidades
+      description: En qué es bueno un compañero; el grupo toma lo mejor o lo peor de ellos.
     body:
       name: Cuerpo
+      description: Cuánto aguanta un compañero antes de caer.
     gear:
       name: Equipo
+      description: Lo que lleva un compañero para toda la Compañía.
   conditions:
     wounded:
       name: Herido
@@ -67,4 +70,6 @@ sheet/company:
     hirelings: Mercenarios
     endurance: Aguante
   conditions:
-    shaken: Desanimada
+    shaken:
+      name: Desanimada
+      description: Perdida en la oscuridad y asustada; no hay marcha forzada hasta que la Compañía descanse.

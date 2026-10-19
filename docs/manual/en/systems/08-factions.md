@@ -10,4 +10,4 @@ The **Factions** tab edits the powers of the system's world (`kind: factions`, o
 - **Their sheet**: the values, conditions and relations every faction has.
 - **Their turn**: what each rolls on a world turn.
 - **Every (days)**: how often a world turn comes by itself; empty, only by hand.
-- Each faction, with its **Name**, **Colour**, what it **Starts with**, the **Regions** and **Hexes** it starts holding and its **Own turn** table.
+- Each faction, with its **Name**, **Description (its help**, shown when it's opened in the World view), **Colour**, what it **Starts with**, the **Regions** and **Hexes** it starts holding and its **Own turn** table.

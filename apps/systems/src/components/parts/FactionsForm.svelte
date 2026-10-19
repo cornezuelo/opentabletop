@@ -89,6 +89,12 @@
       columns={[
         { field: 'name', label: t('factionsForm.factionName'), type: 'text' },
         {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+        {
           field: 'color',
           label: t('factionsForm.color'),
           help: t('factionsForm.colorHelp'),

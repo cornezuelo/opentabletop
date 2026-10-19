@@ -156,6 +156,8 @@ export const en = {
   sheet: {
     name: 'Name',
     nameHelp: "The sheet's name, shown where characters are made.\n• **Companion**",
+    descriptionHelp:
+      'What the sheet is for, shown where characters are made. Basic Markdown.\n• _One of the Company: their skills, their wounds and the rations they carry._',
     values: 'Values',
     valuesHelp:
       "Numbers each character has, with the bounds the system gives them (none: no bound, it may go negative). Tables and conditions read them as `characters.<id>.values.<value>` and `acting.values.<value>`:\n• `wits` — default `2`, min `0`, max `5`\n• `health` — max `'{{maxHealth}}'`: another value is its bound\n• `stress` — a **track** of 9 boxes",
@@ -292,7 +294,6 @@ export const en = {
     title: 'Roll modes',
     help: 'Each mode rolls the whole roll several times and keeps one:\n• `advantage` — 2 rolls, keep the highest, cancels `disadvantage`\n• `careful` — 3 rolls, keep the middle one',
     name: 'Name',
-    description: 'Description',
     repeat: 'Rolls',
     repeatHelp: 'How many times the whole roll is made.',
     keep: 'Keep',
@@ -363,6 +364,9 @@ export const en = {
     },
   },
   forms: {
+    description: 'Description (its help)',
+    descriptionHelp:
+      "What it is and what it's for, in a sentence or two: players read it as its help where they meet it (the trip panel, a character's or a faction's card, the World panel), before what the apps add (how tables read it, its bounds…). Basic Markdown. Written in the current language: the pack's own, or its translation file.\n• _Lost to fords, ambushes and the cold; a fed night in camp gives one back._",
     confirmRemove: 'Remove “{name}”? The forms can’t undo it (edit the YAML to bring it back).',
     id: 'Id',
     add: 'Add',
@@ -508,7 +512,6 @@ export const en = {
     name: 'Name',
     nameHelp:
       "What players read in the trip panel and the journal instead of the event id:\n• `NAVIGATION_CHECK_REQUIRED` → _Getting lost_\n• `HUNGER_CHECK_REQUIRED` → _Hunger_\nThis box edits it in the current language: the pack's own, or its translation file when the interface is in another one.",
-    description: 'Description (its help)',
     at: 'When',
     atOptions: {
       'hex-enter': 'Entering a hex',
@@ -562,7 +565,6 @@ export const en = {
     rolesHelp:
       "Jobs the party's characters take for the journey (lead the way, keep watch, forage…), Forbidden Lands-style: in a trip, each role is given to one character, and the system's checks, tables and actions read the holder and change them:\n• `roles.guide.values.pathfinding: { gte: 2 }` — the guide is good enough\n• `modeWhen: { advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — a table rolled with advantage\n• `roles.lookout.values.health: -1` — an effect on the lookout\nNeeds a sheet.",
     roleName: 'Name',
-    roleDescription: 'Description',
     carried: 'Supplies the members carry',
     carriedHelp:
       'With characters in the party, a supply here is what they carry between them: the trip shows their sum, its bounds are the sums of theirs, and what the trip spends or gains is shared out among them. Without characters, the party keeps it as a whole.\n• **food**, carried in `rations`, shared out evenly',

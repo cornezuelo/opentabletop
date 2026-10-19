@@ -35,6 +35,22 @@
         onchange={(e) => doc.setText('', ['name'], data.name, ['name'], e.currentTarget.value)}
       />
     </label>
+    <label class="name description">
+      <span>{t('forms.description')}<InfoTip text={t('sheet.descriptionHelp')} /></span>
+      <textarea
+        rows="3"
+        value={doc.text('', data.description, ['description'])}
+        placeholder={doc.translating ? doc.baseText(data.description) : ''}
+        {disabled}
+        onchange={(e) =>
+          doc.setText(
+            '',
+            ['description'],
+            data.description,
+            ['description'],
+            e.currentTarget.value,
+          )}></textarea>
+    </label>
   </section>
 
   <section>
@@ -46,6 +62,12 @@
       template={{ default: 0 }}
       columns={[
         { field: 'name', label: t('sheet.valueName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
         {
           field: 'default',
           label: t('sheet.default'),
@@ -72,7 +94,15 @@
       at={['groups']}
       idLabel={t('forms.id')}
       suggestions={['attributes', 'skills', 'body', 'gear']}
-      columns={[{ field: 'name', label: t('sheet.groupName'), type: 'text' }]}
+      columns={[
+        { field: 'name', label: t('sheet.groupName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+      ]}
     />
   </section>
 
@@ -85,6 +115,12 @@
       suggestions={['wounded', 'exhausted', 'hungry', 'frightened']}
       columns={[
         { field: 'name', label: t('sheet.conditionName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
         {
           field: 'blocks',
           label: t('sheet.blocks'),
@@ -105,6 +141,12 @@
       suggestions={['bond', 'rival', 'home', 'debt', 'oath']}
       columns={[
         { field: 'name', label: t('sheet.relationName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
         {
           field: 'value.min',
           label: t('sheet.relationMin'),
@@ -140,6 +182,10 @@
     margin: 0;
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .name.description {
+    max-width: 640px;
   }
 
   .name {

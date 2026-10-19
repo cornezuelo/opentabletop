@@ -10,4 +10,4 @@ La pestaña **Facciones** edita los poderes del mundo del sistema (`kind: factio
 - **Su hoja**: los valores, estados y relaciones que tiene cada facción.
 - **Su turno**: lo que tira cada una en un turno del mundo.
 - **Cada (días)**: cada cuánto llega un turno del mundo por sí solo; vacío, solo a mano.
-- Cada facción, con su **Nombre**, **Color**, con qué **Empieza**, las **Regiones** y **Hexes** que tiene al empezar y su tabla de **Turno propio**.
+- Cada facción, con su **Nombre**, su **Descripción (su ayuda**, que se ve al abrirla en la vista Mundo), **Color**, con qué **Empieza**, las **Regiones** y **Hexes** que tiene al empezar y su tabla de **Turno propio**.

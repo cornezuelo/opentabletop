@@ -20,7 +20,12 @@
     template={{ repeat: 2, keep: 'highest' }}
     columns={[
       { field: 'name', label: t('modes.name'), type: 'text' },
-      { field: 'description', label: t('modes.description'), type: 'text' },
+      {
+        field: 'description',
+        label: t('forms.description'),
+        help: t('forms.descriptionHelp'),
+        type: 'text',
+      },
       {
         field: 'repeat',
         label: t('modes.repeat'),

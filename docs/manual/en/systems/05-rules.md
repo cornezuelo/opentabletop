@@ -14,7 +14,7 @@ There's no built-in day and no built-in march: the party moves with the actions 
 
 ## Ways of travelling
 
-Each with its **km per day** and:
+Each with its **Name** and **Description (its help)** for players (the trip panel shows the description of the one chosen as the help of **Travel**), its **km per day** and:
 
 - **Only through**: where it can go, a condition on each hex it enters. E.g. the Grey Marches' boat on water or coast, `any: [{ water: true }, { terrain: coast }]`, or a cart only by road, `edges: road`.
 - **Only when**: where and when it can be chosen. E.g. the Grey Marches' boat only at the water's edge or the ferry, `any: [{ water: true }, { terrain: coast }, { tags: ferry }]`.
@@ -28,7 +28,7 @@ Each with its **km per day** and:
 
 ## Supplies
 
-What the party carries, each with its **Min** and **Max**. Supplies are used by the system's own actions, checks and tables, never by the app: the Grey Marches eat with an action the system takes at the end of each day (1 food, and 1 fodder on horseback).
+What the party carries, each with its **Name**, **Description (its help)**, **Min** and **Max**. Supplies are used by the system's own actions, checks and tables, never by the app: the Grey Marches eat with an action the system takes at the end of each day (1 food, and 1 fodder on horseback).
 
 **Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum).
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CharacterCard } from '@open-tabletop/character-ui'
-  import { factionName } from '@open-tabletop/session'
-  import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
+  import { factionName, localize, type LocalizedText } from '@open-tabletop/session'
+  import { confirmAction, InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
     bringFactions,
@@ -26,6 +26,11 @@
     return factionsSystem()
   })
   const name = (id: string) => (system ? factionName(system, id, getLocale()) : id)
+  /** What the system says a faction is (its `description`), in the UI's language. */
+  const about = (id: string) =>
+    (system &&
+      localize(system.def.factions[id]?.description as LocalizedText | undefined, getLocale())) ||
+    ''
   const color = (id: string) => system?.def.factions[id]?.color ?? '#8a7f6e'
 </script>
 
@@ -45,6 +50,7 @@
               : t('factions.territory', { n: own.territories[faction.id]?.length ?? 0 })}</span
           >
         </summary>
+        {#if about(faction.id)}<Markdown class="about" text={about(faction.id)} />{/if}
         <div class="paint">
           <button
             class:active={editor.factionBrush === faction.id}
@@ -166,6 +172,12 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
+  }
+
+  .faction :global(.about) {
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .what {

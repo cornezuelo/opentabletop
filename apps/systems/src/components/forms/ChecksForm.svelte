@@ -233,7 +233,7 @@
             />
           </label>
           <label>
-            <span>{t('checks.description')}</span>
+            <span>{t('forms.description')}<InfoTip text={t('forms.descriptionHelp')} /></span>
             <textarea
               rows="2"
               placeholder={doc.translating ? doc.baseText(check.description) : ''}
@@ -455,7 +455,12 @@
       suggestions={['guide', 'lookout', 'forager', 'quartermaster']}
       columns={[
         { field: 'name', label: t('checks.roleName'), type: 'text' },
-        { field: 'description', label: t('checks.roleDescription'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
       ]}
     />
   </section>

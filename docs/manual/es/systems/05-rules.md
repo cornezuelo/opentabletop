@@ -14,7 +14,7 @@ No hay un día ni una marcha integrados: el grupo se mueve con las acciones que 
 
 ## Formas de viajar
 
-Cada una con sus **km por día** y:
+Cada una con su **Nombre** y su **Descripción (su ayuda)** para los jugadores (el panel del viaje enseña la de la elegida como ayuda de **Viaje**), sus **km por día** y:
 
 - **Solo por**: por dónde puede ir, una condición sobre cada hex en el que entra. P. ej. la barca de las Marcas Grises por agua o costa, `any: [{ water: true }, { terrain: coast }]`, o un carro solo por camino, `edges: road`.
 - **Solo si**: dónde y cuándo se puede elegir. P. ej. la barca de las Marcas Grises solo a la orilla o en el transbordador, `any: [{ water: true }, { terrain: coast }, { tags: ferry }]`.
@@ -28,7 +28,7 @@ Cada una con sus **km por día** y:
 
 ## Provisiones
 
-Lo que lleva el grupo, cada una con su **Mín** y **Máx**. Las provisiones las gastan las acciones, comprobaciones y tablas del propio sistema, nunca la app: las Marcas Grises comen con una acción que el sistema hace al final de cada día (1 de comida, y 1 de forraje a caballo).
+Lo que lleva el grupo, cada una con su **Nombre**, su **Descripción (su ayuda)**, su **Mín** y su **Máx**. Las provisiones las gastan las acciones, comprobaciones y tablas del propio sistema, nunca la app: las Marcas Grises comen con una acción que el sistema hace al final de cada día (1 de comida, y 1 de forraje a caballo).
 
 **Mín** y **Máx** acotan una provisión: un cambio que pasaría de uno se queda en él, el diario lo dice y las reglas del sistema pueden reaccionar (las Marcas Grises: una comprobación de fin de día, fatiga +1, cuando la comida llegó a su mínimo).
 

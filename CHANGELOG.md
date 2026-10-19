@@ -14,6 +14,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Travel, Hexmapper: **the trip panel's sections fold** by their heading (**Supplies**, **Stats**, **The party**, **Characters**, **So far**, **Journal**), remembered by this browser; the status, a check waiting for **Continue** and the buttons never do.
 
+- Systems: **a description for every part**, shown as its help where players meet it: the Sheet tab's values, groups, conditions and kinds of relation (and the sheet itself), ways of travelling, supplies, factions and clocks have a **Description (its help)** column, translatable like names. Characters' cards show their groups' and relations' descriptions, the World view a faction's, and the trip panel the chosen way of travelling's.
+
 ### Fixes
 
 - Systems: a system's **YAML** tab no longer edits the files of another pack it brings (Core's roll modes…): they show read-only, saying whose they are. The notice of packs not read shows **Delete** in red.

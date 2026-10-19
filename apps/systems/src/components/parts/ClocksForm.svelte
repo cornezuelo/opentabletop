@@ -50,6 +50,12 @@
       columns={[
         { field: 'name', label: t('clocksForm.clockName'), type: 'text' },
         {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+        {
           field: 'segments',
           label: t('clocksForm.segments'),
           help: t('clocksForm.segmentsHelp'),
