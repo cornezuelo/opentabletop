@@ -1,27 +1,10 @@
-import {
-  changeTerritory,
-  claim,
-  release,
-  turnsDue,
-  type TerritoryWorld,
-} from '@open-tabletop/faction-engine'
-import { applyCharacter } from '@open-tabletop/character-engine'
-import { mathRandom } from '@open-tabletop/random'
-import {
-  factionFacts,
-  factionName,
-  type FactionLine,
-  type SystemFactions,
-} from '@open-tabletop/session'
-import {
-  bringFactions as bring,
-  territoryWorld as worldOf,
-  worldTurnOn,
-} from '@open-tabletop/campaign'
+import { claim, release, type TerritoryWorld } from '@open-tabletop/faction-engine'
+import { factionName, type FactionLine, type SystemFactions } from '@open-tabletop/session'
+import { bringFactions as bring, territoryWorld as worldOf } from '@open-tabletop/campaign'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { exampleMaps } from '../io/examples'
-import { getSystem, mapSystemId, oracle } from './systems'
+import { getSystem, mapSystemId } from './systems'
 
 /**
  * The factions of the map's campaign: brought from its system (`kind: factions`), their
@@ -86,58 +69,11 @@ export function removeFactions(): void {
   editor.setFactions(undefined)
 }
 
-/** What tables and conditions read of the factions (`factions.<id>.*`), if the map has them. */
-export function factionFactsNow(): Record<string, unknown> | undefined {
-  const own = editor.factionsOnMap
-  return own ? factionFacts(own, factionsSystem(), getLocale()) : undefined
-}
-
 /** The faction that holds a hex, if any. */
 export function hexFaction(hex: string): string | undefined {
   const own = editor.factionsOnMap
   if (!own) return undefined
   return Object.keys(own.territories).find((id) => own.territories[id].includes(hex))
-}
-
-/**
- * A world turn now: every faction rolls its turn; their sheets, territory, the map's
- * Oracle and the world clock (its timeline and the progress clocks the turns tick) follow.
- * `time` is the turn's moment (the world clock's, by default). Returns the timeline lines.
- */
-export function takeWorldTurn(
-  hooks: {
-    facts?: Record<string, unknown>
-    log: (text: string, data: Record<string, unknown>, time: number) => void
-    tick: (clock: string, segments: number) => void
-  },
-  time = editor.campaign.world?.time ?? 0,
-): FactionLine[] {
-  const system = factionsSystem()
-  if (!editor.factionsOnMap || !system) return []
-  const done = worldTurnOn(editor, {
-    system,
-    oracle: oracle(),
-    random: mathRandom(),
-    facts: hooks.facts,
-    locale: getLocale(),
-    time,
-  })
-  editor.setOracle(done.campaign.oracle)
-  editor.setFactions({ ...done.campaign.factions!, territories: done.map.territories ?? {} })
-  for (const line of done.lines) hooks.log(lineText(system, line), { ...line }, time)
-  for (const [clock, n] of Object.entries(done.ticks)) if (n) hooks.tick(clock, n)
-  return done.lines
-}
-
-/**
- * The world turns due by `now` (every so many days of the world clock, since the last one),
- * if the factions take them by themselves; their moments, oldest first.
- */
-export function dueTurns(now: number, minutesPerDay: number): number[] {
-  const own = editor.factionsOnMap
-  const system = factionsSystem()
-  if (!own || !system || own.auto === false) return []
-  return turnsDue(own.lastTurn, now, system.def.every, minutesPerDay)
 }
 
 /** A faction's turn as one line of the timeline: "The Iron Clans: raid the Vale (+1 hex)". */
@@ -153,38 +89,4 @@ export function lineText(system: SystemFactions, line: FactionLine): string {
     .filter(Boolean)
     .join(', ')
   return t('factions.line', { name, text: line.text ?? '' }) + (land ? ` (${land})` : '')
-}
-
-/**
- * Effects of a trip's results on the factions (`factions.<id>.values.reputation: 1`,
- * `factions.<id>.territory: -1`): applied to the map's factions. Numbers and `'=N'` only
- * (variables were read when the result came up). Returns what it changed, by faction.
- */
-export function applyFactionEffects(effects: Record<string, unknown>): string[] {
-  const own = editor.factionsOnMap
-  const system = factionsSystem()
-  if (!own || !system) return []
-  let state = structuredClone(own)
-  const changed = new Set<string>()
-  for (const [path, change] of Object.entries(effects)) {
-    const [, id, rest] = /^factions\.([^.]+)\.(.+)$/.exec(path) ?? []
-    if (!id || (typeof change !== 'number' && typeof change !== 'string')) continue
-    if (rest === 'territory') {
-      const by = Number(change)
-      if (!Number.isFinite(by)) continue
-      const done = changeTerritory(state.territories, id, by, territoryWorld(), mathRandom())
-      state = { ...state, territories: done.territories }
-      changed.add(id)
-      continue
-    }
-    const at = state.factions.findIndex((f) => f.id === id)
-    if (at < 0 || !/^(values|conditions)\./.test(rest)) continue
-    state.factions[at] = applyCharacter(system.sheet.def, state.factions[at], {
-      type: 'change',
-      effects: { [rest]: change },
-    }).state
-    changed.add(id)
-  }
-  if (changed.size) editor.setFactions(state)
-  return [...changed]
 }

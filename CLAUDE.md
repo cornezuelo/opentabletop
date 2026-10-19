@@ -38,7 +38,7 @@ packages/                   # libraries, scope @open-tabletop/*
   faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations
   map/                      # the map model: types, format, migrations and serializing, shared by the apps that read maps
-  campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, world turns
+  campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, the world clock played (turns, full clocks, a trip's effects)
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher

@@ -7,3 +7,4 @@
 export * from './types'
 export * from './serialize'
 export * from './factions'
+export * from './world'

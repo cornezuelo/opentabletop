@@ -8,6 +8,7 @@ import {
   splitFactions,
   type Campaign,
   type FactionsOnMap,
+  type WorldPlace,
 } from '@open-tabletop/campaign'
 import {
   createMap,
@@ -383,6 +384,25 @@ class Editor {
     )
     for (const kind of kinds) this.notify({ kind } as MapChange)
     return true
+  }
+
+  /**
+   * What the world clock did (`@open-tabletop/campaign`'s world functions, on this map):
+   * the campaign as it left it, and the factions' land on this map. Play, so outside the
+   * undo history.
+   */
+  takeWorld({ campaign, map }: WorldPlace): void {
+    const before = this.campaign
+    const beforeLand = this.map.territories
+    const land = map ? map.territories : beforeLand
+    if (campaign === before && land === beforeLand) return
+    this.campaign = campaign
+    this.map.territories = land
+    if (campaign.world !== before.world || campaign.worldWeather !== before.worldWeather)
+      this.notify({ kind: 'world' })
+    if (campaign.oracle !== before.oracle) this.notify({ kind: 'oracle' })
+    if (campaign.factions !== before.factions || land !== beforeLand)
+      this.notify({ kind: 'factions' })
   }
 
   /**

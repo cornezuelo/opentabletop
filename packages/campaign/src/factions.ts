@@ -18,6 +18,12 @@ export function factionsOn(campaign: Campaign, map: HexMap): FactionsOnMap | und
   return { ...own, territories }
 }
 
+/** The campaign's factions as the map being played sees them (no land without a map). */
+export function factionsHere(campaign: Campaign, map?: HexMap): FactionsOnMap | undefined {
+  if (map) return factionsOn(campaign, map)
+  return campaign.factions && { ...campaign.factions, territories: {} }
+}
+
 /**
  * The factions as a map changed them, split back into what the campaign keeps (their sheets,
  * the last turn) and what the map keeps (the land on it). `undefined` takes them away.
@@ -86,25 +92,28 @@ export function bringFactions(
   return { ...own, territories }
 }
 
+/** Where no map is played: no land to hold. */
+const NO_LAND: TerritoryWorld = { neighbors: () => [], holdable: () => false }
+
 /**
  * A world turn on a map of the campaign: every faction rolls its turn (`worldTurn`), with
  * the campaign's Oracle; their sheets and the Oracle change in the campaign, the land on
- * this map. Returns both, the timeline lines and the progress clocks the turns ticked (the
- * host writes them on the world clock).
+ * this map (without a map, played elsewhere, no land changes). Returns both, the timeline
+ * lines and the progress clocks the turns ticked (the host writes them on the world clock).
  */
-export function worldTurnOn(
-  { campaign, map }: { campaign: Campaign; map: HexMap },
+export function worldTurnOn<M extends HexMap | undefined>(
+  { campaign, map }: { campaign: Campaign; map: M },
   options: Omit<Parameters<typeof worldTurn>[0], 'world'>,
 ): {
   campaign: Campaign
-  map: HexMap
+  map: M
   lines: ReturnType<typeof worldTurn>['lines']
   ticks: Record<string, number>
 } {
-  const here = factionsOn(campaign, map)
+  const here = factionsHere(campaign, map)
   if (!here) return { campaign, map, lines: [], ticks: {} }
   const done = worldTurn(
-    { ...options, world: territoryWorld(map) },
+    { ...options, world: map ? territoryWorld(map) : NO_LAND },
     here,
     campaign.oracle?.state ?? emptyState(),
   )
@@ -115,7 +124,7 @@ export function worldTurnOn(
       factions: split.factions,
       oracle: { state: done.oracle, history: campaign.oracle?.history ?? [] },
     },
-    map: { ...map, territories: split.territories },
+    map: (map && { ...map, territories: split.territories }) as M,
     lines: done.lines,
     ticks: done.ticks,
   }

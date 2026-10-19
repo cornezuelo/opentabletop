@@ -1,42 +1,43 @@
 import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
 import {
-  calendarOf,
-  clockFull,
-  localize,
-  startClocks,
-  type StartingClock,
-  type SystemClocks,
-} from '@open-tabletop/session'
-import { emptyState } from '@open-tabletop/oracle-engine'
+  bringClocks as bringClocksOn,
+  followTrip as followTripOn,
+  missingClocks as missingClocksOf,
+  startWorld as startWorldOn,
+  worldAct as worldActOn,
+  worldEffects,
+  worldFactsOf,
+  worldTurnNow as worldTurnOn,
+  type WorldDone,
+  type WorldHost,
+  type WorldLine,
+} from '@open-tabletop/campaign'
+import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
 import { availableActions } from '@open-tabletop/travel-engine'
-import { type Calendar, type DataCalendar } from '@open-tabletop/time'
+import { type Calendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
   createWorld,
-  initialWorld,
   type Until,
   type WorldAction,
   type WorldEvent,
   type WorldState,
-  type ProgressClock,
-  worldFacts,
-  findClock,
 } from '@open-tabletop/world-engine'
-import { applyFactionEffects, dueTurns, factionFactsNow, takeWorldTurn } from './factions'
+import { factionsSystem, lineText } from './factions'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
 import { activeSystem, getSystem, mapSystem, mapSystemId, oracle } from './systems'
-import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
+import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { mathRandom } from '@open-tabletop/random'
 
 /**
- * The map's world clock: the campaign's time, events scheduled on it and progress
- * clocks. It names time with the calendar of the system the map plays (or the default
- * one). It and a rules trip share one time: travelling moves it, and moving it waits in the
- * trip (`advanceWorld`). Play state: saved
- * with the map, outside the undo history.
+ * The map's world clock: its campaign's time, events scheduled on it and progress clocks
+ * (played by `@open-tabletop/campaign`, on this map). It names time with the calendar of
+ * the system the map plays (or the default one). It and a rules trip share one time:
+ * travelling moves it, and moving it waits in the trip (`advanceWorld`). Play state: saved
+ * with the campaign, outside the undo history.
  */
 
 /** The calendar the world uses: the system's own (the trip's, or the map's), or the default one. */
@@ -46,29 +47,62 @@ export function worldCalendar(): Calendar {
 
 const world = () => createWorld({ calendar: worldCalendar() })
 
+/** The trip going on on the map, if any. */
+function tripNow() {
+  const play = editor.map.play
+  return play ? sessionOf(play) : null
+}
+
+/** What the world plays with here: the map's system, its Oracle, the trip going on. */
+function host(): WorldHost {
+  const system = mapSystem()
+  const trip = tripNow()
+  return {
+    calendar: worldCalendar(),
+    clocks: system.clocks,
+    fallback: system.locale,
+    weather: worldWeatherModel(),
+    factions: factionsSystem(),
+    oracle: oracle(),
+    random: mathRandom(),
+    locale: getLocale(),
+    ...(trip && { trip: { weather: trip.travel.weather } }),
+    words: {
+      clockFull: (full) =>
+        [
+          full.description,
+          full.error ? t('world.clockRollFailed', { error: full.error }) : full.text,
+          full.then === 'reset' ? t('world.clockStartsOver') : '',
+          full.then === 'remove' ? t('world.clockGone') : '',
+        ]
+          .filter(Boolean)
+          .join(' '),
+      factionLine: lineText,
+    },
+  }
+}
+
+const place = () => ({ campaign: editor.campaign, map: editor.map })
+
+/** Keeps what the world did, and tells the clocks that filled on the way. */
+function take<T extends WorldDone>(done: T): T {
+  editor.takeWorld(done)
+  for (const { clock, text } of done.filled)
+    showToast(`${t('world.clockFilled', { name: clock })} ${text}`, 'info', 8000)
+  return done
+}
+
 /**
  * What tables and conditions read of the world: the world clock's (its clocks, today's
  * events), if running, and the factions' (`factions.<id>.*`), if the map has them.
  */
 export function worldFactsNow(): Record<string, unknown> | undefined {
-  const state = editor.campaign.world
-  const factions = factionFactsNow()
-  if (!state && !factions) return undefined
-  // Without a trip, today's weather is the world clock's own (`weather`, as a trip's).
-  const play = editor.map.play
-  const weather = !(play && sessionOf(play)) ? editor.campaign.worldWeather?.weather : undefined
-  return {
-    ...(state && worldFacts(state, worldCalendar())),
-    ...factions,
-    ...(weather && { weather }),
-  }
+  return worldFactsOf(place(), host())
 }
 
 /** When the clock starts unless another date is chosen: the trip's time, else 06:00 of day 1. */
 export function defaultStart(): number {
-  const play = editor.map.play
-  const session = play ? sessionOf(play) : null
-  return session?.travel.time ?? worldCalendar().at(1, '06:00')
+  return tripNow()?.travel.time ?? worldCalendar().at(1, '06:00')
 }
 
 /**
@@ -76,12 +110,7 @@ export function defaultStart(): number {
  * and the trip share one time, so it starts at the trip's.
  */
 export function startWorld(time = defaultStart()): void {
-  const play = editor.map.play
-  const trip = play ? sessionOf(play) : null
-  editor.setWorld(initialWorld(trip ? trip.travel.time : time))
-  editor.setWorldWeather(undefined)
-  rollWorldWeather()
-  bringClocks()
+  take(startWorldOn(place(), tripNow()?.travel.time ?? time, host()))
 }
 
 /** The progress clocks the map's system declares (`kind: clocks`), if any. */
@@ -89,16 +118,12 @@ export const systemClocks = (): SystemClocks | undefined => mapSystem().clocks
 
 /** The clocks the map's system declares that the world doesn't have (by their declared id). */
 export function missingClocks(): StartingClock[] {
-  const system = systemClocks()
-  const state = editor.campaign.world
-  if (!system || !state) return []
-  const have = state.clocks.map((c) => c.ref)
-  return startClocks(system, getLocale(), mapSystem().locale).filter((c) => !have.includes(c.ref))
+  return missingClocksOf(editor.campaign, host())
 }
 
 /** Adds the clocks the map's system declares that the world doesn't have yet. */
 export function bringClocks(): void {
-  for (const clock of missingClocks()) worldAct({ type: 'addClock', clock })
+  take(bringClocksOn(place(), host()))
 }
 
 /**
@@ -110,37 +135,6 @@ function worldWeatherModel(): WeatherModel | undefined {
   const bound = Object.values(system.bindings?.on ?? {}).find((b) => b.weather)?.weather
   return (bound ? system.weather?.[bound] : undefined) ?? Object.values(system.weather ?? {})[0]
 }
-
-/**
- * The world clock's own weather, day by day up to today, while no trip is going on (a
- * trip's weather is the world's then): each day follows the day before's, on the map
- * system's weather model, in that day's season.
- */
-export function rollWorldWeather(): void {
-  const state = editor.campaign.world
-  const model = worldWeatherModel()
-  const play = editor.map.play
-  if (!state || !model || (play && sessionOf(play))) return
-  const calendar = worldCalendar()
-  const today = calendar.describe(state.time).day
-  let weather = editor.campaign.worldWeather
-  if (weather && weather.day >= today) return
-  // A long jump: only the last days matter.
-  const from = Math.max(weather ? weather.day + 1 : today, today - 30)
-  const random = mathRandom()
-  for (let day = from; day <= today; day++) {
-    const next = nextWeather(model, {
-      season: calendar.describe(calendar.at(day, '12:00')).season,
-      previous: weather?.weather,
-      at: weather?.at,
-      random,
-    })
-    weather = { weather: next.weather, day, ...(next.at && { at: next.at }) }
-  }
-  editor.setWorldWeather(weather)
-}
-
-/** Today's weather of the world: the trip's while one goes on, else the world clock's own. */
 export function worldWeatherNow(): { id: string; name: string } | undefined {
   const play = editor.map.play
   const trip = play ? sessionOf(play) : null
@@ -171,66 +165,7 @@ export function stopWorld(): void {
 
 /** Applies an action to the world clock; returns what happened. */
 export function worldAct(action: WorldAction): WorldEvent[] {
-  const state = editor.campaign.world
-  if (!state) return []
-  const { state: next, events } = world().apply(state, action)
-  editor.setWorld(next)
-  // The world's own weather, day by day, while no trip has a weather of its own.
-  if (next.time > state.time) rollWorldWeather()
-  // The factions take the turns that came due on the way (every so many days).
-  if (next.time > state.time)
-    for (const at of dueTurns(next.time, worldCalendar().minutesPerDay)) worldTurnNow(at)
-  // A clock the system declares does what it says when it fills.
-  for (const e of events) if (e.type === 'CLOCK_FILLED' && e.clock.ref) clockFilled(e.clock)
-  return events
-}
-
-/** How many full clocks deep a chain may go (a full clock ticking another that fills…). */
-const MAX_CHAIN = 10
-let chain = 0
-
-/**
- * What a clock the map's system declares does when it fills (`onFull`): its words and the
- * table it rolls go to the timeline (and a notice), its effects change the world (other
- * clocks, factions), and then it stays full, starts over or goes away.
- */
-function clockFilled(clock: ProgressClock): void {
-  const system = systemClocks()
-  if (!system || !clock.ref || chain >= MAX_CHAIN) return
-  chain++
-  try {
-    const shared = editor.campaign.oracle
-    const done = clockFull(
-      {
-        system,
-        oracle: oracle(),
-        random: mathRandom(),
-        facts: worldFactsNow(),
-        locale: getLocale(),
-        fallback: mapSystem().locale,
-      },
-      shared?.state ?? emptyState(),
-      clock.ref,
-    )
-    if (!done) return
-    const { full } = done
-    editor.setOracle({ state: done.oracle, history: shared?.history ?? [] })
-    const said = [
-      full.description,
-      full.error ? t('world.clockRollFailed', { error: full.error }) : full.text,
-      full.then === 'reset' ? t('world.clockStartsOver') : '',
-      full.then === 'remove' ? t('world.clockGone') : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
-    if (said) worldAct({ type: 'log', text: `${clock.name}: ${said}`, data: { clock: clock.id } })
-    showToast(`${t('world.clockFilled', { name: clock.name })} ${said}`, 'info', 8000)
-    applyWorldEffects(full.effects)
-    if (full.then === 'reset') worldAct({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
-    if (full.then === 'remove') worldAct({ type: 'removeClock', id: clock.id })
-  } finally {
-    chain--
-  }
+  return take(worldActOn(place(), action, host())).events
 }
 
 /**
@@ -238,18 +173,7 @@ function clockFilled(clock: ProgressClock): void {
  * by name as an id or by the id its system declares it with; `'=N'` fills it up to N) and the factions they change (`factions.<id>.…`).
  */
 export function applyWorldEffects(effects: Record<string, unknown>): void {
-  for (const [path, change] of Object.entries(effects)) {
-    const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
-    const found = clock && editor.campaign.world && findClock(editor.campaign.world, clock)
-    if (!found) continue
-    // A number fills (or empties) segments; `'=N'` fills it up to N.
-    const set = typeof change === 'string' && /^\s*=/.test(change)
-    const n = Number(set ? (change as string).replace('=', '') : change)
-    if (!Number.isFinite(n)) continue
-    const by = set ? n - found.filled : n
-    if (by) worldAct({ type: 'tick', id: found.id, segments: by })
-  }
-  applyFactionEffects(effects)
+  take(worldEffects(place(), effects, host()))
 }
 
 /**
@@ -257,17 +181,7 @@ export function applyWorldEffects(effects: Record<string, unknown>): void {
  * default); what they did goes to the timeline, and the progress clocks they tick move.
  */
 export function worldTurnNow(time = editor.campaign.world?.time): void {
-  takeWorldTurn(
-    {
-      facts: worldFactsNow(),
-      log: (text, data, at) => void worldAct({ type: 'log', text, data, time: at }),
-      tick: (clock, segments) => {
-        const found = editor.campaign.world && findClock(editor.campaign.world, clock)
-        if (found) worldAct({ type: 'tick', id: found.id, segments })
-      },
-    },
-    time,
-  )
+  take(worldTurnOn(place(), host(), time))
 }
 
 /**
@@ -380,18 +294,6 @@ export const upcoming = (state: WorldState, limit = 12) => world().upcoming(stat
  * A trip moved time on: the world follows, and what came due on the way is told
  * (events and holidays), as journal lines.
  */
-export function followTrip(time: number): { code: string; text: string; time: number }[] {
-  if (!editor.campaign.world || time <= editor.campaign.world.time) return []
-  const calendar = worldCalendar() as Partial<DataCalendar>
-  const holidayName = (id: string) => {
-    const h = calendar.def?.holidays?.find((x) => x.id === id)
-    return localize(h?.name, getLocale(), 'en') ?? id
-  }
-  return worldAct({ type: 'setTime', time }).flatMap((e) =>
-    e.type === 'EVENT_DUE'
-      ? [{ code: 'WORLD_EVENT', text: e.event.name, time: e.time }]
-      : e.type === 'HOLIDAY'
-        ? [{ code: 'HOLIDAY', text: holidayName(e.id), time: e.time }]
-        : [],
-  )
+export function followTrip(time: number): WorldLine[] {
+  return take(followTripOn(place(), time, host())).lines
 }

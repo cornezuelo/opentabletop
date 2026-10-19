@@ -205,6 +205,8 @@ export function step(action: TravelAction): void {
   }
   const { state, entries, discovered } = result
   editor.applyDiscovery(discovered)
+  // The trip's checks rolled on the campaign's Oracle: kept before a full clock rolls on it.
+  editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })
   // What the trip's results, checks and actions did to the world: its clocks, its factions.
   for (const entry of entries) {
     const value = entry.data?.value as { effects?: Record<string, unknown> } | undefined
@@ -213,7 +215,6 @@ export function step(action: TravelAction): void {
   }
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   placeParty(state.travel.location as HexKey)
-  editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })
   // The world clock follows the trip; what came due on the way goes to the journal.
   let journaled = state
   for (const line of followTrip(state.travel.time))
