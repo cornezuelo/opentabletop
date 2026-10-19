@@ -295,7 +295,7 @@
   const memberName = $derived(memberNamer(system, session.members, locale, t, facts))
   /** Why a button is disabled, in words ('' when it isn't). */
   const why = (because: Unavailable | undefined): string =>
-    whyText(because, { t, dayValues, memberName })
+    whyText(because, { t, dayValues, memberName, valueName, terrainName })
   /** With characters, the stats made of theirs and the supplies they carry follow them. */
   const hasMembers = $derived(!!system.sheet && !!session.members?.length)
   const fromMembers = (stat: StatDefinition) => hasMembers && !!stat.from
