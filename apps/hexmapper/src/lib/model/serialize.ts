@@ -1,4 +1,5 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
+import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
 import { PAPERS, type PaperId } from '../print/paper'
 import {
@@ -89,7 +90,7 @@ function validate(data: Record<string, unknown>): HexMap {
       modified: typeof meta.modified === 'string' ? meta.modified : now,
       ...(typeof meta.system === 'string' &&
         meta.system &&
-        meta.system !== 'generic' && { system: meta.system }),
+        systemIdOf(meta.system) !== DEFAULT_SYSTEM && { system: meta.system }),
       ...(Array.isArray(meta.packs) && {
         packs: [...new Set(meta.packs.filter((p): p is string => typeof p === 'string' && !!p))],
       }),

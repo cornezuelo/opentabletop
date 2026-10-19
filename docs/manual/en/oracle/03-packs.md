@@ -26,7 +26,7 @@ Besides tables, oracles, generators and decks, a pack can hold definitions for *
 | **Travel rules** | `travel-rules` | How a trip works: the length of the day, speed on each terrain and road, ways of travelling, supplies, weather, and **which checks** happen and when. |
 | **Bindings**     | `bindings`     | How those checks are **resolved**: which table rolls each one, the party stats the tables use, and how the map is discovered.                         |
 
-**Why two.** The rules belong to the Travel Engine and the tables to the Oracle, and engines don't know each other: the bindings are the bridge. That's also why each is optional on its own: rules without bindings make a system whose checks all wait for you (**Continue**); the generic rules have no checks at all.
+**Why two.** The rules belong to the Travel Engine and the tables to the Oracle, and engines don't know each other: the bindings are the bridge. That's also why each is optional on its own: rules without bindings make a system whose checks all wait for you (**Continue**); the Generic rules have no checks at all.
 
 **Why in one file.** Only for convenience: they are written and changed together. A YAML file can hold several definitions separated by a line with `---`, so the Grey Marches keep both in `travel.yaml`:
 

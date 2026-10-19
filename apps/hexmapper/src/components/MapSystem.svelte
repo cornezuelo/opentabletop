@@ -5,7 +5,7 @@
   import { SetMetaCommand } from '../lib/commands/settings'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { library } from '../lib/play/packs'
-  import { mapSystem, playSystems } from '../lib/play/systems'
+  import { mapSystem, mapSystemId, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
 
   /**
@@ -19,7 +19,7 @@
     }),
   )
   const systems = $derived(playSystems())
-  const chosenSystem = $derived(editor.meta.system ?? 'generic')
+  const chosenSystem = $derived(mapSystemId())
   const system = $derived(mapSystem())
   const missingSystem = $derived(!systems.some((s) => s.id === chosenSystem))
   const fromSystem = $derived(new Set(system.packs))
@@ -46,9 +46,7 @@
     onchange={(e) => editor.execute(new SetMetaCommand({ system: e.currentTarget.value }))}
   >
     {#each systems as s (s.id)}
-      <option value={s.id}
-        >{s.id === 'generic' ? t('map.genericSystem') : systemName(s, getLocale())}</option
-      >
+      <option value={s.id}>{systemName(s, getLocale())}</option>
     {/each}
     {#if missingSystem}
       <option value={chosenSystem}>{chosenSystem}</option>

@@ -10,7 +10,7 @@ Makes and edits game systems. It is one app of the OpenTabletop ecosystem: read 
 src/
   lib/
     packs.svelte.ts   # PackLibrary (bundled + user packs, shared with the other apps) and the systems
-    newSystem.ts      # a new user pack (generic rules, empty bindings, system.yaml); where a system's parts are;
+    newSystem.ts      # a new user pack (a copy of Core's Generic rules and its calendar, empty bindings, system.yaml); where a system's parts are;
                       # its choices, new parts (createPart), declaring an implicit system
     terrains.ts       # terrain and edge names (the Hexmapper palette, suggested in the rules)
     maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named

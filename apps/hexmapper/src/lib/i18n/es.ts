@@ -85,11 +85,10 @@ export const es: Messages = {
   },
   map: {
     system: vocabulary.es.terms.system,
-    genericSystem: vocabulary.es.terms.genericSystem,
     systemHelp:
-      'El sistema de juego con el que se juega este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Genéricas** — reglas de viaje sencillas, sin tablas propias\n• un sistema de un pack — lo que declare ese pack (su página del manual lo cuenta)\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
+      'El sistema de juego con el que se juega este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Reglas genéricas** — el sistema de Core, el que juega un mapa sin elección: reglas de viaje sencillas, sin tablas propias\n• un sistema de otro pack — lo que declare ese pack (su página del manual lo cuenta)\nUn sistema sin reglas de viaje no juega viajes: solo su mundo, su oráculo y sus facciones.\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
     systemMissing:
-      'El sistema «{system}» no está cargado en este navegador: el mapa se juega con las reglas genéricas.',
+      'El sistema «{system}» no está cargado en este navegador: no se pueden jugar viajes con él. Carga su pack o elige otro sistema.',
     packs: 'Packs',
     packsHelp:
       'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añadas. Su panel del Oracle solo muestra estos.\n• un sistema que trae dos packs muestra los dos; añade otro pack para tirar también sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
@@ -445,6 +444,8 @@ export const es: Messages = {
     empty: 'Aún no hay tokens.',
   },
   play: {
+    noTravel:
+      '{system} no tiene reglas de viaje: con él no se juegan viajes, solo su mundo, su oráculo y sus facciones. Para viajar, elige otro sistema en Ajustes del mapa → Mapa → Sistema.',
     otherSystem:
       'Este viaje juega {trip}, el sistema con el que empezó; el mapa ahora se juega con {map}. Nuevo viaje empieza uno con él.',
     confirmNewTrip:

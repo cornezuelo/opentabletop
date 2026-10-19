@@ -40,22 +40,18 @@
   <h2>{t('nav.systems')}</h2>
   <ul>
     {#each systems.list as s (s.id)}
-      {@const o = s.id === 'generic' ? null : origin(s.id)}
-      {@const count = s.id === 'generic' ? 0 : problems(s.id)}
+      {@const o = origin(s.id)}
+      {@const count = problems(s.id)}
       <li>
         <button
           class:selected={selected === s.id}
           onclick={() => go({ name: 'system', id: s.id, tab: 'overview' })}
         >
-          <span class="name" use:fullText
-            >{s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())}</span
-          >
-          {#if s.id === 'generic'}
-            <span class="tag">{t('nav.builtIn')}</span>
-          {:else if o}
+          <span class="name" use:fullText>{systemName(s, getLocale())}</span>
+          {#if o}
             <span class="tag">{t(`origin.${o}`)}</span>
           {/if}
-          {#if s.id !== 'generic' && library.bundledChanges(library.rootOf(s.id) ?? '').length}
+          {#if library.bundledChanges(library.rootOf(s.id) ?? '').length}
             <span class="tag updated" use:tooltip={t('edit.updatedTip')}>{t('origin.updated')}</span
             >
           {:else if staleCopies(s).length}

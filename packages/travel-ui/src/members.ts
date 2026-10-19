@@ -1,5 +1,5 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
-import { knownName, sheetText } from '@open-tabletop/character-ui'
+import { idName, sheetText } from '@open-tabletop/character-ui'
 import { factionName, localize, MEMBER_PATH, type TravelSystem } from '@open-tabletop/session'
 import type { Translate } from './i18n'
 
@@ -34,7 +34,7 @@ export function memberNamer(
             ? sheet.conditions[facWhat]
             : undefined
       const name = factionName(system.factions, faction, locale, system.locale)
-      return `${name}: ${facPart === 'territory' ? t('members.land') : (sheetText(own?.name, locale) ?? knownName(facWhat, locale))}`
+      return `${name}: ${facPart === 'territory' ? t('members.land') : (sheetText(own?.name, locale) ?? idName(facWhat))}`
     }
     const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
     if (clock)
@@ -45,14 +45,14 @@ export function memberNamer(
       const sheet = system.partySheet?.def
       if (!sheet) return undefined
       const own = part === 'values' ? sheet.values[id] : sheet.conditions[id]
-      return sheetText(own?.name, locale) ?? knownName(id, locale)
+      return sheetText(own?.name, locale) ?? idName(id)
     }
     // A party without characters: nothing happens to them, nothing is told.
     if (!members?.length) return undefined
     if (!who) return undefined
     const sheet = system.sheet?.def
     const own = part === 'values' ? sheet?.values[id] : sheet?.conditions[id]
-    const what = sheetText(own?.name, locale) ?? knownName(id, locale)
+    const what = sheetText(own?.name, locale) ?? idName(id)
     const memberId = who.startsWith('characters.') ? who.slice('characters.'.length) : undefined
     const member = members?.find((m) => m.id === memberId)
     const name =

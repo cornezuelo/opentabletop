@@ -4,7 +4,7 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 ## Starting it
 
-**Starting on** chooses its date in the calendar's terms: the day of the month, the month and the year, and the time (with the default calendar, the day number and the time); it starts at 06:00 of the first day unless you change it. **Start the world clock** sets it there — or, during a trip, at the trip's time (they share one time). A date the calendar doesn't have (the 31st of a 30-day month, or before its first day) is said under the boxes. It names time with the calendar of the system the map plays (**Map settings → Map → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the generic rules count days and seasons.
+**Starting on** chooses its date in the calendar's terms: the day of the month, the month and the year, and the time (with the default calendar, the day number and the time); it starts at 06:00 of the first day unless you change it. **Start the world clock** sets it there — or, during a trip, at the trip's time (they share one time). A date the calendar doesn't have (the 31st of a 30-day month, or before its first day) is said under the boxes. It names time with the calendar of the system the map plays (**Map settings → Map → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the Generic rules' plain calendar counts the days of its seasons and seasons.
 
 **Stop the world clock** forgets it (it asks first).
 
@@ -17,7 +17,7 @@ The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date f
 
 ## Moving time on
 
-**+1 hour**, **Next day** (to midnight) and **Next event**, and a **Next: …** button for each division of the day the calendar declares (**Next: Watches**, **Next: Meals**: to when its next part begins); **Until…** chooses a part of any division and **Go** moves time on to when it next begins. Under the date, what the moment is in each division (“Part of the day: evening · Watches: 5”); a calendar without divisions shows none (the plain calendar used without one has watches of 4 hours). What a calendar's divisions are: [Calendars](../technical/07-kinds.md#calendars). Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
+**+1 hour**, **Next day** (to midnight) and **Next event**, and a **Next: …** button for each division of the day the calendar declares (**Next: Watches**, **Next: Meals**: to when its next part begins); **Until…** chooses a part of any division and **Go** moves time on to when it next begins. Under the date, what the moment is in each division (“Part of the day: evening · Watches: 5”); a calendar without divisions shows none (the calendar used when a system has none has watches of 4 hours; the Generic rules' plain calendar adds its parts of the day). What a calendar's divisions are: [Calendars](../technical/07-kinds.md#calendars). Whatever comes due on the way is written in the **timeline** (and, during a trip, in its journal): events, holidays, full and new moons.
 
 **The weather** of the day shows under the date. With a trip going on it's the trip's (its weather check); without one, the world clock rolls its own each day that passes, on the map system's weather model, each day following the day before's (the Grey Marches' sky, a hex flower in winter). Hand rolls read it as `weather`.
 

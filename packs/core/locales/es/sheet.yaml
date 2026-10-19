@@ -1,0 +1,21 @@
+sheet/character:
+  name: Personaje
+  description: |-
+    Un personaje de las reglas genéricas: su salud y si está herido.
+
+    **Enseña:** la hoja de personaje más pequeña: un valor con límites y un estado.
+  values:
+    health:
+      name: Salud
+  conditions:
+    wounded:
+      name: Herido
+sheet/party:
+  name: Grupo
+  description: |-
+    El grupo de las reglas genéricas, como un todo: su moral.
+
+    **Enseña:** la hoja de grupo más pequeña: un valor con límites, dibujado como contador.
+  values:
+    morale:
+      name: Moral

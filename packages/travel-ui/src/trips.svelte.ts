@@ -1,9 +1,13 @@
 import {
+  DEFAULT_SYSTEM,
   migrateFatigue,
+  migrateGenericSheets,
   migrateLost,
   migrateTotals,
+  missingSystem,
   SEASON_START_DAYS,
   startTrip,
+  systemIdOf,
   stepTrip,
   type Season,
   type SessionState,
@@ -18,10 +22,11 @@ import { wayWorld, type WayHex } from './way'
  * system declares (`today.lost`); v4: the trip's totals (`travel.totals`), rebuilt from the
  * journal; v5: the party's characters (`session.members`, `acting`), none in older trips;
  * v6: the party's own sheet (`session.party`), made when the trip next plays if its
- * system has one, and who rolls (`rolls`, `askRolls`; absent: the best). All migrated on
- * reading.
+ * system has one, and who rolls (`rolls`, `askRolls`; absent: the best); v7: the Generic
+ * rules are Core's system (`generic` reads as `core`, and its sheets `generic/…` as
+ * `core/…`). All migrated on reading.
  */
-const VERSION = 6
+const VERSION = 7
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -55,7 +60,7 @@ export interface TripStoreOptions {
 
 const newTripId = () => `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 
-const blank = (system = 'generic'): Saved => ({
+const blank = (system = DEFAULT_SYSTEM): Saved => ({
   id: newTripId(),
   name: '',
   system,
@@ -85,7 +90,9 @@ export function readTrips(
         ...t,
         id: t.id || newTripId(),
         name: t.name ?? '',
-        session: t.session && migrateTotals(migrateLost(migrateFatigue(t.session))),
+        system: systemIdOf(t.system),
+        session:
+          t.session && migrateGenericSheets(migrateTotals(migrateLost(migrateFatigue(t.session)))),
       }))
       if (trips.length)
         return {
@@ -161,7 +168,9 @@ export class TripStore {
   /** The open trip's system as it is now: edits to its rules count from the next step. */
   get system(): TravelSystem {
     const list = this.options.systems()
-    return list.find((s) => s.id === this.saved.system) ?? list[0]
+    return (
+      list.find((s) => s.id === this.saved.system) ?? list[0] ?? missingSystem(this.saved.system)
+    )
   }
 
   private save() {
@@ -176,7 +185,7 @@ export class TripStore {
   /** A new trip with a system and season, at the first hex of the way. */
   start(system = this.saved.system, season = this.saved.season): void {
     const list = this.options.systems()
-    const s = list.find((x) => x.id === system) ?? list[0]
+    const s = list.find((x) => x.id === system) ?? list[0] ?? missingSystem(system)
     const { startDay, session } = startTrip({
       system: s,
       location: '0',

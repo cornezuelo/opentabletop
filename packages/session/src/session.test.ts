@@ -8,11 +8,11 @@ import {
   type GridShape,
 } from '@open-tabletop/hex'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
+import { coreSystem } from './core.testing'
 import { sequence } from '@open-tabletop/random'
 import { defaultCalendar } from '@open-tabletop/time'
 import {
   createTravelEngine,
-  genericTravelRules,
   initialTravelState,
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
@@ -43,8 +43,11 @@ const world: TravelWorld = {
   edges: () => [],
 }
 
+const core = coreSystem()
+const coreRules = core.rules
+
 const rules = {
-  ...genericTravelRules,
+  ...coreRules,
   // Being lost is a value this system declares: it blocks travel for the day.
   values: { lost: { blocks: ['travel'] } },
   checks: [
@@ -116,7 +119,10 @@ describe('session', () => {
   })
 
   it("gives tables yesterday: the day before's values and whether the party ended it lost", () => {
-    const session = createSession({ travel: createTravelEngine({ world, rules }), now: () => 'T' })
+    const session = createSession({
+      travel: createTravelEngine({ world, rules, calendar: core.calendar }),
+      now: () => 'T',
+    })
     const today = { ...start(), dayVars: { weather: 'storm', fordModifier: -1 } }
     today.travel = { ...today.travel, lostToday: true }
     const { state } = session.step(today, { type: 'action', id: 'camp' })
@@ -148,7 +154,7 @@ describe('session', () => {
     // weather d2=1 (clear, +1 to navigation), lost d6=4 (+1 → 5, on course), encounter d6=5 (bandits)
     const oracle = createOracleEngine({ registry, random: sequence([0.1, 3.5 / 6, 4.5 / 6]) })
     const session = createSession({
-      travel: createTravelEngine({ world, rules }),
+      travel: createTravelEngine({ world, rules, calendar: core.calendar }),
       oracle,
       bindings,
       now: () => 'T',
@@ -186,9 +192,9 @@ entries:
       createSession({
         travel: createTravelEngine({
           world,
-          rules: { ...genericTravelRules, checks: [{ event: 'OMEN', at: '06:00', pause }] },
+          rules: { ...coreRules, checks: [{ event: 'OMEN', at: '06:00', pause }] },
         }),
-        rules: { ...genericTravelRules, values: { lost: { blocks: ['travel'] } } },
+        rules: { ...coreRules, values: { lost: { blocks: ['travel'] } } },
         oracle: createOracleEngine({ registry: paused, random: sequence([roll]) }),
         bindings: parseBindings({ on: { OMEN: { resolve: 'omen' } } }, 'p').bindings,
         now: () => 'T',
@@ -220,10 +226,10 @@ entries:
 
   it('journals the actions the system takes, their effects and the bounds they hit', () => {
     const fed = {
-      ...genericTravelRules,
+      ...coreRules,
       resources: { food: { min: 0 } },
       actions: {
-        ...genericTravelRules.actions,
+        ...coreRules.actions,
         // Day-end eating, then a meal that takes another action (do:).
         eat: {
           on: 'day-end',
@@ -237,7 +243,12 @@ entries:
     }
     const bindings = { on: {}, stats: { morale: { min: 0 } } }
     const session = createSession({
-      travel: createTravelEngine({ world, rules: fed, stats: bindings.stats }),
+      travel: createTravelEngine({
+        world,
+        rules: fed,
+        stats: bindings.stats,
+        calendar: core.calendar,
+      }),
       bindings,
       rules: fed,
       now: () => 'T',
@@ -255,10 +266,10 @@ entries:
 
   it('applies the effects of an action’s steps and tells them on its line', () => {
     const stepped = {
-      ...genericTravelRules,
+      ...coreRules,
       values: { lost: { blocks: ['travel'] } },
       actions: {
-        ...genericTravelRules.actions,
+        ...coreRules.actions,
         camp: {
           do: [
             { do: 'eat' },
@@ -317,7 +328,7 @@ entries:
     // and doesn't pause: the journal notes it and the trip goes on
     const oracle = createOracleEngine({ registry, random: sequence([0.9, 1.5 / 6]) })
     const session = createSession({
-      travel: createTravelEngine({ world, rules }),
+      travel: createTravelEngine({ world, rules, calendar: core.calendar }),
       rules,
       oracle,
       bindings,
@@ -340,7 +351,7 @@ entries:
       'sys',
     )
     const session = createSession({
-      travel: createTravelEngine({ world, rules }),
+      travel: createTravelEngine({ world, rules, calendar: core.calendar }),
       oracle: createOracleEngine({ registry, random: sequence([0.5]) }),
       bindings,
     })
@@ -395,7 +406,9 @@ entries:
   })
 
   it('only stops for checks without a table when they pause, and records user notes', () => {
-    const session = createSession({ travel: createTravelEngine({ world, rules }) })
+    const session = createSession({
+      travel: createTravelEngine({ world, rules, calendar: core.calendar }),
+    })
     const go = (s: ReturnType<typeof session.step>['state']) =>
       session.step(session.step(s, { type: 'setDestination', hex: '2,0' }).state, {
         type: 'travel',
@@ -450,7 +463,7 @@ entries:
     const session = createSession({
       travel: createTravelEngine({
         world,
-        rules: { ...genericTravelRules, checks: [{ event: 'NIGHT', at: 'camp' }] },
+        rules: { ...coreRules, checks: [{ event: 'NIGHT', at: 'camp' }] },
       }),
       oracle: createOracleEngine({ registry, random: sequence([0.9]) }),
       bindings,

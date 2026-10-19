@@ -76,11 +76,23 @@ export const SYSTEM_TEMPLATES: Record<
     on: {},
     stats: {},
   }),
-  // A small year to rename and extend: four months, a week, a moon and a feast.
+  // A small year to rename and extend: four months, a week, a moon and a feast, and a day
+  // in four parts, the night tagged `dark` (the parts a copy of the Generic rules names).
   calendar: (id) => ({
     kind: 'calendar',
     id,
     name: 'The reckoning',
+    divisions: {
+      part: {
+        name: 'Part of the day',
+        parts: [
+          { id: 'morning', name: 'morning', from: '06:00' },
+          { id: 'afternoon', name: 'afternoon', from: '12:00' },
+          { id: 'evening', name: 'evening', from: '17:00' },
+          { id: 'night', name: 'night', from: '20:00', tags: ['dark'] },
+        ],
+      },
+    },
     startYear: 1,
     months: [
       { id: 'thaw', name: 'Thaw', days: 30, season: 'spring' },
@@ -115,17 +127,14 @@ export const SYSTEM_TEMPLATES: Record<
       seasons: { spring: season, summer: season, autumn: season, winter: season },
     }
   },
-  // A small sheet for the party's members: a few values, a track and a condition.
+  // A sheet for the party's members with one made-up value and condition to rename: what
+  // a character has is the system's to say.
   sheet: (id) => ({
     kind: 'sheet',
     id,
-    name: 'Companion',
-    values: {
-      wits: { name: 'Wits', default: 1, min: 0, max: 5, group: 'attributes' },
-      health: { name: 'Health', default: 5, min: 0, max: 5, track: true },
-    },
-    groups: { attributes: { name: 'Attributes' } },
-    conditions: { wounded: { name: 'Wounded' } },
+    name: 'Character',
+    values: { 'value-1': { name: 'Value 1', default: 0, min: 0, max: 5 } },
+    conditions: { 'condition-1': { name: 'Condition 1' } },
   }),
   // Two factions on Core's generic turn table, with a sheet of their own for their values
   // (written with them when the pack has none called `faction`).
@@ -159,13 +168,16 @@ export const SYSTEM_TEMPLATES: Record<
   }),
 }
 
-/** A sheet for the party itself (a system's `partySheet`): its morale, and a condition. */
+/**
+ * A sheet for the party itself (a system's `partySheet`): one made-up value and condition
+ * to rename (what the party has is the system's to say).
+ */
 export const PARTY_SHEET = (id: string): Record<string, unknown> => ({
   kind: 'sheet',
   id,
   name: 'The party',
-  values: { morale: { name: 'Morale', default: 3, min: 0, max: 5, track: true } },
-  conditions: { shaken: { name: 'Shaken' } },
+  values: { 'value-1': { name: 'Value 1', default: 0, min: 0, max: 5 } },
+  conditions: { 'condition-1': { name: 'Condition 1' } },
 })
 
 /** The sheet a new factions definition names, when its pack has none (`faction`). */

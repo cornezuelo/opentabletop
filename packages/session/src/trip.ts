@@ -16,7 +16,6 @@ import {
   createTravelEngine,
   tripStart,
   partRefsOf,
-  genericTravelRules,
   initialTravelState,
   parseTravelRules,
   type TravelAction,
@@ -52,25 +51,26 @@ import {
 
 /**
  * A game system: what a pack declares it brings (`kind: system`), or, for older packs,
- * its travel rules and bindings, or the generic rules.
+ * its travel rules and bindings.
  */
 export interface TravelSystem {
   /**
-   * 'generic' for the built-in rules; the pack id for a pack's `default` system (and an
-   * older pack's implicit one); `pack/id` for any other system a pack declares.
+   * The pack id for a pack's `default` system (and an older pack's implicit one);
+   * `pack/id` for any other system a pack declares.
    */
   id: string
-  /** The pack that declares it (absent for the generic system). */
+  /** The pack that declares it (absent for a system that isn't loaded: `missingSystem`). */
   pack?: string
-  /** Its name ('' for generic: the UI names it); texts by language when translated. */
+  /** Its name; texts by language when translated. */
   name: LocalizedText
   description?: LocalizedText
   /** The base language of its pack, the fallback for its texts. */
   locale?: string
+  /** Its travel rules (`NO_TRAVEL` when it names none: see `travels`). */
   rules: TravelRules
   bindings?: Bindings
   /**
-   * Where its parts are written: travel rules (absent: the generic ones), bindings, and
+   * Where its parts are written: travel rules (absent: it doesn't travel), bindings, and
    * the `kind: system` naming them (absent for an older pack's implicit system).
    */
   sources?: { rules?: SystemSource; bindings?: SystemSource; system?: SystemSource }
@@ -105,15 +105,15 @@ export interface SystemSource {
 /** The calendar a system's trips use: its own, or the default one. */
 export const calendarOf = (system: TravelSystem): Calendar => system.calendar ?? defaultCalendar
 
-/** A system's name in a language ('' for the generic one: the UI names it). */
+/** A system's name in a language. */
 export const systemName = (system: TravelSystem, locale: string): string =>
   localize(system.name, locale, system.locale) ?? system.id
 
 /**
  * Every pack a system needs, to take it elsewhere as a whole: its own first, then the
  * packs it brings and those its parts are written in (a declared system's weather models
- * included), and every dependency of each, as far as they go. Packs that aren't loaded are left out. None for
- * the generic system.
+ * included), and every dependency of each, as far as they go. Packs that aren't loaded are
+ * left out.
  */
 export function systemPackIds(system: TravelSystem, registry: Registry): string[] {
   const out: string[] = []
@@ -133,36 +133,66 @@ export function systemPackIds(system: TravelSystem, registry: Registry): string[
 }
 
 /**
- * The generic system's characters: the smallest sheet that works, health and a wound
- * (named by the UI: a core doesn't translate).
+ * The system a map or a trip plays when it names none: Core's (the Generic rules,
+ * `packs/core/system.yaml`). Older maps and trips that named `generic` read as it.
  */
-export const GENERIC_SHEET: Sheet = {
-  kind: 'sheet',
-  id: 'character',
-  values: { health: { default: 3, min: 0, max: 3 } },
-  conditions: { wounded: {} },
-  relations: {},
-}
+export const DEFAULT_SYSTEM = 'core'
+
+/** A system id as saved: `generic` (the built-in rules before they were Core's) is Core's. */
+export const systemIdOf = (id: string | undefined): string =>
+  !id || id === 'generic' ? DEFAULT_SYSTEM : id
 
 /**
- * The generic system's party sheet: the smallest that works, the party's morale (named by
- * the UI, like the characters').
+ * The travel rules of a system that names none (`travel:` absent in its `kind: system`):
+ * nothing to travel with. Such a system doesn't travel (`travels`); its world, oracle and
+ * factions still play.
  */
-export const GENERIC_PARTY_SHEET: Sheet = {
-  kind: 'sheet',
-  id: 'party',
-  values: { morale: { default: 3, min: 0, max: 5, track: true } },
-  conditions: {},
-  relations: {},
+export const NO_TRAVEL: TravelRules = {
+  id: 'none',
+  travel: { hoursPerDay: 0, hexKm: 10 },
+  terrains: {},
+  water: { passable: false },
+  edges: {},
+  modes: {},
+  resources: {},
+  checks: [],
+  values: {},
+  actions: {},
 }
 
-export const GENERIC_SYSTEM: TravelSystem = {
-  id: 'generic',
-  name: '',
-  rules: genericTravelRules,
+/** Whether a system has travel rules to play trips with (`travel:` in its `kind: system`). */
+export const travels = (system: TravelSystem): boolean => !!system.sources?.rules
+
+/**
+ * In place of a system that isn't loaded (its pack missing, or a copy of it without it):
+ * one that doesn't travel, so the host says so instead of playing another.
+ */
+export const missingSystem = (id: string): TravelSystem => ({
+  id,
+  name: id,
+  rules: NO_TRAVEL,
   packs: [],
-  sheet: { id: 'generic/character', def: GENERIC_SHEET },
-  partySheet: { id: 'generic/party', def: GENERIC_PARTY_SHEET },
+})
+
+/**
+ * A trip's characters made with the built-in sheets before they were Core's
+ * (`generic/character`, `generic/party`) now have Core's (in place-free copies).
+ */
+export function migrateGenericSheets<
+  S extends { party?: CharacterState; members?: CharacterState[] },
+>(session: S): S {
+  const sheet = (c: CharacterState): CharacterState =>
+    c.sheet.startsWith('generic/') ? { ...c, sheet: `core/${c.sheet.slice(8)}` } : c
+  if (
+    !session.party?.sheet.startsWith('generic/') &&
+    !session.members?.some((m) => m.sheet.startsWith('generic/'))
+  )
+    return session
+  return {
+    ...session,
+    ...(session.party && { party: sheet(session.party) }),
+    ...(session.members && { members: session.members.map(sheet) }),
+  }
 }
 
 /**
@@ -239,7 +269,7 @@ const SYSTEM_KEYS = new Set([
 ])
 
 /**
- * Travel systems of the loaded packs, after the generic one. A pack declares its own with
+ * Travel systems of the loaded packs, the default one (Core's) first. A pack declares its own with
  * `kind: system` (which travel rules, bindings, calendar, weather models and packs each
  * brings); an older pack without one has an implicit system from its travel rules, its
  * bindings, its calendar and every pack's weather models. Broken parts are reported, and
@@ -249,7 +279,7 @@ export function travelSystems(registry: Registry): {
   systems: TravelSystem[]
   problems: Diagnostic[]
 } {
-  const systems = [GENERIC_SYSTEM]
+  const systems: TravelSystem[] = []
   const problems: Diagnostic[] = []
   const extrasOf = (pack: string) => registry.extras.get(pack) ?? []
   // Weather models of every pack (`kind: weather`), by pack/id.
@@ -306,7 +336,7 @@ export function travelSystems(registry: Registry): {
       clocks?: Extra
     },
   ): TravelSystem | undefined {
-    let rules = genericTravelRules
+    let rules = NO_TRAVEL
     if (parts.rules) {
       const parsed = parseTravelRules(parts.rules.data)
       if (!parsed.rules) {
@@ -612,6 +642,10 @@ export function travelSystems(registry: Registry): {
       if (system) systems.push(system)
     }
   }
+  // The default system first: lists show it before the others, as the one a map plays
+  // when it chooses none.
+  const first = systems.findIndex((s) => s.id === DEFAULT_SYSTEM)
+  if (first > 0) systems.unshift(...systems.splice(first, 1))
   return { systems, problems }
 }
 
@@ -683,15 +717,16 @@ function undeclaredEffects(
       const [, who, part, partId] = MEMBER_PATH.exec(path) ?? []
       // The party's own (`party.values.morale`): its party sheet's.
       const own = who === 'party' ? partySheet : sheet
-      // A faction's (on a world turn): its sheet's values and conditions, its territory.
+      // A faction's (on a world turn): its sheet's values and conditions, and its
+      // territory, which every faction has (Core's turn table, in a system without factions).
       const [, factionPart, factionId] =
         /^(?:faction|factions\.[^.]+)\.(values|conditions|territory)(?:\.(.+))?$/.exec(path) ?? []
       if (/^world\.clocks\./.test(path)) continue
       const factionKnown =
-        factions &&
-        (factionPart === 'territory' ||
-          (!!factionPart &&
-            !!factions.sheet.def[factionPart as 'values' | 'conditions'][factionId ?? '']))
+        factionPart === 'territory' ||
+        (factions &&
+          !!factionPart &&
+          !!factions.sheet.def[factionPart as 'values' | 'conditions'][factionId ?? ''])
       if (factionKnown) continue
       const known = part
         ? !!own?.[part as 'values' | 'conditions'][partId]

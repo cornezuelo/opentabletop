@@ -18,7 +18,7 @@ Cada valor tiene un **nombre completo** que dice de dónde sale (`hex.terrain`) 
 | `from.*`, `around.*` | [el hex que se deja y los de alrededor](#alrededor-del-grupo-from-around)                         |
 
 - **Los nombres cortos** se escriben antes, y son los que escribes en la caja **Contexto** del Oracle: `terrain: forest` ahí también rellena `hex.terrain`.
-- **Los nombres completos** no se pueden tapar: una característica del grupo, un valor del día o el contexto de un binding llamado `weather` o `day` ocupa el nombre corto (ver [Qué valor gana](#que-valor-gana)), nunca el completo. Las reglas de viaje de las Marcas Grises los usan; Core y las reglas genéricas usan los cortos.
+- **Los nombres completos** no se pueden tapar: una característica del grupo, un valor del día o el contexto de un binding llamado `weather` o `day` ocupa el nombre corto (ver [Qué valor gana](#que-valor-gana)), nunca el completo. Las reglas de viaje de las Marcas Grises y las reglas genéricas los usan.
 
 **Tipos de valor** en las tablas de abajo: un **número** (`3`, `14.5`: se suma en los dados y se compara con `gt` / `gte` / `lt` / `lte`), **sí/no** (`true` / `false`), **texto**, un **id** (un texto que declara el sistema o el mapa: `forest`, `market-day`), una **lista** (varios ids a la vez: una condición se cumple si la lista tiene el que se pide, `hex.tags: landmark`) o un **grupo** (nombres dentro: `hex.icon.guards`). Un valor que no está cuenta como **0** en los dados y **no cumple** en las condiciones (salvo con `exists: false` o `not`): mira [Condiciones](08-conditions.md).
 

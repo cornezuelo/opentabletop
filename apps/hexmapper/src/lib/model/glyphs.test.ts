@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { glyphShade } from '../render/glyphs'
-import { genericTravelRules } from '@open-tabletop/travel-engine'
+import { coreSystem } from '../../../../../packages/session/src/core.testing'
 import { en } from '../i18n/en'
 import { getBuiltinIcon } from '../icons/registry'
 import { DEFAULT_TERRAINS, TERRAIN_SETS, terrainGroup } from './defaults'
@@ -27,12 +27,12 @@ describe('terrain glyphs', () => {
     expect(DEFAULT_TERRAINS.filter((t) => !t.glyph)).toEqual([])
   })
 
-  it('every terrain of every set has a bundled glyph, a name, a group and a generic speed', () => {
+  it('every terrain of every set has a bundled glyph, a name, a group and a speed in the Generic rules', () => {
     for (const terrain of Object.values(TERRAIN_SETS).flat()) {
       expect(getBuiltinIcon(terrain.glyph!), terrain.id).toBeDefined()
       expect(en.terrains, terrain.id).toHaveProperty([terrain.id])
       expect(terrainGroup(terrain), terrain.id).not.toBe('other')
-      expect(genericTravelRules.terrains, terrain.id).toHaveProperty([terrain.id])
+      expect(coreSystem().rules.terrains, terrain.id).toHaveProperty([terrain.id])
     }
   })
 

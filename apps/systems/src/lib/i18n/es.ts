@@ -13,14 +13,12 @@ export const es: Messages<typeof en> = {
     showHelp: 'Mostrar la ayuda',
     hideHelp: 'Ocultar la ayuda (más espacio)',
     systems: 'Sistemas',
-    generic: vocabulary.es.terms.genericSystem,
     help: 'Ayuda y manual',
     undo: 'Deshacer el último cambio en tus packs (Ctrl+Z)',
     redo: 'Rehacer (Ctrl+Shift+Z)',
     newSystem: 'Nuevo sistema',
     import: 'Importar un sistema (.zip)…',
     problems: '{count} problemas',
-    builtIn: 'integrado',
   },
   origin: {
     bundled: 'incluido',
@@ -309,8 +307,6 @@ export const es: Messages<typeof en> = {
       'Modos con los que se anula: si se aplican los dos, no se aplica ninguno (una tirada normal).\n• `disadvantage`',
   },
   overview: {
-    generic:
-      'Las reglas Genéricas: viaje sencillo sin comprobaciones, integrado en las aplicaciones. No tienen definición que editar; crea un sistema nuevo para hacer el tuyo a partir de ellas.',
     implicit:
       'Este sistema viene de un pack antiguo: sus reglas de viaje forman un sistema con el nombre del pack, con sus bindings y su calendario. Declararlo escribe un system.yaml que nombra lo que usa, para que puedas elegir aquí sus partes y los packs que trae; se juega igual.',
     declare: 'Declararlo',
@@ -598,9 +594,7 @@ export const es: Messages<typeof en> = {
     dependency:
       'De {pack}, un pack que trae este sistema: aquí es de solo lectura, porque lo comparten todos los sistemas que lo traen. Para cambiarlo en este sistema, haz el tuyo en el pack del sistema.',
     builtIn:
-      'Las reglas Genéricas vienen integradas y no se pueden editar. Crea un sistema nuevo (debajo de la lista de la izquierda) para hacer el tuyo a partir de ellas; su pestaña YAML las enseña.',
-    genericYaml:
-      'Las reglas Genéricas, escritas como las escribiría un pack: sus reglas de viaje y la hoja de sus personajes. Solo lectura (vienen integradas); un sistema nuevo empieza con estas mismas reglas.',
+      'Las reglas genéricas son el sistema de Core, el que juega un mapa que no elige ninguno: aquí son de solo lectura, porque cualquier sistema puede traer Core. Para cambiarlas, crea un sistema nuevo (debajo de la lista de la izquierda): empieza con una copia de sus reglas.',
     staleCopy:
       'Este sistema usa tu copia de «{pack}», y el «{pack}» incluido ha cambiado desde que la hiciste. Tu copia sustituye entero al pack incluido, así que lo que trae el nuevo (una tabla que este sistema nombra…) falta hasta que lo cojas:',
     staleTip:

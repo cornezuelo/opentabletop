@@ -1,6 +1,6 @@
 <script lang="ts">
   import { BundledUpdates, manifestOf } from '@open-tabletop/pack-ui'
-  import { systemName } from '@open-tabletop/session'
+  import { DEFAULT_SYSTEM, systemName } from '@open-tabletop/session'
   import { appUrl } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
@@ -9,7 +9,6 @@
   import { systemDoc } from '../lib/systemDoc.svelte'
   import { staleCopies } from '../lib/transfer'
   import ChecksForm from './forms/ChecksForm.svelte'
-  import GenericYaml from './GenericYaml.svelte'
   import RulesForm from './forms/RulesForm.svelte'
   import Overview from './Overview.svelte'
   import PartsTab from './parts/PartsTab.svelte'
@@ -32,7 +31,7 @@
       ? (['sheet', 'factions', 'clocks', 'calendar', 'weather', 'modes'] as Tab[])
       : []),
     'try',
-    ...(file || declared || system?.id === 'generic' ? (['yaml'] as Tab[]) : []),
+    ...(file || declared ? (['yaml'] as Tab[]) : []),
   ])
   const doc = systemDoc(() => file ?? { root: '', path: '' })
   const overview = systemDoc(() => declared ?? { root: '', path: '' })
@@ -68,13 +67,16 @@
 {#if system}
   <article class="system">
     <header>
-      <h1>{system.id === 'generic' ? t('nav.generic') : systemName(system, getLocale())}</h1>
-      {#if system.id === 'generic'}<p class="help">{t('edit.builtIn')}</p>{/if}
+      <h1>{systemName(system, getLocale())}</h1>
       <a class="play" href={`${appUrl('travel')}#/system/${encodeURIComponent(id)}/play`}
         >{t('edit.playInTravel')}</a
       >
       <!-- On every tab: edit a copy of a bundled system, or revert your copy to it. -->
-      {#if root}<div class="copy"><ReadOnly {root} /></div>{/if}
+      <!-- Core's Generic rules: every system may bring Core, so no copy of it (a new system
+           starts from a copy of its rules instead). -->
+      {#if system.id === DEFAULT_SYSTEM && library.pack(root ?? '')?.origin === 'bundled'}
+        <p class="help">{t('edit.builtIn')}</p>
+      {:else if root}<div class="copy"><ReadOnly {root} /></div>{/if}
       <div class="tabs" role="tablist">
         {#each tabs as name (name)}
           <button
@@ -100,8 +102,6 @@
       {/if}
       {#if tab === 'try'}
         <TryTab {system} />
-      {:else if tab === 'yaml' && system.id === 'generic'}
-        <GenericYaml />
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
       {:else if (tab === 'sheet' || tab === 'factions' || tab === 'clocks' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}

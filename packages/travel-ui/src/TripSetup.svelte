@@ -29,7 +29,7 @@
   } = $props()
 
   const t = translator(() => locale)
-  const current = $derived(systems.find((s) => s.id === system) ?? systems[0])
+  const current = $derived(systems.find((s) => s.id === system))
   /** The seasons of the system's calendar (spring… by default). */
   const seasons = $derived(current ? seasonsFor(current) : [])
   // A season the system's calendar doesn't have becomes its first one.
@@ -42,11 +42,7 @@
   {#if systemNote}
     <div class="field">
       <span>{t('system')}</span>
-      <strong
-        >{current && current.id !== 'generic'
-          ? systemName(current, locale)
-          : t('genericSystem')}</strong
-      >
+      <strong>{current ? systemName(current, locale) : system}</strong>
       <p class="note">{systemNote}</p>
     </div>
   {:else}
@@ -54,9 +50,7 @@
       <span>{t('system')}</span>
       <select value={system} onchange={(e) => onrestart(e.currentTarget.value, season)}>
         {#each systems as s (s.id)}
-          <option value={s.id}
-            >{s.id === 'generic' ? t('genericSystem') : systemName(s, locale)}</option
-          >
+          <option value={s.id}>{systemName(s, locale)}</option>
         {/each}
       </select>
     </label>

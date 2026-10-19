@@ -64,15 +64,40 @@ describe('the trip’s totals (v16)', () => {
       spent: {},
       gained: {},
     })
-    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 21, meta: {} })
+    expect(migrate({ version: 15, meta: {} })).toEqual({ version: 22, meta: {} })
   })
 
   it('v17 reads older trips as a party without characters', () => {
     const data = { version: 16, play: { rules: { session: { travel: {} } } } }
-    expect(migrate(data)).toEqual({ ...data, version: 21 })
+    expect(migrate(data)).toEqual({ ...data, version: 22 })
   })
   it('v21 drops Play’s Show relations: the relations are a layer, hidden until shown', () => {
     const data = { version: 20, play: { mode: 'rules', showRelations: false, trail: [] } }
-    expect(migrate(data)).toEqual({ version: 21, play: { mode: 'rules', trail: [] } })
+    expect(migrate(data)).toEqual({ version: 22, play: { mode: 'rules', trail: [] } })
+  })
+  it('v22 reads the built-in Generic rules as Core’s system, their sheets as Core’s', () => {
+    const hero = (sheet: string) => ({ id: 'a', sheet, values: {}, conditions: {}, tags: [] })
+    const data = {
+      version: 21,
+      tokens: [{ id: 't', kind: 'pc', character: hero('generic/character') }, { id: 'u' }],
+      play: {
+        rules: {
+          system: 'generic',
+          members: [hero('generic/character')],
+          session: { travel: {}, party: hero('generic/party'), members: [hero('game/hero')] },
+        },
+      },
+    }
+    const read = migrate(data) as typeof data
+    expect(read.version).toBe(22)
+    expect(read.tokens[0].character?.sheet).toBe('core/character')
+    expect(read.tokens[1]).toEqual({ id: 'u' })
+    expect(read.play.rules.system).toBe('core')
+    expect(read.play.rules.members[0].sheet).toBe('core/character')
+    expect(read.play.rules.session.party.sheet).toBe('core/party')
+    expect(read.play.rules.session.members[0].sheet).toBe('game/hero')
+    // A trip with another system keeps it.
+    const other = { version: 21, play: { rules: { system: 'grey-marches' } } }
+    expect(migrate(other)).toEqual({ ...other, version: 22 })
   })
 })

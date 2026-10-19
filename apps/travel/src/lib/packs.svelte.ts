@@ -1,5 +1,5 @@
 import { groupBundled, PackLibrary } from '@open-tabletop/pack-ui'
-import { travelSystems, type TravelSystem } from '@open-tabletop/session'
+import { systemIdOf, travels, travelSystems, type TravelSystem } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
 import { t } from './i18n'
 
@@ -27,12 +27,17 @@ export const library = new PackLibrary(
   },
 )
 
-/** Travel systems of the loaded packs (Generic first); recomputed when packs change. */
+/**
+ * Travel systems of the loaded packs (Core's Generic rules first), only those with travel
+ * rules: a trip without a map is all travel. Recomputed when packs change.
+ */
 class Systems {
-  list: TravelSystem[] = $derived(travelSystems(library.registry).systems)
+  list: TravelSystem[] = $derived(travelSystems(library.registry).systems.filter(travels))
 
+  /** A system by id (`generic`, from older links, is Core's). */
   get(id: string): TravelSystem | undefined {
-    return this.list.find((s) => s.id === id)
+    const wanted = systemIdOf(id)
+    return this.list.find((s) => s.id === wanted)
   }
 }
 

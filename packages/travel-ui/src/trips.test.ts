@@ -1,4 +1,5 @@
-import { GENERIC_SYSTEM, type TravelSystem } from '@open-tabletop/session'
+import { type TravelSystem } from '@open-tabletop/session'
+import { coreSystem } from '../../session/src/core.testing'
 import { describe, expect, it, vi } from 'vitest'
 import { readTrips, TripStore } from './trips.svelte'
 
@@ -66,7 +67,7 @@ describe('a trip store', () => {
   })
 
   it('plays the rules as they are at every step, and keeps its trips under its own key', () => {
-    let system: TravelSystem = GENERIC_SYSTEM
+    let system: TravelSystem = coreSystem()
     const store = new TripStore({
       key: 'opentabletop.test.trips',
       systems: () => [system],
@@ -74,7 +75,7 @@ describe('a trip store', () => {
       locale: () => 'en',
     })
     for (let i = 0; i < 7; i++) store.addHex()
-    store.start('generic', 'spring')
+    store.start('core', 'spring')
     expect(store.saved.session?.travel.destination).toBe('7')
     store.step({ type: 'travel' })
     expect(store.location).toBeGreaterThan(0)
@@ -82,9 +83,9 @@ describe('a trip store', () => {
 
     // The rules change while the trip goes on (as in the Systems app's Try it tab): plains
     // can't be crossed any more, so the next step doesn't move the party.
-    const rules = GENERIC_SYSTEM.rules
+    const rules = coreSystem().rules
     system = {
-      ...GENERIC_SYSTEM,
+      ...coreSystem(),
       rules: {
         ...rules,
         terrains: { ...rules.terrains, plains: { ...rules.terrains.plains, passable: false } },
@@ -100,9 +101,9 @@ describe('a trip store', () => {
   })
 
   it('plays at the system’s scale when it sets one, else at the way’s', () => {
-    const rules = GENERIC_SYSTEM.rules
+    const rules = coreSystem().rules
     let system: TravelSystem = {
-      ...GENERIC_SYSTEM,
+      ...coreSystem(),
       rules: { ...rules, travel: { hoursPerDay: 8 } },
     }
     const store = new TripStore({
@@ -117,7 +118,7 @@ describe('a trip store', () => {
     expect(store.hexKm).toBe(30)
     // A day on foot (30 km in the generic rules) crosses at most one 30 km hex.
     for (let i = 0; i < 5; i++) store.addHex()
-    store.start('generic', 'spring')
+    store.start('core', 'spring')
     store.step({ type: 'travel' })
     expect(store.location).toBeLessThanOrEqual(1)
   })

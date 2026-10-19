@@ -1,4 +1,3 @@
-import { vocabulary } from '@open-tabletop/ui-kit'
 // Source of truth for UI strings (English is the default locale). `es.ts` mirrors this shape.
 export const en = {
   app: {
@@ -11,9 +10,7 @@ export const en = {
     showHelp: 'Show the help',
     hideHelp: 'Hide the help (more room)',
     systems: 'Systems',
-    generic: vocabulary.en.terms.genericSystem,
     help: 'Help and manual',
-    builtIn: 'built in',
     editInSystems: 'Edit in Systems →',
     makeSystems: 'Make or edit systems →',
   },

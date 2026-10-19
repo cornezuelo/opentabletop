@@ -8,7 +8,6 @@ import {
   createSystem,
   createSystemPart,
   declareSystem,
-  genericYaml,
   packFormat,
   partChoices,
   partName,
@@ -98,7 +97,7 @@ describe('systems in the Systems app', () => {
     expect(partName(marches, 'travel-rules', 'default')).toBeUndefined()
     const kalArath = systems.get('kal-arath')
     if (kalArath) {
-      expect(kalArath.rules.actions?.camp).toMatchObject({ do: [{ time: '06:00' }] })
+      expect(kalArath.rules.actions?.camp).toMatchObject({ do: [{ time: 'part.morning' }] })
       expect(kalArath.rules.actions?.rest).toBeUndefined()
     }
   })
@@ -110,7 +109,7 @@ describe('systems in the Systems app', () => {
       system: { path: 'system.yaml', id: 'default' },
     })
     // What it can name: its own parts by id, its dependency's as pack/id.
-    expect(partChoices(marches, 'travel-rules')).toEqual(['default'])
+    expect(partChoices(marches, 'travel-rules')).toEqual(['default', 'core/default'])
     expect(partChoices(marches, 'calendar')).toContain('marcher-reckoning')
     expect(partChoices(marches, 'weather')).toContain('sky')
     library.editCopy('grey-marches')
@@ -130,22 +129,20 @@ describe('systems in the Systems app', () => {
     library.removePack('grey-marches')
   })
 
-  it('shows the Generic rules as a pack would write them, and they load as one', () => {
-    const { registry, diagnostics } = loadPacks([
-      {
-        path: 'g/pack.yaml',
-        content: 'id: g\nname: G\nversion: 0.1.0\nlocale: en\nlicense: MIT\n',
-      },
-      { path: 'g/rules.yaml', content: genericYaml() },
-    ])
-    expect(diagnostics.map((d) => d.message)).toEqual([])
-    const { systems: found, problems } = travelSystems(registry)
-    expect(problems).toEqual([])
-    const g = found.find((s) => s.id === 'g')!
-    expect(g.rules.travel.hoursPerDay).toBe(systems.get('generic')!.rules.travel.hoursPerDay)
-    expect(Object.keys(g.rules.terrains)).toEqual(
-      Object.keys(systems.get('generic')!.rules.terrains),
-    )
+  it('a new system starts from a copy of the Generic rules, with Core’s calendar', () => {
+    const id = createSystem('From Core')!
+    const mine = systems.get(id)!
+    const core = systems.get('core')!
+    expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
+    // The same rules, written in its own pack to change…
+    expect(mine.sources?.rules?.pack).toBe(id)
+    expect(mine.rules.travel).toEqual(core.rules.travel)
+    expect(Object.keys(mine.rules.terrains)).toEqual(Object.keys(core.rules.terrains))
+    expect(Object.keys(mine.rules.actions ?? {})).toEqual(['march', 'camp', 'rest', 'eat'])
+    // …and the calendar whose parts of the day they name (Core's, a dependency).
+    expect(library.readFile(id, 'system.yaml')).toContain('calendar: core/default')
+    expect(library.readFile(id, 'pack.yaml')).toMatch(/dependencies:\n {2}core: ["']>=/)
+    expect(mine.calendar?.divisions?.map((d) => d.id)).toEqual(['part', 'watch'])
   })
 
   it('a copy of a pack a system uses, older than the bundled one, is named on the system', () => {
@@ -262,8 +259,11 @@ describe('systems in the Systems app', () => {
   it('a new calendar, weather model and roll modes are created and named by the system', () => {
     const id = createSystem('Weathered')!
     const system = () => systems.get(id)!
-    expect(systemParts(system(), 'calendar')).toEqual([])
+    // It starts with Core's calendar (its rules name its parts of the day).
+    expect(systemParts(system(), 'calendar')).toMatchObject([{ root: 'core', id: 'default' }])
     expect(createSystemPart(system(), 'calendar')).toBe('calendar')
+    // A new calendar has the parts of the day the Generic rules name.
+    expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
     expect(createSystemPart(system(), 'weather')).toBe('weather')
     expect(createSystemPart(system(), 'weather')).toBe('weather-2')
     expect(createSystemPart(system(), 'roll-modes')).toBe('default')

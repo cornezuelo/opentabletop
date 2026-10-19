@@ -17,7 +17,6 @@ export const vocabulary = {
       fatigue: 'Fatigue',
       supplies: 'Supplies',
       system: 'System',
-      genericSystem: 'Generic',
       /** The plain calendar's numbered `watch` division, which has no name of its own. */
       watches: 'Watches',
     },
@@ -88,7 +87,6 @@ export const vocabulary = {
       fatigue: 'Fatiga',
       supplies: 'Provisiones',
       system: 'Sistema',
-      genericSystem: 'Genéricas',
       watches: 'Guardias',
     },
     seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },

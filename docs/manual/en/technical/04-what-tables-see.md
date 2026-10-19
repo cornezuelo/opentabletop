@@ -18,7 +18,7 @@ Each value has a **full name** that says where it comes from (`hex.terrain`) and
 | `from.*`, `around.*` | [the hex left and the hexes around](#around-the-party-from-around)                             |
 
 - **Short names** are quicker to write, and are what you type in the Oracle's **Context** box: `terrain: forest` there fills `hex.terrain` too.
-- **Full names** can't be hidden: a party stat, a value of the day or a binding's context called `weather` or `day` takes the short name (see [Which value wins](#which-value-wins)), never the full one. The Grey Marches' travel rules use them; Core and the Generic rules use short names.
+- **Full names** can't be hidden: a party stat, a value of the day or a binding's context called `weather` or `day` takes the short name (see [Which value wins](#which-value-wins)), never the full one. The Grey Marches' travel rules and the Generic rules use them.
 
 **Kinds of value** in the tables below: a **number** (`3`, `14.5`: adds up in dice, compares with `gt` / `gte` / `lt` / `lte`), **yes/no** (`true` / `false`), **text**, an **id** (a text the system or the map declares: `forest`, `market-day`), a **list** (several ids at once: a condition holds if the list has the one asked for, `hex.tags: landmark`) or a **group** (names inside: `hex.icon.guards`). A value that isn't there reads as **0** in dice and **doesn't match** in conditions (except `exists: false` or `not`): see [Conditions](08-conditions.md).
 

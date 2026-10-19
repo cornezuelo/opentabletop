@@ -20,7 +20,7 @@
 {#if system}
   <article class="system">
     <header>
-      <h1>{system.id === 'generic' ? t('nav.generic') : systemName(system, getLocale())}</h1>
+      <h1>{systemName(system, getLocale())}</h1>
       <a class="edit" href={`${appUrl('systems')}#/system/${encodeURIComponent(id)}/rules`}
         >{t('nav.editInSystems')}</a
       >

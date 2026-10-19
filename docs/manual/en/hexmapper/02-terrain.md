@@ -25,7 +25,7 @@ The palette lists the map's terrains, grouped:
 
 Your own terrains go under **Other**. Each map keeps the palette it was made with. **Edit palette** shows each terrain's **id** beside its name (`dense-forest`): what tables, conditions and travel rules write (`hex.terrain: dense-forest`), whatever the language of its name.
 
-Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a whole set at once (only the terrains the map lacks), each with its symbol and a speed in the generic travel rules:
+Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a whole set at once (only the terrains the map lacks), each with its symbol and a speed in the Generic rules (Core's):
 
 | Set               | Terrains                                                                                                    |
 | ----------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -34,11 +34,11 @@ Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a w
 | Post-apocalyptic  | ruins, wasteland, irradiated, toxic swamp, crater (group _Wasteland_)                                       |
 | Sci-fi and space  | alien jungle, crystal field, lava field, regolith (_Alien worlds_); space, nebula, asteroid field (_Space_) |
 
-Lava fields, space, nebulae and asteroid fields are closed to walking in the generic rules: a system of your own gives ships a way of travelling that only goes there (`through: { terrain: [space, nebula] }`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
+Lava fields, space, nebulae and asteroid fields are closed to walking in the Generic rules: a system of your own gives ships a way of travelling that only goes there (`through: { hex.terrain: [space, nebula] }`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
 
 - **Color** and **name** (empty name = the translated default).
 - **Symbol**: the small drawing on its hexes (see below).
-- **Water**: marks the terrain as water. On the map, roads, trails and rivers stop at its shore (walls and borders cross it). It changes nothing else on the map. On a trip, water hexes follow the travel rules' **water** rule unless their terrain has its own: the generic rules and the Grey Marches make them impassable on foot (except lakes in winter, crossed on the ice: a terrain can open or close on a condition), and a system can have boats that only sail water (the Grey Marches' boat crosses the Saltmere). Tables see `water: true` on those hexes.
+- **Water**: marks the terrain as water. On the map, roads, trails and rivers stop at its shore (walls and borders cross it). It changes nothing else on the map. On a trip, water hexes follow the travel rules' **water** rule unless their terrain has its own: the Generic rules and the Grey Marches make them impassable on foot (except lakes in winter, crossed on the ice: a terrain can open or close on a condition), and a system can have boats that only sail water (the Grey Marches' boat crosses the Saltmere). Tables see `water: true` on those hexes.
 - Add your own terrains or delete them (hexes painted with a deleted terrain become empty).
 
 Terrain ids (`forest`, `hills`…) are what travel rules and tables read, so a table can say `when: { terrain: forest }`.

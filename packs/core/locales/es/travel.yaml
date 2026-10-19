@@ -1,0 +1,28 @@
+travel-rules/default:
+  modes:
+    foot:
+      name: A pie
+    horse:
+      name: A caballo
+  resources:
+    food:
+      name: Comida
+  actions:
+    march:
+      name: Marchar
+      description: 'Marchar por la ruta mientras no es de noche, 8 horas al día: hasta el destino o un hex.'
+      params:
+        until:
+          name: Hasta dónde
+          choices:
+            destination: Hasta el destino
+            hex: Un hex
+    camp:
+      name: Acampar
+      description: Dormir hasta la mañana.
+    rest:
+      name: Descansar
+      description: Una hora sin marchar, solo de día.
+    eat:
+      name: Comer
+      description: Un día de comida, que se come al acabar cada día.

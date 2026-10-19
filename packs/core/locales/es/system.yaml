@@ -1,0 +1,10 @@
+system/default:
+  name: Reglas genéricas
+  description: |-
+    Las reglas que juega un mapa que no elige sistema: marchar de día a pie o a caballo por
+    los terrenos de las paletas del Hexmapper, caminos y senderos que aceleran, acampar de
+    noche, un día de comida al día, personajes con salud y una herida, y la moral del grupo.
+
+    **Enseña:** el sistema más pequeño: reglas de viaje con marchar, acampar, descansar y
+    comer; un calendario cuyo día se nombra por partes (la noche con la etiqueta `dark`);
+    una hoja de personaje y una hoja de grupo.

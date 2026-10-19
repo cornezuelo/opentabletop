@@ -6,7 +6,12 @@ import {
   DEFAULT_REGION_STYLE,
 } from './defaults'
 import { newId } from './id'
-import { migrateFatigue, migrateLost, migrateTotals } from '@open-tabletop/session'
+import {
+  migrateFatigue,
+  migrateGenericSheets,
+  migrateLost,
+  migrateTotals,
+} from '@open-tabletop/session'
 
 /**
  * `migrations[n]` upgrades raw data from version n to n + 1. Every format change
@@ -181,6 +186,44 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     const rest = { ...play }
     delete rest.showRelations
     return { ...data, play: rest }
+  },
+  /**
+   * v22: the Generic rules are Core's system (`core`), no longer built in: a trip played
+   * with `generic` plays Core's, and characters made with its sheets (`generic/character`,
+   * `generic/party`) have Core's (`core/character`, `core/party`), on tokens too.
+   */
+  21(data) {
+    const play = data.play as
+      { rules?: { system?: unknown; session?: unknown; members?: unknown } } | undefined
+    const sheet = (c: unknown) => {
+      const character = c as { sheet?: unknown } | undefined
+      return typeof character?.sheet === 'string' && character.sheet.startsWith('generic/')
+        ? { ...character, sheet: `core/${character.sheet.slice(8)}` }
+        : c
+    }
+    const out = Array.isArray(data.tokens)
+      ? {
+          ...data,
+          tokens: (data.tokens as Record<string, unknown>[]).map((t) =>
+            t?.character ? { ...t, character: sheet(t.character) } : t,
+          ),
+        }
+      : data
+    const rules = play?.rules
+    if (!rules) return out
+    const session = rules.session as Parameters<typeof migrateGenericSheets>[0] | undefined
+    return {
+      ...out,
+      play: {
+        ...play,
+        rules: {
+          ...rules,
+          ...(rules.system === 'generic' && { system: 'core' }),
+          ...(session && typeof session === 'object' && { session: migrateGenericSheets(session) }),
+          ...(Array.isArray(rules.members) && { members: rules.members.map(sheet) }),
+        },
+      },
+    }
   },
 }
 

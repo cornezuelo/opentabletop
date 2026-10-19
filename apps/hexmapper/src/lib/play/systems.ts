@@ -1,5 +1,5 @@
 import { formatDiagnostic, type OracleEngine, type Registry } from '@open-tabletop/oracle-engine'
-import { travelSystems, type TravelSystem } from '@open-tabletop/session'
+import { missingSystem, systemIdOf, travelSystems, type TravelSystem } from '@open-tabletop/session'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 
@@ -18,20 +18,21 @@ function load(): TravelSystem[] {
   return systems
 }
 
-/** The systems a map can be played with: the generic one and every loaded pack's. */
+/** The systems a map can be played with: every loaded pack's, Core's (the default) first. */
 export function playSystems(): TravelSystem[] {
   return load()
 }
 
+/** A system by id (`generic` is Core's); one that doesn't travel if its pack isn't loaded. */
 export function getSystem(id: string): TravelSystem {
-  const systems = load()
-  return systems.find((s) => s.id === id) ?? systems[0]
+  const wanted = systemIdOf(id)
+  return load().find((s) => s.id === wanted) ?? missingSystem(wanted)
 }
 
-/** The id of the system the map is played with (Map settings → Map → System). */
-export const mapSystemId = (): string => editor.meta.system ?? 'generic'
+/** The id of the system the map is played with (Map settings → Map → System; none: Core's). */
+export const mapSystemId = (): string => systemIdOf(editor.meta.system)
 
-/** The system the map is played with (the generic one if its pack isn't loaded). */
+/** The system the map is played with (one that doesn't travel if its pack isn't loaded). */
 export const mapSystem = (): TravelSystem => getSystem(mapSystemId())
 
 /**

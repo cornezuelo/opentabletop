@@ -11,14 +11,12 @@ export const en = {
     showHelp: 'Show the help',
     hideHelp: 'Hide the help (more room)',
     systems: 'Systems',
-    generic: vocabulary.en.terms.genericSystem,
     help: 'Help and manual',
     undo: 'Undo the last change to your packs (Ctrl+Z)',
     redo: 'Redo (Ctrl+Shift+Z)',
     newSystem: 'New system',
     import: 'Import a system (.zip)…',
     problems: '{count} problems',
-    builtIn: 'built in',
   },
   origin: {
     bundled: 'bundled',
@@ -305,8 +303,6 @@ export const en = {
       'Modes this one cancels out with: when both apply, neither does (a normal roll).\n• `disadvantage`',
   },
   overview: {
-    generic:
-      'The Generic rules: plain travel with no checks, built into the apps. They have no definition to edit; create a new system to start your own from them.',
     implicit:
       'This system comes from an older pack: its travel rules make a system named after the pack, with its bindings and calendar. Declaring it writes a system.yaml naming what it uses, so you can choose its parts and the packs it brings here; it plays the same.',
     declare: 'Declare it',
@@ -593,9 +589,7 @@ export const en = {
     dependency:
       'From {pack}, a pack this system brings along: read-only here, since every system that brings it shares it. To change it for this system, make your own in the system’s pack.',
     builtIn:
-      "The Generic rules are built in and can't be edited. Create a new system (below the list on the left) to start your own from them; their YAML tab shows them.",
-    genericYaml:
-      'The Generic rules, written as a pack would write them: their travel rules and the sheet of their characters. Read-only (they are built in); a new system starts from the same rules.',
+      'The Generic rules are Core’s system, the one a map plays when it chooses none: read-only here, as every system may bring Core. To change them, create a new system (below the list on the left): it starts from a copy of their rules.',
     playInTravel: 'Play it in Travel →',
     staleCopy:
       'This system uses your copy of «{pack}», and the bundled «{pack}» changed since you made it. Your copy replaces the bundled pack whole, so what the newer one added (a table this system names…) is missing until you take it:',

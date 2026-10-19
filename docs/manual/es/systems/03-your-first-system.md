@@ -4,7 +4,7 @@ Un sistema pequeño para un juego en el que el grupo lleva antorchas, se puede p
 
 ## Paso a paso
 
-1. **Créalo**: escribe _Bosques Oscuros_ bajo la lista de sistemas y pulsa **+**. Empieza con las reglas Genéricas: una acción **march** que anda 30 km al día a pie, de día (hasta el destino o un hex, que se elige junto a su botón), acampada de las 20:00 a las 06:00 y 1 de comida al acabar cada día.
+1. **Créalo**: escribe _Bosques Oscuros_ bajo la lista de sistemas y pulsa **+**. Empieza con una copia de las reglas genéricas (las de Core) y el calendario de Core, cuyas partes del día nombran: una acción **march** que anda 30 km al día a pie mientras no es de noche (hasta el destino o un hex, que se elige junto a su botón), acampada desde la noche (20:00) hasta la mañana (06:00) y 1 de comida al acabar cada día.
 2. **Una provisión**: en **Reglas → Provisiones**, añade `torches` con **Mín** `0`. El panel del viaje muestra ahora las antorchas, y el jugador puede cambiarlas a mano.
 3. **Gastarla**: abre la acción **eat** (la hace el propio sistema en `day-end`) y añade un paso `effects: { party.resources.torches: -1 }`. Cada día quema también una antorcha.
 4. **Perderse**: en **Valores del día**, añade `lost` y, en **Bloquea**, `travel`. Una tabla que ponga `lost: true` detendrá al grupo el resto del día.

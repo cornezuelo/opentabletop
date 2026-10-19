@@ -19,15 +19,11 @@
   <h2>{t('nav.systems')}</h2>
   <ul>
     {#each systems.list as s (s.id)}
-      {@const o = s.id === 'generic' ? null : origin(s.id)}
+      {@const o = origin(s.id)}
       <li>
         <button class:selected={selected === s.id} onclick={() => go({ name: 'system', id: s.id })}>
-          <span class="name" use:fullText
-            >{s.id === 'generic' ? t('nav.generic') : systemName(s, getLocale())}</span
-          >
-          {#if s.id === 'generic'}
-            <span class="tag">{t('nav.builtIn')}</span>
-          {:else if o}
+          <span class="name" use:fullText>{systemName(s, getLocale())}</span>
+          {#if o}
             <span class="tag">{t(`origin.${o}`)}</span>
           {/if}
           {#if library.pack(library.rootOf(s.id) ?? '')?.personal}

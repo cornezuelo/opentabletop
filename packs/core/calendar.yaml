@@ -1,0 +1,29 @@
+# The Generic rules' calendar (system.yaml): four seasons of 90 days, the day named by its
+# parts (the night tagged `dark`, read as `time.part` and `time.tags`) and six watches of
+# four hours (`time.watch`: 1 from midnight to 04:00 … 6 from 20:00).
+kind: calendar
+id: default
+name: The plain calendar
+description: |-
+  Four seasons of 90 days, a day in four parts (morning, afternoon, evening and night)
+  and six watches of four hours.
+
+  **Shows:** the smallest calendar: one month per season, a division of the day with its
+  own parts (`divisions: { part: … }`, a `dark` tag on the night) and one of numbered
+  parts of equal length (`watch: { every: 4 }`).
+divisions:
+  part:
+    name: Part of the day
+    parts:
+      - { id: morning, name: morning, from: '06:00' }
+      - { id: afternoon, name: afternoon, from: '12:00' }
+      - { id: evening, name: evening, from: '17:00' }
+      - { id: night, name: night, from: '20:00', tags: [dark] }
+  watch:
+    name: Watches
+    every: 4
+months:
+  - { id: spring, name: Spring, days: 90, season: spring }
+  - { id: summer, name: Summer, days: 90, season: summer }
+  - { id: autumn, name: Autumn, days: 90, season: autumn }
+  - { id: winter, name: Winter, days: 90, season: winter }

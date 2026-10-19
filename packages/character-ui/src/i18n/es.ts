@@ -23,6 +23,5 @@ export const es: Messages<typeof en> = {
   min: 'Como mínimo {min}.',
   max: 'Como máximo {max}.',
   blocks: 'Mientras alguien lo tenga, el grupo no puede: {list}.',
-  known: { health: 'Salud', wounded: 'Herido', morale: 'Moral' },
   box: '{value} de {max}',
 }

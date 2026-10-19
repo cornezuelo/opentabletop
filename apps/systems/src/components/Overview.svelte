@@ -106,9 +106,7 @@
 </script>
 
 <div class="overview">
-  {#if system.id === 'generic'}
-    <p class="help">{t('overview.generic')}</p>
-  {:else if !data}
+  {#if !data}
     <div class="notice">
       <span>{t('overview.implicit')}</span>
       {#if editableRoot}

@@ -174,7 +174,7 @@ water: { passable: false } # water hexes whose terrain isn't listed
 
 ### Ways of travelling
 
-**modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the Generic rules' usual ids (foot, horse…) get the app's names and any other shows its id. Two conditions shape each one:
+**modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, a few usual ids (foot, horse…) get the app's names and any other shows its id. Two conditions shape each one:
 
 - `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ water: true }, { terrain: coast }] }`; a cart only by road: `through: { edges: road }`.
 - `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; a horse not in snow: `unless: { weather: snow }`.
@@ -352,7 +352,7 @@ A check can have **effects of its own**: without a table it just applies them, w
 The **bindings** (`kind: bindings`) are the other half of the system:
 
 - `on` connects each check, by its event, to what answers it: `resolve:` a table, oracle, generator or deck of the pack (or another pack's, by full id: `core/weather`), or `weather:` a [weather model](#weather-with-inertia). `context` adds values for that check only, and wins over everything else: the same encounter table answers day and night with `context: { timeOfDay: night }` on the camp's check, and an oracle gets its input as `context: { odds: likely }`. **Checks with no binding** are written in the journal (with their effects, if they have any), and stop the trip until **Continue** only when they say `pause: true`: the Grey Marches' landmarks.
-- `stats` are the party's numbers, shown in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (its help in the trip panel), a starting value (`default`) and, if it has them, `min` and `max` (fatigue never below 0). Tables read them by key, `{{charisma}}`, or always unambiguously `party.stats.charisma`. The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none. A table can change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and shows by its key, but the pack gets a warning, so declare every stat its tables change.
+- `stats` are the party's numbers, shown in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (its help in the trip panel), a starting value (`default`) and, if it has them, `min` and `max` (fatigue never below 0). Tables read them by key, `{{charisma}}`, or always unambiguously `party.stats.charisma`. The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none (their party's Morale is a value of its party sheet). A table can change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and shows by its key, but the pack gets a warning, so declare every stat its tables change.
 - `reads` names the other values the system's tables read that nobody else names: a value of the map (`danger`, `icon.guards`, `token.fare`), the bindings' context (`timeOfDay`) or today's values tables set (`fordModifier`). With a `name` and `description` each, the roll panel shows them by name, with what they are in their help: `reads: { icon.guards: { name: Guards, description: How many guards watch the gates. } }`. The values maps and trips give (terrain, season, holidays…) already have names in the apps.
 
 ```yaml
@@ -429,7 +429,7 @@ A system can declare the **progress clocks** its world starts with (`kind: clock
 
 ## 6. A calendar of your own
 
-Trips count days with a plain calendar (four seasons of 90 days) unless the system's pack has its own: a `kind: calendar` definition, in any file of the pack.
+Trips count days with a plain calendar (four seasons of 90 days) unless the system names its own (`calendar:` in its `kind: system`, its pack's or a dependency's, like the Generic rules' `core/default`).
 
 ```yaml
 kind: calendar

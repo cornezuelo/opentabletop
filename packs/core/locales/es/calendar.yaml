@@ -1,0 +1,32 @@
+calendar/default:
+  name: El calendario sencillo
+  description: |-
+    Cuatro estaciones de 90 días, un día en cuatro partes (mañana, tarde, atardecer y noche)
+    y seis guardias de cuatro horas.
+
+    **Enseña:** el calendario más pequeño: un mes por estación, una división del día con sus
+    propias partes (`divisions: { part: … }`, la etiqueta `dark` en la noche) y otra de
+    partes numeradas de igual duración (`watch: { every: 4 }`).
+  divisions:
+    part:
+      name: Parte del día
+      parts:
+        morning:
+          name: la mañana
+        afternoon:
+          name: la tarde
+        evening:
+          name: el atardecer
+        night:
+          name: la noche
+    watch:
+      name: Guardias
+  months:
+    spring:
+      name: Primavera
+    summer:
+      name: Verano
+    autumn:
+      name: Otoño
+    winter:
+      name: Invierno

@@ -805,13 +805,6 @@ describe('checks that look at the party', () => {
   })
 })
 
-describe('generic rules', () => {
-  it('are valid travel rules', async () => {
-    const { genericTravelRules } = await import('./generic')
-    expect(parseTravelRules(genericTravelRules).errors).toEqual([])
-  })
-})
-
 describe('check context', () => {
   it('carries everything the map knows about the hex (fields, region…)', () => {
     const marches: TravelWorld = {

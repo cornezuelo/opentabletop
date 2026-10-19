@@ -84,11 +84,10 @@ export const en = {
   },
   map: {
     system: vocabulary.en.terms.system,
-    genericSystem: vocabulary.en.terms.genericSystem,
     systemHelp:
-      "The game system this map is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. New trips in **Play** use it; the Oracle panel shows its packs.\n• **Generic** — simple travel rules, no tables of their own\n• a system from a pack — what that pack declares (its page in the manual says what)\nA trip already going on keeps the system it started with until you start a new one.",
+      "The game system this map is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. New trips in **Play** use it; the Oracle panel shows its packs.\n• **Generic rules** — Core's system, the one a map without a choice plays: simple travel rules, no tables of their own\n• a system from another pack — what that pack declares (its page in the manual says what)\nA system without travel rules plays no trips: only its world, its oracle and its factions.\nA trip already going on keeps the system it started with until you start a new one.",
     systemMissing:
-      'The system “{system}” is not loaded in this browser: the map plays the generic rules.',
+      'The system “{system}” is not loaded in this browser: no trips can be played with it. Load its pack, or choose another system.',
     packs: 'Packs',
     packsHelp:
       'The packs this map works with: the ones its system brings (always on) and any others you add. Its Oracle panel only shows these.\n• a system that brings two packs shows both; add another pack to roll its oracles too\n• **All the loaded packs** — every pack, also ones you add later\nTables can still roll tables of other packs they refer to.',
@@ -438,6 +437,8 @@ export const en = {
     empty: 'No tokens yet.',
   },
   play: {
+    noTravel:
+      '{system} has no travel rules: trips aren’t played with it, only its world, oracle and factions. To travel, choose another system in Map settings → Map → System.',
     otherSystem:
       'This trip plays {trip}, the system it started with; the map now plays {map}. New trip starts one with it.',
     confirmNewTrip:

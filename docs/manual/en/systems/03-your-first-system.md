@@ -4,7 +4,7 @@ A small system for a game where the party carries torches, can get lost in the w
 
 ## Step by step
 
-1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from the Generic rules: a **march** action walking 30 km a day by day (to the destination or one hex, chosen beside its button), camping from 20:00 until 06:00, eating 1 food as each day ends.
+1. **Create it**: type _Dark Woods_ under the system list and press **+**. It starts from a copy of the Generic rules (Core's) and Core's calendar, whose parts of the day they name: a **march** action walking 30 km a day while it isn't dark (to the destination or one hex, chosen beside its button), camping from the night (20:00) until the morning (06:00), eating 1 food as each day ends.
 2. **A supply**: in **Rules → Supplies**, add `torches` with **Min** `0`. Now the trip panel shows Torches, and the player can change them by hand.
 3. **Spend it**: open the action **eat** (it runs by itself at `day-end`) and add a step `effects: { party.resources.torches: -1 }`. Each day now burns a torch too.
 4. **Being lost**: in **Values of the day**, add `lost` and, in **Blocks**, `travel`. A table that sets `lost: true` will stop the party for the rest of the day.

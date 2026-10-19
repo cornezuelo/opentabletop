@@ -1,0 +1,23 @@
+# The Generic rules' sheets (system.yaml): its characters (`sheet: character`) and the
+# party's own (`partySheet: party`). The smallest that work.
+kind: sheet
+id: character
+name: Character
+description: |-
+  A character of the Generic rules: their health and whether they're wounded.
+
+  **Shows:** the smallest character sheet: a value with bounds and a condition.
+values:
+  health: { name: Health, default: 3, min: 0, max: 3 }
+conditions:
+  wounded: { name: Wounded }
+---
+kind: sheet
+id: party
+name: Party
+description: |-
+  The party of the Generic rules, as a whole: its morale.
+
+  **Shows:** the smallest party sheet: one value with bounds, drawn as a track.
+values:
+  morale: { name: Morale, default: 3, min: 0, max: 5, track: true }

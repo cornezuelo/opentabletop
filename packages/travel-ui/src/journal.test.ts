@@ -1,4 +1,5 @@
-import { GENERIC_SYSTEM, type JournalEntry } from '@open-tabletop/session'
+import { type JournalEntry } from '@open-tabletop/session'
+import { coreSystem } from '../../session/src/core.testing'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
@@ -156,7 +157,7 @@ describe('what results did to characters and the world', () => {
     sheet: { id: 'm/faction', def: { ...sheet, values: { reputation: { name: 'Reputation' } } } },
   }
   const system = {
-    ...GENERIC_SYSTEM,
+    ...coreSystem(),
     sheet: { id: 'm/companion', def: sheet },
     factions,
   }

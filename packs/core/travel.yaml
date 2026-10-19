@@ -1,0 +1,108 @@
+# The Generic rules' travel (system.yaml): the smallest travel rules that play. Its day is
+# named by the parts of its calendar's (calendar.yaml): trips start as the morning begins,
+# the party marches while it isn't dark, and from the night a party that can't march camps
+# (the halt). Going on by itself (the world clock, a travel order), it marches to its
+# destination whenever it can (onward). New system starts from a copy of these rules.
+kind: travel-rules
+id: default
+travel:
+  hoursPerDay: 8
+  hexKm: 10
+  start: part.morning
+  onward: { do: march, with: { until: destination } }
+  halt: { at: part.night, do: camp }
+# The terrains of the Hexmapper's palettes; one the rules don't list is crossed at normal
+# speed. A lake is crossed on the ice in winter (passable as a condition), never otherwise.
+terrains:
+  steppe: { multiplier: 1 }
+  plains: { multiplier: 1 }
+  farmland: { multiplier: 1 }
+  desert: { multiplier: 0.75 }
+  forest: { multiplier: 0.5 }
+  taiga: { multiplier: 0.5 }
+  tundra: { multiplier: 0.5 }
+  hills: { multiplier: 0.5 }
+  badlands: { multiplier: 0.5 }
+  snow: { multiplier: 0.5 }
+  swamp: { multiplier: 0.33 }
+  mountains: { multiplier: 0.33 }
+  jungle: { multiplier: 0.33 }
+  volcanic: { multiplier: 0.33 }
+  heath: { multiplier: 0.75 }
+  savanna: { multiplier: 1 }
+  dense-forest: { multiplier: 0.33 }
+  marsh: { multiplier: 0.33 }
+  peaks: { multiplier: 0.25 }
+  canyon: { multiplier: 0.5 }
+  oasis: { multiplier: 1 }
+  glacier: { multiplier: 0.25 }
+  coast: { multiplier: 1 }
+  # Modern, post-apocalyptic and sci-fi terrains (the Hexmapper's terrain sets).
+  city: { multiplier: 1 }
+  suburbs: { multiplier: 1 }
+  industrial: { multiplier: 0.75 }
+  ruins: { multiplier: 0.5 }
+  wasteland: { multiplier: 0.75 }
+  irradiated: { multiplier: 0.5 }
+  toxic-swamp: { multiplier: 0.33 }
+  crater: { multiplier: 0.5 }
+  alien-jungle: { multiplier: 0.33 }
+  crystal-field: { multiplier: 0.5 }
+  lava-field: { passable: false }
+  regolith: { multiplier: 0.75 }
+  # Open space and nebulae are for ships: a system with a way `through: { hex.terrain: [space…] }`.
+  space: { passable: false }
+  nebula: { passable: false }
+  asteroid-field: { passable: false }
+  lake: { passable: { when: { time.season: winter } } }
+  sea: { passable: false }
+  deep-sea: { passable: false }
+water: { passable: false }
+edges:
+  road: { multiplier: 1.5 }
+  trail: { multiplier: 1.2 }
+modes:
+  foot: { name: On foot, kmPerDay: 30 }
+  horse: { name: On horseback, kmPerDay: 50 }
+# Food never goes below 0: when there's none left, eating hits that minimum.
+resources:
+  food: { name: Food, min: 0 }
+checks: []
+# No values of the day: nothing here blocks travel.
+values: {}
+# Marching while it isn't dark for the day's 8 hours, to the destination or one hex at a
+# time; camp sleeps until the morning; a rest is an hour without marching, only by day (the
+# night is for camping). As each day ends, whether the party camped or not, it eats a day
+# of food (an action the system takes by itself: `on`).
+actions:
+  march:
+    name: March
+    description: 'March along the route while it isn’t dark, for 8 hours a day: to the destination or one hex.'
+    params:
+      until:
+        name: How far
+        choices:
+          - { id: destination, name: To the destination }
+          - { id: hex, name: One hex }
+    when:
+      time.tags: { not: dark }
+      trip.marched: { lt: '{{system.hoursPerDay}}' }
+    do:
+      - { travel.move: '{{params.until}}' }
+  camp:
+    name: Camp
+    description: Sleep until the morning.
+    do:
+      - { time: part.morning }
+  rest:
+    name: Rest
+    description: An hour without marching, only by day.
+    when: { time.tags: { not: dark } }
+    do:
+      - { time: 60 }
+  eat:
+    name: Eat
+    description: A day of food, eaten as each day ends.
+    on: day-end
+    do:
+      - { effects: { party.resources.food: -1 } }

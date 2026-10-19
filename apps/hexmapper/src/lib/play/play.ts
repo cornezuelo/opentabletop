@@ -8,6 +8,7 @@ import {
   type Season,
   type SessionState,
   type TravelSystem,
+  travels,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale } from '../i18n/index.svelte'
@@ -109,6 +110,12 @@ function newSession(
   system: string,
   season: Season = 'spring',
 ): PlayState {
+  // A system without travel rules plays no trips (Play says so).
+  if (!travels(getSystem(system)))
+    return {
+      ...play,
+      rules: { system, startDay: seasonStart(getSystem(system), season), session: null },
+    }
   // Keep stats the user already set with this system; its declared defaults fill the rest.
   const { startDay, session } = startTrip({
     system: getSystem(system),
@@ -133,6 +140,8 @@ export function clickHex(key: HexKey): void {
   // The party is placed and a system chosen, but the trip hasn't started: it starts
   // where the party is, heading for the hex clicked.
   if (play.mode === 'rules' && location && !sessionOf(play)) {
+    // A system without travel rules plays no trips (Play says so).
+    if (!travels(getSystem(mapSystemId()))) return
     save(newSession(play, location, mapSystemId()))
     if (location !== key) step({ type: 'setDestination', hex: key })
     return

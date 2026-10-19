@@ -2,14 +2,21 @@ import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { sequence } from '@open-tabletop/random'
 import { defaultCalendar } from '@open-tabletop/time'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
+import type { CharacterState } from '@open-tabletop/character-engine'
 import { describe, expect, it } from 'vitest'
+import { coreSystem } from './core.testing'
 import {
-  GENERIC_SYSTEM,
+  DEFAULT_SYSTEM,
+  migrateGenericSheets,
+  missingSystem,
+  NO_TRAVEL,
   startTrip,
   stepTrip,
   systemName,
   systemOfPack,
+  systemIdOf,
   systemPackIds,
+  travels,
   travelSystems,
   tripAvailability,
   tripFacts,
@@ -68,8 +75,8 @@ const world: TravelWorld = {
 describe('trips', () => {
   it('finds the systems packs declare and reports broken ones', () => {
     const { systems, problems } = travelSystems(registry)
-    expect(systems.map((s) => s.id)).toEqual(['generic', 'sys'])
-    expect(systems[1]).toMatchObject({
+    expect(systems.map((s) => s.id)).toEqual(['sys'])
+    expect(systems[0]).toMatchObject({
       name: 'Sys',
       bindings: { on: { WEATHER: { resolve: 'sys/weather' } } },
     })
@@ -172,8 +179,8 @@ colour: red
     const { systems, problems } = travelSystems(registry)
     // A system with id `default` is named by its pack; the others by pack/id. A pack that
     // declares systems has no implicit one (base has travel rules but declares none: implicit).
-    expect(systems.map((s) => s.id)).toEqual(['generic', 'base', 'game', 'game/slow', 'game/plain'])
-    const [, base, game, slow, plain] = systems
+    expect(systems.map((s) => s.id)).toEqual(['base', 'game', 'game/slow', 'game/plain'])
+    const [base, game, slow, plain] = systems
     expect(base.rules.travel.hoursPerDay).toBe(4)
     expect(Object.keys(base.weather ?? {})).toEqual(['base/sky'])
     expect(game).toMatchObject({
@@ -184,10 +191,12 @@ colour: red
     })
     expect(systemName(game, 'es')).toBe('El juego')
     expect(Object.keys(game.weather ?? {})).toEqual(['base/sky'])
-    // Parts of a dependency are its own; without travel rules, the generic ones.
+    // Parts of a dependency are its own; without travel rules, it doesn't travel.
     expect(slow.sources?.rules).toMatchObject({ pack: 'base', id: 'slow' })
     expect(systemName(slow, 'en')).toBe('Game')
-    expect(plain.rules).toBe(GENERIC_SYSTEM.rules)
+    expect(plain.rules).toBe(NO_TRAVEL)
+    expect(travels(plain)).toBe(false)
+    expect(travels(slow)).toBe(true)
     expect(plain.weather).toBeUndefined()
     // A pack can't reach into packs it doesn't depend on, nor name parts that don't exist.
     const of = (pack: string) =>
@@ -218,7 +227,7 @@ colour: red
     const game = systems.find((s) => s.id === 'game')!
     // Its own pack first, then its dependencies as far as they go; unrelated packs stay out.
     expect(systemPackIds(game, registry)).toEqual(['game', 'base', 'deep'])
-    expect(systemPackIds(GENERIC_SYSTEM, registry)).toEqual([])
+    expect(systemPackIds(missingSystem('gone'), registry)).toEqual([])
   })
 
   it('lists the example maps a system names, OTD bundles of its own pack', () => {
@@ -318,7 +327,7 @@ divisions:
   })
 
   it('starts a trip at dawn of the season, with supplies and declared stats', () => {
-    const sys = travelSystems(registry).systems[1]
+    const sys = travelSystems(registry).systems.find((s) => s.id === 'sys')!
     const { startDay, session } = startTrip({ system: sys, location: 'a', season: 'summer' })
     expect(startDay).toBe(91)
     expect(session.travel).toMatchObject({
@@ -336,14 +345,14 @@ divisions:
     expect(startTrip({ system: sys, location: 'a', stats: kept }).session.stats).toEqual({
       luck: 4,
     })
-    expect(startTrip({ system: GENERIC_SYSTEM, location: 'a', stats: kept }).session.stats).toEqual(
+    expect(startTrip({ system: coreSystem(), location: 'a', stats: kept }).session.stats).toEqual(
       {},
     )
-    expect(startTrip({ system: GENERIC_SYSTEM, location: 'a' }).session.travel.mode).toBe('foot')
+    expect(startTrip({ system: coreSystem(), location: 'a' }).session.travel.mode).toBe('foot')
   })
 
   it('steps through the session, resolving bound checks', () => {
-    const sys = travelSystems(registry).systems[1]
+    const sys = travelSystems(registry).systems.find((s) => s.id === 'sys')!
     const oracle = createOracleEngine({ registry, random: sequence([0.9]) })
     const { session } = startTrip({ system: sys, location: 'a' })
     const options = { system: sys, world, oracle, locale: 'en' }
@@ -353,7 +362,7 @@ divisions:
     expect(state.travel.location).toBe('b')
   })
   it('waits for days, rolling each dawn’s checks and camping each night', () => {
-    const sys = travelSystems(registry).systems[1]
+    const sys = travelSystems(registry).systems.find((s) => s.id === 'sys')!
     const oracle = createOracleEngine({ registry, random: sequence([0.1, 0.9, 0.1, 0.9]) })
     const { session } = startTrip({ system: sys, location: 'a' })
     const options = { system: sys, world, oracle, locale: 'en' }
@@ -374,7 +383,7 @@ divisions:
   })
 
   it('a wait stops at a check nobody answers', () => {
-    const sys = travelSystems(registry).systems[1]
+    const sys = travelSystems(registry).systems.find((s) => s.id === 'sys')!
     const { session } = startTrip({ system: sys, location: 'a' })
     const until = defaultCalendar.at(3, '12:00')
     const { state, entries } = stepTrip({ system: sys, world }, session, { type: 'wait', until })
@@ -550,9 +559,9 @@ entries:
 })
 
 describe('the system of a pack', () => {
-  const system = (id: string, pack?: string) => ({ ...GENERIC_SYSTEM, id, pack })
+  const system = (id: string, pack?: string) => ({ ...coreSystem(), id, pack })
   const systems = [
-    GENERIC_SYSTEM,
+    coreSystem(),
     system('marches/winter', 'marches'),
     system('marches', 'marches'),
     system('kal', 'kal'),
@@ -568,6 +577,88 @@ describe('the system of a pack', () => {
   })
 
   it('is none for a pack without a system', () => {
-    expect(systemOfPack(systems, 'core', 'generic')).toBeUndefined()
+    expect(systemOfPack(systems, 'lonely', 'core')).toBeUndefined()
+  })
+})
+
+describe("Core's system: the Generic rules as data", () => {
+  /** A long road of plains: 0 → 1 → 2 … */
+  const road: TravelWorld = {
+    hexKm: 10,
+    cell: () => ({ terrain: 'plains' }),
+    neighbors: (h) => [String(Number(h) - 1), String(Number(h) + 1)],
+    distance: (a, b) => Math.abs(Number(a) - Number(b)),
+    edges: () => [],
+  }
+
+  it('is the default system, with its calendar, sheets and named actions', () => {
+    const core = coreSystem()
+    expect(core.id).toBe(DEFAULT_SYSTEM)
+    expect(travels(core)).toBe(true)
+    expect(systemName(core, 'en')).toBe('Generic rules')
+    expect(Object.keys(core.rules.actions ?? {})).toEqual(['march', 'camp', 'rest', 'eat'])
+    expect(core.sheet?.id).toBe('core/character')
+    expect(core.partySheet?.id).toBe('core/party')
+    expect(core.calendar?.describe(core.calendar.at(1, '21:00'))).toMatchObject({
+      divisions: { part: 'night', watch: 6 },
+      tags: ['dark'],
+    })
+  })
+
+  it('starts in the morning, marches by day, camps at night and eats as the day ends', () => {
+    const system = coreSystem()
+    const { session } = startTrip({ system, location: '0' })
+    expect(system.calendar!.describe(session.travel.time)).toMatchObject({ hour: 6 })
+    expect(session.travel.resources.food).toBe(6)
+    expect(session.party?.values.morale).toBe(3)
+    const options = { system, world: road }
+    const planned = stepTrip(options, session, { type: 'setDestination', hex: '9' }).state
+    const day = stepTrip(options, planned, {
+      type: 'action',
+      id: 'march',
+      with: { until: 'destination' },
+    })
+    // 30 km in 8 hours on foot: three hexes of 10 km, then the march stops for the day.
+    expect(day.state.travel.location).toBe('3')
+    expect(tripAvailability(options, day.state).march).toBeDefined()
+    // Going on by itself (a wait), the party halts at night (camp) and eats at midnight.
+    const until = system.calendar!.at(2, '12:00')
+    const next = stepTrip(options, day.state, { type: 'wait', until }).state
+    expect(next.travel.resources.food).toBe(5)
+    expect(next.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp')).toBe(
+      true,
+    )
+    // A camp sleeps through the night: a wait into it wakes in the morning…
+    const night = stepTrip(options, next, { type: 'wait', until: system.calendar!.at(2, '22:00') })
+    expect(system.calendar!.describe(night.state.travel.time)).toMatchObject({ day: 3, hour: 6 })
+    // …and at night there's no march and no rest (not `dark` is by day).
+    const dark = { ...next, travel: { ...next.travel, time: system.calendar!.at(2, '22:00') } }
+    expect(Object.keys(tripAvailability(options, dark))).toEqual(
+      expect.arrayContaining(['march', 'rest']),
+    )
+  })
+
+  it('reads maps and trips of the built-in rules as Core’s', () => {
+    expect(systemIdOf('generic')).toBe('core')
+    expect(systemIdOf(undefined)).toBe('core')
+    expect(systemIdOf('grey-marches')).toBe('grey-marches')
+    const made = (id: string, sheet: string): CharacterState => ({
+      id,
+      sheet,
+      values: {},
+      conditions: {},
+      tags: [],
+      cards: [],
+      relations: [],
+    })
+    const old = {
+      party: made('party', 'generic/party'),
+      members: [made('a', 'generic/character'), made('b', 'game/hero')],
+    }
+    const read = migrateGenericSheets(old)
+    expect(read.party?.sheet).toBe('core/party')
+    expect(read.members?.map((m) => m.sheet)).toEqual(['core/character', 'game/hero'])
+    const fresh = { members: [] }
+    expect(migrateGenericSheets(fresh)).toBe(fresh)
   })
 })

@@ -35,8 +35,7 @@
   const t = translator(() => locale)
   const session = $derived(trip.saved.session)
   const playing = $derived(!!session && trip.saved.system === system.id)
-  const name = (s: TravelSystem) =>
-    s.id === 'generic' ? t('genericSystem') : systemName(s, locale)
+  const name = (s: TravelSystem) => systemName(s, locale)
   const find = (id: string) => systems.find((s) => s.id === id)
   let season = $state<Season>(trip.saved.season)
 

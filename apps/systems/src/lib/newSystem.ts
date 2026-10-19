@@ -1,12 +1,11 @@
 import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import {
-  GENERIC_SHEET,
-  GENERIC_PARTY_SHEET,
+  DEFAULT_SYSTEM,
   localize,
+  NO_TRAVEL,
   type LocalizedText,
   type TravelSystem,
 } from '@open-tabletop/session'
-import { genericTravelRules } from '@open-tabletop/travel-engine'
 import { FACTION_SHEET, manifestOf, PARTY_SHEET, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
 import { stringify } from 'yaml'
@@ -25,9 +24,30 @@ export const slugify = (text: string): string =>
     .replace(/^-+|-+$/g, '') || 'my-system'
 
 /**
- * A new pack of the user's that is a travel system: a `kind: system` naming the generic
- * rules to start from and empty bindings. Returns its id (also its folder), or null if
- * that id is taken.
+ * The Generic rules' travel rules as Core writes them (`core/travel.yaml`), without kind
+ * and id: what a new system starts from, to see and change. Their day is named by parts of
+ * Core's calendar, so a system that takes them names that calendar too.
+ */
+function coreRules(): Record<string, unknown> {
+  const root = library.rootOf(DEFAULT_SYSTEM)
+  const text = root ? library.readFile(root, 'travel.yaml') : undefined
+  const raw = (text && readDefinition(text, '@travel-rules/default')) || { ...NO_TRAVEL }
+  const rest: Record<string, unknown> = { ...raw }
+  delete rest.kind
+  delete rest.id
+  return rest
+}
+
+/** Core as a dependency (`core: '>=<its version>'`), for a pack that takes its calendar. */
+function coreDependency(): Record<string, string> {
+  const version = library.registry.packs.get(DEFAULT_SYSTEM)?.manifest.version
+  return version ? { [DEFAULT_SYSTEM]: `>=${version}` } : {}
+}
+
+/**
+ * A new pack of the user's that is a travel system: a `kind: system` naming a copy of the
+ * Generic rules to start from, Core's calendar (their day is named by its parts) and empty
+ * bindings. Returns its id (also its folder), or null if that id is taken.
  */
 export function createSystem(name: string): string | null {
   const id = slugify(name)
@@ -39,14 +59,16 @@ export function createSystem(name: string): string | null {
     format: PACK_FORMAT,
     locale: getLocale(),
     license: 'CC-BY-4.0',
+    ...(Object.keys(coreDependency()).length && { dependencies: coreDependency() }),
   })
   const system = stringify({
     kind: 'system',
     id: 'default',
     travel: 'default',
     bindings: 'default',
+    ...(Object.keys(coreDependency()).length && { calendar: `${DEFAULT_SYSTEM}/default` }),
   })
-  const rules = stringify({ kind: 'travel-rules', ...genericTravelRules, id: 'default' })
+  const rules = stringify({ kind: 'travel-rules', id: 'default', ...coreRules() })
   const bindings = stringify({ kind: 'bindings', id: 'default', on: {}, stats: {} })
   library.addPack({
     root: id,
@@ -62,7 +84,7 @@ export function createSystem(name: string): string | null {
 
 /**
  * Where a system's travel rules (and its bindings, when they're in the same pack) are
- * written, to edit them; null for a system without travel rules of its own (the generic ones).
+ * written, to edit them; null for a system without travel rules (or another pack's).
  */
 export function rulesFile(system: TravelSystem): DocSource | null {
   const rules = system.sources?.rules
@@ -84,14 +106,14 @@ export function rulesFile(system: TravelSystem): DocSource | null {
   }
 }
 
-/** The pack a system is declared in, by its root (undefined for the generic system). */
+/** The pack a system is declared in, by its root (undefined for one that isn't loaded). */
 export const systemRoot = (system: TravelSystem): string | undefined =>
   system.pack ? library.rootOf(system.pack) : undefined
 
 /**
  * Where a system's `kind: system` is written, to edit it on its page, with its travel rules
- * and bindings when they're in its own pack; null for the generic system and an older
- * pack's implicit one (which has none: see `declareSystem`).
+ * and bindings when they're in its own pack; null for an older pack's implicit one (which
+ * has none: see `declareSystem`).
  */
 export function systemFile(system: TravelSystem): DocSource | null {
   const declared = system.sources?.system
@@ -143,7 +165,7 @@ export function dependencies(system: TravelSystem): string[] {
 }
 
 /**
- * New parts for a system: the generic travel rules to start from, or empty bindings,
+ * New parts for a system: a copy of the Generic rules to start from, or empty bindings,
  * appended to its pack's `travel.yaml` (created if missing) under a free id, and named in
  * the system. Returns the id, or null when the system has no `kind: system` to name it.
  */
@@ -154,18 +176,28 @@ export function createPart(system: TravelSystem, kind: 'travel-rules' | 'binding
   const taken = partChoices(system, kind).filter((id) => !id.includes('/'))
   const id = freeId('default', taken)
   const definition =
-    kind === 'travel-rules' ? { kind, ...genericTravelRules, id } : { kind, id, on: {}, stats: {} }
+    kind === 'travel-rules' ? { kind, id, ...coreRules() } : { kind, id, on: {}, stats: {} }
   const file = 'travel.yaml'
   const named = source.system
   // One step for ↶: the new part and its name in the system.
   library.batch(() => {
     library.writeFile(root, file, appendDefinition(library.readFile(root, file) ?? '', definition))
     const declared = library.readFile(root, named.path) ?? ''
-    library.writeFile(
-      root,
-      named.path,
-      setIn(declared, `@system/${named.id}`, [kind === 'travel-rules' ? 'travel' : 'bindings'], id),
+    let next = setIn(
+      declared,
+      `@system/${named.id}`,
+      [kind === 'travel-rules' ? 'travel' : 'bindings'],
+      id,
     )
+    // The Generic rules' day is named by parts of Core's calendar: a system with no
+    // calendar that can take Core's names it.
+    if (
+      kind === 'travel-rules' &&
+      !system.calendar &&
+      dependencies(system).includes(DEFAULT_SYSTEM)
+    )
+      next = setIn(next, `@system/${named.id}`, ['calendar'], `${DEFAULT_SYSTEM}/default`)
+    library.writeFile(root, named.path, next)
   })
   return id
 }
@@ -332,16 +364,4 @@ export function createSystemPart(
 export function packFormat(root: string): number {
   const pack = library.pack(root)
   return (pack && manifestOf(pack).format) ?? PACK_FORMAT
-}
-
-/**
- * The Generic rules as a pack would write them (travel rules and the characters' sheet),
- * for a read-only view: they are built in, and a new system starts from the same rules.
- */
-export function genericYaml(): string {
-  return [
-    stringify({ kind: 'travel-rules', ...genericTravelRules }),
-    stringify(GENERIC_SHEET),
-    stringify(GENERIC_PARTY_SHEET),
-  ].join('---\n')
 }

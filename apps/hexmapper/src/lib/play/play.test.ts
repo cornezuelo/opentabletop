@@ -43,6 +43,7 @@ import { bringFactions, paintTerritory, removeFactions } from './factions'
 import { currentTool } from '../tools/tools'
 import { oracleUi, rollContext } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
+import { library } from './packs'
 
 /** The maps the bundled systems bring (`maps:` in their `kind: system`). */
 const EXAMPLE_MAPS = exampleMaps()
@@ -67,6 +68,53 @@ describe('playing on the map', () => {
     expect(editor.map.play?.rules?.system).toBe('grey-marches')
   })
 
+  it('a map that chooses no system plays Core’s Generic rules, its day named by parts', () => {
+    editor.load(createMap())
+    setMode('rules')
+    clickHex('1,1')
+    clickHex('4,1')
+    expect(mapSystemId()).toBe('core')
+    const session = sessionOf(editor.map.play!)!
+    expect(editor.map.play?.rules?.system).toBe('core')
+    const calendar = activeSystem().calendar!
+    expect(calendar.describe(session.travel.time)).toMatchObject({
+      hour: 6,
+      divisions: { part: 'morning' },
+    })
+    step({ type: 'action', id: 'march', with: { until: 'destination' } })
+    const after = sessionOf(editor.map.play!)!
+    expect(after.travel.location).not.toBe('1,1')
+    expect(after.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'march')).toBe(
+      true,
+    )
+    // Its characters are Core's sheets, named by its pack.
+    expect(activeSystem().sheet?.def.values.health.name).toMatchObject({
+      en: 'Health',
+      es: 'Salud',
+    })
+  })
+
+  it('a system without travel rules plays no trips on the map', () => {
+    library.addPack({
+      root: 'still',
+      origin: 'user',
+      files: [
+        {
+          path: 'pack.yaml',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 4\n',
+        },
+        { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
+      ],
+    })
+    editor.load(createMap())
+    editor.execute(new SetMetaCommand({ system: 'still' }))
+    setMode('rules')
+    clickHex('1,1')
+    clickHex('3,1')
+    expect(sessionOf(editor.map.play!)).toBeNull()
+    library.removePack('still')
+  })
+
   it('a map chooses its system and the packs it adds (the example: the Grey Marches alone)', () => {
     editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     expect(editor.meta.system).toBe('grey-marches')
@@ -77,16 +125,14 @@ describe('playing on the map', () => {
     expect(oracleUi.showsPack('core')).toBe(true)
     expect(oracleUi.showsPack('kal-arath')).toBe(false)
     // Every system can be chosen, whatever the packs.
-    expect(playSystems().map((s) => s.id)).toEqual(
-      expect.arrayContaining(['generic', 'grey-marches']),
-    )
+    expect(playSystems().map((s) => s.id)).toEqual(expect.arrayContaining(['core', 'grey-marches']))
     // Back to every pack: undoable, and saved in the file.
     editor.execute(new SetMetaCommand({ packs: undefined }))
     expect(oracleUi.showsPack('kal-arath')).toBe(true)
     expect(mapToBundle(editor.map).maps[0].ext).not.toHaveProperty(['hexmapper', 'packs'])
     editor.undo()
     expect(editor.meta.packs).toEqual([])
-    // The generic system brings no packs: only the ones the map adds.
+    // The Generic rules (Core's, the default: no key in the map) bring Core.
     editor.execute(new SetMetaCommand({ system: 'generic', packs: ['core'] }))
     expect(editor.meta).not.toHaveProperty('system')
     expect(mapPacks()).toEqual(['core'])
@@ -111,8 +157,8 @@ describe('playing on the map', () => {
     expect(worldCalendar().describe(editor.map.world!.time)).toEqual(marches)
     // A new trip (Play → New trip) plays the map's system, and so does the world.
     restartRules(mapSystemId(), 'spring')
-    expect(editor.map.play?.rules?.system).toBe('generic')
-    expect(activeSystem().id).toBe('generic')
+    expect(editor.map.play?.rules?.system).toBe('core')
+    expect(activeSystem().id).toBe('core')
     expect(worldCalendar().describe(editor.map.world!.time)).not.toEqual(marches)
     // Choosing a system in Play is choosing the map's: undoable like Map settings.
     restartRules('grey-marches', 'spring')

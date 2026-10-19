@@ -8,7 +8,7 @@
   } from '@open-tabletop/character-engine'
   import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
-  import { knownName, sheetText } from './texts'
+  import { idName, sheetText } from './texts'
 
   /**
    * One character made from a sheet, edited by hand: its name, its values (tracks as
@@ -50,9 +50,9 @@
 
   const t = translator(() => locale)
   const where = $derived(path ?? `characters.${character.id}`)
-  /** A sheet's text; without one, the package's name for a known id, else the id. */
+  /** A sheet's text; without one, the id made readable. */
   const text = (value: Parameters<typeof sheetText>[0], fallback = '') =>
-    sheetText(value, locale) ?? (fallback ? knownName(fallback, locale) : '')
+    sheetText(value, locale) ?? (fallback ? idName(fallback) : '')
 
   /** The values by group, those without one first, in the sheet's order. */
   const groups = $derived.by(() => {

@@ -1,4 +1,3 @@
-import { vocabulary } from '@open-tabletop/ui-kit'
 import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
@@ -13,9 +12,7 @@ export const es: Messages<typeof en> = {
     showHelp: 'Mostrar la ayuda',
     hideHelp: 'Ocultar la ayuda (más espacio)',
     systems: 'Sistemas',
-    generic: vocabulary.es.terms.genericSystem,
     help: 'Ayuda y manual',
-    builtIn: 'integrado',
     editInSystems: 'Editar en Systems →',
     makeSystems: 'Crear o editar sistemas →',
   },

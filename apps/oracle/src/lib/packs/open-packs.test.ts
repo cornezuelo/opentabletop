@@ -30,12 +30,13 @@ describe('bundled open packs', () => {
     expect(of(['grey-marches', 'core'])).toHaveProperty(['icon.guards'])
     expect(of(['grey-marches', 'core'])).toHaveProperty(['token.fare'])
     expect(of()).toHaveProperty(['icon.guards'])
-    // A map with the Generic rules and no packs of its own: nothing of theirs.
+    // A map with the Generic rules (Core's) and no packs of its own: nothing of theirs.
     expect(of([])).not.toHaveProperty(['icon.guards'])
     expect(of([])).not.toHaveProperty(['token.fare'])
     expect(of(['core'])).not.toHaveProperty(['icon.guards'])
-    // What every map gives is still there.
+    // What every map gives is still there, and the Generic rules' terrains.
     expect(of([])).toHaveProperty(['terrain'])
+    expect(of(['core']).terrain).toEqual(expect.arrayContaining(['forest', 'lava-field']))
   })
 
   it('roll every definition, also translated', () => {

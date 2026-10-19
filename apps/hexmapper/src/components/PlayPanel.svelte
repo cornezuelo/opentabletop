@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
-  import { systemName } from '@open-tabletop/session'
+  import { systemName, travels } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import {
@@ -42,8 +42,9 @@
 
   let newSeason = $state<Season>('spring')
 
-  const systemLabel = (id: string) =>
-    id === 'generic' ? t('map.genericSystem') : systemName(getSystem(id), getLocale())
+  const systemLabel = (id: string) => systemName(getSystem(id), getLocale())
+  /** A system that isn't loaded is one that doesn't travel, named by its id. */
+  const loaded = $derived(playSystems().some((s) => s.id === system.id))
 
   /**
    * What the characters' relations may point at on this map: its places, its regions and
@@ -110,6 +111,13 @@
       (!session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
       restartRules(system, season)}
   />
+  {#if !travels(system)}
+    <p class="help">
+      {loaded
+        ? t('play.noTravel', { system: systemLabel(system.id) })
+        : t('map.systemMissing', { system: system.id })}
+    </p>
+  {/if}
   {#if otherSystem}
     <p class="help">
       {t('play.otherSystem', { trip: systemLabel(system.id), map: systemLabel(mapSystem) })}
@@ -143,7 +151,7 @@
       {/if}
     </div>
   {/if}
-  {#if session && play.rules}
+  {#if session && play.rules && travels(system)}
     <TripPanel
       {system}
       {session}

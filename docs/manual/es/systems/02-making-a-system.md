@@ -4,7 +4,7 @@ Un sistema son unas pocas definiciones en un pack: **reglas de viaje** (`kind: t
 
 ## Un sistema nuevo
 
-Escribe un nombre en la casilla de abajo de la lista de sistemas y pulsa **+**. Crea un pack tuyo con las reglas Genéricas de partida y unos bindings vacíos (en `travel.yaml`) y el sistema que los nombra (en `system.yaml`), y abre su **Resumen**. El sistema se puede jugar al momento en la aplicación Travel y en el Hexmapper (en el mismo navegador): **Jugarlo en Travel →**, bajo su nombre, abre su viaje en Travel.
+Escribe un nombre en la casilla de abajo de la lista de sistemas y pulsa **+**. Crea un pack tuyo con una copia de las reglas genéricas (las de Core) de partida y unos bindings vacíos (en `travel.yaml`) y el sistema que los nombra junto con el calendario de Core, cuyas partes del día nombran esas reglas (en `system.yaml`; el pack depende de Core), y abre su **Resumen**. El sistema se puede jugar al momento en la aplicación Travel y en el Hexmapper (en el mismo navegador): **Jugarlo en Travel →**, bajo su nombre, abre su viaje en Travel.
 
 Para aprender haciendo, [Tu primer sistema](03-your-first-system.md) construye uno pequeño paso a paso.
 

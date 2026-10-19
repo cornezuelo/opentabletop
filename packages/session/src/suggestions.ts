@@ -4,7 +4,6 @@ import {
   CHECK_MOMENTS,
   declaredValues,
   FACT_PATHS,
-  genericTravelRules,
   choiceIds,
 } from '@open-tabletop/travel-engine'
 import { travelSystems } from './trip'
@@ -83,9 +82,8 @@ export function contextSuggestions(
   add('above')
   add('doing')
   add('edges', 'road', 'trail', 'river')
-  add('terrain', ...Object.keys(genericTravelRules.terrains))
-  add('from.terrain', ...Object.keys(genericTravelRules.terrains))
-  add('around.terrain', ...Object.keys(genericTravelRules.terrains))
+  // The terrains are the systems' (below) and the map's (the host's `extra`).
+  add('terrain')
   add('tags')
   add('weather')
   add('mode')
@@ -94,7 +92,7 @@ export function contextSuggestions(
 
   const { systems } = travelSystems(registry)
   for (const { pack, rules, bindings, calendar, sheet, factions, clocks } of systems) {
-    // The generic system names nothing a pack would.
+    // A system that isn't loaded names nothing.
     if (pack !== undefined && !ours(pack)) continue
     // The divisions of its calendar's day: the part it is (`time.meal: elevenses`), the
     // parts' tags (`time.tags: dark`) and when each starts (`system.meal.dinner`).
@@ -288,7 +286,7 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
         out.get(key)!.add(String(v))
   }
   add('weather')
-  add('terrain', ...Object.keys(genericTravelRules.terrains))
+  add('terrain')
   add('tags')
   add('name')
   add('poi', false)
