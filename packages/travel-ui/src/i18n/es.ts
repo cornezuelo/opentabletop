@@ -101,6 +101,16 @@ export const es: Messages<typeof en> = {
     remove: 'Quitar',
     up: 'Subir',
     confirmRemove: '¿Quitar a {name} del grupo?',
+    fromRoster: vocabulary.es.roster.from,
+    fromRosterHelp:
+      'Personajes del plantel (la aplicación Characters) hechos con la hoja de este sistema. Uno se une al grupo con sus valores y queda enlazado: lo que le pase en este viaje se vuelca al plantel tras cada paso, y lo que cambies en la aplicación Characters llega al viaje. Un personaje viaja en un sitio a la vez: traer uno que juega en otro sitio pregunta antes, y ese viaje conserva su copia, ya sin enlazar.',
+    choose: vocabulary.es.roster.choose,
+    playsIn: vocabulary.es.roster.playsIn,
+    takeConfirm: vocabulary.es.roster.takeConfirm,
+    keep: vocabulary.es.roster.keep,
+    keepTip:
+      'Guarda este personaje en el plantel (la aplicación Characters), enlazado con este viaje: lo que le pase aquí se escribe allí, y luego podrá viajar en otros mapas y viajes.',
+    openInCharacters: vocabulary.es.roster.open,
     roles: 'Roles',
     rolesHelp:
       'Tareas que el sistema da a los personajes del grupo para el viaje (guiar, montar guardia…), cada una en manos de uno de ellos hasta que la cambies. Las comprobaciones y tablas del sistema leen a quien la tiene: `roles.guide.values.pathfinding: { gte: 2 }`; sus efectos le llegan: `roles.lookout.values.health: -1`. Si nadie tiene un rol, lo que lo lee no se cumple, y sus efectos no cambian nada.',
@@ -159,6 +169,7 @@ export const es: Messages<typeof en> = {
       action: 'La acción',
     },
     cleared: '{name} (ya no)',
+    rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
     nobodyActing:
       'No actúa nadie, así que «{name}» no cambia nada (elige quién actúa encima de las acciones)',
     CAMP_STARTED: 'Acampáis para pasar la noche',

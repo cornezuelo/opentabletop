@@ -414,6 +414,16 @@ export const es: Messages = {
       'La ficha como personaje del sistema del mapa: los valores, estados, etiquetas y relaciones de su hoja, como el bloque de estadísticas de un PNJ o una criatura. Las tablas que se tiran con la ficha seleccionada los leen: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Sus campos de abajo siguen como están.',
     sheetDefault: 'la del sistema',
     giveSheet: 'Darle una hoja ({sheet})',
+    fromRoster: vocabulary.es.roster.from,
+    fromRosterHelp:
+      'Da a este token un personaje del plantel (la aplicación Characters) hecho con la hoja del sistema del mapa: un PNJ que vuelve en varios mapas. El token guarda su copia, enlazada: lo que cambies aquí se vuelca al plantel, y lo que cambie allí llega al mapa. Un personaje está en un sitio a la vez: tomar uno de un viaje o de otro token pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
+    rosterChoose: vocabulary.es.roster.choose,
+    rosterPlaysIn: vocabulary.es.roster.playsIn,
+    rosterTake: vocabulary.es.roster.takeConfirm,
+    keepInRoster: vocabulary.es.roster.keep,
+    keepInRosterTip:
+      'Guarda esta hoja en el plantel (la aplicación Characters) como un personaje con el nombre del token, enlazado con él: luego podrá llevarse a otros mapas y viajes.',
+    openInCharacters: vocabulary.es.roster.open,
     removeSheet: 'Quitarle la hoja',
     confirmNoSheet: '¿Quitar la hoja de esta ficha y todo lo que hay en ella?',
     confirmParty: '¿Convertir «{name}» en el grupo? «{old}» pasa a ser un personaje jugador.',

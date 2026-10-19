@@ -408,6 +408,16 @@ export const en = {
       "The token as a character of the map's system: its sheet's values, conditions, tags and relations, like a statblock for an NPC or a creature. Tables rolled with the token selected read them: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Its fields below stay as they are.",
     sheetDefault: 'the system’s',
     giveSheet: 'Give it a sheet ({sheet})',
+    fromRoster: vocabulary.en.roster.from,
+    fromRosterHelp:
+      "Gives this token a character of the roster (the Characters app) made with the map's system's sheet: a recurring NPC on several maps. The token keeps its copy, linked: what you change here is written back to the roster, and what changes there reaches the map. A character is in one place at a time: taking one from a trip or another token asks first, and that place keeps its copy, no longer linked.",
+    rosterChoose: vocabulary.en.roster.choose,
+    rosterPlaysIn: vocabulary.en.roster.playsIn,
+    rosterTake: vocabulary.en.roster.takeConfirm,
+    keepInRoster: vocabulary.en.roster.keep,
+    keepInRosterTip:
+      'Keeps this sheet in the roster (the Characters app) as a character named after the token, linked to it: it can then be taken to other maps and trips.',
+    openInCharacters: vocabulary.en.roster.open,
     removeSheet: 'Remove its sheet',
     confirmNoSheet: 'Remove this token’s sheet and everything on it?',
     confirmParty: 'Make "{name}" the party? "{old}" becomes a player character.',

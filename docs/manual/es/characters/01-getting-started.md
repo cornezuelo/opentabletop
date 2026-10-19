@@ -23,6 +23,10 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 - **Notas**: su página en tu aplicación de notas (una ruta como `Personajes/Viejo Tobin`); **↗** la abre. La aplicación de notas se elige en **Preferencias**. Su historia, su aspecto y sus secretos viven allí, no aquí.
 - Debajo, su ficha, la misma que en un viaje: sus valores por grupos (un contador como casillas: haz clic en una para llenar hasta ella), sus estados, sus etiquetas y sus relaciones (con lugares, regiones, hexes u otros personajes del plantel).
 
+## De viaje
+
+Un personaje del plantel viaja en **un sitio a la vez**: el viaje de un mapa en el Hexmapper, un viaje en Travel o una ficha en un mapa (un PNJ que vuelve). Se une con **Del plantel** en la pestaña **Grupo** del viaje (o en la **Hoja** de una ficha), y un personaje de un viaje entra en el plantel con **Guardar en el plantel** en su ficha ([Personajes de viaje](../travel/02-playing.md#personajes)). Desde entonces el sitio y el plantel van a la par: lo que pasa en el viaje se escribe aquí tras cada paso, y lo que cambies aquí llega al viaje (enseguida, si está abierto en otra pestaña; si no, cuando se vuelva a abrir). **Dónde juega** dice dónde está, con **Abrir**. Llevarlo a otro sitio pregunta antes, y el sitio que deja conserva su propia copia, ya sin enlazar. Si se quita del grupo, o se borra su viaje o su ficha, se queda aquí, sin viajar.
+
 ## Ficheros
 
 **Exportar** escribe un fichero OTD (`.otd.json`) con sus `characters`: sus valores como `stats`, sus etiquetas, su nota, y su hoja, estados y relaciones en `ext.character` (ver [Formatos de fichero](../technical/02-file-formats.md)). **Importar…** añade los personajes de un fichero así: uno exportado aquí, o un mapa guardado por el Hexmapper (los personajes de su grupo). Los personajes cuyo id ya tiene el plantel reciben uno nuevo. Los que no están hechos con una hoja (los tokens sencillos de un mapa) se quedan fuera.

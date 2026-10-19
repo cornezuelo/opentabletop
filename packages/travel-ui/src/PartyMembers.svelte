@@ -3,13 +3,18 @@
     localize,
     newMember,
     partyOf,
+    isLinked,
+    keepInRoster,
     refreshParty,
     renameMember,
+    samePlace,
+    takeFromRoster,
+    type RosterPlace,
     type SessionState,
     type TravelSystem,
   } from '@open-tabletop/session'
   import type { CharacterState } from '@open-tabletop/character-engine'
-  import { CharacterCard } from '@open-tabletop/character-ui'
+  import { CharacterCard, characterUrl, roster } from '@open-tabletop/character-ui'
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import Fold from './Fold.svelte'
   import { translator } from './i18n'
@@ -26,6 +31,7 @@
     locale,
     names = (id) => id,
     targets = [],
+    place,
     onedit,
   }: {
     system: TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
@@ -35,6 +41,8 @@
     names?: (id: string) => string
     /** Places relations may point at, from the host (the map's places, regions…). */
     targets?: { ref: string; label: string }[]
+    /** The trip as a place of the roster (absent: this host doesn't use the roster). */
+    place?: RosterPlace
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
@@ -68,6 +76,47 @@
       refreshParty(s, partyOf(system))
       return s
     })
+  }
+
+  /** Roster characters of this sheet that could join: all but those already here. */
+  const available = $derived(
+    place
+      ? roster.roster.characters.filter(
+          (e) => e.character.sheet === system.sheet.id && !samePlace(e.playing, place),
+        )
+      : [],
+  )
+  const linked = (member: CharacterState) => !!place && isLinked(roster.roster, member.id, place)
+
+  /** A roster character joins the party (taken from where it played, after asking). */
+  async function join(id: string) {
+    if (!place) return
+    const entry = available.find((e) => e.character.id === id)
+    if (!entry) return
+    const name = memberLabel(entry.character)
+    if (
+      entry.playing &&
+      !(await confirmAction(t('members.takeConfirm', { name, place: entry.playing.name })))
+    )
+      return
+    const taken = takeFromRoster(roster.roster, id, place, new Date().toISOString())
+    if (!taken) return
+    roster.set(taken.roster)
+    edit((s) => {
+      // A character of the trip's own with that id makes room.
+      if (s.members?.some((m) => m.id === id))
+        renameMember(s, id, memberId(id, [...(s.members ?? []).map((m) => m.id), id]))
+      s.members = [...(s.members ?? []), taken.character]
+    })
+  }
+
+  /** A character of the trip kept in the roster, linked to this trip (a new id if taken). */
+  function keep(member: CharacterState) {
+    if (!place) return
+    const kept = keepInRoster(roster.roster, member, new Date().toISOString(), place)
+    roster.set(kept.roster)
+    // Taken: the trip's copy follows the id the roster gave it.
+    if (kept.id !== member.id) edit((s) => renameMember(s, member.id, kept.id))
   }
 
   function add() {
@@ -186,6 +235,19 @@
           >
         </span>
       </summary>
+      {#if place}
+        <p class="roster">
+          {#if linked(member)}
+            <a href={characterUrl(member.id)} target="_blank" rel="noopener"
+              >{t('members.openInCharacters')} ↗</a
+            >
+          {:else}
+            <button class="link" use:tooltip={t('members.keepTip')} onclick={() => keep(member)}
+              >{t('members.keep')}</button
+            >
+          {/if}
+        </p>
+      {/if}
       <CharacterCard
         sheet={system.sheet.def}
         character={member}
@@ -199,7 +261,31 @@
   {:else}
     <p class="help">{t('members.none')}</p>
   {/each}
-  <button class="add" onclick={add}>{t('members.add')}</button>
+  <div class="adding">
+    <button class="add" onclick={add}>{t('members.add')}</button>
+    {#if available.length}
+      <label class="from">
+        <span>{t('members.fromRoster')}<InfoTip markdown={t('members.fromRosterHelp')} /></span>
+        <select
+          value=""
+          onchange={(e) => {
+            const id = e.currentTarget.value
+            e.currentTarget.value = ''
+            if (id) void join(id)
+          }}
+        >
+          <option value="">{t('members.choose')}</option>
+          {#each available as e (e.character.id)}
+            <option value={e.character.id}
+              >{memberLabel(e.character)}{e.playing
+                ? ` (${t('members.playsIn', { place: e.playing.name })})`
+                : ''}</option
+            >
+          {/each}
+        </select>
+      </label>
+    {/if}
+  </div>
 </Fold>
 
 <style>
@@ -244,6 +330,35 @@
     font-size: 11px;
     font-style: normal;
     color: var(--accent);
+  }
+
+  .roster {
+    margin: 4px 0;
+    font-size: 12px;
+  }
+
+  .roster a,
+  .link {
+    padding: 0;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .adding {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: end;
+  }
+
+  .from {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .tools {

@@ -10,4 +10,6 @@ export const trip = new TripStore({
   systems: () => systems.list,
   oracle: () => library.engine,
   locale: getLocale,
+  // Its trips take characters from the roster (the Characters app) and keep them in step.
+  rosterApp: 'travel',
 })

@@ -14,6 +14,8 @@ import {
   renameMember,
   rosterFromOtd,
   rosterToOtd,
+  settlePlace,
+  playingAt,
   syncToRoster,
   takeFromRoster,
   type RosterPlace,
@@ -184,5 +186,18 @@ describe('the roster', () => {
     // What isn't a character of a sheet is left out.
     expect(rosterFromOtd({ characters: [{ id: 'x', type: 'character' }, 3] })).toEqual([])
     expect(rosterFromOtd(null)).toEqual([])
+  })
+
+  it('settles a place: written back, gone ones leave, its name kept', () => {
+    let { roster } = keepInRoster(emptyRoster(), character('kael'), 'T1', trip)
+    roster = keepInRoster(roster, character('mara'), 'T1', trip).roster
+    const renamed = { ...trip, name: 'To the Vale, again' }
+    const settled = settlePlace(roster, [character('kael', 2)], renamed, 'T2')
+    expect(
+      playingAt(settled, renamed).map((e) => [e.character.id, e.character.values.health]),
+    ).toEqual([['kael', 2]])
+    expect(settled.characters[0].playing!.name).toBe('To the Vale, again')
+    expect(settled.characters[1].playing).toBeUndefined()
+    expect(settlePlace(settled, [character('kael', 2)], renamed, 'T3')).toBe(settled)
   })
 })

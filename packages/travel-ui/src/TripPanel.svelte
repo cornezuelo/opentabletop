@@ -7,6 +7,7 @@
     picksWho,
     tripAvailability,
     type JournalEntry,
+    type RosterPlace,
     type SessionState,
     type StatDefinition,
     type TravelSystem,
@@ -70,6 +71,7 @@
     relationTargets = [],
     world,
     facts,
+    place,
     onstep,
     onedit,
   }: {
@@ -95,6 +97,8 @@
     onstep: (action: TravelAction) => void
     /** What the characters' relations may point at, besides each other (places, regions…). */
     relationTargets?: { ref: string; label: string }[]
+    /** The trip as a place of the roster: its characters can come from it and be kept in it. */
+    place?: RosterPlace
     /** Changes the session directly (supplies, stats, mode) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
@@ -718,6 +722,7 @@
           {locale}
           names={blockName}
           targets={relationTargets}
+          {place}
           {onedit}
         />
       {/if}

@@ -5,15 +5,22 @@ import {
   migrateLost,
   migrateTotals,
   missingSystem,
+  leavePlace,
+  partyOf,
+  pullMembers,
   SEASON_START_DAYS,
+  settlePlace,
   startTrip,
+  systemName,
   systemIdOf,
   stepTrip,
+  type RosterPlace,
   type Season,
   type SessionState,
   type TravelSystem,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
+import { roster } from '@open-tabletop/character-ui'
 import { showToast } from '@open-tabletop/ui-kit'
 import { wayWorld, type WayHex } from './way'
 
@@ -57,7 +64,16 @@ export interface TripStoreOptions {
   systems: () => TravelSystem[]
   oracle: () => Parameters<typeof stepTrip>[0]['oracle']
   locale: () => string
+  /**
+   * The app whose trips take roster characters (`travel`): each trip is a place of the
+   * roster, its linked members kept in step with it. Absent: trips don't use the roster
+   * (Systems' Try it).
+   */
+  rosterApp?: string
 }
+
+/** The time of a change, for the roster (plain text, not reactive state). */
+const now = (): string => new Date(Date.now()).toISOString()
 
 const newTripId = () => `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 
@@ -120,6 +136,34 @@ export class TripStore {
 
   constructor(private readonly options: TripStoreOptions) {
     this.stored = readTrips(options.key, options.oldKey)
+    this.pullRoster()
+  }
+
+  /** The open trip as a place of the roster (none when this host doesn't use it). */
+  get place(): RosterPlace | undefined {
+    return this.placeOf(this.saved)
+  }
+
+  private placeOf(trip: Saved): RosterPlace | undefined {
+    const app = this.options.rosterApp
+    if (!app) return undefined
+    const system = this.options.systems().find((s) => s.id === trip.system)
+    const name = trip.name || (system ? systemName(system, this.options.locale()) : trip.system)
+    return { app, id: trip.id, name }
+  }
+
+  /**
+   * Brings the open trip's roster characters up to date (they changed in the Characters
+   * app, or in another tab): on opening it, and whenever the roster changes.
+   */
+  pullRoster(): void {
+    const place = this.place
+    const session = this.saved?.session
+    if (!place || !session) return
+    const next = pullMembers(session, roster.roster, place, partyOf(this.system))
+    if (next === session) return
+    this.saved = { ...this.saved, session: next }
+    this.save()
   }
 
   /** Every saved trip, oldest first. */
@@ -143,6 +187,7 @@ export class TripStore {
   open(id: string): void {
     if (!this.stored.trips.some((t) => t.id === id)) return
     this.stored = { ...this.stored, current: id }
+    this.pullRoster()
     this.save()
   }
 
@@ -160,6 +205,9 @@ export class TripStore {
 
   /** Deletes the open trip (the last one left is emptied instead) and opens another. */
   remove(): void {
+    // Its roster characters stay in the roster, playing nowhere.
+    const place = this.place
+    if (place) roster.set(leavePlace(roster.roster, place))
     const rest = this.stored.trips.filter((t) => t.id !== this.saved.id)
     const trips = rest.length ? rest : [blank(this.saved.system)]
     this.stored = { ...this.stored, current: trips.at(-1)!.id, trips }
@@ -181,6 +229,10 @@ export class TripStore {
     } catch {
       // Not kept for the next visit; the trip still goes on.
     }
+    // Its roster characters, as the trip has them now.
+    const place = this.place
+    if (place)
+      roster.set(settlePlace(roster.roster, this.saved.session?.members ?? [], place, now()))
   }
 
   /** A new trip with a system and season, at the first hex of the way. */

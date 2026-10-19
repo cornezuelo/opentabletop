@@ -17,12 +17,19 @@
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
   import { systems } from './lib/packs.svelte'
+  import { trip } from './lib/trip.svelte'
 
   // Opened without a view, it starts on the system last chosen here or in another app.
   const last = location.hash ? undefined : readLastSystem()
   if (last && systems.get(last)) go({ name: 'system', id: last }, true)
   $effect(() => {
     if (nav.view.name === 'system' && systems.get(nav.view.id)) rememberSystem(nav.view.id)
+  })
+  // A link to a saved trip: it opens, and its system's page shows it.
+  $effect(() => {
+    if (nav.view.name !== 'trip') return
+    trip.open(nav.view.id)
+    go({ name: 'system', id: trip.saved.system }, true)
   })
 
   let help = $state(false)

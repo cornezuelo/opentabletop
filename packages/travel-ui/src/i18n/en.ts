@@ -102,6 +102,16 @@ export const en = {
     remove: 'Remove',
     up: 'Move up',
     confirmRemove: 'Remove {name} from the party?',
+    fromRoster: vocabulary.en.roster.from,
+    fromRosterHelp:
+      "Characters of the roster (the Characters app) made with this system's sheet. One joins the party with its values, and stays linked: what happens to it on this trip is written back to the roster after every step, and what you change in the Characters app reaches the trip. A character travels in one place at a time: taking one that plays elsewhere asks first, and that trip keeps its copy, no longer linked.",
+    choose: vocabulary.en.roster.choose,
+    playsIn: vocabulary.en.roster.playsIn,
+    takeConfirm: vocabulary.en.roster.takeConfirm,
+    keep: vocabulary.en.roster.keep,
+    keepTip:
+      'Keeps this character in the roster (the Characters app), linked to this trip: what happens to it here is written there, and it can travel on other maps and trips later.',
+    openInCharacters: vocabulary.en.roster.open,
     roles: 'Roles',
     rolesHelp:
       "Jobs the system gives the party's characters for the journey (lead the way, keep watch…), each held by one of them until you change it. The system's checks and tables read the holder: `roles.guide.values.pathfinding: { gte: 2 }`; its effects reach them: `roles.lookout.values.health: -1`. With nobody in a role, what reads it doesn't hold, and its effects change nothing.",
@@ -161,6 +171,7 @@ export const en = {
       action: 'The action',
     },
     cleared: '{name} (no more)',
+    rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     nobodyActing:
       'Nobody is acting, so “{name}” changed nothing (choose who acts above the actions)',
     CAMP_STARTED: 'Camp for the night',

@@ -6,6 +6,16 @@
  */
 export const vocabulary = {
   en: {
+    /** The roster of characters (the Characters app), where a trip or a token meets it. */
+    roster: {
+      from: 'From the roster',
+      choose: 'Choose…',
+      playsIn: 'in {place}',
+      takeConfirm:
+        '{name} travels in {place}. Bring it here? That place keeps its copy, no longer linked to the roster.',
+      keep: 'Keep in the roster',
+      open: 'Open in Characters',
+    },
     terms: {
       terrain: 'Terrain',
       terrains: 'Terrains',
@@ -76,6 +86,15 @@ export const vocabulary = {
     },
   },
   es: {
+    roster: {
+      from: 'Del plantel',
+      choose: 'Elige…',
+      playsIn: 'en {place}',
+      takeConfirm:
+        '{name} viaja en {place}. ¿Traerlo aquí? Ese sitio conserva su copia, ya sin enlazar con el plantel.',
+      keep: 'Guardar en el plantel',
+      open: 'Abrir en Characters',
+    },
     terms: {
       terrain: 'Terreno',
       terrains: 'Terrenos',

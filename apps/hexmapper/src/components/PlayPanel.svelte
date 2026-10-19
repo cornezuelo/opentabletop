@@ -16,6 +16,7 @@
     type Season,
   } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
+  import { mapPlace } from '../lib/play/roster'
   import { mapWorld } from '../lib/play/world'
   import { worldFactsNow } from '../lib/play/world.svelte'
   import { activeSystem, getSystem, mapSystemId, playSystems } from '../lib/play/systems'
@@ -61,6 +62,8 @@
       if (region.name) out.push({ ref: `region:${region.name}`, label: region.name })
     return out
   }
+  /** The map as a place of the roster (its name follows the map's). */
+  const rosterPlace = $derived((void editor.meta.name, mapPlace()))
 </script>
 
 <span class="label">{t('play.mode')}<InfoTip text={t('play.modeHelp')} /></span>
@@ -167,6 +170,7 @@
       destinationHint={t('play.destinationHelp')}
       arrivedHint={t('play.newDestination')}
       onstep={step}
+      place={rosterPlace}
       onedit={editSession}
     />
   {/if}

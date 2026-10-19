@@ -281,6 +281,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       })
     case 'NOTE':
       return e.text ?? ''
+    case 'ROSTER_UPDATED':
+      return t('journal.rosterUpdated', {
+        names: Array.isArray(d.names) ? d.names.join(', ') : '',
+      })
     case 'WORLD_EVENT':
       return t('journal.worldEvent', { name: e.text ?? '' })
     case 'HOLIDAY':

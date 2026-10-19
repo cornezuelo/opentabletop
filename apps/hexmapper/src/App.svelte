@@ -11,6 +11,8 @@
   import { startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
   import { bindShortcuts } from './lib/shortcuts'
+  import { roster } from '@open-tabletop/character-ui'
+  import { pullMap } from './lib/play/roster'
 
   let ready = $state(false)
 
@@ -40,6 +42,12 @@
       unbind()
       for (const stop of stops) stop()
     }
+  })
+
+  // The roster changed (the Characters app, another tab): the map's characters catch up.
+  $effect(() => {
+    void roster.roster
+    untrack(() => pullMap())
   })
 </script>
 

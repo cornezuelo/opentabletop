@@ -161,6 +161,38 @@ export function leavePlace(roster: Roster, place: RosterPlace, ids?: string[]): 
   return changed ? { characters } : roster
 }
 
+/** The roster characters that play at a place. */
+export const playingAt = (roster: Roster, place: RosterPlace): RosterEntry[] =>
+  roster.characters.filter((e) => samePlace(e.playing, place))
+
+/**
+ * A place after any change: its linked copies written back (`syncToRoster`), the characters
+ * it no longer has leaving it (a member taken out, a token deleted or without its sheet), and
+ * its name kept up to date. The same roster when nothing changed.
+ */
+export function settlePlace(
+  roster: Roster,
+  characters: CharacterState[],
+  place: RosterPlace,
+  now: string,
+): Roster {
+  let next = syncToRoster(roster, characters, place, now)
+  const here = new Set(characters.map((c) => c.id))
+  const gone = playingAt(next, place)
+    .filter((e) => !here.has(e.character.id))
+    .map((e) => e.character.id)
+  if (gone.length) next = leavePlace(next, place, gone)
+  if (playingAt(next, place).some((e) => e.playing!.name !== place.name))
+    next = {
+      characters: next.characters.map((e) =>
+        samePlace(e.playing, place) && e.playing!.name !== place.name
+          ? { ...e, playing: { ...e.playing!, name: place.name } }
+          : e,
+      ),
+    }
+  return next
+}
+
 /** Changes a roster character (the Characters app). */
 export function editInRoster(
   roster: Roster,

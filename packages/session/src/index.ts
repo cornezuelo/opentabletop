@@ -15,6 +15,7 @@ import {
   type Share,
 } from '@open-tabletop/character-engine'
 import { applyEffects, effectsOf, type Effects, type LimitReached } from './effects'
+import { pullFromRoster, type Roster, type RosterPlace } from './roster'
 import {
   applyMemberEffects,
   carriedBounds,
@@ -834,6 +835,34 @@ export function createSession(options: {
       return addEntry(input, { source: 'user', code: 'NOTE', text }, now())
     },
   }
+}
+
+/**
+ * A trip's members brought up to date from the roster (the Characters app changed them, or
+ * another tab): the party follows them, and the journal says who (`ROSTER_UPDATED`). The
+ * same state when nothing changed.
+ */
+export function pullMembers(
+  s: SessionState,
+  roster: Roster,
+  place: RosterPlace,
+  party: PartyRules,
+  at: string = new Date().toISOString(),
+): SessionState {
+  const { characters, updated } = pullFromRoster(roster, s.members ?? [], place)
+  if (!updated.length) return s
+  const next = addEntry(
+    s,
+    {
+      source: 'user',
+      code: 'ROSTER_UPDATED',
+      data: { names: updated.map((id) => characters.find((c) => c.id === id)?.name || id) },
+    },
+    at,
+  )
+  next.members = structuredClone(characters)
+  refreshParty(next, party)
+  return next
 }
 
 /**

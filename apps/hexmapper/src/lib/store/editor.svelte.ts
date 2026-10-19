@@ -268,6 +268,15 @@ class Editor {
     this.notify({ kind: 'factions' })
   }
 
+  /**
+   * Tokens changed from outside the map (their roster characters, changed in the Characters
+   * app): saved with the map, outside the undo history.
+   */
+  setTokensQuietly(tokens: MapToken[]): void {
+    this.map.tokens = tokens
+    this.notify({ kind: 'tokens' })
+  }
+
   /** Play state changes: saved with the map but not part of the editor's undo history. */
   setPlay(play: HexMap['play']): void {
     this.map.play = play

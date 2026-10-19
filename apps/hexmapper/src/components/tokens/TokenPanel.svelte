@@ -1,9 +1,17 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
   import { createCharacter } from '@open-tabletop/character-engine'
-  import { CharacterCard, sheetText } from '@open-tabletop/character-ui'
+  import { CharacterCard, characterUrl, roster, sheetText } from '@open-tabletop/character-ui'
+  import {
+    characterId,
+    keepInRoster,
+    playingAt,
+    samePlace,
+    takeFromRoster,
+  } from '@open-tabletop/session'
+  import { tokenPlace } from '../../lib/play/roster'
   import { activeSystem } from '../../lib/play/systems'
-  import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
+  import { InfoTip, confirmAction, tooltip } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
   import { getLocale, t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
@@ -56,6 +64,60 @@
     const character: Partial<typeof made> = { ...made }
     delete character.id
     update((tk) => ({ ...tk, character: character as MapToken['character'] }))
+  }
+
+  /** The roster character the token's sheet is, if any. */
+  const linked = $derived(
+    selected ? playingAt(roster.roster, tokenPlace(selected.id))[0] : undefined,
+  )
+  /** Roster characters of the map's sheet that could be this token. */
+  const available = $derived(
+    sheet && selected
+      ? roster.roster.characters.filter(
+          (e) => e.character.sheet === sheet.id && !samePlace(e.playing, tokenPlace(selected.id)),
+        )
+      : [],
+  )
+
+  function keep() {
+    if (!selected?.character) return
+    const id = characterId(
+      selected.name || selected.id,
+      roster.roster.characters.map((e) => e.character.id),
+    )
+    const character = { ...selected.character, id, ...(selected.name && { name: selected.name }) }
+    roster.set(
+      keepInRoster(roster.roster, character, new Date().toISOString(), tokenPlace(selected.id))
+        .roster,
+    )
+  }
+
+  /** The token becomes a roster character (taken from where it was, after asking). */
+  async function fromRoster(id: string) {
+    const entry = available.find((e) => e.character.id === id)
+    if (!entry || !selected) return
+    const name = entry.character.name || entry.character.id
+    if (
+      entry.playing &&
+      !(await confirmAction(t('tokens.rosterTake', { name, place: entry.playing.name })))
+    )
+      return
+    const taken = takeFromRoster(
+      roster.roster,
+      id,
+      tokenPlace(selected.id),
+      new Date().toISOString(),
+    )
+    if (!taken) return
+    roster.set(taken.roster)
+    const character: Partial<typeof taken.character> = { ...taken.character }
+    delete character.id
+    delete character.name
+    update((tk) => ({
+      ...tk,
+      ...(!tk.name && { name }),
+      character: character as MapToken['character'],
+    }))
   }
 
   /**
@@ -213,6 +275,15 @@
                 return { ...tk, character: character as MapToken['character'] }
               })}
           />
+          {#if linked}
+            <a class="link" href={characterUrl(linked.character.id)} target="_blank" rel="noopener"
+              >{t('tokens.openInCharacters')} ↗</a
+            >
+          {:else}
+            <button class="link" use:tooltip={t('tokens.keepInRosterTip')} onclick={keep}
+              >{t('tokens.keepInRoster')}</button
+            >
+          {/if}
           <button
             class="link"
             onclick={async () =>
@@ -221,6 +292,28 @@
           >
         {:else}
           <button onclick={giveSheet}>{t('tokens.giveSheet', { sheet: sheetName })}</button>
+          {#if available.length}
+            <label class="from">
+              <span>{t('tokens.fromRoster')}<InfoTip markdown={t('tokens.fromRosterHelp')} /></span>
+              <select
+                value=""
+                onchange={(e) => {
+                  const id = e.currentTarget.value
+                  e.currentTarget.value = ''
+                  if (id) void fromRoster(id)
+                }}
+              >
+                <option value="">{t('tokens.rosterChoose')}</option>
+                {#each available as e (e.character.id)}
+                  <option value={e.character.id}
+                    >{e.character.name || e.character.id}{e.playing
+                      ? ` (${t('tokens.rosterPlaysIn', { place: e.playing.name })})`
+                      : ''}</option
+                  >
+                {/each}
+              </select>
+            </label>
+          {/if}
         {/if}
       </div>
     {/if}
@@ -411,5 +504,17 @@
     background: none;
     border: none;
     cursor: pointer;
+  }
+
+  a.link {
+    text-decoration: none;
+  }
+
+  .from {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 </style>

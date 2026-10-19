@@ -1,7 +1,9 @@
 <script lang="ts">
   import { calendarOf, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
   import { defaultCalendar } from '@open-tabletop/time'
+  import { roster } from '@open-tabletop/character-ui'
   import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
+  import { untrack } from 'svelte'
   import { translator } from './i18n'
   import { terrainName } from './terrains'
   import TripPanel from './TripPanel.svelte'
@@ -71,6 +73,12 @@
     trip.remove()
     follow()
   }
+
+  // The roster changed (the Characters app, another tab): the trip's characters catch up.
+  $effect(() => {
+    void roster.roster
+    untrack(() => trip.pullRoster())
+  })
 
   const tripLabel = (saved: Saved) => {
     if (saved.name) return saved.name
@@ -142,6 +150,7 @@
           destinationHint={t('play.destinationHint')}
           arrivedHint={t('play.arrivedHint')}
           onstep={(action) => trip.step(action)}
+          place={trip.place}
           onedit={(update) => trip.edit(update)}
         />
       {:else if !session}
