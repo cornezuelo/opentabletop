@@ -3,6 +3,13 @@ import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand } from '../commands/paths'
 import type { DiscoveredHex } from '@open-tabletop/session'
 import {
+  createCampaign,
+  factionsOn,
+  splitFactions,
+  type Campaign,
+  type FactionsOnMap,
+} from '@open-tabletop/campaign'
+import {
   createMap,
   DEFAULT_LABEL_STYLE,
   DEFAULT_TERRAINS,
@@ -46,6 +53,10 @@ export interface PathDraft {
 
 type Listener = (change: MapChange) => void
 
+/** Changes to what the campaign keeps (the world clock, the Oracle), not to the map. */
+export const isCampaignChange = (change: MapChange): boolean =>
+  change.kind === 'world' || change.kind === 'oracle'
+
 /**
  * Central editor state. The map itself is a plain object (Pixi renders it, Svelte
  * doesn't need deep reactivity over thousands of hexes); the parts the UI shows are
@@ -53,6 +64,11 @@ type Listener = (change: MapChange) => void
  */
 class Editor {
   map: HexMap = createMap()
+  /**
+   * The open map's campaign (`map.meta.campaign`): the world clock, its weather, the
+   * factions' sheets and the Oracle, shared by the campaign's maps. A plain object too.
+   */
+  campaign: Campaign = createCampaign(this.map.meta.campaign)
   private history = new History()
   private listeners = new Set<Listener>()
 
@@ -65,8 +81,9 @@ class Editor {
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state.raw<HexMap['play']>(undefined)
-  world = $state.raw<HexMap['world']>(undefined)
-  factions = $state.raw<HexMap['factions']>(undefined)
+  world = $state.raw<Campaign['world']>(undefined)
+  /** The campaign's factions as this map sees them (with the land each holds on it). */
+  factions = $state.raw<FactionsOnMap | undefined>(undefined)
   tokens = $state.raw<MapToken[]>([])
   regions = $state.raw<MapRegion[]>([])
   captions = $state<HexMap['captions']>(structuredClone(this.map.captions))
@@ -167,7 +184,7 @@ class Editor {
   notify(change: MapChange): void {
     this.syncSnapshots(change)
     for (const listener of this.listeners) listener(change)
-    this.touch()
+    this.touch(change)
   }
 
   getLabel(id: string): MapLabel | undefined {
@@ -215,9 +232,9 @@ class Editor {
     this.execute(new ReplaceTokenCommand(structuredClone(token), after))
   }
 
-  /** The map's Oracle (rolls, decks): saved with the map, outside the undo history. */
-  setOracle(oracle: HexMap['oracle']): void {
-    this.map.oracle = oracle
+  /** The campaign's Oracle (rolls, decks): saved with the campaign, outside the undo history. */
+  setOracle(oracle: Campaign['oracle']): void {
+    this.campaign.oracle = oracle
     this.notify({ kind: 'oracle' })
   }
 
@@ -252,21 +269,31 @@ class Editor {
     if (keys.length) this.notify({ kind: 'hexes', keys })
   }
 
-  /** The world clock: saved with the map, outside the undo history (like play). */
-  setWorld(world: HexMap['world']): void {
-    this.map.world = world
+  /** The world clock: saved with the campaign, outside the undo history (like play). */
+  setWorld(world: Campaign['world']): void {
+    this.campaign.world = world
     this.notify({ kind: 'world' })
   }
 
-  /** The world clock's weather: saved with the map, outside the undo history. */
-  setWorldWeather(weather: HexMap['worldWeather']): void {
-    this.map.worldWeather = weather
+  /** The world clock's weather: saved with the campaign, outside the undo history. */
+  setWorldWeather(weather: Campaign['worldWeather']): void {
+    this.campaign.worldWeather = weather
     this.notify({ kind: 'world' })
   }
 
-  /** The factions: saved with the map, outside the undo history (like the world clock). */
-  setFactions(factions: HexMap['factions']): void {
-    this.map.factions = factions
+  /** The campaign's factions as this map sees them (their sheets, and their land on it). */
+  get factionsOnMap(): FactionsOnMap | undefined {
+    return factionsOn(this.campaign, this.map)
+  }
+
+  /**
+   * The factions: their sheets and turns saved with the campaign, their land with the map,
+   * outside the undo history (like the world clock). `undefined` takes them away.
+   */
+  setFactions(factions: FactionsOnMap | undefined): void {
+    const split = splitFactions(factions)
+    this.campaign.factions = split.factions
+    this.map.territories = split.territories
     this.notify({ kind: 'factions' })
   }
 
@@ -351,13 +378,32 @@ class Editor {
       return false
     }
     for (const part of parts) (this.map as unknown as Record<string, unknown>)[part] = next[part]
-    const kinds = new Set<MapChange['kind']>(parts.map((p) => (p === 'worldWeather' ? 'world' : p)))
+    const kinds = new Set<MapChange['kind']>(
+      parts.map((p) => (p === 'territories' ? 'factions' : p)),
+    )
     for (const kind of kinds) this.notify({ kind } as MapChange)
     return true
   }
 
-  load(map: HexMap): void {
+  /**
+   * The open map's campaign as another window or app saved it (a world turn in the Campaign
+   * app, another map of it played): all play, so taken whole, keeping the undo history.
+   */
+  takeCampaign(next: Campaign): void {
+    if (next.id !== this.campaign.id) return
+    this.campaign = next
+    for (const kind of ['world', 'oracle', 'factions'] as const) this.notify({ kind })
+  }
+
+  /** Opens a map read with its campaign (`parseMapFile`, `openMap`). */
+  open({ map, campaign }: { map: HexMap; campaign?: Campaign }): void {
+    this.load(map, campaign)
+  }
+
+  /** Opens a map with its campaign (by default a new one of its own). */
+  load(map: HexMap, campaign: Campaign = createCampaign(map.meta.campaign, map.meta.name)): void {
     this.map = map
+    this.campaign = campaign
     this.history.clear()
     this.selected = null
     this.selectedLabel = null
@@ -379,9 +425,13 @@ class Editor {
     if (this.selectedToken && !this.getToken(this.selectedToken)) this.selectedToken = null
   }
 
-  private touch(): void {
+  private touch(change?: MapChange): void {
     this.pruneSelections()
-    this.map.meta.modified = new Date().toISOString()
+    const now = new Date().toISOString()
+    // The world clock and the Oracle are the campaign's; factions are both (sheets and land).
+    if (change && (isCampaignChange(change) || change.kind === 'factions'))
+      this.campaign.modified = now
+    if (!change || !isCampaignChange(change)) this.map.meta.modified = now
     this.canUndo = this.history.canUndo
     this.canRedo = this.history.canRedo
     this.revision++
@@ -398,8 +448,8 @@ class Editor {
       this.scale = { ...this.map.scale }
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
-    if (change.kind === 'world' || change.kind === 'all') this.world = this.map.world
-    if (change.kind === 'factions' || change.kind === 'all') this.factions = this.map.factions
+    if (change.kind === 'world' || change.kind === 'all') this.world = this.campaign.world
+    if (change.kind === 'factions' || change.kind === 'all') this.factions = this.factionsOnMap
     if (change.kind === 'play' || change.kind === 'all')
       this.play = this.map.play ? structuredClone(this.map.play) : undefined
     if (change.kind === 'layers' || change.kind === 'all')

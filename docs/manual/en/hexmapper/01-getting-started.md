@@ -22,7 +22,7 @@ Maps are kept in this browser's library and saved automatically while you work. 
 
 An example you open becomes **your map**: your changes and your trip are kept in it. Opening the example again asks whether to **go on with yours**, **open it beside yours** (a fresh copy as another map, yours kept) or **start fresh** in its place (yours is lost). When a newer version of the app brings a changed example, the list marks it **new version** and the question says so: your map keeps playing as it was, and you choose when to try the new one.
 
-**Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map).
+**Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map, with a campaign of its own).
 
 > Clearing the browser's data deletes its library: save files of the maps you care about, or a [backup of everything](../technical/05-backups.md) (app switcher → **Save a backup**).
 

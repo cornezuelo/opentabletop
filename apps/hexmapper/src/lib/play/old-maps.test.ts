@@ -4,6 +4,7 @@ import { toasts } from '@open-tabletop/ui-kit'
 import PlayPanel from '../../components/PlayPanel.svelte'
 import WorldPanel from '../../components/WorldPanel.svelte'
 import { deserializeMap, serializeMap } from '@open-tabletop/map'
+import { deserializeCampaign, openMap, serializeCampaign } from '@open-tabletop/campaign'
 import { editor } from '../store/editor.svelte'
 import { clickHex, editSession, sessionOf, step } from './play'
 
@@ -17,6 +18,22 @@ const MAPS = Object.entries(
 ).map(([path, json]) => ({ name: path.split('/').pop()!, json }))
 
 const trip = () => sessionOf(editor.map.play!)!
+
+/**
+ * A stored map as the Hexmapper opens it: before campaigns, the map alone (its world goes
+ * to a campaign of its own); since, the map and its campaign as they're kept.
+ */
+function openStored(json: string) {
+  const stored = JSON.parse(json) as { map?: unknown; campaign?: unknown; version?: number }
+  if (stored.version === undefined && stored.map && stored.campaign)
+    return {
+      map: openMap(JSON.stringify(stored.map)).map,
+      campaign: deserializeCampaign(JSON.stringify(stored.campaign)),
+    }
+  const opened = openMap(json)
+  expect(opened.campaign?.id).toBe(opened.map.meta.id)
+  return opened
+}
 
 /**
  * Heads for another hex and marches on (waiting for the next day if this one's march is
@@ -40,7 +57,7 @@ const panelText = () => render(PlayPanel).body.replace(/<[^>]+>/g, ' ')
 
 /** Opens the map, shows Play and the World view, resolves what waits and marches on. */
 function playOn(json: string) {
-  editor.load(deserializeMap(json))
+  editor.open(openStored(json))
   expect(panelText()).toMatch(/Day \d/)
   render(WorldPanel)
   for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
@@ -51,7 +68,10 @@ function playOn(json: string) {
   const last = trip().lastStep
   expect(last).toBeGreaterThan(0)
   expect(panelText()).toMatch(/What just happened/)
-  editor.load(deserializeMap(serializeMap(editor.map)))
+  editor.load(
+    deserializeMap(serializeMap(editor.map)),
+    deserializeCampaign(serializeCampaign(editor.campaign)),
+  )
   expect(trip().lastStep).toBe(last)
 }
 
@@ -65,9 +85,21 @@ describe('old library maps with a trip going on', () => {
 
   for (const { name, json } of MAPS) it(name, { timeout: 60_000 }, () => playOn(json))
 
+  it('a map stored with its campaign (as `make old-maps` writes them now) plays on', () => {
+    editor.open(openStored(MAPS.find((m) => m.name.endsWith('-camped.json'))!.json))
+    const stored = JSON.stringify({
+      map: JSON.parse(serializeMap(editor.map)),
+      campaign: editor.campaign,
+    })
+    const world = editor.campaign.world
+    expect(world).toBeDefined()
+    playOn(stored)
+    expect(editor.campaign.world!.time).toBeGreaterThan(world!.time)
+  })
+
   it('a trip whose system changed under it goes on', () => {
     const pending = MAPS.filter((m) => m.name.endsWith('-pending.json'))
-    editor.load(deserializeMap(pending.sort((a, b) => a.name.localeCompare(b.name)).pop()!.json))
+    editor.open(openStored(pending.sort((a, b) => a.name.localeCompare(b.name)).pop()!.json))
     // What the stored trip names and the system no longer declares: a check waiting to be
     // resolved and a value of the party.
     editSession((s) => ({

@@ -7,6 +7,7 @@ import {
   type RestoreMode,
 } from './backup'
 import { allLibraryMaps, listLibrary, updateLibrary } from './mapLibrary'
+import { allCampaigns, listCampaigns, updateCampaigns } from './campaignLibrary'
 
 type Hook = () => void | Promise<void>
 /** May return what to do if the restore fails (e.g. start saving again). */
@@ -44,7 +45,7 @@ function readStorage(): Record<string, string> {
 /** Everything the apps keep in this browser, as a backup. */
 export async function makeBackup(): Promise<Backup> {
   for (const hook of beforeBackup) await hook()
-  return createBackup(readStorage(), await allLibraryMaps())
+  return createBackup(readStorage(), await allLibraryMaps(), await allCampaigns())
 }
 
 export function downloadBackup(backup: Backup): void {
@@ -80,8 +81,14 @@ export async function restoreBackup(backup: Backup, mode: RestoreMode): Promise<
       const after = await hook()
       if (after) undo.push(after)
     }
-    const plan = planRestore({ storage: readStorage(), maps: await listLibrary() }, backup, mode)
+    const current = {
+      storage: readStorage(),
+      maps: await listLibrary(),
+      campaigns: await listCampaigns(),
+    }
+    const plan = planRestore(current, backup, mode)
     await updateLibrary(plan.putMaps, plan.removeMaps)
+    await updateCampaigns(plan.putCampaigns, plan.removeCampaigns)
     for (const [key, value] of Object.entries(plan.storage))
       if (value === null) localStorage.removeItem(key)
       else localStorage.setItem(key, value)

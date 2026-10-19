@@ -1,6 +1,5 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
-import { readWorld } from '@open-tabletop/world-engine'
 import { PAPERS, type PaperId } from './paper'
 import {
   CAPTION_SIZE_RANGE,
@@ -47,6 +46,23 @@ export function serializeMap(map: HexMap): string {
 
 /** Parses, migrates and validates a map. Throws MapFormatError on bad input. */
 export function deserializeMap(json: string): HexMap {
+  return readMap(json).map
+}
+
+/** The parts of a world a map kept before campaigns (as stored: `@open-tabletop/campaign` reads them). */
+export const CAMPAIGN_PARTS = ['world', 'worldWeather', 'factions', 'oracle'] as const
+
+/**
+ * What a map brings for its campaign, as stored, when it was saved before campaigns (or
+ * read from a file that carries them): the campaign is made from them.
+ */
+export type CampaignParts = Partial<Record<(typeof CAMPAIGN_PARTS)[number], unknown>>
+
+/**
+ * Parses, migrates and validates a map, and hands over the parts of its campaign it
+ * brought (none for a map saved with campaigns). Throws MapFormatError on bad input.
+ */
+export function readMap(json: string): { map: HexMap; campaign: CampaignParts } {
   let raw: unknown
   try {
     raw = JSON.parse(json)
@@ -54,7 +70,10 @@ export function deserializeMap(json: string): HexMap {
     throw new MapFormatError('invalid')
   }
   if (!isRecord(raw)) throw new MapFormatError('invalid')
-  return validate(migrate(raw))
+  const data = migrate(raw)
+  const campaign: CampaignParts = {}
+  for (const part of CAMPAIGN_PARTS) if (isRecord(data[part])) campaign[part] = data[part]
+  return { map: validate(data), campaign }
 }
 
 function validate(data: Record<string, unknown>): HexMap {
@@ -81,10 +100,11 @@ function validate(data: Record<string, unknown>): HexMap {
   }
 
   const now = new Date().toISOString()
+  const id = isValidId(meta.id) ? meta.id : newId()
   return {
     version: data.version as number,
     meta: {
-      id: isValidId(meta.id) ? meta.id : newId(),
+      id,
       name: typeof meta.name === 'string' ? meta.name : '',
       created: typeof meta.created === 'string' ? meta.created : now,
       modified: typeof meta.modified === 'string' ? meta.modified : now,
@@ -94,6 +114,7 @@ function validate(data: Record<string, unknown>): HexMap {
       ...(Array.isArray(meta.packs) && {
         packs: [...new Set(meta.packs.filter((p): p is string => typeof p === 'string' && !!p))],
       }),
+      campaign: typeof meta.campaign === 'string' && meta.campaign ? meta.campaign : id,
     },
     grid: {
       orientation: grid.orientation === 'pointy' ? 'pointy' : 'flat',
@@ -124,18 +145,7 @@ function validate(data: Record<string, unknown>): HexMap {
     regionStyle: { ...DEFAULT_REGION_STYLE, ...parseRegionStyle(data.regionStyle) },
     layers: parseLayers(data.layers),
     ...(isRecord(data.play) && { play: parsePlay(data.play) }),
-    ...(isRecord(data.oracle) && { oracle: parseOracle(data.oracle) }),
-    ...(isRecord(data.world) && { world: readWorld(data.world) }),
-    ...(isRecord(data.factions) && { factions: parseFactions(data.factions) }),
-    ...(isRecord(data.worldWeather) &&
-      typeof data.worldWeather.weather === 'string' &&
-      typeof data.worldWeather.day === 'number' && {
-        worldWeather: {
-          weather: data.worldWeather.weather,
-          day: data.worldWeather.day,
-          ...(typeof data.worldWeather.at === 'string' && { at: data.worldWeather.at }),
-        },
-      }),
+    ...(isRecord(data.territories) && { territories: parseTerritories(data.territories) }),
     ...(isRecord(data.foreign) && { foreign: data.foreign as HexMap['foreign'] }),
   }
 }
@@ -505,36 +515,11 @@ function mapSize(value: unknown, fallback: number): number {
   return Math.min(MAX_MAP_SIZE, Math.max(MIN_MAP_SIZE, value))
 }
 
-/** The engine re-validates its state on use; here only the shape is checked. */
-function parseOracle(o: Record<string, unknown>): NonNullable<HexMap['oracle']> {
-  const state = isRecord(o.state) ? o.state : {}
-  return {
-    state: {
-      decks: isRecord(state.decks) ? state.decks : {},
-      occurrences: isRecord(state.occurrences) ? state.occurrences : {},
-      vars: isRecord(state.vars) ? state.vars : {},
-    } as NonNullable<HexMap['oracle']>['state'],
-    history: Array.isArray(o.history)
-      ? (o.history.filter(isRecord) as unknown as NonNullable<HexMap['oracle']>['history'])
-      : [],
-  }
-}
-
-/** The factions on a map (their sheets are re-read by the character engine when used). */
-function parseFactions(f: Record<string, unknown>): NonNullable<HexMap['factions']> {
+/** The land each faction holds on the map (faction id → hexes). */
+function parseTerritories(t: Record<string, unknown>): Record<string, string[]> {
   const territories: Record<string, string[]> = {}
-  if (isRecord(f.territories))
-    for (const [id, hexes] of Object.entries(f.territories))
-      if (Array.isArray(hexes))
-        territories[id] = hexes.filter((h): h is string => typeof h === 'string' && HEX_KEY.test(h))
-  return {
-    system: typeof f.system === 'string' ? f.system : '',
-    factions: (Array.isArray(f.factions) ? f.factions : []).filter(
-      (c): c is CharacterState =>
-        isRecord(c) && typeof c.id === 'string' && typeof c.sheet === 'string',
-    ),
-    territories,
-    lastTurn: typeof f.lastTurn === 'number' ? f.lastTurn : 0,
-    ...(f.auto === false && { auto: false as const }),
-  }
+  for (const [id, hexes] of Object.entries(t))
+    if (Array.isArray(hexes))
+      territories[id] = hexes.filter((h): h is string => typeof h === 'string' && HEX_KEY.test(h))
+  return territories
 }

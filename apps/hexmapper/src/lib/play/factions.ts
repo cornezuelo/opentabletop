@@ -1,4 +1,3 @@
-import { inBounds, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
 import {
   changeTerritory,
   claim,
@@ -11,22 +10,24 @@ import { mathRandom } from '@open-tabletop/random'
 import {
   factionFacts,
   factionName,
-  startFactions,
-  worldTurn,
   type FactionLine,
   type SystemFactions,
 } from '@open-tabletop/session'
-import { emptyState } from '@open-tabletop/oracle-engine'
+import {
+  bringFactions as bring,
+  territoryWorld as worldOf,
+  worldTurnOn,
+} from '@open-tabletop/campaign'
 import { getLocale, t } from '../i18n/index.svelte'
-import type { MapFactions } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
 
 /**
- * The factions on the map: brought from its system (`kind: factions`), kept with the map
- * outside the undo history (like the world clock), taking their turns by hand (**World
- * turn**) or by themselves as the world clock moves (every so many days, as the system
- * says). What they did goes to the world clock's timeline.
+ * The factions of the map's campaign: brought from its system (`kind: factions`), their
+ * sheets and turns kept with the campaign and their land with the map, outside the undo
+ * history (like the world clock), taking their turns by hand (**World turn**) or by
+ * themselves as the world clock moves (every so many days, as the system says). What they
+ * did goes to the world clock's timeline.
  */
 
 /** The factions the map's system declares, if any. */
@@ -34,43 +35,29 @@ export const systemFactions = (): SystemFactions | undefined => getSystem(mapSys
 
 /** The system the map's factions came from (their names and turn tables), if still loaded. */
 export function factionsSystem(): SystemFactions | undefined {
-  const own = editor.map.factions
+  const own = editor.factionsOnMap
   return own ? getSystem(own.system).factions : undefined
 }
 
 /** The map as territory sees it: hexes on the map, water left to nobody. */
-export function territoryWorld(): TerritoryWorld {
-  const { grid, hexes, terrains } = editor.map
-  const water = new Set(terrains.filter((t) => t.water).map((t) => t.id))
-  return {
-    neighbors: (hex) => neighborCells(parseKey(hex as HexKey), grid).map(keyOf),
-    holdable: (hex) => {
-      if (!inBounds(parseKey(hex as HexKey), grid)) return false
-      const terrain = hexes[hex as HexKey]?.terrain
-      return !terrain || !water.has(terrain)
-    },
-  }
-}
+export const territoryWorld = (): TerritoryWorld => worldOf(editor.map)
 
-/** Brings the system's factions onto the map, each holding its starting territory. */
+/**
+ * Brings the system's factions to the map: to its campaign, unless it has them, and their
+ * starting land to this map.
+ */
 export function bringFactions(): void {
   const system = systemFactions()
   if (!system) return
-  const { regions, hexes, grid } = editor.map
-  const state = startFactions(
-    system,
-    {
-      regionHexes: (name) => {
-        const region = regions.find((r) => r.name === name)
-        return region
-          ? (Object.keys(hexes) as HexKey[]).filter((k) => hexes[k]?.region === region.id)
-          : []
-      },
-      exists: (hex) => /^\d+,\d+$/.test(hex) && inBounds(parseKey(hex as HexKey), grid),
-    },
-    editor.map.world?.time ?? 0,
+  editor.setFactions(
+    bring(
+      editor.campaign,
+      editor.map,
+      system,
+      getSystem(mapSystemId()).id,
+      editor.campaign.world?.time ?? 0,
+    ),
   )
-  editor.setFactions({ system: getSystem(mapSystemId()).id, ...state })
 }
 
 /**
@@ -79,7 +66,7 @@ export function bringFactions(): void {
  * state, like a world turn: outside the undo history.
  */
 export function paintTerritory(faction: string, hexes: string[], claimIt: boolean): void {
-  const own = editor.map.factions
+  const own = editor.factionsOnMap
   if (!own || !own.factions.some((f) => f.id === faction)) return
   const world = territoryWorld()
   const ok = hexes.filter((h) => world.holdable?.(h) ?? true)
@@ -90,20 +77,20 @@ export function paintTerritory(faction: string, hexes: string[], claimIt: boolea
     editor.setFactions({ ...own, territories: next })
 }
 
-/** Takes the factions off the map (their sheets and territory are forgotten). */
+/** Takes the factions away (their sheets in the campaign and their land here are forgotten). */
 export function removeFactions(): void {
   editor.setFactions(undefined)
 }
 
 /** What tables and conditions read of the factions (`factions.<id>.*`), if the map has them. */
 export function factionFactsNow(): Record<string, unknown> | undefined {
-  const own = editor.map.factions
+  const own = editor.factionsOnMap
   return own ? factionFacts(own, factionsSystem(), getLocale()) : undefined
 }
 
 /** The faction that holds a hex, if any. */
 export function hexFaction(hex: string): string | undefined {
-  const own = editor.map.factions
+  const own = editor.factionsOnMap
   if (!own) return undefined
   return Object.keys(own.territories).find((id) => own.territories[id].includes(hex))
 }
@@ -119,27 +106,20 @@ export function takeWorldTurn(
     log: (text: string, data: Record<string, unknown>, time: number) => void
     tick: (clock: string, segments: number) => void
   },
-  time = editor.map.world?.time ?? 0,
+  time = editor.campaign.world?.time ?? 0,
 ): FactionLine[] {
-  const own = editor.map.factions
   const system = factionsSystem()
-  if (!own || !system) return []
-  const shared = editor.map.oracle
-  const done = worldTurn(
-    {
-      system,
-      oracle: oracle(),
-      world: territoryWorld(),
-      random: mathRandom(),
-      facts: hooks.facts,
-      locale: getLocale(),
-      time,
-    },
-    own,
-    shared?.state ?? emptyState(),
-  )
-  editor.setFactions({ ...own, ...done.state } as MapFactions)
-  editor.setOracle({ state: done.oracle, history: shared?.history ?? [] })
+  if (!editor.factionsOnMap || !system) return []
+  const done = worldTurnOn(editor, {
+    system,
+    oracle: oracle(),
+    random: mathRandom(),
+    facts: hooks.facts,
+    locale: getLocale(),
+    time,
+  })
+  editor.setOracle(done.campaign.oracle)
+  editor.setFactions({ ...done.campaign.factions!, territories: done.map.territories ?? {} })
   for (const line of done.lines) hooks.log(lineText(system, line), { ...line }, time)
   for (const [clock, n] of Object.entries(done.ticks)) if (n) hooks.tick(clock, n)
   return done.lines
@@ -150,7 +130,7 @@ export function takeWorldTurn(
  * if the factions take them by themselves; their moments, oldest first.
  */
 export function dueTurns(now: number, minutesPerDay: number): number[] {
-  const own = editor.map.factions
+  const own = editor.factionsOnMap
   const system = factionsSystem()
   if (!own || !system || own.auto === false) return []
   return turnsDue(own.lastTurn, now, system.def.every, minutesPerDay)
@@ -177,7 +157,7 @@ export function lineText(system: SystemFactions, line: FactionLine): string {
  * (variables were read when the result came up). Returns what it changed, by faction.
  */
 export function applyFactionEffects(effects: Record<string, unknown>): string[] {
-  const own = editor.map.factions
+  const own = editor.factionsOnMap
   const system = factionsSystem()
   if (!own || !system) return []
   let state = structuredClone(own)

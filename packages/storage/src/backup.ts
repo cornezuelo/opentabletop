@@ -1,9 +1,9 @@
-import type { LibraryEntry } from './mapLibrary'
+import type { LibraryEntry } from './library'
 
 /**
  * A backup of everything the OpenTabletop apps keep in one browser: their localStorage
- * entries (user packs, trips, Oracle histories and decks, favorites, preferences…) and
- * the map library. Restoring it on another machine resumes whole campaigns.
+ * entries (user packs, trips, Oracle histories and decks, favorites, preferences…), the
+ * map library and the campaigns. Restoring it on another machine resumes whole campaigns.
  *
  * Entries are copied as they are: each app keeps its own data versioned (maps migrate
  * when opened), so the backup only versions its own envelope.
@@ -17,10 +17,13 @@ export interface Backup {
   storage: Record<string, string>
   /** The Hexmapper's map library. */
   maps: LibraryEntry[]
+  /** The campaigns (their maps are in `maps`). */
+  campaigns: LibraryEntry[]
 }
 
 export const BACKUP_FORMAT = 'opentabletop-backup'
-export const BACKUP_VERSION = 1
+/** v2: campaigns (v1 backups have none: their maps make theirs when opened). */
+export const BACKUP_VERSION = 2
 
 /** Every app keeps its browser data under these prefixes (see the root CLAUDE.md). */
 export const KEY_PREFIXES = ['opentabletop.', 'hexmapper.'] as const
@@ -31,8 +34,8 @@ export const FAVORITES_KEY = 'opentabletop.favorites'
 /** The Characters app's roster (character-ui): its characters joined, the newer of each kept. */
 export const ROSTER_KEY = 'opentabletop.characters'
 
-/** The Hexmapper's crash copy of the open map: only meaningful in this browser, now. */
-const LOCAL_ONLY = new Set(['hexmapper.pending'])
+/** The Hexmapper's crash copies of the open map and its campaign: only meaningful in this browser, now. */
+const LOCAL_ONLY = new Set(['hexmapper.pending', 'hexmapper.pendingCampaign'])
 
 /** A key whose value belongs in a backup. */
 export function isAppKey(key: string): boolean {
@@ -42,6 +45,7 @@ export function isAppKey(key: string): boolean {
 export function createBackup(
   storage: Record<string, string>,
   maps: LibraryEntry[],
+  campaigns: LibraryEntry[],
   created: string = new Date().toISOString(),
 ): Backup {
   return {
@@ -50,6 +54,7 @@ export function createBackup(
     created,
     storage: Object.fromEntries(Object.entries(storage).filter(([key]) => isAppKey(key))),
     maps,
+    campaigns,
   }
 }
 
@@ -97,13 +102,14 @@ export function parseBackup(json: string): { backup?: Backup; error?: BackupErro
       created: typeof raw.created === 'string' ? raw.created : '',
       storage,
       maps: raw.maps.filter(isEntry),
+      campaigns: Array.isArray(raw.campaigns) ? raw.campaigns.filter(isEntry) : [],
     },
   }
 }
 
 /**
  * - `replace`: this browser ends up exactly like the backup (its own data is removed).
- * - `merge`: the backup is added: maps by id (the newer one stays), user packs by folder
+ * - `merge`: the backup is added: maps and campaigns by id (the newer one stays), user packs by folder
  *   and favorites joined (the backup's copy wins), the roster's characters by id (the newer
  *   one stays), anything else taken from the backup.
  */
@@ -114,11 +120,17 @@ export interface RestorePlan {
   storage: Record<string, string | null>
   putMaps: LibraryEntry[]
   removeMaps: string[]
+  putCampaigns: LibraryEntry[]
+  removeCampaigns: string[]
 }
 
 /** What restoring `backup` changes, given what this browser has now. Pure, for testing. */
 export function planRestore(
-  current: { storage: Record<string, string>; maps: Omit<LibraryEntry, 'json'>[] },
+  current: {
+    storage: Record<string, string>
+    maps: Omit<LibraryEntry, 'json'>[]
+    campaigns: Omit<LibraryEntry, 'json'>[]
+  },
   backup: Backup,
   mode: RestoreMode,
 ): RestorePlan {
@@ -129,10 +141,13 @@ export function planRestore(
         storage[key] = null
     Object.assign(storage, backup.storage)
     const kept = new Set(backup.maps.map((m) => m.id))
+    const keptCampaigns = new Set(backup.campaigns.map((c) => c.id))
     return {
       storage,
       putMaps: backup.maps,
       removeMaps: current.maps.filter((m) => !kept.has(m.id)).map((m) => m.id),
+      putCampaigns: backup.campaigns,
+      removeCampaigns: current.campaigns.filter((c) => !keptCampaigns.has(c.id)).map((c) => c.id),
     }
   }
   for (const [key, value] of Object.entries(backup.storage)) {
@@ -148,15 +163,20 @@ export function planRestore(
               ? mergeRoster(mine, value)
               : value
   }
-  const mine = new Map(current.maps.map((m) => [m.id, m]))
+  // ISO times compare as text; on a tie the backup's copy is taken.
+  const newer = (entries: LibraryEntry[], current: Omit<LibraryEntry, 'json'>[]) => {
+    const mine = new Map(current.map((e) => [e.id, e]))
+    return entries.filter((e) => {
+      const here = mine.get(e.id)
+      return !here || here.modified <= e.modified
+    })
+  }
   return {
     storage,
-    // ISO times compare as text; on a tie the backup's copy is taken.
-    putMaps: backup.maps.filter((m) => {
-      const here = mine.get(m.id)
-      return !here || here.modified <= m.modified
-    }),
+    putMaps: newer(backup.maps, current.maps),
     removeMaps: [],
+    putCampaigns: newer(backup.campaigns, current.campaigns),
+    removeCampaigns: [],
   }
 }
 

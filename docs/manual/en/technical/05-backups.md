@@ -4,11 +4,12 @@ Every OpenTabletop app keeps your work in this browser: no account, no server. A
 
 ## Making a backup
 
-Open the app switcher (the nine dots in any app) and press **Save a backup**. The file, `opentabletop-backup-<date>.json`, is downloaded. Keep it somewhere safe, like any other document. The open map is saved first, so the backup has it as you see it.
+Open the app switcher (the nine dots in any app) and press **Save a backup**. The file, `opentabletop-backup-<date>.json`, is downloaded. Keep it somewhere safe, like any other document. The open map and its campaign are saved first, so the backup has them as you see them.
 
 It holds everything the apps keep in this browser:
 
-- **Maps**: every map of the Hexmapper's library, with its play state (party, trail, trip, journal) and its Oracle (history, decks, once-only results).
+- **Maps**: every map of the Hexmapper's library, with its play state (party, trail, trip, journal) and the land each faction holds on it.
+- **Campaigns**: the world each map is played in: its world clock and weather, its factions and its Oracle (history, decks, once-only results).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
 - **The Characters app's roster**: every character it keeps, with its notes and where it plays.
 - **The Travel app's trips**, the **Oracle app's** history, decks and seed, and **favorites**.
@@ -20,8 +21,8 @@ Bundled packs are not in it: they come with the apps.
 
 In the app switcher, press **Restore a backup…** and choose the file. OpenTabletop says when the backup was made and what it has, and asks how to restore it:
 
-- **Add to mine**: the backup joins what this browser already has. A map both have keeps the newer copy; packs with the same folder and favorites are joined (the backup's copy of a pack wins); the roster's characters are joined too, and a character both have keeps the copy changed last; other things (the trip, histories, preferences) are taken from the backup.
-- **Replace everything**: this browser ends up exactly like the backup. Maps and data that aren't in the backup are deleted.
+- **Add to mine**: the backup joins what this browser already has. A map (or campaign) both have keeps the newer copy; packs with the same folder and favorites are joined (the backup's copy of a pack wins); the roster's characters are joined too, and a character both have keeps the copy changed last; other things (the trip, histories, preferences) are taken from the backup.
+- **Replace everything**: this browser ends up exactly like the backup. Maps, campaigns and data that aren't in the backup are deleted.
 
 The page then reloads. Close other OpenTabletop tabs before restoring: an open tab still has the old data and could save it again.
 
@@ -42,13 +43,17 @@ A JSON file:
 ```json
 {
   "format": "opentabletop-backup",
-  "version": 1,
+  "version": 2,
   "created": "2026-10-07T21:30:00.000Z",
   "storage": { "opentabletop.userPacks": "[…]", "opentabletop.locale": "\"es\"", "…": "…" },
-  "maps": [{ "id": "greymarches1", "name": "The Grey Marches", "modified": "…", "json": "{…}" }]
+  "maps": [{ "id": "greymarches1", "name": "The Grey Marches", "modified": "…", "json": "{…}" }],
+  "campaigns": [
+    { "id": "greymarches1", "name": "The Grey Marches", "modified": "…", "json": "{…}" }
+  ]
 }
 ```
 
-- `storage` copies the apps' browser storage entries whose keys start with `opentabletop.` or `hexmapper.`, as text. The Hexmapper's crash copy of the open map (`hexmapper.pending`) is left out.
+- `storage` copies the apps' browser storage entries whose keys start with `opentabletop.` or `hexmapper.`, as text. The Hexmapper's crash copies of the open map and its campaign (`hexmapper.pending`, `hexmapper.pendingCampaign`) are left out.
 - `maps` copies the Hexmapper's library as it is: each `json` is a map in the Hexmapper's own format, which carries its version and is migrated when the map opens. To share a single map with other tools, use the Hexmapper's **Save** (an OTD bundle, see [File formats](02-file-formats.md)).
+- `campaigns` copies the campaigns the same way, each `json` in their own versioned format. Backups made before campaigns (`version` 1) have none: each of their maps makes its own when it opens.
 - `version` is the version of this envelope. Newer backups than the app understands are refused rather than read wrongly.

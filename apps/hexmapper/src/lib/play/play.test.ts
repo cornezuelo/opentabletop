@@ -7,6 +7,7 @@ import { createMap, deserializeMap, serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
+import { factionsOn } from '@open-tabletop/campaign'
 import {
   applyResult,
   partyOf,
@@ -58,7 +59,7 @@ describe('playing on the map', () => {
   })
 
   it('with rules: a placed party starts its trip where it stands, heading for the hex', () => {
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     expect(partyLocation()).toBe('5,7')
     clickHex('7,7')
     const session = sessionOf(editor.map.play!)
@@ -115,7 +116,7 @@ describe('playing on the map', () => {
   })
 
   it('a map chooses its system and the packs it adds (the example: the Grey Marches alone)', () => {
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     expect(editor.meta.system).toBe('grey-marches')
     expect(editor.meta.packs).toEqual([])
     // The system brings its own pack and Core; nothing else is shown.
@@ -128,7 +129,10 @@ describe('playing on the map', () => {
     // Back to every pack: undoable, and saved in the file.
     editor.execute(new SetMetaCommand({ packs: undefined }))
     expect(oracleUi.showsPack('kal-arath')).toBe(true)
-    expect(mapToBundle(editor.map).maps[0].ext).not.toHaveProperty(['hexmapper', 'packs'])
+    expect(mapToBundle(editor.map, editor.campaign).maps[0].ext).not.toHaveProperty([
+      'hexmapper',
+      'packs',
+    ])
     editor.undo()
     expect(editor.meta.packs).toEqual([])
     // The Generic rules (Core's, the default: no key in the map) bring Core.
@@ -136,29 +140,32 @@ describe('playing on the map', () => {
     expect(editor.meta).not.toHaveProperty('system')
     expect(mapPacks()).toEqual(['core'])
     expect(oracleUi.showsPack('grey-marches')).toBe(false)
-    expect(mapToBundle(editor.map).maps[0].ext).not.toHaveProperty(['hexmapper', 'system'])
+    expect(mapToBundle(editor.map, editor.campaign).maps[0].ext).not.toHaveProperty([
+      'hexmapper',
+      'system',
+    ])
     editor.undo()
     expect(editor.meta.system).toBe('grey-marches')
     // Saved in the file and read back.
-    const back = bundleToMap(mapToBundle(editor.map))
+    const back = bundleToMap(mapToBundle(editor.map, editor.campaign)).map
     expect(back.meta).toMatchObject({ system: 'grey-marches', packs: [] })
   })
 
   it("new trips play the map's system; a trip going on keeps its own until a new one", () => {
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     clickHex('7,7')
     expect(editor.map.play?.rules?.system).toBe('grey-marches')
     startWorld()
-    const marches = worldCalendar().describe(editor.map.world!.time)
+    const marches = worldCalendar().describe(editor.campaign.world!.time)
     // The map changes system: the trip and the world's calendar stay the trip's.
     editor.execute(new SetMetaCommand({ system: 'generic' }))
     expect(activeSystem().id).toBe('grey-marches')
-    expect(worldCalendar().describe(editor.map.world!.time)).toEqual(marches)
+    expect(worldCalendar().describe(editor.campaign.world!.time)).toEqual(marches)
     // A new trip (Play → New trip) plays the map's system, and so does the world.
     restartRules(mapSystemId(), 'spring')
     expect(editor.map.play?.rules?.system).toBe('core')
     expect(activeSystem().id).toBe('core')
-    expect(worldCalendar().describe(editor.map.world!.time)).not.toEqual(marches)
+    expect(worldCalendar().describe(editor.campaign.world!.time)).not.toEqual(marches)
     // Choosing a system in Play is choosing the map's: undoable like Map settings.
     restartRules('grey-marches', 'spring')
     expect(editor.meta.system).toBe('grey-marches')
@@ -166,10 +173,10 @@ describe('playing on the map', () => {
   })
 
   it('the world clock reaches the trip: hand rolls and checks read its clocks and events', () => {
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     clickHex('7,7')
     startWorld()
-    const start = editor.map.world!.time
+    const start = editor.campaign.world!.time
     worldAct({ type: 'addClock', clock: { name: 'The Wyrm wakes', segments: 6, filled: 2 } })
     worldAct({ type: 'schedule', event: { name: 'Market day', at: start + 60 } })
     // A roll by hand sees what the trip's checks would: the moment, the trip, the world.
@@ -184,13 +191,13 @@ describe('playing on the map', () => {
   })
 
   it('the world clock is saved in the file and follows a trip, telling what came due', () => {
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     startWorld()
-    const start = editor.map.world!.time
+    const start = editor.campaign.world!.time
     worldAct({ type: 'schedule', event: { name: 'The Iron Clans attack', at: start + 60 } })
     worldAct({ type: 'addClock', clock: { name: 'The Wyrm wakes', segments: 6, filled: 1 } })
     // In the file: clocks as OTD clocks, the rest as engine state; and back.
-    const bundle = mapToBundle(editor.map)
+    const bundle = mapToBundle(editor.map, editor.campaign)
     // The system's own clocks come with the world clock (`ref`: their declared ids).
     expect(bundle.clocks).toEqual([
       expect.objectContaining({ ref: 'the-greywood-wyrm-wakes', segments: 6, filled: 1 }),
@@ -203,20 +210,20 @@ describe('playing on the map', () => {
       events: [{ name: 'The Iron Clans attack' }],
     })
     const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
-    expect(back.world).toEqual(editor.map.world)
+    expect(back.campaign.world).toEqual(editor.campaign.world)
     // A trip starts at the world's time, and its time passing brings the attack (not
     // `travel`: a storm could keep the party in, and rolls here aren't seeded).
     clickHex('7,7')
     const session = sessionOf(editor.map.play!)!
     expect(session.travel.time).toBe(start)
     step({ type: 'advanceTime', minutes: 120 })
-    expect(editor.map.world!.time).toBe(sessionOf(editor.map.play!)!.travel.time)
+    expect(editor.campaign.world!.time).toBe(sessionOf(editor.map.play!)!.travel.time)
     expect(sessionOf(editor.map.play!)!.journal.some((e) => e.code === 'WORLD_EVENT')).toBe(true)
   })
 
   describe('playing with the world clock', () => {
     const grey = () =>
-      editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+      editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     const trip = () => sessionOf(editor.map.play!)!
     // The Oracle rolls with Math.random: a fixed sequence makes every run the same.
     beforeEach(() => {
@@ -254,15 +261,18 @@ describe('playing on the map', () => {
       const calendar = worldCalendar()
       expect(calendar.divisions?.map((d) => d.id)).toEqual(['part', 'watch'])
       const at = (time: number) => calendar.describe(time)
-      const day = at(editor.map.world!.time).day
+      const day = at(editor.campaign.world!.time).day
       // Without a trip, the world alone: to the evening, then to the next watch.
       await advance({ until: { part: 'part.evening' } })
-      expect(editor.map.world!.time).toBe(calendar.at(day, '18:00'))
-      expect(at(editor.map.world!.time)).toMatchObject({ divisions: { part: 'evening' }, tags: [] })
+      expect(editor.campaign.world!.time).toBe(calendar.at(day, '18:00'))
+      expect(at(editor.campaign.world!.time)).toMatchObject({
+        divisions: { part: 'evening' },
+        tags: [],
+      })
       // No watch by day: the Marches keep them only at night.
-      expect(at(editor.map.world!.time).watch).toBeUndefined()
+      expect(at(editor.campaign.world!.time).watch).toBeUndefined()
       await advance({ until: { part: 'watch' } })
-      expect(at(editor.map.world!.time)).toMatchObject({
+      expect(at(editor.campaign.world!.time)).toMatchObject({
         hour: 20,
         watch: 'first',
         divisions: { part: 'night', watch: 'first' },
@@ -277,16 +287,16 @@ describe('playing on the map', () => {
         system: { part: { morning: 6, night: 20 }, watch: { middle: 23 } },
       })
       // A part the calendar doesn't have: nothing moves.
-      const now = editor.map.world!.time
+      const now = editor.campaign.world!.time
       await advance({ until: { part: 'part.supper' } })
-      expect(editor.map.world!.time).toBe(now)
+      expect(editor.campaign.world!.time).toBe(now)
     })
 
     it('moving the world on a day with a route planned asks, then travels along it', async () => {
       grey()
       startWorld()
       clickHex('7,7')
-      const start = editor.map.world!.time
+      const start = editor.campaign.world!.time
       const asked = await advance({ until: 'next-day' })
       expect(asked).toContain('0808')
       expect(asked).toMatch(/travel on/i)
@@ -294,7 +304,7 @@ describe('playing on the map', () => {
       expect(after.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(true)
       expect(partyLocation()).not.toBe('5,7')
       expect(after.travel.time).toBeGreaterThan(start)
-      expect(editor.map.world!.time).toBe(after.travel.time)
+      expect(editor.campaign.world!.time).toBe(after.travel.time)
     })
 
     it('day after day, the party reaches its destination; one time for both all along', async () => {
@@ -305,7 +315,7 @@ describe('playing on the map', () => {
         await advance({ until: 'next-day' })
         // Whatever stopped it (a check waiting for the player), the player goes on.
         for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
-        expect(editor.map.world!.time).toBe(trip().travel.time)
+        expect(editor.campaign.world!.time).toBe(trip().travel.time)
       }
       expect(partyLocation()).toBe('7,7')
       expect(trip().journal.some((e) => e.code === 'DESTINATION_REACHED')).toBe(true)
@@ -314,7 +324,7 @@ describe('playing on the map', () => {
       // Once there, moving on waits there.
       await advance({ until: 'next-day' })
       expect(partyLocation()).toBe('7,7')
-      expect(editor.map.world!.time).toBe(trip().travel.time)
+      expect(editor.campaign.world!.time).toBe(trip().travel.time)
     })
 
     it('saying no to the question leaves the trip and the world as they were', async () => {
@@ -322,10 +332,10 @@ describe('playing on the map', () => {
       startWorld()
       clickHex('7,7')
       const before = structuredClone(trip())
-      const time = editor.map.world!.time
+      const time = editor.campaign.world!.time
       expect(await advance({ until: 'next-day' }, 'cancel')).toBeTruthy()
       expect(trip()).toEqual(before)
-      expect(editor.map.world!.time).toBe(time)
+      expect(editor.campaign.world!.time).toBe(time)
     })
 
     it('paused on a check, nothing moves the trip on until Continue', { timeout: 120000 }, () => {
@@ -365,11 +375,11 @@ describe('playing on the map', () => {
       grey()
       startWorld()
       clickHex('7,7')
-      const start = editor.map.world!.time
+      const start = editor.campaign.world!.time
       const asked = await advance({ minutes: 60 })
       expect(asked).toBeUndefined()
       expect(trip().travel.time).toBe(start + 60)
-      expect(editor.map.world!.time).toBe(start + 60)
+      expect(editor.campaign.world!.time).toBe(start + 60)
       // It marched (an hour into its first hex, or on to it) unless something stopped it.
       const moved = trip().travel.progress > 0 || partyLocation() !== '5,7'
       const stopped = trip().travel.pendingChecks.length > 0
@@ -389,21 +399,21 @@ describe('playing on the map', () => {
       expect(after.journal.some((e) => e.code === 'WAIT')).toBe(true)
       expect(after.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
       expect(after.travel.resources.food).toBeLessThan(food)
-      expect(editor.map.world!.time).toBe(after.travel.time)
+      expect(editor.campaign.world!.time).toBe(after.travel.time)
     })
 
     it('an hour waited is an hour for both; without a trip only the world moves', async () => {
       grey()
       startWorld()
-      const start = editor.map.world!.time
+      const start = editor.campaign.world!.time
       await advance({ minutes: 60 })
-      expect(editor.map.world!.time).toBe(start + 60)
+      expect(editor.campaign.world!.time).toBe(start + 60)
       clickHex('7,7')
       noRoute()
       expect(trip().travel.time).toBe(start + 60)
       await advance({ minutes: 60 })
       expect(trip().travel.time).toBe(start + 120)
-      expect(editor.map.world!.time).toBe(start + 120)
+      expect(editor.campaign.world!.time).toBe(start + 120)
     })
 
     it('a clock started during a trip starts at the trip’s time', () => {
@@ -411,7 +421,7 @@ describe('playing on the map', () => {
       clickHex('7,7')
       step({ type: 'advanceTime', minutes: 90 })
       startWorld()
-      expect(editor.map.world!.time).toBe(trip().travel.time)
+      expect(editor.campaign.world!.time).toBe(trip().travel.time)
     })
 
     it('says at the bottom why the trip stopped early, and when it arrived', () => {
@@ -454,7 +464,7 @@ describe('the world clock’s dates', () => {
     dialog.current?.resolve(null)
   })
   const grey = () =>
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
   const calendar = () => worldCalendar() as import('@open-tabletop/time').DataCalendar
   /** Sets the date, answering the question it asks (if any). */
   async function setDate(time: number, answer: 'ok' | 'cancel' = 'ok') {
@@ -474,7 +484,7 @@ describe('the world clock’s dates', () => {
       '06:00',
     )
     startWorld(midsummer)
-    const parts = calendar().describe(editor.map.world!.time)
+    const parts = calendar().describe(editor.campaign.world!.time)
     expect(parts).toMatchObject({ year: 412, month: { id: 'highsun', day: 15 }, hour: 6 })
     expect(parts.holidays.map((h) => h.id)).toEqual(['midsummer'])
   })
@@ -483,24 +493,24 @@ describe('the world clock’s dates', () => {
     grey()
     editor.map.play = undefined
     startWorld(calendar().at(1, '06:00'))
-    const start = editor.map.world!.time
+    const start = editor.campaign.world!.time
     worldAct({ type: 'schedule', event: { id: 'fair', name: 'The fair', at: start + 1440 } })
     await setDate(start + 3 * 1440)
-    expect(editor.map.world!.time).toBe(start + 3 * 1440)
-    expect(editor.map.world!.timeline.some((e) => e.code === 'EVENT')).toBe(true)
+    expect(editor.campaign.world!.time).toBe(start + 3 * 1440)
+    expect(editor.campaign.world!.timeline.some((e) => e.code === 'EVENT')).toBe(true)
     // Back: asked first; saying no changes nothing.
     expect(await setDate(start, 'cancel')).toMatch(/back/i)
-    expect(editor.map.world!.time).toBe(start + 3 * 1440)
+    expect(editor.campaign.world!.time).toBe(start + 3 * 1440)
     await setDate(start)
-    expect(editor.map.world!.time).toBe(start)
-    expect(editor.map.world!.timeline.at(-1)?.code).toBe('REWOUND')
+    expect(editor.campaign.world!.time).toBe(start)
+    expect(editor.campaign.world!.timeline.at(-1)?.code).toBe('REWOUND')
   })
 
   it('the example map’s market day (an event by its id) lets the party trade in Ashford', async () => {
     // The example map comes with its world clock running, and its events.
     grey()
     clickHex('5,7')
-    const fair = editor.map.world!.events.find((e) => e.id === 'market-day')!
+    const fair = editor.campaign.world!.events.find((e) => e.id === 'market-day')!
     expect(fair.description).toBeTruthy()
     const traded = () =>
       sessionOf(editor.map.play!)!.journal.some(
@@ -511,7 +521,7 @@ describe('the world clock’s dates', () => {
     expect(traded()).toBe(false)
     // On the event's day (not a Marketday of the calendar), the party trades.
     await setDate(fair.at + 60)
-    expect(calendar().describe(editor.map.world!.time).weekday?.id).not.toBe('marketday')
+    expect(calendar().describe(editor.campaign.world!.time).weekday?.id).not.toBe('marketday')
     step({ type: 'action', id: 'market' })
     expect(traded()).toBe(true)
   })
@@ -520,17 +530,17 @@ describe('the world clock’s dates', () => {
     grey()
     startWorld()
     clickHex('5,7')
-    const now = editor.map.world!.time
+    const now = editor.campaign.world!.time
     toasts.length = 0
     await setDate(now - 60)
-    expect(editor.map.world!.time).toBe(now)
+    expect(editor.campaign.world!.time).toBe(now)
     expect(toasts.at(-1)?.kind).toBe('error')
   })
 })
 
 describe('the Company: a party made of characters', () => {
   const grey = () =>
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
   const trip = () => sessionOf(editor.map.play!)!
   const member = (id: string) => trip().members!.find((m) => m.id === id)!
   beforeEach(() => {
@@ -560,14 +570,14 @@ describe('the Company: a party made of characters', () => {
     // The food is what they carry: 3 + 2 + 3 rations.
     expect(trip().travel.resources.food).toBe(8)
     // Saved in the file as OTD characters of the party, and read back.
-    const bundle = mapToBundle(editor.map)
+    const bundle = mapToBundle(editor.map, editor.campaign)
     expect(bundle.parties[0].members).toEqual(['kael', 'mara', 'tobin'])
     expect(bundle.characters.find((c) => c.id === 'tobin')).toMatchObject({
       kind: 'pc',
       stats: { survival: 2, maxHealth: 4 },
       ext: { character: { sheet: 'grey-marches/companion' } },
     })
-    const back = sessionOf(bundleToMap(bundle).play!)!
+    const back = sessionOf(bundleToMap(bundle).map.play!)!
     expect(back.members).toEqual(trip().members)
   })
 
@@ -608,7 +618,7 @@ describe('the Company: a party made of characters', () => {
     editSession((s) => ({ ...s, members: s.members!.slice(1) }))
     expect(trip().party!.values.morale).toBe(2)
     // Kept in the map file.
-    const back = sessionOf(bundleToMap(mapToBundle(editor.map)).play!)!
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map, editor.campaign)).map.play!)!
     expect(back.party).toEqual(trip().party)
   })
 
@@ -631,7 +641,7 @@ describe('the Company: a party made of characters', () => {
     expect(trip().journal.filter((e) => e.code === 'ORACLE_RESULT').length).toBe(results + 1)
     expect(trip().asking ?? []).not.toContain(asking[0])
     // Kept in the map file.
-    const back = sessionOf(bundleToMap(mapToBundle(editor.map)).play!)!
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map, editor.campaign)).map.play!)!
     expect(back).toMatchObject({ rolls: 'tobin', askRolls: true })
   })
 
@@ -675,7 +685,7 @@ describe('the Company: a party made of characters', () => {
     grey()
     clickHex('7,7')
     editSession((s) => ({ ...s, roles: { guide: 'kael', lookout: 'mara' } }))
-    const back = sessionOf(bundleToMap(mapToBundle(editor.map)).play!)!
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map, editor.campaign)).map.play!)!
     expect(back.roles).toEqual({ guide: 'kael', lookout: 'mara' })
     expect(back.members!.find((m) => m.id === 'mara')!.relations).toEqual([
       { to: 'region:Ashford Vale', kind: 'home' },
@@ -693,7 +703,9 @@ describe('the Company: a party made of characters', () => {
     expect(editor.map.layers.relations.visible).toBe(false)
     expect(editor.map.layers.party.visible).toBe(true)
     editor.setLayer('relations', { visible: true })
-    expect(bundleToMap(mapToBundle(editor.map)).layers.relations.visible).toBe(true)
+    expect(bundleToMap(mapToBundle(editor.map, editor.campaign)).map.layers.relations.visible).toBe(
+      true,
+    )
     // A map saved before the layer, with Play's old Show relations, opens with it hidden.
     const old = JSON.parse(serializeMap(editor.map))
     old.version = 20
@@ -716,7 +728,9 @@ describe('the Company: a party made of characters', () => {
     expect(rollContext()).toMatchObject({
       token: { name: 'Brenna', fare: 2, charisma: 1, values: { survival: 3 }, conditions: [] },
     })
-    const back = bundleToMap(mapToBundle(editor.map)).tokens.find((t) => t.id === brenna.id)!
+    const back = bundleToMap(mapToBundle(editor.map, editor.campaign)).map.tokens.find(
+      (t) => t.id === brenna.id,
+    )!
     expect(back.character).toEqual(brenna.character)
     // Her sheet's relation is no party member's: it draws no thread from the party.
     expect(sessionOf(editor.map.play!)?.members ?? editor.map.play?.rules?.members).toHaveLength(3)
@@ -751,7 +765,7 @@ function refreshed(s: SessionState): SessionState {
 
 describe('the powers of the Marches: factions on the map', () => {
   const grey = () =>
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
   beforeEach(() => {
     let seed = 11
     vi.spyOn(Math, 'random').mockImplementation(() => {
@@ -763,7 +777,7 @@ describe('the powers of the Marches: factions on the map', () => {
 
   it('the example map brings them, holding their land; tables read them', () => {
     grey()
-    const own = editor.map.factions!
+    const own = editor.factionsOnMap!
     expect(own.system).toBe('grey-marches')
     expect(own.factions.map((f) => [f.id, f.values.strength])).toEqual([
       ['iron-clans', 4],
@@ -781,38 +795,39 @@ describe('the powers of the Marches: factions on the map', () => {
       },
     })
     // Kept in the file.
-    const back = bundleToMap(mapToBundle(editor.map)).factions
-    expect(back).toEqual(own)
+    const back = bundleToMap(mapToBundle(editor.map, editor.campaign))
+    expect(factionsOn(back.campaign, back.map)).toEqual(own)
   })
 
   it('a world turn rolls each one’s table: values, territory, clocks and the timeline change', () => {
     grey()
-    const before = structuredClone(editor.map.factions!)
+    const before = structuredClone(editor.factionsOnMap!)
     const clock = () =>
-      editor.map.world!.clocks.find((c) => c.name === 'The Iron Clans march')!.filled
+      editor.campaign.world!.clocks.find((c) => c.name === 'The Iron Clans march')!.filled
     const filled = clock()
     worldTurnNow()
-    const lines = editor.map.world!.timeline.filter((e) => e.code === 'LOG')
+    const lines = editor.campaign.world!.timeline.filter((e) => e.code === 'LOG')
     expect(lines.map((l) => l.data?.faction)).toEqual(['iron-clans', 'the-vale', 'fort-keld'])
     expect(lines[0].text).toMatch(/^The Iron Clans: /)
     // Something changed: a value, the territory or the Clans' march.
-    const after = editor.map.factions!
+    const after = editor.factionsOnMap!
     const changed =
       JSON.stringify(after.factions) !== JSON.stringify(before.factions) ||
       JSON.stringify(after.territories) !== JSON.stringify(before.territories) ||
       clock() !== filled
     expect(changed).toBe(true)
-    expect(after.lastTurn).toBe(editor.map.world!.time)
+    expect(after.lastTurn).toBe(editor.campaign.world!.time)
   })
 
   it('turns come by themselves every 7 days of the world clock, unless asked not to', async () => {
     grey()
     const turns = () =>
-      editor.map.world!.timeline.filter((e) => e.code === 'LOG' && e.data?.faction === 'the-vale')
-        .length
+      editor.campaign.world!.timeline.filter(
+        (e) => e.code === 'LOG' && e.data?.faction === 'the-vale',
+      ).length
     worldAct({ type: 'advance', minutes: 15 * 1440 })
     expect(turns()).toBe(2)
-    editor.setFactions({ ...editor.map.factions!, auto: false })
+    editor.setFactions({ ...editor.factionsOnMap!, auto: false })
     worldAct({ type: 'advance', minutes: 15 * 1440 })
     expect(turns()).toBe(2)
   })
@@ -820,7 +835,7 @@ describe('the powers of the Marches: factions on the map', () => {
   it('a trip’s results reach the world: a clock ticks, a faction thinks better of you', () => {
     grey()
     const wyrm = () =>
-      editor.map.world!.clocks.find((c) => c.name === 'The Greywood Wyrm wakes')!.filled
+      editor.campaign.world!.clocks.find((c) => c.name === 'The Greywood Wyrm wakes')!.filled
     const before = wyrm()
     applyWorldEffects({
       'world.clocks.the-greywood-wyrm-wakes': 1,
@@ -829,7 +844,7 @@ describe('the powers of the Marches: factions on the map', () => {
       'party.resources.food': -1,
     })
     expect(wyrm()).toBe(before + 1)
-    const own = editor.map.factions!
+    const own = editor.factionsOnMap!
     expect(own.factions.find((f) => f.id === 'fort-keld')!.values.reputation).toBe(1)
     expect(own.territories['the-vale'].length).toBe(97)
   })
@@ -837,21 +852,23 @@ describe('the powers of the Marches: factions on the map', () => {
   it('without a trip, the world clock rolls its own weather each day', () => {
     grey()
     worldAct({ type: 'advance', minutes: 3 * 1440 })
-    const weather = editor.map.worldWeather!
-    expect(weather.day).toBe(worldCalendar().describe(editor.map.world!.time).day)
+    const weather = editor.campaign.worldWeather!
+    expect(weather.day).toBe(worldCalendar().describe(editor.campaign.world!.time).day)
     expect(['clear', 'grey', 'rain', 'fog', 'storm', 'snow']).toContain(weather.weather)
     expect(rollContext()).toMatchObject({ weather: weather.weather })
-    expect(bundleToMap(mapToBundle(editor.map)).worldWeather).toEqual(weather)
+    expect(bundleToMap(mapToBundle(editor.map, editor.campaign)).campaign.worldWeather).toEqual(
+      weather,
+    )
     // With a trip, the trip's weather is the world's: its own isn't rolled.
     clickHex('7,7')
-    const day = editor.map.worldWeather!.day
+    const day = editor.campaign.worldWeather!.day
     worldAct({ type: 'advance', minutes: 60 })
-    expect(editor.map.worldWeather!.day).toBe(day)
+    expect(editor.campaign.worldWeather!.day).toBe(day)
   })
 
   it('their land is painted by hand from the World panel: claimed from others, or given up', () => {
     grey()
-    const land = (id: string) => editor.map.factions!.territories[id]
+    const land = (id: string) => editor.factionsOnMap!.territories[id]
     expect(land('fort-keld')).toEqual(['15,9'])
     // With the brush on and the World panel open, the map's clicks paint.
     editor.panelView = 'world'
@@ -877,7 +894,7 @@ describe('the powers of the Marches: factions on the map', () => {
     // A right click gives it up: nobody's.
     tool.down(at(vale), { ...info, button: 2 })
     tool.up()
-    expect(Object.values(editor.map.factions!.territories).flat()).not.toContain(vale)
+    expect(Object.values(editor.factionsOnMap!.territories).flat()).not.toContain(vale)
     // Water stays nobody's.
     const water = new Set(editor.map.terrains.filter((t) => t.water).map((t) => t.id))
     const lake = Object.entries(editor.map.hexes).find(
@@ -895,17 +912,17 @@ describe('the powers of the Marches: factions on the map', () => {
   it('a map without them can bring the system’s, and take them off', () => {
     grey()
     removeFactions()
-    expect(editor.map.factions).toBeUndefined()
+    expect(editor.factionsOnMap).toBeUndefined()
     bringFactions()
-    expect(editor.map.factions!.territories['the-vale'].length).toBeGreaterThan(10)
+    expect(editor.factionsOnMap!.territories['the-vale'].length).toBeGreaterThan(10)
   })
 })
 
 describe('the threats of the Marches: progress clocks the system declares', () => {
   const grey = () =>
-    editor.load(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
-  const clock = (ref: string) => editor.map.world!.clocks.find((c) => c.ref === ref)
-  const faction = (id: string) => editor.map.factions!.factions.find((f) => f.id === id)!
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+  const clock = (ref: string) => editor.campaign.world!.clocks.find((c) => c.ref === ref)
+  const faction = (id: string) => editor.factionsOnMap!.factions.find((f) => f.id === id)!
   beforeEach(() => {
     let seed = 7
     vi.spyOn(Math, 'random').mockImplementation(() => {
@@ -917,7 +934,7 @@ describe('the threats of the Marches: progress clocks the system declares', () =
 
   it('the example map has them, by their declared ids whatever they are called', () => {
     grey()
-    expect(editor.map.world!.clocks.map((c) => [c.ref, c.filled, c.segments])).toEqual([
+    expect(editor.campaign.world!.clocks.map((c) => [c.ref, c.filled, c.segments])).toEqual([
       ['the-greywood-wyrm-wakes', 1, 6],
       ['fort-keld-mutinies', 3, 8],
       ['the-iron-clans-march', 1, 6],
@@ -942,7 +959,7 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     expect(faction('iron-clans').conditions).toHaveProperty('at-war')
     expect(faction('fort-keld').values.strength).toBe(strength - 1)
     expect(clock('fort-keld-mutinies')!.filled).toBe(5)
-    const lines = editor.map.world!.timeline.map((e) => e.text ?? e.code)
+    const lines = editor.campaign.world!.timeline.map((e) => e.text ?? e.code)
     expect(lines).toContain('The Iron Clans march: The Clans march on Fort Keld. It starts over.')
     expect(toasts.at(-1)?.message).toMatch(/^The Iron Clans march: filled! The Clans march/)
     // It may fill again.
@@ -958,9 +975,11 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     expect(clock('the-iron-clans-march')!.filled).toBe(0)
     expect(clock('fort-keld-mutinies')).toBeUndefined()
     expect(faction('fort-keld').values.strength).toBe(0)
-    expect(editor.map.factions!.territories['fort-keld']).toEqual([])
+    expect(editor.factionsOnMap!.territories['fort-keld']).toEqual([])
     expect(
-      editor.map.world!.timeline.some((e) => /garrison mutinies and scatters/.test(e.text ?? '')),
+      editor.campaign.world!.timeline.some((e) =>
+        /garrison mutinies and scatters/.test(e.text ?? ''),
+      ),
     ).toBe(true)
     // Brought back by hand, as it starts.
     bringClocks()
@@ -973,7 +992,7 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     const clans = faction('iron-clans').values.strength
     applyWorldEffects({ 'world.clocks.the-greywood-wyrm-wakes': 5 })
     expect(clock('the-greywood-wyrm-wakes')!.filled).toBe(6)
-    const line = editor.map.world!.timeline.find((e) =>
+    const line = editor.campaign.world!.timeline.find((e) =>
       /^The Greywood Wyrm wakes: /.test(e.text ?? ''),
     )!
     expect(line.text).toMatch(
@@ -990,16 +1009,16 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     ]).toContainEqual(changes)
     expect(rollContext()).toMatchObject({ clocks: { 'the-greywood-wyrm-wakes': 6 } })
     // Full, it stays so: more doesn't wake it again.
-    const count = editor.map.world!.timeline.length
+    const count = editor.campaign.world!.timeline.length
     applyWorldEffects({ 'world.clocks.the-greywood-wyrm-wakes': 1 })
-    expect(editor.map.world!.timeline.length).toBe(count)
+    expect(editor.campaign.world!.timeline.length).toBe(count)
   })
 
   it('a new world clock starts with the system’s clocks; a map without them can bring them', () => {
     grey()
     stopWorld()
     startWorld()
-    expect(editor.map.world!.clocks.map((c) => c.ref)).toEqual([
+    expect(editor.campaign.world!.clocks.map((c) => c.ref)).toEqual([
       'the-greywood-wyrm-wakes',
       'the-iron-clans-march',
       'fort-keld-mutinies',
@@ -1011,6 +1030,6 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     // The generic system declares none.
     editor.load(createMap())
     startWorld()
-    expect(editor.map.world!.clocks).toEqual([])
+    expect(editor.campaign.world!.clocks).toEqual([])
   })
 })

@@ -1,7 +1,5 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
-import type { WorldState } from '@open-tabletop/world-engine'
 import { type CoordFormat, type HexKey, type Orientation } from '@open-tabletop/hex'
-import type { HistoryItem, OracleState } from '@open-tabletop/oracle-engine'
 import type { PaperId, Size } from './paper'
 
 export type { CoordFormat, HexKey, Orientation }
@@ -213,25 +211,6 @@ export interface MapToken {
   character?: Omit<CharacterState, 'id' | 'name'>
 }
 
-/**
- * The factions on a map: those of the system they were brought from (`system`), each as a
- * character of its factions' sheet, the hexes each holds, the last world turn, and whether
- * turns come by themselves with the world clock (`auto: false`: only by hand).
- */
-export interface MapFactions {
-  system: string
-  factions: CharacterState[]
-  territories: Record<string, string[]>
-  lastTurn: number
-  auto?: false
-}
-
-/** Oracle state (decks drawn, once-only entries, values set) and the history of hand rolls. */
-export interface MapOracle {
-  state: OracleState
-  history: HistoryItem[]
-}
-
 /** Play mode: the party (the `party` token) travelling on the map. */
 export interface PlayState {
   /** 'simple': move the token freely. 'rules': the Travel Engine and Oracle drive the trip. */
@@ -351,6 +330,12 @@ export interface MapMeta {
    * both); absent = every loaded pack.
    */
   packs?: string[]
+  /**
+   * The campaign the map belongs to (its id): the world clock, its weather, the factions'
+   * sheets and the Oracle state live there (`@open-tabletop/campaign`), shared by its maps.
+   * A new map, and every map saved before campaigns, has one of its own.
+   */
+  campaign: string
 }
 
 export interface HexMap {
@@ -375,18 +360,11 @@ export interface HexMap {
   regionStyle: RegionStyle
   layers: Record<LayerId, LayerState>
   play?: PlayState
-  /** The Oracle on this map: hand rolls and trip checks share its decks and once-only entries. */
-  oracle?: MapOracle
-  /** The world clock of the campaign on this map (time, scheduled events, progress clocks). */
-  world?: WorldState
-  /** The factions of the map's system on this map: their sheets, territory and turns. */
-  factions?: MapFactions
   /**
-   * The world clock's own weather, rolled each day on the map system's weather model while
-   * no trip is going on (a trip's weather is the trip's): the kind, the day it's for, and
-   * where it is on a hex flower.
+   * The land each faction of the map's campaign holds on this map (faction id → hexes); the
+   * factions themselves (their sheets, the last turn) are the campaign's.
    */
-  worldWeather?: { weather: string; day: number; at?: string }
+  territories?: Record<string, string[]>
   /**
    * OTD data this app doesn't understand (other tools' ext namespaces, parties, log…),
    * kept verbatim so saving never loses it.

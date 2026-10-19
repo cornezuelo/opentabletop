@@ -50,10 +50,10 @@ describe('example maps', () => {
     })
     for (const example of EXAMPLE_MAPS) {
       expect(validateBundle(JSON.parse(example.json)).errors).toEqual([])
-      expect(parseMapFile(example.json).meta.id).toBe(example.id)
+      expect(parseMapFile(example.json).map.meta.id).toBe(example.id)
     }
     // Nothing is dropped on the way in (ids the editor accepts).
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map, campaign } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     expect(map.tokens.map((t) => t.kind).sort()).toEqual(['enemy', 'npc', 'party'])
     expect(map.regions.map((r) => r.name)).toEqual([
       'Ashford Vale',
@@ -62,8 +62,8 @@ describe('example maps', () => {
     ])
     expect(Object.values(map.hexes).filter((h) => h.region).length).toBe(224)
     // The world clock is running: events to come and progress clocks.
-    expect(map.world?.events.map((e) => e.name)).toContain('The Iron Clans march on Fort Keld')
-    expect(map.world?.clocks.map((c) => `${c.name} ${c.filled}/${c.segments}`)).toEqual([
+    expect(campaign.world?.events.map((e) => e.name)).toContain('The Iron Clans march on Fort Keld')
+    expect(campaign.world?.clocks.map((c) => `${c.name} ${c.filled}/${c.segments}`)).toEqual([
       'The Greywood Wyrm wakes 1/6',
       'Fort Keld’s unpaid garrison mutinies 3/8',
       'The Iron Clans march 1/6',
@@ -83,7 +83,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches play on their map: the road to Fort Keld pays the toll', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -115,7 +115,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -148,7 +148,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches: camp is an action of steps, being lost a value they declare', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -193,7 +193,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches: foraging is an action of their own, once a day', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -221,7 +221,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches: by night the party camps, or marches on in the dark', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -269,7 +269,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches: the party’s values drive hunger and the inn', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -324,7 +324,7 @@ describe('example maps', () => {
     expect(midsummer.holidays.map((h) => h.id)).toEqual(['midsummer'])
     // The first check of the day (the weather at dawn) sees the date.
     const engine = createTravelEngine({
-      world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json)),
+      world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json).map),
       rules: system.rules,
       calendar: system.calendar,
     })
@@ -353,7 +353,7 @@ describe('example maps', () => {
     expect(Object.keys(system.weather ?? {})).toEqual(['grey-marches/sky'])
     const options = {
       system,
-      world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json)),
+      world: mapWorld(parseMapFile(EXAMPLE_MAPS[0].json).map),
       oracle: createOracleEngine({ registry, random: seeded('sky') }),
       locale: 'en',
       // The weather model's rolls too (without it, Math.random: a different run each time).
@@ -383,7 +383,7 @@ describe('example maps', () => {
   })
 
   it('the Grey Marches: only the boat crosses the Saltmere', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
         path: path.slice(path.indexOf('grey-marches/')),
@@ -410,7 +410,7 @@ describe('example maps', () => {
   })
 
   it('values: a region gives danger to its hexes, a hex can override it, icons add theirs', () => {
-    const map = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const world = mapWorld(map)
     expect(world.cell('10,7')).toMatchObject({ region: 'The Greywood', danger: 2 })
     expect(world.cell('14,3')).toMatchObject({ region: 'The Greywood', danger: 5 })

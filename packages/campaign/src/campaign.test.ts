@@ -1,0 +1,171 @@
+import { createMap, serializeMap, type HexMap } from '@open-tabletop/map'
+import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
+import { seeded } from '@open-tabletop/random'
+import { travelSystems } from '@open-tabletop/session'
+import { describe, expect, it } from 'vitest'
+import {
+  bringFactions,
+  CAMPAIGN_VERSION,
+  CampaignFormatError,
+  createCampaign,
+  deserializeCampaign,
+  factionsOn,
+  openMap,
+  serializeCampaign,
+  splitFactions,
+  worldTurnOn,
+  type Campaign,
+} from './index'
+
+/** Two factions: the clans in the hills (a region), the vale on one hex. */
+const PACK = [
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
+  { path: 'marks/system.yaml', content: 'kind: system\nname: Marks\nfactions: default\n' },
+  {
+    path: 'marks/factions.yaml',
+    content: `
+kind: sheet
+id: faction
+values:
+  strength: { default: 2, min: 0, max: 6 }
+---
+kind: factions
+id: default
+sheet: faction
+turn: turn
+factions:
+  clans:
+    values: { strength: 4 }
+    territory: { regions: [Hills] }
+  vale:
+    territory: { hexes: ['1,1'] }
+---
+kind: table
+id: turn
+roll: 1d1
+entries:
+  - range: 1
+    result: Pushes on
+    effects: { faction.territory: 1, faction.values.strength: -1, world.clocks.march: 1 }
+`,
+  },
+]
+
+const { registry } = loadPacks(PACK)
+const marks = travelSystems(registry).systems.find((s) => s.id === 'marks')!
+const oracle = createOracleEngine({ registry, random: seeded(1) })
+
+/** A small map with a region named Hills on two hexes. */
+function hillsMap(campaign?: string): HexMap {
+  const map = createMap('North')
+  map.grid = { ...map.grid, width: 6, height: 6 }
+  map.regions = [{ id: 'r1', name: 'Hills', color: '#888888' }]
+  map.hexes['4,4'] = { region: 'r1' }
+  map.hexes['4,5'] = { region: 'r1' }
+  if (campaign) map.meta.campaign = campaign
+  return map
+}
+
+describe('campaigns', () => {
+  it('read back what they wrote, and refuse what is not one', () => {
+    const campaign: Campaign = {
+      ...createCampaign('c1', 'The Marches', '2026-10-19T10:00:00.000Z'),
+      noteRef: 'Campaigns/Marches',
+      world: { time: 1440, events: [], clocks: [], timeline: [], nextId: 1 },
+      worldWeather: { weather: 'rain', day: 2 },
+      factions: { system: 'marks', factions: [], lastTurn: 0, auto: false },
+      oracle: { state: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} }, history: [] },
+    }
+    expect(deserializeCampaign(serializeCampaign(campaign))).toEqual(campaign)
+    expect(campaign.version).toBe(CAMPAIGN_VERSION)
+    expect(() => deserializeCampaign('{oops')).toThrow(CampaignFormatError)
+    expect(() => deserializeCampaign('{"version":1}')).toThrow(CampaignFormatError)
+    const newer = JSON.stringify({ ...campaign, version: CAMPAIGN_VERSION + 1 })
+    expect(() => deserializeCampaign(newer)).toThrow(/newerVersion/)
+  })
+
+  it('a map saved before campaigns makes one of its own, with its world', () => {
+    const map = createMap('Old map')
+    const world = { time: 2880, events: [], clocks: [], timeline: [], nextId: 3 }
+    const factions = {
+      system: 'marks',
+      factions: [{ id: 'clans', sheet: 'marks/faction', values: { strength: 3 } }],
+      territories: { clans: ['4,4'] },
+      lastTurn: 1440,
+    }
+    const oracle = { state: { decks: {}, occurrences: {}, vars: { x: 1 } }, history: [] }
+    const old = { ...JSON.parse(serializeMap(map)), version: 23, world, factions, oracle }
+    delete old.meta.campaign
+    const opened = openMap(JSON.stringify(old))
+    expect(opened.map.meta.campaign).toBe(map.meta.id)
+    expect(opened.map.territories).toEqual({ clans: ['4,4'] })
+    expect(opened.campaign).toMatchObject({
+      id: map.meta.id,
+      name: 'Old map',
+      world,
+      oracle,
+      factions: { system: 'marks', factions: factions.factions, lastTurn: 1440 },
+    })
+    expect(opened.campaign?.factions).not.toHaveProperty('territories')
+    // Its factions as the map sees them: the campaign's, with their land here.
+    expect(factionsOn(opened.campaign!, opened.map)?.territories).toEqual({ clans: ['4,4'] })
+    // Saved again, the map brings nothing: its campaign is kept apart.
+    expect(openMap(serializeMap(opened.map)).campaign).toBeUndefined()
+  })
+
+  it('keep the factions’ sheets, and each map the land they hold on it', () => {
+    const map = hillsMap('c1')
+    const campaign = createCampaign('c1')
+    const here = bringFactions(campaign, map, marks.factions!, 'marks', 60)
+    expect(here.territories).toEqual({ clans: ['4,4', '4,5'], vale: ['1,1'] })
+    expect(here.lastTurn).toBe(60)
+    const split = splitFactions(here)
+    expect(split.factions).toEqual({
+      system: 'marks',
+      factions: here.factions,
+      lastTurn: 60,
+    })
+    const withThem = { ...campaign, factions: split.factions }
+    // A second map of the campaign: the same sheets, its own land (none for the vale, whose
+    // hex it doesn't have).
+    const south = hillsMap('c1')
+    south.grid = { ...south.grid, width: 1, height: 1 }
+    south.hexes = { '0,0': { region: 'r1' } }
+    const there = bringFactions(withThem, south, marks.factions!, 'marks', 600)
+    expect(there.factions).toBe(withThem.factions!.factions)
+    expect(there.lastTurn).toBe(60)
+    expect(there.territories).toEqual({ clans: ['0,0'] })
+    // The land of a faction the campaign no longer has is not shown.
+    const gone = { ...withThem, factions: { ...split.factions!, factions: [] } }
+    expect(factionsOn(gone, { ...map, territories: split.territories })?.territories).toEqual({})
+  })
+
+  it('play a world turn on a map: sheets and Oracle in the campaign, land on the map', () => {
+    const map = hillsMap('c1')
+    const start = bringFactions(createCampaign('c1'), map, marks.factions!, 'marks', 0)
+    const split = splitFactions(start)
+    const done = worldTurnOn(
+      {
+        campaign: { ...createCampaign('c1'), factions: split.factions },
+        map: { ...map, ...split },
+      },
+      { system: marks.factions!, oracle, random: seeded(7), time: 1440 },
+    )
+    expect(done.lines.map((l) => [l.faction, l.text])).toEqual([
+      ['clans', 'Pushes on'],
+      ['vale', 'Pushes on'],
+    ])
+    expect(done.campaign.factions?.lastTurn).toBe(1440)
+    expect(done.campaign.factions?.factions[0].values.strength).toBe(3)
+    expect(done.campaign.oracle).toBeDefined()
+    expect(done.map.territories?.clans).toHaveLength(3)
+    expect(done.map.territories?.vale).toHaveLength(2)
+    expect(done.ticks).toEqual({ march: 2 })
+    // Without factions, nothing happens.
+    const none = worldTurnOn(
+      { campaign: createCampaign('c2'), map },
+      { system: marks.factions!, oracle, random: seeded(7), time: 1 },
+    )
+    expect(none.lines).toEqual([])
+  })
+})

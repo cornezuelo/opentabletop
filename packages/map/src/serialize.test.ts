@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CURRENT_VERSION, createMap } from './defaults'
 import { MapFormatError } from './migrations'
-import { deserializeMap, serializeMap } from './serialize'
+import { deserializeMap, readMap, serializeMap } from './serialize'
 
 describe('serialize', () => {
   it('round-trips a map', () => {
@@ -74,13 +74,36 @@ describe('serialize', () => {
         },
       },
     }
-    const map = deserializeMap(JSON.stringify(v5))
+    const { map, campaign } = readMap(JSON.stringify(v5))
     expect(map.version).toBe(CURRENT_VERSION)
-    expect(map.oracle).toEqual({
+    // …and since v24 the campaign's.
+    expect(campaign.oracle).toEqual({
       state: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} },
       history: [],
     })
-    expect(deserializeMap(JSON.stringify({ ...v5, play: undefined })).oracle).toBeUndefined()
+    expect(readMap(JSON.stringify({ ...v5, play: undefined })).campaign.oracle).toBeUndefined()
+  })
+
+  it('v24: the world goes to a campaign of its own; the land stays on the map', () => {
+    const world = { time: 1440, events: [], clocks: [], timeline: [], nextId: 1 }
+    const factions = {
+      system: 'grey-marches',
+      factions: [],
+      territories: { clans: ['1,1', 'x'] },
+      lastTurn: 0,
+    }
+    const v23 = { ...JSON.parse(serializeMap(createMap())), version: 23, world, factions }
+    delete v23.meta.campaign
+    const { map, campaign } = readMap(JSON.stringify(v23))
+    expect(map.meta.campaign).toBe(map.meta.id)
+    expect(map.territories).toEqual({ clans: ['1,1'] })
+    expect(campaign).toEqual({
+      world,
+      factions: { ...factions, territories: factions.territories },
+    })
+    expect('world' in map).toBe(false)
+    // A map saved with campaigns brings nothing for one.
+    expect(readMap(serializeMap(map)).campaign).toEqual({})
   })
 
   it('keeps tokens with a malformed id, giving them a new one', () => {

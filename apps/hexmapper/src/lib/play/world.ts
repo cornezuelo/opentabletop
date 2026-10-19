@@ -26,7 +26,7 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
       }
     }
   const cell = (hex: string) => parseKey(hex as HexKey)
-  const territories = map.factions?.territories ?? {}
+  const territories = map.territories ?? {}
   const holder = (hex: string) =>
     Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))

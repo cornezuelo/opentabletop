@@ -19,10 +19,12 @@ describe('backups', () => {
     expect(isAppKey('opentabletop.userPacks')).toBe(true)
     expect(isAppKey('hexmapper.preferences')).toBe(true)
     expect(isAppKey('hexmapper.pending')).toBe(false)
+    expect(isAppKey('hexmapper.pendingCampaign')).toBe(false)
     expect(isAppKey('someone-else')).toBe(false)
     const backup = createBackup(
       { 'opentabletop.locale': 'es', 'hexmapper.pending': '{}', other: 'x' },
       [map('a', '2026-10-01')],
+      [],
       new Date(2026, 9, 7, 1).toISOString(),
     )
     expect(backup.storage).toEqual({ 'opentabletop.locale': 'es' })
@@ -30,7 +32,11 @@ describe('backups', () => {
   })
 
   it('read back what they wrote and reject what isn’t one', () => {
-    const backup = createBackup({ [USER_PACKS_KEY]: packs('mine') }, [map('a', '2026-10-01')])
+    const backup = createBackup(
+      { [USER_PACKS_KEY]: packs('mine') },
+      [map('a', '2026-10-01')],
+      [map('c', '2026-10-01')],
+    )
     expect(parseBackup(JSON.stringify(backup)).backup).toEqual(backup)
     expect(summarize(backup)).toMatchObject({ maps: 1, packs: 1 })
     expect(parseBackup('{oops').error).toBe('invalid')
@@ -41,6 +47,17 @@ describe('backups', () => {
     const parsed = parseBackup(JSON.stringify(messy)).backup!
     expect(parsed.maps.map((m) => m.id)).toEqual(['b'])
     expect(parsed.storage).toEqual({})
+  })
+
+  it('read those made before campaigns, with none', () => {
+    const v1 = { ...createBackup({}, [map('a', '2026-10-01')], []), version: 1 } as Record<
+      string,
+      unknown
+    >
+    delete v1.campaigns
+    const parsed = parseBackup(JSON.stringify(v1)).backup!
+    expect(parsed.maps.map((m) => m.id)).toEqual(['a'])
+    expect(parsed.campaigns).toEqual([])
   })
 })
 
@@ -53,6 +70,7 @@ describe('restoring', () => {
       [FAVORITES_KEY]: JSON.stringify(['core/a']),
     },
     maps: [map('old', '2026-10-05'), map('both', '2026-10-06')],
+    campaigns: [map('gone', '2026-10-05'), map('mine', '2026-10-09')],
   }
   const backup = createBackup(
     {
@@ -61,6 +79,7 @@ describe('restoring', () => {
       [FAVORITES_KEY]: JSON.stringify(['core/b']),
     },
     [map('both', '2026-10-01'), map('new', '2026-10-02')],
+    [map('mine', '2026-10-01'), map('theirs', '2026-10-01')],
   )
 
   it('replace: this browser ends up like the backup', () => {
@@ -72,6 +91,8 @@ describe('restoring', () => {
     })
     expect(plan.putMaps.map((m) => m.id)).toEqual(['both', 'new'])
     expect(plan.removeMaps).toEqual(['old'])
+    expect(plan.putCampaigns.map((c) => c.id)).toEqual(['mine', 'theirs'])
+    expect(plan.removeCampaigns).toEqual(['gone'])
   })
 
   it('merge: adds the backup, keeping newer maps and joining packs and favorites', () => {
@@ -79,6 +100,9 @@ describe('restoring', () => {
     // Mine is newer than the backup's "both".
     expect(plan.putMaps.map((m) => m.id)).toEqual(['new'])
     expect(plan.removeMaps).toEqual([])
+    // …and campaigns the same way.
+    expect(plan.putCampaigns.map((c) => c.id)).toEqual(['theirs'])
+    expect(plan.removeCampaigns).toEqual([])
     expect(plan.storage['opentabletop.locale']).toBeUndefined()
     expect(plan.storage['opentabletop.travel.trip']).toBe('{}')
     const merged = JSON.parse(plan.storage[USER_PACKS_KEY]!) as { root: string; files: [] }[]
@@ -99,6 +123,7 @@ describe('restoring', () => {
     const here = {
       storage: { [ROSTER_KEY]: roster(['kael', '2026-10-05', 3], ['mara', '2026-10-01', 5]) },
       maps: [],
+      campaigns: [],
     }
     const theirs = createBackup(
       {
@@ -108,6 +133,7 @@ describe('restoring', () => {
           ['tobin', 'T', 2],
         ),
       },
+      [],
       [],
     )
     const merged = JSON.parse(planRestore(here, theirs, 'merge').storage[ROSTER_KEY]!) as {

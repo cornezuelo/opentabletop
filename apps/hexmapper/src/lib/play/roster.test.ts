@@ -20,7 +20,7 @@ import { mapPlace, pullMap, tokenPlace } from './roster'
  * token kept in it, written back as the map plays, and brought up to date from it.
  */
 const grey = () =>
-  editor.load(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
+  editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
 const trip = () => sessionOf(editor.map.play!)!
 const kaelHere = () => trip().members!.find((m) => m.id === 'kael')!
 
@@ -76,7 +76,7 @@ describe('the map and the roster', () => {
 
     // Saved and opened again: still linked, and nothing to catch up with.
     const entries = trip().journal.length
-    editor.load(deserializeMap(serializeMap(editor.map)))
+    editor.load(deserializeMap(serializeMap(editor.map)), editor.campaign)
     expect(isLinked(roster.roster, 'kael', mapPlace())).toBe(true)
     expect(trip().journal.length).toBe(entries)
 

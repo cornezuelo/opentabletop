@@ -124,7 +124,7 @@ function newSession(
     members:
       play.rules?.system === system ? (sessionOf(play)?.members ?? play.rules.members) : undefined,
     // With the world clock running, trips start at the world's time.
-    ...(editor.map.world && { time: editor.map.world.time }),
+    ...(editor.campaign.world && { time: editor.campaign.world.time }),
     // What the trip's rolls in conditions are seeded with: each trip its own.
     seed: Math.random().toString(36).slice(2, 10),
   })
@@ -194,7 +194,7 @@ export function step(action: TravelAction): void {
     facts: worldFactsNow(),
   }
   // Checks roll with the map's Oracle state, the same one hand rolls use.
-  const shared = editor.map.oracle
+  const shared = editor.campaign.oracle
   let result
   try {
     result = stepTrip(options, shared ? { ...session, oracle: shared.state } : session, action)

@@ -1,19 +1,12 @@
 import type { HexMap } from './types'
 
 /**
- * The parts of a map that change by playing (a trip, the world clock, factions, the Oracle,
- * roster characters on tokens, which layers show), saved with the map but outside the
- * editor's undo history. Other apps (the Campaign app, the Characters app) change only these.
+ * The parts of a map that change by playing (a trip, the factions' land, roster characters
+ * on tokens, which layers show), saved with the map but outside the editor's undo history.
+ * Other apps (the Campaign app, the Characters app) change only these. (The world clock,
+ * the factions' sheets and the Oracle are the campaign's.)
  */
-export const PLAY_PARTS = [
-  'play',
-  'oracle',
-  'world',
-  'worldWeather',
-  'factions',
-  'tokens',
-  'layers',
-] as const
+export const PLAY_PARTS = ['play', 'territories', 'tokens', 'layers'] as const
 
 export type PlayPart = (typeof PLAY_PARTS)[number]
 

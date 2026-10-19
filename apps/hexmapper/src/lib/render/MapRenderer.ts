@@ -544,7 +544,7 @@ export class MapRenderer {
   /** Each faction's hexes in its colour: a light tint and an outline where its land ends. */
   private drawFactions(): void {
     const g = this.factionShapes.clear()
-    const own = editor.map.factions
+    const own = editor.factionsOnMap
     if (!own) return
     const { grid } = editor.map
     const hs = grid.hexSize

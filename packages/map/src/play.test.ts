@@ -15,10 +15,10 @@ describe('playChanges', () => {
   it('names the play parts another app changed, whenever it saved', () => {
     const map = createMap()
     const other = reread(map)
-    other.world = { time: 1440, events: [], clocks: [], timeline: [], nextId: 1 }
+    other.territories = { clans: ['3,4'] }
     other.layers.grid = { ...other.layers.grid, visible: !other.layers.grid.visible }
     other.meta.modified = '2099-01-01T00:00:00.000Z'
-    expect(playChanges(map, other)).toEqual(['world', 'layers'])
+    expect(playChanges(map, other)).toEqual(['territories', 'layers'])
   })
 
   it('says the map itself changed when hexes or settings differ', () => {

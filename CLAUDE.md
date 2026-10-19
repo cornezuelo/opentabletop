@@ -38,8 +38,9 @@ packages/                   # libraries, scope @open-tabletop/*
   faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations
   map/                      # the map model: types, format, migrations and serializing, shared by the apps that read maps
+  campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, world turns
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
-  storage/                  # browser storage adapter: the map library (IndexedDB), backups of everything
+  storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
   pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
@@ -74,7 +75,7 @@ docs/
 **Allowed dependencies** (top to bottom, never upwards):
 
 ```
-apps  →  *-ui, ui-kit  →  map  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
+apps  →  *-ui, ui-kit  →  campaign  →  map  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
                                                  ↘ schema (types/validation of persisted data only)
 ```
 
@@ -152,7 +153,7 @@ FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
 - **Browser storage keys start with `opentabletop.`** (or the legacy `hexmapper.`), so backups (`@open-tabletop/storage`) include them; data in IndexedDB must be added to the backup explicitly. An app that saves on its own (autosave on page hide) registers `onBeforeBackup` / `onBeforeRestore`.
-- **Every persisted format change** (maps, saved trips) bumps the version and adds a migration. Every release keeps its stored maps and Travel's saved trips with trips going on (`make old-maps`, `old-maps.test.ts`, `old-trips.test.ts`): they must keep opening in Play (or Travel) and playing on, so a change that breaks one is fixed with a migration, never by regenerating them.
+- **Every persisted format change** (maps, campaigns, saved trips) bumps the version and adds a migration. Every release keeps its stored maps and Travel's saved trips with trips going on (`make old-maps`, `old-maps.test.ts`, `old-trips.test.ts`): they must keep opening in Play (or Travel) and playing on, so a change that breaks one is fixed with a migration, never by regenerating them.
 - **Pack syntax never changes meaning silently:** if existing YAML would mean something else, bump `PACK_FORMAT` (oracle-engine), add its row to the formats table in File formats, and move our packs (Core, the Grey Marches, Kal-Arath in `packs-private/`) to the new format in the same work. **For now (decided 2026-10-18, while nobody else writes packs) older pack formats are not read**: engines and schemas know only today's syntax, no code reads the old meaning, and a pack of an older format is refused with a clear message. Migrating other people's packs (at the edge, rewriting their files once, never in the engines) is deferred until the formats are stable (backlog). New keys that change nothing old need no bump. Saved maps, trips and backups are the user's data: they always keep their migrations (below).
 
 **Bundled packs**

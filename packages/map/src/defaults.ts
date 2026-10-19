@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 23
+export const CURRENT_VERSION = 24
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -270,9 +270,11 @@ export function defaultLayers(): Record<LayerId, LayerState> {
 
 export function createMap(name = ''): HexMap {
   const now = new Date().toISOString()
+  const id = newId()
   return {
     version: CURRENT_VERSION,
-    meta: { id: newId(), name, created: now, modified: now },
+    // A new map makes a campaign of its own.
+    meta: { id, name, created: now, modified: now, campaign: id },
     grid: { ...DEFAULT_GRID },
     scale: {},
     print: structuredClone(DEFAULT_PRINT),

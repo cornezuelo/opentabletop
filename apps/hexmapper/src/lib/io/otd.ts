@@ -13,9 +13,9 @@ import {
 } from '@open-tabletop/schema'
 import { characterFromOtd, characterToOtd, type SessionState } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
+import { createCampaign, factionsOn, openMap, type Campaign } from '@open-tabletop/campaign'
 import {
   type CustomField,
-  deserializeMap,
   type HexData,
   type HexIcon,
   type HexKey,
@@ -143,15 +143,34 @@ interface HexmapperExt {
   icons: Record<string, HexIcon>
   /** How hex names are shown, per hex (only hexes that differ from the map's style). */
   names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle'>>>
-  /** Hand rolls made on this map (the Oracle state itself is the bundle's state.oracle). */
-  oracleHistory?: NonNullable<HexMap['oracle']>['history']
+  /** The campaign's hand rolls (the Oracle state itself is the bundle's state.oracle). */
+  oracleHistory?: NonNullable<Campaign['oracle']>['history']
+}
+
+/** A map read from a file, with its campaign. */
+export interface OpenedMap {
+  map: HexMap
+  campaign: Campaign
+}
+
+/** What the campaign entity of a bundle keeps of ours besides its name and note. */
+interface CampaignExt {
+  created?: string
+  modified?: string
 }
 
 const BUNDLE_KEYS = ['otd', 'maps', 'pois'] as const
 
-/** Converts the editor model into an OTD bundle (data other tools understand). */
-export function mapToBundle(map: HexMap): OtdBundle {
+/**
+ * Converts the editor model into an OTD bundle (data other tools understand): the map with
+ * its campaign (the world clock, the factions, the Oracle), so the file stands on its own.
+ */
+export function mapToBundle(
+  map: HexMap,
+  campaign: Campaign = createCampaign(map.meta.campaign, map.meta.name),
+): OtdBundle {
   const foreign = map.foreign ?? {}
+  const factions = factionsOn(campaign, map)
   const icons: Record<string, HexIcon> = {}
   const names: NonNullable<HexmapperExt['names']> = {}
   const hexes: Record<string, OtdHex> = {}
@@ -202,7 +221,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
     assets: map.assets,
     icons,
     ...(Object.keys(names).length && { names }),
-    ...(map.oracle?.history.length && { oracleHistory: map.oracle.history }),
+    ...(campaign.oracle?.history.length && { oracleHistory: campaign.oracle.history }),
   }
   const otdMap: OtdMap = {
     id: map.meta.id,
@@ -224,8 +243,8 @@ export function mapToBundle(map: HexMap): OtdBundle {
   const otherMaps = Array.isArray(extra.maps) ? (extra.maps as OtdMap[]) : []
   const otherPois = Array.isArray(extra.pois) ? (extra.pois as OtdPoi[]) : []
   const play = playToOtd(map)
-  // The map's Oracle (shared by hand rolls and trips); older saves kept it in the trip.
-  const oracle = map.oracle?.state ?? play?.oracle
+  // The campaign's Oracle (shared by hand rolls and trips); older saves kept it in the trip.
+  const oracle = campaign.oracle?.state ?? play?.oracle
   const characters = [
     ...tokensToOtd(map),
     ...(play?.members ?? []),
@@ -238,6 +257,17 @@ export function mapToBundle(map: HexMap): OtdBundle {
     log: [],
     ...extra,
     otd: OTD_VERSION,
+    campaign: {
+      id: campaign.id,
+      type: 'campaign',
+      ...(campaign.name && { name: campaign.name }),
+      ...(campaign.noteRef && { noteRef: campaign.noteRef }),
+      ...(map.meta.system && { system: map.meta.system }),
+      ...(campaign.world && { time: campaign.world.time }),
+      ext: {
+        hexmapper: { created: campaign.created, modified: campaign.modified } satisfies CampaignExt,
+      },
+    },
     characters,
     maps: [otdMap, ...otherMaps],
     pois: [...pois, ...otherPois],
@@ -246,9 +276,9 @@ export function mapToBundle(map: HexMap): OtdBundle {
       log: [...play.log, ...((extra.log as OtdLogEntry[] | undefined) ?? [])],
     }),
     // The world clock: its progress clocks as OTD clocks, the rest as engine state.
-    ...(map.world && {
+    ...(campaign.world && {
       clocks: [
-        ...map.world.clocks.map((c): OtdClock => ({
+        ...campaign.world.clocks.map((c): OtdClock => ({
           id: c.id,
           type: 'clock',
           name: c.name,
@@ -262,9 +292,9 @@ export function mapToBundle(map: HexMap): OtdBundle {
     }),
     // The factions: each as an OTD faction (its values as `stats`, its sheet and territory in
     // `ext`), the rest (their system, the last turn) as engine state.
-    ...(map.factions && {
+    ...(factions && {
       factions: [
-        ...map.factions.factions.map((f) => {
+        ...factions.factions.map((f) => {
           const as = characterToOtd(f)
           return {
             id: f.id,
@@ -273,7 +303,7 @@ export function mapToBundle(map: HexMap): OtdBundle {
             stats: as.stats,
             ext: {
               character: as.ext.character,
-              hexmapper: { territory: map.factions!.territories[f.id] ?? [] },
+              hexmapper: { territory: factions.territories[f.id] ?? [] },
             },
           }
         }),
@@ -283,20 +313,20 @@ export function mapToBundle(map: HexMap): OtdBundle {
     state: {
       ...(extra.state as Record<string, unknown> | undefined),
       ...(oracle && { oracle }),
-      ...(map.worldWeather && { worldWeather: map.worldWeather }),
-      ...(map.factions && {
+      ...(campaign.worldWeather && { worldWeather: campaign.worldWeather }),
+      ...(factions && {
         factions: {
-          system: map.factions.system,
-          lastTurn: map.factions.lastTurn,
-          ...(map.factions.auto === false && { auto: false }),
+          system: factions.system,
+          lastTurn: factions.lastTurn,
+          ...(factions.auto === false && { auto: false }),
         },
       }),
-      ...(map.world && {
+      ...(campaign.world && {
         world: {
-          time: map.world.time,
-          events: map.world.events,
-          timeline: map.world.timeline,
-          nextId: map.world.nextId,
+          time: campaign.world.time,
+          events: campaign.world.events,
+          timeline: campaign.world.timeline,
+          nextId: campaign.world.nextId,
         },
       }),
     },
@@ -444,10 +474,11 @@ function playFromOtd(
 }
 
 /**
- * Reads the first map of an OTD bundle into the editor model. Everything else in the
+ * Reads the first map of an OTD bundle into the editor model, with its campaign (the
+ * bundle's, or one of its own for files saved before campaigns). Everything else in the
  * bundle (other maps, parties, log, other tools' ext data) is kept in `map.foreign`.
  */
-export function bundleToMap(raw: unknown): HexMap {
+export function bundleToMap(raw: unknown): OpenedMap {
   const { bundle, errors } = validateBundle(raw)
   if (!bundle) {
     if (errors.some((e) => e.includes('newer'))) throw new MapFormatError('newerVersion')
@@ -499,6 +530,8 @@ export function bundleToMap(raw: unknown): HexMap {
   const extraBundle: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(bundle))
     if (!(BUNDLE_KEYS as readonly string[]).includes(key)) extraBundle[key] = value
+  // The campaign is rebuilt from ours when saving.
+  delete extraBundle.campaign
   if (partyId) {
     // Our party and its journal are rebuilt from `play` when saving.
     extraBundle.parties = bundle.parties.filter((p) => p.id !== partyId)
@@ -566,6 +599,8 @@ export function bundleToMap(raw: unknown): HexMap {
       modified: ext.modified,
       ...(ext.system && { system: ext.system }),
       ...(ext.packs && { packs: ext.packs }),
+      // Files saved before campaigns have none: the map gets one of its own (migrations).
+      ...(bundle.campaign && { campaign: bundle.campaign.id }),
     },
     grid: {
       orientation: otdMap.grid.orientation,
@@ -590,7 +625,7 @@ export function bundleToMap(raw: unknown): HexMap {
     layers: ext.layers,
     ...(play && { play }),
     ...(world && { world }),
-    ...(factions && { factions }),
+    ...(factions && { factions, territories: factions.territories }),
     ...(isRecordLike(bundle.state.worldWeather) && { worldWeather: bundle.state.worldWeather }),
     ...((oracleState || ext.oracleHistory) && {
       oracle: { state: oracleState ?? {}, history: ext.oracleHistory ?? [] },
@@ -601,11 +636,21 @@ export function bundleToMap(raw: unknown): HexMap {
     },
   }
   // Reuse the editor's own sanitizing so imported data obeys the same rules.
-  return deserializeMap(JSON.stringify(internal))
+  const opened = openMap(JSON.stringify(internal))
+  const own = bundle.campaign
+  const times = (own?.ext as { hexmapper?: CampaignExt } | undefined)?.hexmapper
+  const campaign: Campaign = {
+    ...(opened.campaign ?? createCampaign(opened.map.meta.campaign, opened.map.meta.name)),
+    ...(own && { name: own.name ?? '' }),
+    ...(own?.noteRef && { noteRef: own.noteRef }),
+    ...(typeof times?.created === 'string' && { created: times.created }),
+    ...(typeof times?.modified === 'string' && { modified: times.modified }),
+  }
+  return { map: opened.map, campaign }
 }
 
 /** Parses a saved file (an OTD bundle). */
-export function parseMapFile(json: string): HexMap {
+export function parseMapFile(json: string): OpenedMap {
   let raw: unknown
   try {
     raw = JSON.parse(json)

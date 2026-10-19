@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { validateBundle } from '@open-tabletop/schema'
 import { createMap, serializeMap } from '@open-tabletop/map'
+import { createCampaign, type Campaign } from '@open-tabletop/campaign'
 import { bundleToMap, mapToBundle, parseMapFile } from './otd'
 
 function sampleMap() {
@@ -72,7 +73,7 @@ describe('OTD conversion', () => {
 
   it('round-trips through the bundle without losing editor data', () => {
     const original = sampleMap()
-    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(original))))
+    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(original)))).map
     expect(back.hexes).toEqual(original.hexes)
     expect(back.paths).toEqual(original.paths)
     expect(back.labels).toEqual(original.labels)
@@ -90,7 +91,7 @@ describe('OTD conversion', () => {
     bundle.log = [
       { id: 'l1', time: 0, at: '2026-10-06T00:00:00Z', source: 'oracle', code: 'TABLE_RESOLVED' },
     ]
-    const resaved = mapToBundle(bundleToMap(JSON.parse(JSON.stringify(bundle))))
+    const resaved = mapToBundle(bundleToMap(JSON.parse(JSON.stringify(bundle))).map)
     expect(resaved.maps[0].ext).toMatchObject({ travelTool: { fog: [1, 2] } })
     expect(resaved.parties).toEqual(bundle.parties)
     expect(resaved.log).toEqual(bundle.log)
@@ -98,7 +99,7 @@ describe('OTD conversion', () => {
 
   it('opens OTD bundles and rejects anything else', () => {
     const map = sampleMap()
-    expect(parseMapFile(JSON.stringify(mapToBundle(map))).meta.id).toBe(map.meta.id)
+    expect(parseMapFile(JSON.stringify(mapToBundle(map))).map.meta.id).toBe(map.meta.id)
     expect(() => parseMapFile(serializeMap(map))).toThrowError(
       expect.objectContaining({ code: 'invalid' }),
     )
@@ -187,7 +188,7 @@ describe('play state in OTD', () => {
     expect(bundle.log).toHaveLength(1)
     expect(bundle.state.oracle).toEqual({ decks: {}, occurrences: { 'x/y#z': 1 }, vars: {} })
 
-    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle))).map
     expect(back.play).toEqual(map.play)
     expect(back.tokens).toEqual(map.tokens)
     // Saving again doesn't duplicate the party or the journal.
@@ -205,22 +206,23 @@ describe('play state in OTD', () => {
     // What a v1 file looked like: the party's look in ext.hexmapper.token, no token ids.
     bundle.maps[0].ext.hexmapper.version = 1
     bundle.parties[0].ext.hexmapper.token = { iconId: 'game:camel' }
-    const back = bundleToMap(bundle)
+    const back = bundleToMap(bundle).map
     expect(back.tokens).toEqual([
       expect.objectContaining({ kind: 'party', hex: '3,3', iconId: 'game:camel' }),
     ])
     expect(back.play).toEqual({ mode: 'simple', trail: ['3,3'], showTrail: true })
   })
 
-  it('keeps the map’s Oracle state and hand-roll history, without a trip too', () => {
+  it('keeps the campaign’s Oracle state and hand-roll history, without a trip too', () => {
     const map = sampleMap()
+    const campaign = createCampaign(map.meta.campaign, 'The Marches')
     const item = {
       id: 3,
       at: 'T',
       source: 'core/weather',
       resolution: { source: 'core/weather', kind: 'table', text: 'Mild weather' },
-    } as unknown as NonNullable<typeof map.oracle>['history'][number]
-    map.oracle = {
+    } as unknown as NonNullable<Campaign['oracle']>['history'][number]
+    campaign.oracle = {
       state: {
         decks: { 'core/road-events': { draw: ['a'], discard: ['b'] } },
         occurrences: {},
@@ -228,13 +230,25 @@ describe('play state in OTD', () => {
       },
       history: [item],
     }
-    const bundle = mapToBundle(map)
+    const bundle = mapToBundle(map, campaign)
     expect(validateBundle(bundle).errors).toEqual([])
-    expect(bundle.state.oracle).toEqual(map.oracle.state)
+    expect(bundle.state.oracle).toEqual(campaign.oracle.state)
+    expect(bundle.campaign).toMatchObject({ id: map.meta.campaign, name: 'The Marches' })
     const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
-    expect(back.oracle).toEqual(map.oracle)
-    // Saving again writes it once, from the map.
-    expect(mapToBundle(back).state).toEqual({ oracle: map.oracle.state })
+    expect(back.campaign).toEqual(campaign)
+    // Saving again writes it once, from the campaign.
+    expect(mapToBundle(back.map, back.campaign).state).toEqual({ oracle: campaign.oracle.state })
+  })
+
+  it('a file saved before campaigns opens with a campaign of its own', () => {
+    const map = sampleMap()
+    const bundle = JSON.parse(JSON.stringify(mapToBundle(map)))
+    delete bundle.campaign
+    bundle.maps[0].ext.hexmapper.version = 23
+    bundle.state = { world: { time: 600, events: [], timeline: [], nextId: 1 } }
+    const back = bundleToMap(bundle)
+    expect(back.map.meta.campaign).toBe(map.meta.id)
+    expect(back.campaign).toMatchObject({ id: map.meta.id, world: { time: 600 } })
   })
 
   it('keeps the values of tokens, POIs, icons and regions', () => {
@@ -269,7 +283,7 @@ describe('play state in OTD', () => {
     const bundle = mapToBundle(map)
     expect(validateBundle(bundle).errors).toEqual([])
     expect(bundle.characters[0].stats).toEqual({ fare: '2' })
-    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle))).map
     expect(back.regions[0].fields).toEqual(map.regions[0].fields)
     expect(back.hexes['1,1'].icon?.fields).toEqual([{ key: 'guards', value: '3' }])
     expect(back.hexes['1,1'].pois?.[0].fields).toEqual([{ key: 'rooms', value: '4' }])

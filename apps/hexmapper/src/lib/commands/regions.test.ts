@@ -25,7 +25,7 @@ describe('regions', () => {
     const map = mapWithRegion()
     const bundle = mapToBundle(map)
     expect(bundle.maps[0].hexes['2,1']).toEqual({ region: 'marches0001' })
-    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle))).map
     expect(back.regions).toEqual(map.regions)
     expect(regionSizes(back).get('marches0001')).toBe(2)
   })
@@ -37,7 +37,7 @@ describe('regions', () => {
     const command = new SetRegionStyleCommand(map.regionStyle, { ...map.regionStyle, border: 0.2 })
     command.apply(map)
     expect(map.regionStyle.border).toBe(0.2)
-    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(map))))
+    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(map)))).map
     expect(back.regionStyle.border).toBe(0.2)
     expect(back.regions[0].style).toEqual({ fill: 0, dashed: true })
     command.revert(map)
@@ -94,7 +94,7 @@ describe('POI icons', () => {
     map.hexes['1,1'] = { pois: [{ id: 'poi000000001', name: 'Old well', icon: 'game:well' }] }
     const bundle = mapToBundle(map)
     expect(bundle.pois[0].ext).toEqual({ hexmapper: { icon: 'game:well' } })
-    expect(bundleToMap(JSON.parse(JSON.stringify(bundle))).hexes['1,1'].pois?.[0].icon).toBe(
+    expect(bundleToMap(JSON.parse(JSON.stringify(bundle))).map.hexes['1,1'].pois?.[0].icon).toBe(
       'game:well',
     )
   })
@@ -123,7 +123,7 @@ describe('names per element', () => {
         nameStyle: own,
       },
     ]
-    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(map))))
+    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(map)))).map
     expect(back.hexes['1,1']).toMatchObject({ name: 'Ravenhold', showName: false })
     expect(back.hexes['2,2'].nameStyle).toEqual(own)
     expect(back.regions[0].nameStyle).toEqual(own)

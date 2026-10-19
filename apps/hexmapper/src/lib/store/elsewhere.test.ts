@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { deserializeMap, serializeMap } from '@open-tabletop/map'
+import { deserializeCampaign, factionsOn, serializeCampaign } from '@open-tabletop/campaign'
 import { EditHexesCommand } from '../commands/hexes'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
@@ -12,7 +13,7 @@ import { editor } from './editor.svelte'
  * map edited in another tab): play is taken keeping Undo; an edited map is loaded whole.
  */
 const grey = () =>
-  editor.load(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
+  editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
 /** The open map as another window reads it from the library. */
 const elsewhere = () => deserializeMap(serializeMap(editor.map))
 const paint = (key: '2,2', terrain: string) =>
@@ -24,17 +25,25 @@ describe('the open map saved elsewhere', () => {
     bringFactions()
     paint('2,2', editor.map.terrains[0].id)
     const other = elsewhere()
-    // The other app plays a world turn on its copy (here, with the editor standing in for it).
-    const mine = editor.map
+    const otherCampaign = deserializeCampaign(serializeCampaign(editor.campaign))
+    // The other app plays a world turn on its copies (here, with the editor standing in for it).
+    const [mine, myCampaign] = [editor.map, editor.campaign]
     editor.map = other
+    editor.campaign = otherCampaign
     worldTurnNow()
-    const played = editor.map
+    const [played, playedCampaign] = [editor.map, editor.campaign]
     editor.map = mine
+    editor.campaign = myCampaign
+    // The land changed on the map, the rest in the campaign: both are taken, keeping Undo.
     expect(editor.takeFromElsewhere(played)).toBe(true)
-    expect(editor.map.world!.timeline.length).toBe(played.world!.timeline.length)
-    expect(editor.map.world!.timeline.length).toBeGreaterThan(0)
-    expect(editor.map.factions).toEqual(played.factions)
+    editor.takeCampaign(playedCampaign)
+    expect(editor.campaign.world!.timeline.length).toBe(playedCampaign.world!.timeline.length)
+    expect(editor.campaign.world!.timeline.length).toBeGreaterThan(0)
+    expect(editor.factions).toEqual(factionsOn(playedCampaign, played))
     expect(editor.canUndo).toBe(true)
+    // Another campaign's changes aren't this map's.
+    editor.takeCampaign({ ...playedCampaign, id: 'other', world: undefined })
+    expect(editor.campaign.world).toBeDefined()
   })
 
   it('loads a map edited in another tab whole, and Undo starts again', () => {

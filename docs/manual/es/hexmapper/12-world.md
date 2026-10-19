@@ -1,6 +1,6 @@
 # El reloj del mundo
 
-El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha de la campaña de este mapa: el tiempo avanza, los eventos programados llegan en su día y los relojes de progreso se llenan. Se guarda con el mapa (y en su `.otd.json`). Sus meses, lunas y fiestas salen del calendario del sistema del mapa (`kind: calendar` en su pack, mira [Tipos de definición](../technical/07-kinds.md#calendarios)); sin uno, días y cuatro estaciones.
+El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha de la campaña de este mapa: el tiempo avanza, los eventos programados llegan en su día y los relojes de progreso se llenan. Un mapa pertenece a una **campaña**, el mundo en el que se juega, que guarda el reloj del mundo, su clima, las facciones y el Oráculo; de momento cada mapa tiene una campaña propia, creada con él (un mapa guardado antes de las campañas recibe una con su reloj, sus facciones y su Oráculo), y los mapas que comparten una campaña llegarán más adelante. Se guarda con la campaña, junto al mapa, y en el `.otd.json` del mapa. Sus meses, lunas y fiestas salen del calendario del sistema del mapa (`kind: calendar` en su pack, mira [Tipos de definición](../technical/07-kinds.md#calendarios)); sin uno, días y cuatro estaciones.
 
 ## Ponerlo en marcha
 
@@ -65,7 +65,7 @@ El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado
 
 ## Facciones
 
-Una facción es uno de los poderes del mundo (un reino, un clan, un gremio): una hoja de valores y estados como la de un personaje, y **tierra**, los hexes que tiene en el mapa. Cuando el sistema del mapa tiene facciones (`kind: factions` en su pack), la vista Mundo las lista en **Facciones**; **Traer sus facciones** las pone en un mapa que aún no las tiene, cada una con sus tierras iniciales (las regiones y hexes que nombra su pack). Cada una muestra su color y cuántos hexes tiene; ábrela para ver lo que el sistema dice que es y su hoja (sus valores, estados y relaciones, como los de un personaje: cámbialos a mano cuando lo diga la historia). Sus tierras se dibujan en el mapa en su color (la capa **Facciones**).
+Una facción es uno de los poderes del mundo (un reino, un clan, un gremio): una hoja de valores y estados como la de un personaje, que guarda la campaña, y **tierra**, los hexes que tiene en cada mapa. Cuando el sistema del mapa tiene facciones (`kind: factions` en su pack), la vista Mundo las lista en **Facciones**; **Traer sus facciones** las pone en un mapa que aún no las tiene, cada una con sus tierras iniciales (las regiones y hexes que nombra su pack). Cada una muestra su color y cuántos hexes tiene; ábrela para ver lo que el sistema dice que es y su hoja (sus valores, estados y relaciones, como los de un personaje: cámbialos a mano cuando lo diga la historia). Sus tierras se dibujan en el mapa en su color (la capa **Facciones**).
 
 **Su tierra** sale de tres sitios, y la guarda el mapa (la etiqueta **Su tierra** del panel también lo dice):
 

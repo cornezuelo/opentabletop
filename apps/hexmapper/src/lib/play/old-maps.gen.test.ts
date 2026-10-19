@@ -23,8 +23,13 @@ it.skipIf(!OUT)('writes the old maps of this version', { timeout: 120_000 }, asy
   const maps = (
     typeof ex.exampleMaps === 'function' ? (ex.exampleMaps as () => unknown)() : ex.EXAMPLE_MAPS
   ) as { id: string; json: string }[]
-  const fresh = () => editor.load(parseMapFile(maps.find((m) => m.id === 'greymarches1')!.json))
-  const dump = (name: string) => writeFileSync(`${OUT}-${name}.json`, serializeMap(editor.map))
+  const fresh = () => editor.open(parseMapFile(maps.find((m) => m.id === 'greymarches1')!.json))
+  // The map as the library keeps it and, since campaigns, its campaign as they're kept.
+  const dump = (name: string) =>
+    writeFileSync(
+      `${OUT}-${name}.json`,
+      JSON.stringify({ map: JSON.parse(serializeMap(editor.map)), campaign: editor.campaign }),
+    )
   const trip = () => sessionOf(editor.map.play!)!
   const resolve = () => {
     for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })

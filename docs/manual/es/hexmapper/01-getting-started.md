@@ -22,7 +22,7 @@ Los mapas se guardan en la biblioteca de este navegador, automáticamente mientr
 
 Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan en él. Al abrir el ejemplo otra vez se pregunta si **seguir con el tuyo**, **abrirlo junto al tuyo** (una copia nueva como otro mapa, conservando el tuyo) o **empezar de cero** en su lugar (el tuyo se pierde). Cuando una versión más nueva de la app trae un ejemplo cambiado, la lista lo marca como **nueva versión** y la pregunta lo dice: tu mapa sigue jugándose como estaba, y tú eliges cuándo probar el nuevo.
 
-**Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Si el fichero es un mapa que este navegador ya tiene (por ejemplo, una copia antigua) y son distintos, Hexmapper pregunta si **sustituir** tu copia por el fichero o **conservar ambos** (el fichero se abre como un mapa aparte).
+**Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Si el fichero es un mapa que este navegador ya tiene (por ejemplo, una copia antigua) y son distintos, Hexmapper pregunta si **sustituir** tu copia por el fichero o **conservar ambos** (el fichero se abre como un mapa aparte, con una campaña propia).
 
 > Si borras los datos del navegador se borra su biblioteca: guarda en fichero los mapas que te importen, o una [copia de seguridad de todo](../technical/05-backups.md) (selector de aplicaciones → **Guardar una copia**).
 

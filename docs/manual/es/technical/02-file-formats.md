@@ -52,6 +52,7 @@ El Hexmapper guarda los mapas como **paquetes OTD**, un formato JSON pensado par
 ```json
 {
   "otd": "0.2.0",
+  "campaign": { "id": "…", "type": "campaign", "name": "…", "time": 4320 },
   "maps": [{ "id": "…", "type": "map", "grid": { … }, "terrains": [ … ],
              "hexes": { "3,4": { "terrain": "forest", "tags": ["ruins"], "region": "…" } },
              "paths": [ … ], "ext": { "hexmapper": { … } } }],
@@ -59,11 +60,12 @@ El Hexmapper guarda los mapas como **paquetes OTD**, un formato JSON pensado par
 }
 ```
 
+- `campaign` es la campaña a la que pertenece el mapa (su id, nombre y `noteRef`, su sistema, la hora del reloj del mundo): el reloj del mundo, su clima, las facciones y el Oráculo de abajo son de la campaña, así que el fichero se basta solo. Un fichero guardado antes de las campañas no la tiene: el mapa se abre con una campaña propia, hecha con lo que trae el fichero.
 - Los hexes van indexados por `"columna,fila"`.
 - Los PDI, el grupo y los tokens (como personajes con `location`) son entidades propias; el diario de un viaje está en `log`.
 - Los personajes del grupo (cuando su sistema tiene una [hoja](07-kinds.md#hojas)) también son personajes, listados por id en los `members` del grupo, con `kind: pc`, sus valores como `stats`, sus etiquetas, y lo que solo lee el motor de personajes (su hoja, estados, relaciones) en `ext.character`. Un mapa puede traer así su compañía antes de que empiece ningún viaje: el mapa de ejemplo de las Marcas Grises tiene a Kael, Mara y el viejo Tobin.
-- Sus facciones son facciones OTD (sus valores como `stats`, su hoja en `ext.character`, los hexes que tienen en `ext.hexmapper.territory`), y `state.factions` dice de qué sistema vinieron y cuándo fue el último turno del mundo.
-- `state.oracle` es el estado de Oracle en ese mapa (mazos, resultados de una sola vez, valores fijados); el Hexmapper guarda su historial de tiradas a mano en `ext.hexmapper.oracleHistory`.
+- Las facciones de la campaña son facciones OTD (sus valores como `stats`, su hoja en `ext.character`, los hexes que tienen en este mapa en `ext.hexmapper.territory`), y `state.factions` dice de qué sistema vinieron y cuándo fue el último turno del mundo.
+- `state.oracle` es el estado del Oráculo de la campaña (mazos, resultados de una sola vez, valores fijados); el Hexmapper guarda su historial de tiradas a mano en `ext.hexmapper.oracleHistory`.
 - `ext.<herramienta>` guarda los datos propios de cada herramienta (el Hexmapper guarda iconos, rótulos, estilos y su configuración de impresión en `ext.hexmapper`, y el `system` del mapa y los `packs` que añade a los del sistema; el `ext.hexmapper.system` del grupo es el sistema con el que empezó su viaje). Las herramientas conservan intacto lo que no entienden al guardar.
 
 **Ficheros de personajes.** El **Exportar** de la aplicación Characters escribe el mismo formato solo con `characters` (cada uno con su `noteRef`), y su **Importar…** lee los personajes de cualquier fichero así, también de un mapa:

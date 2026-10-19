@@ -51,12 +51,12 @@ const world = () => createWorld({ calendar: worldCalendar() })
  * events), if running, and the factions' (`factions.<id>.*`), if the map has them.
  */
 export function worldFactsNow(): Record<string, unknown> | undefined {
-  const state = editor.map.world
+  const state = editor.campaign.world
   const factions = factionFactsNow()
   if (!state && !factions) return undefined
   // Without a trip, today's weather is the world clock's own (`weather`, as a trip's).
   const play = editor.map.play
-  const weather = !(play && sessionOf(play)) ? editor.map.worldWeather?.weather : undefined
+  const weather = !(play && sessionOf(play)) ? editor.campaign.worldWeather?.weather : undefined
   return {
     ...(state && worldFacts(state, worldCalendar())),
     ...factions,
@@ -90,7 +90,7 @@ export const systemClocks = (): SystemClocks | undefined => mapSystem().clocks
 /** The clocks the map's system declares that the world doesn't have (by their declared id). */
 export function missingClocks(): StartingClock[] {
   const system = systemClocks()
-  const state = editor.map.world
+  const state = editor.campaign.world
   if (!system || !state) return []
   const have = state.clocks.map((c) => c.ref)
   return startClocks(system, getLocale(), mapSystem().locale).filter((c) => !have.includes(c.ref))
@@ -117,13 +117,13 @@ function worldWeatherModel(): WeatherModel | undefined {
  * system's weather model, in that day's season.
  */
 export function rollWorldWeather(): void {
-  const state = editor.map.world
+  const state = editor.campaign.world
   const model = worldWeatherModel()
   const play = editor.map.play
   if (!state || !model || (play && sessionOf(play))) return
   const calendar = worldCalendar()
   const today = calendar.describe(state.time).day
-  let weather = editor.map.worldWeather
+  let weather = editor.campaign.worldWeather
   if (weather && weather.day >= today) return
   // A long jump: only the last days matter.
   const from = Math.max(weather ? weather.day + 1 : today, today - 30)
@@ -144,7 +144,7 @@ export function rollWorldWeather(): void {
 export function worldWeatherNow(): { id: string; name: string } | undefined {
   const play = editor.map.play
   const trip = play ? sessionOf(play) : null
-  const id = trip ? trip.travel.weather : editor.map.worldWeather?.weather
+  const id = trip ? trip.travel.weather : editor.campaign.worldWeather?.weather
   if (!id) return undefined
   const state = worldWeatherModel()?.states[id]
   return { id, name: localize(state?.name, getLocale(), 'en') ?? id.replaceAll('-', ' ') }
@@ -156,7 +156,7 @@ export function worldWeatherNow(): { id: string; name: string } | undefined {
  * trip going on (a trip's time never goes back). Nothing that happened is undone.
  */
 export async function setWorldDate(time: number): Promise<void> {
-  const state = editor.map.world
+  const state = editor.campaign.world
   if (!state || time === state.time) return
   if (time > state.time) return advanceWorld({ minutes: time - state.time })
   const play = editor.map.play
@@ -171,7 +171,7 @@ export function stopWorld(): void {
 
 /** Applies an action to the world clock; returns what happened. */
 export function worldAct(action: WorldAction): WorldEvent[] {
-  const state = editor.map.world
+  const state = editor.campaign.world
   if (!state) return []
   const { state: next, events } = world().apply(state, action)
   editor.setWorld(next)
@@ -199,7 +199,7 @@ function clockFilled(clock: ProgressClock): void {
   if (!system || !clock.ref || chain >= MAX_CHAIN) return
   chain++
   try {
-    const shared = editor.map.oracle
+    const shared = editor.campaign.oracle
     const done = clockFull(
       {
         system,
@@ -240,7 +240,7 @@ function clockFilled(clock: ProgressClock): void {
 export function applyWorldEffects(effects: Record<string, unknown>): void {
   for (const [path, change] of Object.entries(effects)) {
     const [, clock] = /^world\.clocks\.(.+)$/.exec(path) ?? []
-    const found = clock && editor.map.world && findClock(editor.map.world, clock)
+    const found = clock && editor.campaign.world && findClock(editor.campaign.world, clock)
     if (!found) continue
     // A number fills (or empties) segments; `'=N'` fills it up to N.
     const set = typeof change === 'string' && /^\s*=/.test(change)
@@ -256,13 +256,13 @@ export function applyWorldEffects(effects: Record<string, unknown>): void {
  * A world turn: every faction of the map takes its turn (at `time`, the world clock's by
  * default); what they did goes to the timeline, and the progress clocks they tick move.
  */
-export function worldTurnNow(time = editor.map.world?.time): void {
+export function worldTurnNow(time = editor.campaign.world?.time): void {
   takeWorldTurn(
     {
       facts: worldFactsNow(),
       log: (text, data, at) => void worldAct({ type: 'log', text, data, time: at }),
       tick: (clock, segments) => {
-        const found = editor.map.world && findClock(editor.map.world, clock)
+        const found = editor.campaign.world && findClock(editor.campaign.world, clock)
         if (found) worldAct({ type: 'tick', id: found.id, segments })
       },
     },
@@ -280,7 +280,7 @@ export function worldTurnNow(time = editor.map.world?.time): void {
  * found) says so at the bottom, and so does arriving.
  */
 export async function advanceWorld(how: { minutes: number } | { until: Until }): Promise<void> {
-  const state = editor.map.world
+  const state = editor.campaign.world
   if (!state) return
   const play = editor.map.play
   const trip = play ? sessionOf(play) : null
@@ -381,7 +381,7 @@ export const upcoming = (state: WorldState, limit = 12) => world().upcoming(stat
  * (events and holidays), as journal lines.
  */
 export function followTrip(time: number): { code: string; text: string; time: number }[] {
-  if (!editor.map.world || time <= editor.map.world.time) return []
+  if (!editor.campaign.world || time <= editor.campaign.world.time) return []
   const calendar = worldCalendar() as Partial<DataCalendar>
   const holidayName = (id: string) => {
     const h = calendar.def?.holidays?.find((x) => x.id === id)

@@ -21,7 +21,7 @@ export const oracleUi = createOracleUi({
   // Only the packs this map works with: its system's and the ones it adds (Map settings → Map).
   packs: mapPacks,
   store: {
-    load: () => editor.map.oracle,
+    load: () => editor.campaign.oracle,
     save: ({ state, history }) => editor.setOracle({ state, history }),
   },
   // During a rules trip, hand rolls go to the journal too.
@@ -40,8 +40,8 @@ export const oracleUi = createOracleUi({
 // Another map was opened, or a trip step changed the map's Oracle state.
 editor.onChange((change) => {
   if (change.kind === 'all') oracleUi.roller.reload()
-  else if (change.kind === 'oracle' && editor.map.oracle)
-    oracleUi.roller.state = editor.map.oracle.state
+  else if (change.kind === 'oracle' && editor.campaign.oracle)
+    oracleUi.roller.state = editor.campaign.oracle.state
 })
 
 /** The hex rolls read: the selected one, or the party's. */
