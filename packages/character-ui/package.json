@@ -1,7 +1,7 @@
 {
   "name": "@open-tabletop/character-ui",
   "version": "0.0.0",
-  "description": "Embeddable Svelte UI for characters made from a sheet: values, tracks, conditions and tags.",
+  "description": "Embeddable Svelte UI for characters made from a sheet (values, tracks, conditions and tags), and the roster of characters this browser keeps.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@open-tabletop/character-engine": "*",
-    "@open-tabletop/ui-kit": "*"
+    "@open-tabletop/ui-kit": "*",
+    "@open-tabletop/session": "*"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

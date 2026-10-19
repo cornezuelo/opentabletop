@@ -1,6 +1,12 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { idName, sheetText } from '@open-tabletop/character-ui'
-import { factionName, localize, MEMBER_PATH, type TravelSystem } from '@open-tabletop/session'
+import {
+  characterId,
+  factionName,
+  localize,
+  MEMBER_PATH,
+  type TravelSystem,
+} from '@open-tabletop/session'
 import type { Translate } from './i18n'
 
 /** A member's name: the one given, or its id. */
@@ -71,15 +77,4 @@ export function memberNamer(
 }
 
 /** An id for a new member, from its name (`Old Mara` → `old-mara`), not taken yet. */
-export function memberId(name: string, taken: string[]): string {
-  const base =
-    name
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'character'
-  let id = base
-  for (let n = 2; taken.includes(id); n++) id = `${base}-${n}`
-  return id
-}
+export const memberId = (name: string, taken: string[]): string => characterId(name, taken)

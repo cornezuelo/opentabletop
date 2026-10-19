@@ -4,6 +4,7 @@
     newMember,
     partyOf,
     refreshParty,
+    renameMember,
     type SessionState,
     type TravelSystem,
   } from '@open-tabletop/session'
@@ -87,14 +88,9 @@
         )
       : old.id
     edit((s) => {
-      s.members = (s.members ?? []).map((m) => (m.id === old.id ? { ...next, id } : m))
-      if (s.acting === old.id) s.acting = id
-      for (const [role, holder] of Object.entries(s.roles ?? {}))
-        if (holder === old.id) s.roles![role] = id
-      // Relations to this character follow its new id.
-      if (id !== old.id)
-        for (const m of s.members)
-          for (const r of m.relations) if (r.to === `character:${old.id}`) r.to = `character:${id}`
+      s.members = (s.members ?? []).map((m) => (m.id === old.id ? next : m))
+      // Who acts, the roles, who rolls and relations to it follow its new id.
+      renameMember(s, old.id, id)
     })
   }
 
