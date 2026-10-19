@@ -190,6 +190,13 @@ export const es: Messages<typeof en> = {
     blocked: 'El camino está bloqueado',
     'no-route': 'No hay destino',
   },
+  campaign: {
+    title: vocabulary.es.terms.campaign,
+    help: 'El mundo en el que se juega el viaje: su reloj del mundo, sus facciones y su Oráculo (mazos robados, resultados que salen una sola vez), compartido con los mapas y viajes de la misma campaña. Un viaje empieza en una campaña propia; elige la campaña de un mapa para viajar en el mundo de ese mapa: los días del viaje son los de la campaña, lo que sus comprobaciones y acciones hacen a relojes y facciones pasa allí, y los eventos que llegan por el camino van al diario.\n• **La suya** — un mundo propio, como el que siempre tuvo un viaje sin mapa\n• el nombre de un mapa — la campaña de ese mapa\nEn una campaña se juega un viaje cada vez: jugar otro pide pausar el que se jugó el último. Si el reloj de la campaña avanzó entretanto, el grupo espera hasta entonces.',
+    own: 'La suya',
+    pauseOther: vocabulary.es.campaign.pauseOther,
+    caughtUp: vocabulary.es.campaign.caughtUp,
+  },
   trips: {
     title: 'Viaje',
     help: 'Tus viajes se guardan en este navegador, cada uno con su sistema, su camino y su diario. Elige uno para seguir con él.',

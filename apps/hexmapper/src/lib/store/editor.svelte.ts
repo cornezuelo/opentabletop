@@ -386,6 +386,12 @@ class Editor {
     return true
   }
 
+  /** The trip going on in the campaign (this map's, taking the place of another's). */
+  setPlaying(playing: Campaign['playing']): void {
+    this.campaign = { ...this.campaign, playing }
+    this.notify({ kind: 'world' })
+  }
+
   /**
    * What the world clock did (`@open-tabletop/campaign`'s world functions, on this map):
    * the campaign as it left it, and the factions' land on this map. Play, so outside the

@@ -1,6 +1,6 @@
 # El reloj del mundo
 
-El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha de la campaña de este mapa: el tiempo avanza, los eventos programados llegan en su día y los relojes de progreso se llenan. Un mapa pertenece a una **campaña**, el mundo en el que se juega, que guarda el reloj del mundo, su clima, las facciones y el Oráculo; de momento cada mapa tiene una campaña propia, creada con él (un mapa guardado antes de las campañas recibe una con su reloj, sus facciones y su Oráculo), y los mapas que comparten una campaña llegarán más adelante. Se guarda con la campaña, junto al mapa, y en el `.otd.json` del mapa. Sus meses, lunas y fiestas salen del calendario del sistema del mapa (`kind: calendar` en su pack, mira [Tipos de definición](../technical/07-kinds.md#calendarios)); sin uno, días y cuatro estaciones.
+El panel **Mundo** (☾ en la barra de herramientas, bajo Jugar) lleva la fecha de la campaña de este mapa: el tiempo avanza, los eventos programados llegan en su día y los relojes de progreso se llenan. Un mapa pertenece a una **campaña**, el mundo en el que se juega, que guarda el reloj del mundo, su clima, las facciones y el Oráculo; de momento cada mapa tiene una campaña propia, creada con él (un mapa guardado antes de las campañas recibe una con su reloj, sus facciones y su Oráculo), y los mapas que comparten una campaña llegarán más adelante; un viaje de la aplicación Travel puede jugarse en ella ([La campaña](../travel/02-playing.md#la-campaña)). Se guarda con la campaña, junto al mapa, y en el `.otd.json` del mapa. Sus meses, lunas y fiestas salen del calendario del sistema del mapa (`kind: calendar` en su pack, mira [Tipos de definición](../technical/07-kinds.md#calendarios)); sin uno, días y cuatro estaciones.
 
 ## Ponerlo en marcha
 
@@ -42,6 +42,8 @@ En los dos casos:
 Una acampada dura lo que digan sus pasos aunque pidieras menos: si la parada es a las 20:00 y acampar duerme hasta las 06:00, **+1 hora** a las 19:30 llega a la parada, así que el grupo acampa y el reloj acaba a las 06:00.
 
 Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashford (0608) y haz clic en 0808 en Jugar para planear el camino; luego pulsa **Día siguiente**: pregunta, por la mañana se tiran el clima y perderse, el grupo marcha por el camino, acampa al anochecer (come la comida de un día, una noche bien comidos quita 1 de fatiga, se tira el encuentro nocturno donde el peligro es 2 o más) y el reloj acaba a la mañana siguiente, cuando acaba la acampada, un día más allá. Quita la ruta (clic en el hex del propio grupo) y **Día siguiente** espera en el sitio.
+
+**Un viaje cada vez.** Un viaje de la aplicación Travel también puede jugarse en la campaña de este mapa, y el tiempo de la campaña es uno: jugar el viaje del mapa cuando el último en jugarse fue ese pregunta antes («Hay otro viaje en curso en esta campaña: «A Keld». ¿Pausarlo y jugar este?»), y si el reloj avanzó entretanto, el grupo espera hasta la fecha de la campaña antes de hacer lo que pediste (un mensaje lo dice).
 
 ## Eventos
 

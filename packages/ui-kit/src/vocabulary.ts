@@ -16,6 +16,23 @@ export const vocabulary = {
       keep: 'Keep in the roster',
       open: 'Open in Characters',
     },
+    /** A campaign's trips: one goes on at a time, so its world has one time. */
+    campaign: {
+      pauseOther:
+        'Another trip is going on in this campaign: “{trip}”. Pause it and play this one? Time is one in a campaign: if its clock went on, this party waits until then.',
+      caughtUp: "The campaign's clock had gone on: the party waited until then.",
+    },
+    /** What the world clock writes in its timeline and notices, in every app that plays it. */
+    world: {
+      clockFilled: '{name}: filled!',
+      clockRollFailed: '(its roll failed: {error})',
+      clockStartsOver: 'It starts over.',
+      clockGone: 'It goes away.',
+      factionLine: '{name}: {text}',
+      gained: 'land +{n}',
+      lost: 'land −{n}',
+      turnFailed: '{name}: the turn table failed ({error})',
+    },
     terms: {
       terrain: 'Terrain',
       terrains: 'Terrains',
@@ -27,6 +44,7 @@ export const vocabulary = {
       fatigue: 'Fatigue',
       supplies: 'Supplies',
       system: 'System',
+      campaign: 'Campaign',
       /** The plain calendar's numbered `watch` division, which has no name of its own. */
       watches: 'Watches',
     },
@@ -95,6 +113,21 @@ export const vocabulary = {
       keep: 'Guardar en el plantel',
       open: 'Abrir en Characters',
     },
+    campaign: {
+      pauseOther:
+        'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, este grupo espera hasta entonces.',
+      caughtUp: 'El reloj de la campaña había avanzado: el grupo ha esperado hasta entonces.',
+    },
+    world: {
+      clockFilled: '{name}: ¡lleno!',
+      clockRollFailed: '(su tirada falló: {error})',
+      clockStartsOver: 'Vuelve a empezar.',
+      clockGone: 'Desaparece.',
+      factionLine: '{name}: {text}',
+      gained: 'tierras +{n}',
+      lost: 'tierras −{n}',
+      turnFailed: '{name}: la tabla de turno falló ({error})',
+    },
     terms: {
       terrain: 'Terreno',
       terrains: 'Terrenos',
@@ -106,6 +139,7 @@ export const vocabulary = {
       fatigue: 'Fatiga',
       supplies: 'Provisiones',
       system: 'Sistema',
+      campaign: 'Campaña',
       watches: 'Guardias',
     },
     seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },

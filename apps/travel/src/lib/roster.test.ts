@@ -21,7 +21,7 @@ describe('trips and the roster', () => {
 
   it('takes a roster character, keeps it in step, and lets it go', async () => {
     const { roster, session: s, trip } = await openTravel()
-    trip.create('grey-marches', 'spring')
+    await trip.create('grey-marches', 'spring')
     trip.addHex()
     trip.addHex()
     const system = trip.system
@@ -43,7 +43,7 @@ describe('trips and the roster', () => {
       members: x.members!.map((m) => ({ ...m, values: { ...m.values, health: 1 } })),
     }))
     expect(s.rosterEntry(roster.roster, 'brenna')!.character.values.health).toBe(1)
-    trip.step({ type: 'action', id: 'march' })
+    await trip.step({ type: 'action', id: 'march' })
     expect(s.rosterEntry(roster.roster, 'brenna')!.character).toEqual(
       trip.saved.session!.members!.find((m) => m.id === 'brenna'),
     )
@@ -79,13 +79,13 @@ describe('trips and the roster', () => {
 
   it('a character travels in one trip at a time', async () => {
     const { roster, session: s, trip } = await openTravel()
-    trip.create('grey-marches', 'spring')
+    await trip.create('grey-marches', 'spring')
     const first = trip.place!
     const kael = s.newMember(s.partyOf(trip.system), { id: 'kael', name: 'Kael' })
     roster.set(s.keepInRoster(roster.roster, kael, 'T0', first).roster)
     trip.edit((x) => ({ ...x, members: [kael] }))
     // Another trip takes Kael: the first one keeps an unlinked copy.
-    trip.create('grey-marches', 'summer')
+    await trip.create('grey-marches', 'summer')
     const second = trip.place!
     const taken = s.takeFromRoster(roster.roster, 'kael', second, 'T1')!
     expect(taken.from).toMatchObject({ id: first.id })

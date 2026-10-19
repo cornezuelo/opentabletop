@@ -91,4 +91,4 @@ The full description is in `docs/otd.md`, and the schema in `packages/schema` (i
 
 ## In the browser
 
-Your packs live in the browser's local storage under `opentabletop.userPacks` (one JSON list of packs with their files), and the Characters app's roster under `opentabletop.characters`; maps live in its IndexedDB library. Export packs as .zip and save maps as files to keep them.
+Your packs live in the browser's local storage under `opentabletop.userPacks` (one JSON list of packs with their files), the Characters app's roster under `opentabletop.characters`, and Travel's trips under `opentabletop.travel.trips` (version 9: each names the campaign it plays in, `campaign`; trips saved before have one of their own, with the trip's id); maps and campaigns live in its IndexedDB library (a campaign keeps its world clock, its weather, the factions' sheets, the Oracle and which trip played in it last, `playing`). Export packs as .zip and save maps as files to keep them.

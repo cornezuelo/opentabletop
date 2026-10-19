@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Travel: **trips play in campaigns**: **Campaign**, above the system, chooses the world a trip happens in: one of its own (as before), or a Hexmapper map's. In a map's campaign the trip's days are its world clock (a new trip starts on its date, events and holidays coming due go to the journal), its tables read the campaign's clocks, events and factions and change them, and its checks roll on the campaign's Oracle. **One trip at a time** in a campaign, in either app: playing one where another played last asks to pause it, and the party waits until the campaign's clock if it went on. Saved trips (v9) each get a campaign of their own; campaigns (v2) remember which trip played last.
+
 - Hexmapper: a progress clock filled by a trip's result (`world.clocks.<id>: 1`) keeps what its table drew: the trip's Oracle state no longer overwrites the full clock's roll (its deck draws and once-only entries were forgotten).
 
 - Packs: **a faction's starting hexes are on one map**: `territory: { map: maps/frontier.otd.json, hexes: ['15,9'] }` gives them only on that example map of the pack (they were given on any map with those coordinates, somewhere else entirely); its regions still start on any map that has them. `hexes` without `map` is refused with a message saying so. Systems' Factions tab has **On the map**; the Grey Marches' Fort Keld names its example map.

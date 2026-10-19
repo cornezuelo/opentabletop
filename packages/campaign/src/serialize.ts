@@ -2,13 +2,20 @@ import type { CharacterState } from '@open-tabletop/character-engine'
 import type { CampaignParts, HexMap } from '@open-tabletop/map'
 import { readMap } from '@open-tabletop/map'
 import { readWorld } from '@open-tabletop/world-engine'
-import type { Campaign, CampaignFactions, CampaignOracle, WorldWeather } from './types'
+import type {
+  Campaign,
+  CampaignFactions,
+  CampaignOracle,
+  CampaignTrip,
+  WorldWeather,
+} from './types'
 
 /**
  * The campaign format's version. Every format change bumps it and adds a migration to
- * `migrations` (`migrations[n]` upgrades raw data from version n to n + 1).
+ * `migrations` (`migrations[n]` upgrades raw data from version n to n + 1). v2: the trip
+ * going on (`playing`), none in older campaigns.
  */
-export const CAMPAIGN_VERSION = 1
+export const CAMPAIGN_VERSION = 2
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {}
 
@@ -60,8 +67,12 @@ export function deserializeCampaign(json: string): Campaign {
     modified: typeof data.modified === 'string' ? data.modified : now,
     ...(typeof data.noteRef === 'string' && data.noteRef && { noteRef: data.noteRef }),
     ...readParts(data),
+    ...(isTrip(data.playing) && { playing: data.playing }),
   }
 }
+
+const isTrip = (t: unknown): t is CampaignTrip =>
+  isRecord(t) && typeof t.app === 'string' && typeof t.id === 'string' && typeof t.name === 'string'
 
 /**
  * The world, its weather, the factions and the Oracle as stored (in a campaign, or in a map

@@ -399,10 +399,6 @@ export const en = {
       'As the world clock moves on (by hand, or with a trip), a world turn comes every so many days, as the system says. Untick to take them only with **World turn**.',
     remove: 'Take the factions off the map',
     confirmRemove: 'Take the factions off this map? Their sheets and territory are forgotten.',
-    line: '{name}: {text}',
-    gained: 'land +{n}',
-    lost: 'land −{n}',
-    failed: '{name}: the turn table failed ({error})',
   },
   tokens: {
     sheet: 'Sheet',
@@ -456,6 +452,8 @@ export const en = {
     empty: 'No tokens yet.',
   },
   play: {
+    pauseOther: vocabulary.en.campaign.pauseOther,
+    caughtUp: vocabulary.en.campaign.caughtUp,
     noTravel:
       '{system} has no travel rules: trips aren’t played with it, only its world, oracle and factions. To travel, choose another system in Map settings → Map → System.',
     otherSystem:
@@ -649,10 +647,7 @@ export const en = {
     addClock: 'Add',
     removeClock: 'Remove this clock',
     confirmRemoveClock: 'Remove the clock “{name}”?',
-    clockFilled: '{name}: filled!',
-    clockRollFailed: '(its roll failed: {error})',
-    clockStartsOver: 'It starts over.',
-    clockGone: 'It goes away.',
+    clockFilled: vocabulary.en.world.clockFilled,
     systemClocks: "Add the system's clocks ({count})",
     systemClocksHelp:
       "The progress clocks the map's system declares (`kind: clocks` in its pack), each with its segments, where it starts and what happens when it fills. They come with the world clock when it starts; this adds the ones it doesn't have yet (taken off, or declared later).",

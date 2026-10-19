@@ -1,7 +1,7 @@
 import { applyCharacter } from '@open-tabletop/character-engine'
 import { changeTerritory, turnsDue } from '@open-tabletop/faction-engine'
 import type { HexMap } from '@open-tabletop/map'
-import { emptyState, type OracleEngine } from '@open-tabletop/oracle-engine'
+import { emptyState, type OracleEngine, type OracleState } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import {
   clockFull,
@@ -383,4 +383,43 @@ export function followTrip(
         : [],
   )
   return { ...done, lines }
+}
+
+/** What a journal line of a trip's step changes in the world: its effects, or its result's. */
+export function entryEffects(entry: {
+  data?: Record<string, unknown>
+}): Record<string, unknown> | undefined {
+  const value = entry.data?.value as { effects?: Record<string, unknown> } | undefined
+  return (entry.data?.effects as Record<string, unknown> | undefined) ?? value?.effects
+}
+
+/**
+ * A trip of the campaign stepped: its checks rolled on the campaign's Oracle (`oracle`, the
+ * state the step left), what its results, checks and actions did changes the world (its
+ * clocks, its factions), and the world follows its time; the lines for its journal are
+ * what came due on the way.
+ */
+export function tripStepped(
+  place: WorldPlace,
+  step: { oracle: OracleState; entries: { data?: Record<string, unknown> }[]; time: number },
+  host: WorldHost,
+): WorldDone & { lines: WorldLine[] } {
+  const { campaign } = place
+  let done: WorldDone = {
+    ...place,
+    campaign: {
+      ...campaign,
+      oracle: { state: step.oracle, history: campaign.oracle?.history ?? [] },
+    },
+    events: [],
+    filled: [],
+  }
+  for (const entry of step.entries) {
+    const effects = entryEffects(entry)
+    if (!effects) continue
+    const next = worldEffects(done, effects, host)
+    done = { ...next, filled: [...done.filled, ...next.filled] }
+  }
+  const followed = followTrip(done, step.time, host)
+  return { ...followed, filled: [...done.filled, ...followed.filled] }
 }

@@ -1,7 +1,6 @@
 import { claim, release, type TerritoryWorld } from '@open-tabletop/faction-engine'
-import { factionName, type FactionLine, type SystemFactions } from '@open-tabletop/session'
+import type { SystemFactions } from '@open-tabletop/session'
 import { bringFactions as bring, territoryWorld as worldOf } from '@open-tabletop/campaign'
-import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { exampleMaps } from '../io/examples'
 import { getSystem, mapSystemId } from './systems'
@@ -74,19 +73,4 @@ export function hexFaction(hex: string): string | undefined {
   const own = editor.factionsOnMap
   if (!own) return undefined
   return Object.keys(own.territories).find((id) => own.territories[id].includes(hex))
-}
-
-/** A faction's turn as one line of the timeline: "The Iron Clans: raid the Vale (+1 hex)". */
-export function lineText(system: SystemFactions, line: FactionLine): string {
-  const name = factionName(system, line.faction, getLocale())
-  if (line.error) return t('factions.failed', { name, error: line.error })
-  const gained = line.territory?.filter((e) => e.type === 'TERRITORY_GAINED').length ?? 0
-  const lost = line.territory?.filter((e) => e.type === 'TERRITORY_LOST').length ?? 0
-  const land = [
-    gained ? t('factions.gained', { n: gained }) : '',
-    lost ? t('factions.lost', { n: lost }) : '',
-  ]
-    .filter(Boolean)
-    .join(', ')
-  return t('factions.line', { name, text: line.text ?? '' }) + (land ? ` (${land})` : '')
 }

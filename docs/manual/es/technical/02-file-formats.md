@@ -91,4 +91,4 @@ La descripción completa está en `docs/otd.md`, y el esquema en `packages/schem
 
 ## En el navegador
 
-Tus packs viven en el almacenamiento local del navegador con la clave `opentabletop.userPacks` (una lista JSON de packs con sus ficheros), y el plantel de la aplicación Characters con `opentabletop.characters`; los mapas viven en su biblioteca IndexedDB. Exporta los packs en .zip y guarda los mapas en fichero para conservarlos.
+Tus packs viven en el almacenamiento local del navegador con la clave `opentabletop.userPacks` (una lista JSON de packs con sus ficheros), el plantel de la aplicación Characters con `opentabletop.characters`, y los viajes de Travel con `opentabletop.travel.trips` (versión 9: cada uno nombra la campaña en la que se juega, `campaign`; los guardados antes tienen una propia, con el id del viaje); los mapas y las campañas viven en su biblioteca IndexedDB (una campaña guarda su reloj del mundo, su clima, las hojas de las facciones, el Oráculo y qué viaje se jugó en ella el último, `playing`). Exporta los packs en .zip y guarda los mapas en fichero para conservarlos.

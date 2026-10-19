@@ -8,6 +8,18 @@ Pick a system on the left and open **Play**. Choose the season to start in and p
 
 You can keep several trips (in this browser), each with its own system, way and journal. At the top, **Trip** opens another one (its system's page opens with it), **Name** gives the open trip a name (unnamed trips show their system and day), **Another trip** starts one more with this system and season (the others are kept), and **Delete** removes the open one. **New trip**, under the system and season, starts the open trip again from scratch; it asks first if its journal has something. Opening another system's **Play** tab with a trip open says which system that trip uses ("The open trip uses The Grey Marches."), with **Start a trip with …** to start one more with this system (the open one is kept: **Trip** goes back to it).
 
+## The campaign
+
+Every trip plays in a **campaign**, the world it happens in: a world clock, the factions and the Oracle (the cards drawn from each deck, the results that come up only once). **Campaign**, above the system, says which one. A trip starts in a campaign of its own (**Its own**), a world nobody else plays in, as trips without a map always had. Choose another one, such as a Hexmapper map's (listed by the map's name), to travel in that map's world:
+
+- The trip's days are the campaign's: a new trip starts on the campaign's date (when its world clock runs, see [The world clock](../hexmapper/12-world.md)), and marching, waiting and camping move the campaign's clock on. Events and holidays that come due on the way are written in the journal.
+- Its tables and checks read the world (the campaign's progress clocks, today's events, the factions' values: [What tables see](../technical/04-what-tables-see.md)), and what they do to it happens there: a result that ticks a clock (`world.clocks.the-siege: 1`) or changes a faction's values. A faction's land is on a map, so it only changes when the trip is played on that map.
+- Its checks roll on the campaign's Oracle: a card drawn on the trip is gone on the map too.
+
+**One trip at a time.** A campaign's time is one, so only one trip goes on in it. Playing a trip in a campaign where another one played last (the map's trip in the Hexmapper, another trip here) asks first: “Another trip is going on in this campaign: “The Frontier”. Pause it and play this one?” Saying no leaves everything as it was. If the campaign's clock went on meanwhile (the other trip travelled for a day), this party **waits until then** first, and a message says so; the other trip asks the same when it's played again.
+
+Changing **Campaign** on a trip under way moves it to that world from its next step (its own world is kept, in case you come back to it).
+
 ## The way
 
 The list on the left is the way. The party starts on hex 1 and heads for the last one. Its column headers are underlined with dots: click one to read what it is.

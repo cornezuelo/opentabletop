@@ -10,7 +10,10 @@ import {
   createCampaign,
   deserializeCampaign,
   factionsOn,
+  leaveTrip,
   openMap,
+  otherTrip,
+  playTrip,
   serializeCampaign,
   splitFactions,
   worldTurnOn,
@@ -68,6 +71,20 @@ function hillsMap(campaign?: string): HexMap {
 }
 
 describe('campaigns', () => {
+  it('play one trip at a time: another one is told which played last', () => {
+    const map = { app: 'hexmapper', id: 'm1', name: 'North' }
+    const trip = { app: 'travel', id: 't1', name: 'To Keld' }
+    const c = createCampaign('c1')
+    expect(otherTrip(c, trip)).toBeUndefined()
+    const playing = playTrip(c, map)
+    expect(otherTrip(playing, map)).toBeUndefined()
+    expect(otherTrip(playing, trip)).toEqual(map)
+    expect(playTrip(playing, map)).toBe(playing)
+    expect(otherTrip(playTrip(playing, trip), map)).toEqual(trip)
+    expect(leaveTrip(playing, trip)).toBe(playing)
+    expect(leaveTrip(playing, map)).not.toHaveProperty('playing')
+  })
+
   it('read back what they wrote, and refuse what is not one', () => {
     const campaign: Campaign = {
       ...createCampaign('c1', 'The Marches', '2026-10-19T10:00:00.000Z'),
@@ -76,6 +93,7 @@ describe('campaigns', () => {
       worldWeather: { weather: 'rain', day: 2 },
       factions: { system: 'marks', factions: [], lastTurn: 0, auto: false },
       oracle: { state: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} }, history: [] },
+      playing: { app: 'travel', id: 't1', name: 'To Keld' },
     }
     expect(deserializeCampaign(serializeCampaign(campaign))).toEqual(campaign)
     expect(campaign.version).toBe(CAMPAIGN_VERSION)

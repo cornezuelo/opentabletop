@@ -192,6 +192,13 @@ export const en = {
     blocked: 'The way is blocked',
     'no-route': 'No destination set',
   },
+  campaign: {
+    title: vocabulary.en.terms.campaign,
+    help: "The world the trip plays in: its world clock, its factions and its Oracle (decks drawn, once-only results), shared with the maps and trips of the same campaign. A trip starts in a campaign of its own; choose a map's campaign to travel in that map's world: the trip's days are the campaign's, what its checks and actions do to clocks and factions happens there, and events coming due on the way go to the journal.\n• **Its own** — a world of its own, as a trip without a map always had\n• a map's name — that map's campaign\nOne trip goes on in a campaign at a time: playing another asks to pause the one that played last. If the campaign's clock went on meanwhile, the party waits until then.",
+    own: 'Its own',
+    pauseOther: vocabulary.en.campaign.pauseOther,
+    caughtUp: vocabulary.en.campaign.caughtUp,
+  },
   trips: {
     title: 'Trip',
     help: 'Your trips are kept in this browser, each with its system, its way and its journal. Pick one to go on with it.',

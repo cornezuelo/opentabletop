@@ -36,6 +36,18 @@ export interface WorldWeather {
 }
 
 /**
+ * The trip going on in a campaign: one at a time (a map's in the Hexmapper, or one of
+ * Travel's), so the world's time is one. Another trip asks to take its place.
+ */
+export interface CampaignTrip {
+  /** The app it plays in (`hexmapper`, `travel`) and its id there (the map's, the trip's). */
+  app: string
+  id: string
+  /** Its name, to say which one it is. */
+  name: string
+}
+
+/**
  * A campaign: what happens in the world, shared by its maps (each map names its campaign,
  * `meta.campaign`). Mechanical state only (principle 9): lore lives behind `noteRef`.
  */
@@ -53,4 +65,6 @@ export interface Campaign {
   factions?: CampaignFactions
   /** Hand rolls and trips' checks share its decks and once-only entries. */
   oracle?: CampaignOracle
+  /** The trip that played in it last, which another asks to pause. */
+  playing?: CampaignTrip
 }

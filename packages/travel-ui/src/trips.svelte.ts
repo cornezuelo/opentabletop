@@ -18,11 +18,28 @@ import {
   type Season,
   type SessionState,
   type TravelSystem,
+  addEntry,
+  calendarOf,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
+import {
+  leaveTrip,
+  otherTrip,
+  playTrip,
+  tripStepped,
+  worldFactsOf,
+  type Campaign,
+  type CampaignTrip,
+  type WorldHost,
+} from '@open-tabletop/campaign'
 import { roster } from '@open-tabletop/character-ui'
-import { showToast } from '@open-tabletop/ui-kit'
+import { mathRandom } from '@open-tabletop/random'
+import { confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { listCampaigns } from '@open-tabletop/storage'
+import { CampaignKeeper } from './campaign.svelte'
+import { translator } from './i18n'
 import { wayWorld, type WayHex } from './way'
+import { clockFilledText, worldWords } from './world'
 
 /**
  * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the
@@ -32,9 +49,10 @@ import { wayWorld, type WayHex } from './way'
  * system has one, and who rolls (`rolls`, `askRolls`; absent: the best); v7: the Generic
  * rules are Core's system (`generic` reads as `core`, and its sheets `generic/…` as
  * `core/…`); v8: where the last step's journal lines start (`session.lastStep`), none in
- * older trips until they next step. All migrated on reading.
+ * older trips until they next step; v9: the campaign it plays in (`campaign`), for older
+ * trips one of its own (the trip's id). All migrated on reading.
  */
-const VERSION = 8
+const VERSION = 9
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -47,6 +65,11 @@ export interface Saved {
   way: WayHex[]
   startDay: number
   session: SessionState | null
+  /**
+   * The campaign it plays in (its world clock, factions and Oracle): one of its own (with
+   * the trip's id) unless it joined another.
+   */
+  campaign: string
 }
 
 interface Stored {
@@ -70,6 +93,12 @@ export interface TripStoreOptions {
    * (Systems' Try it).
    */
   rosterApp?: string
+  /**
+   * The app whose trips play in campaigns (`travel`): each in one, its time the campaign's
+   * world clock, with its factions and Oracle, one trip at a time. Absent: trips keep their
+   * own Oracle and no world (Systems' Try it).
+   */
+  campaignApp?: string
 }
 
 /** The time of a change, for the roster (plain text, not reactive state). */
@@ -77,8 +106,9 @@ const now = (): string => new Date(Date.now()).toISOString()
 
 const newTripId = () => `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 
-const blank = (system = DEFAULT_SYSTEM): Saved => ({
-  id: newTripId(),
+const blank = (system = DEFAULT_SYSTEM, id = newTripId()): Saved => ({
+  id,
+  campaign: id,
   name: '',
   system,
   season: 'spring',
@@ -88,11 +118,17 @@ const blank = (system = DEFAULT_SYSTEM): Saved => ({
   session: null,
 })
 
-const isTrip = (raw: unknown): raw is Omit<Saved, 'id' | 'name'> & Partial<Saved> =>
+const isTrip = (raw: unknown): raw is Omit<Saved, 'id' | 'name' | 'campaign'> & Partial<Saved> =>
   typeof raw === 'object' &&
   raw !== null &&
   Array.isArray((raw as Saved).way) &&
   (raw as Saved).way.length > 0
+
+/** A trip saved before campaigns plays in one of its own, named by its id. */
+function withCampaign<T extends Partial<Saved>>(t: T): T & { id: string; campaign: string } {
+  const id = t.id || newTripId()
+  return { ...t, id, campaign: t.campaign || id }
+}
 
 /** Saved trips, migrating the single trip of older versions. */
 export function readTrips(
@@ -103,14 +139,17 @@ export function readTrips(
   try {
     const raw = JSON.parse(storage.getItem(key) ?? 'null') as Partial<Stored> | null
     if (raw && Array.isArray(raw.trips)) {
-      const trips = raw.trips.filter(isTrip).map((t) => ({
-        ...t,
-        id: t.id || newTripId(),
-        name: t.name ?? '',
-        system: systemIdOf(t.system),
-        session:
-          t.session && migrateGenericSheets(migrateTotals(migrateLost(migrateFatigue(t.session)))),
-      }))
+      const trips = raw.trips
+        .filter(isTrip)
+        .map(withCampaign)
+        .map((t) => ({
+          ...t,
+          name: t.name ?? '',
+          system: systemIdOf(t.system),
+          session:
+            t.session &&
+            migrateGenericSheets(migrateTotals(migrateLost(migrateFatigue(t.session)))),
+        }))
       if (trips.length)
         return {
           version: VERSION,
@@ -120,7 +159,8 @@ export function readTrips(
     }
     const old: unknown = oldKey ? JSON.parse(storage.getItem(oldKey) ?? 'null') : null
     if (isTrip(old)) {
-      const trip = { ...old, id: newTripId(), name: '' }
+      const id = newTripId()
+      const trip = { ...old, id, name: '', campaign: id }
       return { version: VERSION, current: trip.id, trips: [trip] }
     }
   } catch {
@@ -134,9 +174,61 @@ export function readTrips(
 export class TripStore {
   private stored: Stored = $state.raw({ version: VERSION, current: '', trips: [] })
 
+  /** The open trip's campaign, kept where campaigns are (none when trips play without). */
+  private readonly keeper?: CampaignKeeper
+
   constructor(private readonly options: TripStoreOptions) {
     this.stored = readTrips(options.key, options.oldKey)
+    if (options.campaignApp) this.keeper = new CampaignKeeper()
     this.pullRoster()
+    void this.openCampaign()
+  }
+
+  /** Whether trips play in campaigns here. */
+  get inCampaigns(): boolean {
+    return !!this.keeper
+  }
+
+  /**
+   * The campaigns the open trip may play in, by name: those kept in this browser (a map's,
+   * another trip's) and its own.
+   */
+  async campaigns(): Promise<{ id: string; name: string }[]> {
+    if (!this.keeper) return []
+    const kept = await listCampaigns().catch(() => [])
+    return kept.map(({ id, name }) => ({ id, name: name || id }))
+  }
+
+  /** The open trip's campaign (undefined while it's read, or when trips play without). */
+  get campaign(): Campaign | undefined {
+    const c = this.keeper?.campaign
+    return c?.id === this.saved.campaign ? c : undefined
+  }
+
+  /** The open trip as the trip going on in its campaign. */
+  private get me(): CampaignTrip | undefined {
+    const place = this.placeOf(this.saved, this.options.campaignApp)
+    return place && { app: place.app, id: place.id, name: place.name }
+  }
+
+  /** Reads the open trip's campaign (a new one of its own if none is kept). */
+  private openCampaign(): Promise<Campaign> | undefined {
+    return this.keeper?.open(this.saved.campaign, this.me?.name ?? '')
+  }
+
+  /**
+   * Moves the open trip to another campaign (`campaign`: its id; the trip's own id: one of
+   * its own again). Its time becomes that campaign's when it next steps (§9.1 of the
+   * campaigns design: it waits until the campaign's clock if that is ahead).
+   */
+  async joinCampaign(campaign: string): Promise<void> {
+    const keeper = this.keeper
+    const from = this.campaign
+    if (!keeper || campaign === this.saved.campaign) return
+    if (from && this.me) keeper.write(leaveTrip(from, this.me))
+    this.saved = { ...this.saved, campaign }
+    this.save()
+    await this.openCampaign()
   }
 
   /** The open trip as a place of the roster (none when this host doesn't use it). */
@@ -144,8 +236,7 @@ export class TripStore {
     return this.placeOf(this.saved)
   }
 
-  private placeOf(trip: Saved): RosterPlace | undefined {
-    const app = this.options.rosterApp
+  private placeOf(trip: Saved, app = this.options.rosterApp): RosterPlace | undefined {
     if (!app) return undefined
     const system = this.options.systems().find((s) => s.id === trip.system)
     const name = trip.name || (system ? systemName(system, this.options.locale()) : trip.system)
@@ -189,13 +280,20 @@ export class TripStore {
     this.stored = { ...this.stored, current: id }
     this.pullRoster()
     this.save()
+    void this.openCampaign()
   }
 
-  /** A new trip (kept beside the others) with a system and season, and opens it. */
-  create(system: string, season: Season): void {
+  /**
+   * A new trip (kept beside the others) with a system and season, and opens it: in a
+   * campaign of its own, or in `campaign` (its time the campaign's world clock).
+   */
+  create(system: string, season: Season, campaign?: string): void | Promise<void> {
     const trip = { ...blank(system), season }
+    if (campaign) trip.campaign = campaign
     this.stored = { ...this.stored, current: trip.id, trips: [...this.stored.trips, trip] }
-    this.start(system, season)
+    const opening = this.openCampaign()
+    if (!opening) return this.start(system, season)
+    return opening.then(() => this.start(system, season))
   }
 
   rename(name: string): void {
@@ -208,10 +306,14 @@ export class TripStore {
     // Its roster characters stay in the roster, playing nowhere.
     const place = this.place
     if (place) roster.set(leavePlace(roster.roster, place))
+    // Its campaign no longer has it going on.
+    const campaign = this.campaign
+    if (campaign && this.me) this.keeper?.set(leaveTrip(campaign, this.me))
     const rest = this.stored.trips.filter((t) => t.id !== this.saved.id)
     const trips = rest.length ? rest : [blank(this.saved.system)]
     this.stored = { ...this.stored, current: trips.at(-1)!.id, trips }
     this.save()
+    void this.openCampaign()
   }
 
   /** The open trip's system as it is now: edits to its rules count from the next step. */
@@ -248,6 +350,8 @@ export class TripStore {
       members: this.saved.system === system ? this.saved.session?.members : undefined,
       // What the trip's rolls in conditions are seeded with: each trip its own.
       seed: Math.random().toString(36).slice(2, 10),
+      // With its campaign's world clock running, the trip starts at the world's time.
+      ...(this.campaign?.world && { time: this.campaign.world.time }),
     })
     this.saved = { ...this.saved, system: s.id, season, startDay, session }
     this.aim()
@@ -264,17 +368,97 @@ export class TripStore {
     this.step({ type: 'setDestination', hex: last })
   }
 
-  step(action: TravelAction): void {
+  /**
+   * Plays an action. In a campaign, the trip first takes its place as the one going on
+   * (asking, if another trip played there last) and catches up with the campaign's clock.
+   */
+  step(action: TravelAction): void | Promise<void> {
+    if (!this.keeper) return this.stepNow(action)
+    return this.stepInCampaign(action)
+  }
+
+  private async stepInCampaign(action: TravelAction): Promise<void> {
+    const trip = this.saved.id
+    await this.openCampaign()
+    if (trip !== this.saved.id || !(await this.claim())) return
+    this.stepNow(action)
+  }
+
+  /**
+   * Makes the open trip the one going on in its campaign: if another one played there last,
+   * asks to pause it; if the campaign's clock went on meanwhile, the party waits until then.
+   */
+  private async claim(): Promise<boolean> {
+    const campaign = this.campaign
+    const me = this.me
+    if (!campaign || !me) return true
+    const other = otherTrip(campaign, me)
+    const t = translator(this.options.locale)
+    if (other && !(await confirmAction(t('campaign.pauseOther', { trip: other.name }))))
+      return false
+    if (this.campaign !== campaign) return false
+    this.keeper!.set(playTrip(campaign, me))
+    const time = campaign.world?.time
+    const session = this.saved.session
+    if (time !== undefined && session && session.travel.time < time) {
+      this.stepNow({ type: 'wait', until: time })
+      showToast(t('campaign.caughtUp'), 'info', 6000)
+    }
+    return true
+  }
+
+  /** What the campaign's world plays with on this trip: its system, its Oracle (if loaded). */
+  private worldHost(session: SessionState): WorldHost | undefined {
+    const oracle = this.options.oracle()
+    if (!oracle) return undefined
+    const system = this.system
+    const factions = this.campaign?.factions
+    const factionsSystem = factions
+      ? this.options.systems().find((s) => s.id === factions.system)?.factions
+      : undefined
+    return {
+      calendar: calendarOf(system),
+      clocks: system.clocks,
+      fallback: system.locale,
+      factions: factionsSystem,
+      oracle,
+      random: mathRandom(),
+      locale: this.options.locale(),
+      trip: { weather: session.travel.weather },
+      words: worldWords(this.options.locale),
+    }
+  }
+
+  private stepNow(action: TravelAction): void {
     const session = this.saved.session
     if (!session) return
+    const campaign = this.campaign
+    const host = campaign && this.worldHost(session)
     try {
       const options = {
         system: this.system,
         world: wayWorld(this.saved.way, this.hexKm),
         oracle: this.options.oracle(),
         locale: this.options.locale(),
+        ...(campaign && host && { facts: worldFactsOf({ campaign }, host) }),
       }
-      this.saved = { ...this.saved, session: stepTrip(options, session, action).state }
+      // Checks roll with the campaign's Oracle state, shared with its maps and hand rolls.
+      const input = campaign?.oracle ? { ...session, oracle: campaign.oracle.state } : session
+      const { state, entries } = stepTrip(options, input, action)
+      let next = state
+      if (campaign && host) {
+        const done = tripStepped(
+          { campaign },
+          { oracle: state.oracle, entries, time: state.travel.time },
+          host,
+        )
+        for (const line of done.lines)
+          next = addEntry(next, { source: 'travel', code: line.code, text: line.text })
+        this.keeper!.set(done.campaign)
+        for (const { clock, text } of done.filled)
+          showToast(clockFilledText(this.options.locale(), clock, text), 'info', 8000)
+      }
+      this.saved = { ...this.saved, session: next }
     } catch (error) {
       // A broken pack shouldn't silently stop play: say what failed.
       showToast(error instanceof Error ? error.message : String(error), 'error', 8000)

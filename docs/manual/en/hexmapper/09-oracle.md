@@ -48,7 +48,7 @@ Then select a forest hex, press <kbd>O</kbd>, search "What do we find" and roll.
 
 ## Journal, history and your packs
 
-Each map's campaign has its own Oracle: its roll history, the cards drawn from each deck and the once-only results that already came up. They are saved with the campaign (and in the map's `.otd.json`), so opening a map of another campaign starts fresh and coming back finds them again. Hand rolls and the checks of a trip share them: a card drawn by hand is gone for the trip too.
+Each map's campaign has its own Oracle: its roll history, the cards drawn from each deck and the once-only results that already came up. They are saved with the campaign (and in the map's `.otd.json`), so opening a map of another campaign starts fresh and coming back finds them again. Hand rolls and the checks of a trip share them: a card drawn by hand is gone for the trip too, and for a trip of the Travel app playing in the same campaign.
 
 During a trip with rules, hand rolls are written in the journal too.
 

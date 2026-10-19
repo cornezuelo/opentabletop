@@ -12,4 +12,6 @@ export const trip = new TripStore({
   locale: getLocale,
   // Its trips take characters from the roster (the Characters app) and keep them in step.
   rosterApp: 'travel',
+  // …and play in campaigns: their world clock, factions and Oracle, one trip at a time.
+  campaignApp: 'travel',
 })

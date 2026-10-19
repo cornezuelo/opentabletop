@@ -16,15 +16,16 @@ it.skipIf(!OUT)('writes the old trips of this version', { timeout: 120_000 }, as
   }
   vi.spyOn(Math, 'random').mockReturnValue(0.42)
   const session = () => trip.saved.session!
-  const resolve = () => {
-    for (const c of session().travel.pendingChecks) trip.step({ type: 'resolveCheck', id: c.id })
+  const resolve = async () => {
+    for (const c of session().travel.pendingChecks)
+      await trip.step({ type: 'resolveCheck', id: c.id })
   }
   /** Marches on, waiting for the next day when this one's march is done. */
-  const march = () => {
+  const march = async () => {
     const before = session().travel.time
-    trip.step({ type: 'travel', until: 'hex' })
+    await trip.step({ type: 'travel', until: 'hex' })
     if (session().travel.time === before && !session().travel.pendingChecks.length)
-      trip.step({ type: 'wait', until: before + 18 * 60 })
+      await trip.step({ type: 'wait', until: before + 18 * 60 })
   }
   // A road for a while, then a landmark in the forest (the Grey Marches pause there).
   const way = [
@@ -36,32 +37,32 @@ it.skipIf(!OUT)('writes the old trips of this version', { timeout: 120_000 }, as
     { terrain: 'hills', tags: [], edges: [] },
     { terrain: 'plains', tags: [], edges: [] },
   ]
-  const newTrip = (system: string) => {
-    trip.create(system, 'autumn')
+  const newTrip = async (system: string) => {
+    await trip.create(system, 'autumn')
     for (const hex of way) trip.addHex(hex)
   }
   const arrived = () => trip.location === trip.saved.way.length - 1
   const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!.id
 
   // The Grey Marches, marching until a check waits to be resolved.
-  newTrip(greyMarches)
+  await newTrip(greyMarches)
   trip.rename('Pending')
-  for (let i = 0; i < 50 && !session().travel.pendingChecks.length && !arrived(); i++) march()
+  for (let i = 0; i < 50 && !session().travel.pendingChecks.length && !arrived(); i++) await march()
 
   // The Grey Marches again, checks resolved, marched on and camped.
-  newTrip(greyMarches)
+  await newTrip(greyMarches)
   trip.rename('Camped')
   for (let i = 0; i < 6 && !arrived(); i++) {
-    march()
-    resolve()
+    await march()
+    await resolve()
   }
-  trip.step({ type: 'action', id: 'camp' })
-  resolve()
+  await trip.step({ type: 'action', id: 'camp' })
+  await resolve()
 
   // The Generic rules, marched on.
-  newTrip('generic')
+  await newTrip('generic')
   trip.rename('Generic')
-  for (let i = 0; i < 3 && !arrived(); i++) march()
+  for (let i = 0; i < 3 && !arrived(); i++) await march()
 
   writeFileSync(`${OUT}.json`, localStorage.getItem(KEY)!)
 })

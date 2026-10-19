@@ -190,6 +190,35 @@ describe('playing on the map', () => {
     expect(typeof rollContext().hour).toBe('number')
   })
 
+  it('one trip at a time in a campaign: another that played last is paused first', async () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    clickHex('7,7')
+    startWorld()
+    const session = () => sessionOf(editor.map.play!)!
+    step({ type: 'wait', until: session().travel.time + 30 })
+    // The map's trip is the one going on…
+    expect(editor.campaign.playing).toMatchObject({ app: 'hexmapper', id: editor.map.meta.id })
+    // …until a trip of Travel plays in the campaign, and moves its clock on a day.
+    const travel = { app: 'travel', id: 't1', name: 'To Keld' }
+    editor.setPlaying(travel)
+    worldAct({ type: 'advance', minutes: 1440 })
+    const world = editor.campaign.world!.time
+    const before = session().travel.time
+    // Playing here asks; no: nothing happens.
+    step({ type: 'wait', until: before + 60 })
+    expect(dialog.current?.message).toMatch(/“To Keld”/)
+    dialog.current!.resolve('cancel')
+    await Promise.resolve()
+    expect(session().travel.time).toBe(before)
+    expect(editor.campaign.playing).toEqual(travel)
+    // Yes: the party waits until the campaign's clock, then does what was asked.
+    step({ type: 'wait', until: world + 60 })
+    dialog.current!.resolve('ok')
+    await vi.waitFor(() => expect(session().travel.time).toBeGreaterThanOrEqual(world + 60))
+    expect(editor.campaign.playing).toMatchObject({ app: 'hexmapper' })
+    expect(toasts.map((x) => x.message).join(' ')).toMatch(/waited until then/)
+  })
+
   it('the world clock is saved in the file and follows a trip, telling what came due', () => {
     editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     startWorld()

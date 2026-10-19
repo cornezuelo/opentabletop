@@ -1,7 +1,7 @@
 import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
 import {
   bringClocks as bringClocksOn,
-  followTrip as followTripOn,
+  tripStepped as tripSteppedOn,
   missingClocks as missingClocksOf,
   startWorld as startWorldOn,
   worldAct as worldActOn,
@@ -13,7 +13,7 @@ import {
   type WorldLine,
 } from '@open-tabletop/campaign'
 import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
-import { memberNamer, translator } from '@open-tabletop/travel-ui'
+import { clockFilledText, memberNamer, translator, worldWords } from '@open-tabletop/travel-ui'
 import { availableActions } from '@open-tabletop/travel-engine'
 import { type Calendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
@@ -24,7 +24,7 @@ import {
   type WorldEvent,
   type WorldState,
 } from '@open-tabletop/world-engine'
-import { factionsSystem, lineText } from './factions'
+import { factionsSystem } from './factions'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { sessionOf, step } from './play'
@@ -67,18 +67,7 @@ function host(): WorldHost {
     random: mathRandom(),
     locale: getLocale(),
     ...(trip && { trip: { weather: trip.travel.weather } }),
-    words: {
-      clockFull: (full) =>
-        [
-          full.description,
-          full.error ? t('world.clockRollFailed', { error: full.error }) : full.text,
-          full.then === 'reset' ? t('world.clockStartsOver') : '',
-          full.then === 'remove' ? t('world.clockGone') : '',
-        ]
-          .filter(Boolean)
-          .join(' '),
-      factionLine: lineText,
-    },
+    words: worldWords(getLocale),
   }
 }
 
@@ -88,7 +77,7 @@ const place = () => ({ campaign: editor.campaign, map: editor.map })
 function take<T extends WorldDone>(done: T): T {
   editor.takeWorld(done)
   for (const { clock, text } of done.filled)
-    showToast(`${t('world.clockFilled', { name: clock })} ${text}`, 'info', 8000)
+    showToast(clockFilledText(getLocale(), clock, text), 'info', 8000)
   return done
 }
 
@@ -291,9 +280,10 @@ export function stopMessage(
 export const upcoming = (state: WorldState, limit = 12) => world().upcoming(state, limit)
 
 /**
- * A trip moved time on: the world follows, and what came due on the way is told
- * (events and holidays), as journal lines.
+ * The map's trip stepped: its checks rolled on the campaign's Oracle, what it did to the
+ * world, and the world following its time; returns what came due on the way (events and
+ * holidays), as journal lines.
  */
-export function followTrip(time: number): WorldLine[] {
-  return take(followTripOn(place(), time, host())).lines
+export function tripStepped(step: Parameters<typeof tripSteppedOn>[1]): WorldLine[] {
+  return take(tripSteppedOn(place(), step, host())).lines
 }

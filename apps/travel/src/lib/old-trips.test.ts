@@ -39,19 +39,20 @@ async function openTravel(json: string) {
 type Travel = Awaited<ReturnType<typeof openTravel>>
 
 /** Resolves what waits, then the way grows by a hex and the party marches on. */
-function playOn({ trip, text }: Travel) {
+async function playOn({ trip, text }: Travel) {
   const session = () => trip.saved.session!
   // The open trip's panel: its moment, and Continue on a check waiting to be resolved.
   expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
   if (session().travel.pendingChecks.length) expect(text()).toMatch(/Continue/)
-  for (const c of session().travel.pendingChecks) trip.step({ type: 'resolveCheck', id: c.id })
+  for (const c of session().travel.pendingChecks)
+    await trip.step({ type: 'resolveCheck', id: c.id })
   expect(session().travel.pendingChecks).toEqual([])
   trip.addHex()
   const start = session().travel.time
   for (let i = 0; i < 4 && !session().travel.pendingChecks.length; i++) {
     const before = session().travel.time
-    trip.step({ type: 'travel', until: 'hex' })
-    if (session().travel.time === before) trip.step({ type: 'wait', until: before + 18 * 60 })
+    await trip.step({ type: 'travel', until: 'hex' })
+    if (session().travel.time === before) await trip.step({ type: 'wait', until: before + 18 * 60 })
   }
   expect(session().travel.time).toBeGreaterThan(start)
   expect(
@@ -79,7 +80,7 @@ describe('old saved trips', () => {
       expect(played[0].session!.travel.pendingChecks).not.toEqual([])
       for (const { id } of played) {
         travel.trip.open(id)
-        playOn(travel)
+        await playOn(travel)
       }
     })
 
@@ -97,7 +98,7 @@ describe('old saved trips', () => {
       },
     }))
     const shown = travel.toasts.length
-    playOn(travel)
+    await playOn(travel)
     expect(travel.toasts.length).toBe(shown)
   })
 })

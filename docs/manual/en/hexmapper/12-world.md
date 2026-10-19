@@ -1,6 +1,6 @@
 # The world clock
 
-The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date for this map: time moves on, scheduled events come due on their day, and progress clocks fill up. A map belongs to a **campaign**, the world it's played in, which keeps the world clock, its weather, the factions and the Oracle; for now each map has a campaign of its own, made with it (a map saved before campaigns gets one with its clock, factions and Oracle), and maps sharing one campaign come later. It's saved with the campaign, beside the map, and in the map's `.otd.json`. Its months, moons and holidays come from the calendar of the map's system (`kind: calendar` in its pack, see [Kinds of definition](../technical/07-kinds.md#calendars)); without one, days and four seasons.
+The **World** panel (☾ in the toolbar, under Play) keeps the campaign's date for this map: time moves on, scheduled events come due on their day, and progress clocks fill up. A map belongs to a **campaign**, the world it's played in, which keeps the world clock, its weather, the factions and the Oracle; for now each map has a campaign of its own, made with it (a map saved before campaigns gets one with its clock, factions and Oracle), and maps sharing one campaign come later; a trip of the Travel app can play in it ([The campaign](../travel/02-playing.md#the-campaign)). It's saved with the campaign, beside the map, and in the map's `.otd.json`. Its months, moons and holidays come from the calendar of the map's system (`kind: calendar` in its pack, see [Kinds of definition](../technical/07-kinds.md#calendars)); without one, days and four seasons.
 
 ## Starting it
 
@@ -42,6 +42,8 @@ It **stops early**, and the clock with it, when something needs you, and **a mes
 A camp lasts as long as its steps say even if you asked for less: if the halt is at 20:00 and camp sleeps until 06:00, **+1 hour** at 19:30 reaches the halt, so the party camps and the clock ends at 06:00.
 
 Example with the Grey Marches: start the clock, place the party in Ashford (0608) and click 0808 in Play to plan the way there; then press **Next day**: it asks, the weather and getting-lost checks are rolled in the morning, the party marches along the road, camps at nightfall (eating a day's food, a fed night takes off 1 fatigue, the night encounter is rolled where danger is 2 or more) and the clock ends the next morning, when the camp ends, a day further on. Clear the route (click the party's own hex) and **Next day** waits in place instead.
+
+**One trip at a time.** A trip of the Travel app may play in this map's campaign too, and the campaign's time is one: playing the map's trip when that one played last asks first ("Another trip is going on in this campaign: “To Keld”. Pause it and play this one?"), and if the clock went on meanwhile, the party waits until the campaign's date before doing what you asked (a message says so).
 
 ## Events
 

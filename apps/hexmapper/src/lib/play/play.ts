@@ -11,14 +11,15 @@ import {
   travels,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
-import { getLocale } from '../i18n/index.svelte'
+import { getLocale, t } from '../i18n/index.svelte'
 import { DEFAULT_TOKEN_ICONS, newId, partyToken, type PlayState } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
-import { showToast } from '@open-tabletop/ui-kit'
+import { confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { otherTrip, playTrip, type CampaignTrip } from '@open-tabletop/campaign'
 import { SetMetaCommand } from '../commands/settings'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
-import { applyWorldEffects, followTrip, worldFactsNow } from './world.svelte'
+import { tripStepped, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -179,11 +180,39 @@ export function restartRules(system: string, season: Season): void {
   save(newSession(play, location, system, season))
 }
 
+/** The map's trip, as the trip going on in its campaign. */
+const mapTrip = (): CampaignTrip => ({
+  app: 'hexmapper',
+  id: editor.map.meta.id,
+  name: editor.map.meta.name,
+})
+
+/**
+ * Makes the map's trip the one going on in its campaign: if another trip played there last
+ * (one of Travel's, another map's), asks to pause it, and the party waits until the
+ * campaign's clock if it went on meanwhile; then plays `action`.
+ */
+async function claimThen(other: CampaignTrip, action: TravelAction): Promise<void> {
+  if (!(await confirmAction(t('play.pauseOther', { trip: other.name })))) return
+  editor.setPlaying(mapTrip())
+  const time = editor.campaign.world?.time
+  const session = sessionOf(current())
+  if (time !== undefined && session && session.travel.time < time) {
+    step({ type: 'wait', until: time })
+    showToast(t('play.caughtUp'), 'info', 6000)
+  }
+  step(action)
+}
+
 /** Runs a travel action through the session (Oracle resolves bound checks). */
 export function step(action: TravelAction): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
+  // One trip at a time in a campaign: another one that played there last is paused first.
+  const other = otherTrip(editor.campaign, mapTrip())
+  if (other) return void claimThen(other, action)
+  if (playTrip(editor.campaign, mapTrip()) !== editor.campaign) editor.setPlaying(mapTrip())
   const system = getSystem(play.rules.system)
   const options = {
     system,
@@ -205,19 +234,12 @@ export function step(action: TravelAction): void {
   }
   const { state, entries, discovered } = result
   editor.applyDiscovery(discovered)
-  // The trip's checks rolled on the campaign's Oracle: kept before a full clock rolls on it.
-  editor.setOracle({ state: state.oracle, history: shared?.history ?? [] })
-  // What the trip's results, checks and actions did to the world: its clocks, its factions.
-  for (const entry of entries) {
-    const value = entry.data?.value as { effects?: Record<string, unknown> } | undefined
-    const effects = (entry.data?.effects as Record<string, unknown> | undefined) ?? value?.effects
-    if (effects) applyWorldEffects(effects)
-  }
   const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
   placeParty(state.travel.location as HexKey)
-  // The world clock follows the trip; what came due on the way goes to the journal.
+  // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
+  // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
-  for (const line of followTrip(state.travel.time))
+  for (const line of tripStepped({ oracle: state.oracle, entries, time: state.travel.time }))
     journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
   save({
     ...play,

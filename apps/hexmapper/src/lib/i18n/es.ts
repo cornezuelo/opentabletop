@@ -405,10 +405,6 @@ export const es: Messages = {
       'Según avanza el reloj del mundo (a mano, o con un viaje), llega un turno del mundo cada tantos días como diga el sistema. Desmárcalo para jugarlos solo con **Turno del mundo**.',
     remove: 'Quitar las facciones del mapa',
     confirmRemove: '¿Quitar las facciones de este mapa? Se olvidan sus hojas y su territorio.',
-    line: '{name}: {text}',
-    gained: 'tierras +{n}',
-    lost: 'tierras −{n}',
-    failed: '{name}: la tabla de turno falló ({error})',
   },
   tokens: {
     sheet: 'Hoja',
@@ -462,6 +458,8 @@ export const es: Messages = {
     empty: 'Aún no hay tokens.',
   },
   play: {
+    pauseOther: vocabulary.es.campaign.pauseOther,
+    caughtUp: vocabulary.es.campaign.caughtUp,
     noTravel:
       '{system} no tiene reglas de viaje: con él no se juegan viajes, solo su mundo, su oráculo y sus facciones. Para viajar, elige otro sistema en Ajustes del mapa → Mapa → Sistema.',
     otherSystem:
@@ -656,10 +654,7 @@ export const es: Messages = {
     addClock: 'Añadir',
     removeClock: 'Quitar este reloj',
     confirmRemoveClock: '¿Quitar el reloj «{name}»?',
-    clockFilled: '{name}: ¡lleno!',
-    clockRollFailed: '(su tirada falló: {error})',
-    clockStartsOver: 'Vuelve a empezar.',
-    clockGone: 'Desaparece.',
+    clockFilled: vocabulary.es.world.clockFilled,
     systemClocks: 'Añadir los relojes del sistema ({count})',
     systemClocksHelp:
       'Los relojes de progreso que declara el sistema del mapa (`kind: clocks` en su pack), cada uno con sus segmentos, por dónde empieza y qué pasa cuando se llena. Llegan con el reloj del mundo al ponerlo en marcha; esto añade los que aún no tiene (quitados, o declarados después).',

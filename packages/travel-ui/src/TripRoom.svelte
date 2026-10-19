@@ -74,6 +74,16 @@
     follow()
   }
 
+  /** The campaigns the open trip may join (kept in this browser), read when it changes. */
+  let campaigns = $state<{ id: string; name: string }[]>([])
+  $effect(() => {
+    void trip.saved.campaign
+    void trip.campaign
+    void trip.campaigns().then((list) => (campaigns = list))
+  })
+  /** Other campaigns than the trip's own (a map's, another trip's). */
+  const others = $derived(campaigns.filter((c) => c.id !== trip.saved.id))
+
   // The roster changed (the Characters app, another tab): the trip's characters catch up.
   $effect(() => {
     void roster.roster
@@ -120,6 +130,25 @@
         <button onclick={() => trip.create(system.id, season)}>{t('trips.new')}</button>
         <button class="danger" onclick={removeTrip}>{t('trips.delete')}</button>
       </div>
+      {#if trip.inCampaigns}
+        <label class="field campaign">
+          <span>{t('campaign.title')}<InfoTip text={t('campaign.help')} /></span>
+          <select
+            value={trip.saved.campaign}
+            onchange={(e) => void trip.joinCampaign(e.currentTarget.value)}
+          >
+            <option value={trip.saved.id}>{t('campaign.own')}</option>
+            {#each others as c (c.id)}
+              <option value={c.id}>{c.name}</option>
+            {/each}
+            {#if trip.saved.campaign !== trip.saved.id && !others.some((c) => c.id === trip.saved.campaign)}
+              <option value={trip.saved.campaign}
+                >{trip.campaign?.name || trip.saved.campaign}</option
+              >
+            {/if}
+          </select>
+        </label>
+      {/if}
       <TripSetup {systems} system={system.id} {locale} bind:season onrestart={start} />
       {#if !playing && session}
         <div class="notice">
@@ -186,6 +215,15 @@
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto auto;
     gap: 8px;
     align-items: end;
+  }
+
+  .campaign {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-width: 360px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .trips .field {
