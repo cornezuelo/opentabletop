@@ -8,6 +8,7 @@ import {
   simpleCalendar,
 } from './index'
 import { calendarFrom, moonPhase, seasonStartDay, seasonsOf, validateCalendar } from './calendar'
+import { divisionValues, equalParts, readDivisions } from './divisions'
 
 describe('calendar', () => {
   it('describes absolute minutes as day, hour, watch and season', () => {
@@ -129,6 +130,26 @@ describe('calendars as data', () => {
 })
 
 describe('divisions of the day', () => {
+  it('splits the day into equal numbered parts, read as numbers like every', () => {
+    expect(equalParts(4)).toEqual([
+      { id: '1', from: '00:00' },
+      { id: '2', from: '04:00' },
+      { id: '3', from: '08:00' },
+      { id: '4', from: '12:00' },
+      { id: '5', from: '16:00' },
+      { id: '6', from: '20:00' },
+    ])
+    expect(equalParts(1.5, 6).map((p) => p.from)).toEqual(['00:00', '01:30', '03:00', '04:30'])
+    const written = readDivisions({ watch: { parts: equalParts(4) } })
+    const every = readDivisions({ watch: { every: 4 } })
+    expect(written[0].numbered).toBe(true)
+    expect(divisionValues(written, 5 * 60, 1440).values).toEqual({ watch: 2 })
+    expect(divisionValues(every, 5 * 60, 1440).values).toEqual({ watch: 2 })
+    // Parts with names stay names.
+    const named = readDivisions({ meal: { parts: [{ id: '1st', from: '07:00' }] } })
+    expect(named[0].numbered).toBe(false)
+  })
+
   // A hobbit's day: meals that cover it, watches only at night, bells of half an hour.
   const shire = calendarFrom({
     months: [{ id: 'm', days: 30 }],

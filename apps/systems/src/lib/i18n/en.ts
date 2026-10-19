@@ -206,16 +206,20 @@ export const en = {
     hoursPerDayHelp: 'How long a day is (default 24).\n• `30` — a world with longer days',
     divisions: 'Divisions of the day',
     divisionsHelp:
-      'The ways your world divides the day, as many as you want: meals, watches, bells, prayers… Each one has its parts, and lasts from one part to the next (the last one until the first, past midnight). Conditions and tables read what it is now as `time.<id>`, and the tags of the parts it is in as `time.tags`; the World panel waits until any part.\n• `meal` with **elevenses** from `11:00` — `time.meal: elevenses` holds from 11:00 to the next meal\n• `watch` every `4` hours — `time.watch: 2` from 04:00 to 08:00\n• a part with **Until** `07:00` — none of its division after 07:00 until the next part\n• **Tags** `dark` on the night — `time.tags: dark`',
+      'The ways your world divides the day, as many as you want: meals, watches, bells, prayers… Each one has its parts, and lasts from one part to the next (the last one until the first, past midnight). Conditions and tables read what it is now as `time.<id>`, and the tags of the parts it is in as `time.tags`; the World panel waits until any part.\n• `meal` with **elevenses** from `11:00` — `time.meal: elevenses` holds from 11:00 to the next meal\n• `watch` split into parts of `4` hours (**Split into equal parts…**) — `time.watch: 2` from 04:00 to 08:00\n• a part with **Until** `07:00` — none of its division after 07:00 until the next part\n• **Tags** `dark` on the night — `time.tags: dark`',
     divisionIdHelp:
       'How conditions and tables read it: `time.<id>` (`time.meal: elevenses`). It can’t be a name the moment already has (`day`, `hour`, `season`, `tags`…).',
     divisionReserved: '“{id}” is already a name of the moment (time.{id}); choose another.',
-    divisionShape: 'Parts',
-    divisionShapeHelp:
-      'Parts of their own, each with its time, or numbered parts of equal length from midnight.\n• **Its own parts** — breakfast, elevenses, supper…\n• **Every N hours** — `4`: 1 to 6',
-    shapeParts: 'Its own parts',
-    shapeEvery: 'Every N hours',
-    every: 'Every (hours)',
+    split: 'Split into equal parts…',
+    splitTitle: 'Split the day into equal parts',
+    splitMessage:
+      'Parts of how many hours each, numbered from midnight? They replace the parts this division has; then rename or adjust them as you like.',
+    splitHours: '{hours} h',
+    splitHelp:
+      'Writes the day as numbered parts of the same length from midnight, one row each, to see, rename or adjust: the shifts of a watch, bells, prayers at fixed hours. Parts named 1, 2, 3… are read as numbers.\n• `4` hours — **1** from `00:00`, **2** from `04:00` … **6** from `20:00`: `time.watch: 2` from 04:00 to 08:00\nFor stretches of your own (morning, the night, meals), write the rows instead, each from its hour.',
+    everyNote:
+      'Numbered parts every {hours} hours from midnight (written with every in the YAML), as the strip shows: read as numbers, like time.watch: 2.',
+    writeRows: 'Write them as rows',
     partFrom: 'From',
     partFromHelp:
       'When it starts; it lasts until the next part starts, in the order of the day, whatever order they are written in.\n• `11:00`',
@@ -364,6 +368,8 @@ export const en = {
     },
   },
   forms: {
+    /** Beside a button with help: its explanation, without pressing it. */
+    whatItDoes: 'What it does',
     description: 'Description (its help)',
     descriptionHelp:
       "What it is and what it's for, in a sentence or two: players read it as its help where they meet it (the trip panel, a character's or a faction's card, the World panel), before what the apps add (how tables read it, its bounds…). Basic Markdown. Written in the current language: the pack's own, or its translation file.\n• _Lost to fords, ambushes and the cold; a fed night in camp gives one back._",

@@ -16,6 +16,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Systems: **a description for every part**, shown as its help where players meet it: the Sheet tab's values, groups, conditions and kinds of relation (and the sheet itself), ways of travelling, supplies, factions and clocks have a **Description (its help)** column, translatable like names. Characters' cards show their groups' and relations' descriptions, the World view a faction's, and the trip panel the chosen way of travelling's.
 
+- Systems: **the divisions of the day as a strip** of the day in the Calendar tab, each part a stretch in its colour; **Every N hours** is gone from the form: **Split into equal parts…** writes the numbered rows to rename or adjust (a division written with `every` shows its parts and can be written as rows). Parts all named 1, 2, 3… read as numbers, like `every`'s.
+
 ### Fixes
 
 - Systems: a system's **YAML** tab no longer edits the files of another pack it brings (Core's roll modes…): they show read-only, saying whose they are. The notice of packs not read shows **Delete** in red.

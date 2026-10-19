@@ -210,16 +210,20 @@ export const es: Messages<typeof en> = {
     hoursPerDayHelp: 'Lo que dura un día (por defecto 24).\n• `30` — un mundo de días más largos',
     divisions: 'Divisiones del día',
     divisionsHelp:
-      'Las maneras en que tu mundo divide el día, tantas como quieras: comidas, guardias, campanadas, rezos… Cada una tiene sus partes, y cada parte dura hasta que empieza la siguiente (la última hasta la primera, pasada la medianoche). Las condiciones y las tablas leen lo que es ahora como `time.<id>`, y las etiquetas de las partes en que está como `time.tags`; el panel Mundo espera hasta cualquier parte.\n• `meal` con **elevenses** desde las `11:00` — `time.meal: elevenses` se cumple desde las 11:00 hasta la siguiente comida\n• `watch` cada `4` horas — `time.watch: 2` de 04:00 a 08:00\n• una parte con **Hasta** `07:00` — ninguna de su división desde las 07:00 hasta la siguiente parte\n• **Etiquetas** `dark` en la noche — `time.tags: dark`',
+      'Las maneras en que tu mundo divide el día, tantas como quieras: comidas, guardias, campanadas, rezos… Cada una tiene sus partes, y cada parte dura hasta que empieza la siguiente (la última hasta la primera, pasada la medianoche). Las condiciones y las tablas leen lo que es ahora como `time.<id>`, y las etiquetas de las partes en que está como `time.tags`; el panel Mundo espera hasta cualquier parte.\n• `meal` con **elevenses** desde las `11:00` — `time.meal: elevenses` se cumple desde las 11:00 hasta la siguiente comida\n• `watch` dividida en partes de `4` horas (**Dividir en partes iguales…**) — `time.watch: 2` de 04:00 a 08:00\n• una parte con **Hasta** `07:00` — ninguna de su división desde las 07:00 hasta la siguiente parte\n• **Etiquetas** `dark` en la noche — `time.tags: dark`',
     divisionIdHelp:
       'Cómo la leen las condiciones y las tablas: `time.<id>` (`time.meal: elevenses`). No puede ser un nombre que el momento ya tiene (`day`, `hour`, `season`, `tags`…).',
     divisionReserved: '«{id}» ya es un nombre del momento (time.{id}); elige otro.',
-    divisionShape: 'Partes',
-    divisionShapeHelp:
-      'Partes propias, cada una con su hora, o partes numeradas de la misma duración desde la medianoche.\n• **Sus propias partes** — desayuno, almuerzo, cena…\n• **Cada N horas** — `4`: de 1 a 6',
-    shapeParts: 'Sus propias partes',
-    shapeEvery: 'Cada N horas',
-    every: 'Cada (horas)',
+    split: 'Dividir en partes iguales…',
+    splitTitle: 'Dividir el día en partes iguales',
+    splitMessage:
+      '¿Partes de cuántas horas cada una, numeradas desde la medianoche? Sustituyen a las partes que tenga esta división; después renómbralas o ajústalas a tu gusto.',
+    splitHours: '{hours} h',
+    splitHelp:
+      'Escribe el día como partes numeradas de la misma duración desde la medianoche, una fila cada una, para verlas, renombrarlas o ajustarlas: los turnos de una guardia, campanadas, rezos a horas fijas. Las partes que se llaman 1, 2, 3… se leen como números.\n• `4` horas — **1** desde las `00:00`, **2** desde las `04:00` … **6** desde las `20:00`: `time.watch: 2` de 04:00 a 08:00\nPara tramos propios (la mañana, la noche, las comidas), escribe las filas, cada una desde su hora.',
+    everyNote:
+      'Partes numeradas cada {hours} horas desde la medianoche (escritas con every en el YAML), como enseña la franja: se leen como números, como time.watch: 2.',
+    writeRows: 'Escribirlas como filas',
     partFrom: 'Desde',
     partFromHelp:
       'Cuándo empieza; dura hasta que empieza la siguiente parte, en el orden del día, se escriban en el orden que se escriban.\n• `11:00`',
@@ -368,6 +372,7 @@ export const es: Messages<typeof en> = {
     },
   },
   forms: {
+    whatItDoes: 'Qué hace',
     description: 'Descripción (su ayuda)',
     descriptionHelp:
       'Qué es y para qué sirve, en una o dos frases: los jugadores la leen como su ayuda donde se lo encuentran (el panel del viaje, la ficha de un personaje o de una facción, el panel Mundo), antes de lo que añaden las aplicaciones (cómo lo leen las tablas, sus límites…). Markdown básico. Escrita en el idioma actual: el del pack o su fichero de traducción.\n• _Se pierde en vados, emboscadas y con el frío; una noche bien comidos en el campamento devuelve una._',

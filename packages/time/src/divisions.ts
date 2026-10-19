@@ -44,7 +44,7 @@ export interface Division {
   id: string
   name?: Text
   description?: Text
-  /** Numbered parts of equal length (`every`): its value is a number, not an id. */
+  /** Numbered parts (`every`, or parts all named 1, 2, 3…): its value is a number, not an id. */
   numbered: boolean
   parts: DayPart[]
 }
@@ -196,7 +196,10 @@ export function readDivisions(
     }
     if (!Array.isArray(def.parts)) return []
     const parts = readParts(def.parts, minutesPerDay)
-    return parts.length ? [{ id, ...texts, numbered: false, parts }] : []
+    // Parts all named by whole numbers (1, 2, 3…) are read as numbers, as `every`'s are:
+    // `time.watch: 2` holds whether the watches are written one way or the other.
+    const numbered = parts.length > 0 && parts.every((p) => /^\d+$/.test(p.id))
+    return parts.length ? [{ id, ...texts, numbered, parts }] : []
   })
 }
 
@@ -245,4 +248,19 @@ export function findPart(
   const division = divisions.find((d) => d.id === ref.slice(0, dot))
   const part = division?.parts.find((p) => p.id === ref.slice(dot + 1))
   return division && part ? { division, part } : undefined
+}
+
+/**
+ * The day split into numbered parts of equal length from midnight, written as a division's
+ * own parts (`1` from `00:00`, `2` from `04:00`…): what `every` reads as, to see and change.
+ */
+export function equalParts(hours: number, hoursPerDay = 24): DayPartDef[] {
+  const length = hours * MINUTES_PER_HOUR
+  const count = Math.ceil((hoursPerDay * MINUTES_PER_HOUR) / length)
+  const clock = (m: number) =>
+    `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
+  return Array.from({ length: count }, (_, i) => ({
+    id: String(i + 1),
+    from: clock(Math.round(i * length)),
+  }))
 }
