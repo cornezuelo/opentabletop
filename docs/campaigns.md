@@ -1,0 +1,93 @@
+# Campaigns and the Campaign app — design
+
+Backlog item 11, phase (c). It began as a Factions app ([its first design](#how-we-got-here)); asked how one faction could be on several maps, it grew into **campaigns**, agreed in principle with the author on 2026-10-19 (§7). **Draft, to review with the author** (§9).
+
+## 1. Where we are
+
+- **Every map is its own world.** A map keeps its world clock (`map.world`: date, scheduled events, progress clocks, timeline), its world weather (`map.worldWeather`), its Oracle state (`map.oracle`: decks drawn, once-only entries, values set, hand-roll history) and its factions (`map.factions`: each faction's sheet, the hexes each holds, the last turn).
+- So two maps are two dates, and "the Iron Clans" on two maps are two unrelated factions. A faction's starting `hexes` in a pack are coordinates without a map: every map that has a `15,9` gets Fort Keld there.
+- **Travel's trips** (no map) have no world clock, no factions and an Oracle state of their own.
+- **The Oracle app** rolls with a state of its own (`opentabletop.oracle`).
+- **Characters** live in the roster ([characters-app.md](characters-app.md)), global to the browser, used by trips and tokens by id.
+
+## 2. The model: where each thing lives
+
+The **place** (a map) is split from **what happens in the world** (a campaign).
+
+| Lives in                         | What                                                                                                                                                                                                                                                                 |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **The roster** (global)          | Characters, as today. A character may go from one campaign to another.                                                                                                                                                                                               |
+| **The campaign**                 | Its system (and the packs it adds); the world clock (date, events, holidays and moons, progress clocks, timeline) and the world's weather; the factions (one sheet each, the last turn); the Oracle state (decks, once-only entries, values set, hand-roll history). |
+| **The map**                      | Geography, tokens, the trip played on it, and **each faction's land on this map**.                                                                                                                                                                                   |
+| **A trip** (Hexmapper or Travel) | The party, its supplies, its journal, as today; its time **is** the campaign's clock.                                                                                                                                                                                |
+
+- **A campaign** has an id, a name, a `noteRef`, its system, the state above, and the list of its maps and trips (by id). In OTD it is the `Campaign` entity that already exists.
+- **Every map and every trip belongs to exactly one campaign** (`meta.campaign`). A new map or trip creates its own campaign without asking, so whoever plays one map sees no difference from today. A sub-map (backlog) belongs to its parent's campaign.
+- **Where**: IndexedDB, beside the map library (timelines and histories grow), added to backups explicitly; changes announced on a `BroadcastChannel` (`opentabletop.campaigns`) so open apps stay in step (§6).
+- **Lore stays in the notes app** (principle 9): a campaign keeps only mechanical state, and a `noteRef` to its page.
+
+## 3. Factions in a campaign
+
+- **One sheet per faction**, in the campaign. **Land per map**: each map keeps the hexes each faction holds on it.
+- **Starting land from the pack**: `regions` by name, on any map of the campaign that has them; `hexes` only **with the map they belong to** (the system's example map, by its path in the pack), so they never land on an unrelated map.
+- **A turn's land effects** (`faction.territory: 1` / `-1`) happen **on the map being played**: the map open in the Hexmapper when the turn comes, or the one chosen in the Campaign app. Values, conditions and clocks change once, in the campaign.
+- `factions.<id>.territory` reads the land on the map being played; `factions.<id>.land` (new) the total over the campaign's maps.
+
+## 4. The Campaign app
+
+`apps/campaign`, in the switcher, with its manual and help column like the rest. The **hub** of a game: what is going on.
+
+- **Campaigns** (left column, folds): this browser's campaigns, with a search box; **New campaign** (a name and a system).
+- **The campaign** (middle), in tabs:
+  - **World**: the date, moving time on, scheduled events, holidays and moons, progress clocks, the world's weather (what the Hexmapper's World panel has today).
+  - **Factions**: each faction's card (colour, name, what the system says it is, its full `CharacterCard`, notes), its land as a read-only **minimap** per map (a selector when there are several), **Paint in the Hexmapper ↗**; **World turn**, **Turns by themselves**.
+  - **Timeline**: what happened, newest first (world turns, events, clocks).
+  - **Maps and trips**: the campaign's maps (open in the Hexmapper) and Travel's trips (open in Travel); **Add a map** (a map of another campaign joins this one, §5); who plays in it (roster characters in its trips and tokens, opened in Characters).
+- **Edit the system in Systems →** beside its name.
+- Deep links: `#/campaign/<id>`, `#/campaign/<id>/<tab>`, `#/campaign/<id>/factions/<faction>`.
+
+## 5. The other apps
+
+- **Hexmapper**: the World view keeps quick controls (the date, moving time on, **World turn**, a line per faction with its brush) and **Open in Campaign ↗**; it reads and writes the campaign of the open map. The map's settings say which campaign it is in, with **Move to another campaign…**.
+- **Travel**: a new trip belongs to a campaign (its own, or one chosen); its time is the campaign's clock, so it now has a world clock, factions and the campaign's Oracle state. Opening a trip shows its campaign, with a link.
+- **Oracle**: a campaign selector (**No campaign** = today's own state); rolling in a campaign shares its decks and history.
+- **Characters**, **Systems**, **Manual**: unchanged; Characters' **Where it plays** names the campaign too.
+- **Joining a map to another campaign**: if the map brings a clock or factions of its own, it asks what stays (the campaign's, by default); the map keeps its land for the factions the campaign has.
+
+## 6. Two apps, one campaign
+
+- **The map model goes to a package**, `@open-tabletop/map` (types, defaults, migrations, serializing, hexes, tokens), so every app reads and writes maps with the same migrations. The campaign's model, migrations and the plain functions that act on it (a world turn on a campaign and a map, bringing factions, joining a map) go to `session` or a `campaign` package, tested headless; the apps wrap them.
+- **Changes are announced** (maps and campaigns): an app holding something open that changed elsewhere reads it again (outside the undo history, like any play change), so a turn played in Campaign shows at once on the open map. If both changed it, the last write wins and the one that loses says so.
+- **One trip per campaign at a time?** See §9.
+
+## 7. Agreed with the author (2026-10-19)
+
+1. **Campaigns** (after a first draft that kept factions in each map): the place (map) apart from the world (campaign), one sheet per faction, land per map, one clock for all the maps of a campaign.
+2. Territory: a read-only minimap in the app, painted in the Hexmapper.
+3. World turns are played from the app too, with their timeline.
+4. The Hexmapper's World view is compacted, with a link to the app.
+5. **Characters and Travel stay apps of their own**: the roster is global (a character goes from one campaign to another; someone may want only a character manager), Travel is the play surface without a map as the Hexmapper is with one; their trips and characters are listed in the campaign, with links. The Oracle rolls within a campaign or alone.
+6. **The campaign journal is not part of this design** (§8).
+
+## 8. The journal, apart
+
+The author wants a journal to keep by itself too, and a notes app of our own for lore, characters, POIs and the world (backlog: _Journal system_, _Our own notes app_). That app is designed on its own, later, with its pieces as a `*-ui` package the other apps embed (as the Oracle's roll panel is). A **Log** tab in the campaign is welcome (author, 2026-10-19: "no digo que una pestaña log para la campaña esté mal, pero tendría que venir de manera natural cuando hagamos esa app, y permitamos reutilizar sus elementos en los distintos módulos de las apps"): it comes with that app, built from its pieces, not before. Until then the campaign's **Timeline** and each trip's journal are what we have.
+
+## 9. To decide with the author
+
+1. **One trip per campaign at a time**, or several (a party split in two, at different moments of the same clock)? Proposed: one at a time, as a character is in one trip at a time; a second trip in the same campaign asks to pause the first.
+2. **Rewinding** a campaign's clock (today a map's) affects every map and trip of it: proposed, asking first and saying which.
+3. **A map exported to a file** carries its campaign (the `.otd.json` stays complete on its own); importing it creates the campaign, or joins an existing one with the same id after asking.
+4. The name: **Campaign** (`Campaña`), or **World** (`Mundo`)?
+
+## 10. Phases
+
+1. **The map package**: `@open-tabletop/map` out of the Hexmapper (no format change; `old-maps` still pass); maps announced on change and read again by the Hexmapper.
+2. **Campaigns, headless**: the model, storage (IndexedDB, backups, `BroadcastChannel`), migrations (every saved map and trip becomes a campaign of its own: map and trip formats bumped, `old-maps` and `old-trips` keep playing on), factions' land per map, pack `hexes` with their map, world turns on a campaign; tests.
+3. **The Hexmapper and Travel on campaigns**: the World view compacted, **Open in Campaign**, moving a map to another campaign; Travel's trips with the campaign's clock, factions and Oracle; the Oracle's campaign selector; manual pages en/es.
+4. **The Campaign app**: campaigns, tabs, minimap, links; switcher, Makefile, `make serve`; manual en/es.
+5. **The bundled packs**: the Grey Marches' factions with their example map's hexes, a second map in the example campaign if it shows something; Core's page; tests that play a world turn from the app layer and see it on the open map and in a Travel trip.
+
+## How we got here
+
+The first draft (2026-10-19, same day) kept factions in each map and a Factions app over the library's maps. Asked how one faction could be on several maps, the author chose consistency and an app that reads intuitively: campaigns, and the Campaign app instead of a Factions app.

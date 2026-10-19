@@ -15,7 +15,7 @@ The point is to be **game-system agnostic**: every game's rules live in data _pa
 7. **Immutable state and pure functions** in engines: `(state, action) → { state, events }`. Easy to test, undo and replay.
 8. **Injectable randomness.** No engine calls `Math.random()`; all take a `RandomSource`, which can be seeded for tests and replays.
 9. **Lore lives elsewhere.** Notes, NPCs and factions in depth live in the user's notes app (SilverBullet, Obsidian…). OpenTabletop stores mechanical state and **references** (`noteRef`), never duplicated content. Short, optional GM notes on hexes are fine.
-10. **Keep it simple.** The apps are not VTTs or campaign managers. When in doubt, leave it out.
+10. **Keep it simple.** The apps are not VTTs or campaign managers: a campaign keeps mechanical state only (clock, factions, Oracle), never lore. When in doubt, leave it out.
 
 ## Monorepo layout
 
@@ -66,7 +66,7 @@ docs/
   travel-engine.md          # Travel Engine design
   character-engine.md       # Character Engine design (research of famous sheets, phases)
   characters-app.md         # the Characters app and the roster (characters shared by maps and trips)
-  factions-app.md           # the Factions app (factions of the library's maps, world turns)
+  campaigns.md              # campaigns (the world shared by maps and trips) and the Campaign app
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
 ```
 
