@@ -56,7 +56,7 @@ export const es: Messages<typeof en> = {
     factions: {
       title: 'Sus facciones',
       intro:
-        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. En el Hexmapper se traen a un mapa desde el panel Mundo.',
+        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son los hexes que tienen en un mapa: cada uno empieza con las regiones y hexes escritos aquí cuando un mapa las trae (el panel Mundo del Hexmapper); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde hex a hex en los turnos del mundo.',
       help: 'Una definición de facciones por sistema, nombrada en su **Resumen** (`factions:`). Las tablas y condiciones las leen en todas partes:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `hex.faction: the-crown` — quién tiene el hex\nSus tablas de turno las cambian con efectos:\n• `faction.values.strength: 1` — la facción a la que le toca\n• `factions.the-rebels.values.strength: -1` — otra\n• `faction.territory: 1` — un hex más, desde su frontera\n• `world.clocks.the-siege: 1` — un reloj de progreso del reloj del mundo',
       none: 'Este sistema no tiene facciones.',
       create: 'Nuevas facciones',
@@ -150,7 +150,7 @@ export const es: Messages<typeof en> = {
       'Valores iniciales de su hoja, como pares `clave: valor`; el resto, los de por defecto de la hoja.\n• `strength: 4, reputation: -1`',
     regions: 'Regiones',
     regionsHelp:
-      'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), separadas por comas.\n• `The Hollow Hills`',
+      'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), separadas por comas: la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
     hexes: 'Hexes',
     hexesHelp: 'Y estos hexes (columna,fila), separados por comas.\n• `15,9`',
     ownTurn: 'Turno propio',

@@ -65,10 +65,18 @@ The Grey Marches' example map comes with the clock running: a market every week 
 
 ## Factions
 
-When the map's system has factions (the powers of its world, `kind: factions` in its pack), the World view lists them under **Factions**; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one shows its colour and how many hexes it holds; open it for its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
+A faction is one of the powers of the world (a kingdom, a clan, a guild): a sheet of values and conditions like a character's, and **land**, the hexes it holds on the map. When the map's system has factions (`kind: factions` in its pack), the World view lists them under **Factions**; **Bring in its factions** puts them on a map that doesn't have them yet, each holding its starting land (the regions and hexes its pack names). Each one shows its colour and how many hexes it holds; open it for its sheet (its values, conditions and relations, like a character's: change them by hand when the story says so). Its land is drawn on the map in its colour (the **Factions** layer).
+
+**Their land** comes from three places, and the map keeps it (the **Their land** label in the panel says so too):
+
+- **Where it starts**: the regions and hexes its system names for each (Systems → [Factions](../systems/08-factions.md)), given when you bring them in. Changing them in the system later doesn't move a map's land.
+- **By hand**: **Paint its land**, below.
+- **World turns**: a faction's turn table may win ground (`faction.territory: 1`, a hex from its border) or lose it (`-1`).
+
+A hex has one holder at most: taking it takes it from whoever held it. Tables read who holds a hex as `hex.faction`, and how much each holds as `factions.<id>.territory`.
 
 **Their land, by hand.** Open a faction and press **Paint its land**: while it's on (and the World panel open), a click or a drag on the map gives it hexes, taken from whoever held them, and a right click takes them away (water and hexes off the map stay nobody's). Press **Stop painting** when done. Like a world turn, it isn't undone with Ctrl+Z: paint them back. Their values and conditions are changed in each one's sheet, under it.
 
-**World turn** has every faction take its turn now, in order: each rolls its turn table, and what comes up changes it, another faction, its land (a hex more from its border, or one less) or a progress clock; each result goes to the timeline ("The Iron Clans: Raiders strike the Vale's outlying farms"). With **Turns by themselves, every N days** ticked, turns come as the clock moves on, by hand or with a trip, every so many days as the system says.
+**World turn** has every faction take its turn now (its explanation is in **What it does**, beside it, so reading it doesn't run a turn), in order: each rolls its turn table, and what comes up changes it, another faction, its land (a hex more from its border, or one less) or a progress clock; each result goes to the timeline ("The Iron Clans: Raiders strike the Vale's outlying farms"). With **Turns by themselves, every N days** ticked, turns come as the clock moves on, by hand or with a trip, every so many days as the system says.
 
 Tables and conditions read them everywhere: `factions.the-vale.values.strength`, `hex.faction` (who holds the hex: the Grey Marches' Vale patrol rides wherever the Vale holds the land). A trip's results reach them too (the Grey Marches' toll makes the garrison think better of you; their haunted lights stir the Wyrm's clock), and **Apply to the trip** on a hand roll does the same. **Take the factions off the map** forgets them (after asking). The Grey Marches' example map comes with the Iron Clans, the Vale of Ashford and the garrison of Fort Keld, and the clock _The Iron Clans march_ their turns move on. How a system declares them: [Factions](../technical/07-kinds.md#factions).

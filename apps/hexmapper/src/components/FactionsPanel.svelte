@@ -32,6 +32,8 @@
 <div class="field">
   <span>{t('factions.title')}<InfoTip markdown={t('factions.help')} /></span>
   {#if own && system}
+    <p class="help">{t('factions.intro')}</p>
+    <span class="help what">{t('factions.land')}<InfoTip markdown={t('factions.landHelp')} /></span>
     {#each own.factions as faction (faction.id)}
       <details class="faction">
         <summary>
@@ -71,9 +73,10 @@
         />
       </details>
     {/each}
+    <!-- The help beside the button, not on it: pressing it runs the turn. -->
     <div class="row">
       <button onclick={() => worldTurnNow()}>{t('factions.turn')}</button>
-      <InfoTip markdown={t('factions.turnHelp')} />
+      <span class="help">{t('panel.whatItDoes')}<InfoTip markdown={t('factions.turnHelp')} /></span>
     </div>
     {#if system.def.every}
       <label class="check">
@@ -163,6 +166,10 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
+  }
+
+  .what {
+    align-self: flex-start;
   }
 
   .help {

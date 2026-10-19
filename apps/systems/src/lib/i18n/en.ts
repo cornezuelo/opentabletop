@@ -54,7 +54,7 @@ export const en = {
     factions: {
       title: 'Its factions',
       intro:
-        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. In the Hexmapper they're brought onto a map in the World panel.",
+        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the hexes they hold on a map: each starts with the regions and hexes written here when a map brings them in (the Hexmapper's World panel); from then on it's the map's, painted by hand there and won or lost hex by hex on world turns.",
       help: 'One factions definition per system, named in its **Overview** (`factions:`). Tables and conditions read them anywhere:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `hex.faction: the-crown` — who holds the hex\nTheir turn tables change them with effects:\n• `faction.values.strength: 1` — the faction whose turn it is\n• `factions.the-rebels.values.strength: -1` — another\n• `faction.territory: 1` — a hex more, from its border\n• `world.clocks.the-siege: 1` — a progress clock of the world clock',
       none: 'This system has no factions.',
       create: 'New factions',
@@ -147,7 +147,7 @@ export const en = {
       "Starting values of its sheet, as `key: value` pairs; the rest are the sheet's defaults.\n• `strength: 4, reputation: -1`",
     regions: 'Regions',
     regionsHelp:
-      'It starts holding every hex of these regions of the map (by name), comma-separated.\n• `The Hollow Hills`',
+      "It starts holding every hex of these regions of the map (by name), comma-separated: the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
     hexes: 'Hexes',
     hexesHelp: 'And these hexes (column,row), comma-separated.\n• `15,9`',
     ownTurn: 'Own turn',

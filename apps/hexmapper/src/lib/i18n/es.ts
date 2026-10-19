@@ -66,6 +66,7 @@ export const es: Messages = {
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oracle aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
   panel: {
+    whatItDoes: 'Qué hace',
     hide: 'Ocultar el panel lateral (más sitio para el mapa)',
     show: 'Mostrar el panel lateral',
     map: 'Mapa',
@@ -383,8 +384,13 @@ export const es: Messages = {
     paintHelp:
       'Le da hexes a esta facción a mano: activado, un clic o arrastrar en el mapa hace suyos los hexes (quitándoselos a quien los tuviera), y un clic derecho se los quita. El agua y los hexes fuera del mapa siguen sin ser de nadie. No se deshace con Ctrl+Z, como un turno del mundo: vuelve a pintarlos.',
     title: 'Facciones',
+    intro:
+      'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja y pintar su tierra.',
+    land: 'Su tierra',
+    landHelp:
+      'Qué hexes tiene cada facción (`hex.faction`), dibujados en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las regiones y hexes que el sistema le da (Systems → **Facciones**), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita hexes\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno hex a hex (`faction.territory: 1` coge un hex de su frontera, `-1` cede uno)\nUn hex tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
     help: 'Las facciones del sistema del mapa (`kind: factions` en su pack): cada una con su color, los hexes que tiene (dibujados en el mapa, en la capa Facciones) y su hoja (sus valores, estados y relaciones, como los de un personaje). En un **turno del mundo** cada una tira su tabla de turno, y lo que sale las cambia a ellas, su territorio y los relojes de progreso del reloj del mundo; la línea temporal dice qué hizo cada una. Las tablas y condiciones las leen en todas partes:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — quién tiene el hex\n• `factions.iron-clans.territory: { gt: 10 }` — cuántos hexes tiene',
-    none: 'El sistema del mapa tiene facciones, aún no en este mapa.',
+    none: 'El sistema del mapa tiene facciones, aún no en este mapa: tráelas, cada una con la tierra con la que el sistema dice que empieza.',
     bring: 'Traer sus facciones',
     noSystem: 'El sistema del mapa no declara facciones.',
     territory: '{n} hexes',

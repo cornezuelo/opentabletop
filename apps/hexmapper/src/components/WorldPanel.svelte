@@ -462,7 +462,10 @@
     {#if missing.length}
       <div class="row">
         <button onclick={bringClocks}>{t('world.systemClocks', { count: missing.length })}</button>
-        <InfoTip text={t('world.systemClocksHelp')} />
+        <!-- The help beside the button, not on it: pressing it adds them. -->
+        <span class="button-help"
+          >{t('panel.whatItDoes')}<InfoTip text={t('world.systemClocksHelp')} /></span
+        >
       </div>
     {/if}
     <form
@@ -625,6 +628,11 @@
 
   .what {
     flex: 1;
+  }
+
+  .button-help {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .timeline {

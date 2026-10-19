@@ -65,6 +65,8 @@ export const en = {
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
   panel: {
+    /** Beside a button with help: its explanation, without pressing it. */
+    whatItDoes: 'What it does',
     hide: 'Hide the side panel (more room for the map)',
     show: 'Show the side panel',
     map: 'Map',
@@ -376,8 +378,13 @@ export const en = {
     paintHelp:
       "Gives this faction hexes by hand: with it on, a click or a drag on the map makes the hexes its own (taken from whoever held them), and a right click takes them away. Water and hexes off the map stay nobody's. It isn't undone with Ctrl+Z, like a world turn: paint them back.",
     title: 'Factions',
+    intro:
+      'The powers of this world, each holding land on the map in its colour. Open one to see its sheet and paint its land.',
+    land: 'Their land',
+    landHelp:
+      "Which hexes each faction holds (`hex.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the regions and hexes the system names for it (Systems → **Factions**), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes hexes away\n• **world turns** — its turn table may win or lose ground hex by hex (`faction.territory: 1` takes a hex from its border, `-1` gives one up)\nA hex has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
     help: "The factions of the map's system (`kind: factions` in its pack): each with its colour, the hexes it holds (drawn on the map, in the Factions layer) and its sheet (its values, conditions and relations, like a character's). On a **world turn** each one rolls its turn table, and what comes up changes them, their territory and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds",
-    none: "The map's system has factions, not yet on this map.",
+    none: "The map's system has factions, not yet on this map: bring them in, each holding the land the system says it starts with.",
     bring: 'Bring in its factions',
     noSystem: "The map's system declares no factions.",
     territory: '{n} hexes',
