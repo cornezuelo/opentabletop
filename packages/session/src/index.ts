@@ -373,7 +373,7 @@ export interface Session {
   note(state: SessionState, text: string): SessionState
 }
 
-const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited'])
+const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited', 'held'])
 /** The journal line of an action, which its steps' effects are added to. */
 const isActionLine = (e: JournalEntry, action: string) =>
   e.code === 'ACTION_TAKEN' && e.data?.action === action
@@ -387,6 +387,10 @@ const JOURNALED: TravelEvent['type'][] = [
   'ROUTE_BLOCKED',
   'NO_ROUTE',
   'TRAVEL_STOPPED',
+  'SAID',
+  'HELD',
+  'RESUMED',
+  'MODE_CHANGED',
 ]
 
 export function createSession(options: {
@@ -528,9 +532,12 @@ export function createSession(options: {
         })
         return !!discovered.poi
       }
-      // Going on, or an action that moves the party (march…).
+      // Going on, an action that moves the party (march…), or going on from a step that
+      // stopped the trip (what it stopped may move).
       const travelling =
-        action.type === 'travel' || (action.type === 'action' && movers.has(action.id))
+        action.type === 'travel' ||
+        (action.type === 'action' && movers.has(action.id)) ||
+        (action.type === 'resume' && !!s.travel.moving)
       // Before setting off (or choosing where to go), see around the party.
       if (discovery && (travelling || action.type === 'setDestination'))
         if (arrive(s.travel.location) && travelling) return { state: s, entries }
@@ -546,7 +553,9 @@ export function createSession(options: {
       }
       // Discovering, a move goes hex by hex, still under way at each.
       const first: TravelAction =
-        discovery && travelling && (action.type === 'travel' || action.type === 'action')
+        discovery &&
+        travelling &&
+        (action.type === 'travel' || action.type === 'action' || action.type === 'resume')
           ? { ...action, until: 'hex' }
           : action
       let act = first
@@ -802,7 +811,11 @@ export function createSession(options: {
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
         const reason = stopped?.type === 'TRAVEL_STOPPED' ? stopped.reason : undefined
         const clear =
-          (travelling || waiting) && resolvedAll && s.travel.pendingChecks.length === 0 && !found
+          (travelling || waiting) &&
+          resolvedAll &&
+          s.travel.pendingChecks.length === 0 &&
+          !s.travel.waiting &&
+          !found
         // A travel order keeps going once its checks are resolved…
         let keepGoing = clear && reason === 'check'
         // …and, discovering, from hex to hex while the move is under way, with the route

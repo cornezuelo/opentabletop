@@ -1,6 +1,6 @@
 import { matches, type Condition } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
-import { evaluate, lookupIn, momentRoller, type Roller } from '@open-tabletop/variables'
+import { evaluate, lookupIn, momentRoller, render, type Roller } from '@open-tabletop/variables'
 import {
   defaultCalendar,
   findPart,
@@ -174,6 +174,11 @@ export interface TravelState {
    * drops it.
    */
   moving?: MoveUnderWay
+  /**
+   * A step that stopped the trip for the player (`pause:`, `ask:`): nothing moves the trip
+   * on until they go on (`resume`), and then the rest of what it stopped (`moving`) goes on.
+   */
+  waiting?: Waiting
   pendingChecks: PendingCheck[]
   nextCheckId: number
 }
@@ -189,11 +194,30 @@ export interface MoveFrame {
   facts?: Record<string, unknown>
 }
 
-/** A move under way: the actions it's part of, innermost first, and the hexes left. */
+/**
+ * A move under way: the actions it's part of, innermost first, and the hexes left. Or,
+ * `held`, actions stopped at a step for the player (`pause:`, `ask:`): the innermost goes
+ * on from its next step, with no move to finish first.
+ */
 export interface MoveUnderWay {
   frames: MoveFrame[]
   /** Hexes still to go (absent: to the destination). */
   left?: number
+  /** Stopped at a step (`pause:`, `ask:`), not in a move. */
+  held?: true
+  /** What else was stopped by then, to go on with after this (a move the pause stopped). */
+  then?: MoveUnderWay
+}
+
+/** A step waiting for the player (`pause:`, `ask:`). */
+export interface Waiting {
+  /** The action whose step it is. */
+  action: string
+  /** `pause:`: what it says, as written (several languages) with its `{{…}}` read. */
+  text?: string | Record<string, string>
+  /** `ask:`: the parameter of the action the player chooses. */
+  ask?: string
+  time: GameTime
 }
 
 export type StopReason =
@@ -216,6 +240,8 @@ export type StopReason =
   | 'weather'
   /** A wait reached its moment. */
   | 'waited'
+  /** A step stopped the trip for the player (`pause:`, `ask:`). */
+  | 'held'
   /** Night fell on a wait and the party can't take the night's action (`because` says why). */
   | 'camp'
 
@@ -254,6 +280,14 @@ export type TravelEvent =
       time: GameTime
     }
   | { type: 'ACTION_UNAVAILABLE'; action: string; because?: Unavailable }
+  /** A `say:` step: a line of the system's own, its `{{…}}` read (in every language written). */
+  | { type: 'SAID'; action: string; text: string | Record<string, string>; time: GameTime }
+  /** A step stopped the trip for the player (`pause:`, `ask:`). */
+  | { type: 'HELD'; waiting: Waiting; time: GameTime }
+  /** The player went on from a step that stopped the trip (`choice`: what an `ask:` got). */
+  | { type: 'RESUMED'; action: string; ask?: string; choice?: string; time: GameTime }
+  /** A `travel.mode` step changed the way of travelling. */
+  | { type: 'MODE_CHANGED'; action: string; from: string; mode: string; time: GameTime }
   /**
    * The party couldn't take the halt's action (`travel.halt`; `because` says why): the time
    * passes without it until it can march.
@@ -292,6 +326,8 @@ export type Unavailable =
   | { condition: 'when' | 'unless' }
   /** The trip is paused on a check (its event): it must be resolved first (Continue). */
   | { pending: string }
+  /** A step of this action stopped the trip for the player (`pause:`, `ask:`). */
+  | { held: string }
 
 export type RouteStrategy = 'shortest' | 'fastest'
 
@@ -332,6 +368,12 @@ export type TravelAction =
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
+  /**
+   * Goes on from a step that stopped the trip (`pause:`, `ask:` with the player's `choice`):
+   * the rest of what it stopped goes on at once, unless a check still waits. `until: 'hex'`
+   * as for `travel`.
+   */
+  | { type: 'resume'; choice?: string | number; until?: 'hex' | 'destination' }
 
 /**
  * What the host knows that conditions may read besides the trip's facts: the party's
@@ -438,6 +480,17 @@ export function calendarFacts(parts: TimeParts | CalendarParts): Record<string, 
     holidays: parts.holidays.map((h) => h.id),
   }
 }
+
+/** Whether the trip waits for the player: a check pending, or a step (`pause:`, `ask:`). */
+const halted = (state: TravelState): boolean => state.pendingChecks.length > 0 || !!state.waiting
+/** Why the trip waits for the player, as a move's stop. */
+const haltReason = (state: TravelState): StopReason =>
+  state.pendingChecks.length ? 'check' : 'held'
+/** What `first` holds, then `later` (what was stopped after it). */
+const chain = (first: MoveUnderWay, later: MoveUnderWay): MoveUnderWay => ({
+  ...first,
+  then: first.then ? chain(first.then, later) : later,
+})
 
 export function createTravelEngine(options: {
   world: TravelWorld
@@ -952,7 +1005,7 @@ export function createTravelEngine(options: {
     })
     for (let guard = 0; guard < 10000; guard++) {
       syncDay(state, events)
-      if (state.pendingChecks.length) return stopAt('check')
+      if (halted(state)) return stopAt(haltReason(state))
       if (state.time >= by) return stopAt('waited')
       if (canGoOn(state, state.time)) return undefined
       const boundary = Math.min(by, nextBoundary(state.time))
@@ -994,7 +1047,7 @@ export function createTravelEngine(options: {
     }
     const by = cap.by
     syncDay(state, events)
-    if (state.pendingChecks.length) return suspend('check')
+    if (halted(state)) return suspend(haltReason(state))
     if (!state.route || state.route.length < 2) {
       if (state.destination && state.destination === state.location)
         events.push({ type: 'DESTINATION_REACHED', hex: state.location })
@@ -1045,12 +1098,12 @@ export function createTravelEngine(options: {
       // Midnight: the day ends (its actions and checks) and a new one starts.
       if (state.time >= midnight) {
         syncDay(state, events)
-        if (state.pendingChecks.length) return suspend('check')
+        if (halted(state)) return suspend(haltReason(state))
       }
       const atPart = !!part && state.time === part.time
       if (atPart) {
         for (const ref of part.refs) schedule(state, ref, events, undefined, doingFacts())
-        if (state.pendingChecks.length) return suspend('check')
+        if (halted(state)) return suspend(haltReason(state))
       }
       if (state.progress < cost) {
         if (state.time >= by) return suspend('waited')
@@ -1077,54 +1130,67 @@ export function createTravelEngine(options: {
         return stop('destination')
       }
       if (left === 0) return stop('hex')
-      if (state.pendingChecks.length) return suspend('check')
+      if (halted(state)) return suspend(haltReason(state))
       if (cap.hexByHex) return suspend('hex')
     }
   }
 
   /**
-   * Goes on with the move under way: the rest of the move, then the rest of the steps of
-   * the actions it was part of, innermost first. It may stop under way again.
+   * Keeps what's still to do under way (`moving`), after anything the steps just stopped
+   * (an action the moment took that paused).
    */
-  const resume = (state: TravelState, events: TravelEvent[]): void => {
-    const under = state.moving!
-    delete state.moving
+  const keep = (state: TravelState, rest: MoveUnderWay): void => {
+    state.moving = state.moving ? chain(state.moving, rest) : rest
+  }
+
+  /**
+   * Goes on with what was under way: the rest of the move (unless it stopped at a step,
+   * `held`), then the rest of the steps of the actions it was part of, innermost first, then
+   * what else it stopped (`then`). It may stop under way again.
+   */
+  const resume = (state: TravelState, under: MoveUnderWay, events: TravelEvent[]): void => {
     const frames = under.frames.filter((f) => actions.all[f.action])
-    if (!frames.length) return
-    const hit: Hits = {
-      below: new Set(state.reached?.below),
-      above: new Set(state.reached?.above),
-    }
-    const ids = frames.map((f) => f.action).reverse()
-    underWay.push(hit)
-    doing.push(...ids)
-    try {
-      const [inner] = frames
-      const still = move(state, inner.action, inner.params, under.left, events)
-      if (still) return void (state.moving = { frames, ...still })
-      for (let k = 0; k < frames.length; k++) {
-        const f = frames[k]
-        const steps = actionSteps(actions.all[f.action])
-        const again = runSteps(
-          state,
-          f.action,
-          steps,
-          hit,
-          events,
-          { facts: f.facts, params: f.params },
-          0,
-          f.next,
-        )
-        if (again)
-          return void (state.moving = {
-            frames: [...again.frames, ...frames.slice(k + 1)],
-            ...(again.left !== undefined && { left: again.left }),
-          })
+    const then = under.then && { then: under.then }
+    if (frames.length) {
+      const hit: Hits = {
+        below: new Set(state.reached?.below),
+        above: new Set(state.reached?.above),
       }
-    } finally {
-      underWay.pop()
-      doing.splice(doing.length - ids.length, ids.length)
+      const ids = frames.map((f) => f.action).reverse()
+      underWay.push(hit)
+      doing.push(...ids)
+      try {
+        const [inner] = frames
+        if (!under.held) {
+          const still = move(state, inner.action, inner.params, under.left, events)
+          if (still) return keep(state, { frames, ...still, ...then })
+        }
+        for (let k = 0; k < frames.length; k++) {
+          const f = frames[k]
+          const steps = actionSteps(actions.all[f.action])
+          const again = runSteps(
+            state,
+            f.action,
+            steps,
+            hit,
+            events,
+            { facts: f.facts, params: f.params },
+            0,
+            f.next,
+          )
+          if (again)
+            return keep(state, {
+              ...again,
+              frames: [...again.frames, ...frames.slice(k + 1)],
+              ...then,
+            })
+        }
+      } finally {
+        underWay.pop()
+        doing.splice(doing.length - ids.length, ids.length)
+      }
     }
+    if (under.then) resume(state, under.then, events)
   }
 
   /**
@@ -1132,7 +1198,11 @@ export function createTravelEngine(options: {
    * (`travel.onward`), if the system has one.
    */
   const goOn = (state: TravelState, events: TravelEvent[]): void => {
-    if (state.moving) return resume(state, events)
+    if (state.moving) {
+      const under = state.moving
+      delete state.moving
+      return resume(state, under, events)
+    }
     if (!onward) return
     // What stops any move is said as the trip's stop (lost, the weather), not the action's.
     const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
@@ -1163,7 +1233,7 @@ export function createTravelEngine(options: {
     let said = ''
     for (let guard = 0; guard < 10000; guard++) {
       syncDay(state, events)
-      if (state.pendingChecks.length) return stop('check')
+      if (halted(state)) return stop(haltReason(state))
       if (state.time >= by) return stop('waited')
       if (!state.moving && (!onward || !state.route || state.route.length < 2)) {
         if (state.destination && state.destination === state.location)
@@ -1191,6 +1261,7 @@ export function createTravelEngine(options: {
       }
       if (
         reason === 'check' ||
+        reason === 'held' ||
         reason === 'blocked' ||
         reason === 'waited' ||
         (reason === 'hex' && state.moving)
@@ -1230,7 +1301,7 @@ export function createTravelEngine(options: {
     let without = -1
     for (let guard = 0; guard < 10000; guard++) {
       syncDay(state, events)
-      if (state.pendingChecks.length) return stop('check')
+      if (halted(state)) return stop(haltReason(state))
       if (state.time >= until) return stop('waited')
       const haltTime = haltAt === undefined ? Infinity : calendar.at(state.day, haltAt)
       if (
@@ -1458,12 +1529,9 @@ export function createTravelEngine(options: {
       doing.pop()
     }
     head.minutes = state.time - start
-    // Taken at the top (by the player, a moment, the halt, the way on): its move stays under way.
-    if (suspended && depth === 0)
-      state.moving = {
-        frames: suspended.frames,
-        ...(suspended.left !== undefined && { left: suspended.left }),
-      }
+    // Taken at the top (by the player, a moment, the halt, the way on): its move (or the step
+    // that stopped it) stays under way, after what an action the moment took stopped.
+    if (suspended && depth === 0) keep(state, suspended)
     return suspended
   }
 
@@ -1505,6 +1573,13 @@ export function createTravelEngine(options: {
       /** A written value as it reads now (`'{{params.until}}'`). */
       const read = (value: unknown) =>
         evaluate(value, lookupIn(qualify(context), rollsOf(state, context, id)))
+      /** A text as it reads now, in every language it's written in (`'{{party.stats.morale}}'`). */
+      const written = (text: string | Record<string, string>) => {
+        const lookup = lookupIn(qualify(context), rollsOf(state, context, id))
+        return typeof text === 'string'
+          ? render(text, lookup)
+          : Object.fromEntries(Object.entries(text).map(([k, v]) => [k, render(v, lookup)]))
+      }
       if (step.when && !test(state, step.when, context, id)) continue
       if (step.unless && test(state, step.unless, context, id)) continue
       if (step.time !== undefined) {
@@ -1547,12 +1622,90 @@ export function createTravelEngine(options: {
           return {
             frames: [...still.frames, frame(i)],
             ...(still.left !== undefined && { left: still.left }),
+            ...(still.held && { held: true }),
           }
       } else if (step.roll !== undefined)
         schedule(state, id, events, undefined, options.facts, step.roll)
       else if (step.set) state.today = { ...state.today, ...step.set }
+      else if (step.say !== undefined)
+        events.push({ type: 'SAID', action: id, text: written(step.say), time: state.time })
+      else if (step.pause !== undefined || step.ask !== undefined) {
+        // Another step already waits for the player: this one comes after it, again.
+        if (state.waiting) return { frames: [{ ...frame(i), next: i }], held: true }
+        state.waiting = {
+          action: id,
+          ...(step.pause !== undefined && step.pause !== true && { text: written(step.pause) }),
+          ...(step.ask !== undefined && { ask: step.ask }),
+          time: state.time,
+        }
+        events.push({ type: 'HELD', waiting: { ...state.waiting }, time: state.time })
+      } else if (step['travel.mode'] !== undefined) {
+        const mode = String(read(step['travel.mode']))
+        if (mode !== state.mode && !modeUnavailable(state, mode, hostFacts)) {
+          const from = state.mode
+          state.mode = mode
+          events.push({ type: 'MODE_CHANGED', action: id, from, mode, time: state.time })
+          replan(state, events)
+        }
+      } else if (step.wait !== undefined)
+        waitFor(
+          state,
+          step.wait,
+          timeOf(state, step.limit!),
+          events,
+          (now) => ({
+            ...checkContext(now, [], hostFacts),
+            below: [...hit.below],
+            above: [...hit.above],
+            ...doingFacts(),
+            params,
+            ...options.facts,
+          }),
+          id,
+        )
+      // A step stopped the trip for the player (this one, or an action a moment took): the
+      // rest waits until they go on.
+      if (state.waiting) return { frames: [frame(i)], held: true }
     }
     return undefined
+  }
+
+  /**
+   * Time passes until `condition` holds (seen as `seen` says at each minute), at most until
+   * `limit`, living the moments on the way (their actions and checks), as a `time:` step.
+   * Stops early when a step stops the trip for the player.
+   */
+  const waitFor = (
+    state: TravelState,
+    condition: Condition,
+    limit: GameTime,
+    events: TravelEvent[],
+    seen: (now: TravelState) => Record<string, unknown>,
+    moment: string,
+  ): void => {
+    const holdsAt = (time: GameTime) => {
+      const now = { ...state, time }
+      return test(now, condition, seen(now), moment)
+    }
+    for (let guard = 0; guard < 100000; guard++) {
+      if (state.time >= limit || state.waiting || holdsAt(state.time)) return
+      // Up to the next moment, it may hold minute by minute (`time.hour: { gte: 6.5 }`).
+      const boundary = Math.min(limit, nextBoundary(state.time))
+      let next = state.time + 1
+      while (next < boundary && !holdsAt(next)) next++
+      passTo(state, next, events)
+    }
+  }
+
+  /** The route planned again for the way the party travels now (a `travel.mode` step). */
+  const replan = (state: TravelState, events: TravelEvent[]): void => {
+    const to = state.destination
+    if (!to || to === state.location || !state.route) return
+    const route = plan(state, to)
+    if (!route) return void events.push({ type: 'NO_ROUTE', to })
+    if (state.route[1] !== route[1]) state.progress = 0
+    state.route = route
+    events.push({ type: 'ROUTE_PLANNED', route, strategy: 'fastest' })
   }
 
   /**
@@ -1573,14 +1726,18 @@ export function createTravelEngine(options: {
       schedule(state, 'hex-enter', events, from)
       if (state.route.length < 2)
         return void events.push({ type: 'DESTINATION_REACHED', hex: next })
-      if (state.pendingChecks.length) return
+      if (halted(state)) return
     }
   }
 
-  /** Why nothing can move the trip on: a check it's paused on (undefined: none). */
+  /**
+   * Why nothing can move the trip on: a check it's paused on, a step waiting for the player
+   * (undefined: none).
+   */
   const pausedOn = (state: TravelState): Unavailable | undefined => {
     const check = state.pendingChecks[0]
-    return check && { pending: check.event }
+    if (check) return { pending: check.event }
+    return state.waiting && { held: state.waiting.action }
   }
 
   /** The party steps into the next hex of its route: its visit, the totals, the journal. */
@@ -1654,7 +1811,9 @@ export function createTravelEngine(options: {
       // A new trip's first moments (a clock, a part beginning as it starts) happen as it
       // first marches or waits that day; a check they bring comes first.
       cap = {
-        hexByHex: (action.type === 'travel' || action.type === 'action') && action.until === 'hex',
+        hexByHex:
+          (action.type === 'travel' || action.type === 'action' || action.type === 'resume') &&
+          action.until === 'hex',
         by: action.type === 'travel' ? (action.by ?? Infinity) : Infinity,
       }
       if (
@@ -1742,6 +1901,34 @@ export function createTravelEngine(options: {
             tallySupply(state, id, from, state.resources[id])
           }
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
+          break
+        }
+        case 'resume': {
+          const waiting = state.waiting
+          if (!waiting) break
+          let choice: string | number | undefined
+          if (waiting.ask) {
+            const param = actions.all[waiting.action]?.params?.[waiting.ask]
+            let held = state.moving
+            while (held && !held.held) held = held.then
+            const frame = held?.frames[0]
+            const given = action.choice ?? frame?.params?.[waiting.ask]
+            // The choice as the action declares it (`3`, not `'3'`).
+            choice = param?.choices
+              .map((c) => (typeof c === 'object' ? c.id : c))
+              .find((c) => String(c) === String(given))
+            if (choice === undefined) break
+            if (frame) frame.params = { ...frame.params, [waiting.ask]: choice }
+          }
+          delete state.waiting
+          events.push({
+            type: 'RESUMED',
+            action: waiting.action,
+            ...(waiting.ask && { ask: waiting.ask, choice: String(choice) }),
+            time: state.time,
+          })
+          // What it stopped goes on (not the trip's way on: it only goes on from the step).
+          if (!state.pendingChecks.length && state.moving) goOn(state, events)
           break
         }
       }

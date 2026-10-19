@@ -157,23 +157,29 @@ A check without `at` is rolled only by a step (`roll:`); an action without `on` 
 
 An action's `do:` is a list of steps, in order; each does one thing and may have its own `when` / `unless`.
 
-| Step                                          | Does                                            |
-| --------------------------------------------- | ----------------------------------------------- |
-| `time: 120`                                   | 120 minutes pass                                |
-| `time: '14:00'`                               | until it next strikes                           |
-| `time: meal.luncheon`                         | until a part of the calendar's day next starts  |
-| `travel.move: destination`                    | moves along the route while its conditions hold |
-| `travel.move: '{{params.until}}'`             | as far as its parameter says (`hex`, `3`…)      |
-| `travel.speed: 0.5`                           | the rest of today's moving at half speed        |
-| `effects: { party.stats.fatigue: -1 }`        | changes the party                               |
-| `set: { lost: true }`                         | gives a value of the day                        |
-| `do: forage`                                  | takes another action, if its conditions hold    |
-| `{ do: march, with: { until: hex } }`         | another action, with its parameters             |
-| `roll: ENCOUNTER_CHECK_REQUIRED`              | rolls a check now                               |
-| `travel.advance: 1`                           | moves one hex along the route, no time passing  |
-| `{ unless: { below: food }, effects: { … } }` | only when its condition holds                   |
+| Step                                              | Does                                            |
+| ------------------------------------------------- | ----------------------------------------------- |
+| `time: 120`                                       | 120 minutes pass                                |
+| `time: '14:00'`                                   | until it next strikes                           |
+| `time: meal.luncheon`                             | until a part of the calendar's day next starts  |
+| `travel.move: destination`                        | moves along the route while its conditions hold |
+| `travel.move: '{{params.until}}'`                 | as far as its parameter says (`hex`, `3`…)      |
+| `travel.speed: 0.5`                               | the rest of today's moving at half speed        |
+| `effects: { party.stats.fatigue: -1 }`            | changes the party                               |
+| `set: { lost: true }`                             | gives a value of the day                        |
+| `do: forage`                                      | takes another action, if its conditions hold    |
+| `{ do: march, with: { until: hex } }`             | another action, with its parameters             |
+| `roll: ENCOUNTER_CHECK_REQUIRED`                  | rolls a check now                               |
+| `travel.advance: 1`                               | moves one hex along the route, no time passing  |
+| `travel.mode: boat`                               | travels another way, if it can be chosen now    |
+| `say: The porters sing`                           | a line of the system's own in the journal       |
+| `pause: true`                                     | the trip waits for **Continue** (or a text)     |
+| `ask: how`                                        | the player chooses the parameter `how` now      |
+| `{ wait: { today.ferry: true }, limit: '18:00' }` | time passes until it holds, at most the limit   |
+| `{ id: song, say: … }`                            | names a step for its translations               |
+| `{ unless: { below: food }, effects: { … } }`     | only when its condition holds                   |
 
-Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: camp } }`, is what a party that can't march does while the time moves on by itself. Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 

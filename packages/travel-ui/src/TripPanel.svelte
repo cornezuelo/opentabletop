@@ -28,6 +28,7 @@
   import {
     actionMinutes,
     actionSteps,
+    askedParams,
     availableActions,
     isClock,
     isPartRef,
@@ -241,6 +242,17 @@
     return /^\d+$/.test(id) ? t('choices.hexes', { n: id }) : id.replaceAll('-', ' ')
   }
   const paramName = (key: string, param: ActionParam) => localize(param.name, locale, 'en') ?? key
+  /** A choice the player is asked for (`ask:`): its name, or its value made readable. */
+  const askedName = (c: ParamChoice) =>
+    (typeof c === 'object' ? localize(c.name, locale, 'en') : undefined) ??
+    String(choiceId(c)).replaceAll('-', ' ')
+  const choiceTip = (c: ParamChoice) =>
+    typeof c === 'object' ? (localize(c.description, locale, 'en') ?? '') : ''
+  /** The step waiting for the player (`pause:`, `ask:`), and what it asks. */
+  const waiting = $derived(travel.waiting)
+  const asked = $derived(
+    waiting?.ask ? actions.all[waiting.action]?.params?.[waiting.ask] : undefined,
+  )
   const choiceOf = (id: string, key: string, param: ActionParam) =>
     chosen[id]?.[key] ?? String(paramDefault(param))
   /** What an action is taken with: each parameter's choice, as the pack wrote it (`3`, not `'3'`). */
@@ -353,6 +365,18 @@
     actionNothing,
     dayValues,
     memberName,
+    textOf: (text: unknown) => localize(text as Parameters<typeof localize>[0], locale, 'en') ?? '',
+    modeName,
+    paramName: (action: string, key: string) => {
+      const param = actions.all[action]?.params?.[key]
+      return param ? paramName(key, param) : key
+    },
+    choiceName: (action: string, key: string, choice: string) => {
+      const c = actions.all[action]?.params?.[key]?.choices.find(
+        (c) => String(choiceId(c)) === choice,
+      )
+      return c === undefined ? choice : askedName(c)
+    },
   })
   /** What an action does, for its tooltip: its description, or what its steps do. */
   function actionTip(id: string, fallback = ''): TooltipText {
@@ -489,8 +513,32 @@
     </div>
   {/each}
 
+  <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
+  {#if waiting}
+    <div class="pending" class:asks={!!asked}>
+      <span
+        >{entryText(
+          { id: '', at: '', time: waiting.time, source: 'travel', code: 'HELD', data: { waiting } },
+          context,
+        )}{#if asked && localize(asked.description, locale, 'en')}<InfoTip
+            markdown={localize(asked.description, locale, 'en')}
+          />{/if}</span
+      >
+      {#if asked}
+        {#each asked.choices as c (String(choiceId(c)))}
+          <button
+            use:tooltip={choiceTip(c)}
+            onclick={() => onstep({ type: 'resume', choice: choiceId(c) })}>{askedName(c)}</button
+          >
+        {/each}
+      {:else}
+        <button onclick={() => onstep({ type: 'resume' })}>{t('continue')}</button>
+      {/if}
+    </div>
+  {/if}
+
   <div class="actions">
-    {#if goingOn}
+    {#if goingOn && !waiting}
       <button
         class="primary"
         use:tooltip={tipWith(t('tips.goOn', { action: actionName(goingOn) }), 'travel')}
@@ -499,7 +547,10 @@
       >
     {/if}
     {#each buttons as id (id)}
-      {@const params = Object.entries(actions.all[id].params ?? {})}
+      <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
+      {@const params = Object.entries(actions.all[id].params ?? {}).filter(
+        ([key]) => !askedParams(actions.all[id]).includes(key),
+      )}
       <span class="take" class:joined={params.length > 0}>
         <button
           class:primary={id === main}
@@ -524,10 +575,10 @@
     {/each}
     {#if onward}
       <button
-        use:tooltip={travel.pendingChecks.length
+        use:tooltip={travel.pendingChecks.length || waiting
           ? tipWith(t('tips.waitOnward', { action: actionName(onward.do) }), 'travel')
           : t('tips.waitOnward', { action: actionName(onward.do) })}
-        disabled={travel.pendingChecks.length > 0}
+        disabled={travel.pendingChecks.length > 0 || !!waiting}
         onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitOnward')}</button
       >
     {/if}

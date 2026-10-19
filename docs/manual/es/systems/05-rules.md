@@ -72,6 +72,13 @@ Cada paso se escribe como en el YAML, con sugerencias:
 - `set: { lost: true }`: pone un valor del día;
 - `do: forage`: otra acción, si se cumplen sus condiciones; `do: march, with: { until: hex }`: con sus parámetros;
 - `roll: <comprobación>`: una comprobación, ya;
-- `travel.advance: 1`: avanza por la ruta tantos hexes o tramos de golpe, sin que pase el tiempo: progreso por movimientos, mira _Viajes por movimientos_ en [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+- `travel.advance: 1`: avanza por la ruta tantos hexes o tramos de golpe, sin que pase el tiempo: progreso por movimientos, mira _Viajes por movimientos_ en [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje);
+- `travel.mode: boat`: viajar de otra forma desde ahora, si se puede elegir ahora (la ruta se vuelve a planear para ella);
+- `say: Los porteadores cantan`: una línea propia del sistema en el diario (`{{party.stats.morale}}` en ella lee ese valor en ese momento);
+- `pause: true`: el viaje espera ahí hasta que el jugador pulse **Continuar** (`pause: El puente está caído`: diciendo por qué), y luego sigue el resto;
+- `ask: how`: el viaje espera a que el jugador elija una opción de un **Parámetro** de la acción (`how`), un botón por opción; los pasos siguientes leen la respuesta (**solo si** `params.how: swim`), y el botón de la acción no ofrece ese parámetro;
+- `wait: { today.ferry: true }, limit: '18:00'`: pasa el tiempo hasta que se cumpla la condición, como mucho hasta el límite (minutos, una hora o una parte del día).
+
+Un paso también puede tener un `id` (`id: song, say: …`): sus traducciones lo encuentran por él. Todos los pasos, con ejemplos y un sistema entero que los usa: [Acciones y pasos](../technical/10-actions-and-steps.md).
 
 Un paso puede tener su propia condición: la acampada de las Marcas Grises duerme hasta la mañana y, **salvo si** `below: food` (la comida se acabó al final del día), quita 1 de fatiga.

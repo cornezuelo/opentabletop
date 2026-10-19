@@ -61,22 +61,30 @@ const given = z.record(z.string(), paramValue)
 /** Where a `travel.move` step goes: the destination, the next hex, or a number of hexes. */
 export const MOVE_TARGETS = ['destination', 'hex'] as const
 
+/** A moment a step waits for: minutes from now, a clock (`'14:00'`) or a part (`meal.luncheon`). */
+const until = z.union([z.number().nonnegative(), clock, partRef])
+
 /**
  * One step of an action (`do:`), doing one thing, optionally only `when` (or `unless`) a
  * condition holds: pass time (`time: 180`, until a clock: `time: '14:00'`, or until a part
  * of the calendar's day starts: `time: meal.luncheon`), move along the route while time
  * passes (`travel.move: destination`), change the rest of today's moving (`travel.speed:
- * 0.5`), move at once (`travel.advance: 1`), apply effects (`effects: {
- * party.stats.fatigue: -1 }`; a change past a value's `min` / `max` stops there, and later
- * steps see `below` / `above`), take another action (`do: forage`, with its conditions,
- * and `with:` its parameters), roll a check now (`roll: <its event>`) or set values of the
- * day (`set: { lost: true }`).
+ * 0.5`), move at once (`travel.advance: 1`), change the way of travelling (`travel.mode:
+ * boat`), apply effects (`effects: { party.stats.fatigue: -1 }`; a change past a value's
+ * `min` / `max` stops there, and later steps see `below` / `above`), take another action
+ * (`do: forage`, with its conditions, and `with:` its parameters), roll a check now
+ * (`roll: <its event>`), set values of the day (`set: { lost: true }`), write a line in
+ * the journal (`say: The porters sing`), stop the trip until the player goes on (`pause:
+ * true`, or what it says), ask the player to choose a parameter (`ask: how`), or let time
+ * pass until a condition holds (`wait: { today.ferry: true }`, at most until `limit`).
  */
 const step = z
   .object({
+    /** Names the step for its translations (`say:`, `pause:` in `locales/`). */
+    id: z.string().min(1).optional(),
     when: condition.optional(),
     unless: condition.optional(),
-    time: z.union([z.number().nonnegative(), clock, partRef]).optional(),
+    time: until.optional(),
     /**
      * Moves the party along its route while time passes and the action's `when` / `unless`
      * hold: to the `destination`, to the next `hex`, or that many hexes (a number, or a
@@ -91,33 +99,66 @@ const step = z
      * (`'{{party.stats.rank}}'`).
      */
     'travel.advance': z.union([z.number().int().nonnegative(), z.string().min(1)]).optional(),
+    /**
+     * Changes the way of travelling (`boat`, or a variable: `'{{params.by}}'`), if it can be
+     * chosen now (its `when` / `unless`, what blocks it); the route is planned again for it.
+     */
+    'travel.mode': z.string().min(1).optional(),
     effects: effects.optional(),
     do: z.string().min(1).optional(),
     /** With `do:`, the values of that action's parameters (`with: { until: hex }`). */
     with: given.optional(),
     roll: z.string().min(1).optional(),
     set: z.record(z.string(), z.unknown()).optional(),
+    /** A line of the system's own in the journal; `{{…}}` in it read at that moment. */
+    say: text.optional(),
+    /**
+     * Stops the trip here until the player goes on (**Continue**): `true`, or what the
+     * waiting box says (`{{…}}` read at that moment). Then the rest goes on.
+     */
+    pause: z.union([z.literal(true), text]).optional(),
+    /**
+     * Stops the trip and asks the player to choose one of this action's parameter's choices
+     * (`ask: how`); later steps read it as `{{params.how}}`.
+     */
+    ask: z.string().min(1).optional(),
+    /** Time passes until this condition holds, at most until `limit`. */
+    wait: condition.optional(),
+    /** With `wait:`, the most it waits: minutes, a clock or a part of the day (as `time:`). */
+    limit: until.optional(),
   })
   .strict()
   .refine(
     (s) => STEP_KINDS.filter((kind) => s[kind] !== undefined).length === 1,
-    `a step does one thing: time, travel.move, travel.speed, travel.advance, effects, do, roll or set`,
+    'a step does one thing: time, travel.move, travel.speed, travel.advance, travel.mode, effects, do, roll, set, say, pause, ask or wait',
   )
   .refine((s) => s.with === undefined || s.do !== undefined, {
     message: 'with: gives the parameters of the action a do: step takes',
     path: ['with'],
   })
+  .refine((s) => (s.limit !== undefined) === (s.wait !== undefined), {
+    message: 'wait: needs a limit: (the most it waits), and limit: goes with wait:',
+    path: ['limit'],
+  })
 
-/** What a step does: the one key it has besides `when` / `unless` (and a `do:`'s `with:`). */
+/**
+ * What a step does: the one key it has besides `id`, `when` / `unless` (and a `do:`'s
+ * `with:`, a `wait:`'s `limit:`).
+ */
 export const STEP_KINDS = [
   'time',
   'travel.move',
   'travel.speed',
   'travel.advance',
+  'travel.mode',
   'effects',
   'do',
   'roll',
   'set',
+  'say',
+  'pause',
+  'ask',
+  'wait',
 ] as const
 
 /** One choice of a parameter: its value, or its value with a name (`{ id: hex, name: One hex }`). */
@@ -429,6 +470,21 @@ export const travelRulesSchema = z
             path: ['actions', id, 'do', i, 'roll'],
             message: events.length ? `expected ${events.join(', ')}` : 'the system has no checks',
           })
+        const mode = st['travel.mode']
+        if (mode !== undefined && !hasVariables(mode) && !(mode in rules.modes))
+          ctx.addIssue({
+            code: 'custom',
+            path: ['actions', id, 'do', i, 'travel.mode'],
+            message: `expected ${Object.keys(rules.modes).join(', ')} or a variable`,
+          })
+        if (st.ask !== undefined && !a.params?.[st.ask])
+          ctx.addIssue({
+            code: 'custom',
+            path: ['actions', id, 'do', i, 'ask'],
+            message: a.params
+              ? `expected one of its parameters: ${Object.keys(a.params).join(', ')}`
+              : `${id} has no parameters to ask`,
+          })
         for (const key of Object.keys(st.set ?? {}))
           if (!values.includes(key))
             ctx.addIssue({
@@ -508,7 +564,16 @@ export function movingActions(rules: TravelRules): string[] {
   }
   return Object.keys(all).filter((id) => moves(id, new Set()))
 }
-export type ActionStep = z.infer<typeof step> & { when?: Condition; unless?: Condition }
+export type ActionStep = z.infer<typeof step> & {
+  when?: Condition
+  unless?: Condition
+  wait?: Condition
+}
+
+/** The parameters an action asks the player for (`ask:` steps): its buttons don't offer them. */
+export function askedParams(def: ActionDefinition | undefined): string[] {
+  return [...new Set(actionSteps(def ?? {}).flatMap((s) => (s.ask ? [s.ask] : [])))]
+}
 export type DayValue = z.infer<typeof dayValue>
 
 export type TravelRules = z.infer<typeof travelRulesSchema>
@@ -540,7 +605,8 @@ export function availableActions(rules: TravelRules): {
  */
 export function actionMinutes(def: ActionDefinition): number | undefined {
   const steps = actionSteps(def)
-  if (steps.some((s) => s.time !== undefined && typeof s.time !== 'number')) return undefined
+  if (steps.some((s) => (s.time !== undefined && typeof s.time !== 'number') || s.wait))
+    return undefined
   const minutes = steps.reduce((n, s) => n + (typeof s.time === 'number' ? s.time : 0), 0)
   return minutes || undefined
 }
@@ -663,7 +729,10 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
     ]),
     ...Object.entries(parsed.data.actions ?? {}).flatMap(([id, a]) => [
       ...conditions(a, `actions.${id}`),
-      ...(a.do ?? []).flatMap((st, i) => conditions(st, `actions.${id}.do[${i}]`)),
+      ...(a.do ?? []).flatMap((st, i) => [
+        ...conditions(st, `actions.${id}.do[${i}]`),
+        ...(st.wait ? validateCondition(st.wait as Condition, `actions.${id}.do[${i}].wait`) : []),
+      ]),
     ]),
   ]
   return errors.length ? { errors } : { rules: parsed.data, errors: [] }

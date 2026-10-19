@@ -144,9 +144,15 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
       if (!isObject(node)) return
       for (const [key, value] of Object.entries(node)) {
         const at = join(path, key)
-        if ((key === 'when' || key === 'unless') && isObject(value)) condition(value, at)
+        // A `wait:` step waits for its condition.
+        if ((key === 'when' || key === 'unless' || key === 'wait') && isObject(value))
+          condition(value, at)
         else if (key === 'effects' && isObject(value)) changes(value, at)
-        else if (key === 'set' && isObject(value)) sets(value, at)
+        // A `travel.mode` step changes the way of travelling.
+        else if (key === 'travel.mode') {
+          use('trip.mode', 'sets', at)
+          text(value, at)
+        } else if (key === 'set' && isObject(value)) sets(value, at)
         else walk(value, at)
       }
     }

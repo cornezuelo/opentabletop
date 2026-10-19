@@ -136,6 +136,52 @@ describe('journal lines', () => {
   })
 })
 
+describe('steps that speak and wait', () => {
+  const t = translator(() => 'en')
+  const context: JournalContext = {
+    t,
+    startDay: 1,
+    hexLabel: (h) => h,
+    nameOf: (id) => id,
+    actionName: (id) => (id === 'ferry' ? 'Take the ferry' : id),
+    textOf: (text) => (text as Record<string, string>).en,
+    modeName: (id) => (id === 'boat' ? 'By boat' : id),
+    paramName: () => 'How do you pay?',
+    choiceName: (_a, _p, c) => (c === 'wait' ? 'Wait for her' : c),
+  }
+  const line = (code: string, data: Record<string, unknown>) =>
+    entryText(entry(at(1, '06:00'), code, { data }), context)
+
+  it('say the system’s own words, what waits for the player and what they chose', () => {
+    expect(line('SAID', { action: 'ferry', text: { en: 'She casts off', es: 'Zarpa' } })).toBe(
+      'She casts off',
+    )
+    expect(line('HELD', { waiting: { action: 'ferry', ask: 'fare' } })).toBe(
+      'Take the ferry: How do you pay? (choose to go on)',
+    )
+    expect(line('HELD', { waiting: { action: 'ferry', text: { en: 'Afloat' } } })).toBe(
+      'Take the ferry: Afloat',
+    )
+    expect(line('HELD', { waiting: { action: 'ferry' } })).toBe(
+      'Take the ferry: the trip waits, go on when you are ready',
+    )
+    expect(line('RESUMED', { action: 'ferry', ask: 'fare', choice: 'wait' })).toBe(
+      'How do you pay? → Wait for her',
+    )
+    expect(line('RESUMED', { action: 'ferry' })).toBe('Take the ferry: going on')
+    expect(line('MODE_CHANGED', { action: 'ferry', from: 'foot', mode: 'boat' })).toBe(
+      'Now travelling: By boat',
+    )
+    // Without the host's names: the first language written, the ids.
+    expect(
+      entryText(entry(0, 'SAID', { data: { text: { en: 'Hi' } } }), {
+        ...context,
+        textOf: undefined,
+      }),
+    ).toBe('Hi')
+  })
+})
+
 describe('what results did to characters and the world', () => {
   const t = translator(() => 'en')
   const sheet = {

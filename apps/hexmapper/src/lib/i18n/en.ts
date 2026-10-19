@@ -622,6 +622,7 @@ export const en = {
     confirmTravelNoNight:
       'The party will travel on towards {hex} for {days} day(s), marching when the system lets it. Go on?',
     stoppedCheck: 'The trip stopped: “{check}” needs you (see its journal, then Continue).',
+    stoppedHeld: 'The trip stopped: “{action}” waits for you (see its journal, then go on).',
     stoppedFound: 'The trip stopped: the party found a place (see its journal).',
     stoppedValue: 'The trip stopped: {name} keeps the party from travelling.',
     stoppedBlocked: 'The trip stopped: the way ahead is blocked; choose another destination.',

@@ -48,6 +48,9 @@ travel-rules/default:
     grumble:
       name: Los mercenarios refunfuñan
       description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.
+      do:
+        sulk:
+          say: Los mercenarios se sientan junto al fuego apagado y no cargan con sus fardos.
     parley:
       name: Hablar con los mercenarios
       description: 'Una hora de charla: tira un d6. Si saca vuestra moral o menos, vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
@@ -69,6 +72,24 @@ travel-rules/default:
     tend:
       name: Curar a los heridos
       description: 'Una hora vendando heridas y tobillos, de día, mientras algún compañero esté herido o con un tobillo torcido. Quien actúa necesita Supervivencia 2 o más: entonces se curan las heridas y los tobillos de todos los compañeros.'
+    ferry:
+      name: Tomar el transbordador
+      description: 'En el transbordador de Brenna, de día: pagadle un día de comida y zarpa enseguida, o esperad a su travesía de la tarde (como mucho, hasta el anochecer). Después estáis a flote en el Saltmere, en barca.'
+      params:
+        fare:
+          name: ¿Cómo le pagáis a Brenna?
+          description: Por un día de comida zarpa ahora; si no, cruza por la tarde.
+          choices:
+            food: Un día de comida, ahora
+            wait: Esperar a su travesía
+      do:
+        casts-off:
+          say: 'Brenna suelta amarras ({{party.resources.food}} de comida en vuestros fardos).'
+        afloat:
+          pause: 'A flote en el Saltmere: elegid un hex del lago al que navegar y luego Desembarcar en la otra orilla.'
+    ashore:
+      name: Desembarcar
+      description: 'Media hora para dejar la barca en la orilla: a pie desde ahora, para marchar a tierra.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

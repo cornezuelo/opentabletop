@@ -767,6 +767,51 @@ describe('the Company: a party made of characters', () => {
     editor.selectedToken = null
   })
 
+  it('Brenna’s ferry asks how to pay, waits for her, takes to the boat and stops until Continue', () => {
+    grey()
+    clickHex('7,7')
+    // At the ferry, by morning, with nowhere to go yet.
+    editSession((s) => {
+      s.travel = { ...s.travel, location: '9,10', destination: undefined, route: undefined }
+      return s
+    })
+    const calendar = activeSystem().calendar!
+    expect(calendar.describe(trip().travel.time)).toMatchObject({ hour: 6, minute: 0 })
+    const food = trip().travel.resources.food
+    // The trip stops to ask (`ask: fare`): nothing moves it on meanwhile.
+    step({ type: 'action', id: 'ferry' })
+    expect(trip().travel.waiting).toMatchObject({ action: 'ferry', ask: 'fare' })
+    expect(
+      tripAvailability({ system: activeSystem(), world: mapWorld(editor.map) }, trip()).march,
+    ).toEqual({ held: 'ferry' })
+    // Waiting for her crossing: the afternoon (`wait`), then the boat and a pause.
+    step({ type: 'resume', choice: 'wait' })
+    expect(calendar.describe(trip().travel.time)).toMatchObject({ hour: 14, minute: 0 })
+    expect(trip().travel.resources.food).toBe(food)
+    expect(trip().travel.mode).toBe('boat')
+    expect(trip().travel.waiting).toMatchObject({ action: 'ferry' })
+    const said = trip().journal.find((e) => e.code === 'SAID')
+    expect(said?.data?.text).toMatchObject({
+      en: `Brenna casts off from the jetty (${food} food left in your packs).`,
+      es: `Brenna suelta amarras (${food} de comida en vuestros fardos).`,
+    })
+    expect(trip().journal.map((e) => e.code)).toEqual(
+      expect.arrayContaining(['HELD', 'RESUMED', 'SAID', 'MODE_CHANGED']),
+    )
+    step({ type: 'resume' })
+    expect(trip().travel.waiting).toBeUndefined()
+    // Afloat: a hex across the Saltmere (half speed on the lake: four hours), then ashore.
+    clickHex('10,11')
+    step({ type: 'action', id: 'march', with: { until: 'destination' } })
+    for (let i = 0; i < 5 && trip().travel.location !== '10,11'; i++) {
+      for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+      step({ type: 'travel' })
+    }
+    expect(trip().travel.location).toBe('10,11')
+    step({ type: 'action', id: 'ashore' })
+    expect(trip().travel.mode).toBe('foot')
+  })
+
   it('a sprained ankle stops the party, and the stop says whose', () => {
     grey()
     clickHex('7,7')

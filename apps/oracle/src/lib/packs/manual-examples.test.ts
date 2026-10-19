@@ -177,3 +177,51 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     }
   })
 })
+
+describe('Technical → Actions and steps: the river crossing plays as the page says', () => {
+  const yaml = examples(read('en/technical/10-actions-and-steps.md')).find((y) =>
+    y.includes('river-crossing'),
+  )!
+  const { registry } = loadPacks([
+    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 4\nlocale: en\n' },
+    { path: 'river/travel.yaml', content: yaml },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.id === 'river')!
+  const world: TravelWorld = {
+    hexKm: 30,
+    cell: (hex) => (['0', '1'].includes(hex) ? { terrain: 'plains' } : null),
+    neighbors: (hex) => (hex === '0' ? ['1'] : ['0']),
+    distance: (a, b) => Math.abs(Number(a) - Number(b)),
+    edges: () => [],
+  }
+  const options = { system, world, locale: 'en', random: seeded('river') }
+  const calendar = calendarOf(system)
+  const start = (): SessionState => {
+    const { session } = startTrip({ system, location: '0', season: 'summer' })
+    const time = calendar.at(session.travel.day, '08:00')
+    return { ...session, travel: { ...session.travel, time, resources: { food: 5 } } }
+  }
+  const lines = (s: SessionState) => s.journal.map((e) => e.code)
+
+  it('asks how, then waits for the ferry until noon, says so and pauses (steps 1, 2)', () => {
+    let s = stepTrip(options, start(), { type: 'action', id: 'cross' }).state
+    expect(s.travel.waiting).toMatchObject({ action: 'cross', ask: 'how' })
+    s = stepTrip(options, s, { type: 'resume', choice: 'ferry' }).state
+    expect(calendar.describe(s.travel.time)).toMatchObject({ hour: 12, minute: 0 })
+    expect(s.journal.find((e) => e.code === 'SAID')?.data?.text).toBe(
+      'Ready to cross, 5 food left.',
+    )
+    expect(s.travel.waiting).toMatchObject({ action: 'cross' })
+    s = stepTrip(options, s, { type: 'resume' }).state
+    expect(s.travel.waiting).toBeUndefined()
+    expect(lines(s)).toEqual(expect.arrayContaining(['HELD', 'RESUMED', 'SAID']))
+  })
+
+  it('or builds a raft in three hours and travels by raft (step 3)', () => {
+    let s = stepTrip(options, start(), { type: 'action', id: 'cross' }).state
+    s = stepTrip(options, s, { type: 'resume', choice: 'raft' }).state
+    expect(calendar.describe(s.travel.time)).toMatchObject({ hour: 11, minute: 0 })
+    expect(s.travel.mode).toBe('raft')
+    expect(lines(s)).toContain('MODE_CHANGED')
+  })
+})

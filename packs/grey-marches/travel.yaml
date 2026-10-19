@@ -230,6 +230,8 @@ actions:
     when: { all: [{ yesterday.hungry: true }, { party.stats.hirelings: { gte: 1 } }] }
     do:
       - { set: { refusing: true } }
+      # A line of the system's own in the journal (`say`); its `id` names it for translations.
+      - { id: sulk, say: 'The hirelings sit by the cold fire and won’t shoulder their packs.' }
   # Talking them round: a d6 at or under morale (a roll in a step's condition, the same
   # all through the talk); otherwise one walks off and the rest follow.
   parley:
@@ -324,6 +326,48 @@ actions:
       - when: { acting.values.survival: { gte: 2 } }
         effects:
           { party.members.conditions.wounded: false, party.members.conditions.sprained: false }
+  # Brenna's ferry over the Saltmere (a hex tagged `ferry`, by day): the trip stops to ask the
+  # player how to pay (`ask`: a parameter of the action, chosen in the trip panel, not on its
+  # button), and the steps after it branch on the answer (`when: { params.fare: … }`). Food
+  # now, or waiting for her crossing: time passes until a condition holds, here the afternoon
+  # (`wait`, with the most it waits: `limit`, until the night). Then a line in the journal
+  # reading a value at that moment (`say` with `{{…}}`), the way of travelling changed to the
+  # boat (`travel.mode`: the boat's own `when` lets it be boarded at a ferry; the route is
+  # planned again for it), and the trip stops, saying where to go now (`pause`), until the
+  # player presses Continue.
+  ferry:
+    name: Take the ferry
+    description: 'At Brenna’s ferry, by day: pay her a day of food and she casts off at once, or wait for her afternoon crossing (at the latest, until nightfall). Then you are afloat on the Saltmere, by boat.'
+    when: { hex.tags: ferry, time.tags: { not: dark } }
+    hideWhenUnavailable: true
+    oncePerDay: true
+    params:
+      fare:
+        name: How do you pay Brenna?
+        description: She takes a day of food to cast off now; otherwise she rows over in the afternoon.
+        choices:
+          - { id: food, name: 'A day of food, now' }
+          - { id: wait, name: Wait for her crossing }
+    do:
+      - { ask: fare }
+      - { when: { params.fare: food }, effects: { party.resources.food: -1 } }
+      - when: { params.fare: wait }
+        wait: { time.part: [afternoon, evening] }
+        limit: part.night
+      - id: casts-off
+        say: 'Brenna casts off from the jetty ({{party.resources.food}} food left in your packs).'
+      - { travel.mode: boat }
+      - id: afloat
+        pause: 'Afloat on the Saltmere: choose a hex of the lake to sail to, then Go ashore at the far bank.'
+  # Off the boat (`travel.mode` again): on foot from now on, to march onto the shore nearby.
+  ashore:
+    name: Go ashore
+    description: 'Half an hour to leave the boat at the water’s edge: on foot from now on, to march onto the shore.'
+    when: { trip.mode: boat }
+    hideWhenUnavailable: true
+    do:
+      - { time: 30 }
+      - { travel.mode: foot }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED

@@ -61,6 +61,7 @@
     'travel.move': ['destination', 'hex', '3', "'{{params.until}}'"],
     'travel.speed': ['0.5', '1.5', '0'],
     'travel.advance': ['1', '2', "'{{party.stats.rank}}'"],
+    'travel.mode': Object.keys((doc.rules.modes ?? {}) as Raw),
     effects: [],
     'effects.*': Object.keys(effectSuggestions(library.registry)),
     set: [],
@@ -69,6 +70,12 @@
     roll: events,
     with: [],
     unless: [],
+    say: [],
+    pause: ['true'],
+    ask: [],
+    wait: [],
+    limit: ['60', '18:00', ...parts],
+    id: [],
   })
 
   /** A map as `key: value` pairs, without the outer braces. */
@@ -114,12 +121,15 @@
    */
   function setStep(id: string, i: number, raw: string) {
     const parsed = parseFlow(raw) as Raw | null
-    const does = Object.keys(parsed ?? {}).filter((k) => k !== 'unless' && k !== 'with')
+    const does = Object.keys(parsed ?? {}).filter(
+      (k) => !['unless', 'with', 'limit', 'id'].includes(k),
+    )
     if (
       !parsed ||
       does.length !== 1 ||
       !(STEP_KINDS as readonly string[]).includes(does[0]) ||
-      ('with' in parsed && does[0] !== 'do')
+      ('with' in parsed && does[0] !== 'do') ||
+      'limit' in parsed !== (does[0] === 'wait')
     )
       return showToast(t('actions.badStep'), 'error')
     const when = steps(id)[i]?.when

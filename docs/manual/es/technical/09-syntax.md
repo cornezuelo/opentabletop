@@ -157,23 +157,29 @@ Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` 
 
 El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa y puede tener su propio `when` / `unless`.
 
-| Paso                                          | Hace                                                        |
-| --------------------------------------------- | ----------------------------------------------------------- |
-| `time: 120`                                   | pasan 120 minutos                                           |
-| `time: '14:00'`                               | hasta que vuelve a dar esa hora                             |
-| `time: meal.luncheon`                         | hasta que vuelve a empezar una parte del día del calendario |
-| `travel.move: destination`                    | se mueve por la ruta mientras se cumplen sus condiciones    |
-| `travel.move: '{{params.until}}'`             | hasta donde diga su parámetro (`hex`, `3`…)                 |
-| `travel.speed: 0.5`                           | el resto del movimiento de hoy, a media velocidad           |
-| `effects: { party.stats.fatigue: -1 }`        | cambia el grupo                                             |
-| `set: { lost: true }`                         | da un valor del día                                         |
-| `do: forage`                                  | hace otra acción, si se cumplen sus condiciones             |
-| `{ do: march, with: { until: hex } }`         | otra acción, con sus parámetros                             |
-| `roll: ENCOUNTER_CHECK_REQUIRED`              | tira una comprobación ya                                    |
-| `travel.advance: 1`                           | avanza un hex por la ruta, sin que pase el tiempo           |
-| `{ unless: { below: food }, effects: { … } }` | solo cuando se cumple su condición                          |
+| Paso                                              | Hace                                                        |
+| ------------------------------------------------- | ----------------------------------------------------------- |
+| `time: 120`                                       | pasan 120 minutos                                           |
+| `time: '14:00'`                                   | hasta que vuelve a dar esa hora                             |
+| `time: meal.luncheon`                             | hasta que vuelve a empezar una parte del día del calendario |
+| `travel.move: destination`                        | se mueve por la ruta mientras se cumplen sus condiciones    |
+| `travel.move: '{{params.until}}'`                 | hasta donde diga su parámetro (`hex`, `3`…)                 |
+| `travel.speed: 0.5`                               | el resto del movimiento de hoy, a media velocidad           |
+| `effects: { party.stats.fatigue: -1 }`            | cambia el grupo                                             |
+| `set: { lost: true }`                             | da un valor del día                                         |
+| `do: forage`                                      | hace otra acción, si se cumplen sus condiciones             |
+| `{ do: march, with: { until: hex } }`             | otra acción, con sus parámetros                             |
+| `roll: ENCOUNTER_CHECK_REQUIRED`                  | tira una comprobación ya                                    |
+| `travel.advance: 1`                               | avanza un hex por la ruta, sin que pase el tiempo           |
+| `travel.mode: boat`                               | viaja de otra forma, si se puede elegir ahora               |
+| `say: Los porteadores cantan`                     | una línea propia del sistema en el diario                   |
+| `pause: true`                                     | el viaje espera a **Continuar** (o un texto)                |
+| `ask: how`                                        | el jugador elige ya el parámetro `how`                      |
+| `{ wait: { today.ferry: true }, limit: '18:00' }` | pasa el tiempo hasta que se cumpla, como mucho el límite    |
+| `{ id: song, say: … }`                            | da nombre a un paso para sus traducciones                   |
+| `{ unless: { below: food }, effects: { … } }`     | solo cuando se cumple su condición                          |
 
-Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, hex, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, hex, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Lo que bloquea: `blocks`
 

@@ -41,13 +41,14 @@ La aplicación muestra los textos de los packs en el idioma de la interfaz cuand
 
 ## Reglas, calendarios, clima y modos de tirada
 
-Las definiciones que no son tablas se traducen igual, en los mismos ficheros, por **tipo e id** (`travel-rules/default`, `calendar/marcher-reckoning`), porque varias se llaman `default`. La traducción imita la definición, solo con sus textos (`name`, `description`, y el `nothing` de una acción): los mapas por sus claves, las listas por el `id` de sus elementos (una comprobación por su `event`, una opción de un parámetro por su `id`, también un número: `'3'`). Un texto escrito solo es el nombre del elemento. De las Marcas Grises:
+Las definiciones que no son tablas se traducen igual, en los mismos ficheros, por **tipo e id** (`travel-rules/default`, `calendar/marcher-reckoning`), porque varias se llaman `default`. La traducción imita la definición, solo con sus textos (`name`, `description`, el `nothing` de una acción y lo que dice un paso: `say`, `pause`): los mapas por sus claves, las listas por el `id` de sus elementos (una comprobación por su `event`, una opción de un parámetro por su `id`, también un número: `'3'`, un paso de una acción por su propio `id`). Un texto escrito solo es el nombre del elemento. De las Marcas Grises:
 
 ```yaml
 # locales/es/travel.yaml
 travel-rules/default:
   actions:
     forage: { name: Buscar comida, nothing: 'no hay nada que buscar en {terrain}…' }
+    grumble: { do: { sulk: { say: Los mercenarios se sientan junto al fuego apagado… } } }
     march:
       params:
         until: { name: Hasta dónde, choices: { destination: Hasta el destino, '3': Tres hexes } }

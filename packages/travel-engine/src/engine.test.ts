@@ -678,7 +678,7 @@ describe('actions as steps, and declared values', () => {
       actions: { ...rules!.actions, nap: { do: [{ time: 30, 'travel.speed': 0.5 }] } },
     })
     expect(bad.errors).toEqual([
-      'actions.nap.do.0: a step does one thing: time, travel.move, travel.speed, travel.advance, effects, do, roll or set',
+      'actions.nap.do.0: a step does one thing: time, travel.move, travel.speed, travel.advance, travel.mode, effects, do, roll, set, say, pause, ask or wait',
       'values.stuck.blocks.0: expected travel, camp, rest, march, eat, nap, mode.foot, mode.horse',
     ])
   })
@@ -2391,5 +2391,188 @@ describe('marching as an action: travel.move, parameters and moves under way', (
     const { state } = quiet.apply(before, { type: 'travel', by: before.time + 600 })
     expect(state.location).toBe('0,0')
     expect(state.time).toBe(before.time + 600)
+  })
+})
+
+describe('more steps: say, pause, ask, travel.mode and wait', () => {
+  const { rules: own, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: { hoursPerDay: 8, onward: ONWARD },
+    terrains: {},
+    modes: {
+      fast: { kmPerDay: 240 },
+      // Only with a boatman.
+      boat: { kmPerDay: 480, when: { 'today.boatman': true } },
+    },
+    values: { ferry: {}, boatman: {} },
+    resources: { gold: {} },
+    actions: {
+      march: {
+        params: { until: { choices: ['destination', 'hex', 3] } },
+        do: [{ 'travel.move': '{{params.until}}' }],
+      },
+      sing: {
+        do: [
+          { id: 'song', say: 'The porters sing for {{party.resources.gold}} gold' },
+          { time: 10 },
+        ],
+      },
+      bridge: {
+        do: [{ pause: 'The bridge is down' }, { effects: { 'party.resources.gold': 1 } }],
+      },
+      ford: {
+        params: { how: { choices: [{ id: 'swim', name: 'Swim' }, 'wait', 3] } },
+        do: [
+          { ask: 'how' },
+          { when: { 'params.how': 'swim' }, effects: { 'party.resources.gold': -1 } },
+          { when: { 'params.how': 'wait' }, time: 60 },
+          { when: { 'params.how': 3 }, effects: { 'party.resources.gold': 3 } },
+        ],
+      },
+      board: { do: [{ set: { boatman: true } }, { 'travel.mode': 'boat' }] },
+      hail: { do: [{ 'travel.mode': 'boat' }] },
+      ferry: { do: [{ wait: { 'today.ferry': true }, limit: '14:00' }] },
+      dawdle: { do: [{ wait: { 'time.hour': { gte: 9.5 } }, limit: 600 }] },
+      linger: { do: [{ wait: { 'today.boatman': true }, limit: 30 }] },
+      // The ferry comes at noon.
+      horn: { on: '12:00', do: [{ set: { ferry: true } }] },
+      // Entering the second hex, a toll stops the trip; paid, the march goes on.
+      toll: {
+        on: 'hex-enter',
+        when: { 'trip.hexes': 2 },
+        do: [{ pause: true }, { effects: { 'party.resources.gold': 5 } }],
+      },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: own! })
+  const begin = () =>
+    eng.apply(
+      initialTravelState({
+        location: '0,0',
+        mode: 'fast',
+        time: defaultCalendar.at(1, '08:00'),
+        resources: { gold: 2 },
+      }),
+      { type: 'setDestination', hex: '0,6' },
+    ).state
+  const take = (state: TravelState, id: string) => eng.apply(state, { type: 'action', id })
+
+  it('are valid, and say what’s wrong with them', () => {
+    expect(errors).toEqual([])
+    const bad = parseTravelRules({
+      ...own!,
+      actions: {
+        march: own!.actions!.march,
+        a: { do: [{ ask: 'how' }, { 'travel.mode': 'zeppelin' }, { wait: { day: 2 } }] },
+        b: {
+          do: [
+            { time: 10, limit: 30 },
+            { say: 'x', pause: true },
+          ],
+        },
+      },
+    })
+    expect(bad.errors).toEqual([
+      'actions.a.do.2.limit: wait: needs a limit: (the most it waits), and limit: goes with wait:',
+      'actions.b.do.0.limit: wait: needs a limit: (the most it waits), and limit: goes with wait:',
+      'actions.b.do.1: a step does one thing: time, travel.move, travel.speed, travel.advance, travel.mode, effects, do, roll, set, say, pause, ask or wait',
+      'actions.a.do.0.ask: a has no parameters to ask',
+      'actions.a.do.1.travel.mode: expected fast, boat or a variable',
+    ])
+  })
+
+  it('say writes a line of the system’s own, its variables read then', () => {
+    const { events, state } = take(begin(), 'sing')
+    expect(events).toContainEqual({
+      type: 'SAID',
+      action: 'sing',
+      text: 'The porters sing for 2 gold',
+      time: defaultCalendar.at(1, '08:00'),
+    })
+    expect(state.time).toBe(defaultCalendar.at(1, '08:10'))
+  })
+
+  it('pause stops the trip until the player goes on, then the rest of the action', () => {
+    const paused = take(begin(), 'bridge')
+    expect(paused.state.waiting).toEqual({
+      action: 'bridge',
+      text: 'The bridge is down',
+      time: defaultCalendar.at(1, '08:00'),
+    })
+    expect(paused.events).toContainEqual({
+      type: 'HELD',
+      waiting: paused.state.waiting,
+      time: paused.state.time,
+    })
+    expect(paused.state.resources.gold).toBe(2)
+    // Nothing moves the trip on meanwhile.
+    expect(eng.availability(paused.state).march).toEqual({ held: 'bridge' })
+    expect(take(paused.state, 'march').events).toEqual([
+      { type: 'ACTION_UNAVAILABLE', action: 'march', because: { held: 'bridge' } },
+    ])
+    const { state, events } = eng.apply(paused.state, { type: 'resume' })
+    expect(state.waiting).toBeUndefined()
+    expect(state.moving).toBeUndefined()
+    expect(state.resources.gold).toBe(3)
+    expect(events[0]).toEqual({ type: 'RESUMED', action: 'bridge', time: paused.state.time })
+  })
+
+  it('ask lets the player choose one of the action’s choices, and later steps read it', () => {
+    const asked = take(begin(), 'ford')
+    expect(asked.state.waiting).toMatchObject({ action: 'ford', ask: 'how' })
+    const swim = eng.apply(asked.state, { type: 'resume', choice: 'swim' })
+    expect(swim.state.resources.gold).toBe(1)
+    expect(swim.events[0]).toMatchObject({ type: 'RESUMED', ask: 'how', choice: 'swim' })
+    const wait = eng.apply(asked.state, { type: 'resume', choice: 'wait' })
+    expect(wait.state.time).toBe(asked.state.time + 60)
+    expect(wait.state.resources.gold).toBe(2)
+    // A number is the number the action declares, whether given as one or as text.
+    expect(eng.apply(asked.state, { type: 'resume', choice: '3' }).state.resources.gold).toBe(5)
+    // Not one of its choices: still waiting.
+    expect(eng.apply(asked.state, { type: 'resume', choice: 'fly' }).state.waiting).toBeDefined()
+    // Without a choice, the parameter's own value (its default).
+    expect(eng.apply(asked.state, { type: 'resume' }).state.resources.gold).toBe(1)
+  })
+
+  it('travel.mode changes the way of travelling when it can be chosen, and plans the route again', () => {
+    const no = take(begin(), 'hail')
+    expect(no.state.mode).toBe('fast')
+    const { state, events } = take(begin(), 'board')
+    expect(state.mode).toBe('boat')
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: 'MODE_CHANGED',
+        action: 'board',
+        from: 'fast',
+        mode: 'boat',
+      }),
+    )
+    expect(events.some((e) => e.type === 'ROUTE_PLANNED')).toBe(true)
+  })
+
+  it('wait lets time pass, living its moments, until its condition holds or the limit', () => {
+    // The horn at noon brings the ferry.
+    expect(take(begin(), 'ferry').state.time).toBe(defaultCalendar.at(1, '12:00'))
+    // Minute by minute: half past nine.
+    expect(take(begin(), 'dawdle').state.time).toBe(defaultCalendar.at(1, '09:30'))
+    // Never: until the limit.
+    expect(take(begin(), 'linger').state.time).toBe(defaultCalendar.at(1, '08:30'))
+  })
+
+  it('a pause in an action a moment takes stops the move, and both go on after it', () => {
+    const before = begin()
+    const stopped = eng.apply(before, { type: 'action', id: 'march', with: { until: 3 } })
+    expect(stopped.state.location).toBe(before.route![2])
+    expect(stopped.state.waiting).toMatchObject({ action: 'toll' })
+    expect(stopped.events.at(-1)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'held' })
+    expect(stopped.state.moving).toEqual({
+      frames: [{ action: 'toll', next: 1, facts: { moment: 'hex-enter' } }],
+      held: true,
+      then: { frames: [{ action: 'march', params: { until: 3 }, next: 1 }], left: 1 },
+    })
+    const { state } = eng.apply(stopped.state, { type: 'resume' })
+    expect(state.resources.gold).toBe(7)
+    expect(state.location).toBe(before.route![3])
+    expect(state.moving).toBeUndefined()
   })
 })

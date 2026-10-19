@@ -629,6 +629,7 @@ export const es: Messages = {
       'El grupo seguirá viajando hacia {hex} durante {days} día(s), marchando cuando el sistema lo deje. ¿Seguir?',
     stoppedCheck:
       'El viaje se ha detenido: «{check}» te necesita (mira su diario y pulsa Continuar).',
+    stoppedHeld: 'El viaje se ha detenido: «{action}» te espera (mira su diario y sigue).',
     stoppedFound: 'El viaje se ha detenido: el grupo ha encontrado un lugar (mira su diario).',
     stoppedValue: 'El viaje se ha detenido: {name} impide al grupo viajar.',
     stoppedBlocked: 'El viaje se ha detenido: el camino está cortado; elige otro destino.',

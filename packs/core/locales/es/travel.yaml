@@ -26,3 +26,6 @@ travel-rules/default:
     eat:
       name: Comer
       description: Un día de comida, que se come al acabar cada día.
+      do:
+        empty:
+          say: No queda nada que comer.

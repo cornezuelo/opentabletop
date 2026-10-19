@@ -72,6 +72,13 @@ Each step is written like in the YAML, with suggestions:
 - `set: { lost: true }`: sets a value of the day;
 - `do: forage`: another action, if its conditions hold; `do: march, with: { until: hex }`: with its parameters;
 - `roll: <check>`: a check, now;
-- `travel.advance: 1`: move along the route that many hexes or legs at once, no time passing: progress by moves, see _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+- `travel.advance: 1`: move along the route that many hexes or legs at once, no time passing: progress by moves, see _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system);
+- `travel.mode: boat`: travel another way from now on, if it can be chosen now (the route is planned again for it);
+- `say: The porters sing`: a line of the system's own in the journal (`{{party.stats.morale}}` in it reads that value then);
+- `pause: true`: the trip waits there until the player presses **Continue** (`pause: The bridge is down`: saying why), then the rest goes on;
+- `ask: how`: the trip waits for the player to choose one of the action's **Parameters** (`how`), a button per choice; later steps read the answer (**only when** `params.how: swim`), and the action's button doesn't offer that parameter;
+- `wait: { today.ferry: true }, limit: '18:00'`: time passes until the condition holds, at most until the limit (minutes, a clock or a part of the day).
+
+A step may also have an `id` (`id: song, say: …`): its translations find it by it. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md).
 
 A step can have its own condition: the Grey Marches' camp sleeps until morning and, **unless** `below: food` (food ran out at the end of the day), takes off 1 fatigue.

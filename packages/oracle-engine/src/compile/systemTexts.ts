@@ -12,8 +12,11 @@ import type { Diagnostic, LoadedPack } from '../loader/load'
  * (`name: { en: Thaw, es: Deshielo }`), the form every reader already understands.
  */
 
-/** The keys that hold texts a player reads. */
-const TEXT_KEYS = new Set(['name', 'description', 'nothing'])
+/**
+ * The keys that hold texts a player reads (an action's step says or pauses with a text:
+ * `say:`, `pause:`; a `pause: true` has none).
+ */
+const TEXT_KEYS = new Set(['name', 'description', 'nothing', 'say', 'pause'])
 
 type Text = string | Record<string, string>
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -72,7 +75,7 @@ export function foldTexts(
   const out: Record<string, unknown> = { ...base }
   for (const [key, value] of Object.entries(overlay)) {
     const at = path ? `${path}.${key}` : key
-    if (TEXT_KEYS.has(key) && typeof value === 'string')
+    if (TEXT_KEYS.has(key) && typeof value === 'string' && typeof base[key] !== 'boolean')
       out[key] = addLanguage(base[key], locale, value, baseLocale)
     else if (key in base) out[key] = foldTexts(base[key], value, locale, baseLocale, problems, at)
     else problems.push(at)

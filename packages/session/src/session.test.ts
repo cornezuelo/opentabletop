@@ -107,6 +107,27 @@ const start = () =>
 describe('session', () => {
   it('loads the fixture', () => expect([ok, diagnostics]).toEqual([true, []]))
 
+  it('Core’s Generic rules say when the food ran out: a say step, translated', () => {
+    const calendar = core.calendar!
+    const session = createSession({
+      travel: createTravelEngine({ world, rules: coreRules, calendar }),
+    })
+    const hungry = initialSessionState(
+      initialTravelState({
+        location: '0,0',
+        mode: 'foot',
+        time: calendar.at(1, '06:00'),
+        resources: { food: 0 },
+        calendar,
+      }),
+    )
+    const { state } = session.step(hungry, { type: 'wait', until: calendar.at(2, '06:00') })
+    expect(state.journal.find((e) => e.code === 'SAID')?.data).toMatchObject({
+      action: 'eat',
+      text: { en: 'There is nothing left to eat.', es: 'No queda nada que comer.' },
+    })
+  })
+
   it('parses bindings and resolves local ids in their pack', () => {
     expect(parseBindings({ on: { X: { resolve: 'weather' } } }, 'sys').bindings).toEqual({
       on: { X: { resolve: 'sys/weather' } },

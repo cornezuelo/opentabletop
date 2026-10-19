@@ -41,13 +41,14 @@ The app shows pack texts in your interface language when the pack has it.
 
 ## Rules, calendars, weather and roll modes
 
-Definitions that aren't tables are translated the same way, in the same files, keyed by **kind and id** (`travel-rules/default`, `calendar/marcher-reckoning`), since several of them are called `default`. The translation mirrors the definition, with only its texts (`name`, `description`, and an action's `nothing`): maps by their keys, lists by their items' `id` (a check by its `event`, a parameter's choice by its `id`, a number too: `'3'`). A text written alone is the item's name. From the Grey Marches:
+Definitions that aren't tables are translated the same way, in the same files, keyed by **kind and id** (`travel-rules/default`, `calendar/marcher-reckoning`), since several of them are called `default`. The translation mirrors the definition, with only its texts (`name`, `description`, an action's `nothing`, and what a step says: `say`, `pause`): maps by their keys, lists by their items' `id` (a check by its `event`, a parameter's choice by its `id`, a number too: `'3'`, a step of an action by its own `id`). A text written alone is the item's name. From the Grey Marches:
 
 ```yaml
 # locales/es/travel.yaml
 travel-rules/default:
   actions:
     forage: { name: Buscar comida, nothing: 'no hay nada que buscar en {terrain}…' }
+    grumble: { do: { sulk: { say: Los mercenarios se sientan junto al fuego apagado… } } }
     march:
       params:
         until: { name: Hasta dónde, choices: { destination: Hasta el destino, '3': Tres hexes } }

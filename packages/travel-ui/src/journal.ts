@@ -36,7 +36,22 @@ export interface JournalContext {
    * party is made of characters.
    */
   memberName?: (path: string) => string | undefined
+  /** A text of the system's own (a `say:`, a `pause:`) in the UI's language. */
+  textOf?: (text: unknown) => string
+  /** Name of one of the system's ways of travelling. */
+  modeName?: (id: string) => string
+  /** An action's parameter as a question (`ask:`), and one of its choices, in words. */
+  paramName?: (action: string, param: string) => string
+  choiceName?: (action: string, param: string, choice: string) => string
 }
+
+/** A text of the system's own as written: alone, or the first of its languages. */
+const firstText = (text: unknown): string =>
+  typeof text === 'string'
+    ? text
+    : typeof text === 'object' && text !== null
+      ? String(Object.values(text)[0] ?? '')
+      : ''
 
 /** Whether an effect's path is about the party's characters. */
 /** Whether an effect's path is about characters, or the world (factions, clocks): named apart. */
@@ -58,6 +73,7 @@ export function whyText(
 ): string {
   if (!because || 'off' in because) return ''
   if ('pending' in because) return t('blocked.pending')
+  if ('held' in because) return t('blocked.held')
   // A member's condition: who has it, until it's cleared.
   if ('value' in because && because.who !== undefined)
     return t('blocked.member', {
@@ -213,6 +229,35 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.paused', { event: eventName(t, d.event, checkName) })
     case 'CHECK_ASKS':
       return t('journal.asks', { event: eventName(t, d.event, checkName) })
+    // A step's line of the system's own.
+    case 'SAID':
+      return (context.textOf ?? firstText)(d.text)
+    // A step that stops the trip for the player: what it says, or what it asks.
+    case 'HELD': {
+      const w = (d.waiting ?? {}) as { action?: string; text?: unknown; ask?: string }
+      const action = actionText(String(w.action))
+      if (w.ask)
+        return t('journal.heldAsk', {
+          action,
+          question: context.paramName?.(String(w.action), w.ask) ?? w.ask,
+        })
+      if (w.text !== undefined)
+        return t('journal.heldSays', { action, text: (context.textOf ?? firstText)(w.text) })
+      return t('journal.held', { action })
+    }
+    case 'RESUMED': {
+      const action = String(d.action)
+      if (typeof d.ask === 'string')
+        return t('journal.chosen', {
+          question: context.paramName?.(action, d.ask) ?? d.ask,
+          choice: context.choiceName?.(action, d.ask, String(d.choice)) ?? String(d.choice),
+        })
+      return t('journal.resumed', { action: actionText(action) })
+    }
+    case 'MODE_CHANGED':
+      return t('journal.modeChanged', {
+        mode: context.modeName?.(String(d.mode)) ?? String(d.mode).replaceAll('-', ' '),
+      })
     case 'DISCOVERY_FAILED':
       return t('journal.discoveryFailed', { hex: hexLabel(String(d.hex)), error: e.text ?? '' })
     case 'CHECK_FAILED':

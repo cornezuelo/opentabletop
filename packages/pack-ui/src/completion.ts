@@ -77,6 +77,7 @@ const ENUMS: Record<string, readonly string[]> = {
   onExhausted: ['reroll', 'next', 'none'],
   reshuffle: ['when-empty', 'manual', 'after-draw'],
   time: ['60', '120', '180', '06:00'],
+  limit: ['60', '180', '18:00'],
   reveal: ['neighbors', 'entered'],
   clamp: ['true', 'false'],
   once: ['true', 'false'],
@@ -91,7 +92,7 @@ const ENUMS: Record<string, readonly string[]> = {
 /** Keys whose value is a reference to a table or generator. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve'])
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
-const CONDITION_KEYS = new Set(['when', 'unless', 'through'])
+const CONDITION_KEYS = new Set(['when', 'unless', 'through', 'wait'])
 
 /** Keys a definition, its entries and its fields use. */
 const KEYS = [
@@ -159,6 +160,12 @@ const KEYS = [
   'travel.move',
   'travel.speed',
   'travel.advance',
+  'travel.mode',
+  'say',
+  'pause',
+  'ask',
+  'wait',
+  'limit',
   'with',
   'params',
   'choices',

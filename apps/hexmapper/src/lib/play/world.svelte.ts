@@ -248,6 +248,12 @@ export function stopMessage(
   const pending = after.travel.pendingChecks[0]
   if (pending)
     return { text: t('world.stoppedCheck', { check: checkName(pending.event) }), kind: 'info' }
+  // A step of an action waits for the player (a pause, a question).
+  const waiting = after.travel.waiting
+  if (waiting) {
+    const action = localize(rules?.actions?.[waiting.action]?.name, getLocale(), 'en')
+    return { text: t('world.stoppedHeld', { action: action ?? waiting.action }), kind: 'info' }
+  }
   if (added.some((e) => e.code === 'HEX_DISCOVERED' && e.data?.poi))
     return { text: t('world.stoppedFound'), kind: 'info' }
   const stopped = added.findLast((e) => e.code === 'TRAVEL_STOPPED')
