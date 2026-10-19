@@ -22,7 +22,7 @@ import { z } from 'zod'
 const text = z.union([z.string(), z.record(z.string(), z.string())])
 /** Text in one or several languages: "Wits" or { en: Wits, es: Ingenio }. */
 export type SheetText = z.infer<typeof text>
-/** A bound: a number, or a variable naming another value (`'{{maxHealth}}'`). */
+/** A bound: a number, or a variable naming another value of the same sheet (`'{{self.values.maxHealth}}'`). */
 const bound = z.union([z.number(), z.string().min(1)])
 
 const value = z
@@ -93,9 +93,14 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
       const b = v[key]
       if (typeof b !== 'string') continue
       const name = variableOf(b)
-      if (name === undefined) errors.push(`values.${id}.${key}: a number or '{{a value}}'`)
-      else if (!(name.replace(/^values\./, '') in sheet.values))
-        errors.push(`values.${id}.${key}: no value "${name}" on this sheet`)
+      const own = ownValue(b)
+      if (name === undefined) errors.push(`values.${id}.${key}: a number or '{{self.values.<id>}}'`)
+      else if (own === undefined)
+        errors.push(
+          `values.${id}.${key}: another value of this sheet is '{{self.values.<id>}}'${name in sheet.values ? ` (did you mean '{{self.values.${name}}}'?)` : ''}`,
+        )
+      else if (!(own in sheet.values))
+        errors.push(`values.${id}.${key}: no value "${own}" on this sheet`)
     }
     if (v.track && typeof v.max !== 'number')
       errors.push(`values.${id}: a track needs a number as its max (its boxes)`)
@@ -185,15 +190,20 @@ export interface ApplyOptions {
   context?: Record<string, unknown>
 }
 
+/** The value of the same sheet a bound names (`'{{self.values.maxHealth}}'` → `maxHealth`). */
+export function ownValue(bound: unknown): string | undefined {
+  return variableOf(bound)?.match(/^self\.values\.(.+)$/)?.[1]
+}
+
 /** The bounds of a value now: its numbers, or the values its variables name. */
 export function boundsOf(sheet: Sheet, state: CharacterState, id: string): Bounds {
   const def = sheet.values[id]
   if (!def) return {}
   const read = (b: number | string | undefined): number | undefined => {
     if (typeof b === 'number') return b
-    const name = variableOf(b)
+    const name = ownValue(b)
     if (name === undefined) return undefined
-    const n = state.values[name.replace(/^values\./, '')]
+    const n = state.values[name]
     return typeof n === 'number' ? n : undefined
   }
   const min = read(def.min)

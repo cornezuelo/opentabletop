@@ -374,7 +374,7 @@ values: # números que tiene cada personaje, con los límites que les da el sist
   survival: { name: Supervivencia, default: 1, min: 0, max: 5, group: skills }
   pathfinding: { name: Rastreo, default: 0, min: 0, max: 3, group: skills }
   maxHealth: { name: Salud máxima, default: 3, min: 1, max: 6, group: body }
-  health: { name: Salud, default: 3, min: 0, max: '{{maxHealth}}', group: body } # otro valor como límite
+  health: { name: Salud, default: 3, min: 0, max: '{{self.values.maxHealth}}', group: body } # otro valor como límite
   rations: { name: Raciones, default: 2, min: 0, max: 6 }
   dread: { name: Pavor, default: 0, min: 0, max: 6, track: true } # se muestra como 6 casillas
 groups: # los encabezados bajo los que se muestran los valores, en este orden

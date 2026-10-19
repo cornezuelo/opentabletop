@@ -164,14 +164,14 @@ export const en = {
       'What the sheet is for, shown where characters are made. Basic Markdown.\n• _One of the Company: their skills, their wounds and the rations they carry._',
     values: 'Values',
     valuesHelp:
-      "Numbers each character has, with the bounds the system gives them (none: no bound, it may go negative). Tables and conditions read them as `characters.<id>.values.<value>` and `acting.values.<value>`:\n• `wits` — default `2`, min `0`, max `5`\n• `health` — max `'{{maxHealth}}'`: another value is its bound\n• `stress` — a **track** of 9 boxes",
+      "Numbers each character has, with the bounds the system gives them (none: no bound, it may go negative). Tables and conditions read them as `characters.<id>.values.<value>` and `acting.values.<value>`:\n• `wits` — default `2`, min `0`, max `5`\n• `health` — max `'{{self.values.maxHealth}}'`: another value is its bound\n• `stress` — a **track** of 9 boxes",
     valueName: 'Name',
     default: 'Starts at',
     defaultHelp: 'What a new character has (empty: 0).\n• `2`',
     min: 'Min',
     max: 'Max',
     boundHelp:
-      "Effects never take it past this. A number, or another value of the sheet in braces:\n• `0`\n• `'{{maxHealth}}'` — as high as the character's maxHealth\nEmpty: no bound.",
+      "Effects never take it past this. A number, or another value of the sheet in braces:\n• `0`\n• `'{{self.values.maxHealth}}'` — as high as the character's maxHealth\nEmpty: no bound.",
     track: 'Track',
     trackHelp: 'Shown as boxes, as many as its max (stress, xp, a vow). Needs a number as its max.',
     group: 'Group',

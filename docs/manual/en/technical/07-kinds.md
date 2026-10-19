@@ -375,7 +375,7 @@ values: # numbers each character has, with the bounds the system gives them (non
   survival: { name: Survival, default: 1, min: 0, max: 5, group: skills }
   pathfinding: { name: Pathfinding, default: 0, min: 0, max: 3, group: skills }
   maxHealth: { name: Max health, default: 3, min: 1, max: 6, group: body }
-  health: { name: Health, default: 3, min: 0, max: '{{maxHealth}}', group: body } # another value as its bound
+  health: { name: Health, default: 3, min: 0, max: '{{self.values.maxHealth}}', group: body } # another value as its bound
   rations: { name: Rations, default: 2, min: 0, max: 6 }
   dread: { name: Dread, default: 0, min: 0, max: 6, track: true } # shown as 6 boxes
 groups: # the headings values are shown under, in this order

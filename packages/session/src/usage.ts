@@ -81,9 +81,9 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
   ) => {
     const use = (written: string, how: UseHow, path: string, values?: string[]) => {
       if (OWN.test(written.trim()) || produced.has(written.trim().split('.')[0])) return
-      // A sheet's own values (`max: '{{maxHealth}}'`, or `'{{values.maxHealth}}'`).
-      const own = written.trim().replace(/^values\./, '')
-      const name = ownValues.has(own) ? `self.values.${own}` : fullName(written)
+      // A sheet's own values (`max: '{{self.values.maxHealth}}'`).
+      const own = written.trim().match(/^self\.values\.(.+)$/)?.[1]
+      const name = own && ownValues.has(own) ? `self.values.${own}` : fullName(written)
       out.push({
         written: written.trim(),
         name,
@@ -201,7 +201,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
       if (!['stats', 'resources', 'reads'].includes(key)) r.walk(value, key)
   }
 
-  // Its sheets: a bound may read another value of the same sheet (`max: '{{maxHealth}}'`).
+  // Its sheets: a bound may read another value of the same sheet (`max: '{{self.values.maxHealth}}'`).
   const sheets = [system.sheet?.id, system.partySheet?.id, system.factions?.sheet.id]
   for (const id of new Set(sheets.filter((s): s is string => !!s))) {
     const def = extra('sheet', id)

@@ -167,14 +167,14 @@ export const es: Messages<typeof en> = {
       'Para qué es la hoja, se ve donde se crean los personajes. Markdown básico.\n• _Uno de la Compañía: sus habilidades, sus heridas y las raciones que lleva._',
     values: 'Valores',
     valuesHelp:
-      "Números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite, puede bajar de cero). Las tablas y condiciones los leen como `characters.<id>.values.<valor>` y `acting.values.<valor>`:\n• `wits` — empieza en `2`, mín. `0`, máx. `5`\n• `health` — máx. `'{{maxHealth}}'`: otro valor es su límite\n• `stress` — un **contador** de 9 casillas",
+      "Números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite, puede bajar de cero). Las tablas y condiciones los leen como `characters.<id>.values.<valor>` y `acting.values.<valor>`:\n• `wits` — empieza en `2`, mín. `0`, máx. `5`\n• `health` — máx. `'{{self.values.maxHealth}}'`: otro valor es su límite\n• `stress` — un **contador** de 9 casillas",
     valueName: 'Nombre',
     default: 'Empieza en',
     defaultHelp: 'Lo que tiene un personaje nuevo (vacío: 0).\n• `2`',
     min: 'Mín.',
     max: 'Máx.',
     boundHelp:
-      "Los efectos nunca lo llevan más allá. Un número, u otro valor de la hoja entre llaves:\n• `0`\n• `'{{maxHealth}}'` — tan alto como el maxHealth del personaje\nVacío: sin límite.",
+      "Los efectos nunca lo llevan más allá. Un número, u otro valor de la hoja entre llaves:\n• `0`\n• `'{{self.values.maxHealth}}'` — tan alto como el maxHealth del personaje\nVacío: sin límite.",
     track: 'Contador',
     trackHelp:
       'Se muestra como casillas, tantas como su máximo (estrés, experiencia, un juramento). Necesita un número como máximo.',

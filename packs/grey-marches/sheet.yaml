@@ -10,7 +10,7 @@ description: |-
   eats a ration per mouth from what they carry, and wounds keep some of them back.
 
   **Shows:** a sheet of values with bounds (one bounded by another value,
-  `max: '{{maxHealth}}'`), a track (dread), named groups, conditions that block an action, a
+  `max: '{{self.values.maxHealth}}'`), a track (dread), named groups, conditions that block an action, a
   way of travelling or travel itself, and kinds of relation (a bond with a number, a home); every part with a description, shown as its help where the sheet is met.
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
@@ -37,7 +37,7 @@ values:
     description: Lost to fords, ambushes and the cold; a fed night in camp gives one back.
     default: 3
     min: 0
-    max: '{{maxHealth}}'
+    max: '{{self.values.maxHealth}}'
     group: body
   # What each one carries of the party's food (bindings: `resources.food: { carried: rations }`).
   rations:

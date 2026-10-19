@@ -117,7 +117,7 @@ id: member
 values:
   grit: { default: 1 }
   top: { default: 3 }
-  hp: { default: 3, max: '{{values.top}}' }
+  hp: { default: 3, max: '{{self.values.top}}' }
 conditions: { tired: {} }
 ---
 kind: clocks

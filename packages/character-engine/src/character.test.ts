@@ -25,7 +25,7 @@ const raw = {
   values: {
     wits: { name: 'Wits', default: 2, min: 1, max: 3, group: 'stats' },
     health: { default: 5, min: 0, max: 5 },
-    momentum: { default: 2, min: -6, max: '{{maxMomentum}}' },
+    momentum: { default: 2, min: -6, max: '{{self.values.maxMomentum}}' },
     maxMomentum: { default: 10, min: 0, max: 10 },
     stress: { default: 0, min: 0, max: 9, track: true },
   },
@@ -57,10 +57,16 @@ describe('sheets', () => {
 
   it('explain what is wrong', () => {
     expect(
-      parseSheet({ kind: 'sheet', id: 'x', values: { a: { max: '{{nope}}' } } }).errors,
+      parseSheet({ kind: 'sheet', id: 'x', values: { a: { max: '{{self.values.nope}}' } } }).errors,
     ).toEqual(['values.a.max: no value "nope" on this sheet'])
     expect(parseSheet({ kind: 'sheet', id: 'x', values: { a: { max: 'ten' } } }).errors).toEqual([
-      "values.a.max: a number or '{{a value}}'",
+      "values.a.max: a number or '{{self.values.<id>}}'",
+    ])
+    // Another value of the sheet by its short name says which full one it meant.
+    expect(
+      parseSheet({ kind: 'sheet', id: 'x', values: { a: { max: '{{b}}' }, b: {} } }).errors,
+    ).toEqual([
+      "values.a.max: another value of this sheet is '{{self.values.<id>}}' (did you mean '{{self.values.b}}'?)",
     ])
     expect(parseSheet({ kind: 'sheet', id: 'x', values: { a: { track: true } } }).errors).toEqual([
       'values.a: a track needs a number as its max (its boxes)',

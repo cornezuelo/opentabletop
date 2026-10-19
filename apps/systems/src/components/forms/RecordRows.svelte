@@ -8,7 +8,7 @@
      * number: a number box (empty = not set); check: a checkbox; list: comma-separated;
      * flow: `key: value` pairs; text: what players read, in the UI's language (written to
      * the translation file when it isn't the pack's); select: one of `choices` (or none);
-     * value: a number, or a word or a variable (`'{{maxHealth}}'`) as it's written.
+     * value: a number, or a word or a variable (`'{{self.values.maxHealth}}'`) as it's written.
      */
     type: 'number' | 'check' | 'list' | 'flow' | 'text' | 'select' | 'value'
     placeholder?: string
