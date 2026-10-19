@@ -35,11 +35,6 @@ export const en = {
   arrived: 'Arrived.',
   travelMode: 'Travel',
   fatigue: vocabulary.en.terms.fatigue,
-  // Names for the Generic rules' ways of travelling and supplies: systems name their own.
-  modes: { foot: 'On foot', horse: 'On horseback', boat: 'By boat', cart: 'By cart' },
-  resources: { food: 'Food', fodder: 'Fodder', water: 'Water' },
-  // The Generic rules' action at the end of each day (and older systems' eating).
-  actions: { eat: 'Eat', camp: 'Camp', rest: 'Rest' },
   // What blocks travel, said as such (a value of the day that blocks `travel`).
   travel: 'Travel',
   goOn: 'Go on',
@@ -118,8 +113,6 @@ export const en = {
     member: '{name}: not possible while it lasts.',
     pending: 'The trip is paused on a check: press Continue first.',
   },
-  /** Names of the older built-in values of the day (systems name their own). */
-  values: { lost: 'Lost' },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Landmark',
     WEATHER_CHECK_REQUIRED: vocabulary.en.terms.weather,

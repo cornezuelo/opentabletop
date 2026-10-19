@@ -191,6 +191,8 @@ describe('what results did to characters and the world', () => {
         startDay: 1,
         hexLabel: (h) => h,
         nameOf: (id) => id,
+        // The system's name for the action (the trip panel passes its own).
+        actionName: (id) => (id === 'rest' ? 'Rest' : id),
         memberName: memberNamer(system, members, 'en', t, world),
       },
     )

@@ -20,6 +20,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Systems: **a weather hex flower is drawn as hexes**, coloured by kind of weather: pick one under **Paint with** and click cells to give them it; a compass shows where each 2d6 total moves the day, and the help explains the walk with an example.
 
+- Travel, Hexmapper: the apps no longer name ways of travelling, supplies, actions or values a system leaves unnamed (`foot`, `food`, `camp`, `lost`…): the system's own names are shown, or the id made readable.
+
 ### Fixes
 
 - Systems: a system's **YAML** tab no longer edits the files of another pack it brings (Core's roll modes…): they show read-only, saying whose they are. The notice of packs not read shows **Delete** in red.

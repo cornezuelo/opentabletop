@@ -37,10 +37,6 @@ export const es: Messages<typeof en> = {
   arrived: 'Habéis llegado.',
   travelMode: 'Viaje',
   fatigue: vocabulary.es.terms.fatigue,
-  // Names for the Generic rules' ways of travelling and supplies: systems name their own.
-  modes: { foot: 'A pie', horse: 'A caballo', boat: 'En barca', cart: 'En carro' },
-  resources: { food: 'Comida', fodder: 'Forraje', water: 'Agua' },
-  actions: { eat: 'Comer', camp: 'Acampar', rest: 'Descansar' },
   travel: 'Viajar',
   goOn: 'Seguir',
   waitOnward: 'Esperar para seguir',
@@ -116,7 +112,6 @@ export const es: Messages<typeof en> = {
     member: '{name}: no es posible mientras dure.',
     pending: 'El viaje está en pausa por una comprobación: pulsa Continuar primero.',
   },
-  values: { lost: 'Perdidos' },
   events: {
     LANDMARK_CHECK_REQUIRED: 'Lugar señalado',
     WEATHER_CHECK_REQUIRED: vocabulary.es.terms.weather,
