@@ -15,6 +15,7 @@ import {
   getLibraryMap,
   listLibrary,
   onBeforeBackup,
+  onLibraryChange,
   onBeforeRestore,
   putLibraryMap,
 } from '@open-tabletop/storage'
@@ -32,6 +33,8 @@ let dirty = false
 let timer: ReturnType<typeof setTimeout> | undefined
 /** A backup is being restored: nothing may be saved over it before the page reloads. */
 let frozen = false
+/** The open map is being replaced by the one another window saved: not a change of ours. */
+let taking = false
 
 /** Writes the current map to the library now (if it has unsaved changes). */
 async function saveCurrent(): Promise<void> {
@@ -205,6 +208,7 @@ export async function startPersistence(): Promise<() => void> {
   }
 
   const stop = editor.onChange(() => {
+    if (taking) return
     dirty = true
     clearTimeout(timer)
     timer = setTimeout(() => saveCurrent().catch(console.error), 500)
@@ -217,6 +221,11 @@ export async function startPersistence(): Promise<() => void> {
   const onVisibility = () => document.visibilityState === 'hidden' && saveNow()
   document.addEventListener('visibilitychange', onVisibility)
   window.addEventListener('pagehide', saveNow)
+  const stopHearing = onLibraryChange((change) => {
+    library.version++
+    if (change.type === 'put' && change.id === editor.map.meta.id)
+      takeFromElsewhere().catch(console.error)
+  })
   // A backup includes the open map as it is now; a restore must not be overwritten by it.
   const stopBackup = onBeforeBackup(() => saveCurrent())
   const stopRestore = onBeforeRestore(async () => {
@@ -230,8 +239,33 @@ export async function startPersistence(): Promise<() => void> {
     stop()
     stopBackup()
     stopRestore()
+    stopHearing()
     document.removeEventListener('visibilitychange', onVisibility)
     window.removeEventListener('pagehide', saveNow)
+  }
+}
+
+/**
+ * Another window or app saved the open map (a world turn in the Campaign app, the same map
+ * in another tab): it is read again, unless this window has changes not saved yet, which
+ * are saved over it (the last write wins, and the other window reads them in turn).
+ */
+async function takeFromElsewhere(): Promise<void> {
+  if (dirty || frozen) return
+  const id = editor.map.meta.id
+  const entry = await getLibraryMap(id)
+  if (!entry || dirty || id !== editor.map.meta.id) return
+  let next: HexMap
+  try {
+    next = deserializeMap(entry.json)
+  } catch {
+    return
+  }
+  taking = true
+  try {
+    if (!editor.takeFromElsewhere(next)) showToast(t('file.changedElsewhere'))
+  } finally {
+    taking = false
   }
 }
 

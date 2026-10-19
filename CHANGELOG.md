@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Hexmapper: **a map open in two windows stays the same in both** (or changed by another app): what was played elsewhere (a trip, the world clock, factions, the Oracle) shows up and Undo keeps working; a map edited elsewhere is shown as it was saved there, with a notice, and Undo starts again. Before, the window that saved last overwrote the other's changes.
+
 - Travel, Hexmapper: **characters from the roster**: a trip's **Characters** take roster characters (**From the roster**) and keep their own (**Keep in the roster**); linked ones are written back to the roster after every step and edit, and catch up with what the Characters app changed (the journal says so). A token's sheet can be a roster character too (a recurring NPC). A character travels in one place at a time; taking it elsewhere asks first. Travel opens a trip from a link (`#/trip/<id>`).
 
 - **Characters**, a new app: your roster, the characters this browser keeps, of any system. Make one with a system's characters' sheet, edit its values, conditions, tags and relations, link its page in your notes app, duplicate, delete, and export or import characters as `.otd.json` (a map's party too). Backups include the roster, and **Add to mine** joins it, keeping the newer copy of each character.

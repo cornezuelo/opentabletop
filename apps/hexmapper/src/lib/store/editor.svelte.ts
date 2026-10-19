@@ -20,6 +20,7 @@ import {
   type MapToken,
   newId,
   type PathKind,
+  playChanges,
   type PrintSettings,
   type TerrainType,
   type TokenKind,
@@ -333,6 +334,26 @@ class Editor {
   redo(): void {
     const change = this.history.redo(this.map)
     if (change) this.notify(change)
+  }
+
+  /**
+   * The open map as another window or app saved it. If only play changed (the world clock,
+   * factions, the Oracle, a trip, tokens, layers: `playChanges`), those parts are taken and
+   * the undo history stays; otherwise the whole map is loaded and the history starts again.
+   * Returns whether the history was kept.
+   */
+  takeFromElsewhere(next: HexMap): boolean {
+    const parts = playChanges(this.map, next)
+    if (!parts) {
+      const selected = this.selected
+      this.load(next)
+      if (selected && next.hexes[selected]) this.selected = selected
+      return false
+    }
+    for (const part of parts) (this.map as unknown as Record<string, unknown>)[part] = next[part]
+    const kinds = new Set<MapChange['kind']>(parts.map((p) => (p === 'worldWeather' ? 'world' : p)))
+    for (const kind of kinds) this.notify({ kind } as MapChange)
+    return true
   }
 
   load(map: HexMap): void {

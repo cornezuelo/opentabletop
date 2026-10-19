@@ -57,7 +57,7 @@ The **place** (a map) is split from **what happens in the world** (a campaign).
 ## 6. Two apps, one campaign
 
 - **The map model goes to a package**, `@open-tabletop/map` (types, defaults, migrations, serializing, hexes, tokens), so every app reads and writes maps with the same migrations. The campaign's model, migrations and the plain functions that act on it (a world turn on a campaign and a map, bringing factions, joining a map) go to `session` or a `campaign` package, tested headless; the apps wrap them.
-- **Changes are announced** (maps and campaigns): an app holding something open that changed elsewhere reads it again (outside the undo history, like any play change), so a turn played in Campaign shows at once on the open map. If both changed it, the last write wins and the one that loses says so.
+- **Changes are announced** (maps and campaigns): an app holding something open that changed elsewhere reads it again (outside the undo history, like any play change), so a turn played in Campaign shows at once on the open map. If both changed it at once, the last write wins; a window whose map was edited elsewhere (not only played) says so when it reads it again, since its undo history starts over.
 - **One trip per campaign at a time** (§9.1).
 
 ## 7. Agreed with the author (2026-10-19)

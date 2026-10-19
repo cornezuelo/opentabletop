@@ -40,6 +40,8 @@ export const es: Messages = {
     loaded: 'Mapa cargado',
     errorInvalid: 'El fichero no es un mapa válido.',
     errorNewer: 'Este mapa se creó con una versión más reciente de Hexmapper.',
+    changedElsewhere:
+      'Este mapa se cambió en otra ventana: ahora muestra esa versión (Deshacer empieza de nuevo).',
     errorAutosave: 'No se pudo recuperar el autoguardado.',
     existsTitle: 'Este mapa ya está en tus mapas',
     exists:

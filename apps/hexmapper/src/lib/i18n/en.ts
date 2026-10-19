@@ -39,6 +39,8 @@ export const en = {
     loaded: 'Map loaded',
     errorInvalid: 'The file is not a valid map.',
     errorNewer: 'This map was created with a newer version of Hexmapper.',
+    changedElsewhere:
+      'This map was changed in another window: it now shows that version (Undo starts again).',
     errorAutosave: 'The autosave could not be restored.',
     existsTitle: 'This map is already in your maps',
     exists:
