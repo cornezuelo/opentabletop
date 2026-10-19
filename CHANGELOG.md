@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-20
+
 ### Apps
 
 - All apps: **links in the theme's colour**, visited or not, with hover and focus (no more browser blue and purple).
