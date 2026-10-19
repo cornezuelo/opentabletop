@@ -16,7 +16,9 @@ A region can have **fields** too (key–value, like a hex's). They hold for **ev
 
 ## On the map
 
-A region is drawn as a light tint, a border along the inside of its outline (so neighboring regions don't overlap) and its name in the middle.
+A region is drawn as a light tint, a border along the inside of its outline (so neighboring regions don't overlap) and its name in the middle. Regions are the geography, so they look like an atlas's: a flat colour and a solid line. [Factions](12-world.md#factions), the politics, are drawn differently over them (stripes of their colour and a dashed frontier), so a hex of a region held by a faction reads as the region's colour with the faction's stripes.
+
+**While you work with the Regions tool**, the region it paints is outlined (a thick light line with a dark edge, which shows on any terrain) and the rest of the map is dimmed; the factions' land fades, so the regions come forward (the **Factions** layer still hides it). Hovering a hex says under the map what holds it: _Region: The Greywood · Faction: The Iron Clans_.
 
 **Map settings → Regions** sets how every region looks: the **fill** (how strong the tint is; 0 for none), the **border** width (0 for none), its opacity, and whether it's **dashed**. A region can look its own way instead: tick **Own style** in its panel and move its own sliders. In the Grey Marches the Greywood has a stronger tint and the Hollow Hills only a dashed border. The **Regions** layer hides or locks them all; **Map settings → Map texts** styles or hides every region name.
 

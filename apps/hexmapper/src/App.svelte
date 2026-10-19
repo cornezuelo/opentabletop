@@ -1,6 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte'
   import MapCanvas from './components/MapCanvas.svelte'
+  import HoverLine from './components/HoverLine.svelte'
   import SidePanel from './components/SidePanel.svelte'
   import { contextHelp, Dialogs, FoldTab, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import { HelpPanel } from '@open-tabletop/manual-ui'
@@ -57,6 +58,7 @@
   <main>
     {#if ready}
       <MapCanvas />
+      <HoverLine />
     {/if}
     <FoldTab
       side="left"

@@ -31,6 +31,8 @@ import { catmullRom, catmullRomClosed, dashes, offsetPolyline } from './curves'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
+import { hatchSegments } from './hatch'
+import { mapFocus } from './focus'
 import { setLabelHitTest, setTokenHitTest } from './hitTest'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
 import {
@@ -154,8 +156,10 @@ export class MapRenderer {
   /** Regions: tint, inner border along the outline, and the name. */
   private regionLayer = new Container()
   private regionShapes = new Graphics()
-  /** The factions' territory: a tint of each one's colour, and its outline. */
+  /** The factions' territory: hatching in each one's colour, and a dashed frontier. */
   private factionShapes = new Graphics()
+  /** The land of the region or faction being worked on, outlined, and the rest dimmed. */
+  private selection = new Graphics()
   /** Terrain glyphs: one tinted sprite per painted hex. */
   private glyphLayer = new Container()
   private glyphSprites = new Map<HexKey, Sprite>()
@@ -208,6 +212,7 @@ export class MapRenderer {
       this.gridLines,
       this.regionLayer,
       this.factionShapes,
+      this.selection,
       this.pathsLayer,
       this.iconLayer,
       this.nameLayer,
@@ -541,10 +546,15 @@ export class MapRenderer {
     this.onViewChanged()
   }
 
-  /** Each faction's hexes in its colour: a light tint and an outline where its land ends. */
+  /**
+   * Each faction's hexes in its colour, as a political map draws them over the land:
+   * diagonal hatching, and a dashed frontier where its land ends (regions, the geography,
+   * are a flat tint with a solid border).
+   */
   private drawFactions(): void {
     const g = this.factionShapes.clear()
     const own = editor.factionsOnMap
+    this.drawSelection()
     if (!own) return
     const { grid } = editor.map
     const hs = grid.hexSize
@@ -553,8 +563,10 @@ export class MapRenderer {
       const color = system?.def.factions[id]?.color ?? '#8a7f6e'
       const cells = hexes.map((k) => parseKey(k as HexKey)).filter((c) => inBounds(c, grid))
       if (!cells.length) continue
-      for (const cell of cells) g.poly(this.cornersAt(cell))
-      g.fill({ color, alpha: 0.16 })
+      for (const cell of cells)
+        for (const [p, q] of hatchSegments(this.cornersAt(cell), hs * 0.32))
+          g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+      g.stroke({ width: hs * 0.045, color, alpha: 0.5, cap: 'butt' })
       const held = new Set(hexes)
       for (const cell of cells) {
         const c = this.centerOf(cell)
@@ -574,10 +586,70 @@ export class MapRenderer {
             y: p.y + (c.y - p.y) * 0.08,
           })
           const [p, q] = [inset(a), inset(b)]
-          g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+          for (const run of dashes([p, q], hs * 0.2, hs * 0.12)) {
+            if (run.length < 2) continue
+            g.moveTo(run[0].x, run[0].y)
+            for (const point of run.slice(1)) g.lineTo(point.x, point.y)
+          }
         }
       }
-      g.stroke({ width: hs * 0.06, color, alpha: 0.85 })
+      g.stroke({ width: hs * 0.07, color, alpha: 0.9, cap: 'butt' })
+    }
+  }
+
+  /**
+   * What the map brings forward (`mapFocus`): the layer being worked on in full and the
+   * other faded, and the land of the region or faction chosen outlined (light, with a dark
+   * halo that shows on any terrain) while the rest of the map is dimmed.
+   */
+  drawSelection(): void {
+    const g = this.selection.clear()
+    const { grid, hexes, layers } = editor.map
+    const own = editor.factionsOnMap
+    const focus = mapFocus({
+      tool: editor.tool,
+      panelView: editor.panelView,
+      regionId: editor.regionId,
+      factionBrush: editor.factionBrush,
+      regionOf: (key) => hexes[key]?.region,
+      hexes: [...allCells(grid)].map(keyOf),
+      territories: own?.territories ?? {},
+    })
+    this.regionLayer.alpha = focus.regionsAlpha
+    this.factionShapes.alpha = focus.factionsAlpha
+    // A hidden layer (Layers) shows nothing chosen on it either.
+    const hidden =
+      (editor.panelView === 'world' && layers.factions?.visible === false) ||
+      (editor.panelView !== 'world' && !layers.regions.visible)
+    const cells = focus.selected.map(parseKey).filter((c) => inBounds(c, grid))
+    if (!cells.length || hidden) return
+    const chosen = new Set(cells.map(keyOf))
+    for (const cell of allCells(grid)) if (!chosen.has(keyOf(cell))) g.poly(this.cornersAt(cell))
+    g.fill({ color: 0x000000, alpha: 0.3 })
+    // Its outline: the edges of its hexes that face a hex outside it.
+    const hs = grid.hexSize
+    const edges: [Point, Point][] = []
+    for (const cell of cells) {
+      const c = this.centerOf(cell)
+      const corners = this.cornersAt(cell)
+      for (let i = 0; i < 6; i++) {
+        const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
+        const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
+        const across = {
+          x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
+          y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
+        }
+        const neighbor = toOffset(pixelToHex(across, grid.orientation, hs), grid.orientation)
+        if (!chosen.has(keyOf(neighbor))) edges.push([a, b])
+      }
+    }
+    const minimum = 1 / this.world.scale.x
+    for (const [width, color, alpha] of [
+      [Math.max(hs * 0.2, 6 * minimum), 0x000000, 0.55],
+      [Math.max(hs * 0.09, 2.5 * minimum), 0xffffff, 1],
+    ] as const) {
+      for (const [a, b] of edges) g.moveTo(a.x, a.y).lineTo(b.x, b.y)
+      g.stroke({ width, color, alpha, cap: 'round', join: 'round' })
     }
   }
 
@@ -587,6 +659,7 @@ export class MapRenderer {
     this.regionLayer.addChild(this.regionShapes)
     const g = this.regionShapes.clear()
     const { grid, hexes, regions } = editor.map
+    this.drawSelection()
     if (!regions.length) return
     const hs = grid.hexSize
     const members = new Map<string, Offset[]>()
@@ -1136,6 +1209,7 @@ export class MapRenderer {
     this.glyphLayer.visible = layers.terrain.visible
     this.regionLayer.visible = layers.regions.visible
     this.factionShapes.visible = layers.factions?.visible ?? true
+    this.drawSelection()
     this.gridLines.visible = layers.grid.visible
     this.pathsLayer.visible = layers.paths.visible
     this.iconLayer.visible = layers.icons.visible
@@ -1203,6 +1277,7 @@ export class MapRenderer {
       (cell && this.hovered && cell.col === this.hovered.col && cell.row === this.hovered.row)
     if (same) return
     this.hovered = cell
+    editor.hoveredHex = cell && inBounds(cell, editor.map.grid) ? keyOf(cell) : null
     this.drawOverlay()
   }
 

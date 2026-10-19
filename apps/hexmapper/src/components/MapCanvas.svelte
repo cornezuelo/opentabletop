@@ -84,6 +84,12 @@
     renderer?.drawHighlight()
   })
 
+  // The layer worked on comes forward, and the region or faction chosen is outlined.
+  $effect(() => {
+    void [editor.tool, editor.panelView, editor.regionId, editor.factionBrush]
+    renderer?.drawSelection()
+  })
+
   // The selected token is ringed.
   $effect(() => {
     void editor.selectedToken

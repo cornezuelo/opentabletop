@@ -7,6 +7,10 @@ export const es: Messages = {
   app: {
     title: 'Hexmapper',
   },
+  hover: {
+    region: `${vocabulary.es.terms.region}: {name}`,
+    faction: 'Facción: {name}',
+  },
   tools: {
     label: 'Herramientas',
     show: 'Mostrar las herramientas',

@@ -6,6 +6,11 @@ export const en = {
   app: {
     title: 'Hexmapper',
   },
+  // Under the map: what holds the hex under the pointer.
+  hover: {
+    region: `${vocabulary.en.terms.region}: {name}`,
+    faction: 'Faction: {name}',
+  },
   tools: {
     label: 'Tools',
     show: 'Show the tools',

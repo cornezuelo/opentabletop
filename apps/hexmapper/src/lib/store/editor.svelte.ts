@@ -106,6 +106,8 @@ class Editor {
   regionId = $state<string | null>(null)
   /** The faction whose land a click on the map paints (World panel, Paint its land), if any. */
   factionBrush = $state<string | null>(null)
+  /** The hex under the pointer, if it's on the map (its region and faction are said under it). */
+  hoveredHex = $state<HexKey | null>(null)
   canUndo = $state(false)
   canRedo = $state(false)
 
