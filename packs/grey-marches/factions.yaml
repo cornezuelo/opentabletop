@@ -25,7 +25,7 @@ name: The powers of the Marches
 description: |-
   The Iron Clans of the Hollow Hills, the Vale of Ashford and the unpaid garrison of Fort Keld.
 
-  **Shows:** factions declared by a pack: a sheet for their values, starting territory by region (the Hills, the Vale) and by hex (Fort Keld), a default turn table, one of their own (the Clans') and one from Core (the garrison's), and turns every 7 days.
+  **Shows:** factions declared by a pack: a sheet for their values, starting territory by region (the Hills, the Vale, on any map) and by hex on the example map (Fort Keld, `map:`), a default turn table, one of their own (the Clans') and one from Core (the garrison's), and turns every 7 days.
 sheet: faction
 turn: faction-turn
 every: 7
@@ -48,7 +48,7 @@ factions:
     description: Soldiers unpaid for a year, holding the bridge road.
     color: '#4a6b8a'
     values: { strength: 2 }
-    territory: { hexes: ['15,9'] }
+    territory: { map: maps/grey-marches.otd.json, hexes: ['15,9'] }
     # A turn table of another pack (Core, a dependency): it only grows or loses ground.
     turn: core/faction-turn
 ---

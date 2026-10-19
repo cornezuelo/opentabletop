@@ -404,7 +404,9 @@ factions:
     name: The Crown
     color: '#c9a227' # its land on the map
     values: { strength: 4 } # starting values (the rest: the sheet's defaults)
-    territory: { regions: [The Royal Vale], hexes: ['12,4'] } # where it starts
+    # Where it starts: the regions on any map that has them; the hexes only on this map of
+    # the pack (its path in it, one of its system's `maps:`).
+    territory: { regions: [The Royal Vale], map: maps/realm.otd.json, hexes: ['12,4'] }
   the-rebels:
     name: The Rebels
     color: '#8b1e1e'

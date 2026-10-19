@@ -25,13 +25,23 @@ const faction = z
     /** Starting values of its sheet (the rest: the sheet's defaults). */
     values: z.record(z.string(), z.number()).optional(),
     tags: z.array(z.string()).optional(),
-    /** Where it starts: every hex of these regions (by name), and these hexes. */
+    /**
+     * Where it starts: every hex of these regions (by name), on any map that has them; and
+     * these hexes, only on `map` (an example map of the pack, by its path in it), since the
+     * same coordinates are somewhere else on another map.
+     */
     territory: z
       .object({
         regions: z.array(z.string().min(1)).optional(),
+        map: z.string().min(1).optional(),
         hexes: z.array(z.string().min(1)).optional(),
       })
       .strict()
+      .refine((t) => !t.hexes?.length || t.map, {
+        message:
+          'Hexes are on a map: say which with `map:` (its path in the pack, e.g. maps/frontier.otd.json)',
+        path: ['hexes'],
+      })
       .optional(),
     /** What it rolls on its turn, instead of the definition's `turn`. */
     turn: z.string().min(1).optional(),

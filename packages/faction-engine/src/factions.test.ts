@@ -31,11 +31,20 @@ describe('factions', () => {
           name: { en: 'The Iron Clans', es: 'Los Clanes de Hierro' },
           color: '#8b1e1e',
           values: { strength: 4 },
-          territory: { regions: ['The Hollow Hills'], hexes: ['15,9'] },
+          territory: {
+            regions: ['The Hollow Hills'],
+            map: 'maps/marches.otd.json',
+            hexes: ['15,9'],
+          },
         },
       },
     })
     expect(errors).toEqual([])
+    // Hexes are on one map: without it, coordinates would land on any map.
+    const lost = { territory: { hexes: ['15,9'] }, turn: 't' }
+    expect(
+      parseFactions({ kind: 'factions', id: 'x', sheet: 's', factions: { a: lost } }).errors,
+    ).toEqual([expect.stringMatching(/^factions\.a\.territory\.hexes: Hexes are on a map/)])
     expect(factions?.factions['iron-clans'].territory?.regions).toEqual(['The Hollow Hills'])
     expect(
       parseFactions({ kind: 'factions', id: 'x', sheet: 's', factions: { a: {} } }).errors,

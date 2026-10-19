@@ -29,6 +29,8 @@
     [...library.registry.definitions.values()].map((d) => (d.pack === pack ? d.localId : d.id)),
   )
   const values = $derived(Object.keys(system.factions?.sheet.def.values ?? {}))
+  /** The maps of this pack, where a faction's starting hexes can be. */
+  const maps = $derived(library.registry.packs.get(pack)?.bundles ?? [])
 </script>
 
 <div class="form">
@@ -113,6 +115,13 @@
           label: t('factionsForm.regions'),
           help: t('factionsForm.regionsHelp'),
           type: 'list',
+        },
+        {
+          field: 'territory.map',
+          label: t('factionsForm.map'),
+          help: t('factionsForm.mapHelp'),
+          type: 'select',
+          choices: maps,
         },
         {
           field: 'territory.hexes',

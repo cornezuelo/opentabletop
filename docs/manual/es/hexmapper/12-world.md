@@ -69,7 +69,7 @@ Una facción es uno de los poderes del mundo (un reino, un clan, un gremio): una
 
 **Su tierra** sale de tres sitios, y la guarda el mapa (la etiqueta **Su tierra** del panel también lo dice):
 
-- **Dónde empieza**: las regiones y hexes que su sistema le da (Systems → [Facciones](../systems/08-factions.md)), al traer sus facciones. Cambiarlos después en el sistema no mueve la tierra de un mapa.
+- **Dónde empieza**: las regiones que su sistema le da, en cualquier mapa que las tenga, y los hexes que le da, solo en el mapa de ejemplo en el que están (Systems → [Facciones](../systems/08-factions.md)), al traer sus facciones. Cambiarlos después en el sistema no mueve la tierra de un mapa.
 - **A mano**: **Pintar su tierra**, abajo.
 - **Los turnos del mundo**: la tabla de turno de una facción puede ganar terreno (`faction.territory: 1`, un hex de su frontera) o perderlo (`-1`).
 

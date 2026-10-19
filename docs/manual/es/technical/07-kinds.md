@@ -403,7 +403,9 @@ factions:
     name: La Corona
     color: '#c9a227' # sus tierras en el mapa
     values: { strength: 4 } # valores iniciales (el resto: los de la hoja)
-    territory: { regions: [The Royal Vale], hexes: ['12,4'] } # dónde empieza
+    # Dónde empieza: las regiones en cualquier mapa que las tenga; los hexes solo en este
+    # mapa del pack (su ruta en él, uno de los `maps:` de su sistema).
+    territory: { regions: [The Royal Vale], map: maps/realm.otd.json, hexes: ['12,4'] }
   the-rebels:
     name: Los Rebeldes
     color: '#8b1e1e'

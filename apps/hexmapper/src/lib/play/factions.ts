@@ -20,6 +20,7 @@ import {
 } from '@open-tabletop/campaign'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
+import { exampleMaps } from '../io/examples'
 import { getSystem, mapSystemId, oracle } from './systems'
 
 /**
@@ -44,11 +45,13 @@ export const territoryWorld = (): TerritoryWorld => worldOf(editor.map)
 
 /**
  * Brings the system's factions to the map: to its campaign, unless it has them, and their
- * starting land to this map.
+ * starting land to this map (their starting hexes too, if it's the example map they're on).
  */
 export function bringFactions(): void {
   const system = systemFactions()
   if (!system) return
+  // The example map this map is (opened from a pack's maps), if any.
+  const example = exampleMaps().find((m) => m.id === editor.map.meta.id)
   editor.setFactions(
     bring(
       editor.campaign,
@@ -56,6 +59,7 @@ export function bringFactions(): void {
       system,
       getSystem(mapSystemId()).id,
       editor.campaign.world?.time ?? 0,
+      example && { pack: example.pack, path: example.path },
     ),
   )
 }

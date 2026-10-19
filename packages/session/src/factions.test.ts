@@ -37,7 +37,7 @@ factions:
     territory: { regions: [Hills] }
   vale:
     name: { en: The Vale, es: El Valle }
-    territory: { hexes: ['1', '99'] }
+    territory: { map: maps/marks.otd.json, hexes: ['1', '99'] }
     turn: vale-turn
 ---
 kind: table
@@ -61,6 +61,7 @@ entries:
   - { range: 1, result: 'The Vale musters ({{factions.clans.territory}} hexes held by the clans)', effects: { faction.values.reputation: '+{{1d2}}' } }
 `,
   },
+  { path: 'marks/maps/marks.otd.json', content: '{"otd":"0.2.0","maps":[]}' },
 ]
 
 const { registry } = loadPacks(PACK)
@@ -71,6 +72,7 @@ const row: TerritoryWorld = {
 const map = {
   regionHexes: (name: string) => (name === 'Hills' ? ['4', '5'] : []),
   exists: (h: string) => Number(h) < 6,
+  is: (path: string) => path === 'maps/marks.otd.json',
 }
 
 describe('factions in a world', () => {
@@ -88,6 +90,28 @@ describe('factions in a world', () => {
     )
     expect(problems.map((p) => p.message)).toEqual(
       expect.arrayContaining(['Unknown sheet "nope"', 'Unknown table or generator "gone"']),
+    )
+  })
+
+  it('give starting hexes only on the map they are on, which must be one of the pack', () => {
+    // Another map: the regions it has, none of the hexes.
+    const other = startFactions(marks.factions!, { ...map, is: () => false }, 0)
+    expect(other.territories).toEqual({ clans: ['4', '5'] })
+    const problems = (territory: string) =>
+      travelSystems(
+        loadPacks([
+          ...PACK.slice(0, 2),
+          {
+            path: 'marks/factions.yaml',
+            content: `kind: sheet\nid: faction\n---\nkind: factions\nid: default\nsheet: faction\nturn: gone\nfactions: { a: { territory: ${territory} } }\n`,
+          },
+        ]).registry,
+      ).problems.map((p) => p.message)
+    expect(problems("{ hexes: ['1,1'] }")).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^Hexes are on a map: say which with `map:`/)]),
+    )
+    expect(problems("{ map: maps/x.otd.json, hexes: ['1,1'] }")).toEqual(
+      expect.arrayContaining(['No map "maps/x.otd.json" in this pack']),
     )
   })
 

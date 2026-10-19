@@ -459,6 +459,11 @@ export function travelSystems(registry: Registry): {
               : `${at}: Unknown table or generator "${table}": the loaded pack "${other}" has no "${full.slice(other.length + 1)}" (an older version of it, or your own copy made before it had one?)`,
           )
         }
+        // The map a faction's starting hexes are on must be one of the pack's.
+        const bundles = registry.packs.get(owner)?.bundles ?? []
+        for (const [id, f] of Object.entries(parsed.factions.factions))
+          if (f.territory?.map && !bundles.includes(f.territory.map))
+            report(`factions.${id}.territory.map: No map "${f.territory.map}" in this pack`)
         if (read?.sheet)
           factions = {
             id: `${owner}/${parts.factions.id ?? 'default'}`,

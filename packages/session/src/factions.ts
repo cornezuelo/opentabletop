@@ -53,20 +53,27 @@ export function factionName(
 /**
  * The factions as they start: each with the sheet's defaults and its starting values and
  * tags, holding its starting territory on this map (every hex of its regions, by name,
- * and the hexes it lists that `exists` says the map has).
+ * and, if this map is the one its hexes are on (`is`, by its path in the factions' pack),
+ * the hexes it lists that `exists` says the map has).
  */
 export function startFactions(
   system: SystemFactions,
-  map: { regionHexes(name: string): string[]; exists?(hex: string): boolean },
+  map: {
+    regionHexes(name: string): string[]
+    exists?(hex: string): boolean
+    /** Whether this map is the pack's map at this path (`maps/frontier.otd.json`). */
+    is?(path: string): boolean
+  },
   time: number,
 ): FactionsState {
   let territories: Territories = {}
   const factions = Object.entries(system.def.factions).map(([id, f]) => {
+    const here = !!f.territory?.map && !!map.is?.(f.territory.map)
     const hexes = [
       ...(f.territory?.regions ?? []).flatMap((r) => map.regionHexes(r)),
-      ...(f.territory?.hexes ?? []).filter((h) => map.exists?.(h) ?? true),
+      ...(here ? (f.territory?.hexes ?? []) : []).filter((h) => map.exists?.(h) ?? true),
     ]
-    territories = claim(territories, id, hexes)
+    if (hexes.length) territories = claim(territories, id, hexes)
     return createCharacter(system.sheet.def, system.sheet.id, {
       id,
       values: { ...f.values },

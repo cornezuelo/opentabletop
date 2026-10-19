@@ -69,7 +69,7 @@ A faction is one of the powers of the world (a kingdom, a clan, a guild): a shee
 
 **Their land** comes from three places, and the map keeps it (the **Their land** label in the panel says so too):
 
-- **Where it starts**: the regions and hexes its system names for each (Systems → [Factions](../systems/08-factions.md)), given when you bring them in. Changing them in the system later doesn't move a map's land.
+- **Where it starts**: the regions its system names for each, on any map that has them, and the hexes it names, only on the example map they're on (Systems → [Factions](../systems/08-factions.md)), given when you bring them in. Changing them in the system later doesn't move a map's land.
 - **By hand**: **Paint its land**, below.
 - **World turns**: a faction's turn table may win ground (`faction.territory: 1`, a hex from its border) or lose it (`-1`).
 

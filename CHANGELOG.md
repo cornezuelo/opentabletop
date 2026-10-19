@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Packs: **a faction's starting hexes are on one map**: `territory: { map: maps/frontier.otd.json, hexes: ['15,9'] }` gives them only on that example map of the pack (they were given on any map with those coordinates, somewhere else entirely); its regions still start on any map that has them. `hexes` without `map` is refused with a message saying so. Systems' Factions tab has **On the map**; the Grey Marches' Fort Keld names its example map.
+
 - Hexmapper: **every map belongs to a campaign**, the world it's played in: its world clock and weather, the factions' sheets and the Oracle are the campaign's, the land each faction holds stays on the map. For now each map has a campaign of its own (maps sharing one, and the Campaign app, come next); maps saved before (map format v24) make theirs with what they had, and play on as before. A map's file carries its campaign; a campaign changed in another window or app shows up on the open map. Backups (v2) include the campaigns; older backups still restore.
 
 - Hexmapper: **a map open in two windows stays the same in both** (or changed by another app): what was played elsewhere (a trip, the world clock, factions, the Oracle) shows up and Undo keeps working; a map edited elsewhere is shown as it was saved there, with a notice, and Undo starts again. Before, the window that saved last overwrote the other's changes.

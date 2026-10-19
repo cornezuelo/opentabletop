@@ -195,6 +195,7 @@ const KEYS = [
   'turn',
   'territory',
   'regions',
+  'map',
   'hexes',
   'color',
   'share',

@@ -38,7 +38,7 @@ factions:
     values: { strength: 4 }
     territory: { regions: [Hills] }
   vale:
-    territory: { hexes: ['1,1'] }
+    territory: { map: maps/north.otd.json, hexes: ['1,1'] }
 ---
 kind: table
 id: turn
@@ -49,6 +49,7 @@ entries:
     effects: { faction.territory: 1, faction.values.strength: -1, world.clocks.march: 1 }
 `,
   },
+  { path: 'marks/maps/north.otd.json', content: '{"otd":"0.2.0","maps":[]}' },
 ]
 
 const { registry } = loadPacks(PACK)
@@ -116,8 +117,13 @@ describe('campaigns', () => {
   it('keep the factions’ sheets, and each map the land they hold on it', () => {
     const map = hillsMap('c1')
     const campaign = createCampaign('c1')
-    const here = bringFactions(campaign, map, marks.factions!, 'marks', 60)
+    const north = { pack: 'marks', path: 'maps/north.otd.json' }
+    const here = bringFactions(campaign, map, marks.factions!, 'marks', 60, north)
     expect(here.territories).toEqual({ clans: ['4,4', '4,5'], vale: ['1,1'] })
+    // On a map that isn't the one the vale's hexes are on, only the regions.
+    expect(bringFactions(campaign, map, marks.factions!, 'marks', 60).territories).toEqual({
+      clans: ['4,4', '4,5'],
+    })
     expect(here.lastTurn).toBe(60)
     const split = splitFactions(here)
     expect(split.factions).toEqual({
@@ -142,7 +148,10 @@ describe('campaigns', () => {
 
   it('play a world turn on a map: sheets and Oracle in the campaign, land on the map', () => {
     const map = hillsMap('c1')
-    const start = bringFactions(createCampaign('c1'), map, marks.factions!, 'marks', 0)
+    const start = bringFactions(createCampaign('c1'), map, marks.factions!, 'marks', 0, {
+      pack: 'marks',
+      path: 'maps/north.otd.json',
+    })
     const split = splitFactions(start)
     const done = worldTurnOn(
       {

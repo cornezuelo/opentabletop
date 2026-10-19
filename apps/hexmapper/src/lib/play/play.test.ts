@@ -915,6 +915,14 @@ describe('the powers of the Marches: factions on the map', () => {
     expect(editor.factionsOnMap).toBeUndefined()
     bringFactions()
     expect(editor.factionsOnMap!.territories['the-vale'].length).toBeGreaterThan(10)
+    // Fort Keld's hex is on the example map (`map:` in the pack): it's given here…
+    expect(editor.factionsOnMap!.territories['fort-keld']).toEqual(['15,9'])
+    // …and not on another map with the same regions: its 15,9 is somewhere else.
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    editor.load({ ...map, meta: { ...map.meta, id: 'othermap0001', campaign: 'othermap0001' } })
+    bringFactions()
+    expect(editor.factionsOnMap!.territories['the-vale'].length).toBeGreaterThan(10)
+    expect(editor.factionsOnMap!.territories['fort-keld']).toBeUndefined()
   })
 })
 

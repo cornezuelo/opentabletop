@@ -318,7 +318,8 @@
 
   /* In rows with conditions boxes share the width; elsewhere each has its own. */
   .wide td input[type='text'],
-  .wide td input[type='number'] {
+  .wide td input[type='number'],
+  .wide td select {
     width: 100%;
     min-width: 0;
   }

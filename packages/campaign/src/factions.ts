@@ -48,8 +48,9 @@ export function territoryWorld(map: HexMap): TerritoryWorld {
 /**
  * Brings a system's factions to a map of the campaign: the campaign gets their sheets as
  * they start (unless it has them already, from this system), and the map the land each
- * starts with on it (every hex of its regions, by name, and the hexes it lists that the map
- * has). `time` is the moment they come (their last turn).
+ * starts with on it (every hex of its regions, by name, and, when the map is the one of the
+ * factions' pack they're on (`from`: the map's path in that pack, if it's one of its example
+ * maps), the hexes it lists). `time` is the moment they come (their last turn).
  */
 export function bringFactions(
   campaign: Campaign,
@@ -57,6 +58,7 @@ export function bringFactions(
   system: SystemFactions,
   systemId: string,
   time: number,
+  from?: { pack: string; path: string },
 ): FactionsOnMap {
   const { regions, hexes, grid } = map
   const start = startFactions(
@@ -69,6 +71,7 @@ export function bringFactions(
           : []
       },
       exists: (hex) => /^\d+,\d+$/.test(hex) && inBounds(parseKey(hex as HexKey), grid),
+      is: (path) => from?.pack === system.pack && from.path === path,
     },
     time,
   )
