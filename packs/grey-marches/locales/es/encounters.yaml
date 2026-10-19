@@ -8,7 +8,9 @@ encounter:
     - Una tabla para dos comprobaciones, de día y de noche, que distingue el contexto `timeOfDay` de los bindings
     - Condiciones sobre `terrain`, `region`, `tags`, `danger`, `season` y las lunas (`moons.ember: full`)
     - El `unless` de una entrada: la patrulla del Valle, nunca de noche; recorre cualquier tierra que tenga el Valle (`hex.faction`, el territorio de una facción)
-    - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris; `pause`: el viaje se detiene cuando sale
+    - `once`: la Sierpe, solo con `danger` 5, en el corazón del Bosque Gris
+    - `pause`: el viaje se detiene cuando sale alguien con quien tratar (la Sierpe, la Cacería, una patrulla, lobos, bandidos, un viajero), no por luces, una patrulla amiga, huellas o nada
+    - Una probabilidad de nada que baja con el peligro: una tirada en una condición, `hex.danger: { lt: '{{1d6}}' }` (con peligro 2, dos veces de cada tres)
     - El reloj del mundo: cuando _The Greywood Wyrm wakes_ está lleno (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), la Sierpe recorre el bosque desde peligro 3
     - Cascadas a _Reacción_ y a un generador
     - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
@@ -18,6 +20,7 @@ encounter:
     hunt: 'Cuernos en la oscuridad: la Cacería Ascua cabalga bajo la luna llena; están {{result}}'
     wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
     lights: Luces pálidas flotan entre los árboles y dicen vuestros nombres
+    quiet: Nadie se cruza en vuestro camino
     friends: 'Una patrulla del Valle: os saludan como amigos y comparten su pan'
     patrol: 'Una patrulla del Valle: están {{result}}'
     wolves: '{{1d4+2}} lobos grises: están {{result}}'

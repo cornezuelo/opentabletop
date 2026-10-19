@@ -197,6 +197,43 @@ describe('bundled open packs', () => {
     }
   })
 
+  it('the Grey Marches: often nobody, and someone to deal with stops the trip', () => {
+    // A hex of the Hollow Hills as a trip sees it: danger 2, by day.
+    const hills = {
+      hex: { terrain: 'hills', danger: 2 },
+      danger: 2,
+      terrain: 'hills',
+      timeOfDay: 'day',
+    }
+    const rolled = Array.from(
+      { length: 300 },
+      (_, i) =>
+        createOracleEngine({ registry, random: seeded(`quiet-${i}`) }).resolve(
+          'grey-marches/encounter',
+          hills,
+        ).resolution,
+    )
+    // A d6 over the danger: two times in three, nobody.
+    const quiet = rolled.filter((r) => r.entry === 'quiet').length / rolled.length
+    expect(quiet).toBeGreaterThan(0.55)
+    expect(quiet).toBeLessThan(0.78)
+    // Bandits stop the trip; nobody doesn't.
+    const bandits = rolled.find((r) => r.entry === 'bandits')!
+    expect(bandits.value.pause).toBe(true)
+    expect(rolled.find((r) => r.entry === 'quiet')!.value.pause).toBeUndefined()
+    // In the Greywood's heart (danger 5) nobody comes up only one time in six.
+    const heart = { hex: { terrain: 'forest', danger: 5 }, danger: 5, timeOfDay: 'day' }
+    const deep = Array.from(
+      { length: 300 },
+      (_, i) =>
+        createOracleEngine({ registry, random: seeded(`deep-${i}`) }).resolve(
+          'grey-marches/encounter',
+          heart,
+        ).resolution.entry,
+    ).filter((e) => e === 'quiet').length
+    expect(deep / 300).toBeLessThan(0.3)
+  })
+
   it('the Grey Marches: encounters come entering a hex and resting somewhere dangerous', () => {
     const system = marches()
     const rested = (danger: number) => {

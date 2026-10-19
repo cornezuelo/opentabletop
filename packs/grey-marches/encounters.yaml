@@ -14,7 +14,9 @@ description: |-
   - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
   - Conditions on `terrain`, `region`, `tags`, `danger`, `season` and the moons (`moons.ember: full`)
   - An entry's `unless`: the Vale's patrol, never at night; it rides wherever the Vale holds the land (`hex.faction`, a faction's territory)
-  - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart; `pause`: the trip stops when it comes up
+  - `once`: the Wyrm, only at `danger` 5, in the Greywood's heart
+  - `pause`: the trip stops when someone to deal with comes up (the Wyrm, the Hunt, a patrol, wolves, bandits, a traveller), not for lights, a friendly patrol, tracks or nothing
+  - A chance of nothing that shrinks with the danger: a roll in a condition, `hex.danger: { lt: '{{1d6}}' }` (at danger 2, two times in three)
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
@@ -41,6 +43,7 @@ entries:
     range: 1-20
     when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }
     result: 'Horns in the dark: the Ember Hunt rides under the full moon — they are {{result}}'
+    pause: true
     table: table.reaction
     set: { reactionModifier: -3 }
     effects: { party.stats.morale: -1 }
@@ -52,6 +55,12 @@ entries:
     result: Pale lights drift between the trees, calling your names
     # …and the Wyrm stirs: a progress clock of the world clock, ticked from a trip.
     effects: { party.members.values.dread: 1, world.clocks.the-greywood-wyrm-wakes: 1 }
+  # Most of the time, nobody: the lower the danger, the likelier (a d6 over the hex's
+  # danger; a roll in a condition). What's above comes whatever this says.
+  - id: quiet
+    range: 1-20
+    when: { hex.danger: { lt: '{{1d6}}' } }
+    result: Nobody crosses your path
   # In a named region, by day: its own people (`unless`: not at night).
   # …or wherever the Vale holds the land (a faction's territory: `hex.faction`).
   # The Vale's patrol, when the Vale thinks well of you (a faction's value, on a map with
@@ -70,6 +79,8 @@ entries:
     when: { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they are {{result}}'
+    # Someone to deal with: the trip stops until you go on.
+    pause: true
     table: table.reaction
   # Lists of terrains, a dice expression inside the text, then roll the reaction.
   - id: wolves
@@ -78,6 +89,7 @@ entries:
     when:
       { all: [{ hex.terrain: [forest, dense-forest, heath] }, { time.season: { not: summer } }] }
     result: '{{1d4+2}} grey wolves — they are {{result}}'
+    pause: true
     table: table.reaction
     # Values for the next table (reactionModifier) and for the party: morale drops.
     set: { reactionModifier: -2 }
@@ -87,11 +99,13 @@ entries:
     range: 1-4
     when: { danger: { lt: 3 } }
     result: 'On the way you meet {{result}}'
+    pause: true
     table: generator.npc
   - id: bandits
     range: 5-20
     when: { hex.terrain: { in: [hills, marsh, swamp] } }
     result: 'Bandits of the Hollow Hills — they are {{result}}'
+    pause: true
     table: table.reaction
     set: { reactionModifier: -1 }
     effects: { party.stats.morale: -1 }

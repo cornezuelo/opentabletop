@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Packs: **the Grey Marches' encounters stop the trip, and come less often**: every encounter with someone to deal with (a patrol, wolves, bandits, a traveller, the Ember Hunt) pauses the trip; _Who goes there?_ first rolls whether anybody is about (a d6 over the hex's danger), so nobody comes two times in three in the Hollow Hills and the Greywood's edge.
+
 - Hexmapper, Travel: **a check that waits says where**: its journal line and the waiting box name the hex it came up in (_Landmark at The Grey Stones: waiting for you_).
 
 - Hexmapper, Travel: **What just happened, newest first**, as the Journal: what stopped the trip is right under the buttons.
