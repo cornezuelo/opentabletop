@@ -215,4 +215,42 @@ describe('trips in campaigns', () => {
     expect(kept.has(own)).toBe(false)
     expect(trip.campaign?.id).toBe('m2')
   })
+
+  it('a trip in the Grey Marches’ campaign plays the factions’ turns as they come due', async () => {
+    const { campaign: c, world: w, trip, systems } = await openTravel()
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const calendar = (await import('@open-tabletop/session')).calendarOf(greyMarches)
+    // The example campaign, as the Campaign app keeps it: the system's world clock and its
+    // factions brought in without a map (their sheets only).
+    const start = calendar.at(1, '06:00')
+    const base = {
+      ...c.createCampaign('grey-marches', 'The Grey Marches'),
+      system: greyMarches.id,
+      world: w.initialWorld(start),
+    }
+    const { factions } = c.splitFactions(
+      c.bringFactions(base, undefined, greyMarches.factions!, greyMarches.id, start),
+    )
+    const marches = { ...base, factions }
+    kept.set('grey-marches', {
+      id: 'grey-marches',
+      name: 'The Grey Marches',
+      modified: marches.modified,
+      json: c.serializeCampaign(marches),
+    })
+
+    // A trip in it waits eight days: the factions' weekly turn comes due on the way.
+    await trip.create(greyMarches.id, 'spring', 'grey-marches')
+    await settle()
+    expect(trip.saved.campaign).toBe('grey-marches')
+    await trip.step({ type: 'wait', until: calendar.at(9, '06:00') })
+    await settle()
+    const after = c.deserializeCampaign(kept.get('grey-marches')!.json)
+    expect(after.world!.time).toBe(trip.saved.session!.travel.time)
+    expect(after.factions!.lastTurn).toBe(calendar.at(8, '06:00'))
+    // Every faction took its turn, in the campaign's timeline; the trip sees the campaign so.
+    const turned = after.world!.timeline.flatMap((e) => (e.data?.faction ? [e.data.faction] : []))
+    expect(turned.sort()).toEqual(['fort-keld', 'iron-clans', 'the-vale'])
+    expect(trip.campaign?.factions?.lastTurn).toBe(after.factions!.lastTurn)
+  })
 })

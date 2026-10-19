@@ -223,7 +223,7 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
     const opened = parseMapFile(example.json)
     await switchTo(
       id === example.id
-        ? opened
+        ? await inExampleCampaign(opened)
         : asCopy({ ...opened, map: { ...opened.map, meta: { ...opened.map.meta, id } } }),
     )
     rememberExample(id, example)
@@ -231,6 +231,24 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
   } catch (error) {
     showToast(errorMessage(error), 'error')
   }
+}
+
+/**
+ * An example whose campaign other maps or trips here are in (another example map of it):
+ * it joins that campaign, its world kept (the map keeps the land of the factions it has).
+ * Alone in it, the example's campaign starts fresh with it.
+ */
+async function inExampleCampaign(opening: Opening & { campaign: Campaign }): Promise<Opening> {
+  const id = opening.campaign.id
+  if (id === editor.campaign.id) await saveCurrent().catch(console.error)
+  const kept = await keptCampaign(id)
+  const others = (await campaignPlaces(id)).filter(
+    (p) => p.app !== 'hexmapper' || p.id !== opening.map.meta.id,
+  )
+  if (!kept || !others.length) return opening
+  const map = { ...opening.map, territories: landIn(kept, opening.map.territories) }
+  if (!map.territories) delete map.territories
+  return { map }
 }
 
 /**

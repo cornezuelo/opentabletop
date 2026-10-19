@@ -84,7 +84,7 @@ describe('a map’s campaign', () => {
     // The example, in a campaign of its own, playing the Grey Marches, with a world clock
     // and its factions' land.
     await actions.openExampleMap(example)
-    expect(editor.setup).toMatchObject({ id: 'greymarches1', system: 'grey-marches' })
+    expect(editor.setup).toMatchObject({ id: 'grey-marches', system: 'grey-marches' })
     expect(await actions.keptCampaigns()).toEqual(
       expect.arrayContaining([{ id: 'south', name: 'The South' }]),
     )
@@ -96,7 +96,7 @@ describe('a map’s campaign', () => {
     let moving = actions.moveToCampaign('south')
     expect(await answer(dialog, 'cancel')).toMatch(/“The South” has a world of its own/)
     expect(await moving).toBe(false)
-    expect(editor.setup.id).toBe('greymarches1')
+    expect(editor.setup.id).toBe('grey-marches')
 
     // Keeping the campaign's: its clock and system (Core's) are the map's now; the land of
     // factions the campaign doesn't have isn't kept; the campaign left behind is gone.
@@ -114,7 +114,7 @@ describe('a map’s campaign', () => {
         .map((x) => x.message)
         .join(' '),
     ).toMatch(/the campaign’s system/)
-    expect(kept.has('greymarches1')).toBe(false)
+    expect(kept.has('grey-marches')).toBe(false)
     expect(JSON.parse(maps.get('greymarches1')!.json).meta.campaign).toBe('south')
 
     // The system is the campaign's: South map is in it too, so changing it asks.
@@ -129,13 +129,13 @@ describe('a map’s campaign', () => {
 
     // Back to a campaign of its own, bringing the world along: The South keeps its own (and
     // South map stays in it).
-    moving = actions.moveToCampaign('greymarches1')
+    moving = actions.moveToCampaign('grey-marches')
     expect(await answer(dialog, 'mine')).toMatch(/has no world yet/)
     expect(await moving).toBe(true)
-    expect(editor.setup).toMatchObject({ id: 'greymarches1', system: 'grey-marches' })
+    expect(editor.setup).toMatchObject({ id: 'grey-marches', system: 'grey-marches' })
     expect(editor.campaign.world?.time).toBe(9000)
     expect(kept.has('south')).toBe(true)
-    expect(c.deserializeCampaign(kept.get('greymarches1')!.json).world?.time).toBe(9000)
+    expect(c.deserializeCampaign(kept.get('grey-marches')!.json).world?.time).toBe(9000)
   })
 
   it('a file whose campaign is here: join it, replace it, or keep it apart', async () => {
@@ -167,7 +167,7 @@ describe('a map’s campaign', () => {
     await answer(dialog, 'replace')
     await answer(dialog, 'apart')
     await opening
-    expect(editor.map.meta.campaign).not.toBe('greymarches1')
+    expect(editor.map.meta.campaign).not.toBe('grey-marches')
     expect(editor.setup).toMatchObject({ system: 'grey-marches' })
     expect(editor.campaign.world?.time).toBe(fileTime)
     expect(kept.has(editor.map.meta.campaign)).toBe(true)
@@ -177,8 +177,67 @@ describe('a map’s campaign', () => {
     await answer(dialog, 'replace')
     expect(await answer(dialog, 'replace')).toMatch(/campaign of this map/)
     await opening
-    expect(editor.map.meta.campaign).toBe('greymarches1')
+    expect(editor.map.meta.campaign).toBe('grey-marches')
     expect(editor.campaign.world?.time).toBe(fileTime)
-    expect(c.deserializeCampaign(kept.get('greymarches1')!.json).world?.time).toBe(fileTime)
+    expect(c.deserializeCampaign(kept.get('grey-marches')!.json).world?.time).toBe(fileTime)
+  })
+
+  it('the Grey Marches’ two example maps play one campaign: clock and factions shared, land per map', async () => {
+    const { c, actions, example, editor } = await openHexmapper()
+    const { exampleMaps } = await import('./examples')
+    const { advanceWorld, worldTurnNow } = await import('../play/world.svelte')
+    const hills = exampleMaps().find((m) => m.id === 'hollowhills1')!
+    expect(hills).toMatchObject({ pack: 'grey-marches', path: 'maps/hollow-hills.otd.json' })
+
+    // Saved as the app saves what changes (its autosave isn't running here).
+    const { serializeMap } = await import('@open-tabletop/map')
+    const keep = () => {
+      const { map, campaign } = editor
+      kept.set(campaign.id, {
+        id: campaign.id,
+        name: campaign.name,
+        modified: campaign.modified,
+        json: c.serializeCampaign(campaign),
+      })
+      maps.set(map.meta.id, {
+        id: map.meta.id,
+        name: map.meta.name,
+        modified: map.meta.modified,
+        json: serializeMap(map),
+      })
+    }
+    // The Marches' map, in the example campaign; an hour of the world clock goes by.
+    await actions.openExampleMap(example)
+    expect(editor.campaign).toMatchObject({ id: 'grey-marches', name: 'The Grey Marches' })
+    const marchesLand = [...editor.map.territories!['iron-clans']]
+    const start = editor.campaign.world!.time
+    await advanceWorld({ minutes: 60 })
+    keep()
+
+    // The Hollow Hills join it without asking: the same clock, at its own scale, the Clans
+    // holding the Hills there too and their watch-cairn outside them; nobody else.
+    await actions.openExampleMap(hills)
+    await settle()
+    expect(editor.map.meta.campaign).toBe('grey-marches')
+    expect(editor.campaign.world!.time).toBe(start + 60)
+    expect(editor.map.scale.hexKm).toBe(3)
+    expect(editor.map.hexes['8,4']).toMatchObject({ name: 'The Moot-stone', tags: ['landmark'] })
+    const clans = editor.map.territories!['iron-clans']
+    expect(clans).toEqual(expect.arrayContaining(['3,6', '4,6', '8,4']))
+    expect(editor.map.territories!['the-vale'] ?? []).toEqual([])
+    expect(editor.map.hexes['4,6']?.region).toBeUndefined()
+
+    // A world turn played here: in the campaign's timeline, its land changes on this map only.
+    const lines = editor.campaign.world!.timeline.length
+    worldTurnNow()
+    const turned = editor.campaign.world!.timeline.length
+    expect(turned).toBeGreaterThan(lines)
+    const values = editor.campaign.factions!.factions.map((f) => f.values)
+    keep()
+    await actions.openLibraryMap('greymarches1')
+    expect(editor.map.meta.campaign).toBe('grey-marches')
+    expect(editor.campaign.world!.timeline.length).toBe(turned)
+    expect(editor.campaign.factions!.factions.map((f) => f.values)).toEqual(values)
+    expect(editor.map.territories!['iron-clans']).toEqual(marchesLand)
   })
 })

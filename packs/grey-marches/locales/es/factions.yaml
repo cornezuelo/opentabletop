@@ -22,7 +22,7 @@ factions/default:
   description: |-
     Los Clanes de Hierro de las Colinas Huecas, el Valle de Ashford y la guarnición sin paga de Fort Keld.
 
-    **Enseña:** facciones declaradas por un pack: una hoja para sus valores, territorio inicial por región (las Colinas, el Valle, en cualquier mapa) y por hex en el mapa de ejemplo (Fort Keld, `map:`), una tabla de turno por defecto, una propia (la de los Clanes) y una de Core (la de la guarnición), y turnos cada 7 días.
+    **Enseña:** facciones declaradas por un pack: una hoja para sus valores, territorio inicial por región (las Colinas, el Valle, en cualquier mapa) y por hex en un mapa de ejemplo cada una (Fort Keld en el de las Marcas, el mojón de vigía de los Clanes en el de las Colinas Huecas, `map:`), con los Clanes en los dos mapas de la campaña de ejemplo, una tabla de turno por defecto, una propia (la de los Clanes) y una de Core (la de la guarnición), y turnos cada 7 días.
   factions:
     iron-clans:
       name: Los Clanes de Hierro

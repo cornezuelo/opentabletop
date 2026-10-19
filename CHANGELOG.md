@@ -6,6 +6,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Packs: **the Grey Marches' second example map, the Hollow Hills**: the hills around Hollow Gate up close (3 km a hex), in the same campaign as the Marches' map: one world clock, the factions shared, the Iron Clans holding land on both maps (the Hills by region, their watch-cairn by `map:`); a trail past a landmark, a ford and a shrine to the Barrow-halls. Core's page says what a campaign gets with the Generic rules.
+
+- Hexmapper: **example maps of one campaign open in it**: an example whose file names a campaign this browser keeps (another example map of it) joins it without asking, its world kept; **Start fresh** restarts the campaign's world only when nothing else is in it.
+
 - Hexmapper: **the World panel in tabs**, as Play's: **Now** (the date, moving time on), **Events**, **Clocks**, **Timeline** and **Factions**, the one chosen remembered in this browser; each faction is a line with its colour, its land and its brush (**✎**), its sheet folded under it. **Open in Campaign ↗** above the tabs, and in Travel's trip room, the Oracle's **Campaign** and a roster character's **Where it plays** in Characters (which now names the campaign of that map or trip).
 
 - **Campaign**, a new app: the campaigns this browser keeps, the worlds your maps and trips share. Make one (a name and a system), rename it and link its page in your notes app; its **World** tab plays its world clock without a map (the date, moving time on, events, progress clocks, the world's weather: the same clock as the Hexmapper's World panel, and every map and trip of the campaign sees it move at once); **Timeline** shows what happened, newest first; **Maps and trips** lists the Hexmapper maps and Travel trips in it, with links to open them and the trip going on. A campaign is deleted only when nothing is in it. Links: `#/campaign/<id>`, `#/campaign/<id>/<tab>`.

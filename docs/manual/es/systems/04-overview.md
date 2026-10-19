@@ -23,6 +23,8 @@ Mapas en los que jugar el sistema, guardados en su pack (`maps:`):
 - **Añadir un fichero de mapa…** copia en la carpeta `maps/` del pack un fichero de mapa escrito por **Guardar** en el Hexmapper.
 - **Quitar** lo saca del pack.
 
+Los mapas cuyos ficheros nombran la misma campaña (guardados desde mapas de una campaña) se abren juntos en ella y comparten su reloj del mundo y sus facciones.
+
 ## Llevarlo a otra parte
 
 Tus sistemas solo viven en este navegador. Para ponerlo a salvo, llevarlo a otro navegador o dárselo a alguien, el Resumen acaba con **Llevarlo a otra parte**: dice lo que lleva el fichero y **Exportar como .zip** lo descarga. El .zip lleva todos los packs que necesita el sistema, cada uno en su carpeta: el suyo, los que trae, los que tienen sus partes y sus dependencias, hasta donde lleguen. El fichero de las Marcas Grises, por ejemplo, lleva las Marcas Grises y Core.

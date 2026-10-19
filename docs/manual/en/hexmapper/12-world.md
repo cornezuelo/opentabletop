@@ -65,7 +65,7 @@ The **Clocks** tab. A clock is a round dial of segments filled as something adva
 
 The **Timeline** tab: what happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).
 
-The Grey Marches' example map comes with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and the system's three clocks — the Greywood Wyrm (filled by the haunted lights; full, it rolls what the Wyrm does first and roams the Greywood), the Iron Clans' march (filled by their world turns; full, they go to war on Fort Keld, bringing its mutiny two segments closer, and gather again) and Fort Keld's unpaid garrison (full, it mutinies: the fort is lost and the clock goes away).
+The Grey Marches' example maps (two maps of one campaign, so one clock) come with the clock running: a market every week (`market-day`: in Ashford that day, **Market day** trades for supplies), the Iron Clans marching on Fort Keld (`clan-march`), the spring floods (`spring-floods`), and the system's three clocks — the Greywood Wyrm (filled by the haunted lights; full, it rolls what the Wyrm does first and roams the Greywood), the Iron Clans' march (filled by their world turns; full, they go to war on Fort Keld, bringing its mutiny two segments closer, and gather again) and Fort Keld's unpaid garrison (full, it mutinies: the fort is lost and the clock goes away).
 
 ## Factions
 

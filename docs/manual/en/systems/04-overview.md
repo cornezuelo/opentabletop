@@ -23,6 +23,8 @@ Maps to play the system on, kept in its pack (`maps:`):
 - **Add a map file…** copies a map file the Hexmapper's **Save** wrote into the pack's `maps/` folder.
 - **Remove** takes it out of the pack.
 
+Maps whose files name the same campaign (saved from maps of one campaign) open in it together, sharing its world clock and factions.
+
 ## Taking it elsewhere
 
 Your systems live only in this browser. To keep one safe, take it to another browser or give it to someone, the Overview ends with **Take it elsewhere**: it lists what the file holds and **Export as .zip** downloads it. The .zip holds every pack the system needs, each in its own folder: its own pack, the packs it brings, those its parts are written in and their dependencies, as far as they go. The Grey Marches' file, for instance, holds the Grey Marches and Core.

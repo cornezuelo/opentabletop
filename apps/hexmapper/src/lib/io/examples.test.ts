@@ -114,6 +114,51 @@ describe('example maps', () => {
     expect(events).toContain('TOLL_CHECK_REQUIRED')
   })
 
+  it('the Hollow Hills play at their own scale: the trail fords the Stonewater', () => {
+    const { map, campaign } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json)
+    // The same campaign as the Marches' map, its clock and factions; drawn at 3 km a hex.
+    expect(campaign).toMatchObject({ id: 'grey-marches', name: 'The Grey Marches' })
+    expect(campaign.world?.clocks.map((c) => c.name)).toContain('The Iron Clans march')
+    expect(map.regions.map((r) => r.name)).toEqual(['The Greywood', 'The Hollow Hills'])
+    expect(map.territories?.['iron-clans']).toEqual(expect.arrayContaining(['3,6', '4,6']))
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const world = mapWorld(map, system.rules.travel.hexKm)
+    expect(world.hexKm).toBe(3)
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('hollow-hills') }),
+      locale: 'en',
+    }
+    // From the way out of Fort Keld to the Barrow-halls, by the watch-cairn and the ford.
+    let { session } = startTrip({ system, location: '0,6', season: 'summer' })
+    session = stepTrip(options, session, { type: 'setDestination', hex: '10,8' }).state
+    expect(session.travel.route).toEqual(expect.arrayContaining(['4,6', '6,8']))
+    const events: string[] = []
+    for (let i = 0; i < 20 && session.travel.location !== '10,8'; i++) {
+      for (const id of session.travel.pendingChecks.map((c) => c.id))
+        session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+      const step = stepTrip(options, session, { type: 'travel' })
+      events.push(...step.entries.flatMap((e) => (e.data?.event ? [String(e.data.event)] : [])))
+      session = step.state
+      if (session.travel.location !== '10,8' && !session.travel.pendingChecks.length)
+        session = stepTrip(options, session, { type: 'action', id: 'camp' }).state
+    }
+    expect(session.travel.location).toBe('10,8')
+    expect(events).toEqual(
+      expect.arrayContaining(['LANDMARK_CHECK_REQUIRED', 'FORD_CHECK_REQUIRED']),
+    )
+    // 3 km a hex: more hexes a day than on the Marches' map (10 km).
+    const marches = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json).map
+    expect(mapWorld(marches, system.rules.travel.hexKm).hexKm).toBe(10)
+  })
+
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(

@@ -2222,5 +2222,10 @@
       "system": "grey-marches",
       "lastTurn": 360
     }
+  },
+  "campaign": {
+    "id": "grey-marches",
+    "type": "campaign",
+    "name": "The Grey Marches"
   }
 }

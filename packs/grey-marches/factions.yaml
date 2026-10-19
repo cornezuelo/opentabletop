@@ -25,7 +25,7 @@ name: The powers of the Marches
 description: |-
   The Iron Clans of the Hollow Hills, the Vale of Ashford and the unpaid garrison of Fort Keld.
 
-  **Shows:** factions declared by a pack: a sheet for their values, starting territory by region (the Hills, the Vale, on any map) and by hex on the example map (Fort Keld, `map:`), a default turn table, one of their own (the Clans') and one from Core (the garrison's), and turns every 7 days.
+  **Shows:** factions declared by a pack: a sheet for their values, starting territory by region (the Hills, the Vale, on any map) and by hex on an example map each (Fort Keld on the Marches' map, the Clans' watch-cairn on the Hollow Hills', `map:`), the Clans holding land on both maps of the example campaign, a default turn table, one of their own (the Clans') and one from Core (the garrison's), and turns every 7 days.
 sheet: faction
 turn: faction-turn
 every: 7
@@ -35,7 +35,10 @@ factions:
     description: Hill clans who answer to no king; they covet the Vale's fields.
     color: '#8b1e1e'
     values: { strength: 4, reputation: -1 }
-    territory: { regions: [The Hollow Hills] }
+    # The Hills on any map that has them, and their watch-cairn on the Hollow Hills map
+    # (outside the region there).
+    territory:
+      { regions: [The Hollow Hills], map: maps/hollow-hills.otd.json, hexes: ['3,6', '4,6'] }
     turn: clan-turn
   the-vale:
     name: The Vale of Ashford

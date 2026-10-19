@@ -303,12 +303,12 @@ export const es: Messages = {
     examples: 'Mapas de ejemplo',
     yours: 'Tus mapas',
     exampleHelp:
-      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Systems, dicen qué enseña.',
+      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero. Los ejemplos de una misma campaña se abren en ella y comparten su reloj del mundo y sus facciones.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Systems, dicen qué enseña.',
     exampleOf: 'con {system}',
     exampleMissing: 'Los packs cargados no tienen el mapa de ejemplo {path}.',
     exampleTitle: 'Abrir el ejemplo',
     exampleExists:
-      'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye)?',
+      'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye, y también el mundo de su campaña si no hay en ella otro mapa o viaje tuyo)?',
     exampleOpen: 'Seguir con el mío',
     exampleFresh: 'Empezar de cero',
     exampleBeside: 'Abrirlo junto al mío',

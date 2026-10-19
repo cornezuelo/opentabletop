@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its example map, the sheet its companions are made with and the Company's own, its factions and its progress clocks.
+  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its factions and its progress clocks.
 travel: default
 bindings: default
 calendar: marcher-reckoning
@@ -24,5 +24,6 @@ factions: default
 clocks: default
 weather: [sky]
 packs: [core]
-# Listed in the Hexmapper's Maps → Example maps.
-maps: [maps/grey-marches.otd.json]
+# Listed in the Hexmapper's Maps → Example maps: the Marches, and the Hollow Hills up close
+# (3 km a hex), two maps of one campaign (both files name it: The Grey Marches).
+maps: [maps/grey-marches.otd.json, maps/hollow-hills.otd.json]

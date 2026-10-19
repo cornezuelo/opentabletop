@@ -301,12 +301,12 @@ export const en = {
     examples: 'Example maps',
     yours: 'Your maps',
     exampleHelp:
-      'A map a system brings to be played on (its `maps:`), ready with that system chosen.\nIt opens as one of your maps: open it again later to go on, or start it fresh.\nThe system’s pages in the manual, or its **Overview** in the Systems app, say what it shows.',
+      'A map a system brings to be played on (its `maps:`), ready with that system chosen.\nIt opens as one of your maps: open it again later to go on, or start it fresh. Examples of one campaign open in it, sharing its world clock and factions.\nThe system’s pages in the manual, or its **Overview** in the Systems app, say what it shows.',
     exampleOf: 'with {system}',
     exampleMissing: 'The loaded packs have no example map {path}.',
     exampleTitle: 'Open the example',
     exampleExists:
-      'This browser already has this example, with your changes and your trip. Go on with it, or start the example fresh (your copy is replaced)?',
+      'This browser already has this example, with your changes and your trip. Go on with it, or start the example fresh (your copy is replaced, and so is its campaign’s world unless another of your maps or trips is in it)?',
     exampleOpen: 'Go on with mine',
     exampleFresh: 'Start fresh',
     exampleBeside: 'Open it beside mine',

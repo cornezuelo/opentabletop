@@ -234,7 +234,7 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   },
   /**
    * v24: campaigns. The map belongs to a campaign of its own (`meta.campaign`, the map's
-   * id), which takes its world clock, world weather, factions' sheets and Oracle state; the
+   * id, unless a file names the campaign it's in: two example maps of one), which takes its world clock, world weather, factions' sheets and Oracle state; the
    * land each faction holds stays on the map (`territories`). Those parts are left in the
    * data for `readMap`, which hands them over to make the campaign.
    */
@@ -243,7 +243,7 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     const factions = data.factions as { territories?: unknown } | undefined
     return {
       ...data,
-      ...(meta && typeof meta === 'object' && { meta: { ...meta, campaign: meta.id } }),
+      ...(meta && typeof meta === 'object' && { meta: { campaign: meta.id, ...meta } }),
       ...(factions && typeof factions === 'object' && { territories: factions.territories }),
     }
   },

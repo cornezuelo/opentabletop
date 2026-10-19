@@ -65,7 +65,7 @@ La pestaña **Relojes**. Un reloj es una esfera de segmentos que se llenan segú
 
 La pestaña **Cronología**: lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas, relojes que se movieron y tus propias notas (escribe una y **Añadir**).
 
-El mapa de ejemplo de las Marcas Grises viene con el reloj en marcha: un mercado cada semana (`market-day`: ese día, en Ashford, **Día de mercado** da provisiones), los Clanes de Hierro marchando sobre Fort Keld (`clan-march`), las crecidas de primavera (`spring-floods`) y los tres relojes del sistema: la Sierpe del Bosque Gris (la llenan las luces embrujadas; llena, tira lo primero que hace la Sierpe y recorre el Bosque Gris), la marcha de los Clanes de Hierro (la llenan sus turnos del mundo; llena, entran en guerra con Fort Keld, acercan su motín dos segmentos y vuelven a reunirse) y la guarnición sin paga de Fort Keld (llena, se amotina: el fuerte se pierde y el reloj desaparece).
+Los mapas de ejemplo de las Marcas Grises (dos mapas de una campaña, así que un solo reloj) vienen con el reloj en marcha: un mercado cada semana (`market-day`: ese día, en Ashford, **Día de mercado** da provisiones), los Clanes de Hierro marchando sobre Fort Keld (`clan-march`), las crecidas de primavera (`spring-floods`) y los tres relojes del sistema: la Sierpe del Bosque Gris (la llenan las luces embrujadas; llena, tira lo primero que hace la Sierpe y recorre el Bosque Gris), la marcha de los Clanes de Hierro (la llenan sus turnos del mundo; llena, entran en guerra con Fort Keld, acercan su motín dos segmentos y vuelven a reunirse) y la guarnición sin paga de Fort Keld (llena, se amotina: el fuerte se pierde y el reloj desaparece).
 
 ## Facciones
 
