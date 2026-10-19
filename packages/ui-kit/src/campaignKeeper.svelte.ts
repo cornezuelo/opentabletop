@@ -20,7 +20,7 @@ async function read(id: string): Promise<Campaign | null> {
 }
 
 /**
- * The campaign a host plays in (Travel: the open trip's), read from where campaigns are kept
+ * The campaign a host plays in (Travel: the open trip's; the Oracle: the one chosen), read from where campaigns are kept
  * (`@open-tabletop/storage`) and written back as it changes; when another window or app
  * changes it (the Hexmapper, a world turn), it's read again.
  */
@@ -32,13 +32,19 @@ export class CampaignKeeper {
   private writes: Promise<void> = Promise.resolve()
   private unsaved = 0
 
-  constructor() {
+  /**
+   * `onRead` hears every campaign read from where they're kept: one opened, or the open one
+   * changed elsewhere (not this keeper's own changes).
+   */
+  constructor(private readonly onRead?: (campaign: Campaign) => void) {
     onCampaignChange((change) => {
       const id = this.campaign?.id
       if (!id || this.unsaved) return
       if (change.type === 'many' || (change.type === 'put' && change.id === id))
         void read(id).then((next) => {
-          if (next && this.campaign?.id === id && !this.unsaved) this.campaign = next
+          if (!next || this.campaign?.id !== id || this.unsaved) return
+          this.campaign = next
+          this.onRead?.(next)
         })
     })
   }
@@ -51,7 +57,10 @@ export class CampaignKeeper {
     this.loadingId = id
     const loading = read(id).then((kept) => {
       const campaign = kept ?? createCampaign(id, name)
-      if (this.loadingId === id) this.campaign = campaign
+      if (this.loadingId === id) {
+        this.campaign = campaign
+        this.onRead?.(campaign)
+      }
       return campaign
     })
     this.loading = loading

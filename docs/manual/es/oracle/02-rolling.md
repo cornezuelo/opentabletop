@@ -28,6 +28,10 @@ Cambia el contexto o el modo y las probabilidades lo siguen: en _¿Quién va?_ d
 
 Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.
 
+## Tirar en una campaña
+
+**Campaña**, arriba del historial, elige dónde guardan tus tiradas sus mazos, sus resultados de una sola vez y su historial. **Sin campaña** (lo normal) son los propios del Oracle, en este navegador. Elige una campaña (la de un mapa del Hexmapper, que aparece con el nombre del mapa, o la de un viaje de Travel) para tirar en ese mundo: una carta que robas aquí ya no está en el mazo para los viajes de ese mapa, un resultado de una sola vez que salió allí no sale aquí, y el historial es el que muestra el panel del Oracle del mapa. **Nueva sesión** y **Borrar** actúan entonces sobre los de la campaña. Cuando el mapa o un viaje la cambian en otra ventana, el Oracle la vuelve a leer. Tu semilla sigue siendo la de este navegador en ambos casos.
+
 ## Tiradas repetibles
 
 En **Preferencias** (el engranaje), **Semilla de las tiradas** hace las tiradas repetibles: con la misma semilla, las mismas tiradas en el mismo orden dan los mismos resultados. El historial muestra la semilla mientras está puesta.

@@ -13,6 +13,7 @@
     tooltip,
   } from '@open-tabletop/ui-kit'
   import OraclePreferences from './components/OraclePreferences.svelte'
+  import CampaignChoice from './components/CampaignChoice.svelte'
   import DefinitionView from './components/DefinitionView.svelte'
   import FileEditor from './components/FileEditor.svelte'
   import { History } from '@open-tabletop/oracle-ui'
@@ -25,7 +26,7 @@
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
-  import { oracleUi } from './lib/oracle'
+  import { oracleUi } from './lib/oracle.svelte'
   import { workspace } from './lib/packs/workspace.svelte'
   import { manifestOf } from './lib/packs/workspace'
   import { isHidden } from './lib/hiddenPacks.svelte'
@@ -160,7 +161,9 @@
   {#if help}
     <aside class="help-column"><HelpPanel app="oracle" locale={getLocale()} /></aside>
   {:else}
-    <History ui={oracleUi} onopen={(item) => go({ name: 'def', id: item.source, tab: 'roll' })} />
+    <History ui={oracleUi} onopen={(item) => go({ name: 'def', id: item.source, tab: 'roll' })}>
+      {#snippet top()}<CampaignChoice />{/snippet}
+    </History>
   {/if}
 </div>
 

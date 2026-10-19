@@ -48,6 +48,11 @@ export const es: Messages<typeof en> = {
     updated:
       'La versión incluida de este pack ha cambiado desde que hiciste tu copia: abre el pack para coger o conservar cada cambio.',
   },
+  campaign: {
+    title: vocabulary.es.terms.campaign,
+    none: 'Sin campaña',
+    help: 'Dónde guardan las tiradas a mano sus mazos, sus resultados de una sola vez y su historial:\n• **Sin campaña** — los propios del Oracle, en este navegador\n• una campaña (la de un mapa del Hexmapper, o la de un viaje de Travel) — compartidos con ella: una carta robada aquí ya no sale en los viajes de ese mapa, y las tiradas aparecen en su panel del Oracle\nTu semilla (Preferencias) sigue siendo la de este navegador en ambos casos.',
+  },
   prefs: {
     seed: 'Semilla de las tiradas',
     seedPlaceholder: 'Vacío: al azar',

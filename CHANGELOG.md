@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Oracle: **roll in a campaign**: **Campaign**, at the top of the history, chooses where hand rolls keep their decks, once-only results and history: the Oracle's own (**No campaign**, as before) or a campaign's (a Hexmapper map's, a Travel trip's), shared with its maps and trips.
+
 - Travel: **trips play in campaigns**: **Campaign**, above the system, chooses the world a trip happens in: one of its own (as before), or a Hexmapper map's. In a map's campaign the trip's days are its world clock (a new trip starts on its date, events and holidays coming due go to the journal), its tables read the campaign's clocks, events and factions and change them, and its checks roll on the campaign's Oracle. **One trip at a time** in a campaign, in either app: playing one where another played last asks to pause it, and the party waits until the campaign's clock if it went on. Saved trips (v9) each get a campaign of their own; campaigns (v2) remember which trip played last.
 
 - Hexmapper: a progress clock filled by a trip's result (`world.clocks.<id>: 1`) keeps what its table drew: the trip's Oracle state no longer overwrites the full clock's roll (its deck draws and once-only entries were forgotten).

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
   import type { OracleUi } from './ui'
 
@@ -7,12 +8,15 @@
     ui,
     onopen,
     embedded = false,
+    top,
   }: {
     ui: OracleUi
     /** Called when a past roll is clicked (after showing it in its roll panel). */
     onopen?: (item: HistoryItem) => void
     /** Inside another panel: no own background or border. */
     embedded?: boolean
+    /** What the host shows under the title (the Oracle app: the campaign rolled in). */
+    top?: Snippet
   } = $props()
   const { t, roller } = $derived(ui)
 
@@ -41,6 +45,7 @@
       >{t('history.resetState')}</button
     >
   </header>
+  {@render top?.()}
   {#if roller.seed}
     <p class="seed">
       <span

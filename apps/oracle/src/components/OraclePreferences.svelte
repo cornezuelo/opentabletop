@@ -2,7 +2,7 @@
   import { helpMarkdown, Markdown } from '@open-tabletop/ui-kit'
   import { hiddenPacks, setHidden } from '../lib/hiddenPacks.svelte'
   import { t } from '../lib/i18n'
-  import { oracleUi } from '../lib/oracle'
+  import { oracleUi } from '../lib/oracle.svelte'
   import { manifestOf } from '../lib/packs/workspace'
   import { workspace } from '../lib/packs/workspace.svelte'
 

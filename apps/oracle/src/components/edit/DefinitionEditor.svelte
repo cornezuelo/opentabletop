@@ -3,7 +3,7 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { contextSuggestions } from '@open-tabletop/session'
   import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
-  import { oracleUi } from '../../lib/oracle'
+  import { oracleUi } from '../../lib/oracle.svelte'
   import { workspace } from '../../lib/packs/workspace.svelte'
   import { t } from '../../lib/i18n'
   import { definitionDoc } from '../../lib/packs/doc.svelte'

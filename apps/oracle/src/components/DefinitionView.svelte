@@ -4,7 +4,7 @@
   import { Markdown } from '@open-tabletop/ui-kit'
   import { go } from '../lib/nav.svelte'
   import { favorites, RollPanel } from '@open-tabletop/oracle-ui'
-  import { oracleUi } from '../lib/oracle'
+  import { oracleUi } from '../lib/oracle.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '@open-tabletop/pack-ui/yaml'
   import KindBadge from './KindBadge.svelte'

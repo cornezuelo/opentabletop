@@ -28,6 +28,10 @@ Change the context or the mode and the odds follow: in the Grey Marches' _Who go
 
 A deck shows how many cards are left and has **Shuffle**. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.
 
+## Rolling in a campaign
+
+**Campaign**, at the top of the history, chooses where your rolls keep their decks, once-only results and history. **No campaign** (the default) is the Oracle's own, kept in this browser. Choose a campaign (a Hexmapper map's, listed by the map's name, or a Travel trip's) to roll in that world: a card you draw here is gone from the deck for that map's trips too, a once-only result that came up there won't come up here, and the history is the one the map's Oracle panel shows. **New session** and **Clear** act on the campaign's then. When the map or a trip changes it in another window, the Oracle reads it again. Your seed stays this browser's own either way.
+
 ## Repeatable rolls
 
 In **Preferences** (the gear), **Seed for rolls** makes rolls repeatable: with the same seed, the same rolls in the same order give the same results. The history shows the seed while it's on.
