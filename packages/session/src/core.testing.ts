@@ -22,3 +22,21 @@ export function coreSystem(): TravelSystem {
   const { registry } = loadPacks(corePack())
   return travelSystems(registry).systems.find((s) => s.id === 'core')!
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore -- as above.
+const greyMarches: Record<string, unknown> = import.meta.glob(
+  '../../../packs/grey-marches/**/*.yaml',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
+
+/** For tests: the bundled Grey Marches pack's files (`packs/grey-marches`), without its maps. */
+export const greyMarchesPack = (): PackFile[] =>
+  Object.entries(greyMarches).map(([path, content]) => ({
+    path: path.slice(path.indexOf('grey-marches/')),
+    content: content as string,
+  }))
