@@ -1,6 +1,7 @@
 import { offerUpdate } from '@open-tabletop/ui-kit'
 import { mount } from 'svelte'
 import { registerSW } from 'virtual:pwa-register'
+import '@open-tabletop/ui-kit/theme.css'
 import './app.css'
 import App from './App.svelte'
 import { getLocale } from './lib/i18n/index.svelte'
