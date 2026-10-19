@@ -3,6 +3,9 @@
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
   import RecordRows from './RecordRows.svelte'
+  import UsedBy from '../uses/UsedBy.svelte'
+  import UsesList from '../uses/UsesList.svelte'
+  import { usesFor } from '../../lib/usage'
   import { library } from '../../lib/packs.svelte'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
@@ -23,6 +26,9 @@
    * one place to say "at dawn, unless on a road, roll getting-lost". Then the party stats.
    */
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
+
+  /** The stat whose uses are shown below its row. */
+  let statUses = $state<string | null>(null)
 
   /** The values of the members' sheet (the system's `sheet`), for stats made of them. */
   const sheetValues = $derived(Object.keys(system?.sheet?.def.values ?? {}))
@@ -362,6 +368,7 @@
             <th>{t('checks.statDescription')}</th>
             <th>{t('checks.statDefault')}</th>
             <th>{t('checks.statFrom')}<InfoTip text={t('checks.statFromHelp')} /></th>
+            {#if system}<th>{t('uses.title')}<InfoTip text={t('uses.help')} /></th>{/if}
             <th></th>
           </tr>
         </thead>
@@ -422,6 +429,15 @@
                   onchange={(text) => setFlow(['stats', id, 'from'], 'bindings', text)}
                 />
               </td>
+              {#if system}
+                <td>
+                  <UsedBy
+                    uses={usesFor(system, { kind: 'stat', id })}
+                    open={statUses === id}
+                    ontoggle={() => (statUses = statUses === id ? null : id)}
+                  />
+                </td>
+              {/if}
               <td>
                 {#if !disabled}
                   <button
@@ -436,6 +452,13 @@
                 {/if}
               </td>
             </tr>
+            {#if system && statUses === id}
+              <tr class="uses-row">
+                <td colspan="7">
+                  <UsesList uses={usesFor(system, { kind: 'stat', id })} {system} />
+                </td>
+              </tr>
+            {/if}
           {/each}
         </tbody>
       </table>
@@ -451,6 +474,7 @@
       {doc}
       kind="bindings"
       at={['roles']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'role', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['guide', 'lookout', 'forager', 'quartermaster']}
       columns={[

@@ -10,6 +10,7 @@
   import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
+  import { usesFor } from '../../lib/usage'
 
   /** Travel rules as forms: the day, terrains, roads, modes, supplies, weather and actions. */
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
@@ -356,6 +357,7 @@
     <RecordRows
       {doc}
       at={['resources']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'supply', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['food', 'water', 'fodder', 'torches']}
       template={{ min: 0 }}
@@ -399,6 +401,7 @@
     <RecordRows
       {doc}
       at={['values']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'day-value', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['lost', 'stranded', 'exhausted']}
       template={{ blocks: ['travel'] }}

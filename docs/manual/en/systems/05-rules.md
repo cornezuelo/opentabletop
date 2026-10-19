@@ -32,6 +32,8 @@ What the party carries, each with its **Name**, **Description (its help)**, **Mi
 
 **Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum).
 
+Its **Used by** column lists the actions, checks and tables that read, spend or add to each one ([Used by](04-overview.md#used-by)).
+
 ## Weather
 
 How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](11-weather.md).
@@ -41,6 +43,8 @@ How each weather slows the party (**Speed ×**; `0`: no travel that day). Weathe
 Values tables can set for the rest of the day, each with a name and what it **Blocks** while it holds: travel, one of the system's actions, or a way of travelling as `mode.<id>` (the box suggests what the system declares: `mode.horse` leaves the horses behind while it holds).
 
 The Grey Marches declare **Lost**, which blocks travel: the getting-lost table sets it, and the actions that move the party (its march) stay disabled until the next day, saying why.
+
+**Used by** lists who sets each value and who reads it, today or the next day as `yesterday.<id>` ([Used by](04-overview.md#used-by)).
 
 ## Actions
 

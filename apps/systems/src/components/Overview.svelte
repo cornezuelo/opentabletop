@@ -17,6 +17,7 @@
   import { library } from '../lib/packs.svelte'
   import { exportSystem, systemZipPacks } from '../lib/transfer'
   import { ROLLABLE, type SystemDoc } from '../lib/systemDoc.svelte'
+  import FindName from './uses/FindName.svelte'
 
   /**
    * A system at a glance, and its own definition (`kind: system`) as a form: its name and
@@ -261,6 +262,7 @@
       {/if}
     </section>
   {/if}
+  <FindName {system} />
   {#if zipped.length}
     <section>
       <h3>{t('overview.export')}<InfoTip text={t('overview.exportHelp')} /></h3>

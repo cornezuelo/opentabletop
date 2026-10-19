@@ -25,6 +25,27 @@ Maps to play the system on, kept in its pack (`maps:`):
 
 Maps whose files name the same campaign (saved from maps of one campaign) open in it together, sharing its world clock and factions.
 
+## Find a name
+
+A system names things in one place and uses them in many: a stat declared in Checks is read by tables, changed by actions and made of the characters' values. **Find a name** lists every place in the system's packs that uses a name, tables, oracles, generators and decks included, which no other tab shows. Type it as written (`pathfinding`) or by its full name (`party.stats.morale`, which also finds it where it's written short, `morale`); the box suggests every name the packs use.
+
+Each line says how the place uses it, then which place it is and the part of it:
+
+- **reads it**: a condition or a `{{…}}` (`when`, `modeWhen.advantage`, a table's `roll`);
+- **changes it**: effects (`entries.bandits.effects`);
+- **sets it**: `set`, a value of the day (`do[3].set`);
+- **is made of it**: a party stat's **From the sheets**, or a supply the characters carry.
+
+An action or a check opens its tab here; a table, oracle, generator or deck opens in the Oracle (↗). A name that nothing in the system declares, and that the apps don't give either (`hex.…`, `trip.…`, `time.…`), says so, with the names it looks like: often a typo (`pathfindng` for `pathfinding`).
+
+What it doesn't see: what a map gives (a hex's or an icon's own values), what the apps read by themselves (the hours marched, for the day's march), and the ids of actions, ways of travelling or terrains used as values.
+
+## Used by
+
+The rows of what a system declares have a **Used by** column with the same lists: party stats and journey roles in [Checks](06-checks.md), supplies and values of the day in [Rules](05-rules.md), each [sheet](07-sheet.md)'s values and conditions, and [clocks](09-clocks.md). Its number is how many places use the row; press it to see them under the row. **–** means nothing uses it yet: often fine (a value only the player reads), sometimes a slip (a stat no table reads, a name written differently).
+
+In the Grey Marches, the companions' **Pathfinding** (Sheet) shows two places: the party stat Navigation is made of it (the best among them), and the table _Do we get lost?_ reads the guide's (`roles.guide.values.pathfinding`, in its roll mode by itself: advantage).
+
 ## Taking it elsewhere
 
 Your systems live only in this browser. To keep one safe, take it to another browser or give it to someone, the Overview ends with **Take it elsewhere**: it lists what the file holds and **Export as .zip** downloads it. The .zip holds every pack the system needs, each in its own folder: its own pack, the packs it brings, those its parts are written in and their dependencies, as far as they go. The Grey Marches' file, for instance, holds the Grey Marches and Core.

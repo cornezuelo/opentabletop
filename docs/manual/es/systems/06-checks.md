@@ -30,9 +30,13 @@ Números del grupo, cada uno con un id, un **Nombre** y una **Descripción** par
 
 Con una hoja de grupo, **De las hojas** puede hacer que una característica sea uno de sus valores, siempre: `party: morale` (la Moral, la Fatiga, los Mercenarios y el Aguante de las Marcas Grises son de la Compañía). Con una hoja de personajes, hace una característica con los valores de los personajes mientras el grupo tenga alguno: `max: survival` (la mejor Supervivencia), `min`, `sum`, `count: true`, `pick: charisma` (el que elija el jugador para tirar, el mejor por defecto), con `when` / `unless` para dejar fuera a algunos. La Supervivencia de las Marcas Grises: `max: survival, unless: { conditions: wounded }, none: 0`. Vacío, la guarda el grupo.
 
+El **Usado en** de cada característica lista las tablas, acciones y comprobaciones que la leen o la cambian, esté escrita por su nombre completo o por el corto ([Usado en](04-overview.md#usado-en)).
+
 ## Roles de viaje
 
 Las tareas que el jugador da a los personajes en un viaje (el **Guía** y el **Vigía** de las Marcas Grises), cada una con nombre y descripción. Las comprobaciones y tablas leen a quien la tiene como `roles.<id>.…`.
+
+El **Usado en** de un rol lista lo que lee a quien lo tiene: al guía de las Marcas Grises lo lee la tabla _¿Nos perdemos?_, que ninguna pestaña de aquí enseña si no.
 
 ## Provisiones que llevan los miembros
 

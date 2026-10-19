@@ -25,6 +25,27 @@ Mapas en los que jugar el sistema, guardados en su pack (`maps:`):
 
 Los mapas cuyos ficheros nombran la misma campaña (guardados desde mapas de una campaña) se abren juntos en ella y comparten su reloj del mundo y sus facciones.
 
+## Buscar un nombre
+
+Un sistema nombra cosas en un sitio y las usa en muchos: una característica declarada en Comprobaciones la leen tablas, la cambian acciones y sale de los valores de los personajes. **Buscar un nombre** lista todos los sitios de los packs del sistema que usan un nombre, también tablas, oráculos, generadores y mazos, que ninguna otra pestaña enseña. Escríbelo tal como está escrito (`pathfinding`) o por su nombre completo (`party.stats.morale`, que también lo encuentra donde está escrito en corto, `morale`); la casilla sugiere todos los nombres que usan los packs.
+
+Cada línea dice cómo lo usa el sitio, luego qué sitio es y qué parte de él:
+
+- **lo lee**: una condición o un `{{…}}` (`when`, `modeWhen.advantage`, la `roll` de una tabla);
+- **lo cambia**: efectos (`entries.bandits.effects`);
+- **lo fija**: `set`, un valor del día (`do[3].set`);
+- **sale de él**: el **De las hojas** de una característica del grupo, o una provisión que llevan los personajes.
+
+Una acción o una comprobación abre su pestaña aquí; una tabla, oráculo, generador o mazo se abre en el Oráculo (↗). Un nombre que nada del sistema declara, y que tampoco dan las aplicaciones (`hex.…`, `trip.…`, `time.…`), lo dice, con los nombres a los que se parece: suele ser una errata (`pathfindng` por `pathfinding`).
+
+Lo que no ve: lo que da un mapa (los valores propios de un hex o de un icono), lo que las aplicaciones leen por su cuenta (las horas de marcha, para la marcha del día) y los ids de acciones, formas de viajar o terrenos usados como valores.
+
+## Usado en
+
+Las filas de lo que declara un sistema tienen una columna **Usado en** con las mismas listas: las características del grupo y los roles de viaje en [Comprobaciones](06-checks.md), las provisiones y los valores del día en [Reglas](05-rules.md), los valores y estados de cada [hoja](07-sheet.md), y los [relojes](09-clocks.md). Su número es en cuántos sitios se usa la fila; púlsalo para verlos debajo. **–** quiere decir que nada lo usa aún: a menudo está bien (un valor que solo lee el jugador), a veces es un descuido (una característica que no lee ninguna tabla, un nombre escrito de otra manera).
+
+En las Marcas Grises, el **Rastreo** de los compañeros (Hoja) enseña dos sitios: de él sale la característica del grupo Orientación (el mejor de ellos), y la tabla _¿Nos perdemos?_ lee el del guía (`roles.guide.values.pathfinding`, en su modo de tirada automático: ventaja).
+
 ## Llevarlo a otra parte
 
 Tus sistemas solo viven en este navegador. Para ponerlo a salvo, llevarlo a otro navegador o dárselo a alguien, el Resumen acaba con **Llevarlo a otra parte**: dice lo que lleva el fichero y **Exportar como .zip** lo descarga. El .zip lleva todos los packs que necesita el sistema, cada uno en su carpeta: el suyo, los que trae, los que tienen sus partes y sus dependencias, hasta donde lleguen. El fichero de las Marcas Grises, por ejemplo, lleva las Marcas Grises y Core.

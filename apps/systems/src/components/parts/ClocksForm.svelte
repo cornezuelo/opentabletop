@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { effectSuggestions } from '@open-tabletop/session'
+  import { effectSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { CLOCK_THEN } from '@open-tabletop/world-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
   import type { PartDoc } from '../../lib/partDoc.svelte'
+  import { usesFor } from '../../lib/usage'
   import RecordRows from '../forms/RecordRows.svelte'
 
   /**
@@ -12,7 +13,7 @@
    * segments and where it starts, and what happens when it fills (its words, a table
    * rolled, effects on the world, and whether it then stays full, starts over or goes).
    */
-  let { doc }: { doc: PartDoc } = $props()
+  let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
 
   const data = $derived(doc.data())
   const disabled = $derived(!doc.editable)
@@ -46,6 +47,7 @@
       {doc}
       at={['clocks']}
       idLabel={t('forms.id')}
+      uses={{ of: (id) => usesFor(system, { kind: 'clock', id }), system }}
       template={{ segments: 6 }}
       columns={[
         { field: 'name', label: t('clocksForm.clockName'), type: 'text' },

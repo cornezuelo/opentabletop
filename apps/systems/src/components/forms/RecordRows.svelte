@@ -44,6 +44,9 @@
   import { t } from '../../lib/i18n'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import type { RowsDoc } from '../../lib/partDoc.svelte'
+  import type { TravelSystem, Use } from '@open-tabletop/session'
+  import UsedBy from '../uses/UsedBy.svelte'
+  import UsesList from '../uses/UsesList.svelte'
 
   /**
    * A map of the rules keyed by id (terrains, modes, resources…) as rows: the id, one
@@ -59,6 +62,7 @@
     template = {},
     idLabel,
     exclude = [],
+    uses,
   }: {
     doc: RowsDoc
     kind?: string
@@ -70,7 +74,12 @@
     idLabel: string
     /** Keys of the record that aren't rows (e.g. camp and rest among the actions). */
     exclude?: string[]
+    /** Where each row's id is used in the system's packs: a "Used by" column. */
+    uses?: { of: (id: string) => Use[]; system: TravelSystem }
   } = $props()
+
+  /** The row whose uses are shown below it. */
+  let usesOpen = $state<string | null>(null)
 
   const record = $derived.by(() => {
     let node: unknown = doc.data(kind)
@@ -174,6 +183,7 @@
             >{c.label}{#if c.help}<InfoTip text={c.help} />{/if}</th
           >
         {/each}
+        {#if uses}<th class="uses">{t('uses.title')}<InfoTip text={t('uses.help')} /></th>{/if}
         <th class="remove"></th>
       </tr>
     </thead>{/if}
@@ -242,6 +252,15 @@
             {/if}
           </td>
         {/each}
+        {#if uses}
+          <td class="uses">
+            <UsedBy
+              uses={uses.of(id)}
+              open={usesOpen === id}
+              ontoggle={() => (usesOpen = usesOpen === id ? null : id)}
+            />
+          </td>
+        {/if}
         <td class="remove">
           {#if !disabled}
             <button
@@ -255,6 +274,11 @@
           {/if}
         </td>
       </tr>
+      {#if uses && usesOpen === id}
+        <tr class="uses-row">
+          <td colspan={columns.length + 3}><UsesList uses={uses.of(id)} system={uses.system} /></td>
+        </tr>
+      {/if}
     {/each}
   </tbody>
 </table>
@@ -374,6 +398,14 @@
 
   .remove {
     width: 32px;
+  }
+
+  .wide .uses {
+    width: 5em;
+  }
+
+  .uses-row td {
+    padding: 2px 4px 8px 12px;
   }
 
   .icon {

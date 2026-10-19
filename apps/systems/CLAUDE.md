@@ -17,11 +17,13 @@ src/
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
     nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|calendar|weather|modes|try|yaml>
     trial.svelte.ts   # the Try it tab's trips (travel-ui TripStore, `opentabletop.systems.trips`)
+    usage.ts          # where a system's names are used (session's index of uses): Used by, Find a name, each place's name and link
     i18n/             # typed en/es dictionaries
   components/         # Sidebar (systems, new system), SystemView (tabs), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (edit a copy / revert);
                       # forms/: RulesForm (+ values of the day), ActionsForm (actions as steps),
                       # ChecksForm (checks + bindings + stats, stats from the characters, carried supplies), RecordRows;
-                      # parts/: the sheet, calendar, weather and roll modes forms (PartsTab)
+                      # parts/: the sheet, calendar, weather and roll modes forms (PartsTab);
+                      # uses/: UsedBy (a row's count), UsesList (the places), FindName (on the Overview)
 ```
 
 - The Checks tab keeps rules and bindings in step: renaming a check renames its binding; removing it removes its binding.

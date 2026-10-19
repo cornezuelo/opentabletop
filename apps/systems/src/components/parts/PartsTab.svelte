@@ -5,6 +5,7 @@
   import { createSystemPart, systemParts, systemRoot, type PartTabKind } from '../../lib/newSystem'
   import { library } from '../../lib/packs.svelte'
   import { partDoc } from '../../lib/partDoc.svelte'
+  import { sheetScope } from '../../lib/usage'
   import ReadOnly from '../ReadOnly.svelte'
   import CalendarForm from './CalendarForm.svelte'
   import RollModesForm from './RollModesForm.svelte'
@@ -75,9 +76,9 @@
       {:else if kind === 'factions'}
         <FactionsForm {doc} {system} />
       {:else if kind === 'clocks'}
-        <ClocksForm {doc} />
+        <ClocksForm {doc} {system} />
       {:else if kind === 'sheet'}
-        <SheetForm {doc} {system} />
+        <SheetForm {doc} {system} scope={sheetScope(system, part.id)} />
       {:else if kind === 'weather'}
         <WeatherForm {doc} seasons={seasonsFor(system)} />
       {:else}

@@ -1,9 +1,10 @@
 <script lang="ts">
-  import type { TravelSystem } from '@open-tabletop/session'
+  import type { SheetScope, TravelSystem } from '@open-tabletop/session'
   import { availableActions } from '@open-tabletop/travel-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
+  import { usesFor } from '../../lib/usage'
   import RecordRows from '../forms/RecordRows.svelte'
 
   /**
@@ -11,7 +12,16 @@
    * (with their bounds, as tracks, in groups), its conditions (and what each blocks) and
    * the kinds of relation a character may hold.
    */
-  let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
+  let {
+    doc,
+    system,
+    scope,
+  }: {
+    doc: PartDoc
+    system: TravelSystem
+    /** Which of the system's sheets this is (members', party's, factions'), for Used by. */
+    scope?: SheetScope
+  } = $props()
 
   const data = $derived(doc.data())
   const disabled = $derived(!doc.editable)
@@ -58,6 +68,10 @@
     <RecordRows
       {doc}
       at={['values']}
+      uses={scope && {
+        of: (id) => usesFor(system, { kind: 'sheet-value', sheet: scope, id }),
+        system,
+      }}
       idLabel={t('forms.id')}
       template={{ default: 0 }}
       columns={[
@@ -111,6 +125,10 @@
     <RecordRows
       {doc}
       at={['conditions']}
+      uses={scope && {
+        of: (id) => usesFor(system, { kind: 'sheet-condition', sheet: scope, id }),
+        system,
+      }}
       idLabel={t('forms.id')}
       suggestions={['wounded', 'exhausted', 'hungry', 'frightened']}
       columns={[

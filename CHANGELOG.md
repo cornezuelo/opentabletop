@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Systems: **where a name is used**: the rows of what a system declares (party stats and journey roles, supplies, values of the day, each sheet's values and conditions, clocks) have a **Used by** column: how many places in the system's packs read, change, set or are made of it, and, pressed, which, each linking to its tab or to the Oracle for tables, oracles, generators and decks. **Find a name**, on the Overview, finds any name as written or by its full name, and says when nothing declares it, with the names it looks like (a typo). The guide's Pathfinding, read by _Do we get lost?_, now shows up under the Sheet's Pathfinding.
+
 - Hexmapper, Travel: **the party in one place**: Play's **Party** tab shows **The party** first, its sheet with the party stats under it, each saying where it comes from (_Kael’s Pathfinding, the highest_; _Brenna’s Charisma (Rolls with)_; _how many: Kael, Brenna_), then its characters, then its supplies; the loose **Stats** section is gone. Every sheet (the party's, the characters', a token's) says which it is and whose system, with **Edit in Systems ↗**. The party token keeps no fields of its own (nothing read them; maps saved with some lose them): its panel in Tokens opens Play → Party.
 
 - Campaign: **a campaign that can't be deleted says why**: the maps and trips still in it, by name.

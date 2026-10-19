@@ -12,4 +12,6 @@ Una hoja es el único sitio donde se declara lo que tiene un personaje o el grup
 - Sus **Estados**, cada uno con lo que **Bloquea** a todo el grupo mientras alguien lo tenga: `travel`, una de las acciones del sistema, `mode.horse` (la casilla los sugiere).
 - Sus **Tipos de relación**, con los límites del número que lleva una (un vínculo de 0 a 3).
 
+Los valores y estados tienen una columna **Usado en**: las características que salen de cada valor, los límites que lo leen (el `{{maxHealth}}` de la salud), y las tablas, acciones y comprobaciones que lo leen o lo cambian en un personaje, en quien tiene un rol o en el grupo ([Usado en](04-overview.md#usado-en)).
+
 Los valores, grupos, estados y tipos de relación tienen cada uno una **Descripción (su ayuda)**: qué es, en una o dos frases. Donde se enseñe la hoja (la ficha de un personaje, la del grupo, la de una facción), su nombre aparece subrayado y al hacer clic la columna de ayuda enseña primero esa descripción, antes de lo que añaden las aplicaciones (cómo lo leen las tablas, sus límites, lo que bloquea). Como los nombres, se escribe en el idioma actual: el del pack o su fichero de traducción. Las Marcas Grises describen cada parte de las suyas.

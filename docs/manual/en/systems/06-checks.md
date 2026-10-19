@@ -30,9 +30,13 @@ Numbers of the party, each with an id, a **Name** and **Description** for player
 
 With a party sheet, **From the sheets** can make a stat one of its values, always: `party: morale` (the Grey Marches' Morale, Fatigue, Hirelings and Endurance are the Company's). With a characters' sheet, it makes a stat of the characters' values while the party has any: `max: survival` (the best Survival), `min`, `sum`, `count: true`, `pick: charisma` (whoever the player chooses to roll, the best by default), with `when` / `unless` to leave some out. The Grey Marches' Survival: `max: survival, unless: { conditions: wounded }, none: 0`. Empty, the party keeps it.
 
+Each stat's **Used by** lists the tables, actions and checks that read or change it, wherever it's written, by its full name or its short one ([Used by](04-overview.md#used-by)).
+
 ## Journey roles
 
 The jobs the player gives the characters in a trip (the Grey Marches' **Guide** and **Lookout**), each with a name and description. Checks and tables read the holder as `roles.<id>.…`.
+
+A role's **Used by** lists what reads its holder: the Grey Marches' guide is read by the table _Do we get lost?_, which no tab here shows otherwise.
 
 ## Supplies the members carry
 

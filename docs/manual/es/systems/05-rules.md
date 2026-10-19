@@ -32,6 +32,8 @@ Lo que lleva el grupo, cada una con su **Nombre**, su **Descripción (su ayuda)*
 
 **Mín** y **Máx** acotan una provisión: un cambio que pasaría de uno se queda en él, el diario lo dice y las reglas del sistema pueden reaccionar (las Marcas Grises: una comprobación de fin de día, fatiga +1, cuando la comida llegó a su mínimo).
 
+Su columna **Usado en** lista las acciones, comprobaciones y tablas que leen, gastan o suman a cada una ([Usado en](04-overview.md#usado-en)).
+
 ## Clima
 
 Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](11-weather.md).
@@ -41,6 +43,8 @@ Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja).
 Valores que las tablas pueden poner para el resto del día, cada uno con un nombre y lo que **Bloquea** mientras se cumple: viajar, una de las acciones del sistema o una forma de viajar como `mode.<id>` (la caja sugiere lo que declara el sistema: `mode.horse` deja los caballos atrás mientras se cumple).
 
 Las Marcas Grises declaran **Perdidos**, que bloquea el viaje: lo pone la tabla de perderse, y las acciones que mueven al grupo (su marcha) se quedan desactivadas hasta el día siguiente, diciendo por qué.
+
+**Usado en** lista quién fija cada valor y quién lo lee, ese día o el siguiente como `yesterday.<id>` ([Usado en](04-overview.md#usado-en)).
 
 ## Acciones
 
