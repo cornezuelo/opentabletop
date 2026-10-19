@@ -286,7 +286,14 @@ export const en = {
     edgeWrap: 'comes back on the far side',
     edgeStay: 'stays',
     flowerHelp:
-      'A hex flower: 19 cells, five rows of 3, 4, 5, 4 and 3. Each day 2d6 moves the weather one cell: 2–3 north-east, 4–5 east, 6–7 south-east, 8–9 south-west, 10–11 west, 12 north-west (a pack may change it with `moves` in YAML). Put the harsh weathers at the top and the fair ones at the bottom: the middle rolls drift south-east, towards fair weather.',
+      "A hex flower: 19 cells (rows of 3, 4, 5, 4 and 3), each a kind of weather; the day's weather is the cell it's on. Each day 2d6 moves it to a neighbouring cell (the compass beside it says which way each roll goes), so tomorrow's weather is close to today's: it drifts instead of jumping.\n• the day is on **Rain** in the middle; 2d6 rolls 7, south-east: tomorrow is the cell below and to the right, say **Grey**\n• put harsh weather at the top and fair at the bottom: the middle rolls (6–7, the commonest) go south-east, so the weather tends to clear\n• more cells of a kind make it commoner: three **Clear** cells at the bottom, one **Storm** at the top\n**At the edge** says what happens when a roll would leave the flower.",
+    flower: 'The flower',
+    paint: 'Paint with',
+    paintHelp:
+      'Choose a kind of weather here, then click cells of the flower to give them it (Enter on a cell does it too). Each colour is one kind, as in this list.',
+    moves: 'Where each 2d6 goes',
+    movesHelp:
+      'From the cell the day is on (the middle), the 2d6 totals that move it each way: 2–3 north-east, 4–5 east, 6–7 south-east… A pack may change them (`moves` in the YAML).',
     toFlower: 'Make it a hex flower',
     toFlowerConfirm: 'Replace this season’s weights with a hex flower?',
     toWeights: 'Use weights instead',

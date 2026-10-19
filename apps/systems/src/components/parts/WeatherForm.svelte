@@ -5,6 +5,7 @@
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import RecordRows from '../forms/RecordRows.svelte'
+  import HexFlower from './HexFlower.svelte'
 
   /**
    * A weather model (`kind: weather`) as forms: its kinds of weather (each with what it
@@ -141,27 +142,14 @@
             >
           {/if}
         </div>
-        <div class="flower" role="group" aria-label={t('weather.season', { season })}>
-          {#each (flower.rows as string[][] | undefined) ?? [] as row, i (i)}
-            <div class="flower-row">
-              {#each row as cell, j (j)}
-                <select
-                  aria-label={`${i + 1}.${j + 1}`}
-                  value={cell}
-                  {disabled}
-                  onchange={(e) =>
-                    doc.edit(
-                      '',
-                      ['seasons', season, 'flower', 'rows', i, j],
-                      e.currentTarget.value,
-                    )}
-                >
-                  {#each states as s (s)}<option value={s}>{stateName(s)}</option>{/each}
-                </select>
-              {/each}
-            </div>
-          {/each}
-        </div>
+        <HexFlower
+          rows={(flower.rows as string[][] | undefined) ?? []}
+          {states}
+          {stateName}
+          moves={flower.moves as Record<string, string> | undefined}
+          {disabled}
+          onset={(i, j, state) => doc.edit('', ['seasons', season, 'flower', 'rows', i, j], state)}
+        />
         {#if shares?.[season]}
           <p class="help">
             {t('weather.shares')}: {states
@@ -352,22 +340,6 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
-  }
-
-  .flower {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .flower-row {
-    display: flex;
-    gap: 4px;
-  }
-
-  .flower-row select {
-    width: 8em;
   }
 
   .link {

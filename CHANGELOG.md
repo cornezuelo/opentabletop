@@ -18,6 +18,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Systems: **the divisions of the day as a strip** of the day in the Calendar tab, each part a stretch in its colour; **Every N hours** is gone from the form: **Split into equal parts…** writes the numbered rows to rename or adjust (a division written with `every` shows its parts and can be written as rows). Parts all named 1, 2, 3… read as numbers, like `every`'s.
 
+- Systems: **a weather hex flower is drawn as hexes**, coloured by kind of weather: pick one under **Paint with** and click cells to give them it; a compass shows where each 2d6 total moves the day, and the help explains the walk with an example.
+
 ### Fixes
 
 - Systems: a system's **YAML** tab no longer edits the files of another pack it brings (Core's roll modes…): they show read-only, saying whose they are. The notice of packs not read shows **Delete** in red.

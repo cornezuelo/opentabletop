@@ -290,7 +290,14 @@ export const es: Messages<typeof en> = {
     edgeWrap: 'vuelve por el lado opuesto',
     edgeStay: 'se queda',
     flowerHelp:
-      'Una flor hexagonal: 19 casillas, cinco filas de 3, 4, 5, 4 y 3. Cada día 2d6 mueve el clima una casilla: 2–3 al noreste, 4–5 al este, 6–7 al sureste, 8–9 al suroeste, 10–11 al oeste, 12 al noroeste (un pack puede cambiarlo con `moves` en el YAML). Pon los climas duros arriba y los buenos abajo: las tiradas del medio derivan al sureste, hacia el buen tiempo.',
+      'Una flor hexagonal: 19 casillas (filas de 3, 4, 5, 4 y 3), cada una un tipo de clima; el clima del día es el de la casilla en que está. Cada día 2d6 lo mueve a una casilla vecina (la brújula de al lado dice hacia dónde va cada tirada), así que el clima de mañana se parece al de hoy: deriva en vez de saltar.\n• el día está en **Lluvia**, en el centro; 2d6 saca 7, sureste: mañana es la casilla de abajo a la derecha, por ejemplo **Gris**\n• pon los climas duros arriba y los buenos abajo: las tiradas del medio (6–7, las más comunes) van al sureste, así que el tiempo tiende a despejar\n• más casillas de un tipo lo hacen más común: tres de **Despejado** abajo, una de **Tormenta** arriba\n**En el borde** dice qué pasa cuando una tirada saldría de la flor.',
+    flower: 'La flor',
+    paint: 'Pintar con',
+    paintHelp:
+      'Elige aquí un tipo de clima y haz clic en casillas de la flor para dárselo (también Intro sobre una casilla). Cada color es un tipo, como en esta lista.',
+    moves: 'Adónde va cada 2d6',
+    movesHelp:
+      'Desde la casilla en que está el día (el centro), los totales de 2d6 que lo mueven en cada dirección: 2–3 al noreste, 4–5 al este, 6–7 al sureste… Un pack puede cambiarlos (`moves` en el YAML).',
     toFlower: 'Convertir en flor hexagonal',
     toFlowerConfirm: '¿Cambiar los pesos de esta estación por una flor hexagonal?',
     toWeights: 'Usar pesos',
