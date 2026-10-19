@@ -13,6 +13,11 @@ export const es: Messages<typeof en> = {
     'Estas reglas no tienen tablas asociadas: las comprobaciones solo se apuntan en el diario, y detienen el viaje cuando pausan.',
   noChecks: 'Estas reglas no tienen comprobaciones: un viaje solo gasta tiempo y provisiones.',
   marched: 'Marcha de hoy: {used} de {limit} h',
+  fold: {
+    whatItIs: 'Qué es',
+    supplies: vocabulary.es.terms.supplies,
+    stats: 'Características',
+  },
   totals: {
     title: 'Hasta ahora: {hexes} hexes{km} · {hours} de marcha',
     km: ' · {km} km',

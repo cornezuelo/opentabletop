@@ -10,6 +10,7 @@
   import type { CharacterState } from '@open-tabletop/character-engine'
   import { CharacterCard } from '@open-tabletop/character-ui'
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import Fold from './Fold.svelte'
   import { translator } from './i18n'
   import { memberId, memberLabel } from './members'
 
@@ -114,9 +115,8 @@
   }
 </script>
 
-<section class="members">
-  <div class="head">
-    <span>{t('members.title')}<InfoTip markdown={t('members.help')} /></span>
+<Fold id="characters" title={t('members.title')} help={t('members.help')} {locale}>
+  {#snippet head()}
     {#if members.length}
       <label class="acting">
         <span>{t('members.acting')}<InfoTip markdown={t('members.actingHelp')} /></span>
@@ -135,7 +135,7 @@
         </select>
       </label>
     {/if}
-  </div>
+  {/snippet}
   {#if members.length && roles.length}
     <div class="roles">
       <span>{t('members.roles')}<InfoTip markdown={t('members.rolesHelp')} /></span>
@@ -204,25 +204,9 @@
     <p class="help">{t('members.none')}</p>
   {/each}
   <button class="add" onclick={add}>{t('members.add')}</button>
-</section>
+</Fold>
 
 <style>
-  .members {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: end;
-    justify-content: space-between;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
   .roles {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

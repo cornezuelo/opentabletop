@@ -12,6 +12,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper: the World view's **Factions** say what a faction is and where its land comes from (**Their land**: where the system says it starts, painted by hand, won and lost on world turns); a button's help sits beside it (**What it does**), so reading about **World turn** no longer runs one. Systems' **Factions** tab says the land it gives is where they start, the map's from then on.
 
+- Travel, Hexmapper: **the trip panel's sections fold** by their heading (**Supplies**, **Stats**, **The party**, **Characters**, **So far**, **Journal**), remembered by this browser; the status, a check waiting for **Continue** and the buttons never do.
+
 ### Fixes
 
 - Systems: a system's **YAML** tab no longer edits the files of another pack it brings (Core's roll modes…): they show read-only, saying whose they are. The notice of packs not read shows **Delete** in red.

@@ -45,6 +45,7 @@
   import { memberNamer } from './members'
   import { dayPartsLine, divisionName, partName } from './dayParts'
   import { findPart } from '@open-tabletop/time'
+  import Fold from './Fold.svelte'
   import PartyMembers from './PartyMembers.svelte'
   import { CharacterCard } from '@open-tabletop/character-ui'
 
@@ -547,68 +548,79 @@
       </select>
     </label>
   </div>
-  <div class="row">
-    {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
-      <label class="field">
-        <span
-          >{resourceName(resource)}<InfoTip
-            markdown={[
-              localize(system.rules.resources?.[resource]?.description, locale, 'en'),
-              t('tips.resource'),
-              bounds[resource]?.min !== undefined && t('tips.min', { min: bounds[resource].min! }),
-              bounds[resource]?.max !== undefined && t('tips.max', { max: bounds[resource].max! }),
-              carried(resource) && t('members.carried'),
-              readAs(`party.resources.${resource}`),
-            ]
-              .filter(Boolean)
-              .join('\n\n')}
-          /></span
-        >
-        <input
-          type="number"
-          min="0"
-          value={travel.resources[resource] ?? 0}
-          disabled={carried(resource)}
-          onchange={(e) => {
-            const amount = number(e.currentTarget.value)
-            onedit((s) => ({
-              ...s,
-              travel: { ...s.travel, resources: { ...s.travel.resources, [resource]: amount } },
-            }))
-          }}
-        />
-      </label>
-    {/each}
-  </div>
+  <!-- The sections below fold by their heading (remembered per viewer); the status, what
+       waits for Continue and the buttons above never do. -->
+  {#if Object.keys(system.rules.resources ?? {}).length}
+    <Fold id="supplies" title={t('fold.supplies')} {locale}>
+      <div class="row">
+        {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
+          <label class="field">
+            <span
+              >{resourceName(resource)}<InfoTip
+                markdown={[
+                  localize(system.rules.resources?.[resource]?.description, locale, 'en'),
+                  t('tips.resource'),
+                  bounds[resource]?.min !== undefined &&
+                    t('tips.min', { min: bounds[resource].min! }),
+                  bounds[resource]?.max !== undefined &&
+                    t('tips.max', { max: bounds[resource].max! }),
+                  carried(resource) && t('members.carried'),
+                  readAs(`party.resources.${resource}`),
+                ]
+                  .filter(Boolean)
+                  .join('\n\n')}
+              /></span
+            >
+            <input
+              type="number"
+              min="0"
+              value={travel.resources[resource] ?? 0}
+              disabled={carried(resource)}
+              onchange={(e) => {
+                const amount = number(e.currentTarget.value)
+                onedit((s) => ({
+                  ...s,
+                  travel: { ...s.travel, resources: { ...s.travel.resources, [resource]: amount } },
+                }))
+              }}
+            />
+          </label>
+        {/each}
+      </div>
+    </Fold>
+  {/if}
 
-  {#each stats as [key, stat] (key)}
-    <label class="field">
-      <span
-        >{statText(stat.name, key)}<InfoTip
-          markdown={[
-            statText(stat.description, ''),
-            fromMembers(stat) && t('members.fromMembers'),
-            readAs(key, `party.stats.${key}`),
-          ]
-            .filter(Boolean)
-            .join('\n\n')}
-        /></span
-      >
-      <input
-        type="number"
-        value={session.stats[key] ?? stat.default ?? 0}
-        disabled={fromMembers(stat)}
-        onchange={(e) => {
-          const value = Number(e.currentTarget.value) || 0
-          onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
-        }}
-      />
-    </label>
-  {/each}
+  {#if stats.length}
+    <Fold id="stats" title={t('fold.stats')} {locale}>
+      {#each stats as [key, stat] (key)}
+        <label class="field">
+          <span
+            >{statText(stat.name, key)}<InfoTip
+              markdown={[
+                statText(stat.description, ''),
+                fromMembers(stat) && t('members.fromMembers'),
+                readAs(key, `party.stats.${key}`),
+              ]
+                .filter(Boolean)
+                .join('\n\n')}
+            /></span
+          >
+          <input
+            type="number"
+            value={session.stats[key] ?? stat.default ?? 0}
+            disabled={fromMembers(stat)}
+            onchange={(e) => {
+              const value = Number(e.currentTarget.value) || 0
+              onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
+            }}
+          />
+        </label>
+      {/each}
+    </Fold>
+  {/if}
 
   {#if system.partySheet && session.party}
-    <section class="party-sheet">
-      <h4>{t('partySheet.title')}<InfoTip text={t('partySheet.help')} /></h4>
+    <Fold id="party" title={t('partySheet.title')} help={t('partySheet.help')} {locale}>
       <CharacterCard
         sheet={system.partySheet.def}
         character={session.party}
@@ -619,7 +631,7 @@
         named={false}
         onchange={editParty}
       />
-    </section>
+    </Fold>
   {/if}
 
   {#if system.sheet}
@@ -633,26 +645,24 @@
     />
   {/if}
 
-  <details class="totals">
-    <summary>{totals.title}<InfoTip text={t('tips.totals')} /></summary>
-    <div class="lines">
+  <Fold id="totals" title={totals.title} help={t('tips.totals')} start={false} {locale}>
+    <div class="lines totals">
       <span>{t('totals.checks', { count: totals.checks })}</span>
       {#if totals.taken}<span>{t('totals.taken', { list: totals.taken })}</span>{/if}
       {#if totals.spent}<span>{t('totals.spent', { list: totals.spent })}</span>{/if}
       {#if totals.gained}<span>{t('totals.gained', { list: totals.gained })}</span>{/if}
     </div>
-  </details>
+  </Fold>
 
-  <div class="field">
-    <div class="journal-head">
-      <span>{t('journalTitle')}</span>
+  <Fold id="journal" title={t('journalTitle')} {locale}>
+    {#snippet head()}
       <button
-        class="link"
+        class="link export"
         use:tooltip={t('tips.exportJournal')}
         disabled={!session.journal.length}
         onclick={exportJournal}>{t('exportJournal')}</button
       >
-    </div>
+    {/snippet}
     <ol class="journal">
       {#each journalDays as group (group.day)}
         <li class="day">{t('journalDay', { day: group.day })}</li>
@@ -666,7 +676,7 @@
         <li class="help">{t('emptyJournal')}</li>
       {/each}
     </ol>
-  </div>
+  </Fold>
 </div>
 
 <style>
@@ -700,22 +710,9 @@
     align-items: center;
   }
 
-  .party-sheet {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .party-sheet h4 {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .journal-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+  /* The journal's Export, at the end of its heading's line. */
+  .export {
+    margin-left: auto;
   }
 
   .link {
@@ -768,20 +765,12 @@
   }
 
   .totals {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .totals summary {
-    cursor: pointer;
-  }
-
-  .totals .lines {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-top: 2px;
     padding-left: 14px;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .status strong {
