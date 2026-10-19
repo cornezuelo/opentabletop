@@ -7,7 +7,7 @@ La pestaña **Comprobaciones** edita lo que se tira por el camino, las caracter�
 Cada comprobación (**Añadir una comprobación**) tiene:
 
 - un **Nombre** y una **Descripción** para los jugadores, que se ven en el panel del viaje y el diario en lugar del id del evento;
-- **Cuándo** ocurre, escrito como en el YAML con sugerencias: una hora como `06:00` (al dar esa hora: dice **A las 06:00**), una parte del día del calendario como `watch.middle` (al empezar: dice **Al empezar Guardias: middle**), `hex-enter`, `day-end`, una acción del sistema como `camp`, o varios separados por comas (los encuentros de las Marcas Grises, `hex-enter, rest`). Vacío: solo cuando la tira un paso de una acción;
+- **Cuándo** ocurre, escrito como en el YAML con sugerencias: una hora como `06:00` (al dar esa hora: dice **A las 06:00**), una parte del día del calendario como `time.watch.middle` (al empezar: dice **Al empezar Guardias: middle**), `trip.hex-enter`, `time.day-end`, una acción del sistema como `camp`, o varios separados por comas (los encuentros de las Marcas Grises, `trip.hex-enter, actions.rest`). Vacío: solo cuando la tira un paso de una acción;
 - **Solo si** / **Salvo si**: sus condiciones. P. ej. perderse en las Marcas Grises, que se salta por caminos y ríos: `edges: [road, river]`;
 - **Se tira en**: lo que la resuelve, cualquier tabla, oráculo, generador o mazo, agrupados por tipo, o un modelo de clima, en _Clima con inercia_. P. ej. el vado de las Marcas Grises se tira en un oráculo;
 - **Contexto extra**: valores que su tabla ve solo en esta comprobación. P. ej. `timeOfDay: night` para tirar un encuentro nocturno en la tabla del día, o `danger: 3` como si el hex fuera más peligroso;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { SheetScope, TravelSystem } from '@open-tabletop/session'
-  import { availableActions } from '@open-tabletop/travel-engine'
+  import { availableActions, BLOCKABLE, ref } from '@open-tabletop/travel-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
@@ -25,11 +25,11 @@
 
   const data = $derived(doc.data())
   const disabled = $derived(!doc.editable)
-  /** What a condition may block: travel, the system's actions and its ways of travelling. */
+  /** What a condition may block: moving on, the system's actions and its ways of travelling. */
   const blockable = $derived([
-    'travel',
-    ...Object.keys(availableActions(system.rules).all),
-    ...Object.keys(system.rules.modes).map((id) => `mode.${id}`),
+    ...BLOCKABLE,
+    ...Object.keys(availableActions(system.rules).all).map((id) => ref('actions', id)),
+    ...Object.keys(system.rules.modes).map((id) => ref('modes', id)),
   ])
 </script>
 

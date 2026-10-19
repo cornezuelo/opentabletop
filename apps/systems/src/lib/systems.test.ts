@@ -97,7 +97,7 @@ describe('systems in the Systems app', () => {
     expect(partName(marches, 'travel-rules', 'default')).toBeUndefined()
     const kalArath = systems.get('kal-arath')
     if (kalArath) {
-      expect(kalArath.rules.actions?.camp).toMatchObject({ do: [{ time: 'part.morning' }] })
+      expect(kalArath.rules.actions?.camp).toMatchObject({ do: [{ time: 'time.part.morning' }] })
       expect(kalArath.rules.actions?.rest).toBeUndefined()
     }
   })

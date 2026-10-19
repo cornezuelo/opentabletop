@@ -44,7 +44,7 @@ export const es: Messages = {
     noEvents: 'Nada programado.',
     eventName: 'Qué pasa',
     inDays: 'Dentro de (días)',
-    at: 'a las',
+    at: 'actions.a las',
     repeat: 'Repetir',
     once: 'Una vez',
     everyN: 'Cada N días',

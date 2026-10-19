@@ -34,16 +34,18 @@ describe('YAML suggestions', () => {
   it('complete travel rules: moments, the system’s actions and checks, effect paths', () => {
     const travel = {
       ...hints,
-      actions: ['camp', 'rest', 'forage', 'eat'],
-      events: ['ENCOUNTER', 'FORAGE'],
+      actions: ['actions.camp', 'actions.rest', 'actions.forage', 'actions.eat'],
+      events: ['checks.ENCOUNTER', 'checks.FORAGE'],
       effects: { 'party.stats.fatigue': [], 'party.resources.food': [] },
     }
-    expect(completeYaml('    on: day', travel)?.options).toEqual(['day-end'])
-    expect(completeYaml('    at: fo', travel)?.options).toEqual(['forage'])
-    expect(completeYaml('      - { do: fo', travel)?.options).toEqual(['forage'])
-    expect(completeYaml('      - { roll: EN', travel)?.options).toEqual(['ENCOUNTER'])
+    expect(completeYaml('    on: day', travel)?.options).toEqual(['time.day-end'])
+    expect(completeYaml('    at: fo', travel)?.options).toEqual(['actions.forage'])
+    expect(completeYaml('      - { do: fo', travel)?.options).toEqual(['actions.forage'])
+    expect(completeYaml('      - { roll: EN', travel)?.options).toEqual(['checks.ENCOUNTER'])
     // The halt takes an action, like a step's `do`.
-    expect(completeYaml("    halt: { at: '20:00', do: fo", travel)?.options).toEqual(['forage'])
+    expect(completeYaml("    halt: { at: '20:00', do: fo", travel)?.options).toEqual([
+      'actions.forage',
+    ])
     expect(completeYaml('      - { time: 06', travel)?.options).toEqual(['06:00'])
     expect(
       completeYaml('      - { when: { mode: horse }, effects: { party.r', travel)?.options,

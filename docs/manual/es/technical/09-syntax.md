@@ -34,6 +34,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 - **Los ids** usan minúsculas, dígitos y guiones: `getting-lost`, `npc-roles`.
 - **Las referencias** a una definición: `weather` (el mismo pack), `core/weather` (otro pack, por su id), o una que elige una variable: `'weather-{{season}}'`.
 - Las entradas y las cartas también tienen id, para las traducciones y las entradas de una sola vez.
+- **Dentro de un sistema**, lo que nombran sus reglas se escribe por su nombre completo, `subsistema.id`, para que siempre diga qué es: un momento (`trip.hex-enter`, `time.day-end`, una parte del día `time.part.morning`), una acción (`actions.camp`), una comprobación (`checks.ENCOUNTER`), una forma de viajar (`modes.horse`), seguir avanzando (`travel.move`), un parámetro de la acción (`params.how`). Los valores que compara una condición siguen cortos, porque su clave ya dice qué son: `trip.edges: road`, `hex.terrain: forest`.
 
 ## Dados
 
@@ -141,15 +142,15 @@ Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve de
 
 ## Momentos
 
-Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[hex-enter, rest]`); las condiciones y las tablas ven cuál es como `moment`.
+Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[trip.hex-enter, actions.rest]`); las condiciones y las tablas ven cuál es como `moment`.
 
-| Momento                                | Cuándo                                                                      |
-| -------------------------------------- | --------------------------------------------------------------------------- |
-| una hora (`'06:00'`)                   | al dar esa hora, marchando, esperando o dormidos en el campamento           |
-| una parte del día (`part.morning`)     | al empezar esa parte del calendario, igual                                  |
-| `hex-enter`                            | al entrar en cada hex                                                       |
-| `day-end`                              | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones) |
-| el id de una acción (`camp`, `forage`) | cuando el grupo hace esa acción                                             |
+| Momento                                 | Cuándo                                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| una hora (`'06:00'`)                    | al dar esa hora, marchando, esperando o dormidos en el campamento           |
+| una parte del día (`time.part.morning`) | al empezar esa parte del calendario, igual                                  |
+| `trip.hex-enter`                        | al entrar en cada hex                                                       |
+| `time.day-end`                          | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones) |
+| una acción (`actions.camp`)             | cuando el grupo hace esa acción                                             |
 
 Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
 
@@ -161,29 +162,29 @@ El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa 
 | ------------------------------------------------- | ----------------------------------------------------------- |
 | `time: 120`                                       | pasan 120 minutos                                           |
 | `time: '14:00'`                                   | hasta que vuelve a dar esa hora                             |
-| `time: meal.luncheon`                             | hasta que vuelve a empezar una parte del día del calendario |
+| `time: time.meal.luncheon`                        | hasta que vuelve a empezar una parte del día del calendario |
 | `travel.move: destination`                        | se mueve por la ruta mientras se cumplen sus condiciones    |
 | `travel.move: '{{params.until}}'`                 | hasta donde diga su parámetro (`hex`, `3`…)                 |
 | `travel.speed: 0.5`                               | el resto del movimiento de hoy, a media velocidad           |
 | `effects: { party.stats.fatigue: -1 }`            | cambia el grupo                                             |
 | `set: { lost: true }`                             | da un valor del día                                         |
-| `do: forage`                                      | hace otra acción, si se cumplen sus condiciones             |
-| `{ do: march, with: { until: hex } }`             | otra acción, con sus parámetros                             |
-| `roll: ENCOUNTER_CHECK_REQUIRED`                  | tira una comprobación ya                                    |
+| `do: actions.forage`                              | hace otra acción, si se cumplen sus condiciones             |
+| `{ do: actions.march, with: { until: hex } }`     | otra acción, con sus parámetros                             |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`           | tira una comprobación ya                                    |
 | `travel.advance: 1`                               | avanza un hex por la ruta, sin que pase el tiempo           |
-| `travel.mode: boat`                               | viaja de otra forma, si se puede elegir ahora               |
+| `travel.mode: modes.boat`                         | viaja de otra forma, si se puede elegir ahora               |
 | `say: Los porteadores cantan`                     | una línea propia del sistema en el diario                   |
 | `pause: true`                                     | el viaje espera a **Continuar** (o un texto)                |
-| `ask: how`                                        | el jugador elige ya el parámetro `how`                      |
+| `ask: params.how`                                 | el jugador elige ya el parámetro `how`                      |
 | `{ wait: { today.ferry: true }, limit: '18:00' }` | pasa el tiempo hasta que se cumpla, como mucho el límite    |
 | `{ id: song, say: … }`                            | da nombre a un paso para sus traducciones                   |
 | `{ unless: { below: food }, effects: { … } }`     | solo cuando se cumple su condición                          |
 
-Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, hex, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, hex, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: actions.march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: actions.camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Lo que bloquea: `blocks`
 
-Un valor del día lista lo que no se puede hacer mientras dura: `travel` (no se marcha más), el id de una acción (`camp`, `forage`) o una forma de viajar como `mode.<id>` (`mode.horse`). `values: { snowbound: { blocks: [mode.horse] } }`. Un estado de un personaje en una [hoja](07-kinds.md#hojas) bloquea igual mientras algún personaje del grupo lo tenga: `conditions: { sprained: { blocks: [travel] } }`; el viaje dice quién.
+Un valor del día lista lo que no se puede hacer mientras dura: `travel.move` (no se sigue avanzando), una acción (`actions.camp`, `actions.forage`) o una forma de viajar (`modes.horse`). Cada cosa por su nombre completo: qué es y luego su id. `values: { snowbound: { blocks: [modes.horse] } }`. Un estado de un personaje en una [hoja](07-kinds.md#hojas) bloquea igual mientras algún personaje del grupo lo tenga: `conditions: { sprained: { blocks: [travel.move] } }`; el viaje dice quién.
 
 ## Los personajes del grupo: `from` y `carried`
 

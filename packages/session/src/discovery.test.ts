@@ -14,8 +14,8 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { forest: { multiplier: 1 }, plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
@@ -25,7 +25,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: {}
@@ -202,8 +202,8 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
@@ -213,7 +213,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: {}
@@ -272,8 +272,8 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { forest: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 resources: { food: {} }
@@ -285,7 +285,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: {}

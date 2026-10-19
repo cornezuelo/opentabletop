@@ -8,9 +8,9 @@ id: default
 travel:
   hoursPerDay: 8
   hexKm: 10
-  start: part.morning
-  onward: { do: march, with: { until: destination } }
-  halt: { at: part.night, do: camp }
+  start: time.part.morning
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: time.part.night, do: actions.camp }
 # The terrains of the Hexmapper's palettes; one the rules don't list is crossed at normal
 # speed. A lake is crossed on the ice in winter (passable as a condition), never otherwise.
 terrains:
@@ -94,7 +94,7 @@ actions:
     name: Camp
     description: Sleep until the morning.
     do:
-      - { time: part.morning }
+      - { time: time.part.morning }
   rest:
     name: Rest
     description: An hour without marching, only by day.
@@ -104,7 +104,7 @@ actions:
   eat:
     name: Eat
     description: A day of food, eaten as each day ends.
-    on: day-end
+    on: time.day-end
     do:
       - { effects: { party.resources.food: -1 } }
       - { id: empty, when: { trip.below: food }, say: There is nothing left to eat. }

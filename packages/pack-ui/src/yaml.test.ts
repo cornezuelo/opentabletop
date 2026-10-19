@@ -134,7 +134,7 @@ fields:
 describe('locating by kind', () => {
   it('finds a definition by @kind when several share an id', () => {
     const FILE =
-      'kind: travel-rules\nid: default\nchecks:\n  - { event: A, at: dawn }\n---\nkind: bindings\nid: default\non:\n  A: { resolve: nope }\n'
+      'kind: travel-rules\nid: default\nchecks:\n  - { event: A, at: actions.dawn }\n---\nkind: bindings\nid: default\non:\n  A: { resolve: nope }\n'
     expect(locate(FILE, '@travel-rules.checks.0.at')).toBe(4)
     expect(locate(FILE, '@bindings.on.A.resolve')).toBe(9)
   })
@@ -171,8 +171,8 @@ describe('locating by kind', () => {
     expect(out).toContain('on:\n  WEATHER:\n    resolve: weather\n')
     expect(out).toContain('stats: { luck: { default: 0 }, pluck: { default: 1 } }')
     const RULES = 'kind: travel-rules\nchecks: []\n'
-    expect(insertIn(RULES, '@travel-rules', ['checks'], 0, { event: 'X', at: 'camp' })).toBe(
-      'kind: travel-rules\nchecks:\n  - event: X\n    at: camp\n',
-    )
+    expect(
+      insertIn(RULES, '@travel-rules', ['checks'], 0, { event: 'X', at: 'actions.camp' }),
+    ).toBe('kind: travel-rules\nchecks:\n  - event: X\n    at: actions.camp\n')
   })
 })

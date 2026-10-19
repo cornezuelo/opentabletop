@@ -36,7 +36,7 @@
     path?: string
     /** Game time, for when a condition began. */
     time?: number
-    /** Names of what a condition blocks (an action, `travel`, `mode.horse`), in words. */
+    /** Names of what a condition blocks (`actions.forage`, `travel.move`, `modes.horse`), in words. */
     names?: (id: string) => string
     /**
      * What a relation may point at, by reference (`character:mara`, `poi:inn`,

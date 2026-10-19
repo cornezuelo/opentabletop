@@ -5,7 +5,7 @@ import {
   setSuggestions,
   travelSystems,
 } from '@open-tabletop/session'
-import { availableActions, CHECK_MOMENTS } from '@open-tabletop/travel-engine'
+import { availableActions, CHECK_MOMENTS, ref } from '@open-tabletop/travel-engine'
 import { choicesFor, typingAt, type Suggestions } from '@open-tabletop/ui-kit'
 
 /** What the YAML editor can suggest: from the loaded packs, the map and trips. */
@@ -20,11 +20,11 @@ export interface YamlHints {
   set: Suggestions
   /** Paths effects can change (`party.stats.fatigue`), with their values. */
   effects?: Suggestions
-  /** The travel system's actions (`do:`, `on:`, `at:`, `night:`): the pack's own first. */
+  /** The travel system's actions by full name (`actions.camp`: `do:`, `on:`, `at:`): the pack's own first. */
   actions?: readonly string[]
-  /** The travel system's check events (`roll:`). */
+  /** The travel system's checks by full name (`checks.ENCOUNTER`: `roll:`). */
   events?: readonly string[]
-  /** The parts of its calendar's day (`meal.elevenses`): moments, time steps, the day. */
+  /** The parts of its calendar's day (`time.meal.elevenses`): moments, time steps, the day. */
   parts?: readonly string[]
 }
 
@@ -46,11 +46,17 @@ export function yamlHints(registry: Registry, pack?: string): YamlHints {
     context: contextSuggestions(registry),
     set: setSuggestions(registry),
     effects: effectSuggestions(registry),
-    actions: unique(systems.flatMap((s) => Object.keys(availableActions(s.rules).all))),
-    events: unique(systems.flatMap((s) => (s.rules.checks ?? []).map((c) => c.event))),
+    actions: unique(
+      systems.flatMap((s) =>
+        Object.keys(availableActions(s.rules).all).map((a) => ref('actions', a)),
+      ),
+    ),
+    events: unique(
+      systems.flatMap((s) => (s.rules.checks ?? []).map((c) => ref('checks', c.event))),
+    ),
     parts: unique(
       systems.flatMap((s) =>
-        (s.calendar?.divisions ?? []).flatMap((d) => d.parts.map((p) => `${d.id}.${p.id}`)),
+        (s.calendar?.divisions ?? []).flatMap((d) => d.parts.map((p) => `time.${d.id}.${p.id}`)),
       ),
     ),
   }
@@ -253,7 +259,7 @@ export function completeYaml(before: string, hints: YamlHints): Completion | nul
               ? [...CHECK_MOMENTS, ...(hints.parts ?? []), ...actions]
               : key === 'roll'
                 ? (hints.events ?? [])
-                : key === 'time'
+                : key === 'time' || key === 'limit'
                   ? [...ENUMS.time, ...(hints.parts ?? [])]
                   : (ENUMS[key] ?? hints.context[key] ?? [])
     const options = filter(pool, typed)

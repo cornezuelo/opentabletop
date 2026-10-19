@@ -4,7 +4,6 @@ import { validateWeather, type WeatherModel } from '@open-tabletop/weather-engin
 import {
   calendarFrom,
   defaultCalendar,
-  findPart,
   seasonsOf,
   seasonStartDay,
   validateCalendar,
@@ -16,6 +15,7 @@ import {
   createTravelEngine,
   tripStart,
   partRefsOf,
+  findPartRef,
   initialTravelState,
   parseTravelRules,
   type TravelAction,
@@ -387,7 +387,7 @@ export function travelSystems(registry: Registry): {
     // calendar's own.
     if (parts.rules)
       for (const [path, ref] of partRefsOf(rules))
-        if (!findPart((calendar ?? defaultCalendar).divisions ?? [], ref))
+        if (!findPartRef((calendar ?? defaultCalendar).divisions ?? [], ref))
           problems.push(
             problem(
               ownerOf(parts.rules) ?? pack,

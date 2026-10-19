@@ -103,7 +103,7 @@ describe('where a name is used', () => {
 
 /** A made-up system using each name in its short and full forms. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
   {
     path: 'band/system.yaml',
     content:
@@ -127,8 +127,8 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { water: { min: 0 } }

@@ -30,8 +30,8 @@ const raw = {
     stress: { default: 0, min: 0, max: 9, track: true },
   },
   conditions: {
-    wounded: { name: 'Wounded', blocks: ['forced-march'] },
-    hungry: { blocks: ['rest', 'travel'] },
+    wounded: { name: 'Wounded', blocks: ['actions.forced-march'] },
+    hungry: { blocks: ['actions.rest', 'travel.move'] },
   },
   relations: {
     bond: { name: 'Bond', value: { min: 0, max: 10 } },
@@ -142,8 +142,8 @@ describe('characters', () => {
     })
     expect(state.conditions).toEqual({ wounded: { since: 600 } })
     expect(events).toEqual([{ type: 'CONDITION_SET', character: 'kael', condition: 'wounded' }])
-    expect(blockedBy(sheet!, state, 'forced-march')).toBe('wounded')
-    expect(blockedBy(sheet!, state, 'travel')).toBeUndefined()
+    expect(blockedBy(sheet!, state, 'actions.forced-march')).toBe('wounded')
+    expect(blockedBy(sheet!, state, 'travel.move')).toBeUndefined()
     const healed = applyCharacter(sheet!, state, {
       type: 'change',
       effects: { 'conditions.wounded': false },
@@ -297,9 +297,9 @@ describe('a party of characters', () => {
     members[1].conditions = { hungry: {} }
     members[2].conditions = { wounded: {}, hungry: {} }
     expect(membersBlock(() => sheet, members)).toEqual({
-      rest: { value: 'hungry', who: 'mara' },
-      travel: { value: 'hungry', who: 'mara' },
-      'forced-march': { value: 'wounded', who: 'pip' },
+      'actions.rest': { value: 'hungry', who: 'mara' },
+      'travel.move': { value: 'hungry', who: 'mara' },
+      'actions.forced-march': { value: 'wounded', who: 'pip' },
     })
   })
 })

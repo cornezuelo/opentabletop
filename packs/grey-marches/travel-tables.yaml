@@ -69,7 +69,7 @@ description: |-
 
   **Shows:**
 
-  - A check at one of the system's own actions (`at: forage`)
+  - A check at one of the system's own actions (`at: actions.forage`)
   - A stat and advantage in the roll: `1d6 + {{survival}}`
   - Dice inside a value (`days: '{{1d3+1}}'`), read back by the text and the effect (`{{days}}`)
   - A **part of the calendar's day**: advantage by itself in the morning (`modeWhen: { advantage: { time.part: morning } }`, 06:00 to 11:00)
@@ -105,7 +105,7 @@ description: |-
 
   **Shows:**
 
-  - A check at one of the system's own actions (`at: fish`), and an action only next to water (`around.water`)
+  - A check at one of the system's own actions (`at: actions.fish`), and an action only next to water (`around.water`)
   - A **roll-under** on the table's own roll: `party.stats.survival: { gte: '{{roll}}' }`
   - The roll's total in the texts: `{{roll}}`
 roll: 1d6

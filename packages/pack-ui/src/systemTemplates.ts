@@ -39,8 +39,8 @@ export const SYSTEM_TEMPLATES: Record<
     travel: {
       hoursPerDay: 8,
       start: '06:00',
-      onward: { do: 'march', with: { until: 'destination' } },
-      halt: { at: '20:00', do: 'camp' },
+      onward: { do: 'actions.march', with: { until: 'destination' } },
+      halt: { at: '20:00', do: 'actions.camp' },
     },
     terrains: {
       plains: { multiplier: 1 },
@@ -65,7 +65,7 @@ export const SYSTEM_TEMPLATES: Record<
       },
       camp: { do: [{ time: '06:00' }] },
       rest: { do: [{ time: 60 }] },
-      eat: { on: 'day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
+      eat: { on: 'time.day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
     },
     weather: { storm: { speed: 0 } },
     checks: [{ event: 'WEATHER', at: '06:00' }],

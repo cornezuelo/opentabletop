@@ -93,8 +93,8 @@ travel:
   hoursPerDay: 8 # las horas en que una forma de viajar hace su kmPerDay; km por hex abajo
   hexKm: 10
   start: '06:00' # los viajes nuevos empiezan a las 06:00
-  onward: { do: march, with: { until: destination } } # siguiendo por sí solo, marcha
-  halt: { at: '20:00', do: camp } # desde las 20:00, un grupo que no puede marchar acampa
+  onward: { do: actions.march, with: { until: destination } } # siguiendo por sí solo, marcha
+  halt: { at: '20:00', do: actions.camp } # desde las 20:00, un grupo que no puede marchar acampa
 terrains:
   forest: { multiplier: 0.5 } # a media velocidad
   mountains: { multiplier: 0.33 }
@@ -109,7 +109,7 @@ resources:
 weather:
   storm: { speed: 0 } # con tormenta no se viaja
 values:
-  lost: { name: Perdidos, blocks: [travel] } # lo pone la tabla de perderse: no se viaja más hoy
+  lost: { name: Perdidos, blocks: [travel.move] } # lo pone la tabla de perderse: no se viaja más hoy
 actions:
   march: # de día, las 8 horas del día: hasta el destino o un hex
     params: { until: { choices: [destination, hex] } }
@@ -126,15 +126,15 @@ actions:
     do: [{ time: 180 }, { travel.speed: 0.5 }]
     oncePerDay: true
   eat: # no es un botón: la hace el sistema al acabar cada día, se acampe o no
-    on: day-end
+    on: time.day-end
     do: [{ effects: { party.resources.food: -1 } }]
 checks:
   - { event: WEATHER, at: '06:00' }
   - { event: LOST, at: '06:00', unless: { edges: [road, river] } }
-  - { event: ENCOUNTER, at: hex-enter, when: { terrain: [forest, swamp] } }
-  - { event: NIGHT, at: camp }
-  - { event: FORAGE, at: forage, when: { terrain: [forest, plains] } }
-  - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: ENCOUNTER, at: trip.hex-enter, when: { terrain: [forest, swamp] } }
+  - { event: NIGHT, at: actions.camp }
+  - { event: FORAGE, at: actions.forage, when: { terrain: [forest, plains] } }
+  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ---
 kind: bindings
 id: default
@@ -179,33 +179,33 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 - `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ water: true }, { terrain: coast }] }`; un carro solo por camino: `through: { edges: road }`.
 - `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Systems): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; un caballo, no con nieve: `unless: { weather: snow }`.
 
-Un valor del día también puede bloquear una (`blocks: [mode.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
+Un valor del día también puede bloquear una (`blocks: [modes.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
 
 ### Provisiones
 
 **resources** son lo que lleva el grupo: comida, agua, antorchas, forraje… Cada una sale en el panel del viaje, donde el jugador también puede cambiarla a mano. **Nada las gasta por sí solo**: lo hacen las acciones, comprobaciones y tablas del sistema, con efectos (`party.resources.food: -1`). Así dice un sistema cómo se come en su juego: una vez al día, al acampar, solo a caballo, nunca.
 
-`min` y `max` acotan una provisión. Un cambio que pasaría de uno se queda en él, el diario lo dice («Raciones no puede bajar de 0») y lo que viene después en ese momento ve el id de la provisión en `below` (o `above`): los pasos siguientes de la misma acción y las comprobaciones `day-end` de ese día. Así se escribe «un día sin comida cansa al grupo»:
+`min` y `max` acotan una provisión. Un cambio que pasaría de uno se queda en él, el diario lo dice («Raciones no puede bajar de 0») y lo que viene después en ese momento ve el id de la provisión en `below` (o `above`): los pasos siguientes de la misma acción y las comprobaciones `time.day-end` de ese día. Así se escribe «un día sin comida cansa al grupo»:
 
 ```yaml
 resources:
   food: { name: Raciones, min: 0 }
   water: { name: Odres, min: 0, max: 6 } # no se pueden llevar más de 6
 checks:
-  - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ```
 
 Sin `min`, una provisión puede quedar en negativo (una deuda, por ejemplo).
 
 ### Valores del día
 
-**values** son los valores del día que declara este sistema, cada uno con un `name` para los jugadores y lo que **bloquea** mientras se cumple: `travel` (viajar), una de las acciones del sistema por su id (`camp`, `rest`, `forage`…) o una forma de viajar (`mode.horse`). Lo pone el resultado de una tabla (`set: { lost: true }`), un estado del clima o el paso de una acción; se mantiene hasta que acaba el día, y al día siguiente las tablas lo leen como `yesterday.lost`.
+**values** son los valores del día que declara este sistema, cada uno con un `name` para los jugadores y lo que **bloquea** mientras se cumple: `travel.move` (seguir avanzando), una de las acciones del sistema (`actions.camp`, `actions.forage`…) o una forma de viajar (`modes.horse`). Lo pone el resultado de una tabla (`set: { lost: true }`), un estado del clima o el paso de una acción; se mantiene hasta que acaba el día, y al día siguiente las tablas lo leen como `yesterday.lost`.
 
 ```yaml
 values:
-  lost: { name: Perdidos, blocks: [travel] } # lo pone la tabla de perderse
-  snowbound: { name: Nieve profunda, blocks: [mode.horse] } # lo pone la nieve
-  mutiny: { name: Los porteadores se niegan a marchar, blocks: [travel, forage] }
+  lost: { name: Perdidos, blocks: [travel.move] } # lo pone la tabla de perderse
+  snowbound: { name: Nieve profunda, blocks: [modes.horse] } # lo pone la nieve
+  mutiny: { name: Los porteadores se niegan a marchar, blocks: [travel.move, actions.forage] }
 ```
 
 Los botones bloqueados siguen visibles, desactivados, y dicen por qué con el nombre del valor («Perdidos: no es posible el resto del día»). Un sistema que no declara `values` no tiene ninguno. Los valores que no bloquean nada también sirven: las condiciones los leen (`unless: { mutiny: true }`), igual que leen los valores `…Modifier` e `…Impossible` del [apartado 4](#4-resultados-que-entiende-el-viaje).
@@ -218,7 +218,7 @@ Los botones bloqueados siguen visibles, desactivados, y dicen por qué con el no
 
 **Hasta dónde es un parámetro.** Una acción puede declarar `params`, cada uno con sus `choices` (la primera es la de por defecto, salvo que `default` diga otra); sus pasos y condiciones leen la elegida como `{{params.<id>}}`. Su botón ofrece las opciones a su lado (_Marchar_ · hasta el destino / un hex), un paso `do:` las da con `with:`, y también `travel.onward`. Una opción puede llevar un nombre que mostrar (`{ id: 3, name: Three hexes }`, traducido en los `locales/` del pack).
 
-**Cuando el viaje sigue por sí solo** (el reloj del mundo avanzando con un viaje en marcha, una orden de viajar), hace la acción que nombra `travel.onward`, con sus parámetros, siempre que puede, y espera (con la parada) mientras no puede: `onward: { do: march, with: { until: destination } }`. Sin él, el viaje solo espera.
+**Cuando el viaje sigue por sí solo** (el reloj del mundo avanzando con un viaje en marcha, una orden de viajar), hace la acción que nombra `travel.onward`, con sus parámetros, siempre que puede, y espera (con la parada) mientras no puede: `onward: { do: actions.march, with: { until: destination } }`. Sin él, el viaje solo espera.
 
 **Una comprobación detiene un movimiento por el camino** cuando necesita al jugador: el movimiento sigue **en curso**, y **Seguir** (en el panel del viaje) sigue con él: el resto del movimiento y después los pasos que van tras él. Hacer otra acción o esperar lo deja.
 
@@ -241,7 +241,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   night-march:
     when: { time.hour: { gte: 20 } }
-    do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }, { do: march }]
+    do: [{ set: { torchlit: true } }, { effects: { party.stats.fatigue: 1 } }, { do: actions.march }]
 … # el resto de las reglas de viaje
 ```
 
@@ -254,34 +254,34 @@ Cuándo se puede pulsar el botón:
 
 Un botón que no se puede pulsar sigue visible, desactivado, diciendo por qué, así los botones no cambian de sitio. `hideWhenUnavailable: true` lo oculta en cambio mientras no se puede hacer: para acciones que solo tienen sentido de vez en cuando, como el rito de las Marcas Grises (en un santuario con la Luna Ascua llena), convencer a los mercenarios (solo mientras se niegan) o la marcha nocturna (solo de noche).
 
-**Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `hex-enter` (al entrar en cada hex), `day-end` (al acabar cada día, se acampe o no) u otra acción por su id (justo al empezar esa acción: `on: camp`), o varios en una lista (`on: [part.morning, hex-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `moment`, y en `day-end` la acción en curso como `doing` (`doing: camp`).
+**Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: time.part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `trip.hex-enter` (al entrar en cada hex), `time.day-end` (al acabar cada día, se acampe o no) u otra acción (justo al empezar esa acción: `on: actions.camp`), o varios en una lista (`on: [time.part.morning, trip.hex-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `moment`, y en `time.day-end` la acción en curso como `doing` (`doing: camp`).
 
 ```yaml
 actions:
-  eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] }
   feed-horses: # solo yendo a caballo
-    on: day-end
+    on: time.day-end
     when: { mode: horse }
     do: [{ effects: { party.resources.fodder: -1 } }]
 ```
 
 **Lo que hace una acción** es una lista de **pasos** (`do`), en orden. Cada paso hace una cosa, y solo si se cumple su propio `when` / `unless`:
 
-| Paso                                  | Lo que hace                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `time: 180`                           | Pasan tres horas. `time: '14:00'` o una parte del día del calendario (`time: meal.luncheon`): hasta que vuelva a llegar. Los momentos del camino suceden, y cada día que acaba por el camino acaba con sus acciones y comprobaciones de `day-end`.                                                             |
-| `travel.move: destination`            | Mueve al grupo por su ruta mientras pasa el tiempo y se cumplen el `when` / `unless` de la acción: hasta el destino, el siguiente `hex` o un número de hexes (`3`), o lo que diga una variable (`'{{params.until}}'`). Una comprobación que necesita al jugador lo deja en curso (**Seguir** sigue con él).    |
-| `travel.speed: 0.5`                   | El resto del movimiento de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                                                                                                                                       |
-| `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes ven su id en `below` / `above`.                                                                                                                                      |
-| `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                                                                                                                                        |
-| `do: forage`                          | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). Con `with:`, sus parámetros: `{ do: march, with: { until: hex } }`.                                                                                                                                                                     |
-| `roll: ENCOUNTER`                     | Tira ya una comprobación: todas las de ese evento cuyo `when` / `unless` se cumplan, tengan el `at` que tengan. Se resuelve al acabar la acción, así que los pasos siguientes no ven su resultado.                                                                                                             |
-| `travel.advance: 1`                   | Avanza al grupo tantos hexes por su ruta de golpe, sin que pase el tiempo: cada hex se entra como marchando (sus comprobaciones `hex-enter`, su visita, los totales del viaje); se detiene en el destino, en un paso que no puede tomar o en una comprobación. También una variable: `'{{party.stats.rank}}'`. |
-| `travel.mode: boat`                   | Viaja de otra forma desde ahora, si esa forma se puede elegir ahora (su `when` / `unless`, lo que la bloquea); la ruta se vuelve a planear para ella.                                                                                                                                                          |
-| `say: Los porteadores cantan`         | Escribe una línea propia del sistema en el diario; los `{{…}}` que lleve se leen en ese momento.                                                                                                                                                                                                               |
-| `pause: true`                         | El viaje espera ahí hasta que el jugador pulse **Continuar** (con un texto, lo dice); luego sigue el resto.                                                                                                                                                                                                    |
-| `ask: how`                            | El viaje espera a que el jugador elija una opción de un parámetro de la acción; los pasos siguientes la leen (`when: { params.how: swim }`).                                                                                                                                                                   |
-| `wait: { today.ferry: true }`         | Pasa el tiempo hasta que se cumpla la condición, como mucho hasta `limit:` (obligatorio: minutos, una hora o una parte del día).                                                                                                                                                                               |
+| Paso                                  | Lo que hace                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `time: 180`                           | Pasan tres horas. `time: '14:00'` o una parte del día del calendario (`time: time.meal.luncheon`): hasta que vuelva a llegar. Los momentos del camino suceden, y cada día que acaba por el camino acaba con sus acciones y comprobaciones de `time.day-end`.                                                        |
+| `travel.move: destination`            | Mueve al grupo por su ruta mientras pasa el tiempo y se cumplen el `when` / `unless` de la acción: hasta el destino, el siguiente `hex` o un número de hexes (`3`), o lo que diga una variable (`'{{params.until}}'`). Una comprobación que necesita al jugador lo deja en curso (**Seguir** sigue con él).         |
+| `travel.speed: 0.5`                   | El resto del movimiento de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                                                                                                                                            |
+| `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes ven su id en `below` / `above`.                                                                                                                                           |
+| `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                                                                                                                                             |
+| `do: actions.forage`                  | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). Con `with:`, sus parámetros: `{ do: actions.march, with: { until: hex } }`.                                                                                                                                                                  |
+| `roll: checks.ENCOUNTER`              | Tira ya una comprobación: todas las de ese evento cuyo `when` / `unless` se cumplan, tengan el `at` que tengan. Se resuelve al acabar la acción, así que los pasos siguientes no ven su resultado.                                                                                                                  |
+| `travel.advance: 1`                   | Avanza al grupo tantos hexes por su ruta de golpe, sin que pase el tiempo: cada hex se entra como marchando (sus comprobaciones `trip.hex-enter`, su visita, los totales del viaje); se detiene en el destino, en un paso que no puede tomar o en una comprobación. También una variable: `'{{party.stats.rank}}'`. |
+| `travel.mode: modes.boat`             | Viaja de otra forma desde ahora, si esa forma se puede elegir ahora (su `when` / `unless`, lo que la bloquea); la ruta se vuelve a planear para ella.                                                                                                                                                               |
+| `say: Los porteadores cantan`         | Escribe una línea propia del sistema en el diario; los `{{…}}` que lleve se leen en ese momento.                                                                                                                                                                                                                    |
+| `pause: true`                         | El viaje espera ahí hasta que el jugador pulse **Continuar** (con un texto, lo dice); luego sigue el resto.                                                                                                                                                                                                         |
+| `ask: params.how`                     | El viaje espera a que el jugador elija una opción de un parámetro de la acción; los pasos siguientes la leen (`when: { params.how: swim }`).                                                                                                                                                                        |
+| `wait: { today.ferry: true }`         | Pasa el tiempo hasta que se cumpla la condición, como mucho hasta `limit:` (obligatorio: minutos, una hora o una parte del día).                                                                                                                                                                                    |
 
 ```yaml
 actions:
@@ -295,14 +295,14 @@ actions:
     do:
       - { travel.speed: 1.5 }
       - { effects: { party.stats.fatigue: 1 } }
-      - { do: march, with: { until: destination } }
+      - { do: actions.march, with: { until: destination } }
   keep-watch: # un paso que tira y luego un paso con condición
-    do: [{ roll: NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
+    do: [{ roll: checks.NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-Lo que **tira** una acción son las comprobaciones con `at: <su id>` (las de acampar: `at: camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En los formularios de la aplicación Systems cada paso se escribe igual, una casilla por paso, con sugerencias. Todos los pasos, con ejemplos y un sistema entero que los usa: [Acciones y pasos](../technical/10-actions-and-steps.md). Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
+Lo que **tira** una acción son las comprobaciones con `at: actions.<su id>` (las de acampar: `at: actions.camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En los formularios de la aplicación Systems cada paso se escribe igual, una casilla por paso, con sugerencias. Todos los pasos, con ejemplos y un sistema entero que los usa: [Acciones y pasos](../technical/10-actions-and-steps.md). Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
 
-**La parada.** `travel: { halt: { at: '20:00', do: camp } }` dice qué hace el grupo cuando no puede marchar mientras el tiempo avanza solo (el reloj del mundo, **Esperar para seguir**, una orden de viajar mientras no se puede hacer su forma de seguir): desde ese momento (una hora o una parte del día, `at: part.night`) hasta que acaba el día, un grupo que no está marchando hace esa acción, una vez al día. Si la acción no se puede hacer (la bloquea un valor o no se cumplen su `when` / `unless`), el diario dice por qué y el tiempo pasa sin ella, hasta que el viaje pueda seguir. Sin parada, el grupo simplemente espera.
+**La parada.** `travel: { halt: { at: '20:00', do: actions.camp } }` dice qué hace el grupo cuando no puede marchar mientras el tiempo avanza solo (el reloj del mundo, **Esperar para seguir**, una orden de viajar mientras no se puede hacer su forma de seguir): desde ese momento (una hora o una parte del día, `at: time.part.night`) hasta que acaba el día, un grupo que no está marchando hace esa acción, una vez al día. Si la acción no se puede hacer (la bloquea un valor o no se cumplen su `when` / `unless`), el diario dice por qué y el tiempo pasa sin ella, hasta que el viaje pueda seguir. Sin parada, el grupo simplemente espera.
 
 ### Viajes por movimientos
 
@@ -331,26 +331,33 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 
 **checks** son lo que tira el viaje, y cuándo. Cada una tiene un `event` (el nombre que quieras: los bindings lo usan para elegir su tabla), un `name` y una `description` para los jugadores (se ven en el panel del viaje y el diario en lugar del evento; se traducen en `locales/`, mira [Traducciones](05-translations.md#reglas-calendarios-clima-y-modos-de-tirada)) y un `at`:
 
-- una hora o una parte del día del calendario: `at: '06:00'`, `at: part.morning`, al llegar, marchando, esperando o dormidos en el campamento (el clima, perderse cada mañana); un viaje nuevo tiene los momentos de su primer minuto al marchar o esperar por primera vez;
-- `hex-enter`: al entrar en cada hex (encuentros, un peaje, un hito);
-- `day-end`: al acabar cada día, después de las acciones `day-end` del sistema (el hambre). Ven `below` / `above`, lo que llegó a un límite ese día, y `doing`, la acción en curso cuando acabó;
-- el id de una acción: con esa acción, antes de sus pasos (`at: camp`, `at: forage`);
-- varios, en una lista: las Marcas Grises tiran encuentros `at: [hex-enter, rest]`, y su condición distingue los dos con `moment` (la tabla también ve `moment`);
+- una hora o una parte del día del calendario: `at: '06:00'`, `at: time.part.morning`, al llegar, marchando, esperando o dormidos en el campamento (el clima, perderse cada mañana); un viaje nuevo tiene los momentos de su primer minuto al marchar o esperar por primera vez;
+- `trip.hex-enter`: al entrar en cada hex (encuentros, un peaje, un hito);
+- `time.day-end`: al acabar cada día, después de las acciones `time.day-end` del sistema (el hambre). Ven `below` / `above`, lo que llegó a un límite ese día, y `doing`, la acción en curso cuando acabó;
+- una acción (`actions.<id>`): con esa acción, antes de sus pasos (`at: actions.camp`, `at: actions.forage`);
+- varios, en una lista: las Marcas Grises tiran encuentros `at: [trip.hex-enter, actions.rest]`, y su condición distingue los dos con `moment` (la tabla también ve `moment`);
 - ninguno: solo la tira el `roll:` de un paso.
 
 `when` / `unless` deciden dónde y cuándo se aplica, con las mismas [condiciones](../technical/08-conditions.md) que las tablas; `edges` son los caminos o ríos del tramo (el que acabas de recorrer al entrar en un hex, el que tienes por delante en un momento del día y al acampar).
 
 ```yaml
 checks:
-  - { event: LOST, name: Perderse, at: part.morning, unless: { edges: [road, river] } }
+  - { event: LOST, name: Perderse, at: time.part.morning, unless: { edges: [road, river] } }
   - event: ENCOUNTER
-    at: [hex-enter, rest]
-    when: { any: [{ moment: hex-enter, danger: { gte: 1 } }, { moment: rest, danger: { gte: 3 } }] }
-  - { event: SHRINE, at: hex-enter, when: { tags: shrine }, pause: true } # espera a Continuar
-  - { event: HUNGRY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+    at: [trip.hex-enter, actions.rest]
+    when:
+      {
+        any:
+          [
+            { moment: trip.hex-enter, danger: { gte: 1 } },
+            { moment: actions.rest, danger: { gte: 3 } },
+          ],
+      }
+  - { event: SHRINE, at: trip.hex-enter, when: { tags: shrine }, pause: true } # espera a Continuar
+  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). Una comprobación sin tabla ni efectos solo se apunta en el diario. `pause: true` la tira (si una tabla la resuelve) y luego detiene el viaje hasta **Continuar**, para que describas el lugar, la resuelvas tú o decidas algo: **solo `pause: true` detiene el viaje**, con tabla o sin ella (un lugar señalado que describir: `pause: true` y sin tabla). Esperar con el reloj del mundo (Hexmapper → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): cada momento al llegar, las de la acción de la parada desde su momento, `day-end` al acabar cada día.
+Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). Una comprobación sin tabla ni efectos solo se apunta en el diario. `pause: true` la tira (si una tabla la resuelve) y luego detiene el viaje hasta **Continuar**, para que describas el lugar, la resuelvas tú o decidas algo: **solo `pause: true` detiene el viaje**, con tabla o sin ella (un lugar señalado que describir: `pause: true` y sin tabla). Esperar con el reloj del mundo (Hexmapper → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): cada momento al llegar, las de la acción de la parada desde su momento, `time.day-end` al acabar cada día.
 
 ### Bindings, características y lecturas
 
@@ -425,7 +432,7 @@ values:
   health: { name: Salud, default: 3, min: 0, max: 3 }
   rations: { name: Raciones, default: 2, min: 0, max: 6 }
 conditions:
-  wounded: { name: Herido, blocks: [forced-march] }
+  wounded: { name: Herido, blocks: [actions.forced-march] }
 ```
 
 Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que no están heridos, Sigilo del más torpe, una ración por boca de lo que llevan, una noche bien comidos que cura a todos, un vado que tuerce el tobillo de quien guía el cruce, **Curar a los heridos** para quien actúe con Supervivencia 2 o más, un guía y un vigía, y En casa cuando el grupo llega al hogar de un compañero ([Las Marcas Grises](../packs/02-grey-marches.md)). Todas las claves están en [Hojas](../technical/07-kinds.md#hojas).

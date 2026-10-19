@@ -15,9 +15,9 @@ id: default
 travel:
   hoursPerDay: 8
   hexKm: 10
-  start: part.morning
-  onward: { do: march, with: { until: destination } }
-  halt: { at: part.night, do: camp }
+  start: time.part.morning
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: time.part.night, do: actions.camp }
 terrains:
   plains: { multiplier: 1 }
   steppe: { multiplier: 1 }
@@ -80,13 +80,13 @@ values:
   lost:
     name: Lost
     description: 'The party has lost its way (or can’t cross): no more travel today.'
-    blocks: [travel]
+    blocks: [travel.move]
   # Set by the weather (sky.yaml: falling snow): it blocks a way of travelling, so the
   # horses stay behind (on foot, by boat or by cart the trip goes on).
   snowbound:
     name: Deep snow
     description: Too deep for the horses today.
-    blocks: [mode.horse]
+    blocks: [modes.horse]
   # Set by the eat action when the food ran out; read the next day as `yesterday.hungry`.
   hungry:
     name: Went hungry
@@ -99,7 +99,7 @@ values:
   refusing:
     name: The hirelings refuse to march
     description: Until someone talks them round (Talk to the hirelings).
-    blocks: [travel]
+    blocks: [travel.move]
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
@@ -136,7 +136,7 @@ actions:
     when:
       { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: '{{party.stats.endurance}}' } }
     do:
-      - { time: part.morning }
+      - { time: time.part.morning }
       - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
       # …and gives every companion a point of health back (an effect on every member).
       - { unless: { trip.below: food }, effects: { party.members.values.health: 1 } }
@@ -175,14 +175,14 @@ actions:
       - { time: 180 }
       - { travel.speed: 0.5 }
     oncePerDay: true
-  # Nobody presses this one: the system takes it by itself as each day ends (on: day-end),
+  # Nobody presses this one: the system takes it by itself as each day ends (on: time.day-end),
   # whether the party camped or not. A day of food, one more per hireling (an amount that
   # is a variable: as many as the stat says), and fodder when riding (a step with a
   # condition on the way of travelling).
   eat:
     name: Eat
     description: 'At the end of each day, in camp or not: 1 food per mouth (each companion, or 1 for a party without them), 1 more for each hireling, and 1 fodder on horseback. With none left, the party goes hungry.'
-    on: day-end
+    on: time.day-end
     do:
       - { effects: { party.resources.food: '-{{party.stats.mouths}}' } }
       - when: { party.stats.hirelings: { gte: 1 } }
@@ -208,7 +208,7 @@ actions:
     do:
       - { travel.speed: 1.5 }
       - { effects: { party.stats.fatigue: 1 } }
-      - { do: march, with: { until: destination } }
+      - { do: actions.march, with: { until: destination } }
   # At a shrine (a tag of the hex) under the full Ember Moon (the calendar): a rite. Its
   # button only shows then (hideWhenUnavailable), day or night.
   rite:
@@ -226,7 +226,7 @@ actions:
   grumble:
     name: The hirelings grumble
     description: After a day without enough to eat, the hirelings refuse to march.
-    on: part.morning
+    on: time.part.morning
     when: { all: [{ yesterday.hungry: true }, { party.stats.hirelings: { gte: 1 } }] }
     do:
       - { set: { refusing: true } }
@@ -245,7 +245,7 @@ actions:
         effects: { party.stats.hirelings: -1 }
       - { set: { refusing: false } }
   # Marching on in the dark instead of camping: it lights the torches (a value of the day
-  # the march above admits) and marches on (`do: march`) until midnight, at the cost of fatigue (and more if the day's
+  # the march above admits) and marches on (`do: actions.march`) until midnight, at the cost of fatigue (and more if the day's
   # hours were marched already: the Long day check below); each hex entered in the dark
   # rolls to get lost, and night encounters (the checks below, `time.tags: dark`).
   # Only in the evening (from nightfall: `time.hour` against when its calendar's night starts, `{{system.part.night}}`), so
@@ -260,7 +260,7 @@ actions:
     do:
       - { set: { torchlit: true } }
       - { effects: { party.stats.fatigue: 1 } }
-      - { do: march }
+      - { do: actions.march }
   # Once a trip: what the trip has done so far (`trip.km`, the hexes entered at the map's
   # scale; `trip.taken.tale`, the times this action was taken, 0 until it is). After 50 km
   # on the road, an evening of tales around the fire; its button only shows then.
@@ -271,7 +271,7 @@ actions:
     hideWhenUnavailable: true
     do:
       # Until a part of the calendar's day: the middle watch (23:00).
-      - { time: watch.middle }
+      - { time: time.watch.middle }
       - { effects: { party.stats.morale: 1 } }
   # Progress by a move, not by marching (a `travel.advance` step): on the road, by day, a carter
   # takes the party two hexes along its route in two hours. Once a day; hidden off the road.
@@ -349,14 +349,14 @@ actions:
           - { id: food, name: 'A day of food, now' }
           - { id: wait, name: Wait for her crossing }
     do:
-      - { ask: fare }
+      - { ask: params.fare }
       - { when: { params.fare: food }, effects: { party.resources.food: -1 } }
       - when: { params.fare: wait }
         wait: { time.part: [afternoon, evening] }
-        limit: part.night
+        limit: time.part.night
       - id: casts-off
         say: 'Brenna casts off from the jetty ({{party.resources.food}} food left in your packs).'
-      - { travel.mode: boat }
+      - { travel.mode: modes.boat }
       - id: afloat
         pause: 'Afloat on the Saltmere: choose a hex of the lake to sail to, then Go ashore at the far bank.'
   # Off the boat (`travel.mode` again): on foot from now on, to march onto the shore nearby.
@@ -367,18 +367,18 @@ actions:
     hideWhenUnavailable: true
     do:
       - { time: 30 }
-      - { travel.mode: foot }
+      - { travel.mode: modes.foot }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED
     name: Weather
     description: Rolled every dawn, by season.
-    at: part.morning
+    at: time.part.morning
   # Off roads and rivers, and not by boat: any / edges / mode.
   - event: NAVIGATION_CHECK_REQUIRED
     name: Getting lost
     description: Every dawn off roads and rivers (not by boat). Navigation helps; fog makes it harder.
-    at: part.morning
+    at: time.part.morning
     unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }
   # Encounters where the map says there is danger (a hex field) over the party's Stealth (a
   # variable: a stealthy party slips through the safer hexes unseen), never on the road;
@@ -388,34 +388,34 @@ checks:
   - event: ENCOUNTER_CHECK_REQUIRED
     name: Encounter
     description: Entering by day a hex whose danger is over your Stealth (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
-    at: [hex-enter, rest]
+    at: [trip.hex-enter, actions.rest]
     when:
       any:
         - {
-            trip.moment: hex-enter,
+            trip.moment: trip.hex-enter,
             time.tags: { not: dark },
             hex.danger: { gt: '{{party.stats.stealth}}' },
           }
-        - { trip.moment: rest, hex.danger: { gte: 3 } }
+        - { trip.moment: actions.rest, hex.danger: { gte: 3 } }
     unless: { trip.edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
   - event: TOLL_CHECK_REQUIRED
     name: Toll
     description: Keld Bridge, arriving by road.
-    at: hex-enter
+    at: trip.hex-enter
     when: { all: [{ hex.tags: toll }, { trip.edges: road }] }
   # Fords are rolled on an oracle, except by boat: not.
   - event: FORD_CHECK_REQUIRED
     name: Ford
     description: Crossing the river on foot or horseback.
-    at: hex-enter
+    at: trip.hex-enter
     when: { all: [{ hex.tags: ford }, { not: { trip.mode: boat } }] }
   # Rolled on a table, then the trip pauses (pause) so you can describe the shrine. Only the
   # first time the trip comes by (`trip.visits`: 1 the first time in a hex).
   - event: SHRINE_CHECK_REQUIRED
     name: Shrine
     description: A wayside shrine, the first time the trip comes by. The trip stops after the roll; press Continue to go on.
-    at: hex-enter
+    at: trip.hex-enter
     when: { hex.tags: shrine, trip.visits: 1 }
     pause: true
   # No table for this one: it only stops the trip because it says so (pause), and waits
@@ -423,31 +423,32 @@ checks:
   - event: LANDMARK_CHECK_REQUIRED
     name: Landmark
     description: Describe the place yourself (or roll on an oracle), then press Continue.
-    at: hex-enter
+    at: trip.hex-enter
     when: { hex.tags: landmark }
     pause: true
   # The night's encounters: in camp, or marching in the dark (a night march) off the road.
   - event: CAMP_ENCOUNTER_CHECK_REQUIRED
     name: Night encounter
     description: Camping where danger is 2 or more, or entering a hex with danger in the dark, off the road. A stealthy lookout (Stealth 2 or more) keeps the camp hidden where danger is under 3.
-    at: [camp, hex-enter]
+    at: [actions.camp, trip.hex-enter]
     when:
       any:
-        - { trip.moment: camp, hex.danger: { gte: 2 } }
+        - { trip.moment: actions.camp, hex.danger: { gte: 2 } }
         - all:
-            - { trip.moment: hex-enter, time.tags: dark, hex.danger: { gte: 1 } }
+            - { trip.moment: trip.hex-enter, time.tags: dark, hex.danger: { gte: 1 } }
             - { not: { trip.edges: road } }
     # A journey role: whoever keeps watch (`roles.lookout`, chosen in the trip), read by their
     # own values. With nobody on watch, this never holds.
-    unless: { trip.moment: camp, hex.danger: { lt: 3 }, roles.lookout.values.stealth: { gte: 2 } }
-  # A moment of the calendar's day (`at: watch.middle`, the middle watch beginning, 23:00),
+    unless:
+      { trip.moment: actions.camp, hex.danger: { lt: 3 }, roles.lookout.values.stealth: { gte: 2 } }
+  # A moment of the calendar's day (`at: time.watch.middle`, the middle watch beginning, 23:00),
   # while the party sleeps in camp (`trip.doing`) in the dark (`time.tags`, the night's
   # tag) where danger is 3 or more, with nobody keeping watch (the lookout's values only
   # hold with someone in the role): the haunted lights come close. No table: its effects.
   - event: HAUNTED_WATCH
     name: Lights in the middle watch
     description: Asleep in camp where danger is 3 or more, with nobody keeping watch, the haunted lights come close in the middle watch. Every companion's dread +1.
-    at: watch.middle
+    at: time.watch.middle
     when: { trip.doing: camp, time.tags: dark, hex.danger: { gte: 3 } }
     unless: { roles.lookout.values.stealth: { gte: 0 } }
     effects: { party.members.values.dread: 1 }
@@ -456,7 +457,7 @@ checks:
   - event: NIGHT_NAVIGATION_CHECK_REQUIRED
     name: Lost in the dark
     description: Each hex entered after nightfall, off the road. The dark makes it easy to lose your way.
-    at: hex-enter
+    at: trip.hex-enter
     when: { time.tags: dark }
     unless: { trip.edges: road }
   # Conditions on the party: a day ending with no food left (party.resources.food), when
@@ -464,35 +465,35 @@ checks:
   - event: HUNGER_CHECK_REQUIRED
     name: Hunger
     description: A day ending with no food left, and a night in the open. Morale decides how it goes.
-    at: day-end
+    at: time.day-end
     when: { party.resources.food: { lt: 1 } }
-  # The end of each day (at: day-end), after the eat action: checks see what hit its
+  # The end of each day (at: time.day-end), after the eat action: checks see what hit its
   # minimum today (below) and the action under way as it ended (`trip.doing: camp`). With effects and no
   # table, they just apply: fatigue is this system's own rule, not the app's. (A fed night
   # is camp's own step.)
   - event: HUNGRY_DAY
     name: Not enough to eat
     description: A day without enough food tires the party, in camp or not.
-    at: day-end
+    at: time.day-end
     when: { trip.below: food }
     effects: { party.stats.fatigue: 1 }
   # Foraging (the forage action above) in the woods and fields (a list of terrains).
   - event: FORAGE_CHECK_REQUIRED
     name: Foraging
     description: Rolled when you forage for food in woods, fields, heath or marsh.
-    at: forage
+    at: actions.forage
     when: { hex.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
   # Fishing (the fish action above): a table rolled on a d6 under Survival.
   - event: FISHING_CHECK_REQUIRED
     name: Fishing
     description: Rolled when you fish.
-    at: fish
+    at: actions.fish
   # Hours marched today over the system's own (`trip.marched` against `system.hoursPerDay`,
   # a variable): a night march, or a long day of it, tires the party as the day ends.
   - event: LONG_DAY
     name: A long day
     description: A day marched past its 8 hours (a night march after a full day) costs 1 fatigue as it ends.
-    at: day-end
+    at: time.day-end
     when: { trip.marched: { gt: '{{system.hoursPerDay}}' } }
     effects: { party.stats.fatigue: 1 }
   # The same long day on horseback leaves every companion saddle-sore (a condition set on
@@ -500,7 +501,7 @@ checks:
   - event: SADDLE_SORE
     name: Saddle-sore
     description: A day ridden past its 8 hours leaves every companion saddle-sore, unable to ride until a night spent off horseback.
-    at: day-end
+    at: time.day-end
     when: { trip.mode: horse, trip.marched: { gt: '{{system.hoursPerDay}}' } }
     effects: { party.members.conditions.saddle-sore: true }
   # Relations: entering a companion's home (a region, a place or a hex they're tied to as
@@ -508,7 +509,7 @@ checks:
   - event: HOMECOMING
     name: Home ground
     description: Coming into the home of one of the companions (their region, place or hex). Morale +1.
-    at: hex-enter
+    at: trip.hex-enter
     when: { hex.relations.home: { exists: true } }
     unless: { from.relations.home: { exists: true } }
     effects: { party.stats.morale: 1 }
@@ -517,21 +518,21 @@ checks:
   - event: HOMESICK
     name: Homesick
     description: On the 10th, 20th and 30th day of a trip, the party misses home. Morale −1.
-    at: part.morning
+    at: time.part.morning
     when: { trip.day: [10, 20, 30] }
     effects: { party.stats.morale: -1 }
   # Coming back to the same hex a third time in a trip (`trip.visits`): lost heart.
   - event: IN_CIRCLES
     name: Going in circles
     description: Entering a hex for the third time in a trip. Morale −1.
-    at: hex-enter
+    at: trip.hex-enter
     when: { trip.visits: 3 }
     effects: { party.stats.morale: -1 }
   # Leaving the Greywood (`from.region`, the hex just left, against the one entered).
   - event: OUT_OF_THE_WOOD
     name: Out of the Greywood
     description: Leaving the Greywood, the trees thin out and spirits rise. Morale +1.
-    at: hex-enter
+    at: trip.hex-enter
     when: { from.region: The Greywood }
     unless: { hex.region: The Greywood }
     effects: { party.stats.morale: 1 }

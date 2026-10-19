@@ -15,7 +15,7 @@ import {
 import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
 import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
-import { availableActions } from '@open-tabletop/travel-engine'
+import { availableActions, refId } from '@open-tabletop/travel-engine'
 import { type Calendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
@@ -207,9 +207,11 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
   if (days > 0) {
     // What the party does when it can't march is the system's halt (camp, or nothing).
     const rules = play?.rules ? getSystem(play.rules.system).rules : undefined
-    const night = rules?.travel.halt?.do
+    const night = refId('actions', rules?.travel.halt?.do)
     const nightName =
-      night && (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
+      night &&
+      rules &&
+      (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
     const hex = (key: string | undefined) =>
       key ? formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid) : ''
     const question = travelling

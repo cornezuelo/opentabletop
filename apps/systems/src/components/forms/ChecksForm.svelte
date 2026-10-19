@@ -18,7 +18,15 @@
     ROLLABLE,
     type SystemDoc,
   } from '../../lib/systemDoc.svelte'
-  import { CHECK_MOMENTS, isClock, isPartRef } from '@open-tabletop/travel-engine'
+  import {
+    CHECK_MOMENTS,
+    DAY_END,
+    HEX_ENTER,
+    isClock,
+    isPartRef,
+    ref,
+    refId,
+  } from '@open-tabletop/travel-engine'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
 
   /**
@@ -58,13 +66,17 @@
     momentsText(at)
       .split(', ')
       .map((m) =>
-        (AT as readonly string[]).includes(m)
-          ? t(`checks.atOptions.${m as (typeof AT)[number]}`)
-          : isClock(m)
-            ? t('checks.atClock', { clock: m })
-            : isPartRef(m)
-              ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
-              : t('checks.atAction', { action: actionLabel(m) }),
+        m === HEX_ENTER
+          ? t('checks.atOptions.hex-enter')
+          : m === DAY_END
+            ? t('checks.atOptions.day-end')
+            : isClock(m)
+              ? t('checks.atClock', { clock: m })
+              : isPartRef(m)
+                ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
+                : refId('actions', m)
+                  ? t('checks.atAction', { action: actionLabel(refId('actions', m)!) })
+                  : m,
       )
       .join(' · ')
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
@@ -143,7 +155,7 @@
   function add() {
     const used = checks.map((c) => String(c.event))
     const event = known.find((e) => !used.includes(e)) ?? 'NEW_CHECK_REQUIRED'
-    doc.insert('travel-rules', ['checks'], checks.length, { event, at: 'hex-enter' })
+    doc.insert('travel-rules', ['checks'], checks.length, { event, at: HEX_ENTER })
   }
 
   /** A stat's name or description in the UI language (as checks' texts). */
@@ -189,7 +201,7 @@
     {#each checks as check, i (i)}
       {@const event = String(check.event ?? '')}
       {@const binding = on[event]}
-      {@const ref = binding?.weather
+      {@const resolver = binding?.weather
         ? `weather:${binding.weather}`
         : String(binding?.resolve ?? '')}
       <div class="check">
@@ -210,7 +222,12 @@
               label={t('checks.at')}
               placeholder={t('checks.atNone')}
               value={momentsText(check.at)}
-              list={[...AT, '06:00', ...dayPartRefs(system), ...ownActions]}
+              list={[
+                ...AT,
+                '06:00',
+                ...dayPartRefs(system),
+                ...ownActions.map((a) => ref('actions', a)),
+              ]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
             />
@@ -274,10 +291,14 @@
         <div class="row">
           <label>
             <span>{t('checks.resolve')}<InfoTip text={t('checks.resolveHelp')} /></span>
-            <select value={ref} {disabled} onchange={(e) => setTable(event, e.currentTarget.value)}>
+            <select
+              value={resolver}
+              {disabled}
+              onchange={(e) => setTable(event, e.currentTarget.value)}
+            >
               <option value="">{t('checks.waits')}</option>
-              {#if ref && !doc.targets.some((x) => x.ref === ref) && !doc.weatherModels.some((m) => `weather:${m}` === ref)}
-                <option value={ref}>{ref} ⚠</option>
+              {#if resolver && !doc.targets.some((x) => x.ref === resolver) && !doc.weatherModels.some((m) => `weather:${m}` === resolver)}
+                <option value={resolver}>{resolver} ⚠</option>
               {/if}
               {#if doc.weatherModels.length}
                 <optgroup label={t('checks.weatherModels')}>

@@ -72,17 +72,17 @@ conditions:
   wounded:
     name: Wounded
     description: Hurt and bleeding. Can't force a march or march by night; doesn't count for the party's Survival.
-    blocks: [forced-march, night-march]
+    blocks: [actions.forced-march, actions.night-march]
   # A sprained ankle stops the whole party until it's tended.
   sprained:
     name: Sprained ankle
     description: Can't walk on. The party can't march until someone tends it.
-    blocks: [travel]
+    blocks: [travel.move]
   # Riding is out of the question while saddle-sore (a way of travelling blocked).
   saddle-sore:
     name: Saddle-sore
     description: Can't bear another day on horseback.
-    blocks: [mode.horse]
+    blocks: [modes.horse]
 relations:
   bond:
     name: Bond
@@ -111,4 +111,4 @@ conditions:
   shaken:
     name: Shaken
     description: Lost in the dark and frightened; no forced march until the Company rests.
-    blocks: [forced-march]
+    blocks: [actions.forced-march]

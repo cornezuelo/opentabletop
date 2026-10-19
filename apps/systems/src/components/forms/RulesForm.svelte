@@ -6,7 +6,7 @@
   import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { dayPartRefs } from '../../lib/dayParts'
-  import { BLOCKABLE } from '@open-tabletop/travel-engine'
+  import { BLOCKABLE, ref, refId } from '@open-tabletop/travel-engine'
   import { library } from '../../lib/packs.svelte'
   import ActionsForm from './ActionsForm.svelte'
   import RecordRows from './RecordRows.svelte'
@@ -65,7 +65,7 @@
   /** What the way on can be taken with: its action's parameters and their choices. */
   const onwardHints = $derived.by(() => {
     const actions = (doc.rules.actions ?? {}) as Record<string, { params?: unknown }>
-    const params = (actions[onward?.do ?? '']?.params ?? {}) as Record<
+    const params = (actions[refId('actions', onward?.do) ?? '']?.params ?? {}) as Record<
       string,
       { choices?: unknown[] }
     >
@@ -141,7 +141,8 @@
           onchange={(e) => setHalt('do', e.currentTarget.value)}
         >
           <option value="">{t('rules.haltNone')}</option>
-          {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
+          {#each actionIds(doc.rules) as id (id)}<option value={ref('actions', id)}>{id}</option
+            >{/each}
         </select>
       </label>
     </div>
@@ -154,7 +155,8 @@
           onchange={(e) => setOnward('do', e.currentTarget.value || undefined)}
         >
           <option value="">{t('rules.onwardNone')}</option>
-          {#each actionIds(doc.rules) as id (id)}<option value={id}>{id}</option>{/each}
+          {#each actionIds(doc.rules) as id (id)}<option value={ref('actions', id)}>{id}</option
+            >{/each}
         </select>
       </label>
       {#if onward?.do}
@@ -404,7 +406,7 @@
       uses={system && { of: (id) => usesFor(system, { kind: 'day-value', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['lost', 'stranded', 'exhausted']}
-      template={{ blocks: ['travel'] }}
+      template={{ blocks: ['travel.move'] }}
       columns={[
         { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
         {
@@ -421,8 +423,8 @@
           placeholder: t('rules.blocksNothing'),
           choices: [
             ...BLOCKABLE,
-            ...actionIds(doc.rules),
-            ...Object.keys(doc.rules.modes ?? {}).map((m) => `mode.${m}`),
+            ...actionIds(doc.rules).map((a) => ref('actions', a)),
+            ...Object.keys(doc.rules.modes ?? {}).map((m) => ref('modes', m)),
           ],
         },
       ]}

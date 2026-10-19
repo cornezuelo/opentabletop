@@ -2,6 +2,10 @@
   import {
     actionSteps,
     CHECK_MOMENTS,
+    DAY_END,
+    HEX_ENTER,
+    ref,
+    refId,
     isClock,
     isPartRef,
     STEP_KINDS,
@@ -37,13 +41,17 @@
     momentsText(on)
       .split(', ')
       .map((m) =>
-        (CHECK_MOMENTS as readonly string[]).includes(m)
-          ? t(`checks.atOptions.${m as (typeof CHECK_MOMENTS)[number]}`)
-          : isClock(m)
-            ? t('checks.atClock', { clock: m })
-            : isPartRef(m)
-              ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
-              : t('actions.onAfter', { action: label(m) }),
+        m === HEX_ENTER
+          ? t('checks.atOptions.hex-enter')
+          : m === DAY_END
+            ? t('checks.atOptions.day-end')
+            : isClock(m)
+              ? t('checks.atClock', { clock: m })
+              : isPartRef(m)
+                ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
+                : refId('actions', m)
+                  ? t('actions.onAfter', { action: label(refId('actions', m)!) })
+                  : m,
       )
       .join(' · ')
   /** Check events a step can roll. */
@@ -61,13 +69,13 @@
     'travel.move': ['destination', 'hex', '3', "'{{params.until}}'"],
     'travel.speed': ['0.5', '1.5', '0'],
     'travel.advance': ['1', '2', "'{{party.stats.rank}}'"],
-    'travel.mode': Object.keys((doc.rules.modes ?? {}) as Raw),
+    'travel.mode': Object.keys((doc.rules.modes ?? {}) as Raw).map((m) => ref('modes', m)),
     effects: [],
     'effects.*': Object.keys(effectSuggestions(library.registry)),
     set: [],
     'set.*': Object.keys((doc.rules.values ?? {}) as Raw),
-    do: ids,
-    roll: events,
+    do: ids.map((a) => ref('actions', a)),
+    roll: events.map((e) => ref('checks', e)),
     with: [],
     unless: [],
     say: [],
@@ -228,7 +236,12 @@
             label={t('actions.on')}
             placeholder={t('actions.onButton')}
             value={momentsText(d.on)}
-            list={[...CHECK_MOMENTS, '06:00', ...parts, ...ids.filter((a) => a !== id)]}
+            list={[
+              ...CHECK_MOMENTS,
+              '06:00',
+              ...parts,
+              ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
+            ]}
             {disabled}
             onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
           />

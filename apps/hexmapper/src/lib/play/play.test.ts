@@ -100,7 +100,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 4\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 5\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],
@@ -778,7 +778,7 @@ describe('the Company: a party made of characters', () => {
     const calendar = activeSystem().calendar!
     expect(calendar.describe(trip().travel.time)).toMatchObject({ hour: 6, minute: 0 })
     const food = trip().travel.resources.food
-    // The trip stops to ask (`ask: fare`): nothing moves it on meanwhile.
+    // The trip stops to ask (`ask: params.fare`): nothing moves it on meanwhile.
     step({ type: 'action', id: 'ferry' })
     expect(trip().travel.waiting).toMatchObject({ action: 'ferry', ask: 'fare' })
     expect(

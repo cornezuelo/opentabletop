@@ -32,6 +32,8 @@
     availableActions,
     isClock,
     isPartRef,
+    findPartRef,
+    refId,
     movingActions,
     noTotals,
     paramDefault,
@@ -49,7 +51,6 @@
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberNamer, statSource } from './members'
   import { dayPartsLine, divisionName, partName } from './dayParts'
-  import { findPart } from '@open-tabletop/time'
   import Fold from './Fold.svelte'
   import { tripTab, type TripTab } from './folds.svelte'
   import PartyMembers from './PartyMembers.svelte'
@@ -215,6 +216,8 @@
   const movers = $derived(new Set(movingActions(system.rules)))
   /** How the trip goes on by itself (`travel.onward`), if the system says. */
   const onward = $derived(system.rules.travel.onward)
+  /** The action it takes, by its id (`actions.march` is `march`). */
+  const onwardAction = $derived(onward && refId('actions', onward.do))
   const bounds = $derived(resourceBounds(system.rules))
   /**
    * The player's actions: every action but those the system takes by itself (`on:`), the
@@ -228,7 +231,9 @@
   /** The action whose move is under way (stopped by a check): **Go on** goes on with it. */
   const goingOn = $derived(travel.moving?.frames.at(-1)?.action)
   /** The button that stands out: going on, else the way the trip goes on by itself. */
-  const main = $derived(goingOn ? undefined : (onward?.do ?? buttons.find((id) => movers.has(id))))
+  const main = $derived(
+    goingOn ? undefined : (onwardAction ?? buttons.find((id) => movers.has(id))),
+  )
 
   /** The choices made in each action's parameters, by action and parameter (none: its default). */
   let chosen = $state<Record<string, Record<string, string>>>({})
@@ -295,9 +300,18 @@
   const hasMembers = $derived(!!system.sheet && !!session.members?.length)
   const fromMembers = (stat: StatDefinition) => hasMembers && !!stat.from
   const carried = (resource: string) => hasMembers && !!system.bindings?.resources?.[resource]
-  /** What a condition blocks, in words: an action, travel or a way of travelling. */
-  const blockName = (id: string) =>
-    id === 'travel' ? t('travel') : id.startsWith('mode.') ? modeName(id.slice(5)) : actionName(id)
+  /** What a condition blocks, in words: moving on, an action or a way of travelling. */
+  const blockName = (what: string) => {
+    const mode = refId('modes', what)
+    const action = refId('actions', what)
+    return what === 'travel.move'
+      ? t('travel')
+      : mode
+        ? modeName(mode)
+        : action
+          ? actionName(action)
+          : what
+  }
   /** A button's tooltip: what it does, then why it's disabled. */
   const tipWith = (tip: TooltipText, id: string): TooltipText => {
     const reason = why(blocked[id])
@@ -393,7 +407,7 @@
     /** Until a clock (`06:00`) or a part of the calendar's day (its name: "until supper"). */
     const untilText = (moment: string) => {
       if (!isPartRef(moment)) return moment
-      const found = findPart(calendar.divisions ?? [], moment)
+      const found = findPartRef(calendar.divisions ?? [], moment)
       return found
         ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`
         : moment
@@ -576,8 +590,11 @@
     {#if onward}
       <button
         use:tooltip={travel.pendingChecks.length || waiting
-          ? tipWith(t('tips.waitOnward', { action: actionName(onward.do) }), 'travel')
-          : t('tips.waitOnward', { action: actionName(onward.do) })}
+          ? tipWith(
+              t('tips.waitOnward', { action: actionName(onwardAction ?? onward.do) }),
+              'travel',
+            )
+          : t('tips.waitOnward', { action: actionName(onwardAction ?? onward.do) })}
         disabled={travel.pendingChecks.length > 0 || !!waiting}
         onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitOnward')}</button
       >

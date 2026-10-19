@@ -50,7 +50,7 @@ const coreRules = core.rules
 const rules = {
   ...coreRules,
   // Being lost is a value this system declares: it blocks travel for the day.
-  values: { lost: { blocks: ['travel'] } },
+  values: { lost: { blocks: ['travel.move'] } },
   checks: [
     { event: 'WEATHER_CHECK_REQUIRED', at: '06:00' },
     { event: 'NAVIGATION_CHECK_REQUIRED', at: '06:00' },
@@ -257,7 +257,7 @@ entries:
           world,
           rules: { ...coreRules, checks: [{ event: 'OMEN', at: '06:00', pause }] },
         }),
-        rules: { ...coreRules, values: { lost: { blocks: ['travel'] } } },
+        rules: { ...coreRules, values: { lost: { blocks: ['travel.move'] } } },
         oracle: createOracleEngine({ registry: paused, random: sequence([roll]) }),
         bindings: parseBindings({ on: { OMEN: { resolve: 'omen' } } }, 'p').bindings,
         now: () => 'T',
@@ -295,8 +295,8 @@ entries:
         ...coreRules.actions,
         // Day-end eating, then a meal that takes another action (do:).
         eat: {
-          on: 'day-end',
-          do: [{ effects: { 'party.resources.food': -1 } }, { do: 'grumble' }],
+          on: 'time.day-end',
+          do: [{ effects: { 'party.resources.food': -1 } }, { do: 'actions.grumble' }],
         },
         grumble: {
           when: { below: 'food' },
@@ -330,12 +330,12 @@ entries:
   it('applies the effects of an action’s steps and tells them on its line', () => {
     const stepped = {
       ...coreRules,
-      values: { lost: { blocks: ['travel'] } },
+      values: { lost: { blocks: ['travel.move'] } },
       actions: {
         ...coreRules.actions,
         camp: {
           do: [
-            { do: 'eat' },
+            { do: 'actions.eat' },
             { time: '06:00' },
             { unless: { below: 'food' }, effects: { 'party.stats.fatigue': -1 } },
             { when: { below: 'food' }, effects: { 'party.stats.fatigue': 1 } },
@@ -526,7 +526,7 @@ entries:
     const session = createSession({
       travel: createTravelEngine({
         world,
-        rules: { ...coreRules, checks: [{ event: 'NIGHT', at: 'camp' }] },
+        rules: { ...coreRules, checks: [{ event: 'NIGHT', at: 'actions.camp' }] },
       }),
       oracle: createOracleEngine({ registry, random: sequence([0.9]) }),
       bindings,

@@ -24,7 +24,7 @@ forage:
 
     **Enseña:**
 
-    - Una comprobación en una acción propia del sistema (`at: forage`)
+    - Una comprobación en una acción propia del sistema (`at: actions.forage`)
     - Una característica y ventaja en la tirada: `1d6 + {{survival}}`
     - Dados dentro de un valor (`days: '{{1d3+1}}'`), que vuelven a leer el texto y el efecto (`{{days}}`)
     - Una **parte del día del calendario**: ventaja por sí sola por la mañana (`modeWhen: { advantage: { time.part: morning } }`, de 06:00 a 11:00)
@@ -40,7 +40,7 @@ fishing:
 
     **Enseña:**
 
-    - Una comprobación en una acción propia del sistema (`at: fish`), y una acción solo junto al agua (`around.water`)
+    - Una comprobación en una acción propia del sistema (`at: actions.fish`), y una acción solo junto al agua (`around.water`)
     - Una tirada **por debajo** sobre la propia tirada de la tabla: `party.stats.survival: { gte: '{{roll}}' }`
     - El total de la tirada en los textos: `{{roll}}`
   entries:

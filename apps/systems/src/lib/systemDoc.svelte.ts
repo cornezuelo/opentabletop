@@ -16,7 +16,7 @@ import { library } from './packs.svelte'
 
 export type Kind = 'travel-rules' | 'bindings' | 'system'
 
-/** A check's `at:` or an action's `on:` as typed in a box: `day-start, hex-enter`. */
+/** A check's `at:` or an action's `on:` as typed in a box: `time.part.morning, trip.hex-enter`. */
 export const momentsText = (value: unknown): string =>
   Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
 

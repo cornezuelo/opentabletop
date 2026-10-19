@@ -411,7 +411,7 @@ describe('bundled open packs', () => {
       expect(took(entries, 'forced-march')).toBe(true)
       expect(state.stats.fatigue).toBe(1)
       expect(state.travel.speedToday).toBe(1.5)
-      // It takes the march (`do: march`), which moves the party along its route.
+      // It takes the march (`do: actions.march`), which moves the party along its route.
       expect(took(entries, 'march')).toBe(true)
       expect(state.travel.location).not.toBe('0')
       const tired = { ...fresh, stats: { ...fresh.stats, fatigue: 2 } }
@@ -1114,7 +1114,7 @@ describe('bundled open packs', () => {
     expect(day.entries).toContainEqual(
       expect.objectContaining({
         code: 'ACTION_TAKEN',
-        data: expect.objectContaining({ action: 'eat', on: 'day-end' }),
+        data: expect.objectContaining({ action: 'eat', on: 'time.day-end' }),
       }),
     )
     // No fodder left: it stops at its minimum (0), and the journal says so.
@@ -1125,7 +1125,7 @@ describe('bundled open packs', () => {
       }),
     )
     // The eat action isn't a button.
-    expect(system.rules.actions?.eat).toMatchObject({ on: 'day-end' })
+    expect(system.rules.actions?.eat).toMatchObject({ on: 'time.day-end' })
   })
 
   it('the Grey Marches discover a map whose terrains their rules know', () => {

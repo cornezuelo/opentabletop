@@ -7,7 +7,7 @@ The **Checks** tab edits what is rolled on the way, the party's stats and, with 
 Each check (**Add a check**) has:
 
 - a **Name** and **Description** for players, shown in the trip panel and the journal instead of the event id;
-- **When** it happens, written like in the YAML with suggestions: a clock such as `06:00` (as it strikes: said **At 06:00**), a part of the calendar's day such as `watch.middle` (as it begins: said **As Watches: middle begins**), `hex-enter`, `day-end`, one of the system's actions such as `camp`, or several separated by commas (the Grey Marches' encounters, `hex-enter, rest`). Empty: only when an action's step rolls it;
+- **When** it happens, written like in the YAML with suggestions: a clock such as `06:00` (as it strikes: said **At 06:00**), a part of the calendar's day such as `time.watch.middle` (as it begins: said **As Watches: middle begins**), `trip.hex-enter`, `time.day-end`, one of the system's actions such as `camp`, or several separated by commas (the Grey Marches' encounters, `trip.hex-enter, actions.rest`). Empty: only when an action's step rolls it;
 - **Only if** / **Skip if**: its conditions. E.g. the Grey Marches' getting lost, skipped on roads and rivers: `edges: [road, river]`;
 - **Rolled on**: what resolves it, any table, oracle, generator or deck, grouped by kind, or a weather model, under _Weather with inertia_. E.g. the Grey Marches' ford is rolled on an oracle;
 - **Extra context**: values its table sees only for this check. E.g. `timeOfDay: night` to roll a night encounter on the day's table, or `danger: 3` as if the hex were more dangerous;

@@ -9,7 +9,7 @@ Una hoja es el único sitio donde se declara lo que tiene un personaje o el grup
 - Su **Nombre** y su **Descripción** (para qué es la hoja).
 - Sus **Valores**, cada uno con un nombre, el valor en que **Empieza**, **Mín.** y **Máx.** (un número, u otro valor entre llaves, `'{{maxHealth}}'`: tan alto como el maxHealth del personaje), **Contador** (se muestra como casillas, tantas como su máximo) y **Grupo**.
 - Los **Grupos** bajo los que se muestran los valores, en orden, con sus nombres.
-- Sus **Estados**, cada uno con lo que **Bloquea** a todo el grupo mientras alguien lo tenga: `travel`, una de las acciones del sistema, `mode.horse` (la casilla los sugiere).
+- Sus **Estados**, cada uno con lo que **Bloquea** a todo el grupo mientras alguien lo tenga: `travel.move` (seguir moviéndose), una de las acciones del sistema (`actions.forced-march`), una forma de viajar (`modes.horse`) (la casilla los sugiere).
 - Sus **Tipos de relación**, con los límites del número que lleva una (un vínculo de 0 a 3).
 
 Los valores y estados tienen una columna **Usado en**: las características que salen de cada valor, los límites que lo leen (el `{{maxHealth}}` de la salud), y las tablas, acciones y comprobaciones que lo leen o lo cambian en un personaje, en quien tiene un rol o en el grupo ([Usado en](04-overview.md#usado-en)).

@@ -186,7 +186,7 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    with `travel.onward`; `speed` and `advance` steps are `travel.speed` and
  *    `travel.advance` (in 3, `actions.march` only said when the built-in march held).
  */
-export const PACK_FORMAT = 4
+export const PACK_FORMAT = 5
 
 export const manifestSchema = z
   .object({

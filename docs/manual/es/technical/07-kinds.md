@@ -131,7 +131,7 @@ Cuando se aplican varios (uno elegido a mano más otros solos), los que se anula
 
 ## Reglas de viaje
 
-Cómo funciona un viaje: cuándo empiezan los viajes, la escala de sus velocidades (`hoursPerDay`), cómo sigue el viaje por sí solo (`travel.onward`: una acción y sus parámetros) y qué hace el grupo cuando no puede marchar (`travel.halt`), los terrenos y sus velocidades y si se puede entrar (`passable`: `false`, o `{ when, unless }` para un paso cerrado en invierno o un lago que se cruza sobre el hielo), el agua (lo mismo), los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel`, el id de una de sus acciones (camp, rest, forage…) o `mode.<id>`), las **acciones** del grupo (solo las que declara, todas iguales: marchar, acampar, descansar, buscar comida…; `when` / `unless`, `oncePerDay`, `params` (lo que se elige al hacerla, leído como `{{params.<id>}}`), `on:` para las que hace el propio sistema en un momento o tras otra acción (o varios: una lista), y sus pasos, `do`: `time`, `travel.move`, `travel.speed`, `travel.advance`, `effects`, `set`, `do` (con `with:`), `roll`) y las **comprobaciones**: qué se tira a una hora o en una parte del día del calendario (la mañana), al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y las pestañas [Reglas](../systems/05-rules.md) y [Comprobaciones](../systems/06-checks.md) de la aplicación Systems.
+Cómo funciona un viaje: cuándo empiezan los viajes, la escala de sus velocidades (`hoursPerDay`), cómo sigue el viaje por sí solo (`travel.onward`: una acción y sus parámetros) y qué hace el grupo cuando no puede marchar (`travel.halt`), los terrenos y sus velocidades y si se puede entrar (`passable`: `false`, o `{ when, unless }` para un paso cerrado en invierno o un lago que se cruza sobre el hielo), el agua (lo mismo), los caminos y ríos, las formas de viajar (km por día, por dónde pueden ir: `through`, y cuándo se pueden elegir: `when` / `unless`), las provisiones (con su `min` / `max`), el clima que frena, sus **valores del día** (`values`: `lost` con lo que `blocks`: `travel.move`, una de sus acciones (`actions.forage`) o `modes.<id>`), las **acciones** del grupo (solo las que declara, todas iguales: marchar, acampar, descansar, buscar comida…; `when` / `unless`, `oncePerDay`, `params` (lo que se elige al hacerla, leído como `{{params.<id>}}`), `on:` para las que hace el propio sistema en un momento o tras otra acción (o varios: una lista), y sus pasos, `do`: `time`, `travel.move`, `travel.speed`, `travel.advance`, `effects`, `set`, `do` (con `with:`), `roll`) y las **comprobaciones**: qué se tira a una hora o en una parte del día del calendario (la mañana), al entrar en un hex, al final del día, con una acción (acampar, por ejemplo) o solo con el `roll:` de un paso, y cuándo (`when` / `unless`); una comprobación puede tener `effects` propios y `pause: true` (detenerse tras ella hasta **Continuar**). Un pack con reglas de viaje es un **sistema** que se juega en el Hexmapper (Jugar → Con reglas) y en la aplicación Travel. En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) y las pestañas [Reglas](../systems/05-rules.md) y [Comprobaciones](../systems/06-checks.md) de la aplicación Systems.
 
 Todas las claves, en un sistema pequeño (los comentarios dicen qué hace cada una):
 
@@ -142,8 +142,8 @@ travel:
   hoursPerDay: 8 # las horas en que una forma de viajar hace su kmPerDay (la escala de su velocidad)
   hexKm: 10 # km por hex (la escala)
   start: '06:00' # cuándo empieza un viaje nuevo (una hora o una parte del día; vacío: medianoche)
-  onward: { do: march, with: { until: destination } } # cómo sigue el viaje por sí solo
-  halt: { at: '20:00', do: camp } # desde entonces, un grupo que no puede marchar acampa por sí solo
+  onward: { do: actions.march, with: { until: destination } } # cómo sigue el viaje por sí solo
+  halt: { at: '20:00', do: actions.camp } # desde entonces, un grupo que no puede marchar acampa por sí solo
 modes: # formas de viajar
   foot: { name: A pie, kmPerDay: 24 }
   horse: { name: A caballo, kmPerDay: 40, unless: { weather: snow } }
@@ -161,8 +161,8 @@ resources: # provisiones, con sus límites
   food: { name: Raciones, min: 0 }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones
-  lost: { name: Perdidos, blocks: [travel] }
-  snowbound: { blocks: [mode.horse] }
+  lost: { name: Perdidos, blocks: [travel.move] }
+  snowbound: { blocks: [modes.horse] }
   torchlit: { name: By torchlight }
 actions:
   camp:
@@ -191,25 +191,34 @@ actions:
     do:
       - { set: { torchlit: true } }
       - { effects: { party.stats.fatigue: 1 } }
-      - { do: march, with: { until: destination } }
+      - { do: actions.march, with: { until: destination } }
   forage:
     oncePerDay: true
     unless: { weather: storm }
     nothing: 'no hay nada que buscar en {terrain}' # el diario cuando no se aplica ninguna comprobación
     do: [{ time: 180 }, { travel.speed: 0.5 }]
-  eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] } # no es un botón
+  eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] } # no es un botón
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
   - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: '06:00', unless: { edges: road } }
-  - { event: ENCOUNTER_CHECK_REQUIRED, at: [hex-enter, rest], when: { danger: { gte: 2 } } }
-  - { event: FORAGE_CHECK_REQUIRED, at: forage }
-  - { event: HUNGRY_DAY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
-  - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
+  - {
+      event: ENCOUNTER_CHECK_REQUIRED,
+      at: [trip.hex-enter, actions.rest],
+      when: { danger: { gte: 2 } },
+    }
+  - { event: FORAGE_CHECK_REQUIRED, at: actions.forage }
+  - {
+      event: HUNGRY_DAY,
+      at: time.day-end,
+      when: { below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
+  - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { tags: shrine }, pause: true }
 ```
 
-Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del día del calendario, `meal.luncheon`: hasta que vuelve a llegar), `travel.move` (por la ruta mientras pasa el tiempo y se cumplen el `when` / `unless` de la acción: `destination`, `hex`, un número de hexes o una variable), `travel.speed` (lo que queda de movimiento hoy), `travel.advance` (tantos hexes por la ruta de golpe, un número o una variable), `travel.mode` (otra forma de viajar, si se puede elegir), `effects`, `set`, `do` (otra acción, con `with:` sus parámetros), `roll` (una comprobación), `say` (una línea en el diario), `pause` (`true` o un texto: el viaje espera a **Continuar**), `ask` (uno de los parámetros de la acción, que elige el jugador mientras la acción avanza) o `wait` (una condición, con `limit:` lo más que espera); cada paso puede tener `when` / `unless`, y un `id` por el que lo nombran sus traducciones. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Los `params` de una acción tienen cada uno sus `choices` (valores, o `{ id, name, description }`) y quizá un `default` (si no, la primera); un `with:` da una opción o una variable (`'{{params.until}}'`). El `on:` de una acción es `hex-enter`, `day-end`, una hora (`'06:00'`: al dar esa hora) o una parte del día del calendario (`meal.elevenses`: al empezar), marchando, esperando o dormidos en el campamento (mira [Divisiones del día](#calendarios)), o el id de otra acción (o una lista). `travel.start` y el `at` de la parada admiten una hora o una parte (`halt: { at: meal.supper, do: camp }`). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora).
+Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del día del calendario, `time.meal.luncheon`: hasta que vuelve a llegar), `travel.move` (por la ruta mientras pasa el tiempo y se cumplen el `when` / `unless` de la acción: `destination`, `hex`, un número de hexes o una variable), `travel.speed` (lo que queda de movimiento hoy), `travel.advance` (tantos hexes por la ruta de golpe, un número o una variable), `travel.mode` (otra forma de viajar, si se puede elegir), `effects`, `set`, `do` (otra acción, con `with:` sus parámetros), `roll` (una comprobación), `say` (una línea en el diario), `pause` (`true` o un texto: el viaje espera a **Continuar**), `ask` (uno de los parámetros de la acción, que elige el jugador mientras la acción avanza) o `wait` (una condición, con `limit:` lo más que espera); cada paso puede tener `when` / `unless`, y un `id` por el que lo nombran sus traducciones. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Los `params` de una acción tienen cada uno sus `choices` (valores, o `{ id, name, description }`) y quizá un `default` (si no, la primera); un `with:` da una opción o una variable (`'{{params.until}}'`). El `on:` de una acción es `trip.hex-enter`, `time.day-end`, una hora (`'06:00'`: al dar esa hora) o una parte del día del calendario (`time.meal.elevenses`: al empezar), marchando, esperando o dormidos en el campamento (mira [Divisiones del día](#calendarios)), u otra acción, `actions.camp` (o una lista). `travel.start` y el `at` de la parada admiten una hora o una parte (`halt: { at: time.meal.supper, do: actions.camp }`). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora).
 
-**Nada que el sistema no declare.** Sin una acción con un paso `travel.move`, el grupo nunca se mueve por su ruta (una marcha sin `when` se mueve siempre que nada más lo impida: un valor del día, el clima, el camino, de día y de noche); sin `onward`, el viaje que sigue por sí solo solo espera; sin `halt`, un grupo que no puede marchar simplemente espera; sin acciones, no hay ninguna (ni marchar, ni acampar ni descansar propios del motor); sin `values`, no hay ninguno. Lo que bloquea `travel` bloquea también las acciones que mueven. Un movimiento que una comprobación detiene por el camino sigue en curso: seguir (**Seguir**) lo acaba, y después los pasos que van tras él. La **parada** (`travel.halt`): desde su momento hasta que acaba el día, un grupo que no está marchando mientras el tiempo avanza solo (el reloj del mundo, una orden de viajar mientras no se puede hacer su forma de seguir, **Esperar para seguir**) hace su acción, una vez al día; si no puede (su `when` / `unless`, un valor que la bloquea), el diario lo dice y el tiempo pasa hasta que el viaje pueda seguir.
+**Nada que el sistema no declare.** Sin una acción con un paso `travel.move`, el grupo nunca se mueve por su ruta (una marcha sin `when` se mueve siempre que nada más lo impida: un valor del día, el clima, el camino, de día y de noche); sin `onward`, el viaje que sigue por sí solo solo espera; sin `halt`, un grupo que no puede marchar simplemente espera; sin acciones, no hay ninguna (ni marchar, ni acampar ni descansar propios del motor); sin `values`, no hay ninguno. Lo que bloquea `travel.move` bloquea también las acciones que mueven. Un movimiento que una comprobación detiene por el camino sigue en curso: seguir (**Seguir**) lo acaba, y después los pasos que van tras él. La **parada** (`travel.halt`): desde su momento hasta que acaba el día, un grupo que no está marchando mientras el tiempo avanza solo (el reloj del mundo, una orden de viajar mientras no se puede hacer su forma de seguir, **Esperar para seguir**) hace su acción, una vez al día; si no puede (su `when` / `unless`, un valor que la bloquea), el diario lo dice y el tiempo pasa hasta que el viaje pueda seguir.
 
 Los packs escritos para un formato de pack anterior no se leen (mira [Formatos de fichero](02-file-formats.md#packs)).
 
@@ -372,16 +381,16 @@ groups: # los encabezados bajo los que se muestran los valores, en este orden
   skills: { name: Habilidades }
   body: { name: Cuerpo }
 conditions: # estados que un personaje tiene o no, y lo que el grupo no puede hacer mientras alguien lo tenga
-  wounded: { name: Herido, blocks: [forced-march] } # una acción del sistema
-  sprained: { name: Tobillo torcido, blocks: [travel] } # marchar
-  saddle-sore: { name: Molido de la silla, blocks: [mode.horse] } # una forma de viajar
+  wounded: { name: Herido, blocks: [actions.forced-march] } # una acción del sistema
+  sprained: { name: Tobillo torcido, blocks: [travel.move] } # marchar
+  saddle-sore: { name: Molido de la silla, blocks: [modes.horse] } # una forma de viajar
 relations: # tipos de relación que un personaje puede tener con cualquier cosa con referencia
   bond: { name: Vínculo, value: { min: 0, max: 3 } } # con un número
   home: { name: Hogar }
 ```
 
 - `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{nombre}}'`), `track: true` (se muestra como casillas, tantas como su `max`, que debe ser un número), `group` (uno de `groups`).
-- `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: el id de una acción, `travel`, o `mode.<id>`. El viaje dice quién lo tiene.
+- `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: una acción (`actions.<id>`), `travel.move`, o una forma de viajar (`modes.<id>`). El viaje dice quién lo tiene.
 - `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites. Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
 - Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`).

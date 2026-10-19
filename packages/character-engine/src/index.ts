@@ -43,7 +43,7 @@ const condition = z
   .object({
     name: text.optional(),
     description: text.optional(),
-    /** What it stops while a character has it: an action's id, `travel`, `mode.<id>`… */
+    /** What it stops while a character has it: `actions.<id>`, `travel.move`, `modes.<id>`… */
     blocks: z.array(z.string().min(1)).optional(),
   })
   .strict()

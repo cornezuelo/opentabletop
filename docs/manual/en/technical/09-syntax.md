@@ -34,6 +34,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 - **Ids** use lowercase letters, digits and dashes: `getting-lost`, `npc-roles`.
 - **References** to a definition: `weather` (the same pack), `core/weather` (another pack, by its id), or one a variable picks: `'weather-{{season}}'`.
 - Entries and cards have ids too, for translations and once-only entries.
+- **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.hex-enter`, `time.day-end`, a part of the day `time.part.morning`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `hex.terrain: forest`.
 
 ## Dice
 
@@ -141,15 +142,15 @@ A change stops at the value's `min` / `max`; what hit one is seen afterwards as 
 
 ## Moments
 
-When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[hex-enter, rest]`); conditions and tables see which one as `moment`.
+When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.hex-enter, actions.rest]`); conditions and tables see which one as `moment`.
 
-| Moment                             | When                                                          |
-| ---------------------------------- | ------------------------------------------------------------- |
-| a clock (`'06:00'`)                | as it strikes, marching, waiting or asleep in camp            |
-| a part of the day (`part.morning`) | as the calendar's part begins, the same way                   |
-| `hex-enter`                        | entering each hex                                             |
-| `day-end`                          | as each day ends, camping or not (actions first, then checks) |
-| an action's id (`camp`, `forage`)  | when the party takes that action                              |
+| Moment                                  | When                                                          |
+| --------------------------------------- | ------------------------------------------------------------- |
+| a clock (`'06:00'`)                     | as it strikes, marching, waiting or asleep in camp            |
+| a part of the day (`time.part.morning`) | as the calendar's part begins, the same way                   |
+| `trip.hex-enter`                        | entering each hex                                             |
+| `time.day-end`                          | as each day ends, camping or not (actions first, then checks) |
+| an action (`actions.camp`)              | when the party takes that action                              |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
 
@@ -161,29 +162,29 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | ------------------------------------------------- | ----------------------------------------------- |
 | `time: 120`                                       | 120 minutes pass                                |
 | `time: '14:00'`                                   | until it next strikes                           |
-| `time: meal.luncheon`                             | until a part of the calendar's day next starts  |
+| `time: time.meal.luncheon`                        | until a part of the calendar's day next starts  |
 | `travel.move: destination`                        | moves along the route while its conditions hold |
 | `travel.move: '{{params.until}}'`                 | as far as its parameter says (`hex`, `3`…)      |
 | `travel.speed: 0.5`                               | the rest of today's moving at half speed        |
 | `effects: { party.stats.fatigue: -1 }`            | changes the party                               |
 | `set: { lost: true }`                             | gives a value of the day                        |
-| `do: forage`                                      | takes another action, if its conditions hold    |
-| `{ do: march, with: { until: hex } }`             | another action, with its parameters             |
-| `roll: ENCOUNTER_CHECK_REQUIRED`                  | rolls a check now                               |
+| `do: actions.forage`                              | takes another action, if its conditions hold    |
+| `{ do: actions.march, with: { until: hex } }`     | another action, with its parameters             |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`           | rolls a check now                               |
 | `travel.advance: 1`                               | moves one hex along the route, no time passing  |
-| `travel.mode: boat`                               | travels another way, if it can be chosen now    |
+| `travel.mode: modes.boat`                         | travels another way, if it can be chosen now    |
 | `say: The porters sing`                           | a line of the system's own in the journal       |
 | `pause: true`                                     | the trip waits for **Continue** (or a text)     |
-| `ask: how`                                        | the player chooses the parameter `how` now      |
+| `ask: params.how`                                 | the player chooses the parameter `how` now      |
 | `{ wait: { today.ferry: true }, limit: '18:00' }` | time passes until it holds, at most the limit   |
 | `{ id: song, say: … }`                            | names a step for its translations               |
 | `{ unless: { below: food }, effects: { … } }`     | only when its condition holds                   |
 
-Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: actions.march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: actions.camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 
-A value of the day lists what can't be done while it holds: `travel` (no more marching), an action's id (`camp`, `forage`) or a way of travelling as `mode.<id>` (`mode.horse`). `values: { snowbound: { blocks: [mode.horse] } }`. A character's condition on a [sheet](07-kinds.md#sheets) blocks the same way while any character of the party has it: `conditions: { sprained: { blocks: [travel] } }`; the trip says who.
+A value of the day lists what can't be done while it holds: `travel.move` (no more moving on), an action (`actions.camp`, `actions.forage`) or a way of travelling (`modes.horse`). Each by its full name: what it is, then its id. `values: { snowbound: { blocks: [modes.horse] } }`. A character's condition on a [sheet](07-kinds.md#sheets) blocks the same way while any character of the party has it: `conditions: { sprained: { blocks: [travel.move] } }`; the trip says who.
 
 ## The party's characters: `from` and `carried`
 

@@ -5,6 +5,7 @@ import {
   declaredValues,
   FACT_PATHS,
   choiceIds,
+  ref,
 } from '@open-tabletop/travel-engine'
 import { travelSystems } from './trip'
 
@@ -172,7 +173,7 @@ export function contextSuggestions(
     const taken = Object.keys(availableActions(rules).all)
     add('doing', ...taken)
     add('doneToday', ...taken)
-    add('moment', ...CHECK_MOMENTS, ...taken)
+    add('moment', ...CHECK_MOMENTS, ...taken.map((a) => ref('actions', a)))
     for (const id of taken) add(`trip.taken.${id}`)
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)

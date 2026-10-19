@@ -3,7 +3,6 @@ import { findPath } from '@open-tabletop/hex'
 import { evaluate, lookupIn, momentRoller, render, type Roller } from '@open-tabletop/variables'
 import {
   defaultCalendar,
-  findPart,
   nextAt,
   nextPartStart,
   type Calendar,
@@ -21,17 +20,22 @@ import {
   modeThrough,
   declaredValues,
   isClock,
+  CLOCK,
   movingActions,
   paramsOf,
+  ref,
+  refId,
   resolveChange,
   resourceBounds,
+  DAY_END,
+  HEX_ENTER,
   type ActionStep,
   type Bounds,
   type CheckRule,
   type TravelRules,
 } from './rules'
 import { FACT_PATHS, hexIdOf, qualify } from './facts'
-import { isPartRef } from './day'
+import { findPartRef, isPartRef, partKey } from './day'
 
 /** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
 export interface TravelWorld {
@@ -462,6 +466,21 @@ export function upgradeTravelState(state: TravelState): TravelState {
     delete rest.momentsDue
     out = { ...rest, ...(dayChecksDone === false && { momentsDue: rest.time }) }
   }
+  // Older trips' pending checks saw their moment by its short name (`hex-enter`, `camp`).
+  const full = (m: unknown) => {
+    if (typeof m !== 'string' || CLOCK.test(m) || /^(trip|time|actions)\./.test(m)) return m
+    if (m === 'hex-enter') return HEX_ENTER
+    if (m === 'day-end') return DAY_END
+    return m.includes('.') ? `time.${m}` : ref('actions', m)
+  }
+  if (out.pendingChecks?.some((c) => full(c.context?.moment) !== c.context?.moment))
+    out = {
+      ...out,
+      pendingChecks: out.pendingChecks.map((c) => ({
+        ...c,
+        context: { ...c.context, moment: full(c.context?.moment) },
+      })),
+    }
   return out
 }
 
@@ -508,14 +527,23 @@ export function createTravelEngine(options: {
   const actions = availableActions(rules)
   /** The calendar's divisions of the day (meals, watches…). */
   const divisions = calendar.divisions ?? []
-  /** A clock (`'06:00'`) or a part (`part.night`: when it starts) as minutes of the day. */
-  const clockOf = (ref: string): number | undefined =>
-    isPartRef(ref) ? findPart(divisions, ref)?.part.from : parseClock(ref)
-  /** What the party does when it can't march (`travel.halt`), and from when. */
-  const halt = rules.travel.halt
+  /** A clock (`'06:00'`) or a part (`time.part.night`: when it starts) as minutes of the day. */
+  const clockOf = (at: string): number | undefined =>
+    isPartRef(at) ? findPartRef(divisions, at)?.part.from : parseClock(at)
+  /** What the party does when it can't march (`travel.halt`, by the action's id), and from when. */
+  const halt = rules.travel.halt && {
+    ...rules.travel.halt,
+    do: refId('actions', rules.travel.halt.do) ?? rules.travel.halt.do,
+  }
   const haltAt = halt && clockOf(halt.at)
-  /** How the trip goes on by itself (`travel.onward`): an action and its parameters. */
-  const onward = rules.travel.onward
+  /** How the trip goes on by itself (`travel.onward`): an action (by its id) and its parameters. */
+  const onward = rules.travel.onward && {
+    ...rules.travel.onward,
+    do: refId('actions', rules.travel.onward.do) ?? rules.travel.onward.do,
+  }
+  /** What a value blocks to stop every move: moving on (`travel.move`) and the way of travelling. */
+  const MOVE = 'travel.move'
+  const modeRef = (mode: string) => ref('modes', mode)
   /** The actions that move the party (a `travel.move` step, theirs or another's they take). */
   const movers = new Set(movingActions(rules))
   /**
@@ -553,7 +581,7 @@ export function createTravelEngine(options: {
       typeof seen.moment === 'string' ? seen.moment : moment,
     )
   /**
-   * What blocks `what` (travel, an action, `mode.<id>`) now, if anything: a value of the
+   * What blocks `what` (`travel.move`, `actions.<id>`, `modes.<id>`) now, if anything: a value of the
    * day the system declares, or what the host says blocks it (`party.blocked`: a member's
    * condition, with who has it).
    */
@@ -853,10 +881,10 @@ export function createTravelEngine(options: {
       ...((rules.checks ?? []) as CheckRule[]).flatMap((c) => momentsOf(c.at)),
       ...Object.values(actions.all).flatMap((a) => momentsOf(a.on)),
     ]),
-  ].filter((ref) => isClock(ref) || (isPartRef(ref) && findPart(divisions, ref)))
+  ].filter((at) => isClock(at) || findPartRef(divisions, at))
   /** When a named moment comes next after `time`: a part's start or a clock. */
-  const nextOf = (time: GameTime, ref: string): GameTime | undefined =>
-    isClock(ref) ? nextAt(calendar, time + 1, ref) : nextPartStart(calendar, time, ref)
+  const nextOf = (time: GameTime, at: string): GameTime | undefined =>
+    isClock(at) ? nextAt(calendar, time + 1, at) : nextPartStart(calendar, time, partKey(at))
   /** The next moment after `time` a named part begins, and which (several may at once). */
   const nextNamed = (time: GameTime): { time: GameTime; refs: string[] } | undefined => {
     let next: { time: GameTime; refs: string[] } | undefined
@@ -904,7 +932,7 @@ export function createTravelEngine(options: {
       for (let d = state.day; d < day; d++) {
         // The day ends at midnight (or now, if the day changed by hand).
         state.time = Math.min(now, calendar.at(d + 1, '00:00'))
-        schedule(state, 'day-end', events, undefined, doingFacts())
+        schedule(state, DAY_END, events, undefined, doingFacts())
         state.time = Math.max(now, state.time)
         state.day = d + 1
         state.travelledToday = 0
@@ -947,7 +975,7 @@ export function createTravelEngine(options: {
     params: Record<string, unknown> | undefined,
   ): Omit<StoppedEvent, 'type' | 'time'> | undefined => {
     const now = { ...state, time, travelledToday: marched }
-    const value = blocker(now, id)
+    const value = blocker(now, ref('actions', id))
     if (value) return { reason: 'value', ...value }
     const def = actions.all[id]
     if (!def) return { reason: 'conditions', action: id }
@@ -965,7 +993,7 @@ export function createTravelEngine(options: {
 
   /** What stops any move now, whatever the action: a value, the way of travelling, the weather. */
   const travelBlocked = (state: TravelState): boolean =>
-    !!blocker(state, 'travel') || !!blocker(state, `mode.${state.mode}`) || dayFactor(state) <= 0
+    !!blocker(state, MOVE) || !!blocker(state, modeRef(state.mode)) || dayFactor(state) <= 0
 
   /** Whether the trip can go on by itself at `time`: its way on (`travel.onward`) can be taken. */
   const canGoOn = (state: TravelState, time: GameTime): boolean => {
@@ -1053,8 +1081,8 @@ export function createTravelEngine(options: {
         events.push({ type: 'DESTINATION_REACHED', hex: state.location })
       return stop(state.route ? 'destination' : 'no-route')
     }
-    // A value that blocks travel, or the way the party is travelling (`mode.horse`).
-    const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
+    // A value that blocks moving on, or the way the party is travelling (`modes.horse`).
+    const blocked = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
     if (blocked) return stopWith({ reason: 'value', ...blocked })
     if (dayFactor(state) <= 0) return stop('weather')
 
@@ -1109,7 +1137,7 @@ export function createTravelEngine(options: {
         if (state.time >= by) return suspend('waited')
         if (atPart || state.time >= midnight) {
           // What the moment set (a value, the weather) may stop the move.
-          const blockedNow = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
+          const blockedNow = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
           if (blockedNow) return stopWith({ reason: 'value', ...blockedNow })
           if (dayFactor(state) <= 0) return stop('weather')
           continue
@@ -1123,7 +1151,7 @@ export function createTravelEngine(options: {
       }
       const from = state.location
       enter(state, next, events)
-      schedule(state, 'hex-enter', events, from)
+      schedule(state, HEX_ENTER, events, from)
       if (left !== undefined) left--
       if (state.route.length < 2) {
         events.push({ type: 'DESTINATION_REACHED', hex: next })
@@ -1205,7 +1233,7 @@ export function createTravelEngine(options: {
     }
     if (!onward) return
     // What stops any move is said as the trip's stop (lost, the weather), not the action's.
-    const blocked = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
+    const blocked = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
     if (blocked)
       return void events.push({
         type: 'TRAVEL_STOPPED',
@@ -1242,7 +1270,7 @@ export function createTravelEngine(options: {
       }
       if (!state.moving && !canGoOn(state, state.time)) {
         // A value that blocks travel today (lost…): said in the journal.
-        const value = blocker(state, 'travel') ?? blocker(state, `mode.${state.mode}`)
+        const value = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
         if (value && said !== `${state.day}|${value.value}`) {
           said = `${state.day}|${value.value}`
           events.push({ type: 'TRAVEL_STOPPED', reason: 'value', ...value, time: state.time })
@@ -1356,10 +1384,10 @@ export function createTravelEngine(options: {
     const def = actions.all[id]
     if (!def) return { off: true }
     const value =
-      blocker(state, id, facts) ??
+      blocker(state, ref('actions', id), facts) ??
       // What blocks travel blocks the actions that move the party.
       (movers.has(id)
-        ? (blocker(state, 'travel', facts) ?? blocker(state, `mode.${state.mode}`, facts))
+        ? (blocker(state, MOVE, facts) ?? blocker(state, modeRef(state.mode), facts))
         : undefined)
     if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
@@ -1378,7 +1406,7 @@ export function createTravelEngine(options: {
   ): Unavailable | undefined => {
     const mode = rules.modes[id]
     if (!mode) return { off: true }
-    const value = blocker(state, `mode.${id}`, facts)
+    const value = blocker(state, modeRef(id), facts)
     if (value) return value
     const context = checkContext(state, [], facts)
     const at = `mode.${id}`
@@ -1396,7 +1424,7 @@ export function createTravelEngine(options: {
     typeof time === 'number'
       ? state.time + time
       : isPartRef(time)
-        ? (nextPartStart(calendar, state.time, time) ?? state.time)
+        ? (nextPartStart(calendar, state.time, partKey(time)) ?? state.time)
         : nextAt(calendar, state.time + 1, time)
 
   type Hits = { below: Set<string>; above: Set<string> }
@@ -1512,7 +1540,7 @@ export function createTravelEngine(options: {
     const totals = totalsOf(state)
     totals.taken = { ...totals.taken, [id]: (totals.taken[id] ?? 0) + 1 }
     // Its checks see the place and moment it starts (after the actions that follow it).
-    const checks = schedule(state, id, events, undefined, options.facts)
+    const checks = schedule(state, ref('actions', id), events, undefined, options.facts)
     head.checks = checks
     // What hit a bound today, and during the action: its later steps see it past midnight.
     const hit: Hits = {
@@ -1612,7 +1640,7 @@ export function createTravelEngine(options: {
       else if (step.do !== undefined) {
         const given =
           step.with && Object.fromEntries(Object.entries(step.with).map(([k, v]) => [k, read(v)]))
-        const still = takeAction(state, step.do, events, {
+        const still = takeAction(state, refId('actions', step.do) ?? step.do, events, {
           facts: options.facts,
           quiet: true,
           depth: depth + 1,
@@ -1625,7 +1653,14 @@ export function createTravelEngine(options: {
             ...(still.held && { held: true }),
           }
       } else if (step.roll !== undefined)
-        schedule(state, id, events, undefined, options.facts, step.roll)
+        schedule(
+          state,
+          ref('actions', id),
+          events,
+          undefined,
+          options.facts,
+          refId('checks', step.roll) ?? step.roll,
+        )
       else if (step.set) state.today = { ...state.today, ...step.set }
       else if (step.say !== undefined)
         events.push({ type: 'SAID', action: id, text: written(step.say), time: state.time })
@@ -1635,13 +1670,13 @@ export function createTravelEngine(options: {
         state.waiting = {
           action: id,
           ...(step.pause !== undefined && step.pause !== true && { text: written(step.pause) }),
-          ...(step.ask !== undefined && { ask: step.ask }),
+          ...(step.ask !== undefined && { ask: refId('params', step.ask) ?? step.ask }),
           time: state.time,
         }
         events.push({ type: 'HELD', waiting: { ...state.waiting }, time: state.time })
       } else if (step['travel.mode'] !== undefined) {
-        const mode = String(read(step['travel.mode']))
-        if (mode !== state.mode && !modeUnavailable(state, mode, hostFacts)) {
+        const mode = refId('modes', read(step['travel.mode']))
+        if (mode && mode !== state.mode && !modeUnavailable(state, mode, hostFacts)) {
           const from = state.mode
           state.mode = mode
           events.push({ type: 'MODE_CHANGED', action: id, from, mode, time: state.time })
@@ -1723,7 +1758,7 @@ export function createTravelEngine(options: {
       }
       const from = state.location
       enter(state, next, events)
-      schedule(state, 'hex-enter', events, from)
+      schedule(state, HEX_ENTER, events, from)
       if (state.route.length < 2)
         return void events.push({ type: 'DESTINATION_REACHED', hex: next })
       if (halted(state)) return
@@ -1769,7 +1804,7 @@ export function createTravelEngine(options: {
         return out
       }
       const travelBlocked =
-        blocker(state, 'travel', facts) ?? blocker(state, `mode.${state.mode}`, facts)
+        blocker(state, MOVE, facts) ?? blocker(state, modeRef(state.mode), facts)
       if (travelBlocked) out.travel = travelBlocked
       for (const id of Object.keys(actions.all)) {
         const why = unavailable(state, id, facts)
@@ -1789,7 +1824,7 @@ export function createTravelEngine(options: {
           state.actionsToday = [
             ...(state.actionsToday ?? []),
             ...Object.keys(actions.all).filter((id) =>
-              momentsOf(actions.all[id].on).includes('day-end'),
+              momentsOf(actions.all[id].on).includes(DAY_END),
             ),
           ]
         delete state.ate

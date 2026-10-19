@@ -31,21 +31,21 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { water: { min: 0 } }
 checks: [{ event: WEATHER, at: '07:00' }]
 actions:
-  drink: { on: day-end, do: [{ effects: { party.resources.water: -1 } }] }
+  drink: { on: time.day-end, do: [{ effects: { party.resources.water: -1 } }] }
   march:
     params: { until: { choices: [destination, hex] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: { WEATHER: { resolve: weather } }
@@ -97,8 +97,8 @@ terrains: { plains: { multiplier: 1 } }
 travel:
   hoursPerDay: 4
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 modes: { walk: { kmPerDay: 10 } }
 actions:
   march:
@@ -107,7 +107,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: weather
 id: sky
@@ -147,8 +147,8 @@ terrains: { plains: { multiplier: 1 } }
 travel:
   hoursPerDay: 10
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 modes: { walk: { kmPerDay: 40 } }
 checks: [{ event: SKY, at: '07:00' }]
 actions:
@@ -158,7 +158,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: { SKY: { weather: base/sky } }
@@ -293,20 +293,20 @@ calendar: shire
 kind: travel-rules
 travel:
   hoursPerDay: 8
-  start: meal.breakfast
-  onward: { do: march, with: { until: destination } }
-  halt: { at: meal.supper, do: camp }
+  start: time.meal.breakfast
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: time.meal.supper, do: actions.camp }
 terrains: {}
 modes: { foot: { kmPerDay: 30 } }
-checks: [{ event: TEA, at: meal.tea }]
+checks: [{ event: TEA, at: time.meal.tea }]
 actions:
   march:
     params: { until: { choices: [destination, hex] } }
     when: { time.tags: { not: dark }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
-  camp: { do: [{ time: meal.breakfast }] }
+  camp: { do: [{ time: time.meal.breakfast }] }
   rest: { do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: calendar
 id: shire
@@ -318,7 +318,7 @@ divisions:
     ])
     const { systems, problems } = travelSystems(registry)
     expect(problems.map((p) => p.message)).toEqual([
-      'the calendar has no part of the day "meal.tea"',
+      'the calendar has no part of the day "time.meal.tea"',
     ])
     // A new trip starts as the system's day does: at breakfast.
     const system = systems.find((s) => s.id === 'p')!
@@ -393,7 +393,7 @@ divisions:
 
   it('checks and actions see the host’s facts (the world clock’s clocks and events)', () => {
     const { registry: clocked } = loadPacks([
-      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
       {
         path: 'w/travel.yaml',
         content: `
@@ -401,12 +401,12 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 checks:
-  - { event: WYRM, at: hex-enter, when: { clocks.the-wyrm-wakes: { gte: 4 } }, pause: true }
+  - { event: WYRM, at: trip.hex-enter, when: { clocks.the-wyrm-wakes: { gte: 4 } }, pause: true }
 actions:
   march:
     params: { until: { choices: [destination, hex] } }
@@ -415,7 +415,7 @@ actions:
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
   shop: { when: { events: market-day }, do: [{ time: 60 }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 `,
       },
     ])
@@ -459,7 +459,7 @@ values: { lost: { blocks: [travel] } }
 
 describe('values that name another value ($)', () => {
   const { registry: mouths } = loadPacks([
-    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
+    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
     {
       path: 'm/travel.yaml',
       content: `
@@ -467,13 +467,13 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { food: { min: 0 } }
 checks:
-  - { event: AMBUSH, at: hex-enter, when: { danger: { gt: '{{party.stats.stealth}}' } } }
+  - { event: AMBUSH, at: trip.hex-enter, when: { danger: { gt: '{{party.stats.stealth}}' } } }
 actions:
   march:
     params: { until: { choices: [destination, hex] } }
@@ -481,9 +481,9 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-  eat: { on: day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
   feast: { do: [{ effects: { party.stats.morale: '={{party.stats.mouths}}' } }] }
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: { AMBUSH: { resolve: ambush } }

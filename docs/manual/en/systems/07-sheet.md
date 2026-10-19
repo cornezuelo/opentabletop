@@ -9,7 +9,7 @@ A sheet is the only place what a character or the party has is declared: they ha
 - Its **Name** and **Description** (what the sheet is for).
 - Its **Values**, each with a name, the value it **Starts at**, **Min** and **Max** (a number, or another value in braces, `'{{maxHealth}}'`: as high as the character's maxHealth), **Track** (shown as boxes, as many as its max) and **Group**.
 - The **Groups** values are shown under, in order, with their names.
-- Its **Conditions**, each with what it **Blocks** for the whole party while someone has it: `travel`, one of the system's actions, `mode.horse` (the box suggests them).
+- Its **Conditions**, each with what it **Blocks** for the whole party while someone has it: `travel.move` (moving on), one of the system's actions (`actions.forced-march`), a way of travelling (`modes.horse`) (the box suggests them).
 - Its **Kinds of relation**, with the bounds of the number one carries (a bond from 0 to 3).
 
 Values and conditions have a **Used by** column: the stats made of each value, the bounds that read it (health's `{{maxHealth}}`), and the tables, actions and checks that read or change it on a character, on whoever holds a role or on the party ([Used by](04-overview.md#used-by)).

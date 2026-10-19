@@ -23,9 +23,9 @@ describe('flowText on long values', () => {
   it('keeps them on one line', () => {
     const long = {
       any: [
-        { moment: 'hex-enter', danger: { gte: 1 } },
-        { moment: 'rest', danger: { gte: 3 } },
-        { moment: 'camp', danger: { gte: 4 } },
+        { moment: 'trip.hex-enter', danger: { gte: 1 } },
+        { moment: 'actions.rest', danger: { gte: 3 } },
+        { moment: 'actions.camp', danger: { gte: 4 } },
       ],
     }
     expect(flowText(long)).not.toContain('\n')

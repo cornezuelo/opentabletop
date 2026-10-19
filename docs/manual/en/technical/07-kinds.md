@@ -132,7 +132,7 @@ When several apply (one chosen by hand plus some on their own), the ones that ca
 
 ## Travel rules
 
-How a trip works: when trips start, the scale of their speeds (`hoursPerDay`), how the trip goes on by itself (`travel.onward`: an action and its parameters) and what the party does when it can't march (`travel.halt`), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), supplies (with their `min` / `max`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel`, one of its actions' id (camp, rest, forage…) or `mode.<id>`), the party's **actions** (only the ones it declares, all alike: march, camp, rest, foraging…; `when` / `unless`, `oncePerDay`, `params` (what is chosen when taking it, read as `{{params.<id>}}`), `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `travel.move`, `travel.speed`, `travel.advance`, `effects`, `set`, `do` (with `with:`), `roll`) and the **checks**: what is rolled at a clock or a part of the calendar's day (the morning), on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Systems app's [Rules](../systems/05-rules.md) and [Checks](../systems/06-checks.md) tabs.
+How a trip works: when trips start, the scale of their speeds (`hoursPerDay`), how the trip goes on by itself (`travel.onward`: an action and its parameters) and what the party does when it can't march (`travel.halt`), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), supplies (with their `min` / `max`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel.move`, one of its actions (`actions.forage`) or `modes.<id>`), the party's **actions** (only the ones it declares, all alike: march, camp, rest, foraging…; `when` / `unless`, `oncePerDay`, `params` (what is chosen when taking it, read as `{{params.<id>}}`), `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `travel.move`, `travel.speed`, `travel.advance`, `effects`, `set`, `do` (with `with:`), `roll`) and the **checks**: what is rolled at a clock or a part of the calendar's day (the morning), on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Systems app's [Rules](../systems/05-rules.md) and [Checks](../systems/06-checks.md) tabs.
 
 Every key, in a small system (the comments say what each does):
 
@@ -143,8 +143,8 @@ travel:
   hoursPerDay: 8 # the hours a way's kmPerDay is marched in (the speed's scale)
   hexKm: 10 # km a hex (the scale)
   start: '06:00' # when a new trip starts (a clock or a part of the day; empty: midnight)
-  onward: { do: march, with: { until: destination } } # how the trip goes on by itself
-  halt: { at: '20:00', do: camp } # from then on, a party that can't march camps by itself
+  onward: { do: actions.march, with: { until: destination } } # how the trip goes on by itself
+  halt: { at: '20:00', do: actions.camp } # from then on, a party that can't march camps by itself
 modes: # ways of travelling
   foot: { name: On foot, kmPerDay: 24 }
   horse: { name: On horseback, kmPerDay: 40, unless: { weather: snow } }
@@ -162,8 +162,8 @@ resources: # supplies, with their bounds
   food: { name: Rations, min: 0 }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set
-  lost: { name: Lost, blocks: [travel] }
-  snowbound: { blocks: [mode.horse] }
+  lost: { name: Lost, blocks: [travel.move] }
+  snowbound: { blocks: [modes.horse] }
   torchlit: { name: By torchlight }
 actions:
   camp:
@@ -192,25 +192,34 @@ actions:
     do:
       - { set: { torchlit: true } }
       - { effects: { party.stats.fatigue: 1 } }
-      - { do: march, with: { until: destination } }
+      - { do: actions.march, with: { until: destination } }
   forage:
     oncePerDay: true
     unless: { weather: storm }
     nothing: 'nothing to forage on {terrain}' # the journal when no check applies
     do: [{ time: 180 }, { travel.speed: 0.5 }]
-  eat: { on: day-end, do: [{ effects: { party.resources.food: -1 } }] } # not a button
+  eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] } # not a button
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
   - { event: NAVIGATION_CHECK_REQUIRED, name: Getting lost, at: '06:00', unless: { edges: road } }
-  - { event: ENCOUNTER_CHECK_REQUIRED, at: [hex-enter, rest], when: { danger: { gte: 2 } } }
-  - { event: FORAGE_CHECK_REQUIRED, at: forage }
-  - { event: HUNGRY_DAY, at: day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
-  - { event: SHRINE_CHECK_REQUIRED, at: hex-enter, when: { tags: shrine }, pause: true }
+  - {
+      event: ENCOUNTER_CHECK_REQUIRED,
+      at: [trip.hex-enter, actions.rest],
+      when: { danger: { gte: 2 } },
+    }
+  - { event: FORAGE_CHECK_REQUIRED, at: actions.forage }
+  - {
+      event: HUNGRY_DAY,
+      at: time.day-end,
+      when: { below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
+  - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { tags: shrine }, pause: true }
 ```
 
-A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the calendar's day, `meal.luncheon`: until it next comes), `travel.move` (along the route while time passes and the action's `when` / `unless` hold: `destination`, `hex`, a number of hexes or a variable), `travel.speed` (the rest of today's moving), `travel.advance` (that many hexes along the route at once, a number or a variable), `travel.mode` (another way of travelling, if it can be chosen), `effects`, `set`, `do` (another action, with `with:` its parameters), `roll` (a check), `say` (a line in the journal), `pause` (`true` or a text: the trip waits for **Continue**), `ask` (one of the action's parameters, chosen by the player as the action goes) or `wait` (a condition, with `limit:` the most it waits); each step may have `when` / `unless`, and an `id` its translations name it by. Every step, with examples: [Actions and steps](10-actions-and-steps.md). An action's `params` each have `choices` (values, or `{ id, name, description }`) and maybe a `default` (else the first); a `with:` gives a choice or a variable (`'{{params.until}}'`). An action's `on:` is `hex-enter`, `day-end`, a clock (`'06:00'`: as it strikes) or a part of the calendar's day (`meal.elevenses`: as it begins), while marching, waiting or asleep in camp (see [Divisions of the day](#calendars)), or another action's id (or a list). `travel.start` and the halt's `at` take a clock or a part (`halt: { at: meal.supper, do: camp }`). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now).
+A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the calendar's day, `time.meal.luncheon`: until it next comes), `travel.move` (along the route while time passes and the action's `when` / `unless` hold: `destination`, `hex`, a number of hexes or a variable), `travel.speed` (the rest of today's moving), `travel.advance` (that many hexes along the route at once, a number or a variable), `travel.mode` (another way of travelling, if it can be chosen), `effects`, `set`, `do` (another action, with `with:` its parameters), `roll` (a check), `say` (a line in the journal), `pause` (`true` or a text: the trip waits for **Continue**), `ask` (one of the action's parameters, chosen by the player as the action goes) or `wait` (a condition, with `limit:` the most it waits); each step may have `when` / `unless`, and an `id` its translations name it by. Every step, with examples: [Actions and steps](10-actions-and-steps.md). An action's `params` each have `choices` (values, or `{ id, name, description }`) and maybe a `default` (else the first); a `with:` gives a choice or a variable (`'{{params.until}}'`). An action's `on:` is `trip.hex-enter`, `time.day-end`, a clock (`'06:00'`: as it strikes) or a part of the calendar's day (`time.meal.elevenses`: as it begins), while marching, waiting or asleep in camp (see [Divisions of the day](#calendars)), or another action, `actions.camp` (or a list). `travel.start` and the halt's `at` take a clock or a part (`halt: { at: time.meal.supper, do: actions.camp }`). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now).
 
-**Nothing the system doesn't declare.** Without an action with a `travel.move` step, the party never moves along its route (a march without `when` moves whenever nothing else stops it: a value of the day, the weather, the way, day and night); without `onward`, the trip going on by itself only waits; without `halt`, a party that can't march just waits; without actions, there are none (no march, camp or rest of the engine's own); without `values`, there are none. What blocks `travel` blocks the actions that move too. A move a check stops on the way stays under way: going on (**Go on**) finishes it, then the steps after it. The **halt** (`travel.halt`): from its moment until the day ends, a party that isn't marching while the time moves on by itself (the world clock, a travel order while its way on can't be taken, **Wait to go on**) takes its action, once a day; when it can't (its `when` / `unless`, a value that blocks it), the journal says so and the time passes until the trip can go on.
+**Nothing the system doesn't declare.** Without an action with a `travel.move` step, the party never moves along its route (a march without `when` moves whenever nothing else stops it: a value of the day, the weather, the way, day and night); without `onward`, the trip going on by itself only waits; without `halt`, a party that can't march just waits; without actions, there are none (no march, camp or rest of the engine's own); without `values`, there are none. What blocks `travel.move` blocks the actions that move too. A move a check stops on the way stays under way: going on (**Go on**) finishes it, then the steps after it. The **halt** (`travel.halt`): from its moment until the day ends, a party that isn't marching while the time moves on by itself (the world clock, a travel order while its way on can't be taken, **Wait to go on**) takes its action, once a day; when it can't (its `when` / `unless`, a value that blocks it), the journal says so and the time passes until the trip can go on.
 
 Packs written for an older pack format aren't read (see [File formats](02-file-formats.md#packs)).
 
@@ -373,16 +382,16 @@ groups: # the headings values are shown under, in this order
   skills: { name: Skills }
   body: { name: Body }
 conditions: # states a character has or not, and what the party can't do while someone has one
-  wounded: { name: Wounded, blocks: [forced-march] } # an action of the system
-  sprained: { name: Sprained ankle, blocks: [travel] } # marching
-  saddle-sore: { name: Saddle-sore, blocks: [mode.horse] } # a way of travelling
+  wounded: { name: Wounded, blocks: [actions.forced-march] } # an action of the system
+  sprained: { name: Sprained ankle, blocks: [travel.move] } # marching
+  saddle-sore: { name: Saddle-sore, blocks: [modes.horse] } # a way of travelling
 relations: # kinds of relation a character may hold to anything with a reference
   bond: { name: Bond, value: { min: 0, max: 3 } } # with a number
   home: { name: Home }
 ```
 
 - `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{name}}'`), `track: true` (shown as boxes, as many as its `max`, which must be a number), `group` (one of `groups`).
-- `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action's id, `travel`, or `mode.<id>`. The trip says who has it.
+- `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action (`actions.<id>`), `travel.move`, or a way of travelling (`modes.<id>`). The trip says who has it.
 - `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds. A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`).

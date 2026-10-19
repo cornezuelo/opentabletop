@@ -14,7 +14,7 @@ travel: { hoursPerDay: 8 }
 terrains: {}
 modes: { foot: { kmPerDay: 25 } }
 resources: { food: { name: Rations, perDay: 1 } }
-values: { lost: { name: Lost, blocks: [travel] } }
+values: { lost: { name: Lost, blocks: [travel.move] } }
 ---
 kind: bindings
 id: default

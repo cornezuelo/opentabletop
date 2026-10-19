@@ -6,11 +6,11 @@ The **Rules** tab edits the system's travel rules (`kind: travel-rules`): how a 
 
 There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (the **march**, below), by day, for some hours, by torchlight…, as the system says.
 
-- **Trips start**: when a new trip starts on its first day, a clock (`06:00`) or a part of the calendar's day (`part.morning`, suggested: when it starts). Empty: at midnight.
+- **Trips start**: when a new trip starts on its first day, a clock (`06:00`) or a part of the calendar's day (`time.part.morning`, suggested: when it starts). Empty: at midnight.
 - **Marching hours a day**: the hours a way of travelling's km a day are marched in, the scale of its speed. How long the party may march each day is the march's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number). Time spent on actions (resting, foraging) doesn't count as marching.
 - **km per hex**: the scale the system is played at. Trips without a map (Travel, **Try it**) use it; a map with this system takes it, unless the map sets its own scale.
 - **Goes on by itself with** and **With**: the action the trip takes when it goes on by itself (the world clock moving with a trip on, a travel order), with its parameters: `march`, with `until: destination`, marches on to the destination day after day. It takes it whenever it can, and waits (with the halt) while it can't. Nothing: the trip only waits.
-- **Halt from** and **Halt action**: what the party does when it can't march while the time moves on by itself (the world clock, **Wait to go on**, a travel order while its way on can't be taken): from that moment (a clock, `20:00`, or a part, `part.night`) until the day ends, a party that isn't marching takes the action, once a day; camp, for example. When its conditions don't hold, the journal says why and the time passes without it. No action: the party just waits.
+- **Halt from** and **Halt action**: what the party does when it can't march while the time moves on by itself (the world clock, **Wait to go on**, a travel order while its way on can't be taken): from that moment (a clock, `20:00`, or a part, `time.part.night`) until the day ends, a party that isn't marching takes the action, once a day; camp, for example. When its conditions don't hold, the journal says why and the time passes without it. No action: the party just waits.
 
 ## Ways of travelling
 
@@ -40,7 +40,7 @@ How each weather slows the party (**Speed ×**; `0`: no travel that day). Weathe
 
 ## Values of the day
 
-Values tables can set for the rest of the day, each with a name and what it **Blocks** while it holds: travel, one of the system's actions, or a way of travelling as `mode.<id>` (the box suggests what the system declares: `mode.horse` leaves the horses behind while it holds).
+Values tables can set for the rest of the day, each with a name and what it **Blocks** while it holds: travel, one of the system's actions, or a way of travelling as `modes.<id>` (the box suggests what the system declares: `modes.horse` leaves the horses behind while it holds).
 
 The Grey Marches declare **Lost**, which blocks travel: the getting-lost table sets it, and the actions that move the party (its march) stay disabled until the next day, saying why.
 
@@ -54,7 +54,7 @@ What the party can do: only what the system declares (camp, rest, **march** and 
 - **Only when** / **Not when**: when its button can be pressed. E.g. the Grey Marches' Forage for food, not in a storm; `time.hour: { gte: 6, lt: 20 }` for only by day;
 - **Once a day**;
 - **Hidden when it can't be taken**: otherwise its button stays, disabled, saying why. E.g. the Grey Marches' rite, only at a shrine under a full moon;
-- **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: a clock (`06:00`: as it strikes), a part of the calendar's day (`meal.elevenses`: as it begins), `hex-enter`, `day-end` or another action's id, several separated by commas (the Grey Marches' Eat, `day-end`). A step's `time` may also go until a part (`time: meal.luncheon`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
+- **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: a clock (`06:00`: as it strikes), a part of the calendar's day (`time.meal.elevenses`: as it begins), `trip.hex-enter`, `time.day-end` or another action (`actions.camp`), several separated by commas (the Grey Marches' Eat, `time.day-end`). A step's `time` may also go until a part (`time: time.meal.luncheon`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
 - **Parameters**: what the player chooses beside its button, each with its choices (the first is the default): `until: { choices: [destination, hex, 3] }`; its steps and conditions read the one chosen as `{{params.until}}`. A `do:` step gives them with `with:`, and so does **Goes on by itself with**;
 - **When nothing applies**: what the journal says when none of its checks apply;
 - **What it does**, step by step (the arrows move a step up or down).
@@ -65,18 +65,18 @@ What the party can do: only what the system declares (camp, rest, **march** and 
 
 Each step is written like in the YAML, with suggestions:
 
-- `time: 180`: three hours pass (or until a clock, `06:00`, or a part of the day, `part.morning`);
+- `time: 180`: three hours pass (or until a clock, `06:00`, or a part of the day, `time.part.morning`);
 - `travel.move: destination`: move along the route while time passes and the action's conditions hold, to the destination (`hex`: the next one; `3`: three hexes; `'{{params.until}}'`: as its parameter says); a check that needs you stops it on the way, and **Go on** goes on with it;
 - `travel.speed: 0.5`: the rest of today's moving goes at half speed;
 - `effects: { party.stats.fatigue: -1 }`: changes the party's stats, supplies or characters;
 - `set: { lost: true }`: sets a value of the day;
-- `do: forage`: another action, if its conditions hold; `do: march, with: { until: hex }`: with its parameters;
-- `roll: <check>`: a check, now;
+- `do: actions.forage`: another action, if its conditions hold; `do: actions.march, with: { until: hex }`: with its parameters;
+- `roll: checks.<check>`: a check, now;
 - `travel.advance: 1`: move along the route that many hexes or legs at once, no time passing: progress by moves, see _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system);
-- `travel.mode: boat`: travel another way from now on, if it can be chosen now (the route is planned again for it);
+- `travel.mode: modes.boat`: travel another way from now on, if it can be chosen now (the route is planned again for it);
 - `say: The porters sing`: a line of the system's own in the journal (`{{party.stats.morale}}` in it reads that value then);
 - `pause: true`: the trip waits there until the player presses **Continue** (`pause: The bridge is down`: saying why), then the rest goes on;
-- `ask: how`: the trip waits for the player to choose one of the action's **Parameters** (`how`), a button per choice; later steps read the answer (**only when** `params.how: swim`), and the action's button doesn't offer that parameter;
+- `ask: params.how`: the trip waits for the player to choose one of the action's **Parameters** (`how`), a button per choice; later steps read the answer (**only when** `params.how: swim`), and the action's button doesn't offer that parameter;
 - `wait: { today.ferry: true }, limit: '18:00'`: time passes until the condition holds, at most until the limit (minutes, a clock or a part of the day).
 
 A step may also have an `id` (`id: song, say: …`): its translations find it by it. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md).

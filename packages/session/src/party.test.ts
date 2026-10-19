@@ -8,7 +8,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system whose party is its members: stats from them, food they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 4\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
   {
     path: 'band/system.yaml',
     content: `
@@ -29,8 +29,8 @@ values:
   health: { default: 3, min: 0, max: 3 }
   rations: { default: 2, min: 0, max: 4 }
 conditions:
-  wounded: { blocks: [forced-march] }
-  broken-leg: { blocks: [travel] }
+  wounded: { blocks: [actions.forced-march] }
+  broken-leg: { blocks: [travel.move] }
 `,
   },
   {
@@ -40,8 +40,8 @@ kind: travel-rules
 travel:
   hoursPerDay: 8
   start: '07:00'
-  onward: { do: march, with: { until: destination } }
-  halt: { at: '19:00', do: camp }
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 resources: { food: { min: 0 } }
@@ -52,13 +52,13 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-  eat: { on: day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
   forced-march: { do: [{ time: 60 }, { effects: { acting.values.health: -1 } }] }
   bandage: { do: [{ effects: { acting.conditions.wounded: false } }] }
   scout: { when: { roles.guide.values.survival: { gte: 2 } }, do: [{ effects: { roles.guide.values.health: -1 } }] }
   ambushed: { do: [{ effects: { party.members.values.health: -1, characters.mara.conditions.wounded: true } }] }
 checks: [{ event: TRAIL, at: '07:00' }]
-values: { lost: { blocks: [travel] } }
+values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: { TRAIL: { resolve: trail } }
