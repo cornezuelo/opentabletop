@@ -162,6 +162,7 @@ export const es: Messages<typeof en> = {
     worldEvent: 'En el mundo: {name}',
     holiday: 'Hoy es {name}',
     pending: '{event}: esperando',
+    eventAt: '{event} en {hex}',
     paused: '{event}: en pausa, sigue cuando quieras',
     asks: '{event}: ¿quién tira? Elige y pulsa Continuar',
     held: '{action}: el viaje espera, sigue cuando quieras',

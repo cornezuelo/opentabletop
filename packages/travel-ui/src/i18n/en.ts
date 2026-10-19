@@ -164,6 +164,7 @@ export const en = {
     worldEvent: 'In the world: {name}',
     holiday: 'Today is {name}',
     pending: '{event}: waiting for you',
+    eventAt: '{event} at {hex}',
     paused: '{event}: paused, go on when you are ready',
     asks: '{event}: who rolls? Choose, then Continue',
     held: '{action}: the trip waits, go on when you are ready',

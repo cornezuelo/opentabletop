@@ -391,7 +391,10 @@ describe('bundled open packs', () => {
         with: { until: 3 },
       })
       expect(three.state.travel.location).toBe('1')
-      expect(three.entries.some((e) => e.code === 'CHECK_PENDING')).toBe(true)
+      // The landmark's line says the hex it came up in.
+      expect(three.entries.find((e) => e.code === 'CHECK_PENDING')?.data).toMatchObject({
+        hex: '1',
+      })
       expect(three.state.travel.moving).toMatchObject({ left: 2 })
       // Continue, then Go on: the rest of the three hexes, not a new march.
       const check = three.state.travel.pendingChecks[0]

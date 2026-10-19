@@ -223,12 +223,17 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
     case 'CHECK_NOTED':
       return eventName(t, d.event, checkName)
+    // A check that waits for the player, and the hex it came up in.
     case 'CHECK_PENDING':
-      return t('journal.pending', { event: eventName(t, d.event, checkName) })
     case 'CHECK_PAUSED':
-      return t('journal.paused', { event: eventName(t, d.event, checkName) })
-    case 'CHECK_ASKS':
-      return t('journal.asks', { event: eventName(t, d.event, checkName) })
+    case 'CHECK_ASKS': {
+      const key = { CHECK_PENDING: 'pending', CHECK_PAUSED: 'paused', CHECK_ASKS: 'asks' }[e.code]
+      const name = eventName(t, d.event, checkName)
+      const event = d.hex
+        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.hex)) })
+        : name
+      return t(`journal.${key}` as TravelUiKey, { event })
+    }
     // A step's line of the system's own.
     case 'SAID':
       return (context.textOf ?? firstText)(d.text)

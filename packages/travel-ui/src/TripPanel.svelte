@@ -46,7 +46,7 @@
     type TravelWorld,
     type Unavailable,
   } from '@open-tabletop/travel-engine'
-  import { calendarOf } from '@open-tabletop/session'
+  import { calendarOf, hexIdOf } from '@open-tabletop/session'
   import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberNamer, statSource } from './members'
@@ -517,7 +517,12 @@
               ? 'journal.paused'
               : 'journal.pending',
           {
-            event: pendingName(check.event),
+            event: hexIdOf(check.context)
+              ? t('journal.eventAt', {
+                  event: pendingName(check.event),
+                  hex: hexLabel(hexIdOf(check.context)!),
+                })
+              : pendingName(check.event),
           },
         )}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
       >

@@ -66,7 +66,7 @@ Every check is in `travel.yaml`; the journal says each one as it comes up.
 | Going in circles           | Entering a hex for the third time in a trip (`trip.visits: 3`): morale −1                                                                                                                                                          | —                                    |
 | Out of the Greywood        | Leaving the Greywood (`from.region`, `unless: hex.region`): morale +1                                                                                                                                                              | —                                    |
 
-**To see Continue**: from Ashford click the Grey Stones (0503) and **March**. The trip stops on arrival with _Landmark: waiting for you_ and a **Continue** button in the trip panel; **What just happened** and the journal say the same.
+**To see Continue**: from Ashford click the Grey Stones (0503) and **March**. The trip stops on arrival with _Landmark at The Grey Stones: waiting for you_ (a check that waits says the hex it came up in) and a **Continue** button in the trip panel; **What just happened** and the journal say the same.
 
 ## Where each feature is
 

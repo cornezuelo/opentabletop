@@ -68,7 +68,7 @@ Todas las comprobaciones están en `travel.yaml`; el diario dice cada una cuando
 | Dando vueltas                   | Entrar por tercera vez en un hex durante un viaje (`trip.visits: 3`): moral −1                                                                                                                                                                       | —                                       |
 | Fuera del Bosque Gris           | Al salir del Bosque Gris (`from.region`, `unless: hex.region`): moral +1                                                                                                                                                                             | —                                       |
 
-**Para ver Continuar**: desde Ashford haz clic en las Piedras Grises (0503) y **Marchar**. El viaje se detiene al llegar con _Lugar señalado: esperando_ y un botón **Continuar** en el panel del viaje; **Lo que acaba de pasar** y el diario dicen lo mismo.
+**Para ver Continuar**: desde Ashford haz clic en las Piedras Grises (0503) y **Marchar**. El viaje se detiene al llegar con _Lugar señalado en The Grey Stones: esperando_ (una comprobación que espera dice el hex en el que ha salido) y un botón **Continuar** en el panel del viaje; **Lo que acaba de pasar** y el diario dicen lo mismo.
 
 ## Dónde está cada cosa
 

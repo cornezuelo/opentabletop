@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Hexmapper, Travel: **a check that waits says where**: its journal line and the waiting box name the hex it came up in (_Landmark at The Grey Stones: waiting for you_).
+
 - Hexmapper, Travel: **What just happened, newest first**, as the Journal: what stopped the trip is right under the buttons.
 
 - Campaign, Hexmapper: **notes on each faction**: its page in your notes app (↗ opens it) and a short note of yours, kept by the campaign, edited in the Campaign app's **Factions** and the Hexmapper's World → **Factions**, and carried by a map's file.

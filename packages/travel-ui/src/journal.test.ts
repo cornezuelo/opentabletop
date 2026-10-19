@@ -58,6 +58,14 @@ describe('journal export', () => {
     expect(journalMarkdown([pending], { ...context, checkName: () => 'Landmark' }, 'T')).toContain(
       'Landmark: waiting for you',
     )
+    // A check that waits says the hex it came up in, by its name (as Entered … lines do).
+    const there = entry(at(1, '06:00'), 'CHECK_PAUSED', {
+      data: { event: 'X_REQUIRED', hex: '5,3' },
+    })
+    const named = { ...context, checkName: () => 'Landmark', hexLabel: () => 'The Grey Stones' }
+    expect(journalMarkdown([there], named, 'T')).toContain(
+      'Landmark at The Grey Stones: paused, go on when you are ready',
+    )
     // A check nothing rolls and that doesn't pause: just its name.
     const noted = entry(at(1, '06:00'), 'CHECK_NOTED', { data: { event: 'X_REQUIRED' } })
     expect(journalMarkdown([noted], { ...context, checkName: () => 'Landmark' }, 'T')).toContain(

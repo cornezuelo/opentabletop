@@ -491,7 +491,11 @@ entries:
       { type: 'travel' },
     ).state
     expect(waiting.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK'])
-    expect(waiting.journal.at(-1)).toMatchObject({ code: 'CHECK_PENDING' })
+    // It says the hex it came up in.
+    expect(waiting.journal.at(-1)).toMatchObject({
+      code: 'CHECK_PENDING',
+      data: { event: 'LANDMARK', hex: waiting.travel.location },
+    })
     state = session.note(state, 'Acampamos junto al pozo')
     expect(state.journal.at(-1)).toMatchObject({
       source: 'user',

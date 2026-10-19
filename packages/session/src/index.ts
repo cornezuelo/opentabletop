@@ -302,6 +302,11 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 
 /** The hex and moment a context is about (for its rolls). */
 const hexOf = (seen: Record<string, unknown>) => hexIdOf(seen)
+/** Where a check came up (`hex`: the hex it's about), for its journal lines. */
+const whereOf = (check: { context: Record<string, unknown> }): { hex?: string } => {
+  const hex = hexIdOf(check.context)
+  return hex ? { hex } : {}
+}
 const momentOf = (seen: Record<string, unknown>) =>
   typeof seen.moment === 'string' ? seen.moment : undefined
 
@@ -685,7 +690,7 @@ export function createSession(options: {
               source: 'travel',
               code: 'CHECK_PENDING',
               time: event.time,
-              data: { event: event.check.event, id: event.check.id },
+              data: { event: event.check.event, id: event.check.id, ...whereOf(event.check) },
             })
             continue
           }
@@ -703,7 +708,7 @@ export function createSession(options: {
               source: 'travel',
               code: 'CHECK_ASKS',
               time: event.time,
-              data: { event: event.check.event, id: event.check.id },
+              data: { event: event.check.event, id: event.check.id, ...whereOf(event.check) },
             })
             continue
           }
@@ -802,7 +807,7 @@ export function createSession(options: {
               source: 'travel',
               code: 'CHECK_PAUSED',
               time: event.time,
-              data: { event: event.check.event, id: event.check.id },
+              data: { event: event.check.event, id: event.check.id, ...whereOf(event.check) },
             })
             continue
           }
