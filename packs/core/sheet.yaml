@@ -8,9 +8,16 @@ description: |-
 
   **Shows:** the smallest character sheet: a value with bounds and a condition.
 values:
-  health: { name: Health, default: 3, min: 0, max: 3 }
+  health:
+    name: Health
+    description: How much harm the character can still take; at 0 they're down. Your tables say what costs or restores it.
+    default: 3
+    min: 0
+    max: 3
 conditions:
-  wounded: { name: Wounded }
+  wounded:
+    name: Wounded
+    description: Hurt badly enough to matter until it's cleared; your tables and rules say what it stops.
 ---
 kind: sheet
 id: party
@@ -20,4 +27,10 @@ description: |-
 
   **Shows:** the smallest party sheet: one value with bounds, drawn as a track.
 values:
-  morale: { name: Morale, default: 3, min: 0, max: 5, track: true }
+  morale:
+    name: Morale
+    description: How the party holds up, from 0 (broken) to 5. Your tables lower or raise it and may read it.
+    default: 3
+    min: 0
+    max: 5
+    track: true

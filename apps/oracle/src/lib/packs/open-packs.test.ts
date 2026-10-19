@@ -65,10 +65,11 @@ describe('bundled open packs', () => {
 
   const marches = () => travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
 
-  it('the Grey Marches describe every part of their sheets, in both languages (their help)', () => {
+  it('the Grey Marches describe every part of their sheets (the party’s too), in both languages', () => {
     const system = marches()
     for (const sheet of [system.sheet!.def, system.partySheet!.def]) {
       const parts = [
+        ...Object.entries(sheet.values),
         ...Object.entries(sheet.groups ?? {}),
         ...Object.entries(sheet.relations),
         ...Object.entries(sheet.conditions),
@@ -80,6 +81,19 @@ describe('bundled open packs', () => {
         })
     }
     expect(Object.keys(system.sheet!.def.groups ?? {})).toEqual(['skills', 'body', 'gear'])
+  })
+
+  it('the Generic rules describe their sheets too, in both languages', () => {
+    const core = travelSystems(registry).systems.find((s) => s.id === 'core')!
+    for (const sheet of [core.sheet!.def, core.partySheet!.def])
+      for (const [id, part] of [
+        ...Object.entries(sheet.values),
+        ...Object.entries(sheet.conditions),
+      ])
+        expect(part.description, `${sheet.id}: ${id}`).toMatchObject({
+          en: expect.any(String),
+          es: expect.any(String),
+        })
   })
 
   it('the Grey Marches declare their system: its parts, its packs and its name in Spanish', () => {

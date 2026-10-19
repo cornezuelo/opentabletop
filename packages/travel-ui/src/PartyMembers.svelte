@@ -175,30 +175,29 @@
 </script>
 
 <Fold id="characters" title={t('members.title')} help={t('members.help')} {locale}>
-  {#snippet head()}
-    {#if members.length}
-      <label class="acting">
-        <span>{t('members.acting')}<InfoTip markdown={t('members.actingHelp')} /></span>
-        <select
-          value={session.acting ?? ''}
-          onchange={(e) => {
-            const id = e.currentTarget.value
-            edit((s) => {
-              if (id) s.acting = id
-              else delete s.acting
-            })
-          }}
-        >
-          <option value="">{t('members.nobody')}</option>
-          {#each members as m (m.id)}<option value={m.id}>{memberLabel(m)}</option>{/each}
-        </select>
-      </label>
-    {/if}
-  {/snippet}
+  <!-- Who acts, inside the section: it folds with the characters. -->
+  {#if members.length}
+    <label class="acting">
+      <span>{t('members.acting')}<InfoTip markdown={t('members.actingHelp')} /></span>
+      <select
+        value={session.acting ?? ''}
+        onchange={(e) => {
+          const id = e.currentTarget.value
+          edit((s) => {
+            if (id) s.acting = id
+            else delete s.acting
+          })
+        }}
+      >
+        <option value="">{t('members.nobody')}</option>
+        {#each members as m (m.id)}<option value={m.id}>{memberLabel(m)}</option>{/each}
+      </select>
+    </label>
+  {/if}
   <SheetOrigin sheet={system.sheet} {system} {locale} where={systemWhere} />
   {#if members.length && roles.length}
     <div class="roles">
-      <span>{t('members.roles')}<InfoTip markdown={t('members.rolesHelp')} /></span>
+      <h4 class="subhead">{t('members.roles')}<InfoTip markdown={t('members.rolesHelp')} /></h4>
       {#each roles as role (role.id)}
         <label class="role">
           <span
@@ -314,7 +313,7 @@
     color: var(--text-muted);
   }
 
-  .roles > span {
+  .roles > .subhead {
     grid-column: 1 / -1;
   }
 

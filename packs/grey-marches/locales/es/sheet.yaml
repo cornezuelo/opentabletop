@@ -12,8 +12,10 @@ sheet/companion:
   values:
     survival:
       name: Supervivencia
+      description: Se suma al forrajeo y a los vados; la Supervivencia del grupo es la mejor de los compañeros que no están heridos.
     charisma:
       name: Carisma
+      description: Se suma a las tiradas de reacción y ahorra el peaje del Puente de Keld; el de quien habla (Tira), o el mejor.
     pathfinding:
       name: Rastreo
       description: La Orientación del grupo es el mejor Rastreo de los compañeros.
@@ -22,6 +24,7 @@ sheet/companion:
       description: El grupo es tan sigiloso como su compañero más torpe.
     maxHealth:
       name: Salud máxima
+      description: La salud más alta que puede tener este compañero; una noche bien comidos en el campamento cura hasta ella.
     health:
       name: Salud
       description: Se pierde en vados, emboscadas y con el frío; una noche bien comidos en el campamento devuelve una.
@@ -65,10 +68,18 @@ sheet/company:
 
     **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar.
   values:
-    morale: Moral
-    fatigue: Fatiga
-    hirelings: Mercenarios
-    endurance: Aguante
+    morale:
+      name: Moral
+      description: Cómo aguanta la Compañía. Los lobos, los bandidos, perderse y el hambre la bajan, el santuario y la posada la suben; con 1 o menos la guardia de la noche es inquieta (+1 de fatiga), y convencer a los mercenarios es un d6 igual o menor que ella.
+    fatigue:
+      name: Fatiga
+      description: Lo agotada que está la Compañía. Las marchas largas, las forzadas y las noches inquietas la suben; una noche bien comidos en el campamento y descansar la bajan. Con 2 o más no hay marcha forzada, y al llegar a vuestro Aguante no se puede acampar ni descansar.
+    hirelings:
+      name: Mercenarios
+      description: Espadas a sueldo que viajan con la Compañía. Se unen en la posada, comen con vosotros, se niegan a marchar tras un día de hambre y pueden marcharse si se les habla mal.
+    endurance:
+      name: Aguante
+      description: Cuánta fatiga aguanta la Compañía antes de no poder acampar ni descansar más (solo se puede mientras la fatiga está por debajo).
   conditions:
     shaken:
       name: Desanimada

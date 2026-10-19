@@ -14,8 +14,20 @@ description: |-
   way of travelling or travel itself, and kinds of relation (a bond with a number, a home); every part with a description, shown as its help where the sheet is met.
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
-  survival: { name: Survival, default: 1, min: 0, max: 5, group: skills }
-  charisma: { name: Charisma, default: 0, min: -2, max: 3, group: skills }
+  survival:
+    name: Survival
+    description: Added to foraging and fords; the party's Survival is the best among the companions not wounded.
+    default: 1
+    min: 0
+    max: 5
+    group: skills
+  charisma:
+    name: Charisma
+    description: Added to reaction rolls and saves the toll at Keld Bridge; whoever does the talking (Rolls with), or the best.
+    default: 0
+    min: -2
+    max: 3
+    group: skills
   pathfinding:
     name: Pathfinding
     description: The party's Navigation is the best Pathfinding among the companions.
@@ -31,7 +43,13 @@ values:
     max: 3
     group: skills
   # Health under a maximum that is another value (a variable as the bound).
-  maxHealth: { name: Max health, default: 3, min: 1, max: 6, group: body }
+  maxHealth:
+    name: Max health
+    description: The most health this companion can have; a fed night in camp heals up to it.
+    default: 3
+    min: 1
+    max: 6
+    group: body
   health:
     name: Health
     description: Lost to fords, ambushes and the cold; a fed night in camp gives one back.
@@ -103,10 +121,24 @@ description: |-
 
   **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
 values:
-  morale: { name: Morale, default: 3 }
-  fatigue: { name: Fatigue, default: 0, min: 0 }
-  hirelings: { name: Hirelings, default: 0, min: 0 }
-  endurance: { name: Endurance, default: 10 }
+  morale:
+    name: Morale
+    description: How the Company holds up. Wolves, bandits, getting lost and hunger lower it, the shrine and the inn raise it; at 1 or less the night's watch is restless (+1 fatigue), and talking round the hirelings is a d6 at or under it.
+    default: 3
+  fatigue:
+    name: Fatigue
+    description: How worn out the Company is. Marching long, forced marches and restless nights add to it; a fed night in camp and resting take it off. At 2 or more there's no forced march, and at your Endurance you can't camp or rest.
+    default: 0
+    min: 0
+  hirelings:
+    name: Hirelings
+    description: Sell-swords travelling with the Company. They join at the inn, eat with you, refuse to march after a hungry day and may walk off when talked to badly.
+    default: 0
+    min: 0
+  endurance:
+    name: Endurance
+    description: How much fatigue the Company takes before it can't camp or rest any more (they're only possible while fatigue is under it).
+    default: 10
 conditions:
   shaken:
     name: Shaken

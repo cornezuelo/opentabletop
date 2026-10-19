@@ -155,7 +155,7 @@
   {#each groups as { group, ids } (group)}
     {#if group}
       {@const about = text(sheet.groups?.[group]?.description)}
-      <h4>
+      <h4 class="subhead">
         {text(sheet.groups?.[group]?.name, group)}{#if about}<InfoTip markdown={about} />{/if}
       </h4>
     {/if}
@@ -311,15 +311,6 @@
   .field input[type='number'] {
     width: 100%;
     min-width: 0;
-  }
-
-  h4 {
-    margin: 2px 0 0;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
 
   .values {

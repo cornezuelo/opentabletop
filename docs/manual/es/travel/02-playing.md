@@ -96,7 +96,7 @@ Cada personaje tiene también **Relaciones**: a qué está unido, según los tip
 
 **Roles**, cuando el sistema declara roles de viaje, da cada tarea a un personaje hasta que la cambies: el **Guía** de las Marcas Grises (con Rastreo 2 o más, perderse se tira con ventaja) y el **Vigía** (con Sigilo 2 o más, el campamento sigue oculto donde el peligro es menor de 3).
 
-**Actúa** dice quién hace ahora las acciones del grupo: lo que un sistema escribe para `acting` le llega a ese personaje (en las Marcas Grises, las rocas de un vado hieren y tuercen el tobillo de quien guía el cruce; **Curar a los heridos** solo funciona si quien actúa tiene Supervivencia 2 o más). Con **Nadie**, esos efectos no cambian nada y el diario lo dice: «No actúa nadie, así que «Quien actúa: Tobillo torcido» no cambia nada».
+**Actúa**, lo primero de la sección **Personajes** (se pliega con ella), dice quién hace ahora las acciones del grupo: lo que un sistema escribe para `acting` le llega a ese personaje (en las Marcas Grises, las rocas de un vado hieren y tuercen el tobillo de quien guía el cruce; **Curar a los heridos** solo funciona si quien actúa tiene Supervivencia 2 o más). Con **Nadie**, esos efectos no cambian nada y el diario lo dice: «No actúa nadie, así que «Quien actúa: Tobillo torcido» no cambia nada».
 
 Con personajes, el grupo son sus miembros, como diga el sistema:
 

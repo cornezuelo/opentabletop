@@ -740,9 +740,9 @@
           {/if}
           {#if stats.length}
             <div class="stats">
-              <span class="label"
-                >{t('fold.stats')}<InfoTip markdown={t('partySheet.statsHelp')} /></span
-              >
+              <h4 class="subhead">
+                {t('fold.stats')}<InfoTip markdown={t('partySheet.statsHelp')} />
+              </h4>
               {#each stats as [key, stat] (key)}
                 {@const source = statSource(
                   stat.from,
@@ -975,7 +975,6 @@
     margin-top: 8px;
   }
 
-  .stats > .label,
   .stat .source {
     font-size: 12px;
     color: var(--text-muted);

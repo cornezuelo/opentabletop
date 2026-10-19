@@ -81,6 +81,24 @@ select:focus-visible {
   border-color: var(--accent);
 }
 
+/*
+ * A heading inside a section (a sheet's group, Roles, Stats): a level between the
+ * section's title and a field's label, so the parts read apart from their fields.
+ */
+.subhead {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin: 8px 0 0;
+  padding-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--panel-border);
+}
+
 .field {
   display: flex;
   flex-direction: column;

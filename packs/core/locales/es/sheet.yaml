@@ -7,9 +7,11 @@ sheet/character:
   values:
     health:
       name: Salud
+      description: Cuánto daño puede aguantar aún el personaje; con 0 cae. Tus tablas dicen qué la quita o la devuelve.
   conditions:
     wounded:
       name: Herido
+      description: Herido de verdad hasta que se le quite; tus tablas y reglas dicen qué le impide.
 sheet/party:
   name: Grupo
   description: |-
@@ -19,3 +21,4 @@ sheet/party:
   values:
     morale:
       name: Moral
+      description: Cómo aguanta el grupo, de 0 (roto) a 5. Tus tablas la bajan o la suben y pueden leerla.
