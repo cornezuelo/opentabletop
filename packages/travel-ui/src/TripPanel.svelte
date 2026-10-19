@@ -449,8 +449,8 @@
   }
   /** Newest first. */
   const journalDays = $derived(byDay([...session.journal].reverse().slice(0, 60)))
-  /** What the last step did, in the order it happened. */
-  const lastDays = $derived(byDay(lastStepEntries(session)))
+  /** What the last step did, newest first like the journal: what stopped it on top. */
+  const lastDays = $derived(byDay([...lastStepEntries(session)].reverse()))
 
   /** The tabs under what the last step did: the party's only when the system has one. */
   const tabs = $derived<TripTab[]>([

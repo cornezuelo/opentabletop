@@ -33,7 +33,7 @@ export const en = {
   lastStep: {
     title: 'What just happened',
     nothing: 'Nothing to tell.',
-    help: 'The journal lines of your last step (a march, an action, a check you went on from), and of the tables you rolled by hand after it. The next step replaces them; the whole trip is in the **Journal** tab.',
+    help: 'The journal lines of your last step (a march, an action, a check you went on from), and of the tables you rolled by hand after it, newest first: what stopped the trip is on top. The next step replaces them; the whole trip is in the **Journal** tab.',
   },
   dayUnit: 'day',
   journalDay: 'Day {day}',

@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Hexmapper, Travel: **What just happened, newest first**, as the Journal: what stopped the trip is right under the buttons.
+
 - Campaign, Hexmapper: **notes on each faction**: its page in your notes app (↗ opens it) and a short note of yours, kept by the campaign, edited in the Campaign app's **Factions** and the Hexmapper's World → **Factions**, and carried by a map's file.
 
 - Hexmapper: **regions and factions told apart on the map**: factions are drawn as a political map does, diagonal stripes of their colour and a dashed frontier, over the regions' flat tint and solid border; the layer being worked on comes forward (with the Regions tool, factions fade; with the World panel open, regions fade); the region the Regions tool paints, or the faction whose brush is on, is outlined (light, with a dark halo) and the rest of the map dimmed; hovering a hex says under the map what holds it (_Region: … · Faction: …_).

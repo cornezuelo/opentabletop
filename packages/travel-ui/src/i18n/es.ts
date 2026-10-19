@@ -34,7 +34,7 @@ export const es: Messages<typeof en> = {
   lastStep: {
     title: 'Lo que acaba de pasar',
     nothing: 'Nada que contar.',
-    help: 'Las líneas del diario de tu último paso (una marcha, una acción, una comprobación tras la que has continuado) y de las tablas que hayas tirado a mano después. El siguiente paso las sustituye; el viaje entero está en la pestaña **Diario**.',
+    help: 'Las líneas del diario de tu último paso (una marcha, una acción, una comprobación tras la que has continuado) y de las tablas que hayas tirado a mano después, lo más reciente primero: lo que ha detenido el viaje queda arriba. El siguiente paso las sustituye; el viaje entero está en la pestaña **Diario**.',
   },
   dayUnit: 'día',
   journalDay: 'Día {day}',
