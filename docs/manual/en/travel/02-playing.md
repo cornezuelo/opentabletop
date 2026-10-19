@@ -22,6 +22,8 @@ Changing **Campaign** on a trip under way moves it to that world from its next s
 
 **The system is the campaign's.** A trip keeps the system it started with, and a new trip makes its system the campaign's: in a campaign of its own, without asking; in one shared with maps or other trips, asking first, since they play it too.
 
+The [Campaign](../campaign/01-getting-started.md) app shows every campaign, with its world clock and the maps and trips in it.
+
 ## The way
 
 The list on the left is the way. The party starts on hex 1 and heads for the last one. Its column headers are underlined with dots: click one to read what it is.

@@ -5,6 +5,7 @@
 /** In the order the app switcher and the landing page show them. */
 export const APP_LIST = [
   { id: 'hexmapper', name: 'Hexmapper', devPort: 5173, available: true },
+  { id: 'campaign', name: 'Campaign', devPort: 5179, available: true },
   { id: 'oracle', name: 'Oracle', devPort: 5174, available: true },
   { id: 'travel', name: 'Travel', devPort: 5175, available: true },
   { id: 'characters', name: 'Characters', devPort: 5178, available: true },
@@ -22,6 +23,7 @@ export const APP_ICON_SVGS = {
   manual: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M16 9c-3-2-7-2-10-1v15c3-1 7-1 10 1 3-2 7-2 10-1V8c-3-1-7-1-10 1z" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/><path d="M16 9v15" stroke="${GOLD}" stroke-width="1.6"/></svg>`,
   systems: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M8 10h16M8 16h16M8 22h16" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="10" r="2.6" fill="#26241f" stroke="${GOLD}" stroke-width="2"/><circle cx="20" cy="16" r="2.6" fill="#26241f" stroke="${GOLD}" stroke-width="2"/><circle cx="14" cy="22" r="2.6" fill="#26241f" stroke="${GOLD}" stroke-width="2"/></svg>`,
   characters: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="11.5" r="4.5" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M7 26c0-5 4-8.5 9-8.5s9 3.5 9 8.5" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/></svg>`,
+  campaign: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M9.5 27V5" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/><path d="M9.5 6.5h14l-3.5 5 3.5 5h-14" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/></svg>`,
   travel: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="16" r="10" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M16 8l3 8-3 8-3-8z" fill="${GOLD}"/></svg>`,
 }
 
@@ -43,6 +45,7 @@ export const APP_BLURBS = {
   en: {
     hexmapper:
       'Draw hex maps: terrain, roads, rivers, regions, icons and tokens; play trips on them.',
+    campaign: 'What is going on in your world: its date, events and clocks, its maps and trips.',
     oracle: 'Roll and edit tables, oracles, generators and decks from your packs.',
     travel: 'Run trips without a map, with any system.',
     characters: 'Your characters, of any system: make them, keep them and take them on trips.',
@@ -52,6 +55,7 @@ export const APP_BLURBS = {
   es: {
     hexmapper:
       'Dibuja mapas de hexágonos: terreno, caminos, ríos, regiones, iconos y tokens; juega viajes sobre ellos.',
+    campaign: 'Lo que pasa en tu mundo: su fecha, eventos y relojes, sus mapas y viajes.',
     oracle: 'Tira y edita tablas, oráculos, generadores y mazos de tus packs.',
     travel: 'Juega viajes sin mapa, con cualquier sistema.',
     characters: 'Tus personajes, de cualquier sistema: créalos, guárdalos y llévalos de viaje.',

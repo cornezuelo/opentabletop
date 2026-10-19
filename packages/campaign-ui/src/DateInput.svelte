@@ -1,14 +1,19 @@
 <script lang="ts">
   import { localize } from '@open-tabletop/session'
   import { formatClock, parseClock, type Calendar, type DataCalendar } from '@open-tabletop/time'
-  import { getLocale, t } from '../lib/i18n/index.svelte'
+  import { translator } from './i18n'
 
   /**
    * A moment written in the calendar's terms: year, month, day and time with a calendar of
    * its own, the day number and time with the default one. `value` is the game time it
    * names; a date the calendar doesn't have (or before day 1) leaves it unchanged and says so.
    */
-  let { calendar, value = $bindable() }: { calendar: Calendar; value: number } = $props()
+  let {
+    calendar,
+    value = $bindable(),
+    locale,
+  }: { calendar: Calendar; value: number; locale: string } = $props()
+  const t = translator(() => locale)
 
   const data = $derived('dayOf' in calendar ? (calendar as DataCalendar) : undefined)
   const parts = () => calendar.describe(value)
@@ -51,7 +56,7 @@
     <input type="number" class="day" min="1" bind:value={day} aria-label={t('world.dateDay')} />
     <select bind:value={month} aria-label={t('world.dateMonth')}>
       {#each data.def.months as m (m.id)}
-        <option value={m.id}>{localize(m.name, getLocale(), 'en') ?? m.id}</option>
+        <option value={m.id}>{localize(m.name, locale, 'en') ?? m.id}</option>
       {/each}
     </select>
     <input type="number" class="year" bind:value={year} aria-label={t('world.dateYear')} />

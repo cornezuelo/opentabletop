@@ -1,0 +1,24 @@
+{
+  "name": "@open-tabletop/campaign-ui",
+  "version": "0.0.0",
+  "description": "Embeddable Svelte UI for campaigns: the world clock (date, moving time on, events, progress clocks, timeline) and the words the world writes, for every app that plays a campaign.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@open-tabletop/campaign": "*",
+    "@open-tabletop/session": "*",
+    "@open-tabletop/time": "*",
+    "@open-tabletop/ui-kit": "*",
+    "@open-tabletop/world-engine": "*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

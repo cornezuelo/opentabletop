@@ -9,6 +9,7 @@ const files = import.meta.glob('../../../docs/manual/**/*.md', {
 
 export const manual = createManual(files, [
   'hexmapper',
+  'campaign',
   'oracle',
   'travel',
   'characters',

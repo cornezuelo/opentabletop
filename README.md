@@ -31,7 +31,7 @@ make install   # dependencies
 make serve     # build every app and serve them at http://localhost:8080/
 ```
 
-Then open `http://localhost:8080/hexmapper/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
+Then open `http://localhost:8080/hexmapper/`, `/campaign/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
 
 `make` lists every command. The usual ones:
 
@@ -63,7 +63,7 @@ packages/   hex, random, dice, conditions, time        building blocks
             schema, storage, note-refs                  saved data, browser storage, links to notes apps
             ui-kit, pack-ui, oracle-ui, travel-ui,      shared Svelte pieces
             character-ui, manual-ui
-apps/       hexmapper, oracle, travel, characters, systems, manual, cli
+apps/       hexmapper, campaign, oracle, travel, characters, systems, manual, cli
 packs/      core, grey-marches
 docs/       design notes, the manual (docs/manual/<language>/<app>/), the backlog
 ```

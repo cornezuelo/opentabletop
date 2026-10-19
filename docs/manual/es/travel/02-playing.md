@@ -22,6 +22,8 @@ Cambiar **Campaña** en un viaje en curso lo lleva a ese mundo desde su siguient
 
 **El sistema es de la campaña.** Un viaje mantiene el sistema con el que empezó, y un viaje nuevo hace suyo el sistema de la campaña: en una campaña propia, sin preguntar; en una compartida con mapas u otros viajes, preguntando antes, porque también lo juegan ellos.
 
+La aplicación [Campaign](../campaign/01-getting-started.md) muestra todas las campañas, con su reloj del mundo y los mapas y viajes que hay en ellas.
+
 ## El camino
 
 La lista de la izquierda es el camino. El grupo empieza en el hex 1 y se dirige al último. Las cabeceras de sus columnas están subrayadas con puntos: pulsa una para leer qué es.

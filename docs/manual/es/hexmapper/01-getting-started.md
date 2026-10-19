@@ -34,7 +34,7 @@ Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan e
 
 ## Campañas
 
-Un mapa es el **lugar**; el mundo en el que se juega es su **campaña**: el sistema de juego, el reloj del mundo (el panel [Mundo](12-world.md)), su clima, las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano). Cada mapa y cada viaje de la aplicación Travel está en una campaña, y los mapas y viajes de la misma campaña lo comparten todo: una fecha, las mismas facciones (cada mapa guarda la tierra que tienen en él), los mismos mazos. Un mapa nuevo empieza en una campaña propia, con su nombre, así que un mapa jugado por sí solo funciona como siempre.
+Un mapa es el **lugar**; el mundo en el que se juega es su **campaña**: el sistema de juego, el reloj del mundo (el panel [Mundo](12-world.md)), su clima, las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano). Cada mapa y cada viaje de la aplicación Travel está en una campaña, y los mapas y viajes de la misma campaña lo comparten todo: una fecha, las mismas facciones (cada mapa guarda la tierra que tienen en él), los mismos mazos. Un mapa nuevo empieza en una campaña propia, con su nombre, así que un mapa jugado por sí solo funciona como siempre. La aplicación [Campaign](../campaign/01-getting-started.md) muestra todas las campañas que guarda este navegador, con su reloj del mundo, su cronología, sus mapas y sus viajes.
 
 **Ajustes del mapa → Campaña**:
 

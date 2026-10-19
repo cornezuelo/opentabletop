@@ -9,6 +9,7 @@ const TEXT = {
     title: 'Manual',
     apps: {
       hexmapper: 'Hexmapper',
+      campaign: 'Campaign',
       oracle: 'Oracle',
       travel: 'Travel',
       characters: 'Characters',
@@ -38,6 +39,7 @@ const TEXT = {
     title: 'Manual',
     apps: {
       hexmapper: 'Hexmapper',
+      campaign: 'Campaign',
       oracle: 'Oracle',
       travel: 'Travel',
       characters: 'Characters',

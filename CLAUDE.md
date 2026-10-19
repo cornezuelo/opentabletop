@@ -46,9 +46,11 @@ packages/                   # libraries, scope @open-tabletop/*
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
   character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
+  campaign-ui/              # embeddable campaign UI: the world clock (date, moving time on, events, progress clocks, timeline), the world's words
   manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
 apps/                       # each with its own CLAUDE.md
   hexmapper/                # map editor, and play on the map
+  campaign/                 # the campaigns: their world clock, timeline, maps and trips
   oracle/                   # roll and edit packs
   travel/                   # play trips without a map
   characters/               # the roster: characters of any system, kept and taken on trips

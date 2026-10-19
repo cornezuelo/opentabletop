@@ -34,7 +34,7 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 ## Campaigns
 
-A map is the **place**; the world it's played in is its **campaign**: the game system, the world clock (the [World](12-world.md) panel), its weather, the factions and the Oracle (decks drawn, once-only results, hand rolls). Every map and every trip of the Travel app is in one campaign, and the maps and trips of the same campaign share all of that: one date, the same factions (each map keeps the land they hold on it), the same decks. A new map starts in a campaign of its own, named after it, so a map played alone works as it always did.
+A map is the **place**; the world it's played in is its **campaign**: the game system, the world clock (the [World](12-world.md) panel), its weather, the factions and the Oracle (decks drawn, once-only results, hand rolls). Every map and every trip of the Travel app is in one campaign, and the maps and trips of the same campaign share all of that: one date, the same factions (each map keeps the land they hold on it), the same decks. A new map starts in a campaign of its own, named after it, so a map played alone works as it always did. The [Campaign](../campaign/01-getting-started.md) app shows every campaign this browser keeps, with its world clock, timeline, maps and trips.
 
 **Map settings → Campaign**:
 

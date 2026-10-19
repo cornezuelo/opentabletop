@@ -43,7 +43,7 @@ import { campaignPlaces, type CampaignPlace } from './places'
 import { CampaignKeeper } from '@open-tabletop/ui-kit'
 import { translator } from './i18n'
 import { wayWorld, type WayHex } from './way'
-import { clockFilledText, worldWords } from './world'
+import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 
 /**
  * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the

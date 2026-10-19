@@ -26,6 +26,7 @@
     "@open-tabletop/hex": "*",
     "@open-tabletop/manual-ui": "*",
     "@open-tabletop/campaign": "*",
+    "@open-tabletop/campaign-ui": "*",
     "@open-tabletop/map": "*",
     "@open-tabletop/note-refs": "*",
     "@open-tabletop/oracle-engine": "*",

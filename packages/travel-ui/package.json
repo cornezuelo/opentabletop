@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@open-tabletop/campaign": "*",
+    "@open-tabletop/campaign-ui": "*",
     "@open-tabletop/character-engine": "*",
     "@open-tabletop/character-ui": "*",
     "@open-tabletop/session": "*",

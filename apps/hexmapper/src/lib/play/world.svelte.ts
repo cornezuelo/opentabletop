@@ -13,7 +13,8 @@ import {
   type WorldLine,
 } from '@open-tabletop/campaign'
 import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
-import { clockFilledText, memberNamer, translator, worldWords } from '@open-tabletop/travel-ui'
+import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
+import { memberNamer, translator } from '@open-tabletop/travel-ui'
 import { availableActions } from '@open-tabletop/travel-engine'
 import { type Calendar } from '@open-tabletop/time'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'

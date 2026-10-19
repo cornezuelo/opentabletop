@@ -1,4 +1,4 @@
-type Id = 'hexmapper' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
+type Id = 'hexmapper' | 'campaign' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
 
 export const APP_LIST: { id: Id; name: string; devPort: number; available: boolean }[]
 export const APP_ICON_SVGS: Record<Id, string>
