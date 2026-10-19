@@ -121,5 +121,12 @@ export const en = {
     auto: 'Turns by themselves, every {days} days',
     autoHelp:
       'As the world clock moves on (by hand, or with a trip), a world turn comes every so many days, as the system says. Untick to take them only with **World turn**.',
+    noteRef: 'Its page',
+    noteRefHelp:
+      'Its page in your notes app (its path): its history, its leaders, what it wants. ↗ opens it; the app is chosen in Preferences (⚙). Kept by the campaign, for every map and trip in it.',
+    noteRefPlaceholder: 'Factions/{name}',
+    note: 'Note',
+    noteHelp:
+      'A short note of yours on it, for the table (basic Markdown): what it owes, what it plans next. The rest belongs in its page.\n• `Owes the party a favour.`\n• `Marching on the bridge at the next new moon.`',
   },
 }

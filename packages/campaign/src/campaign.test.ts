@@ -19,6 +19,7 @@ import {
   playTrip,
   serializeCampaign,
   splitFactions,
+  withNotes,
   withSetup,
   worldTurnOn,
   type Campaign,
@@ -267,5 +268,20 @@ describe('campaigns', () => {
       { system: marks.factions!, oracle, random: seeded(7), time: 1 },
     )
     expect(none.lines).toEqual([])
+  })
+})
+
+describe('notes on each faction', () => {
+  it('keep a link and a short note per faction, the empty ones left out, through the file', () => {
+    const own = { system: 'marks', factions: [], lastTurn: 0 }
+    const noted = withNotes(own, 'vale', { noteRef: 'Factions/The Vale', note: 'Owes us.' })
+    expect(noted.notes).toEqual({ vale: { noteRef: 'Factions/The Vale', note: 'Owes us.' } })
+    // Clearing the link keeps the note; clearing both takes the faction's notes away.
+    const linkless = withNotes(noted, 'vale', { noteRef: '  ' })
+    expect(linkless.notes).toEqual({ vale: { note: 'Owes us.' } })
+    expect(withNotes(linkless, 'vale', { note: '' })).toEqual(own)
+    // Saved and read back with the campaign.
+    const campaign = { ...createCampaign('c1', 'Marks'), factions: noted }
+    expect(deserializeCampaign(serializeCampaign(campaign)).factions?.notes).toEqual(noted.notes)
   })
 })

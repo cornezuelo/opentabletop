@@ -17,8 +17,10 @@ import {
   createCampaign,
   factionsOn,
   openMap,
+  withNotes,
   withSetup,
   type Campaign,
+  type CampaignFactions,
 } from '@open-tabletop/campaign'
 import {
   type CustomField,
@@ -305,10 +307,14 @@ export function mapToBundle(
       factions: [
         ...factions.factions.map((f) => {
           const as = characterToOtd(f)
+          const notes = factions.notes?.[f.id]
           return {
             id: f.id,
             type: 'faction' as const,
             ...(as.tags && { tags: as.tags }),
+            // Its page in the notes app, and the GM's short note (as a hex's `notes`).
+            ...(notes?.noteRef && { noteRef: notes.noteRef }),
+            ...(notes?.note && { notes: notes.note }),
             stats: as.stats,
             ext: {
               character: as.ext.character,
@@ -574,11 +580,17 @@ export function bundleToMap(raw: unknown): OpenedMap {
   let factions: Record<string, unknown> | undefined
   if (factionState && typeof factionState.system === 'string') {
     const territories: Record<string, unknown> = {}
+    let noted: Pick<CampaignFactions, 'notes'> = {}
     const list = bundle.factions.flatMap((f) => {
       const ext = f.ext as { character?: unknown; hexmapper?: { territory?: unknown } } | undefined
       const character = characterFromOtd({ ...f, ext: { character: ext?.character } })
       if (!character) return []
       territories[f.id] = ext?.hexmapper?.territory ?? []
+      const note = (f as { notes?: unknown }).notes
+      noted = withNotes(noted, f.id, {
+        ...(typeof f.noteRef === 'string' && { noteRef: f.noteRef }),
+        ...(typeof note === 'string' && { note }),
+      })
       return [character]
     })
     factions = {
@@ -587,6 +599,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       territories,
       lastTurn: factionState.lastTurn,
       ...(factionState.auto === false && { auto: false }),
+      ...noted,
     }
     delete otherState.factions
     extraBundle.factions = bundle.factions.filter((f) => !list.some((c) => c.id === f.id))

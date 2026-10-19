@@ -240,6 +240,37 @@ describe('play state in OTD', () => {
     expect(mapToBundle(back.map, back.campaign).state).toEqual({ oracle: campaign.oracle.state })
   })
 
+  it('keeps each faction’s note and its page in the notes app', () => {
+    const map = sampleMap()
+    map.territories = { vale: ['1,2'] }
+    const vale = {
+      id: 'vale',
+      sheet: 'p/faction',
+      values: {},
+      conditions: {},
+      tags: [],
+      cards: [],
+      relations: [],
+    }
+    const campaign = {
+      ...createCampaign(map.meta.campaign, 'The Marches'),
+      factions: {
+        system: 'p',
+        factions: [vale, { ...vale, id: 'clans' }],
+        lastTurn: 0,
+        notes: { vale: { noteRef: 'Factions/The Vale', note: 'Owes the party a favour.' } },
+      },
+    }
+    const bundle = mapToBundle(map, campaign)
+    expect(validateBundle(bundle).errors).toEqual([])
+    expect(bundle.factions.find((f) => f.id === 'vale')).toMatchObject({
+      noteRef: 'Factions/The Vale',
+      notes: 'Owes the party a favour.',
+    })
+    const back = bundleToMap(JSON.parse(JSON.stringify(bundle)))
+    expect(back.campaign.factions?.notes).toEqual(campaign.factions.notes)
+  })
+
   it('a file saved before campaigns opens with a campaign of its own', () => {
     const map = sampleMap()
     const bundle = JSON.parse(JSON.stringify(mapToBundle(map)))

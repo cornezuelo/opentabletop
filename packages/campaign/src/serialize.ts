@@ -8,6 +8,7 @@ import type {
   CampaignFactions,
   CampaignOracle,
   CampaignTrip,
+  FactionNotes,
   WorldWeather,
 } from './types'
 
@@ -126,7 +127,42 @@ function readFactions(f: Record<string, unknown>): CampaignFactions {
     ),
     lastTurn: typeof f.lastTurn === 'number' ? f.lastTurn : 0,
     ...(f.auto === false && { auto: false as const }),
+    ...(isRecord(f.notes) && readNotes(f.notes)),
   }
+}
+
+/** Each faction's link and note, the empty ones left out. */
+function readNotes(raw: Record<string, unknown>): Pick<CampaignFactions, 'notes'> {
+  let out: { notes?: Record<string, FactionNotes> } = {}
+  for (const [id, n] of Object.entries(raw))
+    if (isRecord(n))
+      out = withNotes(out, id, {
+        ...(typeof n.noteRef === 'string' && { noteRef: n.noteRef }),
+        ...(typeof n.note === 'string' && { note: n.note }),
+      })
+  return out
+}
+
+/**
+ * The factions with one faction's notes changed (its link, its note or both; an empty one
+ * is taken away, and with it a faction that has none).
+ */
+export function withNotes<F extends object>(
+  factions: F & { notes?: Record<string, FactionNotes> },
+  id: string,
+  change: Partial<FactionNotes>,
+): F & { notes?: Record<string, FactionNotes> } {
+  const next: FactionNotes = { ...factions.notes?.[id], ...change }
+  const clean: FactionNotes = {
+    ...(next.noteRef?.trim() && { noteRef: next.noteRef.trim() }),
+    ...(next.note?.trim() && { note: next.note }),
+  }
+  const notes = { ...factions.notes }
+  if (Object.keys(clean).length) notes[id] = clean
+  else delete notes[id]
+  const out: F & { notes?: Record<string, FactionNotes> } = { ...factions, notes }
+  if (!Object.keys(notes).length) delete out.notes
+  return out
 }
 
 /** The engine re-validates its state on use; here only the shape is checked. */

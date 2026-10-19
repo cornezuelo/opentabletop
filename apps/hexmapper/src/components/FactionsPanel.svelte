@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { withNotes } from '@open-tabletop/campaign'
+  import { FactionNotes } from '@open-tabletop/campaign-ui'
   import { CharacterCard } from '@open-tabletop/character-ui'
   import { factionName, localize, type LocalizedText } from '@open-tabletop/session'
   import { confirmAction, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
@@ -74,6 +76,12 @@
           </p>
         {/if}
         {#if about(faction.id)}<Markdown class="about" text={about(faction.id)} />{/if}
+        <FactionNotes
+          notes={own.notes?.[faction.id]}
+          name={name(faction.id)}
+          locale={getLocale()}
+          onchange={(change) => editor.setFactions(withNotes(own, faction.id, change))}
+        />
         <CharacterCard
           sheet={system.sheet.def}
           character={faction}

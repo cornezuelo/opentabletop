@@ -122,5 +122,12 @@ export const es: Messages = {
     auto: 'Turnos por sí solos, cada {days} días',
     autoHelp:
       'Según avanza el reloj del mundo (a mano, o con un viaje), llega un turno del mundo cada tantos días como diga el sistema. Desmárcalo para jugarlos solo con **Turno del mundo**.',
+    noteRef: 'Su página',
+    noteRefHelp:
+      'Su página en tu aplicación de notas (su ruta): su historia, sus líderes, lo que quiere. ↗ la abre; la aplicación se elige en Preferencias (⚙). La guarda la campaña, para todos sus mapas y viajes.',
+    noteRefPlaceholder: 'Facciones/{name}',
+    note: 'Nota',
+    noteHelp:
+      'Una nota corta tuya sobre ella, para la partida (Markdown básico): qué debe, qué planea. El resto va en su página.\n• `Le debe un favor al grupo.`\n• `Marcha sobre el puente en la próxima luna nueva.`',
   },
 }

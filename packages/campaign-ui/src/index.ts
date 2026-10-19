@@ -1,6 +1,7 @@
 export { default as WorldClock } from './WorldClock.svelte'
 export { default as WorldTimeline } from './WorldTimeline.svelte'
 export { default as DateInput } from './DateInput.svelte'
+export { default as FactionNotes } from './FactionNotes.svelte'
 export type { WorldControls, WorldPart, WorldTrip } from './controls'
 export { campaignTexts, translator, type CampaignUiKey, type Translate } from './i18n'
 export { clockFilledText, worldWords } from './world'

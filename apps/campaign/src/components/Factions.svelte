@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { Campaign } from '@open-tabletop/campaign'
+  import { withNotes, type Campaign } from '@open-tabletop/campaign'
+  import { FactionNotes } from '@open-tabletop/campaign-ui'
   import { CharacterCard, placeUrl } from '@open-tabletop/character-ui'
   import { factionName, localize, type LocalizedText } from '@open-tabletop/session'
   import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
@@ -100,6 +101,12 @@
         {#if map}<span class="count">{count(f.id)}</span>{/if}
       </summary>
       {#if about(f.id)}<Markdown class="about" text={about(f.id)} />{/if}
+      <FactionNotes
+        notes={own.notes?.[f.id]}
+        name={name(f.id)}
+        locale={getLocale()}
+        onchange={(change) => open.setFactions(withNotes(own, f.id, change))}
+      />
       <CharacterCard
         sheet={system.sheet.def}
         character={f}

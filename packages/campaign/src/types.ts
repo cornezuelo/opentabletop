@@ -13,6 +13,14 @@ export interface CampaignFactions {
   factions: CharacterState[]
   lastTurn: number
   auto?: false
+  /** What the GM keeps on each faction, by its id (principle 9: the lore is in the notes app). */
+  notes?: Record<string, FactionNotes>
+}
+
+/** A faction's page in the notes app (`noteRef`) and a short GM note (Markdown). */
+export interface FactionNotes {
+  noteRef?: string
+  note?: string
 }
 
 /** The factions as one map sees them: the campaign's, with the land each holds on that map. */
