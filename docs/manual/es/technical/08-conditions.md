@@ -72,6 +72,7 @@ Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tab
 - `when` se debe cumplir para que se aplique; sin él, se aplica siempre.
 - `unless` **no** se debe cumplir; sin él, nada lo impide.
 - Con los dos, se miran los dos: `when: { hex.terrain: forest }, unless: { trip.edges: road }` es un bosque al que no se llega por camino.
+- **Cuando una detiene una acción o una marcha, el viaje dice por qué**: los pares que han fallado, con lo que han leído y lo que pedían (cada rama de un `any` que falla; en un `unless`, los pares que se cumplían). En el tooltip de un botón y en el diario: _la hora es 21:00: hace falta menos de 20:00_, _A la luz de las antorchas no se cumple_, _el clima es storm_ (un `unless`). Los datos se nombran para los jugadores cuando el viaje los conoce (la hora, la marcha del día, el clima, el terreno, una característica o un valor del día por el nombre del sistema), el resto tal como están escritos.
 
 ## Dónde las verás, en las Marcas Grises
 

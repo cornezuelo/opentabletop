@@ -282,7 +282,9 @@ describe('the party is its members', () => {
     const { session } = startTrip({ system: band, location: 'a', members: members() })
     expect(band.bindings?.roles).toEqual({ guide: { name: 'Guide' } })
     // Nobody guides: the scout's condition doesn't hold.
-    expect(tripAvailability({ system: band, world }, session).scout).toEqual({ condition: 'when' })
+    expect(tripAvailability({ system: band, world }, session).scout).toMatchObject({
+      condition: 'when',
+    })
     const guided = { ...session, roles: { guide: 'kael' } }
     expect(tripFacts({ system: band, world }, guided)).toMatchObject({
       roles: { guide: { id: 'kael', values: { survival: 3 } } },

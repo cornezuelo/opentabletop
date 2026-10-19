@@ -221,8 +221,11 @@ describe('example maps', () => {
     const lost = { ...session, travel: { ...session.travel, today: { lost: true } } }
     expect(tripAvailability({ system, world }, lost).travel).toEqual({ value: 'lost' })
     const storm = { ...session, travel: { ...session.travel, weather: 'storm' } }
-    expect(tripAvailability({ system, world }, storm).forage).toEqual({ condition: 'unless' })
-    expect(tripAvailability({ system, world }, session)).toEqual({
+    expect(tripAvailability({ system, world }, storm).forage).toMatchObject({ condition: 'unless' })
+    const unavailable = tripAvailability({ system, world }, session)
+    // Each by its rule (and the pairs that stopped it), and nothing else.
+    expect(Object.values(unavailable).every((u) => !!u && 'failed' in u)).toBe(true)
+    expect(unavailable).toMatchObject({
       'mode.boat': { condition: 'when' }, // Ashford is inland
       'forced-march': { condition: 'when' }, // fatigue 2
       'night-march': { condition: 'when' }, // by day
@@ -237,6 +240,7 @@ describe('example maps', () => {
       ferry: { condition: 'when' }, // no ferry here
       ashore: { condition: 'when' }, // not on a boat
     })
+    expect(Object.keys(unavailable)).toHaveLength(13)
   })
 
   it('the Grey Marches: foraging is an action of their own, once a day', () => {
@@ -287,13 +291,15 @@ describe('example maps', () => {
     const night = { ...session, travel: { ...session.travel, time: nightfall } }
     // By day the night march isn't there (hidden, unavailable); at nightfall, resting,
     // foraging and the forced march are off (daylight), and the night march is on.
-    expect(tripAvailability({ system, world: options.world }, session)['night-march']).toEqual({
+    expect(
+      tripAvailability({ system, world: options.world }, session)['night-march'],
+    ).toMatchObject({
       condition: 'when',
     })
     const dark = tripAvailability({ system, world: options.world }, night)
-    expect(dark.rest).toEqual({ condition: 'when' })
-    expect(dark.forage).toEqual({ condition: 'when' })
-    expect(dark['forced-march']).toEqual({ condition: 'when' })
+    expect(dark.rest).toMatchObject({ condition: 'when' })
+    expect(dark.forage).toMatchObject({ condition: 'when' })
+    expect(dark['forced-march']).toMatchObject({ condition: 'when' })
     expect(dark['night-march']).toBeUndefined()
     expect(system.rules.actions?.['night-march']).toMatchObject({ hideWhenUnavailable: true })
     // At nightfall a travel order goes nowhere; after a night march it goes on, up to
@@ -448,7 +454,7 @@ describe('example maps', () => {
     expect(onFoot.travel.route).toBeUndefined()
     // The boat is only boarded at the water's edge or the ferry (a condition of the mode).
     const inland = startTrip({ system, location: '5,7' }).session
-    expect(tripAvailability(options, inland)['mode.boat']).toEqual({ condition: 'when' })
+    expect(tripAvailability(options, inland)['mode.boat']).toMatchObject({ condition: 'when' })
     expect(tripAvailability(options, session)['mode.boat']).toBeUndefined()
     const boat = stepTrip(options, session, { type: 'setMode', mode: 'boat' }).state
     expect(boat.travel.mode).toBe('boat')

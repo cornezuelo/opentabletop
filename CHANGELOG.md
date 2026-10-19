@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Travel, Hexmapper: **why a march stopped, in the journal**: when a march (or any action, the halt, a way of travelling) stops or can't be taken because its rule doesn't hold, the journal line and the button's tooltip say which part failed and what it read (_“March” stops here: the day’s march (hours) is 8: it needs under 8; By torchlight doesn’t hold_).
+
 - Packs: **the Grey Marches' encounters stop the trip, and come less often**: every encounter with someone to deal with (a patrol, wolves, bandits, a traveller, the Ember Hunt) pauses the trip; _Who goes there?_ first rolls whether anybody is about (a d6 over the hex's danger), so nobody comes two times in three in the Hollow Hills and the Greywood's edge.
 
 - Hexmapper, Travel: **a check that waits says where**: its journal line and the waiting box name the hex it came up in (_Landmark at The Grey Stones: waiting for you_).

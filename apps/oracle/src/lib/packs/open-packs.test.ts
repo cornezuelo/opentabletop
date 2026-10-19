@@ -372,6 +372,30 @@ describe('bundled open packs', () => {
     const took = (entries: { code: string; data?: Record<string, unknown> }[], id: string) =>
       entries.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === id)
 
+    it('a march that stops says why: which part of its rule no longer holds', () => {
+      // A long road of plains: the day's 8 hours run out before the destination.
+      const cells = Array.from({ length: 12 }, () => ({ terrain: 'plains' }))
+      const options = play(cells, true)
+      const started = startTrip({ system, location: '0', season: 'summer' }).session
+      const planned = stepTrip(options, started, { type: 'setDestination', hex: '11' }).state
+      const { entries } = stepTrip(options, planned, {
+        type: 'action',
+        id: 'march',
+        with: { until: 'destination' },
+      })
+      const stopped = entries.find(
+        (e) => e.code === 'TRAVEL_STOPPED' && e.data?.reason === 'conditions',
+      )
+      // Each branch of its `any`: the day's march used up, and no torchlight.
+      expect(stopped?.data?.because).toMatchObject({
+        condition: 'when',
+        failed: expect.arrayContaining([
+          expect.objectContaining({ path: 'trip.marched', op: 'lt', asked: 8 }),
+          expect.objectContaining({ path: 'today.torchlit', op: 'eq', asked: true }),
+        ]),
+      })
+    })
+
     it('deep snow (set by the weather) leaves the horses behind', () => {
       const sky = registry.extras.get('grey-marches')!.find((e) => e.id === 'sky')!
       expect((sky.data as { states: Record<string, { set?: object }> }).states.snow.set).toEqual({
@@ -1084,7 +1108,10 @@ describe('bundled open packs', () => {
         expect(out.entries).toContainEqual(
           expect.objectContaining({
             code: 'HALT_WITHOUT',
-            data: expect.objectContaining({ action: 'camp', because: { condition: 'when' } }),
+            data: expect.objectContaining({
+              action: 'camp',
+              because: expect.objectContaining({ condition: 'when' }),
+            }),
           }),
         )
         // No fed night's relief: fatigue never goes down.

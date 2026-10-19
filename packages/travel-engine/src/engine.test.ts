@@ -382,10 +382,10 @@ describe('the trip’s totals', () => {
       time: defaultCalendar.at(1, '06:00'),
     })
     state = tripEngine.apply(state, { type: 'setDestination', hex: '1,0' }).state
-    expect(tripEngine.availability(state).boast).toEqual({ condition: 'when' })
+    expect(tripEngine.availability(state).boast).toMatchObject({ condition: 'when' })
     state = tripEngine.apply(state, { type: 'travel' }).state
     expect(state.location).toBe('1,0')
-    expect(tripEngine.availability(state).boast).toEqual({ condition: 'when' })
+    expect(tripEngine.availability(state).boast).toMatchObject({ condition: 'when' })
     state = tripEngine.apply(state, { type: 'setDestination', hex: '2,0' }).state
     state = tripEngine.apply(state, { type: 'travel' }).state
     expect(tripEngine.availability(state).boast).toBeUndefined()
@@ -751,14 +751,18 @@ describe('actions as steps, and declared values', () => {
   })
 
   it('are unavailable on a condition, with the host’s facts, and say why', () => {
-    expect(own.availability(start(), { forageImpossible: true }).forage).toEqual({
+    expect(own.availability(start(), { forageImpossible: true }).forage).toMatchObject({
       condition: 'unless',
     })
     const refused = own.apply(start(), { type: 'action', id: 'forage' }, { forageImpossible: true })
     expect(refused.events).toEqual([
-      { type: 'ACTION_UNAVAILABLE', action: 'forage', because: { condition: 'unless' } },
+      {
+        type: 'ACTION_UNAVAILABLE',
+        action: 'forage',
+        because: expect.objectContaining({ condition: 'unless' }),
+      },
     ])
-    expect(own.availability(start()).pray).toEqual({ condition: 'when' })
+    expect(own.availability(start()).pray).toMatchObject({ condition: 'when' })
     const faithful = { party: { stats: { faith: 2 } } }
     expect(own.availability(start(), faithful).pray).toBeUndefined()
     expect(own.apply(start(), { type: 'action', id: 'pray' }, faithful).state.time).toBe(
@@ -776,7 +780,7 @@ describe('actions as steps, and declared values', () => {
       forage: { value: 'stranded' },
       // What blocks travel blocks the actions that move the party.
       march: { value: 'stranded' },
-      pray: { condition: 'when' },
+      pray: expect.objectContaining({ condition: 'when' }),
     })
     expect(own.apply(stuck, { type: 'travel' }).events.at(-1)).toMatchObject({
       reason: 'value',
@@ -813,11 +817,15 @@ describe('ways of travelling with conditions', () => {
 
   it('can be chosen only when their condition holds, and a value can block one', () => {
     expect(boating.errors).toEqual([])
-    expect(own.availability(start())['mode.boat']).toEqual({ condition: 'when' })
+    expect(own.availability(start())['mode.boat']).toMatchObject({ condition: 'when' })
     const refused = own.apply(start(), { type: 'setMode', mode: 'boat' })
     expect(refused.state.mode).toBe('foot')
     expect(refused.events).toEqual([
-      { type: 'ACTION_UNAVAILABLE', action: 'mode.boat', because: { condition: 'when' } },
+      {
+        type: 'ACTION_UNAVAILABLE',
+        action: 'mode.boat',
+        because: expect.objectContaining({ condition: 'when' }),
+      },
     ])
     expect(own.apply(start('2,0'), { type: 'setMode', mode: 'boat' }).state.mode).toBe('boat')
     const stuck = { ...start(), today: { stuck: true } }
@@ -1449,7 +1457,7 @@ describe('the trip going on by itself (travel by a moment)', () => {
     expect(result.events.filter((e) => e.type === 'HALT_WITHOUT')).toHaveLength(3)
     expect(result.events.find((e) => e.type === 'HALT_WITHOUT')).toMatchObject({
       action: 'camp',
-      because: { condition: 'when' },
+      because: expect.objectContaining({ condition: 'when' }),
       time: at(1, '20:00'),
     })
     // With food, it camps every night instead.
@@ -1516,9 +1524,13 @@ describe('the trip going on by itself (travel by a moment)', () => {
     }
     const hungry = { party: { resources: { food: 0 } } }
     expect(fed.apply(late, { type: 'action', id: 'march' }, hungry).events).toEqual([
-      { type: 'ACTION_UNAVAILABLE', action: 'march', because: { condition: 'when' } },
+      {
+        type: 'ACTION_UNAVAILABLE',
+        action: 'march',
+        because: expect.objectContaining({ condition: 'when' }),
+      },
     ])
-    expect(fed.availability(late, hungry).march).toEqual({ condition: 'when' })
+    expect(fed.availability(late, hungry).march).toMatchObject({ condition: 'when' })
     const morning = fed.apply(late, { type: 'waitForMarch' }, hungry)
     expect(morning.events.find((e) => e.type === 'HALT_WITHOUT')).toMatchObject({
       action: 'camp',
@@ -1572,19 +1584,28 @@ describe('day and night, and marching as the system says', () => {
   it('reads daylight between the system’s dawn and nightfall', () => {
     expect(nightly.errors).toEqual([])
     expect(own.availability(at('19:59')).rest).toBeUndefined()
-    expect(own.availability(at('20:00')).rest).toEqual({ condition: 'when' })
+    expect(own.availability(at('20:00')).rest).toMatchObject({ condition: 'when' })
     expect(own.availability(at('20:00'))['night-march']).toBeUndefined()
-    expect(own.availability(at('12:00'))['night-march']).toEqual({ condition: 'when' })
+    expect(own.availability(at('12:00'))['night-march']).toMatchObject({ condition: 'when' })
     // After midnight it isn't the evening any more (hour < nightfall).
     expect(
       own.availability({ ...start(), time: defaultCalendar.at(2, '03:00') })['night-march'],
-    ).toEqual({
+    ).toMatchObject({
       condition: 'when',
     })
     // Marching is an action like the rest: by day it can be taken (without a route, it
     // goes nowhere), at night not.
     expect(own.availability(at('12:00')).march).toBeUndefined()
-    expect(own.availability(at('21:00')).march).toEqual({ condition: 'when' })
+    expect(own.availability(at('21:00')).march).toMatchObject({ condition: 'when' })
+    // It says why: the pairs that failed, as written, with what they read and what they
+    // asked, for the journal to tell.
+    expect(own.availability(at('21:00')).march).toEqual({
+      condition: 'when',
+      failed: [
+        { path: 'hour', value: 21, op: 'lt', asked: 20 },
+        { path: 'torchlit', value: undefined, op: 'eq', asked: true },
+      ],
+    })
     expect(own.apply(at('12:00'), { type: 'action', id: 'march' }).events.at(-1)).toMatchObject({
       type: 'TRAVEL_STOPPED',
       reason: 'no-route',
@@ -1596,7 +1617,11 @@ describe('day and night, and marching as the system says', () => {
     const stopped = own.apply(planned, { type: 'travel' })
     expect(stopped.state.time).toBe(defaultCalendar.at(1, '20:00'))
     expect(stopped.events).toEqual([
-      { type: 'ACTION_UNAVAILABLE', action: 'march', because: { condition: 'when' } },
+      {
+        type: 'ACTION_UNAVAILABLE',
+        action: 'march',
+        because: expect.objectContaining({ condition: 'when' }),
+      },
     ])
     const lit = own.apply(planned, { type: 'action', id: 'night-march' }).state
     expect(lit.today).toMatchObject({ torchlit: true })
@@ -1637,7 +1662,7 @@ describe('day and night, and marching as the system says', () => {
     const party = (fatigue: number) => ({ party: { stats: { fatigue, endurance: 3 } } })
     expect(engine.apply(ready, { type: 'travel' }, party(3)).events.at(-1)).toMatchObject({
       type: 'ACTION_UNAVAILABLE',
-      because: { condition: 'unless' },
+      because: expect.objectContaining({ condition: 'unless' }),
     })
     // Tiring on the way, the march stops there, said as its conditions.
     const tiring = parseTravelRules({
@@ -1914,10 +1939,10 @@ describe('full names of facts', () => {
     const engine = createTravelEngine({ world, rules: own! })
     const why = (facts = {}) => engine.availability(start(), facts)
     expect(why().dawn).toBeUndefined()
-    expect(why().flood).toEqual({ condition: 'when' })
+    expect(why().flood).toMatchObject({ condition: 'when' })
     expect(why({ clocks: { 'the-flood': 4 } }).flood).toBeUndefined()
     // Entering a hex by road: the step's edges.
-    expect(engine.availability({ ...start('5,9') }).roadside).toEqual({ condition: 'when' })
+    expect(engine.availability({ ...start('5,9') }).roadside).toMatchObject({ condition: 'when' })
   })
 })
 
@@ -2226,7 +2251,7 @@ describe('rules without a built-in day', () => {
       {
         type: 'HALT_WITHOUT',
         action: 'camp',
-        because: { condition: 'when' },
+        because: expect.objectContaining({ condition: 'when' }),
         time: at(1, '20:00'),
       },
     ])
@@ -2239,7 +2264,11 @@ describe('rules without a built-in day', () => {
     // Going on once in the dark, the march can't be taken.
     const stops = eng.apply({ ...late, resources: { food: 1 } }, { type: 'travel' })
     expect(stops.events).toEqual([
-      { type: 'ACTION_UNAVAILABLE', action: 'march', because: { condition: 'when' } },
+      {
+        type: 'ACTION_UNAVAILABLE',
+        action: 'march',
+        because: expect.objectContaining({ condition: 'when' }),
+      },
     ])
   })
 
@@ -2440,7 +2469,13 @@ describe('marching as an action: travel.move, parameters and moves under way', (
     expect(eng.availability(begin()).wade).toBeUndefined()
     expect(
       eng.apply(begin(), { type: 'action', id: 'wade', with: { pace: 'quick' } }).events,
-    ).toEqual([{ type: 'ACTION_UNAVAILABLE', action: 'wade', because: { condition: 'when' } }])
+    ).toEqual([
+      {
+        type: 'ACTION_UNAVAILABLE',
+        action: 'wade',
+        because: expect.objectContaining({ condition: 'when' }),
+      },
+    ])
   })
 
   it('without a way on, the trip going on by itself only waits', () => {

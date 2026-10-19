@@ -72,6 +72,7 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 - `when` must hold for the thing to apply; without it, it always applies.
 - `unless` must **not** hold; without it, nothing stops it.
 - With both, both are checked: `when: { hex.terrain: forest }, unless: { trip.edges: road }` is a forest not reached by road.
+- **When one stops an action or a march, the trip says why**: the pairs that failed, with what they read and what they asked (every failing branch of an `any`; for an `unless`, the pairs that held). On a button's tooltip and in the journal: _the hour is 21:00: it needs under 20:00_, _By torchlight doesn’t hold_, _the weather is storm_ (an `unless`). Facts are named for players when the trip knows them (the hour, the day's march, the weather, the terrain, a stat or a value of the day by the system's name), the rest as written.
 
 ## Where you'll find them, in the Grey Marches
 

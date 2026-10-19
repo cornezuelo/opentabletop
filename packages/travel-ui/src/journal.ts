@@ -1,4 +1,4 @@
-import { MEMBER_PATH, tripChanges, type JournalEntry } from '@open-tabletop/session'
+import { FACT_PATHS, MEMBER_PATH, tripChanges, type JournalEntry } from '@open-tabletop/session'
 import type { Unavailable } from '@open-tabletop/travel-engine'
 import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
 import { idText, type Translate, type TravelUiKey } from './i18n'
@@ -66,11 +66,88 @@ export function durationText(minutes: number): string {
   return m ? `${h} h ${String(m).padStart(2, '0')}` : `${h} h`
 }
 
+/** One pair of a condition that stopped something, as the engine tells it. */
+interface FailedPair {
+  path: string
+  value: unknown
+  op: string
+  asked: unknown
+  negated?: boolean
+}
+
+/** The facts a condition reads most, named for players (the rest by their path). */
+const FACT_NAMES = new Set([
+  'trip.marched',
+  'trip.weather',
+  'trip.mode',
+  'trip.edges',
+  'time.hour',
+  'time.tags',
+  'time.part',
+  'time.season',
+  'hex.terrain',
+  'hex.danger',
+  'hex.tags',
+])
+
+/**
+ * Which pairs of a condition stopped something, readably: "the hour is 21:00: it needs
+ * under 20:00; By torchlight doesn't hold". Each by its fact's name (a stat, a supply or a
+ * value of the day by the system's), what it read and what it asked.
+ */
+export function failedText(
+  failed: readonly FailedPair[],
+  {
+    t,
+    valueName,
+    dayValues,
+    terrainName,
+  }: Pick<JournalContext, 't' | 'valueName' | 'dayValues' | 'terrainName'>,
+): string {
+  const full = (path: string) => FACT_PATHS[path] ?? path
+  const nameOf = (path: string): string => {
+    const p = full(path)
+    const [, scope, id] = /^(party\.stats|party\.resources|today|yesterday)\.(.+)$/.exec(p) ?? []
+    if (scope === 'today') return dayValues?.[id] ?? id
+    if (scope === 'yesterday') return t('why.yesterday', { name: dayValues?.[id] ?? id })
+    if (scope) return valueName?.(id) ?? id
+    if (FACT_NAMES.has(p)) return t(`why.facts.${p.replace('.', '_')}` as TravelUiKey)
+    // A value of the day written short (`lost`): by the system's name.
+    if (dayValues?.[p]) return dayValues[p]
+    return `\`${path}\``
+  }
+  const valueText = (path: string, v: unknown): string => {
+    if (v === undefined || v === null) return t('why.nothing')
+    if (Array.isArray(v))
+      return v.length ? v.map((x) => valueText(path, x)).join(', ') : t('why.nothing')
+    if (typeof v === 'boolean') return t(v ? 'why.yes' : 'why.no')
+    if (typeof v === 'number' && full(path) === 'time.hour') {
+      const minutes = Math.round(v * 60)
+      return formatClock({ hour: Math.floor(minutes / 60), minute: minutes % 60 })
+    }
+    if (typeof v === 'string' && full(path) === 'hex.terrain') return terrainName?.(v) ?? v
+    return String(v)
+  }
+  return failed
+    .map(({ path, value, op, asked, negated }) => {
+      const name = nameOf(path)
+      // A yes-or-no value (a value of the day, a condition): whether it holds.
+      if (op === 'eq' && typeof asked === 'boolean') {
+        const holdsNow = negated ? asked : !asked
+        return t(holdsNow ? 'why.holds' : 'why.unset', { name })
+      }
+      const params = { name, value: valueText(path, value), asked: valueText(path, asked) }
+      return negated ? t('why.is', params) : t(`why.op.${op}` as TravelUiKey, params)
+    })
+    .join('; ')
+}
+
 /** Why something can't be done now, in words ('' when the system simply has no such thing). */
 export function whyText(
   because: Unavailable | undefined,
-  { t, dayValues, memberName }: Pick<JournalContext, 't' | 'dayValues' | 'memberName'>,
+  context: Pick<JournalContext, 't' | 'dayValues' | 'memberName' | 'valueName' | 'terrainName'>,
 ): string {
+  const { t, dayValues, memberName } = context
   if (!because || 'off' in because) return ''
   if ('pending' in because) return t('blocked.pending')
   if ('held' in because) return t('blocked.held')
@@ -88,7 +165,11 @@ export function whyText(
     return t('blocked.value', {
       name: dayValues?.[because.value] ?? idText(t, `values.${because.value}`, because.value),
     })
-  return 'once' in because ? t('blocked.once') : t('blocked.condition')
+  if ('once' in because) return t('blocked.once')
+  // Its rule, and which of its pairs stopped it.
+  if ('failed' in because && because.failed?.length)
+    return t('blocked.conditionWhy', { why: failedText(because.failed, context) })
+  return t('blocked.condition')
 }
 
 const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`)
@@ -317,8 +398,15 @@ export function entryText(e: JournalEntry, context: JournalContext) {
             `${d.who}: ${String(d.value)}`,
         })
       // A moving action whose conditions stopped holding: which.
-      if (d.reason === 'conditions')
-        return t('stop.conditions', { action: actionText(String(d.action)) })
+      if (d.reason === 'conditions') {
+        const because = d.because as { failed?: FailedPair[] } | undefined
+        return because?.failed?.length
+          ? t('stop.conditionsWhy', {
+              action: actionText(String(d.action)),
+              why: failedText(because.failed, context),
+            })
+          : t('stop.conditions', { action: actionText(String(d.action)) })
+      }
       if (d.reason === 'value')
         return t('stop.value', {
           name:

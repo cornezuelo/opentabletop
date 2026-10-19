@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { matches, resolvePath, validateCondition, type Condition } from './index'
+import { explain, matches, resolvePath, validateCondition, type Condition } from './index'
 
 const ctx = {
   terrain: 'forest',
@@ -134,6 +134,49 @@ describe('variables and rolls ({{…}})', () => {
     expect(validateCondition({ danger: { gte: '{{1d20}}' } })).toEqual([])
     expect(validateCondition({ danger: { gte: '$party.stats.stealth' } })).toEqual([
       'when.danger.gte: must be a number, or a variable or roll in {{…}}',
+    ])
+  })
+})
+
+describe('why a condition fails', () => {
+  const context = {
+    trip: { marched: 8, weather: 'storm' },
+    time: { tags: ['dark'] },
+    party: { stats: { stealth: 1 } },
+    hex: { danger: 3 },
+  }
+
+  it('names the pairs that failed, with what they read and what they asked', () => {
+    expect(
+      explain({ 'trip.marched': { lt: 8 }, 'trip.weather': ['clear', 'rain'] }, context),
+    ).toEqual([
+      { path: 'trip.marched', value: 8, op: 'lt', asked: 8 },
+      { path: 'trip.weather', value: 'storm', op: 'in', asked: ['clear', 'rain'] },
+    ])
+  })
+
+  it('reads variables and rolls in what was asked, and says nothing when it holds', () => {
+    expect(explain({ 'trip.marched': { lt: '{{party.stats.stealth}}' } }, context)).toEqual([
+      { path: 'trip.marched', value: 8, op: 'lt', asked: 1 },
+    ])
+    expect(explain({ 'hex.danger': { gte: 3 } }, context)).toEqual([])
+    expect(explain(undefined, context)).toEqual([])
+  })
+
+  it('every failing branch of an any, and the pairs that held inside a not', () => {
+    expect(
+      explain(
+        { any: [{ 'trip.weather': 'clear' }, { 'hex.danger': { lt: 2 } }], 'hex.danger': 3 },
+        context,
+      ),
+    ).toEqual([
+      { path: 'trip.weather', value: 'storm', op: 'eq', asked: 'clear' },
+      { path: 'hex.danger', value: 3, op: 'lt', asked: 2 },
+    ])
+    // An `unless` is a `not`: the pair that held, negated.
+    expect(explain({ not: { 'time.tags': 'dark', 'hex.danger': 9 } }, context)).toEqual([])
+    expect(explain({ not: { 'time.tags': 'dark' } }, context)).toEqual([
+      { path: 'time.tags', value: ['dark'], op: 'eq', asked: 'dark', negated: true },
     ])
   })
 })

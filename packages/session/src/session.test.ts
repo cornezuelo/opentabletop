@@ -366,7 +366,7 @@ entries:
     // Today's values (set by the weather) make an action unavailable, with the reason.
     expect(
       tripAvailability({ system }, { ...start(), dayVars: { forageImpossible: true } }),
-    ).toEqual({ forage: { condition: 'unless' } })
+    ).toMatchObject({ forage: { condition: 'unless' } })
     const refused = session.step(
       { ...start(), dayVars: { forageImpossible: true } },
       {

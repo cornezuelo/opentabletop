@@ -136,6 +136,100 @@ function equals(value: unknown, expected: unknown): boolean {
   return value === expected
 }
 
+/** An operator of a pair: what it asks of the value it reads. */
+export type Operator = 'eq' | 'in' | 'not' | 'gt' | 'gte' | 'lt' | 'lte' | 'exists'
+
+/**
+ * One pair of a condition that made it fail, for telling a player why: the value it read
+ * at `path` (undefined: nothing there), and what it asked (`op` and the value asked, its
+ * variables and rolls read). `negated`: the pair held but mustn't (inside a `not`, or an
+ * `unless`).
+ */
+export interface FailedPair {
+  path: string
+  value: unknown
+  op: Operator
+  asked: unknown
+  negated?: boolean
+}
+
+/**
+ * Why a condition doesn't hold: the pairs that failed (every failing branch of an `any`;
+ * of a `not`, the pairs inside it that held). Empty when it holds. The same rolls as
+ * `matches`, from the same `roller`.
+ */
+export function explain(
+  condition: Condition | undefined,
+  context: Record<string, unknown>,
+  options: MatchOptions = {},
+): FailedPair[] {
+  if (condition === undefined) return []
+  return reasons(condition, context, options.roller, false, 0)
+}
+
+/**
+ * The pairs that make `condition` come out as it shouldn't: with `negated` false, those
+ * that fail it; with `negated` true (under a `not`), those that make it hold.
+ */
+function reasons(
+  condition: Condition,
+  context: Record<string, unknown>,
+  roller: Roller | undefined,
+  negated: boolean,
+  depth: number,
+): FailedPair[] {
+  if (depth > MAX_DEPTH) return []
+  const holds = evaluate(condition, context, roller, depth)
+  if (holds !== negated) return []
+  const inner = (c: Condition, flip = false) =>
+    reasons(c, context, roller, flip ? !negated : negated, depth + 1)
+  const out: FailedPair[] = []
+  for (const [key, value] of Object.entries(condition)) {
+    const part = { [key]: value } as Condition
+    // A key that does what the whole should: not a reason.
+    if (evaluate(part, context, roller, depth + 1) !== negated) continue
+    if ((key === 'all' || key === 'any') && Array.isArray(value)) {
+      out.push(...(value as Condition[]).flatMap((c) => inner(c)))
+      continue
+    }
+    if (key === 'not' && isObject(value) && !isComparison(value)) {
+      out.push(...inner(value as Condition, true))
+      continue
+    }
+    const read = resolvePath(context, key)
+    const [op, asked] = askedOf(value as Matcher, read, context, roller, negated)
+    out.push({ path: key, value: read, op, asked, ...(negated && { negated: true }) })
+  }
+  return out
+}
+
+/**
+ * The operator of a pair that decided it, with what it asked: the first that failed (or,
+ * negated, the first that held); a plain value is `eq`, a list `in`.
+ */
+function askedOf(
+  matcher: Matcher,
+  value: unknown,
+  context: Record<string, unknown>,
+  roller: Roller | undefined,
+  negated: boolean,
+): [Operator, unknown] {
+  const read = (written: unknown) =>
+    Array.isArray(written)
+      ? written.map((w) => valueOf(w, context, roller))
+      : valueOf(written, context, roller)
+  if (Array.isArray(matcher)) return ['in', read(matcher)]
+  if (!isObject(matcher)) return ['eq', read(matcher)]
+  const ops = Object.keys(matcher).filter((k) => COMPARISON_KEYS.has(k)) as Operator[]
+  const decided = ops.find(
+    (op) =>
+      matchValue(value, { [op]: (matcher as Comparison)[op] } as Matcher, context, roller) ===
+      negated,
+  )
+  const op = decided ?? ops[0]
+  return [op, read((matcher as Comparison)[op as keyof Comparison])]
+}
+
 /** Structural validation for pack loading. Returns human-readable problems (empty = valid). */
 export function validateCondition(condition: unknown, at = 'when'): string[] {
   return check(condition, at, 0)

@@ -3,7 +3,7 @@ import { coreSystem } from '../../session/src/core.testing'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
-import { entryText, journalMarkdown, type JournalContext } from './journal'
+import { entryText, journalMarkdown, whyText, type JournalContext } from './journal'
 import { memberNamer } from './members'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
@@ -88,6 +88,34 @@ describe('journal lines', () => {
   const line = (code: string, data: Record<string, unknown>, more: Partial<JournalContext> = {}) =>
     entryText(entry(at(1, '06:00'), code, { data }), { ...context, ...more })
 
+  it('say why a march stopped: which pairs of its rule failed, with what they read', () => {
+    const because = {
+      condition: 'when',
+      failed: [
+        { path: 'trip.marched', value: 8, op: 'lt', asked: 8 },
+        { path: 'hour', value: 21.5, op: 'lt', asked: 20 },
+        { path: 'torchlit', value: undefined, op: 'eq', asked: true },
+        { path: 'party.stats.morale', value: 0, op: 'gte', asked: 1 },
+      ],
+    }
+    const dayValues = { torchlit: 'By torchlight' }
+    expect(
+      line('TRAVEL_STOPPED', { reason: 'conditions', action: 'march', because }, { dayValues }),
+    ).toBe(
+      '“Forage for food” stops here: the day’s march (hours) is 8: it needs under 8; the hour is 21:30: it needs under 20:00; By torchlight doesn’t hold; Morale is 0: it needs 1 or more.',
+    )
+    // An `unless` that held: what it read.
+    const unless = {
+      condition: 'unless',
+      failed: [{ path: 'time.tags', value: ['dark'], op: 'eq', asked: 'dark', negated: true }],
+    }
+    expect(whyText(unless as never, context)).toBe('Not possible now: the time of day is dark.')
+    // Older entries, without pairs: the rule alone.
+    expect(line('TRAVEL_STOPPED', { reason: 'conditions', action: 'march' })).toBe(
+      '“Forage for food” stops here: its conditions don’t hold now.',
+    )
+  })
+
   it('say what results changed', () => {
     const result = entry(at(1, '09:00'), 'ORACLE_RESULT', {
       text: 'Berries and roots',
@@ -130,7 +158,11 @@ describe('journal lines', () => {
       'Morale can’t go higher than 5',
     )
     expect(
-      line('NIGHT_WITHOUT', { action: 'camp', because: { condition: 'when' }, time: 0 }),
+      line('NIGHT_WITHOUT', {
+        action: 'camp',
+        because: expect.objectContaining({ condition: 'when' }),
+        time: 0,
+      }),
     ).toMatch(
       /^Night falls and “.+” isn’t possible \(Not possible here and now \(.+\)\): the night passes without it\.$/,
     )

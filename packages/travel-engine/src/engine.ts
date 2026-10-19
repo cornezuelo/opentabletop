@@ -1,4 +1,4 @@
-import { matches, type Condition } from '@open-tabletop/conditions'
+import { explain, matches, type Condition, type FailedPair } from '@open-tabletop/conditions'
 import { findPath } from '@open-tabletop/hex'
 import { evaluate, lookupIn, momentRoller, render, type Roller } from '@open-tabletop/variables'
 import {
@@ -327,7 +327,11 @@ export type Unavailable =
   /** A value of the day blocks it, or a member's condition (`who` has it). */
   | { value: string; who?: string }
   | { once: true }
-  | { condition: 'when' | 'unless' }
+  /**
+   * Its `when` doesn't hold, or its `unless` does: `failed` says which pairs, with what
+   * they read and asked (the UI words it).
+   */
+  | { condition: 'when' | 'unless'; failed?: FailedPair[] }
   /** The trip is paused on a check (its event): it must be resolved first (Continue). */
   | { pending: string }
   /** A step of this action stopped the trip for the player (`pause:`, `ask:`). */
@@ -574,6 +578,26 @@ export function createTravelEngine(options: {
     seen: Record<string, unknown>,
     moment?: string,
   ): boolean => matches(condition, qualify(seen), { roller: rollsOf(state, seen, moment) })
+  /**
+   * Why a thing's `when` / `unless` stops it, if they do: which one, and the pairs that
+   * decided it, read as `test` reads them.
+   */
+  const conditionStop = (
+    state: TravelState,
+    def: { when?: unknown; unless?: unknown },
+    seen: Record<string, unknown>,
+    moment?: string,
+  ): { condition: 'when' | 'unless'; failed: FailedPair[] } | undefined => {
+    const roller = rollsOf(state, seen, moment)
+    const context = qualify(seen)
+    const when = def.when as Condition | undefined
+    const unless = def.unless as Condition | undefined
+    if (when && !matches(when, context, { roller }))
+      return { condition: 'when', failed: explain(when, context, { roller }) }
+    if (unless && matches(unless, context, { roller }))
+      return { condition: 'unless', failed: explain({ not: unless }, context, { roller }) }
+    return undefined
+  }
   const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>
     momentRolls(
       state,
@@ -980,12 +1004,8 @@ export function createTravelEngine(options: {
     const def = actions.all[id]
     if (!def) return { reason: 'conditions', action: id }
     const seen = { ...checkContext(now, [], hostFacts), params: paramsOf(def, params) }
-    if (
-      (!def.when || test(now, def.when as Condition, seen, id)) &&
-      !(def.unless && test(now, def.unless as Condition, seen, id))
-    )
-      return undefined
-    return { reason: 'conditions', action: id }
+    const because = conditionStop(now, def, seen, id)
+    return because && { reason: 'conditions', action: id, because }
   }
 
   /** Every part of the calendar's day, as `<division>.<part>`. */
@@ -1392,10 +1412,7 @@ export function createTravelEngine(options: {
     if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
     const context = { ...checkContext(state, [], facts), params: paramsOf(def), ...moment }
-    if (def.when && !test(state, def.when as Condition, context, id)) return { condition: 'when' }
-    if (def.unless && test(state, def.unless as Condition, context, id))
-      return { condition: 'unless' }
-    return undefined
+    return conditionStop(state, def, context, id)
   }
 
   /** Why a way of travelling can't be chosen now (undefined: it can). */
@@ -1409,11 +1426,7 @@ export function createTravelEngine(options: {
     const value = blocker(state, modeRef(id), facts)
     if (value) return value
     const context = checkContext(state, [], facts)
-    const at = `mode.${id}`
-    if (mode.when && !test(state, mode.when as Condition, context, at)) return { condition: 'when' }
-    if (mode.unless && test(state, mode.unless as Condition, context, at))
-      return { condition: 'unless' }
-    return undefined
+    return conditionStop(state, mode, context, `mode.${id}`)
   }
 
   /**
