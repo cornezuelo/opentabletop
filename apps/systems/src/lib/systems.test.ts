@@ -42,7 +42,7 @@ describe('systems in the Systems app', () => {
     const edited = systems.get(id)!
     expect(edited.rules.travel.hoursPerDay).toBe(6)
     expect(edited.bindings?.stats?.luck).toMatchObject({ name: 'Luck', default: 1 })
-    expect(library.readFile(id, 'system.yaml')).toContain('travel: default')
+    expect(library.readFile(id, 'system.yaml')).toContain('travel: travel-rules.default')
   })
 
   it('new systems are written for today’s pack format', () => {
@@ -55,7 +55,7 @@ describe('systems in the Systems app', () => {
       origin: 'user',
       files: [
         { path: 'pack.yaml', content: 'id: two\nname: Two\nversion: 0.1.0\nlocale: en\n' },
-        { path: 'system.yaml', content: 'kind: system\nid: fast\ntravel: fast\n' },
+        { path: 'system.yaml', content: 'kind: system\nid: fast\ntravel: travel-rules.fast\n' },
         {
           path: 'travel.yaml',
           content:
@@ -73,7 +73,7 @@ describe('systems in the Systems app', () => {
     const system = systems.get('two/fast')!
     expect(system.rules.travel.hoursPerDay).toBe(10)
     expect(system.bindings?.stats?.luck).toMatchObject({ default: 2 })
-    expect(library.readFile('two', 'system.yaml')).toContain('bindings: default')
+    expect(library.readFile('two', 'system.yaml')).toContain('bindings: bindings.default')
   })
 
   it('the Grey Marches are edited where their system says', () => {
@@ -92,9 +92,11 @@ describe('systems in the Systems app', () => {
     // None plays as an older pack's implicit system (Kal-Arath too, when its pack is here).
     for (const system of bundled) expect(system.sources?.system, system.id).toBeDefined()
     const marches = systems.get('grey-marches')!
-    expect(partName(marches, 'calendar', 'marcher-reckoning')).toBe('The Marcher reckoning')
-    expect(partName(marches, 'weather', 'sky')).toBe("The Marches' sky")
-    expect(partName(marches, 'travel-rules', 'default')).toBeUndefined()
+    expect(partName(marches, 'calendar', 'calendar.marcher-reckoning')).toBe(
+      'The Marcher reckoning',
+    )
+    expect(partName(marches, 'weather', 'weather.sky')).toBe("The Marches' sky")
+    expect(partName(marches, 'travel-rules', 'travel-rules.default')).toBeUndefined()
     const kalArath = systems.get('kal-arath')
     if (kalArath) {
       expect(kalArath.rules.actions?.camp).toMatchObject({ do: [{ time: 'time.part.morning' }] })
@@ -109,12 +111,15 @@ describe('systems in the Systems app', () => {
       system: { path: 'system.yaml', id: 'default' },
     })
     // What it can name: its own parts by id, its dependency's as pack/id.
-    expect(partChoices(marches, 'travel-rules')).toEqual(['default', 'core/default'])
-    expect(partChoices(marches, 'calendar')).toContain('marcher-reckoning')
-    expect(partChoices(marches, 'weather')).toContain('sky')
+    expect(partChoices(marches, 'travel-rules')).toEqual([
+      'travel-rules.default',
+      'core/travel-rules.default',
+    ])
+    expect(partChoices(marches, 'calendar')).toContain('calendar.marcher-reckoning')
+    expect(partChoices(marches, 'weather')).toContain('weather.sky')
     library.editCopy('grey-marches')
     const doc = systemDoc(() => systemFile(systems.get('grey-marches')!)!)
-    expect(doc.system).toMatchObject({ travel: 'default', packs: ['core'] })
+    expect(doc.system).toMatchObject({ travel: 'travel-rules.default', packs: ['core'] })
     doc.setText('system', ['name'], doc.system!.name, ['name'], 'The Grey Marches, revised')
     doc.edit('system', ['packs'], undefined)
     const edited = systems.get('grey-marches')!
@@ -140,7 +145,7 @@ describe('systems in the Systems app', () => {
     expect(Object.keys(mine.rules.terrains)).toEqual(Object.keys(core.rules.terrains))
     expect(Object.keys(mine.rules.actions ?? {})).toEqual(['march', 'camp', 'rest', 'eat'])
     // …and the calendar whose parts of the day they name (Core's, a dependency).
-    expect(library.readFile(id, 'system.yaml')).toContain('calendar: core/default')
+    expect(library.readFile(id, 'system.yaml')).toContain('calendar: core/calendar.default')
     expect(library.readFile(id, 'pack.yaml')).toMatch(/dependencies:\n {2}core: ["']>=/)
     expect(mine.calendar?.divisions?.map((d) => d.id)).toEqual(['part', 'watch'])
   })
@@ -154,7 +159,7 @@ describe('systems in the Systems app', () => {
     const missing = () =>
       library
         .diagnostics('grey-marches', 'factions.yaml')
-        .filter((d) => d.message.includes('core/faction-turn'))
+        .filter((d) => d.message.includes('core/table.faction-turn'))
     expect(missing()).toHaveLength(1)
     expect(staleCopies(marches())).toEqual(['core'])
     // Taking the bundled pack's new files brings the table back.
@@ -180,7 +185,7 @@ describe('systems in the Systems app', () => {
     expect(system.sources?.rules).toMatchObject({ pack: 'bare', file: 'bare/travel.yaml' })
     expect(system.sources?.bindings).toMatchObject({ pack: 'bare', id: 'default' })
     expect(library.readFile('bare', 'system.yaml')).toMatch(
-      /travel: default[\s\S]*bindings: default/,
+      /travel: travel-rules.default[\s\S]*bindings: bindings.default/,
     )
     // Undo takes the bindings back, file and name together.
     library.undo()
@@ -209,7 +214,7 @@ describe('systems in the Systems app', () => {
     expect(after.sources?.system).toMatchObject({ pack: 'old', file: 'old/system.yaml' })
     expect(after.rules.travel.hoursPerDay).toBe(7)
     expect(library.readFile('old', 'system.yaml')).toMatch(
-      /travel: default[\s\S]*bindings: default/,
+      /travel: travel-rules.default[\s\S]*bindings: bindings.default/,
     )
   })
 
@@ -277,7 +282,7 @@ describe('systems in the Systems app', () => {
     expect(createSystemPart(system(), 'factions')).toBe('default')
     expect(system().factions?.sheet.id).toBe(`${id}/faction`)
     expect(Object.keys(system().factions!.def.factions)).toEqual(['the-crown', 'the-rebels'])
-    expect(library.readFile(id, 'system.yaml')).toMatch(/factions: default/)
+    expect(library.readFile(id, 'system.yaml')).toMatch(/factions: factions.default/)
     // Every read after a change reloads the packs: a few seconds in all.
   }, 30_000)
 

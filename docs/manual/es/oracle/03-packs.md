@@ -39,7 +39,7 @@ travel: { hoursPerDay: 8, start: '07:00' }
 kind: bindings
 id: default
 on:
-  WEATHER_CHECK_REQUIRED: { resolve: weather }
+  WEATHER_CHECK_REQUIRED: { resolve: table.weather }
 ```
 
 Igual de bien podrían ir en ficheros separados. Un pack tiene como mucho un sistema de viaje, así que las dos usan el id `default`.
@@ -67,4 +67,4 @@ El Hexmapper ve tus packs cuando las dos aplicaciones se sirven desde el mismo s
 
 ## Copiar definiciones
 
-**Duplicar** copia una definición dentro de su pack; **Copiar a…** la copia, con sus traducciones, a uno de tus packs (las referencias locales pasan a `pack/id`, así que siguen apuntando a las mismas tablas). Útil para partir de una tabla incluida.
+**Duplicar** copia una definición dentro de su pack; **Copiar a…** la copia, con sus traducciones, a uno de tus packs (las referencias locales nombran su pack, `pack/table.id`, así que siguen apuntando a las mismas tablas). Útil para partir de una tabla incluida.

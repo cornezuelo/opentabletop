@@ -6,8 +6,8 @@ omens:
     **Enseña:**
 
     - Un **mazo**: copias de una carta (`count`), que se baraja al vaciarse
-    - Una carta que tira una tabla, y otra que pone valores (comida)
-    - Una tabla de otro pack mediante un alias: `twist` → `core/twists`
+    - Cartas que tiran un generador, con referencias que dicen qué nombran (`generator.npc`), y otra que pone valores (comida)
+    - Una tabla de otro pack mediante un alias: `table.twist` → `core/table.twists`
   cards:
     crows: Los cuervos os siguen todo el día
     rainbow: Un arcoíris sobre el Lago Salado

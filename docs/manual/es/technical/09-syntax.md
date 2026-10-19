@@ -32,7 +32,9 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 ## Ids y referencias
 
 - **Los ids** usan minúsculas, dígitos y guiones: `getting-lost`, `npc-roles`.
-- **Las referencias** a una definición: `weather` (el mismo pack), `core/weather` (otro pack, por su id), o una que elige una variable: `'weather-{{time.season}}'`.
+- **Las referencias** a una definición dicen qué es: su `kind`, tal como lo escribe la definición, y luego su id: `table.weather`, `oracle.ford`, `generator.npc`, `deck.omens`, `roll-modes.advantage`, `sheet.companion`, `calendar.marcher-reckoning`, `weather.sky`, `travel-rules.default`, `bindings.default`, `factions.default`, `clocks.default`. La de otro pack va tras su id y una barra: `core/table.twists` (el pack tiene que estar entre sus `dependencies`). La que elige una variable mantiene su kind delante: `'table.weather-{{time.season}}'`. Una referencia sin su kind (`weather`) no se lee: el problema dice cuál se quería (`write table.weather`).
+- Donde un campo tira algo (el `table:` / `generator:` de una entrada o carta, el `resolve:` de un binding, el `turn:` de una facción, el `onFull.resolve:` de un reloj lleno), puede ser una tabla, un oráculo, un generador o un mazo: el kind dice cuál (`table: generator.npc`, `resolve: oracle.ford`).
+- Los `aliases` de un pack dan otro nombre a una referencia: `aliases: { table.twist: core/table.twists }`, y luego `table: table.twist`.
 - Las entradas y las cartas también tienen id, para las traducciones y las entradas de una sola vez.
 - **Dentro de un sistema**, lo que nombran sus reglas se escribe por su nombre completo, `subsistema.id`, para que siempre diga qué es: un momento (`trip.hex-enter`, `time.day-end`, una parte del día `time.part.morning`), una acción (`actions.camp`), una comprobación (`checks.ENCOUNTER`), una forma de viajar (`modes.horse`), seguir avanzando (`travel.move`), un parámetro de la acción (`params.how`). Los valores que compara una condición siguen cortos, porque su clave ya dice qué son: `trip.edges: road`, `hex.terrain: forest`.
 

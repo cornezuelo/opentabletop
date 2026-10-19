@@ -107,7 +107,7 @@ const PACK = [
   {
     path: 'band/system.yaml',
     content:
-      'kind: system\nname: Band\ntravel: default\nbindings: default\nsheet: member\nclocks: default\n',
+      'kind: system\nname: Band\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.member\nclocks: clocks.default\n',
   },
   {
     path: 'band/travel.yaml',
@@ -143,7 +143,7 @@ actions:
 values: { rested: {} }
 ---
 kind: bindings
-on: { GATE: { resolve: gate } }
+on: { GATE: { resolve: table.gate } }
 roles: { scout: { name: Scout } }
 stats:
   nerve: { from: { max: grit, unless: { conditions: tired } } }

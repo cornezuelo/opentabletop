@@ -47,30 +47,40 @@ entries:
       id: open,
       range: 4-5,
       when: { from.terrain: [steppe, plains, farmland, heath, savanna] },
-      table: open-land,
+      table: table.open-land,
     }
   - {
       id: woods,
       range: 4-5,
       when: { from.terrain: [forest, dense-forest, jungle, taiga] },
-      table: woodland,
+      table: table.woodland,
     }
-  - { id: wet, range: 4-5, when: { from.terrain: [swamp, marsh] }, table: wetland }
+  - { id: wet, range: 4-5, when: { from.terrain: [swamp, marsh] }, table: table.wetland }
   - {
       id: high,
       range: 4-5,
       when: { from.terrain: [hills, mountains, peaks, volcanic] },
-      table: highland,
+      table: table.highland,
     }
   - {
       id: dry,
       range: 4-5,
       when: { from.terrain: [desert, badlands, canyon, oasis] },
-      table: dryland,
+      table: table.dryland,
     }
-  - { id: cold, range: 4-5, when: { from.terrain: [tundra, snow, glacier] }, table: cold-land }
-  - { id: waters, range: 4-5, when: { from.terrain: [coast, lake, sea, deep-sea] }, table: waters }
-  - { id: anything, range: 1-6, table: any-land }
+  - {
+      id: cold,
+      range: 4-5,
+      when: { from.terrain: [tundra, snow, glacier] },
+      table: table.cold-land,
+    }
+  - {
+      id: waters,
+      range: 4-5,
+      when: { from.terrain: [coast, lake, sea, deep-sea] },
+      table: table.waters,
+    }
+  - { id: anything, range: 1-6, table: table.any-land }
 ---
 kind: table
 id: open-land
@@ -235,11 +245,11 @@ entries:
       result: 'A dragon’s lair, bones scattered at its mouth',
       set: { tags: [lair, danger] },
     }
-  - { id: ruins, range: 3-4, result: 'Ruins: {{result}}', table: ruins, set: { tags: ruins } }
+  - { id: ruins, range: 3-4, result: 'Ruins: {{result}}', table: table.ruins, set: { tags: ruins } }
   - { id: nothing, range: 5-9, result: Nothing of note, set: { poi: false } }
   - { id: shrine, range: 10, result: A wayside shrine to a forgotten god, set: { tags: shrine } }
   - { id: camp, range: 11, result: 'A camp of {{1d6+2}} travellers', set: { tags: camp } }
-  - { id: landmark, range: 12, table: landmarks }
+  - { id: landmark, range: 12, table: table.landmarks }
 ---
 # A once-only entry: after the Twin Spires are found, only standing stones remain.
 kind: table
@@ -265,7 +275,7 @@ entries:
       id: stone,
       weight: 3,
       result: 'A standing stone carved with {{result}}',
-      table: carvings,
+      table: table.carvings,
       set: { tags: landmark },
     }
 ---

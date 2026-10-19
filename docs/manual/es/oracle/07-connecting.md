@@ -52,7 +52,7 @@ id: weather
 name: El clima de hoy
 roll: 1d2
 entries:
-  - { id: today, range: 1-2, table: 'weather-{{time.season}}' }
+  - { id: today, range: 1-2, table: 'table.weather-{{time.season}}' }
 ```
 
 ## 4. Resultados que entiende el viaje
@@ -144,11 +144,11 @@ checks:
 kind: bindings
 id: default
 on:
-  WEATHER: { resolve: weather }
-  LOST: { resolve: lost-check }
-  ENCOUNTER: { resolve: forest-encounters }
-  NIGHT: { resolve: night-encounters }
-  FORAGE: { resolve: forage }
+  WEATHER: { resolve: table.weather }
+  LOST: { resolve: table.lost-check }
+  ENCOUNTER: { resolve: table.forest-encounters }
+  NIGHT: { resolve: table.night-encounters }
+  FORAGE: { resolve: table.forage }
 stats:
   luck: { name: Suerte, description: 'Se suma a las tiradas de encuentro', default: 0 }
   fatigue: { name: Fatiga, default: 0, min: 0 }
@@ -386,8 +386,8 @@ Los **bindings** (`kind: bindings`) son la otra mitad del sistema:
 kind: bindings
 id: default
 on:
-  NIGHT: { resolve: encounters, context: { timeOfDay: night } }
-  FORD: { resolve: ford, context: { odds: even } } # un oráculo y su pregunta
+  NIGHT: { resolve: table.encounters, context: { timeOfDay: night } }
+  FORD: { resolve: oracle.ford, context: { odds: even } } # un oráculo y su pregunta
 stats:
   morale:
     {
@@ -409,21 +409,21 @@ Las reglas de viaje y los bindings bastan para un sistema con el nombre de su pa
 kind: system
 id: default # se elige por el id del pack
 name: Dark Woods
-travel: default
-bindings: default
+travel: travel-rules.default
+bindings: bindings.default
 ---
 kind: system
 id: winter # se elige como <pack>/winter
 name: Dark Woods in winter
-travel: winter # otro kind: travel-rules, con id: winter
-bindings: default
+travel: travel-rules.winter # otro kind: travel-rules, con id: winter
+bindings: bindings.default
 ```
 
 Todas las claves están en [Sistemas](../technical/07-kinds.md#sistemas).
 
 ### Personajes
 
-Un sistema puede jugar su grupo como un todo (sus características y provisiones son las del grupo) o personaje a personaje, o las dos cosas. Para los personajes, declara una **hoja** (`kind: sheet`: sus valores con límites, sus estados y lo que bloquea cada uno, los tipos de relación que tienen) y la nombra en su sistema (`sheet: companion`). Los viajes tienen entonces una sección **Personajes**: añádelos, elige quién actúa, cambia sus valores.
+Un sistema puede jugar su grupo como un todo (sus características y provisiones son las del grupo) o personaje a personaje, o las dos cosas. Para los personajes, declara una **hoja** (`kind: sheet`: sus valores con límites, sus estados y lo que bloquea cada uno, los tipos de relación que tienen) y la nombra en su sistema (`sheet: sheet.companion`). Los viajes tienen entonces una sección **Personajes**: añádelos, elige quién actúa, cambia sus valores.
 
 Luego los bindings dicen qué toma el grupo de ellos:
 
@@ -458,7 +458,7 @@ Los poderes del mundo del sistema son **facciones** (`kind: factions`, nombradas
 
 ### Relojes de progreso
 
-Un sistema puede declarar los **relojes de progreso** con los que empieza su mundo (`kind: clocks`, nombrados con `clocks:` en su sistema): cada uno con sus segmentos, por dónde empieza y qué pasa cuando se llena. Los efectos los llenan desde cualquier sitio (un encuentro de un viaje, el turno de una facción: `world.clocks.the-greywood-wyrm-wakes: 1`), las condiciones los leen (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), y una vez llenos cada uno hace lo que dice: una línea en la cronología, una tabla tirada (`resolve: wyrm-wakes`), efectos sobre las facciones y otros relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), y después se queda lleno, vuelve a empezar o desaparece. Todas las claves: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
+Un sistema puede declarar los **relojes de progreso** con los que empieza su mundo (`kind: clocks`, nombrados con `clocks:` en su sistema): cada uno con sus segmentos, por dónde empieza y qué pasa cuando se llena. Los efectos los llenan desde cualquier sitio (un encuentro de un viaje, el turno de una facción: `world.clocks.the-greywood-wyrm-wakes: 1`), las condiciones los leen (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), y una vez llenos cada uno hace lo que dice: una línea en la cronología, una tabla tirada (`resolve: table.wyrm-wakes`), efectos sobre las facciones y otros relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), y después se queda lleno, vuelve a empezar o desaparece. Todas las claves: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
 
 ## 6. Un calendario propio
 
@@ -509,7 +509,7 @@ seasons:
 ---
 kind: bindings
 on:
-  WEATHER_CHECK_REQUIRED: { weather: sky }
+  WEATHER_CHECK_REQUIRED: { weather: weather.sky }
 ```
 
 - **states**: cada tipo de clima, con su nombre y los valores que da al día (como el `set` de una tabla); su id es lo que lee el `weather` de las reglas de viaje.
@@ -525,8 +525,8 @@ Los bindings también pueden decir cómo se deciden los hexes vacíos al viajar 
 ```yaml
 kind: bindings
 discover:
-  terrain: { resolve: next-terrain } # el terreno de un hex vacío
-  contents: { resolve: hex-contents } # qué hay en un hex, la primera vez que entras
+  terrain: { resolve: table.next-terrain } # el terreno de un hex vacío
+  contents: { resolve: table.hex-contents } # qué hay en un hex, la primera vez que entras
   reveal: neighbors # o: entered (solo el hex al que entras)
 on: { … }
 ```

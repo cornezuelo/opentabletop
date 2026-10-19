@@ -13,11 +13,11 @@ kind: table
 id: weather
 name: Weather
 roll: 1d6
-modes: [advantage, disadvantage]
+modes: [roll-modes.advantage, roll-modes.disadvantage]
 entries:
   - { id: clear, range: 1-3, result: Clear skies, set: { weather: clear } }
   - { id: rain, range: 4-5, result: Rain, set: { weather: rain } }
-  - { id: storm, range: 6, result: Storm, table: storm-damage }
+  - { id: storm, range: 6, result: Storm, table: table.storm-damage }
 ```
 
 - `range` (`3`, `2-5`) or `weight` (without `roll`).
@@ -61,7 +61,7 @@ variants:
 kind: generator
 id: npc
 fields:
-  role: { table: npc-role }
+  role: { table: table.npc-role }
   age: { roll: 2d20+10 }
 template: '{{role}}, {{age}} years old'
 ---

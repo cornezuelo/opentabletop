@@ -82,7 +82,7 @@ export const en = {
     weather: {
       title: 'Its weather models',
       intro:
-        'Weather with inertia: today follows yesterday, with odds per season. A check whose binding names a model rolls it (`weather: highland-skies`).',
+        'Weather with inertia: today follows yesterday, with odds per season. A check whose binding names a model rolls it (`weather: weather.highland-skies`).',
       help: "Weather models (`kind: weather`) the system's bindings can name, listed in its **Overview**. Each kind of weather can set values for the day (`set: { snowed-in: true }`) that conditions read; the day's weather is `weather` in tables and conditions:\n• `trip.weather: storm`\n• `trip.weather: [rain, storm]`",
       none: 'This system names no weather models.',
       create: 'New weather model',
@@ -114,7 +114,7 @@ export const en = {
       'What happens when it fills, in words: a line on the timeline and a notice.\n• **The Wyrm wakes and leaves its lair.**',
     resolve: 'Rolls',
     resolveHelp:
-      "A table, oracle, generator or deck rolled when it fills, with what the world clock and the factions say (like a faction's turn). What comes up goes to the timeline, and its effects apply.\n• `wyrm-wakes` — a table of this pack\n• `core/twists` — Core's twists",
+      "A table, oracle, generator or deck rolled when it fills, with what the world clock and the factions say (like a faction's turn). What comes up goes to the timeline, and its effects apply.\n• `table.the-raid` — a table of this pack\n• `core/table.twists` — Core's twists",
     effects: 'Changes',
     effectsHelp:
       "What it changes when it fills, as `key: value` pairs: other clocks and the factions (a trip's party isn't the world's).\n• `world.clocks.the-siege: 2` — fills two segments of another\n• `factions.the-crown.values.strength: -1`\n• `factions.the-rebels.territory: 1` — a hex more",
@@ -131,7 +131,7 @@ export const en = {
       "The sheet every faction is made with (`kind: sheet`): their values (strength, wealth…), conditions (at war…) and kinds of relation (ally, rival). It can be the characters' or one of their own.",
     turn: 'Their turn',
     turnHelp:
-      "What each faction rolls on a world turn (a table, oracle, generator or deck), with its own values as `faction.*`:\n• `faction-turn` — a table of this pack\n• `core/faction-turn` — Core's, for any game: it grows, holds or loses ground",
+      "What each faction rolls on a world turn (a table, oracle, generator or deck), with its own values as `faction.*`:\n• `table.faction-turn` — a table of this pack\n• `generator.schemes` — a generator of this pack\n• `core/table.faction-turn` — Core's, for any game: it grows, holds or loses ground",
     every: 'Every (days)',
     everyHelp:
       "Days of the world clock between turns. Empty or 0: only by hand (the Hexmapper's **World turn**).\n• `7` — a turn a week",
@@ -331,7 +331,7 @@ export const en = {
       'What the system is for, in a few lines, shown where it is chosen. Basic Markdown: `**bold**`, `_italics_`, `` `code` ``, lists with `- `.\n• _A desert crossed by caravan, with water running short and sandstorms._',
     parts: 'Its parts',
     partsHelp:
-      "The definitions the system plays with, each by its id: this pack's (`default`) or a dependency's (`core/default`).\n• **Travel rules** — how a trip goes (`kind: travel-rules`); none: the Generic rules\n• **Bindings** — which table answers each check, and the party's stats (`kind: bindings`)\n• **Calendar** — how days are named, by trips and the world clock (`kind: calendar`); none: the default one",
+      "The definitions the system plays with, each by its kind and id: this pack's (`travel-rules.default`) or a dependency's (`core/travel-rules.default`).\n• **Travel rules** — how a trip goes (`kind: travel-rules`); none: the Generic rules\n• **Bindings** — which table answers each check, and the party's stats (`kind: bindings`)\n• **Calendar** — how days are named, by trips and the world clock (`kind: calendar`); none: the default one",
     travel: 'Travel rules',
     travelHelp:
       'How a trip goes: the day, speeds, supplies, actions, checks (`travel: default`). **Open** edits them in the Rules tab; **Create** starts new ones from the Generic rules.\n• none — the Generic rules',
@@ -350,7 +350,7 @@ export const en = {
     create: 'Create',
     weather: 'Weather models',
     weatherHelp:
-      "The weather models (`kind: weather`) its bindings can name in a check (`weather: highland-skies`), so the day's weather has inertia: this pack's and its dependencies'.\n• `weather: [highland-skies]`",
+      "The weather models (`kind: weather`) its bindings can name in a check (`weather: weather.highland-skies`), so the day's weather has inertia: this pack's and its dependencies'.\n• `weather: [weather.highland-skies]`\n• `weather: [weather.coast, core/weather.plains]`",
     noWeather: 'No weather models in this pack or its dependencies.',
     packs: 'Packs it brings',
     packsHelp:
@@ -550,7 +550,7 @@ export const en = {
     never: 'never',
     resolve: 'Rolled on',
     resolveHelp:
-      "The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its `set` values and `effects` reach the trip.\n• `my-pack/getting-lost` — sets `lost: true` on a bad roll\n• a weather model — the day's weather with inertia\n• **no table** — it's only written in the journal, with its **Changes**; tick **Pause after it** to resolve it by hand",
+      "The table, oracle, generator or deck that resolves it. Its result goes to the journal, and its `set` values and `effects` reach the trip.\n• `table.getting-lost` — sets `lost: true` on a bad roll\n• `oracle.ford` — an oracle, its input from the check's context\n• a weather model — the day's weather with inertia\n• **no table** — it's only written in the journal, with its **Changes**; tick **Pause after it** to resolve it by hand",
     weatherModels: 'Weather with inertia',
     weatherModel: 'Weather model: {model}',
     waits: '— no table —',

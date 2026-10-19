@@ -91,7 +91,7 @@ export const es: Messages<typeof en> = {
     result: 'Resultado',
     then: 'Luego tira',
     thenHelp:
-      'Otra tabla o generador que se tira **cuando sale esta entrada**; su resultado se añade a este.\n• `ruins` — qué son las ruinas\n• `core/npc` — una tabla de otro pack (`pack/id`)\nLa tabla que tira ve lo que esta entrada **Fija**.',
+      'Otra tabla o generador que se tira **cuando sale esta entrada**; su resultado se añade a este.\n• `table.ruins` — qué son las ruinas\n• `generator.npc` — un generador: a quién encontráis\n• `core/table.npc` — una tabla de otro pack (`pack/kind.id`)\nLa tabla que tira ve lo que esta entrada **Fija**.',
     nothing: 'nada',
     id: 'Id',
     idHelp:

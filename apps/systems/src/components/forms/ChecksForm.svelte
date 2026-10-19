@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { parseRef } from '@open-tabletop/oracle-engine'
   import { idText, translator } from '@open-tabletop/travel-ui'
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
@@ -135,10 +136,10 @@
     if (on[from] && !shared && !on[to]) doc.rename('bindings', ['on'], from, to)
   }
 
-  /** A table (`ref`) or a weather model (`weather:<id>`) resolves the check, or nothing. */
+  /** A table (`table.<id>`…) or a weather model (`weather.<id>`) resolves the check, or nothing. */
   function setTable(event: string, ref: string) {
     if (!ref) return doc.edit('bindings', ['on', event], undefined)
-    const weather = ref.startsWith('weather:') ? ref.slice(8) : undefined
+    const weather = parseRef(ref)?.kind === 'weather' ? ref : undefined
     const [key, other] = weather ? ['weather', 'resolve'] : ['resolve', 'weather']
     if (!on[event]) return doc.edit('bindings', ['on', event], { [key]: weather ?? ref })
     doc.edit('bindings', ['on', event, other], undefined)
@@ -201,9 +202,7 @@
     {#each checks as check, i (i)}
       {@const event = String(check.event ?? '')}
       {@const binding = on[event]}
-      {@const resolver = binding?.weather
-        ? `weather:${binding.weather}`
-        : String(binding?.resolve ?? '')}
+      {@const resolver = String(binding?.weather ?? binding?.resolve ?? '')}
       <div class="check">
         <div class="row">
           <label class="event">
@@ -297,13 +296,13 @@
               onchange={(e) => setTable(event, e.currentTarget.value)}
             >
               <option value="">{t('checks.waits')}</option>
-              {#if resolver && !doc.targets.some((x) => x.ref === resolver) && !doc.weatherModels.some((m) => `weather:${m}` === resolver)}
+              {#if resolver && !doc.targets.some((x) => x.ref === resolver) && !doc.weatherModels.includes(resolver)}
                 <option value={resolver}>{resolver} ⚠</option>
               {/if}
               {#if doc.weatherModels.length}
                 <optgroup label={t('checks.weatherModels')}>
                   {#each doc.weatherModels as m (m)}
-                    <option value="weather:{m}">{t('checks.weatherModel', { model: m })}</option>
+                    <option value={m}>{t('checks.weatherModel', { model: m })}</option>
                   {/each}
                 </optgroup>
               {/if}

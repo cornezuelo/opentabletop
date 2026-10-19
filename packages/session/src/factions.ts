@@ -18,6 +18,7 @@ import type { RandomSource } from '@open-tabletop/random'
 import { onceRoller, resolveChange } from '@open-tabletop/variables'
 import { qualify as qualifyFacts } from '@open-tabletop/travel-engine'
 import { effectsOf } from './effects'
+import { definitionId } from './refs'
 import { localize, type LocalizedText } from './index'
 
 /** A system's factions: what its pack declares (`kind: factions`) and the sheet they're made with. */
@@ -155,7 +156,6 @@ export function factionTurn(
   const table = system.def.factions[faction]?.turn ?? system.def.turn
   const line: FactionLine = { faction, ...(table && { table }) }
   if (!self || !table) return { state, oracle: oracleState, line, ticks }
-  const qualify = (ref: string) => (ref.includes('/') ? ref : `${system.pack}/${ref}`)
   const facts = factionFacts(state, system, options.locale)
   // The host's facts by their short and full names (`clocks.x`, `world.clocks.x`).
   const context = {
@@ -166,7 +166,7 @@ export function factionTurn(
   let value: Record<string, unknown>
   let oracle = oracleState
   try {
-    const out = options.oracle.resolve(qualify(table), context, oracleState, {
+    const out = options.oracle.resolve(definitionId(table, system.pack), context, oracleState, {
       locale: options.locale,
     })
     oracle = out.state

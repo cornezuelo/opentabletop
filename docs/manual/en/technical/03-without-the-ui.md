@@ -28,7 +28,7 @@ make cli ARGS="roll core/yes-no likelihood=likely --seed my-game --locale es --j
 
 - **validate** prints every problem (the same the apps show) and ends with a summary; it fails (exit code 1) when there are errors, so it fits in scripts and checks before a commit.
 - **list** prints every table, oracle, generator and deck: its id, kind and name (`--kind`, `--pack` to narrow it).
-- **roll** rolls one by id (`pack/id`, or just the id when it's unique); a deck draws a card. `key=value` pairs are the context tables read (numbers and `true`/`false` are read as such; dotted names nest: `party.stats.morale=2`). `--seed` gives the same results every time, `--times` rolls again keeping once-only entries and drawn cards, `--locale` picks the language, `--json` prints the whole result.
+- **roll** rolls one by id (`pack/id`, its reference `pack/table.id`, or just the id when it's unique); a deck draws a card. `key=value` pairs are the context tables read (numbers and `true`/`false` are read as such; dotted names nest: `party.stats.morale=2`). `--seed` gives the same results every time, `--times` rolls again keeping once-only entries and drawn cards, `--locale` picks the language, `--json` prints the whole result.
 
 The built script, `apps/cli/dist/opentabletop.mjs`, runs anywhere Node.js does: `node opentabletop.mjs roll …`.
 

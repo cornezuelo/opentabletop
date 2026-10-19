@@ -10,7 +10,8 @@ const PACK = [
   { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
   {
     path: 'band/system.yaml',
-    content: 'kind: system\nname: Band\ntravel: default\nbindings: default\nsheet: companion\n',
+    content:
+      'kind: system\nname: Band\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.companion\n',
   },
   {
     path: 'band/travel.yaml',
@@ -38,7 +39,7 @@ actions:
 values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
-on: { GATE: { resolve: gate } }
+on: { GATE: { resolve: table.gate } }
 stats:
   talk: { name: Talk, from: { pick: charisma } }
 ---

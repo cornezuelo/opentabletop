@@ -12,7 +12,7 @@ const PACK = [
   {
     path: 'band/system.yaml',
     content:
-      'kind: system\nname: Band\ntravel: default\nbindings: default\nsheet: companion\npartySheet: company\n',
+      'kind: system\nname: Band\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.companion\npartySheet: sheet.company\n',
   },
   {
     path: 'band/sheets.yaml',
@@ -54,7 +54,7 @@ checks: [{ event: GLOOM, at: '07:00' }]
 values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
-on: { GLOOM: { resolve: gloom } }
+on: { GLOOM: { resolve: table.gloom } }
 stats:
   morale: { name: Morale, from: { party: morale } }
 ---
@@ -87,7 +87,7 @@ describe('the party sheet: the party itself, beside its characters', () => {
     const broken = travelSystems(
       loadPacks([
         PACK[0],
-        { ...PACK[1], content: PACK[1].content.replace('partySheet: company\n', '') },
+        { ...PACK[1], content: PACK[1].content.replace('partySheet: sheet.company\n', '') },
         ...PACK.slice(2),
       ]).registry,
     )

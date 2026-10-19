@@ -9,7 +9,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 ## Sus partes
 
 - **Reglas de viaje**, **Bindings** y **Calendario**: con los que se juega, cada uno elegido entre los de este pack (por su id) y los de sus dependencias (`core/default`), con su nombre si lo tienen (_El cómputo real (royal-reckoning)_). **Abrir** va a la pestaña que los edita; **Crear** hace unas reglas de viaje nuevas (una copia de las genéricas, que nombra también el calendario de Core cuando el sistema no tiene ninguno y depende de Core) o unos bindings vacíos y los nombra.
-- **Modelos de clima**: los que pueden nombrar sus bindings (`weather: highland-skies`), cada uno con su nombre y su id. Se editan en [Clima](11-weather.md).
+- **Modelos de clima**: los que pueden nombrar sus bindings (`weather: weather.highland-skies`), cada uno con su nombre y su id. Se editan en [Clima](11-weather.md).
 
 ## Packs que trae
 

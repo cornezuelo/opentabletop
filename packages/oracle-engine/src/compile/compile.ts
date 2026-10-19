@@ -9,11 +9,19 @@ import {
   type Overlay,
 } from '../definitions/schema'
 import type { Diagnostic, LoadedPack } from '../loader/load'
+import {
+  dynamicKind,
+  findRef,
+  isDynamicRef,
+  refProblem,
+  ROLLABLE_KINDS,
+  type RefScope,
+} from './refs'
 import { foldSystemTexts } from './systemTexts'
 
 export interface Ref {
   kind: 'table' | 'generator'
-  /** Resolved full id (`pack/id`), or the raw template for dynamic references. */
+  /** Resolved full id (`pack/id`), or the reference as written for dynamic ones. */
   target: string
   dynamic: boolean
 }
@@ -219,7 +227,7 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
 class CompileContext {
   constructor(
     private registry: Registry,
-    private raw: Map<string, unknown>,
+    private raw: Map<string, { definition: Definition }>,
     private pack: string,
     private file: string,
     private localId: string,
@@ -418,13 +426,28 @@ class CompileContext {
   }
 
   private ref(kind: 'table' | 'generator', ref: string, at: string): Ref {
-    if (TEMPLATE.test(ref)) return { kind, target: ref, dynamic: true }
-    const target = resolveRef(this.registry, this.pack, ref, (id) => this.raw.has(id))
+    if (isDynamicRef(ref)) {
+      // Built when rolled: only what it names can be checked now.
+      const named = dynamicKind(ref)
+      if (!ref.startsWith('{{') && !ROLLABLE_KINDS.includes(named as never))
+        this.error(
+          at,
+          `"${ref}" doesn't say what it names: write its kind first (table.${ref.replace(/^[a-z0-9-]+\//, '')})`,
+        )
+      return { kind, target: ref, dynamic: true }
+    }
+    const scope = this.scope((k, id) => this.raw.get(id)?.definition.kind === k)
+    const target = findRef(scope, ref)
     if (!target) {
-      this.error(at, `Unknown ${kind} "${ref}"`)
+      this.error(at, refProblem(scope, ref, kind, ROLLABLE_KINDS))
       return { kind, target: ref, dynamic: false }
     }
     return { kind, target, dynamic: false }
+  }
+
+  /** Where this pack's references are looked for. */
+  private scope(has: RefScope['has']): RefScope {
+    return refScope(this.registry, this.pack, has)
   }
 
   private conditions(condition: unknown, at: string): void {
@@ -443,9 +466,10 @@ class CompileContext {
         'advantage',
         '"advantage" no longer does anything: declare the ways of rolling in a "kind: roll-modes" definition and list them in "modes" (e.g. modes: [advantage, disadvantage])',
       )
+    const scope = this.scope(hasRollMode(this.registry))
     const mode = (ref: string, at: string): string | undefined => {
-      const id = resolveRef(this.registry, this.pack, ref, (x) => this.registry.rollModes.has(x))
-      if (!id) this.error(at, `Unknown roll mode "${ref}"`)
+      const id = findRef(scope, ref)
+      if (!id) this.error(at, refProblem(scope, ref, 'roll mode', ['roll-modes']))
       return id ?? undefined
     }
     const modes = (d.modes ?? []).flatMap((ref, i) => mode(ref, `modes[${i}]`) ?? [])
@@ -537,12 +561,13 @@ function compileRollModes(loaded: LoadedPack[], registry: Registry, diagnostics:
     }
   for (const { mode, cancels, file } of pending)
     for (const ref of cancels) {
-      const target = resolveRef(registry, mode.pack, ref, (x) => registry.rollModes.has(x))
+      const scope = refScope(registry, mode.pack, hasRollMode(registry))
+      const target = findRef(scope, ref)
       if (target) mode.cancels.push(target)
       else
         diagnostics.push({
           severity: 'error',
-          message: `Unknown roll mode "${ref}"`,
+          message: refProblem(scope, ref, 'roll mode', ['roll-modes']),
           pack: mode.pack,
           file,
           at: `roll-modes.modes.${mode.localId}.cancels`,
@@ -550,24 +575,34 @@ function compileRollModes(loaded: LoadedPack[], registry: Registry, diagnostics:
     }
 }
 
+/** Whether a roll mode has this full id (`pack/id`), for references to roll modes. */
+const hasRollMode =
+  (registry: Registry): RefScope['has'] =>
+  (kind, id) =>
+    kind === 'roll-modes' && registry.rollModes.has(id)
+
+/** Where references written in `pack` are looked for: its aliases and dependencies. */
+export function refScope(
+  registry: Registry,
+  pack: string,
+  has: RefScope['has'] = (kind, id) => registry.definitions.get(id)?.kind === kind,
+): RefScope {
+  const info = registry.packs.get(pack)
+  return { pack, aliases: info?.aliases, dependencies: info?.dependencies, has }
+}
+
 /**
- * Resolves a reference from inside `pack`: aliases, then `pack/id` as written, then the
- * pack's own namespace, then its dependencies'.
+ * Resolves a reference written in `pack` (`table.ruins`, `core/table.twists`) to the full
+ * id of what it names (`pack/id`): aliases, then the pack named, or the pack's own and its
+ * dependencies'. Null when nothing of that kind has that id.
  */
 export function resolveRef(
   registry: Registry,
   pack: string,
   ref: string,
-  exists: (id: string) => boolean = (id) => registry.definitions.has(id),
+  has?: RefScope['has'],
 ): string | null {
-  const info = registry.packs.get(pack)
-  const aliased = info?.aliases[ref] ?? ref
-  if (aliased.includes('/')) return exists(aliased) ? aliased : null
-  for (const scope of [pack, ...(info?.dependencies ?? [])]) {
-    const id = `${scope}/${aliased}`
-    if (exists(id)) return id
-  }
-  return null
+  return findRef(refScope(registry, pack, has), ref)
 }
 
 function parseRange(range: number | string): [number, number] {

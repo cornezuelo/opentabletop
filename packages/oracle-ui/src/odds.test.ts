@@ -14,7 +14,7 @@ modes:
 kind: table
 id: reaction
 roll: 2d6 + {{pre}}
-modes: [best]
+modes: [roll-modes.best]
 entries:
   - { id: hostile, range: 2-6, result: Hostile }
   - { id: wary, range: 7, result: Wary }

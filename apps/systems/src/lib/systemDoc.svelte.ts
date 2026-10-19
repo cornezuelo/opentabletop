@@ -8,6 +8,7 @@ import {
   setIn,
   type Path,
 } from '@open-tabletop/pack-ui/yaml'
+import { writeRef } from '@open-tabletop/oracle-engine'
 import { packTexts } from '@open-tabletop/oracle-ui'
 import { manifestOf } from '@open-tabletop/pack-ui/packs'
 import { getLocale } from './i18n'
@@ -97,18 +98,18 @@ export function systemDoc(source: () => DocSource) {
         (a, b) => Number(a.pack !== packId) - Number(b.pack !== packId) || a.id.localeCompare(b.id),
       )
       .map((d) => ({
-        ref: d.pack === packId ? d.localId : d.id,
+        ref: writeRef(d.kind, d.localId, d.pack === packId ? undefined : d.pack),
         name: texts.displayName(d),
         kind: d.kind as (typeof ROLLABLE)[number],
       })),
   )
 
-  /** Weather models a check can be resolved by (`kind: weather`): this pack's by local id. */
+  /** Weather models a check can be resolved by (`kind: weather`): `weather.<id>`, another pack's `pack/weather.<id>`. */
   const weatherModels = $derived(
     [...library.registry.packs.keys()].flatMap((id) =>
       (library.registry.extras.get(id) ?? [])
         .filter((e) => e.kind === 'weather' && e.id)
-        .map((e) => (id === packId ? e.id! : `${id}/${e.id}`)),
+        .map((e) => writeRef('weather', e.id!, id === packId ? undefined : id)),
     ),
   )
 
@@ -175,7 +176,7 @@ export function systemDoc(source: () => DocSource) {
           library.writeFile(
             root,
             declared.path,
-            setIn(file, `@system/${declared.id}`, ['bindings'], 'default'),
+            setIn(file, `@system/${declared.id}`, ['bindings'], 'bindings.default'),
           )
         }
       }

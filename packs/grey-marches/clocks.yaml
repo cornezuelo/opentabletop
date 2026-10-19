@@ -21,7 +21,7 @@ clocks:
     filled: 1
     onFull:
       description: The Wyrm wakes, and the Greywood goes quiet.
-      resolve: wyrm-wakes
+      resolve: table.wyrm-wakes
   # Filled by the Clans' own turn (factions.yaml). Full, they march: at war, the garrison
   # weakened and two segments closer to mutiny; then they gather again.
   the-iron-clans-march:

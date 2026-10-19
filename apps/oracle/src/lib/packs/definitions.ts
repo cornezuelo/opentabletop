@@ -89,8 +89,9 @@ export function hasKind(pack: PackSource, kind: string): boolean {
 const REF_KEYS = ['table', 'generator'] as const
 
 /**
- * References written as local ids ("weather") made absolute ("kal-arath/weather"), so a
- * definition copied into another pack keeps pointing at the same tables.
+ * References to the pack's own definitions ("table.weather") made to name the pack
+ * ("kal-arath/table.weather"), so a definition copied into another pack keeps pointing at
+ * the same tables.
  */
 export function qualifyRefs(raw: Record<string, unknown>, packId: string): Record<string, unknown> {
   const fix = (node: unknown): unknown => {
@@ -101,7 +102,8 @@ export function qualifyRefs(raw: Record<string, unknown>, packId: string): Recor
       out[key] =
         (REF_KEYS as readonly string[]).includes(key) &&
         typeof value === 'string' &&
-        !value.includes('/')
+        !value.includes('/') &&
+        !value.startsWith('{{')
           ? `${packId}/${value}`
           : fix(value)
     return out

@@ -14,9 +14,9 @@ const PACK = [
     content: `
 kind: system
 name: Band
-travel: default
-bindings: default
-sheet: companion
+travel: travel-rules.default
+bindings: bindings.default
+sheet: sheet.companion
 `,
   },
   {
@@ -61,7 +61,7 @@ checks: [{ event: TRAIL, at: '07:00' }]
 values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
-on: { TRAIL: { resolve: trail } }
+on: { TRAIL: { resolve: table.trail } }
 stats:
   navigation: { name: Navigation, from: { max: survival } }
   mouths: { from: { count: true } }

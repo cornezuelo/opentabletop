@@ -30,8 +30,8 @@ values: { lost: { blocks: [travel.move] } }
 kind: bindings
 on: {}
 discover:
-  terrain: { resolve: next-terrain }
-  contents: { resolve: contents }
+  terrain: { resolve: table.next-terrain }
+  contents: { resolve: table.contents }
 ---
 kind: table
 id: next-terrain
@@ -217,7 +217,7 @@ values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
 on: {}
-discover: { terrain: { resolve: grow }, reveal: neighbors }
+discover: { terrain: { resolve: table.grow }, reveal: neighbors }
 ---
 kind: table
 id: grow
@@ -290,8 +290,8 @@ values: { lost: { blocks: [travel.move] } }
 kind: bindings
 on: {}
 discover:
-  terrain: { resolve: next }
-  contents: { resolve: next }
+  terrain: { resolve: table.next }
+  contents: { resolve: table.next }
 ---
 kind: table
 id: next

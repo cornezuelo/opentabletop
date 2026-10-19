@@ -5,7 +5,7 @@ weather:
 
     **Enseña:**
 
-    - Un id de tabla construido con el contexto: `weather-{{time.season}}`
+    - Una referencia construida con el contexto: `table.weather-{{time.season}}`
     - Una respuesta por defecto cuando no hay estación
   entries: { grey: Cielo gris }
 weather-spring:

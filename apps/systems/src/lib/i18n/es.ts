@@ -85,7 +85,7 @@ export const es: Messages<typeof en> = {
     weather: {
       title: 'Sus modelos de clima',
       intro:
-        'Clima con inercia: hoy sigue a ayer, con probabilidades por estación. Una comprobación cuyo binding nombra un modelo lo tira (`weather: highland-skies`).',
+        'Clima con inercia: hoy sigue a ayer, con probabilidades por estación. Una comprobación cuyo binding nombra un modelo lo tira (`weather: weather.highland-skies`).',
       help: 'Modelos de clima (`kind: weather`) que pueden nombrar los bindings del sistema, enumerados en su **Resumen**. Cada tipo de clima puede fijar valores del día (`set: { snowed-in: true }`) que leen las condiciones; el clima del día es `weather` en tablas y condiciones:\n• `trip.weather: storm`\n• `trip.weather: [rain, storm]`',
       none: 'Este sistema no nombra modelos de clima.',
       create: 'Nuevo modelo de clima',
@@ -117,7 +117,7 @@ export const es: Messages<typeof en> = {
       'Qué pasa cuando se llena, en palabras: una línea en la cronología y un aviso.\n• **La Sierpe despierta y deja su guarida.**',
     resolve: 'Tira',
     resolveHelp:
-      'Una tabla, oráculo, generador o mazo que se tira cuando se llena, con lo que dicen el reloj del mundo y las facciones (como el turno de una facción). Lo que sale va a la cronología, y se aplican sus efectos.\n• `wyrm-wakes` — una tabla de este pack\n• `core/twists` — los giros de Core',
+      'Una tabla, oráculo, generador o mazo que se tira cuando se llena, con lo que dicen el reloj del mundo y las facciones (como el turno de una facción). Lo que sale va a la cronología, y se aplican sus efectos.\n• `table.the-raid` — una tabla de este pack\n• `core/table.twists` — los giros de Core',
     effects: 'Cambia',
     effectsHelp:
       'Lo que cambia cuando se llena, como pares `clave: valor`: otros relojes y las facciones (el grupo de un viaje no es del mundo).\n• `world.clocks.the-siege: 2` — llena dos segmentos de otro\n• `factions.the-crown.values.strength: -1`\n• `factions.the-rebels.territory: 1` — un hex más',
@@ -134,7 +134,7 @@ export const es: Messages<typeof en> = {
       'La hoja con la que se hace cada facción (`kind: sheet`): sus valores (fuerza, riqueza…), estados (en guerra…) y tipos de relación (aliado, rival). Puede ser la de los personajes o una propia.',
     turn: 'Su turno',
     turnHelp:
-      'Lo que tira cada facción en un turno del mundo (una tabla, oráculo, generador o mazo), con sus propios valores como `faction.*`:\n• `faction-turn` — una tabla de este pack\n• `core/faction-turn` — la de Core, para cualquier juego: crece, aguanta o pierde terreno',
+      'Lo que tira cada facción en un turno del mundo (una tabla, oráculo, generador o mazo), con sus propios valores como `faction.*`:\n• `table.faction-turn` — una tabla de este pack\n• `generator.schemes` — un generador de este pack\n• `core/table.faction-turn` — la de Core, para cualquier juego: crece, aguanta o pierde terreno',
     every: 'Cada (días)',
     everyHelp:
       'Días del reloj del mundo entre turnos. Vacío o 0: solo a mano (el **Turno del mundo** del Hexmapper).\n• `7` — un turno a la semana',
@@ -334,7 +334,7 @@ export const es: Messages<typeof en> = {
       'Para qué es el sistema, en pocas líneas; se muestra donde se elige. Markdown básico: `**negrita**`, `_cursiva_`, `` `código` ``, listas con `- `.\n• _Un desierto que se cruza en caravana, con el agua escasa y tormentas de arena._',
     parts: 'Sus partes',
     partsHelp:
-      'Las definiciones con las que se juega el sistema, cada una por su id: de este pack (`default`) o de una dependencia (`core/default`).\n• **Reglas de viaje** — cómo va un viaje (`kind: travel-rules`); ninguna: las reglas Genéricas\n• **Bindings** — qué tabla responde a cada comprobación, y las características del grupo (`kind: bindings`)\n• **Calendario** — cómo se nombran los días, en los viajes y en el reloj del mundo (`kind: calendar`); ninguno: el de por defecto',
+      'Las definiciones con las que se juega el sistema, cada una por su kind y su id: de este pack (`travel-rules.default`) o de una dependencia (`core/travel-rules.default`).\n• **Reglas de viaje** — cómo va un viaje (`kind: travel-rules`); ninguna: las reglas Genéricas\n• **Bindings** — qué tabla responde a cada comprobación, y las características del grupo (`kind: bindings`)\n• **Calendario** — cómo se nombran los días, en los viajes y en el reloj del mundo (`kind: calendar`); ninguno: el de por defecto',
     travel: 'Reglas de viaje',
     travelHelp:
       'Cómo va un viaje: el día, las velocidades, las provisiones, las acciones, las comprobaciones (`travel: default`). **Abrir** las edita en la pestaña Reglas; **Crear** empieza unas nuevas a partir de las Genéricas.\n• ninguna — las reglas Genéricas',
@@ -353,7 +353,7 @@ export const es: Messages<typeof en> = {
     create: 'Crear',
     weather: 'Modelos de clima',
     weatherHelp:
-      'Los modelos de clima (`kind: weather`) que sus bindings pueden nombrar en una comprobación (`weather: highland-skies`), para que el clima del día tenga inercia: los de este pack y los de sus dependencias.\n• `weather: [highland-skies]`',
+      'Los modelos de clima (`kind: weather`) que sus bindings pueden nombrar en una comprobación (`weather: weather.highland-skies`), para que el clima del día tenga inercia: los de este pack y los de sus dependencias.\n• `weather: [weather.highland-skies]`\n• `weather: [weather.coast, core/weather.plains]`',
     noWeather: 'No hay modelos de clima en este pack ni en sus dependencias.',
     packs: 'Packs que trae',
     packsHelp:
@@ -553,7 +553,7 @@ export const es: Messages<typeof en> = {
     never: 'nunca',
     resolve: 'Se tira en',
     resolveHelp:
-      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores `set` y `effects` llegan al viaje.\n• `my-pack/getting-lost` — pone `lost: true` con una mala tirada\n• un modelo de clima — el clima del día con inercia\n• **sin tabla** — solo se apunta en el diario, con sus **Cambios**; marca **Pausar después** para resolverla a mano',
+      'La tabla, oráculo, generador o mazo que la resuelve. Su resultado va al diario, y sus valores `set` y `effects` llegan al viaje.\n• `table.getting-lost` — pone `lost: true` con una mala tirada\n• `oracle.ford` — un oráculo, con su entrada desde el contexto de la comprobación\n• un modelo de clima — el clima del día con inercia\n• **sin tabla** — solo se apunta en el diario, con sus **Cambios**; marca **Pausar después** para resolverla a mano',
     weatherModels: 'Clima con inercia',
     weatherModel: 'Modelo de clima: {model}',
     waits: '— sin tabla —',

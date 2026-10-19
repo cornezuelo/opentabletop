@@ -1,7 +1,19 @@
 import { compilePacks, type Registry } from './compile/compile'
 import { loadPackFiles, type Diagnostic, type PackFile } from './loader/load'
 
-export { compilePacks, resolveRef } from './compile/compile'
+export { compilePacks, refScope, resolveRef } from './compile/compile'
+export {
+  dynamicKind,
+  findRef,
+  isDynamicRef,
+  parseRef,
+  refProblem,
+  refTarget,
+  ROLLABLE_KINDS,
+  writeRef,
+  type DefinitionRef,
+  type RefScope,
+} from './compile/refs'
 export type {
   Compiled,
   CompiledDeck,

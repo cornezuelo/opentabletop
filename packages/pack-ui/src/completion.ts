@@ -1,4 +1,4 @@
-import type { Registry } from '@open-tabletop/oracle-engine'
+import { writeRef, type Registry } from '@open-tabletop/oracle-engine'
 import {
   contextSuggestions,
   effectSuggestions,
@@ -10,10 +10,15 @@ import { choicesFor, typingAt, type Suggestions } from '@open-tabletop/ui-kit'
 
 /** What the YAML editor can suggest: from the loaded packs, the map and trips. */
 export interface YamlHints {
-  /** Tables and generators a reference can point at (local ids and pack/id). */
+  /** Tables and generators a reference can point at (`table.ruins`, `core/generator.npc`). */
   refs: readonly string[]
   /** Everything a check can be resolved by (`resolve:`): also oracles and decks. */
   rollable?: readonly string[]
+  /**
+   * Other engines' definitions by the kind that names them (`sheet.companion`,
+   * `roll-modes.advantage`), for `sheet:`, `calendar:`, `cancels:`…
+   */
+  named?: Readonly<Record<string, readonly string[]>>
   /** Names conditions and context can read, with their values. */
   context: Suggestions
   /** Names an entry can set, with their values. */
@@ -28,21 +33,33 @@ export interface YamlHints {
   parts?: readonly string[]
 }
 
-/** Hints from the loaded packs; `pack` lists its own definitions first, by local id. */
+/**
+ * Hints from the loaded packs; `pack` lists its own definitions first, as it writes them
+ * (`table.ruins`), then the others' (`core/table.twists`).
+ */
 export function yamlHints(registry: Registry, pack?: string): YamlHints {
   const all = [...registry.definitions.values()]
+  const own = (owner: string) => (owner === pack ? undefined : owner)
   const ids = (defs: typeof all) => [
-    ...defs.filter((d) => d.pack === pack).map((d) => d.localId),
-    ...defs.filter((d) => d.pack !== pack).map((d) => d.id),
+    ...defs.filter((d) => d.pack === pack).map((d) => writeRef(d.kind, d.localId)),
+    ...defs.filter((d) => d.pack !== pack).map((d) => writeRef(d.kind, d.localId, d.pack)),
   ]
+  const named: Record<string, string[]> = {}
+  for (const [owner, extras] of registry.extras)
+    for (const e of extras)
+      (named[e.kind] ??= []).push(writeRef(e.kind, e.id ?? 'default', own(owner)))
+  named['roll-modes'] = [...registry.rollModes.values()].map((m) =>
+    writeRef('roll-modes', m.localId, own(m.pack)),
+  )
   // The pack's own travel system first, then every other one.
   const systems = travelSystems(registry).systems.sort(
     (a, b) => Number(b.pack === pack) - Number(a.pack === pack),
   )
   const unique = (list: string[]) => [...new Set(list)]
   return {
-    refs: ids(all.filter((d) => d.kind === 'table' || d.kind === 'generator')),
+    refs: ids(all),
     rollable: ids(all),
+    named,
     context: contextSuggestions(registry),
     set: setSuggestions(registry),
     effects: effectSuggestions(registry),
@@ -95,8 +112,18 @@ const ENUMS: Record<string, readonly string[]> = {
   share: ['even', 'order'],
   track: ['true', 'false'],
 }
-/** Keys whose value is a reference to a table or generator. */
-const REF_KEYS = new Set(['table', 'generator', 'resolve'])
+/** Keys whose value is a reference to something rolled: a table, oracle, generator or deck. */
+const REF_KEYS = new Set(['table', 'generator', 'resolve', 'turn'])
+/** Keys whose value names another engine's definition, by the kind it names. */
+const NAMED_KEYS: Record<string, string> = {
+  sheet: 'sheet',
+  partySheet: 'sheet',
+  calendar: 'calendar',
+  bindings: 'bindings',
+  factions: 'factions',
+  clocks: 'clocks',
+  cancels: 'roll-modes',
+}
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
 const CONDITION_KEYS = new Set(['when', 'unless', 'through', 'wait'])
 
@@ -249,19 +276,21 @@ export function completeYaml(before: string, hints: YamlHints): Completion | nul
     const [, key, typed] = pair
     const actions = hints.actions ?? []
     const pool =
-      key === 'resolve'
+      key === 'resolve' || key === 'turn'
         ? (hints.rollable ?? hints.refs)
-        : REF_KEYS.has(key)
-          ? hints.refs
-          : key === 'do'
-            ? actions
-            : key === 'on' || key === 'at'
-              ? [...CHECK_MOMENTS, ...(hints.parts ?? []), ...actions]
-              : key === 'roll'
-                ? (hints.events ?? [])
-                : key === 'time' || key === 'limit'
-                  ? [...ENUMS.time, ...(hints.parts ?? [])]
-                  : (ENUMS[key] ?? hints.context[key] ?? [])
+        : NAMED_KEYS[key] && hints.named?.[NAMED_KEYS[key]]
+          ? hints.named[NAMED_KEYS[key]]
+          : REF_KEYS.has(key)
+            ? hints.refs
+            : key === 'do'
+              ? actions
+              : key === 'on' || key === 'at'
+                ? [...CHECK_MOMENTS, ...(hints.parts ?? []), ...actions]
+                : key === 'roll'
+                  ? (hints.events ?? [])
+                  : key === 'time' || key === 'limit'
+                    ? [...ENUMS.time, ...(hints.parts ?? [])]
+                    : (ENUMS[key] ?? hints.context[key] ?? [])
     const options = filter(pool, typed)
     return options.length ? { from: before.length - typed.length, options } : null
   }

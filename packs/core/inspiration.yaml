@@ -63,6 +63,6 @@ description: |-
 
   Use it when an oracle's answer needs a _what_, or when you don't know what comes next.
 fields:
-  action: { table: action }
-  subject: { table: subject }
+  action: { table: table.action }
+  subject: { table: table.subject }
 template: '{{action.text}} {{subject.text}}'

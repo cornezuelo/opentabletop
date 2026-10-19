@@ -22,10 +22,11 @@ description: |-
 roll: '1d6 + {{party.stats.navigation}}'
 modeWhen:
   # Clear skies, or a guide who knows the way (a journey role, read by its holder's value).
-  advantage: { any: [{ trip.weather: clear }, { roles.guide.values.pathfinding: { gte: 2 } }] }
-  disadvantage: { yesterday.lost: true }
+  roll-modes.advantage:
+    { any: [{ trip.weather: clear }, { roles.guide.values.pathfinding: { gte: 2 } }] }
+  roll-modes.disadvantage: { yesterday.lost: true }
 modeUnless:
-  advantage: { hex.terrain: [forest, dense-forest] }
+  roll-modes.advantage: { hex.terrain: [forest, dense-forest] }
 entries:
   - {
       id: fog,
@@ -75,10 +76,10 @@ description: |-
   - A **part of the calendar's day**: advantage by itself in the morning (`modeWhen: { advantage: { time.part: morning } }`, 06:00 to 11:00)
   - **Effects**: `party.resources.food: 1`, the food gained
 roll: '1d6 + {{party.stats.survival}}'
-modes: [advantage, disadvantage]
+modes: [roll-modes.advantage, roll-modes.disadvantage]
 # A part of the calendar's day (calendar.yaml): the morning, 06:00 to 11:00.
 modeWhen:
-  advantage: { time.part: morning }
+  roll-modes.advantage: { time.part: morning }
 entries:
   - { id: nothing, range: 1-3, result: Nothing to eat here }
   - {
@@ -186,7 +187,7 @@ description: |-
   - Day values set by the weather: `{{fordModifier}}`, `fordImpossible`
   - `set: { lost: true }`: no crossing today
   - A roll mode of the pack's own: _Carefully_ (three rolls, the middle one kept)
-modes: [careful]
+modes: [roll-modes.careful]
 inputs:
   odds:
     label: The water
@@ -210,7 +211,7 @@ variants:
           id: wet,
           range: 1-3,
           result: 'Halfway, the current takes you — {{result}}',
-          table: ford-mishap,
+          table: table.ford-mishap,
         }
       - { id: fine, range: 4-20, result: 'Cold and wet, but across' }
   high:
@@ -225,7 +226,7 @@ variants:
           id: swept,
           range: 1-5,
           result: 'The flood sweeps you downstream — {{result}}',
-          table: ford-mishap,
+          table: table.ford-mishap,
           effects: { party.stats.fatigue: 1 },
         }
       - { id: fine, range: 6-20, result: Somehow you make it across }
@@ -276,7 +277,7 @@ entries:
     when: { party.stats.morale: { lte: 0 } }
     maxOccurrences: 2
     result: 'In the night, {{result}}'
-    table: desertion
+    table: table.desertion
     effects: { party.stats.morale: -1, party.stats.hirelings: -1 }
   # The last time the hirelings leave, the next hungry night grumbles instead (`next`).
   - {
@@ -304,8 +305,8 @@ description: |-
   - A cascade into _Names of the Marches_
   - `once`: the note comes a single time
 entries:
-  - { id: food, result: '{{result}} slips away with the last of the bread', table: npc-names }
-  - { id: torch, result: '{{result}} is gone by dawn, and the torches too', table: npc-names }
+  - { id: food, result: '{{result}} slips away with the last of the bread', table: table.npc-names }
+  - { id: torch, result: '{{result}} is gone by dawn, and the torches too', table: table.npc-names }
   # Once a session: the deserter leaves a note.
   - {
       id: note,

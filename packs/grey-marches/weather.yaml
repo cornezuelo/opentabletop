@@ -11,7 +11,7 @@ description: |-
 
   **Shows:**
 
-  - A table id built from the context: `weather-{{time.season}}`
+  - A reference built from the context: `table.weather-{{time.season}}`
   - A fallback when there is no season
 roll: 1d6
 entries:
@@ -19,7 +19,7 @@ entries:
       id: season,
       range: 1-6,
       when: { time.season: { exists: true } },
-      table: 'weather-{{time.season}}',
+      table: 'table.weather-{{time.season}}',
     }
   - { id: grey, range: 1-6, result: Grey skies, set: { weather: grey } }
 ---

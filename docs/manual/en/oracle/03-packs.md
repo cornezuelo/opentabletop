@@ -39,7 +39,7 @@ travel: { hoursPerDay: 8, start: '07:00' }
 kind: bindings
 id: default
 on:
-  WEATHER_CHECK_REQUIRED: { resolve: weather }
+  WEATHER_CHECK_REQUIRED: { resolve: table.weather }
 ```
 
 They could live in separate files just as well. A pack holds at most one travel system, so both use the id `default`.
@@ -67,4 +67,4 @@ The Hexmapper sees your packs when both apps are served from the same site (e.g.
 
 ## Copying definitions
 
-**Duplicate** copies a definition inside its pack; **Copy to…** copies it, with its translations, into one of your packs (local references become `pack/id`, so they keep pointing at the same tables). Handy to start from a bundled table.
+**Duplicate** copies a definition inside its pack; **Copy to…** copies it, with its translations, into one of your packs (local references name their pack, `pack/table.id`, so they keep pointing at the same tables). Handy to start from a bundled table.

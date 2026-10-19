@@ -32,7 +32,9 @@ Most boxes and most of the YAML are `key: value` pairs.
 ## Ids and references
 
 - **Ids** use lowercase letters, digits and dashes: `getting-lost`, `npc-roles`.
-- **References** to a definition: `weather` (the same pack), `core/weather` (another pack, by its id), or one a variable picks: `'weather-{{time.season}}'`.
+- **References** to a definition say what it is: its `kind`, as the definition writes it, then its id: `table.weather`, `oracle.ford`, `generator.npc`, `deck.omens`, `roll-modes.advantage`, `sheet.companion`, `calendar.marcher-reckoning`, `weather.sky`, `travel-rules.default`, `bindings.default`, `factions.default`, `clocks.default`. Another pack's goes after its id and a slash: `core/table.twists` (the pack must be one of its `dependencies`). One a variable picks keeps its kind first: `'table.weather-{{time.season}}'`. A reference without its kind (`weather`) isn't read: the problem says which one was meant (`write table.weather`).
+- Where a field rolls something (an entry's or card's `table:` / `generator:`, a binding's `resolve:`, a faction's `turn:`, a full clock's `onFull.resolve:`), it may be a table, an oracle, a generator or a deck: the kind says which (`table: generator.npc`, `resolve: oracle.ford`).
+- A pack's `aliases` give another name to a reference: `aliases: { table.twist: core/table.twists }`, then `table: table.twist`.
 - Entries and cards have ids too, for translations and once-only entries.
 - **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.hex-enter`, `time.day-end`, a part of the day `time.part.morning`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `hex.terrain: forest`.
 

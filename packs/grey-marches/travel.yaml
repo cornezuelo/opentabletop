@@ -661,21 +661,21 @@ reads:
       description: 'true when a storm makes the ford impossible for the rest of the day.',
     }
 discover:
-  terrain: { resolve: next-terrain }
-  contents: { resolve: hex-contents }
+  terrain: { resolve: table.next-terrain }
+  contents: { resolve: table.hex-contents }
   reveal: neighbors
 on:
   # Weather with inertia: a model (sky.yaml) instead of a table.
-  WEATHER_CHECK_REQUIRED: { weather: sky }
-  NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }
-  NIGHT_NAVIGATION_CHECK_REQUIRED: { resolve: getting-lost }
+  WEATHER_CHECK_REQUIRED: { weather: weather.sky }
+  NAVIGATION_CHECK_REQUIRED: { resolve: table.getting-lost }
+  NIGHT_NAVIGATION_CHECK_REQUIRED: { resolve: table.getting-lost }
   # One encounter table for day and night: the context says which.
-  ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: day } }
-  CAMP_ENCOUNTER_CHECK_REQUIRED: { resolve: encounter, context: { timeOfDay: night } }
-  TOLL_CHECK_REQUIRED: { resolve: toll }
+  ENCOUNTER_CHECK_REQUIRED: { resolve: table.encounter, context: { timeOfDay: day } }
+  CAMP_ENCOUNTER_CHECK_REQUIRED: { resolve: table.encounter, context: { timeOfDay: night } }
+  TOLL_CHECK_REQUIRED: { resolve: table.toll }
   # An oracle resolves the ford; the context gives its input (how likely it goes well).
-  FORD_CHECK_REQUIRED: { resolve: ford, context: { odds: even } }
-  SHRINE_CHECK_REQUIRED: { resolve: shrine }
-  FORAGE_CHECK_REQUIRED: { resolve: forage }
-  FISHING_CHECK_REQUIRED: { resolve: fishing }
-  HUNGER_CHECK_REQUIRED: { resolve: hunger }
+  FORD_CHECK_REQUIRED: { resolve: oracle.ford, context: { odds: even } }
+  SHRINE_CHECK_REQUIRED: { resolve: table.shrine }
+  FORAGE_CHECK_REQUIRED: { resolve: table.forage }
+  FISHING_CHECK_REQUIRED: { resolve: table.fishing }
+  HUNGER_CHECK_REQUIRED: { resolve: table.hunger }

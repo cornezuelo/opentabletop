@@ -1,4 +1,4 @@
-import type { Compiled } from '@open-tabletop/oracle-engine'
+import { writeRef, type Compiled } from '@open-tabletop/oracle-engine'
 import { getOverlayText, readDefinition, setIn, setOverlayText } from '@open-tabletop/pack-ui/yaml'
 import { manifestOf, overlayLocales, overlayPath } from './workspace'
 import { workspace } from './workspace.svelte'
@@ -23,11 +23,15 @@ export function definitionDoc(source: () => { def: Compiled; root: string }) {
   const overlayFile = $derived(overlayPath(language, file))
   const overlay = $derived(translating ? workspace.readFile(root, overlayFile) : undefined)
   /** Tables and generators a reference can point at: this pack's first, by local id. */
+  // What an entry can roll, as it's written (`table.ruins`, `core/oracle.odds`): under
+  // `generator:` the generators, under `table:` the rest.
   const targets = $derived(
     [...workspace.registry.definitions.values()]
-      .filter((d) => d.kind === 'table' || d.kind === 'generator')
       .sort((a, b) => Number(a.pack !== def.pack) - Number(b.pack !== def.pack))
-      .map((d) => ({ kind: d.kind, ref: d.pack === def.pack ? d.localId : d.id })),
+      .map((d) => ({
+        kind: d.kind === 'generator' ? ('generator' as const) : ('table' as const),
+        ref: writeRef(d.kind, d.localId, d.pack === def.pack ? undefined : d.pack),
+      })),
   )
 
   const save = (text: string) => workspace.writeFile(root, file, text)

@@ -10,7 +10,7 @@ modes:
     repeat: 2
     keep: highest
     # Advantage and disadvantage together give a normal roll.
-    cancels: disadvantage
+    cancels: roll-modes.disadvantage
   disadvantage:
     name: Disadvantage
     description: Roll twice and keep the lower total.

@@ -10,7 +10,7 @@ const files = [
 id: weather
 roll: 1d6
 entries:
-  - { range: 1-6, table: 'weather-{{season}}', set: { mood: grim } }
+  - { range: 1-6, table: 'table.weather-{{season}}', set: { mood: grim } }
 ---
 kind: table
 id: reaction
@@ -22,7 +22,7 @@ entries:
 kind: generator
 id: encounter
 fields:
-  who: { table: reaction }
+  who: { table: table.reaction }
   count: { roll: 1d6 }
   fare: { value: '{{token.fare}}', when: { token: { exists: true } } }
   extra: { value: '{{1d4}}' }

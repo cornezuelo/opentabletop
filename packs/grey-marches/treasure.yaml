@@ -20,7 +20,7 @@ entries:
       id: map,
       range: 76-90,
       result: 'A map of the Hollow Hills; a note says {{result}}',
-      table: rumours,
+      table: table.rumours,
     }
   - {
       id: potion,
@@ -29,7 +29,7 @@ entries:
       # '=value' sets a value instead of adding to it.
       effects: { party.stats.fatigue: '=0' },
     }
-  - { id: prize, range: 99-100, table: prize }
+  - { id: prize, range: 99-100, table: table.prize }
 ---
 # maxOccurrences: the Sword of Keld turns up twice at most; then only gold remains.
 kind: table
@@ -65,13 +65,13 @@ description: |-
   - A table rolled with its own context: the guardian, met at night, as dangerous as the ruin (fields see the fields before them: `danger`)
   - Fields' fixed texts translated in `locales/` (`fields:`)
 fields:
-  site: { table: ruins }
+  site: { table: table.ruins }
   danger: { roll: 2d6kl1 }
   untouched: { roll: d% }
   trap: { when: { danger: { lte: 2 } }, value: ' A trap guards the way in.' }
   # Unless less than nine tenths is untouched: nobody has been here.
   fresh: { unless: { untouched: { lt: 90 } }, value: ' No one has set foot here in an age.' }
   rating: { value: 'danger {{danger}} of 6' }
-  loot: { table: treasure }
-  guardian: { table: encounter, context: { timeOfDay: night } }
+  loot: { table: table.treasure }
+  guardian: { table: table.encounter, context: { timeOfDay: night } }
 template: 'The ruins of {{site}} ({{rating}}, {{untouched}}% untouched).{{fresh}}{{trap}} Inside: {{loot}}. Guarding it: {{guardian}}.'

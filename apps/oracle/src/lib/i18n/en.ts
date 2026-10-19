@@ -89,7 +89,7 @@ export const en = {
     result: 'Result',
     then: 'Then roll',
     thenHelp:
-      "Another table or generator rolled **when this entry comes up**; its result is added to this one's.\n• `ruins` — what the ruins are\n• `core/npc` — a table from another pack (`pack/id`)\nThe table it rolls sees what this entry **Sets**.",
+      "Another table or generator rolled **when this entry comes up**; its result is added to this one's.\n• `table.ruins` — what the ruins are\n• `generator.npc` — a generator: who you meet\n• `core/table.npc` — a table from another pack (`pack/kind.id`)\nThe table it rolls sees what this entry **Sets**.",
     nothing: 'nothing',
     id: 'Id',
     idHelp:

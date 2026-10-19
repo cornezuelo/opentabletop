@@ -1,5 +1,6 @@
 import type { OracleEngine, OracleState } from '@open-tabletop/oracle-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { definitionId } from './refs'
 
 /** A check-like binding: which definition to resolve, with extra context. */
 export interface DiscoverBinding {
@@ -55,7 +56,7 @@ export function parseDiscover(
       return undefined
     }
     return {
-      resolve: pack && !value.resolve.includes('/') ? `${pack}/${value.resolve}` : value.resolve,
+      resolve: definitionId(value.resolve, pack),
       ...(typeof value.context === 'object' &&
         value.context !== null && { context: value.context as Record<string, unknown> }),
     }

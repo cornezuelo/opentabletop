@@ -137,7 +137,11 @@ export function run(args: readonly string[], io: Io): number {
       registry,
       random: seed !== undefined ? seeded(seed) : mathRandom(),
     })
-    const def = engine.get(id) ?? engine.list().find((d) => d.localId === id)
+    // Its full id (core/scenes), its reference as packs write it (core/table.scenes) or its own id.
+    const def =
+      engine.get(id) ??
+      engine.get(resolveRef(registry, id.split('/')[0], id) ?? '') ??
+      engine.list().find((d) => d.localId === id)
     if (!def) {
       io.err(`roll: no table, oracle, generator or deck "${id}" (see: opentabletop list)`)
       return 1
@@ -145,10 +149,17 @@ export function run(args: readonly string[], io: Io): number {
     const locale = typeof options.locale === 'string' ? options.locale : undefined
     const times = Math.max(1, Number(options.times) || 1)
     const context = contextOf(pairs)
-    // A roll mode found like any reference from the table's pack (its own, then its dependencies').
+    // A roll mode found like any reference from the table's pack (its own, then its
+    // dependencies'): `advantage` or `roll-modes.advantage`.
     const modeRef = typeof options.mode === 'string' ? options.mode : undefined
-    const mode = modeRef
-      ? (resolveRef(registry, def.pack, modeRef, (x) => registry.rollModes.has(x)) ?? modeRef)
+    const written = modeRef && !modeRef.includes('.') ? `roll-modes.${modeRef}` : modeRef
+    const mode = written
+      ? (resolveRef(
+          registry,
+          def.pack,
+          written,
+          (kind, x) => kind === 'roll-modes' && registry.rollModes.has(x),
+        ) ?? modeRef)
       : undefined
     if (mode && !((def.kind === 'table' || def.kind === 'oracle') && def.modes.includes(mode))) {
       io.err(`roll: "${def.id}" doesn't offer the roll mode "${modeRef}"`)

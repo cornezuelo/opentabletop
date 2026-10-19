@@ -134,7 +134,7 @@ fields:
 describe('locating by kind', () => {
   it('finds a definition by @kind when several share an id', () => {
     const FILE =
-      'kind: travel-rules\nid: default\nchecks:\n  - { event: A, at: actions.dawn }\n---\nkind: bindings\nid: default\non:\n  A: { resolve: nope }\n'
+      'kind: travel-rules\nid: default\nchecks:\n  - { event: A, at: actions.dawn }\n---\nkind: bindings\nid: default\non:\n  A: { resolve: table.nope }\n'
     expect(locate(FILE, '@travel-rules.checks.0.at')).toBe(4)
     expect(locate(FILE, '@bindings.on.A.resolve')).toBe(9)
   })
@@ -157,18 +157,18 @@ describe('locating by kind', () => {
   it('edits a definition found by @kind', () => {
     const FILE =
       'kind: travel-rules\nid: default\ntravel: { hoursPerDay: 8 }\n---\nkind: bindings\nid: default\non: {}\n'
-    const out = setIn(FILE, '@bindings', ['on', 'WEATHER'], { resolve: 'weather' })
+    const out = setIn(FILE, '@bindings', ['on', 'WEATHER'], { resolve: 'table.weather' })
     expect(readDefinition(out, '@bindings')).toMatchObject({
-      on: { WEATHER: { resolve: 'weather' } },
+      on: { WEATHER: { resolve: 'table.weather' } },
     })
     expect(readDefinition(out, '@travel-rules')).toMatchObject({ travel: { hoursPerDay: 8 } })
   })
 
   it('fills an empty {} or [] as a block, and keeps flow collections that have items', () => {
     const FILE = 'kind: bindings\nid: default\non: {}\nstats: { luck: { default: 0 } }\n'
-    let out = setIn(FILE, '@bindings', ['on', 'WEATHER'], { resolve: 'weather' })
+    let out = setIn(FILE, '@bindings', ['on', 'WEATHER'], { resolve: 'table.weather' })
     out = setIn(out, '@bindings', ['stats', 'pluck'], { default: 1 })
-    expect(out).toContain('on:\n  WEATHER:\n    resolve: weather\n')
+    expect(out).toContain('on:\n  WEATHER:\n    resolve: table.weather\n')
     expect(out).toContain('stats: { luck: { default: 0 }, pluck: { default: 1 } }')
     const RULES = 'kind: travel-rules\nchecks: []\n'
     expect(

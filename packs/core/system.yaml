@@ -14,7 +14,7 @@ description: |-
   **Shows:** the smallest system: travel rules with a march, a camp, a rest and eating;
   a calendar whose day is named by parts (the night tagged `dark`); a character sheet and
   a party sheet.
-travel: default
-calendar: default
-sheet: character
-partySheet: party
+travel: travel-rules.default
+calendar: calendar.default
+sheet: sheet.character
+partySheet: sheet.party

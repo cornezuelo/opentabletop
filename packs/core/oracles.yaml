@@ -70,18 +70,23 @@ roll: 1d6
 variants:
   small:
     entries:
-      - { id: agree, range: 1-4, result: 'They agree ({{result}})', table: npc-motive }
-      - { id: refuse, range: 5-6, result: 'They refuse ({{result}})', table: npc-motive }
+      - { id: agree, range: 1-4, result: 'They agree ({{result}})', table: table.npc-motive }
+      - { id: refuse, range: 5-6, result: 'They refuse ({{result}})', table: table.npc-motive }
   fair:
     entries:
-      - { id: agree, range: 1-3, result: 'They agree ({{result}})', table: npc-motive }
-      - { id: refuse, range: 4-6, result: 'They refuse ({{result}})', table: npc-motive }
+      - { id: agree, range: 1-3, result: 'They agree ({{result}})', table: table.npc-motive }
+      - { id: refuse, range: 4-6, result: 'They refuse ({{result}})', table: table.npc-motive }
   big:
     roll: 1d8
     entries:
-      - { id: agree, range: 1-2, result: 'They agree ({{result}})', table: npc-motive }
-      - { id: price, range: 3-4, result: 'Only for {{2d6}} silver ({{result}})', table: npc-motive }
-      - { id: refuse, range: 5-8, result: 'They refuse ({{result}})', table: npc-motive }
+      - { id: agree, range: 1-2, result: 'They agree ({{result}})', table: table.npc-motive }
+      - {
+          id: price,
+          range: 3-4,
+          result: 'Only for {{2d6}} silver ({{result}})',
+          table: table.npc-motive,
+        }
+      - { id: refuse, range: 5-8, result: 'They refuse ({{result}})', table: table.npc-motive }
 ---
 kind: table
 id: npc-motive

@@ -11,5 +11,5 @@ clocks:
     segments: 6
     onFull:
       description: The threat strikes.
-      resolve: twists
+      resolve: table.twists
       then: reset

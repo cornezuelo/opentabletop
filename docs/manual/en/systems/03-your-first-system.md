@@ -60,7 +60,7 @@ id: default
 stats:
   fatigue: { name: Fatigue, default: 0, min: 0 } # step 6
 on:
-  LOST_CHECK: { resolve: dark-lost }
+  LOST_CHECK: { resolve: table.dark-lost }
 ---
 kind: table # step 5, made in the Oracle app
 id: dark-lost

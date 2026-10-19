@@ -52,7 +52,7 @@ id: weather
 name: Today's weather
 roll: 1d2
 entries:
-  - { id: today, range: 1-2, table: 'weather-{{time.season}}' }
+  - { id: today, range: 1-2, table: 'table.weather-{{time.season}}' }
 ```
 
 ## 4. Results the trip understands
@@ -144,11 +144,11 @@ checks:
 kind: bindings
 id: default
 on:
-  WEATHER: { resolve: weather }
-  LOST: { resolve: lost-check }
-  ENCOUNTER: { resolve: forest-encounters }
-  NIGHT: { resolve: night-encounters }
-  FORAGE: { resolve: forage }
+  WEATHER: { resolve: table.weather }
+  LOST: { resolve: table.lost-check }
+  ENCOUNTER: { resolve: table.forest-encounters }
+  NIGHT: { resolve: table.night-encounters }
+  FORAGE: { resolve: table.forage }
 stats:
   luck: { name: Luck, description: 'Added to encounter rolls', default: 0 }
   fatigue: { name: Fatigue, default: 0, min: 0 }
@@ -391,8 +391,8 @@ The **bindings** (`kind: bindings`) are the other half of the system:
 kind: bindings
 id: default
 on:
-  NIGHT: { resolve: encounters, context: { timeOfDay: night } }
-  FORD: { resolve: ford, context: { odds: even } } # an oracle and its input
+  NIGHT: { resolve: table.encounters, context: { timeOfDay: night } }
+  FORD: { resolve: oracle.ford, context: { odds: even } } # an oracle and its input
 stats:
   morale:
     { name: Morale, description: Falls with hunger and bad news., default: 2, min: -3, max: 3 }
@@ -408,21 +408,21 @@ Travel rules and bindings are enough for a system named after its pack. A `kind:
 kind: system
 id: default # chosen by the pack's id
 name: Dark Woods
-travel: default
-bindings: default
+travel: travel-rules.default
+bindings: bindings.default
 ---
 kind: system
 id: winter # chosen as <pack>/winter
 name: Dark Woods in winter
-travel: winter # another kind: travel-rules, with id: winter
-bindings: default
+travel: travel-rules.winter # another kind: travel-rules, with id: winter
+bindings: bindings.default
 ```
 
 Every key is in [Systems](../technical/07-kinds.md#systems).
 
 ### Characters
 
-A system may play its party as a whole (its stats and supplies are the party's) or one character at a time, or both. For characters, it declares a **sheet** (`kind: sheet`: their values with bounds, their conditions and what each blocks, the kinds of relation they hold) and names it in its system (`sheet: companion`). Trips then have a **Characters** section: add them, choose who acts, change their values.
+A system may play its party as a whole (its stats and supplies are the party's) or one character at a time, or both. For characters, it declares a **sheet** (`kind: sheet`: their values with bounds, their conditions and what each blocks, the kinds of relation they hold) and names it in its system (`sheet: sheet.companion`). Trips then have a **Characters** section: add them, choose who acts, change their values.
 
 Then the bindings say what the party takes from them:
 
@@ -457,7 +457,7 @@ The powers of the system's world are **factions** (`kind: factions`, named by `f
 
 ### Progress clocks
 
-A system can declare the **progress clocks** its world starts with (`kind: clocks`, named by `clocks:` in its system): each with its segments, where it starts and what happens when it fills. Effects fill them from anywhere (a trip's encounter, a faction's turn: `world.clocks.the-greywood-wyrm-wakes: 1`), conditions read them (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), and once full each does what it says: a line on the timeline, a table rolled (`resolve: wyrm-wakes`), effects on the factions and other clocks (the Iron Clans' march brings Fort Keld's mutiny closer), then it stays full, starts over or goes away. Every key: [Progress clocks](../technical/07-kinds.md#progress-clocks).
+A system can declare the **progress clocks** its world starts with (`kind: clocks`, named by `clocks:` in its system): each with its segments, where it starts and what happens when it fills. Effects fill them from anywhere (a trip's encounter, a faction's turn: `world.clocks.the-greywood-wyrm-wakes: 1`), conditions read them (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), and once full each does what it says: a line on the timeline, a table rolled (`resolve: table.wyrm-wakes`), effects on the factions and other clocks (the Iron Clans' march brings Fort Keld's mutiny closer), then it stays full, starts over or goes away. Every key: [Progress clocks](../technical/07-kinds.md#progress-clocks).
 
 ## 6. A calendar of your own
 
@@ -508,7 +508,7 @@ seasons:
 ---
 kind: bindings
 on:
-  WEATHER_CHECK_REQUIRED: { weather: sky }
+  WEATHER_CHECK_REQUIRED: { weather: weather.sky }
 ```
 
 - **states**: each kind of weather, with its name and the values it gives the day (like a table's `set`); its id is what the travel rules' `weather` reads.
@@ -524,8 +524,8 @@ Bindings can also say how empty hexes are decided while travelling (the Hexmappe
 ```yaml
 kind: bindings
 discover:
-  terrain: { resolve: next-terrain } # an empty hex's terrain
-  contents: { resolve: hex-contents } # what a hex holds, the first time you enter it
+  terrain: { resolve: table.next-terrain } # an empty hex's terrain
+  contents: { resolve: table.hex-contents } # what a hex holds, the first time you enter it
   reveal: neighbors # or: entered (only the hex you walk into)
 on: { … }
 ```

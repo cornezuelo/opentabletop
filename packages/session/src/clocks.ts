@@ -4,6 +4,7 @@ import { qualify } from '@open-tabletop/travel-engine'
 import { onceRoller, resolveChange } from '@open-tabletop/variables'
 import type { ClockDef, ClocksDef, ClockThen } from '@open-tabletop/world-engine'
 import { effectsOf } from './effects'
+import { definitionId } from './refs'
 import { localize } from './index'
 
 /** A system's progress clocks: what its pack declares (`kind: clocks`). */
@@ -90,7 +91,7 @@ export function clockFull(
   let oracle = oracleState
   let value: Record<string, unknown> = {}
   if (on.resolve) {
-    const table = on.resolve.includes('/') ? on.resolve : `${options.system.pack}/${on.resolve}`
+    const table = definitionId(on.resolve, options.system.pack)
     full.table = table
     try {
       const out = options.oracle.resolve(table, facts, oracleState, { locale })

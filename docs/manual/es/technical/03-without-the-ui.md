@@ -28,7 +28,7 @@ make cli ARGS="roll core/yes-no likelihood=likely --seed mi-partida --locale es 
 
 - **validate** muestra cada problema (los mismos que las aplicaciones) y termina con un resumen; falla (código de salida 1) cuando hay errores, así que sirve en scripts y comprobaciones antes de un commit.
 - **list** muestra cada tabla, oráculo, generador y mazo: su id, tipo y nombre (`--kind`, `--pack` para acotar).
-- **roll** tira uno por su id (`pack/id`, o solo el id si es único); un mazo saca una carta. Los pares `clave=valor` son el contexto que leen las tablas (los números y `true`/`false` se leen como tales; los nombres con puntos anidan: `party.stats.morale=2`). `--seed` da los mismos resultados cada vez, `--times` vuelve a tirar conservando las entradas de una vez y las cartas sacadas, `--locale` elige el idioma, `--json` muestra el resultado completo.
+- **roll** tira uno por su id (`pack/id`, su referencia `pack/table.id`, o solo el id si es único); un mazo saca una carta. Los pares `clave=valor` son el contexto que leen las tablas (los números y `true`/`false` se leen como tales; los nombres con puntos anidan: `party.stats.morale=2`). `--seed` da los mismos resultados cada vez, `--times` vuelve a tirar conservando las entradas de una vez y las cartas sacadas, `--locale` elige el idioma, `--json` muestra el resultado completo.
 
 El script construido, `apps/cli/dist/opentabletop.mjs`, funciona donde haya Node.js: `node opentabletop.mjs roll …`.
 

@@ -27,7 +27,7 @@ import {
 /** Two factions: the clans in the hills (a region), the vale on one hex. */
 const PACK = [
   { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
-  { path: 'marks/system.yaml', content: 'kind: system\nname: Marks\nfactions: default\n' },
+  { path: 'marks/system.yaml', content: 'kind: system\nname: Marks\nfactions: factions.default\n' },
   {
     path: 'marks/factions.yaml',
     content: `
@@ -38,8 +38,8 @@ values:
 ---
 kind: factions
 id: default
-sheet: faction
-turn: turn
+sheet: sheet.faction
+turn: table.turn
 factions:
   clans:
     values: { strength: 4 }

@@ -8,6 +8,8 @@ import {
   loadPacks,
   OracleError,
   PACK_FORMAT,
+  parseRef,
+  writeRef,
   type OracleState,
   type PackFile,
 } from './index'
@@ -56,7 +58,7 @@ id: test
 version: 1.0.0
 locale: es
 dependencies: { core: ^0.1.0 }
-aliases: { omens: core/weather }
+aliases: { table.omens: core/table.weather }
 `,
   },
   {
@@ -68,8 +70,8 @@ roll: 1d6
 entries:
   - { id: wolves, range: 1-2, result: '{{count}} lobos', set: { count: '{{2d6}}', kind: beast } }
   - { id: traders, range: 3-4, result: 'Mercaderes', set: { kind: humans } }
-  - { id: ruin, range: 5, table: ruins }
-  - { id: omen, range: 6, table: omens }
+  - { id: ruin, range: 5, table: table.ruins }
+  - { id: omen, range: 6, table: table.omens }
 ---
 kind: table
 id: ruins
@@ -80,13 +82,13 @@ entries:
 ---
 kind: roll-modes
 modes:
-  advantage: { name: Ventaja, repeat: 2, keep: highest, cancels: disadvantage }
+  advantage: { name: Ventaja, repeat: 2, keep: highest, cancels: roll-modes.disadvantage }
   disadvantage: { name: Desventaja, repeat: 2, keep: lowest }
 ---
 kind: table
 id: reaction
 roll: '2d6 + {{pre}}'
-modes: [advantage, disadvantage]
+modes: [roll-modes.advantage, roll-modes.disadvantage]
 entries:
   - { id: hostile, range: 2-6, result: Hostil }
   - { id: neutral, range: 7-9, result: Neutral }
@@ -114,7 +116,7 @@ kind: table
 id: weather-by-season
 roll: 1d2
 entries:
-  - { range: 1-2, table: 'weather-{{season}}' }
+  - { range: 1-2, table: 'table.weather-{{season}}' }
 ---
 kind: table
 id: weather-winter
@@ -134,8 +136,8 @@ kind: generator
 id: encounter-check
 fields:
   check: { roll: 1d6 }
-  encounter: { when: { check: { gte: 5 } }, table: encounters }
-  reaction: { when: { check: { gte: 5 } }, table: reaction, context: { pre: '{{pre}}' } }
+  encounter: { when: { check: { gte: 5 } }, table: table.encounters }
+  reaction: { when: { check: { gte: 5 } }, table: table.reaction, context: { pre: '{{pre}}' } }
 template: '{{encounter}} ({{reaction}})'
 ---
 kind: deck
@@ -209,7 +211,7 @@ entries:
 kind: table
 id: broken-ref
 entries:
-  - { table: nowhere }
+  - { table: table.nowhere }
 ---
 kind: table
 id: bad-dice
@@ -225,12 +227,12 @@ entries:
 kind: table
 id: loop-a
 entries:
-  - { table: loop-b }
+  - { table: table.loop-b }
 ---
 kind: table
 id: loop-b
 entries:
-  - { table: loop-a }
+  - { table: table.loop-a }
 ---
 kind: table
 id: no-roll
@@ -256,7 +258,7 @@ cards: []
     has('Ranges of entries "0" and "1" overlap')
     has('No entry for roll results: 7, 8')
     has('Entry "2" can never come up')
-    has('Unknown table "nowhere"')
+    has('Unknown table "table.nowhere"')
     has('bad-dice.roll')
     has('unknown operator "between"')
     has('Circular reference')
@@ -681,6 +683,65 @@ describe('localization', () => {
   })
 })
 
+describe('references', () => {
+  const pack = (body: string) =>
+    loadPacks([
+      { path: 'r/pack.yaml', content: 'id: r\nversion: 0.1.0\nlocale: en\n' },
+      { path: 'r/t.yaml', content: body },
+    ]).diagnostics.map((d) => [d.at, d.message])
+  const defs = `
+kind: table
+id: ruins
+entries: [{ result: A ruin }]
+---
+kind: generator
+id: npc
+fields: { name: { value: Ann } }
+`
+
+  it('say the kind of what they name, and the pack goes first', () => {
+    const { registry, diagnostics } = loadPacks([
+      ...core,
+      ...test,
+      {
+        path: 'test/more.yaml',
+        content: `kind: table\nid: more\nentries:\n  - { table: core/table.weather }\n`,
+      },
+    ])
+    expect(diagnostics.filter((d) => d.severity === 'error')).toEqual([])
+    const more = registry.definitions.get('test/more')
+    expect(more?.kind === 'table' && more.entries[0].ref?.target).toBe('core/weather')
+    expect(parseRef('core/table.weather')).toEqual({ pack: 'core', kind: 'table', id: 'weather' })
+    expect(parseRef('weather')).toBeUndefined()
+    expect(writeRef('roll-modes', 'advantage')).toBe('roll-modes.advantage')
+  })
+
+  it('without their kind, or with the wrong one, say what was meant', () => {
+    expect(
+      pack(`${defs}
+---
+kind: table
+id: t
+entries:
+  - { table: ruins }
+  - { table: generator.ruins }
+  - { generator: table.npc }
+  - { table: core/ruins }
+  - { table: 'ruins-{{x}}' }
+`),
+    ).toEqual([
+      ['t.entries[0]', `"ruins" doesn't say what it names: write table.ruins`],
+      ['t.entries[1]', `"generator.ruins" is a table: write table.ruins`],
+      ['t.entries[2]', `"table.npc" is a generator: write generator.npc`],
+      [
+        't.entries[3]',
+        `Unknown table "core/ruins": a reference says what it names (core/table.ruins)`,
+      ],
+      ['t.entries[4]', expect.stringContaining('write its kind first (table.ruins-{{x}})')],
+    ])
+  })
+})
+
 describe('safety', () => {
   it('stops runaway recursion with maxDepth', () => {
     const { registry } = loadPacks([
@@ -688,7 +749,7 @@ describe('safety', () => {
       { path: 'r/t.yaml', content: "kind: table\nid: self\nentries:\n  - { table: '{{next}}' }\n" },
     ])
     const engine = createOracleEngine({ registry, random: seeded(1), maxDepth: 5 })
-    expect(() => engine.resolve('r/self', { next: 'self' })).toThrow(/Maximum depth/)
+    expect(() => engine.resolve('r/self', { next: 'table.self' })).toThrow(/Maximum depth/)
   })
 
   it('treats templates as data, never code', () => {
@@ -795,7 +856,7 @@ describe('roll modes', () => {
   const modes = `
 kind: roll-modes
 modes:
-  advantage: { name: Advantage, repeat: 2, keep: highest, cancels: disadvantage }
+  advantage: { name: Advantage, repeat: 2, keep: highest, cancels: roll-modes.disadvantage }
   disadvantage: { name: Disadvantage, repeat: 2, keep: lowest }
   steady: { name: Steady, repeat: 3, keep: middle }
 `
@@ -820,8 +881,8 @@ modes:
 kind: table
 id: t
 roll: 1d6
-modes: [advantage, steady, nope]
-modeWhen: { disadvantage: { tired: true } }
+modes: [roll-modes.advantage, roll-modes.steady, roll-modes.nope]
+modeWhen: { roll-modes.disadvantage: { tired: true } }
 entries: [{ range: 1-6, result: X }]
 ---
 kind: table
@@ -831,7 +892,7 @@ advantage: true
 entries: [{ range: 1-6, result: X }]
 `)
     expect(diagnostics.map((d) => [d.severity, d.at, d.message])).toEqual([
-      ['error', 't.modes[2]', 'Unknown roll mode "nope"'],
+      ['error', 't.modes[2]', 'Unknown roll mode "roll-modes.nope"'],
       ['warning', 'old.advantage', expect.stringContaining('no longer does anything')],
     ])
     expect(registry.rollModes.get('m/advantage')).toMatchObject({
@@ -853,10 +914,10 @@ entries: [{ range: 1-6, result: X }]
 kind: table
 id: forage
 roll: 1d6
-modes: [advantage, disadvantage, steady]
+modes: [roll-modes.advantage, roll-modes.disadvantage, roll-modes.steady]
 modeWhen:
-  advantage: { explorer: { gte: 1 } }
-  disadvantage: { yesterday.lost: true }
+  roll-modes.advantage: { explorer: { gte: 1 } }
+  roll-modes.disadvantage: { yesterday.lost: true }
 entries: [{ range: 1-6, result: X }]
 `)
     const engine = createOracleEngine({ registry, random: seeded('modes') })
@@ -879,19 +940,19 @@ entries: [{ range: 1-6, result: X }]
 kind: table
 id: cursed
 roll: 1d6
-modeUnless: { disadvantage: { blessed: true } }
-modeWhen: { steady: { calm: true } }
+modeUnless: { roll-modes.disadvantage: { blessed: true } }
+modeWhen: { roll-modes.steady: { calm: true } }
 entries: [{ range: 1-6, result: X }]
 ---
 kind: table
 id: night
 roll: 1d6
-modeWhen: { disadvantage: { timeOfDay: night } }
-modeUnless: { disadvantage: { tags: lit }, nope: { x: 1 } }
+modeWhen: { roll-modes.disadvantage: { timeOfDay: night } }
+modeUnless: { roll-modes.disadvantage: { tags: lit }, roll-modes.nope: { x: 1 } }
 entries: [{ range: 1-6, result: X }]
 `)
     expect(diagnostics.map((d) => [d.at, d.message])).toEqual([
-      ['night.modeUnless.nope', 'Unknown roll mode "nope"'],
+      ['night.modeUnless.roll-modes.nope', 'Unknown roll mode "roll-modes.nope"'],
     ])
     const engine = createOracleEngine({ registry, random: seeded('unless') })
     const mode = (id: string, context: Record<string, unknown>) =>
@@ -992,7 +1053,7 @@ describe('effects', () => {
         content: `kind: table
 id: forage
 entries:
-  - { result: 'Game: {{result}}', table: hunt, effects: { party.resources.food: '{{1d1+1}}', party.stats.morale: 1 } }
+  - { result: 'Game: {{result}}', table: table.hunt, effects: { party.resources.food: '{{1d1+1}}', party.stats.morale: 1 } }
 ---
 kind: table
 id: hunt

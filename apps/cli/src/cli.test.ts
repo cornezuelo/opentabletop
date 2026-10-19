@@ -75,7 +75,7 @@ modes:
 kind: table
 id: luck
 roll: 1d6
-modes: [best]
+modes: [roll-modes.best]
 entries: [{ range: 1-6, result: Luck }]
 `,
       },

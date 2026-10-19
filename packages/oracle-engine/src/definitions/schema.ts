@@ -6,7 +6,7 @@ import { z } from 'zod'
  */
 
 const id = z.string().regex(/^[a-z0-9][a-z0-9-]*$/, 'ids use lowercase letters, digits and dashes')
-/** A definition reference: local id, `pack/id`, or a template like `weather-{{season}}`. */
+/** A definition reference: `kind.id`, `pack/kind.id`, or a template like `table.weather-{{season}}`. */
 const ref = z.string().min(1)
 const condition = z.record(z.string(), z.unknown())
 const setValues = z.record(z.string(), z.unknown())
@@ -171,8 +171,8 @@ export const definitionSchema = z.discriminatedUnion('kind', [
 
 /**
  * The pack format the apps read today: what a pack's syntax means. A pack says which one
- * it was written for (`format` in pack.yaml; absent: 1), and a pack of an older format
- * keeps its old meaning, migrated on reading. Bump it (and add the migration) whenever
+ * it was written for (`format` in pack.yaml; absent: today's); a pack of an older format
+ * isn't read (for now: nobody else writes packs yet). Bump it whenever
  * the same syntax would mean something else.
  *
  * 1. The first one.
@@ -185,6 +185,11 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    step, take parameters (`params`, `do:` with `with:`), and the trip goes on by itself
  *    with `travel.onward`; `speed` and `advance` steps are `travel.speed` and
  *    `travel.advance` (in 3, `actions.march` only said when the built-in march held).
+ * 5. Every reference names what it is: moments, blocks and what actions name by their
+ *    full name (`trip.hex-enter`, `actions.march`, `modes.horse`), a sheet's own values as
+ *    `{{self.values.<id>}}`, and references to a pack's definitions by their kind, the
+ *    pack first (`table.ruins`, `core/table.twists`, `roll-modes.advantage`,
+ *    `sheet.companion`); in 4 they were bare ids.
  */
 export const PACK_FORMAT = 5
 

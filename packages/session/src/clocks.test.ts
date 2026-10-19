@@ -9,7 +9,7 @@ const PACK = [
   { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
   {
     path: 'marks/system.yaml',
-    content: 'kind: system\nname: Marks\nclocks: default\n',
+    content: 'kind: system\nname: Marks\nclocks: clocks.default\n',
   },
   {
     path: 'marks/clocks.yaml',
@@ -23,7 +23,7 @@ clocks:
     filled: 1
     onFull:
       description: The clans come down from the hills.
-      resolve: raid
+      resolve: table.raid
       effects: { world.clocks.the-siege: 1, factions.vale.values.strength: -1 }
       then: reset
   the-siege:
@@ -73,11 +73,11 @@ describe('progress clocks a system declares', () => {
       {
         path: 'marks/clocks.yaml',
         content:
-          'kind: clocks\nid: default\nclocks:\n  b: { segments: 2, onFull: { resolve: nowhere } }\n',
+          'kind: clocks\nid: default\nclocks:\n  b: { segments: 2, onFull: { resolve: table.nowhere } }\n',
       },
     ]
     expect(travelSystems(loadPacks(unknown).registry).problems.map((p) => p.message)).toEqual([
-      'Unknown table or generator "nowhere"',
+      'Unknown table "table.nowhere"',
     ])
   })
 

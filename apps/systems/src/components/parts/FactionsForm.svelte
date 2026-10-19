@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { writeRef } from '@open-tabletop/oracle-engine'
   import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
@@ -21,12 +22,14 @@
     [pack, ...(library.registry.packs.get(pack)?.dependencies ?? [])].flatMap((p) =>
       (library.registry.extras.get(p) ?? [])
         .filter((e) => e.kind === 'sheet')
-        .map((e) => (p === pack ? (e.id ?? 'default') : `${p}/${e.id ?? 'default'}`)),
+        .map((e) => writeRef('sheet', e.id ?? 'default', p === pack ? undefined : p)),
     ),
   )
   /** What a faction can roll on its turn: tables, oracles, generators and decks. */
   const rollable = $derived(
-    [...library.registry.definitions.values()].map((d) => (d.pack === pack ? d.localId : d.id)),
+    [...library.registry.definitions.values()].map((d) =>
+      writeRef(d.kind, d.localId, d.pack === pack ? undefined : d.pack),
+    ),
   )
   const values = $derived(Object.keys(system.factions?.sheet.def.values ?? {}))
   /** The maps of this pack, where a faction's starting hexes can be. */

@@ -9,7 +9,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 ## Its parts
 
 - **Travel rules**, **Bindings** and **Calendar**: the ones it plays with, each chosen among this pack's (by id) and its dependencies' (`core/default`), listed by name when they have one (_The Royal Reckoning (royal-reckoning)_). **Open** goes to the tab that edits them; **Create** makes new travel rules (a copy of the Generic ones, naming Core's calendar too when the system has none and depends on Core) or empty bindings and names them.
-- **Weather models**: the ones its bindings can name (`weather: highland-skies`), each with its name and id. They're edited in [Weather](11-weather.md).
+- **Weather models**: the ones its bindings can name (`weather: weather.highland-skies`), each with its name and id. They're edited in [Weather](11-weather.md).
 
 ## Packs it brings
 

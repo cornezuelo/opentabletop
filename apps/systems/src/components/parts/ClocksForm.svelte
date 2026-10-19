@@ -83,7 +83,7 @@
           label: t('clocksForm.resolve'),
           help: t('clocksForm.resolveHelp'),
           type: 'value',
-          placeholder: 'core/twists',
+          placeholder: 'core/table.twists',
         },
         {
           field: 'onFull.effects',

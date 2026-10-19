@@ -11,7 +11,7 @@ const PACK = [
   { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
   {
     path: 'marks/system.yaml',
-    content: 'kind: system\nname: Marks\nfactions: default\n',
+    content: 'kind: system\nname: Marks\nfactions: factions.default\n',
   },
   {
     path: 'marks/factions.yaml',
@@ -26,8 +26,8 @@ conditions:
 ---
 kind: factions
 id: default
-sheet: faction
-turn: turn
+sheet: sheet.faction
+turn: table.turn
 every: 7
 factions:
   clans:
@@ -38,7 +38,7 @@ factions:
   vale:
     name: { en: The Vale, es: El Valle }
     territory: { map: maps/marks.otd.json, hexes: ['1', '99'] }
-    turn: vale-turn
+    turn: table.vale-turn
 ---
 kind: table
 id: turn
@@ -84,12 +84,16 @@ describe('factions in a world', () => {
         ...PACK.slice(0, 2),
         {
           path: 'marks/factions.yaml',
-          content: 'kind: factions\nid: default\nsheet: nope\nturn: gone\nfactions: { a: {} }\n',
+          content:
+            'kind: factions\nid: default\nsheet: sheet.nope\nturn: gone\nfactions: { a: {} }\n',
         },
       ]).registry,
     )
     expect(problems.map((p) => p.message)).toEqual(
-      expect.arrayContaining(['Unknown sheet "nope"', 'Unknown table or generator "gone"']),
+      expect.arrayContaining([
+        'Unknown sheet "sheet.nope"',
+        'Unknown table "gone": a reference says what it names (table.gone)',
+      ]),
     )
   })
 
@@ -103,7 +107,7 @@ describe('factions in a world', () => {
           ...PACK.slice(0, 2),
           {
             path: 'marks/factions.yaml',
-            content: `kind: sheet\nid: faction\n---\nkind: factions\nid: default\nsheet: faction\nturn: gone\nfactions: { a: { territory: ${territory} } }\n`,
+            content: `kind: sheet\nid: faction\n---\nkind: factions\nid: default\nsheet: sheet.faction\nturn: gone\nfactions: { a: { territory: ${territory} } }\n`,
           },
         ]).registry,
       ).problems.map((p) => p.message)

@@ -41,7 +41,7 @@ entries:
     range: 1-20
     when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }
     result: 'Horns in the dark: the Ember Hunt rides under the full moon — they are {{result}}'
-    table: reaction
+    table: table.reaction
     set: { reactionModifier: -3 }
     effects: { party.stats.morale: -1 }
   # Nights in haunted places, whatever the roll.
@@ -70,7 +70,7 @@ entries:
     when: { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they are {{result}}'
-    table: reaction
+    table: table.reaction
   # Lists of terrains, a dice expression inside the text, then roll the reaction.
   - id: wolves
     range: 5-20
@@ -78,7 +78,7 @@ entries:
     when:
       { all: [{ hex.terrain: [forest, dense-forest, heath] }, { time.season: { not: summer } }] }
     result: '{{1d4+2}} grey wolves — they are {{result}}'
-    table: reaction
+    table: table.reaction
     # Values for the next table (reactionModifier) and for the party: morale drops.
     set: { reactionModifier: -2 }
     effects: { party.stats.morale: -1 }
@@ -87,12 +87,12 @@ entries:
     range: 1-4
     when: { danger: { lt: 3 } }
     result: 'On the way you meet {{result}}'
-    table: npc
+    table: generator.npc
   - id: bandits
     range: 5-20
     when: { hex.terrain: { in: [hills, marsh, swamp] } }
     result: 'Bandits of the Hollow Hills — they are {{result}}'
-    table: reaction
+    table: table.reaction
     set: { reactionModifier: -1 }
     effects: { party.stats.morale: -1 }
   - { id: tracks, range: 1-20, result: 'Only tracks, and the feeling of being watched' }
@@ -112,7 +112,7 @@ description: |-
   - Advantage
   - Negative ranges
 roll: '2d6 + {{charisma}} + {{reactionModifier}}'
-modes: [advantage, disadvantage]
+modes: [roll-modes.advantage, roll-modes.disadvantage]
 entries:
   - { id: hostile, range: -10-3, result: hostile }
   - { id: wary, range: 4-6, result: wary }
@@ -133,9 +133,9 @@ description: |-
   - Fields that agree: what they want depends on who they are (_Wants_ reads the role field's `role.id`)
   - A template that joins them
 fields:
-  name: { table: npc-names }
-  role: { table: npc-roles }
-  want: { table: npc-wants }
+  name: { table: table.npc-names }
+  role: { table: table.npc-roles }
+  want: { table: table.npc-wants }
   # Keep the best 3 of 4d6: 3 to 18, mostly 10-14.
   might: { roll: 4d6kh3 }
 template: '{{name}}, a {{role}} who {{want}} (might {{might}})'
@@ -149,8 +149,8 @@ description: |-
 
   **Shows:** A generator inside another one: `{{npc.name}}` and `{{npc.role}}` read the fields of _Someone on the road_
 fields:
-  npc: { generator: npc }
-  what: { table: rumours }
+  npc: { generator: generator.npc }
+  what: { table: table.rumours }
 template: '{{npc.name}} the {{npc.role}} swears that {{what}}.'
 ---
 kind: table

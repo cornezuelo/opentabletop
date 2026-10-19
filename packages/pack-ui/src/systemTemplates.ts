@@ -27,7 +27,12 @@ export const SYSTEM_TEMPLATES: Record<
     kind: 'roll-modes',
     id,
     modes: {
-      advantage: { name: 'Advantage', repeat: 2, keep: 'highest', cancels: 'disadvantage' },
+      advantage: {
+        name: 'Advantage',
+        repeat: 2,
+        keep: 'highest',
+        cancels: 'roll-modes.disadvantage',
+      },
       disadvantage: { name: 'Disadvantage', repeat: 2, keep: 'lowest' },
     },
   }),
@@ -141,8 +146,8 @@ export const SYSTEM_TEMPLATES: Record<
   factions: (id) => ({
     kind: 'factions',
     id,
-    sheet: 'faction',
-    turn: 'core/faction-turn',
+    sheet: 'sheet.faction',
+    turn: 'core/table.faction-turn',
     every: 7,
     factions: {
       'the-crown': { name: 'The Crown', color: '#c9a227', values: { strength: 3 } },
@@ -160,7 +165,7 @@ export const SYSTEM_TEMPLATES: Record<
         segments: 6,
         onFull: {
           description: 'The threat strikes.',
-          resolve: 'core/twists',
+          resolve: 'core/table.twists',
           then: 'reset',
         },
       },

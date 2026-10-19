@@ -1,6 +1,7 @@
-import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
+import { PACK_FORMAT, writeRef } from '@open-tabletop/oracle-engine'
 import {
   DEFAULT_SYSTEM,
+  definitionId,
   localize,
   NO_TRAVEL,
   type LocalizedText,
@@ -64,9 +65,9 @@ export function createSystem(name: string): string | null {
   const system = stringify({
     kind: 'system',
     id: 'default',
-    travel: 'default',
-    bindings: 'default',
-    ...(Object.keys(coreDependency()).length && { calendar: `${DEFAULT_SYSTEM}/default` }),
+    travel: 'travel-rules.default',
+    bindings: 'bindings.default',
+    ...(Object.keys(coreDependency()).length && { calendar: CORE_CALENDAR }),
   })
   const rules = stringify({ kind: 'travel-rules', id: 'default', ...coreRules() })
   const bindings = stringify({ kind: 'bindings', id: 'default', on: {}, stats: {} })
@@ -127,7 +128,13 @@ export function systemFile(system: TravelSystem): DocSource | null {
   }
 }
 
-/** The parts a system can name, by kind: its pack's by id, its dependencies' as `pack/id`. */
+/** Core's calendar, as a system names it: the Generic rules' day is named by its parts. */
+const CORE_CALENDAR = writeRef('calendar', 'default', DEFAULT_SYSTEM)
+
+/**
+ * The parts a system can name, by kind, as it names them: its pack's as `kind.id`, its
+ * dependencies' as `pack/kind.id`.
+ */
 export type PartKind = 'travel-rules' | 'bindings' | 'calendar' | 'weather'
 
 export function partChoices(system: TravelSystem, kind: PartKind): string[] {
@@ -136,10 +143,7 @@ export function partChoices(system: TravelSystem, kind: PartKind): string[] {
   return [pack, ...dependencies(system)].flatMap((owner) =>
     (library.registry.extras.get(owner) ?? [])
       .filter((e) => e.kind === kind)
-      .map((e) => {
-        const id = e.id ?? 'default'
-        return owner === pack ? id : `${owner}/${id}`
-      }),
+      .map((e) => writeRef(kind, e.id ?? 'default', owner === pack ? undefined : owner)),
   )
 }
 
@@ -148,9 +152,7 @@ export function partChoices(system: TravelSystem, kind: PartKind): string[] {
  * language, or undefined when the definition has none.
  */
 export function partName(system: TravelSystem, kind: PartKind, choice: string): string | undefined {
-  const [owner, id] = choice.includes('/')
-    ? [choice.slice(0, choice.indexOf('/')), choice.slice(choice.indexOf('/') + 1)]
-    : [system.pack ?? '', choice]
+  const [owner, id] = definitionId(choice, system.pack).split('/', 2)
   const extra = (library.registry.extras.get(owner) ?? []).find(
     (e) => e.kind === kind && (e.id ?? 'default') === id,
   )
@@ -173,7 +175,9 @@ export function createPart(system: TravelSystem, kind: 'travel-rules' | 'binding
   const source = systemFile(system)
   if (!source?.system) return null
   const { root } = source
-  const taken = partChoices(system, kind).filter((id) => !id.includes('/'))
+  const taken = partChoices(system, kind)
+    .filter((ref) => !ref.includes('/'))
+    .map((ref) => ref.slice(kind.length + 1))
   const id = freeId('default', taken)
   const definition =
     kind === 'travel-rules' ? { kind, id, ...coreRules() } : { kind, id, on: {}, stats: {} }
@@ -187,7 +191,7 @@ export function createPart(system: TravelSystem, kind: 'travel-rules' | 'binding
       declared,
       `@system/${named.id}`,
       [kind === 'travel-rules' ? 'travel' : 'bindings'],
-      id,
+      writeRef(kind, id),
     )
     // The Generic rules' day is named by parts of Core's calendar: a system with no
     // calendar that can take Core's names it.
@@ -196,7 +200,7 @@ export function createPart(system: TravelSystem, kind: 'travel-rules' | 'binding
       !system.calendar &&
       dependencies(system).includes(DEFAULT_SYSTEM)
     )
-      next = setIn(next, `@system/${named.id}`, ['calendar'], `${DEFAULT_SYSTEM}/default`)
+      next = setIn(next, `@system/${named.id}`, ['calendar'], CORE_CALENDAR)
     library.writeFile(root, named.path, next)
   })
   return id
@@ -223,7 +227,8 @@ export function declareSystem(system: TravelSystem): boolean {
         const ref = b.weather
         if (!ref) return []
         const [owner, id] = ref.includes('/') ? ref.split('/', 2) : [pack, ref]
-        return owner === pack ? [id] : deps.includes(owner) ? [ref] : []
+        const written = writeRef('weather', id, owner === pack ? undefined : owner)
+        return owner === pack || deps.includes(owner) ? [written] : []
       }),
     ),
   ]
@@ -231,9 +236,9 @@ export function declareSystem(system: TravelSystem): boolean {
   const travel = idOf('travel-rules')
   const bindings = idOf('bindings')
   const calendar = idOf('calendar')
-  if (travel) definition.travel = travel
-  if (bindings) definition.bindings = bindings
-  if (calendar) definition.calendar = calendar
+  if (travel) definition.travel = writeRef('travel-rules', travel)
+  if (bindings) definition.bindings = writeRef('bindings', bindings)
+  if (calendar) definition.calendar = writeRef('calendar', calendar)
   if (weather.length) definition.weather = weather
   const file = 'system.yaml'
   library.writeFile(root, file, appendDefinition(library.readFile(root, file) ?? '', definition))
@@ -243,9 +248,9 @@ export function declareSystem(system: TravelSystem): boolean {
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
 export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'factions' | 'clocks'
 
-/** Where a part named `ref` (`id` of the system's pack, or `pack/id`) is written. */
+/** Where a part named `ref` (`kind.id` of the system's pack, or `pack/kind.id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
-  const [owner, id] = ref.includes('/') ? ref.split('/', 2) : [pack, ref]
+  const [owner, id] = definitionId(ref, pack).split('/', 2)
   const extra = (library.registry.extras.get(owner) ?? []).find(
     (e) => e.kind === kind && (e.id ?? 'default') === id,
   )
@@ -274,7 +279,7 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   const ownOfKind = (owner: string) =>
     (library.registry.extras.get(owner) ?? [])
       .filter((e) => e.kind === kind)
-      .map((e) => `${owner}/${e.id ?? 'default'}`)
+      .map((e) => writeRef(kind, e.id ?? 'default', owner))
   const data = systemData(system)
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
@@ -349,8 +354,11 @@ export function createSystemPart(
     const current = readDefinition(text, selector) ?? {}
     const value =
       kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks'
-        ? id
-        : [...(Array.isArray(current.weather) ? (current.weather as string[]) : []), id]
+        ? writeRef(kind, id)
+        : [
+            ...(Array.isArray(current.weather) ? (current.weather as string[]) : []),
+            writeRef(kind, id),
+          ]
     library.writeFile(
       root,
       declared.path,

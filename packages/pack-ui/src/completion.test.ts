@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { completeYaml } from './completion'
 
 const hints = {
-  refs: ['weather', 'weather-spring', 'core/action'],
+  refs: ['table.weather', 'table.weather-spring', 'core/table.action'],
+  named: { sheet: ['sheet.companion', 'core/sheet.character'] },
   context: { terrain: ['forest', 'hills'], season: ['spring', 'winter'] },
   set: { 'resources.food': [], weather: ['storm'] },
 }
@@ -12,13 +13,15 @@ describe('YAML suggestions', () => {
     expect(completeYaml('kind: ta', hints)).toEqual({ from: 6, options: ['table'] })
     expect(completeYaml('  - { range: 1, table: wea', hints)).toEqual({
       from: 23,
-      options: ['weather', 'weather-spring'],
+      options: ['table.weather', 'table.weather-spring'],
     })
-    expect(completeYaml('  resolve: ', hints)?.options).toContain('core/action')
+    expect(completeYaml('  resolve: ', hints)?.options).toContain('core/table.action')
     expect(completeYaml('onExhausted: n', hints)?.options).toEqual(['next', 'none'])
     // A check can be resolved by anything that rolls (oracles and decks too).
-    const withRollable = { ...hints, rollable: [...hints.refs, 'ford', 'core/omens-deck'] }
-    expect(completeYaml('  resolve: fo', withRollable)?.options).toEqual(['ford'])
+    const withRollable = { ...hints, rollable: [...hints.refs, 'oracle.ford', 'core/deck.omens'] }
+    expect(completeYaml('  resolve: fo', withRollable)?.options).toEqual(['oracle.ford'])
+    // Another engine's definition, by its kind: a sheet for `sheet:`.
+    expect(completeYaml('sheet: comp', hints)?.options).toEqual(['sheet.companion'])
     expect(completeYaml('  table: fo', withRollable)).toBeNull()
   })
 

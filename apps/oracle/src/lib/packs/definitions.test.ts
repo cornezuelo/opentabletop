@@ -12,17 +12,20 @@ describe('definition helpers', () => {
       qualifyRefs(
         {
           id: 'x',
-          entries: [{ table: 'weather-{{season}}' }, { generator: 'core/prompt' }],
-          fields: { npc: { table: 'npc-role' } },
-          cards: [{ id: 'a', generator: 'camp' }],
+          entries: [{ table: 'table.weather-{{season}}' }, { generator: 'core/generator.prompt' }],
+          fields: { npc: { table: 'table.npc-role' } },
+          cards: [{ id: 'a', generator: 'generator.camp' }],
         },
         'kal-arath',
       ),
     ).toEqual({
       id: 'x',
-      entries: [{ table: 'kal-arath/weather-{{season}}' }, { generator: 'core/prompt' }],
-      fields: { npc: { table: 'kal-arath/npc-role' } },
-      cards: [{ id: 'a', generator: 'kal-arath/camp' }],
+      entries: [
+        { table: 'kal-arath/table.weather-{{season}}' },
+        { generator: 'core/generator.prompt' },
+      ],
+      fields: { npc: { table: 'kal-arath/table.npc-role' } },
+      cards: [{ id: 'a', generator: 'kal-arath/generator.camp' }],
     })
   })
 })

@@ -48,7 +48,7 @@ actions:
 values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
-on: { WEATHER: { resolve: weather } }
+on: { WEATHER: { resolve: table.weather } }
 stats: { luck: { name: Luck, default: 2 } }
 ---
 kind: table
@@ -129,14 +129,14 @@ entries: [{ range: 1-6, result: Crows }]
 kind: system
 id: default
 name: { en: The game, es: El juego }
-travel: fast
-bindings: default
-weather: [base/sky]
+travel: travel-rules.fast
+bindings: bindings.default
+weather: [base/weather.sky]
 packs: [base]
 ---
 kind: system
 id: slow
-travel: base/slow
+travel: base/travel-rules.slow
 ---
 kind: system
 id: plain
@@ -161,7 +161,7 @@ actions:
 values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
-on: { SKY: { weather: base/sky } }
+on: { SKY: { weather: base/weather.sky } }
 `,
       },
       { path: 'other/pack.yaml', content: 'id: other\nversion: 0.1.0\nlocale: en\n' },
@@ -169,18 +169,31 @@ on: { SKY: { weather: base/sky } }
         path: 'other/system.yaml',
         content: `
 kind: system
-travel: base/slow
+travel: base/travel-rules.slow
 packs: [base]
-bindings: missing
+bindings: bindings.missing
 colour: red
+`,
+      },
+      { path: 'short/pack.yaml', content: 'id: short\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'short/system.yaml',
+        content: `
+kind: system
+calendar: default
+sheet: calendar.default
+---
+kind: calendar
+id: default
 `,
       },
     ])
     const { systems, problems } = travelSystems(registry)
     // A system with id `default` is named by its pack; the others by pack/id. A pack that
     // declares systems has no implicit one (base has travel rules but declares none: implicit).
-    expect(systems.map((s) => s.id)).toEqual(['base', 'game', 'game/slow', 'game/plain'])
-    const [base, game, slow, plain] = systems
+    const named = systems.filter((s) => s.pack !== 'short')
+    expect(named.map((s) => s.id)).toEqual(['base', 'game', 'game/slow', 'game/plain'])
+    const [base, game, slow, plain] = named
     expect(base.rules.travel.hoursPerDay).toBe(4)
     expect(Object.keys(base.weather ?? {})).toEqual(['base/sky'])
     expect(game).toMatchObject({
@@ -206,6 +219,11 @@ colour: red
       '@system/default.colour: Unknown key "colour" in a system',
       '@system/default.packs.0: "base" isn\'t a dependency of this pack',
       '@system/default.travel: "base" isn\'t a dependency of this pack',
+    ])
+    // Parts are named by their kind: a short name, or the wrong kind, says what was meant.
+    expect(of('short').filter((p) => p.startsWith('@system'))).toEqual([
+      '@system/default.calendar: "default" doesn\'t say what it names: write calendar.default',
+      '@system/default.sheet: "calendar.default" names a calendar, which can\'t be used here (expected sheet)',
     ])
   })
 
@@ -264,10 +282,10 @@ maps: [maps/coast.otd.json, maps/gone.otd.json, notes.yaml, maps/vale.otd.json]
         path: 'p/system.yaml',
         content: `
 kind: system
-bindings: default
+bindings: bindings.default
 ---
 kind: bindings
-on: { SKY: { weather: sky } }
+on: { SKY: { weather: weather.sky } }
 ---
 kind: weather
 id: sky
@@ -277,7 +295,9 @@ seasons: { spring: { start: clear, next: { clear: { clear: 1 } } } }
       },
     ])
     const { problems } = travelSystems(registry)
-    expect(problems.map((p) => p.message)).toEqual(['Unknown weather model "p/sky"'])
+    expect(problems.map((p) => p.message)).toEqual([
+      'The system doesn\'t bring the weather model "weather.sky" (weather: in kind: system)',
+    ])
   })
 
   it('reports a part of the day the rules name but the calendar lacks; starts at a part', () => {
@@ -287,8 +307,8 @@ seasons: { spring: { start: clear, next: { clear: { clear: 1 } } } }
         path: 'p/system.yaml',
         content: `
 kind: system
-travel: default
-calendar: shire
+travel: travel-rules.default
+calendar: calendar.shire
 ---
 kind: travel-rules
 travel:
@@ -486,7 +506,7 @@ actions:
 values: { lost: { blocks: [travel.move] } }
 ---
 kind: bindings
-on: { AMBUSH: { resolve: ambush } }
+on: { AMBUSH: { resolve: table.ambush } }
 stats:
   mouths: { default: 3 }
   stealth: { default: 1 }

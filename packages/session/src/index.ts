@@ -15,6 +15,7 @@ import {
   type Share,
 } from '@open-tabletop/character-engine'
 import { applyEffects, effectsOf, type Effects, type LimitReached } from './effects'
+import { definitionId } from './refs'
 import { pullFromRoster, type Roster, type RosterPlace } from './roster'
 import {
   applyMemberEffects,
@@ -126,14 +127,17 @@ export function parseBindings(
     const weather = (value as { weather?: unknown })?.weather
     const ok = (v: unknown): v is string => typeof v === 'string' && !!v
     if (ok(target) === ok(weather)) {
-      errors.push(`bindings.on.${event}: needs "resolve" (a table) or "weather" (a model)`)
+      errors.push(
+        `bindings.on.${event}: needs "resolve" (a table: table.<id>) or "weather" (a model: weather.<id>)`,
+      )
       continue
     }
-    // Local ids are resolved in the pack that declares the bindings.
-    const qualify = (id: string) => (pack && !id.includes('/') ? `${pack}/${id}` : id)
+    // References are resolved in the pack that declares the bindings.
     const context = (value as { context?: unknown }).context
     out.on[event] = {
-      ...(ok(target) ? { resolve: qualify(target) } : { weather: qualify(weather as string) }),
+      ...(ok(target)
+        ? { resolve: definitionId(target, pack) }
+        : { weather: definitionId(weather as string, pack) }),
       ...(typeof context === 'object' &&
         context !== null && { context: context as Record<string, unknown> }),
     }
@@ -950,3 +954,4 @@ export * from './factions'
 export * from './clocks'
 export * from './roster'
 export * from './usage'
+export * from './refs'

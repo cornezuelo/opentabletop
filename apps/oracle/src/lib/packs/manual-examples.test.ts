@@ -45,7 +45,7 @@ function problems(files: string[]): string[] {
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
     (p) =>
-      !/Unknown (table or generator|table|generator|weather model|roll mode|travel rules|bindings|calendar) "[\w/-]+"$/.test(
+      !/Unknown (table|weather model|roll mode|travel rules|bindings|calendar|sheet) "[\w/.-]+"$/.test(
         p,
       ) &&
       !/"[\w-]+" isn't a dependency of this pack$/.test(p) &&

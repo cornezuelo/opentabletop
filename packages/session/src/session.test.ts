@@ -86,9 +86,9 @@ entries:
 ---
 kind: bindings
 on:
-  WEATHER_CHECK_REQUIRED: { resolve: weather }
-  NAVIGATION_CHECK_REQUIRED: { resolve: lost-check }
-  ENCOUNTER_CHECK_REQUIRED: { resolve: encounter }
+  WEATHER_CHECK_REQUIRED: { resolve: table.weather }
+  NAVIGATION_CHECK_REQUIRED: { resolve: table.lost-check }
+  ENCOUNTER_CHECK_REQUIRED: { resolve: table.encounter }
 `,
   },
 ])
@@ -129,13 +129,13 @@ describe('session', () => {
   })
 
   it('parses bindings and resolves local ids in their pack', () => {
-    expect(parseBindings({ on: { X: { resolve: 'weather' } } }, 'sys').bindings).toEqual({
+    expect(parseBindings({ on: { X: { resolve: 'table.weather' } } }, 'sys').bindings).toEqual({
       on: { X: { resolve: 'sys/weather' } },
     })
     expect(parseBindings({ on: { X: {} } }).errors).toEqual([
-      'bindings.on.X: needs "resolve" (a table) or "weather" (a model)',
+      'bindings.on.X: needs "resolve" (a table: table.<id>) or "weather" (a model: weather.<id>)',
     ])
-    expect(parseBindings({ on: { W: { weather: 'sky' } } }, 'sys').bindings).toEqual({
+    expect(parseBindings({ on: { W: { weather: 'weather.sky' } } }, 'sys').bindings).toEqual({
       on: { W: { weather: 'sys/sky' } },
     })
   })
@@ -166,9 +166,9 @@ describe('session', () => {
     const { bindings } = parseBindings(
       {
         on: {
-          WEATHER_CHECK_REQUIRED: { resolve: 'weather' },
-          NAVIGATION_CHECK_REQUIRED: { resolve: 'lost-check' },
-          ENCOUNTER_CHECK_REQUIRED: { resolve: 'encounter' },
+          WEATHER_CHECK_REQUIRED: { resolve: 'table.weather' },
+          NAVIGATION_CHECK_REQUIRED: { resolve: 'table.lost-check' },
+          ENCOUNTER_CHECK_REQUIRED: { resolve: 'table.encounter' },
         },
       },
       'sys',
@@ -203,9 +203,9 @@ describe('session', () => {
       bindings: parseBindings(
         {
           on: {
-            WEATHER_CHECK_REQUIRED: { resolve: 'weather' },
-            NAVIGATION_CHECK_REQUIRED: { resolve: 'lost-check' },
-            ENCOUNTER_CHECK_REQUIRED: { resolve: 'encounter' },
+            WEATHER_CHECK_REQUIRED: { resolve: 'table.weather' },
+            NAVIGATION_CHECK_REQUIRED: { resolve: 'table.lost-check' },
+            ENCOUNTER_CHECK_REQUIRED: { resolve: 'table.encounter' },
           },
         },
         'sys',
@@ -259,7 +259,7 @@ entries:
         }),
         rules: { ...coreRules, values: { lost: { blocks: ['travel.move'] } } },
         oracle: createOracleEngine({ registry: paused, random: sequence([roll]) }),
-        bindings: parseBindings({ on: { OMEN: { resolve: 'omen' } } }, 'p').bindings,
+        bindings: parseBindings({ on: { OMEN: { resolve: 'table.omen' } } }, 'p').bindings,
         now: () => 'T',
       })
     const go = (session: ReturnType<typeof run>) =>
@@ -381,8 +381,8 @@ entries:
     const { bindings } = parseBindings(
       {
         on: {
-          WEATHER_CHECK_REQUIRED: { resolve: 'weather' },
-          NAVIGATION_CHECK_REQUIRED: { resolve: 'lost-check' },
+          WEATHER_CHECK_REQUIRED: { resolve: 'table.weather' },
+          NAVIGATION_CHECK_REQUIRED: { resolve: 'table.lost-check' },
         },
       },
       'sys',
@@ -410,7 +410,7 @@ entries:
 
   it('keeps the trip going when a bound table is broken', () => {
     const { bindings } = parseBindings(
-      { on: { WEATHER_CHECK_REQUIRED: { resolve: 'nowhere' } } },
+      { on: { WEATHER_CHECK_REQUIRED: { resolve: 'table.nowhere' } } },
       'sys',
     )
     const session = createSession({
@@ -443,7 +443,7 @@ entries:
       },
     ])
     const { bindings } = parseBindings(
-      { on: { WEATHER_CHECK_REQUIRED: { resolve: 'hunger' } } },
+      { on: { WEATHER_CHECK_REQUIRED: { resolve: 'table.hunger' } } },
       'p',
     )
     const session = createSession({
@@ -522,7 +522,7 @@ entries:
   })
 
   it('logs a check result at the time the check came up', () => {
-    const { bindings } = parseBindings({ on: { NIGHT: { resolve: 'encounter' } } }, 'sys')
+    const { bindings } = parseBindings({ on: { NIGHT: { resolve: 'table.encounter' } } }, 'sys')
     const session = createSession({
       travel: createTravelEngine({
         world,

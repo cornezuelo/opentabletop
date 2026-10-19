@@ -39,14 +39,14 @@ Usa pesos cuando ningún dado da la probabilidad que quieres, o para hacer más 
 
 `{{…}}` lleva una **variable** (`{{time.season}}`: el valor con ese nombre) o una **tirada** (`{{2d6}}`: dados). Los textos (resultados, plantillas de generador, textos de carta) pueden incluirlas:
 
-| Escribe           | Muestra                                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `{{2d6}}`         | Una tirada, ahí mismo: `'{{2d6}} lobos'` → «7 lobos».                                                                          |
-| `{{time.season}}` | Una variable: un valor del contexto.                                                                                           |
-| `{{npc.role}}`    | Una parte de un valor (el campo de un generador guarda los valores de su tabla).                                               |
-| `{{result}}`      | En una entrada con **luego tira**: el texto de la tabla que tiró, p. ej. `'Bandidos: están {{result}}'` con `table: reaction`. |
-| `{{roll}}`        | En las entradas de una tabla: el total de la propia **Tirada** de la tabla, p. ej. `'Has sacado {{roll}}'`.                    |
-| `{{campo}}`       | En la plantilla de un generador: el valor de un campo (su texto, si vino de una tabla).                                        |
+| Escribe           | Muestra                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `{{2d6}}`         | Una tirada, ahí mismo: `'{{2d6}} lobos'` → «7 lobos».                                                                                |
+| `{{time.season}}` | Una variable: un valor del contexto.                                                                                                 |
+| `{{npc.role}}`    | Una parte de un valor (el campo de un generador guarda los valores de su tabla).                                                     |
+| `{{result}}`      | En una entrada con **luego tira**: el texto de la tabla que tiró, p. ej. `'Bandidos: están {{result}}'` con `table: table.reaction`. |
+| `{{roll}}`        | En las entradas de una tabla: el total de la propia **Tirada** de la tabla, p. ej. `'Has sacado {{roll}}'`.                          |
+| `{{campo}}`       | En la plantilla de un generador: el valor de un campo (su texto, si vino de una tabla).                                              |
 
 Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores y tiran dados. Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
 
@@ -103,8 +103,8 @@ kind: generator
 id: encounter
 name: Encuentro
 fields:
-  who: { table: wilderness-creatures } # lee terrain, season… del contexto
-  mood: { table: reaction, context: { bonus: 1 } }
+  who: { table: table.wilderness-creatures } # lee terrain, season… del contexto
+  mood: { table: table.reaction, context: { bonus: 1 } }
   count: { roll: '1d6 + {{danger}}' } # un campo del hex en el Hexmapper
 template: '{{count}} × {{who}}, {{mood}}'
 ```

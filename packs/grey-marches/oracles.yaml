@@ -19,7 +19,7 @@ description: |-
   - Answers that roll another table
 # The pack's own roll mode, by itself when the party's Charisma beats the guards.
 modeWhen:
-  charm: { party.stats.charisma: { gt: '{{icon.guards}}' } }
+  roll-modes.charm: { party.stats.charisma: { gt: '{{icon.guards}}' } }
 inputs:
   arrival:
     label: You arrive as
@@ -30,10 +30,10 @@ roll: '1d6 + {{icon.guards}}'
 variants:
   friends:
     entries:
-      - { id: yes, range: 1-20, result: 'Yes — and {{result}}', table: gate-news }
+      - { id: yes, range: 1-20, result: 'Yes — and {{result}}', table: table.gate-news }
   strangers:
     entries:
-      - { id: yes, range: 1-3, result: 'Yes, for a coin — and {{result}}', table: gate-news }
+      - { id: yes, range: 1-3, result: 'Yes, for a coin — and {{result}}', table: table.gate-news }
       - { id: wait, range: 4-5, result: 'Wait until morning, outside the walls' }
       - { id: no, range: 6-20, result: 'No. Bows appear on the wall' }
   armed:
@@ -44,7 +44,7 @@ variants:
           id: yes,
           range: 1-2,
           result: 'Yes, if you give up your weapons — and {{result}}',
-          table: gate-news,
+          table: table.gate-news,
         }
       - { id: no, range: 3-20, result: 'No. The gates stay shut' }
 ---
@@ -60,7 +60,7 @@ description: |-
   - Dice in the text: `{{2d6}}`
   - A cascade into a generator
 entries:
-  - { id: rumour, result: 'the guard whispers a rumour: {{result}}', table: rumour }
+  - { id: rumour, result: 'the guard whispers a rumour: {{result}}', table: generator.rumour }
   - { id: work, result: 'there is work: someone pays {{2d6}} silver for an escort' }
   - { id: feast, result: it is a feast day; the inn is full }
   # A holiday of the calendar: only on Midsummer, and then most likely.
@@ -123,7 +123,12 @@ variants:
   nothing:
     entries:
       - { id: cold, weight: 2, result: 'Cold looks and a corner by the door' }
-      - { id: overheard, weight: 1, result: 'You overhear something: {{result}}', table: rumours }
+      - {
+          id: overheard,
+          weight: 1,
+          result: 'You overhear something: {{result}}',
+          table: table.rumours,
+        }
   round:
     # A party value in the roll: high morale makes friends.
     roll: '2d6 + {{party.stats.morale}}'
@@ -137,20 +142,20 @@ variants:
       - id: brawl
         range: -20-5
         result: 'A brawl breaks out — {{result}}'
-        table: reaction
+        table: table.reaction
         set: { reactionModifier: -2 }
         effects: { party.resources.food: -1, party.stats.morale: -1 }
       - id: talk
         range: 6-9
         result: 'The room warms to you: {{result}}'
-        generator: rumour
+        generator: generator.rumour
         effects: { party.resources.food: -1, party.stats.morale: 1 }
       # At most twice a session, a sell-sword joins (a stat no one declared: hirelings).
       - id: hireling
         range: 10-40
         maxOccurrences: 2
         result: '{{result}} drinks with you and joins the company'
-        table: npc-names
+        table: table.npc-names
         effects: { party.resources.food: -1, party.stats.morale: 1, party.stats.hirelings: 1 }
   feast:
     entries:

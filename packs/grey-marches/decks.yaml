@@ -9,19 +9,19 @@ description: |-
   **Shows:**
 
   - A **deck**: copies of a card (`count`), reshuffled when empty
-  - A card that rolls a table, and one that sets values (food)
-  - Another pack's table through an alias: `twist` → `core/twists`
+  - Cards that roll a generator, their references saying what they name (`generator.npc`), and one that sets values (food)
+  - Another pack's table through an alias: `table.twist` → `core/table.twists`
 reshuffle: when-empty
 cards:
   - { id: crows, result: Crows follow you all day, count: 3 }
   - { id: rainbow, result: A rainbow over the Saltmere, count: 2 }
-  - { id: stranger, result: 'A stranger on the road: {{result}}', table: npc, count: 2 }
-  - { id: rumour, result: 'A rumour reaches you: {{result}}', table: rumour }
+  - { id: stranger, result: 'A stranger on the road: {{result}}', table: generator.npc, count: 2 }
+  - { id: rumour, result: 'A rumour reaches you: {{result}}', table: generator.rumour }
   - {
       id: cache,
       result: 'A hunter’s cache: two days of food',
       effects: { party.resources.food: 2 },
     }
   - { id: wyrm-sign, result: Scorched trees and a smell of sulphur }
-  # Another pack's table, through the alias in pack.yaml (twist → core/twists).
-  - { id: twist, result: 'The road turns strange: {{result}}', table: twist }
+  # Another pack's table, through the alias in pack.yaml (table.twist → core/table.twists).
+  - { id: twist, result: 'The road turns strange: {{result}}', table: table.twist }

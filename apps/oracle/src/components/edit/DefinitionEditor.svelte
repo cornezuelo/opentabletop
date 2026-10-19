@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Compiled } from '@open-tabletop/oracle-engine'
+  import { writeRef, type Compiled } from '@open-tabletop/oracle-engine'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import { contextSuggestions } from '@open-tabletop/session'
+  import { contextSuggestions, definitionId } from '@open-tabletop/session'
   import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
   import { oracleUi } from '../../lib/oracle.svelte'
   import { workspace } from '../../lib/packs/workspace.svelte'
@@ -27,12 +27,15 @@
     const deps = workspace.registry.packs.get(def.pack)?.dependencies ?? []
     return [...workspace.registry.rollModes.values()]
       .filter((m) => m.pack === def.pack || deps.includes(m.pack))
-      .map((m) => ({ mode: m, ref: m.pack === def.pack ? m.localId : m.id }))
+      .map((m) => ({
+        mode: m,
+        ref: writeRef('roll-modes', m.localId, m.pack === def.pack ? undefined : m.pack),
+      }))
   })
   const refsOf = (value: unknown) => (Array.isArray(value) ? value.map(String) : [])
   const whenOf = (value: unknown) =>
     (typeof value === 'object' && value !== null ? value : {}) as Record<string, unknown>
-  const resolves = (ref: string, id: string) => ref === id || `${def.pack}/${ref}` === id
+  const resolves = (ref: string, id: string) => definitionId(ref, def.pack) === id
   const offered = (id: string) => refsOf(doc.raw.modes).some((r) => resolves(r, id))
   type ModeKey = 'modeWhen' | 'modeUnless'
   const conditionFor = (key: ModeKey, id: string) =>

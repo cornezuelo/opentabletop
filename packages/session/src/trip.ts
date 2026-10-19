@@ -1,4 +1,14 @@
-import type { Diagnostic, OracleEngine, Registry } from '@open-tabletop/oracle-engine'
+import {
+  findRef,
+  isDynamicRef,
+  refProblem,
+  refScope,
+  ROLLABLE_KINDS,
+  type Diagnostic,
+  type OracleEngine,
+  type RefScope,
+  type Registry,
+} from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import { validateWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
@@ -28,6 +38,7 @@ import { parseFactions } from '@open-tabletop/faction-engine'
 import { parseClocks } from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
 import type { SystemClocks } from './clocks'
+import { definitionId } from './refs'
 import {
   MEMBER_PATH,
   partyBlocks,
@@ -299,25 +310,42 @@ export function travelSystems(registry: Registry): {
       const parsed = parseBindings(extra.data, id)
       bindingsOf.set(extra, parsed)
       problems.push(...parsed.errors.map((e) => problem(id, extra.file, 'bindings', e, extra.id)))
-      const unknown = (path: string, target: string) =>
-        problems.push(
-          problem(
-            id,
-            extra.file,
-            'bindings',
-            `${path}: Unknown table or generator "${target}"`,
-            extra.id,
-          ),
-        )
-      const discover = parsed.bindings?.discover
-      for (const key of ['terrain', 'contents'] as const) {
-        const target = discover?.[key]?.resolve
-        if (target && !registry.definitions.has(target)) unknown(`discover.${key}.resolve`, target)
+      // What they roll, as written: something the Oracle rolls (`table.encounter`).
+      const raw = extra.data as {
+        on?: Record<string, { resolve?: unknown }>
+        discover?: Record<string, { resolve?: unknown }>
       }
-      for (const [event, binding] of Object.entries(parsed.bindings?.on ?? {}))
-        if (binding.resolve && !registry.definitions.has(binding.resolve))
-          unknown(`on.${event}.resolve`, binding.resolve)
+      const rolled: [string, unknown][] = [
+        ...(['terrain', 'contents'] as const).map((key): [string, unknown] => [
+          `discover.${key}.resolve`,
+          raw.discover?.[key]?.resolve,
+        ]),
+        ...Object.entries(raw.on ?? {}).map(([event, b]): [string, unknown] => [
+          `on.${event}.resolve`,
+          b?.resolve,
+        ]),
+      ]
+      for (const [path, ref] of rolled) {
+        const message = typeof ref === 'string' && rollableProblem(id, ref)
+        if (message)
+          problems.push(problem(id, extra.file, 'bindings', `${path}: ${message}`, extra.id))
+      }
     }
+
+  /** Where a pack's references to other engines' definitions are looked for (`sheet.companion`). */
+  function extrasScope(pack: string, kind: string): RefScope {
+    const scope = refScope(registry, pack, (k, full) => {
+      const [owner, id] = full.split('/', 2)
+      return extrasOf(owner).some((e) => e.kind === k && (e.id ?? 'default') === id)
+    })
+    return { ...scope, kinds: [kind] }
+  }
+  /** Why a reference to something the Oracle rolls names nothing (none: it's fine, or built when rolled). */
+  function rollableProblem(pack: string, ref: string): string | undefined {
+    if (isDynamicRef(ref)) return undefined
+    const scope = refScope(registry, pack)
+    return findRef(scope, ref) ? undefined : refProblem(scope, ref, 'table', ROLLABLE_KINDS)
+  }
 
   /** A system made of these parts; undefined (and reported) when its rules are broken. */
   function build(
@@ -356,17 +384,28 @@ export function travelSystems(registry: Registry): {
       rules = parsed.rules
     }
     const bindings = parts.bindings ? bindingsOf.get(parts.bindings)?.bindings : undefined
-    for (const [event, binding] of Object.entries(bindings?.on ?? {}))
-      if (binding.weather && !parts.weather[binding.weather])
-        problems.push(
-          problem(
-            ownerOf(parts.bindings!) ?? pack,
-            parts.bindings!.file,
-            'bindings',
-            `on.${event}.weather: Unknown weather model "${binding.weather}"`,
-            parts.bindings!.id,
-          ),
-        )
+    for (const [event, binding] of Object.entries(bindings?.on ?? {})) {
+      if (!binding.weather || parts.weather[binding.weather]) continue
+      const owner = ownerOf(parts.bindings!) ?? pack
+      const written = (parts.bindings!.data as { on?: Record<string, { weather?: string }> }).on?.[
+        event
+      ]?.weather
+      const scope = extrasScope(owner, 'weather')
+      const known = written !== undefined && findRef(scope, written)
+      problems.push(
+        problem(
+          owner,
+          parts.bindings!.file,
+          'bindings',
+          `on.${event}.weather: ${
+            known
+              ? `The system doesn't bring the weather model "${written}" (weather: in kind: system)`
+              : refProblem(scope, written ?? binding.weather, 'weather model', ['weather'])
+          }`,
+          parts.bindings!.id,
+        ),
+      )
+    }
     let calendar: DataCalendar | undefined
     if (parts.calendar) {
       const errors = validateCalendar(parts.calendar.data)
@@ -427,12 +466,13 @@ export function travelSystems(registry: Registry): {
       parsed.errors.forEach(report)
       if (parsed.factions) {
         const ref = parsed.factions.sheet
-        const [sheetPack, sheetId] = ref.includes('/') ? ref.split('/', 2) : [owner, ref]
+        const scope = extrasScope(owner, 'sheet')
+        const [sheetPack, sheetId] = (findRef(scope, ref) ?? definitionId(ref, owner)).split('/', 2)
         const extra = extrasOf(sheetPack).find(
           (e) => e.kind === 'sheet' && (e.id ?? 'default') === sheetId,
         )
         const read = extra && parseSheet(extra.data)
-        if (!extra) report(`sheet: Unknown sheet "${ref}"`)
+        if (!extra) report(`sheet: ${refProblem(scope, ref, 'sheet', ['sheet'])}`)
         else
           read!.errors.forEach((e) =>
             problems.push(problem(sheetPack, extra.file, 'sheet', e, extra.id)),
@@ -447,17 +487,18 @@ export function travelSystems(registry: Registry): {
         ] as const
         for (const [at, table] of tables) {
           if (!table) continue
-          const full = table.includes('/') ? table : `${owner}/${table}`
+          const full = definitionId(table, owner)
           // Another pack's that isn't loaded: the missing dependency is reported already.
-          if (!registry.packs.has(full.split('/')[0])) continue
-          if (registry.definitions.has(full)) continue
+          if (full.includes('/') && !registry.packs.has(full.split('/')[0])) continue
+          const message = rollableProblem(owner, table)
+          if (!message) continue
           const other = full.split('/')[0]
           // Another pack loaded without it: most likely an older version, or a copy of it.
-          report(
-            other === owner
-              ? `${at}: Unknown table or generator "${table}"`
-              : `${at}: Unknown table or generator "${table}": the loaded pack "${other}" has no "${full.slice(other.length + 1)}" (an older version of it, or your own copy made before it had one?)`,
-          )
+          const older =
+            full.includes('/') && other !== owner && !registry.definitions.has(full)
+              ? ` (the loaded pack "${other}" has none: an older version of it, or your own copy made before it had one?)`
+              : ''
+          report(`${at}: ${message}${older}`)
         }
         // The map a faction's starting hexes are on must be one of the pack's.
         const bundles = registry.packs.get(owner)?.bundles ?? []
@@ -485,9 +526,10 @@ export function travelSystems(registry: Registry): {
         for (const [id, c] of Object.entries(parsed.clocks.clocks)) {
           const table = c.onFull?.resolve
           if (!table) continue
-          const full = table.includes('/') ? table : `${owner}/${table}`
-          if (!registry.packs.has(full.split('/')[0]) || registry.definitions.has(full)) continue
-          report(`clocks.${id}.onFull.resolve: Unknown table or generator "${table}"`)
+          const full = definitionId(table, owner)
+          if (full.includes('/') && !registry.packs.has(full.split('/')[0])) continue
+          const message = rollableProblem(owner, table)
+          if (message) report(`clocks.${id}.onFull.resolve: ${message}`)
         }
         clocks = { id: `${owner}/${parts.clocks.id ?? 'default'}`, pack: owner, def: parsed.clocks }
       }
@@ -576,17 +618,19 @@ export function travelSystems(registry: Registry): {
       const localId = def.id ?? 'default'
       for (const key of Object.keys(data))
         if (!SYSTEM_KEYS.has(key)) report(key, `Unknown key "${key}" in a system`)
-      /** A part named `id` (this pack's) or `pack/id` (a dependency's). */
+      /** A part named `kind.id` (this pack's) or `pack/kind.id` (a dependency's). */
       const part = (key: string, kind: string, ref: unknown): Extra | undefined => {
         if (ref === undefined) return undefined
         if (typeof ref !== 'string' || !ref)
-          return void report(key, `Expected the id of ${PART_NAMES[kind]}`)
-        const [owner, partId] = ref.includes('/') ? ref.split('/', 2) : [id, ref]
-        if (owner !== id && !dependencies.includes(owner))
+          return void report(key, `Expected ${PART_NAMES[kind]} (${kind}.<id>)`)
+        const scope = extrasScope(id, kind)
+        const owner = definitionId(ref, id).split('/')[0]
+        if (ref.includes('/') && owner !== id && !dependencies.includes(owner))
           return void report(key, `"${owner}" isn't a dependency of this pack`)
-        const found = extrasOf(owner).find((e) => e.kind === kind && (e.id ?? 'default') === partId)
-        if (!found) report(key, `Unknown ${PART_NAMES[kind]} "${ref}"`)
-        return found
+        const full = findRef(scope, ref)
+        if (!full) return void report(key, refProblem(scope, ref, PART_NAMES[kind], [kind]))
+        const [from, partId] = full.split('/', 2)
+        return extrasOf(from).find((e) => e.kind === kind && (e.id ?? 'default') === partId)
       }
       const list = (key: string, value: unknown): string[] => {
         if (value === undefined) return []
@@ -597,7 +641,7 @@ export function travelSystems(registry: Registry): {
       const own: Record<string, WeatherModel> = {}
       list('weather', data.weather).forEach((ref, i) => {
         const model = part(`weather.${i}`, 'weather', ref)
-        const key = ref.includes('/') ? ref : `${id}/${ref}`
+        const key = definitionId(ref, id)
         if (model && weather[key]) own[key] = weather[key]
       })
       const packs = [id]
