@@ -41,7 +41,7 @@ interface TokenLook {
   halo?: boolean
   showName?: boolean
   nameStyle?: MapToken['nameStyle']
-  /** Only for the party (an OTD party's stats are the trip's); characters use `stats`. */
+  /** Older files' key-values (a party token's are no longer kept); characters use `stats`. */
   fields?: MapToken['fields']
 }
 
@@ -52,7 +52,6 @@ const lookOf = (token: MapToken): TokenLook => ({
   ...(token.halo === false && { halo: false }),
   ...(token.showName && { showName: true }),
   ...(token.nameStyle && { nameStyle: token.nameStyle }),
-  ...(token.kind === 'party' && token.fields && { fields: token.fields }),
 })
 
 /** Fields as an OTD `stats` record, and back. */
@@ -473,7 +472,6 @@ function playFromOtd(
     showName: look.showName,
     nameStyle: look.nameStyle,
     note: party.noteRef,
-    fields: look.fields,
   }
   return {
     partyId: party.id,

@@ -263,6 +263,22 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       ...(packs !== undefined && data.packs === undefined && { packs }),
     }
   },
+  /**
+   * v26: the party token keeps no key-values: the party's sheet and stats are the trip's,
+   * and nothing read the token's.
+   */
+  25(data) {
+    if (!Array.isArray(data.tokens)) return data
+    return {
+      ...data,
+      tokens: data.tokens.map((token: Record<string, unknown>) => {
+        if (token?.kind !== 'party' || token.fields === undefined) return token
+        const rest = { ...token }
+        delete rest.fields
+        return rest
+      }),
+    }
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

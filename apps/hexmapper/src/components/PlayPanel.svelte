@@ -171,6 +171,7 @@
       arrivedHint={t('play.newDestination')}
       onstep={step}
       place={rosterPlace}
+      systemWhere={t('play.systemWhere')}
       onedit={editSession}
     />
   {/if}

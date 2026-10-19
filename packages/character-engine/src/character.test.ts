@@ -9,6 +9,7 @@ import {
   createCharacter,
   membersBlock,
   parseSheet,
+  partySource,
   partyValue,
   shareChange,
   validatePartyFrom,
@@ -226,6 +227,33 @@ describe('a party of characters', () => {
     expect(partyValue(members, { max: 'wits', when: { health: { gt: 0 } }, none: -1 })).toBe(3)
     expect(partyValue([], { max: 'wits' })).toBe(0)
     expect(partyValue([], { max: 'wits', none: -1 })).toBe(-1)
+  })
+
+  it('says whose a party value is', () => {
+    const members = band()
+    members[1].conditions = { wounded: {} }
+    expect(partySource(members, { max: 'wits' })).toEqual({ value: 3, members: ['kael'] })
+    expect(partySource(members, { min: 'wits', unless: { conditions: 'wounded' } })).toEqual({
+      value: 2,
+      members: ['pip'],
+    })
+    expect(partySource(members, { sum: 'health' })).toEqual({
+      value: 5,
+      members: ['kael', 'mara', 'pip'],
+    })
+    expect(partySource(members, { count: true, unless: { conditions: 'wounded' } })).toEqual({
+      value: 2,
+      members: ['kael', 'pip'],
+    })
+    // Picked: the chosen one's, said so; nobody chosen, the best.
+    expect(partySource(members, { pick: 'wits' }, 'mara')).toEqual({
+      value: 1,
+      members: ['mara'],
+      chosen: true,
+    })
+    expect(partySource(members, { pick: 'wits' })).toEqual({ value: 3, members: ['kael'] })
+    // Nobody counts: the system's `none`, nobody's.
+    expect(partySource([], { max: 'wits', none: -1 })).toEqual({ value: -1, members: [] })
   })
 
   it('validates how a party value is made', () => {

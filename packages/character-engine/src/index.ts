@@ -416,22 +416,37 @@ export function partyValue(
   /** For `pick`: the member the player chose (absent, or not among them: the best). */
   chosen?: string,
 ): number {
+  return partySource(members, from, chosen).value
+}
+
+/**
+ * Where a party value comes from, so it can be shown: the value, and the members it was
+ * made of. `max`, `min` and `pick` name the member whose value it is (the first of equals);
+ * `sum` and `count` every member counted; none when nobody counts (`none`'s value). `chosen`
+ * is set when it's the chosen member's (`pick`).
+ */
+export function partySource(
+  members: CharacterState[],
+  from: PartyFrom,
+  chosen?: string,
+): { value: number; members: string[]; chosen?: true } {
   const counted = members.filter((m) => {
     const seen = characterFacts(m)
     return matches(from.when, seen) && !(from.unless && matches(from.unless, seen))
   })
-  if (from.count) return counted.length
+  if (from.count) return { value: counted.length, members: counted.map((m) => m.id) }
   if (from.pick !== undefined) {
     const one = members.find((m) => m.id === chosen)
-    if (one) return one.values[from.pick] ?? 0
+    if (one) return { value: one.values[from.pick] ?? 0, members: [one.id], chosen: true }
   }
   const id = from.max ?? from.min ?? from.sum ?? from.pick
-  if (id === undefined || !counted.length) return from.none ?? 0
+  if (id === undefined || !counted.length) return { value: from.none ?? 0, members: [] }
   const numbers = counted.map((m) => m.values[id] ?? 0)
-  if (from.sum !== undefined) return numbers.reduce((a, b) => a + b, 0)
-  return from.max !== undefined || from.pick !== undefined
-    ? Math.max(...numbers)
-    : Math.min(...numbers)
+  if (from.sum !== undefined)
+    return { value: numbers.reduce((a, b) => a + b, 0), members: counted.map((m) => m.id) }
+  const value =
+    from.max !== undefined || from.pick !== undefined ? Math.max(...numbers) : Math.min(...numbers)
+  return { value, members: [counted[numbers.indexOf(value)].id] }
 }
 
 /**

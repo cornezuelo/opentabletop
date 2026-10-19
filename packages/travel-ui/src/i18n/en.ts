@@ -90,6 +90,16 @@ export const en = {
   partySheet: {
     title: 'The party',
     help: "The party itself, with its system's party sheet: what belongs to the whole party (morale, fatigue, hirelings…), whoever its characters are. Characters can join and leave; this stays.\nConditions and tables read it:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nEffects change it:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nA party stat made of one of its values (`from: { party: morale }`) is that value: it's edited here.",
+    statsHelp:
+      "The party's stats, the numbers its system's rules and tables read (`party.stats.<id>`); each says where it comes from:\n• a plain number is edited here\n• one made of the characters' values follows them (the highest, the lowest, who rolls, added up, how many): change theirs\n• one made of a value of the party's sheet (`from: { party: morale }`) is that value, in the sheet above",
+    plainHelp:
+      "The party as a whole: its stats, the numbers its system's rules and tables read (`party.stats.<id>`). Its system declares them; with characters, some may be made of theirs.",
+    highest: '{who}’s {value}, the highest',
+    lowest: '{who}’s {value}, the lowest',
+    chosen: '{who}’s {value} (Rolls with)',
+    sum: '{value} added up: {list}',
+    count: 'how many: {list}',
+    nobody: 'nobody counts',
   },
   members: {
     land: 'land',
@@ -221,6 +231,7 @@ export const en = {
     deleteConfirm: 'Delete the trip “{trip}” and its journal?',
   },
   play: {
+    systemWhere: 'A trip keeps the system it started with: another system is another trip.',
     current: 'The open trip uses {system}.',
     switch: 'Start a trip with {system}',
     switchConfirm: 'Start this trip again with {system}? Its journal is discarded.',

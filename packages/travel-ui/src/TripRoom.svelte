@@ -187,6 +187,7 @@
           arrivedHint={t('play.arrivedHint')}
           onstep={(action) => trip.step(action)}
           place={trip.place}
+          systemWhere={t('play.systemWhere')}
           onedit={(update) => trip.edit(update)}
         />
       {:else if !session}

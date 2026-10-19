@@ -406,8 +406,17 @@ export const placesIn = (id: string): Promise<CampaignPlace[]> => campaignPlaces
  * world); asks first. True if deleted.
  */
 export async function removeCampaign(campaign: Campaign): Promise<boolean> {
-  if ((await placesIn(campaign.id)).length) {
-    showToast(t('campaign.cantDelete'), 'error', 8000)
+  const places = await placesIn(campaign.id)
+  if (places.length) {
+    // Say which, so they can be found (a trip of Travel's is easy to forget).
+    const list = places
+      .map((p) =>
+        p.app === 'hexmapper'
+          ? `${t('places.maps')}: ${p.name || t('places.untitledMap')}`
+          : `${t('places.trips')}: ${p.name || t('places.untitledTrip')}`,
+      )
+      .join(' · ')
+    showToast(t('campaign.cantDelete', { list }), 'error', 10000)
     return false
   }
   const name = campaign.name || t('nav.untitled')

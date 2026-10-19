@@ -44,13 +44,13 @@
   import { calendarOf } from '@open-tabletop/session'
   import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
-  import { memberNamer } from './members'
+  import { memberNamer, statSource } from './members'
   import { dayPartsLine, divisionName, partName } from './dayParts'
   import { findPart } from '@open-tabletop/time'
   import Fold from './Fold.svelte'
   import { tripTab, type TripTab } from './folds.svelte'
   import PartyMembers from './PartyMembers.svelte'
-  import { CharacterCard } from '@open-tabletop/character-ui'
+  import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
 
   /**
    * A trip in progress: day and time, where the party is and where it's heading, travel
@@ -72,6 +72,7 @@
     world,
     facts,
     place,
+    systemWhere = '',
     onstep,
     onedit,
   }: {
@@ -99,6 +100,8 @@
     relationTargets?: { ref: string; label: string }[]
     /** The trip as a place of the roster: its characters can come from it and be kept in it. */
     place?: RosterPlace
+    /** Where the host's system is chosen (basic Markdown), for the help of whose sheet it is. */
+    systemWhere?: string
     /** Changes the session directly (supplies, stats, mode) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
@@ -627,7 +630,85 @@
   </div>
   <div class="tabpanel" id="trip-tabpanel" role="tabpanel" aria-labelledby="trip-tab-{tab}">
     {#if tab === 'party'}
-      <!-- Its sections fold by their heading (remembered per viewer). -->
+      <!-- One place for the party: its sheet and its stats, each saying where it comes
+           from; then its characters, then its supplies. Its sections fold by their heading. -->
+      {#if stats.length || (system.partySheet && session.party)}
+        <Fold
+          id="party"
+          title={t('partySheet.title')}
+          help={system.partySheet && session.party
+            ? t('partySheet.help')
+            : t('partySheet.plainHelp')}
+          {locale}
+        >
+          {#if system.partySheet && session.party}
+            <SheetOrigin sheet={system.partySheet} {system} {locale} where={systemWhere} />
+            <CharacterCard
+              sheet={system.partySheet.def}
+              character={session.party}
+              {locale}
+              names={blockName}
+              path="party"
+              time={session.travel.time}
+              named={false}
+              onchange={editParty}
+            />
+          {/if}
+          {#if stats.length}
+            <div class="stats">
+              <span class="label"
+                >{t('fold.stats')}<InfoTip markdown={t('partySheet.statsHelp')} /></span
+              >
+              {#each stats as [key, stat] (key)}
+                {@const source = statSource(
+                  stat.from,
+                  system,
+                  session.members,
+                  session.rolls,
+                  locale,
+                  t,
+                )}
+                <label class="field stat">
+                  <span
+                    >{statText(stat.name, key)}<InfoTip
+                      markdown={[
+                        statText(stat.description, ''),
+                        fromMembers(stat) && t('members.fromMembers'),
+                        readAs(key, `party.stats.${key}`),
+                      ]
+                        .filter(Boolean)
+                        .join('\n\n')}
+                    /></span
+                  >
+                  <input
+                    type="number"
+                    value={session.stats[key] ?? stat.default ?? 0}
+                    disabled={fromMembers(stat)}
+                    onchange={(e) => {
+                      const value = Number(e.currentTarget.value) || 0
+                      onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
+                    }}
+                  />
+                  {#if source}<span class="source">{source}</span>{/if}
+                </label>
+              {/each}
+            </div>
+          {/if}
+        </Fold>
+      {/if}
+
+      {#if system.sheet}
+        <PartyMembers
+          system={{ ...system, sheet: system.sheet }}
+          {session}
+          {locale}
+          names={blockName}
+          targets={relationTargets}
+          {place}
+          {systemWhere}
+          {onedit}
+        />
+      {/if}
       {#if Object.keys(system.rules.resources ?? {}).length}
         <Fold id="supplies" title={t('fold.supplies')} {locale}>
           <div class="row">
@@ -669,62 +750,6 @@
             {/each}
           </div>
         </Fold>
-      {/if}
-
-      {#if stats.length}
-        <Fold id="stats" title={t('fold.stats')} {locale}>
-          {#each stats as [key, stat] (key)}
-            <label class="field">
-              <span
-                >{statText(stat.name, key)}<InfoTip
-                  markdown={[
-                    statText(stat.description, ''),
-                    fromMembers(stat) && t('members.fromMembers'),
-                    readAs(key, `party.stats.${key}`),
-                  ]
-                    .filter(Boolean)
-                    .join('\n\n')}
-                /></span
-              >
-              <input
-                type="number"
-                value={session.stats[key] ?? stat.default ?? 0}
-                disabled={fromMembers(stat)}
-                onchange={(e) => {
-                  const value = Number(e.currentTarget.value) || 0
-                  onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
-                }}
-              />
-            </label>
-          {/each}
-        </Fold>
-      {/if}
-
-      {#if system.partySheet && session.party}
-        <Fold id="party" title={t('partySheet.title')} help={t('partySheet.help')} {locale}>
-          <CharacterCard
-            sheet={system.partySheet.def}
-            character={session.party}
-            {locale}
-            names={blockName}
-            path="party"
-            time={session.travel.time}
-            named={false}
-            onchange={editParty}
-          />
-        </Fold>
-      {/if}
-
-      {#if system.sheet}
-        <PartyMembers
-          system={{ ...system, sheet: system.sheet }}
-          {session}
-          {locale}
-          names={blockName}
-          targets={relationTargets}
-          {place}
-          {onedit}
-        />
       {/if}
     {:else if tab === 'journal'}
       {@render lines(journalDays, t('emptyJournal'))}
@@ -852,6 +877,28 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+
+  /* The party's stats under its sheet, each with where it comes from. */
+  .stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .stats > .label,
+  .stat .source {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* A row each: its name, its number, where it comes from. */
+  .stats .stat {
+    display: grid;
+    grid-template-columns: minmax(90px, 32%) 64px 1fr;
+    align-items: center;
+    gap: 8px;
   }
 
   .row {

@@ -102,4 +102,21 @@ describe('the trip’s totals (v16)', () => {
     const other = { version: 21, play: { rules: { system: 'grey-marches' } } }
     expect(migrate(other)).toEqual({ ...other, version: CURRENT_VERSION })
   })
+  it('v26 drops the party token’s key-values, keeping the other tokens’', () => {
+    const fare = [{ key: 'fare', value: '2' }]
+    const data = {
+      version: 25,
+      tokens: [
+        { id: 'p', kind: 'party', fields: [{ key: 'morale', value: '5' }] },
+        { id: 'n', kind: 'npc', fields: fare },
+      ],
+    }
+    expect(migrate(data)).toEqual({
+      version: CURRENT_VERSION,
+      tokens: [
+        { id: 'p', kind: 'party' },
+        { id: 'n', kind: 'npc', fields: fare },
+      ],
+    })
+  })
 })

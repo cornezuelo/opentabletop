@@ -280,6 +280,7 @@ describe('play state in OTD', () => {
         fields: [{ key: 'morale', value: '5' }],
       },
     ]
+    // The party token's are dropped (v26): its sheet and stats are the trip's.
     const bundle = mapToBundle(map)
     expect(validateBundle(bundle).errors).toEqual([])
     expect(bundle.characters[0].stats).toEqual({ fare: '2' })
@@ -287,7 +288,8 @@ describe('play state in OTD', () => {
     expect(back.regions[0].fields).toEqual(map.regions[0].fields)
     expect(back.hexes['1,1'].icon?.fields).toEqual([{ key: 'guards', value: '3' }])
     expect(back.hexes['1,1'].pois?.[0].fields).toEqual([{ key: 'rooms', value: '4' }])
-    for (const token of map.tokens)
+    expect(back.tokens.find((t) => t.id === 'partytok01')?.fields).toBeUndefined()
+    for (const token of map.tokens.filter((t) => t.kind !== 'party'))
       expect(back.tokens.find((t) => t.id === token.id)?.fields).toEqual(token.fields)
   })
 })

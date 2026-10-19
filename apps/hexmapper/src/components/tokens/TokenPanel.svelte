@@ -1,7 +1,14 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
   import { createCharacter } from '@open-tabletop/character-engine'
-  import { CharacterCard, characterUrl, roster, sheetText } from '@open-tabletop/character-ui'
+  import {
+    CharacterCard,
+    characterUrl,
+    roster,
+    SheetOrigin,
+    sheetText,
+  } from '@open-tabletop/character-ui'
+  import { tripTab } from '@open-tabletop/travel-ui'
   import {
     characterId,
     keepInRoster,
@@ -52,6 +59,12 @@
       ? DEFAULT_TOKEN_ICONS[kind]
       : t.iconId
     editor.tokenTemplate = { ...t, kind, iconId }
+  }
+
+  /** The party's sheet, stats and characters are Play's: its Party tab. */
+  function openParty() {
+    tripTab.choose('party')
+    editor.tool = 'play'
   }
 
   function update(change: (token: MapToken) => MapToken) {
@@ -265,6 +278,12 @@
     {#if sheet && selected.kind !== 'party'}
       <div class="field">
         <span>{t('tokens.sheet')}<InfoTip text={t('tokens.sheetHelp')} /></span>
+        <SheetOrigin
+          {sheet}
+          system={activeSystem()}
+          locale={getLocale()}
+          where={t('play.systemWhere')}
+        />
         {#if selected.character}
           <CharacterCard
             sheet={sheet.def}
@@ -322,12 +341,20 @@
         {/if}
       </div>
     {/if}
-    <FieldEditor
-      scope="token"
-      fields={selected.fields ?? []}
-      help={tr('fields.tokenHelp')}
-      onchange={(fields) => update((t) => ({ ...t, fields: fields.length ? fields : undefined }))}
-    />
+    {#if selected.kind === 'party'}
+      <!-- The party is played in Play: its sheet, stats and characters live there. -->
+      <p class="help">
+        {t('tokens.partyHere')}
+        <button class="link" onclick={openParty}>{t('tokens.openParty')}</button>
+      </p>
+    {:else}
+      <FieldEditor
+        scope="token"
+        fields={selected.fields ?? []}
+        help={tr('fields.tokenHelp')}
+        onchange={(fields) => update((t) => ({ ...t, fields: fields.length ? fields : undefined }))}
+      />
+    {/if}
     <p class="help">
       {selected.hex ? t('tokens.at', { hex: coord(selected.hex) }) : t('tokens.offMapHelp')}
     </p>

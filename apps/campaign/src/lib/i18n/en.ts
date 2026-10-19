@@ -54,7 +54,7 @@ export const en = {
     confirmDelete:
       'Delete the campaign “{name}”? Its world clock, timeline, factions and Oracle state are forgotten. Nothing is in it.',
     cantDelete:
-      'Maps or trips are in this campaign: move them to another one (or delete them) first.',
+      'In this campaign: {list}. Move them to another campaign (or delete them) first: see Maps and trips.',
     deleted: 'Campaign “{name}” deleted.',
     missing: 'This campaign isn’t kept in this browser.',
     noRewindTrip:

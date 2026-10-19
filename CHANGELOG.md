@@ -6,6 +6,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Hexmapper, Travel: **the party in one place**: Play's **Party** tab shows **The party** first, its sheet with the party stats under it, each saying where it comes from (_Kael’s Pathfinding, the highest_; _Brenna’s Charisma (Rolls with)_; _how many: Kael, Brenna_), then its characters, then its supplies; the loose **Stats** section is gone. Every sheet (the party's, the characters', a token's) says which it is and whose system, with **Edit in Systems ↗**. The party token keeps no fields of its own (nothing read them; maps saved with some lose them): its panel in Tokens opens Play → Party.
+
+- Campaign: **a campaign that can't be deleted says why**: the maps and trips still in it, by name.
+
 - Packs: **the Grey Marches' second example map, the Hollow Hills**: the hills around Hollow Gate up close (3 km a hex), in the same campaign as the Marches' map: one world clock, the factions shared, the Iron Clans holding land on both maps (the Hills by region, their watch-cairn by `map:`); a trail past a landmark, a ford and a shrine to the Barrow-halls. Core's page says what a campaign gets with the Generic rules.
 
 - Hexmapper: **example maps of one campaign open in it**: an example whose file names a campaign this browser keeps (another example map of it) joins it without asking, its world kept; **Start fresh** restarts the campaign's world only when nothing else is in it.

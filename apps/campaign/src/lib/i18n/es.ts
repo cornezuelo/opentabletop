@@ -54,7 +54,8 @@ export const es: Messages<typeof en> = {
     delete: 'Borrar',
     confirmDelete:
       '¿Borrar la campaña «{name}»? Se olvidan su reloj del mundo, su cronología, sus facciones y el estado de su Oráculo. No hay nada en ella.',
-    cantDelete: 'Hay mapas o viajes en esta campaña: llévalos a otra (o bórralos) antes.',
+    cantDelete:
+      'En esta campaña: {list}. Llévalos a otra campaña (o bórralos) antes: mira Mapas y viajes.',
     deleted: 'Campaña «{name}» borrada.',
     missing: 'Esta campaña no se guarda en este navegador.',
     noRewindTrip:

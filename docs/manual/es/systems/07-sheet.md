@@ -2,6 +2,8 @@
 
 La pestaña **Hoja** edita las dos hojas del sistema, las dos opcionales (`kind: sheet`): **la de sus personajes** (`sheet`), lo que tiene cada personaje, y **la del propio grupo** (`partySheet`), lo que es de todo el grupo (moral, fatiga, mercenarios…) en cada viaje, viaje quien viaje. Con las dos, una pestaña encima del formulario elige cuál. **Nueva hoja de personajes** y **Nueva hoja de grupo** hacen una pequeña y la nombran en el sistema. La hoja del grupo sale como **El grupo** en cada viaje, encima de los personajes; las tablas la leen como `party.values.morale`, y una característica del grupo puede ser uno de sus valores (**De las hojas** en [Comprobaciones](06-checks.md): `party: morale`). Sin hoja de personajes, el grupo se juega como un todo; con ella, los viajes tienen una sección **Personajes** ([Jugar un viaje](../travel/02-playing.md#personajes)), y la pestaña [Comprobaciones](06-checks.md) dice qué características del grupo salen de ellos y qué provisiones llevan. El YAML de una hoja: [Hojas](../technical/07-kinds.md#hojas).
 
+Una hoja es el único sitio donde se declara lo que tiene un personaje o el grupo: no tienen valores propios fuera de ella. Allí donde se juega una hoja (la pestaña **Grupo** del viaje, la hoja de una ficha en el Hexmapper), dice cuál es y de qué sistema, con **Editar en Sistemas ↗** para venir aquí.
+
 ## Qué tiene una hoja
 
 - Su **Nombre** y su **Descripción** (para qué es la hoja).

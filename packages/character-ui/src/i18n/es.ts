@@ -24,4 +24,9 @@ export const es: Messages<typeof en> = {
   max: 'Como máximo {max}.',
   blocks: 'Mientras alguien lo tenga, el grupo no puede: {list}.',
   box: '{value} de {max}',
+  origin: {
+    line: 'Hoja: {sheet} · {system}',
+    help: 'Lo que tiene esta hoja (sus valores, estados y tipos de relación) lo decide su sistema: solo se muestra lo que declara. Para añadir o cambiar uno, edita la hoja en la app Sistemas (un sistema incluido se duplica antes).',
+    edit: 'Editar en Sistemas ↗',
+  },
 }

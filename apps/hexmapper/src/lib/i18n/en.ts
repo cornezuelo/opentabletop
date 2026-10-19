@@ -424,6 +424,9 @@ export const en = {
     confirmRemove: 'Take the factions off this map? Their sheets and territory are forgotten.',
   },
   tokens: {
+    partyHere:
+      "The party's token: the party's sheet, its stats and its characters are in Play, not on the token.",
+    openParty: 'Open Play → Party',
     sheet: 'Sheet',
     sheetHelp:
       "The token as a character of the map's system: its sheet's values, conditions, tags and relations, like a statblock for an NPC or a creature. Tables rolled with the token selected read them: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Its fields below stay as they are.",
@@ -475,6 +478,8 @@ export const en = {
     empty: 'No tokens yet.',
   },
   play: {
+    systemWhere:
+      "The map's system is its campaign's: choose it in **Map settings → Campaign → System**.",
     pauseOther: vocabulary.en.campaign.pauseOther,
     caughtUp: vocabulary.en.campaign.caughtUp,
     noTravel:

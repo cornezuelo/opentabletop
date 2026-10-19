@@ -89,6 +89,16 @@ export const es: Messages<typeof en> = {
   partySheet: {
     title: 'El grupo',
     help: 'El propio grupo, con la hoja de grupo de su sistema: lo que es de todo el grupo (moral, fatiga, mercenarios…), sean quienes sean sus personajes. Los personajes pueden unirse e irse; esto se queda.\nLas condiciones y las tablas lo leen:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nLos efectos lo cambian:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nUna característica del grupo hecha de uno de sus valores (`from: { party: morale }`) es ese valor: se edita aquí.',
+    statsHelp:
+      'Las características del grupo, los números que leen las reglas y las tablas de su sistema (`party.stats.<id>`); cada una dice de dónde sale:\n• un número suelto se edita aquí\n• una hecha de los valores de los personajes los sigue (el máximo, el mínimo, quien tira, la suma, cuántos son): cambia los suyos\n• una hecha de un valor de la hoja del grupo (`from: { party: morale }`) es ese valor, en la hoja de arriba',
+    plainHelp:
+      'El grupo en conjunto: sus características, los números que leen las reglas y las tablas de su sistema (`party.stats.<id>`). Las declara su sistema; con personajes, alguna puede salir de los suyos.',
+    highest: '{value} de {who}, el máximo',
+    lowest: '{value} de {who}, el mínimo',
+    chosen: '{value} de {who} (Tira)',
+    sum: 'suma de {value}: {list}',
+    count: 'cuántos son: {list}',
+    nobody: 'no cuenta nadie',
   },
   members: {
     land: 'tierras',
@@ -219,6 +229,7 @@ export const es: Messages<typeof en> = {
     deleteConfirm: '¿Borrar el viaje «{trip}» y su diario?',
   },
   play: {
+    systemWhere: 'Un viaje se queda con el sistema con el que empezó: otro sistema es otro viaje.',
     current: 'El viaje abierto usa {system}.',
     switch: 'Empezar un viaje con {system}',
     switchConfirm: '¿Empezar este viaje de nuevo con {system}? Se descarta su diario.',

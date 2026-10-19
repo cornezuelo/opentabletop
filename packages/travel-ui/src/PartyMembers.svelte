@@ -14,7 +14,7 @@
     type TravelSystem,
   } from '@open-tabletop/session'
   import type { CharacterState } from '@open-tabletop/character-engine'
-  import { CharacterCard, characterUrl, roster } from '@open-tabletop/character-ui'
+  import { CharacterCard, characterUrl, roster, SheetOrigin } from '@open-tabletop/character-ui'
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import Fold from './Fold.svelte'
   import { translator } from './i18n'
@@ -32,6 +32,7 @@
     names = (id) => id,
     targets = [],
     place,
+    systemWhere = '',
     onedit,
   }: {
     system: TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
@@ -43,6 +44,8 @@
     targets?: { ref: string; label: string }[]
     /** The trip as a place of the roster (absent: this host doesn't use the roster). */
     place?: RosterPlace
+    /** Where the host's system is chosen (basic Markdown), for the help of whose sheet it is. */
+    systemWhere?: string
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
@@ -181,6 +184,7 @@
       </label>
     {/if}
   {/snippet}
+  <SheetOrigin sheet={system.sheet} {system} {locale} where={systemWhere} />
   {#if members.length && roles.length}
     <div class="roles">
       <span>{t('members.roles')}<InfoTip markdown={t('members.rolesHelp')} /></span>

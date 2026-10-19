@@ -1,4 +1,4 @@
-import type { CharacterState } from '@open-tabletop/character-engine'
+import { partySource, type CharacterState, type PartyFrom } from '@open-tabletop/character-engine'
 import { idName, sheetText } from '@open-tabletop/character-ui'
 import {
   characterId,
@@ -78,3 +78,33 @@ export function memberNamer(
 
 /** An id for a new member, from its name (`Old Mara` → `old-mara`), not taken yet. */
 export const memberId = (name: string, taken: string[]): string => characterId(name, taken)
+
+/**
+ * Where a party stat made of the characters' values comes from, in words: "Kael's
+ * Pathfinding, the highest", "Health added up: Kael, Mara". Undefined for a stat that isn't
+ * made of them (a plain number, the party sheet's value) or while there are none.
+ */
+export function statSource(
+  from: PartyFrom | undefined,
+  system: TravelSystem,
+  members: CharacterState[] | undefined,
+  rolls: string | undefined,
+  locale: string,
+  t: Translate,
+): string | undefined {
+  if (!from || from.party !== undefined || !members?.length) return undefined
+  const source = partySource(members, from, rolls)
+  const names = source.members.map((id) => {
+    const member = members.find((m) => m.id === id)
+    return member ? memberLabel(member) : id
+  })
+  if (!names.length) return t('partySheet.nobody')
+  const list = names.join(', ')
+  if (from.count) return t('partySheet.count', { list })
+  const id = from.max ?? from.min ?? from.sum ?? from.pick ?? ''
+  const value = sheetText(system.sheet?.def.values[id]?.name, locale) ?? idName(id)
+  if (from.sum !== undefined) return t('partySheet.sum', { value, list })
+  const who = names[0]
+  if (source.chosen) return t('partySheet.chosen', { value, who })
+  return t(from.min !== undefined ? 'partySheet.lowest' : 'partySheet.highest', { value, who })
+}

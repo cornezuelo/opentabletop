@@ -44,7 +44,7 @@ The panel on the right is the same as in the Hexmapper. At the top, where the pa
 
 **The tabs.** Under it, the rest of the trip is shown a tab at a time; this browser remembers the one you chose, in every app that shows a trip:
 
-- **Party** (only when the system declares any of it): the supplies, the party stats the system declares (e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls, and their Morale, Fatigue and Hirelings, changed by what happens), **The party** (its own sheet) and **Characters**. Each of these sections folds and unfolds when you click its heading; a section with an explanation has **What it is** beside its heading: click it to read it in the help column without folding anything.
+- **Party** (only when the system declares any of it): **The party** (its own sheet, and the party stats the system declares, each saying where it comes from: e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls), **Characters** and the supplies. Each of these sections folds and unfolds when you click its heading; a section with an explanation has **What it is** beside its heading: click it to read it in the help column without folding anything.
 - **Journal**: the whole trip, newest first, grouped by day; **Export** sits on the tabs' line.
 - **So far**: what the trip has done.
 
@@ -69,13 +69,23 @@ What the journal says, so nothing happens silently:
 
 When the system has stats made of one character (`from: { pick: … }`: the Grey Marches' Charisma, whoever does the talking), **Rolls with**, under the trip's buttons, chooses whose value they take: **The best** (the default) or one character, for every roll until you change it. Tick **Ask at every roll** to choose each time: a check rolled on a table waits (its line says _who rolls?_) with the choice beside **Continue**, and is rolled when you press it.
 
-## The party's own sheet
+## The party
 
-When the system has a sheet for the party itself (the Grey Marches' **Company**; the Generic rules' **Morale**), every trip shows it as **The party**, above the characters: what belongs to the whole party, whoever travels. Characters can join and leave (they fall, others are hired); this stays. Change its values and conditions by hand, as a character's; checks and actions change them too (the Grey Marches: lost in the dark, the Company is **Shaken** and can't force a march until it rests). A party stat made of one of its values (the Grey Marches' Morale and Fatigue) has no box of its own among the stats: it's edited on this card.
+Everything about the party is in one place, the **Party** tab: **The party** first, then its **Characters**, then its supplies. On a map, the party token is only where the party is: its sheet, stats and characters are here (the token's panel in Tokens says so, with **Open Play → Party**).
+
+**Whose sheet.** Each sheet (the party's, the characters') says which it is and whose system: _Sheet: The Company · The Grey Marches_, with **Edit in Systems ↗**. What a sheet has (its values, conditions, kinds of relation) is its system's to say: a character or the party has only what its sheet declares, so to add a value, edit the sheet in the [Systems app](../systems/07-sheet.md) (a bundled system is duplicated first). A trip keeps the system it started with; on a map, the system is the campaign's (**Map settings → Campaign → System**).
+
+**The party's own sheet.** When the system has a sheet for the party itself (the Grey Marches' **Company**; the Generic rules' **Morale**), every trip shows it as **The party**, above the characters: what belongs to the whole party, whoever travels. Characters can join and leave (they fall, others are hired); this stays. Change its values and conditions by hand, as a character's; checks and actions change them too (the Grey Marches: lost in the dark, the Company is **Shaken** and can't force a march until it rests). A party stat made of one of its values (the Grey Marches' Morale and Fatigue) has no box of its own among the stats: it's edited on this card.
+
+**The party's stats.** Under the sheet, on the same card, the party stats the system declares (what its rules and tables read as `party.stats.<id>`), each with where it comes from:
+
+- a plain number (with no characters, or a stat the system keeps for the whole party): type it;
+- made of the characters' values, greyed out, with whose it is: _Kael’s Pathfinding, the highest_; _Kael’s Stealth, the lowest_; _Brenna’s Charisma (Rolls with)_ when you chose who rolls; _Health added up: Kael, Brenna_; _how many: Kael, Brenna_; _nobody counts_ when no character counts (all wounded, say). Change the characters' values, not the stat;
+- made of a value of the party's sheet (Morale): that value, edited in the sheet above.
 
 ## Characters
 
-When the system has a sheet for its characters (the Grey Marches' companions; the Generic rules' smallest one, with health and a wound), the trip's **Party** tab has a **Characters** section under the supplies and stats. **Add a character** makes one with the sheet's starting values; name it, and its id follows the name (`Old Tobin` → `old-tobin`, how tables and conditions reach it: `characters.old-tobin.values.health`). Each character folds open to show its values (grouped as the sheet says; a track as boxes, click one to fill up to it), its conditions (tick them as they happen) and its tags (free words, comma-separated). ↑ moves one up the list, × removes one (after asking).
+When the system has a sheet for its characters (the Grey Marches' companions; the Generic rules' smallest one, with health and a wound), the trip's **Party** tab has a **Characters** section under **The party**. **Add a character** makes one with the sheet's starting values; name it, and its id follows the name (`Old Tobin` → `old-tobin`, how tables and conditions reach it: `characters.old-tobin.values.health`). Each character folds open to show its values (grouped as the sheet says; a track as boxes, click one to fill up to it), its conditions (tick them as they happen) and its tags (free words, comma-separated). ↑ moves one up the list, × removes one (after asking).
 
 **The roster.** Characters can also come from the [Characters app](../characters/01-getting-started.md), where this browser keeps them, of any system. Under the list, **From the roster** lists the roster's characters made with this system's sheet: choosing one brings it into the party with its values. A character of the trip that isn't in the roster has **Keep in the roster** on its card, which puts it there; one that is has **Open in Characters ↗**, for its notes and the rest. Either way it's **linked**: what happens to it on the trip is written back to the roster after every step and edit, and what you change in the Characters app reaches the trip (the journal says "Kael: brought up to date from the roster"). A character travels in one place at a time: bringing one that travels elsewhere (another trip, a map, a token) asks first, and that place keeps its copy, no longer linked. Removing it from the party, or deleting the trip, leaves it in the roster, travelling nowhere. A new trip with the same system keeps the party and its links.
 
@@ -87,7 +97,7 @@ Each character also has **Relations**: what they're tied to, as the sheet's kind
 
 With characters, the party is its members, as the system says:
 
-- **Stats made of theirs** show greyed out, and follow them: the Grey Marches' Survival is the best of those not wounded, Stealth the clumsiest one's, Mouths how many they are. Change the characters' values, not the party's. Stats the system keeps for the party as a whole (Morale, Fatigue) are edited as before.
+- **Stats made of theirs** show greyed out, say whose they are, and follow them: the Grey Marches' Survival is the best of those not wounded, Stealth the clumsiest one's, Mouths how many they are. Change the characters' values, not the party's. Stats the system keeps for the party as a whole (Morale, Fatigue) are edited as before.
 - **Supplies they carry** show their sum, greyed out: the Grey Marches' food is everyone's rations. What the trip eats or finds is taken from (or given to) them, evenly unless the system says otherwise; edit each one's share in their sheet.
 - **Their conditions block** what the sheet says for the whole party: a wounded companion keeps the Grey Marches from the forced march, a sprained ankle from marching at all ("Mara: Sprained ankle: not possible while it lasts"), being saddle-sore from riding.
 - **Effects reach them**: a fed night heals every companion, the haunted lights fill everyone's dread; the journal names whom ("Everyone: Health +1").

@@ -430,6 +430,9 @@ export const es: Messages = {
     confirmRemove: '¿Quitar las facciones de este mapa? Se olvidan sus hojas y su territorio.',
   },
   tokens: {
+    partyHere:
+      'El token del grupo: la hoja del grupo, sus características y sus personajes están en Jugar, no en el token.',
+    openParty: 'Abrir Jugar → Grupo',
     sheet: 'Hoja',
     sheetHelp:
       'La ficha como personaje del sistema del mapa: los valores, estados, etiquetas y relaciones de su hoja, como el bloque de estadísticas de un PNJ o una criatura. Las tablas que se tiran con la ficha seleccionada los leen: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Sus campos de abajo siguen como están.',
@@ -481,6 +484,8 @@ export const es: Messages = {
     empty: 'Aún no hay tokens.',
   },
   play: {
+    systemWhere:
+      'El sistema del mapa es el de su campaña: se elige en **Ajustes del mapa → Campaña → Sistema**.',
     pauseOther: vocabulary.es.campaign.pauseOther,
     caughtUp: vocabulary.es.campaign.caughtUp,
     noTravel:
