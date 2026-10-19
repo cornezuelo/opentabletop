@@ -28,6 +28,8 @@ export const KEY_PREFIXES = ['opentabletop.', 'hexmapper.'] as const
 /** Shared storage keys that need more than "the backup wins" when merging. */
 export const USER_PACKS_KEY = 'opentabletop.userPacks'
 export const FAVORITES_KEY = 'opentabletop.favorites'
+/** The Characters app's roster (character-ui): its characters joined, the newer of each kept. */
+export const ROSTER_KEY = 'opentabletop.characters'
 
 /** The Hexmapper's crash copy of the open map: only meaningful in this browser, now. */
 const LOCAL_ONLY = new Set(['hexmapper.pending'])
@@ -102,7 +104,8 @@ export function parseBackup(json: string): { backup?: Backup; error?: BackupErro
 /**
  * - `replace`: this browser ends up exactly like the backup (its own data is removed).
  * - `merge`: the backup is added: maps by id (the newer one stays), user packs by folder
- *   and favorites joined (the backup's copy wins), anything else taken from the backup.
+ *   and favorites joined (the backup's copy wins), the roster's characters by id (the newer
+ *   one stays), anything else taken from the backup.
  */
 export type RestoreMode = 'replace' | 'merge'
 
@@ -141,7 +144,9 @@ export function planRestore(
           ? mergeLists(mine, value, (p) => (isRecord(p) ? p.root : undefined))
           : key === FAVORITES_KEY
             ? mergeLists(mine, value, (id) => id)
-            : value
+            : key === ROSTER_KEY
+              ? mergeRoster(mine, value)
+              : value
   }
   const mine = new Map(current.maps.map((m) => [m.id, m]))
   return {
@@ -168,6 +173,32 @@ function mergeLists(mine: string, theirs: string, identity: (item: unknown) => u
   const incoming = parse(theirs)
   const taken = new Set(incoming.map(identity))
   return JSON.stringify([...parse(mine).filter((item) => !taken.has(identity(item))), ...incoming])
+}
+
+/**
+ * Two rosters joined: every character of both, by id, the one changed last kept (on a tie,
+ * the backup's). Broken JSON loses.
+ */
+function mergeRoster(mine: string, theirs: string): string {
+  const parse = (text: string): { version?: unknown; characters: unknown[] } => {
+    try {
+      const value: unknown = JSON.parse(text)
+      const list = isRecord(value) ? value.characters : undefined
+      return { ...(isRecord(value) ? value : {}), characters: Array.isArray(list) ? list : [] }
+    } catch {
+      return { characters: [] }
+    }
+  }
+  const idOf = (e: unknown) => (isRecord(e) && isRecord(e.character) ? e.character.id : undefined)
+  const modified = (e: unknown) => (isRecord(e) && typeof e.modified === 'string' ? e.modified : '')
+  const here = parse(mine)
+  const incoming = parse(theirs)
+  const out = new Map<unknown, unknown>(here.characters.map((e) => [idOf(e), e]))
+  for (const e of incoming.characters) {
+    const old = out.get(idOf(e))
+    if (old === undefined || modified(old) <= modified(e)) out.set(idOf(e), e)
+  }
+  return JSON.stringify({ ...here, ...incoming, characters: [...out.values()] })
 }
 
 /** Numbers for the confirmation dialog. */

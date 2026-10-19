@@ -6,6 +6,7 @@ import {
   isAppKey,
   parseBackup,
   planRestore,
+  ROSTER_KEY,
   summarize,
   USER_PACKS_KEY,
 } from './index'
@@ -84,5 +85,41 @@ describe('restoring', () => {
     expect(merged.map((p) => p.root)).toEqual(['mine', 'shared'])
     expect(merged[1].files).toHaveLength(1) // the backup's copy of "shared"
     expect(JSON.parse(plan.storage[FAVORITES_KEY]!)).toEqual(['core/a', 'core/b'])
+  })
+
+  it('merge: joins the roster’s characters, the one changed last kept', () => {
+    const roster = (...entries: [string, string, number][]) =>
+      JSON.stringify({
+        version: 1,
+        characters: entries.map(([id, modified, health]) => ({
+          character: { id, sheet: 's', values: { health } },
+          modified,
+        })),
+      })
+    const here = {
+      storage: { [ROSTER_KEY]: roster(['kael', '2026-10-05', 3], ['mara', '2026-10-01', 5]) },
+      maps: [],
+    }
+    const theirs = createBackup(
+      {
+        [ROSTER_KEY]: roster(
+          ['kael', '2026-10-02', 9],
+          ['mara', '2026-10-03', 1],
+          ['tobin', 'T', 2],
+        ),
+      },
+      [],
+    )
+    const merged = JSON.parse(planRestore(here, theirs, 'merge').storage[ROSTER_KEY]!) as {
+      version: number
+      characters: { character: { id: string; values: { health: number } } }[]
+    }
+    expect(merged.version).toBe(1)
+    // Kael changed here last; Mara in the backup; Tobin only the backup has.
+    expect(merged.characters.map((e) => [e.character.id, e.character.values.health])).toEqual([
+      ['kael', 3],
+      ['mara', 1],
+      ['tobin', 2],
+    ])
   })
 })

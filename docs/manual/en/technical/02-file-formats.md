@@ -66,8 +66,27 @@ Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared betwee
 - `state.oracle` is the Oracle's state on that map (decks, once-only results, values set); the Hexmapper keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
 - `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`, and the map's `system` and the `packs` it adds to the system's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
 
+**Characters files.** The Characters app's **Export** writes the same format with only `characters` (each with its `noteRef`), and its **Import…** reads the characters of any such file, a map's included:
+
+```json
+{
+  "otd": "0.2.0",
+  "characters": [
+    {
+      "id": "old-tobin",
+      "type": "character",
+      "name": "Old Tobin",
+      "kind": "pc",
+      "noteRef": "People/Old Tobin",
+      "stats": { "health": 4 },
+      "ext": { "character": { "sheet": "my-game/companion" } }
+    }
+  ]
+}
+```
+
 The full description is in `docs/otd.md`, and the schema in `packages/schema` (it can also produce a JSON Schema).
 
 ## In the browser
 
-Your packs live in the browser's local storage under `opentabletop.userPacks` (one JSON list of packs with their files); maps live in its IndexedDB library. Export packs as .zip and save maps as files to keep them.
+Your packs live in the browser's local storage under `opentabletop.userPacks` (one JSON list of packs with their files), and the Characters app's roster under `opentabletop.characters`; maps live in its IndexedDB library. Export packs as .zip and save maps as files to keep them.

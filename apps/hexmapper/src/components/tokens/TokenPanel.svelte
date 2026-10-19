@@ -13,7 +13,7 @@
   import { editor } from '../../lib/store/editor.svelte'
   import { view } from '../../lib/store/view'
   import ColorPicker from '../ColorPicker.svelte'
-  import NoteRefInput from '../NoteRefInput.svelte'
+  import { NoteRefInput } from '@open-tabletop/ui-kit'
   import NameDisplay from '../NameDisplay.svelte'
   import TokenIconPicker from './TokenIconPicker.svelte'
 
@@ -188,6 +188,7 @@
     <label class="field">
       <span>{t('tokens.note')}</span>
       <NoteRefInput
+        locale={getLocale()}
         value={selected.note ?? ''}
         placeholder={t('tokens.notePlaceholder')}
         label={t('tokens.note')}

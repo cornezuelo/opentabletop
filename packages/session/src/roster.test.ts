@@ -12,6 +12,8 @@ import {
   pullFromRoster,
   readRoster,
   renameMember,
+  rosterFromOtd,
+  rosterToOtd,
   syncToRoster,
   takeFromRoster,
   type RosterPlace,
@@ -166,5 +168,21 @@ describe('the roster', () => {
       roles: { guide: 'kael-2', scout: 'mara' },
     })
     expect(s.members[1].relations[0].to).toBe('character:kael-2')
+  })
+
+  it('writes and reads its characters as OTD, with their notes', () => {
+    let { roster } = keepInRoster(emptyRoster(), character('kael'), 'T1', trip)
+    roster = editInRoster(roster, 'kael', (e) => ({ ...e, noteRef: 'People/Kael' }), 'T2')
+    const file = JSON.parse(JSON.stringify(rosterToOtd(roster.characters)))
+    expect(file.otd).toMatch(/^\d+\.\d+\.\d+$/)
+    expect(file.characters[0]).toMatchObject({
+      id: 'kael',
+      type: 'character',
+      noteRef: 'People/Kael',
+    })
+    expect(rosterFromOtd(file)).toEqual([{ character: character('kael'), noteRef: 'People/Kael' }])
+    // What isn't a character of a sheet is left out.
+    expect(rosterFromOtd({ characters: [{ id: 'x', type: 'character' }, 3] })).toEqual([])
+    expect(rosterFromOtd(null)).toEqual([])
   })
 })

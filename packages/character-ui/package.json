@@ -14,7 +14,8 @@
   "dependencies": {
     "@open-tabletop/character-engine": "*",
     "@open-tabletop/ui-kit": "*",
-    "@open-tabletop/session": "*"
+    "@open-tabletop/session": "*",
+    "@open-tabletop/storage": "*"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

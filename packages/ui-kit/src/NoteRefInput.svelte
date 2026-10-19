@@ -1,14 +1,34 @@
 <script lang="ts">
-  import { noteProviderName, noteUrl, tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n/index.svelte'
+  import { noteProviderName, noteUrl } from './notes.svelte'
+  import { tooltip } from './tooltip'
 
+  /** A link to a note in the player's notes app (its path), with ↗ to open it there. */
   let {
     value,
     placeholder,
     label,
+    locale,
     onchange,
-  }: { value: string; placeholder: string; label: string; onchange: (value: string) => void } =
-    $props()
+  }: {
+    value: string
+    placeholder: string
+    label: string
+    locale: string
+    onchange: (value: string) => void
+  } = $props()
+
+  const TEXT = {
+    en: {
+      open: 'Open in {provider}',
+      notConfigured: 'Set up {provider} in Preferences (⚙ at the top)',
+    },
+    es: {
+      open: 'Abrir en {provider}',
+      notConfigured: 'Configura {provider} en Preferencias (⚙ arriba)',
+    },
+  }
+  const t = (key: 'open' | 'notConfigured', provider: string) =>
+    (TEXT[locale as 'en' | 'es'] ?? TEXT.en)[key].replace('{provider}', provider)
 
   const providerName = $derived(noteProviderName())
   const url = $derived(value ? noteUrl(value) : null)
@@ -28,13 +48,13 @@
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      use:tooltip={t('hex.openNote', { provider: providerName })}
-      aria-label={t('hex.openNote', { provider: providerName })}>↗</a
+      use:tooltip={t('open', providerName)}
+      aria-label={t('open', providerName)}>↗</a
     >
   {/if}
 </div>
 {#if value && !url}
-  <small>{t('hex.noteNotConfigured', { provider: providerName })}</small>
+  <small>{t('notConfigured', providerName)}</small>
 {/if}
 
 <style>

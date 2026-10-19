@@ -8,16 +8,17 @@ It is **game-system agnostic**: the apps know no game's rules. A game comes as a
 
 ## The apps
 
-| App           | What it does                                                                                                                                                                       |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hexmapper** | Draw hex maps (terrain, roads and rivers, regions, icons, tokens, notes), print or export them, and **play** on them: trips with rules, discovery of blank hexes, the world clock. |
-| **Oracle**    | Browse, roll and **edit** every table, oracle, generator and deck of your packs, with forms or a YAML editor with live problems; create and share packs.                           |
-| **Travel**    | Play trips without a map, with any system.                                                                                                                                         |
-| **Systems**   | Make and edit game systems: travel rules, checks and the tables that answer them.                                                                                                  |
-| **Manual**    | The user manual of every app, in English and Spanish, with search. Each app also opens it in a side panel.                                                                         |
-| **CLI**       | `opentabletop validate`, `list` and `roll` packs from the command line.                                                                                                            |
+| App            | What it does                                                                                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hexmapper**  | Draw hex maps (terrain, roads and rivers, regions, icons, tokens, notes), print or export them, and **play** on them: trips with rules, discovery of blank hexes, the world clock. |
+| **Oracle**     | Browse, roll and **edit** every table, oracle, generator and deck of your packs, with forms or a YAML editor with live problems; create and share packs.                           |
+| **Travel**     | Play trips without a map, with any system.                                                                                                                                         |
+| **Characters** | Your roster of characters, of any system: make them, keep their notes, and take them on trips on any map.                                                                          |
+| **Systems**    | Make and edit game systems: travel rules, checks and the tables that answer them.                                                                                                  |
+| **Manual**     | The user manual of every app, in English and Spanish, with search. Each app also opens it in a side panel.                                                                         |
+| **CLI**        | `opentabletop validate`, `list` and `roll` packs from the command line.                                                                                                            |
 
-The apps are installable (PWA) and work offline. They share your packs and can save **one backup file** of everything they keep in the browser (maps, packs, trips, histories, preferences) to move your games to another computer.
+The apps are installable (PWA) and work offline. They share your packs and can save **one backup file** of everything they keep in the browser (maps, packs, trips, characters, histories, preferences) to move your games to another computer.
 
 ## Getting started
 
@@ -30,7 +31,7 @@ make install   # dependencies
 make serve     # build every app and serve them at http://localhost:8080/
 ```
 
-Then open `http://localhost:8080/hexmapper/`, `/oracle/`, `/travel/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
+Then open `http://localhost:8080/hexmapper/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
 
 `make` lists every command. The usual ones:
 
@@ -62,7 +63,7 @@ packages/   hex, random, dice, conditions, time        building blocks
             schema, storage, note-refs                  saved data, browser storage, links to notes apps
             ui-kit, pack-ui, oracle-ui, travel-ui,      shared Svelte pieces
             character-ui, manual-ui
-apps/       hexmapper, oracle, travel, systems, manual, cli
+apps/       hexmapper, oracle, travel, characters, systems, manual, cli
 packs/      core, grey-marches
 docs/       design notes, the manual (docs/manual/<language>/<app>/), the backlog
 ```

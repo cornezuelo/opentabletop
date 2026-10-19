@@ -3,12 +3,12 @@
   import { confirmAction, InfoTip } from '@open-tabletop/ui-kit'
   import RegionStyleControls from './RegionStyleControls.svelte'
   import { RemoveRegionCommand, SetRegionsCommand, regionSizes } from '../lib/commands/regions'
-  import { t } from '../lib/i18n/index.svelte'
+  import { getLocale, t } from '../lib/i18n/index.svelte'
   import { newId } from '../lib/model/id'
   import type { MapRegion, RegionStyle } from '../lib/model/types'
   import { editor, MAX_BRUSH_RADIUS } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
-  import NoteRefInput from './NoteRefInput.svelte'
+  import { NoteRefInput } from '@open-tabletop/ui-kit'
   import NameDisplay from './NameDisplay.svelte'
 
   const COLORS = ['#8b1e1e', '#2f5d8a', '#3d6b35', '#5b3a6e', '#b5734a', '#1b1a17', '#c8a24a']
@@ -155,6 +155,7 @@
     <label class="field">
       <span>{t('regions.note')}</span>
       <NoteRefInput
+        locale={getLocale()}
         value={active.note ?? ''}
         placeholder={t('regions.notePlaceholder')}
         label={t('regions.note')}

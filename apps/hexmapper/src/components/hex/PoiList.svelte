@@ -1,11 +1,11 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n/index.svelte'
+  import { getLocale, t } from '../../lib/i18n/index.svelte'
   import { newId } from '../../lib/model/id'
   import type { HexKey, Poi } from '../../lib/model/types'
   import { editor } from '../../lib/store/editor.svelte'
-  import NoteRefInput from '../NoteRefInput.svelte'
+  import { NoteRefInput } from '@open-tabletop/ui-kit'
   import TokenIconPicker from '../tokens/TokenIconPicker.svelte'
   import { builtinSvg, getBuiltinIcon } from '../../lib/icons/registry'
 
@@ -96,6 +96,7 @@
         aria-label={t('hex.poiDescription')}
         onchange={(e) => update(poi.id, { description: e.currentTarget.value })}></textarea>
       <NoteRefInput
+        locale={getLocale()}
         value={poi.note ?? ''}
         label={t('hex.note')}
         placeholder={t('hex.poiNotePlaceholder', { name: poi.name })}

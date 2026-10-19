@@ -10,6 +10,7 @@ It holds everything the apps keep in this browser:
 
 - **Maps**: every map of the Hexmapper's library, with its play state (party, trail, trip, journal) and its Oracle (history, decks, once-only results).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
+- **The Characters app's roster**: every character it keeps, with its notes and where it plays.
 - **The Travel app's trips**, the **Oracle app's** history, decks and seed, and **favorites**.
 - **Preferences**: language, notes app, the packs hidden in the Oracle, the last system chosen, layouts and the like.
 
@@ -19,7 +20,7 @@ Bundled packs are not in it: they come with the apps.
 
 In the app switcher, press **Restore a backup…** and choose the file. OpenTabletop says when the backup was made and what it has, and asks how to restore it:
 
-- **Add to mine**: the backup joins what this browser already has. A map both have keeps the newer copy; packs with the same folder and favorites are joined (the backup's copy of a pack wins); other things (the trip, histories, preferences) are taken from the backup.
+- **Add to mine**: the backup joins what this browser already has. A map both have keeps the newer copy; packs with the same folder and favorites are joined (the backup's copy of a pack wins); the roster's characters are joined too, and a character both have keeps the copy changed last; other things (the trip, histories, preferences) are taken from the backup.
 - **Replace everything**: this browser ends up exactly like the backup. Maps and data that aren't in the backup are deleted.
 
 The page then reloads. Close other OpenTabletop tabs before restoring: an open tab still has the old data and could save it again.

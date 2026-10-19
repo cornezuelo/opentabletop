@@ -534,8 +534,6 @@ export const es: Messages = {
     addField: 'Añadir campo',
     note: 'Nota enlazada',
     notePlaceholder: 'p. ej. Mi campaña/Hexes/{coord}',
-    openNote: 'Abrir en {provider}',
-    noteNotConfigured: 'Configura {provider} en Preferencias (⚙ arriba)',
     remove: 'Quitar',
     icon: 'Icono',
     paths: 'Caminos y ríos',

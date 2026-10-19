@@ -7,6 +7,7 @@ export const APP_LIST = [
   { id: 'hexmapper', name: 'Hexmapper', devPort: 5173, available: true },
   { id: 'oracle', name: 'Oracle', devPort: 5174, available: true },
   { id: 'travel', name: 'Travel', devPort: 5175, available: true },
+  { id: 'characters', name: 'Characters', devPort: 5178, available: true },
   { id: 'systems', name: 'Systems', devPort: 5177, available: true },
   { id: 'manual', name: 'Manual', devPort: 5176, available: true },
 ]
@@ -20,6 +21,7 @@ export const APP_ICON_SVGS = {
   hexmapper: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M5 9.5 12 6.5l8 3 7-3v16l-7 3-8-3-7 3z" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/><path d="M12 6.5v16M20 9.5v16" stroke="${GOLD}" stroke-width="1.6"/><circle cx="16" cy="14" r="2" fill="${GOLD}"/></svg>`,
   manual: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M16 9c-3-2-7-2-10-1v15c3-1 7-1 10 1 3-2 7-2 10-1V8c-3-1-7-1-10 1z" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/><path d="M16 9v15" stroke="${GOLD}" stroke-width="1.6"/></svg>`,
   systems: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M8 10h16M8 16h16M8 22h16" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="10" r="2.6" fill="#26241f" stroke="${GOLD}" stroke-width="2"/><circle cx="20" cy="16" r="2.6" fill="#26241f" stroke="${GOLD}" stroke-width="2"/><circle cx="14" cy="22" r="2.6" fill="#26241f" stroke="${GOLD}" stroke-width="2"/></svg>`,
+  characters: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="11.5" r="4.5" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M7 26c0-5 4-8.5 9-8.5s9 3.5 9 8.5" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/></svg>`,
   travel: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="16" r="10" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M16 8l3 8-3 8-3-8z" fill="${GOLD}"/></svg>`,
 }
 
@@ -43,6 +45,7 @@ export const APP_BLURBS = {
       'Draw hex maps: terrain, roads, rivers, regions, icons and tokens; play trips on them.',
     oracle: 'Roll and edit tables, oracles, generators and decks from your packs.',
     travel: 'Run trips without a map, with any system.',
+    characters: 'Your characters, of any system: make them, keep them and take them on trips.',
     systems: 'Make and edit game systems: travel rules, checks and the tables they roll.',
     manual: 'How to use every app, with search.',
   },
@@ -51,6 +54,7 @@ export const APP_BLURBS = {
       'Dibuja mapas de hexágonos: terreno, caminos, ríos, regiones, iconos y tokens; juega viajes sobre ellos.',
     oracle: 'Tira y edita tablas, oráculos, generadores y mazos de tus packs.',
     travel: 'Juega viajes sin mapa, con cualquier sistema.',
+    characters: 'Tus personajes, de cualquier sistema: créalos, guárdalos y llévalos de viaje.',
     systems:
       'Crea y edita sistemas de juego: reglas de viaje, comprobaciones y las tablas que tiran.',
     manual: 'Cómo usar cada aplicación, con buscador.',

@@ -1,4 +1,5 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
+import { characterFromOtd, characterToOtd } from './party'
 
 /**
  * The roster: the characters this browser keeps, of any system, that the player made in the
@@ -257,4 +258,37 @@ export function readRoster(raw: unknown): Roster {
     })
   }
   return { characters }
+}
+
+/** OTD's version the roster's files are written in (`@open-tabletop/schema`'s). */
+const OTD = '0.2.0'
+
+/** Roster characters as an OTD bundle (`characters`, with their notes), to save as a file. */
+export function rosterToOtd(entries: RosterEntry[]): {
+  otd: string
+  characters: (ReturnType<typeof characterToOtd> & { noteRef?: string })[]
+} {
+  return {
+    otd: OTD,
+    characters: entries.map((e) => ({
+      ...characterToOtd(e.character, 'pc'),
+      ...(e.noteRef && { noteRef: e.noteRef }),
+    })),
+  }
+}
+
+/**
+ * The characters of an OTD bundle (one the roster wrote, a map's party…), with their notes:
+ * those this engine made (their sheet in `ext.character`), the rest left out.
+ */
+export function rosterFromOtd(raw: unknown): { character: CharacterState; noteRef?: string }[] {
+  const list = (raw as { characters?: unknown } | null)?.characters
+  if (!Array.isArray(list)) return []
+  return list.flatMap((item) => {
+    const c = item as Parameters<typeof characterFromOtd>[0] & { noteRef?: unknown }
+    if (typeof c?.id !== 'string') return []
+    const character = characterFromOtd(c)
+    if (!character) return []
+    return [{ character, ...(typeof c.noteRef === 'string' && { noteRef: c.noteRef }) }]
+  })
 }

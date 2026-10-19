@@ -1,11 +1,12 @@
 import { emptyRoster, readRoster, type Roster } from '@open-tabletop/session'
+import { ROSTER_KEY } from '@open-tabletop/storage'
 
 /**
- * The roster as this browser keeps it (`opentabletop.characters`, so backups include it):
- * every app reads the same one, and sees another tab's changes as they're saved.
- * v1: the first.
+ * The roster as this browser keeps it (`opentabletop.characters`: backups include it, and
+ * join it on restoring): every app reads the same one, and sees another tab's changes as
+ * they're saved. v1: the first.
  */
-export const ROSTER_KEY = 'opentabletop.characters'
+export { ROSTER_KEY }
 const VERSION = 1
 
 function read(storage: Pick<Storage, 'getItem'> | undefined): Roster {

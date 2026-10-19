@@ -528,8 +528,6 @@ export const en = {
     addField: 'Add field',
     note: 'Linked note',
     notePlaceholder: 'e.g. My campaign/Hexes/{coord}',
-    openNote: 'Open in {provider}',
-    noteNotConfigured: 'Set up {provider} in Preferences (⚙ at the top)',
     remove: 'Remove',
     icon: 'Icon',
     paths: 'Roads and rivers',

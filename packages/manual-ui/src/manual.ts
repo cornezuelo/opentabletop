@@ -11,6 +11,7 @@ export const manual = createManual(files, [
   'hexmapper',
   'oracle',
   'travel',
+  'characters',
   'systems',
   'packs',
   'technical',

@@ -42,13 +42,14 @@ packages/                   # libraries, scope @open-tabletop/*
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
   pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
-  character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags)
+  character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
   manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
 apps/                       # each with its own CLAUDE.md
   hexmapper/                # map editor, and play on the map
   oracle/                   # roll and edit packs
   travel/                   # play trips without a map
+  characters/               # the roster: characters of any system, kept and taken on trips
   systems/                  # make and edit game systems (travel rules, checks, bindings…)
   manual/                   # the user manual of every app, with search
   cli/                      # the `opentabletop` command line: validate, list and roll packs (Node, bundled by Vite)
@@ -64,6 +65,7 @@ docs/
   oracle-engine.md          # Oracle Engine design
   travel-engine.md          # Travel Engine design
   character-engine.md       # Character Engine design (research of famous sheets, phases)
+  characters-app.md         # the Characters app and the roster (characters shared by maps and trips)
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
 ```
 
