@@ -1,5 +1,10 @@
-import type { PrintSettings } from '../model/types'
-import { mapSizeMm, paperSize, type PaperId, type Size } from '../print/paper'
+import {
+  mapSizeMm,
+  type PaperId,
+  paperSize,
+  type PrintSettings,
+  type Size,
+} from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { view } from '../store/view'
 

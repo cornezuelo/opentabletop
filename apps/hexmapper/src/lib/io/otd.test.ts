@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateBundle } from '@open-tabletop/schema'
-import { createMap } from '../model/defaults'
-import { serializeMap } from '../model/serialize'
+import { createMap, serializeMap } from '@open-tabletop/map'
 import { bundleToMap, mapToBundle, parseMapFile } from './otd'
 
 function sampleMap() {

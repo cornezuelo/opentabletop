@@ -1,4 +1,4 @@
-import type { HexKey, HexMap } from '../model/types'
+import type { HexKey, HexMap } from '@open-tabletop/map'
 
 /** What part of the map a mutation touched, so renderers can update incrementally. */
 export type MapChange =

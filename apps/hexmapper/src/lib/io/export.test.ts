@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_PRINT } from '../model/defaults'
+import { DEFAULT_PRINT } from '@open-tabletop/map'
 import { pdfLayout, tiles } from './export'
 
 describe('pdfLayout', () => {

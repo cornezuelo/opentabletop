@@ -1,7 +1,13 @@
 import type { SettingsPatch } from '../commands/settings'
-import { MAX_MAP_SIZE } from '../model/defaults'
-import type { GridSettings, HexMap, PrintSettings } from '../model/types'
-import { fitGrid, paperSize, type Size } from './paper'
+import {
+  fitGrid,
+  type GridSettings,
+  type HexMap,
+  MAX_MAP_SIZE,
+  paperSize,
+  type PrintSettings,
+  type Size,
+} from '@open-tabletop/map'
 
 /** Cols × rows that fit on the configured paper, or null when sized by hex count. */
 export function sizeForPaper(

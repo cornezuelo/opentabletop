@@ -13,9 +13,8 @@
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { importImageFile, pickImageFiles } from '../lib/io/importImage'
   import IconStyleControls from './IconStyleControls.svelte'
-  import { newId } from '../lib/model/id'
+  import { type HexData, type IconStyle, newId } from '@open-tabletop/map'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
-  import type { HexData, IconStyle } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
 

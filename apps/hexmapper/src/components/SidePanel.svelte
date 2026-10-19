@@ -19,7 +19,7 @@
   import RegionPanel from './RegionPanel.svelte'
   import RegionStyleControls from './RegionStyleControls.svelte'
   import { SetRegionStyleCommand } from '../lib/commands/settings'
-  import type { RegionStyle } from '../lib/model/types'
+  import type { HexKey, RegionStyle } from '@open-tabletop/map'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
   import { helpMarkdown, InfoTip, tooltip, showToast } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
@@ -30,7 +30,6 @@
   import { resourceBounds } from '@open-tabletop/travel-engine'
   import { activeSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
-  import type { HexKey } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
 
   const hexCoord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)

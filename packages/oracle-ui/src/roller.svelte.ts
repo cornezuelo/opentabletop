@@ -1,8 +1,8 @@
 import {
   emptyState,
   type Compiled,
+  type HistoryItem,
   type OracleState,
-  type Resolution,
 } from '@open-tabletop/oracle-engine'
 import { fromState, mathRandom, seeded, type SeededRandom } from '@open-tabletop/random'
 import { qualify } from '@open-tabletop/session'
@@ -10,12 +10,7 @@ import { showToast } from '@open-tabletop/ui-kit'
 import type { Translate } from './i18n'
 import type { PackLibrary } from '@open-tabletop/pack-ui'
 
-export interface HistoryItem {
-  id: number
-  at: string
-  source: string
-  resolution: Resolution
-}
+export type { HistoryItem }
 
 const MAX_HISTORY = 100
 

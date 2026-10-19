@@ -25,6 +25,7 @@
     "@open-tabletop/character-ui": "*",
     "@open-tabletop/hex": "*",
     "@open-tabletop/manual-ui": "*",
+    "@open-tabletop/map": "*",
     "@open-tabletop/note-refs": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/oracle-ui": "*",

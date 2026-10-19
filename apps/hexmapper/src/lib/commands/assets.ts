@@ -1,4 +1,4 @@
-import type { HexIcon, HexKey, HexMap, MapAsset } from '../model/types'
+import type { HexIcon, HexKey, HexMap, MapAsset } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 export class AddAssetCommand implements Command {

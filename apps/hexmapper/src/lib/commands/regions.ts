@@ -1,4 +1,4 @@
-import type { HexKey, HexMap, MapRegion } from '../model/types'
+import type { HexKey, HexMap, MapRegion } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 /** Replaces the region list (add, rename, recolor…). Hexes keep their region ids. */

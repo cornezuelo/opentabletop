@@ -37,6 +37,7 @@ packages/                   # libraries, scope @open-tabletop/*
   weather-engine/           # weather with inertia: Markov models per season as data (`kind: weather`)
   faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations
+  map/                      # the map model: types, format, migrations and serializing, shared by the apps that read maps
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library (IndexedDB), backups of everything
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
@@ -73,8 +74,8 @@ docs/
 **Allowed dependencies** (top to bottom, never upwards):
 
 ```
-apps  →  *-ui, ui-kit  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
-                                         ↘ schema (types/validation of persisted data only)
+apps  →  *-ui, ui-kit  →  map  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
+                                                 ↘ schema (types/validation of persisted data only)
 ```
 
 - Among the lower packages: `conditions` → `variables` → `dice` (variables and rolls in written values are read in one place).

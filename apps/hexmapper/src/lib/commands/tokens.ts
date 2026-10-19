@@ -1,4 +1,4 @@
-import type { HexMap, MapToken } from '../model/types'
+import type { HexMap, MapToken } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 const CHANGE: MapChange = { kind: 'tokens' }

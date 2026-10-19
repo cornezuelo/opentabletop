@@ -3,11 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { dialog, toasts } from '@open-tabletop/ui-kit'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
-import { createMap } from '../model/defaults'
+import { createMap, deserializeMap, serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
-import { deserializeMap, serializeMap } from '../model/serialize'
 import {
   applyResult,
   partyOf,

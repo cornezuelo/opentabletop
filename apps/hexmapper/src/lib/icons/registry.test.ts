@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DEFAULT_GLYPHS } from '../model/defaults'
+import { DEFAULT_GLYPHS } from '@open-tabletop/map'
 import { setLocale } from '../i18n/index.svelte'
 import { BUILTIN_ICONS, getBuiltinIcon, iconLabel, iconMatches } from './registry'
 

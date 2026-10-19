@@ -1,9 +1,8 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import type { WorldState } from '@open-tabletop/world-engine'
 import { type CoordFormat, type HexKey, type Orientation } from '@open-tabletop/hex'
-import type { OracleState } from '@open-tabletop/oracle-engine'
-import type { HistoryItem } from '@open-tabletop/oracle-ui'
-import type { PaperId, Size } from '../print/paper'
+import type { HistoryItem, OracleState } from '@open-tabletop/oracle-engine'
+import type { PaperId, Size } from './paper'
 
 export type { CoordFormat, HexKey, Orientation }
 

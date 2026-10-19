@@ -10,7 +10,7 @@
     iconMatches,
   } from '../../lib/icons/registry'
   import { importImageFile, pickImageFiles } from '../../lib/io/importImage'
-  import { newId } from '../../lib/model/id'
+  import { newId } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
 
   import type { IconCategory } from '../../lib/icons/registry'

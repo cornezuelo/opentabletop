@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createMap } from '../model/defaults'
-import { hasMetadata, normalizeIcon } from '../model/hex'
-import { deserializeMap, serializeMap } from '../model/serialize'
+import {
+  createMap,
+  deserializeMap,
+  hasMetadata,
+  normalizeIcon,
+  serializeMap,
+} from '@open-tabletop/map'
 import { AddAssetCommand, RemoveAssetCommand } from './assets'
 import { History } from './history'
 

@@ -1,15 +1,16 @@
 <script lang="ts">
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
-  import { MAX_MAP_SIZE, MIN_MAP_SIZE } from '../lib/model/defaults'
   import {
     cornerToCorner,
     HEX_PRESETS_MM,
     mapSizeMm,
+    MAX_MAP_SIZE,
+    MIN_MAP_SIZE,
+    type PaperId,
     PAPERS,
     smallestPaper,
-    type PaperId,
-  } from '../lib/print/paper'
+  } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
 

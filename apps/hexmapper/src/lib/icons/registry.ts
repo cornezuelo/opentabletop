@@ -1,6 +1,6 @@
 import data from '../../assets/icons/game-icons.json'
 import { t, type MessageKey } from '../i18n/index.svelte'
-import type { MapAsset } from '../model/types'
+import type { MapAsset } from '@open-tabletop/map'
 
 export interface BuiltinIcon {
   id: string // 'game:castle'

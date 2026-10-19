@@ -2,29 +2,30 @@ import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand } from '../commands/paths'
 import type { DiscoveredHex } from '@open-tabletop/session'
-import { DEFAULT_LABEL_STYLE, DEFAULT_TERRAINS } from '../model/defaults'
-import { newId } from '../model/id'
+import {
+  createMap,
+  DEFAULT_LABEL_STYLE,
+  DEFAULT_TERRAINS,
+  type GridSettings,
+  type HexData,
+  type HexKey,
+  type HexMap,
+  type IconStyle,
+  type LabelStyle,
+  type LayerId,
+  type LayerState,
+  type MapLabel,
+  type MapMeta,
+  type MapRegion,
+  type MapToken,
+  newId,
+  type PathKind,
+  type PrintSettings,
+  type TerrainType,
+  type TokenKind,
+} from '@open-tabletop/map'
 import { History } from '../commands/history'
-import { createMap } from '../model/defaults'
 import { ReplaceTokenCommand } from '../commands/tokens'
-import type {
-  GridSettings,
-  HexData,
-  HexKey,
-  HexMap,
-  MapMeta,
-  IconStyle,
-  LabelStyle,
-  MapLabel,
-  LayerId,
-  LayerState,
-  MapRegion,
-  MapToken,
-  PathKind,
-  PrintSettings,
-  TerrainType,
-  TokenKind,
-} from '../model/types'
 
 export type ToolId = 'select' | 'terrain' | 'region' | 'path' | 'icon' | 'text' | 'token' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'

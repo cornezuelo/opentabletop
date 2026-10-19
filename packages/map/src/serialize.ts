@@ -1,7 +1,7 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
-import { PAPERS, type PaperId } from '../print/paper'
+import { PAPERS, type PaperId } from './paper'
 import {
   CAPTION_SIZE_RANGE,
   DEFAULT_CAPTIONS,

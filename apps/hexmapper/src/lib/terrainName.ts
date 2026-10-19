@@ -1,6 +1,6 @@
 import { en } from './i18n/en'
 import { t, type MessageKey } from './i18n/index.svelte'
-import type { TerrainType } from './model/types'
+import type { TerrainType } from '@open-tabletop/map'
 
 /** Custom name if set, otherwise the translated default for built-in terrain ids. */
 export function terrainName(terrain: TerrainType): string {

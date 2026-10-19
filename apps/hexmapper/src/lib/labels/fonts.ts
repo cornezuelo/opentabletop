@@ -1,7 +1,7 @@
 import '@fontsource/im-fell-english/400.css'
 import '@fontsource/im-fell-english/400-italic.css'
 import '@fontsource/cinzel/400.css'
-import type { LabelFont } from '../model/types'
+import type { LabelFont } from '@open-tabletop/map'
 
 /** Bundled OFL fonts (see CREDITS.md) plus the system sans-serif. */
 export const FONT_FAMILIES: Record<LabelFont, { family: string; name: string }> = {

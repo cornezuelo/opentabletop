@@ -8,9 +8,7 @@ import {
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
-import { DEFAULT_HEX_KM } from '../model/defaults'
-import { fieldValues } from '../model/hex'
-import { TRAVEL_PATH_KINDS, type HexMap } from '../model/types'
+import { DEFAULT_HEX_KM, fieldValues, type HexMap, TRAVEL_PATH_KINDS } from '@open-tabletop/map'
 
 /**
  * The map as the Travel Engine sees it: terrain, neighbors and road/river edges, at the

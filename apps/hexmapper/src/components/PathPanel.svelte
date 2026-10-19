@@ -1,7 +1,7 @@
 <script lang="ts">
   import { helpMarkdown, InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
-  import { PATH_KINDS } from '../lib/model/types'
+  import { PATH_KINDS } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import { cancelPath, finishPath, popPathPoint } from '../lib/tools/tools'
 

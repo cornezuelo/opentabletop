@@ -4,7 +4,7 @@
 import { it, vi } from 'vitest'
 import * as examples from '../io/examples'
 import { parseMapFile } from '../io/otd'
-import { serializeMap } from '../model/serialize'
+import { serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { clickHex, sessionOf, step } from './play'
 import * as world from './world.svelte'

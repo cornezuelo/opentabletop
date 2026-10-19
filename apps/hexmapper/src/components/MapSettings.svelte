@@ -1,8 +1,7 @@
 <script lang="ts">
   import { SetMetaCommand } from '../lib/commands/settings'
   import { t } from '../lib/i18n/index.svelte'
-  import { DEFAULT_HEX_KM } from '../lib/model/defaults'
-  import type { GridSettings } from '../lib/model/types'
+  import { DEFAULT_HEX_KM, type GridSettings } from '@open-tabletop/map'
   import { mapSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'

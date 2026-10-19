@@ -1,5 +1,5 @@
 import { inBounds, toOffset, type GridShape, type Offset } from '@open-tabletop/hex'
-import { isValidId } from '../model/id'
+import { isValidId } from '@open-tabletop/map'
 
 export interface DeepLink {
   mapId: string

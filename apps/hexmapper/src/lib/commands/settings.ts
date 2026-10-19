@@ -1,5 +1,5 @@
 import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
-import type { GridSettings, HexMap, MapMeta, PrintSettings } from '../model/types'
+import type { GridSettings, HexMap, MapMeta, PrintSettings } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 export interface SettingsPatch {

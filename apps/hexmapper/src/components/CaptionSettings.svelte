@@ -2,13 +2,13 @@
   import { SetCaptionsCommand } from '../lib/commands/settings'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { FONT_FAMILIES } from '../lib/labels/fonts'
-  import { CAPTION_SIZE_RANGE } from '../lib/model/defaults'
   import {
     CAPTION_KINDS,
-    LABEL_FONTS,
+    CAPTION_SIZE_RANGE,
     type CaptionKind,
     type CaptionStyle,
-  } from '../lib/model/types'
+    LABEL_FONTS,
+  } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
 

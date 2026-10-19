@@ -1,4 +1,4 @@
-import type { HexMap } from '../model/types'
+import type { HexMap } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 export class History {

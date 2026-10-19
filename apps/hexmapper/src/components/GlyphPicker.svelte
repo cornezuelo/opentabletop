@@ -4,7 +4,7 @@
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { BUILTIN_ICONS, builtinSvg, iconLabel } from '../lib/icons/registry'
   import { importImageFile, pickImageFiles } from '../lib/io/importImage'
-  import { newId } from '../lib/model/id'
+  import { newId } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
 
   /** Symbol of a terrain: the terrain set, the map's images, an imported image or none. */

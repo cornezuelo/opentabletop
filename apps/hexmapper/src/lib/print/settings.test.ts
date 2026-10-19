@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createMap } from '../model/defaults'
+import { createMap } from '@open-tabletop/map'
 import { resolveSettingsPatch } from './settings'
 
 describe('resolveSettingsPatch', () => {

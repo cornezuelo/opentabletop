@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getLocale, t } from '../../lib/i18n/index.svelte'
-  import type { HexKey } from '../../lib/model/types'
+  import type { HexKey } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
   import { NoteRefInput } from '@open-tabletop/ui-kit'
 

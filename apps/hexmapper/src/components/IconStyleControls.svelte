@@ -6,8 +6,8 @@
     ICON_HALO_RANGE,
     ICON_OUTLINE_RANGE,
     ICON_SCALE_RANGE,
-  } from '../lib/model/hex'
-  import type { IconStyle } from '../lib/model/types'
+    type IconStyle,
+  } from '@open-tabletop/map'
   import ColorPicker from './ColorPicker.svelte'
 
   /**

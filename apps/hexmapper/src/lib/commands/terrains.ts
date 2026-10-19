@@ -1,4 +1,4 @@
-import type { HexKey, HexMap, TerrainType } from '../model/types'
+import type { HexKey, HexMap, TerrainType } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 /**

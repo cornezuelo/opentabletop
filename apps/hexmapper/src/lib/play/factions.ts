@@ -18,7 +18,7 @@ import {
 } from '@open-tabletop/session'
 import { emptyState } from '@open-tabletop/oracle-engine'
 import { getLocale, t } from '../i18n/index.svelte'
-import type { MapFactions } from '../model/types'
+import type { MapFactions } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
 

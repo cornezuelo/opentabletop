@@ -1,5 +1,11 @@
-import { isEmptyHex, normalizeHex, sameHex } from '../model/hex'
-import type { HexData, HexKey, HexMap } from '../model/types'
+import {
+  type HexData,
+  type HexKey,
+  type HexMap,
+  isEmptyHex,
+  normalizeHex,
+  sameHex,
+} from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 interface HexEdit {

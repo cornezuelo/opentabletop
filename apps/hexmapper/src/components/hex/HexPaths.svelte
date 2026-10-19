@@ -2,8 +2,7 @@
   import { tooltip } from '@open-tabletop/ui-kit'
   import { ReplacePathCommand } from '../../lib/commands/paths'
   import { t, type MessageKey } from '../../lib/i18n/index.svelte'
-  import { normalizePath } from '../../lib/model/hex'
-  import type { HexKey } from '../../lib/model/types'
+  import { type HexKey, normalizePath } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
 
   let { key }: { key: HexKey } = $props()

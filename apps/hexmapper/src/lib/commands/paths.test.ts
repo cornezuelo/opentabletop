@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { createMap } from '../model/defaults'
-import { deserializeMap, serializeMap } from '../model/serialize'
-import type { HexKey, MapPath } from '../model/types'
+import {
+  createMap,
+  deserializeMap,
+  type HexKey,
+  type MapPath,
+  normalizePath,
+  serializeMap,
+} from '@open-tabletop/map'
 import { History } from './history'
 import { distance, parseKey, toAxial } from '@open-tabletop/hex'
-import { normalizePath } from '../model/hex'
 import { dedupeConsecutive, ReplacePathCommand, rerouteVertex } from './paths'
 
 const road: MapPath = { id: 'road00000001', kind: 'road', hexes: ['0,0', '1,0', '2,0'] }

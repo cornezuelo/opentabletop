@@ -1,0 +1,21 @@
+{
+  "name": "@open-tabletop/map",
+  "version": "0.0.0",
+  "description": "The map model: hexes, paths, tokens, regions, print settings; its format, migrations and serializing. Shared by every app that reads or writes maps.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/character-engine": "*",
+    "@open-tabletop/hex": "*",
+    "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/session": "*",
+    "@open-tabletop/world-engine": "*"
+  }
+}

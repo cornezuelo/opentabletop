@@ -26,6 +26,14 @@ export function emptyState(): OracleState {
   return { decks: {}, occurrences: {}, vars: {} }
 }
 
+/** A roll kept in a history (the Oracle's hand rolls): when, from where, and what came up. */
+export interface HistoryItem {
+  id: number
+  at: string
+  source: string
+  resolution: Resolution
+}
+
 export interface Resolution {
   source: string
   kind: Compiled['kind']

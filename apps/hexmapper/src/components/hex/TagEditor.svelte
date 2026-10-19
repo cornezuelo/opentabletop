@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
-  import type { HexKey } from '../../lib/model/types'
+  import type { HexKey } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
 
   let { key, tags, suggestions }: { key: HexKey; tags: string[]; suggestions: string[] } = $props()

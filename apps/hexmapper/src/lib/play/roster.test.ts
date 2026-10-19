@@ -10,7 +10,7 @@ import {
 } from '@open-tabletop/session'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
-import { deserializeMap, serializeMap } from '../model/serialize'
+import { deserializeMap, serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { clickHex, editSession, sessionOf, step } from './play'
 import { mapPlace, pullMap, tokenPlace } from './roster'

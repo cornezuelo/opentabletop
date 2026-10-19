@@ -2,8 +2,7 @@
   import { tooltip } from '@open-tabletop/ui-kit'
   import LineIcon from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
-  import { LAYER_IDS, LOCKABLE_LAYERS } from '../lib/model/types'
-  import { collectSuggestions, hexesWithTag } from '../lib/model/hex'
+  import { collectSuggestions, hexesWithTag, LAYER_IDS, LOCKABLE_LAYERS } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import { InfoTip } from '@open-tabletop/ui-kit'
 

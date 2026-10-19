@@ -11,7 +11,7 @@ import {
   type RosterPlace,
 } from '@open-tabletop/session'
 import { t } from '../i18n/index.svelte'
-import type { HexMap, MapToken } from '../model/types'
+import type { HexMap, MapToken } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { sessionOf } from './play'
 import { getSystem } from './systems'

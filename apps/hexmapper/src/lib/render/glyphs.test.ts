@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { glyphShade } from '../render/glyphs'
+import { glyphShade } from './glyphs'
 import { coreSystem } from '../../../../../packages/session/src/core.testing'
 import { en } from '../i18n/en'
 import { getBuiltinIcon } from '../icons/registry'
-import { DEFAULT_TERRAINS, TERRAIN_SETS, terrainGroup } from './defaults'
-import { migrate } from './migrations'
+import { DEFAULT_TERRAINS, migrate, TERRAIN_SETS, terrainGroup } from '@open-tabletop/map'
 
 describe('terrain glyphs', () => {
   it('gives built-in terrains of old maps their symbol (v2 → v3)', () => {

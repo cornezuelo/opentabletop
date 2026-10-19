@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { toasts } from '@open-tabletop/ui-kit'
 import PlayPanel from '../../components/PlayPanel.svelte'
 import WorldPanel from '../../components/WorldPanel.svelte'
-import { deserializeMap, serializeMap } from '../model/serialize'
+import { deserializeMap, serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { clickHex, editSession, sessionOf, step } from './play'
 

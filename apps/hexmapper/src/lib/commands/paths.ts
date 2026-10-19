@@ -1,6 +1,11 @@
 import { cellLine, keyOf, parseKey, type Offset, type Orientation } from '@open-tabletop/hex'
-import { nodeFlags } from '../model/hex'
-import type { HexKey, HexMap, MapLabel, MapPath } from '../model/types'
+import {
+  type HexKey,
+  type HexMap,
+  type MapLabel,
+  type MapPath,
+  nodeFlags,
+} from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 type Collections = { paths: MapPath; labels: MapLabel }

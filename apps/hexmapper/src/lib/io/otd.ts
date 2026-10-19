@@ -13,19 +13,19 @@ import {
 } from '@open-tabletop/schema'
 import { characterFromOtd, characterToOtd, type SessionState } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
-import { MapFormatError } from '../model/migrations'
-import { deserializeMap } from '../model/serialize'
-import { partyToken } from '../model/tokens'
 import {
-  TOKEN_KINDS,
   type CustomField,
+  deserializeMap,
   type HexData,
   type HexIcon,
   type HexKey,
   type HexMap,
+  MapFormatError,
   type MapToken,
+  partyToken,
   type Poi,
-} from '../model/types'
+  TOKEN_KINDS,
+} from '@open-tabletop/map'
 
 /** How a token looks, kept in `ext.hexmapper.token` of its OTD character or party. */
 interface TokenLook {

@@ -2,9 +2,14 @@
   import { tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
   import { FONT_FAMILIES } from '../lib/labels/fonts'
-  import { LABEL_HALO_RANGE, LABEL_SIZE_RANGE } from '../lib/model/defaults'
+  import {
+    LABEL_FONTS,
+    LABEL_HALO_RANGE,
+    LABEL_SIZE_RANGE,
+    type LabelStyle,
+    type MapLabel,
+  } from '@open-tabletop/map'
   import ColorPicker from './ColorPicker.svelte'
-  import { LABEL_FONTS, type LabelStyle, type MapLabel } from '../lib/model/types'
   import { editor } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
   import { deleteSelectedLabel } from '../lib/tools/tools'

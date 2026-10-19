@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createMap, DEFAULT_LABEL_STYLE } from '../model/defaults'
-import { deserializeMap, serializeMap } from '../model/serialize'
-import type { MapLabel } from '../model/types'
+import {
+  createMap,
+  DEFAULT_LABEL_STYLE,
+  deserializeMap,
+  type MapLabel,
+  serializeMap,
+} from '@open-tabletop/map'
 import { History } from './history'
 import { ReplaceLabelCommand } from './paths'
 

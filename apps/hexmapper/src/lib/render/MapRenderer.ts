@@ -12,11 +12,21 @@ import {
   Text,
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
-import { hasMetadata, hexesWithTag, ICON_DEFAULTS, nodeFlags } from '../model/hex'
-import type { CaptionKind, CaptionOverride, MapPath, PathKind } from '../model/types'
-import { TRAVEL_PATH_KINDS } from '../model/types'
+import {
+  type CaptionKind,
+  type CaptionOverride,
+  hasMetadata,
+  hexesWithTag,
+  ICON_DEFAULTS,
+  layoutTokens,
+  type MapPath,
+  nodeFlags,
+  partyToken,
+  type PathKind,
+  tokenColor,
+  TRAVEL_PATH_KINDS,
+} from '@open-tabletop/map'
 import { iconImage } from '../icons/registry'
-import { layoutTokens, partyToken, tokenColor } from '../model/tokens'
 import { catmullRom, catmullRomClosed, dashes, offsetPolyline } from './curves'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'

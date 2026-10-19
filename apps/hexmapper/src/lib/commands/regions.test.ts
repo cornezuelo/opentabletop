@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { RemoveRegionCommand, regionSizes } from '../commands/regions'
+import { RemoveRegionCommand, regionSizes } from './regions'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { mapWorld } from '../play/world'
-import { SetRegionStyleCommand } from '../commands/settings'
-import { createMap, CURRENT_VERSION, DEFAULT_REGION_STYLE } from './defaults'
-import { migrate } from './migrations'
-import { deserializeMap, serializeMap } from './serialize'
+import { SetRegionStyleCommand } from './settings'
+import {
+  createMap,
+  CURRENT_VERSION,
+  DEFAULT_REGION_STYLE,
+  deserializeMap,
+  migrate,
+  serializeMap,
+} from '@open-tabletop/map'
 
 function mapWithRegion() {
   const map = createMap()

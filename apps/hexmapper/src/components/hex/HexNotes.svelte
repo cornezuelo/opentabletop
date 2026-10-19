@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '../../lib/i18n/index.svelte'
   import { renderMarkdown } from '../../lib/markdown'
-  import type { HexKey } from '../../lib/model/types'
+  import type { HexKey } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
 
   let { key, notes }: { key: HexKey; notes: string } = $props()

@@ -4,7 +4,7 @@
 
 ## 1. Starting point
 
-- **Existing pieces:** `@open-tabletop/hex` and `@open-tabletop/note-refs` (not used here), the hexmapper's immutable command pattern, and the hand-written validator in `model/serialize.ts` (to be replaced by Zod).
+- **Existing pieces:** `@open-tabletop/hex` and `@open-tabletop/note-refs` (not used here), the hexmapper's immutable command pattern, and the hand-written validator in the map model's `serialize.ts` (today `@open-tabletop/map`) (to be replaced by Zod).
 - **Extracted into shared packages**, because the Travel and Weather engines need them too:
   - `@open-tabletop/random`: `RandomSource`, seeded PRNG.
   - `@open-tabletop/dice`: dice expressions with breakdown.

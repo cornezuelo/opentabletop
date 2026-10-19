@@ -1,8 +1,13 @@
 <script lang="ts">
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { FONT_FAMILIES } from '../lib/labels/fonts'
-  import { CAPTION_SIZE_RANGE, ownStyleOf } from '../lib/model/defaults'
-  import { LABEL_FONTS, type CaptionKind, type CaptionOverride } from '../lib/model/types'
+  import {
+    CAPTION_SIZE_RANGE,
+    type CaptionKind,
+    type CaptionOverride,
+    LABEL_FONTS,
+    ownStyleOf,
+  } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
 

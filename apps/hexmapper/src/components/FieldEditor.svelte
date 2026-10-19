@@ -1,8 +1,7 @@
 <script lang="ts">
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
-  import { fieldSuggestions } from '../lib/model/hex'
-  import type { CustomField } from '../lib/model/types'
+  import { type CustomField, fieldSuggestions } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import { contextSuggestions, FACT_GROUPS, FACT_PATHS } from '@open-tabletop/session'
   import { library } from '../lib/play/packs'

@@ -25,6 +25,7 @@ export {
   mergeEffects,
   OracleError,
   type EngineOptions,
+  type HistoryItem,
   type HistoryRecord,
   type OracleEngine,
   type OracleEvent,

@@ -39,7 +39,7 @@ Principles:
 
 ## Current data model
 
-See `src/lib/model/types.ts`. The editor keeps its own model (fast to edit, used by the local library) and **files are OTD bundles** (`src/lib/io/otd.ts`): `HexMap` → `Map`, `HexData` → `Hex`, POIs → `POI` entities with a `location`, `fields` → `stats`, `note` → `noteRef`; rendering, printing, icons, labels and assets → `ext.hexmapper`. Data the editor doesn't understand (other tools' `ext` namespaces, parties, log, other maps) is kept in `map.foreign` and written back untouched.
+See `@open-tabletop/map` (`packages/map/src/types.ts`; its format, migrations and serializing live there too, shared with the other apps that read maps). The editor keeps its own model (fast to edit, used by the local library) and **files are OTD bundles** (`src/lib/io/otd.ts`): `HexMap` → `Map`, `HexData` → `Hex`, POIs → `POI` entities with a `location`, `fields` → `stats`, `note` → `noteRef`; rendering, printing, icons, labels and assets → `ext.hexmapper`. Data the editor doesn't understand (other tools' `ext` namespaces, parties, log, other maps) is kept in `map.foreign` and written back untouched.
 
 **Hexes are keyed by offset coordinates (`col,row`), not axial.** Offset "odd-q" for flat-top, "odd-r" for pointy-top. Switching orientation keeps every cell's content and CCRR label. Math is done in axial (`@open-tabletop/hex`). Shrinking the map keeps data of cells left outside, so undo loses nothing.
 

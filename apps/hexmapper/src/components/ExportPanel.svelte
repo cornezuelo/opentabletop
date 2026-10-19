@@ -9,7 +9,7 @@
     TILE_OVERLAP_MM,
     tiles,
   } from '../lib/io/export'
-  import { PAPERS, paperSize, type PaperId } from '../lib/print/paper'
+  import { type PaperId, PAPERS, paperSize } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
 

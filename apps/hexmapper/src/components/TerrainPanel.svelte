@@ -1,6 +1,6 @@
 <script lang="ts">
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
-  import { TERRAIN_GROUPS, terrainGroup } from '../lib/model/defaults'
+  import { TERRAIN_GROUPS, terrainGroup } from '@open-tabletop/map'
   import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'

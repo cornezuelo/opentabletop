@@ -2,13 +2,20 @@ import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
 import { hitTestLabel, hitTestToken } from '../render/hitTest'
 import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
-import { layoutTokens, nextTokenName } from '../model/tokens'
+import {
+  type HexIcon,
+  type LayerId,
+  layoutTokens,
+  type MapPath,
+  type MapToken,
+  newId,
+  nextTokenName,
+  nodeFlags,
+  normalizePath,
+} from '@open-tabletop/map'
 import { clickHex, partyMoved } from '../play/play'
 import { paintTerritory } from '../play/factions'
-import { nodeFlags, normalizePath } from '../model/hex'
-import type { MapPath } from '../model/types'
 import { placeInHex } from '../render/pathGeometry'
-import { newId } from '../model/id'
 import {
   hexToPixel,
   pixelToHex,
@@ -25,7 +32,6 @@ import {
   type Offset,
 } from '@open-tabletop/hex'
 import { t, type MessageKey } from '../i18n/index.svelte'
-import type { HexIcon, LayerId, MapToken } from '../model/types'
 import { editor, type ToolId } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 

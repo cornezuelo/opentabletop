@@ -15,8 +15,13 @@
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
   import { getLocale, t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
-  import { DEFAULT_TOKEN_ICONS, tokenColor } from '../../lib/model/tokens'
-  import { TOKEN_KINDS, type MapToken, type TokenKind } from '../../lib/model/types'
+  import {
+    DEFAULT_TOKEN_ICONS,
+    type MapToken,
+    TOKEN_KINDS,
+    tokenColor,
+    type TokenKind,
+  } from '@open-tabletop/map'
   import { partyChanged, partyMoved } from '../../lib/play/play'
   import { editor } from '../../lib/store/editor.svelte'
   import { view } from '../../lib/store/view'

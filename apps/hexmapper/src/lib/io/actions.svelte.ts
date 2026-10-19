@@ -1,9 +1,12 @@
 import { getLocale, t } from '../i18n/index.svelte'
-import { newId } from '../model/id'
-import { createMap } from '../model/defaults'
-import { MapFormatError } from '../model/migrations'
-import { deserializeMap, serializeMap } from '../model/serialize'
-import type { HexMap } from '../model/types'
+import {
+  createMap,
+  deserializeMap,
+  type HexMap,
+  MapFormatError,
+  newId,
+  serializeMap,
+} from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { ask, showToast } from '@open-tabletop/ui-kit'
 import { exampleState, forgetExample, rememberExample, type ExampleMap } from './examples'

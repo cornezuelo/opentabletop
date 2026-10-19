@@ -2,7 +2,7 @@
   import { tooltip } from '@open-tabletop/ui-kit'
   import { getBuiltinIcon, iconImage, iconLabel } from '../../lib/icons/registry'
   import { t } from '../../lib/i18n/index.svelte'
-  import type { HexData, HexIcon, HexKey } from '../../lib/model/types'
+  import type { HexData, HexIcon, HexKey } from '@open-tabletop/map'
   import IconStyleControls from '../IconStyleControls.svelte'
   import { editor } from '../../lib/store/editor.svelte'
 

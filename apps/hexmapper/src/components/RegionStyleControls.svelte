@@ -1,8 +1,7 @@
 <script lang="ts">
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
-  import { REGION_BORDER_RANGE, REGION_FILL_RANGE } from '../lib/model/defaults'
-  import type { RegionStyle } from '../lib/model/types'
+  import { REGION_BORDER_RANGE, REGION_FILL_RANGE, type RegionStyle } from '@open-tabletop/map'
 
   /**
    * Fill and border of regions. Sliders preview while dragging (`onpreview`) and are
