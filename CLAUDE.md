@@ -66,6 +66,7 @@ docs/
   travel-engine.md          # Travel Engine design
   character-engine.md       # Character Engine design (research of famous sheets, phases)
   characters-app.md         # the Characters app and the roster (characters shared by maps and trips)
+  factions-app.md           # the Factions app (factions of the library's maps, world turns)
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
 ```
 
