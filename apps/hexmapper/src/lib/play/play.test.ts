@@ -5,9 +5,8 @@ import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
 import { createMap, deserializeMap, serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
-import { SetMetaCommand } from '../commands/settings'
 import { bundleToMap, mapToBundle } from '../io/otd'
-import { factionsOn } from '@open-tabletop/campaign'
+import { createCampaign, factionsOn } from '@open-tabletop/campaign'
 import {
   applyResult,
   partyOf,
@@ -107,7 +106,7 @@ describe('playing on the map', () => {
       ],
     })
     editor.load(createMap())
-    editor.execute(new SetMetaCommand({ system: 'still' }))
+    editor.setCampaignSetup({ system: 'still' })
     setMode('rules')
     clickHex('1,1')
     clickHex('3,1')
@@ -115,10 +114,11 @@ describe('playing on the map', () => {
     library.removePack('still')
   })
 
-  it('a map chooses its system and the packs it adds (the example: the Grey Marches alone)', () => {
+  it('a campaign chooses its system and the packs it adds (the example: the Grey Marches alone)', () => {
     editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
-    expect(editor.meta.system).toBe('grey-marches')
-    expect(editor.meta.packs).toEqual([])
+    expect(editor.setup.system).toBe('grey-marches')
+    expect(editor.setup.packs).toEqual([])
+    expect(editor.map.meta).not.toHaveProperty('system')
     // The system brings its own pack and Core; nothing else is shown.
     expect(mapPacks()).toEqual(['grey-marches', 'core'])
     expect(oracleUi.showsPack('grey-marches')).toBe(true)
@@ -126,49 +126,50 @@ describe('playing on the map', () => {
     expect(oracleUi.showsPack('kal-arath')).toBe(false)
     // Every system can be chosen, whatever the packs.
     expect(playSystems().map((s) => s.id)).toEqual(expect.arrayContaining(['core', 'grey-marches']))
-    // Back to every pack: undoable, and saved in the file.
-    editor.execute(new SetMetaCommand({ packs: undefined }))
+    // Back to every pack: the campaign's (outside the undo history), and saved in the file.
+    editor.setCampaignSetup({ packs: undefined })
     expect(oracleUi.showsPack('kal-arath')).toBe(true)
-    expect(mapToBundle(editor.map, editor.campaign).maps[0].ext).not.toHaveProperty([
+    expect(editor.canUndo).toBe(false)
+    expect(mapToBundle(editor.map, editor.campaign).campaign?.ext).not.toHaveProperty([
       'hexmapper',
       'packs',
     ])
-    editor.undo()
-    expect(editor.meta.packs).toEqual([])
-    // The Generic rules (Core's, the default: no key in the map) bring Core.
-    editor.execute(new SetMetaCommand({ system: 'generic', packs: ['core'] }))
-    expect(editor.meta).not.toHaveProperty('system')
+    editor.setCampaignSetup({ packs: [] })
+    // The Generic rules (Core's, the default: no key in the campaign) bring Core.
+    editor.setCampaignSetup({ system: 'generic', packs: ['core'] })
+    expect(editor.campaign).not.toHaveProperty('system')
     expect(mapPacks()).toEqual(['core'])
     expect(oracleUi.showsPack('grey-marches')).toBe(false)
-    expect(mapToBundle(editor.map, editor.campaign).maps[0].ext).not.toHaveProperty([
-      'hexmapper',
-      'system',
-    ])
-    editor.undo()
-    expect(editor.meta.system).toBe('grey-marches')
-    // Saved in the file and read back.
-    const back = bundleToMap(mapToBundle(editor.map, editor.campaign)).map
-    expect(back.meta).toMatchObject({ system: 'grey-marches', packs: [] })
+    expect(mapToBundle(editor.map, editor.campaign).campaign).not.toHaveProperty('system')
+    editor.setCampaignSetup({ system: 'grey-marches', packs: [] })
+    // Saved in the file, with the campaign, and read back.
+    const bundle = mapToBundle(editor.map, editor.campaign)
+    expect(bundle.campaign).toMatchObject({ system: 'grey-marches' })
+    expect(bundle.maps[0].ext).not.toHaveProperty(['hexmapper', 'system'])
+    const back = bundleToMap(bundle)
+    expect(back.campaign).toMatchObject({ system: 'grey-marches', packs: [] })
+    expect(back.map.meta).not.toHaveProperty('system')
   })
 
-  it("new trips play the map's system; a trip going on keeps its own until a new one", () => {
+  it("new trips play the campaign's system; a trip going on keeps its own until a new one", async () => {
     editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     clickHex('7,7')
     expect(editor.map.play?.rules?.system).toBe('grey-marches')
     startWorld()
     const marches = worldCalendar().describe(editor.campaign.world!.time)
-    // The map changes system: the trip and the world's calendar stay the trip's.
-    editor.execute(new SetMetaCommand({ system: 'generic' }))
+    // The campaign changes system: the trip and the world's calendar stay the trip's.
+    editor.setCampaignSetup({ system: 'generic' })
     expect(activeSystem().id).toBe('grey-marches')
     expect(worldCalendar().describe(editor.campaign.world!.time)).toEqual(marches)
-    // A new trip (Play → New trip) plays the map's system, and so does the world.
-    restartRules(mapSystemId(), 'spring')
+    // A new trip (Play → New trip) plays the campaign's system, and so does the world.
+    expect(await restartRules(mapSystemId(), 'spring')).toBe(true)
     expect(editor.map.play?.rules?.system).toBe('core')
     expect(activeSystem().id).toBe('core')
     expect(worldCalendar().describe(editor.campaign.world!.time)).not.toEqual(marches)
-    // Choosing a system in Play is choosing the map's: undoable like Map settings.
-    restartRules('grey-marches', 'spring')
-    expect(editor.meta.system).toBe('grey-marches')
+    // Choosing a system in Play is choosing the campaign's, as in Map settings (nothing else
+    // is in this campaign, so it doesn't ask).
+    expect(await restartRules('grey-marches', 'spring')).toBe(true)
+    expect(editor.setup.system).toBe('grey-marches')
     expect(editor.map.play?.rules?.system).toBe('grey-marches')
   })
 
@@ -948,7 +949,10 @@ describe('the powers of the Marches: factions on the map', () => {
     expect(editor.factionsOnMap!.territories['fort-keld']).toEqual(['15,9'])
     // …and not on another map with the same regions: its 15,9 is somewhere else.
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
-    editor.load({ ...map, meta: { ...map.meta, id: 'othermap0001', campaign: 'othermap0001' } })
+    editor.load(
+      { ...map, meta: { ...map.meta, id: 'othermap0001', campaign: 'othermap0001' } },
+      { ...createCampaign('othermap0001'), system: 'grey-marches' },
+    )
     bringFactions()
     expect(editor.factionsOnMap!.territories['the-vale'].length).toBeGreaterThan(10)
     expect(editor.factionsOnMap!.territories['fort-keld']).toBeUndefined()

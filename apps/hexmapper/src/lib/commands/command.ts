@@ -16,6 +16,8 @@ export type MapChange =
   | { kind: 'world' }
   /** The factions: their sheets, territory and turns. */
   | { kind: 'factions' }
+  /** The campaign's own settings: its name, note, system and packs. */
+  | { kind: 'campaign' }
   | { kind: 'tokens' }
   | { kind: 'regions' }
   /** Look-only settings (glyph opacity): redraw without rebuilding the grid. */

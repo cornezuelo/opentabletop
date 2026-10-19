@@ -10,7 +10,7 @@ Puedes tener varios viajes (en este navegador), cada uno con su sistema, su cami
 
 ## La campaña
 
-Cada viaje se juega en una **campaña**, el mundo en el que ocurre: un reloj del mundo, las facciones y el Oráculo (las cartas robadas de cada mazo, los resultados que solo salen una vez). **Campaña**, encima del sistema, dice cuál. Un viaje empieza en una campaña propia (**La suya**), un mundo en el que no juega nadie más, como siempre tuvieron los viajes sin mapa. Elige otra, como la de un mapa del Hexmapper (aparece con el nombre del mapa), para viajar en el mundo de ese mapa:
+Cada viaje se juega en una **campaña**, el mundo en el que ocurre: su sistema, un reloj del mundo, las facciones y el Oráculo (las cartas robadas de cada mazo, los resultados que solo salen una vez). **Campaña**, encima del sistema, dice cuál. Un viaje empieza en una campaña propia (**La suya**), con el sistema del viaje, un mundo en el que no juega nadie más, como siempre tuvieron los viajes sin mapa. Elige otra, como la de un mapa del Hexmapper (aparece con el nombre del mapa), para viajar en el mundo de ese mapa:
 
 - Los días del viaje son los de la campaña: un viaje nuevo empieza en la fecha de la campaña (cuando su reloj del mundo está en marcha, mira [El reloj del mundo](../hexmapper/12-world.md)), y marchar, esperar y acampar hacen avanzar el reloj de la campaña. Los eventos y fiestas que llegan por el camino se escriben en el diario.
 - Sus tablas y comprobaciones leen el mundo (los relojes de progreso de la campaña, los eventos de hoy, los valores de las facciones: [Lo que ven las tablas](../technical/04-what-tables-see.md)), y lo que le hacen pasa allí: un resultado que avanza un reloj (`world.clocks.the-siege: 1`) o cambia los valores de una facción. Las tierras de una facción están en un mapa, así que solo cambian cuando el viaje se juega en ese mapa.
@@ -18,7 +18,9 @@ Cada viaje se juega en una **campaña**, el mundo en el que ocurre: un reloj del
 
 **Un viaje cada vez.** El tiempo de una campaña es uno, así que en ella solo hay un viaje en curso. Jugar un viaje en una campaña donde se jugó otro el último (el viaje del mapa en el Hexmapper, otro viaje aquí) pregunta antes: «Hay otro viaje en curso en esta campaña: «La Frontera». ¿Pausarlo y jugar este?». Decir que no lo deja todo como estaba. Si el reloj de la campaña avanzó entretanto (el otro viaje viajó un día), este grupo **espera hasta entonces** primero, y un mensaje lo dice; el otro viaje pregunta lo mismo cuando vuelve a jugarse.
 
-Cambiar **Campaña** en un viaje en curso lo lleva a ese mundo desde su siguiente paso (su mundo propio se conserva, por si vuelves a él).
+Cambiar **Campaña** en un viaje en curso lo lleva a ese mundo desde su siguiente paso. Si la campaña del viaje tiene mundo propio (reloj del mundo, facciones, tiradas del Oráculo), Travel pregunta cuál se queda, como hace el Hexmapper cuando un mapa se mueve ([Campañas](../hexmapper/01-getting-started.md#campañas)): **Mantener el de la campaña** (el mundo del viaje se queda atrás) o **Traer el propio** (sustituye al de la campaña, sistema incluido, para todos sus mapas y viajes); cuando la otra campaña aún no tiene mundo, se elige entre traerlo o **Dejarlo atrás**. La campaña que deja el viaje, y la de un viaje que borras, se borra si no queda nada más en ella.
+
+**El sistema es de la campaña.** Un viaje mantiene el sistema con el que empezó, y un viaje nuevo hace suyo el sistema de la campaña: en una campaña propia, sin preguntar; en una compartida con mapas u otros viajes, preguntando antes, porque también lo juegan ellos.
 
 ## El camino
 

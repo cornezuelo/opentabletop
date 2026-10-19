@@ -1,7 +1,7 @@
 import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand } from '../commands/paths'
-import type { DiscoveredHex } from '@open-tabletop/session'
+import { DEFAULT_SYSTEM, systemIdOf, type DiscoveredHex } from '@open-tabletop/session'
 import {
   createCampaign,
   factionsOn,
@@ -54,9 +54,20 @@ export interface PathDraft {
 
 type Listener = (change: MapChange) => void
 
-/** Changes to what the campaign keeps (the world clock, the Oracle), not to the map. */
+/** Changes to what the campaign keeps (the world clock, the Oracle, its settings), not to the map. */
 export const isCampaignChange = (change: MapChange): boolean =>
-  change.kind === 'world' || change.kind === 'oracle'
+  change.kind === 'world' || change.kind === 'oracle' || change.kind === 'campaign'
+
+/** The campaign's own settings, as the UI shows them. */
+export type CampaignSetup = Pick<Campaign, 'id' | 'name' | 'noteRef' | 'system' | 'packs'>
+
+const setupOf = ({ id, name, noteRef, system, packs }: Campaign): CampaignSetup => ({
+  id,
+  name,
+  ...(noteRef && { noteRef }),
+  ...(system && { system }),
+  ...(packs && { packs }),
+})
 
 /**
  * Central editor state. The map itself is a plain object (Pixi renders it, Svelte
@@ -83,6 +94,8 @@ class Editor {
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state.raw<HexMap['play']>(undefined)
   world = $state.raw<Campaign['world']>(undefined)
+  /** The campaign's name, note, system and packs. */
+  setup = $state.raw<CampaignSetup>(setupOf(this.campaign))
   /** The campaign's factions as this map sees them (with the land each holds on it). */
   factions = $state.raw<FactionsOnMap | undefined>(undefined)
   tokens = $state.raw<MapToken[]>([])
@@ -386,6 +399,32 @@ class Editor {
     return true
   }
 
+  /**
+   * The campaign's name, note, system or packs (Map settings): saved with the campaign,
+   * outside the undo history. No system is the default one; no packs, every pack.
+   */
+  setCampaignSetup(patch: Partial<Pick<Campaign, 'name' | 'noteRef' | 'system' | 'packs'>>): void {
+    const next: Campaign = { ...this.campaign, ...patch }
+    for (const key of ['noteRef', 'system', 'packs'] as const)
+      if (next[key] === undefined || next[key] === '') delete next[key]
+    if (next.system && systemIdOf(next.system) === DEFAULT_SYSTEM) delete next.system
+    this.campaign = next
+    this.notify({ kind: 'campaign' })
+  }
+
+  /**
+   * The map in another campaign (Map settings → Campaign): the campaign it joined, as
+   * `joinCampaign` left it, and the land it keeps there. Kept outside the undo history.
+   */
+  moveToCampaign(campaign: Campaign, territories: HexMap['territories']): void {
+    this.map.meta = { ...this.map.meta, campaign: campaign.id }
+    this.campaign = campaign
+    if (territories) this.map.territories = territories
+    else delete this.map.territories
+    this.notify({ kind: 'meta' })
+    for (const kind of ['campaign', 'world', 'oracle', 'factions'] as const) this.notify({ kind })
+  }
+
   /** The trip going on in the campaign (this map's, taking the place of another's). */
   setPlaying(playing: Campaign['playing']): void {
     this.campaign = { ...this.campaign, playing }
@@ -418,7 +457,7 @@ class Editor {
   takeCampaign(next: Campaign): void {
     if (next.id !== this.campaign.id) return
     this.campaign = next
-    for (const kind of ['world', 'oracle', 'factions'] as const) this.notify({ kind })
+    for (const kind of ['campaign', 'world', 'oracle', 'factions'] as const) this.notify({ kind })
   }
 
   /** Opens a map read with its campaign (`parseMapFile`, `openMap`). */
@@ -475,6 +514,7 @@ class Editor {
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
     if (change.kind === 'world' || change.kind === 'all') this.world = this.campaign.world
+    if (change.kind === 'campaign' || change.kind === 'all') this.setup = setupOf(this.campaign)
     if (change.kind === 'factions' || change.kind === 'all') this.factions = this.factionsOnMap
     if (change.kind === 'play' || change.kind === 'all')
       this.play = this.map.play ? structuredClone(this.map.play) : undefined

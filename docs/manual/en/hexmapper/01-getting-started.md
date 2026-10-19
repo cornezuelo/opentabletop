@@ -22,7 +22,7 @@ Maps are kept in this browser's library and saved automatically while you work. 
 
 An example you open becomes **your map**: your changes and your trip are kept in it. Opening the example again asks whether to **go on with yours**, **open it beside yours** (a fresh copy as another map, yours kept) or **start fresh** in its place (yours is lost). When a newer version of the app brings a changed example, the list marks it **new version** and the question says so: your map keeps playing as it was, and you choose when to try the new one.
 
-**Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map, with a campaign of its own).
+**Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map, with a campaign of its own). A file carries its map's [campaign](#campaigns); if this browser already has that campaign (another map of it, a friend's map of your game) and it differs, Hexmapper asks too: **Join it** (the map opens in the campaign kept here, and the file's world clock, factions and Oracle are left out), **Replace mine** (the file's campaign takes the place of the one here, for every map and trip in it) or **Keep apart** (the file's campaign is kept as a new one of its own).
 
 > Clearing the browser's data deletes its library: save files of the maps you care about, or a [backup of everything](../technical/05-backups.md) (app switcher → **Save a backup**).
 
@@ -30,7 +30,19 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
 
-**Map settings** (the folded map) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper) and the world scale (km per hex, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another). Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+**Map settings** (the folded map) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper), the world scale (km per hex, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) and its [campaign](#campaigns), with the system it's played with. Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+
+## Campaigns
+
+A map is the **place**; the world it's played in is its **campaign**: the game system, the world clock (the [World](12-world.md) panel), its weather, the factions and the Oracle (decks drawn, once-only results, hand rolls). Every map and every trip of the Travel app is in one campaign, and the maps and trips of the same campaign share all of that: one date, the same factions (each map keeps the land they hold on it), the same decks. A new map starts in a campaign of its own, named after it, so a map played alone works as it always did.
+
+**Map settings → Campaign**:
+
+- **The map is in**: **Its own**, or another campaign kept in this browser (a map's, or a Travel trip's). Choosing one moves the map to it. If the map's campaign has a world of its own (a world clock, factions or Oracle rolls), Hexmapper asks which one stays: **Keep the campaign's** (the map's world is left behind, and the map keeps the land of the factions the campaign has) or **Bring this one's** (it takes the place of the campaign's world, system included, for every map and trip in it). When the other campaign has no world yet, the choice is to bring it or **Leave it behind**. The campaign the map leaves is deleted if nothing else is in it; under the choice, **Also in it** names the other maps and trips of the campaign.
+- **Campaign name**: how the campaign is called wherever it is chosen (here, Travel, the Oracle).
+- **System** and **Packs**: the campaign's, so every map and trip in it plays them. Changing the system asks first if other maps or trips are in the campaign; a trip going on keeps the system it started with until a new one ([Play](08-play.md)).
+
+Moving a map to another campaign, renaming the campaign and changing its system are not part of Undo. One trip goes on in a campaign at a time ([With a trip going on](12-world.md#with-a-trip-going-on)).
 
 ## Links to hexes
 

@@ -4,7 +4,7 @@ import {
   serializeCampaign,
   type Campaign,
 } from '@open-tabletop/campaign'
-import { getCampaign, onCampaignChange, putCampaign } from '@open-tabletop/storage'
+import { deleteCampaign, getCampaign, onCampaignChange, putCampaign } from '@open-tabletop/storage'
 
 /** The time of a change (plain text, not reactive state). */
 const now = (): string => new Date(Date.now()).toISOString()
@@ -86,6 +86,15 @@ export class CampaignKeeper {
           json: serializeCampaign(campaign),
         }),
       )
+      .catch(console.error)
+      .finally(() => this.unsaved--)
+  }
+
+  /** Deletes a campaign kept in this browser (nothing is in it any more), after the writes. */
+  remove(id: string): void {
+    this.unsaved++
+    this.writes = this.writes
+      .then(() => deleteCampaign(id))
       .catch(console.error)
       .finally(() => this.unsaved--)
   }

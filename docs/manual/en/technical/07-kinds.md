@@ -448,7 +448,7 @@ clocks:
 
 ## Systems
 
-A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. Maps and trips choose a system: a Hexmapper map in **Map settings → Map → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), a trip in the Travel app on the system's page; both list them by name.
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
 
 ```yaml
 kind: system

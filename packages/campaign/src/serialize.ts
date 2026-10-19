@@ -1,6 +1,7 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import type { CampaignParts, HexMap } from '@open-tabletop/map'
-import { readMap } from '@open-tabletop/map'
+import { CAMPAIGN_PARTS, readMap } from '@open-tabletop/map'
+import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
 import type {
   Campaign,
@@ -13,9 +14,10 @@ import type {
 /**
  * The campaign format's version. Every format change bumps it and adds a migration to
  * `migrations` (`migrations[n]` upgrades raw data from version n to n + 1). v2: the trip
- * going on (`playing`), none in older campaigns.
+ * going on (`playing`), none in older campaigns; v3: its system and packs (`system`,
+ * `packs`), which were its maps' (a map saved before brings them on opening).
  */
-export const CAMPAIGN_VERSION = 2
+export const CAMPAIGN_VERSION = 3
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {}
 
@@ -66,6 +68,7 @@ export function deserializeCampaign(json: string): Campaign {
     ),
     modified: typeof data.modified === 'string' ? data.modified : now,
     ...(typeof data.noteRef === 'string' && data.noteRef && { noteRef: data.noteRef }),
+    ...readSetup(data),
     ...readParts(data),
     ...(isTrip(data.playing) && { playing: data.playing }),
   }
@@ -73,6 +76,19 @@ export function deserializeCampaign(json: string): Campaign {
 
 const isTrip = (t: unknown): t is CampaignTrip =>
   isRecord(t) && typeof t.app === 'string' && typeof t.id === 'string' && typeof t.name === 'string'
+
+/** The system and packs as stored (in a campaign, or in a map saved before v25), tidied. */
+export function readSetup(parts: CampaignParts): Pick<Campaign, 'system' | 'packs'> {
+  const { system, packs } = parts
+  return {
+    ...(typeof system === 'string' &&
+      system &&
+      systemIdOf(system) !== DEFAULT_SYSTEM && { system: systemIdOf(system) }),
+    ...(Array.isArray(packs) && {
+      packs: [...new Set(packs.filter((p): p is string => typeof p === 'string' && !!p))],
+    }),
+  }
+}
 
 /**
  * The world, its weather, the factions and the Oracle as stored (in a campaign, or in a map
@@ -132,17 +148,34 @@ function readOracle(o: Record<string, unknown>): CampaignOracle {
  * Reads a stored map (`@open-tabletop/map`'s format) and, if it brings the parts of a
  * campaign (saved before campaigns, or a file that carries them), the campaign made from
  * them: its id is the map's `meta.campaign`, its name the map's. Without them, `campaign`
- * is absent and the map's campaign is looked up where campaigns are kept.
+ * is absent and the map's campaign is looked up where campaigns are kept; `setup` is the
+ * system and packs a map saved before v25 chose, for that campaign if it has none.
  */
-export function openMap(json: string): { map: HexMap; campaign?: Campaign } {
+export function openMap(json: string): {
+  map: HexMap
+  campaign?: Campaign
+  setup?: Pick<Campaign, 'system' | 'packs'>
+} {
   const { map, campaign: parts } = readMap(json)
-  if (!Object.keys(parts).length) return { map }
+  const setup = readSetup(parts)
+  if (!(CAMPAIGN_PARTS as readonly string[]).some((p) => p in parts))
+    return { map, ...(Object.keys(setup).length && { setup }) }
   return {
     map,
     campaign: {
       ...createCampaign(map.meta.campaign, map.meta.name, map.meta.created),
       modified: map.meta.modified,
+      ...setup,
       ...readParts(parts),
     },
   }
+}
+
+/** A campaign with the system and packs its map chose before v25, unless it has its own. */
+export function withSetup(
+  campaign: Campaign,
+  setup?: Pick<Campaign, 'system' | 'packs'>,
+): Campaign {
+  if (!setup || 'system' in campaign || 'packs' in campaign) return campaign
+  return { ...campaign, ...setup }
 }

@@ -21,6 +21,19 @@ export const vocabulary = {
       pauseOther:
         'Another trip is going on in this campaign: “{trip}”. Pause it and play this one? Time is one in a campaign: if its clock went on, this party waits until then.',
       caughtUp: "The campaign's clock had gone on: the party waited until then.",
+      /** A map or a trip joining another campaign (campaigns.md §5). */
+      whatStaysTitle: 'Join “{campaign}”',
+      whatStays:
+        '“{campaign}” has a world of its own (a world clock, factions, Oracle rolls), and so does the campaign this one leaves. Keep the campaign’s, and this one’s is left behind (lost, if nothing else is in its campaign); or bring this one’s, system included, in place of the campaign’s for every map and trip in it.',
+      bringWorld:
+        '“{campaign}” has no world yet: no world clock, factions or Oracle rolls. Bring this one’s (its system included), or leave it behind (lost, if nothing else is in its campaign)?',
+      keepTheirs: 'Keep the campaign’s',
+      bringMine: 'Bring this one’s',
+      leaveBehind: 'Leave it behind',
+      adopted:
+        'Now played with {system}, the campaign’s system. A trip going on keeps its own until a new one.',
+      systemShared:
+        'The system is the campaign’s: changing it changes it for {places} too. A trip going on keeps the system it started with until a new one. Change it?',
     },
     /** What the world clock writes in its timeline and notices, in every app that plays it. */
     world: {
@@ -117,6 +130,18 @@ export const vocabulary = {
       pauseOther:
         'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, este grupo espera hasta entonces.',
       caughtUp: 'El reloj de la campaña había avanzado: el grupo ha esperado hasta entonces.',
+      whatStaysTitle: 'Unirse a «{campaign}»',
+      whatStays:
+        '«{campaign}» tiene un mundo propio (reloj del mundo, facciones, tiradas del Oráculo), y también la campaña que se deja. Mantén el de la campaña y el propio se queda atrás (se pierde si no queda nada más en su campaña), o trae el propio, sistema incluido, en lugar del de la campaña para todos sus mapas y viajes.',
+      bringWorld:
+        '«{campaign}» aún no tiene mundo: ni reloj del mundo, ni facciones, ni tiradas del Oráculo. ¿Traer el propio (con su sistema) o dejarlo atrás (se pierde si no queda nada más en su campaña)?',
+      keepTheirs: 'Mantener el de la campaña',
+      bringMine: 'Traer el propio',
+      leaveBehind: 'Dejarlo atrás',
+      adopted:
+        'Ahora se juega con {system}, el sistema de la campaña. Un viaje en curso mantiene el suyo hasta empezar otro.',
+      systemShared:
+        'El sistema es de la campaña: cambiarlo lo cambia también para {places}. Un viaje en curso mantiene el sistema con el que empezó hasta empezar otro. ¿Cambiarlo?',
     },
     world: {
       clockFilled: '{name}: ¡lleno!',

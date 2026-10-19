@@ -10,12 +10,16 @@ import {
   createCampaign,
   deserializeCampaign,
   factionsOn,
+  hasWorld,
+  joinCampaign,
+  landIn,
   leaveTrip,
   openMap,
   otherTrip,
   playTrip,
   serializeCampaign,
   splitFactions,
+  withSetup,
   worldTurnOn,
   type Campaign,
 } from './index'
@@ -89,6 +93,8 @@ describe('campaigns', () => {
     const campaign: Campaign = {
       ...createCampaign('c1', 'The Marches', '2026-10-19T10:00:00.000Z'),
       noteRef: 'Campaigns/Marches',
+      system: 'marks',
+      packs: ['core'],
       world: { time: 1440, events: [], clocks: [], timeline: [], nextId: 1 },
       worldWeather: { weather: 'rain', day: 2 },
       factions: { system: 'marks', factions: [], lastTurn: 0, auto: false },
@@ -130,6 +136,65 @@ describe('campaigns', () => {
     expect(factionsOn(opened.campaign!, opened.map)?.territories).toEqual({ clans: ['4,4'] })
     // Saved again, the map brings nothing: its campaign is kept apart.
     expect(openMap(serializeMap(opened.map)).campaign).toBeUndefined()
+  })
+
+  it('take the system and packs a map chose before they were the campaign’s', () => {
+    const map = createMap('Old map')
+    const old = { ...JSON.parse(serializeMap(map)), version: 24 }
+    old.meta = { ...old.meta, system: 'marks', packs: ['core', 'core'] }
+    const opened = openMap(JSON.stringify(old))
+    expect(opened.map.meta).not.toHaveProperty('system')
+    // Its campaign is kept already: only the system and packs come, for it to take.
+    expect(opened.campaign).toBeUndefined()
+    expect(opened.setup).toEqual({ system: 'marks', packs: ['core'] })
+    const kept = createCampaign(map.meta.campaign)
+    expect(withSetup(kept, opened.setup)).toMatchObject({ system: 'marks', packs: ['core'] })
+    // One that chose its own keeps it.
+    const chosen = { ...kept, system: 'other' }
+    expect(withSetup(chosen, opened.setup)).toBe(chosen)
+    // The default system (by its old name too) is no choice.
+    old.meta.system = 'generic'
+    expect(openMap(JSON.stringify(old)).setup).toEqual({ packs: ['core'] })
+    // Saved before campaigns, the campaign made from the map has them.
+    const older = { ...old, version: 23, meta: { ...old.meta, system: 'marks' }, oracle: {} }
+    delete older.meta.campaign
+    expect(openMap(JSON.stringify(older)).campaign).toMatchObject({ system: 'marks' })
+  })
+
+  it('a place joining another campaign leaves its world behind, or brings it along', () => {
+    const world = { time: 1440, events: [], clocks: [], timeline: [], nextId: 1 }
+    const from: Campaign = {
+      ...createCampaign('a', 'Mine'),
+      system: 'marks',
+      world,
+      factions: {
+        system: 'marks',
+        factions: [{ id: 'clans', sheet: 'marks/faction' } as never],
+        lastTurn: 0,
+      },
+    }
+    const to: Campaign = {
+      ...createCampaign('b', 'Theirs'),
+      packs: ['core'],
+      oracle: { state: { decks: {}, occurrences: {}, vars: {} }, history: [] },
+      playing: { app: 'travel', id: 't1', name: 'To Keld' },
+    }
+    expect(hasWorld(from)).toBe(true)
+    // An Oracle that rolled nothing is no world.
+    expect(hasWorld(to)).toBe(false)
+    expect(hasWorld({ ...to, oracle: { ...to.oracle!, history: [{} as never] } })).toBe(true)
+    expect(joinCampaign(from, to, 'theirs')).toBe(to)
+    const mine = joinCampaign(from, to, 'mine')
+    expect(mine).toMatchObject({ id: 'b', name: 'Theirs', system: 'marks', world })
+    expect(mine.factions).toEqual(from.factions)
+    expect(mine.playing).toEqual(to.playing)
+    // What the place didn't have, the campaign no longer has either.
+    expect(mine).not.toHaveProperty('packs')
+    expect(mine).not.toHaveProperty('oracle')
+    // The map keeps the land of the factions the campaign has.
+    const land = { clans: ['1,1'], gone: ['2,2'] }
+    expect(landIn(mine, land)).toEqual({ clans: ['1,1'] })
+    expect(landIn(to, land)).toBeUndefined()
   })
 
   it('keep the factions’ sheets, and each map the land they hold on it', () => {

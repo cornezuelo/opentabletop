@@ -4,19 +4,28 @@ import {
   CampaignFormatError,
   createCampaign,
   deserializeCampaign,
+  hasWorld,
+  joinCampaign,
+  landIn,
+  leaveTrip,
   openMap,
   serializeCampaign,
+  withSetup,
   type Campaign,
+  type WhatStays,
 } from '@open-tabletop/campaign'
+import { DEFAULT_SYSTEM, systemIdOf, systemName } from '@open-tabletop/session'
+import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
-import { ask, showToast } from '@open-tabletop/ui-kit'
+import { getSystem } from '../play/systems'
+import { ask, confirmAction, showToast } from '@open-tabletop/ui-kit'
 import { exampleState, forgetExample, rememberExample, type ExampleMap } from './examples'
 import {
-  allLibraryMaps,
   deleteCampaign,
   deleteLibraryMap,
   getCampaign,
   getLibraryMap,
+  listCampaigns,
   listLibrary,
   onBeforeBackup,
   onCampaignChange,
@@ -33,13 +42,20 @@ const CURRENT_KEY = 'hexmapper.currentMap'
 const PENDING_KEY = 'hexmapper.pending'
 const PENDING_CAMPAIGN_KEY = 'hexmapper.pendingCampaign'
 
+/** The time of a change (plain text, not reactive state). */
+const now = (): string => new Date(Date.now()).toISOString()
+
 /** Bumped whenever the library changes, so lists can refresh. */
 export const library = $state({ version: 0 })
 
-/** A map to open, and its campaign when it brings one (a file, a map saved before campaigns). */
+/**
+ * A map to open, and its campaign when it brings one (a file, a map saved before campaigns);
+ * `setup`, the system and packs a map saved before v25 chose, for its campaign kept here.
+ */
 interface Opening {
   map: HexMap
   campaign?: Campaign
+  setup?: Pick<Campaign, 'system' | 'packs'>
 }
 
 /** The open map has changes not saved yet; `campaignDirty`, its campaign. */
@@ -93,15 +109,23 @@ async function saveCurrent(): Promise<void> {
  * The campaign a map opens with: the one it brings (written where campaigns are kept), or
  * the one kept for it, or a new one of its own if there is none.
  */
-async function campaignFor({ map, campaign }: Opening): Promise<Campaign> {
+async function campaignFor({ map, campaign, setup }: Opening): Promise<Campaign> {
   if (campaign) {
     campaignDirty = true
     return campaign
   }
-  const entry = await getCampaign(map.meta.campaign).catch(() => null)
-  const stored = entry ? safeCampaign(entry.json) : null
+  const stored = await keptCampaign(map.meta.campaign)
   // None kept: an empty one, saved once something happens in it.
-  return stored ?? createCampaign(map.meta.campaign, map.meta.name)
+  const found = stored ?? createCampaign(map.meta.campaign, map.meta.name)
+  const withIt = withSetup(found, setup)
+  if (withIt !== found) campaignDirty = true
+  return withIt
+}
+
+/** A campaign kept in this browser, or null if there's none (or it can't be read). */
+async function keptCampaign(id: string): Promise<Campaign | null> {
+  const entry = await getCampaign(id).catch(() => null)
+  return entry ? safeCampaign(entry.json) : null
 }
 
 /** Replaces the open map, saving the previous one (and its campaign) first. */
@@ -158,7 +182,8 @@ export async function openMapFile(): Promise<string | null> {
     const opened = parseMapFile(json)
     const choice = await keepOrCopy(opened.map)
     if (!choice) return null
-    const opening = choice === 'copy' ? asCopy(opened) : opened
+    const opening = choice === 'copy' ? asCopy(opened) : await withKeptCampaign(opened)
+    if (!opening) return null
     await switchTo(opening)
     showToast(t('file.loaded'))
     return opening.map.meta.id
@@ -206,6 +231,46 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
   } catch (error) {
     showToast(errorMessage(error), 'error')
   }
+}
+
+/**
+ * A file whose campaign this browser has already (another map of it, a friend's; §9.3 of
+ * campaigns.md): join the one kept here (the file's world left out; the map keeps the land
+ * of the factions it has), replace it with the file's, or keep the file's apart, in a
+ * campaign of its own. Null on cancel.
+ */
+async function withKeptCampaign(
+  opening: Opening & { campaign: Campaign },
+): Promise<Opening | null> {
+  const file = opening.campaign
+  if (file.id === editor.campaign.id) await saveCurrent().catch(console.error)
+  const kept = await keptCampaign(file.id)
+  if (!kept || serializeCampaign(kept) === serializeCampaign(file)) return opening
+  const date = (iso: string) => new Date(iso).toLocaleString(getLocale())
+  const choice = await ask(
+    t('file.campaignExistsTitle'),
+    t('file.campaignExists', {
+      name: kept.name || t('map.untitled'),
+      mine: date(kept.modified),
+      file: date(file.modified),
+    }),
+    [
+      { value: 'cancel', label: t('newMap.cancel') },
+      { value: 'apart', label: t('file.campaignApart') },
+      { value: 'replace', label: t('file.replace'), kind: 'danger' },
+      { value: 'join', label: t('file.campaignJoin'), kind: 'primary' },
+    ],
+  )
+  if (choice === 'replace') return opening
+  if (choice === 'apart') {
+    const id = newId()
+    const map = { ...opening.map, meta: { ...opening.map.meta, campaign: id } }
+    return { map, campaign: { ...file, id } }
+  }
+  if (choice !== 'join') return null
+  const map = { ...opening.map, territories: landIn(kept, opening.map.territories) }
+  if (!map.territories) delete map.territories
+  return { map }
 }
 
 /**
@@ -265,11 +330,116 @@ export async function removeLibraryMap(id: string): Promise<void> {
   if (open) await switchTo({ map: createMap() })
 }
 
-/** Whether a map of the library is in this campaign. */
+/** Whether a map of the library or a trip of Travel is in this campaign. */
 async function campaignInUse(campaign: string): Promise<boolean> {
-  for (const entry of await allLibraryMaps())
-    if (safeOpen(entry.json)?.map.meta.campaign === campaign) return true
-  return false
+  return (await campaignPlaces(campaign)).length > 0
+}
+
+/** The maps and trips of the open map's campaign besides this map. */
+async function othersInCampaign(campaign = editor.campaign.id): Promise<CampaignPlace[]> {
+  const id = editor.map.meta.id
+  return (await campaignPlaces(campaign)).filter((p) => p.app !== 'hexmapper' || p.id !== id)
+}
+
+/** Places by name, for a message: “North”, “To Keld”. */
+const placesText = (places: CampaignPlace[]) =>
+  places
+    .map((p) => `“${p.name || t(p.app === 'hexmapper' ? 'map.untitled' : 'campaign.trip')}”`)
+    .join(', ')
+
+/** The campaigns this browser keeps, by name (the open map's among them), for choosing one. */
+export async function keptCampaigns(): Promise<{ id: string; name: string }[]> {
+  const kept = await listCampaigns().catch(() => [])
+  return kept.map(({ id, name }) => ({ id, name }))
+}
+
+/**
+ * Changes the system of the open map's campaign (Map settings, or a new trip with another
+ * one): if other maps or trips are in it, asks first, since it's theirs too. False if not.
+ */
+export async function chooseSystem(system: string): Promise<boolean> {
+  const id = systemIdOf(system)
+  if (id === systemIdOf(editor.setup.system)) return true
+  const others = await othersInCampaign()
+  if (
+    others.length &&
+    !(await confirmAction(t('campaign.systemShared', { places: placesText(others) }), {
+      danger: false,
+    }))
+  )
+    return false
+  editor.setCampaignSetup({ system: id === DEFAULT_SYSTEM ? undefined : id })
+  return true
+}
+
+/**
+ * Moves the open map to another campaign kept here (`campaign`; the map's own id: one of
+ * its own again). If its campaign has a world (a clock, factions, Oracle rolls), asks what
+ * stays (§5 of campaigns.md): the campaign's (the map keeps the land of its factions), or
+ * the map's, which takes its place. The campaign it leaves is deleted if nothing else is in
+ * it. False if cancelled.
+ */
+export async function moveToCampaign(campaign: string): Promise<boolean> {
+  const from = editor.campaign
+  if (campaign === from.id) return true
+  await saveCurrent().catch(console.error)
+  const { map } = editor
+  const to =
+    (await keptCampaign(campaign)) ??
+    createCampaign(campaign, campaign === map.meta.id ? map.meta.name : '')
+  let stays: WhatStays = 'theirs'
+  if (hasWorld(from)) {
+    const theirs = hasWorld(to)
+    const name = to.name || t('map.untitled')
+    const choice = await ask(
+      t('campaign.whatStaysTitle', { campaign: name }),
+      t(theirs ? 'campaign.whatStays' : 'campaign.bringWorld', { campaign: name }),
+      [
+        { value: 'cancel', label: t('newMap.cancel') },
+        {
+          value: 'theirs',
+          label: t(theirs ? 'campaign.keepTheirs' : 'campaign.leaveBehind'),
+          ...(theirs && { kind: 'primary' as const }),
+        },
+        {
+          value: 'mine',
+          label: t('campaign.bringMine'),
+          ...(theirs ? { kind: 'danger' as const } : { kind: 'primary' as const }),
+        },
+      ],
+    )
+    if (choice !== 'theirs' && choice !== 'mine') return false
+    stays = choice
+  }
+  if (editor.campaign !== from || editor.map !== map) return false
+  const joined = joinCampaign(from, to, stays)
+  const land = stays === 'mine' ? map.territories : landIn(joined, map.territories)
+  // The campaign it leaves: without this map's trip, or gone if nothing else is in it.
+  const left = leaveTrip(from, { app: 'hexmapper', id: map.meta.id })
+  const othersLeft = await othersInCampaign(from.id)
+  editor.moveToCampaign(joined, land)
+  // Both are saved now: the map names its new campaign, which may be new here.
+  dirty = true
+  campaignDirty = true
+  await saveCurrent().catch(console.error)
+  if (othersLeft.length) {
+    const changed = { ...left, modified: now() }
+    await putCampaign({
+      id: changed.id,
+      name: changed.name,
+      modified: changed.modified,
+      json: serializeCampaign(changed),
+    }).catch(console.error)
+  } else await deleteCampaign(from.id).catch(console.error)
+  if (systemIdOf(joined.system) !== systemIdOf(from.system))
+    showToast(
+      t('campaign.adopted', {
+        system: systemName(getSystem(systemIdOf(joined.system)), getLocale()),
+      }),
+      'info',
+      6000,
+    )
+  return true
 }
 
 export { listLibrary }

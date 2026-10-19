@@ -4,7 +4,7 @@ El botón de Oracle (el hexágono dorado bajo Jugar y el Mundo, o <kbd>O</kbd>) 
 
 ## Los packs de un mapa
 
-Un mapa puede trabajar solo con algunos packs: **Ajustes del mapa → Mapa → Packs** (por defecto, todos los cargados). Desmarca **Todos los packs cargados** y el panel Oracle muestra solo los packs que trae el **Sistema** del mapa (marcados y en gris, _lo trae el sistema_) y los que marques además. Una tabla puede seguir tirando tablas de otros packs a las que se refiera. El mapa de ejemplo de las Marcas Grises se juega con las Marcas Grises y no añade nada, así que muestra las Marcas Grises y Core (que trae el sistema); un mapa que se juega con las reglas genéricas enseña Core, el pack al que pertenecen.
+Un mapa puede trabajar solo con algunos packs, que se eligen para toda su campaña: **Ajustes del mapa → Campaña → Packs** (por defecto, todos los cargados). Desmarca **Todos los packs cargados** y el panel Oracle muestra solo los packs que trae el **Sistema** del mapa (marcados y en gris, _lo trae el sistema_) y los que marques además. Una tabla puede seguir tirando tablas de otros packs a las que se refiera. El mapa de ejemplo de las Marcas Grises se juega con las Marcas Grises y no añade nada, así que muestra las Marcas Grises y Core (que trae el sistema); un mapa que se juega con las reglas genéricas enseña Core, el pack al que pertenecen.
 
 ## Contexto del mapa
 

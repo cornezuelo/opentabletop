@@ -222,7 +222,7 @@ export interface PlayState {
   straightTrail?: boolean
   /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
   /**
-   * The trip: `system` is the one it was started with (the map's, `meta.system`, at that
+   * The trip: `system` is the one it was started with (its campaign's, at that
    * moment); a trip keeps playing it until a new one starts.
    */
   rules?: {
@@ -323,16 +323,10 @@ export interface MapMeta {
   name: string
   created: string
   modified: string
-  /** The system the map is played with (`kind: system` id); absent = the generic one. */
-  system?: string
   /**
-   * Packs the map works with besides the ones its system brings (its Oracle panel shows
-   * both); absent = every loaded pack.
-   */
-  packs?: string[]
-  /**
-   * The campaign the map belongs to (its id): the world clock, its weather, the factions'
-   * sheets and the Oracle state live there (`@open-tabletop/campaign`), shared by its maps.
+   * The campaign the map belongs to (its id): the system it's played with and the packs it
+   * adds, the world clock, its weather, the factions' sheets and the Oracle state live there
+   * (`@open-tabletop/campaign`), shared by its maps.
    * A new map, and every map saved before campaigns, has one of its own.
    */
   campaign: string

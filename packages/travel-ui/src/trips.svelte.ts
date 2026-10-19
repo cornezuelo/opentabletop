@@ -23,6 +23,9 @@ import {
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import {
+  createCampaign,
+  hasWorld,
+  joinCampaign,
   leaveTrip,
   otherTrip,
   playTrip,
@@ -34,8 +37,9 @@ import {
 } from '@open-tabletop/campaign'
 import { roster } from '@open-tabletop/character-ui'
 import { mathRandom } from '@open-tabletop/random'
-import { confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { ask, confirmAction, showToast } from '@open-tabletop/ui-kit'
 import { listCampaigns } from '@open-tabletop/storage'
+import { campaignPlaces, type CampaignPlace } from './places'
 import { CampaignKeeper } from '@open-tabletop/ui-kit'
 import { translator } from './i18n'
 import { wayWorld, type WayHex } from './way'
@@ -221,14 +225,92 @@ export class TripStore {
    * its own again). Its time becomes that campaign's when it next steps (§9.1 of the
    * campaigns design: it waits until the campaign's clock if that is ahead).
    */
-  async joinCampaign(campaign: string): Promise<void> {
+  async joinCampaign(campaign: string): Promise<boolean> {
     const keeper = this.keeper
     const from = this.campaign
-    if (!keeper || campaign === this.saved.campaign) return
-    if (from && this.me) keeper.write(leaveTrip(from, this.me))
+    const trip = this.saved.id
+    if (!keeper || !from || campaign === this.saved.campaign) return true
+    const t = translator(this.options.locale)
+    const to =
+      (await keeper.read(campaign)) ??
+      createCampaign(campaign, campaign === trip ? (this.me?.name ?? '') : '')
+    // Its world (a clock, factions, Oracle rolls): which stays, as when a map moves.
+    let stays: 'theirs' | 'mine' = 'theirs'
+    if (hasWorld(from)) {
+      const theirs = hasWorld(to)
+      const name = to.name || to.id
+      const choice = await ask(
+        t('campaign.whatStaysTitle', { campaign: name }),
+        t(theirs ? 'campaign.whatStays' : 'campaign.bringWorld', { campaign: name }),
+        [
+          { value: 'cancel', label: t('campaign.cancel') },
+          {
+            value: 'theirs',
+            label: t(theirs ? 'campaign.keepTheirs' : 'campaign.leaveBehind'),
+            ...(theirs && { kind: 'primary' as const }),
+          },
+          {
+            value: 'mine',
+            label: t('campaign.bringMine'),
+            kind: theirs ? ('danger' as const) : ('primary' as const),
+          },
+        ],
+      )
+      if (choice !== 'theirs' && choice !== 'mine') return false
+      stays = choice
+    }
+    if (this.saved.id !== trip || this.campaign !== from) return false
+    const others = await this.othersIn(from.id)
+    // The campaign it leaves: without this trip going on, or gone if nothing else is in it.
+    if (others.length) keeper.write(this.me ? leaveTrip(from, this.me) : from)
+    else keeper.remove(from.id)
+    const joined = joinCampaign(from, to, stays)
+    if (joined !== to) keeper.write({ ...joined, modified: now() })
     this.saved = { ...this.saved, campaign }
     this.save()
     await this.openCampaign()
+    if (systemIdOf(joined.system) !== systemIdOf(from.system)) {
+      const system = this.options.systems().find((s) => s.id === systemIdOf(joined.system))
+      showToast(
+        t('campaign.adopted', {
+          system: system ? systemName(system, this.options.locale()) : systemIdOf(joined.system),
+        }),
+        'info',
+        6000,
+      )
+    }
+    return true
+  }
+
+  /** The maps and trips in a campaign besides the open trip. */
+  private async othersIn(campaign: string, me = this.saved.id): Promise<CampaignPlace[]> {
+    return (await campaignPlaces(campaign)).filter((p) => p.app !== 'travel' || p.id !== me)
+  }
+
+  /**
+   * Makes `system` the open trip's campaign's (a trip started with it): if other maps or
+   * trips are in the campaign, asks first, since it's theirs too. False if not changed.
+   */
+  async chooseSystem(system: string): Promise<boolean> {
+    const keeper = this.keeper
+    if (!keeper) return true
+    const campaign = await this.openCampaign()
+    const id = systemIdOf(system)
+    if (!campaign || systemIdOf(campaign.system) === id) return true
+    const others = await this.othersIn(campaign.id)
+    if (others.length) {
+      const t = translator(this.options.locale)
+      const places = others
+        .map((p) => `“${p.name || t(p.app === 'travel' ? 'campaign.trip' : 'campaign.map')}”`)
+        .join(', ')
+      if (!(await confirmAction(t('campaign.systemShared', { places }), { danger: false })))
+        return false
+    }
+    const next = { ...(this.campaign ?? campaign) }
+    if (id === DEFAULT_SYSTEM) delete next.system
+    else next.system = id
+    keeper.set(next)
+    return true
   }
 
   /** The open trip as a place of the roster (none when this host doesn't use it). */
@@ -293,7 +375,11 @@ export class TripStore {
     this.stored = { ...this.stored, current: trip.id, trips: [...this.stored.trips, trip] }
     const opening = this.openCampaign()
     if (!opening) return this.start(system, season)
-    return opening.then(() => this.start(system, season))
+    // In a campaign of its own, its system is the trip's; in another, asked first.
+    return opening.then(async () => {
+      await this.chooseSystem(system)
+      this.start(system, season)
+    })
   }
 
   rename(name: string): void {
@@ -306,9 +392,15 @@ export class TripStore {
     // Its roster characters stay in the roster, playing nowhere.
     const place = this.place
     if (place) roster.set(leavePlace(roster.roster, place))
-    // Its campaign no longer has it going on.
+    // Its campaign no longer has it going on (or goes with it, if nothing else is in it).
     const campaign = this.campaign
-    if (campaign && this.me) this.keeper?.set(leaveTrip(campaign, this.me))
+    const me = this.me
+    if (campaign && me)
+      void this.othersIn(campaign.id, me.id).then((others) =>
+        others.length
+          ? this.keeper?.write(leaveTrip(campaign, me))
+          : this.keeper?.remove(campaign.id),
+      )
     const rest = this.stored.trips.filter((t) => t.id !== this.saved.id)
     const trips = rest.length ? rest : [blank(this.saved.system)]
     this.stored = { ...this.stored, current: trips.at(-1)!.id, trips }

@@ -13,7 +13,13 @@ import {
 } from '@open-tabletop/schema'
 import { characterFromOtd, characterToOtd, type SessionState } from '@open-tabletop/session'
 import { readWorld } from '@open-tabletop/world-engine'
-import { createCampaign, factionsOn, openMap, type Campaign } from '@open-tabletop/campaign'
+import {
+  createCampaign,
+  factionsOn,
+  openMap,
+  withSetup,
+  type Campaign,
+} from '@open-tabletop/campaign'
 import {
   type CustomField,
   type HexData,
@@ -135,9 +141,9 @@ interface HexmapperExt {
   regions: HexMap['regions']
   captions: HexMap['captions']
   regionStyle?: HexMap['regionStyle']
-  /** The system the map is played with (absent: the generic one). */
+  /** Files written before v25: the system the map was played with (now its campaign's). */
   system?: string
-  /** Packs the map works with besides its system's (absent: all). */
+  /** Files written before v25: the packs the map added (now its campaign's). */
   packs?: string[]
   assets: HexMap['assets']
   icons: Record<string, HexIcon>
@@ -157,6 +163,8 @@ export interface OpenedMap {
 interface CampaignExt {
   created?: string
   modified?: string
+  /** Packs its maps work with besides its system's (absent: all). */
+  packs?: string[]
 }
 
 const BUNDLE_KEYS = ['otd', 'maps', 'pois'] as const
@@ -216,8 +224,6 @@ export function mapToBundle(
     regions: map.regions,
     captions: map.captions,
     regionStyle: map.regionStyle,
-    ...(map.meta.system && { system: map.meta.system }),
-    ...(map.meta.packs && { packs: map.meta.packs }),
     assets: map.assets,
     icons,
     ...(Object.keys(names).length && { names }),
@@ -262,10 +268,14 @@ export function mapToBundle(
       type: 'campaign',
       ...(campaign.name && { name: campaign.name }),
       ...(campaign.noteRef && { noteRef: campaign.noteRef }),
-      ...(map.meta.system && { system: map.meta.system }),
+      ...(campaign.system && { system: campaign.system }),
       ...(campaign.world && { time: campaign.world.time }),
       ext: {
-        hexmapper: { created: campaign.created, modified: campaign.modified } satisfies CampaignExt,
+        hexmapper: {
+          created: campaign.created,
+          modified: campaign.modified,
+          ...(campaign.packs && { packs: campaign.packs }),
+        } satisfies CampaignExt,
       },
     },
     characters,
@@ -590,6 +600,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
   if (otherMaps.length) extraBundle.maps = otherMaps
   if (otherPois.length) extraBundle.pois = otherPois
 
+  const campaignExt = (bundle.campaign?.ext as { hexmapper?: CampaignExt } | undefined)?.hexmapper
   const internal = {
     version,
     meta: {
@@ -597,8 +608,6 @@ export function bundleToMap(raw: unknown): OpenedMap {
       name: otdMap.name ?? '',
       created: ext.created,
       modified: ext.modified,
-      ...(ext.system && { system: ext.system }),
-      ...(ext.packs && { packs: ext.packs }),
       // Files saved before campaigns have none: the map gets one of its own (migrations).
       ...(bundle.campaign && { campaign: bundle.campaign.id }),
     },
@@ -627,6 +636,11 @@ export function bundleToMap(raw: unknown): OpenedMap {
     ...(world && { world }),
     ...(factions && { factions, territories: factions.territories }),
     ...(isRecordLike(bundle.state.worldWeather) && { worldWeather: bundle.state.worldWeather }),
+    // The system and packs: the campaign's, or (files written before v25) the map's.
+    ...((bundle.campaign?.system ?? ext.system) && {
+      system: bundle.campaign?.system ?? ext.system,
+    }),
+    ...((campaignExt?.packs ?? ext.packs) && { packs: campaignExt?.packs ?? ext.packs }),
     ...((oracleState || ext.oracleHistory) && {
       oracle: { state: oracleState ?? {}, history: ext.oracleHistory ?? [] },
     }),
@@ -638,9 +652,10 @@ export function bundleToMap(raw: unknown): OpenedMap {
   // Reuse the editor's own sanitizing so imported data obeys the same rules.
   const opened = openMap(JSON.stringify(internal))
   const own = bundle.campaign
-  const times = (own?.ext as { hexmapper?: CampaignExt } | undefined)?.hexmapper
+  const times = campaignExt
   const campaign: Campaign = {
-    ...(opened.campaign ?? createCampaign(opened.map.meta.campaign, opened.map.meta.name)),
+    ...(opened.campaign ??
+      withSetup(createCampaign(opened.map.meta.campaign, opened.map.meta.name), opened.setup)),
     ...(own && { name: own.name ?? '' }),
     ...(own?.noteRef && { noteRef: own.noteRef }),
     ...(typeof times?.created === 'string' && { created: times.created }),

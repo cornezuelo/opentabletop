@@ -50,6 +50,8 @@
       !(await confirmAction(t('play.switchConfirm', { system: name(target) })))
     )
       return
+    // The system is the campaign's: in one shared with others, asked first.
+    if (!(await trip.chooseSystem(target.id))) return
     trip.start(target.id, s)
     if (target.id !== system.id) onsystem(target.id)
   }
@@ -135,7 +137,11 @@
           <span>{t('campaign.title')}<InfoTip text={t('campaign.help')} /></span>
           <select
             value={trip.saved.campaign}
-            onchange={(e) => void trip.joinCampaign(e.currentTarget.value)}
+            onchange={async (e) => {
+              const select = e.currentTarget
+              // Cancelled: the choice shows the campaign the trip is still in.
+              if (!(await trip.joinCampaign(select.value))) select.value = trip.saved.campaign
+            }}
           >
             <option value={trip.saved.id}>{t('campaign.own')}</option>
             {#each others as c (c.id)}

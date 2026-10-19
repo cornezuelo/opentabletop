@@ -47,6 +47,11 @@ export const en = {
       '“{name}” is already in this browser (last changed {mine}); the file was last changed {file}. Replace your copy with the file, or keep both?',
     keepBoth: 'Keep both',
     replace: 'Replace mine',
+    campaignExistsTitle: 'Its campaign is already here',
+    campaignExists:
+      'This browser already has the campaign of this map, “{name}” (last changed {mine}; the file’s, {file}). Join the one here (the file’s world clock, factions and Oracle are left out), replace it with the file’s (for every map and trip in it), or keep the file’s apart, in a campaign of its own?',
+    campaignJoin: 'Join it',
+    campaignApart: 'Keep apart',
   },
   oracle: {
     rollsFor: 'Rolls read hex {hex}',
@@ -72,6 +77,7 @@ export const en = {
     hide: 'Hide the side panel (more room for the map)',
     show: 'Show the side panel',
     map: 'Map',
+    campaign: vocabulary.en.terms.campaign,
     terrain: vocabulary.en.terms.terrain,
     paths: 'Roads and rivers',
     icons: 'Icons',
@@ -86,15 +92,33 @@ export const en = {
     tokens: 'Tokens',
     regions: vocabulary.en.terms.regions,
   },
+  campaign: {
+    help: "The world this map is played in: the system, the world clock (the World panel), the factions and the Oracle (decks drawn, once-only results, hand rolls), shared by every map and trip of the same campaign. The map keeps only its geography and the land each faction holds on it. A new map starts in a campaign of its own.\n• **Its own** — a world of its own, as one map always had\n• another campaign's name — this map joins it: its date, factions and Oracle become this map's too\nIf this map's campaign has a world, joining another asks which one stays. The campaign it leaves is deleted if nothing else is in it. Travel's trips join a campaign the same way.\nOne trip goes on in a campaign at a time: playing another asks to pause the one that played last.",
+    in: 'The map is in',
+    own: 'Its own',
+    name: 'Campaign name',
+    nameHelp:
+      'How the campaign is called wherever it is chosen (here, Travel’s trips, the Oracle). Its maps and trips keep their own names.\n• `The Northern Marches`',
+    also: 'Also in it: {places}.',
+    trip: 'a trip',
+    whatStaysTitle: vocabulary.en.campaign.whatStaysTitle,
+    whatStays: vocabulary.en.campaign.whatStays,
+    bringWorld: vocabulary.en.campaign.bringWorld,
+    keepTheirs: vocabulary.en.campaign.keepTheirs,
+    bringMine: vocabulary.en.campaign.bringMine,
+    leaveBehind: vocabulary.en.campaign.leaveBehind,
+    adopted: vocabulary.en.campaign.adopted,
+    systemShared: vocabulary.en.campaign.systemShared,
+  },
   map: {
     system: vocabulary.en.terms.system,
     systemHelp:
-      "The game system this map is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. New trips in **Play** use it; the Oracle panel shows its packs.\n• **Generic rules** — Core's system, the one a map without a choice plays: simple travel rules, no tables of their own\n• a system from another pack — what that pack declares (its page in the manual says what)\nA system without travel rules plays no trips: only its world, its oracle and its factions.\nA trip already going on keeps the system it started with until you start a new one.",
+      "The game system this map's campaign is played with: its travel rules and the tables they roll, its calendar (the World panel's dates), its weather and the packs it brings. It is the campaign's, so every map and trip of the campaign plays it; changing it asks first if others are in it. New trips in **Play** use it; the Oracle panel shows its packs.\n• **Generic rules** — Core's system, the one a map without a choice plays: simple travel rules, no tables of their own\n• a system from another pack — what that pack declares (its page in the manual says what)\nA system without travel rules plays no trips: only its world, its oracle and its factions.\nA trip already going on keeps the system it started with until you start a new one.",
     systemMissing:
       'The system “{system}” is not loaded in this browser: no trips can be played with it. Load its pack, or choose another system.',
     packs: 'Packs',
     packsHelp:
-      'The packs this map works with: the ones its system brings (always on) and any others you add. Its Oracle panel only shows these.\n• a system that brings two packs shows both; add another pack to roll its oracles too\n• **All the loaded packs** — every pack, also ones you add later\nTables can still roll tables of other packs they refer to.',
+      'The packs this map works with: the ones its system brings (always on) and any others its campaign adds, for every map of the campaign. Its Oracle panel only shows these.\n• a system that brings two packs shows both; add another pack to roll its oracles too\n• **All the loaded packs** — every pack, also ones you add later\nTables can still roll tables of other packs they refer to.',
     allPacks: 'All the loaded packs',
     fromSystem: 'brought by the system',
     packMissing: 'The pack “{pack}” is not loaded in this browser.',
@@ -455,9 +479,9 @@ export const en = {
     pauseOther: vocabulary.en.campaign.pauseOther,
     caughtUp: vocabulary.en.campaign.caughtUp,
     noTravel:
-      '{system} has no travel rules: trips aren’t played with it, only its world, oracle and factions. To travel, choose another system in Map settings → Map → System.',
+      '{system} has no travel rules: trips aren’t played with it, only its world, oracle and factions. To travel, choose another system in Map settings → Campaign → System.',
     otherSystem:
-      'This trip plays {trip}, the system it started with; the map now plays {map}. New trip starts one with it.',
+      'This trip plays {trip}, the system it started with; the map’s campaign now plays {map}. New trip starts one with it.',
     confirmNewTrip:
       'Start a new trip? Time, supplies and the journal start over (the party stays where it is). This can’t be undone.',
     confirmClearTrail: 'Clear the party’s trail? This can’t be undone.',
@@ -476,7 +500,7 @@ export const en = {
     modes: { simple: 'Simple', rules: 'With rules' },
     uploadToken: 'Upload your own…',
     worldStart: 'New trips start on the world clock’s date (the World panel, ☾).',
-    systemNote: 'The map’s, chosen in Map settings → Map → System.',
+    systemNote: 'The campaign’s, chosen in Map settings → Campaign → System.',
     showTrail: 'Show trail',
     showTrailHelp:
       'Draw the hexes the party has walked through on the map, as a dashed line beside the roads it followed.',

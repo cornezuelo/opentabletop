@@ -29,12 +29,14 @@ describe('trip migrations', () => {
   it("the system a trip plays becomes the map's (v13 → v14); its packs stay as they were", () => {
     const play = { mode: 'rules', trail: [], rules: { system: 'grey-marches', startDay: 1 } }
     const data = migrate({ version: 13, meta: { packs: ['core', 'grey-marches'] }, play })
-    expect(data.meta).toEqual({ system: 'grey-marches', packs: ['core', 'grey-marches'] })
+    // …which since v25 are its campaign's, handed over by `readMap`.
+    expect(data.meta).toEqual({})
+    expect(data).toMatchObject({ system: 'grey-marches', packs: ['core', 'grey-marches'] })
     expect(data.play).toEqual(play)
     // The generic system is no choice; a map without a trip has none.
     const generic = { ...play, rules: { ...play.rules, system: 'generic' } }
-    expect(migrate({ version: 13, meta: {}, play: generic }).meta).toEqual({})
-    expect(migrate({ version: 13, meta: {} }).meta).toEqual({})
+    expect(migrate({ version: 13, meta: {}, play: generic })).not.toHaveProperty('system')
+    expect(migrate({ version: 13, meta: {} })).not.toHaveProperty('system')
   })
 })
 

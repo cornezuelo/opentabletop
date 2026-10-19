@@ -1,6 +1,6 @@
 # Getting started
 
-The Systems app is where game systems are made and edited. A **system** is what a game is played with: its travel rules (how fast you go, what you carry, what the party can do, what is rolled on the way), the bindings that say which table answers each check, and the calendar, weather and packs it brings. Every app plays the same systems: the [Travel app](../travel/01-getting-started.md) without a map, the Hexmapper on one (**Map settings → Map → System**).
+The Systems app is where game systems are made and edited. A **system** is what a game is played with: its travel rules (how fast you go, what you carry, what the party can do, what is rolled on the way), the bindings that say which table answers each check, and the calendar, weather and packs it brings. Every app plays the same systems: the [Travel app](../travel/01-getting-started.md) without a map, the Hexmapper on one (**Map settings → Campaign → System**).
 
 ## The screen
 

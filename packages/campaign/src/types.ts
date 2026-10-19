@@ -59,6 +59,17 @@ export interface Campaign {
   modified: string
   /** Its page in the notes app. */
   noteRef?: string
+  /**
+   * The system its maps and trips are played with (`kind: system` id; absent: the default
+   * one, Core's): its world clock's calendar, its clocks and factions are that system's. A
+   * trip keeps playing the system it started with until a new one starts.
+   */
+  system?: string
+  /**
+   * Packs its maps work with besides the ones its system brings (their Oracle panel shows
+   * both); absent: every loaded pack.
+   */
+  packs?: string[]
   /** The world clock: time, scheduled events, progress clocks, timeline. */
   world?: WorldState
   worldWeather?: WorldWeather

@@ -48,6 +48,11 @@ export const es: Messages = {
       '«{name}» ya está en este navegador (último cambio: {mine}); el fichero es del {file}. ¿Sustituir tu copia por el fichero o conservar ambos?',
     keepBoth: 'Conservar ambos',
     replace: 'Sustituir el mío',
+    campaignExistsTitle: 'Su campaña ya está aquí',
+    campaignExists:
+      'Este navegador ya tiene la campaña de este mapa, «{name}» (último cambio: {mine}; la del fichero es del {file}). ¿Unirse a la de aquí (sin el reloj del mundo, las facciones ni el Oráculo del fichero), sustituirla por la del fichero (para todos sus mapas y viajes) o conservar la del fichero aparte, en una campaña propia?',
+    campaignJoin: 'Unirse',
+    campaignApart: 'Conservar aparte',
   },
   oracle: {
     rollsFor: 'Las tiradas leen el hex {hex}',
@@ -72,6 +77,7 @@ export const es: Messages = {
     hide: 'Ocultar el panel lateral (más sitio para el mapa)',
     show: 'Mostrar el panel lateral',
     map: 'Mapa',
+    campaign: vocabulary.es.terms.campaign,
     terrain: vocabulary.es.terms.terrain,
     paths: 'Caminos y ríos',
     icons: 'Iconos',
@@ -86,15 +92,33 @@ export const es: Messages = {
     tokens: 'Tokens',
     regions: vocabulary.es.terms.regions,
   },
+  campaign: {
+    help: 'El mundo en el que se juega este mapa: el sistema, el reloj del mundo (el panel Mundo), las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano), compartidos por todos los mapas y viajes de la misma campaña. El mapa solo guarda su geografía y la tierra que cada facción tiene en él. Un mapa nuevo empieza en una campaña propia.\n• **Propia** — un mundo propio, como siempre tuvo un mapa\n• el nombre de otra campaña — este mapa se une a ella: su fecha, sus facciones y su Oráculo pasan a ser también los de este mapa\nSi la campaña de este mapa tiene mundo, unirse a otra pregunta cuál se queda. La campaña que se deja se borra si no queda nada más en ella. Los viajes de Travel se unen a una campaña igual.\nEn una campaña hay un viaje en curso a la vez: jugar otro pregunta si pausar el que se jugó por última vez.',
+    in: 'El mapa está en',
+    own: 'Propia',
+    name: 'Nombre de la campaña',
+    nameHelp:
+      'Cómo se llama la campaña allí donde se elige (aquí, en los viajes de Travel, en el Oráculo). Sus mapas y viajes conservan sus propios nombres.\n• `Las Marcas del Norte`',
+    also: 'También en ella: {places}.',
+    trip: 'un viaje',
+    whatStaysTitle: vocabulary.es.campaign.whatStaysTitle,
+    whatStays: vocabulary.es.campaign.whatStays,
+    bringWorld: vocabulary.es.campaign.bringWorld,
+    keepTheirs: vocabulary.es.campaign.keepTheirs,
+    bringMine: vocabulary.es.campaign.bringMine,
+    leaveBehind: vocabulary.es.campaign.leaveBehind,
+    adopted: vocabulary.es.campaign.adopted,
+    systemShared: vocabulary.es.campaign.systemShared,
+  },
   map: {
     system: vocabulary.es.terms.system,
     systemHelp:
-      'El sistema de juego con el que se juega este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Reglas genéricas** — el sistema de Core, el que juega un mapa sin elección: reglas de viaje sencillas, sin tablas propias\n• un sistema de otro pack — lo que declare ese pack (su página del manual lo cuenta)\nUn sistema sin reglas de viaje no juega viajes: solo su mundo, su oráculo y sus facciones.\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
+      'El sistema de juego con el que se juega la campaña de este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Es de la campaña, así que lo juegan todos sus mapas y viajes; cambiarlo pregunta antes si hay otros en ella. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Reglas genéricas** — el sistema de Core, el que juega un mapa sin elección: reglas de viaje sencillas, sin tablas propias\n• un sistema de otro pack — lo que declare ese pack (su página del manual lo cuenta)\nUn sistema sin reglas de viaje no juega viajes: solo su mundo, su oráculo y sus facciones.\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
     systemMissing:
       'El sistema «{system}» no está cargado en este navegador: no se pueden jugar viajes con él. Carga su pack o elige otro sistema.',
     packs: 'Packs',
     packsHelp:
-      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añadas. Su panel del Oracle solo muestra estos.\n• un sistema que trae dos packs muestra los dos; añade otro pack para tirar también sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
+      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añada su campaña, para todos los mapas de la campaña. Su panel del Oracle solo muestra estos.\n• un sistema que trae dos packs muestra los dos; añade otro pack para tirar también sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
     allPacks: 'Todos los packs cargados',
     fromSystem: 'lo trae el sistema',
     packMissing: 'El pack «{pack}» no está cargado en este navegador.',
@@ -461,9 +485,9 @@ export const es: Messages = {
     pauseOther: vocabulary.es.campaign.pauseOther,
     caughtUp: vocabulary.es.campaign.caughtUp,
     noTravel:
-      '{system} no tiene reglas de viaje: con él no se juegan viajes, solo su mundo, su oráculo y sus facciones. Para viajar, elige otro sistema en Ajustes del mapa → Mapa → Sistema.',
+      '{system} no tiene reglas de viaje: con él no se juegan viajes, solo su mundo, su oráculo y sus facciones. Para viajar, elige otro sistema en Ajustes del mapa → Campaña → Sistema.',
     otherSystem:
-      'Este viaje juega {trip}, el sistema con el que empezó; el mapa ahora se juega con {map}. Nuevo viaje empieza uno con él.',
+      'Este viaje juega {trip}, el sistema con el que empezó; la campaña del mapa ahora se juega con {map}. Nuevo viaje empieza uno con él.',
     confirmNewTrip:
       '¿Empezar un viaje nuevo? El tiempo, las provisiones y el diario vuelven a empezar (el grupo se queda donde está). No se puede deshacer.',
     confirmClearTrail: '¿Borrar el rastro del grupo? No se puede deshacer.',
@@ -482,7 +506,7 @@ export const es: Messages = {
     modes: { simple: 'Simple', rules: 'Con reglas' },
     uploadToken: 'Subir uno propio…',
     worldStart: 'Los viajes nuevos empiezan en la fecha del reloj del mundo (el panel Mundo, ☾).',
-    systemNote: 'El del mapa, que se elige en Ajustes del mapa → Mapa → Sistema.',
+    systemNote: 'El de la campaña, que se elige en Ajustes del mapa → Campaña → Sistema.',
     showTrail: 'Mostrar rastro',
     showTrailHelp:
       'Dibuja en el mapa los hexes por los que ha pasado el grupo, como una línea discontinua junto a los caminos que siguió.',

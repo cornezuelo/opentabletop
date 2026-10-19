@@ -8,12 +8,15 @@ import type { LibraryChange, LibraryEntry } from '@open-tabletop/storage'
  * party waits until the campaign's clock).
  */
 
-// Where campaigns are kept: in memory here (IndexedDB in a browser).
+// Where campaigns and maps are kept: in memory here (IndexedDB in a browser).
 const kept = new Map<string, LibraryEntry>()
+const maps: LibraryEntry[] = []
 let hear: ((change: LibraryChange) => void) | undefined
 vi.mock('@open-tabletop/storage', async (original) => ({
   ...(await original<typeof import('@open-tabletop/storage')>()),
   getCampaign: async (id: string) => kept.get(id) ?? null,
+  deleteCampaign: async (id: string) => void kept.delete(id),
+  allLibraryMaps: async () => maps,
   putCampaign: async (entry: LibraryEntry) => void kept.set(entry.id, entry),
   listCampaigns: async () =>
     [...kept.values()].map(({ id, name, modified }) => ({ id, name, modified })),
@@ -40,6 +43,7 @@ describe('trips in campaigns', () => {
   beforeEach(() => {
     localStorage.clear()
     kept.clear()
+    maps.length = 0
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 
@@ -67,9 +71,19 @@ describe('trips in campaigns', () => {
       modified: frontier.modified,
       json: c.serializeCampaign(frontier),
     })
+    const map = { meta: { id: 'm1', name: 'The Frontier', campaign: 'm1' } }
+    maps.push({ id: 'm1', name: 'The Frontier', modified: '', json: JSON.stringify(map) })
 
     // A new trip in it starts at the campaign's time, and lists it among those to join.
-    await trip.create(greyMarches.id, 'spring', 'm1')
+    // The campaign is the map's too, and plays Core's system: playing the Grey Marches in it
+    // asks first, since the system is the campaign's.
+    const creating = trip.create(greyMarches.id, 'spring', 'm1')
+    await settle()
+    expect(dialog.current?.message).toMatch(/“The Frontier”/)
+    dialog.current!.resolve('ok')
+    await creating
+    await settle()
+    expect(c.deserializeCampaign(kept.get('m1')!.json).system).toBe(greyMarches.id)
     expect(trip.saved.campaign).toBe('m1')
     expect(trip.campaign?.name).toBe('The Frontier')
     expect(trip.saved.session!.travel.time).toBe(start)
@@ -137,9 +151,56 @@ describe('trips in campaigns', () => {
     await refused
     expect(trip.saved.session!.travel.time).toBe(time)
 
-    // Back to a campaign of its own: the map's no longer has it going on.
-    await trip.joinCampaign(trip.saved.id)
+    // Back to a campaign of its own: its world is the map's campaign's, so it asks whether
+    // it comes along; left behind, the map's campaign keeps it, without this trip going on.
+    const leaving = trip.joinCampaign(trip.saved.id)
+    await settle()
+    expect(dialog.current?.message).toMatch(/has no world yet/)
+    dialog.current!.resolve('theirs')
+    expect(await leaving).toBe(true)
+    await settle()
     expect(trip.saved.campaign).toBe(trip.saved.id)
     expect(trip.campaign?.id).toBe(trip.saved.id)
+    expect(trip.campaign?.world).toBeUndefined()
+    expect(c.deserializeCampaign(kept.get('m1')!.json).playing?.app).toBe('hexmapper')
+  })
+
+  it('joining another campaign brings its world along, or leaves it behind', async () => {
+    const { campaign: c, dialog, trip, systems } = await openTravel()
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const world = { time: 600, events: [], clocks: [], timeline: [], nextId: 1 }
+    const other = { ...c.createCampaign('m2', 'The South'), world: { ...world, time: 9000 } }
+    kept.set('m2', { id: 'm2', name: 'The South', modified: '', json: c.serializeCampaign(other) })
+    // A trip in a campaign of its own, with a world clock.
+    await trip.create(greyMarches.id, 'spring')
+    await settle()
+    const own = trip.saved.id
+    expect(trip.campaign?.system).toBe(greyMarches.id)
+    const mine = { ...trip.campaign!, world }
+    kept.set(own, { id: own, name: '', modified: '', json: c.serializeCampaign(mine) })
+    hear?.({ type: 'put', id: own, modified: 'later' })
+    await settle()
+    expect(trip.campaign?.world?.time).toBe(600)
+
+    // Both have a world: cancelling stays where it was.
+    let joining = trip.joinCampaign('m2')
+    await settle()
+    expect(dialog.current?.message).toMatch(/“The South” has a world of its own/)
+    dialog.current!.resolve('cancel')
+    expect(await joining).toBe(false)
+    expect(trip.saved.campaign).toBe(own)
+
+    // Bringing its own: The South's world is the trip's, system included; the campaign it
+    // left is gone, since nothing else was in it.
+    joining = trip.joinCampaign('m2')
+    await settle()
+    dialog.current!.resolve('mine')
+    expect(await joining).toBe(true)
+    await settle()
+    const south = c.deserializeCampaign(kept.get('m2')!.json)
+    expect(south).toMatchObject({ name: 'The South', system: greyMarches.id })
+    expect(south.world?.time).toBe(600)
+    expect(kept.has(own)).toBe(false)
+    expect(trip.campaign?.id).toBe('m2')
   })
 })

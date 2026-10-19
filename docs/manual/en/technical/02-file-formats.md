@@ -52,7 +52,7 @@ Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared betwee
 ```json
 {
   "otd": "0.2.0",
-  "campaign": { "id": "…", "type": "campaign", "name": "…", "time": 4320 },
+  "campaign": { "id": "…", "type": "campaign", "name": "…", "system": "…", "time": 4320 },
   "maps": [{ "id": "…", "type": "map", "grid": { … }, "terrains": [ … ],
              "hexes": { "3,4": { "terrain": "forest", "tags": ["ruins"], "region": "…" } },
              "paths": [ … ], "ext": { "hexmapper": { … } } }],
@@ -60,13 +60,13 @@ Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared betwee
 }
 ```
 
-- `campaign` is the campaign the map belongs to (its id, name and `noteRef`, its system, the world clock's time): the world clock, its weather, the factions and the Oracle below are the campaign's, so the file stands on its own. A file saved before campaigns has none: the map opens with a campaign of its own, made from what the file brings.
+- `campaign` is the campaign the map belongs to (its id, name and `noteRef`, its `system`, the world clock's time, and in `ext.hexmapper.packs` the packs it adds to its system's): the world clock, its weather, the factions and the Oracle below are the campaign's, so the file stands on its own. A file saved before campaigns has none: the map opens with a campaign of its own, made from what the file brings. When this browser already has the file's campaign, opening it asks whether to join it, replace it or keep the file's apart ([Campaigns](../hexmapper/01-getting-started.md#campaigns)).
 - Hexes are keyed by `"column,row"`.
 - POIs, the party and tokens (as characters with a `location`) are entities of their own; a trip's journal is in `log`.
 - The party's characters (when its system has a [sheet](07-kinds.md#sheets)) are characters too, listed by id in the party's `members`, with `kind: pc`, their values as `stats`, their tags, and what only the character engine reads (their sheet, conditions, relations) in `ext.character`. A map can bring its company that way before any trip starts: the Grey Marches' example map has Kael, Mara and Old Tobin.
 - The campaign's factions are OTD factions (their values as `stats`, their sheet in `ext.character`, the hexes they hold on this map in `ext.hexmapper.territory`), and `state.factions` says which system they came from and when the last world turn was.
 - `state.oracle` is the campaign's Oracle state (decks, once-only results, values set); the Hexmapper keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
-- `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`, and the map's `system` and the `packs` it adds to the system's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
+- `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`; files written before the system was the campaign's have the map's `system` and the `packs` it added there, read as its campaign's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
 
 **Characters files.** The Characters app's **Export** writes the same format with only `characters` (each with its `noteRef`), and its **Import…** reads the characters of any such file, a map's included:
 
@@ -91,4 +91,4 @@ The full description is in `docs/otd.md`, and the schema in `packages/schema` (i
 
 ## In the browser
 
-Your packs live in the browser's local storage under `opentabletop.userPacks` (one JSON list of packs with their files), the Characters app's roster under `opentabletop.characters`, and Travel's trips under `opentabletop.travel.trips` (version 9: each names the campaign it plays in, `campaign`; trips saved before have one of their own, with the trip's id); maps and campaigns live in its IndexedDB library (a campaign keeps its world clock, its weather, the factions' sheets, the Oracle and which trip played in it last, `playing`). Export packs as .zip and save maps as files to keep them.
+Your packs live in the browser's local storage under `opentabletop.userPacks` (one JSON list of packs with their files), the Characters app's roster under `opentabletop.characters`, and Travel's trips under `opentabletop.travel.trips` (version 9: each names the campaign it plays in, `campaign`; trips saved before have one of their own, with the trip's id); maps and campaigns live in its IndexedDB library (a campaign, version 3, keeps its `system` and the `packs` it adds, its world clock, its weather, the factions' sheets, the Oracle and which trip played in it last, `playing`; a map, version 25, names its campaign and keeps no system of its own: one saved before hands its system and packs to its campaign when it opens, if the campaign has none). Export packs as .zip and save maps as files to keep them.

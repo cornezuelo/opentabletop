@@ -247,6 +247,22 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       ...(factions && typeof factions === 'object' && { territories: factions.territories }),
     }
   },
+  /**
+   * v25: the system a map is played with and the packs it adds are its campaign's, shared
+   * by the campaign's maps and trips. They're left in the data (`system`, `packs`) for
+   * `readMap`, which hands them over to the campaign.
+   */
+  24(data) {
+    const meta = data.meta as Record<string, unknown> | undefined
+    if (!meta || typeof meta !== 'object') return data
+    const { system, packs, ...rest } = meta
+    return {
+      ...data,
+      meta: rest,
+      ...(system !== undefined && data.system === undefined && { system }),
+      ...(packs !== undefined && data.packs === undefined && { packs }),
+    }
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

@@ -1,6 +1,6 @@
 # Primeros pasos
 
-La aplicación Systems es donde se crean y editan los sistemas de juego. Un **sistema** es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad vas, qué llevas, qué puede hacer el grupo, qué se tira por el camino), los bindings que dicen qué tabla responde a cada comprobación, y el calendario, el clima y los packs que trae. Todas las aplicaciones juegan los mismos sistemas: la [aplicación Travel](../travel/01-getting-started.md) sin mapa, el Hexmapper sobre uno (**Ajustes del mapa → Mapa → Sistema**).
+La aplicación Systems es donde se crean y editan los sistemas de juego. Un **sistema** es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad vas, qué llevas, qué puede hacer el grupo, qué se tira por el camino), los bindings que dicen qué tabla responde a cada comprobación, y el calendario, el clima y los packs que trae. Todas las aplicaciones juegan los mismos sistemas: la [aplicación Travel](../travel/01-getting-started.md) sin mapa, el Hexmapper sobre uno (**Ajustes del mapa → Campaña → Sistema**).
 
 ## La pantalla
 

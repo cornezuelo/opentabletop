@@ -2,15 +2,15 @@
   import { manifestOf } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { SetMetaCommand } from '../lib/commands/settings'
+  import { chooseSystem } from '../lib/io/actions.svelte'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { library } from '../lib/play/packs'
   import { mapSystem, mapSystemId, playSystems } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
 
   /**
-   * The system the map is played with, and the packs it works with: the system's own and
-   * the ones the map adds. Its Oracle panel only shows these.
+   * The system the map's campaign is played with, and the packs it works with: the system's
+   * own and the ones the campaign adds. Its Oracle panel only shows these.
    */
   const packs = $derived(
     library.packs.flatMap((pack) => {
@@ -23,14 +23,14 @@
   const system = $derived(mapSystem())
   const missingSystem = $derived(!systems.some((s) => s.id === chosenSystem))
   const fromSystem = $derived(new Set(system.packs))
-  const chosen = $derived(editor.meta.packs)
+  const chosen = $derived(editor.setup.packs)
   const all = $derived(!chosen)
 
   function setPacks(next: string[] | undefined) {
     // Every pack chosen is the same as no choice: new packs show up too.
     const packsNext =
       next && packs.every((p) => next.includes(p.id) || fromSystem.has(p.id)) ? undefined : next
-    editor.execute(new SetMetaCommand({ packs: packsNext }))
+    editor.setCampaignSetup({ packs: packsNext })
   }
 
   function toggle(id: string, on: boolean) {
@@ -43,7 +43,11 @@
   <span>{t('map.system')}<InfoTip text={t('map.systemHelp')} /></span>
   <select
     value={chosenSystem}
-    onchange={(e) => editor.execute(new SetMetaCommand({ system: e.currentTarget.value }))}
+    onchange={async (e) => {
+      const select = e.currentTarget
+      // Not changed (others in the campaign, and the question cancelled): back to its own.
+      if (!(await chooseSystem(select.value))) select.value = chosenSystem
+    }}
   >
     {#each systems as s (s.id)}
       <option value={s.id}>{systemName(s, getLocale())}</option>

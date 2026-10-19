@@ -53,7 +53,7 @@
       contextSuggestions(
         library.registry,
         {},
-        { reads: true, packs: [...mapSystem().packs, ...(editor.meta.packs ?? [])] },
+        { reads: true, packs: [...mapSystem().packs, ...(editor.setup.packs ?? [])] },
       ),
     ).flatMap(([full, values]): [string, string[]][] => {
       // A hex's values by their full names too (`hex.danger`, `hex.icon.guards`).

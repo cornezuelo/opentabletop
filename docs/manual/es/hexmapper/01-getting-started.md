@@ -22,7 +22,7 @@ Los mapas se guardan en la biblioteca de este navegador, automáticamente mientr
 
 Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan en él. Al abrir el ejemplo otra vez se pregunta si **seguir con el tuyo**, **abrirlo junto al tuyo** (una copia nueva como otro mapa, conservando el tuyo) o **empezar de cero** en su lugar (el tuyo se pierde). Cuando una versión más nueva de la app trae un ejemplo cambiado, la lista lo marca como **nueva versión** y la pregunta lo dice: tu mapa sigue jugándose como estaba, y tú eliges cuándo probar el nuevo.
 
-**Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Si el fichero es un mapa que este navegador ya tiene (por ejemplo, una copia antigua) y son distintos, Hexmapper pregunta si **sustituir** tu copia por el fichero o **conservar ambos** (el fichero se abre como un mapa aparte, con una campaña propia).
+**Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Si el fichero es un mapa que este navegador ya tiene (por ejemplo, una copia antigua) y son distintos, Hexmapper pregunta si **sustituir** tu copia por el fichero o **conservar ambos** (el fichero se abre como un mapa aparte, con una campaña propia). Un fichero lleva la [campaña](#campañas) de su mapa; si este navegador ya tiene esa campaña (otro mapa suyo, el mapa de un amigo de tu partida) y es distinta, Hexmapper también pregunta: **Unirse** (el mapa se abre en la campaña de aquí, sin el reloj del mundo, las facciones ni el Oráculo del fichero), **Sustituir el mío** (la campaña del fichero ocupa el lugar de la de aquí, para todos sus mapas y viajes) o **Conservar aparte** (la campaña del fichero se guarda como una nueva propia).
 
 > Si borras los datos del navegador se borra su biblioteca: guarda en fichero los mapas que te importen, o una [copia de seguridad de todo](../technical/05-backups.md) (selector de aplicaciones → **Guardar una copia**).
 
@@ -30,7 +30,19 @@ Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan e
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace y <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> rehace cada cambio (una pincelada entera es un paso). Jugar un viaje no forma parte de deshacer: tiene su propio diario.
 
-**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (hexes planos o en punta, coordenadas), su tamaño (por número de hexes o por papel) y la escala del mundo (km por hex, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra). Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (hexes planos o en punta, coordenadas), su tamaño (por número de hexes o por papel), la escala del mundo (km por hex, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra) y su [campaña](#campañas), con el sistema con el que se juega. Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+
+## Campañas
+
+Un mapa es el **lugar**; el mundo en el que se juega es su **campaña**: el sistema de juego, el reloj del mundo (el panel [Mundo](12-world.md)), su clima, las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano). Cada mapa y cada viaje de la aplicación Travel está en una campaña, y los mapas y viajes de la misma campaña lo comparten todo: una fecha, las mismas facciones (cada mapa guarda la tierra que tienen en él), los mismos mazos. Un mapa nuevo empieza en una campaña propia, con su nombre, así que un mapa jugado por sí solo funciona como siempre.
+
+**Ajustes del mapa → Campaña**:
+
+- **El mapa está en**: **Propia**, u otra campaña guardada en este navegador (la de un mapa o la de un viaje de Travel). Elegir una mueve el mapa a ella. Si la campaña del mapa tiene mundo propio (reloj del mundo, facciones o tiradas del Oráculo), Hexmapper pregunta cuál se queda: **Mantener el de la campaña** (el mundo del mapa se queda atrás, y el mapa conserva la tierra de las facciones que tenga la campaña) o **Traer el propio** (sustituye al mundo de la campaña, sistema incluido, para todos sus mapas y viajes). Cuando la otra campaña aún no tiene mundo, se elige entre traerlo o **Dejarlo atrás**. La campaña que deja el mapa se borra si no queda nada más en ella; bajo la elección, **También en ella** nombra los otros mapas y viajes de la campaña.
+- **Nombre de la campaña**: cómo se llama la campaña allí donde se elige (aquí, en Travel, en el Oráculo).
+- **Sistema** y **Packs**: los de la campaña, así que los juegan todos sus mapas y viajes. Cambiar el sistema pregunta antes si hay otros mapas o viajes en la campaña; un viaje en curso mantiene el sistema con el que empezó hasta empezar otro ([Jugar](08-play.md)).
+
+Mover un mapa a otra campaña, cambiarle el nombre a la campaña y cambiar su sistema no forman parte de Deshacer. En una campaña hay un viaje en curso a la vez ([Con un viaje en marcha](12-world.md#con-un-viaje-en-marcha)).
 
 ## Enlaces a hexes
 

@@ -29,8 +29,11 @@ export function getSystem(id: string): TravelSystem {
   return load().find((s) => s.id === wanted) ?? missingSystem(wanted)
 }
 
-/** The id of the system the map is played with (Map settings → Map → System; none: Core's). */
-export const mapSystemId = (): string => systemIdOf(editor.meta.system)
+/**
+ * The id of the system the map is played with: its campaign's (Map settings → Campaign →
+ * System; none: Core's).
+ */
+export const mapSystemId = (): string => systemIdOf(editor.setup.system)
 
 /** The system the map is played with (one that doesn't travel if its pack isn't loaded). */
 export const mapSystem = (): TravelSystem => getSystem(mapSystemId())
@@ -43,11 +46,11 @@ export const activeSystem = (): TravelSystem =>
   getSystem(editor.play?.rules?.system ?? mapSystemId())
 
 /**
- * The packs the map works with: its system's and the ones it adds (Map settings → Map);
+ * The packs the map works with: its system's and the ones its campaign adds (Map settings);
  * undefined = every loaded pack.
  */
 export function mapPacks(): string[] | undefined {
-  const extra = editor.meta.packs
+  const extra = editor.setup.packs
   if (!extra) return undefined
   return [...new Set([...mapSystem().packs, ...extra])]
 }

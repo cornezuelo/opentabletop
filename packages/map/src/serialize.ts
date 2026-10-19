@@ -1,5 +1,4 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
-import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
 import { PAPERS, type PaperId } from './paper'
 import {
   CAPTION_SIZE_RANGE,
@@ -52,11 +51,18 @@ export function deserializeMap(json: string): HexMap {
 /** The parts of a world a map kept before campaigns (as stored: `@open-tabletop/campaign` reads them). */
 export const CAMPAIGN_PARTS = ['world', 'worldWeather', 'factions', 'oracle'] as const
 
+/** What a map chose before its campaign did (v25): the system it's played with, the packs it adds. */
+export const CAMPAIGN_SETUP = ['system', 'packs'] as const
+
 /**
  * What a map brings for its campaign, as stored, when it was saved before campaigns (or
- * read from a file that carries them): the campaign is made from them.
+ * read from a file that carries them): the campaign is made from them. `system` and
+ * `packs` alone (a map saved before v25, its campaign kept already) go to that campaign
+ * if it has none.
  */
-export type CampaignParts = Partial<Record<(typeof CAMPAIGN_PARTS)[number], unknown>>
+export type CampaignParts = Partial<
+  Record<(typeof CAMPAIGN_PARTS)[number] | (typeof CAMPAIGN_SETUP)[number], unknown>
+>
 
 /**
  * Parses, migrates and validates a map, and hands over the parts of its campaign it
@@ -73,6 +79,7 @@ export function readMap(json: string): { map: HexMap; campaign: CampaignParts } 
   const data = migrate(raw)
   const campaign: CampaignParts = {}
   for (const part of CAMPAIGN_PARTS) if (isRecord(data[part])) campaign[part] = data[part]
+  for (const part of CAMPAIGN_SETUP) if (data[part] !== undefined) campaign[part] = data[part]
   return { map: validate(data), campaign }
 }
 
@@ -108,12 +115,6 @@ function validate(data: Record<string, unknown>): HexMap {
       name: typeof meta.name === 'string' ? meta.name : '',
       created: typeof meta.created === 'string' ? meta.created : now,
       modified: typeof meta.modified === 'string' ? meta.modified : now,
-      ...(typeof meta.system === 'string' &&
-        meta.system &&
-        systemIdOf(meta.system) !== DEFAULT_SYSTEM && { system: meta.system }),
-      ...(Array.isArray(meta.packs) && {
-        packs: [...new Set(meta.packs.filter((p): p is string => typeof p === 'string' && !!p))],
-      }),
       campaign: typeof meta.campaign === 'string' && meta.campaign ? meta.campaign : id,
     },
     grid: {

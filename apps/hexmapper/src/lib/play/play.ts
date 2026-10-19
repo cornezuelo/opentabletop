@@ -16,7 +16,7 @@ import { DEFAULT_TOKEN_ICONS, newId, partyToken, type PlayState } from '@open-ta
 import { editor } from '../store/editor.svelte'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import { otherTrip, playTrip, type CampaignTrip } from '@open-tabletop/campaign'
-import { SetMetaCommand } from '../commands/settings'
+import { chooseSystem } from '../io/actions.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
 import { tripStepped, worldFactsNow } from './world.svelte'
@@ -165,11 +165,16 @@ export function setMode(mode: PlayState['mode']): void {
 }
 
 /**
- * Starts a new trip (with another system, which becomes the map's, or season); the party
- * stays where it is.
+ * Starts a new trip (with another system, which becomes the campaign's, asking first if
+ * other maps or trips are in it, or season); the party stays where it is. False if not.
  */
-export function restartRules(system: string, season: Season): void {
-  if (system !== mapSystemId()) editor.execute(new SetMetaCommand({ system }))
+export async function restartRules(system: string, season: Season): Promise<boolean> {
+  if (!(await chooseSystem(system))) return false
+  newTrip(system, season)
+  return true
+}
+
+function newTrip(system: string, season: Season): void {
   const play = current()
   const location = partyLocation()
   if (!location)

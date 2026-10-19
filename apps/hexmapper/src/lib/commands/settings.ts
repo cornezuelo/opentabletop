@@ -1,4 +1,3 @@
-import { DEFAULT_SYSTEM, systemIdOf } from '@open-tabletop/session'
 import type { GridSettings, HexMap, MapMeta, PrintSettings } from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
@@ -44,27 +43,19 @@ function pick<T extends object>(source: T, patch: Partial<T> | undefined): Parti
   return out
 }
 
-/** No choice is no key: every pack, the default system (Core's). */
-function tidy(meta: MapMeta): void {
-  if (meta.packs === undefined) delete meta.packs
-  if (systemIdOf(meta.system) === DEFAULT_SYSTEM) delete meta.system
-}
-
 export class SetMetaCommand implements Command {
   private before: Partial<MapMeta> = {}
 
-  constructor(private patch: Partial<Pick<MapMeta, 'name' | 'packs' | 'system'>>) {}
+  constructor(private patch: Partial<Pick<MapMeta, 'name'>>) {}
 
   apply(map: HexMap): MapChange {
-    this.before = { name: map.meta.name, packs: map.meta.packs, system: map.meta.system }
+    this.before = { name: map.meta.name }
     Object.assign(map.meta, this.patch)
-    tidy(map.meta)
     return { kind: 'meta' }
   }
 
   revert(map: HexMap): MapChange {
     Object.assign(map.meta, this.before)
-    tidy(map.meta)
     return { kind: 'meta' }
   }
 }

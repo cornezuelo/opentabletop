@@ -6,6 +6,7 @@
   import TokenPanel from './tokens/TokenPanel.svelte'
   import LayersPanel from './LayersPanel.svelte'
   import LibraryPanel from './LibraryPanel.svelte'
+  import MapCampaign from './MapCampaign.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapSystem from './MapSystem.svelte'
   import FactionsPanel from './FactionsPanel.svelte'
@@ -63,7 +64,8 @@
         onclick={() => (editor.panelView = 'tool')}>✕</button
       >
     </header>
-    <Section title={t('panel.map')}><MapSettings /><MapSystem /></Section>
+    <Section title={t('panel.map')}><MapSettings /></Section>
+    <Section title={t('panel.campaign')}><MapCampaign /><MapSystem /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
     <Section title={t('captions.title')}><CaptionSettings /></Section>
     <Section title={t('regionStyle.title')}>
