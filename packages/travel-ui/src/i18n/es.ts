@@ -63,6 +63,8 @@ export const es: Messages<typeof en> = {
     actionEffects: 'Cambia: {changes}.',
     actionOnce: 'Una vez al día.',
     readAs: 'Las tablas lo leen como {keys}.',
+    readBy: '**Lo leen:** {names}.',
+    changedBy: '**Lo cambian:** {names}.',
     totals:
       'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido a cada provisión sus acciones, comprobaciones y tablas (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.hexes`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',

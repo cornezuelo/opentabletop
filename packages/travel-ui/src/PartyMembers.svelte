@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { usesOf, type Use } from '@open-tabletop/session'
+  import { usesHelp } from './uses'
   import {
     localize,
     newMember,
@@ -33,6 +35,8 @@
     targets = [],
     place,
     systemWhere = '',
+    uses = [],
+    nameOf = (id) => id,
     onedit,
   }: {
     system: TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
@@ -46,10 +50,17 @@
     place?: RosterPlace
     /** Where the host's system is chosen (basic Markdown), for the help of whose sheet it is. */
     systemWhere?: string
+    /** Where the system's names are used: a role's help says what reads its holder. */
+    uses?: Use[]
+    /** Display name of an Oracle definition (`pack/id`), for what reads a role. */
+    nameOf?: (id: string) => string
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
   const t = translator(() => locale)
+  /** What reads whoever holds a role (the tables, checks and actions). */
+  const roleUses = (id: string) =>
+    usesHelp(usesOf(uses, { kind: 'role', id }), system, locale, nameOf, t)
   const members = $derived(session.members ?? [])
   /** What relations may point at: the other characters, then the host's places. */
   const allTargets = $derived([
@@ -191,7 +202,9 @@
       {#each roles as role (role.id)}
         <label class="role">
           <span
-            >{role.name}{#if role.description}<InfoTip markdown={role.description} />{/if}</span
+            >{role.name}{#if role.description || roleUses(role.id)}<InfoTip
+                markdown={[role.description, roleUses(role.id)].filter(Boolean).join('\n\n')}
+              />{/if}</span
           >
           <select
             value={session.roles?.[role.id] ?? ''}

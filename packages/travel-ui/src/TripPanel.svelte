@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { usesOf, type Declared, type Use } from '@open-tabletop/session'
+  import { usesHelp } from './uses'
   import {
     localize,
     editPartySheet,
@@ -73,6 +75,7 @@
     facts,
     place,
     systemWhere = '',
+    uses = [],
     onstep,
     onedit,
   }: {
@@ -102,6 +105,11 @@
     place?: RosterPlace
     /** Where the host's system is chosen (basic Markdown), for the help of whose sheet it is. */
     systemWhere?: string
+    /**
+     * Where the system's names are used (session's `systemUses`): the help of a stat, a
+     * supply or a role says what reads and changes it.
+     */
+    uses?: Use[]
     /** Changes the session directly (supplies, stats, mode) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
@@ -314,6 +322,9 @@
   }
 
   /** How tables read a value, for its tooltip: "Tables read it as `{{survival}}`…". */
+  /** What reads and changes one of the system's names, by the names players know. */
+  const usedHelp = (declared: Declared) =>
+    usesHelp(usesOf(uses, declared, system), system, locale, nameOf, t)
   const readAs = (...keys: string[]) =>
     t('tips.readAs', { keys: keys.map((k) => '`{{' + k + '}}`').join(' · ') })
 
@@ -675,6 +686,7 @@
                         statText(stat.description, ''),
                         fromMembers(stat) && t('members.fromMembers'),
                         readAs(key, `party.stats.${key}`),
+                        usedHelp({ kind: 'stat', id: key }),
                       ]
                         .filter(Boolean)
                         .join('\n\n')}
@@ -706,6 +718,8 @@
           targets={relationTargets}
           {place}
           {systemWhere}
+          {uses}
+          {nameOf}
           {onedit}
         />
       {/if}
@@ -725,6 +739,7 @@
                         t('tips.max', { max: bounds[resource].max! }),
                       carried(resource) && t('members.carried'),
                       readAs(`party.resources.${resource}`),
+                      usedHelp({ kind: 'supply', id: resource }),
                     ]
                       .filter(Boolean)
                       .join('\n\n')}

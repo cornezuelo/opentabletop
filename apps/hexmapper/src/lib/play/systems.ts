@@ -1,5 +1,12 @@
 import { formatDiagnostic, type OracleEngine, type Registry } from '@open-tabletop/oracle-engine'
-import { missingSystem, systemIdOf, travelSystems, type TravelSystem } from '@open-tabletop/session'
+import {
+  missingSystem,
+  systemIdOf,
+  systemUses,
+  travelSystems,
+  type TravelSystem,
+  type Use,
+} from '@open-tabletop/session'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 
@@ -57,4 +64,16 @@ export function mapPacks(): string[] | undefined {
 
 export function oracle(): OracleEngine {
   return library.engine
+}
+
+const uses = new WeakMap<TravelSystem, Use[]>()
+
+/** Where a system's names are used (for the trip panel's help), once per loaded system. */
+export function systemUsesOf(system: TravelSystem): Use[] {
+  let found = uses.get(system)
+  if (!found) {
+    found = system.pack ? systemUses(library.registry, system) : []
+    uses.set(system, found)
+  }
+  return found
 }

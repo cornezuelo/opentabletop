@@ -19,7 +19,13 @@
   import { mapPlace } from '../lib/play/roster'
   import { mapWorld } from '../lib/play/world'
   import { worldFactsNow } from '../lib/play/world.svelte'
-  import { activeSystem, getSystem, mapSystemId, playSystems } from '../lib/play/systems'
+  import {
+    activeSystem,
+    getSystem,
+    mapSystemId,
+    playSystems,
+    systemUsesOf,
+  } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
   import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
@@ -172,6 +178,7 @@
       onstep={step}
       place={rosterPlace}
       systemWhere={t('play.systemWhere')}
+      uses={systemUsesOf(system)}
       onedit={editSession}
     />
   {/if}

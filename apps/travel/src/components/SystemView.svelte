@@ -1,6 +1,6 @@
 <script lang="ts">
   import { packTexts } from '@open-tabletop/oracle-ui'
-  import { contextSuggestions, systemName } from '@open-tabletop/session'
+  import { contextSuggestions, systemName, systemUses } from '@open-tabletop/session'
   import { TripRoom } from '@open-tabletop/travel-ui'
   import { appUrl } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
@@ -15,6 +15,8 @@
   const texts = packTexts(() => library.registry, getLocale)
   /** Tags the packs' tables and checks look for (landmark, toll, haunted…). */
   const tags = $derived(contextSuggestions(library.registry).tags ?? [])
+  /** Where its names are used, for the trip panel's help. */
+  const uses = $derived(system ? systemUses(library.registry, system) : [])
 </script>
 
 {#if system}
@@ -33,6 +35,7 @@
         locale={getLocale()}
         {tags}
         nameOf={texts.nameOf}
+        {uses}
         onsystem={(other) => go({ name: 'system', id: other })}
       />
     </div>

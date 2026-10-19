@@ -44,7 +44,7 @@ The panel on the right is the same as in the Hexmapper. At the top, where the pa
 
 **The tabs.** Under it, the rest of the trip is shown a tab at a time; this browser remembers the one you chose, in every app that shows a trip:
 
-- **Party** (only when the system declares any of it): **The party** (its own sheet, and the party stats the system declares, each saying where it comes from: e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls), **Characters** and the supplies. Each of these sections folds and unfolds when you click its heading; a section with an explanation has **What it is** beside its heading: click it to read it in the help column without folding anything.
+- **Party** (only when the system declares any of it): **The party** (its own sheet, and the party stats the system declares, each saying where it comes from: e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls), **Characters** and the supplies. Each of these sections folds and unfolds when you click its heading; a section with an explanation has **What it is** beside its heading: click it to read it in the help column without folding anything. The help of a party stat, a supply or a journey role (click its name) also says what reads it and what changes it, by name: the Grey Marches' **Guide** is _Read by: Do we get lost?_; Fatigue is read by Camp, Rest and the forced and night marches, and changed by them and by a dozen tables (the inn, the ford, hunger…) (Systems lists them in full: [Used by](../systems/04-overview.md#used-by)).
 - **Journal**: the whole trip, newest first, grouped by day; **Export** sits on the tabs' line.
 - **So far**: what the trip has done.
 

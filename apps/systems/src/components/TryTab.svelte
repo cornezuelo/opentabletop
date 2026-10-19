@@ -7,6 +7,7 @@
   import { go } from '../lib/nav.svelte'
   import { library, systems } from '../lib/packs.svelte'
   import { trial } from '../lib/trial.svelte'
+  import { usesIn } from '../lib/usage'
 
   /** Try a system while editing it: a trip without a map with its rules as they are now. */
   let { system }: { system: TravelSystem } = $props()
@@ -25,6 +26,7 @@
     locale={getLocale()}
     {tags}
     nameOf={texts.nameOf}
+    uses={usesIn(system)}
     onsystem={(id) => go({ name: 'system', id, tab: 'try' })}
   />
 </div>

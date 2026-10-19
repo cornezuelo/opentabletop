@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { calendarOf, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
+  import {
+    calendarOf,
+    systemName,
+    type Season,
+    type TravelSystem,
+    type Use,
+  } from '@open-tabletop/session'
   import { defaultCalendar } from '@open-tabletop/time'
   import { roster } from '@open-tabletop/character-ui'
   import { campaignUrl, confirmAction, InfoTip } from '@open-tabletop/ui-kit'
@@ -20,6 +26,7 @@
     locale,
     tags,
     nameOf,
+    uses = [],
     onsystem,
   }: {
     trip: TripStore
@@ -30,6 +37,8 @@
     tags: string[]
     /** A definition's name in the UI's language (`@kind/id` → name), for the journal. */
     nameOf?: (ref: string) => string
+    /** Where the system's names are used (session's `systemUses`), for the trip panel's help. */
+    uses?: Use[]
     /** The open trip is another system's: the host shows that system. */
     onsystem: (id: string) => void
   } = $props()
@@ -188,6 +197,7 @@
           onstep={(action) => trip.step(action)}
           place={trip.place}
           systemWhere={t('play.systemWhere')}
+          {uses}
           onedit={(update) => trip.edit(update)}
         />
       {:else if !session}
