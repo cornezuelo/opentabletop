@@ -1,6 +1,6 @@
 # Campaigns and the Campaign app — design
 
-Backlog item 11, phase (c). It began as a Factions app ([its first design](#how-we-got-here)); asked how one faction could be on several maps, it grew into **campaigns**, agreed in principle with the author on 2026-10-19 (§7). **Draft, to review with the author** (§9).
+Backlog item 11, phase (c). It began as a Factions app ([its first design](#how-we-got-here)); asked how one faction could be on several maps, it grew into **campaigns**, agreed in principle with the author on 2026-10-19 (§7). **Agreed with the author 2026-10-19** (§7, §9).
 
 ## 1. Where we are
 
@@ -58,7 +58,7 @@ The **place** (a map) is split from **what happens in the world** (a campaign).
 
 - **The map model goes to a package**, `@open-tabletop/map` (types, defaults, migrations, serializing, hexes, tokens), so every app reads and writes maps with the same migrations. The campaign's model, migrations and the plain functions that act on it (a world turn on a campaign and a map, bringing factions, joining a map) go to `session` or a `campaign` package, tested headless; the apps wrap them.
 - **Changes are announced** (maps and campaigns): an app holding something open that changed elsewhere reads it again (outside the undo history, like any play change), so a turn played in Campaign shows at once on the open map. If both changed it, the last write wins and the one that loses says so.
-- **One trip per campaign at a time?** See §9.
+- **One trip per campaign at a time** (§9.1).
 
 ## 7. Agreed with the author (2026-10-19)
 
@@ -73,12 +73,12 @@ The **place** (a map) is split from **what happens in the world** (a campaign).
 
 The author wants a journal to keep by itself too, and a notes app of our own for lore, characters, POIs and the world (backlog: _Journal system_, _Our own notes app_). That app is designed on its own, later, with its pieces as a `*-ui` package the other apps embed (as the Oracle's roll panel is). A **Log** tab in the campaign is welcome (author, 2026-10-19: "no digo que una pestaña log para la campaña esté mal, pero tendría que venir de manera natural cuando hagamos esa app, y permitamos reutilizar sus elementos en los distintos módulos de las apps"): it comes with that app, built from its pieces, not before. Until then the campaign's **Timeline** and each trip's journal are what we have.
 
-## 9. To decide with the author
+## 9. Decided with the author (2026-10-19)
 
-1. **One trip per campaign at a time**, or several (a party split in two, at different moments of the same clock)? Proposed: one at a time, as a character is in one trip at a time; a second trip in the same campaign asks to pause the first.
-2. **Rewinding** a campaign's clock (today a map's) affects every map and trip of it: proposed, asking first and saying which.
+1. **One trip per campaign at a time**, as a character is in one trip at a time: starting or resuming a trip in a campaign that has another going on asks to pause it.
+2. **Rewinding** the campaign's clock asks first and says which maps and trips it touches. As today, nothing is undone (the timeline and journals keep what happened, with a line saying the clock went back; repeating events don't come back) and it is refused while the campaign has a trip going on. It is there to fix mistakes (a week moved on by error, a wrong start date), since the clock is outside Ctrl+Z (author: "no termino de verle la utilidad, aunque sí hay que dejar esa libertad a sabiendas de lo que puede pasar").
 3. **A map exported to a file** carries its campaign (the `.otd.json` stays complete on its own); importing it creates the campaign, or joins an existing one with the same id after asking.
-4. The name: **Campaign** (`Campaña`), or **World** (`Mundo`)?
+4. **The name: Campaign** (`Campaña`), chosen by Claude at the author's request: the OTD entity is already `Campaign`, it is the word players use, and **World** already names the world clock and the Hexmapper's World view (an app "World" with a tab "World" would confuse).
 
 ## 10. Phases
 
