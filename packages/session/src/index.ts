@@ -247,6 +247,8 @@ export interface SessionState {
   yesterday?: Record<string, unknown>
   journal: JournalEntry[]
   nextEntry: number
+  /** The number of the last step's first journal entry: what it did is from `j<lastStep>` on. */
+  lastStep?: number
   /** Discovery: hexes revealed whose contents are still to be rolled. */
   discovery?: DiscoveryState
   /** The party itself, a character of the system's party sheet (none without one). */
@@ -472,6 +474,7 @@ export function createSession(options: {
     step(input, action) {
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
+      s.lastStep = s.nextEntry
       // The members as they are now (the player may have changed them by hand).
       refreshParty(s, party)
       let carried = carriedNow(s, party)
@@ -831,6 +834,16 @@ export function createSession(options: {
       return addEntry(input, { source: 'user', code: 'NOTE', text }, now())
     },
   }
+}
+
+/**
+ * What the last step did: its journal entries, and those added after it (a table rolled
+ * by hand); none before the trip's first step.
+ */
+export function lastStepEntries(s: SessionState): JournalEntry[] {
+  const from = s.lastStep
+  if (from === undefined) return []
+  return s.journal.filter((e) => Number(e.id.slice(1)) >= from)
 }
 
 /**

@@ -7,7 +7,7 @@
 ## Playing it
 
 1. In the Hexmapper, **Maps → Example maps → The Grey Marches**. It opens as one of your maps; open it again later to go on, or start it fresh.
-2. **Play** (<kbd>P</kbd>): the map opens ready, **With rules**, playing **The Grey Marches** (its system in **Map settings → Map → System**), with discovery on. Choose a season if you like (**New trip**) and click a destination: the party starts in Ashford. It's the Company: Kael, Mara and Old Tobin, in the trip's **Characters** section, where you choose who acts (whoever leads a ford, whoever tends the wounded) and see their health, rations and dread; the party's Survival, Charisma, Navigation and Stealth are theirs.
+2. **Play** (<kbd>P</kbd>): the map opens ready, **With rules**, playing **The Grey Marches** (its system in **Map settings → Map → System**), with discovery on. Choose a season if you like (**New trip**) and click a destination: the party starts in Ashford. It's the Company: Kael, Mara and Old Tobin, in the **Characters** section of the trip's **Party** tab, where you choose who acts (whoever leads a ford, whoever tends the wounded) and see their health, rations and dread; the party's Survival, Charisma, Navigation and Stealth are theirs.
 3. Try the road to Fort Keld (the toll), the path to the shrine (the ford), the trail to the Grey Stones (a landmark that waits for you), a night in the Greywood, or the ferry across the Saltmere: at Brenna's shore, switch the travel mode to **By boat**; it only goes on water and coast, so switch back to **On foot** to land.
 4. Head east, into the blank hexes: they are discovered as you go (untick **Discover the map as you travel** to keep them blank).
 
@@ -53,7 +53,7 @@ Every check is in `travel.yaml`; the journal says each one as it comes up.
 | Going in circles           | Entering a hex for the third time in a trip (`trip.visits: 3`): morale −1                                                                                                                                             | —                                    |
 | Out of the Greywood        | Leaving the Greywood (`from.region`, `unless: hex.region`): morale +1                                                                                                                                                 | —                                    |
 
-**To see Continue**: from Ashford click the Grey Stones (0503) and **March**. The trip stops on arrival with _Landmark: waiting for you_ and a **Continue** button in the trip panel; the journal says the same.
+**To see Continue**: from Ashford click the Grey Stones (0503) and **March**. The trip stops on arrival with _Landmark: waiting for you_ and a **Continue** button in the trip panel; **What just happened** and the journal say the same.
 
 ## Where each feature is
 

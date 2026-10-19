@@ -165,6 +165,7 @@ describe('play state in OTD', () => {
             },
           ],
           nextEntry: 2,
+          lastStep: 1,
         },
       },
     }

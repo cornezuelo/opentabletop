@@ -19,12 +19,22 @@ export const es: Messages<typeof en> = {
     stats: 'Características',
   },
   totals: {
-    title: 'Hasta ahora: {hexes} hexes{km} · {hours} de marcha',
+    line: '{hexes} hexes{km} · {hours} de marcha',
     km: ' · {km} km',
     checks: 'Comprobaciones: {count}',
     taken: 'Acciones: {list}',
     spent: 'Gastado: {list}',
     gained: 'Obtenido: {list}',
+  },
+  tabs: {
+    label: 'El viaje',
+    party: 'Grupo',
+    totals: 'Hasta ahora',
+  },
+  lastStep: {
+    title: 'Lo que acaba de pasar',
+    nothing: 'Nada que contar.',
+    help: 'Las líneas del diario de tu último paso (una marcha, una acción, una comprobación tras la que has continuado) y de las tablas que hayas tirado a mano después. El siguiente paso las sustituye; el viaje entero está en la pestaña **Diario**.',
   },
   dayUnit: 'día',
   journalDay: 'Día {day}',

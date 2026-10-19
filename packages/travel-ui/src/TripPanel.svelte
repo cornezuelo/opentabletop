@@ -2,6 +2,7 @@
   import {
     localize,
     editPartySheet,
+    lastStepEntries,
     partyOf,
     picksWho,
     tripAvailability,
@@ -46,6 +47,7 @@
   import { dayPartsLine, divisionName, partName } from './dayParts'
   import { findPart } from '@open-tabletop/time'
   import Fold from './Fold.svelte'
+  import { tripTab, type TripTab } from './folds.svelte'
   import PartyMembers from './PartyMembers.svelte'
   import { CharacterCard } from '@open-tabletop/character-ui'
 
@@ -151,7 +153,7 @@
         .map(([id, n]) => `${name(id)} ${Math.round(n * 100) / 100}`)
         .join(' · ')
     return {
-      title: t('totals.title', {
+      line: t('totals.line', {
         hexes: all.hexes,
         km: km === '' ? '' : t('totals.km', { km }),
         hours: `${Math.floor(all.marched / 60)} h ${String(Math.round(all.marched % 60)).padStart(2, '0')}`,
@@ -379,16 +381,35 @@
   const text = (e: JournalEntry) => entryText(e, context)
   const pendingName = (event: unknown) => eventName(t, event, checkName)
 
-  /** Newest first, grouped by day ("Day N" headers). */
-  const journalDays = $derived.by(() => {
+  /** Entries grouped by day ("Day N" headers), in the order given. */
+  function byDay(entries: JournalEntry[]) {
     const groups: { day: number; entries: JournalEntry[] }[] = []
-    for (const entry of [...session.journal].reverse().slice(0, 60)) {
+    for (const entry of entries) {
       const day = tripDay(entry, startDay, calendar)
       if (groups.at(-1)?.day !== day) groups.push({ day, entries: [] })
       groups.at(-1)!.entries.push(entry)
     }
     return groups
-  })
+  }
+  /** Newest first. */
+  const journalDays = $derived(byDay([...session.journal].reverse().slice(0, 60)))
+  /** What the last step did, in the order it happened. */
+  const lastDays = $derived(byDay(lastStepEntries(session)))
+
+  /** The tabs under what the last step did: the party's only when the system has one. */
+  const tabs = $derived<TripTab[]>([
+    ...(Object.keys(system.rules.resources ?? {}).length ||
+    stats.length ||
+    (system.partySheet && session.party) ||
+    system.sheet
+      ? (['party'] as const)
+      : []),
+    'journal',
+    'totals',
+  ])
+  const tab = $derived(tripTab.chosen && tabs.includes(tripTab.chosen) ? tripTab.chosen : tabs[0])
+  const tabName = (id: TripTab) =>
+    id === 'party' ? t('tabs.party') : id === 'journal' ? t('journalTitle') : t('tabs.totals')
 
   function exportJournal() {
     const markdown = journalMarkdown(session.journal, context, title || t('journalTitle'))
@@ -554,123 +575,17 @@
       </select>
     </label>
   </div>
-  <!-- The sections below fold by their heading (remembered per viewer); the status, what
-       waits for Continue and the buttons above never do. -->
-  {#if Object.keys(system.rules.resources ?? {}).length}
-    <Fold id="supplies" title={t('fold.supplies')} {locale}>
-      <div class="row">
-        {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
-          <label class="field">
-            <span
-              >{resourceName(resource)}<InfoTip
-                markdown={[
-                  localize(system.rules.resources?.[resource]?.description, locale, 'en'),
-                  t('tips.resource'),
-                  bounds[resource]?.min !== undefined &&
-                    t('tips.min', { min: bounds[resource].min! }),
-                  bounds[resource]?.max !== undefined &&
-                    t('tips.max', { max: bounds[resource].max! }),
-                  carried(resource) && t('members.carried'),
-                  readAs(`party.resources.${resource}`),
-                ]
-                  .filter(Boolean)
-                  .join('\n\n')}
-              /></span
-            >
-            <input
-              type="number"
-              min="0"
-              value={travel.resources[resource] ?? 0}
-              disabled={carried(resource)}
-              onchange={(e) => {
-                const amount = number(e.currentTarget.value)
-                onedit((s) => ({
-                  ...s,
-                  travel: { ...s.travel, resources: { ...s.travel.resources, [resource]: amount } },
-                }))
-              }}
-            />
-          </label>
-        {/each}
-      </div>
-    </Fold>
+  <!-- What the last step did, right under the buttons that did it. -->
+  {#if session.lastStep !== undefined}
+    <section class="last" aria-live="polite">
+      <h3>{t('lastStep.title')}<InfoTip markdown={t('lastStep.help')} /></h3>
+      {@render lines(lastDays, t('lastStep.nothing'))}
+    </section>
   {/if}
 
-  {#if stats.length}
-    <Fold id="stats" title={t('fold.stats')} {locale}>
-      {#each stats as [key, stat] (key)}
-        <label class="field">
-          <span
-            >{statText(stat.name, key)}<InfoTip
-              markdown={[
-                statText(stat.description, ''),
-                fromMembers(stat) && t('members.fromMembers'),
-                readAs(key, `party.stats.${key}`),
-              ]
-                .filter(Boolean)
-                .join('\n\n')}
-            /></span
-          >
-          <input
-            type="number"
-            value={session.stats[key] ?? stat.default ?? 0}
-            disabled={fromMembers(stat)}
-            onchange={(e) => {
-              const value = Number(e.currentTarget.value) || 0
-              onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
-            }}
-          />
-        </label>
-      {/each}
-    </Fold>
-  {/if}
-
-  {#if system.partySheet && session.party}
-    <Fold id="party" title={t('partySheet.title')} help={t('partySheet.help')} {locale}>
-      <CharacterCard
-        sheet={system.partySheet.def}
-        character={session.party}
-        {locale}
-        names={blockName}
-        path="party"
-        time={session.travel.time}
-        named={false}
-        onchange={editParty}
-      />
-    </Fold>
-  {/if}
-
-  {#if system.sheet}
-    <PartyMembers
-      system={{ ...system, sheet: system.sheet }}
-      {session}
-      {locale}
-      names={blockName}
-      targets={relationTargets}
-      {onedit}
-    />
-  {/if}
-
-  <Fold id="totals" title={totals.title} help={t('tips.totals')} start={false} {locale}>
-    <div class="lines totals">
-      <span>{t('totals.checks', { count: totals.checks })}</span>
-      {#if totals.taken}<span>{t('totals.taken', { list: totals.taken })}</span>{/if}
-      {#if totals.spent}<span>{t('totals.spent', { list: totals.spent })}</span>{/if}
-      {#if totals.gained}<span>{t('totals.gained', { list: totals.gained })}</span>{/if}
-    </div>
-  </Fold>
-
-  <Fold id="journal" title={t('journalTitle')} {locale}>
-    {#snippet head()}
-      <button
-        class="link export"
-        use:tooltip={t('tips.exportJournal')}
-        disabled={!session.journal.length}
-        onclick={exportJournal}>{t('exportJournal')}</button
-      >
-    {/snippet}
+  {#snippet lines(days: { day: number; entries: JournalEntry[] }[], empty: string)}
     <ol class="journal">
-      {#each journalDays as group (group.day)}
+      {#each days as group (group.day)}
         <li class="day">{t('journalDay', { day: group.day })}</li>
         {#each group.entries as entry (entry.id)}
           <li class={entry.source}>
@@ -679,10 +594,145 @@
           </li>
         {/each}
       {:else}
-        <li class="help">{t('emptyJournal')}</li>
+        <li class="help">{empty}</li>
       {/each}
     </ol>
-  </Fold>
+  {/snippet}
+
+  <!-- The rest, a tab at a time (the one chosen is remembered per viewer); the status, what
+       waits for Continue, the buttons and the last step above are always there. -->
+  <div class="tabs" role="tablist" aria-label={t('tabs.label')}>
+    {#each tabs as id (id)}
+      <button
+        role="tab"
+        id="trip-tab-{id}"
+        aria-selected={tab === id}
+        aria-controls="trip-tabpanel"
+        class:on={tab === id}
+        onclick={() => tripTab.choose(id)}>{tabName(id)}</button
+      >
+    {/each}
+    {#if tab === 'journal'}
+      <button
+        class="link export"
+        use:tooltip={t('tips.exportJournal')}
+        disabled={!session.journal.length}
+        onclick={exportJournal}>{t('exportJournal')}</button
+      >
+    {/if}
+  </div>
+  <div class="tabpanel" id="trip-tabpanel" role="tabpanel" aria-labelledby="trip-tab-{tab}">
+    {#if tab === 'party'}
+      <!-- Its sections fold by their heading (remembered per viewer). -->
+      {#if Object.keys(system.rules.resources ?? {}).length}
+        <Fold id="supplies" title={t('fold.supplies')} {locale}>
+          <div class="row">
+            {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
+              <label class="field">
+                <span
+                  >{resourceName(resource)}<InfoTip
+                    markdown={[
+                      localize(system.rules.resources?.[resource]?.description, locale, 'en'),
+                      t('tips.resource'),
+                      bounds[resource]?.min !== undefined &&
+                        t('tips.min', { min: bounds[resource].min! }),
+                      bounds[resource]?.max !== undefined &&
+                        t('tips.max', { max: bounds[resource].max! }),
+                      carried(resource) && t('members.carried'),
+                      readAs(`party.resources.${resource}`),
+                    ]
+                      .filter(Boolean)
+                      .join('\n\n')}
+                  /></span
+                >
+                <input
+                  type="number"
+                  min="0"
+                  value={travel.resources[resource] ?? 0}
+                  disabled={carried(resource)}
+                  onchange={(e) => {
+                    const amount = number(e.currentTarget.value)
+                    onedit((s) => ({
+                      ...s,
+                      travel: {
+                        ...s.travel,
+                        resources: { ...s.travel.resources, [resource]: amount },
+                      },
+                    }))
+                  }}
+                />
+              </label>
+            {/each}
+          </div>
+        </Fold>
+      {/if}
+
+      {#if stats.length}
+        <Fold id="stats" title={t('fold.stats')} {locale}>
+          {#each stats as [key, stat] (key)}
+            <label class="field">
+              <span
+                >{statText(stat.name, key)}<InfoTip
+                  markdown={[
+                    statText(stat.description, ''),
+                    fromMembers(stat) && t('members.fromMembers'),
+                    readAs(key, `party.stats.${key}`),
+                  ]
+                    .filter(Boolean)
+                    .join('\n\n')}
+                /></span
+              >
+              <input
+                type="number"
+                value={session.stats[key] ?? stat.default ?? 0}
+                disabled={fromMembers(stat)}
+                onchange={(e) => {
+                  const value = Number(e.currentTarget.value) || 0
+                  onedit((s) => ({ ...s, stats: { ...s.stats, [key]: value } }))
+                }}
+              />
+            </label>
+          {/each}
+        </Fold>
+      {/if}
+
+      {#if system.partySheet && session.party}
+        <Fold id="party" title={t('partySheet.title')} help={t('partySheet.help')} {locale}>
+          <CharacterCard
+            sheet={system.partySheet.def}
+            character={session.party}
+            {locale}
+            names={blockName}
+            path="party"
+            time={session.travel.time}
+            named={false}
+            onchange={editParty}
+          />
+        </Fold>
+      {/if}
+
+      {#if system.sheet}
+        <PartyMembers
+          system={{ ...system, sheet: system.sheet }}
+          {session}
+          {locale}
+          names={blockName}
+          targets={relationTargets}
+          {onedit}
+        />
+      {/if}
+    {:else if tab === 'journal'}
+      {@render lines(journalDays, t('emptyJournal'))}
+    {:else}
+      <div class="lines totals">
+        <span>{totals.line}<InfoTip markdown={t('tips.totals')} /></span>
+        <span>{t('totals.checks', { count: totals.checks })}</span>
+        {#if totals.taken}<span>{t('totals.taken', { list: totals.taken })}</span>{/if}
+        {#if totals.spent}<span>{t('totals.spent', { list: totals.spent })}</span>{/if}
+        {#if totals.gained}<span>{t('totals.gained', { list: totals.gained })}</span>{/if}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -716,9 +766,67 @@
     align-items: center;
   }
 
-  /* The journal's Export, at the end of its heading's line. */
+  /* The journal's Export, at the end of the tabs' line. */
   .export {
     margin-left: auto;
+  }
+
+  /* What the last step did: a box of its own, under the buttons. */
+  .last {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 8px;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .last h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .last .journal {
+    max-height: 200px;
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: end;
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  .tabs [role='tab'] {
+    margin-bottom: -1px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+  }
+
+  .tabs [role='tab'].on {
+    color: var(--accent);
+    background: var(--bg);
+    border-color: var(--panel-border);
+    border-bottom-color: var(--bg);
+  }
+
+  .tabs .export {
+    align-self: center;
+  }
+
+  .tabpanel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .link {
@@ -774,7 +882,6 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding-left: 14px;
     font-size: 12px;
     color: var(--text-muted);
   }

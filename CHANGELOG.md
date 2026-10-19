@@ -12,6 +12,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper: the World view's **Factions** say what a faction is and where its land comes from (**Their land**: where the system says it starts, painted by hand, won and lost on world turns); a button's help sits beside it (**What it does**), so reading about **World turn** no longer runs one. Systems' **Factions** tab says the land it gives is where they start, the map's from then on.
 
+- Travel, Hexmapper: **what just happened, beside the buttons**: under the trip's buttons, a box shows the journal lines of the last step (a march's hexes and checks, what an action changed), replaced at each step; the rest of the panel is a tab at a time, **Party** (supplies, stats, the party's sheet, characters), **Journal** and **So far**, the one chosen remembered by this browser. Maps (v23) and Travel's saved trips (v8) keep where the last step starts.
+
 - Travel, Hexmapper: **the trip panel's sections fold** by their heading (**Supplies**, **Stats**, **The party**, **Characters**, **So far**, **Journal**), remembered by this browser; the status, a check waiting for **Continue** and the buttons never do.
 
 - Systems: **a description for every part**, shown as its help where players meet it: the Sheet tab's values, groups, conditions and kinds of relation (and the sheet itself), ways of travelling, supplies, factions and clocks have a **Description (its help)** column, translatable like names. Characters' cards show their groups' and relations' descriptions, the World view a faction's, and the trip panel the chosen way of travelling's.

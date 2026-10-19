@@ -225,6 +225,13 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       },
     }
   },
+  /**
+   * v23: a trip knows where its last step's journal lines start (`session.lastStep`), shown
+   * under its buttons; older trips show them from their next step on.
+   */
+  22(data) {
+    return data
+  },
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

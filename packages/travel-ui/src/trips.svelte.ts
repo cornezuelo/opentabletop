@@ -24,9 +24,10 @@ import { wayWorld, type WayHex } from './way'
  * v6: the party's own sheet (`session.party`), made when the trip next plays if its
  * system has one, and who rolls (`rolls`, `askRolls`; absent: the best); v7: the Generic
  * rules are Core's system (`generic` reads as `core`, and its sheets `generic/…` as
- * `core/…`). All migrated on reading.
+ * `core/…`); v8: where the last step's journal lines start (`session.lastStep`), none in
+ * older trips until they next step. All migrated on reading.
  */
-const VERSION = 7
+const VERSION = 8
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {

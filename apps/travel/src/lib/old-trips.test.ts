@@ -58,6 +58,9 @@ function playOn({ trip, text }: Travel) {
     session().journal.some((e) => e.code === 'HEX_ENTERED' && (e.data?.time as number) > start),
   ).toBe(true)
   expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
+  // What the last step did, under the buttons; the rest a tab at a time.
+  expect(text()).toMatch(/What just happened/)
+  expect(text()).toMatch(/Journal\s+So far/)
 }
 
 describe('old saved trips', () => {

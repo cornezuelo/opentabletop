@@ -17,12 +17,23 @@ export const en = {
     stats: 'Stats',
   },
   totals: {
-    title: 'So far: {hexes} hexes{km} · {hours} marched',
+    line: '{hexes} hexes{km} · {hours} marched',
     km: ' · {km} km',
     checks: 'Checks: {count}',
     taken: 'Actions: {list}',
     spent: 'Spent: {list}',
     gained: 'Gained: {list}',
+  },
+  /** The trip panel's tabs, under what the last step did. */
+  tabs: {
+    label: 'The trip',
+    party: 'Party',
+    totals: 'So far',
+  },
+  lastStep: {
+    title: 'What just happened',
+    nothing: 'Nothing to tell.',
+    help: 'The journal lines of your last step (a march, an action, a check you went on from), and of the tables you rolled by hand after it. The next step replaces them; the whole trip is in the **Journal** tab.',
   },
   dayUnit: 'day',
   journalDay: 'Day {day}',

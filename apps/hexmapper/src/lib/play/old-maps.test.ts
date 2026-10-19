@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { toasts } from '@open-tabletop/ui-kit'
 import PlayPanel from '../../components/PlayPanel.svelte'
 import WorldPanel from '../../components/WorldPanel.svelte'
-import { deserializeMap } from '../model/serialize'
+import { deserializeMap, serializeMap } from '../model/serialize'
 import { editor } from '../store/editor.svelte'
 import { clickHex, editSession, sessionOf, step } from './play'
 
@@ -47,6 +47,12 @@ function playOn(json: string) {
   expect(trip().travel.pendingChecks).toEqual([])
   marchOn()
   expect(panelText()).toMatch(/Day \d/)
+  // What the last step did, under the buttons, kept when the map is saved and opened again.
+  const last = trip().lastStep
+  expect(last).toBeGreaterThan(0)
+  expect(panelText()).toMatch(/What just happened/)
+  editor.load(deserializeMap(serializeMap(editor.map)))
+  expect(trip().lastStep).toBe(last)
 }
 
 describe('old library maps with a trip going on', () => {

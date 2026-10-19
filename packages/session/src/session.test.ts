@@ -19,6 +19,7 @@ import {
 import {
   addEntry,
   createSession,
+  lastStepEntries,
   initialSessionState,
   type SessionState,
   localize,
@@ -171,6 +172,47 @@ describe('session', () => {
     expect(entered).toHaveLength(1)
     // Each entry keeps the time of its own event, not the end of the step.
     expect(entered[0].time).toBe(defaultCalendar.at(1, '14:00'))
+  })
+
+  it('tells what the last step did, and what was rolled by hand after it', () => {
+    const oracle = createOracleEngine({ registry, random: sequence([0.1, 3.5 / 6, 4.5 / 6]) })
+    const session = createSession({
+      travel: createTravelEngine({ world, rules, calendar: core.calendar }),
+      oracle,
+      bindings: parseBindings(
+        {
+          on: {
+            WEATHER_CHECK_REQUIRED: { resolve: 'weather' },
+            NAVIGATION_CHECK_REQUIRED: { resolve: 'lost-check' },
+            ENCOUNTER_CHECK_REQUIRED: { resolve: 'encounter' },
+          },
+        },
+        'sys',
+      ).bindings,
+      now: () => 'T',
+    })
+    expect(lastStepEntries(start())).toEqual([])
+    const first = session.step(start(), { type: 'setDestination', hex: '2,0' }).state
+    const travelled = session.step(first, { type: 'travel' })
+    expect(lastStepEntries(travelled.state)).toEqual(travelled.entries)
+    expect(travelled.entries.map((e) => e.text).filter(Boolean)).toEqual([
+      'Despejado',
+      'En rumbo',
+      'Bandidos (PRE 1)',
+    ])
+    // A table rolled by hand after the step is told with it, until the next step.
+    const rolled = addEntry(travelled.state, {
+      source: 'oracle',
+      code: 'ORACLE_ROLL',
+      text: 'Rain',
+    })
+    expect(
+      lastStepEntries(rolled)
+        .map((e) => e.text)
+        .filter(Boolean),
+    ).toEqual(['Despejado', 'En rumbo', 'Bandidos (PRE 1)', 'Rain'])
+    const next = session.step(rolled, { type: 'travel' })
+    expect(lastStepEntries(next.state)).toEqual(next.entries)
   })
 
   it('pauses after a check that says so, or an entry that comes up with pause', () => {
