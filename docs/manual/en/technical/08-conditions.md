@@ -2,7 +2,7 @@
 
 A **condition** says when something applies: an entry that only comes up in forests, a check rolled only off roads, an action available only in good weather, a roll mode used by itself the day after getting lost. The same conditions are written everywhere they appear: `when` and `unless` on table entries, generator fields, checks, actions and their steps, ways of travelling and terrains (`passable`), `through` (where a way of travelling can go), `modeWhen` / `modeUnless` on tables and oracles, and `when` / `unless` on a party stat made of its characters (`from`), read with each character's values.
 
-A condition is a set of `name: what it must be` pairs about the values the roll sees (see [What tables see](04-what-tables-see.md)). Every pair must hold. In a form's box you write the pairs without braces (`terrain: forest, danger: { gte: 3 }`); in YAML, inside braces (`when: { terrain: forest, danger: { gte: 3 } }`).
+A condition is a set of `name: what it must be` pairs about the values the roll sees (see [What tables see](04-what-tables-see.md)). Every pair must hold. In a form's box you write the pairs without braces (`terrain: forest, danger: { gte: 3 }`); in YAML, inside braces (`when: { hex.terrain: forest, danger: { gte: 3 } }`).
 
 Nothing in a condition is run as code: packs from anyone are safe to load.
 
@@ -33,7 +33,7 @@ Several comparisons on the same value must all hold: `danger: { gte: 2, lte: 4 }
 
 ## Variables and rolls: `{{…}}`
 
-A value written as `'{{name}}'` is a **variable**: another value of the context, read when the condition is checked, instead of a fixed one. Written as `'{{dice}}'` it's a **roll**. Either goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`. In YAML, **quote them** (`'{{hoursPerDay}}'`): without quotes, braces start a list of pairs (see [Syntax](09-syntax.md#values-key-value)).
+A value written as `'{{name}}'` is a **variable**: another value of the context, read when the condition is checked, instead of a fixed one. Written as `'{{dice}}'` it's a **roll**. Either goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`. In YAML, **quote them** (`'{{system.hoursPerDay}}'`): without quotes, braces start a list of pairs (see [Syntax](09-syntax.md#values-key-value)).
 
 | Write                                                       | Holds when                                          |
 | ----------------------------------------------------------- | --------------------------------------------------- |
@@ -71,16 +71,16 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 
 - `when` must hold for the thing to apply; without it, it always applies.
 - `unless` must **not** hold; without it, nothing stops it.
-- With both, both are checked: `when: { terrain: forest }, unless: { edges: road }` is a forest not reached by road.
+- With both, both are checked: `when: { hex.terrain: forest }, unless: { trip.edges: road }` is a forest not reached by road.
 
 ## Where you'll find them, in the Grey Marches
 
-- Entries: the encounter table's Wyrm, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; the hunt, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`; the Vale's patrol, `when: { region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
+- Entries: the encounter table's Wyrm, `when: { all: [{ hex.terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; the hunt, `when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }`; the Vale's patrol, `when: { hex.region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
 - Generator fields: _Delving a ruin_'s trap, `when: { danger: { lte: 2 } }`, and its untouched ruin, `unless: { untouched: { lt: 90 } }`.
-- Checks: encounters `at: [trip.hex-enter, actions.rest]`, `when: { any: [{ moment: trip.hex-enter, danger: { gte: 1 } }, { moment: actions.rest, danger: { gte: 3 } }] }`; getting lost, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; the ford, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
-- Actions and steps: foraging, `unless: { weather: storm }`; camp's fed night, `unless: { below: food }`; eating fodder, `when: { mode: horse }`; the ferry's steps after it asks, `when: { params.fare: wait }`, and its wait for Brenna, `wait: { time.part: [afternoon, evening] }` (a step that waits until its condition holds: see [Actions and steps](10-actions-and-steps.md#waiting-for-something-wait-and-limit)).
-- Ways of travelling: the boat goes `through: { any: [{ water: true }, { terrain: coast }] }` and is boarded `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
-- Terrains: the peaks are `passable: { when: { season: summer }, unless: { weather: [snow, storm] } }`; lakes, `passable: { when: { month: [deepwinter, wolfmoon] } }` (frozen). They see the hex entered and the moment, like `through`.
+- Checks: encounters `at: [trip.hex-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.hex-enter, danger: { gte: 1 } }, { trip.moment: actions.rest, danger: { gte: 3 } }] }`; getting lost, `unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }`; the ford, `when: { all: [{ hex.tags: ford }, { not: { trip.mode: boat } }] }`.
+- Actions and steps: foraging, `unless: { trip.weather: storm }`; camp's fed night, `unless: { trip.below: food }`; eating fodder, `when: { trip.mode: horse }`; the ferry's steps after it asks, `when: { params.fare: wait }`, and its wait for Brenna, `wait: { time.part: [afternoon, evening] }` (a step that waits until its condition holds: see [Actions and steps](10-actions-and-steps.md#waiting-for-something-wait-and-limit)).
+- Ways of travelling: the boat goes `through: { any: [{ hex.water: true }, { hex.terrain: coast }] }` and is boarded `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
+- Terrains: the peaks are `passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }`; lakes, `passable: { when: { time.month: [deepwinter, wolfmoon] } }` (frozen). They see the hex entered and the moment, like `through`.
 
 A value of the day isn't a condition but works like one: while it holds, it **blocks** what it lists (`blocks: [travel.move]`, an action, `actions.forage`, a way of travelling, `modes.horse`). See [Connecting tables to maps and trips](../oracle/07-connecting.md).
 

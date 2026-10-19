@@ -19,7 +19,7 @@ Each **entry** has:
 
 - an **id** (needed for translations and once-only entries; **Give entries ids** fills them in),
 - a **range** of totals (`3` or `2-5`), or a **weight** when the table has no dice (how likely it is compared to the others: [Without dice: weights](08-dice-and-templates.md#without-dice-weights)),
-- the **result** text, which may hold dice (`{{1d6}} wolves`) and context values (`{{season}}`),
+- the **result** text, which may hold dice (`{{1d6}} wolves`) and context values (`{{time.season}}`),
 - **then roll**: another table or generator rolled after it, whose result is added.
 
 Add, duplicate, move and remove entries. **Number 1–N** gives them consecutive ranges and sets the dice to match.

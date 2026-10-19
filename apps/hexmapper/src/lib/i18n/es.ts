@@ -69,7 +69,7 @@ export const es: Messages = {
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
     rollHereHelp:
-      'Abre el Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{danger}}` en una tirada, `danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `tags: landmark`',
+      'Abre el Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{danger}}` en una tirada, `danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `hex.tags: landmark`',
     title: 'Oracle',
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oracle aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
@@ -357,7 +357,7 @@ export const es: Messages = {
     color: 'Color',
     water: 'Agua',
     waterHelp:
-      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: si se pueden cruzar, y con qué formas de viajar\n• las tablas ven `water: true` (una condición: `water: true`)',
+      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: si se pueden cruzar, y con qué formas de viajar\n• las tablas ven `hex.water: true` (una condición: `hex.water: true`)',
     delete: 'Borrar terreno',
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',

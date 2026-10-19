@@ -123,7 +123,7 @@ Una tabla u oráculo los usa con:
 
 - `modes: [advantage, disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).
 - `modeWhen: { advantage: { explorer: { gte: 1 } } }`: se usa solo cuando se cumple la condición, también en un viaje. Un modo puede estar en `modeWhen` sin estar en `modes`.
-- `modeUnless: { disadvantage: { tags: lit } }`: no se usa solo cuando se cumple la condición. Con `modeWhen` para el mismo modo, se aplica cuando se cumple la primera y no esta (`modeWhen: { disadvantage: { timeOfDay: night } }` + esta: de noche, salvo donde hay luz); sola, el modo se usa siempre menos entonces (una tabla maldita que se tira con desventaja salvo `{ blessed: true }`).
+- `modeUnless: { disadvantage: { hex.tags: lit } }`: no se usa solo cuando se cumple la condición. Con `modeWhen` para el mismo modo, se aplica cuando se cumple la primera y no esta (`modeWhen: { disadvantage: { timeOfDay: night } }` + esta: de noche, salvo donde hay luz); sola, el modo se usa siempre menos entonces (una tabla maldita que se tira con desventaja salvo `{ blessed: true }`).
 
 Cuando se aplican varios (uno elegido a mano más otros solos), los que se anulan entre sí se caen y se usa el primero de los demás (el elegido a mano, luego el orden de `modeWhen`, luego el de `modeUnless`). Los modos se referencian como las tablas: primero los del propio pack, luego los de sus dependencias (las Marcas Grises usan el `advantage` de Core), o por su id completo (`core/advantage`). Core declara ventaja y desventaja y las Marcas Grises añaden _Con cuidado_ (tres tiradas, la del medio). El antiguo `advantage: true` ya no hace nada y avisa.
 
@@ -146,14 +146,18 @@ travel:
   halt: { at: '20:00', do: actions.camp } # desde entonces, un grupo que no puede marchar acampa por sí solo
 modes: # formas de viajar
   foot: { name: A pie, kmPerDay: 24 }
-  horse: { name: A caballo, kmPerDay: 40, unless: { weather: snow } }
+  horse: { name: A caballo, kmPerDay: 40, unless: { trip.weather: snow } }
   boat:
-    { kmPerDay: 50, through: { water: true }, when: { any: [{ water: true }, { tags: ferry }] } }
+    {
+      kmPerDay: 50,
+      through: { hex.water: true },
+      when: { any: [{ hex.water: true }, { hex.tags: ferry }] },
+    }
 terrains:
   plains: { multiplier: 1 }
   forest: { multiplier: 0.5 }
-  peaks: { multiplier: 0.25, passable: { when: { season: summer } } }
-  lake: { multiplier: 0.5, passable: { when: { month: [1, 12] } } } # helado en pleno invierno
+  peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } }
+  lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # helado en pleno invierno
 defaultTerrain: { multiplier: 1 } # velocidad × de los terrenos no listados
 water: { passable: false } # hexes de agua sin regla propia
 edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # por un camino o río
@@ -169,7 +173,7 @@ actions:
     when: { party.resources.food: { gte: 1 } } # si no, la parada pasa sin ello
     do:
       - { time: '06:00' }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
   rest:
     when: { time.hour: { gte: 6, lt: 20 } }
     do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
@@ -194,13 +198,13 @@ actions:
       - { do: actions.march, with: { until: destination } }
   forage:
     oncePerDay: true
-    unless: { weather: storm }
+    unless: { trip.weather: storm }
     nothing: 'no hay nada que buscar en {terrain}' # el diario cuando no se aplica ninguna comprobación
     do: [{ time: 180 }, { travel.speed: 0.5 }]
   eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] } # no es un botón
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
-  - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: '06:00', unless: { edges: road } }
+  - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: '06:00', unless: { trip.edges: road } }
   - {
       event: ENCOUNTER_CHECK_REQUIRED,
       at: [trip.hex-enter, actions.rest],
@@ -210,10 +214,10 @@ checks:
   - {
       event: HUNGRY_DAY,
       at: time.day-end,
-      when: { below: food },
+      when: { trip.below: food },
       effects: { party.stats.fatigue: 1 },
     }
-  - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { tags: shrine }, pause: true }
+  - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { hex.tags: shrine }, pause: true }
 ```
 
 Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del día del calendario, `time.meal.luncheon`: hasta que vuelve a llegar), `travel.move` (por la ruta mientras pasa el tiempo y se cumplen el `when` / `unless` de la acción: `destination`, `hex`, un número de hexes o una variable), `travel.speed` (lo que queda de movimiento hoy), `travel.advance` (tantos hexes por la ruta de golpe, un número o una variable), `travel.mode` (otra forma de viajar, si se puede elegir), `effects`, `set`, `do` (otra acción, con `with:` sus parámetros), `roll` (una comprobación), `say` (una línea en el diario), `pause` (`true` o un texto: el viaje espera a **Continuar**), `ask` (uno de los parámetros de la acción, que elige el jugador mientras la acción avanza) o `wait` (una condición, con `limit:` lo más que espera); cada paso puede tener `when` / `unless`, y un `id` por el que lo nombran sus traducciones. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Los `params` de una acción tienen cada uno sus `choices` (valores, o `{ id, name, description }`) y quizá un `default` (si no, la primera); un `with:` da una opción o una variable (`'{{params.until}}'`). El `on:` de una acción es `trip.hex-enter`, `time.day-end`, una hora (`'06:00'`: al dar esa hora) o una parte del día del calendario (`time.meal.elevenses`: al empezar), marchando, esperando o dormidos en el campamento (mira [Divisiones del día](#calendarios)), u otra acción, `actions.camp` (o una lista). `travel.start` y el `at` de la parada admiten una hora o una parte (`halt: { at: time.meal.supper, do: actions.camp }`). El `at:` de una comprobación admite los mismos momentos (o una lista); sin `at`, solo la tira el `roll:` de un paso. Los valores del día duran hasta que acaba el día (`lasts: day`, la única opción por ahora).
@@ -226,7 +230,7 @@ Los packs escritos para un formato de pack anterior no se leen (mira [Formatos d
 
 ## Bindings
 
-La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{charisma}}`), y cuáles salen de sus personajes (`from`); las provisiones que **llevan** sus personajes (`resources`); **reads**, nombres para los demás valores que leen sus tablas (`icon.guards`, `fordModifier`…); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
+La otra mitad de un sistema: qué tabla (`resolve:`) o modelo de clima (`weather:`) responde a cada comprobación, con `context` extra; las **características** del grupo (nombre, descripción, valor inicial) que leen las tablas (`{{party.stats.charisma}}`), y cuáles salen de sus personajes (`from`); las provisiones que **llevan** sus personajes (`resources`); **reads**, nombres para los demás valores que leen sus tablas (`icon.guards`, `fordModifier`…); y el **descubrimiento** (qué tablas deciden los hexes vacíos). En detalle: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
 ```yaml
 kind: bindings
@@ -271,7 +275,7 @@ Una comprobación sin binding se apunta en el diario (con sus `effects`, si tien
 
 **Roles de viaje** (`roles`): tareas que el jugador da a los personajes en un viaje (guiar, montar guardia, buscar comida…), cada una con un `name` y una `description` para los jugadores. Las comprobaciones, tablas y acciones leen a quien tiene una como `roles.<id>.…` (`roles.guide.values.pathfinding: { gte: 2 }`) y sus efectos le llegan (`roles.lookout.values.health: -1`); si nadie tiene el rol, lo que lo lee no se cumple y sus efectos no cambian nada.
 
-**Qué ven las tablas:** cada característica por su nombre (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
+**Qué ven las tablas:** cada característica por su nombre (`{{party.stats.charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) y el `context` del binding (`timeOfDay: night`).
 
 ## Calendarios
 
@@ -290,7 +294,7 @@ moons: [{ id: pale, name: La Luna Pálida, cycle: 28 }]
 holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 ```
 
-**Qué ven las tablas:** `{{month}}` (el id del mes), `{{year}}`, `{{weekday}}`, la fase de cada luna como `moons.<luna>` (`when: { moons.pale: full }`) y las fiestas de hoy como una lista (`when: { holidays: midsummer }`), además de `season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
+**Qué ven las tablas:** `{{time.month}}` (el id del mes), `{{time.year}}`, `{{time.weekday}}`, la fase de cada luna como `moons.<luna>` (`when: { time.moons.pale: full }`) y las fiestas de hoy como una lista (`when: { time.holidays: midsummer }`), además de `season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
 
 **Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Las partes numeradas se leen como números (`time.watch: 2`), se escriban con `every` o como `parts` que se llaman todas con números enteros (`id: '2'`): el **Dividir en partes iguales…** de la aplicación Systems las escribe así. Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../hexmapper/12-world.md) del Hexmapper avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
@@ -358,7 +362,7 @@ seasons:
 
 El reloj del mundo del Hexmapper también tira su propio clima cada día con el modelo del sistema del mapa mientras no haya un viaje en marcha ([El reloj del mundo](../hexmapper/12-world.md#avanzar-el-tiempo)).
 
-**Qué ven las tablas:** `{{weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{fordModifier}}`, `when: { fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
+**Qué ven las tablas:** `{{trip.weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{fordModifier}}`, `when: { fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{trip.weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).
 

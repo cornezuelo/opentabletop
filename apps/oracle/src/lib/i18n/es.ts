@@ -114,7 +114,7 @@ export const es: Messages<typeof en> = {
     more: 'Condiciones, valores y límites',
     when: 'Solo si',
     whenHelp:
-      "Cuándo puede salir la entrada, en pares `clave: valor` sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores):\n• `terrain: forest` — solo en bosques\n• `tags: landmark` — una etiqueta del hex\n• `danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `season: [autumn, winter]` — cualquiera de las dos estaciones\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.str: { gte: '{{1d20}}' }` — una tirada bajo una característica (el mismo d20 para todas las entradas de la tirada)\n• `party.stats.survival: { gte: '{{roll}}' }` — bajo una característica con la propia **Tirada** de la tabla (`roll`: su total, también en el texto de la entrada, sus `set` y sus cambios)\n• `hex.terrain: forest`, `trip.weather: storm`, `time.daylight: true` — por **nombre completo** (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`): los mismos valores, sin que los tape una característica con el mismo nombre\n**Salvo**: no puede salir cuando se cumple:\n• `edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.",
+      "Cuándo puede salir la entrada, en pares `clave: valor` sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores):\n• `hex.terrain: forest` — solo en bosques\n• `hex.tags: landmark` — una etiqueta del hex\n• `danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `time.season: [autumn, winter]` — cualquiera de las dos estaciones\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.str: { gte: '{{1d20}}' }` — una tirada bajo una característica (el mismo d20 para todas las entradas de la tirada)\n• `party.stats.survival: { gte: '{{roll}}' }` — bajo una característica con la propia **Tirada** de la tabla (`roll`: su total, también en el texto de la entrada, sus `set` y sus cambios)\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n**Salvo**: no puede salir cuando se cumple:\n• `trip.edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.",
     unless: 'Salvo',
     set: 'Fija',
     setHelp:
@@ -151,7 +151,7 @@ export const es: Messages<typeof en> = {
     optionLabel: 'Etiqueta',
     modes: 'Modos de tirada',
     modesHelp:
-      'Formas de tirar esta tabla que declara su sistema (`kind: roll-modes`), como la ventaja: tirar toda la tirada varias veces y quedarse con un total.\n**Marcado**: se ofrece al tirar a mano.\n**Solo cuando**: se usa sin preguntar cuando se cumple la condición:\n• `explorer: { gte: 1 }` — una característica del grupo\n• `yesterday.lost: true` — ayer se perdieron\n• `weather: clear`\n**Salvo**: no se usa por sí mismo cuando se cumple (escrito solo, el modo se usa siempre salvo entonces):\n• `terrain: dense-forest`\nDos modos que se anulan (ventaja y desventaja), juntos, dan una tirada normal.',
+      'Formas de tirar esta tabla que declara su sistema (`kind: roll-modes`), como la ventaja: tirar toda la tirada varias veces y quedarse con un total.\n**Marcado**: se ofrece al tirar a mano.\n**Solo cuando**: se usa sin preguntar cuando se cumple la condición:\n• `explorer: { gte: 1 }` — una característica del grupo\n• `yesterday.lost: true` — ayer se perdieron\n• `trip.weather: clear`\n**Salvo**: no se usa por sí mismo cuando se cumple (escrito solo, el modo se usa siempre salvo entonces):\n• `hex.terrain: dense-forest`\nDos modos que se anulan (ventaja y desventaja), juntos, dan una tirada normal.',
     modeWhen: 'solo cuando',
     modeUnless: 'salvo',
     noModes:
@@ -182,7 +182,7 @@ export const es: Messages<typeof en> = {
     sources: { table: 'Tabla', generator: 'Generador', roll: 'Dados', value: 'Valor fijo' },
     fieldMore: 'Condiciones y contexto',
     fieldWhenHelp:
-      '**Solo si**: el campo solo se tira cuando se cumple sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',
+      '**Solo si**: el campo solo se tira cuando se cumple sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `time.season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',
     fieldContext: 'Contexto',
     fieldContextHelp:
       "Valores que recibe la tabla o generador que tira este campo, en pares `clave: valor`:\n• `danger: 3` — como si el lugar fuera más peligroso\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — pasado de lo que ve el generador",

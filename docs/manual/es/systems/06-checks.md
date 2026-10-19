@@ -26,7 +26,7 @@ Las condiciones y el contexto se escriben en pares `clave: valor`, como en las t
 
 ## Características del grupo
 
-Números del grupo, cada uno con un id, un **Nombre** y una **Descripción** para los jugadores y el valor en que empieza (**Empieza en**) (**Añadir una característica**; su `min` / `max` se escriben en el YAML). El panel del viaje las muestra y deja que el jugador las cambie; las tablas las leen en tiradas (`1d6 + {{survival}}`) y condiciones (`party.stats.morale: { lte: 1 }`), y los efectos las cambian (`party.stats.fatigue: 1`).
+Números del grupo, cada uno con un id, un **Nombre** y una **Descripción** para los jugadores y el valor en que empieza (**Empieza en**) (**Añadir una característica**; su `min` / `max` se escriben en el YAML). El panel del viaje las muestra y deja que el jugador las cambie; las tablas las leen en tiradas (`1d6 + {{party.stats.survival}}`) y condiciones (`party.stats.morale: { lte: 1 }`), y los efectos las cambian (`party.stats.fatigue: 1`).
 
 Con una hoja de grupo, **De las hojas** puede hacer que una característica sea uno de sus valores, siempre: `party: morale` (la Moral, la Fatiga, los Mercenarios y el Aguante de las Marcas Grises son de la Compañía). Con una hoja de personajes, hace una característica con los valores de los personajes mientras el grupo tenga alguno: `max: survival` (la mejor Supervivencia), `min`, `sum`, `count: true`, `pick: charisma` (el que elija el jugador para tirar, el mejor por defecto), con `when` / `unless` para dejar fuera a algunos. La Supervivencia de las Marcas Grises: `max: survival, unless: { conditions: wounded }, none: 0`. Vacío, la guarda el grupo.
 

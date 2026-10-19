@@ -124,7 +124,7 @@ A table or oracle uses them with:
 
 - `modes: [advantage, disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
 - `modeWhen: { advantage: { explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.
-- `modeUnless: { disadvantage: { tags: lit } }`: not used by itself when the condition holds. With `modeWhen` for the same mode, it applies when the first holds and this one doesn't (`modeWhen: { disadvantage: { timeOfDay: night } }` + this: at night, except where it's lit); alone, the mode is used always but then (a cursed table rolled with disadvantage `unless: { blessed: true }`).
+- `modeUnless: { disadvantage: { hex.tags: lit } }`: not used by itself when the condition holds. With `modeWhen` for the same mode, it applies when the first holds and this one doesn't (`modeWhen: { disadvantage: { timeOfDay: night } }` + this: at night, except where it's lit); alone, the mode is used always but then (a cursed table rolled with disadvantage `unless: { blessed: true }`).
 
 When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order, then `modeUnless`'). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage and the Grey Marches add _Carefully_ (three rolls, the middle one). The old `advantage: true` does nothing now and warns.
 
@@ -147,14 +147,18 @@ travel:
   halt: { at: '20:00', do: actions.camp } # from then on, a party that can't march camps by itself
 modes: # ways of travelling
   foot: { name: On foot, kmPerDay: 24 }
-  horse: { name: On horseback, kmPerDay: 40, unless: { weather: snow } }
+  horse: { name: On horseback, kmPerDay: 40, unless: { trip.weather: snow } }
   boat:
-    { kmPerDay: 50, through: { water: true }, when: { any: [{ water: true }, { tags: ferry }] } }
+    {
+      kmPerDay: 50,
+      through: { hex.water: true },
+      when: { any: [{ hex.water: true }, { hex.tags: ferry }] },
+    }
 terrains:
   plains: { multiplier: 1 }
   forest: { multiplier: 0.5 }
-  peaks: { multiplier: 0.25, passable: { when: { season: summer } } }
-  lake: { multiplier: 0.5, passable: { when: { month: [1, 12] } } } # frozen in deep winter
+  peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } }
+  lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # frozen in deep winter
 defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
 water: { passable: false } # water hexes without a rule of their own
 edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
@@ -170,7 +174,7 @@ actions:
     when: { party.resources.food: { gte: 1 } } # otherwise the halt passes without it
     do:
       - { time: '06:00' }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
   rest:
     when: { time.hour: { gte: 6, lt: 20 } }
     do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
@@ -195,13 +199,18 @@ actions:
       - { do: actions.march, with: { until: destination } }
   forage:
     oncePerDay: true
-    unless: { weather: storm }
+    unless: { trip.weather: storm }
     nothing: 'nothing to forage on {terrain}' # the journal when no check applies
     do: [{ time: 180 }, { travel.speed: 0.5 }]
   eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] } # not a button
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
-  - { event: NAVIGATION_CHECK_REQUIRED, name: Getting lost, at: '06:00', unless: { edges: road } }
+  - {
+      event: NAVIGATION_CHECK_REQUIRED,
+      name: Getting lost,
+      at: '06:00',
+      unless: { trip.edges: road },
+    }
   - {
       event: ENCOUNTER_CHECK_REQUIRED,
       at: [trip.hex-enter, actions.rest],
@@ -211,10 +220,10 @@ checks:
   - {
       event: HUNGRY_DAY,
       at: time.day-end,
-      when: { below: food },
+      when: { trip.below: food },
       effects: { party.stats.fatigue: 1 },
     }
-  - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { tags: shrine }, pause: true }
+  - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { hex.tags: shrine }, pause: true }
 ```
 
 A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the calendar's day, `time.meal.luncheon`: until it next comes), `travel.move` (along the route while time passes and the action's `when` / `unless` hold: `destination`, `hex`, a number of hexes or a variable), `travel.speed` (the rest of today's moving), `travel.advance` (that many hexes along the route at once, a number or a variable), `travel.mode` (another way of travelling, if it can be chosen), `effects`, `set`, `do` (another action, with `with:` its parameters), `roll` (a check), `say` (a line in the journal), `pause` (`true` or a text: the trip waits for **Continue**), `ask` (one of the action's parameters, chosen by the player as the action goes) or `wait` (a condition, with `limit:` the most it waits); each step may have `when` / `unless`, and an `id` its translations name it by. Every step, with examples: [Actions and steps](10-actions-and-steps.md). An action's `params` each have `choices` (values, or `{ id, name, description }`) and maybe a `default` (else the first); a `with:` gives a choice or a variable (`'{{params.until}}'`). An action's `on:` is `trip.hex-enter`, `time.day-end`, a clock (`'06:00'`: as it strikes) or a part of the calendar's day (`time.meal.elevenses`: as it begins), while marching, waiting or asleep in camp (see [Divisions of the day](#calendars)), or another action, `actions.camp` (or a list). `travel.start` and the halt's `at` take a clock or a part (`halt: { at: time.meal.supper, do: actions.camp }`). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. Values of the day last until the day ends (`lasts: day`, the only choice for now).
@@ -227,7 +236,7 @@ Packs written for an older pack format aren't read (see [File formats](02-file-f
 
 ## Bindings
 
-The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{charisma}}`), and which of them come from its characters (`from`); the supplies its characters **carry** (`resources`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{party.stats.charisma}}`), and which of them come from its characters (`from`); the supplies its characters **carry** (`resources`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
 ```yaml
 kind: bindings
@@ -272,7 +281,7 @@ A check with no binding is written in the journal (with its `effects`, if it has
 
 **Journey roles** (`roles`): jobs the player gives the characters in a trip (lead the way, keep watch, forage…), each with a `name` and `description` for players. Checks, tables and actions read whoever holds one as `roles.<id>.…` (`roles.guide.values.pathfinding: { gte: 2 }`) and their effects reach them (`roles.lookout.values.health: -1`); with nobody in the role, what reads it doesn't hold and its effects change nothing.
 
-**What tables see:** each stat by name (`{{charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
+**What tables see:** each stat by name (`{{party.stats.charisma}}`, `when: { party.stats.morale: { lte: 0 } }`) and the binding's `context` (`timeOfDay: night`).
 
 ## Calendars
 
@@ -291,7 +300,7 @@ moons: [{ id: pale, name: The Pale Moon, cycle: 28 }]
 holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 ```
 
-**What tables see:** `{{month}}` (the month's id), `{{year}}`, `{{weekday}}`, each moon's phase as `moons.<moon>` (`when: { moons.pale: full }`) and today's holidays as a list (`when: { holidays: midsummer }`), plus `season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
+**What tables see:** `{{time.month}}` (the month's id), `{{time.year}}`, `{{time.weekday}}`, each moon's phase as `moons.<moon>` (`when: { time.moons.pale: full }`) and today's holidays as a list (`when: { time.holidays: midsummer }`), plus `season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
 
 **Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). Numbered parts read as numbers (`time.watch: 2`), whether written with `every` or as `parts` all named by whole numbers (`id: '2'`): the Systems app's **Split into equal parts…** writes them that way. A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). The Hexmapper's [World](../hexmapper/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
@@ -359,7 +368,7 @@ seasons:
 
 The Hexmapper's world clock also rolls its own weather each day on the map system's model while no trip is going on ([The world clock](../hexmapper/12-world.md#moving-time-on)).
 
-**What tables see:** `{{weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{fordModifier}}`, `when: { fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
+**What tables see:** `{{trip.weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{fordModifier}}`, `when: { fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{trip.weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).
 

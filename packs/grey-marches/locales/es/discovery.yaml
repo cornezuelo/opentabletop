@@ -121,7 +121,7 @@ hex-contents:
     - El contenido del **descubrimiento**: `discover.contents`
     - `set: { poi: false }`: nada que merezca un punto de interés
     - `tags` y `name` escritos en el hex
-    - Una condición sobre el hex: `water: true`
+    - Una condición sobre el hex: `hex.water: true`
     - `once`: la guarida del dragón
     - Dados en el texto: `{{1d6+2}}`
   entries:

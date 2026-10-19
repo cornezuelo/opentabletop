@@ -4,7 +4,7 @@ Every roll gets a **context**: values a table can use in its dice (`{{danger}}`)
 
 ## How to read this page
 
-Each value has a **full name** that says where it comes from (`hex.terrain`) and most a **short name** too (`terrain`). Both read the same value: `terrain: forest` and `hex.terrain: forest` hold in the same hexes, and `{{season}}` writes the same as `{{time.season}}`.
+Each value has a **full name** that says where it comes from (`hex.terrain`) and most a **short name** too (`terrain`). Both read the same value: `terrain: forest` and `hex.terrain: forest` hold in the same hexes, and `{{time.season}}` writes the same as `{{time.season}}`.
 
 | Full names           | What they are about                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------- |
@@ -203,7 +203,7 @@ When two sources give the same name, the later one wins:
 Some collisions, and what happens:
 
 - **A region value and a hex value** with the same name (`danger: 2` on the Greywood, `danger: 5` on one of its hexes): the hex's wins there, the region's everywhere else. That's how the Grey Marches make the forest more dangerous towards its heart.
-- **A stat called like a fact** (a stat `weather`, or `terrain`): `{{weather}}` and `when: { weather: storm }` read the day's weather, never the stat; the stat is still `party.stats.weather`. Better not to use those names (the list above).
+- **A stat called like a fact** (a stat `weather`, or `terrain`): `{{trip.weather}}` and `when: { trip.weather: storm }` read the day's weather, never the stat; the stat is still `party.stats.weather`. Better not to use those names (the list above).
 - **A value of an icon or token called `terrain`**: it's read as `icon.terrain` / `token.terrain`, inside its own name, so it can't hide the hex's terrain.
 - **A value an entry sets with a stat's name** (`set: { morale: 1 }` with a stat `morale`): the result's text and the tables it rolls read `{{morale}}` as 1, but it doesn't change the stat, and it doesn't stay for the day (only `weather`, `…Modifier`, `…Impossible` and the declared values do). To change the stat, use `effects: { party.stats.morale: 1 }`.
 - **A binding's context** (`context: { timeOfDay: night }`) wins over everything for its check: it's how the same table answers day and night encounters.

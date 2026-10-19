@@ -37,20 +37,20 @@ Use weights when no die fits the odds you want, or to make some results rarer wi
 
 ## Variables in texts
 
-`{{…}}` holds a **variable** (`{{season}}`: the value with that name) or a **roll** (`{{2d6}}`: dice). Texts (results, generator templates, card texts) can include them:
+`{{…}}` holds a **variable** (`{{time.season}}`: the value with that name) or a **roll** (`{{2d6}}`: dice). Texts (results, generator templates, card texts) can include them:
 
-| Write          | Shows                                                                                                                           |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `{{2d6}}`      | A roll, right there: `'{{2d6}} wolves'` → "7 wolves".                                                                           |
-| `{{season}}`   | A variable: a context value.                                                                                                    |
-| `{{npc.role}}` | A part of a value (a generator's field holds its table's values).                                                               |
-| `{{result}}`   | In an entry with **then roll**: the text of the table it rolled, e.g. `'Bandits — they are {{result}}'` with `table: reaction`. |
-| `{{roll}}`     | In a table's entries: the total of the table's own **Roll**, e.g. `'You rolled {{roll}}'`.                                      |
-| `{{field}}`    | In a generator's template: a field's value (its text, if it came from a table).                                                 |
+| Write             | Shows                                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `{{2d6}}`         | A roll, right there: `'{{2d6}} wolves'` → "7 wolves".                                                                           |
+| `{{time.season}}` | A variable: a context value.                                                                                                    |
+| `{{npc.role}}`    | A part of a value (a generator's field holds its table's values).                                                               |
+| `{{result}}`      | In an entry with **then roll**: the text of the table it rolled, e.g. `'Bandits — they are {{result}}'` with `table: reaction`. |
+| `{{roll}}`        | In a table's entries: the total of the table's own **Roll**, e.g. `'You rolled {{roll}}'`.                                      |
+| `{{field}}`       | In a generator's template: a field's value (its text, if it came from a table).                                                 |
 
 A missing value shows as nothing. Variables never run code: they only look values up and roll dice. A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
 
-Table and generator references can use variables too: `table: 'weather-{{season}}'` rolls `weather-spring`, `weather-autumn`… depending on the season.
+Table and generator references can use variables too: `table: 'weather-{{time.season}}'` rolls `weather-spring`, `weather-autumn`… depending on the season.
 
 ## Variables and rolls in conditions
 

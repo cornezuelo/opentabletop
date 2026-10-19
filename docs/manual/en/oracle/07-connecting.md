@@ -14,11 +14,11 @@ id: what-do-we-find
 name: What do we find here?
 roll: 1d6
 entries:
-  - { id: forest, range: 1-6, when: { terrain: forest }, result: 'Fallen timber and mushrooms' }
+  - { id: forest, range: 1-6, when: { hex.terrain: forest }, result: 'Fallen timber and mushrooms' }
   - {
       id: rocks,
       range: 1-6,
-      when: { terrain: [hills, mountains] },
+      when: { hex.terrain: [hills, mountains] },
       result: 'A cave mouth in the rock',
     }
   - { id: nothing, range: 1-6, result: 'Nothing special' }
@@ -34,7 +34,7 @@ Tag hexes in the Hexmapper (`haunted`, `ruins`…) and give them fields (`danger
 
 ```yaml
 entries:
-  - { id: ghost, range: 1-2, when: { tags: haunted }, result: 'A pale figure watches you' }
+  - { id: ghost, range: 1-2, when: { hex.tags: haunted }, result: 'A pale figure watches you' }
   - { id: ambush, range: 1-6, when: { danger: { gte: 3 } }, result: 'Ambush!' }
 ```
 
@@ -52,7 +52,7 @@ id: weather
 name: Today's weather
 roll: 1d2
 entries:
-  - { id: today, range: 1-2, table: 'weather-{{season}}' }
+  - { id: today, range: 1-2, table: 'weather-{{time.season}}' }
 ```
 
 ## 4. Results the trip understands
@@ -118,11 +118,11 @@ actions:
   camp: # sleep until 06:00; a fed night (food didn't run out) eases fatigue
     do:
       - { time: '06:00' }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   forage: # an action of this system: a Forage for food button
     name: Forage for food
-    unless: { weather: storm }
+    unless: { trip.weather: storm }
     do: [{ time: 180 }, { travel.speed: 0.5 }]
     oncePerDay: true
   eat: # not a button: the system takes it as each day ends, camping or not
@@ -130,11 +130,16 @@ actions:
     do: [{ effects: { party.resources.food: -1 } }]
 checks:
   - { event: WEATHER, at: '06:00' }
-  - { event: LOST, at: '06:00', unless: { edges: [road, river] } }
-  - { event: ENCOUNTER, at: trip.hex-enter, when: { terrain: [forest, swamp] } }
+  - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
+  - { event: ENCOUNTER, at: trip.hex-enter, when: { hex.terrain: [forest, swamp] } }
   - { event: NIGHT, at: actions.camp }
-  - { event: FORAGE, at: actions.forage, when: { terrain: [forest, plains] } }
-  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: FORAGE, at: actions.forage, when: { hex.terrain: [forest, plains] } }
+  - {
+      event: HUNGRY,
+      at: time.day-end,
+      when: { trip.below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
 ---
 kind: bindings
 id: default
@@ -164,9 +169,9 @@ A terrain can be **closed**: `passable: false`, always, or on a [condition](../t
 ```yaml
 terrains:
   swamp: { multiplier: 0.33 }
-  peaks: { multiplier: 0.25, passable: { when: { season: summer } } } # open only in summer
-  pass: { multiplier: 0.5, passable: { unless: { weather: [snow, storm] } } } # closed in snow
-  lake: { passable: { when: { month: [deepwinter, wolfmoon] } } } # crossed on the ice
+  peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } } # open only in summer
+  pass: { multiplier: 0.5, passable: { unless: { trip.weather: [snow, storm] } } } # closed in snow
+  lake: { passable: { when: { time.month: [deepwinter, wolfmoon] } } } # crossed on the ice
 water: { passable: false } # water hexes whose terrain isn't listed
 ```
 
@@ -176,8 +181,8 @@ water: { passable: false } # water hexes whose terrain isn't listed
 
 **modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the id is shown, made readable (`on-foot`: on foot). Two conditions shape each one:
 
-- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ water: true }, { terrain: coast }] }`; a cart only by road: `through: { edges: road }`.
-- `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; a horse not in snow: `unless: { weather: snow }`.
+- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { hex.water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ hex.water: true }, { hex.terrain: coast }] }`; a cart only by road: `through: { trip.edges: road }`.
+- `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }`; a horse not in snow: `unless: { trip.weather: snow }`.
 
 A value of the day can block one too (`blocks: [modes.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
 
@@ -192,7 +197,12 @@ resources:
   food: { name: Rations, min: 0 }
   water: { name: Waterskins, min: 0, max: 6 } # can't carry more than 6
 checks:
-  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - {
+      event: HUNGRY,
+      at: time.day-end,
+      when: { trip.below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
 ```
 
 Without `min`, a supply may go negative (a debt, say).
@@ -247,7 +257,7 @@ actions:
 
 When the button can be pressed:
 
-- `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { weather: storm }` and camp only `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
+- `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { trip.weather: storm }` and camp only `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
 - Day and night in those conditions are the system's: the hour (`time.hour: { gte: 6, lt: 20 }`) or the parts of its calendar's day (`time.part: night`, `time.tags: dark`). A system may rest, forage and force the march only by day, so the night can't be skipped resting, and march at night only after a night march.
 - `oncePerDay: true`: once a day.
 - A value of the day that `blocks` it (above).
@@ -261,7 +271,7 @@ actions:
   eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] }
   feed-horses: # only riding
     on: time.day-end
-    when: { mode: horse }
+    when: { trip.mode: horse }
     do: [{ effects: { party.resources.fodder: -1 } }]
 ```
 
@@ -288,7 +298,7 @@ actions:
   camp: # sleep until 06:00; a fed night eases fatigue
     do:
       - { time: '06:00' }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
   forced-march: # faster, tiring, and off at once: it takes the march
     name: Forced march
     when: { party.stats.fatigue: { lt: 2 } } # only while fresh
@@ -342,19 +352,29 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 
 ```yaml
 checks:
-  - { event: LOST, name: Getting lost, at: time.part.morning, unless: { edges: [road, river] } }
+  - {
+      event: LOST,
+      name: Getting lost,
+      at: time.part.morning,
+      unless: { trip.edges: [road, river] },
+    }
   - event: ENCOUNTER
     at: [trip.hex-enter, actions.rest]
     when:
       {
         any:
           [
-            { moment: trip.hex-enter, danger: { gte: 1 } },
-            { moment: actions.rest, danger: { gte: 3 } },
+            { trip.moment: trip.hex-enter, danger: { gte: 1 } },
+            { trip.moment: actions.rest, danger: { gte: 3 } },
           ],
       }
-  - { event: SHRINE, at: trip.hex-enter, when: { tags: shrine }, pause: true } # waits for Continue
-  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: SHRINE, at: trip.hex-enter, when: { hex.tags: shrine }, pause: true } # waits for Continue
+  - {
+      event: HUNGRY,
+      at: time.day-end,
+      when: { trip.below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
 ```
 
 A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). A check with no table and no effects is just written in the journal. `pause: true` rolls it (if a table resolves it) and then stops the trip until **Continue**, so you can describe the place, resolve it yourself or decide something: **only `pause: true` stops the trip**, with a table or without (a landmark to describe: `pause: true` and no table). Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): each moment as it comes, the halt's action's from its moment, `time.day-end` as each day ends.
@@ -364,7 +384,7 @@ A check can have **effects of its own**: without a table it just applies them, w
 The **bindings** (`kind: bindings`) are the other half of the system:
 
 - `on` connects each check, by its event, to what answers it: `resolve:` a table, oracle, generator or deck of the pack (or another pack's, by full id: `core/weather`), or `weather:` a [weather model](#weather-with-inertia). `context` adds values for that check only, and wins over everything else: the same encounter table answers day and night with `context: { timeOfDay: night }` on the camp's check, and an oracle gets its input as `context: { odds: likely }`. **Checks with no binding** are written in the journal (with their effects, if they have any), and stop the trip until **Continue** only when they say `pause: true`: the Grey Marches' landmarks.
-- `stats` are the party's numbers, shown in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (its help in the trip panel), a starting value (`default`) and, if it has them, `min` and `max` (fatigue never below 0). Tables read them by key, `{{charisma}}`, or always unambiguously `party.stats.charisma`. The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none (their party's Morale is a value of its party sheet). A table can change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and shows by its key, but the pack gets a warning, so declare every stat its tables change.
+- `stats` are the party's numbers, shown in the trip panel, where you set them when the trip starts and change them as you play. Nothing in the apps makes them up: each system declares its own, with a `name`, a `description` (its help in the trip panel), a starting value (`default`) and, if it has them, `min` and `max` (fatigue never below 0). Tables read them by their full name, `{{party.stats.charisma}}` (the bare key, `{{charisma}}`, is read too, but a fact with the same name hides it). The Grey Marches declare Charisma, Survival, Navigation and Morale; the Generic rules have none (their party's Morale is a value of its party sheet). A table can change one nobody declared (`effects: { party.stats.hirelings: 1 }`): it works and shows by its key, but the pack gets a warning, so declare every stat its tables change.
 - `reads` names the other values the system's tables read that nobody else names: a value of the map (`danger`, `icon.guards`, `token.fare`), the bindings' context (`timeOfDay`) or today's values tables set (`fordModifier`). With a `name` and `description` each, the roll panel shows them by name, with what they are in their help: `reads: { icon.guards: { name: Guards, description: How many guards watch the gates. } }`. The values maps and trips give (terrain, season, holidays…) already have names in the apps.
 
 ```yaml
@@ -461,7 +481,7 @@ holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 - **divisions** of the day, if the system wants any (meals, watches…, each with its parts or `every` N hours): see [Calendars](../technical/07-kinds.md#calendars).
 - **months** in order, with their days and **season** (the seasons a trip can start in come from here); **weekdays**, **moons** (a cycle in days and an optional `offset`), **holidays** (a month and a day), the **startYear** and, optionally, `start: { month, day }` for the first day.
 - The trip panel shows the date (“Moonday, 1 Thaw, year 412”), the moons' phases and the day's holidays.
-- Tables and checks see `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` or `waning`) and `holidays` (a list): `when: { moons.ember: full }`, `when: { holidays: midsummer }`.
+- Tables and checks see `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` or `waning`) and `holidays` (a list): `when: { time.moons.ember: full }`, `when: { time.holidays: midsummer }`.
 
 The Grey Marches' `calendar.yaml` is a full example.
 

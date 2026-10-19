@@ -31,7 +31,7 @@ entries:
     pause: true
     when:
       all:
-        - { terrain: [forest, dense-forest] }
+        - { hex.terrain: [forest, dense-forest] }
         - any:
             - { danger: { gte: 5 } }
             - { danger: { gte: 3 }, world.clocks.the-greywood-wyrm-wakes: { gte: 6 } }
@@ -39,7 +39,7 @@ entries:
   # The calendar (calendar.yaml): when the Ember Moon is full, the hunt rides at night.
   - id: hunt
     range: 1-20
-    when: { all: [{ moons.ember: full }, { timeOfDay: night }] }
+    when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }
     result: 'Horns in the dark: the Ember Hunt rides under the full moon — they are {{result}}'
     table: reaction
     set: { reactionModifier: -3 }
@@ -48,7 +48,7 @@ entries:
   # …and every companion's dread fills a box (an effect on every member of the party).
   - id: lights
     range: 1-20
-    when: { all: [{ tags: haunted }, { timeOfDay: night }] }
+    when: { all: [{ hex.tags: haunted }, { timeOfDay: night }] }
     result: Pale lights drift between the trees, calling your names
     # …and the Wyrm stirs: a progress clock of the world clock, ticked from a trip.
     effects: { party.members.values.dread: 1, world.clocks.the-greywood-wyrm-wakes: 1 }
@@ -60,14 +60,14 @@ entries:
     range: 1-4
     when:
       all:
-        - { any: [{ region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
+        - { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
         - { factions.the-vale.values.reputation: { gte: 2 } }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they greet you as friends and share their bread'
     effects: { party.resources.food: 1 }
   - id: patrol
     range: 1-4
-    when: { any: [{ region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
+    when: { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they are {{result}}'
     table: reaction
@@ -75,7 +75,8 @@ entries:
   - id: wolves
     range: 5-20
     # Wolves keep away in summer: `not` with a value.
-    when: { all: [{ terrain: [forest, dense-forest, heath] }, { season: { not: summer } }] }
+    when:
+      { all: [{ hex.terrain: [forest, dense-forest, heath] }, { time.season: { not: summer } }] }
     result: '{{1d4+2}} grey wolves — they are {{result}}'
     table: reaction
     # Values for the next table (reactionModifier) and for the party: morale drops.
@@ -89,7 +90,7 @@ entries:
     table: npc
   - id: bandits
     range: 5-20
-    when: { terrain: { in: [hills, marsh, swamp] } }
+    when: { hex.terrain: { in: [hills, marsh, swamp] } }
     result: 'Bandits of the Hollow Hills — they are {{result}}'
     table: reaction
     set: { reactionModifier: -1 }

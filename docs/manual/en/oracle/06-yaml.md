@@ -21,7 +21,7 @@ entries:
 ```
 
 - `range` (`3`, `2-5`) or `weight` (without `roll`).
-- `table` / `generator`: rolled after the entry; `'weather-{{season}}'` picks one by context.
+- `table` / `generator`: rolled after the entry; `'weather-{{time.season}}'` picks one by context.
 - `set`: values the entry adds (other tables and the travel rules read them).
 - `once: true` or `maxOccurrences: 3`, with `onExhausted: reroll | next | none`.
 
@@ -36,10 +36,10 @@ The full list, with variables and where context values come from: [Dice, variabl
 `when` keeps an entry only if the context matches:
 
 ```yaml
-when: { terrain: forest } # equals
-when: { terrain: [hills, mountains] } # one of
-when: { danger: { gte: 4 }, season: { not: winter } }
-when: { any: [{ weather: storm }, { lost: true }] } # all / any / not
+when: { hex.terrain: forest } # equals
+when: { hex.terrain: [hills, mountains] } # one of
+when: { danger: { gte: 4 }, time.season: { not: winter } }
+when: { any: [{ trip.weather: storm }, { lost: true }] } # all / any / not
 ```
 
 Comparisons: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. List values in the context (like a hex's tags) match when they contain the value. A value can be a variable or a roll, in quotes: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (the same d20 for every entry of the roll; see [Conditions](../technical/08-conditions.md#variables-and-rolls)). The first entry that matches and fits the roll wins.

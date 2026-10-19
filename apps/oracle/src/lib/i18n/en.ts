@@ -112,7 +112,7 @@ export const en = {
     more: 'Conditions, values and limits',
     when: 'Only if',
     whenHelp:
-      "When the entry can come up, as `key: value` pairs on what the table sees (the map, the trip, the inputs, earlier fields):\n• `terrain: forest` — only in forests\n• `tags: landmark` — a tag of the hex\n• `danger: { gte: 3 }` — a value of the hex or region, 3 or more\n• `season: [autumn, winter]` — either season\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.str: { gte: '{{1d20}}' }` — a roll under a stat (the same d20 for every entry of the roll)\n• `party.stats.survival: { gte: '{{roll}}' }` — under a stat on the table's own **Roll** (`roll`: its total, also in the entry's text, `set` and changes)\n• `hex.terrain: forest`, `trip.weather: storm`, `time.daylight: true` — by **full name** (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`): the same values, never hidden by a stat with the same name\n**Unless**: it can't come up when this matches:\n• `edges: road` — not by road\nEmpty: always. An entry that can't come up is skipped as if it weren't there.",
+      "When the entry can come up, as `key: value` pairs on what the table sees (the map, the trip, the inputs, earlier fields):\n• `hex.terrain: forest` — only in forests\n• `hex.tags: landmark` — a tag of the hex\n• `danger: { gte: 3 }` — a value of the hex or region, 3 or more\n• `time.season: [autumn, winter]` — either season\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.str: { gte: '{{1d20}}' }` — a roll under a stat (the same d20 for every entry of the roll)\n• `party.stats.survival: { gte: '{{roll}}' }` — under a stat on the table's own **Roll** (`roll`: its total, also in the entry's text, `set` and changes)\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n**Unless**: it can't come up when this matches:\n• `trip.edges: road` — not by road\nEmpty: always. An entry that can't come up is skipped as if it weren't there.",
     unless: 'Unless',
     set: 'Sets',
     setHelp:
@@ -149,7 +149,7 @@ export const en = {
     optionLabel: 'Label',
     modes: 'Roll modes',
     modesHelp:
-      'Ways of rolling this table that its system declares (`kind: roll-modes`), such as advantage: roll the whole roll several times and keep one total.\n**Ticked**: offered when rolling by hand.\n**By itself when**: used without asking when the condition holds:\n• `explorer: { gte: 1 }` — a party stat\n• `yesterday.lost: true` — got lost yesterday\n• `weather: clear`\n**Unless**: not used by itself when this holds (written alone, the mode is used always but then):\n• `terrain: dense-forest`\nTwo modes that cancel each other out (advantage and disadvantage), together, give a normal roll.',
+      'Ways of rolling this table that its system declares (`kind: roll-modes`), such as advantage: roll the whole roll several times and keep one total.\n**Ticked**: offered when rolling by hand.\n**By itself when**: used without asking when the condition holds:\n• `explorer: { gte: 1 }` — a party stat\n• `yesterday.lost: true` — got lost yesterday\n• `trip.weather: clear`\n**Unless**: not used by itself when this holds (written alone, the mode is used always but then):\n• `hex.terrain: dense-forest`\nTwo modes that cancel each other out (advantage and disadvantage), together, give a normal roll.',
     modeWhen: 'by itself when',
     modeUnless: 'unless',
     noModes:
@@ -180,7 +180,7 @@ export const en = {
     sources: { table: 'Table', generator: 'Generator', roll: 'Dice', value: 'Fixed value' },
     fieldMore: 'Conditions and context',
     fieldWhenHelp:
-      '**Only if**: the field is rolled only when this matches what the generator sees (its inputs, earlier fields, the map or trip); otherwise it stays empty.\n• `season: winter`\n• `danger: { lte: 2 }` — an earlier field\n**Unless**: not when this matches:\n• `untouched: { lt: 90 }`\nEmpty: always.',
+      '**Only if**: the field is rolled only when this matches what the generator sees (its inputs, earlier fields, the map or trip); otherwise it stays empty.\n• `time.season: winter`\n• `danger: { lte: 2 }` — an earlier field\n**Unless**: not when this matches:\n• `untouched: { lt: 90 }`\nEmpty: always.',
     fieldContext: 'Context',
     fieldContextHelp:
       "Values given to the table or generator this field rolls, as `key: value` pairs:\n• `danger: 3` — as if the place were more dangerous\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — passed on from what the generator sees",

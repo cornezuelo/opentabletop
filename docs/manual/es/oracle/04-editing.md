@@ -19,7 +19,7 @@ Cada **entrada** tiene:
 
 - un **id** (necesario para traducciones y entradas de una vez; **Dar id a las entradas** los rellena),
 - un **rango** de totales (`3` o `2-5`), o un **peso** cuando la tabla no tiene dados (lo probable que es frente a las demás: [Sin dados: pesos](08-dice-and-templates.md#sin-dados-pesos)),
-- el texto del **resultado**, que puede incluir dados (`{{1d6}} lobos`) y valores del contexto (`{{season}}`),
+- el texto del **resultado**, que puede incluir dados (`{{1d6}} lobos`) y valores del contexto (`{{time.season}}`),
 - **luego tira**: otra tabla o generador que se tira después y cuyo resultado se añade.
 
 Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecutivos y ajusta los dados.

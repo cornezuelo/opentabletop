@@ -11,7 +11,7 @@ import {
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
-import { calendarFacts, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
+import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from './bundled'
@@ -176,8 +176,11 @@ describe('bundled open packs', () => {
       Array.from(
         { length: 40 },
         () =>
-          engine.resolve('grey-marches/encounter', { region: 'Ashford Vale', timeOfDay, danger: 0 })
-            .resolution.entry,
+          // As hosts give it: with the facts' full names (`hex.region`).
+          engine.resolve(
+            'grey-marches/encounter',
+            qualify({ region: 'Ashford Vale', timeOfDay, danger: 0 }),
+          ).resolution.entry,
       )
     expect(met('day')).toContain('patrol')
     expect(met('night')).not.toContain('patrol')
@@ -835,11 +838,11 @@ describe('bundled open packs', () => {
         Array.from({ length: 60 }, (_, i) =>
           createOracleEngine({ registry, random: seeded(`wyrm-${i}`) }).resolve(
             'grey-marches/encounter',
-            {
+            qualify({
               terrain: 'forest',
               danger: 3,
               world: { clocks: { 'the-greywood-wyrm-wakes': filled } },
-            },
+            }),
           ),
         ).some((o) => o.resolution.entry === 'wyrm')
       expect(met(5)).toBe(false)
@@ -893,7 +896,7 @@ describe('bundled open packs', () => {
   it('the Grey Marches: getting lost is easier under clear skies (not in forests) and harder the day after', () => {
     const engine = createOracleEngine({ registry, random: seeded('lost') })
     const twice = (context: Record<string, unknown>) =>
-      !!engine.resolve('grey-marches/getting-lost', context).resolution.rolls[0].discarded
+      !!engine.resolve('grey-marches/getting-lost', qualify(context)).resolution.rolls[0].discarded
     expect(twice({ weather: 'grey' })).toBe(false)
     expect(twice({ weather: 'clear' })).toBe(true)
     expect(twice({ weather: 'clear', terrain: 'dense-forest' })).toBe(false)

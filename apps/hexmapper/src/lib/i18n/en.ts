@@ -68,7 +68,7 @@ export const en = {
     appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',
     rollHereHelp:
-      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{danger}}` in a roll, `danger: { gte: 2 }` in a condition\n• tags `landmark` → `tags: landmark`',
+      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{danger}}` in a roll, `danger: { gte: 2 }` in a condition\n• tags `landmark` → `hex.tags: landmark`',
     title: 'Oracle',
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
@@ -355,7 +355,7 @@ export const en = {
     color: 'Color',
     water: 'Water',
     waterHelp:
-      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the system's rule for water: whether they can be crossed, and by which ways of travelling\n• tables see `water: true` (a condition: `water: true`)",
+      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the system's rule for water: whether they can be crossed, and by which ways of travelling\n• tables see `hex.water: true` (a condition: `hex.water: true`)",
     delete: 'Delete terrain',
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',

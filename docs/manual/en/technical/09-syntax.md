@@ -17,9 +17,9 @@ Most boxes and most of the YAML are `key: value` pairs.
 | `count: '{{2d6}}'`         | a [variable or roll](#variables), in quotes (see below) |
 
 - **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved.
-- **In YAML**, the same between braces on one line (`when: { terrain: forest }`) or one pair per indented line.
+- **In YAML**, the same between braces on one line (`when: { hex.terrain: forest }`) or one pair per indented line.
 - **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
-  - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{hoursPerDay}}'`, not `gte: {{hoursPerDay}}`;
+  - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{system.hoursPerDay}}'`, not `gte: {{system.hoursPerDay}}`;
   - **`: ` inside** (a colon and a space): YAML takes it for a new key: `result: 'Ambush: two wolves'`;
   - **` #` inside** (a space and a hash): YAML takes the rest for a comment and drops it: `result: 'Door #3'`;
   - **starting with `- `** (a dash and a space): YAML takes it for an item of a list: `result: '- nothing -'`.
@@ -32,7 +32,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 ## Ids and references
 
 - **Ids** use lowercase letters, digits and dashes: `getting-lost`, `npc-roles`.
-- **References** to a definition: `weather` (the same pack), `core/weather` (another pack, by its id), or one a variable picks: `'weather-{{season}}'`.
+- **References** to a definition: `weather` (the same pack), `core/weather` (another pack, by its id), or one a variable picks: `'weather-{{time.season}}'`.
 - Entries and cards have ids too, for translations and once-only entries.
 - **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.hex-enter`, `time.day-end`, a part of the day `time.part.morning`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `hex.terrain: forest`.
 
@@ -60,14 +60,14 @@ An entry's `range` is the totals it covers: `3`, `2-5`, `-1` (a total below zero
 
 `{{name}}` is a **variable**: the value with that name. `{{2d6}}` is a **roll**. Inside a text, each is written in its place; a value that is a whole `'{{…}}'` is what it names (a number stays a number, a list a list). More: [Dice, variables and context](../oracle/08-dice-and-templates.md#variables-in-texts).
 
-| Write          | Is                                                    |
-| -------------- | ----------------------------------------------------- |
-| `{{2d6}}`      | a roll: `'{{2d6}} wolves'` → "7 wolves"               |
-| `{{season}}`   | a variable: a value of the context                    |
-| `{{npc.role}}` | a part of a value                                     |
-| `{{result}}`   | the text of the table an entry rolled next (`table:`) |
-| `{{roll}}`     | in a table's entries, the total of its own roll       |
-| `{{field}}`    | a generator's field, in its template                  |
+| Write             | Is                                                    |
+| ----------------- | ----------------------------------------------------- |
+| `{{2d6}}`         | a roll: `'{{2d6}} wolves'` → "7 wolves"               |
+| `{{time.season}}` | a variable: a value of the context                    |
+| `{{npc.role}}`    | a part of a value                                     |
+| `{{result}}`      | the text of the table an entry rolled next (`table:`) |
+| `{{roll}}`        | in a table's entries, the total of its own roll       |
+| `{{field}}`       | a generator's field, in its template                  |
 
 A missing value shows as nothing. Variables work in results, generator templates and fixed fields, card texts, `set` and `effects` values, references, [conditions](08-conditions.md#variables-and-rolls) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: a roll is the same all through a moment), and a check action's **When nothing applies** (`{terrain}`, with single braces there).
 
@@ -158,27 +158,27 @@ A check without `at` is rolled only by a step (`roll:`); an action without `on` 
 
 An action's `do:` is a list of steps, in order; each does one thing and may have its own `when` / `unless`.
 
-| Step                                              | Does                                            |
-| ------------------------------------------------- | ----------------------------------------------- |
-| `time: 120`                                       | 120 minutes pass                                |
-| `time: '14:00'`                                   | until it next strikes                           |
-| `time: time.meal.luncheon`                        | until a part of the calendar's day next starts  |
-| `travel.move: destination`                        | moves along the route while its conditions hold |
-| `travel.move: '{{params.until}}'`                 | as far as its parameter says (`hex`, `3`…)      |
-| `travel.speed: 0.5`                               | the rest of today's moving at half speed        |
-| `effects: { party.stats.fatigue: -1 }`            | changes the party                               |
-| `set: { lost: true }`                             | gives a value of the day                        |
-| `do: actions.forage`                              | takes another action, if its conditions hold    |
-| `{ do: actions.march, with: { until: hex } }`     | another action, with its parameters             |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED`           | rolls a check now                               |
-| `travel.advance: 1`                               | moves one hex along the route, no time passing  |
-| `travel.mode: modes.boat`                         | travels another way, if it can be chosen now    |
-| `say: The porters sing`                           | a line of the system's own in the journal       |
-| `pause: true`                                     | the trip waits for **Continue** (or a text)     |
-| `ask: params.how`                                 | the player chooses the parameter `how` now      |
-| `{ wait: { today.ferry: true }, limit: '18:00' }` | time passes until it holds, at most the limit   |
-| `{ id: song, say: … }`                            | names a step for its translations               |
-| `{ unless: { below: food }, effects: { … } }`     | only when its condition holds                   |
+| Step                                               | Does                                            |
+| -------------------------------------------------- | ----------------------------------------------- |
+| `time: 120`                                        | 120 minutes pass                                |
+| `time: '14:00'`                                    | until it next strikes                           |
+| `time: time.meal.luncheon`                         | until a part of the calendar's day next starts  |
+| `travel.move: destination`                         | moves along the route while its conditions hold |
+| `travel.move: '{{params.until}}'`                  | as far as its parameter says (`hex`, `3`…)      |
+| `travel.speed: 0.5`                                | the rest of today's moving at half speed        |
+| `effects: { party.stats.fatigue: -1 }`             | changes the party                               |
+| `set: { lost: true }`                              | gives a value of the day                        |
+| `do: actions.forage`                               | takes another action, if its conditions hold    |
+| `{ do: actions.march, with: { until: hex } }`      | another action, with its parameters             |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`            | rolls a check now                               |
+| `travel.advance: 1`                                | moves one hex along the route, no time passing  |
+| `travel.mode: modes.boat`                          | travels another way, if it can be chosen now    |
+| `say: The porters sing`                            | a line of the system's own in the journal       |
+| `pause: true`                                      | the trip waits for **Continue** (or a text)     |
+| `ask: params.how`                                  | the player chooses the parameter `how` now      |
+| `{ wait: { today.ferry: true }, limit: '18:00' }`  | time passes until it holds, at most the limit   |
+| `{ id: song, say: … }`                             | names a step for its translations               |
+| `{ unless: { trip.below: food }, effects: { … } }` | only when its condition holds                   |
 
 Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: actions.march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: actions.camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 

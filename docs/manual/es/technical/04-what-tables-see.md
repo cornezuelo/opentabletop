@@ -4,7 +4,7 @@ Cada tirada recibe un **contexto**: valores que una tabla puede usar en sus dado
 
 ## Cómo leer esta página
 
-Cada valor tiene un **nombre completo** que dice de dónde sale (`hex.terrain`) y casi todos también un **nombre corto** (`terrain`). Los dos leen el mismo valor: `terrain: forest` y `hex.terrain: forest` se cumplen en los mismos hexes, y `{{season}}` escribe lo mismo que `{{time.season}}`.
+Cada valor tiene un **nombre completo** que dice de dónde sale (`hex.terrain`) y casi todos también un **nombre corto** (`terrain`). Los dos leen el mismo valor: `terrain: forest` y `hex.terrain: forest` se cumplen en los mismos hexes, y `{{time.season}}` escribe lo mismo que `{{time.season}}`.
 
 | Nombres completos    | De qué tratan                                                                                     |
 | -------------------- | ------------------------------------------------------------------------------------------------- |
@@ -203,7 +203,7 @@ Cuando dos fuentes dan el mismo nombre, gana la posterior:
 Algunas coincidencias, y lo que pasa:
 
 - **Un valor de región y uno de hex** con el mismo nombre (`danger: 2` en el Bosque Gris, `danger: 5` en uno de sus hexes): allí gana el del hex, en el resto el de la región. Así hacen las Marcas Grises que el bosque sea más peligroso hacia su corazón.
-- **Una característica que se llama como un dato** (una característica `weather`, o `terrain`): `{{weather}}` y `when: { weather: storm }` leen el clima del día, nunca la característica; esta sigue siendo `party.stats.weather`. Mejor no usar esos nombres (la lista de arriba).
+- **Una característica que se llama como un dato** (una característica `weather`, o `terrain`): `{{trip.weather}}` y `when: { trip.weather: storm }` leen el clima del día, nunca la característica; esta sigue siendo `party.stats.weather`. Mejor no usar esos nombres (la lista de arriba).
 - **Un valor de un icono o token llamado `terrain`**: se lee como `icon.terrain` / `token.terrain`, dentro de su propio nombre, así que no tapa el terreno del hex.
 - **Un valor que fija una entrada con el nombre de una característica** (`set: { morale: 1 }` con una característica `morale`): el texto del resultado y las tablas que tira leen `{{morale}}` como 1, pero no cambia la característica ni se mantiene el resto del día (solo lo hacen `weather`, `…Modifier`, `…Impossible` y los valores declarados). Para cambiarla, usa `effects: { party.stats.morale: 1 }`.
 - **El contexto de un binding** (`context: { timeOfDay: night }`) gana a todo para su comprobación: así la misma tabla responde a los encuentros de día y de noche.

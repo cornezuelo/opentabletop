@@ -2,7 +2,7 @@
 # as the map's system, "Discover the map as you travel"). The bindings name these two tables under `discover`;
 # see travel.yaml. The example map leaves its east unpainted for this.
 
-# The terrain of an empty hex, seen from where you stand. The context has `terrain` (the
+# The terrain of an empty hex, seen from where you stand. The context has `from.terrain` (the
 # land you're on) and the land around the hex being decided: `around` counts its known
 # neighbours' terrains (around.lake: 2) and `common` is the most frequent one. So lakes,
 # forests and ranges grow together instead of a patchwork.
@@ -46,25 +46,30 @@ entries:
   - {
       id: open,
       range: 4-5,
-      when: { terrain: [steppe, plains, farmland, heath, savanna] },
+      when: { from.terrain: [steppe, plains, farmland, heath, savanna] },
       table: open-land,
     }
   - {
       id: woods,
       range: 4-5,
-      when: { terrain: [forest, dense-forest, jungle, taiga] },
+      when: { from.terrain: [forest, dense-forest, jungle, taiga] },
       table: woodland,
     }
-  - { id: wet, range: 4-5, when: { terrain: [swamp, marsh] }, table: wetland }
+  - { id: wet, range: 4-5, when: { from.terrain: [swamp, marsh] }, table: wetland }
   - {
       id: high,
       range: 4-5,
-      when: { terrain: [hills, mountains, peaks, volcanic] },
+      when: { from.terrain: [hills, mountains, peaks, volcanic] },
       table: highland,
     }
-  - { id: dry, range: 4-5, when: { terrain: [desert, badlands, canyon, oasis] }, table: dryland }
-  - { id: cold, range: 4-5, when: { terrain: [tundra, snow, glacier] }, table: cold-land }
-  - { id: waters, range: 4-5, when: { terrain: [coast, lake, sea, deep-sea] }, table: waters }
+  - {
+      id: dry,
+      range: 4-5,
+      when: { from.terrain: [desert, badlands, canyon, oasis] },
+      table: dryland,
+    }
+  - { id: cold, range: 4-5, when: { from.terrain: [tundra, snow, glacier] }, table: cold-land }
+  - { id: waters, range: 4-5, when: { from.terrain: [coast, lake, sea, deep-sea] }, table: waters }
   - { id: anything, range: 1-6, table: any-land }
 ---
 kind: table
@@ -217,12 +222,12 @@ description: |-
   - **Discovery**'s contents: `discover.contents`
   - `set: { poi: false }`: nothing worth a point of interest
   - `tags` and `name` written on the hex
-  - A condition on the hex: `water: true`
+  - A condition on the hex: `hex.water: true`
   - `once`: the dragon's lair
   - Dice in the text: `{{1d6+2}}`
 roll: 2d6
 entries:
-  - { id: water, range: 2-12, when: { water: true }, result: Open water, set: { poi: false } }
+  - { id: water, range: 2-12, when: { hex.water: true }, result: Open water, set: { poi: false } }
   - {
       id: lair,
       range: 2,

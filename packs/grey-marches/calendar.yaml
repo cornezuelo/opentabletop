@@ -1,7 +1,7 @@
 # The Marcher reckoning: the calendar of the Grey Marches' trips. Twelve months of 30
 # days in four seasons, a seven-day week, two moons and the feasts the tables know.
 # Tables and checks see `month`, `year`, `weekday`, `moons.pale` / `moons.ember` (new,
-# waxing, full, waning) and `holidays` (a list: `when: { holidays: midsummer }`).
+# waxing, full, waning) and `holidays` (a list: `when: { time.holidays: midsummer }`).
 kind: calendar
 id: marcher-reckoning
 name: The Marcher reckoning

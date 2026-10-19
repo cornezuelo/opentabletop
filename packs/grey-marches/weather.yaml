@@ -11,11 +11,16 @@ description: |-
 
   **Shows:**
 
-  - A table id built from the context: `weather-{{season}}`
+  - A table id built from the context: `weather-{{time.season}}`
   - A fallback when there is no season
 roll: 1d6
 entries:
-  - { id: season, range: 1-6, when: { season: { exists: true } }, table: 'weather-{{season}}' }
+  - {
+      id: season,
+      range: 1-6,
+      when: { time.season: { exists: true } },
+      table: 'weather-{{time.season}}',
+    }
   - { id: grey, range: 1-6, result: Grey skies, set: { weather: grey } }
 ---
 # 2d6: the middle is common, the ends rare. Rain swells the fords for the rest of the day.

@@ -14,11 +14,11 @@ id: what-do-we-find
 name: ¿Qué encontramos aquí?
 roll: 1d6
 entries:
-  - { id: forest, range: 1-6, when: { terrain: forest }, result: 'Troncos caídos y setas' }
+  - { id: forest, range: 1-6, when: { hex.terrain: forest }, result: 'Troncos caídos y setas' }
   - {
       id: rocks,
       range: 1-6,
-      when: { terrain: [hills, mountains] },
+      when: { hex.terrain: [hills, mountains] },
       result: 'La boca de una cueva en la roca',
     }
   - { id: nothing, range: 1-6, result: 'Nada especial' }
@@ -34,7 +34,7 @@ Pon etiquetas a los hexes en el Hexmapper (`haunted`, `ruins`…) y dales campos
 
 ```yaml
 entries:
-  - { id: ghost, range: 1-2, when: { tags: haunted }, result: 'Una figura pálida os observa' }
+  - { id: ghost, range: 1-2, when: { hex.tags: haunted }, result: 'Una figura pálida os observa' }
   - { id: ambush, range: 1-6, when: { danger: { gte: 3 } }, result: '¡Emboscada!' }
 ```
 
@@ -52,7 +52,7 @@ id: weather
 name: El clima de hoy
 roll: 1d2
 entries:
-  - { id: today, range: 1-2, table: 'weather-{{season}}' }
+  - { id: today, range: 1-2, table: 'weather-{{time.season}}' }
 ```
 
 ## 4. Resultados que entiende el viaje
@@ -118,11 +118,11 @@ actions:
   camp: # dormir hasta las 06:00; una noche bien comidos (no se acabó la comida) baja la fatiga
     do:
       - { time: '06:00' }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
   rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   forage: # una acción de este sistema: un botón Buscar comida
     name: Buscar comida
-    unless: { weather: storm }
+    unless: { trip.weather: storm }
     do: [{ time: 180 }, { travel.speed: 0.5 }]
     oncePerDay: true
   eat: # no es un botón: la hace el sistema al acabar cada día, se acampe o no
@@ -130,11 +130,16 @@ actions:
     do: [{ effects: { party.resources.food: -1 } }]
 checks:
   - { event: WEATHER, at: '06:00' }
-  - { event: LOST, at: '06:00', unless: { edges: [road, river] } }
-  - { event: ENCOUNTER, at: trip.hex-enter, when: { terrain: [forest, swamp] } }
+  - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
+  - { event: ENCOUNTER, at: trip.hex-enter, when: { hex.terrain: [forest, swamp] } }
   - { event: NIGHT, at: actions.camp }
-  - { event: FORAGE, at: actions.forage, when: { terrain: [forest, plains] } }
-  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: FORAGE, at: actions.forage, when: { hex.terrain: [forest, plains] } }
+  - {
+      event: HUNGRY,
+      at: time.day-end,
+      when: { trip.below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
 ---
 kind: bindings
 id: default
@@ -164,9 +169,9 @@ Un terreno puede estar **cerrado**: `passable: false`, siempre, o con una [condi
 ```yaml
 terrains:
   swamp: { multiplier: 0.33 }
-  peaks: { multiplier: 0.25, passable: { when: { season: summer } } } # abierto solo en verano
-  pass: { multiplier: 0.5, passable: { unless: { weather: [snow, storm] } } } # cerrado con nieve
-  lake: { passable: { when: { month: [deepwinter, wolfmoon] } } } # se cruza sobre el hielo
+  peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } } # abierto solo en verano
+  pass: { multiplier: 0.5, passable: { unless: { trip.weather: [snow, storm] } } } # cerrado con nieve
+  lake: { passable: { when: { time.month: [deepwinter, wolfmoon] } } } # se cruza sobre el hielo
 water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 ```
 
@@ -176,8 +181,8 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 
 **modes** son las formas de viajar entre las que elige el jugador en el panel del viaje, cada una con su `kmPerDay` y un `name` (y una `description`) para los jugadores: el panel y el diario muestran _A caballo_ en lugar de `horse`, traducido en `locales/` como el resto. Sin nombre, se enseña el id, más legible (`on-foot`: on foot). Dos condiciones dan forma a cada una:
 
-- `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ water: true }, { terrain: coast }] }`; un carro solo por camino: `through: { edges: road }`.
-- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Systems): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }`; un caballo, no con nieve: `unless: { weather: snow }`.
+- `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { hex.water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ hex.water: true }, { hex.terrain: coast }] }`; un carro solo por camino: `through: { trip.edges: road }`.
+- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Systems): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }`; un caballo, no con nieve: `unless: { trip.weather: snow }`.
 
 Un valor del día también puede bloquear una (`blocks: [modes.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
 
@@ -192,7 +197,12 @@ resources:
   food: { name: Raciones, min: 0 }
   water: { name: Odres, min: 0, max: 6 } # no se pueden llevar más de 6
 checks:
-  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - {
+      event: HUNGRY,
+      at: time.day-end,
+      when: { trip.below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
 ```
 
 Sin `min`, una provisión puede quedar en negativo (una deuda, por ejemplo).
@@ -247,7 +257,7 @@ actions:
 
 Cuándo se puede pulsar el botón:
 
-- `when` / `unless`: condiciones (como las de una tabla) sobre los datos del viaje, los valores de hoy y el grupo. Las Marcas Grises buscan comida `unless: { weather: storm }` y solo acampan `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. Si no se cumplen, el botón se desactiva y dice por qué.
+- `when` / `unless`: condiciones (como las de una tabla) sobre los datos del viaje, los valores de hoy y el grupo. Las Marcas Grises buscan comida `unless: { trip.weather: storm }` y solo acampan `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. Si no se cumplen, el botón se desactiva y dice por qué.
 - El día y la noche en esas condiciones son los del sistema: la hora (`time.hour: { gte: 6, lt: 20 }`) o las partes del día de su calendario (`time.part: night`, `time.tags: dark`). Un sistema puede descansar, buscar comida y forzar la marcha solo de día, así no se puede saltar la noche descansando, y marchar de noche solo tras una marcha nocturna.
 - `oncePerDay: true`: una vez al día.
 - Un valor del día que la `blocks` (arriba).
@@ -261,7 +271,7 @@ actions:
   eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] }
   feed-horses: # solo yendo a caballo
     on: time.day-end
-    when: { mode: horse }
+    when: { trip.mode: horse }
     do: [{ effects: { party.resources.fodder: -1 } }]
 ```
 
@@ -288,7 +298,7 @@ actions:
   camp: # dormir hasta las 06:00; una noche bien comidos baja la fatiga
     do:
       - { time: '06:00' }
-      - { unless: { below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
   forced-march: # más rápido, cansa, y en marcha enseguida: hace la marcha
     name: Marcha forzada
     when: { party.stats.fatigue: { lt: 2 } } # solo con el grupo descansado
@@ -342,19 +352,24 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 
 ```yaml
 checks:
-  - { event: LOST, name: Perderse, at: time.part.morning, unless: { edges: [road, river] } }
+  - { event: LOST, name: Perderse, at: time.part.morning, unless: { trip.edges: [road, river] } }
   - event: ENCOUNTER
     at: [trip.hex-enter, actions.rest]
     when:
       {
         any:
           [
-            { moment: trip.hex-enter, danger: { gte: 1 } },
-            { moment: actions.rest, danger: { gte: 3 } },
+            { trip.moment: trip.hex-enter, danger: { gte: 1 } },
+            { trip.moment: actions.rest, danger: { gte: 3 } },
           ],
       }
-  - { event: SHRINE, at: trip.hex-enter, when: { tags: shrine }, pause: true } # espera a Continuar
-  - { event: HUNGRY, at: time.day-end, when: { below: food }, effects: { party.stats.fatigue: 1 } }
+  - { event: SHRINE, at: trip.hex-enter, when: { hex.tags: shrine }, pause: true } # espera a Continuar
+  - {
+      event: HUNGRY,
+      at: time.day-end,
+      when: { trip.below: food },
+      effects: { party.stats.fatigue: 1 },
+    }
 ```
 
 Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). Una comprobación sin tabla ni efectos solo se apunta en el diario. `pause: true` la tira (si una tabla la resuelve) y luego detiene el viaje hasta **Continuar**, para que describas el lugar, la resuelvas tú o decidas algo: **solo `pause: true` detiene el viaje**, con tabla o sin ella (un lugar señalado que describir: `pause: true` y sin tabla). Esperar con el reloj del mundo (Hexmapper → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): cada momento al llegar, las de la acción de la parada desde su momento, `time.day-end` al acabar cada día.
@@ -364,7 +379,7 @@ Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente lo
 Los **bindings** (`kind: bindings`) son la otra mitad del sistema:
 
 - `on` conecta cada comprobación, por su evento, con lo que la responde: `resolve:` una tabla, oráculo, generador o mazo del pack (o de otro pack, por su id completo: `core/weather`), o `weather:` un [modelo de clima](#clima-con-inercia). `context` añade valores solo para esa comprobación, y gana a todo lo demás: la misma tabla de encuentros responde de día y de noche con `context: { timeOfDay: night }` en la comprobación de acampar, y un oráculo recibe su pregunta como `context: { odds: likely }`. **Las comprobaciones sin binding** se apuntan en el diario (con sus efectos, si tienen), y detienen el viaje hasta **Continuar** solo si dicen `pause: true`: los hitos de las Marcas Grises.
-- `stats` son los números del grupo, que aparecen en el panel del viaje, donde los pones al empezar y los cambias mientras juegas. Las aplicaciones no se inventan ninguno: cada sistema declara los suyos, con un `name`, una `description` (su ayuda en el panel del viaje), un valor inicial (`default`) y, si los tiene, `min` y `max` (la fatiga nunca baja de 0). Las tablas los leen por su clave, `{{charisma}}`, o siempre sin ambigüedad `party.stats.charisma`. Las Marcas Grises declaran Carisma, Supervivencia, Orientación y Moral; las reglas genéricas no tienen ninguno (la Moral de su grupo es un valor de su hoja de grupo). Una tabla puede cambiar uno que nadie declaró (`effects: { party.stats.hirelings: 1 }`): funciona y aparece con su clave, pero el pack recibe un aviso, así que declara todas las características que cambian sus tablas.
+- `stats` son los números del grupo, que aparecen en el panel del viaje, donde los pones al empezar y los cambias mientras juegas. Las aplicaciones no se inventan ninguno: cada sistema declara los suyos, con un `name`, una `description` (su ayuda en el panel del viaje), un valor inicial (`default`) y, si los tiene, `min` y `max` (la fatiga nunca baja de 0). Las tablas los leen por su nombre completo, `{{party.stats.charisma}}` (también se lee la clave sola, `{{charisma}}`, pero un dato con el mismo nombre la tapa). Las Marcas Grises declaran Carisma, Supervivencia, Orientación y Moral; las reglas genéricas no tienen ninguno (la Moral de su grupo es un valor de su hoja de grupo). Una tabla puede cambiar uno que nadie declaró (`effects: { party.stats.hirelings: 1 }`): funciona y aparece con su clave, pero el pack recibe un aviso, así que declara todas las características que cambian sus tablas.
 - `reads` da nombre a los demás valores que leen las tablas del sistema y que nadie más nombra: un valor del mapa (`danger`, `icon.guards`, `token.fare`), el contexto de los bindings (`timeOfDay`) o los valores del día que ponen las tablas (`fordModifier`). Con un `name` y una `description` cada uno, el panel de tirada los muestra por su nombre, con lo que son en su ayuda: `reads: { icon.guards: { name: Guardias, description: Cuántos guardias vigilan las puertas. } }`. Los valores que dan los mapas y los viajes (terreno, estación, fiestas…) ya tienen nombre en las aplicaciones.
 
 ```yaml
@@ -467,7 +482,7 @@ holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 - **divisions** del día, si el sistema quiere alguna (comidas, guardias…, cada una con sus partes o `every` N horas): mira [Calendarios](../technical/07-kinds.md#calendarios).
 - **months** en orden, con sus días y su **season** (de aquí salen las estaciones en que puede empezar un viaje); **weekdays**, **moons** (un ciclo en días y un `offset` opcional), **holidays** (un mes y un día), el **startYear** y, si quieres, `start: { month, day }` para el primer día.
 - El panel del viaje muestra la fecha («Lunadía, 1 de Deshielo, año 412»), las fases de las lunas y las fiestas del día.
-- Las tablas y comprobaciones ven `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` o `waning`) y `holidays` (una lista): `when: { moons.ember: full }`, `when: { holidays: midsummer }`.
+- Las tablas y comprobaciones ven `month`, `year`, `weekday`, `moons.<id>` (`new`, `waxing`, `full` o `waning`) y `holidays` (una lista): `when: { time.moons.ember: full }`, `when: { time.holidays: midsummer }`.
 
 El `calendar.yaml` de las Marcas Grises es un ejemplo completo.
 

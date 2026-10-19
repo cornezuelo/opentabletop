@@ -47,11 +47,11 @@ actions:
       - { effects: { party.resources.food: -1 } }
       - { effects: { party.resources.torches: -1 } } # step 3
 checks:
-  - { event: LOST_CHECK, at: '06:00', when: { terrain: forest } } # step 5
+  - { event: LOST_CHECK, at: '06:00', when: { hex.terrain: forest } } # step 5
   - {
       event: NO_TORCHES,
       at: time.day-end,
-      when: { below: torches },
+      when: { trip.below: torches },
       effects: { party.stats.fatigue: 1 },
     } # step 6
 ---

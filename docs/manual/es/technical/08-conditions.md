@@ -2,7 +2,7 @@
 
 Una **condición** dice cuándo se aplica algo: una entrada que solo sale en bosques, una comprobación que solo se tira fuera de los caminos, una acción disponible solo con buen tiempo, un modo de tirada que se usa solo el día después de perderse. Se escriben igual en todas partes: `when` y `unless` en las entradas de tabla, los campos de generador, las comprobaciones, las acciones y sus pasos, las formas de viajar y los terrenos (`passable`), `through` (por dónde puede ir una forma de viajar), y `modeWhen` / `modeUnless` en tablas y oráculos, y `when` / `unless` en una característica del grupo que sale de sus personajes (`from`), leída con los valores de cada personaje.
 
-Una condición es un conjunto de pares `nombre: lo que debe ser` sobre los valores que ve la tirada (mira [Qué ven las tablas](04-what-tables-see.md)). Se deben cumplir todos los pares. En la casilla de un formulario escribes los pares sin llaves (`terrain: forest, danger: { gte: 3 }`); en YAML, entre llaves (`when: { terrain: forest, danger: { gte: 3 } }`).
+Una condición es un conjunto de pares `nombre: lo que debe ser` sobre los valores que ve la tirada (mira [Qué ven las tablas](04-what-tables-see.md)). Se deben cumplir todos los pares. En la casilla de un formulario escribes los pares sin llaves (`terrain: forest, danger: { gte: 3 }`); en YAML, entre llaves (`when: { hex.terrain: forest, danger: { gte: 3 } }`).
 
 Nada de una condición se ejecuta como código: los packs de cualquiera se cargan sin peligro.
 
@@ -33,7 +33,7 @@ Varias comparaciones sobre el mismo valor se deben cumplir todas: `danger: { gte
 
 ## Variables y tiradas: `{{…}}`
 
-Un valor escrito como `'{{nombre}}'` es una **variable**: otro valor del contexto, leído al comprobar la condición, en vez de uno fijo. Escrito como `'{{dados}}'` es una **tirada**. Cualquiera de las dos va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`. En YAML, **ponlas entre comillas** (`'{{hoursPerDay}}'`): sin comillas, las llaves abren un valor dentro de otro (ver [Sintaxis](09-syntax.md#valores-clave-valor)).
+Un valor escrito como `'{{nombre}}'` es una **variable**: otro valor del contexto, leído al comprobar la condición, en vez de uno fijo. Escrito como `'{{dados}}'` es una **tirada**. Cualquiera de las dos va donde va un valor: tras `gte`, `lt`…, en una lista, tras `not`. En YAML, **ponlas entre comillas** (`'{{system.hoursPerDay}}'`): sin comillas, las llaves abren un valor dentro de otro (ver [Sintaxis](09-syntax.md#valores-clave-valor)).
 
 | Escribe                                                     | Se cumple cuando                                          |
 | ----------------------------------------------------------- | --------------------------------------------------------- |
@@ -71,16 +71,16 @@ Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tab
 
 - `when` se debe cumplir para que se aplique; sin él, se aplica siempre.
 - `unless` **no** se debe cumplir; sin él, nada lo impide.
-- Con los dos, se miran los dos: `when: { terrain: forest }, unless: { edges: road }` es un bosque al que no se llega por camino.
+- Con los dos, se miran los dos: `when: { hex.terrain: forest }, unless: { trip.edges: road }` es un bosque al que no se llega por camino.
 
 ## Dónde las verás, en las Marcas Grises
 
-- Entradas: la Sierpe de la tabla de encuentros, `when: { all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; la cacería, `when: { all: [{ moons.ember: full }, { timeOfDay: night }] }`; la patrulla del Valle, `when: { region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
+- Entradas: la Sierpe de la tabla de encuentros, `when: { all: [{ hex.terrain: [forest, dense-forest] }, { danger: { gte: 5 } }] }`; la cacería, `when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }`; la patrulla del Valle, `when: { hex.region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
 - Campos de generador: la trampa de _Explorar una ruina_, `when: { danger: { lte: 2 } }`, y su ruina intacta, `unless: { untouched: { lt: 90 } }`.
-- Comprobaciones: los encuentros `at: [trip.hex-enter, actions.rest]`, `when: { any: [{ moment: trip.hex-enter, danger: { gte: 1 } }, { moment: actions.rest, danger: { gte: 3 } }] }`; perderse, `unless: { any: [{ edges: [road, river] }, { mode: boat }] }`; el vado, `when: { all: [{ tags: ford }, { not: { mode: boat } }] }`.
-- Acciones y pasos: buscar comida, `unless: { weather: storm }`; la noche bien comidos de la acampada, `unless: { below: food }`; comer forraje, `when: { mode: horse }`; los pasos del transbordador tras su pregunta, `when: { params.fare: wait }`, y su espera a Brenna, `wait: { time.part: [afternoon, evening] }` (un paso que espera hasta que se cumpla su condición: mira [Acciones y pasos](10-actions-and-steps.md#esperar-algo-wait-y-limit)).
-- Formas de viajar: la barca va `through: { any: [{ water: true }, { terrain: coast }] }` y se sube `when: { any: [{ water: true }, { terrain: coast }, { tags: ferry }] }` (solo se elige a la orilla o en el transbordador; si no, sale desactivada en el panel del viaje, diciendo por qué).
-- Terrenos: los picos son `passable: { when: { season: summer }, unless: { weather: [snow, storm] } }`; los lagos, `passable: { when: { month: [deepwinter, wolfmoon] } }` (helados). Ven el hex al que se entra y el momento, como `through`.
+- Comprobaciones: los encuentros `at: [trip.hex-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.hex-enter, danger: { gte: 1 } }, { trip.moment: actions.rest, danger: { gte: 3 } }] }`; perderse, `unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }`; el vado, `when: { all: [{ hex.tags: ford }, { not: { trip.mode: boat } }] }`.
+- Acciones y pasos: buscar comida, `unless: { trip.weather: storm }`; la noche bien comidos de la acampada, `unless: { trip.below: food }`; comer forraje, `when: { trip.mode: horse }`; los pasos del transbordador tras su pregunta, `when: { params.fare: wait }`, y su espera a Brenna, `wait: { time.part: [afternoon, evening] }` (un paso que espera hasta que se cumpla su condición: mira [Acciones y pasos](10-actions-and-steps.md#esperar-algo-wait-y-limit)).
+- Formas de viajar: la barca va `through: { any: [{ hex.water: true }, { hex.terrain: coast }] }` y se sube `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }` (solo se elige a la orilla o en el transbordador; si no, sale desactivada en el panel del viaje, diciendo por qué).
+- Terrenos: los picos son `passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }`; los lagos, `passable: { when: { time.month: [deepwinter, wolfmoon] } }` (helados). Ven el hex al que se entra y el momento, como `through`.
 
 Un valor del día no es una condición, pero funciona como una: mientras se cumple, **bloquea** lo que lista (`blocks: [travel.move]`, una acción, `actions.forage`, una forma de viajar, `modes.horse`). Mira [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
