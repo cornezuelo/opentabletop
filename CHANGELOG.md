@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-20
+
 ### Apps
 
 - Manual: **Systems → Weather explained from nothing**: how weather with memory works, chance tables and hex flowers read in plain words, a valley's weather built step by step with what you'll see in the trip, the usual mistakes, and a picture of a hex flower and how the day walks on it. The manual can show pictures now.
