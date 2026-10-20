@@ -22,7 +22,7 @@ Each with its **Name** and **Description (its help)** for players (the trip pane
 
 ## Terrains, water and roads
 
-- **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `season: summer` / `weather: [snow, storm]`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
+- **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season: summer` / `trip.weather: [snow, storm]`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
 - **Water hexes**: the same, for hexes the map marks as water that have no rule of their own in Terrains. A way of travelling whose **Only through** holds on water can still sail them.
 - **Roads and rivers**: following one from one hex to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). Lines not listed do nothing; conditions can still tell them apart (`edges: road`).
 
@@ -36,7 +36,7 @@ Its **Used by** column lists the actions, checks and tables that read, spend or 
 
 ## Weather
 
-How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](11-weather.md).
+How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](11-weather.md).
 
 ## Values of the day
 

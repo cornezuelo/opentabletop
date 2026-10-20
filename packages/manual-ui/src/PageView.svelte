@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { ManualPage } from './pages'
-  import { pageLink, renderPage } from './render'
+  import { pictures } from './manual'
+  import { pageLink, picturePath, renderPage } from './render'
 
   /** One manual page. Links to other pages navigate; outside links open a new tab. */
   let {
@@ -15,7 +16,12 @@
   } = $props()
 
   let host: HTMLElement
-  const html = $derived(renderPage(page.body))
+  const html = $derived(
+    renderPage(page.body, (src) => {
+      const path = picturePath(page, src, (p) => p in pictures)
+      return path && pictures[path]
+    }),
+  )
 
   $effect(() => {
     void html
@@ -117,6 +123,11 @@
     border: 1px solid var(--panel-border);
     border-bottom-width: 2px;
     border-radius: 4px;
+  }
+
+  .page :global(img) {
+    max-width: 100%;
+    height: auto;
   }
 
   .page :global(table) {

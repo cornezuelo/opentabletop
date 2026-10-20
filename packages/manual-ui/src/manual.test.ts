@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { manual } from './manual'
+import { manual, pictures } from './manual'
 import { anchorOf, createManual, highlight, parsePage, searchWords } from './pages'
-import { pageLink } from './render'
+import { pageLink, picturePath, withPictures } from './render'
 
 describe('manual pages', () => {
   it('parse title, order and sections', () => {
@@ -40,6 +40,29 @@ describe('the bundled manual', () => {
         .map((p) => p.slug)
       expect(es, app).toEqual(en)
     }
+  })
+
+  it('only shows pictures that exist, each translation its own when it has one', () => {
+    let shown = 0
+    for (const locale of ['en', 'es'])
+      for (const app of manual.apps)
+        for (const page of manual.pages(app, locale))
+          for (const [, src] of page.body.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)) {
+            const path = picturePath(page, src, (p) => p in pictures)
+            expect(path, `${locale}/${app}/${page.slug} → ${src}`).toBeTruthy()
+            shown++
+          }
+    expect(shown).toBeGreaterThan(0)
+    const page = { locale: 'es', app: 'systems' }
+    const has = (p: string) =>
+      ['en/systems/a.svg', 'es/systems/b.svg', 'en/images/c.svg'].includes(p)
+    expect(picturePath(page, 'a.svg', has)).toBe('en/systems/a.svg')
+    expect(picturePath(page, 'b.svg', has)).toBe('es/systems/b.svg')
+    expect(picturePath(page, '../images/c.svg', has)).toBe('en/images/c.svg')
+    expect(picturePath(page, 'https://x/y.svg', has)).toBeUndefined()
+    expect(withPictures('<p><img src="b.svg" alt="A flower"></p>', (src) => `/assets/${src}`)).toBe(
+      '<p><img src="/assets/b.svg" alt="A flower"></p>',
+    )
   })
 
   it('only links to pages and sections that exist', () => {

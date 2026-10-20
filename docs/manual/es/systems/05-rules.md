@@ -22,7 +22,7 @@ Cada una con su **Nombre** y su **Descripción (su ayuda)** para los jugadores (
 
 ## Terrenos, agua y caminos
 
-- **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `season: summer` / `weather: [snow, storm]`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
+- **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `time.season: summer` / `trip.weather: [snow, storm]`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
 - **Hexes de agua**: lo mismo, para los hexes que el mapa marca como agua y no tienen regla propia en Terrenos. Una forma de viajar cuyo **Solo por** se cumple en el agua puede navegarlos igualmente.
 - **Caminos y ríos**: al seguir uno de un hex al siguiente, su **Velocidad ×** sustituye a la del terreno (un camino a `1.5`: un 50 % más rápido). Las líneas no listadas no hacen nada; las condiciones pueden distinguirlas igualmente (`edges: road`).
 
@@ -36,7 +36,7 @@ Su columna **Usado en** lista las acciones, comprobaciones y tablas que leen, ga
 
 ## Clima
 
-Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](11-weather.md).
+Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`trip.weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](11-weather.md).
 
 ## Valores del día
 

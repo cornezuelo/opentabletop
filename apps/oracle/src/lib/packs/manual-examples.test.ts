@@ -4,13 +4,15 @@ import {
   calendarOf,
   startTrip,
   stepTrip,
+  tripAvailability,
   travelSystems,
   type SessionState,
 } from '@open-tabletop/session'
 import { tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
+import { weatherShares, type HexFlower, type WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
-import { parse } from 'yaml'
+import { parse, stringify } from 'yaml'
 
 /**
  * The definitions the manual shows as examples are real: each YAML block with a `kind:`
@@ -223,5 +225,128 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
     expect(calendar.describe(s.travel.time)).toMatchObject({ hour: 11, minute: 0 })
     expect(s.travel.mode).toBe('raft')
     expect(lines(s)).toContain('MODE_CHANGED')
+  })
+})
+
+describe('Systems → Weather: the valley’s weather plays as the page says', () => {
+  const model = examples(read('en/systems/11-weather.md')).find((y) => y.includes('Valley skies'))!
+  // A new system: a copy of the Generic rules and Core's calendar, with what steps 5 and 6
+  // add, and a check an hour after the weather's that reads it (Common mistakes).
+  const core = (file: string) =>
+    files[`../../packs/core/${file}`] ??
+    (
+      import.meta.glob('../../../../../packs/core/*.yaml', {
+        query: '?raw',
+        import: 'default',
+        eager: true,
+      }) as Record<string, string>
+    )[`../../../../../packs/core/${file}`]
+  const rules = parse(core('travel.yaml'))
+  rules.weather = { rain: { speed: 0.75 }, snow: { speed: 0.5 }, storm: { speed: 0 } }
+  rules.values = { 'deep-snow': { name: 'Deep snow', blocks: ['modes.horse'] } }
+  rules.checks = [
+    { event: 'WEATHER', name: 'Weather', at: 'time.part.morning' },
+    { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } },
+  ]
+  const { registry, diagnostics } = loadPacks([
+    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 5\nlocale: en\n' },
+    { path: 'valley/travel.yaml', content: stringify(rules) },
+    { path: 'valley/calendar.yaml', content: core('calendar.yaml') },
+    { path: 'valley/weather.yaml', content: model },
+    {
+      path: 'valley/system.yaml',
+      content: [
+        'kind: bindings\nid: default\non:\n  WEATHER: { weather: weather.weather }',
+        'kind: system\nid: default\nname: Valley\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default\nweather: [weather.weather]',
+      ].join('\n---\n'),
+    },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.pack === 'valley')!
+  const skies = parse(model) as WeatherModel
+  // A long row of plains.
+  const world: TravelWorld = {
+    hexKm: 10,
+    cell: (hex) => (Number(hex) >= 0 && Number(hex) < 200 ? { terrain: 'plains' } : null),
+    neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => i >= 0).map(String),
+    distance: (a, b) => Math.abs(Number(a) - Number(b)),
+    edges: () => [],
+  }
+  const options = (seed: string) => ({
+    system,
+    world,
+    oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    locale: 'en',
+    random: seeded(seed),
+  })
+  const nextDawn = (s: SessionState) =>
+    calendarOf(system).at(s.travel.day + 1, tripStart(system.rules, calendarOf(system)))
+  /** Marches day after day towards the far end, and each day's weather and checks. */
+  function play(season: string, seed: string, days: number) {
+    const opts = options(seed)
+    let s = startTrip({ system, location: '0', season }).session
+    s = { ...s, travel: { ...s.travel, resources: { food: 99 } } }
+    s = stepTrip(opts, s, { type: 'setDestination', hex: '199' }).state
+    const seen: { weather: string; wet: boolean; travel: unknown; horse: unknown }[] = []
+    for (let day = 0; day < days; day++) {
+      const at = s.journal.length
+      s = stepTrip(opts, s, { type: 'travel' }).state
+      // Today's weather was rolled as the morning began (this step, or the wait before it).
+      const weather = s.journal.findLast(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'WEATHER',
+      )!
+      seen.push({
+        weather: (weather.data?.value as { weather: string }).weather,
+        wet: s.journal.some((e) => e.data?.event === 'WET' && e.time === weather.time + 60),
+        travel: s.journal.slice(at).find((e) => e.code === 'TRAVEL_STOPPED')?.data?.reason,
+        horse: tripAvailability({ system, world }, s)['mode.horse'],
+      })
+      s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
+    }
+    return seen
+  }
+
+  it('loads, and its seasons come up as Over many days says (steps 3, 4)', () => {
+    expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    const shares = (season: string, m = skies) => weatherShares(m, season, 20000, seeded('valley'))
+    const summer = shares('summer')
+    expect(summer.clear).toBeCloseTo(0.73, 1)
+    expect(summer.rain).toBeCloseTo(0.23, 1)
+    expect(summer.storm).toBeCloseTo(0.05, 1)
+    const winter = shares('winter')
+    expect(winter.snow).toBeCloseTo(0.32, 1)
+    expect(winter.clear).toBeCloseTo(0.32, 1)
+    expect(winter.rain).toBeCloseTo(0.26, 1)
+    expect(winter.storm).toBeCloseTo(0.11, 1)
+    // Common mistakes: the same winter with "stays" at the edge sinks to the clear bottom.
+    const { flower } = skies.seasons.winter as { flower: HexFlower }
+    const staying: WeatherModel = {
+      ...skies,
+      seasons: { winter: { flower: { ...flower, edge: 'stay' } } },
+    }
+    expect(shares('winter', staying).clear).toBeGreaterThan(0.85)
+  })
+
+  it('in summer: fine spells, rain that slows, storms that stop the day and never last (steps 5, 6)', () => {
+    const days = ['a', 'b', 'c', 'd'].flatMap((seed) => play('summer', seed, 30))
+    const kinds = new Set(days.map((d) => d.weather))
+    expect([...kinds].sort()).toEqual(['clear', 'rain', 'storm'])
+    expect(days[0].weather).toBe('clear')
+    for (const [i, d] of days.entries()) {
+      // A check an hour after the weather's sees today's weather.
+      expect(d.wet).toBe(d.weather === 'rain')
+      if (d.weather === 'storm') {
+        expect(d.travel).toBe('weather')
+        if (i % 30 !== 29) expect(days[i + 1].weather).not.toBe('storm')
+      }
+    }
+  })
+
+  it('in winter: starts on snow, walks the flower, and deep snow leaves the horses behind (steps 4, 6)', () => {
+    const days = play('winter', 'snowy', 40)
+    expect(days[0].weather).toBe('snow')
+    expect(new Set(days.map((d) => d.weather)).size).toBeGreaterThan(2)
+    for (const d of days)
+      if (d.weather === 'snow') expect(d.horse).toMatchObject({ value: 'deep-snow' })
+      else expect(d.horse).toBeUndefined()
   })
 })
