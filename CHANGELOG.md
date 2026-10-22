@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-22
+
 ### Apps
 
 - Systems, Characters, Hexmapper, Travel, Campaign: **nicer sheets: each value says how it's shown**: a sheet's value (and a kind of relation's number) is drawn as its sheet says, `display:` `number`, `of` (**2 / 6**), `bar`, `boxes`, `pips` (round dots), `dial` (a round clock) or `levels` (a name from a list: _Unhurt … Dying_, `d4 … d12`), with `tones` that colour it from a value up (`{ 0: danger, 2: warning, 4: good }`); each group of a sheet is a card of its own. Systems' **Sheet** tab chooses them (**Shown as**, **Levels**, **Tones**) with a **Preview** to try. The Grey Marches show every one (skills as dots, health as a bar, a faction's strength as a dial and its reputation from _Hostile_ to _Sworn friends_); Core's health is a bar. `track: true` still reads, as `display: boxes`.
