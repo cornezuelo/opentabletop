@@ -1,8 +1,10 @@
 <script lang="ts">
   import type { SheetScope, TravelSystem } from '@open-tabletop/session'
   import { availableActions, BLOCKABLE, ref } from '@open-tabletop/travel-engine'
+  import { createCharacter, DISPLAYS, parseSheet, TONES } from '@open-tabletop/character-engine'
+  import { CharacterCard } from '@open-tabletop/character-ui'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n'
+  import { getLocale, t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import { usesFor } from '../../lib/usage'
   import RecordRows from '../forms/RecordRows.svelte'
@@ -31,6 +33,38 @@
     ...Object.keys(availableActions(system.rules).all).map((id) => ref('actions', id)),
     ...Object.keys(system.rules.modes).map((id) => ref('modes', id)),
   ])
+  /** Tones suggested after a threshold (`0: danger`). */
+  const toneHints = Object.fromEntries(['0', '1', '2', '3'].map((at) => [at, TONES]))
+
+  /** The sheet as it reads now, and a character made with it to try it on (kept here only). */
+  const parsed = $derived(parseSheet(data))
+  /** The system's own, with its translations, when it's one of its sheets and it reads. */
+  const compiled = $derived(
+    scope === 'members'
+      ? system.sheet?.def
+      : scope === 'party'
+        ? system.partySheet?.def
+        : scope === 'factions'
+          ? system.factions?.sheet.def
+          : undefined,
+  )
+  let sample = $state<ReturnType<typeof createCharacter> | undefined>()
+  const preview = $derived.by(() => {
+    const sheet = parsed.sheet && (compiled ?? parsed.sheet)
+    if (!sheet) return undefined
+    const fresh = createCharacter(sheet, 'preview', { id: 'preview', name: t('sheet.previewName') })
+    // What was tried keeps its values while they still exist on the sheet.
+    const tried = sample && {
+      ...fresh,
+      values: Object.fromEntries(
+        Object.keys(fresh.values).map((id) => [id, sample!.values[id] ?? fresh.values[id]]),
+      ),
+      conditions: Object.fromEntries(
+        Object.entries(sample.conditions).filter(([id]) => id in sheet.conditions),
+      ),
+    }
+    return { sheet, character: tried ?? fresh }
+  })
 </script>
 
 <div class="form">
@@ -95,10 +129,52 @@
           type: 'value',
         },
         { field: 'max', label: t('sheet.max'), help: t('sheet.boundHelp'), type: 'value' },
-        { field: 'track', label: t('sheet.track'), help: t('sheet.trackHelp'), type: 'check' },
+        {
+          field: 'display',
+          label: t('sheet.display'),
+          help: t('sheet.displayHelp'),
+          type: 'select',
+          choices: DISPLAYS,
+          placeholder: 'number',
+          read: (row) => (row.track ? 'boxes' : undefined),
+          replaces: ['track'],
+        },
+        {
+          field: 'levels',
+          label: t('sheet.levels'),
+          help: t('sheet.levelsHelp'),
+          type: 'list',
+          off: (row) => row.display !== 'levels',
+        },
+        {
+          field: 'tones',
+          label: t('sheet.tones'),
+          help: t('sheet.tonesHelp'),
+          type: 'flow',
+          hints: toneHints,
+        },
         { field: 'group', label: t('sheet.group'), help: t('sheet.groupHelp'), type: 'value' },
       ]}
     />
+  </section>
+
+  <section>
+    <h3>{t('sheet.preview')}<InfoTip text={t('sheet.previewHelp')} /></h3>
+    {#if preview}
+      <div class="preview">
+        <CharacterCard
+          sheet={preview.sheet}
+          character={preview.character}
+          locale={getLocale()}
+          named={false}
+          onchange={(next) => (sample = next)}
+        />
+      </div>
+    {:else}
+      <ul class="problems">
+        {#each parsed.errors as problem (problem)}<li>{problem}</li>{/each}
+      </ul>
+    {/if}
   </section>
 
   <section>
@@ -177,6 +253,14 @@
           help: t('sheet.relationValueHelp'),
           type: 'number',
         },
+        {
+          field: 'value.display',
+          label: t('sheet.display'),
+          help: t('sheet.relationDisplayHelp'),
+          type: 'select',
+          choices: DISPLAYS.filter((d) => d !== 'levels'),
+          placeholder: 'number',
+        },
       ]}
     />
   </section>
@@ -200,6 +284,20 @@
     margin: 0;
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .preview {
+    max-width: 640px;
+    padding: 10px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .problems {
+    margin: 0;
+    color: var(--danger);
+    font-size: 12px;
   }
 
   .name.description {

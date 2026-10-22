@@ -375,13 +375,33 @@ kind: sheet
 id: companion
 name: Compañero
 values: # números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite)
-  survival: { name: Supervivencia, default: 1, min: 0, max: 5, group: skills }
+  survival: { name: Supervivencia, default: 1, min: 0, max: 5, display: pips, group: skills } # 5 puntos
   pathfinding: { name: Rastreo, default: 0, min: 0, max: 3, group: skills }
   maxHealth: { name: Salud máxima, default: 3, min: 1, max: 6, group: body }
-  health: { name: Salud, default: 3, min: 0, max: '{{self.values.maxHealth}}', group: body } # otro valor como límite
-  rations: { name: Raciones, default: 2, min: 0, max: 6 }
-  dread: { name: Pavor, default: 0, min: 0, max: 6, track: true } # se muestra como 6 casillas
-groups: # los encabezados bajo los que se muestran los valores, en este orden
+  health: # otro valor como límite; una barra, roja en 0, ámbar en 1, verde desde 2
+    {
+      name: Salud,
+      default: 3,
+      min: 0,
+      max: '{{self.values.maxHealth}}',
+      display: bar,
+      tones: { 0: danger, 1: warning, 2: good },
+      group: body,
+    }
+  rations: { name: Raciones, default: 2, min: 0, max: 6, display: of } # 2 / 6
+  dread: { name: Pavor, default: 0, min: 0, max: 6, display: boxes } # 6 casillas
+  harm: # un nombre para cada valor, desde su mínimo: 0 es Ileso, 3 es Moribundo
+    display: levels
+    min: 0
+    max: 3
+    levels:
+      [
+        { id: unhurt, name: Ileso },
+        { id: bruised, name: Magullado },
+        { id: wounded, name: Herido },
+        { id: dying, name: Moribundo },
+      ]
+groups: # las tarjetas en las que se muestran los valores, en este orden
   skills: { name: Habilidades }
   body: { name: Cuerpo }
 conditions: # estados que un personaje tiene o no, y lo que el grupo no puede hacer mientras alguien lo tenga
@@ -389,15 +409,15 @@ conditions: # estados que un personaje tiene o no, y lo que el grupo no puede ha
   sprained: { name: Tobillo torcido, blocks: [travel.move] } # marchar
   saddle-sore: { name: Molido de la silla, blocks: [modes.horse] } # una forma de viajar
 relations: # tipos de relación que un personaje puede tener con cualquier cosa con referencia
-  bond: { name: Vínculo, value: { min: 0, max: 3 } } # con un número
+  bond: { name: Vínculo, value: { min: 0, max: 3, display: pips } } # con un número, como puntos
   home: { name: Hogar }
 ```
 
-- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{self.values.<id>}}'`: el valor baja cuando baja ese), `track: true` (se muestra como casillas, tantas como su `max`, que debe ser un número), `group` (uno de `groups`).
+- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{self.values.<id>}}'`: el valor baja cuando baja ese), `display` (cómo se dibuja: `number`, lo normal; `of`, el número y su máximo; `bar`, una barra; `boxes`, casillas; `pips`, puntos redondos; `dial`, un reloj redondo; `levels`, un nombre de `levels`; todos menos `number` y `levels` necesitan un `max`, y dibujan tantas casillas, puntos o segmentos como él), `levels` (con `display: levels`: nombres en orden, cada uno un id o `{ id, name, description }`, el primero para el `min` del valor o el 0; más allá se ve el número), `tones` (un color desde un valor hacia arriba, `{ 0: danger, 2: warning, 4: good }`, entre `good`, `warning`, `danger` y `accent`), `group` (uno de `groups`, cada uno una tarjeta). `track: true`, la forma antigua, es `display: boxes`. Cómo se muestra un valor no cambia nada de cómo juega. Mira [Hoja](../systems/07-sheet.md#cómo-se-muestran-los-valores).
 - `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: una acción (`actions.<id>`), `travel.move`, o una forma de viajar (`modes.<id>`). El viaje dice quién lo tiene.
-- `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites. Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
+- `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites (`value: { min, max }`, dibujado con su propio `display` y `tones`, todos menos `levels`). Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
-- Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`).
+- Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`), y los niveles por id (`values: { harm: { levels: { unhurt: Ileso } } }`).
 - **La hoja del propio grupo** (`partySheet:` en su [sistema](#sistemas)) es una hoja como esta para el grupo en sí: lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje, mientras los personajes se unen y se van. Las tablas la leen como `party.values.<id>`, `party.conditions` y `party.tags`; los efectos la cambian (`party.values.morale: -1`, `party.conditions.shaken: true`), dentro de sus límites; los `blocks` de sus estados detienen a todo el grupo. Una característica del grupo puede ser uno de sus valores (`stats: { morale: { from: { party: morale } } }`): la característica es ese valor, toma sus límites, y los efectos sobre `party.stats.morale` cambian la hoja. El viaje enseña su ficha encima de los personajes.
 
 ## Facciones

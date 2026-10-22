@@ -143,10 +143,14 @@
         text === '' ? undefined : /^[+-]?\d+(\.\d+)?$/.test(text) ? Number(text) : text,
       )
     if (column.type === 'list') {
+      // Items written with more than their id (`{ id: hostile, name: Hostile }`) keep it.
+      const before = valueAt(record[id], column.field)
+      const kept = Array.isArray(before) ? before : []
       const items = text
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean)
+        .map((item) => kept.find((k) => itemId(k) === item) ?? item)
       return write(id, column.field, items.length ? items : undefined)
     }
     const value = parseFlow(text)
@@ -154,12 +158,17 @@
     write(id, column.field, value)
   }
 
+  /** An item of a list: itself, or its id when it's written with more (`{ id: d6, name: … }`). */
+  const itemId = (item: unknown): string =>
+    typeof item === 'object' && item !== null && 'id' in item ? String(item.id) : String(item)
+
   function shown(row: Record<string, unknown> | null, column: Column, id = ''): string {
     const value = valueAt(row, column.field) ?? (row && column.read?.(row))
     if (column.type === 'text')
       return doc.text(kind, value, [...at, id, ...column.field.split('.')])
     if (value === undefined) return ''
-    if (column.type === 'list') return Array.isArray(value) ? value.join(', ') : String(value)
+    if (column.type === 'list')
+      return Array.isArray(value) ? value.map(itemId).join(', ') : String(value)
     if (column.type === 'flow') return flowText(value).replace(/^\{\s*|\s*\}$/g, '')
     return String(value)
   }

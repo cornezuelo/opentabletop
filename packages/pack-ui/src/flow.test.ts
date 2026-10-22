@@ -32,3 +32,11 @@ describe('flowText on long values', () => {
     expect(parseFlow(flowText(long))).toEqual(long)
   })
 })
+
+describe('flowText on maps keyed by numbers', () => {
+  it('writes them in their order, unquoted, and reads them back', () => {
+    const tones = { 0: 'accent', 1: 'good', '-3': 'danger', '-1': 'warning' }
+    expect(flowText(tones)).toBe('{ -3: danger, -1: warning, 0: accent, 1: good }')
+    expect(parseFlow(flowText(tones))).toEqual(tones)
+  })
+})

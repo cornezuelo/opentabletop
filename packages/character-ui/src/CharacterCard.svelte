@@ -4,15 +4,18 @@
     boundsOf,
     type CharacterAction,
     type CharacterState,
+    type Display,
     type Sheet,
   } from '@open-tabletop/character-engine'
   import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { levelValue, valueView } from './display'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
+  import ValueControl from './ValueControl.svelte'
 
   /**
-   * One character made from a sheet, edited by hand: its name, its values (tracks as
-   * boxes, grouped as the sheet says), its conditions and its tags. Changes go through the
+   * One character made from a sheet, edited by hand: its name, its values (each drawn as
+   * the sheet says, its groups as cards), its conditions and its tags. Changes go through the
    * character engine, so they keep the sheet's bounds. It knows nothing of trips: the host
    * says what a change means (`onchange`) and how tables read the character (`path`).
    */
@@ -112,12 +115,26 @@
     change({ type: 'relate', to, kind, value: value - (r?.value ?? 0) })
   }
 
-  /** A value's explanation: its description, its bounds, how tables read it. */
+  /** The displays that take a whole row of their group. */
+  const WIDE: readonly Display[] = ['bar', 'boxes', 'pips']
+  /** How a value looks now, as its sheet says. */
+  const viewOf = (id: string) =>
+    valueView(sheet.values[id], character.values[id] ?? 0, boundsOf(sheet, character, id), locale)
+
+  /** A value's explanation: its description, its levels, its bounds, how tables read it. */
   function valueHelp(id: string): string {
     const def = sheet.values[id]
     const bounds = boundsOf(sheet, character, id)
+    const levels = viewOf(id).levels
     return [
       text(def.description),
+      levels &&
+        levels
+          .map(
+            (l, i) =>
+              `• ${levelValue(i, bounds.min)}: **${l.name}**${l.description ? ` — ${l.description}` : ''}`,
+          )
+          .join('\n'),
       bounds.min !== undefined && t('min', { min: bounds.min }),
       bounds.max !== undefined && t('max', { max: bounds.max }),
       t('readAs', { keys: `\`${where}.values.${id}\`` }),
@@ -152,48 +169,33 @@
     </label>
   {/if}
 
-  {#each groups as { group, ids } (group)}
-    {#if group}
-      {@const about = text(sheet.groups?.[group]?.description)}
-      <h4 class="subhead">
-        {text(sheet.groups?.[group]?.name, group)}{#if about}<InfoTip markdown={about} />{/if}
-      </h4>
-    {/if}
-    <div class="values">
-      {#each ids as id (id)}
-        {@const def = sheet.values[id]}
-        {@const value = character.values[id] ?? 0}
-        {#if def.track && typeof def.max === 'number'}
-          <div class="field track">
-            <span>{text(def.name, id)}<InfoTip markdown={valueHelp(id)} /></span>
-            <div class="boxes" role="group" aria-label={text(def.name, id)}>
-              {#each Array.from({ length: def.max }, (_, i) => i + 1) as box (box)}
-                <button
-                  type="button"
-                  class:on={box <= value}
-                  aria-label={t('box', { value: box, max: def.max })}
-                  aria-pressed={box <= value}
-                  {disabled}
-                  onclick={() => setValue(id, box === value ? box - 1 : box)}
-                ></button>
-              {/each}
-            </div>
-          </div>
-        {:else}
-          <label class="field">
-            <span>{text(def.name, id)}<InfoTip markdown={valueHelp(id)} /></span>
-            <input
-              type="number"
-              step="any"
-              {value}
-              {disabled}
-              onchange={(e) => setValue(id, Number(e.currentTarget.value) || 0)}
-            />
-          </label>
+  <div class="groups">
+    {#each groups as { group, ids } (group)}
+      <section class="group">
+        {#if group}
+          {@const about = text(sheet.groups?.[group]?.description)}
+          <h4 class="subhead">
+            {text(sheet.groups?.[group]?.name, group)}{#if about}<InfoTip markdown={about} />{/if}
+          </h4>
         {/if}
-      {/each}
-    </div>
-  {/each}
+        <div class="values">
+          {#each ids as id (id)}
+            {@const view = viewOf(id)}
+            <div class="field" class:wide={WIDE.includes(view.display)}>
+              <span>{text(sheet.values[id].name, id)}<InfoTip markdown={valueHelp(id)} /></span>
+              <ValueControl
+                {view}
+                label={text(sheet.values[id].name, id)}
+                {locale}
+                {disabled}
+                onset={(v) => setValue(id, v)}
+              />
+            </div>
+          {/each}
+        </div>
+      </section>
+    {/each}
+  </div>
 
   {#if Object.keys(sheet.conditions).length}
     <div class="field">
@@ -231,13 +233,16 @@
           >
           <span class="to">{targetName(r.to)}</span>
           {#if sheet.relations[r.kind]?.value}
-            <input
-              type="number"
-              aria-label={t('relationValue')}
-              value={r.value ?? 0}
-              {disabled}
-              onchange={(e) => setRelationValue(r.to, r.kind, Number(e.currentTarget.value) || 0)}
-            />
+            {@const looks = sheet.relations[r.kind].value!}
+            <span class="relation-value">
+              <ValueControl
+                view={valueView(looks, r.value ?? 0, { min: looks.min, max: looks.max }, locale)}
+                label={t('relationValue')}
+                {locale}
+                {disabled}
+                onset={(v) => setRelationValue(r.to, r.kind, v)}
+              />
+            </span>
           {/if}
           {#if !disabled}
             <button
@@ -307,10 +312,31 @@
     color: var(--text-muted);
   }
 
-  .field input[type='text'],
-  .field input[type='number'] {
+  .field input[type='text'] {
     width: 100%;
     min-width: 0;
+  }
+
+  /* Each group of the sheet a card, as many side by side as fit. */
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    align-items: start;
+    gap: 8px;
+  }
+
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .group .subhead {
+    margin: 0;
   }
 
   .values {
@@ -320,33 +346,8 @@
     gap: 6px;
   }
 
-  .track {
+  .wide {
     grid-column: 1 / -1;
-  }
-
-  .boxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-  }
-
-  .boxes button {
-    width: 16px;
-    height: 16px;
-    padding: 0;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 3px;
-    cursor: pointer;
-  }
-
-  .boxes button.on {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .boxes button:disabled {
-    cursor: default;
   }
 
   .conditions {
@@ -377,8 +378,8 @@
     color: var(--text-muted);
   }
 
-  .relation input[type='number'] {
-    width: 4em;
+  .relation-value {
+    min-width: 4em;
   }
 
   .relation.new {

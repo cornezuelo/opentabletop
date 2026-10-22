@@ -168,7 +168,7 @@ export const es: Messages<typeof en> = {
       'Para qué es la hoja, se ve donde se crean los personajes. Markdown básico.\n• _Uno de la Compañía: sus habilidades, sus heridas y las raciones que lleva._',
     values: 'Valores',
     valuesHelp:
-      "Números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite, puede bajar de cero). Las tablas y condiciones los leen como `characters.<id>.values.<valor>` y `acting.values.<valor>`:\n• `wits` — empieza en `2`, mín. `0`, máx. `5`\n• `health` — máx. `'{{self.values.maxHealth}}'`: otro valor es su límite\n• `stress` — un **contador** de 9 casillas",
+      "Números que tiene cada personaje, con los límites que les da el sistema (ninguno: sin límite, puede bajar de cero). Las tablas y condiciones los leen como `characters.<id>.values.<valor>` y `acting.values.<valor>`:\n• `wits` — empieza en `2`, mín. `0`, máx. `5`\n• `health` — máx. `'{{self.values.maxHealth}}'`: otro valor es su límite\n• `stress` — máx. `9`, mostrado como **casillas**",
     valueName: 'Nombre',
     default: 'Empieza en',
     defaultHelp: 'Lo que tiene un personaje nuevo (vacío: 0).\n• `2`',
@@ -176,11 +176,24 @@ export const es: Messages<typeof en> = {
     max: 'Máx.',
     boundHelp:
       "Los efectos nunca lo llevan más allá. Un número, u otro valor de la hoja entre llaves:\n• `0`\n• `'{{self.values.maxHealth}}'` — tan alto como el maxHealth del personaje\nVacío: sin límite.",
-    track: 'Contador',
-    trackHelp:
-      'Se muestra como casillas, tantas como su máximo (estrés, experiencia, un juramento). Necesita un número como máximo.',
+    display: 'Se muestra como',
+    displayHelp:
+      'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number** y **levels** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo: **3 / 5**\n• `bar` — una barra llena hasta su máximo\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…',
+    levels: 'Niveles',
+    levelsHelp:
+      'Con **Se muestra como** `levels`, los nombres que elige el valor, separados por comas, desde su mínimo (o 0) hacia arriba; más allá se muestra el número. Sus nombres se traducen en el archivo de traducción, por id:\n• `unhurt, bruised, wounded, dying` — 0 es **unhurt**, 3 es **dying**\n• `d4, d6, d8, d10, d12` — un tamaño de dado que crece con el valor\n• con mín. `-3`: `hated, wary, neutral, …` — −3 es **hated**',
+    tones: 'Tonos',
+    tonesHelp:
+      'El color que toma desde un valor hacia arriba, `valor: tono`, entre los del tema: `good`, `warning`, `danger` y `accent`:\n• `0: danger, 2: warning, 4: good` — rojo en 0 y 1, ámbar en 2 y 3, verde desde 4\n• `5: danger` — rojo solo desde 5\nVacío: el color de acento del tema.',
+    relationDisplayHelp:
+      'Cómo se dibuja el número de una relación, como el **Se muestra como** de un valor (necesita un máximo, salvo **number**):\n• `pips` — un vínculo de 0 a 3 como puntos\n• `bar`',
+    preview: 'Vista previa',
+    previewHelp:
+      'Un personaje hecho con esta hoja tal como está ahora, dibujado como en todos los sitios donde se muestran personajes. Pruébalo: lo que cambies aquí no se guarda en ningún sitio.',
+    previewName: 'Ejemplo',
     group: 'Grupo',
-    groupHelp: 'Un encabezado bajo el que se muestra, nada más.\n• `attributes`\n• `meters`',
+    groupHelp:
+      'La tarjeta en la que se muestra, bajo el nombre del grupo.\n• `attributes`\n• `meters`',
     groups: 'Grupos',
     groupsHelp:
       'Los encabezados bajo los que se muestran los valores, en este orden, con un nombre en cada idioma. Un valor dice su grupo en su columna **Grupo**.\n• `skills` — **Habilidades**\n• `body` — **Cuerpo**',

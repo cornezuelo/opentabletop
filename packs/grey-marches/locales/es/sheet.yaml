@@ -6,7 +6,9 @@ sheet/companion:
     come una ración por boca de lo que llevan, y las heridas retienen a algunos.
 
     **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
-    `max: '{{self.values.maxHealth}}'`), un contador (el pavor), grupos con nombre, estados que bloquean una
+    `max: '{{self.values.maxHealth}}'`), cada valor mostrado a su manera (las habilidades
+    como puntos, la salud como una barra cuyo tono baja con ella, las raciones como `2 / 6`, el
+    pavor como casillas que se ponen rojas, el número de un vínculo como puntos), grupos con nombre, estados que bloquean una
     acción, una forma de viajar o el propio viaje, y tipos de relación (un vínculo con un
     número, un hogar); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:

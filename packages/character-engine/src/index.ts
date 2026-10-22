@@ -1,7 +1,6 @@
 /**
  * Character sheets as data. A system's pack declares a sheet (`kind: sheet`): the values a
- * character has (with the bounds the system gives them, or none), which of them are shown
- * as tracks, the conditions a character may have (and what they block), and the kinds of
+ * character has (with the bounds the system gives them, or none), how each is shown, the conditions a character may have (and what they block), and the kinds of
  * relation it may hold. This engine creates characters from a sheet, changes them within
  * their bounds and says what conditions and tables read of them. It knows no game.
  *
@@ -25,6 +24,33 @@ export type SheetText = z.infer<typeof text>
 /** A bound: a number, or a variable naming another value of the same sheet (`'{{self.values.maxHealth}}'`). */
 const bound = z.union([z.number(), z.string().min(1)])
 
+/**
+ * How a number is shown: as itself (`number`, the default), with its max (`of`: `3 / 5`),
+ * as a bar filled to its max, as boxes (stress, a vow's progress), rating dots (`pips`), a
+ * round segmented clock (`dial`) or the name of one of the sheet's `levels`.
+ */
+export const DISPLAYS = ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels'] as const
+export type Display = (typeof DISPLAYS)[number]
+/** The displays drawn up to a max, which the value must have. */
+export const DISPLAYS_WITH_MAX: readonly Display[] = ['of', 'bar', 'boxes', 'pips', 'dial']
+/** The theme's tones a value may take (never free colours, so they read in every theme). */
+export const TONES = ['good', 'warning', 'danger', 'accent'] as const
+export type Tone = (typeof TONES)[number]
+
+/** A named level: an id (its name made readable, `d8`), or one with a name and a description. */
+const level = z.union([
+  z.string().min(1),
+  z.object({ id: z.string().min(1), name: text.optional(), description: text.optional() }).strict(),
+])
+/** How a number looks: its display, its levels and its tones from a value up (`{ 0: danger, 3: good }`). */
+const looks = {
+  display: z.enum(DISPLAYS).optional(),
+  /** With `display: levels`, the names the value picks, from its min (or 0) up. */
+  levels: z.array(level).min(1).optional(),
+  /** A tone from each value up: `{ 0: danger, 2: warning, 4: good }`. */
+  tones: z.record(z.string().regex(/^-?\d+$/, 'a whole number'), z.enum(TONES)).optional(),
+}
+
 const value = z
   .object({
     name: text.optional(),
@@ -32,7 +58,8 @@ const value = z
     default: z.number().optional(),
     min: bound.optional(),
     max: bound.optional(),
-    /** Shown as boxes, `max` of them (stress, a vow's progress, xp). */
+    ...looks,
+    /** Shown as boxes, `max` of them: the older form of `display: boxes`. */
     track: z.boolean().optional(),
     /** A heading the value is shown under (attributes, meters…); nothing else. */
     group: z.string().optional(),
@@ -53,7 +80,10 @@ const relation = z
     name: text.optional(),
     description: text.optional(),
     /** A relation of this kind carries a number (Hx, strings, a bond's progress), with bounds. */
-    value: z.object({ min: z.number().optional(), max: z.number().optional() }).strict().optional(),
+    value: z
+      .object({ min: z.number().optional(), max: z.number().optional(), ...looks })
+      .strict()
+      .optional(),
   })
   .strict()
 
@@ -102,15 +132,60 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
       else if (!(own in sheet.values))
         errors.push(`values.${id}.${key}: no value "${own}" on this sheet`)
     }
-    if (v.track && typeof v.max !== 'number')
-      errors.push(`values.${id}: a track needs a number as its max (its boxes)`)
+    errors.push(...looksErrors(v, `values.${id}`))
   }
+  for (const [id, r] of Object.entries(sheet.relations))
+    if (r.value) errors.push(...looksErrors(r.value, `relations.${id}.value`))
   for (const [id, v] of Object.entries(sheet.values))
     if (sheet.groups && v.group !== undefined && !(v.group in sheet.groups))
       errors.push(`values.${id}.group: no group "${v.group}" in groups`)
   for (const [id, c] of Object.entries(sheet.conditions))
     if (c.blocks?.some((b) => !b.trim())) errors.push(`conditions.${id}.blocks: empty entry`)
   return errors.length ? { errors } : { sheet, errors }
+}
+
+/** How a value of a sheet (or a relation's number) is shown; `track: true` is `boxes`. */
+export function displayOf(def: { display?: Display; track?: boolean }): Display {
+  return def.display ?? (def.track ? 'boxes' : 'number')
+}
+
+/**
+ * The tone of a value from the `tones` it declares (the one of the highest threshold at or
+ * under it), or none.
+ */
+export function toneOf(tones: Record<string, Tone> | undefined, value: number): Tone | undefined {
+  let best: { at: number; tone: Tone } | undefined
+  for (const [at, tone] of Object.entries(tones ?? {}))
+    if (Number(at) <= value && (!best || Number(at) > best.at)) best = { at: Number(at), tone }
+  return best?.tone
+}
+
+/** The id of a named level, written alone or with its name. */
+export const levelId = (level: string | { id: string }): string =>
+  typeof level === 'string' ? level : level.id
+
+/** What's wrong with how a value says it's shown. */
+function looksErrors(
+  v: {
+    display?: Display
+    track?: boolean
+    max?: unknown
+    levels?: (string | { id: string })[]
+  },
+  at: string,
+): string[] {
+  const errors: string[] = []
+  const display = displayOf(v)
+  if (v.track && v.display && v.display !== 'boxes')
+    errors.push(`${at}: track: true is display: boxes, not ${v.display}`)
+  if (DISPLAYS_WITH_MAX.includes(display) && v.max === undefined)
+    errors.push(`${at}: display: ${display} needs a max`)
+  if (display === 'levels' && !v.levels) errors.push(`${at}: display: levels needs its levels`)
+  if (v.levels && display !== 'levels') errors.push(`${at}.levels: only with display: levels`)
+  const ids = (v.levels ?? []).map(levelId)
+  const twice = ids.find((id, i) => ids.indexOf(id) !== i)
+  if (twice) errors.push(`${at}.levels: "${twice}" twice`)
+  return errors
 }
 
 /** A relation from a character to anything with a reference (`character:id`, `poi:id`…). */

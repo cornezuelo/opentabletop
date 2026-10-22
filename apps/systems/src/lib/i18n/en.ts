@@ -165,7 +165,7 @@ export const en = {
       'What the sheet is for, shown where characters are made. Basic Markdown.\n• _One of the Company: their skills, their wounds and the rations they carry._',
     values: 'Values',
     valuesHelp:
-      "Numbers each character has, with the bounds the system gives them (none: no bound, it may go negative). Tables and conditions read them as `characters.<id>.values.<value>` and `acting.values.<value>`:\n• `wits` — default `2`, min `0`, max `5`\n• `health` — max `'{{self.values.maxHealth}}'`: another value is its bound\n• `stress` — a **track** of 9 boxes",
+      "Numbers each character has, with the bounds the system gives them (none: no bound, it may go negative). Tables and conditions read them as `characters.<id>.values.<value>` and `acting.values.<value>`:\n• `wits` — default `2`, min `0`, max `5`\n• `health` — max `'{{self.values.maxHealth}}'`: another value is its bound\n• `stress` — max `9`, shown as **boxes**",
     valueName: 'Name',
     default: 'Starts at',
     defaultHelp: 'What a new character has (empty: 0).\n• `2`',
@@ -173,10 +173,23 @@ export const en = {
     max: 'Max',
     boundHelp:
       "Effects never take it past this. A number, or another value of the sheet in braces:\n• `0`\n• `'{{self.values.maxHealth}}'` — as high as the character's maxHealth\nEmpty: no bound.",
-    track: 'Track',
-    trackHelp: 'Shown as boxes, as many as its max (stress, xp, a vow). Needs a number as its max.',
+    display: 'Shown as',
+    displayHelp:
+      'How the value is drawn wherever a character is shown (empty: a number box). All but **number** and **levels** need a max:\n• `number` — a number box\n• `of` — the number and its max: **3 / 5**\n• `bar` — a bar filled up to its max\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…',
+    levels: 'Levels',
+    levelsHelp:
+      'With **Shown as** `levels`, the names the value picks, comma-separated, from its min (or 0) up; beyond them the number is shown. Translate their names in the translation file, by id:\n• `unhurt, bruised, wounded, dying` — 0 is **unhurt**, 3 is **dying**\n• `d4, d6, d8, d10, d12` — a die size that grows with the value\n• with min `-3`: `hated, wary, neutral, …` — −3 is **hated**',
+    tones: 'Tones',
+    tonesHelp:
+      "The colour it takes from a value up, `value: tone`, among the theme's `good`, `warning`, `danger` and `accent`:\n• `0: danger, 2: warning, 4: good` — red at 0 and 1, amber at 2 and 3, green from 4\n• `5: danger` — red only from 5 up\nEmpty: the theme's accent.",
+    relationDisplayHelp:
+      "How a relation's number is drawn, as a value's **Shown as** (it needs a max, except **number**):\n• `pips` — a bond from 0 to 3 as dots\n• `bar`",
+    preview: 'Preview',
+    previewHelp:
+      'A character made with this sheet as it is now, drawn as everywhere characters are shown. Try it: what you change here is kept nowhere.',
+    previewName: 'Example',
     group: 'Group',
-    groupHelp: 'A heading it is shown under, nothing more.\n• `attributes`\n• `meters`',
+    groupHelp: 'The card it is shown in, under the group’s name.\n• `attributes`\n• `meters`',
     groups: 'Groups',
     groupsHelp:
       'The headings values are shown under, in this order, with a name in each language. A value says its group in its **Group** column.\n• `skills` — **Skills**\n• `body` — **Body**',

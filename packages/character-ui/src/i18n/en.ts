@@ -20,6 +20,8 @@ export const en = {
   min: 'At least {min}.',
   max: 'At most {max}.',
   blocks: 'While someone has it, the party can’t: {list}.',
+  less: 'Less {name}',
+  more: 'More {name}',
   box: '{value} of {max}',
   origin: {
     line: 'Sheet: {sheet} · {system}',

@@ -10,7 +10,9 @@ description: |-
   eats a ration per mouth from what they carry, and wounds keep some of them back.
 
   **Shows:** a sheet of values with bounds (one bounded by another value,
-  `max: '{{self.values.maxHealth}}'`), a track (dread), named groups, conditions that block an action, a
+  `max: '{{self.values.maxHealth}}'`), each value shown its own way (skills as pips, health as
+  a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red, a bond's
+  number as pips), named groups, conditions that block an action, a
   way of travelling or travel itself, and kinds of relation (a bond with a number, a home); every part with a description, shown as its help where the sheet is met.
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
@@ -20,6 +22,7 @@ values:
     default: 1
     min: 0
     max: 5
+    display: pips
     group: skills
   charisma:
     name: Charisma
@@ -34,6 +37,7 @@ values:
     default: 0
     min: 0
     max: 3
+    display: pips
     group: skills
   stealth:
     name: Stealth
@@ -41,6 +45,7 @@ values:
     default: 1
     min: 0
     max: 3
+    display: pips
     group: skills
   # Health under a maximum that is another value (a variable as the bound).
   maxHealth:
@@ -56,6 +61,9 @@ values:
     default: 3
     min: 0
     max: '{{self.values.maxHealth}}'
+    # A bar up to its max, red at 0, amber at 1 and green from 2 up.
+    display: bar
+    tones: { 0: danger, 1: warning, 2: good }
     group: body
   # What each one carries of the party's food (bindings: `resources.food: { carried: rations }`).
   rations:
@@ -64,15 +72,19 @@ values:
     default: 2
     min: 0
     max: 6
+    # The count beside its max: 2 / 6.
+    display: of
     group: gear
-  # A track of boxes, filled by haunted nights and emptied by the Ember Moon's rite.
+  # A track of boxes, filled by haunted nights and emptied by the Ember Moon's rite;
+  # amber from 4 up and red when full.
   dread:
     name: Dread
     description: Filled by the haunted lights of the Greywood; the rite at a shrine empties it.
     default: 0
     min: 0
     max: 6
-    track: true
+    display: boxes
+    tones: { 4: warning, 6: danger }
     group: body
 # The headings the values are shown under, in this order.
 # Each group's description is its help where the sheet is shown, like every part's.
@@ -105,7 +117,7 @@ relations:
   bond:
     name: Bond
     description: How close two companions (or a companion and a place) are, 0 to 3.
-    value: { min: 0, max: 3 }
+    value: { min: 0, max: 3, display: pips }
   home:
     name: Home
     description: Where a companion comes from.

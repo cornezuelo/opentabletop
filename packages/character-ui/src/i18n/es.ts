@@ -23,6 +23,8 @@ export const es: Messages<typeof en> = {
   min: 'Como mínimo {min}.',
   max: 'Como máximo {max}.',
   blocks: 'Mientras alguien lo tenga, el grupo no puede: {list}.',
+  less: 'Menos {name}',
+  more: 'Más {name}',
   box: '{value} de {max}',
   origin: {
     line: 'Hoja: {sheet} · {system}',

@@ -1,6 +1,6 @@
 # Primeros pasos
 
-La aplicación Characters guarda tu **plantel**: los personajes que guarda este navegador, de cualquier sistema. Cada uno se hace con la hoja de personajes de su sistema (sus valores, contadores, estados y tipos de relación), la hoja que el sistema nombra en Systems ([Hoja](../systems/07-sheet.md)). Un personaje del plantel puede viajar en un mapa del Hexmapper o en un viaje de Travel jugado con su sistema, en un sitio a la vez, y lo que le pase allí vuelve al plantel.
+La aplicación Characters guarda tu **plantel**: los personajes que guarda este navegador, de cualquier sistema. Cada uno se hace con la hoja de personajes de su sistema (sus valores, estados y tipos de relación), la hoja que el sistema nombra en Systems ([Hoja](../systems/07-sheet.md)). Un personaje del plantel puede viajar en un mapa del Hexmapper o en un viaje de Travel jugado con su sistema, en un sitio a la vez, y lo que le pase allí vuelve al plantel.
 
 ## La pantalla
 
@@ -21,7 +21,7 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 - **Id**: cómo se lee, como arriba.
 - **Dónde juega**: el mapa o el viaje en el que viaja ahora, con **Abrir**, o _solo en el plantel_; debajo, la campaña en la que está ese mapa o viaje, con **Abrir en Campaign ↗** (la aplicación [Campaign](../campaign/01-getting-started.md)).
 - **Notas**: su página en tu aplicación de notas (una ruta como `Personajes/Viejo Tobin`); **↗** la abre. La aplicación de notas se elige en **Preferencias**. Su historia, su aspecto y sus secretos viven allí, no aquí.
-- Debajo, su ficha, la misma que en un viaje: sus valores por grupos (un contador como casillas: haz clic en una para llenar hasta ella), sus estados, sus etiquetas y sus relaciones (con lugares, regiones, hexes u otros personajes del plantel).
+- Debajo, su ficha, la misma que en un viaje: sus valores, cada grupo una tarjeta, cada valor dibujado como dice su hoja (un número, una barra, casillas, puntos, un dial, un nivel con nombre: haz clic en una casilla, punto o segmento para llenar hasta él; mira [Cómo se muestran los valores](../systems/07-sheet.md#cómo-se-muestran-los-valores)), sus estados, sus etiquetas y sus relaciones (con lugares, regiones, hexes u otros personajes del plantel).
 
 ## De viaje
 

@@ -111,6 +111,7 @@ const ENUMS: Record<string, readonly string[]> = {
   hideWhenUnavailable: ['true', 'false'],
   share: ['even', 'order'],
   track: ['true', 'false'],
+  display: ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels'],
 }
 /** Keys whose value is a reference to something rolled: a table, oracle, generator or deck. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve', 'turn'])
@@ -223,6 +224,9 @@ const KEYS = [
   'conditions',
   'relations',
   'track',
+  'display',
+  'levels',
+  'tones',
   'group',
   'groups',
   'from',

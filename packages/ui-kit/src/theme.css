@@ -8,6 +8,8 @@
   --accent: #c8a24a;
   --canvas-bg: #12110f;
   --danger: #c0504d;
+  --warning: #d0913a;
+  --good: #6f9e52;
 
   color-scheme: dark;
   font-family: system-ui, sans-serif;

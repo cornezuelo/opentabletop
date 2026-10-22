@@ -8,11 +8,28 @@ name: Faction
 description: |-
   What every power of the Marches has: its strength, how it regards the party, and whether it's at war.
 
-  **Shows:** a sheet for factions (the same kind as characters'): values with bounds, a condition, and kinds of relation between factions.
+  **Shows:** a sheet for factions (the same kind as characters'): values with bounds, shown as a dial (strength) and as named levels with tones (reputation, from _Hostile_ at −3 to _Sworn friends_ at 3), a condition, and kinds of relation between factions.
 values:
-  strength: { name: Strength, default: 3, min: 0, max: 6 }
-  # How the faction regards the party, read by tables as factions.<id>.values.reputation.
-  reputation: { name: Reputation, default: 0, min: -3, max: 3 }
+  # A round dial of six segments, red when it's down to one.
+  strength:
+    { name: Strength, default: 3, min: 0, max: 6, display: dial, tones: { 0: danger, 2: accent } }
+  # How the faction regards the party, read by tables as factions.<id>.values.reputation;
+  # shown by name, the first level its min (-3), the last its max (3).
+  reputation:
+    name: Reputation
+    default: 0
+    min: -3
+    max: 3
+    display: levels
+    levels:
+      - { id: hostile, name: Hostile, description: Attacks the party on sight. }
+      - { id: unfriendly, name: Unfriendly }
+      - { id: wary, name: Wary }
+      - { id: neutral, name: Neutral }
+      - { id: friendly, name: Friendly }
+      - { id: warm, name: Warm }
+      - { id: sworn, name: Sworn friends, description: Would fight for the party. }
+    tones: { -3: danger, -1: warning, 0: accent, 1: good }
 conditions:
   at-war: { name: At war }
 relations:

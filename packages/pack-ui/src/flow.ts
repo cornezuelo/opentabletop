@@ -3,6 +3,15 @@ import { parse, stringify } from 'yaml'
 /** A condition or context as one line of YAML (`{ tags: landmark }`), for a text box. */
 export function flowText(value: unknown): string {
   if (value === undefined || value === null) return ''
+  // A map keyed by whole numbers (tones from a value up) in their order, unquoted: `-3: danger, 0: good`.
+  const keys = typeof value === 'object' && !Array.isArray(value) ? Object.keys(value) : []
+  if (keys.length && keys.every((k) => /^-?\d+$/.test(k)))
+    value = new Map(
+      keys
+        .map(Number)
+        .sort((a, b) => a - b)
+        .map((k) => [k, (value as Record<string, unknown>)[k]]),
+    )
   // One line however long: a box shows it whole, never folded.
   return stringify(value, { collectionStyle: 'flow', lineWidth: 0 }).trim()
 }

@@ -6,7 +6,7 @@ name: Character
 description: |-
   A character of the Generic rules: their health and whether they're wounded.
 
-  **Shows:** the smallest character sheet: a value with bounds and a condition.
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, and a condition.
 values:
   health:
     name: Health
@@ -14,6 +14,7 @@ values:
     default: 3
     min: 0
     max: 3
+    display: bar
 conditions:
   wounded:
     name: Wounded
@@ -25,7 +26,7 @@ name: Party
 description: |-
   The party of the Generic rules, as a whole: its morale.
 
-  **Shows:** the smallest party sheet: one value with bounds, drawn as a track.
+  **Shows:** the smallest party sheet: one value with bounds, drawn as boxes.
 values:
   morale:
     name: Morale
@@ -33,4 +34,4 @@ values:
     default: 3
     min: 0
     max: 5
-    track: true
+    display: boxes

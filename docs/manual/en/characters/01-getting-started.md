@@ -1,6 +1,6 @@
 # Getting started
 
-The Characters app keeps your **roster**: the characters this browser keeps, of any system. Each one is made with its system's characters' sheet (its values, tracks, conditions and kinds of relation), the sheet the system names in Systems ([Sheet](../systems/07-sheet.md)). A roster character can travel on a map in the Hexmapper or on a trip in Travel played with its system, in one place at a time, and what happens to it there comes back to the roster.
+The Characters app keeps your **roster**: the characters this browser keeps, of any system. Each one is made with its system's characters' sheet (its values, conditions and kinds of relation), the sheet the system names in Systems ([Sheet](../systems/07-sheet.md)). A roster character can travel on a map in the Hexmapper or on a trip in Travel played with its system, in one place at a time, and what happens to it there comes back to the roster.
 
 ## The screen
 
@@ -21,7 +21,7 @@ Labels underlined with dots have an explanation: click one and the help column o
 - **Id**: how it's read, as above.
 - **Where it plays**: the map or trip it travels on now, with **Open**, or _only in the roster_; under it, the campaign that map or trip is in, with **Open in Campaign ↗** (the [Campaign](../campaign/01-getting-started.md) app).
 - **Notes**: its page in your notes app (a path such as `People/Old Tobin`); **↗** opens it. The notes app is chosen in **Preferences**. Its story, looks and secrets live there, not here.
-- Under them, its card, the same as in a trip: its values by group (a track as boxes: click one to fill up to it), its conditions, its tags and its relations (to places, regions, hexes or other roster characters).
+- Under them, its card, the same as in a trip: its values, each group a card, each value drawn as its sheet says (a number, a bar, boxes, dots, a dial, a named level: click a box, dot or segment to fill up to it; see [How values are shown](../systems/07-sheet.md#how-values-are-shown)), its conditions, its tags and its relations (to places, regions, hexes or other roster characters).
 
 ## On trips
 

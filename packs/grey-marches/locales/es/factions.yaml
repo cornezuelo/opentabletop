@@ -3,12 +3,20 @@ sheet/faction:
   description: |-
     Lo que tiene cada poder de las Marcas: su fuerza, cómo ve al grupo y si está en guerra.
 
-    **Enseña:** una hoja para facciones (del mismo tipo que la de los personajes): valores con límites, un estado y tipos de relación entre facciones.
+    **Enseña:** una hoja para facciones (del mismo tipo que la de los personajes): valores con límites, mostrados como un dial (la fuerza) y como niveles con nombre y tonos (la reputación, de _Hostil_ en −3 a _Amigos jurados_ en 3), un estado y tipos de relación entre facciones.
   values:
     strength:
       name: Fuerza
     reputation:
       name: Reputación
+      levels:
+        hostile: { name: Hostil, description: Ataca al grupo nada más verlo. }
+        unfriendly: Poco amistosa
+        wary: Recelosa
+        neutral: Neutral
+        friendly: Amistosa
+        warm: Cordial
+        sworn: { name: Amigos jurados, description: Lucharía por el grupo. }
   conditions:
     at-war:
       name: En guerra

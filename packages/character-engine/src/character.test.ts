@@ -13,6 +13,8 @@ import {
   partyValue,
   shareChange,
   validatePartyFrom,
+  displayOf,
+  toneOf,
   type CharacterState,
 } from './index'
 
@@ -69,11 +71,73 @@ describe('sheets', () => {
       "values.a.max: another value of this sheet is '{{self.values.<id>}}' (did you mean '{{self.values.b}}'?)",
     ])
     expect(parseSheet({ kind: 'sheet', id: 'x', values: { a: { track: true } } }).errors).toEqual([
-      'values.a: a track needs a number as its max (its boxes)',
+      'values.a: display: boxes needs a max',
     ])
     expect(parseSheet({ kind: 'sheet', id: 'x', values: { a: { colour: 1 } } }).errors[0]).toMatch(
       /^values\.a/,
     )
+  })
+})
+
+describe('how values are shown', () => {
+  const looks = (values: Record<string, unknown>, relations: Record<string, unknown> = {}) =>
+    parseSheet({ kind: 'sheet', id: 'x', values, relations }).errors
+
+  it('reads every display, a track as boxes, and a number by default', () => {
+    expect(
+      looks({
+        hp: {
+          min: 0,
+          max: '{{self.values.top}}',
+          display: 'bar',
+          tones: { 0: 'danger', 3: 'good' },
+        },
+        top: { default: 5, display: 'number' },
+        load: { max: 6, display: 'of' },
+        heart: { min: 1, max: 5, display: 'pips' },
+        ritual: { max: 8, display: 'dial' },
+        harm: { display: 'levels', levels: ['unhurt', { id: 'hurt', name: 'Hurt' }] },
+      }),
+    ).toEqual([])
+    expect(displayOf(sheet!.values.stress)).toBe('boxes')
+    expect(displayOf(sheet!.values.wits)).toBe('number')
+  })
+
+  it('says what a display needs', () => {
+    expect(looks({ a: { display: 'bar' } })).toEqual(['values.a: display: bar needs a max'])
+    expect(looks({ a: { display: 'levels' } })).toEqual([
+      'values.a: display: levels needs its levels',
+    ])
+    expect(looks({ a: { levels: ['x'] } })).toEqual(['values.a.levels: only with display: levels'])
+    expect(looks({ a: { display: 'levels', levels: ['d6', 'd6'] } })).toEqual([
+      'values.a.levels: "d6" twice',
+    ])
+    expect(looks({ a: { max: 3, track: true, display: 'bar' } })).toEqual([
+      'values.a: track: true is display: boxes, not bar',
+    ])
+    expect(looks({ a: { max: 3, display: 'bar', tones: { low: 'danger' } } })[0]).toMatch(
+      /^values\.a\.tones/,
+    )
+    expect(looks({ a: { max: 3, display: 'bar', tones: { 0: 'red' } } })[0]).toMatch(
+      /^values\.a\.tones/,
+    )
+    expect(looks({}, { bond: { value: { min: 0, display: 'pips' } } })).toEqual([
+      'relations.bond.value: display: pips needs a max',
+    ])
+  })
+
+  it('takes the tone of the highest threshold reached', () => {
+    const tones = { 0: 'danger', 2: 'warning', 4: 'good' } as const
+    expect([-1, 0, 1, 2, 3, 4, 9].map((v) => toneOf(tones, v))).toEqual([
+      undefined,
+      'danger',
+      'danger',
+      'warning',
+      'warning',
+      'good',
+      'good',
+    ])
+    expect(toneOf(undefined, 3)).toBeUndefined()
   })
 })
 
