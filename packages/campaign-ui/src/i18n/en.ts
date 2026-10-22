@@ -11,8 +11,8 @@ export const en = {
     intro:
       'The world clock keeps the campaign’s date, shared by its maps and trips: move time on, schedule events that come due on their day, and keep progress clocks (“The comet falls: 3/6”).',
     start: 'Start the world clock',
-    stop: 'Stop the world clock',
-    confirmStop: 'Stop the world clock? Its date, events, clocks and timeline are forgotten.',
+    stop: 'Remove the world clock',
+    confirmStop: 'Remove the world clock? Its date, events, clocks and timeline are forgotten.',
     dayLine: 'Day {day} · {clock} · {season}',
     day: 'Day {day}',
     date: '{weekday}, {day} {month}, year {year}',

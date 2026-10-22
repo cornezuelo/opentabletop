@@ -8,11 +8,11 @@ The panel is in **tabs** (a choice of them when the side panel is too narrow for
 
 **Starting on** chooses its date in the calendar's terms: the day of the month, the month and the year, and the time (with the default calendar, the day number and the time); it starts at 06:00 of the first day unless you change it. **Start the world clock** sets it there — or, during a trip, at the trip's time (they share one time). A date the calendar doesn't have (the 31st of a 30-day month, or before its first day) is said under the boxes. It names time with the calendar of the system the map plays (**Map settings → Campaign → System**; during a trip, the one the trip plays): the Grey Marches show “Wellday, 3 Thaw, year 412” with their moons and holidays; the Generic rules' plain calendar counts the days of its seasons and seasons.
 
-**Stop the world clock** forgets it (it asks first).
+**Remove the world clock** forgets it (it asks first).
 
 ## Without the world clock
 
-The world clock is optional: **Stop the world clock** doesn't pause it, it forgets it (its date, events, clocks and timeline), and the campaign is left without one. A trip still plays: it keeps its own time (its days, hours and season, chosen in **New trip**), and its rules work as ever. What only the world clock brings:
+The world clock is optional: **Remove the world clock** forgets it (its date, events, clocks and timeline): it isn't a pause, and the campaign is left without one. A trip still plays: it keeps its own time (its days, hours and season, chosen in **New trip**), and its rules work as ever. What only the world clock brings:
 
 - **A date of the calendar** (day, month, year, moons and holidays) instead of the trip's _day 3 of summer_; new trips start on it.
 - **One time for the campaign**: its maps and trips share the date. Without it, each trip counts its own days.

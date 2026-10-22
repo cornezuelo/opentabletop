@@ -8,11 +8,11 @@ El panel va en **pestañas** (un desplegable con ellas cuando el panel lateral e
 
 **Empieza el** elige su fecha en los términos del calendario: el día del mes, el mes y el año, y la hora (con el calendario por defecto, el número de día y la hora); empieza a las 06:00 del primer día salvo que lo cambies. **Poner en marcha el reloj del mundo** lo sitúa ahí o, durante un viaje, a la hora del viaje (comparten el tiempo). Una fecha que el calendario no tiene (el 31 de un mes de 30 días, o antes de su primer día) se dice bajo las casillas. Nombra el tiempo con el calendario del sistema con el que se juega el mapa (**Ajustes del mapa → Campaña → Sistema**; durante un viaje, el del viaje): las Marcas Grises muestran «Pozodía, 3 de Deshielo, año 412» con sus lunas y fiestas; el calendario sencillo de las reglas genéricas cuenta los días de sus estaciones.
 
-**Parar el reloj del mundo** lo olvida (pregunta antes).
+**Quitar el reloj del mundo** lo olvida (pregunta antes).
 
 ## Sin el reloj del mundo
 
-El reloj del mundo es opcional: **Parar el reloj del mundo** no lo pausa, lo olvida (su fecha, eventos, relojes y cronología), y la campaña se queda sin él. Un viaje se juega igual: lleva su propio tiempo (sus días, horas y estación, elegida en **Nuevo viaje**), y sus reglas funcionan como siempre. Lo que solo trae el reloj del mundo:
+El reloj del mundo es opcional: **Quitar el reloj del mundo** lo olvida (su fecha, eventos, relojes y cronología): no es una pausa, y la campaña se queda sin él. Un viaje se juega igual: lleva su propio tiempo (sus días, horas y estación, elegida en **Nuevo viaje**), y sus reglas funcionan como siempre. Lo que solo trae el reloj del mundo:
 
 - **Una fecha del calendario** (día, mes, año, lunas y fiestas) en vez del _día 3 de verano_ del viaje; los viajes nuevos empiezan en ella.
 - **Un solo tiempo para la campaña**: sus mapas y viajes comparten la fecha. Sin él, cada viaje cuenta sus propios días.

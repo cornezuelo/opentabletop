@@ -12,8 +12,8 @@ export const es: Messages = {
     intro:
       'El reloj del mundo lleva la fecha de la campaña, compartida por sus mapas y viajes: haz avanzar el tiempo, programa eventos que llegan en su día y lleva relojes de progreso («Cae el cometa: 3/6»).',
     start: 'Poner en marcha el reloj del mundo',
-    stop: 'Parar el reloj del mundo',
-    confirmStop: '¿Parar el reloj del mundo? Se olvidan su fecha, eventos, relojes y cronología.',
+    stop: 'Quitar el reloj del mundo',
+    confirmStop: '¿Quitar el reloj del mundo? Se olvidan su fecha, eventos, relojes y cronología.',
     dayLine: 'Día {day} · {clock} · {season}',
     day: 'Día {day}',
     date: '{weekday}, {day} de {month}, año {year}',
