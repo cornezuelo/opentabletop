@@ -10,7 +10,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
-- Systems: **opening Rules (or any tab with many texts) took seconds** with the UI in another language than the pack's (Spanish on the Grey Marches: over 2 s): each text box read the whole translation file again; now it's read once (about 0.25 s).
+- Systems: **opening Rules (or any tab with many texts) took seconds** with the UI in another language than the pack's (Spanish on the Grey Marches: over 2 s): each text box read the whole translation file again; now it's read once (about 0.1 s now: the pack's language was also read again for each box).
 - Sheets: **a number typed past its max stayed in its box** (Rations `9 / 6` though the value was 6): the box now shows the value as it is; and number boxes' arrows stop at its bounds.
 - Sheets: **tones as a share of the max**: `tones: { 0: danger, 50%: warning, 75%: good }` follows a max that changes, and an empty bar keeps its tone on its frame; the Grey Marches' health uses it (it only turned red at 0, when the bar was empty).
 

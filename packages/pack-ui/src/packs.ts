@@ -171,9 +171,24 @@ export function engineFiles(packs: PackSource[]): EngineFile[] {
   )
 }
 
-/** Lenient read of pack.yaml for display; validation errors come from the engine. */
+/**
+ * Lenient read of pack.yaml for display; validation errors come from the engine. Read once
+ * per text of the file: forms ask it for every text box (its language), hundreds at a time.
+ */
 export function manifestOf(pack: PackSource): ManifestInfo {
-  const file = pack.files.find((f) => f.path === MANIFEST_FILE)
+  const content = pack.files.find((f) => f.path === MANIFEST_FILE)?.content ?? ''
+  let info = manifests.get(content)
+  if (!info) {
+    info = readManifest(content)
+    if (manifests.size >= 64) manifests.delete(manifests.keys().next().value!)
+    manifests.set(content, info)
+  }
+  return { ...info }
+}
+const manifests = new Map<string, ManifestInfo>()
+
+function readManifest(content: string): ManifestInfo {
+  const file = content ? { content } : undefined
   try {
     const data = file ? (parse(file.content) as Record<string, unknown>) : {}
     const text = (v: unknown) => (typeof v === 'string' ? v : undefined)
