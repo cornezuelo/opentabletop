@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-22
+
 ### Packs
 
 - The Grey Marches: **a die that steps**: each companion's **Nerve** is a die from d4 to d12 (`display: levels`); the rite at a shrine steps it up, the Wyrm waking down.
