@@ -38,6 +38,11 @@
   /** Whether a sheet is the party's own (`partySheet`), not its characters'. */
   const isParty = (p: { id: string }) =>
     kind === 'sheet' && !!system.partySheet?.id.endsWith(`/${p.id}`)
+  /** Whose sheet it is, for its tab: its characters', the party's or the factions'. */
+  const sheetTab = (p: { id: string }) =>
+    (({ members: 'charactersTab', party: 'partyTab', factions: 'factionsTab' }) as const)[
+      sheetScope(system, p.id) ?? 'members'
+    ]
   const key = $derived(kind === 'roll-modes' ? 'modes' : kind)
 
   function create(party = false) {
@@ -58,7 +63,7 @@
           class:active={i === chosen}
           onclick={() => (chosen = i)}
           >{p.root === root ? p.id : `${p.root}/${p.id}`}{kind === 'sheet'
-            ? ` · ${t(isParty(p) ? 'parts.sheet.partyTab' : 'parts.sheet.charactersTab')}`
+            ? ` · ${t(`parts.sheet.${sheetTab(p)}`)}`
             : ''}</button
         >
       {/each}

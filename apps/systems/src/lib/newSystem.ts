@@ -283,14 +283,20 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   const data = systemData(system)
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
-  else if (kind === 'sheet')
-    // Its characters' sheet, then the party's own.
+  else if (kind === 'sheet') {
+    // Its characters' sheet, then the party's own, then its factions' (unless it's one of those).
     refs = data
       ? (['sheet', 'partySheet'] as const).flatMap((key) =>
           typeof data[key] === 'string' ? [data[key] as string] : [],
         )
       : ownOfKind(pack).slice(0, 1)
-  else if (kind === 'calendar' || kind === 'factions' || kind === 'clocks')
+    const factions = system.factions?.sheet.id
+    const taken = [system.sheet?.id, system.partySheet?.id]
+    if (factions && !taken.includes(factions)) {
+      const [owner, id] = factions.split('/', 2)
+      refs.push(writeRef('sheet', id, owner === pack ? undefined : owner))
+    }
+  } else if (kind === 'calendar' || kind === 'factions' || kind === 'clocks')
     refs = data
       ? typeof data[kind] === 'string'
         ? [data[kind] as string]

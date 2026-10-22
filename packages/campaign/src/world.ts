@@ -313,7 +313,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     let changed = false
     for (const [path, change] of Object.entries(changes)) {
       const [, id, rest] = /^factions\.([^.]+)\.(.+)$/.exec(path) ?? []
-      if (!id || (typeof change !== 'number' && typeof change !== 'string')) continue
+      if (!id || !['number', 'string', 'boolean'].includes(typeof change)) continue
       if (rest === 'territory') {
         // Land changes on the map being played; without one there's none to change.
         const by = Number(change)
@@ -327,7 +327,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       if (at < 0 || !/^(values|conditions)\./.test(rest)) continue
       state.factions[at] = applyCharacter(system.sheet.def, state.factions[at], {
         type: 'change',
-        effects: { [rest]: change },
+        effects: { [rest]: change as number | string | boolean },
       }).state
       changed = true
     }

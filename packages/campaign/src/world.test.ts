@@ -37,6 +37,8 @@ kind: sheet
 id: faction
 values:
   strength: { default: 2, min: 0, max: 6 }
+conditions:
+  at-war: {}
 ---
 kind: factions
 id: default
@@ -167,6 +169,9 @@ describe('the world of a campaign', () => {
     // No trip going on: nobody to hear it.
     expect(hit.campaign.moments).toBeUndefined()
     expect(hit.map!.territories!.clans ?? []).toHaveLength(0)
+    // A condition too (`true` holds it).
+    const marked = worldEffects(place, { 'factions.clans.conditions.at-war': true }, host())
+    expect(marked.campaign.factions!.factions[0].conditions).toHaveProperty('at-war')
     const time = place.campaign.world!.time + 60
     const scheduled = worldAct(hit, { type: 'schedule', event: { name: 'Fair', at: time } }, host())
     const followed = followTrip(scheduled, time + 1, host({ trip: {} }))

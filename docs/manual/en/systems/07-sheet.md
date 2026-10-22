@@ -16,7 +16,7 @@ A sheet is a blank form: it says what a character has (Survival, Health, Rations
 
 ## The tab
 
-With both sheets, a tab above the form chooses which. **New characters sheet** and **New party sheet** make a small one and name it in the system (`sheet:`, `partySheet:` in its **Overview**). Wherever a sheet is played (the trip's **Party** tab, a token's sheet in the Hexmapper), it says which it is and whose system, with **Edit in Systems ↗** to come here. The YAML of a sheet: [Sheets](../technical/07-kinds.md#sheets).
+With both sheets, a tab above the form chooses which. When the system has [factions](08-factions.md), their sheet is edited here too, in a tab of its own (_faction · the factions_), unless it's one of these two. **New characters sheet** and **New party sheet** make a small one and name it in the system (`sheet:`, `partySheet:` in its **Overview**). Wherever a sheet is played (the trip's **Party** tab, a token's sheet in the Hexmapper), it says which it is and whose system, with **Edit in Systems ↗** to come here. The YAML of a sheet: [Sheets](../technical/07-kinds.md#sheets).
 
 - Its **Name** and **Description** (what the sheet is for).
 - Its **Values**, each with an id, a name, the value it **Starts at** (a new character's), **Min** and **Max** (a number, or another value in braces, `'{{self.values.toughness}}'`: as high as the character's Toughness; empty: no bound), **Track** (shown as boxes, as many as its max) and **Group**.

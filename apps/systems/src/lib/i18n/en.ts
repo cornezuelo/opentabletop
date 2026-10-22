@@ -62,13 +62,14 @@ export const en = {
     sheet: {
       title: 'Its sheets: the party and its characters',
       intro:
-        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them and which supplies they carry. Each has values with their bounds, tracks, conditions and relations.",
+        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them and which supplies they carry. Each has values with their bounds, tracks, conditions and relations. When the system has factions, **their sheet** (chosen in the **Factions** tab) is edited here too.",
       help: "Named in its **Overview** (`partySheet:`, `sheet:`). Conditions and tables read the party's sheet and each character:\n• `party.values.morale: { gte: 3 }` — the party\n• `characters.kael.values.health: { lte: 1 }` — one by id\n• `acting.values.wits: { gte: 3 }` — the one acting now\nEffects change them:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — every character\nA party stat can be a value of the party sheet: `from: { party: morale }` (in **Checks**).",
       none: 'This system has no sheet: its party is played as a whole, with its stats.',
       create: 'New characters sheet',
       createParty: 'New party sheet',
       partyTab: 'the party',
       charactersTab: 'its characters',
+      factionsTab: 'the factions',
       onlyParty: "This is the party's own sheet; the system has none for its characters yet.",
     },
     calendar: {
@@ -128,7 +129,7 @@ export const en = {
     nameHelp: 'What these factions are called together.\n• **The powers of the realm**',
     sheet: 'Their sheet',
     sheetHelp:
-      "The sheet every faction is made with (`kind: sheet`): their values (strength, wealth…), conditions (at war…) and kinds of relation (ally, rival). It can be the characters' or one of their own.",
+      "The sheet every faction is made with (`kind: sheet`): their values (strength, wealth…), conditions (at war…) and kinds of relation (ally, rival). It can be the characters' or one of their own, edited in the **Sheet** tab.",
     turn: 'Their turn',
     turnHelp:
       "What each faction rolls on a world turn (a table, oracle, generator or deck), with its own values as `faction.*`:\n• `table.faction-turn` — a table of this pack\n• `generator.schemes` — a generator of this pack\n• `core/table.faction-turn` — Core's, for any game: it grows, holds or loses ground",

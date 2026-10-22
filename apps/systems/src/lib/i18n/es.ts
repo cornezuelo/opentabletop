@@ -64,13 +64,14 @@ export const es: Messages<typeof en> = {
     sheet: {
       title: 'Sus hojas: el grupo y sus personajes',
       intro:
-        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos y qué provisiones llevan. Cada una tiene valores con sus límites, contadores, estados y relaciones.',
+        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos y qué provisiones llevan. Cada una tiene valores con sus límites, contadores, estados y relaciones. Si el sistema tiene facciones, **su hoja** (elegida en la pestaña **Facciones**) se edita aquí también.',
       help: 'Nombradas en su **Resumen** (`partySheet:`, `sheet:`). Las condiciones y las tablas leen la hoja del grupo y cada personaje:\n• `party.values.morale: { gte: 3 }` — el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\nLos efectos los cambian:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — a todos los personajes\nUna característica del grupo puede ser un valor de la hoja de grupo: `from: { party: morale }` (en **Comprobaciones**).',
       none: 'Este sistema no tiene hoja: su grupo se juega como un todo, con sus características.',
       create: 'Nueva hoja de personajes',
       createParty: 'Nueva hoja de grupo',
       partyTab: 'el grupo',
       charactersTab: 'sus personajes',
+      factionsTab: 'las facciones',
       onlyParty:
         'Esta es la hoja del propio grupo; el sistema aún no tiene una para sus personajes.',
     },
@@ -131,7 +132,7 @@ export const es: Messages<typeof en> = {
     nameHelp: 'Cómo se llaman estas facciones en conjunto.\n• **Los poderes del reino**',
     sheet: 'Su hoja',
     sheetHelp:
-      'La hoja con la que se hace cada facción (`kind: sheet`): sus valores (fuerza, riqueza…), estados (en guerra…) y tipos de relación (aliado, rival). Puede ser la de los personajes o una propia.',
+      'La hoja con la que se hace cada facción (`kind: sheet`): sus valores (fuerza, riqueza…), estados (en guerra…) y tipos de relación (aliado, rival). Puede ser la de los personajes o una propia, que se edita en la pestaña **Hoja**.',
     turn: 'Su turno',
     turnHelp:
       'Lo que tira cada facción en un turno del mundo (una tabla, oráculo, generador o mazo), con sus propios valores como `faction.*`:\n• `table.faction-turn` — una tabla de este pack\n• `generator.schemes` — un generador de este pack\n• `core/table.faction-turn` — la de Core, para cualquier juego: crece, aguanta o pierde terreno',

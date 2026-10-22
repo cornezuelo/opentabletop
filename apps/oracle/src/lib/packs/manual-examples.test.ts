@@ -1,4 +1,21 @@
-import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
+import {
+  bringFactions,
+  createCampaign,
+  startWorld,
+  tripStepped,
+  worldAct,
+  worldFactsOf,
+  worldTurnNow,
+  type WorldHost,
+  type WorldPlace,
+} from '@open-tabletop/campaign'
+import { createMap, type HexMap } from '@open-tabletop/map'
+import {
+  createOracleEngine,
+  emptyState,
+  formatDiagnostic,
+  loadPacks,
+} from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import {
   applyMemberEffects,
@@ -98,7 +115,8 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         : [yaml]
     expect(problems(withBindings)).toEqual([])
     // Factions are read by a system: on their own, their shape is checked here.
-    if (kindOf(yaml) === 'factions') expect(parseFactions(parse(yaml)).errors).toEqual([])
+    for (const doc of parseAllDocuments(yaml).map((d) => d.toJS()))
+      if (doc?.kind === 'factions') expect(parseFactions(doc).errors).toEqual([])
   })
 })
 
@@ -765,5 +783,244 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
     expect(health(s)).toEqual(before.map((h) => h - 1))
     expect(s.party?.values.morale).toBe(2)
     expect(s.stats.morale).toBe(2)
+  })
+})
+
+describe('Systems → Factions: the border feud plays as the page says', () => {
+  const blocks = [...read('en/systems/08-factions.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+    (m) => m[1],
+  )
+  const factions = blocks.find((y) => y.includes('kind: factions'))!
+  const table = blocks.find((y) => y.includes('id: reaver-raid'))!
+  const [named, added] = parseAllDocuments(blocks.find((y) => y.includes('REAVERS'))!).map((d) =>
+    d.toJS(),
+  )
+  const rules = { ...parse(coreFile('travel.yaml')), checks: added.checks }
+  const { registry, diagnostics } = loadPacks([
+    { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
+    { path: 'core/factions.yaml', content: coreFile('factions.yaml') },
+    {
+      path: 'border/pack.yaml',
+      content: "id: border\nversion: 0.1.0\nformat: 6\nlocale: en\ndependencies: { core: '*' }\n",
+    },
+    { path: 'border/travel.yaml', content: stringify(rules) },
+    { path: 'border/factions.yaml', content: factions },
+    { path: 'border/tables.yaml', content: table },
+    { path: 'border/calendar.yaml', content: coreFile('calendar.yaml') },
+    {
+      path: 'border/system.yaml',
+      content: stringify({
+        kind: 'system',
+        id: 'default',
+        name: 'The Border',
+        travel: 'travel-rules.default',
+        calendar: 'calendar.default',
+        ...named,
+      }),
+    },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.pack === 'border')!
+  const calendar = calendarOf(system)
+  const host = (seed: string): WorldHost => ({
+    calendar,
+    clocks: system.clocks,
+    fallback: 'en',
+    factions: system.factions,
+    oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    random: seeded(`${seed}-world`),
+    locale: 'en',
+    words: {
+      clockFull: (full) => full.description ?? '',
+      factionLine: (_, line) => `${line.faction}: ${line.text}`,
+    },
+  })
+  /** Step 7's map: the Low Fells on the west (columns 0–1), the High Moor on the east (4–5). */
+  function borderMap(): HexMap {
+    const map = createMap('The Border')
+    map.grid = { ...map.grid, width: 10, height: 6 }
+    map.regions = [
+      { id: 'fells', name: 'The Low Fells', color: '#88aa77' },
+      { id: 'moor', name: 'The High Moor', color: '#aa8866' },
+    ]
+    for (let col = 0; col < 10; col++)
+      for (let row = 0; row < 6; row++)
+        map.hexes[`${col},${row}`] = {
+          terrain: 'plains',
+          ...(col < 2 && { region: 'fells' }),
+          ...(col >= 4 && col < 6 && { region: 'moor' }),
+        }
+    return map
+  }
+  /** Step 8: the world clock started on day 1 at 06:00, and the factions brought in. */
+  function broughtIn(seed: string, time = 1440 + 360): WorldPlace {
+    const map = borderMap()
+    const start = startWorld({ campaign: createCampaign('c'), map }, time, host(seed))
+    const { territories, ...own } = bringFactions(
+      start.campaign,
+      map,
+      system.factions!,
+      'border',
+      time,
+    )
+    return { campaign: { ...start.campaign, factions: own }, map: { ...map, territories } }
+  }
+  const land = (place: WorldPlace, id: string) => place.map!.territories?.[id] ?? []
+  const sheet = (place: WorldPlace, id: string) =>
+    place.campaign.factions!.factions.find((f) => f.id === id)!
+
+  it('loads (steps 1–6)', () => {
+    expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    expect(system.factions?.def.factions['the-reavers'].turn).toBe('table.reaver-raid')
+  })
+
+  it('brings them in on their regions, with their starting Strength (step 8)', () => {
+    const place = broughtIn('a')
+    expect(land(place, 'the-wardens')).toHaveLength(12)
+    expect(land(place, 'the-reavers')).toHaveLength(12)
+    expect(sheet(place, 'the-wardens').values.strength).toBe(4)
+    expect(sheet(place, 'the-reavers').values.strength).toBe(3)
+  })
+
+  it('world turns: the Wardens first on Core’s table, then the Reavers on theirs', () => {
+    const texts = new Set<string>()
+    let burned = 0
+    let beaten = 0
+    for (let seed = 0; seed < 40; seed++) {
+      let place = broughtIn(`turns-${seed}`)
+      for (let turn = 0; turn < 6; turn++) {
+        const before = { place, reavers: sheet(place, 'the-reavers').values.strength }
+        const done = worldTurnNow(place, host(`turns-${seed}-${turn}`))
+        place = done
+        expect(done.lines.map((l) => l.faction)).toEqual(['the-wardens', 'the-reavers'])
+        for (const l of done.lines) texts.add(`${l.faction}: ${l.text}`)
+        const raid = done.lines[1]
+        if (raid.text === 'A steading burns') {
+          burned++
+          expect(before.reavers).toBeGreaterThanOrEqual(2)
+          expect(land(place, 'the-reavers').length).toBe(
+            land(before.place, 'the-reavers').length + 1,
+          )
+          expect(sheet(place, 'the-wardens').conditions).toHaveProperty('at-war')
+          // Nobody's land first: a Warden hex is taken only when none is left beside them.
+          const taken = raid.territory![0]
+          if (taken.type === 'TERRITORY_GAINED' && taken.from)
+            expect(taken.from).toBe('the-wardens')
+        }
+        if (raid.text === 'The raid is beaten off') {
+          beaten++
+          expect(sheet(place, 'the-reavers').values.strength).toBe(Math.max(0, before.reavers - 1))
+        }
+        // Strength keeps within the sheet's bounds.
+        for (const f of place.campaign.factions!.factions)
+          expect(f.values.strength).toBeGreaterThanOrEqual(0)
+      }
+    }
+    expect(burned).toBeGreaterThan(0)
+    expect(beaten).toBeGreaterThan(0)
+    for (const text of [
+      'the-wardens: Expands its reach',
+      'the-wardens: Holds what it has',
+      'the-reavers: Cattle driven off in the night',
+      'the-reavers: A steading burns',
+    ])
+      expect(texts).toContain(text)
+  })
+
+  it('at Strength 1 the Reavers never burn a steading', () => {
+    for (let seed = 0; seed < 20; seed++) {
+      const place = broughtIn(`weak-${seed}`)
+      const reavers = sheet(place, 'the-reavers')
+      reavers.values.strength = 1
+      const done = worldTurnNow(place, host(`weak-${seed}`))
+      expect(done.lines[1].text).not.toBe('A steading burns')
+    }
+  })
+
+  it('a turn comes by itself a week after they came in (step 8’s Next day, eight times)', () => {
+    let place: WorldPlace = broughtIn('week')
+    const turns: number[] = []
+    for (let day = 1; day <= 8; day++) {
+      const next = calendar.at(calendar.describe(place.campaign.world!.time).day + 1, '00:00')
+      place = worldAct(place, { type: 'setTime', time: next }, host(`week-${day}`))
+      const lines = place.campaign.world!.timeline.filter((e) =>
+        e.text?.startsWith('the-wardens: '),
+      )
+      turns.push(lines.length)
+    }
+    expect(turns).toEqual([0, 0, 0, 0, 0, 0, 0, 1])
+  })
+
+  it('robbers on the Reavers’ land only, as often as they are strong, and bolder for it', () => {
+    let robbed = 0
+    for (let seed = 0; seed < 10; seed++) {
+      let s = startTrip({ system, location: '0,2', season: 'summer' }).session
+      // The world clock and the trip share one time.
+      let place = broughtIn(`trip-${seed}`, s.travel.time)
+      // Step 9: along row 2, from the fells across the moor to the east.
+      const world: TravelWorld = {
+        hexKm: 10,
+        cell: (hex) => {
+          const holder = Object.entries(place.map!.territories ?? {}).find(([, h]) =>
+            h.includes(hex),
+          )?.[0]
+          return /^\d,2$/.test(hex)
+            ? { terrain: 'plains', ...(holder && { faction: holder }) }
+            : null
+        },
+        neighbors: (hex) => {
+          const col = Number(hex.split(',')[0])
+          return [col - 1, col + 1].filter((c) => c >= 0 && c < 10).map((c) => `${c},2`)
+        },
+        distance: (a, b) => Math.abs(Number(a.split(',')[0]) - Number(b.split(',')[0])),
+        edges: () => [],
+      }
+      const h = host(`trip-${seed}`)
+      const opts = {
+        system,
+        world,
+        oracle: h.oracle,
+        locale: 'en',
+        random: seeded(`trip-${seed}`),
+      }
+      /** A step of the trip with the world's facts, and what it did to the world. */
+      const step = (action: Parameters<typeof stepTrip>[2]) => {
+        const seen = s.journal.length
+        const strength = sheet(place, 'the-reavers').values.strength
+        s = stepTrip({ ...opts, facts: worldFactsOf(place, h) }, s, action).state
+        const fresh = s.journal.slice(seen)
+        place = tripStepped(
+          place,
+          {
+            oracle: place.campaign.oracle?.state ?? emptyState(),
+            entries: fresh,
+            time: s.travel.time,
+          },
+          h,
+        )
+        const robberies = fresh.filter(
+          (e) => e.code === 'CHECK_EFFECTS' && e.data?.event === 'REAVERS',
+        )
+        for (const e of robberies) {
+          // Only on their land.
+          const entered = fresh.find((x) => x.code === 'HEX_ENTERED' && x.time === e.time)!
+          expect(land(place, 'the-reavers')).toContain(entered.data?.hex)
+        }
+        // Each robbery makes the Reavers one stronger, up to their Max.
+        expect(sheet(place, 'the-reavers').values.strength).toBe(
+          Math.min(6, strength + robberies.length),
+        )
+        robbed += robberies.length
+      }
+      step({ type: 'setDestination', hex: '9,2' })
+      for (let day = 0; day < 4 && s.travel.location !== '9,2'; day++) {
+        step({ type: 'travel' })
+        step({
+          type: 'wait',
+          until: calendar.at(s.travel.day + 1, tripStart(system.rules, calendar)),
+        })
+      }
+      expect(s.travel.location).toBe('9,2')
+    }
+    expect(robbed).toBeGreaterThan(0)
   })
 })

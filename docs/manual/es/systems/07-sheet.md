@@ -16,7 +16,7 @@ Una hoja es un formulario en blanco: dice lo que tiene un personaje (Supervivenc
 
 ## La pestaña
 
-Con las dos hojas, una pestaña encima del formulario elige cuál. **Nueva hoja de personajes** y **Nueva hoja de grupo** hacen una pequeña y la nombran en el sistema (`sheet:`, `partySheet:` en su **Resumen**). Allí donde se juega una hoja (la pestaña **Grupo** del viaje, la hoja de una ficha en el Hexmapper), dice cuál es y de qué sistema, con **Editar en Sistemas ↗** para venir aquí. El YAML de una hoja: [Hojas](../technical/07-kinds.md#hojas).
+Con las dos hojas, una pestaña encima del formulario elige cuál. Si el sistema tiene [facciones](08-factions.md), su hoja se edita aquí también, en una pestaña propia (_faction · las facciones_), salvo que sea una de esas dos. **Nueva hoja de personajes** y **Nueva hoja de grupo** hacen una pequeña y la nombran en el sistema (`sheet:`, `partySheet:` en su **Resumen**). Allí donde se juega una hoja (la pestaña **Grupo** del viaje, la hoja de una ficha en el Hexmapper), dice cuál es y de qué sistema, con **Editar en Sistemas ↗** para venir aquí. El YAML de una hoja: [Hojas](../technical/07-kinds.md#hojas).
 
 - Su **Nombre** y su **Descripción** (para qué es la hoja).
 - Sus **Valores**, cada uno con un id, un nombre, el valor en que **Empieza** (el de un personaje nuevo), **Mín.** y **Máx.** (un número, u otro valor entre llaves, `'{{self.values.toughness}}'`: tan alto como la Dureza del personaje; vacío: sin límite), **Contador** (se muestra como casillas, tantas como su máximo) y **Grupo**.

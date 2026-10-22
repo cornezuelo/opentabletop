@@ -32,6 +32,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Manual: **Systems → Sheet explained from nothing**: how sheets work (a character is the sheet filled in; the party made of its members: stats from their values, supplies they carry, conditions that block everyone; bounds, also another value; the party's own sheet; whom an effect reaches) with a picture of a sheet, its characters and the party, a company of three built step by step (Survival from the best not wounded, rations shared out, scree that lames whoever leads, hunger that hurts everyone and wears morale down) with what you'll see in the trip, the YAML and the usual mistakes. Kinds no longer shows an old way of writing a bound (`'{{name}}'`; it is `'{{self.values.<id>}}'`).
 
+- Manual: **Systems → Factions explained from nothing**: how factions work (a sheet and land; the system says how they start, the campaign and its maps keep them; a world turn, faction by faction in order, each rolling its turn table and changing itself, the others, land and clocks; turns by hand or every so many days; land grown and lost hex by hex, nobody's first; what the rest of the world reads and changes) with a picture of one world turn, a border feud built step by step (the Wardens on Core's table, the Reavers on their own rolled with their Strength, robbers on their land who grow bolder with every traveller robbed) with what you'll see on the map and in the trip, the YAML and the usual mistakes.
+
+- Systems: **the factions' sheet is edited in the Sheet tab**, in a tab of its own beside the party's and the characters' (before, only in the YAML).
+
+- Hexmapper, Travel, Campaign: **a trip or a full clock can set a faction's condition** (`factions.the-crown.conditions.at-war: true`); before, only their values changed.
+
 - Hexmapper, Travel, Systems' Try it: **an action's journal line says what it did**: an action no check is rolled at now tells its changes (_Eat (Food −1)_, before only _Eat_); an action whose checks all stayed away says the system's **When nothing applies** again (the Grey Marches' _nothing to forage on Hills_), which never showed; and **Everything** rounds the hours it reads (_8.01_, not _8.01111111111095_).
 
 ## [0.8.0] - 2026-10-20

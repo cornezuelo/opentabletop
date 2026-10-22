@@ -230,6 +230,12 @@ describe('systems in the Systems app', () => {
       { root: 'grey-marches', path: 'calendar.yaml', kind: 'calendar', id: 'marcher-reckoning' },
     ])
     expect(systemParts(marches, 'weather').map((p) => p.id)).toEqual(['sky'])
+    // Its sheets: the characters', the party's and the factions'.
+    expect(systemParts(marches, 'sheet').map((p) => p.id)).toEqual([
+      'companion',
+      'company',
+      'faction',
+    ])
     // Roll modes of the packs it brings: its own, then Core's.
     expect(systemParts(marches, 'roll-modes').map((p) => `${p.root}/${p.id}`)).toEqual([
       'grey-marches/default',
@@ -289,6 +295,10 @@ describe('systems in the Systems app', () => {
     expect(system().factions?.sheet.id).toBe(`${id}/faction`)
     expect(Object.keys(system().factions!.def.factions)).toEqual(['the-crown', 'the-rebels'])
     expect(library.readFile(id, 'system.yaml')).toMatch(/factions: factions.default/)
+    // Their sheet is edited in the Sheet tab, after the characters' and the party's.
+    expect(systemParts(system(), 'sheet')).toEqual([
+      { root: id, path: 'factions.yaml', kind: 'sheet', id: 'faction' },
+    ])
     // Every read after a change reloads the packs: a few seconds in all.
   }, 30_000)
 
