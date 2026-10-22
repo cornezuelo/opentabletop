@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { TravelSystem } from '@open-tabletop/session'
+  import { usesFor } from '../../lib/usage'
   import { ask, confirmAction, InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import {
@@ -18,7 +20,7 @@
    * are written as rows too (**Split into equal parts…**); a division the YAML writes with
    * `every` is shown as its parts, and **Write them as rows** turns it into them.
    */
-  let { doc }: { doc: PartDoc } = $props()
+  let { doc, system }: { doc: PartDoc; system?: TravelSystem } = $props()
 
   type Item = Record<string, unknown>
   const data = $derived(doc.data())
@@ -170,6 +172,10 @@
         <ListRows
           {doc}
           at={['divisions', id, 'parts']}
+          uses={system && {
+            of: (part) => usesFor(system, { kind: 'day-part', division: id, id: part }),
+            system,
+          }}
           idLabel={t('forms.id')}
           idBase="part"
           template={{ from: '12:00' }}

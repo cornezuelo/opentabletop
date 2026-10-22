@@ -58,6 +58,10 @@ export type Declared =
   | { kind: 'rollable'; id: string; pack: string }
   /** A roll mode, by its full id (`core/advantage`). */
   | { kind: 'roll-mode'; id: string }
+  /** A month or season of its calendar. */
+  | { kind: 'month' | 'season'; id: string }
+  /** A part of a division of its calendar's day: `morning` of `part`. */
+  | { kind: 'day-part'; division: string; id: string }
 
 export type SheetScope = 'members' | 'party' | 'factions'
 
@@ -67,7 +71,7 @@ const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exist
  * travelling, a check, or a definition of the Oracle (maybe of another pack: `core/table.twists`).
  */
 const REFERENCE =
-  /^(?:[a-z0-9-]+\/)?(?:actions|modes|checks|table|oracle|generator|deck)\.[^\s{}]+$/
+  /^(?:(?:[a-z0-9-]+\/)?(?:actions|modes|checks|table|oracle|generator|deck)\.[^\s{}]+|time\.[a-z0-9-]+\.[a-z0-9-]+)$/
 const TEMPLATE = /\{\{\s*([^}]+?)\s*\}\}/g
 /** Names no system declares: an action's parameters, a list's roll. */
 const OWN = /^(params\.|roll$)/
@@ -410,6 +414,16 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       match = (u) =>
         u.name === `factions.${declared.id}` || u.name.startsWith(`factions.${declared.id}.`)
       break
+    case 'month':
+    case 'season':
+      match = (u) => u.name === `time.${declared.kind}` && has(u)
+      break
+    case 'day-part':
+      // Begun (`time.part.morning`: a moment, a time step) or compared (`time.part: morning`).
+      match = (u) =>
+        u.name === `time.${declared.division}.${declared.id}` ||
+        (u.name === `time.${declared.division}` && has(u))
+      break
     case 'roll-mode':
       match = (u) => u.how === 'names' && u.name === declared.id
       break
@@ -480,6 +494,12 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
   for (const def of registry.definitions.values())
     if (packs.includes(def.pack) && ROLLED.includes(def.kind))
       out.push({ kind: 'rollable', id: `${def.kind}.${def.localId}`, pack: def.pack })
+  const calendar = system.calendar?.def
+  for (const m of calendar?.months ?? []) out.push({ kind: 'month', id: m.id })
+  for (const id of new Set((calendar?.months ?? []).flatMap((m) => (m.season ? [m.season] : []))))
+    out.push({ kind: 'season', id })
+  for (const [division, d] of Object.entries(calendar?.divisions ?? {}))
+    for (const part of d.parts ?? []) out.push({ kind: 'day-part', division, id: part.id })
   for (const [id, mode] of registry.rollModes)
     if (packs.includes(mode.pack)) out.push({ kind: 'roll-mode', id })
   const sheets: [SheetScope, { values?: unknown; conditions?: unknown } | undefined][] = [

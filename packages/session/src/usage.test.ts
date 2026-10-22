@@ -55,6 +55,13 @@ describe('where a name is used', () => {
     expect(of({ kind: 'roll-mode', id: advantage.id })).toContain(
       'names table getting-lost modeWhen.advantage',
     )
+    // The calendar: a part of the day begun (a moment, a time step) or compared.
+    expect(of({ kind: 'day-part', division: 'part', id: 'morning' })).toContain(
+      'names travel-rules default actions.grumble.on',
+    )
+    expect(of({ kind: 'day-part', division: 'part', id: 'morning' })).toContain(
+      'names travel-rules default actions.camp.do[0].time',
+    )
     // Declared, all of them.
     const declared = declaredOf(registry, system)
     for (const kind of [

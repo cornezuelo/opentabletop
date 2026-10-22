@@ -77,7 +77,7 @@
     {#if part.root !== root}<ReadOnly root={part.root} dependency />{/if}
     {#key `${part.root}/${part.path}/${part.id}`}
       {#if kind === 'calendar'}
-        <CalendarForm {doc} />
+        <CalendarForm {doc} {system} />
       {:else if kind === 'factions'}
         <FactionsForm {doc} {system} />
       {:else if kind === 'clocks'}

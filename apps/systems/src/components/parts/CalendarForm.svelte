@@ -5,13 +5,15 @@
   import { renameMonth } from '../../lib/calendar'
   import ListRows from '../forms/ListRows.svelte'
   import DivisionsForm from './DivisionsForm.svelte'
+  import type { TravelSystem } from '@open-tabletop/session'
+  import { usesFor } from '../../lib/usage'
 
   /**
    * A calendar (`kind: calendar`) as forms: its name, the year it starts in, the length
    * of the day, its divisions (meals, watches…), its months (with their seasons), weekdays, moons and
    * holidays. Trips and the world clock name time with it.
    */
-  let { doc }: { doc: PartDoc } = $props()
+  let { doc, system }: { doc: PartDoc; system?: TravelSystem } = $props()
 
   type Item = Record<string, unknown>
   const data = $derived(doc.data())
@@ -104,13 +106,14 @@
     </div>
   </section>
 
-  <DivisionsForm {doc} />
+  <DivisionsForm {doc} {system} />
 
   <section>
     <h3>{t('calendar.months')}<InfoTip text={t('calendar.monthsHelp')} /></h3>
     <ListRows
       {doc}
       at={['months']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'month', id }), system }}
       onrename={(i, to) => renameMonth(doc, i, to)}
       idLabel={t('forms.id')}
       idBase="month"

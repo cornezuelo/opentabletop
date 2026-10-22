@@ -28,6 +28,9 @@
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
   import type { ListDoc } from '../../lib/partDoc.svelte'
+  import type { TravelSystem, Use } from '@open-tabletop/session'
+  import UsedBy from '../uses/UsedBy.svelte'
+  import UsesList from '../uses/UsesList.svelte'
 
   /**
    * A list of a definition whose items have an `id` (a calendar's months, weekdays, moons,
@@ -43,6 +46,7 @@
     idBase = 'new',
     idLabel,
     onrename,
+    uses,
   }: {
     doc: ListDoc
     kind?: string
@@ -54,7 +58,11 @@
     idLabel: string
     /** Renames an item when what names it must follow (false: the id is taken). */
     onrename?: (index: number, to: string) => boolean
+    /** Where each item is used, by its id: a **Used by** column. */
+    uses?: { of: (id: string) => Use[]; system: TravelSystem }
   } = $props()
+  /** The item whose uses are shown below its row. */
+  let usesOpen = $state<string | null>(null)
 
   type Item = Record<string, unknown>
   const items = $derived.by(() => {
@@ -112,6 +120,7 @@
             >{c.label}{#if c.help}<InfoTip text={c.help} />{/if}</th
           >
         {/each}
+        {#if uses}<th>{t('uses.title')}<InfoTip text={t('uses.help')} /></th>{/if}
         <th></th>
       </tr>
     </thead>
@@ -179,6 +188,15 @@
               {/if}
             </td>
           {/each}
+          {#if uses}
+            <td>
+              <UsedBy
+                uses={uses.of(ids[i])}
+                open={usesOpen === ids[i]}
+                ontoggle={() => (usesOpen = usesOpen === ids[i] ? null : ids[i])}
+              />
+            </td>
+          {/if}
           <td class="tools">
             {#if !disabled}
               <button
@@ -204,6 +222,13 @@
             {/if}
           </td>
         </tr>
+        {#if uses && usesOpen === ids[i]}
+          <tr>
+            <td colspan={columns.length + 3}
+              ><UsesList uses={uses.of(ids[i])} system={uses.system} /></td
+            >
+          </tr>
+        {/if}
       {/each}
     </tbody>
   </table>
