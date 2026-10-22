@@ -86,4 +86,19 @@ export interface Campaign {
   oracle?: CampaignOracle
   /** The trip that played in it last, which another asks to pause. */
   playing?: CampaignTrip
+  /**
+   * The moments of the world waiting for the trip going on (`playing`): clocks that filled
+   * by any means (by hand, a faction's turn, a trip's effects), heard on its next step.
+   */
+  moments?: WorldMoment[]
+}
+
+/**
+ * A clock that filled while a trip was going on: its name, and the ids a trip's rules may
+ * name it by (`world.clocks.<id>.full`): the id its system declares it with, if any, and
+ * its name written as one (`the-wyrm-wakes`, as conditions read it).
+ */
+export interface WorldMoment {
+  clock: string
+  ids: string[]
 }

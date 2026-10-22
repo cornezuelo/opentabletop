@@ -253,4 +253,52 @@ describe('trips in campaigns', () => {
     expect(turned.sort()).toEqual(['fort-keld', 'iron-clans', 'the-vale'])
     expect(trip.campaign?.factions?.lastTurn).toBe(after.factions!.lastTurn)
   })
+
+  it('a trip hears a clock filled in another app on its next step', async () => {
+    const { campaign: c, world: w, trip, systems } = await openTravel()
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const calendar = (await import('@open-tabletop/session')).calendarOf(greyMarches)
+    const start = calendar.at(1, '06:00')
+    const marches = {
+      ...c.createCampaign('grey-marches', 'The Grey Marches'),
+      system: greyMarches.id,
+      world: w.initialWorld(start),
+    }
+    kept.set('grey-marches', {
+      id: 'grey-marches',
+      name: 'The Grey Marches',
+      modified: marches.modified,
+      json: c.serializeCampaign(marches),
+    })
+    await trip.create(greyMarches.id, 'spring', 'grey-marches')
+    await settle()
+    await trip.step({ type: 'wait', until: start + 30 })
+    await settle()
+    // The Campaign app fills the Greywood Wyrm's clock by hand: the moment waits for the trip.
+    const now = c.deserializeCampaign(kept.get('grey-marches')!.json)
+    expect(now.playing).toMatchObject({ app: 'travel', id: trip.saved.id })
+    const waiting = {
+      ...now,
+      modified: 'later',
+      moments: [{ clock: 'The Greywood Wyrm wakes', ids: ['the-greywood-wyrm-wakes'] }],
+    }
+    kept.set('grey-marches', {
+      id: 'grey-marches',
+      name: 'The Grey Marches',
+      modified: 'later',
+      json: c.serializeCampaign(waiting),
+    })
+    hear?.({ type: 'put', id: 'grey-marches', modified: 'later' })
+    await settle()
+    // Its next step hears it first, told in its journal: the Wyrm wakes action, by itself.
+    const before = trip.saved.session!.journal.length
+    await trip.step({ type: 'wait', until: start + 60 })
+    await settle()
+    const lines = trip.saved
+      .session!.journal.slice(before)
+      .map((e) => `${e.code} ${e.text ?? e.data?.action ?? ''}`)
+    expect(lines[0]).toBe('CLOCK_FILLED The Greywood Wyrm wakes')
+    expect(lines).toContain('SAID wyrm-wakes')
+    expect(c.deserializeCampaign(kept.get('grey-marches')!.json).moments).toBeUndefined()
+  })
 })

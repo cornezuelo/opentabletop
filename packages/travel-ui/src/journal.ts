@@ -451,6 +451,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.worldEvent', { name: e.text ?? '' })
     case 'HOLIDAY':
       return t('journal.holiday', { name: e.text ?? '' })
+    case 'CLOCK_FILLED':
+      return t('journal.clockFilled', { name: e.text ?? '' })
     // The journal's detail: what happened behind.
     case 'ROLLED': {
       const rolls = Array.isArray(d.rolls) ? (d.rolls as RolledNode[]) : []

@@ -9,6 +9,7 @@ import type {
   CampaignOracle,
   CampaignTrip,
   FactionNotes,
+  WorldMoment,
   WorldWeather,
 } from './types'
 
@@ -16,9 +17,10 @@ import type {
  * The campaign format's version. Every format change bumps it and adds a migration to
  * `migrations` (`migrations[n]` upgrades raw data from version n to n + 1). v2: the trip
  * going on (`playing`), none in older campaigns; v3: its system and packs (`system`,
- * `packs`), which were its maps' (a map saved before brings them on opening).
+ * `packs`), which were its maps' (a map saved before brings them on opening); v4: the
+ * moments of the world waiting for the trip going on (`moments`), none in older campaigns.
  */
-export const CAMPAIGN_VERSION = 3
+export const CAMPAIGN_VERSION = 4
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {}
 
@@ -86,7 +88,21 @@ export function deserializeCampaign(json: string): Campaign {
     ...readSetup(data),
     ...readParts(data),
     ...(isTrip(data.playing) && { playing: data.playing }),
+    ...readMoments(data.moments),
   }
+}
+
+/** The moments waiting for the trip going on, with broken ones dropped. */
+function readMoments(raw: unknown): Pick<Campaign, 'moments'> {
+  if (!Array.isArray(raw)) return {}
+  const moments = raw.filter(
+    (m): m is WorldMoment =>
+      isRecord(m) &&
+      typeof m.clock === 'string' &&
+      Array.isArray(m.ids) &&
+      m.ids.every((id) => typeof id === 'string'),
+  )
+  return moments.length ? { moments } : {}
 }
 
 const isTrip = (t: unknown): t is CampaignTrip =>

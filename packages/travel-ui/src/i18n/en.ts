@@ -180,6 +180,7 @@ export const en = {
     discoveryFailed: 'Discovery failed at {hex} ({error})',
     worldEvent: 'In the world: {name}',
     holiday: 'Today is {name}',
+    clockFilled: 'In the world: {name} filled',
     pending: '{event}: waiting for you',
     eventAt: '{event} at {hex}',
     paused: '{event}: paused, go on when you are ready',

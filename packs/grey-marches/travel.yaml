@@ -382,8 +382,9 @@ actions:
       - { time: 180 }
       - { roll: generator.ruin-delve }
   # A moment of the world (`on: world.clocks.<id>.full`): the Greywood Wyrm's clock filling
-  # while a trip goes on (the haunted lights fill it, encounters.yaml), heard by the trip as
-  # soon as the result that filled it is applied. Every companion's dread grows; inside the
+  # while a trip goes on (the haunted lights fill it, encounters.yaml, or a hand on the World
+  # panel), heard by the trip once the step that filled it ends, at once when filled by hand,
+  # or on its next step if filled in another app. Every companion's dread grows; inside the
   # Greywood (`hex.region`), the trip stops to say so.
   wyrm-wakes:
     name: The Wyrm wakes

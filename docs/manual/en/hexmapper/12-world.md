@@ -61,6 +61,8 @@ The **Clocks** tab. A clock is a round dial of segments filled as something adva
 
 **Tables and a system's rules read the world**: each clock by its name in lowercase with dashes (“The Wyrm wakes” is `world.clocks.the-wyrm-wakes`, its filled segments; `clocks.the-wyrm-wakes` for short), a declared one also by its id, and the day's events by their ids (`world.events: market-day`, or `events`; their names written as ids work too), in conditions and in rolls, by hand or the trip's: an encounter that only comes when a threat is near (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), an action only on market day. The full list: [What tables see](../technical/04-what-tables-see.md).
 
+**A trip hears a clock fill.** A clock filling, however it fills (a click here, a table rolled by hand, a world turn, the trip itself), is a moment the trip going on in the campaign hears, if its system names it (`on: world.clocks.the-wyrm-wakes.full`): its journal says **In the world: The Wyrm wakes filled**, and what the system does then happens at once. Filled in another app (the Campaign app), the trip hears it on its next step. See [Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system).
+
 ## Timeline
 
 The **Timeline** tab: what happened in the world, newest first: events that came due, holidays, moons, clocks that moved, and your own notes (write one and **Add**).

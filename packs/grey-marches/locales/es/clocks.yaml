@@ -3,7 +3,7 @@ clocks/default:
   description: |-
     Tres cosas que se acercan a las Marcas: el despertar de la Sierpe del Bosque Gris, la marcha de los Clanes de Hierro sobre Fort Keld y el motín de su guarnición sin paga.
 
-    **Enseña:** relojes de progreso declarados por un pack: por dónde empieza cada uno, qué pasa cuando se llena (palabras en la cronología, una tabla tirada, efectos sobre las facciones y sobre otro reloj) y qué es de él después (se queda lleno, vuelve a empezar o desaparece); un reloj lleno que llena otro (la marcha de los Clanes acerca el motín); un viaje que oye llenarse un reloj (`world.clocks.the-greywood-wyrm-wakes.full`, el momento de _La Sierpe despierta_ en las reglas de viaje).
+    **Enseña:** relojes de progreso declarados por un pack: por dónde empieza cada uno, qué pasa cuando se llena (palabras en la cronología, una tabla tirada, efectos sobre las facciones y sobre otro reloj) y qué es de él después (se queda lleno, vuelve a empezar o desaparece); un reloj lleno que llena otro (la marcha de los Clanes acerca el motín); un viaje que oye llenarse un reloj, lo llene lo que lo llene, también a mano (`world.clocks.the-greywood-wyrm-wakes.full`, el momento de _La Sierpe despierta_ en las reglas de viaje).
   clocks:
     the-greywood-wyrm-wakes:
       name: La Sierpe del Bosque Gris despierta

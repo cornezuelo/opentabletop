@@ -18,6 +18,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Packs, Systems, Hexmapper, Travel: **a step rolls a table, and trips hear the world's clocks**: an action's step can roll something of the Oracle directly (`roll: table.ruins`, a generator, an oracle or a deck), with no check or binding around it: its result goes to the journal by its name, its values and changes reach the trip, and a pause in its entry stops it. A system's progress clock filling is a moment its trips hear (`world.clocks.<id>.full`), for an action's **By itself at** or a check's **When**: when what the trip did fills it, those actions and checks happen. Systems suggests both. The Grey Marches: **Delve the ruin** (rolls _Delving a ruin_) and **The Wyrm wakes** (when the haunted lights fill its clock); Core's Generic rules: **Explore** (rolls the Prompt).
 
+- Hexmapper, Travel, Campaign, Systems: **trips hear every clock that fills, by hand too**: a progress clock filling by any means (a click on the World panel, a table rolled by hand, a world turn, the Campaign app) is heard by the trip going on in the campaign: at once in the same app, or on its next step in another, its journal saying **In the world: … filled** before what the system does then. Clocks made by hand can be named too, by their name in lowercase with dashes (`world.clocks.the-wyrm-wakes.full`); the Systems app warns, instead of refusing, that the system declares no such clock. Campaigns keep the moments waiting for their trip (format v4).
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

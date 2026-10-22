@@ -10,7 +10,6 @@ import {
   worldTurnNow as worldTurnOn,
   type WorldDone,
   type WorldHost,
-  type ClockNotice,
   type WorldLine,
 } from '@open-tabletop/campaign'
 import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
@@ -29,7 +28,7 @@ import {
 import { factionsSystem } from './factions'
 import { getLocale, t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
-import { sessionOf, step } from './play'
+import { hearWorld, sessionOf, step } from './play'
 import { activeSystem, getSystem, mapSystem, mapSystemId, oracle } from './systems'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { mathRandom } from '@open-tabletop/random'
@@ -154,9 +153,14 @@ export function stopWorld(): void {
   editor.setWorld(undefined)
 }
 
-/** Applies an action to the world clock; returns what happened. */
+/**
+ * Applies an action to the world clock (from the World panel, by hand); returns what
+ * happened. The map's trip, if it's the one going on, hears the clocks that filled.
+ */
 export function worldAct(action: WorldAction): WorldEvent[] {
-  return take(worldActOn(place(), action, host())).events
+  const events = take(worldActOn(place(), action, host())).events
+  hearWorld()
+  return events
 }
 
 /**
@@ -165,6 +169,7 @@ export function worldAct(action: WorldAction): WorldEvent[] {
  */
 export function applyWorldEffects(effects: Record<string, unknown>): void {
   take(worldEffects(place(), effects, host()))
+  hearWorld()
 }
 
 /**
@@ -173,6 +178,7 @@ export function applyWorldEffects(effects: Record<string, unknown>): void {
  */
 export function worldTurnNow(time = editor.campaign.world?.time): void {
   take(worldTurnOn(place(), host(), time))
+  hearWorld()
 }
 
 /**
@@ -294,10 +300,6 @@ export const upcoming = (state: WorldState, limit = 12) => world().upcoming(stat
  * world, and the world following its time; returns what came due on the way (events and
  * holidays), as journal lines.
  */
-export function tripStepped(step: Parameters<typeof tripSteppedOn>[1]): {
-  lines: WorldLine[]
-  filled: ClockNotice[]
-} {
-  const done = take(tripSteppedOn(place(), step, host()))
-  return { lines: done.lines, filled: done.filled }
+export function tripStepped(step: Parameters<typeof tripSteppedOn>[1]): WorldLine[] {
+  return take(tripSteppedOn(place(), step, host())).lines
 }

@@ -61,6 +61,8 @@ La pestaña **Relojes**. Un reloj es una esfera de segmentos que se llenan segú
 
 **Las tablas y las reglas de un sistema leen el mundo**: cada reloj por su nombre en minúsculas con guiones («The Wyrm wakes» es `world.clocks.the-wyrm-wakes`, sus segmentos llenos; `clocks.the-wyrm-wakes` en corto), uno declarado también por su id y los eventos del día por su id (`world.events: market-day`, o `events`; sus nombres escritos como id también valen), en condiciones y en tiradas, a mano o del viaje: un encuentro que solo llega cuando una amenaza está cerca (`when: { world.clocks.the-wyrm-wakes: { gte: 4 } }`), una acción solo el día de mercado. La lista completa: [Qué ven las tablas](../technical/04-what-tables-see.md).
 
+**Un viaje oye un reloj al llenarse.** Que se llene un reloj, como sea (un clic aquí, una tabla tirada a mano, un turno del mundo, el propio viaje), es un momento que oye el viaje en marcha en la campaña, si su sistema lo nombra (`on: world.clocks.the-wyrm-wakes.full`): su diario dice **En el mundo: se llenó The Wyrm wakes**, y lo que haga entonces el sistema ocurre al momento. Si se llena en otra aplicación (la aplicación Campaign), el viaje lo oye en su siguiente paso. Mira [Momentos del mundo](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+
 ## Cronología
 
 La pestaña **Cronología**: lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas, relojes que se movieron y tus propias notas (escribe una y **Añadir**).

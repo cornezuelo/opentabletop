@@ -230,6 +230,51 @@ describe('playing on the map', () => {
     expect(session.members![0].values.dread).toBe(3)
   })
 
+  it('a trip hears a clock filled by hand: at once here, on its next step if elsewhere', () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    startWorld()
+    worldAct({ type: 'advance', minutes: 20 * 1440 })
+    clickHex('7,7')
+    const session = () => sessionOf(editor.map.play!)!
+    // In the Greywood, the trip going on in its campaign.
+    editSession((s) => {
+      s.travel = { ...s.travel, location: '13,3', route: undefined, destination: undefined }
+      return s
+    })
+    step({ type: 'wait', until: session().travel.time + 10 })
+    const wyrm = () =>
+      editor.campaign.world!.clocks.find((c) => c.ref === 'the-greywood-wyrm-wakes')!
+    // Filled by hand on the World panel: the trip hears it at once, told in its journal.
+    worldAct({ type: 'tick', id: wyrm().id, segments: 6 - wyrm().filled })
+    const said = (from = 0) =>
+      session()
+        .journal.slice(from)
+        .map((e) => `${e.code} ${e.text ?? e.data?.action ?? ''}`)
+    expect(said()).toContain('CLOCK_FILLED The Greywood Wyrm wakes')
+    expect(said()).toContain('SAID wyrm-wakes')
+    expect(session().travel.waiting).toMatchObject({ action: 'wyrm-wakes' })
+    expect(editor.campaign.moments).toBeUndefined()
+    // Filled in another app (the Campaign app) while the trip waits: heard on its next step,
+    // before what it does.
+    const before = session().journal.length
+    editor.takeCampaign({
+      ...editor.campaign,
+      moments: [{ clock: 'The Greywood Wyrm wakes', ids: ['the-greywood-wyrm-wakes'] }],
+    })
+    step({ type: 'resume' })
+    const next = said(before)
+    expect(next[0]).toBe('CLOCK_FILLED The Greywood Wyrm wakes')
+    expect(next).toContain('SAID wyrm-wakes')
+    expect(editor.campaign.moments).toBeUndefined()
+    // Another trip going on: the map's doesn't take what's waiting for it.
+    editor.setPlaying({ app: 'travel', id: 't1', name: 'To Keld' })
+    worldAct({ type: 'updateClock', id: wyrm().id, patch: { filled: 0 } })
+    worldAct({ type: 'tick', id: wyrm().id, segments: 6 })
+    expect(editor.campaign.moments).toEqual([
+      { clock: 'The Greywood Wyrm wakes', ids: ['the-greywood-wyrm-wakes'] },
+    ])
+  })
+
   it('one trip at a time in a campaign: another that played last is paused first', async () => {
     editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     clickHex('7,7')

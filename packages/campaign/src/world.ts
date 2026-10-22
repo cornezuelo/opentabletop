@@ -19,6 +19,7 @@ import { momentsOf, type TravelRules } from '@open-tabletop/travel-engine'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
   createWorld,
+  factId,
   findClock,
   initialWorld,
   worldFacts,
@@ -76,26 +77,38 @@ export interface WorldHost {
 export interface ClockNotice {
   clock: string
   text: string
-  /** The id its system declares it with (a trip hears it fill: `world.clocks.<ref>.full`). */
-  ref?: string
 }
 
 /** How many times one trip's step may hear the world in a row (a moment filling a clock…). */
 export const MAX_HEARD = 10
 
+/** A moment of the world a trip hears (`world.clocks.<id>.full`), and the clock's name. */
+export interface HeardMoment {
+  at: string
+  clock: string
+}
+
 /**
- * The moments of the world a trip of this system hears from what a step did: each clock it
- * declares that filled, when its rules name `world.clocks.<id>.full` (an action's `on:`,
- * a check's `at:`).
+ * The moments the world had waiting for the trip going on, taken: those its rules name
+ * (an action's `on:`, a check's `at:`), each by the first id of its clock they name. The
+ * others are dropped (no trip of the campaign hears them).
  */
-export function heardMoments(rules: TravelRules, filled: ClockNotice[]): string[] {
+export function takeMoments(
+  campaign: Campaign,
+  rules: TravelRules,
+): { campaign: Campaign; heard: HeardMoment[] } {
+  if (!campaign.moments) return { campaign, heard: [] }
   const named = new Set([
     ...Object.values(rules.actions ?? {}).flatMap((a) => momentsOf(a.on)),
     ...(rules.checks ?? []).flatMap((c) => momentsOf(c.at)),
   ])
-  return [...new Set(filled.flatMap((f) => (f.ref ? [`world.clocks.${f.ref}.full`] : [])))].filter(
-    (m) => named.has(m),
-  )
+  const heard = campaign.moments.flatMap((m): HeardMoment[] => {
+    const at = m.ids.map((id) => `world.clocks.${id}.full`).find((x) => named.has(x))
+    return at ? [{ at, clock: m.clock }] : []
+  })
+  const rest = { ...campaign }
+  delete rest.moments
+  return { campaign: rest, heard }
 }
 
 /** What an action on the world did: the place changed, the clock's events, full clocks. */
@@ -189,9 +202,20 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       // The factions take the turns that came due on the way (every so many days).
       for (const at of dueTurns()) turn(at)
     }
-    // A clock the system declares does what it says when it fills.
-    for (const e of events) if (e.type === 'CLOCK_FILLED' && e.clock.ref) clockFilled(e.clock)
+    for (const e of events) {
+      if (e.type !== 'CLOCK_FILLED') continue
+      heard(e.clock)
+      // A clock the system declares does what it says when it fills.
+      if (e.clock.ref) clockFilled(e.clock)
+    }
     return events
+  }
+
+  /** A clock filled: the trip going on, if any, hears it on its next step. */
+  function heard(clock: ProgressClock): void {
+    if (!campaign.playing) return
+    const ids = [...new Set([clock.ref, factId(clock.name)])].filter((id): id is string => !!id)
+    campaign = { ...campaign, moments: [...(campaign.moments ?? []), { clock: clock.name, ids }] }
   }
 
   function dueTurns(): number[] {
@@ -257,7 +281,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       campaign = { ...campaign, oracle: { state: done.oracle, history: shared?.history ?? [] } }
       const said = host.words.clockFull(full)
       if (said) act({ type: 'log', text: `${clock.name}: ${said}`, data: { clock: clock.id } })
-      filled.push({ clock: clock.name, text: said, ref: clock.ref })
+      filled.push({ clock: clock.name, text: said })
       effects(full.effects)
       if (full.then === 'reset') act({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
       if (full.then === 'remove') act({ type: 'removeClock', id: clock.id })

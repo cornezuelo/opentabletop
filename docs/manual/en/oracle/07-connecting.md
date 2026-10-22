@@ -349,7 +349,13 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 - a moment of the world (below): `at: world.clocks.<id>.full`;
 - none: only a step's `roll:` rolls it.
 
-**Moments of the world.** One of the system's progress clocks filling (`clocks:` in `kind: system`, by the id it declares) is a moment its trips hear: `world.clocks.<id>.full`, for an action's `on:` or a check's `at:`. It's heard when what the trip did fills it (a check's or a table's `effects`, a faction's turn that came due on the way), as soon as the step that filled it is done: a long wait or a night in camp first ends, then the moment comes. Its actions and checks happen then, where the party is, and see `trip.moment: world.clocks.<id>.full`; one that fills another clock is heard too (ten in a row at most). Clocks added by hand on the World panel aren't declared, so trips don't hear them. The Grey Marches' _The Wyrm wakes_ (`on: world.clocks.the-greywood-wyrm-wakes.full`) raises every companion's dread when the haunted lights fill the Wyrm's clock, and stops the trip inside the Greywood.
+**Moments of the world.** A progress clock of the campaign filling is a moment the trip going on in it hears: `world.clocks.<id>.full`, for an action's `on:` or a check's `at:`. A clock the system declares (`clocks:` in `kind: system`) is named by the id it declares; one made by hand on the World panel by its name in lowercase with dashes (_The Wyrm wakes_ is `world.clocks.the-wyrm-wakes.full`), which the Systems app can't check (it warns that the system declares no such clock). Whatever fills it, the trip hears it:
+
+- what the trip did (a check's or a table's `effects`, a faction's turn that came due on the way): as soon as the step that filled it is done (a long wait or a night in camp first ends, then the moment comes);
+- a hand on the World panel, a table rolled by hand, a world turn, in the app the trip plays in: at once;
+- the same in another app (the Campaign app, another map of the campaign while the trip plays in Travel): on the trip's next step, before what it does.
+
+The journal says it first (**In the world: The Wyrm wakes filled**), and then its actions and checks happen, where the party is, seeing `trip.moment: world.clocks.<id>.full`; one that fills another clock is heard too (ten in a row at most). Only the trip going on in the campaign hears it (one at a time); a clock that fills while no trip is going on is heard by none. The Grey Marches' _The Wyrm wakes_ (`on: world.clocks.the-greywood-wyrm-wakes.full`) raises every companion's dread when the haunted lights fill the Wyrm's clock, and stops the trip inside the Greywood.
 
 `when` / `unless` decide where and when it applies, with the same [conditions](../technical/08-conditions.md) as tables; `edges` are the roads or rivers of the stretch (the one just walked when entering a hex, the one ahead at a moment of the day and in camp).
 

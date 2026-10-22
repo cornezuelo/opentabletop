@@ -96,6 +96,9 @@ describe('campaigns', () => {
     expect(otherTrip(playTrip(playing, trip), map)).toEqual(trip)
     expect(leaveTrip(playing, trip)).toBe(playing)
     expect(leaveTrip(playing, map)).not.toHaveProperty('playing')
+    // What the world had waiting for the trip leaves with it.
+    const waiting = { ...playing, moments: [{ clock: 'Doom', ids: ['doom'] }] }
+    expect(leaveTrip(waiting, map)).not.toHaveProperty('moments')
   })
 
   it('read back what they wrote, and refuse what is not one', () => {
@@ -109,8 +112,12 @@ describe('campaigns', () => {
       factions: { system: 'marks', factions: [], lastTurn: 0, auto: false },
       oracle: { state: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} }, history: [] },
       playing: { app: 'travel', id: 't1', name: 'To Keld' },
+      moments: [{ clock: 'The Wyrm wakes', ids: ['wyrm', 'the-wyrm-wakes'] }],
     }
     expect(deserializeCampaign(serializeCampaign(campaign))).toEqual(campaign)
+    // Broken moments are dropped.
+    const broken = JSON.stringify({ ...campaign, moments: [{ clock: 1 }] })
+    expect(deserializeCampaign(broken)).not.toHaveProperty('moments')
     expect(campaign.version).toBe(CAMPAIGN_VERSION)
     expect(() => deserializeCampaign('{oops')).toThrow(CampaignFormatError)
     expect(() => deserializeCampaign('{"version":1}')).toThrow(CampaignFormatError)

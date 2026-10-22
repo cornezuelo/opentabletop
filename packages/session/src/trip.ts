@@ -234,12 +234,13 @@ function problem(
   kind: string,
   error: string,
   id = 'default',
+  severity: Diagnostic['severity'] = 'error',
 ): Diagnostic {
   const cut = error.indexOf(': ')
   const path = cut > 0 ? error.slice(0, cut).replace(/^(rules|bindings)\.?/, '') : ''
   const message = cut > 0 ? error.slice(cut + 2) : error
   return {
-    severity: 'error',
+    severity,
     message,
     pack,
     file,
@@ -540,9 +541,16 @@ export function travelSystems(registry: Registry): {
     }
     if (parts.rules) {
       const owner = ownerOf(parts.rules) ?? pack
-      const report = (path: string, e: string) =>
+      const report = (path: string, e: string, severity?: Diagnostic['severity']) =>
         problems.push(
-          problem(owner, parts.rules!.file, 'travel-rules', `${path}: ${e}`, parts.rules!.id),
+          problem(
+            owner,
+            parts.rules!.file,
+            'travel-rules',
+            `${path}: ${e}`,
+            parts.rules!.id,
+            severity,
+          ),
         )
       // What a step rolls besides the system's checks must be something to roll.
       for (const [id, a] of Object.entries(rules.actions ?? {}))
@@ -553,7 +561,8 @@ export function travelSystems(registry: Registry): {
           const message = rollableProblem(owner, st.roll)
           if (message) report(`actions.${id}.do.${i}.roll`, message)
         })
-      // The moments of the world a trip hears: a clock of the system's filling.
+      // The moments of the world a trip hears: a clock filling. One the system doesn't
+      // declare may be made by hand (named by its name as an id): only a warning.
       const declared = Object.keys(clocks?.def.clocks ?? {})
       const worldMoments = (value: string | string[] | undefined, path: string) =>
         momentsOf(value).forEach((m, j) => {
@@ -565,9 +574,8 @@ export function travelSystems(registry: Registry): {
           else if (!declared.includes(id))
             report(
               at,
-              declared.length
-                ? `the system declares no clock "${id}" (expected ${declared.map((d) => `world.clocks.${d}.full`).join(', ')})`
-                : `the system declares no clocks (clocks: in kind: system)`,
+              `the system declares no clock "${id}": heard only if a clock made by hand has this name${declared.length ? ` (it declares ${declared.map((d) => `world.clocks.${d}.full`).join(', ')})` : ''}`,
+              'warning',
             )
         })
       for (const [id, a] of Object.entries(rules.actions ?? {}))

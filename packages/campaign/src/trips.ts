@@ -26,5 +26,7 @@ export function leaveTrip(campaign: Campaign, trip: Pick<CampaignTrip, 'app' | '
   if (!playing || playing.app !== trip.app || playing.id !== trip.id) return campaign
   const rest = { ...campaign }
   delete rest.playing
+  // What the world had waiting for it is nobody's now.
+  delete rest.moments
   return rest
 }

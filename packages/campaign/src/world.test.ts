@@ -5,12 +5,13 @@ import { calendarOf, travelSystems } from '@open-tabletop/session'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import {
-  heardMoments,
   bringFactions,
   createCampaign,
   followTrip,
   missingClocks,
+  playTrip,
   startWorld,
+  takeMoments,
   worldAct,
   worldEffects,
   worldFactsOf,
@@ -132,9 +133,7 @@ describe('the world of a campaign', () => {
     expect(lines.filter((l) => l === 'clans: Pushes on')).toHaveLength(2)
     // The second turn filled the march: its words, its effect, and it starts over.
     expect(lines).toContain('march: The clans reach the river. reset')
-    expect(done.filled).toEqual([
-      { clock: 'march', text: 'The clans reach the river. reset', ref: 'march' },
-    ])
+    expect(done.filled).toEqual([{ clock: 'march', text: 'The clans reach the river. reset' }])
     expect(done.campaign.world!.clocks[0].filled).toBe(0)
     expect(done.campaign.factions!.factions[0].values.strength).toBe(5)
     // Their land grew on the map being played.
@@ -165,18 +164,53 @@ describe('the world of a campaign', () => {
       host({ trip: { weather: 'rain' } }),
     )
     expect(hit.filled).toHaveLength(1)
-    // A trip of a system whose rules name the clock filling hears it as a moment.
-    const rules = (on: string) =>
-      ({ actions: { flee: { on, do: [{ time: 60 }] } }, checks: [] }) as never
-    expect(heardMoments(rules('world.clocks.march.full'), hit.filled)).toEqual([
-      'world.clocks.march.full',
-    ])
-    expect(heardMoments(rules('world.clocks.other.full'), hit.filled)).toEqual([])
+    // No trip going on: nobody to hear it.
+    expect(hit.campaign.moments).toBeUndefined()
     expect(hit.map!.territories!.clans ?? []).toHaveLength(0)
     const time = place.campaign.world!.time + 60
     const scheduled = worldAct(hit, { type: 'schedule', event: { name: 'Fair', at: time } }, host())
     const followed = followTrip(scheduled, time + 1, host({ trip: {} }))
     expect(followed.lines).toEqual([{ code: 'WORLD_EVENT', text: 'Fair', time }])
     expect(followed.campaign.world!.time).toBe(time + 1)
+  })
+
+  it('keeps every clock that fills for the trip going on, by hand too', () => {
+    const place = started()
+    const trip = { app: 'travel', id: 't1', name: 'Trip' }
+    const playing = { ...place, campaign: playTrip(place.campaign, trip) }
+    // The declared clock filled by hand, and a clock made by hand.
+    let done = worldAct(
+      playing,
+      { type: 'tick', id: playing.campaign.world!.clocks[0].id, segments: 4 },
+      host(),
+    )
+    done = worldAct(
+      done,
+      { type: 'addClock', clock: { name: 'The Wyrm wakes!', segments: 2 } },
+      host(),
+    )
+    const wyrm = done.campaign.world!.clocks.find((c) => c.name === 'The Wyrm wakes!')!
+    done = worldAct(done, { type: 'tick', id: wyrm.id, segments: 2 }, host())
+    expect(done.campaign.moments).toEqual([
+      { clock: 'march', ids: ['march'] },
+      { clock: 'The Wyrm wakes!', ids: ['the-wyrm-wakes'] },
+    ])
+    // A trip hears those its rules name, by the clock's declared id or its name as an id.
+    const rules = (...on: string[]) =>
+      ({
+        actions: Object.fromEntries(on.map((o, i) => [`a${i}`, { on: o, do: [{ time: 60 }] }])),
+        checks: [],
+      }) as never
+    const taken = takeMoments(
+      done.campaign,
+      rules('world.clocks.the-wyrm-wakes.full', 'world.clocks.march.full'),
+    )
+    expect(taken.heard).toEqual([
+      { at: 'world.clocks.march.full', clock: 'march' },
+      { at: 'world.clocks.the-wyrm-wakes.full', clock: 'The Wyrm wakes!' },
+    ])
+    expect(taken.campaign.moments).toBeUndefined()
+    // Moments its rules don't name are dropped.
+    expect(takeMoments(done.campaign, rules('world.clocks.other.full')).heard).toEqual([])
   })
 })

@@ -16,10 +16,10 @@ import { DEFAULT_TOKEN_ICONS, newId, partyToken, type PlayState } from '@open-ta
 import { editor } from '../store/editor.svelte'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
-  heardMoments,
   MAX_HEARD,
   otherTrip,
   playTrip,
+  takeMoments,
   type CampaignTrip,
 } from '@open-tabletop/campaign'
 import { chooseSystem } from '../io/actions.svelte'
@@ -216,8 +216,9 @@ async function claimThen(other: CampaignTrip, action: TravelAction): Promise<voi
 }
 
 /**
- * Runs a travel action through the session (Oracle resolves bound checks); then the moments
- * of the world it made happen (a clock of the system filling), heard by the trip.
+ * Runs a travel action through the session (Oracle resolves bound checks). The trip hears
+ * the moments of the world first, those that came while it wasn't stepping (a clock filled
+ * by hand, in another app), and then those its step made happen.
  */
 export function step(action: TravelAction, heard = 0): void {
   const play = current()
@@ -227,6 +228,41 @@ export function step(action: TravelAction, heard = 0): void {
   const other = otherTrip(editor.campaign, mapTrip())
   if (other) return void claimThen(other, action)
   if (playTrip(editor.campaign, mapTrip()) !== editor.campaign) editor.setPlaying(mapTrip())
+  if (heard === 0) hearWorld()
+  stepOnly(action)
+  hearWorld(heard)
+}
+
+/**
+ * The moments the world has waiting for the map's trip, if it's the one going on in its
+ * campaign: each told in its journal and played (an action's `on:`, a check's `at:`).
+ */
+export function hearWorld(heard = 0): void {
+  const play = editor.map.play
+  if (heard >= MAX_HEARD || !play?.rules || !sessionOf(play)) return
+  if (!editor.campaign.playing || otherTrip(editor.campaign, mapTrip())) return
+  const taken = takeMoments(editor.campaign, getSystem(play.rules.system).rules)
+  if (taken.campaign === editor.campaign) return
+  editor.takeWorld({ campaign: taken.campaign })
+  for (const { at, clock } of taken.heard) {
+    const now = current()
+    const trip = sessionOf(now)
+    if (!trip || !now.rules) return
+    const session = addEntry(trip, {
+      source: 'travel',
+      code: 'CLOCK_FILLED',
+      text: clock,
+    })
+    save({ ...now, rules: { ...now.rules, session } })
+    step({ type: 'moment', at }, heard + 1)
+  }
+}
+
+/** Runs a travel action through the session, and what it did in the world. */
+function stepOnly(action: TravelAction): void {
+  const play = current()
+  const session = sessionOf(play)
+  if (!session || !play.rules) return
   const system = getSystem(play.rules.system)
   const options = {
     system,
@@ -253,17 +289,13 @@ export function step(action: TravelAction, heard = 0): void {
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
-  const world = tripStepped({ oracle: state.oracle, entries, time: state.travel.time })
-  for (const line of world.lines)
+  for (const line of tripStepped({ oracle: state.oracle, entries, time: state.travel.time }))
     journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
   save({
     ...play,
     trail: [...play.trail, ...entered],
     rules: { ...play.rules, session: journaled },
   })
-  if (heard < MAX_HEARD)
-    for (const at of heardMoments(system.rules, world.filled))
-      step({ type: 'moment', at }, heard + 1)
 }
 
 /** How this trip discovers the map: off, or revealing neighbours or the entered hex only. */

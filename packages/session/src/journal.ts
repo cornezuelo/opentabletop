@@ -43,6 +43,7 @@ const STORY = new Set([
   'DESTINATION_REACHED',
   'WORLD_EVENT',
   'HOLIDAY',
+  'CLOCK_FILLED',
 ])
 
 const DETAIL = new Set([
@@ -63,7 +64,7 @@ export function entryLevel(e: Line): JournalLevel {
 export function entryTopic(e: Line): JournalTopic {
   if (e.source === 'user' && e.code === 'NOTE') return 'notes'
   if (e.source === 'oracle' || e.code === 'ORACLE_ROLL') return 'oracle'
-  if (e.code === 'WORLD_EVENT' || e.code === 'HOLIDAY') return 'world'
+  if (e.code === 'WORLD_EVENT' || e.code === 'HOLIDAY' || e.code === 'CLOCK_FILLED') return 'world'
   if (e.code === 'ROSTER_UPDATED' || e.code === 'NOBODY_ACTING') return 'characters'
   // A change to a character (the party's own sheet is the trip's).
   const path = e.data?.path

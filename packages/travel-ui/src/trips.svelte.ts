@@ -29,8 +29,8 @@ import {
   leaveTrip,
   otherTrip,
   playTrip,
-  heardMoments,
   MAX_HEARD,
+  takeMoments,
   tripStepped,
   worldFactsOf,
   type Campaign,
@@ -526,11 +526,43 @@ export class TripStore {
     }
   }
 
-  /** Plays an action; then the moments of the world it made happen (a clock filling), heard. */
+  /**
+   * Plays an action. The trip hears the moments of the world first, those that came while it
+   * wasn't stepping (a clock filled by hand, in another app), and then those its step made
+   * happen (a clock filling).
+   */
   private stepNow(action: TravelAction, heard = 0): void {
+    if (!this.saved.session) return
+    if (heard === 0) this.hearWorld()
+    this.stepOnly(action)
+    this.hearWorld(heard)
+  }
+
+  /** The moments the campaign's world has waiting for the trip: each journaled and played. */
+  private hearWorld(heard = 0): void {
+    const campaign = this.campaign
+    const me = this.me
+    if (heard >= MAX_HEARD || !campaign || !me || !this.saved.session) return
+    if (!campaign.playing || otherTrip(campaign, me)) return
+    const taken = takeMoments(campaign, this.system.rules)
+    if (taken.campaign === campaign) return
+    this.keeper!.set(taken.campaign)
+    for (const { at, clock } of taken.heard) {
+      const session = this.saved.session
+      if (!session) return
+      this.saved = {
+        ...this.saved,
+        session: addEntry(session, { source: 'travel', code: 'CLOCK_FILLED', text: clock }),
+      }
+      this.stepNow({ type: 'moment', at }, heard + 1)
+    }
+    this.save()
+  }
+
+  /** Plays an action, and what it did in the campaign's world. */
+  private stepOnly(action: TravelAction): void {
     const session = this.saved.session
     if (!session) return
-    let moments: string[] = []
     const campaign = this.campaign
     const host = campaign && this.worldHost(session)
     try {
@@ -556,7 +588,6 @@ export class TripStore {
         this.keeper!.set(done.campaign)
         for (const { clock, text } of done.filled)
           showToast(clockFilledText(this.options.locale(), clock, text), 'info', 8000)
-        moments = heardMoments(this.system.rules, done.filled)
       }
       this.saved = { ...this.saved, session: next }
     } catch (error) {
@@ -564,7 +595,6 @@ export class TripStore {
       showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
     }
     this.save()
-    if (heard < MAX_HEARD) for (const at of moments) this.stepNow({ type: 'moment', at }, heard + 1)
   }
 
   edit(update: (session: SessionState) => SessionState): void {

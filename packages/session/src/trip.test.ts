@@ -708,7 +708,7 @@ describe("Core's system: the Generic rules as data", () => {
 })
 
 describe('what rules roll and hear from the world, checked on load', () => {
-  it('a roll of a table that is none, and a full clock the system does not declare', () => {
+  it('a roll of a table that is none, and a full clock the system does not declare (a warning: it may be made by hand)', () => {
     const { registry } = loadPacks([
       { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\n' },
       {
@@ -739,11 +739,12 @@ entries: [{ result: Bones }]
     ])
     const { systems, problems } = travelSystems(registry)
     expect(systems.map((s) => s.id)).toEqual(['w'])
-    expect(problems.map((p) => [p.at, p.message])).toEqual([
-      ['@travel-rules/default.actions.search.do.1.roll', 'Unknown table "table.nowhere"'],
+    expect(problems.map((p) => [p.severity, p.at, p.message])).toEqual([
+      ['error', '@travel-rules/default.actions.search.do.1.roll', 'Unknown table "table.nowhere"'],
       [
+        'warning',
         '@travel-rules/default.checks.0.at',
-        'the system declares no clock "gone" (expected world.clocks.doom.full)',
+        'the system declares no clock "gone": heard only if a clock made by hand has this name (it declares world.clocks.doom.full)',
       ],
     ])
   })

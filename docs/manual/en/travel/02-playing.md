@@ -12,7 +12,7 @@ You can keep several trips (in this browser), each with its own system, way and 
 
 Every trip plays in a **campaign**, the world it happens in: its system, a world clock, the factions and the Oracle (the cards drawn from each deck, the results that come up only once). **Campaign**, above the system, says which one, and **Open in Campaign ↗** under it shows it in the [Campaign](../campaign/01-getting-started.md) app (its world clock, timeline, factions, maps and trips). A trip starts in a campaign of its own (**Its own**), named after the trip (numbered if another campaign has that name), with the trip's system, a world nobody else plays in, as trips without a map always had. Choose another one, such as a Hexmapper map's (listed by the map's name), to travel in that map's world:
 
-- The trip's days are the campaign's: a new trip starts on the campaign's date (when its world clock runs, see [The world clock](../hexmapper/12-world.md)), and marching, waiting and camping move the campaign's clock on. Events and holidays that come due on the way are written in the journal.
+- The trip's days are the campaign's: a new trip starts on the campaign's date (when its world clock runs, see [The world clock](../hexmapper/12-world.md)), and marching, waiting and camping move the campaign's clock on. Events and holidays that come due on the way are written in the journal, and so are the campaign's clocks that fill, when the system does something then (**In the world: The Wyrm wakes filled**: [Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system)), also those filled in another app while the trip was away, on its next step.
 - Its tables and checks read the world (the campaign's progress clocks, today's events, the factions' values: [What tables see](../technical/04-what-tables-see.md)), and what they do to it happens there: a result that ticks a clock (`world.clocks.the-siege: 1`) or changes a faction's values. A faction's land is on a map, so it only changes when the trip is played on that map.
 - Its checks roll on the campaign's Oracle: a card drawn on the trip is gone on the map too.
 
@@ -84,7 +84,7 @@ The journal keeps **everything** that happens, also what happens behind, and the
   - each value before and after: _Food: 5 → 3_, _Kael: Health: 3 → 2_, and a condition set or cleared;
   - each route planned: _Route to Ashford · hexes: 4_.
 
-**What about** (when the journal has lines of more than one kind) leaves kinds out: the **Trip** (hexes, actions, the rules), the **Oracle** (tables and weather), the **World** (events and holidays of the world clock), the **Characters** (what changed in them, the roster) and your **Notes**. **Search** keeps the lines with those words, in any case: with **Everything**, search a check's name to see each time it was rolled, or didn't come up and why.
+**What about** (when the journal has lines of more than one kind) leaves kinds out: the **Trip** (hexes, actions, the rules), the **Oracle** (tables and weather), the **World** (events, holidays and full clocks of the world clock), the **Characters** (what changed in them, the roster) and your **Notes**. **Search** keeps the lines with those words, in any case: with **Everything**, search a check's name to see each time it was rolled, or didn't come up and why.
 
 **What just happened** shows the story and the rules of your last step, never what happened behind: that is in the **Journal** tab.
 

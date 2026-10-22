@@ -177,6 +177,7 @@ export const es: Messages<typeof en> = {
     discoveryFailed: 'El descubrimiento falló en {hex} ({error})',
     worldEvent: 'En el mundo: {name}',
     holiday: 'Hoy es {name}',
+    clockFilled: 'En el mundo: se llenó {name}',
     pending: '{event}: esperando',
     eventAt: '{event} en {hex}',
     paused: '{event}: en pausa, sigue cuando quieras',

@@ -445,7 +445,11 @@ class Editor {
     if (campaign === before && land === beforeLand) return
     this.campaign = campaign
     this.map.territories = land
-    if (campaign.world !== before.world || campaign.worldWeather !== before.worldWeather)
+    if (
+      campaign.world !== before.world ||
+      campaign.worldWeather !== before.worldWeather ||
+      campaign.moments !== before.moments
+    )
       this.notify({ kind: 'world' })
     if (campaign.oracle !== before.oracle) this.notify({ kind: 'oracle' })
     if (campaign.factions !== before.factions || land !== beforeLand)
