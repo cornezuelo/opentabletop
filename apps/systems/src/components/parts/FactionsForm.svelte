@@ -107,18 +107,18 @@
           placeholder: '#8b1e1e',
         },
         {
+          field: 'turn',
+          label: t('factionsForm.ownTurn'),
+          help: t('factionsForm.ownTurnHelp'),
+          type: 'value',
+        },
+        {
           field: 'values',
           label: t('factionsForm.values'),
           help: t('factionsForm.valuesHelp'),
           type: 'pairs',
           fresh: 0,
           hints: Object.fromEntries(values.map((v) => [v, []])),
-        },
-        {
-          field: 'territory.regions',
-          label: t('factionsForm.regions'),
-          help: t('factionsForm.regionsHelp'),
-          type: 'list',
         },
         {
           field: 'territory.map',
@@ -135,10 +135,10 @@
           placeholder: '15,9',
         },
         {
-          field: 'turn',
-          label: t('factionsForm.ownTurn'),
-          help: t('factionsForm.ownTurnHelp'),
-          type: 'value',
+          field: 'territory.regions',
+          label: t('factionsForm.regions'),
+          help: t('factionsForm.regionsHelp'),
+          type: 'list',
         },
       ]}
     />

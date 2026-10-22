@@ -52,12 +52,6 @@
       columns={[
         { field: 'name', label: t('clocksForm.clockName'), type: 'text' },
         {
-          field: 'description',
-          label: t('forms.description'),
-          help: t('forms.descriptionHelp'),
-          type: 'text',
-        },
-        {
           field: 'segments',
           label: t('clocksForm.segments'),
           help: t('clocksForm.segmentsHelp'),
@@ -73,6 +67,12 @@
           placeholder: '0',
         },
         {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+        {
           field: 'onFull.description',
           label: t('clocksForm.description'),
           help: t('clocksForm.descriptionHelp'),
@@ -86,20 +86,20 @@
           placeholder: 'core/table.twists',
         },
         {
-          field: 'onFull.effects',
-          label: t('clocksForm.effects'),
-          help: t('clocksForm.effectsHelp'),
-          type: 'pairs',
-          fresh: 1,
-          hints: effects,
-        },
-        {
           field: 'onFull.then',
           label: t('clocksForm.then'),
           help: t('clocksForm.thenHelp'),
           type: 'select',
           choices: CLOCK_THEN,
           placeholder: t('clocksForm.keepByDefault'),
+        },
+        {
+          field: 'onFull.effects',
+          label: t('clocksForm.effects'),
+          help: t('clocksForm.effectsHelp'),
+          type: 'pairs',
+          fresh: 1,
+          hints: effects,
         },
       ]}
     />

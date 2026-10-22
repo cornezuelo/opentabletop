@@ -192,14 +192,6 @@
         },
         { field: 'kmPerDay', label: t('rules.kmPerDay'), type: 'number', min: 0 },
         {
-          field: 'through',
-          label: t('rules.allowedTerrains'),
-          help: t('rules.allowedTerrainsHelp'),
-          type: 'condition',
-          placeholder: t('rules.anyTerrain'),
-          hints: passableHints,
-        },
-        {
           field: 'when',
           label: t('actions.when'),
           help: t('rules.modeWhenHelp'),
@@ -214,6 +206,14 @@
           type: 'condition',
           placeholder: t('checks.never'),
           hints: contextSuggestions(library.registry),
+        },
+        {
+          field: 'through',
+          label: t('rules.allowedTerrains'),
+          help: t('rules.allowedTerrainsHelp'),
+          type: 'condition',
+          placeholder: t('rules.anyTerrain'),
+          hints: passableHints,
         },
       ]}
     />
@@ -238,13 +238,6 @@
           placeholder: '1',
         },
         {
-          field: 'passable',
-          label: t('rules.passable'),
-          help: t('rules.passableHelp'),
-          type: 'check',
-          default: true,
-        },
-        {
           field: 'passable.when',
           label: t('rules.openWhen'),
           help: t('rules.passableWhenHelp'),
@@ -261,6 +254,13 @@
           placeholder: t('checks.never'),
           hints: passableHints,
           off: (row) => row.passable === false,
+        },
+        {
+          field: 'passable',
+          label: t('rules.passable'),
+          help: t('rules.passableHelp'),
+          type: 'check',
+          default: true,
         },
       ]}
     />

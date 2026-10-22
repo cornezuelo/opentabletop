@@ -116,12 +116,7 @@
           help: t('forms.descriptionHelp'),
           type: 'text',
         },
-        {
-          field: 'default',
-          label: t('sheet.default'),
-          help: t('sheet.defaultHelp'),
-          type: 'number',
-        },
+        { field: 'group', label: t('sheet.group'), help: t('sheet.groupHelp'), type: 'value' },
         {
           field: 'min',
           label: t('sheet.min'),
@@ -129,6 +124,12 @@
           type: 'value',
         },
         { field: 'max', label: t('sheet.max'), help: t('sheet.boundHelp'), type: 'value' },
+        {
+          field: 'default',
+          label: t('sheet.default'),
+          help: t('sheet.defaultHelp'),
+          type: 'number',
+        },
         {
           field: 'display',
           label: t('sheet.display'),
@@ -153,7 +154,6 @@
           type: 'pairs',
           hints: toneHints,
         },
-        { field: 'group', label: t('sheet.group'), help: t('sheet.groupHelp'), type: 'value' },
       ]}
     />
   </section>
@@ -242,6 +242,14 @@
           type: 'text',
         },
         {
+          field: 'value.display',
+          label: t('sheet.display'),
+          help: t('sheet.relationDisplayHelp'),
+          type: 'select',
+          choices: DISPLAYS.filter((d) => d !== 'levels'),
+          placeholder: 'number',
+        },
+        {
           field: 'value.min',
           label: t('sheet.relationMin'),
           help: t('sheet.relationValueHelp'),
@@ -252,14 +260,6 @@
           label: t('sheet.relationMax'),
           help: t('sheet.relationValueHelp'),
           type: 'number',
-        },
-        {
-          field: 'value.display',
-          label: t('sheet.display'),
-          help: t('sheet.relationDisplayHelp'),
-          type: 'select',
-          choices: DISPLAYS.filter((d) => d !== 'levels'),
-          placeholder: 'number',
         },
       ]}
     />

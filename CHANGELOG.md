@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Systems: **fields that go together share a line** in the folded cards: a terrain's **Open when** and **Closed when** side by side with **Passable** after them; a way of travelling's **Only when** and **Not when**; a sheet value's and a kind of relation's **Min** and **Max**; a clock's segments and filled first; a faction's **Map** and **Hexes**.
+
 ## [0.11.0] - 2026-10-22
 
 ### Apps
