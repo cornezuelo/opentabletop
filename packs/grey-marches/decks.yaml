@@ -4,11 +4,12 @@ kind: deck
 id: omens
 name: Omens of the road
 description: |-
-  Draw one **at each dawn** on the road. A drawn card is gone until the deck runs out.
+  One is drawn **at each dawn** on the road, by the _Omens_ check of the Marches' travel rules (or by hand). A drawn card is gone until the deck runs out.
 
   **Shows:**
 
   - A **deck**: copies of a card (`count`), reshuffled when empty
+  - A deck that **resolves a check** (`OMENS: { resolve: deck.omens }` in the bindings), its draws kept in the campaign's Oracle, shared with draws by hand
   - Cards that roll a generator, their references saying what they name (`generator.npc`), and one that sets values (food)
   - Another pack's table through an alias: `table.twist` → `core/table.twists`
 reshuffle: when-empty

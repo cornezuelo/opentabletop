@@ -19,6 +19,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- The Grey Marches: **an omen at each dawn on the road**: a new check, _Omens_, draws a card of _Omens of the road_ every morning until the party reaches its destination; drawn cards stay out until the deck runs out, kept in the campaign's Oracle with the draws made by hand.
 - Core: **weather for the Generic rules**: _The plain sky_, a weather model for any setting (clear, cloudy, rain, storm, and snow in winter, today's following yesterday's), rolled by a **Weather** check each morning; rain slows the march to ×0.75, a storm or snow to ×0.5. Campaigns with the Generic rules roll it day by day on their world clock, and a new system in Systems starts with the check bound to it.
 
 ### Fixes

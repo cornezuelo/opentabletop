@@ -418,6 +418,13 @@ checks:
     at: time.part.morning
     when: { trip.weather: storm }
     effects: { party.stats.fatigue: 1 }
+  # A card of a deck each dawn on the road (not once arrived): drawn cards stay out until the
+  # deck runs out, in the campaign's Oracle, shared with draws by hand.
+  - event: OMENS
+    name: Omens
+    description: Every dawn on the road, a card of the Omens of the road.
+    at: time.part.morning
+    unless: { trip.arrived: true }
   # Off roads and rivers, and not by boat: any / edges / mode.
   - event: NAVIGATION_CHECK_REQUIRED
     name: Getting lost
@@ -711,6 +718,8 @@ discover:
 on:
   # Weather with inertia: a model (sky.yaml) instead of a table.
   WEATHER_CHECK_REQUIRED: { weather: weather.sky }
+  # A deck resolves it: each dawn draws a card.
+  OMENS: { resolve: deck.omens }
   NAVIGATION_CHECK_REQUIRED: { resolve: table.getting-lost }
   NIGHT_NAVIGATION_CHECK_REQUIRED: { resolve: table.getting-lost }
   # One encounter table for day and night: the context says which.

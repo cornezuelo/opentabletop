@@ -443,6 +443,47 @@ describe('playing on the map', () => {
       expect(editor.campaign.world!.time).toBe(trip().travel.time)
     })
 
+    it('an omen is drawn at each dawn on the road, its cards out until the deck runs out', async () => {
+      grey()
+      startWorld()
+      const omensSoFar = () =>
+        trip().journal.filter((e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'OMENS')
+      /** Travels to a hex, day after day, the player going on past whatever waits for them. */
+      async function travelTo(hex: HexKey) {
+        clickHex(hex)
+        for (let day = 0; day < 15 && partyLocation() !== hex; day++) {
+          await advance({ until: 'next-day' })
+          for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+        }
+        expect(partyLocation()).toBe(hex)
+      }
+      await travelTo('7,7')
+      // Once there, the next dawn draws none.
+      const there = omensSoFar().length
+      await advance({ until: 'next-day' })
+      expect(omensSoFar()).toHaveLength(there)
+      // Then far east, several days on the road.
+      await travelTo('13,7')
+      const journal = trip().journal
+      const omens = omensSoFar()
+      const dawns = journal.filter(
+        (e) => e.code === 'MOMENT_REACHED' && e.data?.at === 'time.part.morning',
+      )
+      // One a dawn while on the road, each named by the check, said in the journal.
+      expect(omens.length).toBeGreaterThan(1)
+      expect(omens.length).toBeLessThan(dawns.length)
+      for (const omen of omens) {
+        expect(dawns.some((d) => d.time === omen.time)).toBe(true)
+        expect(omen.text).toBeTruthy()
+      }
+      // The deck draws without putting back (11 cards, copies counted), its draws kept in
+      // the campaign's Oracle, shared with draws by hand.
+      const deck = editor.campaign.oracle?.state.decks['grey-marches/omens']
+      expect(omens.length).toBeLessThan(11)
+      expect(deck?.discard).toHaveLength(omens.length)
+      expect((deck?.draw.length ?? 0) + (deck?.discard.length ?? 0)).toBe(11)
+    })
+
     it('the journal keeps everything behind: dice, rows, weather, skipped checks, changes', async () => {
       grey()
       startWorld()
@@ -458,7 +499,9 @@ describe('playing on the map', () => {
       for (const rolled of of('ROLLED')) {
         const rolls = rolled.data?.rolls as { source: string; dice: string[]; entry?: string }[]
         expect(rolls[0].source).toMatch(/^grey-marches\//)
-        expect(rolls.some((r) => r.dice.some((d) => / → -?\d+ /.test(d)))).toBe(true)
+        // A deck draws a card, with no dice: the card drawn (the omens at dawn).
+        if (rolls[0].source === 'grey-marches/omens') expect(rolls[0].entry).toBeTruthy()
+        else expect(rolls.some((r) => r.dice.some((d) => / → -?\d+ /.test(d)))).toBe(true)
       }
       // Each ORACLE_RESULT of a table has its roll just before it.
       for (const result of of('ORACLE_RESULT').filter((e) => e.data?.table)) {

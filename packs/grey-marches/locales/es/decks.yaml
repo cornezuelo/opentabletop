@@ -1,11 +1,12 @@
 omens:
   name: Presagios del camino
   description: |-
-    Roba uno **cada alba** en el camino. Una carta robada desaparece hasta que se acaba el mazo.
+    Se roba uno **cada alba** en el camino, con la comprobación _Presagios_ de las reglas de viaje de las Marcas (o a mano). Una carta robada desaparece hasta que se acaba el mazo.
 
     **Enseña:**
 
     - Un **mazo**: copias de una carta (`count`), que se baraja al vaciarse
+    - Un mazo que **resuelve una comprobación** (`OMENS: { resolve: deck.omens }` en los bindings), con lo robado guardado en el Oráculo de la campaña, compartido con lo que se roba a mano
     - Cartas que tiran un generador, con referencias que dicen qué nombran (`generator.npc`), y otra que pone valores (comida)
     - Una tabla de otro pack mediante un alias: `table.twist` → `core/table.twists`
   cards:

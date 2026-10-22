@@ -119,14 +119,14 @@ describe('where a name is used', () => {
   it('finds supplies, conditions, reads, clocks and a sheet bound', () => {
     const food = where(usesOf(uses, { kind: 'supply', id: 'food' }))
     expect(food).toContain('reads travel-rules default actions.camp.when')
-    expect(food).toContain('reads travel-rules default checks[11].when')
+    expect(food).toContain('reads travel-rules default checks[12].when')
     // A member's condition read by a stat's `from`.
     expect(
       where(usesOf(uses, { kind: 'sheet-condition', sheet: 'members', id: 'wounded' }, system)),
     ).toContain('reads bindings default stats.survival.from.unless')
     // What tables read from the map: `hex.danger`, written in full.
     expect(where(usesOf(uses, { kind: 'read', id: 'danger' }))).toContain(
-      'reads travel-rules default checks[3].when',
+      'reads travel-rules default checks[4].when',
     )
     // A value the weather sets and the ford reads by its own name.
     const ford = where(usesOf(uses, { kind: 'read', id: 'fordModifier' }))

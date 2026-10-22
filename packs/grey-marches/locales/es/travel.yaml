@@ -108,6 +108,9 @@ travel-rules/default:
     STORMY_DAWN:
       name: Un alba de tormenta
       description: Un alba de tormenta agota a la Compañía antes de ponerse en marcha. Fatiga +1.
+    OMENS:
+      name: Presagios
+      description: Cada alba en el camino, una carta de los Presagios del camino.
     NAVIGATION_CHECK_REQUIRED:
       name: Perderse
       description: Cada alba fuera de caminos y ríos (no en barca). La Orientación ayuda; la niebla lo complica.

@@ -695,8 +695,17 @@ describe('bundled open packs', () => {
           season: 'summer',
           stats: { hirelings },
         })
-        const until = calendarOf(system).at(session.travel.day + 1, '01:00')
-        return 6 - stepTrip(options, session, { type: 'wait', until }).state.travel.resources.food
+        // From after the first dawn (its omen may be a cache of food) to past midnight.
+        const day = session.travel.day
+        const morning = stepTrip(options, session, {
+          type: 'wait',
+          until: calendarOf(system).at(day, '07:00'),
+        }).state
+        const until = calendarOf(system).at(day + 1, '01:00')
+        return (
+          morning.travel.resources.food -
+          stepTrip(options, morning, { type: 'wait', until }).state.travel.resources.food
+        )
       }
       expect(eaten(0)).toBe(1)
       expect(eaten(2)).toBe(3)
@@ -1113,7 +1122,12 @@ describe('bundled open packs', () => {
       random: seeded('camp-rest-weather'),
     }
     const trip = (food: number, fatigue: number): SessionState => {
-      const { session } = startTrip({ system, location: '0', season: 'summer' })
+      const started = startTrip({ system, location: '0', season: 'summer' }).session
+      // Past the first dawn and its checks (its omen may be a cache of food).
+      const session = stepTrip(options, started, {
+        type: 'wait',
+        until: calendarOf(system).at(started.travel.day, '07:00'),
+      }).state
       return {
         ...session,
         stats: { ...session.stats, fatigue },
