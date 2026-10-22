@@ -1,7 +1,7 @@
 <script lang="ts">
   import { WorldClock, WorldTimeline, type WorldControls } from '@open-tabletop/campaign-ui'
   import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
-  import { campaignUrl } from '@open-tabletop/ui-kit'
+  import { campaignUrl, Tabs } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { sessionOf } from '../lib/play/play'
   import { activeSystem } from '../lib/play/systems'
@@ -86,19 +86,14 @@
     tab === 'factions' ? 'factions' : tab === 'timeline' ? 'timeline' : 'world',
   )}>{t('world.openCampaign')}</a
 >
-<div class="tabs" role="tablist" aria-label={t('world.tabs.label')}>
-  {#each tabs as id (id)}
-    <button
-      role="tab"
-      id="world-tab-{id}"
-      aria-selected={tab === id}
-      aria-controls="world-tabpanel"
-      class:on={tab === id}
-      onclick={() => worldTab.choose(id)}>{t(`world.tabs.${id}`)}</button
-    >
-  {/each}
-</div>
-<div class="tabpanel" id="world-tabpanel" role="tabpanel" aria-labelledby="world-tab-{tab}">
+<Tabs
+  tabs={tabs.map((id) => ({ id, label: t(`world.tabs.${id}`) }))}
+  value={tab}
+  label={t('world.tabs.label')}
+  prefix="world"
+  onchange={(id) => worldTab.choose(id)}
+/>
+<div class="tabpanel" id="world-panel" role="tabpanel" aria-labelledby="world-tab-{tab}">
   {#if tab === 'factions'}
     <FactionsPanel />
   {:else if tab === 'timeline'}
@@ -124,32 +119,6 @@
     align-self: flex-start;
     font-size: 12px;
     color: var(--accent);
-  }
-
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    align-items: end;
-    border-bottom: 1px solid var(--panel-border);
-  }
-
-  .tabs [role='tab'] {
-    margin-bottom: -1px;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 6px 6px 0 0;
-    cursor: pointer;
-  }
-
-  .tabs [role='tab'].on {
-    color: var(--accent);
-    background: var(--bg);
-    border-color: var(--panel-border);
-    border-bottom-color: var(--bg);
   }
 
   .tabpanel {

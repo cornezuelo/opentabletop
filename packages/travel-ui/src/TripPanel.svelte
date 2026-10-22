@@ -47,12 +47,12 @@
     type Unavailable,
   } from '@open-tabletop/travel-engine'
   import { calendarOf, hexIdOf } from '@open-tabletop/session'
-  import { InfoTip, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
+  import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberNamer, statSource } from './members'
   import { dayPartsLine, divisionName, partName } from './dayParts'
-  import Fold from './Fold.svelte'
-  import { tripTab, type TripTab } from './folds.svelte'
+  import Section from './Section.svelte'
+  import { tripTab, type TripTab } from './tripTab.svelte'
   import PartyMembers from './PartyMembers.svelte'
   import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
 
@@ -606,18 +606,7 @@
     {/if}
   </div>
 
-  {#snippet whoRolls()}
-    <select
-      class="who"
-      aria-label={t('rolls.label')}
-      value={session.rolls ?? ''}
-      onchange={(e) => setRolls(e.currentTarget.value)}
-    >
-      <option value="">{t('rolls.best')}</option>
-      {#each session.members ?? [] as m (m.id)}<option value={m.id}>{m.name ?? m.id}</option>{/each}
-    </select>
-  {/snippet}
-  {#if choosesWho}
+  {#snippet rollsChoice()}
     <div class="rolls">
       <span>{t('rolls.label')}<InfoTip text={t('rolls.help')} /></span>
       {@render whoRolls()}
@@ -637,9 +626,20 @@
         />{t('rolls.ask')}</label
       >
     </div>
-  {/if}
+  {/snippet}
+  {#snippet whoRolls()}
+    <select
+      class="who"
+      aria-label={t('rolls.label')}
+      value={session.rolls ?? ''}
+      onchange={(e) => setRolls(e.currentTarget.value)}
+    >
+      <option value="">{t('rolls.best')}</option>
+      {#each session.members ?? [] as m (m.id)}<option value={m.id}>{m.name ?? m.id}</option>{/each}
+    </select>
+  {/snippet}
 
-  <div class="row">
+  <div class="mode">
     <label class="field">
       <span
         >{t(
@@ -692,38 +692,23 @@
 
   <!-- The rest, a tab at a time (the one chosen is remembered per viewer); the status, what
        waits for Continue, the buttons and the last step above are always there. -->
-  <div class="tabs" role="tablist" aria-label={t('tabs.label')}>
-    {#each tabs as id (id)}
-      <button
-        role="tab"
-        id="trip-tab-{id}"
-        aria-selected={tab === id}
-        aria-controls="trip-tabpanel"
-        class:on={tab === id}
-        onclick={() => tripTab.choose(id)}>{tabName(id)}</button
-      >
-    {/each}
-    {#if tab === 'journal'}
-      <button
-        class="link export"
-        use:tooltip={t('tips.exportJournal')}
-        disabled={!session.journal.length}
-        onclick={exportJournal}>{t('exportJournal')}</button
-      >
-    {/if}
-  </div>
-  <div class="tabpanel" id="trip-tabpanel" role="tabpanel" aria-labelledby="trip-tab-{tab}">
+  <Tabs
+    tabs={tabs.map((id) => ({ id, label: tabName(id) }))}
+    value={tab}
+    label={t('tabs.label')}
+    prefix="trip"
+    onchange={(id) => tripTab.choose(id)}
+  />
+  <div class="tabpanel" id="trip-panel" role="tabpanel" aria-labelledby="trip-tab-{tab}">
     {#if tab === 'party'}
       <!-- One place for the party: its sheet and its stats, each saying where it comes
-           from; then its characters, then its supplies. Its sections fold by their heading. -->
+           from; then its characters, then its supplies, each under a plain heading. -->
       {#if stats.length || (system.partySheet && session.party)}
-        <Fold
-          id="party"
+        <Section
           title={t('partySheet.title')}
           help={system.partySheet && session.party
             ? t('partySheet.help')
             : t('partySheet.plainHelp')}
-          {locale}
         >
           {#if system.partySheet && session.party}
             <SheetOrigin sheet={system.partySheet} {system} {locale} where={systemWhere} />
@@ -741,7 +726,7 @@
           {#if stats.length}
             <div class="stats">
               <h4 class="subhead">
-                {t('fold.stats')}<InfoTip markdown={t('partySheet.statsHelp')} />
+                {t('section.stats')}<InfoTip markdown={t('partySheet.statsHelp')} />
               </h4>
               {#each stats as [key, stat] (key)}
                 {@const source = statSource(
@@ -779,11 +764,12 @@
               {/each}
             </div>
           {/if}
-        </Fold>
+        </Section>
       {/if}
 
       {#if system.sheet}
         <PartyMembers
+          rolls={choosesWho ? rollsChoice : undefined}
           system={{ ...system, sheet: system.sheet }}
           {session}
           {locale}
@@ -797,7 +783,7 @@
         />
       {/if}
       {#if Object.keys(system.rules.resources ?? {}).length}
-        <Fold id="supplies" title={t('fold.supplies')} {locale}>
+        <Section title={t('section.supplies')}>
           <div class="row">
             {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
               <label class="field">
@@ -837,9 +823,15 @@
               </label>
             {/each}
           </div>
-        </Fold>
+        </Section>
       {/if}
     {:else if tab === 'journal'}
+      <button
+        class="link export"
+        use:tooltip={t('tips.exportJournal')}
+        disabled={!session.journal.length}
+        onclick={exportJournal}>{t('exportJournal')}</button
+      >
       {@render lines(journalDays, t('emptyJournal'))}
     {:else}
       <div class="lines totals">
@@ -884,11 +876,6 @@
     align-items: center;
   }
 
-  /* The journal's Export, at the end of the tabs' line. */
-  .export {
-    margin-left: auto;
-  }
-
   /* What the last step did: a box of its own, under the buttons. */
   .last {
     display: flex;
@@ -911,40 +898,23 @@
     max-height: 200px;
   }
 
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    align-items: end;
-    border-bottom: 1px solid var(--panel-border);
-  }
-
-  .tabs [role='tab'] {
-    margin-bottom: -1px;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 6px 6px 0 0;
-    cursor: pointer;
-  }
-
-  .tabs [role='tab'].on {
-    color: var(--accent);
-    background: var(--bg);
-    border-color: var(--panel-border);
-    border-bottom-color: var(--bg);
-  }
-
-  .tabs .export {
-    align-self: center;
+  /* The way of travelling: its name and its choice, on one line. */
+  .mode .field {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    align-items: center;
   }
 
   .tabpanel {
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+
+  /* The journal's Export, above its lines. */
+  .export {
+    align-self: flex-end;
   }
 
   .link {

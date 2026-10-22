@@ -254,15 +254,16 @@
     color: var(--text-muted);
   }
 
+  /* Discovering and what it reveals, on one line. */
   .discover {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: center;
   }
 
-  .discover .check {
-    display: flex;
-    gap: 6px;
-    align-items: center;
+  .discover select {
+    flex: 1 1 8em;
+    min-width: 0;
   }
 </style>

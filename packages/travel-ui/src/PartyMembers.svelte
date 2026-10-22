@@ -18,7 +18,8 @@
   import type { CharacterState } from '@open-tabletop/character-engine'
   import { CharacterCard, characterUrl, roster, SheetOrigin } from '@open-tabletop/character-ui'
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
-  import Fold from './Fold.svelte'
+  import type { Snippet } from 'svelte'
+  import Section from './Section.svelte'
   import { translator } from './i18n'
   import { memberId, memberLabel } from './members'
 
@@ -37,6 +38,7 @@
     systemWhere = '',
     uses = [],
     nameOf = (id) => id,
+    rolls,
     onedit,
   }: {
     system: TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
@@ -54,6 +56,8 @@
     uses?: Use[]
     /** Display name of an Oracle definition (`pack/id`), for what reads a role. */
     nameOf?: (id: string) => string
+    /** Who rolls for the party, from the host: under who acts. */
+    rolls?: Snippet
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
@@ -174,8 +178,8 @@
   }
 </script>
 
-<Fold id="characters" title={t('members.title')} help={t('members.help')} {locale}>
-  <!-- Who acts, inside the section: it folds with the characters. -->
+<Section title={t('members.title')} help={t('members.help')}>
+  <!-- Who acts and who rolls, first in the section. -->
   {#if members.length}
     <label class="acting">
       <span>{t('members.acting')}<InfoTip markdown={t('members.actingHelp')} /></span>
@@ -194,6 +198,7 @@
       </select>
     </label>
   {/if}
+  {@render rolls?.()}
   <SheetOrigin sheet={system.sheet} {system} {locale} where={systemWhere} />
   {#if members.length && roles.length}
     <div class="roles">
@@ -302,7 +307,7 @@
       </label>
     {/if}
   </div>
-</Fold>
+</Section>
 
 <style>
   .roles {

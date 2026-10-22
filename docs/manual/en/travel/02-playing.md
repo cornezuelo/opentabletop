@@ -6,7 +6,7 @@ Trips here have **no map**: you describe the way ahead hex by hex. It's quick fo
 
 Pick a system on the left and open **Play**. Choose the season to start in and press **Start a trip**.
 
-You can keep several trips (in this browser), each with its own system, way and journal. At the top, **Trip** opens another one (its system's page opens with it), **Name** gives the open trip a name (unnamed trips show their system and day), **Another trip** starts one more with this system and season (the others are kept), and **Delete** removes the open one. **New trip**, under the system and season, starts the open trip again from scratch; it asks first if its journal has something. Opening another system's **Play** tab with a trip open says which system that trip uses ("The open trip uses The Grey Marches."), with **Start a trip with …** to start one more with this system (the open one is kept: **Trip** goes back to it).
+You can keep several trips (in this browser), each with its own system, way and journal. At the top, **Trip** opens another one (its system's page opens with it), **Name** gives the open trip a name (unnamed trips show their system and day), **Another trip** starts one more with this system and season (the others are kept), and **Delete** removes the open one. **New trip**, on one line with the system and the season, starts the open trip again from scratch; it asks first if its journal has something. **System**, at the start of that line, is underlined with dots: click it to read what the system's trips roll (checks on tables, only in the journal, or none). Opening another system's **Play** tab with a trip open says which system that trip uses ("The open trip uses The Grey Marches."), with **Start a trip with …** to start one more with this system (the open one is kept: **Trip** goes back to it).
 
 ## The campaign
 
@@ -42,10 +42,10 @@ The panel on the right is the same as in the Hexmapper. At the top, where the pa
 
 **What just happened.** Right under the buttons, a box shows the journal lines of your last step: a march with every hex it entered and every check it rolled, an action and what it changed, a check you went on from with **Continue**. Newest first, as in the **Journal**: what stopped the trip is on top, right under the buttons. Tables you roll by hand afterwards are added on top. The next step replaces them, so what you just did is always beside the buttons that did it; the whole trip stays in the **Journal** tab.
 
-**The tabs.** Under it, the rest of the trip is shown a tab at a time; this browser remembers the one you chose, in every app that shows a trip:
+**The tabs.** Under it, the rest of the trip is shown a tab at a time; this browser remembers the one you chose, in every app that shows a trip. When the panel is too narrow for the tabs side by side (the Hexmapper's side panel, a small window), they become a choice of the same tabs, never a second row:
 
-- **Party** (only when the system declares any of it): **The party** (its own sheet, and the party stats the system declares, each saying where it comes from: e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls), **Characters** and the supplies. Each of these sections folds and unfolds when you click its heading; a section with an explanation has **What it is** beside its heading: click it to read it in the help column without folding anything. The help of a party stat, a supply or a journey role (click its name) also says what reads it and what changes it, by name: the Grey Marches' **Guide** is _Read by: Do we get lost?_; Fatigue is read by Camp, Rest and the forced and night marches, and changed by them and by a dozen tables (the inn, the ford, hunger…) (Systems lists them in full: [Used by](../systems/04-overview.md#used-by)).
-- **Journal**: the whole trip, newest first, grouped by day; **Export** sits on the tabs' line.
+- **Party** (only when the system declares any of it): **The party** (its own sheet, and the party stats the system declares, each saying where it comes from: e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls), **Characters** and the supplies. Each section has a plain heading; one with an explanation has its heading underlined with dots: click it to read it in the help column. The help of a party stat, a supply or a journey role (click its name) also says what reads it and what changes it, by name: the Grey Marches' **Guide** is _Read by: Do we get lost?_; Fatigue is read by Camp, Rest and the forced and night marches, and changed by them and by a dozen tables (the inn, the ford, hunger…) (Systems lists them in full: [Used by](../systems/04-overview.md#used-by)).
+- **Journal**: the whole trip, newest first, grouped by day; **Export** sits at the top of the tab.
 - **So far**: what the trip has done.
 
 **So far** sums up the trip: hexes and km travelled, hours marched, the checks that came up, how many times each action was taken and what the supplies spent and gained. The system's rules and tables can read them too (`trip.km: { gte: 100 }`, `trip.taken.camp`, `trip.spent.food`: see [What tables see](../technical/04-what-tables-see.md#the-trip-trip)). Trips saved before they existed get their hexes and actions from the journal; the rest counts from then on.
@@ -70,7 +70,7 @@ What the journal says, so nothing happens silently:
 
 ## Who rolls
 
-When the system has stats made of one character (`from: { pick: … }`: the Grey Marches' Charisma, whoever does the talking), **Rolls with**, under the trip's buttons, chooses whose value they take: **The best** (the default) or one character, for every roll until you change it. Tick **Ask at every roll** to choose each time: a check rolled on a table waits (its line says _who rolls?_) with the choice beside **Continue**, and is rolled when you press it.
+When the system has stats made of one character (`from: { pick: … }`: the Grey Marches' Charisma, whoever does the talking), **Rolls with**, in the **Party** tab under **Acting** (first in **Characters**), chooses whose value they take: **The best** (the default) or one character, for every roll until you change it. Tick **Ask at every roll** to choose each time: a check rolled on a table waits (its line says _who rolls?_) with the choice beside **Continue**, and is rolled when you press it.
 
 ## The party
 
@@ -96,7 +96,7 @@ Each character also has **Relations**: what they're tied to, as the sheet's kind
 
 **Roles**, when the system declares journey roles, give each job to a character until you change it: the Grey Marches' **Guide** (with Pathfinding 2 or more, getting lost is rolled with advantage) and **Lookout** (with Stealth 2 or more, the camp stays hidden where danger is under 3).
 
-**Acting**, first in the **Characters** section (it folds with it), says who takes the party's actions now: what a system writes for `acting` reaches that character (in the Grey Marches, the rocks of a ford hurt and sprain whoever leads the crossing; **Tend the wounded** works only if whoever acts has Survival 2 or more). With **Nobody**, those effects change nothing and the journal says so: "Nobody is acting, so “Whoever acts: Sprained ankle” changed nothing".
+**Acting**, first in the **Characters** section, says who takes the party's actions now: what a system writes for `acting` reaches that character (in the Grey Marches, the rocks of a ford hurt and sprain whoever leads the crossing; **Tend the wounded** works only if whoever acts has Survival 2 or more). With **Nobody**, those effects change nothing and the journal says so: "Nobody is acting, so “Whoever acts: Sprained ankle” changed nothing".
 
 With characters, the party is its members, as the system says:
 

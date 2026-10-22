@@ -2,7 +2,7 @@
   import { WorldClock, WorldTimeline } from '@open-tabletop/campaign-ui'
   import { placeUrl } from '@open-tabletop/character-ui'
   import { calendarOf, systemName } from '@open-tabletop/session'
-  import { APPS, appUrl, InfoTip, Markdown, NoteRefInput } from '@open-tabletop/ui-kit'
+  import { APPS, appUrl, InfoTip, Markdown, NoteRefInput, Tabs } from '@open-tabletop/ui-kit'
   import { open, removeCampaign } from '../lib/campaign.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go, TABS, type Tab } from '../lib/nav.svelte'
@@ -90,18 +90,15 @@
       </p>
     {/if}
 
-    <div class="tabs" role="tablist" aria-label={t('tabs.label')}>
-      {#each TABS as each (each)}
-        <button
-          role="tab"
-          aria-selected={tab === each}
-          class:active={tab === each}
-          onclick={() => go({ name: 'campaign', id, tab: each }, true)}>{tabName(each)}</button
-        >
-      {/each}
-    </div>
+    <Tabs
+      tabs={TABS.map((each) => ({ id: each, label: tabName(each) }))}
+      value={tab}
+      label={t('tabs.label')}
+      prefix="campaign"
+      onchange={(each) => go({ name: 'campaign', id, tab: each }, true)}
+    />
 
-    <div class="tab" role="tabpanel" aria-label={tabName(tab)}>
+    <div class="tab" id="campaign-panel" role="tabpanel" aria-labelledby="campaign-tab-{tab}">
       {#if tab === 'world'}
         <p class="help">{t('world.help')}</p>
         <WorldClock
@@ -215,27 +212,6 @@
     background: rgb(200 162 74 / 0.08);
     border-left: 2px solid var(--accent);
     border-radius: 0 4px 4px 0;
-  }
-
-  .tabs {
-    display: flex;
-    gap: 2px;
-    border-bottom: 1px solid var(--panel-border);
-  }
-
-  .tabs button {
-    padding: 6px 12px;
-    font-size: 13px;
-    color: var(--text-muted);
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-  }
-
-  .tabs button.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
   }
 
   .tab {

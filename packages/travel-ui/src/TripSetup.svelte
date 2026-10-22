@@ -1,9 +1,9 @@
 <script lang="ts">
   import { seasonsFor, systemName, type Season, type TravelSystem } from '@open-tabletop/session'
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { idText, translator } from './i18n'
 
-  /** Choose the travel system and starting season, and start a new trip. */
+  /** Choose the travel system and starting season, and start a new trip, on one line. */
   let {
     systems,
     system,
@@ -19,11 +19,11 @@
     locale: string
     season?: Season
     onrestart: (system: string, season: Season) => void
-    /** Said instead of the season choice when the host decides when trips start. */
+    /** When the host decides when trips start (no season to choose): said in the help. */
     startNote?: string
     /**
-     * Said beside the system, shown instead of a choice, when the host chooses it elsewhere
-     * (the Hexmapper: the map's).
+     * Where the host chooses the system, shown instead of a choice (the Hexmapper: the
+     * map's): said in the help.
      */
     systemNote?: string
   } = $props()
@@ -36,92 +36,86 @@
   $effect(() => {
     if (seasons.length && !seasons.includes(season)) season = seasons[0]
   })
+  /** What the system is and what its trips roll; where it's chosen and when trips start. */
+  const help = $derived(
+    [
+      systemNote,
+      !current?.rules.checks?.length
+        ? t('noChecks')
+        : Object.keys(current.bindings?.on ?? {}).length
+          ? t('withTables')
+          : t('noBindings'),
+      startNote,
+    ]
+      .filter(Boolean)
+      .join('\n\n'),
+  )
 </script>
 
-<div class="group">
+<!-- One line: the system (chosen here, or the host's), the season, New trip; what they
+     mean in the system's help. -->
+<div class="setup">
+  <span class="lead">{t('system')}<InfoTip markdown={help} /></span>
   {#if systemNote}
-    <div class="field">
-      <span>{t('system')}</span>
-      <strong>{current ? systemName(current, locale) : system}</strong>
-      <p class="note">{systemNote}</p>
-    </div>
+    <strong class="name">{current ? systemName(current, locale) : system}</strong>
   {:else}
-    <label class="field">
-      <span>{t('system')}</span>
-      <select value={system} onchange={(e) => onrestart(e.currentTarget.value, season)}>
-        {#each systems as s (s.id)}
-          <option value={s.id}>{systemName(s, locale)}</option>
-        {/each}
-      </select>
-    </label>
-  {/if}
-  <div class="row">
-    {#if startNote}
-      <p class="note">{startNote}</p>
-    {:else}
-      <label class="field">
-        <span>{t('startSeason')}</span>
-        <select bind:value={season}>
-          {#each seasons as s (s)}
-            <option value={s}>{idText(t, `seasons.${s}`, s)}</option>
-          {/each}
-        </select>
-      </label>
-    {/if}
-    <button use:tooltip={t('tips.newTrip')} onclick={() => onrestart(system, season)}
-      >{t('newTrip')}</button
+    <select
+      class="system"
+      aria-label={t('system')}
+      value={system}
+      onchange={(e) => onrestart(e.currentTarget.value, season)}
     >
-  </div>
-  <p class="help">
-    {!current?.rules.checks?.length
-      ? t('noChecks')
-      : Object.keys(current.bindings?.on ?? {}).length
-        ? t('withTables')
-        : t('noBindings')}
-  </p>
+      {#each systems as s (s.id)}
+        <option value={s.id}>{systemName(s, locale)}</option>
+      {/each}
+    </select>
+  {/if}
+  {#if !startNote}
+    <select class="season" aria-label={t('startSeason')} bind:value={season}>
+      {#each seasons as s (s)}
+        <option value={s}>{idText(t, `seasons.${s}`, s)}</option>
+      {/each}
+    </select>
+  {/if}
+  <button use:tooltip={t('tips.newTrip')} onclick={() => onrestart(system, season)}
+    >{t('newTrip')}</button
+  >
 </div>
 
 <style>
-  .note {
-    flex: 1;
-    margin: 0;
+  .setup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
     font-size: 12px;
+  }
+
+  .lead {
     color: var(--text-muted);
   }
 
-  .group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 8px;
-    background: var(--bg);
-    border-radius: 6px;
+  .name {
+    font-weight: 600;
   }
 
-  .row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    align-items: end;
-    gap: 6px;
+  .system {
+    flex: 1 1 8em;
+    min-width: 0;
   }
 
-  select {
-    width: 100%;
+  .season {
+    flex: 0 1 auto;
     min-width: 0;
   }
 
   button {
+    margin-left: auto;
     padding: 5px 8px;
     font-size: 12px;
     background: var(--bg);
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 </style>

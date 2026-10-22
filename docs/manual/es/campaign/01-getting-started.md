@@ -26,7 +26,7 @@ Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran l
 
 **Borrar** solo se puede cuando no hay ningún mapa ni viaje en la campaña: llévalos a otra campaña (o bórralos) antes. Pregunta, y olvida el reloj, la cronología, las facciones y el estado del Oráculo de la campaña.
 
-Las pestañas de la campaña (la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar):
+Las pestañas de la campaña (un desplegable con ellas en una ventana demasiado estrecha para tenerlas en fila; la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar):
 
 ### Mundo
 

@@ -26,7 +26,7 @@ At the top, its **name** (click it to change it; every app names the campaign wi
 
 **Delete** is only possible when no map or trip is in the campaign: move them to another campaign (or delete them) first. It asks, and forgets the campaign's clock, timeline, factions and Oracle state.
 
-The campaign's tabs (the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked):
+The campaign's tabs (a choice of them in a window too narrow for them side by side; the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked):
 
 ### World
 

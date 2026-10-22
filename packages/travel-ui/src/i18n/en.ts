@@ -10,9 +10,8 @@ export const en = {
     'These rules have no tables bound: checks are only written in the journal, and stop the trip when they pause.',
   noChecks: 'These rules have no checks: a trip only spends time and supplies.',
   marched: 'Marched today: {used} of {limit} h',
-  /** The trip panel's sections, which fold by their heading. */
-  fold: {
-    whatItIs: 'What it is',
+  /** The trip panel's sections' headings. */
+  section: {
     supplies: vocabulary.en.terms.supplies,
     stats: 'Stats',
   },
