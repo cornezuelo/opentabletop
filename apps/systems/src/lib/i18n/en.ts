@@ -457,7 +457,7 @@ export const en = {
       "What players read in the trip panel and the journal instead of the id:\n• `horse` → _On horseback_\n• `food` → _Rations_\nWritten in the current language: the pack's own, or its translation file (`locales/<language>/`) when the interface is in another one. Empty: the id (or the app's name for the usual ones: foot, horse, food…).",
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
-      'Where this way of travelling can go: a condition on **each hex it enters** (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: `hex.water: true`\n• a boat that also follows the coast: `any: [{ hex.water: true }, { hex.terrain: coast }]`\n• a cart only by road: `trip.edges: road`\n• a mount that avoids forests: `not: { hex.terrain: [forest, dense-forest] }`\nWhere it holds, even closed terrains are open to it; where it doesn't, it can't go, whatever the terrain says (see **Passable** in Terrains). Empty: wherever terrains allow.',
+      "Where this way of travelling can go: a condition on **each hex it enters** (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: `hex.water: true`\n• a boat that also follows the coast: `any: [{ hex.water: true }, { hex.terrain: coast }]`\n• a cart only by road: `trip.edges: road`\n• a mount that avoids forests: `not: { hex.terrain: [forest, dense-forest] }`\nWhere it holds, even closed terrains are open to it; where it doesn't, it can't go, whatever the terrain says (see **Passable** in Terrains). Empty: wherever terrains allow.",
     anyTerrain: 'wherever terrains allow',
     terrains: vocabulary.en.terms.terrains,
     terrainsHelp:
@@ -468,7 +468,7 @@ export const en = {
       'How fast this terrain is crossed, compared with easy ground:\n• `1` — normal speed\n• `0.5` — half as fast\n• `0.25` — a quarter\n• `2` — twice as fast\nFor example, with a way of travelling of 24 km a day and 12 km hexes, a hex at `0.5` takes a whole marching day.',
     passable: 'Passable',
     passableHelp:
-      'Whether a hex of this terrain can be entered. How it meets the rest:\n• A way of travelling with **Only through** (Ways of travelling) goes by that alone: where its condition holds it enters, open or closed (a boat on a lake); where it doesn\'t, it can\'t\n• Any other way: **Unticked**, nobody enters (routes go around); **Ticked**, it enters while **Open when** holds (empty: always) and **Closed when** doesn\'t (empty: never)\nFor example:\n• **Open when** `time.season: winter` — a lake crossed on the ice\n• **Closed when** `trip.weather: [snow, storm]` — a pass shut by the weather',
+      "Whether a hex of this terrain can be entered. How it meets the rest:\n• A way of travelling with **Only through** (Ways of travelling) goes by that alone: where its condition holds it enters, open or closed (a boat on a lake); where it doesn't, it can't\n• Any other way: **Unticked**, nobody enters (routes go around); **Ticked**, it enters while **Open when** holds (empty: always) and **Closed when** doesn't (empty: never)\nFor example:\n• **Open when** `time.season: winter` — a lake crossed on the ice\n• **Closed when** `trip.weather: [snow, storm]` — a pass shut by the weather",
     openWhen: 'Open when',
     closedWhen: 'Closed when',
     passableWhenHelp:
