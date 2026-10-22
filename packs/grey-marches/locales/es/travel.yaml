@@ -44,7 +44,7 @@ travel-rules/default:
       description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga, y el grupo sigue marchando hasta su destino. Solo de día con horas de marcha por delante, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
     rite:
       name: Rito de la Luna Ascua
-      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga y se vacía el pavor de cada compañero.'
+      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga, se vacía el pavor de cada compañero y su temple sube un dado.'
     grumble:
       name: Los mercenarios refunfuñan
       description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.
@@ -95,7 +95,7 @@ travel-rules/default:
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'
     wyrm-wakes:
       name: La Sierpe despierta
-      description: 'Cuando la Sierpe del Bosque Gris despierta durante un viaje (se llena su reloj): +1 de pavor a cada compañero, y en el Bosque Gris el viaje se detiene.'
+      description: 'Cuando la Sierpe del Bosque Gris despierta durante un viaje (se llena su reloj): +1 de pavor a cada compañero y su temple baja un dado, y en el Bosque Gris el viaje se detiene.'
       do:
         stirs:
           say: 'A lo lejos, algo enorme se agita, y los pájaros del Bosque Gris enmudecen.'

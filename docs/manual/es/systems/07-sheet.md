@@ -51,7 +51,7 @@ Cada valor dice cómo se dibuja allí donde se muestra un personaje (la pestaña
 - **Los tonos** colorean el valor desde un número hacia arriba, con los colores del tema: `good` (verde), `warning` (ámbar), `danger` (rojo) y `accent` (el de siempre). `0: danger, 2: warning, 4: good` es rojo en 0 y 1, ámbar en 2 y 3, verde desde 4; `5: danger` solo se pone rojo en 5. Un umbral puede ser también **una parte del Máx.**, que sigue a un máximo que cambia: `0: danger, 50%: warning, 75%: good` es rojo por debajo de la mitad, ámbar desde la mitad, verde desde tres cuartos (con Máx. 3: rojo en 0 y 1, ámbar en 2, verde en 3; con Máx. 6: verde desde 5). Las barras, casillas, puntos, diales y números lo toman todos; una barra vacía conserva su tono en el marco.
 - **Un tipo de relación** con número tiene su propio **Se muestra como** (no `levels`): un vínculo de 0 a 3 como `pips`.
 
-Las Marcas Grises usan cada uno: las habilidades como puntos, la salud como una barra cuyo tono baja con ella, las raciones como `2 / 6`, el pavor como casillas que se ponen rojas, un vínculo como puntos, y la fuerza de sus facciones como un dial y la reputación como niveles con nombre y tonos, de _Hostil_ a _Amigos jurados_ ([su página](../packs/02-grey-marches.md)).
+Las Marcas Grises usan cada uno: las habilidades como puntos, la salud como una barra cuyo tono baja con ella, las raciones como `2 / 6`, el pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12, un vínculo como puntos, y la fuerza de sus facciones como un dial y la reputación como niveles con nombre y tonos, de _Hostil_ a _Amigos jurados_ ([su página](../packs/02-grey-marches.md)).
 
 ## Paso a paso: una compañía de tres
 

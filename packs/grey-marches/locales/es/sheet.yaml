@@ -8,7 +8,8 @@ sheet/companion:
     **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
     `max: '{{self.values.maxHealth}}'`), cada valor mostrado a su manera (las habilidades
     como puntos, la salud como una barra cuyo tono baja con ella, las raciones como `2 / 6`, el
-    pavor como casillas que se ponen rojas, el número de un vínculo como puntos), grupos con nombre, estados que bloquean una
+    pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12
+    (`display: levels`), el número de un vínculo como puntos), grupos con nombre, estados que bloquean una
     acción, una forma de viajar o el propio viaje, y tipos de relación (un vínculo con un
     número, un hogar); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
@@ -36,6 +37,9 @@ sheet/companion:
     dread:
       name: Pavor
       description: Lo llenan las luces embrujadas del Bosque Gris; el rito en un santuario lo vacía.
+    nerve:
+      name: Temple
+      description: El dado que es el valor de un compañero, de d4 a d12, que se tira cuando le entra el miedo. El despertar de la Sierpe lo baja un dado, el rito en un santuario lo vuelve a subir.
   groups:
     skills:
       name: Habilidades

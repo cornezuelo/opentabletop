@@ -11,8 +11,8 @@ description: |-
 
   **Shows:** a sheet of values with bounds (one bounded by another value,
   `max: '{{self.values.maxHealth}}'`), each value shown its own way (skills as pips, health as
-  a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red, a bond's
-  number as pips), named groups, conditions that block an action, a
+  a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red,
+  nerve as a die that steps from d4 to d12 (`display: levels`), a bond's number as pips), named groups, conditions that block an action, a
   way of travelling or travel itself, and kinds of relation (a bond with a number, a home); every part with a description, shown as its help where the sheet is met.
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
@@ -86,6 +86,17 @@ values:
     max: 6
     display: boxes
     tones: { 4: warning, 6: danger }
+    group: body
+  # A die that steps up and down (d4 … d12): the value is the step, its levels name the
+  # die. The rite at a shrine steps it up, the Wyrm waking steps it down (travel.yaml).
+  nerve:
+    name: Nerve
+    description: The die a companion's courage is, from d4 to d12, rolled when fear takes hold. The Wyrm waking steps it down a die, the rite at a shrine back up.
+    default: 2
+    min: 0
+    max: 4
+    display: levels
+    levels: [d4, d6, d8, d10, d12]
     group: body
 # The headings the values are shown under, in this order.
 # Each group's description is its help where the sheet is shown, like every part's.

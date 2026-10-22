@@ -41,6 +41,17 @@ describe('how the bundled sheets show their values', () => {
     expect([0, 4, 6].map(dread)).toEqual([undefined, 'warning', 'danger'])
   })
 
+  it('a companion’s nerve is a die that steps from d4 to d12', () => {
+    const sheet = marches().sheet.def
+    const nerve = (v: number) => valueView(sheet.values.nerve, v, { min: 0, max: 4 }, 'en')
+    expect(nerve(2).levels?.map((l) => l.name)).toEqual(['d4', 'd6', 'd8', 'd10', 'd12'])
+    expect([0, 2, 4].map((v) => nerve(v).levels![nerve(v).level!].name)).toEqual([
+      'd4',
+      'd8',
+      'd12',
+    ])
+  })
+
   it('a faction’s reputation is a named level, the first at its min, in every language', () => {
     const sheet = marches().factions!.sheet.def
     const view = (v: number, locale: string) =>

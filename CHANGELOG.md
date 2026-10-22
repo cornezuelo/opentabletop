@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- The Grey Marches: **a die that steps**: each companion's **Nerve** is a die from d4 to d12 (`display: levels`); the rite at a shrine steps it up, the Wyrm waking down.
+
 ### Fixes
 
 - Systems: **opening Rules (or any tab with many texts) took seconds** with the UI in another language than the pack's (Spanish on the Grey Marches: over 2 s): each text box read the whole translation file again; now it's read once (about 0.25 s).

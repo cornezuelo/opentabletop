@@ -228,6 +228,8 @@ describe('playing on the map', () => {
     expect(session.travel.waiting).toMatchObject({ action: 'wyrm-wakes' })
     // Dread from the lights and the haunted watch, and one more as the Wyrm wakes.
     expect(session.members![0].values.dread).toBe(3)
+    // And their nerve a die lower: d8 → d6.
+    expect(session.members![0].values.nerve).toBe(1)
   })
 
   it('a trip hears a clock filled by hand: at once here, on its next step if elsewhere', () => {

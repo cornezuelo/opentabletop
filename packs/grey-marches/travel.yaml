@@ -213,14 +213,19 @@ actions:
   # button only shows then (hideWhenUnavailable), day or night.
   rite:
     name: Rite of the Ember Moon
-    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone and every companion’s dread emptied.'
+    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone, every companion’s dread emptied and their nerve a die higher.'
     when: { all: [{ hex.tags: shrine }, { time.moons.ember: full }] }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
       - { time: 120 }
       - effects:
-          { party.stats.morale: 2, party.stats.fatigue: '=0', party.members.values.dread: '=0' }
+          {
+            party.stats.morale: 2,
+            party.stats.fatigue: '=0',
+            party.members.values.dread: '=0',
+            party.members.values.nerve: 1,
+          }
   # The system's own: at dawn after a hungry day, hirelings (if any) refuse to march
   # (a value that blocks travel) until someone talks them round.
   grumble:
@@ -388,10 +393,10 @@ actions:
   # Greywood (`hex.region`), the trip stops to say so.
   wyrm-wakes:
     name: The Wyrm wakes
-    description: 'When the Greywood Wyrm wakes during a trip (its clock fills): every companion’s dread +1, and in the Greywood the trip stops.'
+    description: 'When the Greywood Wyrm wakes during a trip (its clock fills): every companion’s dread +1 and nerve a die lower, and in the Greywood the trip stops.'
     on: world.clocks.the-greywood-wyrm-wakes.full
     do:
-      - { effects: { party.members.values.dread: 1 } }
+      - { effects: { party.members.values.dread: 1, party.members.values.nerve: -1 } }
       - {
           id: stirs,
           say: 'Far off, something vast stirs, and the birds of the Greywood fall silent.',

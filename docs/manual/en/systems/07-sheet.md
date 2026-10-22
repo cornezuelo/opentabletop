@@ -51,7 +51,7 @@ Each value says how it's drawn wherever a character is shown (a trip's **Party**
 - **Tones** colour the value from a number up, with the theme's colours: `good` (green), `warning` (amber), `danger` (red) and `accent` (the usual). `0: danger, 2: warning, 4: good` is red at 0 and 1, amber at 2 and 3, green from 4; `5: danger` only turns red at 5. A threshold can be a **share of the Max** instead, which follows a Max that changes: `0: danger, 50%: warning, 75%: good` is red under half, amber from half, green from three quarters (with Max 3: red at 0 and 1, amber at 2, green at 3; with Max 6: green from 5). Bars, boxes, dots, dials and numbers all take it; an empty bar keeps its tone on its frame.
 - **A kind of relation** with a number has its own **Shown as** (not `levels`): a bond from 0 to 3 as `pips`.
 
-The Grey Marches use each one: skills as dots, health as a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red, a bond as dots, and their factions' strength as a dial and reputation as named levels with tones, from _Hostile_ to _Sworn friends_ ([their page](../packs/02-grey-marches.md)).
+The Grey Marches use each one: skills as dots, health as a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red, nerve as a die that steps from d4 to d12, a bond as dots, and their factions' strength as a dial and reputation as named levels with tones, from _Hostile_ to _Sworn friends_ ([their page](../packs/02-grey-marches.md)).
 
 ## Step by step: a company of three
 
