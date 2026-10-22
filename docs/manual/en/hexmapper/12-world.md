@@ -10,6 +10,17 @@ The panel is in **tabs** (a choice of them when the side panel is too narrow for
 
 **Stop the world clock** forgets it (it asks first).
 
+## Without the world clock
+
+The world clock is optional: **Stop the world clock** doesn't pause it, it forgets it (its date, events, clocks and timeline), and the campaign is left without one. A trip still plays: it keeps its own time (its days, hours and season, chosen in **New trip**), and its rules work as ever. What only the world clock brings:
+
+- **A date of the calendar** (day, month, year, moons and holidays) instead of the trip's _day 3 of summer_; new trips start on it.
+- **One time for the campaign**: its maps and trips share the date. Without it, each trip counts its own days.
+- **Events** that come due on their day, and the **timeline** of what happened.
+- **Progress clocks**: without the world clock there are none, so effects that fill them (`world.clocks.the-wyrm-wakes: 1`) change nothing and moments like `world.clocks.<id>.full` never come.
+- **Faction turns by themselves**, every so many days (**World turn** by hand works either way).
+- **Moving time on from this panel** (**+1 hour**, **Next day**…), with the party travelling or waiting, and the world's own **weather** each day while no trip is going on.
+
 ## Setting the date
 
 **Set the date**, under the date, moves the clock to a day and time you choose:

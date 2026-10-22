@@ -10,6 +10,17 @@ El panel va en **pestañas** (un desplegable con ellas cuando el panel lateral e
 
 **Parar el reloj del mundo** lo olvida (pregunta antes).
 
+## Sin el reloj del mundo
+
+El reloj del mundo es opcional: **Parar el reloj del mundo** no lo pausa, lo olvida (su fecha, eventos, relojes y cronología), y la campaña se queda sin él. Un viaje se juega igual: lleva su propio tiempo (sus días, horas y estación, elegida en **Nuevo viaje**), y sus reglas funcionan como siempre. Lo que solo trae el reloj del mundo:
+
+- **Una fecha del calendario** (día, mes, año, lunas y fiestas) en vez del _día 3 de verano_ del viaje; los viajes nuevos empiezan en ella.
+- **Un solo tiempo para la campaña**: sus mapas y viajes comparten la fecha. Sin él, cada viaje cuenta sus propios días.
+- **Eventos** que llegan en su día, y la **cronología** de lo que pasó.
+- **Relojes de progreso**: sin el reloj del mundo no hay ninguno, así que los efectos que los llenan (`world.clocks.the-wyrm-wakes: 1`) no cambian nada y momentos como `world.clocks.<id>.full` no llegan nunca.
+- **Turnos de las facciones por sí solos**, cada tantos días (**Turno del mundo** a mano funciona igual).
+- **Hacer avanzar el tiempo desde este panel** (**+1 hora**, **Día siguiente**…), con el grupo viajando o esperando, y el **clima** propio del mundo cada día mientras no hay viaje en marcha.
+
 ## Fijar la fecha
 
 **Fijar la fecha**, bajo la fecha, lleva el reloj al día y la hora que elijas:

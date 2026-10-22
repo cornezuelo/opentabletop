@@ -1,7 +1,9 @@
 import {
   bringFactions,
   createCampaign,
+  playTrip,
   startWorld,
+  takeMoments,
   tripStepped,
   worldAct,
   worldFactsOf,
@@ -250,6 +252,181 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
   })
 })
 
+describe('Systems → Clocks: the spreading fever plays as the page says', () => {
+  const blocks = [...read('en/systems/09-clocks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+    (m) => m[1],
+  )
+  const clocks = blocks.find((y) => y.includes('kind: clocks'))!
+  const [named, added] = parseAllDocuments(blocks.find((y) => y.includes('FEVER'))!).map((d) =>
+    d.toJS(),
+  )
+  const generic = parse(coreFile('travel.yaml'))
+  const rules = {
+    ...generic,
+    checks: added.checks,
+    actions: { ...generic.actions, ...added.actions },
+  }
+  const { registry, diagnostics } = loadPacks([
+    { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
+    { path: 'core/scenes.yaml', content: coreFile('scenes.yaml') },
+    { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
+    {
+      path: 'fever/pack.yaml',
+      content: "id: fever\nversion: 0.1.0\nformat: 6\nlocale: en\ndependencies: { core: '*' }\n",
+    },
+    { path: 'fever/travel.yaml', content: stringify(rules) },
+    { path: 'fever/clocks.yaml', content: clocks },
+    { path: 'fever/calendar.yaml', content: coreFile('calendar.yaml') },
+    {
+      path: 'fever/system.yaml',
+      content: stringify({
+        kind: 'system',
+        id: 'default',
+        name: 'The Fever Marshes',
+        travel: 'travel-rules.default',
+        calendar: 'calendar.default',
+        ...named,
+      }),
+    },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.pack === 'fever')!
+  const calendar = calendarOf(system)
+  const host = (seed: string): WorldHost => ({
+    calendar,
+    clocks: system.clocks,
+    fallback: 'en',
+    oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    random: seeded(`${seed}-world`),
+    locale: 'en',
+    words: {
+      clockFull: (full) => [full.description, full.text].filter(Boolean).join(' '),
+      factionLine: (_, line) => line.text,
+    },
+  })
+  /** Step 7's row: plains, three swamps, then three plains with a road along them. */
+  const terrain = ['plains', 'swamp', 'swamp', 'swamp', 'plains', 'plains', 'plains']
+  const world: TravelWorld = {
+    hexKm: 10,
+    cell: (hex) => {
+      const [col, row] = hex.split(',').map(Number)
+      return row === 0 && terrain[col] ? { terrain: terrain[col] } : null
+    },
+    neighbors: (hex) => {
+      const col = Number(hex.split(',')[0])
+      return [col - 1, col + 1].filter((c) => c >= 0 && c < 7).map((c) => `${c},0`)
+    },
+    distance: (a, b) => Math.abs(Number(a.split(',')[0]) - Number(b.split(',')[0])),
+    edges: (a, b) => (Math.min(Number(a[0]), Number(b[0])) >= 4 ? ['road'] : []),
+  }
+  const clock = (place: WorldPlace, ref: string) =>
+    place.campaign.world!.clocks.find((c) => c.ref === ref)!
+  const timeline = (place: WorldPlace) => place.campaign.world!.timeline.map((e) => e.text)
+
+  /** Steps 8 and 9, played as the Hexmapper does: the world clock and the trip share one time. */
+  function play(seed: string) {
+    let s = startTrip({ system, location: '0,0', season: 'summer' }).session
+    const h = host(seed)
+    const trip = { app: 'hexmapper', id: 'm1', name: 'Trip' }
+    const started = startWorld({ campaign: createCampaign('c') }, s.travel.time, h)
+    let place: WorldPlace = { ...started, campaign: playTrip(started.campaign, trip) }
+    const opts = { system, world, oracle: h.oracle, locale: 'en', random: seeded(seed) }
+    const heard: string[] = []
+    /** A step of the trip with the world's facts, what it did to the world, and what it hears. */
+    const step = (action: Parameters<typeof stepTrip>[2], depth = 0) => {
+      const seen = s.journal.length
+      s = stepTrip({ ...opts, facts: worldFactsOf(place, h) }, s, action).state
+      place = tripStepped(
+        place,
+        {
+          oracle: place.campaign.oracle?.state ?? emptyState(),
+          entries: s.journal.slice(seen),
+          time: s.travel.time,
+        },
+        h,
+      )
+      hear(depth)
+    }
+    const hear = (depth = 0) => {
+      const taken = takeMoments(place.campaign, system.rules)
+      place = { ...place, campaign: taken.campaign }
+      for (const { at, clock } of taken.heard) {
+        heard.push(clock)
+        if (depth < 10) step({ type: 'moment', at }, depth + 1)
+      }
+    }
+    const travelTo = (hex: string) => {
+      step({ type: 'setDestination', hex })
+      for (
+        let day = 0;
+        day < 8 && s.travel.location !== hex && !s.travel.pendingChecks.length;
+        day++
+      ) {
+        step({ type: 'travel' })
+        if (s.travel.location !== hex && !s.travel.pendingChecks.length)
+          step({ type: 'wait', until: calendar.at(s.travel.day + 1, tripStart(rules, calendar)) })
+      }
+    }
+    return {
+      get s() {
+        return s
+      },
+      get place() {
+        return place
+      },
+      heard,
+      travelTo,
+      /** Step 9: a click on the fever's fourth segment, in the World panel. */
+      fillByHand() {
+        const fever = clock(place, 'the-fever')
+        place = worldAct(place, { type: 'tick', id: fever.id, segments: 4 - fever.filled }, h)
+        hear()
+      },
+    }
+  }
+  const says = (s: SessionState, text: string) =>
+    s.journal.filter((e) => JSON.stringify(e).includes(text)).length
+
+  it('loads (steps 1–6)', () => {
+    expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    expect(Object.keys(system.clocks!.def.clocks)).toEqual(['the-fever', 'the-closed-roads'])
+  })
+
+  it('starts the world with the fever at 1/4 and the roads at 0/2 (step 8)', () => {
+    const { place } = play('start')
+    expect(clock(place, 'the-fever')).toMatchObject({ name: 'The marsh fever', filled: 1 })
+    expect(clock(place, 'the-closed-roads')).toMatchObject({ segments: 2, filled: 0 })
+  })
+
+  it('the third swamp fills the fever: the timeline, the roads, and word of it (step 8)', () => {
+    const game = play('swamps')
+    game.travelTo('4,0')
+    expect(game.s.travel.location).toBe('4,0')
+    expect(
+      timeline(game.place).some((t) =>
+        t?.startsWith('The marsh fever: The fever reaches the villages.'),
+      ),
+    ).toBe(true)
+    expect(clock(game.place, 'the-fever').filled).toBe(0)
+    expect(clock(game.place, 'the-closed-roads').filled).toBe(1)
+    expect(game.heard).toEqual(['The marsh fever'])
+    expect(says(game.s, 'Word comes: the fever has reached the villages.')).toBe(1)
+    expect(game.s.travel.pendingChecks).toEqual([])
+  })
+
+  it('filled by hand, the roads close, the trip hears it, and the road turns it back (step 9)', () => {
+    const game = play('by-hand')
+    game.travelTo('4,0')
+    game.fillByHand()
+    expect(timeline(game.place)).toContain('The roads close: The lords close the roads.')
+    expect(clock(game.place, 'the-closed-roads').filled).toBe(2)
+    expect(game.heard).toEqual(['The marsh fever', 'The marsh fever'])
+    expect(says(game.s, 'Word comes: the fever has reached the villages.')).toBe(2)
+    game.travelTo('6,0')
+    expect(game.s.travel.location).toBe('5,0')
+    const barrier = game.s.journal.find((e) => e.code === 'CHECK_PENDING')!
+    expect(barrier.data).toMatchObject({ event: 'BARRIER', hex: '5,0' })
+  })
+})
 /** A file of Core, as bundled (`travel.yaml`): what a new system starts from. */
 const coreFile = (file: string) =>
   (
