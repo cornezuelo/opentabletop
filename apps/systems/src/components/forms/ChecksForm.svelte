@@ -209,7 +209,7 @@
       {@const resolver = String(binding?.weather ?? binding?.resolve ?? '')}
       <div class="check">
         <div class="row">
-          <label class="event">
+          <label>
             <span>{t('checks.event')} · <em>{eventName(event)}</em></span>
             <input
               type="text"
@@ -588,26 +588,32 @@
     font-weight: 600;
   }
 
+  /* One grid for the whole card, so every row's fields line up in two columns (and ×). */
   .check {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px;
+    gap: 8px 16px;
+    align-items: start;
     padding: 10px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
     border-radius: 6px;
   }
 
-  .row {
-    display: flex;
-    gap: 10px;
-    align-items: end;
+  .row,
+  .conditions {
+    display: contents;
   }
 
-  .conditions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(18em, 1fr));
-    gap: 8px 16px;
+  /* Each row starts a line of the grid, whatever the row before it left empty. */
+  .row > :first-child,
+  .conditions > :first-child {
+    grid-column: 1;
+  }
+
+  .check .icon {
+    grid-column: 3;
+    margin-top: 18px;
   }
 
   .part {
@@ -620,11 +626,6 @@
   .label {
     font-size: 12px;
     color: var(--text-muted);
-  }
-
-  .row label {
-    flex: 1;
-    min-width: 0;
   }
 
   label {
@@ -647,8 +648,8 @@
   }
 
   .row label.inline {
-    flex: 0 0 auto;
     flex-direction: row;
+    align-self: end;
     align-items: center;
     gap: 6px;
     padding-bottom: 6px;
@@ -656,10 +657,6 @@
 
   label.inline input {
     width: auto;
-  }
-
-  .event {
-    flex: 2 !important;
   }
 
   em {
