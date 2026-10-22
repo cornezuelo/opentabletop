@@ -466,7 +466,7 @@ export const en = {
       'Effects never take it below this: a change past it stops there, the journal says so ("Food can\'t go lower than 0"), and later steps and that day\'s checks see `trip.below: [its id]`.\n• food with Min `0` — eating with none left stays at 0, and a day-end check with **Only if** `trip.below: food` tires the party\n• gold with no Min — it may go negative, like a debt',
     max: 'Max',
     maxHelp:
-      "Effects never take it above this; later steps and checks see `trip.above: [its id]`.\n• water with Max `4` — a full waterskin can't hold more\n• morale with Max `5` — a feast can't raise it past 5\nEmpty: no maximum.",
+      "Effects never take it above this; later steps and checks see `trip.above: [its id]`.\n• water with Max `4` — a full waterskin can't hold more\n• morale with Max `5` — a feast can't raise it past 5\nA new trip starts with 6 of each supply, or its Max if lower (its Min if higher).\nEmpty: no maximum.",
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       "How each weather slows the party. Tables set it with `set: { weather: … }` (usually rolled at dawn), or a weather model with inertia.\n• `storm` × `0` — no travel that day\n• `heavy-rain` × `0.5` — half speed\n• `fog` × `0.75`\nWeather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`).",

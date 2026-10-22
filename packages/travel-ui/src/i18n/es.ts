@@ -273,10 +273,11 @@ export const es: Messages<typeof en> = {
     conditionsWhy: '«{action}» se detiene aquí: {why}.',
     lost: 'Perdidos: no se viaja más hoy',
     value: '{name}: no se viaja más hoy',
+    mode: '{name}: «{mode}» no puede seguir mientras dure; elige otra forma de viajar',
     member: '{name}: el grupo no puede viajar mientras dure',
     weather: 'El clima impide viajar',
     blocked: 'El camino está bloqueado',
-    'no-route': 'No hay destino',
+    'no-route': 'No hay ruta que seguir: no hay destino, o el grupo no puede llegar a él ahora',
   },
   campaign: {
     title: vocabulary.es.terms.campaign,

@@ -431,6 +431,13 @@ export function entryText(e: JournalEntry, context: JournalContext) {
             })
           : t('stop.conditions', { action: actionText(String(d.action)) })
       }
+      // A value that leaves the way of travelling behind: another way can go on.
+      if (d.reason === 'value' && typeof d.mode === 'string')
+        return t('stop.mode', {
+          name:
+            context.dayValues?.[String(d.value)] ?? idText(t, `values.${d.value}`, String(d.value)),
+          mode: context.modeName?.(d.mode) ?? d.mode.replaceAll('-', ' '),
+        })
       if (d.reason === 'value')
         return t('stop.value', {
           name:

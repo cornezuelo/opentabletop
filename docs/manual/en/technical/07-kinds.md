@@ -162,7 +162,7 @@ terrains:
 defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
 water: { passable: false } # water hexes without a rule of their own
 edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
-resources: # supplies, with their bounds
+resources: # supplies, with their bounds (a new trip starts with 6, within them)
   food: { name: Rations, min: 0 }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set

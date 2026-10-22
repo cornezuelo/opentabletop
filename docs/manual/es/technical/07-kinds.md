@@ -161,7 +161,7 @@ terrains:
 defaultTerrain: { multiplier: 1 } # velocidad × de los terrenos no listados
 water: { passable: false } # hexes de agua sin regla propia
 edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # por un camino o río
-resources: # provisiones, con sus límites
+resources: # provisiones, con sus límites (un viaje nuevo empieza con 6, dentro de ellos)
   food: { name: Raciones, min: 0 }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones

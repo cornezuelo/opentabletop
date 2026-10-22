@@ -469,7 +469,7 @@ export const es: Messages<typeof en> = {
       'Los efectos nunca lo bajan de aquí: un cambio más allá se queda ahí, el diario lo dice («La comida no puede bajar de 0»), y los pasos siguientes y las comprobaciones de ese día ven `trip.below: [su id]`.\n• comida con Mín `0` — comer sin nada se queda en 0, y una comprobación day-end con **Solo si** `trip.below: food` cansa al grupo\n• oro sin Mín — puede ser negativo, como una deuda',
     max: 'Máx',
     maxHelp:
-      'Los efectos nunca lo suben de aquí; los pasos y comprobaciones siguientes ven `trip.above: [su id]`.\n• agua con Máx `4` — un odre lleno no admite más\n• moral con Máx `5` — un festín no la sube de 5\nVacío: sin máximo.',
+      'Los efectos nunca lo suben de aquí; los pasos y comprobaciones siguientes ven `trip.above: [su id]`.\n• agua con Máx `4` — un odre lleno no admite más\n• moral con Máx `5` — un festín no la sube de 5\nUn viaje nuevo empieza con 6 de cada provisión, o con su Máx si es menor (su Mín si es mayor).\nVacío: sin máximo.',
     weather: vocabulary.es.terms.weather,
     weatherHelp:
       'Cómo frena cada clima al grupo. Las tablas lo fijan con `set: { weather: … }` (normalmente al alba), o un modelo de clima con inercia.\n• `storm` × `0` — ese día no se viaja\n• `heavy-rain` × `0.5` — a media velocidad\n• `fog` × `0.75`\nLos climas no listados no cambian la velocidad; las condiciones aún pueden leerlos (`trip.weather: storm`).',

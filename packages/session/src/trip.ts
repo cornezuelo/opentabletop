@@ -31,6 +31,7 @@ import {
   partRefsOf,
   findPartRef,
   initialTravelState,
+  resourceBounds,
   parseTravelRules,
   type TravelAction,
   type TravelRules,
@@ -912,7 +913,13 @@ export function startTrip(options: {
     calendar,
     // When the system's trips start (`travel.start`; older rules: their dawn), else midnight.
     time: options.time ?? calendar.at(startDay, tripStart(rules, calendar)),
-    resources: Object.fromEntries(Object.keys(rules.resources ?? {}).map((r) => [r, 6])),
+    // 6 of each supply, within the Min / Max it declares.
+    resources: Object.fromEntries(
+      Object.entries(resourceBounds(rules)).map(([r, { min = -Infinity, max = Infinity }]) => [
+        r,
+        Math.min(max, Math.max(min, 6)),
+      ]),
+    ),
     ...(options.seed !== undefined && { seed: options.seed }),
   })
   const stats = Object.fromEntries(

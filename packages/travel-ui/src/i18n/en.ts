@@ -278,10 +278,11 @@ export const en = {
     conditionsWhy: '“{action}” stops here: {why}.',
     lost: 'Lost: no more travel today',
     value: '{name}: no more travel today',
+    mode: '{name}: “{mode}” can’t go on while it lasts; choose another way of travelling',
     member: '{name}: the party can’t travel while it lasts',
     weather: 'The weather prevents travel',
     blocked: 'The way is blocked',
-    'no-route': 'No destination set',
+    'no-route': 'No route to follow: no destination, or one the party can’t reach now',
   },
   campaign: {
     title: vocabulary.en.terms.campaign,

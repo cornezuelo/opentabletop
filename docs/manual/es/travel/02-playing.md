@@ -96,7 +96,7 @@ Cuando el sistema tiene características hechas de un solo personaje (`from: { p
 
 ## El grupo
 
-Todo lo del grupo está en un sitio, la pestaña **Grupo**: primero **El grupo**, luego sus **Personajes**, luego sus provisiones. En un mapa, el token del grupo es solo dónde está el grupo: su hoja, sus características y sus personajes están aquí (el panel del token en Tokens lo dice, con **Abrir Jugar → Grupo**).
+Todo lo del grupo está en un sitio, la pestaña **Grupo**: primero **El grupo**, luego sus **Personajes**, luego sus provisiones (un viaje nuevo empieza con 6 de cada una, o las que permitan su Mín y su Máx: cámbialas antes de salir). En un mapa, el token del grupo es solo dónde está el grupo: su hoja, sus características y sus personajes están aquí (el panel del token en Tokens lo dice, con **Abrir Jugar → Grupo**).
 
 **De quién es la hoja.** Cada hoja (la del grupo, la de los personajes) dice cuál es y de qué sistema: _Hoja: La Compañía · Las Marcas Grises_, con **Editar en Sistemas ↗**. Lo que tiene una hoja (sus valores, estados, tipos de relación) lo decide su sistema: un personaje o el grupo tienen solo lo que declara su hoja, así que para añadir un valor, edita la hoja en la [app Sistemas](../systems/07-sheet.md) (un sistema incluido se duplica antes). Un viaje se queda con el sistema con el que empezó; en un mapa, el sistema es el de la campaña (**Ajustes del mapa → Campaña → Sistema**).
 
@@ -131,7 +131,7 @@ Sin personajes, el mismo sistema juega el grupo como un todo, y lo que dice de l
 
 ## Formas de viajar
 
-La lista del panel tiene las formas de viajar que declara el sistema, cada una con su velocidad. Algunas no se pueden elegir en todas partes: **En barca** de las Marcas Grises solo a la orilla o en el transbordador, y solo por agua y costa; **En carro** solo por los caminos (sin camino por delante no hay ruta). Un valor del día puede dejar una atrás: la **Nieve profunda** de las Marcas Grises (la pone la nieve) bloquea **A caballo**, y un grupo que ya va montado se detiene hasta que elijas otra forma (a pie el viaje sigue). Los terrenos también pueden abrirse y cerrarse: los picos de las Marcas Grises solo en verano y no con nieve, sus lagos solo en los dos meses más fríos (se cruzan sobre el hielo); las rutas rodean lo cerrado.
+La lista del panel tiene las formas de viajar que declara el sistema, cada una con su velocidad. Algunas no se pueden elegir en todas partes: **En barca** de las Marcas Grises solo a la orilla o en el transbordador, y solo por agua y costa; **En carro** solo por los caminos (sin camino por delante no hay ruta). Un valor del día puede dejar una atrás: la **Nieve profunda** de las Marcas Grises (la pone la nieve) bloquea **A caballo**, y un grupo que ya va montado se detiene hasta que elijas otra forma (_Nieve profunda: «A caballo» no puede seguir mientras dure; elige otra forma de viajar_; a pie el viaje sigue). Los terrenos también pueden abrirse y cerrarse: los picos de las Marcas Grises solo en verano y no con nieve, sus lagos solo en los dos meses más fríos (se cruzan sobre el hielo); las rutas rodean lo cerrado.
 
 ## Un día, paso a paso
 

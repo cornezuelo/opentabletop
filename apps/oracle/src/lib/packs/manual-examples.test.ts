@@ -228,19 +228,21 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
   })
 })
 
+/** A file of Core, as bundled (`travel.yaml`): what a new system starts from. */
+const coreFile = (file: string) =>
+  (
+    import.meta.glob('../../../../../packs/core/*.yaml', {
+      query: '?raw',
+      import: 'default',
+      eager: true,
+    }) as Record<string, string>
+  )[`../../../../../packs/core/${file}`]
+
 describe('Systems → Weather: the valley’s weather plays as the page says', () => {
   const model = examples(read('en/systems/11-weather.md')).find((y) => y.includes('Valley skies'))!
   // A new system: a copy of the Generic rules and Core's calendar, with what steps 5 and 6
   // add, and a check an hour after the weather's that reads it (Common mistakes).
-  const core = (file: string) =>
-    files[`../../packs/core/${file}`] ??
-    (
-      import.meta.glob('../../../../../packs/core/*.yaml', {
-        query: '?raw',
-        import: 'default',
-        eager: true,
-      }) as Record<string, string>
-    )[`../../../../../packs/core/${file}`]
+  const core = coreFile
   const rules = parse(core('travel.yaml'))
   rules.weather = { rain: { speed: 0.75 }, snow: { speed: 0.5 }, storm: { speed: 0 } }
   rules.values = { 'deep-snow': { name: 'Deep snow', blocks: ['modes.horse'] } }
@@ -348,5 +350,130 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
     for (const d of days)
       if (d.weather === 'snow') expect(d.horse).toMatchObject({ value: 'deep-snow' })
       else expect(d.horse).toBeUndefined()
+  })
+})
+
+describe('Systems → Rules: the caravan plays as the page says', () => {
+  // What the steps add to the Generic rules (the page's excerpt), on a copy of them.
+  const added = parse(
+    [...read('en/systems/05-rules.md').matchAll(/```yaml\n([\s\S]*?)```/g)]
+      .map((m) => m[1])
+      .find((y) => y.includes('parched'))!,
+  )
+  const rules = parse(coreFile('travel.yaml'))
+  for (const part of ['modes', 'terrains', 'resources', 'values', 'actions'])
+    rules[part] = { ...rules[part], ...added[part] }
+  const { registry, diagnostics } = loadPacks([
+    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'salt/travel.yaml', content: stringify(rules) },
+    { path: 'salt/calendar.yaml', content: coreFile('calendar.yaml') },
+    {
+      path: 'salt/system.yaml',
+      content:
+        'kind: system\nid: default\nname: Salt Road\ntravel: travel-rules.default\ncalendar: calendar.default',
+    },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.pack === 'salt')!
+  const calendar = calendarOf(system)
+  // Step 8's way: desert, a road from hex 2 to hex 3, the salt flat on hex 6, the oasis on 10.
+  const terrains = [
+    'desert',
+    'desert',
+    'desert',
+    'desert',
+    'desert',
+    'salt-flat',
+    'desert',
+    'desert',
+    'desert',
+    'oasis',
+  ]
+  const world: TravelWorld = {
+    hexKm: 10,
+    cell: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
+    neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => terrains[i]).map(String),
+    distance: (a, b) => Math.abs(Number(a) - Number(b)),
+    edges: (a, b) => ([a, b].sort().join() === '1,2' ? ['road'] : []),
+  }
+  const options = {
+    system,
+    world,
+    oracle: createOracleEngine({ registry, random: seeded('salt') }),
+    locale: 'en',
+    random: seeded('salt'),
+  }
+  const clock = (s: SessionState, time = s.travel.time) => {
+    const { hour, minute } = calendar.describe(time)
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+  }
+  const nextDawn = (s: SessionState) =>
+    calendar.at(s.travel.day + 1, tripStart(system.rules, calendar))
+  /** A trip by camel towards the oasis (hex 10). */
+  function setOut(season: string) {
+    let s = startTrip({ system, location: '0', season }).session
+    s = stepTrip(options, s, { type: 'setMode', mode: 'camel' }).state
+    return stepTrip(options, s, { type: 'setDestination', hex: '9' }).state
+  }
+  /** A day's march: the hexes entered (1 is the first) at their clocks, and where it stopped. */
+  function march(s: SessionState) {
+    const at = s.journal.length
+    s = stepTrip(options, s, { type: 'travel' }).state
+    const lines = s.journal.slice(at)
+    const entered = lines
+      .filter((e) => e.code === 'HEX_ENTERED')
+      .map((e) => `${Number(e.data?.hex) + 1} ${clock(s, e.time)}`)
+    return { s, entered, stopped: lines.find((e) => e.code === 'TRAVEL_STOPPED')?.data, lines }
+  }
+
+  it('loads, and starts with the water its Max allows (steps 1–5)', () => {
+    expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    const s = setOut('summer')
+    expect(s.travel.resources).toEqual({ food: 6, water: 3 })
+    expect(s.travel.route).toHaveLength(10)
+  })
+
+  it('in summer: two hexes a day by camel, faster along the road, until the water runs out (steps 2–8)', () => {
+    let day = march(setOut('summer'))
+    // Day 1: a drink as the morning begins; 4 h a desert hex, 1 h 20 min along the road.
+    expect(day.lines.find((e) => e.code === 'ACTION_TAKEN')?.data?.action).toBe('drink')
+    expect(day.entered).toEqual(['2 10:00', '3 11:20'])
+    expect(day.stopped).toMatchObject({ reason: 'conditions', action: 'march' })
+    expect(clock(day.s)).toBe('14:00')
+    expect(day.s.travel.resources.water).toBe(2)
+    let s = stepTrip(options, day.s, { type: 'wait', until: nextDawn(day.s) }).state
+    // Day 2: the rest of hex 4, hex 5, and the salt flat at its own speed (2 h).
+    day = march(s)
+    expect(day.entered).toEqual(['4 07:20', '5 11:20', '6 13:20'])
+    expect(day.s.travel.resources.water).toBe(1)
+    s = stepTrip(options, day.s, { type: 'wait', until: nextDawn(day.s) }).state
+    day = march(s)
+    expect(day.entered).toEqual(['7 09:20', '8 13:20'])
+    expect(day.s.travel.resources.water).toBe(0)
+    s = stepTrip(options, day.s, { type: 'wait', until: nextDawn(day.s) }).state
+    // Day 4: no water to drink: Parched, and the camels stay; on foot the party goes on.
+    day = march(s)
+    expect(day.entered).toEqual([])
+    expect(day.s.journal.some((e) => e.code === 'LIMIT_REACHED')).toBe(true)
+    expect(day.stopped).toMatchObject({ reason: 'value', value: 'parched', mode: 'camel' })
+    expect(tripAvailability({ system, world }, day.s)['mode.camel']).toEqual({ value: 'parched' })
+    s = stepTrip(options, day.s, { type: 'setMode', mode: 'foot' }).state
+    // 5 h 20 min a hex of sand on foot, from where the camels stopped.
+    day = march(s)
+    expect(day.entered).toEqual(['9 10:40', '10 13:20'])
+    s = day.s
+    expect(s.travel.location).toBe('9')
+    // At the oasis: the skins filled, never past their Max.
+    s = stepTrip(options, s, { type: 'action', id: 'fill' }).state
+    expect(s.travel.resources.water).toBe(3)
+    s = stepTrip(options, s, { type: 'action', id: 'fill' }).state
+    expect(s.travel.resources.water).toBe(3)
+    expect(s.journal.at(-1)).toMatchObject({ code: 'LIMIT_REACHED' })
+  })
+
+  it('in spring the salt flat is closed: no route to the oasis (step 3)', () => {
+    const s = setOut('spring')
+    expect(s.travel.route).toBeUndefined()
+    expect(s.journal.some((e) => e.code === 'NO_ROUTE')).toBe(true)
+    expect(march(s).stopped).toMatchObject({ reason: 'no-route' })
   })
 })

@@ -22,6 +22,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Packs, Hexmapper, Travel, Systems: **the checks of one moment come one by one (pack format 6)**: in the order the rules list them, each one's **Only if** / **Skip if** is read just before it's rolled, so it sees what the checks before it set (the weather just rolled, a value of the day, their changes): at dawn, a check after the weather's that reads `trip.weather` sees today's weather, not yesterday's. A check that pauses holds the rest of its moment until **Continue**. Packs of format 5 aren't read; Core, the Grey Marches and Kal-Arath are moved. The Grey Marches: **A stormy dawn** (fatigue +1 when the dawn's weather is a storm).
 
+- Manual: **Systems → Rules explained from nothing**: how a trip moves (its moments, the march, how long a hex takes) with a picture of a day of the Generic rules, a desert caravan built step by step (camels, water with a Max, a value of the day that leaves the camels behind, a salt flat closed in spring, an oasis) with what you'll see in the trip, and the usual mistakes.
+
+- Hexmapper, Travel, Systems' Try it: **a new trip's supplies respect their bounds**: a trip used to start with 6 of each supply even past its **Max** (water with Max 3 started at 6); now 6, or as many as its **Min** and **Max** allow.
+
+- Hexmapper, Travel, Systems' Try it: **clearer stops**: a value of the day that leaves the way of travelling behind (deep snow and the horses) says so and to choose another way, instead of _no more travel today_; a march with nowhere it can go says there's no route, instead of _No destination set_.
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

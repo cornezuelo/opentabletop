@@ -96,7 +96,7 @@ When the system has stats made of one character (`from: { pick: … }`: the Grey
 
 ## The party
 
-Everything about the party is in one place, the **Party** tab: **The party** first, then its **Characters**, then its supplies. On a map, the party token is only where the party is: its sheet, stats and characters are here (the token's panel in Tokens says so, with **Open Play → Party**).
+Everything about the party is in one place, the **Party** tab: **The party** first, then its **Characters**, then its supplies (a new trip starts with 6 of each, or as many as its Min and Max allow: change them before setting out). On a map, the party token is only where the party is: its sheet, stats and characters are here (the token's panel in Tokens says so, with **Open Play → Party**).
 
 **Whose sheet.** Each sheet (the party's, the characters') says which it is and whose system: _Sheet: The Company · The Grey Marches_, with **Edit in Systems ↗**. What a sheet has (its values, conditions, kinds of relation) is its system's to say: a character or the party has only what its sheet declares, so to add a value, edit the sheet in the [Systems app](../systems/07-sheet.md) (a bundled system is duplicated first). A trip keeps the system it started with; on a map, the system is the campaign's (**Map settings → Campaign → System**).
 
@@ -131,7 +131,7 @@ Without characters, the same system plays the party as a whole, and what it says
 
 ## Ways of travelling
 
-The list in the panel has the ways of travelling the system declares, each with its speed. Some can't be chosen everywhere: the Grey Marches' **By boat** only at the water's edge or the ferry, and only through water and coast; **By cart** only along roads (with no road ahead there's no route). A value of the day can leave one behind: the Grey Marches' **Deep snow** (falling snow sets it) blocks **On horseback**, and a party already riding stops until you choose another way (on foot the trip goes on). Terrains may open and close too: the Grey Marches' peaks only in summer and not in snow, their lakes only in the two coldest months (crossed on the ice); routes go around what's closed.
+The list in the panel has the ways of travelling the system declares, each with its speed. Some can't be chosen everywhere: the Grey Marches' **By boat** only at the water's edge or the ferry, and only through water and coast; **By cart** only along roads (with no road ahead there's no route). A value of the day can leave one behind: the Grey Marches' **Deep snow** (falling snow sets it) blocks **On horseback**, and a party already riding stops until you choose another way (_Deep snow: “On horseback” can’t go on while it lasts; choose another way of travelling_; on foot the trip goes on). Terrains may open and close too: the Grey Marches' peaks only in summer and not in snow, their lakes only in the two coldest months (crossed on the ice); routes go around what's closed.
 
 ## A day, step by step
 

@@ -273,6 +273,7 @@ describe('travel', () => {
     const { events } = run(state, { type: 'travel' })
     // Being lost is a value the system declares (here the older built-in one): it blocks travel.
     expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'lost' })
+    expect(events.at(-1)).not.toHaveProperty('mode')
     expect(engine.availability(state).travel).toEqual({ value: 'lost' })
   })
 
@@ -286,7 +287,8 @@ describe('travel', () => {
     state = eng.apply(state, { type: 'setDestination', hex: '2,0' }).state
     state.dayChecksDone = true
     const { events } = eng.apply(state, { type: 'travel' })
-    expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'snowbound' })
+    // It says which way it leaves behind: another can go on.
+    expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'snowbound', mode: 'horse' })
     expect(eng.availability(state)).toMatchObject({
       travel: { value: 'snowbound' },
       'mode.horse': { value: 'snowbound' },

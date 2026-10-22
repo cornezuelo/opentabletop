@@ -311,6 +311,8 @@ export type TravelEvent =
       value?: string
       /** With `value`: who has it, when it's a member's condition (the host's `party.blocked`). */
       who?: string
+      /** With `value`: the way of travelling it blocks, when it blocks only that (`modes.horse`). */
+      mode?: string
       /**
        * With `conditions`: the action whose move stopped; with `camp` (older journals): the
        * night's action, which the party couldn't take (`because`).
@@ -678,6 +680,17 @@ export function createTravelEngine(options: {
     const held = party?.blocked?.[what] as { value?: unknown; who?: unknown } | undefined
     if (typeof held?.value !== 'string') return undefined
     return { value: held.value, ...(typeof held.who === 'string' && { who: held.who }) }
+  }
+
+  /**
+   * What stops any move now: a value that blocks moving on, or one that blocks the way the party
+   * is travelling (`mode` says which).
+   */
+  const moveBlocker = (
+    state: TravelState,
+  ): { value: string; who?: string; mode?: string } | undefined => {
+    const way = blocker(state, modeRef(state.mode))
+    return blocker(state, MOVE) ?? (way && { ...way, mode: state.mode })
   }
 
   /**
@@ -1236,7 +1249,7 @@ export function createTravelEngine(options: {
       return stop(state.route ? 'destination' : 'no-route')
     }
     // A value that blocks moving on, or the way the party is travelling (`modes.horse`).
-    const blocked = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
+    const blocked = moveBlocker(state)
     if (blocked) return stopWith({ reason: 'value', ...blocked })
     if (dayFactor(state) <= 0) return stop('weather')
 
@@ -1291,7 +1304,7 @@ export function createTravelEngine(options: {
         if (state.time >= by) return suspend('waited')
         if (atPart || state.time >= midnight) {
           // What the moment set (a value, the weather) may stop the move.
-          const blockedNow = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
+          const blockedNow = moveBlocker(state)
           if (blockedNow) return stopWith({ reason: 'value', ...blockedNow })
           if (dayFactor(state) <= 0) return stop('weather')
           continue
@@ -1387,7 +1400,7 @@ export function createTravelEngine(options: {
     }
     if (!onward) return
     // What stops any move is said as the trip's stop (lost, the weather), not the action's.
-    const blocked = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
+    const blocked = moveBlocker(state)
     if (blocked)
       return void events.push({
         type: 'TRAVEL_STOPPED',
@@ -1424,7 +1437,7 @@ export function createTravelEngine(options: {
       }
       if (!state.moving && !canGoOn(state, state.time)) {
         // A value that blocks travel today (lost…): said in the journal.
-        const value = blocker(state, MOVE) ?? blocker(state, modeRef(state.mode))
+        const value = moveBlocker(state)
         if (value && said !== `${state.day}|${value.value}`) {
           said = `${state.day}|${value.value}`
           events.push({ type: 'TRAVEL_STOPPED', reason: 'value', ...value, time: state.time })

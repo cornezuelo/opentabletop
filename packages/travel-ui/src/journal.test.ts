@@ -114,6 +114,14 @@ describe('journal lines', () => {
     expect(line('TRAVEL_STOPPED', { reason: 'conditions', action: 'march' })).toBe(
       '“Forage for food” stops here: its conditions don’t hold now.',
     )
+    // A value of the day: no travel, or only the way of travelling it leaves behind.
+    const snow = { dayValues: { 'deep-snow': 'Deep snow' }, modeName: () => 'On horseback' }
+    expect(line('TRAVEL_STOPPED', { reason: 'value', value: 'deep-snow' }, snow)).toBe(
+      'Deep snow: no more travel today',
+    )
+    expect(
+      line('TRAVEL_STOPPED', { reason: 'value', value: 'deep-snow', mode: 'horse' }, snow),
+    ).toBe('Deep snow: “On horseback” can’t go on while it lasts; choose another way of travelling')
   })
 
   it('say what results changed', () => {

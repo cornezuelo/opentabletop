@@ -1,6 +1,19 @@
 # Rules
 
-The **Rules** tab edits the system's travel rules (`kind: travel-rules`): how a day goes, how fast the party moves and through where, what it carries, and what it can do. Help next to each part explains it, with examples. Grey text in an empty box is only the default or a hint, not a value. All of it, with the YAML: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+The **Rules** tab edits the system's travel rules (`kind: travel-rules`): how a day goes, how fast the party moves and through where, what it carries, and what it can do. This page explains how a trip moves, then each part of the tab, builds a desert caravan from nothing step by step and lists the usual mistakes. Help next to each field explains it, with examples. Grey text in an empty box is only the default or a hint, not a value. All of it, with the YAML: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+
+## How a trip moves
+
+A trip is a clock and a place. Nothing in it happens by itself: the clock only goes forward when the party does something (an action's steps take time, marching takes time) or when you let it run (**Wait to go on**, the world clock); and the party only leaves its hex when an action moves it.
+
+- **Moments.** As the clock goes forward it passes moments: a clock time (`06:00`), a part of the calendar's day beginning (`time.part.morning`), a hex entered (`trip.hex-enter`), the day ending (`time.day-end`), an action taken. At each one, the actions the system takes **by itself** then and its [checks](06-checks.md) of that moment happen, one after another. That's what gives a day its shape: no day is built in.
+- **Moving.** Only an action with a **Move** step (`travel.move`) moves the party: the **march**. It walks the route hex by hex while its **Only when** / **Not when** hold, and stops when they don't (at night, once the day's marching hours are spent), when a value of the day blocks it, when the weather's speed is `0`, when a check stops it, or at the end of the way.
+- **How long a hex takes.** A way of travelling covers its **km per day** in the **Marching hours a day**: that's its speed on easy ground (30 km in 8 hours: 3.75 km an hour). The hex entered multiplies it by its terrain's **Speed ×**, or, when the party follows a road or river into it, by that line's instead; then by today's weather's **Speed ×** and by a **Change speed** step an action took today. The hex's **km per hex** at that speed is how long it takes: 10 km at 3.75 km/h into a forest at `0.5` is 5 h 20 min. What's left of a hex when the march stops is kept for the next march.
+- **Everything else is numbers the system's actions and tables read and change**: supplies (food, water…), values of the day (lost…), the party's stats. The app never spends or sets them by itself.
+
+![A day of the Generic rules, from midnight to midnight: (1) the trip starts at 06:00, as the morning begins; (2) the march enters a hex every 2 h 40 min; (3) at 14:00, its 8 hours marched, it stops; (4) the afternoon is the player's, for the other buttons; (5) at 20:00 the night begins and a party left waiting camps until the morning; (6) at midnight the day ends and the party eats.](trip-day.svg)
+
+The picture is the Generic rules' day, which every new system starts from: its march holds while it isn't dark and fewer than 8 hours have been marched, its camp sleeps until the morning, and its **Eat** happens by itself at `time.day-end`. Change any of them and the day changes with it.
 
 ## The day
 
@@ -16,21 +29,25 @@ There's no built-in day and no built-in march: the party moves with the actions 
 
 Each with its **Name** and **Description (its help)** for players (the trip panel shows the description of the one chosen as the help of **Travel**), its **km per day** and:
 
-- **Only through**: where it can go, a condition on each hex it enters. E.g. the Grey Marches' boat on water or coast, `any: [{ water: true }, { terrain: coast }]`, or a cart only by road, `edges: road`.
-- **Only when**: where and when it can be chosen. E.g. the Grey Marches' boat only at the water's edge or the ferry, `any: [{ water: true }, { terrain: coast }, { tags: ferry }]`.
+- **Only through**: where it can go, a condition on each hex it enters. E.g. the Grey Marches' boat on water or coast, `any: [{ hex.water: true }, { hex.terrain: coast }]`, or a cart only by road, `trip.edges: road`. Where it holds, even a terrain that is closed (or not **Passable**) lets it in.
+- **Only when**: where and when it can be chosen. E.g. the Grey Marches' boat only at the water's edge or the ferry, `any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }]`.
 - **Not when**: when it can't.
+
+A trip starts with the first way of the list; the player chooses another in the trip panel.
 
 ## Terrains, water and roads
 
 - **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season: summer` / `trip.weather: [snow, storm]`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
 - **Water hexes**: the same, for hexes the map marks as water that have no rule of their own in Terrains. A way of travelling whose **Only through** holds on water can still sail them.
-- **Roads and rivers**: following one from one hex to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). Lines not listed do nothing; conditions can still tell them apart (`edges: road`).
+- **Roads and rivers**: following one from one hex to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). It replaces it, it doesn't multiply it: a river at `1` makes mountains along it as easy as plains. Lines not listed do nothing; conditions can still tell them apart (`trip.edges: road`).
 
 ## Supplies
 
 What the party carries, each with its **Name**, **Description (its help)**, **Min** and **Max**. Supplies are used by the system's own actions, checks and tables, never by the app: the Grey Marches eat with an action the system takes at the end of each day (1 food, and 1 fodder on horseback).
 
-**Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum).
+**Min** and **Max** bound a supply: a change past one stops there, the journal says so, and the system's rules can react (the Grey Marches: a day-end check, fatigue +1, when food hit its minimum): later steps of the same action, and the checks of that moment, see `trip.below: food` (or `trip.above`).
+
+A new trip starts with 6 of each supply, or its **Max** if that's lower (its **Min** if higher); the player changes them in the trip panel before setting out.
 
 Its **Used by** column lists the actions, checks and tables that read, spend or add to each one ([Used by](04-overview.md#used-by)).
 
@@ -40,7 +57,7 @@ How each weather slows the party (**Speed ×**; `0`: no travel that day). Weathe
 
 ## Values of the day
 
-Values tables can set for the rest of the day, each with a name and what it **Blocks** while it holds: travel, one of the system's actions, or a way of travelling as `modes.<id>` (the box suggests what the system declares: `modes.horse` leaves the horses behind while it holds).
+Values that tables, weather and actions' **Set a value of the day** steps (`set:`) can set for the rest of the day, each with a name and what it **Blocks** while it holds: travel, one of the system's actions, or a way of travelling as `modes.<id>` (the box suggests what the system declares: `modes.horse` leaves the horses behind while it holds: a party riding stops, and the journal says to choose another way).
 
 The Grey Marches declare **Lost**, which blocks travel: the getting-lost table sets it, and the actions that move the party (its march) stay disabled until the next day, saying why.
 
@@ -90,4 +107,64 @@ Each step is a card. Folded, its title says what it does in words (_Pass 3 h_, _
 
 A step may also have an `id` (`id: song, say: …`): its translations find it by it. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md).
 
-A step can have its own condition: the Grey Marches' camp sleeps until morning and, **unless** `below: food` (food ran out at the end of the day), takes off 1 fatigue.
+A step can have its own condition: the Grey Marches' camp sleeps until morning and, **unless** `trip.below: food` (food ran out at the end of the day), takes off 1 fatigue.
+
+## Step by step: a caravan across the salt waste
+
+A system for crossing a desert by camel: camels are faster than walking but drink, the water skins hold three days, a salt flat on the way floods in spring, and an oasis refills the skins. Start from a new system: it begins as a copy of the Generic rules (the day in the picture above, ways **On foot** and **On horseback**, food eaten each night).
+
+1. **Create it**: type _Salt Road_ under the system list and press **+**.
+2. **Camels**: under **Ways of travelling**, add `camel`, named _By camel_, **km per day** `40`. In 8 marching hours that's 5 km an hour on easy ground.
+3. **The land**: under **Terrains**, set `desert` to **Speed ×** `0.5` (sand is slow: a 10 km hex takes a camel 4 hours). Add `salt-flat`, **Speed ×** `1`, **Passable** ticked, and **Closed when** `time.season: spring`: the spring rains flood it. Leave **Roads and rivers** as they are: a `road` at `1.5` replaces the desert's `0.5` wherever the party follows one.
+4. **Water**: under **Supplies**, add `water`, named _Water_, **Min** `0` and **Max** `3`: three days in the skins, never more.
+5. **Parched**: under **Values of the day**, add `parched`, named _Parched_, with **Blocks** `modes.camel`: thirsty camels won't carry anyone.
+6. **Drinking**: under **Actions**, **Add an action** `drink`, named _Drink_, with **By itself at** `time.part.morning`. Its steps: **Change values** with the row `party.resources.water` · `-1`; then a second step, **Set a value of the day** `parched: true`, with **Only when** `trip.below` · **is** · `water` (only when the skins were already empty).
+7. **The oasis**: **Add an action** `fill`, named _Fill the skins_, with **Only when** `hex.terrain` · **is** · `oasis`. Its steps: **Pass time** `60`, then **Change values** `party.resources.water` · `3`.
+8. **Try it**: in **Try it**, make a way of ten hexes: `desert` all along, but `salt-flat` on hex 6 and `oasis` on hex 10, and a `road` from hex 2 to hex 3. Start a trip in summer, choose **By camel** and march day after day; then start one in spring.
+
+**What you'll see.** The trip starts with 3 water (its **Max**: 6 would be too many) and, as the first morning begins, the journal says _Drink (Water −1)_. By camel the party enters hex 2 at 10:00 (4 hours of sand), hex 3 at 11:20 (the road), and the march stops at 14:00, its 8 hours spent, two thirds of the way into hex 4. The next day it goes on from there: hex 4 at 07:20, hex 5 at 11:20, the salt flat at 13:20. On the fourth morning the skins are empty: _Water can't go lower than 0_, and the party is _Parched_: **March** stops at once (_Parched: “By camel” can't go on while it lasts; choose another way of travelling_), and **By camel** can't be chosen, saying why. Choose **On foot** and march on: slower (5 h 20 min a hex of sand), but the party reaches the oasis at 13:20. There **Fill the skins** takes an hour and fills them to 3; pressed again, the journal says _Water can't go higher than 3_. In spring there's no way past the flooded salt flat: setting the destination says _No route there_, and **March** goes nowhere.
+
+## The same in YAML
+
+What the steps add to the Generic rules, as the **YAML** tab shows it (an excerpt: the rest of the rules stays as it was):
+
+```yaml
+modes:
+  camel: { name: By camel, kmPerDay: 40 } # step 2
+terrains:
+  desert: { multiplier: 0.5 } # step 3
+  salt-flat: { multiplier: 1, passable: { unless: { time.season: spring } } }
+resources:
+  water: { name: Water, min: 0, max: 3 } # step 4
+values:
+  parched: { name: Parched, blocks: [modes.camel] } # step 5
+actions:
+  drink: # step 6
+    name: Drink
+    on: time.part.morning
+    do:
+      - { effects: { party.resources.water: -1 } }
+      - { when: { trip.below: water }, set: { parched: true } }
+  fill: # step 7
+    name: Fill the skins
+    when: { hex.terrain: oasis }
+    do:
+      - { time: 60 }
+      - { effects: { party.resources.water: 3 } }
+# … the Generic rules' day, terrains, roads, food, march, camp, rest, eat and explore
+```
+
+The Grey Marches play with all of this and more (a boat only through water, a cart only along roads, peaks open only in summer, deep snow that leaves the horses behind, a march by night): their [page](../packs/02-grey-marches.md) says where.
+
+## Common mistakes
+
+- **The party never moves.** No action has a **Move** step, or the march's **Only when** never holds (a clock condition the calendar's day never reaches, a value it reads that nothing sets). Its button says which part doesn't hold.
+- **More marching hours don't make a longer day.** **Marching hours a day** is the time a way's **km per day** take: raise it from 8 to 10 and the party walks slower, the same 30 km in 10 hours. To cover more ground, raise the way's **km per day**; to march longer than a day's distance, an action with its own conditions (the Grey Marches' **Forced march**).
+- **A terrain that doesn't slow anyone.** The map's terrain id isn't in the list (`dunes` in the map, `desert` in the rules): it gets **Speed × for terrains not listed**, or `1`.
+- **A road that makes mountains easy.** Along a road or river, the line's **Speed ×** replaces the terrain's instead of multiplying it. A river at `1` crossing mountains at `0.33` is crossed at `1`.
+- **A closed terrain a way still goes through.** A way of travelling with **Only through** goes wherever that condition holds, even through terrains that are closed or not **Passable**: the boat that sails a lake nobody can walk. Add the closing to its **Only through** too.
+- **No route at all.** With a terrain closed (the salt flat in spring) and no way around it, there's no route: **March** goes nowhere and setting the destination says _No route there_. On a map, routes go around what's closed when they can.
+- **A supply that never goes down.** The app never spends supplies: an action or a check must (step 6). And a trip starts with 6 of each (within **Min** and **Max**): set them in the trip panel.
+- **A value of the day that does nothing.** It only does something while it holds: what it **Blocks**, or a condition that reads it. Set as the day ends (`time.day-end`), it ends at once: read it the next day as `yesterday.parched`, or set it in the morning, as step 6 does.
+- **The party stuck on camels.** A value that blocks the way of travelling the party is on stops it until the player chooses another way; blocking `travel.move` instead stops every way for the rest of the day.
+- **A drink that never came.** An action **by itself** at a moment happens when the clock passes it: a trip that started after `time.part.morning` drinks the next morning. And its **Only when** decides whether it happens at all.

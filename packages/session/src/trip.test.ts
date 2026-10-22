@@ -369,6 +369,19 @@ divisions:
       {},
     )
     expect(startTrip({ system: coreSystem(), location: 'a' }).session.travel.mode).toBe('foot')
+    // 6 of each supply, within the bounds it declares.
+    const bounded = {
+      ...sys,
+      rules: {
+        ...sys.rules,
+        resources: { water: { max: 3 }, oil: { min: 8 }, salt: {} },
+      },
+    }
+    expect(startTrip({ system: bounded, location: 'a' }).session.travel.resources).toEqual({
+      water: 3,
+      oil: 8,
+      salt: 6,
+    })
   })
 
   it('steps through the session, resolving bound checks', () => {
