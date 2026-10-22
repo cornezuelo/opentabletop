@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity'
   import {
     actionSteps,
     CHECK_MOMENTS,
@@ -8,7 +9,6 @@
     refId,
     isClock,
     isPartRef,
-    STEP_KINDS,
     type ActionDefinition,
     type ActionStep,
   } from '@open-tabletop/travel-engine'
@@ -16,6 +16,9 @@
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
+  import { ConditionEditor, conditionWords } from '@open-tabletop/pack-ui'
+  import StepCard from './StepCard.svelte'
+  import type { StepContext } from '../../lib/steps'
   import { getLocale, t } from '../../lib/i18n'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
   import { library } from '../../lib/packs.svelte'
@@ -23,9 +26,9 @@
 
   /**
    * The system's actions as cards, all alike (camp and rest too): id, name and description,
-   * when they can be taken, who takes them (the player, or the system at a moment) and what
-   * they do, step by step, each step written in the pack's own syntax (`time: 180`,
-   * `do: forage`) with suggestions. Editing the steps writes them as `do`.
+   * when they can be taken (conditions as rows), who takes them (the player, or the system at
+   * a moment) and what they do, each step a card of its own (`StepCard`). Editing the steps
+   * writes them as `do`.
    */
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
   /** The parts of its calendar's day: moments and time steps may name them. */
@@ -63,39 +66,61 @@
   const label = (id: string) => text(id, 'name') || id
   /** What conditions can read. */
   const hints = $derived(contextSuggestions(library.registry))
-  /** What a step can say: its keys, and the values each one takes here. */
-  const stepHints = $derived({
-    time: ['60', '120', '180', '14:00', ...parts],
-    'travel.move': ['destination', 'hex', '3', "'{{params.until}}'"],
-    'travel.speed': ['0.5', '1.5', '0'],
-    'travel.advance': ['1', '2', "'{{party.stats.rank}}'"],
-    'travel.mode': Object.keys((doc.rules.modes ?? {}) as Raw).map((m) => ref('modes', m)),
-    effects: [],
-    'effects.*': Object.keys(effectSuggestions(library.registry)),
-    set: [],
-    'set.*': Object.keys((doc.rules.values ?? {}) as Raw),
-    do: ids.map((a) => ref('actions', a)),
-    roll: events.map((e) => ref('checks', e)),
-    with: [],
-    unless: [],
-    say: [],
-    pause: ['true'],
-    ask: [],
-    wait: [],
-    limit: ['60', '18:00', ...parts],
-    id: [],
+  /** Its parameters, each with its choices as written (`hex`, `3`). */
+  const paramsOf = (id: string) =>
+    Object.entries(def(id).params ?? {}).map(([p, d]) => ({
+      id: p,
+      name: doc.text('travel-rules', d.name, ['actions', id, 'params', p, 'name']) || p,
+      choices: d.choices.map((c) => String(typeof c === 'object' ? c.id : c)),
+    }))
+  const checkName = (event: string) => {
+    const check = ((doc.rules.checks ?? []) as Raw[]).find((c) => c.event === event)
+    return (check && doc.text('travel-rules', check.name, ['checks', event, 'name'])) || event
+  }
+  const modeName = (m: string) =>
+    doc.text('travel-rules', ((doc.rules.modes ?? {}) as Record<string, Raw>)[m]?.name, [
+      'modes',
+      m,
+      'name',
+    ]) || m
+  const effectKeys = $derived(Object.keys(effectSuggestions(library.registry)))
+  /** What a step of this action's card offers. */
+  const stepContext = (id: string): StepContext => ({
+    actions: ids
+      .filter((a) => a !== id)
+      .map((a) => ({ id: a, name: label(a), params: paramsOf(a) })),
+    params: paramsOf(id),
+    modes: Object.keys((doc.rules.modes ?? {}) as Raw).map((m) => ({ id: m, name: modeName(m) })),
+    checks: events.map((e) => ({ event: e, name: checkName(e) })),
+    values: Object.keys((doc.rules.values ?? {}) as Raw),
+    effectKeys,
+    times: ['60', '120', '180', '14:00', ...parts],
+    conditions: {
+      ...hints,
+      'trip.doing': ids,
+      'trip.below': [],
+      'trip.above': [],
+      ...Object.fromEntries(paramsOf(id).map((p) => [`params.${p.id}`, p.choices])),
+    },
+    names: {
+      action: label,
+      check: checkName,
+      mode: modeName,
+      param: (p) => paramsOf(id).find((x) => x.id === p)?.name ?? p,
+      part: (ref) => partLabel(system, ref, getLocale()),
+      condition: (c) => conditionWords(c, getLocale()),
+    },
   })
+  /** The step cards shown open, as `<action>:<index>`. */
+  const opened = new SvelteSet<string>()
+  function toggle(key: string) {
+    if (!opened.delete(key)) opened.add(key)
+  }
 
   /** A map as `key: value` pairs, without the outer braces. */
   const bare = (value: unknown) => flowText(value).replace(/^\{\s*|\s*\}$/g, '')
   const def = (id: string): ActionDefinition => (actions[id] as ActionDefinition | undefined) ?? {}
   const steps = (id: string): ActionStep[] => actionSteps(def(id))
-  /** A step as the pack writes it, but its `when` (it has its own box). */
-  const stepText = (step: ActionStep) => {
-    const rest = { ...step }
-    delete rest.when
-    return bare(rest)
-  }
 
   const text = (id: string, field: 'name' | 'description' | 'nothing') =>
     doc.text('travel-rules', def(id)[field], ['actions', id, field])
@@ -123,50 +148,38 @@
     )
   }
 
-  /**
-   * A step written in the box: one thing it does (and maybe `unless`, and a `do:`'s `with:`),
-   * keeping its `when`.
-   */
-  function setStep(id: string, i: number, raw: string) {
-    const parsed = parseFlow(raw) as Raw | null
-    const does = Object.keys(parsed ?? {}).filter(
-      (k) => !['unless', 'with', 'limit', 'id'].includes(k),
-    )
-    if (
-      !parsed ||
-      does.length !== 1 ||
-      !(STEP_KINDS as readonly string[]).includes(does[0]) ||
-      ('with' in parsed && does[0] !== 'do') ||
-      'limit' in parsed !== (does[0] === 'wait')
-    )
-      return showToast(t('actions.badStep'), 'error')
-    const when = steps(id)[i]?.when
-    writeSteps(
-      id,
-      steps(id).map((s, j) => (j === i ? ({ ...(when && { when }), ...parsed } as ActionStep) : s)),
-    )
-  }
-
-  function setWhen(id: string, i: number, raw: string) {
-    const parsed = parseFlow(raw)
-    if (parsed === null) return showToast(t('forms.badFlow'), 'error')
-    writeSteps(
-      id,
-      steps(id).map((s, j) => {
-        if (j !== i) return s
-        const rest = { ...s }
-        delete rest.when
-        return (Object.keys(parsed ?? {}).length ? { when: parsed, ...rest } : rest) as ActionStep
-      }),
-    )
-  }
-
   function move(id: string, i: number, by: number) {
     const list = steps(id)
     const j = i + by
     if (j < 0 || j >= list.length) return
     ;[list[i], list[j]] = [list[j], list[i]]
     writeSteps(id, list)
+    // The open card moves with its step.
+    const a = opened.has(`${id}:${i}`)
+    const b = opened.has(`${id}:${j}`)
+    opened[b ? 'add' : 'delete'](`${id}:${i}`)
+    opened[a ? 'add' : 'delete'](`${id}:${j}`)
+  }
+
+  function addStep(id: string) {
+    opened.add(`${id}:${steps(id).length}`)
+    writeSteps(id, [...steps(id), { time: 60 }])
+  }
+
+  function removeStep(id: string, i: number) {
+    writeSteps(
+      id,
+      steps(id).filter((_, j) => j !== i),
+    )
+    // Cards after it move up one.
+    const kept = [...opened].flatMap((key) => {
+      const at = key.lastIndexOf(':')
+      const [a, n] = [key.slice(0, at), Number(key.slice(at + 1))]
+      if (a !== id || n < i) return [key]
+      return n === i ? [] : [`${a}:${n - 1}`]
+    })
+    opened.clear()
+    for (const key of kept) opened.add(key)
   }
 
   async function removeAction(id: string) {
@@ -247,26 +260,6 @@
           />
           {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
         </label>
-        <label>
-          <span>{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
-          <SuggestInput
-            placeholder={t('checks.always')}
-            value={bare(d.when)}
-            suggestions={hints}
-            {disabled}
-            onchange={(v) => setFlow(['actions', id, 'when'], v)}
-          />
-        </label>
-        <label>
-          <span>{t('actions.unless')}<InfoTip text={t('actions.whenHelp')} /></span>
-          <SuggestInput
-            placeholder={t('checks.never')}
-            value={bare(d.unless)}
-            suggestions={hints}
-            {disabled}
-            onchange={(v) => setFlow(['actions', id, 'unless'], v)}
-          />
-        </label>
         <label class="inline">
           <input
             type="checkbox"
@@ -296,6 +289,30 @@
           <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
         </label>
       </div>
+      <div class="conditions">
+        <div class="cond">
+          <span class="label">{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
+          <ConditionEditor
+            value={d.when}
+            suggestions={hints}
+            locale={getLocale()}
+            {disabled}
+            label={t('actions.when')}
+            onchange={(c) => doc.edit('travel-rules', ['actions', id, 'when'], c)}
+          />
+        </div>
+        <div class="cond">
+          <span class="label">{t('actions.unless')}<InfoTip text={t('actions.whenHelp')} /></span>
+          <ConditionEditor
+            value={d.unless}
+            suggestions={hints}
+            locale={getLocale()}
+            {disabled}
+            label={t('actions.unless')}
+            onchange={(c) => doc.edit('travel-rules', ['actions', id, 'unless'], c)}
+          />
+        </div>
+      </div>
       <label>
         <span>{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span>
         <SuggestInput
@@ -320,64 +337,28 @@
       <h4>{t('actions.steps')}<InfoTip text={t('actions.stepsHelp')} /></h4>
       <ol class="steps">
         {#each steps(id) as step, i (i)}
-          <li class="step">
-            <div class="value">
-              <SuggestInput
-                label={t('actions.step')}
-                placeholder="time: 180"
-                value={stepText(step)}
-                suggestions={stepHints}
-                {disabled}
-                onchange={(v) => setStep(id, i, v)}
-              />
-            </div>
-            <div class="cond">
-              <SuggestInput
-                label={t('actions.stepWhen')}
-                placeholder={t('actions.stepWhen')}
-                value={bare(step.when)}
-                suggestions={{ ...hints, doing: ids }}
-                {disabled}
-                onchange={(v) => setWhen(id, i, v)}
-              />
-            </div>
-            {#if !disabled}
-              <span class="buttons">
-                <button
-                  class="icon"
-                  aria-label={t('actions.up')}
-                  use:tooltip={t('actions.up')}
-                  disabled={i === 0}
-                  onclick={() => move(id, i, -1)}>↑</button
-                >
-                <button
-                  class="icon"
-                  aria-label={t('actions.down')}
-                  use:tooltip={t('actions.down')}
-                  disabled={i === steps(id).length - 1}
-                  onclick={() => move(id, i, 1)}>↓</button
-                >
-                <button
-                  class="icon"
-                  aria-label={t('forms.remove')}
-                  use:tooltip={t('forms.remove')}
-                  onclick={() =>
-                    writeSteps(
-                      id,
-                      steps(id).filter((_, j) => j !== i),
-                    )}>×</button
-                >
-              </span>
-            {/if}
-          </li>
+          <StepCard
+            {step}
+            index={i}
+            count={steps(id).length}
+            ctx={stepContext(id)}
+            {disabled}
+            open={opened.has(`${id}:${i}`)}
+            ontoggle={() => toggle(`${id}:${i}`)}
+            onchange={(next) =>
+              writeSteps(
+                id,
+                steps(id).map((s, j) => (j === i ? next : s)),
+              )}
+            onmove={(by) => move(id, i, by)}
+            onremove={() => removeStep(id, i)}
+          />
         {:else}
           <li class="muted">{t('actions.noSteps')}</li>
         {/each}
       </ol>
       {#if !disabled}
-        <button onclick={() => writeSteps(id, [...steps(id), { time: 60 }])}
-          >{t('actions.addStep')}</button
-        >
+        <button class="addstep" onclick={() => addStep(id)}>{t('actions.addStep')}</button>
       {/if}
     </div>
   {/each}
@@ -464,29 +445,30 @@
     flex-direction: column;
     gap: 4px;
     margin: 0;
-    padding-left: 1.4em;
+    padding: 0;
+    list-style: none;
   }
 
-  .step {
+  .conditions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18em, 1fr));
+    gap: 8px 16px;
+  }
+
+  .cond {
     display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .step .value {
-    flex: 1 1 10em;
+    flex-direction: column;
+    gap: 3px;
     min-width: 0;
   }
 
-  .step .cond {
-    flex: 1 1 10em;
-    min-width: 0;
+  .label {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
-  .buttons {
-    display: flex;
-    gap: 2px;
+  .addstep {
+    align-self: flex-start;
   }
 
   .muted {

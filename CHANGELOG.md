@@ -14,6 +14,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Campaign: **factions striped on the minimap too**: Factions' small map draws each faction's land as the Hexmapper does, diagonal stripes of its colour and a dashed frontier over the terrain's colour, instead of painting the hexes in the faction's colour (which mixed with the terrain's); the legend's swatches are striped to match.
 
+- Systems: **actions edited visually**: in **Rules → Actions** each step is a card, folded to what it does in words (_Pass 3 h_, _Take March (until: hex)_) with its condition beside it; open, a choice of what it does and that kind's own fields (a time, a way of travelling, an action and its parameters, a check, rows of changes…). **Only when** / **Not when** (the action's and each step's) and a step's wait are built as rows of _what it reads · comparison · value_, joined by **All of these** or **Any of these**, with facts suggested by full name and values from the system; **YAML** on each card and each condition shows the text as before, and conditions rows can't show stay YAML, unchanged.
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

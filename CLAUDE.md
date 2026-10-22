@@ -42,7 +42,7 @@ packages/                   # libraries, scope @open-tabletop/*
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
-  pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor
+  pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor, conditions as rows (ConditionEditor)
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
   character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)

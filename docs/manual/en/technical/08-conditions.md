@@ -2,7 +2,7 @@
 
 A **condition** says when something applies: an entry that only comes up in forests, a check rolled only off roads, an action available only in good weather, a roll mode used by itself the day after getting lost. The same conditions are written everywhere they appear: `when` and `unless` on table entries, generator fields, checks, actions and their steps, ways of travelling and terrains (`passable`), `through` (where a way of travelling can go), `modeWhen` / `modeUnless` on tables and oracles, and `when` / `unless` on a party stat made of its characters (`from`), read with each character's values.
 
-A condition is a set of `name: what it must be` pairs about the values the roll sees (see [What tables see](04-what-tables-see.md)). Every pair must hold. In a form's box you write the pairs without braces (`terrain: forest, danger: { gte: 3 }`); in YAML, inside braces (`when: { hex.terrain: forest, danger: { gte: 3 } }`).
+A condition is a set of `name: what it must be` pairs about the values the roll sees (see [What tables see](04-what-tables-see.md)). Every pair must hold. In a form's box you write the pairs without braces (`terrain: forest, danger: { gte: 3 }`); in YAML, inside braces (`when: { hex.terrain: forest, danger: { gte: 3 } }`). Some forms (Systems' actions) build them as rows of _what it reads · comparison · value_ instead, writing these same pairs: see _Conditions as rows_ in [Rules → Actions](../systems/05-rules.md#actions).
 
 Nothing in a condition is run as code: packs from anyone are safe to load.
 

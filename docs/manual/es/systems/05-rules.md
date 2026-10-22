@@ -51,19 +51,28 @@ Las Marcas Grises declaran **Perdidos**, que bloquea el viaje: lo pone la tabla 
 Lo que puede hacer el grupo: solo lo que declara el sistema (acampar, descansar, **marchar** y las suyas), todas iguales, como fichas (**Añadir una acción**; × quita una). Cada una tiene:
 
 - un **id**, y un **Nombre** y una descripción para los jugadores;
-- **Solo si** / **Salvo si**: cuándo se puede pulsar su botón. P. ej. Buscar comida de las Marcas Grises, no con tormenta; `time.hour: { gte: 6, lt: 20 }` para solo de día;
+- **Solo si** / **Salvo si**: cuándo se puede pulsar su botón, construidas en filas (mira [Condiciones en filas](#condiciones-en-filas) más abajo). P. ej. Buscar comida de las Marcas Grises, no con tormenta; `time.hour: { gte: 6, lt: 20 }` para solo de día;
 - **Una vez al día**;
 - **Oculta si no se puede hacer**: si no, su botón sigue, desactivado, diciendo por qué. P. ej. el rito de las Marcas Grises, solo en un santuario con luna llena;
 - **Automática en**: vacío, la hace el jugador con un botón; o los momentos en que la hace el propio sistema, escritos como en el YAML con sugerencias: una hora (`06:00`: al dar esa hora), una parte del día del calendario (`time.meal.elevenses`: al empezar), `trip.hex-enter`, `time.day-end` u otra acción, varios separados por comas (Comer de las Marcas Grises, `time.day-end`). El `time` de un paso también puede llegar hasta una parte (`time: time.meal.luncheon`). Las palabras bajo la caja lo repiten. Las acciones que la siguen y sus comprobaciones (en [Comprobaciones](06-checks.md), en esta acción) van primero;
 - **Parámetros**: lo que elige el jugador junto a su botón, cada uno con sus opciones (la primera es la de por defecto): `until: { choices: [destination, hex, 3] }`; sus pasos y condiciones leen la elegida como `{{params.until}}`. Un paso `do:` los da con `with:`, y también **Sigue por sí solo con**;
 - **Cuando no se aplica nada**: lo que dice el diario cuando no se aplica ninguna de sus comprobaciones;
-- **Qué hace**, paso a paso (las flechas suben o bajan un paso).
+- **Qué hace**, paso a paso, cada paso una tarjeta (las flechas suben o bajan un paso).
 
 **Marchar** es una acción como las demás: su paso `travel.move: '{{params.until}}'` mueve al grupo por la ruta, comprobando su **Solo si** / **Salvo si** por el camino, y se detiene en cuanto dejan de cumplirse (vacíos: siempre que nada más lo impida, de día y de noche). Su botón ofrece las opciones de su parámetro (hasta el destino, un hex…). Un sistema puede llamarla como quiera (`sail`, `ride`), tener varias o ninguna: entonces el grupo nunca se mueve por su ruta.
 
+### Condiciones en filas
+
+**Solo si**, **Salvo si** y el **Esperar algo** de un paso se construyen en filas, una por cosa que comprobar: **qué lee** (sugerido por su nombre completo: `hex.terrain`, `party.stats.fatigue`, `trip.weather`…), una **comparación** y un **valor** (sugerido entre lo que declara el sistema). Por ejemplo `trip.weather` · **no es ninguno de** · `storm, snow`, o `party.stats.fatigue` · **es menos de** · `{{party.stats.endurance}}`.
+
+- Las comparaciones: **es**, **es uno de** y **no es ninguno de** (valores separados por comas), **no es**, **es más de**, **es al menos**, **es menos de**, **es como mucho**, **existe** y **falta** (sin valor). Son los `eq`, `in`, `not`, `gt`, `gte`, `lt`, `lte` y `exists` de [Condiciones](../technical/08-conditions.md).
+- Con dos filas o más, **Todas estas** (se tiene que cumplir cada fila) o **Alguna de estas** (basta con una).
+- **+ Añadir una condición** añade una fila; × la quita; sin filas, no se comprueba nada.
+- **YAML** muestra la misma condición como una línea de YAML (`trip.weather: { not: [storm, snow] }`), para lo que las filas no pueden decir; **Filas** vuelve. Una condición escrita con grupos dentro de grupos (un `any` cuyas ramas comprueban dos cosas, una condición entera dada la vuelta con `not:`), como la marcha de las Marcas Grises, se muestra solo como YAML, y se conserva tal cual.
+
 ### Pasos
 
-Cada paso se escribe como en el YAML, con sugerencias:
+Cada paso es una tarjeta. Plegada, su título dice en palabras lo que hace (_Pasan 3 h_, _Hacer Marchar (until: hex)_, _Cambia: party.stats.fatigue: -1_) y, a su lado, su condición (_salvo si trip.below es food_); pulsa el título para abrirla. Abierta, **Qué hace** elige uno de los tipos de abajo, y sus campos cambian con él: un tiempo, una forma de viajar, una acción y los valores de sus parámetros, una comprobación, filas de cambios (`party.stats.fatigue` · `1`)… Cambiar el tipo conserva las condiciones del paso. Debajo, el **Solo si** / **Salvo si** del propio paso, en filas. **YAML**, arriba en la tarjeta, muestra el paso como lo escribe el pack, para lo que el formulario no cubre (un `id`, por ejemplo). Los tipos, como los escribe el YAML:
 
 - `time: 180`: pasan tres horas (o hasta una hora, `06:00`, o una parte del día, `time.part.morning`);
 - `travel.move: destination`: moverse por la ruta mientras pasa el tiempo y se cumplen las condiciones de la acción, hasta el destino (`hex`: el siguiente; `3`: tres hexes; `'{{params.until}}'`: lo que diga su parámetro); una comprobación que te necesita lo detiene por el camino, y **Seguir** sigue con él;

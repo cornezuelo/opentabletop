@@ -41,4 +41,37 @@ export const en = {
     replace:
       'The file has its own version of packs you already have: {packs}. Replace them with the file’s? (↶ undoes it; a bundled pack can be reverted.)',
   },
+  condition: {
+    ops: {
+      is: 'is',
+      in: 'is one of',
+      not: 'is not',
+      notIn: 'is none of',
+      gt: 'is over',
+      gte: 'is at least',
+      lt: 'is under',
+      lte: 'is at most',
+      exists: 'is there',
+      missing: 'is missing',
+    },
+    and: 'and',
+    or: 'or',
+    all: 'All of these',
+    any: 'Any of these',
+    fact: 'What it reads',
+    op: 'Comparison',
+    value: 'Value',
+    values: 'Values, separated by commas',
+    add: '+ Condition',
+    addFirst: '+ Add a condition',
+    remove: 'Remove this condition',
+    none: '—',
+    rowsShort: 'Rows',
+    yaml: 'Edit as YAML',
+    rows: 'Edit as rows',
+    intricate:
+      'Written in a way rows can’t show (groups inside groups, or a whole condition turned around with not:): edit it as YAML.',
+    badYaml:
+      'Write it as key: value pairs, e.g. hex.tags: landmark or hex.terrain: [forest, hills].',
+  },
 } as const

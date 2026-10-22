@@ -10,7 +10,8 @@
     "./packs": "./src/packs.ts",
     "./yaml": "./src/yaml.ts",
     "./flow": "./src/flow.ts",
-    "./completion": "./src/completion.ts"
+    "./completion": "./src/completion.ts",
+    "./conditions": "./src/conditionRows.ts"
   },
   "scripts": {
     "check": "svelte-check --tsconfig ./tsconfig.json"
@@ -24,6 +25,7 @@
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.13",
     "@lezer/highlight": "^1.2.5",
+    "@open-tabletop/conditions": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/random": "*",
     "@open-tabletop/session": "*",

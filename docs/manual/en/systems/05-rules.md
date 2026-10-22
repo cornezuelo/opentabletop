@@ -51,19 +51,28 @@ The Grey Marches declare **Lost**, which blocks travel: the getting-lost table s
 What the party can do: only what the system declares (camp, rest, **march** and its own), all alike, as cards (**Add an action**; × removes one). Each has:
 
 - an **id**, and a **Name** and description for players;
-- **Only when** / **Not when**: when its button can be pressed. E.g. the Grey Marches' Forage for food, not in a storm; `time.hour: { gte: 6, lt: 20 }` for only by day;
+- **Only when** / **Not when**: when its button can be pressed, built as rows (see [Conditions as rows](#conditions-as-rows) below). E.g. the Grey Marches' Forage for food, not in a storm; `time.hour: { gte: 6, lt: 20 }` for only by day;
 - **Once a day**;
 - **Hidden when it can't be taken**: otherwise its button stays, disabled, saying why. E.g. the Grey Marches' rite, only at a shrine under a full moon;
 - **By itself at**: empty, the player takes it with a button; or the moments the system takes it by itself, written like in the YAML with suggestions: a clock (`06:00`: as it strikes), a part of the calendar's day (`time.meal.elevenses`: as it begins), `trip.hex-enter`, `time.day-end` or another action (`actions.camp`), several separated by commas (the Grey Marches' Eat, `time.day-end`). A step's `time` may also go until a part (`time: time.meal.luncheon`). The words below the box say it back. The actions that follow it and its checks (in [Checks](06-checks.md), at this action) come first;
 - **Parameters**: what the player chooses beside its button, each with its choices (the first is the default): `until: { choices: [destination, hex, 3] }`; its steps and conditions read the one chosen as `{{params.until}}`. A `do:` step gives them with `with:`, and so does **Goes on by itself with**;
 - **When nothing applies**: what the journal says when none of its checks apply;
-- **What it does**, step by step (the arrows move a step up or down).
+- **What it does**, step by step, each step a card (the arrows move a step up or down).
 
 **March** is an action like the rest: its step `travel.move: '{{params.until}}'` moves the party along the route, checking its **Only when** / **Not when** as it goes, and stops as soon as they no longer hold (empty: whenever nothing else stops it, day and night). Its button offers the choices of its parameter (to the destination, one hex…). A system may call it anything (`sail`, `ride`), have several, or none: then the party never moves along its route.
 
+### Conditions as rows
+
+**Only when**, **Not when** and a step's **Wait for something** are built as rows, one per thing to check: **what it reads** (suggested by full name: `hex.terrain`, `party.stats.fatigue`, `trip.weather`…), a **comparison** and a **value** (suggested from what the system declares). For example `trip.weather` · **is none of** · `storm, snow`, or `party.stats.fatigue` · **is under** · `{{party.stats.endurance}}`.
+
+- The comparisons: **is**, **is one of** and **is none of** (values separated by commas), **is not**, **is over**, **is at least**, **is under**, **is at most**, **is there** and **is missing** (no value). They are the `eq`, `in`, `not`, `gt`, `gte`, `lt`, `lte` and `exists` of [Conditions](../technical/08-conditions.md).
+- With two rows or more, **All of these** (every row must hold) or **Any of these** (one is enough).
+- **+ Add a condition** adds a row; × removes it; with no rows, nothing is checked.
+- **YAML** shows the same condition as one line of YAML (`trip.weather: { not: [storm, snow] }`), for what rows can't say; **Rows** goes back. A condition written with groups inside groups (an `any` whose branches check two things, a whole condition turned around with `not:`), like the Grey Marches' march, is shown as YAML only, and kept as it is.
+
 ### Steps
 
-Each step is written like in the YAML, with suggestions:
+Each step is a card. Folded, its title says what it does in words (_Pass 3 h_, _Take March (until: hex)_, _Change: party.stats.fatigue: -1_) and, beside it, its condition (_not when trip.below is food_); click the title to open it. Open, **What it does** chooses one of the kinds below, and its fields change with it: a time, a way of travelling, an action and the values of its parameters, a check, rows of changes (`party.stats.fatigue` · `1`)… Changing the kind keeps the step's conditions. Under them, the step's own **Only when** / **Not when**, as rows. **YAML**, at the top of the card, shows the step as the pack writes it, for what the form doesn't cover (an `id`, say). The kinds, as the YAML writes them:
 
 - `time: 180`: three hours pass (or until a clock, `06:00`, or a part of the day, `time.part.morning`);
 - `travel.move: destination`: move along the route while time passes and the action's conditions hold, to the destination (`hex`: the next one; `3`: three hexes; `'{{params.until}}'`: as its parameter says); a check that needs you stops it on the way, and **Go on** goes on with it;

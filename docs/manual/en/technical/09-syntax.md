@@ -16,7 +16,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 | `danger: { gte: 3 }`       | a value inside another (here, a comparison)             |
 | `count: '{{2d6}}'`         | a [variable or roll](#variables), in quotes (see below) |
 
-- **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved.
+- **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved. Where a form builds a condition as rows, its **YAML** button shows this box.
 - **In YAML**, the same between braces on one line (`when: { hex.terrain: forest }`) or one pair per indented line.
 - **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
   - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{system.hoursPerDay}}'`, not `gte: {{system.hoursPerDay}}`;

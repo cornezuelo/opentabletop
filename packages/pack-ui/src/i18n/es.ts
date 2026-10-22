@@ -44,4 +44,37 @@ export const es: Messages<typeof en> = {
     replace:
       'El fichero trae su propia versión de packs que ya tienes: {packs}. ¿Los sustituyes por los del fichero? (↶ lo deshace; un pack incluido se puede devolver a su versión incluida.)',
   },
+  condition: {
+    ops: {
+      is: 'es',
+      in: 'es uno de',
+      not: 'no es',
+      notIn: 'no es ninguno de',
+      gt: 'es más de',
+      gte: 'es al menos',
+      lt: 'es menos de',
+      lte: 'es como mucho',
+      exists: 'existe',
+      missing: 'falta',
+    },
+    and: 'y',
+    or: 'o',
+    all: 'Todas estas',
+    any: 'Alguna de estas',
+    fact: 'Qué lee',
+    op: 'Comparación',
+    value: 'Valor',
+    values: 'Valores, separados por comas',
+    add: '+ Condición',
+    addFirst: '+ Añadir una condición',
+    remove: 'Quitar esta condición',
+    none: '—',
+    rowsShort: 'Filas',
+    yaml: 'Editar como YAML',
+    rows: 'Editar como filas',
+    intricate:
+      'Está escrita de una forma que las filas no pueden mostrar (grupos dentro de grupos, o una condición entera dada la vuelta con not:): edítala como YAML.',
+    badYaml:
+      'Escríbelo como pares clave: valor, p. ej. hex.tags: landmark o hex.terrain: [forest, hills].',
+  },
 }

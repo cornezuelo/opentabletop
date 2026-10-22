@@ -2,7 +2,7 @@
 
 Everything the party does on a trip is an **action** of its system: marching, camping, resting, foraging, crossing a river. The engine has none of its own. Each action says **when** it can be taken (`when` / `unless`, `oncePerDay`), **who** takes it (the player with a button, or the system by itself at a moment: `on:`) and **what it does**: a list of **steps** (`do:`), done in order. This page gathers every step, with an example of each and a whole system at the end that uses them all. The rest of an action (its parameters, its checks, the halt, the way the trip goes on by itself) is in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system); the YAML of the whole kind in [Kinds of definition](07-kinds.md#travel-rules).
 
-In the Systems app each action is a card in **Rules → Actions**, and each step one box of **What it does**, written as here (`time: 180`), with suggestions; the box beside it is the step's own condition.
+In the Systems app each action is a card in **Rules → Actions**, and each step a card of its own in **What it does**: a choice of what it does (_Pass time_, _Move_, _Take another action_…) and that kind's fields, its own **Only when** / **Not when** as rows, and **YAML** to write it as here (`time: 180`). See [Rules](../systems/05-rules.md#actions).
 
 ## Every step at a glance
 

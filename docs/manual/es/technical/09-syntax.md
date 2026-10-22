@@ -16,7 +16,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 | `danger: { gte: 3 }`       | un valor dentro de otro (aquí, una comparación)                  |
 | `count: '{{2d6}}'`         | una [variable o tirada](#variables), entre comillas (mira abajo) |
 
-- **En la casilla de un formulario**, escribe los pares sin llaves, separados por comas: `terrain: forest, danger: { gte: 3 }`. Una casilla que no se puede leer se pone roja y no se guarda.
+- **En la casilla de un formulario**, escribe los pares sin llaves, separados por comas: `terrain: forest, danger: { gte: 3 }`. Una casilla que no se puede leer se pone roja y no se guarda. Donde un formulario construye una condición en filas, su botón **YAML** muestra esta casilla.
 - **En YAML**, lo mismo entre llaves en una línea (`when: { hex.terrain: forest }`) o un par por línea sangrada.
 - **Las comillas** (`'…'`) mantienen un texto como texto. El YAML da a unos pocos caracteres un significado propio, así que un texto que los tenga va entre comillas, o el YAML lee otra cosa:
   - **que empiece por `{`**: el YAML abre un valor dentro de otro, así que toda variable o tirada necesita comillas: `count: '{{2d6}}'`, no `count: {{2d6}}`; `gte: '{{system.hoursPerDay}}'`, no `gte: {{system.hoursPerDay}}`;
