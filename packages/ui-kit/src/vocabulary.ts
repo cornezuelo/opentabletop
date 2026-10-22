@@ -56,6 +56,7 @@ export const vocabulary = {
       tags: 'Tags',
       season: 'Season',
       weather: 'Weather',
+      world: 'World',
       fatigue: 'Fatigue',
       supplies: 'Supplies',
       system: 'System',
@@ -65,6 +66,16 @@ export const vocabulary = {
     },
     seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
     moonPhases: { new: 'new', waxing: 'waxing', full: 'full', waning: 'waning' },
+    /** Ways out of a hex (a hex flower's moves), and staying. */
+    directions: {
+      e: 'east',
+      w: 'west',
+      ne: 'north-east',
+      nw: 'north-west',
+      se: 'south-east',
+      sw: 'south-west',
+      stay: 'stays',
+    },
     /** The kinds of definition that can be rolled. */
     kinds: { table: 'Table', oracle: 'Oracle', generator: 'Generator', deck: 'Deck' },
     pathKinds: {
@@ -164,6 +175,7 @@ export const vocabulary = {
       tags: 'Etiquetas',
       season: 'Estación',
       weather: 'Clima',
+      world: 'Mundo',
       fatigue: 'Fatiga',
       supplies: 'Provisiones',
       system: 'Sistema',
@@ -172,6 +184,15 @@ export const vocabulary = {
     },
     seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
     moonPhases: { new: 'nueva', waxing: 'creciente', full: 'llena', waning: 'menguante' },
+    directions: {
+      e: 'este',
+      w: 'oeste',
+      ne: 'nordeste',
+      nw: 'noroeste',
+      se: 'sudeste',
+      sw: 'sudoeste',
+      stay: 'se queda',
+    },
     kinds: { table: 'Tabla', oracle: 'Oráculo', generator: 'Generador', deck: 'Mazo' },
     pathKinds: {
       road: 'Camino',

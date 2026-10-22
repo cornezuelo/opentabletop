@@ -45,12 +45,12 @@ El panel de la derecha es el mismo que en el Hexmapper. Arriba, dónde está el 
 **Las pestañas.** Debajo, el resto del viaje se ve de pestaña en pestaña; este navegador recuerda la que elegiste, en todas las aplicaciones que enseñan un viaje. Cuando el panel es demasiado estrecho para las pestañas en fila (el panel lateral del Hexmapper, una ventana pequeña), pasan a ser un desplegable con las mismas pestañas, nunca una segunda fila:
 
 - **Grupo** (solo si el sistema declara algo de ello): **El grupo** (su propia hoja, y las características del grupo que declare el sistema, cada una diciendo de dónde sale: p. ej. el Carisma, la Supervivencia y la Orientación de las Marcas Grises, que se suman a las tiradas), **Personajes** y las provisiones. Cada sección tiene un título sencillo; la que tiene explicación lleva el título subrayado con puntos: haz clic para leerla en la columna de ayuda. La ayuda de una característica del grupo, una provisión o un rol de viaje (haz clic en su nombre) también dice qué la lee y qué la cambia, por su nombre: el **Guía** de las Marcas Grises dice _Lo leen: ¿Nos perdemos?_; la Fatiga la leen Acampar, Descansar y las marchas forzada y nocturna, y la cambian ellas y una docena de tablas (la posada, el vado, el hambre…) (Sistemas los lista enteros: [Usado en](../systems/04-overview.md#usado-en)).
-- **Diario**: el viaje entero, lo más reciente primero, agrupado por día; **Exportar** está arriba de la pestaña.
+- **Diario**: el viaje entero, lo más reciente primero, agrupado por día; arriba, qué muestra ([el filtro del diario](#el-diario-todo-o-la-historia)) y **Exportar**.
 - **Hasta ahora**: lo que lleva hecho el viaje.
 
 **Hasta ahora** resume el viaje: hexes y km recorridos, horas de marcha, las comprobaciones que han salido, cuántas veces se ha hecho cada acción y lo gastado y obtenido de cada provisión. Las reglas y tablas del sistema también lo leen (`trip.km: { gte: 100 }`, `trip.taken.camp`, `trip.spent.food`: ver [Lo que ven las tablas](../technical/04-what-tables-see.md#el-viaje-trip)). Los viajes guardados antes de que existiera sacan del diario sus hexes y acciones; el resto cuenta desde entonces.
 
-Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga todo el diario en Markdown (un título por día, con el nombre del viaje) para tu aplicación de notas o para imprimir. Una comprobación sin tabla solo se apunta en el diario (con lo que cambie, si cambia algo) y el viaje sigue, salvo que diga que pausa. El viaje se detiene y muestra **Continuar** en tres casos (una comprobación que espera dice el hex en el que ha salido, por su nombre o si no por sus coordenadas: _Lugar señalado en The Grey Stones: esperando_):
+Las comprobaciones se tiran en sus tablas y se apuntan en el **diario**, agrupadas por día. **Exportar** descarga el diario en Markdown (un título por día, con el nombre del viaje y las líneas que muestra el filtro) para tu aplicación de notas o para imprimir. Una comprobación sin tabla solo se apunta en el diario (con lo que cambie, si cambia algo) y el viaje sigue, salvo que diga que pausa. El viaje se detiene y muestra **Continuar** en tres casos (una comprobación que espera dice el hex en el que ha salido, por su nombre o si no por sus coordenadas: _Lugar señalado en The Grey Stones: esperando_):
 
 - una comprobación que dice **Pausar después** (`pause: true`): se tira si una tabla la resuelve, y el viaje espera para que describas el lugar, la resuelvas tú o decidas algo (el santuario de las Marcas Grises, que se tira; sus lugares señalados, sin tabla);
 - una entrada de tabla o carta con `pause: true` que sale (la Sierpe del Bosque Gris de las Marcas Grises): solo cuando sale ese resultado;
@@ -67,6 +67,28 @@ Lo que cuenta el diario, para que nada pase en silencio:
 - **Resultados con lo que han cambiado**: «Buscar comida: Bayas y raíces para un día (Comida +1)», «Peaje: El guarda del puente se cobra un día de comida (Comida −1)», «Perderse: Perdidos en la niebla: hoy no avanzáis (Perdidos)».
 - **Acciones** con lo que han durado, y cuándo no se ha tirado nada: en las Marcas Grises, **Buscar comida** en colinas dice «Buscar comida (3 h): no hay nada que buscar en colinas: solo los bosques, campos, brezales y marismas dan comida». Las tres horas pasan igual y la marcha sigue a la mitad.
 - **Acciones que hace el propio sistema**, como comer al acabar cada día, con lo que cambiaron («Comer (Comida −1)»); un valor que llega a su mínimo o su máximo («Comida no puede bajar de 0») y los cambios de **fatiga** con su motivo («Sin comida suficiente: Fatiga +1»); lo que cambió una acción va en su propia línea («Acampáis para pasar la noche (Fatiga −1)», «Descansáis 2 h (Fatiga −1)»).
+
+## El diario: todo, o la historia
+
+El diario guarda **todo** lo que pasa, también lo que pasa por detrás, y lo alto de la pestaña **Diario** elige lo que ves. Elegir no pierde nada: es solo lo que se muestra, y lo que escribe **Exportar**. Este navegador recuerda lo que eliges, en todas las aplicaciones que muestran un viaje.
+
+**Mostrar** elige cuánto:
+
+- **La historia**: lo que ha pasado en la partida. Resultados de las tablas, descubrimientos, llegar, lo que dice el sistema (`say:`), lo que te ha preguntado una acción, tus notas. Va bien para releer el viaje como un relato, o exportarlo a tus notas.
+- **Y las reglas** (el diario de siempre): también lo que han hecho las reglas. Hexes en los que se entra, acciones, comprobaciones que te esperan, lo que han cambiado comprobaciones y acciones, valores que llegan a su mínimo o su máximo.
+- **Todo**: también lo que ha pasado por detrás, en líneas grises más pequeñas:
+  - cada tirada en una tabla, sus dados y la fila o carta que ha salido: _Tirada de Encuentro: Encuentros salvajes: 2d6 → 7 [3, 4] → 7; Lobos: 1d6 → 3 [3]_ (un dado que no cuenta sale tachado como `~2~`; los totales que un modo de tirada no se ha quedado van entre paréntesis);
+  - la tirada del clima: _Clima: 2d6 = 7, sudeste → llovizna_ en una flor de hexes, _desde lluvia de ayer → tormenta_ con tablas de probabilidad;
+  - cada comprobación que **no** ha salido, y por qué: _Emboscada no sale: el peligro del hex es 1: necesita 2 o más_. Es la línea que hay que buscar cuando una comprobación que esperabas no aparece nunca;
+  - cada momento del día que nombra alguna comprobación o acción, cuando llega: _Momento: al entrar en un hex_, _Momento: tras «Acampar»_, _Momento: Guardias: media_;
+  - cada valor antes y después: _Comida: 5 → 3_, _Kael: Salud: 3 → 2_, y una condición que empieza o se acaba;
+  - cada ruta planeada: _Ruta hasta Ashford · hexes: 4_.
+
+**De qué** (cuando el diario tiene líneas de más de un tipo) deja fuera tipos: el **Viaje** (hexes, acciones, las reglas), el **Oráculo** (tablas y clima), el **Mundo** (eventos y festividades del reloj del mundo), los **Personajes** (lo que ha cambiado en ellos, el plantel) y tus **Notas**. **Buscar** se queda con las líneas que tienen esas palabras, sin importar mayúsculas: con **Todo**, busca el nombre de una comprobación para ver cada vez que se ha tirado, o que no ha salido y por qué.
+
+**Lo que acaba de pasar** muestra la historia y las reglas de tu último paso, nunca lo que ha pasado por detrás: eso está en la pestaña **Diario**.
+
+Por ejemplo, para ver dónde para un viaje el **Lugar señalado** de las Marcas Grises y dónde no: elige **Todo** y busca `Lugar señalado`. Cada hex sin la etiqueta dice por qué: _Lugar señalado no sale: las etiquetas del hex es nada, no landmark_.
 
 ## Quién tira
 

@@ -55,6 +55,23 @@ export const en = {
   journalTitle: 'Journal',
   exportJournal: 'Export',
   emptyJournal: 'Nothing has happened yet.',
+  /** The Journal tab's filter. */
+  filter: {
+    level: 'Show',
+    levelHelp:
+      'How much of what happened the journal shows. Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes\n• **And the rules** — also what the rules did: hexes entered, actions taken, checks, changes to the supplies and stats, values that hit a bound (as the journal always showed)\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the hex’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
+    levels: { story: 'The story', mechanics: 'And the rules', detail: 'Everything' },
+    topics: {
+      travel: 'Trip',
+      oracle: 'Oracle',
+      world: vocabulary.en.terms.world,
+      characters: 'Characters',
+      notes: 'Notes',
+    },
+    topicsLabel: 'What about',
+    search: 'Search the journal',
+    none: 'No line of the journal matches.',
+  },
   seasons: vocabulary.en.seasons,
   tips: {
     actionTime: 'Takes {minutes} minutes.',
@@ -69,7 +86,7 @@ export const en = {
       'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from each supply or added to it (your own edits of the amounts don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.hexes`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
     exportJournal:
-      'Download the whole journal as Markdown, a heading per day: for your notes app (SilverBullet, Obsidian…) or to print.',
+      'Download the journal as Markdown, a heading per day, with the lines the filter shows: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
     marched:
       'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain, the road and the way of travelling, as the system sets them. For example, if a way of travelling makes 24 km in 8 h and hexes are 12 km:\n• open ground (× 1): 4 h a hex\n• a terrain at × 0.5: 8 h a hex\n• a road at × 1.5: under 3 h a hex',
@@ -198,6 +215,25 @@ export const en = {
     DESTINATION_REACHED: 'Destination reached',
     ROUTE_BLOCKED: 'The route is blocked',
     NO_ROUTE: 'No route there',
+    // The journal's detail: what happened behind.
+    rolled: '{event} rolled: {rolls}',
+    weatherRolled: '{event}: {how} → {weather}',
+    weatherFlower: '2d6 = {total}, {move}',
+    weatherFrom: 'from yesterday’s {from}',
+    weatherStart: 'from the season’s start',
+    moves: vocabulary.en.directions,
+    changed: '{name}: {from} → {to}',
+    conditionSet: '{name}: now holds',
+    conditionCleared: '{name}: no longer holds',
+    skipped: '{event} doesn’t come up: {why}',
+    skippedBy: { when: 'its “when” doesn’t hold', unless: 'its “unless” holds' },
+    moment: 'Moment: {moment}',
+    moments: {
+      hexEnter: 'entering a hex',
+      dayEnd: 'the day’s end',
+      action: 'after “{action}”',
+    },
+    route: 'Route to {hex} · hexes: {hexes}',
   },
   // Why a rule stopped something: each pair of its condition that didn't hold.
   why: {

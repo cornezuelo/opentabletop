@@ -47,6 +47,7 @@ describe('weather with inertia', () => {
       weather: 'clear',
       name: { en: 'Clear', es: 'Despejado' },
       value: { weather: 'clear' },
+      how: {},
     })
     // From rain (weights 3/1/1): 0.9 lands on storm, which gives its values.
     expect(
@@ -54,6 +55,8 @@ describe('weather with inertia', () => {
     ).toEqual({
       weather: 'storm',
       value: { weather: 'storm', fordImpossible: true },
+      // From rain's row (the journal can say so).
+      how: { from: 'rain' },
     })
     // Winter has no row for clear: it starts over from its own start weights.
     expect(
@@ -106,6 +109,7 @@ describe('a hex flower', () => {
     expect(nextWeather(model, { season: 'winter', at: '0,0', random: roll(7) })).toMatchObject({
       at: '0,1',
       weather: 'clear',
+      how: { total: 7, move: 'se' },
     })
     // 12: north-west, to (0,-1): snow, with its values for the day.
     expect(nextWeather(model, { season: 'winter', at: '0,0', random: roll(12) })).toMatchObject({

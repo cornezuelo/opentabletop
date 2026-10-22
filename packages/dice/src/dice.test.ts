@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { seeded, sequence } from '@open-tabletop/random'
-import { bounds, DiceSyntaxError, distribution, parseDice, possibleTotals, roll } from './index'
+import {
+  bounds,
+  diceText,
+  DiceSyntaxError,
+  distribution,
+  parseDice,
+  possibleTotals,
+  roll,
+} from './index'
 
 /** Unit-interval values that make randomInt(1, n) return the given faces. */
 const faces = (n: number, ...values: number[]) => sequence(values.map((v) => (v - 1 + 0.5) / n))
@@ -67,6 +75,14 @@ describe('roll', () => {
     // An even count keeps the lower middle one.
     expect(roll('1d6', faces(6, 1, 6, 3, 5), { repeat: 4, keep: 'middle' }).total).toBe(3)
     expect(roll('1d6', faces(6, 3), {}).discarded).toBeUndefined()
+  })
+
+  it('writes a roll as one line: dice, the ones not kept and the totals a mode left', () => {
+    expect(diceText(roll('2d6+1', faces(6, 3, 4)))).toBe('2d6+1 → 8  [3, 4] +1')
+    expect(diceText(roll('2d6kh1-1', faces(6, 2, 5)))).toBe('2d6kh1-1 → 4  [~2~, 5] −1')
+    expect(diceText(roll('1d6', faces(6, 2, 5), { repeat: 2, keep: 'highest' }))).toBe(
+      '1d6 → 5  [5]  (2)',
+    )
   })
 
   it('is reproducible with a seed', () => {

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@open-tabletop/character-engine": "*",
+    "@open-tabletop/dice": "*",
     "@open-tabletop/faction-engine": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/random": "*",

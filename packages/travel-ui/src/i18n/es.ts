@@ -54,6 +54,22 @@ export const es: Messages<typeof en> = {
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
   emptyJournal: 'Aún no ha pasado nada.',
+  filter: {
+    level: 'Mostrar',
+    levelHelp:
+      'Cuánto de lo que ha pasado muestra el diario. Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas\n• **Y las reglas** — también lo que han hecho las reglas: hexes en los que se entra, acciones, comprobaciones, cambios en las provisiones y los atributos, valores que llegan a su límite (lo que el diario mostraba siempre)\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del hex es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
+    levels: { story: 'La historia', mechanics: 'Y las reglas', detail: 'Todo' },
+    topics: {
+      travel: 'Viaje',
+      oracle: 'Oráculo',
+      world: vocabulary.es.terms.world,
+      characters: 'Personajes',
+      notes: 'Notas',
+    },
+    topicsLabel: 'De qué',
+    search: 'Buscar en el diario',
+    none: 'Ninguna línea del diario coincide.',
+  },
   seasons: vocabulary.es.seasons,
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
@@ -68,7 +84,7 @@ export const es: Messages<typeof en> = {
       'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido a cada provisión sus acciones, comprobaciones y tablas (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.hexes`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
     exportJournal:
-      'Descarga todo el diario en Markdown, con un título por día: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
+      'Descarga el diario en Markdown, con un título por día y las líneas que muestra el filtro: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
     marched:
       'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda un hex depende de la escala del mundo (km por hex), el terreno, el camino y la forma de viajar, según los fije el sistema. Por ejemplo, si una forma de viajar hace 24 km en 8 h y los hexes son de 12 km:\n• campo abierto (× 1): 4 h por hex\n• un terreno a × 0.5: 8 h por hex\n• un camino a × 1.5: menos de 3 h por hex',
@@ -196,6 +212,24 @@ export const es: Messages<typeof en> = {
     DESTINATION_REACHED: 'Destino alcanzado',
     ROUTE_BLOCKED: 'La ruta está bloqueada',
     NO_ROUTE: 'No hay ruta hasta allí',
+    rolled: 'Tirada de {event}: {rolls}',
+    weatherRolled: '{event}: {how} → {weather}',
+    weatherFlower: '2d6 = {total}, {move}',
+    weatherFrom: 'desde {from} de ayer',
+    weatherStart: 'desde el inicio de la estación',
+    moves: vocabulary.es.directions,
+    changed: '{name}: {from} → {to}',
+    conditionSet: '{name}: ahora sí',
+    conditionCleared: '{name}: ya no',
+    skipped: '{event} no sale: {why}',
+    skippedBy: { when: 'su «solo si» no se cumple', unless: 'su «salvo si» se cumple' },
+    moment: 'Momento: {moment}',
+    moments: {
+      hexEnter: 'al entrar en un hex',
+      dayEnd: 'el final del día',
+      action: 'tras «{action}»',
+    },
+    route: 'Ruta hasta {hex} · hexes: {hexes}',
   },
   why: {
     op: {

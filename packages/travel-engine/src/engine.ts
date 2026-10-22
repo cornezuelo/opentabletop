@@ -255,6 +255,17 @@ export type TravelEvent =
   | { type: 'NO_ROUTE'; to: string }
   | { type: 'HEX_ENTERED'; hex: string; time: GameTime }
   | { type: 'CHECK_REQUIRED'; check: PendingCheck; time: GameTime }
+  /** A moment some check or action names came (`at`): its actions and checks are looked at. */
+  | { type: 'MOMENT_REACHED'; at: string; time: GameTime }
+  /** A check of the moment didn't come up: its `when` or `unless`, and the pairs that decided it. */
+  | {
+      type: 'CHECK_SKIPPED'
+      event: string
+      at: string
+      condition: 'when' | 'unless'
+      failed: FailedPair[]
+      time: GameTime
+    }
   | { type: 'CHECK_RESOLVED'; id: string; outcome: CheckOutcome }
   | { type: 'DESTINATION_REACHED'; hex: string }
   | { type: 'ROUTE_BLOCKED'; from: string; to: string }
@@ -566,6 +577,11 @@ export function createTravelEngine(options: {
   for (const [id, def] of Object.entries(actions.all))
     for (const moment of momentsOf(def.on))
       triggered.set(moment, [...(triggered.get(moment) ?? []), id])
+  /** The moments some check or action names: reaching one is told (`MOMENT_REACHED`). */
+  const named = new Set([
+    ...triggered.keys(),
+    ...((rules.checks ?? []) as CheckRule[]).flatMap((c) => momentsOf(c.at)),
+  ])
   /** A declared value holds while it's set to anything but false. */
   const holds = (v: unknown) => v !== undefined && v !== null && v !== false
   /**
@@ -867,10 +883,12 @@ export function createTravelEngine(options: {
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
     // Conditions also see the host's facts (stats, today's values); the check keeps the
     // trip's own (the host adds its facts again when resolving it).
-    if (!event)
+    if (!event) {
+      if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
       // The actions the system takes at this moment come first (their checks too).
       for (const id of triggered.get(at) ?? [])
         takeAction(state, id, events, { on: at, facts: { ...facts, moment: at }, quiet: true })
+    }
     // Conditions (and the tables) see which moment it is: a check may come at several.
     // Entering a hex, the one left: `from.terrain`, `from.region`…
     const left = from ? { from: hexFacts(from) } : {}
@@ -879,8 +897,11 @@ export function createTravelEngine(options: {
     let scheduled = 0
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (event ? rule.event !== event : !momentsOf(rule.at).includes(at)) continue
-      if (rule.when && !test(state, rule.when, seen)) continue
-      if (rule.unless && test(state, rule.unless, seen)) continue
+      const stop = conditionStop(state, rule, seen)
+      if (stop) {
+        events.push({ type: 'CHECK_SKIPPED', event: rule.event, at, ...stop, time: state.time })
+        continue
+      }
       const check: PendingCheck = {
         id: `c${state.nextCheckId++}`,
         event: rule.event,

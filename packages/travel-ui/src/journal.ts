@@ -1,5 +1,14 @@
-import { FACT_PATHS, MEMBER_PATH, tripChanges, type JournalEntry } from '@open-tabletop/session'
-import type { Unavailable } from '@open-tabletop/travel-engine'
+import {
+  FACT_PATHS,
+  MEMBER_PATH,
+  shownAt,
+  tripChanges,
+  type JournalEntry,
+  type JournalLevel,
+  type JournalTopic,
+  type RolledNode,
+} from '@open-tabletop/session'
+import { DAY_END, HEX_ENTER, type Unavailable } from '@open-tabletop/travel-engine'
 import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
 import { idText, type Translate, type TravelUiKey } from './i18n'
 
@@ -43,6 +52,8 @@ export interface JournalContext {
   /** An action's parameter as a question (`ask:`), and one of its choices, in words. */
   paramName?: (action: string, param: string) => string
   choiceName?: (action: string, param: string, choice: string) => string
+  /** A part of the calendar's day by its reference (`time.meals.supper`), in words. */
+  partName?: (ref: string) => string | undefined
 }
 
 /** A text of the system's own as written: alone, or the first of its languages. */
@@ -427,9 +438,98 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.worldEvent', { name: e.text ?? '' })
     case 'HOLIDAY':
       return t('journal.holiday', { name: e.text ?? '' })
+    // The journal's detail: what happened behind.
+    case 'ROLLED': {
+      const rolls = Array.isArray(d.rolls) ? (d.rolls as RolledNode[]) : []
+      return t('journal.rolled', {
+        event: eventName(t, d.check, checkName),
+        rolls: rolls
+          .map((r) => {
+            const chose = r.entry !== undefined ? ` → ${r.entry}` : ''
+            const dice = r.dice.length ? `: ${r.dice.join(', ')}` : ''
+            return `${nameOf(r.source)}${dice}${chose}`
+          })
+          .join('; '),
+      })
+    }
+    case 'WEATHER_ROLLED': {
+      const weather = String(d.weather).replaceAll('-', ' ')
+      const how =
+        typeof d.total === 'number'
+          ? t('journal.weatherFlower', {
+              total: d.total,
+              move: t(`journal.moves.${String(d.move)}` as TravelUiKey),
+            })
+          : typeof d.from === 'string'
+            ? t('journal.weatherFrom', { from: d.from.replaceAll('-', ' ') })
+            : t('journal.weatherStart')
+      return t('journal.weatherRolled', { event: eventName(t, d.check, checkName), how, weather })
+    }
+    case 'CHANGED': {
+      const path = String(d.path)
+      const key = path.replace(/^party\.(stats|resources)\./, '')
+      const who = isMemberPath(path) ? (context.memberName?.(path) ?? path) : name(key)
+      // A condition set or cleared (0 and 1).
+      if (/\.conditions\./.test(path))
+        return t(Number(d.to) ? 'journal.conditionSet' : 'journal.conditionCleared', { name: who })
+      return t('journal.changed', { name: who, from: Number(d.from), to: Number(d.to) })
+    }
+    case 'CHECK_SKIPPED': {
+      const failed = Array.isArray(d.failed) ? (d.failed as FailedPair[]) : []
+      return t('journal.skipped', {
+        event: eventName(t, d.check, checkName),
+        why: failed.length
+          ? failedText(failed, context)
+          : t(`journal.skippedBy.${d.condition === 'unless' ? 'unless' : 'when'}`),
+      })
+    }
+    case 'MOMENT_REACHED':
+      return t('journal.moment', { moment: momentText(String(d.at), context) })
+    case 'ROUTE_PLANNED':
+      return t('journal.route', { hex: hexLabel(String(d.to)), hexes: Number(d.hexes) })
     default:
       return idText(t, `journal.${e.code}`, e.code)
   }
+}
+
+/**
+ * A moment of the day, in words: a part of the calendar's day by its name, an action
+ * taken, entering a hex, the day's end, or a clock as it's written.
+ */
+export function momentText(
+  at: string,
+  { t, actionName, partName }: Pick<JournalContext, 't' | 'actionName' | 'partName'>,
+): string {
+  if (at === HEX_ENTER) return t('journal.moments.hexEnter')
+  if (at === DAY_END) return t('journal.moments.dayEnd')
+  const action = /^actions\.(.+)$/.exec(at)?.[1]
+  if (action)
+    return t('journal.moments.action', {
+      action: actionName?.(action) ?? idText(t, `actions.${action}`, action),
+    })
+  return partName?.(at) ?? at
+}
+
+/** What a journal shows: up to a level, of some topics, with a text in its lines. */
+export interface JournalFilter {
+  level: JournalLevel
+  /** None: every topic. */
+  topics?: readonly JournalTopic[]
+  /** Words its lines must have (any case); empty: any line. */
+  search?: string
+}
+
+/** The entries a filter lets through, in their order. */
+export function filterJournal(
+  journal: readonly JournalEntry[],
+  filter: JournalFilter,
+  context: JournalContext,
+): JournalEntry[] {
+  const words = (filter.search ?? '').trim().toLocaleLowerCase()
+  return journal.filter(
+    (e) =>
+      shownAt(e, filter) && (!words || entryText(e, context).toLocaleLowerCase().includes(words)),
+  )
 }
 
 /** The trip day an entry belongs to (1 = the day the trip started). */

@@ -9,6 +9,7 @@ import {
   tripAvailability,
   tripChanges,
   tripContext,
+  shownAt,
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
@@ -261,8 +262,10 @@ describe('example maps', () => {
     // Ashford is farmland: foraging there is rolled on the Foraging table.
     const { session } = startTrip({ system, location: '5,7', season: 'summer' })
     const foraged = stepTrip(options, session, { type: 'action', id: 'forage' })
-    expect(foraged.entries.map((e) => e.code)).toEqual(['ACTION_TAKEN', 'ORACLE_RESULT'])
-    expect(foraged.entries[1].data).toMatchObject({
+    // As players read it (the journal's detail has the roll's dice and the food before and after).
+    const told = foraged.entries.filter((e) => shownAt(e, { level: 'mechanics' }))
+    expect(told.map((e) => e.code)).toEqual(['ACTION_TAKEN', 'ORACLE_RESULT'])
+    expect(told[1].data).toMatchObject({
       event: 'FORAGE_CHECK_REQUIRED',
       table: 'grey-marches/forage',
     })

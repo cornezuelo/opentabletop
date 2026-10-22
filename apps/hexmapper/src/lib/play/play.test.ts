@@ -11,11 +11,13 @@ import {
   applyResult,
   partyOf,
   refreshParty,
+  shownAt,
   tripAvailability,
   tripFacts,
   type SessionState,
 } from '@open-tabletop/session'
 import { mapWorld } from './world'
+import { entryText, translator } from '@open-tabletop/travel-ui'
 import {
   clickHex,
   editSession,
@@ -355,6 +357,53 @@ describe('playing on the map', () => {
       await advance({ until: 'next-day' })
       expect(partyLocation()).toBe('7,7')
       expect(editor.campaign.world!.time).toBe(trip().travel.time)
+    })
+
+    it('the journal keeps everything behind: dice, rows, weather, skipped checks, changes', async () => {
+      grey()
+      startWorld()
+      clickHex('7,7')
+      for (let day = 0; day < 10 && partyLocation() !== '7,7'; day++) {
+        await advance({ until: 'next-day' })
+        for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+      }
+      const journal = trip().journal
+      const of = (code: string) => journal.filter((e) => e.code === code)
+      // Each roll on a table, with its dice and the row it chose.
+      expect(of('ROLLED').length).toBeGreaterThan(0)
+      for (const rolled of of('ROLLED')) {
+        const rolls = rolled.data?.rolls as { source: string; dice: string[]; entry?: string }[]
+        expect(rolls[0].source).toMatch(/^grey-marches\//)
+        expect(rolls.some((r) => r.dice.some((d) => / → -?\d+ /.test(d)))).toBe(true)
+      }
+      // Each ORACLE_RESULT of a table has its roll just before it.
+      for (const result of of('ORACLE_RESULT').filter((e) => e.data?.table)) {
+        const before = journal[journal.indexOf(result) - 1]
+        expect(before.code).toBe('ROLLED')
+        expect(before.data?.check).toBe(result.data?.event)
+      }
+      // The weather, how it was chosen; the moments; checks that didn't come up, and why.
+      expect(of('WEATHER_ROLLED')[0].data).toMatchObject({ weather: expect.any(String) })
+      expect(of('MOMENT_REACHED').map((e) => e.data?.at)).toContain('trip.hex-enter')
+      const skipped = of('CHECK_SKIPPED')
+      expect(skipped.length).toBeGreaterThan(0)
+      expect(skipped.every((e) => (e.data?.failed as unknown[]).length > 0)).toBe(true)
+      // Each value before and after: the food eaten.
+      const food = of('CHANGED').find((e) => e.data?.path === 'party.resources.food')
+      expect(food?.data).toMatchObject({ from: expect.any(Number), to: expect.any(Number) })
+      expect(food!.data!.to).not.toBe(food!.data!.from)
+      // The journal as it always was (the story and the rules) holds none of it.
+      expect(
+        journal.filter((e) => shownAt(e, { level: 'mechanics' })).map((e) => e.code),
+      ).not.toContain('ROLLED')
+      // Each line says something in words.
+      const t = translator(() => 'en')
+      const context = { t, startDay: 1, hexLabel: (h: string) => h, nameOf: (id: string) => id }
+      for (const e of journal) {
+        const text = entryText(e, context)
+        expect(text).not.toBe(e.code)
+        expect(text).not.toMatch(/undefined|NaN|\[object/)
+      }
     })
 
     it('saying no to the question leaves the trip and the world as they were', async () => {

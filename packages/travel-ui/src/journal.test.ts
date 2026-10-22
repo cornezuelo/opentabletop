@@ -3,7 +3,7 @@ import { coreSystem } from '../../session/src/core.testing'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
-import { entryText, journalMarkdown, whyText, type JournalContext } from './journal'
+import { entryText, filterJournal, journalMarkdown, whyText, type JournalContext } from './journal'
 import { memberNamer } from './members'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
@@ -289,5 +289,91 @@ describe('what results did to characters and the world', () => {
     )
     // No characters, no factions or clocks on this host: none of it is told.
     expect(line(undefined)).toBe('Rest')
+  })
+})
+
+describe('the journal’s detail, and its filter', () => {
+  const t = translator(() => 'en')
+  const context: JournalContext = {
+    t,
+    startDay: 1,
+    hexLabel: (h) => `Hex ${h}`,
+    nameOf: (id) => (id === 'gm/encounters' ? 'Wild encounters' : id),
+    checkName: (event) => (event === 'AMBUSH' ? 'Ambush' : undefined),
+    valueName: (key) => (key === 'food' ? 'Food' : key),
+    actionName: (id) => (id === 'forage' ? 'Forage' : id),
+    partName: (ref) => (ref === 'time.day.dusk' ? 'Day: dusk' : undefined),
+  }
+  const journal = [
+    entry(at(1, '06:00'), 'MOMENT_REACHED', { data: { at: 'time.day.dusk' } }),
+    entry(at(1, '06:00'), 'CHECK_SKIPPED', {
+      data: {
+        check: 'AMBUSH',
+        at: 'trip.hex-enter',
+        condition: 'when',
+        failed: [{ path: 'hex.danger', value: 1, op: 'gte', asked: 2 }],
+      },
+    }),
+    entry(at(1, '07:00'), 'ROLLED', {
+      source: 'oracle',
+      data: {
+        check: 'ENCOUNTER_CHECK_REQUIRED',
+        rolls: [
+          { source: 'gm/encounters', entry: '7', dice: ['2d6 → 7  [3, 4]'], depth: 0 },
+          { source: 'gm/wolves', dice: ['1d6 → 3  [3]'], depth: 1 },
+        ],
+      },
+    }),
+    entry(at(1, '07:00'), 'ORACLE_RESULT', {
+      source: 'oracle',
+      text: 'Wolves',
+      data: { event: 'ENCOUNTER_CHECK_REQUIRED' },
+    }),
+    entry(at(1, '07:00'), 'CHANGED', { data: { path: 'party.resources.food', from: 5, to: 3 } }),
+    entry(at(1, '08:00'), 'WEATHER_ROLLED', {
+      source: 'oracle',
+      data: { check: 'WEATHER_CHECK_REQUIRED', weather: 'light-rain', total: 7, move: 'se' },
+    }),
+    entry(at(1, '09:00'), 'HEX_ENTERED', { data: { hex: '3' } }),
+    entry(at(1, '09:00'), 'NOTE', { source: 'user', text: 'Wolves again' }),
+  ]
+
+  it('tells what happened behind in words', () => {
+    expect(journal.slice(0, 3).map((e) => entryText(e, context))).toEqual([
+      'Moment: Day: dusk',
+      'Ambush doesn’t come up: the hex’s danger is 1: it needs 2 or more',
+      'Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7; gm/wolves: 1d6 → 3  [3]',
+    ])
+    expect(entryText(journal[4], context)).toBe('Food: 5 → 3')
+    expect(entryText(journal[5], context)).toBe('Weather: 2d6 = 7, south-east → light rain')
+    expect(entryText(entry(0, 'MOMENT_REACHED', { data: { at: 'actions.forage' } }), context)).toBe(
+      'Moment: after “Forage”',
+    )
+  })
+
+  it('shows up to a level, of some topics, with some words; exports what it shows', () => {
+    const codes = (filter: Parameters<typeof filterJournal>[1]) =>
+      filterJournal(journal, filter, context).map((e) => e.code)
+    // As the journal always was: the story and the rules.
+    expect(codes({ level: 'mechanics' })).toEqual(['ORACLE_RESULT', 'HEX_ENTERED', 'NOTE'])
+    expect(codes({ level: 'story' })).toEqual(['ORACLE_RESULT', 'NOTE'])
+    expect(codes({ level: 'detail' })).toHaveLength(journal.length)
+    expect(codes({ level: 'detail', topics: ['oracle'] })).toEqual([
+      'ROLLED',
+      'ORACLE_RESULT',
+      'WEATHER_ROLLED',
+    ])
+    expect(codes({ level: 'detail', search: 'WOLVES' })).toEqual([
+      'ROLLED',
+      'ORACLE_RESULT',
+      'NOTE',
+    ])
+    const markdown = journalMarkdown(
+      filterJournal(journal, { level: 'detail', search: 'ambush' }, context),
+      context,
+      'T',
+    )
+    expect(markdown).toContain('- **06:00** Ambush doesn’t come up')
+    expect(markdown).not.toContain('Wolves')
   })
 })

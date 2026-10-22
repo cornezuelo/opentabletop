@@ -4,8 +4,12 @@
   import {
     localize,
     editPartySheet,
+    entryTopic,
+    JOURNAL_LEVELS,
+    JOURNAL_TOPICS,
     lastStepEntries,
     partyOf,
+    shownAt,
     picksWho,
     tripAvailability,
     type JournalEntry,
@@ -21,6 +25,7 @@
     entryClock,
     entryText,
     eventName,
+    filterJournal,
     journalMarkdown,
     tripDay,
     whyText,
@@ -53,6 +58,7 @@
   import { dayPartsLine, divisionName, partName } from './dayParts'
   import Section from './Section.svelte'
   import { tripTab, type TripTab } from './tripTab.svelte'
+  import { journalFilter } from './journalFilter.svelte'
   import PartyMembers from './PartyMembers.svelte'
   import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
 
@@ -366,8 +372,17 @@
     if (!(system.rules.checks ?? []).some((c) => c.at === id)) return ''
     return localize(actions.all[id]?.nothing, locale, 'en')
   }
+  /** A clock (`06:00`) or a part of the calendar's day by its name ("Meals: supper"). */
+  const untilText = (moment: string) => {
+    if (!isPartRef(moment)) return moment
+    const found = findPartRef(calendar.divisions ?? [], moment)
+    return found
+      ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`
+      : moment
+  }
   const context = $derived({
     t,
+    partName: untilText,
     startDay,
     hexLabel,
     nameOf,
@@ -404,14 +419,6 @@
     const minutes = always.reduce((n, st) => n + (typeof st.time === 'number' ? st.time : 0), 0)
     const until = always.find((st) => isPartRef(st.time) || isClock(st.time))?.time as
       string | undefined
-    /** Until a clock (`06:00`) or a part of the calendar's day (its name: "until supper"). */
-    const untilText = (moment: string) => {
-      if (!isPartRef(moment)) return moment
-      const found = findPartRef(calendar.divisions ?? [], moment)
-      return found
-        ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`
-        : moment
-    }
     const speed = always.find((st) => st['travel.speed'] !== undefined)?.['travel.speed']
     const moves = steps.some((st) => st['travel.move'] !== undefined)
     const effects = Object.assign({}, ...always.map((st) => st.effects ?? {}))
@@ -447,10 +454,25 @@
     }
     return groups
   }
+  /** The lines the Journal tab's filter lets through, oldest first (what Export writes). */
+  const filtered = $derived(filterJournal(session.journal, journalFilter.current, context))
   /** Newest first. */
-  const journalDays = $derived(byDay([...session.journal].reverse().slice(0, 60)))
-  /** What the last step did, newest first like the journal: what stopped it on top. */
-  const lastDays = $derived(byDay([...lastStepEntries(session)].reverse()))
+  const journalDays = $derived(byDay([...filtered].reverse().slice(0, 200)))
+  /** The topics this journal has lines of: those the filter offers. */
+  const topics = $derived(
+    JOURNAL_TOPICS.filter((topic) => session.journal.some((e) => entryTopic(e) === topic)),
+  )
+  /**
+   * What the last step did, newest first like the journal: what stopped it on top (the
+   * story and the rules: what happened behind is in the Journal tab).
+   */
+  const lastDays = $derived(
+    byDay(
+      lastStepEntries(session)
+        .filter((e) => shownAt(e, { level: 'mechanics' }))
+        .reverse(),
+    ),
+  )
 
   /** The tabs under what the last step did: the party's only when the system has one. */
   const tabs = $derived<TripTab[]>([
@@ -468,7 +490,7 @@
     id === 'party' ? t('tabs.party') : id === 'journal' ? t('journalTitle') : t('tabs.totals')
 
   function exportJournal() {
-    const markdown = journalMarkdown(session.journal, context, title || t('journalTitle'))
+    const markdown = journalMarkdown(filtered, context, title || t('journalTitle'))
     const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }))
     const link = document.createElement('a')
     link.href = url
@@ -679,7 +701,7 @@
       {#each days as group (group.day)}
         <li class="day">{t('journalDay', { day: group.day })}</li>
         {#each group.entries as entry (entry.id)}
-          <li class={entry.source}>
+          <li class={entry.source} class:detail={shownAt(entry, { level: 'mechanics' }) === false}>
             <time>{entryClock(entry, calendar)}</time>
             <span>{text(entry)}</span>
           </li>
@@ -826,13 +848,48 @@
         </Section>
       {/if}
     {:else if tab === 'journal'}
-      <button
-        class="link export"
-        use:tooltip={t('tips.exportJournal')}
-        disabled={!session.journal.length}
-        onclick={exportJournal}>{t('exportJournal')}</button
-      >
-      {@render lines(journalDays, t('emptyJournal'))}
+      <div class="filter">
+        <label class="level">
+          <span>{t('filter.level')}<InfoTip markdown={t('filter.levelHelp')} /></span>
+          <select
+            value={journalFilter.level}
+            onchange={(e) =>
+              journalFilter.setLevel(e.currentTarget.value as (typeof JOURNAL_LEVELS)[number])}
+          >
+            {#each JOURNAL_LEVELS as level (level)}
+              <option value={level}>{t(`filter.levels.${level}`)}</option>
+            {/each}
+          </select>
+        </label>
+        <button
+          class="link export"
+          use:tooltip={t('tips.exportJournal')}
+          disabled={!filtered.length}
+          onclick={exportJournal}>{t('exportJournal')}</button
+        >
+        {#if topics.length > 1}
+          <div class="topics" role="group" aria-label={t('filter.topicsLabel')}>
+            {#each topics as topic (topic)}
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!journalFilter.hidden.includes(topic)}
+                  onchange={() => journalFilter.toggle(topic)}
+                />
+                {t(`filter.topics.${topic}`)}
+              </label>
+            {/each}
+          </div>
+        {/if}
+        <input
+          class="search"
+          type="search"
+          placeholder={t('filter.search')}
+          aria-label={t('filter.search')}
+          bind:value={journalFilter.search}
+        />
+      </div>
+      {@render lines(journalDays, session.journal.length ? t('filter.none') : t('emptyJournal'))}
     {:else}
       <div class="lines totals">
         <span>{totals.line}<InfoTip markdown={t('tips.totals')} /></span>
@@ -912,9 +969,41 @@
     gap: 10px;
   }
 
-  /* The journal's Export, above its lines. */
+  /* The journal's filter, above its lines: what to show and Export on one line. */
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .filter .level {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
   .export {
-    align-self: flex-end;
+    margin-left: auto;
+  }
+
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    width: 100%;
+  }
+
+  .topics label {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    color: var(--text-muted);
+  }
+
+  .filter .search {
+    width: 100%;
   }
 
   .link {
@@ -1084,6 +1173,12 @@
 
   .journal li.oracle span {
     color: var(--accent);
+  }
+
+  /* What happened behind: quieter than the story and the rules. */
+  .journal li.detail span {
+    color: var(--text-muted);
+    font-size: 11px;
   }
 
   .journal li.day {

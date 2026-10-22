@@ -14,7 +14,14 @@ import {
   type PartyFrom,
   type Share,
 } from '@open-tabletop/character-engine'
-import { applyEffects, effectsOf, type Effects, type LimitReached } from './effects'
+import {
+  applyEffects,
+  effectsOf,
+  type AppliedEffect,
+  type Effects,
+  type LimitReached,
+} from './effects'
+import { rolledNodes } from './journal'
 import { definitionId } from './refs'
 import { pullFromRoster, type Roster, type RosterPlace } from './roster'
 import {
@@ -23,6 +30,7 @@ import {
   carriedNow,
   isMemberPath,
   memberFacts,
+  PARTY_ID,
   partyBlocks,
   picksWho,
   refreshParty,
@@ -400,6 +408,10 @@ const JOURNALED: TravelEvent['type'][] = [
   'HELD',
   'RESUMED',
   'MODE_CHANGED',
+  // What happened behind (the journal's detail).
+  'MOMENT_REACHED',
+  'CHECK_SKIPPED',
+  'ROUTE_PLANNED',
 ]
 
 export function createSession(options: {
@@ -479,9 +491,35 @@ export function createSession(options: {
     add(s, entries, {
       source: 'travel',
       code: type,
-      data: data as Record<string, unknown>,
+      // A route by where it goes and how long it is (re-planned at each hex, discovering);
+      // the detail without its time twice (there may be many of them), and naming its check
+      // `check` (the lines of the check itself name it `event`).
+      data:
+        e.type === 'ROUTE_PLANNED'
+          ? { to: e.route.at(-1), hexes: e.route.length - 1, strategy: e.strategy }
+          : e.type === 'CHECK_SKIPPED'
+            ? { check: e.event, at: e.at, condition: e.condition, failed: e.failed }
+            : e.type === 'MOMENT_REACHED'
+              ? { at: e.at }
+              : (data as Record<string, unknown>),
       ...(time !== undefined && { time }),
     })
+  }
+
+  /** Each value a change moved, before and after (the journal's detail). */
+  const changed = (
+    s: SessionState,
+    entries: JournalEntry[],
+    applied: readonly AppliedEffect[],
+    time?: number,
+  ) => {
+    for (const { path, from, to } of applied)
+      add(s, entries, {
+        source: 'travel',
+        code: 'CHANGED',
+        ...(time !== undefined && { time }),
+        data: { path, from, to },
+      })
   }
 
   return {
@@ -509,6 +547,26 @@ export function createSession(options: {
         const done = applyMemberEffects(s, effects, party, context, time)
         for (const path of done.nobody)
           add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
+        // What changed on whom, before and after.
+        const whose = (id: string) => (id === PARTY_ID ? 'party' : `characters.${id}`)
+        changed(
+          s,
+          entries,
+          done.events.flatMap((e): AppliedEffect[] =>
+            e.type === 'VALUE_CHANGED'
+              ? [{ path: `${whose(e.character)}.values.${e.value}`, from: e.from, to: e.to }]
+              : e.type === 'CONDITION_SET' || e.type === 'CONDITION_CLEARED'
+                ? [
+                    {
+                      path: `${whose(e.character)}.conditions.${e.condition}`,
+                      from: e.type === 'CONDITION_SET' ? 0 : 1,
+                      to: e.type === 'CONDITION_SET' ? 1 : 0,
+                    },
+                  ]
+                : [],
+          ),
+          time,
+        )
         return done.limits
       }
       /** Supplies' bounds now (the members' sums for what they carry). */
@@ -588,11 +646,16 @@ export function createSession(options: {
         const dayBefore = s.travel.day
         const from = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
+        const before = { ...s.travel.resources }
         const result = replay
           ? { state: s.travel, events: replay }
           : options.travel.apply(s.travel, act, tripContext(s, hostOf(s)))
         replay = undefined
         s.travel = result.state
+        // What the travel engine took from the supplies, or added (actions, the rules).
+        const supplied = Object.entries(s.travel.resources)
+          .filter(([id, to]) => to !== (before[id] ?? 0))
+          .map(([id, to]) => ({ path: `party.resources.${id}`, from: before[id] ?? 0, to }))
         // What the engine took from the supplies the members carry, taken from them.
         settle()
         if (s.travel.day !== dayBefore) {
@@ -610,7 +673,12 @@ export function createSession(options: {
             const own = Object.fromEntries(
               Object.entries(event.effects).filter(([p]) => !p.startsWith('party.resources.')),
             )
-            applyEffects({ stats: s.stats, travel: { resources: {} } }, own, stats)
+            const { applied } = applyEffects(
+              { stats: s.stats, travel: { resources: {} } },
+              own,
+              stats,
+            )
+            changed(s, entries, applied, event.time)
             for (const limit of memberEffects(event.effects, tripContext(s, host), event.time))
               add(s, entries, {
                 source: 'travel',
@@ -641,7 +709,14 @@ export function createSession(options: {
           // (A check rolled after waiting for who rolls had its own effects then.)
           if (event.check.effects && !replaying) {
             const seenNow = tripContext(s, { ...host, ...event.check.context })
-            const { limits } = applyEffects(s, event.check.effects, stats, suppliesNow(), seenNow)
+            const { applied, limits } = applyEffects(
+              s,
+              event.check.effects,
+              stats,
+              suppliesNow(),
+              seenNow,
+            )
+            changed(s, entries, applied, event.time)
             limits.push(...memberEffects(event.check.effects, seenNow, event.time))
             settle()
             // A party without characters: only what happened to it is told (nothing, when
@@ -729,6 +804,18 @@ export function createSession(options: {
               // On a hex flower, where the day is: tomorrow moves on from there.
               if (day.at) s.weatherAt = day.at
               else delete s.weatherAt
+              add(s, entries, {
+                source: 'oracle',
+                code: 'WEATHER_ROLLED',
+                time: event.time,
+                data: {
+                  check: event.check.event,
+                  model: binding.weather,
+                  weather: day.weather,
+                  ...day.how,
+                  ...(day.at && { at: day.at }),
+                },
+              })
               value = day.value
               text = localize(day.name, options.locale ?? 'en', 'en') ?? day.weather
             } else {
@@ -736,6 +823,13 @@ export function createSession(options: {
                 locale: options.locale,
               })
               s.oracle = out.state
+              // Behind the result: each roll's dice, and the rows or cards chosen.
+              add(s, entries, {
+                source: 'oracle',
+                code: 'ROLLED',
+                time: event.time,
+                data: { check: event.check.event, rolls: rolledNodes(out.resolution) },
+              })
               value = out.resolution.value
               text = out.resolution.text
             }
@@ -785,10 +879,9 @@ export function createSession(options: {
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
-          const limits = [
-            ...applyEffects(s, effects, stats, suppliesNow()).limits,
-            ...memberEffects(effects, seen, event.time),
-          ]
+          const done = applyEffects(s, effects, stats, suppliesNow())
+          changed(s, entries, done.applied, event.time)
+          const limits = [...done.limits, ...memberEffects(effects, seen, event.time)]
           settle()
           for (const limit of limits)
             add(s, entries, {
@@ -817,6 +910,7 @@ export function createSession(options: {
             outcome: toOutcome(value, declared),
           }).state
         }
+        changed(s, entries, supplied)
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
         const reason = stopped?.type === 'TRAVEL_STOPPED' ? stopped.reason : undefined
         const clear =
@@ -949,6 +1043,7 @@ export function dayVariables(
   return out
 }
 export * from './effects'
+export * from './journal'
 export * from './trip'
 export * from './discovery'
 export * from './suggestions'

@@ -577,7 +577,9 @@ describe('the system’s own actions', () => {
 
   it('take time, slow the day and roll their checks', () => {
     const { state, events } = own.apply(start(), { type: 'action', id: 'forage' })
-    expect(events.map((e) => e.type)).toEqual(['ACTION_TAKEN', 'CHECK_REQUIRED'])
+    // Taking it is a moment its checks name (`actions.forage`): told, then its check.
+    expect(events.map((e) => e.type)).toEqual(['ACTION_TAKEN', 'MOMENT_REACHED', 'CHECK_REQUIRED'])
+    expect(events[1]).toMatchObject({ at: 'actions.forage' })
     expect(state.pendingChecks.map((c) => c.event)).toEqual(['FORAGE_CHECK_REQUIRED'])
     expect(state.time - start().time).toBe(240)
     expect(state.speedToday).toBe(0.5)
@@ -620,10 +622,20 @@ describe('the system’s own actions', () => {
   it('say how many of their checks came up', () => {
     const steppe = own.apply(start(), { type: 'action', id: 'forage' }).events[0]
     expect(steppe).toMatchObject({ minutes: 240, checks: 1, hex: '0,0', terrain: 'steppe' })
-    // In the mountains nothing applies: the journal can say so.
+    // In the mountains nothing applies: the journal can say so, and why the check didn't
+    // come up (its `when`, and what it read).
     const mountains = own.apply(start('3,0'), { type: 'action', id: 'forage' })
     expect(mountains.events).toEqual([
       expect.objectContaining({ type: 'ACTION_TAKEN', checks: 0, terrain: 'mountains' }),
+      expect.objectContaining({ type: 'MOMENT_REACHED', at: 'actions.forage' }),
+      {
+        type: 'CHECK_SKIPPED',
+        event: 'FORAGE_CHECK_REQUIRED',
+        at: 'actions.forage',
+        condition: 'when',
+        failed: [{ path: 'terrain', value: 'mountains', op: 'eq', asked: 'steppe' }],
+        time: start('3,0').time,
+      },
     ])
   })
 

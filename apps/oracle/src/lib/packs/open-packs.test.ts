@@ -10,6 +10,7 @@ import {
   tripFacts,
   travelSystems,
   type SessionState,
+  shownAt,
 } from '@open-tabletop/session'
 import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
@@ -957,7 +958,16 @@ describe('bundled open packs', () => {
       // On the hills the check doesn't apply: the action says it rolled nothing.
       const { session } = startTrip({ system, location: '0', season: 'summer' })
       const hills = stepTrip(options, session, { type: 'action', id: 'forage' }).entries
-      expect(hills.map((e) => [e.code, e.data?.checks])).toEqual([['ACTION_TAKEN', 0]])
+      expect(
+        hills
+          .filter((e) => shownAt(e, { level: 'mechanics' }))
+          .map((e) => [e.code, e.data?.checks]),
+      ).toEqual([['ACTION_TAKEN', 0]])
+      // The detail says why: the check's `when`, and what it read.
+      expect(hills.find((e) => e.code === 'CHECK_SKIPPED')?.data).toMatchObject({
+        check: 'FORAGE_CHECK_REQUIRED',
+        condition: 'when',
+      })
       // In the forest it rolls, and the food in the text is the food gained.
       for (let i = 0; i < 20; i++) {
         const { session } = startTrip({ system, location: '1', season: 'summer' })

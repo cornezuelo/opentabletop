@@ -8,6 +8,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper, Travel, Campaign: **Play, redesigned**: **New trip** is one line (System · season · New trip) instead of a framed box; the trip's tabs have plain headings inside, no folds; **Rolls with** moved into the Party tab, under **Acting**; **Export** at the top of the Journal tab; tabs never wrap onto a second row: when they don't fit (the World panel in the Hexmapper's side panel), they become a choice of the same tabs.
 
+- Hexmapper, Travel, Systems' Try it: **a journal that keeps everything, with a filter**: the journal now also keeps what happens behind (each roll's dice and the row or card it chose, the weather's roll, every check that didn't come up and why, the moments of the day some check or action names, each value before and after, the routes planned). The Journal tab's **Show** chooses **The story**, **And the rules** (as before) or **Everything**; it can leave out kinds of lines (trip, Oracle, world, characters, notes) and search them, remembered per browser; **Export** writes what the filter shows. **What just happened** never shows the detail.
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

@@ -537,7 +537,10 @@ entries:
       const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
       return stepTrip(options, planned, { type: 'travel' })
     }
-    expect(go(1).entries.some((e) => e.data?.event === 'AMBUSH')).toBe(false)
+    // Under the stat it doesn't come up: only the journal's detail says so, and why.
+    const calm = go(1).entries.filter((e) => e.data?.check === 'AMBUSH')
+    expect(calm.map((e) => e.code)).toEqual(['CHECK_SKIPPED'])
+    expect(calm[0].data).toMatchObject({ condition: 'when', failed: [{ value: 1 }] })
     const ambushed = go(2)
     const result = ambushed.entries.find((e) => e.data?.event === 'AMBUSH')
     // The table's effect reads its own value: −2 food, said as such in the journal.

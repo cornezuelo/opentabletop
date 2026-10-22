@@ -96,6 +96,12 @@ export interface WeatherDay {
   name?: WeatherText
   /** The values the day gets: `weather` plus the state's own (`fordModifier`…). */
   value: Record<string, unknown>
+  /**
+   * How it was chosen, for a journal that tells everything: from yesterday's weather's row
+   * (`from`) or the season's start; on a hex flower, the 2d6 total and where it moved
+   * (none: it started on its cell).
+   */
+  how: { from?: string; total?: number; move?: FlowerDirection }
 }
 
 /** Readable problems of a weather model (empty: valid). */
@@ -187,12 +193,14 @@ export function nextWeather(
   const row = options.previous ? season?.next[options.previous] : undefined
   const fromStart = () =>
     typeof season?.start === 'string' ? season.start : pick(season?.start ?? {}, options.random)
-  const weather = (row && pick(row, options.random)) ?? fromStart() ?? Object.keys(model.states)[0]
+  const next = row && pick(row, options.random)
+  const weather = next ?? fromStart() ?? Object.keys(model.states)[0]
   const state = model.states[weather] ?? {}
   return {
     weather,
     ...(state.name && { name: state.name }),
     value: { weather, ...state.set },
+    how: next ? { from: options.previous } : {},
   }
 }
 
@@ -216,9 +224,11 @@ function flowerDay(
       .filter(([, s]) => s === state)
       .sort(([a], [b]) => distance(a) - distance(b))[0]?.[0]
   let at: string
+  let how: WeatherDay['how'] = {}
   if (options.at && cells.has(options.at)) {
     const total = 2 + Math.floor(options.random.next() * 6) + Math.floor(options.random.next() * 6)
     const dir = directionOf(flower, total)
+    how = { total, move: dir }
     at = options.at
     if (dir !== 'stay') {
       const [dq, dr] = STEPS[dir]
@@ -240,6 +250,7 @@ function flowerDay(
     at,
     ...(state.name && { name: state.name }),
     value: { weather, ...state.set },
+    how,
   }
 }
 

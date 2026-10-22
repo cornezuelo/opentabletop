@@ -45,12 +45,12 @@ The panel on the right is the same as in the Hexmapper. At the top, where the pa
 **The tabs.** Under it, the rest of the trip is shown a tab at a time; this browser remembers the one you chose, in every app that shows a trip. When the panel is too narrow for the tabs side by side (the Hexmapper's side panel, a small window), they become a choice of the same tabs, never a second row:
 
 - **Party** (only when the system declares any of it): **The party** (its own sheet, and the party stats the system declares, each saying where it comes from: e.g. the Grey Marches' Charisma, Survival and Navigation, added to rolls), **Characters** and the supplies. Each section has a plain heading; one with an explanation has its heading underlined with dots: click it to read it in the help column. The help of a party stat, a supply or a journey role (click its name) also says what reads it and what changes it, by name: the Grey Marches' **Guide** is _Read by: Do we get lost?_; Fatigue is read by Camp, Rest and the forced and night marches, and changed by them and by a dozen tables (the inn, the ford, hunger…) (Systems lists them in full: [Used by](../systems/04-overview.md#used-by)).
-- **Journal**: the whole trip, newest first, grouped by day; **Export** sits at the top of the tab.
+- **Journal**: the whole trip, newest first, grouped by day; at the top, what it shows ([the journal's filter](#the-journal-everything-or-the-story)) and **Export**.
 - **So far**: what the trip has done.
 
 **So far** sums up the trip: hexes and km travelled, hours marched, the checks that came up, how many times each action was taken and what the supplies spent and gained. The system's rules and tables can read them too (`trip.km: { gte: 100 }`, `trip.taken.camp`, `trip.spent.food`: see [What tables see](../technical/04-what-tables-see.md#the-trip-trip)). Trips saved before they existed get their hexes and actions from the journal; the rest counts from then on.
 
-Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the whole journal as Markdown (a heading per day, named after the trip) for your notes app or to print. A check with no table is only written in the journal (with what it changes, if anything) and the trip goes on, unless it says to pause. The trip stops and shows **Continue** in three cases (a check that waits says the hex it came up in, by its name or else its coordinates: _Landmark at The Grey Stones: waiting for you_):
+Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the journal as Markdown (a heading per day, named after the trip, with the lines the filter shows) for your notes app or to print. A check with no table is only written in the journal (with what it changes, if anything) and the trip goes on, unless it says to pause. The trip stops and shows **Continue** in three cases (a check that waits says the hex it came up in, by its name or else its coordinates: _Landmark at The Grey Stones: waiting for you_):
 
 - a check that says **Pause after it** (`pause: true`): it's rolled if a table resolves it, and the trip waits so you can describe the place, resolve it yourself or decide something (the Grey Marches' shrine, rolled; their landmarks, with no table);
 - a table entry or deck card with `pause: true` that comes up (the Grey Marches' Greywood Wyrm): only when that result comes up;
@@ -67,6 +67,28 @@ What the journal says, so nothing happens silently:
 - **Results with what they changed**: "Foraging: Berries and roots for a day (Food +1)", "Toll: The bridge-warden takes a day’s food as toll (Food −1)", "Getting lost: Lost in the fog: no progress today (Lost)".
 - **Actions** with how long they took, and when nothing was rolled: in the Grey Marches, **Forage for food** on hills says "Forage for food (3 h): nothing to forage on hills: only woods, fields, heath and marsh give food". The three hours still pass and the march is still halved.
 - **Actions the system takes by itself**, like eating as each day ends, with what they changed ("Eat (Food −1)"); a value that hits its minimum or maximum ("Food can’t go lower than 0") and **fatigue** changes with their reason ("Not enough to eat: Fatigue +1"); what an action changed goes on its own line ("Camp for the night (Fatigue −1)", "Rest for 2 h (Fatigue −1)").
+
+## The journal: everything, or the story
+
+The journal keeps **everything** that happens, also what happens behind, and the top of the **Journal** tab chooses what you see. Nothing is lost by choosing: it's only what's shown, and what **Export** writes. This browser remembers your choice, in every app that shows a trip.
+
+**Show** chooses how much:
+
+- **The story**: what happened in the game. Results of the tables, discoveries, arriving, what the system says (`say:`), what an action asked you, your notes. Good for reading the trip back as a tale, or exporting it for your notes.
+- **And the rules** (the journal as it always was): also what the rules did. Hexes entered, actions taken, checks that wait for you, what checks and actions changed, values that hit their minimum or maximum.
+- **Everything**: also what happened behind, in smaller grey lines:
+  - each roll on a table, its dice and the row or card it chose: _Encounter rolled: Wild encounters: 2d6 → 7 [3, 4] → 7; Wolves: 1d6 → 3 [3]_ (a die not kept is struck through as `~2~`; the totals a roll mode didn't keep go in brackets);
+  - the weather's roll: _Weather: 2d6 = 7, south-east → light rain_ on a hex flower, _from yesterday's rain → storm_ with chance tables;
+  - every check that **didn't** come up, and why: _Ambush doesn't come up: the hex's danger is 1: it needs 2 or more_. This is the line to look for when a check you expected never shows;
+  - each moment of the day some check or action names, as it comes: _Moment: entering a hex_, _Moment: after "Camp"_, _Moment: Watches: middle_;
+  - each value before and after: _Food: 5 → 3_, _Kael: Health: 3 → 2_, and a condition set or cleared;
+  - each route planned: _Route to Ashford · hexes: 4_.
+
+**What about** (when the journal has lines of more than one kind) leaves kinds out: the **Trip** (hexes, actions, the rules), the **Oracle** (tables and weather), the **World** (events and holidays of the world clock), the **Characters** (what changed in them, the roster) and your **Notes**. **Search** keeps the lines with those words, in any case: with **Everything**, search a check's name to see each time it was rolled, or didn't come up and why.
+
+**What just happened** shows the story and the rules of your last step, never what happened behind: that is in the **Journal** tab.
+
+For example, to see where the Grey Marches' **Landmark** stops a trip and where it doesn't: choose **Everything** and search `Landmark`. Each hex without the tag says why: _Landmark doesn't come up: the hex's tags is nothing, not landmark_.
 
 ## Who rolls
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Resolution } from '@open-tabletop/oracle-engine'
-  import type { DiceResult } from '@open-tabletop/dice'
+  import { diceText } from '@open-tabletop/dice'
   import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
 
@@ -17,18 +17,6 @@
     ),
   )
   const empty = $derived(!resolution.text && !resolution.entry && !resolution.children.length)
-
-  function dice(r: DiceResult): string {
-    const parts = r.terms.map((term) =>
-      term.kind === 'dice'
-        ? `[${term.rolls.map((v, i) => (term.kept.includes(i) ? v : `~${v}~`)).join(', ')}]`
-        : `${term.sign < 0 ? '−' : '+'}${term.value}`,
-    )
-    // Rolls not kept (a roll mode); older histories kept a single one.
-    const discarded = r.discarded === undefined ? [] : [r.discarded].flat()
-    const others = discarded.length ? `  (${discarded.map((d) => d.total).join(', ')})` : ''
-    return `${r.expression} → ${r.total}  ${parts.join(' ')}${others}`
-  }
 </script>
 
 <div class="result" class:top>
@@ -50,7 +38,7 @@
   {#if resolution.rolls.length}
     <ul class="dice">
       {#each resolution.rolls as r, i (i)}
-        <li>{dice(r)}</li>
+        <li>{diceText(r)}</li>
       {/each}
     </ul>
   {/if}
