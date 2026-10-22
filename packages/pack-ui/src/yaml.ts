@@ -278,12 +278,27 @@ export function renameOverlayKey(
 /** Reads one text of a translation overlay. */
 export function getOverlayText(content: string | undefined, path: string[]): string {
   if (!content?.trim()) return ''
-  try {
-    const value = parseDocument(content).getIn(path)
-    return typeof value === 'string' ? value : ''
-  } catch {
-    return ''
+  const value = overlayDocument(content)?.getIn(path)
+  return typeof value === 'string' ? value : ''
+}
+
+/**
+ * The translation files read last, by their text: a form asks one for each of its texts,
+ * hundreds at a time, and parsing it each time took seconds.
+ */
+const overlayDocuments = new Map<string, Document.Parsed | null>()
+function overlayDocument(content: string): Document.Parsed | null {
+  let doc = overlayDocuments.get(content)
+  if (doc === undefined) {
+    try {
+      doc = parseDocument(content)
+    } catch {
+      doc = null
+    }
+    if (overlayDocuments.size >= 16) overlayDocuments.delete(overlayDocuments.keys().next().value!)
+    overlayDocuments.set(content, doc)
   }
+  return doc
 }
 
 /**

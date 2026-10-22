@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- Systems: **opening Rules (or any tab with many texts) took seconds** with the UI in another language than the pack's (Spanish on the Grey Marches: over 2 s): each text box read the whole translation file again; now it's read once (about 0.25 s).
+
 ## [0.9.0] - 2026-10-22
 
 ### Apps
