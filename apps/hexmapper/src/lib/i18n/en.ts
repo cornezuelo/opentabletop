@@ -73,7 +73,7 @@ export const en = {
     appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',
     rollHereHelp:
-      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{danger}}` in a roll, `danger: { gte: 2 }` in a condition\n• tags `landmark` → `hex.tags: landmark`',
+      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{hex.danger}}` in a roll, `hex.danger: { gte: 2 }` in a condition\n• tags `landmark` → `hex.tags: landmark`',
     title: 'Oracle',
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
@@ -587,10 +587,10 @@ export const en = {
   },
   fields: {
     hexHelp:
-      "Values of this hex that tables and travel checks read by key; numbers are read as numbers.\n• `danger` = `3` → `{{danger}}` in a roll, `danger: { gte: 2 }` in a condition\n• `guards` = `6` → `2d6 + {{guards}}`\n• `name` = `The Old Mill`\nA field of its own wins over its region's.",
+      "Values of this hex that tables and travel checks read by key; numbers are read as numbers.\n• `danger` = `3` → `{{hex.danger}}` in a roll, `hex.danger: { gte: 2 }` in a condition\n• `guards` = `6` → `2d6 + {{hex.guards}}`\n• `name` = `The Old Mill`\nA field of its own wins over its region's.",
     fromRegion: 'From its region ({region}): {values}. A field of its own with the same key wins.',
     regionHelp:
-      "Values every hex of the region has (a hex's own field with the same key wins):\n• `danger` = `2` for a whole forest, `4` on its heart's hexes\nTables read them like the hex's: `{{danger}}`.",
+      "Values every hex of the region has (a hex's own field with the same key wins):\n• `danger` = `2` for a whole forest, `4` on its heart's hexes\nTables read them like the hex's: `{{hex.danger}}`.",
     iconHelp:
       'Values of this icon (a village, a bridge…). Tables rolled on its hex read them as `{{icon.<key>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:

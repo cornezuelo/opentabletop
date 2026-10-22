@@ -73,7 +73,7 @@ export const es: Messages = {
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
     rollHereHelp:
-      'Abre el Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{danger}}` en una tirada, `danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `hex.tags: landmark`',
+      'Abre el Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{hex.danger}}` en una tirada, `hex.danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `hex.tags: landmark`',
     title: 'Oracle',
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oracle aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
@@ -592,10 +592,10 @@ export const es: Messages = {
   },
   fields: {
     hexHelp:
-      'Valores de este hex que las tablas y comprobaciones de viaje leen por clave; los números se leen como números.\n• `danger` = `3` → `{{danger}}` en una tirada, `danger: { gte: 2 }` en una condición\n• `guards` = `6` → `2d6 + {{guards}}`\n• `name` = `El Viejo Molino`\nUn campo propio gana al de su región.',
+      'Valores de este hex que las tablas y comprobaciones de viaje leen por clave; los números se leen como números.\n• `danger` = `3` → `{{hex.danger}}` en una tirada, `hex.danger: { gte: 2 }` en una condición\n• `guards` = `6` → `2d6 + {{hex.guards}}`\n• `name` = `El Viejo Molino`\nUn campo propio gana al de su región.',
     fromRegion: 'De su región ({region}): {values}. Un campo propio con la misma clave gana.',
     regionHelp:
-      'Valores que tiene cada hex de la región (un campo propio del hex con la misma clave gana):\n• `danger` = `2` para todo un bosque, `4` en los hexes de su corazón\nLas tablas los leen como los del hex: `{{danger}}`.',
+      'Valores que tiene cada hex de la región (un campo propio del hex con la misma clave gana):\n• `danger` = `2` para todo un bosque, `4` en los hexes de su corazón\nLas tablas los leen como los del hex: `{{hex.danger}}`.',
     iconHelp:
       'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su hex los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
