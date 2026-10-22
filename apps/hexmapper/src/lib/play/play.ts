@@ -1,4 +1,5 @@
-import type { HexKey } from '@open-tabletop/hex'
+import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
+import { highlightText } from '@open-tabletop/travel-ui'
 import {
   addEntry,
   SEASON_START_DAYS,
@@ -289,7 +290,19 @@ function stepOnly(action: TravelAction): void {
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
-  for (const line of tripStepped({ oracle: state.oracle, entries, time: state.travel.time }))
+  // Its highlights (arrivals, places found, pauses) go to the campaign's timeline too.
+  const hexLabel = (key: string) =>
+    formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
+  const highlights = entries.flatMap((e) => {
+    const text = highlightText(e, { rules: system.rules, locale: getLocale(), hexLabel })
+    return text ? [{ time: e.time, text }] : []
+  })
+  for (const line of tripStepped({
+    oracle: state.oracle,
+    entries,
+    time: state.travel.time,
+    highlights,
+  }))
     journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
   save({
     ...play,

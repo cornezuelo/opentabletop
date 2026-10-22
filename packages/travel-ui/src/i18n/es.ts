@@ -170,6 +170,11 @@ export const es: Messages<typeof en> = {
     ENCOUNTER_CHECK_REQUIRED: 'Encuentro',
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Noche',
   },
+  highlights: {
+    arrived: 'El grupo llega a {hex}',
+    found: 'Hallado en {hex}: {what}',
+    paused: '{event} en {hex}',
+  },
   journal: {
     nightWithout: 'Cae la noche y «{action}» no es posible ({why}): la noche pasa sin ello.',
     haltWithout: '«{action}» no es posible ({why}): el tiempo pasa sin ello.',

@@ -174,6 +174,12 @@ export const en = {
     ENCOUNTER_CHECK_REQUIRED: 'Encounter',
     CAMP_ENCOUNTER_CHECK_REQUIRED: 'Night',
   },
+  /** A trip's highlights, a line each in the campaign's timeline. */
+  highlights: {
+    arrived: 'The party reaches {hex}',
+    found: 'Found in {hex}: {what}',
+    paused: '{event} in {hex}',
+  },
   journal: {
     nightWithout: 'Night falls and “{action}” isn’t possible ({why}): the night passes without it.',
     haltWithout: '“{action}” isn’t possible ({why}): the time passes without it.',

@@ -45,6 +45,8 @@ import { campaignPlaces, type CampaignPlace } from './places'
 import { CampaignKeeper } from '@open-tabletop/ui-kit'
 import { translator } from './i18n'
 import { wayWorld, type WayHex } from './way'
+import { highlightText } from './journal'
+import { terrainName } from './terrains'
 import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 
 /**
@@ -559,6 +561,20 @@ export class TripStore {
     this.save()
   }
 
+  /** A step's highlights for the campaign's timeline (arrivals, places found, pauses). */
+  private highlights(entries: SessionState['journal']): { time: number; text: string }[] {
+    const t = translator(this.options.locale)
+    const hexLabel = (hex: string) => {
+      const h = this.saved.way[Number(hex)]
+      return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain)})` : ''}`
+    }
+    const context = { rules: this.system.rules, locale: this.options.locale(), hexLabel }
+    return entries.flatMap((e) => {
+      const text = highlightText(e, context)
+      return text ? [{ time: e.time, text }] : []
+    })
+  }
+
   /** Plays an action, and what it did in the campaign's world. */
   private stepOnly(action: TravelAction): void {
     const session = this.saved.session
@@ -580,7 +596,12 @@ export class TripStore {
       if (campaign && host) {
         const done = tripStepped(
           { campaign },
-          { oracle: state.oracle, entries, time: state.travel.time },
+          {
+            oracle: state.oracle,
+            entries,
+            time: state.travel.time,
+            highlights: this.highlights(entries),
+          },
           host,
         )
         for (const line of done.lines)

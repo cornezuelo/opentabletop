@@ -12,6 +12,7 @@ import {
   playTrip,
   startWorld,
   takeMoments,
+  tripStepped,
   worldAct,
   worldEffects,
   worldFactsOf,
@@ -125,6 +126,31 @@ describe('the world of a campaign', () => {
     // With a trip going on, the weather is the trip's: none of the world's own.
     const tripping = startWorld({ campaign: createCampaign('c2') }, 0, host({ trip: {} }))
     expect(tripping.campaign.worldWeather).toBeUndefined()
+  })
+
+  it('a trip’s highlights go to the timeline at their time, and the world follows the trip', () => {
+    const place = started()
+    const now = place.campaign.world!.time
+    const done = tripStepped(
+      place,
+      {
+        oracle: { decks: {}, occurrences: {}, vars: {} } as never,
+        entries: [],
+        time: now + 120,
+        highlights: [{ time: now + 60, text: 'The party reaches 0303' }],
+      },
+      host({ trip: {} }),
+    )
+    const line = done.campaign.world!.timeline.find((e) => e.text === 'The party reaches 0303')
+    expect(line).toMatchObject({ code: 'LOG', time: now + 60, data: { trip: true } })
+    expect(done.campaign.world!.time).toBe(now + 120)
+    // A campaign whose clock hasn't started keeps no timeline.
+    const none = tripStepped(
+      { campaign: createCampaign('c3') },
+      { oracle: {} as never, entries: [], time: 60, highlights: [{ time: 0, text: 'x' }] },
+      host({ trip: {} }),
+    )
+    expect(none.campaign.world).toBeUndefined()
   })
 
   it('takes the factions’ turns as they come due; a full clock does what it says', () => {

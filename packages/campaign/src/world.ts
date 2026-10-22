@@ -441,12 +441,18 @@ export function entryEffects(entry: {
 /**
  * A trip of the campaign stepped: its checks rolled on the campaign's Oracle (`oracle`, the
  * state the step left), what its results, checks and actions did changes the world (its
- * clocks, its factions), and the world follows its time; the lines for its journal are
- * what came due on the way.
+ * clocks, its factions), its highlights (arrivals, places found, encounters that paused, in
+ * the host's words) go to the timeline, a line each, and the world follows its time; the
+ * lines for its journal are what came due on the way.
  */
 export function tripStepped(
   place: WorldPlace,
-  step: { oracle: OracleState; entries: { data?: Record<string, unknown> }[]; time: number },
+  step: {
+    oracle: OracleState
+    entries: { data?: Record<string, unknown> }[]
+    time: number
+    highlights?: { time: number; text: string }[]
+  },
   host: WorldHost,
 ): WorldDone & { lines: WorldLine[] } {
   const { campaign } = place
@@ -465,6 +471,11 @@ export function tripStepped(
     const next = worldEffects(done, effects, host)
     done = { ...next, filled: [...done.filled, ...next.filled] }
   }
+  if (done.campaign.world)
+    for (const { time, text } of step.highlights ?? []) {
+      const next = worldAct(done, { type: 'log', text, data: { trip: true }, time }, host)
+      done = { ...next, filled: done.filled }
+    }
   const followed = followTrip(done, step.time, host)
   return { ...followed, filled: [...done.filled, ...followed.filled] }
 }

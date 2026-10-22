@@ -484,6 +484,27 @@ describe('playing on the map', () => {
       expect((deck?.draw.length ?? 0) + (deck?.discard.length ?? 0)).toBe(11)
     })
 
+    it('the trip’s highlights reach the campaign’s timeline, a line each', async () => {
+      grey()
+      startWorld()
+      clickHex('7,7')
+      for (let day = 0; day < 10 && partyLocation() !== '7,7'; day++) {
+        await advance({ until: 'next-day' })
+        for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+      }
+      const timeline = editor.campaign.world!.timeline
+      const lines = timeline.filter((e) => e.code === 'LOG' && e.data?.trip)
+      // The arrival, at the time it happened, the hex by its coordinates.
+      const arrival = lines.find((e) => /reaches/.test(e.text ?? ''))!
+      expect(arrival.text).toMatch(/^The party reaches \d{4}$/)
+      const reached = sessionOf(editor.map.play!)!.journal.find(
+        (e) => e.code === 'DESTINATION_REACHED',
+      )!
+      expect(arrival.time).toBe(reached.time)
+      // Every line is a highlight: nothing of the day by day (weather, hexes entered…).
+      expect(lines.every((e) => /reaches|Found in| in /.test(e.text ?? ''))).toBe(true)
+    })
+
     it('the journal keeps everything behind: dice, rows, weather, skipped checks, changes', async () => {
       grey()
       startWorld()

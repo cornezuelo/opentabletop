@@ -61,7 +61,7 @@ The powers of the campaign's world, their sheets and their land on each of its m
 
 ### Timeline
 
-What happened in the world, newest first: events that came due, holidays and moons, full clocks, the factions' turns, the clock going back, and your own notes (**Add**). The same timeline as the World panel's, in a page of its own. It's the world's story, not the party's: an event comes due on its day wherever the party is (_Market day in Ashford_ is there whether you're in Ashford or not), and what the party does on a trip (hexes, checks, encounters, places found) goes to the trip's **journal** instead.
+What happened in the world, newest first: events that came due, holidays and moons, full clocks, the factions' turns, the clock going back, and your own notes (**Add**). The same timeline as the World panel's, in a page of its own. It's the world's story, not the party's: an event comes due on its day wherever the party is (_Market day in Ashford_ is there whether you're in Ashford or not), and what the party does on a trip (hexes, checks, encounters, places found) goes to the trip's **journal** instead. Only a trip's highlights come here too, a short line each: arrivals (_The party reaches 0707_), places found and checks that stopped the trip (an encounter).
 
 ### Maps and trips
 
