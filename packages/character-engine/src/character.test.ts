@@ -139,6 +139,30 @@ describe('how values are shown', () => {
     ])
     expect(toneOf(undefined, 3)).toBeUndefined()
   })
+
+  it('takes a share of the max as it is now', () => {
+    const tones = { 0: 'danger', '50%': 'warning', '75%': 'good' } as const
+    // A max of 3: red at 0 and 1, amber at 2, green at 3.
+    expect([0, 1, 2, 3].map((v) => toneOf(tones, v, 3))).toEqual([
+      'danger',
+      'danger',
+      'warning',
+      'good',
+    ])
+    // The same tones under a max of 6.
+    expect([2, 3, 4, 5, 6].map((v) => toneOf(tones, v, 6))).toEqual([
+      'danger',
+      'warning',
+      'warning',
+      'good',
+      'good',
+    ])
+    // Without a max, shares count for nothing.
+    expect(toneOf(tones, 5)).toBe('danger')
+    expect(
+      parseSheet({ kind: 'sheet', id: 'x', values: { a: { tones: { '50%': 'good' } } } }).errors,
+    ).toEqual(['values.a.tones: a share (50%) needs a max'])
+  })
 })
 
 describe('characters', () => {

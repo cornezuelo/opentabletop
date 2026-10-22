@@ -181,7 +181,7 @@ export const en = {
       'With **Shown as** `levels`, the names the value picks, comma-separated, from its min (or 0) up; beyond them the number is shown. Translate their names in the translation file, by id:\n• `unhurt, bruised, wounded, dying` — 0 is **unhurt**, 3 is **dying**\n• `d4, d6, d8, d10, d12` — a die size that grows with the value\n• with min `-3`: `hated, wary, neutral, …` — −3 is **hated**',
     tones: 'Tones',
     tonesHelp:
-      "The colour it takes from a value up, `value: tone`, among the theme's `good`, `warning`, `danger` and `accent`:\n• `0: danger, 2: warning, 4: good` — red at 0 and 1, amber at 2 and 3, green from 4\n• `5: danger` — red only from 5 up\nEmpty: the theme's accent.",
+      "The colour it takes from a value up, `value: tone`, among the theme's `good`, `warning`, `danger` and `accent`:\n• `0: danger, 2: warning, 4: good` — red at 0 and 1, amber at 2 and 3, green from 4\n• `5: danger` — red only from 5 up\n• `0: danger, 50%: warning, 75%: good` — shares of its max, following it when it changes: with max 3, red at 0 and 1, amber at 2, green at 3\nEmpty: the theme's accent.",
     relationDisplayHelp:
       "How a relation's number is drawn, as a value's **Shown as** (it needs a max, except **number**):\n• `pips` — a bond from 0 to 3 as dots\n• `bar`",
     preview: 'Preview',

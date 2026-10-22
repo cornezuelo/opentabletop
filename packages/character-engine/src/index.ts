@@ -42,13 +42,21 @@ const level = z.union([
   z.string().min(1),
   z.object({ id: z.string().min(1), name: text.optional(), description: text.optional() }).strict(),
 ])
-/** How a number looks: its display, its levels and its tones from a value up (`{ 0: danger, 3: good }`). */
+/** How a number looks: its display, its levels and its tones from a value up (`{ 0: danger, 50%: good }`). */
 const looks = {
   display: z.enum(DISPLAYS).optional(),
   /** With `display: levels`, the names the value picks, from its min (or 0) up. */
   levels: z.array(level).min(1).optional(),
-  /** A tone from each value up: `{ 0: danger, 2: warning, 4: good }`. */
-  tones: z.record(z.string().regex(/^-?\d+$/, 'a whole number'), z.enum(TONES)).optional(),
+  /**
+   * A tone from each value up: `{ 0: danger, 2: warning, 4: good }`, or from a share of its
+   * max (`{ 0: danger, 50%: warning, 75%: good }`), which follows a max that changes.
+   */
+  tones: z
+    .record(
+      z.string().regex(/^-?\d+%?$/, 'a whole number, or a share of its max (50%)'),
+      z.enum(TONES),
+    )
+    .optional(),
 }
 
 const value = z
@@ -151,12 +159,23 @@ export function displayOf(def: { display?: Display; track?: boolean }): Display 
 
 /**
  * The tone of a value from the `tones` it declares (the one of the highest threshold at or
- * under it), or none.
+ * under it), or none. A threshold written as a share (`50%`) is that share of its `max`
+ * now; without a max it counts for nothing.
  */
-export function toneOf(tones: Record<string, Tone> | undefined, value: number): Tone | undefined {
+export function toneOf(
+  tones: Record<string, Tone> | undefined,
+  value: number,
+  max?: number,
+): Tone | undefined {
   let best: { at: number; tone: Tone } | undefined
-  for (const [at, tone] of Object.entries(tones ?? {}))
-    if (Number(at) <= value && (!best || Number(at) > best.at)) best = { at: Number(at), tone }
+  for (const [key, tone] of Object.entries(tones ?? {})) {
+    const at = key.endsWith('%')
+      ? max === undefined
+        ? undefined
+        : (Number(key.slice(0, -1)) / 100) * max
+      : Number(key)
+    if (at !== undefined && at <= value && (!best || at > best.at)) best = { at, tone }
+  }
   return best?.tone
 }
 
@@ -170,6 +189,7 @@ function looksErrors(
     display?: Display
     track?: boolean
     max?: unknown
+    tones?: Record<string, Tone>
     levels?: (string | { id: string })[]
   },
   at: string,
@@ -180,6 +200,8 @@ function looksErrors(
     errors.push(`${at}: track: true is display: boxes, not ${v.display}`)
   if (DISPLAYS_WITH_MAX.includes(display) && v.max === undefined)
     errors.push(`${at}: display: ${display} needs a max`)
+  if (v.max === undefined && Object.keys(v.tones ?? {}).some((k) => k.endsWith('%')))
+    errors.push(`${at}.tones: a share (50%) needs a max`)
   if (display === 'levels' && !v.levels) errors.push(`${at}: display: levels needs its levels`)
   if (v.levels && display !== 'levels') errors.push(`${at}.levels: only with display: levels`)
   const ids = (v.levels ?? []).map(levelId)

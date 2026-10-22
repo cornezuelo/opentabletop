@@ -43,7 +43,12 @@ export function valueView(
   locale: string,
 ): ValueView {
   const display = displayOf(looks)
-  const view: ValueView = { display, value, ...bounds, tone: toneOf(looks.tones, value) }
+  const view: ValueView = {
+    display,
+    value,
+    ...bounds,
+    tone: toneOf(looks.tones, value, bounds.max),
+  }
   if (bounds.max !== undefined) {
     const from = Math.min(bounds.min ?? 0, 0)
     const span = bounds.max - from

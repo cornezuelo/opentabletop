@@ -378,14 +378,14 @@ values: # números que tiene cada personaje, con los límites que les da el sist
   survival: { name: Supervivencia, default: 1, min: 0, max: 5, display: pips, group: skills } # 5 puntos
   pathfinding: { name: Rastreo, default: 0, min: 0, max: 3, group: skills }
   maxHealth: { name: Salud máxima, default: 3, min: 1, max: 6, group: body }
-  health: # otro valor como límite; una barra, roja en 0, ámbar en 1, verde desde 2
+  health: # otro valor como límite; una barra, roja por debajo de la mitad de su máximo, ámbar desde la mitad, verde desde tres cuartos
     {
       name: Salud,
       default: 3,
       min: 0,
       max: '{{self.values.maxHealth}}',
       display: bar,
-      tones: { 0: danger, 1: warning, 2: good },
+      tones: { 0: danger, 50%: warning, 75%: good },
       group: body,
     }
   rations: { name: Raciones, default: 2, min: 0, max: 6, display: of } # 2 / 6
@@ -413,7 +413,7 @@ relations: # tipos de relación que un personaje puede tener con cualquier cosa 
   home: { name: Hogar }
 ```
 
-- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{self.values.<id>}}'`: el valor baja cuando baja ese), `display` (cómo se dibuja: `number`, lo normal; `of`, el número y su máximo; `bar`, una barra; `boxes`, casillas; `pips`, puntos redondos; `dial`, un reloj redondo; `levels`, un nombre de `levels`; todos menos `number` y `levels` necesitan un `max`, y dibujan tantas casillas, puntos o segmentos como él), `levels` (con `display: levels`: nombres en orden, cada uno un id o `{ id, name, description }`, el primero para el `min` del valor o el 0; más allá se ve el número), `tones` (un color desde un valor hacia arriba, `{ 0: danger, 2: warning, 4: good }`, entre `good`, `warning`, `danger` y `accent`), `group` (uno de `groups`, cada uno una tarjeta). `track: true`, la forma antigua, es `display: boxes`. Cómo se muestra un valor no cambia nada de cómo juega. Mira [Hoja](../systems/07-sheet.md#cómo-se-muestran-los-valores).
+- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{self.values.<id>}}'`: el valor baja cuando baja ese), `display` (cómo se dibuja: `number`, lo normal; `of`, el número y su máximo; `bar`, una barra; `boxes`, casillas; `pips`, puntos redondos; `dial`, un reloj redondo; `levels`, un nombre de `levels`; todos menos `number` y `levels` necesitan un `max`, y dibujan tantas casillas, puntos o segmentos como él), `levels` (con `display: levels`: nombres en orden, cada uno un id o `{ id, name, description }`, el primero para el `min` del valor o el 0; más allá se ve el número), `tones` (un color desde un valor hacia arriba, `{ 0: danger, 2: warning, 4: good }`, o desde una parte de su máximo tal como esté, `{ 0: danger, 50%: warning, 75%: good }` (necesita un `max`), entre `good`, `warning`, `danger` y `accent`), `group` (uno de `groups`, cada uno una tarjeta). `track: true`, la forma antigua, es `display: boxes`. Cómo se muestra un valor no cambia nada de cómo juega. Mira [Hoja](../systems/07-sheet.md#cómo-se-muestran-los-valores).
 - `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: una acción (`actions.<id>`), `travel.move`, o una forma de viajar (`modes.<id>`). El viaje dice quién lo tiene.
 - `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites (`value: { min, max }`, dibujado con su propio `display` y `tones`, todos menos `levels`). Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).

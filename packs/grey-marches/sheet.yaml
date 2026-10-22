@@ -61,9 +61,10 @@ values:
     default: 3
     min: 0
     max: '{{self.values.maxHealth}}'
-    # A bar up to its max, red at 0, amber at 1 and green from 2 up.
+    # A bar up to its max: red under half of it, amber from half, green from three quarters
+    # (with a max of 3: red at 0 and 1, amber at 2, green at 3), following the max as it changes.
     display: bar
-    tones: { 0: danger, 1: warning, 2: good }
+    tones: { 0: danger, 50%: warning, 75%: good }
     group: body
   # What each one carries of the party's food (bindings: `resources.food: { carried: rations }`).
   rations:

@@ -134,7 +134,7 @@ type CharacterAction =
 **Agreed:**
 
 1. **`display:` per value**, declared by the sheet (and per kind of relation, for its number): `number` (the default, as before), `of` (current and its max, `3 / 5`), `bar` (filled to its max), `boxes` (the old track; `track: true` still reads as `display: boxes`), `pips` (rating dots), `dial` (a round segmented clock, like progress clocks) and `levels` (the value picks a name from the sheet's list: _Unhurt, Bruised, Wounded, Dying_, or `d4 … d12`). One mechanism for named levels and die sizes, no special case. A checkbox is `boxes` with `max: 1`. Every display but `number` and `levels` needs a max (a number, or another value of the sheet).
-2. **Tones with thresholds**: `tones: { 0: danger, 2: warning, 4: good }`, each from that value up, the theme's tones (`good`, `warning`, `danger`, `accent`), never free colours, so they read in every theme. For bars, pips, boxes, dials and `of`.
+2. **Tones with thresholds**: `tones: { 0: danger, 2: warning, 4: good }`, each from that value up (or from a share of the max as it is now, `50%`: added 2026-10-22 when the user found red at only 0 of 3 useless, an empty bar showing nothing), the theme's tones (`good`, `warning`, `danger`, `accent`), never free colours, so they read in every theme. For bars, pips, boxes, dials and `of`.
 3. **Layout**: each group of the sheet is a card in a grid that fits the width; nothing more to declare.
 4. **Left out**: free text and notes fields (lore lives in the notes app), portraits, per-value sizes.
 

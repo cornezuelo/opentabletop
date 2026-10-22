@@ -384,14 +384,14 @@ values: # numbers each character has, with the bounds the system gives them (non
   survival: { name: Survival, default: 1, min: 0, max: 5, display: pips, group: skills } # 5 dots
   pathfinding: { name: Pathfinding, default: 0, min: 0, max: 3, group: skills }
   maxHealth: { name: Max health, default: 3, min: 1, max: 6, group: body }
-  health: # another value as its bound; a bar, red at 0, amber at 1, green from 2
+  health: # another value as its bound; a bar, red under half its max, amber from half, green from three quarters
     {
       name: Health,
       default: 3,
       min: 0,
       max: '{{self.values.maxHealth}}',
       display: bar,
-      tones: { 0: danger, 1: warning, 2: good },
+      tones: { 0: danger, 50%: warning, 75%: good },
       group: body,
     }
   rations: { name: Rations, default: 2, min: 0, max: 6, display: of } # 2 / 6
@@ -419,7 +419,7 @@ relations: # kinds of relation a character may hold to anything with a reference
   home: { name: Home }
 ```
 
-- `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{self.values.<id>}}'`: the value falls when that one does), `display` (how it's drawn: `number`, the default; `of`, the number and its max; `bar`; `boxes`; `pips`, round dots; `dial`, a round clock; `levels`, a name from `levels`; all but `number` and `levels` need a `max`, and draw as many boxes, dots or segments as it), `levels` (with `display: levels`: names in order, each an id or `{ id, name, description }`, the first for the value's `min` or 0; beyond them the number shows), `tones` (a colour from a value up, `{ 0: danger, 2: warning, 4: good }`, among `good`, `warning`, `danger` and `accent`), `group` (one of `groups`, each a card). `track: true`, the older form, is `display: boxes`. How a value is shown changes nothing of how it plays. See [Sheet](../systems/07-sheet.md#how-values-are-shown).
+- `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{self.values.<id>}}'`: the value falls when that one does), `display` (how it's drawn: `number`, the default; `of`, the number and its max; `bar`; `boxes`; `pips`, round dots; `dial`, a round clock; `levels`, a name from `levels`; all but `number` and `levels` need a `max`, and draw as many boxes, dots or segments as it), `levels` (with `display: levels`: names in order, each an id or `{ id, name, description }`, the first for the value's `min` or 0; beyond them the number shows), `tones` (a colour from a value up, `{ 0: danger, 2: warning, 4: good }`, or from a share of its max as it is now, `{ 0: danger, 50%: warning, 75%: good }` (it needs a `max`), among `good`, `warning`, `danger` and `accent`), `group` (one of `groups`, each a card). `track: true`, the older form, is `display: boxes`. How a value is shown changes nothing of how it plays. See [Sheet](../systems/07-sheet.md#how-values-are-shown).
 - `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action (`actions.<id>`), `travel.move`, or a way of travelling (`modes.<id>`). The trip says who has it.
 - `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds (`value: { min, max }`, drawn with its own `display` and `tones`, all but `levels`). A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).

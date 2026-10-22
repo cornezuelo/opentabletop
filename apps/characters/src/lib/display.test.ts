@@ -27,8 +27,14 @@ describe('how the bundled sheets show their values', () => {
     const at = (health: number) =>
       valueView(sheet.values.health, health, boundsOf(sheet, kael, 'health'), 'en')
     expect(at(3)).toMatchObject({ display: 'bar', max: 3, fill: 1, tone: 'good' })
-    expect(at(1)).toMatchObject({ tone: 'warning' })
+    expect(at(2)).toMatchObject({ tone: 'warning' })
+    expect(at(1)).toMatchObject({ tone: 'danger' })
     expect(at(0)).toMatchObject({ fill: 0, tone: 'danger' })
+    // Shares of the max follow it: with Max health 6, 4 is amber and 5 green.
+    const tough = { ...kael, values: { ...kael.values, maxHealth: 6 } }
+    const of6 = (health: number) =>
+      valueView(sheet.values.health, health, boundsOf(sheet, tough, 'health'), 'en').tone
+    expect([2, 4, 5].map(of6)).toEqual(['danger', 'warning', 'good'])
     // Dread turns red only when full.
     const dread = (v: number) =>
       valueView(sheet.values.dread, v, boundsOf(sheet, kael, 'dread'), 'en').tone

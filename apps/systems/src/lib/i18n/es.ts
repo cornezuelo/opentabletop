@@ -184,7 +184,7 @@ export const es: Messages<typeof en> = {
       'Con **Se muestra como** `levels`, los nombres que elige el valor, separados por comas, desde su mínimo (o 0) hacia arriba; más allá se muestra el número. Sus nombres se traducen en el archivo de traducción, por id:\n• `unhurt, bruised, wounded, dying` — 0 es **unhurt**, 3 es **dying**\n• `d4, d6, d8, d10, d12` — un tamaño de dado que crece con el valor\n• con mín. `-3`: `hated, wary, neutral, …` — −3 es **hated**',
     tones: 'Tonos',
     tonesHelp:
-      'El color que toma desde un valor hacia arriba, `valor: tono`, entre los del tema: `good`, `warning`, `danger` y `accent`:\n• `0: danger, 2: warning, 4: good` — rojo en 0 y 1, ámbar en 2 y 3, verde desde 4\n• `5: danger` — rojo solo desde 5\nVacío: el color de acento del tema.',
+      'El color que toma desde un valor hacia arriba, `valor: tono`, entre los del tema: `good`, `warning`, `danger` y `accent`:\n• `0: danger, 2: warning, 4: good` — rojo en 0 y 1, ámbar en 2 y 3, verde desde 4\n• `5: danger` — rojo solo desde 5\n• `0: danger, 50%: warning, 75%: good` — partes de su máximo, que lo siguen cuando cambia: con máx. 3, rojo en 0 y 1, ámbar en 2, verde en 3\nVacío: el color de acento del tema.',
     relationDisplayHelp:
       'Cómo se dibuja el número de una relación, como el **Se muestra como** de un valor (necesita un máximo, salvo **number**):\n• `pips` — un vínculo de 0 a 3 como puntos\n• `bar`',
     preview: 'Vista previa',

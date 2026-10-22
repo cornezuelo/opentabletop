@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from 'svelte'
   import { ClockDial } from '@open-tabletop/ui-kit'
   import { levelValue, type ValueView } from './display'
   import { translator } from './i18n'
@@ -31,6 +32,16 @@
   /** Clicking the last filled mark empties it; never under the min. */
   const markTo = (mark: number) => Math.max(view.min ?? 0, mark === view.value ? mark - 1 : mark)
   const step = (by: number) => onset(view.value + by)
+  /**
+   * A number typed in: asked for, then the box shows what the value really is (typing 9
+   * where the max is 6 leaves 6; the value didn't change, so nothing would redraw it).
+   */
+  async function typed(e: Event & { currentTarget: HTMLInputElement }) {
+    const input = e.currentTarget
+    onset(Number(input.value) || 0)
+    await tick()
+    input.value = String(view.value)
+  }
   /** A click on a bar: the value at that point of it. */
   function barAt(e: MouseEvent) {
     const box = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -46,9 +57,11 @@
         type="number"
         step="any"
         aria-label={label}
+        min={view.min}
+        max={view.max}
         value={view.value}
         {disabled}
-        onchange={(e) => onset(Number(e.currentTarget.value) || 0)}
+        onchange={typed}
       />
       <span class="max">/ {view.max}</span>
     </span>
@@ -118,9 +131,11 @@
       type="number"
       step="any"
       aria-label={label}
+      min={view.min}
+      max={view.max}
       value={view.value}
       {disabled}
-      onchange={(e) => onset(Number(e.currentTarget.value) || 0)}
+      onchange={typed}
     />
   {/if}
 </div>
@@ -179,6 +194,11 @@
     border: 1px solid var(--panel-border);
     border-radius: 9px;
     cursor: pointer;
+  }
+
+  /* Its tone on the frame too, so an empty bar still shows it. */
+  .toned .bar {
+    border-color: var(--accent);
   }
 
   .bar:disabled {
