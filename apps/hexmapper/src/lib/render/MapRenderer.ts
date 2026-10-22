@@ -31,7 +31,6 @@ import { catmullRom, catmullRomClosed, dashes, offsetPolyline } from './curves'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
-import { hatchSegments } from './hatch'
 import { mapFocus } from './focus'
 import { setLabelHitTest, setTokenHitTest } from './hitTest'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
@@ -40,6 +39,7 @@ import {
   cellsInRadius,
   cornerOffsets,
   formatCoord,
+  hatchSegments,
   type HexKey,
   hexToPixel,
   inBounds,

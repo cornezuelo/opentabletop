@@ -1,5 +1,6 @@
 export * from './axial'
 export * from './grid'
+export * from './hatch'
 export * from './layout'
 export * from './offset'
 export * from './path'

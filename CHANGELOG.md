@@ -12,6 +12,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper, Travel, Campaign: **campaigns easier to tell apart**: opening an example map whose campaign this browser doesn't have, while it has campaigns of the same name or system, asks whether to join one of them or start its own; a new campaign never takes a name another has (it gets a number, _The Grey Marches (2)_); opening a map says which campaign it's in and which maps and trips are in it too. The Campaign app's manual explains how campaigns come to be and how to merge two.
 
+- Campaign: **factions striped on the minimap too**: Factions' small map draws each faction's land as the Hexmapper does, diagonal stripes of its colour and a dashed frontier over the terrain's colour, instead of painting the hexes in the faction's colour (which mixed with the terrain's); the legend's swatches are striped to match.
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

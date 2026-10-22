@@ -72,7 +72,7 @@
       <LandMap {map} {color} label={t('factions.minimap', { map: mapName(map.meta.name) })} />
       <ul class="legend">
         {#each own.factions as f (f.id)}
-          <li><span class="swatch" style:background={color(f.id)}></span>{name(f.id)}</li>
+          <li><span class="swatch striped" style:--faction={color(f.id)}></span>{name(f.id)}</li>
         {/each}
       </ul>
       {#if bare}
@@ -216,6 +216,12 @@
     width: 12px;
     height: 12px;
     border-radius: 3px;
+  }
+
+  /* As the minimap draws its land: stripes of its colour inside a dashed frontier. */
+  .swatch.striped {
+    border: 1px dashed var(--faction);
+    background: repeating-linear-gradient(-45deg, var(--faction) 0 1.5px, transparent 1.5px 4px);
   }
 
   .count {
