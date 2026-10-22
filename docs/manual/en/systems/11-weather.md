@@ -137,7 +137,7 @@ The Grey Marches use a model like this one with more weather (grey skies, fog), 
 - **The trip has no weather.** No check rolls the model: a model only plays when a check's **Rolled on** names it (step 5). The Weather tab alone rolls nothing.
 - **Weather that doesn't slow anyone.** A kind of weather the **Rules → Weather** list doesn't name keeps the usual speed; and a value it sets does nothing until something reads it (a value of the day that **Blocks**, a condition, a table).
 - **A condition that never matches.** Conditions read the weather's **id**, not its name: `trip.weather: storm`, not `trip.weather: Storm`.
-- **A check that sees yesterday's weather.** The checks of one moment are all decided together, before any is rolled: a check at the same moment as the weather's whose **Only if** / **Skip if** reads the weather (`trip.weather: rain`) still sees yesterday's. Roll it a little later: **When** `07:00` sees today's.
+- **A check that sees yesterday's weather.** The checks of one moment come one by one, in the list's order, each seeing what the ones before it set: a check whose **Only if** / **Skip if** reads the weather (`trip.weather: rain`) sees today's only if it comes after the weather's in the list (or at a later moment). Before it, it still sees yesterday's.
 - **Two checks rolling the model.** Each roll moves the weather a day: rolled twice a day, it changes twice as fast. One check, once a day.
 - **Every season plays the same.** The model's seasons must be named as the calendar's (`summer`, not `Summer`); a season the model doesn't know uses its first season.
 - **A weather that never lasts.** Its row has no weight for itself (the storm above, on purpose); or its row is empty, and the day after it starts over from **Starts as**.

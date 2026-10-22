@@ -52,6 +52,8 @@ Una variable que no está (o que no es un número, tras `gte`…) nunca se cumpl
 - En un **viaje** (comprobaciones, acciones y sus pasos, la marcha, formas de viajar, terrenos y `through`), un momento es el día, el hex y lo que está pasando: un momento como `trip.hex-enter` o `time.day-end`, o la acción que se hace (`march` para la marcha). Una acción cuyo `when` tira `'{{1d20}}'` está disponible o no todo el día en ese hex, la ruta no cambia mientras la planeas, y los efectos de la acción ven la misma tirada. Cada viaje tira las suyas.
 - En una **tabla** (entradas, campos de generador, `modeWhen` / `modeUnless`), un momento es una tirada de la tabla, con lo que tire después: una entrada con `when` y otra con `unless` sobre el mismo `'{{1d20}}'` ven el mismo d20, así que sale una de las dos (una tirada por debajo). La tarjeta del resultado muestra la tirada. Una tabla con tirada propia da además a sus entradas ese total como `'{{roll}}'`: `party.stats.survival: { gte: '{{roll}}' }` es una tirada por debajo con el propio dado de la tabla (mira [Dados y variables](../oracle/08-dice-and-templates.md)).
 
+**Las condiciones de una comprobación se leen justo antes de tirarla.** Las comprobaciones de un momento llegan una a una, en el orden en que las listan las reglas: el `when` / `unless` de cada una ve lo que fijaron las anteriores (el clima recién tirado, un valor del día, sus `effects`). Al alba, después de la del clima, `when: { trip.weather: storm }` lee la tormenta de hoy.
+
 Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tables-see.md); los dados, en [Dados y variables](../oracle/08-dice-and-templates.md).
 
 ## Juntar condiciones

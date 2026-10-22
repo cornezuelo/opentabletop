@@ -191,7 +191,7 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    pack first (`table.ruins`, `core/table.twists`, `roll-modes.advantage`,
  *    `sheet.companion`); in 4 they were bare ids.
  */
-export const PACK_FORMAT = 5
+export const PACK_FORMAT = 6
 
 export const manifestSchema = z
   .object({

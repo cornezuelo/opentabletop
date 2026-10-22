@@ -20,6 +20,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper, Travel, Campaign, Systems: **trips hear every clock that fills, by hand too**: a progress clock filling by any means (a click on the World panel, a table rolled by hand, a world turn, the Campaign app) is heard by the trip going on in the campaign: at once in the same app, or on its next step in another, its journal saying **In the world: … filled** before what the system does then. Clocks made by hand can be named too, by their name in lowercase with dashes (`world.clocks.the-wyrm-wakes.full`); the Systems app warns, instead of refusing, that the system declares no such clock. Campaigns keep the moments waiting for their trip (format v4).
 
+- Packs, Hexmapper, Travel, Systems: **the checks of one moment come one by one (pack format 6)**: in the order the rules list them, each one's **Only if** / **Skip if** is read just before it's rolled, so it sees what the checks before it set (the weather just rolled, a value of the day, their changes): at dawn, a check after the weather's that reads `trip.weather` sees today's weather, not yesterday's. A check that pauses holds the rest of its moment until **Continue**. Packs of format 5 aren't read; Core, the Grey Marches and Kal-Arath are moved. The Grey Marches: **A stormy dawn** (fatigue +1 when the dawn's weather is a storm).
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

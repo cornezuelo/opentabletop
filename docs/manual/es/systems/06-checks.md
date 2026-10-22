@@ -14,6 +14,8 @@ Cada comprobación (**Añadir una comprobación**) tiene:
 - **Cambios**: sus propios efectos. P. ej. Sin comida suficiente de las Marcas Grises: `party.stats.fatigue: 1`;
 - **Pausar después**: detiene el viaje y espera a **Continuar**.
 
+**Las comprobaciones de un mismo momento llegan una a una, en el orden de la lista.** El **Solo si** / **Salvo si** de cada una se lee justo antes de tirarla, así que ve lo que fijaron las anteriores: el clima recién tirado, un valor del día, sus **Cambios**. Una comprobación al alba después de la del clima con **Solo si** `trip.weather: storm` sale en un alba de tormenta, la de hoy y no la de ayer (_Un alba de tormenta_ de las Marcas Grises). Una comprobación que pausa, o que espera a saber quién tira, deja en espera el resto de su momento hasta **Continuar**.
+
 **Sin tabla**, una comprobación solo se apunta en el diario (con sus **Cambios**) y el viaje sigue; **Pausar después** es lo que detiene el viaje, tras tirarla si tiene tabla (un lugar señalado que describir: sin tabla y con **Pausar después**). Un pack escrito para un [formato de pack](../technical/02-file-formats.md) antiguo, en el que las comprobaciones sin tabla detenían el viaje por sí solas, se juega como antes, y la pestaña ofrece **Actualizar** para escribirlo en el de hoy (mira [qué hace aparecer Continuar](../travel/02-playing.md#el-viaje)).
 
 Si los bindings aún nombran tablas para comprobaciones que las reglas ya no tienen (una comprobación quitada en el YAML), una nota las lista y **Quitarlas** las borra.

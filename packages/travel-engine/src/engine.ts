@@ -72,6 +72,33 @@ export interface PendingCheck {
   rolled?: CheckOutcome
 }
 
+/**
+ * A check of a moment not decided yet: the checks of one moment are decided one by one, in
+ * the rules' order, each just before it's rolled, so its `when` / `unless` see what the
+ * ones before it set (today's weather, `lost`…).
+ */
+export interface QueuedCheck {
+  event: string
+  /** The moment it came at, when, and on which day of the trip. */
+  at: string
+  time: GameTime
+  day: number
+  /**
+   * The trip as it was at that moment (the hex, the hour, what hit a bound, the action
+   * under way…): a day-end check decided after midnight still sees the day that ended.
+   */
+  context: Record<string, unknown>
+  /** The pending check of its moment it waits for. */
+  after?: string
+  /** What the checks of the moment before it set: values of the day, the weather. */
+  set?: Record<string, unknown>
+  weather?: string
+  when?: unknown
+  unless?: unknown
+  effects?: Record<string, number | string>
+  pause?: boolean
+}
+
 export interface CheckOutcome {
   /** Values of the day the system declares (`lost: true`), set by the result. */
   values?: Record<string, unknown>
@@ -190,6 +217,8 @@ export interface TravelState {
    */
   waiting?: Waiting
   pendingChecks: PendingCheck[]
+  /** Checks of a moment waiting for the one before them to be resolved (`after`). */
+  queuedChecks?: QueuedCheck[]
   nextCheckId: number
 }
 
@@ -894,8 +923,6 @@ export function createTravelEngine(options: {
   ): number => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
-    // Conditions also see the host's facts (stats, today's values); the check keeps the
-    // trip's own (the host adds its facts again when resolving it).
     if (!event) {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
       // The actions the system takes at this moment come first (their checks too).
@@ -906,7 +933,6 @@ export function createTravelEngine(options: {
     // Entering a hex, the one left: `from.terrain`, `from.region`…
     const left = from ? { from: hexFacts(from) } : {}
     const context = { ...checkContext(state, stretch), ...left, ...facts, moment: at }
-    const seen = { ...checkContext(state, stretch, hostFacts), ...left, ...facts, moment: at }
     if (resolve) {
       const check: PendingCheck = {
         id: `c${state.nextCheckId++}`,
@@ -919,27 +945,89 @@ export function createTravelEngine(options: {
       events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
       return 1
     }
-    let scheduled = 0
+    // Decided one by one, in the rules' order (`decide`).
+    const line: QueuedCheck[] = []
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (event ? rule.event !== event : !momentsOf(rule.at).includes(at)) continue
-      const stop = conditionStop(state, rule, seen)
+      line.push({
+        event: rule.event,
+        at,
+        time: state.time,
+        day: state.day,
+        context,
+        ...(rule.when !== undefined && { when: rule.when }),
+        ...(rule.unless !== undefined && { unless: rule.unless }),
+        ...(rule.effects && { effects: rule.effects }),
+        ...(rule.pause && { pause: true }),
+      })
+    }
+    // Those that came up now, and those still in line (they may yet).
+    return decide(state, line, events)
+  }
+
+  /**
+   * The checks of one moment, decided in order: each one's `when` / `unless` read as it comes,
+   * with what the checks before it set. One that comes up is pending; the rest wait in line
+   * for it (`after`) and are decided once it's resolved. Returns how many came up or wait.
+   */
+  const decide = (state: TravelState, line: QueuedCheck[], events: TravelEvent[]): number => {
+    let count = 0
+    while (line.length) {
+      const next = line.shift()!
+      // The trip as it was at the moment, with what the checks before it set, and today's
+      // supplies.
+      const set = next.set ?? {}
+      const context: Record<string, unknown> = {
+        ...next.context,
+        ...set,
+        ...(next.weather !== undefined && { weather: next.weather }),
+        today: { ...(next.context.today as object), ...set },
+        party: { ...(next.context.party as object), resources: { ...state.resources } },
+      }
+      // Conditions also see the host's facts (stats, today's values); the check keeps the
+      // trip's own (the host adds its facts again when resolving it).
+      const host = hostFacts.party as Record<string, unknown> | undefined
+      const seen = {
+        ...hostFacts,
+        ...context,
+        today: { ...(hostFacts.today as object | undefined), ...(context.today as object) },
+        yesterday: {
+          ...(hostFacts.yesterday as object | undefined),
+          ...(context.yesterday as object),
+        },
+        party: { ...host, ...(context.party as object) },
+      }
+      const then = { ...state, day: next.day }
+      const stop = conditionStop(then, next, seen)
       if (stop) {
-        events.push({ type: 'CHECK_SKIPPED', event: rule.event, at, ...stop, time: state.time })
+        events.push({
+          type: 'CHECK_SKIPPED',
+          event: next.event,
+          at: next.at,
+          ...stop,
+          time: next.time,
+        })
         continue
       }
       const check: PendingCheck = {
         id: `c${state.nextCheckId++}`,
-        event: rule.event,
+        event: next.event,
         context,
-        ...(rule.effects && { effects: rule.effects }),
-        ...(rule.pause && { pause: true }),
+        ...(next.effects && { effects: next.effects }),
+        ...(next.pause && { pause: true }),
       }
       state.pendingChecks.push(check)
       totalsOf(state).checks++
-      events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
-      scheduled++
+      events.push({ type: 'CHECK_REQUIRED', check, time: next.time })
+      count++
+      if (line.length)
+        state.queuedChecks = [
+          ...(state.queuedChecks ?? []),
+          ...line.map((q) => ({ ...q, after: check.id })),
+        ]
+      return count + line.length
     }
-    return scheduled
+    return count
   }
 
   /**
@@ -1649,7 +1737,7 @@ export function createTravelEngine(options: {
     })
     for (let i = from; i < steps.length; i++) {
       const step = steps[i]
-      const context = {
+      const context: Record<string, unknown> = {
         ...checkContext(state, [], hostFacts),
         below: [...hit.below],
         above: [...hit.above],
@@ -1990,6 +2078,18 @@ export function createTravelEngine(options: {
           const set = { ...(outcome.lost && { lost: true }), ...outcome.values }
           if (Object.keys(set).length) state.today = { ...state.today, ...set }
           if (outcome.weather !== undefined) state.weather = outcome.weather
+          // The moment's next checks see what it set.
+          // The checks of its moment after it are decided now, seeing what it set.
+          const line = (state.queuedChecks ?? []).filter((q) => q.after === check.id)
+          if (line.length) {
+            state.queuedChecks = state.queuedChecks!.filter((q) => q.after !== check.id)
+            if (!state.queuedChecks.length) delete state.queuedChecks
+            for (const queued of line) {
+              delete queued.after
+              if (Object.keys(set).length) queued.set = { ...queued.set, ...set }
+              if (outcome.weather !== undefined) queued.weather = outcome.weather
+            }
+          }
           if (outcome.speed !== undefined)
             state.speedToday = (state.speedToday ?? 1) * outcome.speed
           for (const [id, delta] of Object.entries(outcome.resources ?? {})) {
@@ -1998,6 +2098,7 @@ export function createTravelEngine(options: {
             tallySupply(state, id, from, state.resources[id])
           }
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
+          if (line.length) decide(state, line, events)
           break
         }
         case 'resume': {

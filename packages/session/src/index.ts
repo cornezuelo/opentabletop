@@ -647,6 +647,19 @@ export function createSession(options: {
         if (check) replay = [{ type: 'CHECK_REQUIRED', check, time: s.travel.time }]
       }
       const replaying = !!replay
+      /**
+       * Resolves a check in the travel engine: the moment's next checks are decided then,
+       * seeing what it set (today's weather, values…), and come after it in the same step.
+       */
+      const resolve = (id: string, outcome?: CheckOutcome): TravelEvent[] => {
+        const next = options.travel.apply(
+          s.travel,
+          { type: 'resolveCheck', id, ...(outcome && { outcome }) },
+          tripContext(s, hostOf(s)),
+        )
+        s.travel = next.state
+        return next.events.filter((e) => e.type !== 'CHECK_RESOLVED')
+      }
       for (let i = 0; i <= limit; i++) {
         const dayBefore = s.travel.day
         const from = s.travel.location
@@ -766,10 +779,7 @@ export function createSession(options: {
                 data: about,
               })
             if (!event.check.pause) {
-              s.travel = options.travel.apply(s.travel, {
-                type: 'resolveCheck',
-                id: event.check.id,
-              }).state
+              result.events.push(...resolve(event.check.id))
               continue
             }
           }
@@ -922,11 +932,7 @@ export function createSession(options: {
             })
             continue
           }
-          s.travel = options.travel.apply(s.travel, {
-            type: 'resolveCheck',
-            id: event.check.id,
-            outcome: toOutcome(value, declared),
-          }).state
+          result.events.push(...resolve(event.check.id, toOutcome(value, declared)))
         }
         changed(s, entries, supplied)
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')

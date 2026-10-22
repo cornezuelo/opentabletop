@@ -6,7 +6,7 @@ import { travelSystems } from './trip'
 
 /** A system with two clocks: one that rolls a table when full and starts over, one plain. */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 5\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 6\n' },
   {
     path: 'marks/system.yaml',
     content: 'kind: system\nname: Marks\nclocks: clocks.default\n',

@@ -52,6 +52,8 @@ A variable that isn't there (or isn't a number, after `gte`…) never holds. Onl
 - In a **trip** (checks, actions and their steps, marching, ways of travelling, terrains and `through`), a moment is the day, the hex and what's happening: a moment like `trip.hex-enter` or `time.day-end`, or the action being taken (`march` for marching). An action whose `when` rolls `'{{1d20}}'` is available or not for the whole day in that hex, the route doesn't change as you plan it, and the action's effects see the same roll. Each trip rolls its own.
 - In a **table** (entries, generator fields, `modeWhen` / `modeUnless`), a moment is one roll of the table, with what it rolls next: an entry with `when` and another with `unless` on the same `'{{1d20}}'` see the same d20, so one of them comes up (a roll-under). The result card shows the roll. A table with a roll of its own also gives its entries that total as `'{{roll}}'`: `party.stats.survival: { gte: '{{roll}}' }` is a roll-under on the table's own die (see [Dice and variables](../oracle/08-dice-and-templates.md)).
 
+**A check's conditions are read just before it's rolled.** The checks of one moment come one by one, in the order the rules list them: each one's `when` / `unless` see what the ones before it set (the weather just rolled, a value of the day, their `effects`). At dawn, after the weather's, `when: { trip.weather: storm }` reads today's storm.
+
 Everything a condition can read is in [What tables see](04-what-tables-see.md); dice are in [Dice and variables](../oracle/08-dice-and-templates.md).
 
 ## Joining conditions

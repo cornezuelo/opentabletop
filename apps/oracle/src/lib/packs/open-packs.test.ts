@@ -535,7 +535,10 @@ describe('bundled open packs', () => {
     })
 
     it('hirelings refuse to march after a hungry day, and a d6 under morale talks them round', () => {
-      const options = play([{ terrain: 'plains' }, { terrain: 'plains' }])
+      // Each trip its own Oracle, seeded like it: the same trip rolls the same tables.
+      const playing = (seed?: string) =>
+        play([{ terrain: 'plains' }, { terrain: 'plains' }], false, seed)
+      const options = playing()
       const start = (morale: number, seed?: string) => {
         const { session } = startTrip({
           system,
@@ -549,8 +552,10 @@ describe('bundled open packs', () => {
           ...session,
           travel: { ...session.travel, resources: { food: 0, fodder: 6 } },
         }
-        return stepTrip(options, hungry, { type: 'wait', until: session.travel.time + 1440 + 60 })
-          .state
+        return stepTrip(playing(seed), hungry, {
+          type: 'wait',
+          until: session.travel.time + 1440 + 60,
+        }).state
       }
       const refusing = start(6)
       expect(refusing.travel.today?.refusing).toBe(true)
@@ -576,7 +581,8 @@ describe('bundled open packs', () => {
       expect(low.stats.hirelings).toBe(1)
       // Morale 3: each trip rolls its own d6; the same talk again is the same roll.
       const kept = (seed: string) =>
-        stepTrip(options, start(3, seed), { type: 'action', id: 'parley' }).state.stats.hirelings
+        stepTrip(playing(seed), start(3, seed), { type: 'action', id: 'parley' }).state.stats
+          .hirelings
       const outcomes = Array.from({ length: 12 }, (_, i) => kept(`talk-${i}`))
       expect(new Set(outcomes)).toEqual(new Set([1, 2]))
       expect(outcomes.map((_, i) => kept(`talk-${i}`))).toEqual(outcomes)
@@ -818,8 +824,11 @@ describe('bundled open packs', () => {
         }).state
         const out = stepTrip(options, session, { type: 'travel' })
         session = out.state
-        for (const check of session.travel.pendingChecks)
-          session = stepTrip(options, session, { type: 'resolveCheck', id: check.id }).state
+        while (session.travel.pendingChecks.length)
+          session = stepTrip(options, session, {
+            type: 'resolveCheck',
+            id: session.travel.pendingChecks[0].id,
+          }).state
         if (checked(out.entries, 'SHRINE_CHECK_REQUIRED')) shrines.push(move)
         if (checked(out.entries, 'IN_CIRCLES')) circles.push(move)
       }
@@ -1064,8 +1073,12 @@ describe('bundled open packs', () => {
       travel: { ...night.state.travel, resources: { food: 5, fodder: 0 } },
     }
     const tired = night.state.stats.fatigue
-    const rested = stepTrip(options, fed, { type: 'action', id: 'camp' }).state
-    expect(rested.stats.fatigue).toBe(tired - 1)
+    const camped = stepTrip(options, fed, { type: 'action', id: 'camp' })
+    // (unless the next dawn is stormy: fatigue +1 then)
+    const stormy = camped.entries.some(
+      (e) => e.code === 'CHECK_EFFECTS' && e.data?.event === 'STORMY_DAWN',
+    )
+    expect(camped.state.stats.fatigue).toBe(tired - 1 + (stormy ? 1 : 0))
     const fresh = stepTrip(options, { ...session }, { type: 'action', id: 'camp' }).state
     expect(fresh.stats.fatigue).toBe(0)
   })
@@ -1167,25 +1180,62 @@ describe('bundled open packs', () => {
       for (let i = 0; i < 10 && state.travel.day === day; i++) {
         const out = stepTrip(options, state, { type: 'travel' })
         state = out.state
-        // Lost for the day (a value that blocks travel): wait for the next march instead.
-        if (out.entries.at(-1)?.data?.reason === 'value')
+        // Lost for the day (a value that blocks travel), or a storm that stops the march: wait
+        // for the next march instead.
+        const reason = out.entries.at(-1)?.data?.reason
+        if (reason === 'value' || reason === 'conditions')
           state = stepTrip(options, state, { type: 'waitForMarch' }).state
-        for (const c of state.travel.pendingChecks)
-          state = stepTrip(options, state, { type: 'resolveCheck', id: c.id }).state
+        while (state.travel.pendingChecks.length)
+          state = stepTrip(options, state, {
+            type: 'resolveCheck',
+            id: state.travel.pendingChecks[0].id,
+          }).state
       }
       expect(state.travel.day).toBeGreaterThan(day)
       expect(state.journal.some((e) => e.code === 'HALT_WITHOUT')).toBe(true)
-      // On the way again the next day (unless the hungry hirelings refuse: a value).
+      // On the way again the next day (unless the hungry hirelings refuse: a value; or the
+      // day's storm stops the march).
       const where = state.travel.location
       const next = stepTrip(options, state, { type: 'travel', until: 'hex' })
       const refused = next.state.journal.some(
-        (e) => e.code === 'TRAVEL_STOPPED' && e.data?.reason === 'value',
+        (e) =>
+          e.code === 'TRAVEL_STOPPED' &&
+          (e.data?.reason === 'value' || e.data?.reason === 'conditions'),
       )
       expect(next.state.travel.location !== where || refused).toBe(true)
       expect(
         state.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp'),
       ).toBe(false)
     })
+  })
+
+  it('the Grey Marches: a stormy dawn sees the weather rolled at the same dawn, not yesterday’s', () => {
+    const system = marches()
+    const options = {
+      system,
+      world: row([{ terrain: 'plains' }, { terrain: 'plains' }]),
+      oracle: createOracleEngine({ registry, random: seeded('stormy') }),
+      locale: 'en',
+      random: seeded('stormy-weather'),
+    }
+    const { session } = startTrip({ system, location: '0', season: 'summer' })
+    const fed = { ...session, travel: { ...session.travel, resources: { food: 99, fodder: 99 } } }
+    const { state } = stepTrip(options, fed, {
+      type: 'wait',
+      until: session.travel.time + 40 * 1440,
+    })
+    const dawns = state.journal.filter((e) => e.code === 'WEATHER_ROLLED')
+    expect(dawns.length).toBeGreaterThanOrEqual(40)
+    const storms = dawns.filter((e) => e.data?.weather === 'storm').map((e) => e.time)
+    // Each stormy dawn, and only those: fatigue +1, seen at the same moment as the weather.
+    const worn = state.journal
+      .filter((e) => e.code === 'CHECK_EFFECTS' && e.data?.event === 'STORMY_DAWN')
+      .map((e) => e.time)
+    expect(storms.length).toBeGreaterThan(0)
+    expect(worn).toEqual(storms)
+    expect(
+      state.journal.filter((e) => e.code === 'CHECK_SKIPPED' && e.data?.check === 'STORMY_DAWN'),
+    ).toHaveLength(dawns.length - storms.length)
   })
 
   it('the Grey Marches eat by themselves as each day ends: food, and fodder on horseback', () => {

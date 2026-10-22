@@ -14,6 +14,8 @@ Each check (**Add a check**) has:
 - **Changes**: its own effects. E.g. the Grey Marches' Not enough to eat: `party.stats.fatigue: 1`;
 - **Pause after it**: stops the trip and waits for **Continue**.
 
+**Checks of the same moment come one by one, in the list's order.** Each one's **Only if** / **Skip if** is read just before it's rolled, so it sees what the checks before it set: the weather just rolled, a value of the day, their **Changes**. A check at dawn after the weather's with **Only if** `trip.weather: storm` comes up on a stormy dawn, today's storm and not yesterday's (the Grey Marches' _A stormy dawn_). A check that pauses, or waits for who rolls, holds the rest of its moment until **Continue**.
+
 With **no table**, a check is only written in the journal (with its **Changes**) and the trip goes on; **Pause after it** is what stops the trip, after rolling it if it has a table (a landmark to describe: no table and **Pause after it**). A pack written for an older [pack format](../technical/02-file-formats.md), where tableless checks stopped the trip by themselves, plays as it did, and the tab offers **Update** to write it in today's (see [what makes Continue appear](../travel/02-playing.md#the-trip)).
 
 When the bindings still name tables for checks the rules no longer have (a check removed in the YAML), a note lists them and **Remove them** clears them.

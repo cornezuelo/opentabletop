@@ -42,7 +42,7 @@ const kindOf = (yaml: string) => /^kind: ([\w-]+)/m.exec(yaml)![1]
 /** Problems of an example, without the references it leaves to others. */
 function problems(files: string[]): string[] {
   const { registry, diagnostics } = loadPacks([
-    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 5\nlocale: en\n' },
+    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
@@ -103,7 +103,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([
-    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 5\nlocale: en\n' },
+    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     { path: 'dark/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'dark')!
@@ -185,7 +185,7 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
     y.includes('river-crossing'),
   )!
   const { registry } = loadPacks([
-    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 5\nlocale: en\n' },
+    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     { path: 'river/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'river')!
@@ -249,7 +249,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
     { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } },
   ]
   const { registry, diagnostics } = loadPacks([
-    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 5\nlocale: en\n' },
+    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     { path: 'valley/travel.yaml', content: stringify(rules) },
     { path: 'valley/calendar.yaml', content: core('calendar.yaml') },
     { path: 'valley/weather.yaml', content: model },

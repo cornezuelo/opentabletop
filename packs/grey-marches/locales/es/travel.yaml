@@ -105,6 +105,9 @@ travel-rules/default:
     WEATHER_CHECK_REQUIRED:
       name: Clima
       description: Se tira cada alba, según la estación.
+    STORMY_DAWN:
+      name: Un alba de tormenta
+      description: Un alba de tormenta agota a la Compañía antes de ponerse en marcha. Fatiga +1.
     NAVIGATION_CHECK_REQUIRED:
       name: Perderse
       description: Cada alba fuera de caminos y ríos (no en barca). La Orientación ayuda; la niebla lo complica.

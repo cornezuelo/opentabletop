@@ -405,6 +405,14 @@ checks:
     name: Weather
     description: Rolled every dawn, by season.
     at: time.part.morning
+  # The checks of one moment are decided one by one, in this order: at the same dawn, this one
+  # already sees the weather just rolled (`trip.weather`), today's and not yesterday's.
+  - event: STORMY_DAWN
+    name: A stormy dawn
+    description: A dawn of storm wears the Company down before they set off. Fatigue +1.
+    at: time.part.morning
+    when: { trip.weather: storm }
+    effects: { party.stats.fatigue: 1 }
   # Off roads and rivers, and not by boat: any / edges / mode.
   - event: NAVIGATION_CHECK_REQUIRED
     name: Getting lost

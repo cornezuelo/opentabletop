@@ -76,7 +76,7 @@ The journal says what each result changed ("Foraging: Berries (Food +2)"). An ef
 
 Tables read the party back as `party.resources.food`, `party.stats.morale`: `when: { party.resources.food: { lt: 1 } }` for an entry that only comes up when the food has run out.
 
-**Values of the day.** Values named `weather`, `…Modifier` or `…Impossible`, and the values the system declares (`lost`), stay for the rest of the day, so later checks can use them; the next day they become `yesterday.<name>`. They're plain values with a naming habit, for the tables that read them:
+**Values of the day.** Values named `weather`, `…Modifier` or `…Impossible`, and the values the system declares (`lost`), stay for the rest of the day, so later checks can use them (also those of the same moment further down the list); the next day they become `yesterday.<name>`. They're plain values with a naming habit, for the tables that read them:
 
 - `…Modifier` is a number to add to a later roll. A weather entry with `set: { lostModifier: -1 }` makes `roll: '1d6 + {{lostModifier}}'` harder in the getting-lost table that comes after it; with no weather rolled yet, the table reads 0.
 - `…Impossible` is a yes/no for something that can't happen today. The Grey Marches' storm sets `fordImpossible: true`, and the ford's first entry `when: { fordImpossible: true }` says nobody crosses. An action can use one too: `unless: { forageImpossible: true }` disables the button (Kal-Arath's foraging in a storm).

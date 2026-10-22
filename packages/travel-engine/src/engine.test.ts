@@ -130,8 +130,16 @@ function run(state: TravelState, ...actions: Parameters<typeof engine.apply>[1][
   }
   return { state, events }
 }
-const resolveAll = (state: TravelState) =>
-  run(state, ...state.pendingChecks.map((c) => ({ type: 'resolveCheck' as const, id: c.id })))
+/** Resolves every pending check, and those of the moment that come up after them. */
+const resolveAll = (state: TravelState) => {
+  const events = []
+  while (state.pendingChecks.length) {
+    const result = engine.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id })
+    state = result.state
+    events.push(...result.events)
+  }
+  return { state, events }
+}
 
 describe('rules', () => {
   it('validates rules', () => {
@@ -218,11 +226,16 @@ describe('travel', () => {
       events
         .filter((e) => e.type === 'CHECK_REQUIRED')
         .map((e) => e.type === 'CHECK_REQUIRED' && e.check.event),
-    ).toEqual(['WEATHER_CHECK_REQUIRED', 'NAVIGATION_CHECK_REQUIRED', 'ENCOUNTER_CHECK_REQUIRED'])
+    ).toEqual(['WEATHER_CHECK_REQUIRED'])
     expect(events.at(-1)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'check' })
     expect(state.location).toBe('0,0')
+    // The moment's other checks come up one by one, as the ones before them are resolved.
+    const resolved = resolveAll(state)
+    expect(
+      resolved.events.flatMap((e) => (e.type === 'CHECK_REQUIRED' ? [e.check.event] : [])),
+    ).toEqual(['NAVIGATION_CHECK_REQUIRED', 'ENCOUNTER_CHECK_REQUIRED'])
 
-    ;({ events } = run(resolveAll(state).state, { type: 'travel' }))
+    ;({ events } = run(resolved.state, { type: 'travel' }))
     // One hex per day on foot: 8 h of marching from 06:00.
     expect(events.find((e) => e.type === 'HEX_ENTERED')).toMatchObject({
       hex: '1,0',
@@ -253,6 +266,7 @@ describe('travel', () => {
 
   it('stays put for the day when lost', () => {
     let { state } = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
+    ;({ state } = run(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }))
     const nav = state.pendingChecks.find((c) => c.event === 'NAVIGATION_CHECK_REQUIRED')!
     ;({ state } = run(state, { type: 'resolveCheck', id: nav.id, outcome: { lost: true } }))
     ;({ state } = resolveAll(state))
@@ -460,6 +474,36 @@ describe('camp, resources and the end of the day', () => {
     expect(waited.pendingChecks).toEqual([])
   })
 
+  it('decides the checks of one moment one by one: each sees what the ones before it set', () => {
+    const rainy = createTravelEngine({
+      world,
+      rules: {
+        ...rules!,
+        checks: [
+          { event: 'WEATHER', at: 'time.day-end' },
+          { event: 'SHELTER', at: 'time.day-end', when: { 'trip.weather': 'rain' } },
+        ],
+      },
+    })
+    const camped = rainy.apply(start(), { type: 'action', id: 'camp' }).state
+    expect(camped.pendingChecks.map((c) => c.event)).toEqual(['WEATHER'])
+    const weather = (outcome: string) =>
+      rainy.apply(camped, {
+        type: 'resolveCheck',
+        id: camped.pendingChecks[0].id,
+        outcome: { weather: outcome },
+      })
+    // Today's rain, just rolled: the next check sees it.
+    expect(weather('rain').state.pendingChecks.map((c) => c.event)).toEqual(['SHELTER'])
+    expect(weather('rain').state.pendingChecks[0].context.weather).toBe('rain')
+    const clear = weather('clear')
+    expect(clear.state.pendingChecks).toEqual([])
+    expect(clear.state.queuedChecks).toBeUndefined()
+    expect(clear.events).toContainEqual(
+      expect.objectContaining({ type: 'CHECK_SKIPPED', event: 'SHELTER', condition: 'when' }),
+    )
+  })
+
   it('eats supplies for every day that passes, however it passes', () => {
     // Resting through two full days without camping still uses two days of food.
     const { state, events } = run(start(), { type: 'action', id: 'rest', minutes: 48 * 60 })
@@ -483,8 +527,12 @@ describe('camp, resources and the end of the day', () => {
       lost: true,
     })
     // The next dawn's checks (as the party wakes) see it, so finding the way can be harder.
-    const woke = engine.apply(lostToday, { type: 'action', id: 'camp' }).state
-    const navigation = woke.pendingChecks.find((c) => c.event === 'NAVIGATION_CHECK_REQUIRED')
+    // (the night's and the weather come before it, one by one)
+    let woke = engine.apply(lostToday, { type: 'action', id: 'camp' }).state
+    const navigates = (c: { event: string }) => c.event === 'NAVIGATION_CHECK_REQUIRED'
+    while (woke.pendingChecks.length && !woke.pendingChecks.some(navigates))
+      woke = run(woke, { type: 'resolveCheck', id: woke.pendingChecks[0].id }).state
+    const navigation = woke.pendingChecks.find(navigates)
     expect(navigation?.context.yesterday).toEqual({ lost: true })
     // A day not lost clears it.
     expect(
@@ -1025,8 +1073,14 @@ describe('waiting', () => {
       events.push(...result.events)
       const stop = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
       if (stop?.type !== 'TRAVEL_STOPPED' || stop.reason !== 'check') break
-      for (const check of state.pendingChecks)
-        state = eng.apply(state, { type: 'resolveCheck', id: check.id }).state
+      while (state.pendingChecks.length) {
+        const resolved = eng.apply(state, {
+          type: 'resolveCheck',
+          id: state.pendingChecks[0].id,
+        })
+        state = resolved.state
+        events.push(...resolved.events)
+      }
     }
     return { state, events }
   }
@@ -1260,8 +1314,14 @@ describe('actions the system triggers, and bounded values', () => {
       const result = eng.apply(state, action)
       state = result.state
       all = [...all, ...result.events]
-      for (const c of state.pendingChecks)
-        state = eng.apply(state, { type: 'resolveCheck', id: c.id }).state
+      while (state.pendingChecks.length) {
+        const resolved = eng.apply(state, {
+          type: 'resolveCheck',
+          id: state.pendingChecks[0].id,
+        })
+        state = resolved.state
+        all = [...all, ...resolved.events]
+      }
     }
     // Dawn: +1 and no sighting; entering the hex: +10 and the sighting.
     expect(state.resources.gold).toBe(11)
@@ -1387,8 +1447,14 @@ describe('the trip going on by itself (travel by a moment)', () => {
       events.push(...result.events)
       const stop = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
       if (stop?.type !== 'TRAVEL_STOPPED' || stop.reason !== 'check') break
-      for (const check of state.pendingChecks)
-        state = eng.apply(state, { type: 'resolveCheck', id: check.id }).state
+      while (state.pendingChecks.length) {
+        const resolved = eng.apply(state, {
+          type: 'resolveCheck',
+          id: state.pendingChecks[0].id,
+        })
+        state = resolved.state
+        events.push(...resolved.events)
+      }
     }
     return { state, events }
   }
@@ -2120,8 +2186,8 @@ describe('the parts of the calendar’s day', () => {
     expect(first.events.at(-1)).toMatchObject({ reason: 'check' })
     expect(first.state.location).toBe('0,0')
     let state = first.state
-    for (const c of state.pendingChecks)
-      state = shire.apply(state, { type: 'resolveCheck', id: c.id }).state
+    while (state.pendingChecks.length)
+      state = shire.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }).state
     const on = run2(state, { type: 'travel' })
     expect(on.state.location).toBe('1,0')
     // Eight hours marched, besides elevenses' half hour.
@@ -2175,8 +2241,14 @@ describe('rules without a built-in day', () => {
       const result = eng.apply(state, action)
       state = result.state
       events.push(...result.events)
-      for (const c of state.pendingChecks)
-        state = eng.apply(state, { type: 'resolveCheck', id: c.id }).state
+      while (state.pendingChecks.length) {
+        const resolved = eng.apply(state, {
+          type: 'resolveCheck',
+          id: state.pendingChecks[0].id,
+        })
+        state = resolved.state
+        events.push(...resolved.events)
+      }
     }
     return { state, events }
   }

@@ -33,6 +33,7 @@ interface TravelState {
   activity: 'idle' | 'travelling' | 'camping' | 'resting' | 'foraging'
   progress: number // minutes accumulated in the current hex towards the next
   pendingChecks: PendingCheck[] // checks waiting for a result
+  queuedChecks?: QueuedCheck[] // later checks of the same moment, decided once the one before is resolved
   counters: Record<string, number> // hours travelled today, etc.
 }
 // Global: campaign.time (GameTime) and weather (current state, from weather-engine or manual)
