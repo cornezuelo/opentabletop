@@ -122,21 +122,50 @@ const start = (location = '0,0', mode = 'foot'): TravelState =>
 
 /** Applies actions in order, resolving every pending check with an empty outcome. */
 function run(state: TravelState, ...actions: Parameters<typeof engine.apply>[1][]) {
+  return runOn(engine, state, actions)
+}
+/**
+ * Actions played as a host plays them: an action its checks held (`moving.held`, no step
+ * waiting) goes on once they're resolved, with nothing rolled (`resume`).
+ */
+function runOn(
+  on: ReturnType<typeof createTravelEngine>,
+  state: TravelState,
+  actions: Parameters<typeof engine.apply>[1] | Parameters<typeof engine.apply>[1][],
+  facts?: Parameters<typeof engine.apply>[2],
+) {
   const events = []
-  for (const action of actions) {
-    const result = engine.apply(state, action)
+  for (const action of Array.isArray(actions) ? actions : [actions]) {
+    let result = on.apply(state, action, facts)
     state = result.state
     events.push(...result.events)
+    for (let i = 0; i < 20 && state.moving?.held && !state.waiting; i++) {
+      for (const check of [...state.pendingChecks]) {
+        result = on.apply(state, { type: 'resolveCheck', id: check.id }, facts)
+        state = result.state
+        events.push(...result.events)
+      }
+      result = on.apply(state, { type: 'resume' }, facts)
+      state = result.state
+      events.push(...result.events)
+    }
   }
   return { state, events }
 }
 /** Resolves every pending check, and those of the moment that come up after them. */
 const resolveAll = (state: TravelState) => {
   const events = []
-  while (state.pendingChecks.length) {
-    const result = engine.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id })
-    state = result.state
-    events.push(...result.events)
+  for (let i = 0; i < 50; i++) {
+    if (state.pendingChecks.length) {
+      const result = engine.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id })
+      state = result.state
+      events.push(...result.events)
+    } else if (state.moving?.held && !state.waiting) {
+      // An action its checks held goes on with the rest of its steps.
+      const result = engine.apply(state, { type: 'resume' })
+      state = result.state
+      events.push(...result.events)
+    } else break
   }
   return { state, events }
 }
@@ -631,8 +660,9 @@ describe('the system’s own actions', () => {
     expect(events.map((e) => e.type)).toEqual(['ACTION_TAKEN', 'MOMENT_REACHED', 'CHECK_REQUIRED'])
     expect(events[1]).toMatchObject({ at: 'actions.forage' })
     expect(state.pendingChecks.map((c) => c.event)).toEqual(['FORAGE_CHECK_REQUIRED'])
-    expect(state.time - start().time).toBe(240)
-    expect(state.speedToday).toBe(0.5)
+    // Its check holds the rest of it until it's resolved: no time passed yet.
+    expect(state.time).toBe(start().time)
+    expect(state.moving).toEqual({ frames: [{ action: 'forage', next: 0 }], held: true })
     // Paused on its check: nothing moves the trip on until it's resolved (Continue).
     const paused = { pending: 'FORAGE_CHECK_REQUIRED' }
     for (const order of [
@@ -652,7 +682,12 @@ describe('the system’s own actions', () => {
       expect(refused.state).toEqual(state)
     }
     expect(own.availability(state)).toMatchObject({ travel: paused, pray: paused, forage: paused })
-    const resolved = own.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }).state
+    const checked = own.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }).state
+    // Resolved, it goes on (the host says so: `resume`): its time, the day slowed.
+    const resolved = own.apply(checked, { type: 'resume' }).state
+    expect(resolved.time - start().time).toBe(240)
+    expect(resolved.speedToday).toBe(0.5)
+    expect(resolved.moving).toBeUndefined()
     expect(own.availability(resolved).pray).toBeUndefined()
     // Once a day: the second time is refused, the next day it's back.
     const again = own.apply(resolved, { type: 'action', id: 'forage' })
@@ -671,7 +706,8 @@ describe('the system’s own actions', () => {
 
   it('say how many of their checks came up', () => {
     const steppe = own.apply(start(), { type: 'action', id: 'forage' }).events[0]
-    expect(steppe).toMatchObject({ minutes: 240, checks: 1, hex: '0,0', terrain: 'steppe' })
+    // Held by its check: its time passes once it's resolved.
+    expect(steppe).toMatchObject({ minutes: 0, checks: 1, hex: '0,0', terrain: 'steppe' })
     // In the mountains nothing applies: the journal can say so, and why the check didn't
     // come up (its `when`, and what it read).
     const mountains = own.apply(start('3,0'), { type: 'action', id: 'forage' })
@@ -787,14 +823,18 @@ describe('actions as steps, and declared values', () => {
   })
 
   it('camp eats once, sleeps until dawn and applies the effects whose condition holds', () => {
-    const fed = own.apply(start(), { type: 'action', id: 'camp' })
+    const fed = runOn(own, start(), { type: 'action', id: 'camp' })
     expect(fed.state.time).toBe(defaultCalendar.at(2, '06:00'))
     expect(fed.state.resources.food).toBe(2) // eaten once, not again at midnight
     expect(fed.events.filter((e) => e.type === 'EFFECTS')).toEqual([
       expect.objectContaining({ action: 'eat', effects: { 'party.resources.food': -1 } }),
       expect.objectContaining({ action: 'camp', effects: { 'party.stats.fatigue': -1 } }),
     ])
-    const hungry = own.apply({ ...start(), resources: { food: 0 } }, { type: 'action', id: 'camp' })
+    const hungry = runOn(
+      own,
+      { ...start(), resources: { food: 0 } },
+      { type: 'action', id: 'camp' },
+    )
     expect(hungry.events.filter((e) => e.type === 'EFFECTS').map((e) => e.effects)).toEqual([
       { 'party.resources.food': -1 },
       { 'party.stats.fatigue': 1 },
@@ -833,9 +873,9 @@ describe('actions as steps, and declared values', () => {
   })
 
   it('a declared value blocks what it names for the rest of the day', () => {
-    let { state } = own.apply(start(), { type: 'setDestination', hex: '2,0' })
-    ;({ state } = resolveAll(own.apply(state, { type: 'travel' }).state))
-    const check = own.apply(state, { type: 'travel' }).state
+    let { state } = runOn(own, start(), { type: 'setDestination', hex: '2,0' })
+    ;({ state } = resolveAll(runOn(own, state, { type: 'travel' }).state))
+    const check = runOn(own, state, { type: 'travel' }).state
     const stuck = { ...check, today: { stranded: true } }
     expect(own.availability(stuck)).toEqual({
       travel: { value: 'stranded' },
@@ -844,19 +884,19 @@ describe('actions as steps, and declared values', () => {
       march: { value: 'stranded' },
       pray: expect.objectContaining({ condition: 'when' }),
     })
-    expect(own.apply(stuck, { type: 'travel' }).events.at(-1)).toMatchObject({
+    expect(runOn(own, stuck, { type: 'travel' }).events.at(-1)).toMatchObject({
       reason: 'value',
       value: 'stranded',
     })
     // Set by a result, as a value of the day; gone the next day (yesterday.stranded).
     const pending = { ...start(), pendingChecks: [{ id: 'c9', event: 'X', context: {} }] }
-    const set = own.apply(pending, {
+    const set = runOn(own, pending, {
       type: 'resolveCheck',
       id: 'c9',
       outcome: { values: { stranded: true } },
     }).state
     expect(set.today).toEqual({ stranded: true })
-    const next = own.apply(set, { type: 'action', id: 'camp' }).state
+    const next = runOn(own, set, { type: 'action', id: 'camp' }).state
     expect([next.today, next.yesterday]).toEqual([undefined, { stranded: true }])
     // Undeclared now: lost isn't built in when a system declares its values.
     const lost = { ...start(), today: { lost: true } }
@@ -1250,7 +1290,7 @@ describe('actions the system triggers, and bounded values', () => {
 
   it('take other actions, roll checks, set values, and see bounds hit', () => {
     const party = { party: { stats: { faith: 2 } } }
-    const { state, events } = eng.apply(begin(), { type: 'action', id: 'pray' }, party)
+    const { state, events } = runOn(eng, begin(), { type: 'action', id: 'pray' }, party)
     // chant (on: pray) first, then pray's own checks, then its steps in order.
     const order = events.flatMap((e) =>
       e.type === 'ACTION_TAKEN' ? [e.action] : e.type === 'CHECK_REQUIRED' ? [e.check.event] : [],
@@ -1269,7 +1309,8 @@ describe('actions the system triggers, and bounded values', () => {
     )
     expect(state.reached).toEqual({ above: ['faith'] })
     // A `do:` whose conditions don't hold just doesn't happen (no food for a feast).
-    const poor = eng.apply(
+    const poor = runOn(
+      eng,
       begin({ food: 1, water: 0, gold: 0 }),
       { type: 'action', id: 'pray' },
       party,
@@ -1279,7 +1320,7 @@ describe('actions the system triggers, and bounded values', () => {
   })
 
   it('without a min, values may go negative', () => {
-    const { state } = eng.apply(begin(), { type: 'action', id: 'pray' }, {})
+    const { state } = runOn(eng, begin(), { type: 'action', id: 'pray' }, {})
     expect(state.resources.gold).toBeLessThan(0)
   })
 
@@ -2800,7 +2841,9 @@ describe('rolling what the host rolls, and moments of the world', () => {
     ])
     // It sees the moment it came at, like any check a step rolls.
     expect(required[0].context.moment).toBe('actions.search')
+    // A step's roll doesn't hold the rest: they're resolved when the action ends.
     expect(state.pendingChecks).toHaveLength(2)
+    expect(state.moving).toBeUndefined()
   })
 
   it('a moment of the world the host says came: its actions and checks happen', () => {

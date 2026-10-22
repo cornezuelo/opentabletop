@@ -291,21 +291,27 @@ describe('bundled open packs', () => {
       return camped.entries.some((e) => e.data?.event === 'CAMP_ENCOUNTER_CHECK_REQUIRED')
     }
 
-    it('a night encounter waiting after a camp till dawn: its line is in the day it came up', () => {
+    it('a night encounter that pauses holds the camp: played at nightfall, the night after it', () => {
       const calendar = calendarOf(system)
       const { session } = startTrip({ system, location: '0', season: 'summer', members: company() })
-      const camped = stepTrip(options([{ terrain: 'heath', danger: 3 }]), session, {
-        type: 'action',
-        id: 'camp',
-      }).state
+      const opts = options([{ terrain: 'heath', danger: 3 }])
+      const camped = stepTrip(opts, session, { type: 'action', id: 'camp' }).state
       const check = camped.travel.pendingChecks.find(
         (c) => c.event === 'CAMP_ENCOUNTER_CHECK_REQUIRED',
       )!
       expect(check.rolled).toBeDefined()
-      // The camp goes on to the morning, but the encounter came up as it began, a day before.
+      // The camp waits where the encounter came up, as it began: nothing of the night yet.
       const line = pendingLine(camped.journal, check.id)!
       expect(line.code).toBe('CHECK_PAUSED')
-      expect(calendar.describe(camped.travel.time).day).toBe(calendar.describe(line.time).day + 1)
+      expect(camped.travel.time).toBe(line.time)
+      expect(camped.travel.moving).toMatchObject({ held: true, frames: [{ action: 'camp' }] })
+      // Continue: the rest of the camp, the night until the morning.
+      const slept = stepTrip(opts, camped, { type: 'resolveCheck', id: check.id }).state
+      expect(slept.travel.moving).toBeUndefined()
+      expect(calendar.describe(slept.travel.time)).toMatchObject({
+        day: calendar.describe(line.time).day + 1,
+        divisions: { part: 'morning' },
+      })
     })
 
     it('a stealthy lookout keeps the camp hidden; nobody on watch, or a clumsy one, does not', () => {
@@ -322,11 +328,20 @@ describe('bundled open packs', () => {
           season: 'summer',
           members: company(),
         })
-        return stepTrip(
-          options([{ terrain: 'heath', danger }]),
+        const opts = options([{ terrain: 'heath', danger }])
+        let step = stepTrip(
+          opts,
           { ...session, ...(roles && { roles }) },
           { type: 'action', id: 'camp' },
         )
+        const entries = [...step.entries]
+        // A night encounter that pauses holds the camp: Continue, and the night goes on.
+        for (let i = 0; i < 5 && step.state.travel.pendingChecks.length; i++) {
+          const [check] = step.state.travel.pendingChecks
+          step = stepTrip(opts, step.state, { type: 'resolveCheck', id: check.id })
+          entries.push(...step.entries)
+        }
+        return { state: step.state, entries }
       }
       const lights = (entries: { data?: Record<string, unknown> }[]) =>
         entries.filter((e) => e.data?.event === 'HAUNTED_WATCH')

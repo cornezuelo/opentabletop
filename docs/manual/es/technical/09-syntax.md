@@ -146,13 +146,13 @@ Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve de
 
 Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[trip.hex-enter, actions.rest]`); las condiciones y las tablas ven cuál es como `moment`.
 
-| Momento                                 | Cuándo                                                                      |
-| --------------------------------------- | --------------------------------------------------------------------------- |
-| una hora (`'06:00'`)                    | al dar esa hora, marchando, esperando o dormidos en el campamento           |
-| una parte del día (`time.part.morning`) | al empezar esa parte del calendario, igual                                  |
-| `trip.hex-enter`                        | al entrar en cada hex                                                       |
-| `time.day-end`                          | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones) |
-| una acción (`actions.camp`)             | cuando el grupo hace esa acción                                             |
+| Momento                                 | Cuándo                                                                                               |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| una hora (`'06:00'`)                    | al dar esa hora, marchando, esperando o dormidos en el campamento                                    |
+| una parte del día (`time.part.morning`) | al empezar esa parte del calendario, igual                                                           |
+| `trip.hex-enter`                        | al entrar en cada hex                                                                                |
+| `time.day-end`                          | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                          |
+| una acción (`actions.camp`)             | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera) |
 
 Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
 

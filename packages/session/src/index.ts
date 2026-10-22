@@ -647,6 +647,8 @@ export function createSession(options: {
         if (check) replay = [{ type: 'CHECK_REQUIRED', check, time: s.travel.time }]
       }
       const replaying = !!replay
+      /** The last step went on with an action its checks held. */
+      let resumed = false
       /**
        * Resolves a check in the travel engine: the moment's next checks are decided then,
        * seeing what it set (today's weather, values…), and come after it in the same step.
@@ -963,6 +965,20 @@ export function createSession(options: {
           s.travel = planned.state
           for (const event of planned.events) journalEvent(s, entries, event)
           keepGoing = !!s.travel.route
+        }
+        // An action held by its checks (the camp's night encounter) goes on with the rest of
+        // its steps once they're resolved; then a wait or a trip going on until a moment
+        // goes on too.
+        const settled = resolvedAll && !s.travel.pendingChecks.length && !s.travel.waiting && !found
+        if (settled && s.travel.moving?.held) {
+          act = { type: 'resume' }
+          resumed = true
+          continue
+        }
+        if (resumed && settled && long) {
+          resumed = false
+          act = travelling && s.travel.moving ? goOn : first
+          continue
         }
         if (!keepGoing) break
         // A wait waits on; a move goes on from where it stopped (not taken again), and an

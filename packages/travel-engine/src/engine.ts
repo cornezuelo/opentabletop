@@ -426,8 +426,9 @@ export type TravelAction =
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
   /**
    * Goes on from a step that stopped the trip (`pause:`, `ask:` with the player's `choice`):
-   * the rest of what it stopped goes on at once, unless a check still waits. `until: 'hex'`
-   * as for `travel`.
+   * the rest of what it stopped goes on at once, unless a check still waits; or, with no
+   * step waiting, the rest of an action its checks held, once they're resolved. `until:
+   * 'hex'` as for `travel`.
    */
   | { type: 'resume'; choice?: string | number; until?: 'hex' | 'destination' }
   /**
@@ -1372,6 +1373,7 @@ export function createTravelEngine(options: {
             { facts: f.facts, params: f.params },
             0,
             f.next,
+            true,
           )
           if (again)
             return keep(state, {
@@ -1663,6 +1665,11 @@ export function createTravelEngine(options: {
       depth?: number
       /** Taken by the player: it drops the move under way. */
       fresh?: boolean
+      /**
+       * Whether its checks hold the rest of it until they're resolved (as a `pause:` step
+       * does): yes, unless a moment took it (the moment's time goes on regardless).
+       */
+      hold?: boolean
     } = {},
   ): Suspended | undefined => {
     const depth = options.depth ?? 0
@@ -1700,6 +1707,8 @@ export function createTravelEngine(options: {
     const totals = totalsOf(state)
     totals.taken = { ...totals.taken, [id]: (totals.taken[id] ?? 0) + 1 }
     // Its checks see the place and moment it starts (after the actions that follow it).
+    const hold = options.hold ?? !options.on
+    const pending = state.pendingChecks.length
     const checks = schedule(state, ref('actions', id), events, undefined, options.facts)
     head.checks = checks
     // What hit a bound today, and during the action: its later steps see it past midnight.
@@ -1711,7 +1720,12 @@ export function createTravelEngine(options: {
     doing.push(id)
     let suspended: Suspended | undefined
     try {
-      suspended = runSteps(state, id, steps, hit, events, { ...options, params }, depth)
+      // A check of its moment waits for the player (or the host): its steps wait for it,
+      // so what it says happens before the rest (a night encounter, then the night).
+      suspended =
+        hold && state.pendingChecks.length > pending
+          ? { frames: [actionFrame(id, params, -1, options.facts)], held: true }
+          : runSteps(state, id, steps, hit, events, { ...options, params }, depth, 0, hold)
     } finally {
       underWay.pop()
       doing.pop()
@@ -1726,6 +1740,19 @@ export function createTravelEngine(options: {
   /** A move that stopped under way, from where it stopped: its actions, innermost first. */
   type Suspended = MoveUnderWay
 
+  /** An action, to go on with after its step `i` (`-1`: from its first). */
+  const actionFrame = (
+    id: string,
+    params: Record<string, unknown>,
+    i: number,
+    facts?: Record<string, unknown>,
+  ): MoveFrame => ({
+    action: id,
+    ...(Object.keys(params).length && { params }),
+    next: i + 1,
+    ...(facts && { facts }),
+  })
+
   /**
    * An action's steps in order (from step `from`), each only when its condition holds.
    * Stops when a move stops under way, and says where (to go on from there).
@@ -1739,15 +1766,12 @@ export function createTravelEngine(options: {
     options: { facts?: Record<string, unknown>; params?: Record<string, unknown> },
     depth: number,
     from = 0,
+    /** Whether the actions its `do:` steps take are held by their own moment's checks. */
+    hold = false,
   ): Suspended | undefined => {
     const params = options.params ?? paramsOf(actions.all[id])
     /** This action, to go on with after step `i`. */
-    const frame = (i: number): MoveFrame => ({
-      action: id,
-      ...(Object.keys(params).length && { params }),
-      next: i + 1,
-      ...(options.facts && { facts: options.facts }),
-    })
+    const frame = (i: number): MoveFrame => actionFrame(id, params, i, options.facts)
     for (let i = from; i < steps.length; i++) {
       const step = steps[i]
       const context: Record<string, unknown> = {
@@ -1804,6 +1828,7 @@ export function createTravelEngine(options: {
           facts: options.facts,
           quiet: true,
           depth: depth + 1,
+          hold,
           ...(given && { with: given }),
         })
         if (still)
@@ -2116,7 +2141,11 @@ export function createTravelEngine(options: {
         }
         case 'resume': {
           const waiting = state.waiting
-          if (!waiting) break
+          // An action its checks held, once they're resolved: the rest of its steps.
+          if (!waiting) {
+            if (!state.pendingChecks.length && state.moving?.held) goOn(state, events)
+            break
+          }
           let choice: string | number | undefined
           if (waiting.ask) {
             const param = actions.all[waiting.action]?.params?.[waiting.ask]

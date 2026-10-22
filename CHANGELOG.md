@@ -26,6 +26,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Travel, Hexmapper: a check of an action's own moment that pauses (a night encounter as the camp begins) now **holds the rest of the action**: the encounter is played at nightfall and the night passes after **Continue**, instead of the camp going on to dawn first.
 - Travel, Hexmapper: a check waiting for you that came up on an earlier day (a night encounter as the camp began, the camp gone on till dawn) didn't say so, and its line wasn't in the day the trip was on; the box now says the day and time it came up.
 - The Grey Marches: discovering the land ahead from hills or mountains could make a **canyon**, a terrain their rules don't know; it's heath now.
 
