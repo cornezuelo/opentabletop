@@ -56,6 +56,8 @@ export type Declared =
   | { kind: 'check'; id: string }
   /** A table, oracle, generator or deck of its packs: `table.ruins` in `pack`. */
   | { kind: 'rollable'; id: string; pack: string }
+  /** A roll mode, by its full id (`core/advantage`). */
+  | { kind: 'roll-mode'; id: string }
 
 export type SheetScope = 'members' | 'party' | 'factions'
 
@@ -290,6 +292,11 @@ function definitionUses(
     )
   }
   if (def.kind === 'table' || def.kind === 'oracle') {
+    // The roll modes it offers, or takes by itself: by their full ids.
+    def.modes.forEach((mode, i) => r.use(mode, 'names', `modes[${i}]`))
+    for (const mode of Object.keys(def.modeWhen)) r.use(mode, 'names', `modeWhen.${local(mode)}`)
+    for (const mode of Object.keys(def.modeUnless))
+      r.use(mode, 'names', `modeUnless.${local(mode)}`)
     for (const [mode, cond] of Object.entries(def.modeWhen))
       r.condition(cond, `modeWhen.${local(mode)}`)
     for (const [mode, cond] of Object.entries(def.modeUnless))
@@ -403,6 +410,9 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       match = (u) =>
         u.name === `factions.${declared.id}` || u.name.startsWith(`factions.${declared.id}.`)
       break
+    case 'roll-mode':
+      match = (u) => u.how === 'names' && u.name === declared.id
+      break
     case 'rollable':
       // Written in its own pack without one, or with its pack anywhere.
       match = (u) =>
@@ -470,6 +480,8 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
   for (const def of registry.definitions.values())
     if (packs.includes(def.pack) && ROLLED.includes(def.kind))
       out.push({ kind: 'rollable', id: `${def.kind}.${def.localId}`, pack: def.pack })
+  for (const [id, mode] of registry.rollModes)
+    if (packs.includes(mode.pack)) out.push({ kind: 'roll-mode', id })
   const sheets: [SheetScope, { values?: unknown; conditions?: unknown } | undefined][] = [
     ['members', system.sheet?.def],
     ['party', system.partySheet?.def],

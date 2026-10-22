@@ -87,7 +87,7 @@
       {:else if kind === 'weather'}
         <WeatherForm {doc} seasons={seasonsFor(system)} />
       {:else}
-        <RollModesForm {doc} />
+        <RollModesForm {doc} {system} />
       {/if}
     {/key}
   {:else}

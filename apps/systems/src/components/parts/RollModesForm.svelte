@@ -3,9 +3,16 @@
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import RecordRows from '../forms/RecordRows.svelte'
+  import { manifestOf } from '@open-tabletop/pack-ui/packs'
+  import type { TravelSystem } from '@open-tabletop/session'
+  import { library } from '../../lib/packs.svelte'
+  import { usesFor } from '../../lib/usage'
 
   /** Roll modes (`kind: roll-modes`) as rows: how many times a roll is made and which is kept. */
-  let { doc }: { doc: PartDoc } = $props()
+  let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
+  /** Their pack, which their full ids (`core/advantage`) name. */
+  const pack = $derived(library.pack(doc.root))
+  const packId = $derived(pack ? manifestOf(pack).id : doc.root)
 
   const modes = $derived(Object.keys((doc.data().modes ?? {}) as Record<string, unknown>))
 </script>
@@ -15,6 +22,7 @@
   <RecordRows
     {doc}
     at={['modes']}
+    uses={{ of: (id) => usesFor(system, { kind: 'roll-mode', id: `${packId}/${id}` }), system }}
     idLabel={t('forms.id')}
     suggestions={['advantage', 'disadvantage', 'careful']}
     template={{ repeat: 2, keep: 'highest' }}

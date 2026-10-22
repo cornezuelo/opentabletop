@@ -50,6 +50,11 @@ describe('where a name is used', () => {
     expect(of({ kind: 'rollable', id: 'generator.ruin-delve', pack: 'grey-marches' })).toContain(
       'names travel-rules default actions.delve.do[1].roll',
     )
+    // A roll mode, by the tables that offer it or take it by themselves.
+    const advantage = [...registry.rollModes.values()].find((m) => m.localId === 'advantage')!
+    expect(of({ kind: 'roll-mode', id: advantage.id })).toContain(
+      'names table getting-lost modeWhen.advantage',
+    )
     // Declared, all of them.
     const declared = declaredOf(registry, system)
     for (const kind of [
