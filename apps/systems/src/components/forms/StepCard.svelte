@@ -35,6 +35,7 @@
     ontoggle,
     onchange,
     onmove,
+    ondropstep,
     onremove,
   }: {
     step: ActionStep
@@ -46,12 +47,35 @@
     ontoggle: () => void
     onchange: (step: ActionStep) => void
     onmove: (by: number) => void
+    /** Another step of the same action dropped on this one, by its index. */
+    ondropstep: (from: number) => void
     onremove: () => void
   } = $props()
 
   type Raw = Record<string, unknown>
   type KindKey = keyof (typeof en)['steps']['kinds']
   let yaml = $state(false)
+  /** Another step dragged over this card. */
+  let over = $state(false)
+  /** Steps are dragged by their handle, between the cards of one action. */
+  const DRAG = 'application/x-opentabletop-step'
+  function dragStart(e: DragEvent) {
+    e.dataTransfer?.setData(DRAG, String(index))
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+  }
+  function dragOver(e: DragEvent) {
+    if (disabled || !e.dataTransfer?.types.includes(DRAG)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    over = true
+  }
+  function drop(e: DragEvent) {
+    over = false
+    const from = Number(e.dataTransfer?.getData(DRAG))
+    if (disabled || !e.dataTransfer?.types.includes(DRAG) || !Number.isInteger(from)) return
+    e.preventDefault()
+    if (from !== index) ondropstep(from)
+  }
   const s = $derived(step as Raw)
   const kind = $derived(stepKind(step))
   const value = $derived(kind && s[kind])
@@ -112,8 +136,26 @@
   const label = (k: StepKind) => t(`steps.kinds.${key(k)}`)
 </script>
 
-<li class="card" class:open>
+<li
+  class="card"
+  class:open
+  class:over
+  ondragover={dragOver}
+  ondragleave={() => (over = false)}
+  ondrop={drop}
+>
   <div class="head">
+    {#if !disabled}
+      <span
+        class="grip"
+        role="button"
+        tabindex="-1"
+        aria-label={t('steps.drag')}
+        draggable="true"
+        ondragstart={dragStart}
+        use:tooltip={t('steps.drag')}>⠿</span
+      >
+    {/if}
     <button
       class="title"
       aria-expanded={open}
@@ -361,6 +403,18 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     background: var(--bg, transparent);
+  }
+
+  .card.over {
+    border-color: var(--accent);
+    box-shadow: 0 -2px 0 var(--accent);
+  }
+
+  .grip {
+    padding: 0 2px;
+    color: var(--text-muted);
+    cursor: grab;
+    user-select: none;
   }
 
   .head {

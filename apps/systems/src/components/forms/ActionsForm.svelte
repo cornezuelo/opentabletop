@@ -199,17 +199,18 @@
     )
   }
 
-  function move(id: string, i: number, by: number) {
+  /** Moves a step to another place in its action; the cards shown open move with theirs. */
+  function moveTo(id: string, from: number, to: number) {
     const list = steps(id)
-    const j = i + by
-    if (j < 0 || j >= list.length) return
-    ;[list[i], list[j]] = [list[j], list[i]]
-    writeSteps(id, list)
-    // The open card moves with its step.
-    const a = opened.has(`${id}:${i}`)
-    const b = opened.has(`${id}:${j}`)
-    opened[b ? 'add' : 'delete'](`${id}:${i}`)
-    opened[a ? 'add' : 'delete'](`${id}:${j}`)
+    if (from === to || to < 0 || to >= list.length) return
+    const order = list.map((_, k) => k)
+    order.splice(to, 0, ...order.splice(from, 1))
+    writeSteps(
+      id,
+      order.map((k) => list[k]),
+    )
+    const wasOpen = order.map((k) => opened.has(`${id}:${k}`))
+    wasOpen.forEach((open, k) => opened[open ? 'add' : 'delete'](`${id}:${k}`))
   }
 
   function addStep(id: string) {
@@ -425,7 +426,8 @@
                   id,
                   steps(id).map((s, j) => (j === i ? next : s)),
                 )}
-              onmove={(by) => move(id, i, by)}
+              onmove={(by) => moveTo(id, i, i + by)}
+              ondropstep={(from) => moveTo(id, from, i)}
               onremove={() => removeStep(id, i)}
             />
           {:else}
