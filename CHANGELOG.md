@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-22
+
 ### Apps
 
 - Hexmapper, Campaign: **Stop the world clock** is now **Remove the world clock**: it never paused the clock, it forgets it (its date, events, clocks and timeline).
