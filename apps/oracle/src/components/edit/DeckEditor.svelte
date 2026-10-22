@@ -1,7 +1,10 @@
 <script lang="ts">
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { PairEditor } from '@open-tabletop/pack-ui'
+  import { effectSuggestions, setSuggestions } from '@open-tabletop/session'
+  import { workspace } from '../../lib/packs/workspace.svelte'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { t, type MessageKey } from '../../lib/i18n'
+  import { getLocale, t, type MessageKey } from '../../lib/i18n'
   import { nextId, type DefinitionDoc } from '../../lib/packs/doc.svelte'
   import RefPicker from './RefPicker.svelte'
 
@@ -14,9 +17,15 @@
     table?: string
     generator?: string
     set?: unknown
+    effects?: unknown
     pause?: boolean
     count?: number
   }
+
+  /** Cards showing what they set, change and whether they pause. */
+  let open = $state<Record<number, boolean>>({})
+  const setHints = $derived(setSuggestions(workspace.registry))
+  const effectHints = $derived(effectSuggestions(workspace.registry))
 
   const RESHUFFLES = ['when-empty', 'manual', 'after-draw'] as const
 
@@ -141,7 +150,7 @@
                 onchange={(e) => edit(i, 'result', e.currentTarget.value)}
               />
             {/if}
-            {#if card.set !== undefined || card.pause}
+            {#if (card.set !== undefined || card.effects !== undefined || card.pause) && !open[i]}
               <small class="note">{t('edit.advanced')}</small>
             {/if}
           </td>
@@ -156,6 +165,15 @@
           </td>
           <td class="row-actions">
             <div>
+              <button
+                class="icon"
+                class:on={open[i]}
+                aria-label={t('edit.more')}
+                aria-expanded={!!open[i]}
+                use:tooltip={t('edit.more')}
+                disabled={doc.translating}
+                onclick={() => (open = { ...open, [i]: !open[i] })}>⋯</button
+              >
               <button
                 class="icon"
                 aria-label={t('edit.moveUp')}
@@ -187,6 +205,46 @@
             </div>
           </td>
         </tr>
+        {#if open[i] && !doc.translating}
+          <tr class="more">
+            <td colspan="5">
+              <div class="more-grid">
+                <div class="field">
+                  <span>{t('edit.set')}<InfoTip text={t('edit.setHelp')} /></span>
+                  <PairEditor
+                    value={card.set}
+                    keys={Object.keys(setHints)}
+                    values={setHints}
+                    keyLabel={t('edit.setKey')}
+                    locale={getLocale()}
+                    label={t('edit.set')}
+                    onchange={(map) => edit(i, 'set', map)}
+                  />
+                </div>
+                <div class="field">
+                  <span>{t('edit.effects')}<InfoTip text={t('edit.effectsHelp')} /></span>
+                  <PairEditor
+                    value={card.effects}
+                    keys={Object.keys(effectHints)}
+                    values={effectHints}
+                    keyLabel={t('edit.effectsKey')}
+                    locale={getLocale()}
+                    label={t('edit.effects')}
+                    onchange={(map) => edit(i, 'effects', map)}
+                  />
+                </div>
+                <label class="inline">
+                  <input
+                    type="checkbox"
+                    checked={card.pause === true}
+                    onchange={(e) => edit(i, 'pause', e.currentTarget.checked || undefined)}
+                  />
+                  {t('edit.pause')}<InfoTip text={t('edit.pauseHelp')} />
+                </label>
+              </div>
+            </td>
+          </tr>
+        {/if}
       {/each}
     </tbody>
   </table>
@@ -196,6 +254,39 @@
 </div>
 
 <style>
+  /* As a table entry's: Sets · Changes, then Pause. */
+  .more-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 16px;
+    align-items: start;
+    padding: 8px;
+    background: rgb(255 255 255 / 0.03);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .more-grid .field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .more-grid .inline {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .icon.on {
+    color: var(--accent);
+  }
+
   .deck {
     display: flex;
     flex-direction: column;

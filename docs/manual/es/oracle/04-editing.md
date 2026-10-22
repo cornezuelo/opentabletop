@@ -31,7 +31,7 @@ Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecu
 - **Fija**: valores que da la entrada cuando sale, una fila cada uno (un nombre y su valor), p. ej. `weather` · `storm` y `lost` · `true`, o `count` · `{{2d6}}`. Los leen el texto del resultado, las tablas y campos de generador siguientes y el viaje (ver [Conectar tablas](07-connecting.md)).
 - **Solo una vez** / **Como mucho**: cuántas veces puede salir la entrada en una sesión (**Nueva sesión** en el Oracle las reinicia).
 - **Cambios**: lo que cambia la entrada en el grupo de un viaje, una fila cada cosa (`party.stats.morale` · `-1`, `party.resources.food` · `2`; `=3` lo fija), con sugerencias de las características y provisiones del sistema. Mira [efectos](07-connecting.md).
-- **Pausar**: si la entrada sale durante un viaje, el viaje se detiene tras la tirada hasta que pulses **Continuar** (`pause: true`; tirada a mano no hace nada). Las cartas de un mazo lo llevan en YAML.
+- **Pausar**: si la entrada sale durante un viaje, el viaje se detiene tras la tirada hasta que pulses **Continuar** (`pause: true`; tirada a mano no hace nada). Las cartas de un mazo tienen el mismo **⋯**, con **Fija**, **Cambios** y **Pausar**.
 
 **YAML**, al lado de cada una, la muestra como la escribe el pack, para lo que las filas no pueden decir (un grupo dentro de otro, `not` de una condición entera): una condición escrita así se queda en YAML, y nada de lo escrito ahí se pierde.
 
