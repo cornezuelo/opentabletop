@@ -277,10 +277,17 @@
 
   .more-grid .inline {
     display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    justify-self: start;
     gap: 6px;
     align-items: center;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .more-grid .inline input {
+    width: auto;
   }
 
   .icon.on {
