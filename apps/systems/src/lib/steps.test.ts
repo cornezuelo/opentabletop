@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { conditionWords } from '@open-tabletop/pack-ui'
 import {
+  actionLine,
   actionReading,
   kindValue,
   minutesText,
@@ -18,6 +19,8 @@ const names = {
   param: (id: string) => (id === 'how' ? 'How do you cross?' : id),
   part: (ref: string) => (ref === 'time.part.morning' ? 'Part of the day: Morning' : ref),
   condition: (c: unknown) => conditionWords(c, 'en'),
+  change: (path: string) =>
+    ({ 'party.stats.fatigue': 'Fatigue', 'party.stats.morale': 'Morale' })[path] ?? path,
 }
 
 describe('steps as cards', () => {
@@ -34,7 +37,14 @@ describe('steps as cards', () => {
     expect(said({ 'travel.move': '{{params.until}}' })).toBe('Move: {{params.until}}')
     expect(said({ 'travel.speed': 0.5 })).toBe('Speed ×0.5 the rest of the day')
     expect(said({ 'travel.mode': 'modes.boat' })).toBe('Travel: By boat')
-    expect(said({ effects: { 'party.stats.fatigue': 1 } })).toBe('Change: party.stats.fatigue: 1')
+    // Changes are said by name, as the trip's journal says them.
+    expect(said({ effects: { 'party.stats.fatigue': 1 } })).toBe('Change: Fatigue +1')
+    expect(
+      said({ effects: { 'party.stats.morale': -1, 'party.conditions.wounded': true, x: false } }),
+    ).toBe('Change: Morale −1, party.conditions.wounded, x (no more)')
+    expect(said({ effects: { 'party.stats.fatigue': '{{params.cost}}' } })).toBe(
+      'Change: Fatigue {{params.cost}}',
+    )
     expect(said({ do: 'actions.march', with: { until: 'hex' } })).toBe('Take March (until: hex)')
     expect(said({ roll: 'checks.ENCOUNTER' })).toBe('Roll Encounters')
     expect(said({ roll: 'table.ruins' })).toBe('Roll Ruins')
@@ -183,33 +193,38 @@ describe("the bundled systems' other forms as rows", () => {
     expect(yaml).toBeLessThan(read / 4)
   })
 
-  it('reads a whole action: who takes it, when, then each step with its condition', () => {
-    expect(
-      actionReading(
-        {
-          when: { 'party.stats.fatigue': { lt: 2 } },
-          oncePerDay: true,
-          do: [
-            { time: 180 },
-            { when: { 'trip.below': 'food' }, effects: { 'party.stats.morale': -1 } },
-            { do: 'actions.march', with: { until: 'hex' } },
-          ],
-        } as never,
-        names,
-        { moments: '', params: ['How far'] },
-      ),
-    ).toBe(
-      'With its button, only when ' +
-        conditionWords({ 'party.stats.fatigue': { lt: 2 } }, 'en') +
-        ', once a day, choosing How far: pass 3 h; then only when ' +
-        conditionWords({ 'trip.below': 'food' }, 'en') +
-        ', change: party.stats.morale: -1; then take March (until: hex).',
-    )
+  it('reads a whole action: who takes it, then its conditions, each on a line', () => {
+    const action = {
+      when: { 'party.stats.fatigue': { lt: 2 } },
+      unless: {
+        any: [{ 'trip.weather': 'storm', 'hex.terrain': 'swamp' }, { 'trip.mode': 'boat' }],
+      },
+      oncePerDay: true,
+      do: [
+        { time: 180 },
+        { when: { 'trip.below': 'food' }, effects: { 'party.stats.morale': -1 } },
+        { do: 'actions.march', with: { until: 'hex' } },
+        { say: 'Done.' },
+      ],
+    } as never
+    expect(actionReading(action, names, { moments: '', params: ['How far'] })).toEqual({
+      lead: 'With its button · once a day · choosing How far',
+      when: conditionWords({ 'party.stats.fatigue': { lt: 2 } }, 'en'),
+      // Groups rows can't show: said short, its YAML is in its field.
+      unless: 'a condition with groups (see its field below)',
+    })
     expect(
       actionReading({ on: 'time.day-end' } as never, names, {
         moments: 'As the day ends',
         params: [],
       }),
-    ).toBe('By itself (As the day ends): nothing but roll its checks.')
+    ).toEqual({ lead: 'By itself (As the day ends)' })
+    // Folded: who, then the first steps and how many more.
+    expect(actionLine(action, names, { moments: '' })).toBe(
+      'With its button · Pass 3 h → Change: Morale −1 · …and 2 more',
+    )
+    expect(actionLine({ on: 'time.day-end' } as never, names, { moments: 'As the day ends' })).toBe(
+      'By itself (As the day ends) · No steps: it does nothing but roll its checks.',
+    )
   })
 })

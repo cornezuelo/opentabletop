@@ -25,7 +25,9 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { ConditionEditor, conditionWords } from '@open-tabletop/pack-ui'
   import StepCard from './StepCard.svelte'
-  import { actionReading, stepSummary, type StepContext } from '../../lib/steps'
+  import { memberNamer, translator } from '@open-tabletop/travel-ui'
+  import type { CharacterState } from '@open-tabletop/character-engine'
+  import { actionLine, actionReading, type StepContext } from '../../lib/steps'
   import { matches } from '../../lib/search'
   import CardHead from './CardHead.svelte'
   import UsedBy from '../uses/UsedBy.svelte'
@@ -105,6 +107,33 @@
       'name',
     ]) || m
   const effectKeys = $derived(Object.keys(effectSuggestions(library.registry)))
+  /**
+   * The characters' and the world's paths named as the trip's journal names them ("Everyone:
+   * Dread", a faction's value), with one member standing for any, so theirs are named too.
+   */
+  const memberName = $derived(
+    system &&
+      memberNamer(
+        system,
+        [{ id: '' } as CharacterState],
+        getLocale(),
+        translator(() => getLocale()),
+        { factions: true, clocks: true },
+      ),
+  )
+  /** What a change's path names: a party stat or supply by the system's name, a character's value. */
+  const changeName = (path: string) => {
+    const [, part, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
+    if (part === 'stats') {
+      const stat = ((doc.bindings?.stats ?? {}) as Record<string, Raw>)[id]
+      return doc.text('bindings', stat?.name, ['stats', id, 'name']) || id
+    }
+    if (part === 'resources') {
+      const supply = ((doc.rules.resources ?? {}) as Record<string, Raw>)[id]
+      return doc.text('travel-rules', supply?.name, ['resources', id, 'name']) || id
+    }
+    return memberName?.(path) ?? path
+  }
   /** What the Oracle rolls, as the rules name it (`table.ruins`): the same as checks roll on. */
   const rollables = $derived(doc.targets.map((x) => ({ ref: x.ref, name: x.name })))
   /** What a step of this action's card offers. */
@@ -134,25 +163,17 @@
       param: (p) => paramsOf(id).find((x) => x.id === p)?.name ?? p,
       part: (ref) => partLabel(system, ref, getLocale()),
       condition: (c) => conditionWords(c, getLocale()),
+      change: changeName,
     },
   })
   /** The actions shown unfolded (folded by default: the list can be long). */
   const unfolded = new SvelteSet<string>()
   let query = $state('')
-  /** An action in words, folded: when the system takes it, then its steps. */
-  const summary = (id: string) => {
-    const names = stepContext(id).names
-    return [
-      def(id).on && saidMoments(def(id).on),
-      steps(id).length
-        ? steps(id)
-            .map((s) => stepSummary(s, names))
-            .join(' → ')
-        : t('actions.noSteps'),
-    ]
-      .filter(Boolean)
-      .join(' · ')
-  }
+  /** An action in words, folded: who takes it, then its first steps. */
+  const summary = (id: string) =>
+    actionLine(def(id), stepContext(id).names, {
+      moments: def(id).on ? saidMoments(def(id).on) : '',
+    })
   /** The whole action in words, as its open card's lead. */
   const reading = (id: string) =>
     actionReading(def(id), stepContext(id).names, {
@@ -293,7 +314,12 @@
         {/if}
       </CardHead>
       {#if open}
-        <p class="reading">{reading(id)}</p>
+        {@const words = reading(id)}
+        <div class="reading">
+          <p>{words.lead}</p>
+          {#if words.when}<p><strong>{t('actions.when')}:</strong> {words.when}</p>{/if}
+          {#if words.unless}<p><strong>{t('actions.unless')}:</strong> {words.unless}</p>{/if}
+        </div>
         <div class="fields">
           <label>
             <span>{t('forms.id')}</span>
@@ -466,6 +492,10 @@
 </div>
 
 <style>
+  .reading p {
+    margin: 0;
+  }
+
   .reading {
     margin: 0;
     padding: 6px 8px;

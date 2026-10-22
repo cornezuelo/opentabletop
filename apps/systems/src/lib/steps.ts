@@ -8,6 +8,7 @@ import {
   type ActionStep,
 } from '@open-tabletop/travel-engine'
 import { flowText } from '@open-tabletop/pack-ui/flow'
+import { conditionRows } from '@open-tabletop/pack-ui'
 import { t } from './i18n'
 
 /** What a step can do: one of the engine's step kinds. */
@@ -53,6 +54,30 @@ export interface StepNames {
   part: (ref: string) => string
   /** A condition in words (the rows' reading, else its YAML). */
   condition: (condition: unknown) => string
+  /**
+   * What a change's path names, as the trip's journal says it: `party.stats.fatigue` →
+   * "Fatigue", `party.members.values.dread` → "Everyone: Dread". Absent: the path.
+   */
+  change?: (path: string) => string
+}
+
+const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`)
+
+/**
+ * Changes in words, as the trip's journal says them: "Fatigue +1, Food −1, Wounded" (a
+ * condition set by its name; cleared, said so); anything else as written after its name.
+ */
+export function changesWords(value: unknown, names: Pick<StepNames, 'change'>): string {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return bare(value)
+  return Object.entries(value)
+    .map(([path, v]) => {
+      const name = names.change?.(path) ?? path
+      if (typeof v === 'number') return `${name} ${signed(v)}`
+      if (v === true) return name
+      if (v === false) return t('steps.say.cleared', { name })
+      return `${name} ${typeof v === 'string' ? v : flowText(v)}`
+    })
+    .join(', ')
 }
 
 /** A map without braces: `party.stats.fatigue: 1, party.resources.food: -1`. */
@@ -97,7 +122,7 @@ export function stepSummary(step: ActionStep, names: StepNames): string {
         mode: refId('modes', v) ? names.mode(refId('modes', v)!) : String(v),
       })
     case 'effects':
-      return t('steps.say.effects', { changes: bare(v) || '—' })
+      return t('steps.say.effects', { changes: changesWords(v, names) || '—' })
     case 'set':
       return t('steps.say.set', { values: bare(v) || '—' })
     case 'do': {
@@ -189,42 +214,67 @@ export interface ActionReading {
   params: string[]
 }
 
-/** A step's words inside a sentence: its first letter lowered ("pass 3 h"). */
-const inSentence = (text: string) => text.charAt(0).toLocaleLowerCase() + text.slice(1)
+/** An action's reading: a line of who and when, then its conditions, each on its own line. */
+export interface ActionWords {
+  /** "With its button · once a day · choosing How far". */
+  lead: string
+  /** Its **Only when**, in words (said short when rows can't show it). */
+  when?: string
+  /** Its **Not when**, the same. */
+  unless?: string
+}
+
+/** Who takes an action: its button, or the system by itself at its moments. */
+const whoTakes = (reading: Pick<ActionReading, 'moments'>) =>
+  reading.moments
+    ? t('actions.reading.byItself', { moments: reading.moments })
+    : t('actions.reading.button')
 
 /**
- * A whole action in plain words, as its open card's lead: who takes it and when it can be
- * taken, then each step with its condition, in order. "With its button, only when …, once a
- * day: pass 3 h; then, only when trip.below is food, change: party.stats.morale: -1."
+ * A whole action in plain words, as its open card's lead: who takes it, once a day, its
+ * choices; then **Only when** and **Not when** on lines of their own. Its steps are left to
+ * their cards right below, which say each one. A condition rows can't show is said short
+ * (its YAML is in its field).
  */
 export function actionReading(
   action: ActionDefinition,
   names: StepNames,
   reading: ActionReading,
-): string {
-  const lead = [
-    reading.moments
-      ? t('actions.reading.byItself', { moments: reading.moments })
-      : t('actions.reading.button'),
-    action.when && t('steps.onlyWhen', { condition: names.condition(action.when) }),
-    action.unless && t('steps.notWhen', { condition: names.condition(action.unless) }),
-    action.oncePerDay === true && t('actions.reading.oncePerDay'),
-    reading.params.length && t('actions.reading.choosing', { params: reading.params.join(', ') }),
-  ]
-    .filter(Boolean)
-    .join(', ')
-  const steps = actionSteps(action).map((step) => {
-    const cond = [
-      step.when && t('steps.onlyWhen', { condition: names.condition(step.when) }),
-      step.unless && t('steps.notWhen', { condition: names.condition(step.unless) }),
+): ActionWords {
+  const said = (condition: unknown) =>
+    conditionRows(condition) ? names.condition(condition) : t('actions.reading.grouped')
+  return {
+    lead: [
+      whoTakes(reading),
+      action.oncePerDay === true && t('actions.reading.oncePerDay'),
+      reading.params.length && t('actions.reading.choosing', { params: reading.params.join(', ') }),
     ]
       .filter(Boolean)
-      .join(', ')
-    const said = inSentence(stepSummary(step, names))
-    return cond ? `${cond}, ${said}` : said
-  })
-  return t('actions.reading.whole', {
-    lead,
-    steps: steps.length ? steps.join(t('actions.reading.then')) : t('actions.reading.noSteps'),
-  })
+      .join(' · '),
+    ...(action.when !== undefined && { when: said(action.when) }),
+    ...(action.unless !== undefined && { unless: said(action.unless) }),
+  }
+}
+
+/** How many steps a folded action's line says before "…and 3 more". */
+const FIRST_STEPS = 2
+
+/**
+ * A folded action's line: who takes it, then its first steps (_With its button · Pass 3 h →
+ * Change: Fatigue −1 · …and 2 more_).
+ */
+export function actionLine(
+  action: ActionDefinition,
+  names: StepNames,
+  reading: Pick<ActionReading, 'moments'>,
+): string {
+  const steps = actionSteps(action)
+  const first = steps.slice(0, FIRST_STEPS).map((step) => stepSummary(step, names))
+  return [
+    whoTakes(reading),
+    steps.length ? first.join(' → ') : t('actions.noSteps'),
+    steps.length > FIRST_STEPS && t('actions.reading.more', { count: steps.length - FIRST_STEPS }),
+  ]
+    .filter(Boolean)
+    .join(' · ')
 }

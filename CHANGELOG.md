@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Systems: **an action's reading, shorter**: an unfolded action starts with a line of who takes it and how (_With its button · once a day · choosing How far_), then its **Only when** and **Not when** each on a line (a condition with groups said short), leaving the steps to their cards; folded, its line says who and its first steps (_…and 3 more_); steps say changes by name (_Change: Fatigue −1_, _Everyone: Health +1_) instead of paths.
 - Systems: **lists as pills**: a check's **When**, an action's **By itself at** and every list of the forms (what a value of the day or a condition **Blocks**, a value's levels, a faction's regions and hexes, a roll mode's cancels, a part of the day's tags) show each item as a pill with its × to take it out; typing adds one (Enter or a comma; a space for a faction's hexes, `15,9`), Backspace in the empty box takes the last one, and the suggestions come grouped by what they start with (`time`, `trip`, `actions`…).
 - Oracle: **Rolled by** under each definition: the actions, checks, clocks, tables and generators that roll it, in every system that brings its pack, each a link to where it's edited.
 - Systems: **Used by** for ways of travelling, terrains, roads and rivers, kinds of weather, actions, factions, roll modes, months and parts of the day: what reads them, and what **names** them (another action's step, a value that blocks a way, a table another rolls).
