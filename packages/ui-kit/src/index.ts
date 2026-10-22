@@ -50,4 +50,4 @@ export {
   type InsertTarget,
 } from './insert.svelte'
 export { LAST_SYSTEM_KEY, readLastSystem, rememberSystem } from './lastSystem'
-export { CampaignKeeper } from './campaignKeeper.svelte'
+export { CampaignKeeper, freeCampaignName } from './campaignKeeper.svelte'

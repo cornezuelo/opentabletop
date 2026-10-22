@@ -18,9 +18,10 @@ import { DEFAULT_SYSTEM, systemIdOf, systemName } from '@open-tabletop/session'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
-import { ask, confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { ask, confirmAction, freeCampaignName, showToast } from '@open-tabletop/ui-kit'
 import { exampleState, forgetExample, rememberExample, type ExampleMap } from './examples'
 import {
+  allCampaigns,
   deleteCampaign,
   deleteLibraryMap,
   getCampaign,
@@ -107,19 +108,26 @@ async function saveCurrent(): Promise<void> {
 
 /**
  * The campaign a map opens with: the one it brings (written where campaigns are kept), or
- * the one kept for it, or a new one of its own if there is none.
+ * the one kept for it, or a new one of its own if there is none. One new here never takes
+ * the name of another kept here (“The Marches (2)”).
  */
 async function campaignFor({ map, campaign, setup }: Opening): Promise<Campaign> {
   if (campaign) {
     campaignDirty = true
-    return campaign
+    return (await keptCampaign(campaign.id)) ? campaign : named(campaign)
   }
   const stored = await keptCampaign(map.meta.campaign)
   // None kept: an empty one, saved once something happens in it.
-  const found = stored ?? createCampaign(map.meta.campaign, map.meta.name)
+  const found = stored ?? (await named(createCampaign(map.meta.campaign, map.meta.name)))
   const withIt = withSetup(found, setup)
   if (withIt !== found) campaignDirty = true
   return withIt
+}
+
+/** A campaign not kept here yet, with a name no campaign kept here has. */
+async function named(campaign: Campaign): Promise<Campaign> {
+  const name = await freeCampaignName(campaign.name, campaign.id)
+  return name === campaign.name ? campaign : { ...campaign, name }
 }
 
 /** A campaign kept in this browser, or null if there's none (or it can't be read). */
@@ -185,7 +193,7 @@ export async function openMapFile(): Promise<string | null> {
     const opening = choice === 'copy' ? asCopy(opened) : await withKeptCampaign(opened)
     if (!opening) return null
     await switchTo(opening)
-    showToast(t('file.loaded'))
+    await sayCampaign()
     return opening.map.meta.id
   } catch (error) {
     showToast(errorMessage(error), 'error')
@@ -221,13 +229,14 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
   }
   try {
     const opened = parseMapFile(example.json)
-    await switchTo(
+    const opening =
       id === example.id
         ? await inExampleCampaign(opened)
-        : asCopy({ ...opened, map: { ...opened.map, meta: { ...opened.map.meta, id } } }),
-    )
+        : asCopy({ ...opened, map: { ...opened.map, meta: { ...opened.map.meta, id } } })
+    if (!opening) return
+    await switchTo(opening)
     rememberExample(id, example)
-    showToast(t('file.loaded'))
+    await sayCampaign()
   } catch (error) {
     showToast(errorMessage(error), 'error')
   }
@@ -236,17 +245,84 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
 /**
  * An example whose campaign other maps or trips here are in (another example map of it):
  * it joins that campaign, its world kept (the map keeps the land of the factions it has).
- * Alone in it, the example's campaign starts fresh with it.
+ * Alone in it, the example's campaign starts fresh with it. Not kept here, while other
+ * campaigns are (`closeCampaigns`): asks whether to join one of them or start its own.
+ * Null on cancel.
  */
-async function inExampleCampaign(opening: Opening & { campaign: Campaign }): Promise<Opening> {
+async function inExampleCampaign(
+  opening: Opening & { campaign: Campaign },
+): Promise<Opening | null> {
   const id = opening.campaign.id
-  if (id === editor.campaign.id) await saveCurrent().catch(console.error)
+  await saveCurrent().catch(console.error)
   const kept = await keptCampaign(id)
+  if (!kept) return joinOrOwn(opening)
   const others = (await campaignPlaces(id)).filter(
     (p) => p.app !== 'hexmapper' || p.id !== opening.map.meta.id,
   )
   if (!kept || !others.length) return opening
   const map = { ...opening.map, territories: landIn(kept, opening.map.territories) }
+  if (!map.territories) delete map.territories
+  return { map }
+}
+
+/** How many campaigns an example offers to join, at most (the latest changed). */
+const JOINABLE = 3
+
+/**
+ * Campaigns kept here an example could have meant to join (its campaign isn't kept): those
+ * with its campaign's name, or played with its system (unless that's the default one,
+ * which campaigns of any game play); the latest changed first.
+ */
+async function closeCampaigns(example: Campaign): Promise<Campaign[]> {
+  const name = example.name.trim().toLowerCase()
+  const system = systemIdOf(example.system)
+  return (await allCampaigns().catch(() => []))
+    .map((entry) => safeCampaign(entry.json))
+    .filter(
+      (c): c is Campaign =>
+        !!c &&
+        c.id !== example.id &&
+        ((!!name && c.name.trim().toLowerCase() === name) ||
+          (system !== DEFAULT_SYSTEM && systemIdOf(c.system) === system)),
+    )
+    .sort((a, b) => b.modified.localeCompare(a.modified))
+    .slice(0, JOINABLE)
+}
+
+/**
+ * An example whose campaign isn't kept here, while campaigns like it are (another map of
+ * the same game, started before): join one of them (the example's world left out; the map
+ * keeps the land of the factions it has), or start the example's own campaign. Null on
+ * cancel.
+ */
+async function joinOrOwn(opening: Opening & { campaign: Campaign }): Promise<Opening | null> {
+  const close = await closeCampaigns(opening.campaign)
+  if (!close.length) return opening
+  const name = (c: Campaign) => c.name || t('map.untitled')
+  const choice = await ask(
+    t('library.exampleCampaignTitle'),
+    t('library.exampleCampaign', {
+      campaign: name(opening.campaign),
+      others: close.map((c) => `“${name(c)}”`).join(', '),
+    }),
+    [
+      { value: 'cancel', label: t('newMap.cancel') },
+      { value: 'own', label: t('library.exampleCampaignOwn') },
+      ...close.map((c, i) => ({
+        value: c.id,
+        label: t('campaign.join', { campaign: name(c) }),
+        ...(i === 0 && { kind: 'primary' as const }),
+      })),
+    ],
+  )
+  if (choice === 'own') return opening
+  const to = close.find((c) => c.id === choice)
+  if (!to) return null
+  const map: HexMap = {
+    ...opening.map,
+    meta: { ...opening.map.meta, campaign: to.id },
+    territories: landIn(to, opening.map.territories),
+  }
   if (!map.territories) delete map.territories
   return { map }
 }
@@ -323,6 +399,7 @@ export async function openLibraryMap(id: string): Promise<boolean> {
   if (!entry) return false
   try {
     await switchTo(openMap(entry.json))
+    await sayCampaign()
     return true
   } catch (error) {
     showToast(errorMessage(error), 'error')
@@ -365,6 +442,22 @@ const placesText = (places: CampaignPlace[]) =>
     .map((p) => `“${p.name || t(p.app === 'hexmapper' ? 'map.untitled' : 'campaign.trip')}”`)
     .join(', ')
 
+/**
+ * Says, in a toast, which campaign the map just opened is in and which maps and trips are
+ * in it too, so two campaigns of the same name or game aren't confused.
+ */
+async function sayCampaign(): Promise<void> {
+  const others = await othersInCampaign()
+  const campaign = editor.campaign.name || t('map.untitled')
+  showToast(
+    others.length
+      ? t('campaign.openedWith', { campaign, places: placesText(others) })
+      : t('campaign.openedAlone', { campaign }),
+    'info',
+    6000,
+  )
+}
+
 /** The campaigns this browser keeps, by name (the open map's among them), for choosing one. */
 export async function keptCampaigns(): Promise<{ id: string; name: string }[]> {
   const kept = await listCampaigns().catch(() => [])
@@ -404,7 +497,7 @@ export async function moveToCampaign(campaign: string): Promise<boolean> {
   const { map } = editor
   const to =
     (await keptCampaign(campaign)) ??
-    createCampaign(campaign, campaign === map.meta.id ? map.meta.name : '')
+    (await named(createCampaign(campaign, campaign === map.meta.id ? map.meta.name : '')))
   let stays: WhatStays = 'theirs'
   if (hasWorld(from)) {
     const theirs = hasWorld(to)

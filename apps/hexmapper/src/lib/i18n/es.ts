@@ -98,7 +98,7 @@ export const es: Messages = {
     regions: vocabulary.es.terms.regions,
   },
   campaign: {
-    help: 'El mundo en el que se juega este mapa: el sistema, el reloj del mundo (el panel Mundo), las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano), compartidos por todos los mapas y viajes de la misma campaña. El mapa solo guarda su geografía y la tierra que cada facción tiene en él. Un mapa nuevo empieza en una campaña propia.\n• **Propia** — un mundo propio, como siempre tuvo un mapa\n• el nombre de otra campaña — este mapa se une a ella: su fecha, sus facciones y su Oráculo pasan a ser también los de este mapa\nSi la campaña de este mapa tiene mundo, unirse a otra pregunta cuál se queda. La campaña que se deja se borra si no queda nada más en ella. Los viajes de Travel se unen a una campaña igual.\nEn una campaña hay un viaje en curso a la vez: jugar otro pregunta si pausar el que se jugó por última vez.',
+    help: 'El mundo en el que se juega este mapa: el sistema, el reloj del mundo (el panel Mundo), las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano), compartidos por todos los mapas y viajes de la misma campaña. El mapa solo guarda su geografía y la tierra que cada facción tiene en él. Un mapa nuevo empieza en una campaña propia, con su nombre (numerado si otra campaña ya lo tiene: `Norte (2)`).\n• **Propia** — un mundo propio, como siempre tuvo un mapa\n• el nombre de otra campaña — este mapa se une a ella: su fecha, sus facciones y su Oráculo pasan a ser también los de este mapa\nSi la campaña de este mapa tiene mundo, unirse a otra pregunta cuál se queda. La campaña que se deja se borra si no queda nada más en ella. Los viajes de Travel se unen a una campaña igual.\nEn una campaña hay un viaje en curso a la vez: jugar otro pregunta si pausar el que se jugó por última vez.',
     in: 'El mapa está en',
     own: 'Propia',
     name: 'Nombre de la campaña',
@@ -106,6 +106,9 @@ export const es: Messages = {
       'Cómo se llama la campaña allí donde se elige (aquí, en los viajes de Travel, en el Oráculo). Sus mapas y viajes conservan sus propios nombres.\n• `Las Marcas del Norte`',
     also: 'También en ella: {places}.',
     trip: 'un viaje',
+    join: vocabulary.es.campaign.whatStaysTitle,
+    openedWith: 'Este mapa está en la campaña «{campaign}», con {places}.',
+    openedAlone: 'Este mapa está en la campaña «{campaign}», sin otros mapas ni viajes.',
     whatStaysTitle: vocabulary.es.campaign.whatStaysTitle,
     whatStays: vocabulary.es.campaign.whatStays,
     bringWorld: vocabulary.es.campaign.bringWorld,
@@ -322,6 +325,10 @@ export const es: Messages = {
     exampleNewerTag: 'nueva versión',
     exampleNewerTip:
       'El ejemplo ha cambiado desde que empezaste tu mapa con él. Ábrelo para elegir: seguir con el tuyo o abrir el nuevo junto a él.',
+    exampleCampaignTitle: '¿Unirlo a una campaña tuya?',
+    exampleCampaign:
+      'Este ejemplo se juega en la campaña «{campaign}», que este navegador no tiene, pero tienes {others}, con el mismo nombre o jugada con el mismo sistema. ¿Unirlo a una, para que este mapa comparta su reloj del mundo, facciones y Oráculo (los del ejemplo se quedan fuera), o empezar aparte la campaña del ejemplo?',
+    exampleCampaignOwn: 'Empezar la suya',
     title: 'Mapas',
     import: 'Importar fichero… (Ctrl+O)',
     help: 'Mapas abiertos en este navegador, guardados automáticamente. Los enlaces #/<id del mapa>/<hex> abren un mapa y centran un hex.',

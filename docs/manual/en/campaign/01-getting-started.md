@@ -16,6 +16,27 @@ Labels underlined with dots have an explanation: click one and the help column o
 
 **New campaign** asks for a **name** and a **system** (the one you last chose in any app comes first), and makes an empty campaign: no world clock yet, no maps or trips. Add maps and trips to it from their own apps (below).
 
+## How campaigns come to be
+
+You rarely make one here. Campaigns appear by themselves:
+
+- **A new map** (Hexmapper) starts in a campaign of its own, named after the map.
+- **A new trip** (Travel) starts in one of its own too, named after the trip.
+- **An example map** opens in the campaign its file names: the Grey Marches' two maps share _The Grey Marches_, so the second one you open joins the first one's. If this browser doesn't have that campaign but has others with **the same name or played with the same system** (say, a map of that game you started before), the Hexmapper asks: **Join “…”** one of them (the map shares its world, and the example's own clock and factions are left out), or **Start its own** (the example's campaign, apart).
+- **A map file** brings its campaign: if this browser has it already, the Hexmapper asks whether to join it, replace it or keep the file's apart ([Your maps](../hexmapper/01-getting-started.md#your-maps)).
+
+**Two campaigns never share a name**: a new one whose name is taken gets a number, _The Grey Marches (2)_, so you can tell them apart (rename it whenever you like). And opening a map in the Hexmapper says which campaign it's in and which maps and trips are in it too: _This map is in the campaign “The Grey Marches”, with “The Hollow Hills”_.
+
+## Merging two campaigns
+
+Two campaigns that should be one (two maps of the same game that each started their own): move every map and trip of one into the other, and the empty one goes away by itself.
+
+1. In **Maps and trips** of the campaign you'll leave, see what's in it.
+2. Open each map in the Hexmapper and choose the other campaign in **Map settings → Campaign → The map is in**; for each trip, choose it in Travel's trip room (**Campaign**).
+3. The first one you move asks which world stays: **Keep the campaign's** (the one you join) or **Bring this one's** (its clock, factions and Oracle take the place of the other's, for everything in it).
+
+When the last map or trip has moved, the campaign it left is deleted.
+
 ## The campaign
 
 At the top, its **name** (click it to change it; every app names the campaign with it) and **Delete**. Under them:

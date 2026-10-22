@@ -99,7 +99,7 @@ export const en = {
     regions: vocabulary.en.terms.regions,
   },
   campaign: {
-    help: "The world this map is played in: the system, the world clock (the World panel), the factions and the Oracle (decks drawn, once-only results, hand rolls), shared by every map and trip of the same campaign. The map keeps only its geography and the land each faction holds on it. A new map starts in a campaign of its own.\n• **Its own** — a world of its own, as one map always had\n• another campaign's name — this map joins it: its date, factions and Oracle become this map's too\nIf this map's campaign has a world, joining another asks which one stays. The campaign it leaves is deleted if nothing else is in it. Travel's trips join a campaign the same way.\nOne trip goes on in a campaign at a time: playing another asks to pause the one that played last.",
+    help: "The world this map is played in: the system, the world clock (the World panel), the factions and the Oracle (decks drawn, once-only results, hand rolls), shared by every map and trip of the same campaign. The map keeps only its geography and the land each faction holds on it. A new map starts in a campaign of its own, named after it (numbered if another campaign has that name: `North (2)`).\n• **Its own** — a world of its own, as one map always had\n• another campaign's name — this map joins it: its date, factions and Oracle become this map's too\nIf this map's campaign has a world, joining another asks which one stays. The campaign it leaves is deleted if nothing else is in it. Travel's trips join a campaign the same way.\nOne trip goes on in a campaign at a time: playing another asks to pause the one that played last.",
     in: 'The map is in',
     own: 'Its own',
     name: 'Campaign name',
@@ -107,6 +107,9 @@ export const en = {
       'How the campaign is called wherever it is chosen (here, Travel’s trips, the Oracle). Its maps and trips keep their own names.\n• `The Northern Marches`',
     also: 'Also in it: {places}.',
     trip: 'a trip',
+    join: vocabulary.en.campaign.whatStaysTitle,
+    openedWith: 'This map is in the campaign “{campaign}”, with {places}.',
+    openedAlone: 'This map is in the campaign “{campaign}”, with no other maps or trips.',
     whatStaysTitle: vocabulary.en.campaign.whatStaysTitle,
     whatStays: vocabulary.en.campaign.whatStays,
     bringWorld: vocabulary.en.campaign.bringWorld,
@@ -321,6 +324,10 @@ export const en = {
     exampleNewerTag: 'new version',
     exampleNewerTip:
       'The example has changed since you started your map from it. Open it to choose: go on with yours, or open the new one beside it.',
+    exampleCampaignTitle: 'Join a campaign of yours?',
+    exampleCampaign:
+      'This example plays in the campaign “{campaign}”, which this browser doesn’t have, but you have {others}, of the same name or played with the same system. Join one, so this map shares its world clock, factions and Oracle (the example’s own are left out), or start the example’s campaign apart?',
+    exampleCampaignOwn: 'Start its own',
     title: 'Maps',
     import: 'Import file… (Ctrl+O)',
     help: 'Maps opened in this browser, saved automatically. Links like #/<map id>/<hex> open a map and center a hex.',

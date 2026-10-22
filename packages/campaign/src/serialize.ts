@@ -38,6 +38,20 @@ export function createCampaign(id: string, name = '', now = new Date().toISOStri
   return { version: CAMPAIGN_VERSION, id, name, created: now, modified: now }
 }
 
+/**
+ * A name no other campaign has (`taken`, theirs): the name itself, or it with the first
+ * number free, “The Marches (2)”, so two campaigns are never told apart by id alone. An
+ * empty name stays empty.
+ */
+export function freeName(name: string, taken: readonly string[]): string {
+  const names = new Set(taken.map((n) => n.trim().toLowerCase()))
+  const base = name.trim()
+  if (!base || !names.has(base.toLowerCase())) return name
+  let n = 2
+  while (names.has(`${base} (${n})`.toLowerCase())) n++
+  return `${base} (${n})`
+}
+
 export function serializeCampaign(campaign: Campaign): string {
   return JSON.stringify(campaign)
 }

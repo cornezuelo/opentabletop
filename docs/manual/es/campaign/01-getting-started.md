@@ -16,6 +16,27 @@ Las etiquetas subrayadas con puntos tienen una explicación: pulsa una y la colu
 
 **Nueva campaña** pide un **nombre** y un **sistema** (el último que elegiste en cualquier aplicación sale primero), y crea una campaña vacía: aún sin reloj del mundo, sin mapas ni viajes. Añádele mapas y viajes desde sus propias aplicaciones (abajo).
 
+## Cómo nacen las campañas
+
+Pocas veces crearás una aquí. Las campañas aparecen solas:
+
+- **Un mapa nuevo** (Hexmapper) empieza en una campaña propia, con el nombre del mapa.
+- **Un viaje nuevo** (Travel) también empieza en una propia, con el nombre del viaje.
+- **Un mapa de ejemplo** se abre en la campaña que nombra su fichero: los dos mapas de las Marcas Grises comparten _The Grey Marches_, así que el segundo que abras se une a la del primero. Si este navegador no tiene esa campaña pero sí otras **con el mismo nombre o jugadas con el mismo sistema** (por ejemplo, un mapa de ese juego que empezaste antes), el Hexmapper pregunta: **Unirse a «…»** una de ellas (el mapa comparte su mundo, y el reloj y las facciones del ejemplo se quedan fuera) o **Empezar la suya** (la campaña del ejemplo, aparte).
+- **Un fichero de mapa** trae su campaña: si este navegador ya la tiene, el Hexmapper pregunta si unirse a ella, reemplazarla o guardar aparte la del fichero ([Tus mapas](../hexmapper/01-getting-started.md#tus-mapas)).
+
+**Dos campañas nunca comparten nombre**: una nueva cuyo nombre ya está cogido lleva un número, _The Grey Marches (2)_, para que las distingas (renómbrala cuando quieras). Y al abrir un mapa en el Hexmapper se dice en qué campaña está y qué mapas y viajes están también en ella: _Este mapa está en la campaña «The Grey Marches», con «The Hollow Hills»_.
+
+## Fusionar dos campañas
+
+Dos campañas que deberían ser una (dos mapas del mismo juego que empezaron cada uno la suya): lleva todos los mapas y viajes de una a la otra, y la vacía desaparece por sí sola.
+
+1. En **Mapas y viajes** de la campaña que vas a dejar, mira qué hay en ella.
+2. Abre cada mapa en el Hexmapper y elige la otra campaña en **Ajustes del mapa → Campaña → El mapa está en**; para cada viaje, elígela en la sala del viaje de Travel (**Campaña**).
+3. El primero que lleves pregunta qué mundo se queda: **Mantener el de la campaña** (la que unes) o **Traer el propio** (su reloj, facciones y Oráculo ocupan el lugar de los de la otra, para todo lo que hay en ella).
+
+Cuando se ha llevado el último mapa o viaje, la campaña que dejó se borra.
+
 ## La campaña
 
 Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran la campaña con él) y **Borrar**. Debajo:

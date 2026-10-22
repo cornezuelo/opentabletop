@@ -37,7 +37,7 @@ import {
 } from '@open-tabletop/campaign'
 import { roster } from '@open-tabletop/character-ui'
 import { mathRandom } from '@open-tabletop/random'
-import { ask, confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { ask, confirmAction, freeCampaignName, showToast } from '@open-tabletop/ui-kit'
 import { listCampaigns } from '@open-tabletop/storage'
 import { campaignPlaces, type CampaignPlace } from './places'
 import { CampaignKeeper } from '@open-tabletop/ui-kit'
@@ -233,7 +233,10 @@ export class TripStore {
     const t = translator(this.options.locale)
     const to =
       (await keeper.read(campaign)) ??
-      createCampaign(campaign, campaign === trip ? (this.me?.name ?? '') : '')
+      createCampaign(
+        campaign,
+        campaign === trip ? await freeCampaignName(this.me?.name ?? '', campaign) : '',
+      )
     // Its world (a clock, factions, Oracle rolls): which stays, as when a map moves.
     let stays: 'theirs' | 'mine' = 'theirs'
     if (hasWorld(from)) {

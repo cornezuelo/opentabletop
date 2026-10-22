@@ -24,6 +24,7 @@ vi.mock('@open-tabletop/storage', async (original) => ({
   putCampaign: async (entry: LibraryEntry) => void kept.set(entry.id, entry),
   deleteCampaign: async (id: string) => void kept.delete(id),
   listCampaigns: list(kept),
+  allCampaigns: async () => [...kept.values()],
 }))
 vi.mock('./file', () => ({ downloadMap: () => {}, pickMapFile: async () => picked }))
 
@@ -136,6 +137,53 @@ describe('a map’s campaign', () => {
     expect(editor.campaign.world?.time).toBe(9000)
     expect(kept.has('south')).toBe(true)
     expect(c.deserializeCampaign(kept.get('grey-marches')!.json).world?.time).toBe(9000)
+  })
+
+  it('an example whose campaign isn’t here asks to join one like it; names are never shared', async () => {
+    const { c, dialog, toasts, actions, editor } = await openHexmapper()
+    const { exampleMaps } = await import('./examples')
+    const hills = exampleMaps().find((m) => m.id === 'hollowhills1')!
+    // The user's own Grey Marches campaign (a map started before the examples shared one),
+    // with a map in it; and another campaign of the default system, which isn't offered.
+    const mine = { ...c.createCampaign('mine', 'The Grey Marches'), system: 'grey-marches' }
+    const other = c.createCampaign('other', 'Elsewhere')
+    for (const camp of [mine, other])
+      kept.set(camp.id, {
+        id: camp.id,
+        name: camp.name,
+        modified: camp.modified,
+        json: c.serializeCampaign(camp),
+      })
+    const myMap = { meta: { id: 'mymap', name: 'My Marches', campaign: 'mine' } }
+    maps.set('mymap', {
+      id: 'mymap',
+      name: 'My Marches',
+      modified: '',
+      json: JSON.stringify(myMap),
+    })
+
+    // Cancelled: nothing opens.
+    const before = editor.map.meta.id
+    let opening = actions.openExampleMap(hills)
+    expect(await answer(dialog, 'cancel')).toMatch(/“The Grey Marches”, which this browser/)
+    await opening
+    expect(editor.map.meta.id).toBe(before)
+
+    // Joining the user's: the Hollow Hills play in it, and say so (with My Marches).
+    opening = actions.openExampleMap(hills)
+    await answer(dialog, 'mine')
+    await opening
+    expect(editor.map.meta.campaign).toBe('mine')
+    expect(editor.campaign.id).toBe('mine')
+    expect(toasts.at(-1)?.message).toMatch(/campaign “The Grey Marches”, with “My Marches”/)
+
+    // Started apart instead: the example's campaign, numbered so the two can be told apart.
+    await actions.removeLibraryMap('hollowhills1')
+    opening = actions.openExampleMap(hills)
+    await answer(dialog, 'own')
+    await opening
+    expect(editor.campaign).toMatchObject({ id: 'grey-marches', name: 'The Grey Marches (2)' })
+    expect(toasts.at(-1)?.message).toMatch(/“The Grey Marches \(2\)”, with no other maps/)
   })
 
   it('a file whose campaign is here: join it, replace it, or keep it apart', async () => {

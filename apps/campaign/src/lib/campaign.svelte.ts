@@ -32,7 +32,7 @@ import {
   putLibraryMap,
 } from '@open-tabletop/storage'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
-import { CampaignKeeper, confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { CampaignKeeper, confirmAction, freeCampaignName, showToast } from '@open-tabletop/ui-kit'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { getLocale, t } from './i18n'
 import { library, systems } from './packs.svelte'
@@ -387,7 +387,8 @@ export const open = new OpenCampaign()
 
 /** Makes a new campaign, empty but for its name and system, and keeps it; returns its id. */
 export async function newCampaign(name: string, system: string): Promise<string> {
-  const campaign = { ...createCampaign(newId(), name.trim()), system }
+  const id = newId()
+  const campaign = { ...createCampaign(id, await freeCampaignName(name.trim(), id)), system }
   await putCampaign({
     id: campaign.id,
     name: campaign.name,

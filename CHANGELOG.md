@@ -10,6 +10,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper, Travel, Systems' Try it: **a journal that keeps everything, with a filter**: the journal now also keeps what happens behind (each roll's dice and the row or card it chose, the weather's roll, every check that didn't come up and why, the moments of the day some check or action names, each value before and after, the routes planned). The Journal tab's **Show** chooses **The story**, **And the rules** (as before) or **Everything**; it can leave out kinds of lines (trip, Oracle, world, characters, notes) and search them, remembered per browser; **Export** writes what the filter shows. **What just happened** never shows the detail.
 
+- Hexmapper, Travel, Campaign: **campaigns easier to tell apart**: opening an example map whose campaign this browser doesn't have, while it has campaigns of the same name or system, asks whether to join one of them or start its own; a new campaign never takes a name another has (it gets a number, _The Grey Marches (2)_); opening a map says which campaign it's in and which maps and trips are in it too. The Campaign app's manual explains how campaigns come to be and how to merge two.
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

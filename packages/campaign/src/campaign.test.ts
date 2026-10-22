@@ -9,6 +9,7 @@ import {
   CampaignFormatError,
   createCampaign,
   deserializeCampaign,
+  freeName,
   factionsOn,
   hasWorld,
   joinCampaign,
@@ -76,6 +77,13 @@ function hillsMap(campaign?: string): HexMap {
 }
 
 describe('campaigns', () => {
+  it('never share a name: a taken one gets the first number free', () => {
+    expect(freeName('The Marches', ['North'])).toBe('The Marches')
+    expect(freeName('The Marches', ['the marches '])).toBe('The Marches (2)')
+    expect(freeName('The Marches', ['The Marches', 'The Marches (2)'])).toBe('The Marches (3)')
+    expect(freeName('', [''])).toBe('')
+  })
+
   it('play one trip at a time: another one is told which played last', () => {
     const map = { app: 'hexmapper', id: 'm1', name: 'North' }
     const trip = { app: 'travel', id: 't1', name: 'To Keld' }

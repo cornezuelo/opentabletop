@@ -1,13 +1,38 @@
 import {
   createCampaign,
   deserializeCampaign,
+  freeName,
   serializeCampaign,
   type Campaign,
 } from '@open-tabletop/campaign'
-import { deleteCampaign, getCampaign, onCampaignChange, putCampaign } from '@open-tabletop/storage'
+import {
+  deleteCampaign,
+  getCampaign,
+  listCampaigns,
+  onCampaignChange,
+  putCampaign,
+} from '@open-tabletop/storage'
 
 /** The time of a change (plain text, not reactive state). */
 const now = (): string => new Date(Date.now()).toISOString()
+
+/**
+ * A name for a campaign not kept here yet (`id`) that no campaign kept here has: `name`, or
+ * it numbered, “The Marches (2)”.
+ */
+export async function freeCampaignName(name: string, id: string): Promise<string> {
+  if (!name.trim()) return name
+  const kept = await listCampaigns().catch(() => [])
+  return freeName(
+    name,
+    kept.filter((c) => c.id !== id).map((c) => c.name),
+  )
+}
+
+/** A new campaign kept nowhere yet, with a name no campaign kept here has. */
+async function newCampaign(id: string, name: string): Promise<Campaign> {
+  return createCampaign(id, await freeCampaignName(name, id))
+}
 
 /** A campaign kept in this browser, or none if missing or unreadable. */
 async function read(id: string): Promise<Campaign | null> {
@@ -55,8 +80,8 @@ export class CampaignKeeper {
     if (this.loading && this.loadingId === id) return this.loading
     this.campaign = undefined
     this.loadingId = id
-    const loading = read(id).then((kept) => {
-      const campaign = kept ?? createCampaign(id, name)
+    const loading = read(id).then(async (kept) => {
+      const campaign = kept ?? (await newCampaign(id, name))
       if (this.loadingId === id) {
         this.campaign = campaign
         this.onRead?.(campaign)
