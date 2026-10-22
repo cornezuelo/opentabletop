@@ -147,7 +147,7 @@ entries:
   - { id: hills, weight: 3, result: Hills, set: { terrain: hills } }
   - { id: mountains, weight: 3, result: Mountains, set: { terrain: mountains } }
   - { id: peaks, weight: 1, result: Peaks, set: { terrain: peaks } }
-  - { id: canyon, weight: 1, result: Canyon, set: { terrain: canyon } }
+  - { id: heath, weight: 1, result: Heath, set: { terrain: heath } }
   - { id: forest, weight: 1, result: Forest, set: { terrain: forest } }
 ---
 kind: table

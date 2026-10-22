@@ -15,6 +15,7 @@ import {
 import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
+import { parseAllDocuments } from 'yaml'
 import { bundledPacks } from './bundled'
 import { engineFiles } from './workspace'
 
@@ -1272,6 +1273,33 @@ describe('bundled open packs', () => {
     expect(system.rules.actions?.eat).toMatchObject({ on: 'time.day-end' })
   })
 
+  it("the Grey Marches' land ahead, from a terrain their rules know, only makes terrains they know", () => {
+    const known = [...Object.keys(marches().rules.terrains), 'lake', 'sea', 'deep-sea']
+    const file = bundledPacks
+      .find((p) => p.root.endsWith('grey-marches') && !p.personal)!
+      .files.find((f) => f.path.endsWith('discovery.yaml'))!
+    type Entry = {
+      when?: { 'from.terrain'?: string[] }
+      table?: string
+      set?: { terrain?: string }
+    }
+    const tables = new Map(
+      parseAllDocuments(file.content)
+        .map((d) => d.toJS() as { kind?: string; id?: string; entries?: Entry[] })
+        .filter((d) => d?.kind === 'table')
+        .map((d) => [d.id!, d.entries ?? []]),
+    )
+    // The tables The land ahead rolls from a terrain the rules know, and what they set.
+    const reached = tables
+      .get('next-terrain')!
+      .filter((e) => e.table && (e.when?.['from.terrain'] ?? []).some((t) => known.includes(t)))
+      .map((e) => e.table!.replace(/^table\./, ''))
+    expect(reached.length).toBeGreaterThan(2)
+    for (const id of reached)
+      for (const e of tables.get(id) ?? [])
+        if (e.set?.terrain) expect(known, `${id} → ${e.set.terrain}`).toContain(e.set.terrain)
+  })
+
   it('the Grey Marches discover a map whose terrains their rules know', () => {
     const system = marches()
     expect(system.bindings?.discover?.reveal).toBe('neighbors')
@@ -1284,6 +1312,8 @@ describe('bundled open packs', () => {
       system,
       world: row(cells),
       oracle: createOracleEngine({ registry, random: seeded('marches-discovery') }),
+      // The weather too: unseeded, it changed the trip (and what it found) from run to run.
+      random: seeded('marches-discovery-weather'),
       locale: 'es',
       discover: 'neighbors' as const,
     }

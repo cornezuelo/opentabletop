@@ -60,7 +60,7 @@ highland:
 
     - Pesos
     - `set: { terrain }`
-  entries: { hills: Colinas, mountains: Montañas, peaks: Cumbres, canyon: Cañón, forest: Bosque }
+  entries: { hills: Colinas, mountains: Montañas, peaks: Cumbres, heath: Brezal, forest: Bosque }
 dryland:
   name: Tierra seca
   description: |-
