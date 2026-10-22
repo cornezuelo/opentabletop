@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" font-family="system-ui, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e8e2d6"/></marker></defs>
+<rect width="640" height="400" rx="10" fill="#23211e"/>
+<text x="30" y="32" font-size="13" font-weight="bold" fill="#f08a4b">Entering a hex: one moment, one thing after another</text>
+<rect x="30" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="96" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Actions by itself</text>
+<text x="96" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">their steps</text>
+<line x1="162" y1="71" x2="177" y2="71" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="179" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="245" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Check: Old stones</text>
+<text x="245" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">only if a landmark</text>
+<line x1="311" y1="71" x2="326" y2="71" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="328" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1.5"/>
+<text x="394" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Check: Wolves</text>
+<text x="394" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">rolled on Wolves</text>
+<line x1="460" y1="71" x2="476" y2="71" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="478" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="544" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">The next check…</text>
+<text x="544" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">sees all that came before</text>
+<line x1="394" y1="94" x2="394" y2="114" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="30" y="114" width="580" height="272" rx="8" fill="none" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="46" y="138" font-size="12" font-weight="bold" fill="#f08a4b">One check, as its moment comes</text>
+<rect x="46" y="150" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="171" font-size="11" fill="#e8e2d6">1  Only if / Skip if: read now</text>
+<line x1="191" y1="184" x2="191" y2="202" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="46" y="204" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="225" font-size="11" fill="#e8e2d6">2  Its Changes, if it has any</text>
+<line x1="191" y1="238" x2="191" y2="256" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="46" y="258" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="279" font-size="11" fill="#e8e2d6">3  Rolled on its table, with its Extra context</text>
+<line x1="191" y1="292" x2="191" y2="310" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="46" y="312" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="333" font-size="11" fill="#e8e2d6">4  The result: journal, set values, effects</text>
+<text x="199" y="198" font-size="10" fill="#e8e2d6">hold</text>
+<line x1="336" y1="167" x2="376" y2="167" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="348" y="162" font-size="10" fill="#e8e2d6">no</text>
+<rect x="378" y="146" width="216" height="42" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="486" y="163" text-anchor="middle" font-size="11" fill="#e8e2d6">They don’t hold: skipped</text>
+<text x="486" y="179" text-anchor="middle" font-size="10" fill="#e8e2d6">Everything says why</text>
+<line x1="336" y1="275" x2="376" y2="275" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="378" y="254" width="216" height="42" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="486" y="271" text-anchor="middle" font-size="11" fill="#e8e2d6">No table: just a line</text>
+<text x="486" y="287" text-anchor="middle" font-size="10" fill="#e8e2d6">in the journal</text>
+<line x1="336" y1="329" x2="376" y2="329" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="378" y="308" width="216" height="42" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1" stroke-dasharray="0"/>
+<text x="486" y="325" text-anchor="middle" font-size="11" fill="#e8e2d6">Pause after it, or a result</text>
+<text x="486" y="341" text-anchor="middle" font-size="10" fill="#e8e2d6">that pauses: wait for Continue</text>
+<text x="46" y="370" font-size="11" fill="#e8e2d6">Then the moment’s next check, seeing all of this.</text>
+</svg>

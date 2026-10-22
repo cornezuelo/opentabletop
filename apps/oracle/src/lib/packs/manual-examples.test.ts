@@ -12,7 +12,7 @@ import { tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
 import { weatherShares, type HexFlower, type WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
-import { parse, stringify } from 'yaml'
+import { parse, parseAllDocuments, stringify } from 'yaml'
 
 /**
  * The definitions the manual shows as examples are real: each YAML block with a `kind:`
@@ -475,5 +475,145 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     expect(s.travel.route).toBeUndefined()
     expect(s.journal.some((e) => e.code === 'NO_ROUTE')).toBe(true)
     expect(march(s).stopped).toMatchObject({ reason: 'no-route' })
+  })
+})
+
+describe('Systems → Checks: wolf country plays as the page says', () => {
+  // The page's excerpt (the rules' checks, then the bindings) and its table.
+  const blocks = [...read('en/systems/06-checks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+    (m) => m[1],
+  )
+  const [added, bound] = parseAllDocuments(blocks.find((y) => y.includes('WOLVES_AT_NIGHT'))!).map(
+    (d) => d.toJS(),
+  )
+  const table = blocks.find((y) => y.includes('kind: table'))!
+  const rules = { ...parse(coreFile('travel.yaml')), checks: added.checks }
+  const { registry, diagnostics } = loadPacks([
+    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    {
+      path: 'wolf/travel.yaml',
+      content: `${stringify(rules)}---\n${stringify({ kind: 'bindings', id: 'default', ...bound })}`,
+    },
+    { path: 'wolf/tables.yaml', content: table },
+    { path: 'wolf/calendar.yaml', content: coreFile('calendar.yaml') },
+    {
+      path: 'wolf/system.yaml',
+      content:
+        'kind: system\nid: default\nname: Wolf Country\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default',
+    },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.pack === 'wolf')!
+  const calendar = calendarOf(system)
+  // Step 8's way: the stones on hex 5, a road from hex 3 to hex 4.
+  const terrains = ['plains', 'forest', 'forest', 'hills', 'plains', 'plains']
+  const world: TravelWorld = {
+    hexKm: 10,
+    cell: (hex) =>
+      terrains[Number(hex)]
+        ? { terrain: terrains[Number(hex)], tags: hex === '4' ? ['landmark'] : [] }
+        : null,
+    neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => terrains[i]).map(String),
+    distance: (a, b) => Math.abs(Number(a) - Number(b)),
+    edges: (a, b) => ([a, b].sort().join() === '2,3' ? ['road'] : []),
+  }
+  const options = (seed: string) => ({
+    system,
+    world,
+    oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    locale: 'en',
+    random: seeded(seed),
+  })
+  const clock = (time: number) => {
+    const { hour, minute } = calendar.describe(time)
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+  }
+  const nextDawn = (s: SessionState) =>
+    calendar.at(s.travel.day + 1, tripStart(system.rules, calendar))
+  /** A trip with 1 food towards the far end (hex 6). */
+  function setOut(opts: ReturnType<typeof options>) {
+    let s = startTrip({ system, location: '0', season: 'summer' }).session
+    s = { ...s, travel: { ...s.travel, resources: { food: 1 } } }
+    return stepTrip(opts, s, { type: 'setDestination', hex: '5' }).state
+  }
+  /** Goes on from every check that waits, as Continue does. */
+  const goOn = (opts: ReturnType<typeof options>, s: SessionState) => {
+    while (s.travel.pendingChecks.length)
+      s = stepTrip(opts, s, { type: 'resolveCheck', id: s.travel.pendingChecks[0].id }).state
+    return s
+  }
+  const of = (s: SessionState, code: string, event?: string) =>
+    s.journal.filter(
+      (e) => e.code === code && (!event || e.data?.event === event || e.data?.check === event),
+    )
+  /** The dice of a check's rolls (`1d6 + 2 → 5  [3] +2`). */
+  const dice = (s: SessionState, check: string) =>
+    of(s, 'ROLLED', check).map((e) => (e.data?.rolls as { dice: string[] }[])[0].dice[0])
+
+  it('loads (steps 1–7)', () => {
+    expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    expect(system.bindings?.stats?.fatigue).toMatchObject({ default: 0 })
+  })
+
+  it('plays the way of step 8 as What you’ll see says', () => {
+    const opts = options('wolf')
+    let s = stepTrip(opts, setOut(opts), { type: 'travel' }).state
+    // Day 1: wolves in the forest at 11:20, rolled with nothing added; a stop at 14:00.
+    const wolves = of(s, 'ORACLE_RESULT', 'WOLVES')
+    expect(wolves.map((e) => clock(e.time))).toEqual(['11:20'])
+    expect(dice(s, 'WOLVES')[0]).toMatch(/^1d6 \+ 0 /)
+    expect(clock(s.travel.time)).toBe('14:00')
+    // The night in the forest: the same table, with 2 more (Continue goes on with the wait).
+    s = goOn(opts, stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state)
+    expect(dice(s, 'WOLVES_AT_NIGHT')[0]).toMatch(/^1d6 \+ 2 /)
+    expect(of(s, 'CHECK_SKIPPED', 'HUNGER')).toHaveLength(1)
+    expect(clock(s.travel.time)).toBe('06:00')
+    expect(s.travel.resources.food).toBe(0)
+    // Day 2: the forest at 08:40; the hills by the road, skipped; the stones wait for you.
+    const at = s.journal.length
+    s = stepTrip(opts, s, { type: 'travel' }).state
+    const day2 = s.journal.slice(at)
+    expect(
+      day2
+        .filter((e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'WOLVES')
+        .map((e) => clock(e.time)),
+    ).toEqual(['08:40'])
+    expect(
+      day2.find((e) => e.code === 'CHECK_SKIPPED' && e.data?.check === 'WOLVES'),
+    ).toMatchObject({ data: { condition: 'unless', failed: [{ path: 'trip.edges' }] } })
+    const stones = day2.find((e) => e.code === 'CHECK_PENDING')!
+    expect(stones.data).toMatchObject({ event: 'OLD_STONES', hex: '4' })
+    expect(clock(stones.time)).toBe('13:06')
+    expect(s.travel.location).toBe('4')
+    // Continue, then Go on (the march it stopped): it stops at 14:00.
+    s = stepTrip(opts, goOn(opts, s), { type: 'travel' }).state
+    expect(clock(s.travel.time)).toBe('14:00')
+    // The night on the plains: no wolves; at midnight, nothing to eat, and Hunger tires.
+    const fatigue = s.stats.fatigue
+    s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
+    expect(of(s, 'ROLLED', 'WOLVES_AT_NIGHT')).toHaveLength(1)
+    expect(of(s, 'LIMIT_REACHED').at(-1)?.data).toMatchObject({ path: 'party.resources.food' })
+    expect(of(s, 'CHECK_EFFECTS', 'HUNGER')).toHaveLength(1)
+    expect(s.stats.fatigue).toBe(fatigue + 1)
+    // Day 3: the end of the way.
+    s = stepTrip(opts, s, { type: 'travel' }).state
+    expect(s.travel.location).toBe('5')
+  })
+
+  it('the pack never comes by day; at night it comes now and then, and stops the trip', () => {
+    let packs = 0
+    for (const seed of 'abcdefghijkl') {
+      const opts = options(seed)
+      let s = stepTrip(opts, setOut(opts), { type: 'travel' }).state
+      s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
+      const results = (event: string) =>
+        of(s, 'ROLLED', event).map((e) => (e.data?.rolls as { entry: string }[])[0].entry)
+      expect(results('WOLVES')).not.toContain('pack')
+      if (results('WOLVES_AT_NIGHT').includes('pack')) {
+        packs++
+        expect(s.travel.pendingChecks).toHaveLength(1)
+        expect(of(s, 'CHECK_PAUSED', 'WOLVES_AT_NIGHT')).toHaveLength(1)
+      } else expect(s.travel.pendingChecks).toHaveLength(0)
+    }
+    expect(packs).toBeGreaterThan(0)
   })
 })

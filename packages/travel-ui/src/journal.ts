@@ -1,6 +1,7 @@
 import {
   FACT_PATHS,
   MEMBER_PATH,
+  localize,
   shownAt,
   tripChanges,
   type JournalEntry,
@@ -8,7 +9,15 @@ import {
   type JournalTopic,
   type RolledNode,
 } from '@open-tabletop/session'
-import { DAY_END, HEX_ENTER, type Unavailable } from '@open-tabletop/travel-engine'
+import {
+  availableActions,
+  DAY_END,
+  HEX_ENTER,
+  momentsOf,
+  ref,
+  type TravelRules,
+  type Unavailable,
+} from '@open-tabletop/travel-engine'
 import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
 import { idText, type Translate, type TravelUiKey } from './i18n'
 
@@ -137,6 +146,8 @@ export function failedText(
       return formatClock({ hour: Math.floor(minutes / 60), minute: minutes % 60 })
     }
     if (typeof v === 'string' && full(path) === 'hex.terrain') return terrainName?.(v) ?? v
+    // Hours marched and the like, to two decimals at most (8.01, not 8.01111111111095).
+    if (typeof v === 'number') return String(Math.round(v * 100) / 100)
     return String(v)
   }
   return failed
@@ -244,6 +255,20 @@ export const eventName = (
   checkName?.(String(event)) ??
   idText(t, `events.${String(event)}`, String(event))
 
+/**
+ * What an action that rolled nothing says (`actionNothing`): its own text (`nothing`, with
+ * `{terrain}`), '' when no check is rolled at it (nothing to say), undefined for the generic.
+ */
+export function actionNothingOf(
+  rules: TravelRules,
+  id: string,
+  locale: string,
+): string | undefined {
+  const at = ref('actions', id)
+  if (!(rules.checks ?? []).some((c) => momentsOf(c.at).includes(at))) return ''
+  return localize(availableActions(rules).all[id]?.nothing, locale, 'en')
+}
+
 /** One journal entry as a line of text in the UI language. */
 export function entryText(e: JournalEntry, context: JournalContext) {
   const { t, startDay, hexLabel, nameOf, actionName, checkName } = context
@@ -259,9 +284,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         typeof d.effects === 'object' && d.effects !== null
           ? changesText({ effects: d.effects }, context)
           : ''
-      if (d.checks !== 0) return changed ? `${done} (${changed})` : done
+      const told = changed ? `${done} (${changed})` : done
+      if (d.checks !== 0) return told
       const own = context.actionNothing?.(id)
-      if (own === '') return done
+      if (own === '') return told
       const terrain =
         typeof d.terrain === 'string'
           ? (context.terrainName?.(d.terrain) ?? d.terrain.replaceAll('-', ' '))
@@ -269,7 +295,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const nothing = own
         ? own.replaceAll('{terrain}', terrain)
         : t('journal.actionNothing', { terrain })
-      return `${done}: ${nothing}`
+      return `${told}: ${nothing}`
     }
     // Older journals: camp and rest had lines of their own.
     case 'CAMP_STARTED': {

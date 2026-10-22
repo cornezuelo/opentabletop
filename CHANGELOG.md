@@ -28,6 +28,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Hexmapper, Travel, Systems' Try it: **clearer stops**: a value of the day that leaves the way of travelling behind (deep snow and the horses) says so and to choose another way, instead of _no more travel today_; a march with nowhere it can go says there's no route, instead of _No destination set_.
 
+- Manual: **Systems → Checks explained from nothing**: how a check works (its moment, its conditions read just before it, its changes, its table and context, what stops the trip) with a picture of one moment's checks, a stretch of wolf country built step by step (hunger at the day's end, wolves by day and at night on one table with a different context, old stones that pause) with what you'll see in the trip, and the usual mistakes.
+
+- Hexmapper, Travel, Systems' Try it: **an action's journal line says what it did**: an action no check is rolled at now tells its changes (_Eat (Food −1)_, before only _Eat_); an action whose checks all stayed away says the system's **When nothing applies** again (the Grey Marches' _nothing to forage on Hills_), which never showed; and **Everything** rounds the hours it reads (_8.01_, not _8.01111111111095_).
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

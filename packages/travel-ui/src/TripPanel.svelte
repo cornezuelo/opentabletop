@@ -20,6 +20,7 @@
   } from '@open-tabletop/session'
   import { formatClock } from '@open-tabletop/time'
   import {
+    actionNothingOf,
     changesText,
     durationText,
     entryClock,
@@ -368,10 +369,7 @@
     return resourceName(key)
   }
   /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
-  const actionNothing = (id: string) => {
-    if (!(system.rules.checks ?? []).some((c) => c.at === id)) return ''
-    return localize(actions.all[id]?.nothing, locale, 'en')
-  }
+  const actionNothing = (id: string) => actionNothingOf(system.rules, id, locale)
   /** A clock (`06:00`) or a part of the calendar's day by its name ("Meals: supper"). */
   const untilText = (moment: string) => {
     if (!isPartRef(moment)) return moment

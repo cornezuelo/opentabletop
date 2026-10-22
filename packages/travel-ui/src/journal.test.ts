@@ -1,9 +1,17 @@
-import { type JournalEntry } from '@open-tabletop/session'
-import { coreSystem } from '../../session/src/core.testing'
+import { loadPacks } from '@open-tabletop/oracle-engine'
+import { travelSystems, type JournalEntry } from '@open-tabletop/session'
+import { corePack, coreSystem, greyMarchesPack } from '../../session/src/core.testing'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
-import { entryText, filterJournal, journalMarkdown, whyText, type JournalContext } from './journal'
+import {
+  actionNothingOf,
+  entryText,
+  filterJournal,
+  journalMarkdown,
+  whyText,
+  type JournalContext,
+} from './journal'
 import { memberNamer } from './members'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
@@ -92,7 +100,7 @@ describe('journal lines', () => {
     const because = {
       condition: 'when',
       failed: [
-        { path: 'trip.marched', value: 8, op: 'lt', asked: 8 },
+        { path: 'trip.marched', value: 8.01111111111095, op: 'lt', asked: 8 },
         { path: 'hour', value: 21.5, op: 'lt', asked: 20 },
         { path: 'torchlit', value: undefined, op: 'eq', asked: true },
         { path: 'party.stats.morale', value: 0, op: 'gte', asked: 1 },
@@ -102,7 +110,7 @@ describe('journal lines', () => {
     expect(
       line('TRAVEL_STOPPED', { reason: 'conditions', action: 'march', because }, { dayValues }),
     ).toBe(
-      '“Forage for food” stops here: the day’s march (hours) is 8: it needs under 8; the hour is 21:30: it needs under 20:00; By torchlight doesn’t hold; Morale is 0: it needs 1 or more.',
+      '“Forage for food” stops here: the day’s march (hours) is 8.01: it needs under 8; the hour is 21:30: it needs under 20:00; By torchlight doesn’t hold; Morale is 0: it needs 1 or more.',
     )
     // An `unless` that held: what it read.
     const unless = {
@@ -153,6 +161,19 @@ describe('journal lines', () => {
     // An action without checks has nothing to say; one whose check came up neither.
     expect(line('ACTION_TAKEN', taken, { actionNothing: () => '' })).toBe('Forage for food (3 h)')
     expect(line('ACTION_TAKEN', { ...taken, checks: 1 })).toBe('Forage for food (3 h)')
+    // The system's own words, for an action a check is rolled at; nothing, for one without.
+    const { registry } = loadPacks([...corePack(), ...greyMarchesPack()])
+    const gm = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!.rules
+    expect(actionNothingOf(gm, 'forage', 'en')).toMatch(/^nothing to forage on \{terrain\}/)
+    expect(actionNothingOf(gm, 'eat', 'en')).toBe('')
+    // What its steps changed is told either way.
+    const eaten = { ...taken, minutes: 0, effects: { 'party.resources.food': -1 } }
+    expect(line('ACTION_TAKEN', eaten, { actionNothing: () => '' })).toBe(
+      'Forage for food (Food −1)',
+    )
+    expect(line('ACTION_TAKEN', eaten, { actionNothing: () => 'nothing on {terrain}' })).toBe(
+      'Forage for food (Food −1): nothing on Hills',
+    )
   })
 
   it('tell supplies eaten, rests and fatigue with its reason', () => {

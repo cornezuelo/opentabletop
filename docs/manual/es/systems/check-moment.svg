@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" font-family="system-ui, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e8e2d6"/></marker></defs>
+<rect width="640" height="400" rx="10" fill="#23211e"/>
+<text x="30" y="32" font-size="13" font-weight="bold" fill="#f08a4b">Al entrar en un hex: un momento, una cosa tras otra</text>
+<rect x="30" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="96" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Acciones automáticas</text>
+<text x="96" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">sus pasos</text>
+<line x1="162" y1="71" x2="177" y2="71" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="179" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="245" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Compr.: Piedras viejas</text>
+<text x="245" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">solo si es un hito</text>
+<line x1="311" y1="71" x2="326" y2="71" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="328" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1.5"/>
+<text x="394" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Compr.: Lobos</text>
+<text x="394" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">se tira en Lobos</text>
+<line x1="460" y1="71" x2="476" y2="71" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="478" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="544" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">La siguiente…</text>
+<text x="544" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">ve todo lo anterior</text>
+<line x1="394" y1="94" x2="394" y2="114" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="3 3"/>
+<rect x="30" y="114" width="580" height="272" rx="8" fill="none" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="46" y="138" font-size="12" font-weight="bold" fill="#f08a4b">Una comprobación, al llegar su momento</text>
+<rect x="46" y="150" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="171" font-size="11" fill="#e8e2d6">1  Solo si / Salvo si: se leen ahora</text>
+<line x1="191" y1="184" x2="191" y2="202" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="46" y="204" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="225" font-size="11" fill="#e8e2d6">2  Sus Cambios, si tiene</text>
+<line x1="191" y1="238" x2="191" y2="256" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="46" y="258" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="279" font-size="11" fill="#e8e2d6">3  Se tira en su tabla, con su Contexto extra</text>
+<line x1="191" y1="292" x2="191" y2="310" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="46" y="312" width="290" height="34" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="58" y="333" font-size="11" fill="#e8e2d6">4  El resultado: diario, valores, efectos</text>
+<text x="199" y="198" font-size="10" fill="#e8e2d6">se cumplen</text>
+<line x1="336" y1="167" x2="376" y2="167" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="348" y="162" font-size="10" fill="#e8e2d6">no</text>
+<rect x="378" y="146" width="216" height="42" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="486" y="163" text-anchor="middle" font-size="11" fill="#e8e2d6">No se cumplen: no sale</text>
+<text x="486" y="179" text-anchor="middle" font-size="10" fill="#e8e2d6">Todo dice por qué</text>
+<line x1="336" y1="275" x2="376" y2="275" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="378" y="254" width="216" height="42" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="486" y="271" text-anchor="middle" font-size="11" fill="#e8e2d6">Sin tabla: solo una línea</text>
+<text x="486" y="287" text-anchor="middle" font-size="10" fill="#e8e2d6">en el diario</text>
+<line x1="336" y1="329" x2="376" y2="329" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="378" y="308" width="216" height="42" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1" stroke-dasharray="0"/>
+<text x="486" y="325" text-anchor="middle" font-size="11" fill="#e8e2d6">Pausar después, o un resultado</text>
+<text x="486" y="341" text-anchor="middle" font-size="10" fill="#e8e2d6">que pausa: espera a Continuar</text>
+<text x="46" y="370" font-size="11" fill="#e8e2d6">Luego la siguiente comprobación del momento, que ve todo esto.</text>
+</svg>
