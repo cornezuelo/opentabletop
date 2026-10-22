@@ -112,14 +112,17 @@ export const en = {
     more: 'Conditions, values and limits',
     when: 'Only if',
     whenHelp:
-      "When the entry can come up, as `key: value` pairs on what the table sees (the map, the trip, the inputs, earlier fields):\n• `hex.terrain: forest` — only in forests\n• `hex.tags: landmark` — a tag of the hex\n• `danger: { gte: 3 }` — a value of the hex or region, 3 or more\n• `time.season: [autumn, winter]` — either season\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.str: { gte: '{{1d20}}' }` — a roll under a stat (the same d20 for every entry of the roll)\n• `party.stats.survival: { gte: '{{roll}}' }` — under a stat on the table's own **Roll** (`roll`: its total, also in the entry's text, `set` and changes)\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n**Unless**: it can't come up when this matches:\n• `trip.edges: road` — not by road\nEmpty: always. An entry that can't come up is skipped as if it weren't there.",
+      "When the entry can come up, as rows of what it reads · comparison · value, on what the table sees (the map, the trip, the inputs, earlier fields); **YAML** writes it as the pack does:\n• `hex.terrain: forest` — only in forests\n• `hex.tags: landmark` — a tag of the hex\n• `hex.danger: { gte: 3 }` — a value of the hex or region, 3 or more\n• `time.season: [autumn, winter]` — either season\n• `time.part: night` — a part of the calendar's day\n• `hex.danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.str: { gte: '{{1d20}}' }` — a roll under a stat (the same d20 for every entry of the roll)\n• `party.stats.survival: { gte: '{{roll}}' }` — under a stat on the table's own **Roll** (`roll`: its total, also in the entry's text, `set` and changes)\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n**Unless**: it can't come up when this matches:\n• `trip.edges: road` — not by road\nEmpty: always. An entry that can't come up is skipped as if it weren't there.",
     unless: 'Unless',
     set: 'Sets',
+    setKey: 'What it sets',
+    effectsKey: 'What changes',
+    contextKey: 'What it passes on',
     setHelp:
-      "Values the entry gives when it comes up, as `key: value` pairs. Later tables, the template and the trip read them:\n• `weather: storm` — the day's weather\n• `lost: true` — a value of the day the system declares (it can block travel)\n• `count: '{{2d6}}'` — a number rolled now\n• `terrain: '{{common}}'` — copied from what the table sees\n• `rolled: '{{roll}}'` — the total of the table's own roll",
+      "Values the entry gives when it comes up, one row each (a name and its value). Later tables, the template and the trip read them:\n• `weather: storm` — the day's weather\n• `lost: true` — a value of the day the system declares (it can block travel)\n• `count: '{{2d6}}'` — a number rolled now\n• `terrain: '{{common}}'` — copied from what the table sees\n• `rolled: '{{roll}}'` — the total of the table's own roll",
     effects: 'Changes',
     effectsHelp:
-      "What the entry changes in the trip's party when it comes up:\n• `party.stats.morale: -1` — takes 1 away\n• `party.resources.food: '{{1d3}}'` — adds a rolled amount\n• `party.stats.fatigue: '=0'` — sets it\n• `acting.values.health: -1` — the character acting, when the system has characters\nThe values are the system's (stats, supplies and characters). During a trip they apply at once; rolled by hand, they're offered to the trip (**Apply to the trip**).",
+      "What the entry changes in the trip's party when it comes up, one row each:\n• `party.stats.morale: -1` — takes 1 away\n• `party.resources.food: '{{1d3}}'` — adds a rolled amount\n• `party.stats.fatigue: '=0'` — sets it\n• `acting.values.health: -1` — the character acting, when the system has characters\nThe values are the system's (stats, supplies and characters). During a trip they apply at once; rolled by hand, they're offered to the trip (**Apply to the trip**).",
     once: 'Only once',
     onceHelp:
       'Comes up **at most once per session** (a unique NPC, a one-off treasure); after that the table does what **When exhausted** says. Needs an **Id**.',
@@ -129,7 +132,6 @@ export const en = {
     maxOccurrences: 'At most',
     maxOccurrencesHelp:
       'Times it can come up per session:\n• `2` — twice, then **When exhausted**\nEmpty: no limit. Needs an **Id**.',
-    notAMap: 'Write key: value pairs, e.g. terrain: forest',
     language: 'Language',
     baseLanguage: '{locale} (base)',
     translationHelp:
@@ -180,10 +182,10 @@ export const en = {
     sources: { table: 'Table', generator: 'Generator', roll: 'Dice', value: 'Fixed value' },
     fieldMore: 'Conditions and context',
     fieldWhenHelp:
-      '**Only if**: the field is rolled only when this matches what the generator sees (its inputs, earlier fields, the map or trip); otherwise it stays empty.\n• `time.season: winter`\n• `danger: { lte: 2 }` — an earlier field\n**Unless**: not when this matches:\n• `untouched: { lt: 90 }`\nEmpty: always.',
+      '**Only if**: the field is rolled only when this holds, built as rows (what it reads · comparison · value), on what the generator sees (its inputs, earlier fields, the map or trip); otherwise it stays empty.\n• `time.season: winter`\n• `danger: { lte: 2 }` — an earlier field\n**Unless**: not when this matches:\n• `untouched: { lt: 90 }`\nEmpty: always.',
     fieldContext: 'Context',
     fieldContextHelp:
-      "Values given to the table or generator this field rolls, as `key: value` pairs:\n• `danger: 3` — as if the place were more dangerous\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — passed on from what the generator sees",
+      "Values given to the table or generator this field rolls, one row each (a name and its value):\n• `danger: 3` — as if the place were more dangerous\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — passed on from what the generator sees",
     fieldExists: 'There is already a field "{field}".',
     addField: 'Add field',
     reshuffle: 'Reshuffle',

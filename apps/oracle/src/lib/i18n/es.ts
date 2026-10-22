@@ -114,14 +114,17 @@ export const es: Messages<typeof en> = {
     more: 'Condiciones, valores y límites',
     when: 'Solo si',
     whenHelp:
-      "Cuándo puede salir la entrada, en pares `clave: valor` sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores):\n• `hex.terrain: forest` — solo en bosques\n• `hex.tags: landmark` — una etiqueta del hex\n• `danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `time.season: [autumn, winter]` — cualquiera de las dos estaciones\n• `timeOfDay: night`\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.str: { gte: '{{1d20}}' }` — una tirada bajo una característica (el mismo d20 para todas las entradas de la tirada)\n• `party.stats.survival: { gte: '{{roll}}' }` — bajo una característica con la propia **Tirada** de la tabla (`roll`: su total, también en el texto de la entrada, sus `set` y sus cambios)\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n**Salvo**: no puede salir cuando se cumple:\n• `trip.edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.",
+      "Cuándo puede salir la entrada, en filas de qué lee · comparación · valor, sobre lo que ve la tabla (el mapa, el viaje, las entradas, campos anteriores); **YAML** la escribe como el pack:\n• `hex.terrain: forest` — solo en bosques\n• `hex.tags: landmark` — una etiqueta del hex\n• `hex.danger: { gte: 3 }` — un valor del hex o la región, 3 o más\n• `time.season: [autumn, winter]` — cualquiera de las dos estaciones\n• `time.part: night` — una parte del día del calendario\n• `hex.danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.str: { gte: '{{1d20}}' }` — una tirada bajo una característica (el mismo d20 para todas las entradas de la tirada)\n• `party.stats.survival: { gte: '{{roll}}' }` — bajo una característica con la propia **Tirada** de la tabla (`roll`: su total, también en el texto de la entrada, sus `set` y sus cambios)\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n**Salvo**: no puede salir cuando se cumple:\n• `trip.edges: road` — no por camino\nVacío: siempre. Una entrada que no puede salir se salta como si no estuviera.",
     unless: 'Salvo',
     set: 'Fija',
+    setKey: 'Qué da',
+    effectsKey: 'Qué cambia',
+    contextKey: 'Qué le pasa',
     setHelp:
-      "Valores que da la entrada cuando sale, en pares `clave: valor`. Las tablas siguientes, la plantilla y el viaje los leen:\n• `weather: storm` — el clima del día\n• `lost: true` — un valor del día que declara el sistema (puede bloquear el viaje)\n• `count: '{{2d6}}'` — un número tirado ahora\n• `terrain: '{{common}}'` — copiado de lo que ve la tabla\n• `rolled: '{{roll}}'` — el total de la propia tirada de la tabla",
+      "Valores que da la entrada cuando sale, una fila cada uno (un nombre y su valor). Las tablas siguientes, la plantilla y el viaje los leen:\n• `weather: storm` — el clima del día\n• `lost: true` — un valor del día que declara el sistema (puede bloquear el viaje)\n• `count: '{{2d6}}'` — un número tirado ahora\n• `terrain: '{{common}}'` — copiado de lo que ve la tabla\n• `rolled: '{{roll}}'` — el total de la propia tirada de la tabla",
     effects: 'Cambios',
     effectsHelp:
-      "Lo que cambia la entrada en el grupo del viaje cuando sale:\n• `party.stats.morale: -1` — quita 1\n• `party.resources.food: '{{1d3}}'` — suma una cantidad tirada\n• `party.stats.fatigue: '=0'` — lo fija\n• `acting.values.health: -1` — el personaje que actúa, cuando el sistema tiene personajes\nLos valores son los del sistema (características, provisiones y personajes). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
+      "Lo que cambia la entrada en el grupo del viaje cuando sale, una fila cada cosa:\n• `party.stats.morale: -1` — quita 1\n• `party.resources.food: '{{1d3}}'` — suma una cantidad tirada\n• `party.stats.fatigue: '=0'` — lo fija\n• `acting.values.health: -1` — el personaje que actúa, cuando el sistema tiene personajes\nLos valores son los del sistema (características, provisiones y personajes). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
     once: 'Solo una vez',
     onceHelp:
       'Sale **como mucho una vez por sesión** (un PNJ único, un tesoro irrepetible); después la tabla hace lo que diga **Al agotarse**. Necesita **Id**.',
@@ -131,7 +134,6 @@ export const es: Messages<typeof en> = {
     maxOccurrences: 'Como mucho',
     maxOccurrencesHelp:
       'Veces que puede salir por sesión:\n• `2` — dos veces, luego **Al agotarse**\nVacío: sin límite. Necesita **Id**.',
-    notAMap: 'Escribe pares clave: valor, p. ej. terrain: forest',
     language: 'Idioma',
     baseLanguage: '{locale} (base)',
     translationHelp:
@@ -182,10 +184,10 @@ export const es: Messages<typeof en> = {
     sources: { table: 'Tabla', generator: 'Generador', roll: 'Dados', value: 'Valor fijo' },
     fieldMore: 'Condiciones y contexto',
     fieldWhenHelp:
-      '**Solo si**: el campo solo se tira cuando se cumple sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `time.season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',
+      '**Solo si**: el campo solo se tira cuando se cumple, en filas (qué lee · comparación · valor), sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `time.season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',
     fieldContext: 'Contexto',
     fieldContextHelp:
-      "Valores que recibe la tabla o generador que tira este campo, en pares `clave: valor`:\n• `danger: 3` — como si el lugar fuera más peligroso\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — pasado de lo que ve el generador",
+      "Valores que recibe la tabla o generador que tira este campo, una fila cada uno (un nombre y su valor):\n• `danger: 3` — como si el lugar fuera más peligroso\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — pasado de lo que ve el generador",
     fieldExists: 'Ya hay un campo «{field}».',
     addField: 'Añadir campo',
     reshuffle: 'Barajar',

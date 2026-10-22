@@ -1,11 +1,11 @@
 <script lang="ts">
   import { writeRef, type Compiled } from '@open-tabletop/oracle-engine'
-  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
+  import { ConditionEditor } from '@open-tabletop/pack-ui'
   import { contextSuggestions, definitionId } from '@open-tabletop/session'
-  import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { oracleUi } from '../../lib/oracle.svelte'
   import { workspace } from '../../lib/packs/workspace.svelte'
-  import { t } from '../../lib/i18n'
+  import { getLocale, t } from '../../lib/i18n'
   import { definitionDoc } from '../../lib/packs/doc.svelte'
   import DeckEditor from './DeckEditor.svelte'
   import EntriesEditor from './EntriesEditor.svelte'
@@ -48,21 +48,16 @@
     if (doc.raw.advantage !== undefined) doc.edit(['advantage'], undefined)
   }
 
-  /** A mode's condition, typed as one line: saved when it reads as a map, flagged if not. */
+  /** What a mode's condition can read. */
   const conditionHints = $derived(contextSuggestions(workspace.registry))
-  let invalid = $state<Record<string, boolean>>({})
-  function setCondition(key: ModeKey, id: string, ref: string, text: string) {
-    const value = text.trim() ? parseFlow(text) : undefined
-    invalid = { ...invalid, [`${key}.${id}`]: value === null }
-    if (value === null) return
+  /** A mode's condition, built as rows; none removes it. */
+  function setCondition(key: ModeKey, id: string, ref: string, value: unknown) {
     const rest = Object.fromEntries(
       Object.entries(whenOf(doc.raw[key])).filter(([r]) => !resolves(r, id)),
     )
     const next = value === undefined ? rest : { ...rest, [ref]: value }
     doc.edit([key], Object.keys(next).length ? next : undefined)
   }
-  const conditionText = (value: unknown) =>
-    value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
 </script>
 
 <div class="editor">
@@ -138,22 +133,19 @@
               />
               {oracleUi.modeName(mode)}
             </label>
-            {#each [['modeWhen', 'explorer: { gte: 1 }'], ['modeUnless', 'tags: lit']] as const as [key, example] (key)}
-              <label class="when">
+            {#each ['modeWhen', 'modeUnless'] as const as key (key)}
+              <div class="when">
                 <span>{t(`edit.${key}`)}</span>
-                <SuggestInput
-                  value={conditionText(conditionFor(key, mode.id))}
+                <ConditionEditor
+                  value={conditionFor(key, mode.id)}
                   suggestions={conditionHints}
-                  placeholder={example}
-                  invalid={invalid[`${key}.${mode.id}`]}
+                  locale={getLocale()}
                   disabled={doc.translating}
-                  onchange={(text) => setCondition(key, mode.id, ref, text)}
+                  label={t(`edit.${key}`)}
+                  onchange={(c) => setCondition(key, mode.id, ref, c)}
                 />
-              </label>
+              </div>
             {/each}
-            {#if invalid[`modeWhen.${mode.id}`] || invalid[`modeUnless.${mode.id}`]}<small
-                >{t('edit.notAMap')}</small
-              >{:else}<span></span>{/if}
           {/each}
         </div>
       {:else}
@@ -174,23 +166,25 @@
 </div>
 
 <style>
+  /* Each mode on a line: offered by hand, then its two conditions as rows. */
   .modes {
     display: grid;
-    grid-template-columns: auto 1fr 1fr auto;
-    align-items: center;
-    gap: 6px 12px;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 8px 16px;
+  }
+
+  .modes .check {
+    padding-top: 18px;
   }
 
   .modes .when {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
     font-size: 12px;
     color: var(--text-muted);
-  }
-
-  .modes small {
-    color: #e3a19f;
   }
 
   .editor {

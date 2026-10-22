@@ -33,6 +33,8 @@ export interface ConditionRow {
   op: ConditionOp
   /** As written in the box: `forest`, `3`, `'{{party.stats.stealth}}'`, `forest, hills`. */
   value: string
+  /** Written with its comparison's key (`{ eq: x }`, `{ in: [ … ] }`), kept so when written back. */
+  keyed?: boolean
 }
 
 export interface ConditionRows {
@@ -79,10 +81,10 @@ function pairRows(fact: string, value: unknown): ConditionRow[] | null {
   const rows: ConditionRow[] = []
   for (const [key, x] of Object.entries(value)) {
     const list = Array.isArray(x) && x.every(isScalar)
-    if (key === 'eq' && isScalar(x)) rows.push({ fact, op: 'is', value: valueText(x) })
+    if (key === 'eq' && isScalar(x)) rows.push({ fact, op: 'is', value: valueText(x), keyed: true })
     else if (key === 'not' && (isScalar(x) || list))
       rows.push({ fact, op: list ? 'notIn' : 'not', value: valueText(x) })
-    else if (key === 'in' && list) rows.push({ fact, op: 'in', value: valueText(x) })
+    else if (key === 'in' && list) rows.push({ fact, op: 'in', value: valueText(x), keyed: true })
     else if (['gt', 'gte', 'lt', 'lte'].includes(key) && isScalar(x))
       rows.push({ fact, op: key as ConditionOp, value: valueText(x) })
     else if (key === 'exists' && typeof x === 'boolean')
@@ -123,9 +125,9 @@ export function conditionRows(condition: unknown): ConditionRows | null {
 }
 
 /** What a row compares its fact with, as a pair's value. */
-function rowValue({ op, value }: ConditionRow): unknown {
-  if (op === 'is') return readValue(value)
-  if (op === 'in') return readList(value)
+function rowValue({ op, value, keyed }: ConditionRow): unknown {
+  if (op === 'is') return keyed ? { eq: readValue(value) } : readValue(value)
+  if (op === 'in') return keyed ? { in: readList(value) } : readList(value)
   if (op === 'notIn') return { not: readList(value) }
   if (op === 'exists' || op === 'missing') return { exists: op === 'exists' }
   return { [op]: readValue(value) }

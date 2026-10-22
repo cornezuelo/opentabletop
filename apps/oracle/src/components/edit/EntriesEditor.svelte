@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, setSuggestions } from '@open-tabletop/session'
   import { workspace } from '../../lib/packs/workspace.svelte'
-  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
+  import { ConditionEditor, PairEditor } from '@open-tabletop/pack-ui'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { t } from '../../lib/i18n'
+  import { getLocale, t } from '../../lib/i18n'
   import { getAt, nextId, type DefinitionDoc, type Path } from '../../lib/packs/doc.svelte'
   import RefPicker from './RefPicker.svelte'
 
@@ -118,15 +118,6 @@
 
   /** Rows showing their conditions, values and limits. */
   let open = $state<Record<number, boolean>>({})
-  /** Rows whose condition or values box holds text that isn't key: value pairs. */
-  let invalid = $state<Record<string, boolean>>({})
-
-  /** A condition or `set` typed as one line: saved when it reads as a map, flagged if not. */
-  function editFlow(i: number, key: 'when' | 'unless' | 'set' | 'effects', text: string) {
-    const value = parseFlow(text)
-    invalid = { ...invalid, [`${i}.${key}`]: value === null }
-    if (value !== null) edit(i, key, value && Object.keys(value).length ? value : undefined)
-  }
 </script>
 
 {#if doc.translating && missingIds}
@@ -261,50 +252,50 @@
         <tr class="more">
           <td colspan="5">
             <div class="more-grid">
-              <label>
+              <div class="field">
                 <span>{t('edit.when')}<InfoTip text={t('edit.whenHelp')} /></span>
-                <SuggestInput
-                  value={flowText(entry.when).replace(/^\{\s*|\s*\}$/g, '')}
+                <ConditionEditor
+                  value={entry.when}
                   suggestions={conditionHints}
-                  placeholder="terrain: forest"
-                  invalid={invalid[`${i}.when`]}
-                  onchange={(text) => editFlow(i, 'when', text)}
+                  locale={getLocale()}
+                  label={t('edit.when')}
+                  onchange={(c) => edit(i, 'when', c)}
                 />
-                {#if invalid[`${i}.when`]}<small>{t('edit.notAMap')}</small>{/if}
-              </label>
-              <label>
+              </div>
+              <div class="field">
                 <span>{t('edit.unless')}<InfoTip text={t('edit.whenHelp')} /></span>
-                <SuggestInput
-                  value={flowText(entry.unless).replace(/^\{\s*|\s*\}$/g, '')}
+                <ConditionEditor
+                  value={entry.unless}
                   suggestions={conditionHints}
-                  placeholder="tags: road"
-                  invalid={invalid[`${i}.unless`]}
-                  onchange={(text) => editFlow(i, 'unless', text)}
+                  locale={getLocale()}
+                  label={t('edit.unless')}
+                  onchange={(c) => edit(i, 'unless', c)}
                 />
-                {#if invalid[`${i}.unless`]}<small>{t('edit.notAMap')}</small>{/if}
-              </label>
-              <label>
+              </div>
+              <div class="field">
                 <span>{t('edit.set')}<InfoTip text={t('edit.setHelp')} /></span>
-                <SuggestInput
-                  value={flowText(entry.set).replace(/^\{\s*|\s*\}$/g, '')}
-                  suggestions={setHints}
-                  placeholder="weather: storm"
-                  invalid={invalid[`${i}.set`]}
-                  onchange={(text) => editFlow(i, 'set', text)}
+                <PairEditor
+                  value={entry.set}
+                  keys={Object.keys(setHints)}
+                  values={setHints}
+                  keyLabel={t('edit.setKey')}
+                  locale={getLocale()}
+                  label={t('edit.set')}
+                  onchange={(map) => edit(i, 'set', map)}
                 />
-                {#if invalid[`${i}.set`]}<small>{t('edit.notAMap')}</small>{/if}
-              </label>
-              <label>
+              </div>
+              <div class="field">
                 <span>{t('edit.effects')}<InfoTip text={t('edit.effectsHelp')} /></span>
-                <SuggestInput
-                  value={flowText(entry.effects).replace(/^\{\s*|\s*\}$/g, '')}
-                  suggestions={effectHints}
-                  placeholder="party.stats.morale: -1"
-                  invalid={invalid[`${i}.effects`]}
-                  onchange={(text) => editFlow(i, 'effects', text)}
+                <PairEditor
+                  value={entry.effects}
+                  keys={Object.keys(effectHints)}
+                  values={effectHints}
+                  keyLabel={t('edit.effectsKey')}
+                  locale={getLocale()}
+                  label={t('edit.effects')}
+                  onchange={(map) => edit(i, 'effects', map)}
                 />
-                {#if invalid[`${i}.effects`]}<small>{t('edit.notAMap')}</small>{/if}
-              </label>
+              </div>
               <label class="inline">
                 <input
                   type="checkbox"
@@ -423,15 +414,25 @@
     padding: 2px 4px 10px;
   }
 
+  /* Two columns, as Systems' cards: Only if · Unless, Sets · Changes, then the limits. */
   .more-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 6px 12px;
-    align-items: end;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 16px;
+    align-items: start;
     padding: 8px;
     background: rgb(255 255 255 / 0.03);
     border: 1px solid var(--panel-border);
     border-radius: 6px;
+  }
+
+  .more-grid .field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .more-grid label {

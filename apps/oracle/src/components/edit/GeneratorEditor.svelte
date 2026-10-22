@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
-  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
+  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { ConditionEditor, PairEditor } from '@open-tabletop/pack-ui'
   import { contextSuggestions, setSuggestions } from '@open-tabletop/session'
   import { workspace } from '../../lib/packs/workspace.svelte'
   import { moveKey, renameKey, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { t, type MessageKey } from '../../lib/i18n'
+  import { getLocale, t, type MessageKey } from '../../lib/i18n'
   import { slugify } from '../../lib/packs/definitions'
   import { nextId, type DefinitionDoc } from '../../lib/packs/doc.svelte'
   import TextField from './TextField.svelte'
@@ -22,33 +22,14 @@
     unless?: unknown
     context?: unknown
   }
-  const EXTRAS = [
-    { key: 'when', label: 'edit.when', help: 'edit.fieldWhenHelp', example: 'season: winter' },
-    { key: 'unless', label: 'edit.unless', help: 'edit.fieldWhenHelp', example: 'tags: road' },
-    {
-      key: 'context',
-      label: 'edit.fieldContext',
-      help: 'edit.fieldContextHelp',
-      example: 'danger: 3',
-    },
-  ] as const
-  type Extra = (typeof EXTRAS)[number]['key']
+  /** What a field may have besides its source: its conditions and what it passes on. */
+  const EXTRAS = ['when', 'unless', 'context'] as const
 
   const conditionHints = $derived(contextSuggestions(workspace.registry))
   const setHints = $derived(setSuggestions(workspace.registry))
   /** Fields showing their conditions and context. */
   let open = $state<Record<string, boolean>>({})
-  let invalid = $state<Record<string, boolean>>({})
-  const hasExtras = (f: RawField) => EXTRAS.some(({ key }) => f[key] !== undefined)
-  const flowOf = (value: unknown) =>
-    value === undefined ? '' : flowText(value).replace(/^\{\s*|\s*\}$/g, '')
-
-  /** A field's condition or context typed as one line: saved when it reads as a map. */
-  function setExtra(name: string, key: Extra, text: string) {
-    const value = text.trim() ? parseFlow(text) : undefined
-    invalid = { ...invalid, [`${name}.${key}`]: value === null }
-    if (value !== null) doc.edit(['fields', name, key], value ?? undefined)
-  }
+  const hasExtras = (f: RawField) => EXTRAS.some((key) => f[key] !== undefined)
 
   const id = $derived(doc.def.localId)
   const fields = $derived(Object.entries((doc.raw.fields as Record<string, RawField>) ?? {}))
@@ -172,19 +153,30 @@
             {/if}
             {#if (open[name] ?? hasExtras(field)) && !doc.translating}
               <div class="extras">
-                {#each EXTRAS as extra (extra.key)}
-                  <label>
-                    <span>{t(extra.label)}<InfoTip text={t(extra.help)} /></span>
-                    <SuggestInput
-                      value={flowOf(field[extra.key])}
-                      suggestions={extra.key === 'context' ? setHints : conditionHints}
-                      placeholder={extra.example}
-                      invalid={invalid[`${name}.${extra.key}`]}
-                      onchange={(text) => setExtra(name, extra.key, text)}
+                {#each ['when', 'unless'] as const as key (key)}
+                  <div class="extra">
+                    <span>{t(`edit.${key}`)}<InfoTip text={t('edit.fieldWhenHelp')} /></span>
+                    <ConditionEditor
+                      value={field[key]}
+                      suggestions={conditionHints}
+                      locale={getLocale()}
+                      label={t(`edit.${key}`)}
+                      onchange={(c) => doc.edit(['fields', name, key], c)}
                     />
-                    {#if invalid[`${name}.${extra.key}`]}<small>{t('edit.notAMap')}</small>{/if}
-                  </label>
+                  </div>
                 {/each}
+                <div class="extra wide">
+                  <span>{t('edit.fieldContext')}<InfoTip text={t('edit.fieldContextHelp')} /></span>
+                  <PairEditor
+                    value={field.context}
+                    keys={Object.keys(setHints)}
+                    values={setHints}
+                    keyLabel={t('edit.contextKey')}
+                    locale={getLocale()}
+                    label={t('edit.fieldContext')}
+                    onchange={(map) => doc.edit(['fields', name, 'context'], map)}
+                  />
+                </div>
               </div>
             {/if}
           </td>
@@ -325,12 +317,17 @@
 
   .extras {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
-    gap: 6px 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 16px;
+    align-items: start;
     margin-top: 4px;
   }
 
-  .extras label {
+  .extras .wide {
+    grid-column: 1 / -1;
+  }
+
+  .extras .extra {
     display: flex;
     flex-direction: column;
     gap: 2px;

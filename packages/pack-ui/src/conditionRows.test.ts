@@ -150,4 +150,13 @@ describe('conditions as rows', () => {
     ).toBe('trip.below is food or icon.id is there')
     expect(rowsWords({ join: 'all', rows: [] }, { ops, and: 'and', or: 'or' })).toBeNull()
   })
+
+  it('keeps a comparison written with its key (`eq`, `in`) as written', () => {
+    for (const c of [
+      { any: [{ 'hex.region': { eq: 'Ashford Vale' } }, { 'hex.faction': 'the-vale' }] },
+      { 'hex.terrain': { in: ['forest', 'hills'] } },
+      { 'hex.danger': { eq: 2 } },
+    ])
+      expect(rowsCondition(conditionRows(c)!)).toEqual(c)
+  })
 })

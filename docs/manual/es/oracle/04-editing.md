@@ -6,7 +6,7 @@ La pestaña **Editar** es un formulario sobre el fichero YAML: solo cambia lo qu
 
 ## Cualquier definición
 
-Nombre, descripción y, en tablas y oráculos, los **dados** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… vacío = elegir por peso) y sus **modos de tirada**: por cada modo que declara su sistema (ventaja…), si se ofrece al tirar a mano y, en **solo cuando**, la condición que lo aplica solo (`explorer: { gte: 1 }`), y en **salvo**, la que impide que se aplique solo (`tags: lit`; escrita sola, el modo se aplica siempre menos entonces). En tablas y oráculos además:
+Nombre, descripción y, en tablas y oráculos, los **dados** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… vacío = elegir por peso) y sus **modos de tirada**: por cada modo que declara su sistema (ventaja…), si se ofrece al tirar a mano y, en **solo cuando**, la condición que lo aplica solo (`party.stats.explorer: { gte: 1 }`), y en **salvo**, la que impide que se aplique solo (`hex.tags: lit`; escrita sola, el modo se aplica siempre menos entonces). En tablas y oráculos además:
 
 - **Ajustar totales** (activado por defecto): un total por debajo del rango más bajo toma la primera entrada y por encima del más alto la última, así los modificadores nunca te dejan sin resultado. Desactivado, ese total no da nada.
 - **Al agotarse**: qué pasa cuando la entrada que sale ya llegó a su límite (ver abajo): **tirar otra vez**, **tomar la siguiente** disponible o **nada**.
@@ -26,14 +26,14 @@ Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecu
 
 **⋯** en una fila abre sus condiciones, valores y límites (las filas que tienen alguno lo indican bajo su texto):
 
-- **Solo si**: la entrada solo puede salir cuando el contexto encaja, escrito en pares `clave: valor`, p. ej. `terrain: forest`, `season: [autumn, winter]` (cualquiera de ellas), `danger: { gte: 3 }` (3 o más), `tags: landmark` (el hex tiene esa etiqueta). Vacío: siempre. Si ninguna entrada encaja, la tabla no da nada. Las claves que puede leer una tabla están en [Qué ven las tablas](../technical/04-what-tables-see.md), y todas las formas de compararlas (`not`, `lt`, `exists`, `any`…) en [Condiciones](../technical/08-conditions.md).
-- **Salvo**: la entrada no puede salir cuando esto encaja, p. ej. `timeOfDay: night` (la patrulla del Valle de las Marcas Grises). Con **Solo si** también, se comprueban las dos.
-- **Fija**: valores que da la entrada cuando sale, p. ej. `weather: storm, lost: true` o `count: "{{2d6}}"`. Los leen el texto del resultado, las tablas y campos de generador siguientes y el viaje (ver [Conectar tablas](07-connecting.md)).
+- **Solo si**: la entrada solo puede salir cuando el contexto encaja, en filas de qué lee · comparación · valor, p. ej. `hex.terrain` **es** `forest`, `time.season` **es uno de** `autumn, winter`, `hex.danger` **es al menos** `3`, `hex.tags` **es** `landmark` (el hex tiene esa etiqueta); **Todas estas** o **Alguna de estas** las une. Vacío: siempre. Si ninguna entrada encaja, la tabla no da nada. Las claves que puede leer una tabla están en [Qué ven las tablas](../technical/04-what-tables-see.md), y todas las formas de compararlas (`not`, `lt`, `exists`, `any`…) en [Condiciones](../technical/08-conditions.md).
+- **Salvo**: la entrada no puede salir cuando esto encaja, p. ej. `timeOfDay` **es** `night` (la patrulla del Valle de las Marcas Grises, con el contexto que le da su binding). Con **Solo si** también, se comprueban las dos.
+- **Fija**: valores que da la entrada cuando sale, una fila cada uno (un nombre y su valor), p. ej. `weather` · `storm` y `lost` · `true`, o `count` · `{{2d6}}`. Los leen el texto del resultado, las tablas y campos de generador siguientes y el viaje (ver [Conectar tablas](07-connecting.md)).
 - **Solo una vez** / **Como mucho**: cuántas veces puede salir la entrada en una sesión (**Nueva sesión** en el Oracle las reinicia).
-- **Cambios**: lo que cambia la entrada en el grupo de un viaje (`party.stats.morale: -1`, `party.resources.food: 2`; `=3` lo fija), con sugerencias de las características y provisiones del sistema. Mira [efectos](07-connecting.md).
+- **Cambios**: lo que cambia la entrada en el grupo de un viaje, una fila cada cosa (`party.stats.morale` · `-1`, `party.resources.food` · `2`; `=3` lo fija), con sugerencias de las características y provisiones del sistema. Mira [efectos](07-connecting.md).
 - **Pausar**: si la entrada sale durante un viaje, el viaje se detiene tras la tirada hasta que pulses **Continuar** (`pause: true`; tirada a mano no hace nada). Las cartas de un mazo lo llevan en YAML.
 
-Las cajas admiten el mismo texto que el YAML entre `{ }`; una caja que no se puede leer como pares `clave: valor` se pone en rojo y no se guarda.
+**YAML**, al lado de cada una, la muestra como la escribe el pack, para lo que las filas no pueden decir (un grupo dentro de otro, `not` de una condición entera): una condición escrita así se queda en YAML, y nada de lo escrito ahí se pierde.
 
 ## Oráculos
 
@@ -41,7 +41,7 @@ Una **entrada** (su id, una **etiqueta** que mostrar y sus **opciones**, cada un
 
 ## Generadores
 
-Los **campos** se tiran en orden; cada uno (**Añadir campo**) tiene un nombre y **Sale de** una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo con `danger: { lte: 2 }`) y **Contexto** (valores que recibe la tabla o generador que tira, p. ej. `timeOfDay: night, danger: 3`).
+Los **campos** se tiran en orden; cada uno (**Añadir campo**) tiene un nombre y **Sale de** una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** en filas (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo cuando `hex.danger` **es como mucho** `2`) y **Contexto**, una fila por valor que recibe la tabla o generador que tira (`timeOfDay` · `night`, `danger` · `3`).
 
 ## Mazos
 
