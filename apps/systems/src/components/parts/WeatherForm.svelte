@@ -86,7 +86,8 @@
           field: 'set',
           label: t('weather.set'),
           help: t('weather.setHelp'),
-          type: 'flow',
+          type: 'pairs',
+          fresh: true,
           placeholder: t('weather.setNothing'),
         },
       ]}

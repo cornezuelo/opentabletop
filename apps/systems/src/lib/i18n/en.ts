@@ -118,7 +118,7 @@ export const en = {
       "A table, oracle, generator or deck rolled when it fills, with what the world clock and the factions say (like a faction's turn). What comes up goes to the timeline, and its effects apply.\n• `table.the-raid` — a table of this pack\n• `core/table.twists` — Core's twists",
     effects: 'Changes',
     effectsHelp:
-      "What it changes when it fills, as `key: value` pairs: other clocks and the factions (a trip's party isn't the world's).\n• `world.clocks.the-siege: 2` — fills two segments of another\n• `factions.the-crown.values.strength: -1`\n• `factions.the-rebels.territory: 1` — a hex more",
+      "What it changes when it fills, one row each (what changes · value): other clocks and the factions (a trip's party isn't the world's).\n• `world.clocks.the-siege` · `2` — fills two segments of another\n• `factions.the-crown.values.strength` · `-1`\n• `factions.the-rebels.territory` · `1` — a hex more",
     then: 'Then',
     thenHelp:
       'What becomes of it once full:\n• `keep` — it stays full (the default): conditions read it full\n• `reset` — it starts over, empty, and may fill again\n• `remove` — it goes away',
@@ -145,7 +145,7 @@ export const en = {
     colorHelp: 'Its colour on the map, as `#rrggbb`.\n• `#8b1e1e`',
     values: 'Starts with',
     valuesHelp:
-      "Starting values of its sheet, as `key: value` pairs; the rest are the sheet's defaults.\n• `strength: 4, reputation: -1`",
+      "Starting values of its sheet, one row each (value · what it starts at); the rest are the sheet's defaults.\n• `strength` · `4`\n• `reputation` · `-1`",
     regions: 'Regions',
     regionsHelp:
       "It starts holding every hex of these regions of the map (by name), comma-separated: the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
@@ -282,7 +282,7 @@ export const en = {
     stateName: 'Name',
     set: 'Sets for the day',
     setHelp:
-      'Values of the day this weather sets, as `key: value` pairs:\n• `climbModifier: -1`\n• `snowed-in: true`',
+      'Values of the day this weather sets, one row each (value · what it is):\n• `climbModifier` · `-1`\n• `snowed-in` · `true`',
     setNothing: 'nothing',
     season: 'Season: {season}',
     start: 'Starts as',
@@ -394,6 +394,8 @@ export const en = {
     },
   },
   forms: {
+    yes: 'yes',
+    no: 'no',
     search: 'Search…',
     shown: '{shown} of {total}',
     noMatch: 'Nothing matches “{query}”.',

@@ -29,15 +29,15 @@ There's no built-in day and no built-in march: the party moves with the actions 
 
 Each with its **Name** and **Description (its help)** for players (the trip panel shows the description of the one chosen as the help of **Travel**), its **km per day** and:
 
-- **Only through**: where it can go, a condition on each hex it enters. E.g. the Grey Marches' boat on water or coast, `any: [{ hex.water: true }, { hex.terrain: coast }]`, or a cart only by road, `trip.edges: road`. Where it holds, even a terrain that is closed (or not **Passable**) lets it in.
-- **Only when**: where and when it can be chosen. E.g. the Grey Marches' boat only at the water's edge or the ferry, `any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }]`.
+- **Only through**: where it can go, a condition on each hex it enters, built as rows (see [Conditions as rows](#conditions-as-rows)). E.g. the Grey Marches' boat on water or coast, **Any of these**: `hex.water` · **is** · `true` and `hex.terrain` · **is** · `coast`, or a cart only by road, `trip.edges` · **is** · `road`. Where it holds, even a terrain that is closed (or not **Passable**) lets it in.
+- **Only when**: where and when it can be chosen, as rows too. E.g. the Grey Marches' boat only at the water's edge or the ferry, **Any of these**: `hex.water` · **is** · `true`, `hex.terrain` · **is** · `coast` and `hex.tags` · **is** · `ferry`.
 - **Not when**: when it can't.
 
 A trip starts with the first way of the list; the player chooses another in the trip panel.
 
 ## Terrains, water and roads
 
-- **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season: summer` / `trip.weather: [snow, storm]`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
+- **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season` · **is** · `summer` / `trip.weather` · **is one of** · `snow, storm`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
 - **Water hexes**: the same, for hexes the map marks as water that have no rule of their own in Terrains. A way of travelling whose **Only through** holds on water can still sail them.
 - **Roads and rivers**: following one from one hex to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). It replaces it, it doesn't multiply it: a river at `1` makes mountains along it as easy as plains. Lines not listed do nothing; conditions can still tell them apart (`trip.edges: road`).
 
@@ -80,7 +80,7 @@ What the party can do: only what the system declares (camp, rest, **march** and 
 
 ### Conditions as rows
 
-**Only when**, **Not when** and a step's **Wait for something** are built as rows, one per thing to check: **what it reads** (suggested by full name: `hex.terrain`, `party.stats.fatigue`, `trip.weather`…), a **comparison** and a **value** (suggested from what the system declares). For example `trip.weather` · **is none of** · `storm, snow`, or `party.stats.fatigue` · **is under** · `{{party.stats.endurance}}`.
+**Only when**, **Not when**, a step's **Wait for something**, a way of travelling's **Only through** and a terrain's **Open when** / **Closed when** are built as rows, one per thing to check: **what it reads** (suggested by full name: `hex.terrain`, `party.stats.fatigue`, `trip.weather`…), a **comparison** and a **value** (suggested from what the system declares). For example `trip.weather` · **is none of** · `storm, snow`, or `party.stats.fatigue` · **is under** · `{{party.stats.endurance}}`.
 
 - The comparisons: **is**, **is one of** and **is none of** (values separated by commas), **is not**, **is over**, **is at least**, **is under**, **is at most**, **is there** and **is missing** (no value). They are the `eq`, `in`, `not`, `gt`, `gte`, `lt`, `lte` and `exists` of [Conditions](../technical/08-conditions.md).
 - With two rows or more, **All of these** (every row must hold) or **Any of these** (one is enough).

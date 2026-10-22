@@ -121,7 +121,7 @@ export const es: Messages<typeof en> = {
       'Una tabla, oráculo, generador o mazo que se tira cuando se llena, con lo que dicen el reloj del mundo y las facciones (como el turno de una facción). Lo que sale va a la cronología, y se aplican sus efectos.\n• `table.the-raid` — una tabla de este pack\n• `core/table.twists` — los giros de Core',
     effects: 'Cambia',
     effectsHelp:
-      'Lo que cambia cuando se llena, como pares `clave: valor`: otros relojes y las facciones (el grupo de un viaje no es del mundo).\n• `world.clocks.the-siege: 2` — llena dos segmentos de otro\n• `factions.the-crown.values.strength: -1`\n• `factions.the-rebels.territory: 1` — un hex más',
+      'Lo que cambia cuando se llena, una fila cada cosa (qué cambia · valor): otros relojes y las facciones (el grupo de un viaje no es del mundo).\n• `world.clocks.the-siege` · `2` — llena dos segmentos de otro\n• `factions.the-crown.values.strength` · `-1`\n• `factions.the-rebels.territory` · `1` — un hex más',
     then: 'Después',
     thenHelp:
       'Qué es de él una vez lleno:\n• `keep` — se queda lleno (por defecto): las condiciones lo leen lleno\n• `reset` — vuelve a empezar, vacío, y puede volver a llenarse\n• `remove` — desaparece',
@@ -148,7 +148,7 @@ export const es: Messages<typeof en> = {
     colorHelp: 'Su color en el mapa, como `#rrggbb`.\n• `#8b1e1e`',
     values: 'Empieza con',
     valuesHelp:
-      'Valores iniciales de su hoja, como pares `clave: valor`; el resto, los de por defecto de la hoja.\n• `strength: 4, reputation: -1`',
+      'Valores iniciales de su hoja, una fila cada uno (valor · con cuánto empieza); el resto, los de por defecto de la hoja.\n• `strength` · `4`\n• `reputation` · `-1`',
     regions: 'Regiones',
     regionsHelp:
       'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), separadas por comas: la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
@@ -285,7 +285,7 @@ export const es: Messages<typeof en> = {
     stateName: 'Nombre',
     set: 'Fija para el día',
     setHelp:
-      'Valores del día que fija este clima, como pares `clave: valor`:\n• `climbModifier: -1`\n• `snowed-in: true`',
+      'Valores del día que fija este clima, una fila cada uno (valor · cuál es):\n• `climbModifier` · `-1`\n• `snowed-in` · `true`',
     setNothing: 'nada',
     season: 'Estación: {season}',
     start: 'Empieza como',
@@ -397,6 +397,8 @@ export const es: Messages<typeof en> = {
     },
   },
   forms: {
+    yes: 'sí',
+    no: 'no',
     search: 'Buscar…',
     shown: '{shown} de {total}',
     noMatch: 'Nada coincide con «{query}».',

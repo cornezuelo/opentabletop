@@ -140,3 +140,38 @@ describe("the bundled systems' checks as rows", () => {
     expect(yaml).toBeLessThan((conditions + maps) / 4)
   })
 })
+
+describe("the bundled systems' other forms as rows", () => {
+  it('ways of travelling, terrains and clocks write back the same from rows', async () => {
+    const { travelSystems } = await import('@open-tabletop/session')
+    const { conditionRows, rowsCondition, pairRows, rowsPairs } =
+      await import('@open-tabletop/pack-ui')
+    const { library } = await import('./packs.svelte')
+    let read = 0
+    let yaml = 0
+    const condition = (c: unknown) => {
+      if (!c) return
+      const rows = conditionRows(c)
+      if (!rows) return void yaml++
+      read++
+      expect(rowsCondition(rows), JSON.stringify(c)).toEqual(c)
+    }
+    const map = (m: unknown) => {
+      if (!m) return
+      const rows = pairRows(m)
+      if (!rows) return void yaml++
+      read++
+      expect(rowsPairs(rows), JSON.stringify(m)).toEqual(m)
+    }
+    for (const { rules, clocks } of travelSystems(library.registry).systems) {
+      for (const mode of Object.values(rules.modes ?? {}))
+        [mode.through, mode.when, mode.unless].forEach(condition)
+      for (const terrain of Object.values(rules.terrains ?? {}))
+        if (typeof terrain.passable === 'object')
+          [terrain.passable.when, terrain.passable.unless].forEach(condition)
+      for (const clock of Object.values(clocks?.def.clocks ?? {})) map(clock.onFull?.effects)
+    }
+    expect(read).toBeGreaterThan(5)
+    expect(yaml).toBeLessThan(read / 4)
+  })
+})

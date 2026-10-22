@@ -150,7 +150,7 @@
           field: 'tones',
           label: t('sheet.tones'),
           help: t('sheet.tonesHelp'),
-          type: 'flow',
+          type: 'pairs',
           hints: toneHints,
         },
         { field: 'group', label: t('sheet.group'), help: t('sheet.groupHelp'), type: 'value' },

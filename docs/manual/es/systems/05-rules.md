@@ -29,15 +29,15 @@ No hay un día ni una marcha integrados: el grupo se mueve con las acciones que 
 
 Cada una con su **Nombre** y su **Descripción (su ayuda)** para los jugadores (el panel del viaje enseña la de la elegida como ayuda de **Viaje**), sus **km por día** y:
 
-- **Solo por**: por dónde puede ir, una condición sobre cada hex en el que entra. P. ej. la barca de las Marcas Grises por agua o costa, `any: [{ hex.water: true }, { hex.terrain: coast }]`, o un carro solo por camino, `trip.edges: road`. Donde se cumple, la deja entrar incluso un terreno cerrado (o no **Transitable**).
-- **Solo si**: dónde y cuándo se puede elegir. P. ej. la barca de las Marcas Grises solo a la orilla o en el transbordador, `any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }]`.
+- **Solo por**: por dónde puede ir, una condición sobre cada hex en el que entra, construida en filas (mira [Condiciones en filas](#condiciones-en-filas)). P. ej. la barca de las Marcas Grises por agua o costa, **Alguna de estas**: `hex.water` · **es** · `true` y `hex.terrain` · **es** · `coast`, o un carro solo por camino, `trip.edges` · **es** · `road`. Donde se cumple, la deja entrar incluso un terreno cerrado (o no **Transitable**).
+- **Solo si**: dónde y cuándo se puede elegir, también en filas. P. ej. la barca de las Marcas Grises solo a la orilla o en el transbordador, **Alguna de estas**: `hex.water` · **es** · `true`, `hex.terrain` · **es** · `coast` y `hex.tags` · **es** · `ferry`.
 - **Salvo si**: cuándo no.
 
 Un viaje empieza con la primera forma de la lista; el jugador elige otra en el panel del viaje.
 
 ## Terrenos, agua y caminos
 
-- **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `time.season: summer` / `trip.weather: [snow, storm]`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
+- **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `time.season` · **es** · `summer` / `trip.weather` · **es uno de** · `snow, storm`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
 - **Hexes de agua**: lo mismo, para los hexes que el mapa marca como agua y no tienen regla propia en Terrenos. Una forma de viajar cuyo **Solo por** se cumple en el agua puede navegarlos igualmente.
 - **Caminos y ríos**: al seguir uno de un hex al siguiente, su **Velocidad ×** sustituye a la del terreno (un camino a `1.5`: un 50 % más rápido). La sustituye, no la multiplica: un río a `1` hace que las montañas a su orilla se crucen como llanuras. Las líneas no listadas no hacen nada; las condiciones pueden distinguirlas igualmente (`trip.edges: road`).
 
@@ -80,7 +80,7 @@ Lo que puede hacer el grupo: solo lo que declara el sistema (acampar, descansar,
 
 ### Condiciones en filas
 
-**Solo si**, **Salvo si** y el **Esperar algo** de un paso se construyen en filas, una por cosa que comprobar: **qué lee** (sugerido por su nombre completo: `hex.terrain`, `party.stats.fatigue`, `trip.weather`…), una **comparación** y un **valor** (sugerido entre lo que declara el sistema). Por ejemplo `trip.weather` · **no es ninguno de** · `storm, snow`, o `party.stats.fatigue` · **es menos de** · `{{party.stats.endurance}}`.
+**Solo si**, **Salvo si**, el **Esperar algo** de un paso, el **Solo por** de una forma de viajar y el **Abierto cuando** / **Cerrado cuando** de un terreno se construyen en filas, una por cosa que comprobar: **qué lee** (sugerido por su nombre completo: `hex.terrain`, `party.stats.fatigue`, `trip.weather`…), una **comparación** y un **valor** (sugerido entre lo que declara el sistema). Por ejemplo `trip.weather` · **no es ninguno de** · `storm, snow`, o `party.stats.fatigue` · **es menos de** · `{{party.stats.endurance}}`.
 
 - Las comparaciones: **es**, **es uno de** y **no es ninguno de** (valores separados por comas), **no es**, **es más de**, **es al menos**, **es menos de**, **es como mucho**, **existe** y **falta** (sin valor). Son los `eq`, `in`, `not`, `gt`, `gte`, `lt`, `lte` y `exists` de [Condiciones](../technical/08-conditions.md).
 - Con dos filas o más, **Todas estas** (se tiene que cumplir cada fila) o **Alguna de estas** (basta con una).

@@ -28,6 +28,8 @@ Each tab has its own page:
 
 Bundled systems are read-only. Under the system's name (on every tab), **Edit a copy** makes a copy of the whole pack you can change; it replaces the bundled one in this browser. Copies of personal-use packs stay personal use. What a tab shows from another pack the system brings (Core's roll modes) is that pack's: read-only, with no copy, since every system that brings it shares it. On your edited copy, the same place shows **Revert to bundled**, which discards your changes and goes back to the bundled system (it asks first; ↶ undoes it). When a new version changes the bundled system, your copy says so in the same place and lets you take or keep each change: see [Updates of bundled packs](../oracle/03-packs.md).
 
+**Long lists are folded cards.** Actions, checks, ways of travelling, terrains, a sheet's values and relations, factions, clocks… come as cards, each saying in one line what it is (its name, its id and its fields that say something: _Peaks_ `peaks`: _Speed ×: 0.25 · Open when: time.season is summer_). Click one to unfold it: its fields in two columns, conditions and changes as rows. **Unfold all** / **Fold all** do every card, and with many, a search box finds those holding every word you type. Short lists (roads and rivers, supplies, values of the day, a sheet's conditions) stay a table.
+
 **↶ ↷** in the header (or <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> outside text boxes) undo and redo changes to your systems, while the page is open.
 
 Read on: [Your first system](03-your-first-system.md).

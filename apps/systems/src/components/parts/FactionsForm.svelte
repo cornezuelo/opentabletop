@@ -110,7 +110,8 @@
           field: 'values',
           label: t('factionsForm.values'),
           help: t('factionsForm.valuesHelp'),
-          type: 'flow',
+          type: 'pairs',
+          fresh: 0,
           hints: Object.fromEntries(values.map((v) => [v, []])),
         },
         {

@@ -89,7 +89,8 @@
           field: 'onFull.effects',
           label: t('clocksForm.effects'),
           help: t('clocksForm.effectsHelp'),
-          type: 'flow',
+          type: 'pairs',
+          fresh: 1,
           hints: effects,
         },
         {
