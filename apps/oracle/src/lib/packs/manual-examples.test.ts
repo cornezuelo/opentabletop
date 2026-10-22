@@ -300,7 +300,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     locale: 'en',
     words: {
       clockFull: (full) => [full.description, full.text].filter(Boolean).join(' '),
-      factionLine: (_, line) => line.text,
+      factionLine: (_, line) => line.text ?? '',
     },
   })
   /** Step 7's row: plains, three swamps, then three plains with a road along them. */

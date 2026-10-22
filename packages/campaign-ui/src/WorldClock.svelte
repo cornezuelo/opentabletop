@@ -604,6 +604,8 @@
 
   .what {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .button-help {
@@ -620,8 +622,14 @@
 
   .row {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     align-items: center;
+  }
+
+  .row select {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .row label {

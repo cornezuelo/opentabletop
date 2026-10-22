@@ -9,7 +9,7 @@ Tokens are pieces you move around the map: the party, player characters, NPCs an
 - Several tokens can share a hex: they're arranged around the center. <kbd>Shift</kbd>+click always adds a new token, even on a hex that already has tokens (or right on one).
 - Right-click or <kbd>Delete</kbd> removes a token. **Take off the map** keeps it in the list without a hex.
 
-Tokens can also be dragged with the Select and Play tools.
+Tokens can also be dragged with the Select and Play tools (in Play, a click on one is a click on its hex too: [Play](08-play.md)).
 
 With the color on **Auto**, each token gets its own color from its kind's family — PCs in cool colors, enemies in warm ones, NPCs in earthy ones — so tokens of one kind look alike but can be told apart. Pick a color to fix it.
 

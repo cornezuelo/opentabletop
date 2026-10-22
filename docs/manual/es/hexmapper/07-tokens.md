@@ -9,7 +9,7 @@ Los tokens son piezas que mueves por el mapa: el grupo, los personajes jugadores
 - Varios tokens pueden compartir hex: se colocan alrededor del centro. <kbd>Mayús</kbd>+clic siempre añade un token nuevo, aunque el hex ya tenga tokens (o hagas clic justo sobre uno).
 - Clic derecho o <kbd>Supr</kbd> borra un token. **Quitar del mapa** lo deja en la lista sin hex.
 
-Los tokens también se pueden arrastrar con las herramientas Seleccionar y Jugar.
+Los tokens también se pueden arrastrar con las herramientas Seleccionar y Jugar (en Jugar, un clic en uno es también un clic en su hex: [Jugar](08-play.md)).
 
 Con el color en **Auto**, cada token recibe su propio color dentro de la familia de su tipo —los PJ en colores fríos, los enemigos en cálidos, los PNJ en tonos tierra—, así que los de un mismo tipo se parecen pero se distinguen. Elige un color para fijarlo.
 

@@ -30,7 +30,7 @@ Terrain, roads and rivers, the hex's tags, fields and region, the season and tod
 
 ## Moving by hand
 
-Drag the party token to put it somewhere else: the trail follows, and during a trip it's a jump (no time passes).
+Drag the party token to put it somewhere else: the trail follows, and during a trip it's a jump (no time passes). Clicking a token (without dragging it) selects it and is a click on its hex too: to travel to the dragon, click the dragon.
 
 ## Discovering the map
 

@@ -199,14 +199,18 @@ class TokenTool implements Tool {
     editor.notify({ kind: 'tokens' })
   }
 
-  up(): void {
+  /** Ends a press; returns the token pressed without dragging it (a click on it), if any. */
+  up(): string | null {
+    const pressed = this.pressed
     const drag = this.drag
     this.pressed = null
     this.drag = null
-    const after = drag && editor.getToken(drag.id)
-    if (!drag || !after || after.hex === drag.before.hex) return
+    if (!drag) return pressed?.id ?? null
+    const after = editor.getToken(drag.id)
+    if (!after || after.hex === drag.before.hex) return null
     editor.record(new ReplaceTokenCommand(drag.before, structuredClone(after)))
     if (after.kind === 'party') partyMoved(after.hex as HexKey)
+    return null
   }
 }
 
@@ -807,7 +811,8 @@ export function deleteSelectedLabel(): void {
 
 /**
  * Play: place the party, then move it (simple mode) or pick its destination (rules mode).
- * Dragging the party (or any token) puts it somewhere else by hand.
+ * Dragging the party (or any token) puts it somewhere else by hand; a click on a token
+ * selects it and is a click on its hex too (travel to the dragon's lair).
  */
 const playTool: Tool = {
   down(cell, info) {
@@ -819,7 +824,9 @@ const playTool: Tool = {
     playDragger.move(cell, info)
   },
   up() {
-    playDragger.up()
+    const clicked = playDragger.up()
+    const hex = clicked && editor.getToken(clicked)?.hex
+    if (hex) clickHex(hex as HexKey)
   },
 }
 

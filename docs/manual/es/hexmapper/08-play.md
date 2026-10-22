@@ -30,7 +30,7 @@ El terreno, los caminos y ríos, las etiquetas, campos y región del hex, la est
 
 ## Mover a mano
 
-Arrastra el token del grupo para ponerlo en otro sitio: el rastro le sigue, y durante un viaje es un salto (no pasa el tiempo).
+Arrastra el token del grupo para ponerlo en otro sitio: el rastro le sigue, y durante un viaje es un salto (no pasa el tiempo). Hacer clic en un token (sin arrastrarlo) lo selecciona y es también un clic en su hex: para viajar hasta el dragón, haz clic en el dragón.
 
 ## Descubrir el mapa
 

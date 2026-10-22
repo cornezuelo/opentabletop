@@ -43,7 +43,7 @@ export const en = {
     noEvents: 'Nothing scheduled.',
     eventName: 'What happens',
     inDays: 'In days',
-    at: 'actions.at',
+    at: 'at',
     repeat: 'Repeat',
     once: 'Once',
     everyN: 'Every N days',

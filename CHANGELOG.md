@@ -8,6 +8,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Manual: **Systems → Clocks explained from nothing**: how progress clocks work (they come with the world clock; anything with effects fills them, and a click; what happens when one fills, in a chain; the trip hears it; conditions read it) with a picture of a clock filling, a spreading fever built step by step (a swamp check fills it, it rolls a twist and fills the roads' clock, word of it reaches the trip, a barrier when the roads close) with what you'll see, the YAML and the usual mistakes. And Hexmapper → World: **Without the world clock**, what a trip keeps without it and what only the world clock brings (stopping it forgets it, it doesn't pause it).
 
+### Fixes
+
+- Hexmapper: **travelling to a hex with a token on it** (the Grey Marches' dragon): in Play, a click anywhere on that hex grabbed the token and never set the destination; now a click on a token (without dragging it) selects it and is a click on its hex too. Dragging still moves it.
+- Hexmapper, Campaign: the World panel's **Events** form read _actions.at_ (_actions.a las_ in Spanish) instead of _at_, and its rows didn't wrap, so a narrow side panel scrolled sideways.
+
 ## [0.10.0] - 2026-10-22
 
 ### Packs
