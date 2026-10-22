@@ -3,6 +3,7 @@ export { default as History } from './History.svelte'
 export { default as OraclePanel } from './OraclePanel.svelte'
 export { default as ResultCard } from './ResultCard.svelte'
 export { default as RollPanel } from './RollPanel.svelte'
+export { default as UsesList } from './UsesList.svelte'
 export { favorites } from './favorites.svelte'
 export { translator, type OracleUiKey, type Translate } from './i18n'
 export { KIND_ORDER, packTexts, type PackTexts } from './names'
@@ -19,3 +20,12 @@ export {
 export { createOracleUi, type OracleUi } from './ui'
 export { contextVariables, parseContext, type Variable } from './variables'
 export { BUILT_IN_VALUES, valueNames, type ValueInfo } from './valueNames'
+export {
+  rolledBy,
+  sheetScope,
+  shownPlace,
+  systemTabUrl,
+  type PlaceKind,
+  type SystemTab,
+  type UsePlaceShown,
+} from './usePlace'

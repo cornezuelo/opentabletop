@@ -1291,6 +1291,30 @@ describe('bundled open packs', () => {
     expect(system.rules.actions?.eat).toMatchObject({ on: 'time.day-end' })
   })
 
+  it('says who rolls a table: other tables, steps and bindings, in each system that has it', async () => {
+    const { rolledBy } = await import('@open-tabletop/oracle-ui')
+    const at = (pack: string, id: string) => {
+      const def = registry.definitions.get(`${pack}/${id}`)!
+      return rolledBy(registry, def).map(
+        ({ system, use }) => `${system.id} ${use.at.kind} ${use.at.id} ${use.at.path}`,
+      )
+    }
+    // The reaction: rolled by the encounters' entries.
+    expect(
+      at('grey-marches', 'reaction').some((w) =>
+        w.startsWith('grey-marches table encounter entries.'),
+      ),
+    ).toBe(true)
+    // Delving a ruin: an action's step.
+    expect(at('grey-marches', 'ruin-delve')).toContain(
+      'grey-marches travel-rules default actions.delve.do[1].roll',
+    )
+    // The encounters: a binding.
+    expect(at('grey-marches', 'encounter').some((w) => w.includes('bindings default on.'))).toBe(
+      true,
+    )
+  })
+
   it("the Grey Marches' land ahead, from a terrain their rules know, only makes terrains they know", () => {
     const known = [...Object.keys(marches().rules.terrains), 'lake', 'sea', 'deep-sea']
     const file = bundledPacks

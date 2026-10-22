@@ -8,6 +8,7 @@
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '@open-tabletop/pack-ui/yaml'
   import KindBadge from './KindBadge.svelte'
+  import RolledBy from './RolledBy.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
   import DefinitionEditor from './edit/DefinitionEditor.svelte'
   import { tooltip, showToast, confirmAction } from '@open-tabletop/ui-kit'
@@ -89,6 +90,7 @@
       {#if displayDescription(def)}
         <div class="description"><Markdown text={displayDescription(def) ?? ''} /></div>
       {/if}
+      <RolledBy {def} />
       <div class="tabs" role="tablist">
         {#each ['roll', 'edit'] as const as name (name)}
           <button

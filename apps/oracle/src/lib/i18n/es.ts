@@ -68,6 +68,12 @@ export const es: Messages<typeof en> = {
     body: 'Elige una tabla, generador, oráculo o mazo a la izquierda para tirarlo. Los packs son carpetas de ficheros YAML: los incluidos son de solo lectura (edita una copia) y los tuyos se guardan en este navegador. Expórtalos como .zip para tener copia o compartirlos.',
     packs: '{packs} packs, {definitions} definiciones',
   },
+  rolledBy: {
+    title: 'La tiran',
+    help: 'Dónde la tiran los sistemas que traen este pack: el paso de una acción (`roll: table.ruins`), el binding de una comprobación, un reloj de progreso al llenarse, la entrada de otra tabla o el campo de un generador. Cada sitio enlaza a donde se edita (las reglas en Systems, las tablas aquí).\n• **Nada la tira** — se tira a mano, o desde un pack que no trae ningún sistema\nLo que un mapa o un viaje tira por sí solo (las tablas del clima, el descubrimiento) lo dicen los bindings del sistema, que también salen.',
+    count: '{n} sitios',
+    none: 'Nada la tira',
+  },
   tabs: { roll: 'Tirar', edit: 'Editar' },
   edit: {
     readOnly: 'Este pack viene incluido y es de solo lectura.',

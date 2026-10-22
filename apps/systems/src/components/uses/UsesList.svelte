@@ -1,82 +1,18 @@
 <script lang="ts">
+  import { UsesList } from '@open-tabletop/oracle-ui'
   import type { TravelSystem, Use } from '@open-tabletop/session'
-  import { t } from '../../lib/i18n'
+  import { getLocale } from '../../lib/i18n'
   import { go } from '../../lib/nav.svelte'
-  import { shownPlace } from '../../lib/usage'
+  import { library } from '../../lib/packs.svelte'
 
-  /** The places that use a name, one line each, with a link to where each is edited. */
+  /** The places that use a name (oracle-ui's list), each linking to its tab here. */
   let { uses, system }: { uses: Use[]; system: TravelSystem } = $props()
-
-  const lines = $derived(uses.map((use) => ({ use, place: shownPlace(system, use) })))
 </script>
 
-{#if lines.length}
-  <ul class="uses">
-    {#each lines as { use, place }, i (i)}
-      <li>
-        <span class="how">{t(`uses.how.${use.how}`)}</span>
-        {#if place.href}
-          <a href={place.href}>{place.name} ↗</a>
-        {:else if place.tab}
-          <button
-            class="link"
-            onclick={() => go({ name: 'system', id: system.id, tab: place.tab! })}
-            >{place.name}</button
-          >
-        {:else}<span>{place.name}</span>{/if}
-        <small>{t(`uses.kinds.${place.kind}`)}</small>
-        {#if place.part}<code>{place.part}</code>{/if}
-        {#if use.written !== use.name}<small class="as">{t('uses.as', { name: use.written })}</small
-          >{/if}
-      </li>
-    {/each}
-  </ul>
-{:else}
-  <p class="help">{t('uses.none')}</p>
-{/if}
-
-<style>
-  .uses {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: 12px;
-  }
-
-  li {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: baseline;
-  }
-
-  .how {
-    min-width: 7em;
-    color: var(--text-muted);
-  }
-
-  small {
-    color: var(--text-muted);
-  }
-
-  code {
-    font-size: 11px;
-  }
-
-  .link {
-    padding: 0;
-    color: var(--accent);
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-</style>
+<UsesList
+  {uses}
+  {system}
+  registry={library.registry}
+  locale={getLocale()}
+  ontab={(tab) => go({ name: 'system', id: system.id, tab })}
+/>

@@ -66,6 +66,12 @@ export const en = {
     body: 'Pick a table, generator, oracle or deck on the left to roll it. Packs are folders of YAML files: bundled packs are read-only (edit a copy), your own packs are stored in this browser. Export them as .zip to back them up or share them.',
     packs: '{packs} packs, {definitions} definitions',
   },
+  rolledBy: {
+    title: 'Rolled by',
+    help: "Where the systems that bring this pack roll it: an action's step (`roll: table.ruins`), a check's binding, a progress clock filling, another table's entry or a generator's field. Each place links to where it's edited (the rules in Systems, tables here).\n• **Nothing rolls it** — it's rolled by hand, or by a pack no system brings\nWhat a map or a trip rolls by itself (the weather's own tables, discovery) is said by the system's bindings, listed too.",
+    count: '{n} places',
+    none: 'Nothing rolls it',
+  },
   tabs: { roll: 'Roll', edit: 'Edit' },
   edit: {
     readOnly: 'This pack is bundled and read-only.',

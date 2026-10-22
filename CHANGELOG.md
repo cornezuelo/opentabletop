@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Systems: **lists as pills**: a check's **When**, an action's **By itself at** and every list of the forms (what a value of the day or a condition **Blocks**, a value's levels, a faction's regions and hexes, a roll mode's cancels, a part of the day's tags) show each item as a pill with its × to take it out; typing adds one (Enter or a comma; a space for a faction's hexes, `15,9`), Backspace in the empty box takes the last one, and the suggestions come grouped by what they start with (`time`, `trip`, `actions`…).
+- Oracle: **Rolled by** under each definition: the actions, checks, clocks, tables and generators that roll it, in every system that brings its pack, each a link to where it's edited.
 - Systems: **Used by** for ways of travelling, terrains, roads and rivers, kinds of weather, actions and factions: what reads them, and what **names** them (another action's step, a value that blocks a way, a table another rolls).
 - Hexmapper, Campaign: the **Timeline** says what it keeps: the world's story (events come due wherever the party is), while the trip's doings go to its journal.
 - Characters, Travel, Hexmapper: **tags as pills** everywhere: a character's tags, a way's hexes in Travel and a hex's tags in the Hexmapper use the same pills as Systems (Enter or a comma adds one, × takes it out, suggestions grouped).

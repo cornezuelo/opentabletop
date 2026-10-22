@@ -1,12 +1,14 @@
 <script lang="ts">
   import type { Use } from '@open-tabletop/session'
+  import { translator } from '@open-tabletop/oracle-ui'
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n'
+  import { getLocale, t } from '../../lib/i18n'
 
   /** A row's "Used by": how many places use it; pressed, the row shows them below. */
   let { uses, open, ontoggle }: { uses: Use[]; open: boolean; ontoggle: () => void } = $props()
 
   /** Places, not uses: a condition reading a value twice is one place. */
+  const ui = translator(getLocale)
   const places = $derived(
     new Set(uses.map((u) => `${u.at.pack}/${u.at.kind}/${u.at.id}/${u.at.path}`)).size,
   )
@@ -16,8 +18,8 @@
   class="used"
   class:none={!places}
   aria-expanded={open}
-  aria-label={places ? t('uses.count', { n: places }) : t('uses.none')}
-  use:tooltip={places ? t('uses.count', { n: places }) : t('uses.none')}
+  aria-label={places ? t('uses.count', { n: places }) : ui('uses.none')}
+  use:tooltip={places ? t('uses.count', { n: places }) : ui('uses.none')}
   onclick={ontoggle}>{places || '–'} {open ? '▴' : '▾'}</button
 >
 
