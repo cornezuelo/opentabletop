@@ -15,7 +15,7 @@ Each tab has its own page:
 - [**Overview**](04-overview.md): its name, the parts it plays with, the packs it brings, its example maps, and exporting it as a file.
 - [**Rules**](05-rules.md): the day, ways of travelling, terrains, roads and rivers, supplies, weather's speed, values of the day and actions.
 - [**Checks**](06-checks.md): what is rolled on the way and when, the party's stats, journey roles and supplies the characters carry.
-- [**Sheet**](07-sheet.md): what each character has.
+- [**Sheet**](07-sheet.md): what each character has, and the party itself.
 - [**Factions**](08-factions.md): the powers of its world and their turns.
 - [**Clocks**](09-clocks.md): the progress clocks its world starts with, and what each does when full.
 - [**Calendar**](10-calendar.md): months, weekdays, moons and holidays.

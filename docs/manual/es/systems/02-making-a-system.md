@@ -15,7 +15,7 @@ Cada pestaña tiene su página:
 - [**Resumen**](04-overview.md): su nombre, las partes con las que se juega, los packs que trae, sus mapas de ejemplo y exportarlo a un fichero.
 - [**Reglas**](05-rules.md): el día, las formas de viajar, los terrenos, caminos y ríos, las provisiones, cuánto frena el clima, los valores del día y las acciones.
 - [**Comprobaciones**](06-checks.md): qué se tira por el camino y cuándo, las características del grupo, los roles de viaje y las provisiones que llevan los personajes.
-- [**Hoja**](07-sheet.md): lo que tiene cada personaje.
+- [**Hoja**](07-sheet.md): lo que tiene cada personaje, y el propio grupo.
 - [**Facciones**](08-factions.md): los poderes de su mundo y sus turnos.
 - [**Relojes**](09-clocks.md): los relojes de progreso con los que empieza su mundo, y qué hace cada uno al llenarse.
 - [**Calendario**](10-calendar.md): meses, días de la semana, lunas y fiestas.

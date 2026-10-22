@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="640" height="420" font-family="system-ui, sans-serif">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e8e2d6"/></marker></defs>
+<rect width="640" height="420" rx="10" fill="#23211e"/>
+<text x="30" y="32" font-size="13" font-weight="bold" fill="#f08a4b">A sheet, its characters, and the party made of them</text>
+<rect x="30" y="48" width="180" height="104" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="120" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="#f08a4b">The characters’ sheet</text>
+<text x="42" y="88" font-size="10" fill="#e8e2d6">Survival 0–5 · Toughness 1–6</text>
+<text x="42" y="104" font-size="10" fill="#e8e2d6">Health 0–Toughness</text>
+<text x="42" y="120" font-size="10" fill="#e8e2d6">Rations 0–4</text>
+<text x="42" y="138" font-size="10" fill="#e8e2d6">Wounded · Lame (blocks travel.move)</text>
+<line x1="210" y1="100" x2="240" y2="100" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="225" y="92" text-anchor="middle" font-size="9" fill="#e8e2d6">made</text>
+<rect x="242" y="48" width="118" height="104" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="301" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Kael</text>
+<text x="254" y="88" font-size="10" fill="#e8e2d6">Survival 3</text>
+<text x="254" y="104" font-size="10" fill="#e8e2d6">Health 2 of 3</text>
+<text x="254" y="120" font-size="10" fill="#e8e2d6">Rations 1</text>
+<text x="254" y="138" font-size="10" font-weight="bold" fill="#f08a4b">Lame</text>
+<rect x="370" y="48" width="118" height="104" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="429" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Mara</text>
+<text x="382" y="88" font-size="10" fill="#e8e2d6">Survival 1</text>
+<text x="382" y="104" font-size="10" fill="#e8e2d6">Health 3 of 3</text>
+<text x="382" y="120" font-size="10" fill="#e8e2d6">Rations 2</text>
+<rect x="498" y="48" width="112" height="104" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
+<text x="554" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Tobin</text>
+<text x="510" y="88" font-size="10" fill="#e8e2d6">Survival 1</text>
+<text x="510" y="104" font-size="10" fill="#e8e2d6">Health 4 of 4</text>
+<text x="510" y="120" font-size="10" fill="#e8e2d6">Rations 2</text>
+<line x1="429" y1="152" x2="429" y2="186" stroke="#e8e2d6" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="437" y="174" font-size="9" fill="#e8e2d6">the party is its members</text>
+<rect x="242" y="188" width="368" height="152" rx="8" fill="none" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="256" y="210" font-size="12" font-weight="bold" fill="#f08a4b">The party, in the trip</text>
+<rect x="256" y="220" width="340" height="30" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="268" y="239" font-size="10" fill="#e8e2d6">Survival 3: the best of those not wounded (Kael’s)</text>
+<rect x="256" y="256" width="340" height="30" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1"/>
+<text x="268" y="275" font-size="10" fill="#e8e2d6">Food 5: their rations together; eaten from them, evenly</text>
+<rect x="256" y="292" width="340" height="30" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1"/>
+<text x="268" y="311" font-size="10" fill="#e8e2d6">Kael is lame: nobody marches until it’s cleared</text>
+<rect x="30" y="188" width="180" height="100" rx="6" fill="#3a3631" stroke="#f08a4b" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="120" y="208" text-anchor="middle" font-size="11" font-weight="bold" fill="#f08a4b">The party’s own sheet</text>
+<text x="42" y="230" font-size="10" fill="#e8e2d6">Morale 0–5, a track:</text>
+<rect x="42" y="240" width="18" height="14" fill="#f08a4b"/><rect x="64" y="240" width="18" height="14" fill="#f08a4b"/><rect x="86" y="240" width="18" height="14" fill="#f08a4b"/><rect x="108" y="240" width="18" height="14" fill="none" stroke="#e8e2d6"/><rect x="130" y="240" width="18" height="14" fill="none" stroke="#e8e2d6"/>
+<text x="42" y="276" font-size="10" fill="#e8e2d6">whoever travels</text>
+<line x1="210" y1="238" x2="240" y2="238" stroke="#e8e2d6" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+<text x="30" y="316" font-size="10" fill="#e8e2d6">The stat Morale is that value:</text>
+<text x="30" y="332" font-size="10" fill="#e8e2d6">party.values.morale: -1 lowers both</text>
+<text x="30" y="370" font-size="11" fill="#e8e2d6">Effects say whom they reach: party.members.… (everyone), acting.… (whoever acts),</text>
+<text x="30" y="388" font-size="11" fill="#e8e2d6">roles.guide.… (whoever holds a role), characters.kael.… (one), party.values.… (the party’s sheet).</text>
+</svg>

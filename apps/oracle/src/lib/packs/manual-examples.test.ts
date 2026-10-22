@@ -1,7 +1,11 @@
 import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import {
+  applyMemberEffects,
   calendarOf,
+  newMember,
+  partyOf,
+  refreshParty,
   startTrip,
   stepTrip,
   tripAvailability,
@@ -615,5 +619,151 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
       } else expect(s.travel.pendingChecks).toHaveLength(0)
     }
     expect(packs).toBeGreaterThan(0)
+  })
+})
+
+describe('Systems → Sheet: the company of three plays as the page says', () => {
+  const blocks = [...read('en/systems/07-sheet.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+    (m) => m[1],
+  )
+  const sheets = blocks.find((y) => y.includes('kind: sheet'))!
+  const [named, added, bound] = parseAllDocuments(blocks.find((y) => y.includes('SCREE'))!).map(
+    (d) => d.toJS(),
+  )
+  const rules = { ...parse(coreFile('travel.yaml')), checks: added.checks }
+  const { registry, diagnostics } = loadPacks([
+    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    {
+      path: 'co/travel.yaml',
+      // A new system's bindings start with `on: {}`.
+      content: `${stringify(rules)}---\n${stringify({ kind: 'bindings', id: 'default', on: {}, ...bound })}`,
+    },
+    { path: 'co/sheet.yaml', content: sheets },
+    { path: 'co/calendar.yaml', content: coreFile('calendar.yaml') },
+    {
+      path: 'co/system.yaml',
+      content: stringify({
+        kind: 'system',
+        id: 'default',
+        name: 'The Company',
+        travel: 'travel-rules.default',
+        bindings: 'bindings.default',
+        calendar: 'calendar.default',
+        ...named,
+      }),
+    },
+  ])
+  const system = travelSystems(registry).systems.find((s) => s.pack === 'co')!
+  const party = partyOf(system)
+  const calendar = calendarOf(system)
+  // Step 8's way: plains, three hexes of hills, plains.
+  const terrains = ['plains', 'hills', 'hills', 'hills', 'plains', 'plains']
+  const world: TravelWorld = {
+    hexKm: 10,
+    cell: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
+    neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => terrains[i]).map(String),
+    distance: (a, b) => Math.abs(Number(a) - Number(b)),
+    edges: () => [],
+  }
+  const options = (seed: string) => ({
+    system,
+    world,
+    oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    locale: 'en',
+    random: seeded(seed),
+  })
+  const nextDawn = (s: SessionState) =>
+    calendar.at(s.travel.day + 1, tripStart(system.rules, calendar))
+  /** Step 8's company: Kael leads and carries the only ration. */
+  function setOut(opts: ReturnType<typeof options>) {
+    const members = [
+      newMember(party, { id: 'kael', name: 'Kael', values: { survival: 3, rations: 1 } }),
+      newMember(party, { id: 'mara', name: 'Mara', values: { rations: 0 } }),
+      newMember(party, {
+        id: 'tobin',
+        name: 'Tobin',
+        values: { toughness: 4, health: 4, rations: 0 },
+      }),
+    ]
+    let s = startTrip({ system, location: '0', season: 'summer', members }).session
+    s = { ...s, acting: 'kael' }
+    return stepTrip(opts, s, { type: 'setDestination', hex: '5' }).state
+  }
+  const of = (s: SessionState, code: string, check?: string) =>
+    s.journal.filter(
+      (e) => e.code === code && (!check || e.data?.event === check || e.data?.check === check),
+    )
+  const health = (s: SessionState) => s.members!.map((m) => m.values.health)
+
+  it('loads (steps 1–7)', () => {
+    expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    // Explore rolls Core's prompt, which this test doesn't bring.
+    expect(
+      travelSystems(registry)
+        .problems.map(formatDiagnostic)
+        .filter((p) => !p.includes('generator.prompt')),
+    ).toEqual([])
+    expect(system.sheet?.id).toBe('co/sheet')
+    expect(system.partySheet?.id).toBe('co/party')
+  })
+
+  it('makes the party of its members: Survival, Food, Morale, and the bounds (step 8)', () => {
+    const s = setOut(options('co'))
+    expect(s.stats).toMatchObject({ survival: 3, morale: 3 })
+    expect(s.travel.resources.food).toBe(1)
+    expect(s.party?.values.morale).toBe(3)
+    // Kael wounded: the best of the others.
+    const wounded = structuredClone(s)
+    wounded.members![0].conditions.wounded = {}
+    refreshParty(wounded, party)
+    expect(wounded.stats.survival).toBe(1)
+    // Tobin's Toughness lowered: Health falls with it.
+    const tired = structuredClone(s)
+    applyMemberEffects(tired, { 'characters.tobin.values.toughness': '=2' }, party)
+    expect(tired.members![2].values).toMatchObject({ toughness: 2, health: 2 })
+  })
+
+  it('scree lames whoever acts on the hills, and nobody marches until it’s cleared', () => {
+    let lamed = 0
+    for (const seed of 'abcdefghij') {
+      const opts = options(seed)
+      let s = setOut(opts)
+      for (let day = 0; day < 3 && s.travel.location !== '5'; day++) {
+        s = stepTrip(opts, s, { type: 'travel' }).state
+        const stop = of(s, 'TRAVEL_STOPPED').at(-1)
+        if (stop?.data?.reason === 'value') {
+          lamed++
+          expect(stop.data).toMatchObject({ value: 'lame', who: 'kael' })
+          expect(s.members![0].conditions.lame).toBeDefined()
+          expect(of(s, 'CHECK_EFFECTS', 'SCREE').length).toBeGreaterThan(0)
+          expect(tripAvailability({ system, world }, s).travel).toMatchObject({ who: 'kael' })
+          // Lame cleared by hand: the march goes on.
+          s = { ...s, members: s.members!.map((m) => ({ ...m, conditions: {} })) }
+          expect(tripAvailability({ system, world }, s).travel).toBeUndefined()
+        }
+        s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
+      }
+      // Scree comes up only on the hills.
+      for (const e of of(s, 'CHECK_EFFECTS', 'SCREE')) {
+        const entered = of(s, 'HEX_ENTERED').find((h) => h.time === e.time)!
+        expect(terrains[Number(entered.data?.hex)]).toBe('hills')
+      }
+    }
+    expect(lamed).toBeGreaterThan(0)
+  })
+
+  it('the first night eats the last ration; the second, hunger hurts everyone and morale', () => {
+    const opts = options('co')
+    let s = setOut(opts)
+    s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
+    expect(s.travel.resources.food).toBe(0)
+    expect(s.members![0].values.rations).toBe(0)
+    expect(of(s, 'CHECK_EFFECTS', 'HUNGER')).toHaveLength(0)
+    const before = health(s)
+    s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
+    expect(of(s, 'CHECK_EFFECTS', 'HUNGER')).toHaveLength(1)
+    expect(health(s)).toEqual(before.map((h) => h - 1))
+    expect(s.party?.values.morale).toBe(2)
+    expect(s.stats.morale).toBe(2)
   })
 })

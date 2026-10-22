@@ -393,7 +393,7 @@ relations: # tipos de relación que un personaje puede tener con cualquier cosa 
   home: { name: Hogar }
 ```
 
-- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{nombre}}'`), `track: true` (se muestra como casillas, tantas como su `max`, que debe ser un número), `group` (uno de `groups`).
+- `values`: `default` (lo que tiene un personaje nuevo, 0 si falta), `min` / `max` (un número, u otro valor de la hoja como `'{{self.values.<id>}}'`: el valor baja cuando baja ese), `track: true` (se muestra como casillas, tantas como su `max`, que debe ser un número), `group` (uno de `groups`).
 - `conditions`: `blocks` dice lo que todo el grupo no puede hacer mientras alguno de sus personajes lo tenga: una acción (`actions.<id>`), `travel.move`, o una forma de viajar (`modes.<id>`). El viaje dice quién lo tiene.
 - `relations`: a qué puede estar unido un personaje, por referencia (`character:mara`, `poi:<id>`, `region:<nombre>`, `hex:<col,fila>`, una nota…), cada relación de uno de estos tipos, con un número si el tipo tiene límites. Un viaje las lee donde está el grupo: `hex.related` (quién está unido a este hex, su región o un lugar en él) y `hex.relations.<tipo>`; el Hexmapper las dibuja como hilos desde el grupo (**Jugar → Mostrar relaciones**).
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).

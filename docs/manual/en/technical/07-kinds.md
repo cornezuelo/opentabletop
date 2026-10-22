@@ -399,7 +399,7 @@ relations: # kinds of relation a character may hold to anything with a reference
   home: { name: Home }
 ```
 
-- `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{name}}'`), `track: true` (shown as boxes, as many as its `max`, which must be a number), `group` (one of `groups`).
+- `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or another value of the sheet as `'{{self.values.<id>}}'`: the value falls when that one does), `track: true` (shown as boxes, as many as its `max`, which must be a number), `group` (one of `groups`).
 - `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action (`actions.<id>`), `travel.move`, or a way of travelling (`modes.<id>`). The trip says who has it.
 - `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds. A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
