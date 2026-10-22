@@ -11,6 +11,60 @@ describe('where a name is used', () => {
   const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
   const uses = systemUses(registry, system)
 
+  it('finds ways of travelling, terrains, roads, weather, actions, checks, factions and tables', () => {
+    const of = (d: Parameters<typeof usesOf>[1]) => where(usesOf(uses, d, system))
+    // Snow blocks the horse; the ferry puts the Company in a boat.
+    expect(of({ kind: 'mode', id: 'horse' })).toContain(
+      'names travel-rules default values.snowbound.blocks[0]',
+    )
+    expect(of({ kind: 'mode', id: 'boat' })).toContain(
+      'names travel-rules default actions.ferry.do[4].travel.mode',
+    )
+    // Conditions that compare a terrain, a road, the weather.
+    expect(of({ kind: 'terrain', id: 'forest' }).length).toBeGreaterThan(2)
+    expect(of({ kind: 'edge', id: 'road' }).length).toBeGreaterThan(2)
+    expect(of({ kind: 'weather', id: 'storm' })).toContain(
+      'reads travel-rules default actions.forage.unless',
+    )
+    // …and the weather tables that set it.
+    expect(of({ kind: 'weather', id: 'storm' }).some((w) => w.startsWith('sets table'))).toBe(true)
+    // A forced march takes March; the camp's checks come at it.
+    expect(of({ kind: 'action', id: 'march' })).toContain(
+      'names travel-rules default actions.forced-march.do[2].do',
+    )
+    expect(of({ kind: 'action', id: 'camp' })).toContain(
+      'names travel-rules default travel.halt.do',
+    )
+    // A check is used by the steps that roll it (`roll: checks.<event>`): none here, its
+    // moments take it. A faction, by what reads its values.
+    expect(of({ kind: 'check', id: 'ENCOUNTER_CHECK_REQUIRED' })).toEqual([])
+    expect(of({ kind: 'faction', id: 'the-vale' }).some((w) => w.includes('table encounter'))).toBe(
+      true,
+    )
+    // A table rolled by the entries of another, and a generator by an action's step.
+    expect(
+      of({ kind: 'rollable', id: 'table.reaction', pack: 'grey-marches' }).some((w) =>
+        w.startsWith('names table encounter entries.'),
+      ),
+    ).toBe(true)
+    expect(of({ kind: 'rollable', id: 'generator.ruin-delve', pack: 'grey-marches' })).toContain(
+      'names travel-rules default actions.delve.do[1].roll',
+    )
+    // Declared, all of them.
+    const declared = declaredOf(registry, system)
+    for (const kind of [
+      'mode',
+      'terrain',
+      'edge',
+      'weather',
+      'action',
+      'check',
+      'faction',
+      'rollable',
+    ])
+      expect(declared.some((d) => d.kind === kind)).toBe(true)
+  })
+
   it("finds the guide's Pathfinding in a table's roll mode, and the stat made of it", () => {
     const pathfinding = usesOf(
       uses,
@@ -229,6 +283,14 @@ describe('where a name is used, in every form', () => {
 
   it('says what is declared and not used yet', () => {
     const unused = declaredOf(registry, band).filter((d) => usesOf(uses, d, band).length === 0)
-    expect(unused).toEqual([])
+    // A way the player picks, a terrain nothing asks about, a check its moment takes (no
+    // step rolls it), what the Oracle rolls only by hand.
+    expect(unused).toEqual([
+      { kind: 'mode', id: 'walk' },
+      { kind: 'terrain', id: 'plains' },
+      { kind: 'check', id: 'GATE' },
+      { kind: 'rollable', id: 'deck.fate', pack: 'band' },
+      { kind: 'rollable', id: 'generator.camp-site', pack: 'band' },
+    ])
   })
 })

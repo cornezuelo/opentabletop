@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { usesFor } from '../../lib/usage'
   import { writeRef } from '@open-tabletop/oracle-engine'
   import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
@@ -89,6 +90,7 @@
     <RecordRows
       {doc}
       at={['factions']}
+      uses={{ of: (id) => usesFor(system, { kind: 'faction', id }), system }}
       idLabel={t('forms.id')}
       template={{}}
       columns={[

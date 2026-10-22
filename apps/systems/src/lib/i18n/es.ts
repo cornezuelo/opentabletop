@@ -763,11 +763,17 @@ export const es: Messages<typeof en> = {
   },
   uses: {
     title: 'Usado en',
-    help: 'Dónde se usa esto en los packs del sistema: las acciones y comprobaciones de las reglas de viaje, los bindings, las hojas, los relojes y facciones, y las tablas, oráculos, generadores y mazos. Cada sitio dice si lo **lee** (una condición, un `{{…}}`), lo **cambia** (efectos), lo **fija** (`set`) o **sale de** él (el `from` de una característica).\n• El número es en cuántos sitios se usa; púlsalo para verlos debajo de la fila, cada uno con un enlace a donde se edita (las tablas se abren en el Oráculo).\n• **–** quiere decir que nada lo usa aún: a menudo está bien (un valor que lee el jugador), a veces es un error (una característica que no lee ninguna tabla, un nombre escrito de otra manera).\nNo se listan lo que da el mapa (los valores propios de un hex) ni lo que los motores leen por su cuenta.',
+    help: 'Dónde se usa esto en los packs del sistema: las acciones y comprobaciones de las reglas de viaje, los bindings, las hojas, los relojes y facciones, y las tablas, oráculos, generadores y mazos. Cada sitio dice si lo **lee** (una condición, un `{{…}}`), lo **cambia** (efectos), lo **fija** (`set`), **sale de** él (el `from` de una característica) o lo **nombra** (`do: actions.march`, `blocks: [modes.horse]`, `roll: table.ruins`, la tabla siguiente de una entrada).\n• El número es en cuántos sitios se usa; púlsalo para verlos debajo de la fila, cada uno con un enlace a donde se edita (las tablas se abren en el Oráculo).\n• **–** quiere decir que nada lo usa aún: a menudo está bien (un valor que lee el jugador), a veces es un error (una característica que no lee ninguna tabla, un nombre escrito de otra manera).\nNo se listan lo que da el mapa (los valores propios de un hex) ni lo que los motores leen por su cuenta.',
     count: 'Se usa en {n} sitios',
     none: 'Sin usar aún',
     as: 'como {name}',
-    how: { reads: 'lo lee', changes: 'lo cambia', sets: 'lo fija', derives: 'sale de él' },
+    how: {
+      reads: 'lo lee',
+      changes: 'lo cambia',
+      sets: 'lo fija',
+      derives: 'sale de él',
+      names: 'lo nombra',
+    },
     kinds: {
       action: 'acción',
       check: 'comprobación',

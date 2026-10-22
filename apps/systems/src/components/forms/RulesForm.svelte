@@ -179,6 +179,7 @@
     <RecordRows
       {doc}
       at={['modes']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'mode', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['foot', 'horse', 'cart', 'boat']}
       template={{ kmPerDay: 25 }}
@@ -224,6 +225,7 @@
     <RecordRows
       {doc}
       at={['terrains']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'terrain', id }), system }}
       idLabel={t('rules.terrain')}
       suggestions={PALETTE}
       nameOf={terrainName}
@@ -338,6 +340,7 @@
     <RecordRows
       {doc}
       at={['edges']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'edge', id }), system }}
       idLabel={t('rules.edge')}
       suggestions={['road', 'trail', 'river']}
       nameOf={edgeName}
@@ -382,6 +385,7 @@
     <RecordRows
       {doc}
       at={['weather']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'weather', id }), system }}
       idLabel={t('rules.weatherState')}
       suggestions={['rain', 'snow', 'fog', 'storm', 'blizzard', 'hot']}
       template={{ speed: 0.5 }}

@@ -28,6 +28,9 @@
   import { actionReading, stepSummary, type StepContext } from '../../lib/steps'
   import { matches } from '../../lib/search'
   import CardHead from './CardHead.svelte'
+  import UsedBy from '../uses/UsedBy.svelte'
+  import UsesList from '../uses/UsesList.svelte'
+  import { usesFor } from '../../lib/usage'
   import CardTools from './CardTools.svelte'
   import { getLocale, t } from '../../lib/i18n'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
@@ -161,6 +164,9 @@
       matches(query, [id, label(id), text(id, 'description'), summary(id), actions[id]]),
     ),
   )
+
+  /** The action whose uses are shown in its card. */
+  let usesOpen = $state<string | null>(null)
 
   /** The step cards shown open, as `<action>:<index>`. */
   const opened = new SvelteSet<string>()
@@ -408,6 +414,20 @@
             />
             <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
           </label>
+          {#if system}
+            {@const uses = usesFor(system, { kind: 'action', id })}
+            <div class="cond">
+              <span class="label">{t('uses.title')}<InfoTip text={t('uses.help')} /></span>
+              <UsedBy
+                {uses}
+                open={usesOpen === id}
+                ontoggle={() => (usesOpen = usesOpen === id ? null : id)}
+              />
+            </div>
+            {#if usesOpen === id}
+              <div class="wide"><UsesList {uses} {system} /></div>
+            {/if}
+          {/if}
         </div>
 
         <h4>{t('actions.steps')}<InfoTip text={t('actions.stepsHelp')} /></h4>
@@ -487,6 +507,10 @@
 
   .fields > .first {
     grid-column: 1;
+  }
+
+  .fields > .wide {
+    grid-column: 1 / -1;
   }
 
   label {

@@ -11,10 +11,11 @@ import { systemPackIds, type TravelSystem } from './trip'
 
 /**
  * How a place uses a name: `reads` it (a condition, a `{{…}}`), `changes` it (effects),
- * `sets` it (`set`, a value of the day) or `derives` something from it (a stat's `from`, a
- * supply carried by the members).
+ * `sets` it (`set`, a value of the day), `derives` something from it (a stat's `from`, a
+ * supply carried by the members) or `names` it by reference (`do: actions.march`, `blocks:
+ * [modes.horse]`, `roll: table.ruins`, `roll: checks.<event>`).
  */
-export type UseHow = 'reads' | 'changes' | 'sets' | 'derives'
+export type UseHow = 'reads' | 'changes' | 'sets' | 'derives' | 'names'
 
 /** A place in a system's packs: a definition, and the path inside it. */
 export interface UsePlace {
@@ -49,10 +50,22 @@ export type Declared =
   | { kind: 'clock'; id: string }
   /** A value or condition of one of its sheets: the members', the party's or the factions'. */
   | { kind: 'sheet-value' | 'sheet-condition'; sheet: SheetScope; id: string }
+  /** Its ways of travelling, terrains, roads and rivers, kinds of weather, actions and factions. */
+  | { kind: 'mode' | 'terrain' | 'edge' | 'weather' | 'action' | 'faction'; id: string }
+  /** A check, by its event. */
+  | { kind: 'check'; id: string }
+  /** A table, oracle, generator or deck of its packs: `table.ruins` in `pack`. */
+  | { kind: 'rollable'; id: string; pack: string }
 
 export type SheetScope = 'members' | 'party' | 'factions'
 
 const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists'])
+/**
+ * A reference to something a system declares, written as a whole text: an action, a way of
+ * travelling, a check, or a definition of the Oracle (maybe of another pack: `core/table.twists`).
+ */
+const REFERENCE =
+  /^(?:[a-z0-9-]+\/)?(?:actions|modes|checks|table|oracle|generator|deck)\.[^\s{}]+$/
 const TEMPLATE = /\{\{\s*([^}]+?)\s*\}\}/g
 /** Names no system declares: an action's parameters, a list's roll. */
 const OWN = /^(params\.|roll$)/
@@ -133,13 +146,16 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
     const sets = (values: unknown, path: string) => {
       if (!isObject(values)) return
       for (const [key, value] of Object.entries(values)) {
-        use(key.includes('.') ? key : `today.${key}`, 'sets', path)
+        use(key.includes('.') ? key : `today.${key}`, 'sets', path, compared(value))
         deep(value, path)
       }
     }
     /** Any part of a definition as written: conditions, effects, sets and texts wherever they are. */
     const walk = (node: unknown, path: string): void => {
-      if (typeof node === 'string') return text(node, path)
+      if (typeof node === 'string') {
+        if (REFERENCE.test(node.trim())) use(node, 'names', path)
+        return text(node, path)
+      }
       if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`))
       if (!isObject(node)) return
       for (const [key, value] of Object.entries(node)) {
@@ -151,7 +167,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
         // A `travel.mode` step changes the way of travelling.
         else if (key === 'travel.mode') {
           use('trip.mode', 'sets', at)
-          text(value, at)
+          walk(value, at)
         } else if (key === 'set' && isObject(value)) sets(value, at)
         else walk(value, at)
       }
@@ -224,7 +240,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
 
   // Tables, oracles, generators and decks of its packs.
   for (const def of registry.definitions.values())
-    if (packs.includes(def.pack)) definitionUses(def, recorder)
+    if (packs.includes(def.pack)) definitionUses(def, recorder, registry)
 
   return out
 }
@@ -236,12 +252,14 @@ function definitionUses(
     ownValues?: Set<string>,
     produced?: Set<string>,
   ) => {
+    use: (written: string, how: UseHow, path: string, values?: string[]) => void
     text: (value: unknown, path: string) => void
     deep: (value: unknown, path: string) => void
     condition: (cond: unknown, path: string) => void
     changes: (effects: unknown, path: string) => void
     sets: (values: unknown, path: string) => void
   },
+  registry: Registry,
 ): void {
   const produced = new Set(def.kind === 'generator' ? def.fields.map((f) => f.name) : [])
   const r = recorder(
@@ -249,11 +267,19 @@ function definitionUses(
     undefined,
     produced,
   )
+  /** What an entry, field or card rolls next, by its reference (`table.reaction`). */
+  const rolls = (ref: { target: string; dynamic?: boolean } | undefined, path: string) => {
+    if (ref?.dynamic) return r.text(ref.target, path)
+    // Compiled, it names the definition by its full id (`grey-marches/reaction`): written
+    // back as a reference with its pack (`grey-marches/table.reaction`).
+    const target = ref && registry.definitions.get(ref.target)
+    if (target) r.use(`${target.pack}/${target.kind}.${target.localId}`, 'names', path)
+  }
   const local = (mode: string) => mode.split('/').pop()!
   const entry = (e: CompiledEntry, path: string) => {
     r.condition(e.when, `${path}.when`)
     r.text(e.result, `${path}.result`)
-    if (e.ref?.dynamic) r.text(e.ref.target, `${path}.ref`)
+    rolls(e.ref, `${path}.ref`)
     r.sets(e.set, `${path}.set`)
     r.changes(e.effects, `${path}.effects`)
   }
@@ -281,7 +307,7 @@ function definitionUses(
         const path = `fields.${field.name}`
         r.condition(field.when, `${path}.when`)
         r.text(field.roll, `${path}.roll`)
-        if (field.ref?.dynamic) r.text(field.ref.target, `${path}.ref`)
+        rolls(field.ref, `${path}.ref`)
         r.deep(field.value, `${path}.value`)
         r.deep(field.context, `${path}.context`)
       }
@@ -291,13 +317,18 @@ function definitionUses(
       for (const card of def.cards) {
         const path = `cards.${card.key}`
         r.text(card.result, `${path}.result`)
-        if (card.ref?.dynamic) r.text(card.ref.target, `${path}.ref`)
+        rolls(card.ref, `${path}.ref`)
         r.sets(card.set, `${path}.set`)
         r.changes(card.effects, `${path}.effects`)
       }
       break
   }
 }
+
+/** What names a terrain among its values: the hex entered, the one left, those around. */
+const TERRAIN_FACTS = ['hex.terrain', 'from.terrain', 'around.terrain']
+/** What names an action among its values: the one under way, those done today, the moment. */
+const ACTION_FACTS = ['trip.doing', 'trip.doneToday', 'trip.moment']
 
 /** Where the members of a party are named: the party's, a character's, who acts, a role's holder, a token. */
 const MEMBER = String.raw`(?:party\.members|characters\.[^.]+|acting|roles\.[^.]+|token)`
@@ -343,6 +374,40 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       break
     case 'clock':
       match = (u) => u.name === `world.clocks.${declared.id}`
+      break
+    case 'mode':
+      match = (u) => u.name === `modes.${declared.id}` || (u.name === 'trip.mode' && has(u))
+      break
+    case 'terrain':
+      match = (u) => TERRAIN_FACTS.includes(u.name) && has(u)
+      break
+    case 'edge':
+      match = (u) => u.name === 'trip.edges' && has(u)
+      break
+    case 'weather':
+      // Read as the day's weather, or set by a table (`set: { weather: storm }`).
+      match = (u) => (u.name === 'trip.weather' || u.name === 'today.weather') && has(u)
+      break
+    case 'action': {
+      const ref = `actions.${declared.id}`
+      match = (u) =>
+        u.name === ref ||
+        u.name === `trip.taken.${declared.id}` ||
+        (ACTION_FACTS.includes(u.name) && (has(u) || !!u.values?.includes(ref)))
+      break
+    }
+    case 'check':
+      match = (u) => u.name === `checks.${declared.id}`
+      break
+    case 'faction':
+      match = (u) =>
+        u.name === `factions.${declared.id}` || u.name.startsWith(`factions.${declared.id}.`)
+      break
+    case 'rollable':
+      // Written in its own pack without one, or with its pack anywhere.
+      match = (u) =>
+        u.name === `${declared.pack}/${declared.id}` ||
+        (u.name === declared.id && u.at.pack === declared.pack)
       break
     default: {
       const part = { 'sheet-value': 'values', 'sheet-condition': 'conditions' }[declared.kind]
@@ -392,6 +457,19 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
     : undefined
   for (const id of ids(raw?.data.reads)) out.push({ kind: 'read', id })
   for (const id of ids(system.clocks?.def.clocks)) out.push({ kind: 'clock', id })
+  const rules = system.rules as Record<string, unknown>
+  for (const id of ids(rules.modes)) out.push({ kind: 'mode', id })
+  for (const id of ids(rules.terrains)) out.push({ kind: 'terrain', id })
+  for (const id of ids(rules.edges)) out.push({ kind: 'edge', id })
+  for (const id of ids(rules.weather)) out.push({ kind: 'weather', id })
+  for (const id of ids(rules.actions)) out.push({ kind: 'action', id })
+  for (const event of new Set((system.rules.checks ?? []).map((c) => c.event)))
+    out.push({ kind: 'check', id: event })
+  for (const id of ids(system.factions?.def.factions)) out.push({ kind: 'faction', id })
+  const packs = systemPackIds(system, registry)
+  for (const def of registry.definitions.values())
+    if (packs.includes(def.pack) && ROLLED.includes(def.kind))
+      out.push({ kind: 'rollable', id: `${def.kind}.${def.localId}`, pack: def.pack })
   const sheets: [SheetScope, { values?: unknown; conditions?: unknown } | undefined][] = [
     ['members', system.sheet?.def],
     ['party', system.partySheet?.def],
@@ -424,6 +502,8 @@ function compared(value: unknown): string[] | undefined {
   } else add(value)
   return out.length ? out : undefined
 }
+
+const ROLLED = ['table', 'oracle', 'generator', 'deck']
 
 const place = (d: { pack: string; id: string; file: string }) => ({
   pack: d.pack,

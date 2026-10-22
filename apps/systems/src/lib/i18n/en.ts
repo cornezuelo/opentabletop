@@ -760,11 +760,17 @@ export const en = {
   },
   uses: {
     title: 'Used by',
-    help: "Where this is used in the system's packs: the travel rules' actions and checks, the bindings, the sheets, the clocks and factions, and the tables, oracles, generators and decks. Each place says whether it **reads** it (a condition, a `{{…}}`), **changes** it (effects), **sets** it (`set`) or **is made of** it (a stat's `from`).\n• The number is how many places use it; press it to see them below the row, each with a link to where it's edited (tables open in the Oracle).\n• **–** means nothing uses it yet: often fine (a value the player reads), sometimes a mistake (a stat no table reads, a name written differently).\nWhat the map gives (a hex's own values) and what the engines read by themselves aren't listed.",
+    help: "Where this is used in the system's packs: the travel rules' actions and checks, the bindings, the sheets, the clocks and factions, and the tables, oracles, generators and decks. Each place says whether it **reads** it (a condition, a `{{…}}`), **changes** it (effects), **sets** it (`set`), **is made of** it (a stat's `from`) or **names** it (`do: actions.march`, `blocks: [modes.horse]`, `roll: table.ruins`, a table entry's next table).\n• The number is how many places use it; press it to see them below the row, each with a link to where it's edited (tables open in the Oracle).\n• **–** means nothing uses it yet: often fine (a value the player reads), sometimes a mistake (a stat no table reads, a name written differently).\nWhat the map gives (a hex's own values) and what the engines read by themselves aren't listed.",
     count: 'Used in {n} places',
     none: 'Not used yet',
     as: 'as {name}',
-    how: { reads: 'reads it', changes: 'changes it', sets: 'sets it', derives: 'is made of it' },
+    how: {
+      reads: 'reads it',
+      changes: 'changes it',
+      sets: 'sets it',
+      derives: 'is made of it',
+      names: 'names it',
+    },
     kinds: {
       action: 'action',
       check: 'check',
