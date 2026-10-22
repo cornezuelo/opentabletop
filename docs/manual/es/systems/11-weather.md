@@ -14,7 +14,7 @@ Un modelo tiene tres partes:
 
 Otros tres sitios hacen que un modelo se juegue:
 
-1. Una **comprobación** lo tira: en [Comprobaciones](06-checks.md), una comprobación cuyo **Se tira en** es el modelo, en _Clima con inercia_, normalmente al empezar la mañana. Sin esa comprobación nadie tira el modelo y los viajes no tienen clima.
+1. Una **comprobación** lo tira: en [Comprobaciones](06-checks.md), una comprobación cuyo **Se tira en** es el modelo, en _Clima con inercia_, normalmente al empezar la mañana. Sin esa comprobación nadie tira el modelo y los viajes no tienen clima. Las Reglas genéricas tienen una, **Clima** (`WEATHER_CHECK_REQUIRED`), que se tira en _El cielo sencillo_ de Core, así que un sistema nuevo empieza con ella: elige tu modelo en su **Se tira en**.
 2. Las [Reglas](05-rules.md#clima) dicen cuánto frena al grupo cada clima (**Velocidad ×**: `0` es un día sin viajar), y sus **valores del día** qué bloquean los valores del clima (una forma de viajar, una acción).
 3. Las condiciones lo leen en cualquier parte: `trip.weather: storm` en el **Salvo si** de una acción o de una comprobación, en el **Cerrado cuando** de un terreno, en una entrada de una tabla. Al día siguiente, el de ayer es `yesterday.weather`.
 
@@ -66,8 +66,8 @@ Un modelo para un valle: veranos casi siempre buenos con rachas de lluvia y algu
    **En muchos días** dice ahora un 73 % despejado, un 23 % lluvia y un 5 % tormenta, más o menos.
 
 4. **Invierno**: en **Estación: winter**, pulsa **Convertir en flor hexagonal**. Píntala como en el dibujo de arriba: tormentas en las dos primeras casillas de la fila de arriba, nieve por la izquierda y por el centro, lluvia salteada, cielos despejados por abajo y a la derecha. **Empieza en**: _Nieve_; **En el borde**: _vuelve por el lado opuesto_. **En muchos días** dice más o menos un tercio nieve, un tercio despejado, un cuarto lluvia y uno de cada nueve días tormenta. (La primavera y el otoño se quedan con las tablas de probabilidad con las que vinieron).
-5. **La comprobación que lo tira**: en **Comprobaciones**, **Añadir una comprobación**: **Comprobación** `WEATHER`, **Nombre** _Clima_, **Cuándo** `time.part.morning` (el calendario de las Reglas genéricas, cuyo día empieza con la mañana; una hora como `06:00` también vale) y, en **Se tira en**, _Cielos del valle_ en _Clima con inercia_.
-6. **Lo que le hace al viaje**: en **Reglas → Clima**, `rain` **Velocidad ×** `0.75`, `snow` `0.5` y `storm` `0`. En **Reglas → Valores del día**, añade `deep-snow`, con nombre _Nieve profunda_ y **Bloquea** `modes.horse`.
+5. **La comprobación que lo tira**: la copia de las Reglas genéricas ya tiene una, **Clima** (`WEATHER_CHECK_REQUIRED`, **Cuándo** `time.part.morning`), que se tira en _El cielo sencillo_ de Core. En **Comprobaciones**, despliégala y, en **Se tira en**, elige _Cielos del valle_ en _Clima con inercia_. (Un sistema sin ella: **Añadir una comprobación** con **Cuándo** `time.part.morning`, el calendario de las Reglas genéricas, cuyo día empieza con la mañana; una hora como `06:00` también vale.)
+6. **Lo que le hace al viaje**: en **Reglas → Clima**, la copia ya frena `rain` (**Velocidad ×** `0.75`), `storm` y `snow` (`0.5`): pon `storm` a `0`, un día sin viaje. En **Reglas → Valores del día**, añade `deep-snow`, con nombre _Nieve profunda_ y **Bloquea** `modes.horse`.
 7. **Pruébalo**: en **Pruébalo**, haz un camino largo, empieza un viaje en verano y marcha día tras día; luego empieza uno en invierno.
 
 **Lo que verás.** Cada mañana el diario dice _Clima: Despejado_ (o _Lluvia_, _Nieve_…), con lo que fija para el día, y el panel del viaje muestra el clima de hoy. En verano casi todos los días están despejados y una racha de lluvia dura unos días; con lluvia el grupo recorre tres cuartos de lo que haría con el cielo despejado. Un día de tormenta la marcha no puede empezar (_El clima impide viajar_) y el día siguiente está despejado o llueve, nunca otra tormenta. En invierno el clima se mueve una casilla al día: la nieve dura, despeja poco a poco y de vez en cuando llega una tormenta. Un día de nieve el grupo viaja a media velocidad y no se puede elegir **A caballo** (dice que es por la _Nieve profunda_); a pie el viaje sigue.
@@ -119,15 +119,15 @@ Y lo que los pasos 5 y 6 añaden a las reglas de viaje y a los bindings (un extr
 
 ```yaml
 # reglas de viaje
-weather: { rain: { speed: 0.75 }, snow: { speed: 0.5 }, storm: { speed: 0 } }
+weather: { rain: { speed: 0.75 }, storm: { speed: 0 }, snow: { speed: 0.5 } } # paso 6: storm
 values:
   deep-snow: { name: Nieve profunda, blocks: [modes.horse] }
 checks:
-  - { event: WEATHER, name: Clima, at: time.part.morning }
+  - { event: WEATHER_CHECK_REQUIRED, name: Clima, at: time.part.morning } # copiada
   # … las demás comprobaciones
 # bindings
 on:
-  WEATHER: { weather: weather.weather }
+  WEATHER_CHECK_REQUIRED: { weather: weather.weather } # paso 5: era core/weather.default
 ```
 
 Las Marcas Grises usan un modelo como este con más climas (cielo gris, niebla), tablas de probabilidad en tres estaciones y una flor hexagonal en invierno: su [página](../packs/02-grey-marches.md) dice dónde.
@@ -135,6 +135,7 @@ Las Marcas Grises usan un modelo como este con más climas (cielo gris, niebla),
 ## Errores habituales
 
 - **El viaje no tiene clima.** Ninguna comprobación tira el modelo: un modelo solo se juega cuando el **Se tira en** de una comprobación lo nombra (paso 5). La pestaña Clima, por sí sola, no tira nada.
+- **El clima de las Reglas genéricas en vez del tuyo.** La comprobación **Clima** copiada sigue tirando _El cielo sencillo_ de Core (despejado, nublado, lluvia, tormenta, nieve): elige tu modelo en su **Se tira en** (paso 5).
 - **Un clima que no frena a nadie.** Un clima que la lista de **Reglas → Clima** no nombra mantiene la velocidad de siempre; y un valor que fija no hace nada hasta que algo lo lee (un valor del día que **Bloquea**, una condición, una tabla).
 - **Una condición que nunca se cumple.** Las condiciones leen el **id** del clima, no su nombre: `trip.weather: storm`, no `trip.weather: Tormenta`.
 - **Una comprobación que ve el clima de ayer.** Las comprobaciones de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores: una comprobación cuyo **Solo si** / **Salvo si** lee el clima (`trip.weather: rain`) solo ve el de hoy si va después de la del clima en la lista (o en un momento posterior). Antes que ella, todavía ve el de ayer.

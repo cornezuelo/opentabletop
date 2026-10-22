@@ -58,7 +58,7 @@ Con una hoja, nombra una provisión de las reglas y el valor de la hoja en el qu
 
 ## Paso a paso: tierra de lobos
 
-Un sistema en el que los bosques y las colinas son de los lobos: al entrar en ellos de día el grupo puede dar con sus huellas y apretar el paso, cansándose; al acampar allí de noche la manada puede rondar el fuego; unas piedras viejas del camino merecen pararse a describirlas; y una noche sin comida también cansa al grupo. Parte de un sistema nuevo: empieza como copia de las Reglas genéricas, que no tiran ninguna comprobación (su día, la marcha y la comida de cada noche: mira [Reglas](05-rules.md)).
+Un sistema en el que los bosques y las colinas son de los lobos: al entrar en ellos de día el grupo puede dar con sus huellas y apretar el paso, cansándose; al acampar allí de noche la manada puede rondar el fuego; unas piedras viejas del camino merecen pararse a describirlas; y una noche sin comida también cansa al grupo. Parte de un sistema nuevo: empieza como copia de las Reglas genéricas, cuya única comprobación tira el clima cada mañana (su día, la marcha y la comida de cada noche: mira [Reglas](05-rules.md)).
 
 1. **Créalo**: escribe _Tierra de Lobos_ bajo la lista de sistemas y pulsa **+**.
 2. **Fatiga**: en **Características del grupo**, **Añadir una característica** y llámala _Fatiga_ (su id pasa a ser `fatiga`; cámbialo a `fatigue`, como en el resto de esta página), **Empieza en** `0`.
@@ -69,7 +69,7 @@ Un sistema en el que los bosques y las colinas son de los lobos: al entrar en el
 7. **Piedras viejas**: **Añadir una comprobación**, con **Comprobación** `OLD_STONES` y el nombre _Piedras viejas_. **Cuándo** `trip.hex-enter`; **Solo si** `hex.tags` · **es** · `landmark`; sin tabla; marca **Pausar después**.
 8. **Pruébalo**: en **Pruébalo**, haz un camino de seis hexes: `plains`, `forest`, `forest`, `hills`, `plains` con la etiqueta `landmark`, `plains`, con un `road` del hex 3 al hex 4. Empieza un viaje en verano, pon **Comida** a `1` en el panel del viaje y marcha día tras día, esperando a la mañana siguiente cada vez que la marcha se detenga.
 
-**Lo que verás.** El primer día el grupo entra en el bosque (hex 2) a las 11:20: el diario dice _Lobos: Solo el viento entre los árboles_ o _Lobos: Huellas frescas; apretáis el paso (Fatiga +1)_. La marcha se detiene a las 14:00 en mitad del bosque, y al llegar la noche el grupo acampa allí: se tira _Lobos de noche_ con `+2` (**Todo** enseña los dados: `1d6 + 2`), y cuando llega la manada el viaje se detiene (_Lobos de noche en Hex 2 (Bosque): en pausa, sigue cuando quieras_): **Continuar**, y la noche sigue. A medianoche el grupo se come su última comida. El segundo día: el siguiente hex de bosque a las 08:40, otra vez lobos; las colinas por el camino, y sin lobos (**Todo**: _Lobos no sale: el camino tomado es road_); las piedras viejas poco después de las 13:00: _Piedras viejas en Hex 5 (Llanura): esperando_. Pulsa **Continuar** y luego **Seguir**: la marcha sigue y se detiene a las 14:00. Esa noche no hay nada que comer: _Comida no puede bajar de 0_, _No queda nada que comer._ y _Hambre: Fatiga +1_. En la llanura no se tiran lobos, ni de día ni de noche.
+**Lo que verás.** El primer día el grupo entra en el bosque (hex 2) a las 11:20: el diario dice _Lobos: Solo el viento entre los árboles_ o _Lobos: Huellas frescas; apretáis el paso (Fatiga +1)_. La marcha se detiene a las 14:00 en mitad del bosque, y al llegar la noche el grupo acampa allí: se tira _Lobos de noche_ con `+2` (**Todo** enseña los dados: `1d6 + 2`), y cuando llega la manada el viaje se detiene (_Lobos de noche en Hex 2 (Bosque): en pausa, sigue cuando quieras_): **Continuar**, y la noche sigue. A medianoche el grupo se come su última comida. El segundo día: el siguiente hex de bosque a las 08:40, otra vez lobos; las colinas por el camino, y sin lobos (**Todo**: _Lobos no sale: el camino tomado es road_); las piedras viejas poco después de las 13:00: _Piedras viejas en Hex 5 (Llanura): esperando_. Pulsa **Continuar** y luego **Seguir**: la marcha sigue y se detiene a las 14:00. Esa noche no hay nada que comer: _Comida no puede bajar de 0_, _No queda nada que comer._ y _Hambre: Fatiga +1_. En la llanura no se tiran lobos, ni de día ni de noche. (Las horas son las de un día de buen tiempo: la comprobación de clima que conserva la copia se tira cada mañana, y la lluvia, una tormenta o la nieve frenan la marcha.)
 
 ## Lo mismo en YAML
 
@@ -78,6 +78,7 @@ Lo que los pasos añaden a las Reglas genéricas y a sus bindings, como lo muest
 ```yaml
 # travel.yaml: las reglas (kind: travel-rules)
 checks:
+  # … la comprobación de clima de las Reglas genéricas, primero, como venía
   - event: HUNGER # paso 3
     name: Hambre
     at: time.day-end

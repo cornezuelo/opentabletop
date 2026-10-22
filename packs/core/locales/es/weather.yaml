@@ -1,0 +1,13 @@
+weather/default:
+  name: El cielo sencillo
+  states:
+    clear:
+      name: Despejado
+    cloudy:
+      name: Nublado
+    rain:
+      name: Lluvia
+    storm:
+      name: Tormenta
+    snow:
+      name: Nieve

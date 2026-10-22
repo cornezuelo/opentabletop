@@ -260,7 +260,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
   const [named, added] = parseAllDocuments(blocks.find((y) => y.includes('FEVER'))!).map((d) =>
     d.toJS(),
   )
-  const generic = parse(coreFile('travel.yaml'))
+  const generic = parseAllDocuments(coreFile('travel.yaml'))[0].toJS()
   const rules = {
     ...generic,
     checks: added.checks,
@@ -442,13 +442,18 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   // A new system: a copy of the Generic rules and Core's calendar, with what steps 5 and 6
   // add, and a check an hour after the weather's that reads it (Common mistakes).
   const core = coreFile
-  const rules = parse(core('travel.yaml'))
-  rules.weather = { rain: { speed: 0.75 }, snow: { speed: 0.5 }, storm: { speed: 0 } }
+  const rules = parseAllDocuments(core('travel.yaml'))[0].toJS()
+  // Step 6: the copy slows rain, storm and snow already; a storm now stops the day.
+  expect(rules.weather).toEqual({
+    rain: { speed: 0.75 },
+    storm: { speed: 0.5 },
+    snow: { speed: 0.5 },
+  })
+  rules.weather.storm = { speed: 0 }
   rules.values = { 'deep-snow': { name: 'Deep snow', blocks: ['modes.horse'] } }
-  rules.checks = [
-    { event: 'WEATHER', name: 'Weather', at: 'time.part.morning' },
-    { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } },
-  ]
+  // Step 5: the copy's weather check, as it comes.
+  expect(rules.checks.map((c: { event: string }) => c.event)).toEqual(['WEATHER_CHECK_REQUIRED'])
+  rules.checks = [...rules.checks, { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } }]
   const { registry, diagnostics } = loadPacks([
     { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     { path: 'valley/travel.yaml', content: stringify(rules) },
@@ -457,7 +462,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
     {
       path: 'valley/system.yaml',
       content: [
-        'kind: bindings\nid: default\non:\n  WEATHER: { weather: weather.weather }',
+        'kind: bindings\nid: default\non:\n  WEATHER_CHECK_REQUIRED: { weather: weather.weather }',
         'kind: system\nid: default\nname: Valley\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default\nweather: [weather.weather]',
       ].join('\n---\n'),
     },
@@ -493,7 +498,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
       s = stepTrip(opts, s, { type: 'travel' }).state
       // Today's weather was rolled as the morning began (this step, or the wait before it).
       const weather = s.journal.findLast(
-        (e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'WEATHER',
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.event === 'WEATHER_CHECK_REQUIRED',
       )!
       seen.push({
         weather: (weather.data?.value as { weather: string }).weather,
@@ -559,7 +564,7 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
       .map((m) => m[1])
       .find((y) => y.includes('parched'))!,
   )
-  const rules = parse(coreFile('travel.yaml'))
+  const rules = parseAllDocuments(coreFile('travel.yaml'))[0].toJS()
   for (const part of ['modes', 'terrains', 'resources', 'values', 'actions'])
     rules[part] = { ...rules[part], ...added[part] }
   const { registry, diagnostics } = loadPacks([
@@ -686,7 +691,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
     (d) => d.toJS(),
   )
   const table = blocks.find((y) => y.includes('kind: table'))!
-  const rules = { ...parse(coreFile('travel.yaml')), checks: added.checks }
+  const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
     { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     {
@@ -825,7 +830,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   const [named, added, bound] = parseAllDocuments(blocks.find((y) => y.includes('SCREE'))!).map(
     (d) => d.toJS(),
   )
-  const rules = { ...parse(coreFile('travel.yaml')), checks: added.checks }
+  const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
     { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
     {
@@ -972,7 +977,7 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
   const [named, added] = parseAllDocuments(blocks.find((y) => y.includes('REAVERS'))!).map((d) =>
     d.toJS(),
   )
-  const rules = { ...parse(coreFile('travel.yaml')), checks: added.checks }
+  const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
     { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
     { path: 'core/factions.yaml', content: coreFile('factions.yaml') },

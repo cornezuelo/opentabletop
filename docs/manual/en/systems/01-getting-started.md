@@ -14,7 +14,7 @@ The Systems app is where game systems are made and edited. A **system** is what 
 
 ## Systems you have
 
-- **Generic rules**: Core's system, the one a map plays when it chooses none: plain travel with no checks; the party eats 1 food as each day ends. Read-only here, as every system may bring Core (its tabs and its **YAML** show what it is); a new system starts from a copy of its rules. What each part does: [Core](../packs/01-core.md#the-generic-rules).
+- **Generic rules**: Core's system, the one a map plays when it chooses none: plain travel whose one check rolls the weather each morning (rain, a storm or snow slow the march); the party eats 1 food as each day ends. Read-only here, as every system may bring Core (its tabs and its **YAML** show what it is); a new system starts from a copy of its rules. What each part does: [Core](../packs/01-core.md#the-generic-rules).
 - **The Grey Marches**: the bundled example, a small frontier with its own rules, using every feature. See [The Grey Marches](../packs/02-grey-marches.md).
 - Systems from your packs, personal-use ones included (see [Packs](../oracle/03-packs.md)).
 

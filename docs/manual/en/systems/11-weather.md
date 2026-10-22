@@ -14,7 +14,7 @@ A model has three parts:
 
 Three other places make a model play:
 
-1. A **check** rolls it: in [Checks](06-checks.md), a check whose **Rolled on** is the model, under _Weather with inertia_, usually as the morning begins. Without that check nobody rolls the model, and trips have no weather.
+1. A **check** rolls it: in [Checks](06-checks.md), a check whose **Rolled on** is the model, under _Weather with inertia_, usually as the morning begins. Without that check nobody rolls the model, and trips have no weather. The Generic rules have one, **Weather** (`WEATHER_CHECK_REQUIRED`), rolled on Core's _The plain sky_, so a new system starts with it: choose your model in its **Rolled on**.
 2. The [Rules](05-rules.md#weather) say how each kind of weather slows the party (**Speed ×**: `0` is a day without travel), and their **values of the day** what the weather's values block (a way of travelling, an action).
 3. Conditions anywhere read it: `trip.weather: storm` in an action's **Not when**, a check's **Skip if**, a terrain's **Closed when**, a table's entry. The day after, yesterday's is `yesterday.weather`.
 
@@ -66,8 +66,8 @@ A model for a valley: summers mostly fine with rainy spells and rare storms, win
    **Over many days** now says about 73 % clear, 23 % rain and 5 % storm.
 
 4. **Winter**: in **Season: winter**, press **Make it a hex flower**. Paint it as in the picture above: storms on the top row's first two cells, snow down the left and through the middle, rain scattered, clear skies along the bottom and on the right. **Starts on**: _Snow_; **At the edge**: _comes back on the far side_. **Over many days** says about a third snow, a third clear, a quarter rain and one day in nine a storm. (Spring and autumn keep the chance tables they came with.)
-5. **The check that rolls it**: in **Checks**, **Add a check**: **Check** `WEATHER`, **Name** _Weather_, **When** `time.part.morning` (the Generic rules' calendar, whose day starts with the morning; a clock like `06:00` works too) and, in **Rolled on**, _Valley skies_ under _Weather with inertia_.
-6. **What it does to the trip**: in **Rules → Weather**, `rain` **Speed ×** `0.75`, `snow` `0.5` and `storm` `0`. In **Rules → Values of the day**, add `deep-snow`, named _Deep snow_, with **Blocks** `modes.horse`.
+5. **The check that rolls it**: the copy of the Generic rules has one already, **Weather** (`WEATHER_CHECK_REQUIRED`, **When** `time.part.morning`), rolled on Core's _The plain sky_. In **Checks**, unfold it and, in **Rolled on**, choose _Valley skies_ under _Weather with inertia_ instead. (A system without one: **Add a check** with **When** `time.part.morning`, the Generic rules' calendar, whose day starts with the morning; a clock like `06:00` works too.)
+6. **What it does to the trip**: in **Rules → Weather**, the copy already slows `rain` (**Speed ×** `0.75`), `storm` and `snow` (`0.5`): set `storm` to `0`, a day without travel. In **Rules → Values of the day**, add `deep-snow`, named _Deep snow_, with **Blocks** `modes.horse`.
 7. **Try it**: in **Try it**, make a long way, start a trip in summer and march day after day; then start one in winter.
 
 **What you'll see.** Each morning the journal says _Weather: Clear skies_ (or _Rain_, _Snow_…), with what it sets for the day, and the trip panel shows today's weather. In summer most days are clear and a rainy spell lasts a few days; on rain the party covers three quarters of a clear day's distance. A storm day the march can't start (_The weather prevents travel_) and the next day is clear or rain, never another storm. In winter the weather moves a cell a day: snow lasts, clears little by little, and a storm comes now and then. On a snowy day the party travels at half speed, and **On horseback** can't be chosen (it says _Deep snow_ is why); on foot the trip goes on.
@@ -119,15 +119,15 @@ And what steps 5 and 6 add to the travel rules and the bindings (an excerpt: the
 
 ```yaml
 # travel rules
-weather: { rain: { speed: 0.75 }, snow: { speed: 0.5 }, storm: { speed: 0 } }
+weather: { rain: { speed: 0.75 }, storm: { speed: 0 }, snow: { speed: 0.5 } } # step 6: storm
 values:
   deep-snow: { name: Deep snow, blocks: [modes.horse] }
 checks:
-  - { event: WEATHER, name: Weather, at: time.part.morning }
+  - { event: WEATHER_CHECK_REQUIRED, name: Weather, at: time.part.morning } # as copied
   # … the other checks
 # bindings
 on:
-  WEATHER: { weather: weather.weather }
+  WEATHER_CHECK_REQUIRED: { weather: weather.weather } # step 5: was core/weather.default
 ```
 
 The Grey Marches use a model like this one with more weather (grey skies, fog), chance tables for three seasons and a hex flower for winter: their [page](../packs/02-grey-marches.md) says where.
@@ -135,6 +135,7 @@ The Grey Marches use a model like this one with more weather (grey skies, fog), 
 ## Common mistakes
 
 - **The trip has no weather.** No check rolls the model: a model only plays when a check's **Rolled on** names it (step 5). The Weather tab alone rolls nothing.
+- **The weather of the Generic rules instead of yours.** The copied **Weather** check still rolls Core's _The plain sky_ (clear, cloudy, rain, storm, snow): choose your model in its **Rolled on** (step 5).
 - **Weather that doesn't slow anyone.** A kind of weather the **Rules → Weather** list doesn't name keeps the usual speed; and a value it sets does nothing until something reads it (a value of the day that **Blocks**, a condition, a table).
 - **A condition that never matches.** Conditions read the weather's **id**, not its name: `trip.weather: storm`, not `trip.weather: Storm`.
 - **A check that sees yesterday's weather.** The checks of one moment come one by one, in the list's order, each seeing what the ones before it set: a check whose **Only if** / **Skip if** reads the weather (`trip.weather: rain`) sees today's only if it comes after the weather's in the list (or at a later moment). Before it, it still sees yesterday's.

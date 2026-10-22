@@ -39,6 +39,36 @@ function coreRules(): Record<string, unknown> {
   return rest
 }
 
+/** A reference written in Core, as another pack names it (`weather.default` → `core/weather.default`). */
+const fromCore = (ref: unknown): string | undefined =>
+  typeof ref === 'string' ? (ref.includes('/') ? ref : `${DEFAULT_SYSTEM}/${ref}`) : undefined
+
+/**
+ * What resolves the Generic rules' checks (Core's bindings, `on`), named from another
+ * pack, and the weather models they roll (Core's system's `weather`): a copy of the rules
+ * keeps its checks bound to Core's tables and weather.
+ */
+function coreChecks(): { on: Record<string, unknown>; weather: string[] } {
+  const root = library.rootOf(DEFAULT_SYSTEM)
+  const read = (file: string, at: string) => {
+    const text = root ? library.readFile(root, file) : undefined
+    return (text && readDefinition(text, at)) || {}
+  }
+  const on: Record<string, unknown> = {}
+  const bound = read('travel.yaml', '@bindings/default').on
+  for (const [event, value] of Object.entries((bound ?? {}) as Record<string, object>)) {
+    const v = value as { resolve?: unknown; weather?: unknown }
+    on[event] = {
+      ...value,
+      ...(v.resolve !== undefined && { resolve: fromCore(v.resolve) }),
+      ...(v.weather !== undefined && { weather: fromCore(v.weather) }),
+    }
+  }
+  const listed = read('system.yaml', '@system/default').weather
+  const weather = (Array.isArray(listed) ? listed : [listed]).flatMap((r) => fromCore(r) ?? [])
+  return { on, weather }
+}
+
 /** Core as a dependency (`core: '>=<its version>'`), for a pack that takes its calendar. */
 function coreDependency(): Record<string, string> {
   const version = library.registry.packs.get(DEFAULT_SYSTEM)?.manifest.version
@@ -47,8 +77,9 @@ function coreDependency(): Record<string, string> {
 
 /**
  * A new pack of the user's that is a travel system: a `kind: system` naming a copy of the
- * Generic rules to start from, Core's calendar (their day is named by its parts) and empty
- * bindings. Returns its id (also its folder), or null if that id is taken.
+ * Generic rules to start from, Core's calendar (their day is named by its parts), and
+ * bindings that roll their checks as Core does (its weather model). Returns its id (also
+ * its folder), or null if that id is taken.
  */
 export function createSystem(name: string): string | null {
   const id = slugify(name)
@@ -62,15 +93,18 @@ export function createSystem(name: string): string | null {
     license: 'CC-BY-4.0',
     ...(Object.keys(coreDependency()).length && { dependencies: coreDependency() }),
   })
+  const withCore = Object.keys(coreDependency()).length > 0
+  const checks = withCore ? coreChecks() : { on: {}, weather: [] }
   const system = stringify({
     kind: 'system',
     id: 'default',
     travel: 'travel-rules.default',
     bindings: 'bindings.default',
-    ...(Object.keys(coreDependency()).length && { calendar: CORE_CALENDAR }),
+    ...(withCore && { calendar: CORE_CALENDAR }),
+    ...(checks.weather.length && { weather: checks.weather }),
   })
   const rules = stringify({ kind: 'travel-rules', id: 'default', ...coreRules() })
-  const bindings = stringify({ kind: 'bindings', id: 'default', on: {}, stats: {} })
+  const bindings = stringify({ kind: 'bindings', id: 'default', on: checks.on, stats: {} })
   library.addPack({
     root: id,
     origin: 'user',

@@ -7,6 +7,10 @@ travel-rules/default:
   resources:
     food:
       name: Comida
+  checks:
+    WEATHER_CHECK_REQUIRED:
+      name: Clima
+      description: Se tira cada mañana, según la estación; el de hoy sigue al de ayer.
   actions:
     march:
       name: Marchar

@@ -1,5 +1,7 @@
 import { type TravelSystem } from '@open-tabletop/session'
-import { coreSystem } from '../../session/src/core.testing'
+import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
+import { seeded } from '@open-tabletop/random'
+import { corePack, coreSystem } from '../../session/src/core.testing'
 import { describe, expect, it, vi } from 'vitest'
 import { readTrips, TripStore } from './trips.svelte'
 
@@ -68,10 +70,15 @@ describe('a trip store', () => {
 
   it('plays the rules as they are at every step, and keeps its trips under its own key', () => {
     let system: TravelSystem = coreSystem()
+    // The Generic rules roll the weather each morning: the Oracle rolls it.
+    const oracle = createOracleEngine({
+      registry: loadPacks(corePack()).registry,
+      random: seeded(1),
+    })
     const store = new TripStore({
       key: 'opentabletop.test.trips',
       systems: () => [system],
-      oracle: () => undefined,
+      oracle: () => oracle,
       locale: () => 'en',
     })
     for (let i = 0; i < 7; i++) store.addHex()

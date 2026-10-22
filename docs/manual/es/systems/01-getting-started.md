@@ -14,7 +14,7 @@ La aplicación Systems es donde se crean y editan los sistemas de juego. Un **si
 
 ## Los sistemas que tienes
 
-- **Reglas genéricas**: el sistema de Core, el que juega un mapa que no elige ninguno: viaje sencillo sin comprobaciones; el grupo come 1 de comida al acabar cada día. Aquí son de solo lectura, porque cualquier sistema puede traer Core (sus pestañas y su **YAML** enseñan lo que son); un sistema nuevo empieza con una copia de sus reglas. Qué hace cada parte: [Core](../packs/01-core.md#las-reglas-genericas).
+- **Reglas genéricas**: el sistema de Core, el que juega un mapa que no elige ninguno: viaje sencillo cuya única comprobación tira el clima cada mañana (la lluvia, una tormenta o la nieve frenan la marcha); el grupo come 1 de comida al acabar cada día. Aquí son de solo lectura, porque cualquier sistema puede traer Core (sus pestañas y su **YAML** enseñan lo que son); un sistema nuevo empieza con una copia de sus reglas. Qué hace cada parte: [Core](../packs/01-core.md#las-reglas-genericas).
 - **Las Marcas Grises**: el ejemplo incluido, una pequeña frontera con reglas propias que usa todas las funciones. Mira [Las Marcas Grises](../packs/02-grey-marches.md).
 - Los sistemas de tus packs, incluidos los de uso personal (ver [Packs](../oracle/03-packs.md)).
 

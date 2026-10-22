@@ -1,0 +1,43 @@
+# The Generic rules' weather (system.yaml), rolled by their weather check every morning
+# (travel.yaml binds WEATHER_CHECK_REQUIRED to it): a few kinds of weather any setting has,
+# today's following yesterday's. Per season, each kind says how likely tomorrow is to be
+# each kind, so rain sets in for a few days and storms blow over; snow falls only in winter.
+kind: weather
+id: default
+name: The plain sky
+states:
+  clear: { name: Clear }
+  cloudy: { name: Cloudy }
+  rain: { name: Rain }
+  storm: { name: Storm }
+  snow: { name: Snow }
+seasons:
+  spring:
+    start: cloudy
+    next:
+      clear: { clear: 3, cloudy: 2, rain: 1 }
+      cloudy: { cloudy: 2, clear: 2, rain: 2 }
+      rain: { rain: 2, cloudy: 2, storm: 1 }
+      storm: { rain: 2, cloudy: 1 }
+  summer:
+    start: clear
+    next:
+      clear: { clear: 4, cloudy: 1, storm: 1 }
+      cloudy: { clear: 2, cloudy: 1, rain: 1 }
+      rain: { clear: 2, cloudy: 1 }
+      storm: { clear: 2, cloudy: 1 }
+  autumn:
+    start: cloudy
+    next:
+      clear: { clear: 2, cloudy: 2, rain: 1 }
+      cloudy: { cloudy: 2, rain: 2, clear: 1 }
+      rain: { rain: 2, cloudy: 2, storm: 1 }
+      storm: { rain: 2, cloudy: 1 }
+  # A kind a season leaves out (snow in spring) starts over from its `start`.
+  winter:
+    start: cloudy
+    next:
+      clear: { clear: 2, cloudy: 2, snow: 1 }
+      cloudy: { cloudy: 2, snow: 2, clear: 1 }
+      snow: { snow: 2, cloudy: 2, storm: 1 }
+      storm: { snow: 2, cloudy: 1 }

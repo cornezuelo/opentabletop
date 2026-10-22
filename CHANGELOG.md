@@ -16,6 +16,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Systems: **an action read as a whole**: an unfolded action's card starts with the whole action in words, who takes it, when it can be taken and each step with its condition (_With its button, only when time.tags is not dark, once a day: pass 3 h; then speed ×0.5 the rest of the day._).
 - Systems: **fields that go together share a line** in the folded cards: a terrain's **Open when** and **Closed when** side by side with **Passable** after them; a way of travelling's **Only when** and **Not when**; a sheet value's and a kind of relation's **Min** and **Max**; a clock's segments and filled first; a faction's **Map** and **Hexes**.
 
+### Packs
+
+- Core: **weather for the Generic rules**: _The plain sky_, a weather model for any setting (clear, cloudy, rain, storm, and snow in winter, today's following yesterday's), rolled by a **Weather** check each morning; rain slows the march to ×0.75, a storm or snow to ×0.5. Campaigns with the Generic rules roll it day by day on their world clock, and a new system in Systems starts with the check bound to it.
+
 ### Fixes
 
 - Travel, Hexmapper: a check waiting for you that came up on an earlier day (a night encounter as the camp began, the camp gone on till dawn) didn't say so, and its line wasn't in the day the trip was on; the box now says the day and time it came up.

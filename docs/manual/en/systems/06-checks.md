@@ -58,7 +58,7 @@ With a sheet, names a supply of the rules and the value of the sheet each charac
 
 ## Step by step: wolf country
 
-A system where the forests and hills belong to wolves: entering them by day the party may find their tracks and hurry on, tiring; camping there at night the pack may circle the fire; old standing stones on the way are worth stopping to describe; and a night without food tires the party too. Start from a new system: it begins as a copy of the Generic rules, which roll no checks at all (their day, the march and the food eaten each night: see [Rules](05-rules.md)).
+A system where the forests and hills belong to wolves: entering them by day the party may find their tracks and hurry on, tiring; camping there at night the pack may circle the fire; old standing stones on the way are worth stopping to describe; and a night without food tires the party too. Start from a new system: it begins as a copy of the Generic rules, whose one check rolls the weather each morning (their day, the march and the food eaten each night: see [Rules](05-rules.md)).
 
 1. **Create it**: type _Wolf Country_ under the system list and press **+**.
 2. **Fatigue**: under **Party stats**, **Add a stat** and name it _Fatigue_ (its id becomes `fatigue`), **Starts at** `0`.
@@ -69,7 +69,7 @@ A system where the forests and hills belong to wolves: entering them by day the 
 7. **Old stones**: **Add a check**, with **Check** `OLD_STONES`, named _Old stones_. **When** `trip.hex-enter`; **Only if** `hex.tags` · **is** · `landmark`; no table; tick **Pause after it**.
 8. **Try it**: in **Try it**, make a way of six hexes: `plains`, `forest`, `forest`, `hills`, `plains` tagged `landmark`, `plains`, with a `road` from hex 3 to hex 4. Start a trip in summer, set **Food** to `1` in the trip panel, and march day after day, waiting for the next morning each time the march stops.
 
-**What you'll see.** The first day the party enters the forest (hex 2) at 11:20: the journal says _Wolves: Only the wind in the trees_ or _Wolves: Fresh tracks; you hurry on (Fatigue +1)_. The march stops at 14:00 in the middle of the forest, and as the night comes the party camps there: _Wolves at night_ is rolled with `+2` (**Everything** shows the dice: `1d6 + 2`), and when the pack comes the trip stops (_Wolves at night at Hex 2 (Forest): paused, go on when you are ready_): **Continue**, and the night goes on. At midnight the party eats its last food. The second day: the next forest hex at 08:40, wolves again; the hills by the road, and no wolves (**Everything**: _Wolves doesn't come up: the way taken is road_); the old stones a little after 13:00: _Old stones at Hex 5 (Plains): waiting for you_. Press **Continue**, then **Go on**: the march goes on, and stops at 14:00. That night there's nothing to eat: _Food can't go lower than 0_, _There is nothing left to eat._ and _Hunger: Fatigue +1_. On the plains no wolves are rolled, by day or by night.
+**What you'll see.** The first day the party enters the forest (hex 2) at 11:20: the journal says _Wolves: Only the wind in the trees_ or _Wolves: Fresh tracks; you hurry on (Fatigue +1)_. The march stops at 14:00 in the middle of the forest, and as the night comes the party camps there: _Wolves at night_ is rolled with `+2` (**Everything** shows the dice: `1d6 + 2`), and when the pack comes the trip stops (_Wolves at night at Hex 2 (Forest): paused, go on when you are ready_): **Continue**, and the night goes on. At midnight the party eats its last food. The second day: the next forest hex at 08:40, wolves again; the hills by the road, and no wolves (**Everything**: _Wolves doesn't come up: the way taken is road_); the old stones a little after 13:00: _Old stones at Hex 5 (Plains): waiting for you_. Press **Continue**, then **Go on**: the march goes on, and stops at 14:00. That night there's nothing to eat: _Food can't go lower than 0_, _There is nothing left to eat._ and _Hunger: Fatigue +1_. On the plains no wolves are rolled, by day or by night. (The times are a fair day's: the weather check the copy keeps rolls each morning, and rain, a storm or snow slow the march.)
 
 ## The same in YAML
 
@@ -78,6 +78,7 @@ What the steps add to the Generic rules and their bindings, as the **YAML** tab 
 ```yaml
 # travel.yaml: the rules (kind: travel-rules)
 checks:
+  # … the Generic rules' weather check, first, as it came
   - event: HUNGER # step 3
     name: Hunger
     at: time.day-end

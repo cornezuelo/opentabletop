@@ -1,6 +1,6 @@
 # The Generic rules: Core's system, the one a map plays when it chooses none. The smallest
-# system that works, for any game: its travel rules (travel.yaml), its calendar
-# (calendar.yaml) and the sheets of its characters and its party (sheet.yaml). Systems
+# system that works, for any game: its travel rules and bindings (travel.yaml), its
+# weather (weather.yaml), its calendar (calendar.yaml) and the sheets of its characters and its party (sheet.yaml). Systems
 # shows it read-only; New system starts from a copy of its rules.
 kind: system
 id: default
@@ -8,13 +8,18 @@ name: Generic rules
 description: |-
   The rules a map plays when it chooses no system: marching by day on foot or on horseback
   across the terrains of the Hexmapper's palettes, roads and trails that speed it up,
-  camping at night, a day of food eaten each day, characters with health and a wound, and
-  the party's morale.
+  camping at night, a day of food eaten each day, weather that follows yesterday's and
+  slows the march, characters with health and a wound, and the party's morale.
 
   **Shows:** the smallest system: travel rules with a march, a camp, a rest and eating;
+  a weather check bound to a weather model by season (today's follows yesterday's);
   a calendar whose day is named by parts (the night tagged `dark`); a character sheet and
   a party sheet.
 travel: travel-rules.default
+# What resolves its checks (travel.yaml): the weather check rolls the plain sky.
+bindings: bindings.default
 calendar: calendar.default
 sheet: sheet.character
 partySheet: sheet.party
+# The weather models its bindings name (weather.yaml).
+weather: [weather.default]

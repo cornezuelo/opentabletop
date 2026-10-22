@@ -1,5 +1,5 @@
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
-import { sequence } from '@open-tabletop/random'
+import { seeded, sequence } from '@open-tabletop/random'
 import { defaultCalendar } from '@open-tabletop/time'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import type { CharacterState } from '@open-tabletop/character-engine'
@@ -668,13 +668,17 @@ describe("Core's system: the Generic rules as data", () => {
     expect(system.calendar!.describe(session.travel.time)).toMatchObject({ hour: 6 })
     expect(session.travel.resources.food).toBe(6)
     expect(session.party?.values.morale).toBe(3)
-    const options = { system, world: road }
+    // The weather check rolls the plain sky each morning (a spring day starts cloudy).
+    const { registry } = loadPacks(corePack())
+    const oracle = createOracleEngine({ registry, random: seeded(1) })
+    const options = { system, world: road, oracle }
     const planned = stepTrip(options, session, { type: 'setDestination', hex: '9' }).state
     const day = stepTrip(options, planned, {
       type: 'action',
       id: 'march',
       with: { until: 'destination' },
     })
+    expect(day.state.travel.weather).toBe('cloudy')
     // 30 km in 8 hours on foot: three hexes of 10 km, then the march stops for the day.
     expect(day.state.travel.location).toBe('3')
     expect(tripAvailability(options, day.state).march).toBeDefined()

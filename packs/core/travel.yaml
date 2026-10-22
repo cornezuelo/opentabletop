@@ -67,7 +67,17 @@ modes:
 # Food never goes below 0: when there's none left, eating hits that minimum.
 resources:
   food: { name: Food, min: 0 }
-checks: []
+# How the weather slows the march (weather.yaml): a kind it doesn't list doesn't.
+weather:
+  rain: { speed: 0.75 }
+  storm: { speed: 0.5 }
+  snow: { speed: 0.5 }
+# Every morning the weather check rolls today's weather (bound to the plain sky below).
+checks:
+  - event: WEATHER_CHECK_REQUIRED
+    name: Weather
+    description: Rolled every morning, by season; today's follows yesterday's.
+    at: time.part.morning
 # No values of the day: nothing here blocks travel.
 values: {}
 # Marching while it isn't dark for the day's 8 hours, to the destination or one hex at a
@@ -117,3 +127,10 @@ actions:
     do:
       - { time: 60 }
       - { roll: generator.prompt }
+---
+# The Generic rules' bindings (system.yaml): what resolves each check of their travel rules.
+kind: bindings
+id: default
+on:
+  # Weather with inertia: a weather model (weather.yaml) instead of a table.
+  WEATHER_CHECK_REQUIRED: { weather: weather.default }

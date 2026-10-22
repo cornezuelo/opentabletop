@@ -154,6 +154,9 @@ describe('systems in the Systems app', () => {
     expect(library.readFile(id, 'system.yaml')).toContain('calendar: core/calendar.default')
     expect(library.readFile(id, 'pack.yaml')).toMatch(/dependencies:\n {2}core: ["']>=/)
     expect(mine.calendar?.divisions?.map((d) => d.id)).toEqual(['part', 'watch'])
+    // Its weather check still rolls Core's weather model.
+    expect(mine.bindings?.on.WEATHER_CHECK_REQUIRED).toEqual({ weather: 'core/default' })
+    expect(Object.keys(mine.weather ?? {})).toEqual(['core/default'])
   })
 
   it('a copy of a pack a system uses, older than the bundled one, is named on the system', () => {
@@ -285,7 +288,12 @@ describe('systems in the Systems app', () => {
     expect(createSystemPart(system(), 'weather')).toBe('weather-2')
     expect(createSystemPart(system(), 'roll-modes')).toBe('default')
     expect(system().calendar).toBeDefined()
-    expect(Object.keys(system().weather ?? {})).toEqual([`${id}/weather`, `${id}/weather-2`])
+    // Core's weather model (the Generic rules' check rolls it) and the two new ones.
+    expect(Object.keys(system().weather ?? {})).toEqual([
+      'core/default',
+      `${id}/weather`,
+      `${id}/weather-2`,
+    ])
     expect(systemParts(system(), 'roll-modes').map((p) => p.root)).toEqual([id])
     expect(library.readFile(id, 'system.yaml')).toMatch(/calendar: calendar[\s\S]*weather:/)
     // The system uses the new calendar's seasons.
