@@ -132,6 +132,7 @@
           label: t('factionsForm.hexes'),
           help: t('factionsForm.hexesHelp'),
           type: 'list',
+          separator: 'space',
           placeholder: '15,9',
         },
         {

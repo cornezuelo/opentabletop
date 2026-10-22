@@ -5,7 +5,7 @@
     label: string
     help?: string
     /**
-     * number: a number box (empty = not set); check: a checkbox; list: comma-separated;
+     * number: a number box (empty = not set); check: a checkbox; list: words as pills;
      * flow: `key: value` pairs; text: what players read, in the UI's language (written to
      * the translation file when it isn't the pack's); select: one of `choices` (or none);
      * value: a number, or a word or a variable (`'{{self.values.maxHealth}}'`) as it's written;
@@ -13,6 +13,8 @@
      * `key · value` (`hints`: the keys, each with its values).
      */
     type: 'number' | 'check' | 'list' | 'flow' | 'text' | 'select' | 'value' | 'condition' | 'pairs'
+    /** A list's separator as it's typed: commas, or spaces for words with commas (`15,9`). */
+    separator?: 'comma' | 'space'
     placeholder?: string
     /** For checks, the value meant when the field is missing. */
     default?: boolean
@@ -47,7 +49,14 @@
 
 <script lang="ts">
   import { SvelteSet } from 'svelte/reactivity'
-  import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    confirmAction,
+    InfoTip,
+    showToast,
+    SuggestInput,
+    TagInput,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { ConditionEditor, conditionWords, PairEditor } from '@open-tabletop/pack-ui'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
@@ -192,20 +201,24 @@
         column.field,
         text === '' ? undefined : /^[+-]?\d+(\.\d+)?$/.test(text) ? Number(text) : text,
       )
-    if (column.type === 'list') {
-      // Items written with more than their id (`{ id: hostile, name: Hostile }`) keep it.
-      const before = valueAt(record[id], column.field)
-      const kept = Array.isArray(before) ? before : []
-      const items = text
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .map((item) => kept.find((k) => itemId(k) === item) ?? item)
-      return write(id, column.field, items.length ? items : undefined)
-    }
     const value = parseFlow(text)
     if (value === null) return showToast(t('forms.badFlow'), 'error')
     write(id, column.field, value)
+  }
+
+  function setList(id: string, column: Column, ids: string[]) {
+    // Items written with more than their id (`{ id: hostile, name: Hostile }`) keep it.
+    const before = valueAt(record[id], column.field)
+    const kept = Array.isArray(before) ? before : []
+    const items = ids.map((item) => kept.find((k) => itemId(k) === item) ?? item)
+    write(id, column.field, items.length ? items : undefined)
+  }
+
+  /** A list column's items by id (one written alone is a list of one). */
+  function listOf(row: Record<string, unknown> | null, column: Column): string[] {
+    const value = valueAt(row, column.field) ?? (row && column.read?.(row))
+    if (value === undefined || value === null) return []
+    return Array.isArray(value) ? value.map(itemId) : [String(value)]
   }
 
   /** An item of a list: itself, or its id when it's written with more (`{ id: d6, name: … }`). */
@@ -289,12 +302,22 @@
       <option value="">{c.placeholder ?? ''}</option>
       {#each c.choices ?? [] as choice (choice)}<option value={choice}>{choice}</option>{/each}
     </select>
-  {:else if (c.type === 'list' && c.choices) || (c.type === 'flow' && c.hints)}
+  {:else if c.type === 'list'}
+    <TagInput
+      label={c.label}
+      placeholder={c.placeholder}
+      value={listOf(row, c)}
+      choices={c.choices}
+      removeLabel={t('forms.removeItem')}
+      separator={c.separator}
+      disabled={disabled || (!!row && !!c.off?.(row))}
+      onchange={(items) => setList(id, c, items)}
+    />
+  {:else if c.type === 'flow' && c.hints}
     <SuggestInput
       label={c.label}
       placeholder={c.placeholder}
       value={shown(row, c)}
-      list={c.type === 'list' ? c.choices : undefined}
       suggestions={c.hints}
       disabled={disabled || (!!row && !!c.off?.(row))}
       onchange={(text) => setText(id, c, text)}

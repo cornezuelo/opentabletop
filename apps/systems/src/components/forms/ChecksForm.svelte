@@ -1,7 +1,14 @@
 <script lang="ts">
   import { parseRef } from '@open-tabletop/oracle-engine'
   import { idText, translator } from '@open-tabletop/travel-ui'
-  import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    confirmAction,
+    InfoTip,
+    showToast,
+    SuggestInput,
+    TagInput,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { SvelteSet } from 'svelte/reactivity'
   import RecordRows from './RecordRows.svelte'
@@ -19,8 +26,9 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import {
     actionIds,
+    momentsList,
     momentsText,
-    parseMoments,
+    writeMoments,
     ROLLABLE,
     type SystemDoc,
   } from '../../lib/systemDoc.svelte'
@@ -291,19 +299,20 @@
                 </label>
                 <label>
                   <span>{t('checks.at')}<InfoTip text={t('checks.atHelp')} /></span>
-                  <SuggestInput
+                  <TagInput
                     label={t('checks.at')}
                     placeholder={t('checks.atNone')}
-                    value={momentsText(check.at)}
-                    list={[
+                    value={momentsList(check.at)}
+                    choices={[
                       ...AT,
                       '06:00',
                       ...dayPartRefs(system),
                       ...ownActions.map((a) => ref('actions', a)),
                       ...clockMoments(system),
                     ]}
+                    removeLabel={t('forms.removeItem')}
                     {disabled}
-                    onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
+                    onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], writeMoments(v))}
                   />
                   {#if check.at}<small class="said">{saidMoments(check.at)}</small>{/if}
                 </label>

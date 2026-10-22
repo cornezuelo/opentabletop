@@ -148,13 +148,13 @@ export const en = {
       "Starting values of its sheet, one row each (value · what it starts at); the rest are the sheet's defaults.\n• `strength` · `4`\n• `reputation` · `-1`",
     regions: 'Regions',
     regionsHelp:
-      "It starts holding every hex of these regions of the map (by name), comma-separated: the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
+      "It starts holding every hex of these regions of the map (by name), each one a pill (Enter or a comma adds it): the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
     map: 'On the map',
     mapHelp:
       "The example map of this pack (`maps:` in its system) its **Hexes** are on: they're given only there, since the same coordinates are somewhere else on another map. Its regions are given on any map that has them.\n• `maps/frontier.otd.json`",
     hexes: 'Hexes',
     hexesHelp:
-      'And these hexes (column,row) of the map chosen in **On the map**, comma-separated; they need it.\n• `15,9`',
+      'And these hexes (column,row) of the map chosen in **On the map**, each one a pill (Enter or a space adds it); they need it.\n• `15,9`',
     ownTurn: 'Own turn',
     ownTurnHelp: "A turn table of its own, instead of the factions' one.\n• `clan-turn`",
   },
@@ -178,7 +178,7 @@ export const en = {
       'How the value is drawn wherever a character is shown (empty: a number box). All but **number** and **levels** need a max:\n• `number` — a number box\n• `of` — the number and its max: **3 / 5**\n• `bar` — a bar filled up to its max\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…',
     levels: 'Levels',
     levelsHelp:
-      'With **Shown as** `levels`, the names the value picks, comma-separated, from its min (or 0) up; beyond them the number is shown. Translate their names in the translation file, by id:\n• `unhurt, bruised, wounded, dying` — 0 is **unhurt**, 3 is **dying**\n• `d4, d6, d8, d10, d12` — a die size that grows with the value\n• with min `-3`: `hated, wary, neutral, …` — −3 is **hated**',
+      'With **Shown as** `levels`, the names the value picks, each one a pill (Enter or a comma adds it), from its min (or 0) up; beyond them the number is shown. Translate their names in the translation file, by id:\n• `unhurt, bruised, wounded, dying` — 0 is **unhurt**, 3 is **dying**\n• `d4, d6, d8, d10, d12` — a die size that grows with the value\n• with min `-3`: `hated, wary, neutral, …` — −3 is **hated**',
     tones: 'Tones',
     tonesHelp:
       "The colour it takes from a value up, `value: tone`, among the theme's `good`, `warning`, `danger` and `accent`:\n• `0: danger, 2: warning, 4: good` — red at 0 and 1, amber at 2 and 3, green from 4\n• `5: danger` — red only from 5 up\n• `0: danger, 50%: warning, 75%: good` — shares of its max, following it when it changes: with max 3, red at 0 and 1, amber at 2, green at 3\nEmpty: the theme's accent.",
@@ -200,7 +200,7 @@ export const en = {
     conditionName: 'Name',
     blocks: 'Blocks',
     blocksHelp:
-      "What the party can't do while any member has it, comma-separated:\n• `travel.move` — no moving on\n• `actions.forced-march` — an action of the system\n• `modes.horse` — a way of travelling\nThe trip says who has it.",
+      "What the party can't do while any member has it, each one a pill (Enter or a comma adds it):\n• `travel.move` — no moving on\n• `actions.forced-march` — an action of the system\n• `modes.horse` — a way of travelling\nThe trip says who has it.",
     relations: 'Kinds of relation',
     relationsHelp:
       "Relations a character may hold to anything with a reference (another character, a place, a faction, a note), like Ironsworn's bonds. A kind with bounds carries a number:\n• `bond` — min `0`, max `10`\n• `home` — no number",
@@ -246,7 +246,7 @@ export const en = {
       'When it ends, if before the next part starts: until then, none of this division’s parts.\n• watches only at night: the last one **Until** `06:00`\nEmpty: until the next part.',
     partTags: 'Tags',
     partTagsHelp:
-      'Words a system may read while it lasts (`time.tags`), with commas; they mean only what your rules make of them.\n• `dark` — `when: { time.tags: dark }`\n• `meal, rest`',
+      'Words a system may read while it lasts (`time.tags`), each one a pill (Enter or a comma adds it); they mean only what your rules make of them.\n• `dark` — `when: { time.tags: dark }`\n• `meal, rest`',
     addDivision: 'Add a division',
     months: 'Months',
     monthsHelp:
@@ -412,6 +412,7 @@ export const en = {
     id: 'Id',
     add: 'Add',
     remove: 'Remove',
+    removeItem: 'Remove {name}',
     moveUp: 'Move up',
     moveDown: 'Move down',
     idExists: 'There is already one called "{id}".',
@@ -534,7 +535,7 @@ export const en = {
       "What the action does, **one step per card, in order**: choose what each one does in its first box, then fill in its fields (each explains itself). Click a card's title to fold or open it; folded, it reads in words (_Pass 3 h_, _Take March (until: hex)_). ↑ and ↓ reorder them.\n**Only when** / **Not when** on a step: it only happens when they hold, built as rows (what it reads · comparison · value). Besides what the action's own conditions see, they see:\n• `params.how` — the action's parameters\n• `trip.below` is `food` — food hit its minimum during the action (`trip.above`: a maximum)\n• `trip.moment` is `trip.hex-enter` — when the system took it\n• `trip.doing` — the action under way\n**Edit as YAML** on a card shows the step as the pack writes it (`time: 180`, `do: actions.march, with: { until: hex }`), for what the form doesn't cover; nothing written there is lost by the form. A step may have an `id` there (`id: song`), which its translations name.\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
     on: 'By itself at',
     onHelp:
-      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• a clock, e.g. `06:00` — as it strikes\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends, camping or not\n• an action, e.g. `actions.camp` — right after that action starts\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — once the step that filled it is done, or at once when it fills by hand or in another app (on the trip's next step there); one made by hand is named by its name in lowercase with dashes\nSeveral, separated by commas: `06:00, trip.hex-enter`. Its conditions see which one it is as `moment` (`when: { trip.moment: trip.hex-enter }`).\nExamples:\n• eating as each day ends: `time.day-end`\n• porters grumbling in the morning after a hungry day: `time.part.morning` (or `06:00`) with **Only when** `yesterday.hungry: true`",
+      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• a clock, e.g. `06:00` — as it strikes\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends, camping or not\n• an action, e.g. `actions.camp` — right after that action starts\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — once the step that filled it is done, or at once when it fills by hand or in another app (on the trip's next step there); one made by hand is named by its name in lowercase with dashes\nSeveral, each one a pill (Enter or a comma adds it): `06:00` and `trip.hex-enter`. Its conditions see which one it is as `moment` (`when: { trip.moment: trip.hex-enter }`).\nExamples:\n• eating as each day ends: `time.day-end`\n• porters grumbling in the morning after a hungry day: `time.part.morning` (or `06:00`) with **Only when** `yesterday.hungry: true`",
     onButton: 'nothing: a button for the player',
     onAfter: 'After: {action}',
     step: 'Step',
@@ -666,7 +667,7 @@ export const en = {
     atClock: 'At {clock}',
     atFull: 'When {clock} fills',
     atHelp:
-      "When it is rolled:\n• a clock, e.g. `06:00` — as it strikes, marching, waiting or asleep\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends (after the system's day-end actions)\n• an action, e.g. `actions.camp` or `actions.forage` — when the party takes it\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — whatever fills it: the trip, a faction's turn, or a hand on the World panel; one made by hand is named by its name in lowercase with dashes\nSeveral, separated by commas: `trip.hex-enter, actions.rest`. Its conditions and its table see which one it is as `moment` (`when: { trip.moment: actions.rest }`).\nEmpty: only when an action's step rolls it (`roll: checks.<its event>`).",
+      "When it is rolled:\n• a clock, e.g. `06:00` — as it strikes, marching, waiting or asleep\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends (after the system's day-end actions)\n• an action, e.g. `actions.camp` or `actions.forage` — when the party takes it\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — whatever fills it: the trip, a faction's turn, or a hand on the World panel; one made by hand is named by its name in lowercase with dashes\nSeveral, each one a pill (Enter or a comma adds it): `trip.hex-enter` and `actions.rest`. Its conditions and its table see which one it is as `moment` (`when: { trip.moment: actions.rest }`).\nEmpty: only when an action's step rolls it (`roll: checks.<its event>`).",
     atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',

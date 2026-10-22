@@ -21,13 +21,22 @@ export type Kind = 'travel-rules' | 'bindings' | 'system'
 export const momentsText = (value: unknown): string =>
   Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
 
+/** A check's `at:` or an action's `on:` as a list (one moment alone is a list of one). */
+export const momentsList = (value: unknown): string[] =>
+  Array.isArray(value) ? value.map(String) : typeof value === 'string' && value ? [value] : []
+
+/** What a list of moments writes: nothing, one moment, or a list of them. */
+export const writeMoments = (list: readonly string[]): string | string[] | undefined =>
+  list.length === 0 ? undefined : list.length === 1 ? list[0] : [...list]
+
 /** What a box of moments writes: nothing, one moment, or a list of them. */
 export function parseMoments(text: string): string | string[] | undefined {
-  const list = text
-    .split(',')
-    .map((m) => m.trim())
-    .filter((m, i, all) => m && all.indexOf(m) === i)
-  return list.length === 0 ? undefined : list.length === 1 ? list[0] : list
+  return writeMoments(
+    text
+      .split(',')
+      .map((m) => m.trim())
+      .filter((m, i, all) => m && all.indexOf(m) === i),
+  )
 }
 
 /** The ids of a system's actions, from its raw rules: the ones it declares. */

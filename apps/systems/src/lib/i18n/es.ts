@@ -151,13 +151,13 @@ export const es: Messages<typeof en> = {
       'Valores iniciales de su hoja, una fila cada uno (valor · con cuánto empieza); el resto, los de por defecto de la hoja.\n• `strength` · `4`\n• `reputation` · `-1`',
     regions: 'Regiones',
     regionsHelp:
-      'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), separadas por comas: la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
+      'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), cada una una pastilla (Intro o una coma la añade): la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
     map: 'En el mapa',
     mapHelp:
       'El mapa de ejemplo de este pack (`maps:` en su sistema) en el que están sus **Hexes**: solo se dan ahí, porque las mismas coordenadas son otro sitio en otro mapa. Sus regiones se dan en cualquier mapa que las tenga.\n• `maps/frontier.otd.json`',
     hexes: 'Hexes',
     hexesHelp:
-      'Y estos hexes (columna,fila) del mapa elegido en **En el mapa**, separados por comas; lo necesitan.\n• `15,9`',
+      'Y estos hexes (columna,fila) del mapa elegido en **En el mapa**, cada uno una pastilla (Intro o un espacio lo añade); lo necesitan.\n• `15,9`',
     ownTurn: 'Turno propio',
     ownTurnHelp: 'Una tabla de turno propia, en vez de la de las facciones.\n• `clan-turn`',
   },
@@ -181,7 +181,7 @@ export const es: Messages<typeof en> = {
       'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number** y **levels** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo: **3 / 5**\n• `bar` — una barra llena hasta su máximo\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…',
     levels: 'Niveles',
     levelsHelp:
-      'Con **Se muestra como** `levels`, los nombres que elige el valor, separados por comas, desde su mínimo (o 0) hacia arriba; más allá se muestra el número. Sus nombres se traducen en el archivo de traducción, por id:\n• `unhurt, bruised, wounded, dying` — 0 es **unhurt**, 3 es **dying**\n• `d4, d6, d8, d10, d12` — un tamaño de dado que crece con el valor\n• con mín. `-3`: `hated, wary, neutral, …` — −3 es **hated**',
+      'Con **Se muestra como** `levels`, los nombres que elige el valor, cada uno una pastilla (Intro o una coma lo añade), desde su mínimo (o 0) hacia arriba; más allá se muestra el número. Sus nombres se traducen en el archivo de traducción, por id:\n• `unhurt, bruised, wounded, dying` — 0 es **unhurt**, 3 es **dying**\n• `d4, d6, d8, d10, d12` — un tamaño de dado que crece con el valor\n• con mín. `-3`: `hated, wary, neutral, …` — −3 es **hated**',
     tones: 'Tonos',
     tonesHelp:
       'El color que toma desde un valor hacia arriba, `valor: tono`, entre los del tema: `good`, `warning`, `danger` y `accent`:\n• `0: danger, 2: warning, 4: good` — rojo en 0 y 1, ámbar en 2 y 3, verde desde 4\n• `5: danger` — rojo solo desde 5\n• `0: danger, 50%: warning, 75%: good` — partes de su máximo, que lo siguen cuando cambia: con máx. 3, rojo en 0 y 1, ámbar en 2, verde en 3\nVacío: el color de acento del tema.',
@@ -204,7 +204,7 @@ export const es: Messages<typeof en> = {
     conditionName: 'Nombre',
     blocks: 'Bloquea',
     blocksHelp:
-      'Lo que el grupo no puede hacer mientras algún miembro lo tenga, separado por comas:\n• `travel.move` — no se sigue avanzando\n• `actions.forced-march` — una acción del sistema\n• `modes.horse` — una forma de viajar\nEl viaje dice quién lo tiene.',
+      'Lo que el grupo no puede hacer mientras algún miembro lo tenga, cada cosa una pastilla (Intro o una coma la añade):\n• `travel.move` — no se sigue avanzando\n• `actions.forced-march` — una acción del sistema\n• `modes.horse` — una forma de viajar\nEl viaje dice quién lo tiene.',
     relations: 'Tipos de relación',
     relationsHelp:
       'Relaciones que un personaje puede tener con cualquier cosa que tenga referencia (otro personaje, un lugar, una facción, una nota), como los vínculos de Ironsworn. Un tipo con límites lleva un número:\n• `bond` — mín. `0`, máx. `10`\n• `home` — sin número',
@@ -250,7 +250,7 @@ export const es: Messages<typeof en> = {
       'Cuándo acaba, si es antes de que empiece la siguiente parte: hasta entonces, ninguna parte de esta división.\n• guardias solo de noche: la última **Hasta** `06:00`\nVacío: hasta la siguiente parte.',
     partTags: 'Etiquetas',
     partTagsHelp:
-      'Palabras que un sistema puede leer mientras dura (`time.tags`), separadas por comas; solo significan lo que tus reglas hagan con ellas.\n• `dark` — `when: { time.tags: dark }`\n• `meal, rest`',
+      'Palabras que un sistema puede leer mientras dura (`time.tags`), cada una una pastilla (Intro o una coma la añade); solo significan lo que tus reglas hagan con ellas.\n• `dark` — `when: { time.tags: dark }`\n• `meal, rest`',
     addDivision: 'Añadir una división',
     months: 'Meses',
     monthsHelp:
@@ -415,6 +415,7 @@ export const es: Messages<typeof en> = {
     id: 'Id',
     add: 'Añadir',
     remove: 'Quitar',
+    removeItem: 'Quitar {name}',
     moveUp: 'Subir',
     moveDown: 'Bajar',
     idExists: 'Ya hay uno que se llama «{id}».',
@@ -537,7 +538,7 @@ export const es: Messages<typeof en> = {
       'Lo que hace la acción, **un paso por tarjeta, en orden**: elige qué hace cada uno en su primera caja y rellena sus campos (cada uno se explica solo). Pulsa el título de una tarjeta para plegarla o abrirla; plegada, se lee en palabras (_Pasan 3 h_, _Hacer Marchar (until: hex)_). ↑ y ↓ las reordenan.\n**Solo si** / **Salvo si** en un paso: solo ocurre cuando se cumplen, construidas en filas (qué lee · comparación · valor). Además de lo que ven las condiciones de la propia acción, ven:\n• `params.how` — los parámetros de la acción\n• `trip.below` es `food` — la comida llegó a su mínimo durante la acción (`trip.above`: a un máximo)\n• `trip.moment` es `trip.hex-enter` — cuándo la hizo el sistema\n• `trip.doing` — la acción en curso\n**Editar como YAML** en una tarjeta muestra el paso como lo escribe el pack (`time: 180`, `do: actions.march, with: { until: hex }`), para lo que el formulario no cubre; nada de lo escrito ahí se pierde por el formulario. Ahí un paso puede tener un `id` (`id: song`), que nombran sus traducciones.\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.',
     on: 'Automática en',
     onHelp:
-      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• una hora, p. ej. `06:00` — al dar esa hora\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día, se acampe o no\n• una acción, p. ej. `actions.camp` — justo al empezar esa acción\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — en cuanto acaba el paso que lo llenó, o al momento si se llena a mano o en otra aplicación (allí, en el siguiente paso del viaje); uno hecho a mano se nombra por su nombre en minúsculas con guiones\nVarios, separados por comas: `06:00, trip.hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { trip.moment: trip.hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `time.day-end`\n• los porteadores refunfuñan por la mañana tras un día de hambre: `time.part.morning` (o `06:00`) con **Solo si** `yesterday.hungry: true`',
+      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• una hora, p. ej. `06:00` — al dar esa hora\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día, se acampe o no\n• una acción, p. ej. `actions.camp` — justo al empezar esa acción\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — en cuanto acaba el paso que lo llenó, o al momento si se llena a mano o en otra aplicación (allí, en el siguiente paso del viaje); uno hecho a mano se nombra por su nombre en minúsculas con guiones\nVarios, cada uno una pastilla (Intro o una coma lo añade): `06:00` y `trip.hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { trip.moment: trip.hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `time.day-end`\n• los porteadores refunfuñan por la mañana tras un día de hambre: `time.part.morning` (o `06:00`) con **Solo si** `yesterday.hungry: true`',
     onButton: 'nada: un botón para el jugador',
     onAfter: 'Tras: {action}',
     step: 'Paso',
@@ -669,7 +670,7 @@ export const es: Messages<typeof en> = {
     atClock: 'A las {clock}',
     atFull: 'Al llenarse {clock}',
     atHelp:
-      'Cuándo se tira:\n• una hora, p. ej. `06:00` — al dar esa hora, marchando, esperando o durmiendo\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día (tras las acciones day-end del sistema)\n• una acción, p. ej. `actions.camp` o `actions.forage` — cuando el grupo la hace\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — lo llene lo que lo llene: el viaje, el turno de una facción o una mano en el panel Mundo; uno hecho a mano se nombra por su nombre en minúsculas con guiones\nVarios, separados por comas: `trip.hex-enter, actions.rest`. Sus condiciones y su tabla ven cuál es como `moment` (`when: { trip.moment: actions.rest }`).\nVacío: solo cuando la tira un paso de una acción (`roll: checks.<su evento>`).',
+      'Cuándo se tira:\n• una hora, p. ej. `06:00` — al dar esa hora, marchando, esperando o durmiendo\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día (tras las acciones day-end del sistema)\n• una acción, p. ej. `actions.camp` o `actions.forage` — cuando el grupo la hace\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — lo llene lo que lo llene: el viaje, el turno de una facción o una mano en el panel Mundo; uno hecho a mano se nombra por su nombre en minúsculas con guiones\nVarios, cada uno una pastilla (Intro o una coma lo añade): `trip.hex-enter` y `actions.rest`. Sus condiciones y su tabla ven cuál es como `moment` (`when: { trip.moment: actions.rest }`).\nVacío: solo cuando la tira un paso de una acción (`roll: checks.<su evento>`).',
     atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',

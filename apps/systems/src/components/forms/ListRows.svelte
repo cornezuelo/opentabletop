@@ -7,7 +7,7 @@
      * text: what players read, in the UI's language (written to the translation file when
      * it isn't the pack's); number: a number box; select: one of `choices` (or none);
      * suggest: free text with `choices` suggested; time: a time of day (`HH:MM`); words: a
-     * list of words written with commas (`dark, meal`).
+     * list of words as pills (`dark`, `meal`), `choices` suggested.
      */
     type: 'text' | 'number' | 'select' | 'suggest' | 'time' | 'words'
     choices?: readonly string[]
@@ -17,7 +17,14 @@
 </script>
 
 <script lang="ts">
-  import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    confirmAction,
+    InfoTip,
+    showToast,
+    SuggestInput,
+    TagInput,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { t } from '../../lib/i18n'
   import type { ListDoc } from '../../lib/partDoc.svelte'
@@ -75,13 +82,6 @@
       return doc.setText(kind, path, items[i]?.[column.field], [...at, ids[i], column.field], raw)
     if (column.type === 'number')
       return doc.edit(kind, path, text === '' ? undefined : Number(text))
-    if (column.type === 'words') {
-      const words = text
-        .split(',')
-        .map((w) => w.trim())
-        .filter(Boolean)
-      return doc.edit(kind, path, words.length ? words : undefined)
-    }
     doc.edit(kind, path, text || undefined)
   }
 
@@ -149,6 +149,19 @@
                   list={c.choices}
                   {disabled}
                   onchange={(text) => set(i, c, text)}
+                />
+              {:else if c.type === 'words'}
+                <TagInput
+                  label={c.label}
+                  placeholder={c.placeholder}
+                  value={Array.isArray(item?.[c.field])
+                    ? (item?.[c.field] as unknown[]).map(String)
+                    : []}
+                  choices={c.choices}
+                  removeLabel={t('forms.removeItem')}
+                  {disabled}
+                  onchange={(words) =>
+                    doc.edit(kind, [...at, i, c.field], words.length ? words : undefined)}
                 />
               {:else}
                 <input

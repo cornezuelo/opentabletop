@@ -13,7 +13,14 @@
     type ActionStep,
   } from '@open-tabletop/travel-engine'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
-  import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    confirmAction,
+    InfoTip,
+    showToast,
+    SuggestInput,
+    TagInput,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { ConditionEditor, conditionWords } from '@open-tabletop/pack-ui'
@@ -26,7 +33,12 @@
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
   import { clockMoments, clockOfMoment } from '../../lib/worldMoments'
   import { library } from '../../lib/packs.svelte'
-  import { momentsText, parseMoments, type SystemDoc } from '../../lib/systemDoc.svelte'
+  import {
+    momentsList,
+    momentsText,
+    writeMoments,
+    type SystemDoc,
+  } from '../../lib/systemDoc.svelte'
 
   /**
    * The system's actions as cards, all alike (camp and rest too): id, name and description,
@@ -280,19 +292,20 @@
           </label>
           <label>
             <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
-            <SuggestInput
+            <TagInput
               label={t('actions.on')}
               placeholder={t('actions.onButton')}
-              value={momentsText(d.on)}
-              list={[
+              value={momentsList(d.on)}
+              choices={[
                 ...CHECK_MOMENTS,
                 '06:00',
                 ...parts,
                 ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
                 ...clockMoments(system),
               ]}
+              removeLabel={t('forms.removeItem')}
               {disabled}
-              onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
+              onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], writeMoments(v))}
             />
             {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
           </label>

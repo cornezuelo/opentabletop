@@ -28,6 +28,8 @@ export {
   type AppInfo,
 } from './apps'
 export { default as SuggestInput } from './SuggestInput.svelte'
+export { default as TagInput } from './TagInput.svelte'
+export { addTags, tagChoices, type TagGroup } from './tags'
 export { applyChoice, choicesFor, typingAt, type Suggestions, type Typing } from './suggest'
 export { vocabulary } from './vocabulary'
 export { default as PreferencesButton } from './PreferencesButton.svelte'
