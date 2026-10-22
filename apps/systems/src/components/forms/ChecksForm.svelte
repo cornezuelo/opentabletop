@@ -3,7 +3,11 @@
   import { idText, translator } from '@open-tabletop/travel-ui'
   import { confirmAction, InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
+  import { SvelteSet } from 'svelte/reactivity'
   import RecordRows from './RecordRows.svelte'
+  import CardHead from './CardHead.svelte'
+  import CardTools from './CardTools.svelte'
+  import { matches } from '../../lib/search'
   import UsedBy from '../uses/UsedBy.svelte'
   import UsesList from '../uses/UsesList.svelte'
   import { usesFor } from '../../lib/usage'
@@ -150,9 +154,43 @@
     doc.edit('bindings', ['on', event, key], weather ?? ref)
   }
 
+  /** The checks shown unfolded, by place in the list (folded by default: it can be long). */
+  const unfolded = new SvelteSet<number>()
+  let query = $state('')
+  /** What rolls a check (a table's or model's name), or that nothing does. */
+  const resolverName = (event: string) => {
+    const r = String(on[event]?.weather ?? on[event]?.resolve ?? '')
+    if (!r) return t('checks.waits')
+    if (doc.weatherModels.includes(r)) return t('checks.weatherModel', { model: r })
+    return doc.targets.find((x) => x.ref === r)?.name ?? r
+  }
+  /** A check in words, folded: when, on what, and whether it pauses. */
+  const summary = (check: Raw) =>
+    [
+      check.at ? saidMoments(check.at) : t('checks.atNone'),
+      resolverName(String(check.event)),
+      check.pause === true && t('checks.paused'),
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  const checkTitle = (check: Raw) => checkText(check, 'name') || eventName(String(check.event))
+  const shows = (check: Raw) =>
+    matches(query, [
+      checkTitle(check),
+      checkText(check, 'description'),
+      summary(check),
+      check,
+      on[String(check.event)],
+    ])
+  const shown = $derived(checks.filter(shows).length)
+
   async function remove(index: number, event: string) {
     if (!(await confirmAction(t('forms.confirmRemove', { name: eventName(event) })))) return
     doc.remove('travel-rules', ['checks'], index)
+    // The cards after it move up one.
+    const kept = [...unfolded].flatMap((n) => (n < index ? [n] : n > index ? [n - 1] : []))
+    unfolded.clear()
+    for (const n of kept) unfolded.add(n)
     if (on[event] && !checks.some((c, i) => i !== index && c.event === event))
       doc.edit('bindings', ['on', event], undefined)
   }
@@ -161,6 +199,8 @@
     const used = checks.map((c) => String(c.event))
     const event = known.find((e) => !used.includes(e)) ?? 'NEW_CHECK_REQUIRED'
     doc.insert('travel-rules', ['checks'], checks.length, { event, at: HEX_ENTER })
+    query = ''
+    unfolded.add(checks.length)
   }
 
   /** A stat's name or description in the UI language (as checks' texts). */
@@ -203,182 +243,208 @@
 <div class="form">
   <section>
     <h3>{t('checks.title')}<InfoTip text={t('checks.help')} /></h3>
+    {#if checks.length > 1}
+      <CardTools
+        bind:query
+        {shown}
+        total={checks.length}
+        label={t('checks.search')}
+        onopenall={() => checks.forEach((c, i) => shows(c) && unfolded.add(i))}
+        oncloseall={() => unfolded.clear()}
+      />
+    {/if}
     {#each checks as check, i (i)}
       {@const event = String(check.event ?? '')}
       {@const binding = on[event]}
       {@const resolver = String(binding?.weather ?? binding?.resolve ?? '')}
-      <div class="check">
-        <div class="row">
-          <label>
-            <span>{t('checks.event')} · <em>{eventName(event)}</em></span>
-            <input
-              type="text"
-              list={eventsId}
-              value={event}
-              {disabled}
-              onchange={(e) => rename(i, event, e.currentTarget.value)}
-            />
-          </label>
-          <label>
-            <span>{t('checks.at')}<InfoTip text={t('checks.atHelp')} /></span>
-            <SuggestInput
-              label={t('checks.at')}
-              placeholder={t('checks.atNone')}
-              value={momentsText(check.at)}
-              list={[
-                ...AT,
-                '06:00',
-                ...dayPartRefs(system),
-                ...ownActions.map((a) => ref('actions', a)),
-                ...clockMoments(system),
-              ]}
-              {disabled}
-              onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
-            />
-            {#if check.at}<small class="said">{saidMoments(check.at)}</small>{/if}
-          </label>
-          {#if !disabled}
-            <button
-              class="icon"
-              aria-label={t('forms.remove')}
-              use:tooltip={t('forms.remove')}
-              onclick={() => remove(i, event)}>×</button
-            >
-          {/if}
-        </div>
-        <div class="row">
-          <label>
-            <span>{t('checks.name')}<InfoTip text={t('checks.nameHelp')} /></span>
-            <input
-              type="text"
-              placeholder={doc.translating
-                ? doc.baseText(check.name) || eventName(event)
-                : eventName(event)}
-              value={checkText(check, 'name')}
-              {disabled}
-              onchange={(e) => setCheckText(i, check, 'name', e.currentTarget.value)}
-            />
-          </label>
-          <label>
-            <span>{t('forms.description')}<InfoTip text={t('forms.descriptionHelp')} /></span>
-            <textarea
-              rows="2"
-              placeholder={doc.translating ? doc.baseText(check.description) : ''}
-              value={checkText(check, 'description')}
-              {disabled}
-              onchange={(e) => setCheckText(i, check, 'description', e.currentTarget.value)}
-            ></textarea>
-          </label>
-        </div>
-        <div class="conditions">
-          <div class="part">
-            <span class="label">{t('checks.when')}<InfoTip text={t('checks.conditionHelp')} /></span
-            >
-            <ConditionEditor
-              value={check.when}
-              suggestions={hints}
-              locale={getLocale()}
-              {disabled}
-              label={t('checks.when')}
-              onchange={(c) => doc.edit('travel-rules', ['checks', i, 'when'], c)}
-            />
-          </div>
-          <div class="part">
-            <span class="label"
-              >{t('checks.unless')}<InfoTip text={t('checks.conditionHelp')} /></span
-            >
-            <ConditionEditor
-              value={check.unless}
-              suggestions={hints}
-              locale={getLocale()}
-              {disabled}
-              label={t('checks.unless')}
-              onchange={(c) => doc.edit('travel-rules', ['checks', i, 'unless'], c)}
-            />
-          </div>
-        </div>
-        <div class="row">
-          <label>
-            <span>{t('checks.resolve')}<InfoTip text={t('checks.resolveHelp')} /></span>
-            <select
-              value={resolver}
-              {disabled}
-              onchange={(e) => setTable(event, e.currentTarget.value)}
-            >
-              <option value="">{t('checks.waits')}</option>
-              {#if resolver && !doc.targets.some((x) => x.ref === resolver) && !doc.weatherModels.includes(resolver)}
-                <option value={resolver}>{resolver} ⚠</option>
-              {/if}
-              {#if doc.weatherModels.length}
-                <optgroup label={t('checks.weatherModels')}>
-                  {#each doc.weatherModels as m (m)}
-                    <option value={m}>{t('checks.weatherModel', { model: m })}</option>
-                  {/each}
-                </optgroup>
-              {/if}
-              {#each ROLLABLE as kind (kind)}
-                {@const of = doc.targets.filter((x) => x.kind === kind)}
-                {#if of.length}
-                  <optgroup label={t(`kinds.${kind}`)}>
-                    {#each of as x (x.ref)}
-                      <option value={x.ref}>{x.name} ({x.ref})</option>
-                    {/each}
-                  </optgroup>
-                {/if}
-              {/each}
-            </select>
-          </label>
-          <label class="inline">
-            <input
-              type="checkbox"
-              checked={check.pause === true}
-              {disabled}
-              onchange={(e) =>
-                doc.edit(
-                  'travel-rules',
-                  ['checks', i, 'pause'],
-                  e.currentTarget.checked || undefined,
-                )}
-            />
-            {t('checks.pause')}<InfoTip text={t('checks.pauseHelp')} />
-          </label>
-        </div>
-        <div class="conditions">
-          <div class="part">
-            <span class="label"
-              >{t('checks.effects')}<InfoTip text={t('checks.effectsHelp')} /></span
-            >
-            <PairEditor
-              value={check.effects}
-              keys={Object.keys(effectHints)}
-              values={effectHints}
-              keyLabel={t('steps.pairs.key')}
-              locale={getLocale()}
-              {disabled}
-              label={t('checks.effects')}
-              onchange={(map) => doc.edit('travel-rules', ['checks', i, 'effects'], map)}
-            />
-          </div>
-          {#if binding}
-            <div class="part">
-              <span class="label"
-                >{t('checks.context')}<InfoTip text={t('checks.contextHelp')} /></span
+      {@const open = unfolded.has(i)}
+      {#if shows(check)}
+        <div class="check">
+          <CardHead
+            title={checkTitle(check)}
+            id={event}
+            said={open ? undefined : summary(check)}
+            {open}
+            ontoggle={() => (open ? unfolded.delete(i) : unfolded.add(i))}
+          >
+            {#if !disabled}
+              <button
+                class="icon"
+                aria-label={t('forms.remove')}
+                use:tooltip={t('forms.remove')}
+                onclick={() => remove(i, event)}>×</button
               >
-              <PairEditor
-                value={binding.context}
-                keys={Object.keys(hints)}
-                values={hints}
-                fresh=""
-                keyLabel={t('checks.contextKey')}
-                locale={getLocale()}
-                {disabled}
-                label={t('checks.context')}
-                onchange={(map) => doc.edit('bindings', ['on', event, 'context'], map)}
-              />
+            {/if}
+          </CardHead>
+          {#if open}
+            <div class="fields">
+              <div class="row">
+                <label>
+                  <span>{t('checks.event')}</span>
+                  <input
+                    type="text"
+                    list={eventsId}
+                    value={event}
+                    {disabled}
+                    onchange={(e) => rename(i, event, e.currentTarget.value)}
+                  />
+                </label>
+                <label>
+                  <span>{t('checks.at')}<InfoTip text={t('checks.atHelp')} /></span>
+                  <SuggestInput
+                    label={t('checks.at')}
+                    placeholder={t('checks.atNone')}
+                    value={momentsText(check.at)}
+                    list={[
+                      ...AT,
+                      '06:00',
+                      ...dayPartRefs(system),
+                      ...ownActions.map((a) => ref('actions', a)),
+                      ...clockMoments(system),
+                    ]}
+                    {disabled}
+                    onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}
+                  />
+                  {#if check.at}<small class="said">{saidMoments(check.at)}</small>{/if}
+                </label>
+              </div>
+              <div class="row">
+                <label>
+                  <span>{t('checks.name')}<InfoTip text={t('checks.nameHelp')} /></span>
+                  <input
+                    type="text"
+                    placeholder={doc.translating
+                      ? doc.baseText(check.name) || eventName(event)
+                      : eventName(event)}
+                    value={checkText(check, 'name')}
+                    {disabled}
+                    onchange={(e) => setCheckText(i, check, 'name', e.currentTarget.value)}
+                  />
+                </label>
+                <label>
+                  <span>{t('forms.description')}<InfoTip text={t('forms.descriptionHelp')} /></span>
+                  <textarea
+                    rows="2"
+                    placeholder={doc.translating ? doc.baseText(check.description) : ''}
+                    value={checkText(check, 'description')}
+                    {disabled}
+                    onchange={(e) => setCheckText(i, check, 'description', e.currentTarget.value)}
+                  ></textarea>
+                </label>
+              </div>
+              <div class="conditions">
+                <div class="part">
+                  <span class="label"
+                    >{t('checks.when')}<InfoTip text={t('checks.conditionHelp')} /></span
+                  >
+                  <ConditionEditor
+                    value={check.when}
+                    suggestions={hints}
+                    locale={getLocale()}
+                    {disabled}
+                    label={t('checks.when')}
+                    onchange={(c) => doc.edit('travel-rules', ['checks', i, 'when'], c)}
+                  />
+                </div>
+                <div class="part">
+                  <span class="label"
+                    >{t('checks.unless')}<InfoTip text={t('checks.conditionHelp')} /></span
+                  >
+                  <ConditionEditor
+                    value={check.unless}
+                    suggestions={hints}
+                    locale={getLocale()}
+                    {disabled}
+                    label={t('checks.unless')}
+                    onchange={(c) => doc.edit('travel-rules', ['checks', i, 'unless'], c)}
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <label>
+                  <span>{t('checks.resolve')}<InfoTip text={t('checks.resolveHelp')} /></span>
+                  <select
+                    value={resolver}
+                    {disabled}
+                    onchange={(e) => setTable(event, e.currentTarget.value)}
+                  >
+                    <option value="">{t('checks.waits')}</option>
+                    {#if resolver && !doc.targets.some((x) => x.ref === resolver) && !doc.weatherModels.includes(resolver)}
+                      <option value={resolver}>{resolver} ⚠</option>
+                    {/if}
+                    {#if doc.weatherModels.length}
+                      <optgroup label={t('checks.weatherModels')}>
+                        {#each doc.weatherModels as m (m)}
+                          <option value={m}>{t('checks.weatherModel', { model: m })}</option>
+                        {/each}
+                      </optgroup>
+                    {/if}
+                    {#each ROLLABLE as kind (kind)}
+                      {@const of = doc.targets.filter((x) => x.kind === kind)}
+                      {#if of.length}
+                        <optgroup label={t(`kinds.${kind}`)}>
+                          {#each of as x (x.ref)}
+                            <option value={x.ref}>{x.name} ({x.ref})</option>
+                          {/each}
+                        </optgroup>
+                      {/if}
+                    {/each}
+                  </select>
+                </label>
+                <label class="inline">
+                  <input
+                    type="checkbox"
+                    checked={check.pause === true}
+                    {disabled}
+                    onchange={(e) =>
+                      doc.edit(
+                        'travel-rules',
+                        ['checks', i, 'pause'],
+                        e.currentTarget.checked || undefined,
+                      )}
+                  />
+                  {t('checks.pause')}<InfoTip text={t('checks.pauseHelp')} />
+                </label>
+              </div>
+              <div class="conditions">
+                <div class="part">
+                  <span class="label"
+                    >{t('checks.effects')}<InfoTip text={t('checks.effectsHelp')} /></span
+                  >
+                  <PairEditor
+                    value={check.effects}
+                    keys={Object.keys(effectHints)}
+                    values={effectHints}
+                    keyLabel={t('steps.pairs.key')}
+                    locale={getLocale()}
+                    {disabled}
+                    label={t('checks.effects')}
+                    onchange={(map) => doc.edit('travel-rules', ['checks', i, 'effects'], map)}
+                  />
+                </div>
+                {#if binding}
+                  <div class="part">
+                    <span class="label"
+                      >{t('checks.context')}<InfoTip text={t('checks.contextHelp')} /></span
+                    >
+                    <PairEditor
+                      value={binding.context}
+                      keys={Object.keys(hints)}
+                      values={hints}
+                      fresh=""
+                      keyLabel={t('checks.contextKey')}
+                      locale={getLocale()}
+                      {disabled}
+                      label={t('checks.context')}
+                      onchange={(map) => doc.edit('bindings', ['on', event, 'context'], map)}
+                    />
+                  </div>
+                {/if}
+              </div>
             </div>
           {/if}
         </div>
-      </div>
+      {/if}
     {:else}
       <p class="help">{t('checks.none')}</p>
     {/each}
@@ -588,16 +654,22 @@
     font-weight: 600;
   }
 
-  /* One grid for the whole card, so every row's fields line up in two columns (and ×). */
   .check {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px;
-    gap: 8px 16px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     padding: 10px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
     border-radius: 6px;
+  }
+
+  /* One grid for the card's fields, so every row lines up in the same two columns. */
+  .fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 16px;
+    align-items: start;
   }
 
   .row,
@@ -609,11 +681,6 @@
   .row > :first-child,
   .conditions > :first-child {
     grid-column: 1;
-  }
-
-  .check .icon {
-    grid-column: 3;
-    margin-top: 18px;
   }
 
   .part {
@@ -657,11 +724,6 @@
 
   label.inline input {
     width: auto;
-  }
-
-  em {
-    font-style: normal;
-    color: var(--accent);
   }
 
   table {

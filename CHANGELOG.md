@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Systems: **actions and checks as folded cards, with a search**: Rules → Actions and Checks list their cards folded, each with its name, id and what it does in one line; a click unfolds one, **Unfold all** / **Fold all** do every card, and a search box finds the cards holding every word typed (in names, ids, moments, steps, tables, conditions). Both cards now lay their fields out in the same two columns.
 - Systems: **Checks built as rows**: a check's **Only if** / **Skip if** are conditions as rows (what it reads · comparison · value), like actions'; its **Changes** and **Extra context** are rows of a name and a value, suggested from the system, with **YAML** one click away for what rows can't say. A step's changes and values of the day use the same rows. Each check's fields line up in two columns.
 - Manual: **Systems → Clocks explained from nothing**: how progress clocks work (they come with the world clock; anything with effects fills them, and a click; what happens when one fills, in a chain; the trip hears it; conditions read it) with a picture of a clock filling, a spreading fever built step by step (a swamp check fills it, it rolls a twist and fills the roads' clock, word of it reaches the trip, a barrier when the roads close) with what you'll see, the YAML and the usual mistakes. And Hexmapper → World: **Without the world clock**, what a trip keeps without it and what only the world clock brings (stopping it forgets it, it doesn't pause it).
 

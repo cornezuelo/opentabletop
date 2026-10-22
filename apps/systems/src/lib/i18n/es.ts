@@ -397,6 +397,13 @@ export const es: Messages<typeof en> = {
     },
   },
   forms: {
+    search: 'Buscar…',
+    shown: '{shown} de {total}',
+    noMatch: 'Nada coincide con «{query}».',
+    openAll: 'Desplegar todo',
+    closeAll: 'Plegar todo',
+    unfold: 'Mostrar sus campos',
+    fold: 'Plegarla',
     whatItDoes: 'Qué hace',
     description: 'Descripción (su ayuda)',
     descriptionHelp:
@@ -506,6 +513,8 @@ export const es: Messages<typeof en> = {
     blocksNothing: 'nada',
   },
   actions: {
+    search: 'Buscar en las acciones (nombre, id, momento, paso…)',
+    stepCount: 'Pasos: {count}',
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
@@ -639,6 +648,8 @@ export const es: Messages<typeof en> = {
   },
   kinds: vocabulary.es.kinds,
   checks: {
+    search: 'Buscar en las comprobaciones (nombre, evento, momento, tabla…)',
+    paused: 'pausa',
     title: 'Comprobaciones',
     help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla solo se apunta en el diario (con sus **Cambios**); solo **Pausar después** detiene el viaje.',
     event: 'Comprobación',

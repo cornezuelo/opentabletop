@@ -394,6 +394,13 @@ export const en = {
     },
   },
   forms: {
+    search: 'Search…',
+    shown: '{shown} of {total}',
+    noMatch: 'Nothing matches “{query}”.',
+    openAll: 'Unfold all',
+    closeAll: 'Fold all',
+    unfold: 'Show its fields',
+    fold: 'Fold it',
     /** Beside a button with help: its explanation, without pressing it. */
     whatItDoes: 'What it does',
     description: 'Description (its help)',
@@ -503,6 +510,8 @@ export const en = {
     blocksNothing: 'nothing',
   },
   actions: {
+    search: 'Search the actions (name, id, moment, step…)',
+    stepCount: 'Steps: {count}',
     when: 'Only when',
     unless: 'Not when',
     whenHelp:
@@ -636,6 +645,8 @@ export const en = {
   },
   kinds: vocabulary.en.kinds,
   checks: {
+    search: 'Search the checks (name, event, moment, table…)',
+    paused: 'pauses',
     title: 'Checks',
     help: 'What is rolled on the way, when, and on which table. A check without a table is only written in the journal (with its **Changes**); only **Pause after it** stops the trip.',
     event: 'Check',

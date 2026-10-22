@@ -18,7 +18,10 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { ConditionEditor, conditionWords } from '@open-tabletop/pack-ui'
   import StepCard from './StepCard.svelte'
-  import type { StepContext } from '../../lib/steps'
+  import { stepSummary, type StepContext } from '../../lib/steps'
+  import { matches } from '../../lib/search'
+  import CardHead from './CardHead.svelte'
+  import CardTools from './CardTools.svelte'
   import { getLocale, t } from '../../lib/i18n'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
   import { clockMoments, clockOfMoment } from '../../lib/worldMoments'
@@ -118,6 +121,29 @@
       condition: (c) => conditionWords(c, getLocale()),
     },
   })
+  /** The actions shown unfolded (folded by default: the list can be long). */
+  const unfolded = new SvelteSet<string>()
+  let query = $state('')
+  /** An action in words, folded: when the system takes it, then its steps. */
+  const summary = (id: string) => {
+    const names = stepContext(id).names
+    return [
+      def(id).on && saidMoments(def(id).on),
+      steps(id).length
+        ? steps(id)
+            .map((s) => stepSummary(s, names))
+            .join(' → ')
+        : t('actions.noSteps'),
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  }
+  const visible = $derived(
+    ids.filter((id) =>
+      matches(query, [id, label(id), text(id, 'description'), summary(id), actions[id]]),
+    ),
+  )
+
   /** The step cards shown open, as `<action>:<index>`. */
   const opened = new SvelteSet<string>()
   function toggle(key: string) {
@@ -197,6 +223,8 @@
   function addAction() {
     const id = freeId('action', Object.keys(actions))
     doc.edit('travel-rules', ['actions', id], { do: [{ time: 60 }] })
+    query = ''
+    unfolded.add(id)
   }
 
   function rename(id: string, next: string) {
@@ -204,33 +232,32 @@
     if (!to || to === id) return
     if (ids.includes(to)) return showToast(t('forms.idExists', { id: to }), 'error')
     doc.rename('travel-rules', ['actions'], id, to)
+    if (unfolded.delete(id)) unfolded.add(to)
   }
 </script>
 
 <div class="actions">
-  {#each ids as id (id)}
+  {#if ids.length > 1}
+    <CardTools
+      bind:query
+      shown={visible.length}
+      total={ids.length}
+      label={t('actions.search')}
+      onopenall={() => visible.forEach((id) => unfolded.add(id))}
+      oncloseall={() => unfolded.clear()}
+    />
+  {/if}
+  {#each visible as id (id)}
     {@const d = def(id)}
+    {@const open = unfolded.has(id)}
     <div class="action">
-      <div class="row head">
-        <label class="id">
-          <span>{t('forms.id')}</span>
-          <input
-            type="text"
-            value={id}
-            {disabled}
-            onchange={(e) => rename(id, e.currentTarget.value)}
-          />
-        </label>
-        <label>
-          <span>{t('rules.name')}<InfoTip text={t('rules.nameHelp')} /></span>
-          <input
-            type="text"
-            placeholder={doc.translating ? doc.baseText(d.name) : ''}
-            value={text(id, 'name')}
-            {disabled}
-            onchange={(e) => setText(id, 'name', e.currentTarget.value)}
-          />
-        </label>
+      <CardHead
+        title={label(id)}
+        {id}
+        said={open ? undefined : summary(id)}
+        {open}
+        ontoggle={() => (open ? unfolded.delete(id) : unfolded.add(id))}
+      >
         {#if !disabled}
           <button
             class="icon"
@@ -239,134 +266,155 @@
             onclick={() => removeAction(id)}>×</button
           >
         {/if}
-      </div>
-      <label>
-        <span>{t('forms.description')}<InfoTip text={t('forms.descriptionHelp')} /></span>
-        <textarea
-          rows="2"
-          placeholder={doc.translating ? doc.baseText(d.description) : ''}
-          value={text(id, 'description')}
-          {disabled}
-          onchange={(e) => setText(id, 'description', e.currentTarget.value)}></textarea>
-      </label>
-      <div class="row">
-        <label>
-          <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
-          <SuggestInput
-            label={t('actions.on')}
-            placeholder={t('actions.onButton')}
-            value={momentsText(d.on)}
-            list={[
-              ...CHECK_MOMENTS,
-              '06:00',
-              ...parts,
-              ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
-              ...clockMoments(system),
-            ]}
-            {disabled}
-            onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
-          />
-          {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
-        </label>
-        <label class="inline">
-          <input
-            type="checkbox"
-            checked={d.oncePerDay === true}
-            {disabled}
-            onchange={(e) =>
-              doc.edit(
-                'travel-rules',
-                ['actions', id, 'oncePerDay'],
-                e.currentTarget.checked || undefined,
-              )}
-          />
-          {t('rules.oncePerDay')}
-        </label>
-        <label class="inline">
-          <input
-            type="checkbox"
-            checked={d.hideWhenUnavailable === true}
-            {disabled}
-            onchange={(e) =>
-              doc.edit(
-                'travel-rules',
-                ['actions', id, 'hideWhenUnavailable'],
-                e.currentTarget.checked || undefined,
-              )}
-          />
-          <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
-        </label>
-      </div>
-      <div class="conditions">
-        <div class="cond">
-          <span class="label">{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
-          <ConditionEditor
-            value={d.when}
-            suggestions={hints}
-            locale={getLocale()}
-            {disabled}
-            label={t('actions.when')}
-            onchange={(c) => doc.edit('travel-rules', ['actions', id, 'when'], c)}
-          />
+      </CardHead>
+      {#if open}
+        <div class="fields">
+          <label>
+            <span>{t('forms.id')}</span>
+            <input
+              type="text"
+              value={id}
+              {disabled}
+              onchange={(e) => rename(id, e.currentTarget.value)}
+            />
+          </label>
+          <label>
+            <span>{t('actions.on')}<InfoTip text={t('actions.onHelp')} /></span>
+            <SuggestInput
+              label={t('actions.on')}
+              placeholder={t('actions.onButton')}
+              value={momentsText(d.on)}
+              list={[
+                ...CHECK_MOMENTS,
+                '06:00',
+                ...parts,
+                ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
+                ...clockMoments(system),
+              ]}
+              {disabled}
+              onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}
+            />
+            {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
+          </label>
+          <label>
+            <span>{t('rules.name')}<InfoTip text={t('rules.nameHelp')} /></span>
+            <input
+              type="text"
+              placeholder={doc.translating ? doc.baseText(d.name) : ''}
+              value={text(id, 'name')}
+              {disabled}
+              onchange={(e) => setText(id, 'name', e.currentTarget.value)}
+            />
+          </label>
+          <label>
+            <span>{t('forms.description')}<InfoTip text={t('forms.descriptionHelp')} /></span>
+            <textarea
+              rows="2"
+              placeholder={doc.translating ? doc.baseText(d.description) : ''}
+              value={text(id, 'description')}
+              {disabled}
+              onchange={(e) => setText(id, 'description', e.currentTarget.value)}></textarea>
+          </label>
+          <div class="cond">
+            <span class="label">{t('actions.when')}<InfoTip text={t('actions.whenHelp')} /></span>
+            <ConditionEditor
+              value={d.when}
+              suggestions={hints}
+              locale={getLocale()}
+              {disabled}
+              label={t('actions.when')}
+              onchange={(c) => doc.edit('travel-rules', ['actions', id, 'when'], c)}
+            />
+          </div>
+          <div class="cond">
+            <span class="label">{t('actions.unless')}<InfoTip text={t('actions.whenHelp')} /></span>
+            <ConditionEditor
+              value={d.unless}
+              suggestions={hints}
+              locale={getLocale()}
+              {disabled}
+              label={t('actions.unless')}
+              onchange={(c) => doc.edit('travel-rules', ['actions', id, 'unless'], c)}
+            />
+          </div>
+          <label>
+            <span>{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span>
+            <SuggestInput
+              label={t('actions.params')}
+              placeholder={t('actions.noParams')}
+              value={bare(d.params)}
+              {disabled}
+              onchange={(v) => setFlow(['actions', id, 'params'], v)}
+            />
+          </label>
+          <label>
+            <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>
+            <input
+              type="text"
+              placeholder={doc.translating
+                ? doc.baseText(d.nothing)
+                : t('actions.nothingPlaceholder')}
+              value={text(id, 'nothing')}
+              {disabled}
+              onchange={(e) => setText(id, 'nothing', e.currentTarget.value)}
+            />
+          </label>
+          <label class="inline first">
+            <input
+              type="checkbox"
+              checked={d.oncePerDay === true}
+              {disabled}
+              onchange={(e) =>
+                doc.edit(
+                  'travel-rules',
+                  ['actions', id, 'oncePerDay'],
+                  e.currentTarget.checked || undefined,
+                )}
+            />
+            {t('rules.oncePerDay')}
+          </label>
+          <label class="inline">
+            <input
+              type="checkbox"
+              checked={d.hideWhenUnavailable === true}
+              {disabled}
+              onchange={(e) =>
+                doc.edit(
+                  'travel-rules',
+                  ['actions', id, 'hideWhenUnavailable'],
+                  e.currentTarget.checked || undefined,
+                )}
+            />
+            <span>{t('actions.hide')}<InfoTip text={t('actions.hideHelp')} /></span>
+          </label>
         </div>
-        <div class="cond">
-          <span class="label">{t('actions.unless')}<InfoTip text={t('actions.whenHelp')} /></span>
-          <ConditionEditor
-            value={d.unless}
-            suggestions={hints}
-            locale={getLocale()}
-            {disabled}
-            label={t('actions.unless')}
-            onchange={(c) => doc.edit('travel-rules', ['actions', id, 'unless'], c)}
-          />
-        </div>
-      </div>
-      <label>
-        <span>{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span>
-        <SuggestInput
-          label={t('actions.params')}
-          placeholder={t('actions.noParams')}
-          value={bare(d.params)}
-          {disabled}
-          onchange={(v) => setFlow(['actions', id, 'params'], v)}
-        />
-      </label>
-      <label>
-        <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>
-        <input
-          type="text"
-          placeholder={doc.translating ? doc.baseText(d.nothing) : t('actions.nothingPlaceholder')}
-          value={text(id, 'nothing')}
-          {disabled}
-          onchange={(e) => setText(id, 'nothing', e.currentTarget.value)}
-        />
-      </label>
 
-      <h4>{t('actions.steps')}<InfoTip text={t('actions.stepsHelp')} /></h4>
-      <ol class="steps">
-        {#each steps(id) as step, i (i)}
-          <StepCard
-            {step}
-            index={i}
-            count={steps(id).length}
-            ctx={stepContext(id)}
-            {disabled}
-            open={opened.has(`${id}:${i}`)}
-            ontoggle={() => toggle(`${id}:${i}`)}
-            onchange={(next) =>
-              writeSteps(
-                id,
-                steps(id).map((s, j) => (j === i ? next : s)),
-              )}
-            onmove={(by) => move(id, i, by)}
-            onremove={() => removeStep(id, i)}
-          />
-        {:else}
-          <li class="muted">{t('actions.noSteps')}</li>
-        {/each}
-      </ol>
-      {#if !disabled}
-        <button class="addstep" onclick={() => addStep(id)}>{t('actions.addStep')}</button>
+        <h4>{t('actions.steps')}<InfoTip text={t('actions.stepsHelp')} /></h4>
+        <ol class="steps">
+          {#each steps(id) as step, i (i)}
+            <StepCard
+              {step}
+              index={i}
+              count={steps(id).length}
+              ctx={stepContext(id)}
+              {disabled}
+              open={opened.has(`${id}:${i}`)}
+              ontoggle={() => toggle(`${id}:${i}`)}
+              onchange={(next) =>
+                writeSteps(
+                  id,
+                  steps(id).map((s, j) => (j === i ? next : s)),
+                )}
+              onmove={(by) => move(id, i, by)}
+              onremove={() => removeStep(id, i)}
+            />
+          {:else}
+            <li class="muted">{t('actions.noSteps')}</li>
+          {/each}
+        </ol>
+        {#if !disabled}
+          <button class="addstep" onclick={() => addStep(id)}>{t('actions.addStep')}</button>
+        {/if}
       {/if}
     </div>
   {/each}
@@ -397,15 +445,16 @@
     border-radius: 6px;
   }
 
-  .row {
-    display: flex;
-    gap: 10px;
-    align-items: end;
+  /* The same two columns as a check's card: id · moment, name · description… */
+  .fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 16px;
+    align-items: start;
   }
 
-  .row label {
-    flex: 1;
-    min-width: 0;
+  .fields > .first {
+    grid-column: 1;
   }
 
   label {
@@ -426,9 +475,7 @@
     resize: vertical;
   }
 
-  .row label.inline,
   label.inline {
-    flex: 0 0 auto;
     flex-direction: row;
     align-items: center;
     gap: 6px;
@@ -437,10 +484,6 @@
 
   label.inline input {
     width: auto;
-  }
-
-  .row label.id {
-    flex: 0 0 9em;
   }
 
   h4 {
@@ -455,12 +498,6 @@
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .conditions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(18em, 1fr));
-    gap: 8px 16px;
   }
 
   .cond {

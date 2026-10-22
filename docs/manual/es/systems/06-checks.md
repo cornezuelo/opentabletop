@@ -17,7 +17,7 @@ Una comprobación sin **Cuándo** nunca se pregunta sola: la pregunta un paso de
 
 ## Comprobaciones
 
-Cada comprobación (**Añadir una comprobación**) tiene:
+Las comprobaciones salen como fichas plegadas, cada una diciendo en una línea cuándo se pregunta, en qué se tira y si pausa (_Encuentro nocturno_ `CAMP_ENCOUNTER_CHECK_REQUIRED`: _Acción: Acampar · Al entrar en un hex · ¿Quién va?_); pulsa una para desplegarla, o **Desplegar todo** / **Plegar todo**. **Buscar** encuentra las comprobaciones cuyo nombre, evento, descripción, momentos, tabla o condiciones tienen todas las palabras que escribas (`acampar danger`). Cada comprobación (**Añadir una comprobación**; × quita una) tiene:
 
 - su id, en **Comprobación** (`WOLVES`, `HUNGER`): el evento por el que la conocen las reglas y los bindings. Dos comprobaciones con tablas o contextos distintos necesitan ids distintos;
 - un **Nombre** y una **Descripción** para los jugadores, que se ven en el panel del viaje y el diario en lugar del id del evento;

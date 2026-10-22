@@ -17,7 +17,7 @@ A check with no **When** is never asked by itself: an action's step asks it (`ro
 
 ## Checks
 
-Each check (**Add a check**) has:
+The checks come as folded cards, each saying in one line when it's asked, what it's rolled on and whether it pauses (_Night encounter_ `CAMP_ENCOUNTER_CHECK_REQUIRED`: _Action: Camp · On entering a hex · Who goes there?_); click one to unfold it, or **Unfold all** / **Fold all**. **Search** finds the checks whose name, event, description, moments, table or conditions hold every word you type (`camp danger`). Each check (**Add a check**; × removes one) has:
 
 - its id, under **Check** (`WOLVES`, `HUNGER`): the event the rules and the bindings know it by. Two checks with different tables or contexts need different ids;
 - a **Name** and **Description** for players, shown in the trip panel and the journal instead of the event id;
