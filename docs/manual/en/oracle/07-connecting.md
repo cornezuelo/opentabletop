@@ -35,10 +35,10 @@ Tag hexes in the Hexmapper (`haunted`, `ruins`…) and give them fields (`danger
 ```yaml
 entries:
   - { id: ghost, range: 1-2, when: { hex.tags: haunted }, result: 'A pale figure watches you' }
-  - { id: ambush, range: 1-6, when: { danger: { gte: 3 } }, result: 'Ambush!' }
+  - { id: ambush, range: 1-6, when: { hex.danger: { gte: 3 } }, result: 'Ambush!' }
 ```
 
-`tags: haunted` holds when the hex has that tag among others. `{ gte: 3 }` means "3 or more"; also `gt`, `lt`, `lte`, `not`.
+`hex.tags: haunted` holds when the hex has that tag among others. `{ gte: 3 }` means "3 or more"; also `gt`, `lt`, `lte`, `not`.
 
 A field can also change the dice: `roll: '1d6 + {{danger}}'`.
 

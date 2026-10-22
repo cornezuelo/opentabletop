@@ -35,10 +35,10 @@ Pon etiquetas a los hexes en el Hexmapper (`haunted`, `ruins`…) y dales campos
 ```yaml
 entries:
   - { id: ghost, range: 1-2, when: { hex.tags: haunted }, result: 'Una figura pálida os observa' }
-  - { id: ambush, range: 1-6, when: { danger: { gte: 3 } }, result: '¡Emboscada!' }
+  - { id: ambush, range: 1-6, when: { hex.danger: { gte: 3 } }, result: '¡Emboscada!' }
 ```
 
-`tags: haunted` se cumple cuando el hex tiene esa etiqueta entre otras. `{ gte: 3 }` significa «3 o más»; también `gt`, `lt`, `lte`, `not`.
+`hex.tags: haunted` se cumple cuando el hex tiene esa etiqueta entre otras. `{ gte: 3 }` significa «3 o más»; también `gt`, `lt`, `lte`, `not`.
 
 Un campo también puede cambiar los dados: `roll: '1d6 + {{danger}}'`.
 
