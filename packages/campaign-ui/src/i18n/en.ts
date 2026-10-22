@@ -76,7 +76,7 @@ export const en = {
     },
     timeline: 'Timeline',
     timelineHelp:
-      'What happened in the world, newest first: events that came due, holidays, moons. Add your own notes ("The baron was overthrown").',
+      "What happened in the **world**, newest first: events that came due, holidays, moons, full clocks, the factions' turns.\n• An event comes due on its day **wherever the party is**: _Market day in Ashford_ is there whether you're in Ashford or not\n• What the party does on a trip (hexes, checks, encounters, what it found) goes to the trip's **journal**, not here\nAdd your own notes (\"The baron was overthrown\").",
     noTimeline: 'Nothing yet.',
     note: 'A note for the timeline',
     addNote: 'Add',

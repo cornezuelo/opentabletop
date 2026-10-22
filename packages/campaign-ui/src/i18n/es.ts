@@ -77,7 +77,7 @@ export const es: Messages = {
     },
     timeline: 'Cronología',
     timelineHelp:
-      'Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas, lunas. Añade tus propias notas («Derrocaron al barón»).',
+      'Lo que ha pasado en el **mundo**, lo más reciente primero: eventos que llegaron, fiestas, lunas, relojes llenos, los turnos de las facciones.\n• Un evento llega en su día **esté donde esté el grupo**: _Día de mercado en Ashford_ sale estéis en Ashford o no\n• Lo que hace el grupo en un viaje (hexes, comprobaciones, encuentros, lo que encuentra) va al **diario** del viaje, no aquí\nAñade tus propias notas («Derrocaron al barón»).',
     noTimeline: 'Aún nada.',
     note: 'Una nota para la cronología',
     addNote: 'Añadir',
