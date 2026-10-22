@@ -25,7 +25,7 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { ConditionEditor, conditionWords } from '@open-tabletop/pack-ui'
   import StepCard from './StepCard.svelte'
-  import { stepSummary, type StepContext } from '../../lib/steps'
+  import { actionReading, stepSummary, type StepContext } from '../../lib/steps'
   import { matches } from '../../lib/search'
   import CardHead from './CardHead.svelte'
   import CardTools from './CardTools.svelte'
@@ -150,6 +150,12 @@
       .filter(Boolean)
       .join(' · ')
   }
+  /** The whole action in words, as its open card's lead. */
+  const reading = (id: string) =>
+    actionReading(def(id), stepContext(id).names, {
+      moments: def(id).on ? saidMoments(def(id).on) : '',
+      params: paramsOf(id).map((p) => p.name),
+    })
   const visible = $derived(
     ids.filter((id) =>
       matches(query, [id, label(id), text(id, 'description'), summary(id), actions[id]]),
@@ -280,6 +286,7 @@
         {/if}
       </CardHead>
       {#if open}
+        <p class="reading">{reading(id)}</p>
         <div class="fields">
           <label>
             <span>{t('forms.id')}</span>
@@ -437,6 +444,16 @@
 </div>
 
 <style>
+  .reading {
+    margin: 0;
+    padding: 6px 8px;
+    font-size: 12px;
+    line-height: 1.45;
+    background: var(--bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+  }
+
   .said {
     font-size: 11px;
     color: var(--text-muted);

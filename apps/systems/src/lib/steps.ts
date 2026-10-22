@@ -1,8 +1,10 @@
 import {
+  actionSteps,
   isClock,
   isPartRef,
   refId,
   STEP_KINDS,
+  type ActionDefinition,
   type ActionStep,
 } from '@open-tabletop/travel-engine'
 import { flowText } from '@open-tabletop/pack-ui/flow'
@@ -177,4 +179,52 @@ export function kindValue(kind: StepKind, ctx: StepContext): unknown {
     case 'wait':
       return {}
   }
+}
+
+/** What the whole-action reading needs besides the steps' names. */
+export interface ActionReading {
+  /** Its moments in words ("At dawn · After: Camp"), empty when the player takes it. */
+  moments: string
+  /** Its parameters' names, the player's choices. */
+  params: string[]
+}
+
+/** A step's words inside a sentence: its first letter lowered ("pass 3 h"). */
+const inSentence = (text: string) => text.charAt(0).toLocaleLowerCase() + text.slice(1)
+
+/**
+ * A whole action in plain words, as its open card's lead: who takes it and when it can be
+ * taken, then each step with its condition, in order. "With its button, only when …, once a
+ * day: pass 3 h; then, only when trip.below is food, change: party.stats.morale: -1."
+ */
+export function actionReading(
+  action: ActionDefinition,
+  names: StepNames,
+  reading: ActionReading,
+): string {
+  const lead = [
+    reading.moments
+      ? t('actions.reading.byItself', { moments: reading.moments })
+      : t('actions.reading.button'),
+    action.when && t('steps.onlyWhen', { condition: names.condition(action.when) }),
+    action.unless && t('steps.notWhen', { condition: names.condition(action.unless) }),
+    action.oncePerDay === true && t('actions.reading.oncePerDay'),
+    reading.params.length && t('actions.reading.choosing', { params: reading.params.join(', ') }),
+  ]
+    .filter(Boolean)
+    .join(', ')
+  const steps = actionSteps(action).map((step) => {
+    const cond = [
+      step.when && t('steps.onlyWhen', { condition: names.condition(step.when) }),
+      step.unless && t('steps.notWhen', { condition: names.condition(step.unless) }),
+    ]
+      .filter(Boolean)
+      .join(', ')
+    const said = inSentence(stepSummary(step, names))
+    return cond ? `${cond}, ${said}` : said
+  })
+  return t('actions.reading.whole', {
+    lead,
+    steps: steps.length ? steps.join(t('actions.reading.then')) : t('actions.reading.noSteps'),
+  })
 }

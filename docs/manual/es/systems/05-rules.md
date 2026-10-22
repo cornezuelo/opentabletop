@@ -65,7 +65,7 @@ Las Marcas Grises declaran **Perdidos**, que bloquea el viaje: lo pone la tabla 
 
 ## Acciones
 
-Lo que puede hacer el grupo: solo lo que declara el sistema (acampar, descansar, **marchar** y las suyas), todas iguales, como fichas (**Añadir una acción**; × quita una). Las fichas salen plegadas, cada una diciendo en una línea lo que hace (_Descansar_ `rest`: _Pasan 2 h → Cambia: party.stats.fatigue: -1_); pulsa una para desplegarla, o **Desplegar todo** / **Plegar todo**. **Buscar** encuentra las fichas cuyo nombre, id, descripción, momentos o pasos tienen todas las palabras que escribas (`acampar fatigue`). Cada una tiene:
+Lo que puede hacer el grupo: solo lo que declara el sistema (acampar, descansar, **marchar** y las suyas), todas iguales, como fichas (**Añadir una acción**; × quita una). Las fichas salen plegadas, cada una diciendo en una línea lo que hace (_Descansar_ `rest`: _Pasan 2 h → Cambia: party.stats.fatigue: -1_); pulsa una para desplegarla, o **Desplegar todo** / **Plegar todo**. Desplegada, su primera línea lee la acción entera en palabras: quién la hace, cuándo se puede hacer y luego cada paso con su condición (_Con su botón, solo si time.tags no es dark, una vez al día: pasan 3 h; luego, velocidad ×0.5 el resto del día._). **Buscar** encuentra las fichas cuyo nombre, id, descripción, momentos o pasos tienen todas las palabras que escribas (`acampar fatigue`). Cada una tiene:
 
 - un **id**, y un **Nombre** y una descripción para los jugadores;
 - **Solo si** / **Salvo si**: cuándo se puede pulsar su botón, construidas en filas (mira [Condiciones en filas](#condiciones-en-filas) más abajo). P. ej. Buscar comida de las Marcas Grises, no con tormenta; `time.hour: { gte: 6, lt: 20 }` para solo de día;

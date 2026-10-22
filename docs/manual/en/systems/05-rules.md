@@ -65,7 +65,7 @@ The Grey Marches declare **Lost**, which blocks travel: the getting-lost table s
 
 ## Actions
 
-What the party can do: only what the system declares (camp, rest, **march** and its own), all alike, as cards (**Add an action**; × removes one). The cards come folded, each saying what it does in one line (_Rest_ `rest`: _Pass 2 h → Change: party.stats.fatigue: -1_); click one to unfold it, or **Unfold all** / **Fold all**. **Search** finds the cards whose name, id, description, moments or steps hold every word you type (`camp fatigue`). Each has:
+What the party can do: only what the system declares (camp, rest, **march** and its own), all alike, as cards (**Add an action**; × removes one). The cards come folded, each saying what it does in one line (_Rest_ `rest`: _Pass 2 h → Change: party.stats.fatigue: -1_); click one to unfold it, or **Unfold all** / **Fold all**. Unfolded, its first line reads the whole action in words: who takes it, when it can be taken, then each step with its condition (_With its button, only when time.tags is not dark, once a day: pass 3 h; then speed ×0.5 the rest of the day._). **Search** finds the cards whose name, id, description, moments or steps hold every word you type (`camp fatigue`). Each has:
 
 - an **id**, and a **Name** and description for players;
 - **Only when** / **Not when**: when its button can be pressed, built as rows (see [Conditions as rows](#conditions-as-rows) below). E.g. the Grey Marches' Forage for food, not in a storm; `time.hour: { gte: 6, lt: 20 }` for only by day;

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { conditionWords } from '@open-tabletop/pack-ui'
-import { kindValue, minutesText, stepKind, stepSummary, withKind, type StepContext } from './steps'
+import {
+  actionReading,
+  kindValue,
+  minutesText,
+  stepKind,
+  stepSummary,
+  withKind,
+  type StepContext,
+} from './steps'
 
 const names = {
   action: (id: string) => ({ march: 'March', forage: 'Forage' })[id] ?? id,
@@ -173,5 +181,35 @@ describe("the bundled systems' other forms as rows", () => {
     }
     expect(read).toBeGreaterThan(5)
     expect(yaml).toBeLessThan(read / 4)
+  })
+
+  it('reads a whole action: who takes it, when, then each step with its condition', () => {
+    expect(
+      actionReading(
+        {
+          when: { 'party.stats.fatigue': { lt: 2 } },
+          oncePerDay: true,
+          do: [
+            { time: 180 },
+            { when: { 'trip.below': 'food' }, effects: { 'party.stats.morale': -1 } },
+            { do: 'actions.march', with: { until: 'hex' } },
+          ],
+        } as never,
+        names,
+        { moments: '', params: ['How far'] },
+      ),
+    ).toBe(
+      'With its button, only when ' +
+        conditionWords({ 'party.stats.fatigue': { lt: 2 } }, 'en') +
+        ', once a day, choosing How far: pass 3 h; then only when ' +
+        conditionWords({ 'trip.below': 'food' }, 'en') +
+        ', change: party.stats.morale: -1; then take March (until: hex).',
+    )
+    expect(
+      actionReading({ on: 'time.day-end' } as never, names, {
+        moments: 'As the day ends',
+        params: [],
+      }),
+    ).toBe('By itself (As the day ends): nothing but roll its checks.')
   })
 })

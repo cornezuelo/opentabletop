@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Systems: **lists as pills**: a check's **When**, an action's **By itself at** and every list of the forms (what a value of the day or a condition **Blocks**, a value's levels, a faction's regions and hexes, a roll mode's cancels, a part of the day's tags) show each item as a pill with its × to take it out; typing adds one (Enter or a comma; a space for a faction's hexes, `15,9`), Backspace in the empty box takes the last one, and the suggestions come grouped by what they start with (`time`, `trip`, `actions`…).
+- Systems: **an action read as a whole**: an unfolded action's card starts with the whole action in words, who takes it, when it can be taken and each step with its condition (_With its button, only when time.tags is not dark, once a day: pass 3 h; then speed ×0.5 the rest of the day._).
 - Systems: **fields that go together share a line** in the folded cards: a terrain's **Open when** and **Closed when** side by side with **Passable** after them; a way of travelling's **Only when** and **Not when**; a sheet value's and a kind of relation's **Min** and **Max**; a clock's segments and filled first; a faction's **Map** and **Hexes**.
 
 ## [0.11.0] - 2026-10-22
