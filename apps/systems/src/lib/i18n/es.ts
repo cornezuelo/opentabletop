@@ -460,7 +460,7 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id:\n• `horse` → _A caballo_\n• `food` → _Raciones_\nSe escribe en el idioma actual: el del pack, o su fichero de traducción (`locales/<idioma>/`) si la interfaz está en otro. Vacío: el id (o el nombre de la aplicación para los habituales: foot, horse, food…).',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
-      'Por dónde puede ir esta forma de viajar: una condición sobre **cada hex en el que entra** (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: `hex.water: true`\n• una barca que además sigue la costa: `any: [{ hex.water: true }, { hex.terrain: coast }]`\n• un carro solo por camino: `trip.edges: road`\n• una montura que evita los bosques: `not: { hex.terrain: [forest, dense-forest] }`\nDonde se cumple, ni los terrenos cerrados la paran. Vacío: por donde dejen los terrenos.',
+      'Por dónde puede ir esta forma de viajar: una condición sobre **cada hex en el que entra** (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: `hex.water: true`\n• una barca que además sigue la costa: `any: [{ hex.water: true }, { hex.terrain: coast }]`\n• un carro solo por camino: `trip.edges: road`\n• una montura que evita los bosques: `not: { hex.terrain: [forest, dense-forest] }`\nDonde se cumple, ni los terrenos cerrados la paran; donde no, no puede ir, diga lo que diga el terreno (mira **Transitable** en Terrenos). Vacío: por donde dejen los terrenos.',
     anyTerrain: 'por donde dejen los terrenos',
     terrains: vocabulary.es.terms.terrains,
     terrainsHelp:
@@ -471,7 +471,7 @@ export const es: Messages<typeof en> = {
       'Lo rápido que se cruza este terreno, comparado con el terreno fácil:\n• `1` — velocidad normal\n• `0.5` — a la mitad\n• `0.25` — a un cuarto\n• `2` — el doble de rápido\nPor ejemplo, con una forma de viajar de 24 km al día y hexes de 12 km, un hex a `0.5` lleva un día entero de marcha.',
     passable: 'Transitable',
     passableHelp:
-      '**Sin marcar**: ninguna forma de viajar puede entrar (las rutas lo rodean), salvo una cuyo **Solo por** se cumpla allí (una barca en un lago).\n**Marcado**, aún puede abrirse o cerrarse con una condición:\n• **Abierto cuando** `time.season: winter` — un lago que se cruza sobre el hielo\n• **Cerrado cuando** `trip.weather: [snow, storm]` — un paso cerrado por el clima',
+      'Si se puede entrar en un hex de este terreno. Cómo encaja con lo demás:\n• Una forma de viajar con **Solo por** (Formas de viajar) va solo por eso: donde se cumple su condición entra, abierto o cerrado (una barca en un lago); donde no, no entra\n• Cualquier otra: **Sin marcar**, nadie entra (las rutas lo rodean); **Marcado**, entra mientras se cumpla **Abierto cuando** (vacío: siempre) y no **Cerrado cuando** (vacío: nunca)\nPor ejemplo:\n• **Abierto cuando** `time.season: winter` — un lago que se cruza sobre el hielo\n• **Cerrado cuando** `trip.weather: [snow, storm]` — un paso cerrado por el clima',
     openWhen: 'Abierto cuando',
     closedWhen: 'Cerrado cuando',
     passableWhenHelp:

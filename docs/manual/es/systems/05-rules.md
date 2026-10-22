@@ -37,7 +37,7 @@ Un viaje empieza con la primera forma de la lista; el jugador elige otra en el p
 
 ## Terrenos, agua y caminos
 
-- **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `time.season` · **es** · `summer` / `trip.weather` · **es uno de** · `snow, storm`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
+- **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento; una forma de viajar con **Solo por** va solo por eso, como arriba). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `time.season` · **es** · `summer` / `trip.weather` · **es uno de** · `snow, storm`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
 - **Hexes de agua**: lo mismo, para los hexes que el mapa marca como agua y no tienen regla propia en Terrenos. Una forma de viajar cuyo **Solo por** se cumple en el agua puede navegarlos igualmente.
 - **Caminos y ríos**: al seguir uno de un hex al siguiente, su **Velocidad ×** sustituye a la del terreno (un camino a `1.5`: un 50 % más rápido). La sustituye, no la multiplica: un río a `1` hace que las montañas a su orilla se crucen como llanuras. Las líneas no listadas no hacen nada; las condiciones pueden distinguirlas igualmente (`trip.edges: road`).
 

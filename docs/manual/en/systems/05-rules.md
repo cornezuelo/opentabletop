@@ -37,7 +37,7 @@ A trip starts with the first way of the list; the player chooses another in the 
 
 ## Terrains, water and roads
 
-- **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season` · **is** · `summer` / `trip.weather` · **is one of** · `snow, storm`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
+- **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment; a way of travelling with **Only through** goes by that alone, as above). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season` · **is** · `summer` / `trip.weather` · **is one of** · `snow, storm`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
 - **Water hexes**: the same, for hexes the map marks as water that have no rule of their own in Terrains. A way of travelling whose **Only through** holds on water can still sail them.
 - **Roads and rivers**: following one from one hex to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). It replaces it, it doesn't multiply it: a river at `1` makes mountains along it as easy as plains. Lines not listed do nothing; conditions can still tell them apart (`trip.edges: road`).
 
