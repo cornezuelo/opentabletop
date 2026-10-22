@@ -368,6 +368,36 @@ actions:
     do:
       - { time: 30 }
       - { travel.mode: modes.foot }
+  # A ruin (a hex tagged `ruins`, as discovery tags the ones it finds), by day: three hours
+  # delving it, then what it holds rolled on the Oracle by a step (`roll:` naming a
+  # generator, not a check: no binding, its result and the generator's name in the journal).
+  # Once a day; hidden elsewhere.
+  delve:
+    name: Delve the ruin
+    description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once a day.'
+    when: { hex.tags: ruins, time.tags: { not: dark } }
+    hideWhenUnavailable: true
+    oncePerDay: true
+    do:
+      - { time: 180 }
+      - { roll: generator.ruin-delve }
+  # A moment of the world (`on: world.clocks.<id>.full`): the Greywood Wyrm's clock filling
+  # while a trip goes on (the haunted lights fill it, encounters.yaml), heard by the trip as
+  # soon as the result that filled it is applied. Every companion's dread grows; inside the
+  # Greywood (`hex.region`), the trip stops to say so.
+  wyrm-wakes:
+    name: The Wyrm wakes
+    description: 'When the Greywood Wyrm wakes during a trip (its clock fills): every companion’s dread +1, and in the Greywood the trip stops.'
+    on: world.clocks.the-greywood-wyrm-wakes.full
+    do:
+      - { effects: { party.members.values.dread: 1 } }
+      - {
+          id: stirs,
+          say: 'Far off, something vast stirs, and the birds of the Greywood fall silent.',
+        }
+      - when: { hex.region: The Greywood }
+        id: awake
+        pause: 'The Wyrm is awake, and this is its wood.'
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED

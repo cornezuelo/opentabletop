@@ -33,6 +33,7 @@ ruin-delve:
     - Un campo solo cuando otro lo dice: `when`; y otro salvo cuando otro lo dice: `unless`
     - Una tabla tirada con su propio contexto: el guardián, de noche y tan peligroso como la ruina (los campos ven los anteriores: `danger`)
     - Los textos fijos de los campos, traducidos en `locales/` (`fields:`)
+    - Tirado por un paso de una acción en un viaje (`roll: generator.ruin-delve`, _Explorar la ruina_), sin comprobación alrededor
   template: 'Las ruinas de {{site}} ({{rating}}, {{untouched}}% intactas).{{fresh}}{{trap}} Dentro: {{loot}}. La guarda: {{guardian}}.'
   fields:
     trap: ' Una trampa guarda la entrada.'

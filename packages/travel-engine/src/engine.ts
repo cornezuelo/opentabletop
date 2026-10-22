@@ -17,6 +17,7 @@ import {
   changeValue,
   isPassable,
   momentsOf,
+  isHostMoment,
   modeThrough,
   declaredValues,
   isClock,
@@ -53,6 +54,11 @@ export interface TravelWorld {
 export interface PendingCheck {
   id: string
   event: string
+  /**
+   * Rolled on what a step names (`roll: table.ruins`), not on its check's binding: an
+   * opaque reference the host resolves (the event is the same reference).
+   */
+  resolve?: string
   /** Facts for whoever resolves it (terrain, weather, hex…). */
   context: Record<string, unknown>
   /** The check's own effects (`party.stats.fatigue: 1`), applied by whoever resolves it. */
@@ -393,6 +399,11 @@ export type TravelAction =
    * as for `travel`.
    */
   | { type: 'resume'; choice?: string | number; until?: 'hex' | 'destination' }
+  /**
+   * A moment of the world the host says came (`world.clocks.<id>.full`): the actions and
+   * checks that name it (`on:` / `at:`) happen now, as at any moment.
+   */
+  | { type: 'moment'; at: string }
 
 /**
  * What the host knows that conditions may read besides the trip's facts: the party's
@@ -878,6 +889,8 @@ export function createTravelEngine(options: {
     facts: Record<string, unknown> = {},
     /** A check event rolled now by a step (`roll:`), whatever its `at`. */
     event?: string,
+    /** Something else a step rolls now (`roll: table.ruins`), resolved by the host. */
+    resolve?: string,
   ): number => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
@@ -894,6 +907,18 @@ export function createTravelEngine(options: {
     const left = from ? { from: hexFacts(from) } : {}
     const context = { ...checkContext(state, stretch), ...left, ...facts, moment: at }
     const seen = { ...checkContext(state, stretch, hostFacts), ...left, ...facts, moment: at }
+    if (resolve) {
+      const check: PendingCheck = {
+        id: `c${state.nextCheckId++}`,
+        event: resolve,
+        resolve,
+        context,
+      }
+      state.pendingChecks.push(check)
+      totalsOf(state).checks++
+      events.push({ type: 'CHECK_REQUIRED', check, time: state.time })
+      return 1
+    }
     let scheduled = 0
     for (const rule of (rules.checks ?? []) as CheckRule[]) {
       if (event ? rule.event !== event : !momentsOf(rule.at).includes(at)) continue
@@ -1686,16 +1711,19 @@ export function createTravelEngine(options: {
             ...(still.left !== undefined && { left: still.left }),
             ...(still.held && { held: true }),
           }
-      } else if (step.roll !== undefined)
+      } else if (step.roll !== undefined) {
+        // A check of the system, or anything else the host rolls (`table.ruins`).
+        const check = refId('checks', step.roll)
         schedule(
           state,
           ref('actions', id),
           events,
           undefined,
           options.facts,
-          refId('checks', step.roll) ?? step.roll,
+          check,
+          check ? undefined : step.roll,
         )
-      else if (step.set) state.today = { ...state.today, ...step.set }
+      } else if (step.set) state.today = { ...state.today, ...step.set }
       else if (step.say !== undefined)
         events.push({ type: 'SAID', action: id, text: written(step.say), time: state.time })
       else if (step.pause !== undefined || step.ask !== undefined) {
@@ -2000,6 +2028,9 @@ export function createTravelEngine(options: {
           if (!state.pendingChecks.length && state.moving) goOn(state, events)
           break
         }
+        case 'moment':
+          if (isHostMoment(action.at)) schedule(state, action.at, events, undefined, doingFacts())
+          break
       }
       return { state, events }
     },

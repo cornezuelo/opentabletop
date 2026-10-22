@@ -5,6 +5,7 @@ import { calendarOf, travelSystems } from '@open-tabletop/session'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import {
+  heardMoments,
   bringFactions,
   createCampaign,
   followTrip,
@@ -131,7 +132,9 @@ describe('the world of a campaign', () => {
     expect(lines.filter((l) => l === 'clans: Pushes on')).toHaveLength(2)
     // The second turn filled the march: its words, its effect, and it starts over.
     expect(lines).toContain('march: The clans reach the river. reset')
-    expect(done.filled).toEqual([{ clock: 'march', text: 'The clans reach the river. reset' }])
+    expect(done.filled).toEqual([
+      { clock: 'march', text: 'The clans reach the river. reset', ref: 'march' },
+    ])
     expect(done.campaign.world!.clocks[0].filled).toBe(0)
     expect(done.campaign.factions!.factions[0].values.strength).toBe(5)
     // Their land grew on the map being played.
@@ -162,6 +165,13 @@ describe('the world of a campaign', () => {
       host({ trip: { weather: 'rain' } }),
     )
     expect(hit.filled).toHaveLength(1)
+    // A trip of a system whose rules name the clock filling hears it as a moment.
+    const rules = (on: string) =>
+      ({ actions: { flee: { on, do: [{ time: 60 }] } }, checks: [] }) as never
+    expect(heardMoments(rules('world.clocks.march.full'), hit.filled)).toEqual([
+      'world.clocks.march.full',
+    ])
+    expect(heardMoments(rules('world.clocks.other.full'), hit.filled)).toEqual([])
     expect(hit.map!.territories!.clans ?? []).toHaveLength(0)
     const time = place.campaign.world!.time + 60
     const scheduled = worldAct(hit, { type: 'schedule', event: { name: 'Fair', at: time } }, host())

@@ -22,7 +22,11 @@ import {
   type DataCalendar,
 } from '@open-tabletop/time'
 import {
+  actionSteps,
   createTravelEngine,
+  isHostMoment,
+  momentsOf,
+  refId,
   tripStart,
   partRefsOf,
   findPartRef,
@@ -534,6 +538,42 @@ export function travelSystems(registry: Registry): {
         clocks = { id: `${owner}/${parts.clocks.id ?? 'default'}`, pack: owner, def: parsed.clocks }
       }
     }
+    if (parts.rules) {
+      const owner = ownerOf(parts.rules) ?? pack
+      const report = (path: string, e: string) =>
+        problems.push(
+          problem(owner, parts.rules!.file, 'travel-rules', `${path}: ${e}`, parts.rules!.id),
+        )
+      // What a step rolls besides the system's checks must be something to roll.
+      for (const [id, a] of Object.entries(rules.actions ?? {}))
+        actionSteps(a).forEach((st, i) => {
+          if (st.roll === undefined || refId('checks', st.roll)) return
+          const full = definitionId(st.roll, owner)
+          if (full.includes('/') && !registry.packs.has(full.split('/')[0])) return
+          const message = rollableProblem(owner, st.roll)
+          if (message) report(`actions.${id}.do.${i}.roll`, message)
+        })
+      // The moments of the world a trip hears: a clock of the system's filling.
+      const declared = Object.keys(clocks?.def.clocks ?? {})
+      const worldMoments = (value: string | string[] | undefined, path: string) =>
+        momentsOf(value).forEach((m, j) => {
+          if (!isHostMoment(m)) return
+          const at = Array.isArray(value) ? `${path}.${j}` : path
+          const id = /^world\.clocks\.(.+)\.full$/.exec(m)?.[1]
+          if (!id)
+            report(at, `expected world.clocks.<id>.full (the moments of the world a trip hears)`)
+          else if (!declared.includes(id))
+            report(
+              at,
+              declared.length
+                ? `the system declares no clock "${id}" (expected ${declared.map((d) => `world.clocks.${d}.full`).join(', ')})`
+                : `the system declares no clocks (clocks: in kind: system)`,
+            )
+        })
+      for (const [id, a] of Object.entries(rules.actions ?? {}))
+        worldMoments(a.on, `actions.${id}.on`)
+      ;(rules.checks ?? []).forEach((c, i) => worldMoments(c.at, `checks.${i}.at`))
+    }
     if (parts.bindings && bindings)
       problems.push(
         ...membersBindings(bindings, rules, sheet?.def, partySheet?.def).map((e) =>
@@ -951,8 +991,9 @@ export function stepTrip(
       calendar: calendarOf(system),
       stats: system.bindings?.stats,
     }),
-    oracle: system.bindings ? options.oracle : undefined,
+    oracle: options.oracle,
     bindings: system.bindings,
+    pack: system.sources?.rules?.pack ?? system.pack,
     rules: system.rules,
     locale: options.locale,
     discovery,

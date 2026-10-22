@@ -20,6 +20,7 @@
     "@open-tabletop/random": "*",
     "@open-tabletop/session": "*",
     "@open-tabletop/time": "*",
+    "@open-tabletop/travel-engine": "*",
     "@open-tabletop/weather-engine": "*",
     "@open-tabletop/world-engine": "*"
   }

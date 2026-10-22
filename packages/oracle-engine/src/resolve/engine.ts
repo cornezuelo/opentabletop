@@ -110,6 +110,11 @@ export interface OracleEngine {
   shuffle(id: string, state: OracleState): OracleState
   reset(id: string, state: OracleState): OracleState
   get(id: string): Compiled | undefined
+  /**
+   * A definition's name in a language (its translation, else the pack's own words, else its
+   * id); a reference (`table.x`, `pack/x`) not found is returned as written.
+   */
+  nameOf(id: string, locale?: string): string
   list(filter?: { kind?: Compiled['kind']; tag?: string; pack?: string }): Compiled[]
 }
 
@@ -180,6 +185,14 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       return next
     },
     get: (id) => registry.definitions.get(id),
+    nameOf: (id, locale = options.locale) => {
+      const def =
+        registry.definitions.get(id) ??
+        registry.definitions.get(resolveRef(registry, id.split('/')[0], id) ?? '')
+      if (!def) return id
+      const overlay = locale ? registry.overlays.get(locale)?.get(def.id) : undefined
+      return overlay?.name ?? def.name ?? def.localId
+    },
     list: (filter = {}) =>
       [...registry.definitions.values()].filter(
         (d) =>

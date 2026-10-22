@@ -36,7 +36,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 - Donde un campo tira algo (el `table:` / `generator:` de una entrada o carta, el `resolve:` de un binding, el `turn:` de una facción, el `onFull.resolve:` de un reloj lleno), puede ser una tabla, un oráculo, un generador o un mazo: el kind dice cuál (`table: generator.npc`, `resolve: oracle.ford`).
 - Los `aliases` de un pack dan otro nombre a una referencia: `aliases: { table.twist: core/table.twists }`, y luego `table: table.twist`.
 - Las entradas y las cartas también tienen id, para las traducciones y las entradas de una sola vez.
-- **Dentro de un sistema**, lo que nombran sus reglas se escribe por su nombre completo, `subsistema.id`, para que siempre diga qué es: un momento (`trip.hex-enter`, `time.day-end`, una parte del día `time.part.morning`), una acción (`actions.camp`), una comprobación (`checks.ENCOUNTER`), una forma de viajar (`modes.horse`), seguir avanzando (`travel.move`), un parámetro de la acción (`params.how`). Los valores que compara una condición siguen cortos, porque su clave ya dice qué son: `trip.edges: road`, `hex.terrain: forest`.
+- **Dentro de un sistema**, lo que nombran sus reglas se escribe por su nombre completo, `subsistema.id`, para que siempre diga qué es: un momento (`trip.hex-enter`, `time.day-end`, una parte del día `time.part.morning`, un reloj del mundo al llenarse `world.clocks.<id>.full`), una acción (`actions.camp`), una comprobación (`checks.ENCOUNTER`), una forma de viajar (`modes.horse`), seguir avanzando (`travel.move`), un parámetro de la acción (`params.how`). Los valores que compara una condición siguen cortos, porque su clave ya dice qué son: `trip.edges: road`, `hex.terrain: forest`.
 
 ## Dados
 
@@ -160,27 +160,27 @@ Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` 
 
 El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa y puede tener su propio `when` / `unless`.
 
-| Paso                                               | Hace                                                        |
-| -------------------------------------------------- | ----------------------------------------------------------- |
-| `time: 120`                                        | pasan 120 minutos                                           |
-| `time: '14:00'`                                    | hasta que vuelve a dar esa hora                             |
-| `time: time.meal.luncheon`                         | hasta que vuelve a empezar una parte del día del calendario |
-| `travel.move: destination`                         | se mueve por la ruta mientras se cumplen sus condiciones    |
-| `travel.move: '{{params.until}}'`                  | hasta donde diga su parámetro (`hex`, `3`…)                 |
-| `travel.speed: 0.5`                                | el resto del movimiento de hoy, a media velocidad           |
-| `effects: { party.stats.fatigue: -1 }`             | cambia el grupo                                             |
-| `set: { lost: true }`                              | da un valor del día                                         |
-| `do: actions.forage`                               | hace otra acción, si se cumplen sus condiciones             |
-| `{ do: actions.march, with: { until: hex } }`      | otra acción, con sus parámetros                             |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED`            | tira una comprobación ya                                    |
-| `travel.advance: 1`                                | avanza un hex por la ruta, sin que pase el tiempo           |
-| `travel.mode: modes.boat`                          | viaja de otra forma, si se puede elegir ahora               |
-| `say: Los porteadores cantan`                      | una línea propia del sistema en el diario                   |
-| `pause: true`                                      | el viaje espera a **Continuar** (o un texto)                |
-| `ask: params.how`                                  | el jugador elige ya el parámetro `how`                      |
-| `{ wait: { today.ferry: true }, limit: '18:00' }`  | pasa el tiempo hasta que se cumpla, como mucho el límite    |
-| `{ id: song, say: … }`                             | da nombre a un paso para sus traducciones                   |
-| `{ unless: { trip.below: food }, effects: { … } }` | solo cuando se cumple su condición                          |
+| Paso                                               | Hace                                                                    |
+| -------------------------------------------------- | ----------------------------------------------------------------------- |
+| `time: 120`                                        | pasan 120 minutos                                                       |
+| `time: '14:00'`                                    | hasta que vuelve a dar esa hora                                         |
+| `time: time.meal.luncheon`                         | hasta que vuelve a empezar una parte del día del calendario             |
+| `travel.move: destination`                         | se mueve por la ruta mientras se cumplen sus condiciones                |
+| `travel.move: '{{params.until}}'`                  | hasta donde diga su parámetro (`hex`, `3`…)                             |
+| `travel.speed: 0.5`                                | el resto del movimiento de hoy, a media velocidad                       |
+| `effects: { party.stats.fatigue: -1 }`             | cambia el grupo                                                         |
+| `set: { lost: true }`                              | da un valor del día                                                     |
+| `do: actions.forage`                               | hace otra acción, si se cumplen sus condiciones                         |
+| `{ do: actions.march, with: { until: hex } }`      | otra acción, con sus parámetros                                         |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`            | tira una comprobación ya (o `roll: table.ruins`: una tabla del Oráculo) |
+| `travel.advance: 1`                                | avanza un hex por la ruta, sin que pase el tiempo                       |
+| `travel.mode: modes.boat`                          | viaja de otra forma, si se puede elegir ahora                           |
+| `say: Los porteadores cantan`                      | una línea propia del sistema en el diario                               |
+| `pause: true`                                      | el viaje espera a **Continuar** (o un texto)                            |
+| `ask: params.how`                                  | el jugador elige ya el parámetro `how`                                  |
+| `{ wait: { today.ferry: true }, limit: '18:00' }`  | pasa el tiempo hasta que se cumpla, como mucho el límite                |
+| `{ id: song, say: … }`                             | da nombre a un paso para sus traducciones                               |
+| `{ unless: { trip.below: food }, effects: { … } }` | solo cuando se cumple su condición                                      |
 
 Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, hex, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: actions.march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: actions.camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 

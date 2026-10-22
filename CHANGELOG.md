@@ -16,6 +16,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Systems: **actions edited visually**: in **Rules → Actions** each step is a card, folded to what it does in words (_Pass 3 h_, _Take March (until: hex)_) with its condition beside it; open, a choice of what it does and that kind's own fields (a time, a way of travelling, an action and its parameters, a check, rows of changes…). **Only when** / **Not when** (the action's and each step's) and a step's wait are built as rows of _what it reads · comparison · value_, joined by **All of these** or **Any of these**, with facts suggested by full name and values from the system; **YAML** on each card and each condition shows the text as before, and conditions rows can't show stay YAML, unchanged.
 
+- Packs, Systems, Hexmapper, Travel: **a step rolls a table, and trips hear the world's clocks**: an action's step can roll something of the Oracle directly (`roll: table.ruins`, a generator, an oracle or a deck), with no check or binding around it: its result goes to the journal by its name, its values and changes reach the trip, and a pause in its entry stops it. A system's progress clock filling is a moment its trips hear (`world.clocks.<id>.full`), for an action's **By itself at** or a check's **When**: when what the trip did fills it, those actions and checks happen. Systems suggests both. The Grey Marches: **Delve the ruin** (rolls _Delving a ruin_) and **The Wyrm wakes** (when the haunted lights fill its clock); Core's Generic rules: **Explore** (rolls the Prompt).
+
 ## [0.8.0] - 2026-10-20
 
 ### Apps

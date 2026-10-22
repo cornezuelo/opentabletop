@@ -44,6 +44,8 @@ export function minutesText(minutes: number): string {
 export interface StepNames {
   action: (id: string) => string
   check: (event: string) => string
+  /** What else a step rolls (`table.ruins`), by its definition's name. */
+  rolled: (ref: string) => string
   mode: (id: string) => string
   param: (id: string) => string
   part: (ref: string) => string
@@ -104,7 +106,7 @@ export function stepSummary(step: ActionStep, names: StepNames): string {
     }
     case 'roll':
       return t('steps.say.roll', {
-        check: refId('checks', v) ? names.check(refId('checks', v)!) : String(v),
+        check: refId('checks', v) ? names.check(refId('checks', v)!) : names.rolled(String(v)),
       })
     case 'say':
       return t('steps.say.say', { text: String(v) })
@@ -132,6 +134,8 @@ export interface StepContext {
   params: { id: string; name: string }[]
   modes: { id: string; name: string }[]
   checks: { event: string; name: string }[]
+  /** What the Oracle rolls in the system's packs (`table.ruins`, `core/table.twists`). */
+  rollables: { ref: string; name: string }[]
   /** The values of the day the system declares. */
   values: string[]
   /** What effects can change. */

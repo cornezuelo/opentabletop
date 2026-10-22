@@ -21,6 +21,7 @@
   import type { StepContext } from '../../lib/steps'
   import { getLocale, t } from '../../lib/i18n'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
+  import { clockMoments, clockOfMoment } from '../../lib/worldMoments'
   import { library } from '../../lib/packs.svelte'
   import { momentsText, parseMoments, type SystemDoc } from '../../lib/systemDoc.svelte'
 
@@ -54,7 +55,9 @@
                 ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
                 : refId('actions', m)
                   ? t('actions.onAfter', { action: label(refId('actions', m)!) })
-                  : m,
+                  : clockOfMoment(system, m, getLocale())
+                    ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
+                    : m,
       )
       .join(' · ')
   /** Check events a step can roll. */
@@ -84,6 +87,8 @@
       'name',
     ]) || m
   const effectKeys = $derived(Object.keys(effectSuggestions(library.registry)))
+  /** What the Oracle rolls, as the rules name it (`table.ruins`): the same as checks roll on. */
+  const rollables = $derived(doc.targets.map((x) => ({ ref: x.ref, name: x.name })))
   /** What a step of this action's card offers. */
   const stepContext = (id: string): StepContext => ({
     actions: ids
@@ -92,6 +97,7 @@
     params: paramsOf(id),
     modes: Object.keys((doc.rules.modes ?? {}) as Raw).map((m) => ({ id: m, name: modeName(m) })),
     checks: events.map((e) => ({ event: e, name: checkName(e) })),
+    rollables,
     values: Object.keys((doc.rules.values ?? {}) as Raw),
     effectKeys,
     times: ['60', '120', '180', '14:00', ...parts],
@@ -105,6 +111,7 @@
     names: {
       action: label,
       check: checkName,
+      rolled: (r) => rollables.find((x) => x.ref === r)?.name ?? r,
       mode: modeName,
       param: (p) => paramsOf(id).find((x) => x.id === p)?.name ?? p,
       part: (ref) => partLabel(system, ref, getLocale()),
@@ -254,6 +261,7 @@
               '06:00',
               ...parts,
               ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
+              ...clockMoments(system),
             ]}
             {disabled}
             onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], parseMoments(v))}

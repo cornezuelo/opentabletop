@@ -509,7 +509,7 @@ export const en = {
       "What the action does, **one step per card, in order**: choose what each one does in its first box, then fill in its fields (each explains itself). Click a card's title to fold or open it; folded, it reads in words (_Pass 3 h_, _Take March (until: hex)_). ↑ and ↓ reorder them.\n**Only when** / **Not when** on a step: it only happens when they hold, built as rows (what it reads · comparison · value). Besides what the action's own conditions see, they see:\n• `params.how` — the action's parameters\n• `trip.below` is `food` — food hit its minimum during the action (`trip.above`: a maximum)\n• `trip.moment` is `trip.hex-enter` — when the system took it\n• `trip.doing` — the action under way\n**Edit as YAML** on a card shows the step as the pack writes it (`time: 180`, `do: actions.march, with: { until: hex }`), for what the form doesn't cover; nothing written there is lost by the form. A step may have an `id` there (`id: song`), which its translations name.\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
     on: 'By itself at',
     onHelp:
-      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• a clock, e.g. `06:00` — as it strikes\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends, camping or not\n• an action, e.g. `actions.camp` — right after that action starts\nSeveral, separated by commas: `06:00, trip.hex-enter`. Its conditions see which one it is as `moment` (`when: { trip.moment: trip.hex-enter }`).\nExamples:\n• eating as each day ends: `time.day-end`\n• porters grumbling in the morning after a hungry day: `time.part.morning` (or `06:00`) with **Only when** `yesterday.hungry: true`",
+      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• a clock, e.g. `06:00` — as it strikes\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends, camping or not\n• an action, e.g. `actions.camp` — right after that action starts\n• a progress clock of the system filling, e.g. `world.clocks.the-threat.full` — when what the trip did fills it, once that step is done\nSeveral, separated by commas: `06:00, trip.hex-enter`. Its conditions see which one it is as `moment` (`when: { trip.moment: trip.hex-enter }`).\nExamples:\n• eating as each day ends: `time.day-end`\n• porters grumbling in the morning after a hungry day: `time.part.morning` (or `06:00`) with **Only when** `yesterday.hungry: true`",
     onButton: 'nothing: a button for the player',
     onAfter: 'After: {action}',
     step: 'Step',
@@ -524,7 +524,7 @@ export const en = {
   steps: {
     kind: 'What it does',
     kindHelp:
-      "What this step does: one thing, chosen here; its fields change with it.\n• **Pass time** — minutes, or until a clock or a part of the day\n• **Move** — along the route while time passes\n• **Change speed**, **Advance hexes**, **Change way of travelling** — the rest of the trip's moving\n• **Change values** — the party, its characters, factions, clocks\n• **Set a value of the day** — one the system declares\n• **Take another action**, **Roll a check** — the system's own\n• **Say**, **Pause**, **Ask the player** — talk to the player\n• **Wait for something** — time passes until a condition holds\nChanging it keeps the step's conditions.",
+      "What this step does: one thing, chosen here; its fields change with it.\n• **Pass time** — minutes, or until a clock or a part of the day\n• **Move** — along the route while time passes\n• **Change speed**, **Advance hexes**, **Change way of travelling** — the rest of the trip's moving\n• **Change values** — the party, its characters, factions, clocks\n• **Set a value of the day** — one the system declares\n• **Take another action**, **Roll a check or a table** — the system's own, or the Oracle's\n• **Say**, **Pause**, **Ask the player** — talk to the player\n• **Wait for something** — time passes until a condition holds\nChanging it keeps the step's conditions.",
     kinds: {
       time: 'Pass time',
       'travel-move': 'Move',
@@ -534,7 +534,7 @@ export const en = {
       effects: 'Change values',
       set: 'Set a value of the day',
       do: 'Take another action',
-      roll: 'Roll a check',
+      roll: 'Roll a check or a table',
       say: 'Say',
       pause: 'Pause',
       ask: 'Ask the player',
@@ -550,7 +550,7 @@ export const en = {
       set: 'Values of the day',
       do: 'Action',
       with: 'With',
-      roll: 'Check',
+      roll: 'What it rolls',
       say: 'Text',
       pause: 'Why (optional)',
       ask: 'Parameter',
@@ -571,7 +571,7 @@ export const en = {
         "What changes, one row each: a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.resources.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.resources.food` · `-{{party.stats.mouths}}` — as many as another value\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — its characters\nA change past a value's **Min** or **Max** stops there, and later steps see `trip.below` / `trip.above`.",
       set: 'Values of the day the system declares (**Rules → Values of the day**), one row each; they last until the day ends.\n• `lost` · `true`\n• `ferry` · `true` — what a **Wait for something** step may wait for',
       do: 'Another action of the system, taken now if its conditions hold (otherwise nothing happens). **With** gives its parameters; empty, each takes its default.\n• **March**, with **until** `hex` — one hex of marching\n• a forced march: **Change speed** `1.5`, then **Take another action** March',
-      roll: 'A check of the system (**Checks**), rolled now whatever its **When**; its result comes when the action ends, so later steps don’t see it yet.',
+      roll: 'What is rolled now, its result when the action ends (so later steps don’t see it yet):\n• a check of the system (**Checks**), whatever its **When**\n• a table, oracle, generator or deck of the system’s packs, e.g. `table.ruins`: no check around it, its result in the journal by its name, its values and changes reach the trip, and an entry with a pause stops it',
       say: "A line of the system's own in the journal. Values in it are read then:\n• `The porters sing as they walk.`\n• `Across, with {{party.resources.food}} food left.`",
       pause:
         'The trip waits here until the player presses **Continue**, then goes on with the rest. Empty: it just waits; with a text, the waiting box and the journal say it (`The ferry is on the far bank.`).',
@@ -640,8 +640,9 @@ export const en = {
     atNone: 'only when a step rolls it',
     atPart: 'As {part} begins',
     atClock: 'At {clock}',
+    atFull: 'When {clock} fills',
     atHelp:
-      "When it is rolled:\n• a clock, e.g. `06:00` — as it strikes, marching, waiting or asleep\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends (after the system's day-end actions)\n• an action, e.g. `actions.camp` or `actions.forage` — when the party takes it\nSeveral, separated by commas: `trip.hex-enter, actions.rest`. Its conditions and its table see which one it is as `moment` (`when: { trip.moment: actions.rest }`).\nEmpty: only when an action's step rolls it (`roll: checks.<its event>`).",
+      "When it is rolled:\n• a clock, e.g. `06:00` — as it strikes, marching, waiting or asleep\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.hex-enter` — entering each hex\n• `time.day-end` — as each day ends (after the system's day-end actions)\n• an action, e.g. `actions.camp` or `actions.forage` — when the party takes it\n• a progress clock of the system filling, e.g. `world.clocks.the-threat.full` — when what the trip did fills it\nSeveral, separated by commas: `trip.hex-enter, actions.rest`. Its conditions and its table see which one it is as `moment` (`when: { trip.moment: actions.rest }`).\nEmpty: only when an action's step rolls it (`roll: checks.<its event>`).",
     atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',

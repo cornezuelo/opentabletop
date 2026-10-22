@@ -512,7 +512,7 @@ export const es: Messages<typeof en> = {
       'Lo que hace la acción, **un paso por tarjeta, en orden**: elige qué hace cada uno en su primera caja y rellena sus campos (cada uno se explica solo). Pulsa el título de una tarjeta para plegarla o abrirla; plegada, se lee en palabras (_Pasan 3 h_, _Hacer Marchar (until: hex)_). ↑ y ↓ las reordenan.\n**Solo si** / **Salvo si** en un paso: solo ocurre cuando se cumplen, construidas en filas (qué lee · comparación · valor). Además de lo que ven las condiciones de la propia acción, ven:\n• `params.how` — los parámetros de la acción\n• `trip.below` es `food` — la comida llegó a su mínimo durante la acción (`trip.above`: a un máximo)\n• `trip.moment` es `trip.hex-enter` — cuándo la hizo el sistema\n• `trip.doing` — la acción en curso\n**Editar como YAML** en una tarjeta muestra el paso como lo escribe el pack (`time: 180`, `do: actions.march, with: { until: hex }`), para lo que el formulario no cubre; nada de lo escrito ahí se pierde por el formulario. Ahí un paso puede tener un `id` (`id: song`), que nombran sus traducciones.\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.',
     on: 'Automática en',
     onHelp:
-      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• una hora, p. ej. `06:00` — al dar esa hora\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día, se acampe o no\n• una acción, p. ej. `actions.camp` — justo al empezar esa acción\nVarios, separados por comas: `06:00, trip.hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { trip.moment: trip.hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `time.day-end`\n• los porteadores refunfuñan por la mañana tras un día de hambre: `time.part.morning` (o `06:00`) con **Solo si** `yesterday.hungry: true`',
+      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• una hora, p. ej. `06:00` — al dar esa hora\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día, se acampe o no\n• una acción, p. ej. `actions.camp` — justo al empezar esa acción\n• un reloj de progreso del sistema al llenarse, p. ej. `world.clocks.the-threat.full` — cuando lo llena lo que hizo el viaje, en cuanto acaba ese paso\nVarios, separados por comas: `06:00, trip.hex-enter`. Sus condiciones ven cuál es como `moment` (`when: { trip.moment: trip.hex-enter }`).\nEjemplos:\n• comer al acabar cada día: `time.day-end`\n• los porteadores refunfuñan por la mañana tras un día de hambre: `time.part.morning` (o `06:00`) con **Solo si** `yesterday.hungry: true`',
     onButton: 'nada: un botón para el jugador',
     onAfter: 'Tras: {action}',
     step: 'Paso',
@@ -527,7 +527,7 @@ export const es: Messages<typeof en> = {
   steps: {
     kind: 'Qué hace',
     kindHelp:
-      'Lo que hace este paso: una cosa, elegida aquí; sus campos cambian con ella.\n• **Pasar el tiempo** — minutos, o hasta una hora o una parte del día\n• **Moverse** — por la ruta mientras pasa el tiempo\n• **Cambiar la velocidad**, **Avanzar hexes**, **Cambiar la forma de viajar** — el resto del movimiento del viaje\n• **Cambiar valores** — el grupo, sus personajes, facciones, relojes\n• **Dar un valor del día** — uno que declara el sistema\n• **Hacer otra acción**, **Tirar una comprobación** — las del propio sistema\n• **Decir**, **Pausar**, **Preguntar al jugador** — hablarle al jugador\n• **Esperar algo** — pasa el tiempo hasta que se cumple una condición\nCambiarlo conserva las condiciones del paso.',
+      'Lo que hace este paso: una cosa, elegida aquí; sus campos cambian con ella.\n• **Pasar el tiempo** — minutos, o hasta una hora o una parte del día\n• **Moverse** — por la ruta mientras pasa el tiempo\n• **Cambiar la velocidad**, **Avanzar hexes**, **Cambiar la forma de viajar** — el resto del movimiento del viaje\n• **Cambiar valores** — el grupo, sus personajes, facciones, relojes\n• **Dar un valor del día** — uno que declara el sistema\n• **Hacer otra acción**, **Tirar una comprobación o una tabla** — las del propio sistema, o las del Oráculo\n• **Decir**, **Pausar**, **Preguntar al jugador** — hablarle al jugador\n• **Esperar algo** — pasa el tiempo hasta que se cumple una condición\nCambiarlo conserva las condiciones del paso.',
     kinds: {
       time: 'Pasar el tiempo',
       'travel-move': 'Moverse',
@@ -537,7 +537,7 @@ export const es: Messages<typeof en> = {
       effects: 'Cambiar valores',
       set: 'Dar un valor del día',
       do: 'Hacer otra acción',
-      roll: 'Tirar una comprobación',
+      roll: 'Tirar una comprobación o una tabla',
       say: 'Decir',
       pause: 'Pausar',
       ask: 'Preguntar al jugador',
@@ -553,7 +553,7 @@ export const es: Messages<typeof en> = {
       set: 'Valores del día',
       do: 'Acción',
       with: 'Con',
-      roll: 'Comprobación',
+      roll: 'Qué tira',
       say: 'Texto',
       pause: 'Por qué (opcional)',
       ask: 'Parámetro',
@@ -574,7 +574,7 @@ export const es: Messages<typeof en> = {
         'Lo que cambia, una fila por cosa: un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.resources.food` · `-1` — resta 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.resources.food` · `-{{party.stats.mouths}}` — tanto como otro valor\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — sus personajes\nUn cambio que pasa del **Mín** o el **Máx** de un valor se queda ahí, y los pasos siguientes ven `trip.below` / `trip.above`.',
       set: 'Valores del día que declara el sistema (**Reglas → Valores del día**), una fila por valor; duran hasta que acaba el día.\n• `lost` · `true`\n• `ferry` · `true` — lo que puede esperar un paso **Esperar algo**',
       do: 'Otra acción del sistema, que se hace ahora si se cumplen sus condiciones (si no, no pasa nada). **Con** le da sus parámetros; vacío, cada uno toma el suyo por defecto.\n• **Marchar**, con **until** `hex` — un hex de marcha\n• una marcha forzada: **Cambiar la velocidad** `1.5`, y luego **Hacer otra acción** Marchar',
-      roll: 'Una comprobación del sistema (**Comprobaciones**), tirada ahora sea cual sea su **Cuándo**; su resultado llega al acabar la acción, así que los pasos siguientes aún no lo ven.',
+      roll: 'Lo que se tira ahora, con su resultado al acabar la acción (así que los pasos siguientes aún no lo ven):\n• una comprobación del sistema (**Comprobaciones**), sea cual sea su **Cuándo**\n• una tabla, oráculo, generador o mazo de los packs del sistema, p. ej. `table.ruins`: sin comprobación alrededor, su resultado en el diario con su nombre, sus valores y cambios llegan al viaje, y una entrada con pausa lo detiene',
       say: 'Una línea propia del sistema en el diario. Los valores que lleve se leen en ese momento:\n• `Los porteadores cantan mientras caminan.`\n• `Al otro lado, con {{party.resources.food}} de comida.`',
       pause:
         'El viaje espera aquí hasta que el jugador pulse **Continuar**, y luego sigue con el resto. Vacío: solo espera; con un texto, la caja de espera y el diario lo dicen (`La barca está en la otra orilla.`).',
@@ -643,8 +643,9 @@ export const es: Messages<typeof en> = {
     atNone: 'solo cuando un paso la tira',
     atPart: 'Al empezar {part}',
     atClock: 'A las {clock}',
+    atFull: 'Al llenarse {clock}',
     atHelp:
-      'Cuándo se tira:\n• una hora, p. ej. `06:00` — al dar esa hora, marchando, esperando o durmiendo\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día (tras las acciones day-end del sistema)\n• una acción, p. ej. `actions.camp` o `actions.forage` — cuando el grupo la hace\nVarios, separados por comas: `trip.hex-enter, actions.rest`. Sus condiciones y su tabla ven cuál es como `moment` (`when: { trip.moment: actions.rest }`).\nVacío: solo cuando la tira un paso de una acción (`roll: checks.<su evento>`).',
+      'Cuándo se tira:\n• una hora, p. ej. `06:00` — al dar esa hora, marchando, esperando o durmiendo\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.hex-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día (tras las acciones day-end del sistema)\n• una acción, p. ej. `actions.camp` o `actions.forage` — cuando el grupo la hace\n• un reloj de progreso del sistema al llenarse, p. ej. `world.clocks.the-threat.full` — cuando lo llena lo que hizo el viaje\nVarios, separados por comas: `trip.hex-enter, actions.rest`. Sus condiciones y su tabla ven cuál es como `moment` (`when: { trip.moment: actions.rest }`).\nVacío: solo cuando la tira un paso de una acción (`roll: checks.<su evento>`).',
     atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',

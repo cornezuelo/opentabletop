@@ -240,8 +240,41 @@ describe('example maps', () => {
       tend: { condition: 'when' }, // nobody is wounded
       ferry: { condition: 'when' }, // no ferry here
       ashore: { condition: 'when' }, // not on a boat
+      delve: { condition: 'when' }, // no ruin here
     })
-    expect(Object.keys(unavailable)).toHaveLength(13)
+    expect(Object.keys(unavailable)).toHaveLength(14)
+  })
+
+  it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    // A ruin, as discovery tags the ones it finds.
+    map.hexes['5,7'] = { ...map.hexes['5,7'], tags: [...(map.hexes['5,7']?.tags ?? []), 'ruins'] }
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const options = {
+      system,
+      world: mapWorld(map),
+      oracle: createOracleEngine({ registry, random: seeded('delve') }),
+      locale: 'es',
+    }
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    expect(tripAvailability({ system, world: options.world }, session).delve).toBeUndefined()
+    const { state } = stepTrip(options, session, { type: 'action', id: 'delve' })
+    const result = state.journal.find((e) => e.code === 'ORACLE_RESULT')!
+    // In the journal by the generator's name, in the UI's language.
+    expect(result.data).toMatchObject({
+      event: 'generator.ruin-delve',
+      named: 'Explorar una ruina',
+      table: 'grey-marches/ruin-delve',
+    })
+    expect(result.text).toMatch(/^Las ruinas de /)
+    expect(state.travel.pendingChecks).toEqual([])
+    expect(state.travel.time - session.travel.time).toBe(180)
   })
 
   it('the Grey Marches: foraging is an action of their own, once a day', () => {

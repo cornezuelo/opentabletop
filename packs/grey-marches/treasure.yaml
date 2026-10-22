@@ -64,6 +64,7 @@ description: |-
   - A field only when another says so: `when`; and one unless another says so: `unless`
   - A table rolled with its own context: the guardian, met at night, as dangerous as the ruin (fields see the fields before them: `danger`)
   - Fields' fixed texts translated in `locales/` (`fields:`)
+  - Rolled by an action's step in a trip (`roll: generator.ruin-delve`, _Delve the ruin_), with no check around it
 fields:
   site: { table: table.ruins }
   danger: { roll: 2d6kl1 }

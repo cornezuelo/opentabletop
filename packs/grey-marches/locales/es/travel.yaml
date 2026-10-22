@@ -90,6 +90,17 @@ travel-rules/default:
     ashore:
       name: Desembarcar
       description: 'Media hora para dejar la barca en la orilla: a pie desde ahora, para marchar a tierra.'
+    delve:
+      name: Explorar la ruina
+      description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'
+    wyrm-wakes:
+      name: La Sierpe despierta
+      description: 'Cuando la Sierpe del Bosque Gris despierta durante un viaje (se llena su reloj): +1 de pavor a cada compañero, y en el Bosque Gris el viaje se detiene.'
+      do:
+        stirs:
+          say: 'A lo lejos, algo enorme se agita, y los pájaros del Bosque Gris enmudecen.'
+        awake:
+          pause: 'La Sierpe está despierta, y este es su bosque.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

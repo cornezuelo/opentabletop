@@ -6,21 +6,21 @@ En la aplicación Sistemas cada acción es una tarjeta en **Reglas → Acciones*
 
 ## Todos los pasos de un vistazo
 
-| Paso                                             | Qué hace                                                                      | Pasa el tiempo  | Detiene el viaje para el jugador         |
-| ------------------------------------------------ | ----------------------------------------------------------------------------- | --------------- | ---------------------------------------- |
-| `time: 180`                                      | pasan tres horas (o hasta una hora del reloj, o una parte del día)            | sí              | no                                       |
-| `travel.move: destination`                       | avanza por la ruta mientras se cumplen las condiciones de la acción           | sí              | una comprobación puede pararlo en camino |
-| `travel.speed: 0.5`                              | lo que queda de movimiento hoy, a media velocidad                             | no              | no                                       |
-| `travel.advance: 1`                              | un hex por la ruta de golpe                                                   | no              | una comprobación puede pararlo           |
-| `travel.mode: modes.boat`                        | viajar de otra forma desde ahora                                              | no              | no                                       |
-| `effects: { party.stats.fatigue: 1 }`            | cambia el grupo, sus personajes, el mundo                                     | no              | no                                       |
-| `set: { lost: true }`                            | da un valor del día                                                           | no              | no                                       |
-| `do: actions.forage`                             | hace otra acción (con `with:`, sus parámetros)                                | como esa acción | como esa acción                          |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED`          | tira una comprobación ya                                                      | no              | lo que diga la comprobación              |
-| `say: Los porteadores cantan`                    | escribe una línea propia del sistema en el diario                             | no              | no                                       |
-| `pause: El transbordador está en la otra orilla` | el viaje espera, diciéndolo, hasta **Continuar**                              | no              | **sí**                                   |
-| `ask: params.how`                                | el viaje espera a que el jugador elija el valor de un parámetro               | no              | **sí**                                   |
-| `wait: { today.ferry: true }`                    | pasa el tiempo hasta que se cumpla una condición, como mucho hasta su `limit` | sí              | no                                       |
+| Paso                                             | Qué hace                                                                      | Pasa el tiempo  | Detiene el viaje para el jugador           |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- | --------------- | ------------------------------------------ |
+| `time: 180`                                      | pasan tres horas (o hasta una hora del reloj, o una parte del día)            | sí              | no                                         |
+| `travel.move: destination`                       | avanza por la ruta mientras se cumplen las condiciones de la acción           | sí              | una comprobación puede pararlo en camino   |
+| `travel.speed: 0.5`                              | lo que queda de movimiento hoy, a media velocidad                             | no              | no                                         |
+| `travel.advance: 1`                              | un hex por la ruta de golpe                                                   | no              | una comprobación puede pararlo             |
+| `travel.mode: modes.boat`                        | viajar de otra forma desde ahora                                              | no              | no                                         |
+| `effects: { party.stats.fatigue: 1 }`            | cambia el grupo, sus personajes, el mundo                                     | no              | no                                         |
+| `set: { lost: true }`                            | da un valor del día                                                           | no              | no                                         |
+| `do: actions.forage`                             | hace otra acción (con `with:`, sus parámetros)                                | como esa acción | como esa acción                            |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`          | tira una comprobación ya (o `roll: table.ruins`: una tabla del Oráculo)       | no              | lo que diga la comprobación (o la entrada) |
+| `say: Los porteadores cantan`                    | escribe una línea propia del sistema en el diario                             | no              | no                                         |
+| `pause: El transbordador está en la otra orilla` | el viaje espera, diciéndolo, hasta **Continuar**                              | no              | **sí**                                     |
+| `ask: params.how`                                | el viaje espera a que el jugador elija el valor de un parámetro               | no              | **sí**                                     |
+| `wait: { today.ferry: true }`                    | pasa el tiempo hasta que se cumpla una condición, como mucho hasta su `limit` | sí              | no                                         |
 
 Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen) y un `id` (para traducir lo que dice). Nada más va en un paso: cada uno hace exactamente una de las cosas de arriba, y si no, el pack muestra un problema en esa línea.
 
@@ -44,6 +44,7 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 
 - `do: actions.forage` hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). `{ do: actions.march, with: { until: hex } }` le da los valores de sus parámetros. Una acción que hace otra es como marcha una marcha forzada: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
 - `roll: checks.ENCOUNTER_CHECK_REQUIRED` tira una comprobación ya: todas las comprobaciones con ese evento cuyas condiciones se cumplan, sea cual sea su `at`. Se resuelve al acabar la acción, así que los pasos siguientes aún no ven su resultado.
+- `roll: table.ruins` tira en su lugar algo del Oráculo (una tabla, `oracle.<id>`, `generator.<id>`, `deck.<id>`; la de otro pack como `core/table.twists`), sin comprobación ni binding alrededor: se resuelve al acabar la acción como una comprobación, su resultado va al diario con el nombre de la tabla, sus valores `set` y sus `effects` llegan al viaje, y una entrada con `pause: true` lo detiene hasta **Continuar**. Un nombre que no es algo que tirar es un problema al cargar el pack. _Explorar la ruina_ de las Marcas Grises: `[{ time: 180 }, { roll: generator.ruin-delve }]`.
 
 ## Hablar con el jugador: `say`, `pause` y `ask`
 

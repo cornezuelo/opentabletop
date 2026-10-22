@@ -27,11 +27,23 @@ export const HEX_ENTER = 'trip.hex-enter'
 /** The moment each day ends. */
 export const DAY_END = 'time.day-end'
 /**
+ * A moment of the world the host says came (`world.clocks.<id>.full`), not one the trip
+ * keeps: the engine only knows it by name, and happens it when told (`{ type: 'moment' }`).
+ */
+export const HOST_MOMENT = /^world\.[A-Za-z0-9][\w-]*(\.[\w-]+)+$/
+/** Whether a moment is one the host says (`world.…`). */
+export const isHostMoment = (value: unknown): value is string =>
+  typeof value === 'string' && HOST_MOMENT.test(value)
+
+/**
  * Moments of the trip for checks and triggered actions (`at:` / `on:`), besides a clock
  * (`'06:00'`), a part of the calendar's day (`time.part.morning`) and the system's actions
  * (`at: actions.camp`).
  */
 export const CHECK_MOMENTS = [HEX_ENTER, DAY_END] as const
+
+/** A reference to a definition of another kind, maybe of another pack (`core/table.twists`). */
+const OTHER_REF = /^(?:[a-z0-9][a-z0-9-]*\/)?[a-z][a-z-]*\.[^/\s]+$/
 
 /** The kinds of definitions rules refer to by their full name (`actions.march`). */
 export type RefKind = 'actions' | 'modes' | 'checks' | 'params'
@@ -446,11 +458,16 @@ export const travelRulesSchema = z
     const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
       momentsOf(value).forEach((moment, j) => {
         // A part of the calendar's day (`meal.elevenses`): checked against the calendar.
-        if (!moments.includes(moment) && !PART_REF.test(moment) && !CLOCK.test(moment))
+        if (
+          !moments.includes(moment) &&
+          !PART_REF.test(moment) &&
+          !CLOCK.test(moment) &&
+          !isHostMoment(moment)
+        )
           ctx.addIssue({
             code: 'custom',
             path: Array.isArray(value) ? [...path, j] : path,
-            message: `expected ${moments.join(', ')}, a clock (06:00) or a part of the day (time.meal.supper)${meant(moment, moments)}`,
+            message: `expected ${moments.join(', ')}, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)${meant(moment, moments)}`,
           })
       })
     rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))
@@ -500,13 +517,16 @@ export const travelRulesSchema = z
             path: ['actions', id, 'do', i, 'travel.move'],
             message: 'expected destination, hex, a number of hexes or a variable',
           })
-        if (st.roll !== undefined && !events.includes(st.roll))
+        // A check of the system, or a reference of another kind the host rolls (`table.ruins`).
+        if (
+          st.roll !== undefined &&
+          (refId('checks', st.roll) !== undefined || !OTHER_REF.test(st.roll)) &&
+          !events.includes(st.roll)
+        )
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'do', i, 'roll'],
-            message: events.length
-              ? `expected ${events.join(', ')}${meant(st.roll, events)}`
-              : 'the system has no checks',
+            message: `expected ${[...events, 'table.<id>'].join(', ')}${meant(st.roll, events)}`,
           })
         const mode = st['travel.mode']
         const modes = Object.keys(rules.modes).map((m) => ref('modes', m))

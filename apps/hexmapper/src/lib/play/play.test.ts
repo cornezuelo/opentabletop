@@ -9,6 +9,7 @@ import { bundleToMap, mapToBundle } from '../io/otd'
 import { createCampaign, factionsOn } from '@open-tabletop/campaign'
 import {
   applyResult,
+  newMember,
   partyOf,
   refreshParty,
   shownAt,
@@ -191,6 +192,42 @@ describe('playing on the map', () => {
       party: { mode: 'foot' },
     })
     expect(typeof rollContext().hour).toBe('number')
+  })
+
+  it('a trip hears a clock it fills: the Grey Marches’ Wyrm wakes as the lights fill it', () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    startWorld()
+    // Twenty days on, with the Ember Moon no longer full (its Hunt would come instead).
+    worldAct({ type: 'advance', minutes: 20 * 1440 })
+    clickHex('7,7')
+    const wyrm = editor.campaign.world!.clocks.find((c) => c.ref === 'the-greywood-wyrm-wakes')!
+    worldAct({ type: 'updateClock', id: wyrm.id, patch: { filled: 5 } })
+    // A companion along (dread is theirs), camping at nightfall in a haunted hex of the
+    // Greywood (danger 4): the night encounter is the haunted lights, which tick the clock.
+    editSession((s) => {
+      s.travel = { ...s.travel, location: '13,3', route: undefined, destination: undefined }
+      s.members = [newMember(partyOf(activeSystem()), { id: 'kael', name: 'Kael' })]
+      refreshParty(s, partyOf(activeSystem()))
+      return s
+    })
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    try {
+      step({ type: 'wait', until: sessionOf(editor.map.play!)!.travel.time + 16 * 60 })
+      const session = () => sessionOf(editor.map.play!)!
+      for (let i = 0; i < 6 && !session().travel.waiting; i++)
+        for (const c of session().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+    } finally {
+      random.mockRestore()
+    }
+    const session = sessionOf(editor.map.play!)!
+    const lines = session.journal.map((e) => `${e.code} ${e.data?.action ?? e.data?.event ?? ''}`)
+    // The lights filled the clock; the trip heard it: the Wyrm wakes action, by itself.
+    expect(editor.campaign.world!.clocks.find((c) => c.id === wyrm.id)?.filled).toBe(6)
+    expect(lines).toContain('SAID wyrm-wakes')
+    // Inside the Greywood it stops the trip, saying so.
+    expect(session.travel.waiting).toMatchObject({ action: 'wyrm-wakes' })
+    // Dread from the lights and the haunted watch, and one more as the Wyrm wakes.
+    expect(session.members![0].values.dread).toBe(3)
   })
 
   it('one trip at a time in a campaign: another that played last is paused first', async () => {

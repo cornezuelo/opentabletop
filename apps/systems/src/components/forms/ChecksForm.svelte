@@ -29,6 +29,7 @@
     refId,
   } from '@open-tabletop/travel-engine'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
+  import { clockMoments, clockOfMoment } from '../../lib/worldMoments'
 
   /**
    * The checks of the rules, each with the table that resolves it (from the bindings):
@@ -77,7 +78,9 @@
                 ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
                 : refId('actions', m)
                   ? t('checks.atAction', { action: actionLabel(refId('actions', m)!) })
-                  : m,
+                  : clockOfMoment(system, m, getLocale())
+                    ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
+                    : m,
       )
       .join(' · ')
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
@@ -226,6 +229,7 @@
                 '06:00',
                 ...dayPartRefs(system),
                 ...ownActions.map((a) => ref('actions', a)),
+                ...clockMoments(system),
               ]}
               {disabled}
               onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], parseMoments(v))}

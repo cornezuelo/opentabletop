@@ -29,6 +29,8 @@ import {
   leaveTrip,
   otherTrip,
   playTrip,
+  heardMoments,
+  MAX_HEARD,
   tripStepped,
   worldFactsOf,
   type Campaign,
@@ -524,9 +526,11 @@ export class TripStore {
     }
   }
 
-  private stepNow(action: TravelAction): void {
+  /** Plays an action; then the moments of the world it made happen (a clock filling), heard. */
+  private stepNow(action: TravelAction, heard = 0): void {
     const session = this.saved.session
     if (!session) return
+    let moments: string[] = []
     const campaign = this.campaign
     const host = campaign && this.worldHost(session)
     try {
@@ -552,6 +556,7 @@ export class TripStore {
         this.keeper!.set(done.campaign)
         for (const { clock, text } of done.filled)
           showToast(clockFilledText(this.options.locale(), clock, text), 'info', 8000)
+        moments = heardMoments(this.system.rules, done.filled)
       }
       this.saved = { ...this.saved, session: next }
     } catch (error) {
@@ -559,6 +564,7 @@ export class TripStore {
       showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
     }
     this.save()
+    if (heard < MAX_HEARD) for (const at of moments) this.stepNow({ type: 'moment', at }, heard + 1)
   }
 
   edit(update: (session: SessionState) => SessionState): void {

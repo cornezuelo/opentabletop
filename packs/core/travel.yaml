@@ -74,7 +74,9 @@ values: {}
 # time; camp sleeps until the morning; a rest is an hour without marching, only by day (the
 # night is for camping). As each day ends, whether the party camped or not, it eats a day
 # of food (an action the system takes by itself: `on`), and the journal says so when there
-# was none left (a `say` step, named by its `id` for its translation).
+# was none left (a `say` step, named by its `id` for its translation). Exploring rolls
+# Core's Prompt generator (a step that rolls something of the Oracle: `roll:`) for an idea
+# of what the party finds.
 actions:
   march:
     name: March
@@ -108,3 +110,10 @@ actions:
     do:
       - { effects: { party.resources.food: -1 } }
       - { id: empty, when: { trip.below: food }, say: There is nothing left to eat. }
+  explore:
+    name: Explore
+    description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt).'
+    when: { time.tags: { not: dark } }
+    do:
+      - { time: 60 }
+      - { roll: generator.prompt }

@@ -6,21 +6,21 @@ In the Systems app each action is a card in **Rules → Actions**, and each step
 
 ## Every step at a glance
 
-| Step                                    | What it does                                                   | Time passes    | Stops the trip for the player  |
-| --------------------------------------- | -------------------------------------------------------------- | -------------- | ------------------------------ |
-| `time: 180`                             | three hours pass (or until a clock, or a part of the day)      | yes            | no                             |
-| `travel.move: destination`              | moves along the route while the action's conditions hold       | yes            | a check may stop it on the way |
-| `travel.speed: 0.5`                     | the rest of today's moving at half speed                       | no             | no                             |
-| `travel.advance: 1`                     | one hex along the route at once                                | no             | a check may stop it            |
-| `travel.mode: modes.boat`               | travel another way from now on                                 | no             | no                             |
-| `effects: { party.stats.fatigue: 1 }`   | changes the party, its characters, the world                   | no             | no                             |
-| `set: { lost: true }`                   | gives a value of the day                                       | no             | no                             |
-| `do: actions.forage`                    | takes another action (with `with:` its parameters)             | as that action | as that action                 |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED` | rolls a check now                                              | no             | as the check says              |
-| `say: The porters sing`                 | writes a line of the system's own in the journal               | no             | no                             |
-| `pause: The ferry is on the far bank`   | the trip waits, saying so, until **Continue**                  | no             | **yes**                        |
-| `ask: params.how`                       | the trip waits for the player to choose a parameter's value    | no             | **yes**                        |
-| `wait: { today.ferry: true }`           | time passes until a condition holds, at most until its `limit` | yes            | no                             |
+| Step                                    | What it does                                                      | Time passes    | Stops the trip for the player    |
+| --------------------------------------- | ----------------------------------------------------------------- | -------------- | -------------------------------- |
+| `time: 180`                             | three hours pass (or until a clock, or a part of the day)         | yes            | no                               |
+| `travel.move: destination`              | moves along the route while the action's conditions hold          | yes            | a check may stop it on the way   |
+| `travel.speed: 0.5`                     | the rest of today's moving at half speed                          | no             | no                               |
+| `travel.advance: 1`                     | one hex along the route at once                                   | no             | a check may stop it              |
+| `travel.mode: modes.boat`               | travel another way from now on                                    | no             | no                               |
+| `effects: { party.stats.fatigue: 1 }`   | changes the party, its characters, the world                      | no             | no                               |
+| `set: { lost: true }`                   | gives a value of the day                                          | no             | no                               |
+| `do: actions.forage`                    | takes another action (with `with:` its parameters)                | as that action | as that action                   |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED` | rolls a check now (or `roll: table.ruins`: a table of the Oracle) | no             | as the check says (or the entry) |
+| `say: The porters sing`                 | writes a line of the system's own in the journal                  | no             | no                               |
+| `pause: The ferry is on the far bank`   | the trip waits, saying so, until **Continue**                     | no             | **yes**                          |
+| `ask: params.how`                       | the trip waits for the player to choose a parameter's value       | no             | **yes**                          |
+| `wait: { today.ferry: true }`           | time passes until a condition holds, at most until its `limit`    | yes            | no                               |
 
 Every step may have its own `when` / `unless` (it only happens when they hold) and an `id` (to translate what it says). Nothing else goes in a step: each does exactly one of the things above, and the pack shows a problem at that line otherwise.
 
@@ -44,6 +44,7 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 
 - `do: actions.forage` takes another action, if its conditions hold (otherwise nothing happens). `{ do: actions.march, with: { until: hex } }` gives it the values of its parameters. An action that takes another is how a forced march marches: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
 - `roll: checks.ENCOUNTER_CHECK_REQUIRED` rolls a check now: every check with that event whose conditions hold, whatever its `at`. It's resolved when the action ends, so later steps don't see its result yet.
+- `roll: table.ruins` rolls something of the Oracle instead (a table, `oracle.<id>`, `generator.<id>`, `deck.<id>`; another pack's as `core/table.twists`), with no check or binding around it: resolved when the action ends like a check, its result goes to the journal by the table's name, its `set` values and `effects` reach the trip, and an entry with `pause: true` stops it until **Continue**. A name that isn't something to roll is a problem when the pack loads. The Grey Marches' _Delve the ruin_: `[{ time: 180 }, { roll: generator.ruin-delve }]`.
 
 ## Talking to the player: `say`, `pause` and `ask`
 

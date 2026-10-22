@@ -230,9 +230,19 @@ export function changesText(
   return parts.join(', ')
 }
 
-/** A check event for players: the system's name for it, a known one, or the id made readable. */
-export const eventName = (t: Translate, event: unknown, checkName?: JournalContext['checkName']) =>
-  checkName?.(String(event)) ?? idText(t, `events.${String(event)}`, String(event))
+/**
+ * A check event for players: the name of what a step rolled (`named`, for `roll: table.x`),
+ * the system's name for it, a known one, or the id made readable.
+ */
+export const eventName = (
+  t: Translate,
+  event: unknown,
+  checkName?: JournalContext['checkName'],
+  named?: unknown,
+) =>
+  (typeof named === 'string' ? named : undefined) ??
+  checkName?.(String(event)) ??
+  idText(t, `events.${String(event)}`, String(event))
 
 /** One journal entry as a line of text in the UI language. */
 export function entryText(e: JournalEntry, context: JournalContext) {
@@ -299,7 +309,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       })
     }
     case 'ORACLE_RESULT': {
-      const line = `${eventName(t, d.event, checkName)}: ${e.text ?? '—'}`
+      const line = `${eventName(t, d.event, checkName, d.named)}: ${e.text ?? '—'}`
       const value = d.value
       const changes =
         typeof value === 'object' && value !== null
@@ -309,18 +319,18 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     }
     case 'CHECK_EFFECTS': {
       const changed = changesText({ effects: d.effects }, context)
-      return `${eventName(t, d.event, checkName)}${changed ? `: ${changed}` : ''}`
+      return `${eventName(t, d.event, checkName, d.named)}${changed ? `: ${changed}` : ''}`
     }
     case 'ORACLE_ROLL':
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
     case 'CHECK_NOTED':
-      return eventName(t, d.event, checkName)
+      return eventName(t, d.event, checkName, d.named)
     // A check that waits for the player, and the hex it came up in.
     case 'CHECK_PENDING':
     case 'CHECK_PAUSED':
     case 'CHECK_ASKS': {
       const key = { CHECK_PENDING: 'pending', CHECK_PAUSED: 'paused', CHECK_ASKS: 'asks' }[e.code]
-      const name = eventName(t, d.event, checkName)
+      const name = eventName(t, d.event, checkName, d.named)
       const event = d.hex
         ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.hex)) })
         : name
@@ -358,7 +368,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'DISCOVERY_FAILED':
       return t('journal.discoveryFailed', { hex: hexLabel(String(d.hex)), error: e.text ?? '' })
     case 'CHECK_FAILED':
-      return t('journal.failed', { event: eventName(t, d.event, checkName), error: e.text ?? '' })
+      return t('journal.failed', {
+        event: eventName(t, d.event, checkName, d.named),
+        error: e.text ?? '',
+      })
     case 'HEX_ENTERED':
       return t('journal.entered', { hex: hexLabel(String(d.hex)) })
     case 'HEX_DISCOVERED':
@@ -442,7 +455,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'ROLLED': {
       const rolls = Array.isArray(d.rolls) ? (d.rolls as RolledNode[]) : []
       return t('journal.rolled', {
-        event: eventName(t, d.check, checkName),
+        event: eventName(t, d.check, checkName, d.named),
         rolls: rolls
           .map((r) => {
             const chose = r.entry !== undefined ? ` → ${r.entry}` : ''
@@ -463,7 +476,11 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           : typeof d.from === 'string'
             ? t('journal.weatherFrom', { from: d.from.replaceAll('-', ' ') })
             : t('journal.weatherStart')
-      return t('journal.weatherRolled', { event: eventName(t, d.check, checkName), how, weather })
+      return t('journal.weatherRolled', {
+        event: eventName(t, d.check, checkName, d.named),
+        how,
+        weather,
+      })
     }
     case 'CHANGED': {
       const path = String(d.path)
@@ -477,7 +494,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'CHECK_SKIPPED': {
       const failed = Array.isArray(d.failed) ? (d.failed as FailedPair[]) : []
       return t('journal.skipped', {
-        event: eventName(t, d.check, checkName),
+        event: eventName(t, d.check, checkName, d.named),
         why: failed.length
           ? failedText(failed, context)
           : t(`journal.skippedBy.${d.condition === 'unless' ? 'unless' : 'when'}`),

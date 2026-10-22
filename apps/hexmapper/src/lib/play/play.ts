@@ -15,7 +15,13 @@ import { getLocale, t } from '../i18n/index.svelte'
 import { DEFAULT_TOKEN_ICONS, newId, partyToken, type PlayState } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
-import { otherTrip, playTrip, type CampaignTrip } from '@open-tabletop/campaign'
+import {
+  heardMoments,
+  MAX_HEARD,
+  otherTrip,
+  playTrip,
+  type CampaignTrip,
+} from '@open-tabletop/campaign'
 import { chooseSystem } from '../io/actions.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
@@ -209,8 +215,11 @@ async function claimThen(other: CampaignTrip, action: TravelAction): Promise<voi
   step(action)
 }
 
-/** Runs a travel action through the session (Oracle resolves bound checks). */
-export function step(action: TravelAction): void {
+/**
+ * Runs a travel action through the session (Oracle resolves bound checks); then the moments
+ * of the world it made happen (a clock of the system filling), heard by the trip.
+ */
+export function step(action: TravelAction, heard = 0): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
@@ -244,13 +253,17 @@ export function step(action: TravelAction): void {
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
-  for (const line of tripStepped({ oracle: state.oracle, entries, time: state.travel.time }))
+  const world = tripStepped({ oracle: state.oracle, entries, time: state.travel.time })
+  for (const line of world.lines)
     journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
   save({
     ...play,
     trail: [...play.trail, ...entered],
     rules: { ...play.rules, session: journaled },
   })
+  if (heard < MAX_HEARD)
+    for (const at of heardMoments(system.rules, world.filled))
+      step({ type: 'moment', at }, heard + 1)
 }
 
 /** How this trip discovers the map: off, or revealing neighbours or the entered hex only. */

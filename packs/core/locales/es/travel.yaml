@@ -29,3 +29,6 @@ travel-rules/default:
       do:
         empty:
           say: No queda nada que comer.
+    explore:
+      name: Explorar
+      description: 'Una hora mirando alrededor, de día: una idea de lo que encontráis (una acción y un tema, la Inspiración de Core).'

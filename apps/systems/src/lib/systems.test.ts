@@ -143,7 +143,13 @@ describe('systems in the Systems app', () => {
     expect(mine.sources?.rules?.pack).toBe(id)
     expect(mine.rules.travel).toEqual(core.rules.travel)
     expect(Object.keys(mine.rules.terrains)).toEqual(Object.keys(core.rules.terrains))
-    expect(Object.keys(mine.rules.actions ?? {})).toEqual(['march', 'camp', 'rest', 'eat'])
+    expect(Object.keys(mine.rules.actions ?? {})).toEqual([
+      'march',
+      'camp',
+      'rest',
+      'eat',
+      'explore',
+    ])
     // …and the calendar whose parts of the day they name (Core's, a dependency).
     expect(library.readFile(id, 'system.yaml')).toContain('calendar: core/calendar.default')
     expect(library.readFile(id, 'pack.yaml')).toMatch(/dependencies:\n {2}core: ["']>=/)

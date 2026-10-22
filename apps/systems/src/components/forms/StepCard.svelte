@@ -221,7 +221,10 @@
               kind === 'do'
                 ? ctx.actions.map((a) => ({ id: `actions.${a.id}`, name: a.name }))
                 : kind === 'roll'
-                  ? ctx.checks.map((c) => ({ id: `checks.${c.event}`, name: c.name }))
+                  ? [
+                      ...ctx.checks.map((c) => ({ id: `checks.${c.event}`, name: c.name })),
+                      ...ctx.rollables.map((r) => ({ id: r.ref, name: `${r.name} (${r.ref})` })),
+                    ]
                   : ctx.params.map((p) => ({ id: `params.${p.id}`, name: p.name }))}
             <label class="grow">
               <span

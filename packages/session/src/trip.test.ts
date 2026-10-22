@@ -4,7 +4,7 @@ import { defaultCalendar } from '@open-tabletop/time'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { describe, expect, it } from 'vitest'
-import { coreSystem } from './core.testing'
+import { corePack, coreSystem } from './core.testing'
 import {
   DEFAULT_SYSTEM,
   migrateGenericSheets,
@@ -619,13 +619,34 @@ describe("Core's system: the Generic rules as data", () => {
     expect(core.id).toBe(DEFAULT_SYSTEM)
     expect(travels(core)).toBe(true)
     expect(systemName(core, 'en')).toBe('Generic rules')
-    expect(Object.keys(core.rules.actions ?? {})).toEqual(['march', 'camp', 'rest', 'eat'])
+    expect(Object.keys(core.rules.actions ?? {})).toEqual([
+      'march',
+      'camp',
+      'rest',
+      'eat',
+      'explore',
+    ])
     expect(core.sheet?.id).toBe('core/character')
     expect(core.partySheet?.id).toBe('core/party')
     expect(core.calendar?.describe(core.calendar.at(1, '21:00'))).toMatchObject({
       divisions: { part: 'night', watch: 6 },
       tags: ['dark'],
     })
+  })
+
+  it('explores: a step rolls Core’s Prompt generator, named in the journal', () => {
+    const { registry } = loadPacks(corePack())
+    const system = travelSystems(registry).systems.find((s) => s.id === 'core')!
+    const oracle = createOracleEngine({ registry, random: sequence([0.1, 0.6]) })
+    const { session } = startTrip({ system, location: '0' })
+    const { state } = stepTrip({ system, world: road, oracle, locale: 'es' }, session, {
+      type: 'action',
+      id: 'explore',
+    })
+    const result = state.journal.find((e) => e.code === 'ORACLE_RESULT')!
+    expect(result.data).toMatchObject({ event: 'generator.prompt', named: 'Inspiración' })
+    expect(result.text).toBeTruthy()
+    expect(state.travel.time - session.travel.time).toBe(60)
   })
 
   it('starts in the morning, marches by day, camps at night and eats as the day ends', () => {
@@ -683,5 +704,47 @@ describe("Core's system: the Generic rules as data", () => {
     expect(read.members?.map((m) => m.sheet)).toEqual(['core/character', 'game/hero'])
     const fresh = { members: [] }
     expect(migrateGenericSheets(fresh)).toBe(fresh)
+  })
+})
+
+describe('what rules roll and hear from the world, checked on load', () => {
+  it('a roll of a table that is none, and a full clock the system does not declare', () => {
+    const { registry } = loadPacks([
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'w/travel.yaml',
+        content: `
+kind: travel-rules
+travel: { hoursPerDay: 8 }
+terrains: { plains: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 24 } }
+checks: [{ event: OMEN, at: world.clocks.gone.full }]
+actions:
+  search: { do: [{ roll: table.ruins }, { roll: table.nowhere }] }
+  flee: { on: world.clocks.doom.full, do: [{ time: 60 }] }
+---
+kind: clocks
+id: world
+clocks: { doom: { name: Doom, segments: 4 } }
+---
+kind: system
+travel: travel-rules.default
+clocks: clocks.world
+---
+kind: table
+id: ruins
+entries: [{ result: Bones }]
+`,
+      },
+    ])
+    const { systems, problems } = travelSystems(registry)
+    expect(systems.map((s) => s.id)).toEqual(['w'])
+    expect(problems.map((p) => [p.at, p.message])).toEqual([
+      ['@travel-rules/default.actions.search.do.1.roll', 'Unknown table "table.nowhere"'],
+      [
+        '@travel-rules/default.checks.0.at',
+        'the system declares no clock "gone" (expected world.clocks.doom.full)',
+      ],
+    ])
   })
 })

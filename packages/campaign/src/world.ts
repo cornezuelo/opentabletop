@@ -15,6 +15,7 @@ import {
   type SystemFactions,
 } from '@open-tabletop/session'
 import type { Calendar, DataCalendar } from '@open-tabletop/time'
+import { momentsOf, type TravelRules } from '@open-tabletop/travel-engine'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
   createWorld,
@@ -75,6 +76,26 @@ export interface WorldHost {
 export interface ClockNotice {
   clock: string
   text: string
+  /** The id its system declares it with (a trip hears it fill: `world.clocks.<ref>.full`). */
+  ref?: string
+}
+
+/** How many times one trip's step may hear the world in a row (a moment filling a clock…). */
+export const MAX_HEARD = 10
+
+/**
+ * The moments of the world a trip of this system hears from what a step did: each clock it
+ * declares that filled, when its rules name `world.clocks.<id>.full` (an action's `on:`,
+ * a check's `at:`).
+ */
+export function heardMoments(rules: TravelRules, filled: ClockNotice[]): string[] {
+  const named = new Set([
+    ...Object.values(rules.actions ?? {}).flatMap((a) => momentsOf(a.on)),
+    ...(rules.checks ?? []).flatMap((c) => momentsOf(c.at)),
+  ])
+  return [...new Set(filled.flatMap((f) => (f.ref ? [`world.clocks.${f.ref}.full`] : [])))].filter(
+    (m) => named.has(m),
+  )
 }
 
 /** What an action on the world did: the place changed, the clock's events, full clocks. */
@@ -236,7 +257,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       campaign = { ...campaign, oracle: { state: done.oracle, history: shared?.history ?? [] } }
       const said = host.words.clockFull(full)
       if (said) act({ type: 'log', text: `${clock.name}: ${said}`, data: { clock: clock.id } })
-      filled.push({ clock: clock.name, text: said })
+      filled.push({ clock: clock.name, text: said, ref: clock.ref })
       effects(full.effects)
       if (full.then === 'reset') act({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
       if (full.then === 'remove') act({ type: 'removeClock', id: clock.id })

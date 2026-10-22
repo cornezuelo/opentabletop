@@ -9,7 +9,7 @@ name: Threats of the Marches
 description: |-
   Three things coming to the Marches: the Greywood Wyrm waking, the Iron Clans' march on Fort Keld, and the mutiny of its unpaid garrison.
 
-  **Shows:** progress clocks declared by a pack: where each starts, what happens when one fills (words on the timeline, a table rolled, effects on factions and on another clock), and what becomes of it then (it stays full, starts over or goes away); one full clock filling another (the Clans' march brings the mutiny closer).
+  **Shows:** progress clocks declared by a pack: where each starts, what happens when one fills (words on the timeline, a table rolled, effects on factions and on another clock), and what becomes of it then (it stays full, starts over or goes away); one full clock filling another (the Clans' march brings the mutiny closer); a trip hearing a clock fill (`world.clocks.the-greywood-wyrm-wakes.full`, the moment of the travel rules' _The Wyrm wakes_).
 clocks:
   # Filled by the Greywood's haunted lights (encounters.yaml); once full, the Wyrm roams
   # the wood (the encounters read `world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), so

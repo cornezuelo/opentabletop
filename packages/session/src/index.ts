@@ -418,6 +418,11 @@ export function createSession(options: {
   travel: TravelEngine
   oracle?: OracleEngine
   bindings?: Bindings
+  /**
+   * The pack the travel rules are written in: what their steps roll (`roll: table.ruins`) is
+   * found from there.
+   */
+  pack?: string
   /** Locale for oracle texts. */
   locale?: string
   now?: () => string
@@ -704,7 +709,16 @@ export function createSession(options: {
           }
           if (event.type === 'HEX_ENTERED') found = arrive(event.hex, from, event.time) || found
           if (event.type !== 'CHECK_REQUIRED') continue
-          const binding = options.bindings?.on[event.check.event]
+          // A step's roll of something the Oracle rolls (`roll: table.ruins`) has no binding:
+          // it names what it rolls, found from the rules' pack.
+          const rolls = event.check.resolve
+          const binding =
+            options.bindings?.on[event.check.event] ??
+            (rolls ? { resolve: definitionId(rolls, options.pack) } : undefined)
+          // Its journal lines name it by its definition's name.
+          const named =
+            rolls && binding?.resolve && options.oracle?.nameOf(binding.resolve, options.locale)
+          const about = { event: event.check.event, ...(named && { named }) }
           // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
           // (A check rolled after waiting for who rolls had its own effects then.)
           if (event.check.effects && !replaying) {
@@ -731,7 +745,7 @@ export function createSession(options: {
                 source: 'travel',
                 code: 'CHECK_EFFECTS',
                 time: event.time,
-                data: { event: event.check.event, effects: told },
+                data: { ...about, effects: told },
               })
             for (const limit of limits)
               add(s, entries, {
@@ -749,7 +763,7 @@ export function createSession(options: {
                 source: 'travel',
                 code: 'CHECK_NOTED',
                 time: event.time,
-                data: { event: event.check.event },
+                data: about,
               })
             if (!event.check.pause) {
               s.travel = options.travel.apply(s.travel, {
@@ -765,7 +779,7 @@ export function createSession(options: {
               source: 'travel',
               code: 'CHECK_PENDING',
               time: event.time,
-              data: { event: event.check.event, id: event.check.id, ...whereOf(event.check) },
+              data: { ...about, id: event.check.id, ...whereOf(event.check) },
             })
             continue
           }
@@ -783,7 +797,7 @@ export function createSession(options: {
               source: 'travel',
               code: 'CHECK_ASKS',
               time: event.time,
-              data: { event: event.check.event, id: event.check.id, ...whereOf(event.check) },
+              data: { ...about, id: event.check.id, ...whereOf(event.check) },
             })
             continue
           }
@@ -828,7 +842,11 @@ export function createSession(options: {
                 source: 'oracle',
                 code: 'ROLLED',
                 time: event.time,
-                data: { check: event.check.event, rolls: rolledNodes(out.resolution) },
+                data: {
+                  check: event.check.event,
+                  ...(named && { named }),
+                  rolls: rolledNodes(out.resolution),
+                },
               })
               value = out.resolution.value
               text = out.resolution.text
@@ -844,7 +862,7 @@ export function createSession(options: {
               time: event.time,
               text: error.message,
               data: {
-                event: event.check.event,
+                ...about,
                 id: event.check.id,
                 table: binding.resolve ?? binding.weather,
               },
@@ -863,9 +881,9 @@ export function createSession(options: {
           )
           // Written with variables (the Oracle renders its own: '-{{loss}}' comes as '-2'),
           // the journal keeps them as numbers.
-          const named = Object.values((value.effects ?? {}) as Record<string, unknown>).some(
-            (c) => typeof c === 'string' && !c.trim().startsWith('='),
-          )
+          const withVariables = Object.values(
+            (value.effects ?? {}) as Record<string, unknown>,
+          ).some((c) => typeof c === 'string' && !c.trim().startsWith('='))
           add(s, entries, {
             source: 'oracle',
             code: 'ORACLE_RESULT',
@@ -873,9 +891,9 @@ export function createSession(options: {
             time: event.time,
             text,
             data: {
-              event: event.check.event,
+              ...about,
               ...(binding.weather ? { weather: binding.weather } : { table: binding.resolve }),
-              value: named ? { ...value, effects } : value,
+              value: withVariables ? { ...value, effects } : value,
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
@@ -900,7 +918,7 @@ export function createSession(options: {
               source: 'travel',
               code: 'CHECK_PAUSED',
               time: event.time,
-              data: { event: event.check.event, id: event.check.id, ...whereOf(event.check) },
+              data: { ...about, id: event.check.id, ...whereOf(event.check) },
             })
             continue
           }

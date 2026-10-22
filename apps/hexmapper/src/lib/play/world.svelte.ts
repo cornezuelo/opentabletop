@@ -10,6 +10,7 @@ import {
   worldTurnNow as worldTurnOn,
   type WorldDone,
   type WorldHost,
+  type ClockNotice,
   type WorldLine,
 } from '@open-tabletop/campaign'
 import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
@@ -293,6 +294,10 @@ export const upcoming = (state: WorldState, limit = 12) => world().upcoming(stat
  * world, and the world following its time; returns what came due on the way (events and
  * holidays), as journal lines.
  */
-export function tripStepped(step: Parameters<typeof tripSteppedOn>[1]): WorldLine[] {
-  return take(tripSteppedOn(place(), step, host())).lines
+export function tripStepped(step: Parameters<typeof tripSteppedOn>[1]): {
+  lines: WorldLine[]
+  filled: ClockNotice[]
+} {
+  const done = take(tripSteppedOn(place(), step, host()))
+  return { lines: done.lines, filled: done.filled }
 }

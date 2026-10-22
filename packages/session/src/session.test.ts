@@ -673,3 +673,63 @@ describe('older trips without totals', () => {
     expect(migrateTotals(migrated)).toBe(migrated)
   })
 })
+
+describe('a step that rolls a table of the Oracle', () => {
+  const { registry: reg, ok } = loadPacks([
+    { path: 'r/pack.yaml', content: 'id: r\nversion: 0.1.0\nlocale: en\n' },
+    {
+      path: 'r/t.yaml',
+      content: `
+kind: table
+id: ruins
+name: Among the ruins
+roll: 1d2
+entries:
+  - { range: 1, result: Old coins, effects: { party.resources.food: 1 }, set: { found: true } }
+  - { range: 2, result: Bones, pause: true }
+`,
+    },
+    { path: 'r/locales/es/t.yaml', content: 'ruins:\n  name: Entre las ruinas\n' },
+  ])
+  const search = {
+    ...coreRules,
+    values: { found: {} },
+    actions: {
+      ...coreRules.actions,
+      search: { do: [{ time: 60 }, { roll: 'table.ruins' }] },
+    },
+  }
+  const play = (die: number, locale = 'en') =>
+    createSession({
+      travel: createTravelEngine({ world, rules: search, calendar: core.calendar }),
+      oracle: createOracleEngine({ registry: reg, random: sequence([(die - 1) / 2]) }),
+      rules: search,
+      // No binding names it: the step does, found from the rules' pack.
+      pack: 'r',
+      locale,
+      now: () => 'T',
+    }).step(start(), { type: 'action', id: 'search' }).state
+
+  it('loads', () => expect(ok).toBe(true))
+
+  it('rolls it with no check around it: its result, effects and values reach the trip', () => {
+    const state = play(1)
+    const result = state.journal.find((e) => e.code === 'ORACLE_RESULT')
+    expect(result).toMatchObject({
+      text: 'Old coins',
+      data: { event: 'table.ruins', named: 'Among the ruins', table: 'r/ruins' },
+    })
+    expect(state.travel.resources.food).toBe(3)
+    expect(state.travel.today).toMatchObject({ found: true })
+    expect(state.travel.pendingChecks).toEqual([])
+  })
+
+  it('names it in the UI language, and pauses when its entry says so', () => {
+    const state = play(2, 'es')
+    expect(state.journal.find((e) => e.code === 'ORACLE_RESULT')?.data?.named).toBe(
+      'Entre las ruinas',
+    )
+    expect(state.journal.some((e) => e.code === 'CHECK_PAUSED')).toBe(true)
+    expect(state.travel.pendingChecks).toHaveLength(1)
+  })
+})

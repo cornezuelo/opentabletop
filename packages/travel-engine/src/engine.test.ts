@@ -650,7 +650,7 @@ describe('the system’s own actions', () => {
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'actions.fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, a clock (06:00) or a part of the day (time.meal.supper)',
+      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
     ])
   })
 
@@ -1235,7 +1235,7 @@ describe('actions the system triggers, and bounded values', () => {
     }
     const bad = { event: 'BAD', at: ['06:00', 'actions.nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, a clock (06:00) or a part of the day (time.meal.supper)',
+      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
@@ -1287,9 +1287,9 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, a clock (06:00) or a part of the day (time.meal.supper)',
-      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, a clock (06:00) or a part of the day (time.meal.supper)',
-      'actions.a.do.1.roll: expected checks.HUNGER, checks.OMEN, checks.AMBUSH',
+      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'actions.a.do.1.roll: expected checks.HUNGER, checks.OMEN, checks.AMBUSH, table.<id>',
       'actions.a.do.2.set.nope: expected lost, weary',
       // (camp is gone too, and the halt named it)
       'travel.halt.do: expected actions.a, actions.b, actions.c, actions.d, actions.e',
@@ -2685,5 +2685,71 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
     expect(state.resources.gold).toBe(7)
     expect(state.location).toBe(before.route![3])
     expect(state.moving).toBeUndefined()
+  })
+})
+
+describe('rolling what the host rolls, and moments of the world', () => {
+  const { rules: heard, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { food: { min: 0 } },
+    checks: [{ event: 'OMEN', at: 'world.clocks.doom.full' }],
+    actions: {
+      ...DAY_ACTIONS,
+      // A table of the Oracle, rolled with no check around it.
+      search: { do: [{ time: 60 }, { roll: 'table.ruins' }, { roll: 'core/oracle.yes-no' }] },
+      // The system takes it by itself when the host says the clock filled.
+      flee: { on: 'world.clocks.doom.full', do: [{ effects: { 'party.resources.food': -1 } }] },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: heard! })
+  const begin = () =>
+    initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      time: defaultCalendar.at(1, '08:00'),
+      resources: { food: 3 },
+    })
+
+  it('are valid', () => {
+    expect(errors).toEqual([])
+  })
+
+  it('a step rolls a table: a pending check naming what the host rolls', () => {
+    const { state, events } = eng.apply(begin(), { type: 'action', id: 'search' })
+    const required = events.flatMap((e) => (e.type === 'CHECK_REQUIRED' ? [e.check] : []))
+    expect(required.map((c) => [c.event, c.resolve])).toEqual([
+      ['table.ruins', 'table.ruins'],
+      ['core/oracle.yes-no', 'core/oracle.yes-no'],
+    ])
+    // It sees the moment it came at, like any check a step rolls.
+    expect(required[0].context.moment).toBe('actions.search')
+    expect(state.pendingChecks).toHaveLength(2)
+  })
+
+  it('a moment of the world the host says came: its actions and checks happen', () => {
+    const { state, events } = eng.apply(begin(), { type: 'moment', at: 'world.clocks.doom.full' })
+    expect(state.resources.food).toBe(2)
+    expect(events.some((e) => e.type === 'CHECK_REQUIRED' && e.check.event === 'OMEN')).toBe(true)
+    // A moment no rule names, or one that isn't of the world, does nothing.
+    const quiet = eng.apply(begin(), { type: 'moment', at: 'world.clocks.other.full' })
+    expect(quiet.state.resources.food).toBe(3)
+    expect(eng.apply(begin(), { type: 'moment', at: 'time.day-end' }).events).toEqual([])
+  })
+
+  it('reject a roll that names nothing of another kind, and moments that are none', () => {
+    const bad = parseTravelRules({
+      ...heard!,
+      actions: {
+        ...heard!.actions,
+        x: { on: 'clocks.doom.full', do: [{ roll: 'ruins' }] },
+      },
+    })
+    expect(bad.errors).toEqual([
+      expect.stringMatching(/^actions\.x\.on: expected .*world\.clocks\.<id>\.full/),
+      expect.stringMatching(/^actions\.x\.do\.0\.roll: expected checks\.OMEN, table\.<id>/),
+    ])
   })
 })

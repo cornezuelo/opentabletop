@@ -5,6 +5,7 @@ import { kindValue, minutesText, stepKind, stepSummary, withKind, type StepConte
 const names = {
   action: (id: string) => ({ march: 'March', forage: 'Forage' })[id] ?? id,
   check: (e: string) => (e === 'ENCOUNTER' ? 'Encounters' : e),
+  rolled: (ref: string) => (ref === 'table.ruins' ? 'Ruins' : ref),
   mode: (id: string) => (id === 'boat' ? 'By boat' : id),
   param: (id: string) => (id === 'how' ? 'How do you cross?' : id),
   part: (ref: string) => (ref === 'time.part.morning' ? 'Part of the day: Morning' : ref),
@@ -28,6 +29,7 @@ describe('steps as cards', () => {
     expect(said({ effects: { 'party.stats.fatigue': 1 } })).toBe('Change: party.stats.fatigue: 1')
     expect(said({ do: 'actions.march', with: { until: 'hex' } })).toBe('Take March (until: hex)')
     expect(said({ roll: 'checks.ENCOUNTER' })).toBe('Roll Encounters')
+    expect(said({ roll: 'table.ruins' })).toBe('Roll Ruins')
     expect(said({ pause: true })).toBe('Pause until Continue')
     expect(said({ pause: 'The bridge is down.' })).toBe('Pause: “The bridge is down.”')
     expect(said({ ask: 'params.how' })).toBe('Ask: How do you cross?')
@@ -54,6 +56,7 @@ describe('steps as cards', () => {
       params: [{ id: 'how', name: 'How' }],
       modes: [{ id: 'boat', name: 'By boat' }],
       checks: [{ event: 'ENCOUNTER', name: 'Encounters' }],
+      rollables: [{ ref: 'table.ruins', name: 'Ruins' }],
       values: ['lost'],
       effectKeys: ['party.stats.fatigue'],
       times: [],
