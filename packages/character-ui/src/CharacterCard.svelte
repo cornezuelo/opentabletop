@@ -7,7 +7,7 @@
     type Display,
     type Sheet,
   } from '@open-tabletop/character-engine'
-  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
   import { levelValue, valueView } from './display'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
@@ -84,17 +84,7 @@
       effects: { [`conditions.${id}`]: on },
       ...(time !== undefined && { time }),
     })
-  function setTags(raw: string) {
-    const tags = [
-      ...new Set(
-        raw
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-      ),
-    ]
-    onchange({ ...character, tags })
-  }
+  const setTags = (tags: string[]) => onchange({ ...character, tags: [...new Set(tags)] })
 
   const kinds = $derived(Object.keys(sheet.relations))
   let newKind = $state('')
@@ -284,16 +274,17 @@
     </div>
   {/if}
 
-  <label class="field">
+  <div class="field">
     <span>{t('tags')}<InfoTip markdown={t('tagsHelp')} /></span>
-    <input
-      type="text"
-      value={character.tags.join(', ')}
+    <TagInput
+      label={t('tags')}
+      value={character.tags}
       placeholder={t('tagsPlaceholder')}
+      removeLabel={t('removeTag')}
       {disabled}
-      onchange={(e) => setTags(e.currentTarget.value)}
+      onchange={setTags}
     />
-  </label>
+  </div>
 </div>
 
 <style>

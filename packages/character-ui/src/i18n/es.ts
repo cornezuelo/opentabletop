@@ -7,8 +7,9 @@ export const es: Messages<typeof en> = {
   conditions: 'Estados',
   tags: 'Etiquetas',
   tagsHelp:
-    'Palabras libres sobre el personaje (una vocación, un secreto, un aspecto), separadas por comas. Las condiciones las leen:\n• `characters.kael.tags: oathbound`',
+    'Palabras libres sobre el personaje (una vocación, un secreto, un aspecto), cada una una pastilla (Intro o una coma la añade, × la quita). Las condiciones las leen:\n• `characters.kael.tags: oathbound`',
   tagsPlaceholder: 'juramentado, forastero',
+  removeTag: 'Quitar',
   relations: 'Relaciones',
   relationsHelp:
     'A qué está unido este personaje: otro personaje, un lugar, una región, un hex, según los tipos de relación de la hoja (un vínculo, un hogar…), algunos con un número. Las condiciones las leen:\n• `{path}.relations.home: region:The Vale` — el hogar de este personaje\n• `hex.related: kael` — al entrar en un hex al que Kael está unido (él, su región o un lugar en él)\n• `hex.relations.home: kael` — el hogar de Kael, por tipo\nEscribe un nombre de la lista, o una referencia: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.',

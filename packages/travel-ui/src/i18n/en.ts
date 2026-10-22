@@ -336,7 +336,7 @@ export const en = {
     terrainHelp:
       "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `hex.terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
     tagsHelp:
-      'Words that mark the hex, separated by commas, for the checks and tables that look for them:\n• `landmark` — `hex.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
+      'Words that mark the hex, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `hex.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
     edgesHelp:
       'Whether a road, trail or river joins this hex to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.edges: road`)',
     addHex: 'Add a hex',

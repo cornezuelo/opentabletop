@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TravelSystem } from '@open-tabletop/session'
-  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, TagInput, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import { edgeChoices, edgeName, terrainChoices, terrainName } from './terrains'
   import type { TripStore } from './trips.svelte'
@@ -65,19 +65,14 @@
         >
           {#each terrains as id (id)}<option value={id}>{terrainName(t, id)}</option>{/each}
         </select>
-        <SuggestInput
+        <TagInput
           label={t('play.tags')}
           placeholder={t('play.tagsPlaceholder')}
-          value={hex.tags.join(', ')}
-          list={tags}
+          value={hex.tags}
+          choices={tags}
+          removeLabel={t('play.remove')}
           disabled={i < here}
-          onchange={(text) => {
-            const tags = text
-              .split(',')
-              .map((s) => s.trim())
-              .filter(Boolean)
-            trip.updateHex(i, (h) => ({ ...h, tags }))
-          }}
+          onchange={(tags) => trip.updateHex(i, (h) => ({ ...h, tags }))}
         />
         <button
           class="icon"
