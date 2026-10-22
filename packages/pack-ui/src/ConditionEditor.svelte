@@ -157,8 +157,8 @@
         <button
           class="link toggle"
           aria-pressed={yaml}
-          use:tooltip={yaml ? t('condition.rows') : t('condition.yaml')}
-          onclick={() => (yaml = !yaml)}>{yaml ? t('condition.rowsShort') : 'YAML'}</button
+          use:tooltip={yaml ? t('editAs.rows') : t('editAs.yaml')}
+          onclick={() => (yaml = !yaml)}>{yaml ? t('editAs.rowsShort') : 'YAML'}</button
         >
       {/if}
     </div>

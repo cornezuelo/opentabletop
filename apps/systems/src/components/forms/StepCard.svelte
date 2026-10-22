@@ -1,7 +1,13 @@
 <script lang="ts">
   import { STEP_KINDS, type ActionStep } from '@open-tabletop/travel-engine'
   import { InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
-  import { ConditionEditor, conditionWords, readValue, valueText } from '@open-tabletop/pack-ui'
+  import {
+    ConditionEditor,
+    conditionWords,
+    PairEditor,
+    readValue,
+    valueText,
+  } from '@open-tabletop/pack-ui'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { getLocale, t } from '../../lib/i18n'
   import type { en } from '../../lib/i18n/en'
@@ -88,24 +94,9 @@
     onchange(parsed as ActionStep)
   }
 
-  /** The rows of a map (effects, values of the day, a `do:`'s parameters). */
+  /** The pairs of a `do:`'s parameters. */
   const pairs = (v: unknown) =>
     Object.entries(typeof v === 'object' && v !== null ? (v as Raw) : {})
-  function setPair(key: string, old: string, name: string, v: unknown) {
-    const next: Raw = {}
-    for (const [k, x] of pairs(s[key])) {
-      if (k === old) {
-        if (name) next[name] = v
-      } else next[k] = x
-    }
-    put(key, next)
-  }
-  function addPair(key: string, keys: string[], v: unknown) {
-    const map = Object.fromEntries(pairs(s[key]))
-    const free = keys.find((k) => !(k in map)) ?? `new${Object.keys(map).length || ''}`
-    put(key, { ...map, [free]: v })
-  }
-
   const doTarget = $derived(
     kind === 'do' ? ctx.actions.find((a) => `actions.${a.id}` === value) : undefined,
   )
@@ -296,42 +287,16 @@
             <span class="label"
               >{t(`steps.fields.${key(kind)}`)}<InfoTip text={t(`steps.help.${key(kind)}`)} /></span
             >
-            {#each pairs(value) as [k, v] (k)}
-              <div class="pair">
-                <div class="grow">
-                  <SuggestInput
-                    label={t('steps.pairs.key')}
-                    value={k}
-                    list={keys}
-                    {disabled}
-                    onchange={(name) => setPair(kind, k, name.trim(), v)}
-                  />
-                </div>
-                <input
-                  type="text"
-                  class="pairvalue"
-                  aria-label={t('steps.pairs.value')}
-                  value={valueText(v)}
-                  {disabled}
-                  onchange={(e) => setPair(kind, k, k, typed(e.currentTarget.value))}
-                />
-                {#if !disabled}
-                  <button
-                    class="icon"
-                    aria-label={t('steps.pairs.remove')}
-                    use:tooltip={t('steps.pairs.remove')}
-                    onclick={() => setPair(kind, k, '', undefined)}>×</button
-                  >
-                {/if}
-              </div>
-            {/each}
-            {#if !disabled}
-              <button
-                class="link add"
-                onclick={() => addPair(kind, keys, kind === 'set' ? true : 1)}
-                >{t('steps.pairs.add')}</button
-              >
-            {/if}
+            <PairEditor
+              {value}
+              {keys}
+              fresh={kind === 'set' ? true : 1}
+              keyLabel={t('steps.pairs.key')}
+              {locale}
+              {disabled}
+              label={t(`steps.fields.${key(kind)}`)}
+              onchange={(map) => put(kind, map ?? {})}
+            />
           </div>
         {/if}
 
@@ -493,18 +458,6 @@
     align-items: center;
   }
 
-  .pair {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    font-size: 12px;
-  }
-
-  .pairvalue {
-    flex: 0 0 9em;
-    min-width: 0;
-  }
-
   .limit {
     max-width: 16em;
   }
@@ -513,11 +466,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(18em, 1fr));
     gap: 8px 16px;
-  }
-
-  .add {
-    align-self: flex-start;
-    font-size: 12px;
   }
 
   button.yaml {

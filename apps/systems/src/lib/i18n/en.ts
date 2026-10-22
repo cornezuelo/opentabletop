@@ -600,9 +600,6 @@ export const en = {
     },
     pairs: {
       key: 'What changes',
-      value: 'Value',
-      add: '+ Row',
-      remove: 'Remove this row',
     },
     noChoice: '— choose —',
     noParams: 'This action has no parameters to ask: declare one in **Parameters** first.',
@@ -661,7 +658,7 @@ export const en = {
     when: 'Only if',
     unless: 'Skip if',
     conditionHelp:
-      "When the check is rolled (**Only if**) or skipped (**Skip if**), as `key: value` pairs, like in tables:\n• `hex.terrain: forest` — the hex\n• `hex.tags: landmark` — a tag of the hex\n• `trip.edges: [road, river]` — the road or river of the step\n• `danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.resources.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: food` — food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
+      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `hex.terrain: forest` — the hex\n• `hex.tags: landmark` — a tag of the hex\n• `trip.edges: [road, river]` — the road or river of the step\n• `danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.resources.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: food` — food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
     always: 'always',
     never: 'never',
     resolve: 'Rolled on',
@@ -672,13 +669,14 @@ export const en = {
     waits: '— no table —',
     effects: 'Changes',
     effectsHelp:
-      "What the check itself changes when it comes up, with or without a table:\n• `party.stats.fatigue: 1` — adds 1\n• `party.resources.food: -1` — takes 1 away\n• `party.stats.fatigue: '=0'` — sets it\n• `party.resources.food: '-{{party.stats.mouths}}'` — as many as another value says (a variable)\n• `party.members.values.health: -1`, `acting.conditions.wounded: true` — its characters (every one, whoever acts)\nHow a system writes its rules as data, e.g. a day without enough food: **When** `time.day-end`, **Only if** `trip.below: food`, **Changes** `party.stats.fatigue: 1`.",
+      'What the check itself changes when it comes up, with or without a table, one row each (what changes · value): a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.resources.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.resources.food` · `-{{party.stats.mouths}}` — as many as another value says (a variable)\n• `party.members.values.health` · `-1`, `acting.conditions.wounded` · `true` — its characters (every one, whoever acts)\nHow a system writes its rules as data, e.g. a day without enough food: **When** `time.day-end`, **Only if** `trip.below: food`, **Changes** `party.stats.fatigue: 1`.',
     pause: 'Pause after it',
     pauseHelp:
       'The trip **stops** when this check comes up (after rolling it, if something resolves it) and waits until you press **Continue**: time to describe the place, write lore or decide something. The only way a check stops the trip: without it, a check with no table is just written in the journal.\n• a shrine found on the way, rolled on its table\n• a landmark to describe, with no table\nA table entry can also pause, only when it comes up (`pause: true` on the entry).',
     context: 'Extra context',
+    contextKey: 'What the table sees',
     contextHelp:
-      'Values the table sees **only for this check**, written as `key: value` pairs:\n• `timeOfDay: night` — a night encounter rolled on the day table\n• `danger: 3` — as if the hex were more dangerous',
+      'Values the table sees **only for this check**, one row each (what the table sees · value):\n• `timeOfDay` · `night` — a night encounter rolled on the day table\n• `danger` · `3` — as if the hex were more dangerous',
     none: 'No checks: trips only spend time and supplies.',
     add: 'Add a check',
     orphans: 'Tables bound to checks these rules don’t have: {events}.',

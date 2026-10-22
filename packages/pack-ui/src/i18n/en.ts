@@ -41,6 +41,22 @@ export const en = {
     replace:
       'The file has its own version of packs you already have: {packs}. Replace them with the file’s? (↶ undoes it; a bundled pack can be reverted.)',
   },
+  editAs: {
+    rowsShort: 'Rows',
+    yaml: 'Edit as YAML',
+    rows: 'Edit as rows',
+  },
+  pairs: {
+    key: 'Name',
+    value: 'Value',
+    add: '+ Row',
+    addFirst: '+ Add a row',
+    remove: 'Remove this row',
+    none: '—',
+    taken: 'There is already a row for {key}.',
+    intricate: 'Some values are lists or maps, which rows can’t show: edit it as YAML.',
+    badYaml: 'Write it as key: value pairs, e.g. party.stats.fatigue: 1.',
+  },
   condition: {
     ops: {
       is: 'is',
@@ -66,9 +82,6 @@ export const en = {
     addFirst: '+ Add a condition',
     remove: 'Remove this condition',
     none: '—',
-    rowsShort: 'Rows',
-    yaml: 'Edit as YAML',
-    rows: 'Edit as rows',
     intricate:
       'Written in a way rows can’t show (groups inside groups, or a whole condition turned around with not:): edit it as YAML.',
     badYaml:

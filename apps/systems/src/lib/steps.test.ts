@@ -103,3 +103,40 @@ describe("the bundled systems' actions as cards", () => {
     expect(yaml).toBeLessThan(read / 4)
   })
 })
+
+describe("the bundled systems' checks as rows", () => {
+  it('every condition, change and context that has rows writes back the same', async () => {
+    const { travelSystems } = await import('@open-tabletop/session')
+    const { conditionRows, rowsCondition, pairRows, rowsPairs } =
+      await import('@open-tabletop/pack-ui')
+    const { library } = await import('./packs.svelte')
+    let conditions = 0
+    let maps = 0
+    let yaml = 0
+    for (const { rules, bindings } of travelSystems(library.registry).systems)
+      for (const check of rules.checks ?? []) {
+        for (const c of [check.when, check.unless].filter(Boolean)) {
+          const rows = conditionRows(c)
+          if (!rows) {
+            yaml++
+            continue
+          }
+          conditions++
+          expect(rowsCondition(rows), JSON.stringify(c)).toEqual(c)
+        }
+        const context = (bindings?.on?.[check.event] as { context?: unknown } | null)?.context
+        for (const map of [check.effects, context].filter(Boolean)) {
+          const rows = pairRows(map)
+          if (!rows) {
+            yaml++
+            continue
+          }
+          maps++
+          expect(rowsPairs(rows), JSON.stringify(map)).toEqual(map)
+        }
+      }
+    expect(conditions).toBeGreaterThan(10)
+    expect(maps).toBeGreaterThan(2)
+    expect(yaml).toBeLessThan((conditions + maps) / 4)
+  })
+})

@@ -9,6 +9,7 @@
   import { usesFor } from '../../lib/usage'
   import { library } from '../../lib/packs.svelte'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
+  import { ConditionEditor, PairEditor } from '@open-tabletop/pack-ui'
   import { getLocale, t } from '../../lib/i18n'
   import { systems } from '../../lib/packs.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
@@ -269,27 +270,32 @@
             ></textarea>
           </label>
         </div>
-        <div class="row">
-          <label>
-            <span>{t('checks.when')}<InfoTip text={t('checks.conditionHelp')} /></span>
-            <SuggestInput
-              placeholder={t('checks.always')}
-              value={bare(check.when)}
+        <div class="conditions">
+          <div class="part">
+            <span class="label">{t('checks.when')}<InfoTip text={t('checks.conditionHelp')} /></span
+            >
+            <ConditionEditor
+              value={check.when}
               suggestions={hints}
+              locale={getLocale()}
               {disabled}
-              onchange={(text) => setFlow(['checks', i, 'when'], 'travel-rules', text)}
+              label={t('checks.when')}
+              onchange={(c) => doc.edit('travel-rules', ['checks', i, 'when'], c)}
             />
-          </label>
-          <label>
-            <span>{t('checks.unless')}<InfoTip text={t('checks.conditionHelp')} /></span>
-            <SuggestInput
-              placeholder={t('checks.never')}
-              value={bare(check.unless)}
+          </div>
+          <div class="part">
+            <span class="label"
+              >{t('checks.unless')}<InfoTip text={t('checks.conditionHelp')} /></span
+            >
+            <ConditionEditor
+              value={check.unless}
               suggestions={hints}
+              locale={getLocale()}
               {disabled}
-              onchange={(text) => setFlow(['checks', i, 'unless'], 'travel-rules', text)}
+              label={t('checks.unless')}
+              onchange={(c) => doc.edit('travel-rules', ['checks', i, 'unless'], c)}
             />
-          </label>
+          </div>
         </div>
         <div class="row">
           <label>
@@ -322,28 +328,6 @@
               {/each}
             </select>
           </label>
-          {#if binding}
-            <label>
-              <span>{t('checks.context')}<InfoTip text={t('checks.contextHelp')} /></span>
-              <SuggestInput
-                placeholder="timeOfDay: night"
-                value={bare(binding.context)}
-                suggestions={hints}
-                {disabled}
-                onchange={(text) => setFlow(['on', event, 'context'], 'bindings', text)}
-              />
-            </label>
-          {/if}
-          <label>
-            <span>{t('checks.effects')}<InfoTip text={t('checks.effectsHelp')} /></span>
-            <SuggestInput
-              placeholder="party.stats.fatigue: 1"
-              value={bare(check.effects)}
-              suggestions={effectHints}
-              {disabled}
-              onchange={(text) => setFlow(['checks', i, 'effects'], 'travel-rules', text)}
-            />
-          </label>
           <label class="inline">
             <input
               type="checkbox"
@@ -358,6 +342,41 @@
             />
             {t('checks.pause')}<InfoTip text={t('checks.pauseHelp')} />
           </label>
+        </div>
+        <div class="conditions">
+          <div class="part">
+            <span class="label"
+              >{t('checks.effects')}<InfoTip text={t('checks.effectsHelp')} /></span
+            >
+            <PairEditor
+              value={check.effects}
+              keys={Object.keys(effectHints)}
+              values={effectHints}
+              keyLabel={t('steps.pairs.key')}
+              locale={getLocale()}
+              {disabled}
+              label={t('checks.effects')}
+              onchange={(map) => doc.edit('travel-rules', ['checks', i, 'effects'], map)}
+            />
+          </div>
+          {#if binding}
+            <div class="part">
+              <span class="label"
+                >{t('checks.context')}<InfoTip text={t('checks.contextHelp')} /></span
+              >
+              <PairEditor
+                value={binding.context}
+                keys={Object.keys(hints)}
+                values={hints}
+                fresh=""
+                keyLabel={t('checks.contextKey')}
+                locale={getLocale()}
+                {disabled}
+                label={t('checks.context')}
+                onchange={(map) => doc.edit('bindings', ['on', event, 'context'], map)}
+              />
+            </div>
+          {/if}
         </div>
       </div>
     {:else}
@@ -583,6 +602,24 @@
     display: flex;
     gap: 10px;
     align-items: end;
+  }
+
+  .conditions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18em, 1fr));
+    gap: 8px 16px;
+  }
+
+  .part {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .label {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .row label {

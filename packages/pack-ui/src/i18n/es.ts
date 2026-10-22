@@ -44,6 +44,23 @@ export const es: Messages<typeof en> = {
     replace:
       'El fichero trae su propia versión de packs que ya tienes: {packs}. ¿Los sustituyes por los del fichero? (↶ lo deshace; un pack incluido se puede devolver a su versión incluida.)',
   },
+  editAs: {
+    rowsShort: 'Filas',
+    yaml: 'Editar como YAML',
+    rows: 'Editar como filas',
+  },
+  pairs: {
+    key: 'Nombre',
+    value: 'Valor',
+    add: '+ Fila',
+    addFirst: '+ Añadir una fila',
+    remove: 'Quitar esta fila',
+    none: '—',
+    taken: 'Ya hay una fila para {key}.',
+    intricate:
+      'Algunos valores son listas o mapas, que las filas no pueden mostrar: edítalo como YAML.',
+    badYaml: 'Escríbelo como pares clave: valor, p. ej. party.stats.fatigue: 1.',
+  },
   condition: {
     ops: {
       is: 'es',
@@ -69,9 +86,6 @@ export const es: Messages<typeof en> = {
     addFirst: '+ Añadir una condición',
     remove: 'Quitar esta condición',
     none: '—',
-    rowsShort: 'Filas',
-    yaml: 'Editar como YAML',
-    rows: 'Editar como filas',
     intricate:
       'Está escrita de una forma que las filas no pueden mostrar (grupos dentro de grupos, o una condición entera dada la vuelta con not:): edítala como YAML.',
     badYaml:

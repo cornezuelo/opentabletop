@@ -603,9 +603,6 @@ export const es: Messages<typeof en> = {
     },
     pairs: {
       key: 'Qué cambia',
-      value: 'Valor',
-      add: '+ Fila',
-      remove: 'Quitar esta fila',
     },
     noChoice: '— elige —',
     noParams: 'Esta acción no tiene parámetros que preguntar: declara uno antes en **Parámetros**.',
@@ -664,7 +661,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), en pares `clave: valor`, como en las tablas:\n• `hex.terrain: forest` — el hex\n• `hex.tags: landmark` — una etiqueta del hex\n• `trip.edges: [road, river]` — el camino o río del paso\n• `danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.resources.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
+      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `hex.terrain: forest` — el hex\n• `hex.tags: landmark` — una etiqueta del hex\n• `trip.edges: [road, river]` — el camino o río del paso\n• `danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.resources.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',
@@ -675,13 +672,14 @@ export const es: Messages<typeof en> = {
     waits: '— sin tabla —',
     effects: 'Cambios',
     effectsHelp:
-      "Lo que cambia la propia comprobación cuando sale, con o sin tabla:\n• `party.stats.fatigue: 1` — suma 1\n• `party.resources.food: -1` — quita 1\n• `party.stats.fatigue: '=0'` — lo fija\n• `party.resources.food: '-{{party.stats.mouths}}'` — tantos como dice otro valor (una variable)\n• `party.members.values.health: -1`, `acting.conditions.wounded: true` — sus personajes (todos, el que actúa)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `time.day-end`, **Solo si** `trip.below: food`, **Cambios** `party.stats.fatigue: 1`.",
+      'Lo que cambia la propia comprobación cuando sale, con o sin tabla, una fila cada cosa (qué cambia · valor): un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.resources.food` · `-1` — quita 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.resources.food` · `-{{party.stats.mouths}}` — tantos como dice otro valor (una variable)\n• `party.members.values.health` · `-1`, `acting.conditions.wounded` · `true` — sus personajes (todos, el que actúa)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `time.day-end`, **Solo si** `trip.below: food`, **Cambios** `party.stats.fatigue: 1`.',
     pause: 'Pausar después',
     pauseHelp:
       'El viaje **se detiene** cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo. Es lo único que hace que una comprobación detenga el viaje: sin ello, una sin tabla solo se apunta en el diario.\n• un santuario encontrado por el camino, tirado en su tabla\n• un hito que describir, sin tabla\nUna entrada de tabla también puede pausar, solo cuando sale (`pause: true` en la entrada).',
     context: 'Contexto extra',
+    contextKey: 'Qué ve la tabla',
     contextHelp:
-      'Valores que la tabla ve **solo en esta comprobación**, escritos como pares `clave: valor`:\n• `timeOfDay: night` — un encuentro nocturno tirado en la tabla de día\n• `danger: 3` — como si el hex fuera más peligroso',
+      'Valores que la tabla ve **solo en esta comprobación**, una fila cada uno (qué ve la tabla · valor):\n• `timeOfDay` · `night` — un encuentro nocturno tirado en la tabla de día\n• `danger` · `3` — como si el hex fuera más peligroso',
     none: 'Sin comprobaciones: los viajes solo gastan tiempo y provisiones.',
     add: 'Añadir una comprobación',
     orphans: 'Tablas asociadas a comprobaciones que estas reglas no tienen: {events}.',
