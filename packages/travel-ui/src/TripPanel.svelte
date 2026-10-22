@@ -52,7 +52,7 @@
     type TravelWorld,
     type Unavailable,
   } from '@open-tabletop/travel-engine'
-  import { calendarOf, hexIdOf } from '@open-tabletop/session'
+  import { calendarOf, hexIdOf, pendingLine } from '@open-tabletop/session'
   import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberNamer, statSource } from './members'
@@ -443,6 +443,19 @@
   const pendingName = (event: unknown) => eventName(t, event, checkName)
 
   /** Entries grouped by day ("Day N" headers), in the order given. */
+  /**
+   * When a waiting check came up, if on another day than now: an action that goes on past
+   * it (a camp till dawn) leaves its line in the day before, which the box then names.
+   */
+  function cameUp(id: string): string {
+    const line = pendingLine(session.journal, id)
+    if (!line) return ''
+    const day = tripDay(line, startDay, calendar)
+    return day === time.day
+      ? ''
+      : t('cameUp', { day, clock: formatClock(calendar.describe(line.time)) })
+  }
+
   function byDay(entries: JournalEntry[]) {
     const groups: { day: number; entries: JournalEntry[] }[] = []
     for (const entry of entries) {
@@ -544,7 +557,9 @@
                 })
               : pendingName(check.event),
           },
-        )}{#if checkTip(check.event)}<InfoTip markdown={checkTip(check.event)} />{/if}</span
+        )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
+            markdown={checkTip(check.event)}
+          />{/if}</span
       >
       {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
       <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button

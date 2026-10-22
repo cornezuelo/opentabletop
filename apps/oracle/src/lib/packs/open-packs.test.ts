@@ -4,6 +4,7 @@ import {
   contextSuggestions,
   newMember,
   partyOf,
+  pendingLine,
   startTrip,
   stepTrip,
   systemName,
@@ -289,6 +290,23 @@ describe('bundled open packs', () => {
       )
       return camped.entries.some((e) => e.data?.event === 'CAMP_ENCOUNTER_CHECK_REQUIRED')
     }
+
+    it('a night encounter waiting after a camp till dawn: its line is in the day it came up', () => {
+      const calendar = calendarOf(system)
+      const { session } = startTrip({ system, location: '0', season: 'summer', members: company() })
+      const camped = stepTrip(options([{ terrain: 'heath', danger: 3 }]), session, {
+        type: 'action',
+        id: 'camp',
+      }).state
+      const check = camped.travel.pendingChecks.find(
+        (c) => c.event === 'CAMP_ENCOUNTER_CHECK_REQUIRED',
+      )!
+      expect(check.rolled).toBeDefined()
+      // The camp goes on to the morning, but the encounter came up as it began, a day before.
+      const line = pendingLine(camped.journal, check.id)!
+      expect(line.code).toBe('CHECK_PAUSED')
+      expect(calendar.describe(camped.travel.time).day).toBe(calendar.describe(line.time).day + 1)
+    })
 
     it('a stealthy lookout keeps the camp hidden; nobody on watch, or a clumsy one, does not', () => {
       expect(nightCheck()).toBe(true)

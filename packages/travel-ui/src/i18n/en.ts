@@ -36,6 +36,8 @@ export const en = {
   },
   dayUnit: 'day',
   journalDay: 'Day {day}',
+  /** After a waiting check that came up on another day (its line is in that day's journal). */
+  cameUp: ' (it came up on day {day}, {clock})',
   dateLine: '{weekday}, {day} {month}, year {year}',
   moonPhases: vocabulary.en.moonPhases,
   dayLine: 'Day {day} · {clock} · {season}',

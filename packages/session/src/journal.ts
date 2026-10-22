@@ -117,3 +117,17 @@ export function rolledNodes(r: Resolution, depth = 0): RolledNode[] {
       : []
   return [...own, ...r.children.flatMap((c) => rolledNodes(c, depth + 1))]
 }
+
+/** The lines that say a check waits for the player (to roll, to go on, to choose who rolls). */
+const WAITING_CODES = ['CHECK_PENDING', 'CHECK_PAUSED', 'CHECK_ASKS']
+
+/**
+ * The journal line of a check waiting for the player, by its id: when it came up. An action
+ * that goes on past it (a camp until dawn) leaves it in an earlier day than the trip's.
+ */
+export function pendingLine<E extends { code: string; data?: Record<string, unknown> }>(
+  journal: readonly E[],
+  id: string,
+): E | undefined {
+  return journal.findLast((e) => WAITING_CODES.includes(e.code) && e.data?.id === id)
+}

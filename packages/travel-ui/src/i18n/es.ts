@@ -37,6 +37,7 @@ export const es: Messages<typeof en> = {
   },
   dayUnit: 'día',
   journalDay: 'Día {day}',
+  cameUp: ' (salió el día {day}, a las {clock})',
   dateLine: '{weekday}, {day} de {month}, año {year}',
   moonPhases: vocabulary.es.moonPhases,
   dayLine: 'Día {day} · {clock} · {season}',
