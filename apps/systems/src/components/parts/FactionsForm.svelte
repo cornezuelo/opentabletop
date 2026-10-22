@@ -90,6 +90,7 @@
     <RecordRows
       {doc}
       at={['factions']}
+      ordered="factions"
       uses={{ of: (id) => usesFor(system, { kind: 'faction', id }), system }}
       idLabel={t('forms.id')}
       template={{}}

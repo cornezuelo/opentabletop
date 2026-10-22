@@ -87,6 +87,7 @@
     exclude = [],
     uses,
     cards: asCards,
+    ordered,
   }: {
     doc: RowsDoc
     kind?: string
@@ -102,6 +103,12 @@
     uses?: { of: (id: string) => Use[]; system: TravelSystem }
     /** Cards or a table; by default cards when a column is big or there are many. */
     cards?: boolean
+    /**
+     * Where order decides something (the first way of travelling is a new trip's, factions
+     * take their turns in order): its cards show their place and can be moved (drag ⠿, ↑ ↓).
+     * Its name tells its drags from other lists'.
+     */
+    ordered?: string
   } = $props()
 
   const cards = $derived(
@@ -151,6 +158,13 @@
   const free = $derived(suggestions.filter((s) => !(s in record)))
   const listId = $props.id()
   const disabled = $derived(!doc.editable)
+
+  /** Moves a row to where another one is (by their places among the rows). */
+  function moveTo(from: number, to: number) {
+    if (!ordered || to < 0 || to >= rows.length) return
+    doc.moveKey(kind, at, rows[from][0], Object.keys(record).indexOf(rows[to][0]))
+  }
+  const placeOf = (id: string) => rows.findIndex(([r]) => r === id)
 
   function rename(id: string, next: string) {
     const to = next.trim()
@@ -370,6 +384,16 @@
           said={open ? undefined : summary(row)}
           {open}
           ontoggle={() => (open ? unfolded.delete(id) : unfolded.add(id))}
+          {disabled}
+          order={ordered
+            ? {
+                index: placeOf(id),
+                count: rows.length,
+                list: ordered,
+                onmove: (by) => moveTo(placeOf(id), placeOf(id) + by),
+                ondrop: (from) => moveTo(from, placeOf(id)),
+              }
+            : undefined}
         >
           {@render removeButton(id)}
         </CardHead>

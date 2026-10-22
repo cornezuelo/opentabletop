@@ -142,7 +142,7 @@ export const es: Messages<typeof en> = {
     byHand: 'a mano',
     factions: 'Facciones',
     factionsHelp:
-      'Cada facción, con un id con el que la leen las tablas (`factions.<id>.*`): su nombre, su color en el mapa, sus valores iniciales, dónde empieza y, si la tiene, una tabla de turno propia.',
+      'Cada facción, con un id con el que la leen las tablas (`factions.<id>.*`): su nombre, su color en el mapa, sus valores iniciales, dónde empieza y, si la tiene, una tabla de turno propia.\nSu orden cuenta: un turno del mundo va facción a facción en este orden, y cada una ve lo que hicieron las anteriores. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.',
     factionName: 'Nombre',
     color: 'Color',
     colorHelp: 'Su color en el mapa, como `#rrggbb`.\n• `#8b1e1e`',
@@ -406,6 +406,7 @@ export const es: Messages<typeof en> = {
     closeAll: 'Plegar todo',
     unfold: 'Mostrar sus campos',
     fold: 'Plegarla',
+    drag: 'Arrastra sobre otra ficha para moverla allí',
     whatItDoes: 'Qué hace',
     description: 'Descripción (su ayuda)',
     descriptionHelp:
@@ -453,7 +454,7 @@ export const es: Messages<typeof en> = {
       'La escala a la que se juega el sistema: cuántos km mide un hex. Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Travel, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Hexmapper: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
     modes: 'Formas de viajar',
     modesHelp:
-      'Formas de viajar: a pie, a caballo, en barca… Cada una tiene una velocidad en **km por día de marcha** en terreno fácil (los terrenos y caminos la cambian) y puede limitarse a algunos sitios y momentos.\n• `foot` — 24 km al día\n• `horse` — 40 km al día, **Salvo si** `trip.weather: snow`\n• `boat` — 50 km al día, **Solo por** `hex.water: true`\nEl panel del viaje deja al jugador cambiar de una a otra.',
+      'Formas de viajar: a pie, a caballo, en barca… Cada una tiene una velocidad en **km por día de marcha** en terreno fácil (los terrenos y caminos la cambian) y puede limitarse a algunos sitios y momentos.\n• `foot` — 24 km al día\n• `horse` — 40 km al día, **Salvo si** `trip.weather: snow`\n• `boat` — 50 km al día, **Solo por** `hex.water: true`\nEl panel del viaje deja al jugador cambiar de una a otra.\nSu orden cuenta: la primera es la de un viaje nuevo. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.',
     kmPerDay: 'km por día',
     name: 'Nombre',
     nameHelp:
@@ -503,7 +504,7 @@ export const es: Messages<typeof en> = {
       'A qué velocidad marcha el grupo con este clima:\n• `0` — ese día no se viaja (es un día perdido)\n• `0.5` — a media velocidad\n• `1` — como siempre',
     actions: 'Acciones',
     actionsHelp:
-      "Lo que puede hacer el grupo: **marchar**, **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Automática en**). Nada viene de serie: marchar es una acción como las demás.\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• marchar: `travel.move: '{{params.until}}'`, con un parámetro `until` (hasta el destino o un hex)\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `travel.speed: 0.5`, su comprobación en `forage`\n• comer, automática en `time.day-end`: `effects: { party.resources.food: -1 }`",
+      "Lo que puede hacer el grupo: **marchar**, **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Automática en**). Nada viene de serie: marchar es una acción como las demás.\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• marchar: `travel.move: '{{params.until}}'`, con un parámetro `until` (hasta el destino o un hex)\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `travel.speed: 0.5`, su comprobación en `forage`\n• comer, automática en `time.day-end`: `effects: { party.resources.food: -1 }`\nSu orden cuenta: es el de los botones del panel del viaje, y el orden en que el sistema hace por sí solo las de un mismo momento. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.",
     oncePerDay: 'Una vez al día',
     modeWhenHelp:
       'Cuándo se puede elegir (**Solo si**) o no (**Salvo si**), como condición sobre dónde está el grupo y el momento.\n• una barca solo a la orilla: `any: [{ hex.water: true }, { hex.tags: ferry }]`\n• sin caballos con nieve: **Salvo si** `trip.weather: snow`\n• un carro solo en verano: **Solo si** `time.season: summer`\nVacío: siempre. Un valor del día también puede bloquearla (**Bloquea** `modes.<id>`).',
@@ -664,7 +665,7 @@ export const es: Messages<typeof en> = {
     search: 'Buscar en las comprobaciones (nombre, evento, momento, tabla…)',
     paused: 'pausa',
     title: 'Comprobaciones',
-    help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla solo se apunta en el diario (con sus **Cambios**); solo **Pausar después** detiene el viaje.',
+    help: 'Qué se tira por el camino, cuándo y en qué tabla. Una comprobación sin tabla solo se apunta en el diario (con sus **Cambios**); solo **Pausar después** detiene el viaje.\nSu orden cuenta: las comprobaciones de un momento llegan una a una en este orden, y cada una ve lo que pusieron las anteriores (primero el clima, luego lo que lo lee). Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.',
     event: 'Comprobación',
     name: 'Nombre',
     nameHelp:

@@ -1,6 +1,8 @@
 import {
   appendDefinition,
   insertIn,
+  moveIn,
+  moveKey,
   renameOverlayKey,
   readDefinition,
   removeIn,
@@ -214,6 +216,14 @@ export function systemDoc(source: () => DocSource) {
     },
     remove(kind: Kind, at: Path, index: number) {
       save(kind, removeIn(read(kind), selector(kind), at, index))
+    },
+    /** Moves an item of a list (a check) to another place. */
+    move(kind: Kind, at: Path, from: number, to: number) {
+      save(kind, moveIn(read(kind), selector(kind), at, from, to))
+    },
+    /** Moves a key of a map (a way of travelling, an action) to another place. */
+    moveKey(kind: Kind, at: Path, key: string, to: number) {
+      save(kind, moveKey(read(kind), selector(kind), at, key, to))
     },
   }
   return doc

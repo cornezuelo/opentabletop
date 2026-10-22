@@ -179,6 +179,7 @@
     <RecordRows
       {doc}
       at={['modes']}
+      ordered="modes"
       uses={system && { of: (id) => usesFor(system, { kind: 'mode', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['foot', 'horse', 'cart', 'boat']}

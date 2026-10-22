@@ -2,6 +2,7 @@ import { manifestOf } from '@open-tabletop/pack-ui/packs'
 import {
   insertIn,
   moveIn,
+  moveKey,
   readDefinition,
   removeIn,
   renameKey,
@@ -91,6 +92,9 @@ export function partDoc(source: () => PartSource | null) {
     move(_kind: string, at: Path, from: number, to: number) {
       save(moveIn(read(), selector, at, from, to))
     },
+    moveKey(_kind: string, at: Path, key: string, to: number) {
+      save(moveKey(read(), selector, at, key, to))
+    },
   }
 }
 
@@ -109,6 +113,8 @@ export interface RowsDoc {
   setText(kind: string, at: Path, value: unknown, key: string[], text: string): void
   edit(kind: string, at: Path, value: unknown): void
   rename(kind: string, at: Path, from: string, to: string): void
+  /** Moves a key of a map to another place (where order decides something). */
+  moveKey(kind: string, at: Path, key: string, to: number): void
 }
 
 /** A list's rows: inserting, removing and moving items too. */

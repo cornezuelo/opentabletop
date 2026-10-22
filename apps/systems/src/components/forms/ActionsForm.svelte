@@ -186,6 +186,12 @@
     ),
   )
 
+  /** Moves an action to another place: the trip panel's buttons, and those of a moment, go in order. */
+  function moveAction(id: string, to: number) {
+    if (to < 0 || to >= ids.length) return
+    doc.moveKey('travel-rules', ['actions'], id, to)
+  }
+
   /** The action whose uses are shown in its card. */
   let usesOpen = $state<string | null>(null)
 
@@ -303,6 +309,14 @@
         said={open ? undefined : summary(id)}
         {open}
         ontoggle={() => (open ? unfolded.delete(id) : unfolded.add(id))}
+        {disabled}
+        order={{
+          index: ids.indexOf(id),
+          count: ids.length,
+          list: 'actions',
+          onmove: (by) => moveAction(id, ids.indexOf(id) + by),
+          ondrop: (from) => moveAction(ids[from], ids.indexOf(id)),
+        }}
       >
         {#if !disabled}
           <button

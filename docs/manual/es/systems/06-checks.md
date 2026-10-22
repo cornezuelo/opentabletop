@@ -28,7 +28,7 @@ Las comprobaciones salen como fichas plegadas, cada una diciendo en una línea c
 - **Contexto extra** (cuando algo la tira): valores que su tabla ve solo en esta comprobación, una fila cada uno. P. ej. `timeOfDay` · `night` para tirar un encuentro nocturno en la tabla del día, o `danger` · `3` como si el hex fuera más peligroso;
 - **Pausar después**: detiene el viaje y espera a **Continuar**.
 
-**Las comprobaciones de un mismo momento llegan una a una, en el orden de la lista.** Una comprobación al alba después de la del clima con **Solo si** `trip.weather` · **es** · `storm` sale en un alba de tormenta, la de hoy y no la de ayer (_Un alba de tormenta_ de las Marcas Grises). Una comprobación que pausa, o que espera a saber quién tira, deja en espera el resto de su momento hasta **Continuar** (mira [qué hace aparecer Continuar](../travel/02-playing.md#el-viaje)).
+**Las comprobaciones de un mismo momento llegan una a una, en el orden de la lista.** Una comprobación al alba después de la del clima con **Solo si** `trip.weather` · **es** · `storm` sale en un alba de tormenta, la de hoy y no la de ayer (_Un alba de tormenta_ de las Marcas Grises). Una comprobación que pausa, o que espera a saber quién tira, deja en espera el resto de su momento hasta **Continuar** (mira [qué hace aparecer Continuar](../travel/02-playing.md#el-viaje)). Cada ficha enseña su puesto (_1._, _2._…); arrastra una por su asa (⠿) sobre otra para llevarla allí, o ↑ / ↓ un puesto.
 
 Si los bindings aún nombran tablas para comprobaciones que las reglas ya no tienen (una comprobación quitada en el YAML), una nota las lista y **Quitarlas** las borra.
 

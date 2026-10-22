@@ -45,6 +45,26 @@ describe('systems in the Systems app', () => {
     expect(library.readFile(id, 'system.yaml')).toContain('travel: travel-rules.default')
   })
 
+  it('cards whose order decides something are moved in the YAML, as the engines read them', () => {
+    const id = createSystem('In Order')!
+    const doc = systemDoc(() => rulesFile(systems.get(id)!)!)
+    doc.insert('travel-rules', ['checks'], 1, { event: 'SECOND', at: 'time.part.morning' })
+    // A check moved first: the checks of one moment come in the list's order.
+    doc.move('travel-rules', ['checks'], 1, 0)
+    expect(systems.get(id)!.rules.checks?.map((c) => c.event)).toEqual([
+      'SECOND',
+      'WEATHER_CHECK_REQUIRED',
+    ])
+    // A way of travelling moved first: a new trip's.
+    doc.moveKey('travel-rules', ['modes'], 'horse', 0)
+    expect(Object.keys(systems.get(id)!.rules.modes)).toEqual(['horse', 'foot'])
+    // An action moved: the trip panel's buttons follow.
+    doc.moveKey('travel-rules', ['actions'], 'explore', 0)
+    expect(Object.keys(systems.get(id)!.rules.actions ?? {})[0]).toBe('explore')
+    // Comments and the rest of the file stay.
+    expect(library.readFile(id, 'travel.yaml')).toContain('kind: bindings')
+  })
+
   it('new systems are written for today’s pack format', () => {
     expect(packFormat(createSystem('Fresh')!)).toBe(PACK_FORMAT)
   })

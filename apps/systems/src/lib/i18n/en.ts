@@ -139,7 +139,7 @@ export const en = {
     byHand: 'by hand',
     factions: 'Factions',
     factionsHelp:
-      'Each faction, by an id tables read it with (`factions.<id>.*`): its name, its colour on the map, its starting values, where it starts and, if it has one, a turn table of its own.',
+      'Each faction, by an id tables read it with (`factions.<id>.*`): its name, its colour on the map, its starting values, where it starts and, if it has one, a turn table of its own.\nTheir order counts: a world turn goes faction by faction in this order, each seeing what the ones before did. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.',
     factionName: 'Name',
     color: 'Colour',
     colorHelp: 'Its colour on the map, as `#rrggbb`.\n• `#8b1e1e`',
@@ -403,6 +403,7 @@ export const en = {
     closeAll: 'Fold all',
     unfold: 'Show its fields',
     fold: 'Fold it',
+    drag: 'Drag onto another card to move it there',
     /** Beside a button with help: its explanation, without pressing it. */
     whatItDoes: 'What it does',
     description: 'Description (its help)',
@@ -450,7 +451,7 @@ export const en = {
       "The scale the system is played at: how many km a hex measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Hexmapper: Map settings → Map). Empty: the map's or the way's, 10 by default.",
     modes: 'Ways of travelling',
     modesHelp:
-      'Ways of travelling: on foot, on horseback, by boat… Each has a speed in **km per marching day** on easy ground (terrains and roads change it), and can be limited to some places and moments.\n• `foot` — 24 km a day\n• `horse` — 40 km a day, **Not when** `trip.weather: snow`\n• `boat` — 50 km a day, **Only through** `hex.water: true`\nThe trip panel lets the player switch between them.',
+      'Ways of travelling: on foot, on horseback, by boat… Each has a speed in **km per marching day** on easy ground (terrains and roads change it), and can be limited to some places and moments.\n• `foot` — 24 km a day\n• `horse` — 40 km a day, **Not when** `trip.weather: snow`\n• `boat` — 50 km a day, **Only through** `hex.water: true`\nThe trip panel lets the player switch between them.\nTheir order counts: the first is a new trip’s way. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.',
     kmPerDay: 'km per day',
     name: 'Name',
     nameHelp:
@@ -500,7 +501,7 @@ export const en = {
       'How fast the party marches in this weather:\n• `0` — no travel that day (the day is lost)\n• `0.5` — half speed\n• `1` — as usual',
     actions: 'Actions',
     actionsHelp:
-      "What the party can do: **march**, **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**). Nothing is built in: marching is an action like the rest.\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• march: `travel.move: '{{params.until}}'`, with a parameter `until` (to the destination or one hex)\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `travel.speed: 0.5`, its check at `forage`\n• eat, by itself at `time.day-end`: `effects: { party.resources.food: -1 }`",
+      "What the party can do: **march**, **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**). Nothing is built in: marching is an action like the rest.\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• march: `travel.move: '{{params.until}}'`, with a parameter `until` (to the destination or one hex)\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `travel.speed: 0.5`, its check at `forage`\n• eat, by itself at `time.day-end`: `effects: { party.resources.food: -1 }`\nTheir order counts: it's the order of the trip panel's buttons, and the order the system takes those of one moment by itself. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.",
     oncePerDay: 'Once a day',
     modeWhenHelp:
       "When it can be chosen (**Only when**) or not (**Not when**), as a condition on where the party is and the moment.\n• a boat only at the water's edge: `any: [{ hex.water: true }, { hex.tags: ferry }]`\n• no horses in the snow: **Not when** `trip.weather: snow`\n• a cart only in summer: **Only when** `time.season: summer`\nEmpty: always. A value of the day can block it too (**Blocks** `modes.<id>`).",
@@ -661,7 +662,7 @@ export const en = {
     search: 'Search the checks (name, event, moment, table…)',
     paused: 'pauses',
     title: 'Checks',
-    help: 'What is rolled on the way, when, and on which table. A check without a table is only written in the journal (with its **Changes**); only **Pause after it** stops the trip.',
+    help: 'What is rolled on the way, when, and on which table. A check without a table is only written in the journal (with its **Changes**); only **Pause after it** stops the trip.\nTheir order counts: the checks of one moment come one by one in this order, each seeing what the ones before set (the weather first, then what reads it). Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.',
     event: 'Check',
     name: 'Name',
     nameHelp:

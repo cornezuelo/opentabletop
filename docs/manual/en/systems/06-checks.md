@@ -28,7 +28,7 @@ The checks come as folded cards, each saying in one line when it's asked, what i
 - **Extra context** (once something rolls it): values its table sees only for this check, one row each. E.g. `timeOfDay` · `night` to roll a night encounter on the day's table, or `danger` · `3` as if the hex were more dangerous;
 - **Pause after it**: stops the trip and waits for **Continue**.
 
-**Checks of the same moment come one by one, in the list's order.** A check at dawn after the weather's with **Only if** `trip.weather` · **is** · `storm` comes up on a stormy dawn, today's storm and not yesterday's (the Grey Marches' _A stormy dawn_). A check that pauses, or waits for who rolls, holds the rest of its moment until **Continue** (see [what makes Continue appear](../travel/02-playing.md#the-trip)).
+**Checks of the same moment come one by one, in the list's order.** A check at dawn after the weather's with **Only if** `trip.weather` · **is** · `storm` comes up on a stormy dawn, today's storm and not yesterday's (the Grey Marches' _A stormy dawn_). A check that pauses, or waits for who rolls, holds the rest of its moment until **Continue** (see [what makes Continue appear](../travel/02-playing.md#the-trip)). Each card shows its place (_1._, _2._…); drag one by its handle (⠿) onto another to move it there, or ↑ / ↓ one place.
 
 When the bindings still name tables for checks the rules no longer have (a check removed in the YAML), a note lists them and **Remove them** clears them.
 

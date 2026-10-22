@@ -203,6 +203,19 @@
       doc.edit('bindings', ['on', event], undefined)
   }
 
+  /** Moves a check to another place: the checks of one moment come in the list's order. */
+  function move(from: number, to: number) {
+    if (to < 0 || to >= checks.length || from === to) return
+    doc.move('travel-rules', ['checks'], from, to)
+    // The unfolded cards follow their checks.
+    const order = checks.map((_, i) => i)
+    const [moved] = order.splice(from, 1)
+    order.splice(to, 0, moved)
+    const kept = order.flatMap((old, now) => (unfolded.has(old) ? [now] : []))
+    unfolded.clear()
+    for (const n of kept) unfolded.add(n)
+  }
+
   function add() {
     const used = checks.map((c) => String(c.event))
     const event = known.find((e) => !used.includes(e)) ?? 'NEW_CHECK_REQUIRED'
@@ -274,6 +287,14 @@
             said={open ? undefined : summary(check)}
             {open}
             ontoggle={() => (open ? unfolded.delete(i) : unfolded.add(i))}
+            {disabled}
+            order={{
+              index: i,
+              count: checks.length,
+              list: 'checks',
+              onmove: (by) => move(i, i + by),
+              ondrop: (from) => move(from, i),
+            }}
           >
             {#if !disabled}
               <button
