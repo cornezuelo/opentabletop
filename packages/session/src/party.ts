@@ -56,8 +56,26 @@ export interface PartyTarget {
   roles?: Record<string, string>
   /** Who rolls for the stats made of one character (`from: { pick }`); absent: the best. */
   rolls?: string
+  /** What the party spends or gains of its items waits for the player to say who (**Ask who gives**). */
+  askShare?: boolean
+  /** What was shared out by the system's rule and waits for that answer, the first first. */
+  sharing?: Sharing[]
   stats: Record<string, number>
   travel: Partial<Pick<TravelState, 'seed' | 'day' | 'location' | 'totals' | 'reached'>>
+}
+
+/**
+ * What the party spent or gained of an item among its members, shared out by the system's
+ * rule (`items.share`) and waiting for the player to confirm it or say who gives (or takes)
+ * it instead: **Ask who gives**.
+ */
+export interface Sharing {
+  item: string
+  /** What the members gave (negative) or took, all together. */
+  delta: number
+  /** How the rule shared it out: what each member gave or took, by id. */
+  moved: Record<string, number>
+  time?: number
 }
 
 /** The sheet a member (or the party itself) is made with, when it's the system's. */
@@ -374,6 +392,13 @@ export function applyMemberEffects(
     )
     s.members = shared.members
     events.push(...shared.events)
+    // Asking who gives: only when more than one could, and something was shared out.
+    const given = Object.values(shared.moved).reduce((n, m) => n + m, 0)
+    if (s.askShare && carriers.length > 1 && given)
+      s.sharing = [
+        ...(s.sharing ?? []),
+        { item, delta: given, moved: shared.moved, ...(time !== undefined && { time }) },
+      ]
   }
   for (const [path, change] of Object.entries(effects)) {
     const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
@@ -562,4 +587,66 @@ export function relatedWorld(
       return { ...cell, related: [...new Set(here.map((r) => r.who))], relations: byKind }
     },
   }
+}
+
+/**
+ * What each member could give of the first share waiting (`sharing`), or take: what they
+ * carry now plus what the rule took from them. Undefined when nothing waits.
+ */
+export function sharingRoom(
+  s: Pick<PartyTarget, 'members' | 'sharing'>,
+  rules: PartyRules,
+): Record<string, number> | undefined {
+  const first = s.sharing?.[0]
+  if (!first) return undefined
+  return Object.fromEntries(
+    (s.members ?? [])
+      .filter((m) => sheetOf(rules)(m)?.items !== undefined)
+      .map((m) => [m.id, countOf(m, first.item) - (first.moved[m.id] ?? 0)]),
+  )
+}
+
+/**
+ * Answers the first share waiting (in place): `moved` is what each member gives (negative)
+ * or takes instead of what the rule said (absent: the rule's stands). It must add up to
+ * the same, each one giving no more than they could. Undefined when it can't be done.
+ */
+export function answerSharing(
+  s: PartyTarget,
+  rules: PartyRules,
+  moved?: Record<string, number>,
+  time?: number,
+): { sharing: Sharing; moved: Record<string, number>; events: CharacterEvent[] } | undefined {
+  const first = s.sharing?.[0]
+  if (!first) return undefined
+  const chosen = moved ?? first.moved
+  const room = sharingRoom(s, rules) ?? {}
+  const total = Object.values(chosen).reduce((n, m) => n + m, 0)
+  const fits = Object.entries(chosen).every(
+    ([id, n]) =>
+      id in room && Number.isInteger(n) && (first.delta < 0 ? n <= 0 && -n <= room[id] : n >= 0),
+  )
+  if (total !== first.delta || !fits) return undefined
+  const events: CharacterEvent[] = []
+  s.members = (s.members ?? []).map((m) => {
+    const change = (chosen[m.id] ?? 0) - (first.moved[m.id] ?? 0)
+    const sheet = sheetOf(rules)(m)
+    if (!change || !sheet) return m
+    const done = applyCharacter(
+      sheet,
+      m,
+      {
+        type: 'change',
+        effects: { [`items.${first.item}`]: change },
+        ...(time !== undefined && { time }),
+      },
+      { items: rules.items },
+    )
+    events.push(...done.events)
+    return done.state
+  })
+  s.sharing = s.sharing!.slice(1)
+  if (!s.sharing.length) delete s.sharing
+  const kept = Object.fromEntries(Object.entries(chosen).filter(([, n]) => n))
+  return { sharing: first, moved: kept, events }
 }

@@ -387,6 +387,8 @@ function playToOtd(map: HexMap) {
         ...(session?.askRolls && { askRolls: true }),
         ...(session?.skipPauses && { skipPauses: true }),
         ...(session?.asking?.length && { asking: session.asking }),
+        ...(session?.askShare && { askShare: true }),
+        ...(session?.sharing?.length && { sharing: session.sharing }),
       },
     },
   }
@@ -453,6 +455,8 @@ function playFromOtd(
             ...(ext.askRolls === true && { askRolls: true }),
             ...(ext.skipPauses === true && { skipPauses: true }),
             ...(Array.isArray(ext.asking) && { asking: ext.asking }),
+            ...(ext.askShare === true && { askShare: true }),
+            ...(Array.isArray(ext.sharing) && { sharing: ext.sharing }),
           },
           // No trip yet: the company waits for one.
           ...(!party.travel && members.length && { members }),

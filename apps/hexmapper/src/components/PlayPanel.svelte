@@ -6,6 +6,7 @@
   import {
     clearTrail,
     editSession,
+    shareSession,
     resetParty,
     restartRules,
     sessionOf,
@@ -180,6 +181,7 @@
       systemWhere={t('play.systemWhere')}
       uses={systemUsesOf(system)}
       onedit={editSession}
+      onshare={shareSession}
     />
   {/if}
 {/if}

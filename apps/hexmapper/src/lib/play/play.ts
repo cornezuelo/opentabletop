@@ -7,6 +7,7 @@ import {
   startTrip,
   stepTrip,
   settleTrip,
+  shareTrip,
   type Season,
   type SessionState,
   type TravelSystem,
@@ -341,6 +342,28 @@ export function editSession(update: (session: SessionState) => SessionState): vo
   // What the edit told worth keeping (a character leaving) goes to the timeline too.
   const added = next.journal.slice(session.journal.length)
   tripHighlights(highlightsOf(added, system))
+}
+
+/**
+ * Answers the first share waiting (**Ask who gives**): what each member gives or takes, or
+ * nothing to keep the system's rule's share.
+ */
+export function shareSession(moved?: Record<string, number>): void {
+  const play = current()
+  const session = sessionOf(play)
+  if (!session || !play.rules) return
+  const system = getSystem(play.rules.system)
+  const next = shareTrip(
+    {
+      system,
+      world: mapWorld(editor.map, system.rules.travel.hexKm),
+      locale: getLocale(),
+      facts: worldFactsNow(),
+    },
+    session,
+    moved,
+  ).state
+  save({ ...play, rules: { ...play.rules, session: next } })
 }
 
 /** A trip's journal lines worth a line in the campaign's timeline, in the UI's words. */

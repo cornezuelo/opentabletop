@@ -96,6 +96,15 @@ export const es: Messages<typeof en> = {
   skipPauses: 'Saltar las pausas',
   skipPausesHelp:
     'Que todo se juegue por sí solo: lo que detendría el viaje para ti (una comprobación que pausa, un resultado que pausa, el paso `pause:` de una acción) se apunta en el diario y el viaje sigue.\n• Las preguntas siguen esperándote (el `ask:` de una acción), porque necesitan una elección\n• Las comprobaciones que esperan a quién tira (**Preguntar en cada tirada**) siguen esperando\nDesmárcala para volver a parar en las pausas.',
+  share: {
+    ask: 'Preguntar quién da',
+    help: 'Lo que gasta o gana el grupo de sus objetos (`party.items.ration: -3`) sale primero de sus propias provisiones y después de sus personajes, repartido según la regla del sistema (el **Reparto** de la hoja: quien más lleva, o por orden). Márcala para decir cada vez quién lo da (o quién se lleva lo ganado): el reparto de la regla se hace enseguida, y el viaje espera a que lo dejes así o lo cambies antes de seguir.\n• Solo se pregunta cuando más de un personaje podría darlo\n• El diario dice quién dio qué',
+    gives: '¿Quién da {count} × {name}?',
+    takes: '¿Quién se lleva {count} × {name}?',
+    total: '{done} de {count}',
+    keep: 'Hecho',
+    of: 'De {room}',
+  },
   rolls: {
     label: 'Tira',
     best: 'El mejor',
@@ -213,6 +222,7 @@ export const es: Messages<typeof en> = {
     memberLeft: '{name} deja el grupo',
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
     itemSpent: '{name}: se gasta uno',
+    shared: '{name}, repartido: {list}',
     unknownItem: '{name}: ningún catálogo del sistema tiene este objeto, así que no se da nada',
     itemNoRoom: '{name}: no le queda sitio, así que lo lleva sin lugar',
     notWritable:

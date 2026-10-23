@@ -35,7 +35,9 @@ import {
   partyItems,
   refreshParty,
   settleStates,
+  answerSharing,
   type PartyRules,
+  type Sharing,
 } from './party'
 import {
   parseDiscover,
@@ -239,6 +241,10 @@ export interface SessionState {
   askRolls?: boolean
   /** The checks waiting for that choice: rolled when the player goes on. */
   asking?: string[]
+  /** What the party spends or gains of its items waits for the player to say who (**Ask who gives**). */
+  askShare?: boolean
+  /** What was shared out by the system's rule and waits for that answer: no step until then. */
+  sharing?: Sharing[]
   /**
    * The player's choice to play everything by itself (**Skip pauses**): a pause (a check's, a
    * result's, a step's) is written in the journal and the trip goes on. Questions still ask.
@@ -373,6 +379,15 @@ export interface Session {
    * party's and its members' conditions that read the world, with their journal lines.
    */
   settle(state: SessionState): { state: SessionState; entries: JournalEntry[] }
+  /**
+   * Answers the first share waiting (**Ask who gives**): `moved`, what each member gives
+   * (negative) or takes instead of the rule's share (absent: the rule's stands), then
+   * settles as after a change by hand. The same state when it can't be done.
+   */
+  share(
+    state: SessionState,
+    moved?: Record<string, number>,
+  ): { state: SessionState; entries: JournalEntry[] }
 }
 
 const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited', 'held'])
@@ -638,6 +653,8 @@ export function createSession(options: {
     quiet = false,
   ): { state: SessionState; entries: JournalEntry[] } => {
     {
+      // Something shared out waits for the player to say who gives it: the trip waits too.
+      if (!quiet && input.sharing?.length) return { state: input, entries: [] }
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
       s.lastStep = s.nextEntry
@@ -1168,6 +1185,30 @@ export function createSession(options: {
       if (!done.entries.length && input.lastStep !== undefined) done.state.lastStep = input.lastStep
       else if (!done.entries.length) delete done.state.lastStep
       return done
+    },
+    share(input, moved) {
+      const s = structuredClone(input)
+      const entries: JournalEntry[] = []
+      const done = answerSharing(s, party, moved, s.travel.time)
+      if (!done) return { state: input, entries }
+      add(s, entries, {
+        source: 'travel',
+        code: 'SHARED',
+        data: { path: `party.items.${done.sharing.item}`, moved: done.moved },
+      })
+      // The line above says who gave what; what else it changed (a load) is said too.
+      const counts = (e: CharacterEvent) =>
+        e.type === 'ITEM_ADDED' ||
+        e.type === 'ITEM_REMOVED' ||
+        (e.type === 'ITEM_CHANGED' && e.field === 'count')
+      told(
+        s,
+        entries,
+        done.events.filter((e) => !counts(e)),
+        s.travel.time,
+      )
+      const settled = this.settle(s)
+      return { state: settled.state, entries: [...entries, ...settled.entries] }
     },
     note(input, text) {
       return addEntry(input, { source: 'user', code: 'NOTE', text }, now())

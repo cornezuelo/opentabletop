@@ -199,6 +199,7 @@
           systemWhere={t('play.systemWhere')}
           {uses}
           onedit={(update) => trip.edit(update)}
+          onshare={(moved) => trip.share(moved)}
         />
       {:else if !session}
         <button class="primary" onclick={() => start(system.id, season)}

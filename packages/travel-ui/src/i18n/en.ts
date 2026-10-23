@@ -98,6 +98,15 @@ export const en = {
   skipPauses: 'Skip pauses',
   skipPausesHelp:
     "Play everything by itself: whatever would stop the trip for you (a check that pauses, a result that pauses, an action's `pause:` step) is written in the journal and the trip goes on.\n• Questions still wait for you (an action's `ask:`), since they need a choice\n• Checks that wait for who rolls (**Ask at every roll**) still wait\nUntick it to stop at pauses again.",
+  share: {
+    ask: 'Ask who gives',
+    help: "What the party spends or gains of its items (`party.items.ration: -3`) comes from its own stores first, then from its characters, shared out by the system's rule (the sheet's **Shared out**: whoever carries most, or in order). Tick this to say each time who gives it (or who takes a gain): the rule's share is done at once, and the trip waits for you to keep it or change it before it goes on.\n• Asked only when more than one character could give it\n• The journal says who gave what",
+    gives: 'Who gives {count} × {name}?',
+    takes: 'Who takes {count} × {name}?',
+    total: '{done} of {count}',
+    keep: 'Done',
+    of: 'Of {room}',
+  },
   rolls: {
     label: 'Rolls with',
     best: 'The best',
@@ -217,6 +226,7 @@ export const en = {
     memberLeft: '{name} leaves the party',
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     itemSpent: '{name}: one is used up',
+    shared: '{name}, shared out: {list}',
     unknownItem: '{name}: no catalogue of the system has this item, so nothing is given',
     itemNoRoom: '{name}: no room left for it, so it is carried in no place',
     notWritable:

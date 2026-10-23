@@ -51,10 +51,10 @@
     type TravelWorld,
     type Unavailable,
   } from '@open-tabletop/travel-engine'
-  import { calendarOf, hexIdOf, pendingLine } from '@open-tabletop/session'
+  import { calendarOf, hexIdOf, pendingLine, sharingRoom } from '@open-tabletop/session'
   import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
-  import { memberNamer, statSource } from './members'
+  import { memberLabel, memberNamer, statSource } from './members'
   import { dayPartsLine, divisionName, partName } from './dayParts'
   import Section from './Section.svelte'
   import { tripTab, type TripTab } from './tripTab.svelte'
@@ -86,6 +86,7 @@
     uses = [],
     onstep,
     onedit,
+    onshare,
   }: {
     system: TravelSystem
     session: SessionState
@@ -120,6 +121,11 @@
     uses?: Use[]
     /** Changes the session directly (stats, mode, the party) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
+    /**
+     * Answers the first share waiting (**Ask who gives**): what each member gives (negative)
+     * or takes, or nothing to keep the rule's (session's `shareTrip`).
+     */
+    onshare?: (moved?: Record<string, number>) => void
   } = $props()
 
   const t = translator(() => locale)
@@ -306,6 +312,34 @@
   const fromMembers = (stat: StatDefinition) => hasMembers && !!stat.from
   /** One of the party's values or items by its full name, in words ("Rations", "Fodder"). */
   const numberName = (path: string) => memberName(path) ?? path
+
+  /** What the party spent or gained, shared out by the rule, waiting for who gives it. */
+  const sharing = $derived(session.sharing?.[0])
+  /** What each member could give of it (or, for a gain, any number). */
+  const shareRoom = $derived(sharingRoom(session, partyOf(system)) ?? {})
+  /** The player's answer, for the share it was given for: how many each one gives or takes. */
+  let shareAnswer = $state<{ for: string; amounts: Record<string, number> }>()
+  const shareKey = $derived(JSON.stringify(session.sharing?.[0] ?? null))
+  const shareAmounts = $derived(
+    shareAnswer?.for === shareKey
+      ? shareAnswer.amounts
+      : Object.fromEntries(
+          Object.entries(sharing?.moved ?? {}).map(([id, n]) => [id, Math.abs(n)]),
+        ),
+  )
+  const shareDone = $derived(Object.values(shareAmounts).reduce((n, m) => n + m, 0))
+  function setShare(id: string, value: number) {
+    shareAnswer = { for: shareKey, amounts: { ...shareAmounts, [id]: Math.max(0, value || 0) } }
+  }
+  function answerShare() {
+    if (!sharing) return
+    const sign = sharing.delta < 0 ? -1 : 1
+    const moved = Object.fromEntries(
+      Object.entries(shareAmounts).flatMap(([id, n]) => (n ? [[id, sign * n]] : [])),
+    )
+    shareAnswer = undefined
+    onshare?.(moved)
+  }
   /** What a condition blocks, in words: moving on, an action or a way of travelling. */
   const blockName = (what: string) => {
     const mode = refId('modes', what)
@@ -557,6 +591,44 @@
     </div>
   {/each}
 
+  <!-- What the party spent or gained, shared out by the rule: who gives it (Ask who gives). -->
+  {#if sharing && onshare}
+    {@const count = Math.abs(sharing.delta)}
+    <div class="pending asks share">
+      <span
+        >{t(sharing.delta < 0 ? 'share.gives' : 'share.takes', {
+          count,
+          name: memberName(`party.items.${sharing.item}`) ?? sharing.item,
+        })}<InfoTip text={t('share.help')} /></span
+      >
+      <div class="givers">
+        {#each (session.members ?? []).filter((m) => m.id in shareRoom) as m (m.id)}
+          <label
+            >{memberLabel(m)}
+            <input
+              type="number"
+              min="0"
+              max={sharing.delta < 0 ? shareRoom[m.id] : count}
+              value={shareAmounts[m.id] ?? 0}
+              onchange={(e) => setShare(m.id, Number(e.currentTarget.value))}
+            />{#if sharing.delta < 0}<span class="help"
+                >{t('share.of', { room: shareRoom[m.id] })}</span
+              >{/if}</label
+          >
+        {/each}
+      </div>
+      <span class:help={shareDone === count} class:wrong={shareDone !== count}
+        >{t('share.total', { done: shareDone, count })}</span
+      >
+      <button
+        disabled={shareDone !== count ||
+          (sharing.delta < 0 &&
+            Object.entries(shareAmounts).some(([id, n]) => n > (shareRoom[id] ?? 0)))}
+        onclick={answerShare}>{t('share.keep')}</button
+      >
+    </div>
+  {/if}
+
   <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
   {#if waiting}
     <div class="pending" class:asks={!!asked}>
@@ -581,7 +653,8 @@
     </div>
   {/if}
 
-  <div class="actions">
+  <!-- Nothing goes on while a share waits for who gives it. -->
+  <div class="actions" class:held={!!sharing && !!onshare} inert={!!sharing && !!onshare}>
     {#if goingOn && !waiting}
       <button
         class="primary"
@@ -645,6 +718,23 @@
       }}
     /><span>{t('skipPauses')}<InfoTip text={t('skipPausesHelp')} /></span></label
   >
+  {#if onshare && system.sheet?.def.items && (session.members?.length ?? 0) > 1}
+    <label class="check skip"
+      ><input
+        type="checkbox"
+        checked={!!session.askShare}
+        onchange={(e) => {
+          const on = e.currentTarget.checked
+          onedit((s) => {
+            const next = { ...s }
+            if (on) next.askShare = true
+            else delete next.askShare
+            return next
+          })
+        }}
+      /><span>{t('share.ask')}<InfoTip text={t('share.help')} /></span></label
+    >
+  {/if}
 
   {#snippet rollsChoice()}
     <div class="rolls">
@@ -909,6 +999,32 @@
   }
 
   /* Skip pauses: a line of its own, under the buttons. */
+  .givers {
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .givers label {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    color: var(--text);
+  }
+
+  .givers input {
+    width: 4em;
+  }
+
+  .wrong {
+    color: var(--danger);
+  }
+
+  .actions.held {
+    opacity: 0.5;
+  }
+
   .skip {
     display: flex;
     gap: 4px;

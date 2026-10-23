@@ -20,10 +20,11 @@ import {
 } from '@open-tabletop/session'
 import { mapWorld } from './world'
 import { applyCharacter, lookupItems, shownAgainst, toneOf } from '@open-tabletop/character-engine'
-import { entryText, translator } from '@open-tabletop/travel-ui'
+import { entryText, memberNamer, translator } from '@open-tabletop/travel-ui'
 import {
   clickHex,
   editSession,
+  shareSession,
   partyLocation,
   restartRules,
   sessionOf,
@@ -1037,6 +1038,59 @@ describe('the Company: a party made of characters', () => {
     // Two fed nights: everyone gets a point of health back each, within each one's maximum.
     expect(member('kael').values.health).toBe(3)
     expect(member('tobin').values.health).toBe(4)
+  })
+
+  it('asks who gives what the party eats, waiting until it is said, and journals it', () => {
+    grey()
+    clickHex('5,7')
+    // The stores empty: the companions' rations are eaten (Kael 3, Mara 2, Old Tobin 3).
+    editSession((s) => {
+      s.party!.items = []
+      s.askShare = true
+      return s
+    })
+    step({ type: 'action', id: 'camp' })
+    // The rule's share is done at once (Kael, Old Tobin, Kael), and the trip waits.
+    expect(trip().members!.map(rations)).toEqual([1, 2, 2])
+    expect(trip().sharing).toEqual([
+      expect.objectContaining({ item: 'ration', delta: -3, moved: { kael: -2, tobin: -1 } }),
+    ])
+    const time = trip().travel.time
+    step({ type: 'action', id: 'camp' })
+    expect(trip().travel.time).toBe(time)
+    // Kept in the map file while it waits.
+    const back = sessionOf(bundleToMap(mapToBundle(editor.map, editor.campaign)).map.play!)!
+    expect(back).toMatchObject({
+      askShare: true,
+      sharing: [expect.objectContaining({ delta: -3 })],
+    })
+    // Mara has only two: refused, nothing changes.
+    shareSession({ mara: -3 })
+    expect(trip().sharing).toHaveLength(1)
+    // Old Tobin gives all three instead: Kael gets his two back.
+    shareSession({ tobin: -3 })
+    expect(trip().sharing).toBeUndefined()
+    expect(trip().members!.map(rations)).toEqual([3, 2, 0])
+    const line = trip().journal.findLast((e) => e.code === 'SHARED')!
+    expect(line.data).toEqual({ path: 'party.items.ration', moved: { tobin: -3 } })
+    const t = translator(() => 'en')
+    const memberName = memberNamer(activeSystem(), trip().members, 'en', t, {}, trip().party)
+    expect(
+      entryText(line, {
+        t,
+        startDay: 1,
+        hexLabel: (h: string) => h,
+        nameOf: (id: string) => id,
+        memberName,
+      }),
+    ).toBe('Ration, shared out: Old Tobin −3')
+    // The trip goes on; kept as the rule says when the player only confirms it.
+    step({ type: 'action', id: 'camp' })
+    expect(trip().sharing).toHaveLength(1)
+    const rule = trip().members!.map(rations)
+    shareSession()
+    expect(trip().members!.map(rations)).toEqual(rule)
+    expect(trip().sharing).toBeUndefined()
   })
 
   it('carries its gear: a rope for the ford, torches burnt on a night march, what it weighs', () => {

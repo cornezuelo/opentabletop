@@ -1065,6 +1065,27 @@ export function settleTrip(
   options: Omit<Parameters<typeof stepTrip>[0], 'discover' | 'oracle' | 'random'>,
   session: SessionState,
 ): { state: SessionState; entries: JournalEntry[] } {
+  return handSession(options, session).settle(session)
+}
+
+/**
+ * Answers the first share waiting (**Ask who gives**): what each member gives (negative)
+ * or takes instead of the system's rule (absent: the rule's share stands), with its journal
+ * line, then settled as after a change by hand. The options are `settleTrip`'s.
+ */
+export function shareTrip(
+  options: Omit<Parameters<typeof stepTrip>[0], 'discover' | 'oracle' | 'random'>,
+  session: SessionState,
+  moved?: Record<string, number>,
+): { state: SessionState; entries: JournalEntry[] } {
+  return handSession(options, session).share(session, moved)
+}
+
+/** A session for changes by hand: no Oracle, no discovery. */
+function handSession(
+  options: Omit<Parameters<typeof stepTrip>[0], 'discover' | 'oracle' | 'random'>,
+  session: SessionState,
+) {
   const { system } = options
   return createSession({
     travel: createTravelEngine({
@@ -1083,7 +1104,7 @@ export function settleTrip(
     sheet: system.sheet,
     partySheet: system.partySheet,
     items: partyOf(system).items,
-  }).settle(session)
+  })
 }
 
 /**

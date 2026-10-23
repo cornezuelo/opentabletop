@@ -4,7 +4,15 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { applyResult, type SessionState } from './index'
 import { newMember } from './party'
-import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
+import {
+  partyOf,
+  shareTrip,
+  startTrip,
+  stepTrip,
+  travelSystems,
+  tripAvailability,
+  tripFacts,
+} from './trip'
 
 /** A system whose party is its members: stats from them, rations they carry, wounds that block. */
 const PACK = [
@@ -251,6 +259,44 @@ describe('the party is its members', () => {
     s = applyResult(s, { effects: { 'party.items.ration': -20 } }, {}, rules)
     expect(carried(s)).toEqual([0, 0, 0])
     expect(s.travel.reached?.below).toContain('party.items.ration')
+  })
+
+  it('asks who takes what the party gains, and who gives what it spends', () => {
+    const rules = partyOf(band)
+    let s: SessionState = {
+      ...startTrip({ system: band, location: 'a', members: members() }).session,
+      askShare: true,
+    }
+    // A gain: the rule gives to whoever carries least (Mara, 1 to Kael's 3), and asks.
+    s = applyResult(s, { effects: { 'party.items.ration': 2 } }, {}, rules)
+    expect(carried(s)).toEqual([3, 3, 0])
+    expect(s.sharing).toEqual([
+      expect.objectContaining({ item: 'ration', delta: 2, moved: { mara: 2 } }),
+    ])
+    // Nothing goes on while it waits.
+    const time = s.travel.time
+    s = stepTrip({ system: band, world }, s, { type: 'wait', until: time + 60 }).state
+    expect(s.travel.time).toBe(time)
+    // Kael takes them instead: Mara's two move to him, and the journal says so.
+    s = shareTrip({ system: band, world }, s, { kael: 2 }).state
+    expect(s.sharing).toBeUndefined()
+    expect(carried(s)).toEqual([5, 1, 0])
+    expect(s.journal.at(-1)).toMatchObject({
+      code: 'SHARED',
+      data: { path: 'party.items.ration', moved: { kael: 2 } },
+    })
+    // Giving more than one has, or not adding up, is refused.
+    s = applyResult(s, { effects: { 'party.items.ration': -2 } }, {}, rules)
+    expect(s.sharing?.[0]).toMatchObject({ delta: -2, moved: { kael: -2 } })
+    expect(shareTrip({ system: band, world }, s, { mara: -2 }).state).toEqual(s)
+    expect(shareTrip({ system: band, world }, s, { kael: -1 }).state).toEqual(s)
+    // Mara gives one of them: Kael gets one back.
+    s = shareTrip({ system: band, world }, s, { kael: -1, mara: -1 }).state
+    expect(carried(s)).toEqual([4, 0, 0])
+    // Without asking, nothing waits.
+    s = { ...s, askShare: false }
+    s = applyResult(s, { effects: { 'party.items.ration': -1 } }, {}, rules)
+    expect(s.sharing).toBeUndefined()
   })
 
   it('applies effects on every member, one by id, and the acting one', () => {

@@ -16,6 +16,7 @@ import {
   systemIdOf,
   stepTrip,
   settleTrip,
+  shareTrip,
   type RosterPlace,
   type Season,
   type SessionState,
@@ -644,6 +645,29 @@ export class TripStore {
     const highlights = this.highlights(next.journal.slice(session.journal.length))
     const host = campaign && highlights.length ? this.worldHost(next) : undefined
     if (campaign && host) this.keeper!.set(tripHighlights({ campaign }, highlights, host).campaign)
+    this.save()
+  }
+
+  /**
+   * Answers the first share waiting (**Ask who gives**): what each member gives or takes,
+   * or nothing to keep the system's rule's share.
+   */
+  share(moved?: Record<string, number>): void {
+    const session = this.saved.session
+    if (!session) return
+    const campaign = this.campaign
+    const world = campaign && this.worldHost(session)
+    const next = shareTrip(
+      {
+        system: this.system,
+        world: wayWorld(this.saved.way, this.hexKm),
+        locale: this.options.locale(),
+        ...(campaign && world && { facts: worldFactsOf({ campaign }, world) }),
+      },
+      session,
+      moved,
+    ).state
+    this.saved = { ...this.saved, session: next }
     this.save()
   }
 

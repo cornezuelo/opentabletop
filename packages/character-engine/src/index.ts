@@ -1027,6 +1027,7 @@ export type Share = 'even' | 'order'
  * The members after the party's count of item `id` changed by `delta` (what they carry
  * between them), shared out by `share`; what no member had to give stays undone (`left`).
  * A gain to a member without the item comes from the system's catalogues (`items`).
+ * `moved` is what each member gave (negative) or took, by id.
  */
 export function shareItems(
   sheets: (state: CharacterState) => Sheet | undefined,
@@ -1035,7 +1036,12 @@ export function shareItems(
   delta: number,
   share: Share = 'even',
   options: { items?: ItemLookup; time?: number } = {},
-): { members: CharacterState[]; events: CharacterEvent[]; left: number } {
+): {
+  members: CharacterState[]
+  events: CharacterEvent[]
+  left: number
+  moved: Record<string, number>
+} {
   // Only members whose sheet has items take part.
   const open = members.filter((m) => sheets(m)?.items !== undefined)
   const has = new Map(open.map((m) => [m.id, countOf(m, id)]))
@@ -1080,7 +1086,7 @@ export function shareItems(
     events.push(...done.events)
     return done.state
   })
-  return { members: out, events, left }
+  return { members: out, events, left, moved: Object.fromEntries(moved) }
 }
 
 /** How many of item `id` a character has, all of them together. */

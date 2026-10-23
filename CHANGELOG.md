@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Oracle, Hexmapper: **Filter** the list of what you roll by kind and by the tags packs give their definitions: a click on a tag shows only what has it, a second only what hasn't it (`−rules` leaves what you'd roll by hand), a third forgets it; this browser remembers it, in both apps. The Oracle's editor has **Tags**.
+- Travel, Hexmapper: **Ask who gives**, a trip's choice: what the party spends of its items (or gains) and takes from its characters is shared out by the system's rule at once, and the trip waits for you to keep that or say who gives (or takes) how many; the journal says who gave what.
 
 ### Packs
 

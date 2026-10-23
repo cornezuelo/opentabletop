@@ -500,6 +500,19 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.notWritable', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    case 'SHARED': {
+      // Who gave (or took) how many: "Rations, shared out: Kael −2, Brenna −1".
+      const moved = (d.moved ?? {}) as Record<string, number>
+      const item = String(d.path).replace(/^party\.items\./, '')
+      const who = (id: string) =>
+        context.memberName?.(`characters.${id}.items.${item}`)?.replace(/: .*$/, '') ?? id
+      return t('journal.shared', {
+        name: context.memberName?.(String(d.path)) ?? item,
+        list: Object.entries(moved)
+          .map(([id, n]) => `${who(id)} ${signed(n)}`)
+          .join(', '),
+      })
+    }
     case 'ITEM_SPENT':
       return t('journal.itemSpent', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
