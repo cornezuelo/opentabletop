@@ -43,6 +43,8 @@ export const vocabulary = {
       clockRollFailed: '(its roll failed: {error})',
       clockStartsOver: 'It starts over.',
       clockGone: 'It goes away.',
+      reactionsStopped:
+        'The world’s reactions brought each other {max} times in a row: stopped here (a loop in the system’s world rules?).',
       factionLine: '{name}: {text}',
       gained: 'land +{n}',
       lost: 'land −{n}',
@@ -160,6 +162,8 @@ export const vocabulary = {
       clockRollFailed: '(su tirada falló: {error})',
       clockStartsOver: 'Vuelve a empezar.',
       clockGone: 'Desaparece.',
+      reactionsStopped:
+        'Las reacciones del mundo se han provocado unas a otras {max} veces seguidas: se paran aquí (¿un bucle en las reglas del mundo del sistema?).',
       factionLine: '{name}: {text}',
       gained: 'tierras +{n}',
       lost: 'tierras −{n}',

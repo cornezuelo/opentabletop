@@ -116,7 +116,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 8\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 9\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],
@@ -1358,8 +1358,15 @@ describe('the powers of the Marches: factions on the map', () => {
     const filled = clock()
     worldTurnNow()
     const lines = editor.campaign.world!.timeline.filter((e) => e.code === 'LOG')
-    expect(lines.map((l) => l.data?.faction)).toEqual(['iron-clans', 'the-vale', 'fort-keld'])
+    expect(lines.map((l) => l.data?.faction ?? l.data?.reaction)).toEqual([
+      'iron-clans',
+      'the-vale',
+      'fort-keld',
+      // How the Marches move: news on the roads after every world turn.
+      'rumours',
+    ])
     expect(lines[0].text).toMatch(/^The Iron Clans: /)
+    expect(lines[3].text).toMatch(/ swears that /)
     // Something changed: a value, the territory or the Clans' march.
     const after = editor.factionsOnMap!
     const changed =
@@ -1560,9 +1567,36 @@ describe('the threats of the Marches: progress clocks the system declares', () =
         /garrison mutinies and scatters/.test(e.text ?? ''),
       ),
     ).toBe(true)
+    // Its strength at 0, Fort Keld falls (How the Marches move): once, and with the Clans at
+    // war, every power moves at once (a world turn), news on the roads after it.
+    const said = () => editor.campaign.world!.timeline.map((e) => e.data?.reaction ?? e.text)
+    const fell = said().indexOf('fort-falls')
+    expect(fell).toBeGreaterThan(-1)
+    expect(said().slice(fell)).toContain('rumours')
+    expect(
+      editor.campaign.world!.timeline.find((e) => e.data?.reaction === 'fort-falls')!.text,
+    ).toMatch(/^Fort Keld falls \(the Clans’ strength \d\): every power/)
+    applyWorldEffects({ 'factions.fort-keld.values.strength': '=0' })
+    expect(said().filter((r) => r === 'fort-falls')).toHaveLength(1)
     // Brought back by hand, as it starts.
     bringClocks()
     expect(clock('fort-keld-mutinies')!.filled).toBe(3)
+  })
+
+  it('market day puts heart in a weakened Vale, seen on the way through a long wait', () => {
+    grey()
+    applyWorldEffects({ 'factions.the-vale.values.strength': '=1' })
+    editor.setFactions({ ...editor.factionsOnMap!, auto: false })
+    worldAct({ type: 'advance', minutes: 8 * 1440 })
+    const market = editor.campaign.world!.timeline.find((e) => e.data?.reaction === 'market-day')!
+    expect(market.text).toMatch(
+      /^Market day in Ashford: trade puts heart in the Vale\. .+ swears that /,
+    )
+    expect(faction('the-vale').values.strength).toBe(2)
+    // At strength 3, it no longer takes heart.
+    applyWorldEffects({ 'factions.the-vale.values.strength': '=3' })
+    worldAct({ type: 'advance', minutes: 7 * 1440 })
+    expect(faction('the-vale').values.strength).toBe(3)
   })
 
   it('the Wyrm wakes: its table rolled, read by the wood’s encounters; it stays full', () => {

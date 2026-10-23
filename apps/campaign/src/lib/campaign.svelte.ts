@@ -77,6 +77,7 @@ export function worldHost(campaign: Campaign, system: TravelSystem): WorldHost {
   return {
     calendar: calendarOf(system),
     clocks: system.clocks,
+    world: system.world,
     fallback: system.locale,
     weather: weatherModel(system),
     factions: factions ? systems.get(factions.system).factions : undefined,

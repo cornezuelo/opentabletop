@@ -91,6 +91,12 @@ export interface Campaign {
    * by any means (by hand, a faction's turn, a trip's effects), heard on its next step.
    */
   moments?: WorldMoment[]
+  /**
+   * The world's moments written as conditions that held when last seen (`<reaction>:<index>`
+   * in its system's `kind: world`): each comes again only after it stopped holding. Absent:
+   * what holds when next seen is taken as seen.
+   */
+  reactions?: string[]
 }
 
 /**

@@ -476,7 +476,7 @@ factions:
 
 ## Relojes de progreso
 
-Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con lo que pasa cuando se llena. Llegan con el reloj del mundo al ponerlo en marcha (el panel Mundo del Hexmapper, la aplicación Campaign) ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
+Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con qué es de él una vez lleno. Lo que pasa cuando uno se llena es cosa de las [reglas del mundo](#las-reglas-del-mundo). Llegan con el reloj del mundo al ponerlo en marcha (el panel Mundo del Hexmapper, la aplicación Campaign) ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
 
 ```yaml
 kind: clocks
@@ -488,24 +488,57 @@ clocks:
     description: Los rebeldes se atrincheran alrededor de las murallas.
     segments: 8 # cualquier número desde 1
     filled: 2 # ya lleno al poner en marcha el reloj del mundo (sin él: nada)
-    onFull: # lo que pasa cuando se llena (todo opcional)
-      description: La capital cae. # una línea en la cronología, y un aviso
-      resolve: table.the-fall # una tabla, oráculo, generador o mazo que se tira (de este pack, o pack/kind.id)
-      effects: { factions.the-crown.territory: -1, world.clocks.the-reprisals: 2 }
-      then: reset # keep (por defecto): se queda lleno; reset: vuelve a empezar; remove: desaparece
+    then: reset # una vez lleno: keep (por defecto), se queda lleno; reset, vuelve a empezar; remove, desaparece
   the-reprisals:
     name: Represalias
     segments: 4
 ```
 
-- **Lo llenan los efectos**, allí donde van efectos: los resultados y acciones de un viaje, una tabla tirada a mano en un mapa, el turno de una facción. `world.clocks.the-siege: 1` llena un segmento, `-2` vacía dos, `'=0'` lo fija (vacío), `'{{1d3}}'` tira. **Lo leen las condiciones** y las tablas: `world.clocks.the-siege: { gte: 8 }` (lleno), `{{world.clocks.the-siege}}` en un texto.
+- **Lo llenan los efectos**, allí donde van efectos: los resultados y acciones de un viaje, una tabla tirada a mano en un mapa, el turno de una facción, una reacción del mundo. `world.clocks.the-siege: 1` llena un segmento, `-2` vacía dos, `'=0'` lo fija (vacío), `'{{1d3}}'` tira. **Lo leen las condiciones** y las tablas: `world.clocks.the-siege: { gte: 8 }` (lleno), `{{world.clocks.the-siege}}` en un texto.
 - Las reglas nombran un reloj declarado por **su id**, aunque el jugador lo renombre en el mapa; uno creado a mano en el mapa se nombra por su nombre en minúsculas con guiones (_The Wyrm wakes_ es `the-wyrm-wakes`).
-- **Cuando se llena**, su `onFull` pasa una vez: su descripción y lo que salga en la tabla van a la cronología, se aplican los efectos de ambos (otros relojes y las facciones: el grupo de un viaje no es del mundo), y después se queda lleno, vuelve a empezar vacío o desaparece. La tabla ve el mundo como las condiciones (`world.clocks.*`, `factions.<id>.*`, la fecha). Un reloj lleno puede llenar otro (hasta diez seguidos). Que se llene cualquier reloj, declarado o hecho a mano, es también un momento que oye el viaje en marcha (`world.clocks.<id>.full`: [Momentos del mundo](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)).
-- Se traduce con la clave `clocks/<id>`, por reloj (`clocks: { the-siege: { name: El asedio, onFull: { description: La capital cae. } } }`). `core/threat`, de Core, es un reloj para cualquier juego: la amenaza crece y, al llenarse, golpea con uno de los giros de Core y vuelve a empezar.
+- **Cuando se llena**, una vez, es el momento `world.clocks.<id>.full`: pasan las reacciones del mundo a él (palabras en la cronología, una tabla tirada, efectos sobre relojes y facciones), y después se queda lleno, vuelve a empezar vacío o desaparece, según diga `then`. El viaje en marcha también lo oye ([Momentos del mundo](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)).
+- Se traduce con la clave `clocks/<id>`, por reloj (`clocks: { the-siege: { name: El asedio } }`). `core/clocks.threat`, de Core, es un reloj para cualquier juego: la amenaza crece y vuelve a empezar al llenarse; `core/world.threat`, de Core, la hace golpear con uno de los giros de Core.
+- El formato de pack 8 escribía lo que pasa al llenarse en el propio reloj (`onFull`); desde el formato 9 es una reacción del mundo.
+
+## Las reglas del mundo
+
+Lo que el mundo de un sistema hace por sí solo (`world:` en su [sistema](#sistemas)), haya o no un viaje en marcha: reacciones escritas como las acciones de un viaje, cada una con los momentos en que llega, sus condiciones y sus pasos. Se juegan allí donde se mueva el mundo (el panel Mundo del Hexmapper, la aplicación Campaign, el tiempo que avanza bajo un viaje). En la aplicación Systems: su pestaña **Mundo** ([Mundo](../systems/11-world.md)).
+
+```yaml
+kind: world
+id: default
+name: Cómo se mueve el reino
+reactions:
+  the-capital-falls: # su id: cómo la trae otra reacción (world.reactions.the-capital-falls)
+    name: Cae la capital
+    on: world.clocks.the-siege.full # al llenarse un reloj
+    do:
+      - say: Cae la capital. # una línea en la cronología
+      - roll: table.the-fall # una tabla, oráculo, generador o mazo: su texto a la cronología, sus efectos aplicados
+      - effects: { factions.the-crown.territory: -1, world.clocks.the-reprisals: 2 }
+  news:
+    on: world.turn # tras cada turno del mundo
+    do:
+      - say: 'Noticias del reino (el asedio: {{world.clocks.the-siege}}).'
+  the-crown-breaks:
+    on: { when: { factions.the-crown.values.strength: { lte: 0 } } } # una vez, al pasar a cumplirse
+    unless: { world.events: truce-day } # solo mientras esto no se cumpla (también `when:`)
+    do:
+      - effects: { factions.the-rebels.values.strength: 1 }
+      - do: world.turn # un turno del mundo al momento
+        when: { factions.the-rebels.conditions: at-war } # este paso, solo mientras esto se cumpla
+      - do: world.reactions.news # otra reacción (con sus propias condiciones)
+```
+
+- **Momentos** (`on:`, uno o una lista): `world.turn` (tras cada turno del mundo), `world.clocks.<id>.full` (un reloj que se llena, por su id declarado o por su nombre como id), o una condición `{ when, unless }` sobre lo que muestra el mundo (`world.clocks.*`, `world.events`, `factions.<id>.*`, `time.*`), que llega una vez al pasar a cumplirse y otra solo después de haber dejado de cumplirse.
+- **Pasos** (`do:`, en orden, cada uno una cosa, cada uno con su propio `when` / `unless`): `say` (con `{{…}}`), `roll`, `effects` (relojes y facciones; el `territory` de una facción cambia tierra en el mapa que se está jugando), `do` (`world.reactions.<id>` o `world.turn`). Los pasos de un viaje (`time`, `travel.*`, `set`, `wait`, `pause`, `ask`) se rechazan: el mundo no tiene grupo.
+- **Orden**: tras cualquier cosa que cambie el mundo, sus momentos en el orden en que pasaron (las reacciones de cada uno en el orden declarado), luego las condiciones, mirándolas otra vez hasta que no pase a cumplirse nada nuevo; avanzar el tiempo varios días mira el comienzo de cada día. La campaña guarda qué condiciones se cumplían (una campaña que no guardó nada da por visto lo que se cumple).
+- **Bucles**: las reacciones que se traen unas a otras por momentos con nombre o por `do:` (una reacción en `world.turn` que hace `world.turn`, las reacciones de dos relojes que se llenan uno a otro) se rechazan al cargar el pack; las que hacen bucle por condiciones se paran tras 10 seguidas, con una línea en la cronología.
+- Se traduce con la clave `world/<id>`, por reacción, sus pasos por su `id` (`reactions: { the-capital-falls: { name: Cae la capital, do: { falls: { say: Cae la capital. } } } }`, con `id: falls` en el paso).
 
 ## Sistemas
 
-Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario, modelos de clima, hojas, facciones y relojes de progreso, y los packs cuyas tablas, oráculos y mazos trae consigo. Una campaña se juega con un sistema, compartido por sus mapas y viajes: lo elige la campaña de un mapa del Hexmapper en **Ajustes del mapa → Campaña → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), y un viaje de la aplicación Travel en la página del sistema (un viaje mantiene el sistema con el que empezó); ambos los muestran por su nombre.
+Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario, modelos de clima, hojas, facciones, relojes de progreso y reglas del mundo, y los packs cuyas tablas, oráculos y mazos trae consigo. Una campaña se juega con un sistema, compartido por sus mapas y viajes: lo elige la campaña de un mapa del Hexmapper en **Ajustes del mapa → Campaña → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), y un viaje de la aplicación Travel en la página del sistema (un viaje mantiene el sistema con el que empezó); ambos los muestran por su nombre.
 
 ```yaml
 kind: system
@@ -519,6 +552,7 @@ sheet: sheet.companion # la hoja de sus personajes
 partySheet: sheet.company # la hoja del propio grupo
 factions: factions.default # los poderes de su mundo
 clocks: clocks.default # los relojes de progreso con los que empieza su mundo
+world: world.default # lo que su mundo hace por sí solo
 items: [items.gear] # lo que pueden llevar sus personajes (catálogos de objetos)
 weather: [weather.sky] # los modelos de clima que pueden usar sus bindings
 packs: [core] # packs cuyas tablas trae

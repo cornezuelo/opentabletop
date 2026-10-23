@@ -181,13 +181,19 @@ describe("the bundled systems' other forms as rows", () => {
       read++
       expect(rowsPairs(rows), JSON.stringify(m)).toEqual(m)
     }
-    for (const { rules, clocks } of travelSystems(library.registry).systems) {
+    for (const { rules, world } of travelSystems(library.registry).systems) {
       for (const mode of Object.values(rules.modes ?? {}))
         [mode.through, mode.when, mode.unless].forEach(condition)
       for (const terrain of Object.values(rules.terrains ?? {}))
         if (typeof terrain.passable === 'object')
           [terrain.passable.when, terrain.passable.unless].forEach(condition)
-      for (const clock of Object.values(clocks?.def.clocks ?? {})) map(clock.onFull?.effects)
+      for (const reaction of Object.values(world?.def.reactions ?? {})) {
+        reaction.do.forEach((step) => {
+          map(step.effects)
+          ;[step.when, step.unless].forEach(condition)
+        })
+        ;[reaction.when, reaction.unless].forEach(condition)
+      }
     }
     expect(read).toBeGreaterThan(5)
     expect(yaml).toBeLessThan(read / 4)

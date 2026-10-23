@@ -48,9 +48,15 @@ import {
   type Sheet,
 } from '@open-tabletop/character-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
-import { parseClocks } from '@open-tabletop/world-engine'
+import {
+  clockFullMoment,
+  fullClockOf,
+  parseClocks,
+  parseWorldRules,
+} from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
 import type { SystemClocks } from './clocks'
+import type { SystemWorld } from './world'
 import { definitionId } from './refs'
 import {
   MEMBER_PATH,
@@ -112,6 +118,8 @@ export interface TravelSystem {
   factions?: SystemFactions
   /** Its progress clocks (`clocks` in `kind: system`): the ones its world clock starts with. */
   clocks?: SystemClocks
+  /** Its world's rules (`world` in `kind: system`): what the world does by itself. */
+  world?: SystemWorld
   /** Its item catalogues (`items` in `kind: system`), by `pack/id`, in the order it lists them. */
   items?: { id: string; def: Catalogue }[]
   /**
@@ -272,6 +280,7 @@ const PART_NAMES: Record<string, string> = {
   partySheet: 'sheet',
   factions: 'factions',
   clocks: 'clocks',
+  world: 'world rules',
   'travel-rules': 'travel rules',
   bindings: 'bindings',
   calendar: 'calendar',
@@ -293,6 +302,7 @@ const SYSTEM_KEYS = new Set([
   'partySheet',
   'factions',
   'clocks',
+  'world',
   'items',
 ])
 
@@ -379,6 +389,7 @@ export function travelSystems(registry: Registry): {
       partySheet?: Extra
       factions?: Extra
       clocks?: Extra
+      world?: Extra
       items?: Extra[]
     },
   ): TravelSystem | undefined {
@@ -540,16 +551,39 @@ export function travelSystems(registry: Registry): {
       const parsed = parseClocks(parts.clocks.data)
       parsed.errors.forEach(report)
       if (parsed.clocks) {
-        // What a full clock rolls must be something to roll.
-        for (const [id, c] of Object.entries(parsed.clocks.clocks)) {
-          const table = c.onFull?.resolve
-          if (!table) continue
-          const full = definitionId(table, owner)
-          if (full.includes('/') && !registry.packs.has(full.split('/')[0])) continue
-          const message = rollableProblem(owner, table)
-          if (message) report(`clocks.${id}.onFull.resolve: ${message}`)
-        }
         clocks = { id: `${owner}/${parts.clocks.id ?? 'default'}`, pack: owner, def: parsed.clocks }
+      }
+    }
+    let world: SystemWorld | undefined
+    if (parts.world) {
+      const owner = ownerOf(parts.world) ?? pack
+      const report = (e: string, severity?: Diagnostic['severity']) =>
+        problems.push(problem(owner, parts.world!.file, 'world', e, parts.world!.id, severity))
+      const parsed = parseWorldRules(parts.world.data)
+      parsed.errors.forEach((e) => report(e))
+      if (parsed.rules) {
+        const declared = Object.keys(clocks?.def.clocks ?? {})
+        for (const [id, r] of Object.entries(parsed.rules.reactions)) {
+          // What a step rolls must be something to roll.
+          r.do.forEach((st, i) => {
+            if (st.roll === undefined) return
+            const full = definitionId(st.roll, owner)
+            if (full.includes('/') && !registry.packs.has(full.split('/')[0])) return
+            const message = rollableProblem(owner, st.roll)
+            if (message) report(`reactions.${id}.do.${i}.roll: ${message}`)
+          })
+          // A clock the system doesn't declare may be made by hand (named by its name as an id).
+          const list = Array.isArray(r.on) ? r.on : [r.on]
+          list.forEach((m, j) => {
+            const clock = typeof m === 'string' ? fullClockOf(m) : undefined
+            if (clock && !declared.includes(clock))
+              report(
+                `reactions.${id}.on${Array.isArray(r.on) ? `.${j}` : ''}: the system declares no clock "${clock}": heard only if a clock made by hand has this name${declared.length ? ` (it declares ${declared.map(clockFullMoment).join(', ')})` : ''}`,
+                'warning',
+              )
+          })
+        }
+        world = { id: `${owner}/${parts.world.id ?? 'default'}`, pack: owner, def: parsed.rules }
       }
     }
     if (parts.rules) {
@@ -664,6 +698,7 @@ export function travelSystems(registry: Registry): {
       ...(partySheet && { partySheet }),
       ...(factions && { factions }),
       ...(clocks && { clocks }),
+      ...(world && { world }),
       ...(items.length && { items }),
     }
   }
@@ -691,6 +726,7 @@ export function travelSystems(registry: Registry): {
           sheet: extras.find((e) => e.kind === 'sheet'),
           factions: extras.find((e) => e.kind === 'factions'),
           clocks: extras.find((e) => e.kind === 'clocks'),
+          world: extras.find((e) => e.kind === 'world'),
           items: extras.filter((e) => e.kind === 'items'),
         },
       )
@@ -773,6 +809,7 @@ export function travelSystems(registry: Registry): {
           partySheet: part('partySheet', 'sheet', data.partySheet),
           factions: part('factions', 'factions', data.factions),
           clocks: part('clocks', 'clocks', data.clocks),
+          world: part('world', 'world', data.world),
           items: list('items', data.items).flatMap(
             (ref, i) => part(`items.${i}`, 'items', ref) ?? [],
           ),

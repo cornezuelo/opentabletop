@@ -1,0 +1,65 @@
+# How the Marches move: what the world does by itself, with or without a trip going on
+# (the Hexmapper's World panel, the Campaign app, time moving under a trip). Each reaction
+# comes at a moment of the world (a clock filling, a world turn) or as a condition turns
+# true (a faction's value, an event's day), and does its steps in order: words for the
+# timeline, a table rolled, effects on clocks and factions, another reaction or a turn.
+kind: world
+id: default
+name: How the Marches move
+description: |-
+  The Marches go on without the Company: the Wyrm wakes, the Clans march, Fort Keld's garrison mutinies and the fort falls, news spreads after every world turn, and market day in Ashford puts heart in a weakened Vale.
+
+  **Shows:** the world's reactions (`kind: world`): to a clock filling (`on: world.clocks.<id>.full`, what the three threats do once full), to a world turn (`on: world.turn`, a rumour on the timeline), to a condition turning true, once until it stops holding (`on: { when: … }`: Fort Keld's strength reaching 0, an event's day, `world.events: market-day`); a reaction's own condition (`when:`, only a weakened Vale), a step's (`when:` per step); its steps: `say` (with variables), `roll` a table or generator, `effects` on factions and clocks, `do:` another reaction (`world.reactions.rumours`) and a world turn (`do: world.turn`); chains (the mutiny's effects make Fort Keld fall).
+reactions:
+  # Once awake, the Wyrm leaves its lair: the table says on whom it falls first.
+  wyrm-wakes:
+    name: The Wyrm wakes
+    on: world.clocks.the-greywood-wyrm-wakes.full
+    do:
+      - { id: wakes, say: 'The Wyrm wakes, and the Greywood goes quiet.' }
+      - roll: table.wyrm-wakes
+  # The Clans' march: at war, the garrison weakened and two segments closer to mutiny.
+  clans-march:
+    name: The Clans march
+    on: world.clocks.the-iron-clans-march.full
+    do:
+      - { id: march, say: The Clans march on Fort Keld. }
+      - effects:
+          factions.iron-clans.conditions.at-war: true
+          factions.fort-keld.values.strength: -1
+          world.clocks.fort-keld-mutinies: 2
+  # The mutiny: the garrison loses its fort and its strength, which makes Fort Keld fall
+  # (below).
+  garrison-mutinies:
+    name: The garrison mutinies
+    on: world.clocks.fort-keld-mutinies.full
+    do:
+      - id: scatter
+        say: The garrison mutinies and scatters; the bridge road is left to whoever takes it.
+      - effects: { factions.fort-keld.territory: -1, factions.fort-keld.values.strength: '=0' }
+  # A condition turning true: once, and again only after Fort Keld has risen and fallen again.
+  fort-falls:
+    name: Fort Keld falls
+    on: { when: { factions.fort-keld.values.strength: { lte: 0 } } }
+    do:
+      - id: falls
+        say: 'Fort Keld falls (the Clans’ strength {{factions.iron-clans.values.strength}}): every power of the Marches moves at once.'
+      - effects: { factions.iron-clans.values.strength: 1 }
+      # The Clans at war take the bridge road: a world turn at once.
+      - { do: world.turn, when: { factions.iron-clans.conditions: at-war } }
+  # After every world turn: what the roads say about it.
+  rumours:
+    name: News on the roads
+    on: world.turn
+    do:
+      - roll: generator.rumour
+  # An event's day is a condition too: it comes as the day begins.
+  market-day:
+    name: Market day in Ashford
+    on: { when: { world.events: market-day } }
+    # Only a weakened Vale takes heart.
+    when: { factions.the-vale.values.strength: { lte: 2 } }
+    do:
+      - { id: heart, say: 'Market day in Ashford: trade puts heart in the Vale.' }
+      - effects: { factions.the-vale.values.strength: 1 }
+      - do: world.reactions.rumours

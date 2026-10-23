@@ -11,6 +11,7 @@
   import RollModesForm from './RollModesForm.svelte'
   import FactionsForm from './FactionsForm.svelte'
   import ClocksForm from './ClocksForm.svelte'
+  import WorldForm from './WorldForm.svelte'
   import ItemsForm from './ItemsForm.svelte'
   import SheetForm from './SheetForm.svelte'
   import WeatherForm from './WeatherForm.svelte'
@@ -32,7 +33,8 @@
     editable &&
       (kind === 'sheet'
         ? !system.sheet
-        : (kind !== 'calendar' && kind !== 'factions' && kind !== 'clocks') || parts.length === 0),
+        : (kind !== 'calendar' && kind !== 'factions' && kind !== 'clocks' && kind !== 'world') ||
+          parts.length === 0),
   )
   /** A sheet for the party itself, beside its characters'. */
   const canCreateParty = $derived(editable && kind === 'sheet' && !system.partySheet)
@@ -83,6 +85,8 @@
         <FactionsForm {doc} {system} />
       {:else if kind === 'clocks'}
         <ClocksForm {doc} {system} />
+      {:else if kind === 'world'}
+        <WorldForm {doc} {system} />
       {:else if kind === 'items'}
         <ItemsForm {doc} {system} />
       {:else if kind === 'sheet'}

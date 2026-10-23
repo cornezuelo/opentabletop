@@ -1,54 +1,40 @@
 # The threats of the Marches, as progress clocks (the Hexmapper's World panel). They come
 # with the world clock when it starts; trips, tables and faction turns fill them with
-# effects (`world.clocks.<id>: 1`), conditions read them, and each does what it says once
-# full: words for the timeline, a table rolled, effects on the factions and on another
-# clock, and then it stays full, starts over or goes away.
+# effects (`world.clocks.<id>: 1`), conditions read them, and once full each stays full,
+# starts over or goes away. What happens when one fills is the world's (world.yaml).
 kind: clocks
 id: default
 name: Threats of the Marches
 description: |-
   Three things coming to the Marches: the Greywood Wyrm waking, the Iron Clans' march on Fort Keld, and the mutiny of its unpaid garrison.
 
-  **Shows:** progress clocks declared by a pack: where each starts, what happens when one fills (words on the timeline, a table rolled, effects on factions and on another clock), and what becomes of it then (it stays full, starts over or goes away); one full clock filling another (the Clans' march brings the mutiny closer); a trip hearing a clock fill, whatever fills it, by hand too (`world.clocks.the-greywood-wyrm-wakes.full`, the moment of the travel rules' _The Wyrm wakes_).
+  **Shows:** progress clocks declared by a pack: where each starts and what becomes of it once full (it stays full, starts over or goes away); what happens when one fills is a reaction of the world (_How the Marches move_, `on: world.clocks.<id>.full`); a trip hearing a clock fill, whatever fills it, by hand too (`world.clocks.the-greywood-wyrm-wakes.full`, the moment of the travel rules' _The Wyrm wakes_).
 clocks:
   # Filled by the Greywood's haunted lights (encounters.yaml); once full, the Wyrm roams
   # the wood (the encounters read `world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), so
-  # it stays full.
+  # it stays full (`then: keep`, the default).
   the-greywood-wyrm-wakes:
     name: The Greywood Wyrm wakes
     description: The haunted lights of the Greywood stir it in its sleep.
     segments: 6
     filled: 1
-    onFull:
-      description: The Wyrm wakes, and the Greywood goes quiet.
-      resolve: table.wyrm-wakes
-  # Filled by the Clans' own turn (factions.yaml). Full, they march: at war, the garrison
-  # weakened and two segments closer to mutiny; then they gather again.
+  # Filled by the Clans' own turn (factions.yaml). Full, they march (world.yaml); then they
+  # gather again.
   the-iron-clans-march:
     name: The Iron Clans march
     description: The chiefs of the Hollow Hills gather for the march on Fort Keld.
     segments: 6
     filled: 1
-    onFull:
-      description: The Clans march on Fort Keld.
-      effects:
-        factions.iron-clans.conditions.at-war: true
-        factions.fort-keld.values.strength: -1
-        world.clocks.fort-keld-mutinies: 2
-      then: reset
-  # Filled by the Clans' march. Full, the garrison is gone: it loses its fort, and the clock
-  # with it.
+    then: reset
+  # Filled by the Clans' march. Full, the garrison is gone (world.yaml), and the clock with it.
   fort-keld-mutinies:
     name: Fort Keld’s unpaid garrison mutinies
     description: A year without pay, and the Clans at the gates.
     segments: 8
     filled: 3
-    onFull:
-      description: The garrison mutinies and scatters; the bridge road is left to whoever takes it.
-      effects: { factions.fort-keld.territory: -1, factions.fort-keld.values.strength: '=0' }
-      then: remove
+    then: remove
 ---
-# What the Wyrm does first, once awake: the table a full clock rolls.
+# What the Wyrm does first, once awake: the table the world rolls when its clock fills.
 kind: table
 id: wyrm-wakes
 tags: [clocks, rules]
@@ -56,7 +42,7 @@ name: The Wyrm wakes
 description: |-
   What the Greywood Wyrm does when it wakes: it falls on the Vale's herds, on the Clans' watch-fires, or lies in wait in the wood.
 
-  **Shows:** a table a full progress clock rolls (`onFull.resolve`), whose effects change the factions (`factions.the-vale.values.strength: -1`), reading the world as it is (`{{factions.the-vale.values.strength}}`).
+  **Shows:** a table the world's reaction to a full progress clock rolls (`roll: table.wyrm-wakes`), whose effects change the factions (`factions.the-vale.values.strength: -1`), reading the world as it is (`{{factions.the-vale.values.strength}}`).
 roll: 1d6
 entries:
   - id: herds

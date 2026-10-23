@@ -49,7 +49,7 @@ A bound stops a change: past its **Min** or **Max** it stays there, the journal 
 
 ## Weather
 
-How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](12-weather.md).
+How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](13-weather.md).
 
 ## Values of the day
 

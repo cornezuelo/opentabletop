@@ -1,12 +1,17 @@
 import { calendarFrom, defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import {
+  clockFullMoment,
   isEventId,
   createWorld,
   factId,
   findClock,
   initialWorld,
   parseClocks,
+  parseWorldRules,
+  reactionsAt,
+  worldConditions,
+  WORLD_TURN,
   readWorld,
   worldFacts,
   type WorldAction,
@@ -260,16 +265,11 @@ describe('progress clocks a system declares', () => {
       kind: 'clocks',
       id: 'default',
       clocks: {
-        'the-wyrm-wakes': {
-          name: 'The Wyrm wakes',
-          segments: 6,
-          filled: 1,
-          onFull: { description: 'It wakes.', resolve: 'wyrm', then: 'reset' },
-        },
+        'the-wyrm-wakes': { name: 'The Wyrm wakes', segments: 6, filled: 1, then: 'reset' },
       },
     })
     expect(ok.errors).toEqual([])
-    expect(ok.clocks?.clocks['the-wyrm-wakes'].onFull?.then).toBe('reset')
+    expect(ok.clocks?.clocks['the-wyrm-wakes'].then).toBe('reset')
     expect(
       parseClocks({ kind: 'clocks', id: 'x', clocks: { a: { segments: 2, filled: 3 } } }).errors,
     ).toEqual(['clocks.a.filled: more than its 2 segments'])
@@ -277,12 +277,16 @@ describe('progress clocks a system declares', () => {
       parseClocks({ kind: 'clocks', id: 'x', clocks: { a: { segments: 0 } } }).errors[0],
     ).toMatch(/^clocks\.a\.segments/)
     expect(
+      parseClocks({ kind: 'clocks', id: 'x', clocks: { a: { segments: 2, then: 'x' } } }).errors[0],
+    ).toMatch(/^clocks\.a\.then/)
+    // What a full clock does is the world's reactions' now.
+    expect(
       parseClocks({
         kind: 'clocks',
         id: 'x',
-        clocks: { a: { segments: 2, onFull: { then: 'x' } } },
+        clocks: { a: { segments: 2, onFull: { then: 'reset' } } },
       }).errors[0],
-    ).toMatch(/^clocks\.a\.onFull\.then/)
+    ).toMatch(/^clocks\.a\.onFull: .*on: world\.clocks\.a\.full in kind: world/)
   })
 
   it('names a declared clock by its declared id, whatever it is called', () => {
@@ -306,5 +310,68 @@ describe('progress clocks a system declares', () => {
     ])
     // Kept when saved and read back.
     expect(readWorld(JSON.parse(JSON.stringify(full.state))).clocks[0].ref).toBe('the-wyrm-wakes')
+  })
+})
+
+describe('the world’s rules (`kind: world`)', () => {
+  const rules = (reactions: Record<string, unknown>) =>
+    parseWorldRules({ kind: 'world', id: 'default', reactions })
+
+  it('reads reactions: their moments, conditions and steps', () => {
+    const ok = rules({
+      rumours: { on: 'world.turn', do: [{ roll: 'table.rumours' }] },
+      falls: {
+        on: [{ when: { 'factions.keld.values.strength': { lte: 0 } } }, 'world.clocks.siege.full'],
+        unless: { 'world.events': 'truce' },
+        do: [
+          { say: 'Keld falls.' },
+          { effects: { 'factions.keld.territory': -2 }, when: { 'world.clocks.siege': 3 } },
+          { do: 'world.reactions.rumours' },
+          { do: 'world.turn' },
+        ],
+      },
+    })
+    expect(ok.errors).toEqual([])
+    expect(reactionsAt(ok.rules, WORLD_TURN)).toEqual(['rumours'])
+    expect(reactionsAt(ok.rules, clockFullMoment('siege'))).toEqual(['falls'])
+    expect(worldConditions(ok.rules)).toEqual([
+      {
+        key: 'falls:0',
+        reaction: 'falls',
+        when: { 'factions.keld.values.strength': { lte: 0 } },
+      },
+    ])
+  })
+
+  it('says what is wrong: moments, steps a trip has, what a step does, loops', () => {
+    expect(rules({ a: { on: 'world.dawn', do: [{ say: 'x' }] } }).errors).toEqual([
+      'reactions.a.on: expected world.turn, world.clocks.<id>.full or { when: … }',
+    ])
+    expect(rules({ a: { on: 'world.turn', do: [{ time: 60 }] } }).errors[0]).toMatch(
+      /^reactions\.a\.do\.0\.time: a step of a trip, not of the world/,
+    )
+    expect(
+      rules({ a: { on: 'world.turn', do: [{ say: 'x', roll: 'table.y' }] } }).errors[0],
+    ).toMatch(/a step does one thing/)
+    expect(rules({ a: { on: 'world.turn', do: [{ do: 'world.reactions.b' }] } }).errors).toEqual([
+      'reactions.a.do.0.do: expected world.turn, world.reactions.a',
+    ])
+    // A reaction bringing its own moment, directly or through another.
+    expect(rules({ a: { on: 'world.turn', do: [{ do: 'world.turn' }] } }).errors).toEqual([
+      'reactions.a: reactions bring each other in a loop: a → a',
+    ])
+    expect(
+      rules({
+        a: { on: 'world.clocks.x.full', do: [{ effects: { 'world.clocks.y': 1 } }] },
+        b: { on: 'world.clocks.y.full', do: [{ effects: { 'world.clocks.x': '=6' } }] },
+      }).errors,
+    ).toEqual(['reactions.a: reactions bring each other in a loop: a → b → a'])
+    // Emptying a clock fills nothing; a condition can't be followed.
+    expect(
+      rules({
+        a: { on: 'world.clocks.x.full', do: [{ effects: { 'world.clocks.x': '=0' } }] },
+        b: { on: { when: { 'world.clocks.x': 0 } }, do: [{ effects: { 'world.clocks.x': 1 } }] },
+      }).errors,
+    ).toEqual([])
   })
 })

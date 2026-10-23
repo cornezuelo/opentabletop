@@ -1,4 +1,5 @@
 export * from './clocks'
+export * from './reactions'
 
 import {
   defaultCalendar,
@@ -42,7 +43,7 @@ export interface ProgressClock {
   noteRef?: string
   /**
    * The clock a system declares that this one was made from (its id in `kind: clocks`):
-   * how rules name it whatever it's called, and where its `onFull` is read.
+   * how rules name it whatever it's called, and where what becomes of it once full is read.
    */
   ref?: string
 }

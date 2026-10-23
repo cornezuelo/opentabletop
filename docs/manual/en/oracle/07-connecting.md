@@ -478,7 +478,11 @@ The powers of the system's world are **factions** (`kind: factions`, named by `f
 
 ### Progress clocks
 
-A system can declare the **progress clocks** its world starts with (`kind: clocks`, named by `clocks:` in its system): each with its segments, where it starts and what happens when it fills. Effects fill them from anywhere (a trip's encounter, a faction's turn: `world.clocks.the-greywood-wyrm-wakes: 1`), conditions read them (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), and once full each does what it says: a line on the timeline, a table rolled (`resolve: table.wyrm-wakes`), effects on the factions and other clocks (the Iron Clans' march brings Fort Keld's mutiny closer), then it stays full, starts over or goes away. Every key: [Progress clocks](../technical/07-kinds.md#progress-clocks).
+A system can declare the **progress clocks** its world starts with (`kind: clocks`, named by `clocks:` in its system): each with its segments, where it starts and what becomes of it once full. Effects fill them from anywhere (a trip's encounter, a faction's turn: `world.clocks.the-greywood-wyrm-wakes: 1`), conditions read them (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), and once full each stays full, starts over or goes away (`then`). Every key: [Progress clocks](../technical/07-kinds.md#progress-clocks).
+
+### The world's rules
+
+What the world does by itself is its **reactions** (`kind: world`, named by `world:` in its system), written as a trip's actions are: at a moment of the world (`world.turn`, after every world turn; `world.clocks.<id>.full`, a clock filling) or as a condition turns true (`{ when: { factions.fort-keld.values.strength: { lte: 0 } } }`, `{ when: { world.events: market-day } }`), with steps that say a line on the timeline, roll a table (`roll: table.wyrm-wakes`), change factions and clocks (the Iron Clans' march brings Fort Keld's mutiny closer), or bring another reaction or a world turn (`do: world.turn`). They play wherever the world moves, a trip going on or not; the trip hears a clock filling too. Every key: [The world's rules](../technical/07-kinds.md#the-world-s-rules); the Systems app's [World](../systems/11-world.md).
 
 ## 6. A calendar of your own
 

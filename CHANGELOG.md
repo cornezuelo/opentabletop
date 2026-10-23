@@ -12,6 +12,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Packs
 
 - Core and the Grey Marches: every table, oracle, generator and deck is tagged with what it's about, and `rules` where the system rolls it itself.
+- **The world reacts by itself** (`kind: world`, named by `world:` in a system; pack format 9): reactions at a world turn (`world.turn`), a clock filling (`world.clocks.<id>.full`) or a condition turning true (a faction's value, an event's day), with steps that say a line on the timeline, roll a table, change clocks and factions, or bring another reaction or a world turn. They play wherever the world moves (the Hexmapper's World panel, the Campaign app, time moving under a trip), day by day through long jumps; loops are refused when a pack loads, and stopped after 10 in a row while playing. What a clock does when it fills moved there: a clock keeps only `then` (format 8's `onFull` is refused, with what to write instead). Systems has a **World** tab, and a clock's **When full** lists and adds its reactions. The Grey Marches' _How the Marches move_ (the threats, news after every world turn, Fort Keld falling, market day in Ashford); Core's _The threat strikes_ (`core/world.threat`).
 
 ## [0.15.0] - 2026-10-23
 

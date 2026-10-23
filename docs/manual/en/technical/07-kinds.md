@@ -480,7 +480,7 @@ factions:
 
 ## Progress clocks
 
-The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what happens when it fills. They come with the world clock when it starts (the Hexmapper's World panel, the Campaign app) ([Progress clocks](../hexmapper/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
+The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what becomes of it once full. What happens when one fills is the [world's rules'](#the-world-s-rules). They come with the world clock when it starts (the Hexmapper's World panel, the Campaign app) ([Progress clocks](../hexmapper/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
 
 ```yaml
 kind: clocks
@@ -492,24 +492,57 @@ clocks:
     description: The rebels dig in around the walls.
     segments: 8 # any number from 1
     filled: 2 # already filled when the world clock starts (absent: none)
-    onFull: # what happens when it fills (all optional)
-      description: The capital falls. # a line on the timeline, and a notice
-      resolve: table.the-fall # a table, oracle, generator or deck rolled (this pack's, or pack/kind.id)
-      effects: { factions.the-crown.territory: -1, world.clocks.the-reprisals: 2 }
-      then: reset # keep (the default): it stays full; reset: it starts over; remove: it goes away
+    then: reset # once full: keep (the default), it stays full; reset, it starts over; remove, it goes away
   the-reprisals:
     name: Reprisals
     segments: 4
 ```
 
-- **Filled by effects**, anywhere effects go: a trip's results and actions, a table rolled by hand on a map, a faction's turn. `world.clocks.the-siege: 1` fills a segment, `-2` empties two, `'=0'` sets it (empty), `'{{1d3}}'` rolls. **Read by conditions** and tables: `world.clocks.the-siege: { gte: 8 }` (full), `{{world.clocks.the-siege}}` in a text.
+- **Filled by effects**, anywhere effects go: a trip's results and actions, a table rolled by hand on a map, a faction's turn, a world reaction. `world.clocks.the-siege: 1` fills a segment, `-2` empties two, `'=0'` sets it (empty), `'{{1d3}}'` rolls. **Read by conditions** and tables: `world.clocks.the-siege: { gte: 8 }` (full), `{{world.clocks.the-siege}}` in a text.
 - Rules name a declared clock by **its id**, whatever the player renames it on the map; a clock made by hand on the map is named by its name in lowercase with dashes (_The Wyrm wakes_ is `the-wyrm-wakes`).
-- **When it fills**, its `onFull` happens once: its description and what the table rolled go to the timeline, the effects of both apply (other clocks and the factions: a trip's party isn't the world's), and then it stays full, starts over empty or goes away. The table sees the world as conditions do (`world.clocks.*`, `factions.<id>.*`, the date). One full clock may fill another (up to ten in a row). Any clock filling, declared or made by hand, is also a moment the trip going on hears (`world.clocks.<id>.full`: [Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system)).
-- Translated keyed `clocks/<id>`, by clock (`clocks: { the-siege: { name: El asedio, onFull: { description: La capital cae. } } }`). Core's `core/threat` is a clock for any game: the threat grows and, when full, strikes with one of Core's twists and starts over.
+- **When it fills**, once, it's the moment `world.clocks.<id>.full`: the world's reactions on it happen (words on the timeline, a table rolled, effects on clocks and factions), then it stays full, starts over empty or goes away, as `then` says. The trip going on hears it too ([Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system)).
+- Translated keyed `clocks/<id>`, by clock (`clocks: { the-siege: { name: El asedio } }`). Core's `core/clocks.threat` is a clock for any game: the threat grows and starts over once full; Core's `core/world.threat` makes it strike with one of Core's twists.
+- Pack format 8 wrote what happens when it fills in the clock (`onFull`); since format 9 it's a world reaction.
+
+## The world's rules
+
+What a system's world does by itself (`world:` in its [system](#systems)), with or without a trip going on: reactions written as a trip's actions are, each with the moments it comes at, its conditions and its steps. Played wherever the world moves (the Hexmapper's World panel, the Campaign app, time moving under a trip). In the Systems app: its **World** tab ([World](../systems/11-world.md)).
+
+```yaml
+kind: world
+id: default
+name: How the realm moves
+reactions:
+  the-capital-falls: # its id: how another reaction brings it (world.reactions.the-capital-falls)
+    name: The capital falls
+    on: world.clocks.the-siege.full # as a clock fills
+    do:
+      - say: The capital falls. # a line on the timeline
+      - roll: table.the-fall # a table, oracle, generator or deck: its text on the timeline, its effects applied
+      - effects: { factions.the-crown.territory: -1, world.clocks.the-reprisals: 2 }
+  news:
+    on: world.turn # after every world turn
+    do:
+      - say: 'News of the realm (the siege: {{world.clocks.the-siege}}).'
+  the-crown-breaks:
+    on: { when: { factions.the-crown.values.strength: { lte: 0 } } } # once, as it turns true
+    unless: { world.events: truce-day } # only while this doesn't hold (`when:` too)
+    do:
+      - effects: { factions.the-rebels.values.strength: 1 }
+      - do: world.turn # a world turn at once
+        when: { factions.the-rebels.conditions: at-war } # this step only while this holds
+      - do: world.reactions.news # another reaction (with its own conditions)
+```
+
+- **Moments** (`on:`, one or a list): `world.turn` (after every world turn), `world.clocks.<id>.full` (a clock filling, by its declared id or its name as an id), or a condition `{ when, unless }` on what the world shows (`world.clocks.*`, `world.events`, `factions.<id>.*`, `time.*`), coming once as it turns true and again only after it stopped holding.
+- **Steps** (`do:`, in order, each one thing, each with its own `when` / `unless`): `say` (with `{{…}}`), `roll`, `effects` (clocks and factions; a faction's `territory` changes land on the map being played), `do` (`world.reactions.<id>` or `world.turn`). A trip's steps (`time`, `travel.*`, `set`, `wait`, `pause`, `ask`) are refused: the world has no party.
+- **Order**: after anything that changes the world, its moments in the order they happened (each one's reactions in the order declared), then the conditions, checked again until nothing new turns true; moving time over several days looks at each day's start. The campaign keeps which conditions held (a campaign that kept nothing takes what holds as seen).
+- **Loops**: reactions bringing each other through named moments or `do:` (a reaction on `world.turn` doing `world.turn`, two clocks' reactions filling each other) are refused when the pack loads; those that conditions make stop after 10 in a row, with a line on the timeline.
+- Translated keyed `world/<id>`, by reaction, its steps by their `id` (`reactions: { the-capital-falls: { name: Cae la capital, do: { falls: { say: Cae la capital. } } } }`, with `id: falls` on the step).
 
 ## Systems
 
-A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, sheets, factions and progress clocks, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, sheets, factions, progress clocks and world rules, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
 
 ```yaml
 kind: system
@@ -523,6 +556,7 @@ sheet: sheet.companion # its characters' sheet
 partySheet: sheet.company # the party's own sheet
 factions: factions.default # the powers of its world
 clocks: clocks.default # the progress clocks its world starts with
+world: world.default # what its world does by itself
 items: [items.gear] # what its characters may carry (item catalogues)
 weather: [weather.sky] # the weather models its bindings may use
 packs: [core] # packs whose tables it brings

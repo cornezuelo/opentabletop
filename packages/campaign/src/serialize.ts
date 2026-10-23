@@ -18,9 +18,11 @@ import type {
  * `migrations` (`migrations[n]` upgrades raw data from version n to n + 1). v2: the trip
  * going on (`playing`), none in older campaigns; v3: its system and packs (`system`,
  * `packs`), which were its maps' (a map saved before brings them on opening); v4: the
- * moments of the world waiting for the trip going on (`moments`), none in older campaigns.
+ * moments of the world waiting for the trip going on (`moments`), none in older campaigns;
+ * v5: the world's conditions that held (`reactions`), none in older campaigns (what holds
+ * when next seen is taken as seen).
  */
-export const CAMPAIGN_VERSION = 4
+export const CAMPAIGN_VERSION = 5
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {}
 

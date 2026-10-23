@@ -37,6 +37,7 @@ export const en = {
     items: 'Items',
     factions: 'Factions',
     clocks: 'Clocks',
+    world: 'World',
     calendar: 'Calendar',
     weather: 'Weather',
     modes: 'Roll modes',
@@ -55,10 +56,18 @@ export const en = {
     clocks: {
       title: 'Its progress clocks',
       intro:
-        'Clocks of its world (`kind: clocks`): segments that fill as something advances (a threat, a plan, a season of raids), each with what happens when it fills. In the Hexmapper they come with the world clock when it starts; trips, tables and faction turns fill them with effects, and conditions read them.',
+        "Clocks of its world (`kind: clocks`): segments that fill as something advances (a threat, a plan, a season of raids), each with what becomes of it once full; what happens when one fills is the world's (**World** tab). In the Hexmapper they come with the world clock when it starts; trips, tables and faction turns fill them with effects, and conditions read them.",
       help: "One clocks definition per system, named in its **Overview** (`clocks:`). Conditions and tables read each by its id:\n• `world.clocks.the-wyrm-wakes: { gte: 6 }` — once it is full\nEffects fill it, from a trip, a table or a faction turn:\n• `world.clocks.the-wyrm-wakes: 1` — a segment more\n• `world.clocks.the-wyrm-wakes: -2` — two less\n• `world.clocks.the-wyrm-wakes: '=0'` — empty",
       none: 'This system declares no progress clocks: they can still be made by hand on a map.',
       create: 'New clocks',
+    },
+    world: {
+      title: 'What its world does',
+      intro:
+        "Its world's rules (`kind: world`): what the world does by itself, with or without a trip going on, when something happens in it: a progress clock fills, a world turn is played, a condition turns true (a faction's value, an event's day). Each reaction does its steps: words on the timeline, a table rolled, changes to clocks and factions, another reaction or a world turn.",
+      help: 'One world rules definition per system, named in its kind: system (`world:`). Each reaction comes at:\n• `world.turn` — after every world turn\n• `world.clocks.the-siege.full` — as a clock fills\n• `{ when: { factions.the-crown.values.strength: { lte: 0 } } }` — once, as it turns true\nIts steps: `say`, `roll`, `effects`, `do` (`world.reactions.<id>`, `world.turn`).',
+      none: 'This system has no world rules: its world only moves by its clocks and factions.',
+      create: 'New world rules',
     },
     factions: {
       title: 'Its factions',
@@ -135,7 +144,7 @@ export const en = {
     nameHelp: 'What these clocks are called together.\n• **Threats of the realm**',
     clocks: 'Clocks',
     clocksHelp:
-      'Each clock, by an id tables and conditions read it with (`world.clocks.<id>`): its name, its segments, where it starts and what happens when it fills. Leave **When full**, **Rolls** and **Changes** empty for a clock that only fills.',
+      "Each clock, by an id tables and conditions read it with (`world.clocks.<id>`): its name, its segments, where it starts and what becomes of it once full. What happens when it fills is the world's (**World** tab): **When full** lists those reactions.",
     clockName: 'Name',
     segments: 'Segments',
     segmentsHelp:
@@ -143,19 +152,52 @@ export const en = {
     filled: 'Starts at',
     filledHelp:
       'Segments already filled when the world clock starts (empty: none).\n• `2` — already under way',
-    description: 'When full',
-    descriptionHelp:
-      'What happens when it fills, in words: a line on the timeline and a notice.\n• **The Wyrm wakes and leaves its lair.**',
-    resolve: 'Rolls',
-    resolveHelp:
-      "A table, oracle, generator or deck rolled when it fills, with what the world clock and the factions say (like a faction's turn). What comes up goes to the timeline, and its effects apply.\n• `table.the-raid` — a table of this pack\n• `core/table.twists` — Core's twists",
-    effects: 'Changes',
-    effectsHelp:
-      "What it changes when it fills, one row each (what changes · value): other clocks and the factions (a trip's party isn't the world's).\n• `world.clocks.the-siege` · `2` — fills two segments of another\n• `factions.the-crown.values.strength` · `-1`\n• `factions.the-rebels.territory` · `1` — a hex more",
     then: 'Then',
     thenHelp:
       'What becomes of it once full:\n• `keep` — it stays full (the default): conditions read it full\n• `reset` — it starts over, empty, and may fill again\n• `remove` — it goes away',
     keepByDefault: 'keep',
+    whenFull: 'When full',
+    whenFullHelp:
+      "What the world does when it fills: the reactions of the system's world rules on `world.clocks.<id>.full` (the **World** tab), in order: words for the timeline, a table rolled, changes to clocks and factions.\n• **Add what happens when it fills** — a new reaction on it, in the World tab\nWhatever fills it (a trip, a table, a faction's turn, a click on the World panel), it happens once as it fills.",
+    nothingWhenFull: 'Nothing: it only fills.',
+    addWhenFull: 'Add what happens when it fills',
+  },
+  worldForm: {
+    name: 'Name',
+    nameHelp: 'What these rules are called.\n• **How the realm moves**',
+    reactions: 'Reactions',
+    reactionsHelp:
+      "What the world does by itself, with or without a trip going on: each reaction comes at its moments (**At**), if its conditions hold, and does its steps in order. Played wherever the world moves (the World panel, the Campaign app, time moving under a trip), and in the order they're listed here when several come at once.\n• after every world turn, a rumour on the timeline\n• when the siege clock fills, the capital falls\n• once a faction's strength reaches 0, it breaks",
+    none: 'No reactions yet: the world does nothing by itself but its clocks and factions.',
+    reactionName: 'Name',
+    on: 'At',
+    onHelp:
+      'When it comes, each moment a pill (Enter or a comma adds it):\n• `world.turn` — after every world turn, once every faction has taken its turn\n• `world.clocks.<id>.full` — as a progress clock fills, whatever fills it; a clock made by hand is named by its name in lowercase with dashes\nOr **As this turns true**: a condition, coming once as it turns true and again only after it stopped holding.\n• `factions.the-crown.values.strength` at most `0` — the crown falls\n• `world.events` is `market-day` — as a market day begins',
+    asTrueHelp:
+      "A moment written as a condition: it comes **once, as this turns true**, and again only after it has stopped holding. Looked at after everything that changes the world (time moving on, a turn, a clock, a trip's effects, a change by hand), and at the start of each day when time moves on several days at once. What already holds in a campaign that has never looked doesn't come.\nExamples:\n• `factions.the-crown.values.strength` at most `0`\n• `world.events` is `market-day` — an event's day\n• `world.clocks.the-siege` at least `4`\n• `time.season` is `winter` — as winter begins",
+    when: 'Only when',
+    whenHelp:
+      'It only happens while this holds, seen as its moment comes (empty: always).\n• `factions.the-vale.values.strength` at most `2` — only a weakened Vale',
+    unless: 'Not when',
+    unlessHelp:
+      "It doesn't happen while this holds.\n• `factions.the-crown.conditions` is `at-war`",
+    do: 'Steps',
+    doHelp:
+      'What it does, in order, each step seeing what the ones before changed:\n• **Say** — a line on the timeline; `{{…}}` read the world: `The siege: {{world.clocks.the-siege}}`\n• **Roll** — a table, oracle, generator or deck: what comes up goes to the timeline, its effects apply\n• **Change** — clocks and factions: `world.clocks.the-siege` · `1`, `factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`\n• **Bring** — another reaction (`world.reactions.<id>`) or a world turn (`world.turn`)\nEach may have its own **Only when**. Reactions bringing each other in a loop are refused when the pack loads; ones that conditions make loop stop after 10 in a row, with a line on the timeline.',
+    stepKind: 'What it does',
+    kinds: { say: 'Say', roll: 'Roll', effects: 'Change', do: 'Bring' },
+    stepWhen: 'Only when',
+    stepWhenHelp:
+      'This step only, while this holds (empty: always), seen when its turn comes.\n• `factions.iron-clans.conditions` is `at-war`',
+    addStep: 'Add a step',
+    up: 'Move up',
+    down: 'Move down',
+    worldTurn: 'A world turn',
+    afterTurn: 'After a world turn',
+    clockFills: '{clock} fills',
+    asTrue: 'As {when}',
+    unknownMoment:
+      "A moment the world doesn't have: expected world.turn or world.clocks.<id>.full.",
   },
   factionsForm: {
     name: 'Name',

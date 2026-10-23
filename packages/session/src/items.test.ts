@@ -7,7 +7,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system whose companions carry items from its catalogue: torches burn, packs fill. */
 const PACK = [
-  { path: 'delve/pack.yaml', content: 'id: delve\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
+  { path: 'delve/pack.yaml', content: 'id: delve\nversion: 0.1.0\nlocale: en\nformat: 9\n' },
   {
     path: 'delve/system.yaml',
     content:

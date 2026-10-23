@@ -479,7 +479,11 @@ Los poderes del mundo del sistema son **facciones** (`kind: factions`, nombradas
 
 ### Relojes de progreso
 
-Un sistema puede declarar los **relojes de progreso** con los que empieza su mundo (`kind: clocks`, nombrados con `clocks:` en su sistema): cada uno con sus segmentos, por dónde empieza y qué pasa cuando se llena. Los efectos los llenan desde cualquier sitio (un encuentro de un viaje, el turno de una facción: `world.clocks.the-greywood-wyrm-wakes: 1`), las condiciones los leen (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), y una vez llenos cada uno hace lo que dice: una línea en la cronología, una tabla tirada (`resolve: table.wyrm-wakes`), efectos sobre las facciones y otros relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), y después se queda lleno, vuelve a empezar o desaparece. Todas las claves: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
+Un sistema puede declarar los **relojes de progreso** con los que empieza su mundo (`kind: clocks`, nombrados con `clocks:` en su sistema): cada uno con sus segmentos, por dónde empieza y qué es de él una vez lleno. Los efectos los llenan desde cualquier sitio (un encuentro de un viaje, el turno de una facción: `world.clocks.the-greywood-wyrm-wakes: 1`), las condiciones los leen (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), y una vez llenos se quedan llenos, vuelven a empezar o desaparecen (`then`). Todas las claves: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
+
+### Las reglas del mundo
+
+Lo que el mundo hace por sí solo son sus **reacciones** (`kind: world`, nombradas con `world:` en su sistema), escritas como las acciones de un viaje: en un momento del mundo (`world.turn`, tras cada turno del mundo; `world.clocks.<id>.full`, al llenarse un reloj) o al pasar a cumplirse una condición (`{ when: { factions.fort-keld.values.strength: { lte: 0 } } }`, `{ when: { world.events: market-day } }`), con pasos que dicen una línea en la cronología, tiran una tabla (`roll: table.wyrm-wakes`), cambian facciones y relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), o traen otra reacción o un turno del mundo (`do: world.turn`). Se juegan allí donde se mueva el mundo, haya o no un viaje en marcha; el viaje también oye llenarse un reloj. Todas las claves: [Las reglas del mundo](../technical/07-kinds.md#las-reglas-del-mundo); la pestaña [Mundo](../systems/11-world.md) de la aplicación Systems.
 
 ## 6. Un calendario propio
 

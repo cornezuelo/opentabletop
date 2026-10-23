@@ -33,7 +33,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 
 - **Ids** use lowercase letters, digits and dashes: `getting-lost`, `npc-roles`.
 - **References** to a definition say what it is: its `kind`, as the definition writes it, then its id: `table.weather`, `oracle.ford`, `generator.npc`, `deck.omens`, `roll-modes.advantage`, `sheet.companion`, `calendar.marcher-reckoning`, `weather.sky`, `travel-rules.default`, `bindings.default`, `factions.default`, `clocks.default`. Another pack's goes after its id and a slash: `core/table.twists` (the pack must be one of its `dependencies`). One a variable picks keeps its kind first: `'table.weather-{{time.season}}'`. A reference without its kind (`weather`) isn't read: the problem says which one was meant (`write table.weather`).
-- Where a field rolls something (an entry's or card's `table:` / `generator:`, a binding's `resolve:`, a faction's `turn:`, a full clock's `onFull.resolve:`), it may be a table, an oracle, a generator or a deck: the kind says which (`table: generator.npc`, `resolve: oracle.ford`).
+- Where a field rolls something (an entry's or card's `table:` / `generator:`, a binding's `resolve:`, a faction's `turn:`, a step's `roll:` in an action or a world reaction), it may be a table, an oracle, a generator or a deck: the kind says which (`table: generator.npc`, `resolve: oracle.ford`).
 - A pack's `aliases` give another name to a reference: `aliases: { table.twist: core/table.twists }`, then `table: table.twist`.
 - Entries and cards have ids too, for translations and once-only entries.
 - **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.hex-enter`, `time.day-end`, a part of the day `time.part.morning`, a clock of the world filling `world.clocks.<id>.full`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `hex.terrain: forest`.
@@ -152,7 +152,7 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 | `acting.items.torch: -1`, `characters.kael.items.rope: 2`  | one item fewer (from the last ones first; at 0 it's gone), or more (from the system's [catalogues](07-kinds.md#item-catalogues) when it has none) |
 | `party.members.items.torch.uses: -1`                       | a field of each one's first torch (nothing for whoever has none); a field that runs out uses one up at its min                                    |
 | `faction.territory: 1`, `faction.values.strength: -1`      | in a faction's turn table: its land, its values                                                                                                   |
-| `world.clocks.the-siege: 1`                                | ticks a progress clock (a faction's turn, a full clock, or a trip's result on a map); `'=0'` sets it                                              |
+| `world.clocks.the-siege: 1`                                | ticks a progress clock (a faction's turn, a world reaction, or a trip's result on a map); `'=0'` sets it                                          |
 
 A change stops at the value's `min` / `max`; what hit one that day is seen afterwards as `trip.below` / `trip.above` (lists of full names: `trip.below: party.values.food`). Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 
@@ -173,6 +173,8 @@ When a check is rolled (`at:`) or an action is taken by the system itself (`on:`
 | a condition turning true (`{ when: { party.values.morale: { lte: 0 } } }`) | once, as it turns true, whatever changed it; again only after it stopped holding                   |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
+
+**The world's reactions** ([The world's rules](07-kinds.md#the-world-s-rules)) come at moments of their own: `world.turn` (after every world turn), `world.clocks.<id>.full` (a clock filling) and conditions turning true (`{ when: { world.events: market-day } }`), looked at after anything that changes the world and at each day's start on the way.
 
 **A moment written as a condition** (a reaction): `on: { when: …, unless: … }` (or `at:`), alone or in a list beside named moments. It's looked at after every change of a trip (a step, an effect, a result, a change by hand), reading what tables see, and comes there and then. What already holds when a trip starts comes on its first step; a trip saved before reactions existed takes what holds then as already seen. With `for: party.members` it's looked at for each member, read and played with that member as `acting`. Reactions that keep setting each other off stop after 10 in a row. More: [Moments written as conditions](../oracle/07-connecting.md#5-your-own-travel-system).
 

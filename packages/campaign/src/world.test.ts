@@ -1,7 +1,7 @@
 import { createMap, type HexMap } from '@open-tabletop/map'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
-import { calendarOf, travelSystems } from '@open-tabletop/session'
+import { calendarOf, travelSystems, type ReactionLine } from '@open-tabletop/session'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import {
@@ -26,10 +26,11 @@ import {
  * turn every two days, and a weather model of one kind of sky.
  */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 9\n' },
   {
     path: 'marks/system.yaml',
-    content: 'kind: system\nname: Marks\nfactions: factions.default\nclocks: clocks.default\n',
+    content:
+      'kind: system\nname: Marks\nfactions: factions.default\nclocks: clocks.default\nworld: world.default\n',
   },
   {
     path: 'marks/world.yaml',
@@ -63,10 +64,38 @@ id: default
 clocks:
   march:
     segments: 2
-    onFull:
-      description: The clans reach the river.
-      effects: { factions.clans.values.strength: 3 }
-      then: reset
+    then: reset
+---
+kind: world
+id: default
+reactions:
+  river:
+    on: world.clocks.march.full
+    do:
+      - say: The clans reach the river.
+      - effects: { factions.clans.values.strength: 3 }
+  # Once the clans are at war: a line, once, until they stop being.
+  war:
+    on: { when: { factions.clans.conditions: at-war } }
+    do:
+      - say: 'War! (strength {{factions.clans.values.strength}})'
+  # A fair's day, seen as the day begins, even in the middle of a long jump.
+  fair:
+    on: { when: { world.events: fair } }
+    do:
+      - say: The fair is on.
+      - do: world.reactions.rumour
+  rumour:
+    on: world.turn
+    unless: { factions.clans.values.strength: { gte: 6 } }
+    do:
+      - roll: table.rumour
+---
+kind: table
+id: rumour
+roll: 1d1
+entries:
+  - { range: 1, result: Smoke in the hills, effects: { world.clocks.march: 0 } }
 ---
 kind: weather
 id: sky
@@ -85,6 +114,7 @@ function host(over: Partial<WorldHost> = {}): WorldHost {
   return {
     calendar: calendarOf(marks),
     clocks: marks.clocks,
+    world: marks.world,
     fallback: 'en',
     weather: sky,
     factions: marks.factions,
@@ -92,12 +122,17 @@ function host(over: Partial<WorldHost> = {}): WorldHost {
     random: seeded(2),
     locale: 'en',
     words: {
-      clockFull: (full) => [full.description, full.then].filter(Boolean).join(' '),
+      clockFull: (full) => [reaction(full.lines), full.then].filter(Boolean).join(' '),
+      reaction,
+      reactionsStopped: () => 'Stopped.',
       factionLine: (_, line) => `${line.faction}: ${line.text}`,
     },
     ...over,
   }
 }
+
+const reaction = (lines: ReactionLine[]) =>
+  lines.map((l) => ('say' in l ? l.say : (l.error ?? l.text))).join(' ')
 
 function hillsMap(): HexMap {
   const map = createMap('North')
@@ -243,5 +278,105 @@ describe('the world of a campaign', () => {
     expect(taken.campaign.moments).toBeUndefined()
     // Moments its rules don't name are dropped.
     expect(takeMoments(done.campaign, rules('world.clocks.other.full')).heard).toEqual([])
+  })
+
+  it('reacts by itself: after a world turn, a condition turning true once, an event’s day', () => {
+    const place = started()
+    // A world turn: the clans' line, then the reaction to it (a table rolled).
+    const turned = worldTurnNow(place, host())
+    const texts = (d: { campaign: Campaign }) => d.campaign.world!.timeline.map((e) => e.text)
+    expect(texts(turned).slice(-3)).toEqual(['clans: Pushes on', 'march', 'Smoke in the hills'])
+    expect(turned.campaign.world!.timeline.at(-1)!.data).toEqual({ reaction: 'rumour' })
+    // At war: said once, with what the world shows then; not again while it holds.
+    const war = worldEffects(turned, { 'factions.clans.conditions.at-war': true }, host())
+    expect(texts(war).at(-1)).toBe('War! (strength 2)')
+    expect(war.campaign.reactions).toEqual(['war:0'])
+    const again = worldEffects(war, { 'factions.clans.values.strength': 1 }, host())
+    expect(texts(again).filter((t) => t?.startsWith('War!'))).toHaveLength(1)
+    // It stops holding, and comes again when it turns true again.
+    const peace = worldEffects(again, { 'factions.clans.conditions.at-war': false }, host())
+    expect(peace.campaign.reactions).toEqual([])
+    const back = worldEffects(peace, { 'factions.clans.conditions.at-war': true }, host())
+    expect(texts(back).filter((t) => t?.startsWith('War!'))).toHaveLength(2)
+  })
+
+  it('sees each day of a long jump, and a reaction brings another', () => {
+    const place = started()
+    const day = 1440
+    const at = place.campaign.world!.time + 2 * day
+    const scheduled = worldAct(
+      place,
+      { type: 'schedule', event: { name: 'Fair', at: at - 360 } },
+      host(),
+    )
+    // A week on in one go: the fair's day is seen on the way, its line and the rumour it brings.
+    const done = worldAct(scheduled, { type: 'advance', minutes: 7 * day }, host())
+    const fair = done.campaign.world!.timeline.find((e) => e.data?.reaction === 'fair')!
+    expect(fair.text).toBe('The fair is on. Smoke in the hills')
+    expect(fair.time).toBe(Math.floor(at / day) * day)
+    // Its day is over: it no longer holds.
+    expect(done.campaign.reactions).toEqual([])
+  })
+
+  it('takes what holds as seen in a campaign that kept nothing', () => {
+    const place = started()
+    const opened = worldEffects(
+      { ...place, campaign: { ...place.campaign, reactions: undefined } },
+      { 'factions.clans.conditions.at-war': true },
+      host(),
+    )
+    // Kept nothing: what holds now is taken as seen, nothing said.
+    expect(opened.campaign.reactions).toEqual(['war:0'])
+    expect(opened.campaign.world!.timeline.some((e) => e.text?.startsWith('War!'))).toBe(false)
+  })
+
+  it('stops reactions that bring each other too deep, with a line', () => {
+    const rules = (yaml: string) =>
+      travelSystems(
+        loadPacks([
+          PACK[0],
+          { path: 'marks/system.yaml', content: 'kind: system\nworld: world.default\n' },
+          { path: 'marks/world.yaml', content: yaml },
+        ]).registry,
+      )
+    // A loop the pack shows is refused when it loads.
+    const looped = rules(`
+kind: world
+id: default
+reactions:
+  a: { on: world.turn, do: [{ do: world.reactions.b }] }
+  b: { on: world.clocks.x.full, do: [{ do: world.turn }] }
+`)
+    expect(looped.systems.find((s) => s.id === 'marks')?.world).toBeUndefined()
+    expect(looped.problems.map((p) => p.message)).toContainEqual(
+      expect.stringContaining('reactions bring each other in a loop: a → b → a'),
+    )
+    // One that numbers make (each filling the other's clock) is stopped while playing.
+    const ping = rules(`
+kind: world
+id: default
+reactions:
+  ping:
+    on: world.clocks.ping.full
+    do: [{ effects: { world.clocks.ping: -1, world.clocks.pong: '{{1}}' } }]
+  pong:
+    on: world.clocks.pong.full
+    do: [{ effects: { world.clocks.pong: -1, world.clocks.ping: '{{1}}' } }]
+`).systems.find((s) => s.id === 'marks')!
+    let place: { campaign: Campaign } = {
+      campaign: startWorld({ campaign: createCampaign('c') }, 0, host()).campaign,
+    }
+    for (const name of ['Ping', 'Pong'])
+      place = worldAct(place, { type: 'addClock', clock: { name, segments: 1 } }, host())
+    const done = worldAct(
+      place,
+      {
+        type: 'tick',
+        id: place.campaign.world!.clocks.find((c) => c.name === 'Ping')!.id,
+        segments: 1,
+      },
+      host({ world: ping.world, clocks: undefined }),
+    )
+    expect(done.campaign.world!.timeline.filter((e) => e.text === 'Stopped.')).toHaveLength(1)
   })
 })

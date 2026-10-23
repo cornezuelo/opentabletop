@@ -13,7 +13,13 @@ import {
   type WorldHost,
   type WorldLine,
 } from '@open-tabletop/campaign'
-import { calendarOf, localize, type StartingClock, type SystemClocks } from '@open-tabletop/session'
+import {
+  calendarOf,
+  localize,
+  type StartingClock,
+  type SystemClocks,
+  type SystemWorld,
+} from '@open-tabletop/session'
 import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
 import { availableActions, refId } from '@open-tabletop/travel-engine'
@@ -62,6 +68,7 @@ function host(): WorldHost {
   return {
     calendar: worldCalendar(),
     clocks: system.clocks,
+    world: system.world,
     fallback: system.locale,
     weather: worldWeatherModel(),
     factions: factionsSystem(),
@@ -106,6 +113,8 @@ export function startWorld(time = defaultStart()): void {
 
 /** The progress clocks the map's system declares (`kind: clocks`), if any. */
 export const systemClocks = (): SystemClocks | undefined => mapSystem().clocks
+/** The world rules of the map's system: what its world does by itself. */
+export const systemWorld = (): SystemWorld | undefined => mapSystem().world
 
 /** The clocks the map's system declares that the world doesn't have (by their declared id). */
 export function missingClocks(): StartingClock[] {

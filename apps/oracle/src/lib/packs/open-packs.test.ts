@@ -15,6 +15,7 @@ import {
 } from '@open-tabletop/session'
 import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
+import { createCampaign, startWorld, worldAct, type WorldHost } from '@open-tabletop/campaign'
 import { describe, expect, it } from 'vitest'
 import { parseAllDocuments } from 'yaml'
 import { bundledPacks } from './bundled'
@@ -1472,5 +1473,47 @@ describe('bundled open packs', () => {
     expect(terrains.length).toBeGreaterThan(0)
     const known = [...Object.keys(system.rules.terrains), 'lake', 'sea', 'deep-sea']
     for (const terrain of terrains) expect(known).toContain(terrain)
+  })
+
+  it('Core’s growing threat strikes with a twist when full, and starts over', () => {
+    // A system of one's own bringing Core's clock and the world's reaction to it.
+    const files = [
+      ...engineFiles(bundledPacks.filter((p) => !p.personal)),
+      {
+        path: 'mine/pack.yaml',
+        content:
+          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 9\ndependencies: { core: '>=0.1.0' }\n",
+      },
+      {
+        path: 'mine/system.yaml',
+        content: 'kind: system\nclocks: core/clocks.threat\nworld: core/world.threat\n',
+      },
+    ]
+    const own = loadPacks(files).registry
+    const { systems, problems } = travelSystems(own)
+    expect(problems).toEqual([])
+    const mine = systems.find((x) => x.id === 'mine')!
+    const host: WorldHost = {
+      calendar: calendarOf(mine),
+      clocks: mine.clocks,
+      world: mine.world,
+      oracle: createOracleEngine({ registry: own, random: seeded(3) }),
+      random: seeded(3),
+      locale: 'es',
+      fallback: 'en',
+      words: {
+        clockFull: (full) =>
+          [...full.lines.map((l) => ('say' in l ? l.say : l.text)), full.then].join(' '),
+        reaction: () => '',
+        reactionsStopped: () => '',
+        factionLine: () => '',
+      },
+    }
+    const started = startWorld({ campaign: createCampaign('c') }, 0, host)
+    const threat = started.campaign.world!.clocks[0]
+    expect(threat).toMatchObject({ ref: 'the-threat-grows', name: 'La amenaza crece', filled: 0 })
+    const done = worldAct(started, { type: 'tick', id: threat.id, segments: 6 }, host)
+    expect(done.filled[0].text).toMatch(/^La amenaza golpea\. .+ reset$/)
+    expect(done.campaign.world!.clocks[0].filled).toBe(0)
   })
 })

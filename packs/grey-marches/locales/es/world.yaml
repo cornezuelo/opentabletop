@@ -1,0 +1,34 @@
+world/default:
+  name: Cómo se mueven las Marcas
+  description: |-
+    Las Marcas siguen sin la Compañía: la Sierpe despierta, los Clanes marchan, la guarnición de Fort Keld se amotina y el fuerte cae, las noticias corren tras cada turno del mundo, y el día de mercado en Ashford da ánimo a un Valle debilitado.
+
+    **Enseña:** las reacciones del mundo (`kind: world`): a un reloj que se llena (`on: world.clocks.<id>.full`, lo que hacen las tres amenazas al llenarse), a un turno del mundo (`on: world.turn`, un rumor en la cronología), a una condición que se cumple, una vez hasta que deja de cumplirse (`on: { when: … }`: la fuerza de Fort Keld llegando a 0, el día de un evento, `world.events: market-day`); la condición propia de una reacción (`when:`, solo un Valle debilitado) y la de un paso (`when:` por paso); sus pasos: `say` (con variables), `roll` de una tabla o un generador, `effects` sobre facciones y relojes, `do:` de otra reacción (`world.reactions.rumours`) y de un turno del mundo (`do: world.turn`); cadenas (los efectos del motín hacen caer Fort Keld).
+  reactions:
+    wyrm-wakes:
+      name: La Sierpe despierta
+      do:
+        wakes:
+          say: La Sierpe despierta, y el Bosque Gris enmudece.
+    clans-march:
+      name: Los Clanes marchan
+      do:
+        march:
+          say: Los Clanes marchan sobre Fort Keld.
+    garrison-mutinies:
+      name: La guarnición se amotina
+      do:
+        scatter:
+          say: La guarnición se amotina y se dispersa; el camino del puente queda para quien lo tome.
+    fort-falls:
+      name: Cae Fort Keld
+      do:
+        falls:
+          say: 'Cae Fort Keld (fuerza de los Clanes: {{factions.iron-clans.values.strength}}): todos los poderes de las Marcas se mueven a la vez.'
+    rumours:
+      name: Noticias en los caminos
+    market-day:
+      name: Día de mercado en Ashford
+      do:
+        heart:
+          say: 'Día de mercado en Ashford: el comercio da ánimo al Valle.'

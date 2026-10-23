@@ -148,7 +148,7 @@ describe('where a name is used', () => {
     expect(ford.some((w) => w.startsWith('sets table'))).toBe(true)
     // A clock filled by a faction's turn and by another clock.
     const march = where(usesOf(uses, { kind: 'clock', id: 'fort-keld-mutinies' }))
-    expect(march).toContain('changes clocks default clocks.the-iron-clans-march.onFull.effects')
+    expect(march).toContain('changes world default reactions.clans-march.do[1].effects')
     // Health's bound is another value of the same sheet.
     expect(
       where(usesOf(uses, { kind: 'sheet-value', sheet: 'members', id: 'maxHealth' }, system)),
@@ -185,7 +185,7 @@ describe('where a name is used', () => {
 
 /** A made-up system using each name in its short and full forms. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 9\n' },
   {
     path: 'band/system.yaml',
     content:

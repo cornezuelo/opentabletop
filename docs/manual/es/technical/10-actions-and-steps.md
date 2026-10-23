@@ -4,6 +4,8 @@ Todo lo que hace el grupo en un viaje es una **acción** de su sistema: marchar,
 
 En la aplicación Systems cada acción es una tarjeta en **Reglas → Acciones**, y cada paso una tarjeta propia en **Qué hace**: una elección de lo que hace (_Pasar el tiempo_, _Moverse_, _Hacer otra acción_…) y los campos de ese tipo, su propio **Solo si** / **Salvo si** en filas, y **YAML** para escribirlo como aquí (`time: 180`). Mira [Reglas](../systems/05-rules.md#acciones).
 
+El mundo tiene reacciones propias, escritas igual pero sin grupo: sus pasos son `say`, `roll`, `effects` (relojes y facciones) y `do` (otra reacción, `world.reactions.<id>`, o un turno del mundo, `world.turn`). Mira [Las reglas del mundo](07-kinds.md#las-reglas-del-mundo).
+
 ## Todos los pasos de un vistazo
 
 | Paso                                             | Qué hace                                                                      | Pasa el tiempo  | Detiene el viaje para el jugador           |

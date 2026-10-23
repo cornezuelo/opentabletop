@@ -525,6 +525,7 @@ export class TripStore {
     return {
       calendar: calendarOf(system),
       clocks: system.clocks,
+      world: system.world,
       fallback: system.locale,
       factions: factionsSystem,
       oracle,

@@ -1,31 +1,48 @@
 <script lang="ts">
-  import { effectSuggestions, type TravelSystem } from '@open-tabletop/session'
-  import { CLOCK_THEN } from '@open-tabletop/world-engine'
+  import { localize, type TravelSystem } from '@open-tabletop/session'
+  import { CLOCK_THEN, clockFullMoment, reactionsAt } from '@open-tabletop/world-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n'
-  import { library } from '../../lib/packs.svelte'
+  import { getLocale, t } from '../../lib/i18n'
+  import { go } from '../../lib/nav.svelte'
   import type { PartDoc } from '../../lib/partDoc.svelte'
+  import { addClockReaction } from '../../lib/newSystem'
   import { usesFor } from '../../lib/usage'
-  import RecordRows from '../forms/RecordRows.svelte'
+  import RecordRows, { type CustomField } from '../forms/RecordRows.svelte'
 
   /**
    * The progress clocks of a system (`kind: clocks`) as forms: each clock's name, its
-   * segments and where it starts, and what happens when it fills (its words, a table
-   * rolled, effects on the world, and whether it then stays full, starts over or goes).
+   * segments and where it starts, what becomes of it once full (it stays full, starts over
+   * or goes), and the world's reactions to its filling (in the World tab).
    */
   let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
 
   const data = $derived(doc.data())
   const disabled = $derived(!doc.editable)
-  /** What its effects can change: the world's clocks and the factions. */
-  const effects = $derived(
-    Object.fromEntries(
-      Object.entries(effectSuggestions(library.registry)).filter(([path]) =>
-        /^(world\.clocks|factions)\./.test(path),
-      ),
-    ),
-  )
+  /** The world's reactions to a clock filling, by their names. */
+  const reactionsOn = (clock: string) =>
+    reactionsAt(system.world?.def, clockFullMoment(clock)).map(
+      (id) => localize(system.world?.def.reactions[id].name, getLocale(), system.locale) ?? id,
+    )
+  const showWorld = () => go({ name: 'system', id: system.id, tab: 'world' })
+  function addReaction(clock: string) {
+    if (addClockReaction(system, clock)) showWorld()
+  }
 </script>
+
+{#snippet whenFull(field: CustomField)}
+  <div class="full">
+    {#if reactionsOn(field.id).length}
+      <button class="link" onclick={showWorld}>{reactionsOn(field.id).join(', ')}</button>
+    {:else}
+      <span class="muted">{t('clocksForm.nothingWhenFull')}</span>
+    {/if}
+    {#if !field.disabled}
+      <button class="add" onclick={() => addReaction(field.id)}
+        >{t('clocksForm.addWhenFull')}</button
+      >
+    {/if}
+  </div>
+{/snippet}
 
 <div class="form">
   <section class="head">
@@ -73,20 +90,7 @@
           type: 'text',
         },
         {
-          field: 'onFull.description',
-          label: t('clocksForm.description'),
-          help: t('clocksForm.descriptionHelp'),
-          type: 'text',
-        },
-        {
-          field: 'onFull.resolve',
-          label: t('clocksForm.resolve'),
-          help: t('clocksForm.resolveHelp'),
-          type: 'value',
-          placeholder: 'core/table.twists',
-        },
-        {
-          field: 'onFull.then',
+          field: 'then',
           label: t('clocksForm.then'),
           help: t('clocksForm.thenHelp'),
           type: 'select',
@@ -94,12 +98,12 @@
           placeholder: t('clocksForm.keepByDefault'),
         },
         {
-          field: 'onFull.effects',
-          label: t('clocksForm.effects'),
-          help: t('clocksForm.effectsHelp'),
-          type: 'pairs',
-          fresh: 1,
-          hints: effects,
+          field: 'whenFull',
+          label: t('clocksForm.whenFull'),
+          help: t('clocksForm.whenFullHelp'),
+          type: 'custom',
+          render: whenFull,
+          said: (_, id) => reactionsOn(id).join(', '),
         },
       ]}
     />
@@ -130,6 +134,27 @@
     margin: 0;
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .full {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .add {
+    padding: 3px 10px;
+    font-size: 12px;
+    background: none;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    cursor: pointer;
   }
 
   label {

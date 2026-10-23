@@ -199,8 +199,11 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    `party.items.ration`): the travel rules' `resources` and the bindings' `resources`
  *    (`carried`) are gone, and what hit a bound today is named in full (`trip.below:
  *    party.values.food`; in 7, by its id: `trip.below: food`).
+ * 9. What happens when a progress clock fills is the world's reactions'
+ *    (`on: world.clocks.<id>.full` in `kind: world`); a clock keeps only `then` (in 8,
+ *    `onFull` with its words, table, effects and `then`).
  */
-export const PACK_FORMAT = 8
+export const PACK_FORMAT = 9
 
 export const manifestSchema = z
   .object({

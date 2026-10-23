@@ -39,6 +39,7 @@ export const es: Messages<typeof en> = {
     items: 'Objetos',
     factions: 'Facciones',
     clocks: 'Relojes',
+    world: 'Mundo',
     calendar: 'Calendario',
     weather: 'Clima',
     modes: 'Modos de tirada',
@@ -57,10 +58,18 @@ export const es: Messages<typeof en> = {
     clocks: {
       title: 'Sus relojes de progreso',
       intro:
-        'Relojes de su mundo (`kind: clocks`): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con lo que pasa cuando se llena. En el Hexmapper llegan con el reloj del mundo al ponerlo en marcha; los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.',
+        'Relojes de su mundo (`kind: clocks`): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con qué es de él una vez lleno; lo que pasa cuando se llena es cosa del mundo (pestaña **Mundo**). En el Hexmapper llegan con el reloj del mundo al ponerlo en marcha; los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.',
       help: "Una definición de relojes por sistema, nombrada en su **Resumen** (`clocks:`). Las condiciones y las tablas leen cada uno por su id:\n• `world.clocks.the-wyrm-wakes: { gte: 6 }` — una vez lleno\nLos efectos lo llenan, desde un viaje, una tabla o el turno de una facción:\n• `world.clocks.the-wyrm-wakes: 1` — un segmento más\n• `world.clocks.the-wyrm-wakes: -2` — dos menos\n• `world.clocks.the-wyrm-wakes: '=0'` — vacío",
       none: 'Este sistema no declara relojes de progreso: se pueden seguir creando a mano en un mapa.',
       create: 'Nuevos relojes',
+    },
+    world: {
+      title: 'Lo que hace su mundo',
+      intro:
+        'Las reglas de su mundo (`kind: world`): lo que el mundo hace por sí solo, haya o no un viaje en marcha, cuando algo pasa en él: se llena un reloj de progreso, se juega un turno del mundo, pasa a cumplirse una condición (un valor de una facción, el día de un evento). Cada reacción hace sus pasos: palabras en la cronología, una tabla tirada, cambios en relojes y facciones, otra reacción o un turno del mundo.',
+      help: 'Una definición de reglas del mundo por sistema, nombrada en su kind: system (`world:`). Cada reacción llega en:\n• `world.turn` — tras cada turno del mundo\n• `world.clocks.the-siege.full` — al llenarse un reloj\n• `{ when: { factions.the-crown.values.strength: { lte: 0 } } }` — una vez, al pasar a cumplirse\nSus pasos: `say`, `roll`, `effects`, `do` (`world.reactions.<id>`, `world.turn`).',
+      none: 'Este sistema no tiene reglas del mundo: su mundo solo se mueve con sus relojes y sus facciones.',
+      create: 'Nuevas reglas del mundo',
     },
     factions: {
       title: 'Sus facciones',
@@ -138,7 +147,7 @@ export const es: Messages<typeof en> = {
     nameHelp: 'Cómo se llaman estos relojes en conjunto.\n• **Amenazas del reino**',
     clocks: 'Relojes',
     clocksHelp:
-      'Cada reloj, por un id con el que lo leen las tablas y las condiciones (`world.clocks.<id>`): su nombre, sus segmentos, por dónde empieza y qué pasa cuando se llena. Deja vacíos **Al llenarse**, **Tira** y **Cambia** para un reloj que solo se llena.',
+      'Cada reloj, por un id con el que lo leen las tablas y las condiciones (`world.clocks.<id>`): su nombre, sus segmentos, por dónde empieza y qué es de él una vez lleno. Lo que pasa cuando se llena es cosa del mundo (pestaña **Mundo**): **Al llenarse** lista esas reacciones.',
     clockName: 'Nombre',
     segments: 'Segmentos',
     segmentsHelp:
@@ -146,19 +155,51 @@ export const es: Messages<typeof en> = {
     filled: 'Empieza en',
     filledHelp:
       'Segmentos ya llenos cuando se pone en marcha el reloj del mundo (vacío: ninguno).\n• `2` — ya en marcha',
-    description: 'Al llenarse',
-    descriptionHelp:
-      'Qué pasa cuando se llena, en palabras: una línea en la cronología y un aviso.\n• **La Sierpe despierta y deja su guarida.**',
-    resolve: 'Tira',
-    resolveHelp:
-      'Una tabla, oráculo, generador o mazo que se tira cuando se llena, con lo que dicen el reloj del mundo y las facciones (como el turno de una facción). Lo que sale va a la cronología, y se aplican sus efectos.\n• `table.the-raid` — una tabla de este pack\n• `core/table.twists` — los giros de Core',
-    effects: 'Cambia',
-    effectsHelp:
-      'Lo que cambia cuando se llena, una fila cada cosa (qué cambia · valor): otros relojes y las facciones (el grupo de un viaje no es del mundo).\n• `world.clocks.the-siege` · `2` — llena dos segmentos de otro\n• `factions.the-crown.values.strength` · `-1`\n• `factions.the-rebels.territory` · `1` — un hex más',
     then: 'Después',
     thenHelp:
       'Qué es de él una vez lleno:\n• `keep` — se queda lleno (por defecto): las condiciones lo leen lleno\n• `reset` — vuelve a empezar, vacío, y puede volver a llenarse\n• `remove` — desaparece',
     keepByDefault: 'keep',
+    whenFull: 'Al llenarse',
+    whenFullHelp:
+      'Lo que hace el mundo cuando se llena: las reacciones de las reglas del mundo del sistema en `world.clocks.<id>.full` (pestaña **Mundo**), en orden: palabras para la cronología, una tabla tirada, cambios en relojes y facciones.\n• **Añadir qué pasa al llenarse** — una reacción nueva a él, en la pestaña Mundo\nLo llene lo que lo llene (un viaje, una tabla, el turno de una facción, un clic en el panel Mundo), pasa una vez, al llenarse.',
+    nothingWhenFull: 'Nada: solo se llena.',
+    addWhenFull: 'Añadir qué pasa al llenarse',
+  },
+  worldForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llaman estas reglas.\n• **Cómo se mueve el reino**',
+    reactions: 'Reacciones',
+    reactionsHelp:
+      'Lo que el mundo hace por sí solo, haya o no un viaje en marcha: cada reacción llega en sus momentos (**En**), si se cumplen sus condiciones, y hace sus pasos en orden. Se juegan allí donde se mueva el mundo (el panel Mundo, la aplicación Campaign, el tiempo que avanza bajo un viaje), y en el orden de esta lista cuando llegan varias a la vez.\n• tras cada turno del mundo, un rumor en la cronología\n• cuando se llena el reloj del asedio, cae la capital\n• en cuanto la fuerza de una facción llega a 0, se rompe',
+    none: 'Aún no hay reacciones: el mundo no hace nada por sí solo salvo sus relojes y sus facciones.',
+    reactionName: 'Nombre',
+    on: 'En',
+    onHelp:
+      'Cuándo llega, cada momento una píldora (Intro o una coma la añade):\n• `world.turn` — tras cada turno del mundo, cuando todas las facciones han jugado el suyo\n• `world.clocks.<id>.full` — al llenarse un reloj de progreso, lo llene lo que lo llene; uno creado a mano se nombra por su nombre en minúsculas y con guiones\nO **Al cumplirse esto**: una condición, que llega una vez al cumplirse y otra solo después de haber dejado de cumplirse.\n• `factions.the-crown.values.strength` como mucho `0` — cae la corona\n• `world.events` es `market-day` — al empezar un día de mercado',
+    asTrueHelp:
+      'Un momento escrito como condición: llega **una vez, al pasar a cumplirse**, y otra solo después de haber dejado de cumplirse. Se mira tras todo lo que cambia el mundo (el tiempo que avanza, un turno, un reloj, los efectos de un viaje, un cambio a mano), y al empezar cada día cuando el tiempo avanza varios días de golpe. Lo que ya se cumple en una campaña que nunca ha mirado no llega.\nEjemplos:\n• `factions.the-crown.values.strength` como mucho `0`\n• `world.events` es `market-day` — el día de un evento\n• `world.clocks.the-siege` al menos `4`\n• `time.season` es `winter` — al empezar el invierno',
+    when: 'Solo si',
+    whenHelp:
+      'Solo pasa mientras esto se cumple, mirado al llegar su momento (vacío: siempre).\n• `factions.the-vale.values.strength` como mucho `2` — solo un Valle debilitado',
+    unless: 'Salvo si',
+    unlessHelp: 'No pasa mientras esto se cumple.\n• `factions.the-crown.conditions` es `at-war`',
+    do: 'Pasos',
+    doHelp:
+      'Lo que hace, en orden, cada paso viendo lo que cambiaron los anteriores:\n• **Decir** — una línea en la cronología; `{{…}}` leen el mundo: `El asedio: {{world.clocks.the-siege}}`\n• **Tirar** — una tabla, oráculo, generador o mazo: lo que sale va a la cronología y se aplican sus efectos\n• **Cambiar** — relojes y facciones: `world.clocks.the-siege` · `1`, `factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`\n• **Traer** — otra reacción (`world.reactions.<id>`) o un turno del mundo (`world.turn`)\nCada uno puede tener su propio **Solo si**. Las reacciones que se traen unas a otras en bucle se rechazan al cargar el pack; las que hacen bucle por condiciones se paran tras 10 seguidas, con una línea en la cronología.',
+    stepKind: 'Qué hace',
+    kinds: { say: 'Decir', roll: 'Tirar', effects: 'Cambiar', do: 'Traer' },
+    stepWhen: 'Solo si',
+    stepWhenHelp:
+      'Solo este paso, mientras esto se cumple (vacío: siempre), mirado cuando le llega el turno.\n• `factions.iron-clans.conditions` es `at-war`',
+    addStep: 'Añadir un paso',
+    up: 'Subir',
+    down: 'Bajar',
+    worldTurn: 'Un turno del mundo',
+    afterTurn: 'Tras un turno del mundo',
+    clockFills: 'Se llena {clock}',
+    asTrue: 'Cuando {when}',
+    unknownMoment:
+      'Un momento que el mundo no tiene: se espera world.turn o world.clocks.<id>.full.',
   },
   factionsForm: {
     name: 'Nombre',

@@ -68,8 +68,7 @@ export const es: Messages = {
     declaredClock:
       'Declarado por el sistema: las tablas y las condiciones también lo leen como world.clocks.{id}, se llame como se llame aquí.',
     whenFull: 'Cuando se llena: {what}',
-    fullRolls: 'tira {table}',
-    fullEffects: 'cambia {effects}',
+    fullReactions: 'el mundo reacciona ({names})',
     fullThen: {
       keep: 'se queda lleno',
       reset: 'vuelve a empezar',

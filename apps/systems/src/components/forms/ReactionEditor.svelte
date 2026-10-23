@@ -14,12 +14,18 @@
     value,
     hints,
     disabled = false,
+    each = true,
+    help,
     onchange,
   }: {
     /** The `on:` / `at:` as written. */
     value: unknown
     hints: Record<string, readonly string[]>
     disabled?: boolean
+    /** Whether it may be checked for each member (`for: party.members`): a trip's, not the world's. */
+    each?: boolean
+    /** Its explanation, when it isn't a trip's. */
+    help?: string
     onchange: (moments: ReturnType<typeof writeMoments>) => void
   } = $props()
 
@@ -44,7 +50,7 @@
 </script>
 
 <div class="reaction">
-  <span class="label">{t('reaction.when')}<InfoTip text={t('reaction.whenHelp')} /></span>
+  <span class="label">{t('reaction.when')}<InfoTip text={help ?? t('reaction.whenHelp')} /></span>
   <ConditionEditor
     value={reaction?.when}
     suggestions={hints}
@@ -53,7 +59,7 @@
     label={t('reaction.when')}
     onchange={setWhen}
   />
-  {#if reaction}
+  {#if reaction && each}
     <label class="each">
       <input
         type="checkbox"

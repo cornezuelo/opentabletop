@@ -3,29 +3,23 @@ clocks/default:
   description: |-
     Tres cosas que se acercan a las Marcas: el despertar de la Sierpe del Bosque Gris, la marcha de los Clanes de Hierro sobre Fort Keld y el motín de su guarnición sin paga.
 
-    **Enseña:** relojes de progreso declarados por un pack: por dónde empieza cada uno, qué pasa cuando se llena (palabras en la cronología, una tabla tirada, efectos sobre las facciones y sobre otro reloj) y qué es de él después (se queda lleno, vuelve a empezar o desaparece); un reloj lleno que llena otro (la marcha de los Clanes acerca el motín); un viaje que oye llenarse un reloj, lo llene lo que lo llene, también a mano (`world.clocks.the-greywood-wyrm-wakes.full`, el momento de _La Sierpe despierta_ en las reglas de viaje).
+    **Enseña:** relojes de progreso declarados por un pack: por dónde empieza cada uno y qué es de él una vez lleno (se queda lleno, vuelve a empezar o desaparece); lo que pasa cuando uno se llena es una reacción del mundo (_Cómo se mueven las Marcas_, `on: world.clocks.<id>.full`); un viaje que oye llenarse un reloj, lo llene lo que lo llene, también a mano (`world.clocks.the-greywood-wyrm-wakes.full`, el momento de _La Sierpe despierta_ en las reglas de viaje).
   clocks:
     the-greywood-wyrm-wakes:
       name: La Sierpe del Bosque Gris despierta
       description: Las luces embrujadas del Bosque Gris la agitan en su sueño.
-      onFull:
-        description: La Sierpe despierta, y el Bosque Gris enmudece.
     the-iron-clans-march:
       name: Los Clanes de Hierro marchan
       description: Los jefes de las Colinas Huecas se reúnen para la marcha sobre Fort Keld.
-      onFull:
-        description: Los Clanes marchan sobre Fort Keld.
     fort-keld-mutinies:
       name: La guarnición sin paga de Fort Keld se amotina
       description: Un año sin paga, y los Clanes a las puertas.
-      onFull:
-        description: La guarnición se amotina y se dispersa; el camino del puente queda para quien lo tome.
 wyrm-wakes:
   name: La Sierpe despierta
   description: |-
     Lo que hace la Sierpe del Bosque Gris al despertar: cae sobre los rebaños del Valle, sobre las hogueras de vigía de los Clanes, o acecha en el bosque.
 
-    **Enseña:** una tabla que tira un reloj de progreso lleno (`onFull.resolve`), cuyos efectos cambian las facciones (`factions.the-vale.values.strength: -1`), leyendo el mundo tal como está (`{{factions.the-vale.values.strength}}`).
+    **Enseña:** una tabla que tira la reacción del mundo a un reloj de progreso lleno (`roll: table.wyrm-wakes`), cuyos efectos cambian las facciones (`factions.the-vale.values.strength: -1`), leyendo el mundo tal como está (`{{factions.the-vale.values.strength}}`).
   entries:
     herds: 'Cae sobre los rebaños del Valle (la fuerza del Valle era {{factions.the-vale.values.strength}})'
     fires: Dispersa las hogueras de vigía de los Clanes en las colinas

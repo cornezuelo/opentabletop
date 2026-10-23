@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { localize, type SystemClocks } from '@open-tabletop/session'
+  import { localize, type SystemClocks, type SystemWorld } from '@open-tabletop/session'
   import {
     formatClock,
     type Calendar,
@@ -9,9 +9,11 @@
     type GameTime,
   } from '@open-tabletop/time'
   import {
+    clockFullMoment,
     createWorld,
     factId,
     isEventId,
+    reactionsAt,
     type ProgressClock,
     type ScheduledEvent,
     type WorldState,
@@ -37,6 +39,7 @@
     trip = null,
     weather,
     clocks,
+    worldRules,
     missing = 0,
     defaultStart,
     timeline = true,
@@ -54,6 +57,8 @@
     weather?: { name: string }
     /** The progress clocks the campaign's system declares, for their help. */
     clocks?: SystemClocks
+    /** The system's world rules: the reactions to a clock filling, for its help. */
+    worldRules?: SystemWorld
     /** How many of the system's clocks the world doesn't have. */
     missing?: number
     /** When the clock starts unless another date is chosen. */
@@ -216,12 +221,13 @@
   function declaredHelp(clock: ProgressClock): string {
     const def = clock.ref ? clocks?.def.clocks[clock.ref] : undefined
     if (!def || !clock.ref) return ''
-    const on = def.onFull ?? {}
+    const reactions = reactionsAt(
+      worldRules?.def,
+      ...[clock.ref, factId(clock.name)].map(clockFullMoment),
+    ).map((id) => name(worldRules?.def.reactions[id].name, id))
     const what = [
-      name(on.description, '').replace(/[.\s]+$/, ''),
-      on.resolve ? t('world.fullRolls', { table: on.resolve }) : '',
-      on.effects ? t('world.fullEffects', { effects: Object.keys(on.effects).join(', ') }) : '',
-      t(`world.fullThen.${on.then ?? 'keep'}`),
+      reactions.length ? t('world.fullReactions', { names: reactions.join(', ') }) : '',
+      t(`world.fullThen.${def.then ?? 'keep'}`),
     ].filter(Boolean)
     return [
       name(def.description, ''),

@@ -294,7 +294,7 @@ export function declareSystem(system: TravelSystem): boolean {
 
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
 export type PartTabKind =
-  'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'items' | 'factions' | 'clocks'
+  'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'items' | 'factions' | 'clocks' | 'world'
 
 /** Where a part named `ref` (`kind.id` of the system's pack, or `pack/kind.id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
@@ -344,7 +344,7 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
       const [owner, id] = factions.split('/', 2)
       refs.push(writeRef('sheet', id, owner === pack ? undefined : owner))
     }
-  } else if (kind === 'calendar' || kind === 'factions' || kind === 'clocks')
+  } else if (kind === 'calendar' || kind === 'factions' || kind === 'clocks' || kind === 'world')
     refs = data
       ? typeof data[kind] === 'string'
         ? [data[kind] as string]
@@ -412,7 +412,11 @@ export function createSystemPart(
     const selector = `@system/${declared.id}`
     const current = readDefinition(text, selector) ?? {}
     const value =
-      kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks'
+      kind === 'calendar' ||
+      kind === 'sheet' ||
+      kind === 'factions' ||
+      kind === 'clocks' ||
+      kind === 'world'
         ? writeRef(kind, id)
         : [...(Array.isArray(current[kind]) ? (current[kind] as string[]) : []), writeRef(kind, id)]
     library.writeFile(
@@ -428,4 +432,58 @@ export function createSystemPart(
 export function packFormat(root: string): number {
   const pack = library.pack(root)
   return (pack && manifestOf(pack).format) ?? PACK_FORMAT
+}
+
+/**
+ * What happens when a clock fills, started: a reaction of the world on it
+ * (`on: world.clocks.<id>.full`) with one step to rename, in the system's world rules (made
+ * and named by the system first when it has none). Its id, or null where it can't be
+ * written. One undo step.
+ */
+export function addClockReaction(system: TravelSystem, clock: string): string | null {
+  const root = systemRoot(system)
+  if (!root || !library.isEditable(root)) return null
+  let part = systemParts(system, 'world')[0]
+  if (part && part.root !== root) return null
+  let made: string | null = null
+  library.batch(() => {
+    if (!part) {
+      const declared = systemFile(system)?.system
+      if (!declared) return
+      const taken = (library.registry.extras.get(system.pack!) ?? [])
+        .filter((e) => e.kind === 'world')
+        .map((e) => e.id ?? 'default')
+      const id = freeId('default', taken)
+      const file = 'world.yaml'
+      library.writeFile(
+        root,
+        file,
+        appendDefinition(library.readFile(root, file) ?? '', {
+          kind: 'world',
+          id,
+          reactions: {},
+        }),
+      )
+      const text = library.readFile(root, declared.path) ?? ''
+      library.writeFile(
+        root,
+        declared.path,
+        setIn(text, `@system/${declared.id}`, ['world'], writeRef('world', id)),
+      )
+      part = { root, path: file, kind: 'world', id }
+    }
+    const selector = `@world/${part.id}`
+    const text = library.readFile(root, part.path) ?? ''
+    const current = (readDefinition(text, selector)?.reactions ?? {}) as Record<string, unknown>
+    made = freeId(`${clock}-fills`, Object.keys(current))
+    library.writeFile(
+      root,
+      part.path,
+      setIn(text, selector, ['reactions', made], {
+        on: `world.clocks.${clock}.full`,
+        do: [{ say: '…' }],
+      }),
+    )
+  })
+  return made
 }

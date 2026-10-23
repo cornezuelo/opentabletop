@@ -10,6 +10,7 @@ export type Tab =
   | 'items'
   | 'factions'
   | 'clocks'
+  | 'world'
   | 'calendar'
   | 'weather'
   | 'modes'
@@ -25,6 +26,7 @@ const TABS: Tab[] = [
   'items',
   'factions',
   'clocks',
+  'world',
   'calendar',
   'weather',
   'modes',

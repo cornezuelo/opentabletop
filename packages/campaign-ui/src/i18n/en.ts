@@ -67,8 +67,7 @@ export const en = {
     declaredClock:
       "Declared by the system: tables and conditions also read it as world.clocks.{id}, whatever it's called here.",
     whenFull: 'When it fills: {what}',
-    fullRolls: 'rolls {table}',
-    fullEffects: 'changes {effects}',
+    fullReactions: 'the world reacts ({names})',
     fullThen: {
       keep: 'stays full',
       reset: 'starts over',

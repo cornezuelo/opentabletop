@@ -1,4 +1,6 @@
 <script lang="ts" module>
+  import type { Snippet } from 'svelte'
+
   export interface Column {
     /** The row's key, or a key inside one (`passable.when`). */
     field: string
@@ -10,9 +12,20 @@
      * the translation file when it isn't the pack's); select: one of `choices` (or none);
      * value: a number, or a word or a variable (`'{{self.values.maxHealth}}'`) as it's written;
      * condition: a condition as rows (`hints`: what it reads); pairs: a map as rows of
-     * `key · value` (`hints`: the keys, each with its values).
+     * `key · value` (`hints`: the keys, each with its values); custom: an editor of the
+     * form's own (`render`), said in a folded card by `said`.
      */
-    type: 'number' | 'check' | 'list' | 'flow' | 'text' | 'select' | 'value' | 'condition' | 'pairs'
+    type:
+      | 'number'
+      | 'check'
+      | 'list'
+      | 'flow'
+      | 'text'
+      | 'select'
+      | 'value'
+      | 'condition'
+      | 'pairs'
+      | 'custom'
     /** A list's separator as it's typed: commas, or spaces for words with commas (`15,9`). */
     separator?: 'comma' | 'space'
     placeholder?: string
@@ -30,10 +43,22 @@
     off?: (row: Record<string, unknown>) => boolean
     /** For pairs, a new row's value. */
     fresh?: string | number | boolean
+    /** For custom: the editor, given the row's id, the field's value and how to write it. */
+    render?: Snippet<[CustomField]>
+    /** For custom: the field in a folded card's line (empty: not said). */
+    said?: (value: unknown, id: string) => string
+  }
+
+  /** What a custom column's editor gets. */
+  export interface CustomField {
+    id: string
+    value: unknown
+    disabled: boolean
+    set: (value: unknown) => void
   }
 
   /** Columns too big for a table's cell: rows with one are shown as cards. */
-  const BIG: readonly Column['type'][] = ['condition', 'pairs', 'flow']
+  const BIG: readonly Column['type'][] = ['condition', 'pairs', 'flow', 'custom']
 
   /** A row's value at a column's field, which may be a key inside one (`passable.when`). */
   export function valueAt(row: Record<string, unknown> | null, field: string): unknown {
@@ -122,11 +147,15 @@
   const title = (id: string, row: Record<string, unknown> | null) =>
     (nameColumn && shown(row, nameColumn, id)) || nameOf(id)
   /** A card in one line, folded: each field that says something, but its texts. */
-  const summary = (row: Record<string, unknown> | null) =>
+  const summary = (row: Record<string, unknown> | null, id = '') =>
     columns
       .filter((c) => c.type !== 'text')
       .flatMap((c) => {
         const value = valueAt(row, c.field)
+        if (c.type === 'custom') {
+          const said = c.said?.(value, id)
+          return said ? [`${c.label}: ${said}`] : []
+        }
         if (value === undefined || value === null || value === '') return []
         if (c.type === 'check') {
           // A field that holds more than a tick (a map of conditions) counts as ticked.
@@ -153,7 +182,9 @@
   })
   const rows = $derived(Object.entries(record).filter(([id]) => !exclude.includes(id)))
   const visible = $derived(
-    rows.filter(([id, row]) => matches(query, [id, title(id, row), nameOf(id), summary(row), row])),
+    rows.filter(([id, row]) =>
+      matches(query, [id, title(id, row), nameOf(id), summary(row, id), row]),
+    ),
   )
   const free = $derived(suggestions.filter((s) => !(s in record)))
   const listId = $props.id()
@@ -309,6 +340,13 @@
       label={c.label}
       onchange={(v) => write(id, c.field, v)}
     />
+  {:else if c.type === 'custom'}
+    {@render c.render?.({
+      id,
+      value: valueAt(row, c.field),
+      disabled: disabled || (!!row && !!c.off?.(row)),
+      set: (v) => write(id, c.field, v),
+    })}
   {:else if c.type === 'select'}
     <select
       aria-label={c.label}
@@ -384,7 +422,7 @@
         <CardHead
           title={title(id, row)}
           {id}
-          said={open ? undefined : summary(row)}
+          said={open ? undefined : summary(row, id)}
           {open}
           ontoggle={() => (open ? unfolded.delete(id) : unfolded.add(id))}
           {disabled}
@@ -414,6 +452,13 @@
                     >{c.label}{#if c.help}<InfoTip text={c.help} />{/if}</span
                   >
                 </label>
+              {:else if c.type === 'custom'}
+                <div class="field wide-field">
+                  <span
+                    >{c.label}{#if c.help}<InfoTip text={c.help} />{/if}</span
+                  >
+                  {@render control(id, row, c)}
+                </div>
               {:else if c.type === 'condition' || c.type === 'pairs'}
                 <div class="field">
                   <span

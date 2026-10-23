@@ -230,6 +230,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
   for (const [kind, id] of [
     ['factions', system.factions?.id],
     ['clocks', system.clocks?.id],
+    ['world', system.world?.id],
   ] as const) {
     const def = extra(kind, id)
     if (def) recorder({ kind, ...place(def) }).walk(def.data, '')

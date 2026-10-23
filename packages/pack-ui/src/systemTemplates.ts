@@ -19,7 +19,7 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  */
 /** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
-  SystemKind | 'factions' | 'clocks' | 'items',
+  SystemKind | 'factions' | 'clocks' | 'world' | 'items',
   (id: string) => Record<string, unknown>
 > = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
@@ -161,20 +161,25 @@ export const SYSTEM_TEMPLATES: Record<
       torch: { name: 'Torch', tags: ['light'] },
     },
   }),
-  // One clock that, when full, rolls Core's twists and starts over: what a system's
-  // world clock starts with.
+  // One clock that starts over once full: what a system's world clock starts with (what
+  // happens when it fills is the world's rules').
   clocks: (id) => ({
     kind: 'clocks',
     id,
     clocks: {
-      'the-threat-grows': {
-        name: 'The threat grows',
-        segments: 6,
-        onFull: {
-          description: 'The threat strikes.',
-          resolve: 'core/table.twists',
-          then: 'reset',
-        },
+      'the-threat-grows': { name: 'The threat grows', segments: 6, then: 'reset' },
+    },
+  }),
+  // One reaction of the world to rename: after every world turn, one of Core's twists.
+  world: (id) => ({
+    kind: 'world',
+    id,
+    name: 'How the world moves',
+    reactions: {
+      news: {
+        name: 'News of the world',
+        on: 'world.turn',
+        do: [{ say: 'News travels.' }, { roll: 'core/table.twists' }],
       },
     },
   }),

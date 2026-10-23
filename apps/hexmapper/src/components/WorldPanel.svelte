@@ -14,6 +14,7 @@
     startWorld,
     stopWorld,
     systemClocks,
+    systemWorld,
     worldAct,
     worldCalendar,
     worldWeatherNow,
@@ -107,6 +108,7 @@
       trip={tripNow}
       {weather}
       clocks={systemClocks()}
+      worldRules={systemWorld()}
       {missing}
       defaultStart={start}
       part={tab}

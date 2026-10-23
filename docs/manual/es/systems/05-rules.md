@@ -49,7 +49,7 @@ Un límite detiene un cambio: si pasaría de su **Mín.** o su **Máx.**, se que
 
 ## Clima
 
-Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`trip.weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](12-weather.md).
+Cuánto frena al grupo cada clima (**Velocidad ×**; `0`: ese día no se viaja). El clima no listado no cambia la velocidad; las condiciones pueden leerlo igualmente (`trip.weather: storm`). De dónde sale el clima del día lo decide una comprobación: una tabla, o un [modelo de clima](13-weather.md).
 
 ## Valores del día
 

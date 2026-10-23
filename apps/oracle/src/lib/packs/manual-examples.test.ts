@@ -76,7 +76,7 @@ const kindOf = (yaml: string) => /^kind: ([\w-]+)/m.exec(yaml)![1]
 /** Problems of an example, without the references it leaves to others. */
 function problems(files: string[]): string[] {
   const { registry, diagnostics } = loadPacks([
-    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
@@ -109,6 +109,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'sheet',
         'factions',
         'clocks',
+        'world',
         'items',
       ]),
     )
@@ -141,7 +142,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([
-    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     { path: 'dark/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'dark')!
@@ -226,7 +227,7 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
     y.includes('river-crossing'),
   )!
   const { registry } = loadPacks([
-    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     { path: 'river/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'river')!
@@ -278,6 +279,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     (m) => m[1],
   )
   const clocks = blocks.find((y) => y.includes('kind: clocks'))!
+  const reactions = blocks.find((y) => y.includes('kind: world'))!
   const [named, added] = parseAllDocuments(blocks.find((y) => y.includes('FEVER'))!).map((d) =>
     d.toJS(),
   )
@@ -293,10 +295,11 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
     {
       path: 'fever/pack.yaml',
-      content: "id: fever\nversion: 0.1.0\nformat: 8\nlocale: en\ndependencies: { core: '*' }\n",
+      content: "id: fever\nversion: 0.1.0\nformat: 9\nlocale: en\ndependencies: { core: '*' }\n",
     },
     { path: 'fever/travel.yaml', content: stringify(rules) },
     { path: 'fever/clocks.yaml', content: clocks },
+    { path: 'fever/world.yaml', content: reactions },
     { path: 'fever/calendar.yaml', content: coreFile('calendar.yaml') },
     {
       path: 'fever/system.yaml',
@@ -315,16 +318,19 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
   const host = (seed: string): WorldHost => ({
     calendar,
     clocks: system.clocks,
+    world: system.world,
     fallback: 'en',
     oracle: createOracleEngine({ registry, random: seeded(seed) }),
     random: seeded(`${seed}-world`),
     locale: 'en',
     words: {
-      clockFull: (full) => [full.description, full.text].filter(Boolean).join(' '),
+      clockFull: (full) => full.lines.map((l) => ('say' in l ? l.say : l.text)).join(' '),
+      reaction: () => '',
+      reactionsStopped: () => '',
       factionLine: (_, line) => line.text ?? '',
     },
   })
-  /** Step 7's row: plains, three swamps, then three plains with a road along them. */
+  /** Step 8's row: plains, three swamps, then three plains with a road along them. */
   const terrain = ['plains', 'swamp', 'swamp', 'swamp', 'plains', 'plains', 'plains']
   const world: TravelWorld = {
     hexKm: 10,
@@ -343,7 +349,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     place.campaign.world!.clocks.find((c) => c.ref === ref)!
   const timeline = (place: WorldPlace) => place.campaign.world!.timeline.map((e) => e.text)
 
-  /** Steps 8 and 9, played as the Hexmapper does: the world clock and the trip share one time. */
+  /** Steps 9 and 10, played as the Hexmapper does: the world clock and the trip share one time. */
   function play(seed: string) {
     let s = startTrip({ system, location: '0,0', season: 'summer' }).session
     const h = host(seed)
@@ -396,7 +402,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
       },
       heard,
       travelTo,
-      /** Step 9: a click on the fever's fourth segment, in the World panel. */
+      /** Step 10: a click on the fever's fourth segment, in the World panel. */
       fillByHand() {
         const fever = clock(place, 'the-fever')
         place = worldAct(place, { type: 'tick', id: fever.id, segments: 4 - fever.filled }, h)
@@ -407,18 +413,25 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
   const says = (s: SessionState, text: string) =>
     s.journal.filter((e) => JSON.stringify(e).includes(text)).length
 
-  it('loads (steps 1–6)', () => {
+  it('loads (steps 1–7)', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
+    expect(travelSystems(registry).problems.filter((p) => p.file === 'fever/world.yaml')).toEqual(
+      [],
+    )
     expect(Object.keys(system.clocks!.def.clocks)).toEqual(['the-fever', 'the-closed-roads'])
+    expect(Object.keys(system.world!.def.reactions)).toEqual([
+      'the-fever-fills',
+      'the-closed-roads-fills',
+    ])
   })
 
-  it('starts the world with the fever at 1/4 and the roads at 0/2 (step 8)', () => {
+  it('starts the world with the fever at 1/4 and the roads at 0/2 (step 9)', () => {
     const { place } = play('start')
     expect(clock(place, 'the-fever')).toMatchObject({ name: 'The marsh fever', filled: 1 })
     expect(clock(place, 'the-closed-roads')).toMatchObject({ segments: 2, filled: 0 })
   })
 
-  it('the third swamp fills the fever: the timeline, the roads, and word of it (step 8)', () => {
+  it('the third swamp fills the fever: the timeline, the roads, and word of it (step 9)', () => {
     const game = play('swamps')
     game.travelTo('4,0')
     expect(game.s.travel.location).toBe('4,0')
@@ -434,7 +447,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     expect(game.s.travel.pendingChecks).toEqual([])
   })
 
-  it('filled by hand, the roads close, the trip hears it, and the road turns it back (step 9)', () => {
+  it('filled by hand, the roads close, the trip hears it, and the road turns it back (step 10)', () => {
     const game = play('by-hand')
     game.travelTo('4,0')
     game.fillByHand()
@@ -448,6 +461,99 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     expect(barrier.data).toMatchObject({ event: 'BARRIER', hex: '5,0' })
   })
 })
+describe('Systems → World: market day in the Fever Marshes plays as the page says', () => {
+  const yaml = (page: string, kind: string) =>
+    [...read(page).matchAll(/```yaml\n([\s\S]*?)```/g)]
+      .map((m) => m[1])
+      .find((y) => y.includes(`kind: ${kind}`))!
+  const { registry } = loadPacks([
+    { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
+    { path: 'core/scenes.yaml', content: coreFile('scenes.yaml') },
+    { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
+    {
+      path: 'fever/pack.yaml',
+      content: "id: fever\nversion: 0.1.0\nformat: 9\nlocale: en\ndependencies: { core: '*' }\n",
+    },
+    { path: 'fever/clocks.yaml', content: yaml('en/systems/10-clocks.md', 'clocks') },
+    { path: 'fever/world.yaml', content: yaml('en/systems/11-world.md', 'world') },
+    { path: 'fever/calendar.yaml', content: coreFile('calendar.yaml') },
+    {
+      path: 'fever/system.yaml',
+      content:
+        'kind: system\nname: The Fever Marshes\ncalendar: calendar.default\nclocks: clocks.default\nworld: world.default\n',
+    },
+  ])
+  const { systems, problems } = travelSystems(registry)
+  const system = systems.find((x) => x.pack === 'fever')!
+  const calendar = calendarOf(system)
+  const host: WorldHost = {
+    calendar,
+    clocks: system.clocks,
+    world: system.world,
+    fallback: 'en',
+    oracle: createOracleEngine({ registry, random: seeded('market') }),
+    random: seeded('market-world'),
+    locale: 'en',
+    words: {
+      clockFull: (full) => full.lines.map((l) => ('say' in l ? l.say : l.text)).join(' '),
+      reaction: (lines) => lines.map((l) => ('say' in l ? l.say : l.text)).join(' '),
+      reactionsStopped: () => 'Stopped',
+      factionLine: () => '',
+    },
+  }
+  const clock = (place: WorldPlace, ref: string) =>
+    place.campaign.world!.clocks.find((c) => c.ref === ref)!
+  const said = (place: WorldPlace, text: string) =>
+    place.campaign.world!.timeline.filter((e) => e.text?.includes(text)).length
+  const MARKET = 'Market day: travellers bring the fever along.'
+  const QUARANTINE = 'The marshes are under quarantine.'
+
+  it('loads (steps 1–3)', () => {
+    expect(problems.filter((p) => p.pack === 'fever')).toEqual([])
+    expect(Object.keys(system.world!.def.reactions)).toEqual([
+      'the-fever-fills',
+      'the-closed-roads-fills',
+      'quarantine',
+      'market',
+    ])
+  })
+
+  it('market days bring the fever, until the roads close and the quarantine is said once (steps 4, 5)', () => {
+    const day = calendar.minutesPerDay
+    let place: WorldPlace = startWorld({ campaign: createCampaign('c') }, day, host)
+    // Step 4: a market tomorrow, every 7 days.
+    place = worldAct(
+      place,
+      {
+        type: 'schedule',
+        event: { name: 'Market day', at: 2 * day + 8 * 60, repeat: { days: 7 } },
+      },
+      host,
+    )
+    expect(place.campaign.world!.events[0].id).toBe('market-day')
+    // Step 5: fifteen days at once; each market day seen as it begins.
+    place = worldAct(place, { type: 'advance', minutes: 15 * day }, host)
+    expect(said(place, MARKET)).toBe(3)
+    // The third filled the fever: it spread, the roads closed by one.
+    expect(said(place, 'The marsh fever: The fever reaches the villages.')).toBe(1)
+    expect(clock(place, 'the-fever').filled).toBe(0)
+    expect(clock(place, 'the-closed-roads').filled).toBe(1)
+    // The roads closed by hand: their line, then the quarantine, once.
+    const roads = clock(place, 'the-closed-roads')
+    place = worldAct(place, { type: 'tick', id: roads.id, segments: 1 }, host)
+    expect(said(place, 'The lords close the roads.')).toBe(1)
+    expect(said(place, QUARANTINE)).toBe(1)
+    // Another week: no market, the fever as it was.
+    const fever = clock(place, 'the-fever').filled
+    place = worldAct(place, { type: 'advance', minutes: 7 * day }, host)
+    expect(said(place, MARKET)).toBe(3)
+    expect(clock(place, 'the-fever').filled).toBe(fever)
+    // Open again, then closed again: the quarantine is said again.
+    place = worldAct(place, { type: 'tick', id: roads.id, segments: -1 }, host)
+    place = worldAct(place, { type: 'tick', id: roads.id, segments: 1 }, host)
+    expect(said(place, QUARANTINE)).toBe(2)
+  })
+})
 /** A file of Core, as bundled (`travel.yaml`): what a new system starts from. */
 const coreFile = (file: string) =>
   (
@@ -459,7 +565,7 @@ const coreFile = (file: string) =>
   )[`../../../../../packs/core/${file}`]
 
 describe('Systems → Weather: the valley’s weather plays as the page says', () => {
-  const model = examples(read('en/systems/12-weather.md')).find((y) => y.includes('Valley skies'))!
+  const model = examples(read('en/systems/13-weather.md')).find((y) => y.includes('Valley skies'))!
   // A new system: a copy of the Generic rules and Core's calendar, with what steps 5 and 6
   // add, and a check an hour after the weather's that reads it (Common mistakes).
   const core = coreFile
@@ -476,7 +582,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   expect(rules.checks.map((c: { event: string }) => c.event)).toEqual(['WEATHER_CHECK_REQUIRED'])
   rules.checks = [...rules.checks, { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } }]
   const { registry, diagnostics } = loadPacks([
-    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     { path: 'valley/travel.yaml', content: stringify(rules) },
     { path: 'valley/calendar.yaml', content: core('calendar.yaml') },
     { path: 'valley/weather.yaml', content: model },
@@ -594,7 +700,7 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     .map((m) => m[1])
     .find((y) => y.startsWith('kind: sheet'))!
   const { registry, diagnostics } = loadPacks([
-    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     { path: 'salt/travel.yaml', content: stringify(rules) },
     { path: 'salt/sheet.yaml', content: sheet },
     { path: 'salt/calendar.yaml', content: coreFile('calendar.yaml') },
@@ -721,7 +827,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   const table = blocks.find((y) => y.includes('kind: table'))!
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
-    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     {
       path: 'wolf/travel.yaml',
       content: `${stringify(rules)}---\n${stringify({ kind: 'bindings', id: 'default', ...bound })}`,
@@ -861,7 +967,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   )
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
-    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
+    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 9\nlocale: en\n' },
     {
       path: 'co/travel.yaml',
       // A new system's bindings start with `on: {}`.
@@ -1007,7 +1113,7 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
     { path: 'core/factions.yaml', content: coreFile('factions.yaml') },
     {
       path: 'border/pack.yaml',
-      content: "id: border\nversion: 0.1.0\nformat: 8\nlocale: en\ndependencies: { core: '*' }\n",
+      content: "id: border\nversion: 0.1.0\nformat: 9\nlocale: en\ndependencies: { core: '*' }\n",
     },
     { path: 'border/travel.yaml', content: stringify(rules) },
     { path: 'border/factions.yaml', content: factions },
@@ -1036,7 +1142,9 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
     random: seeded(`${seed}-world`),
     locale: 'en',
     words: {
-      clockFull: (full) => full.description ?? '',
+      clockFull: () => '',
+      reaction: () => '',
+      reactionsStopped: () => '',
       factionLine: (_, line) => `${line.faction}: ${line.text}`,
     },
   })

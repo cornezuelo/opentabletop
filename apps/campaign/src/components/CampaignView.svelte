@@ -108,6 +108,7 @@
           controls={open.controls}
           weather={open.weather()}
           clocks={system.clocks}
+          worldRules={system.world}
           missing={open.missing()}
           defaultStart={calendar.at(1, '06:00')}
           timeline={false}

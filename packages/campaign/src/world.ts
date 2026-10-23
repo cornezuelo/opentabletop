@@ -4,25 +4,34 @@ import type { HexMap } from '@open-tabletop/map'
 import { emptyState, type OracleEngine, type OracleState } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import {
-  clockFull,
+  clockThen,
   factionFacts,
   localize,
   startClocks,
-  type ClockFull,
+  worldHolds,
+  worldStep,
   type FactionLine,
+  type ReactionLine,
   type StartingClock,
   type SystemClocks,
   type SystemFactions,
+  type SystemWorld,
 } from '@open-tabletop/session'
 import type { Calendar, DataCalendar } from '@open-tabletop/time'
-import { momentsOf, type TravelRules } from '@open-tabletop/travel-engine'
+import { calendarFacts, momentsOf, type TravelRules } from '@open-tabletop/travel-engine'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import {
+  clockFullMoment,
   createWorld,
   factId,
   findClock,
   initialWorld,
+  reactionOf,
+  reactionsAt,
+  worldConditions,
   worldFacts,
+  WORLD_TURN,
+  type ClockThen,
   type ProgressClock,
   type WorldAction,
   type WorldEvent,
@@ -44,10 +53,20 @@ export interface WorldPlace {
   map?: HexMap
 }
 
+/** A clock that filled: what the world's reactions to it said, and what becomes of it. */
+export interface ClockFull {
+  lines: ReactionLine[]
+  then: ClockThen
+}
+
 /** The words the timeline needs, in the host's language (cores don't translate). */
 export interface WorldWords {
-  /** A full clock's line after its name: its words, what it rolled, what happens to it. */
+  /** A full clock's line after its name: what its reactions said, what happens to it. */
   clockFull: (full: ClockFull) => string
+  /** A reaction's line: its words, what it rolled. */
+  reaction: (lines: ReactionLine[]) => string
+  /** Where reactions bringing each other were stopped, after `max` in a row. */
+  reactionsStopped: (max: number) => string
   /** A faction's turn: "The Iron Clans: raid the Vale (+1 hex)". */
   factionLine: (system: SystemFactions, line: FactionLine) => string
 }
@@ -57,6 +76,8 @@ export interface WorldHost {
   calendar: Calendar
   /** The progress clocks the system declares, and the language its texts fall back to. */
   clocks?: SystemClocks
+  /** The system's world rules: what the world does by itself when something happens in it. */
+  world?: SystemWorld
   fallback?: string
   /** The model the world's own weather is rolled on, if any. */
   weather?: WeatherModel
@@ -117,7 +138,10 @@ export interface WorldDone extends WorldPlace {
   filled: ClockNotice[]
 }
 
-/** How many full clocks deep a chain may go (a full clock ticking another that fills…). */
+/**
+ * How deep reactions may bring each other (a full clock ticking another that fills…), and
+ * how many rounds of conditions turning true in a row are played.
+ */
 const MAX_CHAIN = 10
 
 /**
@@ -182,16 +206,60 @@ export function rollWorldWeather(
 
 /**
  * Plays on the world of a campaign. The functions share one place as it changes, since
- * one action can bring others (a full clock ticking another, a turn logging its lines).
+ * one action can bring others (a full clock ticking another, a turn logging its lines, a
+ * reaction of the world changing what its conditions see).
  */
 function playWorld(start: WorldPlace, host: WorldHost) {
   let { campaign, map } = start
   const filled: ClockNotice[] = []
   const world = createWorld({ calendar: host.calendar })
-  let chain = 0
+  const rules = host.world?.def
+  /** How deep reactions are bringing each other now, and whether a chain was stopped. */
+  let depth = 0
+  let stopped = false
   const facts = () => worldFactsOf({ campaign, map }, host)
+  /** What the world's reactions read: the world's facts and its moment (`time.*`). */
+  const reactionFacts = (): Record<string, unknown> => {
+    const parts = host.calendar.describe(campaign.world?.time ?? 0)
+    return {
+      ...facts(),
+      day: parts.day,
+      hour: parts.hour,
+      ...(parts.season && { season: parts.season }),
+      ...calendarFacts(parts),
+    }
+  }
 
+  /**
+   * An action on the world clock. Moving time on goes day by day, so what holds at each
+   * day's start (an event's day, a market day in the middle of a week) is seen on the way.
+   */
   function act(action: WorldAction): WorldEvent[] {
+    const state = campaign.world
+    if (!state) return []
+    const to =
+      action.type === 'advance'
+        ? state.time + Math.max(0, action.minutes)
+        : action.type === 'advanceUntil'
+          ? world.target(state, action.until)
+          : action.type === 'setTime'
+            ? action.time
+            : undefined
+    if (to === undefined) return once(action)
+    const events: WorldEvent[] = []
+    const calendar = host.calendar
+    const last = calendar.describe(to).day
+    for (let d = calendar.describe(state.time).day + 1; d <= last; d++) {
+      const dawn = calendar.at(d, 0)
+      if (dawn >= to) break
+      events.push(...once({ type: 'setTime', time: dawn }))
+      settle()
+    }
+    events.push(...once({ type: 'setTime', time: to }))
+    return events
+  }
+
+  function once(action: WorldAction): WorldEvent[] {
     const state = campaign.world
     if (!state) return []
     const { state: next, events } = world.apply(state, action)
@@ -205,8 +273,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     for (const e of events) {
       if (e.type !== 'CLOCK_FILLED') continue
       heard(e.clock)
-      // A clock the system declares does what it says when it fills.
-      if (e.clock.ref) clockFilled(e.clock)
+      clockFilled(e.clock)
     }
     return events
   }
@@ -214,8 +281,10 @@ function playWorld(start: WorldPlace, host: WorldHost) {
   /** A clock filled: the trip going on, if any, hears it on its next step. */
   function heard(clock: ProgressClock): void {
     if (!campaign.playing) return
-    const ids = [...new Set([clock.ref, factId(clock.name)])].filter((id): id is string => !!id)
-    campaign = { ...campaign, moments: [...(campaign.moments ?? []), { clock: clock.name, ids }] }
+    campaign = {
+      ...campaign,
+      moments: [...(campaign.moments ?? []), { clock: clock.name, ids: clockIds(clock) }],
+    }
   }
 
   function dueTurns(): number[] {
@@ -229,6 +298,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     )
   }
 
+  /** A world turn: each faction's, then the world's reactions to it (`world.turn`). */
   function turn(time = campaign.world?.time ?? 0): FactionLine[] {
     const system = host.factions
     if (!campaign.factions || !system) return []
@@ -256,37 +326,118 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       const found = n && campaign.world && findClock(campaign.world, ref)
       if (found) act({ type: 'tick', id: found.id, segments: n })
     }
+    for (const id of reactionsAt(rules, WORLD_TURN)) logged(id)
     return done.lines
   }
 
+  /**
+   * A clock filled: the world's reactions to it (by its declared id or its name as an id),
+   * a line on the timeline with what they said, and what becomes of a declared clock.
+   */
   function clockFilled(clock: ProgressClock): void {
-    if (!host.clocks || !clock.ref || chain >= MAX_CHAIN) return
-    chain++
+    const mark = campaign.world?.timeline.length ?? 0
+    const lines = reactionsAt(rules, ...clockIds(clock).map(clockFullMoment)).flatMap(react)
+    const then = clockThen(host.clocks, clock.ref)
+    if (!clock.ref && !lines.length) return
+    const said = host.words.clockFull({ lines, then })
+    if (said) logAt(mark, `${clock.name}: ${said}`, { clock: clock.id })
+    filled.push({ clock: clock.name, text: said })
+    const now = campaign.world && findClock(campaign.world, clock.ref ?? clock.id)
+    if (!now || now.id !== clock.id) return
+    if (then === 'reset') act({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
+    if (then === 'remove') act({ type: 'removeClock', id: clock.id })
+  }
+
+  /** A reaction played, its line on the timeline where it began. */
+  function logged(id: string): void {
+    const mark = campaign.world?.timeline.length ?? 0
+    const lines = react(id)
+    const said = lines.length ? host.words.reaction(lines) : ''
+    if (said) logAt(mark, said, { reaction: id })
+  }
+
+  /** A line of the timeline put before what came after `mark` (what its steps brought). */
+  function logAt(mark: number, text: string, data: Record<string, unknown>): void {
+    act({ type: 'log', text, data })
+    const state = campaign.world
+    if (!state) return
+    const timeline = [...state.timeline]
+    timeline.splice(mark, 0, timeline.pop()!)
+    campaign = { ...campaign, world: { ...state, timeline } }
+  }
+
+  /**
+   * One of the world's reactions, if its conditions hold: its steps in order, each seeing
+   * what the ones before changed. What its lines said (a reaction it does says its own).
+   */
+  function react(id: string): ReactionLine[] {
+    const reaction = rules?.reactions[id]
+    if (!reaction || !host.world || !campaign.world) return []
+    if (depth >= MAX_CHAIN) {
+      stop()
+      return []
+    }
+    if (!worldHolds(reactionFacts(), reaction)) return []
+    depth++
     try {
-      const shared = campaign.oracle
-      const done = clockFull(
-        {
-          system: host.clocks,
-          oracle: host.oracle,
-          random: host.random,
-          facts: facts(),
-          locale: host.locale,
-          fallback: host.fallback,
-        },
-        shared?.state ?? emptyState(),
-        clock.ref,
-      )
-      if (!done) return
-      const { full } = done
-      campaign = { ...campaign, oracle: { state: done.oracle, history: shared?.history ?? [] } }
-      const said = host.words.clockFull(full)
-      if (said) act({ type: 'log', text: `${clock.name}: ${said}`, data: { clock: clock.id } })
-      filled.push({ clock: clock.name, text: said })
-      effects(full.effects)
-      if (full.then === 'reset') act({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
-      if (full.then === 'remove') act({ type: 'removeClock', id: clock.id })
+      const lines: ReactionLine[] = []
+      for (const step of reaction.do) {
+        const shared = campaign.oracle
+        const done = worldStep(
+          {
+            system: host.world,
+            oracle: host.oracle,
+            random: host.random,
+            locale: host.locale,
+            fallback: host.fallback,
+          },
+          shared?.state ?? emptyState(),
+          step,
+          reactionFacts(),
+        )
+        if (!done) continue
+        campaign = { ...campaign, oracle: { state: done.oracle, history: shared?.history ?? [] } }
+        if (done.line) lines.push(done.line)
+        effects(done.effects)
+        if (done.do === WORLD_TURN) turn()
+        const other = reactionOf(done.do)
+        if (other) lines.push(...react(other))
+      }
+      return lines
     } finally {
-      chain--
+      depth--
+    }
+  }
+
+  /** Reactions brought each other too deep: said once, where it stopped. */
+  function stop(): void {
+    if (stopped) return
+    stopped = true
+    act({ type: 'log', text: host.words.reactionsStopped(MAX_CHAIN), data: { stopped: true } })
+  }
+
+  /**
+   * The world's moments written as conditions: each that turned true since last time comes
+   * once (its reaction played), in declared order, checked again until nothing new holds
+   * (ten rounds at most). What held is kept in the campaign; a campaign that kept nothing
+   * takes what holds now as seen, so nothing comes at once in a campaign under way.
+   */
+  function settle(): void {
+    const conditions = worldConditions(rules)
+    if (!conditions.length || !campaign.world) return
+    const holding = () => conditions.filter((c) => worldHolds(reactionFacts(), c))
+    if (!campaign.reactions) {
+      campaign = { ...campaign, reactions: holding().map((c) => c.key) }
+      return
+    }
+    for (let round = 0; ; round++) {
+      const held = new Set(campaign.reactions ?? [])
+      const now = holding()
+      const fresh = [...new Set(now.filter((c) => !held.has(c.key)).map((c) => c.reaction))]
+      campaign = { ...campaign, reactions: now.map((c) => c.key) }
+      if (!fresh.length) return
+      if (round >= MAX_CHAIN) return stop()
+      for (const id of fresh) logged(id)
     }
   }
 
@@ -337,9 +488,17 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     if (map) map = { ...map, territories: split.territories }
   }
 
-  const done = (events: WorldEvent[] = []): WorldDone => ({ campaign, map, events, filled })
+  /** What was done, once the world's conditions have been seen. */
+  const done = (events: WorldEvent[] = []): WorldDone => {
+    settle()
+    return { campaign, map, events, filled }
+  }
   return { act, turn, effects, done }
 }
+
+/** The ids rules may name a clock by: the one its system declares, its name as an id. */
+const clockIds = (clock: ProgressClock): string[] =>
+  [...new Set([clock.ref, factId(clock.name)])].filter((id): id is string => !!id)
 
 /** Applies an action to the world clock, with all it brings along. */
 export function worldAct(place: WorldPlace, action: WorldAction, host: WorldHost): WorldDone {
