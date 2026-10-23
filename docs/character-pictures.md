@@ -50,10 +50,27 @@ interface CharacterState {
 
 No image editing (crop, filters) beyond the automatic shrink; no galleries or several pictures per character; no pictures in packs (packs stay text data, and a bestiary's art would come with its licence questions); no lore: a picture is a face to recognise, the story stays in the notes app (principle 9).
 
-## 7. To decide with the user
+## 7. Decided with the user (2026-10-23)
 
-a. **Size**: 512 px and WebP (≈ 30–60 KB each) — enough for a card and a token? Or 256 px to keep backups small.
-b. **The party**: a picture for the party itself (a banner for the Company), or only characters? Proposal: only characters at first.
-c. **Notes-app images** as an alternative to uploading: wanted now, later, or never? Proposal: later.
-d. **Tokens**: portrait instead of the icon when linked, opt-in per token (proposal), or always.
-e. **Order**: where it goes among the Characters engine's next steps (bestiary, inventory).
+- a. **512 px**, WebP.
+- b. **The party gets a picture too** (a banner for the Company), on its own sheet's card.
+- c. **Images from the notes app** wait until the notes integration is taken up; nice to have if SilverBullet and Obsidian can really serve them, not a priority.
+- d. **Tokens opt in**, one by one (**Show its picture**).
+- e. **Not a priority**: the work in course comes first.
+
+## 8. An image library? (asked 2026-10-23: "ve pensando en hacer una biblioteca de imágenes… si te tiene sentido, que igual no aporta nada")
+
+Today images are uploaded in three places, each its own way: a map's imported icons and terrain glyphs (`MapAsset`, embedded in that map only), and, with this design, portraits. A library would be **one store of the user's images** (`images` in IndexedDB: id, name, tags, the shrunk bytes, what kind of use it was made for), with **one picker** shared by every app (ui-kit: upload, search by name or tag, pick), and the places that use an image naming it by id.
+
+What it would bring:
+
+- **Reuse**: an icon imported once is offered on every map; a creature's picture serves its token on any map and, later, the bestiary; a faction's emblem the same.
+- **One way to manage them**: see them all, rename, tag, delete one nobody uses (with **Used by**, as Systems does for names), instead of images scattered inside maps.
+- **Backups once**: one store backed up, not a copy inside each map.
+
+What it costs or changes:
+
+- Maps still **embed** the images they use when saved or exported (a map file must open anywhere); opening one adds its images to the library (same bytes, same id: kept once). So nothing changes for files, only for the browser.
+- A small **migration** on the way in: a map's `assets` are copied into the library when the map opens (the map keeps them too, for its file).
+
+**Proposal**: yes, it makes sense, and portraits are the moment to do it: the `pictures` store of section 2 becomes this `images` library from the start (same work, more general), the picker is the one place to upload, and the Hexmapper's icons and glyphs move to it next. A screen to manage the library (in the Characters app? a small app of its own? in Preferences?) is the open question; the picker alone is enough to start.

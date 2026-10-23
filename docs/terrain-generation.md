@@ -65,11 +65,12 @@ The result is only a terrain. What is **in** the hex (a POI, tags, a name) stays
 
 Systems' **Land** page (how a model works, a walkthrough with a picture of a patch growing from two painted hexes, common mistakes: a row that never comes back to itself makes a patchwork, a terrain the rules don't know), Kinds (`kind: land`), Connecting (the discovery binding), the Hexmapper's terrain page (**Generate**), both packs' pages; en and es. Manual examples loaded by the test, a walkthrough test that generates a seeded patch.
 
-## 8. To decide with the user
+## 8. Decided with the user (2026-10-23)
 
-a. **The name**: `kind: land` (short, as `kind: weather`), or `kind: terrain-model`. Proposal: `land`.
-b. **The hex left counts more?** Moving across, the land you come from could weigh double (`from: 2`), so a road through forest stays in forest. Proposal: yes, as a model's optional number, default 1 (all neighbours alike).
-c. **Regions or conditions per row** (mountains only in the north): rows with `when:` (a condition on the hex: `hex.region`, `around.water`…) would make it as expressive as tables. Proposal: not in the first version; a table before the model covers it (d).
-d. **Tables and models together**: let a table entry hand the decision to a model (`land: land.default` on an entry, like `table:` cascades), so "water first, then the model" is one binding. Proposal: yes, small and general.
-e. **Generate in the Hexmapper**: a tool of its own, or a command on the terrain tool (brush a zone, then **Generate**). Proposal: a command on the selection and on a region's panel (**Generate its empty hexes**), no new tool.
-f. **Order of priority**: it stays "no hurry"; this design waits for the user's go and a place in the order.
+- **It adds a way, it never replaces one.** Tables that decide terrain (`discover.terrain: { resolve: table.… }`, reading `around`) keep working exactly as today; a system chooses a table, a model, or both (d).
+- a. **`kind: land`**.
+- b. **The weight of the hex left is optional and configurable**: a model may say how much each neighbour counts (`weights: { from: 2 }`, and room for others later); absent, every known neighbour counts the same.
+- c. **No conditions per row while (d) covers it** ("si lo cubre d no, si aporta más sí"): a table that decides first and hands over to one model or another (`land: land.north` on an entry whose `when` reads `hex.region`) already gives regions their own land. Rows with `when:` come only if a case turns up that d can't say.
+- d. **Yes**: a table entry can hand the decision to a model (`land: land.<id>`, like `table:` cascades).
+- e. **A command**, not a tool: on a selection and in a region's panel (**Generate its empty hexes**).
+- f. **No hurry**: it waits for a place in the order.
