@@ -264,7 +264,7 @@ Cuándo se puede pulsar el botón:
 
 Un botón que no se puede pulsar sigue visible, desactivado, diciendo por qué, así los botones no cambian de sitio. `hideWhenUnavailable: true` lo oculta en cambio mientras no se puede hacer: para acciones que solo tienen sentido de vez en cuando, como el rito de las Marcas Grises (en un santuario con la Luna Ascua llena), convencer a los mercenarios (solo mientras se niegan) o la marcha nocturna (solo de noche).
 
-**Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: time.part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `trip.hex-enter` (al entrar en cada hex), `time.day-end` (al acabar cada día, se acampe o no), otra acción (justo al empezar esa acción: `on: actions.camp`) o un momento del mundo (más abajo: `on: world.clocks.<id>.full`), o varios en una lista (`on: [time.part.morning, trip.hex-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `trip.moment`, y en `time.day-end` la acción en curso como `trip.doing` (`trip.doing: camp`).
+**Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: time.part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `trip.hex-enter` (al entrar en cada hex), `time.day-end` (al acabar cada día, se acampe o no), otra acción (justo al empezar esa acción: `on: actions.camp`), el final de una acción (cuando acaban sus pasos: `on: actions.forage.done`), una comprobación (justo después de resolverse, tras **Continuar** si pausó: `on: checks.WEATHER_CHECK_REQUIRED`; _Un alba de tormenta_ de las Marcas Grises lee el clima recién tirado, y las siguientes comprobaciones de esa alba ven lo que cambió) o un momento del mundo (más abajo: `on: world.clocks.<id>.full`), o varios en una lista (`on: [time.part.morning, trip.hex-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `trip.moment`, y en `time.day-end` la acción en curso como `trip.doing` (`trip.doing: camp`).
 
 ```yaml
 actions:
@@ -343,8 +343,10 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 
 - una hora o una parte del día del calendario: `at: '06:00'`, `at: time.part.morning`, al llegar, marchando, esperando o dormidos en el campamento (el clima, perderse cada mañana); un viaje nuevo tiene los momentos de su primer minuto al marchar o esperar por primera vez;
 - `trip.hex-enter`: al entrar en cada hex (encuentros, un peaje, un hito);
-- `time.day-end`: al acabar cada día, después de las acciones `time.day-end` del sistema (el hambre). Ven `below` / `above`, lo que llegó a un límite ese día, y `doing`, la acción en curso cuando acabó;
-- una acción (`actions.<id>`): con esa acción, antes de sus pasos (`at: actions.camp`, `at: actions.forage`);
+- `time.day-end`: al acabar cada día, después de las acciones `time.day-end` del sistema (el hambre). Ven `trip.below` / `trip.above`, lo que llegó a un límite ese día, y `trip.doing`, la acción en curso cuando acabó;
+- una acción (`actions.<id>`): con esa acción, antes de sus pasos, que la esperan (`at: actions.camp`, `at: actions.rest`);
+- el final de una acción (`actions.<id>.done`): cuando acaban sus pasos (buscar comida en las Marcas Grises, `at: actions.forage.done`, tras sus tres horas);
+- otra comprobación (`checks.<evento>`): justo después de resolverse (`at: checks.WEATHER_CHECK_REQUIRED`);
 - varios, en una lista: las Marcas Grises tiran encuentros `at: [trip.hex-enter, actions.rest]`, y su condición distingue los dos con `trip.moment` (la tabla también lo ve);
 - un momento del mundo (más abajo): `at: world.clocks.<id>.full`;
 - ninguno: solo la tira el `roll:` de un paso.

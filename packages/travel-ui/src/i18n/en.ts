@@ -242,6 +242,8 @@ export const en = {
       hexEnter: 'entering a hex',
       dayEnd: 'the day’s end',
       action: 'after “{action}”',
+      done: 'once “{action}” is done',
+      check: 'after “{check}”',
     },
     route: 'Route to {hex} · hexes: {hexes}',
   },

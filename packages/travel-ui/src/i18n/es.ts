@@ -236,6 +236,8 @@ export const es: Messages<typeof en> = {
       hexEnter: 'al entrar en un hex',
       dayEnd: 'el final del día',
       action: 'tras «{action}»',
+      done: 'al acabar «{action}»',
+      check: 'tras «{check}»',
     },
     route: 'Ruta hasta {hex} · hexes: {hexes}',
   },

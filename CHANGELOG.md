@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Formats
 
 - **Pack format 7**: an action's `roll:` step now holds the rest of the action until it's resolved (and for **Continue**, if it pauses), so the steps after it see what it rolled; before, it was resolved once the action ended. Core, the Grey Marches and Kal-Arath moved to it (they had no step after a roll). An action the system takes by itself (`on:`) still resolves its rolls once it ends.
+- **New moments** for a check's `at:` or an action's `on:`: `actions.<id>.done`, once an action's steps are done, and `checks.<event>`, right after a check is resolved (before the next checks of its moment, which see what its actions changed). Actions the system takes entering a hex now see what that moment's checks see: the hex left (`from.*`) and the stretch walked. Loops through checks and actions are refused when the pack loads.
 
 ### Fixes
 
@@ -33,6 +34,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- The Grey Marches: _A stormy dawn_ is an action right after the weather's check, and _Out of the Greywood_ an action entering a hex; getting lost isn't rolled on a stormy dawn; foraging is rolled once its three hours are done, and fishing by a step after its two hours, which says so when nothing bit.
 - The Grey Marches: **an omen at each dawn on the road**: a new check, _Omens_, draws a card of _Omens of the road_ every morning until the party reaches its destination; drawn cards stay out until the deck runs out, kept in the campaign's Oracle with the draws made by hand.
 - Core: **weather for the Generic rules**: _The plain sky_, a weather model for any setting (clear, cloudy, rain, storm, and snow in winter, today's following yesterday's), rolled by a **Weather** check each morning; rain slows the march to ×0.75, a storm or snow to ×0.5. Campaigns with the Generic rules roll it day by day on their world clock, and a new system in Systems starts with the check bound to it.
 

@@ -35,6 +35,7 @@
   import {
     CHECK_MOMENTS,
     DAY_END,
+    doneOf,
     HEX_ENTER,
     isClock,
     isPartRef,
@@ -89,13 +90,28 @@
               ? t('checks.atClock', { clock: m })
               : isPartRef(m)
                 ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
-                : refId('actions', m)
-                  ? t('checks.atAction', { action: actionLabel(refId('actions', m)!) })
-                  : clockOfMoment(system, m, getLocale())
-                    ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
-                    : m,
+                : /^actions\.[^.]+\.done$/.test(m)
+                  ? t('checks.atDone', { action: actionLabel(String(m).slice(8, -5)) })
+                  : refId('checks', m)
+                    ? t('checks.atCheck', { check: checkLabel(refId('checks', m)!) })
+                    : refId('actions', m)
+                      ? t('checks.atAction', { action: actionLabel(refId('actions', m)!) })
+                      : clockOfMoment(system, m, getLocale())
+                        ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
+                        : m,
       )
       .join(' · ')
+  /** Every check event of the rules, once each. */
+  const checkEvents = $derived([
+    ...new Set(
+      ((doc.rules.checks ?? []) as Raw[]).map((c) => String(c.event ?? '')).filter(Boolean),
+    ),
+  ])
+  /** A check by its name in the UI language (its event if it has none). */
+  const checkLabel = (event: string) => {
+    const check = ((doc.rules.checks ?? []) as Raw[]).find((c) => c.event === event)
+    return (check && checkText(check, 'name')) || event
+  }
   /** A check's name or description in the UI language (its translation file if it isn't the pack's). */
   const checkText = (check: Raw, key: 'name' | 'description') =>
     doc.text('travel-rules', check[key], ['checks', String(check.event), key])
@@ -329,6 +345,8 @@
                       '06:00',
                       ...dayPartRefs(system),
                       ...ownActions.map((a) => ref('actions', a)),
+                      ...ownActions.map(doneOf),
+                      ...checkEvents.filter((e) => e !== check.event).map((e) => ref('checks', e)),
                       ...clockMoments(system),
                     ]}
                     removeLabel={t('forms.removeItem')}

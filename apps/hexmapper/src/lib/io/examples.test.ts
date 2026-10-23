@@ -241,8 +241,10 @@ describe('example maps', () => {
       ferry: { condition: 'when' }, // no ferry here
       ashore: { condition: 'when' }, // not on a boat
       delve: { condition: 'when' }, // no ruin here
+      'stormy-dawn': { condition: 'when' }, // no storm
+      'out-of-the-wood': { condition: 'when' }, // not leaving the Greywood
     })
-    expect(Object.keys(unavailable)).toHaveLength(14)
+    expect(Object.keys(unavailable)).toHaveLength(16)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

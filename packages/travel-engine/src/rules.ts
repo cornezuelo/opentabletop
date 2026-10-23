@@ -37,8 +37,9 @@ export const isHostMoment = (value: unknown): value is string =>
 
 /**
  * Moments of the trip for checks and triggered actions (`at:` / `on:`), besides a clock
- * (`'06:00'`), a part of the calendar's day (`time.part.morning`) and the system's actions
- * (`at: actions.camp`).
+ * (`'06:00'`), a part of the calendar's day (`time.part.morning`), the system's actions as
+ * they begin (`actions.camp`) and once their steps are done (`actions.camp.done`), and its
+ * checks once resolved (`checks.WEATHER`).
  */
 export const CHECK_MOMENTS = [HEX_ENTER, DAY_END] as const
 
@@ -65,6 +66,9 @@ export const isClock = (value: unknown): value is string =>
   typeof value === 'string' && CLOCK.test(value)
 /** One moment (`trip.hex-enter`, `actions.camp`…) or several (`[time.part.morning, trip.hex-enter]`). */
 const moments = z.union([z.string().min(1), z.array(z.string().min(1)).min(1)])
+
+/** The moment an action's steps are done: `actions.camp.done`. */
+export const doneOf = (action: string): string => `${ref('actions', action)}.done`
 
 /** The moments an action's `on:` or a check's `at:` names, as a list (none: empty). */
 export function momentsOf(value: string | string[] | undefined): string[] {
@@ -421,7 +425,8 @@ export const travelRulesSchema = z
     const all = availableActions(rules as TravelRules).all
     const actionIds = Object.keys(all)
     const taken = actionIds.map((a) => ref('actions', a))
-    const moments = [...CHECK_MOMENTS, ...taken]
+    const checked = [...new Set((rules.checks ?? []).map((c) => ref('checks', c.event)))]
+    const moments = [...CHECK_MOMENTS, ...taken, ...actionIds.map(doneOf), ...checked]
     /** The full name of what a short one may have meant, said with the problem. */
     const meant = (value: string, among: string[]) => {
       if (/^(trip|time|actions|modes|checks|params|travel)\./.test(value)) return ''
@@ -467,7 +472,7 @@ export const travelRulesSchema = z
           ctx.addIssue({
             code: 'custom',
             path: Array.isArray(value) ? [...path, j] : path,
-            message: `expected ${moments.join(', ')}, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)${meant(moment, moments)}`,
+            message: `expected ${[...CHECK_MOMENTS, ...taken, ...checked].join(', ')}, the end of an action (${taken[0] ?? 'actions.<id>'}.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)${meant(moment, moments)}`,
           })
       })
     rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))
@@ -575,12 +580,15 @@ export const travelRulesSchema = z
     else if (onward)
       badWith(refId('actions', onward.do)!, onward.with, ['travel', 'onward', 'with'])
     const loop = actionLoop(rules as TravelRules)
-    if (loop)
+    if (loop) {
+      const first = refId('actions', loop[0])
+      const index = (rules.checks ?? []).findIndex((c) => ref('checks', c.event) === loop[0])
       ctx.addIssue({
         code: 'custom',
-        path: ['actions', loop[0]],
-        message: `actions take each other in a loop: ${loop.join(' → ')}`,
+        path: first ? ['actions', first] : ['checks', index],
+        message: `actions and checks bring each other in a loop: ${loop.join(' → ')}`,
       })
+    }
   })
 
 export type ActionDefinition = z.infer<typeof action>
@@ -701,34 +709,50 @@ export function resourceBounds(rules: TravelRules): Record<string, Bounds> {
 }
 
 /**
- * A loop of actions taking each other (`do:` steps, or `on:` another action), as the ids
- * along it; undefined when there is none.
+ * A loop of actions and checks bringing each other (an action's `do:` or `roll:` steps, an
+ * `on:` or `at:` naming an action or its end, an `on:` or `at:` naming a check), as the full
+ * names along it (`actions.camp`, `checks.WEATHER`); undefined when there is none.
  */
 export function actionLoop(rules: TravelRules): string[] | undefined {
   const all = availableActions(rules).all
-  const next = (id: string): string[] => [
-    ...refIds(
-      'actions',
-      (all[id]?.do ?? []).flatMap((s) => s.do ?? []),
-    ),
+  const checks = (rules.checks ?? []) as { event: string; at?: string | string[] }[]
+  /** What a moment brings: the actions taken and the checks rolled at it. */
+  const at = (moments: string[]): string[] => [
     ...Object.entries(all).flatMap(([other, def]) =>
-      momentsOf(def.on).includes(ref('actions', id)) ? [other] : [],
+      momentsOf(def.on).some((m) => moments.includes(m)) ? [ref('actions', other)] : [],
+    ),
+    ...checks.flatMap((c) =>
+      momentsOf(c.at).some((m) => moments.includes(m)) ? [ref('checks', c.event)] : [],
     ),
   ]
+  const next = (node: string): string[] => {
+    const check = refId('checks', node)
+    if (check !== undefined) return at([node])
+    const id = refId('actions', node)!
+    const steps = all[id]?.do ?? []
+    return [
+      ...steps.flatMap((s) => (s.do !== undefined ? [s.do] : [])),
+      ...steps.flatMap((s) => (refId('checks', s.roll) !== undefined ? [s.roll!] : [])),
+      ...at([node, doneOf(id)]),
+    ]
+  }
   const state = new Map<string, 'open' | 'done'>()
-  const visit = (id: string, path: string[]): string[] | undefined => {
-    if (state.get(id) === 'done') return undefined
-    if (state.get(id) === 'open') return [...path.slice(path.indexOf(id)), id]
-    state.set(id, 'open')
-    for (const n of next(id)) {
-      const loop = visit(n, [...path, id])
+  const visit = (node: string, path: string[]): string[] | undefined => {
+    if (state.get(node) === 'done') return undefined
+    if (state.get(node) === 'open') return [...path.slice(path.indexOf(node)), node]
+    state.set(node, 'open')
+    for (const n of next(node)) {
+      const loop = visit(n, [...path, node])
       if (loop) return loop
     }
-    state.set(id, 'done')
+    state.set(node, 'done')
     return undefined
   }
-  for (const id of Object.keys(all)) {
-    const loop = visit(id, [])
+  for (const node of [
+    ...Object.keys(all).map((a) => ref('actions', a)),
+    ...checks.map((c) => ref('checks', c.event)),
+  ]) {
+    const loop = visit(node, [])
     if (loop) return loop
   }
   return undefined

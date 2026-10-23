@@ -15,6 +15,9 @@ travel-rules/default:
     refusing:
       name: Los mercenarios se niegan a marchar
       description: Hasta que alguien los convenza (Hablar con los mercenarios).
+    skunked:
+      name: No picó nada
+      description: Un día de pesca para nada.
   actions:
     march:
       name: Marchar
@@ -66,6 +69,9 @@ travel-rules/default:
     fish:
       name: Pescar
       description: 'Junto a un lago, el mar o en la costa, de día: dos horas con el sedal, una vez al día. Tira un d6: si saca vuestra Supervivencia o menos, pescado para dos días; si no, de 1 a 3, para uno; si no, no pica nada.'
+      do:
+        skunked:
+          say: 'Ni una picada en todo el día: esta noche la Compañía come de sus fardos.'
     market:
       name: Día de mercado
       description: 'En un pueblo con mercado, el día de Mercado (o el día de mercado del reloj del mundo): dos horas de trueque. Comida +3 y forraje +2, una vez al día.'
@@ -101,19 +107,28 @@ travel-rules/default:
           say: 'A lo lejos, algo enorme se agita, y los pájaros del Bosque Gris enmudecen.'
         awake:
           pause: 'La Sierpe está despierta, y este es su bosque.'
+    stormy-dawn:
+      name: Un alba de tormenta
+      description: Un alba de tormenta agota a la Compañía antes de ponerse en marcha. Fatiga +1.
+      do:
+        worn:
+          say: 'La tormenta agota a la Compañía antes de ponerse en marcha.'
+    out-of-the-wood:
+      name: Fuera del Bosque Gris
+      description: Al salir del Bosque Gris, los árboles se abren y se levantan los ánimos. Moral +1.
+      do:
+        thin:
+          say: 'Los árboles se abren, y se levantan los ánimos.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima
       description: Se tira cada alba, según la estación.
-    STORMY_DAWN:
-      name: Un alba de tormenta
-      description: Un alba de tormenta agota a la Compañía antes de ponerse en marcha. Fatiga +1.
     OMENS:
       name: Presagios
       description: Cada alba en el camino, una carta de los Presagios del camino.
     NAVIGATION_CHECK_REQUIRED:
       name: Perderse
-      description: Cada alba fuera de caminos y ríos (no en barca). La Orientación ayuda; la niebla lo complica.
+      description: Cada alba fuera de caminos y ríos (no en barca), salvo si una tormenta retiene a la Compañía. La Orientación ayuda; la niebla lo complica.
     ENCOUNTER_CHECK_REQUIRED:
       name: Encuentro
       description: Al entrar de día en un hex cuyo peligro supera vuestro Sigilo (el Bosque Gris, las Colinas Huecas), salvo si llegas por camino; o al descansar donde el peligro es 3 o más.
@@ -143,13 +158,13 @@ travel-rules/default:
       description: Un día que acaba sin comida, y una noche a la intemperie. La moral decide cómo va.
     FORAGE_CHECK_REQUIRED:
       name: Buscar comida
-      description: Se tira al buscar comida en bosques, campos, brezales o marismas.
+      description: Se tira tras tres horas buscando comida en bosques, campos, brezales o marismas.
     HUNGRY_DAY:
       name: Sin comida suficiente
       description: Un día sin comida suficiente cansa al grupo, acampe o no.
     FISHING_CHECK_REQUIRED:
       name: Pesca
-      description: Se tira al pescar.
+      description: Se tira tras dos horas pescando.
     LONG_DAY:
       name: Un día largo
       description: Un día en que se marcha más de sus 8 horas (una marcha nocturna tras un día completo) cuesta 1 de fatiga al acabar.
@@ -165,9 +180,6 @@ travel-rules/default:
     IN_CIRCLES:
       name: Dando vueltas
       description: Entrar por tercera vez en un mismo hex durante un viaje. Moral −1.
-    OUT_OF_THE_WOOD:
-      name: Fuera del Bosque Gris
-      description: Al salir del Bosque Gris, los árboles se abren y se levantan los ánimos. Moral +1.
   modes:
     foot:
       name: A pie

@@ -736,7 +736,7 @@ describe('the system’s own actions', () => {
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'actions.fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
     ])
   })
 
@@ -1332,7 +1332,7 @@ describe('actions the system triggers, and bounded values', () => {
     }
     const bad = { event: 'BAD', at: ['06:00', 'actions.nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
@@ -1390,15 +1390,15 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
-      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
       'actions.a.do.1.roll: expected checks.HUNGER, checks.OMEN, checks.AMBUSH, table.<id>',
       'actions.a.do.2.set.nope: expected lost, weary',
       // (camp is gone too, and the halt named it)
       'travel.halt.do: expected actions.a, actions.b, actions.c, actions.d, actions.e',
       // (and march, the way on)
       'travel.onward.do: expected actions.a, actions.b, actions.c, actions.d, actions.e',
-      'actions.d: actions take each other in a loop: d → e → d',
+      'actions.d: actions and checks bring each other in a loop: actions.d → actions.e → actions.d',
     ])
   })
 
@@ -2792,7 +2792,18 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
     expect(stopped.state.waiting).toMatchObject({ action: 'toll' })
     expect(stopped.events.at(-1)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'held' })
     expect(stopped.state.moving).toEqual({
-      frames: [{ action: 'toll', next: 1, facts: { moment: 'trip.hex-enter' } }],
+      frames: [
+        {
+          action: 'toll',
+          next: 1,
+          // It sees what the moment's checks see: the hex left and the stretch walked.
+          facts: {
+            moment: 'trip.hex-enter',
+            from: expect.objectContaining({ id: '0,1' }),
+            edges: [],
+          },
+        },
+      ],
       held: true,
       then: { frames: [{ action: 'march', params: { until: 3 }, next: 1 }], left: 1 },
     })
@@ -2894,5 +2905,116 @@ describe('rolling what the host rolls, and moments of the world', () => {
       expect.stringMatching(/^actions\.x\.on: expected .*world\.clocks\.<id>\.full/),
       expect.stringMatching(/^actions\.x\.do\.0\.roll: expected checks\.OMEN, table\.<id>/),
     ])
+  })
+})
+
+describe('order the rules say: after a check, as an action ends', () => {
+  const { rules: ordered, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { food: { min: 0 } },
+    values: { stormy: {}, found: {} },
+    checks: [
+      { event: 'WEATHER', at: '07:00' },
+      // After the weather, and after what the weather's action changed.
+      { event: 'GLOOM', at: '07:00', when: { 'today.stormy': true } },
+      // Rolled once foraging's three hours are done, not as it begins.
+      { event: 'FOUND', at: 'actions.forage.done' },
+    ],
+    actions: {
+      ...DAY_ACTIONS,
+      // Right after the weather's check is resolved: it sees today's weather.
+      dread: {
+        on: 'checks.WEATHER',
+        when: { 'trip.weather': 'storm' },
+        do: [{ set: { stormy: true } }],
+      },
+      forage: { do: [{ time: 180 }] },
+      // Takes foraging, and waits for the check of its end, as for its own.
+      gather: {
+        do: [
+          { do: 'actions.forage' },
+          { when: { 'today.found': true }, effects: { 'party.resources.food': 2 } },
+        ],
+      },
+      // Entering a hex, it sees the one left, as that moment's checks do.
+      tally: {
+        on: 'trip.hex-enter',
+        when: { 'from.terrain': 'steppe' },
+        do: [{ effects: { 'party.resources.food': -1 } }],
+      },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: ordered! })
+  const begin = (at = '06:30') =>
+    initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      time: defaultCalendar.at(1, at),
+      resources: { food: 3 },
+    })
+  /** Rests to 07:30 and resolves the weather's check as `weather`. */
+  const dawn = (weather: string) => {
+    const rested = eng.apply(begin(), { type: 'action', id: 'rest' }).state
+    const [check] = rested.pendingChecks
+    expect(check.event).toBe('WEATHER')
+    return eng.apply(rested, { type: 'resolveCheck', id: check.id, outcome: { weather } })
+  }
+
+  it('are valid', () => {
+    expect(errors).toEqual([])
+  })
+
+  it('an action on a check comes right after it, and the checks after it see what it did', () => {
+    const storm = dawn('storm')
+    expect(storm.state.today?.stormy).toBe(true)
+    expect(storm.state.pendingChecks.map((c) => c.event)).toEqual(['GLOOM'])
+    const clear = dawn('clear')
+    expect(clear.state.today?.stormy).toBeUndefined()
+    expect(clear.state.pendingChecks).toEqual([])
+  })
+
+  it('a check at an action’s end comes once its steps are done', () => {
+    const { state, events } = eng.apply(begin('08:00'), { type: 'action', id: 'forage' })
+    const required = events.find((e) => e.type === 'CHECK_REQUIRED')
+    expect(required).toMatchObject({
+      check: { event: 'FOUND' },
+      time: defaultCalendar.at(1, '11:00'),
+    })
+    expect(state.pendingChecks[0].context.moment).toBe('actions.forage.done')
+  })
+
+  it('an action that takes another waits for the checks of its end', () => {
+    const taken = eng.apply(begin('08:00'), { type: 'action', id: 'gather' }).state
+    expect(taken.moving).toEqual({ frames: [{ action: 'gather', next: 1 }], held: true })
+    const found = eng.apply(taken, {
+      type: 'resolveCheck',
+      id: taken.pendingChecks[0].id,
+      outcome: { values: { found: true } },
+    }).state
+    expect(eng.apply(found, { type: 'resume' }).state.resources.food).toBe(5)
+  })
+
+  it('an action a moment takes sees what its checks see: the hex left', () => {
+    const planned = eng.apply(begin('08:00'), { type: 'setDestination', hex: '2,0' }).state
+    const { state: moved, events } = eng.apply(planned, { type: 'travel', until: 'hex' })
+    expect(events.some((e) => e.type === 'HEX_ENTERED')).toBe(true)
+    expect(moved.resources.food).toBe(2)
+  })
+
+  it('reject loops through checks and actions’ ends', () => {
+    const looped = parseTravelRules({
+      ...ordered!,
+      checks: [...ordered!.checks!, { event: 'AGAIN', at: 'actions.forage.done' }],
+      actions: {
+        ...ordered!.actions,
+        redo: { on: 'checks.AGAIN', do: [{ do: 'actions.forage' }] },
+      },
+    })
+    expect(looped.errors.join('\n')).toMatch(
+      /in a loop: (checks\.AGAIN → actions\.redo → actions\.forage → checks\.AGAIN|actions\.forage → checks\.AGAIN → actions\.redo → actions\.forage)/,
+    )
   })
 })

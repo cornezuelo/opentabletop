@@ -14,6 +14,7 @@ import {
   checkInfo,
   DAY_END,
   HEX_ENTER,
+  doneOf,
   momentsOf,
   ref,
   type TravelRules,
@@ -265,8 +266,9 @@ export function actionNothingOf(
   id: string,
   locale: string,
 ): string | undefined {
-  const at = ref('actions', id)
-  if (!(rules.checks ?? []).some((c) => momentsOf(c.at).includes(at))) return ''
+  // Its checks: as it begins, or once its steps are done.
+  const at = [ref('actions', id), doneOf(id)]
+  if (!(rules.checks ?? []).some((c) => momentsOf(c.at).some((m) => at.includes(m)))) return ''
   return localize(availableActions(rules).all[id]?.nothing, locale, 'en')
 }
 
@@ -549,19 +551,26 @@ export function entryText(e: JournalEntry, context: JournalContext) {
 
 /**
  * A moment of the day, in words: a part of the calendar's day by its name, an action
- * taken, entering a hex, the day's end, or a clock as it's written.
+ * taken or done, a check resolved, entering a hex, the day's end, or a clock as it's written.
  */
 export function momentText(
   at: string,
-  { t, actionName, partName }: Pick<JournalContext, 't' | 'actionName' | 'partName'>,
+  {
+    t,
+    actionName,
+    partName,
+    checkName,
+  }: Pick<JournalContext, 't' | 'actionName' | 'partName' | 'checkName'>,
 ): string {
   if (at === HEX_ENTER) return t('journal.moments.hexEnter')
   if (at === DAY_END) return t('journal.moments.dayEnd')
-  const action = /^actions\.(.+)$/.exec(at)?.[1]
-  if (action)
-    return t('journal.moments.action', {
-      action: actionName?.(action) ?? idText(t, `actions.${action}`, action),
-    })
+  const named = (action: string) => actionName?.(action) ?? idText(t, `actions.${action}`, action)
+  const done = /^actions\.([^.]+)\.done$/.exec(at)?.[1]
+  if (done) return t('journal.moments.done', { action: named(done) })
+  const action = /^actions\.([^.]+)$/.exec(at)?.[1]
+  if (action) return t('journal.moments.action', { action: named(action) })
+  const check = /^checks\.(.+)$/.exec(at)?.[1]
+  if (check) return t('journal.moments.check', { check: checkName?.(check) ?? check })
   return partName?.(at) ?? at
 }
 

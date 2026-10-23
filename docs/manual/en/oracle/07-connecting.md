@@ -264,7 +264,7 @@ When the button can be pressed:
 
 A button that can't be pressed stays visible, disabled, saying why, so the buttons don't move around. `hideWhenUnavailable: true` hides it instead while it can't be taken: for actions that only make sense now and then, like the Grey Marches' rite (at a shrine under the full Ember Moon), talking round the hirelings (only while they refuse) or the night march (only at night).
 
-**Actions the system takes by itself.** With `on:` an action isn't a button: the system takes it at that moment, when its `when` / `unless` hold. The moments are a clock (`on: '06:00'`, as it strikes) or a part of the calendar's day (`on: time.part.morning`, as it begins), marching, waiting or asleep in camp, `trip.hex-enter` (entering each hex), `time.day-end` (as each day ends, camping or not), another action (right after that action starts: `on: actions.camp`) or a moment of the world (below: `on: world.clocks.<id>.full`), or several as a list (`on: [time.part.morning, trip.hex-enter]`). It comes before that moment's checks, so they see what it changed; its conditions see which moment it is as `trip.moment`, and at `time.day-end` the action under way as `trip.doing` (`trip.doing: camp`).
+**Actions the system takes by itself.** With `on:` an action isn't a button: the system takes it at that moment, when its `when` / `unless` hold. The moments are a clock (`on: '06:00'`, as it strikes) or a part of the calendar's day (`on: time.part.morning`, as it begins), marching, waiting or asleep in camp, `trip.hex-enter` (entering each hex), `time.day-end` (as each day ends, camping or not), another action (right after that action starts: `on: actions.camp`), an action's end (once its steps are done: `on: actions.forage.done`), a check (right after it's resolved, after **Continue** if it paused: `on: checks.WEATHER_CHECK_REQUIRED`; the Grey Marches' _A stormy dawn_ reads the weather just rolled, and the next checks of that dawn see what it changed) or a moment of the world (below: `on: world.clocks.<id>.full`), or several as a list (`on: [time.part.morning, trip.hex-enter]`). It comes before that moment's checks, so they see what it changed; its conditions see which moment it is as `trip.moment`, and at `time.day-end` the action under way as `trip.doing` (`trip.doing: camp`).
 
 ```yaml
 actions:
@@ -343,8 +343,10 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 
 - a clock or a part of the calendar's day: `at: '06:00'`, `at: time.part.morning`, as it comes, marching, waiting or asleep in camp (the weather, getting lost each morning); a new trip has the moments of its first minute as it first marches or waits;
 - `trip.hex-enter`: entering each hex (encounters, a toll, a landmark);
-- `time.day-end`: as each day ends, after the system's `time.day-end` actions (hunger). They see `below` / `above`, what hit a bound that day, and `doing`, the action under way when it ended;
-- an action (`actions.<id>`): with that action, before its steps (`at: actions.camp`, `at: actions.forage`);
+- `time.day-end`: as each day ends, after the system's `time.day-end` actions (hunger). They see `trip.below` / `trip.above`, what hit a bound that day, and `trip.doing`, the action under way when it ended;
+- an action (`actions.<id>`): with that action, before its steps, which wait for it (`at: actions.camp`, `at: actions.rest`);
+- an action's end (`actions.<id>.done`): once its steps are done (the Grey Marches' foraging, `at: actions.forage.done`, after its three hours);
+- another check (`checks.<event>`): right after it's resolved (`at: checks.WEATHER_CHECK_REQUIRED`);
 - several, as a list: the Grey Marches roll encounters `at: [trip.hex-enter, actions.rest]`, and their condition tells the two apart with `trip.moment` (the table sees it too);
 - a moment of the world (below): `at: world.clocks.<id>.full`;
 - none: only a step's `roll:` rolls it.

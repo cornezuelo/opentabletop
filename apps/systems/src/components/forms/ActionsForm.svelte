@@ -4,6 +4,7 @@
     actionSteps,
     CHECK_MOMENTS,
     DAY_END,
+    doneOf,
     HEX_ENTER,
     ref,
     refId,
@@ -66,11 +67,15 @@
               ? t('checks.atClock', { clock: m })
               : isPartRef(m)
                 ? t('checks.atPart', { part: partLabel(system, m, getLocale()) })
-                : refId('actions', m)
-                  ? t('actions.onAfter', { action: label(refId('actions', m)!) })
-                  : clockOfMoment(system, m, getLocale())
-                    ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
-                    : m,
+                : /^actions\.[^.]+\.done$/.test(m)
+                  ? t('checks.atDone', { action: label(String(m).slice(8, -5)) })
+                  : refId('checks', m)
+                    ? t('checks.atCheck', { check: checkLabel(refId('checks', m)!) })
+                    : refId('actions', m)
+                      ? t('actions.onAfter', { action: label(refId('actions', m)!) })
+                      : clockOfMoment(system, m, getLocale())
+                        ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
+                        : m,
       )
       .join(' · ')
   /** Check events a step can roll. */
@@ -80,6 +85,11 @@
     ),
   ])
   const label = (id: string) => text(id, 'name') || id
+  /** A check by its name in the UI language (its event if it has none). */
+  const checkLabel = (event: string) => {
+    const check = ((doc.rules.checks ?? []) as Raw[]).find((c) => c.event === event)
+    return (check && doc.text('travel-rules', check.name, ['checks', event, 'name'])) || event
+  }
   /** What conditions can read. */
   const hints = $derived(contextSuggestions(library.registry))
   /** Its parameters, each with its choices as written (`hex`, `3`). */
@@ -340,6 +350,8 @@
                 '06:00',
                 ...parts,
                 ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
+                ...ids.filter((a) => a !== id).map(doneOf),
+                ...events.map((e) => ref('checks', e)),
                 ...clockMoments(system),
               ]}
               removeLabel={t('forms.removeItem')}

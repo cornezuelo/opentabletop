@@ -878,12 +878,14 @@ describe('bundled open packs', () => {
       expect(circles).toEqual([4])
     })
 
-    it('leaving the Greywood raises morale (`from.region`)', () => {
+    it('leaving the Greywood raises morale (an action seeing `from.region`)', () => {
       const leave = (cells: Record<string, unknown>[]) => {
         const options = play(cells, true)
         let { session } = startTrip({ system, location: '0', season: 'summer' })
         session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
-        return checked(stepTrip(options, session, { type: 'travel' }).entries, 'OUT_OF_THE_WOOD')
+        const { entries } = stepTrip(options, session, { type: 'travel' })
+        return entries.filter((e) => e.code === 'SAID' && e.data?.action === 'out-of-the-wood')
+          .length
       }
       const wood = { terrain: 'forest', region: 'The Greywood' }
       expect(leave([wood, { terrain: 'plains' }])).toBe(1)
@@ -1027,8 +1029,34 @@ describe('bundled open packs', () => {
         const gained = state.travel.resources.food - session.travel.resources.food
         expect(gained).toBeGreaterThanOrEqual(2)
         expect(result.text).toContain(String(gained))
+        // Rolled once its three hours are done (`at: actions.forage.done`).
+        expect(result.time).toBe(session.travel.time + 180)
       }
     }
+  })
+
+  it('the Grey Marches: fishing rolls its check after two hours, and the step after it sees the result', () => {
+    const system = marches()
+    const world = row([{ terrain: 'coast' }])
+    const seen = new Set<boolean>()
+    for (let i = 0; i < 30; i++) {
+      const options = {
+        system,
+        world,
+        oracle: createOracleEngine({ registry, random: seeded(`fish-${i}`) }),
+        locale: 'en',
+      }
+      const { session } = startTrip({ system, location: '0', season: 'summer' })
+      const { state, entries } = stepTrip(options, session, { type: 'action', id: 'fish' })
+      const result = entries.find((e) => e.code === 'ORACLE_RESULT')!
+      expect(result.time).toBe(session.travel.time + 120)
+      const nothing = /nothing bites/.test(result.text ?? '')
+      seen.add(nothing)
+      // Said only when the roll set it: the step waited for the roll's result.
+      expect(entries.some((e) => e.code === 'SAID' && e.data?.action === 'fish')).toBe(nothing)
+      expect(state.travel.moving).toBeUndefined()
+    }
+    expect([...seen].sort()).toEqual([false, true])
   })
 
   it('the Grey Marches: getting lost is easier under clear skies (not in forests) and harder the day after', () => {
@@ -1255,7 +1283,7 @@ describe('bundled open packs', () => {
     })
   })
 
-  it('the Grey Marches: a stormy dawn sees the weather rolled at the same dawn, not yesterday’s', () => {
+  it('the Grey Marches: after the dawn’s weather, a stormy dawn and getting lost see it', () => {
     const system = marches()
     const options = {
       system,
@@ -1273,15 +1301,18 @@ describe('bundled open packs', () => {
     const dawns = state.journal.filter((e) => e.code === 'WEATHER_ROLLED')
     expect(dawns.length).toBeGreaterThanOrEqual(40)
     const storms = dawns.filter((e) => e.data?.weather === 'storm').map((e) => e.time)
-    // Each stormy dawn, and only those: fatigue +1, seen at the same moment as the weather.
+    // Each stormy dawn, and only those: the action right after the weather's check (`on:
+    // checks.WEATHER_CHECK_REQUIRED`) wears the Company down…
     const worn = state.journal
-      .filter((e) => e.code === 'CHECK_EFFECTS' && e.data?.event === 'STORMY_DAWN')
+      .filter((e) => e.code === 'SAID' && e.data?.action === 'stormy-dawn')
       .map((e) => e.time)
     expect(storms.length).toBeGreaterThan(0)
     expect(worn).toEqual(storms)
-    expect(
-      state.journal.filter((e) => e.code === 'CHECK_SKIPPED' && e.data?.check === 'STORMY_DAWN'),
-    ).toHaveLength(dawns.length - storms.length)
+    // …and getting lost, decided after it at the same dawn, isn't rolled in a storm.
+    const stayed = state.journal
+      .filter((e) => e.code === 'CHECK_SKIPPED' && e.data?.check === 'NAVIGATION_CHECK_REQUIRED')
+      .map((e) => e.time)
+    expect(stayed).toEqual(storms)
   })
 
   it('the Grey Marches eat by themselves as each day ends: food, and fodder on horseback', () => {

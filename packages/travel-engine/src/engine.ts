@@ -17,6 +17,7 @@ import {
   changeValue,
   isPassable,
   momentsOf,
+  doneOf,
   isHostMoment,
   modeThrough,
   declaredValues,
@@ -937,15 +938,21 @@ export function createTravelEngine(options: {
   ): number => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
+    // Entering a hex, the one left (`from.terrain`, `from.region`…) and the stretch walked.
+    const left = from ? { from: hexFacts(from) } : {}
     if (!event) {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
-      // The actions the system takes at this moment come first (their checks too).
+      // The actions the system takes at this moment come first (their checks too), seeing
+      // what its checks see.
+      const walked = from ? { ...left, edges: world.edges(from, state.location) } : {}
       for (const id of triggered.get(at) ?? [])
-        takeAction(state, id, events, { on: at, facts: { ...facts, moment: at }, quiet: true })
+        takeAction(state, id, events, {
+          on: at,
+          facts: { ...facts, ...walked, moment: at },
+          quiet: true,
+        })
     }
     // Conditions (and the tables) see which moment it is: a check may come at several.
-    // Entering a hex, the one left: `from.terrain`, `from.region`…
-    const left = from ? { from: hexFacts(from) } : {}
     const context = { ...checkContext(state, stretch), ...left, ...facts, moment: at }
     if (resolve) {
       const check: PendingCheck = {
@@ -1381,6 +1388,7 @@ export function createTravelEngine(options: {
               frames: [...again.frames, ...frames.slice(k + 1)],
               ...then,
             })
+          finished(state, f.action, events, f.facts)
         }
       } finally {
         underWay.pop()
@@ -1731,10 +1739,35 @@ export function createTravelEngine(options: {
       doing.pop()
     }
     head.minutes = state.time - start
+    // Its steps done: the moment after it (`actions.camp.done`), whose checks a parent action
+    // waits for as for its own.
+    if (!suspended) {
+      const before = state.pendingChecks.length
+      // They're its checks too: none at all is what its `nothing:` says.
+      head.checks += finished(state, id, events, options.facts)
+      if (hold && depth > 0 && state.pendingChecks.length > before)
+        suspended = { frames: [], held: true }
+    }
     // Taken at the top (by the player, a moment, the halt, the way on): its move (or the step
     // that stopped it) stays under way, after what an action the moment took stopped.
     if (suspended && depth === 0) keep(state, suspended)
     return suspended
+  }
+
+  /**
+   * An action's steps are done: its moment `actions.<id>.done`, if any rule names it. Returns
+   * how many checks came up at it (or wait in line).
+   */
+  const finished = (
+    state: TravelState,
+    id: string,
+    events: TravelEvent[],
+    facts?: Record<string, unknown>,
+  ): number => {
+    const done = doneOf(id)
+    return named.has(done)
+      ? schedule(state, done, events, undefined, { ...facts, ...doingFacts() })
+      : 0
   }
 
   /** A move that stopped under way, from where it stopped: its actions, innermost first. */
@@ -2140,6 +2173,18 @@ export function createTravelEngine(options: {
             tallySupply(state, id, from, state.resources[id])
           }
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
+          // Right after it, its own moment (`checks.WEATHER`): before the rest of its line,
+          // so they see what that moment's actions changed.
+          const after = ref('checks', check.event)
+          if (named.has(after)) {
+            const was = { ...state.today }
+            schedule(state, after, events, undefined, doingFacts())
+            const changed = Object.fromEntries(
+              Object.entries(state.today ?? {}).filter(([k, v]) => was[k] !== v),
+            )
+            if (Object.keys(changed).length)
+              for (const queued of line) queued.set = { ...queued.set, ...changed }
+          }
           if (line.length) decide(state, line, events)
           break
         }

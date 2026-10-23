@@ -120,7 +120,7 @@ entries:
     range: 1-3
     result: 'A {{roll}}: a few small fish, food for a day'
     effects: { party.resources.food: 1 }
-  - { id: nothing, range: 4-6, result: 'A {{roll}}: nothing bites' }
+  - { id: nothing, range: 4-6, result: 'A {{roll}}: nothing bites', set: { skunked: true } }
 ---
 # Spending supplies: the toll is paid in food, unless a d6 rolls the party's charisma or
 # under (a roll in a condition: both entries read the same d6, so exactly one comes up).

@@ -100,6 +100,10 @@ values:
     name: The hirelings refuse to march
     description: Until someone talks them round (Talk to the hirelings).
     blocks: [travel.move]
+  # Set by the fishing table when nothing bites; read by the fish action's step after its roll.
+  skunked:
+    name: Nothing bit
+    description: A day's fishing for nothing.
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
@@ -161,7 +165,8 @@ actions:
       # A condition of the party's own sheet, cleared.
       - { effects: { party.stats.fatigue: -1, party.conditions.shaken: false } }
   # The system's own action: foraging takes three hours and halves the rest of the day's
-  # march, once a day; its check (below, at: forage) is rolled where the party stands.
+  # march, once a day; its check (below, at: actions.forage.done) is rolled where the party
+  # stands, once the three hours are done.
   # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
   # Only by day, and not in a storm: `when` / `unless` read the moment and today's values
   # (and the map, the party…).
@@ -298,8 +303,14 @@ actions:
     when: { time.tags: { not: dark }, any: [{ around.water: true }, { hex.terrain: coast }] }
     hideWhenUnavailable: true
     oncePerDay: true
+    # Its check is rolled by a step once the two hours are done (`roll:`), and the step after
+    # it waits for the result and sees what it set (`today.skunked`).
     do:
       - { time: 120 }
+      - { roll: checks.FISHING_CHECK_REQUIRED }
+      - when: { today.skunked: true }
+        id: skunked
+        say: 'Not a bite all day: tonight the Company eats from its packs.'
   # Market day: in a market town (a tag of the hex) on the calendar's Marketday, or when
   # the world clock says it's market day there (an event of the world, `world.events`, by
   # its id: the example map's `market-day`). Two hours of trading for supplies, once a day; hidden otherwise.
@@ -404,20 +415,33 @@ actions:
       - when: { hex.region: The Greywood }
         id: awake
         pause: 'The Wyrm is awake, and this is its wood.'
+  # Right after a check is resolved (`on: checks.<event>`): the dawn's weather just rolled,
+  # read as `trip.weather` (today's, not yesterday's), before the dawn's next checks.
+  stormy-dawn:
+    name: A stormy dawn
+    description: A dawn of storm wears the Company down before they set off. Fatigue +1.
+    on: checks.WEATHER_CHECK_REQUIRED
+    when: { trip.weather: storm }
+    do:
+      - { effects: { party.stats.fatigue: 1 } }
+      - { id: worn, say: 'The storm wears the Company down before they set off.' }
+  # Entering a hex, an action sees what the moment's checks see: the hex just left
+  # (`from.region`) against the one entered.
+  out-of-the-wood:
+    name: Out of the Greywood
+    description: Leaving the Greywood, the trees thin out and spirits rise. Morale +1.
+    on: trip.hex-enter
+    when: { from.region: The Greywood }
+    unless: { hex.region: The Greywood }
+    do:
+      - { effects: { party.stats.morale: 1 } }
+      - { id: thin, say: 'The trees thin out, and spirits rise.' }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED
     name: Weather
     description: Rolled every dawn, by season.
     at: time.part.morning
-  # The checks of one moment are decided one by one, in this order: at the same dawn, this one
-  # already sees the weather just rolled (`trip.weather`), today's and not yesterday's.
-  - event: STORMY_DAWN
-    name: A stormy dawn
-    description: A dawn of storm wears the Company down before they set off. Fatigue +1.
-    at: time.part.morning
-    when: { trip.weather: storm }
-    effects: { party.stats.fatigue: 1 }
   # A card of a deck each dawn on the road (not once arrived): drawn cards stay out until the
   # deck runs out, in the campaign's Oracle, shared with draws by hand.
   - event: OMENS
@@ -425,12 +449,14 @@ checks:
     description: Every dawn on the road, a card of the Omens of the road.
     at: time.part.morning
     unless: { trip.arrived: true }
-  # Off roads and rivers, and not by boat: any / edges / mode.
+  # Off roads and rivers, and not by boat: any / edges / mode. The checks of one moment are
+  # decided one by one, in this order: at the same dawn, this one already sees the weather
+  # just rolled (`trip.weather`): nobody travels in a storm, so nobody gets lost.
   - event: NAVIGATION_CHECK_REQUIRED
     name: Getting lost
-    description: Every dawn off roads and rivers (not by boat). Navigation helps; fog makes it harder.
+    description: Every dawn off roads and rivers (not by boat), unless a storm keeps the Company in. Navigation helps; fog makes it harder.
     at: time.part.morning
-    unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }
+    unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }, { trip.weather: storm }] }
   # Encounters where the map says there is danger (a hex field) over the party's Stealth (a
   # variable: a stealthy party slips through the safer hexes unseen), never on the road;
   # also when resting somewhere dangerous enough. Two moments (at: a list), told apart by
@@ -528,17 +554,18 @@ checks:
     at: time.day-end
     when: { trip.below: food }
     effects: { party.stats.fatigue: 1 }
-  # Foraging (the forage action above) in the woods and fields (a list of terrains).
+  # Foraging (the forage action above) in the woods and fields (a list of terrains), rolled
+  # once its three hours are done (`actions.forage.done`), not as it begins.
   - event: FORAGE_CHECK_REQUIRED
     name: Foraging
-    description: Rolled when you forage for food in woods, fields, heath or marsh.
-    at: actions.forage
+    description: Rolled after three hours foraging in woods, fields, heath or marsh.
+    at: actions.forage.done
     when: { hex.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
-  # Fishing (the fish action above): a table rolled on a d6 under Survival.
+  # Fishing (the fish action above): a table rolled on a d6 under Survival. No `at`: only the
+  # fish action's step rolls it, after its two hours.
   - event: FISHING_CHECK_REQUIRED
     name: Fishing
-    description: Rolled when you fish.
-    at: actions.fish
+    description: Rolled after two hours fishing.
   # Hours marched today over the system's own (`trip.marched` against `system.hoursPerDay`,
   # a variable): a night march, or a long day of it, tires the party as the day ends.
   - event: LONG_DAY
@@ -579,14 +606,6 @@ checks:
     at: trip.hex-enter
     when: { trip.visits: 3 }
     effects: { party.stats.morale: -1 }
-  # Leaving the Greywood (`from.region`, the hex just left, against the one entered).
-  - event: OUT_OF_THE_WOOD
-    name: Out of the Greywood
-    description: Leaving the Greywood, the trees thin out and spirits rise. Morale +1.
-    at: trip.hex-enter
-    when: { from.region: The Greywood }
-    unless: { hex.region: The Greywood }
-    effects: { party.stats.morale: 1 }
 ---
 kind: bindings
 id: default

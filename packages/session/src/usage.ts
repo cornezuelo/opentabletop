@@ -403,10 +403,14 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       break
     case 'action': {
       const ref = `actions.${declared.id}`
+      // As it begins, or once it's done (`actions.forage.done`).
+      const done = `${ref}.done`
       match = (u) =>
         u.name === ref ||
+        u.name === done ||
         u.name === `trip.taken.${declared.id}` ||
-        (ACTION_FACTS.includes(u.name) && (has(u) || !!u.values?.includes(ref)))
+        (ACTION_FACTS.includes(u.name) &&
+          (has(u) || !!u.values?.includes(ref) || !!u.values?.includes(done)))
       break
     }
     case 'check':

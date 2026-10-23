@@ -148,14 +148,16 @@ A change stops at the value's `min` / `max`; what hit one that day is seen after
 
 When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.hex-enter, actions.rest]`); conditions and tables see which one as `trip.moment`.
 
-| Moment                                                  | When                                                                               |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| a clock (`'06:00'`)                                     | as it strikes, marching, waiting or asleep in camp                                 |
-| a part of the day (`time.part.morning`)                 | as the calendar's part begins, the same way                                        |
-| `trip.hex-enter`                                        | entering each hex                                                                  |
-| `time.day-end`                                          | as each day ends, camping or not (actions first, then checks)                      |
-| an action (`actions.camp`)                              | when the party takes that action, before its steps (a check that waits holds them) |
-| a clock of the world filling (`world.clocks.<id>.full`) | as one of the campaign's progress clocks fills, whatever fills it                  |
+| Moment                                                  | When                                                                                               |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| a clock (`'06:00'`)                                     | as it strikes, marching, waiting or asleep in camp                                                 |
+| a part of the day (`time.part.morning`)                 | as the calendar's part begins, the same way                                                        |
+| `trip.hex-enter`                                        | entering each hex                                                                                  |
+| `time.day-end`                                          | as each day ends, camping or not (actions first, then checks)                                      |
+| an action (`actions.camp`)                              | when the party takes that action, before its steps (a check that waits holds them)                 |
+| an action's end (`actions.forage.done`)                 | once its steps are done                                                                            |
+| a check (`checks.WEATHER_CHECK_REQUIRED`)               | right after it's resolved (after **Continue**, if it paused), before the next checks of its moment |
+| a clock of the world filling (`world.clocks.<id>.full`) | as one of the campaign's progress clocks fills, whatever fills it                                  |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
 
