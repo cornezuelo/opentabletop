@@ -1,6 +1,6 @@
 # The world reacts — design
 
-Design for what's left of the roadmap's point 5 (_Everything connected through session: reactions and chains of events_). The user's ask (2026-10-20): "una acción ejecuta directamente un oráculo… se dispara una acción cuando se completa un reloj… una condición de personaje activa una consecuencia del mundo… un turno de facción desencadena un evento que modifica el viaje… cadenas de eventos, cómo detectar ciclos". **Agreed 2026-10-23:** three pieces, (1) world turns as moments, (2) reactions of the world without a trip, design first, (3) one manual page saying what reacts to what and in which order. This document covers (1) and (2), for the user to review: section 8 lists what needs a decision.
+Design for what's left of the roadmap's point 5 (_Everything connected through session: reactions and chains of events_). The user's ask (2026-10-20): "una acción ejecuta directamente un oráculo… se dispara una acción cuando se completa un reloj… una condición de personaje activa una consecuencia del mundo… un turno de facción desencadena un evento que modifica el viaje… cadenas de eventos, cómo detectar ciclos". **Agreed 2026-10-23:** three pieces, (1) world turns as moments, (2) reactions of the world without a trip, design first, (3) one manual page saying what reacts to what and in which order. This document covers (1) and (2). **Decided with the user 2026-10-23** (section 8): Claude's recommendations, each checked again for being the most coherent and extensible, not the least work; two changed with that check (a and d).
 
 ## 1. What there is today
 
@@ -51,9 +51,9 @@ reactions:
 ```
 
 - **Moments** (`on:`): `world.turn` (after a world turn), `world.clocks.<id>.full`, and any condition (`{ when, unless }`) on what the world shows: `world.*` (date, clocks, today's events and holidays, the weather), `factions.<id>.*`, `time.*`. Several at once as a list, as actions'.
-- **Steps**: `say` (a line in the timeline), `roll:` a table, oracle, generator or deck (its text in the timeline, its `effects` applied), `effects` on clocks and factions, `do:` another world reaction or `world.turn`, with `when` / `unless` per step as in actions. **Not** in the world: steps that need a party or a trip (`time`, `travel.*`, `set`, `pause`, `ask`): refused when the pack loads.
+- **Steps**: `say` (a line in the timeline), `roll:` a table, oracle, generator or deck (its text in the timeline, its `effects` applied), `effects` on clocks and factions, `do:` another world reaction or `world.turn`, `pause` and `ask` (the world waits for the player, section 3), with `when` / `unless` per step as in actions. **Not** in the world: steps that need a party or a trip (`time`, `travel.*`, `set`): refused when the pack loads.
 - **Conditions** on a reaction (`when` / `unless` beside `on:`) as an action's.
-- A clock's **`onFull` stays** as its short form: it is a world reaction on `world.clocks.<id>.full` written beside its clock (decision a).
+- A clock's **`onFull` goes** (decision a): what happens when a clock fills is a world reaction on `world.clocks.<id>.full`, like any other; the clock keeps only what is its own, what becomes of it once full (`then: keep | reset | remove`). Pack format 9; the Grey Marches' three clocks move. Systems' Clocks tab still shows, under each clock, the reactions on its filling (and **Add what happens when it fills**), so nothing is lost in reading.
 
 ## 3. Where they play
 
@@ -62,6 +62,7 @@ reactions:
 - **Memory**: what held last time, kept in the campaign (`reactions`, as trips keep theirs); a campaign without it takes what holds when opened as seen, so nothing fires at once in a campaign under way (the trips' rule, item 65 (c)).
 - **Time jumps**: moving a week on checks the conditions at each day's start on the way, so a market day in the middle isn't skipped; a turn due on the way is played at its time, as today.
 - **With a trip going on**, the world's reactions run too (the world is one); the trip's own rules still react in the trip.
+- **Waiting for the player** (`pause`, `ask`): the campaign keeps what waits (`waiting`: the reaction, its step, the text or the choices), as a trip does, and the rest of that reaction, and of the world's action that brought it (the days still to move, the turns still due), goes on once answered. The Campaign app and the World panel show it as a trip shows its pauses; under a trip, the trip shows it as one of its own pauses and doesn't move on until it's answered. **Skip pauses** applies to the world's too.
 
 ## 4. The trip and the world, both ways
 
@@ -87,11 +88,22 @@ reactions:
 - **Systems**: a **World** tab (reactions as folded cards, as actions: `CardHead`, moments and steps, conditions as rows), `world:` in the Overview; suggestions and help for `world.turn` and `do: world.turn`.
 - **Manual** (en/es): Systems' World page; Kinds (`kind: world`, `world:` in systems); Connecting, Actions and steps (`do: world.turn`, the moment `world.turn`); Syntax's moments; Campaign's and the Hexmapper's World pages (what reacts as time moves); both packs' pages; and piece (3), the page saying what reacts to what and in which order.
 
-## 8. To decide
+## 8. Decided with the user (2026-10-23)
 
-- a. **Clocks' `onFull` stays** as a short form beside its clock (recommended: it reads well where the clock is), or moves into `kind: world` as reactions on `world.clocks.<id>.full` (one place; a pack format bump, our packs moved).
-- b. **`kind: world`**, with `reactions:` (and room for the world's other settings later, as the factions' turn every N days), or another name (`world-rules`).
-- c. **The world's reactions run under a trip too** (recommended), or only when no trip is going on.
-- d. **Steps in the world**: `say`, `roll:`, `effects`, `do:` (another reaction, `world.turn`), with `when` / `unless`; no `pause` or `ask` (a world reaction can't stop to ask anyone). Or should the Campaign app stop and show what happened (a toast is shown anyway)?
-- e. **No `world.events.<id>` moment**: an event's day is a condition (`{ when: { world.events: market-day } }`), one mechanism (recommended).
-- f. **A trip can `do: world.turn`** and hears `world.turn` (recommended), or only the world reacts to turns.
+The user: "me quedaría con lo que recomiendas, pero solo si lo que recomiendas no es por ahorrarte trabajo y realmente es lo más coherente y extensible". Checked again on that ground:
+
+- a. **`onFull` goes into the world's reactions** (changed: keeping it was two ways of saying one thing, the kind of exception item 66 removed; recommended at first partly to spare a pack format change). The clock keeps `then`, its own lifecycle. Pack format 9.
+- b. **`kind: world`**, with `reactions:`, room for the world's other settings later (the factions' turn every N days could move there).
+- c. **The world's reactions run under a trip too**: the world is one, and a reaction that only ran without a trip would depend on whether anyone travels.
+- d. **`pause` and `ask` in the world too** (changed: refusing them was a hidden decision, principle 4, and less work; a system may well want to ask "the fort falls: who takes the bridge?"). The campaign keeps what waits, as trips do (section 3).
+- e. **No `world.events.<id>` moment**: an event's day is a condition, `{ when }` comes once as it begins; one mechanism.
+- f. **A trip can `do: world.turn`** and hears `world.turn`: both ways, as clocks.
+
+## 9. Phases
+
+One commit each, both bundled packs and the manual with each:
+
+1. **The world's reactions**: `kind: world`, moments and steps (no waiting yet), conditions' memory, time jumps day by day, loops on load; `onFull` moved (pack format 9); Systems' World tab and the Clocks tab's reactions; the Grey Marches' and Core's `world.yaml`.
+2. **World turns both ways**: the general `moments` queue (campaign format bump), `world.turn` heard by trips, `do: world.turn` from a trip.
+3. **The world waits for the player**: `pause` and `ask` in world reactions, kept in the campaign, shown by the Campaign app, the World panel and trips.
+4. **What reacts to what**: the manual page with every moment of every subsystem and the order they're played in (piece 3).
