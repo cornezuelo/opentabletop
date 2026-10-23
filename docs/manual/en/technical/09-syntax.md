@@ -115,8 +115,8 @@ On a table entry or deck card: values the result gives, read by the result's tex
 What a trip does with them ([Connecting](../oracle/07-connecting.md#4-results-the-trip-understands)):
 
 - `weather: <id>`: today's weather.
-- A **value of the day** the system declares (`lost: true`): it holds for the rest of the day and **blocks** what it lists. `false` clears it (`set: { refusing: false }`).
-- Names ending in `…Modifier` or `…Impossible`, and `weather`: kept for the rest of the day too, for later tables.
+- A **value of the day** the system declares (`lost: true`, `lostModifier: -1`): it holds for the rest of the day and **blocks** what it lists, if anything. `false` clears it (`set: { refusing: false }`).
+- Any other name lasts only for that roll (its text, the table it rolls next).
 - The next day, today's values are read as `yesterday.<name>`.
 
 An action's step takes `set` too: `{ set: { lost: true } }`.

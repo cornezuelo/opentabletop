@@ -282,7 +282,7 @@ export const en = {
     stateName: 'Name',
     set: 'Sets for the day',
     setHelp:
-      'Values of the day this weather sets, one row each (value · what it is):\n• `climbModifier` · `-1`\n• `snowed-in` · `true`',
+      'Values of the day this weather sets, one row each (value · what it is). They last the day when the rules declare them (Rules → Values of the day):\n• `climbModifier` · `-1`\n• `snowed-in` · `true`',
     setNothing: 'nothing',
     season: 'Season: {season}',
     start: 'Starts as',

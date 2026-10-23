@@ -25,6 +25,7 @@ import {
   localize,
   parseBindings,
   applyResult,
+  dayVariables,
   applyEffects,
   effectsOf,
   migrateTotals,
@@ -50,7 +51,8 @@ const coreRules = core.rules
 const rules = {
   ...coreRules,
   // Being lost is a value this system declares: it blocks travel for the day.
-  values: { lost: { blocks: ['travel.move'] } },
+  // The modifier the weather sets lasts the day because the system declares it.
+  values: { lost: { blocks: ['travel.move'] }, lostModifier: {} },
   checks: [
     { event: 'WEATHER_CHECK_REQUIRED', at: '06:00' },
     { event: 'NAVIGATION_CHECK_REQUIRED', at: '06:00' },
@@ -72,7 +74,7 @@ entries:
 ---
 kind: table
 id: lost-check
-roll: '1d6 + {{lostModifier}}'
+roll: '1d6 + {{today.lostModifier}}'
 entries:
   - { range: 1-2, result: Perdidos, set: { lost: true } }
   - { range: 3-7, result: En rumbo }
@@ -149,17 +151,19 @@ describe('session', () => {
     today.travel = { ...today.travel, lostToday: true }
     const { state } = session.step(today, { type: 'action', id: 'camp' })
     expect(state.dayVars).toEqual({})
+    // (a value the system declares and the day didn't set reads false the day after)
     expect(tripContext(state, {}).yesterday).toEqual({
       weather: 'storm',
       fordModifier: -1,
       lost: true,
+      lostModifier: false,
     })
     // Two nights later, nothing is left of that day.
     const later = session.step(session.step(state, { type: 'action', id: 'camp' }).state, {
       type: 'advanceTime',
       minutes: 2 * 24 * 60,
     }).state
-    expect(tripContext(later, {}).yesterday).toEqual({ lost: false })
+    expect(tripContext(later, {}).yesterday).toEqual({ lost: false, lostModifier: false })
   })
 
   it('resolves checks with the oracle and keeps travelling', () => {
@@ -179,6 +183,8 @@ describe('session', () => {
       travel: createTravelEngine({ world, rules, calendar: core.calendar }),
       oracle,
       bindings,
+      // The values the system declares: what of a result lasts the day.
+      rules,
       now: () => 'T',
     })
     let { state } = session.step(start(), { type: 'setDestination', hex: '2,0' })
@@ -188,7 +194,9 @@ describe('session', () => {
     expect(texts).toEqual(['Despejado', 'En rumbo', 'Bandidos (PRE 1)'])
     expect(state.travel.weather).toBe('clear')
     expect(state.travel.location).toBe('1,0') // kept travelling after the checks
+    // The modifier lasts the day because the system declares it (a value of the day).
     expect(state.dayVars).toEqual({ weather: 'clear', lostModifier: 1 })
+    expect(state.travel.today).toMatchObject({ lostModifier: 1 })
     const entered = result.entries.filter((e) => e.code === 'HEX_ENTERED')
     expect(entered).toHaveLength(1)
     // Each entry keeps the time of its own event, not the end of the step.
@@ -400,7 +408,7 @@ entries:
       session.step(start(), { type: 'setDestination', hex: '2,0' }).state,
       { type: 'travel' },
     )
-    expect(state.travel.today).toEqual({ lost: true })
+    expect(state.travel.today).toEqual({ lost: true, lostModifier: -1 })
     expect(state.travel.pendingChecks).toEqual([])
     expect(state.journal.find((e) => e.code === 'CHECK_NOTED')?.data).toEqual({
       event: 'ENCOUNTER_CHECK_REQUIRED',
@@ -731,5 +739,14 @@ entries:
     )
     expect(state.journal.some((e) => e.code === 'CHECK_PAUSED')).toBe(true)
     expect(state.travel.pendingChecks).toHaveLength(1)
+  })
+})
+
+describe('what lasts the day', () => {
+  it('only the values the system declares, and the weather, whatever a name looks like', () => {
+    const declared = { fordModifier: {} }
+    expect(
+      dayVariables({ weather: 'rain', fordModifier: -1, lostModifier: 2, odd: 1 }, declared),
+    ).toEqual({ weather: 'rain', fordModifier: -1 })
   })
 })

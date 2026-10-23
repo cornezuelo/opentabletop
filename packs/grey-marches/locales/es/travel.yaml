@@ -1,5 +1,11 @@
 travel-rules/default:
   values:
+    fordModifier:
+      name: Modificador del vado
+      description: 'Lo que se suma hoy a la tirada del vado: la lluvia crece el río, la helada endurece las orillas.'
+    fordImpossible:
+      name: El vado es infranqueable
+      description: 'Una tormenta hace hoy imposible cruzar el vado.'
     lost:
       name: Perdidos
       description: 'El grupo ha perdido el rumbo (o no puede cruzar): no se viaja más hoy.'

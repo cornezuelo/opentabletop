@@ -193,7 +193,8 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  * 6. The checks of a moment are decided one by one, in the rules' order, each seeing what
  *    the ones before it set (in 5, all at once as the moment came).
  * 7. A step's `roll:` holds the rest of its action until it's resolved, so the steps after
- *    it see its result (in 6, it was resolved once the action ended).
+ *    it see its result (in 6, it was resolved once the action ended); only the values a
+ *    system declares last the day (in 6, any name ending in `Modifier` or `Impossible` too).
  */
 export const PACK_FORMAT = 7
 

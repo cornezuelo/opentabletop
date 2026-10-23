@@ -184,7 +184,7 @@ description: |-
 
   - An **oracle** whose input comes from the bindings: `odds: even`
   - Variants with their own dice
-  - Day values set by the weather: `{{fordModifier}}`, `fordImpossible`
+  - Day values set by the weather: `{{today.fordModifier}}`, `today.fordImpossible`
   - `set: { lost: true }`: no crossing today
   - A roll mode of the pack's own: _Carefully_ (three rolls, the middle one kept)
 modes: [roll-modes.careful]
@@ -194,7 +194,7 @@ inputs:
     options: [low, even, high]
     labels: { low: Low and slow, even: Waist-deep, high: In flood }
     default: even
-roll: '1d6 + {{party.stats.survival}} + {{fordModifier}}'
+roll: '1d6 + {{party.stats.survival}} + {{today.fordModifier}}'
 variants:
   low:
     entries:
@@ -204,7 +204,7 @@ variants:
       # A day value an earlier table set (a storm): `*Impossible` lasts until tomorrow.
       - id: spate
         range: 1-20
-        when: { fordImpossible: true }
+        when: { today.fordImpossible: true }
         result: 'The river is in spate: no crossing today'
         set: { lost: true }
       - {
@@ -215,11 +215,11 @@ variants:
         }
       - { id: fine, range: 4-20, result: 'Cold and wet, but across' }
   high:
-    roll: '1d8 + {{party.stats.survival}} + {{fordModifier}}'
+    roll: '1d8 + {{party.stats.survival}} + {{today.fordModifier}}'
     entries:
       - id: spate
         range: 1-20
-        when: { fordImpossible: true }
+        when: { today.fordImpossible: true }
         result: 'The river is in spate: no crossing today'
         set: { lost: true }
       - {

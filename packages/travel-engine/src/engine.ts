@@ -103,8 +103,6 @@ export interface QueuedCheck {
 export interface CheckOutcome {
   /** Values of the day the system declares (`lost: true`), set by the result. */
   values?: Record<string, unknown>
-  /** Older form of `values: { lost: true }`. */
-  lost?: boolean
   weather?: string
   /** Movement multiplier for the rest of the day (e.g. 0.5 when foraging). */
   speed?: number
@@ -2220,7 +2218,7 @@ export function createTravelEngine(options: {
           if (index < 0) break
           const [check] = state.pendingChecks.splice(index, 1)
           const outcome = action.outcome ?? check.rolled ?? {}
-          const set = { ...(outcome.lost && { lost: true }), ...outcome.values }
+          const set = { ...outcome.values }
           if (Object.keys(set).length) state.today = { ...state.today, ...set }
           if (outcome.weather !== undefined) state.weather = outcome.weather
           // The moment's next checks see what it set.

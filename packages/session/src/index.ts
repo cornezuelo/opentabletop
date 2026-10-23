@@ -1064,8 +1064,8 @@ export function toOutcome(
 }
 
 /**
- * Values later checks of the same day may need: weather, any `*Modifier`, `*Impossible`,
- * and the values the system declares (lost…).
+ * Values later checks of the same day see: the values the system declares (lost, a
+ * modifier…) and the day's weather. Nothing else lasts past its roll, whatever its name.
  */
 export function dayVariables(
   value: Record<string, unknown>,
@@ -1073,13 +1073,7 @@ export function dayVariables(
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [key, v] of Object.entries(value))
-    if (
-      key === 'weather' ||
-      key.endsWith('Modifier') ||
-      key.endsWith('Impossible') ||
-      key in declared
-    )
-      out[key] = v
+    if (key === 'weather' || key in declared) out[key] = v
   return out
 }
 export * from './effects'

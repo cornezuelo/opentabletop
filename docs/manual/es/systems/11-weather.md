@@ -22,7 +22,7 @@ El sistema también tiene que nombrar el modelo (Resumen → **Modelos de clima*
 
 ## Tipos de clima
 
-Una fila por tipo: su **id** (corto, lo que leen las condiciones: `rain`), su **Nombre** (lo que dice el diario: _Lluvia persistente_) y lo que **Fija para el día**, como pares `clave: valor`: `deep-snow: true`, `climbModifier: -1`. Esos valores duran hasta que acaba el día, como los que fija el resultado de una tabla, y al día siguiente son `yesterday.deep-snow`. Un valor solo hace algo cuando algo lo lee: una condición, una tabla o los **valores del día** de las reglas (un valor ahí puede bloquear una forma de viajar o una acción mientras dura).
+Una fila por tipo: su **id** (corto, lo que leen las condiciones: `rain`), su **Nombre** (lo que dice el diario: _Lluvia persistente_) y lo que **Fija para el día**, como pares `clave: valor`: `deep-snow: true`, `climbModifier: -1`. Los que las reglas declaran como **valores del día** (Reglas → Valores del día) duran hasta que acaba el día, y al día siguiente son `yesterday.deep-snow`; cualquier otro dura solo esa tirada. Un valor solo hace algo cuando algo lo lee: una condición, una tabla o los propios valores del día (uno ahí puede bloquear una forma de viajar o una acción mientras dura).
 
 ## Tablas de probabilidad
 

@@ -297,10 +297,14 @@ describe('travel', () => {
     let { state } = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
     ;({ state } = run(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }))
     const nav = state.pendingChecks.find((c) => c.event === 'NAVIGATION_CHECK_REQUIRED')!
-    ;({ state } = run(state, { type: 'resolveCheck', id: nav.id, outcome: { lost: true } }))
+    ;({ state } = run(state, {
+      type: 'resolveCheck',
+      id: nav.id,
+      outcome: { values: { lost: true } },
+    }))
     ;({ state } = resolveAll(state))
     const { events } = run(state, { type: 'travel' })
-    // Being lost is a value the system declares (here the older built-in one): it blocks travel.
+    // Being lost is a value the system declares: it blocks travel.
     expect(events.at(-1)).toMatchObject({ reason: 'value', value: 'lost' })
     expect(events.at(-1)).not.toHaveProperty('mode')
     expect(engine.availability(state).travel).toEqual({ value: 'lost' })

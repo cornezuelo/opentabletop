@@ -115,8 +115,8 @@ En una entrada de tabla o una carta: valores que da el resultado, que leen el te
 Lo que hace con ellos un viaje ([Conectar](../oracle/07-connecting.md#4-resultados-que-entiende-el-viaje)):
 
 - `weather: <id>`: el clima de hoy.
-- Un **valor del día** que declara el sistema (`lost: true`): dura el resto del día y **bloquea** lo que lista. `false` lo quita (`set: { refusing: false }`).
-- Los nombres que acaban en `…Modifier` o `…Impossible`, y `weather`: también se guardan el resto del día, para las tablas siguientes.
+- Un **valor del día** que declara el sistema (`lost: true`, `lostModifier: -1`): dura el resto del día y **bloquea** lo que lista, si lista algo. `false` lo quita (`set: { refusing: false }`).
+- Cualquier otro nombre dura solo esa tirada (su texto, la tabla que tira después).
 - Al día siguiente, los valores de hoy se leen como `yesterday.<nombre>`.
 
 Un paso de una acción también acepta `set`: `{ set: { lost: true } }`.

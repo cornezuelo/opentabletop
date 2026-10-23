@@ -83,7 +83,7 @@ ford:
 
     - Un **oráculo** cuya entrada viene de los bindings: `odds: even`
     - Variantes con sus propios dados
-    - Valores del día que pone el clima: `{{fordModifier}}`, `fordImpossible`
+    - Valores del día que pone el clima: `{{today.fordModifier}}`, `today.fordImpossible`
     - `set: { lost: true }`: hoy no se cruza
     - Un modo de tirada del propio pack: _Con cuidado_ (tres tiradas, se queda la del medio)
   inputs:

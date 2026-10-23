@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Formats
 
 - **Pack format 7**: an action's `roll:` step now holds the rest of the action until it's resolved (and for **Continue**, if it pauses), so the steps after it see what it rolled; before, it was resolved once the action ended. Core, the Grey Marches and Kal-Arath moved to it (they had no step after a roll).
+- **Only the values a system declares last the day** (with the day's weather): a result's names ending in `Modifier` or `Impossible` no longer do by their name alone; declare them in the rules' `values`. The Grey Marches and Kal-Arath declare theirs and read them by their full names (`today.fordModifier`).
 - **New moments** for a check's `at:` or an action's `on:`: `actions.<id>.done`, once an action's steps are done, and `checks.<event>`, right after a check is resolved (before the next checks of its moment, which see what its actions changed). Actions the system takes entering a hex now see what that moment's checks see: the hex left (`from.*`) and the stretch walked. Loops through checks and actions are refused when the pack loads.
 
 ### Fixes

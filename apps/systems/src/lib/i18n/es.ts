@@ -285,7 +285,7 @@ export const es: Messages<typeof en> = {
     stateName: 'Nombre',
     set: 'Fija para el día',
     setHelp:
-      'Valores del día que fija este clima, una fila cada uno (valor · cuál es):\n• `climbModifier` · `-1`\n• `snowed-in` · `true`',
+      'Valores del día que fija este clima, una fila cada uno (valor · cuál es). Duran el día si las reglas los declaran (Reglas → Valores del día):\n• `climbModifier` · `-1`\n• `snowed-in` · `true`',
     setNothing: 'nada',
     season: 'Estación: {season}',
     start: 'Empieza como',

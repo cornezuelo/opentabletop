@@ -29,7 +29,7 @@ entries:
 
 The full list, with variables and where context values come from: [Dice, variables and context](08-dice-and-templates.md).
 
-`2d6+1`, `d100`, `d%`, `d66`, `4dF`, `4d6kh3` (keep the highest 3), `2d20kl1` (keep the lowest). Context values go in braces: `1d6 + {{lostModifier}}`. Results can roll too: `'{{1d6}} wolves'`.
+`2d6+1`, `d100`, `d%`, `d66`, `4dF`, `4d6kh3` (keep the highest 3), `2d20kl1` (keep the lowest). Context values go in braces: `1d6 + {{today.lostModifier}}`. Results can roll too: `'{{1d6}} wolves'`.
 
 ## Conditions
 

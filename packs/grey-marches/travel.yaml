@@ -81,6 +81,14 @@ values:
     name: Lost
     description: 'The party has lost its way (or can’t cross): no more travel today.'
     blocks: [travel.move]
+  # Set by the weather (sky.yaml, the weather tables), read by the ford the same day: only the
+  # values a system declares last the day.
+  fordModifier:
+    name: Ford modifier
+    description: 'Added to the ford’s roll today: rain swells the river, frost hardens the banks.'
+  fordImpossible:
+    name: The ford is impassable
+    description: 'A storm makes the ford impossible to cross today.'
   # Set by the weather (sky.yaml: falling snow): it blocks a way of travelling, so the
   # horses stay behind (on foot, by boat or by cart the trip goes on).
   snowbound:

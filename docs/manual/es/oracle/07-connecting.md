@@ -76,11 +76,11 @@ El diario dice lo que cambió cada resultado («Buscar comida: Bayas (Comida +2)
 
 Las tablas leen el grupo como `party.resources.food`, `party.stats.morale`: `when: { party.resources.food: { lt: 1 } }` para una entrada que solo sale cuando se ha acabado la comida.
 
-**Valores del día.** Los valores llamados `weather`, `…Modifier` o `…Impossible`, y los que declara el sistema (`lost`), se mantienen el resto del día, para que las comprobaciones siguientes los usen (también las del mismo momento que van después en la lista); al día siguiente pasan a ser `yesterday.<nombre>`. Son valores normales con una costumbre de nombre, para las tablas que los leen:
+**Valores del día.** Los valores que declara el sistema (en los `values` de sus reglas: `lost`, un modificador…) y el `weather` del día se mantienen el resto del día, para que las comprobaciones siguientes los usen (también las del mismo momento que van después en la lista); al día siguiente pasan a ser `yesterday.<nombre>`. Cualquier otro valor que fije un resultado dura solo esa tirada (su texto, la tabla que tira después), se llame como se llame. Algunos tipos de valor declarado, para las tablas que los leen:
 
-- `…Modifier` es un número que se suma a una tirada posterior. Una entrada del clima con `set: { lostModifier: -1 }` hace más difícil `roll: '1d6 + {{lostModifier}}'` en la tabla de perderse que viene después; si aún no se ha tirado el clima, la tabla lee 0.
-- `…Impossible` es un sí/no para algo que hoy no puede pasar. La tormenta de las Marcas Grises pone `fordImpossible: true`, y la primera entrada del vado, `when: { fordImpossible: true }`, dice que nadie cruza. Una acción también puede usarlo: `unless: { forageImpossible: true }` desactiva el botón (forrajear con tormenta en Kal-Arath).
-- Un **valor declarado** es uno que el sistema nombra en sus reglas, con lo que **bloquea** mientras se cumple (abajo): `lost` bloquea el viaje. A diferencia de `…Impossible`, las aplicaciones lo hacen cumplir: el botón se desactiva y dice por qué.
+- Un número que se suma a una tirada posterior. Con `lostModifier` declarado, una entrada del clima con `set: { lostModifier: -1 }` hace más difícil `roll: '1d6 + {{today.lostModifier}}'` en la tabla de perderse que viene después; si aún no se ha tirado el clima, la tabla lee 0.
+- Un sí/no para algo que hoy no puede pasar. Las Marcas Grises declaran `fordImpossible`; su tormenta lo pone, y la primera entrada del vado, `when: { today.fordImpossible: true }`, dice que nadie cruza. Una acción también puede usarlo: `unless: { today.forageImpossible: true }` desactiva el botón.
+- Uno que **bloquea** algo mientras se cumple (abajo): `lost` bloquea el viaje. Las aplicaciones lo hacen cumplir: el botón se desactiva y dice por qué.
 
 ## 5. Tu propio sistema de viaje
 

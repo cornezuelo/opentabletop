@@ -29,7 +29,7 @@ entries:
 
 La lista completa, con las variables y de dónde salen los valores del contexto: [Dados, variables y contexto](08-dice-and-templates.md).
 
-`2d6+1`, `d100`, `d%`, `d66`, `4dF`, `4d6kh3` (quedarse los 3 más altos), `2d20kl1` (quedarse el más bajo). Los valores del contexto van entre llaves: `1d6 + {{lostModifier}}`. Los resultados también pueden tirar: `'{{1d6}} lobos'`.
+`2d6+1`, `d100`, `d%`, `d66`, `4dF`, `4d6kh3` (quedarse los 3 más altos), `2d20kl1` (quedarse el más bajo). Los valores del contexto van entre llaves: `1d6 + {{today.lostModifier}}`. Los resultados también pueden tirar: `'{{1d6}} lobos'`.
 
 ## Condiciones
 

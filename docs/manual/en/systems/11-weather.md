@@ -22,7 +22,7 @@ The system must also name the model (Overview → **Weather models**); **New wea
 
 ## Kinds of weather
 
-One row per kind: its **id** (short, what conditions read: `rain`), its **Name** (what the journal says: _Steady rain_) and what it **Sets for the day**, as `key: value` pairs: `deep-snow: true`, `climbModifier: -1`. Those values last until the day ends, like the values a table's result sets, and the day after they're `yesterday.deep-snow`. A value only does something when something reads it: a condition, a table, or the rules' **values of the day** (a value there can block a way of travelling or an action while it holds).
+One row per kind: its **id** (short, what conditions read: `rain`), its **Name** (what the journal says: _Steady rain_) and what it **Sets for the day**, as `key: value` pairs: `deep-snow: true`, `climbModifier: -1`. Those that the rules declare as **values of the day** (Rules → Values of the day) last until the day ends, and the day after they're `yesterday.deep-snow`; any other lasts only for that roll. A value only does something when something reads it: a condition, a table, or the values of the day themselves (one there can block a way of travelling or an action while it holds).
 
 ## Chance tables
 
