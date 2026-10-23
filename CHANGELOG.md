@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-10-23
+
 ### Apps
 
 - Characters, Travel, Hexmapper, Systems: **items move by dragging** their handle (⠿) onto another place of the card (with Shift held, only one of a stack); places an item doesn't fit, or hasn't room in, are dimmed while dragging.
