@@ -40,7 +40,7 @@ entries:
 
 `hex.tags: haunted` holds when the hex has that tag among others. `{ gte: 3 }` means "3 or more"; also `gt`, `lt`, `lte`, `not`.
 
-A field can also change the dice: `roll: '1d6 + {{danger}}'`.
+A field can also change the dice: `roll: '1d6 + {{hex.danger}}'`.
 
 ## 3. One table per season
 

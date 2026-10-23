@@ -16,7 +16,7 @@ Dice go in a table's or oracle's **roll** (Dice in the form), in generator field
 | `2d6+1`, `1d20-2`, `1d6+1d4` | Add or subtract constants and other dice.                                                                                            |
 | `4d6kh3`                     | Roll 4d6 and **keep the highest** 3 (`kh`).                                                                                          |
 | `2d20kl1`                    | Roll 2d20 and **keep the lowest** 1 (`kl`).                                                                                          |
-| `1d6 + {{danger}}`           | Add a value from the context (see below). If it's missing it counts as 0; if it isn't a number, the roll fails with a clear message. |
+| `1d6 + {{hex.danger}}`       | Add a value from the context (see below). If it's missing it counts as 0; if it isn't a number, the roll fails with a clear message. |
 
 **Roll modes** (advantage, disadvantage… whatever the system declares, see [Kinds of definition](../technical/07-kinds.md#roll-modes)) roll the whole expression several times and keep the highest, lowest or middle total. The result card shows every die, with discarded ones crossed out.
 
@@ -54,7 +54,7 @@ Table and generator references can use variables too: `table: 'weather-{{time.se
 
 ## Variables and rolls in conditions
 
-Conditions compare with a variable or a roll the same way: `when: { danger: { gt: '{{party.stats.stealth}}' } }`, or a roll-under against a stat:
+Conditions compare with a variable or a roll the same way: `when: { hex.danger: { gt: '{{party.stats.stealth}}' } }`, or a roll-under against a stat:
 
 ```yaml
 kind: table
@@ -105,7 +105,7 @@ name: Encounter
 fields:
   who: { table: table.wilderness-creatures } # reads terrain, season… from the context
   mood: { table: table.reaction, context: { bonus: 1 } }
-  count: { roll: '1d6 + {{danger}}' } # a hex field from the Hexmapper
+  count: { roll: '1d6 + {{hex.danger}}' } # a hex field from the Hexmapper
 template: '{{count}} × {{who}}, {{mood}}'
 ```
 

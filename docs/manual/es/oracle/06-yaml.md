@@ -38,8 +38,8 @@ La lista completa, con las variables y de dónde salen los valores del contexto:
 ```yaml
 when: { hex.terrain: forest } # igual a
 when: { hex.terrain: [hills, mountains] } # uno de
-when: { danger: { gte: 4 }, time.season: { not: winter } }
-when: { any: [{ trip.weather: storm }, { lost: true }] } # all / any / not
+when: { hex.danger: { gte: 4 }, time.season: { not: winter } }
+when: { any: [{ trip.weather: storm }, { today.lost: true }] } # all / any / not
 ```
 
 Comparaciones: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. Los valores de lista del contexto (como las etiquetas de un hex) coinciden cuando contienen el valor. Un valor puede ser una variable o una tirada, entre comillas: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (el mismo d20 para todas las entradas de la tirada; ver [Condiciones](../technical/08-conditions.md#variables-y-tiradas)). Gana la primera entrada que cumple y encaja con la tirada.

@@ -40,7 +40,7 @@ entries:
 
 `hex.tags: haunted` se cumple cuando el hex tiene esa etiqueta entre otras. `{ gte: 3 }` significa «3 o más»; también `gt`, `lt`, `lte`, `not`.
 
-Un campo también puede cambiar los dados: `roll: '1d6 + {{danger}}'`.
+Un campo también puede cambiar los dados: `roll: '1d6 + {{hex.danger}}'`.
 
 ## 3. Una tabla por estación
 

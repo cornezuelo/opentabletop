@@ -50,7 +50,7 @@ En el `roll` de una tabla u oráculo, en el `roll` de un campo de generador y de
 | `4dF`                        | dados Fudge, de −4 a +4                       |
 | `2d6+1`, `1d6+1d4`, `1d20-2` | sumas y restas                                |
 | `4d6kh3`, `2d20kl1`          | quedarse con los 3 más altos, con el más bajo |
-| `1d6 + {{danger}}`           | más un valor (si falta, cuenta como 0)        |
+| `1d6 + {{hex.danger}}`       | más un valor (si falta, cuenta como 0)        |
 
 Sin `roll`, una tabla elige por `weight` (1 si no tiene): `{ weight: 3, result: peregrino }`.
 

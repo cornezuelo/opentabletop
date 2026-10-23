@@ -208,7 +208,7 @@ checks:
   - {
       event: ENCOUNTER_CHECK_REQUIRED,
       at: [trip.hex-enter, actions.rest],
-      when: { danger: { gte: 2 } },
+      when: { hex.danger: { gte: 2 } },
     }
   - { event: FORAGE_CHECK_REQUIRED, at: actions.forage }
   - {

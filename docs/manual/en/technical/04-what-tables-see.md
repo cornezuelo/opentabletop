@@ -1,6 +1,6 @@
 # What tables see
 
-Every roll gets a **context**: values a table can use in its dice (`{{danger}}`), its texts and its conditions (`when: { danger: { gte: 2 } }`). This page is the reference of every value: its name, what kind of value it is, the values it can take, and where they come from (and where to see them in the apps). At the end: which one wins when two have the same name.
+Every roll gets a **context**: values a table can use in its dice (`{{hex.danger}}`), its texts and its conditions (`when: { hex.danger: { gte: 2 } }`). This page is the reference of every value: its name, what kind of value it is, the values it can take, and where they come from (and where to see them in the apps). At the end: which one wins when two have the same name.
 
 ## How to read this page
 
@@ -211,7 +211,7 @@ Some collisions, and what happens:
 ## Kinds of value, in detail
 
 - Values written on the map (a hex's, a region's, an icon's, a token's) are read as in YAML: `3`, `-1`, `2.5` are **numbers** (they add up in dice and compare with `gt` / `gte` / `lt` / `lte`), `true` and `false` are **yes/no**, anything else is **text** (`Brenna`, `3 silver`).
-- In dice, a missing value counts as **0**: `1d6 + {{danger}}` works where there's no danger.
+- In dice, a missing value counts as **0**: `1d6 + {{hex.danger}}` works where there's no danger.
 - In conditions, a missing value doesn't match, except with `exists: false` or `not`; a comparison with a value that isn't a number never holds. Every operator, with examples: [Conditions](08-conditions.md).
 - A **list** matches when it has the value asked for (`hex.tags: ford`), or any of several (`hex.tags: [ford, bridge]`).
 - Names with dots read inside a group: `token.fare`, `icon.guards`, `npc.role` (a generator's field).

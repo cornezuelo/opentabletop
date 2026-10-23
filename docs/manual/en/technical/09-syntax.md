@@ -50,7 +50,7 @@ In a table's or oracle's `roll`, a generator field's `roll`, and inside texts as
 | `4dF`                        | Fudge dice, −4 to +4                     |
 | `2d6+1`, `1d6+1d4`, `1d20-2` | sums and differences                     |
 | `4d6kh3`, `2d20kl1`          | keep the highest 3, keep the lowest 1    |
-| `1d6 + {{danger}}`           | plus a value (missing counts as 0)       |
+| `1d6 + {{hex.danger}}`       | plus a value (missing counts as 0)       |
 
 Without `roll`, a table picks by `weight` (1 if none): `{ weight: 3, result: pilgrim }`.
 

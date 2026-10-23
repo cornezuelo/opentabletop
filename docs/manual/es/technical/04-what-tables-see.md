@@ -1,6 +1,6 @@
 # Lo que ven las tablas
 
-Cada tirada recibe un **contexto**: valores que una tabla puede usar en sus dados (`{{danger}}`), sus textos y sus condiciones (`when: { danger: { gte: 2 } }`). Esta página es la referencia de cada valor: su nombre, qué tipo de valor es, los valores que puede tomar y de dónde salen (y dónde verlos en las aplicaciones). Al final, cuál gana cuando dos tienen el mismo nombre.
+Cada tirada recibe un **contexto**: valores que una tabla puede usar en sus dados (`{{hex.danger}}`), sus textos y sus condiciones (`when: { hex.danger: { gte: 2 } }`). Esta página es la referencia de cada valor: su nombre, qué tipo de valor es, los valores que puede tomar y de dónde salen (y dónde verlos en las aplicaciones). Al final, cuál gana cuando dos tienen el mismo nombre.
 
 ## Cómo leer esta página
 
@@ -211,7 +211,7 @@ Algunas coincidencias, y lo que pasa:
 ## Tipos de valor, en detalle
 
 - Los valores escritos en el mapa (de un hex, una región, un icono, un token) se leen como en YAML: `3`, `-1`, `2.5` son **números** (se suman en los dados y se comparan con `gt` / `gte` / `lt` / `lte`), `true` y `false` son **sí/no**, lo demás es **texto** (`Brenna`, `3 platas`).
-- En los dados, un valor que falta cuenta como **0**: `1d6 + {{danger}}` funciona donde no hay peligro.
+- En los dados, un valor que falta cuenta como **0**: `1d6 + {{hex.danger}}` funciona donde no hay peligro.
 - En las condiciones, un valor que falta no cumple, salvo con `exists: false` o `not`; una comparación con un valor que no es un número nunca se cumple. Todos los operadores, con ejemplos: [Condiciones](08-conditions.md).
 - Una **lista** cumple cuando tiene el valor que se pide (`hex.tags: ford`), o cualquiera de varios (`hex.tags: [ford, bridge]`).
 - Los nombres con puntos leen dentro de un grupo: `token.fare`, `icon.guards`, `npc.role` (un campo de un generador).
