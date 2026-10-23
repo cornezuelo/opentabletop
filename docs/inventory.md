@@ -159,11 +159,59 @@ This is the part with migrations: the pack format bumps (our packs moved in the 
 3. **Supplies become items or values** (5): the format bump, our packs moved, migrations of trips and maps, `resources` and `carried` removed, item 46 closed.
 4. The bestiary (creatures' sheets) and treasure tables that give items come after, on these pieces.
 
-## 8. To decide with the user
+## 8. Decided with the user (2026-10-23)
 
-a. **Catalogue and by hand, both** (proposal): a `kind: items` catalogue for what a system offers, and items written by hand on a character for the one-off things (an heirloom, a found key). With only a catalogue, every odd thing needs a pack edit; with only by-hand, nothing is shared or translated.
-b. **Fields declared by the sheet** (proposal) rather than fixed (`slots`, `weight`…): the system says what an item has, as it says what a character has; nothing named in the engine.
-c. **Conditions that hold by themselves** (`when:` on a condition) as the way "over the limit" is said, beside actions and checks for subtler rules (proposal: yes, it's generic: Weary, Hungry, Shaken while morale ≤ 1…).
-d. **Places** optional (proposal): one list unless the sheet declares places; each place's room a number or a value.
-e. **Where catalogues are edited**: in the Oracle app (it edits packs' definitions, tables and decks) or in Systems (beside the sheet whose fields they fill). Proposal: Systems, a tab **Items** next to **Sheet**.
-f. **The order**: phase 1 alone is small and useful; the rest after the current work.
+- a. **Both**: a `kind: items` catalogue and items written by hand on a character.
+- b. **Fields declared by the sheet**; nothing named in the engine.
+- c. **Conditions that hold by themselves** (`when:` on a sheet condition), beside actions and checks for subtler rules. Section 9 says why they matter for reactivity.
+- d. **Places optional**, with **containers** and a **capacity the system defines** (section 10).
+- e. **The catalogue is edited in Systems** (a tab **Items** beside **Sheet**). The Oracle app keeps to rolling things (backlog item 63: organising it by tags and filters).
+- f. The order is free: phase 1 first when it comes.
+- **Sharing out what the party spends**: the system declares the default rule (whoever carries most, evenly, in order), and each trip may let the rule decide or **ask the player** each time who gives it, as who rolls already does.
+- **A spent item** is removed or stays empty as the sheet (or system) says.
+- **Supplies move** to items or values, with the format bump and migrations of section 5.
+
+## 9. Reactivity: states always true, reactions at once
+
+The user's worry (2026-10-23): rules written as actions at moments only take effect at the next moment, which loses reactivity and invites inconsistencies ("si hay una acción que añade un estado cuando llegue a cierto valor algo, esperaría verlo en caliente").
+
+Today, in a trip:
+
+- **Values and effects are immediate**: a step's or a result's effect changes the value at once, and every condition read after it (later steps, the moment's next checks, the buttons' **Only when**) sees the new value.
+- **What lags is a rule emulated by an action at a moment**: "add Encumbered when load passes capacity", written as an action `on: trip.hex-enter`, only runs at the next hex; between moments (and after a change by hand on the card) the sheet shows a load over the limit without the state, and a button may be allowed that the state would block. That's the inconsistency the user means.
+
+The design answers it in two parts:
+
+1. **States as conditions that hold by themselves** (3.4): they aren't set by anyone, they're **read**: wherever a condition of the sheet is looked at (a block, a check's condition, a roll mode, the card), its `when` is evaluated with the values as they are **now**. So they're never stale, whatever changed the value: a step, a table, a clock, the player's hand on the card. Nothing to keep in step, no moment to wait for. This covers "a state while something holds" (encumbered, weary, shaken).
+2. **One-off consequences when something becomes true** ("when morale reaches 0, the hirelings leave": an effect, a line, a pause, not a state) are **reactions**, roadmap item 5 (_Everything connected through session_): an action with an edge trigger (`on: { when: { party.values.morale: { lte: 0 } } }`), fired **once when the condition turns true**, evaluated right after every change (a step's effect, a result, a hand edit, a world turn), in the same step, with a guard against loops (a reaction that re-triggers itself stops, with a problem shown). Until it exists, packs write these as actions at moments, as today.
+
+Rule for the design: **a state is a condition that holds by itself; an action is for something that happens**. Systems' help says so, and the manual's common mistakes warn against emulating a state with an action at every moment.
+
+## 10. Places for any body, containers and capacity
+
+**Any body.** The engine knows no heads or legs: places are declared by the sheet, with **tags**, and an item says where it fits **by tag**, never by a place's name:
+
+```yaml
+# a three-headed beast's sheet
+items:
+  places:
+    left-head: { name: Left head, tags: [head], room: 1 }
+    mid-head: { name: Middle head, tags: [head], room: 1 }
+    right-head: { name: Right head, tags: [head], room: 1 }
+    legs: { name: Legs, tags: [leg], room: '{{self.values.legs}}' } # five, or however many
+# a catalogue's helm, in any system: it fits any place tagged head
+helm: { name: Helm, fits: { place.tags: head }, slots: 1 }
+```
+
+- Each kind of being is a sheet of its own (a human companion, a creature of the bestiary), with its own places.
+- A place's room may be a value of the sheet (`'{{self.values.legs}}'`): one creature sheet serves the two-headed and the three-headed.
+- **An odd NPC may add places of its own**, on that character only, as it may have items written by hand: no new sheet for one strange being.
+- Two notions kept apart, both optional: **what is worn or held** (places with small rooms) and **how much one can carry** (load against capacity, below).
+
+**Containers.** An item can be a place too (`holds: { room: 6, tags: [pack] }`): a backpack, saddlebags, a quiver. What's inside travels with it (dropping the backpack drops its contents); the container says how it counts towards its carrier's load (its own weight, its contents', nothing while worn, or the system's own rule, as a formula), and rules can read where it is (`place: dropped`), so "packs are dropped in a fight" is a step.
+
+**Capacity, the system's own.** Never a fixed number: a **value made of others** (3.3), as each game counts it, or none:
+
+- Twilight 2000: the size of the Strength die (a level `d8` reads as 8: levels may carry a number, `{ id: d8, value: 8 }`), and the backpack counted its own way.
+- D&D: `'{{self.values.strength * 15}}'`; Shadowdark: the higher of Strength and 10; Cairn: 10.
+- A system without encumbrance declares no capacity and no state: items are a list, nothing more.
