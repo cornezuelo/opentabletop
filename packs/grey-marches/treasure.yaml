@@ -3,6 +3,7 @@
 # d100 (also written d%): 1–100.
 kind: table
 id: treasure
+tags: [treasure]
 name: What is in the hoard?
 description: |-
   What a **hoard** holds.
@@ -34,6 +35,7 @@ entries:
 # maxOccurrences: the Sword of Keld turns up twice at most; then only gold remains.
 kind: table
 id: prize
+tags: [treasure]
 name: A rare prize
 description: |-
   A **rare prize**.
@@ -55,6 +57,7 @@ entries:
 # ruin: the danger field before it).
 kind: generator
 id: ruin-delve
+tags: [places, treasure, rules]
 name: Delving a ruin
 description: |-
   What a **ruin** holds, and what guards it.

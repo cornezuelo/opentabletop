@@ -13,6 +13,8 @@
 | **A faction's turn** (table)                    | What a faction does on a world turn, for any game: expands (+1 hex), holds, schemes or loses ground. A system's factions roll it with `turn: core/table.faction-turn`.                        |
 | **A growing threat** (clocks)                   | A progress clock for any game: the threat grows a segment at a time and, when full, strikes with one of the **Twists** and starts over. A system brings it with `clocks: core/clocks.threat`. |
 
+Every one is **tagged** with what it's about (`scenes`, `inspiration`, `questions`, `people`; _A faction's turn_ also `factions` and `rules`, since a system's world turn rolls it), so the Oracle's **Filter** finds them: `−rules` leaves what you'd roll by hand.
+
 ## The Generic rules
 
 Core's system (`system.yaml`, `id: default`, so its id is `core`) is the smallest one that plays: a map whose campaign chooses no system plays it (**Map settings → Campaign → System**), and so do maps and trips of older versions that played the rules built into the apps. Like any bundled system, the Systems app shows it read-only; **New system** starts from a copy of its rules, to change as you like. For one that uses everything, see [The Grey Marches](02-grey-marches.md).

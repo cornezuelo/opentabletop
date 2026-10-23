@@ -84,6 +84,10 @@ export const es: Messages<typeof en> = {
       'Otros packs dependen de este, así que no puede sustituirlo una copia: haz un pack tuyo nuevo a partir de él, con su propio id, y cambia ese.',
     name: 'Nombre',
     description: 'Descripción',
+    tags: vocabulary.es.terms.tags,
+    tagsHelp:
+      'Palabras que clasifican esta definición: el **Filtrar** de la lista de packs (aquí y en el panel de Oráculo del Hexmapper) muestra solo lo que tiene una etiqueta, o lo oculta. Una etiqueta es cualquier palabra que elija el pack; Intro o una coma la añaden.\n• `encounters`, `people`, `places` — de qué trata\n• `names` — una tabla de nombres\n• `rules` — la tiran las reglas del propio sistema (las comprobaciones de un viaje, un turno del mundo), así que un filtro `−rules` deja lo que tirarías a mano',
+    removeTag: 'Quitar {name}',
     roll: 'Dados',
     rollHelp:
       'Los dados que se tiran en la tabla; el **Rango** de cada entrada dice qué totales la eligen.\n• `1d6`, `2d6`, `1d20` — los dados de siempre\n• `d66` — dos d6 leídos como decenas y unidades (11–66)\n• `d%` — de 1 a 100\n• `2d6kh1` — tira 2d6 y quédate con el más alto\n• `1d6 + {{survival}}` — más un valor que recibe la tirada (una característica del grupo, un campo)\nVacío: se elige una entrada por **Peso**.',

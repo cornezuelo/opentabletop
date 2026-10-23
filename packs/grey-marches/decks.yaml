@@ -2,6 +2,7 @@
 # can roll a table ({{result}}) and can set values (here, food found).
 kind: deck
 id: omens
+tags: [omens, rules]
 name: Omens of the road
 description: |-
   One is drawn **at each dawn** on the road, by the _Omens_ check of the Marches' travel rules (or by hand). A drawn card is gone until the deck runs out.

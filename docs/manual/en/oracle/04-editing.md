@@ -6,7 +6,7 @@ The **Edit** tab is a form over the YAML file: it changes only what you touch an
 
 ## Every definition
 
-Name, description and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and its **roll modes**: for each mode its system declares (advantage…), whether it's offered when rolling by hand and, in **by itself when**, the condition that applies it alone (`party.stats.explorer: { gte: 1 }`), and in **unless**, the one that stops it applying alone (`hex.tags: lit`; written alone, the mode applies always but then). For tables and oracles also:
+Name, description, **Tags** (words that sort it, any the pack chooses: `encounters`, `names`, `rules` for what the system's own rules roll; the list's **Filter** shows or hides them, see [Getting started](01-getting-started.md)) and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and its **roll modes**: for each mode its system declares (advantage…), whether it's offered when rolling by hand and, in **by itself when**, the condition that applies it alone (`party.stats.explorer: { gte: 1 }`), and in **unless**, the one that stops it applying alone (`hex.tags: lit`; written alone, the mode applies always but then). For tables and oracles also:
 
 - **Clamp totals** (on by default): a total below the lowest range takes the first entry, above the highest the last one, so modifiers never leave you without a result. Off, such a total gives nothing.
 - **When exhausted**: what happens when the entry rolled has reached its limit (see below): **Roll again**, **Take the next one** still available, or **Nothing**.

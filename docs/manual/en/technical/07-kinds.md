@@ -38,7 +38,7 @@ entries:
   - { id: storm, range: 4-6, result: Storm, table: table.storm-damage }
 ```
 
-Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` / `unless` (conditions), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes`, `modeWhen` and `modeUnless`. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
+Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` / `unless` (conditions), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes`, `modeWhen` and `modeUnless`, and, as every table, oracle, generator and deck, `tags`: words that sort it (`tags: [people, names]`), which the Oracle's and the Hexmapper's **Filter** read; they mean nothing else, and `rules` is only our packs' habit for what their systems roll. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
 
 **What other tables see:** a table rolled from another (`table:`) gives its text as `{{result}}` and its `set` values to the trip and to later checks of the day (see [What tables see](04-what-tables-see.md)).
 

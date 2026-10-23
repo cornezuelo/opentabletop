@@ -7,6 +7,7 @@
 # disadvantage (both at once cancel out).
 kind: table
 id: getting-lost
+tags: [travel, rules]
 name: Do we get lost?
 description: |-
   Rolled **at dawn**, off roads and rivers, and in each hex entered on a night march, off the road (in the dark, 1–3 gets you lost). The party's Navigation helps; fog doesn't. With **clear skies** or a **guide** with Pathfinding 2 or more it's rolled with advantage (not under the trees of a forest, which hide the sky); the day after getting lost, with disadvantage.
@@ -64,6 +65,7 @@ entries:
 # back ({{days}}) and the effect adds that many days of food to the supplies.
 kind: table
 id: forage
+tags: [travel, rules]
 name: Foraging
 description: |-
   What you find when you **forage for food** (the _Forage for food_ action), only in woods, fields, heath and marsh: **4–6** feeds you a day, **7 or more** 2–4 days. In the morning (until 11, when game is about) it's rolled with advantage.
@@ -100,6 +102,7 @@ entries:
 # against a stat (at or under Survival) and in their texts.
 kind: table
 id: fishing
+tags: [travel, rules]
 name: Fishing
 description: |-
   What bites when you **fish** (the _Fish_ action), next to a lake, the sea or on the coast: a d6 **at or under Survival** catches fish for two days; otherwise 1–3 for one day.
@@ -126,6 +129,7 @@ entries:
 # under (a roll in a condition: both entries read the same d6, so exactly one comes up).
 kind: table
 id: toll
+tags: [travel, rules]
 name: The toll
 description: |-
   **Keld Bridge**'s toll, arriving by road: roll a d6; at or under the party's **Charisma**, the bridge-warden waves you through, otherwise he takes a day's food.
@@ -148,6 +152,7 @@ entries:
 # Fatigue down (negative) at a shrine; a once-only blessing comes up a single time.
 kind: table
 id: shrine
+tags: [travel, rules]
 name: At the shrine
 description: |-
   A wayside **shrine**.
@@ -176,6 +181,7 @@ entries:
 # chosen by hand. Each variant rolls its own dice; answers "then roll" a consequence.
 kind: oracle
 id: ford
+tags: [travel, rules]
 name: Crossing the ford
 description: |-
   **Does the crossing go well?** The water decides; the party's Survival helps.
@@ -234,6 +240,7 @@ variants:
 ---
 kind: table
 id: ford-mishap
+tags: [travel, rules]
 name: Ford mishap
 description: |-
   What the river takes. Rolled from the _Ford_'s answers.
@@ -255,6 +262,7 @@ entries:
 # table, and limits (once, maxOccurrences).
 kind: table
 id: hunger
+tags: [travel, rules]
 name: Hunger
 description: |-
   **Camping with no food.** The lower the morale, the worse it goes.
@@ -293,6 +301,7 @@ entries:
 # Who leaves: a hireling's name (a generator's table) and what they take.
 kind: table
 id: desertion
+tags: [travel, rules]
 name: Desertion
 description: |-
   Who leaves in the night, and what they take.

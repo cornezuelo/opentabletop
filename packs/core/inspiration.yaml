@@ -1,6 +1,7 @@
 # Word tables to interpret freely: combine an action and a subject.
 kind: table
 id: action
+tags: [inspiration]
 name: Action
 description: |-
   A **verb** for what happens next: half of a _Prompt_. Read it freely, together with a _Subject_.
@@ -29,6 +30,7 @@ entries:
 ---
 kind: table
 id: subject
+tags: [inspiration]
 name: Subject
 description: |-
   A **thing, person or idea** the action is about: the other half of a _Prompt_.
@@ -57,6 +59,7 @@ entries:
 ---
 kind: generator
 id: prompt
+tags: [inspiration]
 name: Prompt
 description: |-
   An **action** and a **subject** to interpret as what happens next, e.g. _Betray an old debt_.

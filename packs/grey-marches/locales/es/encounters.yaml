@@ -5,6 +5,7 @@ encounter:
 
     **Enseña:**
 
+    - **Etiquetas** para el **Filtrar** del Oracle: `encounters` y `rules`, porque lo tiran las comprobaciones de un viaje
     - Una tabla para dos comprobaciones, de día y de noche, que distingue el contexto `timeOfDay` de los bindings
     - Condiciones sobre `hex.terrain`, `hex.region`, `hex.tags`, `hex.danger`, `time.season` y las lunas (`time.moons.ember: full`)
     - El `unless` de una entrada: la patrulla del Valle, nunca de noche; recorre cualquier tierra que tenga el Valle (`hex.faction`, el territorio de una facción)

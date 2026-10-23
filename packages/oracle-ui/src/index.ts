@@ -5,6 +5,14 @@ export { default as ResultCard } from './ResultCard.svelte'
 export { default as RollPanel } from './RollPanel.svelte'
 export { default as UsesList } from './UsesList.svelte'
 export { favorites } from './favorites.svelte'
+export { default as DefinitionFilters } from './DefinitionFilters.svelte'
+export {
+  definitionFilter,
+  nextTagMode,
+  passesFilter,
+  type FilterState,
+  type TagMode,
+} from './definitionFilter.svelte'
 export { translator, type OracleUiKey, type Translate } from './i18n'
 export { KIND_ORDER, packTexts, type PackTexts } from './names'
 export {

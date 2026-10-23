@@ -1,6 +1,7 @@
 # Generic oracles for solo play. Original content, MIT like the rest of the repo.
 kind: oracle
 id: yes-no
+tags: [questions]
 name: Yes or no?
 description: |-
   Ask a question that can be answered **yes or no**, choose how likely it is, and roll.
@@ -55,6 +56,7 @@ variants:
 # ("then roll") shown through {{result}}.
 kind: oracle
 id: npc-attitude
+tags: [people]
 name: How do they take it?
 description: |-
   Ask how someone answers a **request**. The bigger the ask, the harder the yes: a **big ask** may come with a price.
@@ -90,6 +92,7 @@ variants:
 ---
 kind: table
 id: npc-motive
+tags: [people]
 name: Motive
 description: |-
   **Why** someone does what they do. Greed and fear are the most common.

@@ -1,5 +1,6 @@
 kind: table
 id: scene-twist
+tags: [scenes]
 name: Scene twist
 description: |-
   Roll when a **scene starts**: on a 1 it doesn't go as expected, and _Twists_ says how.
@@ -14,6 +15,7 @@ entries:
 ---
 kind: table
 id: twists
+tags: [scenes]
 name: Twists
 description: |-
   How a scene goes **differently** from what you expected. Rolled by _Scene twist_ on a 1, or on its own.
@@ -30,6 +32,7 @@ entries:
 ---
 kind: deck
 id: complications
+tags: [scenes]
 name: Complications
 description: |-
   Draw when things get **too easy**. Each card comes up once until you **reshuffle** (by hand: the deck doesn't reshuffle itself).

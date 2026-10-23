@@ -8,6 +8,7 @@
 # forests and ranges grow together instead of a patchwork.
 kind: table
 id: next-terrain
+tags: [discovery, terrain, rules]
 name: The land ahead
 description: |-
   Decides an **empty hex** from the land around it: water gathers, the common land goes on, sometimes its kin, now and then anything.
@@ -84,6 +85,7 @@ entries:
 ---
 kind: table
 id: open-land
+tags: [discovery, terrain, rules]
 name: Open land
 description: |-
   The land ahead from **open ground**: plains, steppe and their kin. Rolled by _The land ahead_ on 4–5.
@@ -102,6 +104,7 @@ entries:
 ---
 kind: table
 id: woodland
+tags: [discovery, terrain, rules]
 name: Woodland
 description: |-
   The land ahead from **the woods**: more forest, sometimes dense, now and then a clearing or a swamp. Rolled by _The land ahead_ on 4–5.
@@ -119,6 +122,7 @@ entries:
 ---
 kind: table
 id: wetland
+tags: [discovery, terrain, rules]
 name: Wetland
 description: |-
   The land ahead from **marsh and swamp**. Rolled by _The land ahead_ on 4–5.
@@ -135,6 +139,7 @@ entries:
 ---
 kind: table
 id: highland
+tags: [discovery, terrain, rules]
 name: Highland
 description: |-
   The land ahead from **hills and mountains**: ranges grow, with peaks nobody crosses. Rolled by _The land ahead_ on 4–5.
@@ -152,6 +157,7 @@ entries:
 ---
 kind: table
 id: dryland
+tags: [discovery, terrain, rules]
 name: Dry land
 description: |-
   The land ahead from **desert, badlands or canyons**. There are none on the example map: it's for maps of your own. Rolled by _The land ahead_ on 4–5.
@@ -169,6 +175,7 @@ entries:
 ---
 kind: table
 id: cold-land
+tags: [discovery, terrain, rules]
 name: Cold land
 description: |-
   The land ahead from **tundra, snow or glaciers**, for maps of your own. Rolled by _The land ahead_ on 4–5.
@@ -185,6 +192,7 @@ entries:
 ---
 kind: table
 id: waters
+tags: [discovery, terrain, rules]
 name: Waters
 description: |-
   The land ahead from **the coast, a lake or the sea**. Rolled by _The land ahead_ on 4–5.
@@ -201,6 +209,7 @@ entries:
 ---
 kind: table
 id: any-land
+tags: [discovery, terrain, rules]
 name: Any land
 description: |-
   **Anything**, now and then: the last entry of _The land ahead_, which has no condition and catches every roll the others don't.
@@ -223,6 +232,7 @@ entries:
 # a `landmark` tag makes the landmark check stop the trip there on later visits.
 kind: table
 id: hex-contents
+tags: [discovery, places, rules]
 name: What is here?
 description: |-
   Rolled the **first time you enter** a discovered hex. Mostly nothing; sometimes ruins, a shrine or a place with a name.
@@ -254,6 +264,7 @@ entries:
 # A once-only entry: after the Twin Spires are found, only standing stones remain.
 kind: table
 id: landmarks
+tags: [places]
 name: Landmarks
 description: |-
   Standing stones and, **once**, the Twin Spires.
@@ -281,6 +292,7 @@ entries:
 ---
 kind: table
 id: ruins
+tags: [places]
 name: Ruins
 description: |-
   What a ruin once was. Rolled by _What is here?_ and _Delving a ruin_.
@@ -294,6 +306,7 @@ entries:
 ---
 kind: table
 id: carvings
+tags: [places]
 name: Carvings
 description: |-
   What a standing stone shows.

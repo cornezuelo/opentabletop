@@ -119,6 +119,19 @@ export const en = {
     none: 'Nothing matches.',
     choose: 'Pick a table, oracle, generator or deck to roll it.',
   },
+  /** Narrowing a list of definitions by kind and tags. */
+  filter: {
+    title: 'Filter',
+    titleCount: 'Filter ({count})',
+    clear: 'Show all',
+    kinds: 'Kinds',
+    kindNames: vocabulary.en.kinds,
+    tags: vocabulary.en.terms.tags,
+    tagOff: "Show only what has the tag {tag} (click again: only what hasn't it)",
+    tagOnly: "Showing only what has the tag {tag}; click to show only what hasn't it",
+    tagNot: 'Hiding what has the tag {tag}; click to forget the tag',
+    noTags: 'No definition here has tags.',
+  },
   /** Where something is used (Systems' Used by, the Oracle's Rolled by). */
   uses: {
     how: {

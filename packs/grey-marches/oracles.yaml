@@ -6,12 +6,14 @@
 # select the hex before rolling). Each answer then rolls what happens next.
 kind: oracle
 id: gates
+tags: [places]
 name: Will they let us in?
 description: |-
   At the gates of **Ashford** or **Fort Keld**: how you arrive changes the answer.
 
   **Shows:**
 
+  - **Tags** for the Oracle's **Filter**: `places`, and no `rules`, since you roll it by hand
   - An **oracle** with an input: how you arrive
   - A variant with its own dice
   - A value of the place's icon on the map: `{{icon.guards}}` is 0 in Ashford and 2 at Fort Keld (select the hex before rolling)
@@ -50,6 +52,7 @@ variants:
 ---
 kind: table
 id: gate-news
+tags: [rumours]
 name: News at the gate
 description: |-
   What you hear at the gate.
@@ -73,6 +76,7 @@ entries:
 # fare is a value of her token ({{token.fare}}). Without her, the jetty is empty.
 kind: table
 id: ferry
+tags: [places]
 name: The ferry
 description: |-
   Brenna's ferry over the **Saltmere**. Select her token on the map and roll this from the Oracle panel.
@@ -102,6 +106,7 @@ entries:
 # under the result. In the Oracle app there is no party: `exists` picks other entries.
 kind: oracle
 id: inn
+tags: [places]
 name: At The Wet Ferret
 description: |-
   **The Wet Ferret**, the inn of Ashford: what you spend changes the night. In the Hexmapper, **Apply to the trip** under the result changes the party.

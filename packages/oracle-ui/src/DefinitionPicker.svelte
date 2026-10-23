@@ -1,5 +1,7 @@
 <script lang="ts">
   import { favorites } from './favorites.svelte'
+  import { definitionFilter } from './definitionFilter.svelte'
+  import DefinitionFilters from './DefinitionFilters.svelte'
   import { KIND_ORDER } from './names'
   import { manifestOf } from '@open-tabletop/pack-ui'
   import type { OracleUi } from './ui'
@@ -13,7 +15,15 @@
 
   let query = $state('')
 
-  /** Every definition of every pack, filtered by name, id or tag. */
+  /** Every definition of the packs shown, before the filter: what its chips offer. */
+  const everything = $derived(
+    ui.library.packs.flatMap((pack) => {
+      const id = manifestOf(pack).id
+      return id && ui.showsPack(id) ? ui.library.engine.list({ pack: id }) : []
+    }),
+  )
+
+  /** Every definition of every pack, filtered by name, id or tag, and by the filter. */
   const groups = $derived.by(() => {
     const q = query.trim().toLowerCase()
     const all = ui.library.packs
@@ -21,6 +31,7 @@
         const manifest = manifestOf(pack)
         const shown = !!manifest.id && ui.showsPack(manifest.id)
         const defs = (shown ? ui.library.engine.list({ pack: manifest.id }) : [])
+          .filter((def) => definitionFilter.passes(def))
           .map((def) => ({ def, name: ui.displayName(def) }))
           .filter(
             ({ def, name }) =>
@@ -50,6 +61,7 @@
 
 <div class="picker">
   <input type="search" placeholder={t('picker.search')} bind:value={query} />
+  <DefinitionFilters {ui} defs={everything} />
   <ul>
     {#each groups as group (group.root)}
       <li class="pack">{group.name}</li>

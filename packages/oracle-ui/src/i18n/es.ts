@@ -122,6 +122,19 @@ export const es: Messages<typeof en> = {
     none: 'No hay coincidencias.',
     choose: 'Elige una tabla, oráculo, generador o mazo para tirarlo.',
   },
+  /** Narrowing a list of definitions by kind and tags. */
+  filter: {
+    title: 'Filtrar',
+    titleCount: 'Filtrar ({count})',
+    clear: 'Mostrar todo',
+    kinds: 'Tipos',
+    kindNames: vocabulary.es.kinds,
+    tags: vocabulary.es.terms.tags,
+    tagOff: 'Mostrar solo lo que tiene la etiqueta {tag} (otro clic: solo lo que no la tiene)',
+    tagOnly: 'Solo se ve lo que tiene la etiqueta {tag}; clic para ver solo lo que no la tiene',
+    tagNot: 'Se oculta lo que tiene la etiqueta {tag}; clic para olvidar la etiqueta',
+    noTags: 'Nada de lo que hay aquí tiene etiquetas.',
+  },
   /** Where something is used (Systems' Used by, the Oracle's Rolled by). */
   uses: {
     how: {

@@ -3,7 +3,7 @@
 # Open the example map in the Hexmapper: Maps → Example maps.
 id: grey-marches
 name: The Grey Marches
-version: 0.1.0
+version: 0.2.0
 # The pack format it is written for (what its syntax means; see the manual: Packs).
 format: 8
 locale: en

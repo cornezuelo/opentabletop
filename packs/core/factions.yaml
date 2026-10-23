@@ -3,6 +3,7 @@
 # system with values of its own (strength, wealth…) writes its own turn table.
 kind: table
 id: faction-turn
+tags: [factions, rules]
 name: A faction's turn
 description: |-
   What a faction does on a **world turn**, for any game: it grows, holds, schemes or loses ground. A system's factions can roll it (`turn: core/table.faction-turn`).

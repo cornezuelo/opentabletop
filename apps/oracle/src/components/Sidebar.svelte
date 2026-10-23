@@ -7,7 +7,8 @@
   import { workspace } from '../lib/packs/workspace.svelte'
   import { manifestOf } from '../lib/packs/workspace'
   import KindBadge from './KindBadge.svelte'
-  import { favorites } from '@open-tabletop/oracle-ui'
+  import { definitionFilter, DefinitionFilters, favorites } from '@open-tabletop/oracle-ui'
+  import { oracleUi } from '../lib/oracle.svelte'
   import { dialogs } from '../lib/dialogs.svelte'
   import { isHidden } from '../lib/hiddenPacks.svelte'
 
@@ -18,7 +19,9 @@
     const q = query.trim().toLowerCase()
     return workspace.packs.map((pack) => {
       const manifest = manifestOf(pack)
-      const defs = (manifest.id ? workspace.engine.list({ pack: manifest.id }) : [])
+      const all = manifest.id ? workspace.engine.list({ pack: manifest.id }) : []
+      const defs = all
+        .filter((def) => definitionFilter.passes(def))
         .map((def) => ({ def, name: displayName(def) }))
         .filter(
           ({ def, name }) =>
@@ -33,11 +36,14 @@
             a.name.localeCompare(b.name),
         )
       const errors = workspace.diagnostics(pack.root).filter((d) => d.severity === 'error').length
-      return { pack, manifest, defs, errors }
+      return { pack, manifest, all, defs, errors }
     })
   })
   /** Packs hidden in Preferences stay out of the tree, not out of the favorites. */
   const shownGroups = $derived(groups.filter((g) => !isHidden(g.manifest.id)))
+
+  /** What the filter's chips offer: the definitions of the packs shown, before filtering. */
+  const everything = $derived(shownGroups.flatMap((g) => g.all))
 
   /** Favorites pinned on top (filtered by the search too). */
   const pinned = $derived(
@@ -53,6 +59,7 @@
 
 <nav class="sidebar">
   <input type="search" placeholder={t('nav.search')} bind:value={query} />
+  <DefinitionFilters ui={oracleUi} defs={everything} />
   <div class="tree">
     {#if pinned.length}
       <div class="pack">
@@ -75,7 +82,7 @@
       </div>
     {/if}
     {#each shownGroups as { pack, manifest, defs, errors } (pack.root)}
-      {#if !query || defs.length}
+      {#if (!query && !definitionFilter.count) || defs.length}
         <div class="pack">
           <div class="pack-row" class:selected={selectedPack === pack.root}>
             <button
@@ -83,7 +90,7 @@
               aria-label={manifest.name ?? pack.root}
               aria-expanded={!collapsed[pack.root]}
               onclick={() => (collapsed[pack.root] = !collapsed[pack.root])}
-              >{collapsed[pack.root] && !query ? '▸' : '▾'}</button
+              >{collapsed[pack.root] && !query && !definitionFilter.count ? '▸' : '▾'}</button
             >
             <button
               class="pack-name"
@@ -120,7 +127,7 @@
               >
             {/if}
           </div>
-          {#if !collapsed[pack.root] || query}
+          {#if !collapsed[pack.root] || query || definitionFilter.count}
             <ul>
               {#each defs as { def, name } (def.id)}
                 <li>
@@ -138,7 +145,7 @@
         </div>
       {/if}
     {/each}
-    {#if query && groups.every((g) => !g.defs.length)}
+    {#if (query || definitionFilter.count) && shownGroups.every((g) => !g.defs.length)}
       <p class="help">{t('nav.noResults')}</p>
     {/if}
     <OlderPacks library={workspace} locale={getLocale()} />

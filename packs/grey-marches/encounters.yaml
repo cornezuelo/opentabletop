@@ -5,12 +5,14 @@
 # bindings' context (timeOfDay). Comparisons (gte, lt), lists, any / all / not.
 kind: table
 id: encounter
+tags: [encounters, rules]
 name: Who goes there?
 description: |-
   **Who you meet**: depends on the terrain, the region, the hex's danger and the time of day.
 
   **Shows:**
 
+  - **Tags** for the Oracle's **Filter**: `encounters` and `rules`, since a trip's checks roll it
   - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
   - Conditions on `hex.terrain`, `hex.region`, `hex.tags`, `hex.danger`, `time.season` and the moons (`time.moons.ember: full`)
   - An entry's `unless`: the Vale's patrol, never at night; it rides wherever the Vale holds the land (`hex.faction`, a faction's territory)
@@ -115,6 +117,7 @@ entries:
 # modes, through the dependency).
 kind: table
 id: reaction
+tags: [people]
 name: Reaction
 description: |-
   How someone takes you, from **hostile** to **eager to help**.
@@ -137,6 +140,7 @@ entries:
 # A generator: fields rolled in order (later ones see earlier ones) and a template.
 kind: generator
 id: npc
+tags: [people]
 name: Someone on the road
 description: |-
   A name, a role, what they want and how strong they are.
@@ -157,6 +161,7 @@ template: '{{name}}, a {{role}} who {{want}} (might {{might}})'
 # Another generator using the first: {{npc.role}} reads a field of the npc generator.
 kind: generator
 id: rumour
+tags: [rumours]
 name: A rumour
 description: |-
   Who tells it, and what they say.
@@ -169,6 +174,7 @@ template: '{{npc.name}} the {{npc.role}} swears that {{what}}.'
 ---
 kind: table
 id: npc-names
+tags: [people, names]
 name: Names of the Marches
 description: |-
   Names of the people of the Marches.
@@ -184,6 +190,7 @@ entries:
 ---
 kind: table
 id: npc-roles
+tags: [people]
 name: Roles
 description: |-
   Who someone is.
@@ -201,6 +208,7 @@ entries:
 ---
 kind: table
 id: npc-wants
+tags: [people]
 name: Wants
 description: |-
   What someone wants, in keeping with who they are: rolled by the _Someone on the road_ generator after their role.
@@ -227,6 +235,7 @@ entries:
 # d66: two dice read as tens and units (11–66), 36 results; ranges like 11-16.
 kind: table
 id: rumours
+tags: [rumours]
 name: Rumours (d66)
 description: |-
   Rumours heard on the road and at the inn.

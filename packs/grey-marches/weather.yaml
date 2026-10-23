@@ -5,6 +5,7 @@
 # season), the guard fails and the last entry answers.
 kind: table
 id: weather
+tags: [weather, rules]
 name: The Marches' weather
 description: |-
   Today's weather by the season, **with no memory**, for rolls by hand. Trips use _The Marches' sky_ instead, where today follows yesterday.
@@ -26,6 +27,7 @@ entries:
 # 2d6: the middle is common, the ends rare. Rain swells the fords for the rest of the day.
 kind: table
 id: weather-spring
+tags: [weather, rules]
 name: Spring in the Marches
 description: |-
   Spring weather.
@@ -49,6 +51,7 @@ entries:
 # Weights instead of dice.
 kind: table
 id: weather-summer
+tags: [weather, rules]
 name: Summer in the Marches
 description: |-
   Summer weather.
@@ -67,6 +70,7 @@ entries:
 # Fate dice (4dF: from -4 to +4, mostly near 0): fog rolls in from the lake.
 kind: table
 id: weather-autumn
+tags: [weather, rules]
 name: Autumn in the Marches
 description: |-
   Autumn weather.
@@ -89,6 +93,7 @@ entries:
 ---
 kind: table
 id: weather-winter
+tags: [weather, rules]
 name: Winter in the Marches
 description: |-
   Winter weather.

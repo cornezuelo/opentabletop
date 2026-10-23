@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Oracle, Hexmapper: **Filter** the list of what you roll by kind and by the tags packs give their definitions: a click on a tag shows only what has it, a second only what hasn't it (`−rules` leaves what you'd roll by hand), a third forgets it; this browser remembers it, in both apps. The Oracle's editor has **Tags**.
+
+### Packs
+
+- Core and the Grey Marches: every table, oracle, generator and deck is tagged with what it's about, and `rules` where the system rolls it itself.
+
 ## [0.15.0] - 2026-10-23
 
 ### Apps

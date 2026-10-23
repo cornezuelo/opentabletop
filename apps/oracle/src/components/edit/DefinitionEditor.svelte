@@ -2,7 +2,7 @@
   import { writeRef, type Compiled } from '@open-tabletop/oracle-engine'
   import { ConditionEditor } from '@open-tabletop/pack-ui'
   import { contextSuggestions, definitionId } from '@open-tabletop/session'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { InfoTip, TagInput } from '@open-tabletop/ui-kit'
   import { oracleUi } from '../../lib/oracle.svelte'
   import { workspace } from '../../lib/packs/workspace.svelte'
   import { getLocale, t } from '../../lib/i18n'
@@ -48,6 +48,11 @@
     if (doc.raw.advantage !== undefined) doc.edit(['advantage'], undefined)
   }
 
+  /** Tags other definitions already have, to suggest. */
+  const knownTags = $derived([
+    ...new Set([...workspace.registry.definitions.values()].flatMap((d) => d.tags)),
+  ])
+
   /** What a mode's condition can read. */
   const conditionHints = $derived(contextSuggestions(workspace.registry))
   /** A mode's condition, built as rows; none removes it. */
@@ -91,6 +96,17 @@
     <span>{t('edit.description')}</span>
     <TextField {doc} path={['description']} multiline />
   </label>
+  <div class="field">
+    <span>{t('edit.tags')}<InfoTip text={t('edit.tagsHelp')} /></span>
+    <TagInput
+      value={Array.isArray(doc.raw.tags) ? doc.raw.tags.map(String) : []}
+      choices={knownTags}
+      disabled={doc.translating}
+      label={t('edit.tags')}
+      removeLabel={t('edit.removeTag')}
+      onchange={(tags) => doc.edit(['tags'], tags.length ? tags : undefined)}
+    />
+  </div>
   {#if dice}
     <div class="options">
       <label class="check">

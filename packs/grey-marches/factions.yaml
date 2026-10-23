@@ -81,6 +81,7 @@ factions:
 # `faction.values.strength`).
 kind: table
 id: faction-turn
+tags: [factions, rules]
 name: A power's turn
 description: |-
   What the Vale (and any power without a table of its own) does on a world turn: strong, it reaches out; weak, it gathers its people.
@@ -113,6 +114,7 @@ entries:
 # clocks.yaml, by its id: world.clocks.the-iron-clans-march).
 kind: table
 id: clan-turn
+tags: [factions, rules]
 name: The Clans' turn
 description: |-
   What the Iron Clans do on a world turn: raid the Vale, push their border, or call the clans together for the march on Fort Keld.

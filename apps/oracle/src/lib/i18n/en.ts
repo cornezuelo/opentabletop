@@ -82,6 +82,10 @@ export const en = {
       'Other packs depend on this one, so it can’t be replaced by a copy: make a new pack of yours from it, with its own id, and change that one.',
     name: 'Name',
     description: 'Description',
+    tags: vocabulary.en.terms.tags,
+    tagsHelp:
+      "Words that sort this definition: the pack list's **Filter** (here and in the Hexmapper's Oracle panel) shows only what has a tag, or hides it. A tag is any word the pack chooses; Enter or a comma adds one.\n• `encounters`, `people`, `places` — what it's about\n• `names` — a table of names\n• `rules` — rolled by the system's own rules (a trip's checks, a world turn), so a filter of `−rules` leaves what you'd roll by hand",
+    removeTag: 'Remove {name}',
     roll: 'Dice',
     rollHelp:
       "Dice rolled on the table; each entry's **Range** says which totals pick it.\n• `1d6`, `2d6`, `1d20` — the usual dice\n• `d66` — two d6 read as tens and units (11–66)\n• `d%` — 1–100\n• `2d6kh1` — roll 2d6, keep the highest\n• `1d6 + {{survival}}` — plus a value the roll is given (a party stat, a field)\nEmpty: an entry is picked by **Weight**.",

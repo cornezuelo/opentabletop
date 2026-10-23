@@ -13,6 +13,8 @@
 | **El turno de una facción** (tabla)            | Lo que hace una facción en un turno del mundo, para cualquier juego: se expande (+1 hex), aguanta, conspira o pierde terreno. Las facciones de un sistema la tiran con `turn: core/table.faction-turn`.      |
 | **Una amenaza que crece** (relojes)            | Un reloj de progreso para cualquier juego: la amenaza crece de segmento en segmento y, al llenarse, golpea con uno de los **Giros** y vuelve a empezar. Un sistema lo trae con `clocks: core/clocks.threat`. |
 
+Cada una lleva **etiquetas** de qué trata (`scenes`, `inspiration`, `questions`, `people`; _El turno de una facción_ además `factions` y `rules`, porque lo tira el turno del mundo de un sistema), así que el **Filtrar** del Oracle las encuentra: `−rules` deja lo que tirarías a mano.
+
 ## Las reglas genéricas
 
 El sistema de Core (`system.yaml`, `id: default`, así que su id es `core`) es el más pequeño que se juega: lo juega un mapa cuya campaña no elige sistema (**Ajustes del mapa → Campaña → Sistema**), y también los mapas y viajes de versiones anteriores que jugaban las reglas integradas en las aplicaciones. Como cualquier sistema incluido, la aplicación Systems lo enseña en solo lectura; **Nuevo sistema** empieza con una copia de sus reglas, para cambiarla a tu gusto. Para uno que lo usa todo, mira [Las Marcas Grises](02-grey-marches.md).

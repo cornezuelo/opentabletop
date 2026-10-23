@@ -5,6 +5,7 @@ gates:
 
     **Enseña:**
 
+    - **Etiquetas** para el **Filtrar** del Oracle: `places`, y no `rules`, porque se tira a mano
     - Un **oráculo** con una entrada: cómo llegáis
     - Una variante con sus propios dados
     - Un valor del icono del lugar en el mapa: `{{icon.guards}}` es 0 en Vado Ceniza y 2 en Fuerte Keld (selecciona el hex antes de tirar)

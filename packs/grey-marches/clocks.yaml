@@ -51,6 +51,7 @@ clocks:
 # What the Wyrm does first, once awake: the table a full clock rolls.
 kind: table
 id: wyrm-wakes
+tags: [clocks, rules]
 name: The Wyrm wakes
 description: |-
   What the Greywood Wyrm does when it wakes: it falls on the Vale's herds, on the Clans' watch-fires, or lies in wait in the wood.
