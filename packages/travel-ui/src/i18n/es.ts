@@ -46,7 +46,6 @@ export const es: Messages<typeof en> = {
   destination: 'Rumbo a {hex}',
   arrived: 'Habéis llegado.',
   travelMode: 'Viaje',
-  fatigue: vocabulary.es.terms.fatigue,
   travel: 'Viajar',
   goOn: 'Seguir',
   waitOnward: 'Esperar para seguir',

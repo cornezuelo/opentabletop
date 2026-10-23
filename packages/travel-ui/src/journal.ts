@@ -36,7 +36,7 @@ export interface JournalContext {
   checkName?: (event: string) => string | undefined
   /** The system's calendar (the default one if absent). */
   calendar?: Calendar
-  /** Name of a value results change: a resource, a stat, `fatigue`. */
+  /** Name of a value results change: a supply or a stat, as the system names it. */
   valueName?: (key: string) => string
   /** Name of a terrain id (forest…). */
   terrainName?: (id: string) => string

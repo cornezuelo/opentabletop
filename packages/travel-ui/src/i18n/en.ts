@@ -46,7 +46,6 @@ export const en = {
   destination: 'Heading to {hex}',
   arrived: 'Arrived.',
   travelMode: 'Travel',
-  fatigue: vocabulary.en.terms.fatigue,
   // What blocks travel, said as such (a value of the day that blocks `travel.move`).
   travel: 'Travel',
   goOn: 'Go on',

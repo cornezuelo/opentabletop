@@ -68,7 +68,7 @@ export const en = {
     poiAdded: 'Added to {hex}: see it in the hex panel.',
     apply: 'Apply to the trip: {changes}',
     applyHelp:
-      "The result changes the trip's party (supplies, fatigue, stats): apply it to the trip, as a check's result would be.\n• `party.resources.food: 2` — the party gains 2 food\n• `party.stats.morale: -1`\nNothing changes until you apply it.",
+      "The result changes the trip's party (supplies, stats, characters): apply it to the trip, as a check's result would be.\n• `party.resources.food: 2` — the party gains 2 food\n• `party.stats.morale: -1`\nNothing changes until you apply it.",
     applied: 'Applied to the trip: {changes}',
     appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',

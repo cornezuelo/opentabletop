@@ -68,7 +68,7 @@ export const es: Messages = {
     poiAdded: 'Añadido a {hex}: lo verás en el panel del hex.',
     apply: 'Aplicar al viaje: {changes}',
     applyHelp:
-      'El resultado cambia el grupo del viaje (provisiones, fatiga, características): aplícalo al viaje, como se aplicaría el resultado de una comprobación.\n• `party.resources.food: 2` — el grupo gana 2 de comida\n• `party.stats.morale: -1`\nNada cambia hasta que lo apliques.',
+      'El resultado cambia el grupo del viaje (provisiones, características, personajes): aplícalo al viaje, como se aplicaría el resultado de una comprobación.\n• `party.resources.food: 2` — el grupo gana 2 de comida\n• `party.stats.morale: -1`\nNada cambia hasta que lo apliques.',
     applied: 'Aplicado al viaje: {changes}',
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',

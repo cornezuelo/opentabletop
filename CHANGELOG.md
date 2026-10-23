@@ -12,6 +12,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Travel, Hexmapper, Oracle: **fatigue is no longer named by the apps**: a value is named by the system that declares it (or by its id), as any other; the roll panel no longer names values that no longer exist (`party.fatigue`, `short`, `camping`).
 - Travel, Hexmapper: **what comes up while time passes stops the trip where it comes**, in camp or waiting as on the march: a night encounter at 23:00 is played at 23:00, and the night passes after it, so the rest of the night sees what it did; before, the camp went on till dawn and the encounter was seen then. An action the system takes by itself waits for its rolls like any other, and the checks of its moment come once it's done.
 - Travel, Hexmapper: **what a generator's tables set, change and pause now reaches the trip**, as a table's does (the Grey Marches' _Delve the ruin_: a guardian like the Ember Hunt now stops the trip and costs morale); before, a generator's fields kept it to themselves.
 - Manual: the technical pages reviewed for consistency: every example by its full name (`hex.danger`, `trip.moment`, roll modes as `roll-modes.advantage`, which the short form no longer reads), the lists of kinds, dictionaries, installable apps and moments complete, world values said to come from the campaign (Travel's trips too), and `travel.speed` said to multiply the weather's speed, not add to it.

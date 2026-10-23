@@ -349,8 +349,7 @@
   /** What an action or a rest changes, as words: "Morale +1" (from its effects). */
   function changes(own: unknown): string {
     if (typeof own !== 'object' || own === null) return ''
-    const o = own as { effects?: Record<string, number | string>; fatigue?: number }
-    const effects = { ...(o.fatigue ? { 'party.stats.fatigue': -o.fatigue } : {}), ...o.effects }
+    const effects = (own as { effects?: Record<string, number | string> }).effects ?? {}
     return Object.keys(effects).length ? changesText({ effects }, context) : ''
   }
 
@@ -361,11 +360,10 @@
   const readAs = (...keys: string[]) =>
     t('tips.readAs', { keys: keys.map((k) => '`{{' + k + '}}`').join(' · ') })
 
-  /** Name of a value results change: a stat of the system, fatigue or a resource. */
+  /** Name of a value results change: a stat of the system or a supply, as it names them. */
   const valueName = (key: string) => {
     const stat = system.bindings?.stats?.[key]
     if (stat) return statText(stat.name, key)
-    if (key === 'fatigue') return t('fatigue')
     return resourceName(key)
   }
   /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
