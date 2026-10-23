@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-23
+
 ### Apps
 
 - Systems: **an action's parameters as rows**: each one's id, name, choices as pills you drag into order (the first is the default) and default, with **YAML** for the rest; pills of any list can be made draggable (ui-kit's `TagInput reorder`).
