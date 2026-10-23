@@ -72,6 +72,7 @@ docs/
   characters-app.md         # the Characters app and the roster (characters shared by maps and trips)
   campaigns.md              # campaigns (the world shared by maps and trips) and the Campaign app
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
+  terrain-generation.md     # Terrain with memory (land models, Markov) design, to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
