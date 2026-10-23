@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Systems: **an action's parameters as rows**: each one's id, name, choices as pills you drag into order (the first is the default) and default, with **YAML** for the rest; pills of any list can be made draggable (ui-kit's `TagInput reorder`).
 - Systems: **Used by** for a sheet's kinds of relation too: where each is read, by whoever holds it or towards a place (`hex.relations.home`).
 - Hexmapper, Travel, Campaign: **a trip's highlights in the timeline**: arrivals (_The party reaches 0707_), places found, checks that stopped the trip (an encounter) and characters who left the party (said in the journal too) reach the campaign's timeline too, a short line each, so the campaign keeps a story of its trips; the journal keeps the full detail.
 - Systems: **cards in order where order decides something**: checks, ways of travelling, factions and actions show their place (_1._, _2._…) and move with a handle (⠿, dragged onto another card) or ↑ ↓, as steps do; each list's help says what its order decides.

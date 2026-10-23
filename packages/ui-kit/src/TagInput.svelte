@@ -5,7 +5,8 @@
    * A list of words as pills, each with its × to take it out. Typing adds one (Enter or the
    * separator, a comma or a space; leaving the box adds what was typed), Backspace in an empty box takes the last
    * one. Suggestions come grouped by the part of the name before its first dot; arrows
-   * pick, Enter or Tab take one, Escape closes the list.
+   * pick, Enter or Tab take one, Escape closes the list. Where order decides something
+   * (`reorder`), a pill is dragged onto another to move it there.
    */
   let {
     value = [],
@@ -15,6 +16,7 @@
     label,
     removeLabel,
     separator = 'comma',
+    reorder = false,
     onchange,
   }: {
     value?: readonly string[]
@@ -28,8 +30,23 @@
     removeLabel: string
     /** What ends a word as it's typed: a comma, or a space for words with commas (`15,9`). */
     separator?: TagSeparator
+    /** Pills dragged onto another move there (the first may be a default). */
+    reorder?: boolean
     onchange: (items: string[]) => void
   } = $props()
+
+  /** The pill being dragged, and the one it's over. */
+  let dragged = $state<number | null>(null)
+  let over = $state<number | null>(null)
+  function drop(to: number) {
+    const from = dragged
+    dragged = over = null
+    if (from === null || from === to) return
+    const next = [...value]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
+    onchange(next)
+  }
 
   let input: HTMLInputElement
   let text = $state('')
@@ -70,7 +87,28 @@
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
   <div class="frame" class:focused onclick={() => input?.focus()}>
     {#each value as item, i (item)}
-      <span class="pill">
+      <span
+        class="pill"
+        class:grab={reorder && !disabled}
+        class:over={over === i && dragged !== i}
+        role="listitem"
+        draggable={reorder && !disabled}
+        ondragstart={(e) => {
+          dragged = i
+          if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+        }}
+        ondragover={(e) => {
+          if (dragged === null) return
+          e.preventDefault()
+          over = i
+        }}
+        ondragleave={() => (over = null)}
+        ondrop={(e) => {
+          e.preventDefault()
+          drop(i)
+        }}
+        ondragend={() => (dragged = over = null)}
+      >
         {item}
         {#if !disabled}
           <button
@@ -157,6 +195,14 @@
   .disabled .frame {
     cursor: default;
     opacity: 0.7;
+  }
+
+  .pill.grab {
+    cursor: grab;
+  }
+
+  .pill.over {
+    box-shadow: -2px 0 0 var(--accent);
   }
 
   .pill {

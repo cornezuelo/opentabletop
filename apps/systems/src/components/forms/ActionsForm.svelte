@@ -13,18 +13,11 @@
     type ActionStep,
   } from '@open-tabletop/travel-engine'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
-  import {
-    confirmAction,
-    InfoTip,
-    showToast,
-    SuggestInput,
-    TagInput,
-    tooltip,
-  } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, showToast, TagInput, tooltip } from '@open-tabletop/ui-kit'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
-  import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { ConditionEditor, conditionWords } from '@open-tabletop/pack-ui'
   import StepCard from './StepCard.svelte'
+  import ParamsEditor from './ParamsEditor.svelte'
   import { memberNamer, translator } from '@open-tabletop/travel-ui'
   import type { CharacterState } from '@open-tabletop/character-engine'
   import { actionLine, actionReading, type StepContext } from '../../lib/steps'
@@ -201,8 +194,6 @@
     if (!opened.delete(key)) opened.add(key)
   }
 
-  /** A map as `key: value` pairs, without the outer braces. */
-  const bare = (value: unknown) => flowText(value).replace(/^\{\s*|\s*\}$/g, '')
   const def = (id: string): ActionDefinition => (actions[id] as ActionDefinition | undefined) ?? {}
   const steps = (id: string): ActionStep[] => actionSteps(def(id))
 
@@ -216,12 +207,6 @@
       ['actions', id, field],
       value,
     )
-
-  function setFlow(path: (string | number)[], value: string) {
-    const parsed = parseFlow(value)
-    if (parsed === null) return showToast(t('forms.badFlow'), 'error')
-    doc.edit('travel-rules', path, Object.keys(parsed ?? {}).length ? parsed : undefined)
-  }
 
   /** Writes an action's steps as `do`. */
   function writeSteps(id: string, next: ActionStep[]) {
@@ -404,16 +389,12 @@
               onchange={(c) => doc.edit('travel-rules', ['actions', id, 'unless'], c)}
             />
           </div>
-          <label>
-            <span>{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span>
-            <SuggestInput
-              label={t('actions.params')}
-              placeholder={t('actions.noParams')}
-              value={bare(d.params)}
-              {disabled}
-              onchange={(v) => setFlow(['actions', id, 'params'], v)}
-            />
-          </label>
+          <div class="wide cond">
+            <span class="label"
+              >{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span
+            >
+            <ParamsEditor {doc} action={id} {disabled} />
+          </div>
           <label>
             <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>
             <input
