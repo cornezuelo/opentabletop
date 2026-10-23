@@ -209,6 +209,9 @@ describe('playing on the map', () => {
       s.travel = { ...s.travel, location: '13,3', route: undefined, destination: undefined }
       s.members = [newMember(partyOf(activeSystem()), { id: 'kael', name: 'Kael' })]
       refreshParty(s, partyOf(activeSystem()))
+      // The trip already saw the Wyrm stir (its omen as the clock reached 4): what holds now
+      // is its memory, as for a trip saved before reactions.
+      delete s.reactions
       return s
     })
     const random = vi.spyOn(Math, 'random').mockReturnValue(0.5)
@@ -881,6 +884,44 @@ describe('the Company: a party made of characters', () => {
     // Ashore, it passes.
     editSession((s) => ({ ...s, travel: { ...s.travel, mode: 'foot' } }))
     expect(member('mara').conditions).not.toHaveProperty('seasick')
+  })
+
+  it('what comes up as a condition turns true: a companion falls, the hirelings desert', () => {
+    grey()
+    clickHex('7,7')
+    const system = activeSystem()
+    // Mara's health to 0 by hand (her card): she falls, played with her acting, once.
+    editSession((s) => {
+      s.acting = 'kael'
+      s.members = s.members!.map((m) =>
+        m.id === 'mara' ? { ...m, values: { ...m.values, health: 0 } } : m,
+      )
+      return s
+    })
+    expect(member('mara').conditions).toHaveProperty('wounded')
+    expect(member('mara').values.dread).toBe(1)
+    expect(member('kael').conditions).not.toHaveProperty('wounded')
+    expect(trip().acting).toBe('kael')
+    const said = trip()
+      .journal.filter((e) => e.code === 'SAID')
+      .at(-1)
+    expect(said?.data?.text).toMatchObject({ en: 'Mara falls, and has to be carried.' })
+    // Still at 0: nothing again.
+    const lines = trip().journal.length
+    editSession((s) => ({ ...s }))
+    expect(trip().journal.length).toBe(lines)
+    // Hirelings hired, then morale to 0 (a table rolled by hand): they desert.
+    editSession((s) =>
+      applyResult(
+        s,
+        { effects: { 'party.values.hirelings': 2, 'party.values.morale': '=0' } },
+        system.bindings?.stats,
+        {},
+        partyOf(system),
+      ),
+    )
+    expect(trip().party!.values.hirelings).toBe(0)
+    expect(trip().stats.hirelings).toBe(0)
   })
 
   it('a character who leaves the party is told in the journal and in the campaign’s timeline', () => {

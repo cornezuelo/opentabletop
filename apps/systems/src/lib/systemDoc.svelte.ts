@@ -13,26 +13,62 @@ import {
 import { writeRef } from '@open-tabletop/oracle-engine'
 import { packTexts } from '@open-tabletop/oracle-ui'
 import { manifestOf } from '@open-tabletop/pack-ui/packs'
-import { getLocale } from './i18n'
+import { getLocale, t } from './i18n'
+import { conditionWords } from '@open-tabletop/pack-ui'
 import { overlayTexts } from './texts'
 import { library } from './packs.svelte'
 
 export type Kind = 'travel-rules' | 'bindings' | 'system'
 
+/** The moments of a check's `at:` or an action's `on:`, as written (one alone is a list of one). */
+const allMoments = (value: unknown): unknown[] =>
+  Array.isArray(value) ? value : value === undefined || value === '' ? [] : [value]
+
 /** A check's `at:` or an action's `on:` as typed in a box: `time.part.morning, trip.hex-enter`. */
 export const momentsText = (value: unknown): string =>
-  Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
+  allMoments(value)
+    .filter((m): m is string => typeof m === 'string')
+    .join(', ')
 
-/** A check's `at:` or an action's `on:` as a list (one moment alone is a list of one). */
+/** The named moments of a check's `at:` or an action's `on:` (not one written as a condition). */
 export const momentsList = (value: unknown): string[] =>
-  Array.isArray(value) ? value.map(String) : typeof value === 'string' && value ? [value] : []
+  allMoments(value).filter((m): m is string => typeof m === 'string' && !!m)
 
-/** What a list of moments writes: nothing, one moment, or a list of them. */
-export const writeMoments = (list: readonly string[]): string | string[] | undefined =>
-  list.length === 0 ? undefined : list.length === 1 ? list[0] : [...list]
+/** The moment written as a condition among a check's `at:` or an action's `on:`, if any. */
+export const reactionIn = (value: unknown): Record<string, unknown> | undefined =>
+  allMoments(value).find(
+    (m): m is Record<string, unknown> => typeof m === 'object' && m !== null && !Array.isArray(m),
+  )
+
+/**
+ * What a list of moments writes: nothing, one moment, or a list of them; with the moment
+ * written as a condition `reaction` (kept from `keep`'s, if not given), last.
+ */
+export const writeMoments = (
+  list: readonly string[],
+  reaction?: Record<string, unknown> | null,
+  keep?: unknown,
+):
+  | string
+  | string[]
+  | (string | Record<string, unknown>)[]
+  | Record<string, unknown>
+  | undefined => {
+  const own = reaction === null ? undefined : (reaction ?? reactionIn(keep))
+  const all = [...list, ...(own ? [own] : [])]
+  return all.length === 0 ? undefined : all.length === 1 ? all[0] : all
+}
+
+/** The moment written as a condition among `on:` / `at:` in words, for a folded card (none: empty). */
+export function reactionWords(value: unknown): string[] {
+  const r = reactionIn(value)
+  if (!r) return []
+  const words = conditionWords(r.when ?? { not: r.unless }, getLocale())
+  return [t(r.for ? 'reaction.saidEach' : 'reaction.said', { when: words })]
+}
 
 /** What a box of moments writes: nothing, one moment, or a list of them. */
-export function parseMoments(text: string): string | string[] | undefined {
+export function parseMoments(text: string) {
   return writeMoments(
     text
       .split(',')

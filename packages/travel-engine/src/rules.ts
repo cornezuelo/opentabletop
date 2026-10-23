@@ -64,15 +64,70 @@ export const CLOCK = /^\d{1,2}:\d{2}$/
 /** Whether a moment or a time is a clock (`'06:00'`). */
 export const isClock = (value: unknown): value is string =>
   typeof value === 'string' && CLOCK.test(value)
-/** One moment (`trip.hex-enter`, `actions.camp`…) or several (`[time.part.morning, trip.hex-enter]`). */
-const moments = z.union([z.string().min(1), z.array(z.string().min(1)).min(1)])
+/**
+ * A moment written as a condition (a **reaction**): it comes once as the condition turns
+ * true, and again only after it has stopped holding. The host checks it after every change
+ * of the trip and says when it came (`{ type: 'moment', at: reactionKey(…) }`). With
+ * `for: party.members`, it's checked for each member, who acts in it.
+ */
+const reaction = z
+  .object({
+    when: condition.optional(),
+    unless: condition.optional(),
+    for: z.literal('party.members').optional(),
+  })
+  .strict()
+  .refine((r) => r.when !== undefined || r.unless !== undefined, {
+    message: 'a moment written as a condition needs when or unless',
+  })
+export type Reaction = z.infer<typeof reaction>
+/** One moment: a name (`trip.hex-enter`, `actions.camp`…) or a condition (`{ when: … }`). */
+const moment = z.union([z.string().min(1), reaction])
+/** One moment or several (`[time.part.morning, trip.hex-enter]`). */
+const moments = z.union([moment, z.array(moment).min(1)])
+/** An action's `on:` or a check's `at:` as written. */
+export type Moments = z.infer<typeof moments>
+
+/** The name a moment written as a condition goes by: `when:` and the condition, keys sorted. */
+export function reactionKey(r: Reaction): string {
+  const sorted = (v: unknown): unknown =>
+    Array.isArray(v)
+      ? v.map(sorted)
+      : v && typeof v === 'object'
+        ? Object.fromEntries(
+            Object.keys(v)
+              .sort()
+              .map((k) => [k, sorted((v as Record<string, unknown>)[k])]),
+          )
+        : v
+  return `when:${JSON.stringify(sorted(r))}`
+}
+/** Whether a moment is one written as a condition (`reactionKey`). */
+export const isReactionMoment = (value: unknown): value is string =>
+  typeof value === 'string' && value.startsWith('when:')
+
+/** Every moment written as a condition in the rules (actions' `on:`, checks' `at:`), once each. */
+export function reactionsOf(rules: {
+  checks?: { at?: Moments }[]
+  actions?: Record<string, { on?: Moments }>
+}): { key: string; reaction: Reaction }[] {
+  const out = new Map<string, Reaction>()
+  const each = (value: Moments | undefined) => {
+    for (const m of value === undefined ? [] : Array.isArray(value) ? value : [value])
+      if (typeof m === 'object') out.set(reactionKey(m), m)
+  }
+  rules.checks?.forEach((c) => each(c.at))
+  for (const a of Object.values(rules.actions ?? {})) each(a.on)
+  return [...out].map(([key, reaction]) => ({ key, reaction }))
+}
 
 /** The moment an action's steps are done: `actions.camp.done`. */
 export const doneOf = (action: string): string => `${ref('actions', action)}.done`
 
 /** The moments an action's `on:` or a check's `at:` names, as a list (none: empty). */
-export function momentsOf(value: string | string[] | undefined): string[] {
-  return value === undefined ? [] : Array.isArray(value) ? value : [value]
+export function momentsOf(value: Moments | undefined): string[] {
+  const list = value === undefined ? [] : Array.isArray(value) ? value : [value]
+  return list.map((m) => (typeof m === 'string' ? m : reactionKey(m)))
 }
 
 /** What a declared value can block besides actions and ways of travelling: moving on. */
@@ -460,14 +515,28 @@ export const travelRulesSchema = z
           })
       }
     }
-    const badMoments = (value: string | string[] | undefined, path: (string | number)[]) =>
+    const badMoments = (value: Moments | undefined, path: (string | number)[]) =>
       momentsOf(value).forEach((moment, j) => {
+        // A moment written as a condition: its conditions are checked as any other's.
+        const written = Array.isArray(value) ? value[j] : value
+        if (typeof written === 'object') {
+          for (const key of ['when', 'unless'] as const)
+            if (written[key] !== undefined)
+              for (const problem of validateCondition(written[key], key))
+                ctx.addIssue({
+                  code: 'custom',
+                  path: Array.isArray(value) ? [...path, j] : path,
+                  message: problem,
+                })
+          return
+        }
         // A part of the calendar's day (`meal.elevenses`): checked against the calendar.
         if (
           !moments.includes(moment) &&
           !PART_REF.test(moment) &&
           !CLOCK.test(moment) &&
-          !isHostMoment(moment)
+          !isHostMoment(moment) &&
+          !isReactionMoment(moment)
         )
           ctx.addIssue({
             code: 'custom',

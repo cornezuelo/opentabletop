@@ -161,6 +161,16 @@ export const es: Messages<typeof en> = {
     ownTurn: 'Turno propio',
     ownTurnHelp: 'Una tabla de turno propia, en vez de la de las facciones.\n• `clan-turn`',
   },
+  reaction: {
+    when: 'Al cumplirse esto',
+    whenHelp:
+      'Un momento escrito como condición: llega **una vez, al cumplirse esto**, y otra solo después de que haya dejado de cumplirse. Se mira tras cada cambio del viaje (un paso, un efecto, un resultado, un cambio a mano), leyendo lo que ven las tablas, y lo que llega se juega allí mismo. Lo que ya se cumple al empezar un viaje llega en su primer paso.\nEjemplos:\n• `party.values.morale` como mucho `0` — los mercenarios se van\n• `party.resources.food` como mucho `0` — el grupo empieza a pasar hambre\n• `world.clocks.the-siege` al menos `6` — una vez, al llegar a 6 el reloj del asedio\nPara un estado que deba cumplirse todo el rato (sobrecargado, agotado), dale al estado de la hoja un **Se cumple mientras**. Vacío: ningún momento así.',
+    each: 'Para cada miembro',
+    eachHelp:
+      'Se mira miembro a miembro, leyendo a cada uno como `acting` (`acting.values.health` como mucho `0`), y se juega con ese miembro actuando, así que sus efectos sobre `acting.…` le llegan a él; el diario dice a quién. Cada miembro llega una vez, al cumplirse para él.',
+    said: 'Al cumplirse {when}',
+    saidEach: 'Al cumplirse {when}, para cada miembro',
+  },
   sheet: {
     name: 'Nombre',
     nameHelp: 'El nombre de la hoja, que se ve donde se crean personajes.\n• **Compañero**',

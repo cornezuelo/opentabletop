@@ -113,6 +113,18 @@ travel-rules/default:
           say: 'A lo lejos, algo enorme se agita, y los pájaros del Bosque Gris enmudecen.'
         awake:
           pause: 'La Sierpe está despierta, y este es su bosque.'
+    desertion:
+      name: Los mercenarios desertan
+      description: 'Cuando la moral llega a 0 con mercenarios en la Compañía, se escabullen de noche.'
+      do:
+        gone:
+          say: 'Sin esperanza ya, los mercenarios se escabullen, y sus fardos con ellos.'
+    collapse:
+      name: Cae un compañero
+      description: 'Cuando la salud de un compañero llega a 0: queda herido, y su pavor crece.'
+      do:
+        carried:
+          say: '{{acting.name}} cae, y hay que llevarle a cuestas.'
     stormy-dawn:
       name: Un alba de tormenta
       description: Un alba de tormenta agota a la Compañía antes de ponerse en marcha. Fatiga +1.
@@ -131,7 +143,7 @@ travel-rules/default:
       description: Se tira cada alba, según la estación.
     OMENS:
       name: Presagios
-      description: Cada alba en el camino, una carta de los Presagios del camino.
+      description: Cada alba en el camino, una carta de los Presagios del camino, y otra cuando la Sierpe se agita (su reloj en 4).
     NAVIGATION_CHECK_REQUIRED:
       name: Perderse
       description: Cada alba fuera de caminos y ríos (no en barca), salvo si una tormenta retiene a la Compañía. La Orientación ayuda; la niebla lo complica.

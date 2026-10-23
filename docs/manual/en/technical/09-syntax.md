@@ -158,18 +158,21 @@ A change stops at the value's `min` / `max`; what hit one that day is seen after
 
 When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.hex-enter, actions.rest]`); conditions and tables see which one as `trip.moment`.
 
-| Moment                                                  | When                                                                                               |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| a clock (`'06:00'`)                                     | as it strikes, marching, waiting or asleep in camp                                                 |
-| a part of the day (`time.part.morning`)                 | as the calendar's part begins, the same way                                                        |
-| `trip.hex-enter`                                        | entering each hex                                                                                  |
-| `time.day-end`                                          | as each day ends, camping or not (actions first, then checks)                                      |
-| an action (`actions.camp`)                              | when the party takes that action, before its steps (a check that waits holds them)                 |
-| an action's end (`actions.forage.done`)                 | once its steps are done                                                                            |
-| a check (`checks.WEATHER_CHECK_REQUIRED`)               | right after it's resolved (after **Continue**, if it paused), before the next checks of its moment |
-| a clock of the world filling (`world.clocks.<id>.full`) | as one of the campaign's progress clocks fills, whatever fills it                                  |
+| Moment                                                                     | When                                                                                               |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| a clock (`'06:00'`)                                                        | as it strikes, marching, waiting or asleep in camp                                                 |
+| a part of the day (`time.part.morning`)                                    | as the calendar's part begins, the same way                                                        |
+| `trip.hex-enter`                                                           | entering each hex                                                                                  |
+| `time.day-end`                                                             | as each day ends, camping or not (actions first, then checks)                                      |
+| an action (`actions.camp`)                                                 | when the party takes that action, before its steps (a check that waits holds them)                 |
+| an action's end (`actions.forage.done`)                                    | once its steps are done                                                                            |
+| a check (`checks.WEATHER_CHECK_REQUIRED`)                                  | right after it's resolved (after **Continue**, if it paused), before the next checks of its moment |
+| a clock of the world filling (`world.clocks.<id>.full`)                    | as one of the campaign's progress clocks fills, whatever fills it                                  |
+| a condition turning true (`{ when: { party.values.morale: { lte: 0 } } }`) | once, as it turns true, whatever changed it; again only after it stopped holding                   |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
+
+**A moment written as a condition** (a reaction): `on: { when: …, unless: … }` (or `at:`), alone or in a list beside named moments. It's looked at after every change of a trip (a step, an effect, a result, a change by hand), reading what tables see, and comes there and then. What already holds when a trip starts comes on its first step; a trip saved before reactions existed takes what holds then as already seen. With `for: party.members` it's looked at for each member, read and played with that member as `acting`. Reactions that keep setting each other off stop after 10 in a row. More: [Moments written as conditions](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## Steps of an action
 

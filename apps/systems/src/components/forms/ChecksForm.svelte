@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ReactionEditor from './ReactionEditor.svelte'
   import { parseRef } from '@open-tabletop/oracle-engine'
   import { idText, translator } from '@open-tabletop/travel-ui'
   import {
@@ -27,6 +28,7 @@
   import {
     actionIds,
     momentsList,
+    reactionWords,
     momentsText,
     writeMoments,
     ROLLABLE,
@@ -100,6 +102,8 @@
                         ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
                         : m,
       )
+      .filter(Boolean)
+      .concat(reactionWords(at))
       .join(' · ')
   /** Every check event of the rules, once each. */
   const checkEvents = $derived([
@@ -351,10 +355,21 @@
                     ]}
                     removeLabel={t('forms.removeItem')}
                     {disabled}
-                    onchange={(v) => doc.edit('travel-rules', ['checks', i, 'at'], writeMoments(v))}
+                    onchange={(v) =>
+                      doc.edit(
+                        'travel-rules',
+                        ['checks', i, 'at'],
+                        writeMoments(v, undefined, check.at),
+                      )}
                   />
                   {#if check.at}<small class="said">{saidMoments(check.at)}</small>{/if}
                 </label>
+                <ReactionEditor
+                  value={check.at}
+                  {hints}
+                  {disabled}
+                  onchange={(at) => doc.edit('travel-rules', ['checks', i, 'at'], at)}
+                />
               </div>
               <div class="row">
                 <label>

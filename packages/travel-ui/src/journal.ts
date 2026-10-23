@@ -14,6 +14,7 @@ import {
   checkInfo,
   DAY_END,
   HEX_ENTER,
+  isReactionMoment,
   doneOf,
   momentsOf,
   ref,
@@ -485,6 +486,15 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.nobodyActing', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    case 'REACTED':
+      // The member by name: what the namer says of one of theirs, before its colon.
+      return t('journal.reacted', {
+        name:
+          context.memberName?.(`characters.${String(d.who)}.values.x`)?.replace(/: .*$/, '') ??
+          String(d.who),
+      })
+    case 'REACTIONS_LOOP':
+      return t('journal.reactionsLoop')
     case 'NOT_WRITABLE':
       return t('journal.notWritable', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
@@ -583,6 +593,8 @@ export function momentText(
   if (action) return t('journal.moments.action', { action: named(action) })
   const check = /^checks\.(.+)$/.exec(at)?.[1]
   if (check) return t('journal.moments.check', { check: checkName?.(check) ?? check })
+  // A moment written as a condition: it just turned true.
+  if (isReactionMoment(at)) return t('journal.moments.reaction')
   return partName?.(at) ?? at
 }
 

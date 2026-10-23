@@ -158,18 +158,21 @@ Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno ese día
 
 Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[trip.hex-enter, actions.rest]`); las condiciones y las tablas ven cuál es como `trip.moment`.
 
-| Momento                                                   | Cuándo                                                                                                           |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| una hora (`'06:00'`)                                      | al dar esa hora, marchando, esperando o dormidos en el campamento                                                |
-| una parte del día (`time.part.morning`)                   | al empezar esa parte del calendario, igual                                                                       |
-| `trip.hex-enter`                                          | al entrar en cada hex                                                                                            |
-| `time.day-end`                                            | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                                      |
-| una acción (`actions.camp`)                               | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera)             |
-| el final de una acción (`actions.forage.done`)            | cuando acaban sus pasos                                                                                          |
-| una comprobación (`checks.WEATHER_CHECK_REQUIRED`)        | justo después de resolverse (tras **Continuar**, si pausó), antes de las siguientes comprobaciones de su momento |
-| un reloj del mundo al llenarse (`world.clocks.<id>.full`) | al llenarse uno de los relojes de progreso de la campaña, lo llene lo que lo llene                               |
+| Momento                                                                      | Cuándo                                                                                                           |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| una hora (`'06:00'`)                                                         | al dar esa hora, marchando, esperando o dormidos en el campamento                                                |
+| una parte del día (`time.part.morning`)                                      | al empezar esa parte del calendario, igual                                                                       |
+| `trip.hex-enter`                                                             | al entrar en cada hex                                                                                            |
+| `time.day-end`                                                               | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                                      |
+| una acción (`actions.camp`)                                                  | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera)             |
+| el final de una acción (`actions.forage.done`)                               | cuando acaban sus pasos                                                                                          |
+| una comprobación (`checks.WEATHER_CHECK_REQUIRED`)                           | justo después de resolverse (tras **Continuar**, si pausó), antes de las siguientes comprobaciones de su momento |
+| un reloj del mundo al llenarse (`world.clocks.<id>.full`)                    | al llenarse uno de los relojes de progreso de la campaña, lo llene lo que lo llene                               |
+| una condición al cumplirse (`{ when: { party.values.morale: { lte: 0 } } }`) | una vez, al cumplirse, sea lo que sea lo que la cambió; otra solo después de dejar de cumplirse                  |
 
 Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
+
+**Un momento escrito como condición** (una reacción): `on: { when: …, unless: … }` (o `at:`), solo o en una lista junto a momentos con nombre. Se mira tras cada cambio de un viaje (un paso, un efecto, un resultado, un cambio a mano), leyendo lo que ven las tablas, y llega allí mismo. Lo que ya se cumple al empezar un viaje llega en su primer paso; un viaje guardado antes de que existieran las reacciones toma lo que se cumple entonces como ya visto. Con `for: party.members` se mira para cada miembro, leído y jugado con ese miembro como `acting`. Las reacciones que se desencadenan unas a otras se paran tras 10 seguidas. Más: [Momentos escritos como condiciones](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Pasos de una acción
 

@@ -603,14 +603,13 @@ describe('bundled open packs', () => {
       expect(talked.travel.today?.refusing).toBe(false)
       // Morale 6: any d6 is at or under it. Morale 0: none is.
       expect(talked.stats.hirelings).toBe(2)
-      // (Morale set to 0 after the hungry night, whose own table may cost a hireling.)
+      // Morale 1: the hungry night takes it to 0, and with hirelings in the Company they
+      // desert at once (a reaction, `on: { when: … }`), whatever lowered it: none left to talk to.
       const sulking = start(1)
-      const low = stepTrip(
-        options,
-        { ...sulking, stats: { ...sulking.stats, morale: 0 } },
-        { type: 'action', id: 'parley' },
-      ).state
-      expect(low.stats.hirelings).toBe(1)
+      expect(sulking.stats).toMatchObject({ morale: 0, hirelings: 0 })
+      expect(
+        sulking.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'desertion'),
+      ).toBe(true)
       // Morale 3: each trip rolls its own d6; the same talk again is the same roll.
       const kept = (seed: string) =>
         stepTrip(playing(seed), start(3, seed), { type: 'action', id: 'parley' }).state.stats

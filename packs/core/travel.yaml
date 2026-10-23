@@ -127,6 +127,13 @@ actions:
     do:
       - { time: 60 }
       - { roll: generator.prompt }
+  # A moment written as a condition (a reaction): once, as morale reaches 0.
+  despair:
+    name: Despair
+    description: As the party's morale reaches 0, the trip stops for you to decide what it does.
+    on: { when: { party.values.morale: { lte: 0 } } }
+    do:
+      - { id: broken, pause: The party's spirit is broken. }
 ---
 # The Generic rules' bindings (system.yaml): what resolves each check of their travel rules.
 kind: bindings

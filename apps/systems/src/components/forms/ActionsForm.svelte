@@ -24,6 +24,7 @@
   import { actionLine, actionReading, type StepContext } from '../../lib/steps'
   import { matches } from '../../lib/search'
   import CardHead from './CardHead.svelte'
+  import ReactionEditor from './ReactionEditor.svelte'
   import UsedBy from '../uses/UsedBy.svelte'
   import UsesList from '../uses/UsesList.svelte'
   import { usesFor } from '../../lib/usage'
@@ -34,6 +35,7 @@
   import { library } from '../../lib/packs.svelte'
   import {
     momentsList,
+    reactionWords,
     momentsText,
     writeMoments,
     type SystemDoc,
@@ -77,6 +79,8 @@
                         ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
                         : m,
       )
+      .filter(Boolean)
+      .concat(reactionWords(on))
       .join(' · ')
   /** Check events a step can roll. */
   const events = $derived([
@@ -356,10 +360,17 @@
               ]}
               removeLabel={t('forms.removeItem')}
               {disabled}
-              onchange={(v) => doc.edit('travel-rules', ['actions', id, 'on'], writeMoments(v))}
+              onchange={(v) =>
+                doc.edit('travel-rules', ['actions', id, 'on'], writeMoments(v, undefined, d.on))}
             />
             {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
           </label>
+          <ReactionEditor
+            value={d.on}
+            {hints}
+            {disabled}
+            onchange={(on) => doc.edit('travel-rules', ['actions', id, 'on'], on)}
+          />
           <label>
             <span>{t('rules.name')}<InfoTip text={t('rules.nameHelp')} /></span>
             <input

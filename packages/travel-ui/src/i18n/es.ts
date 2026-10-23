@@ -219,6 +219,9 @@ export const es: Messages<typeof en> = {
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
     notWritable:
       '«{name}» se mantiene por sí solo (sale de otros valores, o de su propia condición), así que los efectos no lo cambian',
+    reacted: 'Por {name}, entra en juego una regla del sistema:',
+    reactionsLoop:
+      'Reglas que entran en juego al cumplirse una condición se desencadenaban unas a otras: se han parado tras 10 seguidas (revisa los momentos escritos como condiciones del sistema)',
     nobodyActing:
       'No actúa nadie, así que «{name}» no cambia nada (elige quién actúa encima de las acciones)',
     CAMP_STARTED: 'Acampáis para pasar la noche',
@@ -243,6 +246,7 @@ export const es: Messages<typeof en> = {
       action: 'tras «{action}»',
       done: 'al acabar «{action}»',
       check: 'tras «{check}»',
+      reaction: 'al cumplirse su condición',
     },
     route: 'Ruta hasta {hex} · hexes: {hexes}',
   },

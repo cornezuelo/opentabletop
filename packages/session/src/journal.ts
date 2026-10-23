@@ -71,6 +71,7 @@ export function entryTopic(e: Line): JournalTopic {
     e.code === 'ROSTER_UPDATED' ||
     e.code === 'NOBODY_ACTING' ||
     e.code === 'NOT_WRITABLE' ||
+    e.code === 'REACTED' ||
     e.code === 'MEMBER_LEFT'
   )
     return 'characters'

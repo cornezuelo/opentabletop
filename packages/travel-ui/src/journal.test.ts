@@ -96,6 +96,18 @@ describe('journal lines', () => {
   const line = (code: string, data: Record<string, unknown>, more: Partial<JournalContext> = {}) =>
     entryText(entry(at(1, '06:00'), code, { data }), { ...context, ...more })
 
+  it('say what came up as a condition turned true, for whom, and when they loop', () => {
+    const memberName = (path: string) =>
+      path.startsWith('characters.mara.') ? 'Mara: Health' : undefined
+    expect(line('REACTED', { who: 'mara' }, { memberName })).toBe(
+      'For Mara, a rule of the system comes into play:',
+    )
+    expect(line('REACTIONS_LOOP', {})).toMatch(/stopped after 10 in a row/)
+    expect(line('MOMENT_REACHED', { at: 'when:{"when":{"a":1}}' })).toContain(
+      'as its condition turned true',
+    )
+  })
+
   it('say why a march stopped: which pairs of its rule failed, with what they read', () => {
     const because = {
       condition: 'when',

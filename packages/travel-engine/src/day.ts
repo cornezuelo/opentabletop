@@ -32,11 +32,11 @@ export function dayClock(value: string, calendar: Calendar, fallback: string): n
  */
 export function partRefsOf(rules: {
   travel?: { start?: string; halt?: { at: string } }
-  checks?: { at?: string | string[] }[]
-  actions?: Record<string, { on?: string | string[]; do?: { time?: unknown }[] }>
+  checks?: { at?: unknown }[]
+  actions?: Record<string, { on?: unknown; do?: { time?: unknown }[] }>
 }): [path: string, ref: string][] {
   const out: [string, string][] = []
-  const list = (v: string | string[] | undefined) => (v === undefined ? [] : [v].flat())
+  const list = (v: unknown): unknown[] => (v === undefined ? [] : [v].flat())
   if (isPartRef(rules.travel?.start)) out.push(['travel.start', rules.travel.start])
   if (isPartRef(rules.travel?.halt?.at)) out.push(['travel.halt.at', rules.travel.halt.at])
   rules.checks?.forEach((c, i) =>

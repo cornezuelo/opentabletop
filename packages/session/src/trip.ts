@@ -26,6 +26,7 @@ import {
   createTravelEngine,
   isHostMoment,
   momentsOf,
+  type Moments,
   refId,
   tripStart,
   partRefsOf,
@@ -565,7 +566,7 @@ export function travelSystems(registry: Registry): {
       // The moments of the world a trip hears: a clock filling. One the system doesn't
       // declare may be made by hand (named by its name as an id): only a warning.
       const declared = Object.keys(clocks?.def.clocks ?? {})
-      const worldMoments = (value: string | string[] | undefined, path: string) =>
+      const worldMoments = (value: Moments | undefined, path: string) =>
         momentsOf(value).forEach((m, j) => {
           if (!isHostMoment(m)) return
           const at = Array.isArray(value) ? `${path}.${j}` : path

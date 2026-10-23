@@ -158,6 +158,16 @@ export const en = {
     ownTurn: 'Own turn',
     ownTurnHelp: "A turn table of its own, instead of the factions' one.\n• `clan-turn`",
   },
+  reaction: {
+    when: 'As this turns true',
+    whenHelp:
+      "A moment written as a condition: it comes **once, as this turns true**, and again only after it has stopped holding. It's looked at after every change of the trip (a step, an effect, a result, a change by hand), reading what tables see, and what comes is played there and then. What already holds when a trip begins comes on its first step.\nExamples:\n• `party.values.morale` at most `0` — the hirelings leave\n• `party.resources.food` at most `0` — the party starts to starve\n• `world.clocks.the-siege` at least `6` — once, as the siege clock reaches 6\nFor a state that should hold all the while (encumbered, weary), give the sheet's condition a **Holds while** instead. Empty: no such moment.",
+    each: 'For each member',
+    eachHelp:
+      'Looked at member by member, reading each one as `acting` (`acting.values.health` at most `0`), and played with that member acting, so its effects on `acting.…` reach them; the journal says who. Each member comes once, as it turns true for them.',
+    said: 'As {when}',
+    saidEach: 'As {when}, for each member',
+  },
   sheet: {
     name: 'Name',
     nameHelp: "The sheet's name, shown where characters are made.\n• **Companion**",

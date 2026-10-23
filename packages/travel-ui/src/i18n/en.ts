@@ -224,6 +224,9 @@ export const en = {
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     notWritable:
       '“{name}” holds by itself (made of other values, or by its own condition), so effects don’t change it',
+    reacted: 'For {name}, a rule of the system comes into play:',
+    reactionsLoop:
+      'Rules that come into play as a condition turns true kept setting each other off: stopped after 10 in a row (look at the system’s moments written as conditions)',
     nobodyActing:
       'Nobody is acting, so “{name}” changed nothing (choose who acts above the actions)',
     CAMP_STARTED: 'Camp for the night',
@@ -249,6 +252,7 @@ export const en = {
       action: 'after “{action}”',
       done: 'once “{action}” is done',
       check: 'after “{check}”',
+      reaction: 'as its condition turned true',
     },
     route: 'Route to {hex} · hexes: {hexes}',
   },

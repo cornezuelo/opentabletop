@@ -423,6 +423,27 @@ actions:
       - when: { hex.region: The Greywood }
         id: awake
         pause: 'The Wyrm is awake, and this is its wood.'
+  # A moment written as a condition (a reaction): it comes once, as morale reaches 0 with
+  # hirelings in the Company, whatever lowered it (a table, an action, a hand on the sheet),
+  # and again only once morale has risen and fallen to 0 again.
+  desertion:
+    name: The hirelings desert
+    description: 'As morale reaches 0 with hirelings in the Company, they slip away in the night.'
+    on: { when: { party.values.morale: { lte: 0 }, party.values.hirelings: { gte: 1 } } }
+    do:
+      - { effects: { party.values.hirelings: '=0' } }
+      - {
+          id: gone,
+          say: 'With their hope gone, the hirelings slip away, and their packs with them.',
+        }
+  # The same, for each companion (`for: party.members`): played with the one who fell acting.
+  collapse:
+    name: A companion falls
+    description: 'As a companion’s health reaches 0: they’re wounded, and their dread grows.'
+    on: { when: { acting.values.health: { lte: 0 } }, for: party.members }
+    do:
+      - { effects: { acting.conditions.wounded: true, acting.values.dread: 1 } }
+      - { id: carried, say: '{{acting.name}} falls, and has to be carried.' }
   # Right after a check is resolved (`on: checks.<event>`): the dawn's weather just rolled,
   # read as `trip.weather` (today's, not yesterday's), before the dawn's next checks.
   stormy-dawn:
@@ -454,8 +475,9 @@ checks:
   # deck runs out, in the campaign's Oracle, shared with draws by hand.
   - event: OMENS
     name: Omens
-    description: Every dawn on the road, a card of the Omens of the road.
-    at: time.part.morning
+    description: Every dawn on the road, a card of the Omens of the road, and one more as the Wyrm stirs (its clock at 4).
+    # Also a moment written as a condition: once, as the Wyrm's clock reaches 4.
+    at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]
     unless: { trip.arrived: true }
   # Off roads and rivers, and not by boat: any / edges / mode. The checks of one moment are
   # decided one by one, in this order: at the same dawn, this one already sees the weather

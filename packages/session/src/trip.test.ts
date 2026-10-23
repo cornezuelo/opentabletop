@@ -5,6 +5,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack, coreSystem } from './core.testing'
+import { applyResult } from './index'
 import {
   DEFAULT_SYSTEM,
   migrateGenericSheets,
@@ -20,6 +21,7 @@ import {
   travelSystems,
   tripAvailability,
   tripFacts,
+  partyOf,
 } from './trip'
 
 const { registry } = loadPacks([
@@ -627,6 +629,22 @@ describe("Core's system: the Generic rules as data", () => {
     edges: () => [],
   }
 
+  it('despairs once, as the party’s morale reaches 0, stopping the trip', () => {
+    const core = coreSystem()
+    const { session } = startTrip({ system: core, location: '0' })
+    expect(session.party?.values.morale).toBe(3)
+    const low = applyResult(
+      session,
+      { effects: { 'party.values.morale': '=0' } },
+      core.bindings?.stats,
+      {},
+      partyOf(core),
+    )
+    const step = stepTrip({ system: core, world: road }, low, { type: 'action', id: 'rest' })
+    expect(step.state.travel.waiting).toMatchObject({ action: 'despair' })
+    expect(step.entries.some((e) => e.code === 'HELD')).toBe(true)
+  })
+
   it('is the default system, with its calendar, sheets and named actions', () => {
     const core = coreSystem()
     expect(core.id).toBe(DEFAULT_SYSTEM)
@@ -638,6 +656,7 @@ describe("Core's system: the Generic rules as data", () => {
       'rest',
       'eat',
       'explore',
+      'despair',
     ])
     expect(core.sheet?.id).toBe('core/character')
     expect(core.partySheet?.id).toBe('core/party')

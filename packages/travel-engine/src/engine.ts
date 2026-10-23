@@ -17,6 +17,7 @@ import {
   changeValue,
   isPassable,
   momentsOf,
+  isReactionMoment,
   doneOf,
   isHostMoment,
   modeThrough,
@@ -2289,7 +2290,9 @@ export function createTravelEngine(options: {
           break
         }
         case 'moment':
-          if (isHostMoment(action.at)) schedule(state, action.at, events, undefined, doingFacts())
+          // A moment of the world, or one written as a condition that just turned true.
+          if (isHostMoment(action.at) || isReactionMoment(action.at))
+            schedule(state, action.at, events, undefined, doingFacts())
           break
       }
       return { state, events }

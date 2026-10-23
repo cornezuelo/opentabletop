@@ -1,5 +1,6 @@
 import { mathRandom, type RandomSource } from '@open-tabletop/random'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
+import { matches, type Condition } from '@open-tabletop/conditions'
 import {
   emptyState,
   mergeEffects,
@@ -50,6 +51,7 @@ import {
   hexIdOf,
   momentRolls,
   qualify,
+  reactionsOf,
   resolveChange,
   movingActions,
   resourceBounds,
@@ -57,6 +59,7 @@ import {
   type Bounds,
   type CheckOutcome,
   type DayValue,
+  type Reaction,
   type TravelAction,
   type TravelEngine,
   type TravelEvent,
@@ -287,13 +290,27 @@ export interface SessionState {
   skipPauses?: boolean
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
+  /**
+   * The reactions (moments written as conditions) that held when last looked at, by key
+   * (`key|<member>` for one checked for each member): one comes when it holds and isn't
+   * here. Absent in trips saved before reactions: they take what holds when next played.
+   */
+  reactions?: string[]
 }
 
 export function initialSessionState(
   travel: TravelState,
   stats: Record<string, number> = {},
 ): SessionState {
-  return { travel, oracle: emptyState(), stats, dayVars: {}, journal: [], nextEntry: 1 }
+  return {
+    travel,
+    oracle: emptyState(),
+    stats,
+    dayVars: {},
+    journal: [],
+    nextEntry: 1,
+    reactions: [],
+  }
 }
 
 /**
@@ -580,20 +597,62 @@ export function createSession(options: {
    */
   const settleWorld = (s: SessionState, entries: JournalEntry[]) => {
     if (!s.members?.length && !s.party) return
-    const world = qualify(options.travel.context(s.travel, tripContext(s, hostOf(s))))
-    told(s, entries, settleStates(s, party, world, s.travel.time), s.travel.time)
+    told(s, entries, settleStates(s, party, worldOf(s), s.travel.time), s.travel.time)
   }
+  /** The trip's world as conditions see it now (what tables see, by their full names). */
+  const worldOf = (s: SessionState) =>
+    qualify(options.travel.context(s.travel, tripContext(s, hostOf(s))))
+  /** The moments written as conditions in the system's rules (reactions). */
+  const reactions = options.rules ? reactionsOf(options.rules) : []
+  /**
+   * The reactions that hold now, by key (`key|<member>` for one checked for each member,
+   * read with that member acting).
+   */
+  const holding = (s: SessionState): string[] => {
+    if (!reactions.length) return []
+    const world = worldOf(s)
+    const holds = (r: Reaction, seen: Record<string, unknown>) =>
+      matches(r.when as Condition | undefined, seen) &&
+      !(r.unless && matches(r.unless as Condition, seen))
+    return reactions.flatMap(({ key, reaction }) =>
+      reaction.for === 'party.members'
+        ? (s.members ?? [])
+            .filter((m) => holds(reaction, worldOf({ ...s, acting: m.id })))
+            .map((m) => `${key}|${m.id}`)
+        : holds(reaction, world)
+          ? [key]
+          : [],
+    )
+  }
+  /**
+   * The next reaction to come: one that holds now and didn't last time (what the trip has
+   * no memory of counts as not holding). The memory keeps what still holds, plus the one
+   * that comes; a trip saved before reactions takes what holds now, firing nothing.
+   */
+  const nextReaction = (s: SessionState): { key: string; who?: string } | undefined => {
+    if (!reactions.length) return undefined
+    const now = holding(s)
+    if (!s.reactions) {
+      s.reactions = now
+      return undefined
+    }
+    const before = new Set(s.reactions)
+    const rising = now.find((k) => !before.has(k))
+    s.reactions = now.filter((k) => before.has(k) || k === rising)
+    if (!rising) return undefined
+    const [key, who] = rising.split('|')
+    return { key, ...(who !== undefined && { who }) }
+  }
+  /** At most this many reactions in a row in one step: past it, they loop. */
+  const MAX_REACTIONS = 10
 
-  return {
-    settle(input) {
-      const s = structuredClone(input)
-      const entries: JournalEntry[] = []
-      refreshParty(s, party)
-      settleWorld(s, entries)
-      return { state: s, entries }
-    },
-
-    step(input, action) {
+  const run = (
+    input: SessionState,
+    action: TravelAction,
+    /** Only settling after a change by hand: no action, only the reactions it sets off. */
+    quiet = false,
+  ): { state: SessionState; entries: JournalEntry[] } => {
+    {
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
       s.lastStep = s.nextEntry
@@ -702,6 +761,19 @@ export function createSession(options: {
       const replaying = !!replay
       /** The last step went on with an action its checks held. */
       let resumed = false
+      /** Reactions played in this step (past `MAX_REACTIONS`, they loop). */
+      let reacted = 0
+      /** A reaction is being played: once it's done, the step goes on with `after`. */
+      let reacting = false
+      let after: TravelAction | undefined
+      /** Who acted before a reaction played for a member made them act. */
+      let actingBefore: { acting?: string } | undefined
+      const restoreActing = () => {
+        if (!actingBefore) return
+        if (actingBefore.acting === undefined) delete s.acting
+        else s.acting = actingBefore.acting
+        actingBefore = undefined
+      }
       /** A pause the player chose to skip: the journal says it, and the trip goes on. */
       const skipped = (time: number, data: Record<string, unknown>) =>
         add(s, entries, { source: 'travel', code: 'PAUSE_SKIPPED', time, data })
@@ -1030,28 +1102,93 @@ export function createSession(options: {
         // goes on too.
         // Skipping pauses, a step that paused goes on at once (one that asks still waits).
         const waits = s.travel.waiting
-        if (s.skipPauses && waits && !waits.ask && resolvedAll && !s.travel.pendingChecks.length) {
-          act = { type: 'resume' }
-          resumed = true
-          continue
-        }
         const settled = resolvedAll && !s.travel.pendingChecks.length && !s.travel.waiting && !found
-        if (settled && s.travel.moving?.held) {
-          act = { type: 'resume' }
+        /**
+         * What comes up once all is settled: a reaction that just turned true is played now,
+         * in the same minute (its events as the next round's), and then the step goes on as
+         * it would have. Played for a member, it's taken with them acting.
+         */
+        const react = (): boolean => {
+          // Not while something waits for the player, nor in the middle of a held action.
+          if (!settled || s.travel.moving?.held) return false
+          // After a reaction, the step goes on as it was going to.
+          if (reacting) {
+            next ??= after
+            reacting = false
+          }
+          restoreActing()
+          const r = nextReaction(s)
+          if (!r) return false
+          if (++reacted > MAX_REACTIONS) {
+            s.reactions = holding(s)
+            add(s, entries, { source: 'travel', code: 'REACTIONS_LOOP', time: s.travel.time })
+            return false
+          }
+          if (r.who) {
+            actingBefore = { acting: s.acting }
+            s.acting = r.who
+            add(s, entries, {
+              source: 'travel',
+              code: 'REACTED',
+              time: s.travel.time,
+              data: { who: r.who },
+            })
+          }
+          const moment = options.travel.apply(
+            s.travel,
+            { type: 'moment', at: r.key },
+            tripContext(s, hostOf(s)),
+          )
+          s.travel = moment.state
+          after = next
+          reacting = true
+          replay = moment.events
+          return true
+        }
+        let next: TravelAction | undefined
+        if (quiet && !reacting) next = undefined
+        else if (
+          s.skipPauses &&
+          waits &&
+          !waits.ask &&
+          resolvedAll &&
+          !s.travel.pendingChecks.length
+        ) {
           resumed = true
-          continue
-        }
-        if (resumed && settled && long) {
+          next = { type: 'resume' }
+        } else if (settled && s.travel.moving?.held) {
+          resumed = true
+          next = { type: 'resume' }
+        } else if (resumed && settled && long) {
           resumed = false
-          act = travelling && s.travel.moving ? goOn : first
+          next = travelling && s.travel.moving ? goOn : first
+        }
+        if (next || quiet || !keepGoing) {
+          if (react()) continue
+          if (!next) break
+          act = next
           continue
         }
-        if (!keepGoing) break
         // A wait waits on; a move goes on from where it stopped (not taken again), and an
         // action that waited for a check before setting off is taken now.
-        act = travelling && (s.travel.moving || action.type === 'travel') ? goOn : first
+        next = travelling && (s.travel.moving || action.type === 'travel') ? goOn : first
+        if (react()) continue
+        if (!next) break
+        act = next
       }
+      restoreActing()
       return { state: s, entries }
+    }
+  }
+
+  return {
+    step: (input, action) => run(input, action),
+    settle(input) {
+      const done = run(input, { type: 'moment', at: '' }, true)
+      // A change by hand that set nothing off isn't a step.
+      if (!done.entries.length && input.lastStep !== undefined) done.state.lastStep = input.lastStep
+      else if (!done.entries.length) delete done.state.lastStep
+      return done
     },
     note(input, text) {
       return addEntry(input, { source: 'user', code: 'NOTE', text }, now())
