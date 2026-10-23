@@ -194,10 +194,8 @@ describe('bundled open packs', () => {
         { length: 40 },
         () =>
           // As hosts give it: with the facts' full names (`hex.region`).
-          engine.resolve(
-            'grey-marches/encounter',
-            qualify({ region: 'Ashford Vale', timeOfDay, danger: 0 }),
-          ).resolution.entry,
+          engine.resolve('grey-marches/encounter', qualify({ region: 'Ashford Vale', timeOfDay }))
+            .resolution.entry,
       )
     expect(met('day')).toContain('patrol')
     expect(met('night')).not.toContain('patrol')
@@ -971,7 +969,7 @@ describe('bundled open packs', () => {
             'grey-marches/encounter',
             qualify({
               terrain: 'forest',
-              danger: 3,
+              hex: { danger: 3 },
               world: { clocks: { 'the-greywood-wyrm-wakes': filled } },
             }),
           ),
