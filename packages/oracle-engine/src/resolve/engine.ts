@@ -274,6 +274,10 @@ class Run {
       case 'generator': {
         const scope: Record<string, unknown> = { ...context }
         const node = this.node(def, context)
+        // What its tables set, change and pause reaches the host as a table's does.
+        let lifted: Record<string, unknown> = {}
+        let effects: Record<string, number | string> | undefined
+        let paused = false
         for (const field of def.fields) {
           if (field.when && !this.holds(field.when, scope, node)) continue
           const fieldContext = { ...scope, ...this.evalValues(field.context, scope, node) }
@@ -282,6 +286,11 @@ class Run {
             const child = this.follow(def, field.ref!, fieldContext, depth)
             node.children.push(child)
             value = child.text !== undefined ? { ...child.value, text: child.text } : child.value
+            const { effects: changes, pause, ...set } = child.value
+            delete set.text
+            lifted = { ...lifted, ...set }
+            effects = mergeEffects(effects, changes as Record<string, number | string> | undefined)
+            if (pause) paused = true
           } else if (field.kind === 'roll') {
             value = this.roll(field.parsedRoll ?? field.roll!, fieldContext, node).total
           } else {
@@ -297,6 +306,10 @@ class Run {
           node.value[field.name] = value
           scope[field.name] = value
         }
+        // Its own fields win over what their tables set.
+        node.value = { ...lifted, ...node.value }
+        if (effects && Object.keys(effects).length) node.value.effects = effects
+        if (paused) node.value.pause = true
         const template = this.text(def.id, 'template') ?? def.template
         if (template) node.text = this.render(template, scope, node)
         this.onEvent?.({ type: 'GENERATOR_COMPLETED', source: def.id })

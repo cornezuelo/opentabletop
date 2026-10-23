@@ -275,7 +275,10 @@ describe('example maps', () => {
       table: 'grey-marches/ruin-delve',
     })
     expect(result.text).toMatch(/^Las ruinas de /)
-    expect(state.travel.pendingChecks).toEqual([])
+    // What its tables pause reaches the trip, as a table's does: a guardian that stops the
+    // trip (the Ember Hunt) leaves it waiting for Continue.
+    const value = result.data?.value as { pause?: boolean } | undefined
+    expect(state.travel.pendingChecks.length > 0).toBe(!!value?.pause)
     expect(state.travel.time - session.travel.time).toBe(180)
   })
 

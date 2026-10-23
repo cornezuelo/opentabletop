@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Travel, Hexmapper: **what a generator's tables set, change and pause now reaches the trip**, as a table's does (the Grey Marches' _Delve the ruin_: a guardian like the Ember Hunt now stops the trip and costs morale); before, a generator's fields kept it to themselves.
 - Manual: the technical pages reviewed for consistency: every example by its full name (`hex.danger`, `trip.moment`, roll modes as `roll-modes.advantage`, which the short form no longer reads), the lists of kinds, dictionaries, installable apps and moments complete, world values said to come from the campaign (Travel's trips too), and `travel.speed` said to multiply the weather's speed, not add to it.
 
 ## [0.12.0] - 2026-10-23

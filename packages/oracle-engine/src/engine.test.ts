@@ -1078,3 +1078,42 @@ cards: [{ id: cache, result: A cache, effects: { party.resources.food: 2 } }]
     })
   })
 })
+
+describe('a generator’s tables reach the host as a table’s do', () => {
+  it('their set values, their effects added up and a pause; its own fields win', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'g/pack.yaml', content: 'id: g\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'g/t.yaml',
+        content: `
+kind: table
+id: loot
+entries:
+  - { result: A map, set: { mapped: true, site: lost }, effects: { party.stats.morale: 1 } }
+---
+kind: table
+id: guard
+entries:
+  - { result: Wolves, pause: true, effects: { party.stats.morale: 1, party.resources.food: -1 } }
+---
+kind: generator
+id: delve
+fields:
+  site: { value: barrow }
+  loot: { table: table.loot }
+  guard: { table: table.guard }
+template: '{{site}}: {{loot}}, {{guard}}'
+`,
+      },
+    ])
+    expect(diagnostics).toEqual([])
+    const { resolution } = createOracleEngine({ registry, random: seeded('g') }).resolve('g/delve')
+    expect(resolution.text).toBe('barrow: A map, Wolves')
+    expect(resolution.value).toMatchObject({
+      mapped: true,
+      site: 'barrow',
+      pause: true,
+      effects: { 'party.stats.morale': 2, 'party.resources.food': -1 },
+    })
+  })
+})

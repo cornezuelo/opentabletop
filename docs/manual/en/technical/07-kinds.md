@@ -71,7 +71,7 @@ fields:
 template: '{{name}} (might {{might}})'
 ```
 
-**What other tables see:** each field by its name, inside the generator (`{{name}}`), and from a generator that rolls this one, as `{{npc.name}}`.
+**What other tables see:** each field by its name, inside the generator (`{{name}}`), and from a generator that rolls this one, as `{{npc.name}}`. What its tables set, change and pause reaches a trip (or whatever rolled it) as a table's does: their `set` values (its own fields win a name they share), their `effects` added up, and a `pause` in any of them stops the trip.
 
 ## Decks
 

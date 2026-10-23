@@ -70,7 +70,7 @@ fields:
 template: '{{name}} (fuerza {{might}})'
 ```
 
-**Qué ven otras tablas:** cada campo por su nombre, dentro del generador (`{{name}}`), y desde un generador que tire este, como `{{npc.name}}`.
+**Qué ven otras tablas:** cada campo por su nombre, dentro del generador (`{{name}}`), y desde un generador que tire este, como `{{npc.name}}`. Lo que fijan, cambian y pausan sus tablas llega al viaje (o a lo que lo tiró) como lo de una tabla: sus valores `set` (con el mismo nombre, ganan sus propios campos), sus `effects` sumados, y una `pause` en cualquiera de ellas detiene el viaje.
 
 ## Mazos
 
