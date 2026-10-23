@@ -2814,7 +2814,15 @@ describe('rolling what the host rolls, and moments of the world', () => {
     actions: {
       ...DAY_ACTIONS,
       // A table of the Oracle, rolled with no check around it.
-      search: { do: [{ time: 60 }, { roll: 'table.ruins' }, { roll: 'core/oracle.yes-no' }] },
+      search: {
+        do: [
+          { time: 60 },
+          { roll: 'table.ruins' },
+          // Later steps see what it rolled.
+          { when: { 'today.loot': true }, effects: { 'party.resources.food': 2 } },
+          { roll: 'core/oracle.yes-no' },
+        ],
+      },
       // The system takes it by itself when the host says the clock filled.
       flee: { on: 'world.clocks.doom.full', do: [{ effects: { 'party.resources.food': -1 } }] },
     },
@@ -2835,15 +2843,33 @@ describe('rolling what the host rolls, and moments of the world', () => {
   it('a step rolls a table: a pending check naming what the host rolls', () => {
     const { state, events } = eng.apply(begin(), { type: 'action', id: 'search' })
     const required = events.flatMap((e) => (e.type === 'CHECK_REQUIRED' ? [e.check] : []))
-    expect(required.map((c) => [c.event, c.resolve])).toEqual([
-      ['table.ruins', 'table.ruins'],
-      ['core/oracle.yes-no', 'core/oracle.yes-no'],
-    ])
+    expect(required.map((c) => [c.event, c.resolve])).toEqual([['table.ruins', 'table.ruins']])
     // It sees the moment it came at, like any check a step rolls.
     expect(required[0].context.moment).toBe('actions.search')
-    // A step's roll doesn't hold the rest: they're resolved when the action ends.
-    expect(state.pendingChecks).toHaveLength(2)
-    expect(state.moving).toBeUndefined()
+    // It holds the rest of the action until it's resolved, as its moment's checks do.
+    expect(state.moving).toEqual({ frames: [{ action: 'search', next: 2 }], held: true })
+  })
+
+  it("a step's roll is seen by the steps after it, then the next roll holds them again", () => {
+    const rolled = eng.apply(begin(), { type: 'action', id: 'search' }).state
+    const [ruins] = rolled.pendingChecks
+    const found = eng.apply(rolled, {
+      type: 'resolveCheck',
+      id: ruins.id,
+      outcome: { values: { loot: true } },
+    }).state
+    const { state, events } = eng.apply(found, { type: 'resume' })
+    expect(state.resources.food).toBe(5)
+    expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
+      check: { event: 'core/oracle.yes-no' },
+    })
+    expect(state.moving).toEqual({ frames: [{ action: 'search', next: 4 }], held: true })
+    // Once that one's resolved too, the action is done.
+    const last = eng.apply(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }).state
+    expect(eng.apply(last, { type: 'resume' }).state.moving).toBeUndefined()
+    // With nothing found, the step after it doesn't happen.
+    const empty = eng.apply(rolled, { type: 'resolveCheck', id: ruins.id }).state
+    expect(eng.apply(empty, { type: 'resume' }).state.resources.food).toBe(3)
   })
 
   it('a moment of the world the host says came: its actions and checks happen', () => {

@@ -1840,6 +1840,7 @@ export function createTravelEngine(options: {
       } else if (step.roll !== undefined) {
         // A check of the system, or anything else the host rolls (`table.ruins`).
         const check = refId('checks', step.roll)
+        const before = state.pendingChecks.length
         schedule(
           state,
           ref('actions', id),
@@ -1849,6 +1850,9 @@ export function createTravelEngine(options: {
           check,
           check ? undefined : step.roll,
         )
+        // Its result comes before the rest, as its moment's checks do: the steps after it
+        // wait until it's resolved, and see what it set.
+        if (hold && state.pendingChecks.length > before) return { frames: [frame(i)], held: true }
       } else if (step.set) state.today = { ...state.today, ...step.set }
       else if (step.say !== undefined)
         events.push({ type: 'SAID', action: id, text: written(step.say), time: state.time })
