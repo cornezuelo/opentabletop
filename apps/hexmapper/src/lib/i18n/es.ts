@@ -446,7 +446,7 @@ export const es: Messages = {
     openParty: 'Abrir Jugar → Grupo',
     sheet: 'Hoja',
     sheetHelp:
-      'La ficha como personaje del sistema del mapa: los valores, estados, etiquetas y relaciones de su hoja, como el bloque de estadísticas de un PNJ o una criatura. Las tablas que se tiran con la ficha seleccionada los leen: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Sus campos de abajo siguen como están.',
+      'El token como personaje del sistema del mapa: los valores, estados, etiquetas y relaciones de su hoja, como el bloque de estadísticas de un PNJ o una criatura. Las tablas que se tiran con el token seleccionado los leen: `{{token.health}}`, `token.values.might: { gte: 3 }`, `token.conditions: wounded`. Sus campos de abajo siguen como están.',
     sheetDefault: 'la del sistema',
     giveSheet: 'Darle una hoja ({sheet})',
     fromRoster: vocabulary.es.roster.from,
@@ -460,7 +460,7 @@ export const es: Messages = {
       'Guarda esta hoja en el plantel (la aplicación Characters) como un personaje con el nombre del token, enlazado con él: luego podrá llevarse a otros mapas y viajes.',
     openInCharacters: vocabulary.es.roster.open,
     removeSheet: 'Quitarle la hoja',
-    confirmNoSheet: '¿Quitar la hoja de esta ficha y todo lo que hay en ella?',
+    confirmNoSheet: '¿Quitar la hoja de este token y todo lo que hay en ella?',
     confirmParty: '¿Convertir «{name}» en el grupo? «{old}» pasa a ser un personaje jugador.',
     confirmPartyTrip:
       '¿Convertir «{name}» en el grupo? El viaje sigue desde donde está (mismo día, provisiones y diario) y su rastro empieza ahí.',
@@ -599,7 +599,7 @@ export const es: Messages = {
     iconHelp:
       'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su hex los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
-      'Valores de esta ficha (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oracle mientras está seleccionada los leen como `{{token.<clave>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
+      'Valores de este token (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oracle mientras está seleccionado los leen como `{{token.<clave>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
     poiHelp:
       'Valores de este punto de interés, guardados con él en el mapa y su fichero (`treasure = 40`, `cleared = yes`). Las tablas no los leen: un hex puede tener varios puntos de interés.',
   },

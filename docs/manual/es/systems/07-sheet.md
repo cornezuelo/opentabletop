@@ -16,7 +16,7 @@ Una hoja es un formulario en blanco: dice lo que tiene un personaje (Supervivenc
 
 ## La pestaña
 
-Con las dos hojas, una pestaña encima del formulario elige cuál. Si el sistema tiene [facciones](08-factions.md), su hoja se edita aquí también, en una pestaña propia (_faction · las facciones_), salvo que sea una de esas dos. **Nueva hoja de personajes** y **Nueva hoja de grupo** hacen una pequeña y la nombran en el sistema (`sheet:`, `partySheet:` en su **Resumen**). Allí donde se juega una hoja (la pestaña **Grupo** del viaje, la hoja de una ficha en el Hexmapper), dice cuál es y de qué sistema, con **Editar en Sistemas ↗** para venir aquí. El YAML de una hoja: [Hojas](../technical/07-kinds.md#hojas).
+Con las dos hojas, una pestaña encima del formulario elige cuál. Si el sistema tiene [facciones](08-factions.md), su hoja se edita aquí también, en una pestaña propia (_faction · las facciones_), salvo que sea una de esas dos. **Nueva hoja de personajes** y **Nueva hoja de grupo** hacen una pequeña y la nombran en el sistema (`sheet:`, `partySheet:` en su **Resumen**). Allí donde se juega una hoja (la pestaña **Grupo** del viaje, la hoja de una ficha en el Hexmapper), dice cuál es y de qué sistema, con **Editar en Systems ↗** para venir aquí. El YAML de una hoja: [Hojas](../technical/07-kinds.md#hojas).
 
 - Su **Nombre** y su **Descripción** (para qué es la hoja).
 - Sus **Valores**, cada uno con un id, un nombre, el valor en que **Empieza** (el de un personaje nuevo), **Mín.** y **Máx.** (un número, u otro valor entre llaves, `'{{self.values.toughness}}'`: tan alto como la Dureza del personaje; vacío: sin límite), cómo **Se muestra** (con sus **Niveles** y **Tonos**: [más abajo](#cómo-se-muestran-los-valores)) y **Grupo**.
@@ -34,7 +34,7 @@ Lo que el grupo toma de sus personajes se dice en [Comprobaciones](06-checks.md)
 
 ## Cómo se muestran los valores
 
-Cada valor dice cómo se dibuja allí donde se muestra un personaje (la pestaña **Grupo** de un viaje, la hoja de una ficha, una facción en el panel del Mundo, la aplicación Personajes), en su columna **Se muestra como**. No cambia nada de cómo juega el valor: las tablas y los efectos leen y cambian el mismo número.
+Cada valor dice cómo se dibuja allí donde se muestra un personaje (la pestaña **Grupo** de un viaje, la hoja de un token, una facción en el panel del Mundo, la aplicación Personajes), en su columna **Se muestra como**. No cambia nada de cómo juega el valor: las tablas y los efectos leen y cambian el mismo número.
 
 | Se muestra como | Se ve como                                           | Para                                                                                      |
 | --------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
