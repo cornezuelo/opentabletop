@@ -77,22 +77,22 @@ A missing value shows as nothing. Variables work in results, generator templates
 
 When something applies. The same syntax everywhere: `when` (must hold) and `unless` (must not). Full reference: [Conditions](08-conditions.md).
 
-| Write                                       | Holds when                                  |
-| ------------------------------------------- | ------------------------------------------- |
-| `terrain: forest`                           | it's exactly that                           |
-| `terrain: [forest, hills]`                  | it's any of them                            |
-| `tags: landmark`                            | a list (tags, holidays) contains it         |
-| `season: { not: summer }`                   | it's anything else (or missing)             |
-| `danger: { gte: 3 }`                        | `gt`, `gte`, `lt`, `lte`: a number compared |
-| `danger: { gte: 2, lte: 4 }`                | every comparison holds                      |
-| `weather: { in: [rain, storm] }`            | the same as a list                          |
-| `region: { exists: false }`                 | it's missing (`true`: it's there)           |
-| `danger: { gt: '{{party.stats.stealth}}' }` | a variable: compared with another value     |
-| `party.stats.wits: { gte: '{{1d20}}' }`     | a roll: under the wits (once a moment)      |
-| `{ terrain: forest, timeOfDay: night }`     | every pair holds                            |
-| `any: [{ edges: road }, { mode: boat }]`    | one of them holds                           |
-| `all: [{ tags: ford }, { tags: toll }]`     | all of them (one name twice)                |
-| `not: { timeOfDay: night }`                 | the condition inside doesn't                |
+| Write                                              | Holds when                                  |
+| -------------------------------------------------- | ------------------------------------------- |
+| `terrain: forest`                                  | it's exactly that                           |
+| `terrain: [forest, hills]`                         | it's any of them                            |
+| `tags: landmark`                                   | a list (tags, holidays) contains it         |
+| `time.season: { not: summer }`                     | it's anything else (or missing)             |
+| `danger: { gte: 3 }`                               | `gt`, `gte`, `lt`, `lte`: a number compared |
+| `danger: { gte: 2, lte: 4 }`                       | every comparison holds                      |
+| `weather: { in: [rain, storm] }`                   | the same as a list                          |
+| `region: { exists: false }`                        | it's missing (`true`: it's there)           |
+| `danger: { gt: '{{party.stats.stealth}}' }`        | a variable: compared with another value     |
+| `party.stats.wits: { gte: '{{1d20}}' }`            | a roll: under the wits (once a moment)      |
+| `{ terrain: forest, timeOfDay: night }`            | every pair holds                            |
+| `any: [{ trip.edges: road }, { trip.mode: boat }]` | one of them holds                           |
+| `all: [{ hex.tags: ford }, { hex.tags: toll }]`    | all of them (one name twice)                |
+| `not: { timeOfDay: night }`                        | the condition inside doesn't                |
 
 **Where they go:**
 

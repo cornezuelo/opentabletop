@@ -13,7 +13,7 @@ Nada de una condición se ejecuta como código: los packs de cualquiera se carga
 | `nombre: valor`             | el valor es exactamente ese                                | `terrain: forest`, `lost: true`, `day: 1` |
 | `nombre: [a, b, c]`         | el valor es cualquiera de ellos                            | `terrain: [forest, dense-forest, heath]`  |
 | `nombre: { eq: valor }`     | el valor es exactamente ese (lo mismo que `nombre: valor`) | `season: { eq: winter }`                  |
-| `nombre: { not: valor }`    | el valor es cualquier cosa menos ese (también si falta)    | `season: { not: summer }`                 |
+| `nombre: { not: valor }`    | el valor es cualquier cosa menos ese (también si falta)    | `time.season: { not: summer }`            |
 | `nombre: { not: [a, b] }`   | el valor no es ninguno de ellos                            | `mode: { not: [boat, cart] }`             |
 | `nombre: { in: [a, b] }`    | el valor es cualquiera de ellos (lo mismo que una lista)   | `weather: { in: [rain, storm] }`          |
 | `nombre: { gt: n }`         | el valor es un número **mayor que** n                      | `party.stats.morale: { gt: 0 }`           |
@@ -58,16 +58,16 @@ Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tab
 
 ## Juntar condiciones
 
-| Escribe      | Se cumple cuando                  | Ejemplo                                                              |
-| ------------ | --------------------------------- | -------------------------------------------------------------------- |
-| varios pares | se cumplen todos                  | `{ terrain: forest, timeOfDay: night }`                              |
-| `all: [ … ]` | todas las condiciones de la lista | `all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }]` |
-| `any: [ … ]` | al menos una                      | `any: [{ edges: road }, { edges: river }, { mode: boat }]`           |
-| `not: { … }` | la condición de dentro no         | `not: { timeOfDay: night }`                                          |
+| Escribe      | Se cumple cuando                  | Ejemplo                                                                      |
+| ------------ | --------------------------------- | ---------------------------------------------------------------------------- |
+| varios pares | se cumplen todos                  | `{ terrain: forest, timeOfDay: night }`                                      |
+| `all: [ … ]` | todas las condiciones de la lista | `all: [{ hex.terrain: [forest, dense-forest] }, { hex.danger: { gte: 5 } }]` |
+| `any: [ … ]` | al menos una                      | `any: [{ trip.edges: road }, { trip.edges: river }, { trip.mode: boat }]`    |
+| `not: { … }` | la condición de dentro no         | `not: { timeOfDay: night }`                                                  |
 
-`all`, `any` y `not` cuentan como un par más junto a los otros: `{ tags: market, any: [{ weekday: marketday }, { events: market-day }] }` es un pueblo con mercado en cualquiera de los dos días. Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` hace falta cuando un valor aparece dos veces, porque un par solo se puede escribir una vez (`{ all: [{ tags: ford }, { tags: toll }] }`: un hex con las dos etiquetas).
+`all`, `any` y `not` cuentan como un par más junto a los otros: `{ hex.tags: market, any: [{ time.weekday: marketday }, { world.events: market-day }] }` es un pueblo con mercado en cualquiera de los dos días. Se anidan: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` hace falta cuando un valor aparece dos veces, porque un par solo se puede escribir una vez (`{ all: [{ tags: ford }, { tags: toll }] }`: un hex con las dos etiquetas).
 
-`not` tiene dos sentidos según lo que le sigue: `season: { not: summer }` compara un valor; `not: { season: summer }`, arriba del todo, da la vuelta a una condición entera. Aquí se cumplen en los mismos casos; con más pares dentro, la segunda dice «no todos estos».
+`not` tiene dos sentidos según lo que le sigue: `time.season: { not: summer }` compara un valor; `not: { time.season: summer }`, arriba del todo, da la vuelta a una condición entera. Aquí se cumplen en los mismos casos; con más pares dentro, la segunda dice «no todos estos».
 
 ## `when` y `unless`
 

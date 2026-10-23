@@ -77,22 +77,22 @@ Un valor que falta no muestra nada. Las variables sirven en resultados, plantill
 
 Cuándo se aplica algo. La misma sintaxis en todas partes: `when` (debe cumplirse) y `unless` (no debe). Referencia completa: [Condiciones](08-conditions.md).
 
-| Escribe                                     | Se cumple cuando                                |
-| ------------------------------------------- | ----------------------------------------------- |
-| `terrain: forest`                           | es exactamente eso                              |
-| `terrain: [forest, hills]`                  | es cualquiera de ellos                          |
-| `tags: landmark`                            | una lista (etiquetas, festividades) lo contiene |
-| `season: { not: summer }`                   | es cualquier otra cosa (o falta)                |
-| `danger: { gte: 3 }`                        | `gt`, `gte`, `lt`, `lte`: un número comparado   |
-| `danger: { gte: 2, lte: 4 }`                | se cumplen todas las comparaciones              |
-| `weather: { in: [rain, storm] }`            | lo mismo que una lista                          |
-| `danger: { gt: '{{party.stats.stealth}}' }` | una variable: comparado con otro valor          |
-| `party.stats.wits: { gte: '{{1d20}}' }`     | una tirada: bajo el ingenio (una por momento)   |
-| `region: { exists: false }`                 | falta (`true`: está)                            |
-| `{ terrain: forest, timeOfDay: night }`     | se cumplen todos los pares                      |
-| `any: [{ edges: road }, { mode: boat }]`    | se cumple uno de ellos                          |
-| `all: [{ tags: ford }, { tags: toll }]`     | todos (un nombre dos veces)                     |
-| `not: { timeOfDay: night }`                 | la condición de dentro no se cumple             |
+| Escribe                                            | Se cumple cuando                                |
+| -------------------------------------------------- | ----------------------------------------------- |
+| `terrain: forest`                                  | es exactamente eso                              |
+| `terrain: [forest, hills]`                         | es cualquiera de ellos                          |
+| `tags: landmark`                                   | una lista (etiquetas, festividades) lo contiene |
+| `time.season: { not: summer }`                     | es cualquier otra cosa (o falta)                |
+| `danger: { gte: 3 }`                               | `gt`, `gte`, `lt`, `lte`: un número comparado   |
+| `danger: { gte: 2, lte: 4 }`                       | se cumplen todas las comparaciones              |
+| `weather: { in: [rain, storm] }`                   | lo mismo que una lista                          |
+| `danger: { gt: '{{party.stats.stealth}}' }`        | una variable: comparado con otro valor          |
+| `party.stats.wits: { gte: '{{1d20}}' }`            | una tirada: bajo el ingenio (una por momento)   |
+| `region: { exists: false }`                        | falta (`true`: está)                            |
+| `{ terrain: forest, timeOfDay: night }`            | se cumplen todos los pares                      |
+| `any: [{ trip.edges: road }, { trip.mode: boat }]` | se cumple uno de ellos                          |
+| `all: [{ hex.tags: ford }, { hex.tags: toll }]`    | todos (un nombre dos veces)                     |
+| `not: { timeOfDay: night }`                        | la condición de dentro no se cumple             |
 
 **Dónde van:**
 

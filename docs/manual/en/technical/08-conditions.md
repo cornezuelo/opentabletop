@@ -13,7 +13,7 @@ Nothing in a condition is run as code: packs from anyone are safe to load.
 | `name: value`             | the value is exactly that                               | `terrain: forest`, `lost: true`, `day: 1` |
 | `name: [a, b, c]`         | the value is any of them                                | `terrain: [forest, dense-forest, heath]`  |
 | `name: { eq: value }`     | the value is exactly that (the same as `name: value`)   | `season: { eq: winter }`                  |
-| `name: { not: value }`    | the value is anything but that (also when it's missing) | `season: { not: summer }`                 |
+| `name: { not: value }`    | the value is anything but that (also when it's missing) | `time.season: { not: summer }`            |
 | `name: { not: [a, b] }`   | the value is none of them                               | `mode: { not: [boat, cart] }`             |
 | `name: { in: [a, b] }`    | the value is any of them (the same as a list)           | `weather: { in: [rain, storm] }`          |
 | `name: { gt: n }`         | the value is a number **greater than** n                | `party.stats.morale: { gt: 0 }`           |
@@ -58,16 +58,16 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 
 ## Joining conditions
 
-| Write         | Holds when                   | Example                                                              |
-| ------------- | ---------------------------- | -------------------------------------------------------------------- |
-| several pairs | all of them hold             | `{ terrain: forest, timeOfDay: night }`                              |
-| `all: [ … ]`  | every condition in the list  | `all: [{ terrain: [forest, dense-forest] }, { danger: { gte: 5 } }]` |
-| `any: [ … ]`  | at least one of them         | `any: [{ edges: road }, { edges: river }, { mode: boat }]`           |
-| `not: { … }`  | the condition inside doesn't | `not: { timeOfDay: night }`                                          |
+| Write         | Holds when                   | Example                                                                      |
+| ------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| several pairs | all of them hold             | `{ terrain: forest, timeOfDay: night }`                                      |
+| `all: [ … ]`  | every condition in the list  | `all: [{ hex.terrain: [forest, dense-forest] }, { hex.danger: { gte: 5 } }]` |
+| `any: [ … ]`  | at least one of them         | `any: [{ trip.edges: road }, { trip.edges: river }, { trip.mode: boat }]`    |
+| `not: { … }`  | the condition inside doesn't | `not: { timeOfDay: night }`                                                  |
 
-`all`, `any` and `not` count as one more pair beside the others: `{ tags: market, any: [{ weekday: marketday }, { events: market-day }] }` is a market town on either day. They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ tags: ford }, { tags: toll }] }`: a hex with both tags).
+`all`, `any` and `not` count as one more pair beside the others: `{ hex.tags: market, any: [{ time.weekday: marketday }, { world.events: market-day }] }` is a market town on either day. They nest: `{ all: [{ moons.ember: full }, { not: { tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ tags: ford }, { tags: toll }] }`: a hex with both tags).
 
-`not` has two meanings by what follows it: `season: { not: summer }` compares one value; `not: { season: summer }`, at the top, turns a whole condition around. Both hold in the same cases here; with more pairs inside, the second says "not all of these".
+`not` has two meanings by what follows it: `time.season: { not: summer }` compares one value; `not: { time.season: summer }`, at the top, turns a whole condition around. Both hold in the same cases here; with more pairs inside, the second says "not all of these".
 
 ## `when` and `unless`
 
