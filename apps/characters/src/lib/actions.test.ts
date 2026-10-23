@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { roster } from '@open-tabletop/character-ui'
 import { emptyRoster, rosterToOtd } from '@open-tabletop/session'
 import { validateBundle } from '@open-tabletop/schema'
+import { applyCharacter } from '@open-tabletop/character-engine'
 import {
   createCharacter,
   deleteCharacter,
@@ -19,6 +20,21 @@ describe('the roster in the Characters app', () => {
   it('lists the systems with a characters’ sheet', () => {
     expect(systems.list.map((s) => s.id)).toEqual(expect.arrayContaining(['core', 'grey-marches']))
     expect(systems.ofSheet(marches().sheet.id)?.id).toBe('grey-marches')
+  })
+
+  it('a Core character’s harm and Down hold by themselves, from health', () => {
+    const core = systems.list.find((s) => s.id === 'core')!
+    const made = entryOf(createCharacter(core, 'Ash'))!.character
+    expect(made.values).toMatchObject({ health: 3, harm: 0 })
+    const sheet = core.sheet.def
+    const down = applyCharacter(sheet, made, {
+      type: 'change',
+      effects: { 'values.health': -3 },
+    }).state
+    expect(down.values.harm).toBe(3)
+    expect(down.conditions).toHaveProperty('down')
+    const up = applyCharacter(sheet, down, { type: 'change', effects: { 'values.health': 1 } })
+    expect(up.state.conditions).not.toHaveProperty('down')
   })
 
   it('makes a character with its system’s sheet, duplicates and deletes it', () => {

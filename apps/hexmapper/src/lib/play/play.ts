@@ -6,6 +6,7 @@ import {
   seasonStart,
   startTrip,
   stepTrip,
+  settleTrip,
   type Season,
   type SessionState,
   type TravelSystem,
@@ -325,11 +326,21 @@ export function editSession(update: (session: SessionState) => SessionState): vo
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
-  const next = update(structuredClone(session))
+  const system = getSystem(play.rules.system)
+  // What holds by itself in the trip's world follows the change at once.
+  const next = settleTrip(
+    {
+      system,
+      world: mapWorld(editor.map, system.rules.travel.hexKm),
+      locale: getLocale(),
+      facts: worldFactsNow(),
+    },
+    update(structuredClone(session)),
+  ).state
   save({ ...play, rules: { ...play.rules, session: next } })
   // What the edit told worth keeping (a character leaving) goes to the timeline too.
   const added = next.journal.slice(session.journal.length)
-  tripHighlights(highlightsOf(added, getSystem(play.rules.system)))
+  tripHighlights(highlightsOf(added, system))
 }
 
 /** A trip's journal lines worth a line in the campaign's timeline, in the UI's words. */

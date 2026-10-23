@@ -4,12 +4,20 @@
  * relation it may hold. This engine creates characters from a sheet, changes them within
  * their bounds and says what conditions and tables read of them. It knows no game.
  *
+ * Some parts hold by themselves: a value made of others (`from:`) and a condition that
+ * holds while its `when` does. Neither is written by hand or by effects; the engine settles
+ * them after every change (`settleCharacter`), so whoever reads a character sees them.
+ *
  * Pure functions: `(sheet, state, action) → { state, events }`; nothing here touches storage
  * or the UI, and rolls come from the roller the caller gives.
  */
 import {
   changeValue,
+  evaluate,
+  lookupIn,
+  namesIn,
   resolveChange,
+  rollsIn,
   variableOf,
   type Bounds,
   type Roller,
@@ -21,7 +29,10 @@ import { z } from 'zod'
 const text = z.union([z.string(), z.record(z.string(), z.string())])
 /** Text in one or several languages: "Wits" or { en: Wits, es: Ingenio }. */
 export type SheetText = z.infer<typeof text>
-/** A bound: a number, or a variable naming another value of the same sheet (`'{{self.values.maxHealth}}'`). */
+/**
+ * A bound: a number, or the sheet's own values in `{{…}}` (`'{{self.values.maxHealth}}'`,
+ * `'{{self.values.might * 2}}'`).
+ */
 const bound = z.union([z.number(), z.string().min(1)])
 
 /**
@@ -64,6 +75,11 @@ const value = z
     name: text.optional(),
     description: text.optional(),
     default: z.number().optional(),
+    /**
+     * Made of the sheet's other values, never set (`'{{self.values.might * 2 + 4}}'`): kept
+     * up to date after every change, within its bounds.
+     */
+    from: z.string().min(1).optional(),
     min: bound.optional(),
     max: bound.optional(),
     ...looks,
@@ -80,6 +96,15 @@ const condition = z
     description: text.optional(),
     /** What it stops while a character has it: `actions.<id>`, `travel.move`, `modes.<id>`… */
     blocks: z.array(z.string().min(1)).optional(),
+    /**
+     * Holds by itself while this is true, never set by hand or by effects: the character as
+     * `self.*` (`self.values.dread: { gte: 6 }`), and the world where there is one.
+     */
+    when: z
+      .custom<Condition>((v) => typeof v === 'object' && v !== null && !Array.isArray(v), {
+        message: 'a condition',
+      })
+      .optional(),
   })
   .strict()
 
@@ -129,28 +154,152 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
   for (const [id, v] of Object.entries(sheet.values)) {
     for (const key of ['min', 'max'] as const) {
       const b = v[key]
-      if (typeof b !== 'string') continue
-      const name = variableOf(b)
-      const own = ownValue(b)
-      if (name === undefined) errors.push(`values.${id}.${key}: a number or '{{self.values.<id>}}'`)
-      else if (own === undefined)
+      if (typeof b === 'string')
         errors.push(
-          `values.${id}.${key}: another value of this sheet is '{{self.values.<id>}}'${name in sheet.values ? ` (did you mean '{{self.values.${name}}}'?)` : ''}`,
+          ...ownErrors(sheet, b, `values.${id}.${key}`, "a number or '{{self.values.<id>}}'"),
         )
-      else if (!(own in sheet.values))
-        errors.push(`values.${id}.${key}: no value "${own}" on this sheet`)
+    }
+    if (v.from !== undefined) {
+      errors.push(
+        ...ownErrors(
+          sheet,
+          v.from,
+          `values.${id}.from`,
+          "the sheet's values in '{{…}}' ('{{self.values.might * 2}}')",
+        ),
+      )
+      if (v.default !== undefined)
+        errors.push(`values.${id}.default: not with from (it is made of other values)`)
     }
     errors.push(...looksErrors(v, `values.${id}`))
   }
+  const loop = fromCycle(sheet)
+  if (loop) errors.push(`values.${loop[0]}.from: made of itself (${loop.join(' → ')})`)
   for (const [id, r] of Object.entries(sheet.relations))
     if (r.value) errors.push(...looksErrors(r.value, `relations.${id}.value`))
   for (const [id, v] of Object.entries(sheet.values))
     if (sheet.groups && v.group !== undefined && !(v.group in sheet.groups))
       errors.push(`values.${id}.group: no group "${v.group}" in groups`)
-  for (const [id, c] of Object.entries(sheet.conditions))
+  for (const [id, c] of Object.entries(sheet.conditions)) {
     if (c.blocks?.some((b) => !b.trim())) errors.push(`conditions.${id}.blocks: empty entry`)
+    if (c.when !== undefined) errors.push(...validateCondition(c.when, `conditions.${id}.when`))
+  }
   return errors.length ? { errors } : { sheet, errors }
 }
+
+/**
+ * What's wrong with a text that reads the sheet's own values (a bound, a `from`): a whole
+ * `{{…}}`, no dice, and only `self.values.<id>` of this sheet.
+ */
+function ownErrors(sheet: Sheet, written: string, at: string, expected: string): string[] {
+  const expression = variableOf(written)
+  if (expression === undefined) return [`${at}: ${expected}`]
+  if (rollsIn(expression)) return [`${at}: no dice (it would change each time it's read)`]
+  const errors: string[] = []
+  for (const name of namesIn(expression)) {
+    const own = name.match(/^self\.values\.(.+)$/)?.[1]
+    if (own === undefined)
+      errors.push(
+        `${at}: another value of this sheet is '{{self.values.<id>}}'${name in sheet.values ? ` (did you mean '{{self.values.${name}}}'?)` : ''}`,
+      )
+    else if (!(own in sheet.values)) errors.push(`${at}: no value "${own}" on this sheet`)
+  }
+  return errors
+}
+
+/** The values a value is made of (`from`), by id. */
+function fromNames(def: SheetValue): string[] {
+  const expression = def.from === undefined ? undefined : variableOf(def.from)
+  if (expression === undefined) return []
+  return namesIn(expression).flatMap((n) => n.match(/^self\.values\.(.+)$/)?.[1] ?? [])
+}
+
+/** A value made of itself, through others (`a → b → a`), if any. */
+function fromCycle(sheet: Sheet): string[] | undefined {
+  const state: Record<string, 'open' | 'done'> = {}
+  const visit = (id: string, path: string[]): string[] | undefined => {
+    if (state[id] === 'done') return undefined
+    if (state[id] === 'open') return [...path.slice(path.indexOf(id)), id]
+    state[id] = 'open'
+    const def = sheet.values[id]
+    for (const next of def ? fromNames(def) : []) {
+      const loop = visit(next, [...path, id])
+      if (loop) return loop
+    }
+    state[id] = 'done'
+    return undefined
+  }
+  for (const id of Object.keys(sheet.values)) {
+    const loop = visit(id, [])
+    if (loop) return loop
+  }
+  return undefined
+}
+
+/** The values made of others, each after the ones it's made of. */
+function fromOrder(sheet: Sheet): string[] {
+  const out: string[] = []
+  const seen = new Set<string>()
+  const visit = (id: string, depth: number) => {
+    if (seen.has(id) || depth > Object.keys(sheet.values).length) return
+    seen.add(id)
+    const def = sheet.values[id]
+    if (!def?.from) return
+    for (const next of fromNames(def)) visit(next, depth + 1)
+    out.push(id)
+  }
+  for (const id of Object.keys(sheet.values)) visit(id, 0)
+  return out
+}
+
+/** A text of the sheet's own values as it reads now (a bound, a `from`), if a number. */
+function readOwn(written: string, values: Record<string, number>): number | undefined {
+  const n = evaluate(written, lookupIn({ self: { values } }))
+  return typeof n === 'number' && Number.isFinite(n) ? n : undefined
+}
+
+/** Whether a value is made of others (`from`), so nothing writes it. */
+export const isMadeOf = (sheet: Sheet, id: string): boolean => sheet.values[id]?.from !== undefined
+
+/** Whether a condition holds by itself (`when`), so nothing sets or clears it. */
+export const holdsByItself = (sheet: Sheet, id: string): boolean =>
+  sheet.conditions[id]?.when !== undefined
+
+/**
+ * Whether a condition that holds by itself reads the world (anything but `self.*`): it's
+ * settled only where there's a world, and stays as last seen elsewhere.
+ */
+export function readsWorld(sheet: Sheet, id: string): boolean {
+  const when = sheet.conditions[id]?.when
+  return when !== undefined && conditionNames(when).some((n) => !/^self(\.|$)/.test(n))
+}
+
+/** Every name a condition reads: its keys and the `{{…}}` it compares with. */
+function conditionNames(condition: unknown): string[] {
+  if (typeof condition !== 'object' || condition === null) return []
+  const out: string[] = []
+  const texts = (v: unknown): void => {
+    if (typeof v === 'string') {
+      for (const m of v.matchAll(/\{\{\s*([^}]+?)\s*\}\}/g)) out.push(...namesIn(m[1]))
+    } else if (Array.isArray(v)) v.forEach(texts)
+    else if (typeof v === 'object' && v !== null) Object.values(v).forEach(texts)
+  }
+  for (const [key, value] of Object.entries(condition)) {
+    if ((key === 'all' || key === 'any') && Array.isArray(value))
+      value.forEach((c) => out.push(...conditionNames(c)))
+    else if (key === 'not' && typeof value === 'object' && value !== null && !isComparison(value))
+      out.push(...conditionNames(value))
+    else {
+      out.push(key)
+      texts(value)
+    }
+  }
+  return out
+}
+
+const COMPARISONS = ['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists']
+const isComparison = (v: object): boolean =>
+  !Array.isArray(v) && Object.keys(v).some((k) => COMPARISONS.includes(k))
 
 /** How a value of a sheet (or a relation's number) is shown; `track: true` is `boxes`. */
 export function displayOf(def: { display?: Display; track?: boolean }): Display {
@@ -240,7 +389,7 @@ export function createCharacter(
   const values = Object.fromEntries(
     Object.entries(sheet.values).map(([id, v]) => [id, v.default ?? 0]),
   )
-  return {
+  const made: CharacterState = {
     sheet: sheetId,
     conditions: {},
     tags: [],
@@ -249,6 +398,8 @@ export function createCharacter(
     ...init,
     values: { ...values, ...init.values },
   }
+  settle(sheet, made, [], {})
+  return made
 }
 
 export type CharacterAction =
@@ -279,12 +430,19 @@ export type CharacterEvent =
       value: number
     }
   | { type: 'UNKNOWN_CONDITION'; character: string; condition: string }
+  /** An effect on a value made of others or a condition that holds by itself: not done. */
+  | { type: 'NOT_WRITABLE'; character: string; path: string }
 
 export interface ApplyOptions {
   /** Rolls the dice an effect names (`'-{{1d3}}'`); none: a roll changes nothing. */
   roller?: Roller
   /** More values variables may name, besides the character's own facts. */
   context?: Record<string, unknown>
+  /**
+   * The world conditions that hold by themselves may read (`time.season`, `trip.mode`…);
+   * none: those that read it stay as they were, and only the character's own are settled.
+   */
+  world?: Record<string, unknown>
 }
 
 /** The value of the same sheet a bound names (`'{{self.values.maxHealth}}'` → `maxHealth`). */
@@ -296,13 +454,8 @@ export function ownValue(bound: unknown): string | undefined {
 export function boundsOf(sheet: Sheet, state: CharacterState, id: string): Bounds {
   const def = sheet.values[id]
   if (!def) return {}
-  const read = (b: number | string | undefined): number | undefined => {
-    if (typeof b === 'number') return b
-    const name = ownValue(b)
-    if (name === undefined) return undefined
-    const n = state.values[name]
-    return typeof n === 'number' ? n : undefined
-  }
+  const read = (b: number | string | undefined): number | undefined =>
+    typeof b === 'number' ? b : b === undefined ? undefined : readOwn(b, state.values)
   const min = read(def.min)
   const max = read(def.max)
   return { ...(min !== undefined && { min }), ...(max !== undefined && { max }) }
@@ -325,6 +478,13 @@ export function applyCharacter(
       for (const [path, written] of Object.entries(action.effects)) {
         const [scope, ...rest] = path.split('.')
         const id = rest.join('.')
+        if (
+          (scope === 'conditions' && holdsByItself(sheet, id)) ||
+          (scope === 'values' && isMadeOf(sheet, id))
+        ) {
+          events.push({ type: 'NOT_WRITABLE', character: who, path })
+          continue
+        }
         if (scope === 'conditions') {
           if (!sheet.conditions[id])
             events.push({ type: 'UNKNOWN_CONDITION', character: who, condition: id })
@@ -345,15 +505,6 @@ export function applyCharacter(
         state.values[id] = to
         if (to !== from) events.push({ type: 'VALUE_CHANGED', character: who, value: id, from, to })
         if (limit) events.push({ type: 'LIMIT_REACHED', character: who, value: id, limit })
-      }
-      // A value whose bound is another value (momentum under its max) stays within it.
-      for (const id of Object.keys(sheet.values)) {
-        const from = state.values[id] ?? 0
-        const { to } = changeValue(from, 0, boundsOf(sheet, state, id))
-        if (to !== from) {
-          state.values[id] = to
-          events.push({ type: 'VALUE_CHANGED', character: who, value: id, from, to })
-        }
       }
       break
     }
@@ -427,7 +578,77 @@ export function applyCharacter(
       break
     }
   }
+  settle(sheet, state, events, {
+    world: options.world,
+    time: action.type === 'change' ? action.time : undefined,
+  })
   return { state, events }
+}
+
+/**
+ * The character with what holds by itself up to date: values made of others (`from`), each
+ * value within bounds that may have moved, and conditions that hold while their `when`
+ * does (read with the character as `self` and the `world`, if given; without one, those
+ * that read the world stay as they were). `time` is when a condition set now began.
+ */
+export function settleCharacter(
+  sheet: Sheet,
+  input: CharacterState,
+  options: { world?: Record<string, unknown>; time?: number } = {},
+): { state: CharacterState; events: CharacterEvent[] } {
+  const state = structuredClone(input)
+  const events: CharacterEvent[] = []
+  settle(sheet, state, events, options)
+  return { state, events }
+}
+
+/** `settleCharacter` in place. */
+function settle(
+  sheet: Sheet,
+  state: CharacterState,
+  events: CharacterEvent[],
+  options: { world?: Record<string, unknown>; time?: number },
+): void {
+  const who = state.id
+  const write = (id: string, to: number) => {
+    const from = state.values[id] ?? 0
+    if (to === from) return
+    state.values[id] = to
+    events.push({ type: 'VALUE_CHANGED', character: who, value: id, from, to })
+  }
+  const bounded = () => {
+    // A value whose bound is another value (momentum under its max) stays within it.
+    for (const id of Object.keys(sheet.values))
+      write(id, changeValue(state.values[id] ?? 0, 0, boundsOf(sheet, state, id)).to)
+  }
+  bounded()
+  for (const id of fromOrder(sheet)) {
+    const made = readOwn(sheet.values[id].from!, state.values)
+    if (made !== undefined) write(id, changeValue(made, 0, boundsOf(sheet, state, id)).to)
+  }
+  // And what's bounded by a value made of others.
+  bounded()
+  // Conditions that hold by themselves, again while one of them changes another's say.
+  const own = Object.keys(sheet.conditions).filter(
+    (id) => holdsByItself(sheet, id) && (options.world !== undefined || !readsWorld(sheet, id)),
+  )
+  for (let pass = 0; pass <= own.length; pass++) {
+    const seen = { ...options.world, self: characterFacts(state) }
+    let moved = false
+    for (const id of own) {
+      const holds = matches(sheet.conditions[id].when, seen)
+      if (holds && !state.conditions[id]) {
+        state.conditions[id] = options.time !== undefined ? { since: options.time } : {}
+        events.push({ type: 'CONDITION_SET', character: who, condition: id })
+        moved = true
+      } else if (!holds && state.conditions[id]) {
+        delete state.conditions[id]
+        events.push({ type: 'CONDITION_CLEARED', character: who, condition: id })
+        moved = true
+      }
+    }
+    if (!moved) break
+  }
 }
 
 /**
@@ -574,7 +795,11 @@ export function shareChange(
   delta: number,
   share: Share = 'even',
 ): { members: CharacterState[]; events: CharacterEvent[]; left: number } {
-  const out = members.map((m) => ({ ...m, values: { ...m.values } }))
+  const out = members.map((m) => ({
+    ...m,
+    values: { ...m.values },
+    conditions: { ...m.conditions },
+  }))
   const room = (m: CharacterState, up: boolean): number => {
     const sheet = sheets(m)
     const bounds = sheet ? boundsOf(sheet, m, value) : {}
@@ -614,7 +839,11 @@ export function shareChange(
   out.forEach((m, i) => {
     const from = members[i].values[value] ?? 0
     const to = m.values[value] ?? 0
-    if (to !== from) events.push({ type: 'VALUE_CHANGED', character: m.id, value, from, to })
+    if (to === from) return
+    events.push({ type: 'VALUE_CHANGED', character: m.id, value, from, to })
+    // What's made of it, or holds by itself on it, follows.
+    const sheet = sheets(m)
+    if (sheet) settle(sheet, m, events, {})
   })
   return { members: out, events, left }
 }

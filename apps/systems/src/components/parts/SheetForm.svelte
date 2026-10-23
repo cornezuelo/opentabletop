@@ -1,10 +1,11 @@
 <script lang="ts">
-  import type { SheetScope, TravelSystem } from '@open-tabletop/session'
+  import { contextSuggestions, type SheetScope, type TravelSystem } from '@open-tabletop/session'
   import { availableActions, BLOCKABLE, ref } from '@open-tabletop/travel-engine'
   import { createCharacter, DISPLAYS, parseSheet, TONES } from '@open-tabletop/character-engine'
   import { CharacterCard } from '@open-tabletop/character-ui'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../../lib/i18n'
+  import { library } from '../../lib/packs.svelte'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import { usesFor } from '../../lib/usage'
   import RecordRows from '../forms/RecordRows.svelte'
@@ -33,6 +34,21 @@
     ...Object.keys(availableActions(system.rules).all).map((id) => ref('actions', id)),
     ...Object.keys(system.rules.modes).map((id) => ref('modes', id)),
   ])
+  /**
+   * What a condition that holds by itself may read: the character's own (`self.*`) first,
+   * then the world's.
+   */
+  const whenHints = $derived({
+    ...Object.fromEntries(
+      Object.keys((data?.values as Record<string, unknown>) ?? {}).map((id) => [
+        `self.values.${id}`,
+        [],
+      ]),
+    ),
+    'self.conditions': Object.keys((data?.conditions as Record<string, unknown>) ?? {}),
+    'self.tags': [],
+    ...contextSuggestions(library.registry),
+  })
   /** Tones suggested after a threshold (`0: danger`). */
   const toneHints = Object.fromEntries(['0', '1', '2', '3'].map((at) => [at, TONES]))
 
@@ -129,7 +145,9 @@
           label: t('sheet.default'),
           help: t('sheet.defaultHelp'),
           type: 'number',
+          off: (row) => row.from !== undefined,
         },
+        { field: 'from', label: t('sheet.from'), help: t('sheet.fromHelp'), type: 'value' },
         {
           field: 'display',
           label: t('sheet.display'),
@@ -221,6 +239,14 @@
           help: t('sheet.blocksHelp'),
           type: 'list',
           choices: blockable,
+        },
+        {
+          field: 'when',
+          label: t('sheet.holdsWhen'),
+          help: t('sheet.holdsWhenHelp'),
+          type: 'condition',
+          placeholder: t('sheet.byEffects'),
+          hints: whenHints,
         },
       ]}
     />

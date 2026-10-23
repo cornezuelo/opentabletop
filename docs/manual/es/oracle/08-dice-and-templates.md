@@ -48,7 +48,7 @@ Usa pesos cuando ningún dado da la probabilidad que quieres, o para hacer más 
 | `{{roll}}`        | En las entradas de una tabla: el total de la propia **Tirada** de la tabla, p. ej. `'Has sacado {{roll}}'`.                          |
 | `{{campo}}`       | En la plantilla de un generador: el valor de un campo (su texto, si vino de una tabla).                                              |
 
-Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores y tiran dados. Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
+Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores, tiran dados y hacen cuentas (`'{{hex.danger * 2 + 1d6}}'`, `'{{floor(party.stats.mouths / 2)}}'`: [Sintaxis](../technical/09-syntax.md#variables)). Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
 
 Las referencias a tablas y generadores también pueden usar variables: `table: 'weather-{{time.season}}'` tira `weather-spring`, `weather-autumn`… según la estación.
 

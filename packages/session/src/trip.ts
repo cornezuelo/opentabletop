@@ -1022,6 +1022,34 @@ export function stepTrip(
 }
 
 /**
+ * Settles what holds by itself in the trip's world as it is now, after a change by hand (a
+ * member's card, the party's sheet): conditions that read the world (`trip.mode`, `time.*`,
+ * `hex.*`) set or cleared, with their journal lines. The options are `stepTrip`'s.
+ */
+export function settleTrip(
+  options: Omit<Parameters<typeof stepTrip>[0], 'discover' | 'oracle' | 'random'>,
+  session: SessionState,
+): { state: SessionState; entries: JournalEntry[] } {
+  const { system } = options
+  return createSession({
+    travel: createTravelEngine({
+      world: relatedWorld(options.world, session.members),
+      rules: rulesWithMembers(system.rules, session, partyOf(system)),
+      calendar: calendarOf(system),
+      stats: system.bindings?.stats,
+    }),
+    bindings: system.bindings,
+    pack: system.sources?.rules?.pack ?? system.pack,
+    rules: system.rules,
+    locale: options.locale,
+    weather: system.weather,
+    facts: options.facts,
+    sheet: system.sheet,
+    partySheet: system.partySheet,
+  }).settle(session)
+}
+
+/**
  * Bindings whose stats made of a party sheet's value have that value's bounds and default
  * (unless they give their own): so effects on `party.stats.<id>` keep within them.
  */

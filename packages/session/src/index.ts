@@ -10,6 +10,7 @@ import {
 import {
   characterFacts,
   validatePartyFrom,
+  type CharacterEvent,
   type CharacterState,
   type PartyFrom,
   type Share,
@@ -35,6 +36,7 @@ import {
   picksWho,
   refreshParty,
   settleParty,
+  settleStates,
   type PartyRules,
 } from './party'
 import {
@@ -393,6 +395,11 @@ export interface Session {
   step(state: SessionState, action: TravelAction): { state: SessionState; entries: JournalEntry[] }
   /** Adds a user note to the journal. */
   note(state: SessionState, text: string): SessionState
+  /**
+   * Settles what holds by itself in the world as it is now (after a change by hand): the
+   * party's and its members' conditions that read the world, with their journal lines.
+   */
+  settle(state: SessionState): { state: SessionState; entries: JournalEntry[] }
 }
 
 const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited', 'held'])
@@ -532,7 +539,60 @@ export function createSession(options: {
       })
   }
 
+  /** What changed on whom, before and after; what holds by itself, left as it was. */
+  const told = (
+    s: SessionState,
+    entries: JournalEntry[],
+    events: CharacterEvent[],
+    time?: number,
+  ) => {
+    const whose = (id: string) => (id === PARTY_ID ? 'party' : `characters.${id}`)
+    for (const e of events)
+      if (e.type === 'NOT_WRITABLE')
+        add(s, entries, {
+          source: 'travel',
+          code: 'NOT_WRITABLE',
+          ...(time !== undefined && { time }),
+          data: { path: `${whose(e.character)}.${e.path}` },
+        })
+    changed(
+      s,
+      entries,
+      events.flatMap((e): AppliedEffect[] =>
+        e.type === 'VALUE_CHANGED'
+          ? [{ path: `${whose(e.character)}.values.${e.value}`, from: e.from, to: e.to }]
+          : e.type === 'CONDITION_SET' || e.type === 'CONDITION_CLEARED'
+            ? [
+                {
+                  path: `${whose(e.character)}.conditions.${e.condition}`,
+                  from: e.type === 'CONDITION_SET' ? 0 : 1,
+                  to: e.type === 'CONDITION_SET' ? 1 : 0,
+                },
+              ]
+            : [],
+      ),
+      time,
+    )
+  }
+  /**
+   * What holds by itself in the world as it is now (a state while the party travels by
+   * boat, in winter…), settled on the party and its members, with a line for each change.
+   */
+  const settleWorld = (s: SessionState, entries: JournalEntry[]) => {
+    if (!s.members?.length && !s.party) return
+    const world = qualify(options.travel.context(s.travel, tripContext(s, hostOf(s))))
+    told(s, entries, settleStates(s, party, world, s.travel.time), s.travel.time)
+  }
+
   return {
+    settle(input) {
+      const s = structuredClone(input)
+      const entries: JournalEntry[] = []
+      refreshParty(s, party)
+      settleWorld(s, entries)
+      return { state: s, entries }
+    },
+
     step(input, action) {
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
@@ -540,11 +600,18 @@ export function createSession(options: {
       // The members as they are now (the player may have changed them by hand).
       refreshParty(s, party)
       let carried = carriedNow(s, party)
-      /** Shares out what the supplies the members carry changed, and brings the party up to date. */
+      /**
+       * Shares out what the supplies the members carry changed, brings the party up to date,
+       * and settles what holds by itself in the world as it is now (a state while the party
+       * travels by boat, in winter…), with a line for each change.
+       */
       const settle = () => {
         settleParty(s, party, carried)
         carried = carriedNow(s, party)
+        settleWorld(s, entries)
       }
+      // What the player changed by hand, or the world since the last step, is seen first.
+      settle()
       /**
        * Effects on the members (`party.members.…`, `characters.<id>.…`, `acting.…`): applied,
        * with what hit a bound, and a line when nobody was acting.
@@ -557,26 +624,7 @@ export function createSession(options: {
         const done = applyMemberEffects(s, effects, party, context, time)
         for (const path of done.nobody)
           add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
-        // What changed on whom, before and after.
-        const whose = (id: string) => (id === PARTY_ID ? 'party' : `characters.${id}`)
-        changed(
-          s,
-          entries,
-          done.events.flatMap((e): AppliedEffect[] =>
-            e.type === 'VALUE_CHANGED'
-              ? [{ path: `${whose(e.character)}.values.${e.value}`, from: e.from, to: e.to }]
-              : e.type === 'CONDITION_SET' || e.type === 'CONDITION_CLEARED'
-                ? [
-                    {
-                      path: `${whose(e.character)}.conditions.${e.condition}`,
-                      from: e.type === 'CONDITION_SET' ? 0 : 1,
-                      to: e.type === 'CONDITION_SET' ? 1 : 0,
-                    },
-                  ]
-                : [],
-          ),
-          time,
-        )
+        told(s, entries, done.events, time)
         return done.limits
       }
       /** Supplies' bounds now (the members' sums for what they carry). */

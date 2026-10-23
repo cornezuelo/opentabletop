@@ -28,9 +28,12 @@ values:
   survival: { default: 1 }
   health: { default: 3, min: 0, max: 3 }
   rations: { default: 2, min: 0, max: 4 }
+  harm: { from: '{{3 - self.values.health}}' }
 conditions:
   wounded: { blocks: [actions.forced-march] }
   broken-leg: { blocks: [travel.move] }
+  faint: { when: { self.values.health: { lte: 1 } } }
+  footsore: { when: { trip.marched: { gte: 1 } } }
 `,
   },
   {
@@ -57,6 +60,7 @@ actions:
   bandage: { do: [{ effects: { acting.conditions.wounded: false } }] }
   scout: { when: { roles.guide.values.survival: { gte: 2 } }, do: [{ effects: { roles.guide.values.health: -1 } }] }
   ambushed: { do: [{ effects: { party.members.values.health: -1, characters.mara.conditions.wounded: true } }] }
+  soothe: { do: [{ effects: { party.members.values.harm: -1, party.members.conditions.faint: false } }] }
 checks: [{ event: TRAIL, at: '07:00' }]
 values: { lost: { blocks: [travel.move] } }
 ---
@@ -114,6 +118,53 @@ describe('the party is its members', () => {
         `The members' sheet has no value "survival"`,
         `The members' sheet has no value "rations"`,
       ]),
+    )
+  })
+
+  it('settles what holds by itself: made of values, read from the world, never written', () => {
+    const { session } = startTrip({ system: band, location: 'a', members: members() })
+    const oracle = createOracleEngine({ registry, random: sequence([0]) })
+    // Hurt twice: harm follows health, and Faint holds by itself at 1 health.
+    let s = stepTrip({ system: band, world, oracle }, session, {
+      type: 'action',
+      id: 'ambushed',
+    }).state
+    s = stepTrip({ system: band, world, oracle }, s, { type: 'action', id: 'ambushed' }).state
+    expect(s.members!.map((m) => [m.values.harm, Object.keys(m.conditions).sort()])).toEqual([
+      [2, ['faint']],
+      [2, ['faint', 'wounded']],
+    ])
+    // Effects on them change nothing, and the journal says so, by whose.
+    const soothe = stepTrip({ system: band, world, oracle }, s, { type: 'action', id: 'soothe' })
+    expect(soothe.state.members).toEqual(s.members)
+    expect(
+      soothe.entries.filter((e) => e.code === 'NOT_WRITABLE').map((e) => e.data?.path),
+    ).toEqual([
+      'characters.kael.values.harm',
+      'characters.mara.values.harm',
+      'characters.kael.conditions.faint',
+      'characters.mara.conditions.faint',
+    ])
+    // Footsore reads the world (`trip.marched`): set once the party has marched an hour.
+    expect(s.members![0].conditions).not.toHaveProperty('footsore')
+    const marched = stepTrip(
+      { system: band, world, oracle },
+      { ...s, acting: 'kael' },
+      {
+        type: 'action',
+        id: 'forced-march',
+      },
+    )
+    expect(marched.state.members![0].conditions).not.toHaveProperty('footsore')
+    const moved = stepTrip({ system: band, world, oracle }, s, { type: 'setDestination', hex: 'b' })
+    const walked = stepTrip({ system: band, world, oracle }, moved.state, { type: 'travel' })
+    expect(walked.state.travel.travelledToday).toBeGreaterThanOrEqual(60)
+    expect(walked.state.members!.every((m) => 'footsore' in m.conditions)).toBe(true)
+    expect(walked.entries).toContainEqual(
+      expect.objectContaining({
+        code: 'CHANGED',
+        data: { path: 'characters.kael.conditions.footsore', from: 0, to: 1 },
+      }),
     )
   })
 

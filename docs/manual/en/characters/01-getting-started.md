@@ -21,7 +21,7 @@ Labels underlined with dots have an explanation: click one and the help column o
 - **Id**: how it's read, as above.
 - **Where it plays**: the map or trip it travels on now, with **Open**, or _only in the roster_; under it, the campaign that map or trip is in, with **Open in Campaign ↗** (the [Campaign](../campaign/01-getting-started.md) app).
 - **Notes**: its page in your notes app (a path such as `People/Old Tobin`); **↗** opens it. The notes app is chosen in **Preferences**. Its story, looks and secrets live there, not here.
-- Under them, its card, the same as in a trip: its values, each group a card, each value drawn as its sheet says (a number, a bar, boxes, dots, a dial, a named level: click a box, dot or segment to fill up to it; see [How values are shown](../systems/07-sheet.md#how-values-are-shown)), its conditions, its tags and its relations (to places, regions, hexes or other roster characters).
+- Under them, its card, the same as in a trip: its values, each group a card, each value drawn as its sheet says (a number, a bar, boxes, dots, a dial, a named level: click a box, dot or segment to fill up to it; see [How values are shown](../systems/07-sheet.md#how-values-are-shown)), its conditions, its tags and its relations (to places, regions, hexes or other roster characters). What holds by itself is shown but not edited: a value **made of others** (Wounds, from Health) and a condition that **holds while** something is true (Terrified, while Dread is full) follow what they're made of; change that instead. A condition that reads the world (Seasick, while the party travels by boat) follows it on a trip; here, away from any trip, it stays as it was last seen ([Sheet](../systems/07-sheet.md#how-sheets-work)).
 
 ## On trips
 

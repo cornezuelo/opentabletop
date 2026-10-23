@@ -163,6 +163,8 @@ When the system has a [sheet](07-kinds.md#sheets) and the party has characters (
 
 Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party-effects)): `party.members.values.health: -1` (every character), `characters.kael.conditions.wounded: true` (one), `acting.values.health: 1` (the one acting; with nobody acting it changes nothing, and the journal says so), `roles.lookout.values.health: -1` (whoever holds a role). A party with no characters ignores them: the same system plays with or without characters.
 
+A value **made of others** (`from:` on the sheet) and a condition that **holds by itself** (`when:`) are read like any other, but no effect changes them: the journal says _“Kael: Wounds” holds by itself…_ and nothing changes. Inside its own sheet (a `from`, a bound, a condition's `when`), a character reads itself as `self.*`: `self.values.health`, `self.conditions`, `self.tags`; a condition's `when` reads the world too, with the names on this page ([Sheets](07-kinds.md#sheets)).
+
 The party's stats a system makes of its characters (`from` in its bindings) and the supplies they carry (`carried`) are read as any other stat or supply: `party.stats.navigation`, `party.resources.food`.
 
 ## The world, `world.*`, and factions

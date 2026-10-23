@@ -175,7 +175,10 @@ export const es: Messages<typeof en> = {
     min: 'Mín.',
     max: 'Máx.',
     boundHelp:
-      "Los efectos nunca lo llevan más allá. Un número, u otro valor de la hoja entre llaves:\n• `0`\n• `'{{self.values.maxHealth}}'` — tan alto como el maxHealth del personaje\nVacío: sin límite.",
+      "Los efectos nunca lo llevan más allá. Un número, o los otros valores de la hoja entre llaves, con aritmética como en **Sale de**:\n• `0`\n• `'{{self.values.maxHealth}}'` — tan alto como el maxHealth del personaje\n• `'{{self.values.might * 2}}'` — el doble de Might\nVacío: sin límite.",
+    from: 'Sale de',
+    fromHelp:
+      "Un valor que se calcula a partir de los otros valores de la hoja; no se cambia a mano ni con efectos: los sigue al momento (tras cada cambio, dentro de su propio mín. y máx.). Escribe los valores entre llaves, con `+ - * /`, paréntesis y `floor`, `ceil`, `round`, `min`, `max`, `abs`; un menos entre nombres lleva espacios (los ids pueden tener guiones):\n• `'{{self.values.might * 2 + 4}}'` — el doble de Might, más 4\n• `'{{self.values.maxHealth - self.values.health}}'` — las heridas recibidas\n• `'{{floor(self.values.wits / 2)}}'` — la mitad de Wits, redondeando hacia abajo\nSin dados (cambiaría cada vez que se lee). Vacío: un valor que se cambia a mano y con efectos.",
     display: 'Se muestra como',
     displayHelp:
       'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number** y **levels** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo: **3 / 5**\n• `bar` — una barra llena hasta su máximo\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…',
@@ -200,11 +203,15 @@ export const es: Messages<typeof en> = {
     groupName: 'Nombre',
     conditions: 'Estados',
     conditionsHelp:
-      'Estados que un personaje tiene o no (herido, hambriento, un trauma). Cada uno puede bloquear cosas a todo el grupo mientras alguien lo tenga. Los efectos los ponen y los quitan, las condiciones los leen:\n• `acting.conditions.wounded: true` — el personaje que actúa queda herido\n• `characters.mara.conditions: wounded` — si Mara lo está\n• `unless: { conditions: wounded }` en una característica del grupo — cuenta solo a los que no están heridos',
+      'Estados que un personaje tiene o no (herido, hambriento, un trauma). Cada uno puede bloquear cosas a todo el grupo mientras alguien lo tenga. Los efectos los ponen y los quitan, o uno se cumple por sí solo mientras se cumpla su **Se cumple mientras**; las condiciones los leen:\n• `acting.conditions.wounded: true` — el personaje que actúa queda herido\n• `characters.mara.conditions: wounded` — si Mara lo está\n• `unless: { conditions: wounded }` en una característica del grupo — cuenta solo a los que no están heridos',
     conditionName: 'Nombre',
     blocks: 'Bloquea',
     blocksHelp:
       'Lo que el grupo no puede hacer mientras algún miembro lo tenga, cada cosa una pastilla (Intro o una coma la añade):\n• `travel.move` — no se sigue avanzando\n• `actions.forced-march` — una acción del sistema\n• `modes.horse` — una forma de viajar\nEl viaje dice quién lo tiene.',
+    holdsWhen: 'Se cumple mientras',
+    holdsWhenHelp:
+      "Un estado que se cumple por sí solo mientras esto sea cierto; no se pone ni se quita a mano ni con efectos: es un estado, no algo que pasa. Lee al personaje como `self` y, en un viaje, también el mundo:\n• `self.values.dread: { gte: 6 }` — mientras el pavor esté lleno\n• `self.values.load: { gt: '{{self.values.capacity}}' }` — mientras lleve más de lo que puede\n• `trip.mode: boat` — mientras el grupo viaje en barco\n• `time.season: winter` y `self.values.health: { lt: 2 }` — herido en invierno\nUno que lee el mundo lo sigue en el viaje; en el roster se queda como estaba la última vez. Lo que deba pasar una vez (una línea, un efecto) es una acción, no un estado. Vacío: lo ponen y lo quitan los efectos.",
+    byEffects: 'lo ponen los efectos',
     relations: 'Tipos de relación',
     relationsHelp:
       'Relaciones que un personaje puede tener con cualquier cosa que tenga referencia (otro personaje, un lugar, una facción, una nota), como los vínculos de Ironsworn. Un tipo con límites lleva un número:\n• `bond` — mín. `0`, máx. `10`\n• `home` — sin número',

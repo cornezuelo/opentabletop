@@ -1,7 +1,14 @@
 import { matches, resolvePath, type Condition } from '@open-tabletop/conditions'
 import { parseDice, roll, type DiceExpression, type DiceResult } from '@open-tabletop/dice'
 import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/random'
-import { evaluate, isRoll, onceRoller, render, type Roller } from '@open-tabletop/variables'
+import {
+  evaluate,
+  isRoll,
+  lookupIn,
+  onceRoller,
+  render,
+  type Roller,
+} from '@open-tabletop/variables'
 import {
   resolveRef,
   type RollMode,
@@ -549,7 +556,7 @@ class Run {
     return result
   }
 
-  /** `{{field}}`, `{{field.sub}}` and inline dice `{{2d6}}`. No logic, ever. */
+  /** `{{field}}`, `{{field.sub}}`, inline dice `{{2d6}}` and arithmetic. No logic, ever. */
   private render(
     template: string,
     scope: Record<string, unknown>,
@@ -564,7 +571,7 @@ class Run {
     node: Resolution | undefined,
   ): unknown {
     if (isRoll(expr)) return this.roll(expr, scope, node).total
-    return resolvePath(scope, expr)
+    return lookupIn(scope, (dice) => this.roll(dice, scope, node).total)(expr)
   }
 
   /** A whole-template string keeps the raw value (numbers stay numbers); mixed text renders. */

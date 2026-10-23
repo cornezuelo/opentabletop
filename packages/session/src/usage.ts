@@ -1,6 +1,6 @@
 import type { Compiled, CompiledEntry, Registry } from '@open-tabletop/oracle-engine'
 import { FACT_PATHS } from '@open-tabletop/travel-engine'
-import { isRoll } from '@open-tabletop/variables'
+import { namesIn } from '@open-tabletop/variables'
 import { systemPackIds, type TravelSystem } from './trip'
 
 /**
@@ -115,7 +115,8 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
     }
     const text = (value: unknown, path: string) => {
       if (typeof value !== 'string') return
-      for (const m of value.matchAll(TEMPLATE)) if (!isRoll(m[1])) use(m[1], 'reads', path)
+      for (const m of value.matchAll(TEMPLATE))
+        for (const name of namesIn(m[1])) use(name, 'reads', path)
     }
     /** Every `{{…}}` in any text inside a value. */
     const deep = (value: unknown, path: string): void => {

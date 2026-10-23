@@ -172,7 +172,10 @@ export const en = {
     min: 'Min',
     max: 'Max',
     boundHelp:
-      "Effects never take it past this. A number, or another value of the sheet in braces:\n• `0`\n• `'{{self.values.maxHealth}}'` — as high as the character's maxHealth\nEmpty: no bound.",
+      "Effects never take it past this. A number, or the sheet's other values in braces, with arithmetic as in **Made of**:\n• `0`\n• `'{{self.values.maxHealth}}'` — as high as the character's maxHealth\n• `'{{self.values.might * 2}}'` — twice Might\nEmpty: no bound.",
+    from: 'Made of',
+    fromHelp:
+      "A value worked out from the sheet's other values, never set by hand nor by effects: it follows them at once (after every change, within its own min and max). Write the values in braces, with `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs`; a minus between names takes spaces (ids may hold a hyphen):\n• `'{{self.values.might * 2 + 4}}'` — twice Might, plus 4\n• `'{{self.values.maxHealth - self.values.health}}'` — the wounds taken\n• `'{{floor(self.values.wits / 2)}}'` — half Wits, rounded down\nNo dice (it would change each time it's read). Empty: a value set by hand and by effects.",
     display: 'Shown as',
     displayHelp:
       'How the value is drawn wherever a character is shown (empty: a number box). All but **number** and **levels** need a max:\n• `number` — a number box\n• `of` — the number and its max: **3 / 5**\n• `bar` — a bar filled up to its max\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…',
@@ -196,11 +199,15 @@ export const en = {
     groupName: 'Name',
     conditions: 'Conditions',
     conditionsHelp:
-      'States a character has or not (wounded, hungry, a trauma). Each may block things for the whole party while someone has it. Effects set and clear them, conditions read them:\n• `acting.conditions.wounded: true` — the acting character is wounded\n• `characters.mara.conditions: wounded` — whether Mara is\n• `unless: { conditions: wounded }` in a party stat — counts only the unwounded',
+      'States a character has or not (wounded, hungry, a trauma). Each may block things for the whole party while someone has it. Effects set and clear them, or one holds by itself while its **Holds while** does; conditions read them:\n• `acting.conditions.wounded: true` — the acting character is wounded\n• `characters.mara.conditions: wounded` — whether Mara is\n• `unless: { conditions: wounded }` in a party stat — counts only the unwounded',
     conditionName: 'Name',
     blocks: 'Blocks',
     blocksHelp:
       "What the party can't do while any member has it, each one a pill (Enter or a comma adds it):\n• `travel.move` — no moving on\n• `actions.forced-march` — an action of the system\n• `modes.horse` — a way of travelling\nThe trip says who has it.",
+    holdsWhen: 'Holds while',
+    holdsWhenHelp:
+      "A condition that holds by itself while this is true, never set or cleared by hand nor by effects: a state, not something that happens. It reads the character as `self` and, on a trip, the world too:\n• `self.values.dread: { gte: 6 }` — while dread is full\n• `self.values.load: { gt: '{{self.values.capacity}}' }` — while carrying more than it can\n• `trip.mode: boat` — while the party travels by boat\n• `time.season: winter` and `self.values.health: { lt: 2 }` — hurt in winter\nOne that reads the world follows it on the trip; in the roster it stays as last seen. Something that should happen once (a line, an effect) is an action, not a condition. Empty: effects set and clear it.",
+    byEffects: 'set by effects',
     relations: 'Kinds of relation',
     relationsHelp:
       "Relations a character may hold to anything with a reference (another character, a place, a faction, a note), like Ironsworn's bonds. A kind with bounds carries a number:\n• `bond` — min `0`, max `10`\n• `home` — no number",

@@ -8,6 +8,9 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Travel, Hexmapper: **Skip pauses**, a choice under the trip's buttons to play everything by itself: whatever would stop the trip (a check or a result that pauses, an action's `pause:` step) is written in the journal and the trip goes on; questions still wait.
 
+- Characters, Travel, Hexmapper, Systems: **parts of a sheet that hold by themselves**. A value can be **made of others** (`from: '{{self.values.maxHealth - self.values.health}}'`) and a condition can **hold while** something is true (`when: { self.values.dread: { gte: 6 } }`, or the world on a trip: `trip.mode: boat`); nobody sets them, they follow at once after every change (an effect, a hand edit, a trip's step, a world turn), are shown but not edited on the card, and an effect on them changes nothing (the journal says so). Systems' **Sheet** tab has **Made of** and **Holds while**. The Grey Marches' Wounds, _Terrified_, _Seasick_ and a faction _Broken_ at strength 0; Core's Harm and _Down_.
+- **Arithmetic in `{{…}}`**, wherever variables are read: `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs` (`'{{self.values.might * 2 + 4}}'`, `'-{{1d6 + hex.danger}}'`); a minus between names takes spaces, as ids may hold a hyphen.
+
 ### Formats
 
 - **Pack format 7**: an action's `roll:` step now holds the rest of the action until it's resolved (and for **Continue**, if it pauses), so the steps after it see what it rolled; before, it was resolved once the action ended. Core, the Grey Marches and Kal-Arath moved to it (they had no step after a roll).

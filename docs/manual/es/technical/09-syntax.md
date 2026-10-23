@@ -71,6 +71,16 @@ El `range` de una entrada son los totales que cubre: `3`, `2-5`, `-1` (un total 
 | `{{roll}}`        | en las entradas de una tabla, el total de su propia tirada   |
 | `{{field}}`       | un campo de un generador, en su plantilla                    |
 
+**Aritmética.** Dentro de las llaves se pueden sumar, restar, multiplicar y dividir números, valores y dados, con paréntesis y las funciones `floor`, `ceil`, `round` (a un número entero hacia abajo, hacia arriba, el más cercano), `min`, `max` (el menor o el mayor de varios) y `abs`. Los ids pueden tener guiones (`night-march`), así que un menos entre dos nombres lleva espacios: `a - b`. Un valor que no es un número, o una división entre 0, no da nada. Aritmética, nunca lógica: para un _si_, escribe una [condición](08-conditions.md).
+
+| Escribe                                            | Es                                             |
+| -------------------------------------------------- | ---------------------------------------------- |
+| `'{{self.values.might * 2 + 4}}'`                  | el doble de un valor, más 4                    |
+| `'{{self.values.maxHealth - self.values.health}}'` | un valor menos otro (espacios alrededor del −) |
+| `'{{floor(party.stats.mouths / 2)}}'`              | la mitad, redondeando hacia abajo              |
+| `'{{max(party.stats.survival, 1)}}'`               | al menos 1                                     |
+| `'-{{1d6 + hex.danger}}'`                          | en un efecto: quita una tirada más un valor    |
+
 Un valor que falta no muestra nada. Las variables sirven en resultados, plantillas y campos fijos de generador, textos de cartas, valores de `set` y `effects`, referencias, [condiciones](08-conditions.md#variables-y-tiradas) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: una tirada es la misma durante todo un momento), y en **Cuando no se aplica nada** de una acción (`{terrain}`, ahí con llaves simples).
 
 ## Condiciones

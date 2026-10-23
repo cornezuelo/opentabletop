@@ -1,17 +1,23 @@
 sheet/character:
   name: Personaje
   description: |-
-    Un personaje de las reglas genéricas: su salud y si está herido.
+    Un personaje de las reglas genéricas: su salud, el daño recibido, si está herido y si ha caído.
 
-    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra, y un estado.
+    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra, otro que sale de él (`from:`), un estado que ponen los efectos y otro que se cumple por sí solo (`when:`).
   values:
     health:
       name: Salud
       description: Cuánto daño puede aguantar aún el personaje; con 0 cae. Tus tablas dicen qué la quita o la devuelve.
+    harm:
+      name: Daño
+      description: La salud perdida, calculada a partir de ella; no se cambia a mano.
   conditions:
     wounded:
       name: Herido
       description: Herido de verdad hasta que se le quite; tus tablas y reglas dicen qué le impide.
+    down:
+      name: Caído
+      description: Fuera de combate mientras su salud sea 0; se le pasa por sí solo cuando recupera salud.
 sheet/party:
   name: Grupo
   description: |-

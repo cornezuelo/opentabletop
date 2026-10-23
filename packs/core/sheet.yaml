@@ -4,9 +4,9 @@ kind: sheet
 id: character
 name: Character
 description: |-
-  A character of the Generic rules: their health and whether they're wounded.
+  A character of the Generic rules: their health, the harm they've taken, whether they're wounded and whether they're down.
 
-  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, and a condition.
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects and one that holds by itself (`when:`).
 values:
   health:
     name: Health
@@ -15,10 +15,18 @@ values:
     min: 0
     max: 3
     display: bar
+  harm:
+    name: Harm
+    description: The health lost, worked out from it; never set by hand.
+    from: '{{3 - self.values.health}}'
 conditions:
   wounded:
     name: Wounded
     description: Hurt badly enough to matter until it's cleared; your tables and rules say what it stops.
+  down:
+    name: Down
+    description: Out of the fight while their health is 0; it lifts by itself when health comes back.
+    when: { self.values.health: { lte: 0 } }
 ---
 kind: sheet
 id: party

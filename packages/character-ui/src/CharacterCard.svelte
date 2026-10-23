@@ -2,6 +2,9 @@
   import {
     applyCharacter,
     boundsOf,
+    holdsByItself,
+    isMadeOf,
+    readsWorld,
     type CharacterAction,
     type CharacterState,
     type Display,
@@ -105,6 +108,18 @@
     change({ type: 'relate', to, kind, value: value - (r?.value ?? 0) })
   }
 
+  /** A written condition or value on one line (`self.values.dread: { gte: 6 }`). */
+  const inline = (v: unknown, top = true): string =>
+    Array.isArray(v)
+      ? `[${v.map((x) => inline(x, false)).join(', ')}]`
+      : v && typeof v === 'object'
+        ? (top ? '' : '{ ') +
+          Object.entries(v)
+            .map(([k, x]) => `${k}: ${inline(x, false)}`)
+            .join(', ') +
+          (top ? '' : ' }')
+        : String(v)
+
   /** The displays that take a whole row of their group. */
   const WIDE: readonly Display[] = ['bar', 'boxes', 'pips']
   /** How a value looks now, as its sheet says. */
@@ -118,6 +133,7 @@
     const levels = viewOf(id).levels
     return [
       text(def.description),
+      def.from !== undefined && t('madeOf', { from: `\`${def.from}\`` }),
       levels &&
         levels
           .map(
@@ -136,6 +152,8 @@
     const def = sheet.conditions[id]
     return [
       text(def.description),
+      def.when !== undefined && t('holdsWhen', { when: `\`${inline(def.when)}\`` }),
+      readsWorld(sheet, id) && t('lastSeen'),
       def.blocks?.length && t('blocks', { list: def.blocks.map(names).join(', ') }),
       t('readAs', { keys: `\`${where}.conditions: ${id}\`` }),
     ]
@@ -177,7 +195,7 @@
                 {view}
                 label={text(sheet.values[id].name, id)}
                 {locale}
-                {disabled}
+                disabled={disabled || isMadeOf(sheet, id)}
                 onset={(v) => setValue(id, v)}
               />
             </div>
@@ -192,11 +210,15 @@
       <span>{t('conditions')}</span>
       <div class="conditions">
         {#each Object.keys(sheet.conditions) as id (id)}
-          <label class="condition" class:on={id in character.conditions}>
+          <label
+            class="condition"
+            class:on={id in character.conditions}
+            class:auto={holdsByItself(sheet, id)}
+          >
             <input
               type="checkbox"
               checked={id in character.conditions}
-              {disabled}
+              disabled={disabled || holdsByItself(sheet, id)}
               onchange={(e) => setCondition(id, e.currentTarget.checked)}
             />
             <span
@@ -356,6 +378,11 @@
 
   .condition.on span {
     color: var(--accent);
+  }
+
+  /* Holds by itself: shown, never ticked by hand. */
+  .condition.auto span {
+    font-style: italic;
   }
 
   .relation {

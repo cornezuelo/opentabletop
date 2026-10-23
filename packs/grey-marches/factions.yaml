@@ -6,9 +6,9 @@ kind: sheet
 id: faction
 name: Faction
 description: |-
-  What every power of the Marches has: its strength, how it regards the party, and whether it's at war.
+  What every power of the Marches has: its strength, how it regards the party, whether it's at war, and whether it's broken.
 
-  **Shows:** a sheet for factions (the same kind as characters'): values with bounds, shown as a dial (strength) and as named levels with tones (reputation, from _Hostile_ at −3 to _Sworn friends_ at 3), a condition, and kinds of relation between factions.
+  **Shows:** a sheet for factions (the same kind as characters'): values with bounds, shown as a dial (strength) and as named levels with tones (reputation, from _Hostile_ at −3 to _Sworn friends_ at 3), a condition set by effects (at war), one that holds by itself (_Broken_ at strength 0, `when:`, read by the turn table), and kinds of relation between factions.
 values:
   # A round dial of six segments, red when it's down to one.
   strength:
@@ -32,6 +32,11 @@ values:
     tones: { -3: danger, -1: warning, 0: accent, 1: good }
 conditions:
   at-war: { name: At war }
+  # Holds by itself while its strength is spent: no effect sets or clears it.
+  broken:
+    name: Broken
+    description: Its strength is spent; on its turn it gives up land to gather itself again.
+    when: { self.values.strength: { lte: 0 } }
 relations:
   rival: { name: Rival }
   ally: { name: Ally }
@@ -80,9 +85,14 @@ name: A power's turn
 description: |-
   What the Vale (and any power without a table of its own) does on a world turn: strong, it reaches out; weak, it gathers its people.
 
-  **Shows:** a faction's turn: conditions on its own values (`faction.values.strength`), effects on them, on its territory (`faction.territory: 1`) and on its reputation with the party.
+  **Shows:** a faction's turn: conditions on its own values (`faction.values.strength`) and on a condition that holds by itself (`faction.conditions: broken`), effects on them, on its territory (`faction.territory: 1`, `-1`) and on its reputation with the party.
 roll: 1d6
 entries:
+  - id: broken
+    range: 1-6
+    when: { faction.conditions: broken }
+    result: Broken, it gives up its outlying land and gathers what's left
+    effects: { faction.territory: -1, faction.values.strength: 1 }
   - id: reach
     range: 1-6
     when: { faction.values.strength: { gte: 4 } }

@@ -217,6 +217,8 @@ export const es: Messages<typeof en> = {
     cleared: '{name} (ya no)',
     memberLeft: '{name} deja el grupo',
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
+    notWritable:
+      '«{name}» se mantiene por sí solo (sale de otros valores, o de su propia condición), así que los efectos no lo cambian',
     nobodyActing:
       'No actúa nadie, así que «{name}» no cambia nada (elige quién actúa encima de las acciones)',
     CAMP_STARTED: 'Acampáis para pasar la noche',

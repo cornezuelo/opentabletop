@@ -23,6 +23,10 @@ export const es: Messages<typeof en> = {
   readAs: 'Las tablas y condiciones lo leen como {keys}.',
   min: 'Como mínimo {min}.',
   max: 'Como máximo {max}.',
+  madeOf: 'Sale de otros valores; no se cambia a mano ni con efectos: {from}.',
+  holdsWhen: 'Se cumple por sí solo mientras {when}; no se pone ni se quita a mano ni con efectos.',
+  lastSeen:
+    'Lee el mundo (el viaje, la hora, el hex…), así que lo sigue mientras el personaje viaja; fuera de un viaje (en el roster) se queda como estaba la última vez.',
   blocks: 'Mientras alguien lo tenga, el grupo no puede: {list}.',
   less: 'Menos {name}',
   more: 'Más {name}',

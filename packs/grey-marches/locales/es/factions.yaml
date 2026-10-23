@@ -1,9 +1,9 @@
 sheet/faction:
   name: Facción
   description: |-
-    Lo que tiene cada poder de las Marcas: su fuerza, cómo ve al grupo y si está en guerra.
+    Lo que tiene cada poder de las Marcas: su fuerza, cómo ve al grupo, si está en guerra y si está quebrado.
 
-    **Enseña:** una hoja para facciones (del mismo tipo que la de los personajes): valores con límites, mostrados como un dial (la fuerza) y como niveles con nombre y tonos (la reputación, de _Hostil_ en −3 a _Amigos jurados_ en 3), un estado y tipos de relación entre facciones.
+    **Enseña:** una hoja para facciones (del mismo tipo que la de los personajes): valores con límites, mostrados como un dial (la fuerza) y como niveles con nombre y tonos (la reputación, de _Hostil_ en −3 a _Amigos jurados_ en 3), un estado que ponen los efectos (en guerra), otro que se cumple por sí solo (_Quebrado_ con fuerza 0, `when:`, que lee la tabla de turno) y tipos de relación entre facciones.
   values:
     strength:
       name: Fuerza
@@ -20,6 +20,9 @@ sheet/faction:
   conditions:
     at-war:
       name: En guerra
+    broken:
+      name: Quebrado
+      description: Ha agotado su fuerza; en su turno cede tierra para recomponerse.
   relations:
     rival:
       name: Rival
@@ -46,8 +49,9 @@ faction-turn:
   description: |-
     Lo que hace el Valle (y cualquier poder sin tabla propia) en un turno del mundo: si es fuerte, extiende la mano; si es débil, reúne a su gente.
 
-    **Enseña:** el turno de una facción: condiciones sobre sus propios valores (`faction.values.strength`), efectos sobre ellos, sobre su territorio (`faction.territory: 1`) y sobre su reputación con el grupo.
+    **Enseña:** el turno de una facción: condiciones sobre sus propios valores (`faction.values.strength`) y sobre un estado que se cumple por sí solo (`faction.conditions: broken`), efectos sobre ellos, sobre su territorio (`faction.territory: 1`, `-1`) y sobre su reputación con el grupo.
   entries:
+    broken: Quebrado, cede sus tierras más alejadas y reúne lo que le queda
     reach: Fuerte, busca más tierra
     gather: Reúne a su gente y sus provisiones
     feast: Celebra un banquete en honor de los viajeros

@@ -222,6 +222,8 @@ export const en = {
     cleared: '{name} (no more)',
     memberLeft: '{name} leaves the party',
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
+    notWritable:
+      '“{name}” holds by itself (made of other values, or by its own condition), so effects don’t change it',
     nobodyActing:
       'Nobody is acting, so “{name}” changed nothing (choose who acts above the actions)',
     CAMP_STARTED: 'Camp for the night',

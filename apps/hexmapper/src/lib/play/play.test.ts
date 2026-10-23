@@ -809,6 +809,80 @@ describe('the Company: a party made of characters', () => {
     expect(back.members).toEqual(trip().members)
   })
 
+  it('what holds by itself follows its values and the world: wounds, Terrified, Seasick', () => {
+    grey()
+    clickHex('7,7')
+    const system = activeSystem()
+    // Hurt and frightened (a table rolled by hand): wounds follow health, and a full dread
+    // makes everyone Terrified, which no effect set.
+    editSession((s) =>
+      applyResult(
+        s,
+        { effects: { 'party.members.values.health': -2, 'party.members.values.dread': 6 } },
+        system.bindings?.stats,
+        {},
+        partyOf(system),
+      ),
+    )
+    const kael = member('kael')
+    expect(kael.values.wounds).toBe(kael.values.maxHealth - kael.values.health)
+    expect(kael.values.wounds).toBe(2)
+    expect(kael.conditions).toHaveProperty('terrified')
+    expect(tripAvailability({ system }, trip())['night-march']).toMatchObject({
+      value: 'terrified',
+    })
+    // Neither is written by an effect: they stay as their rule says.
+    editSession((s) =>
+      applyResult(
+        s,
+        {
+          effects: {
+            'party.members.values.wounds': -2,
+            'party.members.conditions.terrified': false,
+          },
+        },
+        system.bindings?.stats,
+        {},
+        partyOf(system),
+      ),
+    )
+    expect(member('kael').values.wounds).toBe(2)
+    expect(member('kael').conditions).toHaveProperty('terrified')
+    // The rite empties dread: Terrified lifts by itself.
+    editSession((s) =>
+      applyResult(
+        s,
+        { effects: { 'party.members.values.dread': '=0' } },
+        system.bindings?.stats,
+        {},
+        partyOf(system),
+      ),
+    )
+    expect(member('kael').conditions).not.toHaveProperty('terrified')
+    // Mara of little nerve takes to a boat: Seasick, read from the world (`trip.mode`), set
+    // as the trip changes and said in the journal; no forage while it lasts.
+    editSession((s) => {
+      s.members = s.members!.map((m) =>
+        m.id === 'mara' ? { ...m, values: { ...m.values, nerve: 1 } } : m,
+      )
+      s.travel = { ...s.travel, mode: 'boat' }
+      return s
+    })
+    expect(member('mara').conditions).toHaveProperty('seasick')
+    expect(member('kael').conditions).not.toHaveProperty('seasick')
+    expect(trip().journal.at(-1)).toMatchObject({
+      code: 'CHANGED',
+      data: { path: 'characters.mara.conditions.seasick', from: 0, to: 1 },
+    })
+    expect(tripAvailability({ system, world: mapWorld(editor.map) }, trip()).forage).toMatchObject({
+      value: 'seasick',
+      who: 'mara',
+    })
+    // Ashore, it passes.
+    editSession((s) => ({ ...s, travel: { ...s.travel, mode: 'foot' } }))
+    expect(member('mara').conditions).not.toHaveProperty('seasick')
+  })
+
   it('a character who leaves the party is told in the journal and in the campaign’s timeline', () => {
     grey()
     startWorld()
@@ -1109,6 +1183,23 @@ describe('the powers of the Marches: factions on the map', () => {
       clock() !== filled
     expect(changed).toBe(true)
     expect(after.lastTurn).toBe(editor.campaign.world!.time)
+  })
+
+  it('a power spent is Broken by itself, and its turn gives land up to gather again', () => {
+    grey()
+    const vale = () => editor.factionsOnMap!.factions.find((f) => f.id === 'the-vale')!
+    const land = editor.factionsOnMap!.territories['the-vale'].length
+    applyWorldEffects({ 'factions.the-vale.values.strength': '=0' })
+    expect(vale().conditions).toHaveProperty('broken')
+    worldTurnNow()
+    const line = editor.campaign.world!.timeline.findLast(
+      (e) => e.code === 'LOG' && e.data?.faction === 'the-vale',
+    )
+    expect(line?.text).toContain('Broken, it gives up its outlying land')
+    expect(editor.factionsOnMap!.territories['the-vale'].length).toBe(land - 1)
+    // Its strength back above 0: no longer Broken, with no effect clearing it.
+    expect(vale().values.strength).toBe(1)
+    expect(vale().conditions).not.toHaveProperty('broken')
   })
 
   it('turns come by themselves every 7 days of the world clock, unless asked not to', async () => {

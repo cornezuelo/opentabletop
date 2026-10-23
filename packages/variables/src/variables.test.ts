@@ -5,6 +5,8 @@ import {
   hasVariables,
   isRoll,
   lookupIn,
+  namesIn,
+  rollsIn,
   momentRoller,
   onceRoller,
   render,
@@ -41,6 +43,67 @@ describe('variables', () => {
 
   it('read no roll without a roller', () => {
     expect(evaluate('{{1d6}}', lookupIn(context))).toBeUndefined()
+  })
+})
+
+describe('arithmetic', () => {
+  const sheet = {
+    self: { values: { might: 3, maxHealth: 5, health: 2, half: '1.5' } },
+    'night-march': 2,
+    actions: { 'night-march': { cost: 4 } },
+    word: 'nine',
+  }
+  const read = (expression: string, roller?: (e: string) => number) =>
+    evaluate(`{{${expression}}}`, lookupIn(sheet, roller))
+
+  it('adds, takes, multiplies and divides in the usual order, with brackets', () => {
+    expect(read('self.values.might * 2 + 4')).toBe(10)
+    expect(read('(self.values.might + 1) * 2')).toBe(8)
+    expect(read('self.values.maxHealth - self.values.health')).toBe(3)
+    expect(read('-self.values.might + 10 / 4')).toBe(-0.5)
+    expect(read('self.values.half * 2')).toBe(3)
+    expect(read('7')).toBe(7)
+  })
+
+  it('calls floor, ceil, round, abs, min and max', () => {
+    expect(read('floor(self.values.might / 2)')).toBe(1)
+    expect(read('ceil(self.values.might / 2)')).toBe(2)
+    expect(read('round(2.5)')).toBe(3)
+    expect(read('abs(self.values.health - self.values.maxHealth)')).toBe(3)
+    expect(read('max(self.values.might, self.values.health, 4)')).toBe(4)
+    expect(read('min(self.values.might, self.values.health)')).toBe(2)
+  })
+
+  it('keeps hyphens in ids: a minus between names has spaces', () => {
+    expect(read('night-march')).toBe(2)
+    expect(read('actions.night-march.cost * 2')).toBe(8)
+    expect(read('actions.night-march.cost - night-march')).toBe(2)
+  })
+
+  it('rolls dice inside, with the roller', () => {
+    expect(read('1d6 + self.values.might', () => 4)).toBe(7)
+    expect(read('2d6 * 2', () => 5)).toBe(10)
+    expect(read('1d6 + self.values.might')).toBeUndefined()
+  })
+
+  it('reads nothing when a name is not a number, or it divides by 0', () => {
+    expect(read('word + 1')).toBeUndefined()
+    expect(read('nothing * 2')).toBeUndefined()
+    expect(read('self.values.might / 0')).toBeUndefined()
+  })
+
+  it('leaves what does not parse as a name, read as before', () => {
+    expect(read('self.values.might +')).toBeUndefined()
+    expect(read('unknownFn(2)')).toBeUndefined()
+    expect(lookupIn({ 'a b': 1 })('a b')).toBe(1)
+  })
+
+  it('names what an expression reads and whether it rolls', () => {
+    expect(namesIn('self.values.might * 2 + max(a, b)')).toEqual(['self.values.might', 'a', 'b'])
+    expect(namesIn('party.stats.mouths')).toEqual(['party.stats.mouths'])
+    expect(namesIn('2d6')).toEqual([])
+    expect(rollsIn('a + 1d4')).toBe(true)
+    expect(rollsIn('a * 2')).toBe(false)
   })
 })
 

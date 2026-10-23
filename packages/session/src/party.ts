@@ -4,6 +4,7 @@ import {
   createCharacter,
   membersBlock,
   partyValue,
+  settleCharacter,
   shareChange,
   boundsOf,
   type CharacterEvent,
@@ -126,6 +127,11 @@ function syncPartySheet(s: PartyTarget, rules: PartyRules): void {
   if (!s.party || !sheet) return
   for (const [stat, value] of partyStats(rules)) {
     if (!sheet.values[value]) continue
+    // A value made of others: the stat is what it's made of, never the other way round.
+    if (sheet.values[value].from !== undefined) {
+      s.stats[stat] = s.party.values[value] ?? 0
+      continue
+    }
     const { min, max } = boundsOf(sheet, s.party, value)
     const at = s.stats[stat] ?? s.party.values[value]
     if (at === undefined) continue
@@ -332,9 +338,12 @@ export function applyMemberEffects(
       )
       if (target === s.party) {
         s.party = done.state
-        // The value changed, if a stat is made of it: the stat follows it.
+        // The values changed (the one written, and those made of it): the stats follow them.
+        const moved = new Set(
+          done.events.flatMap((e) => (e.type === 'VALUE_CHANGED' ? [e.value] : [])),
+        )
         for (const [stat, value] of partyStats(rules))
-          if (part === 'values' && value === id && done.state.values[value] !== undefined)
+          if (moved.has(value) && done.state.values[value] !== undefined)
             s.stats[stat] = done.state.values[value]
       } else
         s.members = (s.members ?? []).map((m: CharacterState) =>
@@ -355,6 +364,38 @@ export function applyMemberEffects(
     }
   }
   return { limits, events, nobody, unknown }
+}
+
+/**
+ * The party's sheet and its members with what holds by itself settled in the `world` (the
+ * trip's facts now): conditions that read it (`when: { trip.mode: boat }`) set or cleared,
+ * as of `time`. In place; the stats made of the party's values follow. What changed, in order.
+ */
+export function settleStates(
+  s: PartyTarget,
+  rules: PartyRules,
+  world: Record<string, unknown>,
+  time?: number,
+): CharacterEvent[] {
+  const events: CharacterEvent[] = []
+  const options = { world, ...(time !== undefined && { time }) }
+  if (s.party && rules.partySheet?.def) {
+    const done = settleCharacter(rules.partySheet.def, s.party, options)
+    if (done.events.length) {
+      s.party = done.state
+      events.push(...done.events)
+      syncPartySheet(s, rules)
+    }
+  }
+  if (s.members?.length)
+    s.members = s.members.map((m) => {
+      const sheet = sheetOf(rules)(m)
+      if (!sheet) return m
+      const done = settleCharacter(sheet, m, options)
+      events.push(...done.events)
+      return done.events.length ? done.state : m
+    })
+  return events
 }
 
 /**

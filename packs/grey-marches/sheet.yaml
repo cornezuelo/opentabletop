@@ -12,8 +12,10 @@ description: |-
   **Shows:** a sheet of values with bounds (one bounded by another value,
   `max: '{{self.values.maxHealth}}'`), each value shown its own way (skills as pips, health as
   a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red,
-  nerve as a die that steps from d4 to d12 (`display: levels`), a bond's number as pips), named groups, conditions that block an action, a
-  way of travelling or travel itself, and kinds of relation (a bond with a number, a home); every part with a description, shown as its help where the sheet is met.
+  nerve as a die that steps from d4 to d12 (`display: levels`), a bond's number as pips), a
+  value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action, a
+  way of travelling or travel itself, conditions that hold by themselves (`when:`: _Terrified_
+  while dread is full, _Seasick_ while the party travels by boat, reading the world), and kinds of relation (a bond with a number, a home); every part with a description, shown as its help where the sheet is met.
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
   survival:
@@ -65,6 +67,16 @@ values:
     # (with a max of 3: red at 0 and 1, amber at 2, green at 3), following the max as it changes.
     display: bar
     tones: { 0: danger, 50%: warning, 75%: good }
+    group: body
+  # Made of two others, never set: it follows health and its max at once.
+  wounds:
+    name: Wounds
+    description: The health a companion has lost, worked out from health and max health; a fed night in camp heals one.
+    from: '{{self.values.maxHealth - self.values.health}}'
+    min: 0
+    max: '{{self.values.maxHealth}}'
+    display: boxes
+    tones: { 1: warning, 3: danger }
     group: body
   # What each one carries of the party's food (bindings: `resources.food: { carried: rations }`).
   rations:
@@ -125,6 +137,19 @@ conditions:
     name: Saddle-sore
     description: Can't bear another day on horseback.
     blocks: [modes.horse]
+  # Holds by itself while dread is full: nothing sets it, and the rite that empties dread
+  # clears it.
+  terrified:
+    name: Terrified
+    description: Dread has filled up. Won't march by night until it's lifted (the rite at a shrine empties dread).
+    when: { self.values.dread: { gte: 6 } }
+    blocks: [actions.night-march]
+  # Holds by itself while the world says so: on a boat, for a companion of little nerve.
+  seasick:
+    name: Seasick
+    description: On a boat with a nerve of d6 or less. Can't forage while it lasts; it passes on landing.
+    when: { trip.mode: boat, self.values.nerve: { lte: 1 } }
+    blocks: [actions.forage]
 relations:
   bond:
     name: Bond

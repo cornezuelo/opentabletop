@@ -485,6 +485,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.nobodyActing', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    case 'NOT_WRITABLE':
+      return t('journal.notWritable', {
+        name: context.memberName?.(String(d.path)) ?? String(d.path),
+      })
     case 'NOTE':
       return e.text ?? ''
     case 'MEMBER_LEFT':

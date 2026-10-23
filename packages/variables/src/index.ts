@@ -4,10 +4,13 @@
  *   '{{party.stats.stealth}}'     a variable: the value with that name
  *   '{{2d6}}'                     a roll: dice, rolled when it's read
  *   'Found {{1d6}} coins'         inside a text, each is written in its place
+ *   '{{self.values.might * 2 + 4}}' arithmetic: numbers, names and dice with + - * /,
+ *                                 brackets and floor, ceil, round, min, max, abs
  *
  * A value that is a whole `{{…}}` keeps what it names (numbers stay numbers, lists stay
- * lists); a text with them inside renders them. No logic, ever: a name or dice, nothing
- * else.
+ * lists); a text with them inside renders them. Arithmetic, never logic: no conditions,
+ * no code, and a parser of our own (never `eval`). Ids may hold a hyphen
+ * (`actions.night-march`), so a minus between names is written with spaces (`a - b`).
  */
 import { parseDice, roll, DiceSyntaxError, type DiceResult } from '@open-tabletop/dice'
 import { seeded, type RandomSource } from '@open-tabletop/random'
@@ -53,8 +56,182 @@ export function resolvePath(context: Record<string, unknown>, path: string): unk
  * `roller` (none: a roll reads nothing).
  */
 export function lookupIn(context: Record<string, unknown>, roller?: Roller): Lookup {
-  return (expression) =>
-    isRoll(expression) ? roller?.(expression) : resolvePath(context, expression.trim())
+  return (expression) => {
+    if (isRoll(expression)) return roller?.(expression)
+    const sum = arithmetic(expression)
+    if (!sum) return resolvePath(context, expression.trim())
+    return calculate(sum, (name) => resolvePath(context, name), roller)
+  }
+}
+
+/**
+ * The names an expression reads (`self.values.might * 2` → `self.values.might`): itself if
+ * it's a name, none if it's dice.
+ */
+export function namesIn(expression: string): string[] {
+  if (isRoll(expression)) return []
+  const sum = arithmetic(expression)
+  if (!sum) return [expression.trim()]
+  const names: string[] = []
+  const walk = (node: Node): void => {
+    if (node.type === 'name') names.push(node.name)
+    else if (node.type === 'unary') walk(node.of)
+    else if (node.type === 'binary') [node.left, node.right].forEach(walk)
+    else if (node.type === 'call') node.args.forEach(walk)
+  }
+  walk(sum)
+  return [...new Set(names)]
+}
+
+/** Whether an expression rolls dice anywhere (`1d6`, `self.values.x + 1d4`). */
+export function rollsIn(expression: string): boolean {
+  if (isRoll(expression)) return true
+  const sum = arithmetic(expression)
+  if (!sum) return false
+  const walk = (node: Node): boolean =>
+    node.type === 'dice' ||
+    (node.type === 'unary' && walk(node.of)) ||
+    (node.type === 'binary' && (walk(node.left) || walk(node.right))) ||
+    (node.type === 'call' && node.args.some(walk))
+  return walk(sum)
+}
+
+/** The functions arithmetic may call. */
+export const FUNCTIONS: Record<string, (...args: number[]) => number> = {
+  floor: Math.floor,
+  ceil: Math.ceil,
+  round: Math.round,
+  abs: Math.abs,
+  min: Math.min,
+  max: Math.max,
+}
+
+type Node =
+  | { type: 'number'; value: number }
+  | { type: 'name'; name: string }
+  | { type: 'dice'; dice: string }
+  | { type: 'unary'; of: Node }
+  | { type: 'binary'; op: '+' | '-' | '*' | '/'; left: Node; right: Node }
+  | { type: 'call'; fn: string; args: Node[] }
+
+const TOKEN =
+  /\s*(?:(\d*d(?:\d+|%|f)(?:k[hl]\d*)?)(?![\w.])|(\d+(?:\.\d+)?)(?![\w.])|([A-Za-z_][A-Za-z0-9_]*(?:[.-][A-Za-z0-9_]+)*)|([-+*/(),]))/iy
+
+/**
+ * An expression read as arithmetic, or undefined when it isn't (a lone name stays a name,
+ * read as before; anything that doesn't parse too, so no older value changes meaning).
+ */
+function arithmetic(expression: string): Node | undefined {
+  const tokens: { kind: 'dice' | 'number' | 'name' | 'op'; text: string }[] = []
+  TOKEN.lastIndex = 0
+  const text = expression.trim()
+  while (TOKEN.lastIndex < text.length) {
+    const m = TOKEN.exec(text)
+    if (!m) return undefined
+    const kind = m[1] ? 'dice' : m[2] ? 'number' : m[3] ? 'name' : 'op'
+    tokens.push({ kind, text: m[1] ?? m[2] ?? m[3] ?? m[4] })
+  }
+  if (tokens.length < 2 && tokens[0]?.kind !== 'number') return undefined
+  let at = 0
+  const peek = () => tokens[at]
+  const take = (op: string) => (peek()?.kind === 'op' && peek().text === op ? (at++, true) : false)
+  const sum = (): Node | undefined => {
+    let left = product()
+    while (left && (peek()?.text === '+' || peek()?.text === '-') && peek().kind === 'op') {
+      const op = tokens[at++].text as '+' | '-'
+      const right = product()
+      left = right && { type: 'binary', op, left, right }
+    }
+    return left
+  }
+  const product = (): Node | undefined => {
+    let left = unary()
+    while (left && (peek()?.text === '*' || peek()?.text === '/') && peek().kind === 'op') {
+      const op = tokens[at++].text as '*' | '/'
+      const right = unary()
+      left = right && { type: 'binary', op, left, right }
+    }
+    return left
+  }
+  const unary = (): Node | undefined => {
+    if (take('-')) {
+      const of = unary()
+      return of && { type: 'unary', of }
+    }
+    if (take('+')) return unary()
+    return atom()
+  }
+  const atom = (): Node | undefined => {
+    const t = tokens[at++]
+    if (!t) return undefined
+    if (t.kind === 'number') return { type: 'number', value: Number(t.text) }
+    if (t.kind === 'dice') return { type: 'dice', dice: t.text }
+    if (t.kind === 'name') {
+      if (!take('(')) return { type: 'name', name: t.text }
+      if (!(t.text in FUNCTIONS)) return undefined
+      const args: Node[] = []
+      if (!take(')')) {
+        do {
+          const arg = sum()
+          if (!arg) return undefined
+          args.push(arg)
+        } while (take(','))
+        if (!take(')')) return undefined
+      }
+      return args.length ? { type: 'call', fn: t.text, args } : undefined
+    }
+    if (t.text === '(') {
+      const inner = sum()
+      return inner && take(')') ? inner : undefined
+    }
+    return undefined
+  }
+  const tree = sum()
+  return tree && at === tokens.length ? tree : undefined
+}
+
+/** What an expression comes to; undefined when a name isn't a number, or it divides by 0. */
+function calculate(
+  node: Node,
+  read: (name: string) => unknown,
+  roller: Roller | undefined,
+): number | undefined {
+  const go = (n: Node): number | undefined => {
+    switch (n.type) {
+      case 'number':
+        return n.value
+      case 'dice':
+        return roller?.(n.dice)
+      case 'name':
+        return numeric(read(n.name))
+      case 'unary': {
+        const v = go(n.of)
+        return v === undefined ? undefined : -v
+      }
+      case 'binary': {
+        const a = go(n.left)
+        const b = go(n.right)
+        if (a === undefined || b === undefined) return undefined
+        if (n.op === '+') return a + b
+        if (n.op === '-') return a - b
+        if (n.op === '*') return a * b
+        return b === 0 ? undefined : a / b
+      }
+      case 'call': {
+        const args = n.args.map(go)
+        if (args.some((a) => a === undefined)) return undefined
+        const v = FUNCTIONS[n.fn](...(args as number[]))
+        return Number.isFinite(v) ? v : undefined
+      }
+    }
+  }
+  return go(node)
+}
+
+function numeric(v: unknown): number | undefined {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : undefined
+  if (typeof v === 'string' && /^[+-]?\d+(\.\d+)?$/.test(v.trim())) return Number(v)
+  return undefined
 }
 
 /**

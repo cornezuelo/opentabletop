@@ -9,8 +9,11 @@ sheet/companion:
     `max: '{{self.values.maxHealth}}'`), cada valor mostrado a su manera (las habilidades
     como puntos, la salud como una barra cuyo tono baja con ella, las raciones como `2 / 6`, el
     pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12
-    (`display: levels`), el número de un vínculo como puntos), grupos con nombre, estados que bloquean una
-    acción, una forma de viajar o el propio viaje, y tipos de relación (un vínculo con un
+    (`display: levels`), el número de un vínculo como puntos), un valor que sale de otros (las
+    heridas, `from: '{{self.values.maxHealth - self.values.health}}'`), grupos con nombre, estados que bloquean una
+    acción, una forma de viajar o el propio viaje, estados que se cumplen por sí solos (`when:`:
+    _Aterrado_ mientras el pavor está lleno, _Mareado_ mientras el grupo viaja en barco, leyendo el
+    mundo), y tipos de relación (un vínculo con un
     número, un hogar); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
     survival:
@@ -31,6 +34,9 @@ sheet/companion:
     health:
       name: Salud
       description: Se pierde en vados, emboscadas y con el frío; una noche bien comidos en el campamento devuelve una.
+    wounds:
+      name: Heridas
+      description: La salud que ha perdido un compañero, calculada a partir de la salud y la salud máxima; una noche bien comidos en el campamento cura una.
     rations:
       name: Raciones
       description: La comida que lleva este compañero; la comida del grupo es la de todos juntos.
@@ -60,6 +66,12 @@ sheet/companion:
     saddle-sore:
       name: Molido de la silla
       description: No aguanta otro día a caballo.
+    terrified:
+      name: Aterrado
+      description: El pavor se ha llenado. No marchará de noche hasta que se le pase (el rito en un santuario vacía el pavor).
+    seasick:
+      name: Mareado
+      description: En un barco con un temple de d6 o menos. No puede forrajear mientras dure; se le pasa al desembarcar.
   relations:
     bond:
       name: Vínculo

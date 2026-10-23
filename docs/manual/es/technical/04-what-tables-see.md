@@ -163,6 +163,8 @@ Cuando el sistema tiene una [hoja](07-kinds.md#hojas) y el grupo tiene personaje
 
 Los efectos llegan a ellos con los mismos nombres ([Sintaxis](09-syntax.md#cambiar-el-grupo-effects)): `party.members.values.health: -1` (todos los personajes), `characters.kael.conditions.wounded: true` (uno), `acting.values.health: 1` (el que actúa; si no actúa nadie, no cambia nada, y el diario lo dice), `roles.lookout.values.health: -1` (quien tenga un rol). Un grupo sin personajes los ignora: el mismo sistema se juega con personajes o sin ellos.
 
+Un valor que **sale de otros** (`from:` en la hoja) y un estado que **se cumple por sí solo** (`when:`) se leen como cualquier otro, pero ningún efecto los cambia: el diario dice _«Kael: Heridas» se mantiene por sí solo…_ y no cambia nada. Dentro de su propia hoja (un `from`, un límite, el `when` de un estado), un personaje se lee a sí mismo como `self.*`: `self.values.health`, `self.conditions`, `self.tags`; el `when` de un estado lee también el mundo, con los nombres de esta página ([Hojas](07-kinds.md#hojas)).
+
 Las características del grupo que un sistema saca de sus personajes (`from` en sus bindings) y las provisiones que llevan (`carried`) se leen como cualquier otra: `party.stats.navigation`, `party.resources.food`.
 
 ## El mundo, `world.*`, y las facciones

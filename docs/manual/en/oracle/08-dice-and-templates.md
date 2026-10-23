@@ -48,7 +48,7 @@ Use weights when no die fits the odds you want, or to make some results rarer wi
 | `{{roll}}`        | In a table's entries: the total of the table's own **Roll**, e.g. `'You rolled {{roll}}'`.                                            |
 | `{{field}}`       | In a generator's template: a field's value (its text, if it came from a table).                                                       |
 
-A missing value shows as nothing. Variables never run code: they only look values up and roll dice. A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
+A missing value shows as nothing. Variables never run code: they only look values up, roll dice and do arithmetic (`'{{hex.danger * 2 + 1d6}}'`, `'{{floor(party.stats.mouths / 2)}}'`: [Syntax](../technical/09-syntax.md#variables)). A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
 
 Table and generator references can use variables too: `table: 'weather-{{time.season}}'` rolls `weather-spring`, `weather-autumn`… depending on the season.
 

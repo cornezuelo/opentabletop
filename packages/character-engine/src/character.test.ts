@@ -11,6 +11,8 @@ import {
   parseSheet,
   partySource,
   partyValue,
+  readsWorld,
+  settleCharacter,
   shareChange,
   validatePartyFrom,
   displayOf,
@@ -395,5 +397,164 @@ describe('a party of characters', () => {
       'travel.move': { value: 'hungry', who: 'mara' },
       'actions.forced-march': { value: 'wounded', who: 'pip' },
     })
+  })
+})
+
+describe('what holds by itself', () => {
+  // A made-up sheet: a capacity made of might, a load set by hand, wounds made of health,
+  // a state while over the capacity, one when dread is full, and one that reads the world.
+  const { sheet } = parseSheet({
+    kind: 'sheet',
+    id: 'porter',
+    values: {
+      might: { default: 2, min: 0, max: 5 },
+      capacity: { from: '{{self.values.might * 2 + 4}}' },
+      load: { default: 0, min: 0 },
+      maxHealth: { default: 4 },
+      health: { default: 4, min: 0, max: '{{self.values.maxHealth}}' },
+      wounds: { from: '{{self.values.maxHealth - self.values.health}}', min: 0 },
+      half: { from: '{{floor(self.values.capacity / 3)}}' },
+      dread: { default: 0, min: 0, max: 3 },
+    },
+    conditions: {
+      encumbered: {
+        when: { 'self.values.load': { gt: '{{self.values.capacity}}' } },
+        blocks: ['actions.forced-march'],
+      },
+      terrified: { when: { 'self.values.dread': { gte: 3 } } },
+      // Holds while another state that holds by itself does.
+      shaking: { when: { 'self.conditions': 'terrified' } },
+      cold: { when: { 'time.season': 'winter', 'self.values.health': { lt: 3 } } },
+      wounded: {},
+    },
+  })
+  const porter = () => createCharacter(sheet!, 'p/porter', { id: 'bran' })
+
+  it('makes values of others, in order, from the start', () => {
+    const p = porter()
+    expect(p.values).toMatchObject({ capacity: 8, wounds: 0, half: 2 })
+    const stronger = applyCharacter(sheet!, p, {
+      type: 'change',
+      effects: { 'values.might': 1, 'values.health': -3 },
+    })
+    expect(stronger.state.values).toMatchObject({ capacity: 10, half: 3, wounds: 3 })
+    expect(stronger.events).toContainEqual({
+      type: 'VALUE_CHANGED',
+      character: 'bran',
+      value: 'capacity',
+      from: 8,
+      to: 10,
+    })
+  })
+
+  it('keeps a value made of others within its bounds', () => {
+    const healed = applyCharacter(sheet!, porter(), {
+      type: 'change',
+      effects: { 'values.maxHealth': -3 },
+    })
+    // Health follows its max down to 1; wounds are 1 - 1 = 0, never below its min.
+    expect(healed.state.values).toMatchObject({ health: 1, wounds: 0 })
+  })
+
+  it('sets and clears a condition while its when holds, with when it began', () => {
+    const loaded = applyCharacter(sheet!, porter(), {
+      type: 'change',
+      effects: { 'values.load': 9 },
+      time: 600,
+    })
+    expect(loaded.state.conditions.encumbered).toEqual({ since: 600 })
+    expect(blockedBy(sheet!, loaded.state, 'actions.forced-march')).toBe('encumbered')
+    const lighter = applyCharacter(sheet!, loaded.state, {
+      type: 'change',
+      effects: { 'values.might': 1 },
+    })
+    expect(lighter.state.conditions.encumbered).toBeUndefined()
+    expect(lighter.events).toContainEqual({
+      type: 'CONDITION_CLEARED',
+      character: 'bran',
+      condition: 'encumbered',
+    })
+  })
+
+  it('settles conditions that read other conditions holding by themselves', () => {
+    const scared = applyCharacter(sheet!, porter(), {
+      type: 'change',
+      effects: { 'values.dread': 3 },
+    })
+    expect(Object.keys(scared.state.conditions).sort()).toEqual(['shaking', 'terrified'])
+  })
+
+  it('refuses effects on what holds by itself, and says so', () => {
+    const tried = applyCharacter(sheet!, porter(), {
+      type: 'change',
+      effects: { 'values.capacity': 5, 'conditions.terrified': true, 'conditions.wounded': true },
+    })
+    expect(tried.state.values.capacity).toBe(8)
+    expect(tried.state.conditions).toEqual({ wounded: {} })
+    expect(tried.events.filter((e) => e.type === 'NOT_WRITABLE')).toEqual([
+      { type: 'NOT_WRITABLE', character: 'bran', path: 'values.capacity' },
+      { type: 'NOT_WRITABLE', character: 'bran', path: 'conditions.terrified' },
+    ])
+  })
+
+  it('settles what reads the world only with a world; without one it stays as last seen', () => {
+    expect(readsWorld(sheet!, 'cold')).toBe(true)
+    expect(readsWorld(sheet!, 'encumbered')).toBe(false)
+    const hurt = applyCharacter(sheet!, porter(), {
+      type: 'change',
+      effects: { 'values.health': -2 },
+    })
+    expect(hurt.state.conditions.cold).toBeUndefined()
+    const winter = settleCharacter(sheet!, hurt.state, { world: { time: { season: 'winter' } } })
+    expect(winter.state.conditions.cold).toEqual({})
+    // No world (a roster): kept as it was, even if health came back.
+    const healed = applyCharacter(sheet!, winter.state, {
+      type: 'change',
+      effects: { 'values.health': 2 },
+    })
+    expect(healed.state.conditions.cold).toEqual({})
+    const spring = settleCharacter(sheet!, healed.state, { world: { time: { season: 'spring' } } })
+    expect(spring.state.conditions.cold).toBeUndefined()
+  })
+
+  it('follows a shared-out change', () => {
+    const shared = shareChange(() => sheet!, [porter()], 'load', 10)
+    expect(shared.members[0].conditions.encumbered).toEqual({})
+  })
+
+  it('refuses from and bounds that are not the sheet own values, dice and cycles', () => {
+    const errors = (values: Record<string, unknown>) =>
+      parseSheet({ kind: 'sheet', id: 'x', values }).errors
+    expect(errors({ a: { from: 'a * 2' } })).toEqual([
+      "values.a.from: the sheet's values in '{{…}}' ('{{self.values.might * 2}}')",
+    ])
+    expect(errors({ a: { from: '{{1d6 + 1}}' } })).toEqual([
+      "values.a.from: no dice (it would change each time it's read)",
+    ])
+    expect(errors({ a: { from: '{{self.values.b * 2}}' } })).toEqual([
+      'values.a.from: no value "b" on this sheet',
+    ])
+    expect(
+      errors({ a: { from: '{{self.values.b}}' }, b: { from: '{{self.values.a + 1}}' } }),
+    ).toEqual(['values.a.from: made of itself (a → b → a)'])
+    expect(errors({ a: { from: '{{self.values.b}}', default: 2 }, b: {} })).toEqual([
+      'values.a.default: not with from (it is made of other values)',
+    ])
+    expect(errors({ a: { max: '{{self.values.b * 2}}' }, b: { default: 3 } })).toEqual([])
+    expect(
+      parseSheet({ kind: 'sheet', id: 'x', conditions: { c: { when: { a: { gt: [] } } } } }).errors
+        .length,
+    ).toBeGreaterThan(0)
+  })
+
+  it('reads a bound made with arithmetic', () => {
+    const { sheet: s } = parseSheet({
+      kind: 'sheet',
+      id: 'x',
+      values: { b: { default: 3 }, a: { default: 9, max: '{{self.values.b * 2}}' } },
+    })
+    const c = createCharacter(s!, 'x/x', { id: 'c' })
+    expect(boundsOf(s!, c, 'a')).toEqual({ max: 6 })
+    expect(c.values.a).toBe(6)
   })
 })

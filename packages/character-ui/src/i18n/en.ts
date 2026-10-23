@@ -20,6 +20,10 @@ export const en = {
   readAs: 'Tables and conditions read it as {keys}.',
   min: 'At least {min}.',
   max: 'At most {max}.',
+  madeOf: 'Made of other values, never set by hand nor by effects: {from}.',
+  holdsWhen: 'Holds by itself while {when}; never set or cleared by hand nor by effects.',
+  lastSeen:
+    'It reads the world (the trip, the time, the hex…), so it follows it while the character travels; away from a trip (in the roster) it stays as it was last seen.',
   blocks: 'While someone has it, the party can’t: {list}.',
   less: 'Less {name}',
   more: 'More {name}',

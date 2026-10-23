@@ -71,6 +71,16 @@ An entry's `range` is the totals it covers: `3`, `2-5`, `-1` (a total below zero
 | `{{roll}}`        | in a table's entries, the total of its own roll       |
 | `{{field}}`       | a generator's field, in its template                  |
 
+**Arithmetic.** Inside the braces, numbers, values and dice can be added, taken away, multiplied and divided, with brackets and the functions `floor`, `ceil`, `round` (to a whole number down, up, nearest), `min`, `max` (the smallest or largest of several) and `abs`. Ids may hold a hyphen (`night-march`), so a minus between two names takes spaces: `a - b`. A value that isn't a number, or a division by 0, gives nothing. Arithmetic, never logic: for _if_, write a [condition](08-conditions.md).
+
+| Write                                              | Is                                           |
+| -------------------------------------------------- | -------------------------------------------- |
+| `'{{self.values.might * 2 + 4}}'`                  | twice a value, plus 4                        |
+| `'{{self.values.maxHealth - self.values.health}}'` | one value minus another (spaces around −)    |
+| `'{{floor(party.stats.mouths / 2)}}'`              | half, rounded down                           |
+| `'{{max(party.stats.survival, 1)}}'`               | at least 1                                   |
+| `'-{{1d6 + hex.danger}}'`                          | in an effect: takes away a roll plus a value |
+
 A missing value shows as nothing. Variables work in results, generator templates and fixed fields, card texts, `set` and `effects` values, references, [conditions](08-conditions.md#variables-and-rolls) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: a roll is the same all through a moment), and a check action's **When nothing applies** (`{terrain}`, with single braces there).
 
 ## Conditions
