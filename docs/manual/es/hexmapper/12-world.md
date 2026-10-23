@@ -60,7 +60,7 @@ Ejemplo con las Marcas Grises: pon en marcha el reloj, coloca al grupo en Ashfor
 
 ## Eventos
 
-La pestaña **Eventos**: cosas que pasan en una fecha, esté el grupo allí o no: una fiesta, un ataque, la llegada de un barco. Escribe qué pasa, su **Id**, una **descripción** si quieres, cuándo (**dentro de cuántos días** y **a qué hora**, o **en una fecha** del calendario), y si pasa **una vez**, **cada N días** (un mercado semanal) o **cada año**. La lista muestra lo que viene, lo más próximo primero, con el id y la descripción de cada uno; ✕ cancela uno.
+La pestaña **Eventos**: cosas que pasan en una fecha, esté el grupo allí o no: una fiesta, un ataque, la llegada de un barco. Escribe qué pasa, su **Id**, una **descripción** si quieres, cuándo (**Dentro de (días)**, a una hora, o **En una fecha** del calendario), y si pasa **una vez**, **cada N días** (un mercado semanal) o **cada año**. La lista muestra lo que viene, lo más próximo primero, con el id y la descripción de cada uno; ✕ cancela uno.
 
 El **Id** es cómo nombran al evento las condiciones y las tablas en su día: palabras en minúscula unidas por guiones (`market-day`, `clan-raid`), uno por evento. Si lo dejas vacío, es su nombre escrito así (**Market day** → `market-day`; si está ocupado se le añade un número).
 

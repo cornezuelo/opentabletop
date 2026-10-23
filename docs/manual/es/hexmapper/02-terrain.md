@@ -5,7 +5,7 @@ Pinta el territorio con la herramienta **Terreno** (<kbd>B</kbd>).
 ## Pintar
 
 - **Pincel** (<kbd>B</kbd>): haz clic o arrastra para pintar el terreno elegido. El control **Tamaño del pincel** pinta varios hexes a la vez (<kbd>[</kbd> y <kbd>]</kbd> lo cambian).
-- **Rellenar** (<kbd>G</kbd>): pinta toda una zona conectada del mismo terreno.
+- **Relleno** (<kbd>G</kbd>): pinta toda una zona conectada del mismo terreno.
 - **Borrar** (<kbd>E</kbd>), o el botón derecho en cualquier modo: quita el terreno.
 - <kbd>Ctrl</kbd>+clic coge el terreno que hay bajo el cursor (cuentagotas).
 

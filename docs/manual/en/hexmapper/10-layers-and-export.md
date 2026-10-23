@@ -24,7 +24,7 @@ Hex, region and token names are set in **Map settings → Map texts**.
 
 ## Size and printing
 
-In **Map settings → Map size**, size the map by number of hexes, or by paper: choose the paper (A5 to A1, Letter, Legal, Tabloid or custom), the margins and the hex size in millimetres, and the grid is fitted to it. The panel shows the printed size and the smallest paper that fits.
+In **Map settings → Size**, size the map by number of hexes, or by paper: choose the paper (A5 to A1, Letter, Legal, Tabloid or custom), the margins and the hex size in millimetres, and the grid is fitted to it. The panel shows the printed size and the smallest paper that fits.
 
 ## Export
 

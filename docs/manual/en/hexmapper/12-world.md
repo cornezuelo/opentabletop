@@ -60,7 +60,7 @@ Example with the Grey Marches: start the clock, place the party in Ashford (0608
 
 ## Events
 
-The **Events** tab: things that happen on a date whether the party is there or not: a festival, an attack, a ship arriving. Write what happens, its **Id**, a **description** if you like, when (**in how many days** and **at what time**, or **on a date** of the calendar), and whether it happens **once**, **every N days** (a weekly market) or **every year**. The list shows what's coming, soonest first, with each one's id and description; ✕ cancels one.
+The **Events** tab: things that happen on a date whether the party is there or not: a festival, an attack, a ship arriving. Write what happens, its **Id**, a **description** if you like, when (**In days**, at a time, or **On a date** of the calendar), and whether it happens **once**, **every N days** (a weekly market) or **every year**. The list shows what's coming, soonest first, with each one's id and description; ✕ cancels one.
 
 The **Id** is how conditions and tables name the event on its day: lowercase words joined by dashes (`market-day`, `clan-raid`), one per event. Left empty, it's the name written that way (**Market day** → `market-day`; a number is added if it's taken).
 

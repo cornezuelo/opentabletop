@@ -24,7 +24,7 @@ Los nombres de hex, de región y de token se configuran en **Ajustes del mapa �
 
 ## Tamaño e impresión
 
-En **Ajustes del mapa → Tamaño del mapa**, dimensiona el mapa por número de hexes o por papel: elige el papel (de A5 a A1, Carta, Legal, Tabloide o personalizado), los márgenes y el tamaño del hex en milímetros, y la rejilla se ajusta. El panel muestra el tamaño impreso y el papel más pequeño en el que cabe.
+En **Ajustes del mapa → Tamaño**, dimensiona el mapa por número de hexes o por papel: elige el papel (de A5 a A1, Carta, Legal, Tabloide o personalizado), los márgenes y el tamaño del hex en milímetros, y la rejilla se ajusta. El panel muestra el tamaño impreso y el papel más pequeño en el que cabe.
 
 ## Exportar
 
