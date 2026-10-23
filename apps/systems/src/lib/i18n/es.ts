@@ -95,7 +95,7 @@ export const es: Messages<typeof en> = {
       title: 'Los modos de tirada de sus packs',
       intro:
         'Formas de tirar sus tablas: ventaja, desventaja o las tuyas (tres tiradas quedándose con la del medio…). Las tablas las ofrecen con `modes:` y las usan solas con `modeWhen:`.',
-      help: 'Modos de tirada (`kind: roll-modes`) de los packs que trae el sistema, primero el suyo; los de otro pack (los de Core) son de solo lectura aquí, porque los comparten todos los sistemas que lo traen: para cambiarlos, haz los tuyos en el pack del sistema. Una tabla los usa:\n• `modes: [advantage, disadvantage]` — se ofrecen al tirar a mano\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — solo cuando se cumple',
+      help: 'Modos de tirada (`kind: roll-modes`) de los packs que trae el sistema, primero el suyo; los de otro pack (los de Core) son de solo lectura aquí, porque los comparten todos los sistemas que lo traen: para cambiarlos, haz los tuyos en el pack del sistema. Una tabla los usa:\n• `modes: [roll-modes.advantage, roll-modes.disadvantage]` — se ofrecen al tirar a mano\n• `modeWhen: { roll-modes.advantage: { party.stats.explorer: { gte: 1 } } }` — solo cuando se cumple',
       none: 'Los packs de este sistema no declaran modos de tirada.',
       create: 'Nuevos modos de tirada',
     },
@@ -730,7 +730,7 @@ export const es: Messages<typeof en> = {
     statFromNone: 'la guarda el grupo',
     roles: 'Roles de viaje',
     rolesHelp:
-      'Tareas que asumen los personajes del grupo durante el viaje (guiar, montar guardia, buscar comida…), al estilo de Forbidden Lands: en un viaje, cada rol se le da a un personaje, y las comprobaciones, tablas y acciones del sistema leen a quien lo tiene y le cambian cosas:\n• `roles.guide.values.pathfinding: { gte: 2 }` — el guía es lo bastante bueno\n• `modeWhen: { advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — una tabla tirada con ventaja\n• `roles.lookout.values.health: -1` — un efecto sobre el vigía\nNecesita una hoja.',
+      'Tareas que asumen los personajes del grupo durante el viaje (guiar, montar guardia, buscar comida…), al estilo de Forbidden Lands: en un viaje, cada rol se le da a un personaje, y las comprobaciones, tablas y acciones del sistema leen a quien lo tiene y le cambian cosas:\n• `roles.guide.values.pathfinding: { gte: 2 }` — el guía es lo bastante bueno\n• `modeWhen: { roll-modes.advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — una tabla tirada con ventaja\n• `roles.lookout.values.health: -1` — un efecto sobre el vigía\nNecesita una hoja.',
     roleName: 'Nombre',
     carried: 'Provisiones que llevan los miembros',
     carriedHelp:

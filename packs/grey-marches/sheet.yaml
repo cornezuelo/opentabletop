@@ -1,5 +1,5 @@
 # The Company's characters: what each companion has. The system names this sheet
-# (system.yaml: `sheet: companion`), so a trip's party can be made of companions; the
+# (system.yaml: `sheet: sheet.companion`), so a trip's party can be made of companions; the
 # bindings (travel.yaml) say which party stats come from them and that they carry the food.
 kind: sheet
 id: companion

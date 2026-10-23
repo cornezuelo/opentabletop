@@ -4,23 +4,23 @@ A pack is a folder of YAML (or JSON) files. Each file holds one or more **defini
 
 The kinds are a **fixed set**: each one is read by an engine that knows it, and a pack can't add kinds of its own (one the apps don't know is kept but nothing reads it). What a pack chooses freely is the content: its own tables, calendar, weather, roll modes, travel rules and stats, with the names and rules of its game.
 
-| Kind           | What it is                                                              | Read by                                                                    | How many per pack |
-| -------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------- |
-| `table`        | A list of results picked by dice or weight                              | The Oracle; trips and discovery, when a binding names it                   | Any               |
-| `oracle`       | A table whose answers depend on a question (an input)                   | The Oracle; trips and discovery, when a binding names it                   | Any               |
-| `generator`    | Several rolls joined in one text                                        | The Oracle; trips and discovery, when a binding names it                   | Any               |
-| `deck`         | Cards drawn without putting them back                                   | The Oracle; trips and discovery, when a binding names it (it draws a card) | Any               |
-| `roll-modes`   | Ways of rolling a table several times and keeping one total             | The Oracle (every roll)                                                    | One               |
-| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks           | Hexmapper Play, the Travel app                                             | One per system    |
-| `bindings`     | Which table answers each check of a trip, the party's stats             | Hexmapper Play, the Travel app                                             | One per system    |
-| `calendar`     | Months, seasons, weekdays, moons and holidays                           | Trips, the Hexmapper's World panel                                         | One per system    |
-| `weather`      | Weather with memory: today's follows from yesterday's, per season       | Trips (a binding with `weather:`)                                          | Any               |
-| `sheet`        | What each of the party's characters has: values, conditions             | Trips (the party's characters), the Systems app                            | One per system    |
-| `factions`     | The powers of its world: their land and their world turns               | The Hexmapper's World view, the Systems app                                | One per system    |
-| `clocks`       | The progress clocks its world starts with, and what each does when full | The Hexmapper's World view, the Systems app                                | One per system    |
-| `system`       | A game system: which of the above it uses, and which packs              | Hexmapper Play and World, the Travel app                                   | Any               |
+| Kind           | What it is                                                              | Read by                                                                              | How many per pack |
+| -------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------- |
+| `table`        | A list of results picked by dice or weight                              | The Oracle; anything that rolls, when it names it (below)                            | Any               |
+| `oracle`       | A table whose answers depend on a question (an input)                   | The Oracle; anything that rolls, when it names it (below)                            | Any               |
+| `generator`    | Several rolls joined in one text                                        | The Oracle; anything that rolls, when it names it (below)                            | Any               |
+| `deck`         | Cards drawn without putting them back                                   | The Oracle; anything that rolls, when it names it (it draws a card)                  | Any               |
+| `roll-modes`   | Ways of rolling a table several times and keeping one total             | The Oracle (every roll)                                                              | One               |
+| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks           | Hexmapper Play, the Travel app                                                       | One per system    |
+| `bindings`     | Which table answers each check of a trip, the party's stats             | Hexmapper Play, the Travel app                                                       | One per system    |
+| `calendar`     | Months, seasons, weekdays, moons and holidays                           | Trips, the world clock (the Hexmapper's World panel, the Campaign app)               | One per system    |
+| `weather`      | Weather with memory: today's follows from yesterday's, per season       | Trips (a binding with `weather:`)                                                    | Any               |
+| `sheet`        | What each of the party's characters has: values, conditions             | Trips (the party's characters), the Systems app                                      | One per system    |
+| `factions`     | The powers of its world: their land and their world turns               | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
+| `clocks`       | The progress clocks its world starts with, and what each does when full | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
+| `system`       | A game system: which of the above it uses, and which packs              | Every app that plays with a system: Hexmapper, Travel, Campaign, Characters, Systems | Any               |
 
-**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
+**Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
 Translations of names and texts go in `locales/<language>/` files with the same name, for every kind; the ones that aren't tables are keyed by kind and id (`calendar/marcher-reckoning:`): see [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes). The examples below are in the base language only.
 
@@ -122,11 +122,11 @@ modes:
 
 A table or oracle uses them with:
 
-- `modes: [advantage, disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
-- `modeWhen: { advantage: { explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.
-- `modeUnless: { disadvantage: { hex.tags: lit } }`: not used by itself when the condition holds. With `modeWhen` for the same mode, it applies when the first holds and this one doesn't (`modeWhen: { disadvantage: { timeOfDay: night } }` + this: at night, except where it's lit); alone, the mode is used always but then (a cursed table rolled with disadvantage `unless: { blessed: true }`).
+- `modes: [roll-modes.advantage, roll-modes.disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
+- `modeWhen: { roll-modes.advantage: { party.stats.explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.
+- `modeUnless: { roll-modes.disadvantage: { hex.tags: lit } }`: not used by itself when the condition holds. With `modeWhen` for the same mode, it applies when the first holds and this one doesn't (`modeWhen: { roll-modes.disadvantage: { timeOfDay: night } }` + this: at night, except where it's lit); alone, the mode is used always but then (a cursed table rolled with disadvantage `unless: { blessed: true }`).
 
-When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order, then `modeUnless`'). Modes are referenced like tables: the pack's own first, then its dependencies' (the Grey Marches use Core's `advantage`), or by full id (`core/advantage`). Core declares advantage and disadvantage and the Grey Marches add _Carefully_ (three rolls, the middle one). The old `advantage: true` does nothing now and warns.
+When several apply (one chosen by hand plus some on their own), the ones that cancel each other drop out and the first of the rest is used (the one chosen by hand, then `modeWhen`'s order, then `modeUnless`'). Modes are referenced like tables, by their kind and id (`roll-modes.advantage`): the pack's own first, then its dependencies' (the Grey Marches use Core's `roll-modes.advantage`), or with the pack in front (`core/roll-modes.advantage`). Core declares advantage and disadvantage and the Grey Marches add _Carefully_ (three rolls, the middle one). The old `advantage: true` does nothing now and warns.
 
 **What tables see:** nothing: modes aren't values; a table uses them through `modes`, `modeWhen` and `modeUnless`.
 
@@ -232,7 +232,7 @@ A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the cal
 
 Packs written for an older pack format aren't read (see [File formats](02-file-formats.md#packs)).
 
-**What tables see:** the trip's facts (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
+**What tables see:** the trip's facts (`hex.terrain`, `trip.edges`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
 
 ## Bindings
 
@@ -285,7 +285,7 @@ A check with no binding is written in the journal (with its `effects`, if it has
 
 ## Calendars
 
-The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `month`, `year`, `weekday`, `moons.<moon>` (new, waxing, full, waning) and `holidays`. The Hexmapper's [World](../hexmapper/12-world.md) panel uses the calendar of the map's system. Without one, a plain calendar of days and four seasons is used (the Generic rules name Core's, `core/default`, which adds its parts of the day). In the Systems app, a system's **Calendar** tab edits it with a form (renaming a month carries its holidays and translations along).
+The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `time.month`, `time.year`, `time.weekday`, `time.moons.<moon>` (new, waxing, full, waning) and `time.holidays`. The world clock (the Hexmapper's [World](../hexmapper/12-world.md) panel, the Campaign app) uses the calendar of the campaign's system. Without one, a plain calendar of days and four seasons is used (the Generic rules name Core's, `core/calendar.default`, which adds its parts of the day). In the Systems app, a system's **Calendar** tab edits it with a form (renaming a month carries its holidays and translations along).
 
 ```yaml
 kind: calendar
@@ -300,7 +300,7 @@ moons: [{ id: pale, name: The Pale Moon, cycle: 28 }]
 holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 ```
 
-**What tables see:** `{{time.month}}` (the month's id), `{{time.year}}`, `{{time.weekday}}`, each moon's phase as `moons.<moon>` (`when: { time.moons.pale: full }`) and today's holidays as a list (`when: { time.holidays: midsummer }`), plus `season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
+**What tables see:** `{{time.month}}` (the month's id), `{{time.year}}`, `{{time.weekday}}`, each moon's phase as `time.moons.<moon>` (`when: { time.moons.pale: full }`) and today's holidays as a list (`when: { time.holidays: midsummer }`), plus `time.season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
 
 **Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). Numbered parts read as numbers (`time.watch: 2`), whether written with `every` or as `parts` all named by whole numbers (`id: '2'`): the Systems app's **Split into equal parts…** writes them that way. A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). The Hexmapper's [World](../hexmapper/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
@@ -326,7 +326,7 @@ divisions:
 
 ## Weather models
 
-Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `weather` for later checks and the travel rules' speeds. In the Systems app, a system's **Weather** tab edits its models with a form: the kinds of weather, and per season a grid of weights from yesterday's weather to today's, with how often each kind comes up over many days.
+Weather with memory (a Markov chain): per season, for each kind of weather, how likely each kind is tomorrow, so rain sets in for days and storms blow over. Each kind of weather has a name and the values it gives the day (`set: { fordModifier: -1 }`), like a table's result. A trip uses one when a binding says `weather: <model>` instead of `resolve:`; today's weather becomes `trip.weather` for later checks and the travel rules' speeds. In the Systems app, a system's **Weather** tab edits its models with a form: the kinds of weather, and per season a grid of weights from yesterday's weather to today's, with how often each kind comes up over many days.
 
 ```yaml
 kind: weather
@@ -366,9 +366,9 @@ seasons:
       edge: wrap
 ```
 
-The Hexmapper's world clock also rolls its own weather each day on the map system's model while no trip is going on ([The world clock](../hexmapper/12-world.md#moving-time-on)).
+A campaign's world clock also rolls its own weather each day on its system's model while no trip is going on ([The world clock](../hexmapper/12-world.md#moving-time-on)).
 
-**What tables see:** `{{trip.weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{fordModifier}}`, `when: { fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{trip.weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
+**What tables see:** `{{trip.weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{today.fordModifier}}`, `when: { today.fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{trip.weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).
 
@@ -457,7 +457,7 @@ factions:
 
 ## Progress clocks
 
-The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what happens when it fills. In the Hexmapper they come with the world clock when it starts ([Progress clocks](../hexmapper/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
+The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what happens when it fills. They come with the world clock when it starts (the Hexmapper's World panel, the Campaign app) ([Progress clocks](../hexmapper/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
 
 ```yaml
 kind: clocks
@@ -486,7 +486,7 @@ clocks:
 
 ## Systems
 
-A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar and weather models, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, sheets, factions and progress clocks, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
 
 ```yaml
 kind: system

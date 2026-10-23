@@ -16,8 +16,8 @@ description: |-
   - A travel check: bound to `NAVIGATION_CHECK_REQUIRED`
   - A party stat in the roll: `{{party.stats.navigation}}`
   - `set: { lost: true }`: no more travel today
-  - Roll modes that apply by themselves (`modeWhen`): `advantage` with `weather: clear` or a guide with Pathfinding 2 (`roles.guide.values.pathfinding`, a journey role), `disadvantage` with `yesterday.lost: true`
-  - A roll mode's `modeUnless`: no advantage in forests, `terrain: [forest, dense-forest]`
+  - Roll modes that apply by themselves (`modeWhen`): `roll-modes.advantage` with `trip.weather: clear` or a guide with Pathfinding 2 (`roles.guide.values.pathfinding`, a journey role), `roll-modes.disadvantage` with `yesterday.lost: true`
+  - A roll mode's `modeUnless`: no advantage in forests, `hex.terrain: [forest, dense-forest]`
   - Conditions on the weather, on the dark (`time.tags: dark`), and on being outside any region (`exists: false`)
 roll: '1d6 + {{party.stats.navigation}}'
 modeWhen:
@@ -73,7 +73,7 @@ description: |-
   - A check at one of the system's own actions (`at: actions.forage`)
   - A stat and advantage in the roll: `1d6 + {{party.stats.survival}}`
   - Dice inside a value (`days: '{{1d3+1}}'`), read back by the text and the effect (`{{days}}`)
-  - A **part of the calendar's day**: advantage by itself in the morning (`modeWhen: { advantage: { time.part: morning } }`, 06:00 to 11:00)
+  - A **part of the calendar's day**: advantage by itself in the morning (`modeWhen: { roll-modes.advantage: { time.part: morning } }`, 06:00 to 11:00)
   - **Effects**: `party.resources.food: 1`, the food gained
 roll: '1d6 + {{party.stats.survival}}'
 modes: [roll-modes.advantage, roll-modes.disadvantage]

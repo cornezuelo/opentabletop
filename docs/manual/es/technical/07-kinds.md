@@ -4,23 +4,23 @@ Un pack es una carpeta de ficheros YAML (o JSON). Cada fichero tiene una o varia
 
 Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un pack no puede añadir tipos propios (uno que las aplicaciones no conocen se guarda, pero nadie lo lee). Lo que el pack elige libremente es el contenido: sus tablas, su calendario, su clima, sus modos de tirada, sus reglas de viaje y sus características, con los nombres y las reglas de su juego.
 
-| Tipo           | Qué es                                                                                | Quién lo lee                                                                        | Cuántos por pack |
-| -------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------- |
-| `table`        | Una lista de resultados que se eligen por dados o por peso                            | El Oracle; los viajes y el descubrimiento, si un binding la nombra                  | Los que quieras  |
-| `oracle`       | Una tabla cuyas respuestas dependen de una pregunta (una entrada)                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
-| `generator`    | Varias tiradas unidas en un texto                                                     | El Oracle; los viajes y el descubrimiento, si un binding lo nombra                  | Los que quieras  |
-| `deck`         | Cartas que se roban sin devolverlas                                                   | El Oracle; los viajes y el descubrimiento, si un binding lo nombra (roba una carta) | Los que quieras  |
-| `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total                        | El Oracle (cada tirada)                                                             | Uno              |
-| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones…                 | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
-| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características                 | Jugar del Hexmapper, la aplicación Travel                                           | Uno por sistema  |
-| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                                 | Los viajes, el panel Mundo del Hexmapper                                            | Uno por sistema  |
-| `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación                           | Los viajes (un binding con `weather:`)                                              | Los que quieras  |
-| `sheet`        | Lo que tiene cada personaje del grupo: valores, estados                               | Los viajes (los personajes del grupo), la aplicación Systems                        | Uno por sistema  |
-| `factions`     | Los poderes de su mundo: sus tierras y sus turnos del mundo                           | La vista Mundo del Hexmapper, la aplicación Systems                                 | Uno por sistema  |
-| `clocks`       | Los relojes de progreso con los que empieza su mundo, y qué hace cada uno al llenarse | La vista Mundo del Hexmapper, la aplicación Systems                                 | Uno por sistema  |
-| `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs                        | Jugar y Mundo del Hexmapper, la aplicación Travel                                   | Los que quieras  |
+| Tipo           | Qué es                                                                                | Quién lo lee                                                                                     | Cuántos por pack |
+| -------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------- |
+| `table`        | Una lista de resultados que se eligen por dados o por peso                            | El Oracle; cualquier cosa que tira, si la nombra (abajo)                                         | Los que quieras  |
+| `oracle`       | Una tabla cuyas respuestas dependen de una pregunta (una entrada)                     | El Oracle; cualquier cosa que tira, si lo nombra (abajo)                                         | Los que quieras  |
+| `generator`    | Varias tiradas unidas en un texto                                                     | El Oracle; cualquier cosa que tira, si lo nombra (abajo)                                         | Los que quieras  |
+| `deck`         | Cartas que se roban sin devolverlas                                                   | El Oracle; cualquier cosa que tira, si lo nombra (roba una carta)                                | Los que quieras  |
+| `roll-modes`   | Formas de tirar una tabla varias veces y quedarse con un total                        | El Oracle (cada tirada)                                                                          | Uno              |
+| `travel-rules` | Cómo funciona un viaje: velocidades, terrenos, provisiones, acciones…                 | Jugar del Hexmapper, la aplicación Travel                                                        | Uno por sistema  |
+| `bindings`     | Qué tabla responde a cada comprobación del viaje, las características                 | Jugar del Hexmapper, la aplicación Travel                                                        | Uno por sistema  |
+| `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                                 | Los viajes, el reloj del mundo (el panel Mundo del Hexmapper, la aplicación Campaign)            | Uno por sistema  |
+| `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación                           | Los viajes (un binding con `weather:`)                                                           | Los que quieras  |
+| `sheet`        | Lo que tiene cada personaje del grupo: valores, estados                               | Los viajes (los personajes del grupo), la aplicación Systems                                     | Uno por sistema  |
+| `factions`     | Los poderes de su mundo: sus tierras y sus turnos del mundo                           | El reloj del mundo (el panel Mundo del Hexmapper, la aplicación Campaign), la aplicación Systems | Uno por sistema  |
+| `clocks`       | Los relojes de progreso con los que empieza su mundo, y qué hace cada uno al llenarse | El reloj del mundo (el panel Mundo del Hexmapper, la aplicación Campaign), la aplicación Systems | Uno por sistema  |
+| `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs                        | Cada aplicación que juega con un sistema: Hexmapper, Travel, Campaign, Characters, Systems       | Los que quieras  |
 
-**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: deck.omens` roba una carta). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
+**Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oracle a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: deck.omens` roba una carta), el paso `roll:` de una acción (`roll: table.ruins`), una entrada o carta que tira otra (`table:`), el campo de un generador, un reloj de progreso al llenarse (`resolve:`) y el turno del mundo de una facción (`turn:`). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
 
 Las traducciones de nombres y textos van en ficheros `locales/<idioma>/` con el mismo nombre, para todos los tipos; los que no son tablas, por tipo e id (`calendar/marcher-reckoning:`): mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada). Los ejemplos de abajo van solo en el idioma base.
 
@@ -121,11 +121,11 @@ modes:
 
 Una tabla u oráculo los usa con:
 
-- `modes: [advantage, disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).
-- `modeWhen: { advantage: { explorer: { gte: 1 } } }`: se usa solo cuando se cumple la condición, también en un viaje. Un modo puede estar en `modeWhen` sin estar en `modes`.
-- `modeUnless: { disadvantage: { hex.tags: lit } }`: no se usa solo cuando se cumple la condición. Con `modeWhen` para el mismo modo, se aplica cuando se cumple la primera y no esta (`modeWhen: { disadvantage: { timeOfDay: night } }` + esta: de noche, salvo donde hay luz); sola, el modo se usa siempre menos entonces (una tabla maldita que se tira con desventaja salvo `{ blessed: true }`).
+- `modes: [roll-modes.advantage, roll-modes.disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).
+- `modeWhen: { roll-modes.advantage: { party.stats.explorer: { gte: 1 } } }`: se usa por sí solo cuando se cumple la condición, también en un viaje. Un modo puede estar en `modeWhen` sin estar en `modes`.
+- `modeUnless: { roll-modes.disadvantage: { hex.tags: lit } }`: no se usa por sí solo cuando se cumple la condición. Con `modeWhen` para el mismo modo, se aplica cuando se cumple la primera y no esta (`modeWhen: { roll-modes.disadvantage: { timeOfDay: night } }` + esta: de noche, salvo donde hay luz); sola, el modo se usa siempre menos entonces (una tabla maldita que se tira con desventaja salvo `{ blessed: true }`).
 
-Cuando se aplican varios (uno elegido a mano más otros solos), los que se anulan entre sí se caen y se usa el primero de los demás (el elegido a mano, luego el orden de `modeWhen`, luego el de `modeUnless`). Los modos se referencian como las tablas: primero los del propio pack, luego los de sus dependencias (las Marcas Grises usan el `advantage` de Core), o por su id completo (`core/advantage`). Core declara ventaja y desventaja y las Marcas Grises añaden _Con cuidado_ (tres tiradas, la del medio). El antiguo `advantage: true` ya no hace nada y avisa.
+Cuando se aplican varios (uno elegido a mano más otros por sí solos), los que se anulan entre sí se caen y se usa el primero de los demás (el elegido a mano, luego el orden de `modeWhen`, luego el de `modeUnless`). Los modos se referencian como las tablas, por su tipo e id (`roll-modes.advantage`): primero los del propio pack, luego los de sus dependencias (las Marcas Grises usan el `roll-modes.advantage` de Core), o con el pack delante (`core/roll-modes.advantage`). Core declara ventaja y desventaja y las Marcas Grises añaden _Con cuidado_ (tres tiradas, la del medio). El antiguo `advantage: true` ya no hace nada y avisa.
 
 **Qué ven las tablas:** nada: los modos no son valores; una tabla los usa con `modes`, `modeWhen` y `modeUnless`.
 
@@ -167,7 +167,7 @@ weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones
   lost: { name: Perdidos, blocks: [travel.move] }
   snowbound: { blocks: [modes.horse] }
-  torchlit: { name: By torchlight }
+  torchlit: { name: Con antorchas }
 actions:
   camp:
     when: { party.resources.food: { gte: 1 } } # si no, la parada pasa sin ello
@@ -179,7 +179,7 @@ actions:
     do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
   march: # se mueve mientras se cumpla (de día 8 h, o con antorchas), hasta donde se elija
     params:
-      until: { name: How far, choices: [destination, hex, { id: 3, name: Three hexes }] }
+      until: { name: Hasta dónde, choices: [destination, hex, { id: 3, name: Tres hexes }] }
     when:
       {
         any:
@@ -226,7 +226,7 @@ Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del dí
 
 Los packs escritos para un formato de pack anterior no se leen (mira [Formatos de fichero](02-file-formats.md#packs)).
 
-**Qué ven las tablas:** los datos del viaje (`terrain`, `edges`, `mode`, `day`, `season`, `weather`, `yesterday.<value>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
+**Qué ven las tablas:** los datos del viaje (`hex.terrain`, `trip.edges`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<valor>`…) y el grupo (`party.resources.food`, `party.stats.fatigue`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 
 ## Bindings
 
@@ -279,7 +279,7 @@ Una comprobación sin binding se apunta en el diario (con sus `effects`, si tien
 
 ## Calendarios
 
-Los meses del año (con sus días y estaciones), los días de la semana, las lunas (ciclo y fase) y las fiestas, y el año del día 1. Los viajes con ese sistema ponen fecha a su diario con él, y las tablas ven `month`, `year`, `weekday`, `moons.<luna>` (new, waxing, full, waning) y `holidays`. El panel [Mundo](../hexmapper/12-world.md) del Hexmapper usa el calendario del sistema del mapa. Sin uno, se usa un calendario sencillo de días y cuatro estaciones (las reglas genéricas nombran el de Core, `core/default`, que añade sus partes del día). En la aplicación Systems, la pestaña **Calendario** de un sistema lo edita con un formulario (renombrar un mes arrastra sus fiestas y traducciones).
+Los meses del año (con sus días y estaciones), los días de la semana, las lunas (ciclo y fase) y las fiestas, y el año del día 1. Los viajes con ese sistema ponen fecha a su diario con él, y las tablas ven `time.month`, `time.year`, `time.weekday`, `time.moons.<luna>` (new, waxing, full, waning) y `time.holidays`. El reloj del mundo (el panel [Mundo](../hexmapper/12-world.md) del Hexmapper, la aplicación Campaign) usa el calendario del sistema de la campaña. Sin uno, se usa un calendario sencillo de días y cuatro estaciones (las reglas genéricas nombran el de Core, `core/calendar.default`, que añade sus partes del día). En la aplicación Systems, la pestaña **Calendario** de un sistema lo edita con un formulario (renombrar un mes arrastra sus fiestas y traducciones).
 
 ```yaml
 kind: calendar
@@ -294,7 +294,7 @@ moons: [{ id: pale, name: La Luna Pálida, cycle: 28 }]
 holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 ```
 
-**Qué ven las tablas:** `{{time.month}}` (el id del mes), `{{time.year}}`, `{{time.weekday}}`, la fase de cada luna como `moons.<luna>` (`when: { time.moons.pale: full }`) y las fiestas de hoy como una lista (`when: { time.holidays: midsummer }`), además de `season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
+**Qué ven las tablas:** `{{time.month}}` (el id del mes), `{{time.year}}`, `{{time.weekday}}`, la fase de cada luna como `time.moons.<luna>` (`when: { time.moons.pale: full }`) y las fiestas de hoy como una lista (`when: { time.holidays: midsummer }`), además de `time.season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
 
 **Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Las partes numeradas se leen como números (`time.watch: 2`), se escriban con `every` o como `parts` que se llaman todas con números enteros (`id: '2'`): el **Dividir en partes iguales…** de la aplicación Systems las escribe así. Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../hexmapper/12-world.md) del Hexmapper avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
@@ -320,7 +320,7 @@ divisions:
 
 ## Modelos de clima
 
-Clima con memoria (una cadena de Markov): por estación, para cada tipo de clima, lo probable que es cada tipo mañana, así que la lluvia se instala varios días y las tormentas pasan. Cada tipo de clima tiene un nombre y los valores que da al día (`set: { fordModifier: -1 }`), como el resultado de una tabla. Un viaje usa uno cuando un binding dice `weather: <modelo>` en vez de `resolve:`; el clima de hoy pasa a ser `weather` para las comprobaciones siguientes y las velocidades de las reglas de viaje. En la aplicación Systems, la pestaña **Clima** de un sistema edita sus modelos con un formulario: los tipos de clima, y por estación una cuadrícula de pesos del clima de ayer al de hoy, con la frecuencia de cada uno a lo largo de muchos días.
+Clima con memoria (una cadena de Markov): por estación, para cada tipo de clima, lo probable que es cada tipo mañana, así que la lluvia se instala varios días y las tormentas pasan. Cada tipo de clima tiene un nombre y los valores que da al día (`set: { fordModifier: -1 }`), como el resultado de una tabla. Un viaje usa uno cuando un binding dice `weather: <modelo>` en vez de `resolve:`; el clima de hoy pasa a ser `trip.weather` para las comprobaciones siguientes y las velocidades de las reglas de viaje. En la aplicación Systems, la pestaña **Clima** de un sistema edita sus modelos con un formulario: los tipos de clima, y por estación una cuadrícula de pesos del clima de ayer al de hoy, con la frecuencia de cada uno a lo largo de muchos días.
 
 ```yaml
 kind: weather
@@ -360,9 +360,9 @@ seasons:
       edge: wrap
 ```
 
-El reloj del mundo del Hexmapper también tira su propio clima cada día con el modelo del sistema del mapa mientras no haya un viaje en marcha ([El reloj del mundo](../hexmapper/12-world.md#avanzar-el-tiempo)).
+El reloj del mundo de una campaña también tira su propio clima cada día con el modelo de su sistema mientras no haya un viaje en marcha ([El reloj del mundo](../hexmapper/12-world.md#avanzar-el-tiempo)).
 
-**Qué ven las tablas:** `{{trip.weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{fordModifier}}`, `when: { fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{trip.weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
+**Qué ven las tablas:** `{{trip.weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{today.fordModifier}}`, `when: { today.fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{trip.weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).
 
@@ -451,7 +451,7 @@ factions:
 
 ## Relojes de progreso
 
-Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con lo que pasa cuando se llena. En el Hexmapper llegan con el reloj del mundo al ponerlo en marcha ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
+Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con lo que pasa cuando se llena. Llegan con el reloj del mundo al ponerlo en marcha (el panel Mundo del Hexmapper, la aplicación Campaign) ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
 
 ```yaml
 kind: clocks
@@ -480,7 +480,7 @@ clocks:
 
 ## Sistemas
 
-Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario y modelos de clima, y los packs cuyas tablas, oráculos y mazos trae consigo. Una campaña se juega con un sistema, compartido por sus mapas y viajes: lo elige la campaña de un mapa del Hexmapper en **Ajustes del mapa → Campaña → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), y un viaje de la aplicación Travel en la página del sistema (un viaje mantiene el sistema con el que empezó); ambos los muestran por su nombre.
+Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario, modelos de clima, hojas, facciones y relojes de progreso, y los packs cuyas tablas, oráculos y mazos trae consigo. Una campaña se juega con un sistema, compartido por sus mapas y viajes: lo elige la campaña de un mapa del Hexmapper en **Ajustes del mapa → Campaña → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), y un viaje de la aplicación Travel en la página del sistema (un viaje mantiene el sistema con el que empezó); ambos los muestran por su nombre.
 
 ```yaml
 kind: system

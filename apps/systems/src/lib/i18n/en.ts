@@ -92,7 +92,7 @@ export const en = {
       title: 'Roll modes of its packs',
       intro:
         'Ways of rolling its tables: advantage, disadvantage, or your own (three rolls keeping the middle one…). Tables offer them with `modes:` and use them by themselves with `modeWhen:`.',
-      help: "Roll modes (`kind: roll-modes`) of the packs the system brings, its own first; another pack's (Core's) are read-only here, shared by every system that brings it: make your own in the system's pack to change them. A table uses them:\n• `modes: [advantage, disadvantage]` — offered when rolling by hand\n• `modeWhen: { advantage: { explorer: { gte: 1 } } }` — by itself when it holds",
+      help: "Roll modes (`kind: roll-modes`) of the packs the system brings, its own first; another pack's (Core's) are read-only here, shared by every system that brings it: make your own in the system's pack to change them. A table uses them:\n• `modes: [roll-modes.advantage, roll-modes.disadvantage]` — offered when rolling by hand\n• `modeWhen: { roll-modes.advantage: { party.stats.explorer: { gte: 1 } } }` — by itself when it holds",
       none: 'The packs of this system declare no roll modes.',
       create: 'New roll modes',
     },
@@ -727,7 +727,7 @@ export const en = {
     statFromNone: 'kept by the party',
     roles: 'Journey roles',
     rolesHelp:
-      "Jobs the party's characters take for the journey (lead the way, keep watch, forage…), Forbidden Lands-style: in a trip, each role is given to one character, and the system's checks, tables and actions read the holder and change them:\n• `roles.guide.values.pathfinding: { gte: 2 }` — the guide is good enough\n• `modeWhen: { advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — a table rolled with advantage\n• `roles.lookout.values.health: -1` — an effect on the lookout\nNeeds a sheet.",
+      "Jobs the party's characters take for the journey (lead the way, keep watch, forage…), Forbidden Lands-style: in a trip, each role is given to one character, and the system's checks, tables and actions read the holder and change them:\n• `roles.guide.values.pathfinding: { gte: 2 }` — the guide is good enough\n• `modeWhen: { roll-modes.advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — a table rolled with advantage\n• `roles.lookout.values.health: -1` — an effect on the lookout\nNeeds a sheet.",
     roleName: 'Name',
     carried: 'Supplies the members carry',
     carriedHelp:

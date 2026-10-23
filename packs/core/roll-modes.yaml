@@ -1,6 +1,6 @@
 # Ways of rolling a table's whole roll several times and keeping one total. Tables list the
 # ones they offer (`modes`) and when they apply by themselves (`modeWhen`). Other packs use
-# them through their dependency on Core (`modes: [advantage, disadvantage]`).
+# them through their dependency on Core (`modes: [roll-modes.advantage, roll-modes.disadvantage]`).
 kind: roll-modes
 id: default
 modes:
