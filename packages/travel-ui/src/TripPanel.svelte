@@ -638,6 +638,21 @@
       >
     {/if}
   </div>
+  <label class="check skip"
+    ><input
+      type="checkbox"
+      checked={!!session.skipPauses}
+      onchange={(e) => {
+        const on = e.currentTarget.checked
+        onedit((s) => {
+          const next = { ...s }
+          if (on) next.skipPauses = true
+          else delete next.skipPauses
+          return next
+        })
+      }}
+    /><span>{t('skipPauses')}<InfoTip text={t('skipPausesHelp')} /></span></label
+  >
 
   {#snippet rollsChoice()}
     <div class="rolls">
@@ -942,6 +957,14 @@
     display: flex;
     gap: 4px;
     align-items: center;
+  }
+
+  /* Skip pauses: a line of its own, under the buttons. */
+  .skip {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 0.9em;
   }
 
   /* What the last step did: a box of its own, under the buttons. */

@@ -56,6 +56,8 @@ Checks are rolled on their tables and written in the **journal**, grouped by day
 - a table entry or deck card with `pause: true` that comes up (the Grey Marches' Greywood Wyrm): only when that result comes up;
 - an action's step that waits for you (`pause`): the box says which action, and what the system says if anything (the Grey Marches' **Take the ferry**, once you're afloat). **Continue** goes on with the rest of the action at once, and with a march it stopped on the way.
 
+**Skip pauses**, under the trip's buttons, plays everything by itself: those three are written in the journal (_Shrine at the Raven Shrine: it would stop the trip; pauses skipped, the trip goes on_) and the trip doesn't stop. Questions (below) and **Ask at every roll** still wait for you. Untick it to stop at pauses again.
+
 An action can also **ask** you something as it goes (`ask`): the box shows its question and a button for each answer, instead of **Continue** (the Grey Marches' ferry: "How do you pay Brenna?", **A day of food, now** or **Wait for her crossing**). Choosing one is going on: what the action does next depends on it, and the journal says what you chose. The action's button doesn't offer that choice beside it, since it's asked as it goes. See [Actions and steps](../technical/10-actions-and-steps.md#talking-to-the-player-say-pause-and-ask).
 
 Until you press **Continue** (or answer) nothing moves the trip on: marching, waiting and the actions are greyed out (their tooltip says why). Changing the destination, the way of travelling, the characters or the supplies by hand still works. What a paused result does to the trip (getting lost, the weather) applies when you continue; its effects on supplies and stats apply at once.

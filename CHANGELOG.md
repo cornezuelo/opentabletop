@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Travel, Hexmapper: **Skip pauses**, a choice under the trip's buttons to play everything by itself: whatever would stop the trip (a check or a result that pauses, an action's `pause:` step) is written in the journal and the trip goes on; questions still wait.
+
 ### Formats
 
 - **Pack format 7**: an action's `roll:` step now holds the rest of the action until it's resolved (and for **Continue**, if it pauses), so the steps after it see what it rolled; before, it was resolved once the action ended. Core, the Grey Marches and Kal-Arath moved to it (they had no step after a roll).

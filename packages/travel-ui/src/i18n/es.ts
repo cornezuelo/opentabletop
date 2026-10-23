@@ -97,6 +97,9 @@ export const es: Messages<typeof en> = {
       'El tiempo pasa donde está el grupo hasta que pueda volver a hacer «{action}» (cómo sigue el viaje por sí solo, según diga el sistema), viviéndolo: si ahora pudiera, primero deja pasar esa ocasión. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede seguir, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
     actionUntil: 'Dura hasta {moment}.',
   },
+  skipPauses: 'Saltar las pausas',
+  skipPausesHelp:
+    'Que todo se juegue por sí solo: lo que detendría el viaje para ti (una comprobación que pausa, un resultado que pausa, el paso `pause:` de una acción) se apunta en el diario y el viaje sigue.\n• Las preguntas siguen esperándote (el `ask:` de una acción), porque necesitan una elección\n• Las comprobaciones que esperan a quién tira (**Preguntar en cada tirada**) siguen esperando\nDesmárcala para volver a parar en las pausas.',
   rolls: {
     label: 'Tira',
     best: 'El mejor',
@@ -186,6 +189,7 @@ export const es: Messages<typeof en> = {
     pending: '{event}: esperando',
     eventAt: '{event} en {hex}',
     paused: '{event}: en pausa, sigue cuando quieras',
+    pauseSkipped: '{event}: detendría el viaje; pausas saltadas, el viaje sigue',
     asks: '{event}: ¿quién tira? Elige y pulsa Continuar',
     held: '{action}: el viaje espera, sigue cuando quieras',
     heldSays: '{action}: {text}',

@@ -14,6 +14,7 @@ import { defaultCalendar } from '@open-tabletop/time'
 import {
   createTravelEngine,
   initialTravelState,
+  type TravelRules,
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
 import {
@@ -748,5 +749,47 @@ describe('what lasts the day', () => {
     expect(
       dayVariables({ weather: 'rain', fordModifier: -1, lostModifier: 2, odd: 1 }, declared),
     ).toEqual({ weather: 'rain', fordModifier: -1 })
+  })
+})
+
+describe('skipping pauses', () => {
+  it('a check that pauses is written in the journal and the trip goes on', () => {
+    const paused = { ...rules, checks: [{ event: 'SIGHT', at: 'trip.hex-enter', pause: true }] }
+    const session = createSession({
+      travel: createTravelEngine({ world, rules: paused, calendar: core.calendar }),
+      rules: paused,
+      now: () => 'T',
+    })
+    const planned = session.step(start(), { type: 'setDestination', hex: '2,0' }).state
+    const stops = session.step(planned, { type: 'travel' }).state
+    expect(stops.travel.pendingChecks.map((c) => c.event)).toEqual(['SIGHT'])
+    const goes = session.step({ ...planned, skipPauses: true }, { type: 'travel' }).state
+    expect(goes.travel.pendingChecks).toEqual([])
+    expect(goes.travel.location).not.toBe(planned.travel.location)
+    expect(goes.journal.some((e) => e.code === 'PAUSE_SKIPPED')).toBe(true)
+  })
+  it("an action's pause goes on at once; a question still waits", () => {
+    const steps: TravelRules = {
+      ...rules,
+      actions: {
+        ...rules.actions,
+        rest: { do: [{ pause: true }, { effects: { 'party.resources.food': 1 } }] },
+        choose: {
+          params: { how: { choices: ['a', 'b'] } },
+          do: [{ ask: 'params.how' }],
+        },
+      },
+    }
+    const session = createSession({
+      travel: createTravelEngine({ world, rules: steps, calendar: core.calendar }),
+      rules: steps,
+      now: () => 'T',
+    })
+    const skipping = { ...start(), skipPauses: true }
+    const rested = session.step(skipping, { type: 'action', id: 'rest' }).state
+    expect(rested.travel.waiting).toBeUndefined()
+    expect(rested.travel.resources.food).toBe(skipping.travel.resources.food + 1)
+    const asked = session.step(skipping, { type: 'action', id: 'choose' }).state
+    expect(asked.travel.waiting).toMatchObject({ ask: 'how' })
   })
 })

@@ -278,6 +278,11 @@ export interface SessionState {
   askRolls?: boolean
   /** The checks waiting for that choice: rolled when the player goes on. */
   asking?: string[]
+  /**
+   * The player's choice to play everything by itself (**Skip pauses**): a pause (a check's, a
+   * result's, a step's) is written in the journal and the trip goes on. Questions still ask.
+   */
+  skipPauses?: boolean
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
 }
@@ -649,6 +654,9 @@ export function createSession(options: {
       const replaying = !!replay
       /** The last step went on with an action its checks held. */
       let resumed = false
+      /** A pause the player chose to skip: the journal says it, and the trip goes on. */
+      const skipped = (time: number, data: Record<string, unknown>) =>
+        add(s, entries, { source: 'travel', code: 'PAUSE_SKIPPED', time, data })
       /**
        * Resolves a check in the travel engine: the moment's next checks are decided then,
        * seeing what it set (today's weather, values…), and come after it in the same step.
@@ -780,7 +788,8 @@ export function createSession(options: {
                 time: event.time,
                 data: about,
               })
-            if (!event.check.pause) {
+            if (!event.check.pause || s.skipPauses) {
+              if (event.check.pause) skipped(event.time, about)
               result.events.push(...resolve(event.check.id))
               continue
             }
@@ -922,7 +931,9 @@ export function createSession(options: {
             })
           // A pause (the check's, or an entry's that came up) stops the trip after the roll:
           // the check waits, rolled, until the player presses Continue.
-          if (event.check.pause || value.pause === true) {
+          const pauses = event.check.pause || value.pause === true
+          if (pauses && s.skipPauses) skipped(event.time, { ...about, ...whereOf(event.check) })
+          else if (pauses) {
             const pending = s.travel.pendingChecks.find((c) => c.id === event.check.id)
             if (pending) pending.rolled = toOutcome(value, declared)
             resolvedAll = false
@@ -969,6 +980,13 @@ export function createSession(options: {
         // An action held by its checks (the camp's night encounter) goes on with the rest of
         // its steps once they're resolved; then a wait or a trip going on until a moment
         // goes on too.
+        // Skipping pauses, a step that paused goes on at once (one that asks still waits).
+        const waits = s.travel.waiting
+        if (s.skipPauses && waits && !waits.ask && resolvedAll && !s.travel.pendingChecks.length) {
+          act = { type: 'resume' }
+          resumed = true
+          continue
+        }
         const settled = resolvedAll && !s.travel.pendingChecks.length && !s.travel.waiting && !found
         if (settled && s.travel.moving?.held) {
           act = { type: 'resume' }

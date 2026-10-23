@@ -100,6 +100,9 @@ export const en = {
       'Time passes where the party is until it can take “{action}” again (how the trip goes on by itself, as the system says), living it: if it could now, that chance goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t go on, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
     actionUntil: 'Lasts until {moment}.',
   },
+  skipPauses: 'Skip pauses',
+  skipPausesHelp:
+    "Play everything by itself: whatever would stop the trip for you (a check that pauses, a result that pauses, an action's `pause:` step) is written in the journal and the trip goes on.\n• Questions still wait for you (an action's `ask:`), since they need a choice\n• Checks that wait for who rolls (**Ask at every roll**) still wait\nUntick it to stop at pauses again.",
   rolls: {
     label: 'Rolls with',
     best: 'The best',
@@ -191,6 +194,7 @@ export const en = {
     pending: '{event}: waiting for you',
     eventAt: '{event} at {hex}',
     paused: '{event}: paused, go on when you are ready',
+    pauseSkipped: '{event}: it would stop the trip; pauses skipped, the trip goes on',
     asks: '{event}: who rolls? Choose, then Continue',
     held: '{action}: the trip waits, go on when you are ready',
     heldSays: '{action}: {text}',

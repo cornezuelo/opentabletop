@@ -40,6 +40,7 @@ const STORY = new Set([
   'SAID',
   'HELD',
   'RESUMED',
+  'PAUSE_SKIPPED',
   'DESTINATION_REACHED',
   'MEMBER_LEFT',
   'WORLD_EVENT',

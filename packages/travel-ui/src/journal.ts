@@ -354,6 +354,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return `${nameOf(String(d.table))}: ${e.text ?? '—'}`
     case 'CHECK_NOTED':
       return eventName(t, d.event, checkName, d.named)
+    // A check that would have stopped the trip, with the player's pauses skipped.
+    case 'PAUSE_SKIPPED': {
+      const name = eventName(t, d.event, checkName, d.named)
+      const event = d.hex
+        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.hex)) })
+        : name
+      return t('journal.pauseSkipped', { event })
+    }
     // A check that waits for the player, and the hex it came up in.
     case 'CHECK_PENDING':
     case 'CHECK_PAUSED':
