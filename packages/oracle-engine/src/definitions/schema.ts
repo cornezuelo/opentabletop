@@ -190,8 +190,12 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    `{{self.values.<id>}}`, and references to a pack's definitions by their kind, the
  *    pack first (`table.ruins`, `core/table.twists`, `roll-modes.advantage`,
  *    `sheet.companion`); in 4 they were bare ids.
+ * 6. The checks of a moment are decided one by one, in the rules' order, each seeing what
+ *    the ones before it set (in 5, all at once as the moment came).
+ * 7. A step's `roll:` holds the rest of its action until it's resolved, so the steps after
+ *    it see its result (in 6, it was resolved once the action ended).
  */
-export const PACK_FORMAT = 6
+export const PACK_FORMAT = 7
 
 export const manifestSchema = z
   .object({

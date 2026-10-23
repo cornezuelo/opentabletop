@@ -426,7 +426,7 @@ divisions:
 
   it('checks and actions see the host’s facts (the world clock’s clocks and events)', () => {
     const { registry: clocked } = loadPacks([
-      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 6\n' },
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
       {
         path: 'w/travel.yaml',
         content: `
@@ -492,7 +492,7 @@ values: { lost: { blocks: [travel.move] } }
 
 describe('values that name another value ($)', () => {
   const { registry: mouths } = loadPacks([
-    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 6\n' },
+    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
     {
       path: 'm/travel.yaml',
       content: `

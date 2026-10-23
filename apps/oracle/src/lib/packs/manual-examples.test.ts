@@ -65,7 +65,7 @@ const kindOf = (yaml: string) => /^kind: ([\w-]+)/m.exec(yaml)![1]
 /** Problems of an example, without the references it leaves to others. */
 function problems(files: string[]): string[] {
   const { registry, diagnostics } = loadPacks([
-    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
@@ -127,7 +127,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([
-    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     { path: 'dark/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'dark')!
@@ -209,7 +209,7 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
     y.includes('river-crossing'),
   )!
   const { registry } = loadPacks([
-    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     { path: 'river/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'river')!
@@ -272,7 +272,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
     {
       path: 'fever/pack.yaml',
-      content: "id: fever\nversion: 0.1.0\nformat: 6\nlocale: en\ndependencies: { core: '*' }\n",
+      content: "id: fever\nversion: 0.1.0\nformat: 7\nlocale: en\ndependencies: { core: '*' }\n",
     },
     { path: 'fever/travel.yaml', content: stringify(rules) },
     { path: 'fever/clocks.yaml', content: clocks },
@@ -455,7 +455,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   expect(rules.checks.map((c: { event: string }) => c.event)).toEqual(['WEATHER_CHECK_REQUIRED'])
   rules.checks = [...rules.checks, { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } }]
   const { registry, diagnostics } = loadPacks([
-    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     { path: 'valley/travel.yaml', content: stringify(rules) },
     { path: 'valley/calendar.yaml', content: core('calendar.yaml') },
     { path: 'valley/weather.yaml', content: model },
@@ -568,7 +568,7 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
   for (const part of ['modes', 'terrains', 'resources', 'values', 'actions'])
     rules[part] = { ...rules[part], ...added[part] }
   const { registry, diagnostics } = loadPacks([
-    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     { path: 'salt/travel.yaml', content: stringify(rules) },
     { path: 'salt/calendar.yaml', content: coreFile('calendar.yaml') },
     {
@@ -693,7 +693,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   const table = blocks.find((y) => y.includes('kind: table'))!
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
-    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     {
       path: 'wolf/travel.yaml',
       content: `${stringify(rules)}---\n${stringify({ kind: 'bindings', id: 'default', ...bound })}`,
@@ -832,7 +832,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   )
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
-    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 6\nlocale: en\n' },
+    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
     {
       path: 'co/travel.yaml',
       // A new system's bindings start with `on: {}`.
@@ -983,7 +983,7 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
     { path: 'core/factions.yaml', content: coreFile('factions.yaml') },
     {
       path: 'border/pack.yaml',
-      content: "id: border\nversion: 0.1.0\nformat: 6\nlocale: en\ndependencies: { core: '*' }\n",
+      content: "id: border\nversion: 0.1.0\nformat: 7\nlocale: en\ndependencies: { core: '*' }\n",
     },
     { path: 'border/travel.yaml', content: stringify(rules) },
     { path: 'border/factions.yaml', content: factions },

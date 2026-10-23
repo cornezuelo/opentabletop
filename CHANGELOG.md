@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Formats
+
+- **Pack format 7**: an action's `roll:` step now holds the rest of the action until it's resolved (and for **Continue**, if it pauses), so the steps after it see what it rolled; before, it was resolved once the action ended. Core, the Grey Marches and Kal-Arath moved to it (they had no step after a roll). An action the system takes by itself (`on:`) still resolves its rolls once it ends.
+
 ### Fixes
 
 - Manual: the technical pages reviewed for consistency: every example by its full name (`hex.danger`, `trip.moment`, roll modes as `roll-modes.advantage`, which the short form no longer reads), the lists of kinds, dictionaries, installable apps and moments complete, world values said to come from the campaign (Travel's trips too), and `travel.speed` said to multiply the weather's speed, not add to it.

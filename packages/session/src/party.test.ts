@@ -8,7 +8,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system whose party is its members: stats from them, food they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 6\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
   {
     path: 'band/system.yaml',
     content: `
