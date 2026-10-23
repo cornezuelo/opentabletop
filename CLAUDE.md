@@ -73,6 +73,7 @@ docs/
   campaigns.md              # campaigns (the world shared by maps and trips) and the Campaign app
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
   terrain-generation.md     # Terrain with memory (land models, Markov) design, to review
+  character-pictures.md     # Pictures for characters design, to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
