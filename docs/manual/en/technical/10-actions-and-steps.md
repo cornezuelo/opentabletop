@@ -31,7 +31,7 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 ## Moving
 
 - `travel.move: destination` moves the party along its route, minute by minute, while the action's own `when` / `unless` still hold: a march by day stops as night falls. It goes as far as it says: `destination`, `hex` (the next one), a number of hexes (`3`), or a variable (`'{{params.until}}'`: what its parameter says). A check that needs the player stops it on the way; **Go on** goes on with it, then with the steps after it.
-- `travel.speed: 0.5` makes the rest of today's moving half as fast (`1.5`: faster; `0`: no more moving today). It adds up with the weather's speed.
+- `travel.speed: 0.5` makes the rest of today's moving half as fast (`1.5`: faster; `0`: no more moving today). It multiplies the weather's speed and any earlier `travel.speed` of the day (a weather at `0.5` and this: a quarter).
 - `travel.advance: 2` moves the party two hexes (or legs of a way) along its route at once, no time passing: progress by moves instead of marching. A variable too: `'{{party.stats.rank}}'`. See _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 - `travel.mode: modes.boat` changes the way of travelling (one of the system's `modes`, or a variable: `'{{params.by}}'`), if it can be chosen now: its own `when` / `unless` hold and no value of the day blocks it. Otherwise nothing changes. With a destination, the route is planned again for the new way (the fastest), and the journal says so ("Now travelling: By boat").
 
@@ -77,7 +77,7 @@ What can make it hold: the time itself (`time.hour: { gte: 14 }`, `time.part: [a
 
 ## A step's condition, and its `id`
 
-- `when` / `unless` on a step make it happen only when they hold: `{ unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }` (a fed night). They see what the action's conditions see, plus `params.<id>` (its parameters), `trip.below` / `trip.above` (what hit a bound during the action), `doing` (the action under way) and `moment` (when the system took it).
+- `when` / `unless` on a step make it happen only when they hold: `{ unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }` (a fed night). They see what the action's conditions see, plus `params.<id>` (its parameters), `trip.below` / `trip.above` (what hit a bound during the action), `trip.doing` (the action under way) and `trip.moment` (when the system took it).
 - `id` names a step so its texts can be translated: in `locales/<language>/`, a step is found by its `id` in its action's `do` (`actions: { grumble: { do: { sulk: { say: … } } } }`), and only `say` and `pause` texts are translated. See [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes).
 
 ## A whole example: a river crossing

@@ -8,15 +8,15 @@ In the apps this page is one click away: **Syntax** at the top of the help colum
 
 Most boxes and most of the YAML are `key: value` pairs.
 
-| Write                      | Means                                                   |
-| -------------------------- | ------------------------------------------------------- |
-| `terrain: forest`          | a word                                                  |
-| `danger: 3`, `lost: true`  | a number, a yes/no                                      |
-| `terrain: [forest, hills]` | a list                                                  |
-| `danger: { gte: 3 }`       | a value inside another (here, a comparison)             |
-| `count: '{{2d6}}'`         | a [variable or roll](#variables), in quotes (see below) |
+| Write                               | Means                                                   |
+| ----------------------------------- | ------------------------------------------------------- |
+| `hex.terrain: forest`               | a word                                                  |
+| `hex.danger: 3`, `today.lost: true` | a number, a yes/no                                      |
+| `hex.terrain: [forest, hills]`      | a list                                                  |
+| `hex.danger: { gte: 3 }`            | a value inside another (here, a comparison)             |
+| `count: '{{2d6}}'`                  | a [variable or roll](#variables), in quotes (see below) |
 
-- **In a form's box**, write the pairs without braces, separated by commas: `terrain: forest, danger: { gte: 3 }`. A box that can't be read turns red and isn't saved. Where a form builds a condition as rows, its **YAML** button shows this box.
+- **In a form's box**, write the pairs without braces, separated by commas: `hex.terrain: forest, hex.danger: { gte: 3 }`. A box that can't be read turns red and isn't saved. Where a form builds a condition as rows, its **YAML** button shows this box.
 - **In YAML**, the same between braces on one line (`when: { hex.terrain: forest }`) or one pair per indented line.
 - **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
   - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{system.hoursPerDay}}'`, not `gte: {{system.hoursPerDay}}`;
@@ -26,7 +26,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 
   A quote inside a quoted text is written twice: `'The guard''s dog'`. When in doubt, quote: it never hurts. Forms do it for you.
 
-- **Dotted names** reach inside a value: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
+- **Dotted names** reach inside a value: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
 - **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `hex.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; the trip so far only by its full names (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#how-to-read-this-page).
 
 ## Ids and references
@@ -79,32 +79,34 @@ When something applies. The same syntax everywhere: `when` (must hold) and `unle
 
 | Write                                              | Holds when                                  |
 | -------------------------------------------------- | ------------------------------------------- |
-| `terrain: forest`                                  | it's exactly that                           |
-| `terrain: [forest, hills]`                         | it's any of them                            |
-| `tags: landmark`                                   | a list (tags, holidays) contains it         |
+| `hex.terrain: forest`                              | it's exactly that                           |
+| `hex.terrain: [forest, hills]`                     | it's any of them                            |
+| `hex.tags: landmark`                               | a list (tags, holidays) contains it         |
 | `time.season: { not: summer }`                     | it's anything else (or missing)             |
-| `danger: { gte: 3 }`                               | `gt`, `gte`, `lt`, `lte`: a number compared |
-| `danger: { gte: 2, lte: 4 }`                       | every comparison holds                      |
-| `weather: { in: [rain, storm] }`                   | the same as a list                          |
-| `region: { exists: false }`                        | it's missing (`true`: it's there)           |
-| `danger: { gt: '{{party.stats.stealth}}' }`        | a variable: compared with another value     |
+| `hex.danger: { gte: 3 }`                           | `gt`, `gte`, `lt`, `lte`: a number compared |
+| `hex.danger: { gte: 2, lte: 4 }`                   | every comparison holds                      |
+| `trip.weather: { in: [rain, storm] }`              | the same as a list                          |
+| `hex.region: { exists: false }`                    | it's missing (`true`: it's there)           |
+| `hex.danger: { gt: '{{party.stats.stealth}}' }`    | a variable: compared with another value     |
 | `party.stats.wits: { gte: '{{1d20}}' }`            | a roll: under the wits (once a moment)      |
-| `{ terrain: forest, timeOfDay: night }`            | every pair holds                            |
+| `{ hex.terrain: forest, timeOfDay: night }`        | every pair holds                            |
 | `any: [{ trip.edges: road }, { trip.mode: boat }]` | one of them holds                           |
 | `all: [{ hex.tags: ford }, { hex.tags: toll }]`    | all of them (one name twice)                |
 | `not: { timeOfDay: night }`                        | the condition inside doesn't                |
 
 **Where they go:**
 
-| Where                            | Keys                                                 |
-| -------------------------------- | ---------------------------------------------------- |
-| table and oracle entries         | `when`, `unless`                                     |
-| generator fields                 | `when`, `unless`                                     |
-| roll modes used by themselves    | `modeWhen`, `modeUnless` (by mode id)                |
-| travel checks                    | `when`, `unless`                                     |
-| actions, and each of their steps | `when`, `unless`                                     |
-| ways of travelling               | `when`, `unless` (chosen), `through` (where it goes) |
-| terrains and water               | `passable: { when, unless }`                         |
+| Where                                    | Keys                                                 |
+| ---------------------------------------- | ---------------------------------------------------- |
+| table and oracle entries                 | `when`, `unless`                                     |
+| generator fields                         | `when`, `unless`                                     |
+| roll modes used by themselves            | `modeWhen`, `modeUnless` (by mode id)                |
+| party stats from the characters (`from`) | `when`, `unless` (read for each character)           |
+| a step that waits                        | `wait` (with `limit`)                                |
+| travel checks                            | `when`, `unless`                                     |
+| actions, and each of their steps         | `when`, `unless`                                     |
+| ways of travelling                       | `when`, `unless` (chosen), `through` (where it goes) |
+| terrains and water                       | `passable: { when, unless }`                         |
 
 ## Setting values: `set`
 
@@ -140,19 +142,20 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 | `faction.territory: 1`, `faction.values.strength: -1`      | in a faction's turn table: its land, its values                                                      |
 | `world.clocks.the-siege: 1`                                | ticks a progress clock (a faction's turn, a full clock, or a trip's result on a map); `'=0'` sets it |
 
-A change stops at the value's `min` / `max`; what hit one is seen afterwards as `below: [ids]` / `above: [ids]`. Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
+A change stops at the value's `min` / `max`; what hit one that day is seen afterwards as `trip.below` / `trip.above` (lists of ids). Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 
 ## Moments
 
-When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.hex-enter, actions.rest]`); conditions and tables see which one as `moment`.
+When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.hex-enter, actions.rest]`); conditions and tables see which one as `trip.moment`.
 
-| Moment                                  | When                                                                               |
-| --------------------------------------- | ---------------------------------------------------------------------------------- |
-| a clock (`'06:00'`)                     | as it strikes, marching, waiting or asleep in camp                                 |
-| a part of the day (`time.part.morning`) | as the calendar's part begins, the same way                                        |
-| `trip.hex-enter`                        | entering each hex                                                                  |
-| `time.day-end`                          | as each day ends, camping or not (actions first, then checks)                      |
-| an action (`actions.camp`)              | when the party takes that action, before its steps (a check that waits holds them) |
+| Moment                                                  | When                                                                               |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| a clock (`'06:00'`)                                     | as it strikes, marching, waiting or asleep in camp                                 |
+| a part of the day (`time.part.morning`)                 | as the calendar's part begins, the same way                                        |
+| `trip.hex-enter`                                        | entering each hex                                                                  |
+| `time.day-end`                                          | as each day ends, camping or not (actions first, then checks)                      |
+| an action (`actions.camp`)                              | when the party takes that action, before its steps (a check that waits holds them) |
+| a clock of the world filling (`world.clocks.<id>.full`) | as one of the campaign's progress clocks fills, whatever fills it                  |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
 

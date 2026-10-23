@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- Manual: the technical pages reviewed for consistency: every example by its full name (`hex.danger`, `trip.moment`, roll modes as `roll-modes.advantage`, which the short form no longer reads), the lists of kinds, dictionaries, installable apps and moments complete, world values said to come from the campaign (Travel's trips too), and `travel.speed` said to multiply the weather's speed, not add to it.
+
 ## [0.12.0] - 2026-10-23
 
 ### Apps

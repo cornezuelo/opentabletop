@@ -8,15 +8,15 @@ En las aplicaciones esta página está a un clic: **Sintaxis**, arriba en la col
 
 Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 
-| Escribe                    | Significa                                                        |
-| -------------------------- | ---------------------------------------------------------------- |
-| `terrain: forest`          | una palabra                                                      |
-| `danger: 3`, `lost: true`  | un número, un sí/no                                              |
-| `terrain: [forest, hills]` | una lista                                                        |
-| `danger: { gte: 3 }`       | un valor dentro de otro (aquí, una comparación)                  |
-| `count: '{{2d6}}'`         | una [variable o tirada](#variables), entre comillas (mira abajo) |
+| Escribe                             | Significa                                                        |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| `hex.terrain: forest`               | una palabra                                                      |
+| `hex.danger: 3`, `today.lost: true` | un número, un sí/no                                              |
+| `hex.terrain: [forest, hills]`      | una lista                                                        |
+| `hex.danger: { gte: 3 }`            | un valor dentro de otro (aquí, una comparación)                  |
+| `count: '{{2d6}}'`                  | una [variable o tirada](#variables), entre comillas (mira abajo) |
 
-- **En la casilla de un formulario**, escribe los pares sin llaves, separados por comas: `terrain: forest, danger: { gte: 3 }`. Una casilla que no se puede leer se pone roja y no se guarda. Donde un formulario construye una condición en filas, su botón **YAML** muestra esta casilla.
+- **En la casilla de un formulario**, escribe los pares sin llaves, separados por comas: `hex.terrain: forest, hex.danger: { gte: 3 }`. Una casilla que no se puede leer se pone roja y no se guarda. Donde un formulario construye una condición en filas, su botón **YAML** muestra esta casilla.
 - **En YAML**, lo mismo entre llaves en una línea (`when: { hex.terrain: forest }`) o un par por línea sangrada.
 - **Las comillas** (`'…'`) mantienen un texto como texto. El YAML da a unos pocos caracteres un significado propio, así que un texto que los tenga va entre comillas, o el YAML lee otra cosa:
   - **que empiece por `{`**: el YAML abre un valor dentro de otro, así que toda variable o tirada necesita comillas: `count: '{{2d6}}'`, no `count: {{2d6}}`; `gte: '{{system.hoursPerDay}}'`, no `gte: {{system.hoursPerDay}}`;
@@ -26,7 +26,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 
   Una comilla dentro de un texto entre comillas se escribe doble: `'El perro de la guardia d''Arcy'`. Si dudas, pon comillas: nunca estorban. Los formularios las ponen por ti.
 
-- **Los nombres con puntos** llegan dentro de un valor: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `moons.ember`, `icon.guards`, `token.might`, `around.lake`. Todos los nombres que puede leer una tabla: [Lo que ven las tablas](04-what-tables-see.md).
+- **Los nombres con puntos** llegan dentro de un valor: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Todos los nombres que puede leer una tabla: [Lo que ven las tablas](04-what-tables-see.md).
 - **Nombres completos y cortos**: cada dato del mapa, del viaje y del mundo tiene un nombre completo según de dónde sale, y casi todos uno corto: `hex.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; lo que lleva hecho el viaje, solo por su nombre completo (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); además `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Los dos leen el mismo valor; una característica con el mismo nombre no puede tapar el completo. La lista: [Nombres completos y nombres cortos](04-what-tables-see.md#como-leer-esta-pagina).
 
 ## Ids y referencias
@@ -79,32 +79,34 @@ Cuándo se aplica algo. La misma sintaxis en todas partes: `when` (debe cumplirs
 
 | Escribe                                            | Se cumple cuando                                |
 | -------------------------------------------------- | ----------------------------------------------- |
-| `terrain: forest`                                  | es exactamente eso                              |
-| `terrain: [forest, hills]`                         | es cualquiera de ellos                          |
-| `tags: landmark`                                   | una lista (etiquetas, festividades) lo contiene |
+| `hex.terrain: forest`                              | es exactamente eso                              |
+| `hex.terrain: [forest, hills]`                     | es cualquiera de ellos                          |
+| `hex.tags: landmark`                               | una lista (etiquetas, festividades) lo contiene |
 | `time.season: { not: summer }`                     | es cualquier otra cosa (o falta)                |
-| `danger: { gte: 3 }`                               | `gt`, `gte`, `lt`, `lte`: un número comparado   |
-| `danger: { gte: 2, lte: 4 }`                       | se cumplen todas las comparaciones              |
-| `weather: { in: [rain, storm] }`                   | lo mismo que una lista                          |
-| `danger: { gt: '{{party.stats.stealth}}' }`        | una variable: comparado con otro valor          |
+| `hex.danger: { gte: 3 }`                           | `gt`, `gte`, `lt`, `lte`: un número comparado   |
+| `hex.danger: { gte: 2, lte: 4 }`                   | se cumplen todas las comparaciones              |
+| `trip.weather: { in: [rain, storm] }`              | lo mismo que una lista                          |
+| `hex.danger: { gt: '{{party.stats.stealth}}' }`    | una variable: comparado con otro valor          |
 | `party.stats.wits: { gte: '{{1d20}}' }`            | una tirada: bajo el ingenio (una por momento)   |
-| `region: { exists: false }`                        | falta (`true`: está)                            |
-| `{ terrain: forest, timeOfDay: night }`            | se cumplen todos los pares                      |
+| `hex.region: { exists: false }`                    | falta (`true`: está)                            |
+| `{ hex.terrain: forest, timeOfDay: night }`        | se cumplen todos los pares                      |
 | `any: [{ trip.edges: road }, { trip.mode: boat }]` | se cumple uno de ellos                          |
 | `all: [{ hex.tags: ford }, { hex.tags: toll }]`    | todos (un nombre dos veces)                     |
 | `not: { timeOfDay: night }`                        | la condición de dentro no se cumple             |
 
 **Dónde van:**
 
-| Dónde                             | Claves                                                |
-| --------------------------------- | ----------------------------------------------------- |
-| entradas de tablas y oráculos     | `when`, `unless`                                      |
-| campos de generador               | `when`, `unless`                                      |
-| modos de tirada que se usan solos | `modeWhen`, `modeUnless` (por id del modo)            |
-| comprobaciones de viaje           | `when`, `unless`                                      |
-| acciones, y cada uno de sus pasos | `when`, `unless`                                      |
-| formas de viajar                  | `when`, `unless` (elegirla), `through` (por dónde va) |
-| terrenos y agua                   | `passable: { when, unless }`                          |
+| Dónde                                                | Claves                                                |
+| ---------------------------------------------------- | ----------------------------------------------------- |
+| entradas de tablas y oráculos                        | `when`, `unless`                                      |
+| campos de generador                                  | `when`, `unless`                                      |
+| modos de tirada que se usan por sí solos             | `modeWhen`, `modeUnless` (por id del modo)            |
+| características que salen de los personajes (`from`) | `when`, `unless` (leídas con cada personaje)          |
+| un paso que espera                                   | `wait` (con `limit`)                                  |
+| comprobaciones de viaje                              | `when`, `unless`                                      |
+| acciones, y cada uno de sus pasos                    | `when`, `unless`                                      |
+| formas de viajar                                     | `when`, `unless` (elegirla), `through` (por dónde va) |
+| terrenos y agua                                      | `passable: { when, unless }`                          |
 
 ## Dar valores: `set`
 
@@ -140,19 +142,20 @@ En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor 
 | `faction.territory: 1`, `faction.values.strength: -1`      | en la tabla de turno de una facción: sus tierras, sus valores                                                                |
 | `world.clocks.the-siege: 1`                                | avanza un reloj de progreso (el turno de una facción, un reloj lleno, o el resultado de un viaje en un mapa); `'=0'` lo fija |
 
-Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno se ve después como `below: [ids]` / `above: [ids]`. Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
+Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno ese día se ve después como `trip.below` / `trip.above` (listas de ids). Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
 
 ## Momentos
 
-Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[trip.hex-enter, actions.rest]`); las condiciones y las tablas ven cuál es como `moment`.
+Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[trip.hex-enter, actions.rest]`); las condiciones y las tablas ven cuál es como `trip.moment`.
 
-| Momento                                 | Cuándo                                                                                               |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| una hora (`'06:00'`)                    | al dar esa hora, marchando, esperando o dormidos en el campamento                                    |
-| una parte del día (`time.part.morning`) | al empezar esa parte del calendario, igual                                                           |
-| `trip.hex-enter`                        | al entrar en cada hex                                                                                |
-| `time.day-end`                          | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                          |
-| una acción (`actions.camp`)             | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera) |
+| Momento                                                   | Cuándo                                                                                               |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| una hora (`'06:00'`)                                      | al dar esa hora, marchando, esperando o dormidos en el campamento                                    |
+| una parte del día (`time.part.morning`)                   | al empezar esa parte del calendario, igual                                                           |
+| `trip.hex-enter`                                          | al entrar en cada hex                                                                                |
+| `time.day-end`                                            | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                          |
+| una acción (`actions.camp`)                               | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera) |
+| un reloj del mundo al llenarse (`world.clocks.<id>.full`) | al llenarse uno de los relojes de progreso de la campaña, lo llene lo que lo llene                   |
 
 Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
 

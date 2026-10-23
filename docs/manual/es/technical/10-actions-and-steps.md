@@ -31,7 +31,7 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 ## Moverse
 
 - `travel.move: destination` mueve al grupo por su ruta, minuto a minuto, mientras se sigan cumpliendo el `when` / `unless` de la propia acción: una marcha de día se para al caer la noche. Llega tan lejos como dice: `destination`, `hex` (el siguiente), un número de hexes (`3`) o una variable (`'{{params.until}}'`: lo que diga su parámetro). Una comprobación que necesita al jugador lo detiene por el camino; **Seguir** sigue con él, y luego con los pasos de después.
-- `travel.speed: 0.5` hace que lo que queda de movimiento hoy vaya a la mitad (`1.5`: más rápido; `0`: no más movimiento hoy). Se suma a la velocidad del clima.
+- `travel.speed: 0.5` hace que lo que queda de movimiento hoy vaya a la mitad (`1.5`: más rápido; `0`: no más movimiento hoy). Multiplica la velocidad del clima y cualquier `travel.speed` anterior del día (un clima a `0.5` y este: a un cuarto).
 - `travel.advance: 2` mueve al grupo dos hexes (o tramos de un camino) por su ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchando. También una variable: `'{{party.stats.rank}}'`. Mira _Viajes por movimientos_ en [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 - `travel.mode: modes.boat` cambia la forma de viajar (uno de los `modes` del sistema, o una variable: `'{{params.by}}'`), si se puede elegir ahora: se cumplen su `when` / `unless` y ningún valor del día la bloquea. Si no, no cambia nada. Con un destino, la ruta se vuelve a planear para la nueva forma (la más rápida), y el diario lo dice («Ahora viajáis así: En barca»).
 
@@ -42,7 +42,7 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 
 ## Otras acciones y comprobaciones: `do` y `roll`
 
-- `do: actions.forage` hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). `{ do: actions.march, with: { until: hex } }` le da los valores de sus parámetros. Una acción que hace otra es como marcha una marcha forzada: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
+- `do: actions.forage` hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). `{ do: actions.march, with: { until: hex } }` le da los valores de sus parámetros. Así marcha una marcha forzada, con una acción que hace otra: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
 - `roll: checks.ENCOUNTER_CHECK_REQUIRED` tira una comprobación ya: todas las comprobaciones con ese evento cuyas condiciones se cumplan, sea cual sea su `at`. Se resuelve al acabar la acción, así que los pasos siguientes aún no ven su resultado.
 - `roll: table.ruins` tira en su lugar algo del Oráculo (una tabla, `oracle.<id>`, `generator.<id>`, `deck.<id>`; la de otro pack como `core/table.twists`), sin comprobación ni binding alrededor: se resuelve al acabar la acción como una comprobación, su resultado va al diario con el nombre de la tabla, sus valores `set` y sus `effects` llegan al viaje, y una entrada con `pause: true` lo detiene hasta **Continuar**. Un nombre que no es algo que tirar es un problema al cargar el pack. _Explorar la ruina_ de las Marcas Grises: `[{ time: 180 }, { roll: generator.ruin-delve }]`.
 
@@ -77,7 +77,7 @@ Qué puede hacer que se cumpla: el propio tiempo (`time.hour: { gte: 14 }`, `tim
 
 ## La condición de un paso, y su `id`
 
-- `when` / `unless` en un paso hacen que solo ocurra cuando se cumplen: `{ unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }` (una noche con comida). Ven lo mismo que las condiciones de la acción, más `params.<id>` (sus parámetros), `trip.below` / `trip.above` (lo que llegó a un límite durante la acción), `doing` (la acción en marcha) y `moment` (cuándo la hizo el sistema).
+- `when` / `unless` en un paso hacen que solo ocurra cuando se cumplen: `{ unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }` (una noche con comida). Ven lo mismo que las condiciones de la acción, más `params.<id>` (sus parámetros), `trip.below` / `trip.above` (lo que llegó a un límite durante la acción), `trip.doing` (la acción en marcha) y `trip.moment` (cuándo la hizo el sistema).
 - `id` da nombre a un paso para poder traducir sus textos: en `locales/<idioma>/`, un paso se encuentra por su `id` en el `do` de su acción (`actions: { grumble: { do: { sulk: { say: … } } } }`), y solo se traducen los textos de `say` y `pause`. Mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada).
 
 ## Un ejemplo entero: cruzar un río
@@ -144,7 +144,7 @@ Lo que ves en el viaje, empezando a las 08:00 con 5 de comida:
 - **Dos cosas en un paso**: `{ time: 60, effects: { … } }` son dos pasos; escríbelos uno tras otro.
 - **`wait` sin `limit`** (o `limit` sin `wait`): el pack muestra un problema; una espera siempre dice lo más que espera.
 - **`ask` de algo que no es un parámetro de la acción**: decláralo antes, con sus opciones, en los `params` de la acción.
-- **Un `wait` de algo que nada cambia**: un valor que solo cambia el jugador a mano, o una estadística, no cambian mientras se espera; la espera llega hasta su límite.
+- **Un `wait` de algo que nada cambia**: un valor que solo cambia el jugador a mano, o una característica, no cambia mientras se espera; la espera llega hasta su límite.
 - **`travel.mode` a una forma que no se puede elegir ahí** (una barca tierra adentro): no cambia nada. Pon en el `when` de esa forma el sitio donde se puede tomar, o da antes el valor que necesita (como la balsa de arriba).
 - **Una `pause` que el jugador no ve venir**: di por qué (`pause: El puente está caído.`), o dilo con `say` justo antes.
 
