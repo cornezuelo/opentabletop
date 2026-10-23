@@ -75,6 +75,7 @@ docs/
   terrain-generation.md     # Terrain with memory (land models, Markov) design, to review
   character-pictures.md     # Pictures for characters design, to review
   inventory.md              # Inventory design (items, values made of others, conditions that hold by themselves), to review
+  world-reactions.md        # The world reacts design (the world's reactions without a trip, world turns as moments), to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
