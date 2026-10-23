@@ -214,6 +214,7 @@ export const es: Messages<typeof en> = {
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
     itemSpent: '{name}: se gasta uno',
     unknownItem: '{name}: ningún catálogo del sistema tiene este objeto, así que no se da nada',
+    itemNoRoom: '{name}: no le queda sitio, así que lo lleva sin lugar',
     notWritable:
       '«{name}» se mantiene por sí solo (sale de otros valores, o de su propia condición), así que los efectos no lo cambian',
     reacted: 'Por {name}, entra en juego una regla del sistema:',

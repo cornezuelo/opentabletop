@@ -2,6 +2,8 @@
   import {
     applyCharacter,
     boundsOf,
+    shownAgainst,
+    tonesNow,
     lookupItems,
     holdsByItself,
     isMadeOf,
@@ -131,8 +133,16 @@
   /** The displays that take a whole row of their group. */
   const WIDE: readonly Display[] = ['bar', 'boxes', 'pips']
   /** How a value looks now, as its sheet says. */
-  const viewOf = (id: string) =>
-    valueView(sheet.values[id], character.values[id] ?? 0, boundsOf(sheet, character, id), locale)
+  const viewOf = (id: string) => {
+    const def = sheet.values[id]
+    const of = def.of === undefined ? undefined : shownAgainst(sheet, character, id)
+    return valueView(
+      { ...def, tones: tonesNow(def.tones, character.values) },
+      character.values[id] ?? 0,
+      { ...boundsOf(sheet, character, id), ...(of !== undefined && { of }) },
+      locale,
+    )
+  }
 
   /** A value's explanation: its description, its levels, its bounds, how tables read it. */
   function valueHelp(id: string): string {

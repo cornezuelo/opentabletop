@@ -11,7 +11,8 @@ description: |-
   rules read (the ford's roll counts the companions with a rope, `party.stats.roped`; the
   night march burns the torches' uses), numbers for the sheet's fields (slots, uses,
   armour), where an item fits (`fits: { place.tags: worn }`), a container
-  (`holds: { room: 6, tags: [pack] }`), an item given by a table's result, and the party's
+  (`holds: { room: 6, tags: [pack], over: allow }`, that takes more than its room where the
+  sheet's places don't), an item given by a table's result, and the party's
   food as items (rations, eaten by the party as a whole: `party.items.ration`).
 items:
   ration:
@@ -29,9 +30,10 @@ items:
     tags: [light]
   backpack:
     name: Backpack
-    description: Worn on the back; holds six slots of gear.
+    description: Worn on the back; holds six slots of gear, and more if you cram it.
     fits: { place.tags: back }
-    holds: { room: 6, tags: [pack] }
+    # Takes more than its six slots (the sheet's places don't): overfull, it weighs.
+    holds: { room: 6, tags: [pack], over: allow }
   mail:
     name: Mail shirt
     description: Heavy, and only good worn.

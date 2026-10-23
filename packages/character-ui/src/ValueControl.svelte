@@ -27,6 +27,8 @@
 
   const t = translator(() => locale)
   const max = $derived(view.max ?? 0)
+  /** What `of` and a bar show it against: its `of`, else its max. */
+  const against = $derived(view.of ?? view.max)
   /** The boxes or dots, from 1 to its max. */
   const marks = $derived(Array.from({ length: Math.max(0, Math.round(max)) }, (_, i) => i + 1))
   /** Clicking the last filled mark empties it; never under the min. */
@@ -46,7 +48,7 @@
   function barAt(e: MouseEvent) {
     const box = (e.currentTarget as HTMLElement).getBoundingClientRect()
     const from = Math.min(view.min ?? 0, 0)
-    onset(Math.round(from + ((e.clientX - box.left) / box.width) * (max - from)))
+    onset(Math.round(from + ((e.clientX - box.left) / box.width) * ((against ?? 0) - from)))
   }
 </script>
 
@@ -63,7 +65,7 @@
         {disabled}
         onchange={typed}
       />
-      <span class="max">/ {view.max}</span>
+      <span class="max">/ {against}</span>
     </span>
   {:else if view.display === 'bar'}
     <span class="bar-row">
@@ -76,12 +78,12 @@
       <button
         type="button"
         class="bar"
-        aria-label={`${label}: ${view.value} / ${view.max}`}
+        aria-label={`${label}: ${view.value} / ${against}`}
         {disabled}
         onclick={barAt}
       >
         <span class="fill" style:width="{(view.fill ?? 0) * 100}%"></span>
-        <span class="count">{view.value} / {view.max}</span>
+        <span class="count">{view.value} / {against}</span>
       </button>
       {#if !disabled}<button
           type="button"

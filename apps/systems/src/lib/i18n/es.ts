@@ -125,6 +125,8 @@ export const es: Messages<typeof en> = {
     holdsRoom: 'Guarda',
     holdsRoomHelp:
       'Un contenedor: cuánto cabe dentro (medido como los lugares de la hoja, por **Lo que ocupa un lugar**). Lo que lleva dentro va con él. Vacío y sin etiquetas: no es un contenedor.\n• `6` — una mochila',
+    holdsOverHelp:
+      'Si admite más de lo que **Guarda**, como el **Más de lo que cabe** de un lugar en **Hoja → Objetos**: **allow** (atiborrado, su sitio se pone en rojo) o **refuse** (no entra nada que no tenga sitio). Vacío: lo que diga la hoja para sus lugares.\n• `allow` — un saco en el que siempre cabe una cosa más',
     holdsTags: 'Guarda como',
     holdsTagsHelp:
       'Qué es como lugar, para que los objetos quepan en él por estas etiquetas igual que en los lugares de la hoja:\n• `pack` — todo lo que cabe en una mochila cabe dentro',
@@ -222,13 +224,16 @@ export const es: Messages<typeof en> = {
       "Un valor que se calcula a partir de los otros valores de la hoja; no se cambia a mano ni con efectos: los sigue al momento (tras cada cambio, dentro de su propio mín. y máx.). Escribe los valores entre llaves, con `+ - * /`, paréntesis y `floor`, `ceil`, `round`, `min`, `max`, `abs`; un menos entre nombres lleva espacios (los ids pueden tener guiones):\n• `'{{self.values.might * 2 + 4}}'` — el doble de Might, más 4\n• `'{{self.values.maxHealth - self.values.health}}'` — las heridas recibidas\n• `'{{floor(self.values.wits / 2)}}'` — la mitad de Wits, redondeando hacia abajo\nO calculado a partir de los objetos, como un mapa (`{ … }`): `sum`, `max` o `min` de un campo, o `count: items`, entre los que deje pasar su `where` (lee `item.*` y `place.*`):\n• `{ sum: items.slots }` — la carga: los huecos de todos los objetos\n• `{ max: items.armour, where: { place.tags: worn } }` — la mejor armadura puesta\n• `{ count: items, where: { item.tags: light } }` — cuántas luces\nSin dados (cambiaría cada vez que se lee). Vacío: un valor que se cambia a mano y con efectos.",
     display: 'Se muestra como',
     displayHelp:
-      'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number** y **levels** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo: **3 / 5**\n• `bar` — una barra llena hasta su máximo\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…',
+      'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number** y **levels** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo (o su **Frente a**): **3 / 5**\n• `bar` — una barra llena hasta su máximo (o su **Frente a**)\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…',
     levels: 'Niveles',
     levelsHelp:
       'Con **Se muestra como** `levels`, los nombres que elige el valor, cada uno una pastilla (Intro o una coma lo añade), desde su mínimo (o 0) hacia arriba; más allá se muestra el número. Sus nombres se traducen en el archivo de traducción, por id:\n• `unhurt, bruised, wounded, dying` — 0 es **unhurt**, 3 es **dying**\n• `d4, d6, d8, d10, d12` — un tamaño de dado que crece con el valor\n• con mín. `-3`: `hated, wary, neutral, …` — −3 es **hated**',
     tones: 'Tonos',
     tonesHelp:
-      'El color que toma desde un valor hacia arriba, `valor: tono`, entre los del tema: `good`, `warning`, `danger` y `accent`:\n• `0: danger, 2: warning, 4: good` — rojo en 0 y 1, ámbar en 2 y 3, verde desde 4\n• `5: danger` — rojo solo desde 5\n• `0: danger, 50%: warning, 75%: good` — partes de su máximo, que lo siguen cuando cambia: con máx. 3, rojo en 0 y 1, ámbar en 2, verde en 3\nVacío: el color de acento del tema.',
+      "El color que toma desde un valor hacia arriba, `valor: tono`, entre los del tema: `good`, `warning`, `danger` y `accent`:\n• `0: danger, 2: warning, 4: good` — rojo en 0 y 1, ámbar en 2 y 3, verde desde 4\n• `5: danger` — rojo solo desde 5\n• `0: danger, 50%: warning, 75%: good` — partes de su máximo, que lo siguen cuando cambia: con máx. 3, rojo en 0 y 1, ámbar en 2, verde en 3 (con un **Frente a**, partes de él)\n• `0: good, '{{self.values.capacity}}': danger` — rojo desde la capacidad: un umbral puede ser otros valores de la hoja entre llaves\nVacío: el color de acento del tema.",
+    of: 'Frente a',
+    ofHelp:
+      "Con **Se muestra como** `of` o `bar`, frente a qué se dibuja el valor cuando no es su máximo: nunca es un límite y puede pasarse (una carga frente a una capacidad); las partes de **Tonos** son partes de él. Un número, o los otros valores de la hoja entre llaves:\n• `'{{self.values.capacity}}'` — **28 / 8**, una barra llena\n• `10`\nVacío: su máximo.",
     relationDisplayHelp:
       'Cómo se dibuja el número de una relación, como el **Se muestra como** de un valor (necesita un máximo, salvo **number**):\n• `pips` — un vínculo de 0 a 3 como puntos\n• `bar`',
     preview: 'Vista previa',
@@ -279,6 +284,11 @@ export const es: Messages<typeof en> = {
     shareHelp:
       'Cómo se reparte entre los personajes de esta hoja lo que el grupo gasta o gana de un objeto (`party.items.ration: -3`, `party.items.ration: 2`): primero los objetos del propio grupo, luego los suyos.\n• **even** (por defecto): se quita a quien más tiene y se da a quien menos, de uno en uno\n• **order**: el primer personaje da (o recibe) todo lo que pueda, luego el siguiente\nSin personajes, los guarda la propia hoja del grupo.',
     shareEven: 'even (por defecto)',
+    over: 'Más de lo que cabe',
+    overHelp:
+      "Si un lugar con **Sitio** admite más de lo que le cabe:\n• **allow** (por defecto): su sitio solo se muestra, y se pone en rojo cuando se pasa; una condición dice qué supone pasarse (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: no entra nada que no tenga sitio. Las tarjetas de los personajes no ofrecen lugares llenos, se rechaza moverlo ahí y lo que dé un efecto sin sitio en ninguna parte se queda con el personaje sin lugar, con una línea en el diario\nEn la hoja vale para todos los lugares; cada lugar puede decir otra cosa en su propia columna (una mochila que admite más, unas manos que no). Si el sitio encoge después, lo que ya hay se queda.",
+    overAllow: 'allow (por defecto)',
+    overSheet: 'el de la hoja',
     start: 'Empieza con',
     startHelp:
       'Lo que lleva un personaje nuevo de esta hoja, de los catálogos del sistema (la pestaña **Objetos**), una fila cada cosa: el objeto y cuántos. En la hoja del propio grupo, con lo que empieza cada viaje nuevo (las reservas de un grupo sin personajes).\n• `ration` · `2` — dos raciones cada uno\n• `torch` · `1`',

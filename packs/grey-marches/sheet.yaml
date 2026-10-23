@@ -22,8 +22,11 @@ description: |-
   while the load is over the capacity), kinds of relation (a bond with a number, a home), and
   items (`items:`): fields every item has (slots, uses that run out as pips, armour), places
   for a body (hands, body, belt, back) that items fit by tags, the slots filling them, values
-  made of the items (the load, `{ sum: items.slots }`; the armour worn, `{ max: items.armour,
-  where: { place.tags: worn } }`), what a new companion carries (`start: { ration: 2 }`) and
+  made of the items (the load, `{ sum: items.slots }`, shown against the capacity,
+  `of: '{{self.values.capacity}}'`, amber at it and red over it; the armour worn,
+  `{ max: items.armour, where: { place.tags: worn } }`), places that take no more than their
+  room (`over: refuse`: a full place offers nothing, what's given goes in the backpack or in
+  no place), what a new companion carries (`start: { ration: 2 }`) and
   how what the party spends is shared out among them (`share: even`: from whoever carries
   most); every part with a description, shown as its help where the sheet is met.
 values:
@@ -93,7 +96,11 @@ values:
     name: Load
     description: The slots of everything this companion carries, containers and what's in them; over the capacity, they're burdened.
     from: { sum: items.slots }
-    tones: { 0: good }
+    # Shown against the capacity, which is no bound (a load may go past it): `9 / 8`, amber
+    # at the capacity, red over it.
+    of: '{{self.values.capacity}}'
+    display: of
+    tones: { 0: good, 100%: warning, 101%: danger }
     group: gear
   capacity:
     name: Capacity
@@ -190,7 +197,7 @@ items:
     armour: { name: Armour, description: How well it protects when worn., min: 0 }
   places:
     hands: { name: Hands, tags: [hand], room: 2 }
-    body: { name: Body, description: What is worn., tags: [worn], room: 1 }
+    body: { name: Body, description: What is worn., tags: [worn], room: 2 }
     belt: { name: Belt, tags: [belt], room: 2 }
     back:
       {
@@ -201,6 +208,9 @@ items:
       }
   # A place's room counts slots: a mail shirt (2 slots) fills more than a torch.
   size: slots
+  # Hands, body, belt and back take no more than their room: what's given with no room
+  # left goes in a backpack (which takes more, items.yaml) or in no place.
+  over: refuse
   # What the party eats or finds (`party.items.ration`) is taken from whoever carries most,
   # and given to whoever carries least (the default, written out).
   share: even

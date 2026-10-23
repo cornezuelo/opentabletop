@@ -8,9 +8,9 @@ A character **has items**, each with **how many** (a count), and, when the sheet
 
 - **From a catalogue or by hand.** On a character's card, **Add an item** suggests the catalogues' items by name; any other name makes an item by hand, with the sheet's defaults. An item taken from a catalogue keeps a copy of what it had there (its tags, its numbers), so the character reads the same whatever packs are loaded.
 - **Fields, declared by the sheet.** The sheet's **Fields of every item** are numbers like values, with bounds and how they're shown. A field that **Runs out** (a torch's uses) uses one item up when it reaches its min: the count goes down and the next starts again at its number; the last one is gone. One that doesn't stays empty (a lantern without oil).
-- **Places, for any body.** The sheet may declare **places** (hands, body, belt, back; a three-headed beast's three heads), each with **tags** and **room**. An item says where it **Fits** by the place's tags (`place.tags: worn` for a mail shirt), never by its name, so the same catalogue serves any body. Moving an item only offers the places it fits. Without places, items are one list.
+- **Places, for any body.** The sheet may declare **places** (hands, body, belt, back; a three-headed beast's three heads), each with **tags** and **room**. An item says where it **Fits** by the place's tags (`place.tags: worn` for a mail shirt), never by its name, so the same catalogue serves any body. On the card, an item is moved by dragging its handle (⠿) onto a place, or by picking the place; only the places it fits are offered (hold Shift as you drop it to move only one of a stack). Without places, items are one list.
 - **Containers.** An item that **Holds** something is a place too (a backpack, saddlebags): items go inside it if they fit its tags, and they go with it (dropping the backpack drops what's in it).
-- **Room** is counted with the field the sheet names in **What fills a place** (slots × how many), or one per item. A place over its room shows its count in red; the engine doesn't refuse it: the system says what it means, with a condition (below).
+- **Room** is counted with the field the sheet names in **What fills a place** (slots × how many), or one per item. By default a place over its room only shows its count in red, and the system says what it means, with a condition (below). A sheet (or a place, or a container) whose **Over its room** is `refuse` takes nothing that hasn't room left: the card offers no full place and a move there is refused; what an effect gives goes to the first place it fits with room (then a container with room, then a place that allows more), or, with none, stays with the character in no place, and the journal says _no room left for it_. [A hard limit](#a-hard-limit) below.
 - **What having it does** is written with the pieces sheets and rules already have: a value **Made of** the items (`{ sum: items.slots }`: the load; `{ max: items.armour, where: { place.tags: worn } }`: the armour worn), a condition that **Holds while** the load is over the capacity (it blocks what it lists), a party stat that counts who carries a rope (`from: { count: true, when: { items.tags: climbing } }`), a table that reads it (`'1d6 + {{min(party.stats.roped, 1)}}'`).
 - **Effects give and take them**, by the item's id: `acting.items.torch: -1` (one fewer, from the last ones first), `party.members.items.torch.uses: -1` (an hour of everyone's torch), `acting.items.sword-of-keld: 1` (one more; from the catalogue when the character has none). A field of an item the character doesn't have changes nothing; an item no catalogue has can't be given, and the journal says so.
 - **Tables and conditions read them**: `characters.kael.items.torch.count` (how many), `acting.items.torch.uses` (the first one's), `acting.items.tags: light` (carries something tagged light), `acting.places.pack.used` and `.room`. All of them: [What tables see](../technical/04-what-tables-see.md#characters).
@@ -75,6 +75,44 @@ And the system names the catalogue (`items: [items.gear]` in its `kind: system`)
 
 The Grey Marches carry gear on four places of a body (a rope that helps at the ford, torches that burn on night marches, a backpack, a mail shirt, the Sword of Keld from a hoard): their [page](../packs/02-grey-marches.md). Core's catalogue is the smallest: three items and no fields ([Core](../packs/01-core.md)).
 
+## A hard limit
+
+Some games let a character carry only so much, and not one thing more: a load that slows them past one line and stops at another. With **Over its room** `refuse`, a place takes nothing that hasn't room left, so the second line is a place whose **Room** is the most a character can carry, and the first a condition. With made-up numbers (any game's are its own):
+
+```yaml
+# sheet.yaml: an excerpt (a soldier's sheet; its other values stay)
+kind: sheet
+id: soldier
+values:
+  strength: { name: Strength, default: 4 }
+  # Twice Strength, plus what's worn on the body that helps to carry (a webbing belt).
+  capacity: { name: Capacity, from: '{{self.values.strength * 2 + self.values.carry}}' }
+  carry: { from: { sum: items.carry, where: { place.tags: worn } } }
+  load:
+    name: Load
+    from: { sum: items.weight }
+    of: '{{self.values.capacity}}'
+    display: bar
+    tones: { 0: good, 101%: warning, 200%: danger }
+conditions:
+  encumbered:
+    name: Encumbered
+    when: { self.values.load: { gt: '{{self.values.capacity}}' } }
+    blocks: [actions.sprint]
+items:
+  fields:
+    weight: { name: Weight, default: 1, min: 0 }
+    carry: { name: Helps to carry, default: 0, min: 0 }
+  places:
+    worn: { name: Worn, tags: [worn], room: 2 }
+    # Up to twice the capacity, never more.
+    carried: { name: Carried, tags: [carried], room: '{{self.values.capacity * 2}}' }
+  size: weight
+  over: refuse
+```
+
+Over the capacity the soldier is _Encumbered_ (no sprinting) and the bar turns amber; at twice it, the bar is red and **Carried** takes nothing more: the card offers it no longer, and what a table gives with no room left stays in no place, said in the journal. A vehicle or a pack animal is a container with a room of its own (`holds: { room: 40, tags: [cargo] }`), or `over: allow` where it may be crammed.
+
 ## Common mistakes
 
 - **An item that doesn't go where you want.** Its **Fits** reads the place's tags: `place.tags: worn` needs a place tagged `worn`. A place named `body` with no tags fits only items with no **Fits**.
@@ -82,5 +120,7 @@ The Grey Marches carry gear on four places of a body (a rope that helps at the f
 - **A torch that never burns out.** **Runs out** needs a **Min** (it's spent when it reaches it).
 - **A place always over its room.** **What fills a place** counts that field × the count: a field with no default counts 0, and without it each item counts 1.
 - **An effect on `items.torch` that gives nothing.** Giving an item needs a catalogue of the system with that id; the journal says _no catalogue of the system has this item_. Take it from the catalogue's list, or name the catalogue in the **Overview**.
-- **Expecting the engine to refuse a full pack.** Room is shown, not enforced: say what being over means with a condition that **Holds while** (`self.places.pack.used: { gt: 6 }`) and what it **Blocks**.
+- **Expecting the engine to refuse a full pack.** Room is only shown unless the sheet (or the place, or the container) says **Over its room** `refuse`; otherwise say what being over means with a condition that **Holds while** (`self.places.pack.used: { gt: 6 }`) and what it **Blocks**.
+- **Gear that ends up in no place.** With `refuse`, what an effect gives with no room left anywhere it fits goes in no place: make room, or let a container take more (`holds: { …, over: allow }`). A container copied from a catalogue onto a character keeps what it said then: drop it and add it again from the catalogue.
+- **A stack that won't move.** A whole stack needs room for all of it: hold Shift as you drop it to move one at a time.
 - **`tags` as an item's id.** `items.tags` reads every tag of every item: no item may be called `tags`.

@@ -530,7 +530,11 @@ export function createSession(options: {
           ...(time !== undefined && { time }),
           data: { path: `${whose(e.character)}.${e.path}` },
         })
-      else if (e.type === 'ITEM_SPENT' || e.type === 'UNKNOWN_ITEM')
+      else if (
+        e.type === 'ITEM_SPENT' ||
+        e.type === 'UNKNOWN_ITEM' ||
+        (e.type === 'ITEM_NO_ROOM' && e.key === undefined)
+      )
         add(s, entries, {
           source: 'travel',
           code: e.type,

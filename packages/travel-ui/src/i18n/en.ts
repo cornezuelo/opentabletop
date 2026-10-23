@@ -218,6 +218,7 @@ export const en = {
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     itemSpent: '{name}: one is used up',
     unknownItem: '{name}: no catalogue of the system has this item, so nothing is given',
+    itemNoRoom: '{name}: no room left for it, so it is carried in no place',
     notWritable:
       '“{name}” holds by itself (made of other values, or by its own condition), so effects don’t change it',
     reacted: 'For {name}, a rule of the system comes into play:',

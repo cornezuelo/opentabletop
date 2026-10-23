@@ -508,6 +508,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.unknownItem', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    case 'ITEM_NO_ROOM':
+      return t('journal.itemNoRoom', {
+        name: context.memberName?.(String(d.path)) ?? String(d.path),
+      })
     case 'NOTE':
       return e.text ?? ''
     case 'MEMBER_LEFT':

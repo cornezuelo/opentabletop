@@ -2,9 +2,11 @@
   import {
     fieldBounds,
     fitsIn,
+    hasRoom,
     itemFromCatalogue,
     placesOf,
     roomUsed,
+    sizeOf,
     type Catalogue,
     type CharacterAction,
     type CharacterState,
@@ -72,8 +74,53 @@
     return out
   })
 
-  /** The places an item may be moved to. */
-  const fitting = (item: ItemState) => places.filter((p) => fitsIn(item, p, items))
+  /** Whether `count` of an item (all of them, if none) may go to a place: it fits and has room. */
+  const takes = (place: Place, item: ItemState, count = item.count) =>
+    place.id === item.place ||
+    (fitsIn(item, place, items) &&
+      hasRoom(
+        sheet.items,
+        character,
+        place,
+        sizeOf(sheet.items, { ...item, count }),
+        count < item.count ? undefined : item.key,
+      ))
+  /** The places an item may be moved to (where it is, and those with room for it). */
+  const fitting = (item: ItemState) => places.filter((p) => takes(p, item))
+
+  /** The item being dragged, if any; a drop with Shift held moves only one of it. */
+  let dragging = $state<ItemState>()
+  /** The place a drag is over (`''`: in no place). */
+  let dragOver = $state<string>()
+  const DRAG = 'application/x-opentabletop-item'
+  const accepts = (place: Place | undefined, item: ItemState, one = false) =>
+    place === undefined ? item.place !== undefined || one : takes(place, item, one ? 1 : item.count)
+  function startDrag(e: DragEvent, item: ItemState) {
+    dragging = item
+    e.dataTransfer?.setData(DRAG, item.key)
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+  }
+  function overPlace(e: DragEvent, place: Place | undefined) {
+    if (!dragging || !e.dataTransfer?.types.includes(DRAG)) return
+    if (!accepts(place, dragging, e.shiftKey)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    dragOver = place?.id ?? ''
+  }
+  function dropOn(e: DragEvent, place: Place | undefined) {
+    const item = dragging
+    dragging = dragOver = undefined
+    if (!item || !accepts(place, item, e.shiftKey)) return
+    e.preventDefault()
+    const one = e.shiftKey && item.count > 1
+    if (place?.id === item.place && !one) return
+    onaction({
+      type: 'moveItem',
+      key: item.key,
+      place: place?.id,
+      ...(one && { count: 1 }),
+    })
+  }
 
   /** What the catalogues offer, by name. */
   const offered = $derived(
@@ -144,7 +191,15 @@
 
 <div class="items">
   {#each groups as group (group.place?.id ?? '')}
-    <section class="place">
+    <section
+      class="place"
+      class:target={dragOver === (group.place?.id ?? '')}
+      class:dimmed={dragging && !accepts(group.place, dragging)}
+      aria-label={group.place ? placeName(group.place) : t('items.nowhere')}
+      ondragover={(e) => overPlace(e, group.place)}
+      ondragleave={() => (dragOver = undefined)}
+      ondrop={(e) => dropOn(e, group.place)}
+    >
       {#if group.place}
         {@const room = group.place.room}
         {@const full = used[group.place.id] ?? 0}
@@ -167,7 +222,19 @@
         <h5 class="subhead">{t('items.nowhere')}</h5>
       {/if}
       {#each group.items as item (item.key)}
-        <div class="item">
+        <div class="item" class:moving={dragging?.key === item.key}>
+          {#if !disabled && (places.length || item.count > 1)}
+            <span
+              class="grip"
+              role="button"
+              tabindex="-1"
+              aria-label={t('items.drag')}
+              draggable="true"
+              ondragstart={(e) => startDrag(e, item)}
+              ondragend={() => (dragging = dragOver = undefined)}
+              use:tooltip={t('items.drag')}>⠿</span
+            >
+          {/if}
           <span class="item-name">{nameOf(item)}<InfoTip markdown={itemHelp(item)} /></span>
           <label class="count">
             <span>{t('items.count')}</span>
@@ -323,6 +390,27 @@
 
   .room.over {
     color: var(--danger);
+  }
+
+  .place.target {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .place.dimmed {
+    opacity: 0.45;
+  }
+
+  .item.moving {
+    opacity: 0.6;
+  }
+
+  .grip {
+    align-self: center;
+    padding: 0 2px;
+    color: var(--text-muted);
+    cursor: grab;
+    user-select: none;
   }
 
   .item {

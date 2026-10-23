@@ -78,12 +78,18 @@ const looks = {
   /** With `display: levels`, the names the value picks, from its min (or 0) up. */
   levels: z.array(level).min(1).optional(),
   /**
-   * A tone from each value up: `{ 0: danger, 2: warning, 4: good }`, or from a share of its
-   * max (`{ 0: danger, 50%: warning, 75%: good }`), which follows a max that changes.
+   * A tone from each value up: `{ 0: danger, 2: warning, 4: good }`, from a share of its
+   * max (`{ 0: danger, 50%: warning, 75%: good }`), which follows a max that changes, or
+   * (on a sheet's values) from the sheet's other values (`'{{self.values.capacity}}': danger`).
    */
   tones: z
     .record(
-      z.string().regex(/^-?\d+%?$/, 'a whole number, or a share of its max (50%)'),
+      z
+        .string()
+        .regex(
+          /^(-?\d+%?|\{\{.+\}\})$/,
+          "a whole number, a share of its max (50%) or '{{self.values.<id>}}'",
+        ),
       z.enum(TONES),
     )
     .optional(),
@@ -116,6 +122,11 @@ const value = z
     from: z.union([z.string().min(1), itemsFrom]).optional(),
     min: bound.optional(),
     max: bound.optional(),
+    /**
+     * What it's shown against, never a bound (a load against a capacity): `display: of` and
+     * `bar` draw it in place of the max, and shares in `tones` are shares of it.
+     */
+    of: bound.optional(),
     ...looks,
     /** Shown as boxes, `max` of them: the older form of `display: boxes`. */
     track: z.boolean().optional(),
@@ -173,6 +184,8 @@ const sheetItems = z
             description: text.optional(),
             tags: z.array(z.string().min(1)).optional(),
             room: bound.optional(),
+            /** Whether it takes more than its room; absent: the sheet's `over`. */
+            over: z.enum(['allow', 'refuse']).optional(),
           })
           .strict(),
       )
@@ -187,6 +200,11 @@ const sheetItems = z
     share: z.enum(['even', 'order']).optional(),
     /** What a new character of this sheet carries, from the system's catalogues: `{ ration: 2 }`. */
     start: z.record(z.string().min(1), z.number().int().positive()).optional(),
+    /**
+     * Whether a place takes more than its room: `allow` (the room is only shown; the default)
+     * or `refuse` (nothing goes in that hasn't room left). Each place may say otherwise.
+     */
+    over: z.enum(['allow', 'refuse']).optional(),
   })
   .strict()
 
@@ -235,7 +253,7 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
   const sheet = parsed.data
   const errors: string[] = []
   for (const [id, v] of Object.entries(sheet.values)) {
-    for (const key of ['min', 'max'] as const) {
+    for (const key of ['min', 'max', 'of'] as const) {
       const b = v[key]
       if (typeof b === 'string')
         errors.push(
@@ -256,7 +274,10 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
       if (v.default !== undefined)
         errors.push(`values.${id}.default: not with from (it is made of other values)`)
     }
-    errors.push(...looksErrors(v, `values.${id}`))
+    errors.push(...looksErrors(v, `values.${id}`, true))
+    for (const key of Object.keys(v.tones ?? {}))
+      if (key.startsWith('{{'))
+        errors.push(...ownErrors(sheet, key, `values.${id}.tones`, "'{{self.values.<id>}}'"))
   }
   const loop = fromCycle(sheet)
   if (loop) errors.push(`values.${loop[0]}.from: made of itself (${loop.join(' → ')})`)
@@ -395,6 +416,31 @@ const COMPARISONS = ['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists']
 const isComparison = (v: object): boolean =>
   !Array.isArray(v) && Object.keys(v).some((k) => COMPARISONS.includes(k))
 
+/**
+ * The thresholds of a value's tones as they read now: the sheet's values in braces read
+ * (`'{{self.values.capacity}}'` → `8`); numbers and shares as written. One that can't be
+ * read is left out.
+ */
+export function tonesNow(
+  tones: Record<string, Tone> | undefined,
+  values: Record<string, number>,
+): Record<string, Tone> | undefined {
+  if (!tones || !Object.keys(tones).some((k) => k.startsWith('{{'))) return tones
+  const out: Record<string, Tone> = {}
+  for (const [key, tone] of Object.entries(tones)) {
+    const at = key.startsWith('{{') ? readOwn(key, values) : key
+    if (at !== undefined) out[String(at)] = tone
+  }
+  return out
+}
+
+/** What a value is shown against now: its `of` read, else its max. */
+export function shownAgainst(sheet: Sheet, state: CharacterState, id: string): number | undefined {
+  const of = sheet.values[id]?.of
+  if (of === undefined) return boundsOf(sheet, state, id).max
+  return typeof of === 'number' ? of : readOwn(of, state.values)
+}
+
 /** How a value of a sheet (or a relation's number) is shown; `track: true` is `boxes`. */
 export function displayOf(def: { display?: Display; track?: boolean }): Display {
   return def.display ?? (def.track ? 'boxes' : 'number')
@@ -432,19 +478,28 @@ function looksErrors(
     display?: Display
     track?: boolean
     max?: unknown
+    of?: unknown
     tones?: Record<string, Tone>
     levels?: (string | { id: string })[]
   },
   at: string,
+  own = false,
 ): string[] {
   const errors: string[] = []
   const display = displayOf(v)
+  const against = v.max ?? v.of
   if (v.track && v.display && v.display !== 'boxes')
     errors.push(`${at}: track: true is display: boxes, not ${v.display}`)
-  if (DISPLAYS_WITH_MAX.includes(display) && v.max === undefined)
-    errors.push(`${at}: display: ${display} needs a max`)
-  if (v.max === undefined && Object.keys(v.tones ?? {}).some((k) => k.endsWith('%')))
-    errors.push(`${at}.tones: a share (50%) needs a max`)
+  if (DISPLAYS_WITH_MAX.includes(display) && against === undefined)
+    errors.push(
+      `${at}: display: ${display} needs a max${own && (display === 'of' || display === 'bar') ? ' (or an of)' : ''}`,
+    )
+  else if (v.max === undefined && v.of !== undefined && display !== 'of' && display !== 'bar')
+    errors.push(`${at}: display: ${display} needs a max (of is shown only by of and bar)`)
+  if (against === undefined && Object.keys(v.tones ?? {}).some((k) => k.endsWith('%')))
+    errors.push(`${at}.tones: a share (50%) needs a max${own ? ' or an of' : ''}`)
+  if (!own && Object.keys(v.tones ?? {}).some((k) => k.startsWith('{{')))
+    errors.push(`${at}.tones: a whole number or a share (50%) here`)
   if (display === 'levels' && !v.levels) errors.push(`${at}: display: levels needs its levels`)
   if (v.levels && display !== 'levels') errors.push(`${at}.levels: only with display: levels`)
   const ids = (v.levels ?? []).map(levelId)
@@ -524,8 +579,11 @@ export type CharacterAction =
     }
   /** Takes an item out, with whatever is inside it. */
   | { type: 'removeItem'; key: string }
-  /** To a place (the sheet's, its own, or a container's key), or out of every place. */
-  | { type: 'moveItem'; key: string; place?: string }
+  /**
+   * To a place (the sheet's, its own, or a container's key), or out of every place; with a
+   * `count`, only that many of the stack.
+   */
+  | { type: 'moveItem'; key: string; place?: string; count?: number }
   /** An item's count or fields (a number adds, `'=N'` sets), its name or tags, by hand. */
   | {
       type: 'editItem'
@@ -717,7 +775,7 @@ export function applyCharacter(
       removeItem(state, action.key, events)
       break
     case 'moveItem':
-      moveItem(sheet.items, state, action.key, action.place, events)
+      moveItem(sheet.items, state, action.key, action.place, events, action.count)
       break
     case 'editItem': {
       const item = state.items?.find((i) => i.key === action.key)

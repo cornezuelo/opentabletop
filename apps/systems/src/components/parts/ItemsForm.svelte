@@ -58,6 +58,14 @@
       type: 'list',
       choices: placeTags,
     },
+    {
+      field: 'holds.over',
+      label: t('sheet.over'),
+      help: t('itemsForm.holdsOverHelp'),
+      type: 'select',
+      choices: ['allow', 'refuse'],
+      placeholder: t('sheet.overSheet'),
+    },
   ])
 </script>
 

@@ -248,3 +248,126 @@ describe('items', () => {
     expect(loaded.members[0].conditions.encumbered).toEqual({})
   })
 })
+
+describe('room a place refuses to go over', () => {
+  // The same sheet, but its places take no more than their room, but for the sack.
+  const strict = parseSheet({
+    kind: 'sheet',
+    id: 'strict',
+    values: { might: { default: 2 } },
+    items: {
+      fields: { slots: { default: 1, min: 0 } },
+      places: {
+        hands: { tags: ['hand'], room: 2 },
+        belt: { tags: ['belt'], room: 1, over: 'allow' },
+        back: { tags: ['back'], room: 1 },
+      },
+      size: 'slots',
+      over: 'refuse',
+    },
+  }).sheet!
+  const gear = lookupItems([
+    {
+      id: 'test/gear',
+      def: parseCatalogue({
+        kind: 'items',
+        id: 'gear',
+        items: {
+          rope: { slots: 1 },
+          stone: { slots: 1, fits: { 'place.tags': ['hand', 'back', 'pack'] } },
+          sack: { slots: 1, fits: { 'place.tags': 'back' }, holds: { room: 2, tags: ['pack'] } },
+        },
+      }).catalogue!,
+    },
+  ])
+  const give = (id: string, count = 1) =>
+    itemFromCatalogue(strict.items, 'test/gear', id, gear(id)!.item, count)
+  const run = (s: CharacterState, action: Parameters<typeof applyCharacter>[2]) =>
+    applyCharacter(strict, s, action, { items: gear })
+  const fresh = () => createCharacter(strict, 'test/strict', { id: 'mira' })
+
+  it('are read from the sheet, a place and a container', () => {
+    expect(parseSheet({ kind: 'sheet', id: 'x', items: { over: 'never' } }).errors[0]).toMatch(
+      /^items\.over/,
+    )
+    expect(
+      parseCatalogue({ kind: 'items', id: 'x', items: { a: { holds: { over: 'refuse' } } } })
+        .errors,
+    ).toEqual([])
+  })
+
+  it('send what has no room left to the next place, a container, then the one that allows', () => {
+    let s = fresh()
+    s = run(s, { type: 'addItem', item: give('sack') }).state
+    s = run(s, { type: 'addItem', item: give('rope', 2) }).state
+    s = run(s, { type: 'addItem', item: give('stone') }).state
+    expect(s.items!.map((i) => [i.key, i.place, i.count])).toEqual([
+      ['sack', 'back', 1],
+      ['rope', 'hands', 2],
+      // Hands full, the back too, and it fits no belt: the sack has room.
+      ['stone', 'sack', 1],
+    ])
+    // Belt (1), then the sack's last slot; then only the belt takes more than its room.
+    s = run(s, { type: 'change', effects: { 'items.rope': '+3' } }).state
+    expect(s.items!.map((i) => [i.key, i.place, i.count])).toEqual([
+      ['sack', 'back', 1],
+      ['rope', 'hands', 2],
+      ['stone', 'sack', 1],
+      ['rope-2', 'belt', 3],
+    ])
+  })
+
+  it('leave what fits nowhere with room in no place, and say so', () => {
+    let s = fresh()
+    // Three stones at once fit no place that refuses (hands 2, back 1), and none allows them.
+    const three = run(s, { type: 'addItem', item: give('stone', 3) })
+    expect(three.state.items!.map((i) => [i.key, i.place])).toEqual([['stone', undefined]])
+    expect(three.events).toContainEqual({ type: 'ITEM_NO_ROOM', character: 'mira', item: 'stone' })
+    // One at a time: the hands, then the back, then nowhere.
+    for (let n = 0; n < 4; n++)
+      s = run(s, { type: 'change', effects: { 'items.stone': '+1' } }).state
+    expect(s.items!.map((i) => [i.key, i.place, i.count])).toEqual([
+      ['stone', 'hands', 2],
+      ['stone-2', 'back', 1],
+      ['stone-3', undefined, 1],
+    ])
+  })
+
+  it('refuse a move there, unless it allows it', () => {
+    let s = fresh()
+    s = run(s, { type: 'addItem', item: { ...give('rope', 3), place: 'belt' } }).state
+    expect(s.items![0].place).toBe('belt')
+    const refused = run(s, { type: 'moveItem', key: 'rope', place: 'hands' })
+    expect(refused.events).toEqual([
+      { type: 'ITEM_NO_ROOM', character: 'mira', item: 'rope', key: 'rope', place: 'hands' },
+    ])
+    // Two of them fit the hands: moved one at a time, each a stack of its own there.
+    s = run(s, { type: 'moveItem', key: 'rope', place: 'hands', count: 1 }).state
+    s = run(s, { type: 'moveItem', key: 'rope', place: 'hands', count: 1 }).state
+    expect(s.items!.map((i) => [i.key, i.place, i.count])).toEqual([
+      ['rope', 'belt', 1],
+      ['rope-2', 'hands', 2],
+    ])
+    expect(run(s, { type: 'moveItem', key: 'rope', place: 'hands' }).events[0].type).toBe(
+      'ITEM_NO_ROOM',
+    )
+    // One taken out of every place, apart from the rest.
+    s = run(s, { type: 'moveItem', key: 'rope-2', place: undefined, count: 1 }).state
+    expect(s.items!.map((i) => [i.key, i.place, i.count])).toEqual([
+      ['rope', 'belt', 1],
+      ['rope-2', 'hands', 1],
+      ['rope-3', undefined, 1],
+    ])
+    // Put by hand where there's no room: it's kept, in no place.
+    const put = run(s, { type: 'addItem', item: { ...give('stone'), place: 'back' } })
+    expect(put.state.items!.at(-1)).toMatchObject({ key: 'stone', place: 'back' })
+    const full = run(put.state, { type: 'addItem', item: { ...give('stone'), place: 'back' } })
+    expect(full.state.items!.find((i) => i.key === 'stone-2')?.place).toBeUndefined()
+    expect(full.events).toContainEqual({
+      type: 'ITEM_NO_ROOM',
+      character: 'mira',
+      item: 'stone',
+      place: 'back',
+    })
+  })
+})

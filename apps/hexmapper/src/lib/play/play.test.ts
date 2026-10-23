@@ -19,6 +19,7 @@ import {
   type SessionState,
 } from '@open-tabletop/session'
 import { mapWorld } from './world'
+import { applyCharacter, lookupItems, shownAgainst, toneOf } from '@open-tabletop/character-engine'
 import { entryText, translator } from '@open-tabletop/travel-ui'
 import {
   clickHex,
@@ -1072,6 +1073,44 @@ describe('the Company: a party made of characters', () => {
         'forced-march'
       ],
     ).toMatchObject({ who: 'tobin' })
+  })
+
+  it('fills its places only to their room; the backpack takes more, and the load shows it', () => {
+    grey()
+    clickHex('7,7')
+    const system = activeSystem()
+    const give = (effects: Record<string, unknown>) =>
+      editSession((s) => applyResult(s, { effects }, system.bindings?.stats, partyOf(system)))
+    // Kael's hands hold a torch and his belt a rope: the Sword (2 slots, hand or belt) has no
+    // room left in either, and the sheet's places take no more than their room.
+    give({ 'characters.kael.items.sword-of-keld': 1 })
+    expect(member('kael').items!.find((i) => i.id === 'sword-of-keld')?.place).toBeUndefined()
+    // Dropping the torch makes room: the Sword can go in his hands now, by hand.
+    const kael = (s: SessionState) => s.members!.find((m) => m.id === 'kael')!
+    editSession((s) => {
+      kael(s).items = kael(s).items!.filter((i) => i.id !== 'torch')
+      return s
+    })
+    const moved = applyCharacter(
+      system.sheet!.def,
+      member('kael'),
+      { type: 'moveItem', key: 'sword-of-keld', place: 'hands' },
+      { items: lookupItems(system.items!) },
+    )
+    expect(moved.state.items!.find((i) => i.id === 'sword-of-keld')?.place).toBe('hands')
+    // Old Tobin's backpack takes more than its six slots (`over: allow`): crammed with
+    // rations, his load passes his capacity, shown against it and burdened.
+    give({ 'characters.tobin.items.ration': 6 })
+    const tobin = member('tobin')
+    expect(
+      tobin.items!.filter((i) => i.place === 'backpack').reduce((n, i) => n + i.count, 0),
+    ).toBe(10)
+    expect(tobin.values).toMatchObject({ load: 13, capacity: 10 })
+    expect(tobin.conditions).toHaveProperty('burdened')
+    const shown = system.sheet!.def.values.load
+    expect(shown).toMatchObject({ display: 'of', of: '{{self.values.capacity}}' })
+    expect(shownAgainst(system.sheet!.def, tobin, 'load')).toBe(10)
+    expect(toneOf(shown.tones, tobin.values.load, 10)).toBe('danger')
   })
 
   it('wounds keep someone back, and whoever acts tends them', () => {

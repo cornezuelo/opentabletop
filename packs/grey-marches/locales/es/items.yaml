@@ -8,7 +8,8 @@ items/gear:
     `light`) que leen las reglas (la tirada del vado cuenta los compañeros con cuerda,
     `party.stats.roped`; la marcha nocturna gasta los usos de las antorchas), números para los
     campos de la hoja (huecos, usos, armadura), dónde cabe un objeto
-    (`fits: { place.tags: worn }`), un contenedor (`holds: { room: 6, tags: [pack] }`), un
+    (`fits: { place.tags: worn }`), un contenedor (`holds: { room: 6, tags: [pack], over: allow }`,
+    que admite más de su sitio aunque los lugares de la hoja no), un
     objeto que da el resultado de una tabla, y la comida del grupo como objetos (raciones, que
     come el grupo en conjunto: `party.items.ration`).
   items:
@@ -23,7 +24,7 @@ items/gear:
       description: Brea y trapo, tres horas de luz. Una marcha nocturna gasta una hora de la antorcha de cada compañero.
     backpack:
       name: Mochila
-      description: Se lleva a la espalda; guarda seis huecos de equipo.
+      description: Se lleva a la espalda; guarda seis huecos de equipo, y más si la atiborras.
     mail:
       name: Cota de malla
       description: Pesada, y solo sirve puesta.

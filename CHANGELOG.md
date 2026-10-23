@@ -4,6 +4,16 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Characters, Travel, Hexmapper, Systems: **items move by dragging** their handle (⠿) onto another place of the card (with Shift held, only one of a stack); places an item doesn't fit, or hasn't room in, are dimmed while dragging.
+- Characters, Travel, Hexmapper, Systems: **a place may refuse what doesn't fit**: a sheet's `items.over: refuse` (or a place's, or a container's `holds.over`) takes nothing that hasn't room left; the card offers no full place, and what an effect gives with no room left goes to a container with room or stays in no place, said in the journal. `allow`, the default, keeps the room only shown. Systems' **Sheet → Items** and **Items** tab have **Over its room**.
+- Characters, Systems: **a value shown against another** (`of: '{{self.values.capacity}}'`, **Shown against**): `display: of` and `bar` draw it as `9 / 8` without bounding it, and `%` tones are shares of it; a tone's threshold may be the sheet's values (`'{{self.values.capacity}}': danger`).
+
+### Packs
+
+- The Grey Marches: a companion's **Load** is shown against their **Capacity** (amber at it, red over it); hands, body, belt and back take no more than their room (the body now holds 2, a mail shirt), and the backpack may be crammed.
+
 ## [0.14.0] - 2026-10-23
 
 ### Apps

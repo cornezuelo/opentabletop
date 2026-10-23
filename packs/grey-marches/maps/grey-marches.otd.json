@@ -434,7 +434,8 @@
               },
               "holds": {
                 "room": 6,
-                "tags": ["pack"]
+                "tags": ["pack"],
+                "over": "allow"
               }
             },
             {

@@ -15,7 +15,9 @@ import {
   settleCharacter,
   validatePartyFrom,
   displayOf,
+  shownAgainst,
   toneOf,
+  tonesNow,
   type CharacterState,
 } from './index'
 
@@ -105,7 +107,9 @@ describe('how values are shown', () => {
   })
 
   it('says what a display needs', () => {
-    expect(looks({ a: { display: 'bar' } })).toEqual(['values.a: display: bar needs a max'])
+    expect(looks({ a: { display: 'bar' } })).toEqual([
+      'values.a: display: bar needs a max (or an of)',
+    ])
     expect(looks({ a: { display: 'levels' } })).toEqual([
       'values.a: display: levels needs its levels',
     ])
@@ -162,7 +166,56 @@ describe('how values are shown', () => {
     expect(toneOf(tones, 5)).toBe('danger')
     expect(
       parseSheet({ kind: 'sheet', id: 'x', values: { a: { tones: { '50%': 'good' } } } }).errors,
-    ).toEqual(['values.a.tones: a share (50%) needs a max'])
+    ).toEqual(['values.a.tones: a share (50%) needs a max or an of'])
+  })
+
+  it('is shown against another value, never bounded by it', () => {
+    const { sheet, errors } = parseSheet({
+      kind: 'sheet',
+      id: 'x',
+      values: {
+        capacity: { default: 8 },
+        load: {
+          default: 0,
+          of: '{{self.values.capacity}}',
+          display: 'of',
+          tones: { 0: 'good', '100%': 'warning', '101%': 'danger' },
+        },
+        weight: { default: 0, tones: { 0: 'good', '{{self.values.capacity + 1}}': 'danger' } },
+      },
+    })
+    expect(errors).toEqual([])
+    const kael = createCharacter(sheet!, 'test/x', { id: 'kael', values: { load: 28, weight: 9 } })
+    // 28 stays 28: `of` is no bound.
+    expect(kael.values.load).toBe(28)
+    expect(shownAgainst(sheet!, kael, 'load')).toBe(8)
+    const tone = (v: number) => toneOf(sheet!.values.load.tones, v, 8)
+    expect([0, 7, 8, 9, 28].map(tone)).toEqual(['good', 'good', 'warning', 'danger', 'danger'])
+    // A threshold of the sheet's values, read now.
+    const now = tonesNow(sheet!.values.weight.tones, kael.values)
+    expect(now).toEqual({ 0: 'good', 9: 'danger' })
+    expect([8, 9].map((v) => toneOf(now, v))).toEqual(['good', 'danger'])
+  })
+
+  it('says what an of and a threshold of values need', () => {
+    const errors = (values: Record<string, unknown>) =>
+      parseSheet({ kind: 'sheet', id: 'x', values }).errors
+    expect(errors({ a: { of: 4, display: 'boxes' } })).toEqual([
+      'values.a: display: boxes needs a max (of is shown only by of and bar)',
+    ])
+    expect(errors({ a: { of: '{{self.values.b}}', display: 'bar' } })).toEqual([
+      'values.a.of: no value "b" on this sheet',
+    ])
+    expect(errors({ a: { tones: { '{{self.values.b}}': 'danger' } } })).toEqual([
+      'values.a.tones: no value "b" on this sheet',
+    ])
+    expect(
+      parseSheet({
+        kind: 'sheet',
+        id: 'x',
+        relations: { bond: { value: { max: 3, tones: { '{{self.values.a}}': 'good' } } } },
+      }).errors,
+    ).toEqual(['relations.bond.value.tones: a whole number or a share (50%) here'])
   })
 })
 

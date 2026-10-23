@@ -122,6 +122,8 @@ export const en = {
     holdsRoom: 'Holds',
     holdsRoomHelp:
       "A container: how much fits inside (measured as the sheet's places are, by **What fills a place**). What's inside goes with it. Empty with no tags: not a container.\n• `6` — a backpack",
+    holdsOverHelp:
+      "Whether it takes more than it **Holds**, as a place's **Over its room** in **Sheet → Items**: **allow** (crammed, the room shows red) or **refuse** (nothing goes in that hasn't room left). Empty: as the sheet says for its places.\n• `allow` — a sack you can always stuff one more thing into",
     holdsTags: 'Holds as',
     holdsTagsHelp:
       "What it is as a place, so items fit it by these tags as by the sheet's places':\n• `pack` — anything that fits a pack fits inside it",
@@ -219,13 +221,16 @@ export const en = {
       "A value worked out from the sheet's other values, never set by hand nor by effects: it follows them at once (after every change, within its own min and max). Write the values in braces, with `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs`; a minus between names takes spaces (ids may hold a hyphen):\n• `'{{self.values.might * 2 + 4}}'` — twice Might, plus 4\n• `'{{self.values.maxHealth - self.values.health}}'` — the wounds taken\n• `'{{floor(self.values.wits / 2)}}'` — half Wits, rounded down\nOr made of the items, as a map (`{ … }`): `sum`, `max` or `min` of a field, or `count: items`, among those its `where` lets in (it reads `item.*` and `place.*`):\n• `{ sum: items.slots }` — the load: every item's slots\n• `{ max: items.armour, where: { place.tags: worn } }` — the best armour worn\n• `{ count: items, where: { item.tags: light } }` — how many lights\nNo dice (it would change each time it's read). Empty: a value set by hand and by effects.",
     display: 'Shown as',
     displayHelp:
-      'How the value is drawn wherever a character is shown (empty: a number box). All but **number** and **levels** need a max:\n• `number` — a number box\n• `of` — the number and its max: **3 / 5**\n• `bar` — a bar filled up to its max\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…',
+      'How the value is drawn wherever a character is shown (empty: a number box). All but **number** and **levels** need a max:\n• `number` — a number box\n• `of` — the number and its max (or its **Shown against**): **3 / 5**\n• `bar` — a bar filled up to its max (or its **Shown against**)\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…',
     levels: 'Levels',
     levelsHelp:
       'With **Shown as** `levels`, the names the value picks, each one a pill (Enter or a comma adds it), from its min (or 0) up; beyond them the number is shown. Translate their names in the translation file, by id:\n• `unhurt, bruised, wounded, dying` — 0 is **unhurt**, 3 is **dying**\n• `d4, d6, d8, d10, d12` — a die size that grows with the value\n• with min `-3`: `hated, wary, neutral, …` — −3 is **hated**',
     tones: 'Tones',
     tonesHelp:
-      "The colour it takes from a value up, `value: tone`, among the theme's `good`, `warning`, `danger` and `accent`:\n• `0: danger, 2: warning, 4: good` — red at 0 and 1, amber at 2 and 3, green from 4\n• `5: danger` — red only from 5 up\n• `0: danger, 50%: warning, 75%: good` — shares of its max, following it when it changes: with max 3, red at 0 and 1, amber at 2, green at 3\nEmpty: the theme's accent.",
+      "The colour it takes from a value up, `value: tone`, among the theme's `good`, `warning`, `danger` and `accent`:\n• `0: danger, 2: warning, 4: good` — red at 0 and 1, amber at 2 and 3, green from 4\n• `5: danger` — red only from 5 up\n• `0: danger, 50%: warning, 75%: good` — shares of its max, following it when it changes: with max 3, red at 0 and 1, amber at 2, green at 3 (with a **Shown against**, shares of it)\n• `0: good, '{{self.values.capacity}}': danger` — red from the capacity up: a threshold may be the sheet's other values in braces\nEmpty: the theme's accent.",
+    of: 'Shown against',
+    ofHelp:
+      "With **Shown as** `of` or `bar`, what the value is drawn against when that isn't its max: never a bound, it may go past it (a load against a capacity); shares in **Tones** are shares of it. A number, or the sheet's other values in braces:\n• `'{{self.values.capacity}}'` — **28 / 8**, a full bar\n• `10`\nEmpty: its max.",
     relationDisplayHelp:
       "How a relation's number is drawn, as a value's **Shown as** (it needs a max, except **number**):\n• `pips` — a bond from 0 to 3 as dots\n• `bar`",
     preview: 'Preview',
@@ -275,6 +280,11 @@ export const en = {
     shareHelp:
       "How what the party spends or gains of an item (`party.items.ration: -3`, `party.items.ration: 2`) is shared out among the characters of this sheet: the party's own items go first, then theirs.\n• **even** (the default): taken from whoever has most, given to whoever has least, one at a time\n• **in order**: the first character gives (or takes) all it can, then the next\nWithout characters, the party's own sheet keeps them.",
     shareEven: 'even (default)',
+    over: 'Over its room',
+    overHelp:
+      "Whether a place with a **Room** takes more than fits in it:\n• **allow** (the default): its room is only shown, and goes red when it's over; a condition says what being over means (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: nothing goes in that hasn't room left. Characters' cards offer no full place, a move there is refused, and what an effect gives with no room left anywhere stays with the character in no place, with a line in the journal\nOn the sheet it's every place's; a place may say otherwise in its own column (a pack that holds more, worn hands that don't). A room that shrinks later leaves what's there.",
+    overAllow: 'allow (default)',
+    overSheet: "the sheet's",
     start: 'Starts with',
     startHelp:
       "What a new character of this sheet carries, from the system's catalogues (the **Items** tab), one row each: the item and how many. On the party's own sheet, what every new trip starts with (the stores of a party without characters).\n• `ration` · `2` — two rations each\n• `torch` · `1`",

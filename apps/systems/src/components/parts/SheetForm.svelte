@@ -56,6 +56,7 @@
   )
   const size = $derived((data?.items as Record<string, unknown> | undefined)?.size)
   const share = $derived((data?.items as Record<string, unknown> | undefined)?.share)
+  const over = $derived((data?.items as Record<string, unknown> | undefined)?.over)
   const start = $derived((data?.items as Record<string, unknown> | undefined)?.start)
   /** The items of the system's catalogues, by id: what a new character may start with. */
   const catalogueIds = $derived([
@@ -171,6 +172,13 @@
           placeholder: 'number',
           read: (row) => (row.track ? 'boxes' : undefined),
           replaces: ['track'],
+        },
+        {
+          field: 'of',
+          label: t('sheet.of'),
+          help: t('sheet.ofHelp'),
+          type: 'value',
+          off: (row) => row.display !== 'of' && row.display !== 'bar',
         },
         {
           field: 'levels',
@@ -333,6 +341,15 @@
         },
         { field: 'tags', label: t('sheet.placeTags'), type: 'list' },
         { field: 'room', label: t('sheet.room'), help: t('sheet.boundHelp'), type: 'value' },
+        {
+          field: 'over',
+          label: t('sheet.over'),
+          help: t('sheet.overHelp'),
+          type: 'select',
+          choices: ['allow', 'refuse'],
+          placeholder: t('sheet.overSheet'),
+          off: (row) => row.room === undefined,
+        },
       ]}
     />
     <label class="name">
@@ -355,6 +372,17 @@
       >
         <option value="">{t('sheet.shareEven')}</option>
         <option value="order">order</option>
+      </select>
+    </label>
+    <label class="name">
+      <span>{t('sheet.over')}<InfoTip text={t('sheet.overHelp')} /></span>
+      <select
+        value={typeof over === 'string' ? over : ''}
+        {disabled}
+        onchange={(e) => doc.edit('', ['items', 'over'], e.currentTarget.value || undefined)}
+      >
+        <option value="">{t('sheet.overAllow')}</option>
+        <option value="refuse">refuse</option>
       </select>
     </label>
     <div class="name">
