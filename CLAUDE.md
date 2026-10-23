@@ -74,6 +74,7 @@ docs/
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
   terrain-generation.md     # Terrain with memory (land models, Markov) design, to review
   character-pictures.md     # Pictures for characters design, to review
+  inventory.md              # Inventory design (items, values made of others, conditions that hold by themselves), to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
