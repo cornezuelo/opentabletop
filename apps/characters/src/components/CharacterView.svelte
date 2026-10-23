@@ -145,6 +145,7 @@
       <CharacterCard
         sheet={system.sheet.def}
         {character}
+        catalogues={system.items}
         locale={getLocale()}
         {targets}
         onchange={setCharacter}

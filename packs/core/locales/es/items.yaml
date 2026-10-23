@@ -1,0 +1,12 @@
+items/gear:
+  name: Equipo
+  description: |-
+    Unas pocas cosas que lleva cualquier grupo, para elegirlas en la tarjeta de un personaje.
+
+    **Enseña:** el catálogo de objetos más pequeño: objetos con nombre, descripción y
+    etiquetas (`light`, `food`), en una hoja que no les da campos ni lugares (una lista con
+    cantidades).
+  items:
+    rope: { name: Cuerda, description: Un buen trozo de cuerda. }
+    torch: { name: Antorcha, description: Luz para unas horas. }
+    ration: { name: Ración, description: La comida de un día para uno. }

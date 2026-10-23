@@ -185,6 +185,7 @@ description: |-
   - An **oracle** whose input comes from the bindings: `odds: even`
   - Variants with their own dice
   - Day values set by the weather: `{{today.fordModifier}}`, `today.fordImpossible`
+  - What the companions carry: +1 with a rope (`{{min(party.stats.roped, 1)}}`, a stat counting the companions with an item tagged `climbing`)
   - `set: { lost: true }`: no crossing today
   - A roll mode of the pack's own: _Carefully_ (three rolls, the middle one kept)
 modes: [roll-modes.careful]
@@ -194,7 +195,7 @@ inputs:
     options: [low, even, high]
     labels: { low: Low and slow, even: Waist-deep, high: In flood }
     default: even
-roll: '1d6 + {{party.stats.survival}} + {{today.fordModifier}}'
+roll: '1d6 + {{party.stats.survival}} + {{today.fordModifier}} + {{min(party.stats.roped, 1)}}'
 variants:
   low:
     entries:
@@ -215,7 +216,7 @@ variants:
         }
       - { id: fine, range: 4-20, result: 'Cold and wet, but across' }
   high:
-    roll: '1d8 + {{party.stats.survival}} + {{today.fordModifier}}'
+    roll: '1d8 + {{party.stats.survival}} + {{today.fordModifier}} + {{min(party.stats.roped, 1)}}'
     entries:
       - id: spate
         range: 1-20

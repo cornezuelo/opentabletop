@@ -353,6 +353,8 @@ export function tripContext(
   s: SessionState,
   facts: Record<string, unknown>,
   extra: Record<string, unknown> = {},
+  /** The system's sheets, so members' items are read with their places. */
+  party: PartyRules = {},
 ): Record<string, unknown> {
   // The day before's values: the session's, then the ones the system declares (lost…).
   const yesterday = { ...s.yesterday, ...upgradeTravelState(s.travel).yesterday }
@@ -364,7 +366,7 @@ export function tripContext(
     ...s.stats,
     ...s.dayVars,
     ...facts,
-    ...memberFacts(s),
+    ...memberFacts(s, party),
     party: { ...host, ...partyValues(s) },
     today,
     yesterday,
@@ -399,7 +401,7 @@ export function applyResult(
   refreshParty(s, party)
   const before = carriedNow(s, party)
   const effects = effectsOf(value)
-  const context = { ...tripContext(s, {}), ...value }
+  const context = { ...tripContext(s, {}, {}, party), ...value }
   applyEffects(s, effects, stats, { ...resources, ...carriedBounds(s, party) }, context)
   applyMemberEffects(s, effects, party, context, s.travel.time)
   settleParty(s, party, before)
@@ -477,6 +479,8 @@ export function createSession(options: {
   sheet?: PartyRules['sheet']
   /** The party's own sheet (the system's `partySheet`), if it has one. */
   partySheet?: PartyRules['partySheet']
+  /** The system's item catalogues, for effects that give an item. */
+  items?: PartyRules['items']
 }): Session {
   const random = options.random ?? mathRandom()
   const host = options.facts ?? {}
@@ -491,6 +495,7 @@ export function createSession(options: {
     sheet: options.sheet,
     partySheet: options.partySheet,
     bindings: options.bindings,
+    items: options.items,
   }
   /** The host's facts, with what the members' conditions block (for the travel engine). */
   const hostOf = (s: SessionState, more: Record<string, unknown> = {}) => {
@@ -572,21 +577,44 @@ export function createSession(options: {
           ...(time !== undefined && { time }),
           data: { path: `${whose(e.character)}.${e.path}` },
         })
+      else if (e.type === 'ITEM_SPENT' || e.type === 'UNKNOWN_ITEM')
+        add(s, entries, {
+          source: 'travel',
+          code: e.type,
+          ...(time !== undefined && { time }),
+          data: { path: `${whose(e.character)}.items.${e.item}` },
+        })
     changed(
       s,
       entries,
       events.flatMap((e): AppliedEffect[] =>
         e.type === 'VALUE_CHANGED'
           ? [{ path: `${whose(e.character)}.values.${e.value}`, from: e.from, to: e.to }]
-          : e.type === 'CONDITION_SET' || e.type === 'CONDITION_CLEARED'
+          : e.type === 'ITEM_ADDED' || e.type === 'ITEM_REMOVED'
             ? [
                 {
-                  path: `${whose(e.character)}.conditions.${e.condition}`,
-                  from: e.type === 'CONDITION_SET' ? 0 : 1,
-                  to: e.type === 'CONDITION_SET' ? 1 : 0,
+                  path: `${whose(e.character)}.items.${e.item}`,
+                  from: e.type === 'ITEM_ADDED' ? 0 : e.count,
+                  to: e.type === 'ITEM_ADDED' ? e.count : 0,
                 },
               ]
-            : [],
+            : e.type === 'ITEM_CHANGED'
+              ? [
+                  {
+                    path: `${whose(e.character)}.items.${e.item}${e.field === 'count' ? '' : `.${e.field}`}`,
+                    from: e.from,
+                    to: e.to,
+                  },
+                ]
+              : e.type === 'CONDITION_SET' || e.type === 'CONDITION_CLEARED'
+                ? [
+                    {
+                      path: `${whose(e.character)}.conditions.${e.condition}`,
+                      from: e.type === 'CONDITION_SET' ? 0 : 1,
+                      to: e.type === 'CONDITION_SET' ? 1 : 0,
+                    },
+                  ]
+                : [],
       ),
       time,
     )
@@ -601,7 +629,7 @@ export function createSession(options: {
   }
   /** The trip's world as conditions see it now (what tables see, by their full names). */
   const worldOf = (s: SessionState) =>
-    qualify(options.travel.context(s.travel, tripContext(s, hostOf(s))))
+    qualify(options.travel.context(s.travel, tripContext(s, hostOf(s), {}, party)))
   /** The moments written as conditions in the system's rules (reactions). */
   const reactions = options.rules ? reactionsOf(options.rules) : []
   /**
@@ -693,7 +721,7 @@ export function createSession(options: {
         if (!discovery) return false
         let outcome: ReturnType<Discovery['arrive']>
         try {
-          outcome = discovery.arrive(s, tripContext(s, hostOf(s)), hex, from)
+          outcome = discovery.arrive(s, tripContext(s, hostOf(s), {}, party), hex, from)
         } catch (error) {
           if (!(error instanceof OracleError)) throw error
           add(s, entries, {
@@ -785,7 +813,7 @@ export function createSession(options: {
         const next = options.travel.apply(
           s.travel,
           { type: 'resolveCheck', id, ...(outcome && { outcome }) },
-          tripContext(s, hostOf(s)),
+          tripContext(s, hostOf(s), {}, party),
         )
         s.travel = next.state
         return next.events.filter((e) => e.type !== 'CHECK_RESOLVED')
@@ -797,7 +825,7 @@ export function createSession(options: {
         const before = { ...s.travel.resources }
         const result = replay
           ? { state: s.travel, events: replay }
-          : options.travel.apply(s.travel, act, tripContext(s, hostOf(s)))
+          : options.travel.apply(s.travel, act, tripContext(s, hostOf(s), {}, party))
         replay = undefined
         s.travel = result.state
         // What the travel engine took from the supplies, or added (actions, the rules).
@@ -827,7 +855,11 @@ export function createSession(options: {
               stats,
             )
             changed(s, entries, applied, event.time)
-            for (const limit of memberEffects(event.effects, tripContext(s, host), event.time))
+            for (const limit of memberEffects(
+              event.effects,
+              tripContext(s, host, {}, party),
+              event.time,
+            ))
               add(s, entries, {
                 source: 'travel',
                 code: 'LIMIT_REACHED',
@@ -865,7 +897,7 @@ export function createSession(options: {
           // A check's own effects (the system's rules as data: hunger, a fed night's sleep…).
           // (A check rolled after waiting for who rolls had its own effects then.)
           if (event.check.effects && !replaying) {
-            const seenNow = tripContext(s, { ...host, ...event.check.context })
+            const seenNow = tripContext(s, { ...host, ...event.check.context }, {}, party)
             const { applied, limits } = applyEffects(
               s,
               event.check.effects,
@@ -942,7 +974,12 @@ export function createSession(options: {
             })
             continue
           }
-          const context = tripContext(s, { ...host, ...event.check.context }, binding.context)
+          const context = tripContext(
+            s,
+            { ...host, ...event.check.context },
+            binding.context,
+            party,
+          )
           let value: Record<string, unknown>
           let text: string | undefined
           try {
@@ -1012,7 +1049,10 @@ export function createSession(options: {
           }
           // Its effects with the variables they name read now (`'-{{party.stats.mouths}}'`;
           // the Oracle reads its own entries' first): the journal says what they did.
-          const seen = { ...tripContext(s, { ...host, ...event.check.context }), ...value }
+          const seen = {
+            ...tripContext(s, { ...host, ...event.check.context }, {}, party),
+            ...value,
+          }
           const written = effectsOf(value)
           const effects = Object.fromEntries(
             Object.entries(written).map(([p, c]) => [
@@ -1137,7 +1177,7 @@ export function createSession(options: {
           const moment = options.travel.apply(
             s.travel,
             { type: 'moment', at: r.key },
-            tripContext(s, hostOf(s)),
+            tripContext(s, hostOf(s), {}, party),
           )
           s.travel = moment.state
           after = next

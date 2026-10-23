@@ -279,6 +279,7 @@
       <CharacterCard
         sheet={system.sheet.def}
         character={member}
+        catalogues={system.items}
         {locale}
         {names}
         time={session.travel.time}

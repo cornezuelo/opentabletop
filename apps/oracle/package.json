@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@open-tabletop/campaign": "*",
+    "@open-tabletop/character-engine": "*",
     "@open-tabletop/dice": "*",
     "@open-tabletop/faction-engine": "*",
     "@open-tabletop/manual-ui": "*",

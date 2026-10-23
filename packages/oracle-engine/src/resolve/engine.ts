@@ -5,6 +5,7 @@ import {
   evaluate,
   isRoll,
   lookupIn,
+  namesIn,
   onceRoller,
   render,
   type Roller,
@@ -541,9 +542,26 @@ class Run {
     const parsed =
       typeof expression === 'string'
         ? parseDice(
-            expression.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, path: string) => {
-              // Missing values count as 0 (e.g. no weather modifier today); wrong types are errors.
-              const value = resolvePath(context, path) ?? 0
+            expression.replace(/\{\{\s*([^}]*?)\s*\}\}/g, (_, path: string) => {
+              // Missing values count as 0 (e.g. no weather modifier today); wrong types are
+              // errors. Arithmetic (`{{min(party.stats.roped, 1)}}`) reads its names.
+              const value = /^[\w.]+$/.test(path)
+                ? (resolvePath(context, path) ?? 0)
+                : lookupIn(context)(
+                    namesIn(path).reduce(
+                      (text, name) =>
+                        resolvePath(context, name) === undefined
+                          ? text.replace(
+                              new RegExp(
+                                `(?<![\\w.])${name.replaceAll('.', '\\.')}(?![\\w.])`,
+                                'g',
+                              ),
+                              '0',
+                            )
+                          : text,
+                      path,
+                    ),
+                  )
               if (typeof value !== 'number' || !Number.isFinite(value))
                 throw new OracleError(`Roll "${expression}" needs a number for "${path}"`)
               // Negative numbers become "- n" so the dice grammar stays simple.

@@ -19,7 +19,7 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  */
 /** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
-  SystemKind | 'factions' | 'clocks',
+  SystemKind | 'factions' | 'clocks' | 'items',
   (id: string) => Record<string, unknown>
 > = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
@@ -152,6 +152,16 @@ export const SYSTEM_TEMPLATES: Record<
     factions: {
       'the-crown': { name: 'The Crown', color: '#c9a227', values: { strength: 3 } },
       'the-rebels': { name: 'The Rebels', color: '#8b1e1e', values: { strength: 2 } },
+    },
+  }),
+  // Two items to rename: what a system's characters may pick (their fields are the sheet's).
+  items: (id) => ({
+    kind: 'items',
+    id,
+    name: 'Gear',
+    items: {
+      rope: { name: 'Rope', description: 'Fifty feet of hemp.', tags: ['climbing'] },
+      torch: { name: 'Torch', tags: ['light'] },
     },
   }),
   // One clock that, when full, rolls Core's twists and starts over: what a system's

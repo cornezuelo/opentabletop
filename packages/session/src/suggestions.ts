@@ -92,7 +92,7 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { pack, rules, bindings, calendar, sheet, factions, clocks } of systems) {
+  for (const { pack, rules, bindings, calendar, sheet, factions, clocks, items } of systems) {
     // A system that isn't loaded names nothing.
     if (pack !== undefined && !ours(pack)) continue
     // The divisions of its calendar's day: the part it is (`time.meal: elevenses`), the
@@ -128,6 +128,18 @@ export function contextSuggestions(
         add(`${who}.conditions`, ...conditions)
         add(`${who}.tags`)
         for (const kind of Object.keys(sheet.def.relations)) add(`${who}.relations.${kind}`)
+        // Its items: how many of each, their fields, every tag; its places.
+        const fields = Object.keys(sheet.def.items?.fields ?? {})
+        for (const c of items ?? [])
+          for (const [id, item] of Object.entries(c.def.items)) {
+            add(`${who}.items.${id}.count`)
+            for (const field of fields) add(`${who}.items.${id}.${field}`)
+            add(`${who}.items.tags`, ...(item.tags ?? []))
+          }
+        for (const place of Object.keys(sheet.def.items?.places ?? {})) {
+          add(`${who}.places.${place}.used`)
+          add(`${who}.places.${place}.room`)
+        }
       }
       // Where the characters are tied to the hex (it, its region, a place in it).
       add('hex.related')
@@ -319,7 +331,8 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
-  for (const { rules, bindings, sheet, factions, clocks } of travelSystems(registry).systems) {
+  for (const { rules, bindings, sheet, factions, clocks, items } of travelSystems(registry)
+    .systems) {
     // Its progress clocks: segments filled (or emptied) by a result.
     for (const id of Object.keys(clocks?.def.clocks ?? {})) out[`world.clocks.${id}`] = ['1', '-1']
     // A faction's turn: its own values, another's, its territory, the world's clocks.
@@ -343,6 +356,13 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
       for (const value of Object.keys(sheet!.def.values)) out[`${who}.values.${value}`] = []
       for (const condition of Object.keys(sheet!.def.conditions))
         out[`${who}.conditions.${condition}`] = ['true', 'false']
+      // Its items: given and taken (`-1`), and the first one's fields (a torch's uses).
+      const fields = Object.keys(sheet!.def.items?.fields ?? {})
+      for (const c of items ?? [])
+        for (const id of Object.keys(c.def.items)) {
+          out[`${who}.items.${id}`] = ['1', '-1']
+          for (const field of fields) out[`${who}.items.${id}.${field}`] = ['-1']
+        }
     }
   }
   return out

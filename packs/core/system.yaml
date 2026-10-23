@@ -13,13 +13,15 @@ description: |-
 
   **Shows:** the smallest system: travel rules with a march, a camp, a rest and eating;
   a weather check bound to a weather model by season (today's follows yesterday's);
-  a calendar whose day is named by parts (the night tagged `dark`); a character sheet and
-  a party sheet.
+  a calendar whose day is named by parts (the night tagged `dark`); a character sheet,
+  a party sheet and a catalogue of gear.
 travel: travel-rules.default
 # What resolves its checks (travel.yaml): the weather check rolls the plain sky.
 bindings: bindings.default
 calendar: calendar.default
 sheet: sheet.character
 partySheet: sheet.party
+# What its characters may carry (items.yaml).
+items: [items.gear]
 # The weather models its bindings name (weather.yaml).
 weather: [weather.default]

@@ -209,7 +209,8 @@
       return doc.setText(kind, path, valueAt(record[id], column.field), path, raw)
     if (column.type === 'number')
       return write(id, column.field, text === '' ? undefined : Number(text))
-    if (column.type === 'value')
+    // A value written as a map (`{ sum: items.slots }`) is read as one.
+    if (column.type === 'value' && !text.startsWith('{'))
       return write(
         id,
         column.field,
@@ -248,6 +249,8 @@
       return Array.isArray(value) ? value.map(itemId).join(', ') : String(value)
     if (column.type === 'flow' || column.type === 'pairs')
       return flowText(value).replace(/^\{\s*|\s*\}$/g, '')
+    if (column.type === 'value' && typeof value === 'object' && value !== null)
+      return flowText(value)
     return String(value)
   }
 

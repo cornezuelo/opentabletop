@@ -287,6 +287,7 @@
         {#if selected.character}
           <CharacterCard
             sheet={sheet.def}
+            catalogues={activeSystem().items}
             character={{ ...selected.character, id: selected.id, name: selected.name }}
             locale={getLocale()}
             named={false}

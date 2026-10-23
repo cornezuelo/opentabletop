@@ -1,5 +1,5 @@
 import { partySource, type CharacterState, type PartyFrom } from '@open-tabletop/character-engine'
-import { idName, sheetText } from '@open-tabletop/character-ui'
+import { idName, itemName, sheetText } from '@open-tabletop/character-ui'
 import {
   characterId,
   factionName,
@@ -57,10 +57,24 @@ export function memberNamer(
     if (!members?.length) return undefined
     if (!who) return undefined
     const sheet = system.sheet?.def
-    const own = part === 'values' ? sheet?.values[id] : sheet?.conditions[id]
-    const what = sheetText(own?.name, locale) ?? idName(id)
     const memberId = who.startsWith('characters.') ? who.slice('characters.'.length) : undefined
     const member = members?.find((m) => m.id === memberId)
+    let what: string
+    if (part === 'items') {
+      // An item ("Kael: Torch"), or one of its fields ("Kael: Torch · Uses").
+      const [item, field] = id.split('.', 2)
+      const own = (member ? [member] : members)
+        .flatMap((m) => m.items ?? [])
+        .find((i) => i.id === item)
+      const name = itemName(own ?? { id: item }, system.items ?? [], locale)
+      what =
+        field === undefined
+          ? name
+          : `${name} · ${sheetText(sheet?.items?.fields?.[field]?.name, locale) ?? idName(field)}`
+    } else {
+      const own = part === 'values' ? sheet?.values[id] : sheet?.conditions[id]
+      what = sheetText(own?.name, locale) ?? idName(id)
+    }
     const name =
       who === 'party.members'
         ? t('members.everyone')

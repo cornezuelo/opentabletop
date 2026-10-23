@@ -9,4 +9,4 @@ system/default:
     **Enseña:** el sistema más pequeño: reglas de viaje con marchar, acampar, descansar y
     comer; una comprobación de clima enlazada a un modelo de clima por estación (el de hoy
     sigue al de ayer); un calendario cuyo día se nombra por partes (la noche con la etiqueta `dark`);
-    una hoja de personaje y una hoja de grupo.
+    una hoja de personaje, una hoja de grupo y un catálogo de equipo.

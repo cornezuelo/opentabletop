@@ -95,6 +95,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'sheet',
     'factions',
     'clocks',
+    'items',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -126,7 +127,7 @@ const NAMED_KEYS: Record<string, string> = {
   cancels: 'roll-modes',
 }
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
-const CONDITION_KEYS = new Set(['when', 'unless', 'through', 'wait'])
+const CONDITION_KEYS = new Set(['when', 'unless', 'through', 'wait', 'fits', 'where'])
 
 /** Keys a definition, its entries and its fields use. */
 const KEYS = [
@@ -231,6 +232,16 @@ const KEYS = [
   'groups',
   'from',
   'sum',
+  // Items: the sheet's fields and places, a catalogue's items.
+  'items',
+  'fields',
+  'places',
+  'room',
+  'size',
+  'spent',
+  'fits',
+  'holds',
+  'where',
   'none',
   'carried',
   'roles',

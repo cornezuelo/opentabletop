@@ -1,0 +1,28 @@
+items/gear:
+  name: El equipo de la Compañía
+  description: |-
+    Equipo para el camino: cuerda para los vados, antorchas para marchar de noche, una
+    mochila, una cota de malla, y la Espada de Keld si el tesoro llega a darla.
+
+    **Enseña:** un catálogo de objetos (`kind: items`): objetos con etiquetas (`climbing`,
+    `light`) que leen las reglas (la tirada del vado cuenta los compañeros con cuerda,
+    `party.stats.roped`; la marcha nocturna gasta los usos de las antorchas), números para los
+    campos de la hoja (huecos, usos, armadura), dónde cabe un objeto
+    (`fits: { place.tags: worn }`), un contenedor (`holds: { room: 6, tags: [pack] }`) y un
+    objeto que da el resultado de una tabla.
+  items:
+    rope:
+      name: Cuerda
+      description: Quince metros de cáñamo. Un compañero con cuerda facilita el vado (+1 al cruce).
+    torch:
+      name: Antorcha
+      description: Brea y trapo, tres horas de luz. Una marcha nocturna gasta una hora de la antorcha de cada compañero.
+    backpack:
+      name: Mochila
+      description: Se lleva a la espalda; guarda seis huecos de equipo.
+    mail:
+      name: Cota de malla
+      description: Pesada, y solo sirve puesta.
+    sword-of-keld:
+      name: La Espada de Keld
+      description: Perdida hace cien años; el tesoro se la da a quien la encuentre.

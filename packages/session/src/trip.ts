@@ -39,7 +39,15 @@ import {
   type TravelWorld,
   type Unavailable,
 } from '@open-tabletop/travel-engine'
-import { parseSheet, type CharacterState, type Sheet } from '@open-tabletop/character-engine'
+import {
+  ITEM_KEYS,
+  lookupItems,
+  parseCatalogue,
+  parseSheet,
+  type Catalogue,
+  type CharacterState,
+  type Sheet,
+} from '@open-tabletop/character-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
 import { parseClocks } from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
@@ -105,6 +113,8 @@ export interface TravelSystem {
   factions?: SystemFactions
   /** Its progress clocks (`clocks` in `kind: system`): the ones its world clock starts with. */
   clocks?: SystemClocks
+  /** Its item catalogues (`items` in `kind: system`), by `pack/id`, in the order it lists them. */
+  items?: { id: string; def: Catalogue }[]
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -268,6 +278,7 @@ const PART_NAMES: Record<string, string> = {
   bindings: 'bindings',
   calendar: 'calendar',
   weather: 'weather model',
+  items: 'item catalogue',
 }
 const SYSTEM_KEYS = new Set([
   'kind',
@@ -284,6 +295,7 @@ const SYSTEM_KEYS = new Set([
   'partySheet',
   'factions',
   'clocks',
+  'items',
 ])
 
 /**
@@ -369,6 +381,7 @@ export function travelSystems(registry: Registry): {
       partySheet?: Extra
       factions?: Extra
       clocks?: Extra
+      items?: Extra[]
     },
   ): TravelSystem | undefined {
     let rules = NO_TRAVEL
@@ -608,8 +621,32 @@ export function travelSystems(registry: Registry): {
           sheet?.def,
           factions,
           partySheet?.def,
+          (parts.items ?? []).flatMap((e) =>
+            typeof e.data.items === 'object' && e.data.items !== null
+              ? Object.keys(e.data.items)
+              : [],
+          ),
         ),
       )
+    // Its item catalogues, each field one its sheet declares.
+    const items: { id: string; def: Catalogue }[] = []
+    for (const extra of parts.items ?? []) {
+      const owner = ownerOf(extra) ?? pack
+      const report = (e: string, severity?: Diagnostic['severity']) =>
+        problems.push(problem(owner, extra.file, 'items', e, extra.id, severity))
+      const parsed = parseCatalogue(extra.data)
+      parsed.errors.forEach((e) => report(e))
+      if (!parsed.catalogue) continue
+      const fields = sheet?.def.items?.fields ?? {}
+      for (const [id, item] of Object.entries(parsed.catalogue.items))
+        for (const key of Object.keys(item))
+          if (!(ITEM_KEYS as readonly string[]).includes(key) && !(key in fields))
+            report(
+              `items.${id}.${key}: the sheet declares no item field "${key}" (items.fields in the sheet)`,
+              'warning',
+            )
+      items.push({ id: `${owner}/${extra.id ?? 'default'}`, def: parsed.catalogue })
+    }
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
       extra && { pack: owner, id: extra.id ?? 'default', file: extra.file }
     return {
@@ -629,6 +666,7 @@ export function travelSystems(registry: Registry): {
       ...(partySheet && { partySheet }),
       ...(factions && { factions }),
       ...(clocks && { clocks }),
+      ...(items.length && { items }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -655,6 +693,7 @@ export function travelSystems(registry: Registry): {
           sheet: extras.find((e) => e.kind === 'sheet'),
           factions: extras.find((e) => e.kind === 'factions'),
           clocks: extras.find((e) => e.kind === 'clocks'),
+          items: extras.filter((e) => e.kind === 'items'),
         },
       )
       if (system) systems.push(system)
@@ -736,6 +775,9 @@ export function travelSystems(registry: Registry): {
           partySheet: part('partySheet', 'sheet', data.partySheet),
           factions: part('factions', 'factions', data.factions),
           clocks: part('clocks', 'clocks', data.clocks),
+          items: list('items', data.items).flatMap(
+            (ref, i) => part(`items.${i}`, 'items', ref) ?? [],
+          ),
         },
       )
       if (system) systems.push(system)
@@ -806,6 +848,8 @@ function undeclaredEffects(
   sheet?: Sheet,
   factions?: SystemFactions,
   partySheet?: Sheet,
+  /** The ids of the items its catalogues have. */
+  itemIds: string[] = [],
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -827,8 +871,12 @@ function undeclaredEffects(
           !!factionPart &&
           !!factions.sheet.def[factionPart as 'values' | 'conditions'][factionId ?? ''])
       if (factionKnown) continue
+      // An item: one of its catalogues', or a field of it the sheet declares.
+      const [itemId, field] = part === 'items' ? partId.split('.', 2) : []
       const known = part
-        ? !!own?.[part as 'values' | 'conditions'][partId]
+        ? part === 'items'
+          ? itemIds.includes(itemId) && (field === undefined || !!own?.items?.fields?.[field])
+          : !!own?.[part as 'values' | 'conditions'][partId]
         : scope === 'stats'
           ? !!bindings?.stats?.[valueId]
           : scope === 'resources'
@@ -941,6 +989,7 @@ export const partyOf = (system: TravelSystem): PartyRules => ({
   sheet: system.sheet,
   partySheet: system.partySheet,
   bindings: system.bindings,
+  ...(system.items && { items: lookupItems(system.items) }),
 })
 
 /**
@@ -1018,6 +1067,7 @@ export function stepTrip(
     facts: options.facts,
     sheet: system.sheet,
     partySheet: system.partySheet,
+    items: partyOf(system).items,
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }
@@ -1047,6 +1097,7 @@ export function settleTrip(
     facts: options.facts,
     sheet: system.sheet,
     partySheet: system.partySheet,
+    items: partyOf(system).items,
   }).settle(session)
 }
 
@@ -1112,7 +1163,12 @@ export function tripAvailability(
   refreshParty(current, partyOf(options.system))
   return engine.availability(
     current.travel,
-    tripContext(current, withBlocks(options.system, current, options.facts ?? {})),
+    tripContext(
+      current,
+      withBlocks(options.system, current, options.facts ?? {}),
+      {},
+      partyOf(options.system),
+    ),
   )
 }
 
@@ -1133,6 +1189,7 @@ export function tripFacts(
   })
   const current = copyOf(session)
   refreshParty(current, partyOf(options.system))
-  const context = tripContext(current, options.facts ?? {})
-  return tripContext(current, engine.context(current.travel, context))
+  const party = partyOf(options.system)
+  const context = tripContext(current, options.facts ?? {}, {}, party)
+  return tripContext(current, engine.context(current.travel, context), {}, party)
 }

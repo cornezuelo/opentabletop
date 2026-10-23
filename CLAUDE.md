@@ -36,7 +36,7 @@ packages/                   # libraries, scope @open-tabletop/*
   world-engine/             # the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
   weather-engine/           # weather with inertia: Markov models per season as data (`kind: weather`)
   faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
-  character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations
+  character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations; items and their catalogues (`kind: items`)
   map/                      # the map model: types, format, migrations and serializing, shared by the apps that read maps
   campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, the world clock played (turns, full clocks, a trip's effects)
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery

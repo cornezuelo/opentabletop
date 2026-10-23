@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its factions and its progress clocks.
+  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its gear, its factions and its progress clocks.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -20,6 +20,8 @@ sheet: sheet.companion
 partySheet: sheet.company
 # The powers of the Marches (factions.yaml): their territory and their world turns.
 factions: factions.default
+# The Company's gear (items.yaml): what its companions may carry.
+items: [items.gear]
 # The threats of the Marches (clocks.yaml): the progress clocks its world clock starts with.
 clocks: clocks.default
 weather: [weather.sky]

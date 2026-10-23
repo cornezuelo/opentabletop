@@ -1,0 +1,15 @@
+# The Generic rules' gear (system.yaml: `items: [items.gear]`): a few things any party
+# carries. The sheet declares no item fields nor places, so items are a plain list, each
+# with how many.
+kind: items
+id: gear
+name: Gear
+description: |-
+  A few things any party carries, to pick on a character's card.
+
+  **Shows:** the smallest item catalogue: items with a name, a description and tags
+  (`light`, `food`), on a sheet that gives them no fields nor places (a list with counts).
+items:
+  rope: { name: Rope, description: A good length of rope., tags: [climbing] }
+  torch: { name: Torch, description: Light for a few hours., tags: [light] }
+  ration: { name: Ration, description: A day's food for one., tags: [food] }

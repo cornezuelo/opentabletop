@@ -2,9 +2,11 @@
   import {
     applyCharacter,
     boundsOf,
+    lookupItems,
     holdsByItself,
     isMadeOf,
     readsWorld,
+    type Catalogue,
     type CharacterAction,
     type CharacterState,
     type Display,
@@ -15,6 +17,7 @@
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
   import ValueControl from './ValueControl.svelte'
+  import ItemList from './ItemList.svelte'
 
   /**
    * One character made from a sheet, edited by hand: its name, its values (each drawn as
@@ -32,6 +35,7 @@
     names = (id) => id,
     targets = [],
     named = true,
+    catalogues = [],
     onchange,
   }: {
     sheet: Sheet
@@ -51,6 +55,8 @@
     targets?: { ref: string; label: string }[]
     /** Whether it shows its own Name box (off where the host names it, like a map token). */
     named?: boolean
+    /** The system's item catalogues, for adding items and effects that give them. */
+    catalogues?: readonly { id: string; def: Catalogue }[]
     onchange: (next: CharacterState) => void
   } = $props()
 
@@ -77,7 +83,9 @@
   })
 
   function change(action: CharacterAction) {
-    onchange(applyCharacter(sheet, character, action).state)
+    onchange(
+      applyCharacter(sheet, character, action, { items: lookupItems([...catalogues]) }).state,
+    )
   }
   const setValue = (id: string, value: number) =>
     change({ type: 'change', effects: { [`values.${id}`]: `=${value}` } })
@@ -133,7 +141,10 @@
     const levels = viewOf(id).levels
     return [
       text(def.description),
-      def.from !== undefined && t('madeOf', { from: `\`${def.from}\`` }),
+      def.from !== undefined &&
+        t('madeOf', {
+          from: `\`${typeof def.from === 'string' ? def.from : inline(def.from, false)}\``,
+        }),
       levels &&
         levels
           .map(
@@ -293,6 +304,21 @@
           <button type="submit">{t('relate')}</button>
         </form>
       {/if}
+    </div>
+  {/if}
+
+  {#if sheet.items || character.items?.length}
+    <div class="field">
+      <span>{t('items.title')}<InfoTip markdown={t('items.help', { path: where })} /></span>
+      <ItemList
+        {sheet}
+        {character}
+        {catalogues}
+        {locale}
+        {disabled}
+        path={where}
+        onaction={change}
+      />
     </div>
   {/if}
 

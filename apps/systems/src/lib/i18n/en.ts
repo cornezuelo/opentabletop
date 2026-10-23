@@ -34,6 +34,7 @@ export const en = {
     rules: 'Rules',
     checks: 'Checks',
     sheet: 'Sheet',
+    items: 'Items',
     factions: 'Factions',
     clocks: 'Clocks',
     calendar: 'Calendar',
@@ -43,6 +44,14 @@ export const en = {
     yaml: 'YAML',
   },
   parts: {
+    items: {
+      title: 'Its items',
+      intro:
+        "What its characters may carry (`kind: items`): catalogues of items, each with its name, description, tags, the places it fits and the numbers the sheet gives every item (its **Items** section: slots, weight, uses…). On a character's card, **Add an item** offers them by name; anything else is written by hand. Effects give an item from them when a character has none yet.",
+      help: 'Item catalogues, as many as the system wants (gear, weapons, magic), named in its **Overview** (`items:`). Tables and conditions read what a character has:\n• `characters.kael.items.torch.count: { gte: 1 }` — has a torch\n• `acting.items.tags: light` — carries something tagged light\nEffects give and take them:\n• `acting.items.torch: -1` — one torch fewer\n• `party.members.items.ration: 1` — a ration each, from the catalogue if they have none',
+      none: 'This system has no item catalogues: its characters may still carry items written by hand.',
+      create: 'New catalogue',
+    },
     clocks: {
       title: 'Its progress clocks',
       intro:
@@ -96,6 +105,28 @@ export const en = {
       none: 'The packs of this system declare no roll modes.',
       create: 'New roll modes',
     },
+  },
+  itemsForm: {
+    name: 'Name',
+    nameHelp: 'What this catalogue is called.\n• **Gear**\n• **Weapons**',
+    items: 'Items',
+    itemsHelp:
+      "Each item, by an id tables and effects name it with (`items.<id>`): its name and description, its tags, where it fits, what it holds if it's a container, and a number for each field the sheet gives items (empty: the field's default).\n• `torch` — tags `light`, uses `3`\n• `backpack` — holds `6`, holds tags `pack`",
+    itemName: 'Name',
+    tags: 'Tags',
+    tagsHelp:
+      'Words conditions read it by, each one a pill:\n• `light` — `acting.items.tags: light`\n• `food`, `climbing`, `weapon`',
+    fits: 'Fits',
+    fitsHelp:
+      "The places it may go, as a condition on the place (its tags, as the sheet's **Places** give them):\n• `place.tags` is `head` — a helm\n• `place.tags` in `hand, back` — a shield\nEmpty: any place.",
+    holdsRoom: 'Holds',
+    holdsRoomHelp:
+      "A container: how much fits inside (measured as the sheet's places are, by **What fills a place**). What's inside goes with it. Empty with no tags: not a container.\n• `6` — a backpack",
+    holdsTags: 'Holds as',
+    holdsTagsHelp:
+      "What it is as a place, so items fit it by these tags as by the sheet's places':\n• `pack` — anything that fits a pack fits inside it",
+    noFields:
+      'The sheet gives items no fields yet: add them in **Sheet → Items** (slots, weight, uses…), and each item here gets a box for them.',
   },
   clocksForm: {
     name: 'Name',
@@ -185,7 +216,7 @@ export const en = {
       "Effects never take it past this. A number, or the sheet's other values in braces, with arithmetic as in **Made of**:\n• `0`\n• `'{{self.values.maxHealth}}'` — as high as the character's maxHealth\n• `'{{self.values.might * 2}}'` — twice Might\nEmpty: no bound.",
     from: 'Made of',
     fromHelp:
-      "A value worked out from the sheet's other values, never set by hand nor by effects: it follows them at once (after every change, within its own min and max). Write the values in braces, with `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs`; a minus between names takes spaces (ids may hold a hyphen):\n• `'{{self.values.might * 2 + 4}}'` — twice Might, plus 4\n• `'{{self.values.maxHealth - self.values.health}}'` — the wounds taken\n• `'{{floor(self.values.wits / 2)}}'` — half Wits, rounded down\nNo dice (it would change each time it's read). Empty: a value set by hand and by effects.",
+      "A value worked out from the sheet's other values, never set by hand nor by effects: it follows them at once (after every change, within its own min and max). Write the values in braces, with `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs`; a minus between names takes spaces (ids may hold a hyphen):\n• `'{{self.values.might * 2 + 4}}'` — twice Might, plus 4\n• `'{{self.values.maxHealth - self.values.health}}'` — the wounds taken\n• `'{{floor(self.values.wits / 2)}}'` — half Wits, rounded down\nOr made of the items, as a map (`{ … }`): `sum`, `max` or `min` of a field, or `count: items`, among those its `where` lets in (it reads `item.*` and `place.*`):\n• `{ sum: items.slots }` — the load: every item's slots\n• `{ max: items.armour, where: { place.tags: worn } }` — the best armour worn\n• `{ count: items, where: { item.tags: light } }` — how many lights\nNo dice (it would change each time it's read). Empty: a value set by hand and by effects.",
     display: 'Shown as',
     displayHelp:
       'How the value is drawn wherever a character is shown (empty: a number box). All but **number** and **levels** need a max:\n• `number` — a number box\n• `of` — the number and its max: **3 / 5**\n• `bar` — a bar filled up to its max\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…',
@@ -221,6 +252,25 @@ export const en = {
     relations: 'Kinds of relation',
     relationsHelp:
       "Relations a character may hold to anything with a reference (another character, a place, a faction, a note), like Ironsworn's bonds. A kind with bounds carries a number:\n• `bond` — min `0`, max `10`\n• `home` — no number",
+    items: 'Items',
+    itemsHelp:
+      "What items have in this system and where they go; the items themselves are in the **Items** tab's catalogues, or written by hand on a character. Nothing here is required: a sheet without it still lets characters carry items by name and count.",
+    itemFields: 'Fields of every item',
+    itemFieldsHelp:
+      "The numbers every item has in this system, with their bounds and how they're shown, as values are. Tables read them as `characters.<id>.items.<item>.<field>`, and a value **Made of** `{ sum: items.<field> }` adds them up:\n• `slots` — default `1`, min `0`\n• `weight` — min `0`\n• `uses` — min `0`, max `3`, shown as **pips**, **Runs out**",
+    spent: 'Runs out',
+    spentHelp:
+      'Reaching its min uses one of the item up: its count goes down and the next one starts again at its number (a torch of 3 uses, three torches). The last one is gone. Off: the item stays, empty (a lantern without oil).',
+    places: 'Places',
+    placesHelp:
+      "Where items may be (hands, belt, pack, a horse's saddlebags…), each with tags items fit by (an item's **Fits**) and how much room (a number, or the sheet's values: `'{{self.values.might}}'`). Any body: a three-headed beast declares three places tagged `head`. Empty: items are one list.\n• `hands` — tags `hand`, room `2`\n• `pack` — tags `pack`, room `'{{self.values.capacity}}'`",
+    placeName: 'Name',
+    placeTags: 'Tags',
+    room: 'Room',
+    size: 'What fills a place',
+    sizeHelp:
+      'The field that says how much room an item takes (times how many there are). Empty: each item takes one.\n• `slots`',
+    sizeCount: 'one each',
     relationName: 'Name',
     relationMin: 'Number from',
     relationMax: 'to',

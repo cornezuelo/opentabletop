@@ -38,13 +38,14 @@ name: A rare prize
 description: |-
   A **rare prize**.
 
-  **Shows:** `maxOccurrences`: the Sword of Keld turns up twice at most; then only gold remains
+  **Shows:** `maxOccurrences`: the Sword of Keld turns up twice at most; then only gold remains. An item given by a result: whoever finds it (`acting.items.sword-of-keld: 1`) gets the sword from the gear (items.yaml).
 entries:
   - {
       id: sword,
       weight: 1,
       maxOccurrences: 2,
       result: 'The Sword of Keld, lost these hundred years',
+      effects: { acting.items.sword-of-keld: 1 },
     }
   - { id: gold, weight: 1, result: '{{2d6+6}} gold crowns of the old kings' }
 ---

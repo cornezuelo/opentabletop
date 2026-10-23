@@ -414,8 +414,9 @@ class CompileContext {
   }
 
   private roll(roll: string, at: string): { roll: string; parsedRoll?: DiceExpression } {
-    // Templates ({{pre}}) are filled with numbers at runtime; validate with 0.
-    const probe = roll.replace(/\{\{\s*[\w.]+\s*\}\}/g, '0')
+    // Templates ({{pre}}, {{min(party.stats.roped, 1)}}) are filled with numbers at runtime;
+    // validate with 0.
+    const probe = roll.replace(/\{\{[^}]*\}\}/g, '0')
     try {
       const parsed = parseDice(probe)
       return TEMPLATE.test(roll) ? { roll } : { roll, parsedRoll: parsed }

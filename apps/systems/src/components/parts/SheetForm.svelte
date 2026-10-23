@@ -49,6 +49,11 @@
     'self.tags': [],
     ...contextSuggestions(library.registry),
   })
+  /** The fields every item has (`items.fields`), for what fills a place. */
+  const itemFields = $derived(
+    Object.keys(((data?.items as Record<string, unknown>)?.fields as object) ?? {}),
+  )
+  const size = $derived((data?.items as Record<string, unknown> | undefined)?.size)
   /** Tones suggested after a threshold (`0: danger`). */
   const toneHints = Object.fromEntries(['0', '1', '2', '3'].map((at) => [at, TONES]))
 
@@ -78,6 +83,8 @@
       conditions: Object.fromEntries(
         Object.entries(sample.conditions).filter(([id]) => id in sheet.conditions),
       ),
+      ...(sample.items && { items: sample.items }),
+      ...(sample.places && { places: sample.places }),
     }
     return { sheet, character: tried ?? fresh }
   })
@@ -185,6 +192,7 @@
           character={preview.character}
           locale={getLocale()}
           named={false}
+          catalogues={system.items}
           onchange={(next) => (sample = next)}
         />
       </div>
@@ -253,6 +261,87 @@
   </section>
 
   <section>
+    <h3>{t('sheet.items')}<InfoTip text={t('sheet.itemsHelp')} /></h3>
+    <h4>{t('sheet.itemFields')}<InfoTip text={t('sheet.itemFieldsHelp')} /></h4>
+    <RecordRows
+      {doc}
+      at={['items', 'fields']}
+      idLabel={t('forms.id')}
+      suggestions={['slots', 'weight', 'uses', 'armour', 'damage', 'cost']}
+      template={{ min: 0 }}
+      columns={[
+        { field: 'name', label: t('sheet.valueName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+        {
+          field: 'default',
+          label: t('sheet.default'),
+          help: t('sheet.defaultHelp'),
+          type: 'number',
+        },
+        { field: 'min', label: t('sheet.min'), help: t('sheet.boundHelp'), type: 'value' },
+        { field: 'max', label: t('sheet.max'), help: t('sheet.boundHelp'), type: 'value' },
+        { field: 'spent', label: t('sheet.spent'), help: t('sheet.spentHelp'), type: 'check' },
+        {
+          field: 'display',
+          label: t('sheet.display'),
+          help: t('sheet.displayHelp'),
+          type: 'select',
+          choices: DISPLAYS,
+          placeholder: 'number',
+        },
+        {
+          field: 'levels',
+          label: t('sheet.levels'),
+          help: t('sheet.levelsHelp'),
+          type: 'list',
+          off: (row) => row.display !== 'levels',
+        },
+        {
+          field: 'tones',
+          label: t('sheet.tones'),
+          help: t('sheet.tonesHelp'),
+          type: 'pairs',
+          hints: toneHints,
+        },
+      ]}
+    />
+    <h4>{t('sheet.places')}<InfoTip text={t('sheet.placesHelp')} /></h4>
+    <RecordRows
+      {doc}
+      at={['items', 'places']}
+      idLabel={t('forms.id')}
+      suggestions={['hands', 'body', 'belt', 'pack', 'head', 'feet']}
+      columns={[
+        { field: 'name', label: t('sheet.placeName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+        { field: 'tags', label: t('sheet.placeTags'), type: 'list' },
+        { field: 'room', label: t('sheet.room'), help: t('sheet.boundHelp'), type: 'value' },
+      ]}
+    />
+    <label class="name">
+      <span>{t('sheet.size')}<InfoTip text={t('sheet.sizeHelp')} /></span>
+      <select
+        value={typeof size === 'string' ? size : ''}
+        {disabled}
+        onchange={(e) => doc.edit('', ['items', 'size'], e.currentTarget.value || undefined)}
+      >
+        <option value="">{t('sheet.sizeCount')}</option>
+        {#each itemFields as id (id)}<option value={id}>{id}</option>{/each}
+      </select>
+    </label>
+  </section>
+
+  <section>
     <h3>{t('sheet.relations')}<InfoTip text={t('sheet.relationsHelp')} /></h3>
     <RecordRows
       {doc}
@@ -313,6 +402,12 @@
   h3 {
     margin: 0;
     font-size: 14px;
+    font-weight: 600;
+  }
+
+  h4 {
+    margin: 6px 0 0;
+    font-size: 13px;
     font-weight: 600;
   }
 

@@ -270,14 +270,15 @@ actions:
   # its button only shows then.
   night-march:
     name: Night march
-    description: 'From nightfall, light the torches and march on until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
+    description: 'From nightfall, light the torches (each companion’s burns an hour) and march on until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
     when: { time.hour: { gte: '{{system.part.night}}' }, party.stats.fatigue: { lt: 4 } }
     unless: { trip.weather: storm }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
       - { set: { torchlit: true } }
-      - { effects: { party.stats.fatigue: 1 } }
+      # Each companion's torch (items.yaml) burns an hour: at 0 uses it's spent.
+      - { effects: { party.stats.fatigue: 1, party.members.items.torch.uses: -1 } }
       - { do: actions.march }
   # Once a trip: what the trip has done so far (`trip.km`, the hexes entered at the map's
   # scale; `trip.taken.tale`, the times this action was taken, 0 until it is). After 50 km
@@ -692,6 +693,12 @@ stats:
     description: How many eat each day (besides the hirelings). With companions, how many they are.
     default: 1
     from: { count: true }
+  # How many companions carry something for climbing (a rope, items.yaml): the ford reads it.
+  roped:
+    name: Roped
+    description: How many companions carry a rope; with one or more, the ford's roll gets +1.
+    default: 0
+    from: { count: true, when: { items.tags: climbing } }
   # How many companions are wounded: the Tend the wounded action shows only then.
   wounded:
     name: Wounded

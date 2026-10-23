@@ -53,7 +53,7 @@ Its **Used by** column lists the actions, checks and tables that read, spend or 
 
 ## Weather
 
-How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](11-weather.md).
+How each weather slows the party (**Speed ×**; `0`: no travel that day). Weather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`). Where the day's weather comes from is a check: a table, or a [weather model](12-weather.md).
 
 ## Values of the day
 

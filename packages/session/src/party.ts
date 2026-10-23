@@ -9,6 +9,7 @@ import {
   boundsOf,
   type CharacterEvent,
   type CharacterState,
+  type ItemLookup,
   type Sheet,
 } from '@open-tabletop/character-engine'
 import {
@@ -33,6 +34,8 @@ export interface PartyRules {
   sheet?: { id: string; def: Sheet }
   partySheet?: { id: string; def: Sheet }
   bindings?: Bindings
+  /** The system's item catalogues: what an effect gives when a character has none yet. */
+  items?: ItemLookup
 }
 
 /** The id of the party's own character (made with the party sheet). */
@@ -241,9 +244,13 @@ export function partyBlocks(
  */
 export function memberFacts(
   s: Pick<PartyTarget, 'members' | 'acting' | 'roles'>,
+  /** Their sheets, for their items' places. */
+  rules: PartyRules = {},
 ): Record<string, unknown> {
   if (!s.members?.length) return {}
-  const characters = Object.fromEntries(s.members.map((m) => [m.id, characterFacts(m)]))
+  const characters = Object.fromEntries(
+    s.members.map((m) => [m.id, characterFacts(m, sheetOf(rules)(m))]),
+  )
   const acting = s.acting !== undefined ? characters[s.acting] : undefined
   // Each journey role held, as its holder (`roles.guide.values.pathfinding`).
   const roles = Object.fromEntries(
@@ -263,7 +270,7 @@ export function memberFacts(
  * `characters.<id>`, `acting`, `roles.<id>` (whoever holds the role).
  */
 export const MEMBER_PATH =
-  /^(party\.members|party|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions)\.(.+)$/
+  /^(party\.members|party|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
 
 /** Whether an effect's path is about members (`party.members.…`, `characters.<id>.…`, `acting.…`). */
 export const isMemberPath = (path: string): boolean =>
@@ -334,7 +341,7 @@ export function applyMemberEffects(
         sheet,
         target,
         { type: 'change', effects: { [rest]: change }, ...(time !== undefined && { time }) },
-        { roller, context },
+        { roller, context, items: rules.items },
       )
       if (target === s.party) {
         s.party = done.state
@@ -428,6 +435,8 @@ export function characterToOtd(
         ...(Object.keys(member.conditions).length && { conditions: member.conditions }),
         ...(member.cards.length && { cards: member.cards }),
         ...(member.relations.length && { relations: member.relations }),
+        ...(member.items?.length && { items: member.items }),
+        ...(member.places && { places: member.places }),
       },
     },
   }
@@ -460,6 +469,10 @@ export function characterFromOtd(raw: {
     tags: Array.isArray(raw.tags) ? raw.tags.filter((t) => typeof t === 'string') : [],
     cards: Array.isArray(own.cards) ? own.cards.filter((c) => typeof c === 'string') : [],
     relations: Array.isArray(own.relations) ? (own.relations as CharacterState['relations']) : [],
+    ...(Array.isArray(own.items) && { items: own.items as CharacterState['items'] }),
+    ...(typeof own.places === 'object' &&
+      own.places !== null &&
+      !Array.isArray(own.places) && { places: own.places as CharacterState['places'] }),
   }
 }
 

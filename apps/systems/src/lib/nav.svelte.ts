@@ -7,6 +7,7 @@ export type Tab =
   | 'rules'
   | 'checks'
   | 'sheet'
+  | 'items'
   | 'factions'
   | 'clocks'
   | 'calendar'
@@ -21,6 +22,7 @@ const TABS: Tab[] = [
   'rules',
   'checks',
   'sheet',
+  'items',
   'factions',
   'clocks',
   'calendar',

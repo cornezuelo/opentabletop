@@ -1,9 +1,10 @@
 sheet/companion:
   name: Compañero
   description: |-
-    Uno de la Compañía: sus habilidades, sus heridas y las raciones que lleva. Con
+    Uno de la Compañía: sus habilidades, sus heridas, las raciones que lleva y su equipo. Con
     compañeros en el grupo, su Supervivencia, Carisma, Orientación y Sigilo son los suyos,
-    come una ración por boca de lo que llevan, y las heridas retienen a algunos.
+    come una ración por boca de lo que llevan, las heridas retienen a algunos, una cuerda
+    ayuda en el vado y las antorchas arden en las marchas nocturnas.
 
     **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
     `max: '{{self.values.maxHealth}}'`), cada valor mostrado a su manera (las habilidades
@@ -13,8 +14,12 @@ sheet/companion:
     heridas, `from: '{{self.values.maxHealth - self.values.health}}'`), grupos con nombre, estados que bloquean una
     acción, una forma de viajar o el propio viaje, estados que se cumplen por sí solos (`when:`:
     _Aterrado_ mientras el pavor está lleno, _Mareado_ mientras el grupo viaja en barco, leyendo el
-    mundo), y tipos de relación (un vínculo con un
-    número, un hogar); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
+    mundo, _Cargado_ mientras la carga pasa de la capacidad), tipos de relación (un vínculo con un
+    número, un hogar) y objetos (`items:`): campos que tiene todo objeto (huecos, usos que se
+    gastan como puntos, armadura), lugares de un cuerpo (manos, cuerpo, cinturón, espalda) en los
+    que caben los objetos por etiquetas, los huecos que los llenan, valores que salen de los
+    objetos (la carga, `{ sum: items.slots }`; la armadura puesta, `{ max: items.armour,
+    where: { place.tags: worn } }`); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
     survival:
       name: Supervivencia
@@ -40,6 +45,15 @@ sheet/companion:
     rations:
       name: Raciones
       description: La comida que lleva este compañero; la comida del grupo es la de todos juntos.
+    load:
+      name: Carga
+      description: Los huecos de todo lo que lleva este compañero, contenedores y lo que hay en ellos; por encima de la capacidad, va cargado.
+    capacity:
+      name: Capacidad
+      description: Cuántos huecos lleva un compañero antes de ir cargado, el doble de su salud máxima más 2.
+    armour:
+      name: Armadura
+      description: La mejor armadura que lleva puesta este compañero; tus propias tablas pueden leerla como `acting.values.armour`.
     dread:
       name: Pavor
       description: Lo llenan las luces embrujadas del Bosque Gris; el rito en un santuario lo vacía.
@@ -55,7 +69,7 @@ sheet/companion:
       description: Cuánto aguanta un compañero antes de caer.
     gear:
       name: Equipo
-      description: Lo que lleva un compañero para toda la Compañía.
+      description: Lo que lleva un compañero, para sí y para toda la Compañía.
   conditions:
     wounded:
       name: Herido
@@ -72,6 +86,21 @@ sheet/companion:
     seasick:
       name: Mareado
       description: En un barco con un temple de d6 o menos. No puede forrajear mientras dure; se le pasa al desembarcar.
+    burdened:
+      name: Cargado
+      description: Lleva más de lo que puede; ni marcha forzada ni marcha nocturna hasta que suelte algo.
+  items:
+    fields:
+      slots: { name: Huecos, description: Cuánto sitio ocupa. }
+      uses:
+        name: Usos
+        description: Lo que le queda (las horas de una antorcha); a 0 se gasta uno, y el siguiente empieza lleno.
+      armour: { name: Armadura, description: Cuánto protege si se lleva puesto. }
+    places:
+      hands: Manos
+      body: { name: Cuerpo, description: Lo que se lleva puesto. }
+      belt: Cinturón
+      back: { name: Espalda, description: Una mochila o un fardo a la espalda. }
   relations:
     bond:
       name: Vínculo

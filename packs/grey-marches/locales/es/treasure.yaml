@@ -18,7 +18,7 @@ prize:
   description: |-
     Un **premio raro**.
 
-    **Enseña:** `maxOccurrences`: la Espada de Keld aparece dos veces como mucho; después solo queda oro
+    **Enseña:** `maxOccurrences`: la Espada de Keld aparece dos veces como mucho; después solo queda oro. Un objeto que da un resultado: quien la encuentra (`acting.items.sword-of-keld: 1`) recibe la espada del equipo (items.yaml).
   entries:
     sword: La Espada de Keld, perdida hace cien años
     gold: '{{2d6+6}} coronas de oro de los antiguos reyes'

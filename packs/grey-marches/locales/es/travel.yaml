@@ -65,7 +65,7 @@ travel-rules/default:
       description: 'Una hora de charla: tira un d6. Si saca vuestra moral o menos, vuelven a marchar; si no, uno se marcha y el resto os sigue a regañadientes.'
     night-march:
       name: Marcha nocturna
-      description: 'Desde el anochecer, encender las antorchas y seguir marchando hasta medianoche, pero +1 de fatiga (y +1 más al acabar el día si se marchó más de sus 8 horas); cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
+      description: 'Desde el anochecer, encender las antorchas (la de cada compañero arde una hora) y seguir marchando hasta medianoche, pero +1 de fatiga (y +1 más al acabar el día si se marchó más de sus 8 horas); cada hex en el que se entra a oscuras fuera del camino puede haceros perder o traer un encuentro nocturno. Una vez al día, no con tormenta, con fatiga menor de 4.'
     tale:
       name: Historias del camino
       description: 'Una vez por viaje, tras 50 km de camino, desde el anochecer: historias junto al fuego hasta la guardia de en medio. Moral +1.'
@@ -236,6 +236,9 @@ bindings/default:
     mouths:
       name: Bocas
       description: Cuántos comen cada día (además de los mercenarios). Con compañeros, cuántos son.
+    roped:
+      name: Con cuerda
+      description: Cuántos compañeros llevan una cuerda; con uno o más, la tirada del vado tiene +1.
     wounded:
       name: Heridos
       description: Cuántos compañeros están heridos.

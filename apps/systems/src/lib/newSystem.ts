@@ -280,7 +280,8 @@ export function declareSystem(system: TravelSystem): boolean {
 }
 
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
-export type PartTabKind = 'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'factions' | 'clocks'
+export type PartTabKind =
+  'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'items' | 'factions' | 'clocks'
 
 /** Where a part named `ref` (`kind.id` of the system's pack, or `pack/kind.id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
@@ -336,8 +337,11 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
         ? [data[kind] as string]
         : []
       : ownOfKind(pack).slice(0, 1)
-  else
-    refs = data ? (Array.isArray(data.weather) ? (data.weather as string[]) : []) : ownOfKind(pack)
+  else {
+    // Weather models and item catalogues: a list in the system.
+    const listed = data?.[kind === 'items' ? 'items' : 'weather']
+    refs = data ? (Array.isArray(listed) ? (listed as string[]) : []) : ownOfKind(pack)
+  }
   return refs.flatMap((ref) => partSource(pack, kind, ref) ?? [])
 }
 
@@ -363,7 +367,9 @@ export function createSystemPart(
     ? 'party'
     : kind === 'calendar' || kind === 'weather' || kind === 'sheet'
       ? kind
-      : 'default'
+      : kind === 'items'
+        ? 'gear'
+        : 'default'
   const id = freeId(base, taken)
   const file = `${kind}.yaml`
   const declared = systemFile(system)?.system
@@ -395,10 +401,7 @@ export function createSystemPart(
     const value =
       kind === 'calendar' || kind === 'sheet' || kind === 'factions' || kind === 'clocks'
         ? writeRef(kind, id)
-        : [
-            ...(Array.isArray(current.weather) ? (current.weather as string[]) : []),
-            writeRef(kind, id),
-          ]
+        : [...(Array.isArray(current[kind]) ? (current[kind] as string[]) : []), writeRef(kind, id)]
     library.writeFile(
       root,
       declared.path,

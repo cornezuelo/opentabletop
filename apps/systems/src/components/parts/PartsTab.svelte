@@ -11,6 +11,7 @@
   import RollModesForm from './RollModesForm.svelte'
   import FactionsForm from './FactionsForm.svelte'
   import ClocksForm from './ClocksForm.svelte'
+  import ItemsForm from './ItemsForm.svelte'
   import SheetForm from './SheetForm.svelte'
   import WeatherForm from './WeatherForm.svelte'
 
@@ -82,6 +83,8 @@
         <FactionsForm {doc} {system} />
       {:else if kind === 'clocks'}
         <ClocksForm {doc} {system} />
+      {:else if kind === 'items'}
+        <ItemsForm {doc} {system} />
       {:else if kind === 'sheet'}
         <SheetForm {doc} {system} scope={sheetScope(system, part.id)} />
       {:else if kind === 'weather'}

@@ -16,13 +16,14 @@ Each tab has its own page:
 - [**Rules**](05-rules.md): the day, ways of travelling, terrains, roads and rivers, supplies, weather's speed, values of the day and actions.
 - [**Checks**](06-checks.md): what is rolled on the way and when, the party's stats, journey roles and supplies the characters carry.
 - [**Sheet**](07-sheet.md): what each character has, and the party itself.
-- [**Factions**](08-factions.md): the powers of its world and their turns.
-- [**Clocks**](09-clocks.md): the progress clocks its world starts with, and what each does when full.
-- [**Calendar**](10-calendar.md): months, weekdays, moons and holidays.
-- [**Weather**](11-weather.md): weather with inertia, season by season.
-- [**Roll modes**](12-roll-modes.md): advantage, disadvantage and the like.
-- [**Try it**](13-try-it.md): a trip without a map, to test it as you make it.
-- [**YAML**](14-yaml.md): the files the forms write, for anything they don't cover.
+- [**Items**](08-items.md): what its characters may carry, in catalogues.
+- [**Factions**](09-factions.md): the powers of its world and their turns.
+- [**Clocks**](10-clocks.md): the progress clocks its world starts with, and what each does when full.
+- [**Calendar**](11-calendar.md): months, weekdays, moons and holidays.
+- [**Weather**](12-weather.md): weather with inertia, season by season.
+- [**Roll modes**](13-roll-modes.md): advantage, disadvantage and the like.
+- [**Try it**](14-try-it.md): a trip without a map, to test it as you make it.
+- [**YAML**](15-yaml.md): the files the forms write, for anything they don't cover.
 
 ## Changing a bundled system
 

@@ -996,6 +996,42 @@ describe('bundled open packs', () => {
     expect(ford?.data?.value).toMatchObject({ odds: 'even' })
   })
 
+  it('the Grey Marches: a companion with a rope makes the ford easier', () => {
+    const system = marches()
+    const world = row([{ terrain: 'plains' }, { terrain: 'plains', tags: ['ford'] }])
+    /** The ford's roll, the same dice, for a party of one companion with or without a rope. */
+    const crossing = (roped: boolean) => {
+      const kael = newMember(partyOf(system), { id: 'kael' })
+      if (roped)
+        kael.items = [
+          {
+            key: 'rope',
+            id: 'rope',
+            from: 'grey-marches/gear',
+            count: 1,
+            tags: ['climbing'],
+            fields: { slots: 1 },
+          },
+        ]
+      const options = {
+        system,
+        world,
+        oracle: createOracleEngine({ registry, random: seeded('ford') }),
+        locale: 'en',
+      }
+      let { session } = startTrip({ system, location: '0', season: 'summer', members: [kael] })
+      expect(session.stats.roped).toBe(roped ? 1 : 0)
+      session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+      const { entries } = stepTrip(options, session, { type: 'travel' })
+      const rolled = entries.find(
+        (e) => e.code === 'ROLLED' && e.data?.check === 'FORD_CHECK_REQUIRED',
+      )
+      return (rolled?.data?.rolls as { dice: string[] }[])[0].dice[0]
+    }
+    const total = (dice: string) => Number(/→\s*(-?\d+)/.exec(dice)?.[1])
+    expect(total(crossing(true))).toBe(total(crossing(false)) + 1)
+  })
+
   it('the Grey Marches: foraging for food says when there is nothing to find, and how much was found', () => {
     const system = marches()
     const world = row([{ terrain: 'hills' }, { terrain: 'forest' }])

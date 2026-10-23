@@ -33,6 +33,17 @@ import {
 } from '@open-tabletop/session'
 import { tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
+import {
+  applyCharacter,
+  characterFacts,
+  createCharacter,
+  itemFromCatalogue,
+  lookupItems,
+  parseCatalogue,
+  parseSheet,
+  type CharacterAction,
+  type CharacterState,
+} from '@open-tabletop/character-engine'
 import { weatherShares, type HexFlower, type WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import { parse, parseAllDocuments, stringify } from 'yaml'
@@ -98,6 +109,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'sheet',
         'factions',
         'clocks',
+        'items',
       ]),
     )
   })
@@ -119,6 +131,8 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
     // Factions are read by a system: on their own, their shape is checked here.
     for (const doc of parseAllDocuments(yaml).map((d) => d.toJS()))
       if (doc?.kind === 'factions') expect(parseFactions(doc).errors).toEqual([])
+      else if (doc?.kind === 'sheet') expect(parseSheet(doc).errors).toEqual([])
+      else if (doc?.kind === 'items') expect(parseCatalogue(doc).errors).toEqual([])
   })
 })
 
@@ -253,7 +267,7 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
 })
 
 describe('Systems → Clocks: the spreading fever plays as the page says', () => {
-  const blocks = [...read('en/systems/09-clocks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+  const blocks = [...read('en/systems/10-clocks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
     (m) => m[1],
   )
   const clocks = blocks.find((y) => y.includes('kind: clocks'))!
@@ -438,7 +452,7 @@ const coreFile = (file: string) =>
   )[`../../../../../packs/core/${file}`]
 
 describe('Systems → Weather: the valley’s weather plays as the page says', () => {
-  const model = examples(read('en/systems/11-weather.md')).find((y) => y.includes('Valley skies'))!
+  const model = examples(read('en/systems/12-weather.md')).find((y) => y.includes('Valley skies'))!
   // A new system: a copy of the Generic rules and Core's calendar, with what steps 5 and 6
   // add, and a check an hour after the weather's that reads it (Common mistakes).
   const core = coreFile
@@ -969,7 +983,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
 })
 
 describe('Systems → Factions: the border feud plays as the page says', () => {
-  const blocks = [...read('en/systems/08-factions.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+  const blocks = [...read('en/systems/09-factions.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
     (m) => m[1],
   )
   const factions = blocks.find((y) => y.includes('kind: factions'))!
@@ -1204,5 +1218,47 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
       expect(s.travel.location).toBe('9,2')
     }
     expect(robbed).toBeGreaterThan(0)
+  })
+})
+
+describe("Systems → Items: a delver's kit plays as the manual says", () => {
+  const yaml = examples(read('en/systems/08-items.md')).find((y) => y.includes('kind: items'))!
+  const docs = parseAllDocuments(yaml).map((d) => d.toJS())
+  const sheet = parseSheet(docs.find((d) => d.kind === 'sheet')).sheet!
+  const gear = parseCatalogue(docs.find((d) => d.kind === 'items')).catalogue!
+  const items = lookupItems([{ id: 'kit/gear', def: gear }])
+  const act = (c: CharacterState, action: CharacterAction) =>
+    applyCharacter(sheet, c, action, { items })
+  const pick = (id: string) =>
+    ({
+      type: 'addItem',
+      item: itemFromCatalogue(sheet.items, 'kit/gear', id, gear.items[id]),
+    }) as const
+
+  it('fills the hands, piles mail on the body, is encumbered until it drops some, burns the torch out', () => {
+    let kael = createCharacter(sheet, 'kit/delver', { id: 'kael', name: 'Kael' })
+    for (const id of ['rope', 'torch', 'mail', 'mail', 'mail']) kael = act(kael, pick(id)).state
+    expect(kael.items!.map((i) => [i.id, i.place, i.count])).toEqual([
+      ['rope', 'hands', 1],
+      ['torch', 'hands', 1],
+      ['mail', 'body', 3],
+    ])
+    const places = characterFacts(kael, sheet).places as Record<string, { used: number }>
+    expect([places.hands.used, places.body.used]).toEqual([2, 6])
+    expect(kael.values).toMatchObject({ load: 8, capacity: 6 })
+    expect(kael.conditions).toHaveProperty('encumbered')
+    // The mail shirts' How many set to 1: the load falls and Encumbered lifts.
+    kael = act(kael, { type: 'editItem', key: 'mail', count: '=1' }).state
+    expect(kael.values.load).toBe(4)
+    expect(kael.conditions).not.toHaveProperty('encumbered')
+    // Light, three times: the third uses the torch up.
+    let events: string[] = []
+    for (let i = 0; i < 3; i++) {
+      const done = act(kael, { type: 'change', effects: { 'items.torch.uses': -1 } })
+      kael = done.state
+      events = done.events.map((e) => e.type)
+    }
+    expect(events).toContain('ITEM_SPENT')
+    expect(kael.items!.some((i) => i.id === 'torch')).toBe(false)
   })
 })

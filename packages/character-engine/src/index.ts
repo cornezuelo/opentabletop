@@ -24,6 +24,25 @@ import {
 } from '@open-tabletop/variables'
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import { z } from 'zod'
+import {
+  addItem,
+  changeItem,
+  itemEffect,
+  itemsFacts,
+  itemsFromErrors,
+  itemsValue,
+  moveItem,
+  placesOf,
+  removeItem,
+  sheetItemsErrors,
+  type ItemEvent,
+  type ItemLookup,
+  type ItemState,
+  type ItemsFrom,
+  type OwnPlace,
+} from './items'
+
+export * from './items'
 
 /** A text a player reads, or the same in several languages (translations fold in as these). */
 const text = z.union([z.string(), z.record(z.string(), z.string())])
@@ -70,16 +89,31 @@ const looks = {
     .optional(),
 }
 
+/** A value made of the items: a field's `sum` / `max` / `min`, or how many (`count: items`). */
+const itemsFrom = z
+  .object({
+    sum: z.string().min(1).optional(),
+    max: z.string().min(1).optional(),
+    min: z.string().min(1).optional(),
+    count: z.literal('items').optional(),
+    where: z
+      .custom<Condition>((v) => typeof v === 'object' && v !== null && !Array.isArray(v), {
+        message: 'a condition',
+      })
+      .optional(),
+  })
+  .strict()
+
 const value = z
   .object({
     name: text.optional(),
     description: text.optional(),
     default: z.number().optional(),
     /**
-     * Made of the sheet's other values, never set (`'{{self.values.might * 2 + 4}}'`): kept
-     * up to date after every change, within its bounds.
+     * Made of the sheet's other values, never set (`'{{self.values.might * 2 + 4}}'`), or of
+     * the items (`{ sum: items.slots }`): kept up to date after every change, within its bounds.
      */
-    from: z.string().min(1).optional(),
+    from: z.union([z.string().min(1), itemsFrom]).optional(),
     min: bound.optional(),
     max: bound.optional(),
     ...looks,
@@ -108,6 +142,46 @@ const condition = z
   })
   .strict()
 
+/** What items have in this system, where they go and what fills a place. */
+const sheetItems = z
+  .object({
+    /** The numbers every item has (slots, weight, uses…), each with its bounds and looks. */
+    fields: z
+      .record(
+        z.string().min(1),
+        z
+          .object({
+            name: text.optional(),
+            description: text.optional(),
+            default: z.number().optional(),
+            min: bound.optional(),
+            max: bound.optional(),
+            ...looks,
+            /** Reaching its min uses one up: the count goes down and the next starts again. */
+            spent: z.boolean().optional(),
+          })
+          .strict(),
+      )
+      .optional(),
+    /** Where items may be (hands, belt, pack…), each with its tags and its room; absent: one list. */
+    places: z
+      .record(
+        z.string().min(1),
+        z
+          .object({
+            name: text.optional(),
+            description: text.optional(),
+            tags: z.array(z.string().min(1)).optional(),
+            room: bound.optional(),
+          })
+          .strict(),
+      )
+      .optional(),
+    /** The field that says how much room an item takes (× its count); absent: one each. */
+    size: z.string().min(1).optional(),
+  })
+  .strict()
+
 const relation = z
   .object({
     name: text.optional(),
@@ -129,6 +203,7 @@ export const sheetSchema = z
     values: z.record(z.string().min(1), value).default({}),
     conditions: z.record(z.string().min(1), condition).default({}),
     relations: z.record(z.string().min(1), relation).default({}),
+    items: sheetItems.optional(),
     /** The headings values are shown under (`group:`), with their names; in this order. */
     groups: z
       .record(
@@ -161,12 +236,14 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
     }
     if (v.from !== undefined) {
       errors.push(
-        ...ownErrors(
-          sheet,
-          v.from,
-          `values.${id}.from`,
-          "the sheet's values in '{{…}}' ('{{self.values.might * 2}}')",
-        ),
+        ...(typeof v.from === 'string'
+          ? ownErrors(
+              sheet,
+              v.from,
+              `values.${id}.from`,
+              "the sheet's values in '{{…}}' ('{{self.values.might * 2}}')",
+            )
+          : itemsFromErrors(v.from, sheet.items, `values.${id}.from`)),
       )
       if (v.default !== undefined)
         errors.push(`values.${id}.default: not with from (it is made of other values)`)
@@ -180,6 +257,15 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
   for (const [id, v] of Object.entries(sheet.values))
     if (sheet.groups && v.group !== undefined && !(v.group in sheet.groups))
       errors.push(`values.${id}.group: no group "${v.group}" in groups`)
+  if (sheet.items) {
+    errors.push(
+      ...sheetItemsErrors(sheet.items, (written, at) =>
+        ownErrors(sheet, written, at, "a number or '{{self.values.<id>}}'"),
+      ),
+    )
+    for (const [id, f] of Object.entries(sheet.items.fields ?? {}))
+      errors.push(...looksErrors(f, `items.fields.${id}`))
+  }
   for (const [id, c] of Object.entries(sheet.conditions)) {
     if (c.blocks?.some((b) => !b.trim())) errors.push(`conditions.${id}.blocks: empty entry`)
     if (c.when !== undefined) errors.push(...validateCondition(c.when, `conditions.${id}.when`))
@@ -209,7 +295,7 @@ function ownErrors(sheet: Sheet, written: string, at: string, expected: string):
 
 /** The values a value is made of (`from`), by id. */
 function fromNames(def: SheetValue): string[] {
-  const expression = def.from === undefined ? undefined : variableOf(def.from)
+  const expression = typeof def.from === 'string' ? variableOf(def.from) : undefined
   if (expression === undefined) return []
   return namesIn(expression).flatMap((n) => n.match(/^self\.values\.(.+)$/)?.[1] ?? [])
 }
@@ -378,6 +464,10 @@ export interface CharacterState {
   /** Abilities, moves, talents… by their definitions' full ids. */
   cards: string[]
   relations: Relation[]
+  /** What it has (absent: nothing), in the order shown. */
+  items?: ItemState[]
+  /** Places of its own, besides its sheet's (an odd creature's), by id. */
+  places?: Record<string, OwnPlace>
 }
 
 /** A new character with the sheet's defaults (a value without one starts at 0), then `init`. */
@@ -413,6 +503,26 @@ export type CharacterAction =
   /** Adds the relation, or changes its value if it's there (`value` adds, like an effect). */
   | { type: 'relate'; to: string; kind: string; value?: number | string }
   | { type: 'unrelate'; to: string; kind?: string }
+  /** An item, from a catalogue (`itemFromCatalogue`) or by hand; to its place or the first it fits. */
+  | {
+      type: 'addItem'
+      item: Omit<ItemState, 'key' | 'fields'> & { fields?: Record<string, number> }
+    }
+  /** Takes an item out, with whatever is inside it. */
+  | { type: 'removeItem'; key: string }
+  /** To a place (the sheet's, its own, or a container's key), or out of every place. */
+  | { type: 'moveItem'; key: string; place?: string }
+  /** An item's count or fields (a number adds, `'=N'` sets), its name or tags, by hand. */
+  | {
+      type: 'editItem'
+      key: string
+      count?: number | string
+      fields?: Record<string, number | string>
+      name?: string | null
+      tags?: string[]
+    }
+  /** A place of its own, added or changed; `null` takes it away (what was in it stays, in no place). */
+  | { type: 'setPlace'; id: string; place: OwnPlace | null }
 
 export type CharacterEvent =
   | { type: 'VALUE_CHANGED'; character: string; value: string; from: number; to: number }
@@ -432,6 +542,7 @@ export type CharacterEvent =
   | { type: 'UNKNOWN_CONDITION'; character: string; condition: string }
   /** An effect on a value made of others or a condition that holds by itself: not done. */
   | { type: 'NOT_WRITABLE'; character: string; path: string }
+  | ItemEvent
 
 export interface ApplyOptions {
   /** Rolls the dice an effect names (`'-{{1d3}}'`); none: a roll changes nothing. */
@@ -443,6 +554,8 @@ export interface ApplyOptions {
    * none: those that read it stay as they were, and only the character's own are settled.
    */
   world?: Record<string, unknown>
+  /** The system's catalogues, for effects that give an item the character has none of. */
+  items?: ItemLookup
 }
 
 /** The value of the same sheet a bound names (`'{{self.values.maxHealth}}'` → `maxHealth`). */
@@ -474,10 +587,16 @@ export function applyCharacter(
   switch (action.type) {
     case 'change': {
       // Variables are read before anything changes, as travel effects do.
-      const seen = { ...options.context, ...characterFacts(state) }
+      const seen = { ...options.context, ...characterFacts(state, sheet) }
       for (const [path, written] of Object.entries(action.effects)) {
         const [scope, ...rest] = path.split('.')
         const id = rest.join('.')
+        if (scope === 'items') {
+          if (!id || typeof written === 'boolean') continue
+          const change = resolveChange(written, seen, options.roller)
+          itemEffect(sheet.items, state, id, change, options.items, events)
+          continue
+        }
         if (
           (scope === 'conditions' && holdsByItself(sheet, id)) ||
           (scope === 'values' && isMadeOf(sheet, id))
@@ -577,6 +696,43 @@ export function applyCharacter(
         events.push({ type: 'RELATION_REMOVED', character: who, to: r.to, kind: r.kind })
       break
     }
+    case 'addItem':
+      addItem(sheet.items, state, action.item, events)
+      break
+    case 'removeItem':
+      removeItem(state, action.key, events)
+      break
+    case 'moveItem':
+      moveItem(sheet.items, state, action.key, action.place, events)
+      break
+    case 'editItem': {
+      const item = state.items?.find((i) => i.key === action.key)
+      if (!item) break
+      if (action.name !== undefined) {
+        if (action.name === null || !action.name.trim()) delete item.name
+        else item.name = action.name
+      }
+      if (action.tags !== undefined) {
+        if (action.tags.length) item.tags = [...action.tags]
+        else delete item.tags
+      }
+      for (const [field, change] of Object.entries(action.fields ?? {}))
+        changeItem(sheet.items, state, action.key, field, change, events)
+      if (action.count !== undefined)
+        changeItem(sheet.items, state, action.key, 'count', action.count, events)
+      break
+    }
+    case 'setPlace': {
+      const places = { ...state.places }
+      if (action.place) places[action.id] = { ...action.place }
+      else {
+        delete places[action.id]
+        for (const item of state.items ?? []) if (item.place === action.id) delete item.place
+      }
+      if (Object.keys(places).length) state.places = places
+      else delete state.places
+      break
+    }
   }
   settle(sheet, state, events, {
     world: options.world,
@@ -623,7 +779,16 @@ function settle(
   }
   bounded()
   for (const id of fromOrder(sheet)) {
-    const made = readOwn(sheet.values[id].from!, state.values)
+    const from = sheet.values[id].from!
+    const made =
+      typeof from === 'string'
+        ? readOwn(from, state.values)
+        : itemsValue(
+            from as ItemsFrom,
+            state.items ?? [],
+            placesOf(sheet.items, state),
+            characterFacts(state, sheet),
+          )
     if (made !== undefined) write(id, changeValue(made, 0, boundsOf(sheet, state, id)).to)
   }
   // And what's bounded by a value made of others.
@@ -633,7 +798,7 @@ function settle(
     (id) => holdsByItself(sheet, id) && (options.world !== undefined || !readsWorld(sheet, id)),
   )
   for (let pass = 0; pass <= own.length; pass++) {
-    const seen = { ...options.world, self: characterFacts(state) }
+    const seen = { ...options.world, self: characterFacts(state, sheet) }
     let moved = false
     for (const id of own) {
       const holds = matches(sheet.conditions[id].when, seen)
@@ -653,11 +818,12 @@ function settle(
 
 /**
  * What conditions and tables read of a character: `values.<id>` (and each value by its
- * own name), `conditions` (a list of the ones it has), `tags`, `cards`, and `relations`
- * by kind (`relations.bond: [character:kael, poi:ashford]`), with each one's number as
- * `bonds.<kind>.<to>`.
+ * own name), `conditions` (a list of the ones it has), `tags`, `cards`, `relations` by
+ * kind (`relations.bond: [character:kael, poi:ashford]`), with each one's number as
+ * `bonds.<kind>.<to>`, and its `items` and `places` (see `itemsFacts`; the sheet gives its
+ * places and what fills them).
  */
-export function characterFacts(state: CharacterState): Record<string, unknown> {
+export function characterFacts(state: CharacterState, sheet?: Sheet): Record<string, unknown> {
   const byKind: Record<string, string[]> = {}
   const numbers: Record<string, Record<string, number>> = {}
   for (const r of state.relations) {
@@ -674,6 +840,7 @@ export function characterFacts(state: CharacterState): Record<string, unknown> {
     cards: [...state.cards],
     relations: byKind,
     bonds: numbers,
+    ...itemsFacts(sheet?.items, state),
   }
 }
 

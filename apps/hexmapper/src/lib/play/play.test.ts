@@ -1023,6 +1023,40 @@ describe('the Company: a party made of characters', () => {
     expect(member('tobin').values.health).toBe(4)
   })
 
+  it('carries its gear: a rope for the ford, torches burnt on a night march, what it weighs', () => {
+    grey()
+    clickHex('7,7')
+    // The example map's companions come with their gear, and what's made of it follows.
+    expect(member('kael').items!.map((i) => [i.id, i.place])).toEqual([
+      ['rope', 'belt'],
+      ['torch', 'hands'],
+    ])
+    // Old Tobin: a mail shirt worn (2), a backpack (1) with a torch in it (1).
+    expect(member('tobin').values).toMatchObject({ load: 4, capacity: 10, armour: 2 })
+    expect(trip().stats.roped).toBe(1)
+    // A night march lights everyone's torch: an hour of each burns.
+    editSession((s) => {
+      s.travel.time = Math.floor(s.travel.time / 1440) * 1440 + 20 * 60 + 5
+      return s
+    })
+    step({ type: 'action', id: 'night-march' })
+    const uses = (id: string) => member(id).items!.find((i) => i.id === 'torch')!.fields.uses
+    expect([uses('kael'), uses('mara'), uses('tobin')]).toEqual([2, 2, 2])
+    // Burdened by the load: no night march nor forced march, said with whose condition it is.
+    editSession((s) => {
+      const tobin = s.members!.find((m) => m.id === 'tobin')!
+      tobin.items!.push({ key: 'anvil', id: 'anvil', count: 9, fields: { slots: 1 } })
+      return s
+    })
+    step({ type: 'wait', until: trip().travel.time + 1 })
+    expect(member('tobin').conditions).toHaveProperty('burdened')
+    expect(
+      tripAvailability({ system: activeSystem(), world: mapWorld(editor.map) }, trip())[
+        'forced-march'
+      ],
+    ).toMatchObject({ who: 'tobin' })
+  })
+
   it('wounds keep someone back, and whoever acts tends them', () => {
     grey()
     clickHex('7,7')

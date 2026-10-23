@@ -18,6 +18,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `sheet`        | What each of the party's characters has: values, conditions             | Trips (the party's characters), the Systems app                                      | One per system    |
 | `factions`     | The powers of its world: their land and their world turns               | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
 | `clocks`       | The progress clocks its world starts with, and what each does when full | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
+| `items`        | What its characters may carry: items with tags, numbers, places         | Characters' cards (trips, tokens, the Characters app), effects, the Systems app      | Any               |
 | `system`       | A game system: which of the above it uses, and which packs              | Every app that plays with a system: Hexmapper, Travel, Campaign, Characters, Systems | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
@@ -426,10 +427,32 @@ relations: # kinds of relation a character may hold to anything with a reference
 
 - `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or the sheet's other values in braces, `'{{self.values.<id>}}'` or with [arithmetic](09-syntax.md#variables), `'{{self.values.might * 2}}'`: the value falls when that one does), `from` (a value **made of others**, `'{{self.values.maxHealth - self.values.health}}'`: never set by hand nor by effects, it follows them after every change, within its own `min` / `max`; only the sheet's values, no dice, no `default`, never made of itself; an effect on it changes nothing and the journal says so), `display` (how it's drawn: `number`, the default; `of`, the number and its max; `bar`; `boxes`; `pips`, round dots; `dial`, a round clock; `levels`, a name from `levels`; all but `number` and `levels` need a `max`, and draw as many boxes, dots or segments as it), `levels` (with `display: levels`: names in order, each an id or `{ id, name, description }`, the first for the value's `min` or 0; beyond them the number shows), `tones` (a colour from a value up, `{ 0: danger, 2: warning, 4: good }`, or from a share of its max as it is now, `{ 0: danger, 50%: warning, 75%: good }` (it needs a `max`), among `good`, `warning`, `danger` and `accent`), `group` (one of `groups`, each a card). `track: true`, the older form, is `display: boxes`. How a value is shown changes nothing of how it plays. See [Sheet](../systems/07-sheet.md#how-values-are-shown).
 - `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action (`actions.<id>`), `travel.move`, or a way of travelling (`modes.<id>`). The trip says who has it. `when` makes it **hold by itself** while a [condition](08-conditions.md) does, never set or cleared by hand nor by effects (an effect on it changes nothing, and the journal says so): it reads the character as `self.*` (`self.values.dread: { gte: 6 }`, `self.conditions: wounded`, `self.tags`) and, on a trip, the world as tables see it (`trip.mode: boat`, `time.season: winter`, `hex.terrain`…). It's settled after every change (an effect, a result, a hand edit on the card, a step of the trip, a world turn); one that reads the world follows it on the trip, and stays as last seen away from one (the Characters app). A state is a condition with `when`; something that happens once (a line, an effect) is an [action](10-actions-and-steps.md).
+- `items` (optional): what every item has and where it goes. `fields`: numbers each item has, like values (`default`, `min`, `max`, `display`, `levels`, `tones`), and `spent: true` for one that runs out (reaching its `min` uses one item up: the count goes down and the next starts again; it needs a `min`); never named like an item's own keys (`name`, `tags`, `count`, `place`…). `places`: where items may be, each with `tags` (what `fits` reads) and `room` (a number, or the sheet's values in braces). `size`: the field that fills a place's room (× how many; missing: one per item). A value can be **made of the items**: `from: { sum: items.slots }`, `{ max: items.armour, where: … }`, `{ min: … }`, `{ count: items }` (how many), `where` a condition on each item (`item.id`, `item.tags`, `item.place`, `item.within`, the place at the top, `item.inside`, in a container, its fields) and its place (`place.tags`). Tables read a character's items as `characters.<id>.items.<item>.count` (and the first one's fields, `….items.torch.uses`), `….items.tags` (every tag) and `….places.<place>.used` / `.room`; effects change them, `acting.items.torch: -1`, `party.members.items.torch.uses: -1`. See [Items](../systems/08-items.md) and the [catalogues](#item-catalogues).
 - `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds (`value: { min, max }`, drawn with its own `display` and `tones`, all but `levels`). A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`), and levels by id (`values: { harm: { levels: { unhurt: Ileso } } }`).
 - **The party's own sheet** (`partySheet:` in its [system](#systems)) is a sheet like this one for the party itself: what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels, while characters join and leave. Tables read it as `party.values.<id>`, `party.conditions` and `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`), within its bounds; its conditions' `blocks` stop the whole party. A party stat can be one of its values (`stats: { morale: { from: { party: morale } } }`): the stat is that value, takes its bounds, and effects on `party.stats.morale` change the sheet. The trip shows its card above the characters.
+
+## Item catalogues
+
+What a system's characters may carry (`items:` in its [system](#systems), a list: as many catalogues as it wants). On a character's card, **Add an item** offers them by name; effects give an item from them when a character has none yet. What every item has (its fields) and where it goes (places) are the [sheet](#sheets)'s `items:`.
+
+```yaml
+kind: items
+id: gear
+name: Gear
+items:
+  rope: { name: Rope, description: Fifty feet of hemp., tags: [climbing] }
+  torch: { name: Torch, uses: 3, tags: [light] } # a number for a field of the sheet
+  mail: { name: Mail shirt, slots: 2, armour: 2, fits: { place.tags: worn } } # only worn
+  backpack: { name: Backpack, fits: { place.tags: back }, holds: { room: 6, tags: [pack] } }
+```
+
+- Each item, by an id effects and tables name it with (never `tags`, no dots): `name`, `description`, `tags`, a number for each field the sheet declares (missing: the field's `default`; a field the sheet doesn't declare is a warning), `fits` (a [condition](08-conditions.md) on the place, `place.id` and `place.tags`; missing: any place) and `holds` (a container: `room`, how much fits inside, and `tags`, what it is as a place).
+- A character keeps a copy of what an item had when it was taken, so it reads the same whatever packs are loaded; an item written by hand has a name, how many, its tags and the sheet's defaults.
+- Two catalogues with the same id: the first listed wins.
+- Translated keyed `items/<id>`, by item (`items: { rope: { name: Cuerda } }`).
+- How it plays, with an example to follow: [Items](../systems/08-items.md).
 
 ## Factions
 
@@ -505,6 +528,7 @@ sheet: sheet.companion # its characters' sheet
 partySheet: sheet.company # the party's own sheet
 factions: factions.default # the powers of its world
 clocks: clocks.default # the progress clocks its world starts with
+items: [items.gear] # what its characters may carry (item catalogues)
 weather: [weather.sky] # the weather models its bindings may use
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack

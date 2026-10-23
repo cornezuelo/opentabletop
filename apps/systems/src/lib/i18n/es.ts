@@ -36,6 +36,7 @@ export const es: Messages<typeof en> = {
     rules: 'Reglas',
     checks: 'Comprobaciones',
     sheet: 'Hoja',
+    items: 'Objetos',
     factions: 'Facciones',
     clocks: 'Relojes',
     calendar: 'Calendario',
@@ -45,6 +46,14 @@ export const es: Messages<typeof en> = {
     yaml: 'YAML',
   },
   parts: {
+    items: {
+      title: 'Sus objetos',
+      intro:
+        'Lo que pueden llevar sus personajes (`kind: items`): catálogos de objetos, cada uno con su nombre, descripción, etiquetas, los lugares donde cabe y los números que la hoja da a todo objeto (su sección **Objetos**: huecos, peso, usos…). En la tarjeta de un personaje, **Añadir un objeto** los ofrece por su nombre; cualquier otro se escribe a mano. Los efectos dan un objeto de ellos cuando un personaje aún no tiene ninguno.',
+      help: 'Catálogos de objetos, tantos como quiera el sistema (equipo, armas, magia), nombrados en su **Resumen** (`items:`). Las tablas y condiciones leen lo que tiene un personaje:\n• `characters.kael.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `acting.items.tags: light` — lleva algo con la etiqueta light\nLos efectos los dan y los quitan:\n• `acting.items.torch: -1` — una antorcha menos\n• `party.members.items.ration: 1` — una ración a cada uno, del catálogo si no tienen ninguna',
+      none: 'Este sistema no tiene catálogos de objetos: sus personajes pueden llevar igualmente objetos escritos a mano.',
+      create: 'Nuevo catálogo',
+    },
     clocks: {
       title: 'Sus relojes de progreso',
       intro:
@@ -99,6 +108,28 @@ export const es: Messages<typeof en> = {
       none: 'Los packs de este sistema no declaran modos de tirada.',
       create: 'Nuevos modos de tirada',
     },
+  },
+  itemsForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llama este catálogo.\n• **Equipo**\n• **Armas**',
+    items: 'Objetos',
+    itemsHelp:
+      'Cada objeto, con un id por el que lo nombran las tablas y los efectos (`items.<id>`): su nombre y descripción, sus etiquetas, dónde cabe, qué guarda si es un contenedor, y un número por cada campo que la hoja da a los objetos (vacío: el valor por defecto del campo).\n• `torch` — etiquetas `light`, usos `3`\n• `backpack` — guarda `6`, guarda como `pack`',
+    itemName: 'Nombre',
+    tags: 'Etiquetas',
+    tagsHelp:
+      'Palabras por las que lo leen las condiciones, cada una una pastilla:\n• `light` — `acting.items.tags: light`\n• `food`, `climbing`, `weapon`',
+    fits: 'Cabe en',
+    fitsHelp:
+      'Los lugares donde puede ir, como una condición sobre el lugar (sus etiquetas, según los **Lugares** de la hoja):\n• `place.tags` es `head` — un yelmo\n• `place.tags` en `hand, back` — un escudo\nVacío: cualquier lugar.',
+    holdsRoom: 'Guarda',
+    holdsRoomHelp:
+      'Un contenedor: cuánto cabe dentro (medido como los lugares de la hoja, por **Lo que ocupa un lugar**). Lo que lleva dentro va con él. Vacío y sin etiquetas: no es un contenedor.\n• `6` — una mochila',
+    holdsTags: 'Guarda como',
+    holdsTagsHelp:
+      'Qué es como lugar, para que los objetos quepan en él por estas etiquetas igual que en los lugares de la hoja:\n• `pack` — todo lo que cabe en una mochila cabe dentro',
+    noFields:
+      'La hoja aún no da campos a los objetos: añádelos en **Hoja → Objetos** (huecos, peso, usos…) y cada objeto de aquí tendrá una casilla para ellos.',
   },
   clocksForm: {
     name: 'Nombre',
@@ -188,7 +219,7 @@ export const es: Messages<typeof en> = {
       "Los efectos nunca lo llevan más allá. Un número, o los otros valores de la hoja entre llaves, con aritmética como en **Sale de**:\n• `0`\n• `'{{self.values.maxHealth}}'` — tan alto como el maxHealth del personaje\n• `'{{self.values.might * 2}}'` — el doble de Might\nVacío: sin límite.",
     from: 'Sale de',
     fromHelp:
-      "Un valor que se calcula a partir de los otros valores de la hoja; no se cambia a mano ni con efectos: los sigue al momento (tras cada cambio, dentro de su propio mín. y máx.). Escribe los valores entre llaves, con `+ - * /`, paréntesis y `floor`, `ceil`, `round`, `min`, `max`, `abs`; un menos entre nombres lleva espacios (los ids pueden tener guiones):\n• `'{{self.values.might * 2 + 4}}'` — el doble de Might, más 4\n• `'{{self.values.maxHealth - self.values.health}}'` — las heridas recibidas\n• `'{{floor(self.values.wits / 2)}}'` — la mitad de Wits, redondeando hacia abajo\nSin dados (cambiaría cada vez que se lee). Vacío: un valor que se cambia a mano y con efectos.",
+      "Un valor que se calcula a partir de los otros valores de la hoja; no se cambia a mano ni con efectos: los sigue al momento (tras cada cambio, dentro de su propio mín. y máx.). Escribe los valores entre llaves, con `+ - * /`, paréntesis y `floor`, `ceil`, `round`, `min`, `max`, `abs`; un menos entre nombres lleva espacios (los ids pueden tener guiones):\n• `'{{self.values.might * 2 + 4}}'` — el doble de Might, más 4\n• `'{{self.values.maxHealth - self.values.health}}'` — las heridas recibidas\n• `'{{floor(self.values.wits / 2)}}'` — la mitad de Wits, redondeando hacia abajo\nO calculado a partir de los objetos, como un mapa (`{ … }`): `sum`, `max` o `min` de un campo, o `count: items`, entre los que deje pasar su `where` (lee `item.*` y `place.*`):\n• `{ sum: items.slots }` — la carga: los huecos de todos los objetos\n• `{ max: items.armour, where: { place.tags: worn } }` — la mejor armadura puesta\n• `{ count: items, where: { item.tags: light } }` — cuántas luces\nSin dados (cambiaría cada vez que se lee). Vacío: un valor que se cambia a mano y con efectos.",
     display: 'Se muestra como',
     displayHelp:
       'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number** y **levels** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo: **3 / 5**\n• `bar` — una barra llena hasta su máximo\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…',
@@ -225,6 +256,25 @@ export const es: Messages<typeof en> = {
     relations: 'Tipos de relación',
     relationsHelp:
       'Relaciones que un personaje puede tener con cualquier cosa que tenga referencia (otro personaje, un lugar, una facción, una nota), como los vínculos de Ironsworn. Un tipo con límites lleva un número:\n• `bond` — mín. `0`, máx. `10`\n• `home` — sin número',
+    items: 'Objetos',
+    itemsHelp:
+      'Qué tienen los objetos en este sistema y dónde van; los objetos en sí están en los catálogos de la pestaña **Objetos**, o se escriben a mano en un personaje. Nada de esto es obligatorio: una hoja sin ello también deja a los personajes llevar objetos por nombre y cantidad.',
+    itemFields: 'Campos de todo objeto',
+    itemFieldsHelp:
+      'Los números que tiene todo objeto en este sistema, con sus límites y cómo se muestran, igual que los valores. Las tablas los leen como `characters.<id>.items.<objeto>.<campo>`, y un valor **Sale de** `{ sum: items.<campo> }` los suma:\n• `slots` — por defecto `1`, mín `0`\n• `weight` — mín `0`\n• `uses` — mín `0`, máx `3`, mostrado como **pips**, **Se gasta**',
+    spent: 'Se gasta',
+    spentHelp:
+      'Al llegar a su mínimo se acaba uno de ese objeto: su cantidad baja y el siguiente empieza de nuevo en su número (una antorcha de 3 usos, tres antorchas). El último desaparece. Sin marcar: el objeto se queda, vacío (un farol sin aceite).',
+    places: 'Lugares',
+    placesHelp:
+      "Dónde pueden ir los objetos (manos, cinturón, mochila, las alforjas de un caballo…), cada uno con etiquetas por las que caben los objetos (el **Cabe en** de un objeto) y cuánto sitio (un número, o valores de la hoja: `'{{self.values.might}}'`). Cualquier cuerpo: una bestia de tres cabezas declara tres lugares con la etiqueta `head`. Vacío: los objetos son una sola lista.\n• `hands` — etiquetas `hand`, sitio `2`\n• `pack` — etiquetas `pack`, sitio `'{{self.values.capacity}}'`",
+    placeName: 'Nombre',
+    placeTags: 'Etiquetas',
+    room: 'Sitio',
+    size: 'Lo que ocupa un lugar',
+    sizeHelp:
+      'El campo que dice cuánto sitio ocupa un objeto (por cuántos haya). Vacío: cada objeto ocupa uno.\n• `slots`',
+    sizeCount: 'uno cada uno',
     relationName: 'Nombre',
     relationMin: 'Número desde',
     relationMax: 'hasta',

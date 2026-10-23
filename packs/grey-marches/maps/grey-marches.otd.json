@@ -278,6 +278,34 @@
               "kind": "bond",
               "value": 2
             }
+          ],
+          "items": [
+            {
+              "key": "rope",
+              "id": "rope",
+              "from": "grey-marches/gear",
+              "count": 1,
+              "place": "belt",
+              "tags": ["climbing"],
+              "fields": {
+                "slots": 1
+              }
+            },
+            {
+              "key": "torch",
+              "id": "torch",
+              "from": "grey-marches/gear",
+              "count": 1,
+              "place": "hands",
+              "tags": ["light"],
+              "fields": {
+                "slots": 1,
+                "uses": 3
+              },
+              "start": {
+                "uses": 3
+              }
+            }
           ]
         }
       }
@@ -306,6 +334,23 @@
             {
               "to": "region:Ashford Vale",
               "kind": "home"
+            }
+          ],
+          "items": [
+            {
+              "key": "torch",
+              "id": "torch",
+              "from": "grey-marches/gear",
+              "count": 2,
+              "place": "hands",
+              "tags": ["light"],
+              "fields": {
+                "slots": 1,
+                "uses": 3
+              },
+              "start": {
+                "uses": 3
+              }
             }
           ]
         }
@@ -340,6 +385,55 @@
               "to": "character:kael",
               "kind": "bond",
               "value": 1
+            }
+          ],
+          "items": [
+            {
+              "key": "mail",
+              "id": "mail",
+              "from": "grey-marches/gear",
+              "count": 1,
+              "place": "body",
+              "tags": ["armour"],
+              "fields": {
+                "slots": 2,
+                "armour": 2
+              },
+              "fits": {
+                "place.tags": "worn"
+              }
+            },
+            {
+              "key": "backpack",
+              "id": "backpack",
+              "from": "grey-marches/gear",
+              "count": 1,
+              "place": "back",
+              "fields": {
+                "slots": 1
+              },
+              "fits": {
+                "place.tags": "back"
+              },
+              "holds": {
+                "room": 6,
+                "tags": ["pack"]
+              }
+            },
+            {
+              "key": "torch",
+              "id": "torch",
+              "from": "grey-marches/gear",
+              "count": 1,
+              "place": "backpack",
+              "tags": ["light"],
+              "fields": {
+                "slots": 1,
+                "uses": 3
+              },
+              "start": {
+                "uses": 3
+              }
             }
           ]
         }

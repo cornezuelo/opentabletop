@@ -1,0 +1,42 @@
+# The Company's gear: what a companion may carry (the sheet's `items:` says what every item
+# has and where it goes). The system names it (system.yaml: `items: [items.gear]`).
+kind: items
+id: gear
+name: The Company's gear
+description: |-
+  Gear for the road: rope for the fords, torches for marching by night, a backpack, a mail
+  shirt, and the Sword of Keld if the hoard ever gives it up.
+
+  **Shows:** an item catalogue (`kind: items`): items with tags (`climbing`, `light`) that
+  rules read (the ford's roll counts the companions with a rope, `party.stats.roped`; the
+  night march burns the torches' uses), numbers for the sheet's fields (slots, uses,
+  armour), where an item fits (`fits: { place.tags: worn }`), a container
+  (`holds: { room: 6, tags: [pack] }`) and an item given by a table's result.
+items:
+  rope:
+    name: Rope
+    description: Fifty feet of hemp. A companion with a rope makes the ford easier (+1 to the crossing).
+    tags: [climbing]
+  torch:
+    name: Torch
+    description: Pitch and rag, three hours of light. A night march burns one hour of each companion's torch.
+    uses: 3
+    tags: [light]
+  backpack:
+    name: Backpack
+    description: Worn on the back; holds six slots of gear.
+    fits: { place.tags: back }
+    holds: { room: 6, tags: [pack] }
+  mail:
+    name: Mail shirt
+    description: Heavy, and only good worn.
+    slots: 2
+    armour: 2
+    fits: { place.tags: worn }
+    tags: [armour]
+  sword-of-keld:
+    name: The Sword of Keld
+    description: Lost these hundred years; the hoard gives it to whoever finds it.
+    slots: 2
+    fits: { place.tags: [hand, belt] }
+    tags: [weapon, relic]
