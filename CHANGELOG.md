@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-23
+
 ### Apps
 
 - Travel, Hexmapper: **Skip pauses**, a choice under the trip's buttons to play everything by itself: whatever would stop the trip (a check or a result that pauses, an action's `pause:` step) is written in the journal and the trip goes on; questions still wait.
