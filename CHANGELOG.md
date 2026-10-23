@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-23
+
 ### Apps
 
 - Travel, Hexmapper, Systems, Characters: **what the party carries is its sheet's or its characters'**, never a list of supplies of the rules. Food, water or torches are values of the party's sheet (`party.values.food`, starting at their **Starts at**) or items (`party.items.ration`: the party's own and its characters' together, taken from the party's own first, then from whoever carries most, or in order, as the sheet's **Shared out** says; a gain goes to the characters). A sheet says what a new character carries (**Starts with**, from the catalogues; on the party's sheet, what a new trip starts with). An action's later steps see what earlier ones changed of them, and what hit a bound is named in full (`trip.below: party.values.food`); **So far** counts what the party's values and items spent and gained. The trip's **Supplies** section, Systems' **Rules → Supplies** and **Checks → Supplies the members carry** are gone; a new system comes with a copy of the Generic rules' party sheet (Morale and Food).
