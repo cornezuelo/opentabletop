@@ -1144,9 +1144,7 @@ describe('bundled open packs', () => {
     const tired = night.state.stats.fatigue
     const camped = stepTrip(options, fed, { type: 'action', id: 'camp' })
     // (unless the next dawn is stormy: fatigue +1 then)
-    const stormy = camped.entries.some(
-      (e) => e.code === 'CHECK_EFFECTS' && e.data?.event === 'STORMY_DAWN',
-    )
+    const stormy = camped.entries.some((e) => e.code === 'SAID' && e.data?.action === 'stormy-dawn')
     expect(camped.state.stats.fatigue).toBe(tired - 1 + (stormy ? 1 : 0))
     const fresh = stepTrip(options, { ...session }, { type: 'action', id: 'camp' }).state
     expect(fresh.stats.fatigue).toBe(0)

@@ -232,6 +232,14 @@ export interface MoveFrame {
   params?: Record<string, unknown>
   next: number
   facts?: Record<string, unknown>
+  /**
+   * The step `next` let time pass and stopped on the way (something came up): it goes on
+   * until this time, not from the start again.
+   */
+  until?: GameTime
+  /** What hit a bound during the action so far (`trip.below` / `trip.above`), past midnight. */
+  below?: string[]
+  above?: string[]
 }
 
 /**
@@ -247,6 +255,11 @@ export interface MoveUnderWay {
   held?: true
   /** What else was stopped by then, to go on with after this (a move the pause stopped). */
   then?: MoveUnderWay
+  /**
+   * The checks of the moment that took these actions by themselves (`on:`), decided once
+   * they're done: a moment's actions come before its checks, even when they wait.
+   */
+  line?: QueuedCheck[]
 }
 
 /** A step waiting for the player (`pause:`, `ask:`). */
@@ -938,6 +951,8 @@ export function createTravelEngine(options: {
   ): number => {
     const next = state.route?.[1]
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
+    /** An action of the moment that waits (for its roll, a check, the player). */
+    let held: MoveUnderWay | undefined
     // Entering a hex, the one left (`from.terrain`, `from.region`…) and the stretch walked.
     const left = from ? { from: hexFacts(from) } : {}
     if (!event) {
@@ -945,12 +960,14 @@ export function createTravelEngine(options: {
       // The actions the system takes at this moment come first (their checks too), seeing
       // what its checks see.
       const walked = from ? { ...left, edges: world.edges(from, state.location) } : {}
-      for (const id of triggered.get(at) ?? [])
-        takeAction(state, id, events, {
+      for (const id of triggered.get(at) ?? []) {
+        const still = takeAction(state, id, events, {
           on: at,
           facts: { ...facts, ...walked, moment: at },
           quiet: true,
         })
+        if (still) held = still
+      }
     }
     // Conditions (and the tables) see which moment it is: a check may come at several.
     const context = { ...checkContext(state, stretch), ...left, ...facts, moment: at }
@@ -981,6 +998,11 @@ export function createTravelEngine(options: {
         ...(rule.effects && { effects: rule.effects }),
         ...(rule.pause && { pause: true }),
       })
+    }
+    // An action of the moment waits: its checks are decided once it's done.
+    if (held && line.length) {
+      held.line = [...(held.line ?? []), ...line]
+      return line.length
     }
     // Those that came up now, and those still in line (they may yet).
     return decide(state, line, events)
@@ -1081,16 +1103,30 @@ export function createTravelEngine(options: {
    * Time passes up to `to`: each named part that begins on the way has its moment (its
    * actions, then its checks), in order, the day changing as it goes.
    */
-  const passTo = (state: TravelState, to: GameTime, events: TravelEvent[]): void => {
+  /**
+   * Time passes until `to`, moment by moment. With `stop`, it stops at a moment where
+   * something comes up (a check, a step waiting for the player) and says so: what the time
+   * brings is lived in order, the rest of the time after it.
+   */
+  const passTo = (
+    state: TravelState,
+    to: GameTime,
+    events: TravelEvent[],
+    stop = false,
+  ): boolean => {
+    const came = () => stop && (!!state.waiting || state.pendingChecks.length > pending)
+    const pending = state.pendingChecks.length
     for (let guard = 0; guard < 1000; guard++) {
       const next = nextNamed(state.time)
       if (!next || next.time > to) break
       state.time = next.time
       syncDay(state, events)
       for (const ref of next.refs) schedule(state, ref, events, undefined, doingFacts())
+      if (came() && state.time < to) return true
     }
     if (state.time < to) state.time = to
     syncDay(state, events)
+    return came() && state.time < to
   }
 
   /** Whether the day is being changed (actions at day-end may pass time themselves). */
@@ -1353,11 +1389,15 @@ export function createTravelEngine(options: {
    */
   const resume = (state: TravelState, under: MoveUnderWay, events: TravelEvent[]): void => {
     const frames = under.frames.filter((f) => actions.all[f.action])
-    const then = under.then && { then: under.then }
+    const then = {
+      ...(under.then && { then: under.then }),
+      ...(under.line && { line: under.line }),
+    }
     if (frames.length) {
+      // Today's, and what hit a bound in its actions before they stopped (another day).
       const hit: Hits = {
-        below: new Set(state.reached?.below),
-        above: new Set(state.reached?.above),
+        below: new Set([...(state.reached?.below ?? []), ...frames.flatMap((f) => f.below ?? [])]),
+        above: new Set([...(state.reached?.above ?? []), ...frames.flatMap((f) => f.above ?? [])]),
       }
       const ids = frames.map((f) => f.action).reverse()
       underWay.push(hit)
@@ -1381,6 +1421,7 @@ export function createTravelEngine(options: {
             0,
             f.next,
             true,
+            f.until,
           )
           if (again)
             return keep(state, {
@@ -1394,6 +1435,12 @@ export function createTravelEngine(options: {
         underWay.pop()
         doing.splice(doing.length - ids.length, ids.length)
       }
+    }
+    // The moment that took them by themselves: its checks now, before what it stopped.
+    if (under.line?.length) {
+      const pending = state.pendingChecks.length
+      decide(state, under.line, events)
+      if (under.then && state.pendingChecks.length > pending) return keep(state, under.then)
     }
     if (under.then) resume(state, under.then, events)
   }
@@ -1675,7 +1722,7 @@ export function createTravelEngine(options: {
       fresh?: boolean
       /**
        * Whether its checks hold the rest of it until they're resolved (as a `pause:` step
-       * does): yes, unless a moment took it (the moment's time goes on regardless).
+       * does): yes, unless said otherwise. A moment that takes it stops there too.
        */
       hold?: boolean
     } = {},
@@ -1715,7 +1762,7 @@ export function createTravelEngine(options: {
     const totals = totalsOf(state)
     totals.taken = { ...totals.taken, [id]: (totals.taken[id] ?? 0) + 1 }
     // Its checks see the place and moment it starts (after the actions that follow it).
-    const hold = options.hold ?? !options.on
+    const hold = options.hold ?? true
     const pending = state.pendingChecks.length
     const checks = schedule(state, ref('actions', id), events, undefined, options.facts)
     head.checks = checks
@@ -1801,12 +1848,22 @@ export function createTravelEngine(options: {
     from = 0,
     /** Whether the actions its `do:` steps take are held by their own moment's checks. */
     hold = false,
+    /** Where step `from` goes on to, when it let time pass and stopped on the way. */
+    until?: GameTime,
   ): Suspended | undefined => {
     const params = options.params ?? paramsOf(actions.all[id])
-    /** This action, to go on with after step `i`. */
-    const frame = (i: number): MoveFrame => actionFrame(id, params, i, options.facts)
+    /** This action, to go on with after step `i`, with what hit a bound in it so far. */
+    const frame = (i: number): MoveFrame => ({
+      ...actionFrame(id, params, i, options.facts),
+      ...(hit.below.size && { below: [...hit.below] }),
+      ...(hit.above.size && { above: [...hit.above] }),
+    })
     for (let i = from; i < steps.length; i++) {
       const step = steps[i]
+      /** What came up before this step: what comes up in it, the steps after it wait for. */
+      const pending = state.pendingChecks.length
+      /** Where a step that lets time pass goes on to (its end, or where it stopped). */
+      const resumed = i === from ? until : undefined
       const context: Record<string, unknown> = {
         ...checkContext(state, [], hostFacts),
         below: [...hit.below],
@@ -1828,7 +1885,11 @@ export function createTravelEngine(options: {
       if (step.when && !test(state, step.when, context, id)) continue
       if (step.unless && test(state, step.unless, context, id)) continue
       if (step.time !== undefined) {
-        passTo(state, Math.max(state.time, timeOf(state, step.time)), events)
+        const to = resumed ?? Math.max(state.time, timeOf(state, step.time))
+        // Something came up on the way (a night encounter at 23:00): the rest of the time
+        // passes after it.
+        if (passTo(state, to, events, hold))
+          return { frames: [{ ...frame(i), next: i, until: to }], held: true }
       } else if (step['travel.move'] !== undefined) {
         const target = read(step['travel.move'])
         const n = Number(target)
@@ -1873,7 +1934,6 @@ export function createTravelEngine(options: {
       } else if (step.roll !== undefined) {
         // A check of the system, or anything else the host rolls (`table.ruins`).
         const check = refId('checks', step.roll)
-        const before = state.pendingChecks.length
         schedule(
           state,
           ref('actions', id),
@@ -1883,9 +1943,6 @@ export function createTravelEngine(options: {
           check,
           check ? undefined : step.roll,
         )
-        // Its result comes before the rest, as its moment's checks do: the steps after it
-        // wait until it's resolved, and see what it set.
-        if (hold && state.pendingChecks.length > before) return { frames: [frame(i)], held: true }
       } else if (step.set) state.today = { ...state.today, ...step.set }
       else if (step.say !== undefined)
         events.push({ type: 'SAID', action: id, text: written(step.say), time: state.time })
@@ -1907,11 +1964,12 @@ export function createTravelEngine(options: {
           events.push({ type: 'MODE_CHANGED', action: id, from, mode, time: state.time })
           replan(state, events)
         }
-      } else if (step.wait !== undefined)
-        waitFor(
+      } else if (step.wait !== undefined) {
+        const limit = resumed ?? timeOf(state, step.limit!)
+        const stopped = waitFor(
           state,
           step.wait,
-          timeOf(state, step.limit!),
+          limit,
           events,
           (now) => ({
             ...checkContext(now, [], hostFacts),
@@ -1922,10 +1980,17 @@ export function createTravelEngine(options: {
             ...options.facts,
           }),
           id,
+          hold,
         )
+        // Something came up while waiting: the wait goes on after it, until the same limit.
+        if (stopped) return { frames: [{ ...frame(i), next: i, until: limit }], held: true }
+      }
       // A step stopped the trip for the player (this one, or an action a moment took): the
       // rest waits until they go on.
       if (state.waiting) return { frames: [frame(i)], held: true }
+      // What came up in it (its roll, the moments it lived, the hexes it entered) comes
+      // before the rest: the steps after it wait until it's resolved, and see what it set.
+      if (hold && state.pendingChecks.length > pending) return { frames: [frame(i)], held: true }
     }
     return undefined
   }
@@ -1942,19 +2007,24 @@ export function createTravelEngine(options: {
     events: TravelEvent[],
     seen: (now: TravelState) => Record<string, unknown>,
     moment: string,
-  ): void => {
+    /** Whether it stops where something comes up (and says so), to wait on after it. */
+    stop = false,
+  ): boolean => {
     const holdsAt = (time: GameTime) => {
       const now = { ...state, time }
       return test(now, condition, seen(now), moment)
     }
+    const pending = state.pendingChecks.length
     for (let guard = 0; guard < 100000; guard++) {
-      if (state.time >= limit || state.waiting || holdsAt(state.time)) return
+      if (state.time >= limit || state.waiting || holdsAt(state.time)) return false
+      if (stop && state.pendingChecks.length > pending) return true
       // Up to the next moment, it may hold minute by minute (`time.hour: { gte: 6.5 }`).
       const boundary = Math.min(limit, nextBoundary(state.time))
       let next = state.time + 1
       while (next < boundary && !holdsAt(next)) next++
       passTo(state, next, events)
     }
+    return false
   }
 
   /** The route planned again for the way the party travels now (a `travel.mode` step). */

@@ -26,7 +26,7 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 
 ## Time: `time`
 
-`time: 180` lets 180 minutes pass. `time: '14:00'` lets time pass until that clock next strikes; `time: time.part.morning` (a part of the calendar's day, `<division>.<part>`) until it next begins. Everything on the way happens as it comes: the checks and actions of each moment (`at: '12:00'`, `on: time.part.night`), and every day that ends on the way ends with its `time.day-end` actions and checks. Camping is often just `time: time.part.morning`.
+`time: 180` lets 180 minutes pass. `time: '14:00'` lets time pass until that clock next strikes; `time: time.part.morning` (a part of the calendar's day, `<division>.<part>`) until it next begins. Everything on the way happens as it comes: the checks and actions of each moment (`at: '12:00'`, `on: time.part.night`), and every day that ends on the way ends with its `time.day-end` actions and checks. What comes up on the way stops the step there, as it stops a march: a night encounter at 23:00 is played at 23:00, and once it's resolved (and **Continue** pressed, if it pauses) the rest of the night passes; the moments after it see what it did. Camping is often just `time: time.part.morning`.
 
 ## Moving
 
@@ -43,7 +43,7 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 ## Other actions and checks: `do` and `roll`
 
 - `do: actions.forage` takes another action, if its conditions hold (otherwise nothing happens). `{ do: actions.march, with: { until: hex } }` gives it the values of its parameters. An action that takes another is how a forced march marches: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
-- `roll: checks.ENCOUNTER_CHECK_REQUIRED` rolls a check now: every check with that event whose conditions hold, whatever its `at`. The rest of the action waits until it's resolved (and for **Continue**, if it pauses), as it does for its own moment's checks: the steps after it see what it set (`{ when: { today.loot: true }, … }`). An action the system takes by itself (`on:`) doesn't wait: its rolls are resolved once it ends.
+- `roll: checks.ENCOUNTER_CHECK_REQUIRED` rolls a check now: every check with that event whose conditions hold, whatever its `at`. The rest of the action waits until it's resolved (and for **Continue**, if it pauses), as it does for its own moment's checks: the steps after it see what it set (`{ when: { today.loot: true }, … }`).
 - `roll: table.ruins` rolls something of the Oracle instead (a table, `oracle.<id>`, `generator.<id>`, `deck.<id>`; another pack's as `core/table.twists`), with no check or binding around it: the rest of the action waits for it like a check, its result goes to the journal by the table's name, its `set` values and `effects` reach the trip, and an entry with `pause: true` stops it until **Continue**. A name that isn't something to roll is a problem when the pack loads. The Grey Marches' _Delve the ruin_: `[{ time: 180 }, { roll: generator.ruin-delve }]`; their _Fish_ rolls its check after two hours and says so when nothing bit: `[{ time: 120 }, { roll: checks.FISHING_CHECK_REQUIRED }, { when: { today.skunked: true }, say: … }]`.
 
 ## Talking to the player: `say`, `pause` and `ask`
@@ -67,7 +67,7 @@ do:
 … # an excerpt of an action
 ```
 
-**A pause on the way.** When an action the system takes by itself pauses or asks (one with `on: trip.hex-enter`, say a toll at a bridge), it stops whatever was going on as well: the march that entered the hex stays under way. **Continue** (or the choice) goes on with the toll's steps, then with the march, as far as it was going. When two steps would wait at once (two actions at the same moment), the first waits, and the second asks after it.
+**A pause on the way.** When an action the system takes by itself pauses, asks or waits for a roll (one with `on: trip.hex-enter`, say a toll at a bridge, or `on: '23:00'` in the middle of a camp), it stops whatever was going on as well: the march that entered the hex stays under way, the camp's night waits. The checks of its moment come once it's done, so they see what it changed. **Continue** (or the choice) goes on with the toll's steps, then with the march, as far as it was going. When two steps would wait at once (two actions at the same moment), the first waits, and the second asks after it.
 
 ## Waiting for something: `wait` and `limit`
 

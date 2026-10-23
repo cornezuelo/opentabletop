@@ -559,10 +559,13 @@ describe('camp, resources and the end of the day', () => {
     })
     // The next dawn's checks (as the party wakes) see it, so finding the way can be harder.
     // (the night's and the weather come before it, one by one)
+    // The camp stops at each moment something comes up, and goes on once it's resolved.
     let woke = engine.apply(lostToday, { type: 'action', id: 'camp' }).state
     const navigates = (c: { event: string }) => c.event === 'NAVIGATION_CHECK_REQUIRED'
-    while (woke.pendingChecks.length && !woke.pendingChecks.some(navigates))
-      woke = run(woke, { type: 'resolveCheck', id: woke.pendingChecks[0].id }).state
+    for (let i = 0; i < 50 && !woke.pendingChecks.some(navigates); i++)
+      woke = woke.pendingChecks.length
+        ? engine.apply(woke, { type: 'resolveCheck', id: woke.pendingChecks[0].id }).state
+        : engine.apply(woke, { type: 'resume' }).state
     const navigation = woke.pendingChecks.find(navigates)
     expect(navigation?.context.yesterday).toEqual({ lost: true })
     // A day not lost clears it.
@@ -607,16 +610,19 @@ describe('camp, resources and the end of the day', () => {
   })
 
   it('applies check outcomes to resources', () => {
-    const { state } = run(start(), { type: 'action', id: 'camp' })
+    // The camp stops at the first check that comes up in its night.
+    const { state } = engine.apply(start(), { type: 'action', id: 'camp' })
     const check = state.pendingChecks[0]
-    const after = run(state, {
+    const food = state.resources.food
+    const after = engine.apply(state, {
       type: 'resolveCheck',
       id: check.id,
       outcome: { resources: { food: 3 } },
     }).state
-    expect(after.resources.food).toBe(5)
-    // The dawn's checks, as the party woke, are still to resolve.
-    expect(after.pendingChecks.map((c) => c.event)).not.toContain(check.event)
+    expect(after.resources.food).toBe(food + 3)
+    expect(after.pendingChecks.map((c) => c.id)).not.toContain(check.id)
+    // The rest of the night goes on after it.
+    expect(after.moving?.held).toBe(true)
   })
 })
 
@@ -1481,15 +1487,18 @@ describe('actions the system triggers, and bounded values', () => {
 
 describe('the trip going on by itself (travel by a moment)', () => {
   const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
-  /** Applies one action until it stops for something else than a check, resolving those. */
+  /**
+   * Applies one action until it stops for something else than a check, as the session plays
+   * it: resolving the checks, going on with an action they held, then with the trip.
+   */
   function go(eng: typeof engine, state: TravelState, action: TravelAction) {
     const events: TravelEvent[] = []
-    for (let i = 0; i < 100; i++) {
-      const result = eng.apply(state, action)
+    let act: TravelAction = action
+    for (let i = 0; i < 300; i++) {
+      const result = eng.apply(state, act)
       state = result.state
       events.push(...result.events)
       const stop = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
-      if (stop?.type !== 'TRAVEL_STOPPED' || stop.reason !== 'check') break
       while (state.pendingChecks.length) {
         const resolved = eng.apply(state, {
           type: 'resolveCheck',
@@ -1498,6 +1507,16 @@ describe('the trip going on by itself (travel by a moment)', () => {
         state = resolved.state
         events.push(...resolved.events)
       }
+      if (state.moving?.held && !state.waiting) {
+        act = { type: 'resume' }
+        continue
+      }
+      if (act.type === 'resume') {
+        act = action
+        continue
+      }
+      if (stop?.type !== 'TRAVEL_STOPPED' || stop.reason !== 'check') break
+      act = action
     }
     return { state, events }
   }
@@ -2214,7 +2233,7 @@ describe('the parts of the calendar’s day', () => {
   })
 
   it('asleep in camp, the middle watch still comes; a step waits until a part', () => {
-    const night = run2(fresh('21:00'), { type: 'action', id: 'camp' })
+    const night = runOn(shire, fresh('21:00'), { type: 'action', id: 'camp' })
     expect(night.state.time).toBe(at(2, '07:00'))
     expect(checkAt(night.events, 'NIGHT')?.time).toBe(at(2, '01:00'))
     const napped = run2(fresh('12:00'), { type: 'action', id: 'nap' })
@@ -3016,5 +3035,131 @@ describe('order the rules say: after a check, as an action ends', () => {
     expect(looped.errors.join('\n')).toMatch(
       /in a loop: (checks\.AGAIN → actions\.redo → actions\.forage → checks\.AGAIN|actions\.forage → checks\.AGAIN → actions\.redo → actions\.forage)/,
     )
+  })
+})
+
+describe('what comes up while time passes stops the step where it comes', () => {
+  const { rules: night, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { food: { min: 0 } },
+    values: { wary: {} },
+    checks: [
+      { event: 'PROWL', at: '23:00', pause: true },
+      // Later the same day: it sees what the 23:00 one set.
+      { event: 'SENTRY', at: '23:30', when: { 'today.wary': true } },
+    ],
+    actions: {
+      ...DAY_ACTIONS,
+      watch: { do: [{ wait: { 'today.wary': true }, limit: '05:00' }] },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: night! })
+  const dusk = () =>
+    initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      time: defaultCalendar.at(1, '21:00'),
+      resources: { food: 3 },
+    })
+
+  it('are valid', () => {
+    expect(errors).toEqual([])
+  })
+
+  it('a camp stops at 23:00 for a check, and the night goes on after it', () => {
+    const stopped = eng.apply(dusk(), { type: 'action', id: 'camp' }).state
+    expect(stopped.time).toBe(defaultCalendar.at(1, '23:00'))
+    expect(stopped.pendingChecks.map((c) => c.event)).toEqual(['PROWL'])
+    expect(stopped.moving).toMatchObject({
+      frames: [{ action: 'camp', next: 0, until: defaultCalendar.at(2, '06:00') }],
+      held: true,
+    })
+    const resolved = eng.apply(stopped, {
+      type: 'resolveCheck',
+      id: stopped.pendingChecks[0].id,
+      outcome: { values: { wary: true } },
+    }).state
+    // Its result is seen by what comes later in the same night.
+    const later = eng.apply(resolved, { type: 'resume' }).state
+    expect(later.time).toBe(defaultCalendar.at(1, '23:30'))
+    expect(later.pendingChecks.map((c) => c.event)).toEqual(['SENTRY'])
+    const done = eng.apply(
+      eng.apply(later, { type: 'resolveCheck', id: later.pendingChecks[0].id }).state,
+      { type: 'resume' },
+    ).state
+    expect(done.time).toBe(defaultCalendar.at(2, '06:00'))
+    expect(done.moving).toBeUndefined()
+  })
+
+  it('a wait stopped on the way waits on after it, until the same limit', () => {
+    const stopped = eng.apply(dusk(), { type: 'action', id: 'watch' }).state
+    expect(stopped.time).toBe(defaultCalendar.at(1, '23:00'))
+    const limit = defaultCalendar.at(2, '05:00')
+    expect(stopped.moving?.frames[0]).toMatchObject({ action: 'watch', next: 0, until: limit })
+    // Nothing set: it waits on to its limit (23:30's check skipped).
+    const on = eng.apply(
+      eng.apply(stopped, { type: 'resolveCheck', id: stopped.pendingChecks[0].id }).state,
+      { type: 'resume' },
+    ).state
+    expect(on.time).toBe(limit)
+  })
+})
+
+describe('an action the system takes by itself waits for its rolls, like any other', () => {
+  const { rules: owls, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { food: { min: 0 } },
+    values: { omen: {} },
+    // The moment's check comes after its action is done: it sees what the action's step did.
+    checks: [{ event: 'DREAD', at: '23:00', when: { 'party.resources.food': 4 } }],
+    actions: {
+      ...DAY_ACTIONS,
+      hoot: {
+        on: '23:00',
+        do: [
+          { roll: 'table.owls' },
+          { when: { 'today.omen': true }, effects: { 'party.resources.food': 1 } },
+        ],
+      },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: owls! })
+  const dusk = initialTravelState({
+    location: '0,0',
+    mode: 'foot',
+    time: defaultCalendar.at(1, '21:00'),
+    resources: { food: 3 },
+  })
+
+  it('are valid', () => {
+    expect(errors).toEqual([])
+  })
+
+  it('in a camp: its roll stops the night, its step sees it, then its moment’s checks, then dawn', () => {
+    const stopped = eng.apply(dusk, { type: 'action', id: 'camp' }).state
+    expect(stopped.time).toBe(defaultCalendar.at(1, '23:00'))
+    expect(stopped.pendingChecks.map((c) => c.event)).toEqual(['table.owls'])
+    const rolled = eng.apply(stopped, {
+      type: 'resolveCheck',
+      id: stopped.pendingChecks[0].id,
+      outcome: { values: { omen: true } },
+    }).state
+    const after = eng.apply(rolled, { type: 'resume' }).state
+    expect(after.resources.food).toBe(4)
+    // The moment's check was decided once the action was done: it saw the food it gave.
+    expect(after.pendingChecks.map((c) => c.event)).toEqual(['DREAD'])
+    expect(after.time).toBe(defaultCalendar.at(1, '23:00'))
+    const dawn = eng.apply(
+      eng.apply(after, { type: 'resolveCheck', id: after.pendingChecks[0].id }).state,
+      { type: 'resume' },
+    ).state
+    expect(dawn.time).toBe(defaultCalendar.at(2, '06:00'))
+    expect(dawn.moving).toBeUndefined()
   })
 })

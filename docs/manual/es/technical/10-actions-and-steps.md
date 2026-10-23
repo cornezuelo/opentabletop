@@ -26,7 +26,7 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 
 ## El tiempo: `time`
 
-`time: 180` deja pasar 180 minutos. `time: '14:00'` deja pasar el tiempo hasta que esa hora vuelva a dar; `time: time.part.morning` (una parte del día del calendario, `<división>.<parte>`), hasta que vuelva a empezar. Todo lo que hay por el camino ocurre a su hora: las comprobaciones y acciones de cada momento (`at: '12:00'`, `on: time.part.night`), y cada día que acaba por el camino acaba con sus acciones y comprobaciones de `time.day-end`. Acampar suele ser solo `time: time.part.morning`.
+`time: 180` deja pasar 180 minutos. `time: '14:00'` deja pasar el tiempo hasta que esa hora vuelva a dar; `time: time.part.morning` (una parte del día del calendario, `<división>.<parte>`), hasta que vuelva a empezar. Todo lo que hay por el camino ocurre a su hora: las comprobaciones y acciones de cada momento (`at: '12:00'`, `on: time.part.night`), y cada día que acaba por el camino acaba con sus acciones y comprobaciones de `time.day-end`. Lo que sale por el camino detiene el paso ahí, igual que detiene una marcha: un encuentro nocturno a las 23:00 se juega a las 23:00 y, una vez resuelto (y pulsado **Continuar**, si pausa), pasa el resto de la noche; los momentos siguientes ven lo que hizo. Acampar suele ser solo `time: time.part.morning`.
 
 ## Moverse
 
@@ -43,7 +43,7 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 ## Otras acciones y comprobaciones: `do` y `roll`
 
 - `do: actions.forage` hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). `{ do: actions.march, with: { until: hex } }` le da los valores de sus parámetros. Así marcha una marcha forzada, con una acción que hace otra: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
-- `roll: checks.ENCOUNTER_CHECK_REQUIRED` tira una comprobación ya: todas las comprobaciones con ese evento cuyas condiciones se cumplan, sea cual sea su `at`. El resto de la acción espera a que se resuelva (y a **Continuar**, si pausa), como con las comprobaciones de su propio momento: los pasos siguientes ven lo que dio (`{ when: { today.loot: true }, … }`). Una acción que el sistema hace por sí solo (`on:`) no espera: sus tiradas se resuelven al acabar.
+- `roll: checks.ENCOUNTER_CHECK_REQUIRED` tira una comprobación ya: todas las comprobaciones con ese evento cuyas condiciones se cumplan, sea cual sea su `at`. El resto de la acción espera a que se resuelva (y a **Continuar**, si pausa), como con las comprobaciones de su propio momento: los pasos siguientes ven lo que dio (`{ when: { today.loot: true }, … }`).
 - `roll: table.ruins` tira en su lugar algo del Oráculo (una tabla, `oracle.<id>`, `generator.<id>`, `deck.<id>`; la de otro pack como `core/table.twists`), sin comprobación ni binding alrededor: el resto de la acción la espera como a una comprobación, su resultado va al diario con el nombre de la tabla, sus valores `set` y sus `effects` llegan al viaje, y una entrada con `pause: true` lo detiene hasta **Continuar**. Un nombre que no es algo que tirar es un problema al cargar el pack. _Explorar la ruina_ de las Marcas Grises: `[{ time: 180 }, { roll: generator.ruin-delve }]`; su _Pescar_ tira su comprobación tras dos horas y lo dice cuando no picó nada: `[{ time: 120 }, { roll: checks.FISHING_CHECK_REQUIRED }, { when: { today.skunked: true }, say: … }]`.
 
 ## Hablar con el jugador: `say`, `pause` y `ask`
@@ -67,7 +67,7 @@ do:
 … # un fragmento de una acción
 ```
 
-**Una pausa por el camino.** Cuando una acción que el sistema hace por sí solo pausa o pregunta (una con `on: trip.hex-enter`, por ejemplo un peaje en un puente), detiene también lo que estaba en marcha: la marcha que entró en el hex queda a medias. **Continuar** (o la elección) sigue con los pasos del peaje, y luego con la marcha, hasta donde iba. Cuando dos pasos fueran a esperar a la vez (dos acciones en el mismo momento), espera el primero, y el segundo pregunta después.
+**Una pausa por el camino.** Cuando una acción que el sistema hace por sí solo pausa, pregunta o espera una tirada (una con `on: trip.hex-enter`, por ejemplo un peaje en un puente, u `on: '23:00'` en mitad de una acampada), detiene también lo que estaba en marcha: la marcha que entró en el hex queda a medias, la noche de la acampada espera. Las comprobaciones de su momento llegan cuando acaba, así que ven lo que cambió. **Continuar** (o la elección) sigue con los pasos del peaje, y luego con la marcha, hasta donde iba. Cuando dos pasos fueran a esperar a la vez (dos acciones en el mismo momento), espera el primero, y el segundo pregunta después.
 
 ## Esperar algo: `wait` y `limit`
 
