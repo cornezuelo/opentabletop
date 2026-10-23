@@ -26,7 +26,7 @@ With both sheets, a tab above the form chooses which. When the system has [facti
 
 Under the values, the **Preview** is a character made with the sheet as it is now, drawn as everywhere characters are shown: change a column and it changes; click its boxes, bars and dots to try them (nothing you do there is kept).
 
-Values and conditions have a **Used by** column: the stats made of each value, the bounds that read it (Health's `{{self.values.toughness}}`), and the tables, actions and checks that read or change it on a character, on whoever holds a role or on the party ([Used by](04-overview.md#used-by)).
+Values and conditions have a **Used by** column: the stats made of each value, the bounds that read it (Health's `{{self.values.toughness}}`), and the tables, actions and checks that read or change it on a character, on whoever holds a role or on the party ([Used by](04-overview.md#used-by)). So do the kinds of relation: where they're read, by their holders (`characters.mara.relations.home`) or towards a place (`hex.relations.home`, who holds it to the hex entered).
 
 Values, groups, conditions and kinds of relation each have a **Description (its help)**: what it is, in a sentence or two. Wherever the sheet is shown (a character's card, the party's, a faction's), its name is underlined and clicking it shows that description first in the help column, before what the apps add (how tables read it, its bounds, what it blocks). Like names, it's written in the current language: the pack's own, or its translation file. The Grey Marches describe every part of theirs.
 

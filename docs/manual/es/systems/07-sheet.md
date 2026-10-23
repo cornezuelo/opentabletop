@@ -26,7 +26,7 @@ Con las dos hojas, una pestaña encima del formulario elige cuál. Si el sistema
 
 Bajo los valores, la **Vista previa** es un personaje hecho con la hoja tal como está ahora, dibujado como en todos los sitios donde se muestran personajes: cambia una columna y cambia con ella; haz clic en sus casillas, barras y puntos para probarlos (nada de lo que hagas ahí se guarda).
 
-Los valores y estados tienen una columna **Usado en**: las características que salen de cada valor, los límites que lo leen (el `{{self.values.toughness}}` de la Salud), y las tablas, acciones y comprobaciones que lo leen o lo cambian en un personaje, en quien tiene un rol o en el grupo ([Usado en](04-overview.md#usado-en)).
+Los valores y estados tienen una columna **Usado en**: las características que salen de cada valor, los límites que lo leen (el `{{self.values.toughness}}` de la Salud), y las tablas, acciones y comprobaciones que lo leen o lo cambian en un personaje, en quien tiene un rol o en el grupo ([Usado en](04-overview.md#usado-en)). También los tipos de relación: dónde se leen, por quien los tiene (`characters.mara.relations.home`) o hacia un lugar (`hex.relations.home`, quién lo tiene con el hex en el que se entra).
 
 Los valores, grupos, estados y tipos de relación tienen cada uno una **Descripción (su ayuda)**: qué es, en una o dos frases. Donde se enseñe la hoja (la ficha de un personaje, la del grupo, la de una facción), su nombre aparece subrayado y al hacer clic la columna de ayuda enseña primero esa descripción, antes de lo que añaden las aplicaciones (cómo lo leen las tablas, sus límites, lo que bloquea). Como los nombres, se escribe en el idioma actual: el del pack o su fichero de traducción. Las Marcas Grises describen cada parte de las suyas.
 

@@ -50,6 +50,8 @@ export type Declared =
   | { kind: 'clock'; id: string }
   /** A value or condition of one of its sheets: the members', the party's or the factions'. */
   | { kind: 'sheet-value' | 'sheet-condition'; sheet: SheetScope; id: string }
+  /** A kind of relation of one of its sheets (`home`): read wherever relations are. */
+  | { kind: 'sheet-relation'; sheet: SheetScope; id: string }
   /** Its ways of travelling, terrains, roads and rivers, kinds of weather, actions and factions. */
   | { kind: 'mode' | 'terrain' | 'edge' | 'weather' | 'action' | 'faction'; id: string }
   /** A check, by its event. */
@@ -427,6 +429,13 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
     case 'roll-mode':
       match = (u) => u.how === 'names' && u.name === declared.id
       break
+    case 'sheet-relation': {
+      // Its holders' (`characters.mara.relations.home`, `self.…`, a token's), or who holds
+      // it towards a place (`hex.relations.home`, `from.relations.home`); `bonds` its numbers.
+      const named = new RegExp(`(^|\\.)(relations|bonds)\\.${id}(\\.|$)`)
+      match = (u) => named.test(u.name)
+      break
+    }
     case 'rollable':
       // Written in its own pack without one, or with its pack anywhere.
       match = (u) =>
@@ -511,6 +520,8 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
     if (!def) continue
     for (const id of ids(def.values)) out.push({ kind: 'sheet-value', sheet, id })
     for (const id of ids(def.conditions)) out.push({ kind: 'sheet-condition', sheet, id })
+    for (const id of ids((def as { relations?: unknown }).relations))
+      out.push({ kind: 'sheet-relation', sheet, id })
   }
   return out
 }

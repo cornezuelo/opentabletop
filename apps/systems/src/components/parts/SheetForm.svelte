@@ -231,6 +231,10 @@
     <RecordRows
       {doc}
       at={['relations']}
+      uses={scope && {
+        of: (id) => usesFor(system, { kind: 'sheet-relation', sheet: scope, id }),
+        system,
+      }}
       idLabel={t('forms.id')}
       suggestions={['bond', 'rival', 'home', 'debt', 'oath']}
       columns={[

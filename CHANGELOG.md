@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Systems: **Used by** for a sheet's kinds of relation too: where each is read, by whoever holds it or towards a place (`hex.relations.home`).
 - Hexmapper, Travel, Campaign: **a trip's highlights in the timeline**: arrivals (_The party reaches 0707_), places found and checks that stopped the trip (an encounter) reach the campaign's timeline too, a short line each, so the campaign keeps a story of its trips; the journal keeps the full detail.
 - Systems: **cards in order where order decides something**: checks, ways of travelling, factions and actions show their place (_1._, _2._…) and move with a handle (⠿, dragged onto another card) or ↑ ↓, as steps do; each list's help says what its order decides.
 - Systems: **an action's reading, shorter**: an unfolded action starts with a line of who takes it and how (_With its button · once a day · choosing How far_), then its **Only when** and **Not when** each on a line (a condition with groups said short), leaving the steps to their cards; folded, its line says who and its first steps (_…and 3 more_); steps say changes by name (_Change: Fatigue −1_, _Everyone: Health +1_) instead of paths.

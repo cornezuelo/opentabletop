@@ -124,6 +124,15 @@ describe('where a name is used', () => {
     expect(
       where(usesOf(uses, { kind: 'sheet-condition', sheet: 'members', id: 'wounded' }, system)),
     ).toContain('reads bindings default stats.survival.from.unless')
+    // A kind of relation: who holds it towards the hex entered or left (`hex.relations.home`).
+    const home = where(usesOf(uses, { kind: 'sheet-relation', sheet: 'members', id: 'home' }))
+    expect(home.length).toBeGreaterThanOrEqual(2)
+    expect(home.every((w) => w.startsWith('reads travel-rules default'))).toBe(true)
+    expect(declaredOf(registry, system)).toContainEqual({
+      kind: 'sheet-relation',
+      sheet: 'members',
+      id: 'home',
+    })
     // What tables read from the map: `hex.danger`, written in full.
     expect(where(usesOf(uses, { kind: 'read', id: 'danger' }))).toContain(
       'reads travel-rules default checks[4].when',
