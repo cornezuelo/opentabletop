@@ -61,7 +61,7 @@ Los poderes del mundo de la campaña, sus hojas y su tierra en cada uno de sus m
 
 ### Cronología
 
-Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas y lunas, relojes llenos, los turnos de las facciones, el reloj volviendo atrás, y tus propias notas (**Añadir**). La misma cronología que la del panel Mundo, en una página propia. Es la historia del mundo, no la del grupo: un evento llega en su día esté donde esté el grupo (_Día de mercado en Ashford_ sale estéis en Ashford o no), y lo que hace el grupo en un viaje (hexes, comprobaciones, encuentros, lugares encontrados) va al **diario** del viaje. Solo lo más destacado de un viaje llega también aquí, una línea corta cada cosa: las llegadas (_El grupo llega a 0707_), los lugares encontrados y las comprobaciones que detuvieron el viaje (un encuentro).
+Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas y lunas, relojes llenos, los turnos de las facciones, el reloj volviendo atrás, y tus propias notas (**Añadir**). La misma cronología que la del panel Mundo, en una página propia. Es la historia del mundo, no la del grupo: un evento llega en su día esté donde esté el grupo (_Día de mercado en Ashford_ sale estéis en Ashford o no), y lo que hace el grupo en un viaje (hexes, comprobaciones, encuentros, lugares encontrados) va al **diario** del viaje. Solo lo más destacado de un viaje llega también aquí, una línea corta cada cosa: las llegadas (_El grupo llega a 0707_), los lugares encontrados, las comprobaciones que detuvieron el viaje (un encuentro) y los personajes que dejaron el grupo.
 
 ### Mapas y viajes
 

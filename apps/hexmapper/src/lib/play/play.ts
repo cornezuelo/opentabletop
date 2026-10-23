@@ -26,7 +26,7 @@ import {
 import { chooseSystem } from '../io/actions.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
-import { tripStepped, worldFactsNow } from './world.svelte'
+import { tripHighlights, tripStepped, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -291,12 +291,7 @@ function stepOnly(action: TravelAction): void {
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
   // Its highlights (arrivals, places found, pauses) go to the campaign's timeline too.
-  const hexLabel = (key: string) =>
-    formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
-  const highlights = entries.flatMap((e) => {
-    const text = highlightText(e, { rules: system.rules, locale: getLocale(), hexLabel })
-    return text ? [{ time: e.time, text }] : []
-  })
+  const highlights = highlightsOf(entries, system)
   for (const line of tripStepped({
     oracle: state.oracle,
     entries,
@@ -330,7 +325,24 @@ export function editSession(update: (session: SessionState) => SessionState): vo
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
-  save({ ...play, rules: { ...play.rules, session: update(structuredClone(session)) } })
+  const next = update(structuredClone(session))
+  save({ ...play, rules: { ...play.rules, session: next } })
+  // What the edit told worth keeping (a character leaving) goes to the timeline too.
+  const added = next.journal.slice(session.journal.length)
+  tripHighlights(highlightsOf(added, getSystem(play.rules.system)))
+}
+
+/** A trip's journal lines worth a line in the campaign's timeline, in the UI's words. */
+function highlightsOf(
+  entries: SessionState['journal'],
+  system: ReturnType<typeof getSystem>,
+): { time: number; text: string }[] {
+  const hexLabel = (key: string) =>
+    formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
+  return entries.flatMap((e) => {
+    const text = highlightText(e, { rules: system.rules, locale: getLocale(), hexLabel })
+    return text ? [{ time: e.time, text }] : []
+  })
 }
 
 export function resolvePending(id: string): void {

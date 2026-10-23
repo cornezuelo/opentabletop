@@ -212,6 +212,7 @@ export const es: Messages<typeof en> = {
       action: 'La acción',
     },
     cleared: '{name} (ya no)',
+    memberLeft: '{name} deja el grupo',
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
     nobodyActing:
       'No actúa nadie, así que «{name}» no cambia nada (elige quién actúa encima de las acciones)',

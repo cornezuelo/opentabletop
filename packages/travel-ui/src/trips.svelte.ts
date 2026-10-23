@@ -31,6 +31,7 @@ import {
   playTrip,
   MAX_HEARD,
   takeMoments,
+  tripHighlights,
   tripStepped,
   worldFactsOf,
   type Campaign,
@@ -619,8 +620,15 @@ export class TripStore {
   }
 
   edit(update: (session: SessionState) => SessionState): void {
-    if (!this.saved.session) return
-    this.saved = { ...this.saved, session: update(structuredClone(this.saved.session)) }
+    const session = this.saved.session
+    if (!session) return
+    const next = update(structuredClone(session))
+    this.saved = { ...this.saved, session: next }
+    // What the edit told worth keeping (a character leaving) goes to the timeline too.
+    const campaign = this.campaign
+    const highlights = this.highlights(next.journal.slice(session.journal.length))
+    const host = campaign && highlights.length ? this.worldHost(next) : undefined
+    if (campaign && host) this.keeper!.set(tripHighlights({ campaign }, highlights, host).campaign)
     this.save()
   }
 

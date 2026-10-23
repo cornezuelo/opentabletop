@@ -477,6 +477,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       })
     case 'NOTE':
       return e.text ?? ''
+    case 'MEMBER_LEFT':
+      return t('journal.memberLeft', { name: String(d.name ?? '') })
     case 'ROSTER_UPDATED':
       return t('journal.rosterUpdated', {
         names: Array.isArray(d.names) ? d.names.join(', ') : '',
@@ -620,8 +622,8 @@ export function journalMarkdown(
 
 /**
  * A trip's line worth keeping in its campaign's timeline, in words, or undefined when it
- * isn't one: an arrival, a place found, a check that paused the trip (an encounter). The
- * journal keeps the full detail.
+ * isn't one: an arrival, a place found, a check that paused the trip (an encounter), a
+ * character leaving the party. The journal keeps the full detail.
  */
 export function highlightText(
   e: JournalEntry,
@@ -636,6 +638,8 @@ export function highlightText(
     case 'HEX_DISCOVERED':
       // A place found (a point of interest), not every hex the land ahead was decided on.
       return d.poi && hex ? t('highlights.found', { hex, what: e.text ?? '—' }) : undefined
+    case 'MEMBER_LEFT':
+      return t('journal.memberLeft', { name: String(d.name ?? '') })
     case 'CHECK_PAUSED': {
       const named = localize(checkInfo(context.rules, String(d.event)).name, context.locale, 'en')
       const event = eventName(t, d.event, () => named, d.named)

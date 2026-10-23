@@ -217,6 +217,7 @@ export const en = {
       action: 'The action',
     },
     cleared: '{name} (no more)',
+    memberLeft: '{name} leaves the party',
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     nobodyActing:
       'Nobody is acting, so “{name}” changed nothing (choose who acts above the actions)',

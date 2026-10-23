@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { usesOf, type Use } from '@open-tabletop/session'
+  import { addEntry, usesOf, type Use } from '@open-tabletop/session'
   import { usesHelp } from './uses'
   import {
     localize,
@@ -163,7 +163,14 @@
 
   async function remove(member: CharacterState) {
     if (!(await confirmAction(t('members.confirmRemove', { name: memberLabel(member) })))) return
-    edit((s) => (s.members = (s.members ?? []).filter((m) => m.id !== member.id)))
+    edit((s) => {
+      s.members = (s.members ?? []).filter((m) => m.id !== member.id)
+      // Said in the journal (and the campaign's timeline: a character lost to the trip).
+      Object.assign(
+        s,
+        addEntry(s, { source: 'user', code: 'MEMBER_LEFT', data: { name: memberLabel(member) } }),
+      )
+    })
   }
 
   function move(member: CharacterState, by: number) {

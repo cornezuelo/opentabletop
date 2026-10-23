@@ -8,6 +8,7 @@ import { editor } from '../store/editor.svelte'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { createCampaign, factionsOn } from '@open-tabletop/campaign'
 import {
+  addEntry,
   applyResult,
   newMember,
   partyOf,
@@ -806,6 +807,25 @@ describe('the Company: a party made of characters', () => {
     })
     const back = sessionOf(bundleToMap(bundle).map.play!)!
     expect(back.members).toEqual(trip().members)
+  })
+
+  it('a character who leaves the party is told in the journal and in the campaign’s timeline', () => {
+    grey()
+    startWorld()
+    clickHex('7,7')
+    // As the trip panel takes one out: the members without them, and a line that says so.
+    editSession((s) =>
+      addEntry(
+        { ...s, members: s.members!.filter((m) => m.id !== 'tobin') },
+        { source: 'user', code: 'MEMBER_LEFT', data: { name: 'Old Tobin' } },
+      ),
+    )
+    expect(trip().members?.map((m) => m.id)).toEqual(['kael', 'mara'])
+    const left = trip().journal.at(-1)!
+    expect(left.code).toBe('MEMBER_LEFT')
+    expect(
+      editor.campaign.world!.timeline.find((e) => e.text === 'Old Tobin leaves the party'),
+    ).toMatchObject({ code: 'LOG', time: left.time, data: { trip: true } })
   })
 
   it('the Company has a sheet of its own, whoever travels: shaken, it can’t force a march until it rests', () => {
