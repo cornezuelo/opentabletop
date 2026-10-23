@@ -321,7 +321,7 @@ export function setDiscover(discover: PlayState['discover']): void {
   updatePlay((play) => ({ ...play, discover }))
 }
 
-/** Edits the session directly (resources, stats, mode) without a travel step. */
+/** Edits the session directly (stats, mode, the party) without a travel step. */
 export function editSession(update: (session: SessionState) => SessionState): void {
   const play = current()
   const session = sessionOf(play)

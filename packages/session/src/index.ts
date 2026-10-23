@@ -14,7 +14,6 @@ import {
   type CharacterEvent,
   type CharacterState,
   type PartyFrom,
-  type Share,
 } from '@open-tabletop/character-engine'
 import {
   applyEffects,
@@ -28,15 +27,13 @@ import { definitionId } from './refs'
 import { pullFromRoster, type Roster, type RosterPlace } from './roster'
 import {
   applyMemberEffects,
-  carriedBounds,
-  carriedNow,
   isMemberPath,
   memberFacts,
   PARTY_ID,
   partyBlocks,
   picksWho,
+  partyItems,
   refreshParty,
-  settleParty,
   settleStates,
   type PartyRules,
 } from './party'
@@ -54,9 +51,7 @@ import {
   reactionsOf,
   resolveChange,
   movingActions,
-  resourceBounds,
   upgradeTravelState,
-  type Bounds,
   type CheckOutcome,
   type DayValue,
   type Reaction,
@@ -86,16 +81,6 @@ export interface StatDefinition {
 }
 
 /**
- * A supply the members carry between them (`carried`: the value of their sheet that holds
- * it): with members, the party's is their sum, and what the trip spends or gains is shared
- * out among them (`share`: `even` by default, or `order`).
- */
-export interface CarriedSupply {
-  carried: string
-  share?: Share
-}
-
-/**
  * `kind: bindings` in a pack: which Oracle definition resolves each travel check, and
  * which party stats the tables read from the context.
  */
@@ -106,8 +91,6 @@ export interface Bindings {
    */
   on: Record<string, { resolve?: string; weather?: string; context?: Record<string, unknown> }>
   stats?: Record<string, StatDefinition>
-  /** Supplies the members carry, by the travel rules' id. */
-  resources?: Record<string, CarriedSupply>
   /**
    * Journey roles (lead the way, keep watch…): jobs the player gives the characters, read
    * as `roles.<id>.*` (the holder's values and conditions), each with a name for players.
@@ -210,33 +193,6 @@ export function parseBindings(
         }
       }
   }
-  const resources = (raw as { resources?: unknown })?.resources
-  if (resources !== undefined) {
-    if (typeof resources !== 'object' || resources === null || Array.isArray(resources))
-      errors.push('bindings.resources: expected supplies by id')
-    else
-      for (const [key, value] of Object.entries(resources)) {
-        const at = `bindings.resources.${key}`
-        const v = (typeof value === 'object' && value !== null ? value : {}) as Record<
-          string,
-          unknown
-        >
-        if (typeof v.carried !== 'string' || !v.carried) {
-          errors.push(`${at}.carried: the id of a value of the members' sheet`)
-          continue
-        }
-        if (v.share !== undefined && v.share !== 'even' && v.share !== 'order') {
-          errors.push(`${at}.share: even or order`)
-          continue
-        }
-        for (const k of Object.keys(v))
-          if (k !== 'carried' && k !== 'share') errors.push(`${at}: unknown key "${k}"`)
-        ;(out.resources ??= {})[key] = {
-          carried: v.carried,
-          ...(v.share !== undefined && { share: v.share as Share }),
-        }
-      }
-  }
   return errors.length ? { errors } : { bindings: out, errors: [] }
 }
 
@@ -314,16 +270,17 @@ export function initialSessionState(
 }
 
 /**
- * The party as tables read it: `{{party.resources.food}}`, `party.stats.survival`…, and
- * its members' ids (`party.members`) when it has them.
+ * The party as tables read it: `party.stats.survival`, `party.values.food`, its items with
+ * its members' (`party.items.ration.count`)…, and its members' ids (`party.members`) when
+ * it has them.
  */
-export function partyValues(s: SessionState): Record<string, unknown> {
+export function partyValues(s: SessionState, rules: PartyRules = {}): Record<string, unknown> {
   // Its own sheet's: `party.values.morale`, `party.conditions`, `party.tags`.
   const own = s.party && characterFacts(s.party)
   return {
     ...(own && { values: own.values, conditions: own.conditions, tags: own.tags }),
+    items: partyItems(s, rules),
     stats: { ...s.stats },
-    resources: { ...s.travel.resources },
     mode: s.travel.mode,
     ...(s.members?.length && { members: s.members.map((m) => m.id) }),
   }
@@ -367,7 +324,7 @@ export function tripContext(
     ...s.dayVars,
     ...facts,
     ...memberFacts(s, party),
-    party: { ...host, ...partyValues(s) },
+    party: { ...host, ...partyValues(s, party) },
     today,
     yesterday,
     ...extra,
@@ -376,7 +333,7 @@ export function tripContext(
 
 /**
  * What a result would change in a trip, as `[path, change]` pairs: its effects
- * (`['party.resources.food', -1]`, `['party.stats.fatigue', '=0']`) and the weather.
+ * (`['party.items.ration', -1]`, `['party.stats.fatigue', '=0']`) and the weather.
  */
 export function tripChanges(value: Record<string, unknown>): [string, number | string][] {
   const changes: [string, number | string][] = Object.entries(effectsOf(value))
@@ -386,25 +343,22 @@ export function tripChanges(value: Record<string, unknown>): [string, number | s
 
 /**
  * Applies a result rolled by hand to the trip, as a check's would be: its effects, and
- * `weather` becomes today's. `stats` and `resources` are the system's, for their bounds
- * (`resourceBounds(rules)`).
+ * `weather` becomes today's. `stats` are the system's, for their bounds.
  */
 export function applyResult(
   input: SessionState,
   value: Record<string, unknown>,
   stats: Record<string, StatDefinition> = {},
-  resources: Record<string, Bounds> = {},
   /** The party's members' sheet and bindings, when the system has them. */
   party: PartyRules = {},
 ): SessionState {
   const s = structuredClone(input)
   refreshParty(s, party)
-  const before = carriedNow(s, party)
   const effects = effectsOf(value)
   const context = { ...tripContext(s, {}, {}, party), ...value }
-  applyEffects(s, effects, stats, { ...resources, ...carriedBounds(s, party) }, context)
+  applyEffects(s, effects, stats, context)
   applyMemberEffects(s, effects, party, context, s.travel.time)
-  settleParty(s, party, before)
+  refreshParty(s, party)
   if (typeof value.weather === 'string') s.travel.weather = value.weather
   return s
 }
@@ -487,7 +441,6 @@ export function createSession(options: {
   const now = options.now ?? (() => new Date().toISOString())
   const discovery = options.discovery
   const declared = options.rules ? declaredValues(options.rules) : undefined
-  const supplies = options.rules ? resourceBounds(options.rules) : {}
   /** The system's actions that move the party: taking one is setting off. */
   const movers = new Set(options.rules ? movingActions(options.rules) : [])
   const stats = options.bindings?.stats
@@ -686,15 +639,12 @@ export function createSession(options: {
       s.lastStep = s.nextEntry
       // The members as they are now (the player may have changed them by hand).
       refreshParty(s, party)
-      let carried = carriedNow(s, party)
       /**
-       * Shares out what the supplies the members carry changed, brings the party up to date,
-       * and settles what holds by itself in the world as it is now (a state while the party
-       * travels by boat, in winter…), with a line for each change.
+       * Brings the party up to date, and settles what holds by itself in the world as it is
+       * now (a state while the party travels by boat, in winter…), with a line for each change.
        */
       const settle = () => {
-        settleParty(s, party, carried)
-        carried = carriedNow(s, party)
+        refreshParty(s, party)
         settleWorld(s, entries)
       }
       // What the player changed by hand, or the world since the last step, is seen first.
@@ -707,15 +657,15 @@ export function createSession(options: {
         effects: Effects,
         context: Record<string, unknown>,
         time: number,
+        /** Whether what hits a bound is noted for the day (an action's steps: the engine did). */
+        noteReached = true,
       ): LimitReached[] => {
-        const done = applyMemberEffects(s, effects, party, context, time)
+        const done = applyMemberEffects(s, effects, party, context, time, noteReached)
         for (const path of done.nobody)
           add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
         told(s, entries, done.events, time)
         return done.limits
       }
-      /** Supplies' bounds now (the members' sums for what they carry). */
-      const suppliesNow = () => ({ ...supplies, ...carriedBounds(s, party) })
       /** Discovers at the party's hex; true when it found something to stop for. */
       const arrive = (hex: string, from?: string, time?: number): boolean => {
         if (!discovery) return false
@@ -822,17 +772,11 @@ export function createSession(options: {
         const dayBefore = s.travel.day
         const from = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
-        const before = { ...s.travel.resources }
         const result = replay
           ? { state: s.travel, events: replay }
           : options.travel.apply(s.travel, act, tripContext(s, hostOf(s), {}, party))
         replay = undefined
         s.travel = result.state
-        // What the travel engine took from the supplies, or added (actions, the rules).
-        const supplied = Object.entries(s.travel.resources)
-          .filter(([id, to]) => to !== (before[id] ?? 0))
-          .map(([id, to]) => ({ path: `party.resources.${id}`, from: before[id] ?? 0, to }))
-        // What the engine took from the supplies the members carry, taken from them.
         settle()
         if (s.travel.day !== dayBefore) {
           // Today's values become yesterday's (none if more than a day went by).
@@ -841,25 +785,23 @@ export function createSession(options: {
         }
         let resolvedAll = true
         let found = false
+        // What hit a bound that the engine already told (the numbers it keeps for steps).
+        const engineLimits = new Set(
+          result.events.flatMap((e) => (e.type === 'LIMIT_REACHED' ? [e.path] : [])),
+        )
         for (const event of result.events) {
           journalEvent(s, entries, event)
-          // An action's step changes the party (the engine already changed the supplies, and
-          // told what hit a bound): applied, and told on the action's line.
+          // An action's step changes the party (the engine saw it for its later steps, and
+          // told what hit a bound of the party's): applied, and told on the action's line.
           if (event.type === 'EFFECTS') {
-            const own = Object.fromEntries(
-              Object.entries(event.effects).filter(([p]) => !p.startsWith('party.resources.')),
-            )
-            const { applied } = applyEffects(
-              { stats: s.stats, travel: { resources: {} } },
-              own,
-              stats,
-            )
+            const { applied } = applyEffects({ stats: s.stats, travel: {} }, event.effects, stats)
             changed(s, entries, applied, event.time)
             for (const limit of memberEffects(
               event.effects,
               tripContext(s, host, {}, party),
               event.time,
-            ))
+              false,
+            ).filter((l) => !engineLimits.has(l.path)))
               add(s, entries, {
                 source: 'travel',
                 code: 'LIMIT_REACHED',
@@ -898,13 +840,7 @@ export function createSession(options: {
           // (A check rolled after waiting for who rolls had its own effects then.)
           if (event.check.effects && !replaying) {
             const seenNow = tripContext(s, { ...host, ...event.check.context }, {}, party)
-            const { applied, limits } = applyEffects(
-              s,
-              event.check.effects,
-              stats,
-              suppliesNow(),
-              seenNow,
-            )
+            const { applied, limits } = applyEffects(s, event.check.effects, stats, seenNow)
             changed(s, entries, applied, event.time)
             limits.push(...memberEffects(event.check.effects, seenNow, event.time))
             settle()
@@ -1078,7 +1014,7 @@ export function createSession(options: {
             },
           })
           s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
-          const done = applyEffects(s, effects, stats, suppliesNow())
+          const done = applyEffects(s, effects, stats)
           changed(s, entries, done.applied, event.time)
           const limits = [...done.limits, ...memberEffects(effects, seen, event.time)]
           settle()
@@ -1107,7 +1043,6 @@ export function createSession(options: {
           }
           result.events.push(...resolve(event.check.id, toOutcome(value, declared)))
         }
-        changed(s, entries, supplied)
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
         const reason = stopped?.type === 'TRAVEL_STOPPED' ? stopped.reason : undefined
         const clear =

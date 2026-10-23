@@ -660,36 +660,6 @@
       ]}
     />
   </section>
-
-  <section>
-    <h3>{t('checks.carried')}<InfoTip text={t('checks.carriedHelp')} /></h3>
-    {#if !system?.sheet}<p class="help">{t('checks.noSheet')}</p>{/if}
-    <RecordRows
-      {doc}
-      kind="bindings"
-      at={['resources']}
-      idLabel={t('checks.carriedSupply')}
-      suggestions={Object.keys((doc.rules.resources ?? {}) as Raw)}
-      template={{ carried: sheetValues[0] ?? 'rations' }}
-      columns={[
-        {
-          field: 'carried',
-          label: t('checks.carriedIn'),
-          help: t('checks.carriedInHelp'),
-          type: 'select',
-          choices: sheetValues,
-        },
-        {
-          field: 'share',
-          label: t('checks.share'),
-          help: t('checks.shareHelp'),
-          type: 'select',
-          choices: ['even', 'order'],
-          placeholder: t('checks.shareEven'),
-        },
-      ]}
-    />
-  </section>
 </div>
 
 <style>

@@ -140,6 +140,10 @@ export interface SheetItems {
   places?: Record<string, SheetPlace>
   /** The field that says how much room an item takes (× its count); absent: one each. */
   size?: string
+  /** How what the party spends or gains is shared out among its members (`even`, `order`). */
+  share?: 'even' | 'order'
+  /** What a new character of this sheet carries, from the system's catalogues. */
+  start?: Record<string, number>
 }
 
 /** A text of the character's own values as it reads now (a bound, a room), if a number. */

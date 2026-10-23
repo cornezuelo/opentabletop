@@ -43,7 +43,6 @@
     movingActions,
     noTotals,
     paramDefault,
-    resourceBounds,
     checkInfo,
     declaredValues,
     type ActionParam,
@@ -65,7 +64,7 @@
 
   /**
    * A trip in progress: day and time, where the party is and where it's heading, travel
-   * mode, supplies, fatigue and stats, the system's actions, pending checks and journal.
+   * mode, the party's sheet and stats, the system's actions, pending checks and journal.
    * The host decides what a hex is called and how a destination is chosen.
    */
   let {
@@ -119,7 +118,7 @@
      * supply or a role says what reads and changes it.
      */
     uses?: Use[]
-    /** Changes the session directly (supplies, stats, mode) without a travel step. */
+    /** Changes the session directly (stats, mode, the party) without a travel step. */
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
@@ -184,8 +183,8 @@
       }),
       checks: all.checks,
       taken: list(all.taken, actionName),
-      spent: list(all.spent, resourceName),
-      gained: list(all.gained, resourceName),
+      spent: list(all.spent, numberName),
+      gained: list(all.gained, numberName),
     }
   })
 
@@ -212,7 +211,7 @@
       const copy = {
         ...s,
         stats: { ...s.stats },
-        travel: { ...s.travel, resources: { ...s.travel.resources } },
+        travel: { ...s.travel },
       }
       editPartySheet(copy, partyOf(system), next)
       return copy
@@ -225,7 +224,6 @@
   const onward = $derived(system.rules.travel.onward)
   /** The action it takes, by its id (`actions.march` is `march`). */
   const onwardAction = $derived(onward && refId('actions', onward.do))
-  const bounds = $derived(resourceBounds(system.rules))
   /**
    * The player's actions: every action but those the system takes by itself (`on:`), the
    * ones that move first; one that hides while it can't be taken only shows when it can.
@@ -299,14 +297,15 @@
     ),
   )
   /** The party's characters' values and conditions in words ("Kael: Health"). */
-  const memberName = $derived(memberNamer(system, session.members, locale, t, facts))
+  const memberName = $derived(memberNamer(system, session.members, locale, t, facts, session.party))
   /** Why a button is disabled, in words ('' when it isn't). */
   const why = (because: Unavailable | undefined): string =>
     whyText(because, { t, dayValues, memberName, valueName, terrainName })
-  /** With characters, the stats made of theirs and the supplies they carry follow them. */
+  /** With characters, the stats made of theirs follow them. */
   const hasMembers = $derived(!!system.sheet && !!session.members?.length)
   const fromMembers = (stat: StatDefinition) => hasMembers && !!stat.from
-  const carried = (resource: string) => hasMembers && !!system.bindings?.resources?.[resource]
+  /** One of the party's values or items by its full name, in words ("Rations", "Fodder"). */
+  const numberName = (path: string) => memberName(path) ?? path
   /** What a condition blocks, in words: moving on, an action or a way of travelling. */
   const blockName = (what: string) => {
     const mode = refId('modes', what)
@@ -338,13 +337,11 @@
   const checkTip = (event: string) =>
     localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
   /**
-   * Names the system gives its ways of travelling and supplies (the app's dictionary only
-   * names the Generic rules' ones, then the id made readable).
+   * Names the system gives its ways of travelling (the app's dictionary only names the
+   * Generic rules' ones, then the id made readable).
    */
   const modeName = (id: string) =>
     localize(system.rules.modes[id]?.name, locale, 'en') ?? idText(t, `modes.${id}`, id)
-  const resourceName = (id: string) =>
-    localize(system.rules.resources?.[id]?.name, locale, 'en') ?? idText(t, `resources.${id}`, id)
 
   /** What an action or a rest changes, as words: "Morale +1" (from its effects). */
   function changes(own: unknown): string {
@@ -360,11 +357,11 @@
   const readAs = (...keys: string[]) =>
     t('tips.readAs', { keys: keys.map((k) => '`{{' + k + '}}`').join(' · ') })
 
-  /** Name of a value results change: a stat of the system or a supply, as it names them. */
+  /** Name of a value results change: a stat of the system, as it names it. */
   const valueName = (key: string) => {
     const stat = system.bindings?.stats?.[key]
     if (stat) return statText(stat.name, key)
-    return resourceName(key)
+    return idText(t, `resources.${key}`, key)
   }
   /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
   const actionNothing = (id: string) => actionNothingOf(system.rules, id, locale)
@@ -485,10 +482,7 @@
 
   /** The tabs under what the last step did: the party's only when the system has one. */
   const tabs = $derived<TripTab[]>([
-    ...(Object.keys(system.rules.resources ?? {}).length ||
-    stats.length ||
-    (system.partySheet && session.party) ||
-    system.sheet
+    ...(stats.length || (system.partySheet && session.party) || system.sheet
       ? (['party'] as const)
       : []),
     'journal',
@@ -507,8 +501,6 @@
     link.click()
     URL.revokeObjectURL(url)
   }
-
-  const number = (value: string, min = 0) => Math.max(min, Number(value) || 0)
 </script>
 
 <div class="trip">
@@ -750,7 +742,7 @@
   <div class="tabpanel" id="trip-panel" role="tabpanel" aria-labelledby="trip-tab-{tab}">
     {#if tab === 'party'}
       <!-- One place for the party: its sheet and its stats, each saying where it comes
-           from; then its characters, then its supplies, each under a plain heading. -->
+           from; then its characters, each under a plain heading. -->
       {#if stats.length || (system.partySheet && session.party)}
         <Section
           title={t('partySheet.title')}
@@ -829,49 +821,6 @@
           {nameOf}
           {onedit}
         />
-      {/if}
-      {#if Object.keys(system.rules.resources ?? {}).length}
-        <Section title={t('section.supplies')}>
-          <div class="row">
-            {#each Object.keys(system.rules.resources ?? {}) as resource (resource)}
-              <label class="field">
-                <span
-                  >{resourceName(resource)}<InfoTip
-                    markdown={[
-                      localize(system.rules.resources?.[resource]?.description, locale, 'en'),
-                      t('tips.resource'),
-                      bounds[resource]?.min !== undefined &&
-                        t('tips.min', { min: bounds[resource].min! }),
-                      bounds[resource]?.max !== undefined &&
-                        t('tips.max', { max: bounds[resource].max! }),
-                      carried(resource) && t('members.carried'),
-                      readAs(`party.resources.${resource}`),
-                      usedHelp({ kind: 'supply', id: resource }),
-                    ]
-                      .filter(Boolean)
-                      .join('\n\n')}
-                  /></span
-                >
-                <input
-                  type="number"
-                  min="0"
-                  value={travel.resources[resource] ?? 0}
-                  disabled={carried(resource)}
-                  onchange={(e) => {
-                    const amount = number(e.currentTarget.value)
-                    onedit((s) => ({
-                      ...s,
-                      travel: {
-                        ...s.travel,
-                        resources: { ...s.travel.resources, [resource]: amount },
-                      },
-                    }))
-                  }}
-                />
-              </label>
-            {/each}
-          </div>
-        </Section>
       {/if}
     {:else if tab === 'journal'}
       <div class="filter">

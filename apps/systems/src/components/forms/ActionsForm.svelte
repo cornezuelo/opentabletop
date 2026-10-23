@@ -128,16 +128,12 @@
         { factions: true, clocks: true },
       ),
   )
-  /** What a change's path names: a party stat or supply by the system's name, a character's value. */
+  /** What a change's path names: a party stat by the system's name, the party's or a character's value. */
   const changeName = (path: string) => {
-    const [, part, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
-    if (part === 'stats') {
+    const id = /^party\.stats\.(.+)$/.exec(path)?.[1]
+    if (id !== undefined) {
       const stat = ((doc.bindings?.stats ?? {}) as Record<string, Raw>)[id]
       return doc.text('bindings', stat?.name, ['stats', id, 'name']) || id
-    }
-    if (part === 'resources') {
-      const supply = ((doc.rules.resources ?? {}) as Record<string, Raw>)[id]
-      return doc.text('travel-rules', supply?.name, ['resources', id, 'name']) || id
     }
     return memberName?.(path) ?? path
   }

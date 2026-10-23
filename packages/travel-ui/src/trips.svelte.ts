@@ -3,6 +3,7 @@ import {
   migrateFatigue,
   migrateGenericSheets,
   migrateLost,
+  migrateSupplies,
   migrateTotals,
   missingSystem,
   leavePlace,
@@ -60,9 +61,10 @@ import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
  * rules are Core's system (`generic` reads as `core`, and its sheets `generic/…` as
  * `core/…`); v8: where the last step's journal lines start (`session.lastStep`), none in
  * older trips until they next step; v9: the campaign it plays in (`campaign`), for older
- * trips one of its own (the trip's id). All migrated on reading.
+ * trips one of its own (the trip's id); v10: the party's supplies are its values or items
+ * (`travel.resources` moves to the party sheet's values). All migrated on reading.
  */
-const VERSION = 9
+const VERSION = 10
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -158,7 +160,9 @@ export function readTrips(
           system: systemIdOf(t.system),
           session:
             t.session &&
-            migrateGenericSheets(migrateTotals(migrateLost(migrateFatigue(t.session)))),
+            migrateSupplies(
+              migrateGenericSheets(migrateTotals(migrateLost(migrateFatigue(t.session)))),
+            ),
         }))
       if (trips.length)
         return {

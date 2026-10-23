@@ -73,7 +73,7 @@ entries:
         - { factions.the-vale.values.reputation: { gte: 2 } }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they greet you as friends and share their bread'
-    effects: { party.resources.food: 1 }
+    effects: { party.items.ration: 1 }
   - id: patrol
     range: 1-4
     when: { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }

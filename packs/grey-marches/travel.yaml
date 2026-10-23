@@ -63,11 +63,6 @@ modes:
     description: Slow and steady, and only along the roads.
     kmPerDay: 30
     through: { trip.edges: road }
-# Supplies never go below 0 (min): when there's none left, eating hits that minimum, and
-# later steps and checks of the day see it as `trip.below: food`.
-resources:
-  food: { name: Food, min: 0 }
-  fodder: { name: Fodder, min: 0 }
 weather:
   rain: { speed: 0.75 }
   fog: { speed: 0.75 }
@@ -138,7 +133,8 @@ actions:
     do:
       - { travel.move: '{{params.until}}' }
   # Camping: sleep until dawn (at midnight the day ends: the eat action below runs), and a
-  # fed night eases fatigue: unless food hit its minimum (`trip.below`) during the night.
+  # fed night eases fatigue: unless the rations ran out during the night (they hit their
+  # minimum, `trip.below: party.items.ration`).
   # Night checks (at: camp) come first. Only with food left and not exhausted (`when` on the
   # party: fatigue under the party's own Endurance, a variable): otherwise the night passes
   # without camping (no night checks, no relief), as the halt is camp and can't be taken.
@@ -146,12 +142,16 @@ actions:
     name: Camp
     description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue and gives each companion 1 health back; with morale 1 or less, the watch is restless: +1 fatigue. Only with food left and fatigue under your Endurance: otherwise the night passes in the open, without rest.'
     when:
-      { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: '{{party.stats.endurance}}' } }
+      {
+        party.items.ration.count: { gte: 1 },
+        party.stats.fatigue: { lt: '{{party.stats.endurance}}' },
+      }
     do:
       - { time: time.part.morning }
-      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: party.items.ration }, effects: { party.stats.fatigue: -1 } }
       # …and gives every companion a point of health back (an effect on every member).
-      - { unless: { trip.below: food }, effects: { party.members.values.health: 1 } }
+      - unless: { trip.below: party.items.ration }
+        effects: { party.members.values.health: 1 }
       # A night out of the saddle eases the saddle-sore (a condition cleared on every member).
       - { unless: { trip.mode: horse }, effects: { party.members.conditions.saddle-sore: false } }
       # A night watch kept by a party in low spirits: nobody really sleeps.
@@ -165,7 +165,7 @@ actions:
     when:
       {
         time.tags: { not: dark },
-        party.resources.food: { gte: 1 },
+        party.items.ration.count: { gte: 1 },
         party.stats.fatigue: { lt: '{{party.stats.endurance}}' },
       }
     do:
@@ -189,20 +189,22 @@ actions:
       - { travel.speed: 0.5 }
     oncePerDay: true
   # Nobody presses this one: the system takes it by itself as each day ends (on: time.day-end),
-  # whether the party camped or not. A day of food, one more per hireling (an amount that
-  # is a variable: as many as the stat says), and fodder when riding (a step with a
-  # condition on the way of travelling).
+  # whether the party camped or not. A ration per mouth, one more per hireling (an amount
+  # that is a variable: as many as the stat says), taken from the Company's stores first and
+  # then from whoever carries most (`party.items`: the party's items and its companions'
+  # together, shared out as the companion sheet says), and fodder when riding (a value of
+  # the Company's sheet, in a step with a condition on the way of travelling).
   eat:
     name: Eat
-    description: 'At the end of each day, in camp or not: 1 food per mouth (each companion, or 1 for a party without them), 1 more for each hireling, and 1 fodder on horseback. With none left, the party goes hungry.'
+    description: 'At the end of each day, in camp or not: 1 ration per mouth (each companion, or 1 for a party without them), 1 more for each hireling, from the Company’s stores first and then from whoever carries most; and 1 fodder on horseback. With none left, the party goes hungry.'
     on: time.day-end
     do:
-      - { effects: { party.resources.food: '-{{party.stats.mouths}}' } }
+      - { effects: { party.items.ration: '-{{party.stats.mouths}}' } }
       - when: { party.stats.hirelings: { gte: 1 } }
-        effects: { party.resources.food: '-{{party.stats.hirelings}}' }
-      - { when: { trip.mode: horse }, effects: { party.resources.fodder: -1 } }
-      # If the food ran out (it hit its minimum), the day is remembered as hungry.
-      - { when: { trip.below: food }, set: { hungry: true } }
+        effects: { party.items.ration: '-{{party.stats.hirelings}}' }
+      - { when: { trip.mode: horse }, effects: { party.values.fodder: -1 } }
+      # If the rations ran out (they hit their minimum), the day is remembered as hungry.
+      - { when: { trip.below: party.items.ration }, set: { hungry: true } }
   # Pushing on: half as fast again for the rest of the day, at the cost of fatigue, and
   # off at once (it takes the march, with its parameter: an action taking another with
   # `do:` and `with:`); only by day with marching hours left, while the party is fresh
@@ -334,7 +336,7 @@ actions:
     oncePerDay: true
     do:
       - { time: 120 }
-      - { effects: { party.resources.food: 3, party.resources.fodder: 2 } }
+      - { effects: { party.items.ration: 3, party.values.fodder: 2 } }
   # Characters: only while a companion is wounded (a party stat counting them), by day.
   # Whoever acts tends the others: with Survival 2 or more (`acting.values.survival`, a
   # condition on the acting character), every wound and sprain is bound (effects on every
@@ -375,12 +377,12 @@ actions:
           - { id: wait, name: Wait for her crossing }
     do:
       - { ask: params.fare }
-      - { when: { params.fare: food }, effects: { party.resources.food: -1 } }
+      - { when: { params.fare: food }, effects: { party.items.ration: -1 } }
       - when: { params.fare: wait }
         wait: { time.part: [afternoon, evening] }
         limit: time.part.night
       - id: casts-off
-        say: 'Brenna casts off from the jetty ({{party.resources.food}} food left in your packs).'
+        say: 'Brenna casts off from the jetty ({{party.items.ration.count}} rations left in your packs).'
       - { travel.mode: modes.boat }
       - id: afloat
         pause: 'Afloat on the Saltmere: choose a hex of the lake to sail to, then Go ashore at the far bank.'
@@ -568,13 +570,14 @@ checks:
     at: trip.hex-enter
     when: { time.tags: dark }
     unless: { trip.edges: road }
-  # Conditions on the party: a day ending with no food left (party.resources.food), when
-  # the party can't camp either (camp needs food): the night out in the open, hungry.
+  # Conditions on the party: a day ending with no rations left (party.items.ration.count:
+  # the Company's and its companions' together, 0 when nobody has one), when the party can't
+  # camp either (camp needs food): the night out in the open, hungry.
   - event: HUNGER_CHECK_REQUIRED
     name: Hunger
     description: A day ending with no food left, and a night in the open. Morale decides how it goes.
     at: time.day-end
-    when: { party.resources.food: { lt: 1 } }
+    when: { party.items.ration.count: { lt: 1 } }
   # The end of each day (at: time.day-end), after the eat action: checks see what hit its
   # minimum today (below) and the action under way as it ended (`trip.doing: camp`). With effects and no
   # table, they just apply: fatigue is this system's own rule, not the app's. (A fed night
@@ -583,7 +586,7 @@ checks:
     name: Not enough to eat
     description: A day without enough food tires the party, in camp or not.
     at: time.day-end
-    when: { trip.below: food }
+    when: { trip.below: party.items.ration }
     effects: { party.stats.fatigue: 1 }
   # Foraging (the forage action above) in the woods and fields (a list of terrains), rolled
   # once its three hours are done (`actions.forage.done`), not as it begins.
@@ -716,10 +719,6 @@ stats:
     name: Fatigue
     description: 'Rises with each day without enough food, long days, fords and hunger; eases after a fed night in camp, a rest or a prayer at the shrine.'
     from: { party: fatigue }
-# With companions, the food is what they carry between them (their `rations`): the trip
-# shows the sum, and what the party eats or finds is shared out, evenly by default.
-resources:
-  food: { carried: rations }
 # Journey roles: the player gives each to a companion; checks and tables read the holder as
 # `roles.<id>.…` (the getting-lost table, the night encounter).
 roles:

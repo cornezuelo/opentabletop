@@ -1,18 +1,20 @@
 # The Company's characters: what each companion has. The system names this sheet
 # (system.yaml: `sheet: sheet.companion`), so a trip's party can be made of companions; the
-# bindings (travel.yaml) say which party stats come from them and that they carry the food.
+# bindings (travel.yaml) say which party stats come from them. Their rations are items they
+# carry (items.yaml), and the party eats from them as from the Company's stores.
 kind: sheet
 id: companion
 name: Companion
 description: |-
-  One of the Company: their skills, their wounds, the rations they carry and their gear. With
+  One of the Company: their skills, their wounds and their gear, rations among it. With
   companions in the party, its Survival, Charisma, Navigation and Stealth are theirs, it
-  eats a ration per mouth from what they carry, wounds keep some of them back, a rope
-  helps at the ford and torches burn on night marches.
+  eats a ration per mouth (from the Company's stores, then from whoever carries most),
+  wounds keep some of them back, a rope helps at the ford and torches burn on night marches.
+  A new companion sets out with two rations.
 
   **Shows:** a sheet of values with bounds (one bounded by another value,
   `max: '{{self.values.maxHealth}}'`), each value shown its own way (skills as pips, health as
-  a bar whose tone falls with it, rations as `2 / 6`, dread as boxes that turn red,
+  a bar whose tone falls with it, dread as boxes that turn red,
   nerve as a die that steps from d4 to d12 (`display: levels`), a bond's number as pips), a
   value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action, a
   way of travelling or travel itself, conditions that hold by themselves (`when:`: _Terrified_
@@ -21,7 +23,9 @@ description: |-
   items (`items:`): fields every item has (slots, uses that run out as pips, armour), places
   for a body (hands, body, belt, back) that items fit by tags, the slots filling them, values
   made of the items (the load, `{ sum: items.slots }`; the armour worn, `{ max: items.armour,
-  where: { place.tags: worn } }`); every part with a description, shown as its help where the sheet is met.
+  where: { place.tags: worn } }`), what a new companion carries (`start: { ration: 2 }`) and
+  how what the party spends is shared out among them (`share: even`: from whoever carries
+  most); every part with a description, shown as its help where the sheet is met.
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
   survival:
@@ -84,16 +88,6 @@ values:
     display: boxes
     tones: { 1: warning, 3: danger }
     group: body
-  # What each one carries of the party's food (bindings: `resources.food: { carried: rations }`).
-  rations:
-    name: Rations
-    description: The food this companion carries; the party's food is everyone's together.
-    default: 2
-    min: 0
-    max: 6
-    # The count beside its max: 2 / 6.
-    display: of
-    group: gear
   # Made of the items: every item's slots (× how many), and how much a companion can carry.
   load:
     name: Load
@@ -207,6 +201,11 @@ items:
       }
   # A place's room counts slots: a mail shirt (2 slots) fills more than a torch.
   size: slots
+  # What the party eats or finds (`party.items.ration`) is taken from whoever carries most,
+  # and given to whoever carries least (the default, written out).
+  share: even
+  # A new companion sets out with two rations (from the catalogue).
+  start: { ration: 2 }
 relations:
   bond:
     name: Bond
@@ -218,14 +217,15 @@ relations:
 ---
 # The Company itself: what belongs to the whole party, whoever travels in it. The system
 # names it (system.yaml: `partySheet: company`); its morale, fatigue, hirelings and
-# endurance are the party's stats (travel.yaml: `from: { party: … }`).
+# endurance are the party's stats (travel.yaml: `from: { party: … }`). Its fodder is a value
+# of its own, and its stores of rations are items it keeps (eaten before the companions').
 kind: sheet
 id: company
 name: The Company
 description: |-
-  The Company as a whole: its morale, its fatigue, the sell-swords it has hired and how much it can take. It stays the same as companions join and fall: every trip has it.
+  The Company as a whole: its morale, its fatigue, the sell-swords it has hired, how much it can take, the horses' fodder and its stores of rations. It stays the same as companions join and fall: every trip has it.
 
-  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
+  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
 values:
   morale:
     name: Morale
@@ -245,6 +245,18 @@ values:
     name: Endurance
     description: How much fatigue the Company takes before it can't camp or rest any more (they're only possible while fatigue is under it).
     default: 10
+  # A supply as a plain value of the Company: eaten by the horses on each day ridden.
+  fodder:
+    name: Fodder
+    description: Days of fodder for the horses, as many as they can carry; one is eaten at the end of each day on horseback, and it never goes below 0. The market sells more.
+    default: 6
+    min: 0
+    max: 12
+    # The count beside its max: 6 / 12.
+    display: of
+# The Company's own stores: six rations a new trip starts with, eaten before the companions'.
+items:
+  start: { ration: 6 }
 conditions:
   shaken:
     name: Shaken

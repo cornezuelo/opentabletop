@@ -25,6 +25,8 @@ export function memberNamer(
   t: Translate,
   /** The host's facts: factions and clocks are named only where the host has them. */
   world?: Record<string, unknown>,
+  /** The party's own character, for its items' names. */
+  party?: CharacterState,
 ): (path: string) => string | undefined {
   return (path) => {
     // The world's: a faction's value ("The Vale: Reputation"), a clock of the world clock.
@@ -48,6 +50,19 @@ export function memberNamer(
     const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
     // The party's own sheet: its value or condition, by its name ("Renown").
     if (who === 'party') {
+      // Its items, its own and its members' together ("Rations", "Torch · Uses").
+      if (part === 'items') {
+        const [item, field] = id.split('.', 2)
+        const own = [
+          ...(party?.items ?? []),
+          ...(members ?? []).flatMap((m) => m.items ?? []),
+        ].find((i) => i.id === item)
+        const name = itemName(own ?? { id: item }, system.items ?? [], locale)
+        const fields = system.sheet?.def.items?.fields ?? system.partySheet?.def.items?.fields
+        return field === undefined
+          ? name
+          : `${name} · ${sheetText(fields?.[field]?.name, locale) ?? idName(field)}`
+      }
       const sheet = system.partySheet?.def
       if (!sheet) return undefined
       const own = part === 'values' ? sheet.values[id] : sheet.conditions[id]

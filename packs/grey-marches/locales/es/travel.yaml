@@ -47,7 +47,7 @@ travel-rules/default:
       nothing: 'no hay nada que buscar en {terrain}: solo los bosques, campos, brezales y marismas dan comida'
     eat:
       name: Comer
-      description: 'Al final de cada día, acampando o no: 1 de comida por boca (cada compañero, o 1 para un grupo sin ellos), 1 más por cada mercenario, y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
+      description: 'Al final de cada día, acampando o no: 1 ración por boca (cada compañero, o 1 para un grupo sin ellos), 1 más por cada mercenario, primero de las reservas de la Compañía y luego de quien más lleve; y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'
     forced-march:
       name: Marcha forzada
       description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga, y el grupo sigue marchando hasta su destino. Solo de día con horas de marcha por delante, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
@@ -96,7 +96,7 @@ travel-rules/default:
             wait: Esperar a su travesía
       do:
         casts-off:
-          say: 'Brenna suelta amarras ({{party.resources.food}} de comida en vuestros fardos).'
+          say: 'Brenna suelta amarras ({{party.items.ration.count}} raciones en vuestros fardos).'
         afloat:
           pause: 'A flote en el Saltmere: elegid un hex del lago al que navegar y luego Desembarcar en la otra orilla.'
     ashore:
@@ -208,11 +208,6 @@ travel-rules/default:
     cart:
       name: En carro
       description: Lento y seguro, y solo por los caminos.
-  resources:
-    food:
-      name: Comida
-    fodder:
-      name: Forraje
 bindings/default:
   stats:
     charisma:

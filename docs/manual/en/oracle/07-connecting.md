@@ -57,10 +57,10 @@ entries:
 
 ## 4. Results the trip understands
 
-An entry (or a deck's card) changes the party with **effects**: each one is a value the system declares, by the path tables read it with. A number adds or subtracts; `'=value'` sets it; a roll or a variable works inside (`'{{1d3+1}}'`; `'-{{party.stats.mouths}}'` takes away as many as another value, `'={{party.stats.endurance}}'` sets it to it, `'-{{loss}}'` reads a value the entry sets). A value stops at the `min` and `max` its system declares (stats and supplies alike); without them it may go anywhere, negative too.
+An entry (or a deck's card) changes the party with **effects**: each one is a value the system declares, by the path tables read it with. A number adds or subtracts; `'=value'` sets it; a roll or a variable works inside (`'{{1d3+1}}'`; `'-{{party.stats.mouths}}'` takes away as many as another value, `'={{party.stats.endurance}}'` sets it to it, `'-{{loss}}'` reads a value the entry sets). A value stops at the `min` and `max` its system declares (stats and the party's sheet alike); without them it may go anywhere, negative too.
 
 ```yaml
-- { id: berries, range: 6, result: 'Berries: +2 food', effects: { party.resources.food: 2 } }
+- { id: berries, range: 6, result: 'Berries: +2 food', effects: { party.values.food: 2 } }
 - { id: wolves, range: 5, result: Wolves, effects: { party.stats.morale: -1 } }
 - { id: cordial, range: 1, result: A cordial, effects: { party.stats.fatigue: '=0' } }
 ```
@@ -74,7 +74,7 @@ Two other values of the day change the trip when an entry **sets** them:
 
 The journal says what each result changed ("Foraging: Berries (Food +2)"). An effect on a value the system doesn't declare still applies, but the pack gets a warning.
 
-Tables read the party back as `party.resources.food`, `party.stats.morale`: `when: { party.resources.food: { lt: 1 } }` for an entry that only comes up when the food has run out.
+Tables read the party back as `party.values.food`, `party.stats.morale`, `party.items.ration.count`: `when: { party.values.food: { lt: 1 } }` for an entry that only comes up when the food has run out.
 
 **Values of the day.** The values the system declares (in its rules' `values`: `lost`, a modifier…) and the day's `weather` stay for the rest of the day, so later checks can use them (also those of the same moment further down the list); the next day they become `yesterday.<name>`. Any other value a result sets lasts only for that roll (its text, the table it rolls next), whatever its name. Some kinds of declared value, for the tables that read them:
 
@@ -104,8 +104,6 @@ edges:
 modes:
   foot: { name: On foot, kmPerDay: 30 }
   horse: { name: On horseback, kmPerDay: 60 }
-resources:
-  food: { name: Rations, min: 0 } # never below 0
 weather:
   storm: { speed: 0 } # no travel in a storm
 values:
@@ -118,7 +116,7 @@ actions:
   camp: # sleep until 06:00; a fed night (food didn't run out) eases fatigue
     do:
       - { time: '06:00' }
-      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }
   rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   forage: # an action of this system: a Forage for food button
     name: Forage for food
@@ -127,7 +125,7 @@ actions:
     oncePerDay: true
   eat: # not a button: the system takes it as each day ends, camping or not
     on: time.day-end
-    do: [{ effects: { party.resources.food: -1 } }]
+    do: [{ effects: { party.values.food: -1 } }] # the party's food (its sheet, below)
 checks:
   - { event: WEATHER, at: '06:00' }
   - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
@@ -137,7 +135,7 @@ checks:
   - {
       event: HUNGRY,
       at: time.day-end,
-      when: { trip.below: food },
+      when: { trip.below: party.values.food },
       effects: { party.stats.fatigue: 1 },
     }
 ---
@@ -152,6 +150,17 @@ on:
 stats:
   luck: { name: Luck, description: 'Added to encounter rolls', default: 0 }
   fatigue: { name: Fatigue, default: 0, min: 0 }
+---
+kind: sheet # the party's own: what it carries (food) is one of its values
+id: party
+values:
+  food: { name: Rations, default: 6, min: 0 } # a new trip starts with 6, never below 0
+---
+kind: system # names them all
+id: default
+travel: travel-rules.default
+bindings: bindings.default
+partySheet: sheet.party
 ```
 
 The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Systems app's [Your first system](../systems/03-your-first-system.md); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
@@ -186,26 +195,24 @@ water: { passable: false } # water hexes whose terrain isn't listed
 
 A value of the day can block one too (`blocks: [modes.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
 
-### Supplies
+### What the party carries
 
-**resources** are what the party carries: food, water, torches, fodder… Each one shows in the trip panel, where the player can also change it by hand. **Nothing uses them by itself**: the system's actions, checks and tables do, with effects (`party.resources.food: -1`). That's how a system says how its game eats: once a day, at camp, only on horseback, never.
+There are no supplies in the rules: food, water, torches, fodder… are the system's own, as it plays them. A game that counts them as plain numbers makes them **values of the party's sheet** (`partySheet:`, a `kind: sheet` whose values belong to the whole party), with the `default` a new trip starts with and their bounds; one where each character carries their share makes them **items** ([Characters](#characters), below). Either way they show in the trip (the party's card, each character's), where the player can also change them by hand. **Nothing uses them by itself**: the system's actions, checks and tables do, with effects (`party.values.food: -1`, `party.items.ration: -1`). That's how a system says how its game eats: once a day, at camp, only on horseback, never.
 
-`min` and `max` bound a supply. A change that would go past one stops there, the journal says so ("Rations can't go lower than 0"), and what comes after in that moment sees the supply's id in `below` (or `above`): the later steps of the same action and that day's `time.day-end` checks. That's how "a day without food tires the party" is written:
+`min` and `max` bound a value. A change that would go past one stops there, the journal says so ("Rations can't go lower than 0"), and what comes after in that moment sees it in `trip.below` (or `trip.above`), by its full name: the later steps of the same action and that day's `time.day-end` checks. That's how "a day without food tires the party" is written:
 
 ```yaml
-resources:
-  food: { name: Rations, min: 0 }
-  water: { name: Waterskins, min: 0, max: 6 } # can't carry more than 6
-checks:
-  - {
-      event: HUNGRY,
-      at: time.day-end,
-      when: { trip.below: food },
-      effects: { party.stats.fatigue: 1 },
-    }
+kind: sheet # the party's own
+id: party
+values:
+  food: { name: Rations, default: 6, min: 0 }
+  water: { name: Waterskins, default: 3, min: 0, max: 6 } # can't carry more than 6
+# … and in the travel rules:
+# checks:
+#   - { event: HUNGRY, at: time.day-end, when: { trip.below: party.values.food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-Without `min`, a supply may go negative (a debt, say).
+Without `min`, a value may go negative (a debt, say).
 
 ### Values of the day
 
@@ -257,7 +264,7 @@ actions:
 
 When the button can be pressed:
 
-- `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { trip.weather: storm }` and camp only `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
+- `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { trip.weather: storm }` and camp only `when: { party.items.ration.count: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
 - Day and night in those conditions are the system's: the hour (`time.hour: { gte: 6, lt: 20 }`) or the parts of its calendar's day (`time.part: night`, `time.tags: dark`). A system may rest, forage and force the march only by day, so the night can't be skipped resting, and march at night only after a night march.
 - `oncePerDay: true`: once a day.
 - A value of the day that `blocks` it (above).
@@ -268,11 +275,11 @@ A button that can't be pressed stays visible, disabled, saying why, so the butto
 
 ```yaml
 actions:
-  eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.values.food: -1 } }] }
   feed-horses: # only riding
     on: time.day-end
     when: { trip.mode: horse }
-    do: [{ effects: { party.resources.fodder: -1 } }]
+    do: [{ effects: { party.values.fodder: -1 } }]
 ```
 
 **What an action does** is a list of **steps** (`do`), done in order. Each step does one thing, and only when its own `when` / `unless` holds:
@@ -282,7 +289,7 @@ actions:
 | `time: 180`                           | Three hours pass. `time: '14:00'` or a part of the calendar's day (`time: time.meal.luncheon`): until it next comes. The moments on the way happen, and every day that ends on the way ends with its `time.day-end` actions and checks.                                                                                                                                                                                              |
 | `travel.move: destination`            | Moves the party along its route while time passes and the action's `when` / `unless` hold: to the destination, the next `hex` or a number of hexes (`3`), or as a variable says (`'{{params.until}}'`). A check that needs the player stops it under way (**Go on** goes on with it).                                                                                                                                                |
 | `travel.speed: 0.5`                   | The rest of today's moving goes at half speed (`1.5`: faster).                                                                                                                                                                                                                                                                                                                                                                       |
-| `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see its id in `below` / `above`.                                                                                                                                                                                                                                                                                       |
+| `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see it in `trip.below` / `trip.above` by its full name, and the new values (the party's stats, sheet and items).                                                                                                                                                                                                       |
 | `set: { lost: true }`                 | Sets values of the day the system declares (`values`).                                                                                                                                                                                                                                                                                                                                                                               |
 | `do: actions.forage`                  | Takes another action, if its conditions hold (otherwise nothing happens). With `with:`, its parameters: `{ do: actions.march, with: { until: hex } }`.                                                                                                                                                                                                                                                                               |
 | `roll: checks.ENCOUNTER`              | Rolls a check now: every check with that event whose `when` / `unless` hold, whatever its `at`. The steps after it wait until it's resolved, and see its result. `roll: table.ruins` (or `generator.`, `oracle.`, `deck.`, another pack's `core/table.twists`) rolls that instead, with no check or binding: its result goes to the journal by its name, its `set` and `effects` reach the trip, and an entry with `pause` stops it. |
@@ -298,7 +305,7 @@ actions:
   camp: # sleep until 06:00; a fed night eases fatigue
     do:
       - { time: '06:00' }
-      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }
   forced-march: # faster, tiring, and off at once: it takes the march
     name: Forced march
     when: { party.stats.fatigue: { lt: 2 } } # only while fresh
@@ -319,7 +326,7 @@ What an action **rolls** are the checks with `at: actions.<its id>` (camp's: `at
 Some games don't march hour by hour: a journey is made of **moves**, each one bringing the party closer by some progress, and arriving may need a roll. The `travel.advance` step is that progress: the party moves along its route as many hexes (or legs of a way, in the Travel app) as it says, at once.
 
 - **No marching**: declare no action with a `travel.move` step, and only the moves bring the party forward.
-- **A move**: an action whose steps pass time, spend supplies and advance (`do: [{ time: 240 }, { effects: { party.resources.food: -1 } }, { travel.advance: 1 }]`); with a check (`roll:` or `at:` its id) whose table decides how it went.
+- **A move**: an action whose steps pass time, spend what the party carries and advance (`do: [{ time: 240 }, { effects: { party.values.food: -1 } }, { travel.advance: 1 }]`); with a check (`roll:` or `at:` its id) whose table decides how it went.
 - **Progress that depends on something**: `travel.advance: '{{party.stats.rank}}'` moves as many legs as a stat; a step with `when` advances only on a good result of the day (`when: { today.made-way: true }`, set by the move's table).
 - **Arriving as a roll**: the last leg is a terrain that's only `passable` with a value of the day (`passable: { when: { reached: true } }`), set by an action whose table rolls for it; then that action's `travel.advance: 1` takes the party in.
 
@@ -330,7 +337,7 @@ actions: # no action moves along the route: only the moves bring the party forwa
     description: 'Half a day on the way: a ration, and one leg closer.'
     do:
       - { time: 360 }
-      - { effects: { party.resources.food: -1 } }
+      - { effects: { party.items.ration: -1 } }
       - { travel.advance: 1 }
 … # the rest of the travel rules
 ```
@@ -386,7 +393,7 @@ checks:
   - {
       event: HUNGRY,
       at: time.day-end,
-      when: { trip.below: food },
+      when: { trip.below: party.values.food },
       effects: { party.stats.fatigue: 1 },
     }
 ```
@@ -436,14 +443,14 @@ Every key is in [Systems](../technical/07-kinds.md#systems).
 
 ### Characters
 
-A system may play its party as a whole (its stats and supplies are the party's) or one character at a time, or both. For characters, it declares a **sheet** (`kind: sheet`: their values with bounds, their conditions and what each blocks, the kinds of relation they hold) and names it in its system (`sheet: sheet.companion`). Trips then have a **Characters** section: add them, choose who acts, change their values.
+A system may play its party as a whole (its stats and its sheet are the party's) or one character at a time, or both. For characters, it declares a **sheet** (`kind: sheet`: their values with bounds, their conditions and what each blocks, the kinds of relation they hold) and names it in its system (`sheet: sheet.companion`). Trips then have a **Characters** section: add them, choose who acts, change their values.
 
 Then the bindings say what the party takes from them:
 
 - **Stats made of theirs:** `navigation: { name: Navigation, from: { max: pathfinding } }` is the best Pathfinding among them; `min` the worst, `sum` all together, `count: true` how many; `when` / `unless` leave some out (`count: true, unless: { conditions: wounded }`: those not wounded). Without characters the stat is kept as usual, so the same system plays both ways.
 - **Whoever the player chooses:** `charisma: { from: { pick: charisma } }` is one character's Charisma, the one chosen in the trip's **Rolls with** (the best by default); **Ask at every roll** makes each check on a table wait for the choice.
 - **Values of the party's own sheet:** with `partySheet:` in the system, a sheet for the party itself (morale, fatigue…, whoever travels), `morale: { from: { party: morale } }` is that value: effects on the stat change the sheet, within its bounds.
-- **Supplies they carry:** `resources: { food: { carried: rations } }`: the party's food is the sum of their rations, and what the trip eats or finds is shared out among them (evenly by default, `share: order` for the first one first).
+- **What they carry:** items ([Items](../systems/08-items.md)): `party.items.ration` are the party's own and its characters' together; what the trip eats (`party.items.ration: -3`) is taken from the party's own first, then from them, and what it finds is given to them, shared out as their sheet says (`items: { share: even }`, the default: from whoever carries most; `share: order` for the first one first). A new character carries what their sheet's `items.start` says (`start: { ration: 2 }`).
 
 - **Journey roles:** `roles: { guide: { name: Guide }, lookout: { name: Lookout } }`: in a trip the player gives each to a character, and checks and tables read the holder, `roles.guide.values.pathfinding: { gte: 2 }`.
 

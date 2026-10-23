@@ -116,10 +116,15 @@ describe('where a name is used', () => {
     expect(lost.some((u) => u.name === 'yesterday.lost' && u.how === 'reads')).toBe(true)
   })
 
-  it('finds supplies, conditions, reads, clocks and a sheet bound', () => {
-    const food = where(usesOf(uses, { kind: 'supply', id: 'food' }))
-    expect(food).toContain('reads travel-rules default actions.camp.when')
-    expect(food).toContain('reads travel-rules default checks[12].when')
+  it("finds the party's values, conditions, reads, clocks and a sheet bound", () => {
+    // Fodder, a value of the Company's sheet: eaten on horseback, bought at the market.
+    const fodder = usesOf(uses, { kind: 'sheet-value', sheet: 'party', id: 'fodder' }, system)
+    expect(fodder.some((u) => u.how === 'changes' && u.at.path.startsWith('actions.eat'))).toBe(
+      true,
+    )
+    expect(fodder.some((u) => u.how === 'changes' && u.at.path.startsWith('actions.market'))).toBe(
+      true,
+    )
     // A member's condition read by a stat's `from`.
     expect(
       where(usesOf(uses, { kind: 'sheet-condition', sheet: 'members', id: 'wounded' }, system)),
@@ -165,12 +170,14 @@ describe('where a name is used', () => {
     expect(uses.some((u) => /^\d*d\d+/.test(u.name))).toBe(false)
   })
 
-  it("finds Core's few names: the Generic rules' supplies and sheets", () => {
+  it("finds Core's few names: the Generic rules' food and sheets", () => {
     const { registry } = loadPacks(corePack())
     const core = travelSystems(registry).systems.find((s) => s.id === 'core')!
     const uses = systemUses(registry, core)
-    const food = usesOf(uses, { kind: 'supply', id: 'food' })
+    const food = usesOf(uses, { kind: 'sheet-value', sheet: 'party', id: 'food' }, core)
     expect(food.some((u) => u.how === 'changes' && u.at.path.startsWith('actions.eat'))).toBe(true)
+    // Read as a bound hit, by its full name (`trip.below: party.values.food`).
+    expect(food.some((u) => u.how === 'reads' && u.at.path.startsWith('actions.eat'))).toBe(true)
     // Only Core's packs: nothing of the Grey Marches.
     expect(uses.every((u) => u.at.pack === 'core')).toBe(true)
   })
@@ -178,11 +185,11 @@ describe('where a name is used', () => {
 
 /** A made-up system using each name in its short and full forms. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
   {
     path: 'band/system.yaml',
     content:
-      'kind: system\nname: Band\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.member\nclocks: clocks.default\n',
+      'kind: system\nname: Band\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.member\npartySheet: sheet.band\nclocks: clocks.default\n',
   },
   {
     path: 'band/travel.yaml',
@@ -195,6 +202,11 @@ values:
   hp: { default: 3, max: '{{self.values.top}}' }
 conditions: { tired: {} }
 ---
+kind: sheet
+id: band
+values:
+  water: { default: 3, min: 0 }
+---
 kind: clocks
 clocks: { doom: { segments: 4 } }
 ---
@@ -206,9 +218,8 @@ travel:
   halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-resources: { water: { min: 0 } }
 checks:
-  - { event: GATE, at: '07:00', when: { trip.below: water } }
+  - { event: GATE, at: '07:00', when: { trip.below: party.values.water } }
 actions:
   march:
     params: { until: { choices: [destination, hex] } }
@@ -233,7 +244,7 @@ entries:
 kind: deck
 id: fate
 cards:
-  - { id: thirst, effects: { party.resources.water: -1, characters.ann.values.hp: -1 } }
+  - { id: thirst, effects: { party.values.water: -1, characters.ann.values.hp: -1 } }
 ---
 kind: generator
 id: camp-site
@@ -285,11 +296,10 @@ describe('where a name is used, in every form', () => {
     ])
   })
 
-  it('finds supplies, values of the day, roles and clocks', () => {
-    expect(where(usesOf(uses, { kind: 'supply', id: 'water' }))).toEqual([
-      'reads travel-rules default checks[0].when',
-      'changes deck fate cards.thirst.effects',
-    ])
+  it("finds the party's values, values of the day, roles and clocks", () => {
+    expect(where(usesOf(uses, { kind: 'sheet-value', sheet: 'party', id: 'water' }, band))).toEqual(
+      ['reads travel-rules default checks[0].when', 'changes deck fate cards.thirst.effects'],
+    )
     expect(where(usesOf(uses, { kind: 'day-value', id: 'rested' }))).toEqual([
       'sets travel-rules default actions.camp.do[1].set',
       'reads generator camp-site fields.mood.when',

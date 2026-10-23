@@ -11,8 +11,7 @@ import { systemPackIds, type TravelSystem } from './trip'
 
 /**
  * How a place uses a name: `reads` it (a condition, a `{{…}}`), `changes` it (effects),
- * `sets` it (`set`, a value of the day), `derives` something from it (a stat's `from`, a
- * supply carried by the members) or `names` it by reference (`do: actions.march`, `blocks:
+ * `sets` it (`set`, a value of the day), `derives` something from it (a stat's `from`) or `names` it by reference (`do: actions.march`, `blocks:
  * [modes.horse]`, `roll: table.ruins`, `roll: checks.<event>`).
  */
 export type UseHow = 'reads' | 'changes' | 'sets' | 'derives' | 'names'
@@ -44,7 +43,6 @@ export interface Use {
 export type Declared =
   | { kind: 'stat'; id: string }
   | { kind: 'role'; id: string }
-  | { kind: 'supply'; id: string }
   | { kind: 'day-value'; id: string }
   | { kind: 'read'; id: string }
   | { kind: 'clock'; id: string }
@@ -199,7 +197,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
   const rulesDef = rules && extra('travel-rules', `${rules.pack}/${rules.id}`)
   if (rulesDef) recorder({ kind: 'travel-rules', ...place(rulesDef) }).walk(rulesDef.data, '')
 
-  // The bindings: stats made of the members' values, supplies they carry, checks' context.
+  // The bindings: stats made of the members' values, checks' context.
   const bindings = system.sources?.bindings
   const bindingsDef = bindings && extra('bindings', `${bindings.pack}/${bindings.id}`)
   if (bindingsDef) {
@@ -216,14 +214,9 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
       for (const key of ['when', 'unless'] as const)
         r.condition(from[key], `${path}.${key}`, 'party.members.')
     }
-    for (const [id, supply] of Object.entries(asObject(data.resources))) {
-      const carried = asObject(supply).carried
-      if (typeof carried === 'string')
-        r.use(`party.members.values.${carried}`, 'derives', `resources.${id}.carried`)
-    }
-    // The rest as written (stats, supplies and reads are declarations, done above).
+    // The rest as written (stats and reads are declarations, done above).
     for (const [key, value] of Object.entries(data))
-      if (!['stats', 'resources', 'reads'].includes(key)) r.walk(value, key)
+      if (!['stats', 'reads'].includes(key)) r.walk(value, key)
   }
 
   // Its sheets: a bound may read another value of the same sheet (`max: '{{self.values.maxHealth}}'`).
@@ -357,19 +350,18 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 export function usesOf(uses: readonly Use[], declared: Declared, system?: TravelSystem): Use[] {
   const id = escape(declared.id)
   const has = (u: Use) => !!u.values?.includes(declared.id)
+  /** What hit a bound today, by full name (`trip.below: party.values.food`). */
+  const bound = (u: Use, full: string) =>
+    ['trip.below', 'trip.above'].includes(u.name) && !!u.values?.includes(full)
   let match: (u: Use) => boolean
   switch (declared.kind) {
     case 'stat':
-      match = (u) => u.name === `party.stats.${declared.id}`
+      match = (u) =>
+        u.name === `party.stats.${declared.id}` || bound(u, `party.stats.${declared.id}`)
       break
     case 'role':
       match = (u) => u.name === `roles.${declared.id}` || u.name.startsWith(`roles.${declared.id}.`)
       break
-    case 'supply': {
-      const named = new RegExp(`^(party\\.resources|trip\\.spent|trip\\.gained)\\.${id}$`)
-      match = (u) => named.test(u.name) || (['trip.below', 'trip.above'].includes(u.name) && has(u))
-      break
-    }
     case 'day-value':
       // Also by its own name: what was set today is in the context as itself.
       match = (u) =>
@@ -468,8 +460,18 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
             declared.sheet === 'party' && part === 'values' && s.from?.party === declared.id,
         )
         .map(([s]) => `party.stats.${s}`)
+      // The party's values: what the trip spent and gained of them, and their bounds hit.
+      const full = `party.values.${declared.id}`
+      const party = (u: Use) =>
+        declared.sheet === 'party' &&
+        part === 'values' &&
+        (u.name === `trip.spent.${full}` || u.name === `trip.gained.${full}` || bound(u, full))
       match = (u) =>
-        named.test(u.name) || (listed.test(u.name) && has(u)) || own(u) || stats.includes(u.name)
+        named.test(u.name) ||
+        (listed.test(u.name) && has(u)) ||
+        own(u) ||
+        stats.includes(u.name) ||
+        party(u)
     }
   }
   return uses.filter(match)
@@ -477,7 +479,7 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
 
 /**
  * Everything a system declares that gets a "Used by", in the order Systems shows them: its
- * stats and roles, supplies and values of the day, what its tables read, its clocks, and the
+ * stats and roles, values of the day, what its tables read, its clocks, and the
  * values and conditions of its sheets.
  */
 export function declaredOf(registry: Registry, system: TravelSystem): Declared[] {
@@ -485,7 +487,6 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
   const ids = (o: unknown) => Object.keys(asObject(o))
   for (const id of ids(system.bindings?.stats)) out.push({ kind: 'stat', id })
   for (const id of ids(system.bindings?.roles)) out.push({ kind: 'role', id })
-  for (const id of ids(system.rules.resources)) out.push({ kind: 'supply', id })
   for (const id of ids(system.rules.values)) out.push({ kind: 'day-value', id })
   const bindings = system.sources?.bindings
   const raw = bindings

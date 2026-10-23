@@ -8,7 +8,7 @@ A check is a question the trip asks at a moment: _entering a forest, do the wolv
 
 - **When.** At each moment the trip passes, the actions the system takes **by itself** then come first, then the checks of that moment, **one by one, in the list's order**.
 - **Whether.** Each check's **Only if** / **Skip if** is read just before it comes up, so it sees what came before it in that moment: the weather just rolled, a value of the day, another check's changes. When they don't hold, it doesn't come up; the journal's **Everything** says why (_Wolves doesn't come up: the way taken is road_).
-- **What happens.** Its own **Changes** come first. Then it's **rolled on** its table (or oracle, generator, deck, weather model): the table sees the hex, the moment, the party's stats and supplies, and the check's **Extra context**. Its result goes to the journal, and what the result sets (values of the day, the weather) and changes (stats, supplies) reach the trip. With no table, the check is only a line in the journal, with its **Changes**.
+- **What happens.** Its own **Changes** come first. Then it's **rolled on** its table (or oracle, generator, deck, weather model): the table sees the hex, the moment, the party (its stats, its sheet, its items) and the check's **Extra context**. Its result goes to the journal, and what the result sets (values of the day, the weather) and changes (stats, the party's sheet and items, characters) reach the trip. With no table, the check is only a line in the journal, with its **Changes**.
 - **Stopping.** A check never stops the trip unless it says so: **Pause after it**, or a result of its table that pauses (`pause: true` on an entry), stops the trip until the player presses **Continue**, and holds the rest of its moment until then. A wait it stopped goes on after **Continue**; a march it stopped waits for **Go on**, so you can look around first. A check of an action's own moment (**When** `actions.camp`) holds the rest of that action too, until it's resolved: a night encounter that pauses is played as the camp begins, and the night passes after **Continue** (when nothing pauses, it all happens at once).
 
 ![One moment of a trip, entering a hex: the actions the system takes by itself, then each check in the list's order. One check as its moment comes: (1) its Only if / Skip if are read, and when they don't hold it's skipped, with the reason in Everything; (2) its own Changes; (3) it's rolled on its table, with its Extra context, or with no table it's only a line in the journal; (4) the result goes to the journal, with its values and effects, and Pause after it or a result that pauses waits for Continue. Then the moment's next check, which sees all of this.](check-moment.svg)
@@ -37,7 +37,7 @@ The tables a check is rolled on go in the same pack (add them in the Oracle app,
 
 ## Conditions and changes as rows
 
-**Only if** and **Skip if** are built as rows of **what it reads** · **comparison** · **value**, like an action's (_Conditions as rows_ under [Rules → Actions](05-rules.md#actions) says how): `hex.tags` · **is** · `landmark`, `trip.edges` · **is one of** · `road, river`, `hex.danger` · **is over** · `{{party.stats.stealth}}`. **Changes** and **Extra context** are rows of a name and a value: **+ Add a row**, then choose what it changes (suggested from the system: `party.stats.fatigue`, `party.resources.food`, `world.clocks.<id>`…) and its value (`1`, `-1`, `=0`, `-{{party.stats.mouths}}`); × removes a row. **YAML**, under each, shows the same as one line of YAML (`hex.danger: { gte: 3 }`, `party.stats.fatigue: 1`) for what rows can't say; **Rows** goes back. Every operator, variables and rolls: [Conditions](../technical/08-conditions.md); every piece of syntax at a glance: [Syntax](../technical/09-syntax.md); every value they can read: [What tables see](../technical/04-what-tables-see.md).
+**Only if** and **Skip if** are built as rows of **what it reads** · **comparison** · **value**, like an action's (_Conditions as rows_ under [Rules → Actions](05-rules.md#actions) says how): `hex.tags` · **is** · `landmark`, `trip.edges` · **is one of** · `road, river`, `hex.danger` · **is over** · `{{party.stats.stealth}}`. **Changes** and **Extra context** are rows of a name and a value: **+ Add a row**, then choose what it changes (suggested from the system: `party.stats.fatigue`, `party.values.food`, `party.items.ration`, `world.clocks.<id>`…) and its value (`1`, `-1`, `=0`, `-{{party.stats.mouths}}`); × removes a row. **YAML**, under each, shows the same as one line of YAML (`hex.danger: { gte: 3 }`, `party.stats.fatigue: 1`) for what rows can't say; **Rows** goes back. Every operator, variables and rolls: [Conditions](../technical/08-conditions.md); every piece of syntax at a glance: [Syntax](../technical/09-syntax.md); every value they can read: [What tables see](../technical/04-what-tables-see.md).
 
 ## Party stats
 
@@ -53,9 +53,9 @@ The jobs the player gives the characters in a trip (the Grey Marches' **Guide** 
 
 A role's **Used by** lists what reads its holder: the Grey Marches' guide is read by the table _Do we get lost?_, which no tab here shows otherwise.
 
-## Supplies the members carry
+## What the party carries
 
-With a sheet, names a supply of the rules and the value of the sheet each character carries it in (**Carried in**: the Grey Marches' food in `rations`), and how what the trip spends or gains is **Shared out** (evenly, or in order). The trip shows their sum.
+It isn't declared here: food, water or torches are values of the party's sheet or items its characters carry, and what the party spends of an item (`party.items.ration: -1`) is shared out among them as their sheet says ([Sheet → Items](07-sheet.md#items)).
 
 ## Step by step: wolf country
 
@@ -63,7 +63,7 @@ A system where the forests and hills belong to wolves: entering them by day the 
 
 1. **Create it**: type _Wolf Country_ under the system list and press **+**.
 2. **Fatigue**: under **Party stats**, **Add a stat** and name it _Fatigue_ (its id becomes `fatigue`), **Starts at** `0`.
-3. **Hunger**: **Add a check**, with **Check** `HUNGER`, named _Hunger_. **When** `time.day-end`; **Only if** `trip.below` · **is** · `food` (the Generic rules' **Eat** happens by itself as the day ends, before this check, and hits the minimum when there's no food left); **Rolled on** _— no table —_; **Changes** `party.stats.fatigue` · `1`.
+3. **Hunger**: **Add a check**, with **Check** `HUNGER`, named _Hunger_. **When** `time.day-end`; **Only if** `trip.below` · **is** · `party.values.food` (the Generic rules' **Eat** happens by itself as the day ends, before this check, and hits the minimum of the party's food when there's none left); **Rolled on** _— no table —_; **Changes** `party.stats.fatigue` · `1`.
 4. **The wolves' table**: in the Oracle app, **New definition**, a table in your pack _Wolf Country_ with the id `wolves`, named _Wolves_, rolled with `1d6 + {{night}}`: on `1-4` _Only the wind in the trees_; on `5-6` _Fresh tracks; you hurry on_, with **Changes** `party.stats.fatigue: 1`; on `7-8` _The pack circles the fire_, ticking **Pause** on that entry. By day `{{night}}` is nothing, which counts as `0`: the pack never comes.
 5. **Wolves by day**: back in **Checks**, **Add a check**, with **Check** `WOLVES`, named _Wolves_. **When** `trip.hex-enter`; **Only if** `hex.terrain` · **is one of** · `forest, hills`; **Skip if** `trip.edges` · **is** · `road` (wolves keep off the roads); **Rolled on** _Wolves_.
 6. **Wolves at night**: **Add a check**, with **Check** `WOLVES_AT_NIGHT`, named _Wolves at night_. **When** `actions.camp`; **Only if** `hex.terrain` · **is one of** · `forest, hills`; **Rolled on** _Wolves_, the same table; **Extra context** `night` · `2`: at night the table rolls `1d6 + 2`, and one night in three the pack comes.
@@ -83,7 +83,7 @@ checks:
   - event: HUNGER # step 3
     name: Hunger
     at: time.day-end
-    when: { trip.below: food }
+    when: { trip.below: party.values.food }
     effects: { party.stats.fatigue: 1 }
   - event: WOLVES # step 5
     name: Wolves
@@ -130,7 +130,7 @@ The Grey Marches play with all of this and more (weather first at dawn and a che
 - **A check that never comes up.** Its **When** is empty (only an action's step asks it), or its conditions never hold: the map's terrain is `dense-forest` and the check asks for `forest`, the hex's tag is `Landmark` and it asks for `landmark`. Choose **Everything** in the journal: each check that didn't come up says why.
 - **The same table, by day and by night.** One check with **When** `trip.hex-enter, actions.camp` has one **Extra context**, the same at both moments. Make two checks with two ids, as steps 5 and 6 do, or let the table's entries tell the moments apart (`when: { trip.moment: actions.camp }`).
 - **A check that reads what comes after it.** Checks of one moment come in the list's order: a check above the weather's sees yesterday's weather. Put the one that sets something first.
-- **Hunger every night, or never.** `trip.below: food` is seen only at the moment the food hit its minimum (the Generic rules' **Eat**, at `time.day-end`): a hunger check at another moment never sees it.
+- **Hunger every night, or never.** `trip.below: party.values.food` is seen only at the moment the food hit its minimum (the Generic rules' **Eat**, at `time.day-end`): a hunger check at another moment never sees it.
 - **A check that stops nothing.** With no table and no **Pause after it**, a check is only a line in the journal. To stop the trip, tick **Pause after it**; to stop it only on some results, tick **Pause** on those entries of its table.
 - **A march that doesn't go on after Continue.** **Continue** ends the pause and goes on with a wait it stopped, but a march it stopped waits for **Go on** (or for the trip to go on by itself).
 - **Wolves on the road.** **Skip if** `trip.edges` · **is** · `road` reads the road or river the party followed into the hex: a forest hex entered from the open, next to a road, still has wolves.

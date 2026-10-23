@@ -23,6 +23,6 @@ La hoja de un token puede ser un personaje del plantel ([Characters](../characte
 
 ## El grupo
 
-El grupo también es un token: el modo Jugar lo mueve (ver [Jugar un viaje](08-play.md)). Hay un grupo por mapa; si conviertes otro token en el grupo, el anterior pasa a ser un PJ. Un viaje en curso sigue con el nuevo grupo, desde donde está: mismo día, provisiones y diario; su rastro empieza ahí.
+El grupo también es un token: el modo Jugar lo mueve (ver [Jugar un viaje](08-play.md)). Hay un grupo por mapa; si conviertes otro token en el grupo, el anterior pasa a ser un PJ. Un viaje en curso sigue con el nuevo grupo, desde donde está: misma fecha, hoja del grupo y diario; su rastro empieza ahí.
 
 El token del grupo es solo dónde está el grupo: no tiene campos ni hoja propios. La hoja del grupo, sus características y sus personajes están en la pestaña **Grupo** de Jugar ([El grupo](../travel/02-playing.md#el-grupo)); el panel del token lo dice, y **Abrir Jugar → Grupo** te lleva allí. Los mapas guardados con campos en el token del grupo los pierden al abrirse (nada los leía).

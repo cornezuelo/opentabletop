@@ -68,7 +68,7 @@ export const en = {
     poiAdded: 'Added to {hex}: see it in the hex panel.',
     apply: 'Apply to the trip: {changes}',
     applyHelp:
-      "The result changes the trip's party (supplies, stats, characters): apply it to the trip, as a check's result would be.\n• `party.resources.food: 2` — the party gains 2 food\n• `party.stats.morale: -1`\nNothing changes until you apply it.",
+      "The result changes the trip's party (stats, its sheet and items, characters): apply it to the trip, as a check's result would be.\n• `party.items.ration: 2` — the party gains 2 rations\n• `party.stats.morale: -1`\nNothing changes until you apply it.",
     applied: 'Applied to the trip: {changes}',
     appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',
@@ -139,7 +139,7 @@ export const en = {
     orientation: 'Orientation',
     hexKm: 'World scale (km per hex)',
     hexKmHelp:
-      "How many km a hex measures across, for trips: travel times and supplies depend on it. **Empty: the system's scale** (`travel.hexKm` in its rules; 10 if it sets none), shown faded in the box; write a number only if this map is drawn at another scale.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
+      "How many km a hex measures across, for trips: travel times depend on it. **Empty: the system's scale** (`travel.hexKm` in its rules; 10 if it sets none), shown faded in the box; write a number only if this map is drawn at another scale.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
     hexKmOf: "{km}: the system's",
     flat: 'Flat top',
     pointy: 'Pointy top',
@@ -458,12 +458,12 @@ export const en = {
     confirmNoSheet: 'Remove this token’s sheet and everything on it?',
     confirmParty: 'Make "{name}" the party? "{old}" becomes a player character.',
     confirmPartyTrip:
-      'Make "{name}" the party? The trip goes on from where it stands (same day, supplies and journal) and its trail starts there.',
+      'Make "{name}" the party? The trip goes on from where it stands (same day, party sheet and journal) and its trail starts there.',
     confirmNoParty:
       'This token is the party of a trip in progress. Without a party, the trip waits until another token becomes the party. Go on?',
     confirmDelete: 'Delete "{name}"? (Ctrl+Z brings it back.)',
     confirmDeleteParty:
-      'Delete the party "{name}"? This ends the trip: its time, supplies and journal are lost, and Ctrl+Z only brings back the token.',
+      'Delete the party "{name}"? This ends the trip: its time, party sheet and journal are lost, and Ctrl+Z only brings back the token.',
     help: 'Click an empty hex to place a token like the one below (Shift+click adds one to a hex that already has tokens). Click a token to edit it and drag it to another hex; right-click or Delete removes it.',
     newTitle: 'New tokens',
     kind: 'Kind',
@@ -499,11 +499,11 @@ export const en = {
     otherSystem:
       'This trip plays {trip}, the system it started with; the map’s campaign now plays {map}. New trip starts one with it.',
     confirmNewTrip:
-      'Start a new trip? Time, supplies and the journal start over (the party stays where it is). This can’t be undone.',
+      'Start a new trip? Time, the party’s sheet and the journal start over (the party stays where it is). This can’t be undone.',
     confirmClearTrail: 'Clear the party’s trail? This can’t be undone.',
     confirmRemoveParty: 'Take the party off the map? Its trail is cleared.',
     confirmRemovePartyTrip:
-      'Take the party off the map? This ends the trip: its time, supplies and journal are lost. This can’t be undone.',
+      'Take the party off the map? This ends the trip: its time, party sheet and journal are lost. This can’t be undone.',
     discover: 'Discover the map as you travel',
     discoverHelp:
       "Empty hexes are decided by the system's tables as the party travels: their terrain, and what is in them (a point of interest, tags, a name) the first time you enter.\n• **The hexes around the party** — revealed as it moves, as far as it sees\n• **Only the hex the party enters**\nPainted hexes are never changed. Discoveries are part of the game: Ctrl+Z doesn't undo them.",
@@ -512,7 +512,7 @@ export const en = {
     revealEntered: 'Only the hex the party enters',
     mode: 'Play mode',
     modeHelp:
-      'How the party moves around the map:\n• **Simple** — just a token and its trail: a click puts it on that hex at once, with no route, time or rolls\n• **With rules** — a trip with the map’s system: it counts time, terrain and supplies, and rolls the system’s tables (weather, getting lost, places, encounters) on the way, writing everything in the journal',
+      'How the party moves around the map:\n• **Simple** — just a token and its trail: a click puts it on that hex at once, with no route, time or rolls\n• **With rules** — a trip with the map’s system: it counts time, terrain and what the party carries, and rolls the system’s tables (weather, getting lost, places, encounters) on the way, writing everything in the journal',
     modes: { simple: 'Simple', rules: 'With rules' },
     uploadToken: 'Upload your own…',
     worldStart: 'New trips start on the world clock’s date (the World panel, ☾).',

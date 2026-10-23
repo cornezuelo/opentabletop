@@ -67,6 +67,31 @@ describe('bundled open packs', () => {
   }
 
   const marches = () => travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+  /** The Grey Marches party's rations: the Company's stores and its companions' together. */
+  const food = (s: SessionState) =>
+    [s.party, ...(s.members ?? [])]
+      .flatMap((c) => c?.items ?? [])
+      .filter((i) => i.id === 'ration')
+      .reduce((n, i) => n + i.count, 0)
+  /** The Company's fodder, a value of its sheet. */
+  const fodder = (s: SessionState) => s.party?.values.fodder ?? 0
+  /** The trip with this many rations in the Company's stores (none on companions), and fodder. */
+  const supplied = (s: SessionState, rations: number, fed = fodder(s)): SessionState => ({
+    ...s,
+    party: {
+      ...s.party!,
+      values: { ...s.party!.values, fodder: fed },
+      items: rations
+        ? [{ key: 'ration', id: 'ration', from: 'grey-marches/gear', count: rations, fields: {} }]
+        : [],
+    },
+    ...(s.members && {
+      members: s.members.map((m) => ({
+        ...m,
+        items: (m.items ?? []).filter((i) => i.id !== 'ration'),
+      })),
+    }),
+  })
 
   it('the Grey Marches describe every part of their sheets (the party’s too), in both languages', () => {
     const system = marches()
@@ -140,8 +165,8 @@ describe('bundled open packs', () => {
     expect(toll?.code).toBe('ORACLE_RESULT')
     expect(state.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK_CHECK_REQUIRED'])
     // A roll-under against Charisma (one d6 for both entries): with none, the toll is paid.
-    expect(toll?.data?.value).toMatchObject({ effects: { 'party.resources.food': -1 } })
-    expect(state.travel.resources.food).toBe(5)
+    expect(toll?.data?.value).toMatchObject({ effects: { 'party.items.ration': -1 } })
+    expect(food(state)).toBe(5)
   })
 
   it('the Grey Marches: the toll is a d6 under Charisma, one d6 for both entries', () => {
@@ -580,10 +605,7 @@ describe('bundled open packs', () => {
           seed,
         })
         // No food: the day ends hungry; the next dawn they grumble.
-        const hungry = {
-          ...session,
-          travel: { ...session.travel, resources: { food: 0, fodder: 6 } },
-        }
+        const hungry = supplied(session, 0, 6)
         return stepTrip(playing(seed), hungry, {
           type: 'wait',
           until: session.travel.time + 1440 + 60,
@@ -714,10 +736,7 @@ describe('bundled open packs', () => {
           until: calendarOf(system).at(day, '07:00'),
         }).state
         const until = calendarOf(system).at(day + 1, '01:00')
-        return (
-          morning.travel.resources.food -
-          stepTrip(options, morning, { type: 'wait', until }).state.travel.resources.food
-        )
+        return food(morning) - food(stepTrip(options, morning, { type: 'wait', until }).state)
       }
       expect(eaten(0)).toBe(1)
       expect(eaten(2)).toBe(3)
@@ -774,7 +793,7 @@ describe('bundled open packs', () => {
         expect(took(entries, 'fish')).toBe(true)
         const result = entries.find((e) => e.data?.event === 'FISHING_CHECK_REQUIRED')!
         const roll = Number(/^A (\d)/.exec(result.text ?? '')?.[1])
-        const gained = state.travel.resources.food - 6
+        const gained = food(state) - 6
         // At or under Survival (2): two days; 3: one; over: nothing.
         expect(gained).toBe(roll <= 2 ? 2 : roll <= 3 ? 1 : 0)
         caught.add(gained)
@@ -797,7 +816,7 @@ describe('bundled open packs', () => {
       }
       const traded = trade(market, ['market'])
       expect(took(traded.entries, 'market')).toBe(true)
-      expect(traded.state.travel.resources).toMatchObject({ food: 9, fodder: 8 })
+      expect([food(traded.state), fodder(traded.state)]).toEqual([9, 8])
       expect(took(trade(market, []).entries, 'market')).toBe(false)
       expect(took(trade(other, ['market']).entries, 'market')).toBe(false)
       const fair = { events: ['market-day'] }
@@ -832,10 +851,7 @@ describe('bundled open packs', () => {
     it('homesick on the tenth day of a trip (`trip.day`)', () => {
       const options = play(plains(1))
       const { session } = startTrip({ system, location: '0', season: 'summer' })
-      let state: SessionState = {
-        ...session,
-        travel: { ...session.travel, resources: { food: 99, fodder: 99 } },
-      }
+      let state: SessionState = supplied(session, 99, 99)
       const calendar = calendarOf(system)
       const days: number[] = []
       // Each dawn of the trip's days 2 to 11.
@@ -1061,7 +1077,7 @@ describe('bundled open packs', () => {
         session.stats.survival = 6
         const { state, entries } = stepTrip(options, session, { type: 'action', id: 'forage' })
         const result = entries.find((e) => e.code === 'ORACLE_RESULT')!
-        const gained = state.travel.resources.food - session.travel.resources.food
+        const gained = food(state) - food(session)
         expect(gained).toBeGreaterThanOrEqual(2)
         expect(result.text).toContain(String(gained))
         // Rolled once its three hours are done (`at: actions.forage.done`).
@@ -1134,7 +1150,7 @@ describe('bundled open packs', () => {
     )
     expect(es(system.bindings?.stats?.survival?.name)).toBe('Supervivencia')
     expect(es(system.rules.modes.horse.name)).toBe('A caballo')
-    expect(es(system.rules.resources?.fodder?.name)).toBe('Forraje')
+    expect(es(system.partySheet?.def.values.fodder?.name)).toBe('Forraje')
     expect(es(system.calendar?.def.months[0].name)).toBe('Deshielo')
     expect(es(system.weather?.['grey-marches/sky']?.states.clear.name)).toBe('Cielo despejado')
     expect(es(registry.rollModes.get('grey-marches/careful')?.name)).toBe('Con cuidado')
@@ -1153,7 +1169,7 @@ describe('bundled open packs', () => {
     expect(session.stats.fatigue).toBe(0)
     // A night with no food: no camping (camp needs food), the night passes in the open; the
     // day ended short, fatigue +1, and hunger is rolled.
-    const hungry = { ...session, travel: { ...session.travel, resources: { food: 0, fodder: 0 } } }
+    const hungry = supplied(session, 0, 0)
     const night = stepTrip(options, hungry, {
       type: 'wait',
       until: session.travel.time + 24 * 60,
@@ -1172,10 +1188,7 @@ describe('bundled open packs', () => {
     ).toBe(true)
     expect(night.state.stats.fatigue).toBeGreaterThanOrEqual(1)
     // A fed night eases it, never below 0.
-    const fed = {
-      ...night.state,
-      travel: { ...night.state.travel, resources: { food: 5, fodder: 0 } },
-    }
+    const fed = supplied(night.state, 5, 0)
     const tired = night.state.stats.fatigue
     const camped = stepTrip(options, fed, { type: 'action', id: 'camp' })
     // (unless the next dawn is stormy: fatigue +1 then)
@@ -1202,11 +1215,7 @@ describe('bundled open packs', () => {
         type: 'wait',
         until: calendarOf(system).at(started.travel.day, '07:00'),
       }).state
-      return {
-        ...session,
-        stats: { ...session.stats, fatigue },
-        travel: { ...session.travel, resources: { food, fodder: 0 } },
-      }
+      return { ...supplied(session, food, 0), stats: { ...session.stats, fatigue } }
     }
     const took = (entries: { code: string; data?: Record<string, unknown> }[], id: string) =>
       entries.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === id)
@@ -1326,7 +1335,7 @@ describe('bundled open packs', () => {
       random: seeded('stormy-weather'),
     }
     const { session } = startTrip({ system, location: '0', season: 'summer' })
-    const fed = { ...session, travel: { ...session.travel, resources: { food: 99, fodder: 99 } } }
+    const fed = supplied(session, 99, 99)
     const { state } = stepTrip(options, fed, {
       type: 'wait',
       until: session.travel.time + 40 * 1440,
@@ -1358,13 +1367,10 @@ describe('bundled open packs', () => {
       locale: 'en',
     }
     const { session } = startTrip({ system, location: '0', season: 'summer' })
-    const riding = {
-      ...session,
-      travel: { ...session.travel, mode: 'horse', resources: { food: 2, fodder: 0 } },
-    }
+    const riding = supplied({ ...session, travel: { ...session.travel, mode: 'horse' } }, 2, 0)
     // Waiting a whole day out, without camping: the day still ends with the eat action.
     const day = stepTrip(options, riding, { type: 'advanceTime', minutes: 24 * 60 })
-    expect(day.state.travel.resources).toEqual({ food: 1, fodder: 0 })
+    expect([food(day.state), fodder(day.state)]).toEqual([1, 0])
     expect(day.entries).toContainEqual(
       expect.objectContaining({
         code: 'ACTION_TAKEN',
@@ -1375,7 +1381,7 @@ describe('bundled open packs', () => {
     expect(day.entries).toContainEqual(
       expect.objectContaining({
         code: 'LIMIT_REACHED',
-        data: expect.objectContaining({ path: 'party.resources.fodder', limit: 'min' }),
+        data: expect.objectContaining({ path: 'party.values.fodder', limit: 'min' }),
       }),
     )
     // The eat action isn't a button.

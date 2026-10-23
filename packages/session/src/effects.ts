@@ -4,7 +4,6 @@ import {
   momentRolls,
   noTotals,
   resolveChange,
-  tallySupply,
   upgradeTravelState,
   type Bounds,
   type TravelState,
@@ -12,7 +11,7 @@ import {
 
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
- * with (`party.stats.morale`, `party.resources.food`). A number adds or subtracts (also
+ * with (`party.stats.morale`, `party.values.food`, `party.items.ration`). A number adds or subtracts (also
  * written as text: '+2'), '=value' sets; a variable is another value
  * (`'-{{party.stats.mouths}}'`, `'={{party.stats.endurance}}'`) and dice a roll (`'-{{1d3}}'`),
  * read when it's applied. One vocabulary for table entries, deck cards and actions; the
@@ -26,13 +25,12 @@ export interface ValueBounds extends Bounds {
 }
 
 /**
- * What the session needs to apply effects: the party's stats and its supplies (and where
- * to note the values that hit a bound today).
+ * What the session needs to apply effects on the party's stats (and where to note the
+ * values that hit a bound today).
  */
 export interface EffectTarget {
   stats: Record<string, number>
-  travel: Pick<TravelState, 'resources' | 'reached'> &
-    Partial<Pick<TravelState, 'seed' | 'day' | 'location' | 'totals'>>
+  travel: Pick<TravelState, 'reached'> & Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
 }
 
 /** One change that happened: the path, before and after. */
@@ -56,7 +54,7 @@ const number = (v: unknown): number | undefined =>
       ? Number(v)
       : undefined
 
-/** A result's effects: its `effects` (`party.resources.food: 2`). */
+/** A result's effects: its `effects` (`party.items.ration: 2`). */
 export function effectsOf(value: Record<string, unknown>): Effects {
   const out: Effects = {}
   const add = (path: string, change: unknown) => {
@@ -74,16 +72,15 @@ export function effectsOf(value: Record<string, unknown>): Effects {
 }
 
 /**
- * Applies effects to the party: stats within their bounds, supplies within theirs (the
- * system's rules: `resourceBounds`; none given, they may go negative). Returns what
- * changed, what hit a bound (also noted in the trip as today's `below` / `above`) and the
- * paths nobody knows (a pack error to report).
+ * Applies effects to the party's stats (`party.stats.<id>`), within their bounds (none
+ * given, they may go negative). Returns what changed, what hit a bound (also noted in the
+ * trip as today's `below` / `above`, by full name) and the other paths, which the members'
+ * and the party sheet's effects take (`applyMemberEffects`).
  */
 export function applyEffects(
   target: EffectTarget,
   effects: Effects,
   bounds: Record<string, ValueBounds> = {},
-  resources: Record<string, Bounds> = {},
   /**
    * What variables in the changes read (the trip's context; none: they change nothing).
    * Their rolls are the trip's, fixed for the moment the context says (`moment`, `hex`).
@@ -103,29 +100,22 @@ export function applyEffects(
   const limits: LimitReached[] = []
   const unknown: string[] = []
   for (const [path, change] of Object.entries(effects)) {
-    const [, scope, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
-    if (!scope) {
+    const id = /^party\.stats\.(.+)$/.exec(path)?.[1]
+    if (id === undefined) {
       unknown.push(path)
       continue
     }
-    const stat = scope === 'stats'
-    const values = stat ? target.stats : target.travel.resources
-    const from = values[id] ?? (stat ? bounds[id]?.default : undefined) ?? 0
-    const { to, limit } = changeValue(
-      from,
-      resolveChange(change, context, roller),
-      stat ? bounds[id] : resources[id],
-    )
+    const values = target.stats
+    const from = values[id] ?? bounds[id]?.default ?? 0
+    const { to, limit } = changeValue(from, resolveChange(change, context, roller), bounds[id])
     values[id] = to
     if (to !== from) applied.push({ path, from, to })
-    // What effects take from the supplies, and add, counts in the trip's totals.
-    if (!stat) tallySupply(target.travel, id, from, to)
     if (limit) {
       limits.push({ path, limit, value: to })
       const key = limit === 'min' ? 'below' : 'above'
       const list = target.travel.reached?.[key] ?? []
-      if (!list.includes(id))
-        target.travel.reached = { ...target.travel.reached, [key]: [...list, id] }
+      if (!list.includes(path))
+        target.travel.reached = { ...target.travel.reached, [key]: [...list, path] }
     }
   }
   return { applied, limits, unknown }
@@ -176,4 +166,34 @@ export function migrateTotals<
       totals.taken[action] = (totals.taken[action] ?? 0) + 1
   }
   return { ...session, travel: { ...session.travel, totals } }
+}
+
+/**
+ * Older saved trips kept the party's supplies in the travel state (`travel.resources`); now
+ * they're the party's values or items, as its system says. Each moves to the party sheet's
+ * value of the same id, when the party has a sheet of its own (a supply its members carried
+ * is theirs no more), and the totals of what was spent and gained go by full name
+ * (`party.values.food`). Returns a copy.
+ */
+export function migrateSupplies<
+  S extends { travel: TravelState; party?: { values: Record<string, number> } },
+>(session: S): S {
+  const { resources, ...travel } = session.travel
+  if (resources === undefined) return session
+  const named = (r: Record<string, number> = {}) =>
+    Object.fromEntries(
+      Object.entries(r).map(([id, n]) => [id.includes('.') ? id : `party.values.${id}`, n]),
+    )
+  const totals = travel.totals && {
+    ...travel.totals,
+    spent: named(travel.totals.spent),
+    gained: named(travel.totals.gained),
+  }
+  return {
+    ...session,
+    travel: { ...travel, ...(totals && { totals }) },
+    ...(session.party && {
+      party: { ...session.party, values: { ...resources, ...session.party.values } },
+    }),
+  }
 }

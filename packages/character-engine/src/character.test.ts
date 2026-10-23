@@ -13,7 +13,6 @@ import {
   partyValue,
   readsWorld,
   settleCharacter,
-  shareChange,
   validatePartyFrom,
   displayOf,
   toneOf,
@@ -360,34 +359,6 @@ describe('a party of characters', () => {
     expect(validatePartyFrom({ average: 'wits' }).length).toBeGreaterThan(0)
   })
 
-  it("shares a change out evenly, within each one's bounds", () => {
-    // Health: min 0, max 5. Taking 3: from whoever has most, one at a time.
-    const taken = shareChange(() => sheet, band(), 'health', -3)
-    expect(taken.members.map((m) => m.values.health)).toEqual([1, 1, 0])
-    expect(taken.left).toBe(0)
-    // Giving 4: to whoever has least, never past 5.
-    const given = shareChange(() => sheet, band(), 'health', 4)
-    expect(given.members.map((m) => m.values.health)).toEqual([4, 3, 2])
-    // More than they can take: what's left stays undone.
-    const tooMuch = shareChange(() => sheet, band(), 'health', -9)
-    expect(tooMuch.members.map((m) => m.values.health)).toEqual([0, 0, 0])
-    expect(tooMuch.left).toBe(4)
-    expect(tooMuch.events).toContainEqual({
-      type: 'VALUE_CHANGED',
-      character: 'kael',
-      value: 'health',
-      from: 4,
-      to: 0,
-    })
-  })
-
-  it('shares a change out in order', () => {
-    const taken = shareChange(() => sheet, band(), 'health', -4, 'order')
-    expect(taken.members.map((m) => m.values.health)).toEqual([0, 1, 0])
-    const given = shareChange(() => sheet, band(), 'health', 3, 'order')
-    expect(given.members.map((m) => m.values.health)).toEqual([5, 3, 0])
-  })
-
   it("says what members' conditions block, and who has them", () => {
     const members = band()
     members[1].conditions = { hungry: {} }
@@ -515,11 +486,6 @@ describe('what holds by itself', () => {
     expect(healed.state.conditions.cold).toEqual({})
     const spring = settleCharacter(sheet!, healed.state, { world: { time: { season: 'spring' } } })
     expect(spring.state.conditions.cold).toBeUndefined()
-  })
-
-  it('follows a shared-out change', () => {
-    const shared = shareChange(() => sheet!, [porter()], 'load', 10)
-    expect(shared.members[0].conditions.encumbered).toEqual({})
   })
 
   it('refuses from and bounds that are not the sheet own values, dice and cycles', () => {

@@ -4,9 +4,6 @@ travel-rules/default:
       name: A pie
     horse:
       name: A caballo
-  resources:
-    food:
-      name: Comida
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

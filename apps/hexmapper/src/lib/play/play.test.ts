@@ -51,6 +51,16 @@ import { library } from './packs'
 /** The maps the bundled systems bring (`maps:` in their `kind: system`). */
 const EXAMPLE_MAPS = exampleMaps()
 
+/** The party's rations: the Company's stores and its companions' together. */
+const food = (s: SessionState) =>
+  [s.party, ...(s.members ?? [])]
+    .flatMap((c) => c?.items ?? [])
+    .filter((i) => i.id === 'ration')
+    .reduce((n, i) => n + i.count, 0)
+/** How many rations a character carries. */
+const rations = (c: { items?: { id: string; count: number }[] }) =>
+  (c.items ?? []).filter((i) => i.id === 'ration').reduce((n, i) => n + i.count, 0)
+
 describe('playing on the map', () => {
   it('simple: the party jumps to the hex clicked, leaving a trail', () => {
     editor.load(createMap())
@@ -104,7 +114,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 7\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 8\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],
@@ -540,10 +550,10 @@ describe('playing on the map', () => {
       const skipped = of('CHECK_SKIPPED')
       expect(skipped.length).toBeGreaterThan(0)
       expect(skipped.every((e) => (e.data?.failed as unknown[]).length > 0)).toBe(true)
-      // Each value before and after: the food eaten.
-      const food = of('CHANGED').find((e) => e.data?.path === 'party.resources.food')
-      expect(food?.data).toMatchObject({ from: expect.any(Number), to: expect.any(Number) })
-      expect(food!.data!.to).not.toBe(food!.data!.from)
+      // Each value before and after: the rations eaten, from the Company's stores.
+      const eaten = of('CHANGED').find((e) => e.data?.path === 'party.items.ration')
+      expect(eaten?.data).toMatchObject({ from: expect.any(Number), to: expect.any(Number) })
+      expect(eaten!.data!.to).not.toBe(eaten!.data!.from)
       // The journal as it always was (the story and the rules) holds none of it.
       expect(
         journal.filter((e) => shownAt(e, { level: 'mechanics' })).map((e) => e.code),
@@ -622,14 +632,14 @@ describe('playing on the map', () => {
       startWorld()
       clickHex('7,7')
       noRoute()
-      const food = trip().travel.resources.food
+      const before = food(trip())
       const asked = await advance({ until: 'next-day' })
       expect(asked).toMatch(/wait here/i)
       const after = trip()
       expect(partyLocation()).toBe('5,7')
       expect(after.journal.some((e) => e.code === 'WAIT')).toBe(true)
       expect(after.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
-      expect(after.travel.resources.food).toBeLessThan(food)
+      expect(food(after)).toBeLessThan(before)
       expect(editor.campaign.world!.time).toBe(after.travel.time)
     })
 
@@ -798,8 +808,9 @@ describe('the Company: a party made of characters', () => {
       mouths: 3,
       wounded: 0,
     })
-    // The food is what they carry: 3 + 2 + 3 rations.
-    expect(trip().travel.resources.food).toBe(8)
+    // The food is what they carry, 3 + 2 + 3 rations, and the Company's six in its stores.
+    expect(trip().members!.map(rations)).toEqual([3, 2, 3])
+    expect(food(trip())).toBe(14)
     // Saved in the file as OTD characters of the party, and read back.
     const bundle = mapToBundle(editor.map, editor.campaign)
     expect(bundle.parties[0].members).toEqual(['kael', 'mara', 'tobin'])
@@ -823,7 +834,6 @@ describe('the Company: a party made of characters', () => {
         s,
         { effects: { 'party.members.values.health': -2, 'party.members.values.dread': 6 } },
         system.bindings?.stats,
-        {},
         partyOf(system),
       ),
     )
@@ -845,7 +855,6 @@ describe('the Company: a party made of characters', () => {
           },
         },
         system.bindings?.stats,
-        {},
         partyOf(system),
       ),
     )
@@ -857,7 +866,6 @@ describe('the Company: a party made of characters', () => {
         s,
         { effects: { 'party.members.values.dread': '=0' } },
         system.bindings?.stats,
-        {},
         partyOf(system),
       ),
     )
@@ -916,7 +924,6 @@ describe('the Company: a party made of characters', () => {
         s,
         { effects: { 'party.values.hirelings': 2, 'party.values.morale': '=0' } },
         system.bindings?.stats,
-        {},
         partyOf(system),
       ),
     )
@@ -959,7 +966,6 @@ describe('the Company: a party made of characters', () => {
         s,
         { effects: { 'party.conditions.shaken': true, 'party.stats.morale': -1 } },
         activeSystem().bindings?.stats,
-        {},
         partyOf(activeSystem()),
       ),
     )
@@ -1015,11 +1021,20 @@ describe('the Company: a party made of characters', () => {
       return s
     })
     step({ type: 'action', id: 'camp' })
-    // Three mouths: Kael 3 → 2, Old Tobin 3 → 2, then Kael again (the first of equals).
-    expect(trip().members!.map((m) => m.values.rations)).toEqual([1, 2, 2])
-    expect(trip().travel.resources.food).toBe(5)
-    // A fed night: everyone gets a point of health back, within each one's maximum.
-    expect(member('kael').values.health).toBe(2)
+    // Three mouths, from the Company's stores first: 6 → 3, the companions' untouched.
+    expect(rations(trip().party!)).toBe(3)
+    expect(trip().members!.map(rations)).toEqual([3, 2, 3])
+    // With the stores empty, from whoever carries most: Kael 3 → 2, Old Tobin 3 → 2, then
+    // Kael again (the first of equals).
+    editSession((s) => {
+      s.party!.items = []
+      return s
+    })
+    step({ type: 'action', id: 'camp' })
+    expect(trip().members!.map(rations)).toEqual([1, 2, 2])
+    expect(food(trip())).toBe(5)
+    // Two fed nights: everyone gets a point of health back each, within each one's maximum.
+    expect(member('kael').values.health).toBe(3)
     expect(member('tobin').values.health).toBe(4)
   })
 
@@ -1030,9 +1045,11 @@ describe('the Company: a party made of characters', () => {
     expect(member('kael').items!.map((i) => [i.id, i.place])).toEqual([
       ['rope', 'belt'],
       ['torch', 'hands'],
+      ['ration', undefined],
     ])
-    // Old Tobin: a mail shirt worn (2), a backpack (1) with a torch in it (1).
-    expect(member('tobin').values).toMatchObject({ load: 4, capacity: 10, armour: 2 })
+    // Old Tobin: a mail shirt worn (2), a backpack (1) with a torch (1) and three rations
+    // (3) in it.
+    expect(member('tobin').values).toMatchObject({ load: 7, capacity: 10, armour: 2 })
     expect(trip().stats.roped).toBe(1)
     // A night march lights everyone's torch: an hour of each burns.
     editSession((s) => {
@@ -1143,7 +1160,7 @@ describe('the Company: a party made of characters', () => {
     })
     const calendar = activeSystem().calendar!
     expect(calendar.describe(trip().travel.time)).toMatchObject({ hour: 6, minute: 0 })
-    const food = trip().travel.resources.food
+    const left = food(trip())
     // The trip stops to ask (`ask: params.fare`): nothing moves it on meanwhile.
     step({ type: 'action', id: 'ferry' })
     expect(trip().travel.waiting).toMatchObject({ action: 'ferry', ask: 'fare' })
@@ -1153,13 +1170,13 @@ describe('the Company: a party made of characters', () => {
     // Waiting for her crossing: the afternoon (`wait`), then the boat and a pause.
     step({ type: 'resume', choice: 'wait' })
     expect(calendar.describe(trip().travel.time)).toMatchObject({ hour: 14, minute: 0 })
-    expect(trip().travel.resources.food).toBe(food)
+    expect(food(trip())).toBe(left)
     expect(trip().travel.mode).toBe('boat')
     expect(trip().travel.waiting).toMatchObject({ action: 'ferry' })
     const said = trip().journal.find((e) => e.code === 'SAID')
     expect(said?.data?.text).toMatchObject({
-      en: `Brenna casts off from the jetty (${food} food left in your packs).`,
-      es: `Brenna suelta amarras (${food} de comida en vuestros fardos).`,
+      en: `Brenna casts off from the jetty (${left} rations left in your packs).`,
+      es: `Brenna suelta amarras (${left} raciones en vuestros fardos).`,
     })
     expect(trip().journal.map((e) => e.code)).toEqual(
       expect.arrayContaining(['HELD', 'RESUMED', 'SAID', 'MODE_CHANGED']),
@@ -1299,7 +1316,7 @@ describe('the powers of the Marches: factions on the map', () => {
       'world.clocks.the-greywood-wyrm-wakes': 1,
       'factions.fort-keld.values.reputation': 1,
       'factions.the-vale.territory': 1,
-      'party.resources.food': -1,
+      'party.items.ration': -1,
     })
     expect(wyrm()).toBe(before + 1)
     const own = editor.factionsOnMap!

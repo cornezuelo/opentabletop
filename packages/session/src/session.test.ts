@@ -7,6 +7,7 @@ import {
   toAxial,
   type GridShape,
 } from '@open-tabletop/hex'
+import { createCharacter } from '@open-tabletop/character-engine'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { coreSystem } from './core.testing'
 import { sequence } from '@open-tabletop/random'
@@ -48,6 +49,13 @@ const world: TravelWorld = {
 
 const core = coreSystem()
 const coreRules = core.rules
+/** Core's party sheet: the party's food is one of its values (`party.values.food`, min 0). */
+const partySheet = core.partySheet!
+/** What the travel engine shows an action's later steps: the party's food, never under 0. */
+const kept = { 'party.values.food': { min: 0 } }
+/** The party's own character, with this much food. */
+const fed = (food: number) =>
+  createCharacter(partySheet.def, partySheet.id, { id: 'party', values: { food } })
 
 const rules = {
   ...coreRules,
@@ -96,16 +104,14 @@ on:
   },
 ])
 
-const start = () =>
-  initialSessionState(
-    initialTravelState({
-      location: '0,0',
-      mode: 'foot',
-      time: defaultCalendar.at(1, '06:00'),
-      resources: { food: 2 },
-    }),
+/** A new trip whose party has 2 food (kept only where a session has Core's party sheet). */
+const start = (): SessionState => ({
+  ...initialSessionState(
+    initialTravelState({ location: '0,0', mode: 'foot', time: defaultCalendar.at(1, '06:00') }),
     { pre: 1 },
-  )
+  ),
+  party: fed(2),
+})
 
 describe('session', () => {
   it('loads the fixture', () => expect([ok, diagnostics]).toEqual([true, []]))
@@ -113,17 +119,20 @@ describe('session', () => {
   it('Core’s Generic rules say when the food ran out: a say step, translated', () => {
     const calendar = core.calendar!
     const session = createSession({
-      travel: createTravelEngine({ world, rules: coreRules, calendar }),
+      travel: createTravelEngine({ world, rules: coreRules, calendar, kept }),
+      partySheet,
     })
-    const hungry = initialSessionState(
-      initialTravelState({
-        location: '0,0',
-        mode: 'foot',
-        time: calendar.at(1, '06:00'),
-        resources: { food: 0 },
-        calendar,
-      }),
-    )
+    const hungry = {
+      ...initialSessionState(
+        initialTravelState({
+          location: '0,0',
+          mode: 'foot',
+          time: calendar.at(1, '06:00'),
+          calendar,
+        }),
+      ),
+      party: fed(0),
+    }
     const { state } = session.step(hungry, { type: 'wait', until: calendar.at(2, '06:00') })
     expect(state.journal.find((e) => e.code === 'SAID')?.data).toMatchObject({
       action: 'eat',
@@ -297,18 +306,17 @@ entries:
   })
 
   it('journals the actions the system takes, their effects and the bounds they hit', () => {
-    const fed = {
+    const eating = {
       ...coreRules,
-      resources: { food: { min: 0 } },
       actions: {
         ...coreRules.actions,
         // Day-end eating, then a meal that takes another action (do:).
         eat: {
           on: 'time.day-end',
-          do: [{ effects: { 'party.resources.food': -1 } }, { do: 'actions.grumble' }],
+          do: [{ effects: { 'party.values.food': -1 } }, { do: 'actions.grumble' }],
         },
         grumble: {
-          when: { below: 'food' },
+          when: { below: 'party.values.food' },
           do: [{ effects: { 'party.stats.morale': -1 } }],
         },
       },
@@ -317,23 +325,27 @@ entries:
     const session = createSession({
       travel: createTravelEngine({
         world,
-        rules: fed,
+        rules: eating,
         stats: bindings.stats,
         calendar: core.calendar,
+        kept,
       }),
       bindings,
-      rules: fed,
+      rules: eating,
+      partySheet,
       now: () => 'T',
     })
-    const hungry = { ...start(), stats: { morale: 1 } }
-    hungry.travel.resources = { food: 0 }
+    const hungry = { ...start(), stats: { morale: 1 }, party: fed(0) }
     const { state, entries } = session.step(hungry, { type: 'action', id: 'camp' })
     const lines = entries.map((e) => [e.code, e.data?.action ?? e.data?.path, e.data?.effects])
-    expect(lines).toContainEqual(['ACTION_TAKEN', 'eat', { 'party.resources.food': -1 }])
-    expect(lines).toContainEqual(['LIMIT_REACHED', 'party.resources.food', undefined])
+    expect(lines).toContainEqual(['ACTION_TAKEN', 'eat', { 'party.values.food': -1 }])
+    // Told once (by the engine, which saw it for the later steps).
+    expect(lines.filter(([code]) => code === 'LIMIT_REACHED')).toEqual([
+      ['LIMIT_REACHED', 'party.values.food', undefined],
+    ])
     expect(lines).toContainEqual(['ACTION_TAKEN', 'grumble', { 'party.stats.morale': -1 }])
     expect(state.stats.morale).toBe(0)
-    expect(state.travel.resources.food).toBe(0)
+    expect(state.party!.values.food).toBe(0)
   })
 
   it('applies the effects of an action’s steps and tells them on its line', () => {
@@ -346,8 +358,8 @@ entries:
           do: [
             { do: 'actions.eat' },
             { time: '06:00' },
-            { unless: { below: 'food' }, effects: { 'party.stats.fatigue': -1 } },
-            { when: { below: 'food' }, effects: { 'party.stats.fatigue': 1 } },
+            { unless: { below: 'party.values.food' }, effects: { 'party.stats.fatigue': -1 } },
+            { when: { below: 'party.values.food' }, effects: { 'party.stats.fatigue': 1 } },
           ],
         },
         forage: { unless: { forageImpossible: true }, do: [{ time: 60 }] },
@@ -361,9 +373,10 @@ entries:
       bindings: { on: {}, stats: { fatigue: { min: 0 } } },
     }
     const session = createSession({
-      travel: createTravelEngine({ world, rules: stepped }),
+      travel: createTravelEngine({ world, rules: stepped, kept }),
       bindings: system.bindings,
       rules: stepped,
+      partySheet,
       now: () => 'T',
     })
     const tired = { ...start(), stats: { fatigue: 2 } }
@@ -446,8 +459,8 @@ entries:
 kind: table
 id: hunger
 entries:
-  - { result: 'Starving ({{party.resources.food}} food, {{terrain}})', when: { party.resources.food: { lt: 1 } }, effects: { party.stats.morale: -1 } }
-  - { result: 'Fed ({{party.resources.food}} food, morale {{party.stats.morale}})', when: { party.resources.food: { gte: 1 } } }
+  - { result: 'Starving ({{party.values.food}} food, {{terrain}})', when: { party.values.food: { lt: 1 } }, effects: { party.stats.morale: -1 } }
+  - { result: 'Fed ({{party.values.food}} food, morale {{party.stats.morale}})', when: { party.values.food: { gte: 1 } } }
 `,
       },
     ])
@@ -462,10 +475,10 @@ entries:
       }),
       oracle: createOracleEngine({ registry: party, random: sequence([0.5, 0.5]) }),
       bindings,
+      partySheet,
     })
     // A stat called "terrain" must not hide the hex's terrain.
-    const hungry = { ...start(), stats: { terrain: 9, morale: 3 } }
-    hungry.travel.resources.food = 0
+    const hungry = { ...start(), stats: { terrain: 9, morale: 3 }, party: fed(0) }
     const planned = session.step(hungry, { type: 'setDestination', hex: '1,0' }).state
     const { state, entries } = session.step(planned, { type: 'travel' })
     expect(entries.find((e) => e.code === 'ORACLE_RESULT')?.text).toBe('Starving (0 food, steppe)')
@@ -473,7 +486,7 @@ entries:
     expect(tripContext(state, { terrain: 'steppe' })).toMatchObject({
       terrain: 'steppe',
       morale: 2,
-      party: { stats: { terrain: 9, morale: 2 }, resources: { food: 0 }, mode: 'foot' },
+      party: { stats: { terrain: 9, morale: 2 }, values: { food: 0 }, mode: 'foot' },
     })
   })
 
@@ -595,19 +608,20 @@ entries:
 
   it('applies a result rolled by hand to the trip, as effects', () => {
     const value = {
-      effects: { 'party.resources.food': -5, 'party.stats.morale': 2, 'party.stats.fatigue': -1 },
+      effects: { 'party.values.food': -5, 'party.stats.morale': 2, 'party.stats.fatigue': -1 },
       other: 1,
     }
     expect(tripChanges(value)).toEqual([
-      ['party.resources.food', -5],
+      ['party.values.food', -5],
       ['party.stats.morale', 2],
       ['party.stats.fatigue', -1],
     ])
-    // Supplies stop at the bounds the system declares (none: they may go negative).
-    expect(applyResult({ ...start(), stats: {} }, value).travel.resources.food).toBeLessThan(0)
-    const state = applyResult({ ...start(), stats: { pre: 1 } }, value, {}, { food: { min: 0 } })
-    expect(state.travel.resources.food).toBe(0)
-    expect(state.travel.reached).toEqual({ below: ['food'] })
+    // The party's values stop at the bounds its sheet declares, noted by full name.
+    const state = applyResult({ ...start(), stats: { pre: 1 } }, value, {}, { partySheet })
+    expect(state.party!.values.food).toBe(0)
+    expect(state.travel.reached).toEqual({ below: ['party.values.food'] })
+    // What the party spent counts in the trip's totals, by full name.
+    expect(state.travel.totals?.spent).toEqual({ 'party.values.food': 2 })
     // A stat the system doesn't bound can go anywhere; its min keeps it in place.
     expect(state.stats).toEqual({ pre: 1, morale: 2, fatigue: -1 })
     const bounded = applyResult({ ...start(), stats: {} }, value, { fatigue: { min: 0 } })
@@ -621,28 +635,18 @@ entries:
         effects: { 'party.stats.morale': '+3', 'party.stats.luck': '=2', 'factions.x.rep': 1 },
       }),
     ).toEqual({ 'party.stats.morale': 3, 'party.stats.luck': '=2', 'factions.x.rep': 1 })
-    const target = { stats: { morale: 4 }, travel: { resources: { food: 1 }, fatigue: 0 } }
+    const target: Parameters<typeof applyEffects>[0] = { stats: { morale: 4 }, travel: {} }
     const { applied, limits, unknown } = applyEffects(
       target,
-      {
-        'party.stats.morale': 3,
-        'party.stats.luck': '=2',
-        'party.resources.food': -3,
-        'factions.x.rep': 1,
-      },
+      { 'party.stats.morale': 3, 'party.stats.luck': '=2', 'factions.x.rep': 1 },
       { morale: { min: 0, max: 5 } },
-      { food: { min: 0 } },
     )
     expect(target.stats).toEqual({ morale: 5, luck: 2 })
-    expect(target.travel.resources.food).toBe(0)
-    expect(limits).toEqual([
-      { path: 'party.stats.morale', limit: 'max', value: 5 },
-      { path: 'party.resources.food', limit: 'min', value: 0 },
-    ])
+    expect(limits).toEqual([{ path: 'party.stats.morale', limit: 'max', value: 5 }])
+    expect(target.travel.reached).toEqual({ above: ['party.stats.morale'] })
     expect(applied).toEqual([
       { path: 'party.stats.morale', from: 4, to: 5 },
       { path: 'party.stats.luck', from: 0, to: 2 },
-      { path: 'party.resources.food', from: 1, to: 0 },
     ])
     expect(unknown).toEqual(['factions.x.rep'])
   })
@@ -657,7 +661,7 @@ entries:
       values: { stranded: true },
     })
     // Effects on the party are the session's (effectsOf), not the travel engine's.
-    expect(toOutcome({ effects: { 'party.resources.food': 2 } })).toEqual({})
+    expect(toOutcome({ effects: { 'party.items.ration': 2 } })).toEqual({})
   })
 })
 
@@ -694,7 +698,7 @@ id: ruins
 name: Among the ruins
 roll: 1d2
 entries:
-  - { range: 1, result: Old coins, effects: { party.resources.food: 1 }, set: { found: true } }
+  - { range: 1, result: Old coins, effects: { party.values.food: 1 }, set: { found: true } }
   - { range: 2, result: Bones, pause: true }
 `,
     },
@@ -713,6 +717,7 @@ entries:
       travel: createTravelEngine({ world, rules: search, calendar: core.calendar }),
       oracle: createOracleEngine({ registry: reg, random: sequence([(die - 1) / 2]) }),
       rules: search,
+      partySheet,
       // No binding names it: the step does, found from the rules' pack.
       pack: 'r',
       locale,
@@ -728,7 +733,7 @@ entries:
       text: 'Old coins',
       data: { event: 'table.ruins', named: 'Among the ruins', table: 'r/ruins' },
     })
-    expect(state.travel.resources.food).toBe(3)
+    expect(state.party!.values.food).toBe(3)
     expect(state.travel.today).toMatchObject({ found: true })
     expect(state.travel.pendingChecks).toEqual([])
   })
@@ -773,7 +778,7 @@ describe('skipping pauses', () => {
       ...rules,
       actions: {
         ...rules.actions,
-        rest: { do: [{ pause: true }, { effects: { 'party.resources.food': 1 } }] },
+        rest: { do: [{ pause: true }, { effects: { 'party.values.food': 1 } }] },
         choose: {
           params: { how: { choices: ['a', 'b'] } },
           do: [{ ask: 'params.how' }],
@@ -783,12 +788,13 @@ describe('skipping pauses', () => {
     const session = createSession({
       travel: createTravelEngine({ world, rules: steps, calendar: core.calendar }),
       rules: steps,
+      partySheet,
       now: () => 'T',
     })
     const skipping = { ...start(), skipPauses: true }
     const rested = session.step(skipping, { type: 'action', id: 'rest' }).state
     expect(rested.travel.waiting).toBeUndefined()
-    expect(rested.travel.resources.food).toBe(skipping.travel.resources.food + 1)
+    expect(rested.party!.values.food).toBe(skipping.party!.values.food + 1)
     const asked = session.step(skipping, { type: 'action', id: 'choose' }).state
     expect(asked.travel.waiting).toMatchObject({ ask: 'how' })
   })

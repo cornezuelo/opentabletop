@@ -33,7 +33,7 @@ Dos poderes en una frontera: los Guardianes tienen los cerros bajos y los Saquea
 3. **Su hoja**: en **Hoja**, la pestaña _faction · las facciones_ tiene lo que hizo **Nuevas facciones**: **Fuerza** (**Empieza en** `3`, **Mín.** `0`, **Máx.** `6`) y el estado **En guerra**. Déjala como está (sus nombres salen en inglés, _Strength_ y _At war_, hasta que los cambies).
 4. **La tabla de los Saqueadores**: en la aplicación Oracle, **Nueva definición**, una tabla en tu pack _La Frontera_ con el id `reaver-raid`, el nombre _Cabalgan los Saqueadores_ y la tirada `1d6 + {{faction.values.strength}}`: con `1-4` _Rechazan la incursión_, con **Cambios** `faction.values.strength: -1`; con `5-7` _Se llevan el ganado de noche_; con `8-12` _Arde una granja_, con **Cambios** `faction.territory: 1, factions.the-wardens.values.strength: -1, factions.the-wardens.conditions.at-war: true`.
 5. **Su propio turno**: de vuelta en **Facciones**, el **Turno propio** de los Saqueadores, `table.reaver-raid`.
-6. **Ladrones en el páramo**: en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `REAVERS` y el nombre _Saqueadores_. **Cuándo** `trip.hex-enter`; **Solo si** las filas `hex.faction` · **es** · `the-reavers` y `factions.the-reavers.values.strength` · **es al menos** · `{{1d6}}` (en su tierra, tanto más a menudo cuanto más fuertes sean); sin tabla; **Cambios** las filas `party.resources.food` · `-1` y `factions.the-reavers.values.strength` · `1`.
+6. **Ladrones en el páramo**: en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `REAVERS` y el nombre _Saqueadores_. **Cuándo** `trip.hex-enter`; **Solo si** las filas `hex.faction` · **es** · `the-reavers` y `factions.the-reavers.values.strength` · **es al menos** · `{{1d6}}` (en su tierra, tanto más a menudo cuanto más fuertes sean); sin tabla; **Cambios** las filas `party.values.food` · `-1` y `factions.the-reavers.values.strength` · `1`.
 7. **Un mapa**: en el Hexmapper, **Nuevo mapa**; en **Ajustes del mapa → Campaña → Sistema**, _La Frontera_. Con **Regiones** (<kbd>N</kbd>), **Nueva región** con el nombre _Los Cerros Bajos_ y pinta un trozo de hexes al oeste; otra, _El Páramo Alto_, un trozo al este, dejando un par de hexes de nadie entre las dos.
 8. **Tráelas**: abre el panel **Mundo** (☾), **Poner en marcha el reloj del mundo**, y en su pestaña **Facciones**, **Traer sus facciones**. Pulsa **Turno del mundo** unas cuantas veces; luego **Día siguiente** ocho veces.
 9. **Viaja por el páramo**: en **Jugar**, pon al grupo en los cerros, elige un destino al otro lado del páramo y viaja.
@@ -104,7 +104,7 @@ checks:
     name: Saqueadores
     at: trip.hex-enter
     when: { hex.faction: the-reavers, factions.the-reavers.values.strength: { gte: '{{1d6}}' } }
-    effects: { party.resources.food: -1, factions.the-reavers.values.strength: 1 }
+    effects: { party.values.food: -1, factions.the-reavers.values.strength: 1 }
 # … el día, los terrenos, las formas de viajar, la comida y las acciones de las Reglas genéricas
 ```
 

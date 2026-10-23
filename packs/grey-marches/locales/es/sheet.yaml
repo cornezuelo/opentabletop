@@ -1,14 +1,15 @@
 sheet/companion:
   name: Compañero
   description: |-
-    Uno de la Compañía: sus habilidades, sus heridas, las raciones que lleva y su equipo. Con
+    Uno de la Compañía: sus habilidades, sus heridas y su equipo, raciones incluidas. Con
     compañeros en el grupo, su Supervivencia, Carisma, Orientación y Sigilo son los suyos,
-    come una ración por boca de lo que llevan, las heridas retienen a algunos, una cuerda
-    ayuda en el vado y las antorchas arden en las marchas nocturnas.
+    come una ración por boca (de las reservas de la Compañía, luego de quien más lleve), las
+    heridas retienen a algunos, una cuerda ayuda en el vado y las antorchas arden en las
+    marchas nocturnas. Un compañero nuevo sale con dos raciones.
 
     **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
     `max: '{{self.values.maxHealth}}'`), cada valor mostrado a su manera (las habilidades
-    como puntos, la salud como una barra cuyo tono baja con ella, las raciones como `2 / 6`, el
+    como puntos, la salud como una barra cuyo tono baja con ella, el
     pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12
     (`display: levels`), el número de un vínculo como puntos), un valor que sale de otros (las
     heridas, `from: '{{self.values.maxHealth - self.values.health}}'`), grupos con nombre, estados que bloquean una
@@ -19,7 +20,9 @@ sheet/companion:
     gastan como puntos, armadura), lugares de un cuerpo (manos, cuerpo, cinturón, espalda) en los
     que caben los objetos por etiquetas, los huecos que los llenan, valores que salen de los
     objetos (la carga, `{ sum: items.slots }`; la armadura puesta, `{ max: items.armour,
-    where: { place.tags: worn } }`); cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
+    where: { place.tags: worn } }`), lo que lleva un compañero nuevo (`start: { ration: 2 }`)
+    y cómo se reparte entre ellos lo que gasta el grupo (`share: even`: de quien más lleve);
+    cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
     survival:
       name: Supervivencia
@@ -42,9 +45,6 @@ sheet/companion:
     wounds:
       name: Heridas
       description: La salud que ha perdido un compañero, calculada a partir de la salud y la salud máxima; una noche bien comidos en el campamento cura una.
-    rations:
-      name: Raciones
-      description: La comida que lleva este compañero; la comida del grupo es la de todos juntos.
     load:
       name: Carga
       description: Los huecos de todo lo que lleva este compañero, contenedores y lo que hay en ellos; por encima de la capacidad, va cargado.
@@ -111,9 +111,9 @@ sheet/companion:
 sheet/company:
   name: La Compañía
   description: |-
-    La Compañía en conjunto: su moral, su fatiga, los mercenarios que ha contratado y cuánto aguanta. Sigue igual cuando se unen o caen compañeros: todo viaje la tiene.
+    La Compañía en conjunto: su moral, su fatiga, los mercenarios que ha contratado, cuánto aguanta, el forraje de los caballos y sus reservas de raciones. Sigue igual cuando se unen o caen compañeros: todo viaje la tiene.
 
-    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar.
+    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), una provisión como un simple valor (el forraje, `party.values.fodder`, que se ve como `6 / 12`), objetos propios del grupo con los que empieza (seis raciones, `items: { start: { ration: 6 } }`), que se gastan antes que los de sus compañeros (`party.items.ration`), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar.
   values:
     morale:
       name: Moral
@@ -127,6 +127,9 @@ sheet/company:
     endurance:
       name: Aguante
       description: Cuánta fatiga aguanta la Compañía antes de no poder acampar ni descansar más (solo se puede mientras la fatiga está por debajo).
+    fodder:
+      name: Forraje
+      description: Días de forraje para los caballos, tantos como pueden cargar; se gasta uno al acabar cada día a caballo, y nunca baja de 0. En el mercado se compra más.
   conditions:
     shaken:
       name: Desanimada

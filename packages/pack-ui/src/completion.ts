@@ -181,7 +181,6 @@ const KEYS = [
   'edges',
   'kmPerDay',
   'through',
-  'resources',
   'min',
   'max',
   'weather',
@@ -221,7 +220,7 @@ const KEYS = [
   'packs',
   'maps',
   'sheet',
-  // Sheets, and the party made of their characters (bindings' stats and resources).
+  // Sheets, and the party made of their characters (bindings' stats).
   'conditions',
   'relations',
   'track',
@@ -243,7 +242,6 @@ const KEYS = [
   'holds',
   'where',
   'none',
-  'carried',
   'roles',
   'factions',
   'every',

@@ -13,7 +13,6 @@ day: { start: '06:00', nightfall: '20:00' }
 travel: { hoursPerDay: 8 }
 terrains: {}
 modes: { foot: { kmPerDay: 25 } }
-resources: { food: { name: Rations, perDay: 1 } }
 values: { lost: { name: Lost, blocks: [travel.move] } }
 ---
 kind: bindings
@@ -50,7 +49,6 @@ describe('names of the values tables read', () => {
     expect(en('holidays')).toMatchObject({ name: 'Holidays', description: expect.any(String) })
     expect(en('survival')).toEqual({ name: 'Survival', description: 'Added to foraging.' })
     expect(en('party.stats.survival').name).toBe('Survival')
-    expect(en('party.resources.food').name).toBe('Rations')
     expect(en('icon.guards')).toEqual({
       name: 'Guards',
       description: 'How many guards watch the gates.',

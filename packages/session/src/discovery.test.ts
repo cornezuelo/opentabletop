@@ -276,8 +276,7 @@ travel:
   halt: { at: '19:00', do: actions.camp }
 terrains: { forest: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
-resources: { food: {} }
-checks: [{ event: DAWN, at: '07:00', effects: { party.resources.food: 0 } }]
+checks: [{ event: DAWN, at: '07:00', effects: { party.stats.fatigue: 0 } }]
 actions:
   march:
     params: { until: { choices: [destination, hex] } }

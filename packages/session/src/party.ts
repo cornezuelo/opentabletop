@@ -5,8 +5,10 @@ import {
   membersBlock,
   partyValue,
   settleCharacter,
-  shareChange,
+  shareItems,
   boundsOf,
+  countOf,
+  itemsFacts,
   type CharacterEvent,
   type CharacterState,
   type ItemLookup,
@@ -14,9 +16,11 @@ import {
 } from '@open-tabletop/character-engine'
 import {
   hexIdOf,
+  changeValue,
   momentRolls,
+  resolveChange,
+  tallyChange,
   type Bounds,
-  type TravelRules,
   type TravelState,
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
@@ -25,8 +29,7 @@ import type { Effects, LimitReached } from './effects'
 
 /**
  * The party as its members: the sheet they're made with (the system's `sheet`), and what
- * the system's bindings say the party takes from them (stats `from` their values, supplies
- * they carry). A system without a sheet plays the party as a whole, as before. Beside
+ * the system's bindings say the party takes from them (stats `from` their values). A system without a sheet plays the party as a whole, as before. Beside
  * them, the party's own sheet (`partySheet`): the party itself as one character (`party`),
  * whatever its members, whose values stats may be (`from: { party: morale }`).
  */
@@ -36,6 +39,8 @@ export interface PartyRules {
   bindings?: Bindings
   /** The system's item catalogues: what an effect gives when a character has none yet. */
   items?: ItemLookup
+  /** The ids of the items in those catalogues. */
+  itemIds?: string[]
 }
 
 /** The id of the party's own character (made with the party sheet). */
@@ -52,7 +57,7 @@ export interface PartyTarget {
   /** Who rolls for the stats made of one character (`from: { pick }`); absent: the best. */
   rolls?: string
   stats: Record<string, number>
-  travel: Pick<TravelState, 'resources'> & Partial<Pick<TravelState, 'seed' | 'day' | 'location'>>
+  travel: Partial<Pick<TravelState, 'seed' | 'day' | 'location' | 'totals' | 'reached'>>
 }
 
 /** The sheet a member (or the party itself) is made with, when it's the system's. */
@@ -91,7 +96,7 @@ function ensureParty(s: PartyTarget, rules: PartyRules): void {
       s.stats[stat] !== undefined ? [[value, s.stats[stat]]] : [],
     ),
   )
-  s.party = createCharacter(own.def, own.id, { id: PARTY_ID, values })
+  s.party = createCharacter(own.def, own.id, { id: PARTY_ID, values }, rules.items)
 }
 
 /** A new member of the system's sheet, with its defaults and `init`. */
@@ -100,15 +105,15 @@ export function newMember(
   init: Partial<CharacterState> & { id: string },
 ): CharacterState {
   if (!rules.sheet) throw new Error('This system has no sheet for its members')
-  return createCharacter(rules.sheet.def, rules.sheet.id, init)
+  return createCharacter(rules.sheet.def, rules.sheet.id, init, rules.items)
 }
 
 const hasMembers = (s: PartyTarget): s is PartyTarget & { members: CharacterState[] } =>
   !!s.members?.length
 
 /**
- * Brings the party up to date with its members (in place): the stats made of theirs, and
- * the supplies they carry as their sum. Nothing changes for a party without members.
+ * Brings the party up to date with its members (in place): the stats made of theirs.
+ * Nothing changes for a party without members.
  */
 export function refreshParty(s: PartyTarget, rules: PartyRules): void {
   ensureParty(s, rules)
@@ -116,8 +121,6 @@ export function refreshParty(s: PartyTarget, rules: PartyRules): void {
   if (!hasMembers(s)) return
   for (const [id, stat] of Object.entries(rules.bindings?.stats ?? {}))
     if (stat.from && !stat.from.party) s.stats[id] = partyValue(s.members, stat.from, s.rolls)
-  for (const [id, supply] of Object.entries(rules.bindings?.resources ?? {}))
-    s.travel.resources[id] = s.members.reduce((sum, m) => sum + (m.values[supply.carried] ?? 0), 0)
 }
 
 /**
@@ -156,76 +159,60 @@ export function editPartySheet(s: PartyTarget, rules: PartyRules, next: Characte
   refreshParty(s, rules)
 }
 
-/** The supplies the members carry, as they are now (to settle what changes later). */
-export function carriedNow(s: PartyTarget, rules: PartyRules): Record<string, number> {
-  if (!hasMembers(s)) return {}
-  return Object.fromEntries(
-    Object.keys(rules.bindings?.resources ?? {}).map((id) => [id, s.travel.resources[id] ?? 0]),
-  )
+/**
+ * What conditions and tables read of the party's items: its own and its members' together
+ * (`party.items.ration.count`, `party.items.tags`).
+ */
+export function partyItems(
+  s: Pick<PartyTarget, 'party' | 'members'>,
+  /** The system's catalogues: each of their items is there, at a count of 0 when nobody has it. */
+  rules: PartyRules = {},
+): Record<string, unknown> {
+  const all = [...(s.party?.items ?? []), ...(s.members ?? []).flatMap((m) => m.items ?? [])]
+  const held = itemsFacts(undefined, { values: {}, items: all }).items
+  const none = Object.fromEntries((rules.itemIds ?? []).map((id) => [id, { count: 0, tags: [] }]))
+  return { ...none, ...held }
 }
 
 /**
- * Shares out among the members what the party's carried supplies changed since `before`
- * (`carriedNow`), and brings the party up to date (in place).
+ * The party's numbers a trip's totals count (`trip.spent.party.items.ration`), by full name:
+ * its own sheet's values and its items (its own and its members' together).
  */
-export function settleParty(
-  s: PartyTarget,
+export function partyNumbers(
+  s: Pick<PartyTarget, 'party' | 'members'>,
   rules: PartyRules,
-  before: Record<string, number>,
-): CharacterEvent[] {
-  const events: CharacterEvent[] = []
-  if (hasMembers(s))
-    for (const [id, supply] of Object.entries(rules.bindings?.resources ?? {})) {
-      const delta = (s.travel.resources[id] ?? 0) - (before[id] ?? 0)
-      if (!delta) continue
-      const shared = shareChange(sheetOf(rules), s.members, supply.carried, delta, supply.share)
-      s.members = shared.members
-      events.push(...shared.events)
-    }
-  refreshParty(s, rules)
-  return events
-}
-
-/**
- * The bounds of the supplies the members carry: the sums of theirs (a side without a bound
- * in some member has none). The others keep the system's.
- */
-export function carriedBounds(s: PartyTarget, rules: PartyRules): Record<string, Bounds> {
-  if (!hasMembers(s)) return {}
-  const out: Record<string, Bounds> = {}
-  for (const [id, supply] of Object.entries(rules.bindings?.resources ?? {})) {
-    const each = s.members.map((m) => {
-      const sheet = sheetOf(rules)(m)
-      return sheet ? boundsOf(sheet, m, supply.carried) : {}
-    })
-    const sum = (key: 'min' | 'max') =>
-      each.every((b) => b[key] !== undefined)
-        ? each.reduce((total, b) => total + b[key]!, 0)
-        : undefined
-    const min = sum('min')
-    const max = sum('max')
-    out[id] = { ...(min !== undefined && { min }), ...(max !== undefined && { max }) }
-  }
+): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const [id, n] of Object.entries(s.party?.values ?? {})) out[`party.values.${id}`] = n
+  const ids = new Set([
+    ...(rules.itemIds ?? []),
+    ...[s.party, ...(s.members ?? [])].flatMap((c) => (c?.items ?? []).map((i) => i.id)),
+  ])
+  for (const id of ids)
+    out[`party.items.${id}`] = [s.party, ...(s.members ?? [])].reduce(
+      (n, c) => n + (c ? countOf(c, id) : 0),
+      0,
+    )
   return out
 }
 
-/** Travel rules whose carried supplies have the members' bounds (for the travel engine). */
-export function rulesWithMembers(
-  travel: TravelRules,
-  s: PartyTarget,
+/**
+ * The numbers the session keeps that an action's steps change, for the travel engine
+ * (`kept`): the party sheet's values (those not made of others) with their bounds now, and
+ * the party's items by id (read as their `count`, never under 0).
+ */
+export function keptNumbers(
+  s: Pick<PartyTarget, 'party' | 'members'>,
   rules: PartyRules,
-): TravelRules {
-  const bounds = carriedBounds(s, rules)
-  if (!Object.keys(bounds).length) return travel
-  const resources = { ...travel.resources }
-  for (const [id, b] of Object.entries(bounds)) {
-    // The members' bounds replace the supply's own (a side they don't bound has none).
-    const own = { ...resources[id] } as Record<string, unknown>
-    delete own.min
-    delete own.max
-    resources[id] = { ...own, ...b } as NonNullable<TravelRules['resources']>[string]
-  }
-  return { ...travel, resources }
+): Record<string, Bounds & { read?: string }> {
+  const out: Record<string, Bounds & { read?: string }> = {}
+  const sheet = rules.partySheet?.def
+  if (s.party && sheet)
+    for (const [id, value] of Object.entries(sheet.values))
+      if (value.from === undefined) out[`party.values.${id}`] = boundsOf(sheet, s.party, id)
+  for (const path of Object.keys(partyNumbers(s, rules)))
+    if (path.startsWith('party.items.')) out[path] = { min: 0, read: `${path}.count` }
+  return out
 }
 
 /** What the members' conditions block for the party (`party.blocked` for the travel engine). */
@@ -282,9 +269,14 @@ export const isPartySheetPath = (path: string): boolean => MEMBER_PATH.exec(path
 /**
  * Applies the effects on members: `party.members.values.health: -1` (every member),
  * `characters.<id>.…` (one), `acting.…` (the one acting) or `roles.<id>.…` (whoever holds
- * the role; nobody: `nobody`). Within
- * each one's sheet; what hits a bound is in `limits` (by the member's path). Other paths
- * are left alone, and so is everything for a party without members.
+ * the role; nobody: `nobody`), and on the party's own sheet (`party.values.…`,
+ * `party.conditions.…`). The party's items (`party.items.ration`) are its own and its
+ * members' together: taken from its own first, then from the members as their sheet shares
+ * them out (`items.share`); given to the members so, or to its own sheet without members.
+ * Within each one's sheet; what hits a bound is in `limits` (by full name) and noted as the
+ * trip's `below` / `above`, and what the party's values and items moved counts in the
+ * trip's totals. Other paths are left alone, and so is everything for a party without
+ * members or a sheet of its own.
  */
 export function applyMemberEffects(
   s: PartyTarget,
@@ -292,6 +284,11 @@ export function applyMemberEffects(
   rules: PartyRules,
   context: Record<string, unknown> = {},
   time?: number,
+  /**
+   * Whether what hits a bound is noted as the trip's `below` / `above`; not for an action's
+   * steps, which the travel engine noted as they happened (its day may be over by now).
+   */
+  noteReached = true,
 ): { limits: LimitReached[]; events: CharacterEvent[]; nobody: string[]; unknown: string[] } {
   const limits: LimitReached[] = []
   const events: CharacterEvent[] = []
@@ -308,9 +305,84 @@ export function applyMemberEffects(
           typeof context.moment === 'string' ? context.moment : undefined,
         )
       : undefined
+  const before = partyNumbers(s, rules)
+  /** Applies `rest` (`values.health`, `items.torch`) to one character, keeping what it did. */
+  const applyTo = (target: CharacterState, rest: string, change: number | string): void => {
+    const sheet = sheetOf(rules)(target)
+    if (!sheet) return
+    const done = applyCharacter(
+      sheet,
+      target,
+      { type: 'change', effects: { [rest]: change }, ...(time !== undefined && { time }) },
+      { roller, context, items: rules.items },
+    )
+    keep(target, done.state, done.events)
+  }
+  /** A character's new state in the party, with what happened to it. */
+  const keep = (target: CharacterState, next: CharacterState, happened: CharacterEvent[]) => {
+    const own = target.id === PARTY_ID && target === s.party
+    if (own) {
+      s.party = next
+      // The values changed (the one written, and those made of it): the stats follow them.
+      const moved = new Set(happened.flatMap((e) => (e.type === 'VALUE_CHANGED' ? [e.value] : [])))
+      for (const [stat, value] of partyStats(rules))
+        if (moved.has(value) && next.values[value] !== undefined) s.stats[stat] = next.values[value]
+    } else s.members = (s.members ?? []).map((m) => (m.id === target.id ? next : m))
+    for (const e of happened) {
+      events.push(e)
+      if (e.type === 'LIMIT_REACHED')
+        limits.push({
+          path: own ? `party.values.${e.value}` : `characters.${target.id}.values.${e.value}`,
+          limit: e.limit,
+          value: next.values[e.value],
+        })
+    }
+  }
+  /** The party's items, its own and its members' together (`party.items.ration`). */
+  const partyItem = (path: string, id: string, change: number | string): void => {
+    const [item, field] = id.split('.', 2)
+    const holders = [...(s.party ? [s.party] : []), ...(s.members ?? [])]
+    // A field: the first one's, the party's own first.
+    if (field !== undefined) {
+      const first = holders.find((c) => countOf(c, item) > 0)
+      if (first) applyTo(first, `items.${id}`, change)
+      return
+    }
+    const have = holders.reduce((n, c) => n + countOf(c, item), 0)
+    const { to, limit } = changeValue(have, resolveChange(change, context, roller), { min: 0 })
+    if (limit) limits.push({ path, limit, value: to })
+    let delta = to - have
+    const carriers = (s.members ?? []).filter((m) => sheetOf(rules)(m)?.items !== undefined)
+    // Spent: the party's own first.
+    if (delta < 0 && s.party && countOf(s.party, item) > 0) {
+      const taken = Math.min(countOf(s.party, item), -delta)
+      applyTo(s.party, `items.${item}`, -taken)
+      delta += taken
+    }
+    if (!delta) return
+    if (!carriers.length) {
+      if (s.party) applyTo(s.party, `items.${item}`, delta)
+      return
+    }
+    const shared = shareItems(
+      sheetOf(rules),
+      s.members ?? [],
+      item,
+      delta,
+      rules.sheet?.def.items?.share,
+      { items: rules.items, ...(time !== undefined && { time }) },
+    )
+    s.members = shared.members
+    events.push(...shared.events)
+  }
   for (const [path, change] of Object.entries(effects)) {
     const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
     if (!who) continue
+    if (who === 'party' && part === 'items') {
+      if (typeof change === 'boolean') continue
+      partyItem(path, id, change)
+      continue
+    }
     const rest = `${part}.${id}`
     const members: CharacterState[] = s.members ?? []
     const holder = who.startsWith('roles.') ? s.roles?.[who.slice('roles.'.length)] : undefined
@@ -332,44 +404,28 @@ export function applyMemberEffects(
       continue
     }
     for (const target of targets) {
-      const sheet = sheetOf(rules)(target)
-      if (!sheet) {
+      if (!sheetOf(rules)(target)) {
         unknown.push(path)
         continue
       }
-      const done = applyCharacter(
-        sheet,
-        target,
-        { type: 'change', effects: { [rest]: change }, ...(time !== undefined && { time }) },
-        { roller, context, items: rules.items },
-      )
-      if (target === s.party) {
-        s.party = done.state
-        // The values changed (the one written, and those made of it): the stats follow them.
-        const moved = new Set(
-          done.events.flatMap((e) => (e.type === 'VALUE_CHANGED' ? [e.value] : [])),
-        )
-        for (const [stat, value] of partyStats(rules))
-          if (moved.has(value) && done.state.values[value] !== undefined)
-            s.stats[stat] = done.state.values[value]
-      } else
-        s.members = (s.members ?? []).map((m: CharacterState) =>
-          m.id === target.id ? done.state : m,
-        )
-      for (const e of done.events) {
-        events.push(e)
-        if (e.type === 'LIMIT_REACHED')
-          limits.push({
-            path:
-              target === s.party
-                ? `party.values.${e.value}`
-                : `characters.${target.id}.values.${e.value}`,
-            limit: e.limit,
-            value: done.state.values[e.value],
-          })
-      }
+      // Each one as it is now (an earlier effect may have changed it).
+      const now =
+        target.id === PARTY_ID && who === 'party'
+          ? s.party!
+          : ((s.members ?? []).find((m) => m.id === target.id) ?? target)
+      applyTo(now, rest, change)
     }
   }
+  // What hit a bound today, by full name (`trip.below: party.values.food`).
+  for (const { path, limit } of noteReached ? limits : []) {
+    const key = limit === 'min' ? 'below' : 'above'
+    const list = travel.reached?.[key] ?? []
+    if (!list.includes(path)) travel.reached = { ...travel.reached, [key]: [...list, path] }
+  }
+  // What the party's values and items moved, in the trip's totals (`trip.spent.…`).
+  const after = partyNumbers(s, rules)
+  for (const path of new Set([...Object.keys(before), ...Object.keys(after)]))
+    tallyChange(travel, path, before[path] ?? 0, after[path] ?? 0)
   return { limits, events, nobody, unknown }
 }
 

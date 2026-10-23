@@ -23,6 +23,6 @@ A token's sheet can be a character of the roster ([Characters](../characters/01-
 
 ## The party
 
-The party is a token too: Play mode moves it (see [Playing a trip](08-play.md)). There is one party per map; making another token the party turns the old one into a PC. A trip in progress goes on with the new party, from where it stands: same day, supplies and journal; its trail starts there.
+The party is a token too: Play mode moves it (see [Playing a trip](08-play.md)). There is one party per map; making another token the party turns the old one into a PC. A trip in progress goes on with the new party, from where it stands: same day, party sheet and journal; its trail starts there.
 
 The party token is only where the party is: it has no fields nor sheet of its own. The party's sheet, its stats and its characters are in Play's **Party** tab ([The party](../travel/02-playing.md#the-party)); the token's panel says so, and **Open Play → Party** takes you there. Maps saved with fields on the party token lose them when opened (nothing read them).

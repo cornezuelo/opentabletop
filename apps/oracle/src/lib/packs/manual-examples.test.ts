@@ -76,7 +76,7 @@ const kindOf = (yaml: string) => /^kind: ([\w-]+)/m.exec(yaml)![1]
 /** Problems of an example, without the references it leaves to others. */
 function problems(files: string[]): string[] {
   const { registry, diagnostics } = loadPacks([
-    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
@@ -141,7 +141,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([
-    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'dark/pack.yaml', content: 'id: dark\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     { path: 'dark/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'dark')!
@@ -163,7 +163,10 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
   })
   const start = (torches: number): SessionState => {
     const { session } = startTrip({ system, location: '0', season: 'summer' })
-    return { ...session, travel: { ...session.travel, resources: { food: 5, torches } } }
+    return {
+      ...session,
+      party: { ...session.party!, values: { ...session.party!.values, food: 5, torches } },
+    }
   }
   const nextDawn = (s: SessionState) =>
     calendarOf(system).at(s.travel.day + 1, tripStart(system.rules, calendarOf(system)))
@@ -172,10 +175,10 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
     let s = start(1)
     expect(s.stats.fatigue).toBe(0)
     s = stepTrip(options('torch'), s, { type: 'wait', until: nextDawn(s) }).state
-    expect(s.travel.resources).toEqual({ food: 4, torches: 0 })
+    expect(s.party!.values).toMatchObject({ food: 4, torches: 0 })
     expect(s.stats.fatigue).toBe(0)
     s = stepTrip(options('torch'), s, { type: 'wait', until: nextDawn(s) }).state
-    expect(s.travel.resources.torches).toBe(0)
+    expect(s.party!.values.torches).toBe(0)
     expect(s.stats.fatigue).toBe(1)
   })
 
@@ -223,7 +226,7 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
     y.includes('river-crossing'),
   )!
   const { registry } = loadPacks([
-    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'river/pack.yaml', content: 'id: river\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     { path: 'river/travel.yaml', content: yaml },
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'river')!
@@ -239,7 +242,11 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
   const start = (): SessionState => {
     const { session } = startTrip({ system, location: '0', season: 'summer' })
     const time = calendar.at(session.travel.day, '08:00')
-    return { ...session, travel: { ...session.travel, time, resources: { food: 5 } } }
+    return {
+      ...session,
+      travel: { ...session.travel, time },
+      party: { ...session.party!, values: { ...session.party!.values, food: 5 } },
+    }
   }
   const lines = (s: SessionState) => s.journal.map((e) => e.code)
 
@@ -286,7 +293,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
     {
       path: 'fever/pack.yaml',
-      content: "id: fever\nversion: 0.1.0\nformat: 7\nlocale: en\ndependencies: { core: '*' }\n",
+      content: "id: fever\nversion: 0.1.0\nformat: 8\nlocale: en\ndependencies: { core: '*' }\n",
     },
     { path: 'fever/travel.yaml', content: stringify(rules) },
     { path: 'fever/clocks.yaml', content: clocks },
@@ -469,15 +476,16 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   expect(rules.checks.map((c: { event: string }) => c.event)).toEqual(['WEATHER_CHECK_REQUIRED'])
   rules.checks = [...rules.checks, { event: 'WET', at: '07:00', when: { 'trip.weather': 'rain' } }]
   const { registry, diagnostics } = loadPacks([
-    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'valley/pack.yaml', content: 'id: valley\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     { path: 'valley/travel.yaml', content: stringify(rules) },
     { path: 'valley/calendar.yaml', content: core('calendar.yaml') },
     { path: 'valley/weather.yaml', content: model },
+    { path: 'valley/sheet.yaml', content: core('sheet.yaml') },
     {
       path: 'valley/system.yaml',
       content: [
         'kind: bindings\nid: default\non:\n  WEATHER_CHECK_REQUIRED: { weather: weather.weather }',
-        'kind: system\nid: default\nname: Valley\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default\nweather: [weather.weather]',
+        'kind: system\nid: default\nname: Valley\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default\nweather: [weather.weather]\npartySheet: sheet.party',
       ].join('\n---\n'),
     },
   ])
@@ -504,7 +512,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   function play(season: string, seed: string, days: number) {
     const opts = options(seed)
     let s = startTrip({ system, location: '0', season }).session
-    s = { ...s, travel: { ...s.travel, resources: { food: 99 } } }
+    s = { ...s, party: { ...s.party!, values: { ...s.party!.values, food: 99 } } }
     s = stepTrip(opts, s, { type: 'setDestination', hex: '199' }).state
     const seen: { weather: string; wet: boolean; travel: unknown; horse: unknown }[] = []
     for (let day = 0; day < days; day++) {
@@ -579,18 +587,24 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
       .find((y) => y.includes('parched'))!,
   )
   const rules = parseAllDocuments(coreFile('travel.yaml'))[0].toJS()
-  for (const part of ['modes', 'terrains', 'resources', 'values', 'actions'])
+  for (const part of ['modes', 'terrains', 'values', 'actions'])
     rules[part] = { ...rules[part], ...added[part] }
+  // The party's sheet, with the water of step 4 (the page's second block).
+  const sheet = [...read('en/systems/05-rules.md').matchAll(/```yaml\n([\s\S]*?)```/g)]
+    .map((m) => m[1])
+    .find((y) => y.startsWith('kind: sheet'))!
   const { registry, diagnostics } = loadPacks([
-    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'salt/pack.yaml', content: 'id: salt\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     { path: 'salt/travel.yaml', content: stringify(rules) },
+    { path: 'salt/sheet.yaml', content: sheet },
     { path: 'salt/calendar.yaml', content: coreFile('calendar.yaml') },
     {
       path: 'salt/system.yaml',
       content:
-        'kind: system\nid: default\nname: Salt Road\ntravel: travel-rules.default\ncalendar: calendar.default',
+        'kind: system\nid: default\nname: Salt Road\ntravel: travel-rules.default\ncalendar: calendar.default\npartySheet: sheet.party',
     },
   ])
+  const water = (s: SessionState) => s.party!.values.water
   const system = travelSystems(registry).systems.find((s) => s.pack === 'salt')!
   const calendar = calendarOf(system)
   // Step 8's way: desert, a road from hex 2 to hex 3, the salt flat on hex 6, the oasis on 10.
@@ -643,10 +657,10 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     return { s, entered, stopped: lines.find((e) => e.code === 'TRAVEL_STOPPED')?.data, lines }
   }
 
-  it('loads, and starts with the water its Max allows (steps 1–5)', () => {
+  it('loads, and starts with the water it says (steps 1–5)', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
     const s = setOut('summer')
-    expect(s.travel.resources).toEqual({ food: 6, water: 3 })
+    expect(s.party!.values).toMatchObject({ food: 6, water: 3 })
     expect(s.travel.route).toHaveLength(10)
   })
 
@@ -657,16 +671,16 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     expect(day.entered).toEqual(['2 10:00', '3 11:20'])
     expect(day.stopped).toMatchObject({ reason: 'conditions', action: 'march' })
     expect(clock(day.s)).toBe('14:00')
-    expect(day.s.travel.resources.water).toBe(2)
+    expect(water(day.s)).toBe(2)
     let s = stepTrip(options, day.s, { type: 'wait', until: nextDawn(day.s) }).state
     // Day 2: the rest of hex 4, hex 5, and the salt flat at its own speed (2 h).
     day = march(s)
     expect(day.entered).toEqual(['4 07:20', '5 11:20', '6 13:20'])
-    expect(day.s.travel.resources.water).toBe(1)
+    expect(water(day.s)).toBe(1)
     s = stepTrip(options, day.s, { type: 'wait', until: nextDawn(day.s) }).state
     day = march(s)
     expect(day.entered).toEqual(['7 09:20', '8 13:20'])
-    expect(day.s.travel.resources.water).toBe(0)
+    expect(water(day.s)).toBe(0)
     s = stepTrip(options, day.s, { type: 'wait', until: nextDawn(day.s) }).state
     // Day 4: no water to drink: Parched, and the camels stay; on foot the party goes on.
     day = march(s)
@@ -682,9 +696,9 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     expect(s.travel.location).toBe('9')
     // At the oasis: the skins filled, never past their Max.
     s = stepTrip(options, s, { type: 'action', id: 'fill' }).state
-    expect(s.travel.resources.water).toBe(3)
+    expect(water(s)).toBe(3)
     s = stepTrip(options, s, { type: 'action', id: 'fill' }).state
-    expect(s.travel.resources.water).toBe(3)
+    expect(water(s)).toBe(3)
     expect(s.journal.at(-1)).toMatchObject({ code: 'LIMIT_REACHED' })
   })
 
@@ -707,17 +721,18 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   const table = blocks.find((y) => y.includes('kind: table'))!
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
-    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'wolf/pack.yaml', content: 'id: wolf\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     {
       path: 'wolf/travel.yaml',
       content: `${stringify(rules)}---\n${stringify({ kind: 'bindings', id: 'default', ...bound })}`,
     },
     { path: 'wolf/tables.yaml', content: table },
     { path: 'wolf/calendar.yaml', content: coreFile('calendar.yaml') },
+    { path: 'wolf/sheet.yaml', content: coreFile('sheet.yaml') },
     {
       path: 'wolf/system.yaml',
       content:
-        'kind: system\nid: default\nname: Wolf Country\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default',
+        'kind: system\nid: default\nname: Wolf Country\ntravel: travel-rules.default\nbindings: bindings.default\ncalendar: calendar.default\npartySheet: sheet.party',
     },
   ])
   const system = travelSystems(registry).systems.find((s) => s.pack === 'wolf')!
@@ -750,7 +765,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   /** A trip with 1 food towards the far end (hex 6). */
   function setOut(opts: ReturnType<typeof options>) {
     let s = startTrip({ system, location: '0', season: 'summer' }).session
-    s = { ...s, travel: { ...s.travel, resources: { food: 1 } } }
+    s = { ...s, party: { ...s.party!, values: { ...s.party!.values, food: 1 } } }
     return stepTrip(opts, s, { type: 'setDestination', hex: '5' }).state
   }
   /** Goes on from every check that waits, as Continue does. */
@@ -785,7 +800,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
     expect(dice(s, 'WOLVES_AT_NIGHT')[0]).toMatch(/^1d6 \+ 2 /)
     expect(of(s, 'CHECK_SKIPPED', 'HUNGER')).toHaveLength(1)
     expect(clock(s.travel.time)).toBe('06:00')
-    expect(s.travel.resources.food).toBe(0)
+    expect(s.party!.values.food).toBe(0)
     // Day 2: the forest at 08:40; the hills by the road, skipped; the stones wait for you.
     const at = s.journal.length
     s = stepTrip(opts, s, { type: 'travel' }).state
@@ -809,7 +824,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
     const fatigue = s.stats.fatigue
     s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
     expect(of(s, 'ROLLED', 'WOLVES_AT_NIGHT')).toHaveLength(1)
-    expect(of(s, 'LIMIT_REACHED').at(-1)?.data).toMatchObject({ path: 'party.resources.food' })
+    expect(of(s, 'LIMIT_REACHED').at(-1)?.data).toMatchObject({ path: 'party.values.food' })
     expect(of(s, 'CHECK_EFFECTS', 'HUNGER')).toHaveLength(1)
     expect(s.stats.fatigue).toBe(fatigue + 1)
     // Day 3: the end of the way.
@@ -846,7 +861,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   )
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
-    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 7\nlocale: en\n' },
+    { path: 'co/pack.yaml', content: 'id: co\nversion: 0.1.0\nformat: 8\nlocale: en\n' },
     {
       path: 'co/travel.yaml',
       // A new system's bindings start with `on: {}`.
@@ -891,16 +906,13 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   /** Step 8's company: Kael leads and carries the only ration. */
   function setOut(opts: ReturnType<typeof options>) {
     const members = [
-      newMember(party, { id: 'kael', name: 'Kael', values: { survival: 3, rations: 1 } }),
-      newMember(party, { id: 'mara', name: 'Mara', values: { rations: 0 } }),
-      newMember(party, {
-        id: 'tobin',
-        name: 'Tobin',
-        values: { toughness: 4, health: 4, rations: 0 },
-      }),
+      newMember(party, { id: 'kael', name: 'Kael', values: { survival: 3 } }),
+      newMember(party, { id: 'mara', name: 'Mara' }),
+      newMember(party, { id: 'tobin', name: 'Tobin', values: { toughness: 4, health: 4 } }),
     ]
     let s = startTrip({ system, location: '0', season: 'summer', members }).session
-    s = { ...s, acting: 'kael' }
+    // The Company's Food set to 1 on its card.
+    s = { ...s, acting: 'kael', party: { ...s.party!, values: { ...s.party!.values, food: 1 } } }
     return stepTrip(opts, s, { type: 'setDestination', hex: '5' }).state
   }
   const of = (s: SessionState, code: string, check?: string) =>
@@ -924,8 +936,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   it('makes the party of its members: Survival, Food, Morale, and the bounds (step 8)', () => {
     const s = setOut(options('co'))
     expect(s.stats).toMatchObject({ survival: 3, morale: 3 })
-    expect(s.travel.resources.food).toBe(1)
-    expect(s.party?.values.morale).toBe(3)
+    expect(s.party?.values).toMatchObject({ morale: 3, food: 1 })
     // Kael wounded: the best of the others.
     const wounded = structuredClone(s)
     wounded.members![0].conditions.wounded = {}
@@ -966,12 +977,11 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
     expect(lamed).toBeGreaterThan(0)
   })
 
-  it('the first night eats the last ration; the second, hunger hurts everyone and morale', () => {
+  it('the first night eats the last food; the second, hunger hurts everyone and morale', () => {
     const opts = options('co')
     let s = setOut(opts)
     s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
-    expect(s.travel.resources.food).toBe(0)
-    expect(s.members![0].values.rations).toBe(0)
+    expect(s.party!.values.food).toBe(0)
     expect(of(s, 'CHECK_EFFECTS', 'HUNGER')).toHaveLength(0)
     const before = health(s)
     s = stepTrip(opts, s, { type: 'wait', until: nextDawn(s) }).state
@@ -997,7 +1007,7 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
     { path: 'core/factions.yaml', content: coreFile('factions.yaml') },
     {
       path: 'border/pack.yaml',
-      content: "id: border\nversion: 0.1.0\nformat: 7\nlocale: en\ndependencies: { core: '*' }\n",
+      content: "id: border\nversion: 0.1.0\nformat: 8\nlocale: en\ndependencies: { core: '*' }\n",
     },
     { path: 'border/travel.yaml', content: stringify(rules) },
     { path: 'border/factions.yaml', content: factions },

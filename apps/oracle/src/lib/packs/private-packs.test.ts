@@ -62,7 +62,7 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
       })
       expect(entries.some((e) => e.data?.event === 'FORAGE_CHECK_REQUIRED')).toBe(true)
       expect(state.travel.speedToday).toBe(0.5)
-      const gained = state.travel.resources.food - session.travel.resources.food
+      const gained = state.party!.values.rations - session.party!.values.rations
       expect([0, 1, 3, 5]).toContain(gained)
       gainedSomething ||= gained > 0
     }

@@ -10,6 +10,7 @@ import {
   migrateFatigue,
   migrateGenericSheets,
   migrateLost,
+  migrateSupplies,
   migrateTotals,
 } from '@open-tabletop/session'
 
@@ -277,6 +278,19 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
         delete rest.fields
         return rest
       }),
+    }
+  },
+  /**
+   * v27: the party's supplies are its values or items, as its system says: a trip's old
+   * supplies (`session.travel.resources`) move to the party sheet's values of the same id.
+   */
+  26(data) {
+    const play = data.play as { rules?: { session?: unknown } } | undefined
+    const session = play?.rules?.session as Parameters<typeof migrateSupplies>[0] | undefined
+    if (!session || typeof session !== 'object' || !session.travel) return data
+    return {
+      ...data,
+      play: { ...play, rules: { ...play!.rules, session: migrateSupplies(session) } },
     }
   },
 }

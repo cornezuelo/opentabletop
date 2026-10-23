@@ -91,6 +91,8 @@ describe('journal lines', () => {
     nameOf: (id: string) => id,
     actionName: () => 'Forage for food',
     valueName: (key: string) => ({ food: 'Food', morale: 'Morale' })[key] ?? key,
+    // The party sheet's values, as the trip panel names them.
+    memberName: (path: string) => (path === 'party.values.food' ? 'Food' : undefined),
     terrainName: (id: string) => ({ hills: 'Hills' })[id] ?? id,
   }
   const line = (code: string, data: Record<string, unknown>, more: Partial<JournalContext> = {}) =>
@@ -150,7 +152,7 @@ describe('journal lines', () => {
       data: {
         event: 'FORAGE_CHECK_REQUIRED',
         value: {
-          effects: { 'party.resources.food': 1, 'party.stats.morale': -1 },
+          effects: { 'party.values.food': 1, 'party.stats.morale': -1 },
           lost: true,
           weather: 'rain',
         },
@@ -179,7 +181,7 @@ describe('journal lines', () => {
     expect(actionNothingOf(gm, 'forage', 'en')).toMatch(/^nothing to forage on \{terrain\}/)
     expect(actionNothingOf(gm, 'eat', 'en')).toBe('')
     // What its steps changed is told either way.
-    const eaten = { ...taken, minutes: 0, effects: { 'party.resources.food': -1 } }
+    const eaten = { ...taken, minutes: 0, effects: { 'party.values.food': -1 } }
     expect(line('ACTION_TAKEN', eaten, { actionNothing: () => '' })).toBe(
       'Forage for food (Food −1)',
     )
@@ -192,7 +194,7 @@ describe('journal lines', () => {
     expect(line('SUPPLIES_USED', { used: { food: 1 }, left: { food: 4 } })).toBe(
       'Supplies for the day: Food −1 (4 left)',
     )
-    expect(line('LIMIT_REACHED', { path: 'party.resources.food', limit: 'min', value: 0 })).toBe(
+    expect(line('LIMIT_REACHED', { path: 'party.values.food', limit: 'min', value: 0 })).toBe(
       'Food can’t go lower than 0',
     )
     expect(line('LIMIT_REACHED', { path: 'party.stats.morale', limit: 'max', value: 5 })).toBe(
@@ -342,6 +344,7 @@ describe('the journal’s detail, and its filter', () => {
     nameOf: (id) => (id === 'gm/encounters' ? 'Wild encounters' : id),
     checkName: (event) => (event === 'AMBUSH' ? 'Ambush' : undefined),
     valueName: (key) => (key === 'food' ? 'Food' : key),
+    memberName: (path) => (path === 'party.values.food' ? 'Food' : undefined),
     actionName: (id) => (id === 'forage' ? 'Forage' : id),
     partName: (ref) => (ref === 'time.day.dusk' ? 'Day: dusk' : undefined),
   }
@@ -370,7 +373,7 @@ describe('the journal’s detail, and its filter', () => {
       text: 'Wolves',
       data: { event: 'ENCOUNTER_CHECK_REQUIRED' },
     }),
-    entry(at(1, '07:00'), 'CHANGED', { data: { path: 'party.resources.food', from: 5, to: 3 } }),
+    entry(at(1, '07:00'), 'CHANGED', { data: { path: 'party.values.food', from: 5, to: 3 } }),
     entry(at(1, '08:00'), 'WEATHER_ROLLED', {
       source: 'oracle',
       data: { check: 'WEATHER_CHECK_REQUIRED', weather: 'light-rain', total: 7, move: 'se' },

@@ -71,7 +71,7 @@ export const en = {
     sheet: {
       title: 'Its sheets: the party and its characters',
       intro:
-        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them and which supplies they carry. Each has values with their bounds, tracks, conditions and relations. When the system has factions, **their sheet** (chosen in the **Factions** tab) is edited here too.",
+        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them, and the party's items are theirs together. Each has values with their bounds, tracks, conditions and relations. When the system has factions, **their sheet** (chosen in the **Factions** tab) is edited here too.",
       help: "Named in its **Overview** (`partySheet:`, `sheet:`). Conditions and tables read the party's sheet and each character:\n• `party.values.morale: { gte: 3 }` — the party\n• `characters.kael.values.health: { lte: 1 }` — one by id\n• `acting.values.wits: { gte: 3 }` — the one acting now\nEffects change them:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — every character\nA party stat can be a value of the party sheet: `from: { party: morale }` (in **Checks**).",
       none: 'This system has no sheet: its party is played as a whole, with its stats.',
       create: 'New characters sheet',
@@ -192,7 +192,7 @@ export const en = {
   reaction: {
     when: 'As this turns true',
     whenHelp:
-      "A moment written as a condition: it comes **once, as this turns true**, and again only after it has stopped holding. It's looked at after every change of the trip (a step, an effect, a result, a change by hand), reading what tables see, and what comes is played there and then. What already holds when a trip begins comes on its first step.\nExamples:\n• `party.values.morale` at most `0` — the hirelings leave\n• `party.resources.food` at most `0` — the party starts to starve\n• `world.clocks.the-siege` at least `6` — once, as the siege clock reaches 6\nFor a state that should hold all the while (encumbered, weary), give the sheet's condition a **Holds while** instead. Empty: no such moment.",
+      "A moment written as a condition: it comes **once, as this turns true**, and again only after it has stopped holding. It's looked at after every change of the trip (a step, an effect, a result, a change by hand), reading what tables see, and what comes is played there and then. What already holds when a trip begins comes on its first step.\nExamples:\n• `party.values.morale` at most `0` — the hirelings leave\n• `party.values.food` at most `0` — the party starts to starve\n• `world.clocks.the-siege` at least `6` — once, as the siege clock reaches 6\nFor a state that should hold all the while (encumbered, weary), give the sheet's condition a **Holds while** instead. Empty: no such moment.",
     each: 'For each member',
     eachHelp:
       'Looked at member by member, reading each one as `acting` (`acting.values.health` at most `0`), and played with that member acting, so its effects on `acting.…` reach them; the journal says who. Each member comes once, as it turns true for them.',
@@ -271,6 +271,14 @@ export const en = {
     sizeHelp:
       'The field that says how much room an item takes (times how many there are). Empty: each item takes one.\n• `slots`',
     sizeCount: 'one each',
+    share: 'Shared out',
+    shareHelp:
+      "How what the party spends or gains of an item (`party.items.ration: -3`, `party.items.ration: 2`) is shared out among the characters of this sheet: the party's own items go first, then theirs.\n• **even** (the default): taken from whoever has most, given to whoever has least, one at a time\n• **in order**: the first character gives (or takes) all it can, then the next\nWithout characters, the party's own sheet keeps them.",
+    shareEven: 'even (default)',
+    start: 'Starts with',
+    startHelp:
+      "What a new character of this sheet carries, from the system's catalogues (the **Items** tab), one row each: the item and how many. On the party's own sheet, what every new trip starts with (the stores of a party without characters).\n• `ration` · `2` — two rations each\n• `torch` · `1`",
+    startItem: 'Item',
     relationName: 'Name',
     relationMin: 'Number from',
     relationMax: 'to',
@@ -415,7 +423,7 @@ export const en = {
       "The definitions the system plays with, each by its kind and id: this pack's (`travel-rules.default`) or a dependency's (`core/travel-rules.default`).\n• **Travel rules** — how a trip goes (`kind: travel-rules`); none: the Generic rules\n• **Bindings** — which table answers each check, and the party's stats (`kind: bindings`)\n• **Calendar** — how days are named, by trips and the world clock (`kind: calendar`); none: the default one",
     travel: 'Travel rules',
     travelHelp:
-      'How a trip goes: the day, speeds, supplies, actions, checks (`travel: default`). **Open** edits them in the Rules tab; **Create** starts new ones from the Generic rules.\n• none — the Generic rules',
+      'How a trip goes: the day, speeds, actions, checks (`travel: default`). **Open** edits them in the Rules tab; **Create** starts new ones from the Generic rules.\n• none — the Generic rules',
     bindings: 'Bindings',
     bindingsHelp:
       "Which table answers each check, and the party's stats (`bindings: default`). **Open** edits them in the Checks tab; **Create** adds empty ones.\n• none — every check waits for the player",
@@ -501,7 +509,7 @@ export const en = {
     haltAt: 'Halt from',
     haltDo: 'Halt action',
     haltHelp:
-      "What the party does when **it can't march and the time moves on by itself**: the world clock moving with a trip on, a travel order with nothing left to march, **Wait to go on**. From this moment (a clock or a part of the day) until the day ends, a party that isn't marching takes the action, once a day.\n• **from** `20:00`, **action** `camp`\n• **from** `time.part.night`, **action** `watch`\nWhen the action **can't be taken** (its **Only when** / **Not when**, or a value that blocks it), the journal says why and the time passes without it until the party can march.\n• camp with **Only when** `party.resources.food: { gte: 1 }` — a hungry party sleeps in the open\nNo action: the party just waits.",
+      "What the party does when **it can't march and the time moves on by itself**: the world clock moving with a trip on, a travel order with nothing left to march, **Wait to go on**. From this moment (a clock or a part of the day) until the day ends, a party that isn't marching takes the action, once a day.\n• **from** `20:00`, **action** `camp`\n• **from** `time.part.night`, **action** `watch`\nWhen the action **can't be taken** (its **Only when** / **Not when**, or a value that blocks it), the journal says why and the time passes without it until the party can march.\n• camp with **Only when** `party.values.food: { gte: 1 }` — a hungry party sleeps in the open\nNo action: the party just waits.",
     haltNone: 'nothing: the party waits',
     onwardDo: 'Goes on by itself with',
     onwardHelp:
@@ -550,15 +558,6 @@ export const en = {
     edge: 'Line',
     edgeMultiplierHelp:
       "Speed along this line, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain.",
-    resources: vocabulary.en.terms.supplies,
-    resourcesHelp:
-      'What the party carries: food, fodder, water, torches… What uses it is **up to the system**, never the app:\n• an action at the end of each day eats: `effects: { party.resources.food: -1 }`\n• a table entry finds some: `effects: { party.resources.food: 2 }`\n• a check without food tires: **Only if** `trip.below: food`\nThe trip panel shows each one and lets the player change it by hand.',
-    min: 'Min',
-    minHelp:
-      'Effects never take it below this: a change past it stops there, the journal says so ("Food can\'t go lower than 0"), and later steps and that day\'s checks see `trip.below: [its id]`.\n• food with Min `0` — eating with none left stays at 0, and a day-end check with **Only if** `trip.below: food` tires the party\n• gold with no Min — it may go negative, like a debt',
-    max: 'Max',
-    maxHelp:
-      "Effects never take it above this; later steps and checks see `trip.above: [its id]`.\n• water with Max `4` — a full waterskin can't hold more\n• morale with Max `5` — a feast can't raise it past 5\nA new trip starts with 6 of each supply, or its Max if lower (its Min if higher).\nEmpty: no maximum.",
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       "How each weather slows the party. Tables set it with `set: { weather: … }` (usually rolled at dawn), or a weather model with inertia.\n• `storm` × `0` — no travel that day\n• `heavy-rain` × `0.5` — half speed\n• `fog` × `0.75`\nWeather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`).",
@@ -568,7 +567,7 @@ export const en = {
       'How fast the party marches in this weather:\n• `0` — no travel that day (the day is lost)\n• `0.5` — half speed\n• `1` — as usual',
     actions: 'Actions',
     actionsHelp:
-      "What the party can do: **march**, **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**). Nothing is built in: marching is an action like the rest.\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• march: `travel.move: '{{params.until}}'`, with a parameter `until` (to the destination or one hex)\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `travel.speed: 0.5`, its check at `forage`\n• eat, by itself at `time.day-end`: `effects: { party.resources.food: -1 }`\nTheir order counts: it's the order of the trip panel's buttons, and the order the system takes those of one moment by itself. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.",
+      "What the party can do: **march**, **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**). Nothing is built in: marching is an action like the rest.\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• march: `travel.move: '{{params.until}}'`, with a parameter `until` (to the destination or one hex)\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `travel.speed: 0.5`, its check at `forage`\n• eat, by itself at `time.day-end`: `effects: { party.values.food: -1 }`\nTheir order counts: it's the order of the trip panel's buttons, and the order the system takes those of one moment by itself. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.",
     oncePerDay: 'Once a day',
     modeWhenHelp:
       "When it can be chosen (**Only when**) or not (**Not when**), as a condition on where the party is and the moment.\n• a boat only at the water's edge: `any: [{ hex.water: true }, { hex.tags: ferry }]`\n• no horses in the snow: **Not when** `trip.weather: snow`\n• a cart only in summer: **Only when** `time.season: summer`\nEmpty: always. A value of the day can block it too (**Blocks** `modes.<id>`).",
@@ -586,7 +585,7 @@ export const en = {
     when: 'Only when',
     unless: 'Not when',
     whenHelp:
-      "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `trip.weather: storm` — today's weather\n• `hex.terrain: [forest, hills]` — the hex the party is in\n• `hex.tags: shrine` — a tag of that hex\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.resources.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `time.moons.silver: full` — the calendar\n• `time.hour: { gte: 6, lt: 20 }` — only by day, from 06:00 to 20:00; `time.part: night`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `trip.visits: 1` — the first time here; `around.terrain: lake` — next to a lake\n• `trip.doneToday: forage` — after foraging today; `trip.marched: { gte: 6 }` — after 6 hours of marching\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.food: { gte: 10 }` — what the trip has done so far\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — a variable: compared with another value (quoted)\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll: the same all the moment long\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\nOtherwise its button stays disabled and says why (or hides, with **Hidden when it can't be taken**); the halt's action that can't be taken lets the time pass without it.",
+      "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `trip.weather: storm` — today's weather\n• `hex.terrain: [forest, hills]` — the hex the party is in\n• `hex.tags: shrine` — a tag of that hex\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.values.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `time.moons.silver: full` — the calendar\n• `time.hour: { gte: 6, lt: 20 }` — only by day, from 06:00 to 20:00; `time.part: night`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `trip.visits: 1` — the first time here; `around.terrain: lake` — next to a lake\n• `trip.doneToday: forage` — after foraging today; `trip.marched: { gte: 6 }` — after 6 hours of marching\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — what the trip has done so far\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — a variable: compared with another value (quoted)\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll: the same all the moment long\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\nOtherwise its button stays disabled and says why (or hides, with **Hidden when it can't be taken**); the halt's action that can't be taken lets the time pass without it.",
     params: 'Parameters',
     paramsHelp:
       "What the player chooses when taking it (beside its button, a choice for each), and what a `do:` step or **Goes on by itself with** gives it. Each parameter has its **choices** (the first is its default, unless `default` says another); its steps and conditions read the one chosen as `{{params.<id>}}`.\n• `until: { choices: [destination, hex, 3] }` — how far a march goes: with the step `travel.move: '{{params.until}}'`\n• `pace: { choices: [steady, quick], default: steady }` — with **Only when** `params.pace: quick` on a step\nA choice may have a name to show: `{ id: 3, name: Three hexes }` (translated in the pack's locales). Empty: no choices, just the button.\nEach parameter is a row: its id, its **Name**, its **Choices** as pills (drag one onto another to change their order: the first is the default) and its **Default** when it isn’t the first. **YAML** writes them all at once, for a choice’s name.",
@@ -677,11 +676,11 @@ export const en = {
       'travel-mode':
         "The way of travelling from now on, if it can be chosen now (its own conditions hold and nothing blocks it); otherwise nothing changes. With a destination, the route is planned again for it.\n• `modes.boat` — one of the system's ways\n• `'{{params.by}}'` — as the action's parameter says",
       effects:
-        "What changes, one row each: a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.resources.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.resources.food` · `-{{party.stats.mouths}}` — as many as another value\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — its characters\nA change past a value's **Min** or **Max** stops there, and later steps see `trip.below` / `trip.above`.",
+        "What changes, one row each: a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.values.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.items.ration` · `-{{party.stats.mouths}}` — as many as another value\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — its characters\nA change past a value's **Min** or **Max** stops there, and later steps see `trip.below` / `trip.above`.",
       set: 'Values of the day the system declares (**Rules → Values of the day**), one row each; they last until the day ends.\n• `lost` · `true`\n• `ferry` · `true` — what a **Wait for something** step may wait for',
       do: 'Another action of the system, taken now if its conditions hold (otherwise nothing happens). **With** gives its parameters; empty, each takes its default.\n• **March**, with **until** `hex` — one hex of marching\n• a forced march: **Change speed** `1.5`, then **Take another action** March',
       roll: 'What is rolled now; the steps after it wait for its result and see it (`today.<value>` it sets), and for **Continue** if it pauses:\n• a check of the system (**Checks**), whatever its **When**\n• a table, oracle, generator or deck of the system’s packs, e.g. `table.ruins`: no check around it, its result in the journal by its name, its values and changes reach the trip, and an entry with a pause stops it',
-      say: "A line of the system's own in the journal. Values in it are read then:\n• `The porters sing as they walk.`\n• `Across, with {{party.resources.food}} food left.`",
+      say: "A line of the system's own in the journal. Values in it are read then:\n• `The porters sing as they walk.`\n• `Across, with {{party.values.food}} food left.`",
       pause:
         'The trip waits here until the player presses **Continue**, then goes on with the rest. Empty: it just waits; with a text, the waiting box and the journal say it (`The ferry is on the far bank.`).',
       ask: "The trip waits for the player to choose one of this action's **Parameters**, with a button per choice; later steps read the answer, e.g. **Only when** `params.how` is `swim`.",
@@ -759,7 +758,7 @@ export const en = {
     when: 'Only if',
     unless: 'Skip if',
     conditionHelp:
-      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `hex.terrain: forest` — the hex\n• `hex.tags: landmark` — a tag of the hex\n• `trip.edges: [road, river]` — the road or river of the step\n• `hex.danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.resources.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: food` — food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
+      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `hex.terrain: forest` — the hex\n• `hex.tags: landmark` — a tag of the hex\n• `trip.edges: [road, river]` — the road or river of the step\n• `hex.danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.values.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: party.values.food` — the party's food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
     always: 'always',
     never: 'never',
     resolve: 'Rolled on',
@@ -770,7 +769,7 @@ export const en = {
     waits: '— no table —',
     effects: 'Changes',
     effectsHelp:
-      'What the check itself changes when it comes up, with or without a table, one row each (what changes · value): a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.resources.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.resources.food` · `-{{party.stats.mouths}}` — as many as another value says (a variable)\n• `party.members.values.health` · `-1`, `acting.conditions.wounded` · `true` — its characters (every one, whoever acts)\nHow a system writes its rules as data, e.g. a day without enough food: **When** `time.day-end`, **Only if** `trip.below: food`, **Changes** `party.stats.fatigue: 1`.',
+      'What the check itself changes when it comes up, with or without a table, one row each (what changes · value): a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.values.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.items.ration` · `-{{party.stats.mouths}}` — as many as another value says (a variable)\n• `party.members.values.health` · `-1`, `acting.conditions.wounded` · `true` — its characters (every one, whoever acts)\nHow a system writes its rules as data, e.g. a day without enough food: **When** `time.day-end`, **Only if** `trip.below: party.values.food`, **Changes** `party.stats.fatigue: 1`.',
     pause: 'Pause after it',
     pauseHelp:
       'The trip **stops** when this check comes up (after rolling it, if something resolves it) and waits until you press **Continue**: time to describe the place, write lore or decide something. The only way a check stops the trip: without it, a check with no table is just written in the journal.\n• a shrine found on the way, rolled on its table\n• a landmark to describe, with no table\nA table entry can also pause, only when it comes up (`pause: true` on the entry).',
@@ -778,7 +777,7 @@ export const en = {
     contextKey: 'What the table sees',
     contextHelp:
       'Values the table sees **only for this check**, one row each (what the table sees · value):\n• `timeOfDay` · `night` — a night encounter rolled on the day table\n• `danger` · `3` — as if the hex were more dangerous',
-    none: 'No checks: trips only spend time and supplies.',
+    none: 'No checks: trips only pass time and do what their actions do.',
     add: 'Add a check',
     orphans: 'Tables bound to checks these rules don’t have: {events}.',
     removeOrphans: 'Remove them',
@@ -798,17 +797,6 @@ export const en = {
     rolesHelp:
       "Jobs the party's characters take for the journey (lead the way, keep watch, forage…), Forbidden Lands-style: in a trip, each role is given to one character, and the system's checks, tables and actions read the holder and change them:\n• `roles.guide.values.pathfinding: { gte: 2 }` — the guide is good enough\n• `modeWhen: { roll-modes.advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — a table rolled with advantage\n• `roles.lookout.values.health: -1` — an effect on the lookout\nNeeds a sheet.",
     roleName: 'Name',
-    carried: 'Supplies the members carry',
-    carriedHelp:
-      'With characters in the party, a supply here is what they carry between them: the trip shows their sum, its bounds are the sums of theirs, and what the trip spends or gains is shared out among them. Without characters, the party keeps it as a whole.\n• **food**, carried in `rations`, shared out evenly',
-    noSheet: 'This system has no sheet yet (the Sheet tab): the party is played as a whole.',
-    carriedSupply: 'Supply',
-    carriedIn: 'Carried in',
-    carriedInHelp: "The value of the members' sheet that holds each one's share.\n• `rations`",
-    share: 'Shared out',
-    shareHelp:
-      '**evenly** (the default): taken from whoever has most, given to whoever has least, one at a time.\n**in order**: the first member gives (or takes) all it can, then the next.',
-    shareEven: 'even (default)',
   },
   edit: {
     readOnly: 'This system comes bundled and is read-only.',

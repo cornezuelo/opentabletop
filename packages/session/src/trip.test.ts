@@ -29,6 +29,15 @@ const { registry } = loadPacks([
   {
     path: 'sys/travel.yaml',
     content: `
+kind: system
+travel: travel-rules.default
+bindings: bindings.default
+partySheet: sheet.camp
+---
+kind: sheet
+id: camp
+values: { water: { default: 6, min: 0 } }
+---
 kind: travel-rules
 travel:
   hoursPerDay: 8
@@ -37,10 +46,9 @@ travel:
   halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-resources: { water: { min: 0 } }
 checks: [{ event: WEATHER, at: '07:00' }]
 actions:
-  drink: { on: time.day-end, do: [{ effects: { party.resources.water: -1 } }] }
+  drink: { on: time.day-end, do: [{ effects: { party.values.water: -1 } }] }
   march:
     params: { until: { choices: [destination, hex] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
@@ -348,7 +356,7 @@ divisions:
     expect(system.calendar!.describe(session.travel.time)).toMatchObject({ hour: 7 })
   })
 
-  it('starts a trip at dawn of the season, with supplies and declared stats', () => {
+  it("starts a trip at dawn of the season, with the party sheet's values and declared stats", () => {
     const sys = travelSystems(registry).systems.find((s) => s.id === 'sys')!
     const { startDay, session } = startTrip({ system: sys, location: 'a', season: 'summer' })
     expect(startDay).toBe(91)
@@ -356,8 +364,9 @@ divisions:
       location: 'a',
       mode: 'walk',
       time: defaultCalendar.at(91, '07:00'),
-      resources: { water: 6 },
     })
+    // The party's own values start at their defaults.
+    expect(session.party?.values).toEqual({ water: 6 })
     expect(session.stats).toEqual({ luck: 2 })
     expect(startTrip({ system: sys, location: 'a', stats: { luck: 5 } }).session.stats).toEqual({
       luck: 5,
@@ -371,19 +380,6 @@ divisions:
       {},
     )
     expect(startTrip({ system: coreSystem(), location: 'a' }).session.travel.mode).toBe('foot')
-    // 6 of each supply, within the bounds it declares.
-    const bounded = {
-      ...sys,
-      rules: {
-        ...sys.rules,
-        resources: { water: { max: 3 }, oil: { min: 8 }, salt: {} },
-      },
-    }
-    expect(startTrip({ system: bounded, location: 'a' }).session.travel.resources).toEqual({
-      water: 3,
-      oil: 8,
-      salt: 6,
-    })
   })
 
   it('steps through the session, resolving bound checks', () => {
@@ -414,7 +410,7 @@ divisions:
     expect(
       entries.filter((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp'),
     ).toHaveLength(3)
-    expect(state.travel.resources.water).toBe(3)
+    expect(state.party?.values.water).toBe(3)
   })
 
   it('a wait stops at a check nobody answers', () => {
@@ -428,7 +424,7 @@ divisions:
 
   it('checks and actions see the host’s facts (the world clock’s clocks and events)', () => {
     const { registry: clocked } = loadPacks([
-      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
       {
         path: 'w/travel.yaml',
         content: `
@@ -494,10 +490,19 @@ values: { lost: { blocks: [travel.move] } }
 
 describe('values that name another value ($)', () => {
   const { registry: mouths } = loadPacks([
-    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
+    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
     {
       path: 'm/travel.yaml',
       content: `
+kind: system
+travel: travel-rules.default
+bindings: bindings.default
+partySheet: sheet.band
+---
+kind: sheet
+id: band
+values: { food: { default: 6, min: 0 } }
+---
 kind: travel-rules
 travel:
   hoursPerDay: 8
@@ -506,7 +511,6 @@ travel:
   halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-resources: { food: { min: 0 } }
 checks:
   - { event: AMBUSH, at: trip.hex-enter, when: { danger: { gt: '{{party.stats.stealth}}' } } }
 actions:
@@ -516,7 +520,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-  eat: { on: time.day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.values.food: '-{{party.stats.mouths}}' } }] }
   feast: { do: [{ effects: { party.stats.morale: '={{party.stats.mouths}}' } }] }
 values: { lost: { blocks: [travel.move] } }
 ---
@@ -531,7 +535,7 @@ kind: table
 id: ambush
 roll: 1d6
 entries:
-  - { range: 1-6, result: Ambush!, set: { loss: 2 }, effects: { party.resources.food: '-{{loss}}' } }
+  - { range: 1-6, result: Ambush!, set: { loss: 2 }, effects: { party.values.food: '-{{loss}}' } }
 `,
     },
   ])
@@ -559,12 +563,12 @@ entries:
     const ambushed = go(2)
     const result = ambushed.entries.find((e) => e.data?.event === 'AMBUSH')
     // The table's effect reads its own value: −2 food, said as such in the journal.
-    expect(result?.data?.value).toMatchObject({ effects: { 'party.resources.food': -2 } })
+    expect(result?.data?.value).toMatchObject({ effects: { 'party.values.food': -2 } })
   })
 
   it('what tables and actions spend counts in the trip’s totals (trip.spent)', () => {
     const { session } = startTrip({ system, location: 'a' })
-    session.travel.resources.food = 10
+    session.party!.values.food = 10
     const options = {
       system,
       world: danger(2),
@@ -573,24 +577,36 @@ entries:
     const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
     const { state } = stepTrip(options, planned, { type: 'travel' })
     // The ambush's 2, from its table.
-    expect(state.travel.totals).toMatchObject({ hexes: 1, checks: 1, spent: { food: 2 } })
+    expect(state.travel.totals).toMatchObject({
+      hexes: 1,
+      checks: 1,
+      spent: { 'party.values.food': 2 },
+    })
+    // Read by full name (`trip.spent.party.values.food`).
     expect(tripFacts(options, state)).toMatchObject({
-      trip: { hexes: 1, km: state.travel.totals!.hexes * world.hexKm, spent: { food: 2 } },
+      trip: {
+        hexes: 1,
+        km: state.travel.totals!.hexes * world.hexKm,
+        spent: { party: { values: { food: 2 } } },
+      },
     })
     // A day ends: the three mouths eat (an action the system takes by itself).
     const fed = stepTrip(options, state, { type: 'wait', until: state.travel.time + 24 * 60 })
-    expect(fed.state.travel.totals).toMatchObject({ spent: { food: 5 }, taken: { eat: 1 } })
+    expect(fed.state.travel.totals).toMatchObject({
+      spent: { 'party.values.food': 5 },
+      taken: { eat: 1 },
+    })
   })
 
   it('in effects: as many as a stat says, or set to it', () => {
     const { session } = startTrip({ system, location: 'a' })
-    session.travel.resources.food = 10
+    session.party!.values.food = 10
     const options = { system, world }
     const fed = stepTrip(options, session, {
       type: 'wait',
       until: session.travel.time + 24 * 60,
     }).state
-    expect(fed.travel.resources.food).toBe(7) // three mouths
+    expect(fed.party!.values.food).toBe(7) // three mouths
     const feast = stepTrip(options, session, { type: 'action', id: 'feast' }).state
     expect(feast.stats.morale).toBe(3)
   })
@@ -637,7 +653,6 @@ describe("Core's system: the Generic rules as data", () => {
       session,
       { effects: { 'party.values.morale': '=0' } },
       core.bindings?.stats,
-      {},
       partyOf(core),
     )
     const step = stepTrip({ system: core, world: road }, low, { type: 'action', id: 'rest' })
@@ -685,8 +700,7 @@ describe("Core's system: the Generic rules as data", () => {
     const system = coreSystem()
     const { session } = startTrip({ system, location: '0' })
     expect(system.calendar!.describe(session.travel.time)).toMatchObject({ hour: 6 })
-    expect(session.travel.resources.food).toBe(6)
-    expect(session.party?.values.morale).toBe(3)
+    expect(session.party?.values).toMatchObject({ morale: 3, food: 6 })
     // The weather check rolls the plain sky each morning (a spring day starts cloudy).
     const { registry } = loadPacks(corePack())
     const oracle = createOracleEngine({ registry, random: seeded(1) })
@@ -704,7 +718,7 @@ describe("Core's system: the Generic rules as data", () => {
     // Going on by itself (a wait), the party halts at night (camp) and eats at midnight.
     const until = system.calendar!.at(2, '12:00')
     const next = stepTrip(options, day.state, { type: 'wait', until }).state
-    expect(next.travel.resources.food).toBe(5)
+    expect(next.party?.values.food).toBe(5)
     expect(next.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp')).toBe(
       true,
     )

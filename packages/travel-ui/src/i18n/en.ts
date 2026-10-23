@@ -8,11 +8,10 @@ export const en = {
     'This system rolls its checks on tables and writes the results in the journal. Checks without a table are only written in the journal, unless they pause.',
   noBindings:
     'These rules have no tables bound: checks are only written in the journal, and stop the trip when they pause.',
-  noChecks: 'These rules have no checks: a trip only spends time and supplies.',
+  noChecks: 'These rules have no checks: a trip only passes time and does what its actions do.',
   marched: 'Marched today: {used} of {limit} h',
   /** The trip panel's sections' headings. */
   section: {
-    supplies: vocabulary.en.terms.supplies,
     stats: 'Stats',
   },
   totals: {
@@ -60,7 +59,7 @@ export const en = {
   filter: {
     level: 'Show',
     levelHelp:
-      'How much of what happened the journal shows. Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes\n• **And the rules** — also what the rules did: hexes entered, actions taken, checks, changes to the supplies and stats, values that hit a bound (as the journal always showed)\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the hex’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
+      'How much of what happened the journal shows. Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes\n• **And the rules** — also what the rules did: hexes entered, actions taken, checks, changes to the party and its characters, values that hit a bound (as the journal always showed)\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the hex’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
     levels: { story: 'The story', mechanics: 'And the rules', detail: 'Everything' },
     topics: {
       travel: 'Trip',
@@ -84,17 +83,13 @@ export const en = {
     readBy: '**Read by:** {names}.',
     changedBy: '**Changed by:** {names}.',
     totals:
-      'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from each supply or added to it (your own edits of the amounts don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.hexes`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
+      'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from the party’s values and items or added to them (your own edits don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.hexes`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
     exportJournal:
       'Download the journal as Markdown, a heading per day, with the lines the filter shows: for your notes app (SilverBullet, Obsidian…) or to print.',
-    newTrip: 'Restart time, supplies and journal, keeping the party where it is.',
+    newTrip: 'Restart time, the party’s sheet and journal, keeping the party where it is.',
     marched:
       'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain, the road and the way of travelling, as the system sets them. For example, if a way of travelling makes 24 km in 8 h and hexes are 12 km:\n• open ground (× 1): 4 h a hex\n• a terrain at × 0.5: 8 h a hex\n• a road at × 1.5: under 3 h a hex',
-    resource:
-      'Supplies: what uses them depends on the system (its actions, like eating at the end of each day, its checks and tables). Edit the amount when you buy, find or use some.',
-    min: 'It never goes below {min}: what hits that minimum is told in the journal, and the system’s rules may react to it.',
-    max: 'It never goes above {max}.',
     goOn: 'Goes on with “{action}”, which stopped on the way for a check: the rest of its move, then the rest of what it does. Taking another action or waiting leaves it.',
     waitOnward:
       'Time passes where the party is until it can take “{action}” again (how the trip goes on by itself, as the system says), living it: if it could now, that chance goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t go on, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
@@ -127,7 +122,7 @@ export const en = {
     land: 'land',
     clock: 'Clock “{name}”',
     title: 'Characters',
-    help: "The party's characters, made with the system's sheet. With them, the party is its members: the stats the system makes of theirs (the best Survival, how many they are…) and the supplies they carry follow them, and effects can reach each one. Without any, the party is played as a whole.\nConditions and tables read them:\n• `party.members: kael` — whether Kael travels with the party\n• `characters.kael.values.health: { lte: 1 }` — one of them\n• `acting.values.wits` — whoever acts now",
+    help: "The party's characters, made with the system's sheet. With them, the party is its members: the stats the system makes of theirs (the best Survival, how many they are…) follow them, the party’s items are theirs together (what it eats is taken from what they carry), and effects can reach each one. Without any, the party is played as a whole.\nConditions and tables read them:\n• `party.members: kael` — whether Kael travels with the party\n• `characters.kael.values.health: { lte: 1 }` — one of them\n• `acting.values.wits` — whoever acts now",
     none: 'No characters: the party is played as a whole.',
     add: 'Add a character',
     newName: 'Character',
@@ -156,7 +151,6 @@ export const en = {
     whoActs: 'Whoever acts',
     fromMembers:
       'Made of the characters’ values while the party has any (the system’s rule): edit theirs.',
-    carried: 'What the characters carry between them: edit each one’s share in their sheets.',
   },
   /** Why a button is disabled. */
   blocked: {

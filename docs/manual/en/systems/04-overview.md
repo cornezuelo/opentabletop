@@ -35,7 +35,7 @@ Each line says how the place uses it, then which place it is and the part of it:
 - **reads it**: a condition or a `{{…}}` (`when`, `modeWhen.advantage`, a table's `roll`);
 - **changes it**: effects (`entries.bandits.effects`);
 - **sets it**: `set`, a value of the day (`do[3].set`);
-- **is made of it**: a party stat's **From the sheets**, or a supply the characters carry.
+- **is made of it**: a party stat's **From the sheets**, or a value **Made of** it.
 
 An action or a check opens its tab here; a table, oracle, generator or deck opens in the Oracle (↗). A name that nothing in the system declares, and that the apps don't give either (`hex.…`, `trip.…`, `time.…`), says so, with the names it looks like: often a typo (`pathfindng` for `pathfinding`).
 
@@ -43,7 +43,7 @@ What it doesn't see: what a map gives (a hex's or an icon's own values), what th
 
 ## Used by
 
-The rows of what a system declares have a **Used by** column with the same lists: party stats and journey roles in [Checks](06-checks.md); ways of travelling, terrains, roads and rivers, supplies, kinds of weather, values of the day and each action in [Rules](05-rules.md); each [sheet](07-sheet.md)'s values, conditions and kinds of relation; [factions](09-factions.md); [clocks](10-clocks.md); the [calendar](11-calendar.md)'s months and parts of the day (a moment as one begins, `time.part.morning`, or a condition on it); and [roll modes](13-roll-modes.md) (the tables that offer each or take it by themselves). Besides reading, changing, setting or being made of something, a place may **name** it: an action taken by another's step (`do: actions.march`), a way of travelling a value blocks (`blocks: [modes.horse]`), a table another rolls (`roll: table.ruins`, a table entry's next table). A check has none: its moments take it, and its card says them. Its number is how many places use the row; press it to see them under the row. **–** means nothing uses it yet: often fine (a value only the player reads), sometimes a slip (a stat no table reads, a name written differently).
+The rows of what a system declares have a **Used by** column with the same lists: party stats and journey roles in [Checks](06-checks.md); ways of travelling, terrains, roads and rivers, kinds of weather, values of the day and each action in [Rules](05-rules.md); each [sheet](07-sheet.md)'s values, conditions and kinds of relation; [factions](09-factions.md); [clocks](10-clocks.md); the [calendar](11-calendar.md)'s months and parts of the day (a moment as one begins, `time.part.morning`, or a condition on it); and [roll modes](13-roll-modes.md) (the tables that offer each or take it by themselves). Besides reading, changing, setting or being made of something, a place may **name** it: an action taken by another's step (`do: actions.march`), a way of travelling a value blocks (`blocks: [modes.horse]`), a table another rolls (`roll: table.ruins`, a table entry's next table). A check has none: its moments take it, and its card says them. Its number is how many places use the row; press it to see them under the row. **–** means nothing uses it yet: often fine (a value only the player reads), sometimes a slip (a stat no table reads, a name written differently).
 
 In the Grey Marches, the companions' **Pathfinding** (Sheet) shows two places: the party stat Navigation is made of it (the best among them), and the table _Do we get lost?_ reads the guide's (`roles.guide.values.pathfinding`, in its roll mode by itself: advantage).
 

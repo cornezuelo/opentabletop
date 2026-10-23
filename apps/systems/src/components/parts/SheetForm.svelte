@@ -4,6 +4,7 @@
   import { createCharacter, DISPLAYS, parseSheet, TONES } from '@open-tabletop/character-engine'
   import { CharacterCard } from '@open-tabletop/character-ui'
   import { InfoTip } from '@open-tabletop/ui-kit'
+  import { PairEditor } from '@open-tabletop/pack-ui'
   import { getLocale, t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
   import type { PartDoc } from '../../lib/partDoc.svelte'
@@ -54,6 +55,12 @@
     Object.keys(((data?.items as Record<string, unknown>)?.fields as object) ?? {}),
   )
   const size = $derived((data?.items as Record<string, unknown> | undefined)?.size)
+  const share = $derived((data?.items as Record<string, unknown> | undefined)?.share)
+  const start = $derived((data?.items as Record<string, unknown> | undefined)?.start)
+  /** The items of the system's catalogues, by id: what a new character may start with. */
+  const catalogueIds = $derived([
+    ...new Set((system?.items ?? []).flatMap((c) => Object.keys(c.def.items))),
+  ])
   /** Tones suggested after a threshold (`0: danger`). */
   const toneHints = Object.fromEntries(['0', '1', '2', '3'].map((at) => [at, TONES]))
 
@@ -339,6 +346,31 @@
         {#each itemFields as id (id)}<option value={id}>{id}</option>{/each}
       </select>
     </label>
+    <label class="name">
+      <span>{t('sheet.share')}<InfoTip text={t('sheet.shareHelp')} /></span>
+      <select
+        value={typeof share === 'string' ? share : ''}
+        {disabled}
+        onchange={(e) => doc.edit('', ['items', 'share'], e.currentTarget.value || undefined)}
+      >
+        <option value="">{t('sheet.shareEven')}</option>
+        <option value="order">order</option>
+      </select>
+    </label>
+    <div class="name">
+      <span>{t('sheet.start')}<InfoTip text={t('sheet.startHelp')} /></span>
+      <PairEditor
+        value={start ?? {}}
+        keys={catalogueIds}
+        fresh={1}
+        keyLabel={t('sheet.startItem')}
+        locale={getLocale()}
+        {disabled}
+        label={t('sheet.start')}
+        onchange={(map) =>
+          doc.edit('', ['items', 'start'], map && Object.keys(map).length ? map : undefined)}
+      />
+    </div>
   </section>
 
   <section>

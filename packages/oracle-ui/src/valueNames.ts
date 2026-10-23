@@ -38,15 +38,7 @@ export const BUILT_IN_VALUES = [
   'common',
   'commonCount',
 ] as const
-const BUILT_IN_FAMILIES = [
-  'moons',
-  'party.stats',
-  'party.resources',
-  'yesterday',
-  'around',
-  'icon',
-  'token',
-]
+const BUILT_IN_FAMILIES = ['moons', 'party.stats', 'yesterday', 'around', 'icon', 'token']
 
 type Text = LocalizedText | undefined
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -54,7 +46,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 
 /**
  * Names for the values tables read, from three places: the facts the apps give (named by
- * the app's dictionary), each system's stats and supplies, and the values its bindings
+ * the app's dictionary), each system's stats and values of the day, and the values its bindings
  * declare it reads (`reads: { icon.guards: { name, description } }`), translated like the
  * rest of the pack. Undefined when nobody names it: the key is shown as it is.
  */
@@ -88,13 +80,6 @@ export function valueNames(
           for (const [id, v] of Object.entries(isRecord(data.values) ? data.values : {}))
             if (isRecord(v) && v.name !== undefined)
               out.set(id, { name: v.name as Text, description: v.description as Text })
-        if (extra.kind === 'travel-rules')
-          for (const [id, r] of Object.entries(isRecord(data.resources) ? data.resources : {}))
-            if (isRecord(r) && r.name !== undefined)
-              out.set(`party.resources.${id}`, {
-                name: r.name as Text,
-                description: r.description as Text,
-              })
       }
     return out
   }

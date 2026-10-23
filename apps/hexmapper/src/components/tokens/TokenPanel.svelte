@@ -12,6 +12,7 @@
   import {
     characterId,
     keepInRoster,
+    partyOf,
     playingAt,
     samePlace,
     takeFromRoster,
@@ -78,7 +79,12 @@
   )
   function giveSheet() {
     if (!sheet || !selected) return
-    const made = createCharacter(sheet.def, sheet.id, { id: selected.id })
+    const made = createCharacter(
+      sheet.def,
+      sheet.id,
+      { id: selected.id },
+      partyOf(activeSystem()).items,
+    )
     const character: Partial<typeof made> = { ...made }
     delete character.id
     update((tk) => ({ ...tk, character: character as MapToken['character'] }))

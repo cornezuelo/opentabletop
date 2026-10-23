@@ -27,7 +27,6 @@
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyWorldEffects } from '../lib/play/world.svelte'
   import { applyResult, partyOf, tripChanges } from '@open-tabletop/session'
-  import { resourceBounds } from '@open-tabletop/travel-engine'
   import { activeSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { editor } from '../lib/store/editor.svelte'
@@ -144,7 +143,6 @@
                     session,
                     item.resolution.value,
                     system.bindings?.stats,
-                    resourceBounds(system.rules),
                     partyOf(system),
                   ),
                 )

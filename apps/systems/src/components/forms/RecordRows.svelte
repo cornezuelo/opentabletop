@@ -70,7 +70,7 @@
   import UsesList from '../uses/UsesList.svelte'
 
   /**
-   * A map of the rules keyed by id (terrains, modes, resources…), each entry its id, one
+   * A map of the rules keyed by id (terrains, modes, weather…), each entry its id, one
    * field per column and a button to remove it. Short entries are rows of a table; entries
    * with conditions, maps or many fields are folded cards (like actions and checks), their
    * fields in two columns, with a search when there are many.

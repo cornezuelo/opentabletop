@@ -7,6 +7,7 @@ import {
   lookupItems,
   parseCatalogue,
   parseSheet,
+  shareItems,
   type CharacterState,
   type Sheet,
 } from './index'
@@ -209,5 +210,41 @@ describe('items', () => {
     s = act(s, { type: 'setPlace', id: 'tail', place: null }).state
     expect(s.places).toBeUndefined()
     expect(s.items![0].place).toBeUndefined()
+  })
+
+  it('shares what the party spends or gains out among its members', () => {
+    const band = () =>
+      [
+        ['mira', 3],
+        ['kael', 1],
+        ['oro', 0],
+      ].map(([id, torches]) => {
+        let m = createCharacter(sheet!, 'test/delver', { id: id as string })
+        if (torches) m = act(m, { type: 'change', effects: { 'items.rope': torches } }).state
+        return m
+      })
+    const counts = (ms: CharacterState[]) =>
+      ms.map((m) => (m.items ?? []).reduce((n, i) => n + i.count, 0))
+    // Even: taken from whoever has most, one at a time; given to whoever has least.
+    const taken = shareItems(() => sheet, band(), 'rope', -3, 'even', { items: lookup })
+    expect(counts(taken.members)).toEqual([0, 1, 0])
+    expect(taken.left).toBe(0)
+    const given = shareItems(() => sheet, band(), 'rope', 3, 'even', { items: lookup })
+    expect(counts(given.members)).toEqual([3, 2, 2])
+    // More than they have: what's left stays undone.
+    const tooMuch = shareItems(() => sheet, band(), 'rope', -6, 'even', { items: lookup })
+    expect(counts(tooMuch.members)).toEqual([0, 0, 0])
+    expect(tooMuch.left).toBe(2)
+    expect(tooMuch.events).toContainEqual(
+      expect.objectContaining({ type: 'ITEM_REMOVED', character: 'mira', item: 'rope' }),
+    )
+    // In order: the first member first.
+    const inOrder = shareItems(() => sheet, band(), 'rope', -2, 'order', { items: lookup })
+    expect(counts(inOrder.members)).toEqual([1, 1, 0])
+    const gainOrder = shareItems(() => sheet, band(), 'rope', 2, 'order', { items: lookup })
+    expect(counts(gainOrder.members)).toEqual([5, 1, 0])
+    // What holds by itself follows: seven ropes are past a capacity of 6.
+    const loaded = shareItems(() => sheet, band(), 'rope', 4, 'order', { items: lookup })
+    expect(loaded.members[0].conditions.encumbered).toEqual({})
   })
 })

@@ -80,7 +80,7 @@ export function changesWords(value: unknown, names: Pick<StepNames, 'change'>): 
     .join(', ')
 }
 
-/** A map without braces: `party.stats.fatigue: 1, party.resources.food: -1`. */
+/** A map without braces: `party.stats.fatigue: 1, party.values.food: -1`. */
 const bare = (value: unknown) => flowText(value).replace(/^\{\s*|\s*\}$/g, '')
 
 /** A time or limit (`180`, `'14:00'`, `time.part.morning`) in words. */

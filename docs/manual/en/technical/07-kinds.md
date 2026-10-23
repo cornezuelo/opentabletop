@@ -11,7 +11,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `generator`    | Several rolls joined in one text                                        | The Oracle; anything that rolls, when it names it (below)                            | Any               |
 | `deck`         | Cards drawn without putting them back                                   | The Oracle; anything that rolls, when it names it (it draws a card)                  | Any               |
 | `roll-modes`   | Ways of rolling a table several times and keeping one total             | The Oracle (every roll)                                                              | One               |
-| `travel-rules` | How a trip works: speeds, terrains, supplies, actions, checks           | Hexmapper Play, the Travel app                                                       | One per system    |
+| `travel-rules` | How a trip works: speeds, terrains, actions, checks                     | Hexmapper Play, the Travel app                                                       | One per system    |
 | `bindings`     | Which table answers each check of a trip, the party's stats             | Hexmapper Play, the Travel app                                                       | One per system    |
 | `calendar`     | Months, seasons, weekdays, moons and holidays                           | Trips, the world clock (the Hexmapper's World panel, the Campaign app)               | One per system    |
 | `weather`      | Weather with memory: today's follows from yesterday's, per season       | Trips (a binding with `weather:`)                                                    | Any               |
@@ -85,7 +85,7 @@ reshuffle: when-empty # when-empty, manual or after-draw
 cards:
   - { id: crows, result: Crows follow you all day, count: 3 } # three copies
   - { id: stranger, result: 'A stranger on the road: {{result}}', table: generator.npc }
-  - { id: cache, result: 'A hunter’s cache', effects: { party.resources.food: 2 } }
+  - { id: cache, result: 'A hunter’s cache', effects: { party.items.ration: 2 } }
   - { id: wyrm-sign, result: Scorched trees, set: { omen: wyrm }, pause: true }
 ```
 
@@ -133,7 +133,7 @@ When several apply (one chosen by hand plus some on their own), the ones that ca
 
 ## Travel rules
 
-How a trip works: when trips start, the scale of their speeds (`hoursPerDay`), how the trip goes on by itself (`travel.onward`: an action and its parameters) and what the party does when it can't march (`travel.halt`), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), supplies (with their `min` / `max`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel.move`, one of its actions (`actions.forage`) or `modes.<id>`), the party's **actions** (only the ones it declares, all alike: march, camp, rest, foraging…; `when` / `unless`, `oncePerDay`, `params` (what is chosen when taking it, read as `{{params.<id>}}`), `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `travel.move`, `travel.speed`, `travel.advance`, `effects`, `set`, `do` (with `with:`), `roll`) and the **checks**: what is rolled at a clock or a part of the calendar's day (the morning), on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Systems app's [Rules](../systems/05-rules.md) and [Checks](../systems/06-checks.md) tabs.
+How a trip works: when trips start, the scale of their speeds (`hoursPerDay`), how the trip goes on by itself (`travel.onward`: an action and its parameters) and what the party does when it can't march (`travel.halt`), terrains and their speeds and whether they can be entered (`passable`: `false`, or `{ when, unless }` for a pass closed in winter or a lake crossed on the ice), water (the same), roads and rivers, ways of travelling (km per day, where they can go: `through`, and when they can be chosen: `when` / `unless`), weather that slows you down, its **values of the day** (`values`: `lost` with what it `blocks`: `travel.move`, one of its actions (`actions.forage`) or `modes.<id>`), the party's **actions** (only the ones it declares, all alike: march, camp, rest, foraging…; `when` / `unless`, `oncePerDay`, `params` (what is chosen when taking it, read as `{{params.<id>}}`), `on:` for those the system takes by itself at a moment or after another action (or several: a list), and their steps, `do`: `time`, `travel.move`, `travel.speed`, `travel.advance`, `effects`, `set`, `do` (with `with:`), `roll`) and the **checks**: what is rolled at a clock or a part of the calendar's day (the morning), on entering a hex, at the end of the day, with an action (camping, for example) or only by a step's `roll:`, and when (`when` / `unless`); a check may have `effects` of its own and `pause: true` (stop after it until **Continue**). A pack with travel rules is a **system** you can play in the Hexmapper (Play → With rules) and the Travel app. In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md) and the Systems app's [Rules](../systems/05-rules.md) and [Checks](../systems/06-checks.md) tabs.
 
 Every key, in a small system (the comments say what each does):
 
@@ -163,8 +163,6 @@ terrains:
 defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
 water: { passable: false } # water hexes without a rule of their own
 edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
-resources: # supplies, with their bounds (a new trip starts with 6, within them)
-  food: { name: Rations, min: 0 }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set
   lost: { name: Lost, blocks: [travel.move] }
@@ -172,10 +170,10 @@ values: # values of the day tables and actions set
   torchlit: { name: By torchlight }
 actions:
   camp:
-    when: { party.resources.food: { gte: 1 } } # otherwise the halt passes without it
+    when: { party.values.food: { gte: 1 } } # otherwise the halt passes without it
     do:
       - { time: '06:00' }
-      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }
   rest:
     when: { time.hour: { gte: 6, lt: 20 } }
     do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }]
@@ -203,7 +201,8 @@ actions:
     unless: { trip.weather: storm }
     nothing: 'nothing to forage on {terrain}' # the journal when no check applies
     do: [{ time: 180 }, { travel.speed: 0.5 }]
-  eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] } # not a button
+  # not a button; the food is a value of the party's sheet (`partySheet` in its system)
+  eat: { on: time.day-end, do: [{ effects: { party.values.food: -1 } }] }
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
   - {
@@ -221,7 +220,7 @@ checks:
   - {
       event: HUNGRY_DAY,
       at: time.day-end,
-      when: { trip.below: food },
+      when: { trip.below: party.values.food },
       effects: { party.stats.fatigue: 1 },
     }
   - { event: SHRINE_CHECK_REQUIRED, at: trip.hex-enter, when: { hex.tags: shrine }, pause: true }
@@ -229,15 +228,15 @@ checks:
 
 A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the calendar's day, `time.meal.luncheon`: until it next comes), `travel.move` (along the route while time passes and the action's `when` / `unless` hold: `destination`, `hex`, a number of hexes or a variable), `travel.speed` (the rest of today's moving), `travel.advance` (that many hexes along the route at once, a number or a variable), `travel.mode` (another way of travelling, if it can be chosen), `effects`, `set`, `do` (another action, with `with:` its parameters), `roll` (a check, or something of the Oracle: `table.<id>`…), `say` (a line in the journal), `pause` (`true` or a text: the trip waits for **Continue**), `ask` (one of the action's parameters, chosen by the player as the action goes) or `wait` (a condition, with `limit:` the most it waits); each step may have `when` / `unless`, and an `id` its translations name it by. Every step, with examples: [Actions and steps](10-actions-and-steps.md). An action's `params` each have `choices` (values, or `{ id, name, description }`) and maybe a `default` (else the first); a `with:` gives a choice or a variable (`'{{params.until}}'`). An action's `on:` is `trip.hex-enter`, `time.day-end`, a clock (`'06:00'`: as it strikes) or a part of the calendar's day (`time.meal.elevenses`: as it begins), while marching, waiting or asleep in camp (see [Divisions of the day](#calendars)), another action, `actions.camp`, or its end, `actions.camp.done`, one of its checks right after it's resolved, `checks.WEATHER_CHECK_REQUIRED`, or one of the system's progress clocks filling, `world.clocks.<id>.full` (or a list). `travel.start` and the halt's `at` take a clock or a part (`halt: { at: time.meal.supper, do: actions.camp }`). A check's `at:` takes the same moments (or a list); without `at`, only a step's `roll:` rolls it. The checks of one moment are decided one by one, in the list's order, each just before it's rolled: its `when` / `unless` see what the ones before it set (the weather, values of the day, `effects`); one that pauses holds the rest of its moment until the player goes on. Values of the day last until the day ends (`lasts: day`, the only choice for now).
 
-**Nothing the system doesn't declare.** Without an action with a `travel.move` step, the party never moves along its route (a march without `when` moves whenever nothing else stops it: a value of the day, the weather, the way, day and night); without `onward`, the trip going on by itself only waits; without `halt`, a party that can't march just waits; without actions, there are none (no march, camp or rest of the engine's own); without `values`, there are none. What blocks `travel.move` blocks the actions that move too. A move a check stops on the way stays under way: going on (**Go on**) finishes it, then the steps after it. The **halt** (`travel.halt`): from its moment until the day ends, a party that isn't marching while the time moves on by itself (the world clock, a travel order while its way on can't be taken, **Wait to go on**) takes its action, once a day; when it can't (its `when` / `unless`, a value that blocks it), the journal says so and the time passes until the trip can go on.
+**Nothing the system doesn't declare.** There are no supplies in the rules: what the party carries is its sheet's values (`party.values.food`) or items (`party.items.ration`, its own and its characters' together), with their bounds; an action's later steps see what earlier ones changed of them. Without an action with a `travel.move` step, the party never moves along its route (a march without `when` moves whenever nothing else stops it: a value of the day, the weather, the way, day and night); without `onward`, the trip going on by itself only waits; without `halt`, a party that can't march just waits; without actions, there are none (no march, camp or rest of the engine's own); without `values`, there are none. What blocks `travel.move` blocks the actions that move too. A move a check stops on the way stays under way: going on (**Go on**) finishes it, then the steps after it. The **halt** (`travel.halt`): from its moment until the day ends, a party that isn't marching while the time moves on by itself (the world clock, a travel order while its way on can't be taken, **Wait to go on**) takes its action, once a day; when it can't (its `when` / `unless`, a value that blocks it), the journal says so and the time passes until the trip can go on.
 
 Packs written for an older pack format aren't read (see [File formats](02-file-formats.md#packs)).
 
-**What tables see:** the trip's facts (`hex.terrain`, `trip.edges`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<value>`…) and the party (`party.resources.food`, `party.stats.fatigue`): the full list is in [What tables see](04-what-tables-see.md).
+**What tables see:** the trip's facts (`hex.terrain`, `trip.edges`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<value>`…) and the party (`party.stats.fatigue`, `party.values.food`, `party.items.ration.count`): the full list is in [What tables see](04-what-tables-see.md).
 
 ## Bindings
 
-The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{party.stats.charisma}}`), and which of them come from its characters (`from`); the supplies its characters **carry** (`resources`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+The other half of a system: which table (`resolve:`) or weather model (`weather:`) answers each check, with extra `context`; the party's **stats** (name, description, starting value) that tables read (`{{party.stats.charisma}}`), and which of them come from its characters (`from`); **reads**, names for the other values its tables read (`icon.guards`, `fordModifier`…); and **discovery** (which tables decide empty hexes). In detail: [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
 ```yaml
 kind: bindings
@@ -250,8 +249,6 @@ stats: # the party's numbers, edited during the trip
   navigation: { name: Navigation, default: 0, from: { max: pathfinding } }
   # or how many eat, leaving none out (without characters: 1, its default).
   mouths: { name: Mouths, default: 1, from: { count: true } }
-resources: # with characters, the food is what they carry between them (their rations)
-  food: { carried: rations, share: even }
 roles: # journey roles the player gives the characters (read as roles.<id>)
   guide: { name: Guide, description: Leads the way. }
 reads: # names for other values its tables read (shown in the roll panel and on the map)
@@ -277,8 +274,6 @@ A check with no binding is written in the journal (with its `effects`, if it has
 - `party: <value>` — not the characters' but a value of the party's own sheet (`partySheet`), always: see [Sheets](#sheets).
 - `when` / `unless` — only the characters this [condition](08-conditions.md) holds for, read with each one's values (`unless: { conditions: wounded }`, `when: { values.health: { gt: 0 } }`).
 - `none` — what it is when no character counts (default 0).
-
-**Carried supplies** (`resources`): with characters, the supply named (an id of the travel rules' `resources`) is what they carry in a value of their sheet (`carried: rations`): the trip shows their sum, its bounds are the sums of theirs, and whatever the trip spends or gains is shared out among them: `share: even` (the default: taken from whoever has most, given to whoever has least, one at a time) or `share: order` (the first character first). Without characters, the party keeps it as a whole.
 
 **Journey roles** (`roles`): jobs the player gives the characters in a trip (lead the way, keep watch, forage…), each with a `name` and `description` for players. Checks, tables and actions read whoever holds one as `roles.<id>.…` (`roles.guide.values.pathfinding: { gte: 2 }`) and their effects reach them (`roles.lookout.values.health: -1`); with nobody in the role, what reads it doesn't hold and its effects change nothing.
 
@@ -375,7 +370,7 @@ The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches
 
 ## Sheets
 
-What each of the party's characters has, when a system plays them one by one (`sheet:` in its [system](#systems)). Trips then have a **Characters** section where you add them, choose who is acting and change their values; the party's stats and supplies can come from them ([bindings](#bindings): `from`, `resources`). PCs, companions, hirelings or enemies are all characters of a sheet.
+What each of the party's characters has, when a system plays them one by one (`sheet:` in its [system](#systems)). Trips then have a **Characters** section where you add them, choose who is acting and change their values; the party's stats can come from them ([bindings](#bindings): `from`), and the party's items are theirs together (`items.share`, below). PCs, companions, hirelings or enemies are all characters of a sheet.
 
 ```yaml
 kind: sheet
@@ -395,7 +390,7 @@ values: # numbers each character has, with the bounds the system gives them (non
       tones: { 0: danger, 50%: warning, 75%: good },
       group: body,
     }
-  rations: { name: Rations, default: 2, min: 0, max: 6, display: of } # 2 / 6
+  water: { name: Water, default: 2, min: 0, max: 6, display: of } # 2 / 6
   dread: { name: Dread, default: 0, min: 0, max: 6, display: boxes } # 6 boxes
   harm: # a name for each value, from its min: 0 is Unhurt, 3 is Dying
     display: levels
@@ -427,11 +422,11 @@ relations: # kinds of relation a character may hold to anything with a reference
 
 - `values`: `default` (what a new character has, 0 if missing), `min` / `max` (a number, or the sheet's other values in braces, `'{{self.values.<id>}}'` or with [arithmetic](09-syntax.md#variables), `'{{self.values.might * 2}}'`: the value falls when that one does), `from` (a value **made of others**, `'{{self.values.maxHealth - self.values.health}}'`: never set by hand nor by effects, it follows them after every change, within its own `min` / `max`; only the sheet's values, no dice, no `default`, never made of itself; an effect on it changes nothing and the journal says so), `display` (how it's drawn: `number`, the default; `of`, the number and its max; `bar`; `boxes`; `pips`, round dots; `dial`, a round clock; `levels`, a name from `levels`; all but `number` and `levels` need a `max`, and draw as many boxes, dots or segments as it), `levels` (with `display: levels`: names in order, each an id or `{ id, name, description }`, the first for the value's `min` or 0; beyond them the number shows), `tones` (a colour from a value up, `{ 0: danger, 2: warning, 4: good }`, or from a share of its max as it is now, `{ 0: danger, 50%: warning, 75%: good }` (it needs a `max`), among `good`, `warning`, `danger` and `accent`), `group` (one of `groups`, each a card). `track: true`, the older form, is `display: boxes`. How a value is shown changes nothing of how it plays. See [Sheet](../systems/07-sheet.md#how-values-are-shown).
 - `conditions`: `blocks` lists what the whole party can't do while any of its characters has it: an action (`actions.<id>`), `travel.move`, or a way of travelling (`modes.<id>`). The trip says who has it. `when` makes it **hold by itself** while a [condition](08-conditions.md) does, never set or cleared by hand nor by effects (an effect on it changes nothing, and the journal says so): it reads the character as `self.*` (`self.values.dread: { gte: 6 }`, `self.conditions: wounded`, `self.tags`) and, on a trip, the world as tables see it (`trip.mode: boat`, `time.season: winter`, `hex.terrain`…). It's settled after every change (an effect, a result, a hand edit on the card, a step of the trip, a world turn); one that reads the world follows it on the trip, and stays as last seen away from one (the Characters app). A state is a condition with `when`; something that happens once (a line, an effect) is an [action](10-actions-and-steps.md).
-- `items` (optional): what every item has and where it goes. `fields`: numbers each item has, like values (`default`, `min`, `max`, `display`, `levels`, `tones`), and `spent: true` for one that runs out (reaching its `min` uses one item up: the count goes down and the next starts again; it needs a `min`); never named like an item's own keys (`name`, `tags`, `count`, `place`…). `places`: where items may be, each with `tags` (what `fits` reads) and `room` (a number, or the sheet's values in braces). `size`: the field that fills a place's room (× how many; missing: one per item). A value can be **made of the items**: `from: { sum: items.slots }`, `{ max: items.armour, where: … }`, `{ min: … }`, `{ count: items }` (how many), `where` a condition on each item (`item.id`, `item.tags`, `item.place`, `item.within`, the place at the top, `item.inside`, in a container, its fields) and its place (`place.tags`). Tables read a character's items as `characters.<id>.items.<item>.count` (and the first one's fields, `….items.torch.uses`), `….items.tags` (every tag) and `….places.<place>.used` / `.room`; effects change them, `acting.items.torch: -1`, `party.members.items.torch.uses: -1`. See [Items](../systems/08-items.md) and the [catalogues](#item-catalogues).
+- `items` (optional): what every item has and where it goes. `fields`: numbers each item has, like values (`default`, `min`, `max`, `display`, `levels`, `tones`), and `spent: true` for one that runs out (reaching its `min` uses one item up: the count goes down and the next starts again; it needs a `min`); never named like an item's own keys (`name`, `tags`, `count`, `place`…). `places`: where items may be, each with `tags` (what `fits` reads) and `room` (a number, or the sheet's values in braces). `size`: the field that fills a place's room (× how many; missing: one per item). `share`: how what the party spends or gains of an item is shared out among characters of this sheet: `even` (the default: taken from whoever carries most, given to whoever carries least, one at a time) or `order` (the first character first). `start`: what a new character of this sheet carries, from the system's catalogues (`start: { ration: 2 }`); on the party's own sheet, what a new trip starts with. A value can be **made of the items**: `from: { sum: items.slots }`, `{ max: items.armour, where: … }`, `{ min: … }`, `{ count: items }` (how many), `where` a condition on each item (`item.id`, `item.tags`, `item.place`, `item.within`, the place at the top, `item.inside`, in a container, its fields) and its place (`place.tags`). Tables read a character's items as `characters.<id>.items.<item>.count` (and the first one's fields, `….items.torch.uses`), `….items.tags` (every tag) and `….places.<place>.used` / `.room`; effects change them, `acting.items.torch: -1`, `party.members.items.torch.uses: -1`. See [Items](../systems/08-items.md) and the [catalogues](#item-catalogues).
 - `relations`: what a character may be tied to, by reference (`character:mara`, `poi:<id>`, `region:<name>`, `hex:<col,row>`, a note…), each relation of one of these kinds, with a number when the kind has bounds (`value: { min, max }`, drawn with its own `display` and `tones`, all but `levels`). A trip reads them where the party is: `hex.related` (who is tied to this hex, its region or a place in it) and `hex.relations.<kind>`; the Hexmapper draws them as threads from the party (**Play → Show relations**).
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`), and levels by id (`values: { harm: { levels: { unhurt: Ileso } } }`).
-- **The party's own sheet** (`partySheet:` in its [system](#systems)) is a sheet like this one for the party itself: what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels, while characters join and leave. Tables read it as `party.values.<id>`, `party.conditions` and `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`), within its bounds; its conditions' `blocks` stop the whole party. A party stat can be one of its values (`stats: { morale: { from: { party: morale } } }`): the stat is that value, takes its bounds, and effects on `party.stats.morale` change the sheet. The trip shows its card above the characters.
+- **The party's own sheet** (`partySheet:` in its [system](#systems)) is a sheet like this one for the party itself: what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels, while characters join and leave. Tables read it as `party.values.<id>`, `party.conditions` and `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`), within its bounds; a new trip starts with each value's `default`. What the party carries is a value of it (`party.values.food`), or items: `party.items.<item>` are its own and its characters' together (`party.items.ration.count`, every item of the catalogues there from 0), an effect on them (`party.items.ration: -3`) takes from its own first, then from the characters by their sheet's `share`, and a gain goes to the characters so (to its own when it has none); its conditions' `blocks` stop the whole party. A party stat can be one of its values (`stats: { morale: { from: { party: morale } } }`): the stat is that value, takes its bounds, and effects on `party.stats.morale` change the sheet. The trip shows its card above the characters.
 
 ## Item catalogues
 

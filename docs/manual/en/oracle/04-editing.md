@@ -30,7 +30,7 @@ Add, duplicate, move and remove entries. **Number 1–N** gives them consecutive
 - **Unless**: the entry can't come up when this matches, e.g. `timeOfDay` **is** `night` (the Grey Marches' Vale patrol, with the context its binding gives). With **Only if** too, both are checked.
 - **Sets**: values the entry gives when it comes up, one row each (a name and its value), e.g. `weather` · `storm` and `lost` · `true`, or `count` · `{{2d6}}`. The result text, later tables and generator fields, and the trip read them (see [Connecting tables](07-connecting.md)).
 - **Only once** / **At most**: how many times the entry can come up in a session (the Oracle's **New session** resets them).
-- **Changes**: what the entry changes in a trip's party, one row each (`party.stats.morale` · `-1`, `party.resources.food` · `2`; `=3` sets it), with suggestions of the system's stats and supplies. See [effects](07-connecting.md).
+- **Changes**: what the entry changes in a trip's party, one row each (`party.stats.morale` · `-1`, `party.values.food` · `2`, `party.items.ration` · `1`; `=3` sets it), with suggestions of the system's stats, its party sheet's values and its items. See [effects](07-connecting.md).
 - **Pause**: when the entry comes up during a trip, the trip stops after the roll until you press **Continue** (`pause: true`; rolled by hand it does nothing). A deck's cards have the same **⋯**, with **Sets**, **Changes** and **Pause**.
 
 **YAML**, beside each, shows it as the pack writes it, for what rows can't say (a group inside a group, `not` of a whole condition): a condition written so stays YAML, and nothing written there is lost.

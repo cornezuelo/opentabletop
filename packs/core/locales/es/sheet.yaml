@@ -21,10 +21,13 @@ sheet/character:
 sheet/party:
   name: Grupo
   description: |-
-    El grupo de las reglas genéricas, como un todo: su moral.
+    El grupo de las reglas genéricas, como un todo: su moral y su comida.
 
-    **Enseña:** la hoja de grupo más pequeña: un valor con límites, dibujado como casillas.
+    **Enseña:** la hoja de grupo más pequeña: un valor con límites, dibujado como casillas, y una provisión como un simple valor del grupo (empieza en su valor por defecto y nunca baja de 0; las reglas se la comen).
   values:
     morale:
       name: Moral
       description: Cómo aguanta el grupo, de 0 (roto) a 5. Tus tablas la bajan o la suben y pueden leerla.
+    food:
+      name: Comida
+      description: Días de comida que lleva el grupo entre todos; se come un día al acabar cada día, y nunca baja de 0.

@@ -58,8 +58,6 @@ export const SYSTEM_TEMPLATES: Record<
     },
     edges: { road: { multiplier: 1.5 }, trail: { multiplier: 1.2 } },
     modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 50 } },
-    // Food never goes below 0; the party eats a day of it as each day ends.
-    resources: { food: { min: 0 } },
     actions: {
       // Marching by day (06:00–20:00) for 8 hours, to the destination or one hex; camp
       // sleeps until 06:00.
@@ -70,7 +68,6 @@ export const SYSTEM_TEMPLATES: Record<
       },
       camp: { do: [{ time: '06:00' }] },
       rest: { do: [{ time: 60 }] },
-      eat: { on: 'time.day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
     },
     weather: { storm: { speed: 0 } },
     checks: [{ event: 'WEATHER', at: '06:00' }],

@@ -32,7 +32,6 @@ import {
   partRefsOf,
   findPartRef,
   initialTravelState,
-  resourceBounds,
   parseTravelRules,
   type TravelAction,
   type TravelRules,
@@ -58,7 +57,7 @@ import {
   partyBlocks,
   refreshParty,
   relatedWorld,
-  rulesWithMembers,
+  keptNumbers,
   type PartyRules,
 } from './party'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
@@ -181,7 +180,6 @@ export const NO_TRAVEL: TravelRules = {
   water: { passable: false },
   edges: {},
   modes: {},
-  resources: {},
   checks: [],
   values: {},
   actions: {},
@@ -599,7 +597,7 @@ export function travelSystems(registry: Registry): {
     }
     if (parts.bindings && bindings)
       problems.push(
-        ...membersBindings(bindings, rules, sheet?.def, partySheet?.def).map((e) =>
+        ...membersBindings(bindings, sheet?.def, partySheet?.def).map((e) =>
           problem(
             ownerOf(parts.bindings!) ?? pack,
             parts.bindings!.file,
@@ -791,16 +789,10 @@ export function travelSystems(registry: Registry): {
 }
 
 /**
- * What the bindings take from the members that their sheet or the rules don't have: a
- * stat `from` a value the sheet doesn't declare, a carried supply the rules don't declare
- * or held in a value the sheet doesn't. Paths as `bindings.<…>: message`.
+ * What the bindings take from the members that their sheet doesn't have: a stat `from` a
+ * value the sheet doesn't declare. Paths as `bindings.<…>: message`.
  */
-function membersBindings(
-  bindings: Bindings,
-  rules: TravelRules,
-  sheet?: Sheet,
-  partySheet?: Sheet,
-): string[] {
+function membersBindings(bindings: Bindings, sheet?: Sheet, partySheet?: Sheet): string[] {
   const out: string[] = []
   for (const [id, stat] of Object.entries(bindings.stats ?? {})) {
     const value = stat.from?.party
@@ -814,7 +806,6 @@ function membersBindings(
   }
   const usesMembers =
     Object.values(bindings.stats ?? {}).some((s) => s.from && !s.from.party) ||
-    Object.keys(bindings.resources ?? {}).length > 0 ||
     Object.keys(bindings.roles ?? {}).length > 0
   if (usesMembers && !sheet)
     out.push(
@@ -825,18 +816,13 @@ function membersBindings(
     if (sheet && value !== undefined && !sheet.values[value])
       out.push(`stats.${id}.from: The members' sheet has no value "${value}"`)
   }
-  for (const [id, supply] of Object.entries(bindings.resources ?? {})) {
-    if (!rules.resources?.[id]) out.push(`resources.${id}: The travel rules have no supply "${id}"`)
-    if (sheet && !sheet.values[supply.carried])
-      out.push(`resources.${id}.carried: The members' sheet has no value "${supply.carried}"`)
-  }
   return out
 }
 
 /**
  * Effects of a system (its actions, rests and checks, and its pack's tables, oracles and
- * decks) on values it doesn't declare: a stat missing from its bindings, or a supply
- * missing from its rules. Warnings: the effect still applies, but nobody names the value.
+ * decks) on values it doesn't declare: a stat missing from its bindings, a value or item
+ * its sheets or catalogues don't have. Warnings: the effect still applies, but nobody names the value.
  */
 function undeclaredEffects(
   registry: Registry,
@@ -855,7 +841,7 @@ function undeclaredEffects(
   const check = (effects: unknown, where: { file: string; at: string }) => {
     if (typeof effects !== 'object' || effects === null) return
     for (const path of Object.keys(effects)) {
-      const [, scope, valueId] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
+      const statId = /^party\.stats\.(.+)$/.exec(path)?.[1]
       // A member's value or condition: its sheet's.
       const [, who, part, partId] = MEMBER_PATH.exec(path) ?? []
       // The party's own (`party.values.morale`): its party sheet's.
@@ -871,17 +857,18 @@ function undeclaredEffects(
           !!factionPart &&
           !!factions.sheet.def[factionPart as 'values' | 'conditions'][factionId ?? ''])
       if (factionKnown) continue
-      // An item: one of its catalogues', or a field of it the sheet declares.
+      // An item: one of its catalogues', or a field of it the sheet declares (the party's
+      // items are its own and its members': either sheet's).
       const [itemId, field] = part === 'items' ? partId.split('.', 2) : []
+      const fieldKnown = (f: string) =>
+        !!own?.items?.fields?.[f] || (who === 'party' && !!sheet?.items?.fields?.[f])
       const known = part
         ? part === 'items'
-          ? itemIds.includes(itemId) && (field === undefined || !!own?.items?.fields?.[field])
+          ? itemIds.includes(itemId) && (field === undefined || fieldKnown(field))
           : !!own?.[part as 'values' | 'conditions'][partId]
-        : scope === 'stats'
-          ? !!bindings?.stats?.[valueId]
-          : scope === 'resources'
-            ? !!rules.resources?.[valueId]
-            : false
+        : statId !== undefined
+          ? !!bindings?.stats?.[statId]
+          : false
       if (!known)
         out.push({
           severity: 'warning',
@@ -889,7 +876,7 @@ function undeclaredEffects(
             ? who === 'party'
               ? `Effect on "${path}", which the party sheet doesn't declare`
               : `Effect on "${path}", which the members' sheet doesn't declare`
-            : `Effect on "${path}", which this system doesn't declare (stats in its bindings, resources in its rules)`,
+            : `Effect on "${path}", which this system doesn't declare (stats in its bindings)`,
           pack,
           ...where,
         })
@@ -935,7 +922,7 @@ export function seasonStart(system: TravelSystem, season: Season): number {
 
 /**
  * A new trip at `location`: first travel mode of the rules, dawn of the season's first
- * day, 6 of each resource, and the system's declared stats (values in `stats` win; any
+ * day, and the system's declared stats (values in `stats` win; any
  * stat the system doesn't declare, e.g. kept from a trip with another system, is dropped).
  */
 export function startTrip(options: {
@@ -962,13 +949,6 @@ export function startTrip(options: {
     calendar,
     // When the system's trips start (`travel.start`; older rules: their dawn), else midnight.
     time: options.time ?? calendar.at(startDay, tripStart(rules, calendar)),
-    // 6 of each supply, within the Min / Max it declares.
-    resources: Object.fromEntries(
-      Object.entries(resourceBounds(rules)).map(([r, { min = -Infinity, max = Infinity }]) => [
-        r,
-        Math.min(max, Math.max(min, 6)),
-      ]),
-    ),
     ...(options.seed !== undefined && { seed: options.seed }),
   })
   const stats = Object.fromEntries(
@@ -989,7 +969,10 @@ export const partyOf = (system: TravelSystem): PartyRules => ({
   sheet: system.sheet,
   partySheet: system.partySheet,
   bindings: system.bindings,
-  ...(system.items && { items: lookupItems(system.items) }),
+  ...(system.items && {
+    items: lookupItems(system.items),
+    itemIds: [...new Set(system.items.flatMap((c) => Object.keys(c.def.items)))],
+  }),
 })
 
 /**
@@ -1051,10 +1034,11 @@ export function stepTrip(
   const result = createSession({
     travel: createTravelEngine({
       world: discovery?.world ?? world,
-      // The supplies the members carry have the bounds of theirs together.
-      rules: rulesWithMembers(system.rules, session, partyOf(system)),
+      rules: system.rules,
       calendar: calendarOf(system),
       stats: system.bindings?.stats,
+      // The party's values and items, so an action's later steps see what earlier ones did.
+      kept: keptNumbers(session, partyOf(system)),
     }),
     oracle: options.oracle,
     bindings: system.bindings,
@@ -1085,9 +1069,10 @@ export function settleTrip(
   return createSession({
     travel: createTravelEngine({
       world: relatedWorld(options.world, session.members),
-      rules: rulesWithMembers(system.rules, session, partyOf(system)),
+      rules: system.rules,
       calendar: calendarOf(system),
       stats: system.bindings?.stats,
+      kept: keptNumbers(session, partyOf(system)),
     }),
     bindings: system.bindings,
     pack: system.sources?.rules?.pack ?? system.pack,
@@ -1158,6 +1143,7 @@ export function tripAvailability(
     rules: options.system.rules,
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
+    kept: keptNumbers(session, partyOf(options.system)),
   })
   const current = copyOf(session)
   refreshParty(current, partyOf(options.system))
@@ -1186,6 +1172,7 @@ export function tripFacts(
     rules: options.system.rules,
     calendar: calendarOf(options.system),
     stats: options.system.bindings?.stats,
+    kept: keptNumbers(session, partyOf(options.system)),
   })
   const current = copyOf(session)
   refreshParty(current, partyOf(options.system))

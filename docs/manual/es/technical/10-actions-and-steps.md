@@ -37,7 +37,7 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 
 ## Cambiar cosas: `effects` y `set`
 
-- `effects: { party.stats.fatigue: 1, party.resources.food: -1 }` cambia el grupo como los efectos de una tabla: un número suma o resta, `'=0'` fija, `'-{{party.stats.mouths}}'` quita tantos como otro valor, `'+{{1d3}}'` una tirada. Un cambio más allá del `min` / `max` de un valor se queda ahí, y los pasos siguientes ven su id en `trip.below` / `trip.above`. También personajes (`party.members.values.health: 1`, `acting.conditions.wounded: false`), facciones y relojes: mira [Qué ven las tablas](04-what-tables-see.md).
+- `effects: { party.stats.fatigue: 1, party.values.food: -1 }` cambia el grupo como los efectos de una tabla: un número suma o resta, `'=0'` fija, `'-{{party.stats.mouths}}'` quita tantos como otro valor, `'+{{1d3}}'` una tirada. Un cambio más allá del `min` / `max` de un valor se queda ahí, y los pasos siguientes lo ven en `trip.below` / `trip.above`, por su nombre completo (`trip.below: party.values.food`). Lo que cambia un paso lo ve el siguiente: las características del grupo, los valores de su hoja y sus objetos (`party.items.ration.count`). También personajes (`party.members.values.health: 1`, `acting.conditions.wounded: false`), facciones y relojes: mira [Qué ven las tablas](04-what-tables-see.md).
 - `set: { lost: true }` da un valor del día que declara el sistema (`values:`): dura hasta que acaba el día, y bloquea lo que enumera mientras se cumple.
 
 ## Otras acciones y comprobaciones: `do` y `roll`
@@ -48,8 +48,8 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 
 ## Hablar con el jugador: `say`, `pause` y `ask`
 
-- `say: Los porteadores cantan mientras caminan.` escribe esa línea en el diario, como palabras del propio sistema. Los valores que lleve se leen en ese momento: `say: 'Al otro lado, con {{party.resources.food}} de comida.'` escribe «Al otro lado, con 4 de comida.». Sirve para dar color, o para decir por qué pasó algo (`{ when: { trip.below: food }, say: No queda nada que comer. }`).
-- `pause: true` detiene el viaje ahí. El panel del viaje muestra la acción esperando, con **Continuar**; hasta que se pulsa, nada hace avanzar el viaje (marchar, esperar y las demás acciones salen en gris, diciendo por qué), aunque el destino, la forma de viajar, los personajes y las provisiones se pueden seguir cambiando a mano. **Continuar** sigue enseguida con el resto de pasos de la acción, y luego con lo que la pausa detuvo (una marcha durante la que una acción se hizo por el camino, mira más abajo). Con un texto en vez de `true` (`pause: El transbordador está en la otra orilla.`), la caja de espera y el diario lo dicen.
+- `say: Los porteadores cantan mientras caminan.` escribe esa línea en el diario, como palabras del propio sistema. Los valores que lleve se leen en ese momento: `say: 'Al otro lado, con {{party.values.food}} de comida.'` escribe «Al otro lado, con 4 de comida.». Sirve para dar color, o para decir por qué pasó algo (`{ when: { trip.below: party.values.food }, say: No queda nada que comer. }`).
+- `pause: true` detiene el viaje ahí. El panel del viaje muestra la acción esperando, con **Continuar**; hasta que se pulsa, nada hace avanzar el viaje (marchar, esperar y las demás acciones salen en gris, diciendo por qué), aunque el destino, la forma de viajar, los personajes y la hoja del grupo se pueden seguir cambiando a mano. **Continuar** sigue enseguida con el resto de pasos de la acción, y luego con lo que la pausa detuvo (una marcha durante la que una acción se hizo por el camino, mira más abajo). Con un texto en vez de `true` (`pause: El transbordador está en la otra orilla.`), la caja de espera y el diario lo dicen.
 - `ask: params.how` detiene el viaje igual, pero para preguntar: la caja de espera muestra el parámetro `how` de la acción (su `name` como pregunta, su `description` como ayuda) y un botón por cada una de sus `choices` (sus nombres, sus descripciones al pasar el ratón). Elegir una es seguir: los pasos de después leen la respuesta como `params.how`, así que pueden ramificarse con sus propias condiciones (`when: { params.how: swim }`). El parámetro tiene que ser de la propia acción; su botón no lo ofrece (se pregunta mientras la acción avanza), y lo que se le diera (un `with:`, su `default`) es lo elegido si el jugador no da nada.
 
 ```yaml
@@ -77,14 +77,24 @@ Qué puede hacer que se cumpla: el propio tiempo (`time.hour: { gte: 14 }`, `tim
 
 ## La condición de un paso, y su `id`
 
-- `when` / `unless` en un paso hacen que solo ocurra cuando se cumplen: `{ unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }` (una noche con comida). Ven lo mismo que las condiciones de la acción, más `params.<id>` (sus parámetros), `trip.below` / `trip.above` (lo que llegó a un límite durante la acción), `trip.doing` (la acción en marcha) y `trip.moment` (cuándo la hizo el sistema).
+- `when` / `unless` en un paso hacen que solo ocurra cuando se cumplen: `{ unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }` (una noche con comida). Ven lo mismo que las condiciones de la acción, más `params.<id>` (sus parámetros), `trip.below` / `trip.above` (lo que llegó a un límite durante la acción), `trip.doing` (la acción en marcha) y `trip.moment` (cuándo la hizo el sistema).
 - `id` da nombre a un paso para poder traducir sus textos: en `locales/<idioma>/`, un paso se encuentra por su `id` en el `do` de su acción (`actions: { grumble: { do: { sulk: { say: … } } } }`), y solo se traducen los textos de `say` y `pause`. Mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada).
 
 ## Un ejemplo entero: cruzar un río
 
-Un sistema diminuto cuya única acción interesante es cruzar un río: el jugador elige cómo (`ask`), espera al transbordador que llega a mediodía (`wait`, con una acción que el sistema hace a las `'12:00'` y da el valor que espera) o construye una balsa (tres horas, y luego `travel.mode`), el diario dice cómo fue (`say`, leyendo la comida que queda) y el viaje espera al jugador antes de seguir (`pause`).
+Un sistema diminuto cuya única acción interesante es cruzar un río: el jugador elige cómo (`ask`), espera al transbordador que llega a mediodía (`wait`, con una acción que el sistema hace a las `'12:00'` y da el valor que espera) o construye una balsa (tres horas, y luego `travel.mode`), el diario dice cómo fue (`say`, leyendo la comida que queda, un valor de la hoja del grupo) y el viaje espera al jugador antes de seguir (`pause`).
 
 ```yaml
+kind: system
+id: default
+travel: travel-rules.river-crossing
+partySheet: sheet.party
+---
+kind: sheet
+id: party
+values:
+  food: { name: Comida, default: 5, min: 0 }
+---
 kind: travel-rules
 id: river-crossing
 travel:
@@ -97,8 +107,6 @@ modes:
   foot: { name: A pie, kmPerDay: 30 }
   # Solo cuando hay balsa (un valor del día).
   raft: { name: En balsa, kmPerDay: 60, when: { today.raft: true } }
-resources:
-  food: { name: Comida, min: 0 }
 values:
   ferry: { name: Ha llegado el transbordador }
   raft: { name: Hay una balsa }
@@ -129,7 +137,7 @@ actions:
       - { when: { params.how: raft }, time: 180 }
       - { when: { params.how: raft }, set: { raft: true } }
       - { when: { params.how: raft }, travel.mode: modes.raft }
-      - { id: over, say: 'Listos para cruzar, con {{party.resources.food}} de comida.' }
+      - { id: over, say: 'Listos para cruzar, con {{party.values.food}} de comida.' }
       - { pause: true }
 ```
 

@@ -21,10 +21,10 @@ Algunos juegos solo permiten sus tablas para **uso personal** (Kal-Arath, por ej
 
 Además de tablas, oráculos, generadores y mazos, un pack puede tener definiciones para **otros motores**. Hoy son dos, y juntas convierten un pack en un **sistema de viaje** que pueden jugar el modo Jugar del Hexmapper (**Con reglas**) y la [aplicación Travel](../travel/01-getting-started.md):
 
-| Definición          | `kind`         | Qué dice                                                                                                                                                                   |
-| ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Reglas de viaje** | `travel-rules` | Cómo funciona un viaje: la duración del día, la velocidad en cada terreno y camino, las formas de viajar, las provisiones, el clima y **qué comprobaciones** hay y cuándo. |
-| **Bindings**        | `bindings`     | Cómo se **resuelven** esas comprobaciones: qué tabla tira cada una, las características del grupo que usan las tablas y cómo se descubre el mapa.                          |
+| Definición          | `kind`         | Qué dice                                                                                                                                                  |
+| ------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Reglas de viaje** | `travel-rules` | Cómo funciona un viaje: la duración del día, la velocidad en cada terreno y camino, las formas de viajar, el clima y **qué comprobaciones** hay y cuándo. |
+| **Bindings**        | `bindings`     | Cómo se **resuelven** esas comprobaciones: qué tabla tira cada una, las características del grupo que usan las tablas y cómo se descubre el mapa.         |
 
 **Por qué dos.** Las reglas son del Travel Engine y las tablas de Oracle, y los motores no se conocen entre sí: los bindings son el puente. Por eso cada una es opcional por separado: unas reglas sin bindings hacen un sistema en el que todas las comprobaciones te esperan (**Continuar**); las reglas genéricas no tienen ninguna comprobación.
 

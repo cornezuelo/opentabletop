@@ -32,9 +32,9 @@ kind: sheet
 id: party
 name: Party
 description: |-
-  The party of the Generic rules, as a whole: its morale.
+  The party of the Generic rules, as a whole: its morale and its food.
 
-  **Shows:** the smallest party sheet: one value with bounds, drawn as boxes.
+  **Shows:** the smallest party sheet: a value with bounds, drawn as boxes, and a supply as a plain value of the party (it starts at its default and never goes below 0; the rules eat it).
 values:
   morale:
     name: Morale
@@ -43,3 +43,8 @@ values:
     min: 0
     max: 5
     display: boxes
+  food:
+    name: Food
+    description: Days of food the party carries between them; a day is eaten as each day ends, and it never goes below 0.
+    default: 6
+    min: 0

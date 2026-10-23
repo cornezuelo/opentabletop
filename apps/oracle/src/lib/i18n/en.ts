@@ -128,7 +128,7 @@ export const en = {
       "Values the entry gives when it comes up, one row each (a name and its value). Later tables, the template and the trip read them:\n• `weather: storm` — the day's weather\n• `lost: true` — a value of the day the system declares (it can block travel)\n• `count: '{{2d6}}'` — a number rolled now\n• `terrain: '{{common}}'` — copied from what the table sees\n• `rolled: '{{roll}}'` — the total of the table's own roll",
     effects: 'Changes',
     effectsHelp:
-      "What the entry changes in the trip's party when it comes up, one row each:\n• `party.stats.morale: -1` — takes 1 away\n• `party.resources.food: '{{1d3}}'` — adds a rolled amount\n• `party.stats.fatigue: '=0'` — sets it\n• `acting.values.health: -1` — the character acting, when the system has characters\nThe values are the system's (stats, supplies and characters). During a trip they apply at once; rolled by hand, they're offered to the trip (**Apply to the trip**).",
+      "What the entry changes in the trip's party when it comes up, one row each:\n• `party.stats.morale: -1` — takes 1 away\n• `party.values.food: '{{1d3}}'` — adds a rolled amount (`party.items.ration: 1`: an item)\n• `party.stats.fatigue: '=0'` — sets it\n• `acting.values.health: -1` — the character acting, when the system has characters\nThe values are the system's (stats, the party’s sheet and items, characters). During a trip they apply at once; rolled by hand, they're offered to the trip (**Apply to the trip**).",
     once: 'Only once',
     onceHelp:
       'Comes up **at most once per session** (a unique NPC, a one-off treasure); after that the table does what **When exhausted** says. Needs an **Id**.',
@@ -272,7 +272,7 @@ export const en = {
     systemTips: {
       'roll-modes':
         'Ways of rolling its tables, like advantage: roll several times and keep one total.',
-      'travel-rules': 'Speeds, terrains, roads, supplies and which checks are rolled when.',
+      'travel-rules': 'Speeds, terrains, roads, actions and which checks are rolled when.',
       calendar:
         'Months and seasons, weekdays, moons and holidays for its trips and the world clock.',
       weather:

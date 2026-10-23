@@ -26,7 +26,7 @@
   /**
    * The party's characters, when the system has a sheet for them: each one's sheet, who
    * is acting now, and adding or removing them. Every change brings the party up to date
-   * (its stats made of theirs, the supplies they carry).
+   * (its stats made of theirs, the items they carry).
    */
   let {
     system,

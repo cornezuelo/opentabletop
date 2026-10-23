@@ -26,7 +26,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 
   Una comilla dentro de un texto entre comillas se escribe doble: `'El perro de la guardia d''Arcy'`. Si dudas, pon comillas: nunca estorban. Los formularios las ponen por ti.
 
-- **Los nombres con puntos** llegan dentro de un valor: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Todos los nombres que puede leer una tabla: [Lo que ven las tablas](04-what-tables-see.md).
+- **Los nombres con puntos** llegan dentro de un valor: `party.stats.morale`, `party.values.food`, `party.items.ration.count`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Todos los nombres que puede leer una tabla: [Lo que ven las tablas](04-what-tables-see.md).
 - **Nombres completos y cortos**: cada dato del mapa, del viaje y del mundo tiene un nombre completo según de dónde sale, y casi todos uno corto: `hex.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; lo que lleva hecho el viaje, solo por su nombre completo (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); además `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Los dos leen el mismo valor; una característica con el mismo nombre no puede tapar el completo. La lista: [Nombres completos y nombres cortos](04-what-tables-see.md#como-leer-esta-pagina).
 
 ## Ids y referencias
@@ -137,13 +137,13 @@ En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor 
 
 | Escribe                                                    | Hace                                                                                                                                                      |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `party.resources.food: -1`                                 | quita 1                                                                                                                                                   |
+| `party.values.food: -1`                                    | quita 1                                                                                                                                                   |
 | `party.stats.morale: 2`                                    | suma 2                                                                                                                                                    |
 | `party.stats.fatigue: '=0'`                                | lo pone a 0                                                                                                                                               |
-| `party.resources.food: '{{1d3+1}}'`                        | suma una tirada                                                                                                                                           |
-| `party.resources.food: '-{{party.stats.mouths}}'`          | quita tantos como dice otro valor                                                                                                                         |
+| `party.values.food: '{{1d3+1}}'`                           | suma una tirada                                                                                                                                           |
+| `party.items.ration: '-{{party.stats.mouths}}'`            | quita tantos como dice otro valor: de los objetos del grupo, primero los suyos y luego los de sus personajes según los reparta su hoja                    |
 | `party.stats.morale: '={{party.stats.charisma}}'`          | lo pone al valor de otro                                                                                                                                  |
-| `party.resources.food: '-{{1d3}}'`                         | quita una tirada (en un viaje, la misma durante todo el momento)                                                                                          |
+| `party.values.food: '-{{1d3}}'`                            | quita una tirada (en un viaje, la misma durante todo el momento)                                                                                          |
 | `party.members.values.health: 1`                           | suma 1 a todos los personajes del grupo                                                                                                                   |
 | `party.values.morale: -1`, `party.conditions.shaken: true` | la hoja del propio grupo (su `partySheet`)                                                                                                                |
 | `characters.kael.values.health: -1`                        | quita 1 a un personaje, por su id                                                                                                                         |
@@ -154,7 +154,7 @@ En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor 
 | `faction.territory: 1`, `faction.values.strength: -1`      | en la tabla de turno de una facción: sus tierras, sus valores                                                                                             |
 | `world.clocks.the-siege: 1`                                | avanza un reloj de progreso (el turno de una facción, un reloj lleno, o el resultado de un viaje en un mapa); `'=0'` lo fija                              |
 
-Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno ese día se ve después como `trip.below` / `trip.above` (listas de ids). Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
+Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno ese día se ve después como `trip.below` / `trip.above` (listas de nombres completos: `trip.below: party.values.food`). Sin límites, un valor puede ir a cualquier parte, también a negativo. Los valores de los personajes se detienen en los límites de su hoja; los efectos sobre personajes no hacen nada mientras el grupo no tenga ninguno, y `acting.…` nada mientras no actúe nadie (el diario lo dice). Mira [Personajes](04-what-tables-see.md#personajes).
 
 ## Momentos
 
@@ -180,27 +180,27 @@ Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` 
 
 El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa y puede tener su propio `when` / `unless`.
 
-| Paso                                               | Hace                                                                    |
-| -------------------------------------------------- | ----------------------------------------------------------------------- |
-| `time: 120`                                        | pasan 120 minutos                                                       |
-| `time: '14:00'`                                    | hasta que vuelve a dar esa hora                                         |
-| `time: time.meal.luncheon`                         | hasta que vuelve a empezar una parte del día del calendario             |
-| `travel.move: destination`                         | se mueve por la ruta mientras se cumplen sus condiciones                |
-| `travel.move: '{{params.until}}'`                  | hasta donde diga su parámetro (`hex`, `3`…)                             |
-| `travel.speed: 0.5`                                | el resto del movimiento de hoy, a media velocidad                       |
-| `effects: { party.stats.fatigue: -1 }`             | cambia el grupo                                                         |
-| `set: { lost: true }`                              | da un valor del día                                                     |
-| `do: actions.forage`                               | hace otra acción, si se cumplen sus condiciones                         |
-| `{ do: actions.march, with: { until: hex } }`      | otra acción, con sus parámetros                                         |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED`            | tira una comprobación ya (o `roll: table.ruins`: una tabla del Oráculo) |
-| `travel.advance: 1`                                | avanza un hex por la ruta, sin que pase el tiempo                       |
-| `travel.mode: modes.boat`                          | viaja de otra forma, si se puede elegir ahora                           |
-| `say: Los porteadores cantan`                      | una línea propia del sistema en el diario                               |
-| `pause: true`                                      | el viaje espera a **Continuar** (o un texto)                            |
-| `ask: params.how`                                  | el jugador elige ya el parámetro `how`                                  |
-| `{ wait: { today.ferry: true }, limit: '18:00' }`  | pasa el tiempo hasta que se cumpla, como mucho el límite                |
-| `{ id: song, say: … }`                             | da nombre a un paso para sus traducciones                               |
-| `{ unless: { trip.below: food }, effects: { … } }` | solo cuando se cumple su condición                                      |
+| Paso                                                            | Hace                                                                    |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `time: 120`                                                     | pasan 120 minutos                                                       |
+| `time: '14:00'`                                                 | hasta que vuelve a dar esa hora                                         |
+| `time: time.meal.luncheon`                                      | hasta que vuelve a empezar una parte del día del calendario             |
+| `travel.move: destination`                                      | se mueve por la ruta mientras se cumplen sus condiciones                |
+| `travel.move: '{{params.until}}'`                               | hasta donde diga su parámetro (`hex`, `3`…)                             |
+| `travel.speed: 0.5`                                             | el resto del movimiento de hoy, a media velocidad                       |
+| `effects: { party.stats.fatigue: -1 }`                          | cambia el grupo                                                         |
+| `set: { lost: true }`                                           | da un valor del día                                                     |
+| `do: actions.forage`                                            | hace otra acción, si se cumplen sus condiciones                         |
+| `{ do: actions.march, with: { until: hex } }`                   | otra acción, con sus parámetros                                         |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`                         | tira una comprobación ya (o `roll: table.ruins`: una tabla del Oráculo) |
+| `travel.advance: 1`                                             | avanza un hex por la ruta, sin que pase el tiempo                       |
+| `travel.mode: modes.boat`                                       | viaja de otra forma, si se puede elegir ahora                           |
+| `say: Los porteadores cantan`                                   | una línea propia del sistema en el diario                               |
+| `pause: true`                                                   | el viaje espera a **Continuar** (o un texto)                            |
+| `ask: params.how`                                               | el jugador elige ya el parámetro `how`                                  |
+| `{ wait: { today.ferry: true }, limit: '18:00' }`               | pasa el tiempo hasta que se cumpla, como mucho el límite                |
+| `{ id: song, say: … }`                                          | da nombre a un paso para sus traducciones                               |
+| `{ unless: { trip.below: party.values.food }, effects: { … } }` | solo cuando se cumple su condición                                      |
 
 Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, hex, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: actions.march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: actions.camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
@@ -208,9 +208,9 @@ Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo s
 
 Un valor del día lista lo que no se puede hacer mientras dura: `travel.move` (no se sigue avanzando), una acción (`actions.camp`, `actions.forage`) o una forma de viajar (`modes.horse`). Cada cosa por su nombre completo: qué es y luego su id. `values: { snowbound: { blocks: [modes.horse] } }`. Un estado de un personaje en una [hoja](07-kinds.md#hojas) bloquea igual mientras algún personaje del grupo lo tenga: `conditions: { sprained: { blocks: [travel.move] } }`; el viaje dice quién.
 
-## Los personajes del grupo: `from` y `carried`
+## Los personajes del grupo: `from` y `share`
 
-En los bindings, cuando el sistema tiene hoja: una característica que sale de los valores de los personajes, `from: { max: survival }` (también `min`, `sum`, o `count: true`, con `when` / `unless` sobre cada personaje y `none` para cuando no cuenta ninguno), y una provisión que llevan, `resources: { food: { carried: rations, share: even } }`. Las dos, solo mientras el grupo tenga personajes. Roles de viaje: `roles: { guide: { name: Guía } }`, que se leen como `roles.guide.…`. Mira [Bindings](07-kinds.md#bindings).
+En los bindings, cuando el sistema tiene hoja: una característica que sale de los valores de los personajes, `from: { max: survival }` (también `min`, `sum`, o `count: true`, con `when` / `unless` sobre cada personaje y `none` para cuando no cuenta ninguno), solo mientras el grupo tenga personajes. En la hoja, cómo se reparte entre ellos lo que el grupo gasta o gana de un objeto, `items: { share: even }` (u `order`), y lo que lleva un personaje nuevo, `items: { start: { ration: 2 } }`. Roles de viaje: `roles: { guide: { name: Guía } }`, que se leen como `roles.guide.…`. Mira [Bindings](07-kinds.md#bindings).
 
 ## Velocidades
 

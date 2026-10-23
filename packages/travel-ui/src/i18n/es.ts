@@ -11,10 +11,10 @@ export const es: Messages<typeof en> = {
     'Este sistema tira sus comprobaciones en tablas y anota los resultados en el diario. Las comprobaciones sin tabla solo se apuntan en el diario, salvo que pausen.',
   noBindings:
     'Estas reglas no tienen tablas asociadas: las comprobaciones solo se apuntan en el diario, y detienen el viaje cuando pausan.',
-  noChecks: 'Estas reglas no tienen comprobaciones: un viaje solo gasta tiempo y provisiones.',
+  noChecks:
+    'Estas reglas no tienen comprobaciones: un viaje solo pasa el tiempo y hace lo que hagan sus acciones.',
   marched: 'Marcha de hoy: {used} de {limit} h',
   section: {
-    supplies: vocabulary.es.terms.supplies,
     stats: 'Características',
   },
   totals: {
@@ -57,7 +57,7 @@ export const es: Messages<typeof en> = {
   filter: {
     level: 'Mostrar',
     levelHelp:
-      'Cuánto de lo que ha pasado muestra el diario. Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas\n• **Y las reglas** — también lo que han hecho las reglas: hexes en los que se entra, acciones, comprobaciones, cambios en las provisiones y los atributos, valores que llegan a su límite (lo que el diario mostraba siempre)\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del hex es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
+      'Cuánto de lo que ha pasado muestra el diario. Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas\n• **Y las reglas** — también lo que han hecho las reglas: hexes en los que se entra, acciones, comprobaciones, cambios en el grupo y sus personajes, valores que llegan a su límite (lo que el diario mostraba siempre)\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del hex es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
     levels: { story: 'La historia', mechanics: 'Y las reglas', detail: 'Todo' },
     topics: {
       travel: 'Viaje',
@@ -81,17 +81,13 @@ export const es: Messages<typeof en> = {
     readBy: '**Lo leen:** {names}.',
     changedBy: '**Lo cambian:** {names}.',
     totals:
-      'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido a cada provisión sus acciones, comprobaciones y tablas (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.hexes`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
+      'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido sus acciones, comprobaciones y tablas a los valores y objetos del grupo (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.hexes`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
     exportJournal:
       'Descarga el diario en Markdown, con un título por día y las líneas que muestra el filtro: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
-    newTrip: 'Reinicia el tiempo, las provisiones y el diario, dejando al grupo donde está.',
+    newTrip: 'Reinicia el tiempo, la hoja del grupo y el diario, dejando al grupo donde está.',
     marched:
       'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda un hex depende de la escala del mundo (km por hex), el terreno, el camino y la forma de viajar, según los fije el sistema. Por ejemplo, si una forma de viajar hace 24 km en 8 h y los hexes son de 12 km:\n• campo abierto (× 1): 4 h por hex\n• un terreno a × 0.5: 8 h por hex\n• un camino a × 1.5: menos de 3 h por hex',
-    resource:
-      'Provisiones: qué las gasta depende del sistema (sus acciones, como comer al final de cada día, sus comprobaciones y tablas). Ajusta la cantidad al comprar, encontrar o gastar.',
-    min: 'Nunca baja de {min}: lo que llega a ese mínimo se cuenta en el diario, y las reglas del sistema pueden reaccionar.',
-    max: 'Nunca sube de {max}.',
     goOn: 'Sigue con «{action}», que se detuvo por el camino por una comprobación: el resto de su movimiento y después el resto de lo que hace. Hacer otra acción o esperar lo deja.',
     waitOnward:
       'El tiempo pasa donde está el grupo hasta que pueda volver a hacer «{action}» (cómo sigue el viaje por sí solo, según diga el sistema), viviéndolo: si ahora pudiera, primero deja pasar esa ocasión. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede seguir, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
@@ -124,7 +120,7 @@ export const es: Messages<typeof en> = {
     land: 'tierras',
     clock: 'Reloj «{name}»',
     title: 'Personajes',
-    help: 'Los personajes del grupo, hechos con la hoja del sistema. Con ellos, el grupo son sus miembros: las características que el sistema saca de las suyas (la mejor Supervivencia, cuántos son…) y las provisiones que llevan los siguen, y los efectos pueden llegar a cada uno. Sin ninguno, el grupo se juega como un todo.\nLas condiciones y las tablas los leen:\n• `party.members: kael` — si Kael viaja con el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno de ellos\n• `acting.values.wits` — el que actúa ahora',
+    help: 'Los personajes del grupo, hechos con la hoja del sistema. Con ellos, el grupo son sus miembros: las características que el sistema saca de las suyas (la mejor Supervivencia, cuántos son…) los siguen, los objetos del grupo son los suyos juntos (lo que come se quita de lo que llevan), y los efectos pueden llegar a cada uno. Sin ninguno, el grupo se juega como un todo.\nLas condiciones y las tablas los leen:\n• `party.members: kael` — si Kael viaja con el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno de ellos\n• `acting.values.wits` — el que actúa ahora',
     none: 'Sin personajes: el grupo se juega como un todo.',
     add: 'Añadir un personaje',
     newName: 'Personaje',
@@ -153,7 +149,6 @@ export const es: Messages<typeof en> = {
     whoActs: 'Quien actúa',
     fromMembers:
       'Sale de los valores de los personajes mientras el grupo tenga alguno (la regla del sistema): edita los suyos.',
-    carried: 'Lo que llevan los personajes entre todos: edita la parte de cada uno en su hoja.',
   },
   blocked: {
     value: '{name}: no es posible el resto del día.',

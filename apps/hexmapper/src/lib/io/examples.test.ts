@@ -214,7 +214,8 @@ describe('example maps', () => {
     session.stats.fatigue = 2
     const camped = stepTrip(options, session, { type: 'action', id: 'camp' })
     expect(camped.state.stats.fatigue).toBe(1)
-    expect(camped.state.travel.resources.food).toBe(5)
+    // The Company's stores: six rations, one eaten (no companions on this trip).
+    expect(camped.state.party?.items).toEqual([expect.objectContaining({ id: 'ration', count: 5 })])
     expect(camped.entries.find((e) => e.data?.action === 'camp')?.data?.effects).toEqual({
       'party.stats.fatigue': -1,
     })
@@ -376,7 +377,7 @@ describe('example maps', () => {
     // A night in Ashford with no food (no camping without it) and no morale: the day ends
     // hungry, and someone deserts.
     const { session } = startTrip({ system, location: '5,7', season: 'summer' })
-    session.travel.resources.food = 0
+    session.party!.items = []
     session.stats.morale = 0
     const camped = stepTrip(options, session, {
       type: 'wait',
@@ -388,12 +389,18 @@ describe('example maps', () => {
     expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: 0 }) // hirelings never below 0 (min: 0)
 
     // The inn reads the party: a feast needs food; without a trip, nobody is asked.
-    const fed = { ...session, stats: { ...session.stats, morale: 3 } }
-    fed.travel.resources.food = 4
+    const fed = {
+      ...session,
+      stats: { ...session.stats, morale: 3 },
+      party: {
+        ...session.party!,
+        items: [{ key: 'ration', id: 'ration', from: 'grey-marches/gear', count: 4, fields: {} }],
+      },
+    }
     const feast = oracle.resolve('grey-marches/inn', tripContext(fed, {}, { spend: 'feast' }))
     expect(feast.resolution.entry).toBe('feast')
     expect(tripChanges(feast.resolution.value)).toEqual([
-      ['party.resources.food', -2],
+      ['party.items.ration', -2],
       ['party.stats.morale', 2],
       ['party.stats.fatigue', -1],
     ])

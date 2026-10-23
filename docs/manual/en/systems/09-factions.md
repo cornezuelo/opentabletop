@@ -33,7 +33,7 @@ Two powers on one border: the Wardens hold the low fells, the Reavers the high m
 3. **Their sheet**: in **Sheet**, the tab _faction · the factions_ has what **New factions** made: **Strength** (**Starts at** `3`, **Min** `0`, **Max** `6`) and the condition **At war**. Leave it as it is.
 4. **The Reavers' table**: in the Oracle app, **New definition**, a table in your pack _The Border_ with the id `reaver-raid`, named _The Reavers ride_, rolled with `1d6 + {{faction.values.strength}}`: on `1-4` _The raid is beaten off_, with **Changes** `faction.values.strength: -1`; on `5-7` _Cattle driven off in the night_; on `8-12` _A steading burns_, with **Changes** `faction.territory: 1, factions.the-wardens.values.strength: -1, factions.the-wardens.conditions.at-war: true`.
 5. **Their own turn**: back in **Factions**, the Reavers' **Own turn** `table.reaver-raid`.
-6. **Robbers on the moor**: in **Checks**, **Add a check**, with **Check** `REAVERS`, named _Reavers_. **When** `trip.hex-enter`; **Only if** the rows `hex.faction` · **is** · `the-reavers` and `factions.the-reavers.values.strength` · **is at least** · `{{1d6}}` (on their land, as often as they're strong); no table; **Changes** the rows `party.resources.food` · `-1` and `factions.the-reavers.values.strength` · `1`.
+6. **Robbers on the moor**: in **Checks**, **Add a check**, with **Check** `REAVERS`, named _Reavers_. **When** `trip.hex-enter`; **Only if** the rows `hex.faction` · **is** · `the-reavers` and `factions.the-reavers.values.strength` · **is at least** · `{{1d6}}` (on their land, as often as they're strong); no table; **Changes** the rows `party.values.food` · `-1` and `factions.the-reavers.values.strength` · `1`.
 7. **A map**: in the Hexmapper, **New map**; in **Map settings → Campaign → System**, _The Border_. With **Regions** (<kbd>N</kbd>), **New region** named _The Low Fells_ and paint a patch of hexes on the west; another, _The High Moor_, a patch on the east, leaving a couple of hexes of nobody's land between them.
 8. **Bring them in**: open the **World** panel (☾), **Start the world clock**, and in its **Factions** tab, **Bring in its factions**. Press **World turn** a few times; then **Next day** eight times.
 9. **Travel through the moor**: in **Play**, put the party on the fells, set a destination across the moor and travel.
@@ -104,7 +104,7 @@ checks:
     name: Reavers
     at: trip.hex-enter
     when: { hex.faction: the-reavers, factions.the-reavers.values.strength: { gte: '{{1d6}}' } }
-    effects: { party.resources.food: -1, factions.the-reavers.values.strength: 1 }
+    effects: { party.values.food: -1, factions.the-reavers.values.strength: 1 }
 # … the Generic rules' day, terrains, ways, food and actions
 ```
 

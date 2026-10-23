@@ -39,6 +39,16 @@ function coreRules(): Record<string, unknown> {
   return rest
 }
 
+/**
+ * The Generic rules' party sheet as Core writes it (`core/sheet.yaml`): the party's food the
+ * rules eat is one of its values, so a new system that starts from them has it too.
+ */
+function coreParty(): Record<string, unknown> | undefined {
+  const root = library.rootOf(DEFAULT_SYSTEM)
+  const text = root ? library.readFile(root, 'sheet.yaml') : undefined
+  return (text && readDefinition(text, '@sheet/party')) || undefined
+}
+
 /** A reference written in Core, as another pack names it (`weather.default` → `core/weather.default`). */
 const fromCore = (ref: unknown): string | undefined =>
   typeof ref === 'string' ? (ref.includes('/') ? ref : `${DEFAULT_SYSTEM}/${ref}`) : undefined
@@ -77,9 +87,9 @@ function coreDependency(): Record<string, string> {
 
 /**
  * A new pack of the user's that is a travel system: a `kind: system` naming a copy of the
- * Generic rules to start from, Core's calendar (their day is named by its parts), and
- * bindings that roll their checks as Core does (its weather model). Returns its id (also
- * its folder), or null if that id is taken.
+ * Generic rules to start from, with a copy of their party sheet (the food they eat), Core's
+ * calendar (their day is named by its parts), and bindings that roll their checks as Core
+ * does (its weather model). Returns its id (also its folder), or null if that id is taken.
  */
 export function createSystem(name: string): string | null {
   const id = slugify(name)
@@ -95,11 +105,13 @@ export function createSystem(name: string): string | null {
   })
   const withCore = Object.keys(coreDependency()).length > 0
   const checks = withCore ? coreChecks() : { on: {}, weather: [] }
+  const party = coreParty()
   const system = stringify({
     kind: 'system',
     id: 'default',
     travel: 'travel-rules.default',
     bindings: 'bindings.default',
+    ...(party && { partySheet: 'sheet.party' }),
     ...(withCore && { calendar: CORE_CALENDAR }),
     ...(checks.weather.length && { weather: checks.weather }),
   })
@@ -112,6 +124,7 @@ export function createSystem(name: string): string | null {
       { path: 'pack.yaml', content: manifest },
       { path: 'system.yaml', content: system },
       { path: 'travel.yaml', content: `${rules}---\n${bindings}` },
+      ...(party ? [{ path: 'sheet.yaml', content: stringify({ ...party, id: 'party' }) }] : []),
     ],
   })
   return id

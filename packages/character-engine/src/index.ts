@@ -179,6 +179,14 @@ const sheetItems = z
       .optional(),
     /** The field that says how much room an item takes (× its count); absent: one each. */
     size: z.string().min(1).optional(),
+    /**
+     * How what the party spends or gains of an item (`party.items.ration: -3`) is shared out
+     * among members of this sheet: `even` (taken from whoever has most, given to whoever has
+     * least, one at a time; the default) or `order` (the first member first).
+     */
+    share: z.enum(['even', 'order']).optional(),
+    /** What a new character of this sheet carries, from the system's catalogues: `{ ration: 2 }`. */
+    start: z.record(z.string().min(1), z.number().int().positive()).optional(),
   })
   .strict()
 
@@ -475,6 +483,8 @@ export function createCharacter(
   sheet: Sheet,
   sheetId: string,
   init: Partial<CharacterState> & { id: string },
+  /** The system's catalogues: a new character without items gets the sheet's `items.start`. */
+  items?: ItemLookup,
 ): CharacterState {
   const values = Object.fromEntries(
     Object.entries(sheet.values).map(([id, v]) => [id, v.default ?? 0]),
@@ -488,6 +498,10 @@ export function createCharacter(
     ...init,
     values: { ...values, ...init.values },
   }
+  // What it starts with: the sheet's, from the catalogues (one nobody has is left out).
+  if (init.items === undefined && items)
+    for (const [id, count] of Object.entries(sheet.items?.start ?? {}))
+      itemEffect(sheet.items, made, id, count, items, [])
   settle(sheet, made, [], {})
   return made
 }
@@ -945,75 +959,75 @@ export function partySource(
 }
 
 /**
- * How a change to something the members carry between them is shared out: `even` takes
- * from whoever has most and gives to whoever has least, a unit at a time; `order` takes
- * from (and gives to) the first member first, as far as its bounds let it.
+ * How what the party spends or gains of an item is shared out among its members: `even`
+ * takes from whoever has most and gives to whoever has least, one at a time; `order` takes
+ * from (and gives to) the first member first.
  */
 export type Share = 'even' | 'order'
 
 /**
- * The members after the party's `value` changed by `delta` (what they carry between them),
- * each within its own bounds; what no member can take stays undone (`left`).
+ * The members after the party's count of item `id` changed by `delta` (what they carry
+ * between them), shared out by `share`; what no member had to give stays undone (`left`).
+ * A gain to a member without the item comes from the system's catalogues (`items`).
  */
-export function shareChange(
+export function shareItems(
   sheets: (state: CharacterState) => Sheet | undefined,
   members: CharacterState[],
-  value: string,
+  id: string,
   delta: number,
   share: Share = 'even',
+  options: { items?: ItemLookup; time?: number } = {},
 ): { members: CharacterState[]; events: CharacterEvent[]; left: number } {
-  const out = members.map((m) => ({
-    ...m,
-    values: { ...m.values },
-    conditions: { ...m.conditions },
-  }))
-  const room = (m: CharacterState, up: boolean): number => {
-    const sheet = sheets(m)
-    const bounds = sheet ? boundsOf(sheet, m, value) : {}
-    const now = m.values[value] ?? 0
-    const limit = up ? bounds.max : bounds.min
-    return limit === undefined ? Infinity : Math.max(0, up ? limit - now : now - limit)
-  }
+  // Only members whose sheet has items take part.
+  const open = members.filter((m) => sheets(m)?.items !== undefined)
+  const has = new Map(open.map((m) => [m.id, countOf(m, id)]))
+  const moved = new Map<string, number>()
   const up = delta > 0
   let left = Math.abs(delta)
-  if (share === 'order') {
-    for (const m of out) {
-      if (left <= 0) break
-      const moved = Math.min(left, room(m, up))
-      m.values[value] = (m.values[value] ?? 0) + (up ? moved : -moved)
-      left -= moved
-    }
-  } else {
-    while (left > 0) {
-      const open = out.filter((m) => room(m, up) > 0)
-      if (!open.length) break
-      // Taking: whoever has most; giving: whoever has least (the first of equals).
-      const pick = open.reduce((best, m) =>
-        up
-          ? (m.values[value] ?? 0) < (best.values[value] ?? 0)
-            ? m
-            : best
-          : (m.values[value] ?? 0) > (best.values[value] ?? 0)
-            ? m
-            : best,
-      )
-      const moved = Math.min(left, 1, room(pick, up))
-      pick.values[value] = (pick.values[value] ?? 0) + (up ? moved : -moved)
-      left -= moved
-    }
+  const move = (who: string, n: number) => {
+    has.set(who, has.get(who)! + (up ? n : -n))
+    moved.set(who, (moved.get(who) ?? 0) + (up ? n : -n))
+    left -= n
   }
+  if (share === 'order') {
+    for (const m of open) {
+      if (left <= 0) break
+      move(m.id, up ? left : Math.min(left, has.get(m.id)!))
+    }
+  } else
+    while (left > 0) {
+      const can = open.filter((m) => up || has.get(m.id)! > 0)
+      if (!can.length) break
+      // Taking: whoever has most; giving: whoever has least (the first of equals).
+      const pick = can.reduce((best, m) =>
+        (up ? has.get(m.id)! < has.get(best.id)! : has.get(m.id)! > has.get(best.id)!) ? m : best,
+      )
+      move(pick.id, 1)
+    }
   const events: CharacterEvent[] = []
-  out.forEach((m, i) => {
-    const from = members[i].values[value] ?? 0
-    const to = m.values[value] ?? 0
-    if (to === from) return
-    events.push({ type: 'VALUE_CHANGED', character: m.id, value, from, to })
-    // What's made of it, or holds by itself on it, follows.
+  const out = members.map((m) => {
+    const change = moved.get(m.id)
     const sheet = sheets(m)
-    if (sheet) settle(sheet, m, events, {})
+    if (!change || !sheet) return m
+    const done = applyCharacter(
+      sheet,
+      m,
+      {
+        type: 'change',
+        effects: { [`items.${id}`]: change },
+        ...(options.time !== undefined && { time: options.time }),
+      },
+      { items: options.items },
+    )
+    events.push(...done.events)
+    return done.state
   })
   return { members: out, events, left }
 }
+
+/** How many of item `id` a character has, all of them together. */
+export const countOf = (state: CharacterState, id: string): number =>
+  (state.items ?? []).filter((i) => i.id === id).reduce((n, i) => n + i.count, 0)
 
 /**
  * What the members' conditions block for the party (`blocks` on the sheet): each thing

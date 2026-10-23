@@ -78,7 +78,7 @@ export function contextSuggestions(
   add('around.water', true, false)
   // The world clock's: each clock by its name as an id, and today's events.
   add('events')
-  // What hit its minimum or maximum today (its id), and the action under way.
+  // What hit its minimum or maximum today (by full name), and the action under way.
   add('below')
   add('above')
   add('doing')
@@ -92,7 +92,17 @@ export function contextSuggestions(
   add('party.mode')
 
   const { systems } = travelSystems(registry)
-  for (const { pack, rules, bindings, calendar, sheet, factions, clocks, items } of systems) {
+  for (const {
+    pack,
+    rules,
+    bindings,
+    calendar,
+    sheet,
+    partySheet,
+    factions,
+    clocks,
+    items,
+  } of systems) {
     // A system that isn't loaded names nothing.
     if (pack !== undefined && !ours(pack)) continue
     // The divisions of its calendar's day: the part it is (`time.meal: elevenses`), the
@@ -161,17 +171,28 @@ export function contextSuggestions(
     add('mode', ...Object.keys(rules.modes))
     add('party.mode', ...Object.keys(rules.modes))
     add('edges', ...Object.keys(rules.edges ?? {}))
-    for (const resource of Object.keys(rules.resources ?? {})) {
-      add(`party.resources.${resource}`)
-      add(`trip.spent.${resource}`)
-      add(`trip.gained.${resource}`)
-      add('below', resource)
-      add('above', resource)
+    // The party's own sheet, and its items with its members': what they spent and gained,
+    // and what hit a bound, by full name.
+    const numbers = [
+      ...Object.keys(partySheet?.def.values ?? {}).map((v) => `party.values.${v}`),
+      ...[...new Set((items ?? []).flatMap((c) => Object.keys(c.def.items)))].map(
+        (id) => `party.items.${id}`,
+      ),
+    ]
+    for (const value of Object.keys(partySheet?.def.values ?? {})) add(`party.values.${value}`)
+    if (partySheet) add('party.conditions', ...Object.keys(partySheet.def.conditions))
+    for (const c of items ?? [])
+      for (const [id, item] of Object.entries(c.def.items)) {
+        add(`party.items.${id}.count`)
+        add('party.items.tags', ...(item.tags ?? []))
+      }
+    for (const path of numbers) {
+      add(`trip.spent.${path}`)
+      add(`trip.gained.${path}`)
     }
-    for (const stat of Object.keys(bindings?.stats ?? {})) {
-      add('below', stat)
-      add('above', stat)
-    }
+    const stats = Object.keys(bindings?.stats ?? {}).map((s) => `party.stats.${s}`)
+    add('below', ...numbers, ...stats)
+    add('above', ...numbers, ...stats)
     for (const check of rules.checks ?? []) {
       condition(check.when, add)
       condition(check.unless, add)
@@ -286,8 +307,8 @@ function values(record: Record<string, unknown> | undefined, add: Add, prefix = 
 
 /**
  * Names an entry can set (`set: { … }`), with known values: what trips understand (lost,
- * weather, fatigue, resources, stats), what discovery reads (terrain, tags, name, poi) and
- * what the loaded packs already set. Nested ones are dotted (resources.food).
+ * weather, fatigue, stats), what discovery reads (terrain, tags, name, poi) and
+ * what the loaded packs already set. Nested ones are dotted (party.morale).
  */
 export function setSuggestions(registry: Registry): Record<string, string[]> {
   const out = new Map<string, Set<string>>()
@@ -308,7 +329,6 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
     add('weather', ...Object.keys(rules.weather ?? {}))
     add('terrain', ...Object.keys(rules.terrains))
     for (const value of Object.keys(declaredValues(rules))) add(value, true)
-    for (const resource of Object.keys(rules.resources ?? {})) add(`resources.${resource}`)
     for (const stat of Object.keys(bindings?.stats ?? {})) add(`stats.${stat}`)
   }
   for (const def of registry.definitions.values()) {
@@ -327,11 +347,11 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
 
 /**
  * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
- * stats and its supplies, and its characters' values and conditions, in every loaded system.
+ * stats, its sheet and items, and its characters' values and conditions, in every loaded system.
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
-  for (const { rules, bindings, sheet, factions, clocks, items } of travelSystems(registry)
+  for (const { bindings, sheet, partySheet, factions, clocks, items } of travelSystems(registry)
     .systems) {
     // Its progress clocks: segments filled (or emptied) by a result.
     for (const id of Object.keys(clocks?.def.clocks ?? {})) out[`world.clocks.${id}`] = ['1', '-1']
@@ -348,8 +368,12 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
         out[`${who}.territory`] = ['1', '-1']
       }
     for (const stat of Object.keys(bindings?.stats ?? {})) out[`party.stats.${stat}`] = []
-    for (const resource of Object.keys(rules.resources ?? {}))
-      out[`party.resources.${resource}`] = []
+    // The party's own sheet, and its items with its members' (shared out among them).
+    for (const value of Object.keys(partySheet?.def.values ?? {})) out[`party.values.${value}`] = []
+    for (const c of Object.keys(partySheet?.def.conditions ?? {}))
+      out[`party.conditions.${c}`] = ['true', 'false']
+    for (const c of items ?? [])
+      for (const id of Object.keys(c.def.items)) out[`party.items.${id}`] = ['1', '-1']
     // Its characters: every member, the one acting, one by id.
     const roles = Object.keys(bindings?.roles ?? {}).map((r) => `roles.${r}`)
     for (const who of sheet ? ['party.members', 'acting', 'characters.<id>', ...roles] : []) {

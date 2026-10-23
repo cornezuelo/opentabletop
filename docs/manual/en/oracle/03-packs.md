@@ -21,10 +21,10 @@ Some games only allow their tables for **personal use** (Kal-Arath, for one). Th
 
 Besides tables, oracles, generators and decks, a pack can hold definitions for **other engines**. Today these are two, and together they turn a pack into a **travel system** that the Hexmapper's Play mode (**With rules**) and the [Travel app](../travel/01-getting-started.md) can play:
 
-| Definition       | `kind`         | What it says                                                                                                                                          |
-| ---------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Travel rules** | `travel-rules` | How a trip works: the length of the day, speed on each terrain and road, ways of travelling, supplies, weather, and **which checks** happen and when. |
-| **Bindings**     | `bindings`     | How those checks are **resolved**: which table rolls each one, the party stats the tables use, and how the map is discovered.                         |
+| Definition       | `kind`         | What it says                                                                                                                                |
+| ---------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Travel rules** | `travel-rules` | How a trip works: the length of the day, speed on each terrain and road, ways of travelling, weather, and **which checks** happen and when. |
+| **Bindings**     | `bindings`     | How those checks are **resolved**: which table rolls each one, the party stats the tables use, and how the map is discovered.               |
 
 **Why two.** The rules belong to the Travel Engine and the tables to the Oracle, and engines don't know each other: the bindings are the bridge. That's also why each is optional on its own: rules without bindings make a system whose checks all wait for you (**Continue**); the Generic rules have no checks at all.
 

@@ -57,7 +57,6 @@ export const vocabulary = {
       season: 'Season',
       weather: 'Weather',
       world: 'World',
-      supplies: 'Supplies',
       system: 'System',
       campaign: 'Campaign',
       /** The plain calendar's numbered `watch` division, which has no name of its own. */
@@ -175,7 +174,6 @@ export const vocabulary = {
       season: 'Estación',
       weather: 'Clima',
       world: 'Mundo',
-      supplies: 'Provisiones',
       system: 'Sistema',
       campaign: 'Campaña',
       watches: 'Guardias',

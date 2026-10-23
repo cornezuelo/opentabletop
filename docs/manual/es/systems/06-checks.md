@@ -8,7 +8,7 @@ Una comprobación es una pregunta que el viaje se hace en un momento: _al entrar
 
 - **Cuándo.** En cada momento por el que pasa el viaje, primero van las acciones que el sistema hace **automáticamente** en él, y luego las comprobaciones de ese momento, **una a una, en el orden de la lista**.
 - **Si sale.** El **Solo si** / **Salvo si** de cada comprobación se lee justo antes de que salga, así que ve lo que vino antes en ese momento: el clima recién tirado, un valor del día, los cambios de otra comprobación. Si no se cumplen, no sale; el **Todo** del diario dice por qué (_Lobos no sale: el camino tomado es road_).
-- **Qué pasa.** Primero van sus propios **Cambios**. Luego **se tira en** su tabla (u oráculo, generador, mazo, modelo de clima): la tabla ve el hex, el momento, las características y provisiones del grupo y el **Contexto extra** de la comprobación. Su resultado va al diario, y lo que el resultado fija (valores del día, el clima) y cambia (características, provisiones) llega al viaje. Sin tabla, la comprobación es solo una línea en el diario, con sus **Cambios**.
+- **Qué pasa.** Primero van sus propios **Cambios**. Luego **se tira en** su tabla (u oráculo, generador, mazo, modelo de clima): la tabla ve el hex, el momento, el grupo (sus características, su hoja, sus objetos) y el **Contexto extra** de la comprobación. Su resultado va al diario, y lo que el resultado fija (valores del día, el clima) y cambia (características, la hoja y los objetos del grupo, personajes) llega al viaje. Sin tabla, la comprobación es solo una línea en el diario, con sus **Cambios**.
 - **Detenerse.** Una comprobación nunca detiene el viaje salvo que lo diga: **Pausar después**, o un resultado de su tabla que pausa (`pause: true` en una entrada), detiene el viaje hasta que el jugador pulsa **Continuar**, y deja en espera el resto de su momento hasta entonces. Una espera que haya detenido sigue tras **Continuar**; una marcha que haya detenido espera a **Seguir**, para que puedas mirar antes. Una comprobación del momento de una acción (**Cuándo** `actions.camp`) deja en espera también el resto de esa acción hasta que se resuelve: un encuentro nocturno que pausa se juega al empezar la acampada, y la noche pasa tras **Continuar** (cuando nada pausa, todo ocurre de una vez).
 
 ![Un momento de un viaje, al entrar en un hex: las acciones automáticas del sistema y luego cada comprobación en el orden de la lista. Una comprobación al llegar su momento: (1) se leen su Solo si / Salvo si, y si no se cumplen no sale, con el motivo en Todo; (2) sus propios Cambios; (3) se tira en su tabla, con su Contexto extra, o sin tabla es solo una línea en el diario; (4) el resultado va al diario, con sus valores y efectos, y Pausar después o un resultado que pausa esperan a Continuar. Luego la siguiente comprobación del momento, que ve todo esto.](check-moment.svg)
@@ -37,7 +37,7 @@ Las tablas en las que se tira una comprobación van en el mismo pack (añádelas
 
 ## Condiciones y cambios en filas
 
-**Solo si** y **Salvo si** se construyen en filas de **qué lee** · **comparación** · **valor**, como las de una acción (_Condiciones en filas_, en [Reglas → Acciones](05-rules.md#acciones), explica cómo): `hex.tags` · **es** · `landmark`, `trip.edges` · **es uno de** · `road, river`, `hex.danger` · **es más de** · `{{party.stats.stealth}}`. **Cambios** y **Contexto extra** son filas de un nombre y un valor: **+ Añadir una fila**, y luego elige qué cambia (sugerido entre lo que tiene el sistema: `party.stats.fatigue`, `party.resources.food`, `world.clocks.<id>`…) y su valor (`1`, `-1`, `=0`, `-{{party.stats.mouths}}`); × quita una fila. **YAML**, debajo de cada uno, muestra lo mismo en una línea de YAML (`hex.danger: { gte: 3 }`, `party.stats.fatigue: 1`) para lo que las filas no pueden decir; **Filas** vuelve. Todos los operadores, variables y tiradas: [Condiciones](../technical/08-conditions.md); toda la sintaxis de un vistazo: [Sintaxis](../technical/09-syntax.md); todos los valores que pueden leer: [Lo que ven las tablas](../technical/04-what-tables-see.md).
+**Solo si** y **Salvo si** se construyen en filas de **qué lee** · **comparación** · **valor**, como las de una acción (_Condiciones en filas_, en [Reglas → Acciones](05-rules.md#acciones), explica cómo): `hex.tags` · **es** · `landmark`, `trip.edges` · **es uno de** · `road, river`, `hex.danger` · **es más de** · `{{party.stats.stealth}}`. **Cambios** y **Contexto extra** son filas de un nombre y un valor: **+ Añadir una fila**, y luego elige qué cambia (sugerido entre lo que tiene el sistema: `party.stats.fatigue`, `party.values.food`, `party.items.ration`, `world.clocks.<id>`…) y su valor (`1`, `-1`, `=0`, `-{{party.stats.mouths}}`); × quita una fila. **YAML**, debajo de cada uno, muestra lo mismo en una línea de YAML (`hex.danger: { gte: 3 }`, `party.stats.fatigue: 1`) para lo que las filas no pueden decir; **Filas** vuelve. Todos los operadores, variables y tiradas: [Condiciones](../technical/08-conditions.md); toda la sintaxis de un vistazo: [Sintaxis](../technical/09-syntax.md); todos los valores que pueden leer: [Lo que ven las tablas](../technical/04-what-tables-see.md).
 
 ## Características del grupo
 
@@ -53,9 +53,9 @@ Las tareas que el jugador da a los personajes en un viaje (el **Guía** y el **V
 
 El **Usado en** de un rol lista lo que lee a quien lo tiene: al guía de las Marcas Grises lo lee la tabla _¿Nos perdemos?_, que ninguna pestaña de aquí enseña si no.
 
-## Provisiones que llevan los miembros
+## Lo que lleva el grupo
 
-Con una hoja, nombra una provisión de las reglas y el valor de la hoja en el que la lleva cada personaje (**Llevada en**: la comida de las Marcas Grises en `rations`), y cómo se reparte lo que el viaje gaste o gane (**Reparto**: por igual, o en orden). El viaje muestra la suma.
+No se declara aquí: la comida, el agua o las antorchas son valores de la hoja del grupo u objetos que llevan sus personajes, y lo que el grupo gasta de un objeto (`party.items.ration: -1`) se reparte entre ellos como diga su hoja ([Hoja → Objetos](07-sheet.md#objetos)).
 
 ## Paso a paso: tierra de lobos
 
@@ -63,7 +63,7 @@ Un sistema en el que los bosques y las colinas son de los lobos: al entrar en el
 
 1. **Créalo**: escribe _Tierra de Lobos_ bajo la lista de sistemas y pulsa **+**.
 2. **Fatiga**: en **Características del grupo**, **Añadir una característica** y llámala _Fatiga_ (su id pasa a ser `fatiga`; cámbialo a `fatigue`, como en el resto de esta página), **Empieza en** `0`.
-3. **Hambre**: **Añadir una comprobación**, con **Comprobación** `HUNGER` y el nombre _Hambre_. **Cuándo** `time.day-end`; **Solo si** `trip.below` · **es** · `food` (el **Comer** de las Reglas genéricas ocurre automáticamente al acabar el día, antes de esta comprobación, y llega al mínimo cuando no queda comida); **Se tira en** _— sin tabla —_; **Cambios** `party.stats.fatigue` · `1`.
+3. **Hambre**: **Añadir una comprobación**, con **Comprobación** `HUNGER` y el nombre _Hambre_. **Cuándo** `time.day-end`; **Solo si** `trip.below` · **es** · `party.values.food` (el **Comer** de las Reglas genéricas ocurre automáticamente al acabar el día, antes de esta comprobación, y llega al mínimo de la comida del grupo cuando no queda); **Se tira en** _— sin tabla —_; **Cambios** `party.stats.fatigue` · `1`.
 4. **La tabla de los lobos**: en la aplicación Oracle, **Nueva definición**, una tabla en tu pack _Tierra de Lobos_ con el id `wolves`, el nombre _Lobos_ y la tirada `1d6 + {{night}}`: con `1-4` _Solo el viento entre los árboles_; con `5-6` _Huellas frescas; apretáis el paso_, con **Cambios** `party.stats.fatigue: 1`; con `7-8` _La manada ronda el fuego_, marcando **Pausar** en esa entrada. De día `{{night}}` no es nada, que cuenta como `0`: la manada nunca llega.
 5. **Lobos de día**: de vuelta en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `WOLVES` y el nombre _Lobos_. **Cuándo** `trip.hex-enter`; **Solo si** `hex.terrain` · **es uno de** · `forest, hills`; **Salvo si** `trip.edges` · **es** · `road` (los lobos no se acercan a los caminos); **Se tira en** _Lobos_.
 6. **Lobos de noche**: **Añadir una comprobación**, con **Comprobación** `WOLVES_AT_NIGHT` y el nombre _Lobos de noche_. **Cuándo** `actions.camp`; **Solo si** `hex.terrain` · **es uno de** · `forest, hills`; **Se tira en** _Lobos_, la misma tabla; **Contexto extra** `night` · `2`: de noche la tabla tira `1d6 + 2`, y una noche de cada tres llega la manada.
@@ -83,7 +83,7 @@ checks:
   - event: HUNGER # paso 3
     name: Hambre
     at: time.day-end
-    when: { trip.below: food }
+    when: { trip.below: party.values.food }
     effects: { party.stats.fatigue: 1 }
   - event: WOLVES # paso 5
     name: Lobos
@@ -130,7 +130,7 @@ Las Marcas Grises juegan con todo esto y más (el clima primero al alba y una co
 - **Una comprobación que nunca sale.** Su **Cuándo** está vacío (solo la pregunta un paso de una acción), o sus condiciones nunca se cumplen: el terreno del mapa es `dense-forest` y la comprobación pide `forest`, la etiqueta del hex es `Landmark` y pide `landmark`. Elige **Todo** en el diario: cada comprobación que no salió dice por qué.
 - **La misma tabla, de día y de noche.** Una comprobación con **Cuándo** `trip.hex-enter, actions.camp` tiene un solo **Contexto extra**, el mismo en los dos momentos. Haz dos comprobaciones con dos ids, como los pasos 5 y 6, o deja que las entradas de la tabla distingan los momentos (`when: { trip.moment: actions.camp }`).
 - **Una comprobación que lee lo que viene después.** Las comprobaciones de un momento van en el orden de la lista: una que esté por encima de la del clima ve el clima de ayer. Pon primero la que fija algo.
-- **Hambre todas las noches, o nunca.** `trip.below: food` solo se ve en el momento en que la comida llegó a su mínimo (el **Comer** de las Reglas genéricas, en `time.day-end`): una comprobación de hambre en otro momento nunca lo ve.
+- **Hambre todas las noches, o nunca.** `trip.below: party.values.food` solo se ve en el momento en que la comida llegó a su mínimo (el **Comer** de las Reglas genéricas, en `time.day-end`): una comprobación de hambre en otro momento nunca lo ve.
 - **Una comprobación que no detiene nada.** Sin tabla y sin **Pausar después**, una comprobación es solo una línea en el diario. Para detener el viaje, marca **Pausar después**; para detenerlo solo con algunos resultados, marca **Pausar** en esas entradas de su tabla.
 - **Una marcha que no sigue tras Continuar.** **Continuar** acaba la pausa y sigue con una espera que haya detenido, pero una marcha que haya detenido espera a **Seguir** (o a que el viaje siga solo).
 - **Lobos en el camino.** **Salvo si** `trip.edges` · **es** · `road` lee el camino o río que el grupo siguió para entrar en el hex: un hex de bosque al que se entra campo a través, junto a un camino, sigue teniendo lobos.

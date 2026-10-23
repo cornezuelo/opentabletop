@@ -26,7 +26,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 
   A quote inside a quoted text is written twice: `'The guard''s dog'`. When in doubt, quote: it never hurts. Forms do it for you.
 
-- **Dotted names** reach inside a value: `party.stats.morale`, `party.resources.food`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
+- **Dotted names** reach inside a value: `party.stats.morale`, `party.values.food`, `party.items.ration.count`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
 - **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `hex.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; the trip so far only by its full names (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#how-to-read-this-page).
 
 ## Ids and references
@@ -137,13 +137,13 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 
 | Write                                                      | Does                                                                                                                                              |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `party.resources.food: -1`                                 | takes 1 away                                                                                                                                      |
+| `party.values.food: -1`                                    | takes 1 away                                                                                                                                      |
 | `party.stats.morale: 2`                                    | adds 2                                                                                                                                            |
 | `party.stats.fatigue: '=0'`                                | sets it to 0                                                                                                                                      |
-| `party.resources.food: '{{1d3+1}}'`                        | adds a roll                                                                                                                                       |
-| `party.resources.food: '-{{party.stats.mouths}}'`          | takes away as many as another value says                                                                                                          |
+| `party.values.food: '{{1d3+1}}'`                           | adds a roll                                                                                                                                       |
+| `party.items.ration: '-{{party.stats.mouths}}'`            | takes away as many as another value says: of the party's items, its own first, then its characters' as their sheet shares them out                |
 | `party.stats.morale: '={{party.stats.charisma}}'`          | sets it to another value                                                                                                                          |
-| `party.resources.food: '-{{1d3}}'`                         | takes away a roll (in a trip, the same all through the moment)                                                                                    |
+| `party.values.food: '-{{1d3}}'`                            | takes away a roll (in a trip, the same all through the moment)                                                                                    |
 | `party.members.values.health: 1`                           | adds 1 to every character of the party                                                                                                            |
 | `party.values.morale: -1`, `party.conditions.shaken: true` | the party's own sheet (its `partySheet`)                                                                                                          |
 | `characters.kael.values.health: -1`                        | takes 1 from one character, by id                                                                                                                 |
@@ -154,7 +154,7 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 | `faction.territory: 1`, `faction.values.strength: -1`      | in a faction's turn table: its land, its values                                                                                                   |
 | `world.clocks.the-siege: 1`                                | ticks a progress clock (a faction's turn, a full clock, or a trip's result on a map); `'=0'` sets it                                              |
 
-A change stops at the value's `min` / `max`; what hit one that day is seen afterwards as `trip.below` / `trip.above` (lists of ids). Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
+A change stops at the value's `min` / `max`; what hit one that day is seen afterwards as `trip.below` / `trip.above` (lists of full names: `trip.below: party.values.food`). Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 
 ## Moments
 
@@ -180,27 +180,27 @@ A check without `at` is rolled only by a step (`roll:`); an action without `on` 
 
 An action's `do:` is a list of steps, in order; each does one thing and may have its own `when` / `unless`.
 
-| Step                                               | Does                                                              |
-| -------------------------------------------------- | ----------------------------------------------------------------- |
-| `time: 120`                                        | 120 minutes pass                                                  |
-| `time: '14:00'`                                    | until it next strikes                                             |
-| `time: time.meal.luncheon`                         | until a part of the calendar's day next starts                    |
-| `travel.move: destination`                         | moves along the route while its conditions hold                   |
-| `travel.move: '{{params.until}}'`                  | as far as its parameter says (`hex`, `3`…)                        |
-| `travel.speed: 0.5`                                | the rest of today's moving at half speed                          |
-| `effects: { party.stats.fatigue: -1 }`             | changes the party                                                 |
-| `set: { lost: true }`                              | gives a value of the day                                          |
-| `do: actions.forage`                               | takes another action, if its conditions hold                      |
-| `{ do: actions.march, with: { until: hex } }`      | another action, with its parameters                               |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED`            | rolls a check now (or `roll: table.ruins`: a table of the Oracle) |
-| `travel.advance: 1`                                | moves one hex along the route, no time passing                    |
-| `travel.mode: modes.boat`                          | travels another way, if it can be chosen now                      |
-| `say: The porters sing`                            | a line of the system's own in the journal                         |
-| `pause: true`                                      | the trip waits for **Continue** (or a text)                       |
-| `ask: params.how`                                  | the player chooses the parameter `how` now                        |
-| `{ wait: { today.ferry: true }, limit: '18:00' }`  | time passes until it holds, at most the limit                     |
-| `{ id: song, say: … }`                             | names a step for its translations                                 |
-| `{ unless: { trip.below: food }, effects: { … } }` | only when its condition holds                                     |
+| Step                                                            | Does                                                              |
+| --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `time: 120`                                                     | 120 minutes pass                                                  |
+| `time: '14:00'`                                                 | until it next strikes                                             |
+| `time: time.meal.luncheon`                                      | until a part of the calendar's day next starts                    |
+| `travel.move: destination`                                      | moves along the route while its conditions hold                   |
+| `travel.move: '{{params.until}}'`                               | as far as its parameter says (`hex`, `3`…)                        |
+| `travel.speed: 0.5`                                             | the rest of today's moving at half speed                          |
+| `effects: { party.stats.fatigue: -1 }`                          | changes the party                                                 |
+| `set: { lost: true }`                                           | gives a value of the day                                          |
+| `do: actions.forage`                                            | takes another action, if its conditions hold                      |
+| `{ do: actions.march, with: { until: hex } }`                   | another action, with its parameters                               |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`                         | rolls a check now (or `roll: table.ruins`: a table of the Oracle) |
+| `travel.advance: 1`                                             | moves one hex along the route, no time passing                    |
+| `travel.mode: modes.boat`                                       | travels another way, if it can be chosen now                      |
+| `say: The porters sing`                                         | a line of the system's own in the journal                         |
+| `pause: true`                                                   | the trip waits for **Continue** (or a text)                       |
+| `ask: params.how`                                               | the player chooses the parameter `how` now                        |
+| `{ wait: { today.ferry: true }, limit: '18:00' }`               | time passes until it holds, at most the limit                     |
+| `{ id: song, say: … }`                                          | names a step for its translations                                 |
+| `{ unless: { trip.below: party.values.food }, effects: { … } }` | only when its condition holds                                     |
 
 Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: actions.march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: actions.camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
@@ -208,9 +208,9 @@ Marching is an action with a `travel.move` step, checked as the party moves: its
 
 A value of the day lists what can't be done while it holds: `travel.move` (no more moving on), an action (`actions.camp`, `actions.forage`) or a way of travelling (`modes.horse`). Each by its full name: what it is, then its id. `values: { snowbound: { blocks: [modes.horse] } }`. A character's condition on a [sheet](07-kinds.md#sheets) blocks the same way while any character of the party has it: `conditions: { sprained: { blocks: [travel.move] } }`; the trip says who.
 
-## The party's characters: `from` and `carried`
+## The party's characters: `from` and `share`
 
-In bindings, when the system has a sheet: a stat made of the characters' values, `from: { max: survival }` (also `min`, `sum`, or `count: true`, with `when` / `unless` on each character and `none` for when none counts), and a supply they carry, `resources: { food: { carried: rations, share: even } }`. Both only while the party has characters. Journey roles: `roles: { guide: { name: Guide } }`, read as `roles.guide.…`. See [Bindings](07-kinds.md#bindings).
+In bindings, when the system has a sheet: a stat made of the characters' values, `from: { max: survival }` (also `min`, `sum`, or `count: true`, with `when` / `unless` on each character and `none` for when none counts), only while the party has characters. On the sheet, how what the party spends or gains of an item is shared out among them, `items: { share: even }` (or `order`), and what a new character carries, `items: { start: { ration: 2 } }`. Journey roles: `roles: { guide: { name: Guide } }`, read as `roles.guide.…`. See [Bindings](07-kinds.md#bindings).
 
 ## Speeds
 

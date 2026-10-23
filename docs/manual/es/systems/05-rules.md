@@ -1,6 +1,6 @@
 # Reglas
 
-La pestaña **Reglas** edita las reglas de viaje del sistema (`kind: travel-rules`): cómo va un día, a qué velocidad se mueve el grupo y por dónde, qué lleva y qué puede hacer. Esta página explica cómo avanza un viaje, luego cada parte de la pestaña, construye desde cero una caravana por el desierto paso a paso y repasa los errores habituales. La ayuda junto a cada campo lo explica, con ejemplos. El texto gris en una casilla vacía es solo el valor por defecto o una pista, no un valor. Todo, con el YAML: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+La pestaña **Reglas** edita las reglas de viaje del sistema (`kind: travel-rules`): cómo va un día, a qué velocidad se mueve el grupo y por dónde, y qué puede hacer. Esta página explica cómo avanza un viaje, luego cada parte de la pestaña, construye desde cero una caravana por el desierto paso a paso y repasa los errores habituales. La ayuda junto a cada campo lo explica, con ejemplos. El texto gris en una casilla vacía es solo el valor por defecto o una pista, no un valor. Todo, con el YAML: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 
 ## Cómo avanza un viaje
 
@@ -9,7 +9,7 @@ Un viaje es un reloj y un lugar. Nada en él pasa por sí solo: el reloj solo av
 - **Momentos.** Al avanzar, el reloj pasa por momentos: una hora (`06:00`), el principio de una parte del día del calendario (`time.part.morning`), un hex en el que se entra (`trip.hex-enter`), el final del día (`time.day-end`), una acción que se hace. En cada uno ocurren, una tras otra, las acciones que el sistema hace **automáticamente** en él y sus [comprobaciones](06-checks.md) de ese momento. Eso es lo que da forma a un día: no hay ningún día integrado.
 - **Moverse.** Solo una acción con un paso **Moverse** (`travel.move`) mueve al grupo: la **marcha**. Recorre la ruta hex a hex mientras se cumplen su **Solo si** / **Salvo si**, y se detiene cuando dejan de cumplirse (de noche, en cuanto se gastan las horas de marcha del día), cuando la bloquea un valor del día, cuando la velocidad del clima es `0`, cuando la para una comprobación o al final del camino.
 - **Cuánto se tarda en un hex.** Una forma de viajar hace sus **km por día** en las **Horas de marcha al día**: esa es su velocidad en terreno fácil (30 km en 8 horas: 3,75 km por hora). El hex en el que se entra la multiplica por la **Velocidad ×** de su terreno o, si el grupo entra siguiendo un camino o un río, por la de esa línea en su lugar; luego por la **Velocidad ×** del clima de hoy y por un paso **Cambiar la velocidad** que haya dado hoy una acción. Los **km por hex** a esa velocidad es lo que se tarda: 10 km a 3,75 km/h en un bosque a `0.5` son 5 h 20 min. Lo que falte de un hex cuando la marcha se detiene se guarda para la siguiente.
-- **Todo lo demás son números que leen y cambian las acciones y tablas del sistema**: provisiones (comida, agua…), valores del día (perdidos…), las características del grupo. La app nunca los gasta ni los pone por sí sola.
+- **Todo lo demás son números que leen y cambian las acciones y tablas del sistema**: lo que lleva el grupo (comida, agua…: valores de su [hoja](07-sheet.md), u [objetos](08-items.md)), valores del día (perdidos…), las características del grupo. La app nunca los gasta ni los pone por sí sola.
 
 ![Un día de las Reglas genéricas, de medianoche a medianoche: (1) el viaje empieza a las 06:00, al empezar la mañana; (2) la marcha entra en un hex cada 2 h 40 min; (3) a las 14:00, marchadas sus 8 horas, se detiene; (4) la tarde es del jugador, para los demás botones; (5) a las 20:00 empieza la noche y un grupo que espera acampa hasta la mañana; (6) a medianoche acaba el día y el grupo come.](trip-day.svg)
 
@@ -41,15 +41,11 @@ Un viaje empieza con la primera forma de la lista; el jugador elige otra en el p
 - **Hexes de agua**: lo mismo, para los hexes que el mapa marca como agua y no tienen regla propia en Terrenos. Una forma de viajar cuyo **Solo por** se cumple en el agua puede navegarlos igualmente.
 - **Caminos y ríos**: al seguir uno de un hex al siguiente, su **Velocidad ×** sustituye a la del terreno (un camino a `1.5`: un 50 % más rápido). La sustituye, no la multiplica: un río a `1` hace que las montañas a su orilla se crucen como llanuras. Las líneas no listadas no hacen nada; las condiciones pueden distinguirlas igualmente (`trip.edges: road`).
 
-## Provisiones
+## Lo que lleva el grupo
 
-Lo que lleva el grupo, cada una con su **Nombre**, su **Descripción (su ayuda)**, su **Mín** y su **Máx**. Las provisiones las gastan las acciones, comprobaciones y tablas del propio sistema, nunca la app: las Marcas Grises comen con una acción que el sistema hace al final de cada día (1 de comida, y 1 de forraje a caballo).
+En las reglas no hay una lista de provisiones: lo que lleva el grupo es cosa del sistema, como cualquier otro número. La comida, el agua o las antorchas son valores de la hoja del grupo (`party.values.food`, [Hoja](07-sheet.md)), con el **Mín.**, el **Máx.** y el **Empieza en** con el que arranca un viaje nuevo, u objetos que llevan sus personajes (`party.items.ration`, [Objetos](08-items.md)), repartidos entre ellos. En los dos casos solo los gastan las acciones, comprobaciones y tablas del propio sistema, nunca la app: las reglas genéricas comen un día de comida con una acción que el sistema hace al final de cada día; las Marcas Grises comen una ración por boca, y forraje a caballo.
 
-**Mín** y **Máx** acotan una provisión: un cambio que pasaría de uno se queda en él, el diario lo dice y las reglas del sistema pueden reaccionar (las Marcas Grises: una comprobación de fin de día, fatiga +1, cuando la comida llegó a su mínimo): los pasos siguientes de la misma acción, y las comprobaciones de ese momento, ven `trip.below: food` (o `trip.above`).
-
-Un viaje nuevo empieza con 6 de cada provisión, o con su **Máx** si es menor (su **Mín** si es mayor); el jugador las cambia en el panel del viaje antes de salir.
-
-Su columna **Usado en** lista las acciones, comprobaciones y tablas que leen, gastan o suman a cada una ([Usado en](04-overview.md#usado-en)).
+Un límite detiene un cambio: si pasaría de su **Mín.** o su **Máx.**, se queda en él, el diario lo dice y las reglas del sistema pueden reaccionar (las Marcas Grises: una comprobación de fin de día, fatiga +1, cuando se acabaron las raciones): los pasos siguientes de la misma acción, y las comprobaciones de ese momento, ven `trip.below: party.values.food` (o `trip.above`), por su nombre completo.
 
 ## Clima
 
@@ -90,12 +86,12 @@ Lo que puede hacer el grupo: solo lo que declara el sistema (acampar, descansar,
 
 ### Pasos
 
-Cada paso es una tarjeta. Plegada, su título dice en palabras lo que hace (_Pasan 3 h_, _Hacer Marchar (until: hex)_, _Cambia: Fatiga −1_: lo que cambia por su nombre, como lo dice el diario del viaje) y, a su lado, su condición (_salvo si trip.below es food_); pulsa el título para abrirla. Arrastra una tarjeta por su asa (⠿) sobre otra para llevar el paso ahí (o ↑ / ↓ de uno en uno). Abierta, **Qué hace** elige uno de los tipos de abajo, y sus campos cambian con él: un tiempo, una forma de viajar, una acción y los valores de sus parámetros, una comprobación, filas de cambios (`party.stats.fatigue` · `1`)… Cambiar el tipo conserva las condiciones del paso. Debajo, el **Solo si** / **Salvo si** del propio paso, en filas. **YAML**, arriba en la tarjeta, muestra el paso como lo escribe el pack, para lo que el formulario no cubre (un `id`, por ejemplo). Los tipos, como los escribe el YAML:
+Cada paso es una tarjeta. Plegada, su título dice en palabras lo que hace (_Pasan 3 h_, _Hacer Marchar (until: hex)_, _Cambia: Fatiga −1_: lo que cambia por su nombre, como lo dice el diario del viaje) y, a su lado, su condición (_salvo si trip.below es party.items.ration_); pulsa el título para abrirla. Arrastra una tarjeta por su asa (⠿) sobre otra para llevar el paso ahí (o ↑ / ↓ de uno en uno). Abierta, **Qué hace** elige uno de los tipos de abajo, y sus campos cambian con él: un tiempo, una forma de viajar, una acción y los valores de sus parámetros, una comprobación, filas de cambios (`party.stats.fatigue` · `1`)… Cambiar el tipo conserva las condiciones del paso. Debajo, el **Solo si** / **Salvo si** del propio paso, en filas. **YAML**, arriba en la tarjeta, muestra el paso como lo escribe el pack, para lo que el formulario no cubre (un `id`, por ejemplo). Los tipos, como los escribe el YAML:
 
 - `time: 180`: pasan tres horas (o hasta una hora, `06:00`, o una parte del día, `time.part.morning`);
 - `travel.move: destination`: moverse por la ruta mientras pasa el tiempo y se cumplen las condiciones de la acción, hasta el destino (`hex`: el siguiente; `3`: tres hexes; `'{{params.until}}'`: lo que diga su parámetro); una comprobación que te necesita lo detiene por el camino, y **Seguir** sigue con él;
 - `travel.speed: 0.5`: el resto del movimiento de hoy va a media velocidad;
-- `effects: { party.stats.fatigue: -1 }`: cambia las características, provisiones o personajes del grupo;
+- `effects: { party.stats.fatigue: -1 }`: cambia las características del grupo, su hoja y sus objetos (`party.values.food`, `party.items.ration`) o sus personajes;
 - `set: { lost: true }`: pone un valor del día;
 - `do: actions.forage`: otra acción, si se cumplen sus condiciones; `do: actions.march, with: { until: hex }`: con sus parámetros;
 - `roll: checks.<comprobación>`: una comprobación, ya; o algo del Oráculo (`roll: table.ruins`, `generator.<id>`, `oracle.<id>`, `deck.<id>`), tirado ya sin comprobación alrededor: su resultado en el diario con su nombre, sus valores y cambios aplicados, una pausa si su entrada lo dice (_Explorar la ruina_ de las Marcas Grises, `roll: generator.ruin-delve`; _Explorar_ de Core, `roll: generator.prompt`). El **Tirar una comprobación o una tabla** de la tarjeta ofrece las dos cosas;
@@ -108,7 +104,7 @@ Cada paso es una tarjeta. Plegada, su título dice en palabras lo que hace (_Pas
 
 Un paso también puede tener un `id` (`id: song, say: …`): sus traducciones lo encuentran por él. Todos los pasos, con ejemplos y un sistema entero que los usa: [Acciones y pasos](../technical/10-actions-and-steps.md).
 
-Un paso puede tener su propia condición: la acampada de las Marcas Grises duerme hasta la mañana y, **salvo si** `trip.below: food` (la comida se acabó al final del día), quita 1 de fatiga.
+Un paso puede tener su propia condición: la acampada de las Marcas Grises duerme hasta la mañana y, **salvo si** `trip.below: party.items.ration` (las raciones se acabaron al final del día), quita 1 de fatiga.
 
 ## Paso a paso: una caravana por el desierto de sal
 
@@ -117,13 +113,13 @@ Un sistema para cruzar un desierto en camello: los camellos van más rápido que
 1. **Créalo**: escribe _Ruta de la Sal_ bajo la lista de sistemas y pulsa **+**.
 2. **Camellos**: en **Formas de viajar**, añade `camel`, con el nombre _En camello_ y **km por día** `40`. En 8 horas de marcha son 5 km por hora en terreno fácil.
 3. **El terreno**: en **Terrenos**, pon `desert` a **Velocidad ×** `0.5` (la arena es lenta: un hex de 10 km le lleva a un camello 4 horas). Añade `salt-flat`, **Velocidad ×** `1`, **Transitable** marcado y **Cerrado cuando** `time.season: spring`: las lluvias de primavera lo inundan. Deja **Caminos y ríos** como están: un `road` a `1.5` sustituye al `0.5` del desierto allí donde el grupo sigue uno.
-4. **Agua**: en **Provisiones**, añade `water`, con el nombre _Agua_, **Mín** `0` y **Máx** `3`: tres días en los odres, nunca más.
+4. **Agua**: en **Hoja**, la hoja del grupo (_el grupo_, una copia de la de las reglas genéricas con Moral y Comida), añade un valor `water`, con el nombre _Agua_, **Empieza en** `3`, **Mín.** `0` y **Máx.** `3`: tres días en los odres, nunca más.
 5. **Sedientos**: en **Valores del día**, añade `parched`, con el nombre _Sedientos_ y **Bloquea** `modes.camel`: los camellos con sed no llevan a nadie.
-6. **Beber**: en **Acciones**, **Añadir una acción** `drink`, con el nombre _Beber_ y **Automática en** `time.part.morning`. Sus pasos: **Cambiar valores** con la fila `party.resources.water` · `-1`; luego un segundo paso, **Dar un valor del día** `parched: true`, con **Solo si** `trip.below` · **es** · `water` (solo si los odres ya estaban vacíos).
-7. **El oasis**: **Añadir una acción** `fill`, con el nombre _Llenar los odres_ y **Solo si** `hex.terrain` · **es** · `oasis`. Sus pasos: **Pasar el tiempo** `60` y luego **Cambiar valores** `party.resources.water` · `3`.
+6. **Beber**: en **Acciones**, **Añadir una acción** `drink`, con el nombre _Beber_ y **Automática en** `time.part.morning`. Sus pasos: **Cambiar valores** con la fila `party.values.water` · `-1`; luego un segundo paso, **Dar un valor del día** `parched: true`, con **Solo si** `trip.below` · **es** · `party.values.water` (solo si los odres ya estaban vacíos: el trago llegó al **Mín.** del agua).
+7. **El oasis**: **Añadir una acción** `fill`, con el nombre _Llenar los odres_ y **Solo si** `hex.terrain` · **es** · `oasis`. Sus pasos: **Pasar el tiempo** `60` y luego **Cambiar valores** `party.values.water` · `3`.
 8. **Pruébalo**: en **Pruébalo**, haz un camino de diez hexes: `desert` de punta a punta, salvo `salt-flat` en el hex 6 y `oasis` en el hex 10, con un `road` del hex 2 al hex 3. Empieza un viaje en verano, elige **En camello** y marcha día tras día; luego empieza uno en primavera.
 
-**Lo que verás.** El viaje empieza con 3 de agua (su **Máx**: 6 serían demasiados) y, al empezar la primera mañana, el diario dice _Beber (Agua −1)_. En camello el grupo entra en el hex 2 a las 10:00 (4 horas de arena), en el hex 3 a las 11:20 (el camino), y la marcha se detiene a las 14:00, gastadas sus 8 horas, a dos tercios del hex 4. Al día siguiente sigue desde ahí: el hex 4 a las 07:20, el 5 a las 11:20, el salar a las 13:20. La cuarta mañana los odres están vacíos: _Agua no puede bajar de 0_, y se cumple _Sedientos_: **Marchar** se detiene en el acto (_Sedientos: «En camello» no puede seguir mientras dure; elige otra forma de viajar_), y no se puede elegir **En camello**, diciendo por qué. Elige **A pie** y sigue marchando: más despacio (5 h 20 min por hex de arena), pero el grupo llega al oasis a las 13:20. Allí **Llenar los odres** lleva una hora y los deja en 3; si lo pulsas otra vez, el diario dice _Agua no puede subir de 3_. En primavera no hay forma de pasar el salar inundado: al poner el destino dice _No hay ruta hasta allí_, y **Marchar** no va a ninguna parte. (Las horas son las de un día de buen tiempo: la comprobación de clima que conserva la copia se tira cada mañana, y la lluvia, una tormenta o la nieve frenan la marcha.)
+**Lo que verás.** La ficha del grupo empieza con 3 de agua (su **Empieza en**) y, al empezar la primera mañana, el diario dice _Beber (Agua −1)_. En camello el grupo entra en el hex 2 a las 10:00 (4 horas de arena), en el hex 3 a las 11:20 (el camino), y la marcha se detiene a las 14:00, gastadas sus 8 horas, a dos tercios del hex 4. Al día siguiente sigue desde ahí: el hex 4 a las 07:20, el 5 a las 11:20, el salar a las 13:20. La cuarta mañana los odres están vacíos: _Agua no puede bajar de 0_, y se cumple _Sedientos_: **Marchar** se detiene en el acto (_Sedientos: «En camello» no puede seguir mientras dure; elige otra forma de viajar_), y no se puede elegir **En camello**, diciendo por qué. Elige **A pie** y sigue marchando: más despacio (5 h 20 min por hex de arena), pero el grupo llega al oasis a las 13:20. Allí **Llenar los odres** lleva una hora y los deja en 3; si lo pulsas otra vez, el diario dice _Agua no puede subir de 3_. En primavera no hay forma de pasar el salar inundado: al poner el destino dice _No hay ruta hasta allí_, y **Marchar** no va a ninguna parte. (Las horas son las de un día de buen tiempo: la comprobación de clima que conserva la copia se tira cada mañana, y la lluvia, una tormenta o la nieve frenan la marcha.)
 
 ## Lo mismo en YAML
 
@@ -135,8 +131,6 @@ modes:
 terrains:
   desert: { multiplier: 0.5 } # paso 3
   salt-flat: { multiplier: 1, passable: { unless: { time.season: spring } } }
-resources:
-  water: { name: Agua, min: 0, max: 3 } # paso 4
 values:
   parched: { name: Sedientos, blocks: [modes.camel] } # paso 5
 actions:
@@ -144,15 +138,26 @@ actions:
     name: Beber
     on: time.part.morning
     do:
-      - { effects: { party.resources.water: -1 } }
-      - { when: { trip.below: water }, set: { parched: true } }
+      - { effects: { party.values.water: -1 } }
+      - { when: { trip.below: party.values.water }, set: { parched: true } }
   fill: # paso 7
     name: Llenar los odres
     when: { hex.terrain: oasis }
     do:
       - { time: 60 }
-      - { effects: { party.resources.water: 3 } }
-# … el día, los terrenos, los caminos, la comida, marchar, acampar, descansar, comer y explorar de las Reglas genéricas
+      - { effects: { party.values.water: 3 } }
+# … el día, los terrenos, los caminos, marchar, acampar, descansar, comer y explorar de las Reglas genéricas
+```
+
+Y la hoja del grupo, como venía en la copia, con el agua del paso 4:
+
+```yaml
+kind: sheet
+id: party
+values:
+  morale: { name: Moral, default: 3, min: 0, max: 5, display: boxes }
+  food: { name: Comida, default: 6, min: 0 }
+  water: { name: Agua, default: 3, min: 0, max: 3 } # paso 4
 ```
 
 Las Marcas Grises juegan con todo esto y más (una barca solo por el agua, un carro solo por caminos, picos abiertos solo en verano, nieve profunda que deja atrás a los caballos, una marcha nocturna): su [página](../packs/02-grey-marches.md) dice dónde.
@@ -165,7 +170,8 @@ Las Marcas Grises juegan con todo esto y más (una barca solo por el agua, un ca
 - **Un camino que hace fáciles las montañas.** Siguiendo un camino o un río, la **Velocidad ×** de la línea sustituye a la del terreno en vez de multiplicarla. Un río a `1` que cruza montañas a `0.33` se recorre a `1`.
 - **Un terreno cerrado por el que una forma de viajar pasa igualmente.** Una forma de viajar con **Solo por** va allí donde se cumple esa condición, incluso por terrenos cerrados o no **Transitables**: la barca que navega un lago que nadie puede cruzar a pie. Añade el cierre también a su **Solo por**.
 - **Ninguna ruta.** Con un terreno cerrado (el salar en primavera) y sin forma de rodearlo, no hay ruta: **Marchar** no va a ninguna parte y al poner el destino dice _No hay ruta hasta allí_. En un mapa, las rutas rodean lo cerrado cuando pueden.
-- **Una provisión que nunca baja.** La app nunca gasta provisiones: lo tiene que hacer una acción o una comprobación (paso 6). Y un viaje empieza con 6 de cada una (dentro de su **Mín** y su **Máx**): ponlas en el panel del viaje.
+- **Agua que nunca baja.** La app nunca gasta lo que lleva el grupo: lo tiene que hacer una acción o una comprobación (paso 6). Y un viaje empieza con el **Empieza en** de cada valor: ponlo en la pestaña Hoja, o cámbialo en la ficha del grupo durante el viaje.
+- **`trip.below: water` nunca se cumple.** Lo que llegó a un límite se nombra entero: `trip.below: party.values.water` (un objeto: `party.items.ration`; una característica: `party.stats.fatigue`).
 - **Un valor del día que no hace nada.** Solo hace algo mientras se cumple: lo que **Bloquea**, o una condición que lo lee. Si se pone al acabar el día (`time.day-end`), acaba en el acto: léelo al día siguiente como `yesterday.parched`, o ponlo por la mañana, como el paso 6.
 - **El grupo atascado con los camellos.** Un valor que bloquea la forma de viajar que lleva el grupo lo detiene hasta que el jugador elige otra; bloquear `travel.move` en su lugar detiene todas las formas el resto del día.
 - **Un trago que nunca llegó.** Una acción **automática** en un momento ocurre cuando el reloj pasa por él: un viaje que empezó después de `time.part.morning` bebe a la mañana siguiente. Y su **Solo si** decide si ocurre siquiera.

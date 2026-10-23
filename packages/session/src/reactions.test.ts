@@ -8,11 +8,11 @@ import type { SessionState } from './index'
 
 /** A made-up system whose rules react: to the food running out, to a member falling. */
 const pack = (extra = '') => [
-  { path: 'r/pack.yaml', content: 'id: r\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
+  { path: 'r/pack.yaml', content: 'id: r\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
   {
     path: 'r/system.yaml',
     content:
-      'kind: system\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.hero\n',
+      'kind: system\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.hero\npartySheet: sheet.band\n',
   },
   {
     path: 'r/sheet.yaml',
@@ -24,6 +24,11 @@ values:
   grit: { default: 2 }
 conditions:
   down: {}
+---
+kind: sheet
+id: band
+values:
+  food: { default: 6, min: 0 }
 `,
   },
   {
@@ -33,13 +38,12 @@ kind: travel-rules
 travel: { hoursPerDay: 8, start: '07:00' }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-resources: { food: { min: 0 } }
 actions:
-  feast: { do: [{ effects: { party.resources.food: '=0' } }] }
-  restock: { do: [{ effects: { party.resources.food: 3 } }] }
+  feast: { do: [{ effects: { party.values.food: '=0' } }] }
+  restock: { do: [{ effects: { party.values.food: 3 } }] }
   hurt-mara: { do: [{ effects: { characters.mara.values.health: '=0' } }] }
   starving:
-    on: { when: { party.resources.food: { lte: 0 } } }
+    on: { when: { party.values.food: { lte: 0 } } }
     do: [{ effects: { party.members.values.grit: -1 } }]
   fall:
     on: { when: { acting.values.health: { lte: 0 } }, for: party.members }

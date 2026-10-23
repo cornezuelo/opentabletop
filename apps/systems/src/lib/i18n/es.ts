@@ -73,7 +73,7 @@ export const es: Messages<typeof en> = {
     sheet: {
       title: 'Sus hojas: el grupo y sus personajes',
       intro:
-        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos y qué provisiones llevan. Cada una tiene valores con sus límites, contadores, estados y relaciones. Si el sistema tiene facciones, **su hoja** (elegida en la pestaña **Facciones**) se edita aquí también.',
+        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos, y los objetos del grupo son los suyos juntos. Cada una tiene valores con sus límites, contadores, estados y relaciones. Si el sistema tiene facciones, **su hoja** (elegida en la pestaña **Facciones**) se edita aquí también.',
       help: 'Nombradas en su **Resumen** (`partySheet:`, `sheet:`). Las condiciones y las tablas leen la hoja del grupo y cada personaje:\n• `party.values.morale: { gte: 3 }` — el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\nLos efectos los cambian:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — a todos los personajes\nUna característica del grupo puede ser un valor de la hoja de grupo: `from: { party: morale }` (en **Comprobaciones**).',
       none: 'Este sistema no tiene hoja: su grupo se juega como un todo, con sus características.',
       create: 'Nueva hoja de personajes',
@@ -195,7 +195,7 @@ export const es: Messages<typeof en> = {
   reaction: {
     when: 'Al cumplirse esto',
     whenHelp:
-      'Un momento escrito como condición: llega **una vez, al cumplirse esto**, y otra solo después de que haya dejado de cumplirse. Se mira tras cada cambio del viaje (un paso, un efecto, un resultado, un cambio a mano), leyendo lo que ven las tablas, y lo que llega se juega allí mismo. Lo que ya se cumple al empezar un viaje llega en su primer paso.\nEjemplos:\n• `party.values.morale` como mucho `0` — los mercenarios se van\n• `party.resources.food` como mucho `0` — el grupo empieza a pasar hambre\n• `world.clocks.the-siege` al menos `6` — una vez, al llegar a 6 el reloj del asedio\nPara un estado que deba cumplirse todo el rato (sobrecargado, agotado), dale al estado de la hoja un **Se cumple mientras**. Vacío: ningún momento así.',
+      'Un momento escrito como condición: llega **una vez, al cumplirse esto**, y otra solo después de que haya dejado de cumplirse. Se mira tras cada cambio del viaje (un paso, un efecto, un resultado, un cambio a mano), leyendo lo que ven las tablas, y lo que llega se juega allí mismo. Lo que ya se cumple al empezar un viaje llega en su primer paso.\nEjemplos:\n• `party.values.morale` como mucho `0` — los mercenarios se van\n• `party.values.food` como mucho `0` — el grupo empieza a pasar hambre\n• `world.clocks.the-siege` al menos `6` — una vez, al llegar a 6 el reloj del asedio\nPara un estado que deba cumplirse todo el rato (sobrecargado, agotado), dale al estado de la hoja un **Se cumple mientras**. Vacío: ningún momento así.',
     each: 'Para cada miembro',
     eachHelp:
       'Se mira miembro a miembro, leyendo a cada uno como `acting` (`acting.values.health` como mucho `0`), y se juega con ese miembro actuando, así que sus efectos sobre `acting.…` le llegan a él; el diario dice a quién. Cada miembro llega una vez, al cumplirse para él.',
@@ -275,6 +275,14 @@ export const es: Messages<typeof en> = {
     sizeHelp:
       'El campo que dice cuánto sitio ocupa un objeto (por cuántos haya). Vacío: cada objeto ocupa uno.\n• `slots`',
     sizeCount: 'uno cada uno',
+    share: 'Reparto',
+    shareHelp:
+      'Cómo se reparte entre los personajes de esta hoja lo que el grupo gasta o gana de un objeto (`party.items.ration: -3`, `party.items.ration: 2`): primero los objetos del propio grupo, luego los suyos.\n• **even** (por defecto): se quita a quien más tiene y se da a quien menos, de uno en uno\n• **order**: el primer personaje da (o recibe) todo lo que pueda, luego el siguiente\nSin personajes, los guarda la propia hoja del grupo.',
+    shareEven: 'even (por defecto)',
+    start: 'Empieza con',
+    startHelp:
+      'Lo que lleva un personaje nuevo de esta hoja, de los catálogos del sistema (la pestaña **Objetos**), una fila cada cosa: el objeto y cuántos. En la hoja del propio grupo, con lo que empieza cada viaje nuevo (las reservas de un grupo sin personajes).\n• `ration` · `2` — dos raciones cada uno\n• `torch` · `1`',
+    startItem: 'Objeto',
     relationName: 'Nombre',
     relationMin: 'Número desde',
     relationMax: 'hasta',
@@ -418,7 +426,7 @@ export const es: Messages<typeof en> = {
       'Las definiciones con las que se juega el sistema, cada una por su kind y su id: de este pack (`travel-rules.default`) o de una dependencia (`core/travel-rules.default`).\n• **Reglas de viaje** — cómo va un viaje (`kind: travel-rules`); ninguna: las reglas Genéricas\n• **Bindings** — qué tabla responde a cada comprobación, y las características del grupo (`kind: bindings`)\n• **Calendario** — cómo se nombran los días, en los viajes y en el reloj del mundo (`kind: calendar`); ninguno: el de por defecto',
     travel: 'Reglas de viaje',
     travelHelp:
-      'Cómo va un viaje: el día, las velocidades, las provisiones, las acciones, las comprobaciones (`travel: default`). **Abrir** las edita en la pestaña Reglas; **Crear** empieza unas nuevas a partir de las Genéricas.\n• ninguna — las reglas Genéricas',
+      'Cómo va un viaje: el día, las velocidades, las acciones, las comprobaciones (`travel: default`). **Abrir** las edita en la pestaña Reglas; **Crear** empieza unas nuevas a partir de las Genéricas.\n• ninguna — las reglas Genéricas',
     bindings: 'Bindings',
     bindingsHelp:
       'Qué tabla responde a cada comprobación, y las características del grupo (`bindings: default`). **Abrir** los edita en la pestaña Comprobaciones; **Crear** añade unos vacíos.\n• ninguno — cada comprobación espera al jugador',
@@ -504,7 +512,7 @@ export const es: Messages<typeof en> = {
     haltAt: 'Parada desde',
     haltDo: 'Acción de la parada',
     haltHelp:
-      'Lo que hace el grupo cuando **no puede marchar y el tiempo avanza solo**: el reloj del mundo avanzando con un viaje en marcha, una orden de viajar sin nada más que marchar, **Esperar para seguir**. Desde este momento (una hora o una parte del día) hasta que acaba el día, un grupo que no está marchando hace la acción, una vez al día.\n• **desde** `20:00`, **acción** `camp`\n• **desde** `time.part.night`, **acción** `watch`\nSi la acción **no se puede hacer** (su **Solo si** / **Salvo si**, o un valor que la bloquea), el diario dice por qué y el tiempo pasa sin ella hasta que el grupo pueda marchar.\n• camp con **Solo si** `party.resources.food: { gte: 1 }` — un grupo sin comida duerme a la intemperie\nSin acción: el grupo simplemente espera.',
+      'Lo que hace el grupo cuando **no puede marchar y el tiempo avanza solo**: el reloj del mundo avanzando con un viaje en marcha, una orden de viajar sin nada más que marchar, **Esperar para seguir**. Desde este momento (una hora o una parte del día) hasta que acaba el día, un grupo que no está marchando hace la acción, una vez al día.\n• **desde** `20:00`, **acción** `camp`\n• **desde** `time.part.night`, **acción** `watch`\nSi la acción **no se puede hacer** (su **Solo si** / **Salvo si**, o un valor que la bloquea), el diario dice por qué y el tiempo pasa sin ella hasta que el grupo pueda marchar.\n• camp con **Solo si** `party.values.food: { gte: 1 }` — un grupo sin comida duerme a la intemperie\nSin acción: el grupo simplemente espera.',
     haltNone: 'nada: el grupo espera',
     onwardDo: 'Sigue por sí solo con',
     onwardHelp:
@@ -553,15 +561,6 @@ export const es: Messages<typeof en> = {
     edge: 'Línea',
     edgeMultiplierHelp:
       'Velocidad por esta línea, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino a `1.5` por un terreno a `0.5` es el triple de rápido que ese terreno.',
-    resources: vocabulary.es.terms.supplies,
-    resourcesHelp:
-      'Lo que lleva el grupo: comida, forraje, agua, antorchas… Qué lo gasta lo decide **el sistema**, nunca la aplicación:\n• una acción al final de cada día come: `effects: { party.resources.food: -1 }`\n• una entrada de tabla encuentra: `effects: { party.resources.food: 2 }`\n• una comprobación sin comida cansa: **Solo si** `trip.below: food`\nEl panel del viaje muestra cada una y deja al jugador cambiarla a mano.',
-    min: 'Mín',
-    minHelp:
-      'Los efectos nunca lo bajan de aquí: un cambio más allá se queda ahí, el diario lo dice («La comida no puede bajar de 0»), y los pasos siguientes y las comprobaciones de ese día ven `trip.below: [su id]`.\n• comida con Mín `0` — comer sin nada se queda en 0, y una comprobación day-end con **Solo si** `trip.below: food` cansa al grupo\n• oro sin Mín — puede ser negativo, como una deuda',
-    max: 'Máx',
-    maxHelp:
-      'Los efectos nunca lo suben de aquí; los pasos y comprobaciones siguientes ven `trip.above: [su id]`.\n• agua con Máx `4` — un odre lleno no admite más\n• moral con Máx `5` — un festín no la sube de 5\nUn viaje nuevo empieza con 6 de cada provisión, o con su Máx si es menor (su Mín si es mayor).\nVacío: sin máximo.',
     weather: vocabulary.es.terms.weather,
     weatherHelp:
       'Cómo frena cada clima al grupo. Las tablas lo fijan con `set: { weather: … }` (normalmente al alba), o un modelo de clima con inercia.\n• `storm` × `0` — ese día no se viaja\n• `heavy-rain` × `0.5` — a media velocidad\n• `fog` × `0.75`\nLos climas no listados no cambian la velocidad; las condiciones aún pueden leerlos (`trip.weather: storm`).',
@@ -571,7 +570,7 @@ export const es: Messages<typeof en> = {
       'A qué velocidad marcha el grupo con este clima:\n• `0` — ese día no se viaja (es un día perdido)\n• `0.5` — a media velocidad\n• `1` — como siempre',
     actions: 'Acciones',
     actionsHelp:
-      "Lo que puede hacer el grupo: **marchar**, **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Automática en**). Nada viene de serie: marchar es una acción como las demás.\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• marchar: `travel.move: '{{params.until}}'`, con un parámetro `until` (hasta el destino o un hex)\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `travel.speed: 0.5`, su comprobación en `forage`\n• comer, automática en `time.day-end`: `effects: { party.resources.food: -1 }`\nSu orden cuenta: es el de los botones del panel del viaje, y el orden en que el sistema hace por sí solo las de un mismo momento. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.",
+      "Lo que puede hacer el grupo: **marchar**, **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Automática en**). Nada viene de serie: marchar es una acción como las demás.\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• marchar: `travel.move: '{{params.until}}'`, con un parámetro `until` (hasta el destino o un hex)\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `travel.speed: 0.5`, su comprobación en `forage`\n• comer, automática en `time.day-end`: `effects: { party.values.food: -1 }`\nSu orden cuenta: es el de los botones del panel del viaje, y el orden en que el sistema hace por sí solo las de un mismo momento. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.",
     oncePerDay: 'Una vez al día',
     modeWhenHelp:
       'Cuándo se puede elegir (**Solo si**) o no (**Salvo si**), como condición sobre dónde está el grupo y el momento.\n• una barca solo a la orilla: `any: [{ hex.water: true }, { hex.tags: ferry }]`\n• sin caballos con nieve: **Salvo si** `trip.weather: snow`\n• un carro solo en verano: **Solo si** `time.season: summer`\nVacío: siempre. Un valor del día también puede bloquearla (**Bloquea** `modes.<id>`).',
@@ -589,7 +588,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
-      "Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `trip.weather: storm` — el clima de hoy\n• `hex.terrain: [forest, hills]` — el hex donde está el grupo\n• `hex.tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.resources.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `time.moons.silver: full` — el calendario\n• `time.hour: { gte: 6, lt: 20 }` — solo de día, de 06:00 a 20:00; `time.part: night`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `trip.visits: 1` — la primera vez aquí; `around.terrain: lake` — junto a un lago\n• `trip.doneToday: forage` — si hoy se buscó comida; `trip.marched: { gte: 6 }` — tras 6 horas de marcha\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.food: { gte: 10 }` — lo que lleva hecho el viaje\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — una variable: comparado con otro valor (entre comillas)\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada: la misma durante todo el momento\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\nSi no, su botón sale desactivado y dice por qué (o se oculta, con **Oculta si no se puede hacer**); la acción de la parada que no se puede hacer deja pasar el tiempo sin ella.",
+      "Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `trip.weather: storm` — el clima de hoy\n• `hex.terrain: [forest, hills]` — el hex donde está el grupo\n• `hex.tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.values.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `time.moons.silver: full` — el calendario\n• `time.hour: { gte: 6, lt: 20 }` — solo de día, de 06:00 a 20:00; `time.part: night`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `trip.visits: 1` — la primera vez aquí; `around.terrain: lake` — junto a un lago\n• `trip.doneToday: forage` — si hoy se buscó comida; `trip.marched: { gte: 6 }` — tras 6 horas de marcha\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — lo que lleva hecho el viaje\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — una variable: comparado con otro valor (entre comillas)\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada: la misma durante todo el momento\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\nSi no, su botón sale desactivado y dice por qué (o se oculta, con **Oculta si no se puede hacer**); la acción de la parada que no se puede hacer deja pasar el tiempo sin ella.",
     params: 'Parámetros',
     paramsHelp:
       "Lo que elige el jugador al hacerla (junto a su botón, una elección por cada uno), y lo que le da un paso `do:` o **Sigue por sí solo con**. Cada parámetro tiene sus **opciones** (la primera es la de por defecto, salvo que `default` diga otra); sus pasos y condiciones leen la elegida como `{{params.<id>}}`.\n• `until: { choices: [destination, hex, 3] }` — hasta dónde va una marcha: con el paso `travel.move: '{{params.until}}'`\n• `pace: { choices: [steady, quick], default: steady }` — con **Solo si** `params.pace: quick` en un paso\nUna opción puede llevar un nombre que mostrar: `{ id: 3, name: Three hexes }` (traducido en los locales del pack). Vacío: sin elecciones, solo el botón.\nCada parámetro es una fila: su id, su **Nombre**, sus **Opciones** como píldoras (arrastra una sobre otra para cambiar su orden: la primera es la de por defecto) y su **Por defecto** cuando no es la primera. **YAML** los escribe todos de una vez, para el nombre de una opción.",
@@ -680,11 +679,11 @@ export const es: Messages<typeof en> = {
       'travel-mode':
         "La forma de viajar desde ahora, si se puede elegir en ese momento (se cumplen sus propias condiciones y nada la bloquea); si no, no cambia nada. Con destino, la ruta se vuelve a planear para ella.\n• `modes.boat` — una de las formas del sistema\n• `'{{params.by}}'` — lo que diga el parámetro de la acción",
       effects:
-        'Lo que cambia, una fila por cosa: un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.resources.food` · `-1` — resta 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.resources.food` · `-{{party.stats.mouths}}` — tanto como otro valor\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — sus personajes\nUn cambio que pasa del **Mín** o el **Máx** de un valor se queda ahí, y los pasos siguientes ven `trip.below` / `trip.above`.',
+        'Lo que cambia, una fila por cosa: un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.values.food` · `-1` — resta 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.items.ration` · `-{{party.stats.mouths}}` — tanto como otro valor\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — sus personajes\nUn cambio que pasa del **Mín** o el **Máx** de un valor se queda ahí, y los pasos siguientes ven `trip.below` / `trip.above`.',
       set: 'Valores del día que declara el sistema (**Reglas → Valores del día**), una fila por valor; duran hasta que acaba el día.\n• `lost` · `true`\n• `ferry` · `true` — lo que puede esperar un paso **Esperar algo**',
       do: 'Otra acción del sistema, que se hace ahora si se cumplen sus condiciones (si no, no pasa nada). **Con** le da sus parámetros; vacío, cada uno toma el suyo por defecto.\n• **Marchar**, con **until** `hex` — un hex de marcha\n• una marcha forzada: **Cambiar la velocidad** `1.5`, y luego **Hacer otra acción** Marchar',
       roll: 'Lo que se tira ahora; los pasos siguientes esperan su resultado y lo ven (los `today.<valor>` que da), y a **Continuar** si pausa:\n• una comprobación del sistema (**Comprobaciones**), sea cual sea su **Cuándo**\n• una tabla, oráculo, generador o mazo de los packs del sistema, p. ej. `table.ruins`: sin comprobación alrededor, su resultado en el diario con su nombre, sus valores y cambios llegan al viaje, y una entrada con pausa lo detiene',
-      say: 'Una línea propia del sistema en el diario. Los valores que lleve se leen en ese momento:\n• `Los porteadores cantan mientras caminan.`\n• `Al otro lado, con {{party.resources.food}} de comida.`',
+      say: 'Una línea propia del sistema en el diario. Los valores que lleve se leen en ese momento:\n• `Los porteadores cantan mientras caminan.`\n• `Al otro lado, con {{party.values.food}} de comida.`',
       pause:
         'El viaje espera aquí hasta que el jugador pulse **Continuar**, y luego sigue con el resto. Vacío: solo espera; con un texto, la caja de espera y el diario lo dicen (`La barca está en la otra orilla.`).',
       ask: 'El viaje espera a que el jugador elija uno de los **Parámetros** de esta acción, con un botón por opción; los pasos siguientes leen la respuesta, p. ej. **Solo si** `params.how` es `swim`.',
@@ -762,7 +761,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `hex.terrain: forest` — el hex\n• `hex.tags: landmark` — una etiqueta del hex\n• `trip.edges: [road, river]` — el camino o río del paso\n• `hex.danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.resources.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
+      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `hex.terrain: forest` — el hex\n• `hex.tags: landmark` — una etiqueta del hex\n• `trip.edges: [road, river]` — el camino o río del paso\n• `hex.danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.values.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: party.values.food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ hex.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',
@@ -773,7 +772,7 @@ export const es: Messages<typeof en> = {
     waits: '— sin tabla —',
     effects: 'Cambios',
     effectsHelp:
-      'Lo que cambia la propia comprobación cuando sale, con o sin tabla, una fila cada cosa (qué cambia · valor): un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.resources.food` · `-1` — quita 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.resources.food` · `-{{party.stats.mouths}}` — tantos como dice otro valor (una variable)\n• `party.members.values.health` · `-1`, `acting.conditions.wounded` · `true` — sus personajes (todos, el que actúa)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `time.day-end`, **Solo si** `trip.below: food`, **Cambios** `party.stats.fatigue: 1`.',
+      'Lo que cambia la propia comprobación cuando sale, con o sin tabla, una fila cada cosa (qué cambia · valor): un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.values.food` · `-1` — quita 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.items.ration` · `-{{party.stats.mouths}}` — tantos como dice otro valor (una variable)\n• `party.members.values.health` · `-1`, `acting.conditions.wounded` · `true` — sus personajes (todos, el que actúa)\nEs como un sistema escribe sus reglas como datos, p. ej. un día sin comida suficiente: **Cuándo** `time.day-end`, **Solo si** `trip.below: party.values.food`, **Cambios** `party.stats.fatigue: 1`.',
     pause: 'Pausar después',
     pauseHelp:
       'El viaje **se detiene** cuando sale esta comprobación (tras tirarla, si algo la resuelve) y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo. Es lo único que hace que una comprobación detenga el viaje: sin ello, una sin tabla solo se apunta en el diario.\n• un santuario encontrado por el camino, tirado en su tabla\n• un hito que describir, sin tabla\nUna entrada de tabla también puede pausar, solo cuando sale (`pause: true` en la entrada).',
@@ -781,7 +780,7 @@ export const es: Messages<typeof en> = {
     contextKey: 'Qué ve la tabla',
     contextHelp:
       'Valores que la tabla ve **solo en esta comprobación**, una fila cada uno (qué ve la tabla · valor):\n• `timeOfDay` · `night` — un encuentro nocturno tirado en la tabla de día\n• `danger` · `3` — como si el hex fuera más peligroso',
-    none: 'Sin comprobaciones: los viajes solo gastan tiempo y provisiones.',
+    none: 'Sin comprobaciones: los viajes solo pasan el tiempo y hacen lo que hagan sus acciones.',
     add: 'Añadir una comprobación',
     orphans: 'Tablas asociadas a comprobaciones que estas reglas no tienen: {events}.',
     removeOrphans: 'Quitarlas',
@@ -801,18 +800,6 @@ export const es: Messages<typeof en> = {
     rolesHelp:
       'Tareas que asumen los personajes del grupo durante el viaje (guiar, montar guardia, buscar comida…), al estilo de Forbidden Lands: en un viaje, cada rol se le da a un personaje, y las comprobaciones, tablas y acciones del sistema leen a quien lo tiene y le cambian cosas:\n• `roles.guide.values.pathfinding: { gte: 2 }` — el guía es lo bastante bueno\n• `modeWhen: { roll-modes.advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — una tabla tirada con ventaja\n• `roles.lookout.values.health: -1` — un efecto sobre el vigía\nNecesita una hoja.',
     roleName: 'Nombre',
-    carried: 'Provisiones que llevan los miembros',
-    carriedHelp:
-      'Con personajes en el grupo, una provisión aquí es lo que llevan entre todos: el viaje muestra su suma, sus límites son la suma de los suyos, y lo que el viaje gasta o gana se reparte entre ellos. Sin personajes, el grupo la guarda como un todo.\n• **food**, llevada en `rations`, repartida por igual',
-    noSheet: 'Este sistema aún no tiene hoja (la pestaña Hoja): el grupo se juega como un todo.',
-    carriedSupply: 'Provisión',
-    carriedIn: 'Llevada en',
-    carriedInHelp:
-      'El valor de la hoja de los miembros que guarda la parte de cada uno.\n• `rations`',
-    share: 'Reparto',
-    shareHelp:
-      '**even** (por igual, lo normal): se quita a quien más tiene y se da a quien menos, de una en una.\n**order** (en orden): el primer miembro da (o recibe) todo lo que puede, luego el siguiente.',
-    shareEven: 'even (por defecto)',
   },
   edit: {
     readOnly: 'Este sistema viene incluido y es de solo lectura.',

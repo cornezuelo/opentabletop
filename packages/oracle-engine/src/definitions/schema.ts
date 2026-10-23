@@ -12,7 +12,7 @@ const condition = z.record(z.string(), z.unknown())
 const setValues = z.record(z.string(), z.unknown())
 /**
  * Changes to the values a system declares, by their path as tables read them:
- * `{ party.stats.morale: -1, party.resources.food: '{{1d3}}', party.stats.fatigue: '=0' }`
+ * `{ party.stats.morale: -1, party.items.ration: '{{1d3}}', party.stats.fatigue: '=0' }`
  * (a number adds or subtracts, '=value' sets). The engine only fills in templates and
  * passes them on (`effects` in the result); the host applies them.
  */
@@ -195,8 +195,12 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  * 7. A step's `roll:` holds the rest of its action until it's resolved, so the steps after
  *    it see its result (in 6, it was resolved once the action ended); only the values a
  *    system declares last the day (in 6, any name ending in `Modifier` or `Impossible` too).
+ * 8. The party's supplies are its sheet's values or items (`party.values.food`,
+ *    `party.items.ration`): the travel rules' `resources` and the bindings' `resources`
+ *    (`carried`) are gone, and what hit a bound today is named in full (`trip.below:
+ *    party.values.food`; in 7, by its id: `trip.below: food`).
  */
-export const PACK_FORMAT = 7
+export const PACK_FORMAT = 8
 
 export const manifestSchema = z
   .object({

@@ -37,7 +37,7 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 
 ## Changing things: `effects` and `set`
 
-- `effects: { party.stats.fatigue: 1, party.resources.food: -1 }` changes the party like a table's effects do: a number adds or takes away, `'=0'` sets, `'-{{party.stats.mouths}}'` takes as many as another value, `'+{{1d3}}'` a roll. A change past a value's `min` / `max` stops there, and later steps see its id in `trip.below` / `trip.above`. Characters (`party.members.values.health: 1`, `acting.conditions.wounded: false`), factions and clocks too: see [What results can change](04-what-tables-see.md).
+- `effects: { party.stats.fatigue: 1, party.values.food: -1 }` changes the party like a table's effects do: a number adds or takes away, `'=0'` sets, `'-{{party.stats.mouths}}'` takes as many as another value, `'+{{1d3}}'` a roll. A change past a value's `min` / `max` stops there, and later steps see it in `trip.below` / `trip.above`, by its full name (`trip.below: party.values.food`). What one step changes, the next sees: the party's stats, its sheet's values and its items (`party.items.ration.count`). Characters (`party.members.values.health: 1`, `acting.conditions.wounded: false`), factions and clocks too: see [What results can change](04-what-tables-see.md).
 - `set: { lost: true }` gives a value of the day the system declares (`values:`): it lasts until the day ends, and blocks what it lists while it holds.
 
 ## Other actions and checks: `do` and `roll`
@@ -48,8 +48,8 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 
 ## Talking to the player: `say`, `pause` and `ask`
 
-- `say: The porters sing as they walk.` writes that line in the journal, as the system's own words. Values in it are read at that moment: `say: 'Across, with {{party.resources.food}} food left.'` writes "Across, with 4 food left.". Use it for colour, or to say why something happened (`{ when: { trip.below: food }, say: There is nothing left to eat. }`).
-- `pause: true` stops the trip there. The trip panel shows the action waiting, with **Continue**; until it's pressed nothing moves the trip on (marching, waiting and the other actions are greyed out, saying why), though the destination, the way of travelling, the characters and the supplies can still be changed by hand. **Continue** goes on with the rest of the action's steps at once, and then with whatever the pause stopped (a march an action took on the way, see below). With a text instead of `true` (`pause: The ferry is on the far bank.`), the waiting box and the journal say it.
+- `say: The porters sing as they walk.` writes that line in the journal, as the system's own words. Values in it are read at that moment: `say: 'Across, with {{party.values.food}} food left.'` writes "Across, with 4 food left.". Use it for colour, or to say why something happened (`{ when: { trip.below: party.values.food }, say: There is nothing left to eat. }`).
+- `pause: true` stops the trip there. The trip panel shows the action waiting, with **Continue**; until it's pressed nothing moves the trip on (marching, waiting and the other actions are greyed out, saying why), though the destination, the way of travelling, the characters and the party's sheet can still be changed by hand. **Continue** goes on with the rest of the action's steps at once, and then with whatever the pause stopped (a march an action took on the way, see below). With a text instead of `true` (`pause: The ferry is on the far bank.`), the waiting box and the journal say it.
 - `ask: params.how` stops the trip the same way, but to ask: the waiting box shows the action's parameter `how` (its `name` as the question, its `description` as its help) and a button for each of its `choices` (their names, their descriptions on hover). Choosing one is going on: the steps after it read the answer as `params.how`, so they can branch with their own conditions (`when: { params.how: swim }`). The parameter must be one of the action's own; its button doesn't offer it (it's asked as the action goes), and whatever it was given (a `with:`, its `default`) is what's chosen if the player gives nothing.
 
 ```yaml
@@ -77,14 +77,24 @@ What can make it hold: the time itself (`time.hour: { gte: 14 }`, `time.part: [a
 
 ## A step's condition, and its `id`
 
-- `when` / `unless` on a step make it happen only when they hold: `{ unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }` (a fed night). They see what the action's conditions see, plus `params.<id>` (its parameters), `trip.below` / `trip.above` (what hit a bound during the action), `trip.doing` (the action under way) and `trip.moment` (when the system took it).
+- `when` / `unless` on a step make it happen only when they hold: `{ unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }` (a fed night). They see what the action's conditions see, plus `params.<id>` (its parameters), `trip.below` / `trip.above` (what hit a bound during the action), `trip.doing` (the action under way) and `trip.moment` (when the system took it).
 - `id` names a step so its texts can be translated: in `locales/<language>/`, a step is found by its `id` in its action's `do` (`actions: { grumble: { do: { sulk: { say: … } } } }`), and only `say` and `pause` texts are translated. See [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes).
 
 ## A whole example: a river crossing
 
-A tiny system whose only interesting action is crossing a river: the player chooses how (`ask`), waits for the ferry that comes at noon (`wait`, with an action the system takes at `'12:00'` that sets the value it waits for) or builds a raft (three hours, then `travel.mode`), the journal says how it went (`say`, reading the food left) and the trip waits for the player before going on (`pause`).
+A tiny system whose only interesting action is crossing a river: the player chooses how (`ask`), waits for the ferry that comes at noon (`wait`, with an action the system takes at `'12:00'` that sets the value it waits for) or builds a raft (three hours, then `travel.mode`), the journal says how it went (`say`, reading the food left, a value of the party's sheet) and the trip waits for the player before going on (`pause`).
 
 ```yaml
+kind: system
+id: default
+travel: travel-rules.river-crossing
+partySheet: sheet.party
+---
+kind: sheet
+id: party
+values:
+  food: { name: Food, default: 5, min: 0 }
+---
 kind: travel-rules
 id: river-crossing
 travel:
@@ -97,8 +107,6 @@ modes:
   foot: { name: On foot, kmPerDay: 30 }
   # Only once there's a raft (a value of the day).
   raft: { name: By raft, kmPerDay: 60, when: { today.raft: true } }
-resources:
-  food: { name: Food, min: 0 }
 values:
   ferry: { name: The ferry is here }
   raft: { name: A raft is built }
@@ -129,7 +137,7 @@ actions:
       - { when: { params.how: raft }, time: 180 }
       - { when: { params.how: raft }, set: { raft: true } }
       - { when: { params.how: raft }, travel.mode: modes.raft }
-      - { id: over, say: 'Ready to cross, {{party.resources.food}} food left.' }
+      - { id: over, say: 'Ready to cross, {{party.values.food}} food left.' }
       - { pause: true }
 ```
 

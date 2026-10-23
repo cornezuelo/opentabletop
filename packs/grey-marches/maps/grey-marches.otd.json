@@ -265,7 +265,6 @@
         "stealth": 1,
         "maxHealth": 3,
         "health": 3,
-        "rations": 3,
         "dread": 0,
         "nerve": 2
       },
@@ -305,6 +304,16 @@
               "start": {
                 "uses": 3
               }
+            },
+            {
+              "key": "ration",
+              "id": "ration",
+              "from": "grey-marches/gear",
+              "count": 3,
+              "tags": ["food"],
+              "fields": {
+                "slots": 1
+              }
             }
           ]
         }
@@ -323,7 +332,6 @@
         "stealth": 2,
         "maxHealth": 3,
         "health": 3,
-        "rations": 2,
         "dread": 0,
         "nerve": 2
       },
@@ -351,6 +359,16 @@
               "start": {
                 "uses": 3
               }
+            },
+            {
+              "key": "ration",
+              "id": "ration",
+              "from": "grey-marches/gear",
+              "count": 2,
+              "tags": ["food"],
+              "fields": {
+                "slots": 1
+              }
             }
           ]
         }
@@ -369,7 +387,6 @@
         "stealth": 0,
         "maxHealth": 4,
         "health": 4,
-        "rations": 3,
         "dread": 0,
         "nerve": 2
       },
@@ -434,6 +451,17 @@
               "start": {
                 "uses": 3
               }
+            },
+            {
+              "key": "ration",
+              "id": "ration",
+              "from": "grey-marches/gear",
+              "count": 3,
+              "place": "backpack",
+              "tags": ["food"],
+              "fields": {
+                "slots": 1
+              }
             }
           ]
         }
@@ -464,7 +492,6 @@
             "stealth": 1,
             "maxHealth": 3,
             "health": 3,
-            "rations": 2,
             "dread": 0,
             "nerve": 2
           },
@@ -472,6 +499,18 @@
             {
               "to": "poi:poi9x10x0",
               "kind": "home"
+            }
+          ],
+          "items": [
+            {
+              "key": "ration",
+              "id": "ration",
+              "from": "grey-marches/gear",
+              "count": 2,
+              "tags": ["food"],
+              "fields": {
+                "slots": 1
+              }
             }
           ]
         }

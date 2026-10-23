@@ -12,7 +12,7 @@
   import RecordRows from './RecordRows.svelte'
   import { usesFor } from '../../lib/usage'
 
-  /** Travel rules as forms: the day, terrains, roads, modes, supplies, weather and actions. */
+  /** Travel rules as forms: the day, terrains, roads, modes, weather and actions. */
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
   /** The parts of its calendar's day: the day may start and end at one. */
   const parts = $derived(dayPartRefs(system))
@@ -354,29 +354,6 @@
           type: 'number',
           min: 0,
         },
-      ]}
-    />
-  </section>
-
-  <section>
-    <h3>{t('rules.resources')}<InfoTip text={t('rules.resourcesHelp')} /></h3>
-    <RecordRows
-      {doc}
-      at={['resources']}
-      uses={system && { of: (id) => usesFor(system, { kind: 'supply', id }), system }}
-      idLabel={t('forms.id')}
-      suggestions={['food', 'water', 'fodder', 'torches']}
-      template={{ min: 0 }}
-      columns={[
-        { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
-        {
-          field: 'description',
-          label: t('forms.description'),
-          help: t('forms.descriptionHelp'),
-          type: 'text',
-        },
-        { field: 'min', label: t('rules.min'), help: t('rules.minHelp'), type: 'number' },
-        { field: 'max', label: t('rules.max'), help: t('rules.maxHelp'), type: 'number' },
       ]}
     />
   </section>

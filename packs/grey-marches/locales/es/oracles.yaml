@@ -54,7 +54,7 @@ inn:
 
     **Enseña:**
 
-    - Valores del grupo en la tirada (`{{party.stats.morale}}`) y en condiciones (`party.resources.food`)
+    - Valores del grupo en la tirada (`{{party.stats.morale}}`) y en condiciones (`party.items.ration.count`)
     - Entradas para cuando no hay viaje: `party: { exists: false }`
     - `maxOccurrences`: un mercenario se une dos veces como mucho
     - Cascadas a tablas y generadores

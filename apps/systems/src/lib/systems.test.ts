@@ -178,6 +178,10 @@ describe('systems in the Systems app', () => {
     // Its weather check still rolls Core's weather model.
     expect(mine.bindings?.on.WEATHER_CHECK_REQUIRED).toEqual({ weather: 'core/default' })
     expect(Object.keys(mine.weather ?? {})).toEqual(['core/default'])
+    // The food its rules eat is a value of its own party sheet, a copy of Core's.
+    expect(mine.partySheet?.id).toBe(`${id}/party`)
+    expect(Object.keys(mine.partySheet!.def.values)).toEqual(['morale', 'food'])
+    expect(library.diagnostics(id)).toEqual([])
   })
 
   it('a copy of a pack a system uses, older than the bundled one, is named on the system', () => {
@@ -326,6 +330,7 @@ describe('systems in the Systems app', () => {
     expect(library.readFile(id, 'system.yaml')).toMatch(/factions: factions.default/)
     // Their sheet is edited in the Sheet tab, after the characters' and the party's.
     expect(systemParts(system(), 'sheet')).toEqual([
+      { root: id, path: 'sheet.yaml', kind: 'sheet', id: 'party' },
       { root: id, path: 'factions.yaml', kind: 'sheet', id: 'faction' },
     ])
     // Every read after a change reloads the packs: a few seconds in all.

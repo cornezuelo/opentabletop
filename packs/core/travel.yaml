@@ -64,9 +64,6 @@ edges:
 modes:
   foot: { name: On foot, kmPerDay: 30 }
   horse: { name: On horseback, kmPerDay: 50 }
-# Food never goes below 0: when there's none left, eating hits that minimum.
-resources:
-  food: { name: Food, min: 0 }
 # How the weather slows the march (weather.yaml): a kind it doesn't list doesn't.
 weather:
   rain: { speed: 0.75 }
@@ -83,8 +80,10 @@ values: {}
 # Marching while it isn't dark for the day's 8 hours, to the destination or one hex at a
 # time; camp sleeps until the morning; a rest is an hour without marching, only by day (the
 # night is for camping). As each day ends, whether the party camped or not, it eats a day
-# of food (an action the system takes by itself: `on`), and the journal says so when there
-# was none left (a `say` step, named by its `id` for its translation). Exploring rolls
+# of food (an action the system takes by itself: `on`), a value of the party's sheet
+# (`party.values.food`, sheet.yaml); when there was none left, the food hit its minimum
+# (`trip.below: party.values.food`) and the journal says so (a `say` step, named by its
+# `id` for its translation). Exploring rolls
 # Core's Prompt generator (a step that rolls something of the Oracle: `roll:`) for an idea
 # of what the party finds.
 actions:
@@ -118,8 +117,8 @@ actions:
     description: A day of food, eaten as each day ends.
     on: time.day-end
     do:
-      - { effects: { party.resources.food: -1 } }
-      - { id: empty, when: { trip.below: food }, say: There is nothing left to eat. }
+      - { effects: { party.values.food: -1 } }
+      - { id: empty, when: { trip.below: party.values.food }, say: There is nothing left to eat. }
   explore:
     name: Explore
     description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt).'

@@ -447,21 +447,6 @@ export const travelRulesSchema = z
         })
         .strict(),
     ),
-    resources: z
-      .record(
-        z.string(),
-        z
-          .object({
-            /** What players read: "Food", "Rations" (translated in locales/). */
-            name: text.optional(),
-            description: text.optional(),
-            /** Effects never take it below / above these (none: it may go negative). */
-            min: z.number().optional(),
-            max: z.number().optional(),
-          })
-          .strict(),
-      )
-      .optional(),
     /** Effect of weather states on movement (0 = no travel). */
     weather: z
       .record(z.string(), z.object({ speed: z.number().nonnegative().optional() }).strict())
@@ -763,19 +748,6 @@ export function actionMinutes(def: ActionDefinition): number | undefined {
 export type { Bounds }
 /** Moved to `@open-tabletop/variables`, shared with the other engines. */
 export { changeValue, resolveChange } from '@open-tabletop/variables'
-
-/** The bounds of each supply: the `min` / `max` it declares, or none. */
-export function resourceBounds(rules: TravelRules): Record<string, Bounds> {
-  return Object.fromEntries(
-    Object.entries(rules.resources ?? {}).map(([id, r]) => [
-      id,
-      {
-        ...(r.min !== undefined && { min: r.min }),
-        ...(r.max !== undefined && { max: r.max }),
-      },
-    ]),
-  )
-}
 
 /**
  * A loop of actions and checks bringing each other (an action's `do:` or `roll:` steps, an

@@ -212,15 +212,14 @@ export function changesText(
     memberName,
   }: Pick<JournalContext, 't' | 'valueName' | 'dayValues' | 'memberName'>,
 ): string {
-  // Effects are by path (party.stats.morale): named by the value's id.
-  const id = (path: string) =>
-    path.replace(/^party\.(stats|resources)\./, '').replace(/^party\./, '')
+  // Effects are by path (party.stats.morale): named by the value's id, or as the party's
+  // sheet and items and the characters' are (`party.values.food`, `acting.items.torch`).
+  const id = (path: string) => path.replace(/^party\.stats\./, '').replace(/^party\./, '')
   const name = (path: string) =>
     isMemberPath(path)
       ? (memberName?.(path) ?? path)
-      : valueName
-        ? valueName(id(path))
-        : idText(t, `resources.${id(path)}`, id(path))
+      : (memberName?.(path) ??
+        (valueName ? valueName(id(path)) : idText(t, `resources.${id(path)}`, id(path))))
   const parts = tripChanges(value)
     // Weather is told by the result; what a party without characters can't feel, not at all.
     .filter(([path]) => path !== 'weather' && (!isMemberPath(path) || !!memberName?.(path)))
@@ -420,7 +419,9 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const path = String(d.path)
       const key = path.replace(/^party\.(stats|resources)\./, '')
       return t(d.limit === 'max' ? 'journal.limitMax' : 'journal.limitMin', {
-        name: isMemberPath(path) ? (context.memberName?.(path) ?? path) : name(key),
+        name: isMemberPath(path)
+          ? (context.memberName?.(path) ?? path)
+          : (context.memberName?.(path) ?? name(key)),
         value: Number(d.value),
       })
     }
@@ -555,7 +556,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'CHANGED': {
       const path = String(d.path)
       const key = path.replace(/^party\.(stats|resources)\./, '')
-      const who = isMemberPath(path) ? (context.memberName?.(path) ?? path) : name(key)
+      const who = context.memberName?.(path) ?? (isMemberPath(path) ? path : name(key))
       // A condition set or cleared (0 and 1).
       if (/\.conditions\./.test(path))
         return t(Number(d.to) ? 'journal.conditionSet' : 'journal.conditionCleared', { name: who })

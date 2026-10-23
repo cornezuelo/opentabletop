@@ -33,7 +33,6 @@ export type PlaceKind =
   | 'check'
   | 'rules'
   | 'stat'
-  | 'carried'
   | 'bindings'
   | 'sheet'
   | 'clock'
@@ -115,7 +114,6 @@ export function shownPlace(
     case 'bindings':
       if (head === 'stats' && key)
         return named('stat', system.bindings?.stats?.[key]?.name, 'checks')
-      if (head === 'resources' && key) return named('carried', undefined, 'checks')
       return { kind: 'bindings', name: key ?? head, part, tab: 'checks' }
     case 'sheet': {
       const scope = sheetScope(system, id)

@@ -130,7 +130,7 @@ export const es: Messages<typeof en> = {
       "Valores que da la entrada cuando sale, una fila cada uno (un nombre y su valor). Las tablas siguientes, la plantilla y el viaje los leen:\n• `weather: storm` — el clima del día\n• `lost: true` — un valor del día que declara el sistema (puede bloquear el viaje)\n• `count: '{{2d6}}'` — un número tirado ahora\n• `terrain: '{{common}}'` — copiado de lo que ve la tabla\n• `rolled: '{{roll}}'` — el total de la propia tirada de la tabla",
     effects: 'Cambios',
     effectsHelp:
-      "Lo que cambia la entrada en el grupo del viaje cuando sale, una fila cada cosa:\n• `party.stats.morale: -1` — quita 1\n• `party.resources.food: '{{1d3}}'` — suma una cantidad tirada\n• `party.stats.fatigue: '=0'` — lo fija\n• `acting.values.health: -1` — el personaje que actúa, cuando el sistema tiene personajes\nLos valores son los del sistema (características, provisiones y personajes). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
+      "Lo que cambia la entrada en el grupo del viaje cuando sale, una fila cada cosa:\n• `party.stats.morale: -1` — quita 1\n• `party.values.food: '{{1d3}}'` — suma una cantidad tirada (`party.items.ration: 1`: un objeto)\n• `party.stats.fatigue: '=0'` — lo fija\n• `acting.values.health: -1` — el personaje que actúa, cuando el sistema tiene personajes\nLos valores son los del sistema (características, la hoja y los objetos del grupo, personajes). Durante un viaje se aplican al momento; tirada a mano, se ofrecen al viaje (**Aplicar al viaje**).",
     once: 'Solo una vez',
     onceHelp:
       'Sale **como mucho una vez por sesión** (un PNJ único, un tesoro irrepetible); después la tabla hace lo que diga **Al agotarse**. Necesita **Id**.',
@@ -280,7 +280,7 @@ export const es: Messages<typeof en> = {
       'roll-modes':
         'Formas de tirar sus tablas, como la ventaja: tirar varias veces y quedarse con un total.',
       'travel-rules':
-        'Velocidades, terrenos, caminos, provisiones y qué comprobaciones se tiran y cuándo.',
+        'Velocidades, terrenos, caminos, acciones y qué comprobaciones se tiran y cuándo.',
       bindings:
         'Qué tabla responde a cada comprobación del viaje, y las estadísticas del grupo que leen las tablas.',
       sheet:

@@ -10,17 +10,20 @@ import {
 import { calendarFrom, defaultCalendar } from '@open-tabletop/time'
 import {
   availableActions,
-  createTravelEngine,
-  initialTravelState,
+  createTravelEngine as createEngine,
   movingActions,
   paramsOf,
-  parseTravelRules,
   upgradeTravelState,
   type TravelAction,
   type TravelEvent,
-  type TravelState,
   type TravelWorld,
 } from './index'
+import {
+  createTravelEngine,
+  initialTravelState,
+  parseTravelRules,
+  type TravelState,
+} from './hosted.testing'
 
 const shape: GridShape = { orientation: 'flat', width: 10, height: 10 }
 
@@ -97,8 +100,8 @@ const { rules, errors } = parseTravelRules({
       on: 'time.day-end',
       oncePerDay: true,
       do: [
-        { effects: { 'party.resources.food': -1 } },
-        { when: { mode: 'horse' }, effects: { 'party.resources.fodder': -1 } },
+        { effects: { 'party.values.food': -1 } },
+        { when: { mode: 'horse' }, effects: { 'party.values.fodder': -1 } },
       ],
     },
   },
@@ -392,7 +395,8 @@ describe('the trip’s totals', () => {
       taken: { camp: 1, eat: 1, march: 1 },
       // Day 1's dawn (3), the camp's (1), and day 2's dawn as the party wakes (3).
       checks: 7,
-      spent: { food: 1, fodder: 1 },
+      // What the party spent and gained is the host's to count (it applies the effects).
+      spent: {},
       gained: {},
     })
     const seen = engine.context(state)
@@ -402,17 +406,10 @@ describe('the trip’s totals', () => {
       hours: 8,
       taken: { camp: 1, eat: 1 },
       checks: 7,
-      spent: { food: 1, fodder: 1 },
+      // The numbers the host keeps are there from 0, by their full names.
+      spent: { party: { values: { food: 0 } } },
       day: 2,
     })
-    // A check's outcome that gives supplies counts as gained.
-    state.pendingChecks.push({ id: 'x', event: 'FORAGE', context: {} })
-    ;({ state } = run(state, {
-      type: 'resolveCheck',
-      id: 'x',
-      outcome: { resources: { food: 2 } },
-    }))
-    expect(state.totals?.gained).toEqual({ food: 2 })
   })
 
   it('lets conditions read them: an action only after 50 km', () => {
@@ -444,7 +441,7 @@ describe('the trip’s totals', () => {
     const older = start('0,0')
     delete older.totals
     const { state } = run(older, { type: 'action', id: 'camp' })
-    expect(state.totals).toMatchObject({ taken: { camp: 1, eat: 1 }, spent: { food: 1 } })
+    expect(state.totals).toMatchObject({ taken: { camp: 1, eat: 1 } })
   })
 })
 
@@ -470,14 +467,14 @@ describe('camp, resources and the end of the day', () => {
           {
             event: 'HUNGER',
             at: 'time.day-end',
-            when: { below: 'food' },
+            when: { below: 'party.values.food' },
             effects: { 'party.stats.fatigue': 1 },
           },
           {
             event: 'SLEEP',
             at: 'time.day-end',
             when: { doing: 'camp' },
-            unless: { below: 'food' },
+            unless: { below: 'party.values.food' },
             effects: { 'party.stats.fatigue': -1 },
           },
         ],
@@ -490,14 +487,14 @@ describe('camp, resources and the end of the day', () => {
     expect(hungry.events).toContainEqual(
       expect.objectContaining({
         type: 'LIMIT_REACHED',
-        path: 'party.resources.food',
+        path: 'party.values.food',
         limit: 'min',
       }),
     )
     expect(hungry.state.pendingChecks).toEqual([
       expect.objectContaining({
         event: 'HUNGER',
-        context: expect.objectContaining({ below: ['food'], doing: 'camp' }),
+        context: expect.objectContaining({ below: ['party.values.food'], doing: 'camp' }),
         effects: { 'party.stats.fatigue': 1 },
       }),
     ])
@@ -594,14 +591,14 @@ describe('camp, resources and the end of the day', () => {
     expect(events).toContainEqual({
       type: 'EFFECTS',
       action: 'eat',
-      effects: { 'party.resources.food': -1 },
+      effects: { 'party.values.food': -1 },
       time: midnight,
     })
     const hungry = run({ ...start(), resources: { food: 0 } }, { type: 'action', id: 'camp' })
     expect(hungry.state.resources.food).toBe(0)
     expect(hungry.events).toContainEqual({
       type: 'LIMIT_REACHED',
-      path: 'party.resources.food',
+      path: 'party.values.food',
       limit: 'min',
       value: 0,
       time: midnight,
@@ -613,17 +610,11 @@ describe('camp, resources and the end of the day', () => {
     })
   })
 
-  it('applies check outcomes to resources', () => {
+  it('goes on after a check is resolved', () => {
     // The camp stops at the first check that comes up in its night.
     const { state } = engine.apply(start(), { type: 'action', id: 'camp' })
     const check = state.pendingChecks[0]
-    const food = state.resources.food
-    const after = engine.apply(state, {
-      type: 'resolveCheck',
-      id: check.id,
-      outcome: { resources: { food: 3 } },
-    }).state
-    expect(after.resources.food).toBe(food + 3)
+    const after = engine.apply(state, { type: 'resolveCheck', id: check.id }).state
     expect(after.pendingChecks.map((c) => c.id)).not.toContain(check.id)
     // The rest of the night goes on after it.
     expect(after.moving?.held).toBe(true)
@@ -804,8 +795,8 @@ describe('actions as steps, and declared values', () => {
         do: [
           { do: 'actions.eat' },
           { time: '06:00' },
-          { unless: { below: 'food' }, effects: { 'party.stats.fatigue': -1 } },
-          { when: { below: 'food' }, effects: { 'party.stats.fatigue': 1 } },
+          { unless: { below: 'party.values.food' }, effects: { 'party.stats.fatigue': -1 } },
+          { when: { below: 'party.values.food' }, effects: { 'party.stats.fatigue': 1 } },
         ],
       },
       rest: { do: [{ time: 90 }] },
@@ -837,7 +828,7 @@ describe('actions as steps, and declared values', () => {
     expect(fed.state.time).toBe(defaultCalendar.at(2, '06:00'))
     expect(fed.state.resources.food).toBe(2) // eaten once, not again at midnight
     expect(fed.events.filter((e) => e.type === 'EFFECTS')).toEqual([
-      expect.objectContaining({ action: 'eat', effects: { 'party.resources.food': -1 } }),
+      expect.objectContaining({ action: 'eat', effects: { 'party.values.food': -1 } }),
       expect.objectContaining({ action: 'camp', effects: { 'party.stats.fatigue': -1 } }),
     ])
     const hungry = runOn(
@@ -846,7 +837,7 @@ describe('actions as steps, and declared values', () => {
       { type: 'action', id: 'camp' },
     )
     expect(hungry.events.filter((e) => e.type === 'EFFECTS').map((e) => e.effects)).toEqual([
-      { 'party.resources.food': -1 },
+      { 'party.values.food': -1 },
       { 'party.stats.fatigue': 1 },
     ])
   })
@@ -951,9 +942,7 @@ describe('checks that look at the party', () => {
       world,
       rules: {
         ...rules!,
-        checks: [
-          { event: 'HUNGER', at: 'actions.camp', when: { 'party.resources.food': { lt: 1 } } },
-        ],
+        checks: [{ event: 'HUNGER', at: 'actions.camp', when: { 'party.values.food': { lt: 1 } } }],
       },
     })
     expect(hungry.apply(start(), { type: 'action', id: 'camp' }).state.pendingChecks).toEqual([])
@@ -963,7 +952,7 @@ describe('checks that look at the party', () => {
     )
     expect(state.pendingChecks[0]).toMatchObject({
       event: 'HUNGER',
-      context: { party: { resources: { food: 0 }, mode: 'foot' } },
+      context: { party: { values: { food: 0 }, mode: 'foot' } },
     })
   })
 })
@@ -1197,7 +1186,7 @@ describe('waiting', () => {
       terrains: {},
       modes: { foot: { kmPerDay: 30 } },
       resources: { food: { min: 0 } },
-      actions: { eat: { on: 'time.day-end', do: [{ effects: { 'party.resources.food': -1 } }] } },
+      actions: { eat: { on: 'time.day-end', do: [{ effects: { 'party.values.food': -1 } }] } },
     })
     const eng = createTravelEngine({ world, rules: noCamp! })
     const { state, events } = waitAll(eng, start(), at(2, '10:00'))
@@ -1218,7 +1207,7 @@ describe('actions the system triggers, and bounded values', () => {
     resources: { food: { min: 0 }, water: { min: 0, max: 4 }, gold: {} },
     values: { lost: { blocks: ['travel.move'] }, weary: {} },
     checks: [
-      { event: 'HUNGER', at: 'time.day-end', when: { below: 'food' } },
+      { event: 'HUNGER', at: 'time.day-end', when: { below: 'party.values.food' } },
       { event: 'OMEN', at: 'actions.pray' },
       // Without `at`: only a step rolls it.
       { event: 'AMBUSH', when: { terrain: 'steppe' } },
@@ -1228,11 +1217,11 @@ describe('actions the system triggers, and bounded values', () => {
       eat: {
         on: 'time.day-end',
         do: [
-          { effects: { 'party.resources.food': -1 } },
-          { when: { mode: 'horse' }, effects: { 'party.resources.food': -1 } },
+          { effects: { 'party.values.food': -1 } },
+          { when: { mode: 'horse' }, effects: { 'party.values.food': -1 } },
         ],
       },
-      drink: { on: 'trip.hex-enter', do: [{ effects: { 'party.resources.water': -1 } }] },
+      drink: { on: 'trip.hex-enter', do: [{ effects: { 'party.values.water': -1 } }] },
       pray: {
         do: [
           { time: 60 },
@@ -1240,15 +1229,15 @@ describe('actions the system triggers, and bounded values', () => {
           { roll: 'checks.AMBUSH' },
           { set: { weary: true } },
           { when: { weary: true }, effects: { 'party.stats.faith': 5 } },
-          { when: { above: 'faith' }, effects: { 'party.resources.gold': -10 } },
+          { when: { above: 'party.stats.faith' }, effects: { 'party.values.gold': -10 } },
         ],
       },
       feast: {
-        when: { 'party.resources.food': { gte: 2 } },
-        do: [{ effects: { 'party.resources.food': -2 } }],
+        when: { 'party.values.food': { gte: 2 } },
+        do: [{ effects: { 'party.values.food': -2 } }],
       },
       // Follows another action (on: its id), before that action's checks.
-      chant: { on: 'actions.pray', do: [{ effects: { 'party.resources.water': '=4' } }] },
+      chant: { on: 'actions.pray', do: [{ effects: { 'party.values.water': '=4' } }] },
     },
   })
   const eng = createTravelEngine({ world, rules: triggered!, stats: { faith: { min: 0, max: 3 } } })
@@ -1277,7 +1266,7 @@ describe('actions the system triggers, and bounded values', () => {
     expect(hungry.events).toContainEqual(
       expect.objectContaining({
         type: 'LIMIT_REACHED',
-        path: 'party.resources.food',
+        path: 'party.values.food',
         limit: 'min',
       }),
     )
@@ -1317,7 +1306,7 @@ describe('actions the system triggers, and bounded values', () => {
         value: 3,
       }),
     )
-    expect(state.reached).toEqual({ above: ['faith'] })
+    expect(state.reached).toEqual({ above: ['party.stats.faith'] })
     // A `do:` whose conditions don't hold just doesn't happen (no food for a feast).
     const poor = runOn(
       eng,
@@ -1353,8 +1342,8 @@ describe('actions the system triggers, and bounded values', () => {
         watch: {
           on: ['06:00', 'trip.hex-enter'],
           do: [
-            { when: { moment: '06:00' }, effects: { 'party.resources.gold': 1 } },
-            { when: { moment: 'trip.hex-enter' }, effects: { 'party.resources.gold': 10 } },
+            { when: { moment: '06:00' }, effects: { 'party.values.gold': 1 } },
+            { when: { moment: 'trip.hex-enter' }, effects: { 'party.values.gold': 10 } },
           ],
         },
       },
@@ -1420,7 +1409,7 @@ describe('actions the system triggers, and bounded values', () => {
         camp: {
           do: [
             { time: '06:00' },
-            { unless: { below: 'food' }, effects: { 'party.stats.faith': 1 } },
+            { unless: { below: 'party.values.food' }, effects: { 'party.stats.faith': 1 } },
           ],
         },
       },
@@ -1545,7 +1534,7 @@ describe('the trip going on by itself (travel by a moment)', () => {
     actions: {
       ...DAY_ACTIONS,
       camp: {
-        when: { 'party.resources.food': { gte: 1 } },
+        when: { 'party.values.food': { gte: 1 } },
         do: [{ time: '06:00' }, { effects: { 'party.stats.fatigue': -1 } }],
       },
     },
@@ -1640,7 +1629,7 @@ describe('the trip going on by itself (travel by a moment)', () => {
       },
       actions: {
         ...DAY_ACTIONS,
-        camp: { when: { 'party.resources.food': { gte: 1 } }, do: [{ time: '06:00' }] },
+        camp: { when: { 'party.values.food': { gte: 1 } }, do: [{ time: '06:00' }] },
       },
     }).rules!
     const eng = createTravelEngine({ world, rules: stormy })
@@ -1958,10 +1947,10 @@ describe('variables and rolls in conditions and effects', () => {
       // A roll-under against a stat: the same roll however often it's asked, that day there.
       scout: {
         when: { 'party.stats.wits': { gte: '{{1d20}}' } },
-        do: [{ effects: { 'party.resources.food': '-{{party.stats.mouths}}' } }],
+        do: [{ effects: { 'party.values.food': '-{{party.stats.mouths}}' } }],
       },
-      hunt: { do: [{ effects: { 'party.resources.food': '+{{1d3}}' } }] },
-      feast: { do: [{ effects: { 'party.resources.food': '={{party.stats.mouths}}' } }] },
+      hunt: { do: [{ effects: { 'party.values.food': '+{{1d3}}' } }] },
+      feast: { do: [{ effects: { 'party.values.food': '={{party.stats.mouths}}' } }] },
     },
   })
   const engine = createTravelEngine({ world, rules: own! })
@@ -2180,7 +2169,7 @@ describe('the parts of the calendar’s day', () => {
       // By itself as elevenses begins: a bite and half an hour.
       elevenses: {
         on: 'time.meal.elevenses',
-        do: [{ effects: { 'party.resources.food': -1 } }, { time: 30 }],
+        do: [{ effects: { 'party.values.food': -1 } }, { time: 30 }],
       },
       // Until a part of the day.
       nap: { do: [{ time: 'time.meal.supper' }] },
@@ -2374,8 +2363,8 @@ describe('rules without a built-in day', () => {
       },
       actions: {
         march: marching({ when: { 'time.tags': { not: 'dark' } } }),
-        camp: { when: { 'party.resources.food': { gte: 1 } }, do: [{ time: 'time.part.morning' }] },
-        eat: { on: 'time.day-end', do: [{ effects: { 'party.resources.food': -1 } }] },
+        camp: { when: { 'party.values.food': { gte: 1 } }, do: [{ time: 'time.part.morning' }] },
+        eat: { on: 'time.day-end', do: [{ effects: { 'party.values.food': -1 } }] },
       },
     } as never)
     expect(errors).toEqual([])
@@ -2503,7 +2492,7 @@ describe('marching as an action: travel.move, parameters and moves under way', (
       march: {
         params: { until: { choices: ['destination', 'hex', 3] } },
         when: { 'time.hour': { gte: 6, lt: 20 } },
-        do: [{ 'travel.move': '{{params.until}}' }, { effects: { 'party.resources.gold': 1 } }],
+        do: [{ 'travel.move': '{{params.until}}' }, { effects: { 'party.values.gold': 1 } }],
       },
       // Twice as fast, it takes the march with a parameter of its own, then pays.
       dash: {
@@ -2511,7 +2500,7 @@ describe('marching as an action: travel.move, parameters and moves under way', (
         do: [
           { 'travel.speed': 2 },
           { do: 'actions.march', with: { until: '{{params.far}}' } },
-          { effects: { 'party.resources.gold': 10 } },
+          { effects: { 'party.values.gold': 10 } },
         ],
       },
       // Its conditions read the parameter it's taken with.
@@ -2659,21 +2648,18 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
         do: [{ 'travel.move': '{{params.until}}' }],
       },
       sing: {
-        do: [
-          { id: 'song', say: 'The porters sing for {{party.resources.gold}} gold' },
-          { time: 10 },
-        ],
+        do: [{ id: 'song', say: 'The porters sing for {{party.values.gold}} gold' }, { time: 10 }],
       },
       bridge: {
-        do: [{ pause: 'The bridge is down' }, { effects: { 'party.resources.gold': 1 } }],
+        do: [{ pause: 'The bridge is down' }, { effects: { 'party.values.gold': 1 } }],
       },
       ford: {
         params: { how: { choices: [{ id: 'swim', name: 'Swim' }, 'wait', 3] } },
         do: [
           { ask: 'params.how' },
-          { when: { 'params.how': 'swim' }, effects: { 'party.resources.gold': -1 } },
+          { when: { 'params.how': 'swim' }, effects: { 'party.values.gold': -1 } },
           { when: { 'params.how': 'wait' }, time: 60 },
-          { when: { 'params.how': 3 }, effects: { 'party.resources.gold': 3 } },
+          { when: { 'params.how': 3 }, effects: { 'party.values.gold': 3 } },
         ],
       },
       board: { do: [{ set: { boatman: true } }, { 'travel.mode': 'modes.boat' }] },
@@ -2687,7 +2673,7 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       toll: {
         on: 'trip.hex-enter',
         when: { 'trip.hexes': 2 },
-        do: [{ pause: true }, { effects: { 'party.resources.gold': 5 } }],
+        do: [{ pause: true }, { effects: { 'party.values.gold': 5 } }],
       },
     },
   })
@@ -2853,12 +2839,12 @@ describe('rolling what the host rolls, and moments of the world', () => {
           { time: 60 },
           { roll: 'table.ruins' },
           // Later steps see what it rolled.
-          { when: { 'today.loot': true }, effects: { 'party.resources.food': 2 } },
+          { when: { 'today.loot': true }, effects: { 'party.values.food': 2 } },
           { roll: 'core/oracle.yes-no' },
         ],
       },
       // The system takes it by itself when the host says the clock filled.
-      flee: { on: 'world.clocks.doom.full', do: [{ effects: { 'party.resources.food': -1 } }] },
+      flee: { on: 'world.clocks.doom.full', do: [{ effects: { 'party.values.food': -1 } }] },
     },
   })
   const eng = createTravelEngine({ world, rules: heard! })
@@ -2959,14 +2945,14 @@ describe('order the rules say: after a check, as an action ends', () => {
       gather: {
         do: [
           { do: 'actions.forage' },
-          { when: { 'today.found': true }, effects: { 'party.resources.food': 2 } },
+          { when: { 'today.found': true }, effects: { 'party.values.food': 2 } },
         ],
       },
       // Entering a hex, it sees the one left, as that moment's checks do.
       tally: {
         on: 'trip.hex-enter',
         when: { 'from.terrain': 'steppe' },
-        do: [{ effects: { 'party.resources.food': -1 } }],
+        do: [{ effects: { 'party.values.food': -1 } }],
       },
     },
   })
@@ -3121,14 +3107,14 @@ describe('an action the system takes by itself waits for its rolls, like any oth
     resources: { food: { min: 0 } },
     values: { omen: {} },
     // The moment's check comes after its action is done: it sees what the action's step did.
-    checks: [{ event: 'DREAD', at: '23:00', when: { 'party.resources.food': 4 } }],
+    checks: [{ event: 'DREAD', at: '23:00', when: { 'party.values.food': 4 } }],
     actions: {
       ...DAY_ACTIONS,
       hoot: {
         on: '23:00',
         do: [
           { roll: 'table.owls' },
-          { when: { 'today.omen': true }, effects: { 'party.resources.food': 1 } },
+          { when: { 'today.omen': true }, effects: { 'party.values.food': 1 } },
         ],
       },
     },
@@ -3165,5 +3151,54 @@ describe('an action the system takes by itself waits for its rolls, like any oth
     ).state
     expect(dawn.time).toBe(defaultCalendar.at(2, '06:00'))
     expect(dawn.moving).toBeUndefined()
+  })
+})
+
+describe('the numbers the host keeps', () => {
+  // The party's rations, kept by the host (its items, read as `party.items.ration.count`).
+  const { rules: kept } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    actions: {
+      ...DAY_ACTIONS,
+      feast: {
+        do: [
+          { effects: { 'party.items.ration': -3 } },
+          { when: { 'party.items.ration.count': 0 }, say: 'All gone' },
+          { when: { 'trip.below': 'party.items.ration' }, say: 'Not enough' },
+        ],
+      },
+    },
+  })
+  const eng = createEngine({
+    world,
+    rules: kept!,
+    kept: { 'party.items.ration': { min: 0, read: 'party.items.ration.count' } },
+  })
+  const host = (count: number) => ({ party: { items: { ration: { count } } } })
+
+  it("lets an action's later steps see what an earlier one changed, and a bound hit", () => {
+    const state = initialTravelState({ location: '0,0', mode: 'foot' })
+    const said = (n: number) =>
+      eng
+        .apply(state, { type: 'action', id: 'feast' }, host(n))
+        .events.flatMap((e) => (e.type === 'SAID' ? [e.text] : []))
+    expect(said(5)).toEqual([])
+    expect(said(3)).toEqual(['All gone'])
+    expect(said(2)).toEqual(['All gone', 'Not enough'])
+    const { events } = eng.apply(state, { type: 'action', id: 'feast' }, host(2))
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'LIMIT_REACHED', path: 'party.items.ration', value: 0 }),
+    )
+  })
+
+  it('has each one in the trip’s totals from 0, by its full name', () => {
+    const state = initialTravelState({ location: '0,0', mode: 'foot' })
+    expect(eng.context(state, host(2)).trip).toMatchObject({
+      spent: { party: { items: { ration: 0 } } },
+      gained: { party: { items: { ration: 0 } } },
+    })
   })
 })

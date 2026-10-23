@@ -4,15 +4,20 @@ kind: items
 id: gear
 name: The Company's gear
 description: |-
-  Gear for the road: rope for the fords, torches for marching by night, a backpack, a mail
-  shirt, and the Sword of Keld if the hoard ever gives it up.
+  Gear for the road: rations, rope for the fords, torches for marching by night, a backpack,
+  a mail shirt, and the Sword of Keld if the hoard ever gives it up.
 
   **Shows:** an item catalogue (`kind: items`): items with tags (`climbing`, `light`) that
   rules read (the ford's roll counts the companions with a rope, `party.stats.roped`; the
   night march burns the torches' uses), numbers for the sheet's fields (slots, uses,
   armour), where an item fits (`fits: { place.tags: worn }`), a container
-  (`holds: { room: 6, tags: [pack] }`) and an item given by a table's result.
+  (`holds: { room: 6, tags: [pack] }`), an item given by a table's result, and the party's
+  food as items (rations, eaten by the party as a whole: `party.items.ration`).
 items:
+  ration:
+    name: Ration
+    description: A day's food for one. The party eats one per mouth as each day ends, the Company's stores first.
+    tags: [food]
   rope:
     name: Rope
     description: Fifty feet of hemp. A companion with a rope makes the ford easier (+1 to the crossing).

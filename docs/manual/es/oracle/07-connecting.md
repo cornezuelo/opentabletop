@@ -57,10 +57,10 @@ entries:
 
 ## 4. Resultados que entiende el viaje
 
-Una entrada (o una carta de un mazo) cambia el grupo con **efectos** (`effects`): cada uno es un valor que declara el sistema, por la ruta con la que lo leen las tablas. Un número suma o resta; `'=valor'` lo fija; dentro funcionan una tirada o una variable (`'{{1d3+1}}'`; `'-{{party.stats.mouths}}'` quita tantos como otro valor, `'={{party.stats.endurance}}'` lo fija a él, `'-{{loss}}'` lee un valor que fija la entrada). Un valor se queda en el `min` y el `max` que declara su sistema (características y provisiones por igual); sin ellos puede ir a cualquier parte, también a negativo.
+Una entrada (o una carta de un mazo) cambia el grupo con **efectos** (`effects`): cada uno es un valor que declara el sistema, por la ruta con la que lo leen las tablas. Un número suma o resta; `'=valor'` lo fija; dentro funcionan una tirada o una variable (`'{{1d3+1}}'`; `'-{{party.stats.mouths}}'` quita tantos como otro valor, `'={{party.stats.endurance}}'` lo fija a él, `'-{{loss}}'` lee un valor que fija la entrada). Un valor se queda en el `min` y el `max` que declara su sistema (características y hoja del grupo por igual); sin ellos puede ir a cualquier parte, también a negativo.
 
 ```yaml
-- { id: berries, range: 6, result: 'Bayas: +2 de comida', effects: { party.resources.food: 2 } }
+- { id: berries, range: 6, result: 'Bayas: +2 de comida', effects: { party.values.food: 2 } }
 - { id: wolves, range: 5, result: Lobos, effects: { party.stats.morale: -1 } }
 - { id: cordial, range: 1, result: Un cordial, effects: { party.stats.fatigue: '=0' } }
 ```
@@ -74,7 +74,7 @@ Otros dos valores del día cambian el viaje cuando una entrada los **fija** (`se
 
 El diario dice lo que cambió cada resultado («Buscar comida: Bayas (Comida +2)»). Un efecto sobre un valor que el sistema no declara se aplica igual, pero el pack recibe un aviso.
 
-Las tablas leen el grupo como `party.resources.food`, `party.stats.morale`: `when: { party.resources.food: { lt: 1 } }` para una entrada que solo sale cuando se ha acabado la comida.
+Las tablas leen el grupo como `party.values.food`, `party.stats.morale`, `party.items.ration.count`: `when: { party.values.food: { lt: 1 } }` para una entrada que solo sale cuando se ha acabado la comida.
 
 **Valores del día.** Los valores que declara el sistema (en los `values` de sus reglas: `lost`, un modificador…) y el `weather` del día se mantienen el resto del día, para que las comprobaciones siguientes los usen (también las del mismo momento que van después en la lista); al día siguiente pasan a ser `yesterday.<nombre>`. Cualquier otro valor que fije un resultado dura solo esa tirada (su texto, la tabla que tira después), se llame como se llame. Algunos tipos de valor declarado, para las tablas que los leen:
 
@@ -104,8 +104,6 @@ edges:
 modes:
   foot: { name: A pie, kmPerDay: 30 }
   horse: { name: A caballo, kmPerDay: 60 }
-resources:
-  food: { name: Raciones, min: 0 } # nunca por debajo de 0
 weather:
   storm: { speed: 0 } # con tormenta no se viaja
 values:
@@ -118,7 +116,7 @@ actions:
   camp: # dormir hasta las 06:00; una noche bien comidos (no se acabó la comida) baja la fatiga
     do:
       - { time: '06:00' }
-      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }
   rest: { do: [{ time: 120 }, { effects: { party.stats.fatigue: -1 } }] }
   forage: # una acción de este sistema: un botón Buscar comida
     name: Buscar comida
@@ -127,7 +125,7 @@ actions:
     oncePerDay: true
   eat: # no es un botón: la hace el sistema al acabar cada día, se acampe o no
     on: time.day-end
-    do: [{ effects: { party.resources.food: -1 } }]
+    do: [{ effects: { party.values.food: -1 } }] # la comida del grupo (su hoja, abajo)
 checks:
   - { event: WEATHER, at: '06:00' }
   - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
@@ -137,7 +135,7 @@ checks:
   - {
       event: HUNGRY,
       at: time.day-end,
-      when: { trip.below: food },
+      when: { trip.below: party.values.food },
       effects: { party.stats.fatigue: 1 },
     }
 ---
@@ -152,6 +150,17 @@ on:
 stats:
   luck: { name: Suerte, description: 'Se suma a las tiradas de encuentro', default: 0 }
   fatigue: { name: Fatiga, default: 0, min: 0 }
+---
+kind: sheet # la del propio grupo: lo que lleva (la comida) es uno de sus valores
+id: party
+values:
+  food: { name: Raciones, default: 6, min: 0 } # un viaje nuevo empieza con 6, nunca por debajo de 0
+---
+kind: system # los nombra a todos
+id: default
+travel: travel-rules.default
+bindings: bindings.default
+partySheet: sheet.party
 ```
 
 El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../systems/03-your-first-system.md) en la aplicación Systems; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
@@ -186,26 +195,24 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 
 Un valor del día también puede bloquear una (`blocks: [modes.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
 
-### Provisiones
+### Lo que lleva el grupo
 
-**resources** son lo que lleva el grupo: comida, agua, antorchas, forraje… Cada una sale en el panel del viaje, donde el jugador también puede cambiarla a mano. **Nada las gasta por sí solo**: lo hacen las acciones, comprobaciones y tablas del sistema, con efectos (`party.resources.food: -1`). Así dice un sistema cómo se come en su juego: una vez al día, al acampar, solo a caballo, nunca.
+En las reglas no hay provisiones: la comida, el agua, las antorchas, el forraje… son cosa del sistema, como él las juegue. Un juego que las cuenta como simples números las hace **valores de la hoja del grupo** (`partySheet:`, una `kind: sheet` cuyos valores son de todo el grupo), con el `default` con el que empieza un viaje nuevo y sus límites; uno en el que cada personaje lleva su parte las hace **objetos** ([Personajes](#personajes), abajo). En los dos casos salen en el viaje (la ficha del grupo, la de cada personaje), donde el jugador también puede cambiarlas a mano. **Nada las gasta por sí solo**: lo hacen las acciones, comprobaciones y tablas del sistema, con efectos (`party.values.food: -1`, `party.items.ration: -1`). Así dice un sistema cómo se come en su juego: una vez al día, al acampar, solo a caballo, nunca.
 
-`min` y `max` acotan una provisión. Un cambio que pasaría de uno se queda en él, el diario lo dice («Raciones no puede bajar de 0») y lo que viene después en ese momento ve el id de la provisión en `below` (o `above`): los pasos siguientes de la misma acción y las comprobaciones `time.day-end` de ese día. Así se escribe «un día sin comida cansa al grupo»:
+`min` y `max` acotan un valor. Un cambio que pasaría de uno se queda en él, el diario lo dice («Raciones no puede bajar de 0») y lo que viene después en ese momento lo ve en `trip.below` (o `trip.above`), por su nombre completo: los pasos siguientes de la misma acción y las comprobaciones `time.day-end` de ese día. Así se escribe «un día sin comida cansa al grupo»:
 
 ```yaml
-resources:
-  food: { name: Raciones, min: 0 }
-  water: { name: Odres, min: 0, max: 6 } # no se pueden llevar más de 6
-checks:
-  - {
-      event: HUNGRY,
-      at: time.day-end,
-      when: { trip.below: food },
-      effects: { party.stats.fatigue: 1 },
-    }
+kind: sheet # la del propio grupo
+id: party
+values:
+  food: { name: Raciones, default: 6, min: 0 }
+  water: { name: Odres, default: 3, min: 0, max: 6 } # no se pueden llevar más de 6
+# … y en las reglas de viaje:
+# checks:
+#   - { event: HUNGRY, at: time.day-end, when: { trip.below: party.values.food }, effects: { party.stats.fatigue: 1 } }
 ```
 
-Sin `min`, una provisión puede quedar en negativo (una deuda, por ejemplo).
+Sin `min`, un valor puede quedar en negativo (una deuda, por ejemplo).
 
 ### Valores del día
 
@@ -257,7 +264,7 @@ actions:
 
 Cuándo se puede pulsar el botón:
 
-- `when` / `unless`: condiciones (como las de una tabla) sobre los datos del viaje, los valores de hoy y el grupo. Las Marcas Grises buscan comida `unless: { trip.weather: storm }` y solo acampan `when: { party.resources.food: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. Si no se cumplen, el botón se desactiva y dice por qué.
+- `when` / `unless`: condiciones (como las de una tabla) sobre los datos del viaje, los valores de hoy y el grupo. Las Marcas Grises buscan comida `unless: { trip.weather: storm }` y solo acampan `when: { party.items.ration.count: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. Si no se cumplen, el botón se desactiva y dice por qué.
 - El día y la noche en esas condiciones son los del sistema: la hora (`time.hour: { gte: 6, lt: 20 }`) o las partes del día de su calendario (`time.part: night`, `time.tags: dark`). Un sistema puede descansar, buscar comida y forzar la marcha solo de día, así no se puede saltar la noche descansando, y marchar de noche solo tras una marcha nocturna.
 - `oncePerDay: true`: una vez al día.
 - Un valor del día que la `blocks` (arriba).
@@ -268,11 +275,11 @@ Un botón que no se puede pulsar sigue visible, desactivado, diciendo por qué, 
 
 ```yaml
 actions:
-  eat: { on: time.day-end, do: [{ effects: { party.resources.food: -1 } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.values.food: -1 } }] }
   feed-horses: # solo yendo a caballo
     on: time.day-end
     when: { trip.mode: horse }
-    do: [{ effects: { party.resources.fodder: -1 } }]
+    do: [{ effects: { party.values.fodder: -1 } }]
 ```
 
 **Lo que hace una acción** es una lista de **pasos** (`do`), en orden. Cada paso hace una cosa, y solo si se cumple su propio `when` / `unless`:
@@ -282,7 +289,7 @@ actions:
 | `time: 180`                           | Pasan tres horas. `time: '14:00'` o una parte del día del calendario (`time: time.meal.luncheon`): hasta que vuelva a llegar. Los momentos del camino suceden, y cada día que acaba por el camino acaba con sus acciones y comprobaciones de `time.day-end`.                                                                                                                                                                                                  |
 | `travel.move: destination`            | Mueve al grupo por su ruta mientras pasa el tiempo y se cumplen el `when` / `unless` de la acción: hasta el destino, el siguiente `hex` o un número de hexes (`3`), o lo que diga una variable (`'{{params.until}}'`). Una comprobación que necesita al jugador lo deja en curso (**Seguir** sigue con él).                                                                                                                                                   |
 | `travel.speed: 0.5`                   | El resto del movimiento de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                                                                                                                                                                                                                                                                                      |
-| `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes ven su id en `below` / `above`.                                                                                                                                                                                                                                                                                     |
+| `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes lo ven en `trip.below` / `trip.above` por su nombre completo, y los valores nuevos (las características, la hoja y los objetos del grupo).                                                                                                                                                                          |
 | `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `do: actions.forage`                  | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). Con `with:`, sus parámetros: `{ do: actions.march, with: { until: hex } }`.                                                                                                                                                                                                                                                                                                            |
 | `roll: checks.ENCOUNTER`              | Tira ya una comprobación: todas las de ese evento cuyo `when` / `unless` se cumplan, tengan el `at` que tengan. Los pasos siguientes esperan a que se resuelva, y ven su resultado. `roll: table.ruins` (o `generator.`, `oracle.`, `deck.`, la de otro pack `core/table.twists`) tira eso en su lugar, sin comprobación ni binding: su resultado va al diario con su nombre, su `set` y sus `effects` llegan al viaje, y una entrada con `pause` lo detiene. |
@@ -298,7 +305,7 @@ actions:
   camp: # dormir hasta las 06:00; una noche bien comidos baja la fatiga
     do:
       - { time: '06:00' }
-      - { unless: { trip.below: food }, effects: { party.stats.fatigue: -1 } }
+      - { unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }
   forced-march: # más rápido, cansa, y en marcha enseguida: hace la marcha
     name: Marcha forzada
     when: { party.stats.fatigue: { lt: 2 } } # solo con el grupo descansado
@@ -319,7 +326,7 @@ Lo que **tira** una acción son las comprobaciones con `at: actions.<su id>` (la
 Algunos juegos no marchan hora a hora: un viaje se hace de **movimientos**, cada uno acerca al grupo un tanto, y llegar puede pedir una tirada. El paso `travel.advance` es ese avance: el grupo avanza por su ruta tantos hexes (o tramos de un camino, en la app Travel) como diga, de golpe.
 
 - **Sin marchar**: no declares ninguna acción con un paso `travel.move`, y solo los movimientos hacen avanzar al grupo.
-- **Un movimiento**: una acción cuyos pasos pasan tiempo, gastan provisiones y avanzan (`do: [{ time: 240 }, { effects: { party.resources.food: -1 } }, { travel.advance: 1 }]`); con una comprobación (`roll:` o `at:` su id) cuya tabla decide cómo fue.
+- **Un movimiento**: una acción cuyos pasos pasan tiempo, gastan lo que lleva el grupo y avanzan (`do: [{ time: 240 }, { effects: { party.values.food: -1 } }, { travel.advance: 1 }]`); con una comprobación (`roll:` o `at:` su id) cuya tabla decide cómo fue.
 - **Un avance que depende de algo**: `travel.advance: '{{party.stats.rank}}'` avanza tantos tramos como una característica; un paso con `when` solo avanza con un buen resultado del día (`when: { today.made-way: true }`, que fija la tabla del movimiento).
 - **Llegar con una tirada**: el último tramo es un terreno que solo es `passable` con un valor del día (`passable: { when: { reached: true } }`), que fija una acción cuya tabla tira por ello; luego el `travel.advance: 1` de esa acción mete al grupo.
 
@@ -330,7 +337,7 @@ actions: # ninguna acción se mueve por la ruta: solo los movimientos hacen avan
     description: 'Medio día de camino: una ración, y un tramo más cerca.'
     do:
       - { time: 360 }
-      - { effects: { party.resources.food: -1 } }
+      - { effects: { party.items.ration: -1 } }
       - { travel.advance: 1 }
 … # el resto de las reglas de viaje
 ```
@@ -381,7 +388,7 @@ checks:
   - {
       event: HUNGRY,
       at: time.day-end,
-      when: { trip.below: food },
+      when: { trip.below: party.values.food },
       effects: { party.stats.fatigue: 1 },
     }
 ```
@@ -437,14 +444,14 @@ Todas las claves están en [Sistemas](../technical/07-kinds.md#sistemas).
 
 ### Personajes
 
-Un sistema puede jugar su grupo como un todo (sus características y provisiones son las del grupo) o personaje a personaje, o las dos cosas. Para los personajes, declara una **hoja** (`kind: sheet`: sus valores con límites, sus estados y lo que bloquea cada uno, los tipos de relación que tienen) y la nombra en su sistema (`sheet: sheet.companion`). Los viajes tienen entonces una sección **Personajes**: añádelos, elige quién actúa, cambia sus valores.
+Un sistema puede jugar su grupo como un todo (sus características y su hoja son las del grupo) o personaje a personaje, o las dos cosas. Para los personajes, declara una **hoja** (`kind: sheet`: sus valores con límites, sus estados y lo que bloquea cada uno, los tipos de relación que tienen) y la nombra en su sistema (`sheet: sheet.companion`). Los viajes tienen entonces una sección **Personajes**: añádelos, elige quién actúa, cambia sus valores.
 
 Luego los bindings dicen qué toma el grupo de ellos:
 
 - **Características que salen de las suyas:** `navigation: { name: Orientación, from: { max: pathfinding } }` es el mejor Rastreo de ellos; `min` el peor, `sum` el de todos juntos, `count: true` cuántos son; `when` / `unless` dejan fuera a algunos (`count: true, unless: { conditions: wounded }`: los que no están heridos). Sin personajes la característica se guarda como siempre, así que el mismo sistema se juega de las dos formas.
 - **El que elija el jugador:** `charisma: { from: { pick: charisma } }` es el Carisma de un personaje, el elegido en **Tira** del viaje (el mejor por defecto); **Preguntar en cada tirada** hace que cada comprobación en una tabla espere a la elección.
 - **Valores de la hoja del propio grupo:** con `partySheet:` en el sistema, una hoja para el grupo en sí (moral, fatiga…, viaje quien viaje), `morale: { from: { party: morale } }` es ese valor: los efectos sobre la característica cambian la hoja, dentro de sus límites.
-- **Provisiones que llevan:** `resources: { food: { carried: rations } }`: la comida del grupo es la suma de sus raciones, y lo que el viaje come o encuentra se reparte entre ellos (por igual si no se dice otra cosa, `share: order` para empezar por el primero).
+- **Lo que llevan:** objetos ([Objetos](../systems/08-items.md)): `party.items.ration` son los del propio grupo y los de sus personajes juntos; lo que come el viaje (`party.items.ration: -3`) se quita primero de los del grupo y luego de ellos, y lo que encuentra se les da a ellos, repartido como diga su hoja (`items: { share: even }`, por defecto: de quien más lleve; `share: order` para empezar por el primero). Un personaje nuevo lleva lo que diga el `items.start` de su hoja (`start: { ration: 2 }`).
 
 - **Roles de viaje:** `roles: { guide: { name: Guía }, lookout: { name: Vigía } }`: en un viaje el jugador da cada uno a un personaje, y las comprobaciones y tablas leen a quien lo tiene, `roles.guide.values.pathfinding: { gte: 2 }`.
 

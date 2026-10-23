@@ -2,13 +2,13 @@ import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { sequence } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { applyResult } from './index'
+import { applyResult, type SessionState } from './index'
 import { newMember } from './party'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
-/** A system whose party is its members: stats from them, food they carry, wounds that block. */
+/** A system whose party is its members: stats from them, rations they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 7\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 8\n' },
   {
     path: 'band/system.yaml',
     content: `
@@ -17,6 +17,8 @@ name: Band
 travel: travel-rules.default
 bindings: bindings.default
 sheet: sheet.companion
+partySheet: sheet.crew
+items: [items.gear]
 `,
   },
   {
@@ -27,13 +29,22 @@ id: companion
 values:
   survival: { default: 1 }
   health: { default: 3, min: 0, max: 3 }
-  rations: { default: 2, min: 0, max: 4 }
   harm: { from: '{{3 - self.values.health}}' }
 conditions:
   wounded: { blocks: [actions.forced-march] }
   broken-leg: { blocks: [travel.move] }
   faint: { when: { self.values.health: { lte: 1 } } }
   footsore: { when: { trip.marched: { gte: 1 } } }
+items: { start: { ration: 2 } }
+---
+kind: sheet
+id: crew
+values: { morale: { default: 3 } }
+items: {}
+---
+kind: items
+id: gear
+items: { ration: { name: Ration, tags: [food] } }
 `,
   },
   {
@@ -47,7 +58,6 @@ travel:
   halt: { at: '19:00', do: actions.camp }
 terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
-resources: { food: { min: 0 } }
 actions:
   march:
     params: { until: { choices: [destination, hex] } }
@@ -55,7 +65,7 @@ actions:
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   rest: { do: [{ time: 60 }] }
-  eat: { on: time.day-end, do: [{ effects: { party.resources.food: '-{{party.stats.mouths}}' } }] }
+  eat: { on: time.day-end, do: [{ effects: { party.items.ration: '-{{party.stats.mouths}}' } }] }
   forced-march: { do: [{ time: 60 }, { effects: { acting.values.health: -1 } }] }
   bandage: { do: [{ effects: { acting.conditions.wounded: false } }] }
   scout: { when: { roles.guide.values.survival: { gte: 2 } }, do: [{ effects: { roles.guide.values.health: -1 } }] }
@@ -70,8 +80,6 @@ stats:
   navigation: { name: Navigation, from: { max: survival } }
   mouths: { from: { count: true } }
   fit: { from: { count: true, unless: { conditions: wounded } } }
-resources:
-  food: { carried: rations }
 roles:
   guide: { name: Guide }
 ---
@@ -97,9 +105,17 @@ const world: TravelWorld = {
   edges: () => [],
 }
 
+const rations = (count: number) => [
+  { key: 'ration', id: 'ration', from: 'band/gear', count, tags: ['food'], fields: {} },
+]
 const members = () => [
-  newMember(party, { id: 'kael', values: { survival: 3, rations: 3 } }),
-  newMember(party, { id: 'mara', values: { survival: 1, rations: 1 } }),
+  newMember(party, { id: 'kael', values: { survival: 3 }, items: rations(3) }),
+  newMember(party, { id: 'mara', values: { survival: 1 }, items: rations(1) }),
+]
+/** How many rations each member carries, and the party's own. */
+const carried = (s: SessionState) => [
+  ...s.members!.map((m) => (m.items ?? []).reduce((n, i) => n + i.count, 0)),
+  (s.party?.items ?? []).reduce((n, i) => n + i.count, 0),
 ]
 
 describe('the party is its members', () => {
@@ -114,10 +130,7 @@ describe('the party is its members', () => {
     )
     // The bindings name values the sheet doesn't have.
     expect(problems.map((p) => p.message)).toEqual(
-      expect.arrayContaining([
-        `The members' sheet has no value "survival"`,
-        `The members' sheet has no value "rations"`,
-      ]),
+      expect.arrayContaining([`The members' sheet has no value "survival"`]),
     )
   })
 
@@ -168,22 +181,33 @@ describe('the party is its members', () => {
     )
   })
 
-  it("makes the party's stats and carried supplies of its members", () => {
+  it("makes the party's stats of its members, and its items theirs and its own together", () => {
     const { session } = startTrip({ system: band, location: 'a', members: members() })
     expect(session.stats).toMatchObject({ navigation: 3, mouths: 2, fit: 2 })
-    expect(session.travel.resources.food).toBe(4)
     const facts = tripFacts({ system: band, world }, session)
     expect(facts).toMatchObject({
-      party: { members: ['kael', 'mara'], stats: { navigation: 3 } },
+      party: {
+        members: ['kael', 'mara'],
+        stats: { navigation: 3 },
+        items: { ration: { count: 4, tags: ['food'] } },
+      },
       characters: { kael: { values: { survival: 3 } }, mara: { conditions: [] } },
     })
+    // A new member sets out with what the sheet says (`items.start`).
+    expect(carried({ ...session, members: [newMember(party, { id: 'oro' })] })).toEqual([2, 0])
   })
 
-  it('keeps its own stats and supplies without members', () => {
+  it('keeps its own stats and items without members', () => {
     const { session } = startTrip({ system: band, location: 'a' })
     expect(session.stats).toMatchObject({ navigation: 0, mouths: 0 })
-    expect(session.travel.resources.food).toBe(6)
     expect(session.members).toBeUndefined()
+    // Every item of the system's catalogues is there, at 0 while nobody has it.
+    expect(tripFacts({ system: band, world }, session)).toMatchObject({
+      party: { items: { ration: { count: 0 } } },
+    })
+    // What it gains is its own sheet's.
+    const s = applyResult(session, { effects: { 'party.items.ration': 3 } }, {}, party)
+    expect(s.party!.items).toEqual([expect.objectContaining({ id: 'ration', count: 3 })])
   })
 
   it('takes what the party eats from whoever carries most, within their bounds', () => {
@@ -199,26 +223,34 @@ describe('the party is its members', () => {
     let s = session
     for (let i = 0; i < 3 && s.travel.time < 31 * 60; i++)
       s = stepTrip({ system: band, world, oracle }, s, { type: 'wait', until: 31 * 60 }).state
-    const food = (id: string) => s.members!.find((m) => m.id === id)!.values.rations
-    expect(s.travel.resources.food).toBe(2)
-    expect(food('kael') + food('mara')).toBe(2)
-    // Kael carried most, so he gave first: 3 → 2 → (equal) …
-    expect(food('kael')).toBeGreaterThanOrEqual(food('mara'))
+    // Kael carried most, so he gave both: 3 → 2 → 1, then they're equal.
+    expect(carried(s)).toEqual([1, 1, 0])
+    // What it ate counts in the trip's totals, by full name.
+    expect(s.travel.totals?.spent).toMatchObject({ 'party.items.ration': 2 })
   })
 
-  it('shares out in order when the system says so, and sums bounds for the engine', () => {
+  it("spends the party's own first, then shares out in order when the sheet says so", () => {
+    const sheet = band.sheet!
     const ordered = {
       ...band,
-      bindings: {
-        ...band.bindings!,
-        resources: { food: { carried: 'rations', share: 'order' as const } },
+      sheet: {
+        ...sheet,
+        def: { ...sheet.def, items: { ...sheet.def.items, share: 'order' as const } },
       },
     }
-    const s0 = startTrip({ system: ordered, location: 'a', members: members() }).session
-    const s = applyResult(s0, { effects: { 'party.resources.food': 10 } }, {}, {}, partyOf(ordered))
-    // Kael fills up first (to 4), then Mara (to 4): 8 in all, the members' max.
-    expect(s.members!.map((m) => m.values.rations)).toEqual([4, 4])
-    expect(s.travel.resources.food).toBe(8)
+    const rules = partyOf(ordered)
+    let s = startTrip({ system: ordered, location: 'a', members: members() }).session
+    s = applyResult(s, { effects: { 'party.items.ration': 10 } }, {}, rules)
+    // In order: all to the first member.
+    expect(carried(s)).toEqual([13, 1, 0])
+    s = { ...s, party: { ...s.party!, items: rations(2) } }
+    s = applyResult(s, { effects: { 'party.items.ration': -4 } }, {}, rules)
+    // The party's own two first, then two of Kael's.
+    expect(carried(s)).toEqual([11, 1, 0])
+    // More than they all have: none left, the bound hit and noted for the day.
+    s = applyResult(s, { effects: { 'party.items.ration': -20 } }, {}, rules)
+    expect(carried(s)).toEqual([0, 0, 0])
+    expect(s.travel.reached?.below).toContain('party.items.ration')
   })
 
   it('applies effects on every member, one by id, and the acting one', () => {

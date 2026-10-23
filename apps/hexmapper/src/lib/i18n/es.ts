@@ -68,7 +68,7 @@ export const es: Messages = {
     poiAdded: 'Añadido a {hex}: lo verás en el panel del hex.',
     apply: 'Aplicar al viaje: {changes}',
     applyHelp:
-      'El resultado cambia el grupo del viaje (provisiones, características, personajes): aplícalo al viaje, como se aplicaría el resultado de una comprobación.\n• `party.resources.food: 2` — el grupo gana 2 de comida\n• `party.stats.morale: -1`\nNada cambia hasta que lo apliques.',
+      'El resultado cambia el grupo del viaje (características, su hoja y sus objetos, personajes): aplícalo al viaje, como se aplicaría el resultado de una comprobación.\n• `party.items.ration: 2` — el grupo gana 2 raciones\n• `party.stats.morale: -1`\nNada cambia hasta que lo apliques.',
     applied: 'Aplicado al viaje: {changes}',
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
@@ -139,7 +139,7 @@ export const es: Messages = {
     hexKm: 'Escala del mundo (km por hex)',
     hexKmOf: '{km}: la del sistema',
     hexKmHelp:
-      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje y las provisiones dependen de ello. **Vacío: la escala del sistema** (`travel.hexKm` en sus reglas; 10 si no fija ninguna), que se ve en gris en la caja; escribe un número solo si este mapa está dibujado a otra escala.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
+      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje dependen de ello. **Vacío: la escala del sistema** (`travel.hexKm` en sus reglas; 10 si no fija ninguna), que se ve en gris en la caja; escribe un número solo si este mapa está dibujado a otra escala.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',
@@ -463,12 +463,12 @@ export const es: Messages = {
     confirmNoSheet: '¿Quitar la hoja de este token y todo lo que hay en ella?',
     confirmParty: '¿Convertir «{name}» en el grupo? «{old}» pasa a ser un personaje jugador.',
     confirmPartyTrip:
-      '¿Convertir «{name}» en el grupo? El viaje sigue desde donde está (mismo día, provisiones y diario) y su rastro empieza ahí.',
+      '¿Convertir «{name}» en el grupo? El viaje sigue desde donde está (mismo día, hoja del grupo y diario) y su rastro empieza ahí.',
     confirmNoParty:
       'Este token es el grupo de un viaje en curso. Sin grupo, el viaje espera hasta que otro token sea el grupo. ¿Seguir?',
     confirmDelete: '¿Borrar «{name}»? (Ctrl+Z lo recupera.)',
     confirmDeleteParty:
-      '¿Borrar el grupo «{name}»? Se termina el viaje: se pierden su tiempo, provisiones y diario, y Ctrl+Z solo recupera el token.',
+      '¿Borrar el grupo «{name}»? Se termina el viaje: se pierden su tiempo, la hoja del grupo y el diario, y Ctrl+Z solo recupera el token.',
     help: 'Haz clic en un hex vacío para colocar un token como el de abajo (Mayús+clic añade otro a un hex que ya tiene tokens). Haz clic en un token para editarlo y arrástralo a otro hex; clic derecho o Supr lo quita.',
     newTitle: 'Tokens nuevos',
     kind: 'Tipo',
@@ -504,11 +504,11 @@ export const es: Messages = {
     otherSystem:
       'Este viaje juega {trip}, el sistema con el que empezó; la campaña del mapa ahora se juega con {map}. Nuevo viaje empieza uno con él.',
     confirmNewTrip:
-      '¿Empezar un viaje nuevo? El tiempo, las provisiones y el diario vuelven a empezar (el grupo se queda donde está). No se puede deshacer.',
+      '¿Empezar un viaje nuevo? El tiempo, la hoja del grupo y el diario vuelven a empezar (el grupo se queda donde está). No se puede deshacer.',
     confirmClearTrail: '¿Borrar el rastro del grupo? No se puede deshacer.',
     confirmRemoveParty: '¿Quitar el grupo del mapa? Se borra su rastro.',
     confirmRemovePartyTrip:
-      '¿Quitar el grupo del mapa? Se termina el viaje: se pierden su tiempo, provisiones y diario. No se puede deshacer.',
+      '¿Quitar el grupo del mapa? Se termina el viaje: se pierden su tiempo, la hoja del grupo y el diario. No se puede deshacer.',
     discover: 'Descubrir el mapa al viajar',
     discoverHelp:
       'Las tablas del sistema deciden los hexes vacíos según viaja el grupo: su terreno, y lo que hay en ellos (un punto de interés, etiquetas, un nombre) la primera vez que entras.\n• **Los hexes alrededor del grupo** — se revelan al moverse, hasta donde ve\n• **Solo el hex al que entra el grupo**\nLos hexes pintados nunca cambian. Los descubrimientos son parte del juego: Ctrl+Z no los deshace.',
@@ -517,7 +517,7 @@ export const es: Messages = {
     revealEntered: 'Solo el hex al que entra el grupo',
     mode: 'Modo de juego',
     modeHelp:
-      'Cómo se mueve el grupo por el mapa:\n• **Simple** — solo un icono y su rastro: un clic lo pone en ese hex al momento, sin ruta, tiempo ni tiradas\n• **Con reglas** — un viaje con el sistema del mapa: lleva el tiempo, el terreno y las provisiones, y tira las tablas del sistema (clima, perderse, lugares, encuentros) por el camino, anotándolo todo en el diario',
+      'Cómo se mueve el grupo por el mapa:\n• **Simple** — solo un icono y su rastro: un clic lo pone en ese hex al momento, sin ruta, tiempo ni tiradas\n• **Con reglas** — un viaje con el sistema del mapa: lleva el tiempo, el terreno y lo que lleva el grupo, y tira las tablas del sistema (clima, perderse, lugares, encuentros) por el camino, anotándolo todo en el diario',
     modes: { simple: 'Simple', rules: 'Con reglas' },
     uploadToken: 'Subir uno propio…',
     worldStart: 'Los viajes nuevos empiezan en la fecha del reloj del mundo (el panel Mundo, ☾).',

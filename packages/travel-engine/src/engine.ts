@@ -29,7 +29,6 @@ import {
   ref,
   refId,
   resolveChange,
-  resourceBounds,
   DAY_END,
   HEX_ENTER,
   type ActionStep,
@@ -107,13 +106,12 @@ export interface CheckOutcome {
   weather?: string
   /** Movement multiplier for the rest of the day (e.g. 0.5 when foraging). */
   speed?: number
-  resources?: Record<string, number>
 }
 
 /**
  * What a trip has done so far, for the trip panel and for conditions and tables
  * (`trip.hexes`, `trip.km`, `trip.hours`, `trip.taken.camp`, `trip.checks`,
- * `trip.spent.food`, `trip.gained.food`).
+ * `trip.spent.party.items.ration`, `trip.gained.party.values.food`).
  */
 export interface TripTotals {
   /** Hexes entered (`trip.km` is them at the map's scale). */
@@ -124,9 +122,44 @@ export interface TripTotals {
   taken: Record<string, number>
   /** Checks that came up. */
   checks: number
-  /** How much effects took from each supply, and added to it (hand edits don't count). */
+  /**
+   * How much effects took from each of the party's values and items, and added to them, by
+   * full name (`party.values.food`, `party.items.ration`; hand edits don't count).
+   */
   spent: Record<string, number>
   gained: Record<string, number>
+}
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
+
+/** The value at a dotted path of nested records (`party.items.ration.count`). */
+function lookupPath(facts: Record<string, unknown>, path: string): unknown {
+  let at: unknown = facts
+  for (const key of path.split('.')) {
+    if (!isRecord(at)) return undefined
+    at = at[key]
+  }
+  return at
+}
+
+/** A copy with `value` at a dotted path, the records on the way copied (or made). */
+function setPath(
+  facts: Record<string, unknown>,
+  path: string,
+  value: unknown,
+): Record<string, unknown> {
+  const [key, ...rest] = path.split('.')
+  if (!rest.length) return { ...facts, [key]: value }
+  const inner = isRecord(facts[key]) ? facts[key] : {}
+  return { ...facts, [key]: setPath(inner, rest.join('.'), value) }
+}
+
+/** Numbers by full name as nested records (`party.items.ration` → `{ party: { items: … } }`). */
+function nested(flat: Record<string, number>): Record<string, unknown> {
+  let out: Record<string, unknown> = {}
+  for (const [path, n] of Object.entries(flat)) out = setPath(out, path, n)
+  return out
 }
 
 /** A trip that has done nothing yet. */
@@ -139,9 +172,10 @@ export const noTotals = (): TripTotals => ({
   gained: {},
 })
 
-/** Counts a supply's change in the trip's totals (spent when it went down, gained when up). */
-export function tallySupply(
+/** Counts a change of the party's in the trip's totals (spent when it went down, gained when up). */
+export function tallyChange(
   travel: { totals?: TripTotals },
+  /** Its full name: `party.values.food`, `party.items.ration`. */
   id: string,
   from: number,
   to: number,
@@ -159,7 +193,8 @@ export interface TravelState {
   /** Planned hexes from the current location ([0]) to the destination. */
   route?: string[]
   mode: string
-  resources: Record<string, number>
+  /** Older trips: the party's supplies (the host moves them to the party's sheet). */
+  resources?: Record<string, number>
   /** Older trips kept the party's fatigue here; it's a stat of the system now (migrated). */
   fatigue?: number
   weather?: string
@@ -182,7 +217,8 @@ export interface TravelState {
   yesterday?: Record<string, unknown>
   /**
    * The values that hit a bound today (`below`: an effect would have taken them under their
-   * `min`; `above`: over their `max`), by id; conditions read them as `below` / `above`.
+   * `min`; `above`: over their `max`), by full name (`party.values.food`); conditions read
+   * them as `trip.below` / `trip.above`.
    */
   reached?: { below?: string[]; above?: string[] }
   /** Older trips: the day whose supplies an `eat: day` step ate (read as that action done). */
@@ -334,7 +370,7 @@ export type TravelEvent =
       because?: Unavailable
     }
   /**
-   * An effect would have taken a value past its bound (`party.resources.food` under its
+   * An effect would have taken a value past its bound (`party.values.food` under its
    * `min`): it stopped at `value`.
    */
   | {
@@ -479,7 +515,6 @@ export function initialTravelState(init: {
   location: string
   mode: string
   time?: GameTime
-  resources?: Record<string, number>
   calendar?: Calendar
   /** Seeds the trip's rolls in conditions and effects (any text; the host picks one). */
   seed?: string
@@ -489,7 +524,6 @@ export function initialTravelState(init: {
     time,
     location: init.location,
     mode: init.mode,
-    resources: { ...init.resources },
     progress: 0,
     day: (init.calendar ?? defaultCalendar).describe(time).day,
     firstDay: (init.calendar ?? defaultCalendar).describe(time).day,
@@ -591,6 +625,14 @@ export function createTravelEngine(options: {
    * stop there, and later steps see `below` / `above` (and the stat's new value).
    */
   stats?: Record<string, Bounds>
+  /**
+   * The other numbers the host keeps that steps change (the party sheet's values, the
+   * party's items), by the effect's full name (`party.values.food`, `party.items.ration`),
+   * with their bounds and where conditions read them (`read`: `party.items.ration.count`;
+   * absent, the name itself): later steps see them changed, and `below` / `above`. The host
+   * applies them for real from the event. Each is in `trip.spent` / `trip.gained` from 0.
+   */
+  kept?: Record<string, Bounds & { read?: string }>
 }): TravelEngine {
   const world = options.world
   const rules = options.rules
@@ -627,7 +669,7 @@ export function createTravelEngine(options: {
     divisions.map((d) => [d.id, Object.fromEntries(d.parts.map((p) => [p.id, p.from / 60]))]),
   )
   const values = declaredValues(rules)
-  const supplies = resourceBounds(rules)
+  const kept = options.kept ?? {}
   /** Actions the system takes by itself, by the moment or action they follow. */
   const triggered = new Map<string, string[]>()
   for (const [id, def] of Object.entries(actions.all))
@@ -906,18 +948,19 @@ export function createTravelEngine(options: {
       // What hit a bound today.
       below: state.reached?.below ?? [],
       above: state.reached?.above ?? [],
-      // What the engine knows of the party (the host adds its stats).
-      party: { ...host, resources: { ...state.resources }, mode: state.mode },
+      // What the engine knows of the party (the host adds its stats, values and items).
+      party: { ...host, mode: state.mode },
     }
   }
 
-  /** Every action and supply the system declares at 0, so `trip.taken.rite: 0` holds. */
+  /** Every action and number the host keeps at 0, so `trip.taken.rite: 0` holds. */
   const zeros = (ids: string[]) => Object.fromEntries(ids.map((id) => [id, 0]))
   const takenIds = Object.keys(actions.all)
-  const supplyIds = Object.keys(rules.resources ?? {})
+  const keptIds = Object.keys(kept)
   /**
-   * The trip's totals as conditions read them: `trip.km`, `trip.hours`, `trip.taken.camp`…
-   * (each of the system's actions and supplies, 0 until it counts).
+   * The trip's totals as conditions read them: `trip.km`, `trip.hours`, `trip.taken.camp`,
+   * `trip.spent.party.items.ration`… (each of the system's actions and of the numbers the
+   * host keeps, 0 until it counts).
    */
   const tripTotals = (state: TravelState): Record<string, unknown> => {
     const totals = state.totals ?? noTotals()
@@ -927,8 +970,8 @@ export function createTravelEngine(options: {
       hours: totals.marched / 60,
       taken: { ...zeros(takenIds), ...totals.taken },
       checks: totals.checks,
-      spent: { ...zeros(supplyIds), ...totals.spent },
-      gained: { ...zeros(supplyIds), ...totals.gained },
+      spent: nested({ ...zeros(keptIds), ...totals.spent }),
+      gained: nested({ ...zeros(keptIds), ...totals.gained }),
     }
   }
   /** The trip's totals, to count in (older trips start them now). */
@@ -1016,15 +1059,15 @@ export function createTravelEngine(options: {
     let count = 0
     while (line.length) {
       const next = line.shift()!
-      // The trip as it was at the moment, with what the checks before it set, and today's
-      // supplies.
+      // The trip as it was at the moment, with what the checks before it set, and the
+      // party as it is now.
       const set = next.set ?? {}
       const context: Record<string, unknown> = {
         ...next.context,
         ...set,
         ...(next.weather !== undefined && { weather: next.weather }),
         today: { ...(next.context.today as object), ...set },
-        party: { ...(next.context.party as object), resources: { ...state.resources } },
+        party: { ...(next.context.party as object), ...(hostFacts.party as object) },
       }
       // Conditions also see the host's facts (stats, today's values); the check keeps the
       // trip's own (the host adds its facts again when resolving it).
@@ -1660,8 +1703,9 @@ export function createTravelEngine(options: {
   }
 
   /**
-   * A step's effects: supplies change here (within their bounds), the party's stats in the
-   * host's facts (so later steps see them; the host applies them for real from the event).
+   * A step's effects, as later steps see them: the party's stats and the numbers the host
+   * keeps (`kept`) change in the host's facts, within their bounds, noting what hit one; the
+   * host applies them for real from the event.
    */
   const applyEffects = (
     state: TravelState,
@@ -1672,25 +1716,28 @@ export function createTravelEngine(options: {
     roller: Roller,
   ): void => {
     const limits: TravelEvent[] = []
-    const party = hostFacts.party as { stats?: Record<string, number> } | undefined
     // The variables they name (`'-{{party.stats.mouths}}'`) are read now, before any changes.
     const now = checkContext(state, [], hostFacts)
     const effects = Object.fromEntries(
       Object.entries(written).map(([path, change]) => [path, resolveChange(change, now, roller)]),
     )
     for (const [path, change] of Object.entries(effects)) {
-      const [, scope, id] = /^party\.(stats|resources)\.(.+)$/.exec(path) ?? []
-      if (!scope) continue
-      const own = scope === 'resources'
-      const values: Record<string, number> = own ? state.resources : (party?.stats ?? {})
-      const from = values[id] ?? 0
-      const { to, limit } = changeValue(from, change, (own ? supplies : options.stats)?.[id])
-      values[id] = to
-      if (own) tallySupply(state, id, from, to)
+      const stat = /^party\.stats\.(.+)$/.exec(path)?.[1]
+      const own = kept[path]
+      if (stat === undefined && !own) continue
+      const at = stat !== undefined ? path : (own.read ?? path)
+      const read = lookupPath(hostFacts, at)
+      const from = typeof read === 'number' ? read : 0
+      const { to, limit } = changeValue(
+        from,
+        change,
+        stat !== undefined ? options.stats?.[stat] : own,
+      )
+      hostFacts = setPath(hostFacts, at, to)
       // A stat by its own name too (`{{fatigue}}`), unless something else hides it.
-      if (!own && hostFacts[id] === from) hostFacts[id] = to
+      if (stat !== undefined && hostFacts[stat] === from) hostFacts[stat] = to
       if (limit) {
-        reach(state, id, limit)
+        reach(state, path, limit)
         limits.push({ type: 'LIMIT_REACHED', path, limit, value: to, time: state.time })
       }
     }
@@ -2124,10 +2171,10 @@ export function createTravelEngine(options: {
         delete state.ate
       }
       const events: TravelEvent[] = []
-      // A copy: actions' effects change the party's stats in it as their steps go.
-      const party = facts.party as { stats?: Record<string, number> } | undefined
-      hostFacts = party
-        ? { ...facts, party: { ...party, stats: { ...party.stats } } }
+      // A copy: actions' effects change the party's stats, values and items in it as their
+      // steps go.
+      hostFacts = isRecord(facts.party)
+        ? { ...facts, party: structuredClone(facts.party) }
         : { ...facts }
       // Paused on a check: what moves the trip on waits until it's resolved (Continue).
       const paused = pausedOn(state)
@@ -2236,11 +2283,6 @@ export function createTravelEngine(options: {
           }
           if (outcome.speed !== undefined)
             state.speedToday = (state.speedToday ?? 1) * outcome.speed
-          for (const [id, delta] of Object.entries(outcome.resources ?? {})) {
-            const from = state.resources[id] ?? 0
-            state.resources[id] = changeValue(from, delta, supplies[id]).to
-            tallySupply(state, id, from, state.resources[id])
-          }
           events.push({ type: 'CHECK_RESOLVED', id: action.id, outcome })
           // Right after it, its own moment (`checks.WEATHER`): before the rest of its line,
           // so they see what that moment's actions changed.
