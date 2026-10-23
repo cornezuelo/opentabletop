@@ -12,7 +12,7 @@ Writing many similar entries is often faster in YAML than in the forms; comments
 
 ## Packs bundled with a build
 
-If you build the apps yourself (`make site`), every folder in `packs/` is bundled as a read-only pack, and so is every folder in `packs-private/` on that computer (personal-use content; never publish that build). Running `make test` loads every open pack in `packs/` and rolls every definition in every language, so a broken table is caught before you play.
+If you build the apps yourself (`make site`, into `dist/`), every folder in `packs/` is bundled as a read-only pack. Personal-use packs in `packs-private/` are bundled only by `make serve` and `make rebuild`, into `dist-local/`, for your own computer: never publish that build. `make site` leaves them out and fails if anything still loads one. Running `make test` loads every open pack in `packs/` and rolls every definition in every language, so a broken table is caught before you play.
 
 ## The command line
 

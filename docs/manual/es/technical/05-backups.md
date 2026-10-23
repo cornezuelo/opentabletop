@@ -9,7 +9,7 @@ Abre el selector de aplicaciones (los nueve puntos, en cualquier aplicación) y 
 Contiene todo lo que las aplicaciones guardan en este navegador:
 
 - **Mapas**: todos los de la biblioteca del Hexmapper, con su estado de juego (grupo, rastro, viaje, diario) y la tierra que tiene en él cada facción.
-- **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oracle (historial, mazos, resultados que solo salen una vez).
+- **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oráculo (historial, mazos, resultados que solo salen una vez).
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
 - **El plantel de la aplicación Characters**: cada personaje que guarda, con sus notas y dónde juega.
 - **Los viajes de la aplicación Travel**, el historial, los mazos y la semilla de la **aplicación Oracle**, y los **favoritos**.

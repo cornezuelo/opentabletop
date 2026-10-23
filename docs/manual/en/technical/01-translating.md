@@ -16,15 +16,21 @@ The manual is plain Markdown in `docs/manual/<language>/<app>/`. To add a langua
 
 Every visible text of the apps comes from a dictionary; there is no text written in the components. English (`en.ts`) is the reference and every other language has the same keys — the type checker refuses a dictionary with missing or extra keys, and tests check it too.
 
-| Part                      | Dictionaries                                                                             |
-| ------------------------- | ---------------------------------------------------------------------------------------- |
-| Hexmapper                 | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; languages listed in `index.svelte.ts`) |
-| Oracle app                | `apps/oracle/src/lib/i18n/` (languages in `index.ts`)                                    |
-| Travel app                | `apps/travel/src/lib/i18n/` (languages in `index.ts`)                                    |
-| Roll panel, history       | `packages/oracle-ui/src/i18n/`                                                           |
-| Pack library, YAML editor | `packages/pack-ui/src/i18n/`                                                             |
-| Trip panel                | `packages/travel-ui/src/i18n/`                                                           |
-| Manual, app switcher      | `packages/manual-ui/src/i18n.ts`, `packages/ui-kit/src/AppSwitcher.svelte`               |
+| Part                                                       | Dictionaries                                                                             |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Hexmapper                                                  | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; languages listed in `index.svelte.ts`) |
+| Oracle app                                                 | `apps/oracle/src/lib/i18n/` (languages in `index.ts`)                                    |
+| Travel app                                                 | `apps/travel/src/lib/i18n/` (languages in `index.ts`)                                    |
+| Campaign app                                               | `apps/campaign/src/lib/i18n/` (languages in `index.ts`)                                  |
+| Characters app                                             | `apps/characters/src/lib/i18n/` (languages in `index.ts`)                                |
+| Systems app                                                | `apps/systems/src/lib/i18n/` (languages in `index.ts`)                                   |
+| Roll panel, history                                        | `packages/oracle-ui/src/i18n/`                                                           |
+| Pack library, YAML editor                                  | `packages/pack-ui/src/i18n/`                                                             |
+| Trip panel                                                 | `packages/travel-ui/src/i18n/`                                                           |
+| Characters' sheets                                         | `packages/character-ui/src/i18n/`                                                        |
+| World clock, timeline                                      | `packages/campaign-ui/src/i18n/`                                                         |
+| Words shared by the apps (terrains, seasons, moon phases…) | `packages/ui-kit/src/vocabulary.ts`                                                      |
+| Manual, app switcher                                       | `packages/manual-ui/src/i18n.ts`, `packages/ui-kit/src/AppSwitcher.svelte`               |
 
 To add a language: copy each `en.ts` to `<code>.ts`, translate the values (never the keys), and add the code to the language lists (and to the front page's languages and flags, in `scripts/build-site.mjs`). Check it with `make verify` and build with `make site`. Contributions are welcome as pull requests.
 

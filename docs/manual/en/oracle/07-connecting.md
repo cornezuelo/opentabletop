@@ -345,7 +345,7 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 - `trip.hex-enter`: entering each hex (encounters, a toll, a landmark);
 - `time.day-end`: as each day ends, after the system's `time.day-end` actions (hunger). They see `below` / `above`, what hit a bound that day, and `doing`, the action under way when it ended;
 - an action (`actions.<id>`): with that action, before its steps (`at: actions.camp`, `at: actions.forage`);
-- several, as a list: the Grey Marches roll encounters `at: [trip.hex-enter, actions.rest]`, and their condition tells the two apart with `moment` (the table sees `moment` too);
+- several, as a list: the Grey Marches roll encounters `at: [trip.hex-enter, actions.rest]`, and their condition tells the two apart with `trip.moment` (the table sees it too);
 - a moment of the world (below): `at: world.clocks.<id>.full`;
 - none: only a step's `roll:` rolls it.
 

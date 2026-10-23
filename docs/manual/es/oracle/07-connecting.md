@@ -345,7 +345,7 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 - `trip.hex-enter`: al entrar en cada hex (encuentros, un peaje, un hito);
 - `time.day-end`: al acabar cada día, después de las acciones `time.day-end` del sistema (el hambre). Ven `below` / `above`, lo que llegó a un límite ese día, y `doing`, la acción en curso cuando acabó;
 - una acción (`actions.<id>`): con esa acción, antes de sus pasos (`at: actions.camp`, `at: actions.forage`);
-- varios, en una lista: las Marcas Grises tiran encuentros `at: [trip.hex-enter, actions.rest]`, y su condición distingue los dos con `moment` (la tabla también ve `moment`);
+- varios, en una lista: las Marcas Grises tiran encuentros `at: [trip.hex-enter, actions.rest]`, y su condición distingue los dos con `trip.moment` (la tabla también lo ve);
 - un momento del mundo (más abajo): `at: world.clocks.<id>.full`;
 - ninguno: solo la tira el `roll:` de un paso.
 

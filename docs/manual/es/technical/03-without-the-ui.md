@@ -12,7 +12,7 @@ Escribir muchas entradas parecidas suele ser más rápido en YAML que en los for
 
 ## Packs incluidos en una build
 
-Si compilas tú las aplicaciones (`make site`), cada carpeta de `packs/` se incluye como pack de solo lectura, y también cada carpeta de `packs-private/` en ese ordenador (contenido de uso personal; nunca publiques esa build). `make test` carga todos los packs abiertos de `packs/` y tira cada definición en cada idioma, así que una tabla rota se detecta antes de jugar.
+Si compilas tú las aplicaciones (`make site`, en `dist/`), cada carpeta de `packs/` se incluye como pack de solo lectura. Los packs de uso personal de `packs-private/` solo los incluyen `make serve` y `make rebuild`, en `dist-local/`, para tu propio ordenador: nunca publiques esa build. `make site` los deja fuera y falla si algo aún carga alguno. `make test` carga todos los packs abiertos de `packs/` y tira cada definición en cada idioma, así que una tabla rota se detecta antes de jugar.
 
 ## La línea de comandos
 

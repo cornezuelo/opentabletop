@@ -16,15 +16,21 @@ El manual es Markdown normal en `docs/manual/<idioma>/<aplicación>/`. Para aña
 
 Cada texto visible de las aplicaciones sale de un diccionario; no hay texto escrito en los componentes. El inglés (`en.ts`) es la referencia y cualquier otro idioma tiene las mismas claves: la comprobación de tipos rechaza un diccionario con claves de más o de menos, y los tests también lo comprueban.
 
-| Parte                            | Diccionarios                                                                                  |
-| -------------------------------- | --------------------------------------------------------------------------------------------- |
-| Hexmapper                        | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; los idiomas se listan en `index.svelte.ts`) |
-| Aplicación Oracle                | `apps/oracle/src/lib/i18n/` (idiomas en `index.ts`)                                           |
-| Aplicación Travel                | `apps/travel/src/lib/i18n/` (idiomas en `index.ts`)                                           |
-| Panel de tirada, historial       | `packages/oracle-ui/src/i18n/`                                                                |
-| Biblioteca de packs, editor YAML | `packages/pack-ui/src/i18n/`                                                                  |
-| Panel del viaje                  | `packages/travel-ui/src/i18n/`                                                                |
-| Manual, selector de aplicaciones | `packages/manual-ui/src/i18n.ts`, `packages/ui-kit/src/AppSwitcher.svelte`                    |
+| Parte                                                                          | Diccionarios                                                                                  |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Hexmapper                                                                      | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; los idiomas se listan en `index.svelte.ts`) |
+| Aplicación Oracle                                                              | `apps/oracle/src/lib/i18n/` (idiomas en `index.ts`)                                           |
+| Aplicación Travel                                                              | `apps/travel/src/lib/i18n/` (idiomas en `index.ts`)                                           |
+| Aplicación Campaign                                                            | `apps/campaign/src/lib/i18n/` (idiomas en `index.ts`)                                         |
+| Aplicación Characters                                                          | `apps/characters/src/lib/i18n/` (idiomas en `index.ts`)                                       |
+| Aplicación Systems                                                             | `apps/systems/src/lib/i18n/` (idiomas en `index.ts`)                                          |
+| Panel de tirada, historial                                                     | `packages/oracle-ui/src/i18n/`                                                                |
+| Biblioteca de packs, editor YAML                                               | `packages/pack-ui/src/i18n/`                                                                  |
+| Panel del viaje                                                                | `packages/travel-ui/src/i18n/`                                                                |
+| Hojas de personaje                                                             | `packages/character-ui/src/i18n/`                                                             |
+| Reloj del mundo, cronología                                                    | `packages/campaign-ui/src/i18n/`                                                              |
+| Palabras que comparten las aplicaciones (terrenos, estaciones, fases lunares…) | `packages/ui-kit/src/vocabulary.ts`                                                           |
+| Manual, selector de aplicaciones                                               | `packages/manual-ui/src/i18n.ts`, `packages/ui-kit/src/AppSwitcher.svelte`                    |
 
 Para añadir un idioma: copia cada `en.ts` en `<código>.ts`, traduce los valores (nunca las claves) y añade el código a las listas de idiomas (y a los idiomas y banderas de la portada, en `scripts/build-site.mjs`). Compruébalo con `make verify` y compila con `make site`. Las contribuciones son bienvenidas como pull requests.
 
