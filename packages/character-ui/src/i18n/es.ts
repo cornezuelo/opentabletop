@@ -33,7 +33,7 @@ export const es: Messages<typeof en> = {
   box: '{value} de {max}',
   items: {
     title: 'Objetos',
-    help: 'Lo que tiene este personaje, cada cosa con cuántas y los números que su sistema da a los objetos (huecos, peso, usos…), en los lugares que declara su hoja (manos, cinturón, mochila…) o dentro de un contenedor que lleve. Añade uno de los catálogos del sistema, o escribe cualquier nombre para hacerlo a mano. Para moverlo, arrastra su asa (⠿) a un lugar o elige el lugar: solo se ofrecen los lugares donde cabe y, si la hoja dice que un lugar no admite más de su sitio, solo los que tienen sitio libre para él. Mantén Mayús al soltar para mover solo uno de un montón. Las tablas y condiciones los leen:\n• `{path}.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `{path}.items.torch.uses` — los usos de la primera antorcha\n• `{path}.items.tags: light` — lleva algo con la etiqueta light\n• `{path}.places.pack.used` — cuánto de la mochila está ocupado\nLos efectos los cambian: `{path}.items.torch: -1` quita una, `+2` da dos (del catálogo si no tiene ninguna).',
+    help: 'Lo que tiene este personaje, cada cosa con cuántas y los números que su sistema da a los objetos (huecos, peso, usos…), en los lugares que declara su hoja (manos, cinturón, mochila…) o dentro de un contenedor que lleve. Añade uno de los catálogos del sistema, o escribe cualquier nombre para hacerlo a mano. Para moverlo, arrastra su asa (⠿) a un lugar o elige el lugar: solo se ofrecen los lugares donde cabe y, si la hoja dice que un lugar no admite más de su sitio, solo los que tienen sitio libre para él. Mantén Mayús al soltar para mover solo uno de un montón. Las tablas y condiciones los leen:\n• `{path}.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `{path}.items.torch.uses` — los usos de la primera antorcha\n• `{path}.items.tags: light` — lleva algo con la etiqueta light\n• `{path}.places.pack.used` — cuánto de la mochila está ocupado\n• `{path}.carried.used` — cuánto lleva en total\nLos efectos los cambian: `{path}.items.torch: -1` quita una, `+2` da dos (del catálogo si no tiene ninguna).',
     count: 'Cuántos',
     room: '{used} / {room}',
     inside: 'En {name}',
@@ -59,6 +59,11 @@ export const es: Messages<typeof en> = {
     placeRoom: 'Sitio',
     addPlace: 'Añadir un lugar',
     removePlace: 'Quitar este lugar',
+    carried: 'Lleva',
+    carriedHelp:
+      'Cuánto lleva este personaje en total, frente al sitio que le da su hoja (**Sitio en total**), contado como en los lugares: todo, también lo que va dentro de contenedores. Si la hoja dice que no admite más, nada entra pasado ese sitio. Las tablas lo leen como `{path}.carried.used` y `{path}.carried.room`.',
+    loose: 'No tiene sitio: suelta algo, o muévelo a un lugar',
+    noRoom: 'No queda sitio para {name}',
   },
   origin: {
     line: 'Hoja: {sheet} · {system}',

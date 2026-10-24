@@ -22,8 +22,10 @@ sheet/companion:
     objetos (la carga, `{ sum: items.slots }`, que se ve frente a la capacidad,
     `of: '{{self.values.capacity}}'`, ámbar al llegar a ella y roja al pasarla; la armadura
     puesta, `{ max: items.armour, where: { place.tags: worn } }`), lugares que no admiten más de
-    su sitio (`over: refuse`: un lugar lleno no se ofrece y lo que se da va a la mochila o a
-    ningún lugar), lo que lleva un compañero nuevo (`start: { ration: 2 }`)
+    su sitio (`over: refuse`: un lugar lleno no se ofrece y lo que se da va a la mochila), un
+    sitio en total (`room: '{{self.values.capacity * 2}}'`: cargado pasada la capacidad, parado
+    al doble), lo que no cabe esperando al jugador (`full: ask`: el viaje espera a que haga
+    sitio), lo que lleva un compañero nuevo (`start: { ration: 2 }`)
     y cómo se reparte entre ellos lo que gasta el grupo (`share: even`: de quien más lleve);
     cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:

@@ -521,9 +521,16 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.unknownItem', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    // Older trips' journals: what had no room was carried in no place.
     case 'ITEM_NO_ROOM':
       return t('journal.itemNoRoom', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
+      })
+    case 'ITEM_LEFT':
+    case 'ITEM_LOOSE':
+      return t(e.code === 'ITEM_LEFT' ? 'journal.itemLeft' : 'journal.itemLoose', {
+        name: context.memberName?.(String(d.path)) ?? String(d.path),
+        count: String(d.count ?? 1),
       })
     case 'NOTE':
       return e.text ?? ''

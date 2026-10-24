@@ -30,7 +30,7 @@ export const en = {
   box: '{value} of {max}',
   items: {
     title: 'Items',
-    help: "What this character has, each with how many and the numbers its system gives items (slots, weight, uses…), in the places its sheet declares (hands, belt, pack…) or inside a container it carries. Add one from the system's catalogues, or write any name to make one by hand. Move one by dragging its handle (⠿) onto a place, or by picking the place: only those it fits are offered, and, where the sheet says a place takes no more than its room, only those with room left for it. Hold Shift as you drop to move only one of a stack. Tables and conditions read them:\n• `{path}.items.torch.count: { gte: 1 }` — has a torch\n• `{path}.items.torch.uses` — the first torch's uses\n• `{path}.items.tags: light` — carries something tagged light\n• `{path}.places.pack.used` — how much of the pack is taken\nEffects change them: `{path}.items.torch: -1` takes one, `+2` gives two (from the catalogue when it has none).",
+    help: "What this character has, each with how many and the numbers its system gives items (slots, weight, uses…), in the places its sheet declares (hands, belt, pack…) or inside a container it carries. Add one from the system's catalogues, or write any name to make one by hand. Move one by dragging its handle (⠿) onto a place, or by picking the place: only those it fits are offered, and, where the sheet says a place takes no more than its room, only those with room left for it. Hold Shift as you drop to move only one of a stack. Tables and conditions read them:\n• `{path}.items.torch.count: { gte: 1 }` — has a torch\n• `{path}.items.torch.uses` — the first torch's uses\n• `{path}.items.tags: light` — carries something tagged light\n• `{path}.places.pack.used` — how much of the pack is taken\n• `{path}.carried.used` — how much is carried in all\nEffects change them: `{path}.items.torch: -1` takes one, `+2` gives two (from the catalogue when it has none).",
     count: 'How many',
     room: '{used} / {room}',
     inside: 'In {name}',
@@ -56,6 +56,11 @@ export const en = {
     placeRoom: 'Room',
     addPlace: 'Add a place',
     removePlace: 'Take this place away',
+    carried: 'Carried',
+    carriedHelp:
+      'How much this character carries in all, against the room its sheet gives (**Room in all**), counted as places are: everything, inside containers too. Where the sheet says it takes no more, nothing goes in past it. Tables read it as `{path}.carried.used` and `{path}.carried.room`.',
+    loose: 'No room for it: drop something, or move it to a place',
+    noRoom: 'No room left for {name}',
   },
   origin: {
     line: 'Sheet: {sheet} · {system}',

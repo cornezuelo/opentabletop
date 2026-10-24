@@ -51,7 +51,13 @@
     type TravelWorld,
     type Unavailable,
   } from '@open-tabletop/travel-engine'
-  import { calendarOf, hexIdOf, pendingLine, sharingRoom } from '@open-tabletop/session'
+  import {
+    calendarOf,
+    hexIdOf,
+    pendingLine,
+    sharingRoom,
+    waitingForRoom,
+  } from '@open-tabletop/session'
   import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { idText, translator, type TravelUiKey } from './i18n'
   import { memberLabel, memberNamer, statSource } from './members'
@@ -340,6 +346,10 @@
     shareAnswer = undefined
     onshare?.(moved)
   }
+  /** Who has items waiting for room to be made for them (`full: ask`): the trip waits. */
+  const roomless = $derived(waitingForRoom(session))
+  /** Nothing goes on while a share waits for who gives it, or an item for room. */
+  const held = $derived((!!sharing && !!onshare) || roomless.length > 0)
   /** What a condition blocks, in words: moving on, an action or a way of travelling. */
   const blockName = (what: string) => {
     const mode = refId('modes', what)
@@ -629,6 +639,22 @@
     </div>
   {/if}
 
+  <!-- Items given with no room left, waiting for the player to make room on the cards. -->
+  {#if roomless.length}
+    <div class="pending asks">
+      <span
+        >{t('room.waits', {
+          names: roomless
+            .map((id) => {
+              const m = [session.party, ...(session.members ?? [])].find((c) => c?.id === id)
+              return m ? memberLabel(m) : id
+            })
+            .join(', '),
+        })}<InfoTip text={t('room.help')} /></span
+      >
+    </div>
+  {/if}
+
   <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
   {#if waiting}
     <div class="pending" class:asks={!!asked}>
@@ -653,8 +679,8 @@
     </div>
   {/if}
 
-  <!-- Nothing goes on while a share waits for who gives it. -->
-  <div class="actions" class:held={!!sharing && !!onshare} inert={!!sharing && !!onshare}>
+  <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
+  <div class="actions" class:held inert={held}>
     {#if goingOn && !waiting}
       <button
         class="primary"

@@ -10,10 +10,10 @@ Un personaje **tiene objetos**, cada uno con **cuántos** (una cantidad) y, si l
 - **Campos, que declara la hoja.** Los **Campos de todo objeto** de la hoja son números como los valores, con límites y con cómo se muestran. Un campo que **Se gasta** (los usos de una antorcha) acaba con uno de esos objetos al llegar a su mínimo: la cantidad baja y el siguiente empieza de nuevo en su número; el último desaparece. Uno que no se gasta se queda vacío (un farol sin aceite).
 - **Lugares, para cualquier cuerpo.** La hoja puede declarar **lugares** (manos, cuerpo, cinturón, espalda; las tres cabezas de una bestia de tres cabezas), cada uno con **etiquetas** y **sitio**. Un objeto dice dónde **Cabe** por las etiquetas del lugar (`place.tags: worn` para una cota de malla), nunca por su nombre, así que el mismo catálogo vale para cualquier cuerpo. En la tarjeta, un objeto se mueve arrastrando su asa (⠿) a un lugar, o eligiendo el lugar; solo se ofrecen los lugares donde cabe (mantén Mayús al soltarlo para mover solo uno de un montón). Sin lugares, los objetos son una sola lista.
 - **Contenedores.** Un objeto que **Guarda** algo es también un lugar (una mochila, unas alforjas): los objetos entran en él si caben por sus etiquetas, y van con él (soltar la mochila suelta lo que lleva dentro).
-- **El sitio** se cuenta con el campo que la hoja nombra en **Lo que ocupa un lugar** (huecos × cuántos), o uno por objeto. Por defecto, un lugar que se pasa de su sitio solo muestra su cuenta en rojo, y el sistema dice qué significa, con un estado (abajo). Una hoja (o un lugar, o un contenedor) cuyo **Más de lo que cabe** es `refuse` no admite nada que no tenga sitio: la tarjeta no ofrece lugares llenos y se rechaza moverlo ahí; lo que dé un efecto va al primer lugar donde quepa con sitio (luego a un contenedor con sitio, luego a un lugar que admita más) o, si no hay ninguno, se queda con el personaje sin lugar, y el diario dice _no le queda sitio_. Más abajo, [Un límite que no se pasa](#un-límite-que-no-se-pasa).
+- **El sitio** se cuenta con el campo que la hoja nombra en **Lo que ocupa un lugar** (huecos × cuántos), o uno por objeto. Por defecto, un lugar que se pasa de su sitio solo muestra su cuenta en rojo, y el sistema dice qué significa, con un estado (abajo). Una hoja (o un lugar, o un contenedor) cuyo **Más de lo que cabe** es `refuse` no admite nada que no tenga sitio: la tarjeta no ofrece lugares llenos y se rechaza moverlo ahí; lo que dé un efecto va al primer lugar donde quepa con sitio (luego a un contenedor con sitio, luego a un lugar que admita más). El **Sitio en total** de una hoja cuenta todo lo que lleva un personaje. Lo que siga sin sitio se queda atrás, o espera en la tarjeta al jugador, según diga **Si no cabe**. Más abajo, [Límites a lo que se lleva](#limites-a-lo-que-se-lleva).
 - **Lo que hace tenerlo** se escribe con las piezas que ya tienen las hojas y las reglas: un valor que **Sale de** los objetos (`{ sum: items.slots }`: la carga; `{ max: items.armour, where: { place.tags: worn } }`: la armadura puesta), un estado que **Se cumple mientras** la carga pase de la capacidad (bloquea lo que diga), un dato del grupo que cuenta quién lleva cuerda (`from: { count: true, when: { items.tags: climbing } }`), una tabla que lo lee (`'1d6 + {{min(party.stats.roped, 1)}}'`).
 - **Los efectos los dan y los quitan**, por el id del objeto: `acting.items.torch: -1` (uno menos, empezando por los últimos), `party.members.items.torch.uses: -1` (una hora de la antorcha de cada uno), `acting.items.sword-of-keld: 1` (uno más; del catálogo si el personaje no tiene ninguno). Un campo de un objeto que el personaje no tiene no cambia nada; un objeto que no está en ningún catálogo no se puede dar, y el diario lo dice.
-- **Las tablas y condiciones los leen**: `characters.kael.items.torch.count` (cuántos), `acting.items.torch.uses` (los del primero), `acting.items.tags: light` (lleva algo con la etiqueta light), `acting.places.pack.used` y `.room`. Todos: [Qué ven las tablas](../technical/04-what-tables-see.md#personajes).
+- **Las tablas y condiciones los leen**: `characters.kael.items.torch.count` (cuántos), `acting.items.torch.uses` (los del primero), `acting.items.tags: light` (lleva algo con la etiqueta light), `acting.places.pack.used` y `.room`, `acting.carried.used` (todo, frente al **Sitio en total**). Todos: [Qué ven las tablas](../technical/04-what-tables-see.md#personajes).
 
 ## La pestaña
 
@@ -75,9 +75,18 @@ Y el sistema nombra el catálogo (`items: [items.gear]` en su `kind: system`).
 
 Las Marcas Grises llevan equipo en cuatro lugares del cuerpo (una cuerda que ayuda en el vado, antorchas que arden en las marchas nocturnas, una mochila, una cota de malla, la Espada de Keld de un tesoro): su [página](../packs/02-grey-marches.md). El catálogo de Core es el más pequeño: tres objetos y ningún campo ([Core](../packs/01-core.md)).
 
-## Un límite que no se pasa
+## Límites a lo que se lleva
 
-Algunos juegos dejan que un personaje lleve hasta cierto punto, y ni una cosa más: una carga que lo frena al pasar una línea y se detiene en otra. Con **Más de lo que cabe** `refuse`, un lugar no admite nada que no tenga sitio, así que la segunda línea es un lugar cuyo **Sitio** es lo máximo que puede llevar un personaje, y la primera una condición. Con números inventados (los de cada juego son suyos):
+Los juegos limitan lo que lleva un personaje de cuatro maneras, y cada una se escribe con lo que ya tienen las hojas (números inventados: los de cada juego son suyos):
+
+- **Un total estricto**: tanto en total, y ni una cosa más. El **Sitio en total** de la hoja (`room: '{{self.values.capacity}}'`) con **Más de lo que cabe** `refuse`: todo cuenta, también lo de dentro de los contenedores, y no entra nada pasado ese sitio.
+- **Estricto por lugar**: las manos sostienen dos cosas, un cinturón una. El **Sitio** de cada lugar con **Más de lo que cabe** `refuse`.
+- **Blando, con un precio**: se puede llevar de todo, pero más lento. Una carga que **Sale de** los objetos, sin **Máx.**, **Frente a** la capacidad, y un estado que **Se cumple mientras** se pase (`self.values.load: { gt: '{{self.values.capacity}}' }`) y **Bloquea** lo que cuesta.
+- **Los dos**: más lento pasada una línea, parado en otra. El estado del límite blando, y un **Sitio en total** mayor (`'{{self.values.capacity * 2}}'`).
+
+Lo que da un efecto donde algo no admite más entra hasta donde quepa (lugar tras lugar); **Si no cabe** dice qué pasa con el resto: **leave** (por defecto) lo deja atrás, y lo dice el diario (_no queda sitio para 2, se queda atrás_); **ask** lo deja en la tarjeta del personaje, marcado en ningún lugar, y el viaje espera hasta que el jugador suelte algo o lo mueva a un lugar. Una tarjeta nunca añade a mano lo que no tiene sitio. Lo que gana el grupo va primero a quien tenga sitio para ello.
+
+El último, con todas sus piezas:
 
 ```yaml
 # sheet.yaml: un extracto (la hoja de un soldado; sus otros valores siguen)
@@ -105,13 +114,15 @@ items:
     carry: { name: Helps to carry, default: 0, min: 0 }
   places:
     worn: { name: Worn, tags: [worn], room: 2 }
-    # Hasta el doble de la capacidad, nunca más.
-    carried: { name: Carried, tags: [carried], room: '{{self.values.capacity * 2}}' }
   size: weight
+  # Hasta el doble de la capacidad en total, nunca más.
+  room: '{{self.values.capacity * 2}}'
   over: refuse
+  # Lo que se encuentre pasado ese sitio espera a que el jugador suelte algo.
+  full: ask
 ```
 
-Por encima de la capacidad el soldado va _Encumbered_ (no puede esprintar) y la barra se pone ámbar; al doble, la barra está en rojo y **Carried** no admite nada más: la tarjeta ya no lo ofrece, y lo que dé una tabla sin sitio se queda sin lugar, y el diario lo dice. Un vehículo o un animal de carga es un contenedor con su propio sitio (`holds: { room: 40, tags: [cargo] }`), o `over: allow` donde se pueda atiborrar.
+Por encima de la capacidad el soldado va _Encumbered_ (no puede esprintar) y la barra se pone ámbar; al doble, la barra está en rojo y no entra nada más: la tarjeta no añade nada más, y lo que dé una tabla espera en la tarjeta, y el viaje con ello, hasta que se suelte algo. Las tablas lo leen como `acting.carried.used` y `acting.carried.room`. Un vehículo o un animal de carga es un contenedor con su propio sitio (`holds: { room: 40, tags: [cargo] }`), o `over: allow` donde se pueda atiborrar (lo de dentro sigue contando en el total).
 
 ## Errores habituales
 
@@ -121,6 +132,7 @@ Por encima de la capacidad el soldado va _Encumbered_ (no puede esprintar) y la 
 - **Un lugar siempre pasado de sitio.** **Lo que ocupa un lugar** cuenta ese campo × la cantidad: un campo sin valor por defecto cuenta 0, y sin él cada objeto cuenta 1.
 - **Un efecto sobre `items.torch` que no da nada.** Dar un objeto necesita un catálogo del sistema con ese id; el diario dice _ningún catálogo del sistema tiene este objeto_. Tómalo de la lista del catálogo, o nombra el catálogo en el **Resumen**.
 - **Esperar que el motor impida llenar de más una mochila.** El sitio solo se muestra, salvo que la hoja (o el lugar, o el contenedor) diga **Más de lo que cabe** `refuse`; si no, di qué significa pasarse con un estado que **Se cumple mientras** (`self.places.pack.used: { gt: 6 }`) y lo que **Bloquea**.
-- **Equipo que acaba sin lugar.** Con `refuse`, lo que dé un efecto sin sitio en ningún lugar donde quepa se queda sin lugar: haz sitio, o deja que un contenedor admita más (`holds: { …, over: allow }`). Un contenedor copiado de un catálogo a un personaje conserva lo que decía entonces: suéltalo y vuelve a añadirlo del catálogo.
+- **Equipo que se queda atrás, o un viaje que no sigue.** Con `refuse`, lo que dé un efecto sin sitio en ningún lugar donde quepa se queda atrás o (**Si no cabe** `ask`) espera en la tarjeta, marcado, y el viaje espera con ello: suelta algo o muévelo a un lugar; o deja que un contenedor admita más (`holds: { …, over: allow }`). Un contenedor copiado de un catálogo a un personaje conserva lo que decía entonces: suéltalo y vuelve a añadirlo del catálogo.
+- **Un Sitio en total que no admite nada.** Lee los valores de la hoja tal como están (`'{{self.values.capacity}}'`): una capacidad que sale de otros se calcula antes, pero una a 0 no da sitio. Sin **Lo que ocupa un lugar**, cada objeto cuenta uno.
 - **Un montón que no se mueve.** Un montón entero necesita sitio para todo él: mantén Mayús al soltarlo para moverlos de uno en uno.
 - **`tags` como id de un objeto.** `items.tags` lee todas las etiquetas de todos los objetos: ningún objeto puede llamarse `tags`.

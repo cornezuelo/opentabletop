@@ -202,8 +202,11 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  * 9. What happens when a progress clock fills is the world's reactions'
  *    (`on: world.clocks.<id>.full` in `kind: world`); a clock keeps only `then` (in 8,
  *    `onFull` with its words, table, effects and `then`).
+ * 10. What an effect gives with no room left for it, where a sheet refuses more, is left
+ *    behind, or waits for the player to make room (`items.full: ask`); in 9, it was kept
+ *    in no place.
  */
-export const PACK_FORMAT = 9
+export const PACK_FORMAT = 10
 
 export const manifestSchema = z
   .object({

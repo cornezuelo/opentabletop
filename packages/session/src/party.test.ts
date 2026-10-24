@@ -16,7 +16,7 @@ import {
 
 /** A system whose party is its members: stats from them, rations they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 9\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
   {
     path: 'band/system.yaml',
     content: `

@@ -108,6 +108,11 @@ export interface ItemState {
   start?: Record<string, number>
   fits?: Condition
   holds?: z.infer<typeof holds>
+  /**
+   * It came with no room left for it and the sheet asks (`full: ask`): it waits, in no
+   * place, for the player to find it room or drop something. Cleared once it has a place.
+   */
+  loose?: boolean
 }
 
 /** A place a character has of its own, besides the sheet's (an odd creature's third arm). */
@@ -123,6 +128,12 @@ export interface OwnPlace {
  * or `refuse` (nothing goes in that hasn't room left).
  */
 export type Over = 'allow' | 'refuse'
+
+/**
+ * What becomes of an item given with no room left for it: `leave` (it's left behind, the
+ * default) or `ask` (it waits in no place for the player to make room; see `loose`).
+ */
+export type Full = 'leave' | 'ask'
 
 /** A field items have in a system, as the sheet declares it. */
 export interface ItemField {
@@ -154,8 +165,12 @@ export interface SheetItems {
   share?: 'even' | 'order'
   /** What a new character of this sheet carries, from the system's catalogues. */
   start?: Record<string, number>
-  /** Whether places take more than their room (`allow`, the default) or not (`refuse`). */
+  /** Whether places (and the total room) take more than fits (`allow`, the default) or not (`refuse`). */
   over?: Over
+  /** How much a character carries in all, measured by `size` over every item (absent: no total). */
+  room?: number | string
+  /** What becomes of an item given with no room left for it (`leave`, the default, or `ask`). */
+  full?: Full
 }
 
 /** A text of the character's own values as it reads now (a bound, a room), if a number. */
@@ -234,6 +249,34 @@ export function placesOf(
 export function sizeOf(items: SheetItems | undefined, item: ItemState): number {
   const size = items?.size
   return size === undefined ? item.count : (item.fields[size] ?? 0) * item.count
+}
+
+/**
+ * A character's total room (`items.room`): how much it is, how much is carried (every item,
+ * inside containers and in no place too, measured as places are) and whether it refuses
+ * what goes over it (the sheet's `over`).
+ */
+export function carriedOf(
+  items: SheetItems | undefined,
+  state: { values: Record<string, number>; items?: ItemState[] },
+): { room?: number; used: number; refuses: boolean } {
+  const room = readOwn(items?.room, state.values)
+  const used = (state.items ?? []).reduce((n, i) => n + sizeOf(items, i), 0)
+  return {
+    ...(room !== undefined && { room }),
+    used,
+    refuses: room !== undefined && items?.over === 'refuse',
+  }
+}
+
+/** Whether the character's total room takes `size` more (always, unless it refuses). */
+function totalTakes(
+  items: SheetItems | undefined,
+  state: { values: Record<string, number>; items?: ItemState[] },
+  size: number,
+): boolean {
+  const total = carriedOf(items, state)
+  return !total.refuses || total.used + size <= total.room!
 }
 
 /** How much of each place is taken by the items right in it (a container counts once, not its contents). */
@@ -367,6 +410,8 @@ function placeFor(
     fitsIn({ key: item.key ?? '', fits: item.fits }, p, all),
   )
   const size = sizeOf(items, { ...item, key: item.key ?? '' })
+  // More than the character may carry in all: no place takes it.
+  if (!totalTakes(items, state, size)) return { full: true }
   const roomy = (p: Place) => p.room === undefined || (used[p.id] ?? 0) + size <= p.room
   const own = fitting.filter((p) => p.item === undefined)
   const inside = fitting.filter((p) => p.item !== undefined)
@@ -377,6 +422,53 @@ function placeFor(
   )?.id
   return { ...(place !== undefined && { place }), ...(fitting.length && !place && { full: true }) }
 }
+
+/**
+ * How many of an item (up to its `count`) a character has room for, where nothing says
+ * where it goes: all of them unless every place it fits, or its total room, refuses more.
+ */
+export function roomFor(
+  items: SheetItems | undefined,
+  state: { values: Record<string, number>; items?: ItemState[]; places?: Record<string, OwnPlace> },
+  item: Omit<ItemState, 'key'> & { key?: string },
+): number {
+  const fits = (n: number) => !placeFor(items, state, { ...item, count: n }).full
+  if (fits(item.count)) return item.count
+  // The most that fit: room only shrinks as there are more of them.
+  let lo = 0
+  let hi = item.count
+  while (hi - lo > 1) {
+    const mid = Math.floor((lo + hi) / 2)
+    if (fits(mid)) lo = mid
+    else hi = mid
+  }
+  return lo
+}
+
+/**
+ * Clears what waits for room (`loose`, in place) once it needn't: an item with a place, and
+ * one no place fits, once the total room takes everything carried.
+ */
+export function settleLoose(
+  items: SheetItems | undefined,
+  state: { values: Record<string, number>; items?: ItemState[]; places?: Record<string, OwnPlace> },
+): void {
+  const all = state.items ?? []
+  if (!all.some((i) => i.loose)) return
+  const total = carriedOf(items, state)
+  const within = !total.refuses || total.used <= total.room!
+  const places = placesOf(items, state)
+  for (const item of all)
+    if (
+      item.loose &&
+      (item.place !== undefined || (within && !places.some((p) => fitsIn(item, p, all))))
+    )
+      delete item.loose
+}
+
+/** Whether a character has items waiting for room (`loose`): a trip waits for the player. */
+export const waitsForRoom = (state: { items?: ItemState[] }): boolean =>
+  (state.items ?? []).some((i) => i.loose)
 
 /** The keys of the items inside an item, at any depth (its contents, theirs…). */
 export function contentsOf(key: string, all: ItemState[]): string[] {
@@ -475,13 +567,17 @@ export function itemsValue(
 /**
  * What conditions and tables read of a character's items: `items.<id>` (`count` of all of
  * them, and the first one's tags, place and fields: `items.torch.uses`), `items.tags`
- * (every tag of every item), and `places.<id>` (its `room`, how much is `used`, its
- * `tags` and the `items` right in it, by id).
+ * (every tag of every item), `places.<id>` (its `room`, how much is `used`, its `tags`
+ * and the `items` right in it, by id), and `carried` (the total `room` and how much is `used`).
  */
 export function itemsFacts(
   items: SheetItems | undefined,
   state: { values: Record<string, number>; items?: ItemState[]; places?: Record<string, OwnPlace> },
-): { items: Record<string, unknown>; places: Record<string, unknown> } {
+): {
+  items: Record<string, unknown>
+  places: Record<string, unknown>
+  carried: { room?: number; used: number }
+} {
   const all = state.items ?? []
   const byId: Record<string, unknown> = {}
   const tags = new Set<string>()
@@ -509,7 +605,9 @@ export function itemsFacts(
       },
     ]),
   )
-  return { items: { ...byId, tags: [...tags] }, places }
+  const total = carriedOf(items, state)
+  const carried = { ...(total.room !== undefined && { room: total.room }), used: total.used }
+  return { items: { ...byId, tags: [...tags] }, places, carried }
 }
 
 /** What happened to a character's items. */
@@ -531,11 +629,12 @@ export type ItemEvent =
   | { type: 'ITEM_SPENT'; character: string; item: string; key: string; field: string }
   /** It can't go there: its `fits` says no, or it would be inside itself. */
   | { type: 'ITEM_DOESNT_FIT'; character: string; item: string; key: string; place: string }
-  /**
-   * No room for it in a place that refuses what goes over (`over: refuse`): a move doesn't
-   * happen (`key`), and an item given (no `key`) stays with the character, in no place.
-   */
-  | { type: 'ITEM_NO_ROOM'; character: string; item: string; key?: string; place?: string }
+  /** No room for it in a place that refuses what goes over (`over: refuse`): the move doesn't happen. */
+  | { type: 'ITEM_NO_ROOM'; character: string; item: string; key: string; place: string }
+  /** Given with no room left for `count` of it (`full: leave`): those are left behind. */
+  | { type: 'ITEM_LEFT'; character: string; item: string; count: number }
+  /** Given with no room left for `count` of it (`full: ask`): they wait in no place (`loose`). */
+  | { type: 'ITEM_LOOSE'; character: string; item: string; key: string; count: number }
   /** An effect gave an item no catalogue of the system has (and the character has none of). */
   | { type: 'UNKNOWN_ITEM'; character: string; item: string }
 
@@ -565,6 +664,7 @@ function likeOf(item: ItemState): Omit<ItemState, 'key'> {
   const like: Partial<ItemState> = { ...item, fields: { ...item.fields } }
   delete like.key
   delete like.place
+  delete like.loose
   return like as Omit<ItemState, 'key'>
 }
 
@@ -605,20 +705,42 @@ export function addItem(
   if (input.count <= 0) return undefined
   let place = input.place
   if (place === undefined && !exactly) {
-    const found = placeFor(items, state, draft)
-    place = found.place
-    if (found.full) events.push({ type: 'ITEM_NO_ROOM', character: state.id, item: input.id })
+    // As many as there's room for go in, place by place; the rest is left behind, or waits.
+    if (roomFor(items, state, draft) < input.count) {
+      let rest = input.count
+      let made: ItemState | undefined
+      for (let room = roomFor(items, state, draft); room > 0 && rest > 0;) {
+        made = addItem(items, state, { ...input, count: room }, events) ?? made
+        rest -= room
+        room = roomFor(items, state, { ...draft, count: rest })
+      }
+      if (rest <= 0) return made
+      if (items?.full !== 'ask') {
+        events.push({ type: 'ITEM_LEFT', character: state.id, item: input.id, count: rest })
+        return made
+      }
+      const loose = addItem(items, state, { ...input, count: rest, loose: true }, events, true)
+      if (loose)
+        events.push({
+          type: 'ITEM_LOOSE',
+          character: state.id,
+          item: input.id,
+          key: loose.key,
+          count: rest,
+        })
+      return made ?? loose
+    }
+    place = placeFor(items, state, draft).place
   } else if (place !== undefined) {
     const where = placesOf(items, state).find((p) => p.id === place)
     if (where && !fitsIn({ key: '', fits: input.fits }, where, all)) {
       events.push({ type: 'ITEM_DOESNT_FIT', character: state.id, item: input.id, key: '', place })
       return undefined
     }
-    // No room where it was put: it stays with the character, in no place.
-    if (where && !hasRoom(items, state, where, sizeOf(items, { ...draft, key: '' }))) {
-      events.push({ type: 'ITEM_NO_ROOM', character: state.id, item: input.id, place })
-      place = undefined
-    }
+    // No room where it was put: it goes wherever it has room, as if nothing said where.
+    const size = sizeOf(items, { ...draft, key: '' })
+    if (where && (!hasRoom(items, state, where, size) || !totalTakes(items, state, size)))
+      return addItem(items, state, { ...input, place: undefined }, events)
   }
   // The same item in the same place, alike in everything: one more of it.
   const like = all.find(
@@ -627,6 +749,7 @@ export function addItem(
       i.from === input.from &&
       i.place === place &&
       i.name === input.name &&
+      !i.loose === !input.loose &&
       !i.holds &&
       !input.holds &&
       JSON.stringify(i.fields) === JSON.stringify(fields),
@@ -658,6 +781,7 @@ export function addItem(
     ...(start && { start }),
     ...(input.fits && { fits: input.fits }),
     ...(input.holds && { holds: { ...input.holds } }),
+    ...(input.loose && { loose: true }),
   }
   all.push(made)
   events.push({
@@ -718,7 +842,10 @@ export function moveItem(
   }
   const from = item.place
   if (place === undefined) delete item.place
-  else item.place = place
+  else {
+    item.place = place
+    delete item.loose
+  }
   events.push({
     type: 'ITEM_MOVED',
     character: state.id,
@@ -806,7 +933,11 @@ export function itemEffect(
     if (first) {
       const where = placesOf(items, state).find((p) => p.id === first.place)
       const more = sizeOf(items, { ...first, count: delta })
-      if (!where || hasRoom(items, state, where, more))
+      if (
+        !first.loose &&
+        (!where || hasRoom(items, state, where, more)) &&
+        totalTakes(items, state, more)
+      )
         return changeItem(items, state, first.key, 'count', delta, events)
       // No room for more where the first one is: the new ones go wherever they fit.
       addItem(items, state, { ...likeOf(first), count: delta }, events)
@@ -842,6 +973,7 @@ export function sheetItemsErrors(
   }
   for (const [id, p] of Object.entries(items.places ?? {}))
     if (typeof p.room === 'string') errors.push(...ownErrors(p.room, `items.places.${id}.room`))
+  if (typeof items.room === 'string') errors.push(...ownErrors(items.room, 'items.room'))
   if (items.size !== undefined && !items.fields?.[items.size])
     errors.push(`items.size: no item field "${items.size}" (items.fields)`)
   return errors

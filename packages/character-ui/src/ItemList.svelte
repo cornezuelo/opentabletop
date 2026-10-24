@@ -1,10 +1,12 @@
 <script lang="ts">
   import {
+    carriedOf,
     fieldBounds,
     fitsIn,
     hasRoom,
     itemFromCatalogue,
     placesOf,
+    roomFor,
     roomUsed,
     sizeOf,
     type Catalogue,
@@ -54,6 +56,8 @@
   const fields = $derived(Object.entries(sheet.items?.fields ?? {}))
   const places = $derived(placesOf(sheet.items, character))
   const used = $derived(roomUsed(sheet.items, character))
+  /** All it carries, against the sheet's total room (`items.room`), if it has one. */
+  const carried = $derived(carriedOf(sheet.items, character))
   const nameOf = (item: ItemState) => itemName(item, catalogues, locale)
   /** A place's name: the sheet's, its own, or the container's. */
   function placeName(p: Place): string {
@@ -138,14 +142,19 @@
     const typed = adding.trim()
     if (!typed) return
     const found = offered.find((o) => o.name === typed || o.id === typed)
-    onaction({
-      type: 'addItem',
-      item: found
-        ? itemFromCatalogue(sheet.items, found.catalogue, found.id, found.def)
-        : { id: itemId(typed), name: typed, count: 1 },
-    })
-    adding = ''
+    const item = found
+      ? itemFromCatalogue(sheet.items, found.catalogue, found.id, found.def)
+      : { id: itemId(typed), name: typed, count: 1, fields: {} }
+    // By hand, what has no room is refused (never left behind, nor kept waiting).
+    if (roomFor(sheet.items, character, item) < item.count) {
+      refused = t('items.noRoom', { name: found?.name ?? typed })
+      return
+    }
+    onaction({ type: 'addItem', item })
+    adding = refused = ''
   }
+  /** Why the last item written couldn't be added. */
+  let refused = $state('')
 
   let placeName_ = $state('')
   let placeRoom = $state('')
@@ -190,6 +199,14 @@
 </script>
 
 <div class="items">
+  {#if carried.room !== undefined}
+    <p class="carried">
+      {t('items.carried')}<InfoTip markdown={t('items.carriedHelp', { path })} />
+      <span class="room" class:over={carried.used > carried.room}
+        >{t('items.room', { used: carried.used, room: carried.room })}</span
+      >
+    </p>
+  {/if}
   {#each groups as group (group.place?.id ?? '')}
     <section
       class="place"
@@ -222,7 +239,7 @@
         <h5 class="subhead">{t('items.nowhere')}</h5>
       {/if}
       {#each group.items as item (item.key)}
-        <div class="item" class:moving={dragging?.key === item.key}>
+        <div class="item" class:moving={dragging?.key === item.key} class:loose={item.loose}>
           {#if !disabled && (places.length || item.count > 1)}
             <span
               class="grip"
@@ -300,6 +317,7 @@
               onclick={() => onaction({ type: 'removeItem', key: item.key })}>×</button
             >
           {/if}
+          {#if item.loose}<p class="loose-note">{t('items.loose')}</p>{/if}
         </div>
       {:else}
         <p class="empty">{t('items.empty')}</p>
@@ -324,6 +342,7 @@
       />
       <button type="submit">{t('items.addButton')}</button>
     </form>
+    {#if refused}<p class="loose-note" role="status">{refused}</p>{/if}
     {#if sheet.items?.places}
       <details class="own">
         <summary>{t('items.ownPlaces')}<InfoTip markdown={t('items.ownPlacesHelp')} /></summary>
@@ -390,6 +409,25 @@
 
   .room.over {
     color: var(--danger);
+  }
+
+  .carried {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .item.loose {
+    border-left: 3px solid var(--danger);
+    padding-left: 4px;
+  }
+
+  .loose-note {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--danger);
+    font-size: 0.9em;
   }
 
   .place.target {

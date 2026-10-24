@@ -16,6 +16,7 @@ import {
   shownAt,
   tripAvailability,
   tripFacts,
+  waitingForRoom,
   type SessionState,
 } from '@open-tabletop/session'
 import { mapWorld } from './world'
@@ -116,7 +117,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 9\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 10\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],
@@ -1137,21 +1138,48 @@ describe('the Company: a party made of characters', () => {
       editSession((s) => applyResult(s, { effects }, system.bindings?.stats, partyOf(system)))
     // Kael's hands hold a torch and his belt a rope: the Sword (2 slots, hand or belt) has no
     // room left in either, and the sheet's places take no more than their room.
+    // The sheet asks (`full: ask`): it waits on his card in no place, and so does the trip.
     give({ 'characters.kael.items.sword-of-keld': 1 })
-    expect(member('kael').items!.find((i) => i.id === 'sword-of-keld')?.place).toBeUndefined()
-    // Dropping the torch makes room: the Sword can go in his hands now, by hand.
+    const sword = () => member('kael').items!.find((i) => i.id === 'sword-of-keld')
+    expect(sword()).toMatchObject({ loose: true })
+    expect(sword()?.place).toBeUndefined()
+    expect(waitingForRoom(trip())).toEqual(['kael'])
+    const time = trip().travel.time
+    step({ type: 'wait', until: time + 60 })
+    expect(trip().travel.time).toBe(time)
+    // Dropping the torch makes room: the Sword goes in his hands, by hand, and the trip goes on.
     const kael = (s: SessionState) => s.members!.find((m) => m.id === 'kael')!
-    editSession((s) => {
-      kael(s).items = kael(s).items!.filter((i) => i.id !== 'torch')
-      return s
-    })
-    const moved = applyCharacter(
-      system.sheet!.def,
-      member('kael'),
-      { type: 'moveItem', key: 'sword-of-keld', place: 'hands' },
-      { items: lookupItems(system.items!) },
-    )
-    expect(moved.state.items!.find((i) => i.id === 'sword-of-keld')?.place).toBe('hands')
+    const act = (action: Parameters<typeof applyCharacter>[2]) =>
+      editSession((s) => {
+        s.members = s.members!.map((m) =>
+          m.id === 'kael'
+            ? applyCharacter(system.sheet!.def, m, action, { items: lookupItems(system.items!) })
+                .state
+            : m,
+        )
+        return s
+      })
+    act({ type: 'removeItem', key: kael(trip()).items!.find((i) => i.id === 'torch')!.key })
+    act({ type: 'moveItem', key: sword()!.key, place: 'hands' })
+    expect(sword()).toMatchObject({ place: 'hands' })
+    expect(sword()?.loose).toBeUndefined()
+    expect(waitingForRoom(trip())).toEqual([])
+    step({ type: 'wait', until: time + 60 })
+    expect(trip().travel.time).toBe(time + 60)
+    // Mara finds more rations than her places hold.
+    const before = member('mara').items!.reduce((n, i) => n + i.count, 0)
+    const room = member('mara').values.capacity * 2
+    give({ 'characters.mara.items.ration': room })
+    // As many as her places have room for go in, place after place (hands, body, belt,
+    // back: 5 rations); she has no backpack, so the other 11 wait for room.
+    expect(room).toBe(16)
+    expect(
+      member('mara')
+        .items!.filter((i) => i.loose)
+        .map((i) => i.count),
+    ).toEqual([11])
+    expect(member('mara').items!.reduce((n, i) => n + i.count, 0)).toBe(before + room)
+    expect(waitingForRoom(trip())).toEqual(['mara'])
     // Old Tobin's backpack takes more than its six slots (`over: allow`): crammed with
     // rations, his load passes his capacity, shown against it and burdened.
     give({ 'characters.tobin.items.ration': 6 })

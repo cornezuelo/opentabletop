@@ -150,6 +150,10 @@ export function contextSuggestions(
           add(`${who}.places.${place}.used`)
           add(`${who}.places.${place}.room`)
         }
+        if (sheet.def.items !== undefined) {
+          add(`${who}.carried.used`)
+          if (sheet.def.items.room !== undefined) add(`${who}.carried.room`)
+        }
       }
       // Where the characters are tied to the hex (it, its region, a place in it).
       add('hex.related')

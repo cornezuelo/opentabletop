@@ -185,7 +185,7 @@ describe('where a name is used', () => {
 
 /** A made-up system using each name in its short and full forms. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 9\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
   {
     path: 'band/system.yaml',
     content:

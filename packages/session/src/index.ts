@@ -36,6 +36,7 @@ import {
   refreshParty,
   settleStates,
   answerSharing,
+  waitingForRoom,
   type PartyRules,
   type Sharing,
 } from './party'
@@ -545,16 +546,19 @@ export function createSession(options: {
           ...(time !== undefined && { time }),
           data: { path: `${whose(e.character)}.${e.path}` },
         })
-      else if (
-        e.type === 'ITEM_SPENT' ||
-        e.type === 'UNKNOWN_ITEM' ||
-        (e.type === 'ITEM_NO_ROOM' && e.key === undefined)
-      )
+      else if (e.type === 'ITEM_SPENT' || e.type === 'UNKNOWN_ITEM')
         add(s, entries, {
           source: 'travel',
           code: e.type,
           ...(time !== undefined && { time }),
           data: { path: `${whose(e.character)}.items.${e.item}` },
+        })
+      else if (e.type === 'ITEM_LEFT' || e.type === 'ITEM_LOOSE')
+        add(s, entries, {
+          source: 'travel',
+          code: e.type,
+          ...(time !== undefined && { time }),
+          data: { path: `${whose(e.character)}.items.${e.item}`, count: e.count },
         })
     changed(
       s,
@@ -653,8 +657,10 @@ export function createSession(options: {
     quiet = false,
   ): { state: SessionState; entries: JournalEntry[] } => {
     {
-      // Something shared out waits for the player to say who gives it: the trip waits too.
-      if (!quiet && input.sharing?.length) return { state: input, entries: [] }
+      // Something shared out waits for the player to say who gives it, or an item for room
+      // to be made for it (`full: ask`): the trip waits too.
+      if (!quiet && (input.sharing?.length || waitingForRoom(input).length))
+        return { state: input, entries: [] }
       const s = structuredClone(input)
       const entries: JournalEntry[] = []
       s.lastStep = s.nextEntry

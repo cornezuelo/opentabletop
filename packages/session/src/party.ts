@@ -6,6 +6,7 @@ import {
   partyValue,
   settleCharacter,
   shareItems,
+  waitsForRoom,
   boundsOf,
   countOf,
   itemsFacts,
@@ -392,6 +393,9 @@ export function applyMemberEffects(
     )
     s.members = shared.members
     events.push(...shared.events)
+    // A gain nobody had room for is left behind.
+    if (delta > 0 && shared.left > 0)
+      events.push({ type: 'ITEM_LEFT', character: PARTY_ID, item, count: shared.left })
     // Asking who gives: only when more than one could, and something was shared out.
     const given = Object.values(shared.moved).reduce((n, m) => n + m, 0)
     if (s.askShare && carriers.length > 1 && given)
@@ -587,6 +591,14 @@ export function relatedWorld(
       return { ...cell, related: [...new Set(here.map((r) => r.who))], relations: byKind }
     },
   }
+}
+
+/**
+ * Who has items waiting for room (`full: ask`: given with none left): the party's own first,
+ * then the members, by id. The trip waits until room is made for them on their cards.
+ */
+export function waitingForRoom(s: Pick<PartyTarget, 'party' | 'members'>): string[] {
+  return [...(s.party ? [s.party] : []), ...(s.members ?? [])].filter(waitsForRoom).map((c) => c.id)
 }
 
 /**

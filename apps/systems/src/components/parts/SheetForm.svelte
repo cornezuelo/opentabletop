@@ -48,6 +48,13 @@
     ),
     'self.conditions': Object.keys((data?.conditions as Record<string, unknown>) ?? {}),
     'self.tags': [],
+    // What its items fill: each place, and all it carries.
+    ...Object.fromEntries(
+      Object.keys(
+        ((data?.items as Record<string, unknown> | undefined)?.places as object) ?? {},
+      ).map((id) => [`self.places.${id}.used`, []]),
+    ),
+    ...(data?.items !== undefined && { 'self.carried.used': [] }),
     ...contextSuggestions(library.registry),
   })
   /** The fields every item has (`items.fields`), for what fills a place. */
@@ -57,6 +64,8 @@
   const size = $derived((data?.items as Record<string, unknown> | undefined)?.size)
   const share = $derived((data?.items as Record<string, unknown> | undefined)?.share)
   const over = $derived((data?.items as Record<string, unknown> | undefined)?.over)
+  const room = $derived((data?.items as Record<string, unknown> | undefined)?.room)
+  const full = $derived((data?.items as Record<string, unknown> | undefined)?.full)
   const start = $derived((data?.items as Record<string, unknown> | undefined)?.start)
   /** The items of the system's catalogues, by id: what a new character may start with. */
   const catalogueIds = $derived([
@@ -383,6 +392,33 @@
       >
         <option value="">{t('sheet.overAllow')}</option>
         <option value="refuse">refuse</option>
+      </select>
+    </label>
+    <label class="name">
+      <span>{t('sheet.roomAll')}<InfoTip text={t('sheet.roomAllHelp')} /></span>
+      <input
+        value={room === undefined ? '' : String(room)}
+        placeholder={t('sheet.roomAllNone')}
+        {disabled}
+        onchange={(e) => {
+          const text = e.currentTarget.value.trim()
+          doc.edit(
+            '',
+            ['items', 'room'],
+            text === '' ? undefined : /^[+-]?\d+(\.\d+)?$/.test(text) ? Number(text) : text,
+          )
+        }}
+      />
+    </label>
+    <label class="name">
+      <span>{t('sheet.full')}<InfoTip text={t('sheet.fullHelp')} /></span>
+      <select
+        value={typeof full === 'string' ? full : ''}
+        {disabled}
+        onchange={(e) => doc.edit('', ['items', 'full'], e.currentTarget.value || undefined)}
+      >
+        <option value="">{t('sheet.fullLeave')}</option>
+        <option value="ask">ask</option>
       </select>
     </label>
     <div class="name">

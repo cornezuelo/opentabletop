@@ -4,6 +4,20 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Characters, Travel, Hexmapper, Systems: **a room in all**: a sheet's **Room in all** (`items.room: '{{self.values.capacity * 2}}'`) counts everything a character carries, containers' contents too, refused past it with **Over its room** `refuse`; the card shows **Carried 9 / 16**, tables read `self.carried.used` and `.room`.
+- Characters, Travel, Hexmapper, Systems: **what doesn't fit**, the sheet's **When it doesn't fit**: what an effect gives goes in as far as it fits, place after place, and the rest is left behind (`leave`, the default, said in the journal) or waits on the card, marked, while the trip waits for the player to drop something or move it to a place (`ask`). A card adds nothing by hand that has no room; what the party gains goes first to whoever has room.
+- Systems: **Max** and **Made of** say that a cap on a load hides what's carried, and point to **Shown against** and **Over its room**; Items' page shows the four ways to limit carrying.
+
+### Packs
+
+- The Grey Marches: a companion carries at most twice their capacity in all, and what's found with no room left waits on their card (the Sword of Keld with full hands). Core: a character carries ten things in all.
+
+### Formats
+
+- **Pack format 10**: where a sheet refuses more, what an effect gives with no room left is left behind or waits for room (`items.full`); in format 9 it was kept in no place. New keys `items.room` and `items.full`. Core, the Grey Marches and Kal-Arath moved to it.
+
 ## [0.16.0] - 2026-10-24
 
 ### Apps

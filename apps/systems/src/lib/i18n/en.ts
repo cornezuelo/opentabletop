@@ -324,8 +324,16 @@ export const en = {
     shareEven: 'even (default)',
     over: 'Over its room',
     overHelp:
-      "Whether a place with a **Room** takes more than fits in it:\n• **allow** (the default): its room is only shown, and goes red when it's over; a condition says what being over means (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: nothing goes in that hasn't room left. Characters' cards offer no full place, a move there is refused, and what an effect gives with no room left anywhere stays with the character in no place, with a line in the journal\nOn the sheet it's every place's; a place may say otherwise in its own column (a pack that holds more, worn hands that don't). A room that shrinks later leaves what's there.",
+      "Whether a place with a **Room** takes more than fits in it:\n• **allow** (the default): its room is only shown, and goes red when it's over; a condition says what being over means (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: nothing goes in that hasn't room left. Characters' cards offer no full place, a move there is refused, and what an effect gives goes where there's room; with none, **When it doesn't fit** says what becomes of it\nOn the sheet it's every place's, and the **Room in all**'s; a place may say otherwise in its own column (a pack that holds more, worn hands that don't). A room that shrinks later leaves what's there.",
     overAllow: 'allow (default)',
+    roomAll: 'Room in all',
+    roomAllHelp:
+      "How much a character carries in all, besides the room of each place, measured by **What fills a place** over everything it has (inside containers and in no place too). A number, or the sheet's values in braces. With **Over its room** `refuse`, nothing more goes in past it (each place may still allow more of its own). Tables read it as `self.carried.room`, and what's carried as `self.carried.used`.\n• `'{{self.values.capacity}}'` — no more than the capacity\n• `'{{self.values.capacity * 2}}'` — slowed past the capacity (a condition), stopped at twice it\n• `10`\nEmpty: no room in all; only the places' count.",
+    roomAllNone: 'none',
+    fullLeave: 'leave (default)',
+    full: "When it doesn't fit",
+    fullHelp:
+      "What becomes of an item an effect gives (a table's find, a share of what the party gains) when there's no room left for it, where a place or the **Room in all** refuses more. As many as fit go in; the rest:\n• **leave** (the default): is left behind, said in the journal\n• **ask**: waits on the character's card, in no place, and the trip waits for the player to make room (drop something, or move it to a place)\nA character's card never adds by hand what has no room.",
     overSheet: "the sheet's",
     start: 'Starts with',
     startHelp:

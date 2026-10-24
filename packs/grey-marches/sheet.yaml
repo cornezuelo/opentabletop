@@ -25,8 +25,10 @@ description: |-
   made of the items (the load, `{ sum: items.slots }`, shown against the capacity,
   `of: '{{self.values.capacity}}'`, amber at it and red over it; the armour worn,
   `{ max: items.armour, where: { place.tags: worn } }`), places that take no more than their
-  room (`over: refuse`: a full place offers nothing, what's given goes in the backpack or in
-  no place), what a new companion carries (`start: { ration: 2 }`) and
+  room (`over: refuse`: a full place offers nothing, what's given goes in the backpack), a
+  room in all (`room: '{{self.values.capacity * 2}}'`: burdened past the capacity, stopped at
+  twice it), what has no room waiting for the player (`full: ask`: the trip waits till they
+  make room), what a new companion carries (`start: { ration: 2 }`) and
   how what the party spends is shared out among them (`share: even`: from whoever carries
   most); every part with a description, shown as its help where the sheet is met.
 values:
@@ -209,8 +211,13 @@ items:
   # A place's room counts slots: a mail shirt (2 slots) fills more than a torch.
   size: slots
   # Hands, body, belt and back take no more than their room: what's given with no room
-  # left goes in a backpack (which takes more, items.yaml) or in no place.
+  # left goes in a backpack (which takes more, items.yaml).
   over: refuse
+  # Nor does a companion carry more than twice their capacity in all (burdened past it).
+  room: '{{self.values.capacity * 2}}'
+  # What's found with no room left waits on the companion's card, and the trip with it,
+  # till the player drops something or finds it a place.
+  full: ask
   # What the party eats or finds (`party.items.ration`) is taken from whoever carries most,
   # and given to whoever carries least (the default, written out).
   share: even

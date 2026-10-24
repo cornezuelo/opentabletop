@@ -105,6 +105,10 @@ export const es: Messages<typeof en> = {
     keep: 'Hecho',
     of: 'De {room}',
   },
+  room: {
+    waits: '{names}: no hay sitio para lo que ha llegado; haz sitio en la tarjeta para seguir',
+    help: 'La hoja del sistema deja esperando lo que llega sin sitio libre (su **Si no cabe** es `ask`), marcado en la tarjeta del personaje en ningún lugar. Suelta algo, o muévelo a un lugar con sitio (también puedes soltarlo a él): el viaje sigue cuando no queda nada esperando.',
+  },
   rolls: {
     label: 'Tira',
     best: 'El mejor',
@@ -225,6 +229,9 @@ export const es: Messages<typeof en> = {
     shared: '{name}, repartido: {list}',
     unknownItem: '{name}: ningún catálogo del sistema tiene este objeto, así que no se da nada',
     itemNoRoom: '{name}: no le queda sitio, así que lo lleva sin lugar',
+    itemLeft: '{name}: no queda sitio para {count}, se queda atrás',
+    itemLoose:
+      '{name}: no queda sitio para {count}; el viaje espera a que se le haga sitio en la tarjeta (soltando algo, o moviéndolo a un lugar)',
     notWritable:
       '«{name}» se mantiene por sí solo (sale de otros valores, o de su propia condición), así que los efectos no lo cambian',
     reacted: 'Por {name}, entra en juego una regla del sistema:',

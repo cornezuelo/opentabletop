@@ -107,6 +107,10 @@ export const en = {
     keep: 'Done',
     of: 'Of {room}',
   },
+  room: {
+    waits: '{names}: no room for what came; make room on the card to go on',
+    help: "The system's sheet keeps what comes with no room left for it waiting (its **When it doesn't fit** is `ask`), marked on the character's card in no place. Drop something, or move it to a place with room (dropping it is fine too): the trip goes on once nothing waits.",
+  },
   rolls: {
     label: 'Rolls with',
     best: 'The best',
@@ -229,6 +233,9 @@ export const en = {
     shared: '{name}, shared out: {list}',
     unknownItem: '{name}: no catalogue of the system has this item, so nothing is given',
     itemNoRoom: '{name}: no room left for it, so it is carried in no place',
+    itemLeft: '{name}: no room left for {count}, left behind',
+    itemLoose:
+      '{name}: no room left for {count}; the trip waits for room to be made for it on the card (drop something, or move it to a place)',
     notWritable:
       '“{name}” holds by itself (made of other values, or by its own condition), so effects don’t change it',
     reacted: 'For {name}, a rule of the system comes into play:',

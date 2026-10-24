@@ -6,7 +6,7 @@ name: Character
 description: |-
   A character of the Generic rules: their health, the harm they've taken, whether they're wounded and whether they're down.
 
-  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects and one that holds by itself (`when:`).
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects and one that holds by itself (`when:`), and a room in all for what they carry (`items.room`, ten things, no more).
 values:
   health:
     name: Health
@@ -27,6 +27,11 @@ conditions:
     name: Down
     description: Out of the fight while their health is 0; it lifts by itself when health comes back.
     when: { self.values.health: { lte: 0 } }
+# What they carry is one list (no places): ten things in all, each counted as one; what's
+# given past it is left behind, said in the journal.
+items:
+  room: 10
+  over: refuse
 ---
 kind: sheet
 id: party

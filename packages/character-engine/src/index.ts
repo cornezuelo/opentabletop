@@ -30,16 +30,20 @@ import {
   itemEffect,
   itemsFacts,
   itemsFromErrors,
+  itemFromCatalogue,
   itemsValue,
   moveItem,
+  roomFor,
   placesOf,
   removeItem,
+  settleLoose,
   sheetItemsErrors,
   type ItemEvent,
   type ItemLookup,
   type ItemState,
   type ItemsFrom,
   type OwnPlace,
+  type SheetItems,
 } from './items'
 
 export * from './items'
@@ -202,9 +206,20 @@ const sheetItems = z
     start: z.record(z.string().min(1), z.number().int().positive()).optional(),
     /**
      * Whether a place takes more than its room: `allow` (the room is only shown; the default)
-     * or `refuse` (nothing goes in that hasn't room left). Each place may say otherwise.
+     * or `refuse` (nothing goes in that hasn't room left). Each place may say otherwise; the
+     * total `room` follows this one.
      */
     over: z.enum(['allow', 'refuse']).optional(),
+    /**
+     * How much a character carries in all, measured by `size` over every item (inside
+     * containers and in no place too): a number or the sheet's values (`'{{self.values.capacity}}'`).
+     */
+    room: bound.optional(),
+    /**
+     * What becomes of an item given with no room left for it: `leave` (left behind; the
+     * default) or `ask` (it waits in no place, and a trip waits, for the player to make room).
+     */
+    full: z.enum(['leave', 'ask']).optional(),
   })
   .strict()
 
@@ -553,7 +568,9 @@ export function createCharacter(
     ...init,
     values: { ...values, ...init.values },
   }
-  // What it starts with: the sheet's, from the catalogues (one nobody has is left out).
+  // What it starts with: the sheet's, from the catalogues (one nobody has is left out), in
+  // the room its values give it (made of others, worked out first).
+  settle(sheet, made, [], {})
   if (init.items === undefined && items)
     for (const [id, count] of Object.entries(sheet.items?.start ?? {}))
       itemEffect(sheet.items, made, id, count, items, [])
@@ -806,6 +823,7 @@ export function applyCharacter(
       break
     }
   }
+  settleLoose(sheet.items, state)
   settle(sheet, state, events, {
     world: options.world,
     time: action.type === 'change' ? action.time : undefined,
@@ -1025,7 +1043,8 @@ export type Share = 'even' | 'order'
 
 /**
  * The members after the party's count of item `id` changed by `delta` (what they carry
- * between them), shared out by `share`; what no member had to give stays undone (`left`).
+ * between them), shared out by `share`; what no member had to give, or (of a gain) room for, stays
+ * undone (`left`): a gain nobody has room for goes to members whose sheet asks (`full: ask`).
  * A gain to a member without the item comes from the system's catalogues (`items`).
  * `moved` is what each member gave (negative) or took, by id.
  */
@@ -1048,26 +1067,41 @@ export function shareItems(
   const moved = new Map<string, number>()
   const up = delta > 0
   let left = Math.abs(delta)
+  // What each member has room for, of a gain (a sheet that refuses what doesn't fit).
+  const room = new Map(open.map((m) => [m.id, up ? roomOf(sheets(m)?.items, m, left) : 0]))
   const move = (who: string, n: number) => {
     has.set(who, has.get(who)! + (up ? n : -n))
     moved.set(who, (moved.get(who) ?? 0) + (up ? n : -n))
+    if (up) room.set(who, room.get(who)! - n)
     left -= n
   }
-  if (share === 'order') {
-    for (const m of open) {
-      if (left <= 0) break
-      move(m.id, up ? left : Math.min(left, has.get(m.id)!))
+  const shareAmong = (pool: CharacterState[], roomy: boolean) => {
+    const can = (m: CharacterState) => (up ? (roomy ? room.get(m.id)! : Infinity) : has.get(m.id)!)
+    if (share === 'order') {
+      for (const m of pool) {
+        if (left <= 0) break
+        const n = Math.min(left, can(m))
+        if (n > 0) move(m.id, n)
+      }
+      return
     }
-  } else
     while (left > 0) {
-      const can = open.filter((m) => up || has.get(m.id)! > 0)
-      if (!can.length) break
+      const able = pool.filter((m) => can(m) > 0)
+      if (!able.length) break
       // Taking: whoever has most; giving: whoever has least (the first of equals).
-      const pick = can.reduce((best, m) =>
+      const pick = able.reduce((best, m) =>
         (up ? has.get(m.id)! < has.get(best.id)! : has.get(m.id)! > has.get(best.id)!) ? m : best,
       )
       move(pick.id, 1)
     }
+  }
+  shareAmong(open, true)
+  // A gain nobody has room for: members whose sheet asks take it anyway, to make room for.
+  if (up && left > 0)
+    shareAmong(
+      open.filter((m) => sheets(m)?.items?.full === 'ask'),
+      false,
+    )
   const events: CharacterEvent[] = []
   const out = members.map((m) => {
     const change = moved.get(m.id)
@@ -1087,6 +1121,15 @@ export function shareItems(
     return done.state
   })
   return { members: out, events, left, moved: Object.fromEntries(moved) }
+
+  function roomOf(items: SheetItems | undefined, m: CharacterState, n: number): number {
+    const mine = m.items?.find((i) => i.id === id && !i.loose)
+    if (mine) return roomFor(items, m, { ...mine, place: undefined, count: n })
+    const found = options.items?.(id)
+    return found
+      ? roomFor(items, m, itemFromCatalogue(items, found.catalogue, id, found.item, n))
+      : n
+  }
 }
 
 /** How many of item `id` a character has, all of them together. */

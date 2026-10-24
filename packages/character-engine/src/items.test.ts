@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyCharacter,
+  carriedOf,
+  countOf,
   characterFacts,
   createCharacter,
   itemFromCatalogue,
@@ -8,6 +10,7 @@ import {
   parseCatalogue,
   parseSheet,
   shareItems,
+  waitsForRoom,
   type CharacterState,
   type Sheet,
 } from './index'
@@ -317,20 +320,59 @@ describe('room a place refuses to go over', () => {
     ])
   })
 
-  it('leave what fits nowhere with room in no place, and say so', () => {
+  it('fill place after place, and leave behind what has no room, saying so', () => {
     let s = fresh()
-    // Three stones at once fit no place that refuses (hands 2, back 1), and none allows them.
-    const three = run(s, { type: 'addItem', item: give('stone', 3) })
-    expect(three.state.items!.map((i) => [i.key, i.place])).toEqual([['stone', undefined]])
-    expect(three.events).toContainEqual({ type: 'ITEM_NO_ROOM', character: 'mira', item: 'stone' })
-    // One at a time: the hands, then the back, then nowhere.
+    // Four stones at once: two in the hands, one on the back; none allows the last.
+    const four = run(s, { type: 'addItem', item: give('stone', 4) })
+    expect(four.state.items!.map((i) => [i.key, i.place, i.count])).toEqual([
+      ['stone', 'hands', 2],
+      ['stone-2', 'back', 1],
+    ])
+    expect(four.events).toContainEqual({
+      type: 'ITEM_LEFT',
+      character: 'mira',
+      item: 'stone',
+      count: 1,
+    })
+    // One at a time: the hands, then the back, then left behind.
     for (let n = 0; n < 4; n++)
       s = run(s, { type: 'change', effects: { 'items.stone': '+1' } }).state
     expect(s.items!.map((i) => [i.key, i.place, i.count])).toEqual([
       ['stone', 'hands', 2],
       ['stone-2', 'back', 1],
-      ['stone-3', undefined, 1],
     ])
+  })
+
+  it('keep what has no room waiting in no place when the sheet asks, till it has one', () => {
+    const asking = { ...strict, items: { ...strict.items!, full: 'ask' as const } }
+    const go = (s: CharacterState, action: Parameters<typeof applyCharacter>[2]) =>
+      applyCharacter(asking, s, action, { items: gear })
+    const four = go(createCharacter(asking, 'test/strict', { id: 'mira' }), {
+      type: 'addItem',
+      item: give('stone', 4),
+    })
+    expect(four.state.items!.map((i) => [i.key, i.place, i.count, i.loose])).toEqual([
+      ['stone', 'hands', 2, undefined],
+      ['stone-2', 'back', 1, undefined],
+      ['stone-3', undefined, 1, true],
+    ])
+    expect(four.events).toContainEqual({
+      type: 'ITEM_LOOSE',
+      character: 'mira',
+      item: 'stone',
+      key: 'stone-3',
+      count: 1,
+    })
+    expect(waitsForRoom(four.state)).toBe(true)
+    // More of it waits with it, never onto a placed one.
+    let s = go(four.state, { type: 'change', effects: { 'items.stone': '+1' } }).state
+    expect(s.items!.find((i) => i.key === 'stone-3')).toMatchObject({ count: 2, loose: true })
+    // Room made in the hands: one moved there no longer waits, the other still does.
+    s = go(s, { type: 'removeItem', key: 'stone' }).state
+    s = go(s, { type: 'moveItem', key: 'stone-3', place: 'hands', count: 1 }).state
+    expect(waitsForRoom(s)).toBe(true)
+    s = go(s, { type: 'moveItem', key: 'stone-3', place: 'hands' }).state
+    expect(waitsForRoom(s)).toBe(false)
   })
 
   it('refuse a move there, unless it allows it', () => {
@@ -358,16 +400,91 @@ describe('room a place refuses to go over', () => {
       ['rope-2', 'hands', 1],
       ['rope-3', undefined, 1],
     ])
-    // Put by hand where there's no room: it's kept, in no place.
+    // Put by hand where there's no room: it goes where there's room, or is left.
     const put = run(s, { type: 'addItem', item: { ...give('stone'), place: 'back' } })
     expect(put.state.items!.at(-1)).toMatchObject({ key: 'stone', place: 'back' })
     const full = run(put.state, { type: 'addItem', item: { ...give('stone'), place: 'back' } })
-    expect(full.state.items!.find((i) => i.key === 'stone-2')?.place).toBeUndefined()
-    expect(full.events).toContainEqual({
-      type: 'ITEM_NO_ROOM',
-      character: 'mira',
-      item: 'stone',
-      place: 'back',
+    expect(full.state.items!.find((i) => i.key === 'stone-2')?.place).toBe('hands')
+    const none = run(full.state, { type: 'addItem', item: { ...give('stone'), place: 'back' } })
+    expect(none.state.items).toEqual(full.state.items)
+    expect(none.events).toEqual([{ type: 'ITEM_LEFT', character: 'mira', item: 'stone', count: 1 }])
+  })
+})
+
+describe('a total room', () => {
+  const porter = parseSheet({
+    kind: 'sheet',
+    id: 'porter',
+    values: {
+      strength: { default: 2 },
+      load: { from: { sum: 'items.weight' } },
+    },
+    items: {
+      fields: { weight: { default: 1, min: 0 } },
+      places: { back: { room: 10, over: 'allow' } },
+      size: 'weight',
+      room: '{{self.values.strength * 2}}',
+      over: 'refuse',
+    },
+  }).sheet!
+  const gear = lookupItems([
+    {
+      id: 'test/gear',
+      def: parseCatalogue({
+        kind: 'items',
+        id: 'gear',
+        items: { rock: { weight: 1 }, bag: { weight: 0, holds: { room: 9 } } },
+      }).catalogue!,
+    },
+  ])
+  const run = (s: CharacterState, action: Parameters<typeof applyCharacter>[2]) =>
+    applyCharacter(porter, s, action, { items: gear })
+
+  it('is read, and its variables checked', () => {
+    expect(
+      parseSheet({ kind: 'sheet', id: 'x', items: { room: '{{self.values.nope}}' } }).errors,
+    ).not.toEqual([])
+    expect(parseSheet({ kind: 'sheet', id: 'x', items: { full: 'drop' } }).errors[0]).toMatch(
+      /^items\.full/,
+    )
+  })
+
+  it('counts everything carried, inside containers too, and refuses what goes over', () => {
+    let s = createCharacter(porter, 'test/porter', { id: 'oti' })
+    s = run(s, { type: 'change', effects: { 'items.bag': 1 } }).state
+    s = run(s, {
+      type: 'addItem',
+      item: { id: 'rock', count: 3, place: 'bag', fields: { weight: 1 } },
+    }).state
+    expect(carriedOf(porter.items, s)).toEqual({ room: 4, used: 3, refuses: true })
+    const more = run(s, { type: 'change', effects: { 'items.rock': 3 } })
+    expect(countOf(more.state, 'rock')).toBe(4)
+    expect(more.events).toContainEqual({
+      type: 'ITEM_LEFT',
+      character: 'oti',
+      item: 'rock',
+      count: 2,
     })
+    expect(characterFacts(more.state, porter).carried).toEqual({ room: 4, used: 4 })
+    // A room that grows takes more; moving what's carried never counts twice.
+    s = run(more.state, { type: 'change', effects: { 'values.strength': 1 } }).state
+    s = run(s, { type: 'moveItem', key: 'rock', place: 'back' }).state
+    s = run(s, { type: 'change', effects: { 'items.rock': 5 } }).state
+    expect(countOf(s, 'rock')).toBe(6)
+  })
+
+  it('shares out a gain to whoever has room, and leaves the rest', () => {
+    const a = createCharacter(porter, 'test/porter', { id: 'a', values: { strength: 1 } })
+    const b = createCharacter(porter, 'test/porter', { id: 'b', values: { strength: 2 } })
+    const shared = shareItems(() => porter, [a, b], 'rock', 9, 'even', { items: gear })
+    expect(shared.moved).toEqual({ a: 2, b: 4 })
+    expect(shared.left).toBe(3)
+    const ordered = shareItems(() => porter, [a, b], 'rock', 3, 'order', { items: gear })
+    expect(ordered.moved).toEqual({ a: 2, b: 1 })
+    // Nobody has room, and a sheet that asks takes it, to make room for.
+    const asking = { ...porter, items: { ...porter.items!, full: 'ask' as const } }
+    const loose = shareItems(() => asking, [a, b], 'rock', 9, 'even', { items: gear })
+    expect(loose.left).toBe(0)
+    expect(loose.members.some(waitsForRoom)).toBe(true)
   })
 })

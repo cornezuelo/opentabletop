@@ -2,12 +2,12 @@ import { loadPacks } from '@open-tabletop/oracle-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { itemFromCatalogue, lookupItems } from '@open-tabletop/character-engine'
 import { describe, expect, it } from 'vitest'
-import { characterFromOtd, characterToOtd, newMember } from './party'
+import { characterFromOtd, characterToOtd, newMember, waitingForRoom } from './party'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
 /** A system whose companions carry items from its catalogue: torches burn, packs fill. */
 const PACK = [
-  { path: 'delve/pack.yaml', content: 'id: delve\nversion: 0.1.0\nlocale: en\nformat: 9\n' },
+  { path: 'delve/pack.yaml', content: 'id: delve\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
   {
     path: 'delve/system.yaml',
     content:
@@ -146,5 +146,56 @@ describe('items in a trip', () => {
     const m = kael()
     m.places = { tail: { name: 'Tail', tags: ['hand'] } }
     expect(characterFromOtd(characterToOtd(m))).toEqual(m)
+  })
+})
+
+describe('room in all', () => {
+  /** The same system, its delvers carrying 3 in all, and what doesn't fit left or asked for. */
+  const strict = (full: string) => {
+    const pack = PACK.map((f) =>
+      f.path === 'delve/sheet.yaml'
+        ? { ...f, content: f.content + `  room: 3\n  over: refuse\n  full: ${full}\n` }
+        : f,
+    )
+    return travelSystems(loadPacks(pack).registry).systems.find((s) => s.id === 'delve')!
+  }
+
+  it('leaves behind what has no room, said in the journal; reads what is carried', () => {
+    const system = strict('leave')
+    const { session } = startTrip({ system, location: 'a', time: 8 * 60, members: [kael()] })
+    expect(tripFacts({ system, world }, session)).toMatchObject({
+      characters: { kael: { carried: { room: 3, used: 1 } } },
+    })
+    const done = stepTrip({ system, world }, session, { type: 'action', id: 'scavenge' })
+    expect(done.state.members![0].items!.map((i) => [i.id, i.count])).toEqual([
+      ['torch', 1],
+      ['rope', 2],
+    ])
+    const hauled = stepTrip({ system, world }, done.state, { type: 'action', id: 'haul' })
+    expect(hauled.state.members![0].items!.some((i) => i.id === 'anvil')).toBe(false)
+    expect(hauled.entries.find((e) => e.code === 'ITEM_LEFT')?.data).toEqual({
+      path: 'characters.kael.items.anvil',
+      count: 1,
+    })
+    // Nothing waits: the trip goes on.
+    const on = stepTrip({ system, world }, hauled.state, { type: 'wait', until: 10 * 60 })
+    expect(on.state.travel.time).toBe(10 * 60)
+  })
+
+  it('keeps it waiting when the sheet asks, and the trip waits till room is made', () => {
+    const system = strict('ask')
+    const { session } = startTrip({ system, location: 'a', time: 8 * 60, members: [kael()] })
+    const hauled = stepTrip({ system, world }, session, { type: 'action', id: 'haul' })
+    expect(hauled.state.members![0].items!.find((i) => i.id === 'anvil')).toMatchObject({
+      loose: true,
+    })
+    expect(hauled.entries.find((e) => e.code === 'ITEM_LOOSE')?.data).toEqual({
+      path: 'characters.kael.items.anvil',
+      count: 1,
+    })
+    expect(waitingForRoom(hauled.state)).toEqual(['kael'])
+    const held = stepTrip({ system, world }, hauled.state, { type: 'wait', until: 10 * 60 })
+    expect(held.state.travel.time).toBe(8 * 60)
+    expect(held.entries).toEqual([])
   })
 })

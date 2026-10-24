@@ -10,10 +10,10 @@ A character **has items**, each with **how many** (a count), and, when the sheet
 - **Fields, declared by the sheet.** The sheet's **Fields of every item** are numbers like values, with bounds and how they're shown. A field that **Runs out** (a torch's uses) uses one item up when it reaches its min: the count goes down and the next starts again at its number; the last one is gone. One that doesn't stays empty (a lantern without oil).
 - **Places, for any body.** The sheet may declare **places** (hands, body, belt, back; a three-headed beast's three heads), each with **tags** and **room**. An item says where it **Fits** by the place's tags (`place.tags: worn` for a mail shirt), never by its name, so the same catalogue serves any body. On the card, an item is moved by dragging its handle (⠿) onto a place, or by picking the place; only the places it fits are offered (hold Shift as you drop it to move only one of a stack). Without places, items are one list.
 - **Containers.** An item that **Holds** something is a place too (a backpack, saddlebags): items go inside it if they fit its tags, and they go with it (dropping the backpack drops what's in it).
-- **Room** is counted with the field the sheet names in **What fills a place** (slots × how many), or one per item. By default a place over its room only shows its count in red, and the system says what it means, with a condition (below). A sheet (or a place, or a container) whose **Over its room** is `refuse` takes nothing that hasn't room left: the card offers no full place and a move there is refused; what an effect gives goes to the first place it fits with room (then a container with room, then a place that allows more), or, with none, stays with the character in no place, and the journal says _no room left for it_. [A hard limit](#a-hard-limit) below.
+- **Room** is counted with the field the sheet names in **What fills a place** (slots × how many), or one per item. By default a place over its room only shows its count in red, and the system says what it means, with a condition (below). A sheet (or a place, or a container) whose **Over its room** is `refuse` takes nothing that hasn't room left: the card offers no full place and a move there is refused; what an effect gives goes to the first place it fits with room (then a container with room, then a place that allows more). A sheet's **Room in all** counts everything a character carries. What still has no room is left behind, or waits on the card for the player, as **When it doesn't fit** says. [Limits to carrying](#limits-to-carrying) below.
 - **What having it does** is written with the pieces sheets and rules already have: a value **Made of** the items (`{ sum: items.slots }`: the load; `{ max: items.armour, where: { place.tags: worn } }`: the armour worn), a condition that **Holds while** the load is over the capacity (it blocks what it lists), a party stat that counts who carries a rope (`from: { count: true, when: { items.tags: climbing } }`), a table that reads it (`'1d6 + {{min(party.stats.roped, 1)}}'`).
 - **Effects give and take them**, by the item's id: `acting.items.torch: -1` (one fewer, from the last ones first), `party.members.items.torch.uses: -1` (an hour of everyone's torch), `acting.items.sword-of-keld: 1` (one more; from the catalogue when the character has none). A field of an item the character doesn't have changes nothing; an item no catalogue has can't be given, and the journal says so.
-- **Tables and conditions read them**: `characters.kael.items.torch.count` (how many), `acting.items.torch.uses` (the first one's), `acting.items.tags: light` (carries something tagged light), `acting.places.pack.used` and `.room`. All of them: [What tables see](../technical/04-what-tables-see.md#characters).
+- **Tables and conditions read them**: `characters.kael.items.torch.count` (how many), `acting.items.torch.uses` (the first one's), `acting.items.tags: light` (carries something tagged light), `acting.places.pack.used` and `.room`, `acting.carried.used` (all of it, against the **Room in all**). All of them: [What tables see](../technical/04-what-tables-see.md#characters).
 
 ## The tab
 
@@ -75,9 +75,18 @@ And the system names the catalogue (`items: [items.gear]` in its `kind: system`)
 
 The Grey Marches carry gear on four places of a body (a rope that helps at the ford, torches that burn on night marches, a backpack, a mail shirt, the Sword of Keld from a hoard): their [page](../packs/02-grey-marches.md). Core's catalogue is the smallest: three items and no fields ([Core](../packs/01-core.md)).
 
-## A hard limit
+## Limits to carrying
 
-Some games let a character carry only so much, and not one thing more: a load that slows them past one line and stops at another. With **Over its room** `refuse`, a place takes nothing that hasn't room left, so the second line is a place whose **Room** is the most a character can carry, and the first a condition. With made-up numbers (any game's are its own):
+Games limit what a character carries in four ways, and each is written with what sheets already have (made-up numbers: any game's are its own):
+
+- **A hard total**: so much in all, and not one thing more. The sheet's **Room in all** (`room: '{{self.values.capacity}}'`) with **Over its room** `refuse`: everything counts, containers' contents too, and nothing goes in past it.
+- **Hard per place**: hands hold two things, a belt one. Each place's **Room** with **Over its room** `refuse`.
+- **Soft, with a price**: carry anything, but slowed. A load **Made of** the items, with no **Max**, **Shown against** the capacity, and a condition that **Holds while** it's over (`self.values.load: { gt: '{{self.values.capacity}}' }`) and **Blocks** what it costs.
+- **Both**: slowed past one line, stopped at another. The condition of the soft limit, and a **Room in all** larger than it (`'{{self.values.capacity * 2}}'`).
+
+What an effect gives where something refuses goes in as far as it fits (place after place); **When it doesn't fit** says what becomes of the rest: **leave** (the default) leaves it behind, said in the journal (_no room left for 2, left behind_); **ask** keeps it on the character's card, marked in no place, and the trip waits until the player drops something or moves it to a place. A card never adds by hand what has no room. A gain of the party's goes first to whoever has room for it.
+
+The last, with every piece:
 
 ```yaml
 # sheet.yaml: an excerpt (a soldier's sheet; its other values stay)
@@ -105,13 +114,15 @@ items:
     carry: { name: Helps to carry, default: 0, min: 0 }
   places:
     worn: { name: Worn, tags: [worn], room: 2 }
-    # Up to twice the capacity, never more.
-    carried: { name: Carried, tags: [carried], room: '{{self.values.capacity * 2}}' }
   size: weight
+  # Up to twice the capacity in all, never more.
+  room: '{{self.values.capacity * 2}}'
   over: refuse
+  # What's found past it waits for the player to drop something.
+  full: ask
 ```
 
-Over the capacity the soldier is _Encumbered_ (no sprinting) and the bar turns amber; at twice it, the bar is red and **Carried** takes nothing more: the card offers it no longer, and what a table gives with no room left stays in no place, said in the journal. A vehicle or a pack animal is a container with a room of its own (`holds: { room: 40, tags: [cargo] }`), or `over: allow` where it may be crammed.
+Over the capacity the soldier is _Encumbered_ (no sprinting) and the bar turns amber; at twice it, the bar is red and nothing more goes in: the card adds nothing more, and what a table gives waits on the card, the trip with it, till something is dropped. Tables read it as `acting.carried.used` and `acting.carried.room`. A vehicle or a pack animal is a container with a room of its own (`holds: { room: 40, tags: [cargo] }`), or `over: allow` where it may be crammed (what's inside still counts in all).
 
 ## Common mistakes
 
@@ -121,6 +132,7 @@ Over the capacity the soldier is _Encumbered_ (no sprinting) and the bar turns a
 - **A place always over its room.** **What fills a place** counts that field × the count: a field with no default counts 0, and without it each item counts 1.
 - **An effect on `items.torch` that gives nothing.** Giving an item needs a catalogue of the system with that id; the journal says _no catalogue of the system has this item_. Take it from the catalogue's list, or name the catalogue in the **Overview**.
 - **Expecting the engine to refuse a full pack.** Room is only shown unless the sheet (or the place, or the container) says **Over its room** `refuse`; otherwise say what being over means with a condition that **Holds while** (`self.places.pack.used: { gt: 6 }`) and what it **Blocks**.
-- **Gear that ends up in no place.** With `refuse`, what an effect gives with no room left anywhere it fits goes in no place: make room, or let a container take more (`holds: { …, over: allow }`). A container copied from a catalogue onto a character keeps what it said then: drop it and add it again from the catalogue.
+- **Gear left behind, or a trip that won't go on.** With `refuse`, what an effect gives with no room left anywhere it fits is left behind, or (**When it doesn't fit** `ask`) waits on the card, marked, and the trip waits with it: drop something or move it to a place; or let a container take more (`holds: { …, over: allow }`). A container copied from a catalogue onto a character keeps what it said then: drop it and add it again from the catalogue.
+- **A Room in all that takes nothing.** It reads the sheet's values as they are (`'{{self.values.capacity}}'`): a capacity made of others is worked out first, but one at 0 gives no room. With no **What fills a place**, each item counts one.
 - **A stack that won't move.** A whole stack needs room for all of it: hold Shift as you drop it to move one at a time.
 - **`tags` as an item's id.** `items.tags` reads every tag of every item: no item may be called `tags`.

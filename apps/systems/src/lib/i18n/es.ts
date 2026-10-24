@@ -327,8 +327,16 @@ export const es: Messages<typeof en> = {
     shareEven: 'even (por defecto)',
     over: 'Más de lo que cabe',
     overHelp:
-      "Si un lugar con **Sitio** admite más de lo que le cabe:\n• **allow** (por defecto): su sitio solo se muestra, y se pone en rojo cuando se pasa; una condición dice qué supone pasarse (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: no entra nada que no tenga sitio. Las tarjetas de los personajes no ofrecen lugares llenos, se rechaza moverlo ahí y lo que dé un efecto sin sitio en ninguna parte se queda con el personaje sin lugar, con una línea en el diario\nEn la hoja vale para todos los lugares; cada lugar puede decir otra cosa en su propia columna (una mochila que admite más, unas manos que no). Si el sitio encoge después, lo que ya hay se queda.",
+      "Si un lugar con **Sitio** admite más de lo que le cabe:\n• **allow** (por defecto): su sitio solo se muestra, y se pone en rojo cuando se pasa; una condición dice qué supone pasarse (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: no entra nada que no tenga sitio. Las tarjetas de los personajes no ofrecen lugares llenos, se rechaza moverlo ahí y lo que dé un efecto va adonde haya sitio; si no hay, **Si no cabe** dice qué pasa con ello\nEn la hoja vale para todos los lugares y para el **Sitio en total**; cada lugar puede decir otra cosa en su propia columna (una mochila que admite más, unas manos que no). Si el sitio encoge después, lo que ya hay se queda.",
     overAllow: 'allow (por defecto)',
+    roomAll: 'Sitio en total',
+    roomAllHelp:
+      "Cuánto lleva un personaje en total, además del sitio de cada lugar, medido con **Lo que ocupa un lugar** sobre todo lo que tiene (también lo que va dentro de contenedores y en ningún lugar). Un número, o los valores de la hoja entre llaves. Con **Más de lo que cabe** `refuse`, no entra nada más pasado ese sitio (cada lugar puede seguir admitiendo más del suyo). Las tablas lo leen como `self.carried.room`, y lo que lleva como `self.carried.used`.\n• `'{{self.values.capacity}}'` — no más que la capacidad\n• `'{{self.values.capacity * 2}}'` — más lento pasada la capacidad (una condición), parado al doble\n• `10`\nVacío: sin sitio en total; solo cuentan los lugares.",
+    roomAllNone: 'ninguno',
+    fullLeave: 'leave (por defecto)',
+    full: 'Si no cabe',
+    fullHelp:
+      'Qué pasa con un objeto que da un efecto (lo que encuentra una tabla, la parte de lo que gana el grupo) cuando no le queda sitio, si un lugar o el **Sitio en total** no admite más. Entran tantos como quepan; el resto:\n• **leave** (por defecto): se queda atrás, y lo dice el diario\n• **ask**: espera en la tarjeta del personaje, en ningún lugar, y el viaje espera a que el jugador haga sitio (soltando algo, o moviéndolo a un lugar)\nLa tarjeta de un personaje nunca añade a mano lo que no tiene sitio.',
     overSheet: 'el de la hoja',
     start: 'Empieza con',
     startHelp:

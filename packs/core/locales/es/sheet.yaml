@@ -3,7 +3,7 @@ sheet/character:
   description: |-
     Un personaje de las reglas genéricas: su salud, el daño recibido, si está herido y si ha caído.
 
-    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra, otro que sale de él (`from:`), un estado que ponen los efectos y otro que se cumple por sí solo (`when:`).
+    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra, otro que sale de él (`from:`), un estado que ponen los efectos y otro que se cumple por sí solo (`when:`), y un sitio en total para lo que lleva (`items.room`, diez cosas, no más).
   values:
     health:
       name: Salud
