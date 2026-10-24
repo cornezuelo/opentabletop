@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-24
+
 ### Apps
 
 - Oracle, Hexmapper: **Filter** the list of what you roll by kind and by the tags packs give their definitions: a click on a tag shows only what has it, a second only what hasn't it (`−rules` leaves what you'd roll by hand), a third forgets it; this browser remembers it, in both apps. The Oracle's editor has **Tags**.
